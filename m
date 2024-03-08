@@ -1,230 +1,223 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B2D65E09A;
-	Fri,  8 Mar 2024 14:19:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 621271C10;
+	Fri,  8 Mar 2024 14:38:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709907572; cv=none; b=b9KpHn5v62ywRWJ06QGSxsEY0D+toT6gr0WAOkE8jYKxl153qP6DS1nkAIcdKBhKoBGtbXSqq1g45SEsSupMkh80eFE+PJ6f6CH9Gj446Ssm/P7WP6mwclD8ObHJIldsfSLZJpnDTwlz1hIN8zrIwY5OyPBIlTMbrI+id2cMNx0=
+	t=1709908702; cv=none; b=e60bnYYML0YEgFvAaM7/mEn5thMb7A3IJRkAyaTRHe33dyCVzmvinIaIEoYd2oaVTl9Sya3xkFNx7Njs9BZ9VKJYeEuJhsgVuvptOsNIGTv9ftXwtNdeQNYEpLmLgZ22SqLFAQhh9qVOpRR3n3sqXGrIs7MkCDllB3MepTL+doE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709907572; c=relaxed/simple;
-	bh=kOYxEEaMHOVfx0vX9WR0taTB0+emJnmrpE5HjLADvco=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=go+73bVDoIDTgvsdOeILYsl0lfS7S7glFBr5sQ1iRlBJSUUqMRtg3jtrbmZQbJx4QmLpqZnM7DROwttyxmksMdadeBzgnQ+rWowxCT0L6enGNM59GA3ZNXrL1JvMC13KnRA0LObFTaSHILQdwi4obKqbtDPZ65saVeJus4ZNOqc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aDpakm7D; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1709908702; c=relaxed/simple;
+	bh=AWU8JZzww9lm6MMcdbopN83Emhpz7ZofASAw35I91Rs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=el40jgx4a9viN94tIXm7t+CtdfgUCUi4ZsB2d8IvAkIFRrV/C06kXSU0ts5p8oAWkQHclHU+HwEA30tZh3n6WmPCcS9bRKmzo/+KONm4UuvUso9InzajHUqdEwLM5qP+794Q5hy+Yonc821ejjzbGzR7EpV5N7kX1C0koqjDrj4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=marliere.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b=AMkyxkhp; arc=none smtp.client-ip=209.85.215.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=marliere.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aDpakm7D"
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 428Dv11h009389;
-	Fri, 8 Mar 2024 14:19:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=mime-version : date :
- from : to : cc : subject : reply-to : in-reply-to : references :
- message-id : content-type : content-transfer-encoding; s=pp1;
- bh=GvExlI5QRvQGi2jlPYy9ptuyzGEchZAeDh1QtaQuKR8=;
- b=aDpakm7DgD+zRFXCTsibSx+cUjRcpgVcQBuxDmfqCi3xMIRbmojqsQT9/7UlXON0aFY2
- 4YepqQaCX58HcaFvCkpK22BxSZfZyE6i7r711cTNCFzn902w0+RvhI9oG0IsUZ8VLICz
- Xc9eDYtx0c9lpaB/XLlMyj5yUa2qPTgSQ3EVMtIfNmVy82l3M1/N9t0QOUAZEw6CndVP
- mne6ACLyM2zMeRTPLWpZ5nxNaij7CcieEHxprmiqxiBPEfplZwK610LuTjPjglPLPo3C
- +m4KVM5u5yaLXx2sDC4pefSPcIkA3g9FIRhPGwe3wD7SqjEWWisaK1okpc3F369fP1xm hw== 
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wr40r0bhc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Mar 2024 14:19:19 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 428DZCW9010881;
-	Fri, 8 Mar 2024 14:19:19 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wmh52vd0j-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Mar 2024 14:19:19 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 428EJFb439780666
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 8 Mar 2024 14:19:17 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5313858061;
-	Fri,  8 Mar 2024 14:19:15 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DDB655803F;
-	Fri,  8 Mar 2024 14:19:14 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  8 Mar 2024 14:19:14 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b="AMkyxkhp"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-5e42b4bbfa4so614424a12.1;
+        Fri, 08 Mar 2024 06:38:20 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709908699; x=1710513499;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:dkim-signature:date:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=+L02QjpMQRZ069rkHNYFfs2NyDQEigdeN50RLq0y49c=;
+        b=LfjR1hyyRg/668taFQ345FxdZA6neNxN1ifHaPRY0xhUJt2cM+KJcBnY1idLW3V3OX
+         uqOmWwbYJ6Z3vHGQUHZud1Rz3rJDOXjFZWfd6ezpgZZ0xnfD0GBP4r5cGe+2HK1aLzLg
+         le9bEmQNc2KT3y3NDezPskXGo66wygGLlVoVd6/1FdQ+9hdw2ulb/wGV3CSzzhpDlAat
+         aByfBemQ436MyyrwSlBRxEukhXG0Rq64w68VCYwmkDcX3dVNfqdnjaLJIka9A3CRcWNR
+         10Z6rrk45Es2PaWXbg7bi2NStYdt1sanPcXtP127a2mclh9pYjC8/h1BcvHocMesaoua
+         +D7g==
+X-Forwarded-Encrypted: i=1; AJvYcCUauDwvUjmX4stuWKXCXoJPBTJrgJmCjBnhkk0jOncSVAL/4SyKo+zhAgUc4mxSfhPrAs4TlgnBCFBXS9OAOUi8TybCiYX2xMXEoV6q4AF0HdM8B5dVu2XBCgfk0CxArDDzGtNREz4BTg==
+X-Gm-Message-State: AOJu0Yzyw9pUMZYiJLdj+sbhopdb0FjMoPVg4If7fZQd4F/CMjtWbdew
+	04KIH4OMcBWY3cwMJKl9MiWsi7yQqMSai6VEVaEGjq/svSd9raRnueLXwI95DrQZfg==
+X-Google-Smtp-Source: AGHT+IGd9CcgNL4AyW+WdK1pSzf58ougf2hPga9oEH4y7yiPLhfFX9Y6k+Hn9V1sgO0e8Mce7n34ng==
+X-Received: by 2002:a05:6a20:2e26:b0:1a1:4b57:4e9b with SMTP id be38-20020a056a202e2600b001a14b574e9bmr8979143pzb.60.1709908699406;
+        Fri, 08 Mar 2024 06:38:19 -0800 (PST)
+Received: from mail.marliere.net ([24.199.118.162])
+        by smtp.gmail.com with ESMTPSA id s68-20020a635e47000000b005b458aa0541sm14184838pgb.15.2024.03.08.06.38.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Mar 2024 06:38:18 -0800 (PST)
+Date: Fri, 8 Mar 2024 11:38:14 -0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marliere.net;
+	s=2024; t=1709908697;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+L02QjpMQRZ069rkHNYFfs2NyDQEigdeN50RLq0y49c=;
+	b=AMkyxkhp27aNrIpRbxDO2+so1h6RG8mwZo2r2cRTZlI5s3Htzy4B5Gd8KGyIgOGp+9LJ0R
+	v7cP1ifymhhZw2/CYPzi8y9ucatTr7hBe26TweqWUynh0dveVG2pOgyPAyg44H661ux84f
+	A5X9LxVCtOYCW59y9bKuXYG9o8PumUXw5gPgbDDV5tBZtn1/bBuKM9EkT3sFdytjNj9Aon
+	FHqX4OdDba8go4W+smrmBPbf0e7GKwkMtas0xvBnGkbc+A8Fe2s8VkAFI7eEnXD5T6vbo+
+	jXodc4j19vm8VpPSUhtlR/FEAkfD6W9VkqMQP+HDzFbER/NiNUiUYxGtVkoZ1A==
+Authentication-Results: ORIGINATING;
+	auth=pass smtp.auth=ricardo@marliere.net smtp.mailfrom=ricardo@marliere.net
+From: "Ricardo B. Marliere" <ricardo@marliere.net>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 1/6] s390: zcrypt: make zcrypt_class constant
+Message-ID: <nh5d7ock5gb4zttfmq354si3iewm4u2zxqquzg3erl55jxjhuo@5yveroq4li4s>
+References: <20240305-class_cleanup-s390-v1-0-c4ff1ec49ffd@marliere.net>
+ <20240305-class_cleanup-s390-v1-1-c4ff1ec49ffd@marliere.net>
+ <84263def1d38584cd83558a33bb52f22@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Fri, 08 Mar 2024 15:19:14 +0100
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: "Ricardo B. Marliere" <ricardo@marliere.net>,
-        Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman
- <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 1/6] s390: zcrypt: make zcrypt_class constant
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <20240305-class_cleanup-s390-v1-1-c4ff1ec49ffd@marliere.net>
-References: <20240305-class_cleanup-s390-v1-0-c4ff1ec49ffd@marliere.net>
- <20240305-class_cleanup-s390-v1-1-c4ff1ec49ffd@marliere.net>
-Message-ID: <84263def1d38584cd83558a33bb52f22@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 9WJtshnj7cPM-7fJM6NVdOkIhjZ1COWE
-X-Proofpoint-GUID: 9WJtshnj7cPM-7fJM6NVdOkIhjZ1COWE
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-08_08,2024-03-06_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 mlxlogscore=999 impostorscore=0 malwarescore=0 phishscore=0
- mlxscore=0 lowpriorityscore=0 clxscore=1011 adultscore=0 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2403080114
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <84263def1d38584cd83558a33bb52f22@linux.ibm.com>
 
-On 2024-03-05 12:25, Ricardo B. Marliere wrote:
-> Since commit 43a7206b0963 ("driver core: class: make class_register() 
-> take
-> a const *"), the driver core allows for struct class to be in read-only
-> memory, so move the zcrypt_class structure to be declared at build time
-> placing it into read-only memory, instead of having to be dynamically
-> allocated at boot time.
+On  8 Mar 15:19, Harald Freudenberger wrote:
+> On 2024-03-05 12:25, Ricardo B. Marliere wrote:
+> > Since commit 43a7206b0963 ("driver core: class: make class_register()
+> > take
+> > a const *"), the driver core allows for struct class to be in read-only
+> > memory, so move the zcrypt_class structure to be declared at build time
+> > placing it into read-only memory, instead of having to be dynamically
+> > allocated at boot time.
+> > 
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
+> > ---
+> >  drivers/s390/crypto/zcrypt_api.c | 33 +++++++++++++++++----------------
+> >  1 file changed, 17 insertions(+), 16 deletions(-)
+> > 
+> > diff --git a/drivers/s390/crypto/zcrypt_api.c
+> > b/drivers/s390/crypto/zcrypt_api.c
+> > index e8742757085b..d0358bb6ccf2 100644
+> > --- a/drivers/s390/crypto/zcrypt_api.c
+> > +++ b/drivers/s390/crypto/zcrypt_api.c
+> > @@ -116,7 +116,11 @@ EXPORT_SYMBOL(zcrypt_msgtype);
+> > 
+> >  struct zcdn_device;
+> > 
+> > -static struct class *zcrypt_class;
+> > +static void zcdn_device_release(struct device *dev);
+> > +static const struct class zcrypt_class = {
+> > +	.name = ZCRYPT_NAME,
+> > +	.dev_release = zcdn_device_release,
+> > +};
+> >  static dev_t zcrypt_devt;
+> >  static struct cdev zcrypt_cdev;
+> > 
+> > @@ -139,7 +143,7 @@ static int zcdn_destroy(const char *name);
+> >   */
+> >  static inline struct zcdn_device *find_zcdndev_by_name(const char
+> > *name)
+> >  {
+> > -	struct device *dev = class_find_device_by_name(zcrypt_class, name);
+> > +	struct device *dev = class_find_device_by_name(&zcrypt_class, name);
+> > 
+> >  	return dev ? to_zcdn_dev(dev) : NULL;
+> >  }
+> > @@ -151,7 +155,7 @@ static inline struct zcdn_device
+> > *find_zcdndev_by_name(const char *name)
+> >   */
+> >  static inline struct zcdn_device *find_zcdndev_by_devt(dev_t devt)
+> >  {
+> > -	struct device *dev = class_find_device_by_devt(zcrypt_class, devt);
+> > +	struct device *dev = class_find_device_by_devt(&zcrypt_class, devt);
+> > 
+> >  	return dev ? to_zcdn_dev(dev) : NULL;
+> >  }
+> > @@ -405,7 +409,7 @@ static int zcdn_create(const char *name)
+> >  		goto unlockout;
+> >  	}
+> >  	zcdndev->device.release = zcdn_device_release;
+> > -	zcdndev->device.class = zcrypt_class;
+> > +	zcdndev->device.class = &zcrypt_class;
+> >  	zcdndev->device.devt = devt;
+> >  	zcdndev->device.groups = zcdn_dev_attr_groups;
+> >  	if (name[0])
+> > @@ -2067,12 +2071,9 @@ static int __init zcdn_init(void)
+> >  	int rc;
+> > 
+> >  	/* create a new class 'zcrypt' */
+> > -	zcrypt_class = class_create(ZCRYPT_NAME);
+> > -	if (IS_ERR(zcrypt_class)) {
+> > -		rc = PTR_ERR(zcrypt_class);
+> > +	rc = class_register(&zcrypt_class);
+> > +	if (rc)
+> >  		goto out_class_create_failed;
+> > -	}
+> > -	zcrypt_class->dev_release = zcdn_device_release;
+> > 
+> >  	/* alloc device minor range */
+> >  	rc = alloc_chrdev_region(&zcrypt_devt,
+> > @@ -2088,35 +2089,35 @@ static int __init zcdn_init(void)
+> >  		goto out_cdev_add_failed;
+> > 
+> >  	/* need some class specific sysfs attributes */
+> > -	rc = class_create_file(zcrypt_class, &class_attr_zcdn_create);
+> > +	rc = class_create_file(&zcrypt_class, &class_attr_zcdn_create);
+> >  	if (rc)
+> >  		goto out_class_create_file_1_failed;
+> > -	rc = class_create_file(zcrypt_class, &class_attr_zcdn_destroy);
+> > +	rc = class_create_file(&zcrypt_class, &class_attr_zcdn_destroy);
+> >  	if (rc)
+> >  		goto out_class_create_file_2_failed;
+> > 
+> >  	return 0;
+> > 
+> >  out_class_create_file_2_failed:
+> > -	class_remove_file(zcrypt_class, &class_attr_zcdn_create);
+> > +	class_remove_file(&zcrypt_class, &class_attr_zcdn_create);
+> >  out_class_create_file_1_failed:
+> >  	cdev_del(&zcrypt_cdev);
+> >  out_cdev_add_failed:
+> >  	unregister_chrdev_region(zcrypt_devt, ZCRYPT_MAX_MINOR_NODES);
+> >  out_alloc_chrdev_failed:
+> > -	class_destroy(zcrypt_class);
+> > +	class_unregister(&zcrypt_class);
+> >  out_class_create_failed:
+> >  	return rc;
+> >  }
+> > 
+> >  static void zcdn_exit(void)
+> >  {
+> > -	class_remove_file(zcrypt_class, &class_attr_zcdn_create);
+> > -	class_remove_file(zcrypt_class, &class_attr_zcdn_destroy);
+> > +	class_remove_file(&zcrypt_class, &class_attr_zcdn_create);
+> > +	class_remove_file(&zcrypt_class, &class_attr_zcdn_destroy);
+> >  	zcdn_destroy_all();
+> >  	cdev_del(&zcrypt_cdev);
+> >  	unregister_chrdev_region(zcrypt_devt, ZCRYPT_MAX_MINOR_NODES);
+> > -	class_destroy(zcrypt_class);
+> > +	class_unregister(&zcrypt_class);
+> >  }
+> > 
+> >  /*
 > 
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
-> ---
->  drivers/s390/crypto/zcrypt_api.c | 33 
-> +++++++++++++++++----------------
->  1 file changed, 17 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/zcrypt_api.c 
-> b/drivers/s390/crypto/zcrypt_api.c
-> index e8742757085b..d0358bb6ccf2 100644
-> --- a/drivers/s390/crypto/zcrypt_api.c
-> +++ b/drivers/s390/crypto/zcrypt_api.c
-> @@ -116,7 +116,11 @@ EXPORT_SYMBOL(zcrypt_msgtype);
-> 
->  struct zcdn_device;
-> 
-> -static struct class *zcrypt_class;
-> +static void zcdn_device_release(struct device *dev);
-> +static const struct class zcrypt_class = {
-> +	.name = ZCRYPT_NAME,
-> +	.dev_release = zcdn_device_release,
-> +};
->  static dev_t zcrypt_devt;
->  static struct cdev zcrypt_cdev;
-> 
-> @@ -139,7 +143,7 @@ static int zcdn_destroy(const char *name);
->   */
->  static inline struct zcdn_device *find_zcdndev_by_name(const char 
-> *name)
->  {
-> -	struct device *dev = class_find_device_by_name(zcrypt_class, name);
-> +	struct device *dev = class_find_device_by_name(&zcrypt_class, name);
-> 
->  	return dev ? to_zcdn_dev(dev) : NULL;
->  }
-> @@ -151,7 +155,7 @@ static inline struct zcdn_device
-> *find_zcdndev_by_name(const char *name)
->   */
->  static inline struct zcdn_device *find_zcdndev_by_devt(dev_t devt)
->  {
-> -	struct device *dev = class_find_device_by_devt(zcrypt_class, devt);
-> +	struct device *dev = class_find_device_by_devt(&zcrypt_class, devt);
-> 
->  	return dev ? to_zcdn_dev(dev) : NULL;
->  }
-> @@ -405,7 +409,7 @@ static int zcdn_create(const char *name)
->  		goto unlockout;
->  	}
->  	zcdndev->device.release = zcdn_device_release;
-> -	zcdndev->device.class = zcrypt_class;
-> +	zcdndev->device.class = &zcrypt_class;
->  	zcdndev->device.devt = devt;
->  	zcdndev->device.groups = zcdn_dev_attr_groups;
->  	if (name[0])
-> @@ -2067,12 +2071,9 @@ static int __init zcdn_init(void)
->  	int rc;
-> 
->  	/* create a new class 'zcrypt' */
-> -	zcrypt_class = class_create(ZCRYPT_NAME);
-> -	if (IS_ERR(zcrypt_class)) {
-> -		rc = PTR_ERR(zcrypt_class);
-> +	rc = class_register(&zcrypt_class);
-> +	if (rc)
->  		goto out_class_create_failed;
-> -	}
-> -	zcrypt_class->dev_release = zcdn_device_release;
-> 
->  	/* alloc device minor range */
->  	rc = alloc_chrdev_region(&zcrypt_devt,
-> @@ -2088,35 +2089,35 @@ static int __init zcdn_init(void)
->  		goto out_cdev_add_failed;
-> 
->  	/* need some class specific sysfs attributes */
-> -	rc = class_create_file(zcrypt_class, &class_attr_zcdn_create);
-> +	rc = class_create_file(&zcrypt_class, &class_attr_zcdn_create);
->  	if (rc)
->  		goto out_class_create_file_1_failed;
-> -	rc = class_create_file(zcrypt_class, &class_attr_zcdn_destroy);
-> +	rc = class_create_file(&zcrypt_class, &class_attr_zcdn_destroy);
->  	if (rc)
->  		goto out_class_create_file_2_failed;
-> 
->  	return 0;
-> 
->  out_class_create_file_2_failed:
-> -	class_remove_file(zcrypt_class, &class_attr_zcdn_create);
-> +	class_remove_file(&zcrypt_class, &class_attr_zcdn_create);
->  out_class_create_file_1_failed:
->  	cdev_del(&zcrypt_cdev);
->  out_cdev_add_failed:
->  	unregister_chrdev_region(zcrypt_devt, ZCRYPT_MAX_MINOR_NODES);
->  out_alloc_chrdev_failed:
-> -	class_destroy(zcrypt_class);
-> +	class_unregister(&zcrypt_class);
->  out_class_create_failed:
->  	return rc;
->  }
-> 
->  static void zcdn_exit(void)
->  {
-> -	class_remove_file(zcrypt_class, &class_attr_zcdn_create);
-> -	class_remove_file(zcrypt_class, &class_attr_zcdn_destroy);
-> +	class_remove_file(&zcrypt_class, &class_attr_zcdn_create);
-> +	class_remove_file(&zcrypt_class, &class_attr_zcdn_destroy);
->  	zcdn_destroy_all();
->  	cdev_del(&zcrypt_cdev);
->  	unregister_chrdev_region(zcrypt_devt, ZCRYPT_MAX_MINOR_NODES);
-> -	class_destroy(zcrypt_class);
-> +	class_unregister(&zcrypt_class);
->  }
-> 
->  /*
+> Thanks Ricardo, nice work.
+> The only thing I would do is to rename the label "out_class_create_failed"
+> with "out_class_register_failed".
 
-Thanks Ricardo, nice work.
-The only thing I would do is to rename the label 
-"out_class_create_failed"
-with "out_class_register_failed".
+Ah, indeed. Thanks for catching that. I will wait for more feedback on
+the other patches and send a v2 if required.
 
-Who will pick this patch? As this is part of a bundle of fixes, Richardo
-do you have a way to push this into the kernel? Otherwise as the 
-AP/zcrypt
-maintainer I would pick only this patch and forward it to the s390 
-subsystem.
+> 
+> Who will pick this patch? As this is part of a bundle of fixes, Richardo
+> do you have a way to push this into the kernel? Otherwise as the AP/zcrypt
+> maintainer I would pick only this patch and forward it to the s390
+> subsystem.
 
-Acked-by: Harald Freudenberger <freude@linux.ibm.com>
+I have no ways of pushing this, sorry. The series is based on
+s390/linux.git/for-next, so perhaps the s390 maintainers can pick this
+one along with the others with your Acked-by: provided? :) 
 
+Thank you,
+-	Ricardo.
+
+
+> 
+> Acked-by: Harald Freudenberger <freude@linux.ibm.com>
+> 
