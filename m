@@ -1,97 +1,107 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id A63562C198;
-	Fri,  8 Mar 2024 16:28:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E757A175BE;
+	Fri,  8 Mar 2024 16:49:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709915314; cv=none; b=dGNoNm+Fb2RVz2shwpsXDhrYqb1eBDOalIi9U7cOQkQxGpDmOc6rETVC5NeBBfcOQNVw2lDAPKq2czVxxq7S4poDqoykpZ6FqtJCDv5jlG/a2hiO/Q5G4ldnoyJaf7FUPkzYRoNGPKrUBAj/Ich5HQUDaz0feyVHEHM+jiiWsx4=
+	t=1709916553; cv=none; b=Aya2QnrqQSFUbXGhbVVTDFXu9iFpYNxLhH0VYbacsQ1JAUBJrcYi/0c+IptbStMaKrtdbGYmRbp6wA7rWjErrm658Tcn4n0DiPTQwSFbEpJYT59IB7gVemf78zto3OqdA+F0X79HL7kXp0UWsW/m5I2LokQfcWAacJx2AIwTvYI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709915314; c=relaxed/simple;
-	bh=9j/NHJuOnCijcSwAMnGxtR70JgvZ3zyScIi+TGHHdhc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EZ0BKZg9HeENGwvy/UPk8m6UlPIZHSqbwbUOX/3nt9fQww3uRmh7pS3t2Jk6Zc2nufm95HSVDytp1URYNcz+6j4QRXt7FB0Rzp82qxEcIuIwlZGJ4RwXfOtJO2OscYfBXkaponLlDSddEafECXOFsTBb9Q8vXUqaLswhmEK+tRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 86262C15;
-	Fri,  8 Mar 2024 08:29:08 -0800 (PST)
-Received: from [10.1.196.72] (e119884-lin.cambridge.arm.com [10.1.196.72])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id F2D0F3F73F;
-	Fri,  8 Mar 2024 08:28:25 -0800 (PST)
-Message-ID: <5b2d7341-553d-42f0-977b-404f2da411e9@arm.com>
-Date: Fri, 8 Mar 2024 16:28:23 +0000
+	s=arc-20240116; t=1709916553; c=relaxed/simple;
+	bh=dp4f7tpqFRN9XFjkTecp9FwtbYISiPJKREb/NnDaXg8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XtKaucQjtECEZaU9mP7VpocB7LwBPjAuxqfZw64r4knwJ8azqUAdUQZrl9icsqnmRd7jmdKZfxqim6/yWMiG6DX3tP/fxstHxGbqSKheWKM+du8WW3wjawZ2JlKeKt38EGvkJCxVB++UFE69A63pRx+3TxSPryctr9rctLNHI9U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=marliere.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b=Tfa+BseJ; arc=none smtp.client-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=marliere.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b="Tfa+BseJ"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-1dc13fb0133so7911905ad.3;
+        Fri, 08 Mar 2024 08:49:11 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709916551; x=1710521351;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:dkim-signature:date:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=jQzlRemqcpG/B25dEVwxgd2nqjD2iV1Oc0H8JZ1sMs0=;
+        b=SJImZleCZ4u+vh1HgnHtvoziy9mFDANDwgzCjjiU6MM05+PVhdCbsfdrnyydqAE1Hi
+         nkQQEKx6KJeT/DnnCrsn7+3tfWdjbyTF0S+NSlomiVDleZrn67Vm6RmE92mzYY8Td/YV
+         wbWw/ptSL75AjmuV3jST+P9AbIZA905E3WObU59pq7Do/DtNGlIep/1b8xFxULPHSXzM
+         oj6IUou+X9HKGwf5yAZZVZtAzpS53KrouiX0kKh7e0x3IhM55Jgx22Rmir1Qz++C3NFg
+         IUaHgx2+CzgrTt5GHUbL2DHIOMB2edy0trCIsoFLepuG639PwMdsqKQN5rz2NL6yihRG
+         YB2A==
+X-Forwarded-Encrypted: i=1; AJvYcCVdd3M4o4b77uQ76OQhkAkNTQssFYGLqa7dYjoszBusGy9vtTeGIlnyBZla8XtOKFrHWfomX7tRl3MyqxI6tq1myjWo78hcF7guCJ2Jsnl4xeq9SXb5ETzWwaEJBjRfH8XYeYBq8UV9dg==
+X-Gm-Message-State: AOJu0YwgIqSGW7dh5TGaVjYiHOf/94fKYIn3Y1X6mV5dXz0j3l/tDR5u
+	UqL2Evm7ZGLsYRaMx9MNgezo33SK0S6b8+a1Tg0h0o9oOUaAcVNI
+X-Google-Smtp-Source: AGHT+IFWG1EplbtVMvjGJC2PomQuFgrore7TK9HZk0oyPLTXlVX6SwtEk6/eMj9Sjm7MfkAr8kC9ow==
+X-Received: by 2002:a17:902:d511:b0:1db:be69:d037 with SMTP id b17-20020a170902d51100b001dbbe69d037mr13299032plg.46.1709916550959;
+        Fri, 08 Mar 2024 08:49:10 -0800 (PST)
+Received: from mail.marliere.net ([24.199.118.162])
+        by smtp.gmail.com with ESMTPSA id 2-20020a170902c10200b001dd69a072absm1356614pli.178.2024.03.08.08.49.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Mar 2024 08:49:10 -0800 (PST)
+Date: Fri, 8 Mar 2024 13:49:04 -0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marliere.net;
+	s=2024; t=1709916549;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jQzlRemqcpG/B25dEVwxgd2nqjD2iV1Oc0H8JZ1sMs0=;
+	b=Tfa+BseJHRha3HkgFzAZDzu7GoxGFFkFq1Rl9HUGs+rlI5IHYOSloTFJQhbg4kBBHJm63d
+	2lsM51Wkn+uxJTmhLEG1AsOLybfQ/VLPVS3E2Fg5/aHjvwdW4ShoPBePTDRw+uKYVSChQ1
+	lb/Lk92oO+R06frfzA+cXOgiIiCYpwlPUbSdzz8riwN7U296YB7ACBboMGTjmCjlbhgQzp
+	EMn2Tt4CZR36eFcTrDmRiKOHs3MXS+8NGoHCnYIhdFT5CF1JiDTIrXIQwDt+s6JJ+ml3Hz
+	oqLYg4AdmW0/8ESeMPhEz+mHWVOVu6JrU7U9+TeIHvlOYj+oNxP6JPKCChwg2w==
+Authentication-Results: ORIGINATING;
+	auth=pass smtp.auth=ricardo@marliere.net smtp.mailfrom=ricardo@marliere.net
+From: "Ricardo B. Marliere" <ricardo@marliere.net>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Harald Freudenberger <freude@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 1/6] s390: zcrypt: make zcrypt_class constant
+Message-ID: <lznbxodysy66hssioarbe4ugfezri5dwdyuyvsxgfbbqu4h2xc@7wyzf2txq3ua>
+References: <20240305-class_cleanup-s390-v1-0-c4ff1ec49ffd@marliere.net>
+ <20240305-class_cleanup-s390-v1-1-c4ff1ec49ffd@marliere.net>
+ <84263def1d38584cd83558a33bb52f22@linux.ibm.com>
+ <nh5d7ock5gb4zttfmq354si3iewm4u2zxqquzg3erl55jxjhuo@5yveroq4li4s>
+ <20240308144437.26074-G-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [v2 PATCH 0/3] arch: mm, vdso: consolidate PAGE_SIZE definition
-To: Arnd Bergmann <arnd@kernel.org>,
- Anna-Maria Behnsen <anna-maria@linutronix.de>,
- Thomas Gleixner <tglx@linutronix.de>, Kees Cook <keescook@chromium.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>,
- Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>,
- Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>,
- Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller
- <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Palmer Dabbelt <palmer@dabbelt.com>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Andreas Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>,
- x86@kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
- Andy Lutomirski <luto@kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>,
- Kieran Bingham <kbingham@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
- linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-um@lists.infradead.org
-References: <20240306141453.3900574-1-arnd@kernel.org>
-Content-Language: en-US
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
-In-Reply-To: <20240306141453.3900574-1-arnd@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240308144437.26074-G-hca@linux.ibm.com>
 
+Hi Heiko!
 
+On  8 Mar 15:44, Heiko Carstens wrote:
+> On Fri, Mar 08, 2024 at 11:38:14AM -0300, Ricardo B. Marliere wrote:
+> > > Thanks Ricardo, nice work.
+> > > The only thing I would do is to rename the label "out_class_create_failed"
+> > > with "out_class_register_failed".
+> > 
+> > Ah, indeed. Thanks for catching that. I will wait for more feedback on
+> > the other patches and send a v2 if required.
+> > 
+> > > 
+> > > Who will pick this patch? As this is part of a bundle of fixes, Richardo
+> > > do you have a way to push this into the kernel? Otherwise as the AP/zcrypt
+> > > maintainer I would pick only this patch and forward it to the s390
+> > > subsystem.
+> > 
+> > I have no ways of pushing this, sorry. The series is based on
+> > s390/linux.git/for-next, so perhaps the s390 maintainers can pick this
+> > one along with the others with your Acked-by: provided? :) 
+> 
+> I will pick up the whole series, but need some more time.
+> 
+> There is no need to send a v2 for this patch - I'll change the label as
+> requested by Harald.
 
-On 06/03/2024 14:14, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> Naresh noticed that the newly added usage of the PAGE_SIZE macro in
-> include/vdso/datapage.h introduced a build regression. I had an older
-> patch that I revived to have this defined through Kconfig rather than
-> through including asm/page.h, which is not allowed in vdso code.
-> 
-> The vdso patch series now has a temporary workaround, but I still want to
-> get this into v6.9 so we can place the hack with CONFIG_PAGE_SIZE
-> in the vdso.
-> 
-> I've applied this to the asm-generic tree already, please let me know if
-> there are still remaining issues. It's really close to the merge window
-> already, so I'd probably give this a few more days before I send a pull
-> request, or defer it to v6.10 if anything goes wrong.
-> 
-> Sorry for the delay, I was still waiting to resolve the m68k question,
-> but there were no further replies in the end, so I kept my original
-> version.
-> 
-> Changes from v1:
-> 
->  - improve Kconfig help texts
->  - remove an extraneous line in hexagon
-> 
->       Arnd
->
-
-Thanks Arnd, looks good to me.
-
-Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Thank you for this.
+-	Ricardo
