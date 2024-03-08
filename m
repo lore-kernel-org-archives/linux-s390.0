@@ -1,114 +1,97 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EAFC366;
-	Fri,  8 Mar 2024 16:19:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id A63562C198;
+	Fri,  8 Mar 2024 16:28:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709914782; cv=none; b=HyHewhphFBEt/hr7fmsDVOJGD6XHvhYm8cREpki5zSI5vOZuiv92YXtvOGWUAHbBQ8lh7fRMjVVfG/jP/6xDWjjdsoA2ToPRwU7eSlZQBAfht3xMAqq5aSN9uEfNzuyuA/e9Vfp2bJ3j4x4aogOy4lVCuq0lqe6VwVsFr1Cb8pM=
+	t=1709915314; cv=none; b=dGNoNm+Fb2RVz2shwpsXDhrYqb1eBDOalIi9U7cOQkQxGpDmOc6rETVC5NeBBfcOQNVw2lDAPKq2czVxxq7S4poDqoykpZ6FqtJCDv5jlG/a2hiO/Q5G4ldnoyJaf7FUPkzYRoNGPKrUBAj/Ich5HQUDaz0feyVHEHM+jiiWsx4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709914782; c=relaxed/simple;
-	bh=VwKU32SQzCD7f0r4iWSLv7o1A/bneCJg9/Su2issv1M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=VHCV99WAdJWcnNAiODmZC9AuYpQnClBMYdPPuJMmJALF+9wgPsRIFc/v/NosGxEoqzy5yo0VPHd0/6Ns5D8sJtwPbLOc8LnmGN7k3DjfWZD8s1iisPkZYYW7P/+SPJdghTfa59sVHcxBoCWrRQyEoJQnkMcA/NRCnPTcS+krcC0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=H3mmWpjE; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="H3mmWpjE"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 428G25sS023981;
-	Fri, 8 Mar 2024 16:19:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=8LHt9Nf2yj7BSVusITolUKNG+T02aIoq8SsB6ZGGRTQ=;
- b=H3mmWpjE2w4NLtAacezuptpfd9xJVIYou/ePhmvRSbrJvrjHz7mOgsnNWQCf8EvNETQ7
- PvxdbbEBbdQz0ILrjz0w5kn+hgdLK0Uy8+kVbo4ACvP15FIF1eCMQTyvOzUltynSDBRc
- 5oCVOlxPd8pLev5MM1WPgT+6rbnfCJFxwewVi1dAAWW1dKKMlkujc2dw1HOrGvuauWer
- eCcwKNXhJnzo2ZAJU3qjjnZLGj1CtKAK6f9VBmHfJDnxApFEg6WOVA7nr+n7QeknJpS7
- PEw0mewu3NbT+MLu5GaK7rAaaMUfeAxyS2yGm7WynV7pMlzZJ673fWymS19P0rm6EREJ 9Q== 
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wr5ub0bes-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Mar 2024 16:19:36 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 428DUA44024160;
-	Fri, 8 Mar 2024 16:19:34 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wpjwsrq2w-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Mar 2024 16:19:34 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 428GJTqF11927888
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 8 Mar 2024 16:19:31 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1EAB52004B;
-	Fri,  8 Mar 2024 16:19:29 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8972820040;
-	Fri,  8 Mar 2024 16:19:28 +0000 (GMT)
-Received: from osiris (unknown [9.171.32.39])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  8 Mar 2024 16:19:28 +0000 (GMT)
-Date: Fri, 8 Mar 2024 17:19:27 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: "Ricardo B. Marliere" <ricardo@marliere.net>
-Cc: Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 0/6] s390: constify struct class usage
-Message-ID: <20240308161927.26074-H-hca@linux.ibm.com>
-References: <20240305-class_cleanup-s390-v1-0-c4ff1ec49ffd@marliere.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240305-class_cleanup-s390-v1-0-c4ff1ec49ffd@marliere.net>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MJh3Iq6EtVLnKM7yAa1penUKigB4fh9Z
-X-Proofpoint-GUID: MJh3Iq6EtVLnKM7yAa1penUKigB4fh9Z
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	s=arc-20240116; t=1709915314; c=relaxed/simple;
+	bh=9j/NHJuOnCijcSwAMnGxtR70JgvZ3zyScIi+TGHHdhc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EZ0BKZg9HeENGwvy/UPk8m6UlPIZHSqbwbUOX/3nt9fQww3uRmh7pS3t2Jk6Zc2nufm95HSVDytp1URYNcz+6j4QRXt7FB0Rzp82qxEcIuIwlZGJ4RwXfOtJO2OscYfBXkaponLlDSddEafECXOFsTBb9Q8vXUqaLswhmEK+tRc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 86262C15;
+	Fri,  8 Mar 2024 08:29:08 -0800 (PST)
+Received: from [10.1.196.72] (e119884-lin.cambridge.arm.com [10.1.196.72])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id F2D0F3F73F;
+	Fri,  8 Mar 2024 08:28:25 -0800 (PST)
+Message-ID: <5b2d7341-553d-42f0-977b-404f2da411e9@arm.com>
+Date: Fri, 8 Mar 2024 16:28:23 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-08_08,2024-03-06_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 suspectscore=0 clxscore=1015 priorityscore=1501
- mlxlogscore=805 spamscore=0 mlxscore=0 phishscore=0 adultscore=0
- impostorscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2311290000 definitions=main-2403080131
+User-Agent: Mozilla Thunderbird
+Subject: Re: [v2 PATCH 0/3] arch: mm, vdso: consolidate PAGE_SIZE definition
+To: Arnd Bergmann <arnd@kernel.org>,
+ Anna-Maria Behnsen <anna-maria@linutronix.de>,
+ Thomas Gleixner <tglx@linutronix.de>, Kees Cook <keescook@chromium.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>,
+ Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>,
+ Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>,
+ Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller
+ <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Palmer Dabbelt <palmer@dabbelt.com>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Andreas Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>,
+ x86@kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+ Andy Lutomirski <luto@kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>,
+ Kieran Bingham <kbingham@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org
+References: <20240306141453.3900574-1-arnd@kernel.org>
+Content-Language: en-US
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+In-Reply-To: <20240306141453.3900574-1-arnd@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Mar 05, 2024 at 08:25:18AM -0300, Ricardo B. Marliere wrote:
-> This is a simple and straight forward cleanup series that aims to make the
-> class structures in s390 constant. This has been possible since 2023 [1].
-> 
-> [1]: https://lore.kernel.org/all/2023040248-customary-release-4aec@gregkh/
-> 
-> Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
-> ---
-> Ricardo B. Marliere (6):
->       s390: zcrypt: make zcrypt_class constant
->       s390: vmur: make vmur_class constant
->       s390: vmlogrdr: make vmlogrdr_class constant
->       s390: tape: make tape_class constant
->       s390: raw3270: improve raw3270_init() readability
->       s390: raw3270: make class3270 constant
-> 
->  drivers/s390/char/fs3270.c       |  8 ++++----
->  drivers/s390/char/raw3270.c      | 32 ++++++++++++++++++++------------
->  drivers/s390/char/raw3270.h      |  2 +-
->  drivers/s390/char/tape_class.c   | 17 ++++++++---------
->  drivers/s390/char/vmlogrdr.c     | 19 +++++++++----------
->  drivers/s390/char/vmur.c         | 18 +++++++++---------
->  drivers/s390/crypto/zcrypt_api.c | 33 +++++++++++++++++----------------
->  7 files changed, 68 insertions(+), 61 deletions(-)
 
-Series applied, thanks!
+
+On 06/03/2024 14:14, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> Naresh noticed that the newly added usage of the PAGE_SIZE macro in
+> include/vdso/datapage.h introduced a build regression. I had an older
+> patch that I revived to have this defined through Kconfig rather than
+> through including asm/page.h, which is not allowed in vdso code.
+> 
+> The vdso patch series now has a temporary workaround, but I still want to
+> get this into v6.9 so we can place the hack with CONFIG_PAGE_SIZE
+> in the vdso.
+> 
+> I've applied this to the asm-generic tree already, please let me know if
+> there are still remaining issues. It's really close to the merge window
+> already, so I'd probably give this a few more days before I send a pull
+> request, or defer it to v6.10 if anything goes wrong.
+> 
+> Sorry for the delay, I was still waiting to resolve the m68k question,
+> but there were no further replies in the end, so I kept my original
+> version.
+> 
+> Changes from v1:
+> 
+>  - improve Kconfig help texts
+>  - remove an extraneous line in hexagon
+> 
+>       Arnd
+>
+
+Thanks Arnd, looks good to me.
+
+Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
