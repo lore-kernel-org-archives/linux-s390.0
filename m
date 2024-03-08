@@ -1,167 +1,314 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B771B55C34;
-	Fri,  8 Mar 2024 11:09:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DFF656459;
+	Fri,  8 Mar 2024 12:22:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709896176; cv=none; b=khGRxWyPJIW2nZGLD4dlM6OJlvAohYAOUZiT48t56zxvUgALwcJUpWOCs394QQZOWpGRs2ZzGnQGzApqUAcfEE6Gx6TSHv/IYjB2iGVj570ENlHdAiDGnWEBa3AhdHJQspsbWWO5zB3BBuSiKanZaUmibSAsrMlbAuRnC6l0bwY=
+	t=1709900569; cv=none; b=SJuuwnY51Qz5k/J7o7QJqBRVVlVKd1F4J5AdKcF36cCfIrSuuh6uYqhJGpCR0IN5UF91z18deWbo83q1MlkXJZiU3hmYHBWIW9+RBEjvdqmsXvJp1Vjnb1cjDVsXjNSp2ixfuDIV9B/kT0sWSTIAvG/vIDzWHYoX66vRJAEX6kM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709896176; c=relaxed/simple;
-	bh=uhF7KeuFS5kvVj74c+K5uPLZQLXkKWbLmov+lBPwnxk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=a9bn5Z/IGRD1mKKM72ehkU7eqjfLmuxUfFvwqivAc0C3jp+dXzZZvNdhbFKkx/HKWFwgi0ysqri9MszxZq1lZ+fBPmnsdWqmeTRqiW2GFp7I4KX/rxzPFIU7X2OOoEddwHwU20QYTt4yHQlKtR0jYZdaNOnhvMcubanOzBnJVkk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Pp/2CHnD; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1709900569; c=relaxed/simple;
+	bh=MwnN52taKxoIrsRQSWZvKNKBFp0IP5evqvl5JrzWQv4=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=P+Bdyl+hCnLXZwCIN20yIZPXpV2IB1AHWuCEei0JeatbrtjCt+aqpKp/ODwfndsUXewgbTUO+kc8uinWlunhbD7lNXczcUCQwk9XC4AhhWvIJx3goXqIpU88Jej+8sthh8vQ0FFH4c+zB1gRXZNNpKob7KcjxNnuBcL1wFJ+40Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WD9Z6FgV; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Pp/2CHnD"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 428AvAxu006147;
-	Fri, 8 Mar 2024 11:09:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=gyDQg7SwnM6C8Lf//yiK9B+QJkkbKBHdWa1O2wRLrkQ=;
- b=Pp/2CHnDKRhACe2XruLb1PYYN3uAKfGb12w2nU5D01NMgAJWMoSsAfdkoEuAfAvqR2hl
- 28ZFl6SdIvFSLDLvbRgmdr4Mq6AP17gd+SNgbXzqGWBFJGk9td1zQhl8BHabRgMX0noQ
- 3g1YDSOSXpQq1k17BlA6ml4UlkwbG3q4cQxeo7/GM5qC5kyk0qgSfp7mNUbHvolPhveD
- 47R2teS/ctPBsB/Kc28vKU7jIi9epnUTZNlwmCMu+QI80cvWHrmA+eUPBmni1ikbB1WY
- 5zkFd6RMTHBcd00hwEk1dmJffJ7jGrafLNjwgtpJZhJuU5zXZ7oATs+GbQL3xgUgO9o9 6A== 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WD9Z6FgV"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 428Bw7eF003021;
+	Fri, 8 Mar 2024 12:22:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=3P5IRkSyssxG3VEnWZ5U3CdG/Lc/YVW/KpoiKNcZ5h8=;
+ b=WD9Z6FgVc3Bc7wOyKRYnRT8nA1ePTz9ZPsATrhfGCIdMQZDjmMSDHP2FRv293r5RW53S
+ +kt13wewpILBlv6Ge25kFn9KRx9Ym7Ur8o7lCM2eZ0SYnE5y6NmNEgngYve2Tn8uNLWo
+ aBKSTEaD55CTFaCeiHhY3AQqBq7hI47au5kisdAhgwEHEEoAMmukTTCWb8TDkG5NCzRQ
+ BNUz4UUfvel51KPVNtsYJP7EJojm3ypyrPkA071kJ9Wpu5f+jkAI4MUOZb4f2zcczb1e
+ CTgno1gbBx5sH28cmLI0rnqCeXmpVnGTWLks0o5GeN2puRuZy9/lybBFp/4aPCUka8TQ Vw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wr1cdr6r6-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wr28w8cvb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Mar 2024 11:09:31 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 428B9K6G008895;
-	Fri, 8 Mar 2024 11:09:30 GMT
+	Fri, 08 Mar 2024 12:22:42 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 428C9ABp000350;
+	Fri, 8 Mar 2024 12:22:41 GMT
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wr1cdr6qq-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wr28w8cv1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Mar 2024 11:09:30 +0000
+	Fri, 08 Mar 2024 12:22:41 +0000
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 428B963T026183;
-	Fri, 8 Mar 2024 11:09:29 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wmfepc05a-1
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 428B75OW026296;
+	Fri, 8 Mar 2024 12:22:40 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wmfepcahy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Mar 2024 11:09:29 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 428B9NHR49611072
+	Fri, 08 Mar 2024 12:22:40 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 428CMYFm26870026
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 8 Mar 2024 11:09:25 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9FE3F2004E;
-	Fri,  8 Mar 2024 11:09:23 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E21F42004B;
-	Fri,  8 Mar 2024 11:09:22 +0000 (GMT)
-Received: from osiris (unknown [9.171.32.39])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  8 Mar 2024 11:09:22 +0000 (GMT)
-Date: Fri, 8 Mar 2024 12:09:21 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>
-Subject: Re: [PATCH net v2] s390/qeth: handle deferred cc1
-Message-ID: <20240308110921.26074-D-hca@linux.ibm.com>
-References: <20240307093827.2307279-1-wintera@linux.ibm.com>
+	Fri, 8 Mar 2024 12:22:37 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D3BA820043;
+	Fri,  8 Mar 2024 12:22:34 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9B5F420040;
+	Fri,  8 Mar 2024 12:22:33 +0000 (GMT)
+Received: from [9.171.69.10] (unknown [9.171.69.10])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  8 Mar 2024 12:22:33 +0000 (GMT)
+Message-ID: <a95ed8a0-0f31-431c-aa4c-d81e2efcbf6d@linux.ibm.com>
+Date: Fri, 8 Mar 2024 13:22:31 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2 00/11] net/smc: SMC intra-OS shortcut with
+ loopback-ism
+To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
+        twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+References: <20240307095536.29648-1-guwen@linux.alibaba.com>
+From: Jan Karcher <jaka@linux.ibm.com>
+Organization: IBM - Network Linux on Z
+In-Reply-To: <20240307095536.29648-1-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: lOLea1TH92hWdr1pP8YPCr_ZzFpATaEm
+X-Proofpoint-GUID: m-QxkFzrFEqPD6q7Znhqtd8DUQa4jMSS
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240307093827.2307279-1-wintera@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _eAgk7EIxsmeHJeydRVBBSbQ6aM_z0yp
-X-Proofpoint-ORIG-GUID: Yp8HqP6l1nxQxE7qXywvtKgPC9xCMIEC
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-03-08_08,2024-03-06_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- adultscore=0 bulkscore=0 mlxlogscore=882 priorityscore=1501 clxscore=1011
- impostorscore=0 phishscore=0 lowpriorityscore=0 suspectscore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2403080088
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ priorityscore=1501 mlxscore=0 bulkscore=0 clxscore=1015 malwarescore=0
+ phishscore=0 suspectscore=0 impostorscore=0 adultscore=0 spamscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2403080099
 
-On Thu, Mar 07, 2024 at 10:38:27AM +0100, Alexandra Winter wrote:
-> The IO subsystem expects a driver to retry a ccw_device_start, when the
-> subsequent interrupt response block (irb) contains a deferred
-> condition code 1.
-> 
-> Symptoms before this commit:
-> On the read channel we always trigger the next read anyhow, so no
-> different behaviour here.
-> On the write channel we may experience timeout errors, because the
-> expected reply will never be received without the retry.
-> Other callers of qeth_send_control_data() may wrongly assume that the ccw
-> was successful, which may cause problems later.
-> 
-> Note that since
-> commit 2297791c92d0 ("s390/cio: dont unregister subchannel from child-drivers")
-> and
-> commit 5ef1dc40ffa6 ("s390/cio: fix invalid -EBUSY on ccw_device_start")
-> deferred CC1s are more likely to occur. See the commit message of the
-> latter for more background information.
-> 
-> Fixes: 2297791c92d0 ("s390/cio: dont unregister subchannel from child-drivers")
-> Reference-ID: LTC205042
-> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-> ---
-> v1->v2: correct patch format
-> 
->  drivers/s390/net/qeth_core_main.c | 36 +++++++++++++++++++++++++++++--
->  1 file changed, 34 insertions(+), 2 deletions(-)
 
-This patch seems to introduce a reference count problem, which results
-in use-after-free reports like the one below. So, please ignore the
-patch - this needs to be sorted out first.
 
-[  553.017253] ------------[ cut here ]------------
-[  553.017255] refcount_t: addition on 0; use-after-free.
-[  553.017269] WARNING: CPU: 12 PID: 115746 at lib/refcount.c:25 refcount_warn_saturate+0x10e/0x130
-[  553.017275] Modules linked in: kvm algif_hash af_alg nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables nfnetlink dm_service_time mlx5_ib ib_uverbs ib_core uvdevice
-+s390_trng eadm_sch vfio_ccw mdev vfio_iommu_type1 vfio sch_fq_codel loop configfs lcs ctcm fsm zfcp scsi_transport_fc mlx5_core ghash_s390 prng chacha_s390 libchacha aes_s390 des_s390 libdes sha3_512_s390 sha3_256_s390 sha512_s390 sha256_s390 sha1_s390 sha_common scsi_dh_rdac scsi_dh_emc scsi_dh_alua pkey
-+zcrypt rng_core dm_multipath autofs4
-[  553.017331] Unloaded tainted modules: test_klp_state3(K):1 test_klp_state2(K):4 test_klp_state(K):3 test_klp_callbacks_demo2(K):2 test_klp_callbacks_demo(K):12 test_klp_atomic_replace(K):2 test_klp_livepatch(K):6 [last unloaded: kvm]
-[  553.017405] CPU: 12 PID: 115746 Comm: qeth_recover Tainted: G        W     K    6.8.0-20240305.rc7.git1.570c73d6a3df.300.fc39.s390x #1
-[  553.017408] Hardware name: IBM 8561 T01 701 (LPAR)
-[  553.017409] Krnl PSW : 0404c00180000000 00000001a53cad02 (refcount_warn_saturate+0x112/0x130)
-[  553.017413]            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
-[  553.017415] Krnl GPRS: c000000000000027 0000000000000023 000000000000002a 0000000100000000
-[  553.017417]            00000004b38e0900 0000000000000000 0000000095dfc2c0 0000000000001000
-[  553.017419]            00000001a563eb58 000000009938d818 0000000000001007 000000009938d800
-[  553.017421]            0000000095dfac00 0000000000000000 00000001a53cacfe 000003800f24bc10
-[  553.017426] Krnl Code: 00000001a53cacf2: c020004f67d8        larl    %r2,00000001a5db7ca2
-                          00000001a53cacf8: c0e5ffc262b4        brasl   %r14,00000001a4c17260
-                         #00000001a53cacfe: af000000            mc      0,0
-                         >00000001a53cad02: a7f4ff9a            brc     15,00000001a53cac36
-                          00000001a53cad06: 92014008            mvi     8(%r4),1
-                          00000001a53cad0a: c020004f67f6        larl    %r2,00000001a5db7cf6
-                          00000001a53cad10: c0e5ffc262a8        brasl   %r14,00000001a4c17260
-                          00000001a53cad16: af000000            mc      0,0
-[  553.017439] Call Trace:
-[  553.017440]  [<00000001a53cad02>] refcount_warn_saturate+0x112/0x130
-[  553.017443] ([<00000001a53cacfe>] refcount_warn_saturate+0x10e/0x130)
-[  553.017445]  [<00000001a563db88>] __qeth_issue_next_read+0x270/0x288
-[  553.017448]  [<00000001a563dc38>] qeth_mpc_initialize.constprop.0+0x98/0x738
-[  553.017449]  [<00000001a564007e>] qeth_hardsetup_card+0x36e/0xb38
-[  553.017451]  [<00000001a56408d8>] qeth_set_online+0x90/0x3a0
-[  553.017453]  [<00000001a5640d04>] qeth_do_reset+0x11c/0x1f8
-[  553.017455]  [<00000001a4c47f30>] kthread+0x120/0x128
-[  553.017458]  [<00000001a4bc3014>] __ret_from_fork+0x3c/0x58
-[  553.017460]  [<00000001a58d717a>] ret_from_fork+0xa/0x30
-[  553.017463] Last Breaking-Event-Address:
-[  553.017464]  [<00000001a4c172de>] __warn_printk+0x7e/0xf0
-[  553.017467] ---[ end trace 0000000000000000 ]---
-[  553.017474] qeth 0.0.bd00: The qeth device driver failed to recover an error on the device
-[  553.018615] qeth 0.0.bd00: The qeth device driver failed to recover an error on the device
+On 07/03/2024 10:55, Wen Gu wrote:
+> This patch set acts as the second part of the new version of [1] (The first
+> part can be referred from [2]), the updated things of this version are listed
+> at the end.
+
+Hi Wen Gu,
+
+thanks for the updated patch. Please givr me some time to review and 
+test the latest version.
+
+Thanks
+- Jan
+
+> 
+> - Background
+> 
+> SMC-D is now used in IBM z with ISM function to optimize network interconnect
+> for intra-CPC communications. Inspired by this, we try to make SMC-D available
+> on the non-s390 architecture through a software-implemented Emulated-ISM device,
+> that is the loopback-ism device here, to accelerate inter-process or
+> inter-containers communication within the same OS instance.
+> 
+> - Design
+> 
+> This patch set includes 3 parts:
+> 
+>   - Patch #1-#2: some prepare work for loopback-ism.
+>   - Patch #3-#7: implement loopback-ism device. Noted that loopback-ism now
+>     serves only SMC and no userspace interface exposed.
+>   - Patch #10-#15: memory copy optimization for intra-OS scenario.
+> 
+> The loopback-ism device is designed as an ISMv2 device and not be limited to
+> a specific net namespace, ends of both inter-process connection (1/1' in diagram
+> below) or inter-container connection (2/2' in diagram below) can find the same
+> available loopback-ism and choose it during the CLC handshake.
+> 
+>   Container 1 (ns1)                              Container 2 (ns2)
+>   +-----------------------------------------+    +-------------------------+
+>   | +-------+      +-------+      +-------+ |    |        +-------+        |
+>   | | App A |      | App B |      | App C | |    |        | App D |<-+     |
+>   | +-------+      +---^---+      +-------+ |    |        +-------+  |(2') |
+>   |     |127.0.0.1 (1')|             |192.168.0.11       192.168.0.12|     |
+>   |  (1)|   +--------+ | +--------+  |(2)   |    | +--------+   +--------+ |
+>   |     `-->|   lo   |-` |  eth0  |<-`      |    | |   lo   |   |  eth0  | |
+>   +---------+--|---^-+---+-----|--+---------+    +-+--------+---+-^------+-+
+>                |   |           |                                  |
+>   Kernel       |   |           |                                  |
+>   +----+-------v---+-----------v----------------------------------+---+----+
+>   |    |                            TCP                               |    |
+>   |    |                                                              |    |
+>   |    +--------------------------------------------------------------+    |
+>   |                                                                        |
+>   |                           +--------------+                             |
+>   |                           | smc loopback |                             |
+>   +---------------------------+--------------+-----------------------------+
+> 
+> loopback-ism device creates DMBs (shared memory) for each connection peer.
+> Since data transfer occurs within the same kernel, the sndbuf of each peer
+> is only a descriptor and point to the same memory region as peer DMB, so that
+> the data copy from sndbuf to peer DMB can be avoided in loopback-ism case.
+> 
+>   Container 1 (ns1)                              Container 2 (ns2)
+>   +-----------------------------------------+    +-------------------------+
+>   | +-------+                               |    |        +-------+        |
+>   | | App C |-----+                         |    |        | App D |        |
+>   | +-------+     |                         |    |        +-^-----+        |
+>   |               |                         |    |          |              |
+>   |           (2) |                         |    |     (2') |              |
+>   |               |                         |    |          |              |
+>   +---------------|-------------------------+    +----------|--------------+
+>                   |                                         |
+>   Kernel          |                                         |
+>   +---------------|-----------------------------------------|--------------+
+>   | +--------+ +--v-----+                           +--------+ +--------+  |
+>   | |dmb_desc| |snd_desc|                           |dmb_desc| |snd_desc|  |
+>   | +-----|--+ +--|-----+                           +-----|--+ +--------+  |
+>   | +-----|--+    |                                 +-----|--+             |
+>   | | DMB C  |    +---------------------------------| DMB D  |             |
+>   | +--------+                                      +--------+             |
+>   |                                                                        |
+>   |                           +--------------+                             |
+>   |                           | smc loopback |                             |
+>   +---------------------------+--------------+-----------------------------+
+> 
+> - Benchmark Test
+> 
+>   * Test environments:
+>        - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
+>        - SMC sndbuf/DMB size 1MB.
+> 
+>   * Test object:
+>        - TCP: run on TCP loopback.
+>        - SMC lo: run on SMC loopback-ism.
+> 
+> 1. ipc-benchmark (see [3])
+> 
+>   - ./<foo> -c 1000000 -s 100
+> 
+>                              TCP                  SMC-lo
+> Message
+> rate (msg/s)              79287                  148946(+87.86%)
+> 
+> 2. sockperf
+> 
+>   - serv: <smc_run> taskset -c <cpu> sockperf sr --tcp
+>   - clnt: <smc_run> taskset -c <cpu> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
+> 
+>                              TCP                  SMC-lo
+> Bandwidth(MBps)         5053.47                 8195.07(+62.17%)
+> Latency(us)               6.108                   3.404(-44.27%)
+> 
+> 3. nginx/wrk
+> 
+>   - serv: <smc_run> nginx
+>   - clnt: <smc_run> wrk -t 8 -c 1000 -d 30 http://127.0.0.1:80
+> 
+>                             TCP                   SMC-lo
+> Requests/s           178187.56                247970.92(+39.16%)
+> 
+> 4. redis-benchmark
+> 
+>   - serv: <smc_run> redis-server
+>   - clnt: <smc_run> redis-benchmark -h 127.0.0.1 -q -t set,get -n 400000 -c 200 -d 1024
+> 
+>                             TCP                   SMC-lo
+> GET(Requests/s)       89067.02                123877.36(+39.08%)
+> SET(Requests/s)       87700.07                131319.77(+49.73%)
+> 
+> 
+> Change log:
+> 
+> v2->v1:
+> - All the patches: changed the term virtual-ISM to Emulated-ISM as defined by SMCv2.1.
+> - Patch #3: optimized the description of SMC_LO config. Avoid exposing loopback-ism
+>    to sysfs and remove all the knobs until future definition clear.
+> - Patch #3: try to make lockdep happy by using read_lock_bh() in smc_lo_move_data().
+> - Patch #6: defaultly use physical contiguous DMB buffers.
+> - Patch #11: defaultly enable DMB no-copy for loopback-ism and free the DMB in
+>    unregister_dmb or detach_dmb when dmb_node->refcnt reaches 0, instead of using
+>    wait_event to keep waiting in unregister_dmb.
+> 
+> v1->RFC:
+> - Patch #9: merge rx_bytes and tx_bytes as xfer_bytes statistics:
+>    /sys/devices/virtual/smc/loopback-ism/xfer_bytes
+> - Patch #10: add support_dmb_nocopy operation to check if SMC-D device supports
+>    merging sndbuf with peer DMB.
+> - Patch #13 & #14: introduce loopback-ism device control of DMB memory type and
+>    control of whether to merge sndbuf and DMB. They can be respectively set by:
+>    /sys/devices/virtual/smc/loopback-ism/dmb_type
+>    /sys/devices/virtual/smc/loopback-ism/dmb_copy
+>    The motivation for these two control is that a performance bottleneck was
+>    found when using vzalloced DMB and sndbuf is merged with DMB, and there are
+>    many CPUs and CONFIG_HARDENED_USERCOPY is set [4]. The bottleneck is caused
+>    by the lock contention in vmap_area_lock [5] which is involved in memcpy_from_msg()
+>    or memcpy_to_msg(). Currently, Uladzislau Rezki is working on mitigating the
+>    vmap lock contention [6]. It has significant effects, but using virtual memory
+>    still has additional overhead compared to using physical memory.
+>    So this new version provides controls of dmb_type and dmb_copy to suit
+>    different scenarios.
+> - Some minor changes and comments improvements.
+> 
+> RFC->old version([1]):
+> Link: https://lore.kernel.org/netdev/1702214654-32069-1-git-send-email-guwen@linux.alibaba.com/
+> - Patch #1: improve the loopback-ism dump, it shows as follows now:
+>    # smcd d
+>    FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+>    0000 0     loopback-ism  ffff   No        0
+> - Patch #3: introduce the smc_ism_set_v2_capable() helper and set
+>    smc_ism_v2_capable when ISMv2 or virtual ISM is registered,
+>    regardless of whether there is already a device in smcd device list.
+> - Patch #3: loopback-ism will be added into /sys/devices/virtual/smc/loopback-ism/.
+> - Patch #8: introduce the runtime switch /sys/devices/virtual/smc/loopback-ism/active
+>    to activate or deactivate the loopback-ism.
+> - Patch #9: introduce the statistics of loopback-ism by
+>    /sys/devices/virtual/smc/loopback-ism/{{tx|rx}_tytes|dmbs_cnt}.
+> - Some minor changes and comments improvements.
+> 
+> [1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
+> [2] https://lore.kernel.org/netdev/20231219142616.80697-1-guwen@linux.alibaba.com/
+> [3] https://github.com/goldsborough/ipc-bench
+> [4] https://lore.kernel.org/all/3189e342-c38f-6076-b730-19a6efd732a5@linux.alibaba.com/
+> [5] https://lore.kernel.org/all/238e63cd-e0e8-4fbf-852f-bc4d5bc35d5a@linux.alibaba.com/
+> [6] https://lore.kernel.org/all/20240102184633.748113-1-urezki@gmail.com/
+> 
+> Wen Gu (11):
+>    net/smc: adapt SMC-D device dump for Emulated-ISM
+>    net/smc: decouple ism_client from SMC-D DMB registration
+>    net/smc: introduce loopback-ism for SMC intra-OS shortcut
+>    net/smc: implement ID-related operations of loopback-ism
+>    net/smc: implement some unsupported operations of loopback-ism
+>    net/smc: implement DMB-related operations of loopback-ism
+>    net/smc: register loopback-ism into SMC-D device list
+>    net/smc: add operations to merge sndbuf with peer DMB
+>    net/smc: attach or detach ghost sndbuf to peer DMB
+>    net/smc: adapt cursor update when sndbuf and peer DMB are merged
+>    net/smc: implement DMB-merged operations of loopback-ism
+> 
+>   drivers/s390/net/ism_drv.c |   2 +-
+>   include/net/smc.h          |   7 +-
+>   net/smc/Kconfig            |  13 +
+>   net/smc/Makefile           |   2 +-
+>   net/smc/af_smc.c           |  28 ++-
+>   net/smc/smc_cdc.c          |  58 ++++-
+>   net/smc/smc_cdc.h          |   1 +
+>   net/smc/smc_core.c         |  61 ++++-
+>   net/smc/smc_core.h         |   1 +
+>   net/smc/smc_ism.c          |  71 +++++-
+>   net/smc/smc_ism.h          |   5 +
+>   net/smc/smc_loopback.c     | 469 +++++++++++++++++++++++++++++++++++++
+>   net/smc/smc_loopback.h     |  52 ++++
+>   13 files changed, 741 insertions(+), 29 deletions(-)
+>   create mode 100644 net/smc/smc_loopback.c
+>   create mode 100644 net/smc/smc_loopback.h
+> 
