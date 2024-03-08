@@ -1,215 +1,230 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8F751EF0D;
-	Fri,  8 Mar 2024 13:17:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B2D65E09A;
+	Fri,  8 Mar 2024 14:19:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709903860; cv=none; b=kHCCTUvIhKCaV7nEYIojaoaKARayVHCAu/ho5B1VKbUtmHDr5rfuYuBqn7Rk5M2mdD3KjtGRcLbCQEu2Y6kl5nIjRvcLmVGncLhIFbF06y+ut0HmO783vH3aMHVyB4tWEMxScAFmyf24fvM2M7KFki1kAK8I1/gjiQwogIybH+k=
+	t=1709907572; cv=none; b=b9KpHn5v62ywRWJ06QGSxsEY0D+toT6gr0WAOkE8jYKxl153qP6DS1nkAIcdKBhKoBGtbXSqq1g45SEsSupMkh80eFE+PJ6f6CH9Gj446Ssm/P7WP6mwclD8ObHJIldsfSLZJpnDTwlz1hIN8zrIwY5OyPBIlTMbrI+id2cMNx0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709903860; c=relaxed/simple;
-	bh=jWLLlF4KdyRZzGfn4U2lSdQ4Wei7Cj+yXLsz+I6EvZY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=FS8hmDd4ACQTk0hUagyPWnOUe56UnWP527U6iBqYQ0PoB9J8yonel2eYADJ2tdw+OOYpFlMqdYLwhlGkHE1hZDc204qMtOjrSFr7B4pDNa8vUEwBGXpPYxKyRRRr66OWCTIIczMZ60yCsJG0Xs6Ax3yB678AiD1IDwA6KOulDlI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=f33PGGSg; arc=none smtp.client-ip=192.198.163.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1709907572; c=relaxed/simple;
+	bh=kOYxEEaMHOVfx0vX9WR0taTB0+emJnmrpE5HjLADvco=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=go+73bVDoIDTgvsdOeILYsl0lfS7S7glFBr5sQ1iRlBJSUUqMRtg3jtrbmZQbJx4QmLpqZnM7DROwttyxmksMdadeBzgnQ+rWowxCT0L6enGNM59GA3ZNXrL1JvMC13KnRA0LObFTaSHILQdwi4obKqbtDPZ65saVeJus4ZNOqc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aDpakm7D; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="f33PGGSg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1709903859; x=1741439859;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=jWLLlF4KdyRZzGfn4U2lSdQ4Wei7Cj+yXLsz+I6EvZY=;
-  b=f33PGGSgb/HnKtokrdoH1eMQqRHhCRKtSs1SsqkFp7FcngBHuJzO6y+u
-   UiPNKhv0ivszANvYaZXsZhhFBFtkhX7GYjd4eXKeSbid4dzNvCCBLzz3/
-   6z3kaYVWmMOpDb0kD0T77DAXhDfFs8paheKeIIBdtwkT+aswt6KL/LCtk
-   cBcwitGEIe0SS3f9KYNBQF7zNHt4xrNRCe8ZNkxzDLA6ecLqwnMnPddrz
-   tnZ80KwULdSn2nioK2TsM9sFUlSs0CFgeK7f0Zw29MZrs5HTR5QNWh0aX
-   WXhzkKzWcagG3Xrvh+Gpm7inS+/TynqxSnWbZFgAAMgfDB6OSNc3erhJ3
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11006"; a="15342951"
-X-IronPort-AV: E=Sophos;i="6.07,109,1708416000"; 
-   d="scan'208";a="15342951"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Mar 2024 05:17:38 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,109,1708416000"; 
-   d="scan'208";a="15161627"
-Received: from ahunter6-mobl1.ger.corp.intel.com (HELO ahunter-VirtualBox.home\044ger.corp.intel.com) ([10.249.46.63])
-  by orviesa005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Mar 2024 05:17:32 -0800
-From: Adrian Hunter <adrian.hunter@intel.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Vincenzo Frascino <vincenzo.frascino@arm.com>,
-	John Stultz <jstultz@google.com>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Anna-Maria Behnsen <anna-maria@linutronix.de>,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org
-Subject: [PATCH 19/19] clocksource: Make watchdog and suspend-timing multiplication overflow safe
-Date: Fri,  8 Mar 2024 15:15:12 +0200
-Message-Id: <20240308131512.44324-20-adrian.hunter@intel.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240308131512.44324-1-adrian.hunter@intel.com>
-References: <20240308131512.44324-1-adrian.hunter@intel.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aDpakm7D"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 428Dv11h009389;
+	Fri, 8 Mar 2024 14:19:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=mime-version : date :
+ from : to : cc : subject : reply-to : in-reply-to : references :
+ message-id : content-type : content-transfer-encoding; s=pp1;
+ bh=GvExlI5QRvQGi2jlPYy9ptuyzGEchZAeDh1QtaQuKR8=;
+ b=aDpakm7DgD+zRFXCTsibSx+cUjRcpgVcQBuxDmfqCi3xMIRbmojqsQT9/7UlXON0aFY2
+ 4YepqQaCX58HcaFvCkpK22BxSZfZyE6i7r711cTNCFzn902w0+RvhI9oG0IsUZ8VLICz
+ Xc9eDYtx0c9lpaB/XLlMyj5yUa2qPTgSQ3EVMtIfNmVy82l3M1/N9t0QOUAZEw6CndVP
+ mne6ACLyM2zMeRTPLWpZ5nxNaij7CcieEHxprmiqxiBPEfplZwK610LuTjPjglPLPo3C
+ +m4KVM5u5yaLXx2sDC4pefSPcIkA3g9FIRhPGwe3wD7SqjEWWisaK1okpc3F369fP1xm hw== 
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wr40r0bhc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Mar 2024 14:19:19 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 428DZCW9010881;
+	Fri, 8 Mar 2024 14:19:19 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wmh52vd0j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Mar 2024 14:19:19 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 428EJFb439780666
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 8 Mar 2024 14:19:17 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5313858061;
+	Fri,  8 Mar 2024 14:19:15 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DDB655803F;
+	Fri,  8 Mar 2024 14:19:14 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  8 Mar 2024 14:19:14 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki, Business Identity Code: 0357606 - 4, Domiciled in Helsinki
-Content-Transfer-Encoding: 8bit
+Date: Fri, 08 Mar 2024 15:19:14 +0100
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: "Ricardo B. Marliere" <ricardo@marliere.net>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman
+ <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 1/6] s390: zcrypt: make zcrypt_class constant
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <20240305-class_cleanup-s390-v1-1-c4ff1ec49ffd@marliere.net>
+References: <20240305-class_cleanup-s390-v1-0-c4ff1ec49ffd@marliere.net>
+ <20240305-class_cleanup-s390-v1-1-c4ff1ec49ffd@marliere.net>
+Message-ID: <84263def1d38584cd83558a33bb52f22@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 9WJtshnj7cPM-7fJM6NVdOkIhjZ1COWE
+X-Proofpoint-GUID: 9WJtshnj7cPM-7fJM6NVdOkIhjZ1COWE
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-03-08_08,2024-03-06_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ suspectscore=0 mlxlogscore=999 impostorscore=0 malwarescore=0 phishscore=0
+ mlxscore=0 lowpriorityscore=0 clxscore=1011 adultscore=0 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2403080114
 
-Kernel timekeeping is designed to keep the change in cycles (since the last
-timer interrupt) below max_cycles, which prevents multiplication overflow
-when converting cycles to nanoseconds. However, if timer interrupts stop,
-the clocksource_cyc2ns() calculation will eventually overflow.
+On 2024-03-05 12:25, Ricardo B. Marliere wrote:
+> Since commit 43a7206b0963 ("driver core: class: make class_register() 
+> take
+> a const *"), the driver core allows for struct class to be in read-only
+> memory, so move the zcrypt_class structure to be declared at build time
+> placing it into read-only memory, instead of having to be dynamically
+> allocated at boot time.
+> 
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
+> ---
+>  drivers/s390/crypto/zcrypt_api.c | 33 
+> +++++++++++++++++----------------
+>  1 file changed, 17 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/zcrypt_api.c 
+> b/drivers/s390/crypto/zcrypt_api.c
+> index e8742757085b..d0358bb6ccf2 100644
+> --- a/drivers/s390/crypto/zcrypt_api.c
+> +++ b/drivers/s390/crypto/zcrypt_api.c
+> @@ -116,7 +116,11 @@ EXPORT_SYMBOL(zcrypt_msgtype);
+> 
+>  struct zcdn_device;
+> 
+> -static struct class *zcrypt_class;
+> +static void zcdn_device_release(struct device *dev);
+> +static const struct class zcrypt_class = {
+> +	.name = ZCRYPT_NAME,
+> +	.dev_release = zcdn_device_release,
+> +};
+>  static dev_t zcrypt_devt;
+>  static struct cdev zcrypt_cdev;
+> 
+> @@ -139,7 +143,7 @@ static int zcdn_destroy(const char *name);
+>   */
+>  static inline struct zcdn_device *find_zcdndev_by_name(const char 
+> *name)
+>  {
+> -	struct device *dev = class_find_device_by_name(zcrypt_class, name);
+> +	struct device *dev = class_find_device_by_name(&zcrypt_class, name);
+> 
+>  	return dev ? to_zcdn_dev(dev) : NULL;
+>  }
+> @@ -151,7 +155,7 @@ static inline struct zcdn_device
+> *find_zcdndev_by_name(const char *name)
+>   */
+>  static inline struct zcdn_device *find_zcdndev_by_devt(dev_t devt)
+>  {
+> -	struct device *dev = class_find_device_by_devt(zcrypt_class, devt);
+> +	struct device *dev = class_find_device_by_devt(&zcrypt_class, devt);
+> 
+>  	return dev ? to_zcdn_dev(dev) : NULL;
+>  }
+> @@ -405,7 +409,7 @@ static int zcdn_create(const char *name)
+>  		goto unlockout;
+>  	}
+>  	zcdndev->device.release = zcdn_device_release;
+> -	zcdndev->device.class = zcrypt_class;
+> +	zcdndev->device.class = &zcrypt_class;
+>  	zcdndev->device.devt = devt;
+>  	zcdndev->device.groups = zcdn_dev_attr_groups;
+>  	if (name[0])
+> @@ -2067,12 +2071,9 @@ static int __init zcdn_init(void)
+>  	int rc;
+> 
+>  	/* create a new class 'zcrypt' */
+> -	zcrypt_class = class_create(ZCRYPT_NAME);
+> -	if (IS_ERR(zcrypt_class)) {
+> -		rc = PTR_ERR(zcrypt_class);
+> +	rc = class_register(&zcrypt_class);
+> +	if (rc)
+>  		goto out_class_create_failed;
+> -	}
+> -	zcrypt_class->dev_release = zcdn_device_release;
+> 
+>  	/* alloc device minor range */
+>  	rc = alloc_chrdev_region(&zcrypt_devt,
+> @@ -2088,35 +2089,35 @@ static int __init zcdn_init(void)
+>  		goto out_cdev_add_failed;
+> 
+>  	/* need some class specific sysfs attributes */
+> -	rc = class_create_file(zcrypt_class, &class_attr_zcdn_create);
+> +	rc = class_create_file(&zcrypt_class, &class_attr_zcdn_create);
+>  	if (rc)
+>  		goto out_class_create_file_1_failed;
+> -	rc = class_create_file(zcrypt_class, &class_attr_zcdn_destroy);
+> +	rc = class_create_file(&zcrypt_class, &class_attr_zcdn_destroy);
+>  	if (rc)
+>  		goto out_class_create_file_2_failed;
+> 
+>  	return 0;
+> 
+>  out_class_create_file_2_failed:
+> -	class_remove_file(zcrypt_class, &class_attr_zcdn_create);
+> +	class_remove_file(&zcrypt_class, &class_attr_zcdn_create);
+>  out_class_create_file_1_failed:
+>  	cdev_del(&zcrypt_cdev);
+>  out_cdev_add_failed:
+>  	unregister_chrdev_region(zcrypt_devt, ZCRYPT_MAX_MINOR_NODES);
+>  out_alloc_chrdev_failed:
+> -	class_destroy(zcrypt_class);
+> +	class_unregister(&zcrypt_class);
+>  out_class_create_failed:
+>  	return rc;
+>  }
+> 
+>  static void zcdn_exit(void)
+>  {
+> -	class_remove_file(zcrypt_class, &class_attr_zcdn_create);
+> -	class_remove_file(zcrypt_class, &class_attr_zcdn_destroy);
+> +	class_remove_file(&zcrypt_class, &class_attr_zcdn_create);
+> +	class_remove_file(&zcrypt_class, &class_attr_zcdn_destroy);
+>  	zcdn_destroy_all();
+>  	cdev_del(&zcrypt_cdev);
+>  	unregister_chrdev_region(zcrypt_devt, ZCRYPT_MAX_MINOR_NODES);
+> -	class_destroy(zcrypt_class);
+> +	class_unregister(&zcrypt_class);
+>  }
+> 
+>  /*
 
-Add protection against that. Simplify by folding together
-clocksource_delta() and clocksource_cyc2ns() into cycles_to_nsec_safe().
-Check against max_cycles, falling back to a slower higher precision
-calculation.
+Thanks Ricardo, nice work.
+The only thing I would do is to rename the label 
+"out_class_create_failed"
+with "out_class_register_failed".
 
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
----
- kernel/time/clocksource.c | 42 +++++++++++++++++++--------------------
- 1 file changed, 20 insertions(+), 22 deletions(-)
+Who will pick this patch? As this is part of a bundle of fixes, Richardo
+do you have a way to push this into the kernel? Otherwise as the 
+AP/zcrypt
+maintainer I would pick only this patch and forward it to the s390 
+subsystem.
 
-diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
-index e5b260aa0e02..4d50d53ac719 100644
---- a/kernel/time/clocksource.c
-+++ b/kernel/time/clocksource.c
-@@ -20,6 +20,16 @@
- #include "tick-internal.h"
- #include "timekeeping_internal.h"
- 
-+static noinline u64 cycles_to_nsec_safe(struct clocksource *cs, u64 start, u64 end)
-+{
-+	u64 delta = clocksource_delta(end, start, cs->mask);
-+
-+	if (likely(delta < cs->max_cycles))
-+		return clocksource_cyc2ns(delta, cs->mult, cs->shift);
-+
-+	return mul_u64_u32_shr(delta, cs->mult, cs->shift);
-+}
-+
- /**
-  * clocks_calc_mult_shift - calculate mult/shift factors for scaled math of clocks
-  * @mult:	pointer to mult variable
-@@ -222,8 +232,8 @@ enum wd_read_status {
- static enum wd_read_status cs_watchdog_read(struct clocksource *cs, u64 *csnow, u64 *wdnow)
- {
- 	unsigned int nretries, max_retries;
--	u64 wd_end, wd_end2, wd_delta;
- 	int64_t wd_delay, wd_seq_delay;
-+	u64 wd_end, wd_end2;
- 
- 	max_retries = clocksource_get_max_watchdog_retry();
- 	for (nretries = 0; nretries <= max_retries; nretries++) {
-@@ -234,9 +244,7 @@ static enum wd_read_status cs_watchdog_read(struct clocksource *cs, u64 *csnow,
- 		wd_end2 = watchdog->read(watchdog);
- 		local_irq_enable();
- 
--		wd_delta = clocksource_delta(wd_end, *wdnow, watchdog->mask);
--		wd_delay = clocksource_cyc2ns(wd_delta, watchdog->mult,
--					      watchdog->shift);
-+		wd_delay = cycles_to_nsec_safe(watchdog, *wdnow, wd_end);
- 		if (wd_delay <= WATCHDOG_MAX_SKEW) {
- 			if (nretries > 1 || nretries >= max_retries) {
- 				pr_warn("timekeeping watchdog on CPU%d: %s retried %d times before success\n",
-@@ -254,8 +262,7 @@ static enum wd_read_status cs_watchdog_read(struct clocksource *cs, u64 *csnow,
- 		 * report system busy, reinit the watchdog and skip the current
- 		 * watchdog test.
- 		 */
--		wd_delta = clocksource_delta(wd_end2, wd_end, watchdog->mask);
--		wd_seq_delay = clocksource_cyc2ns(wd_delta, watchdog->mult, watchdog->shift);
-+		wd_seq_delay = cycles_to_nsec_safe(watchdog, wd_end, wd_end2);
- 		if (wd_seq_delay > WATCHDOG_MAX_SKEW/2)
- 			goto skip_test;
- 	}
-@@ -366,8 +373,7 @@ void clocksource_verify_percpu(struct clocksource *cs)
- 		delta = (csnow_end - csnow_mid) & cs->mask;
- 		if (delta < 0)
- 			cpumask_set_cpu(cpu, &cpus_ahead);
--		delta = clocksource_delta(csnow_end, csnow_begin, cs->mask);
--		cs_nsec = clocksource_cyc2ns(delta, cs->mult, cs->shift);
-+		cs_nsec = cycles_to_nsec_safe(cs, csnow_begin, csnow_end);
- 		if (cs_nsec > cs_nsec_max)
- 			cs_nsec_max = cs_nsec;
- 		if (cs_nsec < cs_nsec_min)
-@@ -398,8 +404,8 @@ static inline void clocksource_reset_watchdog(void)
- 
- static void clocksource_watchdog(struct timer_list *unused)
- {
--	u64 csnow, wdnow, cslast, wdlast, delta;
- 	int64_t wd_nsec, cs_nsec, interval;
-+	u64 csnow, wdnow, cslast, wdlast;
- 	int next_cpu, reset_pending;
- 	struct clocksource *cs;
- 	enum wd_read_status read_ret;
-@@ -456,12 +462,8 @@ static void clocksource_watchdog(struct timer_list *unused)
- 			continue;
- 		}
- 
--		delta = clocksource_delta(wdnow, cs->wd_last, watchdog->mask);
--		wd_nsec = clocksource_cyc2ns(delta, watchdog->mult,
--					     watchdog->shift);
--
--		delta = clocksource_delta(csnow, cs->cs_last, cs->mask);
--		cs_nsec = clocksource_cyc2ns(delta, cs->mult, cs->shift);
-+		wd_nsec = cycles_to_nsec_safe(watchdog, cs->wd_last, wdnow);
-+		cs_nsec = cycles_to_nsec_safe(cs, cs->cs_last, csnow);
- 		wdlast = cs->wd_last; /* save these in case we print them */
- 		cslast = cs->cs_last;
- 		cs->cs_last = csnow;
-@@ -832,7 +834,7 @@ void clocksource_start_suspend_timing(struct clocksource *cs, u64 start_cycles)
-  */
- u64 clocksource_stop_suspend_timing(struct clocksource *cs, u64 cycle_now)
- {
--	u64 now, delta, nsec = 0;
-+	u64 now, nsec = 0;
- 
- 	if (!suspend_clocksource)
- 		return 0;
-@@ -847,12 +849,8 @@ u64 clocksource_stop_suspend_timing(struct clocksource *cs, u64 cycle_now)
- 	else
- 		now = suspend_clocksource->read(suspend_clocksource);
- 
--	if (now > suspend_start) {
--		delta = clocksource_delta(now, suspend_start,
--					  suspend_clocksource->mask);
--		nsec = mul_u64_u32_shr(delta, suspend_clocksource->mult,
--				       suspend_clocksource->shift);
--	}
-+	if (now > suspend_start)
-+		nsec = cycles_to_nsec_safe(suspend_clocksource, suspend_start, now);
- 
- 	/*
- 	 * Disable the suspend timer to save power if current clocksource is
--- 
-2.34.1
+Acked-by: Harald Freudenberger <freude@linux.ibm.com>
 
