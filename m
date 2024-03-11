@@ -1,57 +1,57 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 916AE22064
-	for <linux-s390@vger.kernel.org>; Mon, 11 Mar 2024 09:34:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 696912C6B2
+	for <linux-s390@vger.kernel.org>; Mon, 11 Mar 2024 09:34:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710149678; cv=none; b=X4Wi011jUwmA3C2qQ6xYc5K5CrAHzEUkf9/1uhB7AE8c2gC7yex4aQmgrcck/RZEsd3R3YHOltYDRlRjKkLIGhIhVPgApkweqvN5Xn0fRgpM5z23zymiWcEbEqvew1iZ1PZaLV2pUXl3k73c+3hr32HVspAQtAFhioLV6o2FERE=
+	t=1710149686; cv=none; b=g3ggHOxDgQNVhA5TTmvPHZrZI/n9wTOIZefii7EJkaZS7sPW1szHQKt3rvIcuk1Nimr4gsO6U0TJ0+YuxUkiDOhCMlBGfcE/64PykGc4/SyJl2QMf5sbFrQm8nvFZ8XhBT5utm+LMqHRLu0cY4XiJ8aW903LwiXl3wwTXNCIcKE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710149678; c=relaxed/simple;
-	bh=WgOYbNC4sr8/QJjarD13fdY4tgnDLuKkSWt1TfHHwEQ=;
+	s=arc-20240116; t=1710149686; c=relaxed/simple;
+	bh=gPSHW2/9unWuAhFncICuut3hiBk/07uto75Q0YZZP+U=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=dL3Qqj82GEAEKDZCp0awEZLhO3xHTv7Fm5c2DFQ7/uEsVlylci3BOOWRLjpOaXcKxPDoNpAJ4sYXIK3InnZbZPpQJbeZFZaswcO9/ELFREAcyebn0FaZeAWvWRafQ/wjpAXN2wORSnuCHcs1qBjjM1sSy3u4Rl2BmMGlZcsuI1c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=dFkIyO3E; arc=none smtp.client-ip=209.85.210.178
+	 MIME-Version; b=biJXjmZXbkD/q5aiJ3Fl/c+9HCuD3G1O2ASkMoWyx791t6RXWQ+P3KzWcYnFBBImjT8dyFCFxFnK9taUAH40JxkgwYiP4+wDkwEkY0Axh2nfVMhHEDeIhCoq0UDseoX2SeE+/s+0wnkCtwRoOCLLcUZ0hzDcX7Xu8uBVzn9Vtfg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=fCndtFff; arc=none smtp.client-ip=209.85.210.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="dFkIyO3E"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-6e63e9abf6aso2137598b3a.2
-        for <linux-s390@vger.kernel.org>; Mon, 11 Mar 2024 02:34:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="fCndtFff"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-6e676ea4e36so1807270b3a.3
+        for <linux-s390@vger.kernel.org>; Mon, 11 Mar 2024 02:34:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1710149676; x=1710754476; darn=vger.kernel.org;
+        d=bytedance.com; s=google; t=1710149683; x=1710754483; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=1DNwS3vzNHKnmJ9gtI+mTH5qdekBkGxgiUpqVAYV/P4=;
-        b=dFkIyO3EN7lpbwxW3ZZEOXgk+Ww5qmsqT8ISo72AWUk1AUTIaQf5El2zk9phFvW/9m
-         2VMAKkKscAh44i1wDLMRNVOlxOdok8njO3tqeug8vWqd5rxAgIL3vxKAM/z3Tz3lcLrc
-         LyA0juduH/Npjg5AR5rV9zI+e/4agklyyGjTNuQmqsD2J1QhirmWOjscWqUOAynknYVn
-         NoEe1FwRQ1K9/HQtAQOFDpghiDUot8NyBO95qC6OSu9dSQZS2yvePdwpcJECbevyVyEv
-         7o6ghaHD6/MYbu3SopWHfTj35S038z4ldV9ajPrScM/HdxweUaXteW603e+SWOPyZf9E
-         mSww==
+        bh=QjSWV41JlB3dq7HwIpKEF4e0TQa/o2d+dOhHoSuTF7U=;
+        b=fCndtFffu1Ss2NcYN91svt0lbgvg/8XEuiKcZFBYKp7qeeF+XLcmbg+m63YznekLld
+         GRZI7k/jvSHxYlpUhAl51sQNowp1tN0KStmqyTY58z+irKn+wdBqUqbuygyeyIrgBtEU
+         t5F747/SOt7yRqdumXdtJrM2+s7N27vDv/23Tc/kpoR86DnCGK5aM5jRiUfNM2R9d8LX
+         QXoebEhGQoGQzulAGDVWHrS43KwnxkOLJvXdDsl3XESVcCGBiArmh9gtRJBpz5sElNA/
+         Moey35A9/O63/cbjNgddzv+E44rO0Q1G7dbN91co4eRiYSx6W5P9WJ8/6UKao6Mbsq+6
+         sEHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710149676; x=1710754476;
+        d=1e100.net; s=20230601; t=1710149683; x=1710754483;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=1DNwS3vzNHKnmJ9gtI+mTH5qdekBkGxgiUpqVAYV/P4=;
-        b=SJrKW2/a37+PhxzAhA9Yk7E7IgKfgZtvGMIXqFpdyuab+cfJ9idK7MIw/TF6kRZm6i
-         qFHNz7QnzT1uDh2Elyry6oap5wSlLyi9qUqlhu3HsklpxYu6DOLcfUOY/KUqkVSHlrOc
-         ilvRQv7CCY9Tr8rzyPPtotDp8E5qbe2J74P1JHnBk74MEQZ/m5J1uQRWkguY6QsNO0be
-         oKBdTARuaAllKT1UZ4Y6+zCHXMwkhq8RJCA2q72TOY6fDf5/A58U+y+ocAhZ4glAgl3S
-         YnOlaXpMdrjXYbSrjGq/H27g2Z2LHRikuz7yWaYgkRw+uHsZgjZzHlufj9hF09d8QD7P
-         9+gw==
-X-Forwarded-Encrypted: i=1; AJvYcCUJBEio3s3+ULWmHls2ZxCBfN5drsoZDDGQ1xnByguh15dZJelvDFh3nsJSZewySKWE7IBR1M9P5rJdJpt8WuHqRAXccNWEGFpk+Q==
-X-Gm-Message-State: AOJu0Yxp92LR4OXVCPFWWk8JyVzPSc2bYQvZ6/4Gmj57rSZ1vnLFcTV3
-	l0dWaGTLtJ8vaVlLRu8I1dCxNURbNTXPzEjKWIdbf3KF7JketjscLvlHJATYZUY=
-X-Google-Smtp-Source: AGHT+IHp6WfuUeDSjQx2cauv1mQ/eMbX3s4chl5kJVOY3tZJvKu5JYf89lzfYO6yWTa1+IHjqNIpUg==
-X-Received: by 2002:a05:6a21:7890:b0:1a1:6cf5:5bf1 with SMTP id bf16-20020a056a21789000b001a16cf55bf1mr3944233pzc.12.1710149676017;
-        Mon, 11 Mar 2024 02:34:36 -0700 (PDT)
+        bh=QjSWV41JlB3dq7HwIpKEF4e0TQa/o2d+dOhHoSuTF7U=;
+        b=xMSbO7cilrNIx/YaBonqj6VzE8C7n5z9+JMi8RwdJma6i4B3An5cWNtRp41qaNcc5M
+         2VG6q7ivDFjCDSBSKS2k6Kfge2/9IGgmU4MDU+SsHKJFMF5zPkYr7Z8NXiFiD3EPuB0u
+         ZaMF68NeZckkj6VIS5r4y4FWN4VOVqRJqnheCD5/gjEpeLq6ceNjsxPYdFt5KDJB0NUX
+         zB5i84aIHi6I6tMO3uhxVTganCNJcrokoj57oPq56/2BN0JdvuqQocMhl3F2LEJzkC3H
+         70H5KxX36j+fR94JdTTxSyAb/BjcR5rIksfH7YrNQiGydXY4GELfR7mBffhggDbrtQoT
+         ZANQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX62P7gfPanYvHiPducScCzva3PHxEzC+XC3goOIVpNnUkmZO5Oy+yQiMw5Znw1u+b9Fps9nMJQtqqtiKOPcUn3P5fe4ac6x5reWg==
+X-Gm-Message-State: AOJu0YwFynhll9fSuus6AdW8VMWjwG6GzwUwo2i/HlEvA4mi28Qz1zya
+	nFNMN0jTcnPKlGvbfh12PWKGoh/sykmR3Azp1peQp9eELe3P0iMsOUgE+8Ij+HA=
+X-Google-Smtp-Source: AGHT+IFbj6YfcHBYvXMM2NWizkuYpniqg3bImjqE4WhHnt6u4m7Hz7unmoAwRceekSZcHEkG6VDAnw==
+X-Received: by 2002:a05:6a20:438a:b0:1a1:431c:6696 with SMTP id i10-20020a056a20438a00b001a1431c6696mr4574882pzl.49.1710149683554;
+        Mon, 11 Mar 2024 02:34:43 -0700 (PDT)
 Received: from localhost.localdomain ([43.129.25.208])
-        by smtp.gmail.com with ESMTPSA id h9-20020a170902f7c900b001dcad9cbf8bsm4253365plw.239.2024.03.11.02.34.28
+        by smtp.gmail.com with ESMTPSA id h9-20020a170902f7c900b001dcad9cbf8bsm4253365plw.239.2024.03.11.02.34.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Mar 2024 02:34:35 -0700 (PDT)
+        Mon, 11 Mar 2024 02:34:43 -0700 (PDT)
 From: Menglong Dong <dongmenglong.8@bytedance.com>
 To: andrii@kernel.org
 Cc: ast@kernel.org,
@@ -85,9 +85,9 @@ Cc: ast@kernel.org,
 	linux-kselftest@vger.kernel.org,
 	linux-stm32@st-md-mailman.stormreply.com,
 	Menglong Dong <dongmenglong.8@bytedance.com>
-Subject: [PATCH bpf-next v2 1/9] bpf: tracing: add support to record and check the accessed args
-Date: Mon, 11 Mar 2024 17:35:18 +0800
-Message-Id: <20240311093526.1010158-2-dongmenglong.8@bytedance.com>
+Subject: [PATCH bpf-next v2 2/9] bpf: refactor the modules_array to ptr_array
+Date: Mon, 11 Mar 2024 17:35:19 +0800
+Message-Id: <20240311093526.1010158-3-dongmenglong.8@bytedance.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240311093526.1010158-1-dongmenglong.8@bytedance.com>
 References: <20240311093526.1010158-1-dongmenglong.8@bytedance.com>
@@ -99,194 +99,177 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-In this commit, we add the 'accessed_args' field to struct bpf_prog_aux,
-which is used to record the accessed index of the function args in
-btf_ctx_access().
+Refactor the struct modules_array to more general struct ptr_array, which
+is used to store the pointers.
 
-Meanwhile, we add the function btf_check_func_part_match() to compare the
-accessed function args of two function prototype. This function will be
-used in the following commit.
+Meanwhiles, introduce the bpf_try_add_ptr(), which checks the existing of
+the ptr before adding it to the array.
+
+Seems it should be moved to another files in "lib", and I'm not sure where
+to add it now, and let's move it to kernel/bpf/syscall.c for now.
 
 Signed-off-by: Menglong Dong <dongmenglong.8@bytedance.com>
 ---
- include/linux/bpf.h |   4 ++
- kernel/bpf/btf.c    | 108 +++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 110 insertions(+), 2 deletions(-)
+ include/linux/bpf.h      | 10 +++++++++
+ kernel/bpf/syscall.c     | 37 +++++++++++++++++++++++++++++++
+ kernel/trace/bpf_trace.c | 48 ++++++----------------------------------
+ 3 files changed, 54 insertions(+), 41 deletions(-)
 
 diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index 95e07673cdc1..0f677fdcfcc7 100644
+index 0f677fdcfcc7..997765cdf474 100644
 --- a/include/linux/bpf.h
 +++ b/include/linux/bpf.h
-@@ -1461,6 +1461,7 @@ struct bpf_prog_aux {
- 	const struct btf_type *attach_func_proto;
- 	/* function name for valid attach_btf_id */
- 	const char *attach_func_name;
-+	u64 accessed_args;
- 	struct bpf_prog **func;
- 	void *jit_data; /* JIT specific data. arch dependent */
- 	struct bpf_jit_poke_descriptor *poke_tab;
-@@ -2565,6 +2566,9 @@ struct bpf_reg_state;
- int btf_prepare_func_args(struct bpf_verifier_env *env, int subprog);
- int btf_check_type_match(struct bpf_verifier_log *log, const struct bpf_prog *prog,
- 			 struct btf *btf, const struct btf_type *t);
-+int btf_check_func_part_match(struct btf *btf1, const struct btf_type *t1,
-+			      struct btf *btf2, const struct btf_type *t2,
-+			      u64 func_args);
- const char *btf_find_decl_tag_value(const struct btf *btf, const struct btf_type *pt,
- 				    int comp_idx, const char *tag_key);
- int btf_find_next_decl_tag(const struct btf *btf, const struct btf_type *pt,
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index 170d017e8e4a..c2a0299d4358 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -6125,19 +6125,24 @@ static bool is_int_ptr(struct btf *btf, const struct btf_type *t)
- }
+@@ -304,6 +304,16 @@ struct bpf_map {
+ 	s64 __percpu *elem_count;
+ };
  
- static u32 get_ctx_arg_idx(struct btf *btf, const struct btf_type *func_proto,
--			   int off)
-+			   int off, int *aligned_idx)
++struct ptr_array {
++	void **ptrs;
++	int cnt;
++	int cap;
++};
++
++int bpf_add_ptr(struct ptr_array *arr, void *ptr);
++bool bpf_has_ptr(struct ptr_array *arr, struct module *mod);
++int bpf_try_add_ptr(struct ptr_array *arr, void *ptr);
++
+ static inline const char *btf_field_type_name(enum btf_field_type type)
  {
- 	const struct btf_param *args;
- 	const struct btf_type *t;
- 	u32 offset = 0, nr_args;
- 	int i;
- 
-+	if (aligned_idx)
-+		*aligned_idx = -ENOENT;
-+
- 	if (!func_proto)
- 		return off / 8;
- 
- 	nr_args = btf_type_vlen(func_proto);
- 	args = (const struct btf_param *)(func_proto + 1);
- 	for (i = 0; i < nr_args; i++) {
-+		if (aligned_idx && offset == off)
-+			*aligned_idx = i;
- 		t = btf_type_skip_modifiers(btf, args[i].type, NULL);
- 		offset += btf_type_is_ptr(t) ? 8 : roundup(t->size, 8);
- 		if (off < offset)
-@@ -6207,7 +6212,7 @@ bool btf_ctx_access(int off, int size, enum bpf_access_type type,
- 			tname, off);
- 		return false;
- 	}
--	arg = get_ctx_arg_idx(btf, t, off);
-+	arg = get_ctx_arg_idx(btf, t, off, NULL);
- 	args = (const struct btf_param *)(t + 1);
- 	/* if (t == NULL) Fall back to default BPF prog with
- 	 * MAX_BPF_FUNC_REG_ARGS u64 arguments.
-@@ -6217,6 +6222,9 @@ bool btf_ctx_access(int off, int size, enum bpf_access_type type,
- 		/* skip first 'void *__data' argument in btf_trace_##name typedef */
- 		args++;
- 		nr_args--;
-+		prog->aux->accessed_args |= (1 << (arg + 1));
-+	} else {
-+		prog->aux->accessed_args |= (1 << arg);
- 	}
- 
- 	if (arg > nr_args) {
-@@ -7024,6 +7032,102 @@ int btf_check_type_match(struct bpf_verifier_log *log, const struct bpf_prog *pr
- 	return btf_check_func_type_match(log, btf1, t1, btf2, t2);
+ 	switch (type) {
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index f63f4da4db5e..4f230fd1f8e4 100644
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -479,6 +479,43 @@ static void bpf_map_release_memcg(struct bpf_map *map)
  }
+ #endif
  
-+static u32 get_ctx_arg_total_size(struct btf *btf, const struct btf_type *t)
++int bpf_add_ptr(struct ptr_array *arr, void *ptr)
 +{
-+	const struct btf_param *args;
-+	u32 size = 0, nr_args;
-+	int i;
++	void **ptrs;
 +
-+	nr_args = btf_type_vlen(t);
-+	args = (const struct btf_param *)(t + 1);
-+	for (i = 0; i < nr_args; i++) {
-+		t = btf_type_skip_modifiers(btf, args[i].type, NULL);
-+		size += btf_type_is_ptr(t) ? 8 : roundup(t->size, 8);
++	if (arr->cnt == arr->cap) {
++		arr->cap = max(16, arr->cap * 3 / 2);
++		ptrs = krealloc_array(arr->ptrs, arr->cap, sizeof(*ptrs), GFP_KERNEL);
++		if (!ptrs)
++			return -ENOMEM;
++		arr->ptrs = ptrs;
 +	}
 +
-+	return size;
-+}
-+
-+/* This function is similar to btf_check_func_type_match(), except that it
-+ * only compare some function args of the function prototype t1 and t2.
-+ */
-+int btf_check_func_part_match(struct btf *btf1, const struct btf_type *func1,
-+			      struct btf *btf2, const struct btf_type *func2,
-+			      u64 func_args)
-+{
-+	const struct btf_param *args1, *args2;
-+	u32 nargs1, i, offset = 0;
-+	const char *s1, *s2;
-+
-+	if (!btf_type_is_func_proto(func1) || !btf_type_is_func_proto(func2))
-+		return -EINVAL;
-+
-+	args1 = (const struct btf_param *)(func1 + 1);
-+	args2 = (const struct btf_param *)(func2 + 1);
-+	nargs1 = btf_type_vlen(func1);
-+
-+	for (i = 0; i <= nargs1; i++) {
-+		const struct btf_type *t1, *t2;
-+
-+		if (!(func_args & (1 << i)))
-+			goto next;
-+
-+		if (i < nargs1) {
-+			int t2_index;
-+
-+			/* get the index of the arg corresponding to args1[i]
-+			 * by the offset.
-+			 */
-+			get_ctx_arg_idx(btf2, func2, offset, &t2_index);
-+			if (t2_index < 0)
-+				return -EINVAL;
-+
-+			t1 = btf_type_skip_modifiers(btf1, args1[i].type, NULL);
-+			t2 = btf_type_skip_modifiers(btf2, args2[t2_index].type,
-+						     NULL);
-+		} else {
-+			/* i == nargs1, this is the index of return value of t1 */
-+			if (get_ctx_arg_total_size(btf1, func1) !=
-+			    get_ctx_arg_total_size(btf2, func2))
-+				return -EINVAL;
-+
-+			/* check the return type of t1 and t2 */
-+			t1 = btf_type_skip_modifiers(btf1, func1->type, NULL);
-+			t2 = btf_type_skip_modifiers(btf2, func2->type, NULL);
-+		}
-+
-+		if (t1->info != t2->info ||
-+		    (btf_type_has_size(t1) && t1->size != t2->size))
-+			return -EINVAL;
-+		if (btf_type_is_int(t1) || btf_is_any_enum(t1))
-+			goto next;
-+
-+		if (btf_type_is_struct(t1))
-+			goto on_struct;
-+
-+		if (!btf_type_is_ptr(t1))
-+			return -EINVAL;
-+
-+		t1 = btf_type_skip_modifiers(btf1, t1->type, NULL);
-+		t2 = btf_type_skip_modifiers(btf2, t2->type, NULL);
-+		if (!btf_type_is_struct(t1) || !btf_type_is_struct(t2))
-+			return -EINVAL;
-+
-+on_struct:
-+		s1 = btf_name_by_offset(btf1, t1->name_off);
-+		s2 = btf_name_by_offset(btf2, t2->name_off);
-+		if (strcmp(s1, s2))
-+			return -EINVAL;
-+next:
-+		if (i < nargs1) {
-+			t1 = btf_type_skip_modifiers(btf1, args1[i].type, NULL);
-+			offset += btf_type_is_ptr(t1) ? 8 : roundup(t1->size, 8);
-+		}
-+	}
-+
++	arr->ptrs[arr->cnt] = ptr;
++	arr->cnt++;
 +	return 0;
 +}
 +
- static bool btf_is_dynptr_ptr(const struct btf *btf, const struct btf_type *t)
++bool bpf_has_ptr(struct ptr_array *arr, struct module *mod)
++{
++	int i;
++
++	for (i = arr->cnt - 1; i >= 0; i--) {
++		if (arr->ptrs[i] == mod)
++			return true;
++	}
++	return false;
++}
++
++int bpf_try_add_ptr(struct ptr_array *arr, void *ptr)
++{
++	if (bpf_has_ptr(arr, ptr))
++		return -EEXIST;
++	if (bpf_add_ptr(arr, ptr))
++		return -ENOMEM;
++	return 0;
++}
++
+ static int btf_field_cmp(const void *a, const void *b)
  {
- 	const char *name;
+ 	const struct btf_field *f1 = a, *f2 = b;
+diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
+index 241ddf5e3895..791e97a3f8e3 100644
+--- a/kernel/trace/bpf_trace.c
++++ b/kernel/trace/bpf_trace.c
+@@ -2873,43 +2873,9 @@ static void symbols_swap_r(void *a, void *b, int size, const void *priv)
+ 	}
+ }
+ 
+-struct modules_array {
+-	struct module **mods;
+-	int mods_cnt;
+-	int mods_cap;
+-};
+-
+-static int add_module(struct modules_array *arr, struct module *mod)
+-{
+-	struct module **mods;
+-
+-	if (arr->mods_cnt == arr->mods_cap) {
+-		arr->mods_cap = max(16, arr->mods_cap * 3 / 2);
+-		mods = krealloc_array(arr->mods, arr->mods_cap, sizeof(*mods), GFP_KERNEL);
+-		if (!mods)
+-			return -ENOMEM;
+-		arr->mods = mods;
+-	}
+-
+-	arr->mods[arr->mods_cnt] = mod;
+-	arr->mods_cnt++;
+-	return 0;
+-}
+-
+-static bool has_module(struct modules_array *arr, struct module *mod)
+-{
+-	int i;
+-
+-	for (i = arr->mods_cnt - 1; i >= 0; i--) {
+-		if (arr->mods[i] == mod)
+-			return true;
+-	}
+-	return false;
+-}
+-
+ static int get_modules_for_addrs(struct module ***mods, unsigned long *addrs, u32 addrs_cnt)
+ {
+-	struct modules_array arr = {};
++	struct ptr_array arr = {};
+ 	u32 i, err = 0;
+ 
+ 	for (i = 0; i < addrs_cnt; i++) {
+@@ -2918,7 +2884,7 @@ static int get_modules_for_addrs(struct module ***mods, unsigned long *addrs, u3
+ 		preempt_disable();
+ 		mod = __module_address(addrs[i]);
+ 		/* Either no module or we it's already stored  */
+-		if (!mod || has_module(&arr, mod)) {
++		if (!mod || bpf_has_ptr(&arr, mod)) {
+ 			preempt_enable();
+ 			continue;
+ 		}
+@@ -2927,7 +2893,7 @@ static int get_modules_for_addrs(struct module ***mods, unsigned long *addrs, u3
+ 		preempt_enable();
+ 		if (err)
+ 			break;
+-		err = add_module(&arr, mod);
++		err = bpf_add_ptr(&arr, mod);
+ 		if (err) {
+ 			module_put(mod);
+ 			break;
+@@ -2936,14 +2902,14 @@ static int get_modules_for_addrs(struct module ***mods, unsigned long *addrs, u3
+ 
+ 	/* We return either err < 0 in case of error, ... */
+ 	if (err) {
+-		kprobe_multi_put_modules(arr.mods, arr.mods_cnt);
+-		kfree(arr.mods);
++		kprobe_multi_put_modules((struct module **)arr.ptrs, arr.cnt);
++		kfree(arr.ptrs);
+ 		return err;
+ 	}
+ 
+ 	/* or number of modules found if everything is ok. */
+-	*mods = arr.mods;
+-	return arr.mods_cnt;
++	*mods = (struct module **)arr.ptrs;
++	return arr.cnt;
+ }
+ 
+ static int addrs_check_error_injection_list(unsigned long *addrs, u32 cnt)
 -- 
 2.39.2
 
