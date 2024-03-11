@@ -1,121 +1,129 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBF8D3C08F;
-	Mon, 11 Mar 2024 12:24:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B08544C8B
+	for <linux-s390@vger.kernel.org>; Mon, 11 Mar 2024 15:29:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710159864; cv=none; b=kAW7MrdnWTt85E8Zo2ZQYaOUarlJ8k9b4f0ya2butp0cCP5+geHNfAup0X2NGHN+zKuR/doSgUFFWMsk2kpAOkhzcNU/YX1UW5ZKPKdxM7yv/AzCqaVQUNbTl83TuN6KB53cZEnuODwShLAs0iUECSwap8LYdOTrVLrzyaujoJQ=
+	t=1710170956; cv=none; b=rWuC5CGC0NeIo4YW1besbDVZc7iz992GrHZ7D/BJ84LfU0FML7ZuWlXf7S8W5OJcHDGUVcLQDiB4wZsXSR8BMiGcubZz+GNkFDXU8iMshQ6DjZvmDsMo+YarR1wD23qtwtGzJmwjQC3h0iMKhrKG6PFdVGzAV+kcDFjYVEo5SjY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710159864; c=relaxed/simple;
-	bh=uvc2srdklbEZWRyAUkveO2lIu9fiESGPXlIMmlZAhO4=;
-	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=cIP8iYFrvyoJXeeeiGi5omOOUAaabXnqh3amiY0nvOm3bihWyGZmuhoSi2LWoQsGb9SUee8mmKsWerY4Jm8LRFh2V1lxbQ8TDYMxTbsAoUEs3vXgicrVsH58h2K/2WaQkfD+wP2NB6DsyvPy3zCMdpua+iESMyXO3EPfoEyZbxM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=glmRphLn; arc=none smtp.client-ip=198.175.65.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1710170956; c=relaxed/simple;
+	bh=e6TFE/1KfvvW7dIxLWV8I/Uiw2fbSncmPD9VPYm2nJU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sXFnIjdDCiQ1RZntzgKgeQW51j+ZW1ickE1K3LjAw0xogrYJ6rUI0Kq1DJfYSWtoUyevqOpdtoNI1KSqVkRWDAFXQNY7jSegoX6/a9LJpZdTOQrrqAqGjZ0Re2wyb1MUjjceVJkEHFbA0LBrBoNzGCr/grcsaCVrJJpjufseqMM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com; spf=pass smtp.mailfrom=isovalent.com; dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b=GG9w/Ley; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=isovalent.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="glmRphLn"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1710159864; x=1741695864;
-  h=from:date:to:cc:subject:in-reply-to:message-id:
-   references:mime-version:content-id;
-  bh=uvc2srdklbEZWRyAUkveO2lIu9fiESGPXlIMmlZAhO4=;
-  b=glmRphLnYwKimpNj4U2bNeOiXI0FMC7Widap3UUfPf4xE4ARY82B7wSe
-   OeHl6cVv+d5ltsfABLaNFT7m2W+GUgbl03laIjly73TnuOv/5XL8b5uNe
-   QZuue/LaF9D/gmMS2Z7dr8ar6g9/qYsRqZu2chl/eN21AvGwrEt8Mzp9C
-   U/r9VgepsxliSKygZqWSRTwKotusywAP15Kv0kQ0GIgTSTVdz687GAlyM
-   o4VWtAAZjNygw85d3HDaJ6qF7hk9L5cUvq6kS6VAPjvSmlR2VS0RcYeq0
-   ETA52MKs978ukun3nVCeCSYxTgK/7RUYMFLcx1FgJwnLJlLA543mZB0Zp
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11009"; a="15956660"
-X-IronPort-AV: E=Sophos;i="6.07,116,1708416000"; 
-   d="scan'208";a="15956660"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Mar 2024 05:24:23 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,116,1708416000"; 
-   d="scan'208";a="11240984"
-Received: from ijarvine-desk1.ger.corp.intel.com (HELO localhost) ([10.245.244.201])
-  by fmviesa008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Mar 2024 05:24:16 -0700
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Mon, 11 Mar 2024 14:24:11 +0200 (EET)
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>, 
-    Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-    Johannes Berg <johannes@sipsolutions.net>, 
-    Hans de Goede <hdegoede@redhat.com>, Vadim Pasternak <vadimp@nvidia.com>, 
-    Bjorn Andersson <andersson@kernel.org>, 
-    Mathieu Poirier <mathieu.poirier@linaro.org>, 
-    Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, 
-    Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-    Vasily Gorbik <gor@linux.ibm.com>, 
-    Alexander Gordeev <agordeev@linux.ibm.com>, 
-    Christian Borntraeger <borntraeger@linux.ibm.com>, 
-    Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-    Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org, 
-    platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, 
-    linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH vhost v2 0/4] refactor the params of find_vqs()
-In-Reply-To: <20240311072113.67673-1-xuanzhuo@linux.alibaba.com>
-Message-ID: <576263bc-5e86-5288-7fc5-de214dc622dd@linux.intel.com>
-References: <20240311072113.67673-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b="GG9w/Ley"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4132cbe26a9so4361145e9.0
+        for <linux-s390@vger.kernel.org>; Mon, 11 Mar 2024 08:29:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=isovalent.com; s=google; t=1710170951; x=1710775751; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=oBRdUgazJ1HnLsYGkRF0jKMpPcVcTcXQbKGRIqRZPjY=;
+        b=GG9w/LeyV9WgyjVUjY3zdgyZj3jaaKNt9/reFo/vkrZtW/AhbnLCB64bpzoy6bMHG4
+         4m1Y8XgP65NeAZ4/5TkSJ0CdG2ZIjC5y3uq9z9Wk72x2CjQsqKmvIiPo9S3PkjdAtMlZ
+         kJeFLaA7luKLc7Fnm1iyKkmLmVtcxgnDAQrB/pknRWhwWdH0ZhgIOfoVma5l7thlR3QJ
+         fCZHT/aBtHiv26GWyKx1vJ0+7M9QGArXTTsdWbQepwdsfEfYTHTfQA0EaIIEnCIM9sTH
+         i3GrHl6sAt8zPQRGY78IWezjMd6GzJzUDUkULKKh11InxGbdS3pjrvCnvqJjpKp5ohfF
+         wXkw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710170951; x=1710775751;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=oBRdUgazJ1HnLsYGkRF0jKMpPcVcTcXQbKGRIqRZPjY=;
+        b=G25C6KtH/Gqqwjf2bsNS3epaVBeBKyugkEWvAPCVaJUTqackZLDdZxETPriE+zSfeE
+         QXs2LmEUiT15BlnoHRwRXnS9yAgOmAiXI17NBCh3VFIH6q982AKiQIGOAZyxUvBrONMp
+         AHU16sFYfdn5oLfwrKU/iLHU8XTYqlZVLNLhqMSgEVHz7MR9yTSQ0rGibb59Y/ZvgpPE
+         uKc1bTceEXE2hR+ddh0kfTrDcqKdeofJOiXyKrvE9dLFl0wHmMljcESW4VmTIbt3zKbn
+         9eo82Ma0qpghXxBUcTv4OXzteu3dWTjdXp0SSZV7WvmeXE/8VY1+wumK9ItaVNDLoTgv
+         3F+w==
+X-Forwarded-Encrypted: i=1; AJvYcCVOp1vOUGrsjMBA/nX5iCHAP1wp6Ozllwsxxsy/T7rRKOKLk9AK732823H3jeqN2zNSiTpz1V/Cyl2ffRHx9Q5R6mJexC0aBtJvIQ==
+X-Gm-Message-State: AOJu0Yx9Ve53IW+Tmwbr/YLr97Rv177mvXdwVJlDJX04Jw2FXZqHrmcE
+	ycaRRbyQr9V4inY8LfLDPWobxrNG1RoCvDFc2pv2NHLvTVbAbh8x1BDpxYCuSso=
+X-Google-Smtp-Source: AGHT+IEwgdh7H+9crLcV9S5SLA+JZoumOzg/VaQuwX7biWBYjQ6DqPv+BHttGcsj9IyOJw9JoIyg7w==
+X-Received: by 2002:a05:600c:4449:b0:413:1f5c:baa6 with SMTP id v9-20020a05600c444900b004131f5cbaa6mr5344265wmn.30.1710170951441;
+        Mon, 11 Mar 2024 08:29:11 -0700 (PDT)
+Received: from ?IPV6:2a02:8011:e80c:0:5231:db44:25b0:339e? ([2a02:8011:e80c:0:5231:db44:25b0:339e])
+        by smtp.gmail.com with ESMTPSA id n4-20020a05600c4f8400b00412ff941abasm15941091wmq.21.2024.03.11.08.29.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 11 Mar 2024 08:29:11 -0700 (PDT)
+Message-ID: <e8f37842-1ddf-4241-97f3-b83ffcb32ddc@isovalent.com>
+Date: Mon, 11 Mar 2024 15:29:09 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="8323328-925155278-1710159757=:1071"
-Content-ID: <c2f52b25-b189-ac04-112b-c9f04d16b66f@linux.intel.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH bpf-next v2 8/9] libbpf: add support for the multi-link of
+ tracing
+Content-Language: en-GB
+To: Menglong Dong <dongmenglong.8@bytedance.com>, andrii@kernel.org
+Cc: ast@kernel.org, daniel@iogearbox.net, martin.lau@linux.dev,
+ eddyz87@gmail.com, song@kernel.org, yonghong.song@linux.dev,
+ john.fastabend@gmail.com, kpsingh@kernel.org, sdf@google.com,
+ haoluo@google.com, jolsa@kernel.org, agordeev@linux.ibm.com,
+ borntraeger@linux.ibm.com, svens@linux.ibm.com, davem@davemloft.net,
+ dsahern@kernel.org, dave.hansen@linux.intel.com, x86@kernel.org,
+ rostedt@goodmis.org, mathieu.desnoyers@efficios.com, bpf@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com
+References: <20240311093526.1010158-1-dongmenglong.8@bytedance.com>
+ <20240311093526.1010158-9-dongmenglong.8@bytedance.com>
+From: Quentin Monnet <quentin@isovalent.com>
+In-Reply-To: <20240311093526.1010158-9-dongmenglong.8@bytedance.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+2024-03-11 09:35 UTC+0000 ~ Menglong Dong <dongmenglong.8@bytedance.com>
+> Add support for the attach types of:
+> 
+> BPF_TRACE_FENTRY_MULTI
+> BPF_TRACE_FEXIT_MULTI
+> BPF_MODIFY_RETURN_MULTI
+> 
+> Signed-off-by: Menglong Dong <dongmenglong.8@bytedance.com>
+> ---
+>  tools/bpf/bpftool/common.c |   3 +
+>  tools/lib/bpf/bpf.c        |  10 +++
+>  tools/lib/bpf/bpf.h        |   6 ++
+>  tools/lib/bpf/libbpf.c     | 168 ++++++++++++++++++++++++++++++++++++-
+>  tools/lib/bpf/libbpf.h     |  14 ++++
+>  tools/lib/bpf/libbpf.map   |   1 +
+>  6 files changed, 199 insertions(+), 3 deletions(-)
+> 
+> diff --git a/tools/bpf/bpftool/common.c b/tools/bpf/bpftool/common.c
+> index cc6e6aae2447..ffc85256671d 100644
+> --- a/tools/bpf/bpftool/common.c
+> +++ b/tools/bpf/bpftool/common.c
+> @@ -1089,6 +1089,9 @@ const char *bpf_attach_type_input_str(enum bpf_attach_type t)
+>  	case BPF_TRACE_FENTRY:			return "fentry";
+>  	case BPF_TRACE_FEXIT:			return "fexit";
+>  	case BPF_MODIFY_RETURN:			return "mod_ret";
+> +	case BPF_TRACE_FENTRY_MULTI:		return "fentry_multi";
+> +	case BPF_TRACE_FEXIT_MULTI:		return "fexit_multi";
+> +	case BPF_MODIFY_RETURN_MULTI:		return "mod_ret_multi";
+>  	case BPF_SK_REUSEPORT_SELECT:		return "sk_skb_reuseport_select";
+>  	case BPF_SK_REUSEPORT_SELECT_OR_MIGRATE:	return "sk_skb_reuseport_select_or_migrate";
+>  	default:	return libbpf_bpf_attach_type_str(t);
 
---8323328-925155278-1710159757=:1071
-Content-Type: text/plain; CHARSET=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Content-ID: <f3d0e1c1-ebcb-baa0-324b-5ca93ffa7301@linux.intel.com>
+Hi, please drop this part in bpftool.
 
-On Mon, 11 Mar 2024, Xuan Zhuo wrote:
+bpf_attach_type_input_str() is used for legacy attach type names that
+were used before bpftool switched to libbpf_bpf_attach_type_str(), and
+that are still supported today. The names for new attach types should
+just be retrieved with libbpf_bpf_attach_type_str(). And function
+bpf_attach_type_input_str() is also only used for attaching
+cgroup-related programs with "bpftool cgroup (at|de)tach".
 
-> This pathset is splited from the
->=20
->      http://lore.kernel.org/all/20240229072044.77388-1-xuanzhuo@linux.ali=
-baba.com
->=20
-> That may needs some cycles to discuss. But that notifies too many people.
->=20
-> But just the four commits need to notify so many people.
-> And four commits are independent. So I split that patch set,
-> let us review these first.
->=20
-> The patch set try to  refactor the params of find_vqs().
-> Then we can just change the structure, when introducing new
-> features.
->=20
-> Thanks.
->=20
-> v2:
->   1. add kerneldoc for "struct vq_transport_config" @ilpo.jarvinen
->=20
-> v1:
->   1. fix some comments from ilpo.jarvinen@linux.intel.com
->=20
->=20
-> Xuan Zhuo (4):
->   virtio: find_vqs: pass struct instead of multi parameters
->   virtio: vring_create_virtqueue: pass struct instead of multi
->     parameters
->   virtio: vring_new_virtqueue(): pass struct instead of multi parameters
->   virtio_ring: simplify the parameters of the funcs related to
->     vring_create/new_virtqueue()
+Thanks,
+Quentin
 
-FWIW,
-
-Reviewed-by: Ilpo J=E4rvinen <ilpo.jarvinen@linux.intel.com>
-
---=20
- i.
---8323328-925155278-1710159757=:1071--
