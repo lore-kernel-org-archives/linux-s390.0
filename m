@@ -1,160 +1,138 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3713C944D
-	for <linux-s390@vger.kernel.org>; Tue, 12 Mar 2024 03:14:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6C108BE8;
+	Tue, 12 Mar 2024 05:40:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710213244; cv=none; b=PZkjun2ej8Pi7TNqgPE0nEd+OF4rsArDV0ZPU8dkJvgVG7QTWklYFG3qYcOesv0IKhGo84s04CjcDwRrxYaU/5XmEo1y+h9XbUmiZJzrYQtx0XQrHxuUGaMydlLS71MPujL7uITzFUGKSJLIPxOxiJcLpmxaUsN2yWfB8stA8nU=
+	t=1710222004; cv=none; b=LM809J3zMRJ4T7M7xcOV+GUjMoFougky8OCxzWuiTr+MCv0uhCYL1MW0vEWDVAFSICq8rlsps/yp6qpfHMteq45Qb/RKOwKBwU2uhVaA2kAti5vCb9BSX8ULBZT1DvuIpk4Z5zRS3G6ZT0c+0LKn/K/PuQSMP/6IiTLbxJYT+q4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710213244; c=relaxed/simple;
-	bh=rT7M/hhiO9hEYBPUu40z7VC7HSNxO+QXlUEwZKhhsYA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BkHbD8rbm746duGTQu5Wyl2ZvgEOMuIfgqucfcPDuDtG5N81qQPR6NmSRSVgR92x0fcvncpxswkEA++diEYqiQVqEfqLPlGh2jnnTwqe8mZe9GQTQB1jL8RY4FcF6rUMAcoyI46pjPwXztbhLjEpvwZ4A4H5jwy9k50ArFGITL0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=lMRi1qrI; arc=none smtp.client-ip=209.85.216.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	s=arc-20240116; t=1710222004; c=relaxed/simple;
+	bh=MyR5SZ6Qdv2397G2tIiBKtYqWScOGbdaEX8EEBNOk34=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
+	 References:In-Reply-To; b=HO4/arX3o32mSGfSQA90KzWlb5d2WKsAdYDLppRtZ1savMuyo7V7/GRI7tOxpzG+ghK2srfrFE9RbwcqbB3217tjp+Xwe35gq+X3VTYZv14Hu8fIosyV2PoIq0Pv7aU9CgEguZoKnxBw1uYfkjN9Xrpzx+bAl2P7wWmsQ0fjWNY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YYin5Bi7; arc=none smtp.client-ip=209.85.215.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="lMRi1qrI"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-29954bb87b4so2250417a91.2
-        for <linux-s390@vger.kernel.org>; Mon, 11 Mar 2024 20:14:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YYin5Bi7"
+Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-53fa455cd94so4420723a12.2;
+        Mon, 11 Mar 2024 22:40:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1710213241; x=1710818041; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1710222002; x=1710826802; darn=vger.kernel.org;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=OXlf8eE/kb9hUjEHRg6KiaZYrPX7zppIuDOk01qdNjA=;
-        b=lMRi1qrIRCns0bPtlKM0A/k5itTFpHl1DuVkHVNCT46WSmj7nS4EwljQKQXCbnJEFw
-         gTbZxAf6O3KNGvO+R0soX1XV6i71rwXQ2Hvv+yZ9vCbWXfp4voNJjqCUviAF0NW2hjKK
-         V4SjhNPWs58kLY/j7A80yZNSbLEUTDT+ZdG7BvvPa+qk746DYrrtup4eybnQy/RMTfdw
-         3FdGAcMsJRLSAABGojCYnl09fdXYyzVVoatY9TcNgSikiUNd3ivtCs/SmPTmUOZN3QYj
-         OynyxIF+ERdZXYtThelNKm/YnAzPCOFgpVDzcnfZJVAsjRV0rwbDc44PLeGqI0uhQ06e
-         1Iqw==
+        bh=MeBpnbK0DvHBH0dxfOexxIi1maP8eZLnEL1BqVP6aUg=;
+        b=YYin5Bi7oQh8c+yQMsJJm8Cl9VfCkfYq2lOLBacB1gTunBu08c54xLTM9/+Gfq9Sle
+         lojrM1kcwaZ/aAG1lW6erPgxoXNNYiRMf7AbGj7gEysfnPeTM2oBvPX5JFg7zmrtddUU
+         m2L0GxLnjGOpdYv7TxlNNkmIanl3ZJKQudlIBqEuHAHsjtp5DQO6B08ea4LaPyN6RcCf
+         3G9PY7l1BLHd10gLywVHaKsadW6WOdkUgzav7Vmo4orz2I5rzu/OW7R/zCgPgIRHtTXn
+         ivmU6OqF4pLqqMxz0RNzTU3/Ep5p8pPQnCRUfZeW2WcbARCLvg3M5789LDqccQ4hvGMZ
+         O7UA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710213241; x=1710818041;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=OXlf8eE/kb9hUjEHRg6KiaZYrPX7zppIuDOk01qdNjA=;
-        b=oPRlAgM5JfOc8liAG4tYiP6WPU5u3p00Gxj+S2gU7LRRBuFQ/G/wiLqQ3YcjBCaYzl
-         AYyx5MM+P2aHcqC0gW3rlTqQ+IbIEV+avT+CISAPhRT7q2SoIYl92dsrzuAscbH1mwxb
-         uIGGlJCx8EzL7L4ISdRh1vT9bTQB7ieQ6uZZTrQ+Zt4ep7NYPrkjbR3/Pc03+opbL6uw
-         0dfIf1/7/aGfxarqM26r+192EtsJQYo68/pk4UQlwIpEAulNcELBCxwlcYiq0IXRW2NI
-         hBU+AjAhzDF77ELk39qg22ml1oIVF3XyPozP2gHvJz64wxu0AvT4ZLnIU1EqPoij8szf
-         JrmA==
-X-Forwarded-Encrypted: i=1; AJvYcCUiwCo/EWPkPiQlitrvFDWVZFlkC9I5GvOL/pEbUVmoN/6Cn1k1s9ATHMtELeiR2ONjmeguuHMcAMkxJ0+jThZzkPFwVzRtMv+y1w==
-X-Gm-Message-State: AOJu0YxyDeOWeiECprGNOaapvMihqmDjkBLBKuns9Q6avjiUCxtY5Jyk
-	dHMDKcM6FGoNlQdEWJWBPN9FdKV0s/HtqsGNYW7m+GVe7A89WH1pxMRqFE8hAK7mVEayPAvYj3N
-	41/k+CxNgp9LI9I21uskjCmjX/BpJTLeOQY5aIA==
-X-Google-Smtp-Source: AGHT+IFrJd1b6cRe3N1bdjRPMDm6UQYIWuBJWFP813OtCjwvKtB/NBwZvIOHJ5+UKRNsfrlwra9CEE8kwZK9x+jxh4c=
-X-Received: by 2002:a17:90a:c684:b0:299:5b95:cd7d with SMTP id
- n4-20020a17090ac68400b002995b95cd7dmr5190887pjt.45.1710213241618; Mon, 11 Mar
- 2024 20:14:01 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1710222002; x=1710826802;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=MeBpnbK0DvHBH0dxfOexxIi1maP8eZLnEL1BqVP6aUg=;
+        b=YSbwaEB6f8J2edR2pf2lC2qA+y752QBizc3alnTlFMmav2Sd5ptOrAeL2R1hGrfBcE
+         AFZ/aSouR7KTgZRMKTbE1oQo9yyUo7TLfJQJSQjrg1jPe9b4Fl5wXRm7Y5i04Ezz6Q8/
+         cFqZB0jqF/5h1QLaekw5QIqPMpUEYVz7zeexm85GD4RJDuchcDt5X/XtEFbdjAhgBMre
+         SKVAmMq/AlH8ac/scWFOrmrUPBqOqY8p8WchbYtLKG5N6D0idj2iSkwlEhwqQpXWpBiM
+         qoKRQGPcEcqMu0aZRktkvdeiNn8nhzaviDAYQYywiyBl38Rt7IN9VcXYBNzKLxeh7Tzf
+         16WQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWWCaAVpzk9EJtxUudwgNFjhaQcEER0EndOLlQFWDkI+DqTZRBgXvwpRgHrzHYpa1n5MxpV/dU+DkEC1ZFsk2IYHxeODQNFdjggTw==
+X-Gm-Message-State: AOJu0Ywl0Wx0Rf/1A4Q7IwKDoWxJA0C+lkQcjVjfTf66iTvEppjZ/A3x
+	WSJy2B3rPfdHRZK/V/BrITSRvwJwuJvT4gNs07jjjaWf2Rg5y1Zh
+X-Google-Smtp-Source: AGHT+IEfWhr7gOrWQGM2j8IlK3aPvS8xBhmwURHugULmmR1T38gPS00vcgyHFnvxEwxEo9MERUoypA==
+X-Received: by 2002:a17:902:7084:b0:1dd:7de5:88fd with SMTP id z4-20020a170902708400b001dd7de588fdmr626637plk.66.1710222002099;
+        Mon, 11 Mar 2024 22:40:02 -0700 (PDT)
+Received: from localhost ([1.146.55.44])
+        by smtp.gmail.com with ESMTPSA id kq8-20020a170903284800b001dcb4ae9563sm5725703plb.33.2024.03.11.22.39.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 11 Mar 2024 22:40:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20240311093526.1010158-1-dongmenglong.8@bytedance.com>
- <20240311093526.1010158-6-dongmenglong.8@bytedance.com> <CAADnVQKw4HUbwvivysVBQPpA2MC2e56MwrvJy89qs8rx_ixOnw@mail.gmail.com>
-In-Reply-To: <CAADnVQKw4HUbwvivysVBQPpA2MC2e56MwrvJy89qs8rx_ixOnw@mail.gmail.com>
-From: =?UTF-8?B?5qKm6b6Z6JGj?= <dongmenglong.8@bytedance.com>
-Date: Tue, 12 Mar 2024 11:13:50 +0800
-Message-ID: <CALz3k9iiP5msNtL5c0ZhwRoYyEZtxZoWGbFiPrVcL3To6hj4wQ@mail.gmail.com>
-Subject: Re: [External] Re: [PATCH bpf-next v2 5/9] bpf: verifier: add btf to
- the function args of bpf_check_attach_target
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: Andrii Nakryiko <andrii@kernel.org>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <martin.lau@linux.dev>, Eddy Z <eddyz87@gmail.com>, 
-	Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, 
-	John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>, 
-	Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
-	David Ahern <dsahern@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	X86 ML <x86@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Quentin Monnet <quentin@isovalent.com>, 
-	bpf <bpf@vger.kernel.org>, 
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, LKML <linux-kernel@vger.kernel.org>, 
-	linux-riscv <linux-riscv@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, 
-	Network Development <netdev@vger.kernel.org>, linux-trace-kernel@vger.kernel.org, 
-	"open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, linux-stm32@st-md-mailman.stormreply.com
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 12 Mar 2024 15:39:56 +1000
+Message-Id: <CZRJ3MUT6HWP.11KK3F4QNKUGH@wheely>
+Subject: Re: [kvm-unit-tests PATCH v1] arch-run: Wait for incoming socket
+ being removed
+From: "Nicholas Piggin" <npiggin@gmail.com>
+To: "Nico Boehr" <nrb@linux.ibm.com>, "Marc Hartmayer"
+ <mhartmay@linux.ibm.com>, <frankja@linux.ibm.com>,
+ <imbrenda@linux.ibm.com>, <thuth@redhat.com>
+Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>
+X-Mailer: aerc 0.15.2
+References: <20240305141214.707046-1-nrb@linux.ibm.com>
+ <87il20lf9b.fsf@linux.ibm.com>
+ <170973018238.31923.4497119683216363940@t14-nrb>
+In-Reply-To: <170973018238.31923.4497119683216363940@t14-nrb>
 
-On Tue, Mar 12, 2024 at 9:51=E2=80=AFAM Alexei Starovoitov
-<alexei.starovoitov@gmail.com> wrote:
+On Wed Mar 6, 2024 at 11:03 PM AEST, Nico Boehr wrote:
+> Quoting Marc Hartmayer (2024-03-05 19:12:16)
+> [...]
+> > > diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
+> > > index 2214d940cf7d..413f3eda8cb8 100644
+> > > --- a/scripts/arch-run.bash
+> > > +++ b/scripts/arch-run.bash
+> > > @@ -237,12 +237,8 @@ do_migration ()
+> > >       echo > ${dst_infifo}
+> > >       rm ${dst_infifo}
+> > > =20
+> > > -     # Ensure the incoming socket is removed, ready for next destina=
+tion
+> > > -     if [ -S ${dst_incoming} ] ; then
+> > > -             echo "ERROR: Incoming migration socket not removed afte=
+r migration." >& 2
+> > > -             qmp ${dst_qmp} '"quit"'> ${dst_qmpout} 2>/dev/null
+> > > -             return 2
+> > > -     fi
+> > > +     # Wait for the incoming socket being removed, ready for next de=
+stination
+> > > +     while [ -S ${dst_incoming} ] ; do sleep 0.1 ; done
+> >=20
+> > But now, you have removed the erroring out path completely. Maybe wait
+> > max. 3s and then bail out?
 >
-> On Mon, Mar 11, 2024 at 2:35=E2=80=AFAM Menglong Dong
-> <dongmenglong.8@bytedance.com> wrote:
-> >
-> > Add target btf to the function args of bpf_check_attach_target(), then
-> > the caller can specify the btf to check.
-> >
-> > Signed-off-by: Menglong Dong <dongmenglong.8@bytedance.com>
-> > ---
-> >  include/linux/bpf_verifier.h | 1 +
-> >  kernel/bpf/syscall.c         | 6 ++++--
-> >  kernel/bpf/trampoline.c      | 1 +
-> >  kernel/bpf/verifier.c        | 8 +++++---
-> >  4 files changed, 11 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/include/linux/bpf_verifier.h b/include/linux/bpf_verifier.=
-h
-> > index 4b0f6600e499..6cb20efcfac3 100644
-> > --- a/include/linux/bpf_verifier.h
-> > +++ b/include/linux/bpf_verifier.h
-> > @@ -811,6 +811,7 @@ static inline void bpf_trampoline_unpack_key(u64 ke=
-y, u32 *obj_id, u32 *btf_id)
-> >  int bpf_check_attach_target(struct bpf_verifier_log *log,
-> >                             const struct bpf_prog *prog,
-> >                             const struct bpf_prog *tgt_prog,
-> > +                           struct btf *btf,
-> >                             u32 btf_id,
-> >                             struct bpf_attach_target_info *tgt_info);
-> >  void bpf_free_kfunc_btf_tab(struct bpf_kfunc_btf_tab *tab);
-> > diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-> > index d1cd645ef9ac..6128c3131141 100644
-> > --- a/kernel/bpf/syscall.c
-> > +++ b/kernel/bpf/syscall.c
-> > @@ -3401,9 +3401,11 @@ static int bpf_tracing_prog_attach(struct bpf_pr=
-og *prog,
-> >                  * need a new trampoline and a check for compatibility
-> >                  */
-> >                 struct bpf_attach_target_info tgt_info =3D {};
-> > +               struct btf *btf;
-> >
-> > -               err =3D bpf_check_attach_target(NULL, prog, tgt_prog, b=
-tf_id,
-> > -                                             &tgt_info);
-> > +               btf =3D tgt_prog ? tgt_prog->aux->btf : prog->aux->atta=
-ch_btf;
+> Well, I was considering that, but:
+> - I'm not a huge fan of fine-grained timeouts. Fine-tuning a gazillion
+>   timeouts is not a fun task, I think you know what I'm talking about :)
+> - a number of other places that can potentially get stuck also don't have
+>   proper timeouts (like waiting for the QMP socket or the migration
+>   socket), so for a proper solution we'd need to touch a lot of other
+>   places...
 >
-> I think it's better to keep this bit inside bpf_check_attach_target(),
-> since a lot of other code in there is working with if (tgt_prog) ...
-> so if the caller messes up passing tgt_prog->aux->btf with tgt_prog
-> the bug will be difficult to debug.
-
-In the previous version, I pass the attach_btf with the following
-way:
-
-+            origin_btf =3D prog->aux->attach_btf;
-+             /* use the new attach_btf to check the target */
-+             prog->aux->attach_btf =3D attach_btf;
-              err =3D bpf_check_attach_target(NULL, prog, tgt_prog, btf_id,
-                                            &tgt_info);
-+             prog->aux->attach_btf =3D origin_btf;
-
-And Jiri suggested to add the attach_btf to the function args
-of bpf_check_attach_target().
-
-Ennn....Should I convert to the old way?
-
-Thanks!
-Menglong Dong
-
+> What I think we really want is a migration timeout. That isn't quite simp=
+le
+> since we can't easily pull $(timeout_cmd) before $(panic_cmd) and
+> $(migration_cmd) in run-scripts...
 >
-> > +               err =3D bpf_check_attach_target(NULL, prog, tgt_prog, b=
-tf,
-> > +                                             btf_id, &tgt_info);
+> My suggestion: let's fix this issue and work on the timeout as a seperate
+> fix.
+
+The migration tests as a whole have big trouble with timeouts already.
+The problem is timeouts are implemented with the 'timeout' command but
+that is specific to the QEMU process so especially the migration harness
+with lots of loops can easily hang.
+
+I tried a few ways to address this like starting a background 'sleep ;
+kill' shell, but that gets very complicated to handle interrupts properly
+that kill the stuck bits and having the harness report the error
+sanely. I'm thinking a subshell that runs the entire test case and start
+*that* with 'timeout' might be a better approach.
+
+So I agree, let's take patches that fix behaviour when there are no
+timeouts, and address the timeout problem as a whole as a separate
+effort rather than worrying too much about individual loops just yet.
+(It's a fair review comment to ask though).
+
+Thanks,
+Nick
+
