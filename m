@@ -1,65 +1,66 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DCBEC2FD
-	for <linux-s390@vger.kernel.org>; Tue, 12 Mar 2024 06:45:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C049C69D00;
+	Tue, 12 Mar 2024 07:55:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710225949; cv=none; b=i5pt3bSyKGzOWWYlD2lhNssU4ca9MLxDAxXHoftNSmjNP2j3b/n6TT3G+6diJTunrLjQA42SauIWu5P2tWAI3Kq1fV1weP3zh0gthAKzIdTGcF37+pyRjJatNPtF+cARomk0KP0tneIMBf5d+lFlf5AgWy+bzV+taTVOcq1GvsQ=
+	t=1710230112; cv=none; b=IWL6cmYSUMLfGvIPCWwzmOfvNXx9vjSNf7A2HXr/jTNIsRIAXdlVSueBT24kKInQ8umqkgHZ4QkJ5Fp1COfhpy2x5PU+nvAyuOGPNzkfyhcEaQD5/YK7HLixEYgKGp2glZdrx0yXhy0EhTRB117VTQ//RSW8OMYANtMIAFnqDqE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710225949; c=relaxed/simple;
-	bh=q3qqK7M8lRs2XnHgynxzZIzxNIKV4TMfCEVrCXTxxUM=;
+	s=arc-20240116; t=1710230112; c=relaxed/simple;
+	bh=nW54QLvxLUE86tN4pbBK4afc+iEkoEeu461+c2/5ZnA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HQhFsjiUcx/Xj51SYiMTrAqtjfccEwpfTaTaUHdTR5Lb7DbpFTvxxcSukfQs783oh/6L34qZSA+UHbUDPdNx9mR32UjbOdXOMYpbkzWq2jiJUELD8UBrBvrnaiBbAzq/LZRSaqXKZxPGfPxcaWYicldjW2CJNEg51xV1wNxG/IQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DBvf4xGe; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=mzcz/bVlXGNh2483Ff2d3HgoK5NqUjitepLWpFpvo6413JQNYR1V7hG5mqMNXyKBCFdL7y3wKwoVPAoIG4eoBmm/+Lt3ZxkXIFHIbgA1u2Ip4bxTB/fefecT1aAwvotLJxVRaLxeZMkLnOf1XelXDm5LZ2XNT8NrmKOxywPQQso=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mqT7zjqC; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DBvf4xGe"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710225946;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=cAyR2wffVwGsBPNJimSA8gIGWWDlVfzkxPaVQEX67yA=;
-	b=DBvf4xGep/3INVD/WkJuJeWyqHa6hgINVNE02lhRfS/Mmd/LGqiH0IdQoAursJ0WPFdXxQ
-	CGfVbESbwBcCc4ENE/yzmFGMlA+8K6s+O/rPEg4vVMJ+sY2WxC8PaGA9UZUeJeZnX9spvC
-	DjHOP7GshZYuutdHKKQVAfBMmH1sRAY=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-206-XNsNbQHLNHKfAKEA6aVJJQ-1; Tue, 12 Mar 2024 02:45:44 -0400
-X-MC-Unique: XNsNbQHLNHKfAKEA6aVJJQ-1
-Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-7876f29a8daso730152685a.3
-        for <linux-s390@vger.kernel.org>; Mon, 11 Mar 2024 23:45:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710225944; x=1710830744;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=cAyR2wffVwGsBPNJimSA8gIGWWDlVfzkxPaVQEX67yA=;
-        b=gFwl+0qlQDLKleT/FjVtgarm6En/MslkmcY8LkoupJpDFDK6uq/95LKH1sOo4UHgTo
-         u6vEisXWbmkQgi/9E+EJdyNcAFCjftDLeY0sZ/qLhkiDqtvlwBb3+AmRsVWZFtDKlCX0
-         AmDlRV6Lapofsv9L7rQVJt2x/TfSuTRsfA2+dMy0HZpVRXcTwP0XB/Si8rSOCewBNuqg
-         z4Zlf+BsBtcHwEfPnMJunC4/SqrxSM8nlFZZ+mo0JjjfM+0EYrTIjsWcPPHpIa4AgKhn
-         +EpoVxF9G8kIcYaP9V8thNBg/94P21GXV7StGJfPU8MdS3RQL5UQkHGSCiQsxN8DIbRw
-         pKXQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUeA68h67Dtm+lp6yEwdEzXvW8RFmIoZm5HRQCgvF2UOyU1xdYTyKrRvFA6nbRMce926lWGwiKzSR8+z7QA4dsDaR8ZZWdgGiaLvQ==
-X-Gm-Message-State: AOJu0YzQqpF7WeDLuU9at2HxrmdjrH2hzH9X2/mGuVXcB3QbOhBl6gez
-	e+W7tJNQujDnzBmA8ydpT24Z4LCjD73rXJKUXEdbxrmWjkmxapPqOfydI+lvglz3ajFxruW3/tv
-	hgHa072UC9Br2ooh2CZRBQpdZMJPEMvkHLDLUnHWSSoMsuGnzjzUra9gGHmk=
-X-Received: by 2002:a05:620a:3729:b0:788:471c:5f56 with SMTP id de41-20020a05620a372900b00788471c5f56mr11406522qkb.59.1710225944019;
-        Mon, 11 Mar 2024 23:45:44 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHnOuR7HIbvQXjsvykfSP/TX+b+pv/rlTbtoGt2NKZVL5WZR9MBj2CBnoFAyZ/jzoSpCYxgDA==
-X-Received: by 2002:a05:620a:3729:b0:788:471c:5f56 with SMTP id de41-20020a05620a372900b00788471c5f56mr11406514qkb.59.1710225943789;
-        Mon, 11 Mar 2024 23:45:43 -0700 (PDT)
-Received: from [192.168.0.9] (ip-109-43-177-86.web.vodafone.de. [109.43.177.86])
-        by smtp.gmail.com with ESMTPSA id d22-20020a05620a241600b007883744ded4sm3436085qkn.16.2024.03.11.23.45.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 Mar 2024 23:45:43 -0700 (PDT)
-Message-ID: <4a2354b7-df7b-4371-a4fa-d1da29ae4dd3@redhat.com>
-Date: Tue, 12 Mar 2024 07:45:40 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mqT7zjqC"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42C7lMZ4027833;
+	Tue, 12 Mar 2024 07:54:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=o7LxOeWqm1j/kchabVECauOS2s34gMo+ClRG1T94Dwo=;
+ b=mqT7zjqCnyR2F08mJRj3tzxGfRCrVj4L3FM1d2i6gzwTjPUy4bEG9G50YVV8/aNgFS+T
+ H1unTaQFp+UWHYAXu2mMmL2ixhiDeW9VPKY61UPlsPtbOgumwzGr1dgexv8b1YOnAkDs
+ /VmVU+QKGfxTx67IbXceE7EIa+uADjCMQd51rkcS+wCwhLd7T1gcm0Lgj0gWKKNYpEfL
+ vq9sEZ+kXTC0OdK8EATFbes4Co9ToVLU5kgdV1H9098Q66pjjNbz7x8dvsMMrVDKZylI
+ 9xx5OS5NHWnIDVABxq6ufvLQ4R1Fa3EgKPNIgOpkal1F+Ssv9RoT6TagitDzV5KKTFi2 oA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wtjyag3eu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 12 Mar 2024 07:54:53 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 42C7nPaf003131;
+	Tue, 12 Mar 2024 07:54:53 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wtjyag3ea-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 12 Mar 2024 07:54:52 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42C6qVFJ020437;
+	Tue, 12 Mar 2024 07:54:51 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ws3kkwj8h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 12 Mar 2024 07:54:51 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42C7slMM37486896
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 12 Mar 2024 07:54:49 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 78A3A2004D;
+	Tue, 12 Mar 2024 07:54:47 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 370F52004B;
+	Tue, 12 Mar 2024 07:54:47 +0000 (GMT)
+Received: from [9.152.224.118] (unknown [9.152.224.118])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 12 Mar 2024 07:54:47 +0000 (GMT)
+Message-ID: <fd7e4c2f-0d8f-4b1c-86af-9bf472cb7d0f@linux.ibm.com>
+Date: Tue, 12 Mar 2024 08:54:46 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,93 +68,288 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v1] arch-run: Wait for incoming socket
- being removed
-Content-Language: en-US
-To: Nicholas Piggin <npiggin@gmail.com>, Nico Boehr <nrb@linux.ibm.com>,
- frankja@linux.ibm.com, imbrenda@linux.ibm.com
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20240305141214.707046-1-nrb@linux.ibm.com>
- <CZRKBTZFFB9Y.38GVXEXZPOVK5@wheely>
-From: Thomas Huth <thuth@redhat.com>
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <CZRKBTZFFB9Y.38GVXEXZPOVK5@wheely>
+Subject: Re: [PATCH][next] net/smc: Avoid -Wflex-array-member-not-at-end
+ warnings
+To: Wen Gu <guwen@linux.alibaba.com>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>
+References: <ZeIhOT44ON5rjPiP@neat>
+ <71aa847b-2edc-44a2-beb7-3610bf744937@linux.alibaba.com>
+ <1cb9a110-c877-4420-9b23-1e7980f1300a@linux.ibm.com>
+ <82c1dc9e-d5b6-40e3-9d81-d18cc270724b@embeddedor.com>
+ <d145d2c7-5cbd-4da5-be14-b25d00baad19@linux.alibaba.com>
+From: Jan Karcher <jaka@linux.ibm.com>
+Organization: IBM - Network Linux on Z
+In-Reply-To: <d145d2c7-5cbd-4da5-be14-b25d00baad19@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: NByB9XodbPGvXpdRdzVkkLmBTagFQ-jG
+X-Proofpoint-GUID: qXaI_Ah3RyMXBY4DUhIKKhqD2zXuQRoa
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-03-12_06,2024-03-11_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ mlxlogscore=999 phishscore=0 impostorscore=0 spamscore=0
+ lowpriorityscore=0 suspectscore=0 mlxscore=0 priorityscore=1501
+ bulkscore=0 clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2403120060
 
-On 12/03/2024 07.37, Nicholas Piggin wrote:
-> On Wed Mar 6, 2024 at 12:11 AM AEST, Nico Boehr wrote:
->> Sometimes, QEMU needs a bit longer to remove the incoming migration
->> socket. This happens in some environments on s390x for the
->> migration-skey-sequential test.
+
+
+On 11/03/2024 11:59, Wen Gu wrote:
+> 
+> 
+> On 2024/3/8 07:46, Gustavo A. R. Silva wrote:
 >>
->> Instead of directly erroring out, wait for the removal of the socket.
 >>
->> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+>> On 3/7/24 02:17, Jan Karcher wrote:
+>>>
+>>>
+>>> On 04/03/2024 10:00, Wen Gu wrote:
+>>>>
+>>>>
+>>>> On 2024/3/2 02:40, Gustavo A. R. Silva wrote:
+>>>>> -Wflex-array-member-not-at-end is coming in GCC-14, and we are getting
+>>>>> ready to enable it globally.
+>>>>>
+>>>>> There are currently a couple of objects in `struct 
+>>>>> smc_clc_msg_proposal_area`
+>>>>> that contain a couple of flexible structures:
+>>>>>
+>>>
+>>> Thank you Gustavo for the proposal.
+>>> I had to do some reading to better understand what's happening and 
+>>> how your patch solves this.
+>>>
+>>>>> struct smc_clc_msg_proposal_area {
+>>>>>     ...
+>>>>>     struct smc_clc_v2_extension             pclc_v2_ext;
+>>>>>     ...
+>>>>>     struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
+>>>>>     ...
+>>>>> };
+>>>>>
+>>>>> So, in order to avoid ending up with a couple of flexible-array 
+>>>>> members
+>>>>> in the middle of a struct, we use the `struct_group_tagged()` 
+>>>>> helper to
+>>>>> separate the flexible array from the rest of the members in the 
+>>>>> flexible
+>>>>> structure:
+>>>>>
+>>>>> struct smc_clc_smcd_v2_extension {
+>>>>>          struct_group_tagged(smc_clc_smcd_v2_extension_hdr, hdr,
+>>>>>                              u8 system_eid[SMC_MAX_EID_LEN];
+>>>>>                              u8 reserved[16];
+>>>>>          );
+>>>>>          struct smc_clc_smcd_gid_chid gidchid[];
+>>>>> };
+>>>>>
+>>>>> With the change described above, we now declare objects of the type of
+>>>>> the tagged struct without embedding flexible arrays in the middle of
+>>>>> another struct:
+>>>>>
+>>>>> struct smc_clc_msg_proposal_area {
+>>>>>          ...
+>>>>>          struct smc_clc_v2_extension_hdr        pclc_v2_ext;
+>>>>>          ...
+>>>>>          struct smc_clc_smcd_v2_extension_hdr    pclc_smcd_v2_ext;
+>>>>>          ...
+>>>>> };
+>>>>>
+>>>>> We also use `container_of()` when we need to retrieve a pointer to the
+>>>>> flexible structures.
+>>>>>
+>>>>> So, with these changes, fix the following warnings:
+>>>>>
+>>>>> In file included from net/smc/af_smc.c:42:
+>>>>> net/smc/smc_clc.h:186:49: warning: structure containing a flexible 
+>>>>> array member is not at the end of another structure 
+>>>>> [-Wflex-array-member-not-at-end]
+>>>>>    186 |         struct smc_clc_v2_extension             pclc_v2_ext;
+>>>>>        |                                                 ^~~~~~~~~~~
+>>>>> net/smc/smc_clc.h:188:49: warning: structure containing a flexible 
+>>>>> array member is not at the end of another structure 
+>>>>> [-Wflex-array-member-not-at-end]
+>>>>>    188 |         struct smc_clc_smcd_v2_extension pclc_smcd_v2_ext;
+>>>>>        |                                                 
+>>>>> ^~~~~~~~~~~~~~~~
+>>>>>
+>>>>> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+>>>>> ---
+>>>>>   net/smc/smc_clc.c |  5 +++--
+>>>>>   net/smc/smc_clc.h | 24 ++++++++++++++----------
+>>>>>   2 files changed, 17 insertions(+), 12 deletions(-)
+>>>>>
+>>>>> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+>>>>> index e55026c7529c..3094cfa1c458 100644
+>>>>> --- a/net/smc/smc_clc.c
+>>>>> +++ b/net/smc/smc_clc.c
+>>>>> @@ -853,8 +853,9 @@ int smc_clc_send_proposal(struct smc_sock *smc, 
+>>>>> struct smc_init_info *ini)
+>>>>>       pclc_smcd = &pclc->pclc_smcd;
+>>>>>       pclc_prfx = &pclc->pclc_prfx;
+>>>>>       ipv6_prfx = pclc->pclc_prfx_ipv6;
+>>>>> -    v2_ext = &pclc->pclc_v2_ext;
+>>>>> -    smcd_v2_ext = &pclc->pclc_smcd_v2_ext;
+>>>>> +    v2_ext = container_of(&pclc->pclc_v2_ext, struct 
+>>>>> smc_clc_v2_extension, _hdr);
+>>>>> +    smcd_v2_ext = container_of(&pclc->pclc_smcd_v2_ext,
+>>>>> +                   struct smc_clc_smcd_v2_extension, hdr);
+>>>>>       gidchids = pclc->pclc_gidchids;
+>>>>>       trl = &pclc->pclc_trl;
+>>>>> diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+>>>>> index 7cc7070b9772..5b91a1947078 100644
+>>>>> --- a/net/smc/smc_clc.h
+>>>>> +++ b/net/smc/smc_clc.h
+>>>>> @@ -134,12 +134,14 @@ struct smc_clc_smcd_gid_chid {
+>>>>>                */
+>>>>>   struct smc_clc_v2_extension {
+>>>>> -    struct smc_clnt_opts_area_hdr hdr;
+>>>>> -    u8 roce[16];        /* RoCEv2 GID */
+>>>>> -    u8 max_conns;
+>>>>> -    u8 max_links;
+>>>>> -    __be16 feature_mask;
+>>>>> -    u8 reserved[12];
+>>>>> +    struct_group_tagged(smc_clc_v2_extension_hdr, _hdr,
+>>>>> +        struct smc_clnt_opts_area_hdr hdr;
+>>>>> +        u8 roce[16];        /* RoCEv2 GID */
+>>>>> +        u8 max_conns;
+>>>>> +        u8 max_links;
+>>>>> +        __be16 feature_mask;
+>>>>> +        u8 reserved[12];
+>>>>> +    );
+>>>>>       u8 user_eids[][SMC_MAX_EID_LEN];
+>>>>>   };
+>>>>> @@ -159,8 +161,10 @@ struct smc_clc_msg_smcd {    /* SMC-D GID 
+>>>>> information */
+>>>>>   };
+>>>>>   struct smc_clc_smcd_v2_extension {
+>>>>> -    u8 system_eid[SMC_MAX_EID_LEN];
+>>>>> -    u8 reserved[16];
+>>>>> +    struct_group_tagged(smc_clc_smcd_v2_extension_hdr, hdr,
+>>>>> +        u8 system_eid[SMC_MAX_EID_LEN];
+>>>>> +        u8 reserved[16];
+>>>>> +    );
+>>>>>       struct smc_clc_smcd_gid_chid gidchid[];
+>>>>>   };
+>>>>> @@ -183,9 +187,9 @@ struct smc_clc_msg_proposal_area {
+>>>>>       struct smc_clc_msg_smcd            pclc_smcd;
+>>>>>       struct smc_clc_msg_proposal_prefix    pclc_prfx;
+>>>>>       struct smc_clc_ipv6_prefix 
+>>>>> pclc_prfx_ipv6[SMC_CLC_MAX_V6_PREFIX];
+>>>>> -    struct smc_clc_v2_extension        pclc_v2_ext;
+>>>>> +    struct smc_clc_v2_extension_hdr        pclc_v2_ext;
+>>>>>       u8            user_eids[SMC_CLC_MAX_UEID][SMC_MAX_EID_LEN];
+>>>>> -    struct smc_clc_smcd_v2_extension    pclc_smcd_v2_ext;
+>>>>> +    struct smc_clc_smcd_v2_extension_hdr    pclc_smcd_v2_ext;
+>>>>>       struct smc_clc_smcd_gid_chid
+>>>>>                   pclc_gidchids[SMCD_CLC_MAX_V2_GID_ENTRIES];
+>>>>>       struct smc_clc_msg_trail        pclc_trl;
+>>>>
+>>>> Thank you! Gustavo. This patch can fix this warning well, just the name
+>>>> '*_hdr' might not be very accurate, but I don't have a good idea ATM.
+>>>
+>>> I agree. Should we chose this option we should come up for a better 
+>>> name.
+>>>
+>>>>
+>>>> Besides, I am wondering if this can be fixed by moving
+>>>> user_eids of smc_clc_msg_proposal_area into smc_clc_v2_extension,
+>>>> and
+>>>> pclc_gidchids of smc_clc_msg_proposal_area into 
+>>>> smc_clc_smcd_v2_extension.
+>>>>
+>>>> so that we can avoid to use the flexible-array in smc_clc_v2_extension
+>>>> and smc_clc_smcd_v2_extension.
+>>>
+>>> I like the idea and put some thought into it. The only thing that is 
+>>> not perfectly clean IMO is the following:
+>>> By the current definition it is easily visible that we are dealing 
+>>> with a variable sized array. If we move them into the structs one 
+>>> could think they are always at their MAX size which they are not.
+>>> E.g.: An incoming proposal can have 0 UEIDs indicated by the eid_cnt.
+>>> That said nothing a comment can't fix.
+>>>
+>>>  From what i have seen the offset and length calculations regarding 
+>>> the "real" size of those structs is fine with your proposal.
+>>>
+>>> Can you verify that your changes also resolve the warnings?
+>>
+>> I can confirm that the changes Wen Gu is proposing also resolve the 
+>> warnings.
+>>
+>> Wen,
+>>
+>> If you send a proper patch, you can include the following tags:
+>>
+>> Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+>> Build-tested-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+>>
 > 
-> It's interesting that the incoming socket is not removed after
-> QMP says migration complete. I guess that's by design, but have
-> you checked the QEMU code whether it's intentional?
+> Hi Gustavo, thank you for the confirmation that my proposal can fix the 
+> warning.
 > 
-> I guess it's code like this - in migration/migration.c
+> But I found that I may have something missed in my proposal when I think 
+> further.
+> My proposal changed the sizes of struct smc_clc_v2_extension and 
+> smc_clc_smcd_v2_extension,
+> and some places in SMC need them, such as the fill of kvec in 
+> smc_clc_send_proposal().
 > 
->      /*
->       * This must happen after any state changes since as soon as an external
->       * observer sees this event they might start to prod at the VM assuming
->       * it's ready to use.
->       */
->      migrate_set_state(&mis->state, MIGRATION_STATUS_ACTIVE,
->                        MIGRATION_STATUS_COMPLETED);
->      migration_incoming_state_destroy();
-> 
-> So, it looks like a good fix. And probably not just s390x specific
-> it might be just unlucky timing.
-> 
-> Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+> So my proposal may involve more changes to current SMC code, and I think 
+> it is
+> not as clean as your solution. So I perfer yours now.
 
-All right, I pushed this as a fix now to the repository.
+Hi Wen Gu,
 
-  Thomas
+you're right. I missed that the offset calculation is broken with your 
+proposal since the full size of the array is already included in this 
+case which means we would have to subtract the empty slots instead of 
+adding the full ones.
+My bad. Thinking about adding a testcase to sxplicit check the size of 
+the CLC Messages send in the future.
 
+> 
+> And as for the name, I think maybe we can use '*_elems' as a suffix, at 
+> least it
+> is unambiguous. So it will be smc_clc_v2_extension_elems and 
+> smc_clc_smcd_v2_extension_elems.
+> 
+> 
+> Jan, what do you think of the name '*_elems' ?
 
+Hmm... I think it is way better than priv. One more proposal from my 
+side would be *_fixed since this is the fixed content and not variable. 
+I'm open for both.
+
+Which one would you prefer more?
+
+> 
+> Thanks!
+> 
+>> Thanks!
+>> -- 
+>> Gustavo
+>>
+>>>
+>>> [...]
+>>>
+>>>>   };
+>>>>
+>>>>
+>>>> Thanks!
+>>>> Wen Gu
+>>>
+>>> Thanks you
+>>> - Jan
