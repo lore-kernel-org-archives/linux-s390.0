@@ -1,30 +1,30 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A768D7CF1E;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0D6F7D070;
 	Tue, 12 Mar 2024 14:28:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710253692; cv=none; b=jIRUuPcs9L6vi/P8g6Kl1I0Pn+8nMh5+aZPxGiN2niDi5BhYjnH7n0i0lKqowVUuBXq1gxv+XPeR+dP8ErvK46eYFYFOw9nEpYx2PghYPR4i7/JW8ViBJeivLRLFqLO9HoyAlILuSSJ5C6z1ykw13BgtDho5NQcm6YC5/lF10sc=
+	t=1710253693; cv=none; b=qStEmyQgf/ry9/Z25IVr3lNgPPWUBoUxCYx4pzbCeGN0pB2G6wh9VAWWAClboCVNOpGhhRucoe6P/JtPH3FyjyLWvEu2teBL/0yAQfaVTfeMZjqB3brwyyNBr1iFJiP7PLwQ5EXUY9RZxZZUY7XNDKI+monVzZclBbSFJVX5d1A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710253692; c=relaxed/simple;
-	bh=5EwC3bhadXzJ+hUp9hD9WAJPjFyzgG3lHNPQviwJ9J8=;
+	s=arc-20240116; t=1710253693; c=relaxed/simple;
+	bh=dvrjP6FyooMZfH9tP3r/k0q7Zxk1MxNigKI5R5WFDZg=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=MYh98i6N1xjEZxuDXTJ/dq+iy6hrNOlmmg/5UlgHdIJ/bn+iHeum7DH6pduLmQsy9ZNodanroPWcIZjkVjSU3zX1dXQEoTv810XVWegTJSHLTq8jGeZhiWKpMmbLaRsoieqbsgpldeQ288kDSfk4whYd2HE6ayx8zaZxYoMKeNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=gT7RMJL5; arc=none smtp.client-ip=115.124.30.133
+	 MIME-Version; b=hhyf7MtLFkCiYFUNnZM7UPiS2LskCawqE59jVjvqc/hihAVF+nUzHMk7VieWQW0xQItfruXX+pyOUWwhvEFwUQADNGL12mglL2Lu7xPS8lsSuxSZvP/h3h8MEVFFHFQUOx9SOztU1VGjRIRmsOj88PIsY93GSBMjWJY/IOlZOcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=WYfd5Viz; arc=none smtp.client-ip=115.124.30.119
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="gT7RMJL5"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="WYfd5Viz"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1710253686; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=xLD6AkbhABLaK4gsbGXt5WdC6JCys7PJYkOaexJ/m9E=;
-	b=gT7RMJL5LrvtXZhOSYbh9EyeCv93G4ocWlxnNbXQTtHGit5UorSRq8/cguQdAK631jMQ0JAAViPY9/HxFwF3OvmvXu09gKiPW8IIiwK7giBMMjY5fToPk+QtllfIhsLKUfZ/IZSVMJM9kaDlBnBGyzL3YMYVvS6JTfR8EgVMfJ4=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W2MG3Ie_1710253683;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W2MG3Ie_1710253683)
+	t=1710253681; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=ioFYp50r+AC0yjO8FJo0KTmmSlkoNb91N+pNLCEdIRU=;
+	b=WYfd5VizNb9SE3HUzl40ZHd1jy2A9TSu6Z5YR0n2wMQSgBPGdD3OSGf4BS6n2mHE+WWTAjkyWXaw74hKvJpCLlA6k/n47mAsbLqNzTLY5V6o28be0H+K0/HP8f8U+axSUt5zh0143JOM0xSThBK8odwgmRTXvlO/+sfX0kxHDbM=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W2M60RJ_1710253679;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W2M60RJ_1710253679)
           by smtp.aliyun-inc.com;
-          Tue, 12 Mar 2024 22:28:05 +0800
+          Tue, 12 Mar 2024 22:28:01 +0800
 From: Wen Gu <guwen@linux.alibaba.com>
 To: wintera@linux.ibm.com,
 	twinkler@linux.ibm.com,
@@ -45,9 +45,9 @@ Cc: borntraeger@linux.ibm.com,
 	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org
-Subject: [PATCH net-next v3 03/11] net/smc: introduce loopback-ism for SMC intra-OS shortcut
-Date: Tue, 12 Mar 2024 22:27:35 +0800
-Message-Id: <20240312142743.41406-4-guwen@linux.alibaba.com>
+Subject: [PATCH net-next v3 01/11] net/smc: adapt SMC-D device dump for Emulated-ISM
+Date: Tue, 12 Mar 2024 22:27:33 +0800
+Message-Id: <20240312142743.41406-2-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240312142743.41406-1-guwen@linux.alibaba.com>
 References: <20240312142743.41406-1-guwen@linux.alibaba.com>
@@ -59,309 +59,51 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This introduces a kind of Emulated-ISM device named loopback-ism for
-SMCv2.1. The loopback-ism device is currently exclusive for SMC usage,
-and aims to provide a SMC shortcut for sockets within the same kernel,
-leading to improved intra-OS traffic performance. Configuration of this
-feature is managed through the config SMC_LO.
+The introduction of Emulated-ISM requires adaptation of SMC-D device
+dump. Software implemented non-PCI device (loopback-ism) should be
+handled correctly and the CHID reserved for Emulated-ISM should be got
+from smcd_ops interface instead of PCI information.
 
 Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- net/smc/Kconfig        |  13 ++++
- net/smc/Makefile       |   2 +-
- net/smc/af_smc.c       |  12 ++-
- net/smc/smc_loopback.c | 164 +++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_loopback.h |  33 +++++++++
- 5 files changed, 222 insertions(+), 2 deletions(-)
- create mode 100644 net/smc/smc_loopback.c
- create mode 100644 net/smc/smc_loopback.h
+ net/smc/smc_ism.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/Kconfig b/net/smc/Kconfig
-index 746be3996768..2f1a8706a372 100644
---- a/net/smc/Kconfig
-+++ b/net/smc/Kconfig
-@@ -20,3 +20,16 @@ config SMC_DIAG
- 	  smcss.
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index ac88de2a06a0..b6eca4231913 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -252,12 +252,11 @@ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
+ 	char smc_pnet[SMC_MAX_PNETID_LEN + 1];
+ 	struct smc_pci_dev smc_pci_dev;
+ 	struct nlattr *port_attrs;
++	struct device *device;
+ 	struct nlattr *attrs;
+-	struct ism_dev *ism;
+ 	int use_cnt = 0;
+ 	void *nlh;
  
- 	  if unsure, say Y.
-+
-+config SMC_LO
-+	bool "SMC intra-OS shortcut with loopback-ism"
-+	depends on SMC
-+	default n
-+	help
-+	  SMC_LO enables the creation of an Emulated-ISM device named
-+	  loopback-ism in SMC and the use of it for transferring data
-+	  when communication occurs within the same OS. This helps in
-+	  convenient testing of SMC-D since loopback-ism is independent
-+	  of architecture or hardware.
-+
-+	  if unsure, say N.
-diff --git a/net/smc/Makefile b/net/smc/Makefile
-index 875efcd126a2..a8c37111abe1 100644
---- a/net/smc/Makefile
-+++ b/net/smc/Makefile
-@@ -4,5 +4,5 @@ obj-$(CONFIG_SMC)	+= smc.o
- obj-$(CONFIG_SMC_DIAG)	+= smc_diag.o
- smc-y := af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o smc_llc.o
- smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o smc_netlink.o smc_stats.o
--smc-y += smc_tracepoint.o
-+smc-y += smc_tracepoint.o smc_loopback.o
- smc-$(CONFIG_SYSCTL) += smc_sysctl.o
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 4b52b3b159c0..751a8fdd6eb0 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -53,6 +53,7 @@
- #include "smc_stats.h"
- #include "smc_tracepoint.h"
- #include "smc_sysctl.h"
-+#include "smc_loopback.h"
- 
- static DEFINE_MUTEX(smc_server_lgr_pending);	/* serialize link group
- 						 * creation on server
-@@ -3557,15 +3558,23 @@ static int __init smc_init(void)
- 		goto out_sock;
- 	}
- 
-+	rc = smc_loopback_init();
-+	if (rc) {
-+		pr_err("%s: smc_loopback_init fails with %d\n", __func__, rc);
-+		goto out_ib;
+-	ism = smcd->priv;
+ 	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
+ 			  &smc_gen_nl_family, NLM_F_MULTI,
+ 			  SMC_NETLINK_GET_DEV_SMCD);
+@@ -272,7 +271,15 @@ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
+ 	if (nla_put_u8(skb, SMC_NLA_DEV_IS_CRIT, use_cnt > 0))
+ 		goto errattr;
+ 	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
+-	smc_set_pci_values(to_pci_dev(ism->dev.parent), &smc_pci_dev);
++	device = smcd->ops->get_dev(smcd);
++	if (device->parent)
++		smc_set_pci_values(to_pci_dev(device->parent), &smc_pci_dev);
++	if (smc_ism_is_emulated(smcd)) {
++		smc_pci_dev.pci_pchid = smc_ism_get_chid(smcd);
++		if (!device->parent)
++			snprintf(smc_pci_dev.pci_id, sizeof(smc_pci_dev.pci_id),
++				 "%s", dev_name(device));
 +	}
-+
- 	rc = tcp_register_ulp(&smc_ulp_ops);
- 	if (rc) {
- 		pr_err("%s: tcp_ulp_register fails with %d\n", __func__, rc);
--		goto out_ib;
-+		goto out_lo;
- 	}
- 
- 	static_branch_enable(&tcp_have_smc);
- 	return 0;
- 
-+out_lo:
-+	smc_loopback_exit();
- out_ib:
- 	smc_ib_unregister_client();
- out_sock:
-@@ -3603,6 +3612,7 @@ static void __exit smc_exit(void)
- 	tcp_unregister_ulp(&smc_ulp_ops);
- 	sock_unregister(PF_SMC);
- 	smc_core_exit();
-+	smc_loopback_exit();
- 	smc_ib_unregister_client();
- 	smc_ism_exit();
- 	destroy_workqueue(smc_close_wq);
-diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
-new file mode 100644
-index 000000000000..e9170d86e58f
---- /dev/null
-+++ b/net/smc/smc_loopback.c
-@@ -0,0 +1,164 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ *  Shared Memory Communications Direct over loopback-ism device.
-+ *
-+ *  Provide a SMC-D loopback-ism device.
-+ *
-+ *  Copyright (c) 2024, Alibaba Inc.
-+ *
-+ *  Author: Wen Gu <guwen@linux.alibaba.com>
-+ *          Tony Lu <tonylu@linux.alibaba.com>
-+ *
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/types.h>
-+#include <net/smc.h>
-+
-+#include "smc_ism.h"
-+#include "smc_loopback.h"
-+
-+#if IS_ENABLED(CONFIG_SMC_LO)
-+static const char smc_lo_dev_name[] = "loopback-ism";
-+static struct smc_lo_dev *lo_dev;
-+
-+static const struct smcd_ops lo_ops = {
-+	.query_remote_gid	= NULL,
-+	.register_dmb		= NULL,
-+	.unregister_dmb		= NULL,
-+	.add_vlan_id		= NULL,
-+	.del_vlan_id		= NULL,
-+	.set_vlan_required	= NULL,
-+	.reset_vlan_required	= NULL,
-+	.signal_event		= NULL,
-+	.move_data		= NULL,
-+	.supports_v2		= NULL,
-+	.get_local_gid		= NULL,
-+	.get_chid		= NULL,
-+	.get_dev		= NULL,
-+};
-+
-+static struct smcd_dev *smcd_lo_alloc_dev(const struct smcd_ops *ops,
-+					  int max_dmbs)
-+{
-+	struct smcd_dev *smcd;
-+
-+	smcd = kzalloc(sizeof(*smcd), GFP_KERNEL);
-+	if (!smcd)
-+		return NULL;
-+
-+	smcd->conn = kcalloc(max_dmbs, sizeof(struct smc_connection *),
-+			     GFP_KERNEL);
-+	if (!smcd->conn)
-+		goto out_smcd;
-+
-+	smcd->ops = ops;
-+
-+	spin_lock_init(&smcd->lock);
-+	spin_lock_init(&smcd->lgr_lock);
-+	INIT_LIST_HEAD(&smcd->vlan);
-+	INIT_LIST_HEAD(&smcd->lgr_list);
-+	init_waitqueue_head(&smcd->lgrs_deleted);
-+	return smcd;
-+
-+out_smcd:
-+	kfree(smcd);
-+	return NULL;
-+}
-+
-+static int smcd_lo_register_dev(struct smc_lo_dev *ldev)
-+{
-+	struct smcd_dev *smcd;
-+
-+	smcd = smcd_lo_alloc_dev(&lo_ops, SMC_LO_MAX_DMBS);
-+	if (!smcd)
-+		return -ENOMEM;
-+	ldev->smcd = smcd;
-+	smcd->priv = ldev;
-+
-+	/* TODO:
-+	 * register loopback-ism to smcd_dev list.
-+	 */
-+	return 0;
-+}
-+
-+static void smcd_lo_unregister_dev(struct smc_lo_dev *ldev)
-+{
-+	struct smcd_dev *smcd = ldev->smcd;
-+
-+	/* TODO:
-+	 * unregister loopback-ism from smcd_dev list.
-+	 */
-+	kfree(smcd->conn);
-+	kfree(smcd);
-+}
-+
-+static int smc_lo_dev_init(struct smc_lo_dev *ldev)
-+{
-+	return smcd_lo_register_dev(ldev);
-+}
-+
-+static void smc_lo_dev_exit(struct smc_lo_dev *ldev)
-+{
-+	smcd_lo_unregister_dev(ldev);
-+}
-+
-+static void smc_lo_dev_release(struct device *dev)
-+{
-+	struct smc_lo_dev *ldev =
-+		container_of(dev, struct smc_lo_dev, dev);
-+
-+	kfree(ldev);
-+}
-+
-+static int smc_lo_dev_probe(void)
-+{
-+	struct smc_lo_dev *ldev;
-+	int ret;
-+
-+	ldev = kzalloc(sizeof(*ldev), GFP_KERNEL);
-+	if (!ldev)
-+		return -ENOMEM;
-+
-+	ldev->dev.parent = NULL;
-+	ldev->dev.release = smc_lo_dev_release;
-+	device_initialize(&ldev->dev);
-+	dev_set_name(&ldev->dev, smc_lo_dev_name);
-+
-+	ret = smc_lo_dev_init(ldev);
-+	if (ret)
-+		goto free_dev;
-+
-+	lo_dev = ldev; /* global loopback device */
-+	return 0;
-+
-+free_dev:
-+	put_device(&ldev->dev);
-+	return ret;
-+}
-+
-+static void smc_lo_dev_remove(void)
-+{
-+	if (!lo_dev)
-+		return;
-+
-+	smc_lo_dev_exit(lo_dev);
-+	put_device(&lo_dev->dev); /* device_initialize in smc_lo_dev_probe */
-+}
-+#endif
-+
-+int smc_loopback_init(void)
-+{
-+#if IS_ENABLED(CONFIG_SMC_LO)
-+	return smc_lo_dev_probe();
-+#else
-+	return 0;
-+#endif
-+}
-+
-+void smc_loopback_exit(void)
-+{
-+#if IS_ENABLED(CONFIG_SMC_LO)
-+	smc_lo_dev_remove();
-+#endif
-+}
-diff --git a/net/smc/smc_loopback.h b/net/smc/smc_loopback.h
-new file mode 100644
-index 000000000000..9dd44d4c0ca3
---- /dev/null
-+++ b/net/smc/smc_loopback.h
-@@ -0,0 +1,33 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ *  Shared Memory Communications Direct over loopback-ism device.
-+ *
-+ *  Provide a SMC-D loopback-ism device.
-+ *
-+ *  Copyright (c) 2024, Alibaba Inc.
-+ *
-+ *  Author: Wen Gu <guwen@linux.alibaba.com>
-+ *          Tony Lu <tonylu@linux.alibaba.com>
-+ *
-+ */
-+
-+#ifndef _SMC_LOOPBACK_H
-+#define _SMC_LOOPBACK_H
-+
-+#include <linux/device.h>
-+#include <linux/err.h>
-+#include <net/smc.h>
-+
-+#if IS_ENABLED(CONFIG_SMC_LO)
-+#define SMC_LO_MAX_DMBS		5000
-+
-+struct smc_lo_dev {
-+	struct smcd_dev *smcd;
-+	struct device dev;
-+};
-+#endif
-+
-+int smc_loopback_init(void);
-+void smc_loopback_exit(void);
-+
-+#endif /* _SMC_LOOPBACK_H */
+ 	if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev.pci_fid))
+ 		goto errattr;
+ 	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID, smc_pci_dev.pci_pchid))
 -- 
 2.32.0.3.g01195cf9f
 
