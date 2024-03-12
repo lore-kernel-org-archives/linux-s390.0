@@ -1,205 +1,185 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7398213F43C;
-	Tue, 12 Mar 2024 17:03:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D46A40864;
+	Tue, 12 Mar 2024 17:55:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710263028; cv=none; b=RQVxQtIrYHe/94jAEevfS8qEPgqRterFStoJfr/rxyB4ah0xYdRE9z7GWSeRwM152vAOnuAqGLZRZqXdQlmzbeOoE9zA+LryIqXAaLpf5roHVIdDL7rzD6uBI04DK2fBrcqwOxpXy+U7k0yVSzvOqrtlYDVJ63bfyTB8Jl2emlU=
+	t=1710266123; cv=none; b=JhhkhCBDtjslRhjExBgFHhUiGU2eccrocthvtskqRf6su0aExEVRbYQECj+HKq1jrJaohwB02nBCmRggyhRzJT4X+JM5pB18hu+R16imSYU5y0KQYJo6veXLX55nMknj9KLQWEjCOVMtgkiPSKlXoyU3alfxwmkTUI962AatHLc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710263028; c=relaxed/simple;
-	bh=aXK16bg6wFU939Q5hQXiPa2mmiaErST3M/uq0N+/d0M=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=aRyHv/mEPt/KonPt1qER8oQNO85l9v0dnw8Sxx/aKDi/nTnv4XdqG7S7fAXJBHQwuVi8Ix6fyb6LBMk3YXTPb/S/UIYdMYGfvHmIMeDoaUGMeCzaODNXzt/YYaEj2fA2XM4Z9kcH1og0NE2MiinHuFlTlHas/eT3SrWLO9rxmHE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AkJDfD8d; arc=none smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1710266123; c=relaxed/simple;
+	bh=8vWFn+lk7XrMdfCu+84+a7Fv41SKYL44pFn0ywSR89U=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=QxpfsfYVRwM/VZBFZQ2rfGAU6kpSkzuUAOikrEZIeyGna3iosZXplBcucC4kbiKs0DZ3sLEEMloyXozF0QoktltpzgkypAHfsAScTAzFczla7PRXSqduVIGedj3uMJLYFTANLMSXPYFA/GckfvtyBQjTtRBGXo6SSGp3Hfm3ORM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ph3tY+Cq; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AkJDfD8d"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-1dd9568fc51so22813665ad.2;
-        Tue, 12 Mar 2024 10:03:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710263026; x=1710867826; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=f6JeHPuNf2fPfe8/IgMEBFCbi+8s7x8ZP+Ypz6wTBFE=;
-        b=AkJDfD8dIT0XkorCvtWCXld9660bxGyCxgYYHwK1dP6jTMwBiOoImKTxegP9eY/L2+
-         ULyXUByH35/epJtHBmGHffmyV5gVlYDKXQl3zSiH7N/n2uY4qgpW2K4nM5xaOmx4xCiV
-         IyiTqC5vYksM8XUli0sn2bU0b8+MvK3MtElZ8JP7hh/CiphchxYrBiMe5rSwsL1IIBXX
-         h/9TngYVo9PGMPkoRF+ccYZ3wwqF1CoK3CEk2CO/+fO1CmZAk40KNzV8qJYNimkMs76r
-         jalEiGaSMZ8XZqtiHc0VBcVCabby5+RVTNIC7DHd/Vgt352lf/UrPVWUSkzuvGlP74XX
-         1IhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710263026; x=1710867826;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:sender:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=f6JeHPuNf2fPfe8/IgMEBFCbi+8s7x8ZP+Ypz6wTBFE=;
-        b=W003Q3DEGIw2ie+YE8i7XBizeG7QTiuW59A77BFB7NioJEFXNldOGEa9eYMlyC+stQ
-         QYbRvQrkb5K2btceiEjTfClIC6CQETJhONclkI7P8/0DGZbaIvAuYEy/1fBvYP/YR3S0
-         ZIAT99edEXzJeFlPfL0irAWGYnT7Cs3ONNC+S9ieH8ynzcw6PPfdQGBd+NnpNFeGm3JL
-         h6VSI4rkKh0z5kb1epuFO+9/2UEm52zxyRrrfwU5B0T0YcmsQ4Uy/BfzgkmHhQTDmZEL
-         EjLKEEnrZ1MJY2HtPsH/q5AG9rls4Jf5nRLf8lrb9/J8dO15hhT7ekOLa9zYIiHCqQ0u
-         bxhQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWEp2okZOCa7sqE9hFnA8U04gwIbWULiO1u/KHQ6OOu+Q/BnSoBeiwXQbxJI5gsLkkKGVJlXFAuxpI4CPQl/ZmJTSyb3oBhkbApMIiTwO6M/YsPTljVZ8KV8GxdOL42DqlFbv/CO1unf82hE66ZBmtL0vwEGnKUzxxPqLjEimfZjDLbWIX4nkNc8r/akDUYySIL+X5sftOJb8qAKdi7jXgWHXB75fe5b2/GerQd7uo6WNA7yT2Ypr8RHW3XZ28LuGdElryYZp6+CuTy3DH2yh/lrsmdamCMbg==
-X-Gm-Message-State: AOJu0YxAODUmli+DmE7cbfn9j6kpRL4tq78vRNEqkIe/OmBuOXFP6Egx
-	SnyEc1Dm74cn9pHVB2ipaLH8F4vHSo6f74Ay+s2ppDf8xZMl0sFWeI/PGI8w
-X-Google-Smtp-Source: AGHT+IFeKRBmX0VW7sv5rUHfZ0tynia7OwMdWO6tHkvskc+E+k+IhaoGejd1DMN70lLMBnMgohEXxQ==
-X-Received: by 2002:a17:903:483:b0:1dc:fba1:1522 with SMTP id jj3-20020a170903048300b001dcfba11522mr6685263plb.41.1710263026027;
-        Tue, 12 Mar 2024 10:03:46 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id e10-20020a170902f1ca00b001dd75d4c78csm7006194plc.221.2024.03.12.10.03.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Mar 2024 10:03:44 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-To: linux-kselftest@vger.kernel.org
-Cc: David Airlie <airlied@gmail.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	=?UTF-8?q?Ma=C3=ADra=20Canal?= <mcanal@igalia.com>,
-	Dan Carpenter <dan.carpenter@linaro.org>,
-	Kees Cook <keescook@chromium.org>,
-	Daniel Diaz <daniel.diaz@linaro.org>,
-	David Gow <davidgow@google.com>,
-	Arthur Grillo <arthurgrillo@riseup.net>,
-	Brendan Higgins <brendan.higgins@linux.dev>,
-	Naresh Kamboju <naresh.kamboju@linaro.org>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Maxime Ripard <mripard@kernel.org>,
-	=?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>,
-	Daniel Vetter <daniel@ffwll.ch>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	dri-devel@lists.freedesktop.org,
-	kunit-dev@googlegroups.com,
-	linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-doc@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ph3tY+Cq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB874C433C7;
+	Tue, 12 Mar 2024 17:55:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1710266123;
+	bh=8vWFn+lk7XrMdfCu+84+a7Fv41SKYL44pFn0ywSR89U=;
+	h=Date:From:To:Cc:Subject:From;
+	b=Ph3tY+CqN7KEru+aVmh+ium4/oqzZ3jkHyA6HnHtsfTSzzbZRRIsx96fza+q8B6b/
+	 jdl4Dd4cxkZ2PIMGvv8/EQ3IWIVslfVKfJx4YtDWZW26UNW+sinsZ9imvy7/61r2aj
+	 uI9WBCxVOIATcXvTStluwlF6Fk11tJeiLVJyUUqDIUUcSWKtdwxGSyT7f7QWOXHAWv
+	 w5d9Dvsi2i4LN5D2AnPNNkLYy1aRdxrWW4Tvt0lNHT3NEcm+wpZYQ3ubIMJkvC+WoH
+	 TYpOFJgVO33JZ/QY0kJGIClsYbm9U/1k5As2+GBYY+Jp/MyKtMrFxO9FIBN77ORdsQ
+	 BHisaQsiK8KRQ==
+Date: Tue, 12 Mar 2024 11:55:19 -0600
+From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+To: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	netdev@lists.linux.dev,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 14/14] powerpc: Add support for suppressing warning backtraces
-Date: Tue, 12 Mar 2024 10:03:09 -0700
-Message-Id: <20240312170309.2546362-15-linux@roeck-us.net>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240312170309.2546362-1-linux@roeck-us.net>
-References: <20240312170309.2546362-1-linux@roeck-us.net>
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	linux-hardening@vger.kernel.org, Kees Cook <keescook@chromium.org>
+Subject: [PATCH v2][next] net/smc: Avoid -Wflex-array-member-not-at-end
+ warnings
+Message-ID: <ZfCXBykRw5XqBvf0@neat>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Add name of functions triggering warning backtraces to the __bug_table
-object section to enable support for suppressing WARNING backtraces.
+-Wflex-array-member-not-at-end is coming in GCC-14, and we are getting
+ready to enable it globally.
 
-To limit image size impact, the pointer to the function name is only added
-to the __bug_table section if both CONFIG_KUNIT and CONFIG_DEBUG_BUGVERBOSE
-are enabled. Otherwise, the __func__ assembly parameter is replaced with a
-(dummy) NULL parameter to avoid an image size increase due to unused
-__func__ entries (this is necessary because __func__ is not a define but a
-virtual variable).
+There are currently a couple of objects in `struct smc_clc_msg_proposal_area`
+that contain a couple of flexible structures:
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+struct smc_clc_msg_proposal_area {
+	...
+	struct smc_clc_v2_extension             pclc_v2_ext;
+	...
+	struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
+	...
+};
+
+So, in order to avoid ending up with a couple of flexible-array members
+in the middle of a struct, we use the `struct_group_tagged()` helper to
+separate the flexible array from the rest of the members in the flexible
+structure:
+
+struct smc_clc_smcd_v2_extension {
+        struct_group_tagged(smc_clc_smcd_v2_extension_fixed, fixed,
+                            u8 system_eid[SMC_MAX_EID_LEN];
+                            u8 reserved[16];
+        );
+        struct smc_clc_smcd_gid_chid gidchid[];
+};
+
+With the change described above, we now declare objects of the type of
+the tagged struct without embedding flexible arrays in the middle of
+another struct:
+
+struct smc_clc_msg_proposal_area {
+        ...
+        struct smc_clc_v2_extension_fixed	pclc_v2_ext;
+        ...
+        struct smc_clc_smcd_v2_extension_fixed	pclc_smcd_v2_ext;
+        ...
+};
+
+We also use `container_of()` when we need to retrieve a pointer to the
+flexible structures.
+
+So, with these changes, fix the following warnings:
+
+In file included from net/smc/af_smc.c:42:
+net/smc/smc_clc.h:186:49: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
+  186 |         struct smc_clc_v2_extension             pclc_v2_ext;
+      |                                                 ^~~~~~~~~~~
+net/smc/smc_clc.h:188:49: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
+  188 |         struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
+      |                                                 ^~~~~~~~~~~~~~~~
+
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 ---
- arch/powerpc/include/asm/bug.h | 37 +++++++++++++++++++++++++---------
- 1 file changed, 28 insertions(+), 9 deletions(-)
+Changes in v2:
+ - Name the tagged struct *_fixed instead of *_hdr.
+ - Add Kees' RB tag.
 
-diff --git a/arch/powerpc/include/asm/bug.h b/arch/powerpc/include/asm/bug.h
-index 1db485aacbd9..330d4983f90e 100644
---- a/arch/powerpc/include/asm/bug.h
-+++ b/arch/powerpc/include/asm/bug.h
-@@ -14,6 +14,9 @@
- 	 .section __bug_table,"aw"
- 5001:	 .4byte \addr - .
- 	 .4byte 5002f - .
-+#if IS_ENABLED(CONFIG_KUNIT)
-+	 .4byte 0
-+#endif
- 	 .short \line, \flags
- 	 .org 5001b+BUG_ENTRY_SIZE
- 	 .previous
-@@ -32,30 +35,46 @@
- #endif /* verbose */
+ net/smc/smc_clc.c |  5 +++--
+ net/smc/smc_clc.h | 24 ++++++++++++++----------
+ 2 files changed, 17 insertions(+), 12 deletions(-)
+
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index e55026c7529c..63bb5745ab54 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -853,8 +853,9 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+ 	pclc_smcd = &pclc->pclc_smcd;
+ 	pclc_prfx = &pclc->pclc_prfx;
+ 	ipv6_prfx = pclc->pclc_prfx_ipv6;
+-	v2_ext = &pclc->pclc_v2_ext;
+-	smcd_v2_ext = &pclc->pclc_smcd_v2_ext;
++	v2_ext = container_of(&pclc->pclc_v2_ext, struct smc_clc_v2_extension, fixed);
++	smcd_v2_ext = container_of(&pclc->pclc_smcd_v2_ext,
++				   struct smc_clc_smcd_v2_extension, fixed);
+ 	gidchids = pclc->pclc_gidchids;
+ 	trl = &pclc->pclc_trl;
  
- #else /* !__ASSEMBLY__ */
--/* _EMIT_BUG_ENTRY expects args %0,%1,%2,%3 to be FILE, LINE, flags and
--   sizeof(struct bug_entry), respectively */
-+/* _EMIT_BUG_ENTRY expects args %0,%1,%2,%3,%4 to be FILE, __func__, LINE, flags
-+   and sizeof(struct bug_entry), respectively */
- #ifdef CONFIG_DEBUG_BUGVERBOSE
-+
-+#if IS_ENABLED(CONFIG_KUNIT)
-+# define HAVE_BUG_FUNCTION
-+# define __BUG_FUNC_PTR	"	.4byte %1 - .\n"
-+#else
-+# define __BUG_FUNC_PTR
-+#endif /* IS_ENABLED(CONFIG_KUNIT) */
-+
- #define _EMIT_BUG_ENTRY				\
- 	".section __bug_table,\"aw\"\n"		\
- 	"2:	.4byte 1b - .\n"		\
- 	"	.4byte %0 - .\n"		\
--	"	.short %1, %2\n"		\
--	".org 2b+%3\n"				\
-+	__BUG_FUNC_PTR				\
-+	"	.short %2, %3\n"		\
-+	".org 2b+%4\n"				\
- 	".previous\n"
- #else
- #define _EMIT_BUG_ENTRY				\
- 	".section __bug_table,\"aw\"\n"		\
- 	"2:	.4byte 1b - .\n"		\
--	"	.short %2\n"			\
--	".org 2b+%3\n"				\
-+	"	.short %3\n"			\
-+	".org 2b+%4\n"				\
- 	".previous\n"
- #endif
+diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+index 7cc7070b9772..2bfb51daf468 100644
+--- a/net/smc/smc_clc.h
++++ b/net/smc/smc_clc.h
+@@ -134,12 +134,14 @@ struct smc_clc_smcd_gid_chid {
+ 			 */
  
-+#ifdef HAVE_BUG_FUNCTION
-+# define __BUG_FUNC	__func__
-+#else
-+# define __BUG_FUNC	NULL
-+#endif
-+
- #define BUG_ENTRY(insn, flags, ...)			\
- 	__asm__ __volatile__(				\
- 		"1:	" insn "\n"			\
- 		_EMIT_BUG_ENTRY				\
--		: : "i" (__FILE__), "i" (__LINE__),	\
-+		: : "i" (__FILE__), "i" (__BUG_FUNC),	\
-+		  "i" (__LINE__),			\
- 		  "i" (flags),				\
- 		  "i" (sizeof(struct bug_entry)),	\
- 		  ##__VA_ARGS__)
-@@ -80,7 +99,7 @@
- 		if (x)						\
- 			BUG();					\
- 	} else {						\
--		BUG_ENTRY(PPC_TLNEI " %4, 0", 0, "r" ((__force long)(x)));	\
-+		BUG_ENTRY(PPC_TLNEI " %5, 0", 0, "r" ((__force long)(x)));	\
- 	}							\
- } while (0)
+ struct smc_clc_v2_extension {
+-	struct smc_clnt_opts_area_hdr hdr;
+-	u8 roce[16];		/* RoCEv2 GID */
+-	u8 max_conns;
+-	u8 max_links;
+-	__be16 feature_mask;
+-	u8 reserved[12];
++	struct_group_tagged(smc_clc_v2_extension_fixed, fixed,
++		struct smc_clnt_opts_area_hdr hdr;
++		u8 roce[16];		/* RoCEv2 GID */
++		u8 max_conns;
++		u8 max_links;
++		__be16 feature_mask;
++		u8 reserved[12];
++	);
+ 	u8 user_eids[][SMC_MAX_EID_LEN];
+ };
  
-@@ -90,7 +109,7 @@
- 		if (__ret_warn_on)				\
- 			__WARN();				\
- 	} else {						\
--		BUG_ENTRY(PPC_TLNEI " %4, 0",			\
-+		BUG_ENTRY(PPC_TLNEI " %5, 0",			\
- 			  BUGFLAG_WARNING | BUGFLAG_TAINT(TAINT_WARN),	\
- 			  "r" (__ret_warn_on));	\
- 	}							\
+@@ -159,8 +161,10 @@ struct smc_clc_msg_smcd {	/* SMC-D GID information */
+ };
+ 
+ struct smc_clc_smcd_v2_extension {
+-	u8 system_eid[SMC_MAX_EID_LEN];
+-	u8 reserved[16];
++	struct_group_tagged(smc_clc_smcd_v2_extension_fixed, fixed,
++		u8 system_eid[SMC_MAX_EID_LEN];
++		u8 reserved[16];
++	);
+ 	struct smc_clc_smcd_gid_chid gidchid[];
+ };
+ 
+@@ -183,9 +187,9 @@ struct smc_clc_msg_proposal_area {
+ 	struct smc_clc_msg_smcd			pclc_smcd;
+ 	struct smc_clc_msg_proposal_prefix	pclc_prfx;
+ 	struct smc_clc_ipv6_prefix	pclc_prfx_ipv6[SMC_CLC_MAX_V6_PREFIX];
+-	struct smc_clc_v2_extension		pclc_v2_ext;
++	struct smc_clc_v2_extension_fixed	pclc_v2_ext;
+ 	u8			user_eids[SMC_CLC_MAX_UEID][SMC_MAX_EID_LEN];
+-	struct smc_clc_smcd_v2_extension	pclc_smcd_v2_ext;
++	struct smc_clc_smcd_v2_extension_fixed	pclc_smcd_v2_ext;
+ 	struct smc_clc_smcd_gid_chid
+ 				pclc_gidchids[SMCD_CLC_MAX_V2_GID_ENTRIES];
+ 	struct smc_clc_msg_trail		pclc_trl;
 -- 
-2.39.2
+2.34.1
 
