@@ -1,66 +1,66 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C049C69D00;
-	Tue, 12 Mar 2024 07:55:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1E0469D00;
+	Tue, 12 Mar 2024 08:06:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710230112; cv=none; b=IWL6cmYSUMLfGvIPCWwzmOfvNXx9vjSNf7A2HXr/jTNIsRIAXdlVSueBT24kKInQ8umqkgHZ4QkJ5Fp1COfhpy2x5PU+nvAyuOGPNzkfyhcEaQD5/YK7HLixEYgKGp2glZdrx0yXhy0EhTRB117VTQ//RSW8OMYANtMIAFnqDqE=
+	t=1710230806; cv=none; b=mj4orm2TFEFYy259qpCXcq1r5xgRG3ZBaHvat7YVz0bhDOe/+8DYkUxIbm1yQ83VQ5+Bksi7Ro1ZavdQmTIU3e/ePsQ5PoQgddm/kmus9bTpTCAUs4jf6tCsukcSnE7L8a4WdFDg6AWcfjGhdOJueoLvvBzIX+3tYc+3YJmuBwI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710230112; c=relaxed/simple;
-	bh=nW54QLvxLUE86tN4pbBK4afc+iEkoEeu461+c2/5ZnA=;
+	s=arc-20240116; t=1710230806; c=relaxed/simple;
+	bh=loyLU4g6Zw9kjPLNyvmCoapQCZCe19iImHhWuu9Onio=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mzcz/bVlXGNh2483Ff2d3HgoK5NqUjitepLWpFpvo6413JQNYR1V7hG5mqMNXyKBCFdL7y3wKwoVPAoIG4eoBmm/+Lt3ZxkXIFHIbgA1u2Ip4bxTB/fefecT1aAwvotLJxVRaLxeZMkLnOf1XelXDm5LZ2XNT8NrmKOxywPQQso=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mqT7zjqC; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=kLPcxh08mN7AttFr6TFQa48aGS67x3sKV1b42ZuRJWnI+oHuN99FlMK1h/3DWJm6gmE8dj1ndvK7IwCyIZDf26unBZF22aJHBJ6F9vFpWiefXuJKfsvFqoe8zc76NiNLWYP615+HWNldJYnPosoJlJtTYP5Q6nRAtW2mZS8WH5Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Mf47vl3L; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mqT7zjqC"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42C7lMZ4027833;
-	Tue, 12 Mar 2024 07:54:54 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Mf47vl3L"
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42C7uXBE018333;
+	Tue, 12 Mar 2024 08:06:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=o7LxOeWqm1j/kchabVECauOS2s34gMo+ClRG1T94Dwo=;
- b=mqT7zjqCnyR2F08mJRj3tzxGfRCrVj4L3FM1d2i6gzwTjPUy4bEG9G50YVV8/aNgFS+T
- H1unTaQFp+UWHYAXu2mMmL2ixhiDeW9VPKY61UPlsPtbOgumwzGr1dgexv8b1YOnAkDs
- /VmVU+QKGfxTx67IbXceE7EIa+uADjCMQd51rkcS+wCwhLd7T1gcm0Lgj0gWKKNYpEfL
- vq9sEZ+kXTC0OdK8EATFbes4Co9ToVLU5kgdV1H9098Q66pjjNbz7x8dvsMMrVDKZylI
- 9xx5OS5NHWnIDVABxq6ufvLQ4R1Fa3EgKPNIgOpkal1F+Ssv9RoT6TagitDzV5KKTFi2 oA== 
+ bh=BEHUUGBRVWHM0oJZ353lAyKYuBhe2eOkFIuCO80ZIgM=;
+ b=Mf47vl3Lb8O2kmp0jJKSbiDyen0PCwj3uIk/sSSSxa07KNQOtF2H51MhCzwP6wh6wpVS
+ BRhIETSiUsVeZ707dHgqNSy3auTK5ETJeJrv9YLg1pBhUXBVQK/vCqUBw40HHe1G7boq
+ ZteUxzvVP05aTRtUQJFRoyJ6PBQL7YMm5ooIBdQNiV4XPtHnJ+UZwv4luk9AGcL0FJB+
+ 4kSUfVhkQ0UgK6FqvGfmKldnBWF9Yi2bOLMgHUjRavnCB0EB7m1AnZqNXDelb5sNJ8yp
+ OOAYNkE5NzmMa2CfnO5XGU0ZbmEi6enkBYBzCN66CjyRjGmRihKc68840wF8uWOQG/VD 3w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wtjyag3eu-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wtht2s8rq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 12 Mar 2024 07:54:53 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 42C7nPaf003131;
-	Tue, 12 Mar 2024 07:54:53 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wtjyag3ea-1
+	Tue, 12 Mar 2024 08:06:38 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 42C80Bop030544;
+	Tue, 12 Mar 2024 08:06:38 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wtht2s8rc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 12 Mar 2024 07:54:52 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42C6qVFJ020437;
-	Tue, 12 Mar 2024 07:54:51 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ws3kkwj8h-1
+	Tue, 12 Mar 2024 08:06:38 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42C5Wf5h015089;
+	Tue, 12 Mar 2024 08:06:37 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ws33nnr7r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 12 Mar 2024 07:54:51 +0000
+	Tue, 12 Mar 2024 08:06:37 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42C7slMM37486896
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42C86VqV50594154
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 12 Mar 2024 07:54:49 GMT
+	Tue, 12 Mar 2024 08:06:33 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 78A3A2004D;
-	Tue, 12 Mar 2024 07:54:47 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 992502004B;
+	Tue, 12 Mar 2024 08:06:31 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 370F52004B;
-	Tue, 12 Mar 2024 07:54:47 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 437E920040;
+	Tue, 12 Mar 2024 08:06:31 +0000 (GMT)
 Received: from [9.152.224.118] (unknown [9.152.224.118])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 12 Mar 2024 07:54:47 +0000 (GMT)
-Message-ID: <fd7e4c2f-0d8f-4b1c-86af-9bf472cb7d0f@linux.ibm.com>
-Date: Tue, 12 Mar 2024 08:54:46 +0100
+	Tue, 12 Mar 2024 08:06:31 +0000 (GMT)
+Message-ID: <36141145-6838-45eb-a6d6-1c052b6fb076@linux.ibm.com>
+Date: Tue, 12 Mar 2024 09:06:30 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,288 +68,232 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH][next] net/smc: Avoid -Wflex-array-member-not-at-end
- warnings
-To: Wen Gu <guwen@linux.alibaba.com>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>
-References: <ZeIhOT44ON5rjPiP@neat>
- <71aa847b-2edc-44a2-beb7-3610bf744937@linux.alibaba.com>
- <1cb9a110-c877-4420-9b23-1e7980f1300a@linux.ibm.com>
- <82c1dc9e-d5b6-40e3-9d81-d18cc270724b@embeddedor.com>
- <d145d2c7-5cbd-4da5-be14-b25d00baad19@linux.alibaba.com>
+Subject: Re: [PATCH net-next v2 11/11] net/smc: implement DMB-merged
+ operations of loopback-ism
+To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
+        twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+References: <20240307095536.29648-1-guwen@linux.alibaba.com>
+ <20240307095536.29648-12-guwen@linux.alibaba.com>
 From: Jan Karcher <jaka@linux.ibm.com>
 Organization: IBM - Network Linux on Z
-In-Reply-To: <d145d2c7-5cbd-4da5-be14-b25d00baad19@linux.alibaba.com>
+In-Reply-To: <20240307095536.29648-12-guwen@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NByB9XodbPGvXpdRdzVkkLmBTagFQ-jG
-X-Proofpoint-GUID: qXaI_Ah3RyMXBY4DUhIKKhqD2zXuQRoa
+X-Proofpoint-GUID: Ck5CYi2OFVpM6ofcKTAdoBwRI6sttqjQ
+X-Proofpoint-ORIG-GUID: Y65Urj8U7fSLhu3KyfcVIt6ROA4JMJ3A
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-03-12_06,2024-03-11_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
- mlxlogscore=999 phishscore=0 impostorscore=0 spamscore=0
- lowpriorityscore=0 suspectscore=0 mlxscore=0 priorityscore=1501
- bulkscore=0 clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2403120060
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
+ clxscore=1015 adultscore=0 impostorscore=0 suspectscore=0
+ lowpriorityscore=0 malwarescore=0 phishscore=0 priorityscore=1501
+ spamscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2403120062
 
 
 
-On 11/03/2024 11:59, Wen Gu wrote:
-> 
-> 
-> On 2024/3/8 07:46, Gustavo A. R. Silva wrote:
->>
->>
->> On 3/7/24 02:17, Jan Karcher wrote:
->>>
->>>
->>> On 04/03/2024 10:00, Wen Gu wrote:
->>>>
->>>>
->>>> On 2024/3/2 02:40, Gustavo A. R. Silva wrote:
->>>>> -Wflex-array-member-not-at-end is coming in GCC-14, and we are getting
->>>>> ready to enable it globally.
->>>>>
->>>>> There are currently a couple of objects in `struct 
->>>>> smc_clc_msg_proposal_area`
->>>>> that contain a couple of flexible structures:
->>>>>
->>>
->>> Thank you Gustavo for the proposal.
->>> I had to do some reading to better understand what's happening and 
->>> how your patch solves this.
->>>
->>>>> struct smc_clc_msg_proposal_area {
->>>>>     ...
->>>>>     struct smc_clc_v2_extension             pclc_v2_ext;
->>>>>     ...
->>>>>     struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
->>>>>     ...
->>>>> };
->>>>>
->>>>> So, in order to avoid ending up with a couple of flexible-array 
->>>>> members
->>>>> in the middle of a struct, we use the `struct_group_tagged()` 
->>>>> helper to
->>>>> separate the flexible array from the rest of the members in the 
->>>>> flexible
->>>>> structure:
->>>>>
->>>>> struct smc_clc_smcd_v2_extension {
->>>>>          struct_group_tagged(smc_clc_smcd_v2_extension_hdr, hdr,
->>>>>                              u8 system_eid[SMC_MAX_EID_LEN];
->>>>>                              u8 reserved[16];
->>>>>          );
->>>>>          struct smc_clc_smcd_gid_chid gidchid[];
->>>>> };
->>>>>
->>>>> With the change described above, we now declare objects of the type of
->>>>> the tagged struct without embedding flexible arrays in the middle of
->>>>> another struct:
->>>>>
->>>>> struct smc_clc_msg_proposal_area {
->>>>>          ...
->>>>>          struct smc_clc_v2_extension_hdr        pclc_v2_ext;
->>>>>          ...
->>>>>          struct smc_clc_smcd_v2_extension_hdr    pclc_smcd_v2_ext;
->>>>>          ...
->>>>> };
->>>>>
->>>>> We also use `container_of()` when we need to retrieve a pointer to the
->>>>> flexible structures.
->>>>>
->>>>> So, with these changes, fix the following warnings:
->>>>>
->>>>> In file included from net/smc/af_smc.c:42:
->>>>> net/smc/smc_clc.h:186:49: warning: structure containing a flexible 
->>>>> array member is not at the end of another structure 
->>>>> [-Wflex-array-member-not-at-end]
->>>>>    186 |         struct smc_clc_v2_extension             pclc_v2_ext;
->>>>>        |                                                 ^~~~~~~~~~~
->>>>> net/smc/smc_clc.h:188:49: warning: structure containing a flexible 
->>>>> array member is not at the end of another structure 
->>>>> [-Wflex-array-member-not-at-end]
->>>>>    188 |         struct smc_clc_smcd_v2_extension pclc_smcd_v2_ext;
->>>>>        |                                                 
->>>>> ^~~~~~~~~~~~~~~~
->>>>>
->>>>> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
->>>>> ---
->>>>>   net/smc/smc_clc.c |  5 +++--
->>>>>   net/smc/smc_clc.h | 24 ++++++++++++++----------
->>>>>   2 files changed, 17 insertions(+), 12 deletions(-)
->>>>>
->>>>> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
->>>>> index e55026c7529c..3094cfa1c458 100644
->>>>> --- a/net/smc/smc_clc.c
->>>>> +++ b/net/smc/smc_clc.c
->>>>> @@ -853,8 +853,9 @@ int smc_clc_send_proposal(struct smc_sock *smc, 
->>>>> struct smc_init_info *ini)
->>>>>       pclc_smcd = &pclc->pclc_smcd;
->>>>>       pclc_prfx = &pclc->pclc_prfx;
->>>>>       ipv6_prfx = pclc->pclc_prfx_ipv6;
->>>>> -    v2_ext = &pclc->pclc_v2_ext;
->>>>> -    smcd_v2_ext = &pclc->pclc_smcd_v2_ext;
->>>>> +    v2_ext = container_of(&pclc->pclc_v2_ext, struct 
->>>>> smc_clc_v2_extension, _hdr);
->>>>> +    smcd_v2_ext = container_of(&pclc->pclc_smcd_v2_ext,
->>>>> +                   struct smc_clc_smcd_v2_extension, hdr);
->>>>>       gidchids = pclc->pclc_gidchids;
->>>>>       trl = &pclc->pclc_trl;
->>>>> diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
->>>>> index 7cc7070b9772..5b91a1947078 100644
->>>>> --- a/net/smc/smc_clc.h
->>>>> +++ b/net/smc/smc_clc.h
->>>>> @@ -134,12 +134,14 @@ struct smc_clc_smcd_gid_chid {
->>>>>                */
->>>>>   struct smc_clc_v2_extension {
->>>>> -    struct smc_clnt_opts_area_hdr hdr;
->>>>> -    u8 roce[16];        /* RoCEv2 GID */
->>>>> -    u8 max_conns;
->>>>> -    u8 max_links;
->>>>> -    __be16 feature_mask;
->>>>> -    u8 reserved[12];
->>>>> +    struct_group_tagged(smc_clc_v2_extension_hdr, _hdr,
->>>>> +        struct smc_clnt_opts_area_hdr hdr;
->>>>> +        u8 roce[16];        /* RoCEv2 GID */
->>>>> +        u8 max_conns;
->>>>> +        u8 max_links;
->>>>> +        __be16 feature_mask;
->>>>> +        u8 reserved[12];
->>>>> +    );
->>>>>       u8 user_eids[][SMC_MAX_EID_LEN];
->>>>>   };
->>>>> @@ -159,8 +161,10 @@ struct smc_clc_msg_smcd {    /* SMC-D GID 
->>>>> information */
->>>>>   };
->>>>>   struct smc_clc_smcd_v2_extension {
->>>>> -    u8 system_eid[SMC_MAX_EID_LEN];
->>>>> -    u8 reserved[16];
->>>>> +    struct_group_tagged(smc_clc_smcd_v2_extension_hdr, hdr,
->>>>> +        u8 system_eid[SMC_MAX_EID_LEN];
->>>>> +        u8 reserved[16];
->>>>> +    );
->>>>>       struct smc_clc_smcd_gid_chid gidchid[];
->>>>>   };
->>>>> @@ -183,9 +187,9 @@ struct smc_clc_msg_proposal_area {
->>>>>       struct smc_clc_msg_smcd            pclc_smcd;
->>>>>       struct smc_clc_msg_proposal_prefix    pclc_prfx;
->>>>>       struct smc_clc_ipv6_prefix 
->>>>> pclc_prfx_ipv6[SMC_CLC_MAX_V6_PREFIX];
->>>>> -    struct smc_clc_v2_extension        pclc_v2_ext;
->>>>> +    struct smc_clc_v2_extension_hdr        pclc_v2_ext;
->>>>>       u8            user_eids[SMC_CLC_MAX_UEID][SMC_MAX_EID_LEN];
->>>>> -    struct smc_clc_smcd_v2_extension    pclc_smcd_v2_ext;
->>>>> +    struct smc_clc_smcd_v2_extension_hdr    pclc_smcd_v2_ext;
->>>>>       struct smc_clc_smcd_gid_chid
->>>>>                   pclc_gidchids[SMCD_CLC_MAX_V2_GID_ENTRIES];
->>>>>       struct smc_clc_msg_trail        pclc_trl;
->>>>
->>>> Thank you! Gustavo. This patch can fix this warning well, just the name
->>>> '*_hdr' might not be very accurate, but I don't have a good idea ATM.
->>>
->>> I agree. Should we chose this option we should come up for a better 
->>> name.
->>>
->>>>
->>>> Besides, I am wondering if this can be fixed by moving
->>>> user_eids of smc_clc_msg_proposal_area into smc_clc_v2_extension,
->>>> and
->>>> pclc_gidchids of smc_clc_msg_proposal_area into 
->>>> smc_clc_smcd_v2_extension.
->>>>
->>>> so that we can avoid to use the flexible-array in smc_clc_v2_extension
->>>> and smc_clc_smcd_v2_extension.
->>>
->>> I like the idea and put some thought into it. The only thing that is 
->>> not perfectly clean IMO is the following:
->>> By the current definition it is easily visible that we are dealing 
->>> with a variable sized array. If we move them into the structs one 
->>> could think they are always at their MAX size which they are not.
->>> E.g.: An incoming proposal can have 0 UEIDs indicated by the eid_cnt.
->>> That said nothing a comment can't fix.
->>>
->>>  From what i have seen the offset and length calculations regarding 
->>> the "real" size of those structs is fine with your proposal.
->>>
->>> Can you verify that your changes also resolve the warnings?
->>
->> I can confirm that the changes Wen Gu is proposing also resolve the 
->> warnings.
->>
->> Wen,
->>
->> If you send a proper patch, you can include the following tags:
->>
->> Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
->> Build-tested-by: Gustavo A. R. Silva <gustavoars@kernel.org>
->>
-> 
-> Hi Gustavo, thank you for the confirmation that my proposal can fix the 
-> warning.
-> 
-> But I found that I may have something missed in my proposal when I think 
-> further.
-> My proposal changed the sizes of struct smc_clc_v2_extension and 
-> smc_clc_smcd_v2_extension,
-> and some places in SMC need them, such as the fill of kvec in 
-> smc_clc_send_proposal().
-> 
-> So my proposal may involve more changes to current SMC code, and I think 
-> it is
-> not as clean as your solution. So I perfer yours now.
+On 07/03/2024 10:55, Wen Gu wrote:
+> This implements operations related to merging sndbuf with peer DMB in
+> loopback-ism. The DMB won't be freed until no sndbuf is attached to it.
 
 Hi Wen Gu,
 
-you're right. I missed that the offset calculation is broken with your 
-proposal since the full size of the array is already included in this 
-case which means we would have to subtract the empty slots instead of 
-adding the full ones.
-My bad. Thinking about adding a testcase to sxplicit check the size of 
-the CLC Messages send in the future.
+while I'm still reviewing let me drop a lockdep finding.
 
 > 
-> And as for the name, I think maybe we can use '*_elems' as a suffix, at 
-> least it
-> is unambiguous. So it will be smc_clc_v2_extension_elems and 
-> smc_clc_smcd_v2_extension_elems.
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
+>   net/smc/smc_loopback.c | 136 +++++++++++++++++++++++++++++++++++------
+>   net/smc/smc_loopback.h |   3 +
+>   2 files changed, 119 insertions(+), 20 deletions(-)
 > 
-> 
-> Jan, what do you think of the name '*_elems' ?
+> diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
+> index 6828e0ad3e90..7e772f3772de 100644
+> --- a/net/smc/smc_loopback.c
+> +++ b/net/smc/smc_loopback.c
 
-Hmm... I think it is way better than priv. One more proposal from my 
-side would be *_fixed since this is the fixed content and not variable. 
-I'm open for both.
+[...]
 
-Which one would you prefer more?
+>   
+> @@ -170,8 +249,22 @@ static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok,
+>   {
+>   	struct smc_lo_dmb_node *rmb_node = NULL, *tmp_node;
+>   	struct smc_lo_dev *ldev = smcd->priv;
+> -
+> -	read_lock(&ldev->dmb_ht_lock);
+> +	struct smc_connection *conn;
+> +
+> +	if (!sf)
+> +		/* since sndbuf is merged with peer DMB, there is
+> +		 * no need to copy data from sndbuf to peer DMB.
+> +		 */
+> +		return 0;
+> +
+> +	/* read_lock_bh() is used here just to make lockdep
+> +	 * happy, because spin_(un)lock_bh(&conn->send_lock) wraps
+> +	 * smc_lo_move_data() and if we use read_lock() here, lockdep
+> +	 * will complain about SOFTIRQ-safe -> SOFTIRQ-unsafe lock
+> +	 * order detected, but in fact ldev->dmb_ht_lock will never
+> +	 * be held in bh context.
+> +	 */
+> +	read_lock_bh(&ldev->dmb_ht_lock);
+>   	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_tok) {
+>   		if (tmp_node->token == dmb_tok) {
+>   			rmb_node = tmp_node;
+> @@ -182,19 +275,14 @@ static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok,
+>   		read_unlock(&ldev->dmb_ht_lock);
+>   		return -EINVAL;
+>   	}
+> -	read_unlock(&ldev->dmb_ht_lock);
+> +	read_unlock_bh(&ldev->dmb_ht_lock);
+>   
+>   	memcpy((char *)rmb_node->cpu_addr + offset, data, size);
+>   
+> -	if (sf) {
+> -		struct smc_connection *conn =
+> -			smcd->conn[rmb_node->sba_idx];
+> -
+> -		if (conn && !conn->killed)
+> -			smcd_cdc_rx_handler(conn);
+> -		else
+> -			return -EPIPE;
+> -	}
+> +	conn = smcd->conn[rmb_node->sba_idx];
+> +	if (!conn || conn->killed)
+> +		return -EPIPE;
+> +	smcd_cdc_rx_handler(conn);
 
-> 
-> Thanks!
-> 
->> Thanks!
->> -- 
->> Gustavo
->>
->>>
->>> [...]
->>>
->>>>   };
->>>>
->>>>
->>>> Thanks!
->>>> Wen Gu
->>>
->>> Thanks you
->>> - Jan
+[ 2385.528515] ============================================
+[ 2385.528517] WARNING: possible recursive locking detected
+[ 2385.528519] 6.8.0-loopback_ism-g30af186e8a18-dirty #12 Not tainted
+[ 2385.528521] --------------------------------------------
+[ 2385.528522] smcapp/51326 is trying to acquire lock:
+[ 2385.528524] 000000018707a128 (&smc->conn.send_lock){+...}-{2:2}, at: 
+smc_tx_sndbuf_nonempty+0xba/0x1c0 [smc]
+[ 2385.528552]
+                but task is already holding lock:
+[ 2385.528554] 0000000187078728 (&smc->conn.send_lock){+...}-{2:2}, at: 
+smc_cdc_get_slot_and_msg_send+0x66/0xa0 [smc]
+[ 2385.528568]
+                other info that might help us debug this:
+[ 2385.528570]  Possible unsafe locking scenario:
+
+[ 2385.528572]        CPU0
+[ 2385.528573]        ----
+[ 2385.528574]   lock(&smc->conn.send_lock);
+[ 2385.528576]   lock(&smc->conn.send_lock);
+[ 2385.528579]
+                 *** DEADLOCK ***
+
+[ 2385.528580]  May be due to missing lock nesting notation
+
+[ 2385.528582] 3 locks held by smcapp/51326:
+[ 2385.528584]  #0: 0000000187078378 (sk_lock-AF_SMC){+.+.}-{0:0}, at: 
+smc_recvmsg+0x3c/0x2b0 [smc]
+[ 2385.528598]  #1: 0000000187078728 (&smc->conn.send_lock){+...}-{2:2}, 
+at: smc_cdc_get_slot_and_msg_send+0x66/0xa0 [smc]
+[ 2385.528613]  #2: 0000000187079ce8 (slock-AF_SMC){+...}-{2:2}, at: 
+smc_cdc_msg_recv+0x56/0xe0 [smc]
+[ 2385.528627]
+                stack backtrace:
+[ 2385.528660] CPU: 3 PID: 51326 Comm: smcapp Not tainted 
+6.8.0-loopback_ism-g30af186e8a18-dirty #12
+[ 2385.528663] Hardware name: IBM 3906 M04 704 (LPAR)
+[ 2385.528664] Call Trace:
+[ 2385.528666]  [<000000012db60788>] dump_stack_lvl+0x90/0x120
+[ 2385.528671]  [<000000012cc6d088>] validate_chain+0x560/0x960
+[ 2385.528677]  [<000000012cc6f644>] __lock_acquire+0x654/0xd58
+[ 2385.528680]  [<000000012cc70a04>] lock_acquire.part.0+0xec/0x260
+[ 2385.528683]  [<000000012cc70c24>] lock_acquire+0xac/0x170
+[ 2385.528687]  [<000000012dba4ccc>] _raw_spin_lock_bh+0x5c/0xb0
+[ 2385.528690]  [<000003ff80453b32>] smc_tx_sndbuf_nonempty+0xba/0x1c0 [smc]
+[ 2385.528702]  [<000003ff8045428a>] smc_tx_pending+0x32/0x60 [smc]
+[ 2385.528712]  [<000003ff80451f02>] smc_cdc_msg_recv_action+0x3c2/0x528 
+[smc]
+[ 2385.528723]  [<000003ff804520cc>] smc_cdc_msg_recv+0x64/0xe0 [smc]
+[ 2385.528734]  [<000003ff80452a4c>] smcd_cdc_rx_handler+0x64/0x70 [smc]
+[ 2385.528745]  [<000003ff80459f7e>] smc_lo_move_data+0xde/0x100 [smc]
+[ 2385.528755]  [<000003ff804533e0>] smcd_tx_ism_write+0x68/0x90 [smc]
+[ 2385.528766]  [<000003ff804528a4>] smcd_cdc_msg_send+0x74/0x118 [smc]
+[ 2385.528776]  [<000003ff804529b8>] 
+smc_cdc_get_slot_and_msg_send+0x70/0xa0 [smc]
+[ 2385.528788]  [<000003ff804543ec>] smc_tx_consumer_update+0xe4/0x1b0 [smc]
+[ 2385.528798]  [<000003ff8045458e>] smc_rx_update_consumer+0x86/0x170 [smc]
+[ 2385.528809]  [<000003ff80455ba8>] smc_rx_recvmsg+0x3b8/0x6e8 [smc]
+[ 2385.528820]  [<000003ff804388a4>] smc_recvmsg+0xdc/0x2b0 [smc]
+[ 2385.528831]  [<000000012d8a6d58>] sock_recvmsg+0x70/0xb0
+[ 2385.528837]  [<000000012d8aa0c8>] __sys_recvfrom+0xa8/0x128
+[ 2385.528840]  [<000000012d8ab3ca>] __do_sys_socketcall+0x1ca/0x398
+[ 2385.528844]  [<000000012db8d4c4>] __do_syscall+0x244/0x308
+[ 2385.528847]  [<000000012dba6140>] system_call+0x70/0x98
+[ 2385.528850] INFO: lockdep is turned off.
+
+
+I did not investigate deeper, yet. Just an early heads up that there 
+might be something broken.
+
+Thank you
+- Jan
+
+
+>   	return 0;
+>   }
+>   
+> @@ -226,6 +314,9 @@ static const struct smcd_ops lo_ops = {
+>   	.query_remote_gid = smc_lo_query_rgid,
+>   	.register_dmb = smc_lo_register_dmb,
+>   	.unregister_dmb = smc_lo_unregister_dmb,
+> +	.support_dmb_nocopy = smc_lo_support_dmb_nocopy,
+> +	.attach_dmb = smc_lo_attach_dmb,
+> +	.detach_dmb = smc_lo_detach_dmb,
+>   	.add_vlan_id = smc_lo_add_vlan_id,
+>   	.del_vlan_id = smc_lo_del_vlan_id,
+>   	.set_vlan_required = smc_lo_set_vlan_required,
+> @@ -304,12 +395,17 @@ static int smc_lo_dev_init(struct smc_lo_dev *ldev)
+>   	smc_lo_generate_id(ldev);
+>   	rwlock_init(&ldev->dmb_ht_lock);
+>   	hash_init(ldev->dmb_ht);
+> +	atomic_set(&ldev->dmb_cnt, 0);
+> +	init_waitqueue_head(&ldev->ldev_release);
+> +
+>   	return smcd_lo_register_dev(ldev);
+>   }
+>   
+>   static void smc_lo_dev_exit(struct smc_lo_dev *ldev)
+>   {
+>   	smcd_lo_unregister_dev(ldev);
+> +	if (atomic_read(&ldev->dmb_cnt))
+> +		wait_event(ldev->ldev_release, !atomic_read(&ldev->dmb_cnt));
+>   }
+>   
+>   static void smc_lo_dev_release(struct device *dev)
+> diff --git a/net/smc/smc_loopback.h b/net/smc/smc_loopback.h
+> index 24ab9d747613..9156a6c37e65 100644
+> --- a/net/smc/smc_loopback.h
+> +++ b/net/smc/smc_loopback.h
+> @@ -30,6 +30,7 @@ struct smc_lo_dmb_node {
+>   	u32 sba_idx;
+>   	void *cpu_addr;
+>   	dma_addr_t dma_addr;
+> +	refcount_t refcnt;
+>   };
+>   
+>   struct smc_lo_dev {
+> @@ -37,9 +38,11 @@ struct smc_lo_dev {
+>   	struct device dev;
+>   	u16 chid;
+>   	struct smcd_gid local_gid;
+> +	atomic_t dmb_cnt;
+>   	rwlock_t dmb_ht_lock;
+>   	DECLARE_BITMAP(sba_idx_mask, SMC_LO_MAX_DMBS);
+>   	DECLARE_HASHTABLE(dmb_ht, SMC_LO_DMBS_HASH_BITS);
+> +	wait_queue_head_t ldev_release;
+>   };
+>   #endif
+>   
