@@ -1,57 +1,57 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+Received: from mail-oo1-f43.google.com (mail-oo1-f43.google.com [209.85.161.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00F7525742;
-	Tue, 12 Mar 2024 05:45:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4443842A9E;
+	Tue, 12 Mar 2024 06:37:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710222314; cv=none; b=JTS5ePo7KvGDhBF/TIQ39bzW22d/jvcVowGqRlDSV4bSGRhTMrjhskLP3zJnBNnJ7zbDNyLw1m+Gbg4knyfTF97i5l1ed8cpN8vyb5ek32bnvJUszJ1r6USIOCNVWgXvQGO/RCCcZ1MFRzXOdHsTVK3x9UNUqx3e2iuyPBMl5QE=
+	t=1710225468; cv=none; b=etWp3Sr2oYiNj7A58SMXY5YrwdT+4xAqXbBOd+lt55sGMd5b2J13wKW5XQxBdqB8fU/0YPPkbzc/X7iuk+WSQ20IU/QnPA/u9veAJx7eM8TuPqCD9gbZg7tOsUn7OTo2GRHDcbcX6hTDhrFaEA2EA4EbhYPqNM0CTYMGLF4xbCs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710222314; c=relaxed/simple;
-	bh=GOxn/4eVruIEi7HrVevp33vbMyZtD/J7uxQzZT6p2d8=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
-	 References:In-Reply-To; b=bnYkVmkYiS1YoXl3nr94dszXOhZLplz8S36Sc5HJf2Aud56qVEylgFthjRufn5FtwdFYsbaOizthNwzVczmUXdhdtOA0ofZcIENXShOfJj2IuAF06B5LViqc+JVv3ZT1AO9Fx9Q4i16/xNmomrzQTKVDmis+2yeUaYJZQ9XHWFU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GtlHgFOR; arc=none smtp.client-ip=209.85.214.171
+	s=arc-20240116; t=1710225468; c=relaxed/simple;
+	bh=v2KrkrpftKfDPO9+UcSDU+qSXkPFeilZEEHJ9NvpPnc=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
+	 References:In-Reply-To; b=lgs59EpR0jAAynuw0EnkCLijg4uZ1ACrc8Mw3Pne41tDVn/0+rt+9t5i5DoS2sx0xM/BhfHpA4o0hJaUoYefyVvxbSYkKl3fpDUfoHcDgxRDvF+3qi9vkBnwqhcLgzrAPX2pMkgcP4FXAqyvFUB9a1PdNGv1PRCjxSNVSDiHWiA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G200Sqp8; arc=none smtp.client-ip=209.85.161.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GtlHgFOR"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-1dd10a37d68so43954065ad.2;
-        Mon, 11 Mar 2024 22:45:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G200Sqp8"
+Received: by mail-oo1-f43.google.com with SMTP id 006d021491bc7-5a1d83a86e8so1308392eaf.0;
+        Mon, 11 Mar 2024 23:37:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710222312; x=1710827112; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
+        d=gmail.com; s=20230601; t=1710225466; x=1710830266; darn=vger.kernel.org;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
          :content-transfer-encoding:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=fW/EcKaMbEkneZDxVrHKCHliy210kWmaiqbzUm1tuZw=;
-        b=GtlHgFORgJPq+8ZN+/O9EHOM0UyzJ9HR/gXrTFIdvUAKV96D0GArTsDIghidh5bnir
-         kpDBapOVxUod0FH5hUW9Xg5ff1Iyl1imDRPWg1RkecFqNUYvs1s9zklJ8Op5xqbhA1HL
-         kUnVzCRWPyeLrc0WJidHUnWzPxBxfsfnovqDEYpKggjuBg4hWSkgQvWf1mE+JTD6axY4
-         ivzmeBhtvx1J7bOuSK1qy4vfc+fqYpEl45cBhvbQ1DuA7YdlfOQeYgW5IYCYLRnpA9kA
-         BPetFvo/5JhLnANtiQ3GwKTMrNeyiUYhWb5sKaexiOgxuVYGz4+GH9ow8L6UruYF0K1b
-         LGFQ==
+        bh=luI7dyoDpScCKQdzlFl2LDpghDSrS4DAvqerJztMkMU=;
+        b=G200Sqp8+suV7siWe5tqLQTk7r0RLGLvM7Fkta/hfsn+s0OkTX5y7xOa3p3OW+Cngq
+         3eGlblHhzdCjzYiHywXRdEtSwQ2c8yFPMf3PfCW6IoDuvvr2rXl/w47pdyqYV5ZJJdPF
+         XbXpPUr0Ntp0bpLPXVVn7rBMoj98kAWQBcd13+HQx48RqjZNj5YMiIg2Ioqy/RyeQvZJ
+         XUptsKgFmFxnSAow3Nl2aJQB9saeT8eshLWB2iqvmQCrjYs7Av4y+OExTf40kW2Csjue
+         Wo2MQkj8CIjDyDy4AeElc0sNoIvGNrRj4t7Xz78gEwU+tc3McqJDrMlP6nbeB4mvkN+M
+         NIKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710222312; x=1710827112;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
+        d=1e100.net; s=20230601; t=1710225466; x=1710830266;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
          :content-transfer-encoding:mime-version:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=fW/EcKaMbEkneZDxVrHKCHliy210kWmaiqbzUm1tuZw=;
-        b=e8rHOpWPcOZMIdmKUTYN68H47ZuBlEQdBTOaFDZ9n/Zdzb7ThamB6ka5fvFx2X9fYt
-         XF8DYF9Ix0U//wCHiobga7hqh9fUeVkfqKueztNKSrnN0Q5uVMIaTPb11ZAAZw9mKrUU
-         L2Ra7wn5L7kCK8nWKkwMIW3IwkT23+HDpU8DAtnUglU+D8u5wTLyQu+nm31D0mGGhCrt
-         vGOe+AxS09LbXU74fNmIL9e4kIzZb749qvTIHq+xV22Qrw5MrpcHRjXRa8HGQu8eFj2Q
-         BG/p/GbgJqyA1ksvs9VbvQaEUSQdpBP38q0p4esGXYdzJOdelJuq9OA/NT5jjDUX+KQX
-         SPeg==
-X-Forwarded-Encrypted: i=1; AJvYcCV39I1gf5oVKD0iV6DZk6eFC4FKS+Y11Hkk5DjSlrgNWZAteFVP1I5lfrmsOaEz7mC67ebIZ9rW9oeDwhx9O34qjXvwq+uJpyJ763T/XdgXs4Rv0mChs4GCI1IyksBdDA==
-X-Gm-Message-State: AOJu0YyH8zeYcqlNjYOPp1RIVCMHHZka3b9ZPLlBsL4/e4t7pFpuZGNS
-	KIxTxBEO63arbG+xwOrU5IfVQT8jgyGqZuKiXiG1KFkRxC3g9c904cUG/G3Sfcw=
-X-Google-Smtp-Source: AGHT+IFv14RRSVORaVxPGv7Pgc/FfkulvwmrU9WcDb6eZGl4gISl+ryDpVeng37EST8Ipt5IeQErUQ==
-X-Received: by 2002:a17:902:e54f:b0:1db:5b41:c5ac with SMTP id n15-20020a170902e54f00b001db5b41c5acmr7737568plf.68.1710222312180;
-        Mon, 11 Mar 2024 22:45:12 -0700 (PDT)
+        bh=luI7dyoDpScCKQdzlFl2LDpghDSrS4DAvqerJztMkMU=;
+        b=iNWuLIUxyUQ3yqt1EQSGgWH4m4qIp3yrB6C90/x/wxc1DXD+FxHzED2dEef0lTaXZu
+         cnT/8s4Mg9eI2WZmoB1LoHn46IG4VND3YWemN4Pzc6seFcmcogjzZUIXFMkPURtag9OE
+         DB4E7AJzXHySFuvuWNNn8dFrGC+BDJam2OLkMv1nF2NLBGJsQ5AL/iKFndpiip8pkhc+
+         A2Fc9PNjZVxTC/zyI21RPKwRrJfEA8dJF9JswlXOOj3tiRRd7IU5u2IewY44TadlrZxj
+         wCVsh+vkRsPgEFukfyb5EbQPwxPytR3sfvBn8i33DGZ2u8ZvrDSJ7vhDWiolzzp0UY+N
+         vSaQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVMnHnYIHFQniJJR8ombw0F8+WUSRolSi1SoYb0p2i57C9/0Qk4iXjh85RHyndOBxbRTkk1zXd5pX3QDLWiZUtR2laa0l1C78Z/rg==
+X-Gm-Message-State: AOJu0YySjExJ8CD5+9UgcITcux05t6hHvNqD0+dO7h1lnGv2V3OMZd1L
+	Q2vmJg/HqIcBLICD/le6uc9L58RafOA1tsrJyTQUdhU/LwCQV8s6Rr2bcixbcnc=
+X-Google-Smtp-Source: AGHT+IFVxETw5yA+xhiUiVW4kNrWB0lfhCjyGbdV9L3yVWw/DJDJ8cWKsOVsgwz9/e5JN8pKprif5A==
+X-Received: by 2002:a05:6358:418b:b0:17e:7b0c:c5ef with SMTP id w11-20020a056358418b00b0017e7b0cc5efmr1328865rwc.28.1710225466195;
+        Mon, 11 Mar 2024 23:37:46 -0700 (PDT)
 Received: from localhost ([1.146.55.44])
-        by smtp.gmail.com with ESMTPSA id y7-20020a17090322c700b001da1fae8a73sm3335793plg.12.2024.03.11.22.45.07
+        by smtp.gmail.com with ESMTPSA id q19-20020a656253000000b005d553239b16sm4648686pgv.20.2024.03.11.23.37.42
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 Mar 2024 22:45:11 -0700 (PDT)
+        Mon, 11 Mar 2024 23:37:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -60,128 +60,71 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Date: Tue, 12 Mar 2024 15:45:05 +1000
-Message-Id: <CZRJ7KVBS2ZT.3144ZIHYUZRNY@wheely>
+Date: Tue, 12 Mar 2024 16:37:39 +1000
+Message-Id: <CZRKBTZFFB9Y.38GVXEXZPOVK5@wheely>
+Subject: Re: [kvm-unit-tests PATCH v1] arch-run: Wait for incoming socket
+ being removed
 From: "Nicholas Piggin" <npiggin@gmail.com>
-To: "Andrew Jones" <andrew.jones@linux.dev>, <kvm@vger.kernel.org>,
- <kvm-riscv@lists.infradead.org>
-Cc: <pbonzini@redhat.com>, <thuth@redhat.com>, <kvmarm@lists.linux.dev>,
- <linuxppc-dev@lists.ozlabs.org>, <linux-s390@vger.kernel.org>,
- <lvivier@redhat.com>, <frankja@linux.ibm.com>, <imbrenda@linux.ibm.com>,
- <nrb@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v2 04/13] treewide: lib/stack: Make
- base_address arch specific
+To: "Nico Boehr" <nrb@linux.ibm.com>, <frankja@linux.ibm.com>,
+ <imbrenda@linux.ibm.com>, <thuth@redhat.com>
+Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>
 X-Mailer: aerc 0.15.2
-References: <20240305170858.395836-15-andrew.jones@linux.dev>
- <20240305170858.395836-19-andrew.jones@linux.dev>
-In-Reply-To: <20240305170858.395836-19-andrew.jones@linux.dev>
+References: <20240305141214.707046-1-nrb@linux.ibm.com>
+In-Reply-To: <20240305141214.707046-1-nrb@linux.ibm.com>
 
-On Wed Mar 6, 2024 at 3:09 AM AEST, Andrew Jones wrote:
-> Calculating the offset of an address is image specific, which is
-> architecture specific. Until now, all architectures and architecture
-> configurations which select CONFIG_RELOC were able to subtract
-> _etext, but the EFI configuration of riscv cannot (it must subtract
-> ImageBase). Make this function weak, such that an architecture may
-> override it when necessary, to accommodate the image layout. Then,
-> immediately supply the riscv override.
+On Wed Mar 6, 2024 at 12:11 AM AEST, Nico Boehr wrote:
+> Sometimes, QEMU needs a bit longer to remove the incoming migration
+> socket. This happens in some environments on s390x for the
+> migration-skey-sequential test.
 >
+> Instead of directly erroring out, wait for the removal of the socket.
+>
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 
-Thanks for making these changes. Looks good. For the generic parts,
+It's interesting that the incoming socket is not removed after
+QMP says migration complete. I guess that's by design, but have
+you checked the QEMU code whether it's intentional?
+
+I guess it's code like this - in migration/migration.c
+
+    /*
+     * This must happen after any state changes since as soon as an externa=
+l
+     * observer sees this event they might start to prod at the VM assuming
+     * it's ready to use.
+     */
+    migrate_set_state(&mis->state, MIGRATION_STATUS_ACTIVE,
+                      MIGRATION_STATUS_COMPLETED);
+    migration_incoming_state_destroy();
+
+So, it looks like a good fix. And probably not just s390x specific
+it might be just unlucky timing.
 
 Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
 
-Thanks,
-Nick
-
-> Signed-off-by: Andrew Jones <andrew.jones@linux.dev>
 > ---
->  lib/riscv/stack.c | 18 ++++++++++++++++++
->  lib/stack.c       |  8 ++++----
->  lib/stack.h       |  2 ++
->  3 files changed, 24 insertions(+), 4 deletions(-)
+>  scripts/arch-run.bash | 8 ++------
+>  1 file changed, 2 insertions(+), 6 deletions(-)
 >
-> diff --git a/lib/riscv/stack.c b/lib/riscv/stack.c
-> index d865594b9671..2cd7f012738b 100644
-> --- a/lib/riscv/stack.c
-> +++ b/lib/riscv/stack.c
-> @@ -2,6 +2,24 @@
->  #include <libcflat.h>
->  #include <stack.h>
+> diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
+> index 2214d940cf7d..413f3eda8cb8 100644
+> --- a/scripts/arch-run.bash
+> +++ b/scripts/arch-run.bash
+> @@ -237,12 +237,8 @@ do_migration ()
+>  	echo > ${dst_infifo}
+>  	rm ${dst_infifo}
 > =20
-> +#ifdef CONFIG_RELOC
-> +extern char ImageBase, _text, _etext;
-> +
-> +bool arch_base_address(const void *rebased_addr, unsigned long *addr)
-> +{
-> +	unsigned long ra =3D (unsigned long)rebased_addr;
-> +	unsigned long base =3D (unsigned long)&ImageBase;
-> +	unsigned long start =3D (unsigned long)&_text;
-> +	unsigned long end =3D (unsigned long)&_etext;
-> +
-> +	if (ra < start || ra >=3D end)
-> +		return false;
-> +
-> +	*addr =3D ra - base;
-> +	return true;
-> +}
-> +#endif
-> +
->  int arch_backtrace_frame(const void *frame, const void **return_addrs,
->  			 int max_depth, bool current_frame)
->  {
-> diff --git a/lib/stack.c b/lib/stack.c
-> index dd6bfa8dac6e..086fec544a81 100644
-> --- a/lib/stack.c
-> +++ b/lib/stack.c
-> @@ -14,7 +14,7 @@
->  #ifdef CONFIG_RELOC
->  extern char _text, _etext;
+> -	# Ensure the incoming socket is removed, ready for next destination
+> -	if [ -S ${dst_incoming} ] ; then
+> -		echo "ERROR: Incoming migration socket not removed after migration." >=
+& 2
+> -		qmp ${dst_qmp} '"quit"'> ${dst_qmpout} 2>/dev/null
+> -		return 2
+> -	fi
+> +	# Wait for the incoming socket being removed, ready for next destinatio=
+n
+> +	while [ -S ${dst_incoming} ] ; do sleep 0.1 ; done
 > =20
-> -static bool base_address(const void *rebased_addr, unsigned long *addr)
-> +bool __attribute__((weak)) arch_base_address(const void *rebased_addr, u=
-nsigned long *addr)
->  {
->  	unsigned long ra =3D (unsigned long)rebased_addr;
->  	unsigned long start =3D (unsigned long)&_text;
-> @@ -27,7 +27,7 @@ static bool base_address(const void *rebased_addr, unsi=
-gned long *addr)
->  	return true;
->  }
->  #else
-> -static bool base_address(const void *rebased_addr, unsigned long *addr)
-> +bool __attribute__((weak)) arch_base_address(const void *rebased_addr, u=
-nsigned long *addr)
->  {
->  	*addr =3D (unsigned long)rebased_addr;
->  	return true;
-> @@ -45,13 +45,13 @@ static void print_stack(const void **return_addrs, in=
-t depth,
->  	/* @addr indicates a non-return address, as expected by the stack
->  	 * pretty printer script. */
->  	if (depth > 0 && !top_is_return_address) {
-> -		if (base_address(return_addrs[0], &addr))
-> +		if (arch_base_address(return_addrs[0], &addr))
->  			printf(" @%lx", addr);
->  		i++;
->  	}
-> =20
->  	for (; i < depth; i++) {
-> -		if (base_address(return_addrs[i], &addr))
-> +		if (arch_base_address(return_addrs[i], &addr))
->  			printf(" %lx", addr);
->  	}
->  	printf("\n");
-> diff --git a/lib/stack.h b/lib/stack.h
-> index 6edc84344b51..df076d94bf8f 100644
-> --- a/lib/stack.h
-> +++ b/lib/stack.h
-> @@ -34,4 +34,6 @@ static inline int backtrace_frame(const void *frame, co=
-nst void **return_addrs,
->  }
->  #endif
-> =20
-> +bool __attribute__((weak)) arch_base_address(const void *rebased_addr, u=
-nsigned long *addr);
-> +
->  #endif
+>  	wait ${live_pid}
+>  	ret=3D$?
 
