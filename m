@@ -1,64 +1,64 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AF1C20DDB;
-	Wed, 13 Mar 2024 20:58:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A22774CB35;
+	Wed, 13 Mar 2024 20:58:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710363498; cv=none; b=GfctUdrE2MCndXJNIi4xN0KSg3eNsrInkcjmOYW9i8wVLjaPtdmDDytk0sIhb9IiqIooYNuXEfwtcXteqn40L0zBfoWGhZmut0VOmVU15VWi4YhMy1m4u4CcBtJCW5DeF3NHmFQHeM5SbolFTa1FEACmHpQGET49FeeOkJywlgQ=
+	t=1710363498; cv=none; b=bE5S41utqHJJJwQ2AcoBE+bTEXlluA2AkNFdhDxrKbTz4Vp6NUN5tq6dVL4fnReSATidKC9cauEAKSRNQnXuGPiGm7nI6+2xgbIdOybV5vj6qn0KF344PnDozphSFxMsumzFHHgT4+lSCwMt/FJ1xZRExz8N30ty90cOeLgXyTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1710363498; c=relaxed/simple;
-	bh=Dxc1Y9DEWjmEAUQcAuJqD4/uaanYXhVQFUYqIQzbI+c=;
+	bh=tSlXTR1QKZXk2pfdOpSseZfCaKNekp47ZScfnD+Fa2U=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YFCFPOU2+LCvtVdSSlxRFWcKIew1SmDoeVz+/4yzBkCh3/jDcjbsjAoxN40CZKVm1Mc8HaslKY30g10GL1J7zt6rYgQSSHRsQ6sQq6UR1F5u45mQwE3JanRH84x/f04L+H9jfOrgF/A5LwRWb1Uw8Nt//24CQCVIQtVYDeWmDPc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Uoua+Hbg; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=CoCZtrGdXyZe74UvxrKKB29vOPEH/SgiSp9/hkIauM/vFpV2+e1RUp73aqOYeb3mwik4mxNzXYN4Eftasqg5ED+F2BvPHg/WThnNsbbCxRWfZpT8Sp6VEXqexnFNMKHqqNx6VcUvJ8biQ+dGTdqitpa4Jne+TWW1n6DWhJLzxi4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tMIaBCSj; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Uoua+Hbg"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42DJsEoC006151;
-	Wed, 13 Mar 2024 20:58:14 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tMIaBCSj"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42DI22mp032526;
+	Wed, 13 Mar 2024 20:58:15 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=pfYAziHimuLD6Bq9AnCRElxIv/lJzmInAejaT3HQHeA=;
- b=Uoua+HbgPEs81pvtd0Ui2j9+zjLsu7ujAx0EvowwxfRFCxz2yAlIJaO/aMcK98RuxNN0
- tVRKupJyQWwhMJrF3RL52b2J8jyKLht4m9ldzZZAR2a/FQnTCxdXvvMVAdp6+9SEYxif
- BNjVLNQYPxPXQXtCf26PJtsyd0k4lz1umJnBiQmn1uqaFpfSqnwuPWnrGZ9cZw8fOeX4
- 9s3DP4x1ZAoKcG6XSbs3ytuB4zEI987axjRPl39bcl59tTXMEmkRvF/MmDVw8buwkvwG
- 9bxaiDi3PJuQ6Ac2tlcfXx8PcRNI9lcT1EIzft9hHmVCIF/s3EXUrgllf24UnPvZR9ZK YA== 
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wue9tvy48-1
+ bh=Qpf3+bKZA3IFFAh2Zgq/tCvKv4L+adz2xvIinaCNjGg=;
+ b=tMIaBCSjDtyD9a6TFcS2Yt8nvhc1UMlC8ElDX7ZLWtY8nDElVEkZhmtVxoQ+BVh2/fkV
+ vMxNoHJqU8BNjp95EPxvVC09i+0v9RWfE7eHif6XVrjXWD9tBRkHD95ngBBK5/9XS7IF
+ 1wFes6mHMx4a4k1eu4mAOMC+Spu8CLJV+XshdUiTr4QhnE2svWiAfZnA+5fDiyr0b5ci
+ bRsl/E/p5CGVbHZm/RRbLB9IBkReIJsZOOZGHfJIls99+AmOAJyGQNXEYmSIaI/XOl16
+ ZwTB0GKjfi9rWmD+q2nnCE5RTYsRuJXoai/Oh/x21CSolyGCDiJlDWvbNNY0Ddarp0Cx rA== 
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wuh2ft0dp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Mar 2024 20:58:13 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42DKhk89015539;
-	Wed, 13 Mar 2024 20:58:12 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ws2g00pjq-1
+	Wed, 13 Mar 2024 20:58:15 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42DKXmuZ018134;
+	Wed, 13 Mar 2024 20:58:14 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ws23tgqr7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Mar 2024 20:58:12 +0000
+	Wed, 13 Mar 2024 20:58:14 +0000
 Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42DKw96K47186240
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42DKwBRQ27722226
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 13 Mar 2024 20:58:12 GMT
+	Wed, 13 Mar 2024 20:58:13 GMT
 Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8FE7758056;
-	Wed, 13 Mar 2024 20:58:09 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id EE5675806C;
+	Wed, 13 Mar 2024 20:58:10 +0000 (GMT)
 Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0AB6058060;
-	Wed, 13 Mar 2024 20:58:09 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5EBDF58060;
+	Wed, 13 Mar 2024 20:58:10 +0000 (GMT)
 Received: from jason-laptop.ibmuc.com (unknown [9.61.59.128])
 	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 13 Mar 2024 20:58:08 +0000 (GMT)
+	Wed, 13 Mar 2024 20:58:10 +0000 (GMT)
 From: "Jason J. Herne" <jjherne@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, akrowiak@linux.ibm.com,
         borntraeger@de.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com
-Subject: [PATCH v3 1/5] s390/ap: Externalize AP bus specific bitmap reading function
-Date: Wed, 13 Mar 2024 16:58:03 -0400
-Message-ID: <20240313205807.30554-2-jjherne@linux.ibm.com>
+Subject: [PATCH v3 3/5] s390/vfio-ap: Ignore duplicate link requests in vfio_ap_mdev_link_queue
+Date: Wed, 13 Mar 2024 16:58:05 -0400
+Message-ID: <20240313205807.30554-4-jjherne@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20240313205807.30554-1-jjherne@linux.ibm.com>
 References: <20240313205807.30554-1-jjherne@linux.ibm.com>
@@ -70,100 +70,46 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ljRXpmf6wj9VnMP06ZwT3BA_d2Yb722i
-X-Proofpoint-GUID: ljRXpmf6wj9VnMP06ZwT3BA_d2Yb722i
+X-Proofpoint-ORIG-GUID: W0uojsw1S5QvGbUSieI5qg1r8ccupXKd
+X-Proofpoint-GUID: W0uojsw1S5QvGbUSieI5qg1r8ccupXKd
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-03-13_09,2024-03-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- spamscore=0 phishscore=0 suspectscore=0 priorityscore=1501 impostorscore=0
- mlxlogscore=999 clxscore=1015 adultscore=0 bulkscore=0 mlxscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 bulkscore=0 spamscore=0 priorityscore=1501 phishscore=0
+ lowpriorityscore=0 mlxlogscore=999 mlxscore=0 malwarescore=0 adultscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311290000 definitions=main-2403130160
 
-Rename hex2bitmap() to ap_hex2bitmap() and export it for external
-use. This function will be used by the implementation of the vfio-ap
-ap_config sysfs attribute.
+vfio_ap_mdev_link_queue is changed to detect if a matrix_mdev has
+already linked the given queue. If so, it bails out.
 
 Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
 Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
 ---
- drivers/s390/crypto/ap_bus.c | 13 +++----------
- drivers/s390/crypto/ap_bus.h | 22 ++++++++++++++++++++++
- 2 files changed, 25 insertions(+), 10 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index cce0bafd4c92..1be07197eda3 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -1068,15 +1068,7 @@ void ap_bus_cfg_chg(void)
- 	ap_bus_force_rescan();
- }
- 
--/*
-- * hex2bitmap() - parse hex mask string and set bitmap.
-- * Valid strings are "0x012345678" with at least one valid hex number.
-- * Rest of the bitmap to the right is padded with 0. No spaces allowed
-- * within the string, the leading 0x may be omitted.
-- * Returns the bitmask with exactly the bits set as given by the hex
-- * string (both in big endian order).
-- */
--static int hex2bitmap(const char *str, unsigned long *bitmap, int bits)
-+int ap_hex2bitmap(const char *str, unsigned long *bitmap, int bits)
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index e01f53a3c5b7..1499c2181122 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -794,10 +794,11 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
+ static void vfio_ap_mdev_link_queue(struct ap_matrix_mdev *matrix_mdev,
+ 				    struct vfio_ap_queue *q)
  {
- 	int i, n, b;
- 
-@@ -1103,6 +1095,7 @@ static int hex2bitmap(const char *str, unsigned long *bitmap, int bits)
- 		return -EINVAL;
- 	return 0;
- }
-+EXPORT_SYMBOL(ap_hex2bitmap);
- 
- /*
-  * modify_bitmap() - parse bitmask argument and modify an existing
-@@ -1168,7 +1161,7 @@ static int ap_parse_bitmap_str(const char *str, unsigned long *bitmap, int bits,
- 		rc = modify_bitmap(str, newmap, bits);
- 	} else {
- 		memset(newmap, 0, size);
--		rc = hex2bitmap(str, newmap, bits);
-+		rc = ap_hex2bitmap(str, newmap, bits);
- 	}
- 	return rc;
- }
-diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 59c7ed49aa02..1db9597509da 100644
---- a/drivers/s390/crypto/ap_bus.h
-+++ b/drivers/s390/crypto/ap_bus.h
-@@ -343,6 +343,28 @@ int ap_parse_mask_str(const char *str,
- 		      unsigned long *bitmap, int bits,
- 		      struct mutex *lock);
- 
-+/*
-+ * ap_hex2bitmap() - Convert a string containing a hexadecimal number (str)
-+ * into a bitmap (bitmap) with bits set that correspond to the bits represented
-+ * by the hex string. Input and output data is in big endian order.
-+ *
-+ * str - Input hex string of format "0x1234abcd". The leading "0x" is optional.
-+ * At least one digit is required. Must be large enough to hold the number of
-+ * bits represented by the bits parameter.
-+ *
-+ * bitmap - Pointer to a bitmap. Upon successful completion of this function,
-+ * this bitmap will have bits set to match the value of str. If bitmap is longer
-+ * than str, then the rightmost bits of bitmap are padded with zeros. Must be
-+ * large enough to hold the number of bits represented by the bits parameter.
-+ *
-+ * bits - Length, in bits, of the bitmap represented by str. Must be a multiple
-+ * of 8.
-+ *
-+ * Returns: 0           on success
-+ *          -EINVAL     If str format is invalid or bits is not a multiple of 8.
-+ */
-+int ap_hex2bitmap(const char *str, unsigned long *bitmap, int bits);
+-	if (q) {
+-		q->matrix_mdev = matrix_mdev;
+-		hash_add(matrix_mdev->qtable.queues, &q->mdev_qnode, q->apqn);
+-	}
++	if (!q || vfio_ap_mdev_get_queue(matrix_mdev, q->apqn))
++		return;
 +
- /*
-  * Interface to wait for the AP bus to have done one initial ap bus
-  * scan and all detected APQNs have been bound to device drivers.
++	q->matrix_mdev = matrix_mdev;
++	hash_add(matrix_mdev->qtable.queues, &q->mdev_qnode, q->apqn);
+ }
+ 
+ static void vfio_ap_mdev_link_apqn(struct ap_matrix_mdev *matrix_mdev, int apqn)
 -- 
 2.41.0
 
