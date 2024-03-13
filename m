@@ -1,190 +1,338 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DED0547F46;
-	Wed, 13 Mar 2024 15:40:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.16
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710344461; cv=fail; b=F4zl8u1XtGV7IHexLwyskRlAMW9xBWUehuG1K+bq/5PU6TZJkG+SP14A4SXYp1oYms/GhYtx3AtOg78k+cUjeQz03db4vJZL/ogEmGHg6lZH0p/1+LIgEqdulPh+j4PdlEEhvp6HAYJCwX3+GdL8oyuZZrARV1dxTnK2l86TF5E=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710344461; c=relaxed/simple;
-	bh=PJc1AwY02jXOZRpcRVSt1mnwJh2kPBYmknQqLS90y7s=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Dk3RyGORca1c8rqA+DafZAHfihlHp9xv8uQrigMGEYs8a8I1asVsBzBZ0ARhZ6ch6We+j9aDxTm14L5mXzD4mLbQrT5IXTXsD2RlJtt8ogWtgGkfiOpIIBWUBphPbye1Wo7lSHOG8R8IYXe7LMmH6zpuPMDy0ae1mj+ZZGfBBhs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HJNqfCe+; arc=fail smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A59545D465;
+	Wed, 13 Mar 2024 18:00:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1710352831; cv=none; b=i+5fN+R47GcJ1mz/ofF46ZNG2SSVO/Jks8u1EtGoolnIuZs97e5DSZuazOH6N3pV9zk2iFz0ALK69fKeJuY5iSp6I1iJpP0Kz1UkGEBO0KusISxsXQUjxJyxGrBS2wUM7bkUPHiAzJKKkxas4lDgO3YbY0F+OP20hg8WeFtLmfY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1710352831; c=relaxed/simple;
+	bh=f/qJOGVVS1Gvd2NRKATjXvuXafoO/6F/AH489rQFkPs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bz9rQoMssql1FgkBE+PgUPr1ekG1pQ5La9qr9B5RI0vR2hCoaYRCg0MC/pytS5TBCsm3Dc//T8GKEkM+DLNLZSGU7AfeX+rYjH4QpzKUXcd2JOyhZ7077V0bbVpChcJZzmngOAzn2JZaorXp7Iqgxj2sSPCTXQWiEHW1WhQGYU0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GGrGMGms; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HJNqfCe+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1710344461; x=1741880461;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-id:content-transfer-encoding:
-   mime-version;
-  bh=PJc1AwY02jXOZRpcRVSt1mnwJh2kPBYmknQqLS90y7s=;
-  b=HJNqfCe+sOg6UD3f9pn0LOjG5RTxQvcUECj2p8vHsg/CgE/ffsxw48ai
-   bOnlsV7TAbAohPLhyDQhJlPYjVHCNKMsIzohHP7otYWRWhwQJkac5hfQj
-   8ZYKggVtjEpfeK6vovk+sze1w+9gQHBt2SvTsU8p8ZjPcrICVcpltUo12
-   5pa3pnNCHZHcjKYbezPN7rvGZma/scNsBTu7davETXMr4aBnSp32uxDtV
-   yiVcA+U5lSl9NGD6xuswRMbBF29cq++uXJmebAAUW8rg7ijEmHQwq8e1M
-   oZxzuSDXma6JBFS8s5Mq/0cIgdLbTfAFKEVsI33EDJTrXF3i3YA1XCXEd
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11011"; a="5244348"
-X-IronPort-AV: E=Sophos;i="6.07,122,1708416000"; 
-   d="scan'208";a="5244348"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Mar 2024 08:40:59 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,122,1708416000"; 
-   d="scan'208";a="11878928"
-Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
-  by fmviesa009.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 13 Mar 2024 08:40:58 -0700
-Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
- ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Wed, 13 Mar 2024 08:40:57 -0700
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Wed, 13 Mar 2024 08:40:57 -0700
-Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
- orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35 via Frontend Transport; Wed, 13 Mar 2024 08:40:57 -0700
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.169)
- by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.35; Wed, 13 Mar 2024 08:40:56 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=gMtG/ZsFfR8U3VIIL7OTdq3JCryNAf3vkgWd/IbKtYr68c7eyCftRZPwudOLiusvEJY40faftXefV/85IQhBOBNUqjuxTaF0w+LlKpZkQQ36cviKv00CfJ4CiKjc8IUkKH24T11Z48msIU+0dAOY83qUv/63hgFlEgtbuG/ev6y5eU5OREEqsD/gPf1HMstKozhZ7K4liuTniqKo/NVJLr8AVu9H1vQa1DvA4az4AariIdRFEbZC2I4/hXQWLHkP1spYnW3mY18wQAC8pgHoSRgvD79F68OHCzhGQyV0PrQjZeWWPG7pEznrYdyPVwXKoWn4wfE4kZNFZ4ACKM2caA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=PJc1AwY02jXOZRpcRVSt1mnwJh2kPBYmknQqLS90y7s=;
- b=JhronHB860MomV5CnZgVaq6BpAM19KZmNpAE1iMV1dhhqDzgcAvHt0LRBjHyGABjBq3eqNmW45XblmOvG0oBls+zdW2yjn75HHUxuGGmSO9g8rL3SvE3Vj2Sris3kNsifeJi0+LhmL3K+fXg3QF7kD8ELSJUnr3TQldJAQMoe3NT8r6eacFZLgOk5EiCH7e1llQ5UwWojYmG/rpcbFsiq2eK9xHbXfdk9ij2BQSS8ZjpooGiZeQXPjA8AaEPJcuDe6D5jiC2VvxIpl2UTxAC/VluFiR61fBy4uC93VYO1+fmKiikX+rXX/Xwo7I6nucqH7oaPQjQr6tqw9wgwejDJQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from MN0PR11MB5963.namprd11.prod.outlook.com (2603:10b6:208:372::10)
- by LV3PR11MB8695.namprd11.prod.outlook.com (2603:10b6:408:211::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7386.17; Wed, 13 Mar
- 2024 15:40:54 +0000
-Received: from MN0PR11MB5963.namprd11.prod.outlook.com
- ([fe80::fc9e:b72f:eeb5:6c7b]) by MN0PR11MB5963.namprd11.prod.outlook.com
- ([fe80::fc9e:b72f:eeb5:6c7b%5]) with mapi id 15.20.7386.016; Wed, 13 Mar 2024
- 15:40:53 +0000
-From: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>
-To: "keescook@chromium.org" <keescook@chromium.org>
-CC: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-	"linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "luto@kernel.org"
-	<luto@kernel.org>, "dave.hansen@linux.intel.com"
-	<dave.hansen@linux.intel.com>, "debug@rivosinc.com" <debug@rivosinc.com>,
-	"akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, "mingo@redhat.com"
-	<mingo@redhat.com>, "linux-csky@vger.kernel.org"
-	<linux-csky@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "christophe.leroy@csgroup.eu"
-	<christophe.leroy@csgroup.eu>, "linux-mm@kvack.org" <linux-mm@kvack.org>,
-	"kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>,
-	"tglx@linutronix.de" <tglx@linutronix.de>,
-	"linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>,
-	"hpa@zytor.com" <hpa@zytor.com>, "peterz@infradead.org"
-	<peterz@infradead.org>, "sparclinux@vger.kernel.org"
-	<sparclinux@vger.kernel.org>, "loongarch@lists.linux.dev"
-	<loongarch@lists.linux.dev>, "bp@alien8.de" <bp@alien8.de>,
-	"linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-	"linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "x86@kernel.org" <x86@kernel.org>,
-	"broonie@kernel.org" <broonie@kernel.org>
-Subject: Re: [PATCH v3 08/12] treewide: Use initializer for struct
- vm_unmapped_area_info
-Thread-Topic: [PATCH v3 08/12] treewide: Use initializer for struct
- vm_unmapped_area_info
-Thread-Index: AQHadMzLOP7Gxz/JLEa2XEcLahB5+bE1AKWAgADPagA=
-Date: Wed, 13 Mar 2024 15:40:53 +0000
-Message-ID: <cd57bd385f5f2d026205119d4ecb3f44ed30b384.camel@intel.com>
-References: <20240312222843.2505560-1-rick.p.edgecombe@intel.com>
-	 <20240312222843.2505560-9-rick.p.edgecombe@intel.com>
-	 <202403122018.DCCE1E000@keescook>
-In-Reply-To: <202403122018.DCCE1E000@keescook>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-user-agent: Evolution 3.44.4-0ubuntu2 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: MN0PR11MB5963:EE_|LV3PR11MB8695:EE_
-x-ms-office365-filtering-correlation-id: b8386a24-621c-4337-74ac-08dc4373f7d7
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: qGazlrxgTOwfxImlMVmjk916tz7n/6k+HrZAU+p39187UzMXhd3GWDOBZOhBtQnfYjba/eLaDlVR3hGHPutKvya3QGX0ynKd6/o6PfcOszNhqDOEdNuf3YbmRDfeZ+3vQHna02JhrnWKP/TZwmt6fpb3dUKmz1coYorJIyP1buwach86hZIvarsJuSf1++ZEEjZtsDBy3/BN8+4LT6/0Hghuc8goSV5VrN460RqnIUbkvix328ecd+jah3rZVUG2wEOvo94W8Awj6VZnBrZraFrwp9pq/70LpnrFgiNVGwkkTdPhf4bzCB7jpB/JOyk6Bd0LujnobnaZ50fyugeHBasvwkYl427Mp+UW7c7VD6DYx6flgPPwmjTLbN3DWzObwa4oVRSRNWMgu/dLNbw3FH6B3etvE0XxuMGUX+srRPlVU9y5i5lDYt/QrUl+NUXoTFBeQYBc3NJdG5mJJ4LThdLSBa3qVAa1nnMbTdAEa9Lxe040OdXmVJ0oQm52yxcFwpUBuRA5jJCqVjPrEsE/nUxjBqO3INRIW0vAxZx9i+VQ8zg/7GDmlmUjBLK2NcPTJZBj5fJ49ev4RreQYdb2kTVnbbilrfP25lqbv/eFL82b2HLp7x+g1ufp71QFUEG4sFpY9cfvmtyQTOU55FO6OZ3EaWvRI/HfFDFJUmlAWDH8DPamwoLC88s8ubgfi6Q4j3oNXTULGqSPhevavr8NZA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR11MB5963.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(1800799015)(7416005)(38070700009);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?aHBTejdweWM2azNteGFiZVFuYUpvSEhWTHJ6VFhVZmxqdG9WZ3ZlRWkyVStu?=
- =?utf-8?B?a1NpcWhnc1pvTEdJOXhWVWpocTJPWVZHOEdsTjZhWXJaUnkxTUtueXhmd3VN?=
- =?utf-8?B?b3lkRDBybXg0TFBobmxJVTZpVHlTWGdRT1UxZEVycmN4NW9oR0V6RG9sNTZs?=
- =?utf-8?B?Q2NFWm5kS1JZbjBwL0YrVER1a3VqMUw1RHIwNEozUTkzaGkySWFHSy8rVnVP?=
- =?utf-8?B?RTdmQVk1Mll6Q2EwM3NoVFlXYmtMbTExcHdIQ2tXdFRBb3NrVnd4a0V0Ui9D?=
- =?utf-8?B?cHM4WDNRTU1GbTBjMUcyNVhyQTN3K0ZZR09KVUE4cGZ2b1U4QWVqZkE3K1dO?=
- =?utf-8?B?WGxNU2E5MDg1K0tvOUYzeW5rajg5YUFjVHJWRWlCbTJlOVM0WW5iZU5sVjVZ?=
- =?utf-8?B?Zndqb2g2UWhSYXRZOVRib3hsUnA4OXhFcGxFZ3FQWVBSTjZnU25QU0c5T1BQ?=
- =?utf-8?B?YkVVYXNZVmltRlN2VkJia0VCd1c3ZzNRcTAxVjdkZ0ZqT2VNbUVCNFlTU25Y?=
- =?utf-8?B?a1hzT3R1U2MvbEJhZkVPYTBqL2tFZDdmOHlCb0JqbUpYOEIySWZJZEhNa1g0?=
- =?utf-8?B?VE9HekkxVDBqZjhnUEVhOUVrM0tLNWNkdUV1WFBGSGdhbDRFUXhPNmZrOHlh?=
- =?utf-8?B?QW1oekR3K0lIcm5CWGFJcCtNbXlINTdyaXZUeTZ3NGExYmlJeUNiU2FoL3lV?=
- =?utf-8?B?Q2xoR0ViUWF3cVNVdzhVYXdWTWJEcFJ6UnpLd1ZYNlg2dmhmQ0ZIYVBVY2hR?=
- =?utf-8?B?V0RCZHRjQmcyZXFSR0RmbnpsRDBFOFJwcGV1WU9ZNGZWTTRMZTZXejU0bFE5?=
- =?utf-8?B?Rkh2TVZTNHNpTTE1VlhSVTE5TVJ2cGtTV1BkM0pkaVBUc2lDdXIrZGFTS1lH?=
- =?utf-8?B?Vjl6M1RiaEVBWXBhK0VBRDM1Z1B4ODFhSkkvanUza3hEbVQ1T3ZDM1c4V0w4?=
- =?utf-8?B?eTE2TFRFZ1J6SDNlOTdSWURFeVUzWHBpZG8zaGp6eUNia3loQTlOY0lFWTRu?=
- =?utf-8?B?SHI4WG9tcTVlQ2lrY0hMdkJMNm5DNXc1VG1WYjRUQ2w4WERKTmQ0dXFjN2xw?=
- =?utf-8?B?dGhSdHp3WTRPbVptYloreHRYUCtySUIrV1NCNlN2ZllsVC9zNE5rRlVNMTJH?=
- =?utf-8?B?MktZY3JnY1RNanVvdGh1NmptS3FjUW5CdFRmeDJCdW5HcHpJSlVHYVY3Z3Bx?=
- =?utf-8?B?aXhISG9laWFhOVlWdnhhaXg2aVQrVk1pRXRBZ293aW1TWHI5NFQ2UjNuakVL?=
- =?utf-8?B?VGhwV1VQOW1OeVFEaTMrN3A3UDQzMzNHRnFhQ0ZGclV5TDFqellDSEJ2UnRk?=
- =?utf-8?B?WmRmRE42MWVGRVZwZDdDNXY3dTllRnlITHZNNTlpb2JENU1UY0tMV3haSnUy?=
- =?utf-8?B?Sk5mNjBvMDVSYUR5SjMzRnJXZVNiNThtb0kwd2xDYkZYaGZVc1ZmdmhteU5t?=
- =?utf-8?B?dnhjV1liZnU2dUtDZTdUaEJsWkZsclc5aUVvSWZMcEhlSDJ0YW5WZDUrN1Qy?=
- =?utf-8?B?cTd4ampsaFh2ZUZoR2RzcXdxV3ZMelUzUmp2bTFPcmtWUnJNQ1VzclhpQU9C?=
- =?utf-8?B?T2s2L0srM1F4bG81enRQREU0UnhoeVBGdW02bjB4ekx1VFlkUU5FL2RvQ0F0?=
- =?utf-8?B?SlBhejlJc1Y1WnZhMTFyT0FlUUZ2cHpUamVvQ05TcTNOYlhmSUcrYS9DNnJQ?=
- =?utf-8?B?UXFIR3hXTDNmTmdHL2hPa0ZEK3NZUnk1anZvVVYyUzFsTEl5MXY3bjdXVHdB?=
- =?utf-8?B?QlBFOThaQW56UGNuc09VbU5KdlMxSFZ1YTlqMXhOeWNwbVowZE1vS3RaQXZ3?=
- =?utf-8?B?TTRUV1haS0VtMHlOanZBS1paTTMwUGpsVVNVd2FaeFNGZlNNYWVzZlRRZUZv?=
- =?utf-8?B?ZmpNMm1Cdkgycms1ZmJua2IzVmtncERTeWZxTk9rMFU2TG9RRWcxeHF1VzU2?=
- =?utf-8?B?QURUcGxOVFh2QjNYZ0F0STdCcmFGUWM5MnFNK3FNQU9TRVN5eFV2ZVhnaXda?=
- =?utf-8?B?emFnL1lWSVJMTlAxQzd0aFFBdW5WQk42VlhaN2ZXeTN3YjFiOVUrSitNa1pZ?=
- =?utf-8?B?cmt3V0dQbUVoNENPK3JZdmtkb3JBYUlxeElzUVBUa0RRbnp5eG8rOVd0OEc2?=
- =?utf-8?B?cEVRVnUwVDRlMnVNc1JVcmZ0OVdON21RcE1PdDFZcFJoQWxRd1NlTGNTMC9Y?=
- =?utf-8?Q?mj18PWnLZlG/RfrYZMUQGFU=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <5D15D0D8BAEF524083C69778452931F4@namprd11.prod.outlook.com>
-Content-Transfer-Encoding: base64
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GGrGMGms"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42DGLFHN012921;
+	Wed, 13 Mar 2024 18:00:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=5ZxyfLrWJE3NWtW6iJbXxGrBK3/YAVcw7tJCTcEFdks=;
+ b=GGrGMGms/HB8wx31h4+elQZ/zwa1MXLNrwyzLf6PXjbnvj5kkU4bKS+n7Dpv5lqxlfsX
+ CrqkJ43PhlZGcwT1CW/1yD5wkY7U3UwQH/cs3YSACQJIAQEpLC7glsfYYtirg3njv34D
+ Z+lyPwM9plgduuHyfkgnLy9Uhz8EZW3VhPLnl606On+3ewm0MjTvzJRuHD9nmTEmbsjr
+ 7alWYHKW0RB+kkR1Rh4Px6QJ85bVmjKOz2LqiblnvRvejUIj7q0s6j2U5t+Lr9frPoSb
+ OnTP7qDQF/ks0g5XCn+UXj1vj27xdKZk4fSu4m8IFWzEvr8jQQtb37z/ym2ygoFaHw10 QQ== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wue9ttuq6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Mar 2024 18:00:27 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42DFZZYS015477;
+	Wed, 13 Mar 2024 18:00:26 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ws2fyyrnm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Mar 2024 18:00:26 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42DI0Nid31785284
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 13 Mar 2024 18:00:25 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A9FD158083;
+	Wed, 13 Mar 2024 18:00:21 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E8DA358060;
+	Wed, 13 Mar 2024 18:00:20 +0000 (GMT)
+Received: from [9.61.156.225] (unknown [9.61.156.225])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 13 Mar 2024 18:00:20 +0000 (GMT)
+Message-ID: <37d91598-0198-49e1-1008-6028ad78c1e5@linux.ibm.com>
+Date: Wed, 13 Mar 2024 14:00:20 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MN0PR11MB5963.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b8386a24-621c-4337-74ac-08dc4373f7d7
-X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Mar 2024 15:40:53.7553
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: vEmFv+A4uX3vQ7g4donffEIX0DkAkQ77OTeQFszBDePi2LuQY8w2bdSHzVnUzkOD+kNDg+q4oQFKTrlFrT2DJEcIyE2ba+WQ02dIVjVeAos=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV3PR11MB8695
-X-OriginatorOrg: intel.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
+Subject: Re: [PATCH v2 4/5] s390/vfio-ap: Add write support to sysfs attr
+ ap_config
+To: Anthony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com,
+        agordeev@linux.ibm.com, gor@linux.ibm.com
+References: <20240306140843.10782-1-jjherne@linux.ibm.com>
+ <20240306140843.10782-5-jjherne@linux.ibm.com>
+ <0389f521-e9e2-43d4-8d78-87695853a536@linux.ibm.com>
+Content-Language: en-US
+From: "Jason J. Herne" <jjherne@linux.ibm.com>
+In-Reply-To: <0389f521-e9e2-43d4-8d78-87695853a536@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 1FkFoXoVKYBuOBEOhjMyy5jnM77_GG3w
+X-Proofpoint-GUID: 1FkFoXoVKYBuOBEOhjMyy5jnM77_GG3w
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-03-13_09,2024-03-13_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 phishscore=0 suspectscore=0 priorityscore=1501 impostorscore=0
+ mlxlogscore=999 clxscore=1015 adultscore=0 bulkscore=0 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2403130137
 
-T24gVHVlLCAyMDI0LTAzLTEyIGF0IDIwOjE4IC0wNzAwLCBLZWVzIENvb2sgd3JvdGU6DQo+IA0K
-PiBUaGFua3MhIFRoaXMgbG9va3MgdG8gZG8gZXhhY3RseSB3aGF0IGl0IGRlc2NyaWJlcy4gOikN
-Cj4gDQo+IFJldmlld2VkLWJ5OiBLZWVzIENvb2sgPGtlZXNjb29rQGNocm9taXVtLm9yZz4NCg0K
-VGhhbmtzIQ0K
+On 3/11/24 2:15 PM, Anthony Krowiak wrote:
+> 
+> On 3/6/24 9:08 AM, Jason J. Herne wrote:
+>> Allow writing a complete set of masks to ap_config. Doing so will
+>> cause the vfio-ap driver to replace the vfio-ap mediated device's entire
+>> state with the given set of masks. If the given state cannot be set, then
+> 
+> 
+> Just a nit, but it will not replace the vfio_ap mdev's entire state; it 
+> will replace the masks that comprise the matrix and control_domain 
+> attributes which comprise the guest's AP configuration profile (or the 
+> masks identifying the adapters, domains and control domains which a 
+> guest has permission to access). The guest_matrix attribute may or may 
+> not match the masks written via this sysfs interface.
+> 
+> 
+
+Fixed in v3.
+
+>> no changes are made to the vfio-ap mediated device.
+>>
+>> The format of the data written to ap_config is as follows:
+>> {amask},{dmask},{cmask}\n
+>>
+>> \n is a newline character.
+>>
+>> amask, dmask, and cmask are masks identifying which adapters, domains,
+>> and control domains should be assigned to the mediated device.
+>>
+>> The format of a mask is as follows:
+>> 0xNN..NN
+>>
+>> Where NN..NN is 64 hexadecimal characters representing a 256-bit value.
+>> The leftmost (highest order) bit represents adapter/domain 0.
+> 
+> 
+> I won't reject giving an r-b for the above, but could be more 
+> informative; maybe more along the lines of how this is described in all 
+> documentation:
+> 
+
+Leaving as is. It gets the point across.
+
+> Where NN..NN is 64 hexadecimal characters comprising a bitmap containing 
+> 256 bits. Each bit, from left
+> 
+> to right, corresponds to a number from 0 to 255. If a bit is set, the
+> 
+> corresponding adapter, domain or control domain is assigned to the 
+> vfio_ap mdev.
+> 
+> You could also mention that setting an adapter or domain number greater 
+> than the maximum allowed for
+> 
+> for the system will result in an error.
+> 
+> 
+
+I feel like the description is long enough for a commit message. Maybe 
+this would be more at home in the doc patch.
+
+>>
+>> For an example set of masks that represent your mdev's current
+>> configuration, simply cat ap_config.
+>>
+>> This attribute is intended to be used by an mdevctl callout script
+>> supporting the mdev type vfio_ap-passthrough to atomically update a
+>> vfio-ap mediated device's state.
+>>
+>> Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c     | 172 ++++++++++++++++++++++++--
+>>   drivers/s390/crypto/vfio_ap_private.h |   6 +-
+>>   2 files changed, 162 insertions(+), 16 deletions(-)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
+>> b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 259130347d00..c382e46f620f 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -1106,19 +1106,22 @@ static void vfio_ap_mdev_unlink_adapter(struct 
+>> ap_matrix_mdev *matrix_mdev,
+>>       }
+>>   }
+>> -static void vfio_ap_mdev_hot_unplug_adapter(struct ap_matrix_mdev 
+>> *matrix_mdev,
+>> -                        unsigned long apid)
+>> +static void vfio_ap_mdev_hot_unplug_adapters(struct ap_matrix_mdev 
+>> *matrix_mdev,
+>> +                        unsigned long *apids)
+>>   {
+>>       struct vfio_ap_queue *q, *tmpq;
+>>       struct list_head qlist;
+>> +    unsigned long apid;
+>>       INIT_LIST_HEAD(&qlist);
+>> -    vfio_ap_mdev_unlink_adapter(matrix_mdev, apid, &qlist);
+>> -    if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm)) {
+>> -        clear_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
+>> -        vfio_ap_mdev_update_guest_apcb(matrix_mdev);
+>> +    for_each_set_bit_inv(apid, apids, AP_DEVICES) {
+>> +        vfio_ap_mdev_unlink_adapter(matrix_mdev, apid, &qlist);
+>> +
+>> +        if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm))
+>> +            clear_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
+>>       }
+>> +    vfio_ap_mdev_update_guest_apcb(matrix_mdev);
+> 
+> 
+> I wouldn't do the hot plug unless at least one of the APIDs in the apids 
+> parameter is assigned to matrix_mdev->shadow_apcb. The 
+> vfio_ap_mdev_update_guest_apcb function calls the 
+> kvm_arch_crypto_set_masks function which takes the guest's VCPUs out of 
+> SIE, copies the apm/aqm/adm from matrix_mdev->shadow_apcb to the APCB in 
+> the SIE state description, then restores the VCPUs to SIE. If no changes 
+> have been made to matrix_mdev->shadow_apcb, then it doesn't make sense 
+> to impact the guest in such a manner. So maybe something like this:
+> 
+> if (bitmap_intersects(apids, matrix_mdev->shadow_apcb.apm, AP_DEVICES))
+> 
+>          vfio_ap_mdev_update_guest_apcb(matrix_mdev)
+> 
+
+Fixed in v3.
+
+> 
+>>       vfio_ap_mdev_reset_qlist(&qlist);
+>> @@ -1128,6 +1131,15 @@ static void 
+>> vfio_ap_mdev_hot_unplug_adapter(struct ap_matrix_mdev *matrix_mdev,
+>>       }
+>>   }
+>> +static void vfio_ap_mdev_hot_unplug_adapter(struct ap_matrix_mdev 
+>> *matrix_mdev,
+>> +                        unsigned long apid)
+>> +{
+>> +    DECLARE_BITMAP(apids, AP_DEVICES);
+> 
+> 
+> I'm not sure about this, but should the apids bitmap be zeroed out?
+> 
+> memset(apids, 0, sizeof(apids));
+> 
+
+I would think it is not needed, but I do see precent in other code so it 
+is better to be safe here I think. I'll add this for v3. I'll use 
+bitmap_zero, however, instead of memeset.
+
+>> +
+>> +    set_bit_inv(apid, apids);
+>> +    vfio_ap_mdev_hot_unplug_adapters(matrix_mdev, apids);
+>> +}
+>> +
+>>   /**
+>>    * unassign_adapter_store - parses the APID from @buf and clears the
+>>    * corresponding bit in the mediated matrix device's APM
+>> @@ -1288,19 +1300,22 @@ static void vfio_ap_mdev_unlink_domain(struct 
+>> ap_matrix_mdev *matrix_mdev,
+>>       }
+>>   }
+>> -static void vfio_ap_mdev_hot_unplug_domain(struct ap_matrix_mdev 
+>> *matrix_mdev,
+>> -                       unsigned long apqi)
+>> +static void vfio_ap_mdev_hot_unplug_domains(struct ap_matrix_mdev 
+>> *matrix_mdev,
+>> +                       unsigned long *apqis)
+>>   {
+>>       struct vfio_ap_queue *q, *tmpq;
+>>       struct list_head qlist;
+>> +    unsigned long apqi;
+>>       INIT_LIST_HEAD(&qlist);
+>> -    vfio_ap_mdev_unlink_domain(matrix_mdev, apqi, &qlist);
+>> -    if (test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm)) {
+>> -        clear_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm);
+>> -        vfio_ap_mdev_update_guest_apcb(matrix_mdev);
+>> +    for_each_set_bit_inv(apqi, apqis, AP_DOMAINS) {
+>> +        vfio_ap_mdev_unlink_domain(matrix_mdev, apqi, &qlist);
+>> +
+>> +        if (test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
+>> +            clear_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm);
+>>       }
+>> +    vfio_ap_mdev_update_guest_apcb(matrix_mdev);
+> 
+> 
+> Same comment here as for vfio_ap_mdev_hot_unplug_adapters function.
+> 
+> 
+
+Fixed in v3.
+
+>>       vfio_ap_mdev_reset_qlist(&qlist);
+>> @@ -1310,6 +1325,15 @@ static void 
+>> vfio_ap_mdev_hot_unplug_domain(struct ap_matrix_mdev *matrix_mdev,
+>>       }
+>>   }
+>> +static void vfio_ap_mdev_hot_unplug_domain(struct ap_matrix_mdev 
+>> *matrix_mdev,
+>> +                       unsigned long apqi)
+>> +{
+>> +    DECLARE_BITMAP(apqis, AP_DOMAINS);
+> 
+> 
+> See comment/question in vfio_ap_mdev_hot_unplug_adapter function.
+> 
+> 
+Fixed in v3.
+>> +
+>> +    set_bit_inv(apqi, apqis);
+>> +    vfio_ap_mdev_hot_unplug_domains(matrix_mdev, apqis);
+>> +}
+>> +
+>>   /**
+>>    * unassign_domain_store - parses the APQI from @buf and clears the
+>>    * corresponding bit in the mediated matrix device's AQM
+>> @@ -1577,10 +1601,132 @@ static ssize_t ap_config_show(struct device 
+>> *dev, struct device_attribute *attr,
+>>       return idx;
+>>   }
+>> +/* Number of characters needed for a complete hex mask representing 
+>> the bits in ..  */
+>> +#define AP_DEVICES_STRLEN    (AP_DEVICES/4 + 3)
+>> +#define AP_DOMAINS_STRLEN    (AP_DOMAINS/4 + 3)
+>> +#define AP_CONFIG_STRLEN    (AP_DEVICES_STRLEN + 2 * AP_DOMAINS_STRLEN)
+>> +
+>> +static int parse_bitmap(char **strbufptr, unsigned long *bitmap, int 
+>> nbits)
+>> +{
+>> +    char *curmask;
+>> +
+>> +    curmask = strsep(strbufptr, ",\n");
+>> +    if (!curmask)
+>> +        return -EINVAL;
+>> +
+>> +    bitmap_clear(bitmap, 0, nbits);
+>> +    return ap_hex2bitmap(curmask, bitmap, nbits);
+>> +}
+>> +
+>> +static int ap_matrix_length_check(struct ap_matrix_mdev *matrix_mdev)
+> 
+> 
+> We're not really checking the matrix length here, we're checking whether 
+> any set bits exceed that maximum value, so maybe something like:
+> 
+> ap_matrix_max_bitnum_check(struct ap_matrix_mdev *matrix_mdev)?
+> 
+> Not critical though.
+> 
+> 
+
+Renaming to ap_matrix_overflow_check for v3. That name is more concise 
+in my opinion.
