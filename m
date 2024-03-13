@@ -1,108 +1,190 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8859146425;
-	Wed, 13 Mar 2024 15:24:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710343455; cv=none; b=jgEt4IWrOTNBIuOt5qEd0yCNg+SwDN5+Cb3CYHRDZwXIvHTInIKu1lwU9NXPKdL2hVbxlLkBuf1UpTW5qlF/pAG5PXMhtVZTQh/p2EIm2I3SRf/a9XV7wPhK1A3dQ96TU0j2i/7TyQHmQzTXGrmvCA1txRYVIB2U/HGZ2MUUDsA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710343455; c=relaxed/simple;
-	bh=zLmTYamDLg7r/N+uNsQ1UpNtH7QKvcEeuvYnyZUx54M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uaQsA1mbeR9pUlsc0FcXEBmNKPWXKP321DdsYfsoLG2yHZSxSHmUht/2UbDwE107VhWNGbHvLDdv+nGexMOxv0lQywKS5ZjKGGgqHM1+wxob/xum8RIsmALIeYlz4mUexHJKeWNl7qVSNNM8guSomzxzGIcnde+u2891P0sUoqA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=f08oAtky; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DED0547F46;
+	Wed, 13 Mar 2024 15:40:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.16
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1710344461; cv=fail; b=F4zl8u1XtGV7IHexLwyskRlAMW9xBWUehuG1K+bq/5PU6TZJkG+SP14A4SXYp1oYms/GhYtx3AtOg78k+cUjeQz03db4vJZL/ogEmGHg6lZH0p/1+LIgEqdulPh+j4PdlEEhvp6HAYJCwX3+GdL8oyuZZrARV1dxTnK2l86TF5E=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1710344461; c=relaxed/simple;
+	bh=PJc1AwY02jXOZRpcRVSt1mnwJh2kPBYmknQqLS90y7s=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=Dk3RyGORca1c8rqA+DafZAHfihlHp9xv8uQrigMGEYs8a8I1asVsBzBZ0ARhZ6ch6We+j9aDxTm14L5mXzD4mLbQrT5IXTXsD2RlJtt8ogWtgGkfiOpIIBWUBphPbye1Wo7lSHOG8R8IYXe7LMmH6zpuPMDy0ae1mj+ZZGfBBhs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HJNqfCe+; arc=fail smtp.client-ip=198.175.65.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="f08oAtky"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42DEsIaf001099;
-	Wed, 13 Mar 2024 15:24:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=HwySBDppIHFt2ysh7QvtukIj8GXUdrmsCOcwJBJI6TI=;
- b=f08oAtkyPNRWhv7N0xsFNfd9Us2f5MoNGPFQJU49ztTsCYV4M6q0T76yMiBPzWlYWFv8
- f0qdNfGdxVXqHLmGCi8cLYzjXbdanLSSzAAxWCpt+67bQOylf5NBRsqryIuntfLKyhm8
- kAahPMwaitPcIsWVjvu3MzoXNye96SX5Q/cp5Uf0IoKcE0TaWvrA8wQI4DYiSzXxRhQP
- 9++UoJdFOkQ3oVSoGGKWnvl+gweCrErFgXzYmlvsXZfDJLjnTF0yqaNTbyECN6dFne6E
- o0+MqCUiqOniVJAgTcxThbnMmQ7CSOEpR2gq58oemOIvkTA3qbz1NXPsS/r+dFIXrKCO Mg== 
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wud2rj892-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Mar 2024 15:24:11 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42DELQYX013603;
-	Wed, 13 Mar 2024 15:24:10 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ws4ake9r4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Mar 2024 15:24:10 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42DFO5JD38142330
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 13 Mar 2024 15:24:07 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2251120043;
-	Wed, 13 Mar 2024 15:24:05 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E76D620040;
-	Wed, 13 Mar 2024 15:24:04 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 13 Mar 2024 15:24:04 +0000 (GMT)
-Date: Wed, 13 Mar 2024 16:24:03 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Vineeth Vijayan <vneethv@linux.ibm.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH v1 1/1] s390/cio: Use while (i--) pattern to clean up
-Message-ID: <20240313152403.7008-D-hca@linux.ibm.com>
-References: <20240222134501.236871-1-andriy.shevchenko@linux.intel.com>
- <b4fd2ff7-9b3e-4059-9277-bef5d66bd129@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HJNqfCe+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1710344461; x=1741880461;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-id:content-transfer-encoding:
+   mime-version;
+  bh=PJc1AwY02jXOZRpcRVSt1mnwJh2kPBYmknQqLS90y7s=;
+  b=HJNqfCe+sOg6UD3f9pn0LOjG5RTxQvcUECj2p8vHsg/CgE/ffsxw48ai
+   bOnlsV7TAbAohPLhyDQhJlPYjVHCNKMsIzohHP7otYWRWhwQJkac5hfQj
+   8ZYKggVtjEpfeK6vovk+sze1w+9gQHBt2SvTsU8p8ZjPcrICVcpltUo12
+   5pa3pnNCHZHcjKYbezPN7rvGZma/scNsBTu7davETXMr4aBnSp32uxDtV
+   yiVcA+U5lSl9NGD6xuswRMbBF29cq++uXJmebAAUW8rg7ijEmHQwq8e1M
+   oZxzuSDXma6JBFS8s5Mq/0cIgdLbTfAFKEVsI33EDJTrXF3i3YA1XCXEd
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11011"; a="5244348"
+X-IronPort-AV: E=Sophos;i="6.07,122,1708416000"; 
+   d="scan'208";a="5244348"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Mar 2024 08:40:59 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,122,1708416000"; 
+   d="scan'208";a="11878928"
+Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
+  by fmviesa009.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 13 Mar 2024 08:40:58 -0700
+Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Wed, 13 Mar 2024 08:40:57 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Wed, 13 Mar 2024 08:40:57 -0700
+Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
+ orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35 via Frontend Transport; Wed, 13 Mar 2024 08:40:57 -0700
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.169)
+ by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Wed, 13 Mar 2024 08:40:56 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=gMtG/ZsFfR8U3VIIL7OTdq3JCryNAf3vkgWd/IbKtYr68c7eyCftRZPwudOLiusvEJY40faftXefV/85IQhBOBNUqjuxTaF0w+LlKpZkQQ36cviKv00CfJ4CiKjc8IUkKH24T11Z48msIU+0dAOY83qUv/63hgFlEgtbuG/ev6y5eU5OREEqsD/gPf1HMstKozhZ7K4liuTniqKo/NVJLr8AVu9H1vQa1DvA4az4AariIdRFEbZC2I4/hXQWLHkP1spYnW3mY18wQAC8pgHoSRgvD79F68OHCzhGQyV0PrQjZeWWPG7pEznrYdyPVwXKoWn4wfE4kZNFZ4ACKM2caA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=PJc1AwY02jXOZRpcRVSt1mnwJh2kPBYmknQqLS90y7s=;
+ b=JhronHB860MomV5CnZgVaq6BpAM19KZmNpAE1iMV1dhhqDzgcAvHt0LRBjHyGABjBq3eqNmW45XblmOvG0oBls+zdW2yjn75HHUxuGGmSO9g8rL3SvE3Vj2Sris3kNsifeJi0+LhmL3K+fXg3QF7kD8ELSJUnr3TQldJAQMoe3NT8r6eacFZLgOk5EiCH7e1llQ5UwWojYmG/rpcbFsiq2eK9xHbXfdk9ij2BQSS8ZjpooGiZeQXPjA8AaEPJcuDe6D5jiC2VvxIpl2UTxAC/VluFiR61fBy4uC93VYO1+fmKiikX+rXX/Xwo7I6nucqH7oaPQjQr6tqw9wgwejDJQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from MN0PR11MB5963.namprd11.prod.outlook.com (2603:10b6:208:372::10)
+ by LV3PR11MB8695.namprd11.prod.outlook.com (2603:10b6:408:211::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7386.17; Wed, 13 Mar
+ 2024 15:40:54 +0000
+Received: from MN0PR11MB5963.namprd11.prod.outlook.com
+ ([fe80::fc9e:b72f:eeb5:6c7b]) by MN0PR11MB5963.namprd11.prod.outlook.com
+ ([fe80::fc9e:b72f:eeb5:6c7b%5]) with mapi id 15.20.7386.016; Wed, 13 Mar 2024
+ 15:40:53 +0000
+From: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>
+To: "keescook@chromium.org" <keescook@chromium.org>
+CC: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "luto@kernel.org"
+	<luto@kernel.org>, "dave.hansen@linux.intel.com"
+	<dave.hansen@linux.intel.com>, "debug@rivosinc.com" <debug@rivosinc.com>,
+	"akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, "mingo@redhat.com"
+	<mingo@redhat.com>, "linux-csky@vger.kernel.org"
+	<linux-csky@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "christophe.leroy@csgroup.eu"
+	<christophe.leroy@csgroup.eu>, "linux-mm@kvack.org" <linux-mm@kvack.org>,
+	"kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>,
+	"tglx@linutronix.de" <tglx@linutronix.de>,
+	"linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>,
+	"hpa@zytor.com" <hpa@zytor.com>, "peterz@infradead.org"
+	<peterz@infradead.org>, "sparclinux@vger.kernel.org"
+	<sparclinux@vger.kernel.org>, "loongarch@lists.linux.dev"
+	<loongarch@lists.linux.dev>, "bp@alien8.de" <bp@alien8.de>,
+	"linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
+	"linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "x86@kernel.org" <x86@kernel.org>,
+	"broonie@kernel.org" <broonie@kernel.org>
+Subject: Re: [PATCH v3 08/12] treewide: Use initializer for struct
+ vm_unmapped_area_info
+Thread-Topic: [PATCH v3 08/12] treewide: Use initializer for struct
+ vm_unmapped_area_info
+Thread-Index: AQHadMzLOP7Gxz/JLEa2XEcLahB5+bE1AKWAgADPagA=
+Date: Wed, 13 Mar 2024 15:40:53 +0000
+Message-ID: <cd57bd385f5f2d026205119d4ecb3f44ed30b384.camel@intel.com>
+References: <20240312222843.2505560-1-rick.p.edgecombe@intel.com>
+	 <20240312222843.2505560-9-rick.p.edgecombe@intel.com>
+	 <202403122018.DCCE1E000@keescook>
+In-Reply-To: <202403122018.DCCE1E000@keescook>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+user-agent: Evolution 3.44.4-0ubuntu2 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: MN0PR11MB5963:EE_|LV3PR11MB8695:EE_
+x-ms-office365-filtering-correlation-id: b8386a24-621c-4337-74ac-08dc4373f7d7
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: qGazlrxgTOwfxImlMVmjk916tz7n/6k+HrZAU+p39187UzMXhd3GWDOBZOhBtQnfYjba/eLaDlVR3hGHPutKvya3QGX0ynKd6/o6PfcOszNhqDOEdNuf3YbmRDfeZ+3vQHna02JhrnWKP/TZwmt6fpb3dUKmz1coYorJIyP1buwach86hZIvarsJuSf1++ZEEjZtsDBy3/BN8+4LT6/0Hghuc8goSV5VrN460RqnIUbkvix328ecd+jah3rZVUG2wEOvo94W8Awj6VZnBrZraFrwp9pq/70LpnrFgiNVGwkkTdPhf4bzCB7jpB/JOyk6Bd0LujnobnaZ50fyugeHBasvwkYl427Mp+UW7c7VD6DYx6flgPPwmjTLbN3DWzObwa4oVRSRNWMgu/dLNbw3FH6B3etvE0XxuMGUX+srRPlVU9y5i5lDYt/QrUl+NUXoTFBeQYBc3NJdG5mJJ4LThdLSBa3qVAa1nnMbTdAEa9Lxe040OdXmVJ0oQm52yxcFwpUBuRA5jJCqVjPrEsE/nUxjBqO3INRIW0vAxZx9i+VQ8zg/7GDmlmUjBLK2NcPTJZBj5fJ49ev4RreQYdb2kTVnbbilrfP25lqbv/eFL82b2HLp7x+g1ufp71QFUEG4sFpY9cfvmtyQTOU55FO6OZ3EaWvRI/HfFDFJUmlAWDH8DPamwoLC88s8ubgfi6Q4j3oNXTULGqSPhevavr8NZA==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR11MB5963.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(1800799015)(7416005)(38070700009);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?aHBTejdweWM2azNteGFiZVFuYUpvSEhWTHJ6VFhVZmxqdG9WZ3ZlRWkyVStu?=
+ =?utf-8?B?a1NpcWhnc1pvTEdJOXhWVWpocTJPWVZHOEdsTjZhWXJaUnkxTUtueXhmd3VN?=
+ =?utf-8?B?b3lkRDBybXg0TFBobmxJVTZpVHlTWGdRT1UxZEVycmN4NW9oR0V6RG9sNTZs?=
+ =?utf-8?B?Q2NFWm5kS1JZbjBwL0YrVER1a3VqMUw1RHIwNEozUTkzaGkySWFHSy8rVnVP?=
+ =?utf-8?B?RTdmQVk1Mll6Q2EwM3NoVFlXYmtMbTExcHdIQ2tXdFRBb3NrVnd4a0V0Ui9D?=
+ =?utf-8?B?cHM4WDNRTU1GbTBjMUcyNVhyQTN3K0ZZR09KVUE4cGZ2b1U4QWVqZkE3K1dO?=
+ =?utf-8?B?WGxNU2E5MDg1K0tvOUYzeW5rajg5YUFjVHJWRWlCbTJlOVM0WW5iZU5sVjVZ?=
+ =?utf-8?B?Zndqb2g2UWhSYXRZOVRib3hsUnA4OXhFcGxFZ3FQWVBSTjZnU25QU0c5T1BQ?=
+ =?utf-8?B?YkVVYXNZVmltRlN2VkJia0VCd1c3ZzNRcTAxVjdkZ0ZqT2VNbUVCNFlTU25Y?=
+ =?utf-8?B?a1hzT3R1U2MvbEJhZkVPYTBqL2tFZDdmOHlCb0JqbUpYOEIySWZJZEhNa1g0?=
+ =?utf-8?B?VE9HekkxVDBqZjhnUEVhOUVrM0tLNWNkdUV1WFBGSGdhbDRFUXhPNmZrOHlh?=
+ =?utf-8?B?QW1oekR3K0lIcm5CWGFJcCtNbXlINTdyaXZUeTZ3NGExYmlJeUNiU2FoL3lV?=
+ =?utf-8?B?Q2xoR0ViUWF3cVNVdzhVYXdWTWJEcFJ6UnpLd1ZYNlg2dmhmQ0ZIYVBVY2hR?=
+ =?utf-8?B?V0RCZHRjQmcyZXFSR0RmbnpsRDBFOFJwcGV1WU9ZNGZWTTRMZTZXejU0bFE5?=
+ =?utf-8?B?Rkh2TVZTNHNpTTE1VlhSVTE5TVJ2cGtTV1BkM0pkaVBUc2lDdXIrZGFTS1lH?=
+ =?utf-8?B?Vjl6M1RiaEVBWXBhK0VBRDM1Z1B4ODFhSkkvanUza3hEbVQ1T3ZDM1c4V0w4?=
+ =?utf-8?B?eTE2TFRFZ1J6SDNlOTdSWURFeVUzWHBpZG8zaGp6eUNia3loQTlOY0lFWTRu?=
+ =?utf-8?B?SHI4WG9tcTVlQ2lrY0hMdkJMNm5DNXc1VG1WYjRUQ2w4WERKTmQ0dXFjN2xw?=
+ =?utf-8?B?dGhSdHp3WTRPbVptYloreHRYUCtySUIrV1NCNlN2ZllsVC9zNE5rRlVNMTJH?=
+ =?utf-8?B?MktZY3JnY1RNanVvdGh1NmptS3FjUW5CdFRmeDJCdW5HcHpJSlVHYVY3Z3Bx?=
+ =?utf-8?B?aXhISG9laWFhOVlWdnhhaXg2aVQrVk1pRXRBZ293aW1TWHI5NFQ2UjNuakVL?=
+ =?utf-8?B?VGhwV1VQOW1OeVFEaTMrN3A3UDQzMzNHRnFhQ0ZGclV5TDFqellDSEJ2UnRk?=
+ =?utf-8?B?WmRmRE42MWVGRVZwZDdDNXY3dTllRnlITHZNNTlpb2JENU1UY0tMV3haSnUy?=
+ =?utf-8?B?Sk5mNjBvMDVSYUR5SjMzRnJXZVNiNThtb0kwd2xDYkZYaGZVc1ZmdmhteU5t?=
+ =?utf-8?B?dnhjV1liZnU2dUtDZTdUaEJsWkZsclc5aUVvSWZMcEhlSDJ0YW5WZDUrN1Qy?=
+ =?utf-8?B?cTd4ampsaFh2ZUZoR2RzcXdxV3ZMelUzUmp2bTFPcmtWUnJNQ1VzclhpQU9C?=
+ =?utf-8?B?T2s2L0srM1F4bG81enRQREU0UnhoeVBGdW02bjB4ekx1VFlkUU5FL2RvQ0F0?=
+ =?utf-8?B?SlBhejlJc1Y1WnZhMTFyT0FlUUZ2cHpUamVvQ05TcTNOYlhmSUcrYS9DNnJQ?=
+ =?utf-8?B?UXFIR3hXTDNmTmdHL2hPa0ZEK3NZUnk1anZvVVYyUzFsTEl5MXY3bjdXVHdB?=
+ =?utf-8?B?QlBFOThaQW56UGNuc09VbU5KdlMxSFZ1YTlqMXhOeWNwbVowZE1vS3RaQXZ3?=
+ =?utf-8?B?TTRUV1haS0VtMHlOanZBS1paTTMwUGpsVVNVd2FaeFNGZlNNYWVzZlRRZUZv?=
+ =?utf-8?B?ZmpNMm1Cdkgycms1ZmJua2IzVmtncERTeWZxTk9rMFU2TG9RRWcxeHF1VzU2?=
+ =?utf-8?B?QURUcGxOVFh2QjNYZ0F0STdCcmFGUWM5MnFNK3FNQU9TRVN5eFV2ZVhnaXda?=
+ =?utf-8?B?emFnL1lWSVJMTlAxQzd0aFFBdW5WQk42VlhaN2ZXeTN3YjFiOVUrSitNa1pZ?=
+ =?utf-8?B?cmt3V0dQbUVoNENPK3JZdmtkb3JBYUlxeElzUVBUa0RRbnp5eG8rOVd0OEc2?=
+ =?utf-8?B?cEVRVnUwVDRlMnVNc1JVcmZ0OVdON21RcE1PdDFZcFJoQWxRd1NlTGNTMC9Y?=
+ =?utf-8?Q?mj18PWnLZlG/RfrYZMUQGFU=3D?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <5D15D0D8BAEF524083C69778452931F4@namprd11.prod.outlook.com>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b4fd2ff7-9b3e-4059-9277-bef5d66bd129@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: K4logmEkiQQUNRORr8CuWz5Y_CVckGN3
-X-Proofpoint-GUID: K4logmEkiQQUNRORr8CuWz5Y_CVckGN3
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-13_09,2024-03-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- mlxlogscore=695 bulkscore=0 clxscore=1015 phishscore=0 impostorscore=0
- malwarescore=0 adultscore=0 suspectscore=0 spamscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2403130116
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MN0PR11MB5963.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b8386a24-621c-4337-74ac-08dc4373f7d7
+X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Mar 2024 15:40:53.7553
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: vEmFv+A4uX3vQ7g4donffEIX0DkAkQ77OTeQFszBDePi2LuQY8w2bdSHzVnUzkOD+kNDg+q4oQFKTrlFrT2DJEcIyE2ba+WQ02dIVjVeAos=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV3PR11MB8695
+X-OriginatorOrg: intel.com
 
-On Wed, Mar 13, 2024 at 03:57:53PM +0100, Vineeth Vijayan wrote:
-> 
-> 
-> On 2/22/24 14:45, Andy Shevchenko wrote:
-> > Use more natural while (i--) patter
-> 
-> typo: pattern
-> 
-> to clean up allocated resources.
-> > 
-> > Signed-off-by: Andy Shevchenko<andriy.shevchenko@linux.intel.com>
-> > ---
-> >   drivers/s390/cio/ccwgroup.c | 4 ++--
-> >   drivers/s390/cio/chsc.c     | 2 +-
-> >   2 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> Otherwise, looks sane to me.
-> Acked-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-
-Applied with typo fixed, thanks!
+T24gVHVlLCAyMDI0LTAzLTEyIGF0IDIwOjE4IC0wNzAwLCBLZWVzIENvb2sgd3JvdGU6DQo+IA0K
+PiBUaGFua3MhIFRoaXMgbG9va3MgdG8gZG8gZXhhY3RseSB3aGF0IGl0IGRlc2NyaWJlcy4gOikN
+Cj4gDQo+IFJldmlld2VkLWJ5OiBLZWVzIENvb2sgPGtlZXNjb29rQGNocm9taXVtLm9yZz4NCg0K
+VGhhbmtzIQ0K
