@@ -1,173 +1,187 @@
-Received: from esa10.hc1455-7.c3s2.iphmx.com (esa10.hc1455-7.c3s2.iphmx.com [139.138.36.225])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4F596CDC0;
-	Thu, 14 Mar 2024 09:52:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=139.138.36.225
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7820C6BB37;
+	Thu, 14 Mar 2024 10:23:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710409949; cv=none; b=tMEfIvNYTaQTlqlFL7ZCtCZIg378ZyCGoYj82yeb9MEQYHD83xa7+6n9yU4ZWtac+D8FEmZJuWdx+6MZ4++Z7MTeUoTxYdnbeMlxCjBGrVyE5vmvmrRnbqNsNyZUHcaW3Luu2l6GYV58Nu3AdJ6hgQyJ6DyscAsS7LOaEwpDTHk=
+	t=1710411814; cv=none; b=jaG0c94kl0DCf6LLBWn4NVUebOmNPAIGJlFlhq8Ot2LL3M2uJV7V5tCDp+4sfyuklc0Pq2fXi7fCrtQb28ZEh5O4SlG6fTTmvMSH94+KGz7Z7aqVkOeR7+ysIbbgnTY4NBoMqp7ArCgxPXGnW4mkjYfJVosDwwm/1YeJpbnjnfE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710409949; c=relaxed/simple;
-	bh=/eLQKrscW5KbKOqJxn8JwtFZ8HO6LGwOx+cyyFz4PMc=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=iJnLKGwd5qF4KyOIZmfGCQZgcDvbbNkJ7bwyyt4pPbpImWBL/JVe7aq38yZ6Kw4Sv8aAOQU9FRQAB7hy+rnoBP7apli9uQAzUNftkfZM/7/PvRwlpNxh2sPmd8h7sRiOzREYXCASErG4ZvtgDNzBC4q7sPeLzWlzyQ9zebv1SCA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fujitsu.com; spf=pass smtp.mailfrom=fujitsu.com; dkim=pass (2048-bit key) header.d=fujitsu.com header.i=@fujitsu.com header.b=miBVgQHp; arc=none smtp.client-ip=139.138.36.225
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fujitsu.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fujitsu.com
+	s=arc-20240116; t=1710411814; c=relaxed/simple;
+	bh=5wPDrmN6cu9x1bCdqz8DXqPYL7YSUk8hpryHCstTnFE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZhiOtYu+ogjp9LJfl8/DXZ8S+pQfgG3rQA3Ttykxp4JGAUW81iyeqKJMHRxQ3Q5jT3JYj/H5/QA/V3FYLB8qYRRKnb5P9FdboxUs5+eOWbL64OwjdLfRgsDJBjCnRr4Tfh1v+r1JtrR3AGEpH4/wMtwJpYbsfsyyDnJ9Dcn3bA4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=l8x5zZk4; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fujitsu.com header.i=@fujitsu.com header.b="miBVgQHp"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=fujitsu.com; i=@fujitsu.com; q=dns/txt; s=fj2;
-  t=1710409947; x=1741945947;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=/eLQKrscW5KbKOqJxn8JwtFZ8HO6LGwOx+cyyFz4PMc=;
-  b=miBVgQHpYWb75LTR0ZeAPB5nfaI8pcCyemmjPnGcqGo1lQMUSiJIBDEA
-   8Ui2MlF+wgYBoNQCr2X6AWmS3wdeNjv6caSi45g4KfEsmCFgirpoYFmRj
-   QNiYtuz96qxACeB5QXdtVWggzte16FJlvsCWVUODVENmPvljzaoCynz4u
-   7foPpQzIv+1UN4ljEz7ZqHR5N08+Vs/2DRIKZprGTeHVNYT3+Ez0U3EDy
-   c8D8yqwk6Y+C2Sq4+o1nvqg4FFm+ELThmsJs2n1M2p5nVfAiRAzbXF8Vt
-   l+YLB6GgYtqJQp6IPLXxv+X9cmTm8DxE7opWK7uB8caljhYcWLOnZmJ77
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11012"; a="139871825"
-X-IronPort-AV: E=Sophos;i="6.07,125,1708354800"; 
-   d="scan'208";a="139871825"
-Received: from unknown (HELO yto-r2.gw.nic.fujitsu.com) ([218.44.52.218])
-  by esa10.hc1455-7.c3s2.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 18:52:23 +0900
-Received: from yto-m3.gw.nic.fujitsu.com (yto-nat-yto-m3.gw.nic.fujitsu.com [192.168.83.66])
-	by yto-r2.gw.nic.fujitsu.com (Postfix) with ESMTP id 262D45DE23;
-	Thu, 14 Mar 2024 18:52:21 +0900 (JST)
-Received: from kws-ab3.gw.nic.fujitsu.com (kws-ab3.gw.nic.fujitsu.com [192.51.206.21])
-	by yto-m3.gw.nic.fujitsu.com (Postfix) with ESMTP id 6B361E631B;
-	Thu, 14 Mar 2024 18:52:20 +0900 (JST)
-Received: from edo.cn.fujitsu.com (edo.cn.fujitsu.com [10.167.33.5])
-	by kws-ab3.gw.nic.fujitsu.com (Postfix) with ESMTP id 045D720093269;
-	Thu, 14 Mar 2024 18:52:20 +0900 (JST)
-Received: from localhost.localdomain (unknown [10.167.226.45])
-	by edo.cn.fujitsu.com (Postfix) with ESMTP id 4518C1A006B;
-	Thu, 14 Mar 2024 17:52:19 +0800 (CST)
-From: Li Zhijian <lizhijian@fujitsu.com>
-To: linux-kernel@vger.kernel.org
-Cc: Li Zhijian <lizhijian@fujitsu.com>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: [PATCH] s390/cio: Convert sprintf/snprintf to sysfs_emit
-Date: Thu, 14 Mar 2024 17:52:09 +0800
-Message-Id: <20240314095209.1325229-1-lizhijian@fujitsu.com>
-X-Mailer: git-send-email 2.31.1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="l8x5zZk4"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42EA0iog015160;
+	Thu, 14 Mar 2024 10:23:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=DvBNskAxLoqsqCG/2Fpkv5K9t8pITrKn7B68jbgbvJA=;
+ b=l8x5zZk4dhZ0LjQxoItFIqEuh/MkekY27DJfHxrQjugLvzTckln7X73nwYLdNXu0+6ec
+ zcp1BaeIO6B15I89VZFnP7ZKETn1ennz8qSk1+lWia3mIGCztpA0IiJ/5DPk6Wot6v2E
+ 8nm4v1KkvrbV3sdOCVoUDLKxFdGRfrxacxF5f8BkMr5ANGGYUXgdAQvyiabHwHIxWYtH
+ Xj9LxD5bd4tNUub2BDpOfQJh8mwidUzjWBiEMG4DmfGNMy1pJoKHhH/FtQdzZiTyuITk
+ F/shOlfFu3xAvJ541cQjgitiToO9Y4UL4B3VjMBXmZP3ehkDMO54DY0Z7vWvpfz/xNbg lA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wuxm60rc1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 Mar 2024 10:23:21 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 42EALrk0005638;
+	Thu, 14 Mar 2024 10:23:20 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wuxm60rba-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 Mar 2024 10:23:20 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42E8DgOL013484;
+	Thu, 14 Mar 2024 10:23:19 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ws4akkwdg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 Mar 2024 10:23:19 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42EANE1U32768488
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 14 Mar 2024 10:23:16 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0AE7520043;
+	Thu, 14 Mar 2024 10:23:14 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1285B20040;
+	Thu, 14 Mar 2024 10:23:13 +0000 (GMT)
+Received: from [9.171.77.106] (unknown [9.171.77.106])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 14 Mar 2024 10:23:12 +0000 (GMT)
+Message-ID: <caab067b-f5c3-490f-9259-262624c236b4@linux.ibm.com>
+Date: Thu, 14 Mar 2024 11:23:11 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v3 01/11] net/smc: adapt SMC-D device dump for
+ Emulated-ISM
+To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
+        twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+References: <20240312142743.41406-1-guwen@linux.alibaba.com>
+ <20240312142743.41406-2-guwen@linux.alibaba.com>
+From: Jan Karcher <jaka@linux.ibm.com>
+Organization: IBM - Network Linux on Z
+In-Reply-To: <20240312142743.41406-2-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-TM-AS-Product-Ver: IMSS-9.1.0.1417-9.0.0.1002-28250.006
-X-TM-AS-User-Approved-Sender: Yes
-X-TMASE-Version: IMSS-9.1.0.1417-9.0.1002-28250.006
-X-TMASE-Result: 10--7.671400-10.000000
-X-TMASE-MatchedRID: e6WPXQD7Ri84ibokZ3+Q0CoiRKlBVkYIBXngI6jFvpfDqO6/8R69QE8U
-	roFNOGp7a6aAZTOwtJmRloiW1Kgftd2ZdKe8BPbSrMZ+BqQt2NpBHuVYxc8DW3hh5KUdlgWiKqF
-	q1hn3Eb3d+/nM3Koh0iaTw03n/wYO0ekSi+00U24ReM8i8p3vgEyQ5fRSh265uBsk5njfgGzYJp
-	3mzrbmsPdcQ4/ZOO0Rnagtny7ZPcQfE8yM4pjsDwtuKBGekqUpI/NGWt0UYPCfyuXWEgP3xnc6o
-	Dizu5zS2Wc8riKqD5DjblkGDJuLaSZW8DARDgA6
-X-TMASE-SNAP-Result: 1.821001.0001-0-1-22:0,33:0,34:0-0
+X-Proofpoint-GUID: gbaUvl_hnFnGnA-Ov_FXC1VTTPGNJdyR
+X-Proofpoint-ORIG-GUID: rXYW3pWjXFS85FSH9KC0bLPqfaVQG4Z1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-03-14_08,2024-03-13_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
+ impostorscore=0 priorityscore=1501 spamscore=0 malwarescore=0
+ mlxlogscore=999 bulkscore=0 suspectscore=0 adultscore=0 phishscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2403140073
 
-Per filesystems/sysfs.rst, show() should only use sysfs_emit()
-or sysfs_emit_at() when formatting the value to be returned to user space.
 
-coccinelle complains that there are still a couple of functions that use
-snprintf(). Convert them to sysfs_emit().
 
-sprintf() will be converted as weel if they have.
+On 12/03/2024 15:27, Wen Gu wrote:
+> The introduction of Emulated-ISM requires adaptation of SMC-D device
+> dump. Software implemented non-PCI device (loopback-ism) should be
+> handled correctly and the CHID reserved for Emulated-ISM should be got
+> from smcd_ops interface instead of PCI information.
+> 
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
+>   net/smc/smc_ism.c | 13 ++++++++++---
+>   1 file changed, 10 insertions(+), 3 deletions(-)
+> 
+> diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+> index ac88de2a06a0..b6eca4231913 100644
+> --- a/net/smc/smc_ism.c
+> +++ b/net/smc/smc_ism.c
+> @@ -252,12 +252,11 @@ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
+>   	char smc_pnet[SMC_MAX_PNETID_LEN + 1];
+>   	struct smc_pci_dev smc_pci_dev;
+>   	struct nlattr *port_attrs;
+> +	struct device *device;
+>   	struct nlattr *attrs;
+> -	struct ism_dev *ism;
+>   	int use_cnt = 0;
+>   	void *nlh;
+>   
+> -	ism = smcd->priv;
+>   	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
+>   			  &smc_gen_nl_family, NLM_F_MULTI,
+>   			  SMC_NETLINK_GET_DEV_SMCD);
+> @@ -272,7 +271,15 @@ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
+>   	if (nla_put_u8(skb, SMC_NLA_DEV_IS_CRIT, use_cnt > 0))
+>   		goto errattr;
+>   	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
+> -	smc_set_pci_values(to_pci_dev(ism->dev.parent), &smc_pci_dev);
+> +	device = smcd->ops->get_dev(smcd);
+> +	if (device->parent)
+> +		smc_set_pci_values(to_pci_dev(device->parent), &smc_pci_dev);
+> +	if (smc_ism_is_emulated(smcd)) {
+> +		smc_pci_dev.pci_pchid = smc_ism_get_chid(smcd);
+> +		if (!device->parent)
+> +			snprintf(smc_pci_dev.pci_id, sizeof(smc_pci_dev.pci_id),
+> +				 "%s", dev_name(device));
+> +	}
 
-Generally, this patch is generated by
-make coccicheck M=<path/to/file> MODE=patch \
-COCCI=scripts/coccinelle/api/device_attr_show.cocci
+Hi Wen Gu,
 
-No functional change intended
+playing around with the loopback-ism device and testing it, i developed 
+some concerns regarding this exposure. Basically this enables us to see 
+the loopback device in the `smcd device` tool without any changes.
+E.g.:
+```
+# smcd device
+FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+0000 0     loopback-ism  ffff   No        0
+102a ISM   0000:00:00.0  07c2   No        0  NET1
+```
 
-CC: Vineeth Vijayan <vneethv@linux.ibm.com>
-CC: Peter Oberparleiter <oberpar@linux.ibm.com>
-CC: Heiko Carstens <hca@linux.ibm.com>
-CC: Vasily Gorbik <gor@linux.ibm.com>
-CC: Alexander Gordeev <agordeev@linux.ibm.com>
-CC: Christian Borntraeger <borntraeger@linux.ibm.com>
-CC: Sven Schnelle <svens@linux.ibm.com>
-CC: linux-s390@vger.kernel.org
-Signed-off-by: Li Zhijian <lizhijian@fujitsu.com>
----
-This is a part of the work "Fix coccicheck device_attr_show warnings"[1]
-Split them per subsystem so that the maintainer can review it easily
-[1] https://lore.kernel.org/lkml/20240116041129.3937800-1-lizhijian@fujitsu.com/
----
- drivers/s390/cio/css.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+Now the problem with this is that "loopback-ism" is no valid PCI-ID and 
+should not be there. My first thought was to put an "n/a" instead, but 
+that opens up another problem. Currently you could set - even if it does 
+not make sense - a PNET_ID for the loopback device:
+```
+# smc_pnet -a -D loopback-ism NET1
+# smcd device
+FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+0000 0     loopback-ism  ffff   No        0  *NET1
+102a ISM   0000:00:00.0  07c2   No        0  NET1
+```
+If we would change the PCI-ID to "n/a" it would be a valid input 
+parameter for the tooling which is... to put it nice... not so beautiful.
+I brainstormed this with them team and the problem is more complex.
+In theory there shouldn't be PCI information set for the loopback 
+device. There should be a better abstraction in the netlink interface 
+that creates this output and the tooling should be made aware of it.
 
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 094431a62ad5..4fec251ec35d 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -309,7 +309,7 @@ static ssize_t type_show(struct device *dev, struct device_attribute *attr,
- {
- 	struct subchannel *sch = to_subchannel(dev);
- 
--	return sprintf(buf, "%01x\n", sch->st);
-+	return sysfs_emit(buf, "%01x\n", sch->st);
- }
- 
- static DEVICE_ATTR_RO(type);
-@@ -319,7 +319,7 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
- {
- 	struct subchannel *sch = to_subchannel(dev);
- 
--	return sprintf(buf, "css:t%01X\n", sch->st);
-+	return sysfs_emit(buf, "css:t%01X\n", sch->st);
- }
- 
- static DEVICE_ATTR_RO(modalias);
-@@ -345,7 +345,7 @@ static ssize_t driver_override_show(struct device *dev,
- 	ssize_t len;
- 
- 	device_lock(dev);
--	len = snprintf(buf, PAGE_SIZE, "%s\n", sch->driver_override);
-+	len = sysfs_emit(buf, "%s\n", sch->driver_override);
- 	device_unlock(dev);
- 	return len;
- }
-@@ -396,7 +396,7 @@ static ssize_t pimpampom_show(struct device *dev,
- 	struct subchannel *sch = to_subchannel(dev);
- 	struct pmcw *pmcw = &sch->schib.pmcw;
- 
--	return sprintf(buf, "%02x %02x %02x\n",
-+	return sysfs_emit(buf, "%02x %02x %02x\n",
- 		       pmcw->pim, pmcw->pam, pmcw->pom);
- }
- static DEVICE_ATTR_RO(pimpampom);
-@@ -881,7 +881,7 @@ static ssize_t real_cssid_show(struct device *dev, struct device_attribute *a,
- 	if (!css->id_valid)
- 		return -EINVAL;
- 
--	return sprintf(buf, "%x\n", css->cssid);
-+	return sysfs_emit(buf, "%x\n", css->cssid);
- }
- static DEVICE_ATTR_RO(real_cssid);
- 
-@@ -904,7 +904,7 @@ static ssize_t cm_enable_show(struct device *dev, struct device_attribute *a,
- 	int ret;
- 
- 	mutex_lock(&css->mutex);
--	ret = sprintf(buf, "%x\n", css->cm_enabled);
-+	ret = sysfs_emit(buf, "%x\n", css->cm_enabled);
- 	mutex_unlock(&css->mutex);
- 	return ret;
- }
--- 
-2.29.2
+Do you rely on the output currently? What are your thoughts about it?
+If not I'd ask you to not fill the netlink interface for the loopback 
+device and refactor it with the next stage when we create a right 
+interface for it.
 
+Since the Merge-Window is closed feel free to send new versions as RFC.
+Thank you
+- Jan
+
+>   	if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev.pci_fid))
+>   		goto errattr;
+>   	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID, smc_pci_dev.pci_pchid))
