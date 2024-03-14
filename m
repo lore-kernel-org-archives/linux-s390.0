@@ -1,157 +1,173 @@
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from esa10.hc1455-7.c3s2.iphmx.com (esa10.hc1455-7.c3s2.iphmx.com [139.138.36.225])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7620B5CDD0;
-	Thu, 14 Mar 2024 07:57:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4F596CDC0;
+	Thu, 14 Mar 2024 09:52:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=139.138.36.225
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710403080; cv=none; b=UM9nFDWnkkZ5FwXTkxsLnVCFWd+hQ6knS4j5zNm+e9ZUZzD56Ob53e4F3emFVM5PCtIEDmhb9uOs9e7hBu04qjsU7VOFRwo+22kD0q6i5pHWNLI55v+QYkqoF1mzdT7X8uYVsbh8WhVoo8GWKSugh54/Uox4ALKC1tjws6BBZQ8=
+	t=1710409949; cv=none; b=tMEfIvNYTaQTlqlFL7ZCtCZIg378ZyCGoYj82yeb9MEQYHD83xa7+6n9yU4ZWtac+D8FEmZJuWdx+6MZ4++Z7MTeUoTxYdnbeMlxCjBGrVyE5vmvmrRnbqNsNyZUHcaW3Luu2l6GYV58Nu3AdJ6hgQyJ6DyscAsS7LOaEwpDTHk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710403080; c=relaxed/simple;
-	bh=GdqPCgNgGmabZKEFpqVELT68B4Ci/C3EGXs0bq1Jxn0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BR8fLGSuZssgWH/23WXU0GWHn1P6ZbVe5x+x99/L7qSKLbcC+hB/7xKiySql/xqzjVEwoOBSksp6Lwh3fCDR0rixEcvPeM0XGIFIPEy7vohRJ/x/2mCRwpbqK6kEjN4vr6I1Tko6huhMWAggai3Zbox4StgN/vspkshCgRrjR50=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.128.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-60cbcd04de9so7169477b3.2;
-        Thu, 14 Mar 2024 00:57:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710403077; x=1711007877;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+kd7vHFr5fszcwgfp701zhW6bd0WPIDQKlsKOb1KQCg=;
-        b=lMe1DXW0WrWCpubE+3C5xY2IzSQ5NIFMB7yJcy59XNxNtiDWhS0IWkIi6OA4wlyEmo
-         OTAU5X8PnJV0CvNID0DZRildiKvxEtlA2bswMzMeD41ITtgS8VYVOumGb1FW8khYCY5H
-         CD3EnTR32pSlPBREkANXiLGilv+J9HREZ0EqDcaRORGgfMDfIofVBT9A0BYMjKAT+ISM
-         pe7fqRjPnhx0nXJE7oO1a4W4Ftk3ydAHG+NCB6jELOykInahVpfJ7vSpfaPKRCbtJIGv
-         Rkeqk8MwJdAeeNnSEDkuoDU03UCHqdVGtTWVRxLItH682hKUm4/TUdGGlApLp06e4bKK
-         dcVw==
-X-Forwarded-Encrypted: i=1; AJvYcCUyBq0dQZjHir8vdPngXIiQvW1JHCxsS06B4J19EXPL/2dKM/XP4R2MiFK4808Iz+t1APlMaiHfH3w6MUhUvmPpsqcW2zMGG2KH/wnGVgkChpZb/2iVwSsCfBPM8DOhNEMcRLW9Zo1LDgfRcTq2h3YhnEDUsbQwUoZTyWZQ3g+JgYWdYY5JZMQL/mKNOAiTaLZhbnvvVBVtxir4+XD90ufpDgKMHajHdsdLDXY/p1dlYkFvVJbtJ24kzqtDZ3KAglQqMZjOX9yLC8V6KNo2Ay5nlveOm2LgnQ==
-X-Gm-Message-State: AOJu0YxMtpFprSlsV82qvRMyPBygDyBXNtrI15NkZjNTYOYwqZimq0Bz
-	5Zh/h6IEj6NW3Jq7bP4E4CFCLkaH3liwo/J5iQQX/3eLbIXW+mVpq1QsJOgVQF0=
-X-Google-Smtp-Source: AGHT+IEZFYhzEtoQw3tAL/5lmIa7kFpXxibw5TyrBGKAQ/5uRwdUFocJWz6+3q1/7sg0ctuSNtoK7g==
-X-Received: by 2002:a81:6fc5:0:b0:608:2b27:9e6d with SMTP id k188-20020a816fc5000000b006082b279e6dmr938672ywc.28.1710403077438;
-        Thu, 14 Mar 2024 00:57:57 -0700 (PDT)
-Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com. [209.85.128.173])
-        by smtp.gmail.com with ESMTPSA id m85-20020a0dca58000000b00607ad76d855sm175127ywd.67.2024.03.14.00.57.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 14 Mar 2024 00:57:57 -0700 (PDT)
-Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-60a15449303so8187117b3.0;
-        Thu, 14 Mar 2024 00:57:57 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCVhnKJQSoKtCulOFOpM2dzulvMxAbkZTvxcVLriv6WivpmxhG87fYEFsewjpRhaPDI28/z65+qxHDXVXJWwMwsk8c1OSvY4MFgxPYtZJTnPQgo5ZUEBXHZlwV6vWlh01qQYKnVYWpETC2XCfiu0hUB2/aLJ4tZtc0agGynKH0+fCCB9y/WXywXojV2/mJuBZfd6qdJ04mCaKcpXlRKoVKYtl2qn/eo0jGutHXW1p4s6RC3SPtc/4i730Rc8RdBFCzUJccb99ul55gE2PfMbj4406QSUA6YAIg==
-X-Received: by 2002:a0d:ea4c:0:b0:609:239a:d0fc with SMTP id
- t73-20020a0dea4c000000b00609239ad0fcmr990474ywe.38.1710403077141; Thu, 14 Mar
- 2024 00:57:57 -0700 (PDT)
+	s=arc-20240116; t=1710409949; c=relaxed/simple;
+	bh=/eLQKrscW5KbKOqJxn8JwtFZ8HO6LGwOx+cyyFz4PMc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=iJnLKGwd5qF4KyOIZmfGCQZgcDvbbNkJ7bwyyt4pPbpImWBL/JVe7aq38yZ6Kw4Sv8aAOQU9FRQAB7hy+rnoBP7apli9uQAzUNftkfZM/7/PvRwlpNxh2sPmd8h7sRiOzREYXCASErG4ZvtgDNzBC4q7sPeLzWlzyQ9zebv1SCA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fujitsu.com; spf=pass smtp.mailfrom=fujitsu.com; dkim=pass (2048-bit key) header.d=fujitsu.com header.i=@fujitsu.com header.b=miBVgQHp; arc=none smtp.client-ip=139.138.36.225
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fujitsu.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fujitsu.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=fujitsu.com header.i=@fujitsu.com header.b="miBVgQHp"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=fujitsu.com; i=@fujitsu.com; q=dns/txt; s=fj2;
+  t=1710409947; x=1741945947;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=/eLQKrscW5KbKOqJxn8JwtFZ8HO6LGwOx+cyyFz4PMc=;
+  b=miBVgQHpYWb75LTR0ZeAPB5nfaI8pcCyemmjPnGcqGo1lQMUSiJIBDEA
+   8Ui2MlF+wgYBoNQCr2X6AWmS3wdeNjv6caSi45g4KfEsmCFgirpoYFmRj
+   QNiYtuz96qxACeB5QXdtVWggzte16FJlvsCWVUODVENmPvljzaoCynz4u
+   7foPpQzIv+1UN4ljEz7ZqHR5N08+Vs/2DRIKZprGTeHVNYT3+Ez0U3EDy
+   c8D8yqwk6Y+C2Sq4+o1nvqg4FFm+ELThmsJs2n1M2p5nVfAiRAzbXF8Vt
+   l+YLB6GgYtqJQp6IPLXxv+X9cmTm8DxE7opWK7uB8caljhYcWLOnZmJ77
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11012"; a="139871825"
+X-IronPort-AV: E=Sophos;i="6.07,125,1708354800"; 
+   d="scan'208";a="139871825"
+Received: from unknown (HELO yto-r2.gw.nic.fujitsu.com) ([218.44.52.218])
+  by esa10.hc1455-7.c3s2.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 18:52:23 +0900
+Received: from yto-m3.gw.nic.fujitsu.com (yto-nat-yto-m3.gw.nic.fujitsu.com [192.168.83.66])
+	by yto-r2.gw.nic.fujitsu.com (Postfix) with ESMTP id 262D45DE23;
+	Thu, 14 Mar 2024 18:52:21 +0900 (JST)
+Received: from kws-ab3.gw.nic.fujitsu.com (kws-ab3.gw.nic.fujitsu.com [192.51.206.21])
+	by yto-m3.gw.nic.fujitsu.com (Postfix) with ESMTP id 6B361E631B;
+	Thu, 14 Mar 2024 18:52:20 +0900 (JST)
+Received: from edo.cn.fujitsu.com (edo.cn.fujitsu.com [10.167.33.5])
+	by kws-ab3.gw.nic.fujitsu.com (Postfix) with ESMTP id 045D720093269;
+	Thu, 14 Mar 2024 18:52:20 +0900 (JST)
+Received: from localhost.localdomain (unknown [10.167.226.45])
+	by edo.cn.fujitsu.com (Postfix) with ESMTP id 4518C1A006B;
+	Thu, 14 Mar 2024 17:52:19 +0800 (CST)
+From: Li Zhijian <lizhijian@fujitsu.com>
+To: linux-kernel@vger.kernel.org
+Cc: Li Zhijian <lizhijian@fujitsu.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	linux-s390@vger.kernel.org
+Subject: [PATCH] s390/cio: Convert sprintf/snprintf to sysfs_emit
+Date: Thu, 14 Mar 2024 17:52:09 +0800
+Message-Id: <20240314095209.1325229-1-lizhijian@fujitsu.com>
+X-Mailer: git-send-email 2.31.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240312170309.2546362-1-linux@roeck-us.net> <20240312170309.2546362-12-linux@roeck-us.net>
-In-Reply-To: <20240312170309.2546362-12-linux@roeck-us.net>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 14 Mar 2024 08:57:45 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdXHKfd8agPGx+MjvC4cjW5F6DEeVec3Moe-=LLkrT3CXQ@mail.gmail.com>
-Message-ID: <CAMuHMdXHKfd8agPGx+MjvC4cjW5F6DEeVec3Moe-=LLkrT3CXQ@mail.gmail.com>
-Subject: Re: [PATCH 11/14] s390: Add support for suppressing warning backtraces
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>, 
-	Arnd Bergmann <arnd@arndb.de>, =?UTF-8?B?TWHDrXJhIENhbmFs?= <mcanal@igalia.com>, 
-	Dan Carpenter <dan.carpenter@linaro.org>, Kees Cook <keescook@chromium.org>, 
-	Daniel Diaz <daniel.diaz@linaro.org>, David Gow <davidgow@google.com>, 
-	Arthur Grillo <arthurgrillo@riseup.net>, Brendan Higgins <brendan.higgins@linux.dev>, 
-	Naresh Kamboju <naresh.kamboju@linaro.org>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, Maxime Ripard <mripard@kernel.org>, 
-	=?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, 
-	Daniel Vetter <daniel@ffwll.ch>, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, 
-	kunit-dev@googlegroups.com, linux-arch@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
-	loongarch@lists.linux.dev, netdev@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-TM-AS-Product-Ver: IMSS-9.1.0.1417-9.0.0.1002-28250.006
+X-TM-AS-User-Approved-Sender: Yes
+X-TMASE-Version: IMSS-9.1.0.1417-9.0.1002-28250.006
+X-TMASE-Result: 10--7.671400-10.000000
+X-TMASE-MatchedRID: e6WPXQD7Ri84ibokZ3+Q0CoiRKlBVkYIBXngI6jFvpfDqO6/8R69QE8U
+	roFNOGp7a6aAZTOwtJmRloiW1Kgftd2ZdKe8BPbSrMZ+BqQt2NpBHuVYxc8DW3hh5KUdlgWiKqF
+	q1hn3Eb3d+/nM3Koh0iaTw03n/wYO0ekSi+00U24ReM8i8p3vgEyQ5fRSh265uBsk5njfgGzYJp
+	3mzrbmsPdcQ4/ZOO0Rnagtny7ZPcQfE8yM4pjsDwtuKBGekqUpI/NGWt0UYPCfyuXWEgP3xnc6o
+	Dizu5zS2Wc8riKqD5DjblkGDJuLaSZW8DARDgA6
+X-TMASE-SNAP-Result: 1.821001.0001-0-1-22:0,33:0,34:0-0
 
-Hi G=C3=BCnter,
+Per filesystems/sysfs.rst, show() should only use sysfs_emit()
+or sysfs_emit_at() when formatting the value to be returned to user space.
 
-On Tue, Mar 12, 2024 at 6:06=E2=80=AFPM Guenter Roeck <linux@roeck-us.net> =
-wrote:
-> Add name of functions triggering warning backtraces to the __bug_table
-> object section to enable support for suppressing WARNING backtraces.
->
-> To limit image size impact, the pointer to the function name is only adde=
-d
-> to the __bug_table section if both CONFIG_KUNIT and CONFIG_DEBUG_BUGVERBO=
-SE
-> are enabled. Otherwise, the __func__ assembly parameter is replaced with =
-a
-> (dummy) NULL parameter to avoid an image size increase due to unused
-> __func__ entries (this is necessary because __func__ is not a define but =
-a
-> virtual variable).
->
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+coccinelle complains that there are still a couple of functions that use
+snprintf(). Convert them to sysfs_emit().
 
-Thanks for your patch!
+sprintf() will be converted as weel if they have.
 
-> --- a/arch/s390/include/asm/bug.h
-> +++ b/arch/s390/include/asm/bug.h
-> @@ -8,19 +8,30 @@
->
->  #ifdef CONFIG_DEBUG_BUGVERBOSE
->
-> +#if IS_ENABLED(CONFIG_KUNIT)
-> +# define HAVE_BUG_FUNCTION
-> +# define __BUG_FUNC_PTR        "       .long   %0-.\n"
-> +# define __BUG_FUNC    __func__
-> +#else
-> +# define __BUG_FUNC_PTR
-> +# define __BUG_FUNC    NULL
-> +#endif /* IS_ENABLED(CONFIG_KUNIT) */
-> +
->  #define __EMIT_BUG(x) do {                                     \
->         asm_inline volatile(                                    \
->                 "0:     mc      0,0\n"                          \
->                 ".section .rodata.str,\"aMS\",@progbits,1\n"    \
->                 "1:     .asciz  \""__FILE__"\"\n"               \
->                 ".previous\n"                                   \
-> -               ".section __bug_table,\"awM\",@progbits,%2\n"   \
-> +               ".section __bug_table,\"awM\",@progbits,%3\n"   \
+Generally, this patch is generated by
+make coccicheck M=<path/to/file> MODE=patch \
+COCCI=scripts/coccinelle/api/device_attr_show.cocci
 
-This change conflicts with commit 3938490e78f443fb ("s390/bug:
-remove entry size from __bug_table section") in linus/master.
-I guess it should just be dropped?
+No functional change intended
 
->                 "2:     .long   0b-.\n"                         \
->                 "       .long   1b-.\n"                         \
-> -               "       .short  %0,%1\n"                        \
-> -               "       .org    2b+%2\n"                        \
-> +               __BUG_FUNC_PTR                                  \
-> +               "       .short  %1,%2\n"                        \
-> +               "       .org    2b+%3\n"                        \
->                 ".previous\n"                                   \
-> -               : : "i" (__LINE__),                             \
-> +               : : "i" (__BUG_FUNC),                           \
-> +                   "i" (__LINE__),                             \
->                     "i" (x),                                    \
->                     "i" (sizeof(struct bug_entry)));            \
->  } while (0)
+CC: Vineeth Vijayan <vneethv@linux.ibm.com>
+CC: Peter Oberparleiter <oberpar@linux.ibm.com>
+CC: Heiko Carstens <hca@linux.ibm.com>
+CC: Vasily Gorbik <gor@linux.ibm.com>
+CC: Alexander Gordeev <agordeev@linux.ibm.com>
+CC: Christian Borntraeger <borntraeger@linux.ibm.com>
+CC: Sven Schnelle <svens@linux.ibm.com>
+CC: linux-s390@vger.kernel.org
+Signed-off-by: Li Zhijian <lizhijian@fujitsu.com>
+---
+This is a part of the work "Fix coccicheck device_attr_show warnings"[1]
+Split them per subsystem so that the maintainer can review it easily
+[1] https://lore.kernel.org/lkml/20240116041129.3937800-1-lizhijian@fujitsu.com/
+---
+ drivers/s390/cio/css.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Gr{oetje,eeting}s,
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index 094431a62ad5..4fec251ec35d 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -309,7 +309,7 @@ static ssize_t type_show(struct device *dev, struct device_attribute *attr,
+ {
+ 	struct subchannel *sch = to_subchannel(dev);
+ 
+-	return sprintf(buf, "%01x\n", sch->st);
++	return sysfs_emit(buf, "%01x\n", sch->st);
+ }
+ 
+ static DEVICE_ATTR_RO(type);
+@@ -319,7 +319,7 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
+ {
+ 	struct subchannel *sch = to_subchannel(dev);
+ 
+-	return sprintf(buf, "css:t%01X\n", sch->st);
++	return sysfs_emit(buf, "css:t%01X\n", sch->st);
+ }
+ 
+ static DEVICE_ATTR_RO(modalias);
+@@ -345,7 +345,7 @@ static ssize_t driver_override_show(struct device *dev,
+ 	ssize_t len;
+ 
+ 	device_lock(dev);
+-	len = snprintf(buf, PAGE_SIZE, "%s\n", sch->driver_override);
++	len = sysfs_emit(buf, "%s\n", sch->driver_override);
+ 	device_unlock(dev);
+ 	return len;
+ }
+@@ -396,7 +396,7 @@ static ssize_t pimpampom_show(struct device *dev,
+ 	struct subchannel *sch = to_subchannel(dev);
+ 	struct pmcw *pmcw = &sch->schib.pmcw;
+ 
+-	return sprintf(buf, "%02x %02x %02x\n",
++	return sysfs_emit(buf, "%02x %02x %02x\n",
+ 		       pmcw->pim, pmcw->pam, pmcw->pom);
+ }
+ static DEVICE_ATTR_RO(pimpampom);
+@@ -881,7 +881,7 @@ static ssize_t real_cssid_show(struct device *dev, struct device_attribute *a,
+ 	if (!css->id_valid)
+ 		return -EINVAL;
+ 
+-	return sprintf(buf, "%x\n", css->cssid);
++	return sysfs_emit(buf, "%x\n", css->cssid);
+ }
+ static DEVICE_ATTR_RO(real_cssid);
+ 
+@@ -904,7 +904,7 @@ static ssize_t cm_enable_show(struct device *dev, struct device_attribute *a,
+ 	int ret;
+ 
+ 	mutex_lock(&css->mutex);
+-	ret = sprintf(buf, "%x\n", css->cm_enabled);
++	ret = sysfs_emit(buf, "%x\n", css->cm_enabled);
+ 	mutex_unlock(&css->mutex);
+ 	return ret;
+ }
+-- 
+2.29.2
 
-                        Geert
-
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
-
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
