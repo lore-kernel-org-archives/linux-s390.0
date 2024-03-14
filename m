@@ -1,248 +1,148 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF96C7F;
-	Thu, 14 Mar 2024 00:25:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A73B21C01
+	for <linux-s390@vger.kernel.org>; Thu, 14 Mar 2024 03:12:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710375951; cv=none; b=PQOLe92SVYXfkAaiLnguOWR3vHcs1cEv/vmNO0gwkFUR4E3ng7W9Qh7DLBZjicGsZhhCiLJ2FGqiLHu7T79YG9gkS+DGCE6+shhMqx+/ryr7ED1Z11pl1Rt8xfcKG81yGVVt1oqvWzdKwQfcDig4HAg9VjIjQZLg4bl3mCeY6VA=
+	t=1710385962; cv=none; b=efDWH+sDfk5pN4lgRajZ/OjuicJEjNK/GIJXnCXU0jW8kplEeuaaiZVIYAWe0AOLHkFvbpKJqlgrqdDuaWC/AjXEFoP2WRPmUAVUZX8hiSmROs610bOUjQOMSDn4ExtTWeUmOqiSM7kCLgE5J5iVmR5TUfAbW3/8FGE+tnZUhLQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710375951; c=relaxed/simple;
-	bh=9EoMAftd9vY6BGdahDlojvcesrBvYUJgWbCGJaD+H+c=;
+	s=arc-20240116; t=1710385962; c=relaxed/simple;
+	bh=bXjlov1+xgNpyNB5/H0sUGt9aauzEi+JWNlLMri0PVk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=l1R0a3XYor+KmeTKYIJ4asID37ZsKdtnDnU+j2X5o8Zj6g92KVFmqgyIPthKrxDhJVdIx3xdEPN8XbG+GvLoDC1L0Hfoj2H6i8KHVXSp5FqhllVGo5WVEgHxuH6kXzdp/PnlHgq7fcWC0R898Z/Nsau+5IBOKvsicSn1UgH24mI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OdqMrdyl; arc=none smtp.client-ip=209.85.221.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=nQzJIWxLab3p7qF01rQgHrKCRs+TFmwlnuMNTKjCXWqA/cImziQFNBi7FPX+RsmIyFU5HZAMcMUTA17EJj0Qpz/E/jsho5M6TE3d3vnzbVELqKq8MAj/TDraLsyregiR2y0ZO4kXog1cMgJJZdWrPNTHpOHBpN7w5owtGg87VkU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KjN35+a2; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OdqMrdyl"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-33e8e9a4edaso405846f8f.2;
-        Wed, 13 Mar 2024 17:25:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710375948; x=1710980748; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=b1pXXVSLcJWs+QWrQ+i4P/taCr8L+0F6xiRmk8ycZXY=;
-        b=OdqMrdylzqEmk8VEhLX1MaecvtTmKmwYObl/HWkrJz2vxQmpRjFG9i7g8QGYsrvjIS
-         3B4axAft8v/tYcF4Gf34OYyjD5HXLwCu/fQk6dDB5SSUTT54DYmdhidhXRF5oA2YXlAt
-         bMrhze1VDqGgWJn6bURCARSVFag3rtodXL3MFiBzhrQOnbz2Ct8WRc/U76bVoBpsXL0b
-         fUWX1a4am4L1t4shFGn52EjdIYbWHjDksvo3e9tIZtqeVAbxDzo7kbJTYxqazVtuq7VX
-         5uJ1R0NgYUNHglDFpt5lMfQs9/yZ+8b6vvpBFAuqLbwiYr7H5NbhKdhb3DkoKBqdlrRo
-         H7NA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KjN35+a2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1710385958;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ujVLStF8fNwjZHlFP85Jc/cq8HmkRWbLvyNFVb8jE2E=;
+	b=KjN35+a24zDpXSCcAyy1CY5AgZV287zRJg/H26Qg+Wul8D3iJ/vAquhZihpc1wszHJykGy
+	QTztO/fVtIvC3oSqp7WlYpjavbIp1OcISXCcp+40AQlqiPy4z/vrB50tOIQPVpoSynf/zV
+	IGM490uDeJLP2sBci9uD0wa3zBlb2Ao=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-653-rMqWsAH8PU2JsCACejPlvA-1; Wed, 13 Mar 2024 23:12:36 -0400
+X-MC-Unique: rMqWsAH8PU2JsCACejPlvA-1
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-29c718b7ff5so518888a91.2
+        for <linux-s390@vger.kernel.org>; Wed, 13 Mar 2024 20:12:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710375948; x=1710980748;
+        d=1e100.net; s=20230601; t=1710385955; x=1710990755;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=b1pXXVSLcJWs+QWrQ+i4P/taCr8L+0F6xiRmk8ycZXY=;
-        b=Gp3B4kqA1uQ7w4ERAzo0xDM1z2drDlO7/W3S6ugQ0teE3UfTsYmFufGLKN0RRBAgXq
-         HoJZBYgAy2aVkhXr9IskiPVpkVUmywVqUVAwR3A1FgNe1w3tdLHsFrAheyHAo2dYocSk
-         iclK+A4Pfzp/Kcm2q7IL1YvhBSYAoOFnTFoohQ9EKLmXOiIaH0lqzyL3g73lA2DxEFme
-         me/8jt86a13+mcB1E1hkOn7lGGRAhAKIozoBvDxriQGDSokksaEBUsxVHkBcdSkfPywR
-         rEJyeACyT7zYvfDTHyWuoQievp651My0kbqZDv45WXImnVtb03Hp/gX89DVgxJND75a5
-         O1tg==
-X-Forwarded-Encrypted: i=1; AJvYcCV+MoOvZgsUoUpQUJPyphFpdDWfJkSqlZfC4RY38bCxBm/0apLstsk9sY/xpTTBkIxVsiNqFrELE7a5mnqpky8QeqEhDrebejlrHmL6VKmoUCUqJT4i0ZJc/SQQ32YQwcVYP/5FE2I298QfePSlXH3NMc+oCSSZBv20cwIPrUG/dwNx4AojkkHcaBpyoHyIR+wpeiDPqqsD3dTH0tBxs/+76XJ0Y44TOwQgPwKbNOXTtHt250J65oGCbLyBj/M/8ghGUS7Scfr6cMx4iUNsJBLOZBQpj2HiJtwoFQ==
-X-Gm-Message-State: AOJu0YyPgXjJNakyVxQExxzx0wjcqTVdVdoGKvzlX6EkDqv5JtZqAkzh
-	vwywPgHZ1JzJQDp84w3Jci1F+ONBlX8zTWXgVAb6YrfiynGjevvSfUC3BPmhO3apr1Jn+VrwNAf
-	QjL+FiG2UxEKVveH8LSBgXj1Fyxs=
-X-Google-Smtp-Source: AGHT+IEluUxpksFRvEO4amy8bxc8cXhNS84YSmujwUrBqdFTzudYkIWBqt3bc5Ekgo5hTd/k08iQyCGhQiEqmdJKoSg=
-X-Received: by 2002:a5d:438e:0:b0:33e:44da:827 with SMTP id
- i14-20020a5d438e000000b0033e44da0827mr112820wrq.57.1710375947716; Wed, 13 Mar
- 2024 17:25:47 -0700 (PDT)
+        bh=ujVLStF8fNwjZHlFP85Jc/cq8HmkRWbLvyNFVb8jE2E=;
+        b=Yl2F9xWRgl5kB0h+fUOkYc4GoG+5hDw4VxG5Ah48pdOdxtq66aT6a7vRa2XISnByXO
+         g4YUGAZ/WFY9HwqgXV8tWchKAdsxkimZhnT9rWuPLomPjjChkeoJC+FLTIdk+0XbXBUA
+         GZuPmrjTGJX0FOieSmhnXOKyrmnUGut14+Ky1brCMCM4jEV35hjZOuJKYz/BUObaQw5z
+         p6qpoDfBpCCyFT+qCoHG5WFAbXHjwsvOI/i00neGUZ11Qb7ib3RAJdvwguiNoADMj/U9
+         7Kvg4lX7pCQma+QUGI7GPCb2/ck76qnfvH0Gz37Kh+v0ovaHQjrV4aH5BlGpDcoSvGpX
+         seWg==
+X-Forwarded-Encrypted: i=1; AJvYcCV6wF0htw+zJTJQK6pgZnrjpRI+j8Jl85MfdMIEQaYJKiycaULJJled/L5zTEIRvshLug1gkocoG/3H4ANBV/42NPPkQFFy89C6qw==
+X-Gm-Message-State: AOJu0Yy5goO90hMhvB/I9L35O1+EW6MDWW6u80LPFD4B5gYbHRpIBqgB
+	1inPH6XTcBbrD1LkiI3kAKmslrr26vFASCOF38+GsRaS0ZKC0bceTRmwnizFOSzncLe0XwNEdg0
+	SGhMIjfmbwFecTBTpCKGhrrWVrgkAW5kosczJRkzdhPuVVw2IgNCnBCV6Qo/Z85kxcJ/daN/9IJ
+	QgXipfVETnKvRD6gZut2GUEFbFpChHlnOhlA==
+X-Received: by 2002:a17:90b:1115:b0:29b:dc5c:d534 with SMTP id gi21-20020a17090b111500b0029bdc5cd534mr556791pjb.29.1710385955614;
+        Wed, 13 Mar 2024 20:12:35 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHgnFIYDkamcOx1cys2VlJt8HrQE2eq5Dv8Fg1l35A9jQKw+iznC+SY6FdtZSdCDKBufcIfbsUlkHcDHjjBuKE=
+X-Received: by 2002:a17:90b:1115:b0:29b:dc5c:d534 with SMTP id
+ gi21-20020a17090b111500b0029bdc5cd534mr556779pjb.29.1710385955375; Wed, 13
+ Mar 2024 20:12:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240311093526.1010158-1-dongmenglong.8@bytedance.com>
- <20240311093526.1010158-2-dongmenglong.8@bytedance.com> <CAADnVQKQPS5NcvEouH4JqZ2fKgQAC+LtcwhX9iXYoiEkF_M94Q@mail.gmail.com>
- <CALz3k9i5G5wWi+rtvHPwVLOUAXVMCiU_8QUZs87TEYgR_0wpPA@mail.gmail.com>
- <CAADnVQJ_ZCzMmT1aBsNXEBFfYNSVBdBXmLocjR0PPEWtYQrQFw@mail.gmail.com>
- <CALz3k9icPePb0c4FE67q=u1U0hrePorN9gDpQrKTR_sXbLMfDA@mail.gmail.com>
- <CAADnVQLwgw8bQ7OHBbqLhcPJ2QpxiGw3fkMFur+2cjZpM_78oA@mail.gmail.com> <CALz3k9g9k7fEwdTZVLhrmGoXp8CE47Q+83r-AZDXrzzuR+CjVA@mail.gmail.com>
-In-Reply-To: <CALz3k9g9k7fEwdTZVLhrmGoXp8CE47Q+83r-AZDXrzzuR+CjVA@mail.gmail.com>
-From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date: Wed, 13 Mar 2024 17:25:35 -0700
-Message-ID: <CAADnVQLHpi3J6cBJ0QBgCQ2aY6fWGnVvNGdfi3W-jmoa9d1eVQ@mail.gmail.com>
-Subject: Re: [External] Re: [PATCH bpf-next v2 1/9] bpf: tracing: add support
- to record and check the accessed args
-To: =?UTF-8?B?5qKm6b6Z6JGj?= <dongmenglong.8@bytedance.com>
-Cc: Andrii Nakryiko <andrii@kernel.org>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <martin.lau@linux.dev>, Eddy Z <eddyz87@gmail.com>, 
-	Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, 
-	John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>, 
-	Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
+References: <20240312021013.88656-1-xuanzhuo@linux.alibaba.com> <20240312021013.88656-2-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240312021013.88656-2-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 14 Mar 2024 11:12:24 +0800
+Message-ID: <CACGkMEvVgfgAxLoKeFTgy-1GR0W07ciPYFuqs6PiWtKCnXuWTw@mail.gmail.com>
+Subject: Re: [PATCH vhost v3 1/4] virtio: find_vqs: pass struct instead of
+ multi parameters
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>, 
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Hans de Goede <hdegoede@redhat.com>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, 
+	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
+	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
 	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
-	David Ahern <dsahern@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	X86 ML <x86@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Quentin Monnet <quentin@isovalent.com>, 
-	bpf <bpf@vger.kernel.org>, 
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, LKML <linux-kernel@vger.kernel.org>, 
-	linux-riscv <linux-riscv@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, 
-	Network Development <netdev@vger.kernel.org>, linux-trace-kernel@vger.kernel.org, 
-	"open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, linux-stm32@st-md-mailman.stormreply.com
+	Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-um@lists.infradead.org, 
+	platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, 
+	linux-s390@vger.kernel.org, kvm@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 12, 2024 at 6:53=E2=80=AFPM =E6=A2=A6=E9=BE=99=E8=91=A3 <dongme=
-nglong.8@bytedance.com> wrote:
+On Tue, Mar 12, 2024 at 10:10=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
+com> wrote:
 >
-> On Wed, Mar 13, 2024 at 12:42=E2=80=AFAM Alexei Starovoitov
-> <alexei.starovoitov@gmail.com> wrote:
-> >
-> > On Mon, Mar 11, 2024 at 7:42=E2=80=AFPM =E6=A2=A6=E9=BE=99=E8=91=A3 <do=
-ngmenglong.8@bytedance.com> wrote:
-> > >
-> [......]
-> >
-> > I see.
-> > I thought you're sharing the trampoline across attachments.
-> > (since bpf prog is the same).
+> Now, we pass multi parameters to find_vqs. These parameters
+> may work for transport or work for vring.
 >
-> That seems to be a good idea, which I hadn't thought before.
+> And find_vqs has multi implements in many places:
 >
-> > But above approach cannot possibly work with a shared trampoline.
-> > You need to create individual trampoline for all attachment
-> > and point them to single bpf prog.
-> >
-> > tbh I'm less excited about this feature now, since sharing
-> > the prog across different attachments is nice, but it won't scale
-> > to thousands of attachments.
-> > I assumed that there will be a single trampoline with max(argno)
-> > across attachments and attach/detach will scale to thousands.
-> >
-> > With individual trampoline this will work for up to a hundred
-> > attachments max.
+>  arch/um/drivers/virtio_uml.c
+>  drivers/platform/mellanox/mlxbf-tmfifo.c
+>  drivers/remoteproc/remoteproc_virtio.c
+>  drivers/s390/virtio/virtio_ccw.c
+>  drivers/virtio/virtio_mmio.c
+>  drivers/virtio/virtio_pci_legacy.c
+>  drivers/virtio/virtio_pci_modern.c
+>  drivers/virtio/virtio_vdpa.c
 >
-> What does "a hundred attachments max" means? Can't I
-> trace thousands of kernel functions with a bpf program of
-> tracing multi-link?
+> Every time, we try to add a new parameter, that is difficult.
+> We must change every find_vqs implement.
+>
+> One the other side, if we want to pass a parameter to vring,
+> we must change the call path from transport to vring.
+> Too many functions need to be changed.
+>
+> So it is time to refactor the find_vqs. We pass a structure
+> cfg to find_vqs(), that will be passed to vring by transport.
+>
+> Because the vp_modern_create_avq() use the "const char *names[]",
+> and the virtio_uml.c changes the name in the subsequent commit, so
+> change the "names" inside the virtio_vq_config from "const char *const
+> *names" to "const char **names".
+>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Acked-by: Johannes Berg <johannes@sipsolutions.net>
+> Reviewed-by: Ilpo J=3DE4rvinen <ilpo.jarvinen@linux.intel.com>
 
-I mean what time does it take to attach one program
-to 100 fentry-s ?
-What is the time for 1k and for 10k ?
+The name seems broken here.
 
-The kprobe multi test attaches to pretty much all funcs in
-/sys/kernel/tracing/available_filter_functions
-and it's fast enough to run in test_progs on every commit in bpf CI.
-See get_syms() in prog_tests/kprobe_multi_test.c
+[...]
 
-Can this new multi fentry do that?
-and at what speed?
-The answer will decide how applicable this api is going to be.
-Generating different trampolines for every attach point
-is an approach as well. Pls benchmark it too.
+>
+>  typedef void vq_callback_t(struct virtqueue *);
+>
+> +/**
+> + * struct virtio_vq_config - configure for find_vqs()
+> + * @cfg_idx: Used by virtio core. The drivers should set this to 0.
+> + *     During the initialization of each vq(vring setup), we need to kno=
+w which
+> + *     item in the array should be used at that time. But since the item=
+ in
+> + *     names can be null, which causes some item of array to be skipped,=
+ we
+> + *     cannot use vq.index as the current id. So add a cfg_idx to let vr=
+ing
+> + *     know how to get the current configuration from the array when
+> + *     initializing vq.
 
-> >
-> > Let's step back.
-> > What is the exact use case you're trying to solve?
-> > Not an artificial one as selftest in patch 9, but the real use case?
->
-> I have a tool, which is used to diagnose network problems,
-> and its name is "nettrace". It will trace many kernel functions, whose
-> function args contain "skb", like this:
->
-> ./nettrace -p icmp
-> begin trace...
-> ***************** ffff889be8fbd500,ffff889be8fbcd00 ***************
-> [1272349.614564] [dev_gro_receive     ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614579] [__netif_receive_skb_core] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614585] [ip_rcv              ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614592] [ip_rcv_core         ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614599] [skb_clone           ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614616] [nf_hook_slow        ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614629] [nft_do_chain        ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614635] [ip_rcv_finish       ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614643] [ip_route_input_slow ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614647] [fib_validate_source ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614652] [ip_local_deliver    ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614658] [nf_hook_slow        ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614663] [ip_local_deliver_finish] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614666] [icmp_rcv            ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614671] [icmp_echo           ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614675] [icmp_reply          ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614715] [consume_skb         ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614722] [packet_rcv          ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
-> [1272349.614725] [consume_skb         ] ICMP: 169.254.128.15 ->
-> 172.27.0.6 ping request, seq: 48220
->
-> For now, I have to create a bpf program for every kernel
-> function that I want to trace, which is up to 200.
->
-> With this multi-link, I only need to create 5 bpf program,
-> like this:
->
-> int BPF_PROG(trace_skb_1, struct *skb);
-> int BPF_PROG(trace_skb_2, u64 arg0, struct *skb);
-> int BPF_PROG(trace_skb_3, u64 arg0, u64 arg1, struct *skb);
-> int BPF_PROG(trace_skb_4, u64 arg0, u64 arg1, u64 arg2, struct *skb);
-> int BPF_PROG(trace_skb_5, u64 arg0, u64 arg1, u64 arg2, u64 arg3, struct =
-*skb);
->
-> Then, I can attach trace_skb_1 to all the kernel functions that
-> I want to trace and whose first arg is skb; attach trace_skb_2 to kernel
-> functions whose 2nd arg is skb, etc.
->
-> Or, I can create only one bpf program and store the index
-> of skb to the attachment cookie, and attach this program to all
-> the kernel functions that I want to trace.
->
-> This is my use case. With the multi-link, now I only have
-> 1 bpf program, 1 bpf link, 200 trampolines, instead of 200
-> bpf programs, 200 bpf link and 200 trampolines.
+So this design is not good. If it is not something that the driver
+needs to care about, the core needs to hide it from the API.
 
-I see. The use case makes sense to me.
-Andrii's retsnoop is used to do similar thing before kprobe multi was
-introduced.
+Thanks
 
-> The shared trampoline you mentioned seems to be a
-> wonderful idea, which can make the 200 trampolines
-> to one. Let me have a look, we create a trampoline and
-> record the max args count of all the target functions, let's
-> mark it as arg_count.
->
-> During generating the trampoline, we assume that the
-> function args count is arg_count. During attaching, we
-> check the consistency of all the target functions, just like
-> what we do now.
-
-For one trampoline to handle all attach points we might
-need some arch support, but we can start simple.
-Make btf_func_model with MAX_BPF_FUNC_REG_ARGS
-by calling btf_distill_func_proto() with func=3D=3DNULL.
-And use that to build a trampoline.
-
-The challenge is how to use minimal number of trampolines
-when bpf_progA is attached for func1, func2, func3
-and bpf_progB is attached to func3, func4, func5.
-We'd still need 3 trampolines:
-for func[12] to call bpf_progA,
-for func3 to call bpf_progA and bpf_progB,
-for func[45] to call bpf_progB.
-
-Jiri was trying to solve it in the past. His slides from LPC:
-https://lpc.events/event/16/contributions/1350/attachments/1033/1983/plumbe=
-rs.pdf
-
-Pls study them and his prior patchsets to avoid stepping on the same rakes.
