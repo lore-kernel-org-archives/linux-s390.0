@@ -1,154 +1,284 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B12E618E2A
-	for <linux-s390@vger.kernel.org>; Fri, 15 Mar 2024 10:29:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15E28182AE;
+	Fri, 15 Mar 2024 10:29:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710498554; cv=none; b=HowEkvlWeGbCLrPSjcfRGZBXFnGRvgMuuXFwGBzuAQt1gHsLUwJAv8hItMVNAahNLHYeFTrifK63XJeQuCOo9taQ9qhKhKr0T3bCg/s8ZFKoU/mFR+qMHWovRp7SvMi3TVd7qGeaXI+WGu3lJf3Nd8CO4xTAdqHZnwahlbiL1+E=
+	t=1710498591; cv=none; b=tC6WJAb9Oi2/vy0+ibG4qdraPZgldfLIZ5C2S4MBOYPcBFX4qRCinDuMDqGxLzopZvvIOHxd0fYeWOD2LPBEa4seALVJD1eMmJIsPVQ3OHDii2l2xVuy2SWZJdiwDMHbPxdMxTIDuD9FW7E1fDrghvcs3PBtsDV/XgyAybc0J9M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710498554; c=relaxed/simple;
-	bh=WjtDLSxpesB0ZqjiaU1pcR2XZxE+SssNvSi40zWY64k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XOeIoAJPbL8J/PDJ4izoqb2/ZuNsCbkJw25wuMIdt9Thp4+E+bF6IcqSMsfObkZE4RI4efixlmjFgtAzw9mlB62RuEy2sSVW8b1d+hJEUkNhHgKriM6fQp8K9IYcmIC0pouYRK5B02KrYgthii+1DDlJ6lYEk+NDKXJSh6wD4Is=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dk1mQzM7; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1710498591; c=relaxed/simple;
+	bh=MdR9Rgj6lYbnvYBc5Ry+EeGq9GbsLqebF8J2pH4Rs2Q=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FXhnlyZsXxT5XUZxImAANjCQCHNnEMCvis9Iy1c9z5Uh+CJiHv7auz0sRfZvRtHejNI/UltHKFRd53weL4JsNSknmd1bqJp1FNcqANtQPcqz+SxhvHE05UL3vVfs1kFdkoVFq3BEic29ThIIZyMQdFOEPr5rsFpxcS48L3iUPDw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=B52dFGlI; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dk1mQzM7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710498550;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4LzVKYzDeMlNU7muM18EJurw+KHPOsJVd6gjVHme+u4=;
-	b=dk1mQzM7BoInPg8nQfUAp9O8EG+xMsgE3SJtdTdYfRwI4SGuHF8vRVxzdKyFnhAUwotNGS
-	VuqasmZkE+ICqMVUFitq7uOQzavFzhS0OPorNQp855dynZS4nxOKCulfqOmEQY7Iqc2ff7
-	vS6ng9HJeFr5+/fhk4W4YYNsD2Flrdg=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-444-VHlg5kOLOJ2DiH1duq5DQA-1; Fri, 15 Mar 2024 06:29:09 -0400
-X-MC-Unique: VHlg5kOLOJ2DiH1duq5DQA-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-33ed489edcaso214511f8f.3
-        for <linux-s390@vger.kernel.org>; Fri, 15 Mar 2024 03:29:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710498548; x=1711103348;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4LzVKYzDeMlNU7muM18EJurw+KHPOsJVd6gjVHme+u4=;
-        b=Opk5Oztfv9j7G0bMHy752pM19asofzaR7K01gKuHy9N2lvDbAxUvZpJqzEKtyG5ACl
-         9WXkRXVJxyO4vc3F2ns8oZWf+3fZzGeicoFdeSzWLuXDMEgeWOU7nBf+p0qWFBkHpVI+
-         CXUw2BEfazHiFJvYbIA9++Ohibhgq9sB+Ho89mAHEW5DSweSeV6gO3GXk5w/KTxu0Nja
-         tafRgfIklr5iFaroaD37idaDscctJ2Kw3pN6BXyjlDhNxMqvAZMhGZB24/w8bs/6Cqr8
-         GySiEXD4eK0EhBo1hbUWYa/rLzoJ+MGnaN7EqYwpOOhasNOU/+xmJs4R/cdojbF013Vl
-         n70w==
-X-Forwarded-Encrypted: i=1; AJvYcCXBuqFaufL+IJchDBuGtsECK7uJWiVwz8C6YFC1xGhMGrjaAedNEK6R/CSLJTCLSdlaia8QgC4hVzao/yMDLQKA4ZVbuE6N16tUJg==
-X-Gm-Message-State: AOJu0Yygv+jJHoMzHuk4gcI1DoJ3N4zGKNxK8C4GSNsqqHppGnB0HXQG
-	VntgpJOcSeztpxjkzKw+797oEZLuqsx84wzZMGU48Kf5rQEfNZvhW3DHIXxri/tX7KOwhebEeKq
-	V9uPJTz9OTfK5T/FsGCWG7katiZYEp+9JmUNSlYSVA0odhWJdbSYeZZmjDdIzZZhSIvNojoweqr
-	bKkPpexDXfnG2wu/1sP64Mr1ayd75OfEmusA==
-X-Received: by 2002:a05:6000:ecc:b0:33d:365a:64ce with SMTP id ea12-20020a0560000ecc00b0033d365a64cemr3514068wrb.34.1710498548155;
-        Fri, 15 Mar 2024 03:29:08 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE3IXpQwWRJk68QeroZGtOynXZQtN41Q8sdLnkfZ9rvuAhejnc7cGVhIoVWUvJFb9WshmjTEyYsi418JuDiY9c=
-X-Received: by 2002:a05:6000:ecc:b0:33d:365a:64ce with SMTP id
- ea12-20020a0560000ecc00b0033d365a64cemr3514046wrb.34.1710498547787; Fri, 15
- Mar 2024 03:29:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="B52dFGlI"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42F8vKqW009801;
+	Fri, 15 Mar 2024 10:29:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Qv/ns6i5YE/Ff9QJj3RIHIOHrMPS5bhUM3j/hsm8baA=;
+ b=B52dFGlI1KNYDOQZJtZlC9h4p0mC7L9v3qO0bsrwNNob7vpzQKEysh8hJCrb1ItfmNXO
+ jcj9e2P6uQsXPm86rqRqhwfS7aHYshA6yjCmVX+qBZ0wW60rjLbYFw+k/DXKdhN0mdhz
+ 4n6lYO2eIU8ausMb7mom93NEHxsdcCMI9vql3ZGxhdGk0Bi/r8GA0JbyXpBK7jJ8h9jb
+ XVhDgOcJKDZZfutAOT8ZPaW4Krl2NfUpmLq+fvwvW5hC5ZNuYmFzECXvMLk6GXlDMYD7
+ zmK7YNZeneVTyXn4vwVNUbxllEXykjN7+rnvgt/EY0rwr5qPzROGVlox1YVbGqn7IiIz 0A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wvk96h0dg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 15 Mar 2024 10:29:37 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 42FATalM017963;
+	Fri, 15 Mar 2024 10:29:37 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wvk96h0bq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 15 Mar 2024 10:29:36 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42F97H2l018155;
+	Fri, 15 Mar 2024 10:27:35 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ws23tue9u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 15 Mar 2024 10:27:35 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42FARUs834144638
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 15 Mar 2024 10:27:32 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 343A02005A;
+	Fri, 15 Mar 2024 10:27:30 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AFE8420043;
+	Fri, 15 Mar 2024 10:27:28 +0000 (GMT)
+Received: from [9.171.8.212] (unknown [9.171.8.212])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 15 Mar 2024 10:27:28 +0000 (GMT)
+Message-ID: <ef98b16d-2965-4297-a2ed-143b0b592a25@linux.ibm.com>
+Date: Fri, 15 Mar 2024 11:27:27 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240226122059.58099-1-frankja@linux.ibm.com>
-In-Reply-To: <20240226122059.58099-1-frankja@linux.ibm.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Fri, 15 Mar 2024 11:28:54 +0100
-Message-ID: <CABgObfZA_=W1GoKaQ-OW05rfJAcxf3N5wC=Jj1bn6m3J9QNw+Q@mail.gmail.com>
-Subject: Re: [GIT PULL 0/3] KVM: s390: Changes for 6.9
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, david@redhat.com, borntraeger@linux.ibm.com, 
-	cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, 
-	seiden@linux.ibm.com, nsg@linux.ibm.com, farman@linux.ibm.com, 
-	agordeev@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v3 01/11] net/smc: adapt SMC-D device dump for
+ Emulated-ISM
+To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
+        twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+References: <20240312142743.41406-1-guwen@linux.alibaba.com>
+ <20240312142743.41406-2-guwen@linux.alibaba.com>
+ <caab067b-f5c3-490f-9259-262624c236b4@linux.ibm.com>
+ <a6e4c563-e1d4-44ae-bfab-a0021584220f@linux.alibaba.com>
+From: Jan Karcher <jaka@linux.ibm.com>
+Organization: IBM - Network Linux on Z
+In-Reply-To: <a6e4c563-e1d4-44ae-bfab-a0021584220f@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: oEwCmu99UV7vREH5MKSDphISc6tEivza
+X-Proofpoint-GUID: cFdS7VR90OoK6LTTeGo30vThpscFQisn
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-03-14_13,2024-03-13_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ malwarescore=0 spamscore=0 phishscore=0 bulkscore=0 adultscore=0
+ impostorscore=0 suspectscore=0 mlxscore=0 lowpriorityscore=0
+ priorityscore=1501 clxscore=1015 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2311290000 definitions=main-2403150085
 
-On Mon, Feb 26, 2024 at 1:24=E2=80=AFPM Janosch Frank <frankja@linux.ibm.co=
-m> wrote:
->
-> Paolo,
->
-> please pull the 3 fixes that I've held on to as they were very low priori=
-ty:
-> - Memop selftest rotate fix
-> - SCLP event bits over indication fix
-> - Missing virt_to_phys for the CRYCB fix
->
->
-> Attention:
-> Three additional patches will go over the main s390 repository since
-> Heiko made changes to the FPU handling that caused a conflict with KVM
-> but we didn't want to create a feature branch.
 
-Pulled, thanks.
 
-Paolo
+On 15/03/2024 04:44, Wen Gu wrote:
+> 
+> 
+> On 2024/3/14 18:23, Jan Karcher wrote:
+>>
+>>
+>> On 12/03/2024 15:27, Wen Gu wrote:
+>>> The introduction of Emulated-ISM requires adaptation of SMC-D device
+>>> dump. Software implemented non-PCI device (loopback-ism) should be
+>>> handled correctly and the CHID reserved for Emulated-ISM should be got
+>>> from smcd_ops interface instead of PCI information.
+>>>
+>>> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+>>> ---
+>>>   net/smc/smc_ism.c | 13 ++++++++++---
+>>>   1 file changed, 10 insertions(+), 3 deletions(-)
+>>>
+>>> diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+>>> index ac88de2a06a0..b6eca4231913 100644
+>>> --- a/net/smc/smc_ism.c
+>>> +++ b/net/smc/smc_ism.c
+>>> @@ -252,12 +252,11 @@ static int smc_nl_handle_smcd_dev(struct 
+>>> smcd_dev *smcd,
+>>>       char smc_pnet[SMC_MAX_PNETID_LEN + 1];
+>>>       struct smc_pci_dev smc_pci_dev;
+>>>       struct nlattr *port_attrs;
+>>> +    struct device *device;
+>>>       struct nlattr *attrs;
+>>> -    struct ism_dev *ism;
+>>>       int use_cnt = 0;
+>>>       void *nlh;
+>>> -    ism = smcd->priv;
+>>>       nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, 
+>>> cb->nlh->nlmsg_seq,
+>>>                 &smc_gen_nl_family, NLM_F_MULTI,
+>>>                 SMC_NETLINK_GET_DEV_SMCD);
+>>> @@ -272,7 +271,15 @@ static int smc_nl_handle_smcd_dev(struct 
+>>> smcd_dev *smcd,
+>>>       if (nla_put_u8(skb, SMC_NLA_DEV_IS_CRIT, use_cnt > 0))
+>>>           goto errattr;
+>>>       memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
+>>> -    smc_set_pci_values(to_pci_dev(ism->dev.parent), &smc_pci_dev);
+>>> +    device = smcd->ops->get_dev(smcd);
+>>> +    if (device->parent)
+>>> +        smc_set_pci_values(to_pci_dev(device->parent), &smc_pci_dev);
+>>> +    if (smc_ism_is_emulated(smcd)) {
+>>> +        smc_pci_dev.pci_pchid = smc_ism_get_chid(smcd);
+>>> +        if (!device->parent)
+>>> +            snprintf(smc_pci_dev.pci_id, sizeof(smc_pci_dev.pci_id),
+>>> +                 "%s", dev_name(device));
+>>> +    }
+>>
+>> Hi Wen Gu,
+>>
+>> playing around with the loopback-ism device and testing it, i 
+>> developed some concerns regarding this exposure. Basically this 
+>> enables us to see the loopback device in the `smcd device` tool 
+>> without any changes.
+>> E.g.:
+>> ```
+>> # smcd device
+>> FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+>> 0000 0     loopback-ism  ffff   No        0
+>> 102a ISM   0000:00:00.0  07c2   No        0  NET1
+>> ```
+>>
+>> Now the problem with this is that "loopback-ism" is no valid PCI-ID 
+>> and should not be there. My first thought was to put an "n/a" instead, 
+>> but that opens up another problem. Currently you could set - even if 
+>> it does not make sense - a PNET_ID for the loopback device:
+>> ```
+> 
+> Yes, and we can exclude loopback-ism in smc_pnet_enter() if necessary.
 
-> See:
-> https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/log/?h=3Df=
-or-next
->
-> - KVM: s390: fix access register usage in ioctls
-> - KVM: s390: selftests: memop: add a simple AR test
-> - KVM: s390: introduce kvm_s390_fpu_(store|load)
->
->
-> Cheers,
-> Janosch
->
->
-> The following changes since commit 41bccc98fb7931d63d03f326a746ac4d429c1d=
-d3:
->
->   Linux 6.8-rc2 (2024-01-28 17:01:12 -0800)
->
-> are available in the Git repository at:
->
->   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/=
-kvm-s390-next-6.9-1
->
-> for you to fetch changes up to 00de073e2420df02ac0f1a19dbfb60ff8eb198be:
->
->   KVM: s390: selftest: memop: Fix undefined behavior (2024-02-23 14:02:27=
- +0100)
->
-> ----------------------------------------------------------------
-> - Memop selftest rotate fix
-> - SCLP event bits over indication fix
-> - Missing virt_to_phys for the CRYCB fix
-> ----------------------------------------------------------------
-> Alexander Gordeev (1):
->       KVM: s390: fix virtual vs physical address confusion
->
-> Eric Farman (1):
->       KVM: s390: only deliver the set service event bits
->
-> Nina Schoetterl-Glausch (1):
->       KVM: s390: selftest: memop: Fix undefined behavior
->
->  arch/s390/kvm/interrupt.c                 | 4 ++--
->  arch/s390/kvm/kvm-s390.c                  | 2 +-
->  tools/testing/selftests/kvm/s390x/memop.c | 2 ++
->  3 files changed, 5 insertions(+), 3 deletions(-)
->
->
->
->
->
-> --
-> 2.43.2
->
+We could, but we have to make sure we implement those distinctions at 
+the right location. E.g.: if virtio-ism is coming. Does a PNETID make 
+sense for a virtio-ism device? Do we want to exclude is also there or do 
+we want an abstracted layer/mechanism to recognize if a device has a 
+PNETId capability or not?
 
+> 
+>> # smc_pnet -a -D loopback-ism NET1
+>> # smcd device
+>> FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+>> 0000 0     loopback-ism  ffff   No        0  *NET1
+>> 102a ISM   0000:00:00.0  07c2   No        0  NET1
+>> ```
+>> If we would change the PCI-ID to "n/a" it would be a valid input 
+>> parameter for the tooling which is... to put it nice... not so beautiful.
+> 
+> FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+> 0000 0     n/a           ffff   No        0
+> 
+> IIUC, the problem is that the 'n/a', which would be an input for other 
+> tools, is somewhat strange?
+
+Exactly.
+
+> 
+> Since PCHID 0xffff is clear defined for loopback-ism, I am wondering if 
+> it can be a specific sign
+> of loopback-ism for tooling to not take PCI-ID into account? Would you 
+> also consider that inelegant?
+
+I think deciding on PCHID is the only way we can currently differentiate 
+what kind of device we are talking about. So my guess would be that 
+PCHID is going to play a big role in future design decisions.
+
+> 
+>> I brainstormed this with them team and the problem is more complex.
+>> In theory there shouldn't be PCI information set for the loopback 
+>> device. There should be a better abstraction in the netlink interface 
+>> that creates this output and the tooling should be made aware of it.
+>>
+> 
+> Yes, it is better. But I couldn't surely picture how the abstraction 
+> looks like, and if it is necessary
+> to introduce it just for a special case of loopback-ism (note that 
+> virtio-ISM also has PCI information),
+> since we can identify loopback-ism by CHID.
+
+Please take the following with a grain of salt. I just want to give you 
+a bit insight of our current train of thought. None of it is final or 
+set in stone. The idea would be to have device core information that 
+contain the information which other fields are important for this 
+device. And corresponding "extensions" that contain the information. The 
+tooling cvould then decide soley on the core information which features 
+are supported by a device and which are not.
+If that is really needed: Not sure yet. Is this the best solution: 
+Propably not.
+E.g.:
+
+SMC-D netlink abstraction
+
++------------------------------------+
+| Core information                   |
+| (e.g. PCHID, InUse, isPCI, isS390) |
++------------------------------------+
+
++----------------+
+| s390 extension |
+| (e.g.FID)      |
++----------------+
+
++--------------------+
+| PCI extension      |
+| (e.g. PCI-ID, ...) |
++--------------------+
+
+
+> 
+>> Do you rely on the output currently? What are your thoughts about it?
+>> If not I'd ask you to not fill the netlink interface for the loopback 
+>> device and refactor it with the next stage when we create a right 
+>> interface for it.
+>>
+> 
+> Currently we don't rely on the output, and I have no objection to the 
+> proposal that not fill the netlink
+> interface for loopback-ism and refactor it in the next stage.
+
+Thank you! If you have ideas regarding the design of the interface hit 
+us up. As soon as we are going to think about this further I'm going to 
+invite you to those discussions.
+
+> 
+>> Since the Merge-Window is closed feel free to send new versions as RFC.
+> 
+> OK, I will send the new version as an RFC.
+> 
+> Thank you!
+
+Thanks!
+- Jan
+
+> 
+>> Thank you
+>> - Jan
+>>
+>>>       if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev.pci_fid))
+>>>           goto errattr;
+>>>       if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID, smc_pci_dev.pci_pchid))
