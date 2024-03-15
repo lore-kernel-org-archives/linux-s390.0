@@ -1,38 +1,32 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84EDD1B805;
-	Fri, 15 Mar 2024 11:46:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0921C1AAD2;
+	Fri, 15 Mar 2024 12:29:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710503196; cv=none; b=SUn37Ia+lOTkeEjUAdWTRRlsRilFRPf3jr781dtWBnFvGEB3l/2yjXViv3/eczg6qjHi6lKtCrFOPHWWd4KROSsUug5BEGO/RTofTt6f+PTuV5jgVfp29n4f+kofWaK5Da4j0Y/0kmO3pacRVd+l0XrxOKh5NBr2QZje834E7iI=
+	t=1710505776; cv=none; b=kxy3eXM0CdPYY4FAnf1PyP6GiMDlY4pIEGgG7yVr6UuqqQMdEdNsYBn6JYRWfulLkNStAP6sAKqrrORLcXyRTw6vJ2IU3auFCDLfOFbmcsJ2MLxHMebXJzcOczjyKrMaEckxuHEfW8VKr0F35ehonHNuWpvV8RNRtn+w8zvPzK4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710503196; c=relaxed/simple;
-	bh=VZMYtqfs6hu3j6sEtqmhf7RBOwHd3RT2KLrTrS7SDHU=;
+	s=arc-20240116; t=1710505776; c=relaxed/simple;
+	bh=zSg0JLnzu3b+mexUHYjuBLoiSrX/RKbZ+snbm57/7eI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=efxos+M5fLXcTpijLojiC9fM4w0XJg6xN204t7lgT3HVT3ft2fdSNGbtDmR2afhS8yIihaPMq4ndUINnMPN6avuPv0u0yiCIZ191LmnTLSzbyXqvpJz4NNCXFNBMHZX5FzSZ1d4Z1TkeOhSspBzopyUNbbr9NxjwfF37JbkNKY8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=deller@gmx.de header.b=McITOoD1; arc=none smtp.client-ip=212.227.17.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
+	 In-Reply-To:Content-Type; b=LGCvKW8dI07gUWRl9ho3a4S2I3lL6R24Mcm1rDYgE4a6IsHJreibLhZQ69S4fKD0J74g6VmqBWLon85EzDMIPILO2bB8UtRRbGcQp9BaDGprinLQM4uuXN7h+vEcpjiTHUwSKsX+AwBcVLetKVzr62kTGLGMClfAE8MyIWmYFWM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ZaYhj6ml; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.de header.i=deller@gmx.de header.b="McITOoD1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
-	s=s31663417; t=1710503142; x=1711107942; i=deller@gmx.de;
-	bh=7qGxCcL79dacW1v0qhsaH7joRGKSBJXder9Wljx7Ons=;
-	h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:
-	 In-Reply-To;
-	b=McITOoD1wQOPR5qsD5lJhrmT4u/2I6i5oTsCyoNQ+HyXnnYr9lHABJxJNEfBVmE1
-	 bnJ1MnmdGbKRpaekbFqJ1Sc+YOT1phsYE+jnd8d6asLVVMKrY40M8xgREptIDnbvH
-	 y2mErimBTccXiuWpmxUyFOdhtGVN+4463Qd0hpgSpmcplUGnYfMiAp+tngIYhhhNY
-	 pTEncmqpqTVo8ts2zW4JmtQY4Lbszh3JX7Wwh1SGisRNpGW+I3Ws6naI1vcEx94jS
-	 in2nmK4ujOjNzcgmIbahRICBxVzYe1HEkJgrelpkTzJ9xyTl7FxGwxIDRdG1Cv2cw
-	 feVm70l0GQvaQdmRfQ==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from [192.168.20.55] ([94.134.155.107]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1Mo6ux-1r1oxZ2Eln-00pdXJ; Fri, 15
- Mar 2024 12:45:42 +0100
-Message-ID: <d6436a8f-a1d3-421c-a5e0-5bebd18134bf@gmx.de>
-Date: Fri, 15 Mar 2024 12:45:35 +0100
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ZaYhj6ml"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1710505769; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=DLwbbjen0CAQVgzQqgyS6vV9v1Bn0lmRB2jT8Yg8TYw=;
+	b=ZaYhj6mloaGhZQ70/6HNnAjHH9WmhExcnjLX+euJIqEX3VF2+/wN+5iS0erg2U8V9PR1ai3mXoC4EMKyyHKrMxW6eeY81wTDj65hGc5pItixveDf7qysQ60Te5OTXLlC16nK1wdFHMGgfB9NOZ32xbXqukYSvxqJcm6kvROVLwI=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R951e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W2XNO79_1710505767;
+Received: from 30.221.129.129(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W2XNO79_1710505767)
+          by smtp.aliyun-inc.com;
+          Fri, 15 Mar 2024 20:29:28 +0800
+Message-ID: <d69885a1-c85f-4d26-a615-fbf6968e2c40@linux.alibaba.com>
+Date: Fri, 15 Mar 2024 20:29:26 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -40,190 +34,204 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 10/14] parisc: Add support for suppressing warning
- backtraces
-Content-Language: en-US
-To: Guenter Roeck <linux@roeck-us.net>, linux-kselftest@vger.kernel.org
-Cc: David Airlie <airlied@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
- =?UTF-8?Q?Ma=C3=ADra_Canal?= <mcanal@igalia.com>,
- Dan Carpenter <dan.carpenter@linaro.org>, Kees Cook <keescook@chromium.org>,
- Daniel Diaz <daniel.diaz@linaro.org>, David Gow <davidgow@google.com>,
- Arthur Grillo <arthurgrillo@riseup.net>,
- Brendan Higgins <brendan.higgins@linux.dev>,
- Naresh Kamboju <naresh.kamboju@linaro.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Andrew Morton <akpm@linux-foundation.org>, Maxime Ripard
- <mripard@kernel.org>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?=
- <ville.syrjala@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>,
- Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org,
- kunit-dev@googlegroups.com, linux-arch@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- loongarch@lists.linux.dev, netdev@lists.linux.dev
-References: <20240312170309.2546362-1-linux@roeck-us.net>
- <20240312170309.2546362-11-linux@roeck-us.net>
-From: Helge Deller <deller@gmx.de>
-Autocrypt: addr=deller@gmx.de; keydata=
- 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
-In-Reply-To: <20240312170309.2546362-11-linux@roeck-us.net>
+Subject: Re: [PATCH net-next v3 01/11] net/smc: adapt SMC-D device dump for
+ Emulated-ISM
+To: Jan Karcher <jaka@linux.ibm.com>, wintera@linux.ibm.com,
+ twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org
+References: <20240312142743.41406-1-guwen@linux.alibaba.com>
+ <20240312142743.41406-2-guwen@linux.alibaba.com>
+ <caab067b-f5c3-490f-9259-262624c236b4@linux.ibm.com>
+ <a6e4c563-e1d4-44ae-bfab-a0021584220f@linux.alibaba.com>
+ <ef98b16d-2965-4297-a2ed-143b0b592a25@linux.ibm.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <ef98b16d-2965-4297-a2ed-143b0b592a25@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:qslnWwQiqg/DP5uqDNLV3ORiPULWbHV951NE0QBTZs+dRkfEELc
- Ui2EMTRqay5IFJgqBwNMOkZVxe2c2qIfhYvjWW11LmmVcUomylCerubebwaET5SdJ38HAfD
- biq5BtQDRRP7q1ov0JwyIPdpf3SRZ5rDbJ6vwSOAbcLsxrExJtjMmO4CHxfr09ugU+u+RTP
- QxkoLU7U56gOrWo57hroQ==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:wcEf58u/OD8=;/Vsuh9wNc66rAcyGNGklDP7P14y
- /KBt0M11EmbCmzLloMdXx4rUW/NT78LYr0GB36xaGvqIn+7+J10HViYMoBef4puW+1Zy+ERmU
- uCXPBCihgVu3H/tHpbrx7bQVb06U4Fe3PY9DeOnQN/AUubRpBj2Rs4xe7Rklg9dw2ak6y+FDH
- p6J2fQ/4hN/oaJv4Q0RYeZ2c+7Gsj9OcOVk5yv2q9P5gbpwbCrz+zdvIgeqV0IWNePAXeGLDZ
- Knwkvjmpt4FHk6T6GRU4nHOKpcR139cvr2sNU1GNyYLwU6LZmOtm8Knrm2XY0W4/z3Yz/QAUZ
- 8NtDanG36laI9TlZEesDorYKUVcjiZLhO/SW+ejfUMU5w11qdv5iouwWykFJjScDCk2rTsKyP
- Ob/kkVyAkyZpQBV6eWLvvkxksEdC8e+kBpMuB4zA/7SAuNwm8muKntfI2AP/nHnmMPmJVDgpS
- R957ToiHNzK38Im3ZMOOvrxjeHFQPGcJSI16olUHuvsUqbU8e7DCw3ZbDUub7HAizDcjnT1To
- YYIzxaQC4VoEQfmXNYZLQTFN7E0Y7NfVdNAgFho96LriyB+oNgtLnz2CHpPtxLbr0Cw6fx9P3
- i5SQarSEbvdxpOjqBmI4m1AVvAaJ9M0+aZ8Bntm8DFLec27wgKSKsaxIgy01c089l/7pD0787
- enyXVSs1ynlfngUb7TBdFbbaxID7J+fg/jdqQ2Qh2ej5EI6n8+19vo0FOS5YP4EE+1vARK9FA
- /6h5HW8J6ILML8R/YmYavoxbPMJ+ayDR53mwD0Prwij9SmhTtbk+2zLY5cRUJuXCQQAXWgikZ
- Bi6lPrjOdd/CuHHo38k1VOtLEpGzkK7j/EfuuR6AghFNI=
+Content-Transfer-Encoding: 8bit
 
-On 3/12/24 18:03, Guenter Roeck wrote:
-> Add name of functions triggering warning backtraces to the __bug_table
-> object section to enable support for suppressing WARNING backtraces.
+
+
+On 2024/3/15 18:27, Jan Karcher wrote:
+> 
+> 
+> On 15/03/2024 04:44, Wen Gu wrote:
+>>
+>>
+>> On 2024/3/14 18:23, Jan Karcher wrote:
+>>>
+>>>
+>>> On 12/03/2024 15:27, Wen Gu wrote:
+>>>> The introduction of Emulated-ISM requires adaptation of SMC-D device
+>>>> dump. Software implemented non-PCI device (loopback-ism) should be
+>>>> handled correctly and the CHID reserved for Emulated-ISM should be got
+>>>> from smcd_ops interface instead of PCI information.
+>>>>
+>>>> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+>>>> ---
+>>>>   net/smc/smc_ism.c | 13 ++++++++++---
+>>>>   1 file changed, 10 insertions(+), 3 deletions(-)
+>>>>
+>>>> diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+>>>> index ac88de2a06a0..b6eca4231913 100644
+>>>> --- a/net/smc/smc_ism.c
+>>>> +++ b/net/smc/smc_ism.c
+>>>> @@ -252,12 +252,11 @@ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
+>>>>       char smc_pnet[SMC_MAX_PNETID_LEN + 1];
+>>>>       struct smc_pci_dev smc_pci_dev;
+>>>>       struct nlattr *port_attrs;
+>>>> +    struct device *device;
+>>>>       struct nlattr *attrs;
+>>>> -    struct ism_dev *ism;
+>>>>       int use_cnt = 0;
+>>>>       void *nlh;
+>>>> -    ism = smcd->priv;
+>>>>       nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
+>>>>                 &smc_gen_nl_family, NLM_F_MULTI,
+>>>>                 SMC_NETLINK_GET_DEV_SMCD);
+>>>> @@ -272,7 +271,15 @@ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
+>>>>       if (nla_put_u8(skb, SMC_NLA_DEV_IS_CRIT, use_cnt > 0))
+>>>>           goto errattr;
+>>>>       memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
+>>>> -    smc_set_pci_values(to_pci_dev(ism->dev.parent), &smc_pci_dev);
+>>>> +    device = smcd->ops->get_dev(smcd);
+>>>> +    if (device->parent)
+>>>> +        smc_set_pci_values(to_pci_dev(device->parent), &smc_pci_dev);
+>>>> +    if (smc_ism_is_emulated(smcd)) {
+>>>> +        smc_pci_dev.pci_pchid = smc_ism_get_chid(smcd);
+>>>> +        if (!device->parent)
+>>>> +            snprintf(smc_pci_dev.pci_id, sizeof(smc_pci_dev.pci_id),
+>>>> +                 "%s", dev_name(device));
+>>>> +    }
+>>>
+>>> Hi Wen Gu,
+>>>
+>>> playing around with the loopback-ism device and testing it, i developed some concerns regarding this exposure. 
+>>> Basically this enables us to see the loopback device in the `smcd device` tool without any changes.
+>>> E.g.:
+>>> ```
+>>> # smcd device
+>>> FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+>>> 0000 0     loopback-ism  ffff   No        0
+>>> 102a ISM   0000:00:00.0  07c2   No        0  NET1
+>>> ```
+>>>
+>>> Now the problem with this is that "loopback-ism" is no valid PCI-ID and should not be there. My first thought was to 
+>>> put an "n/a" instead, but that opens up another problem. Currently you could set - even if it does not make sense - a 
+>>> PNET_ID for the loopback device:
+>>> ```
+>>
+>> Yes, and we can exclude loopback-ism in smc_pnet_enter() if necessary.
+> 
+> We could, but we have to make sure we implement those distinctions at the right location. E.g.: if virtio-ism is coming. 
+> Does a PNETID make sense for a virtio-ism device? Do we want to exclude is also there or do we want an abstracted 
+> layer/mechanism to recognize if a device has a PNETId capability or not?
+> 
+
+Understand, a long-term view is better.
+
+>>
+>>> # smc_pnet -a -D loopback-ism NET1
+>>> # smcd device
+>>> FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+>>> 0000 0     loopback-ism  ffff   No        0  *NET1
+>>> 102a ISM   0000:00:00.0  07c2   No        0  NET1
+>>> ```
+>>> If we would change the PCI-ID to "n/a" it would be a valid input parameter for the tooling which is... to put it 
+>>> nice... not so beautiful.
+>>
+>> FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+>> 0000 0     n/a           ffff   No        0
+>>
+>> IIUC, the problem is that the 'n/a', which would be an input for other tools, is somewhat strange?
+> 
+> Exactly.
+> 
+>>
+>> Since PCHID 0xffff is clear defined for loopback-ism, I am wondering if it can be a specific sign
+>> of loopback-ism for tooling to not take PCI-ID into account? Would you also consider that inelegant?
+> 
+> I think deciding on PCHID is the only way we can currently differentiate what kind of device we are talking about. So my 
+> guess would be that PCHID is going to play a big role in future design decisions.
+> 
+
+Make sense to me.
+
+>>
+>>> I brainstormed this with them team and the problem is more complex.
+>>> In theory there shouldn't be PCI information set for the loopback device. There should be a better abstraction in the 
+>>> netlink interface that creates this output and the tooling should be made aware of it.
+>>>
+>>
+>> Yes, it is better. But I couldn't surely picture how the abstraction looks like, and if it is necessary
+>> to introduce it just for a special case of loopback-ism (note that virtio-ISM also has PCI information),
+>> since we can identify loopback-ism by CHID.
+> 
+> Please take the following with a grain of salt. I just want to give you a bit insight of our current train of thought. 
+> None of it is final or set in stone. The idea would be to have device core information that contain the information 
+> which other fields are important for this device. And corresponding "extensions" that contain the information. The 
+> tooling cvould then decide soley on the core information which features are supported by a device and which are not.
+> If that is really needed: Not sure yet. Is this the best solution: Propably not.
+> E.g.:
+> 
+> SMC-D netlink abstraction
+> 
+> +------------------------------------+
+> | Core information                   |
+> | (e.g. PCHID, InUse, isPCI, isS390) |
+> +------------------------------------+
+> 
+> +----------------+
+> | s390 extension |
+> | (e.g.FID)      |
+> +----------------+
+> 
+> +--------------------+
+> | PCI extension      |
+> | (e.g. PCI-ID, ...) |
+> +--------------------+
+> 
+> 
+
+I like this diagram and it is very clear. So core information will be applicable to all ISM devices,
+and the extension information will be specific to some certain kinds.
+
+>>
+>>> Do you rely on the output currently? What are your thoughts about it?
+>>> If not I'd ask you to not fill the netlink interface for the loopback device and refactor it with the next stage when 
+>>> we create a right interface for it.
+>>>
+>>
+>> Currently we don't rely on the output, and I have no objection to the proposal that not fill the netlink
+>> interface for loopback-ism and refactor it in the next stage.
+> 
+> Thank you! If you have ideas regarding the design of the interface hit us up. As soon as we are going to think about 
+> this further I'm going to invite you to those discussions.
 >
-> To limit image size impact, the pointer to the function name is only add=
-ed
-> to the __bug_table section if both CONFIG_KUNIT and CONFIG_DEBUG_BUGVERB=
-OSE
-> are enabled. Otherwise, the __func__ assembly parameter is replaced with=
- a
-> (dummy) NULL parameter to avoid an image size increase due to unused
-> __func__ entries (this is necessary because __func__ is not a define but=
- a
-> virtual variable).
->
-> While at it, declare assembler parameters as constants where possible.
-> Refine .blockz instructions to calculate the necessary padding instead
-> of using fixed values.
->
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+
+Sure! and thank you very much!
 
 
-Acked-by: Helge Deller <deller@gmx.de>
+Best regards,
+Wen Gu
 
-Helge
-
-
-> ---
->   arch/parisc/include/asm/bug.h | 29 +++++++++++++++++++++--------
->   1 file changed, 21 insertions(+), 8 deletions(-)
->
-> diff --git a/arch/parisc/include/asm/bug.h b/arch/parisc/include/asm/bug=
-.h
-> index 833555f74ffa..792dacc2a653 100644
-> --- a/arch/parisc/include/asm/bug.h
-> +++ b/arch/parisc/include/asm/bug.h
-> @@ -23,8 +23,17 @@
->   # define __BUG_REL(val) ".word " __stringify(val)
->   #endif
->
-> -
->   #ifdef CONFIG_DEBUG_BUGVERBOSE
-> +
-> +#if IS_ENABLED(CONFIG_KUNIT)
-> +# define HAVE_BUG_FUNCTION
-> +# define __BUG_FUNC_PTR	__BUG_REL(%c1)
-> +# define __BUG_FUNC	__func__
-> +#else
-> +# define __BUG_FUNC_PTR
-> +# define __BUG_FUNC	NULL
-> +#endif /* IS_ENABLED(CONFIG_KUNIT) */
-> +
->   #define BUG()								\
->   	do {								\
->   		asm volatile("\n"					\
-> @@ -33,10 +42,12 @@
->   			     "\t.align 4\n"				\
->   			     "2:\t" __BUG_REL(1b) "\n"			\
->   			     "\t" __BUG_REL(%c0)  "\n"			\
-> -			     "\t.short %1, %2\n"			\
-> -			     "\t.blockz %3-2*4-2*2\n"			\
-> +			     "\t" __BUG_FUNC_PTR  "\n"			\
-> +			     "\t.short %c2, %c3\n"			\
-> +			     "\t.blockz %c4-(.-2b)\n"			\
->   			     "\t.popsection"				\
-> -			     : : "i" (__FILE__), "i" (__LINE__),	\
-> +			     : : "i" (__FILE__), "i" (__BUG_FUNC),	\
-> +			     "i" (__LINE__),				\
->   			     "i" (0), "i" (sizeof(struct bug_entry)) );	\
->   		unreachable();						\
->   	} while(0)
-> @@ -58,10 +69,12 @@
->   			     "\t.align 4\n"				\
->   			     "2:\t" __BUG_REL(1b) "\n"			\
->   			     "\t" __BUG_REL(%c0)  "\n"			\
-> -			     "\t.short %1, %2\n"			\
-> -			     "\t.blockz %3-2*4-2*2\n"			\
-> +			     "\t" __BUG_FUNC_PTR  "\n"			\
-> +			     "\t.short %c2, %3\n"			\
-> +			     "\t.blockz %c4-(.-2b)\n"			\
->   			     "\t.popsection"				\
-> -			     : : "i" (__FILE__), "i" (__LINE__),	\
-> +			     : : "i" (__FILE__), "i" (__BUG_FUNC),	\
-> +			     "i" (__LINE__),				\
->   			     "i" (BUGFLAG_WARNING|(flags)),		\
->   			     "i" (sizeof(struct bug_entry)) );		\
->   	} while(0)
-> @@ -74,7 +87,7 @@
->   			     "\t.align 4\n"				\
->   			     "2:\t" __BUG_REL(1b) "\n"			\
->   			     "\t.short %0\n"				\
-> -			     "\t.blockz %1-4-2\n"			\
-> +			     "\t.blockz %c1-(.-2b)\n"			\
->   			     "\t.popsection"				\
->   			     : : "i" (BUGFLAG_WARNING|(flags)),		\
->   			     "i" (sizeof(struct bug_entry)) );		\
-
+>> >>> Since the Merge-Window is closed feel free to send new versions as RFC.
+>>
+>> OK, I will send the new version as an RFC.
+>>
+>> Thank you!
+> 
+> Thanks!
+> - Jan
+> 
+>>
+>>> Thank you
+>>> - Jan
+>>>
+>>>>       if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev.pci_fid))
+>>>>           goto errattr;
+>>>>       if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID, smc_pci_dev.pci_pchid))
