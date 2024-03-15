@@ -1,294 +1,154 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5779D17581
-	for <linux-s390@vger.kernel.org>; Fri, 15 Mar 2024 08:17:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B12E618E2A
+	for <linux-s390@vger.kernel.org>; Fri, 15 Mar 2024 10:29:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710490646; cv=none; b=A1yP73LvsKWp92w64nZ1WEQ2OKZWmmf/IML0/zVsNZ283tJISHd+9H+GnOE5dpT4/+bsx8+ZBles5mhH2zvg9BicbkyUleQNe0ThJ4pvW4uc2TK1+Llg9rzFAs98K0CXBQxnI6gBDcTVf7apY9L70ZD/pjEeIJ+6hkck8b31T2U=
+	t=1710498554; cv=none; b=HowEkvlWeGbCLrPSjcfRGZBXFnGRvgMuuXFwGBzuAQt1gHsLUwJAv8hItMVNAahNLHYeFTrifK63XJeQuCOo9taQ9qhKhKr0T3bCg/s8ZFKoU/mFR+qMHWovRp7SvMi3TVd7qGeaXI+WGu3lJf3Nd8CO4xTAdqHZnwahlbiL1+E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710490646; c=relaxed/simple;
-	bh=3Veip/OxCnGKCQ+Abe6TiS3hdoh9knWDIAqJQrDZQBc=;
+	s=arc-20240116; t=1710498554; c=relaxed/simple;
+	bh=WjtDLSxpesB0ZqjiaU1pcR2XZxE+SssNvSi40zWY64k=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gsF2Sb6AsfKNccWpWnUok1kE4B+lImG0Q42XnUwlrP5TaONYFv1hHQpMMTXmF6TAJlfLnEL/suX43do5+qb08ok/Qyzr/0wn008rVMC+1JDKYrmTjmnZu5aMPvKycJcLPg63U0ow4AaPSa8CAroa/TwHLi4LtzV15bpyjwG8vlw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=BnLnF6jp; arc=none smtp.client-ip=209.85.216.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	 To:Cc:Content-Type; b=XOeIoAJPbL8J/PDJ4izoqb2/ZuNsCbkJw25wuMIdt9Thp4+E+bF6IcqSMsfObkZE4RI4efixlmjFgtAzw9mlB62RuEy2sSVW8b1d+hJEUkNhHgKriM6fQp8K9IYcmIC0pouYRK5B02KrYgthii+1DDlJ6lYEk+NDKXJSh6wD4Is=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dk1mQzM7; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="BnLnF6jp"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-29c52a90417so1337354a91.1
-        for <linux-s390@vger.kernel.org>; Fri, 15 Mar 2024 01:17:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1710490644; x=1711095444; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ux+mgvQeyHLipAJjQDCARUR07kgvWhujuDpfd9PKvNE=;
-        b=BnLnF6jpTf0M3GTFjcSWetvSvIQOQ369PIgwF3aG0VASfibFMiCxnhy8vtyqhOsjyx
-         4iCua5b7xLUAUwDsGjXK/pp/XgXWUnBG6c/CKGhyio9pC/GzFGLP2/VFJWSe+yw6/QC2
-         SLs4tMFzW1MrA6ts1TTFeTkDa7eHXNIoux2jcNUZcTWqGHBe6mTwr32HfYOFkkZcXOe2
-         z2RVX0Hq5om3SYzgJ9iR3RM98+/Fv0UMU7l6EP5buU4YPD8LDhyAIISras9vEeQp4wfc
-         3SPkE0rovMXGjiRmz7PzUbWxW1Z1HmnSlwKnklK6x/rX5v3TAVv47PoG9ldtlB1sAHTd
-         tnGw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dk1mQzM7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1710498550;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4LzVKYzDeMlNU7muM18EJurw+KHPOsJVd6gjVHme+u4=;
+	b=dk1mQzM7BoInPg8nQfUAp9O8EG+xMsgE3SJtdTdYfRwI4SGuHF8vRVxzdKyFnhAUwotNGS
+	VuqasmZkE+ICqMVUFitq7uOQzavFzhS0OPorNQp855dynZS4nxOKCulfqOmEQY7Iqc2ff7
+	vS6ng9HJeFr5+/fhk4W4YYNsD2Flrdg=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-444-VHlg5kOLOJ2DiH1duq5DQA-1; Fri, 15 Mar 2024 06:29:09 -0400
+X-MC-Unique: VHlg5kOLOJ2DiH1duq5DQA-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-33ed489edcaso214511f8f.3
+        for <linux-s390@vger.kernel.org>; Fri, 15 Mar 2024 03:29:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710490644; x=1711095444;
+        d=1e100.net; s=20230601; t=1710498548; x=1711103348;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ux+mgvQeyHLipAJjQDCARUR07kgvWhujuDpfd9PKvNE=;
-        b=ETNbKXbz5sqXRh75U5/mp+QjQBmRNKldfL+aWWa03Sep4uh+aksmVsyR/FoDSeH8fS
-         6xk7EbDEv6opH2FeUiShOxzfihyQsL5YRBBB3rrmxnh/YbQ374/hYI3tKYuRGtxtpWJr
-         L2wc4JOlra4X8WxQGEGgnCU/h9ndhvzmyuq+TYhX8U6UFpSEtd16uudBKSN8osstOU14
-         zzrxxaDQRMlglf7Emt7RRiCmWi97WnfC1OjZK50uvTB6HJsYIJUwv0KErWhQD14T1RmX
-         zCdzXkwbTnD6pkolfGPe9j9Gwt9qjPIXppygv3+Fjugz6gQ2y6TPnj8PYql+A5TmUMCa
-         84nQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWJPa4GU5VpnDdm7nG6Wm33EEUahB0X3GGLwAg2POwXbC0zdnKKUddnEpK/ia47tpi8rqoDIkoExlMfQpIajmtQrj6eP8Owjbtrdw==
-X-Gm-Message-State: AOJu0YxWtLi9EcKuhzq+wYAnyaik0lVqfV97i36AbKUIELEPs3TjD54C
-	s1LAdHKrUj/+/8sdqZOjVB9MAmsclf0ZEWrrHkj6V0OqJeyrHAjpuAI5bj5yT6bqylXnDwmdNYT
-	dPb+tEQsl5BPv/36HKva0Rq2dqlcipKoyzU0NWA==
-X-Google-Smtp-Source: AGHT+IH6WVj2QW6HVMnPZetJyxE6GBO3ARfmDCsMA75RFQoJ7vWKBd9vtLcWlAX1Fz+oArSrbQ03zFV2IWXrG37YkmE=
-X-Received: by 2002:a17:90a:fa18:b0:29c:735:a758 with SMTP id
- cm24-20020a17090afa1800b0029c0735a758mr6401475pjb.19.1710490643623; Fri, 15
- Mar 2024 01:17:23 -0700 (PDT)
+        bh=4LzVKYzDeMlNU7muM18EJurw+KHPOsJVd6gjVHme+u4=;
+        b=Opk5Oztfv9j7G0bMHy752pM19asofzaR7K01gKuHy9N2lvDbAxUvZpJqzEKtyG5ACl
+         9WXkRXVJxyO4vc3F2ns8oZWf+3fZzGeicoFdeSzWLuXDMEgeWOU7nBf+p0qWFBkHpVI+
+         CXUw2BEfazHiFJvYbIA9++Ohibhgq9sB+Ho89mAHEW5DSweSeV6gO3GXk5w/KTxu0Nja
+         tafRgfIklr5iFaroaD37idaDscctJ2Kw3pN6BXyjlDhNxMqvAZMhGZB24/w8bs/6Cqr8
+         GySiEXD4eK0EhBo1hbUWYa/rLzoJ+MGnaN7EqYwpOOhasNOU/+xmJs4R/cdojbF013Vl
+         n70w==
+X-Forwarded-Encrypted: i=1; AJvYcCXBuqFaufL+IJchDBuGtsECK7uJWiVwz8C6YFC1xGhMGrjaAedNEK6R/CSLJTCLSdlaia8QgC4hVzao/yMDLQKA4ZVbuE6N16tUJg==
+X-Gm-Message-State: AOJu0Yygv+jJHoMzHuk4gcI1DoJ3N4zGKNxK8C4GSNsqqHppGnB0HXQG
+	VntgpJOcSeztpxjkzKw+797oEZLuqsx84wzZMGU48Kf5rQEfNZvhW3DHIXxri/tX7KOwhebEeKq
+	V9uPJTz9OTfK5T/FsGCWG7katiZYEp+9JmUNSlYSVA0odhWJdbSYeZZmjDdIzZZhSIvNojoweqr
+	bKkPpexDXfnG2wu/1sP64Mr1ayd75OfEmusA==
+X-Received: by 2002:a05:6000:ecc:b0:33d:365a:64ce with SMTP id ea12-20020a0560000ecc00b0033d365a64cemr3514068wrb.34.1710498548155;
+        Fri, 15 Mar 2024 03:29:08 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE3IXpQwWRJk68QeroZGtOynXZQtN41Q8sdLnkfZ9rvuAhejnc7cGVhIoVWUvJFb9WshmjTEyYsi418JuDiY9c=
+X-Received: by 2002:a05:6000:ecc:b0:33d:365a:64ce with SMTP id
+ ea12-20020a0560000ecc00b0033d365a64cemr3514046wrb.34.1710498547787; Fri, 15
+ Mar 2024 03:29:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240311093526.1010158-1-dongmenglong.8@bytedance.com>
- <20240311093526.1010158-2-dongmenglong.8@bytedance.com> <CAADnVQKQPS5NcvEouH4JqZ2fKgQAC+LtcwhX9iXYoiEkF_M94Q@mail.gmail.com>
- <CALz3k9i5G5wWi+rtvHPwVLOUAXVMCiU_8QUZs87TEYgR_0wpPA@mail.gmail.com>
- <CAADnVQJ_ZCzMmT1aBsNXEBFfYNSVBdBXmLocjR0PPEWtYQrQFw@mail.gmail.com>
- <CALz3k9icPePb0c4FE67q=u1U0hrePorN9gDpQrKTR_sXbLMfDA@mail.gmail.com>
- <CAADnVQLwgw8bQ7OHBbqLhcPJ2QpxiGw3fkMFur+2cjZpM_78oA@mail.gmail.com>
- <CALz3k9g9k7fEwdTZVLhrmGoXp8CE47Q+83r-AZDXrzzuR+CjVA@mail.gmail.com>
- <CAADnVQLHpi3J6cBJ0QBgCQ2aY6fWGnVvNGdfi3W-jmoa9d1eVQ@mail.gmail.com> <ZfKY6E8xhSgzYL1I@krava>
-In-Reply-To: <ZfKY6E8xhSgzYL1I@krava>
-From: =?UTF-8?B?5qKm6b6Z6JGj?= <dongmenglong.8@bytedance.com>
-Date: Fri, 15 Mar 2024 16:17:12 +0800
-Message-ID: <CALz3k9jM0eqgw1=RKQPFpn8nk4MZRadEC3ge0kRutfvN2WVbwg@mail.gmail.com>
-Subject: Re: [External] Re: [PATCH bpf-next v2 1/9] bpf: tracing: add support
- to record and check the accessed args
-To: Jiri Olsa <olsajiri@gmail.com>
-Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, Eddy Z <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
-	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
-	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
-	David Ahern <dsahern@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	X86 ML <x86@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Quentin Monnet <quentin@isovalent.com>, 
-	bpf <bpf@vger.kernel.org>, 
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, LKML <linux-kernel@vger.kernel.org>, 
-	linux-riscv <linux-riscv@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, 
-	Network Development <netdev@vger.kernel.org>, linux-trace-kernel@vger.kernel.org, 
-	"open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, linux-stm32@st-md-mailman.stormreply.com
+References: <20240226122059.58099-1-frankja@linux.ibm.com>
+In-Reply-To: <20240226122059.58099-1-frankja@linux.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 15 Mar 2024 11:28:54 +0100
+Message-ID: <CABgObfZA_=W1GoKaQ-OW05rfJAcxf3N5wC=Jj1bn6m3J9QNw+Q@mail.gmail.com>
+Subject: Re: [GIT PULL 0/3] KVM: s390: Changes for 6.9
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, david@redhat.com, borntraeger@linux.ibm.com, 
+	cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, 
+	seiden@linux.ibm.com, nsg@linux.ibm.com, farman@linux.ibm.com, 
+	agordeev@linux.ibm.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 14, 2024 at 2:29=E2=80=AFPM Jiri Olsa <olsajiri@gmail.com> wrot=
-e:
+On Mon, Feb 26, 2024 at 1:24=E2=80=AFPM Janosch Frank <frankja@linux.ibm.co=
+m> wrote:
 >
-> On Wed, Mar 13, 2024 at 05:25:35PM -0700, Alexei Starovoitov wrote:
-> > On Tue, Mar 12, 2024 at 6:53=E2=80=AFPM =E6=A2=A6=E9=BE=99=E8=91=A3 <do=
-ngmenglong.8@bytedance.com> wrote:
-> > >
-> > > On Wed, Mar 13, 2024 at 12:42=E2=80=AFAM Alexei Starovoitov
-> > > <alexei.starovoitov@gmail.com> wrote:
-> > > >
-> > > > On Mon, Mar 11, 2024 at 7:42=E2=80=AFPM =E6=A2=A6=E9=BE=99=E8=91=A3=
- <dongmenglong.8@bytedance.com> wrote:
-> > > > >
-> > > [......]
-> > > >
-> > > > I see.
-> > > > I thought you're sharing the trampoline across attachments.
-> > > > (since bpf prog is the same).
-> > >
-> > > That seems to be a good idea, which I hadn't thought before.
-> > >
-> > > > But above approach cannot possibly work with a shared trampoline.
-> > > > You need to create individual trampoline for all attachment
-> > > > and point them to single bpf prog.
-> > > >
-> > > > tbh I'm less excited about this feature now, since sharing
-> > > > the prog across different attachments is nice, but it won't scale
-> > > > to thousands of attachments.
-> > > > I assumed that there will be a single trampoline with max(argno)
-> > > > across attachments and attach/detach will scale to thousands.
-> > > >
-> > > > With individual trampoline this will work for up to a hundred
-> > > > attachments max.
-> > >
-> > > What does "a hundred attachments max" means? Can't I
-> > > trace thousands of kernel functions with a bpf program of
-> > > tracing multi-link?
-> >
-> > I mean what time does it take to attach one program
-> > to 100 fentry-s ?
-> > What is the time for 1k and for 10k ?
-> >
-> > The kprobe multi test attaches to pretty much all funcs in
-> > /sys/kernel/tracing/available_filter_functions
-> > and it's fast enough to run in test_progs on every commit in bpf CI.
-> > See get_syms() in prog_tests/kprobe_multi_test.c
-> >
-> > Can this new multi fentry do that?
-> > and at what speed?
-> > The answer will decide how applicable this api is going to be.
-> > Generating different trampolines for every attach point
-> > is an approach as well. Pls benchmark it too.
-> >
-> > > >
-> > > > Let's step back.
-> > > > What is the exact use case you're trying to solve?
-> > > > Not an artificial one as selftest in patch 9, but the real use case=
-?
-> > >
-> > > I have a tool, which is used to diagnose network problems,
-> > > and its name is "nettrace". It will trace many kernel functions, whos=
-e
-> > > function args contain "skb", like this:
-> > >
-> > > ./nettrace -p icmp
-> > > begin trace...
-> > > ***************** ffff889be8fbd500,ffff889be8fbcd00 ***************
-> > > [1272349.614564] [dev_gro_receive     ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614579] [__netif_receive_skb_core] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614585] [ip_rcv              ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614592] [ip_rcv_core         ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614599] [skb_clone           ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614616] [nf_hook_slow        ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614629] [nft_do_chain        ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614635] [ip_rcv_finish       ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614643] [ip_route_input_slow ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614647] [fib_validate_source ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614652] [ip_local_deliver    ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614658] [nf_hook_slow        ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614663] [ip_local_deliver_finish] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614666] [icmp_rcv            ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614671] [icmp_echo           ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614675] [icmp_reply          ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614715] [consume_skb         ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614722] [packet_rcv          ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > > [1272349.614725] [consume_skb         ] ICMP: 169.254.128.15 ->
-> > > 172.27.0.6 ping request, seq: 48220
-> > >
-> > > For now, I have to create a bpf program for every kernel
-> > > function that I want to trace, which is up to 200.
-> > >
-> > > With this multi-link, I only need to create 5 bpf program,
-> > > like this:
-> > >
-> > > int BPF_PROG(trace_skb_1, struct *skb);
-> > > int BPF_PROG(trace_skb_2, u64 arg0, struct *skb);
-> > > int BPF_PROG(trace_skb_3, u64 arg0, u64 arg1, struct *skb);
-> > > int BPF_PROG(trace_skb_4, u64 arg0, u64 arg1, u64 arg2, struct *skb);
-> > > int BPF_PROG(trace_skb_5, u64 arg0, u64 arg1, u64 arg2, u64 arg3, str=
-uct *skb);
-> > >
-> > > Then, I can attach trace_skb_1 to all the kernel functions that
-> > > I want to trace and whose first arg is skb; attach trace_skb_2 to ker=
-nel
-> > > functions whose 2nd arg is skb, etc.
-> > >
-> > > Or, I can create only one bpf program and store the index
-> > > of skb to the attachment cookie, and attach this program to all
-> > > the kernel functions that I want to trace.
-> > >
-> > > This is my use case. With the multi-link, now I only have
-> > > 1 bpf program, 1 bpf link, 200 trampolines, instead of 200
-> > > bpf programs, 200 bpf link and 200 trampolines.
-> >
-> > I see. The use case makes sense to me.
-> > Andrii's retsnoop is used to do similar thing before kprobe multi was
-> > introduced.
-> >
-> > > The shared trampoline you mentioned seems to be a
-> > > wonderful idea, which can make the 200 trampolines
-> > > to one. Let me have a look, we create a trampoline and
-> > > record the max args count of all the target functions, let's
-> > > mark it as arg_count.
-> > >
-> > > During generating the trampoline, we assume that the
-> > > function args count is arg_count. During attaching, we
-> > > check the consistency of all the target functions, just like
-> > > what we do now.
-> >
-> > For one trampoline to handle all attach points we might
-> > need some arch support, but we can start simple.
-> > Make btf_func_model with MAX_BPF_FUNC_REG_ARGS
-> > by calling btf_distill_func_proto() with func=3D=3DNULL.
-> > And use that to build a trampoline.
-> >
-> > The challenge is how to use minimal number of trampolines
-> > when bpf_progA is attached for func1, func2, func3
-> > and bpf_progB is attached to func3, func4, func5.
-> > We'd still need 3 trampolines:
-> > for func[12] to call bpf_progA,
-> > for func3 to call bpf_progA and bpf_progB,
-> > for func[45] to call bpf_progB.
-> >
-> > Jiri was trying to solve it in the past. His slides from LPC:
-> > https://lpc.events/event/16/contributions/1350/attachments/1033/1983/pl=
-umbers.pdf
-> >
-> > Pls study them and his prior patchsets to avoid stepping on the same ra=
-kes.
+> Paolo,
 >
-> yep, I refrained from commenting not to take you down the same path
-> I did, but if you insist.. ;-)
+> please pull the 3 fixes that I've held on to as they were very low priori=
+ty:
+> - Memop selftest rotate fix
+> - SCLP event bits over indication fix
+> - Missing virt_to_phys for the CRYCB fix
 >
-> I managed to forgot almost all of it, but the IIRC the main pain point
-> was that at some point I had to split existing trampoline which caused
-> the whole trampolines management and error paths to become a mess
 >
-> I tried to explain things in [1] changelog and the latest patchset is in =
-[0]
->
-> feel free to use/take anything, but I advice strongly against it ;-)
-> please let me know if I can help
+> Attention:
+> Three additional patches will go over the main s390 repository since
+> Heiko made changes to the FPU handling that caused a conflict with KVM
+> but we didn't want to create a feature branch.
 
-I have to say that I have not gone far enough to encounter
-this problem, and I didn't dig enough to be aware of the
-complexity.
+Pulled, thanks.
 
-I suspect that I can't overcome this challenge. The only thing that
-I thought when I hear about the "shared trampoline" is to fallback
-and not use the shared trampoline for the kernel functions who
-already have a trampoline.
+Paolo
 
-Anyway, let's have a try on it, based on your research.
-
-Thanks!
-Menglong Dong
-
+> See:
+> https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/log/?h=3Df=
+or-next
 >
-> jirka
+> - KVM: s390: fix access register usage in ioctls
+> - KVM: s390: selftests: memop: add a simple AR test
+> - KVM: s390: introduce kvm_s390_fpu_(store|load)
 >
 >
-> [0] https://git.kernel.org/pub/scm/linux/kernel/git/jolsa/perf.git/log/?h=
-=3Dbpf/batch
-> [1] https://git.kernel.org/pub/scm/linux/kernel/git/jolsa/perf.git/commit=
-/?h=3Dbpf/batch&id=3D52a1d4acdf55df41e99ca2cea51865e6821036ce
+> Cheers,
+> Janosch
+>
+>
+> The following changes since commit 41bccc98fb7931d63d03f326a746ac4d429c1d=
+d3:
+>
+>   Linux 6.8-rc2 (2024-01-28 17:01:12 -0800)
+>
+> are available in the Git repository at:
+>
+>   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/=
+kvm-s390-next-6.9-1
+>
+> for you to fetch changes up to 00de073e2420df02ac0f1a19dbfb60ff8eb198be:
+>
+>   KVM: s390: selftest: memop: Fix undefined behavior (2024-02-23 14:02:27=
+ +0100)
+>
+> ----------------------------------------------------------------
+> - Memop selftest rotate fix
+> - SCLP event bits over indication fix
+> - Missing virt_to_phys for the CRYCB fix
+> ----------------------------------------------------------------
+> Alexander Gordeev (1):
+>       KVM: s390: fix virtual vs physical address confusion
+>
+> Eric Farman (1):
+>       KVM: s390: only deliver the set service event bits
+>
+> Nina Schoetterl-Glausch (1):
+>       KVM: s390: selftest: memop: Fix undefined behavior
+>
+>  arch/s390/kvm/interrupt.c                 | 4 ++--
+>  arch/s390/kvm/kvm-s390.c                  | 2 +-
+>  tools/testing/selftests/kvm/s390x/memop.c | 2 ++
+>  3 files changed, 5 insertions(+), 3 deletions(-)
+>
+>
+>
+>
+>
+> --
+> 2.43.2
+>
+
