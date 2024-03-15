@@ -1,167 +1,175 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3ABED2FA;
-	Fri, 15 Mar 2024 03:44:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D77ED529
+	for <linux-s390@vger.kernel.org>; Fri, 15 Mar 2024 03:52:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710474265; cv=none; b=oFfyDqqZn+ooTd6JDfIStijRTA3bO0B6ZsMGWKPMEe+6fqCxnluYbGxER/CaB4fAlbVEtskecXJ3mOroCIpbeZlCZSnh2fM7C976XercK41Gns4bl6ZiA7TDRIBBqCD2VQrncVqglKjuc+sahBa3E+QlYr4Oz9jMjAH3X28dsLQ=
+	t=1710474726; cv=none; b=eLqj+V69QlY3sSwr3WK9VTF8dwMb5wjh0QcgIVXGcKWKjw5RqxKc1jS7CWcTHiU3MArrb4ZmevsZ52u+n+u/BfpffGbkE60L6XPKS2kxEOAEmIHhBMvM/Ub/5GLvP2MimrtmWWIyc2jGI4h3L1kkr2GFq1LHL06QTqLTpv93DXc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710474265; c=relaxed/simple;
-	bh=Fn0B/Coflk0vxgWDCHHmvAX98GkytPf1UE1wsTKbreo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BaSOWrhu8gdThtv/VdxDhziRRnfON40KU/hwAX6cD/sFZvhAtbcgLL2L2Cs3SM8y+0ys4i55DDmxGsa2U2hMQamoSn/pSWQ1qQIiC0541hdpjN/kWnNi7hU3ZUdJdM6xL6J+wQ7tdBYmmxlC3Ff0f8vAcbGSwfFdZ0TAUrIgBzw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=wtGrj7ta; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1710474726; c=relaxed/simple;
+	bh=+P0SN8lR5UMoHiVeJbaZ63DVZv6EUw72aKI5RNx4i7Y=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Lw+Zr+9JHrPXI7occiv02P7jkhniq3Pcn6oI9h2XIdKYYDC5fF8bRfKn5ezWvSr0FpxYvQR0U/7D9NpOy2oKZll7j+q3OKSH7P8dPpOCw6jPdBMfDqxSDVthJpZee/HMBb6r5L7ipq6Do5ERWHQlxGujgebELQC5osKG+To8jI4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZSVUG+bw; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="wtGrj7ta"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1710474259; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=6SyGZ6Ypqn8jef/c0aiSjRosmRiUcfEDRiQ+bWS0vCM=;
-	b=wtGrj7ta5yD51JhrQ82iAD6U0LuGKHXpHOKAChYz/vbyMB5PttCG4rbiFoZQtwP05N4UjxLdZ7jZhP3YcmyhlgWOHlt/Fw3U5SpNw20tyD/xukJQDhHKYs/GbIb0qQvSKZduAgZKEavWQB+cEphyfM9lCqM+5cS3hC+f7aeWYAg=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W2UlN-f_1710474256;
-Received: from 30.221.129.129(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W2UlN-f_1710474256)
-          by smtp.aliyun-inc.com;
-          Fri, 15 Mar 2024 11:44:18 +0800
-Message-ID: <a6e4c563-e1d4-44ae-bfab-a0021584220f@linux.alibaba.com>
-Date: Fri, 15 Mar 2024 11:44:16 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZSVUG+bw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1710474723;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jRnPjyJeZad1F26bIZOTcaKiZRrwc4cB/pDexLjVGDE=;
+	b=ZSVUG+bwPBcYi8lPq2wgby5geeJ267tX5J9P8IR7u6+8Az6A0BZ1mDmlBPupFUCMy51YFm
+	yCG6OMrKsbwkHeVy8GFezgkVm5LSU+oTyu4musUB9HLWxFmTfZOL2+mG73eyaI15Vw39Ah
+	8vGvdYs+bp56q9HEkhbV07kv6cNp71Y=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-542-irjp1tgxPICObWGVzpzyoA-1; Thu, 14 Mar 2024 23:52:01 -0400
+X-MC-Unique: irjp1tgxPICObWGVzpzyoA-1
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-29df4ec4304so214148a91.3
+        for <linux-s390@vger.kernel.org>; Thu, 14 Mar 2024 20:52:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710474720; x=1711079520;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jRnPjyJeZad1F26bIZOTcaKiZRrwc4cB/pDexLjVGDE=;
+        b=ExyWcPXNYVjGd3fwkU2XGmXdClrvzJjExwzMy3Za3exHe+0FDyVgq0ZKFGe6JpJj/O
+         lUKmoc2yaib/NPJ1efN18d4m6YGcR6tBgaAsNsGkaA7QQEcapuClM6p6ADQJZqMlnx7t
+         ylGfjKoXpN5H0+eFxadccrgkZMbvOm/+T9HxsB9TewkvFAPWTHa+y/o1Xjv71zP/QhcC
+         CwFsQ3SXeL3eWpEODcflsvnNE+rbJlbG4wAjZmlO2oMIHBhT1W07gPjQoocuy/JVpFt9
+         Q4km5hnielo7Z+BEFPk3fHPJwSMlF6q6OJqIg1+q9E07p2eRZ2D+atb0uzJ9bibr5rpb
+         13Ag==
+X-Forwarded-Encrypted: i=1; AJvYcCVV4QzbFzwrk6ylb5mDvoN07t7Olr0LmiiXGfJXLf3C0kExS0WLG8F5DlSZD8L17EcWKmD1PTLAGZOP72kB6eeGiKFvWjMsIrLyFQ==
+X-Gm-Message-State: AOJu0YzAk9zAdDaoqjC4D1Xk8YEbvoFrCoQo/WCMcIQcRE//HdGfO1LH
+	qomIGY5LAofWeWQbu5RrOjRMRG/aeSEyUHdb5aQf1wZ12r9wrDvkNAzpsZc53DDtRmcMbBaXUsa
+	dypz6J/2b/qTwJrqwEs3FXQZejpBhOsMHBE6dSn62z7kNws7HKFzV1sKtq4ys2bqRCFrax6fAmr
+	0aqDZiVCFmk+e6U8xXgp6WN7M32qb9FhltWw==
+X-Received: by 2002:a17:90b:882:b0:29b:4755:23fc with SMTP id bj2-20020a17090b088200b0029b475523fcmr3558896pjb.33.1710474720032;
+        Thu, 14 Mar 2024 20:52:00 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHXDOuKDvuP/EqiFyBnUcJaSQVamH9YfVITPXeJDT8/OaXE+8nukfAwdydXN+5KUnq8MlXvmaNj0CipGi0ChDY=
+X-Received: by 2002:a17:90b:882:b0:29b:4755:23fc with SMTP id
+ bj2-20020a17090b088200b0029b475523fcmr3558876pjb.33.1710474719748; Thu, 14
+ Mar 2024 20:51:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v3 01/11] net/smc: adapt SMC-D device dump for
- Emulated-ISM
-To: Jan Karcher <jaka@linux.ibm.com>, wintera@linux.ibm.com,
- twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org
-References: <20240312142743.41406-1-guwen@linux.alibaba.com>
- <20240312142743.41406-2-guwen@linux.alibaba.com>
- <caab067b-f5c3-490f-9259-262624c236b4@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <caab067b-f5c3-490f-9259-262624c236b4@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20240312021013.88656-1-xuanzhuo@linux.alibaba.com>
+ <20240312021013.88656-2-xuanzhuo@linux.alibaba.com> <CACGkMEvVgfgAxLoKeFTgy-1GR0W07ciPYFuqs6PiWtKCnXuWTw@mail.gmail.com>
+ <1710395908.7915084-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1710395908.7915084-1-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 15 Mar 2024 11:51:48 +0800
+Message-ID: <CACGkMEsT2JqJ1r_kStUzW0+-f+qT0C05n2A+Yrjpc-mHMZD_mQ@mail.gmail.com>
+Subject: Re: [PATCH vhost v3 1/4] virtio: find_vqs: pass struct instead of
+ multi parameters
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>, 
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Hans de Goede <hdegoede@redhat.com>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, 
+	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
+	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-um@lists.infradead.org, 
+	platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, 
+	linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, Mar 14, 2024 at 2:00=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
+>
+> On Thu, 14 Mar 2024 11:12:24 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> > On Tue, Mar 12, 2024 at 10:10=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alib=
+aba.com> wrote:
+> > >
+> > > Now, we pass multi parameters to find_vqs. These parameters
+> > > may work for transport or work for vring.
+> > >
+> > > And find_vqs has multi implements in many places:
+> > >
+> > >  arch/um/drivers/virtio_uml.c
+> > >  drivers/platform/mellanox/mlxbf-tmfifo.c
+> > >  drivers/remoteproc/remoteproc_virtio.c
+> > >  drivers/s390/virtio/virtio_ccw.c
+> > >  drivers/virtio/virtio_mmio.c
+> > >  drivers/virtio/virtio_pci_legacy.c
+> > >  drivers/virtio/virtio_pci_modern.c
+> > >  drivers/virtio/virtio_vdpa.c
+> > >
+> > > Every time, we try to add a new parameter, that is difficult.
+> > > We must change every find_vqs implement.
+> > >
+> > > One the other side, if we want to pass a parameter to vring,
+> > > we must change the call path from transport to vring.
+> > > Too many functions need to be changed.
+> > >
+> > > So it is time to refactor the find_vqs. We pass a structure
+> > > cfg to find_vqs(), that will be passed to vring by transport.
+> > >
+> > > Because the vp_modern_create_avq() use the "const char *names[]",
+> > > and the virtio_uml.c changes the name in the subsequent commit, so
+> > > change the "names" inside the virtio_vq_config from "const char *cons=
+t
+> > > *names" to "const char **names".
+> > >
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > Acked-by: Johannes Berg <johannes@sipsolutions.net>
+> > > Reviewed-by: Ilpo J=3DE4rvinen <ilpo.jarvinen@linux.intel.com>
+> >
+> > The name seems broken here.
+>
+> Email APP bug.
+>
+> I will fix.
+>
+>
+> >
+> > [...]
+> >
+> > >
+> > >  typedef void vq_callback_t(struct virtqueue *);
+> > >
+> > > +/**
+> > > + * struct virtio_vq_config - configure for find_vqs()
+> > > + * @cfg_idx: Used by virtio core. The drivers should set this to 0.
+> > > + *     During the initialization of each vq(vring setup), we need to=
+ know which
+> > > + *     item in the array should be used at that time. But since the =
+item in
+> > > + *     names can be null, which causes some item of array to be skip=
+ped, we
+> > > + *     cannot use vq.index as the current id. So add a cfg_idx to le=
+t vring
+> > > + *     know how to get the current configuration from the array when
+> > > + *     initializing vq.
+> >
+> > So this design is not good. If it is not something that the driver
+> > needs to care about, the core needs to hide it from the API.
+>
+> The driver just ignore it. That will be beneficial to the virtio core.
+> Otherwise, we must pass one more parameter everywhere.
 
+I don't get here, it's an internal logic and we've already done that.
 
-On 2024/3/14 18:23, Jan Karcher wrote:
-> 
-> 
-> On 12/03/2024 15:27, Wen Gu wrote:
->> The introduction of Emulated-ISM requires adaptation of SMC-D device
->> dump. Software implemented non-PCI device (loopback-ism) should be
->> handled correctly and the CHID reserved for Emulated-ISM should be got
->> from smcd_ops interface instead of PCI information.
->>
->> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
->> ---
->>   net/smc/smc_ism.c | 13 ++++++++++---
->>   1 file changed, 10 insertions(+), 3 deletions(-)
->>
->> diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
->> index ac88de2a06a0..b6eca4231913 100644
->> --- a/net/smc/smc_ism.c
->> +++ b/net/smc/smc_ism.c
->> @@ -252,12 +252,11 @@ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
->>       char smc_pnet[SMC_MAX_PNETID_LEN + 1];
->>       struct smc_pci_dev smc_pci_dev;
->>       struct nlattr *port_attrs;
->> +    struct device *device;
->>       struct nlattr *attrs;
->> -    struct ism_dev *ism;
->>       int use_cnt = 0;
->>       void *nlh;
->> -    ism = smcd->priv;
->>       nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
->>                 &smc_gen_nl_family, NLM_F_MULTI,
->>                 SMC_NETLINK_GET_DEV_SMCD);
->> @@ -272,7 +271,15 @@ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
->>       if (nla_put_u8(skb, SMC_NLA_DEV_IS_CRIT, use_cnt > 0))
->>           goto errattr;
->>       memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
->> -    smc_set_pci_values(to_pci_dev(ism->dev.parent), &smc_pci_dev);
->> +    device = smcd->ops->get_dev(smcd);
->> +    if (device->parent)
->> +        smc_set_pci_values(to_pci_dev(device->parent), &smc_pci_dev);
->> +    if (smc_ism_is_emulated(smcd)) {
->> +        smc_pci_dev.pci_pchid = smc_ism_get_chid(smcd);
->> +        if (!device->parent)
->> +            snprintf(smc_pci_dev.pci_id, sizeof(smc_pci_dev.pci_id),
->> +                 "%s", dev_name(device));
->> +    }
-> 
-> Hi Wen Gu,
-> 
-> playing around with the loopback-ism device and testing it, i developed some concerns regarding this exposure. Basically 
-> this enables us to see the loopback device in the `smcd device` tool without any changes.
-> E.g.:
-> ```
-> # smcd device
-> FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
-> 0000 0     loopback-ism  ffff   No        0
-> 102a ISM   0000:00:00.0  07c2   No        0  NET1
-> ```
-> 
-> Now the problem with this is that "loopback-ism" is no valid PCI-ID and should not be there. My first thought was to put 
-> an "n/a" instead, but that opens up another problem. Currently you could set - even if it does not make sense - a 
-> PNET_ID for the loopback device:
-> ```
+Thanks
 
-Yes, and we can exclude loopback-ism in smc_pnet_enter() if necessary.
+>
+> Thanks.
+>
+> >
+> > Thanks
+> >
+>
 
-> # smc_pnet -a -D loopback-ism NET1
-> # smcd device
-> FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
-> 0000 0     loopback-ism  ffff   No        0  *NET1
-> 102a ISM   0000:00:00.0  07c2   No        0  NET1
-> ```
-> If we would change the PCI-ID to "n/a" it would be a valid input parameter for the tooling which is... to put it nice... 
-> not so beautiful.
-
-FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
-0000 0     n/a           ffff   No        0
-
-IIUC, the problem is that the 'n/a', which would be an input for other tools, is somewhat strange?
-
-Since PCHID 0xffff is clear defined for loopback-ism, I am wondering if it can be a specific sign
-of loopback-ism for tooling to not take PCI-ID into account? Would you also consider that inelegant?
-
-> I brainstormed this with them team and the problem is more complex.
-> In theory there shouldn't be PCI information set for the loopback device. There should be a better abstraction in the 
-> netlink interface that creates this output and the tooling should be made aware of it.
-> 
-
-Yes, it is better. But I couldn't surely picture how the abstraction looks like, and if it is necessary
-to introduce it just for a special case of loopback-ism (note that virtio-ISM also has PCI information),
-since we can identify loopback-ism by CHID.
-
-> Do you rely on the output currently? What are your thoughts about it?
-> If not I'd ask you to not fill the netlink interface for the loopback device and refactor it with the next stage when we 
-> create a right interface for it.
-> 
-
-Currently we don't rely on the output, and I have no objection to the proposal that not fill the netlink
-interface for loopback-ism and refactor it in the next stage.
-
-> Since the Merge-Window is closed feel free to send new versions as RFC.
-
-OK, I will send the new version as an RFC.
-
-Thank you!
-
-> Thank you
-> - Jan
-> 
->>       if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev.pci_fid))
->>           goto errattr;
->>       if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID, smc_pci_dev.pci_pchid))
