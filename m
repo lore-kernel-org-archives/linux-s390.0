@@ -1,203 +1,270 @@
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2052.outbound.protection.outlook.com [40.107.220.52])
+Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C96C3BBF0;
-	Fri, 15 Mar 2024 15:03:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710515023; cv=fail; b=CLGRQPw4vwSDiseNmhCmMU3OnFTnItKSk7uX8zC8dsKAHnhZBgvy4triHxtS8mLaY2INbHW6xILqRJm2xfp0zXWrEldc04Sjg7HarXrwzTDe1KS8CWZ1hs/zv3rwvEKpuXhL3jHTH3g0L3RmZDOP4hTVDQ28RDd6uWJz462ej5M=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710515023; c=relaxed/simple;
-	bh=9e07p4g04BxxHeEFJ9ZkQcEBtquw8SNxSUgtNR+tNEo=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=nsFydrkpqlXJOTljFX67bftyd9s3fJPJxK7MDNJEofIqvV4iMZVGdiobvdTPGUCrYIE9kGGI3e08DiCHkfEIU5EV22VXrdUhGLVBkBoPu/yG/iGoRFGmzKiSBF31YsrfldXuePtAdGyfZ2z7JuugFCTXFb4E03qg7c/7sERFW3M=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=MpKp+4ZB; arc=fail smtp.client-ip=40.107.220.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B913617984;
+	Fri, 15 Mar 2024 20:48:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1710535706; cv=none; b=FePlZtiFjovVthCNE34wDVL3vCHniAp/0QpN+12oauuReCldP8y3gYrnrUP3tZ8QT50fRhRQxjUqxcKGMWWINX0tAj+11acHJf//gogN8EPvYZNnKvoGE2GTxTzuxWu/FtYZW2jo2DE8AyKikiuwxQAv8i3A/rrns9U+DsJTEQQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1710535706; c=relaxed/simple;
+	bh=UQpx8/b/XTKLmVj1eXwhJn/1lYtutU5drdFjuhtFc8Q=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ux3s/Vbwpai/txTEiy96AlCT1NFSJMeguc46eUleftDi91zqzIq6LkxdPwrA4TAP0GAa4BvdL1neQeYth/ehG29/S7ah5WKpNQEIEw5sukalTfS5hOfAC3A8dW+8yXFDVKb2PLUjiE3ooTg2zgl9B4UMTaTUgjmJ8ehJeRGbDTY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=qNDlogzy; arc=none smtp.client-ip=159.69.126.157
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="MpKp+4ZB"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ElMXVT7SsjssDYAq15nS7h17L8BRcQcdNkpAxTsdciRCoNkbCjNIOtEuA/RxbpTU58M8ddQCVAomow1nfgRC1o+c/sa5MuiqNTS+vRSyFYyKlmqZjJtcBdfANzla8A3IElffoHV0PPpUevCXFJd+32WaWKMDNq3B01OKJy1EmkID2g/YzwVbyuJrjmntinGXgrLCuSz26SGTebJitzDWacE5z2lEPB5Atzqsldest7KpAPpOJDdMc1r6C9FmPRZUg1zup7FXXRLI7HzIHD7qpI8/6tFe/GHKAWPhf/t/89+gY01YoOYEXDMqrJY+FzTOiwjJ/F3E4QJW2BL1p+Yy1w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2SuwOCjBbLYkST//PsfWcv36UMFESUO0IP8x5avek5w=;
- b=mr1XFXsGrfHG3zne2UzEFWgnBs/00ZE9J05l5QPAvJz20KSjEdSAV1OH6P8QOUHAGid5HGHmLpKYLByd1UB3cjcM7T+42EsOWmTyiWa+XjlViDIi8THN4XjVIE4O4nCWXwQecfNCF4zHy8ASaARvaGm9JhIZGaDDYWI8dh1HxmRfotXgBYBO/nx52qpzwaSRbfuevMxdj99E6r2BEr30mbafpGaZnYhdWhAaNVek4X/OoGe3CHsN7ygkCreWinjFngKYPTigYd5qCR6BqmqV82ZoDZffNRe0hECWKiKnwyxifIKQL0qm+L3blrfqawX9QXjCG2stkLx1YMe4hGiRvQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2SuwOCjBbLYkST//PsfWcv36UMFESUO0IP8x5avek5w=;
- b=MpKp+4ZBMSb+KrqaCN2C6/LDVx6N+jd6wsI97ZTg68FTtqlRCNEMscFx5/VSx9LDWINlDD6fAQPOi7XsrD4lijJJEXakM+loKm+FV0nsIe14Tu7omtt61vZPcmvmcUu1w+IIOWeisTbEAioIYFK9QgqCGUWxHSM2vBaOAtUnomY=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from BN9PR12MB5115.namprd12.prod.outlook.com (2603:10b6:408:118::14)
- by SJ2PR12MB9210.namprd12.prod.outlook.com (2603:10b6:a03:561::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7386.20; Fri, 15 Mar
- 2024 15:03:39 +0000
-Received: from BN9PR12MB5115.namprd12.prod.outlook.com
- ([fe80::8099:8c89:7b48:beed]) by BN9PR12MB5115.namprd12.prod.outlook.com
- ([fe80::8099:8c89:7b48:beed%7]) with mapi id 15.20.7386.021; Fri, 15 Mar 2024
- 15:03:39 +0000
-Message-ID: <f6c3a153-ff64-4e9c-98f3-04c38fd75485@amd.com>
-Date: Fri, 15 Mar 2024 11:03:33 -0400
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 05/10] drivers: use new capable_any functionality
-Content-Language: en-US
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
- linux-security-module@vger.kernel.org
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
- Alex Deucher <alexander.deucher@amd.com>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- "Pan, Xinhui" <Xinhui.Pan@amd.com>, David Airlie <airlied@gmail.com>,
- Daniel Vetter <daniel@ffwll.ch>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Stefan Haberland <sth@linux.ibm.com>,
- Jan Hoeppner <hoeppner@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Mark Brown <broonie@kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- "Jiri Slaby (SUSE)" <jirislaby@kernel.org>, amd-gfx@lists.freedesktop.org,
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org
-References: <20240315113828.258005-1-cgzones@googlemail.com>
- <20240315113828.258005-5-cgzones@googlemail.com>
-From: Felix Kuehling <felix.kuehling@amd.com>
-In-Reply-To: <20240315113828.258005-5-cgzones@googlemail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: YQBPR01CA0130.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:c01:1::30) To BN9PR12MB5115.namprd12.prod.outlook.com
- (2603:10b6:408:118::14)
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="qNDlogzy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
+	s=mail; t=1710535696;
+	bh=UQpx8/b/XTKLmVj1eXwhJn/1lYtutU5drdFjuhtFc8Q=;
+	h=From:Subject:Date:To:Cc:From;
+	b=qNDlogzyuL5NF8OjRV46+rDUbxyIMtOYZlFLSwLbviicTyfpUQvpFjMhavWRGxMPb
+	 +KLyaJldvQaCaK8bZDu2BzGm/LykYpsCaxYcWdiFuplr9priximfT/xu1KNJzE8mNQ
+	 QUnnlq6A+2zF05g+yrdBYpLqYgXYSWY/mpzB+Yw8=
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
+Subject: [PATCH 00/11] sysctl: treewide: constify ctl_table argument of
+ sysctl handlers
+Date: Fri, 15 Mar 2024 21:47:58 +0100
+Message-Id: <20240315-sysctl-const-handler-v1-0-1322ac7cb03d@weissschuh.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN9PR12MB5115:EE_|SJ2PR12MB9210:EE_
-X-MS-Office365-Filtering-Correlation-Id: 71a63ed5-7878-47ae-1fdf-08dc45011899
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	h47ZDeEuqRFmLYAKIfMZMVG6m8R3E+9Cm4vBQviHGOcbH4amWBl+7I0Cvm6ofzESW1F1J2vJMjIRbzlSF+7Nqa6iVZFYLs9wxnYFokEhgHCEm39umyIap38E8gwmbw/zYmA/dTDx17fHcGPAaFqoweutbBsi4nzxjeNoK3CS+L62hD7mvMQbshbuB+EK8AM0tPeBkSONyttP+8nh0MkJuJ3j8cQHzT8RO4u3K9cFJxqrGjiUwkhL5UImh7nDi586pfqVBzObDcAeL2exvyHfyBhZQAV7IT8RJHeVn/e04G17TMWnvMx/oeM4/prRPGs6KTrNE+dohKpHyV9X7n4Ag5xznVwFE2R8CvIHVklFvMpHfztyAoBJCUxL1lwpLt8kizI+WZaIMKFapDsbed5BkckPDJM7SRkGFLbj+x4r70ba37HjqcVszW+Sb/SAYy5fB7ZD/8WdxAGau3jpkk0ey5rboQ4sE5amU/LZaC2NPHGqTM/mXGQ2EueDNFdO+56Eo+Rf2ikwDsn93uJ4GM3bj/jNo/6ItBSDJQw4OXCMOkWwBOGHELfVrSzgI/qkoVtYfqI7ByDaqaFxP7+o5XTIS2zeIWICTRu+tWzUX1xSiQoZZHT5IHRlcKlpC+TYrCSkoMnI5ga8qlbL8qy/8IaniDJaHMYL8BFmFLWgPP6Ex7M=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR12MB5115.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(7416005)(1800799015)(366007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?WDh1SnFsRTQwQUlqaW5PTjhJZ0ZMTWcreTEvd0VkMDc3c0tKa0dpSnFQb0xO?=
- =?utf-8?B?bjNZRGl1QXJNTk5uVXd2STRNY0xPdzRqNG45RG9oTWY5OTQyOFdYTS9VTmRV?=
- =?utf-8?B?MTU0R3VNRFVnbnpIbFhScjFmdnVBK0lIVDRnVnFZbGxWMmpidXFMZmhwM0Zh?=
- =?utf-8?B?WXI0TkdnQTdTbDMxemFKamZadnBFVGtxMnFBRFhYU0VuZ2hNc0tTTy8wZVZm?=
- =?utf-8?B?MnlvUDFtMm1xV0RUdE1iUkZCa3RrUWJRWGs3WCtQWTk2L0pyTi9MUW9kRUk4?=
- =?utf-8?B?OTFVUG9jcmVEaVF5N0ZQdmNLay9aVm5GOU5tekFJcW9xZFRtck1hOGpVR2Ir?=
- =?utf-8?B?SUQ1cFVMTXc4S0RFMDBxSXJ3T2lGRTdLdmh3V090NW5yOXFudU5tM1dEK1F3?=
- =?utf-8?B?aktrQit0VzhsMzczakZMVmdPSENhaG5jaGdtTTR1WldMZWFWcUh0d25sdGFX?=
- =?utf-8?B?R1k3WkFsSzhZRUdxb1JJNlYyaG5CT0FHcXlhWEZMNjNmLzBlR3dFd2JURFZ3?=
- =?utf-8?B?L2hzTm81MjFxRDZvN2NYTWFhL3NhY2pWS3ZpekVlcUVCY2lOOVVZVWgxTjFp?=
- =?utf-8?B?TzA3SXdiaGRnZnpXMW5DQXVaN094UzZNdmtSUi9MWFE5MTd3M3djUFZ5azVh?=
- =?utf-8?B?TmNVQlhiakhxSzY2TDVsbjZNWWJrMTRGa1QvaG4rdmFkREJSdjhuY2hMVVox?=
- =?utf-8?B?b0FvdGxRenhnYUZDWjc2NWk3c21FaDRYTlZ4MUd6SjJFYTRDRDRwd04rUHpG?=
- =?utf-8?B?NjBZdVhwY2FwWkJ2TmFvYVBFSTAxNVh3M3ZHVHFNbDRWbzlLM2tnSnpiWnVH?=
- =?utf-8?B?cldpbzBPT2FVY0p4NUNuUmlVTEJVWi9FY3RXeWIxNTh3ZFQ4cENBb0UxM1Vz?=
- =?utf-8?B?R2R3Y0RMYTVwQVpobGpnYWl3QXNUWE1xMGh3ZlRZUHlMTEh3MzZ0cUZTYzdC?=
- =?utf-8?B?dlRmOUVXVW5YNXgwM3FzKy9xVllRL2Z3dmQ4NVFra0FhcmQ3MWdnUTdUY1Rq?=
- =?utf-8?B?YWgvcFFjdWJvQ2haSHlSNXE3N1FhTll6Tnl0N0dKWG9FRXR3QkFFZDJUZ3po?=
- =?utf-8?B?d0VYYk9YVlN2dllWQmw5RmFBYjE0MDZ1RUJ2eXpzcHFENXBUZGZXaEZXL3h4?=
- =?utf-8?B?Zlp6eVdFYzVITkJRcS9lck5sbllmNmE4L2JrN3BWcjlYS1JlVjN1WUg2OGlX?=
- =?utf-8?B?clZPMDNsU3pEVUd1WndhUW94TDNkR2NDVlA3WENLVGRLSG91c0dXMkV4S0Nr?=
- =?utf-8?B?TDNOaHhaVlFUSGJXWklXNmcvMEdNZndEODM0OHBGR1c3dUlrZUFPMVd4RFhq?=
- =?utf-8?B?dGhzODUvcENlbGhGY1ZoTnRTZ1hIditCb2doSnZVRkh6RHREZnE2b2thVmFN?=
- =?utf-8?B?RTFHS3l3c0kvcGpobE93anNCeUY2VlBzMDZXOU1vdGRXNGt2cjgzdEF5RUd1?=
- =?utf-8?B?ZmFRbEpyTzFGdmprLzhVbnJFN3VPallMcllUUXBEWlNRZXdQZUxqVmVGOS9J?=
- =?utf-8?B?ZEp0THA5bXRZU0VlaytSSXZVSXI4djZGTndlTzR6d2pqdW16TUlkSE94eFVD?=
- =?utf-8?B?WlBQYVJPbzdaNmgvU1NyRy9HUXRua2FtWlZDUnJGTDd1ZDJURmpmU0ROajZu?=
- =?utf-8?B?dk9Od2gxNEcrazBhenhhMHJIdVJUeG5yWHlWTmRCMG1qNDVmdnlnVStCcjVl?=
- =?utf-8?B?NzdCOWRsSVZDQ1B2Q216clNVTGtCSjFEcmJ5V09YR0RMZ3ptVWdFWXNTVnU5?=
- =?utf-8?B?dW45YU9ZcmhOS25iY01YU2hCZDd1bXRlaU5hZ3dSMEVGYUlBMGIwVW14MElj?=
- =?utf-8?B?clpMUjFYS3dWYjA4Qy9SSFRZMzVzVGVZUVZDdURydHVOZUEyNEROSG9DWjZ3?=
- =?utf-8?B?dmhLbHEveHZSV0R1b3hwUnlJaUwzQ0RMZ2VTNE5kaDdGQlN4N3VvaC9QM0Na?=
- =?utf-8?B?VXBxdlE1bkhmNlZZNWNtemNESmp6d2ZMbWZXQ25kdlJSaFZUVjRYSFA3RHZj?=
- =?utf-8?B?ZjBXRFhwNE53QWNKdmExZWR6dU50TTJTeVE1cmFWdU1yaXdwc2hwZ1hIbS9C?=
- =?utf-8?B?cXU3ZUkxYk91N2lqVStvZ0puN3lLVkJZS2lHK01GUWRGVVRWLzR6L2dmU3Nh?=
- =?utf-8?Q?BKUVEYWU+eIoAs1PUYc4iAZhw?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 71a63ed5-7878-47ae-1fdf-08dc45011899
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR12MB5115.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Mar 2024 15:03:39.0898
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: n397wT+Wna3gIQhLwWRPZJj8CbGU1ZjnD/OZ9EdnFBtnE3XkAQpCdZ8x0YBYniGXlV1A299WBah0GQ4UfBhYxQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB9210
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAP+z9GUC/x2MQQqAIBAAvxJ7bqGUSvpKdFDbakEs3Igi+nvSc
+ WBmHhBKTAJ98UCik4W3mKEuC/CrjQshT5lBVUrXSrUot/gjoN+iHJiNKVBCY7RryNmOTAU53RP
+ NfP3bYXzfDzWhXLJmAAAA
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Kees Cook <keescook@chromium.org>, Alexei Starovoitov <ast@kernel.org>, 
+ Daniel Borkmann <daniel@iogearbox.net>, 
+ John Fastabend <john.fastabend@gmail.com>, 
+ Andrii Nakryiko <andrii@kernel.org>, 
+ Martin KaFai Lau <martin.lau@linux.dev>, 
+ Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
+ Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, 
+ Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>, 
+ Jiri Olsa <jolsa@kernel.org>, Muchun Song <muchun.song@linux.dev>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ David Ahern <dsahern@kernel.org>, Simon Horman <horms@verge.net.au>, 
+ Julian Anastasov <ja@ssi.bg>, Pablo Neira Ayuso <pablo@netfilter.org>, 
+ Jozsef Kadlecsik <kadlec@netfilter.org>, Florian Westphal <fw@strlen.de>, 
+ Luis Chamberlain <mcgrof@kernel.org>, 
+ Joel Granados <j.granados@samsung.com>, 
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, 
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+ Phillip Potter <phil@philpotter.co.uk>, Theodore Ts'o <tytso@mit.edu>, 
+ "Jason A. Donenfeld" <Jason@zx2c4.com>, 
+ Sudip Mukherjee <sudipm.mukherjee@gmail.com>, 
+ Mark Rutland <mark.rutland@arm.com>, Atish Patra <atishp@atishpatra.org>, 
+ Anup Patel <anup@brainfault.org>, Paul Walmsley <paul.walmsley@sifive.com>, 
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+ Alexander Viro <viro@zeniv.linux.org.uk>, 
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+ Eric Biederman <ebiederm@xmission.com>, 
+ Chandan Babu R <chandan.babu@oracle.com>, 
+ "Darrick J. Wong" <djwong@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
+ Masami Hiramatsu <mhiramat@kernel.org>, 
+ Peter Zijlstra <peterz@infradead.org>, 
+ Arnaldo Carvalho de Melo <acme@kernel.org>, 
+ Namhyung Kim <namhyung@kernel.org>, 
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+ Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
+ Balbir Singh <bsingharora@gmail.com>, 
+ "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>, 
+ Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>, 
+ Petr Mladek <pmladek@suse.com>, John Ogness <john.ogness@linutronix.de>, 
+ Sergey Senozhatsky <senozhatsky@chromium.org>, 
+ Juri Lelli <juri.lelli@redhat.com>, 
+ Vincent Guittot <vincent.guittot@linaro.org>, 
+ Dietmar Eggemann <dietmar.eggemann@arm.com>, 
+ Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, 
+ Daniel Bristot de Oliveira <bristot@redhat.com>, 
+ Valentin Schneider <vschneid@redhat.com>, 
+ Andy Lutomirski <luto@amacapital.net>, Will Drewry <wad@chromium.org>, 
+ John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, 
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
+ Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, 
+ Remi Denis-Courmont <courmisch@gmail.com>, 
+ Allison Henderson <allison.henderson@oracle.com>, 
+ Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
+ Xin Long <lucien.xin@gmail.com>, Chuck Lever <chuck.lever@oracle.com>, 
+ Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, 
+ Olga Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>, 
+ Tom Talpey <tom@talpey.com>, 
+ Trond Myklebust <trond.myklebust@hammerspace.com>, 
+ Anna Schumaker <anna@kernel.org>, 
+ John Johansen <john.johansen@canonical.com>, 
+ Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+ "Serge E. Hallyn" <serge@hallyn.com>, 
+ Alexander Popov <alex.popov@linux.com>
+Cc: linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ bpf@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, 
+ lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+ coreteam@netfilter.org, linux-fsdevel@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
+ linux-xfs@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+ linux-perf-users@vger.kernel.org, kexec@lists.infradead.org, 
+ bridge@lists.linux.dev, linux-rdma@vger.kernel.org, 
+ rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org, 
+ linux-nfs@vger.kernel.org, apparmor@lists.ubuntu.com, 
+ linux-security-module@vger.kernel.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1710535695; l=6875;
+ i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
+ bh=UQpx8/b/XTKLmVj1eXwhJn/1lYtutU5drdFjuhtFc8Q=;
+ b=bVuYFtDUnQnTEuvf1YPhVHCMGvQdlkNbjMU3q96YFVTF+/BakIUECyvigrykuveXZ44uroO53
+ +PypwG0ixxgAcYPFaz0HjaUa6FY1M4K7insg4HvI7YV0Uo2rCOzuB/j
+X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
+ pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
-On 2024-03-15 7:37, Christian Göttsche wrote:
-> Use the new added capable_any function in appropriate cases, where a
-> task is required to have any of two capabilities.
->
-> Reorder CAP_SYS_ADMIN last.
->
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-> Acked-by: Alexander Gordeev <agordeev@linux.ibm.com> (s390 portion)
+* Patch 1 is a bugfix for the stack_erasing sysctl handler
+* Patches 2-10 change various helper functions throughout the kernel to
+  be able to handle 'const ctl_table'.
+* Patch 11 changes the signatures of all proc handlers through the tree.
+  Some other signatures are also adapted, for details see the commit
+  message.
 
-Acked-by: Felix Kuehling <felix.kuehling@amd.com> (amdkfd portion)
+Only patch 1 changes any code at all.
 
+The series was compile-tested on top of next-20230315 for
+i386, x86_64, arm, arm64, riscv, loongarch and s390.
 
-> ---
-> v4:
->     Additional usage in kfd_ioctl()
-> v3:
->     rename to capable_any()
-> ---
->   drivers/gpu/drm/amd/amdkfd/kfd_chardev.c | 3 +--
->   drivers/net/caif/caif_serial.c           | 2 +-
->   drivers/s390/block/dasd_eckd.c           | 2 +-
->   3 files changed, 3 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-> index dfa8c69532d4..8c7ebca01c17 100644
-> --- a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-> +++ b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-> @@ -3290,8 +3290,7 @@ static long kfd_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
->   	 * more priviledged access.
->   	 */
->   	if (unlikely(ioctl->flags & KFD_IOC_FLAG_CHECKPOINT_RESTORE)) {
-> -		if (!capable(CAP_CHECKPOINT_RESTORE) &&
-> -						!capable(CAP_SYS_ADMIN)) {
-> +		if (!capable_any(CAP_CHECKPOINT_RESTORE, CAP_SYS_ADMIN)) {
->   			retcode = -EACCES;
->   			goto err_i1;
->   		}
-> diff --git a/drivers/net/caif/caif_serial.c b/drivers/net/caif/caif_serial.c
-> index ed3a589def6b..e908b9ce57dc 100644
-> --- a/drivers/net/caif/caif_serial.c
-> +++ b/drivers/net/caif/caif_serial.c
-> @@ -326,7 +326,7 @@ static int ldisc_open(struct tty_struct *tty)
->   	/* No write no play */
->   	if (tty->ops->write == NULL)
->   		return -EOPNOTSUPP;
-> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_TTY_CONFIG))
-> +	if (!capable_any(CAP_SYS_TTY_CONFIG, CAP_SYS_ADMIN))
->   		return -EPERM;
->   
->   	/* release devices to avoid name collision */
-> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-> index 373c1a86c33e..8f9a5136306a 100644
-> --- a/drivers/s390/block/dasd_eckd.c
-> +++ b/drivers/s390/block/dasd_eckd.c
-> @@ -5384,7 +5384,7 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
->   	char psf0, psf1;
->   	int rc;
->   
-> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
->   		return -EACCES;
->   	psf0 = psf1 = 0;
->   
+This series was split from my larger series sysctl-const series [0].
+It only focusses on the proc_handlers but is an important step to be
+able to move all static definitions of ctl_table into .rodata.
+
+[0] https://lore.kernel.org/lkml/20231204-const-sysctl-v2-0-7a5060b11447@weissschuh.net/
+
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+---
+Thomas Weißschuh (11):
+      stackleak: don't modify ctl_table argument
+      cgroup: bpf: constify ctl_table arguments and fields
+      hugetlb: constify ctl_table arguments of utility functions
+      utsname: constify ctl_table arguments of utility function
+      neighbour: constify ctl_table arguments of utility function
+      ipv4/sysctl: constify ctl_table arguments of utility functions
+      ipv6/addrconf: constify ctl_table arguments of utility functions
+      ipv6/ndisc: constify ctl_table arguments of utility function
+      ipvs: constify ctl_table arguments of utility functions
+      sysctl: constify ctl_table arguments of utility function
+      sysctl: treewide: constify the ctl_table argument of handlers
+
+ arch/arm64/kernel/armv8_deprecated.c      |   2 +-
+ arch/arm64/kernel/fpsimd.c                |   2 +-
+ arch/s390/appldata/appldata_base.c        |  10 +--
+ arch/s390/kernel/debug.c                  |   2 +-
+ arch/s390/kernel/topology.c               |   2 +-
+ arch/s390/mm/cmm.c                        |   6 +-
+ arch/x86/kernel/itmt.c                    |   2 +-
+ drivers/cdrom/cdrom.c                     |   6 +-
+ drivers/char/random.c                     |   5 +-
+ drivers/macintosh/mac_hid.c               |   2 +-
+ drivers/net/vrf.c                         |   2 +-
+ drivers/parport/procfs.c                  |  14 ++--
+ drivers/perf/arm_pmuv3.c                  |   6 +-
+ drivers/perf/riscv_pmu_sbi.c              |   2 +-
+ fs/coredump.c                             |   4 +-
+ fs/dcache.c                               |   3 +-
+ fs/drop_caches.c                          |   4 +-
+ fs/exec.c                                 |   6 +-
+ fs/file_table.c                           |   3 +-
+ fs/fs-writeback.c                         |   2 +-
+ fs/inode.c                                |   3 +-
+ fs/pipe.c                                 |   2 +-
+ fs/quota/dquot.c                          |   4 +-
+ fs/xfs/xfs_sysctl.c                       |  33 ++++-----
+ include/linux/filter.h                    |   2 +-
+ include/linux/ftrace.h                    |   4 +-
+ include/linux/mm.h                        |   8 +--
+ include/linux/perf_event.h                |   6 +-
+ include/linux/security.h                  |   2 +-
+ include/linux/sysctl.h                    |  36 +++++-----
+ include/linux/vmstat.h                    |   6 +-
+ include/linux/writeback.h                 |   2 +-
+ include/net/ndisc.h                       |   2 +-
+ include/net/neighbour.h                   |   6 +-
+ include/net/netfilter/nf_hooks_lwtunnel.h |   2 +-
+ ipc/ipc_sysctl.c                          |  14 ++--
+ kernel/bpf/syscall.c                      |   4 +-
+ kernel/delayacct.c                        |   5 +-
+ kernel/events/callchain.c                 |   2 +-
+ kernel/events/core.c                      |   9 ++-
+ kernel/fork.c                             |   2 +-
+ kernel/hung_task.c                        |   7 +-
+ kernel/kexec_core.c                       |   2 +-
+ kernel/kprobes.c                          |   2 +-
+ kernel/latencytop.c                       |   5 +-
+ kernel/pid_namespace.c                    |   4 +-
+ kernel/pid_sysctl.h                       |   2 +-
+ kernel/printk/internal.h                  |   2 +-
+ kernel/printk/printk.c                    |   2 +-
+ kernel/printk/sysctl.c                    |   6 +-
+ kernel/sched/core.c                       |  15 ++--
+ kernel/sched/rt.c                         |  20 +++---
+ kernel/sched/topology.c                   |   6 +-
+ kernel/seccomp.c                          |   7 +-
+ kernel/stackleak.c                        |  12 ++--
+ kernel/sysctl.c                           | 109 ++++++++++++++++--------------
+ kernel/time/timer.c                       |   4 +-
+ kernel/trace/ftrace.c                     |   2 +-
+ kernel/trace/trace.c                      |   2 +-
+ kernel/trace/trace_events_user.c          |   3 +-
+ kernel/trace/trace_stack.c                |   2 +-
+ kernel/umh.c                              |   4 +-
+ kernel/utsname_sysctl.c                   |   6 +-
+ kernel/watchdog.c                         |  15 ++--
+ mm/compaction.c                           |  17 +++--
+ mm/hugetlb.c                              |  20 +++---
+ mm/page-writeback.c                       |  27 +++++---
+ mm/page_alloc.c                           |  43 ++++++++----
+ mm/util.c                                 |  15 ++--
+ mm/vmstat.c                               |   6 +-
+ net/bridge/br_netfilter_hooks.c           |   2 +-
+ net/core/neighbour.c                      |  26 ++++---
+ net/core/sysctl_net_core.c                |  24 ++++---
+ net/ipv4/devinet.c                        |   6 +-
+ net/ipv4/route.c                          |   4 +-
+ net/ipv4/sysctl_net_ipv4.c                |  40 ++++++-----
+ net/ipv6/addrconf.c                       |  38 ++++++-----
+ net/ipv6/ndisc.c                          |   7 +-
+ net/ipv6/route.c                          |   4 +-
+ net/ipv6/sysctl_net_ipv6.c                |   6 +-
+ net/mpls/af_mpls.c                        |   4 +-
+ net/netfilter/ipvs/ip_vs_ctl.c            |  19 +++---
+ net/netfilter/nf_conntrack_standalone.c   |   2 +-
+ net/netfilter/nf_hooks_lwtunnel.c         |   2 +-
+ net/netfilter/nf_log.c                    |   4 +-
+ net/phonet/sysctl.c                       |   2 +-
+ net/rds/tcp.c                             |   4 +-
+ net/sctp/sysctl.c                         |  30 ++++----
+ net/sunrpc/sysctl.c                       |   5 +-
+ net/sunrpc/xprtrdma/svc_rdma.c            |   2 +-
+ security/apparmor/lsm.c                   |   2 +-
+ security/min_addr.c                       |   2 +-
+ security/yama/yama_lsm.c                  |   2 +-
+ 93 files changed, 467 insertions(+), 376 deletions(-)
+---
+base-commit: a1e7655b77e3391b58ac28256789ea45b1685abb
+change-id: 20231226-sysctl-const-handler-883b5eba7e80
+
+Best regards,
+-- 
+Thomas Weißschuh <linux@weissschuh.net>
+
