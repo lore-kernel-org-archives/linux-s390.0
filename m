@@ -1,379 +1,222 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C540E1FA4
-	for <linux-s390@vger.kernel.org>; Sat, 16 Mar 2024 02:52:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA984125C9;
+	Sat, 16 Mar 2024 16:17:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710557576; cv=none; b=hivMitcADqtYI500FYPH8xTOUOABfr43wEmToZlWkiCd4SRWynnHSXhSxk7Tz2l+IB6Di5cPf5FxEM0IPevrp1u0+xVwOPT3InlWcbWd9aWe1Wdw5ukI/hx6iAsOYYCcaLCMcXIXKlJ+/pglY/YwjyHSusgjzIiU1dXIAbevZBA=
+	t=1710605822; cv=none; b=lqYOtUwVYNO2djASP9frXi2Fu3x/JyCgfli0zJbeH5KaqRDJsjuVG2Go3pTGsWfb4ETnKpmr9TogGJGVgEmSQUDtRYqQuA5HN2C4/soPMWfdRUlXXZHofs0UTE/z/FZvQ1lrnWn/an5KHgmfP3u1Rq5pvWRyeYDDVnWbmW8Ihjs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710557576; c=relaxed/simple;
-	bh=ONoYL4XYOrO/6V38FWRzOpd8quw8P9OYCw818URL5SI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=g03Q3KkahoP8M51VG/bK5wOdz1Bfef8AthiUcL/97jQQzBsi9e8rPqLOaBja82KLzrslM3NqlF50nwfY5rgUGCl5JOOBJGhQzM74p490AoRC1NDMYtvTfekP204qEBZbUY+xVomO+AVK8YbLC3k1/HIGmcbA8Ekbx1QTD72kZXg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com; spf=pass smtp.mailfrom=fromorbit.com; dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b=OS38TBQX; arc=none smtp.client-ip=209.85.216.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fromorbit.com
+	s=arc-20240116; t=1710605822; c=relaxed/simple;
+	bh=aU1sWavNspkwe5ksK+PmDUc1vOgq01LGH753my8dzqQ=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=TTjkGQEI+04QnooQ24LztLBkHk9pz6cVT6w0+RNv731tnw0zAgROcFpVwXi+0TOTitIJ+jS5d4JPDatUhnD4e2Uf0zy1mKH4CpShVTGTNlqafK2XHdp2vMFxGol82mU6PYoC7Z//B0lefF8eCF62hhyfoNjGjPXJ8DQelKX0Stk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cGuK5ex0; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b="OS38TBQX"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-29dfad24f36so720658a91.0
-        for <linux-s390@vger.kernel.org>; Fri, 15 Mar 2024 19:52:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cGuK5ex0"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-1e00896dfdcso1043105ad.1;
+        Sat, 16 Mar 2024 09:17:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fromorbit-com.20230601.gappssmtp.com; s=20230601; t=1710557573; x=1711162373; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=bBoX08MQ+GnGsn3Ys1XDLWs0vSpU6QZ104y6JQ1iJRA=;
-        b=OS38TBQXdJvmCPcBqtVgseCBD92KPMKjZB5CNB1A04ssBRuxFtzhRPn1GciuiaZp/t
-         ZH5bJFCL/HpWMw666xaF9ceynO1+jhCFyauCWBZUGDOD1jkHbl+xoO/jG6Zp360GwjSj
-         i66QeBxSRG87tkQkjPc2WA1M6sUtCwvS7DgrAnPORxwYyGeQf+wuJHESEF51ACE4d88K
-         v4nAXQtE+CrgRNknVt8a/+cuKu8aypzYeDig59JPHUtRYsAH3lqkfrJopeugL+PkOFJP
-         r/+/nAs2w8rmwShkaEIQMuFTq7jUIHueDrkctHW9aB3EK7WEeQJ4EnyrT3UmzNQXv8kk
-         1a+A==
+        d=gmail.com; s=20230601; t=1710605820; x=1711210620; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:references:cc:to
+         :from:content-language:subject:user-agent:mime-version:date
+         :message-id:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ad79nxUV3suzPFik/TywaNEexbwGs2i2M0+RnoUpzx8=;
+        b=cGuK5ex0gNh7QJgOK0f9OKHLbip/0cyoX5kqaLN2wxGv+cMnIAvo1rdA/vwfQY/s08
+         leFdVLQJlJsWEVsexC9FKLhxlM36tklmVDN0f4tVHtc0XqAaVPp+KzkVoZVJxYULuZzR
+         BdOvKv8ekGlWpmrt9l+2yUseE5LK8mJKLE12sfhmOMiO9/nl3P6KLkZYIOGmu5JJg8k8
+         qLDSszqxnPPO+dTMPzVno9q6tFPueB5BgHBeTWw7+0IgFZ2Xalrnt4iRJ6tsooT8Mual
+         0ltLsA4XJmbs76GPLVg4gB9veMdDqEKapPDS/UcNqgfVyXPOxN1hOnqSrSsXfTLinaXQ
+         RlZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710557573; x=1711162373;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=bBoX08MQ+GnGsn3Ys1XDLWs0vSpU6QZ104y6JQ1iJRA=;
-        b=a8SJQbWfJBq0nsjAv3+cSwSDjNj/kZ9G8Ue43PNLuexVCgh6lkA30Cu6JsXVsbnsmV
-         Ec7n0hvtN05o0TObwfvEAAeakKceVIGTdjZMToRLPR+WMWqHQ+fpepmfweu6jd4iofAS
-         O8jPcttp2Oqb2ZEuCin4XcYCXcXH3IdzNy4PaYN0BcHt1hhjwugGceAQaF+7M0cYh7Lk
-         2T2olcx4XoVz/FwpOWtch77Z4kdyaZzI03M1HoI8Mxy3PScVeKT7TfH9KzevFXez6ZMa
-         7Twtnpe22wyEmMnUt4/JEXw+wvi0i7c3uI0e2X3ZnYeosHKjKFmuB0u4/1rJ5ZRAUGWP
-         9zcw==
-X-Forwarded-Encrypted: i=1; AJvYcCWL/9ynKsYc5AFapcejgWa9Pw7JSuK1Sav+nENht7BRnZquG5yFrF31Dk30ZdJO+mSBVx+kPkQElhd91OmK21/ls8Zzmum3+BT/MQ==
-X-Gm-Message-State: AOJu0YwyAkXA7ODPAEnB9pM7caaulXfHjqYAaEvV/aE8/EJlOt/GGnvG
-	BvakYaMynCFezqCHPfDqPoEslOt3tOA/ptkCO/A3AoYSqe2ziUulYmNUo2VvLVA=
-X-Google-Smtp-Source: AGHT+IF+mhHYlAObRzpfXYn3IGnPDczeVjZaH7QVUqvtIq9UdyOULCBCqzY79zAwu/GemLxZ182Fng==
-X-Received: by 2002:a17:903:2446:b0:1dd:9cb3:8f96 with SMTP id l6-20020a170903244600b001dd9cb38f96mr6055795pls.42.1710557572964;
-        Fri, 15 Mar 2024 19:52:52 -0700 (PDT)
-Received: from dread.disaster.area (pa49-180-185-123.pa.nsw.optusnet.com.au. [49.180.185.123])
-        by smtp.gmail.com with ESMTPSA id f5-20020a170902684500b001dddbb58d5esm4736209pln.109.2024.03.15.19.52.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Mar 2024 19:52:52 -0700 (PDT)
-Received: from dave by dread.disaster.area with local (Exim 4.96)
-	(envelope-from <david@fromorbit.com>)
-	id 1rlKAC-002Wnj-2F;
-	Sat, 16 Mar 2024 13:52:48 +1100
-Date: Sat, 16 Mar 2024 13:52:48 +1100
-From: Dave Chinner <david@fromorbit.com>
-To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Kees Cook <keescook@chromium.org>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Martin KaFai Lau <martin.lau@linux.dev>,
-	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
-	Yonghong Song <yonghong.song@linux.dev>,
-	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@google.com>,
-	Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-	Muchun Song <muchun.song@linux.dev>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	David Ahern <dsahern@kernel.org>, Simon Horman <horms@verge.net.au>,
-	Julian Anastasov <ja@ssi.bg>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Jozsef Kadlecsik <kadlec@netfilter.org>,
-	Florian Westphal <fw@strlen.de>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Joel Granados <j.granados@samsung.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Phillip Potter <phil@philpotter.co.uk>,
-	Theodore Ts'o <tytso@mit.edu>,
-	"Jason A. Donenfeld" <Jason@zx2c4.com>,
-	Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Atish Patra <atishp@atishpatra.org>,
-	Anup Patel <anup@brainfault.org>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
-	Eric Biederman <ebiederm@xmission.com>,
-	Chandan Babu R <chandan.babu@oracle.com>,
-	"Darrick J. Wong" <djwong@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Namhyung Kim <namhyung@kernel.org>,
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-	Ian Rogers <irogers@google.com>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Balbir Singh <bsingharora@gmail.com>,
-	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-	Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-	Petr Mladek <pmladek@suse.com>,
-	John Ogness <john.ogness@linutronix.de>,
-	Sergey Senozhatsky <senozhatsky@chromium.org>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-	Daniel Bristot de Oliveira <bristot@redhat.com>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Andy Lutomirski <luto@amacapital.net>,
-	Will Drewry <wad@chromium.org>, John Stultz <jstultz@google.com>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Remi Denis-Courmont <courmisch@gmail.com>,
-	Allison Henderson <allison.henderson@oracle.com>,
-	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-	Xin Long <lucien.xin@gmail.com>,
-	Chuck Lever <chuck.lever@oracle.com>,
-	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>,
-	Olga Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>,
-	Tom Talpey <tom@talpey.com>,
-	Trond Myklebust <trond.myklebust@hammerspace.com>,
-	Anna Schumaker <anna@kernel.org>,
-	John Johansen <john.johansen@canonical.com>,
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	Alexander Popov <alex.popov@linux.com>,
-	linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org,
-	lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, linux-fsdevel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-xfs@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, kexec@lists.infradead.org,
-	bridge@lists.linux.dev, linux-rdma@vger.kernel.org,
-	rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
-	linux-nfs@vger.kernel.org, apparmor@lists.ubuntu.com,
-	linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 11/11] sysctl: treewide: constify the ctl_table argument
- of handlers
-Message-ID: <ZfUJgML8tk6RWqOC@dread.disaster.area>
-References: <20240315-sysctl-const-handler-v1-0-1322ac7cb03d@weissschuh.net>
- <20240315-sysctl-const-handler-v1-11-1322ac7cb03d@weissschuh.net>
+        d=1e100.net; s=20230601; t=1710605820; x=1711210620;
+        h=content-transfer-encoding:in-reply-to:autocrypt:references:cc:to
+         :from:content-language:subject:user-agent:mime-version:date
+         :message-id:sender:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ad79nxUV3suzPFik/TywaNEexbwGs2i2M0+RnoUpzx8=;
+        b=Ufi1hWjtjo2KPnZulGkzY1rZ2nhfavMJCb0OpVVPLyj5/1BAUA1973kvUtssNJMj2I
+         5aPnhOBShZnRCb1F94Rt4gQu4yP2sRdtvFosxWGTno65JeNnuglgy9sMsDl8O52yT2Zf
+         hP7Ai83X9AU+eXLWEYqm5MQLVj/Vo5YE25W1iYb+DK7zj8rhPj7EZ//M1I2KAdMx3wCQ
+         p/oaHNNmYeFGmov1Cltyv0N3Ii6lt4ZQ3BW7ex2EBkARmC3l629u/8lUtaW7cxULVpdQ
+         qRds5Mslxn1JdzFlT2jBI3U13UkzBOrXLAopYGZRwteKbXrTG+H2d5Cie2WVzwPzGBPf
+         FrLg==
+X-Forwarded-Encrypted: i=1; AJvYcCU+/HV9B6NL5LvmAc58xTw3amYlt6PsMepEa40hgBnojcbj6lnuJdypwzKmfsTEhoAUqItiRnp5OyHSW3oxZhS8KUPXbZijMBLvinvPz1e63RZz2UdTeW1cbcj7fH8S1KcFwuPCIxkwvP2I/5vROE1AViH9MILZLDVNEYcPK4ql6HZambO6VYysjdzJFuo7havWfN7hK2QmXAEpv2MSScwdZunYNWcKoC6J9KkWl39Wo5iIAwTZYcXdAPAlU2Nw2kMY+gE9uWcq/33cBXtwDtiwKCLfjjno5A==
+X-Gm-Message-State: AOJu0YzHI0RpE+CCwasMkesD2vYE9FRtpsBV/PwnIXclEGyTOhX2Sjx4
+	R/ycoE697Jf/HQo34s8g15+ZLBAHwNW5NLbMiVQZSlSDTrMPaA829EITZglj
+X-Google-Smtp-Source: AGHT+IGA+TA01Bxsw9/mfWXt9gpOVUmZyN7CpbFyOEGBY8brlAsGWTPBr93mRcRuI84f8oFkGg0zAg==
+X-Received: by 2002:a17:903:22c6:b0:1e0:9a7:e606 with SMTP id y6-20020a17090322c600b001e009a7e606mr552821plg.0.1710605820013;
+        Sat, 16 Mar 2024 09:17:00 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id z17-20020a170903409100b001dd88a5dc47sm5958808plc.290.2024.03.16.09.16.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 16 Mar 2024 09:16:59 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <04f34097-7788-490d-a9c2-82b44bf6af44@roeck-us.net>
+Date: Sat, 16 Mar 2024 09:16:56 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 00/14] Add support for suppressing warning backtraces
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>,
+ Arnd Bergmann <arnd@arndb.de>, =?UTF-8?Q?Ma=C3=ADra_Canal?=
+ <mcanal@igalia.com>, Dan Carpenter <dan.carpenter@linaro.org>,
+ Kees Cook <keescook@chromium.org>, Daniel Diaz <daniel.diaz@linaro.org>,
+ David Gow <davidgow@google.com>, Arthur Grillo <arthurgrillo@riseup.net>,
+ Brendan Higgins <brendan.higgins@linux.dev>,
+ Naresh Kamboju <naresh.kamboju@linaro.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Andrew Morton <akpm@linux-foundation.org>, Maxime Ripard
+ <mripard@kernel.org>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?=
+ <ville.syrjala@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org,
+ kunit-dev@googlegroups.com, linux-arch@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ loongarch@lists.linux.dev, netdev@lists.linux.dev
+References: <20240312170309.2546362-1-linux@roeck-us.net>
+ <CAMuHMdUkvagJVEfnhq=Nx2jnmdS0Ax+zy1CvyN0k7k1EwUpu+g@mail.gmail.com>
+ <6d9269c0-bd38-4965-a454-4358e0a182e3@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+In-Reply-To: <6d9269c0-bd38-4965-a454-4358e0a182e3@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240315-sysctl-const-handler-v1-11-1322ac7cb03d@weissschuh.net>
 
-On Fri, Mar 15, 2024 at 09:48:09PM +0100, Thomas Wei�schuh wrote:
-> Adapt the proc_hander function signature to make it clear that handlers
-> are not supposed to modify their ctl_table argument.
+On 3/14/24 07:37, Guenter Roeck wrote:
+> On 3/14/24 06:36, Geert Uytterhoeven wrote:
+>> Hi Günter,
+>>
+>> On Tue, Mar 12, 2024 at 6:03 PM Guenter Roeck <linux@roeck-us.net> wrote:
+>>> Some unit tests intentionally trigger warning backtraces by passing bad
+>>> parameters to kernel API functions. Such unit tests typically check the
+>>> return value from such calls, not the existence of the warning backtrace.
+>>>
+>>> Such intentionally generated warning backtraces are neither desirable
+>>> nor useful for a number of reasons.
+>>> - They can result in overlooked real problems.
+>>> - A warning that suddenly starts to show up in unit tests needs to be
+>>>    investigated and has to be marked to be ignored, for example by
+>>>    adjusting filter scripts. Such filters are ad-hoc because there is
+>>>    no real standard format for warnings. On top of that, such filter
+>>>    scripts would require constant maintenance.
+>>>
+>>> One option to address problem would be to add messages such as "expected
+>>> warning backtraces start / end here" to the kernel log.  However, that
+>>> would again require filter scripts, it might result in missing real
+>>> problematic warning backtraces triggered while the test is running, and
+>>> the irrelevant backtrace(s) would still clog the kernel log.
+>>>
+>>> Solve the problem by providing a means to identify and suppress specific
+>>> warning backtraces while executing test code. Support suppressing multiple
+>>> backtraces while at the same time limiting changes to generic code to the
+>>> absolute minimum. Architecture specific changes are kept at minimum by
+>>> retaining function names only if both CONFIG_DEBUG_BUGVERBOSE and
+>>> CONFIG_KUNIT are enabled.
+>>>
+>>> The first patch of the series introduces the necessary infrastructure.
+>>> The second patch introduces support for counting suppressed backtraces.
+>>> This capability is used in patch three to implement unit tests.
+>>> Patch four documents the new API.
+>>> The next two patches add support for suppressing backtraces in drm_rect
+>>> and dev_addr_lists unit tests. These patches are intended to serve as
+>>> examples for the use of the functionality introduced with this series.
+>>> The remaining patches implement the necessary changes for all
+>>> architectures with GENERIC_BUG support.
+>>
+>> Thanks for your series!
+>>
+>> I gave it a try on m68k, just running backtrace-suppression-test,
+>> and that seems to work fine.
+>>
+>>> Design note:
+>>>    Function pointers are only added to the __bug_table section if both
+>>>    CONFIG_KUNIT and CONFIG_DEBUG_BUGVERBOSE are enabled to avoid image
+>>>    size increases if CONFIG_KUNIT=n. There would be some benefits to
+>>>    adding those pointers all the time (reduced complexity, ability to
+>>>    display function names in BUG/WARNING messages). That change, if
+>>>    desired, can be made later.
+>>
+>> Unfortunately this also increases kernel size in the CONFIG_KUNIT=m
+>> case (ca. 80 KiB for atari_defconfig), making it less attractive to have
+>> kunit and all tests enabled as modules in my standard kernel.
+>>
 > 
-> This is a prerequisite to moving the static ctl_table structs into
-> .rodata.
-> By migrating all handlers at once a lengthy transition can be avoided.
+> Good point. Indeed, it does. I wanted to avoid adding a configuration option,
+> but maybe I should add it after all. How about something like this ?
 > 
-> The patch was mostly generated by coccinelle with the following script:
+> +config KUNIT_SUPPRESS_BACKTRACE
+> +       bool "KUnit - Enable backtrace suppression"
+> +       default y
+> +       help
+> +         Enable backtrace suppression for KUnit. If enabled, backtraces
+> +         generated intentionally by KUnit tests can be suppressed. Disable
+> +         to reduce kernel image size if image size is more important than
+> +         suppression of backtraces generated by KUnit tests.
+> +
 > 
->     @@
->     identifier func, ctl, write, buffer, lenp, ppos;
->     @@
-> 
->     int func(
->     - struct ctl_table *ctl,
->     + const struct ctl_table *ctl,
->       int write, void *buffer, size_t *lenp, loff_t *ppos)
->     { ... }
 
-Which seems to have screwed up the formatting of the XFS code...
+Any more comments / feedback on this ? Otherwise I'll introduce the
+above configuration option in v2 of the series.
 
-> diff --git a/fs/xfs/xfs_sysctl.c b/fs/xfs/xfs_sysctl.c
-> index a191f6560f98..a3ca192eca79 100644
-> --- a/fs/xfs/xfs_sysctl.c
-> +++ b/fs/xfs/xfs_sysctl.c
-> @@ -10,12 +10,11 @@ static struct ctl_table_header *xfs_table_header;
->  
->  #ifdef CONFIG_PROC_FS
->  STATIC int
-> -xfs_stats_clear_proc_handler(
-> -	struct ctl_table	*ctl,
-> -	int			write,
-> -	void			*buffer,
-> -	size_t			*lenp,
-> -	loff_t			*ppos)
-> +xfs_stats_clear_proc_handler(const struct ctl_table *ctl,
-> +			     int			write,
-> +			     void			*buffer,
-> +			     size_t			*lenp,
-> +			     loff_t			*ppos)
+In this context, any suggestions if it should be enabled or disabled by
+default ? I personally think it would be more important to be able to
+suppress backtraces, but I understand that others may not be willing to
+accept a ~1% image size increase with CONFIG_KUNIT=m unless
+KUNIT_SUPPRESS_BACKTRACE is explicitly disabled.
 
-... because this doesn't match any format I've ever seen in the
-kernel. The diff for this change shold be just:
+Thanks,
+Guenter
 
-@@ -10,7 +10,7 @@ static struct ctl_table_header *xfs_table_header;
- #ifdef CONFIG_PROC_FS
- STATIC int
- xfs_stats_clear_proc_handler(
--	struct ctl_table	*ctl,
-+	const struct ctl_table	*ctl,
- 	int			write,
- 	void			*buffer,
- 	size_t			*lenp,
-
->  {
->  	int		ret, *valp = ctl->data;
->  
-> @@ -30,12 +29,11 @@ xfs_stats_clear_proc_handler(
->  }
->  
->  STATIC int
-> -xfs_panic_mask_proc_handler(
-> -	struct ctl_table	*ctl,
-> -	int			write,
-> -	void			*buffer,
-> -	size_t			*lenp,
-> -	loff_t			*ppos)
-> +xfs_panic_mask_proc_handler(const struct ctl_table *ctl,
-> +			    int			write,
-> +			    void			*buffer,
-> +			    size_t			*lenp,
-> +			    loff_t			*ppos)
->  {
->  	int		ret, *valp = ctl->data;
->  
-> @@ -51,12 +49,11 @@ xfs_panic_mask_proc_handler(
->  #endif /* CONFIG_PROC_FS */
->  
->  STATIC int
-> -xfs_deprecated_dointvec_minmax(
-> -	struct ctl_table	*ctl,
-> -	int			write,
-> -	void			*buffer,
-> -	size_t			*lenp,
-> -	loff_t			*ppos)
-> +xfs_deprecated_dointvec_minmax(const struct ctl_table *ctl,
-> +			       int			write,
-> +			       void			*buffer,
-> +			       size_t			*lenp,
-> +			       loff_t			*ppos)
->  {
->  	if (write) {
->  		printk_ratelimited(KERN_WARNING
-
-And these need fixing as well.
-
-A further quick glance at the patch reveals that there are other
-similar screwed up conversions as well.
-
-> diff --git a/kernel/delayacct.c b/kernel/delayacct.c
-> index 6f0c358e73d8..513791ef573d 100644
-> --- a/kernel/delayacct.c
-> +++ b/kernel/delayacct.c
-> @@ -44,8 +44,9 @@ void delayacct_init(void)
->  }
->  
->  #ifdef CONFIG_PROC_SYSCTL
-> -static int sysctl_delayacct(struct ctl_table *table, int write, void *buffer,
-> -		     size_t *lenp, loff_t *ppos)
-> +static int sysctl_delayacct(const struct ctl_table *table, int write,
-> +			    void *buffer,
-> +			    size_t *lenp, loff_t *ppos)
->  {
->  	int state = delayacct_on;
->  	struct ctl_table t;
-
-Like this.
-
-> diff --git a/kernel/events/core.c b/kernel/events/core.c
-> index 724e6d7e128f..e2955e0d9f44 100644
-> --- a/kernel/events/core.c
-> +++ b/kernel/events/core.c
-> @@ -450,7 +450,8 @@ static void update_perf_cpu_limits(void)
->  
->  static bool perf_rotate_context(struct perf_cpu_pmu_context *cpc);
->  
-> -int perf_event_max_sample_rate_handler(struct ctl_table *table, int write,
-> +int perf_event_max_sample_rate_handler(const struct ctl_table *table,
-> +				       int write,
->  				       void *buffer, size_t *lenp, loff_t *ppos)
->  {
->  	int ret;
-
-And this.
-
-> @@ -474,8 +475,10 @@ int perf_event_max_sample_rate_handler(struct ctl_table *table, int write,
->  
->  int sysctl_perf_cpu_time_max_percent __read_mostly = DEFAULT_CPU_TIME_MAX_PERCENT;
->  
-> -int perf_cpu_time_max_percent_handler(struct ctl_table *table, int write,
-> -		void *buffer, size_t *lenp, loff_t *ppos)
-> +int perf_cpu_time_max_percent_handler(const struct ctl_table *table,
-> +				      int write,
-> +				      void *buffer, size_t *lenp,
-> +				      loff_t *ppos)
->  {
->  	int ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
->  
-
-And this.
-
-> diff --git a/kernel/hung_task.c b/kernel/hung_task.c
-> index b2fc2727d654..003f0f5cb111 100644
-> --- a/kernel/hung_task.c
-> +++ b/kernel/hung_task.c
-> @@ -239,9 +239,10 @@ static long hung_timeout_jiffies(unsigned long last_checked,
->  /*
->   * Process updating of timeout sysctl
->   */
-> -static int proc_dohung_task_timeout_secs(struct ctl_table *table, int write,
-> -				  void *buffer,
-> -				  size_t *lenp, loff_t *ppos)
-> +static int proc_dohung_task_timeout_secs(const struct ctl_table *table,
-> +					 int write,
-> +					 void *buffer,
-> +					 size_t *lenp, loff_t *ppos)
->  {
->  	int ret;
->  
-
-And this.
-
-> diff --git a/kernel/latencytop.c b/kernel/latencytop.c
-> index 781249098cb6..0a5c22b19821 100644
-> --- a/kernel/latencytop.c
-> +++ b/kernel/latencytop.c
-> @@ -65,8 +65,9 @@ static struct latency_record latency_record[MAXLR];
->  int latencytop_enabled;
->  
->  #ifdef CONFIG_SYSCTL
-> -static int sysctl_latencytop(struct ctl_table *table, int write, void *buffer,
-> -		size_t *lenp, loff_t *ppos)
-> +static int sysctl_latencytop(const struct ctl_table *table, int write,
-> +			     void *buffer,
-> +			     size_t *lenp, loff_t *ppos)
->  {
->  	int err;
->  
-
-And this.
-
-I could go on, but there are so many examples of this in the patch
-that I think that it needs to be toosed away and regenerated in a
-way that doesn't trash the existing function parameter formatting.
-
--Dave.
--- 
-Dave Chinner
-david@fromorbit.com
