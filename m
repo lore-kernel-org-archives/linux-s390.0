@@ -1,222 +1,279 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA984125C9;
-	Sat, 16 Mar 2024 16:17:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5A7914285;
+	Sun, 17 Mar 2024 10:05:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710605822; cv=none; b=lqYOtUwVYNO2djASP9frXi2Fu3x/JyCgfli0zJbeH5KaqRDJsjuVG2Go3pTGsWfb4ETnKpmr9TogGJGVgEmSQUDtRYqQuA5HN2C4/soPMWfdRUlXXZHofs0UTE/z/FZvQ1lrnWn/an5KHgmfP3u1Rq5pvWRyeYDDVnWbmW8Ihjs=
+	t=1710669959; cv=none; b=Nncqgy9adbG6TRvvqWtg177PWVRJ19/MHDrn4LRyiVTTjKBl5WE/v05txfg0tdeYUIlXEAkT//mbQbYmqeuZDClxhKyBKGLzDXSoNL1QYPjNSW3p4AcI/52spb4EhEECk0qjeWYrAC48DOLMlpehm9zgxrBOg9kcrOE/0rlklLA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710605822; c=relaxed/simple;
-	bh=aU1sWavNspkwe5ksK+PmDUc1vOgq01LGH753my8dzqQ=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=TTjkGQEI+04QnooQ24LztLBkHk9pz6cVT6w0+RNv731tnw0zAgROcFpVwXi+0TOTitIJ+jS5d4JPDatUhnD4e2Uf0zy1mKH4CpShVTGTNlqafK2XHdp2vMFxGol82mU6PYoC7Z//B0lefF8eCF62hhyfoNjGjPXJ8DQelKX0Stk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cGuK5ex0; arc=none smtp.client-ip=209.85.214.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1710669959; c=relaxed/simple;
+	bh=NV/TTZCuo/5al+BZBoOqsYwB1SUeGJb4Uq78fGZSV0s=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=LA2v9B7fFoPXzpTOngy5IP5hX5F0rswbm7GxoNNLVlo7R90+pSR5QskGoXDUSd9plA3rUActe37Q8vdVK0gegJ1Sr7tAnhOdG4UGwgmaULweqtV4U4lTRB2ZwqntLdjuElQc0YP4oo7bBlfH89ViReDeXeBIbaXKUfyGAojS3p8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=w0QAir+1; arc=none smtp.client-ip=115.124.30.113
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cGuK5ex0"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-1e00896dfdcso1043105ad.1;
-        Sat, 16 Mar 2024 09:17:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710605820; x=1711210620; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:references:cc:to
-         :from:content-language:subject:user-agent:mime-version:date
-         :message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ad79nxUV3suzPFik/TywaNEexbwGs2i2M0+RnoUpzx8=;
-        b=cGuK5ex0gNh7QJgOK0f9OKHLbip/0cyoX5kqaLN2wxGv+cMnIAvo1rdA/vwfQY/s08
-         leFdVLQJlJsWEVsexC9FKLhxlM36tklmVDN0f4tVHtc0XqAaVPp+KzkVoZVJxYULuZzR
-         BdOvKv8ekGlWpmrt9l+2yUseE5LK8mJKLE12sfhmOMiO9/nl3P6KLkZYIOGmu5JJg8k8
-         qLDSszqxnPPO+dTMPzVno9q6tFPueB5BgHBeTWw7+0IgFZ2Xalrnt4iRJ6tsooT8Mual
-         0ltLsA4XJmbs76GPLVg4gB9veMdDqEKapPDS/UcNqgfVyXPOxN1hOnqSrSsXfTLinaXQ
-         RlZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710605820; x=1711210620;
-        h=content-transfer-encoding:in-reply-to:autocrypt:references:cc:to
-         :from:content-language:subject:user-agent:mime-version:date
-         :message-id:sender:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Ad79nxUV3suzPFik/TywaNEexbwGs2i2M0+RnoUpzx8=;
-        b=Ufi1hWjtjo2KPnZulGkzY1rZ2nhfavMJCb0OpVVPLyj5/1BAUA1973kvUtssNJMj2I
-         5aPnhOBShZnRCb1F94Rt4gQu4yP2sRdtvFosxWGTno65JeNnuglgy9sMsDl8O52yT2Zf
-         hP7Ai83X9AU+eXLWEYqm5MQLVj/Vo5YE25W1iYb+DK7zj8rhPj7EZ//M1I2KAdMx3wCQ
-         p/oaHNNmYeFGmov1Cltyv0N3Ii6lt4ZQ3BW7ex2EBkARmC3l629u/8lUtaW7cxULVpdQ
-         qRds5Mslxn1JdzFlT2jBI3U13UkzBOrXLAopYGZRwteKbXrTG+H2d5Cie2WVzwPzGBPf
-         FrLg==
-X-Forwarded-Encrypted: i=1; AJvYcCU+/HV9B6NL5LvmAc58xTw3amYlt6PsMepEa40hgBnojcbj6lnuJdypwzKmfsTEhoAUqItiRnp5OyHSW3oxZhS8KUPXbZijMBLvinvPz1e63RZz2UdTeW1cbcj7fH8S1KcFwuPCIxkwvP2I/5vROE1AViH9MILZLDVNEYcPK4ql6HZambO6VYysjdzJFuo7havWfN7hK2QmXAEpv2MSScwdZunYNWcKoC6J9KkWl39Wo5iIAwTZYcXdAPAlU2Nw2kMY+gE9uWcq/33cBXtwDtiwKCLfjjno5A==
-X-Gm-Message-State: AOJu0YzHI0RpE+CCwasMkesD2vYE9FRtpsBV/PwnIXclEGyTOhX2Sjx4
-	R/ycoE697Jf/HQo34s8g15+ZLBAHwNW5NLbMiVQZSlSDTrMPaA829EITZglj
-X-Google-Smtp-Source: AGHT+IGA+TA01Bxsw9/mfWXt9gpOVUmZyN7CpbFyOEGBY8brlAsGWTPBr93mRcRuI84f8oFkGg0zAg==
-X-Received: by 2002:a17:903:22c6:b0:1e0:9a7:e606 with SMTP id y6-20020a17090322c600b001e009a7e606mr552821plg.0.1710605820013;
-        Sat, 16 Mar 2024 09:17:00 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z17-20020a170903409100b001dd88a5dc47sm5958808plc.290.2024.03.16.09.16.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 16 Mar 2024 09:16:59 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <04f34097-7788-490d-a9c2-82b44bf6af44@roeck-us.net>
-Date: Sat, 16 Mar 2024 09:16:56 -0700
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="w0QAir+1"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1710669948; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=Xs4AZlvMl4Fo7WXSdHM4XqopP2U0m1w59oZIAYoLkWg=;
+	b=w0QAir+1GhBTKtID1lNyVruAUTRDdqxzTjUr1eZ3WBE7Dk47Q9ZzdsZly7kG3/SErMDEVfZrRs8mIkYnzf54xD/GBMebvTsdAVd6cOYECJeeLAwDJGYi5j2SbllKeLtON2Fi7INz84VJk9qGqI3lgTF2sCpGnFiPBz+GEz8EqfE=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W2c99J8_1710669945;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W2c99J8_1710669945)
+          by smtp.aliyun-inc.com;
+          Sun, 17 Mar 2024 18:05:47 +0800
+From: Wen Gu <guwen@linux.alibaba.com>
+To: wintera@linux.ibm.com,
+	twinkler@linux.ibm.com,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	wenjia@linux.ibm.com,
+	jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: [RFC PATCH net-next v4 00/11] net/smc: SMC intra-OS shortcut with loopback-ism
+Date: Sun, 17 Mar 2024 18:05:34 +0800
+Message-Id: <20240317100545.96663-1-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/14] Add support for suppressing warning backtraces
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>,
- Arnd Bergmann <arnd@arndb.de>, =?UTF-8?Q?Ma=C3=ADra_Canal?=
- <mcanal@igalia.com>, Dan Carpenter <dan.carpenter@linaro.org>,
- Kees Cook <keescook@chromium.org>, Daniel Diaz <daniel.diaz@linaro.org>,
- David Gow <davidgow@google.com>, Arthur Grillo <arthurgrillo@riseup.net>,
- Brendan Higgins <brendan.higgins@linux.dev>,
- Naresh Kamboju <naresh.kamboju@linaro.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Andrew Morton <akpm@linux-foundation.org>, Maxime Ripard
- <mripard@kernel.org>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?=
- <ville.syrjala@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>,
- Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org,
- kunit-dev@googlegroups.com, linux-arch@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- loongarch@lists.linux.dev, netdev@lists.linux.dev
-References: <20240312170309.2546362-1-linux@roeck-us.net>
- <CAMuHMdUkvagJVEfnhq=Nx2jnmdS0Ax+zy1CvyN0k7k1EwUpu+g@mail.gmail.com>
- <6d9269c0-bd38-4965-a454-4358e0a182e3@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-In-Reply-To: <6d9269c0-bd38-4965-a454-4358e0a182e3@roeck-us.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 3/14/24 07:37, Guenter Roeck wrote:
-> On 3/14/24 06:36, Geert Uytterhoeven wrote:
->> Hi Günter,
->>
->> On Tue, Mar 12, 2024 at 6:03 PM Guenter Roeck <linux@roeck-us.net> wrote:
->>> Some unit tests intentionally trigger warning backtraces by passing bad
->>> parameters to kernel API functions. Such unit tests typically check the
->>> return value from such calls, not the existence of the warning backtrace.
->>>
->>> Such intentionally generated warning backtraces are neither desirable
->>> nor useful for a number of reasons.
->>> - They can result in overlooked real problems.
->>> - A warning that suddenly starts to show up in unit tests needs to be
->>>    investigated and has to be marked to be ignored, for example by
->>>    adjusting filter scripts. Such filters are ad-hoc because there is
->>>    no real standard format for warnings. On top of that, such filter
->>>    scripts would require constant maintenance.
->>>
->>> One option to address problem would be to add messages such as "expected
->>> warning backtraces start / end here" to the kernel log.  However, that
->>> would again require filter scripts, it might result in missing real
->>> problematic warning backtraces triggered while the test is running, and
->>> the irrelevant backtrace(s) would still clog the kernel log.
->>>
->>> Solve the problem by providing a means to identify and suppress specific
->>> warning backtraces while executing test code. Support suppressing multiple
->>> backtraces while at the same time limiting changes to generic code to the
->>> absolute minimum. Architecture specific changes are kept at minimum by
->>> retaining function names only if both CONFIG_DEBUG_BUGVERBOSE and
->>> CONFIG_KUNIT are enabled.
->>>
->>> The first patch of the series introduces the necessary infrastructure.
->>> The second patch introduces support for counting suppressed backtraces.
->>> This capability is used in patch three to implement unit tests.
->>> Patch four documents the new API.
->>> The next two patches add support for suppressing backtraces in drm_rect
->>> and dev_addr_lists unit tests. These patches are intended to serve as
->>> examples for the use of the functionality introduced with this series.
->>> The remaining patches implement the necessary changes for all
->>> architectures with GENERIC_BUG support.
->>
->> Thanks for your series!
->>
->> I gave it a try on m68k, just running backtrace-suppression-test,
->> and that seems to work fine.
->>
->>> Design note:
->>>    Function pointers are only added to the __bug_table section if both
->>>    CONFIG_KUNIT and CONFIG_DEBUG_BUGVERBOSE are enabled to avoid image
->>>    size increases if CONFIG_KUNIT=n. There would be some benefits to
->>>    adding those pointers all the time (reduced complexity, ability to
->>>    display function names in BUG/WARNING messages). That change, if
->>>    desired, can be made later.
->>
->> Unfortunately this also increases kernel size in the CONFIG_KUNIT=m
->> case (ca. 80 KiB for atari_defconfig), making it less attractive to have
->> kunit and all tests enabled as modules in my standard kernel.
->>
-> 
-> Good point. Indeed, it does. I wanted to avoid adding a configuration option,
-> but maybe I should add it after all. How about something like this ?
-> 
-> +config KUNIT_SUPPRESS_BACKTRACE
-> +       bool "KUnit - Enable backtrace suppression"
-> +       default y
-> +       help
-> +         Enable backtrace suppression for KUnit. If enabled, backtraces
-> +         generated intentionally by KUnit tests can be suppressed. Disable
-> +         to reduce kernel image size if image size is more important than
-> +         suppression of backtraces generated by KUnit tests.
-> +
-> 
+This patch set acts as the second part of the new version of [1] (The first
+part can be referred from [2]), the updated things of this version are listed
+at the end.
 
-Any more comments / feedback on this ? Otherwise I'll introduce the
-above configuration option in v2 of the series.
+- Background
 
-In this context, any suggestions if it should be enabled or disabled by
-default ? I personally think it would be more important to be able to
-suppress backtraces, but I understand that others may not be willing to
-accept a ~1% image size increase with CONFIG_KUNIT=m unless
-KUNIT_SUPPRESS_BACKTRACE is explicitly disabled.
+SMC-D is now used in IBM z with ISM function to optimize network interconnect
+for intra-CPC communications. Inspired by this, we try to make SMC-D available
+on the non-s390 architecture through a software-implemented Emulated-ISM device,
+that is the loopback-ism device here, to accelerate inter-process or
+inter-containers communication within the same OS instance.
 
-Thanks,
-Guenter
+- Design
+
+This patch set includes 3 parts:
+
+ - Patch #1: some prepare work for loopback-ism.
+ - Patch #2-#7: implement loopback-ism device. Noted that loopback-ism now
+   serves only SMC and no userspace interface exposed.
+ - Patch #8-#11: memory copy optimization for intra-OS scenario.
+
+The loopback-ism device is designed as an ISMv2 device and not be limited to
+a specific net namespace, ends of both inter-process connection (1/1' in diagram
+below) or inter-container connection (2/2' in diagram below) can find the same
+available loopback-ism and choose it during the CLC handshake.
+
+ Container 1 (ns1)                              Container 2 (ns2)
+ +-----------------------------------------+    +-------------------------+
+ | +-------+      +-------+      +-------+ |    |        +-------+        |
+ | | App A |      | App B |      | App C | |    |        | App D |<-+     |
+ | +-------+      +---^---+      +-------+ |    |        +-------+  |(2') |
+ |     |127.0.0.1 (1')|             |192.168.0.11       192.168.0.12|     |
+ |  (1)|   +--------+ | +--------+  |(2)   |    | +--------+   +--------+ |
+ |     `-->|   lo   |-` |  eth0  |<-`      |    | |   lo   |   |  eth0  | |
+ +---------+--|---^-+---+-----|--+---------+    +-+--------+---+-^------+-+
+              |   |           |                                  |
+ Kernel       |   |           |                                  |
+ +----+-------v---+-----------v----------------------------------+---+----+
+ |    |                            TCP                               |    |
+ |    |                                                              |    |
+ |    +--------------------------------------------------------------+    |
+ |                                                                        |
+ |                           +--------------+                             |
+ |                           | smc loopback |                             |
+ +---------------------------+--------------+-----------------------------+
+
+loopback-ism device creates DMBs (shared memory) for each connection peer.
+Since data transfer occurs within the same kernel, the sndbuf of each peer
+is only a descriptor and point to the same memory region as peer DMB, so that
+the data copy from sndbuf to peer DMB can be avoided in loopback-ism case.
+
+ Container 1 (ns1)                              Container 2 (ns2)
+ +-----------------------------------------+    +-------------------------+
+ | +-------+                               |    |        +-------+        |
+ | | App C |-----+                         |    |        | App D |        |
+ | +-------+     |                         |    |        +-^-----+        |
+ |               |                         |    |          |              |
+ |           (2) |                         |    |     (2') |              |
+ |               |                         |    |          |              |
+ +---------------|-------------------------+    +----------|--------------+
+                 |                                         |
+ Kernel          |                                         |
+ +---------------|-----------------------------------------|--------------+
+ | +--------+ +--v-----+                           +--------+ +--------+  |
+ | |dmb_desc| |snd_desc|                           |dmb_desc| |snd_desc|  |
+ | +-----|--+ +--|-----+                           +-----|--+ +--------+  |
+ | +-----|--+    |                                 +-----|--+             |
+ | | DMB C  |    +---------------------------------| DMB D  |             |
+ | +--------+                                      +--------+             |
+ |                                                                        |
+ |                           +--------------+                             |
+ |                           | smc loopback |                             |
+ +---------------------------+--------------+-----------------------------+
+
+- Benchmark Test
+
+ * Test environments:
+      - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
+      - SMC sndbuf/DMB size 1MB.
+
+ * Test object:
+      - TCP: run on TCP loopback.
+      - SMC lo: run on SMC loopback-ism.
+
+1. ipc-benchmark (see [3])
+
+ - ./<foo> -c 1000000 -s 100
+
+                            TCP                  SMC-lo
+Message
+rate (msg/s)              81433                  143938(+76.75%)
+
+2. sockperf
+
+ - serv: <smc_run> taskset -c <cpu> sockperf sr --tcp
+ - clnt: <smc_run> taskset -c <cpu> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
+
+                            TCP                  SMC-lo
+Bandwidth(MBps)         4903.07                 7978.69(+62.73%)
+Latency(us)               6.095                   3.539(-41.94%)
+
+3. nginx/wrk
+
+ - serv: <smc_run> nginx
+ - clnt: <smc_run> wrk -t 8 -c 1000 -d 30 http://127.0.0.1:80
+
+                           TCP                   SMC-lo
+Requests/s           161665.67                244272.41(+51.10%)
+
+4. redis-benchmark
+
+ - serv: <smc_run> redis-server
+ - clnt: <smc_run> redis-benchmark -h 127.0.0.1 -q -t set,get -n 400000 -c 200 -d 1024
+
+                           TCP                   SMC-lo
+GET(Requests/s)       88790.23                117474.30(+32.31%)
+SET(Requests/s)       87508.20                118623.96(+35.57%)
+
+
+Change log:
+
+RFC v4->v3:
+- The merge window of v6.9 is open, so post this series as an RFC.
+- Patch #6: since some information fed back by smc_nl_handle_smcd_dev() dose
+  not apply to Emulated-ISM (including loopback-ism here), loopback-ism is
+  not exposed through smc netlink for the time being. we may refactor this
+  part when smc netlink interface is updated.
+
+v3->v2:
+Link: https://lore.kernel.org/netdev/20240312142743.41406-1-guwen@linux.alibaba.com/
+- Patch #11: use tasklet_schedule(&conn->rx_tsklet) instead of smcd_cdc_rx_handler()
+  to avoid possible recursive locking of conn->send_lock and use {read|write}_lock_bh()
+  to acquire dmb_ht_lock.
+
+v2->v1:
+Link: https://lore.kernel.org/netdev/20240307095536.29648-1-guwen@linux.alibaba.com/
+- All the patches: changed the term virtual-ISM to Emulated-ISM as defined by SMCv2.1.
+- Patch #3: optimized the description of SMC_LO config. Avoid exposing loopback-ism
+  to sysfs and remove all the knobs until future definition clear.
+- Patch #3: try to make lockdep happy by using read_lock_bh() in smc_lo_move_data().
+- Patch #6: defaultly use physical contiguous DMB buffers.
+- Patch #11: defaultly enable DMB no-copy for loopback-ism and free the DMB in
+  unregister_dmb or detach_dmb when dmb_node->refcnt reaches 0, instead of using
+  wait_event to keep waiting in unregister_dmb.
+
+v1->RFC:
+Link: https://lore.kernel.org/netdev/20240111120036.109903-1-guwen@linux.alibaba.com/
+- Patch #9: merge rx_bytes and tx_bytes as xfer_bytes statistics:
+  /sys/devices/virtual/smc/loopback-ism/xfer_bytes
+- Patch #10: add support_dmb_nocopy operation to check if SMC-D device supports
+  merging sndbuf with peer DMB.
+- Patch #13 & #14: introduce loopback-ism device control of DMB memory type and
+  control of whether to merge sndbuf and DMB. They can be respectively set by:
+  /sys/devices/virtual/smc/loopback-ism/dmb_type
+  /sys/devices/virtual/smc/loopback-ism/dmb_copy
+  The motivation for these two control is that a performance bottleneck was
+  found when using vzalloced DMB and sndbuf is merged with DMB, and there are
+  many CPUs and CONFIG_HARDENED_USERCOPY is set [4]. The bottleneck is caused
+  by the lock contention in vmap_area_lock [5] which is involved in memcpy_from_msg()
+  or memcpy_to_msg(). Currently, Uladzislau Rezki is working on mitigating the
+  vmap lock contention [6]. It has significant effects, but using virtual memory
+  still has additional overhead compared to using physical memory.
+  So this new version provides controls of dmb_type and dmb_copy to suit
+  different scenarios.
+- Some minor changes and comments improvements.
+
+RFC->old version([1]):
+Link: https://lore.kernel.org/netdev/1702214654-32069-1-git-send-email-guwen@linux.alibaba.com/
+- Patch #1: improve the loopback-ism dump, it shows as follows now:
+  # smcd d
+  FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+  0000 0     loopback-ism  ffff   No        0
+- Patch #3: introduce the smc_ism_set_v2_capable() helper and set
+  smc_ism_v2_capable when ISMv2 or virtual ISM is registered,
+  regardless of whether there is already a device in smcd device list.
+- Patch #3: loopback-ism will be added into /sys/devices/virtual/smc/loopback-ism/.
+- Patch #8: introduce the runtime switch /sys/devices/virtual/smc/loopback-ism/active
+  to activate or deactivate the loopback-ism.
+- Patch #9: introduce the statistics of loopback-ism by
+  /sys/devices/virtual/smc/loopback-ism/{{tx|rx}_tytes|dmbs_cnt}.
+- Some minor changes and comments improvements.
+
+[1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
+[2] https://lore.kernel.org/netdev/20231219142616.80697-1-guwen@linux.alibaba.com/
+[3] https://github.com/goldsborough/ipc-bench
+[4] https://lore.kernel.org/all/3189e342-c38f-6076-b730-19a6efd732a5@linux.alibaba.com/
+[5] https://lore.kernel.org/all/238e63cd-e0e8-4fbf-852f-bc4d5bc35d5a@linux.alibaba.com/
+[6] https://lore.kernel.org/all/20240102184633.748113-1-urezki@gmail.com/
+
+Wen Gu (11):
+  net/smc: decouple ism_client from SMC-D DMB registration
+  net/smc: introduce loopback-ism for SMC intra-OS shortcut
+  net/smc: implement ID-related operations of loopback-ism
+  net/smc: implement some unsupported operations of loopback-ism
+  net/smc: implement DMB-related operations of loopback-ism
+  net/smc: ignore loopback-ism when dumping SMC-D devices
+  net/smc: register loopback-ism into SMC-D device list
+  net/smc: add operations to merge sndbuf with peer DMB
+  net/smc: attach or detach ghost sndbuf to peer DMB
+  net/smc: adapt cursor update when sndbuf and peer DMB are merged
+  net/smc: implement DMB-merged operations of loopback-ism
+
+ drivers/s390/net/ism_drv.c |   2 +-
+ include/net/smc.h          |   7 +-
+ net/smc/Kconfig            |  13 ++
+ net/smc/Makefile           |   2 +-
+ net/smc/af_smc.c           |  28 ++-
+ net/smc/smc_cdc.c          |  52 ++++-
+ net/smc/smc_core.c         |  61 ++++-
+ net/smc/smc_core.h         |   1 +
+ net/smc/smc_ism.c          |  60 ++++-
+ net/smc/smc_ism.h          |  10 +
+ net/smc/smc_loopback.c     | 462 +++++++++++++++++++++++++++++++++++++
+ net/smc/smc_loopback.h     |  52 +++++
+ 12 files changed, 724 insertions(+), 26 deletions(-)
+ create mode 100644 net/smc/smc_loopback.c
+ create mode 100644 net/smc/smc_loopback.h
+
+-- 
+2.32.0.3.g01195cf9f
 
