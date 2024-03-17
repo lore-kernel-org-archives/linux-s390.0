@@ -1,30 +1,30 @@
 Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EAE318049;
-	Sun, 17 Mar 2024 10:06:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D3D31CD15;
+	Sun, 17 Mar 2024 10:06:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710669966; cv=none; b=O553TS4BPJG4qne0DJkkU3t2Lf/VS+vibj7vkzc0xN7jFh7CcBVSBvInqnFqpIQgobECDtdCct9ZQAAfPbWrmHxqUd/U4CCb9U3R98jZjWRU8L1AHux1ecSSl97viauPXEBwjwzwMJ4tylHb6/2k9cxAUlsXLwXd+4cxP2WTyIM=
+	t=1710669969; cv=none; b=tjFntxyG+Mr/m+zhLottZ/Vw7GjMJMMPk8l76Nol7hUcjuwchjtEVUbLAgnMEHBFvHez+1nb8OjI/drzJOCpIE245LnUMwc+lpih6YzQgT8GkIuwFEEXVFvrg5tWPYkTRZOsGQAt1CjdZSkXKwB2A2wRlUq/wTtxGKLO8BRKurk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710669966; c=relaxed/simple;
-	bh=d/f+rqWWrCiPLTlsK6uCCqAGcWyrx4HXB+EIx9nXQ9Q=;
+	s=arc-20240116; t=1710669969; c=relaxed/simple;
+	bh=PUGkVStuetsMke/VaEeAh7P6q9BaVMTgmXwXUKLgTNk=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=HaVfP4jiRLWTYRz5OBYNyeL3m71y/6be8GXVgUieIRQ/Y+cOuOQh6IL+h7LWUCfs3mxNqNshxqRnMSU4ef9F98aXHfHHmOGpHEJ01tE+ctKauj4xFtmhpcmYeyKvEOlqMJ4pJVgJTJHE3m1b0JtEtuh+7h5S4lSHuXcForBoD3c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=dFLDcg55; arc=none smtp.client-ip=115.124.30.113
+	 MIME-Version; b=r22r3aTlSwZ1M606QD6/7LiWfp0/3gfDHPJeHIz3/8p1q4ZoDAcrVrSU/GnJqqB/peYHLK3KWiLH9akgkfMABcnlhLssnKJfrxuYtWlQK5p/rtlw+x5Jzn3w02KkmD0gPvjqff6OODxdQUh8r1siM6Ah6AfxVsEv81R2tYEvosA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=X+qLtpTA; arc=none smtp.client-ip=115.124.30.113
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="dFLDcg55"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="X+qLtpTA"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1710669959; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=XXmNb7lQNGh1Pf1v4VwP/UCVKB/+4h+FT8aHZoBzRfQ=;
-	b=dFLDcg55GMv3sDGujARuD1pJz0ClqCY8SEQbtipmC2ViLEd5iycEQHdUa8kj5qKRBAVbYPq+zn1ljv+OcqT1yZTtX0rf1LOqwjvHLav132WPpeDH76pO7N6MhBcoxuV/Fqz1YscuiiN9aGXdE2Vo+X3Gzm5Hrb+S2N2961U5xnw=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R681e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W2c852a_1710669957;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W2c852a_1710669957)
+	t=1710669965; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=cXxkfew4pLmEZxVFDkURa/WPZ9twZw4K1banM7Wm1Jc=;
+	b=X+qLtpTAWw4K4ciXX7RNQnrqG4dp3dveD6JIFamUJ/ic1ogoV3EEr0hcT3/RG3MYMCh/fNJ+Ego5efUGO1h+DFUv0QgQtR0v8DwESOG2MSGbyfNgMqczZgIIwdc+bJiDHERa21V5Fp4BLBefmWDL3X6ueN5vPlxi6jEdtKENYSI=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R581e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W2c7m5w_1710669963;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W2c7m5w_1710669963)
           by smtp.aliyun-inc.com;
-          Sun, 17 Mar 2024 18:05:58 +0800
+          Sun, 17 Mar 2024 18:06:04 +0800
 From: Wen Gu <guwen@linux.alibaba.com>
 To: wintera@linux.ibm.com,
 	twinkler@linux.ibm.com,
@@ -45,9 +45,9 @@ Cc: borntraeger@linux.ibm.com,
 	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org
-Subject: [RFC PATCH net-next v4 05/11] net/smc: implement DMB-related operations of loopback-ism
-Date: Sun, 17 Mar 2024 18:05:39 +0800
-Message-Id: <20240317100545.96663-6-guwen@linux.alibaba.com>
+Subject: [RFC PATCH net-next v4 08/11] net/smc: add operations to merge sndbuf with peer DMB
+Date: Sun, 17 Mar 2024 18:05:42 +0800
+Message-Id: <20240317100545.96663-9-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240317100545.96663-1-guwen@linux.alibaba.com>
 References: <20240317100545.96663-1-guwen@linux.alibaba.com>
@@ -59,226 +59,116 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This implements DMB (un)registration and data move operations of
-loopback-ism device.
+In some scenarios using Emulated-ISM device, sndbuf can share the same
+physical memory region with peer DMB to avoid data copy from one side
+to the other. In such case the sndbuf is only a descriptor that
+describes the shared memory and does not actually occupy memory, it's
+more like a ghost buffer.
+
+      +----------+                     +----------+
+      | socket A |                     | socket B |
+      +----------+                     +----------+
+            |                               |
+       +--------+                       +--------+
+       | sndbuf |                       |  DMB   |
+       |  desc  |                       |  desc  |
+       +--------+                       +--------+
+            |                               |
+            |                          +----v-----+
+            +-------------------------->  memory  |
+                                       +----------+
+
+So here introduces three new SMC-D device operations to check if this
+feature is supported by device, and to {attach|detach} ghost sndbuf to
+peer DMB. For now only loopback-ism supports this.
 
 Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- net/smc/smc_loopback.c | 131 ++++++++++++++++++++++++++++++++++++++++-
- net/smc/smc_loopback.h |  13 ++++
- 2 files changed, 141 insertions(+), 3 deletions(-)
+ include/net/smc.h |  3 +++
+ net/smc/smc_ism.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_ism.h |  4 ++++
+ 3 files changed, 47 insertions(+)
 
-diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
-index 253128c77208..7335acb03920 100644
---- a/net/smc/smc_loopback.c
-+++ b/net/smc/smc_loopback.c
-@@ -15,11 +15,13 @@
- #include <linux/types.h>
- #include <net/smc.h>
- 
-+#include "smc_cdc.h"
- #include "smc_ism.h"
- #include "smc_loopback.h"
- 
- #if IS_ENABLED(CONFIG_SMC_LO)
- #define SMC_LO_V2_CAPABLE	0x1 /* loopback-ism acts as ISMv2 */
-+#define SMC_DMA_ADDR_INVALID	(~(dma_addr_t)0)
- 
- static const char smc_lo_dev_name[] = "loopback-ism";
- static struct smc_lo_dev *lo_dev;
-@@ -49,6 +51,93 @@ static int smc_lo_query_rgid(struct smcd_dev *smcd, struct smcd_gid *rgid,
- 	return 0;
+diff --git a/include/net/smc.h b/include/net/smc.h
+index 6273c3a8b24a..01387631d8a6 100644
+--- a/include/net/smc.h
++++ b/include/net/smc.h
+@@ -62,6 +62,9 @@ struct smcd_ops {
+ 	int (*register_dmb)(struct smcd_dev *dev, struct smcd_dmb *dmb,
+ 			    void *client);
+ 	int (*unregister_dmb)(struct smcd_dev *dev, struct smcd_dmb *dmb);
++	int (*support_dmb_nocopy)(struct smcd_dev *dev);
++	int (*attach_dmb)(struct smcd_dev *dev, struct smcd_dmb *dmb);
++	int (*detach_dmb)(struct smcd_dev *dev, u64 token);
+ 	int (*add_vlan_id)(struct smcd_dev *dev, u64 vlan_id);
+ 	int (*del_vlan_id)(struct smcd_dev *dev, u64 vlan_id);
+ 	int (*set_vlan_required)(struct smcd_dev *dev);
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 38469ff53346..182748927681 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -246,6 +246,46 @@ int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
+ 	return rc;
  }
  
-+static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
-+			       void *client_priv)
++bool smc_ism_support_dmb_nocopy(struct smcd_dev *smcd)
 +{
-+	struct smc_lo_dmb_node *dmb_node, *tmp_node;
-+	struct smc_lo_dev *ldev = smcd->priv;
-+	int sba_idx, rc;
++	/* for now only loopback-ism supports
++	 * merging sndbuf with peer DMB to avoid
++	 * data copies between them.
++	 */
++	return (smcd->ops->support_dmb_nocopy &&
++		smcd->ops->support_dmb_nocopy(smcd));
++}
 +
-+	/* check space for new dmb */
-+	for_each_clear_bit(sba_idx, ldev->sba_idx_mask, SMC_LO_MAX_DMBS) {
-+		if (!test_and_set_bit(sba_idx, ldev->sba_idx_mask))
-+			break;
++int smc_ism_attach_dmb(struct smcd_dev *dev, u64 token,
++		       struct smc_buf_desc *dmb_desc)
++{
++	struct smcd_dmb dmb;
++	int rc = 0;
++
++	if (!dev->ops->attach_dmb)
++		return -EINVAL;
++
++	memset(&dmb, 0, sizeof(dmb));
++	dmb.dmb_tok = token;
++	rc = dev->ops->attach_dmb(dev, &dmb);
++	if (!rc) {
++		dmb_desc->sba_idx = dmb.sba_idx;
++		dmb_desc->token = dmb.dmb_tok;
++		dmb_desc->cpu_addr = dmb.cpu_addr;
++		dmb_desc->dma_addr = dmb.dma_addr;
++		dmb_desc->len = dmb.dmb_len;
 +	}
-+	if (sba_idx == SMC_LO_MAX_DMBS)
-+		return -ENOSPC;
-+
-+	dmb_node = kzalloc(sizeof(*dmb_node), GFP_KERNEL);
-+	if (!dmb_node) {
-+		rc = -ENOMEM;
-+		goto err_bit;
-+	}
-+
-+	dmb_node->sba_idx = sba_idx;
-+	dmb_node->len = dmb->dmb_len;
-+	dmb_node->cpu_addr = kzalloc(dmb_node->len, GFP_KERNEL |
-+				     __GFP_NOWARN | __GFP_NORETRY |
-+				     __GFP_NOMEMALLOC);
-+	if (!dmb_node->cpu_addr) {
-+		rc = -ENOMEM;
-+		goto err_node;
-+	}
-+	dmb_node->dma_addr = SMC_DMA_ADDR_INVALID;
-+
-+again:
-+	/* add new dmb into hash table */
-+	get_random_bytes(&dmb_node->token, sizeof(dmb_node->token));
-+	write_lock_bh(&ldev->dmb_ht_lock);
-+	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_node->token) {
-+		if (tmp_node->token == dmb_node->token) {
-+			write_unlock_bh(&ldev->dmb_ht_lock);
-+			goto again;
-+		}
-+	}
-+	hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
-+	write_unlock_bh(&ldev->dmb_ht_lock);
-+
-+	dmb->sba_idx = dmb_node->sba_idx;
-+	dmb->dmb_tok = dmb_node->token;
-+	dmb->cpu_addr = dmb_node->cpu_addr;
-+	dmb->dma_addr = dmb_node->dma_addr;
-+	dmb->dmb_len = dmb_node->len;
-+
-+	return 0;
-+
-+err_node:
-+	kfree(dmb_node);
-+err_bit:
-+	clear_bit(sba_idx, ldev->sba_idx_mask);
 +	return rc;
 +}
 +
-+static int smc_lo_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
++int smc_ism_detach_dmb(struct smcd_dev *dev, u64 token)
 +{
-+	struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
-+	struct smc_lo_dev *ldev = smcd->priv;
-+
-+	/* remove dmb from hash table */
-+	write_lock_bh(&ldev->dmb_ht_lock);
-+	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb->dmb_tok) {
-+		if (tmp_node->token == dmb->dmb_tok) {
-+			dmb_node = tmp_node;
-+			break;
-+		}
-+	}
-+	if (!dmb_node) {
-+		write_unlock_bh(&ldev->dmb_ht_lock);
++	if (!dev->ops->detach_dmb)
 +		return -EINVAL;
-+	}
-+	hash_del(&dmb_node->list);
-+	write_unlock_bh(&ldev->dmb_ht_lock);
 +
-+	clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
-+	kfree(dmb_node->cpu_addr);
-+	kfree(dmb_node);
-+
-+	return 0;
++	return dev->ops->detach_dmb(dev, token);
 +}
 +
- static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
- {
- 	return -EOPNOTSUPP;
-@@ -75,6 +164,40 @@ static int smc_lo_signal_event(struct smcd_dev *dev, struct smcd_gid *rgid,
- 	return 0;
- }
- 
-+static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok,
-+			    unsigned int idx, bool sf, unsigned int offset,
-+			    void *data, unsigned int size)
-+{
-+	struct smc_lo_dmb_node *rmb_node = NULL, *tmp_node;
-+	struct smc_lo_dev *ldev = smcd->priv;
-+
-+	read_lock_bh(&ldev->dmb_ht_lock);
-+	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_tok) {
-+		if (tmp_node->token == dmb_tok) {
-+			rmb_node = tmp_node;
-+			break;
-+		}
-+	}
-+	if (!rmb_node) {
-+		read_unlock_bh(&ldev->dmb_ht_lock);
-+		return -EINVAL;
-+	}
-+	read_unlock_bh(&ldev->dmb_ht_lock);
-+
-+	memcpy((char *)rmb_node->cpu_addr + offset, data, size);
-+
-+	if (sf) {
-+		struct smc_connection *conn =
-+			smcd->conn[rmb_node->sba_idx];
-+
-+		if (conn && !conn->killed)
-+			tasklet_schedule(&conn->rx_tsklet);
-+		else
-+			return -EPIPE;
-+	}
-+	return 0;
-+}
-+
- static int smc_lo_supports_v2(void)
- {
- 	return SMC_LO_V2_CAPABLE;
-@@ -101,14 +224,14 @@ static struct device *smc_lo_get_dev(struct smcd_dev *smcd)
- 
- static const struct smcd_ops lo_ops = {
- 	.query_remote_gid = smc_lo_query_rgid,
--	.register_dmb		= NULL,
--	.unregister_dmb		= NULL,
-+	.register_dmb = smc_lo_register_dmb,
-+	.unregister_dmb = smc_lo_unregister_dmb,
- 	.add_vlan_id = smc_lo_add_vlan_id,
- 	.del_vlan_id = smc_lo_del_vlan_id,
- 	.set_vlan_required = smc_lo_set_vlan_required,
- 	.reset_vlan_required = smc_lo_reset_vlan_required,
- 	.signal_event = smc_lo_signal_event,
--	.move_data		= NULL,
-+	.move_data = smc_lo_move_data,
- 	.supports_v2 = smc_lo_supports_v2,
- 	.get_local_gid = smc_lo_get_local_gid,
- 	.get_chid = smc_lo_get_chid,
-@@ -173,6 +296,8 @@ static void smcd_lo_unregister_dev(struct smc_lo_dev *ldev)
- static int smc_lo_dev_init(struct smc_lo_dev *ldev)
- {
- 	smc_lo_generate_id(ldev);
-+	rwlock_init(&ldev->dmb_ht_lock);
-+	hash_init(ldev->dmb_ht);
- 	return smcd_lo_register_dev(ldev);
- }
- 
-diff --git a/net/smc/smc_loopback.h b/net/smc/smc_loopback.h
-index 55b41133a97f..24ab9d747613 100644
---- a/net/smc/smc_loopback.h
-+++ b/net/smc/smc_loopback.h
-@@ -20,13 +20,26 @@
- 
- #if IS_ENABLED(CONFIG_SMC_LO)
- #define SMC_LO_MAX_DMBS		5000
-+#define SMC_LO_DMBS_HASH_BITS	12
- #define SMC_LO_CHID		0xFFFF
- 
-+struct smc_lo_dmb_node {
-+	struct hlist_node list;
-+	u64 token;
-+	u32 len;
-+	u32 sba_idx;
-+	void *cpu_addr;
-+	dma_addr_t dma_addr;
-+};
-+
- struct smc_lo_dev {
- 	struct smcd_dev *smcd;
- 	struct device dev;
- 	u16 chid;
- 	struct smcd_gid local_gid;
-+	rwlock_t dmb_ht_lock;
-+	DECLARE_BITMAP(sba_idx_mask, SMC_LO_MAX_DMBS);
-+	DECLARE_HASHTABLE(dmb_ht, SMC_LO_DMBS_HASH_BITS);
- };
- #endif
- 
+ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
+ 				  struct sk_buff *skb,
+ 				  struct netlink_callback *cb)
+diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
+index e6f57e5e1ef9..6763133dd8d0 100644
+--- a/net/smc/smc_ism.h
++++ b/net/smc/smc_ism.h
+@@ -48,6 +48,10 @@ int smc_ism_put_vlan(struct smcd_dev *dev, unsigned short vlan_id);
+ int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
+ 			 struct smc_buf_desc *dmb_desc);
+ int smc_ism_unregister_dmb(struct smcd_dev *dev, struct smc_buf_desc *dmb_desc);
++bool smc_ism_support_dmb_nocopy(struct smcd_dev *smcd);
++int smc_ism_attach_dmb(struct smcd_dev *dev, u64 token,
++		       struct smc_buf_desc *dmb_desc);
++int smc_ism_detach_dmb(struct smcd_dev *dev, u64 token);
+ int smc_ism_signal_shutdown(struct smc_link_group *lgr);
+ void smc_ism_get_system_eid(u8 **eid);
+ u16 smc_ism_get_chid(struct smcd_dev *dev);
 -- 
 2.32.0.3.g01195cf9f
 
