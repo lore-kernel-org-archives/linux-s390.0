@@ -1,181 +1,230 @@
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C6A01E86A;
-	Mon, 18 Mar 2024 03:25:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=150.107.74.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECDC72033A
+	for <linux-s390@vger.kernel.org>; Mon, 18 Mar 2024 04:18:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710732311; cv=none; b=bVnLtilTpvxblq3GqKOOQCY1jMff3LNbrlXXEqytJ63xkGzDPeRFdWgQCznu1G/vDh0BVUEM2pbGeLKdOVdvLLgc1z2VnoraEwOX8XpGnkK3VoU/K9+BYbDKYf4gRhSyw3JKEStzKi9qVjMuWbVeCHqPEuEjU8qxqkVcl1/37t4=
+	t=1710735521; cv=none; b=lUR+bfQnPT050VOVGZJkD9hHvqxpSzZC0GCoBg8gbxVwq3ue5fRONGO82eufunX/WVzVc0g0RIJumr92xSunb9zq2XXLWJox9WBI7cWoCH4wrC/6F7dpJW2tRtaR/Uvya7+OGj8D4ohIB5Pnmmy3DrFaG2MuDfNjH7Q5faUBcME=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710732311; c=relaxed/simple;
-	bh=NV+IEiKEp7lCdjzjbneFkp6G29/AFeVDyz/GqmHX3m4=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=qI9I8/C6jvBvgSNuCCFvnjTqzeoFisRHqtE3qI9yvJaq+bb9OBGWx/yWfy95GlIINluKUU0ORg9rRQPsS//T9CGnBX7SRqWHI+cE8l0dQBnISAYkJQmE8ckRG8rqFgRFENJzD+8w/hC7e8ec2LSh5cj7ssB8mqmDCiAbeKq/Jw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au; spf=pass smtp.mailfrom=ellerman.id.au; dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b=aZwR6Ce1; arc=none smtp.client-ip=150.107.74.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ellerman.id.au
+	s=arc-20240116; t=1710735521; c=relaxed/simple;
+	bh=ekPFn+KMupcA3DsAmtHNfwNQA8+5dgvbgt0ROt0BcLg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XSyc1Cj2GaWvr3Xv4GZdzn2+gJQyCRJN92LOSFyMZrZ1zwS/Htvho8DnKgx7EAa/dpoXemLXR4qxTWYpKj3bCC1Uoefc0IIVjkeF+XRZJaVPGLHPyMktF4wyx4JzceN5Fk7HrTU5gZQ9htrsr4R4f4TgKN1qYWTKUrBD+FXD4lM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=C1338eso; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b="aZwR6Ce1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-	s=201909; t=1710732306;
-	bh=NV+IEiKEp7lCdjzjbneFkp6G29/AFeVDyz/GqmHX3m4=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=aZwR6Ce11vNXim4mOCh1eXkx7K65RfM+cau+BhgB9SdLqlZPW+NSBiMfH6HvhOd0A
-	 Cxq4iA45zUMfJd0t0fiCZUW9oT7MdElC1lAHDwjgYhkFVet+3SexBY3VTuWZ+t2GS/
-	 R6YtLN+mqg6XUSgVsgcCPTEOKRlHDfSmPt/ef1FfXW6waLfQPAdiG7JMm/zsq5BT3k
-	 vdQUUXBAz8sJiI6L7YfwQCfB8GuYQWxC3Reysu8xNTnmju7VZ+DNwIB5BF60uJsyDk
-	 OdmHw4LQNlhzuekWxZGLa0lNLJlIa+tl6Z4Z3Fg6YFxfGk0yqItTN1sXJzV54NgtGp
-	 w8QwwUGGGIyQQ==
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail.ozlabs.org (Postfix) with ESMTPSA id 4TygG42yLDz4wc1;
-	Mon, 18 Mar 2024 14:25:00 +1100 (AEDT)
-From: Michael Ellerman <mpe@ellerman.id.au>
-To: Guenter Roeck <linux@roeck-us.net>, Geert Uytterhoeven
- <geert@linux-m68k.org>
-Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>, Arnd
- Bergmann <arnd@arndb.de>, =?utf-8?Q?Ma=C3=ADra?= Canal <mcanal@igalia.com>,
- Dan Carpenter
- <dan.carpenter@linaro.org>, Kees Cook <keescook@chromium.org>, Daniel Diaz
- <daniel.diaz@linaro.org>, David Gow <davidgow@google.com>, Arthur Grillo
- <arthurgrillo@riseup.net>, Brendan Higgins <brendan.higgins@linux.dev>,
- Naresh Kamboju <naresh.kamboju@linaro.org>, Maarten Lankhorst
- <maarten.lankhorst@linux.intel.com>, Andrew Morton
- <akpm@linux-foundation.org>, Maxime Ripard <mripard@kernel.org>, Ville
- =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Daniel Vetter
- <daniel@ffwll.ch>,
- Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org,
- kunit-dev@googlegroups.com, linux-arch@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- loongarch@lists.linux.dev, netdev@lists.linux.dev
-Subject: Re: [PATCH 00/14] Add support for suppressing warning backtraces
-In-Reply-To: <04f34097-7788-490d-a9c2-82b44bf6af44@roeck-us.net>
-References: <20240312170309.2546362-1-linux@roeck-us.net>
- <CAMuHMdUkvagJVEfnhq=Nx2jnmdS0Ax+zy1CvyN0k7k1EwUpu+g@mail.gmail.com>
- <6d9269c0-bd38-4965-a454-4358e0a182e3@roeck-us.net>
- <04f34097-7788-490d-a9c2-82b44bf6af44@roeck-us.net>
-Date: Mon, 18 Mar 2024 14:24:59 +1100
-Message-ID: <87ttl4z0fo.fsf@mail.lhotse>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="C1338eso"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1710735517;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YcMIvlcXZmHfP6Yrf0ho0KeclSMy8eBKOPAz1pFY4gM=;
+	b=C1338esorfYIWaTdvC199pMQy+poifxpT8hHednsRLB8cnRW1+xB1570GPZg9mxfaA6rZv
+	ie2P7VNTpyCsrE+i40Kl+EhnHlLB1hyJiUbaBJQWJcgy1CaV5OwMV30f995585Isuzdk3/
+	WNnbIAKfINY1jmfgXo3GgjZy3c0siFU=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-46-_XUv9ak4MJi7qt14eO7_5A-1; Mon, 18 Mar 2024 00:18:35 -0400
+X-MC-Unique: _XUv9ak4MJi7qt14eO7_5A-1
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-1defc12f8c1so26811475ad.2
+        for <linux-s390@vger.kernel.org>; Sun, 17 Mar 2024 21:18:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710735514; x=1711340314;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=YcMIvlcXZmHfP6Yrf0ho0KeclSMy8eBKOPAz1pFY4gM=;
+        b=sZZmfpwZ0Lkd+h+n8ZVAX5vRmKXjG/afzhRECQPJXs2bpKpvvPEalAYU9KH4dqW87j
+         d2i0kREd/IbFbUS3Q33q052+O+vYN8bkL1qZfElC9RqgM5jh/wtHve4CaHsXmKqsLMtx
+         zntW7ZSKNL80F5XN/j8M5VhD5rzfeY/Zg+TUpD990EqOZQC31tHnKAMmmbAn2FahzOgC
+         Shwp9RCrcIev6lHJubRkB5o+EUxuCjdzGpYmUubHfCTx3PtwcvYzvg1DdVx9+2SObuoX
+         13RQsoCk4pVHOPeHwjw/nVGgr0XzI53yTbssKe9h9eXvyjrv18ed1ZjGTm6vUr6GT/aJ
+         psHA==
+X-Forwarded-Encrypted: i=1; AJvYcCU41UOxJcPMAldqEEZ62R+JEznD6/lQKMP6Sa8lrT2QPc8c4o3+GjH9zlfcAxdeJRBp52NA1efXuSz7244Ckwb/bPVsiIjhzwe+Ig==
+X-Gm-Message-State: AOJu0YyFuML29X+W/6Y5jaw5krvi/KL8Q4UMDinGYVzkrq+MwmcQ3N2f
+	sCfKtJc26FqMq7Ru8JVrMnAPovIV3xmwV0Dz5kaHLajKwTm8QoVRbtXH8KC9rtuFrNYRgM91wj7
+	24jZ+H7wJomonwf/qtvR5g/DOuIw2KkGhb3Z1OedKKKdHEdEsjP6sHGXap30D6wQUIdgnTfpnjH
+	u6RrEASFay5FD7iQY9Lz7+xDj45G7WDkZN5w==
+X-Received: by 2002:a17:902:d68b:b0:1de:f91:3cf3 with SMTP id v11-20020a170902d68b00b001de0f913cf3mr9020695ply.55.1710735514575;
+        Sun, 17 Mar 2024 21:18:34 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFC9oB0f9oW121Bvau3zWELRsInCawRgYQJTSjt+TRvAgqSmbvs/LBhfOLf7eU9EldQFzvUZZSWPwuwPejjiP0=
+X-Received: by 2002:a17:902:d68b:b0:1de:f91:3cf3 with SMTP id
+ v11-20020a170902d68b00b001de0f913cf3mr9020679ply.55.1710735514309; Sun, 17
+ Mar 2024 21:18:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20240312021013.88656-1-xuanzhuo@linux.alibaba.com>
+ <20240312021013.88656-2-xuanzhuo@linux.alibaba.com> <CACGkMEvVgfgAxLoKeFTgy-1GR0W07ciPYFuqs6PiWtKCnXuWTw@mail.gmail.com>
+ <1710395908.7915084-1-xuanzhuo@linux.alibaba.com> <CACGkMEsT2JqJ1r_kStUzW0+-f+qT0C05n2A+Yrjpc-mHMZD_mQ@mail.gmail.com>
+ <1710487245.6843069-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1710487245.6843069-1-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 18 Mar 2024 12:18:23 +0800
+Message-ID: <CACGkMEspzDTZP1yxkBz17MgU9meyfCUBDxG8mjm=acXHNxAxhg@mail.gmail.com>
+Subject: Re: [PATCH vhost v3 1/4] virtio: find_vqs: pass struct instead of
+ multi parameters
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>, 
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Hans de Goede <hdegoede@redhat.com>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, 
+	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
+	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-um@lists.infradead.org, 
+	platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, 
+	linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Guenter Roeck <linux@roeck-us.net> writes:
-> On 3/14/24 07:37, Guenter Roeck wrote:
->> On 3/14/24 06:36, Geert Uytterhoeven wrote:
->>> Hi G=C3=BCnter,
->>>
->>> On Tue, Mar 12, 2024 at 6:03=E2=80=AFPM Guenter Roeck <linux@roeck-us.n=
-et> wrote:
->>>> Some unit tests intentionally trigger warning backtraces by passing bad
->>>> parameters to kernel API functions. Such unit tests typically check the
->>>> return value from such calls, not the existence of the warning backtra=
-ce.
->>>>
->>>> Such intentionally generated warning backtraces are neither desirable
->>>> nor useful for a number of reasons.
->>>> - They can result in overlooked real problems.
->>>> - A warning that suddenly starts to show up in unit tests needs to be
->>>> =C2=A0=C2=A0 investigated and has to be marked to be ignored, for exam=
-ple by
->>>> =C2=A0=C2=A0 adjusting filter scripts. Such filters are ad-hoc because=
- there is
->>>> =C2=A0=C2=A0 no real standard format for warnings. On top of that, suc=
-h filter
->>>> =C2=A0=C2=A0 scripts would require constant maintenance.
->>>>
->>>> One option to address problem would be to add messages such as "expect=
-ed
->>>> warning backtraces start / end here" to the kernel log.=C2=A0 However,=
- that
->>>> would again require filter scripts, it might result in missing real
->>>> problematic warning backtraces triggered while the test is running, and
->>>> the irrelevant backtrace(s) would still clog the kernel log.
->>>>
->>>> Solve the problem by providing a means to identify and suppress specif=
-ic
->>>> warning backtraces while executing test code. Support suppressing mult=
-iple
->>>> backtraces while at the same time limiting changes to generic code to =
-the
->>>> absolute minimum. Architecture specific changes are kept at minimum by
->>>> retaining function names only if both CONFIG_DEBUG_BUGVERBOSE and
->>>> CONFIG_KUNIT are enabled.
->>>>
->>>> The first patch of the series introduces the necessary infrastructure.
->>>> The second patch introduces support for counting suppressed backtraces.
->>>> This capability is used in patch three to implement unit tests.
->>>> Patch four documents the new API.
->>>> The next two patches add support for suppressing backtraces in drm_rect
->>>> and dev_addr_lists unit tests. These patches are intended to serve as
->>>> examples for the use of the functionality introduced with this series.
->>>> The remaining patches implement the necessary changes for all
->>>> architectures with GENERIC_BUG support.
->>>
->>> Thanks for your series!
->>>
->>> I gave it a try on m68k, just running backtrace-suppression-test,
->>> and that seems to work fine.
->>>
->>>> Design note:
->>>> =C2=A0=C2=A0 Function pointers are only added to the __bug_table secti=
-on if both
->>>> =C2=A0=C2=A0 CONFIG_KUNIT and CONFIG_DEBUG_BUGVERBOSE are enabled to a=
-void image
->>>> =C2=A0=C2=A0 size increases if CONFIG_KUNIT=3Dn. There would be some b=
-enefits to
->>>> =C2=A0=C2=A0 adding those pointers all the time (reduced complexity, a=
-bility to
->>>> =C2=A0=C2=A0 display function names in BUG/WARNING messages). That cha=
-nge, if
->>>> =C2=A0=C2=A0 desired, can be made later.
->>>
->>> Unfortunately this also increases kernel size in the CONFIG_KUNIT=3Dm
->>> case (ca. 80 KiB for atari_defconfig), making it less attractive to have
->>> kunit and all tests enabled as modules in my standard kernel.
->>>
->>=20
->> Good point. Indeed, it does. I wanted to avoid adding a configuration op=
-tion,
->> but maybe I should add it after all. How about something like this ?
->>=20
->> +config KUNIT_SUPPRESS_BACKTRACE
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 bool "KUnit - Enable backtrace sup=
-pression"
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 default y
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 help
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 Enable backtrace suppr=
-ession for KUnit. If enabled, backtraces
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 generated intentionall=
-y by KUnit tests can be suppressed. Disable
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 to reduce kernel image=
- size if image size is more important than
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 suppression of backtra=
-ces generated by KUnit tests.
+On Fri, Mar 15, 2024 at 3:26=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
 >
-> Any more comments / feedback on this ? Otherwise I'll introduce the
-> above configuration option in v2 of the series.
+> On Fri, 15 Mar 2024 11:51:48 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> > On Thu, Mar 14, 2024 at 2:00=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
+ba.com> wrote:
+> > >
+> > > On Thu, 14 Mar 2024 11:12:24 +0800, Jason Wang <jasowang@redhat.com> =
+wrote:
+> > > > On Tue, Mar 12, 2024 at 10:10=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.=
+alibaba.com> wrote:
+> > > > >
+> > > > > Now, we pass multi parameters to find_vqs. These parameters
+> > > > > may work for transport or work for vring.
+> > > > >
+> > > > > And find_vqs has multi implements in many places:
+> > > > >
+> > > > >  arch/um/drivers/virtio_uml.c
+> > > > >  drivers/platform/mellanox/mlxbf-tmfifo.c
+> > > > >  drivers/remoteproc/remoteproc_virtio.c
+> > > > >  drivers/s390/virtio/virtio_ccw.c
+> > > > >  drivers/virtio/virtio_mmio.c
+> > > > >  drivers/virtio/virtio_pci_legacy.c
+> > > > >  drivers/virtio/virtio_pci_modern.c
+> > > > >  drivers/virtio/virtio_vdpa.c
+> > > > >
+> > > > > Every time, we try to add a new parameter, that is difficult.
+> > > > > We must change every find_vqs implement.
+> > > > >
+> > > > > One the other side, if we want to pass a parameter to vring,
+> > > > > we must change the call path from transport to vring.
+> > > > > Too many functions need to be changed.
+> > > > >
+> > > > > So it is time to refactor the find_vqs. We pass a structure
+> > > > > cfg to find_vqs(), that will be passed to vring by transport.
+> > > > >
+> > > > > Because the vp_modern_create_avq() use the "const char *names[]",
+> > > > > and the virtio_uml.c changes the name in the subsequent commit, s=
+o
+> > > > > change the "names" inside the virtio_vq_config from "const char *=
+const
+> > > > > *names" to "const char **names".
+> > > > >
+> > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > Acked-by: Johannes Berg <johannes@sipsolutions.net>
+> > > > > Reviewed-by: Ilpo J=3DE4rvinen <ilpo.jarvinen@linux.intel.com>
+> > > >
+> > > > The name seems broken here.
+> > >
+> > > Email APP bug.
+> > >
+> > > I will fix.
+> > >
+> > >
+> > > >
+> > > > [...]
+> > > >
+> > > > >
+> > > > >  typedef void vq_callback_t(struct virtqueue *);
+> > > > >
+> > > > > +/**
+> > > > > + * struct virtio_vq_config - configure for find_vqs()
+> > > > > + * @cfg_idx: Used by virtio core. The drivers should set this to=
+ 0.
+> > > > > + *     During the initialization of each vq(vring setup), we nee=
+d to know which
+> > > > > + *     item in the array should be used at that time. But since =
+the item in
+> > > > > + *     names can be null, which causes some item of array to be =
+skipped, we
+> > > > > + *     cannot use vq.index as the current id. So add a cfg_idx t=
+o let vring
+> > > > > + *     know how to get the current configuration from the array =
+when
+> > > > > + *     initializing vq.
+> > > >
+> > > > So this design is not good. If it is not something that the driver
+> > > > needs to care about, the core needs to hide it from the API.
+> > >
+> > > The driver just ignore it. That will be beneficial to the virtio core=
+.
+> > > Otherwise, we must pass one more parameter everywhere.
+> >
+> > I don't get here, it's an internal logic and we've already done that.
 >
-> In this context, any suggestions if it should be enabled or disabled by
-> default ? I personally think it would be more important to be able to
-> suppress backtraces, but I understand that others may not be willing to
-> accept a ~1% image size increase with CONFIG_KUNIT=3Dm unless
-> KUNIT_SUPPRESS_BACKTRACE is explicitly disabled.
+>
+> ## Then these must add one param "cfg_idx";
+>
+>  struct virtqueue *vring_create_virtqueue(struct virtio_device *vdev,
+>                                          unsigned int index,
+>                                          struct vq_transport_config *tp_c=
+fg,
+>                                          struct virtio_vq_config *cfg,
+> -->                                      uint cfg_idx);
+>
+>  struct virtqueue *vring_new_virtqueue(struct virtio_device *vdev,
+>                                       unsigned int index,
+>                                       void *pages,
+>                                       struct vq_transport_config *tp_cfg,
+>                                       struct virtio_vq_config *cfg,
+> -->                                      uint cfg_idx);
+>
+>
+> ## The functions inside virtio_ring also need to add a new param, such as=
+:
+>
+>  static struct virtqueue *vring_create_virtqueue_split(struct virtio_devi=
+ce *vdev,
+>                                                       unsigned int index,
+>                                                       struct vq_transport=
+_config *tp_cfg,
+>                                                       struct virtio_vq_co=
+nfig,
+> -->                                                   uint cfg_idx);
+>
+>
+>
 
-Please enable it by default.
+I guess what I'm missing is when could the index differ from cfg_idx?
 
-There are multiple CI systems that will benefit from it, whereas the
-number of users enabling KUNIT in severely spaced constrainted
-environments is surely small - perhaps just Geert ;).
+Thanks
 
-cheers
+> Thanks.
+>
+>
+>
+>
+> >
+> > Thanks
+> >
+> > >
+> > > Thanks.
+> > >
+> > > >
+> > > > Thanks
+> > > >
+> > >
+> >
+>
+
