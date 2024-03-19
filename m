@@ -1,111 +1,110 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DABAE1171C;
-	Tue, 19 Mar 2024 16:45:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4FB839FC1
+	for <linux-s390@vger.kernel.org>; Tue, 19 Mar 2024 18:55:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710866753; cv=none; b=hes+mA+D0tYG0QNzaXdoa8OwwCUMHjS50hOhDIF5j/8/TYtdfnijSTIKquWjhFKlvbkeR5wmVXzrbuVvqGHZUMrgEiBbG/iVOIlN5sGlXv6FDGTaMvAMyD++zgHeCkCqTFLmzdbPMQzeDg+WoXMrZ+dYy19hG3Pxb4J6JfMv2Kw=
+	t=1710874509; cv=none; b=ktTgnHrzRG2KJ14ws2DG6A6g5Xjs+As3994ExVr4p4HrJnjkLTK2IbVgf52jcE2zH1kTqxxaPtn9SFjBIfGPxEIpCrSIlVcDDCe4QCQYgtPTcN20VtCvoH0EETLGcaddhUm4YqBe4McacAb9qilfSck8jHCvs9UVG2RjGyZ+Llc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710866753; c=relaxed/simple;
-	bh=WeQCYm+MhXwSIvkBg2FGmOP5EPVeJUv4HAMFDixtsKM=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=CiypeTJbkLjO6CgA+jsZIUqIE6ksYMgpj4lYW+HfjmZXlNY0cjr6RKQkovL+7JjFebAi6Jf6BMULOPVcPv/PdncQREDE9pZzn0JdJfkjQSezh3V8L4R19/kGNS9+OJeRGKYeln2+i/XKbh2b9u/sL4FTFGCdPhm2G9zg0oNdIlk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mtgo6XRz; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1710874509; c=relaxed/simple;
+	bh=cquyfRZ0VBetvG8+L3oqKgTGchO/YG/tGhNA+Cv+Co0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=iFny4A5O5LqCsnuaSCt95jenivyHQ95HEpwf/Ul+Yctmk8ZZeT0ThXZ5WTHzOQUIyaXHwGMb9zvhikmeAQ407y+IVhOhSPWC9Pr54tRelWcYk4ROlMPzyFUhmwMRy67fxCZyVS3TD3a1jPsHWgpON6w8C1UZwbSvx0seX9Z6bqk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=b7gzV3Cb; arc=none smtp.client-ip=209.85.208.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mtgo6XRz"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42JGMaj1030858;
-	Tue, 19 Mar 2024 16:45:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=n/pP5d29NyH5V1cnKGJv6V1xIfsfQJultqnn14e9mjU=;
- b=mtgo6XRzn9xAxkQ2u1+EHU7zDYvN7U4pNXdVewgaAZQxKWOAy3Q3nHVikQrMEE8NXZD2
- 101AuQyL5hZlsN9N3MvKnAiSDXjyl+2jiF9CPqZWd1rCBMKzD1SJ8Om7MeXYU8zzcPTY
- DXN8KhKVAkhqlYpr/AebA3PDb0+eOp4Jb3Z1c1dkfMoqe49PxJ/ysXqizsCWDZPVLJjv
- 6OYQh3ln6uQCVPLn8YLMJeyM9GGUvysZ/q9uWPGDLomDLQ7DDC2qqOhUS7FaRXIsPdNs
- YzojLbwE7lnFcUlKpbU3CWTMeQptU6Dfmub3QWgExLGBfBgbdl295qrGsBOPpo7FjjqK Cw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wye5yg1u5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 Mar 2024 16:45:49 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 42JGg45x031816;
-	Tue, 19 Mar 2024 16:45:48 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wye5yg1tk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 Mar 2024 16:45:48 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42JEtZ3O019843;
-	Tue, 19 Mar 2024 16:44:38 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wwqykgh0v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 Mar 2024 16:44:37 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42JGiWgr43909478
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 19 Mar 2024 16:44:34 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 801682004B;
-	Tue, 19 Mar 2024 16:44:32 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2DEBF20040;
-	Tue, 19 Mar 2024 16:44:32 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 19 Mar 2024 16:44:32 +0000 (GMT)
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Sven Schnelle <svens@linux.ibm.com>
-Subject: [PATCH 0/2] KVM: s390: Fix V!=R bug in STFLE shadowing
-Date: Tue, 19 Mar 2024 17:44:18 +0100
-Message-Id: <20240319164420.4053380-1-nsg@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="b7gzV3Cb"
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-56b85146589so308854a12.0
+        for <linux-s390@vger.kernel.org>; Tue, 19 Mar 2024 11:55:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1710874506; x=1711479306; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=u4KodDa0zT/HNzbAX2EO8nLcPy/wnsGHD7zCwXLN7BY=;
+        b=b7gzV3Cbtoo13O7zkMZsbBl0KrI+htHS+KyP8w5EUiEyjwvAbXFlqGMAA65pfARnkV
+         mHixlgRLdzQHXtXpWZQA9STVE6BVA2JNjaLOQgztT1CbX8gO6tCCWFGvl+Uxhg6/jd9C
+         SuN1HVOuPAStpUUhLYFwOk1hy6Gczc0oqVmEQ=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710874506; x=1711479306;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=u4KodDa0zT/HNzbAX2EO8nLcPy/wnsGHD7zCwXLN7BY=;
+        b=vfw3l1Bl9sSEH6E5t137GtVsYSHhK6rPc6T0VEvPHAHKudab8h7jJjWGgZG24nTykm
+         3oIbGs59mLdQvTw0EcasERm7EXDwXDO3VU7twY5qcnVoQFKVyN1rGIe8NFWIdCVEyOWJ
+         yar0HHToglcNc1zxPAz7MQkYMBuXJ9xXHTGrxgZ+eP/78zYHcPqLrhBQ3z5WQgqWqEBz
+         5XO81Wvl6GS4epAA5newOQvQhpEd5NBhsMCkZry+yw+e1jiBWiYMSFZ5mLGtdi6qhWp9
+         vpDQk5qCnUN1P8SByiJV9ytDCgLrnKcxG08JgWxkolYYPFlQXuxzb0DwglFxLCtAv3Wd
+         LF5Q==
+X-Forwarded-Encrypted: i=1; AJvYcCV9KYiF9RT3d9ryS1l0Fbhn0KgLrxYWOj+DBL40VAnlI6nwzHry8VQof5xXHTBF+MkCgrIfulZGoB2jsRZKEXY5MSNVUdHa7S8oug==
+X-Gm-Message-State: AOJu0YwiE0GlX66GOjn3hYQo4EZV+zv/BnCs7x8F9c1kHbTA3UiJY2LL
+	LCgG8UWm5hH74617ZSG+4SOete/YwieFKwqgiIhLIfieo+Tsq7eH/8703mNSIF2IosCXz3QzT1g
+	C8zQejQ==
+X-Google-Smtp-Source: AGHT+IGIYF706kM24H6xgZKcn1jgt7+aq+ZMx6QOJ1eXk5hlD2HMYzLKraf9sa//SPx9LC8FFF5O1Q==
+X-Received: by 2002:a05:6402:3224:b0:566:59a2:7a10 with SMTP id g36-20020a056402322400b0056659a27a10mr409393eda.1.1710874505538;
+        Tue, 19 Mar 2024 11:55:05 -0700 (PDT)
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com. [209.85.208.42])
+        by smtp.gmail.com with ESMTPSA id u10-20020a50950a000000b0056b909e8b8dsm1303121eda.40.2024.03.19.11.55.04
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 19 Mar 2024 11:55:05 -0700 (PDT)
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-565c6cf4819so253375a12.1
+        for <linux-s390@vger.kernel.org>; Tue, 19 Mar 2024 11:55:04 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCUqtuJE+y/xKC4H3M9a+Rz8BlGsNp9EAgIpXW68GWPSKeeQterXBxw3cZhmFX94ADmscd4Kv8YSZzbS3ZcolYqep7d9X1LB39WcWQ==
+X-Received: by 2002:a17:906:c7d4:b0:a46:dd1f:7dc6 with SMTP id
+ dc20-20020a170906c7d400b00a46dd1f7dc6mr2839426ejb.24.1710874504637; Tue, 19
+ Mar 2024 11:55:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: LqhuP0TmlnrZ-YbQHFMvoyGn-2j4y5-W
-X-Proofpoint-GUID: yTlrPZGSlX8qkBUEbAL3Bn5amzyHPhdr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-19_06,2024-03-18_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 phishscore=0 spamscore=0 priorityscore=1501
- malwarescore=0 adultscore=0 clxscore=1015 bulkscore=0 suspectscore=0
- mlxscore=0 mlxlogscore=715 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2403140000 definitions=main-2403190126
+References: <20240319141230.23303-F-hca@linux.ibm.com>
+In-Reply-To: <20240319141230.23303-F-hca@linux.ibm.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Tue, 19 Mar 2024 11:54:47 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wiGkerd+_ARB6bbSgAm02nkoOxRiy4LVsS_24ANQV-eZA@mail.gmail.com>
+Message-ID: <CAHk-=wiGkerd+_ARB6bbSgAm02nkoOxRiy4LVsS_24ANQV-eZA@mail.gmail.com>
+Subject: Re: [GIT PULL] more s390 updates for 6.9 merge window
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-The address of the facility control block is a physical address,
-and therefore requires conversion from virtual (patch 2).
+On Tue, 19 Mar 2024 at 07:12, Heiko Carstens <hca@linux.ibm.com> wrote:
+>
+> - Add new bitwise types and helper functions and use them in s390 specific
+>   drivers and code to make it easier to find virtual vs physical address
+>   usage bugs.
 
-Also send unrelated patch 1 which was previously sent as part of
-"KVM: s390: Fix minor bugs in STFLE shadowing" but deferred.
+Hmm. Because you still want to be able to do arithmetic on them, this
+is really what "__nocast" should be used for rather than "__bitwise".
 
-Nina Schoetterl-Glausch (2):
-  KVM: s390: Minor refactor of base/ext facility lists
-  KVM: s390: vsie: Use virt_to_phys for facility control block
+__bitwise was intended (as the name implies) for things that can only
+be mixed bitwise with similar types. It was _mainly_ for big-endian vs
+little-endian marking, where it's actually perfectly fine to do
+bitwise operations on two big-endian values without ever translation
+them to "cpu endianness", but you can't for example do normal
+arithmetic on them.
 
- arch/s390/kvm/kvm-s390.c | 44 +++++++++++++++++-----------------------
- arch/s390/kvm/vsie.c     |  3 ++-
- 2 files changed, 21 insertions(+), 26 deletions(-)
+So __bitwise has those very specific rules that seem odd until you
+realize what the reason for them are.
 
+In contrast, your types actually *would* be fine with arithmetic and
+logical operations being done on them, and that is what "__nocast"
+really was meant to be.
 
-base-commit: e8f897f4afef0031fe618a8e94127a0934896aba
--- 
-2.40.1
+But we basically never had much use for __nocast in the kernel, and
+largely as a result __nocast was never fleshed out to work very well
+(and it gets lost *much* too easily), so __bitwise it is.
 
+Oh well.
+
+It looks like it's not a lot of arithmetic you want to allow anyway,
+so I guess the fact that __bitwise forces you to do some silly helper
+functions for that isn't too much of an issue.
+
+              Linus
