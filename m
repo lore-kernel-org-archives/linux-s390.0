@@ -1,153 +1,133 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB55C54BF6;
-	Tue, 19 Mar 2024 11:12:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD33B7E586;
+	Tue, 19 Mar 2024 11:18:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710846766; cv=none; b=RLNrAL1V4UvE6oiXYLPf0QCG2QcvWTUDJghZROQhpT1aevANKsL4dPhA+OsoUjfD9ac7iCODUlG0Cr269E2LrltAW4d+rflO7LhrGBAiMbqBiUCXePIAmGtQSmBM/Tq1Pisbr+0VJh/ErCJGi0/EdeWFWOA6ZffsmFykVhhlMjE=
+	t=1710847096; cv=none; b=I9pSPcXoD90EBfupFaWNH7AB/SM5JMZqheb9kDEwBgQle2Y7434o0xcU+NVWmsaPl6fmErz/OHGRFcSUN3Ms3Xy4z+eFHcEfsUVgB0ekDWMzWfOrr1lpmVPMFmkhA3/rmb73uxDTGN5IKWZR6UzdfvLbPqDZ6ZszF8HiByv6cp4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710846766; c=relaxed/simple;
-	bh=F4aL7ZCH5j2X9PldDt7w2jAq1k9YFTM5qx/ObLef7hI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=p6bQgf1zYaGk+vxxIMHgY30d95iGCQCt1WZvIvoYVpAOp/Ma90it7uto1mfnGufayM//QFBY/Mc334MOGDejI2ojT+LOuNKHCasbQynP241feFfRxClcsfIqXyB+H2PFynFk3KeDORKKEXX6lu2oF/mmNnhzQLjAh7HbiC7jczw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=F9wHfG4r; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1710847096; c=relaxed/simple;
+	bh=m+H0KA5nCWiconiv95w6H27brgFiAtSdm/hSpOIX4N4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=GelwYl9I0UYoMJj5Y1jIyD+cmFA+LR6wO5lHugIXY6SW1mhLuiiCLM/sJDdjzpLzThHL2IpJF5KBbusJEta47PZxU7Kb2RUw9gm7oF/9Nndyh0mQcKs4QRcIDvnO3hmZ+hLruptxRh/J5F9SoyPG8n0iXgr3iAg8vjRDdNN2QqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=c1cxIKWE; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="F9wHfG4r"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42JAfIha022693;
-	Tue, 19 Mar 2024 11:12:43 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="c1cxIKWE"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42JAjvL2004341;
+	Tue, 19 Mar 2024 11:18:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- content-transfer-encoding : in-reply-to; s=pp1;
- bh=V47fqHBz9Xe7fcRc0znVyKCEtLm+U7XW5YZvF5YtiQ0=;
- b=F9wHfG4rJ7i5P600+XcDlW/Xh0tAcOEO/dGvvQfoEBkIaSUxRyJ6eFMT/KrcnSey9Djo
- 373rxlZkEgphG+YTDnODe06cBM/tVAxxcrsChUi0bVYaKiy9a12X6rbUl0e5wmVeT9X0
- gdK3Ow/c1N16FKt5W4IwuDCYjWDt1ioWFeNaag1S6VkEHt+b0m4Fs1RDmCfEfQJ/AHgp
- tVki0SF8Y4qkFnr+7T11d1+JZsq01IXup5l1YEzj41nedNxsYZW73sFtKnkz3q31jvRm
- ViR+gEv9rB8QBPz35RylTsbTueYXSotPgVdS0b/efEJYVNBXQxAxfMz0g2lG5PDLnZzD EQ== 
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wy91ng8gy-1
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=Y+una7k+ujlpQWzyvteLpzJZsZGHX4ZCn548C358cCQ=;
+ b=c1cxIKWE392Y/78ob+sDyvqhwjQXmW0Ycq8xGyfFhokhAFadiqTSyCyQLbX30CDxkWg1
+ 9vgzw3ocBUsdpyeu0LAdwFsL0Vx1B1MVGJ3R8QcxmDuqoVSMpQB9C0uLgt+gdchMowP0
+ aevKHfYLVFeAYoL6/vKe9vAOWvK7xtuMw3Eb7Gdpy3fy2pSb2xbXHNuCj3+efCxJp6oz
+ leMMwCVdPWUur16xh5vyJ3cx0IbqkYwYi6ExTakZrvDfaaxKoPSHk3rao4lJgQ8RXJrT
+ eXlqI/FnzVnniFI5WQ+QmnNGMvR+fLhgaN0ldWs5efQIUvkiVk5lvpBNPqmxOJO3P+5J sw== 
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wy8nxgcn3-2
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 Mar 2024 11:12:42 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42J9maoT010061;
-	Tue, 19 Mar 2024 11:12:41 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wxvauuxbm-1
+	Tue, 19 Mar 2024 11:18:10 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42J8RKZP011594;
+	Tue, 19 Mar 2024 11:17:04 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wwq8kxtrh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 Mar 2024 11:12:41 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42JBCZ6Y10158412
+	Tue, 19 Mar 2024 11:17:04 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42JBGwBa44433860
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 19 Mar 2024 11:12:37 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C247A2004B;
-	Tue, 19 Mar 2024 11:12:35 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 44D302004F;
-	Tue, 19 Mar 2024 11:12:35 +0000 (GMT)
+	Tue, 19 Mar 2024 11:17:00 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 63BE92004B;
+	Tue, 19 Mar 2024 11:16:58 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C7BC32004E;
+	Tue, 19 Mar 2024 11:16:57 +0000 (GMT)
 Received: from osiris (unknown [9.171.33.131])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 19 Mar 2024 11:12:35 +0000 (GMT)
-Date: Tue, 19 Mar 2024 12:12:33 +0100
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 19 Mar 2024 11:16:57 +0000 (GMT)
+Date: Tue, 19 Mar 2024 12:16:56 +0100
 From: Heiko Carstens <hca@linux.ibm.com>
-To: Anthony Krowiak <akrowiak@linux.ibm.com>
-Cc: "Jason J. Herne" <jjherne@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, pasic@linux.ibm.com,
-        borntraeger@de.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com
-Subject: Re: [PATCH v3 0/5] s390/vfio-ap: ap_config sysfs attribute for
- mdevctl automation
-Message-ID: <20240319111233.23303-D-hca@linux.ibm.com>
-References: <20240313205807.30554-1-jjherne@linux.ibm.com>
- <48d70b2c-788c-4ff0-9a03-c063aabdec07@linux.ibm.com>
+To: Li Zhijian <lizhijian@fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] s390/cio: Convert sprintf/snprintf to sysfs_emit
+Message-ID: <20240319111656.23303-E-hca@linux.ibm.com>
+References: <20240314095209.1325229-1-lizhijian@fujitsu.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240314095209.1325229-1-lizhijian@fujitsu.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: x1Zq21fjDM7KhpiRWE0TCuLRjVMWeHsC
+X-Proofpoint-GUID: x1Zq21fjDM7KhpiRWE0TCuLRjVMWeHsC
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <48d70b2c-788c-4ff0-9a03-c063aabdec07@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: SiixsjTxscVYE_fl_pSO20DqcD7Zvkwn
-X-Proofpoint-GUID: SiixsjTxscVYE_fl_pSO20DqcD7Zvkwn
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-18_12,2024-03-18_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
- mlxlogscore=794 clxscore=1015 suspectscore=0 priorityscore=1501
- phishscore=0 mlxscore=0 malwarescore=0 adultscore=0 lowpriorityscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ definitions=2024-03-19_01,2024-03-18_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 malwarescore=0
+ priorityscore=1501 phishscore=0 impostorscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 bulkscore=0 suspectscore=0 spamscore=0
+ mlxlogscore=820 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2403140000 definitions=main-2403190086
 
-On Fri, Mar 15, 2024 at 10:48:44AM -0400, Anthony Krowiak wrote:
-> Unless someone else chooses to review these, my opinion is that they are
-> good to go.
+On Thu, Mar 14, 2024 at 05:52:09PM +0800, Li Zhijian wrote:
+> Per filesystems/sysfs.rst, show() should only use sysfs_emit()
+> or sysfs_emit_at() when formatting the value to be returned to user space.
+> 
+> coccinelle complains that there are still a couple of functions that use
+> snprintf(). Convert them to sysfs_emit().
+> 
+> sprintf() will be converted as weel if they have.
+> 
+> Generally, this patch is generated by
+> make coccicheck M=<path/to/file> MODE=patch \
+> COCCI=scripts/coccinelle/api/device_attr_show.cocci
+> 
+> No functional change intended
+> 
+> CC: Vineeth Vijayan <vneethv@linux.ibm.com>
+> CC: Peter Oberparleiter <oberpar@linux.ibm.com>
+> CC: Heiko Carstens <hca@linux.ibm.com>
+> CC: Vasily Gorbik <gor@linux.ibm.com>
+> CC: Alexander Gordeev <agordeev@linux.ibm.com>
+> CC: Christian Borntraeger <borntraeger@linux.ibm.com>
+> CC: Sven Schnelle <svens@linux.ibm.com>
+> CC: linux-s390@vger.kernel.org
+> Signed-off-by: Li Zhijian <lizhijian@fujitsu.com>
+> ---
+> This is a part of the work "Fix coccicheck device_attr_show warnings"[1]
+> Split them per subsystem so that the maintainer can review it easily
+> [1] https://lore.kernel.org/lkml/20240116041129.3937800-1-lizhijian@fujitsu.com/
+> ---
+>  drivers/s390/cio/css.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 
-Please don't top-post.
+Applied, but...
 
-> On 3/13/24 4:58 PM, Jason J. Herne wrote:
-> > Mdevctl requires a way to atomically query and atomically update a vfio-ap
-> > mdev's current state. This patch set creates the ap_config sysfs attribute.
-> > This new attribute allows reading and writing an mdev's entire state in one go.
-> > If a newly written state is invalid for any reason the entire state is rejected
-> > and the target mdev remains unchanged.
-...
-> > Jason J. Herne (5):
-> >    s390/ap: Externalize AP bus specific bitmap reading function
-> >    s390/vfio-ap: Add sysfs attr, ap_config, to export mdev state
-> >    s390/vfio-ap: Ignore duplicate link requests in
-> >      vfio_ap_mdev_link_queue
-> >    s390/vfio-ap: Add write support to sysfs attr ap_config
-> >    docs: Update s390 vfio-ap doc for ap_config sysfs attribute
-> > 
-> >   Documentation/arch/s390/vfio-ap.rst   |  30 ++++
-> >   drivers/s390/crypto/ap_bus.c          |  13 +-
-> >   drivers/s390/crypto/ap_bus.h          |  22 +++
-> >   drivers/s390/crypto/vfio_ap_ops.c     | 220 ++++++++++++++++++++++++--
-> >   drivers/s390/crypto/vfio_ap_private.h |   6 +-
-> >   5 files changed, 262 insertions(+), 29 deletions(-)
+> @@ -396,7 +396,7 @@ static ssize_t pimpampom_show(struct device *dev,
+>  	struct subchannel *sch = to_subchannel(dev);
+>  	struct pmcw *pmcw = &sch->schib.pmcw;
+>  
+> -	return sprintf(buf, "%02x %02x %02x\n",
+> +	return sysfs_emit(buf, "%02x %02x %02x\n",
+>  		       pmcw->pim, pmcw->pam, pmcw->pom);
 
-With gcc gcc 13.2.0 / binutils 2.40.90.20230730 I get this (defconfig):
+...please make sure to fix such whitespace / indentation errors if you
+plan to provide more patches. I fixed it this time.
 
-  CC [M]  drivers/s390/crypto/vfio_ap_ops.o
-In file included from ./include/linux/cpumask.h:13,
-                 from ./include/linux/smp.h:13,
-                 from ./include/linux/lockdep.h:14,
-                 from ./include/linux/spinlock.h:63,
-                 from ./include/linux/mmzone.h:8,
-                 from ./include/linux/gfp.h:7,
-                 from ./include/linux/mm.h:7,
-                 from ./include/linux/scatterlist.h:8,
-                 from ./include/linux/iommu.h:10,
-                 from ./include/linux/vfio.h:12,
-                 from drivers/s390/crypto/vfio_ap_ops.c:12:
-In function ‘bitmap_copy’,
-    inlined from ‘ap_matrix_copy’ at drivers/s390/crypto/vfio_ap_ops.c:1672:2,
-    inlined from ‘ap_config_store’ at drivers/s390/crypto/vfio_ap_ops.c:1696:2:
-./include/linux/bitmap.h:253:17: warning: ‘memcpy’ reading 32 bytes from a region of size 0 [-Wstringop-overread]
-  253 |                 memcpy(dst, src, len);
-      |                 ^~~~~~~~~~~~~~~~~~~~~
-In function ‘ap_config_store’:
-cc1: note: source object is likely at address zero
-In function ‘bitmap_copy’,
-    inlined from ‘ap_matrix_copy’ at drivers/s390/crypto/vfio_ap_ops.c:1673:2,
-    inlined from ‘ap_config_store’ at drivers/s390/crypto/vfio_ap_ops.c:1696:2:
-./include/linux/bitmap.h:253:17: warning: ‘memcpy’ reading 32 bytes from a region of size 0 [-Wstringop-overread]
-  253 |                 memcpy(dst, src, len);
-      |                 ^~~~~~~~~~~~~~~~~~~~~
-In function ‘ap_config_store’:
-cc1: note: source object is likely at address zero
-In function ‘bitmap_copy’,
-    inlined from ‘ap_matrix_copy’ at drivers/s390/crypto/vfio_ap_ops.c:1674:2,
-    inlined from ‘ap_config_store’ at drivers/s390/crypto/vfio_ap_ops.c:1696:2:
-./include/linux/bitmap.h:253:17: warning: ‘memcpy’ reading 32 bytes from a region of size 0 [-Wstringop-overread]
-  253 |                 memcpy(dst, src, len);
-      |                 ^~~~~~~~~~~~~~~~~~~~~
-In function ‘ap_config_store’:
-cc1: note: source object is likely at address zero
+Thanks!
