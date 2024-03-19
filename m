@@ -1,197 +1,153 @@
-Received: from mail-ot1-f41.google.com (mail-ot1-f41.google.com [209.85.210.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65F78548E9;
-	Tue, 19 Mar 2024 08:01:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB55C54BF6;
+	Tue, 19 Mar 2024 11:12:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710835316; cv=none; b=FVowGf8xzOIpBdXvrwfs8LHfO/+gCeVL+3UQ+IUuZvaNDR2XZS8hohSzXntEcYu4KxkIgCK3jdi9i6+2vvWbnGxU6jgWEKc0K+R6sGTes5GhXrSprwEwYGyhHmakYrldslWPFGvPoGVW9iZ3JCBTzBqZRAp4QmCUj3JO7BnrIng=
+	t=1710846766; cv=none; b=RLNrAL1V4UvE6oiXYLPf0QCG2QcvWTUDJghZROQhpT1aevANKsL4dPhA+OsoUjfD9ac7iCODUlG0Cr269E2LrltAW4d+rflO7LhrGBAiMbqBiUCXePIAmGtQSmBM/Tq1Pisbr+0VJh/ErCJGi0/EdeWFWOA6ZffsmFykVhhlMjE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710835316; c=relaxed/simple;
-	bh=uOh2bHKLRUXUaO+Y4SQ5EIoftUs7uj6ScZRl2vQddKM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=VmhDt2zBaPyUtRW8Rzuc9HI+gnIde+KN1CWyh7X5MQw0Wu7+vTPPJmWrKODZNXhmIPJ4omYFfSY0EIffOxnmB0ZWDiPif5DyyIHM+8fR2/FAANVANXPoGu/bDngfEae8M9zc8GKG6Jvg5LhDc8gIAvRA1xrRAqvym/b3LRF0Nh0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h7N0RV2/; arc=none smtp.client-ip=209.85.210.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1710846766; c=relaxed/simple;
+	bh=F4aL7ZCH5j2X9PldDt7w2jAq1k9YFTM5qx/ObLef7hI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=p6bQgf1zYaGk+vxxIMHgY30d95iGCQCt1WZvIvoYVpAOp/Ma90it7uto1mfnGufayM//QFBY/Mc334MOGDejI2ojT+LOuNKHCasbQynP241feFfRxClcsfIqXyB+H2PFynFk3KeDORKKEXX6lu2oF/mmNnhzQLjAh7HbiC7jczw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=F9wHfG4r; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h7N0RV2/"
-Received: by mail-ot1-f41.google.com with SMTP id 46e09a7af769-6e69543fc1eso1002235a34.3;
-        Tue, 19 Mar 2024 01:01:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710835314; x=1711440114; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lYCFo5qndkhUTKD0ju2V6NpbPZWgrF0rvNKi9F72sCM=;
-        b=h7N0RV2/6c/6ISwog/VZusxVBaC/loY8wno+Mo5fQ4hRgmjhYld/4mRYThFzFV5VKZ
-         H3/wQhyEiDZDl7cF2Pa3G1NrnJmDLRESLx0+v8S967YJ2dZzkZ02xC+mYhwJXXokZAO8
-         2d7udNUOxhAJC0D7oECX/z+b1Vtj6BgGKqEE6g17VgRnR3M8AoSVf+OOtkWS2lOsqxDy
-         iwHbzwdocVCokJO3vZTYGczjwsvSqX5ovYmEBWhTiLt2Je0uu1QnDVBBYh+s6zwwNWmB
-         mTRowYH0eYKTHbCRiZY+PuKEAAz04tYWlP+FI2b3BHjb5ZgeuSjZNuCo4LQ2hnTzGgUe
-         Tf7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710835314; x=1711440114;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lYCFo5qndkhUTKD0ju2V6NpbPZWgrF0rvNKi9F72sCM=;
-        b=YwAGA2o8tk17x4cbsHzSK0vpEKUpO6J0NwFG9dX2eIRzNeFjRzX9fA0OS2BamMmIM1
-         brtxXAZsT5AfJNuq7y2iPLyB1Obqs8blFlLu0iKr1CnycV6gsmhY5cnvF2fPbECE919/
-         OmXeqbOg+UKXQ8inVvS8zMD5jk4IR36m651TpGKjlX8Jjdv4vJYWqUFoPlFAPkOrpBIO
-         FUlzevO1lzATg+mkrZc+FT5OJYm5m8sxwL9gLz8pyzjIi7Gl3ijGSkZECRmVZY1uA+Lh
-         4lqypH7DevGakSi0siH/0/8+hEquzdptq1/37bWPs8N1Wa+pk2O9GdH/BVdMdiz1zZ4d
-         bKDw==
-X-Forwarded-Encrypted: i=1; AJvYcCXhkQceLVwauUayYpv529xDK9iaV5+xZicZ3v3L1gb1xR595P4YhGzQdo+/GMvvng/j56OSKyIX9HBTKaIQaynzbwmgLEAmYPqvmlLUHYzVTxNmTBlniSS0N3o5d7/Syw==
-X-Gm-Message-State: AOJu0YzvBC1sjV7efZSD2FJXCeHLtFsK7mkmBoALVN/EnIMFDO768Ou4
-	W72l3rzuzWUKIDfVT4lavdBkIPjy8BkjjTwgUw1PJZ5QpExdXw3a
-X-Google-Smtp-Source: AGHT+IF70kukuIUslOKRONbnfx6Q5qzHIC6G6YQbr4o/AriQpKZiTDdR6gDB2b8R+nXV1Kt8v8DJvA==
-X-Received: by 2002:a05:6870:e308:b0:220:932f:1a1e with SMTP id z8-20020a056870e30800b00220932f1a1emr17263158oad.12.1710835314432;
-        Tue, 19 Mar 2024 01:01:54 -0700 (PDT)
-Received: from wheely.local0.net (193-116-208-39.tpgi.com.au. [193.116.208.39])
-        by smtp.gmail.com with ESMTPSA id q23-20020a62ae17000000b006e5c464c0a9sm9121283pff.23.2024.03.19.01.01.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Mar 2024 01:01:53 -0700 (PDT)
-From: Nicholas Piggin <npiggin@gmail.com>
-To: Thomas Huth <thuth@redhat.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>,
-	Laurent Vivier <lvivier@redhat.com>,
-	Andrew Jones <andrew.jones@linux.dev>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	linuxppc-dev@lists.ozlabs.org,
-	kvm@vger.kernel.org,
-	Alexandru Elisei <alexandru.elisei@arm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@redhat.com>,
-	Eric Auger <eric.auger@redhat.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	=?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>,
-	linux-s390@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	kvm-riscv@lists.infradead.org
-Subject: [kvm-unit-tests PATCH v7 33/35] configure: Make arch_libdir a first-class entity
-Date: Tue, 19 Mar 2024 17:59:24 +1000
-Message-ID: <20240319075926.2422707-34-npiggin@gmail.com>
-X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20240319075926.2422707-1-npiggin@gmail.com>
-References: <20240319075926.2422707-1-npiggin@gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="F9wHfG4r"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42JAfIha022693;
+	Tue, 19 Mar 2024 11:12:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ content-transfer-encoding : in-reply-to; s=pp1;
+ bh=V47fqHBz9Xe7fcRc0znVyKCEtLm+U7XW5YZvF5YtiQ0=;
+ b=F9wHfG4rJ7i5P600+XcDlW/Xh0tAcOEO/dGvvQfoEBkIaSUxRyJ6eFMT/KrcnSey9Djo
+ 373rxlZkEgphG+YTDnODe06cBM/tVAxxcrsChUi0bVYaKiy9a12X6rbUl0e5wmVeT9X0
+ gdK3Ow/c1N16FKt5W4IwuDCYjWDt1ioWFeNaag1S6VkEHt+b0m4Fs1RDmCfEfQJ/AHgp
+ tVki0SF8Y4qkFnr+7T11d1+JZsq01IXup5l1YEzj41nedNxsYZW73sFtKnkz3q31jvRm
+ ViR+gEv9rB8QBPz35RylTsbTueYXSotPgVdS0b/efEJYVNBXQxAxfMz0g2lG5PDLnZzD EQ== 
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wy91ng8gy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 19 Mar 2024 11:12:42 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42J9maoT010061;
+	Tue, 19 Mar 2024 11:12:41 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wxvauuxbm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 19 Mar 2024 11:12:41 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42JBCZ6Y10158412
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 19 Mar 2024 11:12:37 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C247A2004B;
+	Tue, 19 Mar 2024 11:12:35 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 44D302004F;
+	Tue, 19 Mar 2024 11:12:35 +0000 (GMT)
+Received: from osiris (unknown [9.171.33.131])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 19 Mar 2024 11:12:35 +0000 (GMT)
+Date: Tue, 19 Mar 2024 12:12:33 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Anthony Krowiak <akrowiak@linux.ibm.com>
+Cc: "Jason J. Herne" <jjherne@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, pasic@linux.ibm.com,
+        borntraeger@de.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com
+Subject: Re: [PATCH v3 0/5] s390/vfio-ap: ap_config sysfs attribute for
+ mdevctl automation
+Message-ID: <20240319111233.23303-D-hca@linux.ibm.com>
+References: <20240313205807.30554-1-jjherne@linux.ibm.com>
+ <48d70b2c-788c-4ff0-9a03-c063aabdec07@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <48d70b2c-788c-4ff0-9a03-c063aabdec07@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: SiixsjTxscVYE_fl_pSO20DqcD7Zvkwn
+X-Proofpoint-GUID: SiixsjTxscVYE_fl_pSO20DqcD7Zvkwn
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-03-18_12,2024-03-18_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
+ mlxlogscore=794 clxscore=1015 suspectscore=0 priorityscore=1501
+ phishscore=0 mlxscore=0 malwarescore=0 adultscore=0 lowpriorityscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2403140000 definitions=main-2403190086
 
-arch_libdir was brought in to improve the heuristic determination of
-the lib/ directory based on arch and testdir names, but it did not
-entirely clean that mess up.
+On Fri, Mar 15, 2024 at 10:48:44AM -0400, Anthony Krowiak wrote:
+> Unless someone else chooses to review these, my opinion is that they are
+> good to go.
 
-Remove the arch_libdir->arch->testdir heuristic and just require
-everybody sets arch_libdir correctly. Fail if the lib/arch or
-lib/arch/asm directories can not be found.
+Please don't top-post.
 
-Cc: Alexandru Elisei <alexandru.elisei@arm.com>
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Eric Auger <eric.auger@redhat.com>
-Cc: Janosch Frank <frankja@linux.ibm.com>
-Cc: Laurent Vivier <lvivier@redhat.com>
-Cc: Nico Böhr <nrb@linux.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Thomas Huth <thuth@redhat.com>
-Cc: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
-Cc: kvmarm@lists.linux.dev
-Cc: kvm-riscv@lists.infradead.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Reviewed-by: Andrew Jones <andrew.jones@linux.dev>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
----
- Makefile  |  2 +-
- configure | 18 +++++++++++++-----
- 2 files changed, 14 insertions(+), 6 deletions(-)
+> On 3/13/24 4:58 PM, Jason J. Herne wrote:
+> > Mdevctl requires a way to atomically query and atomically update a vfio-ap
+> > mdev's current state. This patch set creates the ap_config sysfs attribute.
+> > This new attribute allows reading and writing an mdev's entire state in one go.
+> > If a newly written state is invalid for any reason the entire state is rejected
+> > and the target mdev remains unchanged.
+...
+> > Jason J. Herne (5):
+> >    s390/ap: Externalize AP bus specific bitmap reading function
+> >    s390/vfio-ap: Add sysfs attr, ap_config, to export mdev state
+> >    s390/vfio-ap: Ignore duplicate link requests in
+> >      vfio_ap_mdev_link_queue
+> >    s390/vfio-ap: Add write support to sysfs attr ap_config
+> >    docs: Update s390 vfio-ap doc for ap_config sysfs attribute
+> > 
+> >   Documentation/arch/s390/vfio-ap.rst   |  30 ++++
+> >   drivers/s390/crypto/ap_bus.c          |  13 +-
+> >   drivers/s390/crypto/ap_bus.h          |  22 +++
+> >   drivers/s390/crypto/vfio_ap_ops.c     | 220 ++++++++++++++++++++++++--
+> >   drivers/s390/crypto/vfio_ap_private.h |   6 +-
+> >   5 files changed, 262 insertions(+), 29 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index 4f35fffc6..4e0f54543 100644
---- a/Makefile
-+++ b/Makefile
-@@ -10,7 +10,7 @@ include config.mak
- VPATH = $(SRCDIR)
- 
- libdirs-get = $(shell [ -d "lib/$(1)" ] && echo "lib/$(1) lib/$(1)/asm")
--ARCH_LIBDIRS := $(call libdirs-get,$(ARCH_LIBDIR)) $(call libdirs-get,$(TEST_DIR))
-+ARCH_LIBDIRS := $(call libdirs-get,$(ARCH_LIBDIR))
- OBJDIRS := $(ARCH_LIBDIRS)
- 
- DESTDIR := $(PREFIX)/share/kvm-unit-tests/
-diff --git a/configure b/configure
-index e19ba6f0c..a1308db8e 100755
---- a/configure
-+++ b/configure
-@@ -216,7 +216,6 @@ fi
- arch_name=$arch
- [ "$arch" = "aarch64" ] && arch="arm64"
- [ "$arch_name" = "arm64" ] && arch_name="aarch64"
--arch_libdir=$arch
- 
- if [ "$arch" = "riscv" ]; then
-     echo "riscv32 or riscv64 must be specified"
-@@ -286,8 +285,10 @@ fi
- 
- if [ "$arch" = "i386" ] || [ "$arch" = "x86_64" ]; then
-     testdir=x86
-+    arch_libdir=x86
- elif [ "$arch" = "arm" ] || [ "$arch" = "arm64" ]; then
-     testdir=arm
-+    arch_libdir=$arch
-     if [ "$target" = "qemu" ]; then
-         arm_uart_early_addr=0x09000000
-     elif [ "$target" = "kvmtool" ]; then
-@@ -336,6 +337,7 @@ elif [ "$arch" = "arm" ] || [ "$arch" = "arm64" ]; then
-     fi
- elif [ "$arch" = "ppc64" ]; then
-     testdir=powerpc
-+    arch_libdir=ppc64
-     firmware="$testdir/boot_rom.bin"
-     if [ "$endian" != "little" ] && [ "$endian" != "big" ]; then
-         echo "You must provide endianness (big or little)!"
-@@ -346,6 +348,7 @@ elif [ "$arch" = "riscv32" ] || [ "$arch" = "riscv64" ]; then
-     arch_libdir=riscv
- elif [ "$arch" = "s390x" ]; then
-     testdir=s390x
-+    arch_libdir=s390x
- else
-     echo "arch $arch is not supported!"
-     arch=
-@@ -355,6 +358,10 @@ if [ ! -d "$srcdir/$testdir" ]; then
-     echo "$srcdir/$testdir does not exist!"
-     exit 1
- fi
-+if [ ! -d "$srcdir/lib/$arch_libdir" ]; then
-+    echo "$srcdir/lib/$arch_libdir does not exist!"
-+    exit 1
-+fi
- 
- if [ "$efi" = "y" ] && [ -f "$srcdir/$testdir/efi/run" ]; then
-     ln -fs "$srcdir/$testdir/efi/run" $testdir-run
-@@ -417,10 +424,11 @@ fi
- # link lib/asm for the architecture
- rm -f lib/asm
- asm="asm-generic"
--if [ -d "$srcdir/lib/$arch/asm" ]; then
--	asm="$srcdir/lib/$arch/asm"
--elif [ -d "$srcdir/lib/$testdir/asm" ]; then
--	asm="$srcdir/lib/$testdir/asm"
-+if [ -d "$srcdir/lib/$arch_libdir/asm" ]; then
-+    asm="$srcdir/lib/$arch_libdir/asm"
-+else
-+    echo "$srcdir/lib/$arch_libdir/asm does not exist"
-+    exit 1
- fi
- mkdir -p lib
- ln -sf "$asm" lib/asm
--- 
-2.42.0
+With gcc gcc 13.2.0 / binutils 2.40.90.20230730 I get this (defconfig):
 
+  CC [M]  drivers/s390/crypto/vfio_ap_ops.o
+In file included from ./include/linux/cpumask.h:13,
+                 from ./include/linux/smp.h:13,
+                 from ./include/linux/lockdep.h:14,
+                 from ./include/linux/spinlock.h:63,
+                 from ./include/linux/mmzone.h:8,
+                 from ./include/linux/gfp.h:7,
+                 from ./include/linux/mm.h:7,
+                 from ./include/linux/scatterlist.h:8,
+                 from ./include/linux/iommu.h:10,
+                 from ./include/linux/vfio.h:12,
+                 from drivers/s390/crypto/vfio_ap_ops.c:12:
+In function ‘bitmap_copy’,
+    inlined from ‘ap_matrix_copy’ at drivers/s390/crypto/vfio_ap_ops.c:1672:2,
+    inlined from ‘ap_config_store’ at drivers/s390/crypto/vfio_ap_ops.c:1696:2:
+./include/linux/bitmap.h:253:17: warning: ‘memcpy’ reading 32 bytes from a region of size 0 [-Wstringop-overread]
+  253 |                 memcpy(dst, src, len);
+      |                 ^~~~~~~~~~~~~~~~~~~~~
+In function ‘ap_config_store’:
+cc1: note: source object is likely at address zero
+In function ‘bitmap_copy’,
+    inlined from ‘ap_matrix_copy’ at drivers/s390/crypto/vfio_ap_ops.c:1673:2,
+    inlined from ‘ap_config_store’ at drivers/s390/crypto/vfio_ap_ops.c:1696:2:
+./include/linux/bitmap.h:253:17: warning: ‘memcpy’ reading 32 bytes from a region of size 0 [-Wstringop-overread]
+  253 |                 memcpy(dst, src, len);
+      |                 ^~~~~~~~~~~~~~~~~~~~~
+In function ‘ap_config_store’:
+cc1: note: source object is likely at address zero
+In function ‘bitmap_copy’,
+    inlined from ‘ap_matrix_copy’ at drivers/s390/crypto/vfio_ap_ops.c:1674:2,
+    inlined from ‘ap_config_store’ at drivers/s390/crypto/vfio_ap_ops.c:1696:2:
+./include/linux/bitmap.h:253:17: warning: ‘memcpy’ reading 32 bytes from a region of size 0 [-Wstringop-overread]
+  253 |                 memcpy(dst, src, len);
+      |                 ^~~~~~~~~~~~~~~~~~~~~
+In function ‘ap_config_store’:
+cc1: note: source object is likely at address zero
