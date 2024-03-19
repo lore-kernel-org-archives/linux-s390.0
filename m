@@ -1,157 +1,244 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7E3851005
-	for <linux-s390@vger.kernel.org>; Tue, 19 Mar 2024 07:01:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BBBC1E536;
+	Tue, 19 Mar 2024 08:01:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710831675; cv=none; b=SKYxmDVuJgrecqXKbygzK0TcpLUTinuUEzwVkGnSFwEcpy+gR8+iv5Drm4OhrdhdzZpaKFo+mScFd3u6lq29nMGNicwqc/bGA9Wf4Ko0M1U/HcQ4eErXmxsccEHv6e1+mNhEh5DCSZAVLGO2zo0XM28849CDf15px4fgq8VM9fU=
+	t=1710835292; cv=none; b=OIHKtJenm3Jj6OYYnG24DYsjZty0jwDBw3+RHNeVE0pYeP2BvC+qSce4IJtmYvTnym4TzvoauFI0qZpDhuHvNlCYvyfns+v2dKx8BXB/7DzFSXT/t8I/Ev0CIJtHE8JdlJj9IttdMc6rdP1yMVXiCXOj3CCZTwlT0hS63QjY+T8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710831675; c=relaxed/simple;
-	bh=+0yGzgO/uZDZuFmdyu9d+sc45NfVqM4uTrSkkmcuopU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HlOMGYZKVINKaE079wGoUpUKTArlP85+L3WJ7nDhQik9qynsP7z4Widpn9BOoubErtUmQ1tbzmrqSMKzf1MWSkK5T2xESWupeMT/Yc2LhqcYj7UVRpffujvo1JsC4O32Pq+hMEimGRwzIGVF7XUf3dx8BuMu1Z3RStwTyfurGHE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AxMcq8CB; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1710835292; c=relaxed/simple;
+	bh=8ITJigJwLmN4RQittjkENr0d55kOqyfbD7DDNd6PBpw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=mOfy008CK7twj4QGCQspOwe8C4sEO97o7ZtJAYHN0ThOE3rwFe2x8IRfbWfEEnBKnxGV7PHf6a3grd7KiFgsiIdqO0eoURcYywuchPhv0TKz3QJBSlSpXh+b0noQYm7XCeCUjwqI3/eYtQ/YHyf27Eah4m1pc8yX2Ho0UsPvlOo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mAfgS2/K; arc=none smtp.client-ip=209.85.210.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AxMcq8CB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710831672;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=foUSQQGmYmOu8nLXi1AjlC9r9SGWzmdXWf6sigKcUWw=;
-	b=AxMcq8CBcdA/gqIt5SOEw+883M4kzftWmVgOAaRzn1cSQD7heZANMPQNc8ib6ehaYCEuBZ
-	gveaMwXy8u2SUQ5a1QLDrN5NBJTTntEPyf/2/1rqAbaskJ+mn3Yf0bAON0eOYv3eadOHtY
-	9PW6OvOKYSIrZXohP3UoTuGRnl/Q0eg=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-605-9D67RE5FMNChB7Vp-A4YDQ-1; Tue, 19 Mar 2024 03:01:10 -0400
-X-MC-Unique: 9D67RE5FMNChB7Vp-A4YDQ-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-412c7ee0c97so24778595e9.0
-        for <linux-s390@vger.kernel.org>; Tue, 19 Mar 2024 00:01:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710831669; x=1711436469;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mAfgS2/K"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-6e6f69e850bso4126028b3a.0;
+        Tue, 19 Mar 2024 01:01:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1710835291; x=1711440091; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=foUSQQGmYmOu8nLXi1AjlC9r9SGWzmdXWf6sigKcUWw=;
-        b=dexxlceOKIizAp6s0NaU/y5YXQXSmPPrblsAXwxBlAZ/CmiwN/GqH/RFo4dWi5RDLX
-         hEaM6KlMswDuBYtr2U0wiCG0s/6GLGaDY0RKyPqQAr4z84kxeZyn1xaw5Og5ypSd34AI
-         ptX3M4lYEdw1s5SwOcOhk4Ci3eIrBX+XYHbdwp1klHD9c/ZKoRWGsjnyngb4akcCmG+m
-         s7BP/BEkiryd4arGSLGqulUJXSsBWjKa5fT8OIhEExo9SUs4F3amjoYzxc5LBYXmBDoe
-         0OorO2i+W12h0vdG+5owAK8RaKT91aLCCzEaUVXtJHR4UuDz85Flrl9lhBSHaF22htZz
-         552A==
-X-Forwarded-Encrypted: i=1; AJvYcCXNQVL2atKCOrl5uXPQK9psOG6a1qeJDQjGo+dC83OfN35hLKoWWekXudiOq6L5n2slUMWCyymz8NEPU6ikvFU6U+CIOh/yPYXMfQ==
-X-Gm-Message-State: AOJu0Yx/OfczlZQZB8NPEUnYlFE7qTrhNidfSUlxV7Rld9DkBsLYB8aP
-	G2Do7HuO84rDVqIvQxn3BzBxxq1c5yqyZvG5PTt0alAM06QoWuZ+RndSbcx8EcfQSyZZnN08yjT
-	02vz93BfT4xoY2trZzgeiUgD0Xwu764+D+dzBpWOLTPGa96SL2Ol7by8fcD0=
-X-Received: by 2002:a05:600c:4f0e:b0:413:ef8e:4cc with SMTP id l14-20020a05600c4f0e00b00413ef8e04ccmr1095511wmq.40.1710831669527;
-        Tue, 19 Mar 2024 00:01:09 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEzg6YzD09DcsuSp1mTE4kCrxMGUWI9Lm91o60NEdPSVsYEnPJ0jVjqFhsmb8yxRUdsUTgvyQ==
-X-Received: by 2002:a05:600c:4f0e:b0:413:ef8e:4cc with SMTP id l14-20020a05600c4f0e00b00413ef8e04ccmr1095470wmq.40.1710831668946;
-        Tue, 19 Mar 2024 00:01:08 -0700 (PDT)
-Received: from redhat.com ([2.52.6.254])
-        by smtp.gmail.com with ESMTPSA id fk10-20020a05600c0cca00b0041463334822sm1536373wmb.26.2024.03.19.00.01.04
+        bh=jtkbIYHcs9Z7wd6d39OXgdj3kfUKXbm4ZJQ1x4xi+EM=;
+        b=mAfgS2/Kx1Y2O8/hyF61RifXOYaBLgMDOwAU8CeuFhM5SQDF1fg32AqrOaT2E1ME5L
+         fX4bW9OPFg2NBXCmNoaFsaEgFkYSFQ0iGmPcG/bEf8WqDk2WxNjNTvEmwL5E4doSj+CY
+         TjYq6pyvGfAZjyJXE4D33HUmb2WOBHH2VWzzew080suzqWtP7+1bM9dh/0gJ8DHuTLfY
+         26lNrHFmBvoqvkrhKLYFbtzHnRSTDX0pFXIj5XtxOJcyJC4Mn2vMtEulO6xsM07rYTmU
+         wUGmZ30bIB7C85B5zfvYnw5koMhQCN9j+C5UJYy3IXRWDJiFHjlU0hZDrLe+iWEVqGwS
+         efkw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710835291; x=1711440091;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jtkbIYHcs9Z7wd6d39OXgdj3kfUKXbm4ZJQ1x4xi+EM=;
+        b=bR7MOi/uapBdhGozZnRKE6JHKkfLSzZWxuTCDU2x+WSPTq2Ib0m8VcgknSqkd96HRv
+         JI9nKs1l1D13ThKOWDFHJrMpQmiC7dBRRwY5+kgeFTpm5KtsUSU9OKTUcwSNF7B0okJ+
+         1bWTnxK0Tw5DkGyxYHQSTY3o1aBxQ9Cmtk6RWIKnk7eKE7i5GYD+x0DUNHAlkgpu6od9
+         FuCC0sT2O4pGAaEjKDeHv7u2zSP6XnZMsJAcqa/b7kxLyJ2KgReVIWMKvSCL8v/xN4A/
+         OomZPDmgbP2wHVhQF6y/CCLz3Mv4AD1nCijQH24dfzEs39FOvsq3ZFAPwE+Vnj1yFIWZ
+         MRqQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXxLE/oPKL5gk6zKmgRC5Sj5gWxV40usWPoZ3GVk80zHTvZKXnj7aiQiGSYBguVEsie1BdFgkSZusb5rMgDjPSYhaEzeKc3h8slMfkfZn2rTrOvYhb/UWdyYJVpDFCL/w==
+X-Gm-Message-State: AOJu0YxW/dqlH1TAE/riTNgK3Y8zPkXud/7FOWhoIO8Yi7RrEhYZ/ZqD
+	Nrnza02acZih8RNvGq3rcIrHnZquIFfI2BMYR8pU8mYzoum2ebkP
+X-Google-Smtp-Source: AGHT+IHh8d74HAxWLNZuLT7882WxsnK+rCPvG3s+cIXFd6F5jOkgfb78HhHkZfJKKDCSzgvliCjSZQ==
+X-Received: by 2002:a05:6a00:b82:b0:6e6:843f:1d05 with SMTP id g2-20020a056a000b8200b006e6843f1d05mr19243112pfj.25.1710835290863;
+        Tue, 19 Mar 2024 01:01:30 -0700 (PDT)
+Received: from wheely.local0.net (193-116-208-39.tpgi.com.au. [193.116.208.39])
+        by smtp.gmail.com with ESMTPSA id q23-20020a62ae17000000b006e5c464c0a9sm9121283pff.23.2024.03.19.01.01.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Mar 2024 00:01:08 -0700 (PDT)
-Date: Tue, 19 Mar 2024 03:01:02 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH vhost v3 0/4] refactor the params of find_vqs()
-Message-ID: <20240319025933-mutt-send-email-mst@kernel.org>
-References: <20240312021013.88656-1-xuanzhuo@linux.alibaba.com>
+        Tue, 19 Mar 2024 01:01:30 -0700 (PDT)
+From: Nicholas Piggin <npiggin@gmail.com>
+To: Thomas Huth <thuth@redhat.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>,
+	Laurent Vivier <lvivier@redhat.com>,
+	Andrew Jones <andrew.jones@linux.dev>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	linuxppc-dev@lists.ozlabs.org,
+	kvm@vger.kernel.org,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	=?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>,
+	David Hildenbrand <david@redhat.com>,
+	linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v7 28/35] common/sieve: Use vmalloc.h for setup_mmu definition
+Date: Tue, 19 Mar 2024 17:59:19 +1000
+Message-ID: <20240319075926.2422707-29-npiggin@gmail.com>
+X-Mailer: git-send-email 2.42.0
+In-Reply-To: <20240319075926.2422707-1-npiggin@gmail.com>
+References: <20240319075926.2422707-1-npiggin@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240312021013.88656-1-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Tue, Mar 12, 2024 at 10:10:09AM +0800, Xuan Zhuo wrote:
-> This pathset is splited from the
-> 
->      http://lore.kernel.org/all/20240229072044.77388-1-xuanzhuo@linux.alibaba.com
-> 
-> That may needs some cycles to discuss. But that notifies too many people.
-> 
-> But just the four commits need to notify so many people.
-> And four commits are independent. So I split that patch set,
-> let us review these first.
-> 
-> The patch set try to  refactor the params of find_vqs().
-> Then we can just change the structure, when introducing new
-> features.
-> 
-> Thanks.
-> 
-> v3:
->   1. fix the bug: "assignment of read-only location '*cfg.names'"
-> 
-> v2:
->   1. add kerneldoc for "struct vq_transport_config" @ilpo.jarvinen
-> 
-> v1:
->   1. fix some comments from ilpo.jarvinen@linux.intel.com
-> 
+There is no good reason to put setup_vm in libcflat.h when it's
+defined in vmalloc.h.
 
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Thomas Huth <thuth@redhat.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: Nico Böhr <nrb@linux.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Acked-by: Andrew Jones <andrew.jones@linux.dev>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+---
+ common/sieve.c         | 1 +
+ lib/libcflat.h         | 2 --
+ lib/s390x/io.c         | 1 +
+ lib/s390x/uv.h         | 1 +
+ lib/x86/vm.h           | 1 +
+ s390x/mvpg.c           | 1 +
+ s390x/selftest.c       | 1 +
+ x86/pmu.c              | 1 +
+ x86/pmu_lbr.c          | 1 +
+ x86/vmexit.c           | 1 +
+ x86/vmware_backdoors.c | 1 +
+ 11 files changed, 10 insertions(+), 2 deletions(-)
 
-As this came in after merge window was open I'm deferring this
-to the next merge window.
-
-Jason, can you pls try to complete the review meanwhile?
-
-> 
-> Xuan Zhuo (4):
->   virtio: find_vqs: pass struct instead of multi parameters
->   virtio: vring_create_virtqueue: pass struct instead of multi
->     parameters
->   virtio: vring_new_virtqueue(): pass struct instead of multi parameters
->   virtio_ring: simplify the parameters of the funcs related to
->     vring_create/new_virtqueue()
-> 
->  arch/um/drivers/virtio_uml.c             |  31 ++--
->  drivers/platform/mellanox/mlxbf-tmfifo.c |  24 ++--
->  drivers/remoteproc/remoteproc_virtio.c   |  31 ++--
->  drivers/s390/virtio/virtio_ccw.c         |  33 ++---
->  drivers/virtio/virtio_mmio.c             |  30 ++--
->  drivers/virtio/virtio_pci_common.c       |  60 ++++----
->  drivers/virtio/virtio_pci_common.h       |   9 +-
->  drivers/virtio/virtio_pci_legacy.c       |  16 ++-
->  drivers/virtio/virtio_pci_modern.c       |  38 +++--
->  drivers/virtio/virtio_ring.c             | 173 ++++++++---------------
->  drivers/virtio/virtio_vdpa.c             |  45 +++---
->  include/linux/virtio_config.h            |  85 ++++++++---
->  include/linux/virtio_ring.h              |  93 +++++++-----
->  tools/virtio/virtio_test.c               |   4 +-
->  tools/virtio/vringh_test.c               |  28 ++--
->  15 files changed, 363 insertions(+), 337 deletions(-)
-> 
-> --
-> 2.32.0.3.g01195cf9f
+diff --git a/common/sieve.c b/common/sieve.c
+index 8150f2d98..8fe05ef13 100644
+--- a/common/sieve.c
++++ b/common/sieve.c
+@@ -1,5 +1,6 @@
+ #include "alloc.h"
+ #include "libcflat.h"
++#include "vmalloc.h"
+ 
+ static int sieve(char* data, int size)
+ {
+diff --git a/lib/libcflat.h b/lib/libcflat.h
+index 700f43527..8c8dd0286 100644
+--- a/lib/libcflat.h
++++ b/lib/libcflat.h
+@@ -152,8 +152,6 @@ do {									\
+ void binstr(unsigned long x, char out[BINSTR_SZ]);
+ void print_binstr(unsigned long x);
+ 
+-extern void setup_vm(void);
+-
+ #endif /* !__ASSEMBLY__ */
+ 
+ #define SZ_256			(1 << 8)
+diff --git a/lib/s390x/io.c b/lib/s390x/io.c
+index fb7b7ddaa..2b28ccaa0 100644
+--- a/lib/s390x/io.c
++++ b/lib/s390x/io.c
+@@ -10,6 +10,7 @@
+  */
+ #include <libcflat.h>
+ #include <argv.h>
++#include <vmalloc.h>
+ #include <asm/spinlock.h>
+ #include <asm/facility.h>
+ #include <asm/sigp.h>
+diff --git a/lib/s390x/uv.h b/lib/s390x/uv.h
+index 286933caa..00a370410 100644
+--- a/lib/s390x/uv.h
++++ b/lib/s390x/uv.h
+@@ -4,6 +4,7 @@
+ 
+ #include <sie.h>
+ #include <asm/pgtable.h>
++#include <vmalloc.h>
+ 
+ bool uv_os_is_guest(void);
+ bool uv_os_is_host(void);
+diff --git a/lib/x86/vm.h b/lib/x86/vm.h
+index 4b714bad7..cf39787aa 100644
+--- a/lib/x86/vm.h
++++ b/lib/x86/vm.h
+@@ -2,6 +2,7 @@
+ #define _X86_VM_H_
+ 
+ #include "processor.h"
++#include "vmalloc.h"
+ #include "asm/page.h"
+ #include "asm/io.h"
+ #include "asm/bitops.h"
+diff --git a/s390x/mvpg.c b/s390x/mvpg.c
+index 296338d4f..a0cfc575a 100644
+--- a/s390x/mvpg.c
++++ b/s390x/mvpg.c
+@@ -15,6 +15,7 @@
+ #include <asm/page.h>
+ #include <asm/facility.h>
+ #include <asm/mem.h>
++#include <vmalloc.h>
+ #include <alloc_page.h>
+ #include <bitops.h>
+ #include <hardware.h>
+diff --git a/s390x/selftest.c b/s390x/selftest.c
+index 92ed4e5d3..3eaae9b06 100644
+--- a/s390x/selftest.c
++++ b/s390x/selftest.c
+@@ -9,6 +9,7 @@
+ #include <libcflat.h>
+ #include <util.h>
+ #include <alloc.h>
++#include <vmalloc.h>
+ #include <asm/interrupt.h>
+ #include <asm/barrier.h>
+ #include <asm/pgtable.h>
+diff --git a/x86/pmu.c b/x86/pmu.c
+index 47a1a602a..7062c1ad9 100644
+--- a/x86/pmu.c
++++ b/x86/pmu.c
+@@ -6,6 +6,7 @@
+ #include "x86/apic.h"
+ #include "x86/desc.h"
+ #include "x86/isr.h"
++#include "vmalloc.h"
+ #include "alloc.h"
+ 
+ #include "libcflat.h"
+diff --git a/x86/pmu_lbr.c b/x86/pmu_lbr.c
+index 40b63fa3d..c6f010847 100644
+--- a/x86/pmu_lbr.c
++++ b/x86/pmu_lbr.c
+@@ -2,6 +2,7 @@
+ #include "x86/processor.h"
+ #include "x86/pmu.h"
+ #include "x86/desc.h"
++#include "vmalloc.h"
+ 
+ #define N 1000000
+ 
+diff --git a/x86/vmexit.c b/x86/vmexit.c
+index eb5d3023a..48a38f60f 100644
+--- a/x86/vmexit.c
++++ b/x86/vmexit.c
+@@ -1,6 +1,7 @@
+ #include "libcflat.h"
+ #include "acpi.h"
+ #include "smp.h"
++#include "vmalloc.h"
+ #include "pci.h"
+ #include "x86/vm.h"
+ #include "x86/desc.h"
+diff --git a/x86/vmware_backdoors.c b/x86/vmware_backdoors.c
+index bc1002056..f8cf7ecb1 100644
+--- a/x86/vmware_backdoors.c
++++ b/x86/vmware_backdoors.c
+@@ -6,6 +6,7 @@
+ #include "x86/desc.h"
+ #include "x86/isr.h"
+ #include "alloc.h"
++#include "vmalloc.h"
+ #include "setjmp.h"
+ #include "usermode.h"
+ #include "fault_test.h"
+-- 
+2.42.0
 
