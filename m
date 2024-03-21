@@ -1,211 +1,169 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85D0177F14;
-	Thu, 21 Mar 2024 08:12:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A706125CB;
+	Thu, 21 Mar 2024 10:15:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711008759; cv=none; b=qDvfZvJny6p/q5EyxyGGSrsiLE0xLiYoLNRTNZ3Y9p7CSKwWFccUXBi8u43dbX76A+48IC16yfR6vAjov+fcOWbOW36tBuREPS0ZmRRaTWAW0JcHQY+B+LHyAe1BZQlsKmEdR6FLhJjbkFzNxsJIHESQW53mhpMbr/Wnr4z9JII=
+	t=1711016141; cv=none; b=h/835DucJtkmE3pun6cuDmVKEJOVlocyvdeaYW0onXHrDZ0QjrO6JhNJMGf6N2G9uMPGhC36/MY/lgAFu2IiSAIlIZZ+/3J5urKBKSpkSqhsGM4jHAwZOUzDIpIFv58nXgtn1XxRqpj+r2cpUTnrWIBKuftiZhzsdQnhQgBQluc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711008759; c=relaxed/simple;
-	bh=Kj8KUSghrmg0GoKUmi5UVBDNwlsLdNHc1SqFPZMjA5I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DNGaXT93RKrkfa9SHE75tp1HymzAkJwEnnAqqWQJ+ZeaGyYsI6DGak8Jc4xv09dQaaebc/C4+YGSSluF/+OLP/P7mFcf1LIc+nw75mO1eKJUijOYwWPYvrUCVyb/APp31XIPSl3aml0hkdTtfMFhqI3+vD7tLTdPeI4cIjNOi3o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WGmXxNnN; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1711016141; c=relaxed/simple;
+	bh=7qRSXP3PAx1NhteN8w37OwyiOJJ/fL3h/oWPw8n/OtQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=OZi4T8CUq+LrvyN4d97szGUUPQR8XbrcFbWnFkrChYtf+6ZiwRaU56+TM7mNNNYFW0LAHyghDJ/qBrTuqiR1NZghS89biF0MQSPjPBlvxUT1yWpVvL1FLGIwTxmOGT49KWSB/5HrtQngd+cakwPUqvjknCEXrRENio+IFueeyRk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=W1kwEgEv; arc=none smtp.client-ip=115.124.30.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WGmXxNnN"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42L4xSXp026240;
-	Thu, 21 Mar 2024 08:12:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=iTRimnW+D2YIFUe/aOmIWkblXn+SJABHdBSkm41+Nro=;
- b=WGmXxNnNYOtUrWtdAWI4AQUUjlEUpZrJzBT07pCUHqgsWpaJZMoV8K35dy8c2CEN3kiU
- OgFDVspWZW1yV23KIoHq2FN1LOlgC34o66Hs8N2/BtdIhB90aVN+QqKq5E7WKmzgXWZu
- D9Q2XKFh/fw0CAxePf9E5LhEC1ecn+62LXqqEC8DDIxYTZr2/7VfKGaXrmEJ6sdX8x98
- O+4T6lZj7ZYxOCKqoOgKEBr/MMwj5WYWaHnFq4hnHSdNmK3O3K68eSGjyuX4pAqFiLzf
- lu61cCvvnCScybWOz7c2GJ/eVtFpYn112TupEozr8eDaTT1yRUneW61xI8Qmw+G2/nGm 4g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x0an3rp2k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 21 Mar 2024 08:12:33 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 42L8CW0b025773;
-	Thu, 21 Mar 2024 08:12:32 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x0an3rp2e-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 21 Mar 2024 08:12:32 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42L5frBV017242;
-	Thu, 21 Mar 2024 08:12:32 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wwnrtkywt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 21 Mar 2024 08:12:31 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42L8CQVO51773914
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 21 Mar 2024 08:12:28 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B65F920040;
-	Thu, 21 Mar 2024 08:12:26 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BA40E20043;
-	Thu, 21 Mar 2024 08:12:25 +0000 (GMT)
-Received: from [9.179.15.41] (unknown [9.179.15.41])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 21 Mar 2024 08:12:25 +0000 (GMT)
-Message-ID: <1b3428f6-1fcc-4aba-80a0-0743c7c0c138@linux.ibm.com>
-Date: Thu, 21 Mar 2024 09:12:19 +0100
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="W1kwEgEv"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711016136; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=lH6yRQu7rtWhDlXmo5ZUucMUfKGjgQV9jTrLIwthFpw=;
+	b=W1kwEgEvLYPaX0R12Rhq0+LwsVBrubAqoVOJLxK3PDF79ryHAC1u7tsNOJeFxdP5TUPTowJ6oL3XWRYCjhaKuIgVKqSEsURAmMlxI3f5uUF+WigVRyRU9siEhrF44nF5+9ordPw++o0lzuH37NBjRnsAtMa127jVsX2+XsN9XXM=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=26;SR=0;TI=SMTPD_---0W3-Ms4H_1711016134;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3-Ms4H_1711016134)
+          by smtp.aliyun-inc.com;
+          Thu, 21 Mar 2024 18:15:34 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: virtualization@lists.linux.dev
+Cc: Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Hans de Goede <hdegoede@redhat.com>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	David Hildenbrand <david@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	linux-um@lists.infradead.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org
+Subject: [PATCH vhost v4 1/6] virtio_balloon: remove the dependence where names[] is null
+Date: Thu, 21 Mar 2024 18:15:27 +0800
+Message-Id: <20240321101532.59272-2-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
+References: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH net-next v4 10/11] net/smc: adapt cursor update when
- sndbuf and peer DMB are merged
-To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
-        twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org
-References: <20240317100545.96663-1-guwen@linux.alibaba.com>
- <20240317100545.96663-11-guwen@linux.alibaba.com>
-From: Jan Karcher <jaka@linux.ibm.com>
-Organization: IBM - Network Linux on Z
-In-Reply-To: <20240317100545.96663-11-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: z9YziVEJzFcbbcV0eWp2ZNC8zo7KLreG
-X-Proofpoint-GUID: 9zCpydCXa2yomG6ecs39FNB_K3MqK4wz
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-21_05,2024-03-18_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
- suspectscore=0 clxscore=1015 priorityscore=1501 bulkscore=0
- impostorscore=0 lowpriorityscore=0 adultscore=0 malwarescore=0
- mlxlogscore=999 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2403140000 definitions=main-2403210055
+X-Git-Hash: 571c18a30348
+Content-Transfer-Encoding: 8bit
 
+Currently, the init_vqs function within the virtio_balloon driver relies
+on the condition that certain names array entries are null in order to
+skip the initialization of some virtual queues (vqs). This behavior is
+unique to this part of the codebase. In an upcoming commit, we plan to
+eliminate this dependency by removing the function entirely. Therefore,
+with this change, we are ensuring that the virtio_balloon no longer
+depends on the aforementioned function.
 
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/virtio/virtio_balloon.c | 41 +++++++++++++++------------------
+ 1 file changed, 19 insertions(+), 22 deletions(-)
 
-On 17/03/2024 11:05, Wen Gu wrote:
-> Since ghost sndbuf shares the same physical memory with peer DMB,
-> the cursor update processing needs to be adapted to ensure that the
-> data to be consumed won't be overwritten.
-> 
-> So in this case, the fin_curs and sndbuf_space that were originally
-> updated after sending the CDC message should be modified to not be
-> update until the peer updates cons_curs.
-> 
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-> ---
->   net/smc/smc_cdc.c | 52 +++++++++++++++++++++++++++++++++++++----------
->   1 file changed, 41 insertions(+), 11 deletions(-)
-> 
-> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-> index 3c06625ceb20..bf5b214ec15a 100644
-> --- a/net/smc/smc_cdc.c
-> +++ b/net/smc/smc_cdc.c
-> @@ -18,6 +18,7 @@
->   #include "smc_tx.h"
->   #include "smc_rx.h"
->   #include "smc_close.h"
-> +#include "smc_ism.h"
->   
->   /********************************** send *************************************/
->   
-> @@ -255,17 +256,25 @@ int smcd_cdc_msg_send(struct smc_connection *conn)
->   		return rc;
->   	smc_curs_copy(&conn->rx_curs_confirmed, &curs, conn);
->   	conn->local_rx_ctrl.prod_flags.cons_curs_upd_req = 0;
-> -	/* Calculate transmitted data and increment free send buffer space */
-> -	diff = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
-> -			     &conn->tx_curs_sent);
-> -	/* increased by confirmed number of bytes */
-> -	smp_mb__before_atomic();
-> -	atomic_add(diff, &conn->sndbuf_space);
-> -	/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
-> -	smp_mb__after_atomic();
-> -	smc_curs_copy(&conn->tx_curs_fin, &conn->tx_curs_sent, conn);
-> +	if (!smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
-> +		/* Ghost sndbuf shares the same memory region with
-> +		 * peer DMB, so don't update the tx_curs_fin and
-> +		 * sndbuf_space until peer has consumed the data.
-> +		 */
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 1f5b3dd31fcf..becc12a05407 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -531,49 +531,46 @@ static int init_vqs(struct virtio_balloon *vb)
+ 	struct virtqueue *vqs[VIRTIO_BALLOON_VQ_MAX];
+ 	vq_callback_t *callbacks[VIRTIO_BALLOON_VQ_MAX];
+ 	const char *names[VIRTIO_BALLOON_VQ_MAX];
+-	int err;
++	int err, nvqs, idx;
+ 
+-	/*
+-	 * Inflateq and deflateq are used unconditionally. The names[]
+-	 * will be NULL if the related feature is not enabled, which will
+-	 * cause no allocation for the corresponding virtqueue in find_vqs.
+-	 */
+ 	callbacks[VIRTIO_BALLOON_VQ_INFLATE] = balloon_ack;
+ 	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
+ 	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
+ 	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
+-	callbacks[VIRTIO_BALLOON_VQ_STATS] = NULL;
+-	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
+-	callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+-	names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+-	names[VIRTIO_BALLOON_VQ_REPORTING] = NULL;
++
++	nvqs = VIRTIO_BALLOON_VQ_DEFLATE + 1;
+ 
+ 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+-		names[VIRTIO_BALLOON_VQ_STATS] = "stats";
+-		callbacks[VIRTIO_BALLOON_VQ_STATS] = stats_request;
++		names[nvqs] = "stats";
++		callbacks[nvqs] = stats_request;
++		++nvqs;
+ 	}
+ 
+ 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
+-		names[VIRTIO_BALLOON_VQ_FREE_PAGE] = "free_page_vq";
+-		callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
++		names[nvqs] = "free_page_vq";
++		callbacks[nvqs] = NULL;
++		++nvqs;
+ 	}
+ 
+ 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING)) {
+-		names[VIRTIO_BALLOON_VQ_REPORTING] = "reporting_vq";
+-		callbacks[VIRTIO_BALLOON_VQ_REPORTING] = balloon_ack;
++		names[nvqs] = "reporting_vq";
++		callbacks[nvqs] = balloon_ack;
++		++nvqs;
+ 	}
+ 
+-	err = virtio_find_vqs(vb->vdev, VIRTIO_BALLOON_VQ_MAX, vqs,
+-			      callbacks, names, NULL);
++	err = virtio_find_vqs(vb->vdev, nvqs, vqs, callbacks, names, NULL);
+ 	if (err)
+ 		return err;
+ 
+ 	vb->inflate_vq = vqs[VIRTIO_BALLOON_VQ_INFLATE];
+ 	vb->deflate_vq = vqs[VIRTIO_BALLOON_VQ_DEFLATE];
++
++	idx = VIRTIO_BALLOON_VQ_DEFLATE + 1;
++
+ 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+ 		struct scatterlist sg;
+ 		unsigned int num_stats;
+-		vb->stats_vq = vqs[VIRTIO_BALLOON_VQ_STATS];
++		vb->stats_vq = vqs[idx++];
+ 
+ 		/*
+ 		 * Prime this virtqueue with one buffer so the hypervisor can
+@@ -593,10 +590,10 @@ static int init_vqs(struct virtio_balloon *vb)
+ 	}
+ 
+ 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+-		vb->free_page_vq = vqs[VIRTIO_BALLOON_VQ_FREE_PAGE];
++		vb->free_page_vq = vqs[idx++];
+ 
+ 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
+-		vb->reporting_vq = vqs[VIRTIO_BALLOON_VQ_REPORTING];
++		vb->reporting_vq = vqs[idx++];
+ 
+ 	return 0;
+ }
+-- 
+2.32.0.3.g01195cf9f
 
-Hi Wen Gu,
-
-move this comment above the if please. Two consecutive multiline 
-comments are difficult to read here.
-
-> +		/* Calculate transmitted data and increment free
-> +		 * send buffer space
-> +		 */
-> +		diff = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
-> +				     &conn->tx_curs_sent);
-> +		/* increased by confirmed number of bytes */
-> +		smp_mb__before_atomic();
-> +		atomic_add(diff, &conn->sndbuf_space);
-> +		/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
-> +		smp_mb__after_atomic();
-> +		smc_curs_copy(&conn->tx_curs_fin, &conn->tx_curs_sent, conn);
->   
-> -	smc_tx_sndbuf_nonfull(smc);
-> +		smc_tx_sndbuf_nonfull(smc);
-> +	}
->   	return rc;
->   }
->   
-> @@ -323,7 +332,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
->   {
->   	union smc_host_cursor cons_old, prod_old;
->   	struct smc_connection *conn = &smc->conn;
-> -	int diff_cons, diff_prod;
-> +	int diff_cons, diff_prod, diff_tx;
->   
->   	smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
->   	smc_curs_copy(&cons_old, &conn->local_rx_ctrl.cons, conn);
-> @@ -339,6 +348,27 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
->   		atomic_add(diff_cons, &conn->peer_rmbe_space);
->   		/* guarantee 0 <= peer_rmbe_space <= peer_rmbe_size */
->   		smp_mb__after_atomic();
-> +
-> +		if (conn->lgr->is_smcd &&
-> +		    smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
-> +			/* Ghost sndbuf shares the same memory region with
-> +			 * peer RMB, so update tx_curs_fin and sndbuf_space
-> +			 * when peer has consumed the data.
-> +			 */
-
-Same as above.
-
-Thanks
-- Jan
-
-> +			/* calculate peer rmb consumed data */
-> +			diff_tx = smc_curs_diff(conn->sndbuf_desc->len,
-> +						&conn->tx_curs_fin,
-> +						&conn->local_rx_ctrl.cons);
-> +			/* increase local sndbuf space and fin_curs */
-> +			smp_mb__before_atomic();
-> +			atomic_add(diff_tx, &conn->sndbuf_space);
-> +			/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
-> +			smp_mb__after_atomic();
-> +			smc_curs_copy(&conn->tx_curs_fin,
-> +				      &conn->local_rx_ctrl.cons, conn);
-> +
-> +			smc_tx_sndbuf_nonfull(smc);
-> +		}
->   	}
->   
->   	diff_prod = smc_curs_diff(conn->rmb_desc->len, &prod_old,
