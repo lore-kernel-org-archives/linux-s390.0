@@ -1,29 +1,30 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 009415674D;
-	Thu, 21 Mar 2024 10:15:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 223C556B6B;
+	Thu, 21 Mar 2024 10:15:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711016146; cv=none; b=u45pqDKFLiVt9A/TElaoAOJtgNMVdBLMuLq1ieQCY8XVTBe2AdwZEy8h/97PnTuwe0mPjnUXtgAjsF+3sUOlv6Ant5C2/P05YkXZVaGaQCmcCabhol/6j6iRK9Shnid9U5mgRq3LX0W46NaAsj3Kll29nFm/od4X/BzTaV90b+c=
+	t=1711016149; cv=none; b=mmmZXmjqpGf0ri4rfspIT1gBfyMqV+GMKU+sAKjPyQlxsx914UBwLB/BJ+nhoWiTR1zKoP63v1+yd3+1JD1pWHUhTgLOgXUBplWpsNQaU8qgLuDpmnv+XWKKv0O+f8r/e/ayDftsoEiP6f0KX4hBvyPOIuV9G0zfROaN2u4+6+g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711016146; c=relaxed/simple;
-	bh=Ytjv8h8VxWFEtKyURrSyYJai3ajSqv0ktqO6cwRpnLU=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=otBgS+uzhuoMNSUtY1SHVyOkw6oKqwFrUYjOyRzcUz2EFLTM1amcwgWarSIqkPfzRYB6LMEMTlYkFuORzIfzJ11qr5tV9rw09JqMTSK+y+C6rt5OlNwsQCIoD3MPL8nMV2ecAZHvTq8dU5MJULpTzb6mKRWIsg1FVllT+atIeFg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=cW+DnKQG; arc=none smtp.client-ip=115.124.30.111
+	s=arc-20240116; t=1711016149; c=relaxed/simple;
+	bh=AnL7A7hGubvxOfx0CIISEw1xAUL+j29/ID30DhDtmPw=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=WVf4JEJipD9w99WgKf0NAxc3/p8U2idv0IM9zm75Y9z2jXsunW9QitgtZCM+ooTjTu9KYxvh/zVXPVl5/UuD15gTKSJ4M1hWJwvtDnqoULpp5lpX3vz2HGKKMNvLi/HAvYPMvNr9fJ7Uod5tZKFYom8nWklyMJnljPCnbaf2OaY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=X3F5qnb5; arc=none smtp.client-ip=115.124.30.119
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="cW+DnKQG"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="X3F5qnb5"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1711016135; h=From:To:Subject:Date:Message-Id:MIME-Version:Content-Type;
-	bh=wTxDitpguc7D9IOv4I5f29Qm8gzbpWNMt1WDDHf3HJ8=;
-	b=cW+DnKQGQ2T6P7z4VjeNzcoBHtQlBaOSJEEToiw8p6TXwtvSr+9nwQF1tAbXngtDQHzwkFe3VeE05963e6fR2mGPyzACMK4+hayaf0LOBJLa+J1eIWnhTsm0kImr6q7uygARAApXv4AY6w+bUyIlLcJIHgyQBB2qPE0QyqElQUw=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R351e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=26;SR=0;TI=SMTPD_---0W3-MA6N_1711016132;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3-MA6N_1711016132)
+	t=1711016138; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=JG20w7ybJ7RY38XLEtP4gguf6EE2tsVwqebAHrWoXys=;
+	b=X3F5qnb5ilWeI7XTfpCkq7VAibRK1du5N771Cpgir9LVQ3SL3pPPOKbcINhBGdh063E6QfDMlkrJUdBEUeQLJttaeC8/AHtc01RAmhKWV+hvo6OtW6Lia/OeAGjFXaU82ndRJSwg30RyK2xvx2Mu2Tvs4aM0TEMYXCM6hLx3Xr8=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=26;SR=0;TI=SMTPD_---0W3-P6JT_1711016135;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3-P6JT_1711016135)
           by smtp.aliyun-inc.com;
-          Thu, 21 Mar 2024 18:15:33 +0800
+          Thu, 21 Mar 2024 18:15:36 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux.dev
 Cc: Richard Weinberger <richard@nod.at>,
@@ -51,80 +52,176 @@ Cc: Richard Weinberger <richard@nod.at>,
 	linux-remoteproc@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	kvm@vger.kernel.org
-Subject: [PATCH vhost v4 0/6] refactor the params of find_vqs()
-Date: Thu, 21 Mar 2024 18:15:26 +0800
-Message-Id: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost v4 2/6] virtio: remove support for names array entries being null.
+Date: Thu, 21 Mar 2024 18:15:28 +0800
+Message-Id: <20240321101532.59272-3-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
+References: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-Git-Hash: 571c18a30348
 Content-Transfer-Encoding: 8bit
 
-This pathset is splited from the
+commit 6457f126c888 ("virtio: support reserved vqs") introduced this
+support. Multiqueue virtio-net use 2N as ctrl vq finally, so the logic
+doesn't apply. And not one uses this.
 
-     http://lore.kernel.org/all/20240229072044.77388-1-xuanzhuo@linux.alibaba.com
+On the other side, that makes some trouble for us to refactor the
+find_vqs() params.
 
-That may needs some cycles to discuss. But that notifies too many people.
+So I remove this support.
 
-But just the four commits need to notify so many people.
-And four commits are independent. So I split that patch set,
-let us review these first.
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ arch/um/drivers/virtio_uml.c             | 5 -----
+ drivers/platform/mellanox/mlxbf-tmfifo.c | 4 ----
+ drivers/remoteproc/remoteproc_virtio.c   | 5 -----
+ drivers/s390/virtio/virtio_ccw.c         | 5 -----
+ drivers/virtio/virtio_mmio.c             | 5 -----
+ drivers/virtio/virtio_pci_common.c       | 9 ---------
+ drivers/virtio/virtio_vdpa.c             | 5 -----
+ include/linux/virtio_config.h            | 1 -
+ 8 files changed, 39 deletions(-)
 
-The patch set try to  refactor the params of find_vqs().
-Then we can just change the structure, when introducing new
-features.
-
-Thanks.
-
-v4:
-  1. remove support for names array entries being null
-  2. remove cfg_idx from virtio_vq_config
-
-v3:
-  1. fix the bug: "assignment of read-only location '*cfg.names'"
-
-v2:
-  1. add kerneldoc for "struct vq_transport_config" @ilpo.jarvinen
-
-v1:
-  1. fix some comments from ilpo.jarvinen@linux.intel.com
-
-
-
-
-Xuan Zhuo (6):
-  virtio_balloon: remove the dependence where names[] is null
-  virtio: remove support for names array entries being null.
-  virtio: find_vqs: pass struct instead of multi parameters
-  virtio: vring_create_virtqueue: pass struct instead of multi
-    parameters
-  virtio: vring_new_virtqueue(): pass struct instead of multi parameters
-  virtio_ring: simplify the parameters of the funcs related to
-    vring_create/new_virtqueue()
-
- arch/um/drivers/virtio_uml.c             |  33 ++---
- drivers/platform/mellanox/mlxbf-tmfifo.c |  25 ++--
- drivers/remoteproc/remoteproc_virtio.c   |  34 ++---
- drivers/s390/virtio/virtio_ccw.c         |  35 ++---
- drivers/virtio/virtio_balloon.c          |  41 +++---
- drivers/virtio/virtio_mmio.c             |  33 ++---
- drivers/virtio/virtio_pci_common.c       |  62 +++-----
- drivers/virtio/virtio_pci_common.h       |   9 +-
- drivers/virtio/virtio_pci_legacy.c       |  16 ++-
- drivers/virtio/virtio_pci_modern.c       |  37 +++--
- drivers/virtio/virtio_ring.c             | 173 ++++++++---------------
- drivers/virtio/virtio_vdpa.c             |  48 +++----
- include/linux/virtio_config.h            |  75 +++++++---
- include/linux/virtio_ring.h              |  93 +++++++-----
- tools/virtio/virtio_test.c               |   4 +-
- tools/virtio/vringh_test.c               |  28 ++--
- 16 files changed, 351 insertions(+), 395 deletions(-)
-
---
+diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+index 8adca2000e51..1d1e8654b7fc 100644
+--- a/arch/um/drivers/virtio_uml.c
++++ b/arch/um/drivers/virtio_uml.c
+@@ -1031,11 +1031,6 @@ static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 		return rc;
+ 
+ 	for (i = 0; i < nvqs; ++i) {
+-		if (!names[i]) {
+-			vqs[i] = NULL;
+-			continue;
+-		}
+-
+ 		vqs[i] = vu_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
+ 				     ctx ? ctx[i] : false);
+ 		if (IS_ERR(vqs[i])) {
+diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
+index b8d1e32e97eb..f4639331f32e 100644
+--- a/drivers/platform/mellanox/mlxbf-tmfifo.c
++++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
+@@ -1072,10 +1072,6 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
+ 		return -EINVAL;
+ 
+ 	for (i = 0; i < nvqs; ++i) {
+-		if (!names[i]) {
+-			ret = -EINVAL;
+-			goto error;
+-		}
+ 		vring = &tm_vdev->vrings[i];
+ 
+ 		/* zero vring */
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index 83d76915a6ad..cd71827d67af 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -190,11 +190,6 @@ static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 	int i, ret, queue_idx = 0;
+ 
+ 	for (i = 0; i < nvqs; ++i) {
+-		if (!names[i]) {
+-			vqs[i] = NULL;
+-			continue;
+-		}
+-
+ 		vqs[i] = rp_find_vq(vdev, queue_idx++, callbacks[i], names[i],
+ 				    ctx ? ctx[i] : false);
+ 		if (IS_ERR(vqs[i])) {
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index ac67576301bf..773f16c294d9 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -667,11 +667,6 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 		return -ENOMEM;
+ 
+ 	for (i = 0; i < nvqs; ++i) {
+-		if (!names[i]) {
+-			vqs[i] = NULL;
+-			continue;
+-		}
+-
+ 		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
+ 					     names[i], ctx ? ctx[i] : false,
+ 					     ccw);
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 59892a31cf76..a95c98cca63e 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -510,11 +510,6 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 		enable_irq_wake(irq);
+ 
+ 	for (i = 0; i < nvqs; ++i) {
+-		if (!names[i]) {
+-			vqs[i] = NULL;
+-			continue;
+-		}
+-
+ 		vqs[i] = vm_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
+ 				     ctx ? ctx[i] : false);
+ 		if (IS_ERR(vqs[i])) {
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index b655fccaf773..783758672ef9 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -317,11 +317,6 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
+ 	vp_dev->per_vq_vectors = per_vq_vectors;
+ 	allocated_vectors = vp_dev->msix_used_vectors;
+ 	for (i = 0; i < nvqs; ++i) {
+-		if (!names[i]) {
+-			vqs[i] = NULL;
+-			continue;
+-		}
+-
+ 		if (!callbacks[i])
+ 			msix_vec = VIRTIO_MSI_NO_VECTOR;
+ 		else if (vp_dev->per_vq_vectors)
+@@ -377,10 +372,6 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
+ 	vp_dev->intx_enabled = 1;
+ 	vp_dev->per_vq_vectors = false;
+ 	for (i = 0; i < nvqs; ++i) {
+-		if (!names[i]) {
+-			vqs[i] = NULL;
+-			continue;
+-		}
+ 		vqs[i] = vp_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
+ 				     ctx ? ctx[i] : false,
+ 				     VIRTIO_MSI_NO_VECTOR);
+diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+index e803db0da307..c1a3fbacd463 100644
+--- a/drivers/virtio/virtio_vdpa.c
++++ b/drivers/virtio/virtio_vdpa.c
+@@ -379,11 +379,6 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 	}
+ 
+ 	for (i = 0; i < nvqs; ++i) {
+-		if (!names[i]) {
+-			vqs[i] = NULL;
+-			continue;
+-		}
+-
+ 		vqs[i] = virtio_vdpa_setup_vq(vdev, queue_idx++,
+ 					      callbacks[i], names[i], ctx ?
+ 					      ctx[i] : false);
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index da9b271b54db..d362a29550fa 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -56,7 +56,6 @@ typedef void vq_callback_t(struct virtqueue *);
+  *	callbacks: array of callbacks, for each virtqueue
+  *		include a NULL entry for vqs that do not need a callback
+  *	names: array of virtqueue names (mainly for debugging)
+- *		include a NULL entry for vqs unused by driver
+  *	Returns 0 on success or error status
+  * @del_vqs: free virtqueues found by find_vqs().
+  * @synchronize_cbs: synchronize with the virtqueue callbacks (optional)
+-- 
 2.32.0.3.g01195cf9f
 
