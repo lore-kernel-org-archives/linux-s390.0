@@ -1,77 +1,69 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C5863FB96;
-	Fri, 22 Mar 2024 12:36:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F7B84D134
+	for <linux-s390@vger.kernel.org>; Fri, 22 Mar 2024 16:11:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711110981; cv=none; b=AXbTIrP75LL7dfZDvgLmHK+JiLlvfJeY5gKz0Yg2O8LpVyyC7kuJWY94XKsaFLfYv/POw6uFtGAP2YF5dOFLJRxmADL7JOqjs7toNb7RAx3zcfMavjC/T05mbUkrD3JgUsKVsaTkIHRBrxtDDcXJKY13zEbj3zoaTkGQl4W5/JI=
+	t=1711123915; cv=none; b=Mb8M5sO0hFCkyzoY/Q/NIkgs5USnDgJMb0T5lAYoV2AOTaZAhmbagm6bdAOiw0zegWJXJN05P7ZLWewc1SnmswRFbPnRl/wQz77V56JixYTy7Kj9aw/Is2AXD36N6ccrZd3AmX6yJp8rRbOXvqfdnqjv+vdqlNZX9Ix7G+uCfo8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711110981; c=relaxed/simple;
-	bh=46+MbcH6/2XtZO0kyuX6fQE2ZJEcgUiMfitkn6aFCCY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ldhC5m3+FyJZ+Rogxv7gXDo+MGo2OUWGxwTSQWmoGQHtdwPNC2sHacuXSmVBUUUt0OaoASfLFsBLi4nyg4cnLAuPmdyTDpcXUFcXRFdO69FBG4fNRvcVxF3ZccIfwJZqbhQHZEnTJXnFkJV3vvxaatmXUG9kJW2bDNyyUK1rYLA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=cZZtxJS6; arc=none smtp.client-ip=115.124.30.113
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1711123915; c=relaxed/simple;
+	bh=olUVJdHtHs+XZRjFSam6sGHpeCcVeSFvF3M/yFU5I4U=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Oj5tA+vDCGM49jO3F9dOqsxY+MyU0Ls5gUax2zbEHNzN02gcl5+Zxlmzt4ZSpcvcHOJcm3D8LASpbJ3BLyU/us63FvzybyOGNLZ4iE1rZGvLzB+4EzxUgBkoVrnFZlDXe3ynOiD0opkc3FkVtmS3KM10rkHcDOxI4J8HLmPCBBI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=NJkb8vOD; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="cZZtxJS6"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1711110970; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=XfZj9US84yM/qjVGE3bAu52GWkM6deEkJ38pjN8jC+g=;
-	b=cZZtxJS619Y1QEMaUZDKHq1HWVY/MPeZaHnl1XtCeKkH0Tw61rjZORzA3CdT+nhxxz/Xq0r/gRspM0w0du3305FQqNHB8lV5saoCH1Wh6vAcei1YmW3i8rC5pdazupWvMiSc9nLcPbvqYwB4/BGcInKA8RPaDhiQAzaJkui1R8U=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W328IUR_1711110969;
-Received: from 30.221.130.60(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W328IUR_1711110969)
-          by smtp.aliyun-inc.com;
-          Fri, 22 Mar 2024 20:36:10 +0800
-Message-ID: <6043954e-b361-468e-8ed9-5f14478027a9@linux.alibaba.com>
-Date: Fri, 22 Mar 2024 20:36:08 +0800
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="NJkb8vOD"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=xNj0ImorBPfZsPuJGPQBoHrX6ph4hN0PnXfk7d0MnFc=; b=NJkb8vOD4TarZ0XvqHoFsh1hvO
+	KxrAhHTID4WFGLHqOsd+tr6V8i0vppaunpq2SUnZYo7i+KRxf7F6Ad6RNNEGE6EUDdSqmPGSxnMk7
+	kN9M7VOBJjswMlHW33EYWfS9oP8yTYGXITS9ZKl7CdqeuyUzHp25VHnFpZcgTzNyHHtJj6hAnTRVF
+	SiTT4EHJTMh57WGzZ8evIVI2uL8auSfDRy0PUmxzire2KC8BqdhO6WG8IuQdsSGzfSs5cyIuyN1FL
+	EylgH7IayQSGaxGU/nqJMaHqE2fjXThjHBzh/OxanCQfcYetfyR2ZaYnfKdZ0D4EJbp8XC704L8wR
+	V4pnCurw==;
+Received: from willy by casper.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1rnhUl-00000009lUt-1IbI;
+	Fri, 22 Mar 2024 16:11:51 +0000
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+To: Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+	linux-s390@vger.kernel.org
+Subject: [PATCH 0/2] Convert some gmap functions to use folios
+Date: Fri, 22 Mar 2024 16:11:45 +0000
+Message-ID: <20240322161149.2327518-1-willy@infradead.org>
+X-Mailer: git-send-email 2.44.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH net-next v4 00/11] net/smc: SMC intra-OS shortcut with
- loopback-ism
-To: Jan Karcher <jaka@linux.ibm.com>, wintera@linux.ibm.com,
- twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org
-References: <20240317100545.96663-1-guwen@linux.alibaba.com>
- <3b6c41e5-ef2c-4c75-a444-afc130fe2529@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <3b6c41e5-ef2c-4c75-a444-afc130fe2529@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+struct page is going to lose its refcount (someday) and as part of
+that page_ref_freeze() will go away.  s390's ultravisor is one of
+the few remaining places that uses it, so convert it over to folios.
+From previous interactions, I understand that ultravisor doesn't support
+large folios, so this simply declines to make large folios secure.
+I think you'd be better off splitting the folio if it is large, but
+that's something I'd rather leave to someone who can test it.
 
+These patches do have the effect of making this more efficient; we lose
+at least five hidden calls to compound_head().
 
-On 2024/3/21 16:11, Jan Karcher wrote:
-> 
-> 
-> On 17/03/2024 11:05, Wen Gu wrote:
->> This patch set acts as the second part of the new version of [1] (The first
->> part can be referred from [2]), the updated things of this version are listed
->> at the end.
-> 
-> Hi Wen Gu,
-> 
-> thanks for the v4. Please see my comments for the patches.
-> Testing looks good so far on s390.
-> 
-> Thanks
-> - Jan
-> 
+Matthew Wilcox (Oracle) (2):
+  s390: Convert make_page_secure to use a folio
+  s390: Convert gmap_make_secure to use a folio
 
-Thank you very much for the time and comments!
-I will collect these points and send a new version.
+ arch/s390/kernel/uv.c | 50 +++++++++++++++++++++++--------------------
+ 1 file changed, 27 insertions(+), 23 deletions(-)
 
-Thanks,
-Wen Gu
+-- 
+2.43.0
+
