@@ -1,32 +1,66 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 845CE138C;
-	Fri, 22 Mar 2024 01:49:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74F3C1426C
+	for <linux-s390@vger.kernel.org>; Fri, 22 Mar 2024 08:13:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711072154; cv=none; b=uId5V3ye3KLZyNBk4gAX7TxZwpo8pbsk3/v7axk/Umelpofn95C7TRq22FfSXVpIrHXzCTzVlaTP1ank126kS+CNDeqGkHPmSv6yNOH2lYLLFUAf16cxS5YWJXk2+8RL/jGlmBxRkHNAdP0gd3cNkrq2f/5ECH5g3MWZ2cq5ldo=
+	t=1711095191; cv=none; b=oleg4mT7lccWhF8+dKMmIsHYH1v2FyHPN6DTX1cSaGUVw8TEA5QCNxdb8WsWYpieoBl6NuajoHD8rdXXuTVZM4X61Ae/tDlMZruriaCnJ49MyO5YCTZsLcTyXf+xo4jtaX0p1JF4CaG4TL7eHbZaMon7DRfieXL1GK3ssZQo+b4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711072154; c=relaxed/simple;
-	bh=UqN/yfNOXwKT4NVcYzXi8R8X48xWk+ND6B1m2XoGl+Y=;
+	s=arc-20240116; t=1711095191; c=relaxed/simple;
+	bh=ncfiTI7ran5GaKmZX0N1CXbIpkzQPf3m7yQLpgMjchE=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bMhkxUf4jlA0fNk8UNWBpdthv+7YiybAqB1rLqlCp8ocu15yLAFg2mWpvoAijUHGPTNxAO7mHwnIbflVpEDzKDVI0s1er7wcCcblSjyFlSUQTN/8gU5lHStnkWAtidWr/QzNacnUiRLePoiumY41gEWsXlBFOXDzneys0jOz5ts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=LPo6Xk3Q; arc=none smtp.client-ip=115.124.30.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 In-Reply-To:Content-Type; b=SsdGqiRLgW9Ot+z2I/s2NHmC2t680ieT7D2rBV6OdfMZTn35oOvr3LaEjC/L7YFZErRldyrTmzp71vjg1CkxIAvisZ3jkvKFK/Pspm8UunK+Y0KKAJB86qB/djqorYiM0JoiWiT9ETIjeXOxfVZ1wUxvwjL0iHccFPD2x+9042w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=N3imLe0Z; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="LPo6Xk3Q"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1711072143; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=tl0g3t6iyeTsDwpuIM6N3LQiVg9Wq/mZ3K6RYFJMlCc=;
-	b=LPo6Xk3QzOoWzDC5Tq/uVlEtOvUXX8RKeNMNV+DfkZa+KoSZHZxO6EYnfBk2FusJxOJuPF4lGN0AtaWO1X4ng1HnJ4KSDWtk9Uexj+62xHg3OPjRhs6qQFAIRfpa+cP8uoP+MD783RRrMwK3KhsKN8+ZzhtQLsb/Tweurnx3nyQ=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R271e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W305wuV_1711072141;
-Received: from 30.221.130.60(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W305wuV_1711072141)
-          by smtp.aliyun-inc.com;
-          Fri, 22 Mar 2024 09:49:02 +0800
-Message-ID: <72c046f3-1eb5-44f8-b32b-1ff6471943a2@linux.alibaba.com>
-Date: Fri, 22 Mar 2024 09:49:00 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N3imLe0Z"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1711095187;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=rpmxjaTCjxoIsCCXMbq2+up7JOpfzh0860bsclMJ83s=;
+	b=N3imLe0ZiWRe6WALhoth2GgGl3zGxEdGpMCc5sxa5LX/Gc/cRydOI7h9bDsLqcDk+T7VeS
+	BRYBTo4H80PCIP2LQ1rG+bHtHdRiNiqEoiDTFSGkaMGbYcNmqVRznTpPWmFqqi3NrGi254
+	W9lRX8TIRJNEjG7MYYhms5sGLi55bN8=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-338-2aDYMpOhOAehw-6oq_jEnw-1; Fri, 22 Mar 2024 04:13:05 -0400
+X-MC-Unique: 2aDYMpOhOAehw-6oq_jEnw-1
+Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-5148eaa60acso1986126e87.0
+        for <linux-s390@vger.kernel.org>; Fri, 22 Mar 2024 01:13:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711095184; x=1711699984;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rpmxjaTCjxoIsCCXMbq2+up7JOpfzh0860bsclMJ83s=;
+        b=Giz6VnshMBUFbspa/f5HUtbQIZBOGHjVdFqz3mf17jGJIii0z7Zo8yPB9zMKtP/+t5
+         MpByqE6LRiOLNloTYkJVaxvcwQ8Spm1MMS08aXqJ7OgfNqSmw2WlYIBLREXIaKPXAyFj
+         zfMCBiahkxC/JJfI5emBhJRdGCMQmp8asENR7LWIdqHdnm23oUOfQRQAm9CZ89EvtLu0
+         543NZrYwH896NP59F+k/255kblB7xC32JYp2S6mWlB5jcjPnoX7NHovvatcOg5dgpQgZ
+         fZBSAT/jTsvBGB4LziNvvgkwgLGLJHlXFzaxWh+DXuHKdGqtzOQjoSxWCM3/Htk3/Xqa
+         1QZg==
+X-Forwarded-Encrypted: i=1; AJvYcCVeZaAbcNL93r1tfO8c3XQLiv7ROHpbs/BaINR4ED0QqpF4wfFlrxfeMxs9tu2s7hpLYMqDXbGRpF3Hs4JXdgj7oLXTFywvvi4xNw==
+X-Gm-Message-State: AOJu0YzxjsE22NGs02J86ROsCAnWwGwtrLtumGUptdPZ7E8JP966oH3j
+	03Yr2A7irs+SssZVM0GlQrmFtOIJoZp6PISlZJuUTFeJlyEGVzSKMpOLlXtt8+P6xbwAxmuDvC7
+	LxB/fowa/ybaMVL+L8ZoW+JVbSQYJad1XHvaD+fSsgyQhaOesWXKBbjJVDuk=
+X-Received: by 2002:a19:e015:0:b0:513:30fb:d64 with SMTP id x21-20020a19e015000000b0051330fb0d64mr1053475lfg.44.1711095184192;
+        Fri, 22 Mar 2024 01:13:04 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEaC+Bgi2nO0/hb3M3dhIuH0sCkVl1vCfRGEuRY1W2Q3S1u2GOFD03sT3zoQopamY//RALkSw==
+X-Received: by 2002:a19:e015:0:b0:513:30fb:d64 with SMTP id x21-20020a19e015000000b0051330fb0d64mr1053456lfg.44.1711095183583;
+        Fri, 22 Mar 2024 01:13:03 -0700 (PDT)
+Received: from [192.168.3.108] (p5b0c6e7f.dip0.t-ipconnect.de. [91.12.110.127])
+        by smtp.gmail.com with ESMTPSA id dn1-20020a0560000c0100b0033ec7182673sm1481745wrb.52.2024.03.22.01.13.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 22 Mar 2024 01:13:03 -0700 (PDT)
+Message-ID: <17c1f86e-e6bf-4be0-88cd-c4afecb02310@redhat.com>
+Date: Fri, 22 Mar 2024 09:13:02 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -34,136 +68,204 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH net-next v4 10/11] net/smc: adapt cursor update when
- sndbuf and peer DMB are merged
-To: Jan Karcher <jaka@linux.ibm.com>, wintera@linux.ibm.com,
- twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org
-References: <20240317100545.96663-1-guwen@linux.alibaba.com>
- <20240317100545.96663-11-guwen@linux.alibaba.com>
- <1b3428f6-1fcc-4aba-80a0-0743c7c0c138@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <1b3428f6-1fcc-4aba-80a0-0743c7c0c138@linux.ibm.com>
+Subject: Re: [PATCH v1 1/2] mm/userfaultfd: don't place zeropages when
+ zeropages are disallowed
+To: Peter Xu <peterx@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org,
+ linux-s390@vger.kernel.org
+References: <20240321215954.177730-1-david@redhat.com>
+ <20240321215954.177730-2-david@redhat.com> <ZfyyodKYWtGki7MO@x1n>
+ <48d1282c-e4db-4b55-ab3f-3344af2440c4@redhat.com> <Zfy4zhzWtyrHenlp@x1n>
+Content-Language: en-US
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <Zfy4zhzWtyrHenlp@x1n>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-
-
-On 2024/3/21 16:12, Jan Karcher wrote:
-> 
-> 
-> On 17/03/2024 11:05, Wen Gu wrote:
->> Since ghost sndbuf shares the same physical memory with peer DMB,
->> the cursor update processing needs to be adapted to ensure that the
->> data to be consumed won't be overwritten.
+On 21.03.24 23:46, Peter Xu wrote:
+> On Thu, Mar 21, 2024 at 11:29:45PM +0100, David Hildenbrand wrote:
+>> On 21.03.24 23:20, Peter Xu wrote:
+>>> On Thu, Mar 21, 2024 at 10:59:53PM +0100, David Hildenbrand wrote:
+>>>> s390x must disable shared zeropages for processes running VMs, because
+>>>> the VMs could end up making use of "storage keys" or protected
+>>>> virtualization, which are incompatible with shared zeropages.
+>>>>
+>>>> Yet, with userfaultfd it is possible to insert shared zeropages into
+>>>> such processes. Let's fallback to simply allocating a fresh zeroed
+>>>> anonymous folio and insert that instead.
+>>>>
+>>>> mm_forbids_zeropage() was introduced in commit 593befa6ab74 ("mm: introduce
+>>>> mm_forbids_zeropage function"), briefly before userfaultfd went
+>>>> upstream.
+>>>>
+>>>> Note that we don't want to fail the UFFDIO_ZEROPAGE request like we do
+>>>> for hugetlb, it would be rather unexpected. Further, we also
+>>>> cannot really indicated "not supported" to user space ahead of time: it
+>>>> could be that the MM disallows zeropages after userfaultfd was already
+>>>> registered.
+>>>>
+>>>> Fixes: c1a4de99fada ("userfaultfd: mcopy_atomic|mfill_zeropage: UFFDIO_COPY|UFFDIO_ZEROPAGE preparation")
+>>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>>
+>>> Reviewed-by: Peter Xu <peterx@redhat.com>
+>>>
+>>> Still, a few comments below.
+>>>
+>>>> ---
+>>>>    mm/userfaultfd.c | 35 +++++++++++++++++++++++++++++++++++
+>>>>    1 file changed, 35 insertions(+)
+>>>>
+>>>> diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
+>>>> index 712160cd41eca..1d1061ccd1dea 100644
+>>>> --- a/mm/userfaultfd.c
+>>>> +++ b/mm/userfaultfd.c
+>>>> @@ -316,6 +316,38 @@ static int mfill_atomic_pte_copy(pmd_t *dst_pmd,
+>>>>    	goto out;
+>>>>    }
+>>>> +static int mfill_atomic_pte_zeroed_folio(pmd_t *dst_pmd,
+>>>> +		 struct vm_area_struct *dst_vma, unsigned long dst_addr)
+>>>> +{
+>>>> +	struct folio *folio;
+>>>> +	int ret;
+>>>
+>>> nitpick: we can set -ENOMEM here, then
+>>>
+>>>> +
+>>>> +	folio = vma_alloc_zeroed_movable_folio(dst_vma, dst_addr);
+>>>> +	if (!folio)
+>>>> +		return -ENOMEM;
+>>>
+>>> return ret;
+>>>
+>>>> +
+>>>> +	ret = -ENOMEM;
+>>>
+>>> drop.
 >>
->> So in this case, the fin_curs and sndbuf_space that were originally
->> updated after sending the CDC message should be modified to not be
->> update until the peer updates cons_curs.
+>> Sure!
 >>
->> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
->> ---
->>   net/smc/smc_cdc.c | 52 +++++++++++++++++++++++++++++++++++++----------
->>   1 file changed, 41 insertions(+), 11 deletions(-)
+>>>
+>>>> +	if (mem_cgroup_charge(folio, dst_vma->vm_mm, GFP_KERNEL))
+>>>> +		goto out_put;
+>>>> +
+>>>> +	/*
+>>>> +	 * The memory barrier inside __folio_mark_uptodate makes sure that
+>>>> +	 * preceding stores to the page contents become visible before
+>>>> +	 * the set_pte_at() write.
+>>>> +	 */
+>>>
+>>> This comment doesn't apply.  We can drop it.
+>>>
 >>
->> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
->> index 3c06625ceb20..bf5b214ec15a 100644
->> --- a/net/smc/smc_cdc.c
->> +++ b/net/smc/smc_cdc.c
->> @@ -18,6 +18,7 @@
->>   #include "smc_tx.h"
->>   #include "smc_rx.h"
->>   #include "smc_close.h"
->> +#include "smc_ism.h"
->>   /********************************** send *************************************/
->> @@ -255,17 +256,25 @@ int smcd_cdc_msg_send(struct smc_connection *conn)
->>           return rc;
->>       smc_curs_copy(&conn->rx_curs_confirmed, &curs, conn);
->>       conn->local_rx_ctrl.prod_flags.cons_curs_upd_req = 0;
->> -    /* Calculate transmitted data and increment free send buffer space */
->> -    diff = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
->> -                 &conn->tx_curs_sent);
->> -    /* increased by confirmed number of bytes */
->> -    smp_mb__before_atomic();
->> -    atomic_add(diff, &conn->sndbuf_space);
->> -    /* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
->> -    smp_mb__after_atomic();
->> -    smc_curs_copy(&conn->tx_curs_fin, &conn->tx_curs_sent, conn);
->> +    if (!smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
->> +        /* Ghost sndbuf shares the same memory region with
->> +         * peer DMB, so don't update the tx_curs_fin and
->> +         * sndbuf_space until peer has consumed the data.
->> +         */
+>> I thought the same until I spotted that comment (where uffd originally
+>> copied this from I strongly assume) in do_anonymous_page().
+>>
+>> "Preceding stores" here are: zeroing out the memory.
 > 
-> Hi Wen Gu,
+> Ah.. that's okay then.
 > 
-> move this comment above the if please. Two consecutive multiline comments are difficult to read here.
+> Considering that userfault used to be pretty cautious on such ordering, as
+> its specialty to involve many user updates on the page, would you mind we
+> mention those details out?
 > 
+> 	/*
+> 	 * __folio_mark_uptodate contains the memory barrier to make sure
+>           * the page updates to the zero page will be visible before
+> 	 * installing the pgtable entries.  See do_anonymous_page().
+> 	 */
+> 
+> Or anything better than my wordings.
 
-OK, will move comments above the if. Thanks!
+Sure, I'd slightly reword it. The following on top:
 
->> +        /* Calculate transmitted data and increment free
->> +         * send buffer space
->> +         */
->> +        diff = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
->> +                     &conn->tx_curs_sent);
->> +        /* increased by confirmed number of bytes */
->> +        smp_mb__before_atomic();
->> +        atomic_add(diff, &conn->sndbuf_space);
->> +        /* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
->> +        smp_mb__after_atomic();
->> +        smc_curs_copy(&conn->tx_curs_fin, &conn->tx_curs_sent, conn);
->> -    smc_tx_sndbuf_nonfull(smc);
->> +        smc_tx_sndbuf_nonfull(smc);
->> +    }
->>       return rc;
->>   }
->> @@ -323,7 +332,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
->>   {
->>       union smc_host_cursor cons_old, prod_old;
->>       struct smc_connection *conn = &smc->conn;
->> -    int diff_cons, diff_prod;
->> +    int diff_cons, diff_prod, diff_tx;
->>       smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
->>       smc_curs_copy(&cons_old, &conn->local_rx_ctrl.cons, conn);
->> @@ -339,6 +348,27 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
->>           atomic_add(diff_cons, &conn->peer_rmbe_space);
->>           /* guarantee 0 <= peer_rmbe_space <= peer_rmbe_size */
->>           smp_mb__after_atomic();
->> +
->> +        if (conn->lgr->is_smcd &&
->> +            smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
->> +            /* Ghost sndbuf shares the same memory region with
->> +             * peer RMB, so update tx_curs_fin and sndbuf_space
->> +             * when peer has consumed the data.
->> +             */
-> 
-> Same as above.
-> 
+diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
+index 1d1061ccd1dea..9d385696fb891 100644
+--- a/mm/userfaultfd.c
++++ b/mm/userfaultfd.c
+@@ -320,20 +320,19 @@ static int mfill_atomic_pte_zeroed_folio(pmd_t *dst_pmd,
+  		 struct vm_area_struct *dst_vma, unsigned long dst_addr)
+  {
+  	struct folio *folio;
+-	int ret;
++	int ret = -ENOMEM;
+  
+  	folio = vma_alloc_zeroed_movable_folio(dst_vma, dst_addr);
+  	if (!folio)
+-		return -ENOMEM;
++		return ret;
+  
+-	ret = -ENOMEM;
+  	if (mem_cgroup_charge(folio, dst_vma->vm_mm, GFP_KERNEL))
+  		goto out_put;
+  
+  	/*
+  	 * The memory barrier inside __folio_mark_uptodate makes sure that
+-	 * preceding stores to the page contents become visible before
+-	 * the set_pte_at() write.
++	 * zeroing out the folio become visible before mapping the page
++	 * using set_pte_at(). See do_anonymous_page().
+  	 */
+  	__folio_mark_uptodate(folio);
+  
 
-OK, will do. Thanks!
+Thanks!
 
-> Thanks
-> - Jan
-> 
->> +            /* calculate peer rmb consumed data */
->> +            diff_tx = smc_curs_diff(conn->sndbuf_desc->len,
->> +                        &conn->tx_curs_fin,
->> +                        &conn->local_rx_ctrl.cons);
->> +            /* increase local sndbuf space and fin_curs */
->> +            smp_mb__before_atomic();
->> +            atomic_add(diff_tx, &conn->sndbuf_space);
->> +            /* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
->> +            smp_mb__after_atomic();
->> +            smc_curs_copy(&conn->tx_curs_fin,
->> +                      &conn->local_rx_ctrl.cons, conn);
->> +
->> +            smc_tx_sndbuf_nonfull(smc);
->> +        }
->>       }
->>       diff_prod = smc_curs_diff(conn->rmb_desc->len, &prod_old,
+-- 
+Cheers,
+
+David / dhildenb
+
