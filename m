@@ -1,66 +1,32 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC1463F9FD
-	for <linux-s390@vger.kernel.org>; Fri, 22 Mar 2024 11:56:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 001329475;
+	Fri, 22 Mar 2024 12:30:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711108616; cv=none; b=lUUO4VTSnv2keeHNJLY6IEKC4eM6DrYsAH3fTkqz8pF513cVddYhCQEphRFJ3g5x2ssIA1DC93y5iURU+JT3yPUPiw80Mzpbj+Rpex7rSm/DWziuraOCj+2Rpmewk51N5Z1K+QaIb8i5g0R87p5eFUr+F2ng92fEL8X+9g7xG00=
+	t=1711110618; cv=none; b=aCDfTkG7iO7myefkwvDqoN1heTyqUyvHEUdp89JKoEm1pQ9/L+lUpO3zJyW0k9COW3Zoo9ItL/JTxAMMWGMMVskdd5kgkHm4NeRYw2jFf5CQYDoXnxdouzsINEBYxc/Lel2ZrXa0M7H51dZNO5Z7SGob6WNJJtTBF5WNKnLG7iw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711108616; c=relaxed/simple;
-	bh=sulsfC3nRd0LxdfOW1zC16Mdv3AZjGZeArE2KLK+Jrk=;
+	s=arc-20240116; t=1711110618; c=relaxed/simple;
+	bh=fEfFlBr4ugsPaCueHsYIH4SSAkF3+xAFPa2Sh0wjXT4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Xl4tgC6Olcwrp9RBnF0EJaNz6T6LZC30H6HRWv1ILOQ9iVEYI2aAsC1fb7G+gr0UCrlLsx5AJs5Pob4XDTfb9h+vSHjktHnPXN3fn2by9tA8nOe1495WuAgTKeiRx1BAcLSRxo0jkVDXRcCwk4lNh6GtlAbH/S+R2wEydeMvDGY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FYBrsepx; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=r5TUimGUqJ0PCsAWiIxw1tN266nS3CrFE9THIEpq2aRVK4Rvq4m6WDiit4/fAcahDFYDtac2i0djL2RZo25Y4pGBS4uxjLf/Gf8FTpfU75dT7WnfVtOvV+Oq7cK4tfGcsdB5qR9Id7TadGUgkWvoh5ejW45d+erX0UwHw643ccw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=U/0v5Z3Y; arc=none smtp.client-ip=115.124.30.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FYBrsepx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711108613;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=k8phzhH+bcCAhu8LzPRS+w6MFVuocyKpcgRJTQx5vTg=;
-	b=FYBrsepx67G50MfFx02OzqbIy1cArODQXFHVI49Wc/D8bxSv8jpYTCXZ17NJYv8CDX1eoD
-	zZ+NcGzJq5tG4NQqDzLMQzDr3q0KRhkhhZ8fthykvzY4ZGS8nEoqHUBma4cYBDneZhFw2a
-	1gvHhtHpdJ9O5sIxlcYZBk9Uuy0KNJg=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-619-LTA-C7IDPpm5J-gYU5SKlg-1; Fri, 22 Mar 2024 07:56:52 -0400
-X-MC-Unique: LTA-C7IDPpm5J-gYU5SKlg-1
-Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2d48af389acso16345811fa.1
-        for <linux-s390@vger.kernel.org>; Fri, 22 Mar 2024 04:56:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711108610; x=1711713410;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=k8phzhH+bcCAhu8LzPRS+w6MFVuocyKpcgRJTQx5vTg=;
-        b=PjFklrUVhsrqFIkj1Cg6AiZKMy9NQKvBzCM4rCaNQ1nLyV9L8oiQwOpvh7jA+DldZt
-         1kcYogPovF8PCbLqN+ryXV6SmnemkfbgUos/eeTZ3a1/URS37rUwacZdYJd3XaygrB49
-         odDIqSlExAUq5e4J4gI3g9VObIPz1nVESx6mRW/jRG1RC7+20sCOR5uYyxMjjfAvhMxP
-         lVlxofQYtEf+EN1qM4dA/4lGk56MM9mIqVSLOTcdytYgWLuNcwwZOSZsNEQ+agJEl/E9
-         zBHuVt91PlrChVCGGVWfkWHyHBlwHgUhpzoDV+/RhPwnp/g9XK6uXi5T/WfHEPtGiitx
-         g7Cg==
-X-Forwarded-Encrypted: i=1; AJvYcCXJyPILcs3lIOZaXeOh5E4k5Tnmu/ej+ACgI6zPG9kgCyVuDrOp/svOPWF6ip73XgM/6HTYGx8IKqj59iSgj4SVnB27qErA2bNBDw==
-X-Gm-Message-State: AOJu0YwvHcbXhugb7QwcS6LOaioj5IBQAz4lDPUkKnkuIBygIbH8MxQF
-	9TqWrRKGRLepVgYstPzEPG46ihcSsjLerAQCBfvbiTxNqHzzaRlsnQjO6VTIPgukU0/mffNUnJ5
-	3IYqsWNZvpUIkOSejGOoSG9uCVLsVSmSXQho6sgJFzTqr/lAm5h8MmZu0oC8=
-X-Received: by 2002:a19:2d47:0:b0:513:8102:1a1e with SMTP id t7-20020a192d47000000b0051381021a1emr1519565lft.50.1711108610488;
-        Fri, 22 Mar 2024 04:56:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFQx6PbBrwZG4C6vyRezVR/JnZxZ2mjcNcbAkSDm5jCYhr8+aNKGnr1n8kbswqbAuJNosOaww==
-X-Received: by 2002:a19:2d47:0:b0:513:8102:1a1e with SMTP id t7-20020a192d47000000b0051381021a1emr1519516lft.50.1711108609056;
-        Fri, 22 Mar 2024 04:56:49 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c71b:7e00:9339:4017:7111:82d0? (p200300cbc71b7e0093394017711182d0.dip0.t-ipconnect.de. [2003:cb:c71b:7e00:9339:4017:7111:82d0])
-        by smtp.gmail.com with ESMTPSA id h11-20020a05600c350b00b0041477e76ec6sm2915008wmq.2.2024.03.22.04.56.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 22 Mar 2024 04:56:48 -0700 (PDT)
-Message-ID: <3620be9c-e288-4ff2-a7be-1fcf806e6e6e@redhat.com>
-Date: Fri, 22 Mar 2024 12:56:46 +0100
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="U/0v5Z3Y"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711110605; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=mYTbCPy1WTTUyflrWQMEy9SpU9P1T1WTxZVaPvhJG5M=;
+	b=U/0v5Z3YUpYg90VVjyeDI0m/O9FhprTbR+H6CTCfqWeIqASq4CSuFV/tNA1386u2ONQAErYd3tjCCKlv38BGgFEfBJjbcJunQtA8nAw+nriL5ei9G505pqJFIlMj9P9uFHlcwCdyYwWlIcm+b52rvCtCOjAgRNj7ME3mz0vCRXE=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R531e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W329hih_1711110603;
+Received: from 30.221.130.60(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W329hih_1711110603)
+          by smtp.aliyun-inc.com;
+          Fri, 22 Mar 2024 20:30:05 +0800
+Message-ID: <a5566d49-db9e-48ca-801b-37bfa1134748@linux.alibaba.com>
+Date: Fri, 22 Mar 2024 20:30:03 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,180 +34,260 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH vhost v4 1/6] virtio_balloon: remove the dependence where
- names[] is null
-Content-Language: en-US
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
-Cc: Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Hans de Goede <hdegoede@redhat.com>,
- =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
- platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org, kvm@vger.kernel.org
-References: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
- <20240321101532.59272-2-xuanzhuo@linux.alibaba.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20240321101532.59272-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [RFC PATCH net-next v4 05/11] net/smc: implement DMB-related
+ operations of loopback-ism
+To: Jan Karcher <jaka@linux.ibm.com>, wintera@linux.ibm.com,
+ twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org
+References: <20240317100545.96663-1-guwen@linux.alibaba.com>
+ <20240317100545.96663-6-guwen@linux.alibaba.com>
+ <da8a60f1-dadf-4ab4-89b3-77e1ee45be03@linux.ibm.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <da8a60f1-dadf-4ab4-89b3-77e1ee45be03@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 21.03.24 11:15, Xuan Zhuo wrote:
-> Currently, the init_vqs function within the virtio_balloon driver relies
-> on the condition that certain names array entries are null in order to
-> skip the initialization of some virtual queues (vqs). This behavior is
-> unique to this part of the codebase. In an upcoming commit, we plan to
-> eliminate this dependency by removing the function entirely. Therefore,
-> with this change, we are ensuring that the virtio_balloon no longer
-> depends on the aforementioned function.
+
+
+On 2024/3/21 16:12, Jan Karcher wrote:
 > 
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->   drivers/virtio/virtio_balloon.c | 41 +++++++++++++++------------------
->   1 file changed, 19 insertions(+), 22 deletions(-)
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 1f5b3dd31fcf..becc12a05407 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -531,49 +531,46 @@ static int init_vqs(struct virtio_balloon *vb)
->   	struct virtqueue *vqs[VIRTIO_BALLOON_VQ_MAX];
->   	vq_callback_t *callbacks[VIRTIO_BALLOON_VQ_MAX];
->   	const char *names[VIRTIO_BALLOON_VQ_MAX];
-> -	int err;
-> +	int err, nvqs, idx;
->   
-> -	/*
-> -	 * Inflateq and deflateq are used unconditionally. The names[]
-> -	 * will be NULL if the related feature is not enabled, which will
-> -	 * cause no allocation for the corresponding virtqueue in find_vqs.
-> -	 */
->   	callbacks[VIRTIO_BALLOON_VQ_INFLATE] = balloon_ack;
->   	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
->   	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
->   	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
+> On 17/03/2024 11:05, Wen Gu wrote:
+>> This implements DMB (un)registration and data move operations of
+>> loopback-ism device.
+>>
+>> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+>> ---
+>>   net/smc/smc_loopback.c | 131 ++++++++++++++++++++++++++++++++++++++++-
+>>   net/smc/smc_loopback.h |  13 ++++
+>>   2 files changed, 141 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
+>> index 253128c77208..7335acb03920 100644
+>> --- a/net/smc/smc_loopback.c
+>> +++ b/net/smc/smc_loopback.c
+>> @@ -15,11 +15,13 @@
+>>   #include <linux/types.h>
+>>   #include <net/smc.h>
+>> +#include "smc_cdc.h"
+>>   #include "smc_ism.h"
+>>   #include "smc_loopback.h"
+>>   #if IS_ENABLED(CONFIG_SMC_LO)
+>>   #define SMC_LO_V2_CAPABLE    0x1 /* loopback-ism acts as ISMv2 */
+>> +#define SMC_DMA_ADDR_INVALID    (~(dma_addr_t)0)
+>>   static const char smc_lo_dev_name[] = "loopback-ism";
+>>   static struct smc_lo_dev *lo_dev;
+>> @@ -49,6 +51,93 @@ static int smc_lo_query_rgid(struct smcd_dev *smcd, struct smcd_gid *rgid,
+>>       return 0;
+>>   }
+>> +static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
+>> +                   void *client_priv)
+>> +{
+>> +    struct smc_lo_dmb_node *dmb_node, *tmp_node;
+>> +    struct smc_lo_dev *ldev = smcd->priv;
+>> +    int sba_idx, rc;
+>> +
+>> +    /* check space for new dmb */
+>> +    for_each_clear_bit(sba_idx, ldev->sba_idx_mask, SMC_LO_MAX_DMBS) {
+>> +        if (!test_and_set_bit(sba_idx, ldev->sba_idx_mask))
+>> +            break;
+>> +    }
+>> +    if (sba_idx == SMC_LO_MAX_DMBS)
+>> +        return -ENOSPC;
+>> +
+>> +    dmb_node = kzalloc(sizeof(*dmb_node), GFP_KERNEL);
+>> +    if (!dmb_node) {
+>> +        rc = -ENOMEM;
+>> +        goto err_bit;
+>> +    }
+>> +
+>> +    dmb_node->sba_idx = sba_idx;
+>> +    dmb_node->len = dmb->dmb_len;
+>> +    dmb_node->cpu_addr = kzalloc(dmb_node->len, GFP_KERNEL |
+>> +                     __GFP_NOWARN | __GFP_NORETRY |
+>> +                     __GFP_NOMEMALLOC);
+>> +    if (!dmb_node->cpu_addr) {
+>> +        rc = -ENOMEM;
+>> +        goto err_node;
+>> +    }
+>> +    dmb_node->dma_addr = SMC_DMA_ADDR_INVALID;
+>> +
+>> +again:
+>> +    /* add new dmb into hash table */
+>> +    get_random_bytes(&dmb_node->token, sizeof(dmb_node->token));
+>> +    write_lock_bh(&ldev->dmb_ht_lock);
+>> +    hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_node->token) {
+>> +        if (tmp_node->token == dmb_node->token) {
+>> +            write_unlock_bh(&ldev->dmb_ht_lock);
+>> +            goto again;
+>> +        }
+>> +    }
+>> +    hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
+>> +    write_unlock_bh(&ldev->dmb_ht_lock);
+>> +
+>> +    dmb->sba_idx = dmb_node->sba_idx;
+>> +    dmb->dmb_tok = dmb_node->token;
+>> +    dmb->cpu_addr = dmb_node->cpu_addr;
+>> +    dmb->dma_addr = dmb_node->dma_addr;
+>> +    dmb->dmb_len = dmb_node->len;
+>> +
+>> +    return 0;
+>> +
+>> +err_node:
+>> +    kfree(dmb_node);
+>> +err_bit:
+>> +    clear_bit(sba_idx, ldev->sba_idx_mask);
+>> +    return rc;
+>> +}
+>> +
+>> +static int smc_lo_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
+>> +{
+>> +    struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
+>> +    struct smc_lo_dev *ldev = smcd->priv;
+>> +
+>> +    /* remove dmb from hash table */
+>> +    write_lock_bh(&ldev->dmb_ht_lock);
+>> +    hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb->dmb_tok) {
+>> +        if (tmp_node->token == dmb->dmb_tok) {
+>> +            dmb_node = tmp_node;
+>> +            break;
+>> +        }
+>> +    }
+>> +    if (!dmb_node) {
+>> +        write_unlock_bh(&ldev->dmb_ht_lock);
+>> +        return -EINVAL;
+>> +    }
+>> +    hash_del(&dmb_node->list);
+>> +    write_unlock_bh(&ldev->dmb_ht_lock);
+>> +
+>> +    clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
+>> +    kfree(dmb_node->cpu_addr);
+>> +    kfree(dmb_node);
+>> +
+>> +    return 0;
+>> +}
+>> +
+>>   static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
+>>   {
+>>       return -EOPNOTSUPP;
+>> @@ -75,6 +164,40 @@ static int smc_lo_signal_event(struct smcd_dev *dev, struct smcd_gid *rgid,
+>>       return 0;
+>>   }
+>> +static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok,
+>> +                unsigned int idx, bool sf, unsigned int offset,
+>> +                void *data, unsigned int size)
+>> +{
+>> +    struct smc_lo_dmb_node *rmb_node = NULL, *tmp_node;
+>> +    struct smc_lo_dev *ldev = smcd->priv;
+>> +
+>> +    read_lock_bh(&ldev->dmb_ht_lock);
+>> +    hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_tok) {
+>> +        if (tmp_node->token == dmb_tok) {
+>> +            rmb_node = tmp_node;
+>> +            break;
+>> +        }
+>> +    }
+>> +    if (!rmb_node) {
+>> +        read_unlock_bh(&ldev->dmb_ht_lock);
+>> +        return -EINVAL;
+>> +    }
+>> +    read_unlock_bh(&ldev->dmb_ht_lock);
+>> +
+>> +    memcpy((char *)rmb_node->cpu_addr + offset, data, size);
+> 
+> Hi Wen Gu,
+> 
+> Could we get into use after free trouble here if the dmb gets unregistered between the read_unlock and memcpy?
+> 
 
-I'd remove the static dependencies here completely and do it
-consistently:
+rmb_node won't be unregistered until smc_lgr_free_bufs() in __smc_lgr_free(). At
+that time, the connections on this lgr should be all freed (smc_conn_free() and
+then lgr->refcnt == 0), so I think there will be no move data operation at that
+point. But in case there is something unforeseen, I will put memcpy between dmb_ht_lock.
 
-nvqs = 0;
+Thanks!
 
-callbacks[nvqs] = balloon_ack;
-names[nvqs++] = "inflate";
-callbacks[nvqs] = balloon_ack;
-names[nvqs++] = "deflate";
+> 
+>> +
+>> +    if (sf) {
+>> +        struct smc_connection *conn =
+>> +            smcd->conn[rmb_node->sba_idx];
+> 
+> Please put the `struct smc_connection *conn = NULL` at the top of the function and assign the value here.
+> 
 
+OK, I will put it at the top. Thanks!
 
-> -	callbacks[VIRTIO_BALLOON_VQ_STATS] = NULL;
-> -	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
-> -	callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
-> -	names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
-> -	names[VIRTIO_BALLOON_VQ_REPORTING] = NULL;
-> +
-> +	nvqs = VIRTIO_BALLOON_VQ_DEFLATE + 1;
->   
->   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-> -		names[VIRTIO_BALLOON_VQ_STATS] = "stats";
-> -		callbacks[VIRTIO_BALLOON_VQ_STATS] = stats_request;
-> +		names[nvqs] = "stats";
-> +		callbacks[nvqs] = stats_request;
-> +		++nvqs;
-
-callbacks[nvqs++] = stats_request;
-
-If you prefer to keep it separate, "nvqs++" please.
-
-... same here:
-
-idx = 0;
-vb->inflate_vq = vqs[idx++];
-vb->deflate_vq = vqs[idx++];
-
-...
-
->   
->   	vb->inflate_vq = vqs[VIRTIO_BALLOON_VQ_INFLATE];
->   	vb->deflate_vq = vqs[VIRTIO_BALLOON_VQ_DEFLATE];
-> +
-> +	idx = VIRTIO_BALLOON_VQ_DEFLATE + 1;
-> +
->   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
->   		struct scatterlist sg;
->   		unsigned int num_stats;
-> -		vb->stats_vq = vqs[VIRTIO_BALLOON_VQ_STATS];
-> +		vb->stats_vq = vqs[idx++];
->   
->   		/*
->   		 * Prime this virtqueue with one buffer so the hypervisor can
-> @@ -593,10 +590,10 @@ static int init_vqs(struct virtio_balloon *vb)
->   	}
->   
->   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
-> -		vb->free_page_vq = vqs[VIRTIO_BALLOON_VQ_FREE_PAGE];
-> +		vb->free_page_vq = vqs[idx++];
->   
->   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
-> -		vb->reporting_vq = vqs[VIRTIO_BALLOON_VQ_REPORTING];
-> +		vb->reporting_vq = vqs[idx++];
->   
-
-Apart from that LGTM
-
--- 
-Cheers,
-
-David / dhildenb
-
+> Thanks
+> - Jan
+> 
+>> +
+>> +        if (conn && !conn->killed)
+>> +            tasklet_schedule(&conn->rx_tsklet);
+>> +        else
+>> +            return -EPIPE;
+>> +    }
+>> +    return 0;
+>> +}
+>> +
+>>   static int smc_lo_supports_v2(void)
+>>   {
+>>       return SMC_LO_V2_CAPABLE;
+>> @@ -101,14 +224,14 @@ static struct device *smc_lo_get_dev(struct smcd_dev *smcd)
+>>   static const struct smcd_ops lo_ops = {
+>>       .query_remote_gid = smc_lo_query_rgid,
+>> -    .register_dmb        = NULL,
+>> -    .unregister_dmb        = NULL,
+>> +    .register_dmb = smc_lo_register_dmb,
+>> +    .unregister_dmb = smc_lo_unregister_dmb,
+>>       .add_vlan_id = smc_lo_add_vlan_id,
+>>       .del_vlan_id = smc_lo_del_vlan_id,
+>>       .set_vlan_required = smc_lo_set_vlan_required,
+>>       .reset_vlan_required = smc_lo_reset_vlan_required,
+>>       .signal_event = smc_lo_signal_event,
+>> -    .move_data        = NULL,
+>> +    .move_data = smc_lo_move_data,
+>>       .supports_v2 = smc_lo_supports_v2,
+>>       .get_local_gid = smc_lo_get_local_gid,
+>>       .get_chid = smc_lo_get_chid,
+>> @@ -173,6 +296,8 @@ static void smcd_lo_unregister_dev(struct smc_lo_dev *ldev)
+>>   static int smc_lo_dev_init(struct smc_lo_dev *ldev)
+>>   {
+>>       smc_lo_generate_id(ldev);
+>> +    rwlock_init(&ldev->dmb_ht_lock);
+>> +    hash_init(ldev->dmb_ht);
+>>       return smcd_lo_register_dev(ldev);
+>>   }
+>> diff --git a/net/smc/smc_loopback.h b/net/smc/smc_loopback.h
+>> index 55b41133a97f..24ab9d747613 100644
+>> --- a/net/smc/smc_loopback.h
+>> +++ b/net/smc/smc_loopback.h
+>> @@ -20,13 +20,26 @@
+>>   #if IS_ENABLED(CONFIG_SMC_LO)
+>>   #define SMC_LO_MAX_DMBS        5000
+>> +#define SMC_LO_DMBS_HASH_BITS    12
+>>   #define SMC_LO_CHID        0xFFFF
+>> +struct smc_lo_dmb_node {
+>> +    struct hlist_node list;
+>> +    u64 token;
+>> +    u32 len;
+>> +    u32 sba_idx;
+>> +    void *cpu_addr;
+>> +    dma_addr_t dma_addr;
+>> +};
+>> +
+>>   struct smc_lo_dev {
+>>       struct smcd_dev *smcd;
+>>       struct device dev;
+>>       u16 chid;
+>>       struct smcd_gid local_gid;
+>> +    rwlock_t dmb_ht_lock;
+>> +    DECLARE_BITMAP(sba_idx_mask, SMC_LO_MAX_DMBS);
+>> +    DECLARE_HASHTABLE(dmb_ht, SMC_LO_DMBS_HASH_BITS);
+>>   };
+>>   #endif
