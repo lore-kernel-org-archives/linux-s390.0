@@ -1,66 +1,66 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6CDF39AC5;
-	Fri, 22 Mar 2024 10:22:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC1463F9FD
+	for <linux-s390@vger.kernel.org>; Fri, 22 Mar 2024 11:56:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711102950; cv=none; b=qYtJ3u2Rj386j7gmsPnHdzFI+Aoa5w+SyhY2lufc+/L+1tQiuQJwDHKdGwkZVMPHgOVz1kbuiU6m/um8v1IXi++A4wZpQUx81YdbjS+4pKF8O/zbpdqXqE3qE4x9p6UMGsPk8LOTL8R1zBv8IQ5DxACkWn5c0hJycFbKQnaYBiM=
+	t=1711108616; cv=none; b=lUUO4VTSnv2keeHNJLY6IEKC4eM6DrYsAH3fTkqz8pF513cVddYhCQEphRFJ3g5x2ssIA1DC93y5iURU+JT3yPUPiw80Mzpbj+Rpex7rSm/DWziuraOCj+2Rpmewk51N5Z1K+QaIb8i5g0R87p5eFUr+F2ng92fEL8X+9g7xG00=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711102950; c=relaxed/simple;
-	bh=vMwYb4avxUZsb6Vz24fjsEAOtzod3kHSa/OcSBljTCc=;
+	s=arc-20240116; t=1711108616; c=relaxed/simple;
+	bh=sulsfC3nRd0LxdfOW1zC16Mdv3AZjGZeArE2KLK+Jrk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WJG/2ful8/knSRCOb4wjRU3toYRCy50kp3jGStHAIHyZsjETcjnzngE9RZ8jGuXpGXy4xVDR3cr3011J+EeVOpW773Klpd3YWqYD2BgZDf+T4YzEFAtDlooJ3dk7IAhGZPp0UPoIO9KWqbnlFMOQ5p8ikGkD/HmLY2RzTcCnz9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OCumWId4; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=Xl4tgC6Olcwrp9RBnF0EJaNz6T6LZC30H6HRWv1ILOQ9iVEYI2aAsC1fb7G+gr0UCrlLsx5AJs5Pob4XDTfb9h+vSHjktHnPXN3fn2by9tA8nOe1495WuAgTKeiRx1BAcLSRxo0jkVDXRcCwk4lNh6GtlAbH/S+R2wEydeMvDGY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FYBrsepx; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OCumWId4"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42M7D0oO029705;
-	Fri, 22 Mar 2024 10:22:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=t4EtCupj1AZsWtQ2aOS+eqQ4iFxWWbTe9gpwh+nYbgo=;
- b=OCumWId4GftXCC+x8XAN+4LzM5nfQc2Vt/51ofVBaheILkrNgywAF5nxxOT3ugMMfwbA
- 1j5by1l1X8hD/dPcSokAsNhZQLcXz8nqpLC+Cu9zYl0eS1zXrKF4DX7eTP2hP4jZOhlx
- o1dJkNZqgSVbr4Ls/DqVHnLHaHi16bwnPxADpGBOxYuNj2PuyOuROQrTgkRAByE28Erw
- oTIUczGUPaIVhc+8YtXnQkXdcDeqTeLiLoc8RaopVRYflvAYekQkr+c+ijVVQ1lpoUAl
- njxfj2pDb7jDT7OCs/USg4OVicIPam4oA9xB1eNAGfqoXjxMcH3Oy0ne/uQchOaBQKIP AA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x15d30c1v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 Mar 2024 10:22:21 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 42MAMLB0015406;
-	Fri, 22 Mar 2024 10:22:21 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x15d30c1s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 Mar 2024 10:22:21 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42M8kq8w015722;
-	Fri, 22 Mar 2024 10:22:20 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x0x15k3nh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 Mar 2024 10:22:20 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42MAMEqP47382980
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 22 Mar 2024 10:22:16 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9EE7620067;
-	Fri, 22 Mar 2024 10:22:14 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5DC812004F;
-	Fri, 22 Mar 2024 10:22:14 +0000 (GMT)
-Received: from [9.152.224.222] (unknown [9.152.224.222])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 22 Mar 2024 10:22:14 +0000 (GMT)
-Message-ID: <ed0f05de-0e17-41ec-85b2-be8603b0556a@linux.ibm.com>
-Date: Fri, 22 Mar 2024 11:22:13 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FYBrsepx"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1711108613;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=k8phzhH+bcCAhu8LzPRS+w6MFVuocyKpcgRJTQx5vTg=;
+	b=FYBrsepx67G50MfFx02OzqbIy1cArODQXFHVI49Wc/D8bxSv8jpYTCXZ17NJYv8CDX1eoD
+	zZ+NcGzJq5tG4NQqDzLMQzDr3q0KRhkhhZ8fthykvzY4ZGS8nEoqHUBma4cYBDneZhFw2a
+	1gvHhtHpdJ9O5sIxlcYZBk9Uuy0KNJg=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-619-LTA-C7IDPpm5J-gYU5SKlg-1; Fri, 22 Mar 2024 07:56:52 -0400
+X-MC-Unique: LTA-C7IDPpm5J-gYU5SKlg-1
+Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2d48af389acso16345811fa.1
+        for <linux-s390@vger.kernel.org>; Fri, 22 Mar 2024 04:56:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711108610; x=1711713410;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :references:cc:to:content-language:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=k8phzhH+bcCAhu8LzPRS+w6MFVuocyKpcgRJTQx5vTg=;
+        b=PjFklrUVhsrqFIkj1Cg6AiZKMy9NQKvBzCM4rCaNQ1nLyV9L8oiQwOpvh7jA+DldZt
+         1kcYogPovF8PCbLqN+ryXV6SmnemkfbgUos/eeTZ3a1/URS37rUwacZdYJd3XaygrB49
+         odDIqSlExAUq5e4J4gI3g9VObIPz1nVESx6mRW/jRG1RC7+20sCOR5uYyxMjjfAvhMxP
+         lVlxofQYtEf+EN1qM4dA/4lGk56MM9mIqVSLOTcdytYgWLuNcwwZOSZsNEQ+agJEl/E9
+         zBHuVt91PlrChVCGGVWfkWHyHBlwHgUhpzoDV+/RhPwnp/g9XK6uXi5T/WfHEPtGiitx
+         g7Cg==
+X-Forwarded-Encrypted: i=1; AJvYcCXJyPILcs3lIOZaXeOh5E4k5Tnmu/ej+ACgI6zPG9kgCyVuDrOp/svOPWF6ip73XgM/6HTYGx8IKqj59iSgj4SVnB27qErA2bNBDw==
+X-Gm-Message-State: AOJu0YwvHcbXhugb7QwcS6LOaioj5IBQAz4lDPUkKnkuIBygIbH8MxQF
+	9TqWrRKGRLepVgYstPzEPG46ihcSsjLerAQCBfvbiTxNqHzzaRlsnQjO6VTIPgukU0/mffNUnJ5
+	3IYqsWNZvpUIkOSejGOoSG9uCVLsVSmSXQho6sgJFzTqr/lAm5h8MmZu0oC8=
+X-Received: by 2002:a19:2d47:0:b0:513:8102:1a1e with SMTP id t7-20020a192d47000000b0051381021a1emr1519565lft.50.1711108610488;
+        Fri, 22 Mar 2024 04:56:50 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFQx6PbBrwZG4C6vyRezVR/JnZxZ2mjcNcbAkSDm5jCYhr8+aNKGnr1n8kbswqbAuJNosOaww==
+X-Received: by 2002:a19:2d47:0:b0:513:8102:1a1e with SMTP id t7-20020a192d47000000b0051381021a1emr1519516lft.50.1711108609056;
+        Fri, 22 Mar 2024 04:56:49 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c71b:7e00:9339:4017:7111:82d0? (p200300cbc71b7e0093394017711182d0.dip0.t-ipconnect.de. [2003:cb:c71b:7e00:9339:4017:7111:82d0])
+        by smtp.gmail.com with ESMTPSA id h11-20020a05600c350b00b0041477e76ec6sm2915008wmq.2.2024.03.22.04.56.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 22 Mar 2024 04:56:48 -0700 (PDT)
+Message-ID: <3620be9c-e288-4ff2-a7be-1fcf806e6e6e@redhat.com>
+Date: Fri, 22 Mar 2024 12:56:46 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,102 +68,180 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 2/2] s390/mm: re-enable the shared zeropage for !PV and
- !skeys KVM guests
+Subject: Re: [PATCH vhost v4 1/6] virtio_balloon: remove the dependence where
+ names[] is null
 Content-Language: en-US
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Xu <peterx@redhat.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20240321215954.177730-1-david@redhat.com>
- <20240321215954.177730-3-david@redhat.com>
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20240321215954.177730-3-david@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
+Cc: Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Hans de Goede <hdegoede@redhat.com>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
+ platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org, kvm@vger.kernel.org
+References: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
+ <20240321101532.59272-2-xuanzhuo@linux.alibaba.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20240321101532.59272-2-xuanzhuo@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ztFlzz80v3ERALXfSy3FTl3bPX6Bi31k
-X-Proofpoint-ORIG-GUID: 3N0heez5LomRZyHLGJD7rvjWaDPGsK2B
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-22_06,2024-03-21_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- clxscore=1011 priorityscore=1501 impostorscore=0 bulkscore=0 adultscore=0
- spamscore=0 malwarescore=0 lowpriorityscore=0 mlxlogscore=999 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2403210000
- definitions=main-2403220074
+
+On 21.03.24 11:15, Xuan Zhuo wrote:
+> Currently, the init_vqs function within the virtio_balloon driver relies
+> on the condition that certain names array entries are null in order to
+> skip the initialization of some virtual queues (vqs). This behavior is
+> unique to this part of the codebase. In an upcoming commit, we plan to
+> eliminate this dependency by removing the function entirely. Therefore,
+> with this change, we are ensuring that the virtio_balloon no longer
+> depends on the aforementioned function.
+> 
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>   drivers/virtio/virtio_balloon.c | 41 +++++++++++++++------------------
+>   1 file changed, 19 insertions(+), 22 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 1f5b3dd31fcf..becc12a05407 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -531,49 +531,46 @@ static int init_vqs(struct virtio_balloon *vb)
+>   	struct virtqueue *vqs[VIRTIO_BALLOON_VQ_MAX];
+>   	vq_callback_t *callbacks[VIRTIO_BALLOON_VQ_MAX];
+>   	const char *names[VIRTIO_BALLOON_VQ_MAX];
+> -	int err;
+> +	int err, nvqs, idx;
+>   
+> -	/*
+> -	 * Inflateq and deflateq are used unconditionally. The names[]
+> -	 * will be NULL if the related feature is not enabled, which will
+> -	 * cause no allocation for the corresponding virtqueue in find_vqs.
+> -	 */
+>   	callbacks[VIRTIO_BALLOON_VQ_INFLATE] = balloon_ack;
+>   	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
+>   	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
+>   	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
+
+I'd remove the static dependencies here completely and do it
+consistently:
+
+nvqs = 0;
+
+callbacks[nvqs] = balloon_ack;
+names[nvqs++] = "inflate";
+callbacks[nvqs] = balloon_ack;
+names[nvqs++] = "deflate";
 
 
+> -	callbacks[VIRTIO_BALLOON_VQ_STATS] = NULL;
+> -	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
+> -	callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+> -	names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+> -	names[VIRTIO_BALLOON_VQ_REPORTING] = NULL;
+> +
+> +	nvqs = VIRTIO_BALLOON_VQ_DEFLATE + 1;
+>   
+>   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+> -		names[VIRTIO_BALLOON_VQ_STATS] = "stats";
+> -		callbacks[VIRTIO_BALLOON_VQ_STATS] = stats_request;
+> +		names[nvqs] = "stats";
+> +		callbacks[nvqs] = stats_request;
+> +		++nvqs;
 
-Am 21.03.24 um 22:59 schrieb David Hildenbrand:
-> commit fa41ba0d08de ("s390/mm: avoid empty zero pages for KVM guests to
-> avoid postcopy hangs") introduced an undesired side effect when combined
-> with memory ballooning and VM migration: memory part of the inflated
-> memory balloon will consume memory.
-> 
-> Assuming we have a 100GiB VM and inflated the balloon to 40GiB. Our VM
-> will consume ~60GiB of memory. If we now trigger a VM migration,
-> hypervisors like QEMU will read all VM memory. As s390x does not support
-> the shared zeropage, we'll end up allocating for all previously-inflated
-> memory part of the memory balloon: 50 GiB. So we might easily
-> (unexpectedly) crash the VM on the migration source.
-> 
-> Even worse, hypervisors like QEMU optimize for zeropage migration to not
-> consume memory on the migration destination: when migrating a
-> "page full of zeroes", on the migration destination they check whether the
-> target memory is already zero (by reading the destination memory) and avoid
-> writing to the memory to not allocate memory: however, s390x will also
-> allocate memory here, implying that also on the migration destination, we
-> will end up allocating all previously-inflated memory part of the memory
-> balloon.
-> 
-> This is especially bad if actual memory overcommit was not desired, when
-> memory ballooning is used for dynamic VM memory resizing, setting aside
-> some memory during boot that can be added later on demand. Alternatives
-> like virtio-mem that would avoid this issue are not yet available on
-> s390x.
-> 
-> There could be ways to optimize some cases in user space: before reading
-> memory in an anonymous private mapping on the migration source, check via
-> /proc/self/pagemap if anything is already populated. Similarly check on
-> the migration destination before reading. While that would avoid
-> populating tables full of shared zeropages on all architectures, it's
-> harder to get right and performant, and requires user space changes.
-> 
-> Further, with posctopy live migration we must place a page, so there,
-> "avoid touching memory to avoid allocating memory" is not really
-> possible. (Note that a previously we would have falsely inserted
-> shared zeropages into processes using UFFDIO_ZEROPAGE where
-> mm_forbids_zeropage() would have actually forbidden it)
-> 
-> PV is currently incompatible with memory ballooning, and in the common
-> case, KVM guests don't make use of storage keys. Instead of zapping
-> zeropages when enabling storage keys / PV, that turned out to be
-> problematic in the past, let's do exactly the same we do with KSM pages:
-> trigger unsharing faults to replace the shared zeropages by proper
-> anonymous folios.
-> 
-> What about added latency when enabling storage kes? Having a lot of
-> zeropages in applicable environments (PV, legacy guests, unittests) is
-> unexpected. Further, KSM could today already unshare the zeropages
-> and unmerging KSM pages when enabling storage kets would unshare the
-> KSM-placed zeropages in the same way, resulting in the same latency.
-> 
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+callbacks[nvqs++] = stats_request;
 
-Nice work. Looks good to me and indeed it fixes the memory
-over-consumption that you mentioned.
+If you prefer to keep it separate, "nvqs++" please.
 
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-(can also be seen with virsh managedsave; virsh start)
+... same here:
 
-I guess its too invasive for stable, but I would say it is real fix.
+idx = 0;
+vb->inflate_vq = vqs[idx++];
+vb->deflate_vq = vqs[idx++];
+
+...
+
+>   
+>   	vb->inflate_vq = vqs[VIRTIO_BALLOON_VQ_INFLATE];
+>   	vb->deflate_vq = vqs[VIRTIO_BALLOON_VQ_DEFLATE];
+> +
+> +	idx = VIRTIO_BALLOON_VQ_DEFLATE + 1;
+> +
+>   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+>   		struct scatterlist sg;
+>   		unsigned int num_stats;
+> -		vb->stats_vq = vqs[VIRTIO_BALLOON_VQ_STATS];
+> +		vb->stats_vq = vqs[idx++];
+>   
+>   		/*
+>   		 * Prime this virtqueue with one buffer so the hypervisor can
+> @@ -593,10 +590,10 @@ static int init_vqs(struct virtio_balloon *vb)
+>   	}
+>   
+>   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+> -		vb->free_page_vq = vqs[VIRTIO_BALLOON_VQ_FREE_PAGE];
+> +		vb->free_page_vq = vqs[idx++];
+>   
+>   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
+> -		vb->reporting_vq = vqs[VIRTIO_BALLOON_VQ_REPORTING];
+> +		vb->reporting_vq = vqs[idx++];
+>   
+
+Apart from that LGTM
+
+-- 
+Cheers,
+
+David / dhildenb
+
