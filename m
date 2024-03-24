@@ -1,208 +1,289 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23F827FBBE
-	for <linux-s390@vger.kernel.org>; Fri, 22 Mar 2024 21:02:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F407017BD8;
+	Sun, 24 Mar 2024 13:55:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711141357; cv=none; b=KapxO57H6/M+Mz5wtjjZMt4bxLRzId1qe1wTc3mxJuEjbkfb5i/9WB8coPTpvGrx8oT+G6alW3tTH3k4ypRQHl9C/ztRA/OeTA8UV8jpekVxyvi/1c8zSMssOFvkzXwCU79Xs+48PmK5wnMk6D3zsbQKGI4PjLbv0ShVoDK8Un0=
+	t=1711288537; cv=none; b=HQ0HydJGURIvOFgZg5yOsMmL31byra4MXXhdRXT6fIOLsPpn1oOIjcViNJaU8QzenERV5kS7UvM/7FcwPceo2n1MngFvpUh1bnejU55LL0YU6iG4nsLRa2vlanrKLVe1wx1jYS1gJKMSvnbpqdGKbhEpzvVdcG2LvMJ+WIgZ1Sk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711141357; c=relaxed/simple;
-	bh=MJOUiylT1gO5PYdopB+gDEf0uAhJHYMUDIxAepGiL8k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=V2SAylooNBcmaPPeaRATYqc712xLyYS5zwhHQj7MicpeVBWdkFoUf6itTXGrn6PuEnrCaTpha4QBXdcqM4W+UMdk8rw5NmVUz1Sm6aws179LpkIt/e0hqkMITCAqq9ycS2p5IuTo9XpzRSKL2fJRu9+6GJ9GFXbTYpy8SH0kywU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bYNsDHEi; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1711288537; c=relaxed/simple;
+	bh=e29KP5DDBN+grKJZFS7krv8ASEXnNxFzeZILB8zdA+E=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=aYC2UZJbpBCBKV2ChDocYb92OpD53QFM7DkVPZV7DGXE6TLpfPTIREx8rlM3iAAwHSlHI4uVKeBKP7CuV6CtVyu2tfYb1QwmrpBOBSF0Jbs2owyY2dPa5LlbEC/zpQLjjUZlyiXnivPD+2cn3oEDUIWOpr6kdHiVc5ZXOMf80+M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=vBXqkiHr; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bYNsDHEi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711141355;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=PFVyegIhf//HHhHfQmh5NpqjlKK9ka89h1dvT9SewD8=;
-	b=bYNsDHEivvcw3cHzxQSFd4dkBb/hXZj0aBAOmFTibWk7yCS9IYsFMJP5mzhH74dalCYiQ9
-	cC5O+XKDAcWe5zielp18evVVCvBHR7IRJ12zM3999UU5/yXq9Ua1g3Dddd6QW17RoQDoGF
-	Df5dgJL0qoZITYPXGby3yq6gesl+WMo=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-605-jnCuowSUOQOLzyykSfB5eQ-1; Fri, 22 Mar 2024 17:02:31 -0400
-X-MC-Unique: jnCuowSUOQOLzyykSfB5eQ-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-33ed44cb765so1170023f8f.2
-        for <linux-s390@vger.kernel.org>; Fri, 22 Mar 2024 14:02:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711141350; x=1711746150;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PFVyegIhf//HHhHfQmh5NpqjlKK9ka89h1dvT9SewD8=;
-        b=fLON6E43l9Ud4jnHCNFuQ8gFmBQMX+mLtBJVt/HhilCM4jHDaLYg8EOf4aOgHnecr+
-         y9pEc1fvbziMR9yMfIgSKOQVe4sP0z1bNWaw7Ru+rZe6/P+Jp3etaZFxMJDEzSE/GFgZ
-         6Mhm+/aAjzwTfRFHHaCoMtmbMTunmEKBweNrTWCoo/mdXuPTV2rDShxYKUK1XYy04thL
-         hSs0C1LBM5dOXzpDnd/9n3iBRGf5i6UaXe0YGIrkUeJC5EoJIcSUuqnrfB8YgK7Z9tOL
-         wUE5wmvm0yvkLegk3tLz3HC7MXjzzIk45G9AFS4eoXW3stanikDkyCWQ78/VPwxqJONX
-         zddQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW9M8KGf03zi0EAUAaUn3HIbUWgYx3i0cjyXCdjbym7xr8CAka/71k0eF4ipGjm+pmBKVJQ0hziAAM4fFeFVMEN2jlJMZ1yo3vjkQ==
-X-Gm-Message-State: AOJu0YxbTjT698BkTuZj3F+uVOWNsosR86VzYWOvHPvbzHztHao0uokO
-	K6FDWZCTEbLO9bSnSqLSlZ0J07yq+WFDfkE3w91OnDRqOJfKDryil1BrPctUemBDRah1Qw3u86C
-	yFyUf8Z1Bqyh6YhdnacQ6OTuOACJhdi6iCzem6F8+f5U1jik3TG+f2ecwhao=
-X-Received: by 2002:adf:f544:0:b0:341:a813:2679 with SMTP id j4-20020adff544000000b00341a8132679mr310982wrp.29.1711141350249;
-        Fri, 22 Mar 2024 14:02:30 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGaqp+JyTk4JX0MqO3wQQNDlBTOTaTSJHLvU5DsMsBkD33yBR1gLLawTwsXpzKlCPKxd+Etog==
-X-Received: by 2002:adf:f544:0:b0:341:a813:2679 with SMTP id j4-20020adff544000000b00341a8132679mr310953wrp.29.1711141349682;
-        Fri, 22 Mar 2024 14:02:29 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c71b:7e00:9339:4017:7111:82d0? (p200300cbc71b7e0093394017711182d0.dip0.t-ipconnect.de. [2003:cb:c71b:7e00:9339:4017:7111:82d0])
-        by smtp.gmail.com with ESMTPSA id dw1-20020a0560000dc100b0033e3cb02cefsm2861423wrb.86.2024.03.22.14.02.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 22 Mar 2024 14:02:29 -0700 (PDT)
-Message-ID: <b420a545-0a7a-431c-aa48-c5db3d221420@redhat.com>
-Date: Fri, 22 Mar 2024 22:02:27 +0100
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="vBXqkiHr"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711288526; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=pZzt03mnyqMBf1evoA0HPmToHQs34P0tgCojcAc5oAM=;
+	b=vBXqkiHrbyadKoD4ui/fWE51ptHStmcKMZAPLqpjizVa/9HI6616olfhf6iOnc01890h63F9W+fLzFz1ckiEmURm0zqxosDiUzZnXGZqRRMRJdU8e50PjBKtSRPB6BdJLVS0E4iQjI+ph4cIblLeNGPdPO0iR5NMUkA5PmMahF4=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R471e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W372W35_1711288522;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W372W35_1711288522)
+          by smtp.aliyun-inc.com;
+          Sun, 24 Mar 2024 21:55:26 +0800
+From: Wen Gu <guwen@linux.alibaba.com>
+To: wintera@linux.ibm.com,
+	twinkler@linux.ibm.com,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	wenjia@linux.ibm.com,
+	jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: [RFC PATCH net-next v5 00/11] net/smc: SMC intra-OS shortcut with loopback-ism
+Date: Sun, 24 Mar 2024 21:55:11 +0800
+Message-Id: <20240324135522.108564-1-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH vhost v4 1/6] virtio_balloon: remove the dependence where
- names[] is null
-Content-Language: en-US
-To: Daniel Verkamp <dverkamp@chromium.org>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Hans de Goede <hdegoede@redhat.com>,
- =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
- platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org, kvm@vger.kernel.org
-References: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
- <20240321101532.59272-2-xuanzhuo@linux.alibaba.com>
- <CABVzXAkwcKMb7pC21aUDLEM=RoyOtGA2Vim+LF0oWQ7mjUx68g@mail.gmail.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <CABVzXAkwcKMb7pC21aUDLEM=RoyOtGA2Vim+LF0oWQ7mjUx68g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 22.03.24 20:16, Daniel Verkamp wrote:
-> On Thu, Mar 21, 2024 at 3:16 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
->>
->> Currently, the init_vqs function within the virtio_balloon driver relies
->> on the condition that certain names array entries are null in order to
->> skip the initialization of some virtual queues (vqs). This behavior is
->> unique to this part of the codebase. In an upcoming commit, we plan to
->> eliminate this dependency by removing the function entirely. Therefore,
->> with this change, we are ensuring that the virtio_balloon no longer
->> depends on the aforementioned function.
-> 
-> This is a behavior change, and I believe means that the driver no
-> longer follows the spec [1].
-> 
-> For example, the spec says that virtqueue 4 is reporting_vq, and
-> reporting_vq only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set,
-> but there is no mention of its virtqueue number changing if other
-> features are not set. If a device/driver combination negotiates
-> VIRTIO_BALLOON_F_PAGE_REPORTING but not VIRTIO_BALLOON_F_STATS_VQ or
-> VIRTIO_BALLOON_F_FREE_PAGE_HINT, my reading of the specification is
-> that reporting_vq should still be vq number 4, and vq 2 and 3 should
-> be unused. This patch would make the reporting_vq use vq 2 instead in
-> this case.
-> 
-> If the new behavior is truly intended, then the spec does not match
-> reality, and it would need to be changed first (IMO); however,
-> changing the spec would mean that any devices implemented correctly
-> per the previous spec would now be wrong, so some kind of mechanism
-> for detecting the new behavior would be warranted, e.g. a new
-> non-device-specific virtio feature flag.
-> 
-> I have brought this up previously on the virtio-comment list [2], but
-> it did not receive any satisfying answers at that time.
+This patch set acts as the second part of the new version of [1] (The first
+part can be referred from [2]), the updated things of this version are listed
+at the end.
 
-Rings a bell, but staring at this patch, I thought that there would be
-no behavioral change. Maybe I missed it :/
+- Background
 
-I stared at virtio_ccw_find_vqs(), and it contains:
+SMC-D is now used in IBM z with ISM function to optimize network interconnect
+for intra-CPC communications. Inspired by this, we try to make SMC-D available
+on the non-s390 architecture through a software-implemented Emulated-ISM device,
+that is the loopback-ism device here, to accelerate inter-process or
+inter-containers communication within the same OS instance.
 
-	for (i = 0; i < nvqs; ++i) {
-		if (!names[i]) {
-			vqs[i] = NULL;
-			continue;
-		}
+- Design
 
-		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
-					     names[i], ctx ? ctx[i] : false,
-					     ccw);
-		if (IS_ERR(vqs[i])) {
-			ret = PTR_ERR(vqs[i]);
-			vqs[i] = NULL;
-			goto out;
-		}
-	}
+This patch set includes 3 parts:
 
-We increment queue_idx only if an entry was not NULL. SO I thought no
-behavioral change? (at least on s390x :) )
+ - Patch #1: some prepare work for loopback-ism.
+ - Patch #2-#7: implement loopback-ism device. Noted that loopback-ism now
+   serves only SMC and no userspace interface exposed.
+ - Patch #8-#11: memory copy optimization for intra-OS scenario.
 
-It's late here in Germany, so maybe I'm missing something.
+The loopback-ism device is designed as an ISMv2 device and not be limited to
+a specific net namespace, ends of both inter-process connection (1/1' in diagram
+below) or inter-container connection (2/2' in diagram below) can find the same
+available loopback-ism and choose it during the CLC handshake.
+
+ Container 1 (ns1)                              Container 2 (ns2)
+ +-----------------------------------------+    +-------------------------+
+ | +-------+      +-------+      +-------+ |    |        +-------+        |
+ | | App A |      | App B |      | App C | |    |        | App D |<-+     |
+ | +-------+      +---^---+      +-------+ |    |        +-------+  |(2') |
+ |     |127.0.0.1 (1')|             |192.168.0.11       192.168.0.12|     |
+ |  (1)|   +--------+ | +--------+  |(2)   |    | +--------+   +--------+ |
+ |     `-->|   lo   |-` |  eth0  |<-`      |    | |   lo   |   |  eth0  | |
+ +---------+--|---^-+---+-----|--+---------+    +-+--------+---+-^------+-+
+              |   |           |                                  |
+ Kernel       |   |           |                                  |
+ +----+-------v---+-----------v----------------------------------+---+----+
+ |    |                            TCP                               |    |
+ |    |                                                              |    |
+ |    +--------------------------------------------------------------+    |
+ |                                                                        |
+ |                           +--------------+                             |
+ |                           | smc loopback |                             |
+ +---------------------------+--------------+-----------------------------+
+
+loopback-ism device creates DMBs (shared memory) for each connection peer.
+Since data transfer occurs within the same kernel, the sndbuf of each peer
+is only a descriptor and point to the same memory region as peer DMB, so that
+the data copy from sndbuf to peer DMB can be avoided in loopback-ism case.
+
+ Container 1 (ns1)                              Container 2 (ns2)
+ +-----------------------------------------+    +-------------------------+
+ | +-------+                               |    |        +-------+        |
+ | | App C |-----+                         |    |        | App D |        |
+ | +-------+     |                         |    |        +-^-----+        |
+ |               |                         |    |          |              |
+ |           (2) |                         |    |     (2') |              |
+ |               |                         |    |          |              |
+ +---------------|-------------------------+    +----------|--------------+
+                 |                                         |
+ Kernel          |                                         |
+ +---------------|-----------------------------------------|--------------+
+ | +--------+ +--v-----+                           +--------+ +--------+  |
+ | |dmb_desc| |snd_desc|                           |dmb_desc| |snd_desc|  |
+ | +-----|--+ +--|-----+                           +-----|--+ +--------+  |
+ | +-----|--+    |                                 +-----|--+             |
+ | | DMB C  |    +---------------------------------| DMB D  |             |
+ | +--------+                                      +--------+             |
+ |                                                                        |
+ |                           +--------------+                             |
+ |                           | smc loopback |                             |
+ +---------------------------+--------------+-----------------------------+
+
+- Benchmark Test
+
+ * Test environments:
+      - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
+      - SMC sndbuf/DMB size 1MB.
+
+ * Test object:
+      - TCP: run on TCP loopback.
+      - SMC lo: run on SMC loopback-ism.
+
+1. ipc-benchmark (see [3])
+
+ - ./<foo> -c 1000000 -s 100
+
+                            TCP                  SMC-lo
+Message
+rate (msg/s)              81908                  143128(+74.74%)
+
+2. sockperf
+
+ - serv: <smc_run> taskset -c <cpu> sockperf sr --tcp
+ - clnt: <smc_run> taskset -c <cpu> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
+
+                            TCP                  SMC-lo
+Bandwidth(MBps)         5082.40                 8134.22(+60.05%)
+Latency(us)               5.956                   3.308(-44.46%)
+
+3. nginx/wrk
+
+ - serv: <smc_run> nginx
+ - clnt: <smc_run> wrk -t 8 -c 1000 -d 30 http://127.0.0.1:80
+
+                           TCP                   SMC-lo
+Requests/s           190113.20                248735.41(+30.83%)
+
+4. redis-benchmark
+
+ - serv: <smc_run> redis-server
+ - clnt: <smc_run> redis-benchmark -h 127.0.0.1 -q -t set,get -n 400000 -c 200 -d 1024
+
+                           TCP                   SMC-lo
+GET(Requests/s)       89505.48                117577.90(+31.36%)
+SET(Requests/s)       89847.26                120336.95(+33.94%)
+
+
+Change log:
+
+RFC v5->RFC v4:
+- Patch #2: minor changes in description of config SMC_LO and comments.
+- Patch #10: minor changes in comments and if(smc_ism_support_dmb_nocopy())
+  check in smcd_cdc_msg_send().
+- Patch #3: change smc_lo_generate_id() to smc_lo_generate_ids() and SMC_LO_CHID
+  to SMC_LO_RESERVED_CHID.
+- Patch #5: memcpy while holding the ldev->dmb_ht_lock.
+- Some expression changes in commit logs.
+
+RFC v4->v3:
+Link: https://lore.kernel.org/netdev/20240317100545.96663-1-guwen@linux.alibaba.com/
+- The merge window of v6.9 is open, so post this series as an RFC.
+- Patch #6: since some information fed back by smc_nl_handle_smcd_dev() dose
+  not apply to Emulated-ISM (including loopback-ism here), loopback-ism is
+  not exposed through smc netlink for the time being. we may refactor this
+  part when smc netlink interface is updated.
+
+v3->v2:
+Link: https://lore.kernel.org/netdev/20240312142743.41406-1-guwen@linux.alibaba.com/
+- Patch #11: use tasklet_schedule(&conn->rx_tsklet) instead of smcd_cdc_rx_handler()
+  to avoid possible recursive locking of conn->send_lock and use {read|write}_lock_bh()
+  to acquire dmb_ht_lock.
+
+v2->v1:
+Link: https://lore.kernel.org/netdev/20240307095536.29648-1-guwen@linux.alibaba.com/
+- All the patches: changed the term virtual-ISM to Emulated-ISM as defined by SMCv2.1.
+- Patch #3: optimized the description of SMC_LO config. Avoid exposing loopback-ism
+  to sysfs and remove all the knobs until future definition clear.
+- Patch #3: try to make lockdep happy by using read_lock_bh() in smc_lo_move_data().
+- Patch #6: defaultly use physical contiguous DMB buffers.
+- Patch #11: defaultly enable DMB no-copy for loopback-ism and free the DMB in
+  unregister_dmb or detach_dmb when dmb_node->refcnt reaches 0, instead of using
+  wait_event to keep waiting in unregister_dmb.
+
+v1->RFC:
+Link: https://lore.kernel.org/netdev/20240111120036.109903-1-guwen@linux.alibaba.com/
+- Patch #9: merge rx_bytes and tx_bytes as xfer_bytes statistics:
+  /sys/devices/virtual/smc/loopback-ism/xfer_bytes
+- Patch #10: add support_dmb_nocopy operation to check if SMC-D device supports
+  merging sndbuf with peer DMB.
+- Patch #13 & #14: introduce loopback-ism device control of DMB memory type and
+  control of whether to merge sndbuf and DMB. They can be respectively set by:
+  /sys/devices/virtual/smc/loopback-ism/dmb_type
+  /sys/devices/virtual/smc/loopback-ism/dmb_copy
+  The motivation for these two control is that a performance bottleneck was
+  found when using vzalloced DMB and sndbuf is merged with DMB, and there are
+  many CPUs and CONFIG_HARDENED_USERCOPY is set [4]. The bottleneck is caused
+  by the lock contention in vmap_area_lock [5] which is involved in memcpy_from_msg()
+  or memcpy_to_msg(). Currently, Uladzislau Rezki is working on mitigating the
+  vmap lock contention [6]. It has significant effects, but using virtual memory
+  still has additional overhead compared to using physical memory.
+  So this new version provides controls of dmb_type and dmb_copy to suit
+  different scenarios.
+- Some minor changes and comments improvements.
+
+RFC->old version([1]):
+Link: https://lore.kernel.org/netdev/1702214654-32069-1-git-send-email-guwen@linux.alibaba.com/
+- Patch #1: improve the loopback-ism dump, it shows as follows now:
+  # smcd d
+  FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+  0000 0     loopback-ism  ffff   No        0
+- Patch #3: introduce the smc_ism_set_v2_capable() helper and set
+  smc_ism_v2_capable when ISMv2 or virtual ISM is registered,
+  regardless of whether there is already a device in smcd device list.
+- Patch #3: loopback-ism will be added into /sys/devices/virtual/smc/loopback-ism/.
+- Patch #8: introduce the runtime switch /sys/devices/virtual/smc/loopback-ism/active
+  to activate or deactivate the loopback-ism.
+- Patch #9: introduce the statistics of loopback-ism by
+  /sys/devices/virtual/smc/loopback-ism/{{tx|rx}_tytes|dmbs_cnt}.
+- Some minor changes and comments improvements.
+
+[1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
+[2] https://lore.kernel.org/netdev/20231219142616.80697-1-guwen@linux.alibaba.com/
+[3] https://github.com/goldsborough/ipc-bench
+[4] https://lore.kernel.org/all/3189e342-c38f-6076-b730-19a6efd732a5@linux.alibaba.com/
+[5] https://lore.kernel.org/all/238e63cd-e0e8-4fbf-852f-bc4d5bc35d5a@linux.alibaba.com/
+[6] https://lore.kernel.org/all/20240102184633.748113-1-urezki@gmail.com/
+
+Wen Gu (11):
+  net/smc: decouple ism_client from SMC-D DMB registration
+  net/smc: introduce loopback-ism for SMC intra-OS shortcut
+  net/smc: implement ID-related operations of loopback-ism
+  net/smc: implement some unsupported operations of loopback-ism
+  net/smc: implement DMB-related operations of loopback-ism
+  net/smc: ignore loopback-ism when dumping SMC-D devices
+  net/smc: register loopback-ism into SMC-D device list
+  net/smc: add operations to merge sndbuf with peer DMB
+  net/smc: {at|de}tach sndbuf to peer DMB if supported
+  net/smc: adapt cursor update when sndbuf and peer DMB are merged
+  net/smc: implement DMB-merged operations of loopback-ism
+
+ drivers/s390/net/ism_drv.c |   2 +-
+ include/net/smc.h          |   7 +-
+ net/smc/Kconfig            |  13 ++
+ net/smc/Makefile           |   2 +-
+ net/smc/af_smc.c           |  28 ++-
+ net/smc/smc_cdc.c          |  34 ++-
+ net/smc/smc_core.c         |  61 ++++-
+ net/smc/smc_core.h         |   1 +
+ net/smc/smc_ism.c          |  60 ++++-
+ net/smc/smc_ism.h          |  10 +
+ net/smc/smc_loopback.c     | 461 +++++++++++++++++++++++++++++++++++++
+ net/smc/smc_loopback.h     |  52 +++++
+ 12 files changed, 715 insertions(+), 16 deletions(-)
+ create mode 100644 net/smc/smc_loopback.c
+ create mode 100644 net/smc/smc_loopback.h
 
 -- 
-Cheers,
-
-David / dhildenb
+2.32.0.3.g01195cf9f
 
