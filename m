@@ -1,30 +1,30 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D98F21AAB9;
-	Sun, 24 Mar 2024 13:55:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1BA319474;
+	Sun, 24 Mar 2024 13:55:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711288546; cv=none; b=a1AJqgSrRaVufLbPLC4eezzg3nJzl8u++IxqNK2fp4Q5ozK1vJS/iPc0CDQIEQBIvwIm07QqoM3IKZrB/nh1uGF/NPr5J8MiBzh0m89oFG/IKU9Cbd/lyFbl8Yelkxv807asqDbCNthj4350EKLbjpLcm3OMadckmI5t38TBex8=
+	t=1711288546; cv=none; b=ldI+7ZJA7/mkUVyMgTHzf7ufwVo8Ng/y2srLVT02Dhe/A39fDjeID3kHHQrTeOu8SiLd4JCO8/HEaMp2YAR+YAT2i0gU4izvRT+TIRcEIEGtIjyWfMuO+cJpriLAm4YV8pdv7chtVPtdR+rzUW/Vqzemy4vbuYOGR0lCthm3pR8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1711288546; c=relaxed/simple;
-	bh=WYbhRMGR0W01lVww6SeqPkwW5gyATMicfULdP3ORxAw=;
+	bh=aRHoZEL+nQ6d3aZ+RPDCEIDQm2FkdCVphELY1nxnGmE=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=eKEKBFRp8Idtl4HoogcPkwEDC1q/lsUYbcwviyPXZ6h+MUd7hsuwXs3c8T5S76p5/tuOZsUeoPmLz0nZSGGttu0BoySydY0VRSL2WmTENwSEwCPWYgomyAFx8EgpbGZLLDX440Qy++edFfwpSS/m7oyaRwMTB9ZE8B3ijhIeoxM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ICbZUbo2; arc=none smtp.client-ip=115.124.30.101
+	 MIME-Version; b=XGigJ1CN08LtdxN6iiZM9Hry/5HlfsVvoz5WkVwEGpl1Dcm5ZeLXu8cgGbryC6A96BMvcRG9mfmspYe4NGmEeSOUORARJ7XHR2lbkNLtkW9ZVy4PacHEdx/mX6J7bY2qL+nZWO/5+6b6i1vm9DispspCmUJatS/m8HqI2g7e4/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=jjbVscq5; arc=none smtp.client-ip=115.124.30.119
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ICbZUbo2"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="jjbVscq5"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1711288536; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=jpdnQZnDvs15szWBmPNF0c29jZHdspFSHq1dvNgAgXk=;
-	b=ICbZUbo2EVTZ2um+Dt++8IeA6UeqNZ9RtJOOK1P4C953JzxwZZ0QrGVk7+JnCff6IFysP1X/XgdDas8jKL3PWpXwlghnf5ZntLA4WVsyE2iCgndRCEp57lBUJ3u79r016K1V377gay/3jz2VVzJAwApIQ4+1JU5VlI9lkNAPbp0=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R791e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W372t9q_1711288533;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W372t9q_1711288533)
+	t=1711288540; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=4CEAglaau2AvyaClWghCn2tsgC+HPTDqPG1IUCrZCKY=;
+	b=jjbVscq5xuzMNzkS05TIZZA5Dqrx2KxXF2h9niR2pnfyhIDwoQ4P1KJ4TynsjP/jJzK0EVSRFWp66mwxzYeoE5jxgrBmeeS9bD4c2WV5cQl/aNMdmXRExvxJwoBcwnCyIWDLTLplpWApBkSYF9lkX6S6WqtMKBWTHAnwSaq4J7I=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W373crU_1711288538;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W373crU_1711288538)
           by smtp.aliyun-inc.com;
-          Sun, 24 Mar 2024 21:55:35 +0800
+          Sun, 24 Mar 2024 21:55:40 +0800
 From: Wen Gu <guwen@linux.alibaba.com>
 To: wintera@linux.ibm.com,
 	twinkler@linux.ibm.com,
@@ -45,9 +45,9 @@ Cc: borntraeger@linux.ibm.com,
 	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org
-Subject: [RFC PATCH net-next v5 04/11] net/smc: implement some unsupported operations of loopback-ism
-Date: Sun, 24 Mar 2024 21:55:15 +0800
-Message-Id: <20240324135522.108564-5-guwen@linux.alibaba.com>
+Subject: [RFC PATCH net-next v5 06/11] net/smc: ignore loopback-ism when dumping SMC-D devices
+Date: Sun, 24 Mar 2024 21:55:17 +0800
+Message-Id: <20240324135522.108564-7-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240324135522.108564-1-guwen@linux.alibaba.com>
 References: <20240324135522.108564-1-guwen@linux.alibaba.com>
@@ -59,72 +59,45 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This implements some operations that loopback-ism does not support
-currently:
+Since loopback-ism is not a PCI device, the PCI information fed back by
+smc_nl_handle_smcd_dev() does not apply to loopback-ism. So currently
+ignore loopback-ism when dumping SMC-D devices. The netlink function of
+loopback-ism will be refactored when SMC netlink interface is updated.
 
-- vlan operations, since there is no strong use-case for it.
-- signal_event operations, since there is no event to be processed by
-  the loopback-ism device.
-
+Link: https://lore.kernel.org/r/caab067b-f5c3-490f-9259-262624c236b4@linux.ibm.com/
 Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- net/smc/smc_loopback.c | 36 +++++++++++++++++++++++++++++++-----
- 1 file changed, 31 insertions(+), 5 deletions(-)
+ net/smc/smc_ism.c | 2 ++
+ net/smc/smc_ism.h | 5 +++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
-index 3eb623e030eb..4b5e864ebca3 100644
---- a/net/smc/smc_loopback.c
-+++ b/net/smc/smc_loopback.c
-@@ -49,6 +49,32 @@ static int smc_lo_query_rgid(struct smcd_dev *smcd, struct smcd_gid *rgid,
- 	return 0;
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 051726586730..97f6ae4f9b23 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -318,6 +318,8 @@ static void smc_nl_prep_smcd_dev(struct smcd_dev_list *dev_list,
+ 	list_for_each_entry(smcd, &dev_list->list, list) {
+ 		if (num < snum)
+ 			goto next;
++		if (smc_ism_is_loopback(smcd))
++			goto next;
+ 		if (smc_nl_handle_smcd_dev(smcd, skb, cb))
+ 			goto errout;
+ next:
+diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
+index 165cd013404b..322973527c61 100644
+--- a/net/smc/smc_ism.h
++++ b/net/smc/smc_ism.h
+@@ -84,4 +84,9 @@ static inline bool smc_ism_is_emulated(struct smcd_dev *smcd)
+ 	return __smc_ism_is_emulated(chid);
  }
  
-+static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
++static inline bool smc_ism_is_loopback(struct smcd_dev *smcd)
 +{
-+	return -EOPNOTSUPP;
++	return (smcd->ops->get_chid(smcd) == 0xFFFF);
 +}
 +
-+static int smc_lo_del_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int smc_lo_set_vlan_required(struct smcd_dev *smcd)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int smc_lo_reset_vlan_required(struct smcd_dev *smcd)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int smc_lo_signal_event(struct smcd_dev *dev, struct smcd_gid *rgid,
-+			       u32 trigger_irq, u32 event_code, u64 info)
-+{
-+	return 0;
-+}
-+
- static int smc_lo_supports_v2(void)
- {
- 	return SMC_LO_V2_CAPABLE;
-@@ -77,11 +103,11 @@ static const struct smcd_ops lo_ops = {
- 	.query_remote_gid = smc_lo_query_rgid,
- 	.register_dmb		= NULL,
- 	.unregister_dmb		= NULL,
--	.add_vlan_id		= NULL,
--	.del_vlan_id		= NULL,
--	.set_vlan_required	= NULL,
--	.reset_vlan_required	= NULL,
--	.signal_event		= NULL,
-+	.add_vlan_id = smc_lo_add_vlan_id,
-+	.del_vlan_id = smc_lo_del_vlan_id,
-+	.set_vlan_required = smc_lo_set_vlan_required,
-+	.reset_vlan_required = smc_lo_reset_vlan_required,
-+	.signal_event = smc_lo_signal_event,
- 	.move_data		= NULL,
- 	.supports_v2 = smc_lo_supports_v2,
- 	.get_local_gid = smc_lo_get_local_gid,
+ #endif
 -- 
 2.32.0.3.g01195cf9f
 
