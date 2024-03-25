@@ -1,162 +1,145 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DDFE153566;
-	Mon, 25 Mar 2024 06:14:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 039391607A9;
+	Mon, 25 Mar 2024 06:42:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711347268; cv=none; b=oLM7yOMrK6391dS2orN0c1ehvEXaBiEd9qAUDht5GGf9fHFkD/q9gTWVy2DL1AaloAVYCBzdfj9E7pA/sieCaJHKYRVzbP0XsIYVdChGqV/ATHJNaxRfPSM0A167KHMrllywZXQElZhXcxyvu/DmtaW1hCaVhALpxhDZLZ5L4I4=
+	t=1711348936; cv=none; b=CpvxMsFVcak5N43K6gx2TmQR4bH6gI/iIvBn+1G95YxuHuYohDbJ2B/qQFU1dWUALwDrGpirdSyZSk3cS03bLZQmKZdYS0pBPqb//drjkg/EW/cGmJCuu3x7y1X61GxKj+RrDGju5OFhZI+yfzzYFYuvF/r3ntsd79Njp1zEu2c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711347268; c=relaxed/simple;
-	bh=GyIKFNRR1qWHImh+cuLOt5QaFS06G20Ha+rQxRimdT8=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=VsjQZ8YJMXM5/CuPNwQFTEwcIi0q4/GbAfC/RdC3DtUFECc0RTRUIXmPW98XEboweG79lKvY9QkSu5inMakUl3qbm7WWFfMnNhotK8PpLCEPF5l9VYjT2WLJWaNPsDbS4X2h7AuJ1mIVFafv2bsno3S2A/K95CDeg9SdjzbyJaM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=bb/Yq7i2; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1711348936; c=relaxed/simple;
+	bh=16GQ0vc+mvjtkGYNmUSKlWdfc5Q8uWzvZ2NpVFo2g5s=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=p08Nnba5CYMaatFqWY9C/1uT9n0CaBGu1cK5AOuM/TZI/LqP/9eE6+zEJBaX3Hj6vRcMDCHB/zXLUUV9N4BQy16z0orK2IC9jh8qMgWsTkRbClMGFgdIjGRgnFFPg+IRUOAhKGUFOuIi7b2FyEhLHWcUP93cSTsU+qLpgRLe1qk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kacXCTsG; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="bb/Yq7i2"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1711347263; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=BJ2ubMtU85p7XN+WIaKbvt0uua6wwUwRoEIA4BLg6No=;
-	b=bb/Yq7i2vT6mBEZEz9Nv65M3Ojh/fe2QB0iNc+7R1DlRJxkYFktmKNfH6ahfV/n11EnTSKPahuRF12R3QSUO8ZAdNIr6Fz3irafdE2E8Ey07lJixM+yFlbzlMduzmJa8fXCXY+Y6D3Q4Q0v3nItbXdb1eTtlmaJnXjIJg+SUiZU=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R881e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=26;SR=0;TI=SMTPD_---0W39d8Wn_1711347261;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W39d8Wn_1711347261)
-          by smtp.aliyun-inc.com;
-          Mon, 25 Mar 2024 14:14:22 +0800
-Message-ID: <1711346901.0977402-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v4 1/6] virtio_balloon: remove the dependence where names[] is null
-Date: Mon, 25 Mar 2024 14:08:21 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>,
- linux-um@lists.infradead.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- Daniel Verkamp <dverkamp@chromium.org>
-References: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
- <20240321101532.59272-2-xuanzhuo@linux.alibaba.com>
- <CABVzXAkwcKMb7pC21aUDLEM=RoyOtGA2Vim+LF0oWQ7mjUx68g@mail.gmail.com>
- <b420a545-0a7a-431c-aa48-c5db3d221420@redhat.com>
-In-Reply-To: <b420a545-0a7a-431c-aa48-c5db3d221420@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kacXCTsG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1711348935; x=1742884935;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=16GQ0vc+mvjtkGYNmUSKlWdfc5Q8uWzvZ2NpVFo2g5s=;
+  b=kacXCTsGv4OpHRPuTJrcg6HgzlpoQXPEGWjLDeYr8GcjKPFx1yYrrZGp
+   n/cSY714LqlZGpKjqYkRp+MIMZNv0vPBqeoSi/L2K8Pc1qYpn1lWbBqeb
+   sB43kHwjXHxWLITOHq5h5jykb0Ccd+UrWY2hizkMFj1ifyGHemoEF21bX
+   etXVgkQJiybwSp6UyvjhQpdokIwWnl/TlGTqD48DD70+vO6NblqwZF9ne
+   GlBR7wmfmLMSMSTiSWV/T/XFqpAgrDno+UVHGUlvFpbgWUP8iJVxfj+Bt
+   VPtq/cm2ee/NcqBhAnVJmAEEnFHFCeOSPEAi7yvRexcfOxwX74jWBFHgY
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11023"; a="6191502"
+X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
+   d="scan'208";a="6191502"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:42:09 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
+   d="scan'208";a="38629669"
+Received: from ahunter6-mobl1.ger.corp.intel.com (HELO ahunter-VirtualBox.home\044ger.corp.intel.com) ([10.251.211.155])
+  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:41:58 -0700
+From: Adrian Hunter <adrian.hunter@intel.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Vincenzo Frascino <vincenzo.frascino@arm.com>,
+	John Stultz <jstultz@google.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org
+Subject: [PATCH V2 13/19] timekeeping: Refactor timekeeping helpers
+Date: Mon, 25 Mar 2024 08:40:17 +0200
+Message-Id: <20240325064023.2997-14-adrian.hunter@intel.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240325064023.2997-1-adrian.hunter@intel.com>
+References: <20240325064023.2997-1-adrian.hunter@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki, Business Identity Code: 0357606 - 4, Domiciled in Helsinki
+Content-Transfer-Encoding: 8bit
 
-On Fri, 22 Mar 2024 22:02:27 +0100, David Hildenbrand <david@redhat.com> wr=
-ote:
-> On 22.03.24 20:16, Daniel Verkamp wrote:
-> > On Thu, Mar 21, 2024 at 3:16=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.aliba=
-ba.com> wrote:
-> >>
-> >> Currently, the init_vqs function within the virtio_balloon driver reli=
-es
-> >> on the condition that certain names array entries are null in order to
-> >> skip the initialization of some virtual queues (vqs). This behavior is
-> >> unique to this part of the codebase. In an upcoming commit, we plan to
-> >> eliminate this dependency by removing the function entirely. Therefore,
-> >> with this change, we are ensuring that the virtio_balloon no longer
-> >> depends on the aforementioned function.
-> >
-> > This is a behavior change, and I believe means that the driver no
-> > longer follows the spec [1].
-> >
-> > For example, the spec says that virtqueue 4 is reporting_vq, and
-> > reporting_vq only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set,
-> > but there is no mention of its virtqueue number changing if other
-> > features are not set. If a device/driver combination negotiates
-> > VIRTIO_BALLOON_F_PAGE_REPORTING but not VIRTIO_BALLOON_F_STATS_VQ or
-> > VIRTIO_BALLOON_F_FREE_PAGE_HINT, my reading of the specification is
-> > that reporting_vq should still be vq number 4, and vq 2 and 3 should
-> > be unused. This patch would make the reporting_vq use vq 2 instead in
-> > this case.
-> >
-> > If the new behavior is truly intended, then the spec does not match
-> > reality, and it would need to be changed first (IMO); however,
-> > changing the spec would mean that any devices implemented correctly
-> > per the previous spec would now be wrong, so some kind of mechanism
-> > for detecting the new behavior would be warranted, e.g. a new
-> > non-device-specific virtio feature flag.
-> >
-> > I have brought this up previously on the virtio-comment list [2], but
-> > it did not receive any satisfying answers at that time.
->
-> Rings a bell, but staring at this patch, I thought that there would be
-> no behavioral change. Maybe I missed it :/
->
-> I stared at virtio_ccw_find_vqs(), and it contains:
->
-> 	for (i =3D 0; i < nvqs; ++i) {
-> 		if (!names[i]) {
-> 			vqs[i] =3D NULL;
-> 			continue;
-> 		}
->
-> 		vqs[i] =3D virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
-> 					     names[i], ctx ? ctx[i] : false,
-> 					     ccw);
-> 		if (IS_ERR(vqs[i])) {
-> 			ret =3D PTR_ERR(vqs[i]);
-> 			vqs[i] =3D NULL;
-> 			goto out;
-> 		}
-> 	}
->
-> We increment queue_idx only if an entry was not NULL. SO I thought no
-> behavioral change? (at least on s390x :) )
->
-> It's late here in Germany, so maybe I'm missing something.
+Simplify use of timekeeping sanity checking, in preparation for
+consolidating timekeeping helpers. This works towards eliminating
+timekeeping_delta_to_ns() in favour of timekeeping_cycles_to_ns().
 
-I think we've encountered a tricky issue. Currently, all transports handle =
-queue
-id by incrementing them in order, without skipping any queue id. So, I'm qu=
-ite
-surprised that my changes would affect the spec. The fact that the
-'names' value is null is just a small trick in the Linux kernel implementat=
-ion
-and should not have an impact on the queue id.
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+---
+ kernel/time/timekeeping.c | 20 ++++++--------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
 
-I believe that my recent modification will not affect the spec. So, let's
-consider the issues with this patch set separately for now. Regarding the M=
-emory
-Balloon Device, it has been operational for many years, and perhaps we shou=
-ld
-add to the spec that if a certain vq does not exist, then subsequent vqs wi=
-ll
-take over its id.
+diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
+index f81d675291e0..618328cd4bc4 100644
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -237,7 +237,7 @@ static void timekeeping_check_update(struct timekeeper *tk, u64 offset)
+ 	}
+ }
+ 
+-static inline u64 timekeeping_get_delta(const struct tk_read_base *tkr)
++static inline u64 timekeeping_debug_get_delta(const struct tk_read_base *tkr)
+ {
+ 	struct timekeeper *tk = &tk_core.timekeeper;
+ 	u64 now, last, mask, max, delta;
+@@ -281,17 +281,9 @@ static inline u64 timekeeping_get_delta(const struct tk_read_base *tkr)
+ static inline void timekeeping_check_update(struct timekeeper *tk, u64 offset)
+ {
+ }
+-static inline u64 timekeeping_get_delta(const struct tk_read_base *tkr)
++static inline u64 timekeeping_debug_get_delta(const struct tk_read_base *tkr)
+ {
+-	u64 cycle_now, delta;
+-
+-	/* read clocksource */
+-	cycle_now = tk_clock_read(tkr);
+-
+-	/* calculate the delta since the last update_wall_time */
+-	delta = clocksource_delta(cycle_now, tkr->cycle_last, tkr->mask);
+-
+-	return delta;
++	BUG();
+ }
+ #endif
+ 
+@@ -396,10 +388,10 @@ static __always_inline u64 __timekeeping_get_ns(const struct tk_read_base *tkr)
+ 
+ static inline u64 timekeeping_get_ns(const struct tk_read_base *tkr)
+ {
+-	u64 delta;
++	if (IS_ENABLED(CONFIG_DEBUG_TIMEKEEPING))
++		return timekeeping_delta_to_ns(tkr, timekeeping_debug_get_delta(tkr));
+ 
+-	delta = timekeeping_get_delta(tkr);
+-	return timekeeping_delta_to_ns(tkr, delta);
++	return __timekeeping_get_ns(tkr);
+ }
+ 
+ /**
+-- 
+2.34.1
 
-Thanks.
-
-
-
->
-> --
-> Cheers,
->
-> David / dhildenb
->
