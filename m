@@ -1,44 +1,44 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E99E316088F;
-	Mon, 25 Mar 2024 06:42:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F54E15ECC4;
+	Mon, 25 Mar 2024 06:40:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711348955; cv=none; b=i4wDC2Jx0OO3S2jz4JiK1/Dy0evGhNBLVe+qkfDzFk6+IH8S122GKA5BhmDW/gn1t7gT/mmS4F0y7e881n/9Wq82NxcLAUeKV0v7dcCSukD4Mtw126ljOmD98Md5Q1DUTkwDkAdXQ2QDCTiRjuiGHWJ0H5M3lBSwnmz898jkdUo=
+	t=1711348847; cv=none; b=KI1I8WUf4WKZPSdZffNrBsbaw/yp+MY0uOjlknd4DJgI2W5jFO4Q8uTSfpDO8wYzXOoHE1PjmkaTi4A3w0jLjiSJFVu0m5oZjvdpPtN2Hg0YOqlwWiFzCiE+oX7WJir6qss02KsFmuPFbx7aeWq6rvtrWx9yKf6SlHQuABvgaV8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711348955; c=relaxed/simple;
-	bh=xuu117cG1lowhe30UpLIG5BgAby+hnwaDFUtdrI4YDU=;
+	s=arc-20240116; t=1711348847; c=relaxed/simple;
+	bh=+W4K6lkGmf5ZfckuHCgiOpf7pq6FEiJVqi6VEtd9uvE=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=DO7efubDDtCmzv8vv0d9QVQsTc1qBFUtSTjP2u673TWfIkf23EFAKLVlAl7eJyhSw1OUMsRPmrCK29THKtE+iVITZHBPQQ2Sjwjy/zbqPJZijuiaxRnCqO0q1SjxNSYHOlLT9CchuZtDukUKnmdSPjt7sUsErz5GdQSC0gOw8GI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=fiUweDl0; arc=none smtp.client-ip=192.198.163.17
+	 MIME-Version; b=rktLBeQbNy69mp6URDqkRJ4TvicxePJM219GZuiDtsqP+ecA2yAdSYncteaOPPugErakm6AbA+BlN7jEWtn8VuPelrl+EzUgmtW+rhtZSQzUr3KLTh21MKGXg8WCUushXJWsYSWDcKHqtqBMxYFmqUkwW3iUp6krJdXsJxdOzmo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KGKbAahb; arc=none smtp.client-ip=192.198.163.9
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="fiUweDl0"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KGKbAahb"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1711348954; x=1742884954;
+  t=1711348845; x=1742884845;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=xuu117cG1lowhe30UpLIG5BgAby+hnwaDFUtdrI4YDU=;
-  b=fiUweDl0XiWKu+0t4CCWMTTtgAkXMgZU6DdRsN3cLJsNHyTzagWnBDLF
-   AfS4B3AsskVYSr8T0xZcyPmm9ScQuUkX1tGa4KqHFY/82z2dD3cb4UVWS
-   vg9ctU+f4x651PySsdVzNe0ZKComNZNg1KnmW/KxquUCjK35VMYRjIcuc
-   3CnDV5C0//jww8kU0V0tz06F05QtJennssMva8F9IGWz+uhqRGYEEdl1T
-   hx9uggZcnSg0ArEydwc+L1J6k9QT7MkgfStcEm9yv7NS9qxeiNuapn0z1
-   35zjIIJDI7dBFNPIObb5JtVUCPez15sGNLIXe8fCnkxhzlekMKteFp/fG
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11023"; a="6191576"
+  bh=+W4K6lkGmf5ZfckuHCgiOpf7pq6FEiJVqi6VEtd9uvE=;
+  b=KGKbAahbFLATVQf1u4Ezo8PQ0p3VdtTfjfNCYeb4sLw8h7QV1lAlmVB7
+   jW+46FLMtggeW6LioUmNXmKySMLavtCGyZrS3hW5BTL1WW23VlAXnxhY4
+   wqn4zgZgzUMGJ2aB8HaeYvEJLsofMgm1en7Q7akDd+bqR3kCF5YU39qXx
+   kK+AfWCI8b9h620b7C0eSsM+kXRKtheOz4J3OwUrNzlHYv3k0CCTUDbYt
+   COvw1cnzIrNNDgw5yf0Yileb/Zfv8IFV0c/xPDXcyrOrTp4J5dmTaiGKu
+   OJWikf4GtCsgR1fBRbbuLxs2B+A/IAJ6z6fxXxEUdFwWmX1yV9zRFlFUH
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11023"; a="17065072"
 X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
-   d="scan'208";a="6191576"
+   d="scan'208";a="17065072"
 Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:42:31 -0700
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:40:45 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
-   d="scan'208";a="38629707"
+   d="scan'208";a="38629565"
 Received: from ahunter6-mobl1.ger.corp.intel.com (HELO ahunter-VirtualBox.home\044ger.corp.intel.com) ([10.251.211.155])
-  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:42:25 -0700
+  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:40:38 -0700
 From: Adrian Hunter <adrian.hunter@intel.com>
 To: Thomas Gleixner <tglx@linutronix.de>
 Cc: Michael Ellerman <mpe@ellerman.id.au>,
@@ -68,9 +68,9 @@ Cc: Michael Ellerman <mpe@ellerman.id.au>,
 	linuxppc-dev@lists.ozlabs.org,
 	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH V2 17/19] timekeeping: Make delta calculation overflow safe
-Date: Mon, 25 Mar 2024 08:40:21 +0200
-Message-Id: <20240325064023.2997-18-adrian.hunter@intel.com>
+Subject: [PATCH V2 01/19] vdso: Consolidate vdso_calc_delta()
+Date: Mon, 25 Mar 2024 08:40:05 +0200
+Message-Id: <20240325064023.2997-2-adrian.hunter@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240325064023.2997-1-adrian.hunter@intel.com>
 References: <20240325064023.2997-1-adrian.hunter@intel.com>
@@ -83,86 +83,117 @@ MIME-Version: 1.0
 Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki, Business Identity Code: 0357606 - 4, Domiciled in Helsinki
 Content-Transfer-Encoding: 8bit
 
-Kernel timekeeping is designed to keep the change in cycles (since the last
-timer interrupt) below max_cycles, which prevents multiplication overflow
-when converting cycles to nanoseconds. However, if timer interrupts stop,
-the calculation will eventually overflow.
-
-Add protection against that. In timekeeping_cycles_to_ns() calculation,
-check against max_cycles, falling back to a slower higher precision
-calculation. In timekeeping_forward_now(), process delta in chunks of at
-most max_cycles.
+Consolidate vdso_calc_delta(), in preparation for further simplification.
 
 Suggested-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 ---
- kernel/time/timekeeping.c | 40 ++++++++++++++++++++++++++++-----------
- 1 file changed, 29 insertions(+), 11 deletions(-)
 
-diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-index d17484082e2c..111dfdbd488f 100644
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -364,19 +364,32 @@ static void tk_setup_internals(struct timekeeper *tk, struct clocksource *clock)
- }
+
+Changes in V2:
+	Keep powerpc comment about mask
+	Move ifdef out of function
+
+
+ arch/powerpc/include/asm/vdso/gettimeofday.h | 26 +++++++++-----------
+ arch/s390/include/asm/vdso/gettimeofday.h    |  7 ++----
+ lib/vdso/gettimeofday.c                      |  9 ++++++-
+ 3 files changed, 21 insertions(+), 21 deletions(-)
+
+diff --git a/arch/powerpc/include/asm/vdso/gettimeofday.h b/arch/powerpc/include/asm/vdso/gettimeofday.h
+index f0a4cf01e85c..ac21a2a0c2f9 100644
+--- a/arch/powerpc/include/asm/vdso/gettimeofday.h
++++ b/arch/powerpc/include/asm/vdso/gettimeofday.h
+@@ -14,6 +14,17 @@
  
- /* Timekeeper helper functions. */
-+static noinline u64 delta_to_ns_safe(const struct tk_read_base *tkr, u64 delta)
-+{
-+	return mul_u64_u32_add_u64_shr(delta, tkr->mult, tkr->xtime_nsec, tkr->shift);
-+}
+ #define VDSO_HAS_TIME			1
+ 
++/*
++ * powerpc specific delta calculation.
++ *
++ * This variant removes the masking of the subtraction because the
++ * clocksource mask of all VDSO capable clocksources on powerpc is U64_MAX
++ * which would result in a pointless operation. The compiler cannot
++ * optimize it away as the mask comes from the vdso data and is not compile
++ * time constant.
++ */
++#define VDSO_DELTA_NOMASK		1
 +
- static inline u64 timekeeping_cycles_to_ns(const struct tk_read_base *tkr, u64 cycles)
+ static __always_inline int do_syscall_2(const unsigned long _r0, const unsigned long _r3,
+ 					const unsigned long _r4)
  {
- 	/* Calculate the delta since the last update_wall_time() */
- 	u64 mask = tkr->mask, delta = (cycles - tkr->cycle_last) & mask;
- 
--	if (IS_ENABLED(CONFIG_CLOCKSOURCE_VALIDATE_LAST_CYCLE)) {
--		/*
--		 * Handle clocksource inconsistency between CPUs to prevent
--		 * time from going backwards by checking for the MSB of the
--		 * mask being set in the delta.
--		 */
--		if (unlikely(delta & ~(mask >> 1)))
--			return tkr->xtime_nsec >> tkr->shift;
-+	/*
-+	 * This detects the case where the delta overflows the multiplication
-+	 * with tkr->mult.
-+	 */
-+	if (unlikely(delta > tkr->clock->max_cycles)) {
-+		if (IS_ENABLED(CONFIG_CLOCKSOURCE_VALIDATE_LAST_CYCLE)) {
-+			/*
-+			 * Handle clocksource inconsistency between CPUs to prevent
-+			 * time from going backwards by checking for the MSB of the
-+			 * mask being set in the delta.
-+			 */
-+			if (unlikely(delta & ~(mask >> 1)))
-+				return tkr->xtime_nsec >> tkr->shift;
-+		}
-+
-+		return delta_to_ns_safe(tkr, delta);
- 	}
- 
- 	return ((delta * tkr->mult) + tkr->xtime_nsec) >> tkr->shift;
-@@ -789,10 +802,15 @@ static void timekeeping_forward_now(struct timekeeper *tk)
- 	tk->tkr_mono.cycle_last = cycle_now;
- 	tk->tkr_raw.cycle_last  = cycle_now;
- 
--	tk->tkr_mono.xtime_nsec += delta * tk->tkr_mono.mult;
--	tk->tkr_raw.xtime_nsec += delta * tk->tkr_raw.mult;
-+	while (delta > 0) {
-+		u64 max = tk->tkr_mono.clock->max_cycles;
-+		u64 incr = delta < max ? delta : max;
- 
--	tk_normalize_xtime(tk);
-+		tk->tkr_mono.xtime_nsec += incr * tk->tkr_mono.mult;
-+		tk->tkr_raw.xtime_nsec += incr * tk->tkr_raw.mult;
-+		tk_normalize_xtime(tk);
-+		delta -= incr;
-+	}
+@@ -105,21 +116,6 @@ static inline bool vdso_clocksource_ok(const struct vdso_data *vd)
  }
+ #define vdso_clocksource_ok vdso_clocksource_ok
  
- /**
+-/*
+- * powerpc specific delta calculation.
+- *
+- * This variant removes the masking of the subtraction because the
+- * clocksource mask of all VDSO capable clocksources on powerpc is U64_MAX
+- * which would result in a pointless operation. The compiler cannot
+- * optimize it away as the mask comes from the vdso data and is not compile
+- * time constant.
+- */
+-static __always_inline u64 vdso_calc_delta(u64 cycles, u64 last, u64 mask, u32 mult)
+-{
+-	return (cycles - last) * mult;
+-}
+-#define vdso_calc_delta vdso_calc_delta
+-
+ #ifndef __powerpc64__
+ static __always_inline u64 vdso_shift_ns(u64 ns, unsigned long shift)
+ {
+diff --git a/arch/s390/include/asm/vdso/gettimeofday.h b/arch/s390/include/asm/vdso/gettimeofday.h
+index db84942eb78f..7937765ccfa5 100644
+--- a/arch/s390/include/asm/vdso/gettimeofday.h
++++ b/arch/s390/include/asm/vdso/gettimeofday.h
+@@ -6,16 +6,13 @@
+ 
+ #define VDSO_HAS_CLOCK_GETRES 1
+ 
++#define VDSO_DELTA_NOMASK 1
++
+ #include <asm/syscall.h>
+ #include <asm/timex.h>
+ #include <asm/unistd.h>
+ #include <linux/compiler.h>
+ 
+-#define vdso_calc_delta __arch_vdso_calc_delta
+-static __always_inline u64 __arch_vdso_calc_delta(u64 cycles, u64 last, u64 mask, u32 mult)
+-{
+-	return (cycles - last) * mult;
+-}
+ 
+ static __always_inline const struct vdso_data *__arch_get_vdso_data(void)
+ {
+diff --git a/lib/vdso/gettimeofday.c b/lib/vdso/gettimeofday.c
+index ce2f69552003..faccf12f7c03 100644
+--- a/lib/vdso/gettimeofday.c
++++ b/lib/vdso/gettimeofday.c
+@@ -6,6 +6,13 @@
+ #include <vdso/helpers.h>
+ 
+ #ifndef vdso_calc_delta
++
++#ifdef VDSO_DELTA_NOMASK
++# define VDSO_DELTA_MASK(mask)	U64_MAX
++#else
++# define VDSO_DELTA_MASK(mask)	(mask)
++#endif
++
+ /*
+  * Default implementation which works for all sane clocksources. That
+  * obviously excludes x86/TSC.
+@@ -13,7 +20,7 @@
+ static __always_inline
+ u64 vdso_calc_delta(u64 cycles, u64 last, u64 mask, u32 mult)
+ {
+-	return ((cycles - last) & mask) * mult;
++	return ((cycles - last) & VDSO_DELTA_MASK(mask)) * mult;
+ }
+ #endif
+ 
 -- 
 2.34.1
 
