@@ -1,142 +1,127 @@
-Received: from omta034.useast.a.cloudfilter.net (omta034.useast.a.cloudfilter.net [44.202.169.33])
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBE6717823B
-	for <linux-s390@vger.kernel.org>; Mon, 25 Mar 2024 03:22:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.202.169.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DE5C143C45;
+	Mon, 25 Mar 2024 03:34:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711336960; cv=none; b=ZDFRGI1Au+sRNao0DrQQTVe6KdUNSzGWrQQGQLCgqTa7TqoG5bMwzcV9f9q8CHLLDzENV6U6VZbXOhLRZrNNF2ODzJnSIqqbaAd1nvKm0JzpW9o2KNRYNLHquQubu2/ZEgNbCyWDIZ6iGcFecbJL9vh2nJ6oYYW9hzJlev5FD90=
+	t=1711337702; cv=none; b=p6QfApu4PJwr1NJnsAokuJgCc+NXUif/8ggc9UHjGO7pMw1V10bn6Bg+XHJCymCBQ6TarqMCQf0mb22bD9ivQr8FQZ4/T5kVNXsNqA0ifkmGA9EAokFIdsmimagxVWS4rL8BlV+h9WGAlQWTkjRcL8nPKZew/Aeu01fOupYwjP0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711336960; c=relaxed/simple;
-	bh=orRwZ9kcZJC8yMO1NEBXxCXq9LAMQc3UsRDQLy0IaM0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dEY0bSD57gmxvby6510Y9w8wh5L/lMEsb6gR70S0dISohHW8JR2C8/ihksPwN6U9YTDEnOW4q6/bgn1BJ/j/b8ygwd6sCnai9jewAh7OO6fqhiAwOdS1fLnzifX66fvUf0EzbfPV7Wqb9imV1De/IkRTHcfs4kZsW4TUOaIWFQw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=embeddedor.com; spf=pass smtp.mailfrom=embeddedor.com; dkim=pass (2048-bit key) header.d=embeddedor.com header.i=@embeddedor.com header.b=dcdZTaXJ; arc=none smtp.client-ip=44.202.169.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=embeddedor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=embeddedor.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=embeddedor.com header.i=@embeddedor.com header.b="dcdZTaXJ"
-Received: from eig-obgw-5008a.ext.cloudfilter.net ([10.0.29.246])
-	by cmsmtp with ESMTPS
-	id oR14rCUiUs4yToauurgWee; Mon, 25 Mar 2024 03:22:32 +0000
-Received: from gator4166.hostgator.com ([108.167.133.22])
-	by cmsmtp with ESMTPS
-	id oautrttcviDneoautrmjZ3; Mon, 25 Mar 2024 03:22:31 +0000
-X-Authority-Analysis: v=2.4 cv=Cd4O5qrl c=1 sm=1 tr=0 ts=6600edf7
- a=1YbLdUo/zbTtOZ3uB5T3HA==:117 a=UtBFqMlDG83dypD0sxEoAQ==:17
- a=IkcTkHD0fZMA:10 a=K6JAEmCyrfEA:10 a=wYkD_t78qR0A:10
- a=eNdQz-wj4_MDoatRon4A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=embeddedor.com; s=default; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=YOuO9JEjJXNfSgBKj1LiPw0cso3zHCBPu7p7n4bAXp8=; b=dcdZTaXJ8UBns8wJ+bl2v7r+xW
-	VdKDUnj4KW5zlC97s1jUwbzElWLM5xGk2O9qdQGPasJpGAYd4gUpZugXwP+a8l4IdFch4qEYj86FR
-	tOGFx+0+ANM3Bw14KItjkJwzmWCa9ZpaB6xxEleK83WCRRa4UAhisI8BxS2VWYx7s5ynzxE18tAqd
-	z/IJ68wCybmXGM3ux20DolVcY+xGD6rA+CagFMU+YilXW6gmyDyHVztPGIspEY0ozdOwXx3q4bj2z
-	2LLRWHE9PL9hNauhbEmxdBDEYbZtWrHcDy3IIZIzuCCLKggZ8QiuA4dXXMhiDigwfdVzltvgI940N
-	fofVanyw==;
-Received: from [201.172.174.229] (port=50482 helo=[192.168.15.14])
-	by gator4166.hostgator.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.96.2)
-	(envelope-from <gustavo@embeddedor.com>)
-	id 1roaur-0034lI-0F;
-	Sun, 24 Mar 2024 22:22:29 -0500
-Message-ID: <4064c408-3d73-4361-98f0-718f4f5e54a2@embeddedor.com>
-Date: Sun, 24 Mar 2024 21:22:25 -0600
+	s=arc-20240116; t=1711337702; c=relaxed/simple;
+	bh=0csUpLdZcAisR9lZiWaOn5cqz5pVHfZLbcc0vjP850c=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=Q8I4bFttI8Yt2bAdbdvcRwDmHyhI+a+wL4A0PyDkptdXoAIqyLKqyeU+50m9SRfZ/zyTT/DbPfocyHc+/Mufn4FnOb/prI6mHQwaretV/Jt5GLyWq2yN1GkxDCaBc+5iotn39eTP/Np1odDRoBdkw8A/N5LJTgAGBKasBBXY1rg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.194])
+	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4V2z596SQNzXjdf;
+	Mon, 25 Mar 2024 11:32:13 +0800 (CST)
+Received: from dggpeml500026.china.huawei.com (unknown [7.185.36.106])
+	by mail.maildlp.com (Postfix) with ESMTPS id 87F6D14037F;
+	Mon, 25 Mar 2024 11:34:57 +0800 (CST)
+Received: from [10.174.178.66] (10.174.178.66) by
+ dggpeml500026.china.huawei.com (7.185.36.106) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Mon, 25 Mar 2024 11:34:56 +0800
+Message-ID: <30820fc2-4d98-651d-fb17-a3f2a05ba3ee@huawei.com>
+Date: Mon, 25 Mar 2024 11:34:56 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2][next] net/smc: Avoid -Wflex-array-member-not-at-end
- warnings
-Content-Language: en-US
-To: Wen Gu <guwen@linux.alibaba.com>,
- "Gustavo A. R. Silva" <gustavoars@kernel.org>,
- Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
- "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org,
- Kees Cook <keescook@chromium.org>
-References: <ZfCXBykRw5XqBvf0@neat>
- <f504328f-1fd2-4c85-a657-a14b272c321e@linux.alibaba.com>
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-In-Reply-To: <f504328f-1fd2-4c85-a657-a14b272c321e@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - embeddedor.com
-X-BWhitelist: no
-X-Source-IP: 201.172.174.229
-X-Source-L: No
-X-Exim-ID: 1roaur-0034lI-0F
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: ([192.168.15.14]) [201.172.174.229]:50482
-X-Source-Auth: gustavo@embeddedor.com
-X-Email-Count: 5
-X-Org: HG=hgshared;ORG=hostgator;
-X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfLDEWnqyx/KL3IE1pdYOHaz5Y+p9TL5vrSAprU3zyzKP9sqvOBbW5QtOVSMaTvLzENvtUeSuPDWNdifeb1KxKws7OeTofdjlSHQkBTuhYoWAC98MMVLW
- Y7cDyibLSWSH307yT2NORHYCGJkvbi2GFm7nJFTDYsRasrHLKx/N4PF6oTRbvlbkPxnvZFzOKiqeJ0y6gunoTWK2cr9yGbCzqjpUWtFBacjONReABTaGnXUA
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.0.2
+Subject: Re: [PATCH net-next] net/smc: make smc_hash_sk/smc_unhash_sk static
+To: Tony Lu <tonylu@linux.alibaba.com>
+CC: <netdev@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+	<davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
+	<pabeni@redhat.com>, <wenjia@linux.ibm.com>, <jaka@linux.ibm.com>,
+	<alibuda@linux.alibaba.com>, <guwen@linux.alibaba.com>,
+	<weiyongjun1@huawei.com>, <yuehaibing@huawei.com>
+References: <20240325012501.709009-1-shaozhengchao@huawei.com>
+ <ZgDsX8-NmJZ1KWfQ@TONYMAC-ALIBABA.local>
+From: shaozhengchao <shaozhengchao@huawei.com>
+In-Reply-To: <ZgDsX8-NmJZ1KWfQ@TONYMAC-ALIBABA.local>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpeml500026.china.huawei.com (7.185.36.106)
 
 
->> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
->> index e55026c7529c..63bb5745ab54 100644
->> --- a/net/smc/smc_clc.c
->> +++ b/net/smc/smc_clc.c
->> @@ -853,8 +853,9 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
->>       pclc_smcd = &pclc->pclc_smcd;
->>       pclc_prfx = &pclc->pclc_prfx;
->>       ipv6_prfx = pclc->pclc_prfx_ipv6;
->> -    v2_ext = &pclc->pclc_v2_ext;
->> -    smcd_v2_ext = &pclc->pclc_smcd_v2_ext;
->> +    v2_ext = container_of(&pclc->pclc_v2_ext, struct smc_clc_v2_extension, fixed);
-> checkpatch complained 'WARNING: line length of 86 exceeds 80 columns' here.
 
-I could probably change this.
-
+On 2024/3/25 11:15, Tony Lu wrote:
+> On Mon, Mar 25, 2024 at 09:25:01AM +0800, Zhengchao Shao wrote:
+>> smc_hash_sk and smc_unhash_sk are only used in af_smc.c, so make them
+>> static and remove the output symbol. They can be called under the path
+>> .prot->hash()/unhash().
+>>
+>> Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
 > 
-> It can be reproduced by:
-> 
-> ./scripts/checkpatch.pl --strict --max-line-length=80 
-> --ignore=COMMIT_LOG_LONG_LINE,MACRO_ARG_REUSE,ALLOC_SIZEOF_STRUCT,NO_AUTHOR_SIGN_OFF,GIT_COMMIT_ID,CAMELCASE xxx.patch
-> 
->> +    smcd_v2_ext = container_of(&pclc->pclc_smcd_v2_ext,
->> +                   struct smc_clc_smcd_v2_extension, fixed);
->>       gidchids = pclc->pclc_gidchids;
->>       trl = &pclc->pclc_trl;
->> diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
->> index 7cc7070b9772..2bfb51daf468 100644
->> --- a/net/smc/smc_clc.h
->> +++ b/net/smc/smc_clc.h
->> @@ -134,12 +134,14 @@ struct smc_clc_smcd_gid_chid {
->>                */
->>   struct smc_clc_v2_extension {
->> -    struct smc_clnt_opts_area_hdr hdr;
->> -    u8 roce[16];        /* RoCEv2 GID */
->> -    u8 max_conns;
->> -    u8 max_links;
->> -    __be16 feature_mask;
->> -    u8 reserved[12];
->> +    struct_group_tagged(smc_clc_v2_extension_fixed, fixed,
->> +        struct smc_clnt_opts_area_hdr hdr;
-> 
-> checkpatch: 'CHECK: Alignment should match open parenthesis'
+Hi Tony:
+	Thanks for the heads-up. I'll send it again until net-next open.
 
-I think the code looks better as is --without aligning to match the parenthesis.
+Zhengchao Shao
 
---
-Gustavo
+> This patch's good. The net-next is still closed for now. You can check
+> here:
+> 
+> 	https://patchwork.hopto.org/net-next.html
+> 
+> Tony Lu
+> 
+>> ---
+>>   include/net/smc.h | 3 ---
+>>   net/smc/af_smc.c  | 6 ++----
+>>   2 files changed, 2 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/include/net/smc.h b/include/net/smc.h
+>> index c9dcb30e3fd9..10684d0a33df 100644
+>> --- a/include/net/smc.h
+>> +++ b/include/net/smc.h
+>> @@ -26,9 +26,6 @@ struct smc_hashinfo {
+>>   	struct hlist_head ht;
+>>   };
+>>   
+>> -int smc_hash_sk(struct sock *sk);
+>> -void smc_unhash_sk(struct sock *sk);
+>> -
+>>   /* SMCD/ISM device driver interface */
+>>   struct smcd_dmb {
+>>   	u64 dmb_tok;
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> index 4b52b3b159c0..e8dcd28a554c 100644
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -177,7 +177,7 @@ static struct smc_hashinfo smc_v6_hashinfo = {
+>>   	.lock = __RW_LOCK_UNLOCKED(smc_v6_hashinfo.lock),
+>>   };
+>>   
+>> -int smc_hash_sk(struct sock *sk)
+>> +static int smc_hash_sk(struct sock *sk)
+>>   {
+>>   	struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
+>>   	struct hlist_head *head;
+>> @@ -191,9 +191,8 @@ int smc_hash_sk(struct sock *sk)
+>>   
+>>   	return 0;
+>>   }
+>> -EXPORT_SYMBOL_GPL(smc_hash_sk);
+>>   
+>> -void smc_unhash_sk(struct sock *sk)
+>> +static void smc_unhash_sk(struct sock *sk)
+>>   {
+>>   	struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
+>>   
+>> @@ -202,7 +201,6 @@ void smc_unhash_sk(struct sock *sk)
+>>   		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
+>>   	write_unlock_bh(&h->lock);
+>>   }
+>> -EXPORT_SYMBOL_GPL(smc_unhash_sk);
+>>   
+>>   /* This will be called before user really release sock_lock. So do the
+>>    * work which we didn't do because of user hold the sock_lock in the
+>> -- 
+>> 2.34.1
