@@ -1,142 +1,106 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F66A26AD92;
-	Sun, 24 Mar 2024 23:32:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90DA81CE6CF;
+	Mon, 25 Mar 2024 01:18:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.35
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711323132; cv=none; b=QZNyqUGYz1Sg266J8dGpNVRE0Z0kEYB6o+YbOCFeijKjhSCL03fgrBYaSFFMfrX7DAtnGebxnkgff/aP3GpvaCRWQu5whSEj/EkZkpNiCX/FSsOIz42DFUZASdbCJBclABVL2UvjoKqOlYASdSymAgvp59luXNeFlwXkGbfGCDU=
+	t=1711329494; cv=none; b=CeBV89O+8/CP6PZeTVh8sbgS8al4GD3DA4VGV2Lek+nAHicJZL16Lwc7ztp9cuTnpJc/4o7Pms4JbqHXletUgiCG1S734ac8yQOcQkf8T5iK+jAVxxAFH47udZuhgmROJ9C6GmsgVVha4j2OmyOrs8b4Jg2cnxoH73H1A1wbb8c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711323132; c=relaxed/simple;
-	bh=2P6scc4KU+tG+nkHQIrTUE8fAAVrGxhoScJqp0MsypI=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=G8R6wXcGN0HfietLAJK18AhIGYn2cL6ytjy2DO+un1DFXn77rMscj+JfbRxUlMtssx3lntwBXs5mjnvcOrvxGLfwH8p2VZhcNX2KfaO7zVIJUFQKlXEOTOkusPtIRFbjdF7XxIuWey2i7csdQPcGJhqM4Bus0HsvczFuJiR8wX8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=kI1vfql3; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="kI1vfql3"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-	:Content-ID:Content-Description:References;
-	bh=n/NjUq2bb1cMCrwf6KYJS5oPTzhOkpr05aucpVrqgaQ=; b=kI1vfql3b3NyH8HE9Loo1gSeCs
-	YPq+9flBPldV35nuIjLa3piIGoOqSHRtTqXHQA714mhtJGwD9jkAWCqVuaY7SBXLSc5CeKAZgQwHm
-	HvIYhg+Z9kNZ3zd215kchdSlLAomH1Jk9QgNBQBZ8bunkDUA0TJ7IFldQruZw5bT98TMGjLKUQHTk
-	wtTMthmP8DNsqLOUwMGJPYZX3Xd8PkzSsCMuTwVVpimKsndUf8VqegzU//rv+9MzlNDucJMp2q0Nt
-	kuefXPjkdiLl8YFBDPqi4L9cdCMZFdN6uvT9AxO+mMYiTgjPE9jNv7+zWS67nE59pPzTMNAcgVPlj
-	PxzGSK4g==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1roXJo-0000000DsrL-3lYS;
-	Sun, 24 Mar 2024 23:32:00 +0000
-Date: Sun, 24 Mar 2024 16:32:00 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: "Uladzislau Rezki (Sony)" <urezki@gmail.com>
-Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>, Baoquan He <bhe@redhat.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Matthew Wilcox <willy@infradead.org>,
-	Dave Chinner <david@fromorbit.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Oleksiy Avramchenko <oleksiy.avramchenko@sony.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 1/1] mm: vmalloc: Bail out early in find_vmap_area() if
- vmap is not init
-Message-ID: <ZgC38GfEZYpYGUU9@infradead.org>
+	s=arc-20240116; t=1711329494; c=relaxed/simple;
+	bh=ZBfF+osgJm2Wg9ggI3txNKvwTJ+kuieWkhGQMztWILM=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=OLOG96n1FaQjTHIWOXZ0n7Ecb2jzsuGdRK6VWkQTh1RERXx+CGgp/9bz0meIwUEQwMCpsGaW5ZEp1uLZ/LwNgk0fmXM4nbpSEqcxfJEZsK3JWepDuY8ECe3NQwdAlyWSMVGOvAiFawgQX4TIEQ1Ghm1RCbVTQ3OLbX9eJsM5FJE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.35
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.44])
+	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4V2w3Q0n1Lz1R83Z;
+	Mon, 25 Mar 2024 09:15:30 +0800 (CST)
+Received: from dggpeml500026.china.huawei.com (unknown [7.185.36.106])
+	by mail.maildlp.com (Postfix) with ESMTPS id DDC2F140158;
+	Mon, 25 Mar 2024 09:18:07 +0800 (CST)
+Received: from huawei.com (10.175.101.6) by dggpeml500026.china.huawei.com
+ (7.185.36.106) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.35; Mon, 25 Mar
+ 2024 09:18:07 +0800
+From: Zhengchao Shao <shaozhengchao@huawei.com>
+To: <netdev@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+	<davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
+	<pabeni@redhat.com>
+CC: <wenjia@linux.ibm.com>, <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
+	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>,
+	<weiyongjun1@huawei.com>, <yuehaibing@huawei.com>, <shaozhengchao@huawei.com>
+Subject: [PATCH net-next] net/smc: make smc_hash_sk/smc_unhash_sk static
+Date: Mon, 25 Mar 2024 09:25:01 +0800
+Message-ID: <20240325012501.709009-1-shaozhengchao@huawei.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240323141544.4150-1-urezki@gmail.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpeml500026.china.huawei.com (7.185.36.106)
 
-I guess this is ok as an urgend bandaid to get s390 booting again,
-but calling find_vmap_area before the vmap area is initialized
-seems an actual issue in the s390 mm init code.
+smc_hash_sk and smc_unhash_sk are only used in af_smc.c, so make them
+static and remove the output symbol. They can be called under the path
+.prot->hash()/unhash().
 
-Adding the s390 maintainers to see if they have and idea how this could
-get fixed in a better way.
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+---
+ include/net/smc.h | 3 ---
+ net/smc/af_smc.c  | 6 ++----
+ 2 files changed, 2 insertions(+), 7 deletions(-)
 
+diff --git a/include/net/smc.h b/include/net/smc.h
+index c9dcb30e3fd9..10684d0a33df 100644
+--- a/include/net/smc.h
++++ b/include/net/smc.h
+@@ -26,9 +26,6 @@ struct smc_hashinfo {
+ 	struct hlist_head ht;
+ };
+ 
+-int smc_hash_sk(struct sock *sk);
+-void smc_unhash_sk(struct sock *sk);
+-
+ /* SMCD/ISM device driver interface */
+ struct smcd_dmb {
+ 	u64 dmb_tok;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 4b52b3b159c0..e8dcd28a554c 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -177,7 +177,7 @@ static struct smc_hashinfo smc_v6_hashinfo = {
+ 	.lock = __RW_LOCK_UNLOCKED(smc_v6_hashinfo.lock),
+ };
+ 
+-int smc_hash_sk(struct sock *sk)
++static int smc_hash_sk(struct sock *sk)
+ {
+ 	struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
+ 	struct hlist_head *head;
+@@ -191,9 +191,8 @@ int smc_hash_sk(struct sock *sk)
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(smc_hash_sk);
+ 
+-void smc_unhash_sk(struct sock *sk)
++static void smc_unhash_sk(struct sock *sk)
+ {
+ 	struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
+ 
+@@ -202,7 +201,6 @@ void smc_unhash_sk(struct sock *sk)
+ 		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
+ 	write_unlock_bh(&h->lock);
+ }
+-EXPORT_SYMBOL_GPL(smc_unhash_sk);
+ 
+ /* This will be called before user really release sock_lock. So do the
+  * work which we didn't do because of user hold the sock_lock in the
+-- 
+2.34.1
 
-On Sat, Mar 23, 2024 at 03:15:44PM +0100, Uladzislau Rezki (Sony) wrote:
-> During the boot the s390 system triggers "spinlock bad magic" messages
-> if the spinlock debugging is enabled:
-> 
-> [    0.465445] BUG: spinlock bad magic on CPU#0, swapper/0
-> [    0.465490]  lock: single+0x1860/0x1958, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-> [    0.466067] CPU: 0 PID: 0 Comm: swapper Not tainted 6.8.0-12955-g8e938e398669 #1
-> [    0.466188] Hardware name: QEMU 8561 QEMU (KVM/Linux)
-> [    0.466270] Call Trace:
-> [    0.466470]  [<00000000011f26c8>] dump_stack_lvl+0x98/0xd8
-> [    0.466516]  [<00000000001dcc6a>] do_raw_spin_lock+0x8a/0x108
-> [    0.466545]  [<000000000042146c>] find_vmap_area+0x6c/0x108
-> [    0.466572]  [<000000000042175a>] find_vm_area+0x22/0x40
-> [    0.466597]  [<000000000012f152>] __set_memory+0x132/0x150
-> [    0.466624]  [<0000000001cc0398>] vmem_map_init+0x40/0x118
-> [    0.466651]  [<0000000001cc0092>] paging_init+0x22/0x68
-> [    0.466677]  [<0000000001cbbed2>] setup_arch+0x52a/0x708
-> [    0.466702]  [<0000000001cb6140>] start_kernel+0x80/0x5c8
-> [    0.466727]  [<0000000000100036>] startup_continue+0x36/0x40
-> 
-> it happens because such system tries to access some vmap areas
-> whereas the vmalloc initialization is not even yet done:
-> 
-> [    0.465490] lock: single+0x1860/0x1958, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-> [    0.466067] CPU: 0 PID: 0 Comm: swapper Not tainted 6.8.0-12955-g8e938e398669 #1
-> [    0.466188] Hardware name: QEMU 8561 QEMU (KVM/Linux)
-> [    0.466270] Call Trace:
-> [    0.466470] dump_stack_lvl (lib/dump_stack.c:117)
-> [    0.466516] do_raw_spin_lock (kernel/locking/spinlock_debug.c:87 kernel/locking/spinlock_debug.c:115)
-> [    0.466545] find_vmap_area (mm/vmalloc.c:1059 mm/vmalloc.c:2364)
-> [    0.466572] find_vm_area (mm/vmalloc.c:3150)
-> [    0.466597] __set_memory (arch/s390/mm/pageattr.c:360 arch/s390/mm/pageattr.c:393)
-> [    0.466624] vmem_map_init (./arch/s390/include/asm/set_memory.h:55 arch/s390/mm/vmem.c:660)
-> [    0.466651] paging_init (arch/s390/mm/init.c:97)
-> [    0.466677] setup_arch (arch/s390/kernel/setup.c:972)
-> [    0.466702] start_kernel (init/main.c:899)
-> [    0.466727] startup_continue (arch/s390/kernel/head64.S:35)
-> [    0.466811] INFO: lockdep is turned off.
-> ...
-> [    0.718250] vmalloc init - busy lock init 0000000002871860
-> [    0.718328] vmalloc init - busy lock init 00000000028731b8
-> 
-> Some background. It worked before because the lock that is in question
-> was statically defined and initialized. As of now, the locks and data
-> structures are initialized in the vmalloc_init() function.
-> 
-> To address that issue add the check whether the "vmap_initialized"
-> variable is set, if not find_vmap_area() bails out on entry returning NULL.
-> 
-> Fixes: 72210662c5a2 ("mm: vmalloc: offload free_vmap_area_lock lock")
-> Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
-> ---
->  mm/vmalloc.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-> index 22aa63f4ef63..0d77d171b5d9 100644
-> --- a/mm/vmalloc.c
-> +++ b/mm/vmalloc.c
-> @@ -2343,6 +2343,9 @@ struct vmap_area *find_vmap_area(unsigned long addr)
->  	struct vmap_area *va;
->  	int i, j;
->  
-> +	if (unlikely(!vmap_initialized))
-> +		return NULL;
-> +
->  	/*
->  	 * An addr_to_node_id(addr) converts an address to a node index
->  	 * where a VA is located. If VA spans several zones and passed
-> -- 
-> 2.39.2
-> 
----end quoted text---
