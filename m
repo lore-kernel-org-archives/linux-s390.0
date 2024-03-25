@@ -1,44 +1,44 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 688C61607A8;
-	Mon, 25 Mar 2024 06:42:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 022AA16132B;
+	Mon, 25 Mar 2024 06:42:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711348938; cv=none; b=NJmunuLwrk5asK+cfFDPjPeB02ItgKdzOmTuVHKmLmItfL/Ym01nPaYDBnmg8dwKR7P5/D+wDqTQIChnZbGqyavkjZOFZVkR5W0wRrzdFC1M2Gi20EnsKin4kKwTIBk9HK/WFr9Efk0MMIoIZ25nDq4tg+M5mj3T6BpJapP/sTo=
+	t=1711348966; cv=none; b=gK2JwSk6GyYwVJ9S4Pb92Mox71mS1NyhR9m0kblJ4eDLhIYm6kVYDJWtJdhve7qcvUaqtyuu7ofEXgPVWEuiXXYPbSmJ6mg0q9pSiosuznYe8UPQZo8ij+MPAY4iGsnYtJ3cLScmn9tWEYfbwTEPvpzQUMwMF8XtYmelO7waH58=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711348938; c=relaxed/simple;
-	bh=I/EwrCmdvQfW3F1Dq8qT6GRyUT8dQLcc34j3rdWdn4M=;
+	s=arc-20240116; t=1711348966; c=relaxed/simple;
+	bh=jWLLlF4KdyRZzGfn4U2lSdQ4Wei7Cj+yXLsz+I6EvZY=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=ely7px65MhMkmqMkyWutyHuxxVSor1JnwQZfTuC7sA1Wk4II8ojecNjDUVgueMeK2c8wihSDiE+B78GvuSP7PckrCacP52XR55oGronj6AFX9aH/ry5D+P6941kSh0C+Rrer+AqIQcbAX0KFB8QGAlA9sMSVedyDrT839FRY/8g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mE13p/MM; arc=none smtp.client-ip=192.198.163.17
+	 MIME-Version; b=LE9FZcWd3irT9IPTb6zwdxVOrwrBSrf9nEwHBckP7kQimDWD9bVhpT5Ph+vvMDUeZsbOxOSoKU00Bu7Ds0FKlKWK1mhu10nZ16Z1gNfkOaqTreVELOE+ScKRSIrQSOAGwP6ru/hjFEuEqcHY63BV7mHkNBl2EujTjzooME7ZAbg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Iusz8THA; arc=none smtp.client-ip=192.198.163.17
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mE13p/MM"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Iusz8THA"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1711348937; x=1742884937;
+  t=1711348965; x=1742884965;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=I/EwrCmdvQfW3F1Dq8qT6GRyUT8dQLcc34j3rdWdn4M=;
-  b=mE13p/MM7yPeotba7fz8QdXsEs13TycvCiaJm1eGYiWn4HHsxjFBKmHA
-   WkBRHvkwKWNa8+pyRs+D7A5TXd5B4KGWxjB8Ga9VlulKKZtVXWbHBKLjv
-   72udsjtT4KjWc+oTN1/1R8ddhaU4c0qp/Tf0mtx7P40KrsnE1cal4Q8DK
-   Fox9War5vxx+KLSraVPnEyD+siFKVKllV41QyhPoUd3LqCuKOiLMp5kbf
-   EyxdufrYG2auz1rzcot4R9p8g9KWZPs+AlQJAtjwdOx8EQxGUixVHwfal
-   gE3yjoNPKE2b2K2SRQriiDxc3n4+QObhb3JFFwqfaYpijrsRMFrN8N2Um
+  bh=jWLLlF4KdyRZzGfn4U2lSdQ4Wei7Cj+yXLsz+I6EvZY=;
+  b=Iusz8THA13pqubRw6kvkL5p5vNxVzykvnS/33uQZKIHDT+sb1IA3LO5W
+   OqgjDeLnZvl/26QtHvzEliO4MDb+09t6wQm8fEFboF5kAPLoJT0mNBkPA
+   Y3drThHz2EovOYR9Dx4xU9d1XlODfXO44aVF+ya3xqPSrh/Pv+3FyjmPN
+   PykU0G74QD/wy7uaamV/+vSpJP1sRHWVPke0Oz6Lv7ckGvAzsf3E44uED
+   jd1pJwNHD+9Ih+5c2RkTvIiTFcLY+tPyO2ilQCRUHNbzbhc+hFiV5JMcc
+   Tpr3x3Jng+qxMTIpEaFugbo5lml35Xbt2Z1bH66mkH40gzU/xps9bBVT8
    w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11023"; a="6191517"
+X-IronPort-AV: E=McAfee;i="6600,9927,11023"; a="6191609"
 X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
-   d="scan'208";a="6191517"
+   d="scan'208";a="6191609"
 Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:42:11 -0700
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:42:44 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
-   d="scan'208";a="38629681"
+   d="scan'208";a="38629719"
 Received: from ahunter6-mobl1.ger.corp.intel.com (HELO ahunter-VirtualBox.home\044ger.corp.intel.com) ([10.251.211.155])
-  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:42:04 -0700
+  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:42:38 -0700
 From: Adrian Hunter <adrian.hunter@intel.com>
 To: Thomas Gleixner <tglx@linutronix.de>
 Cc: Michael Ellerman <mpe@ellerman.id.au>,
@@ -68,9 +68,9 @@ Cc: Michael Ellerman <mpe@ellerman.id.au>,
 	linuxppc-dev@lists.ozlabs.org,
 	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH V2 14/19] timekeeping: Consolidate timekeeping helpers
-Date: Mon, 25 Mar 2024 08:40:18 +0200
-Message-Id: <20240325064023.2997-15-adrian.hunter@intel.com>
+Subject: [PATCH V2 19/19] clocksource: Make watchdog and suspend-timing multiplication overflow safe
+Date: Mon, 25 Mar 2024 08:40:23 +0200
+Message-Id: <20240325064023.2997-20-adrian.hunter@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240325064023.2997-1-adrian.hunter@intel.com>
 References: <20240325064023.2997-1-adrian.hunter@intel.com>
@@ -83,66 +83,133 @@ MIME-Version: 1.0
 Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki, Business Identity Code: 0357606 - 4, Domiciled in Helsinki
 Content-Transfer-Encoding: 8bit
 
-Consolidate timekeeping helpers, making use of timekeeping_cycles_to_ns()
-in preference to directly using timekeeping_delta_to_ns().
+Kernel timekeeping is designed to keep the change in cycles (since the last
+timer interrupt) below max_cycles, which prevents multiplication overflow
+when converting cycles to nanoseconds. However, if timer interrupts stop,
+the clocksource_cyc2ns() calculation will eventually overflow.
+
+Add protection against that. Simplify by folding together
+clocksource_delta() and clocksource_cyc2ns() into cycles_to_nsec_safe().
+Check against max_cycles, falling back to a slower higher precision
+calculation.
 
 Suggested-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 ---
- kernel/time/timekeeping.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ kernel/time/clocksource.c | 42 +++++++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 22 deletions(-)
 
-diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-index 618328cd4bc4..1bbfe1ff8d24 100644
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -237,7 +237,9 @@ static void timekeeping_check_update(struct timekeeper *tk, u64 offset)
- 	}
- }
+diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
+index e5b260aa0e02..4d50d53ac719 100644
+--- a/kernel/time/clocksource.c
++++ b/kernel/time/clocksource.c
+@@ -20,6 +20,16 @@
+ #include "tick-internal.h"
+ #include "timekeeping_internal.h"
  
--static inline u64 timekeeping_debug_get_delta(const struct tk_read_base *tkr)
-+static inline u64 timekeeping_cycles_to_ns(const struct tk_read_base *tkr, u64 cycles);
++static noinline u64 cycles_to_nsec_safe(struct clocksource *cs, u64 start, u64 end)
++{
++	u64 delta = clocksource_delta(end, start, cs->mask);
 +
-+static inline u64 timekeeping_debug_get_ns(const struct tk_read_base *tkr)
++	if (likely(delta < cs->max_cycles))
++		return clocksource_cyc2ns(delta, cs->mult, cs->shift);
++
++	return mul_u64_u32_shr(delta, cs->mult, cs->shift);
++}
++
+ /**
+  * clocks_calc_mult_shift - calculate mult/shift factors for scaled math of clocks
+  * @mult:	pointer to mult variable
+@@ -222,8 +232,8 @@ enum wd_read_status {
+ static enum wd_read_status cs_watchdog_read(struct clocksource *cs, u64 *csnow, u64 *wdnow)
  {
- 	struct timekeeper *tk = &tk_core.timekeeper;
- 	u64 now, last, mask, max, delta;
-@@ -266,22 +268,22 @@ static inline u64 timekeeping_debug_get_delta(const struct tk_read_base *tkr)
- 	 */
- 	if (unlikely((~delta & mask) < (mask >> 3))) {
- 		tk->underflow_seen = 1;
--		delta = 0;
-+		now = last;
+ 	unsigned int nretries, max_retries;
+-	u64 wd_end, wd_end2, wd_delta;
+ 	int64_t wd_delay, wd_seq_delay;
++	u64 wd_end, wd_end2;
+ 
+ 	max_retries = clocksource_get_max_watchdog_retry();
+ 	for (nretries = 0; nretries <= max_retries; nretries++) {
+@@ -234,9 +244,7 @@ static enum wd_read_status cs_watchdog_read(struct clocksource *cs, u64 *csnow,
+ 		wd_end2 = watchdog->read(watchdog);
+ 		local_irq_enable();
+ 
+-		wd_delta = clocksource_delta(wd_end, *wdnow, watchdog->mask);
+-		wd_delay = clocksource_cyc2ns(wd_delta, watchdog->mult,
+-					      watchdog->shift);
++		wd_delay = cycles_to_nsec_safe(watchdog, *wdnow, wd_end);
+ 		if (wd_delay <= WATCHDOG_MAX_SKEW) {
+ 			if (nretries > 1 || nretries >= max_retries) {
+ 				pr_warn("timekeeping watchdog on CPU%d: %s retried %d times before success\n",
+@@ -254,8 +262,7 @@ static enum wd_read_status cs_watchdog_read(struct clocksource *cs, u64 *csnow,
+ 		 * report system busy, reinit the watchdog and skip the current
+ 		 * watchdog test.
+ 		 */
+-		wd_delta = clocksource_delta(wd_end2, wd_end, watchdog->mask);
+-		wd_seq_delay = clocksource_cyc2ns(wd_delta, watchdog->mult, watchdog->shift);
++		wd_seq_delay = cycles_to_nsec_safe(watchdog, wd_end, wd_end2);
+ 		if (wd_seq_delay > WATCHDOG_MAX_SKEW/2)
+ 			goto skip_test;
  	}
+@@ -366,8 +373,7 @@ void clocksource_verify_percpu(struct clocksource *cs)
+ 		delta = (csnow_end - csnow_mid) & cs->mask;
+ 		if (delta < 0)
+ 			cpumask_set_cpu(cpu, &cpus_ahead);
+-		delta = clocksource_delta(csnow_end, csnow_begin, cs->mask);
+-		cs_nsec = clocksource_cyc2ns(delta, cs->mult, cs->shift);
++		cs_nsec = cycles_to_nsec_safe(cs, csnow_begin, csnow_end);
+ 		if (cs_nsec > cs_nsec_max)
+ 			cs_nsec_max = cs_nsec;
+ 		if (cs_nsec < cs_nsec_min)
+@@ -398,8 +404,8 @@ static inline void clocksource_reset_watchdog(void)
  
- 	/* Cap delta value to the max_cycles values to avoid mult overflows */
- 	if (unlikely(delta > max)) {
- 		tk->overflow_seen = 1;
--		delta = tkr->clock->max_cycles;
-+		now = last + max;
- 	}
+ static void clocksource_watchdog(struct timer_list *unused)
+ {
+-	u64 csnow, wdnow, cslast, wdlast, delta;
+ 	int64_t wd_nsec, cs_nsec, interval;
++	u64 csnow, wdnow, cslast, wdlast;
+ 	int next_cpu, reset_pending;
+ 	struct clocksource *cs;
+ 	enum wd_read_status read_ret;
+@@ -456,12 +462,8 @@ static void clocksource_watchdog(struct timer_list *unused)
+ 			continue;
+ 		}
  
--	return delta;
-+	return timekeeping_cycles_to_ns(tkr, now);
- }
- #else
- static inline void timekeeping_check_update(struct timekeeper *tk, u64 offset)
+-		delta = clocksource_delta(wdnow, cs->wd_last, watchdog->mask);
+-		wd_nsec = clocksource_cyc2ns(delta, watchdog->mult,
+-					     watchdog->shift);
+-
+-		delta = clocksource_delta(csnow, cs->cs_last, cs->mask);
+-		cs_nsec = clocksource_cyc2ns(delta, cs->mult, cs->shift);
++		wd_nsec = cycles_to_nsec_safe(watchdog, cs->wd_last, wdnow);
++		cs_nsec = cycles_to_nsec_safe(cs, cs->cs_last, csnow);
+ 		wdlast = cs->wd_last; /* save these in case we print them */
+ 		cslast = cs->cs_last;
+ 		cs->cs_last = csnow;
+@@ -832,7 +834,7 @@ void clocksource_start_suspend_timing(struct clocksource *cs, u64 start_cycles)
+  */
+ u64 clocksource_stop_suspend_timing(struct clocksource *cs, u64 cycle_now)
  {
- }
--static inline u64 timekeeping_debug_get_delta(const struct tk_read_base *tkr)
-+static inline u64 timekeeping_debug_get_ns(const struct tk_read_base *tkr)
- {
- 	BUG();
- }
-@@ -389,7 +391,7 @@ static __always_inline u64 __timekeeping_get_ns(const struct tk_read_base *tkr)
- static inline u64 timekeeping_get_ns(const struct tk_read_base *tkr)
- {
- 	if (IS_ENABLED(CONFIG_DEBUG_TIMEKEEPING))
--		return timekeeping_delta_to_ns(tkr, timekeeping_debug_get_delta(tkr));
-+		return timekeeping_debug_get_ns(tkr);
+-	u64 now, delta, nsec = 0;
++	u64 now, nsec = 0;
  
- 	return __timekeeping_get_ns(tkr);
- }
+ 	if (!suspend_clocksource)
+ 		return 0;
+@@ -847,12 +849,8 @@ u64 clocksource_stop_suspend_timing(struct clocksource *cs, u64 cycle_now)
+ 	else
+ 		now = suspend_clocksource->read(suspend_clocksource);
+ 
+-	if (now > suspend_start) {
+-		delta = clocksource_delta(now, suspend_start,
+-					  suspend_clocksource->mask);
+-		nsec = mul_u64_u32_shr(delta, suspend_clocksource->mult,
+-				       suspend_clocksource->shift);
+-	}
++	if (now > suspend_start)
++		nsec = cycles_to_nsec_safe(suspend_clocksource, suspend_start, now);
+ 
+ 	/*
+ 	 * Disable the suspend timer to save power if current clocksource is
 -- 
 2.34.1
 
