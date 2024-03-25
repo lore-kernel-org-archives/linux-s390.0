@@ -1,117 +1,141 @@
-Received: from wfhigh6-smtp.messagingengine.com (wfhigh6-smtp.messagingengine.com [64.147.123.157])
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2019C136;
-	Mon, 25 Mar 2024 18:11:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=64.147.123.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62E221C290;
+	Mon, 25 Mar 2024 19:05:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711390309; cv=none; b=dZTvKOorZqio3pgKC7yKrCuZW0u+keft9OpwituVcIQoAjvHs5K4mLDEbe6jnNqxeQD4dN8ODdYqAzx5Q8QAlKsApWQnNWg5ZbP6DQ4avnZx15+O5YI4OgvOsPjSCVGs11St6b53fqX7xsx3lRP8dZwIAFEEOtMWlgIrFOVUTSE=
+	t=1711393538; cv=none; b=JNG4+w0vDsHhYeqtLJGM3URRTg9lrI7ks4FwDdcxj0vEeZHMs9KK2JuOw9uq2igw8/wme/AP0s0PA1iVYxkY7GdIkE/fQbkDWAmkX887KeiZdamXhwTWSQeMNZMaRK84/SbN4s1lOpu7HbGgbofSUlsUuxRe+onWaIAWQqV5knw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711390309; c=relaxed/simple;
-	bh=VWjCK0A0o0a/wQcdaC/U8lJXJ+TjP1sEl8eLKFH7/Bw=;
-	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
-	 Subject:Content-Type; b=Gt7hvCbD3xeDtds0nRlIrX9MyAlx4RctQokne1IKA4NMk6nbdNqbYQV9jbyxb64fOMidTRycW1aEYT/zKwFGZ2thWD3prC4o6kXK1OBwWxtvo/U3lpl2leew8jKs5bT3K9BpmfuSGmMyI54thpexLnN4EprLxqOcQkfcRn/jjC4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=fS660U1h; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=H+VPet54; arc=none smtp.client-ip=64.147.123.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1711393538; c=relaxed/simple;
+	bh=2naQ2zIwUDbAjnJ5fx8ylGGomTwmKBGC8b+4Kf4kgXw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZKKwoXze11LAMBjxdcLVzxmfnYhIqJTKwRHRZTMtMLs5WArJ/m8wBv1TmosY7rRV2q5rQJ70apWVJoBkZFO5G/ZhrSkPJfdNjmMAdB7sA5OaCQnP/4pFCjYkgu1sZnn0cak1RdkTGJLw81Ezo/syNiCbRXO7Kmmc0C+YDy6LjEk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=KrsZ3Dg+; arc=none smtp.client-ip=213.97.179.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="fS660U1h";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="H+VPet54"
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-	by mailfhigh.west.internal (Postfix) with ESMTP id 8ED3C18000A9;
-	Mon, 25 Mar 2024 14:11:44 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
-  by compute5.internal (MEProxy); Mon, 25 Mar 2024 14:11:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm1; t=1711390304; x=1711476704; bh=ZOF0LllNEk
-	KwlFc4eVFPUYe1z5e6mKp1Z3VJw8CX4q0=; b=fS660U1hG06tBjiG8AmosLeM/q
-	hTeorddBxLag/Zrf1xyO/FfWBp+7Twp3Cklk/LKdRm/+lq1rQZz9dGiJIplirevn
-	g01k8hHNfbZs67tq8XfM8O8Ir7YUNrjrjvXriGv/0GYfVW2d/UJSEmPaCNtb62IR
-	Tya66B9hoJs/aNBwVkJ/6cmfuAYa0MVAzz8Yz5WWKsSvmk5lMo47gCl+b4WZGufs
-	FtWbrj3AKA12vOFmE7pO9V/dgQYsntI4tYwE+ZrWjeGTpXO39SUXavwlWoX/eXod
-	UE2RObvC29IPd5j7tndSR3+56Jy8ZSQ329r45g4ikN7lIRVEDFKyuWfRVd0w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm2; t=1711390304; x=1711476704; bh=ZOF0LllNEkKwlFc4eVFPUYe1z5e6
-	mKp1Z3VJw8CX4q0=; b=H+VPet54C3Y7QbMN4Y2/THGlKNi1RQ8lSrCen5xjBCLL
-	GvOr72eh4g45YjvUQ/5YtYLW1AOGcmWZ+AuVmPe8BCv415DHKnogCrH0veC1RzUP
-	4soLf281avDmAu6o2vVquy7wX/pPOYa/cjz2mU96CdaPk3AO5uGkRgnmO8yHdpv1
-	yfhOd+WO9EAZPencMet7UNg86WPUFuzUNsee+X8N2L8zdMT4OB8tVDolLinZT+JR
-	ElfnIjfZikTWSHvSEEPs4tpr0q8xAHqBHBJ/6jRuBNHG+IjH5X2s93lMvm/gPm6D
-	rc/3lA0lJOYRCfA/QqhioypyWr5YC9LYioXWoow66w==
-X-ME-Sender: <xms:X74BZu2tN7xekPZqMjmstbFirCYBYuIE4NS_Aipa0ZYoDcbMTLh0eA>
-    <xme:X74BZhEYak51UNjk1N611INqAXz1a3OPovAHBTVgVffZSwrII8BUVewjxfUHbB4mn
-    HjlTjcMd9bfrm2r-zE>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrudduuddggeelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
-    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:X74BZm7d15nmTR2ONKJhlv31T8duatevTAgzzxKBYSZ4iRsnImAcOA>
-    <xmx:X74BZv2HJTxGR8ksu7SGOKNh-dIO4cSyazLOK8N_zmAYHdnG-lv8Fw>
-    <xmx:X74BZhH5p1M2Y_T48GPkgY5vhVfFNwm6T-0M4q0kNJmgZs3uO-mtCA>
-    <xmx:X74BZo_u3GJhLGwX2s2jnYhlEIV3pCrVDa0qvj1RFw1lkP0FFAJnqw>
-    <xmx:YL4BZkY5RtfvxTBGVyjsSPklDjJbZKwMA_1vxkvxXLhg3P-H24-8kBVlprk>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id 237E3B6008D; Mon, 25 Mar 2024 14:11:43 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.11.0-alpha0-332-gdeb4194079-fm-20240319.002-gdeb41940
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="KrsZ3Dg+"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=/cOCj+3wz4G6mk7yJiOWKe+zWsog28msEXqYEYYF/PM=; b=KrsZ3Dg+BwR2PxtUZN7tRdXRM/
+	hzD6VT43T4jmCbBOlQa33Sar4qRrk34fr3Gcfdp4NQWyMpNKX4DH6J6albLyamFGb2CGEiZOtE5rW
+	nfLSP5bRkADNvscY10NWmVllXMUJQDKsyuMyDODwaUtYaCGTGsGnQon7XaddORjvYOehlVXeE6sfa
+	n/bIrGl+ZGAr/bWkdry+5ZKkzUgSzgmqpPyWvxvxDDYmJrN43CkrvCrpPuNbz7XsoF5Y7Liw6IIBe
+	NgZRaSze46IWt9cBigdGv5ZmmlmhThf/TXsUVgjI26u4CbbOLSlCdcwSS/EtJiOUe4764vjuRvM+Q
+	SpYZMTlA==;
+Received: from [177.34.169.255] (helo=[192.168.0.139])
+	by fanzine2.igalia.com with esmtpsa 
+	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+	id 1ropdK-00FBOo-Kv; Mon, 25 Mar 2024 20:05:23 +0100
+Message-ID: <0729b218-53f1-4139-b165-a324794a9abd@igalia.com>
+Date: Mon, 25 Mar 2024 16:05:06 -0300
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <64804d62-1946-4cde-aea1-e8bab0860bfc@app.fastmail.com>
-In-Reply-To: <20240325064023.2997-1-adrian.hunter@intel.com>
-References: <20240325064023.2997-1-adrian.hunter@intel.com>
-Date: Mon, 25 Mar 2024 19:11:21 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Adrian Hunter" <adrian.hunter@intel.com>,
- "Thomas Gleixner" <tglx@linutronix.de>
-Cc: "Peter Zijlstra" <peterz@infradead.org>,
- "Dave Hansen" <dave.hansen@linux.intel.com>,
- "John Stultz" <jstultz@google.com>, "H. Peter Anvin" <hpa@zytor.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Vincenzo Frascino" <vincenzo.frascino@arm.com>, linux-s390@vger.kernel.org,
- x86@kernel.org, "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
- "Ingo Molnar" <mingo@redhat.com>,
- "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>,
- "Nicholas Piggin" <npiggin@gmail.com>, "Borislav Petkov" <bp@alien8.de>,
- "Andy Lutomirski" <luto@kernel.org>, "Bjorn Helgaas" <bhelgaas@google.com>,
- "Anna-Maria Gleixner" <anna-maria@linutronix.de>,
- "Stephen Boyd" <sboyd@kernel.org>, "Randy Dunlap" <rdunlap@infradead.org>,
- linux-kernel@vger.kernel.org, "Sven Schnelle" <svens@linux.ibm.com>,
- linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH V2 00/19] timekeeping: Handle potential multiplication overflow
-Content-Type: text/plain
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 05/14] drm: Suppress intentional warning backtraces in
+ scaling unit tests
+To: Guenter Roeck <linux@roeck-us.net>, linux-kselftest@vger.kernel.org
+Cc: David Airlie <airlied@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
+ Dan Carpenter <dan.carpenter@linaro.org>, Kees Cook <keescook@chromium.org>,
+ Daniel Diaz <daniel.diaz@linaro.org>, David Gow <davidgow@google.com>,
+ Arthur Grillo <arthurgrillo@riseup.net>,
+ Brendan Higgins <brendan.higgins@linux.dev>,
+ Naresh Kamboju <naresh.kamboju@linaro.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Andrew Morton <akpm@linux-foundation.org>, Maxime Ripard
+ <mripard@kernel.org>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?=
+ <ville.syrjala@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org,
+ kunit-dev@googlegroups.com, linux-arch@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ loongarch@lists.linux.dev, netdev@vger.kernel.org,
+ Linux Kernel Functional Testing <lkft@linaro.org>
+References: <20240325175248.1499046-1-linux@roeck-us.net>
+ <20240325175248.1499046-6-linux@roeck-us.net>
+Content-Language: en-US
+From: =?UTF-8?Q?Ma=C3=ADra_Canal?= <mcanal@igalia.com>
+Autocrypt: addr=mcanal@igalia.com; keydata=
+ xjMEZIsaeRYJKwYBBAHaRw8BAQdAGU6aY8oojw61KS5rGGMrlcilFqR6p6ID45IZ6ovX0h3N
+ H01haXJhIENhbmFsIDxtY2FuYWxAaWdhbGlhLmNvbT7CjwQTFggANxYhBDMCqFtIvFKVRJZQ
+ hDSPnHLaGFVuBQJkixp5BQkFo5qAAhsDBAsJCAcFFQgJCgsFFgIDAQAACgkQNI+cctoYVW5u
+ GAEAwpaC5rI3wD8zqETKwGVoXd6+AbmGfZuVD40xepy7z/8BAM5w95/oyPsHUqOsg/xUTlNp
+ rlbhA+WWoaOXA3XgR+wCzjgEZIsaeRIKKwYBBAGXVQEFAQEHQGoOK0jgh0IorMAacx6WUUWb
+ s3RLiJYWUU6iNrk5wWUbAwEIB8J+BBgWCAAmFiEEMwKoW0i8UpVEllCENI+cctoYVW4FAmSL
+ GnkFCQWjmoACGwwACgkQNI+cctoYVW6cqwD/Q9R98msvkhgRvi18fzUPFDwwogn+F+gQJJ6o
+ pwpgFkAA/R2zOfla3IT6G3SBoV5ucdpdCpnIXFpQLbmfHK7dXsAC
+In-Reply-To: <20240325175248.1499046-6-linux@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Mon, Mar 25, 2024, at 07:40, Adrian Hunter wrote:
->
-> Extend the facility also to VDSO, dependent on new config option
-> GENERIC_VDSO_OVERFLOW_PROTECT which is selected by x86 only, so other
-> architectures are not affected. The result is a calculation that has
-> similar performance as before. Most machines showed performance benefit,
-> except Skylake-based hardware such as Intel Kaby Lake which was seen <1%
-> worse.
+Hi Guenter,
 
-I've read through the series, and this pretty much all makes sense,
-nice work!
+On 3/25/24 14:52, Guenter Roeck wrote:
+> The drm_test_rect_calc_hscale and drm_test_rect_calc_vscale unit tests
+> intentionally trigger warning backtraces by providing bad parameters to
+> the tested functions. What is tested is the return value, not the existence
+> of a warning backtrace. Suppress the backtraces to avoid clogging the
+> kernel log.
+> 
+> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> Acked-by: Dan Carpenter <dan.carpenter@linaro.org>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+> - Rebased to v6.9-rc1
+> - Added Tested-by:, Acked-by:, and Reviewed-by: tags
+> 
+>   drivers/gpu/drm/tests/drm_rect_test.c | 6 ++++++
+>   1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/tests/drm_rect_test.c b/drivers/gpu/drm/tests/drm_rect_test.c
+> index 76332cd2ead8..75614cb4deb5 100644
+> --- a/drivers/gpu/drm/tests/drm_rect_test.c
+> +++ b/drivers/gpu/drm/tests/drm_rect_test.c
+> @@ -406,22 +406,28 @@ KUNIT_ARRAY_PARAM(drm_rect_scale, drm_rect_scale_cases, drm_rect_scale_case_desc
+>   
+>   static void drm_test_rect_calc_hscale(struct kunit *test)
+>   {
+> +	DEFINE_SUPPRESSED_WARNING(drm_calc_scale);
+>   	const struct drm_rect_scale_case *params = test->param_value;
+>   	int scaling_factor;
+>   
+> +	START_SUPPRESSED_WARNING(drm_calc_scale);
 
-There are a few patches that just rearrange the local variable
-declarations to save a few lines, and I don't see those as an
-improvement, but they also don't hurt aside from distracting
-slightly from the real changes.
+I'm not sure if it is not that obvious only to me, but it would be nice
+to have a comment here, remembering that we provide bad parameters in
+some test cases.
 
-     Arnd
+Best Regards,
+- Maíra
+
+>   	scaling_factor = drm_rect_calc_hscale(&params->src, &params->dst,
+>   					      params->min_range, params->max_range);
+> +	END_SUPPRESSED_WARNING(drm_calc_scale);
+>   
+>   	KUNIT_EXPECT_EQ(test, scaling_factor, params->expected_scaling_factor);
+>   }
+>   
+>   static void drm_test_rect_calc_vscale(struct kunit *test)
+>   {
+> +	DEFINE_SUPPRESSED_WARNING(drm_calc_scale);
+>   	const struct drm_rect_scale_case *params = test->param_value;
+>   	int scaling_factor;
+>   
+> +	START_SUPPRESSED_WARNING(drm_calc_scale);
+>   	scaling_factor = drm_rect_calc_vscale(&params->src, &params->dst,
+>   					      params->min_range, params->max_range);
+> +	END_SUPPRESSED_WARNING(drm_calc_scale);
+>   
+>   	KUNIT_EXPECT_EQ(test, scaling_factor, params->expected_scaling_factor);
+>   }
