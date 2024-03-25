@@ -1,177 +1,209 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D7B917A927
-	for <linux-s390@vger.kernel.org>; Mon, 25 Mar 2024 09:12:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7E0476045;
+	Mon, 25 Mar 2024 09:40:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711357979; cv=none; b=bc5CV7m+EtWANzO00wdxrDQ8Q4xdreKX4tPHAqlf8lAafQpXCwtK7ZwDOhYNQ0mmkhclMyceCiil61xh/9GVDmT/pi1ydXiR7uKbFXp1fVW/3cbsi7WHZlsyxJ+v0c9HLYtR2aI0PPDPdRJmrgPqWHEDOuV+4J2nz/GnnloLdWs=
+	t=1711359639; cv=none; b=X6CGTfOOCWoGZgISgGzg+G8d38DoYtWl2WtDOR3HmWZ4D9Q6xVeqwtNw3LqKKQffUkUOvlFEsQVg7MXKgoso5yHD0NXiAPTILmow/6JpvDlMuBHKtZDPmyO2NAUnWuHeDpXvBcyYKFoSt8V0/6+ktkvxHHDm5jjX+y6xwENeCLM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711357979; c=relaxed/simple;
-	bh=ACMMD4d3P9MVSSLJ/DEMYqlWW6kazp4GcWCNJPcctm4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Nt3t4rS0a4Z1y9OFCHoiSSS/Fl5g9d/dBytA9beF5oIvS73bWpg4BbooYcD+Ug07TC2WoBWRQHiiC2htD16SiY8LHHCT6TLY2r4oxUVG2cP3PSQWCRoD8QF+nP8GahIe7SqTyysLRO0T1FMkKhpsVa7JZUbDvtx8DVy/motUJrU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JlzDEhpB; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1711359639; c=relaxed/simple;
+	bh=XTa/O56XTWdw5ZF7TMRdkm4wmKncpZtw2pKiTC9UVyI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lLRssnuxrUn2ztRUW3TCQ6jt/WYsKntAzT6rXudUinU6w8UGERjXB+wRGEQ3z2tlgBVQ4e0G3MwSDo8cBZVnlPxYqH43VxpedtwGRyPnPsSdrfy5aaViolQJ5ZQ+LyB5twhJ7/uilJT7zmeA2eCLoVbAoIY4lSmSxk+e0MSvfnc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gDPgmlkW; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JlzDEhpB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711357976;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=1sxJG9Rd8JSB6G8M3v8VO1p5IgxWq/SJrawonCcKSfU=;
-	b=JlzDEhpBBq5SVSm4XaOZSi7NcxTJbd8rE8WrSXyUT4mqEvN3JThOpEGmf+Vlk6LeL60XZ7
-	Iosks3Su6JCPXZrzJrmycBYL9iFustYaBkTtYOPPfnYfEMDeHVvZAvB4HKRt/UuwGT5VCO
-	XeVsO9FFHoe+P6p/ADBKKFBC2XzsZD4=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-45-jmDB9YXCPFum1yeZU-xK7g-1; Mon, 25 Mar 2024 05:12:55 -0400
-X-MC-Unique: jmDB9YXCPFum1yeZU-xK7g-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-414042da713so24252425e9.0
-        for <linux-s390@vger.kernel.org>; Mon, 25 Mar 2024 02:12:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711357974; x=1711962774;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1sxJG9Rd8JSB6G8M3v8VO1p5IgxWq/SJrawonCcKSfU=;
-        b=H91Wd9fB77ud4XvEolG1FirIOsxQipfUBsv8TyP0q4cqfbezNS/ntq3BU1laTD+ncx
-         82Fiummxe0g1ElFMDmUNuI/t7bZ4E3GGz8EvJ6MRPngZ/2cxEQxTfJTWIweFiFjKNzAe
-         7bNOcOgftIfDKqGdaTExEMU7msB8VP1ZzyuYVpU71LzPoxInb0T6qIPGrOjxv8EvqMtN
-         EZj2NtHmCPNqeOIJXOTrAVe98BJiCQ9NSazf/W9SCm9kuUUoC49fN9613wZQzvsl3PkS
-         ZUXy6riJY4Q7JkRHd22EMvNc03Yxa/YXT7gBB9/FbfJ+j1CWCLIpFxTjT7DeFvAzQa71
-         kAvw==
-X-Forwarded-Encrypted: i=1; AJvYcCXgmdBtOp2uWmp0Oa762C/fMxwBZouHj20L8IKfBHQqSzVxVzjZc/ihjdcK6zl1zolW3ihP1QfoLef/fPrgrU0JIVacOSQLQynSrg==
-X-Gm-Message-State: AOJu0YxGPskpwjkjXbOW7anUB5OsfEPxHV+vfKwvEMmDrgAViYqY6Ga7
-	1Ekpa1OIEByXk49TAzbFvX6CU3mW+NBHQUs6WcSE2mO18qQFJ7H/ni/iZcDCw0JwqIRFNFddqEX
-	LHr/FGjwbq8dvKEG+9nFYtfcViLRHL+sBNPO3Ara6ceUEFPUf8QbAdnEgcCI=
-X-Received: by 2002:a05:600c:1c13:b0:414:37f:18dc with SMTP id j19-20020a05600c1c1300b00414037f18dcmr4633353wms.1.1711357973798;
-        Mon, 25 Mar 2024 02:12:53 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEGbDxVphxm4LD39Nm0ODG91JF+LM1ahBlILvI0fg8O9MuHA0Av59aSpiVzAeU8+H/e1DLG/A==
-X-Received: by 2002:a05:600c:1c13:b0:414:37f:18dc with SMTP id j19-20020a05600c1c1300b00414037f18dcmr4633326wms.1.1711357973418;
-        Mon, 25 Mar 2024 02:12:53 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c738:b400:6a82:1eac:2b5:8fca? (p200300cbc738b4006a821eac02b58fca.dip0.t-ipconnect.de. [2003:cb:c738:b400:6a82:1eac:2b5:8fca])
-        by smtp.gmail.com with ESMTPSA id gw8-20020a05600c850800b004146dd6bfe2sm7745532wmb.47.2024.03.25.02.12.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 Mar 2024 02:12:53 -0700 (PDT)
-Message-ID: <1b5123f9-6fd8-4783-aec7-5cc5507ee3b4@redhat.com>
-Date: Mon, 25 Mar 2024 10:12:51 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gDPgmlkW"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42P5ua6K001614;
+	Mon, 25 Mar 2024 09:40:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=lbLk1l291cRpU9S2Tsbm27SJWoB+hUfjrtZd/Xy3feI=;
+ b=gDPgmlkWNRs6tmUokyl+eLPZ0a2jRGDPaWEEPatE9xDpYmhLwmeEuPJ1lppcoBxVhEaB
+ wPz3wtBJO2JsB0dmBs28JVcK1mPiA3DbjynMs1X0bzbVIpDxNgVGxUXcEVyI0OEJgi4E
+ YCKrGTZt/qNVKGaGZ1rC4DdOmda7pdYXQ0X9idpnSR0ECD7Tf3Ga9ct+FPlUI6EidrTM
+ cZ8By8BlnJL9udeRRtbMHX5MsaV6yEH6x+aEZOOHLAZ4eh7lQOXE4qx13hWvi2GI7AVg
+ RqI6eC0ycdgh3Cb2+ghPwJxoSggmdzmfMtOGmTT37DZ1Dofn9kNTajYm4sCkJaRuAXXU 0g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x2hh69x12-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 25 Mar 2024 09:40:08 +0000
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 42P9ZRcQ008400;
+	Mon, 25 Mar 2024 09:40:08 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x2hh69x0x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 25 Mar 2024 09:40:07 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42P7Zx2Y016410;
+	Mon, 25 Mar 2024 09:40:07 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x29dtrhms-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 25 Mar 2024 09:40:06 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42P9e1KP22544922
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 25 Mar 2024 09:40:03 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9C6872004E;
+	Mon, 25 Mar 2024 09:40:01 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CED8520040;
+	Mon, 25 Mar 2024 09:40:00 +0000 (GMT)
+Received: from osiris (unknown [9.171.70.91])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 25 Mar 2024 09:40:00 +0000 (GMT)
+Date: Mon, 25 Mar 2024 10:39:59 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "Uladzislau Rezki (Sony)" <urezki@gmail.com>, linux-mm@kvack.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>, Baoquan He <bhe@redhat.com>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Dave Chinner <david@fromorbit.com>, Guenter Roeck <linux@roeck-us.net>,
+        Oleksiy Avramchenko <oleksiy.avramchenko@sony.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 1/1] mm: vmalloc: Bail out early in find_vmap_area() if
+ vmap is not init
+Message-ID: <20240325093959.9453-B-hca@linux.ibm.com>
+References: <20240323141544.4150-1-urezki@gmail.com>
+ <ZgC38GfEZYpYGUU9@infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH vhost v5 1/6] virtio_balloon: remove the dependence where
- names[] is null
-Content-Language: en-US
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
-Cc: Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Hans de Goede <hdegoede@redhat.com>,
- =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
- platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org, kvm@vger.kernel.org
-References: <20240325090419.33677-1-xuanzhuo@linux.alibaba.com>
- <20240325090419.33677-2-xuanzhuo@linux.alibaba.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20240325090419.33677-2-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZgC38GfEZYpYGUU9@infradead.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: _9711NiWy7-EsEOQcdt74z12AqRCg_ZC
+X-Proofpoint-GUID: cWCtJLwizTW0fQFZ-RczZfodSfAwtBtC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-03-25_07,2024-03-21_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 lowpriorityscore=0 mlxlogscore=778 spamscore=0
+ phishscore=0 clxscore=1011 impostorscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2403210000 definitions=main-2403250052
 
-On 25.03.24 10:04, Xuan Zhuo wrote:
-> Currently, the init_vqs function within the virtio_balloon driver relies
-> on the condition that certain names array entries are null in order to
-> skip the initialization of some virtual queues (vqs). This behavior is
-> unique to this part of the codebase. In an upcoming commit, we plan to
-> eliminate this dependency by removing the function entirely. Therefore,
-> with this change, we are ensuring that the virtio_balloon no longer
-> depends on the aforementioned function.
+On Sun, Mar 24, 2024 at 04:32:00PM -0700, Christoph Hellwig wrote:
+> On Sat, Mar 23, 2024 at 03:15:44PM +0100, Uladzislau Rezki (Sony) wrote:
+> > During the boot the s390 system triggers "spinlock bad magic" messages
+> > if the spinlock debugging is enabled:
+> > 
+> > [    0.465445] BUG: spinlock bad magic on CPU#0, swapper/0
+> > [    0.465490]  lock: single+0x1860/0x1958, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+> > [    0.466067] CPU: 0 PID: 0 Comm: swapper Not tainted 6.8.0-12955-g8e938e398669 #1
+> > [    0.466188] Hardware name: QEMU 8561 QEMU (KVM/Linux)
+> > [    0.466270] Call Trace:
+> > [    0.466470]  [<00000000011f26c8>] dump_stack_lvl+0x98/0xd8
+> > [    0.466516]  [<00000000001dcc6a>] do_raw_spin_lock+0x8a/0x108
+> > [    0.466545]  [<000000000042146c>] find_vmap_area+0x6c/0x108
+> > [    0.466572]  [<000000000042175a>] find_vm_area+0x22/0x40
+> > [    0.466597]  [<000000000012f152>] __set_memory+0x132/0x150
+> > [    0.466624]  [<0000000001cc0398>] vmem_map_init+0x40/0x118
+> > [    0.466651]  [<0000000001cc0092>] paging_init+0x22/0x68
+> > [    0.466677]  [<0000000001cbbed2>] setup_arch+0x52a/0x708
+> > [    0.466702]  [<0000000001cb6140>] start_kernel+0x80/0x5c8
+> > [    0.466727]  [<0000000000100036>] startup_continue+0x36/0x40
+...
+> > diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+> > index 22aa63f4ef63..0d77d171b5d9 100644
+> > --- a/mm/vmalloc.c
+> > +++ b/mm/vmalloc.c
+> > @@ -2343,6 +2343,9 @@ struct vmap_area *find_vmap_area(unsigned long addr)
+> >  	struct vmap_area *va;
+> >  	int i, j;
+> >  
+> > +	if (unlikely(!vmap_initialized))
+> > +		return NULL;
+> > +
+>
+> I guess this is ok as an urgend bandaid to get s390 booting again,
+> but calling find_vmap_area before the vmap area is initialized
+> seems an actual issue in the s390 mm init code.
 > 
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->   drivers/virtio/virtio_balloon.c | 46 +++++++++++++--------------------
->   1 file changed, 18 insertions(+), 28 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 1f5b3dd31fcf..8409642e54d7 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -531,49 +531,39 @@ static int init_vqs(struct virtio_balloon *vb)
->   	struct virtqueue *vqs[VIRTIO_BALLOON_VQ_MAX];
->   	vq_callback_t *callbacks[VIRTIO_BALLOON_VQ_MAX];
->   	const char *names[VIRTIO_BALLOON_VQ_MAX];
-> -	int err;
-> +	int err, nvqs = 0, idx = 0;
+> Adding the s390 maintainers to see if they have and idea how this could
+> get fixed in a better way.
 
-Re-reading, you could just use a single variable for both purposes.
+I'm going to push the patch below to the s390 git tree later. This is not a
+piece of art, but I wanted to avoid to externalize vmalloc's vmap_initialized,
+or come up with some s390 specific change_page_attr_alias_early() variant where
+sooner or later nobody remembers what "early" means.
 
-Assuming I didn't miss a functional change
+So this seems to be "good enough".
 
-Acked-by: David Hildenbrand <david@redhat.com>
+From 0308cd304fa3b01904c6060e2115234101811e48 Mon Sep 17 00:00:00 2001
+From: Heiko Carstens <hca@linux.ibm.com>
+Date: Thu, 21 Mar 2024 09:41:20 +0100
+Subject: [PATCH] s390/mm,pageattr: avoid early calls into vmalloc code
 
+The vmalloc code got changed and doesn't have the global statically
+initialized vmap_area_lock spinlock anymore. This leads to the following
+lockdep splat when find_vm_area() is called before the vmalloc code is
+initialized:
+
+BUG: spinlock bad magic on CPU#0, swapper/0
+ lock: single+0x1868/0x1978, .magic: 00000000, .owner: swapper/0, .owner_cpu: 0
+
+CPU: 0 PID: 0 Comm: swapper Not tainted 6.8.0-11767-g23956900041d #1
+Hardware name: IBM 3931 A01 701 (KVM/Linux)
+Call Trace:
+ [<00000000010d840a>] dump_stack_lvl+0xba/0x148
+ [<00000000001fdf5c>] do_raw_spin_unlock+0x7c/0xd0
+ [<000000000111d848>] _raw_spin_unlock+0x38/0x68
+ [<0000000000485830>] find_vmap_area+0xb0/0x108
+ [<0000000000485ada>] find_vm_area+0x22/0x40
+ [<0000000000132bbc>] __set_memory+0xbc/0x140
+ [<0000000001a7f048>] vmem_map_init+0x40/0x158
+ [<0000000001a7edc8>] paging_init+0x28/0x80
+ [<0000000001a7a6e2>] setup_arch+0x4b2/0x6d8
+ [<0000000001a74438>] start_kernel+0x98/0x4b0
+ [<0000000000100036>] startup_continue+0x36/0x40
+INFO: lockdep is turned off.
+
+Add a slab_is_available() check to change_page_attr_alias() in order to
+avoid early calls into vmalloc code. slab_is_available() is not exactly
+what is needed, but there is currently no other way to tell if the vmalloc
+code is initialized or not, and there is no reason to expose
+e.g. vmap_initialized from vmalloc to achieve the same.
+
+The fixes tag does not mean that the referenced commit is broken, but that
+there is a dependency to this commit if the vmalloc commit should be
+backported.
+
+Fixes: d093602919ad ("mm: vmalloc: remove global vmap_area_root rb-tree")
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/mm/pageattr.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/s390/mm/pageattr.c b/arch/s390/mm/pageattr.c
+index 01bc8fad64d6..b6c6453d66e2 100644
+--- a/arch/s390/mm/pageattr.c
++++ b/arch/s390/mm/pageattr.c
+@@ -344,6 +344,9 @@ static int change_page_attr_alias(unsigned long addr, unsigned long end,
+ 	struct vm_struct *area;
+ 	int rc = 0;
+ 
++	/* Avoid early calls into not initialized vmalloc code. */
++	if (!slab_is_available())
++		return 0;
+ 	/*
+ 	 * Changes to read-only permissions on kernel VA mappings are also
+ 	 * applied to the kernel direct mapping. Execute permissions are
 -- 
-Cheers,
-
-David / dhildenb
+2.40.1
 
