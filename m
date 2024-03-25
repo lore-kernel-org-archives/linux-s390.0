@@ -1,44 +1,44 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F54E15ECC4;
-	Mon, 25 Mar 2024 06:40:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E659515FCED;
+	Mon, 25 Mar 2024 06:41:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711348847; cv=none; b=KI1I8WUf4WKZPSdZffNrBsbaw/yp+MY0uOjlknd4DJgI2W5jFO4Q8uTSfpDO8wYzXOoHE1PjmkaTi4A3w0jLjiSJFVu0m5oZjvdpPtN2Hg0YOqlwWiFzCiE+oX7WJir6qss02KsFmuPFbx7aeWq6rvtrWx9yKf6SlHQuABvgaV8=
+	t=1711348919; cv=none; b=PUeJ1IEJ5KsVyAjBojIuXGYzOxxp1gx4ovqSaSdEjrAO6If5GRCSWg3+2NkpRfSC64npQfFTyaAMvnFj9xcDHF3EobjfVKRCg5ccSw5nBClpTOJpUnC+6hXv/Xs/7lxeheJDHPNXAC8R2NJmx78HI6uAzRAu7p6z/jU2xyLVsuI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711348847; c=relaxed/simple;
-	bh=+W4K6lkGmf5ZfckuHCgiOpf7pq6FEiJVqi6VEtd9uvE=;
+	s=arc-20240116; t=1711348919; c=relaxed/simple;
+	bh=ul0hfPOmfS7i90s07MvVRoTCajL4zQDIAp9Wq9nGTHo=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=rktLBeQbNy69mp6URDqkRJ4TvicxePJM219GZuiDtsqP+ecA2yAdSYncteaOPPugErakm6AbA+BlN7jEWtn8VuPelrl+EzUgmtW+rhtZSQzUr3KLTh21MKGXg8WCUushXJWsYSWDcKHqtqBMxYFmqUkwW3iUp6krJdXsJxdOzmo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KGKbAahb; arc=none smtp.client-ip=192.198.163.9
+	 MIME-Version; b=WsrXdA9TkyWaeCsctnev+XxOXq7C/lpx1U23JTmDnIyVyW8snol5GiLo+fzxJZBOIjLXyySnmSCTOm2ynICcbg66g8Jyyzko2PsEgEyEYT+gACk4XQj+0q5oEnxEvYlOGv5gquwdI4TXhqN2q+0IFss3ubRP1DzmoWYRUcm2WOU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=alPU62rn; arc=none smtp.client-ip=192.198.163.9
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KGKbAahb"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="alPU62rn"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1711348845; x=1742884845;
+  t=1711348918; x=1742884918;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=+W4K6lkGmf5ZfckuHCgiOpf7pq6FEiJVqi6VEtd9uvE=;
-  b=KGKbAahbFLATVQf1u4Ezo8PQ0p3VdtTfjfNCYeb4sLw8h7QV1lAlmVB7
-   jW+46FLMtggeW6LioUmNXmKySMLavtCGyZrS3hW5BTL1WW23VlAXnxhY4
-   wqn4zgZgzUMGJ2aB8HaeYvEJLsofMgm1en7Q7akDd+bqR3kCF5YU39qXx
-   kK+AfWCI8b9h620b7C0eSsM+kXRKtheOz4J3OwUrNzlHYv3k0CCTUDbYt
-   COvw1cnzIrNNDgw5yf0Yileb/Zfv8IFV0c/xPDXcyrOrTp4J5dmTaiGKu
-   OJWikf4GtCsgR1fBRbbuLxs2B+A/IAJ6z6fxXxEUdFwWmX1yV9zRFlFUH
+  bh=ul0hfPOmfS7i90s07MvVRoTCajL4zQDIAp9Wq9nGTHo=;
+  b=alPU62rn9qVu1yt3kG5Uiop0cXCzhPb0lBkiE7x2bAMlTGr0BQKfiVVr
+   qVpmo2CUQilDIzajd4EN+ZEFld7xbl15W3/xYL9zzCfPJAjxVb6l4BYfz
+   yTDuPH3g6l7pDHti7RSkJ9zzL50m8ad8CxaCnMOTVTjThRQgi4yI4HCMQ
+   cRidxz6QGGXSp2wqua/q26pLJN5wzc7sAA8ytybpnF8huLv38aDYhwn8n
+   Zp8cDuS6Fv4jOxvq9sFjTBwv7EfFeG9tnQqEq9DghedEGCm4I1nyeZ9eX
+   MlOg/nYtNbCfMihg4ZhY7WKWjkDiv9S40IXfErYyUJZaXMr8Y6G9I6SgX
    A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11023"; a="17065072"
+X-IronPort-AV: E=McAfee;i="6600,9927,11023"; a="17065335"
 X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
-   d="scan'208";a="17065072"
+   d="scan'208";a="17065335"
 Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:40:45 -0700
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:41:57 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
-   d="scan'208";a="38629565"
+   d="scan'208";a="38629647"
 Received: from ahunter6-mobl1.ger.corp.intel.com (HELO ahunter-VirtualBox.home\044ger.corp.intel.com) ([10.251.211.155])
-  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:40:38 -0700
+  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 23:41:51 -0700
 From: Adrian Hunter <adrian.hunter@intel.com>
 To: Thomas Gleixner <tglx@linutronix.de>
 Cc: Michael Ellerman <mpe@ellerman.id.au>,
@@ -68,9 +68,9 @@ Cc: Michael Ellerman <mpe@ellerman.id.au>,
 	linuxppc-dev@lists.ozlabs.org,
 	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH V2 01/19] vdso: Consolidate vdso_calc_delta()
-Date: Mon, 25 Mar 2024 08:40:05 +0200
-Message-Id: <20240325064023.2997-2-adrian.hunter@intel.com>
+Subject: [PATCH V2 12/19] timekeeping: Reuse timekeeping_cycles_to_ns()
+Date: Mon, 25 Mar 2024 08:40:16 +0200
+Message-Id: <20240325064023.2997-13-adrian.hunter@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240325064023.2997-1-adrian.hunter@intel.com>
 References: <20240325064023.2997-1-adrian.hunter@intel.com>
@@ -83,117 +83,30 @@ MIME-Version: 1.0
 Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki, Business Identity Code: 0357606 - 4, Domiciled in Helsinki
 Content-Transfer-Encoding: 8bit
 
-Consolidate vdso_calc_delta(), in preparation for further simplification.
+Simplify __timekeeping_get_ns() by reusing timekeeping_cycles_to_ns().
 
 Suggested-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 ---
+ kernel/time/timekeeping.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-
-Changes in V2:
-	Keep powerpc comment about mask
-	Move ifdef out of function
-
-
- arch/powerpc/include/asm/vdso/gettimeofday.h | 26 +++++++++-----------
- arch/s390/include/asm/vdso/gettimeofday.h    |  7 ++----
- lib/vdso/gettimeofday.c                      |  9 ++++++-
- 3 files changed, 21 insertions(+), 21 deletions(-)
-
-diff --git a/arch/powerpc/include/asm/vdso/gettimeofday.h b/arch/powerpc/include/asm/vdso/gettimeofday.h
-index f0a4cf01e85c..ac21a2a0c2f9 100644
---- a/arch/powerpc/include/asm/vdso/gettimeofday.h
-+++ b/arch/powerpc/include/asm/vdso/gettimeofday.h
-@@ -14,6 +14,17 @@
+diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
+index c698219b152d..f81d675291e0 100644
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -391,10 +391,7 @@ static inline u64 timekeeping_cycles_to_ns(const struct tk_read_base *tkr, u64 c
  
- #define VDSO_HAS_TIME			1
- 
-+/*
-+ * powerpc specific delta calculation.
-+ *
-+ * This variant removes the masking of the subtraction because the
-+ * clocksource mask of all VDSO capable clocksources on powerpc is U64_MAX
-+ * which would result in a pointless operation. The compiler cannot
-+ * optimize it away as the mask comes from the vdso data and is not compile
-+ * time constant.
-+ */
-+#define VDSO_DELTA_NOMASK		1
-+
- static __always_inline int do_syscall_2(const unsigned long _r0, const unsigned long _r3,
- 					const unsigned long _r4)
+ static __always_inline u64 __timekeeping_get_ns(const struct tk_read_base *tkr)
  {
-@@ -105,21 +116,6 @@ static inline bool vdso_clocksource_ok(const struct vdso_data *vd)
- }
- #define vdso_clocksource_ok vdso_clocksource_ok
- 
--/*
-- * powerpc specific delta calculation.
-- *
-- * This variant removes the masking of the subtraction because the
-- * clocksource mask of all VDSO capable clocksources on powerpc is U64_MAX
-- * which would result in a pointless operation. The compiler cannot
-- * optimize it away as the mask comes from the vdso data and is not compile
-- * time constant.
-- */
--static __always_inline u64 vdso_calc_delta(u64 cycles, u64 last, u64 mask, u32 mult)
--{
--	return (cycles - last) * mult;
--}
--#define vdso_calc_delta vdso_calc_delta
+-	u64 delta, cycles = tk_clock_read(tkr);
 -
- #ifndef __powerpc64__
- static __always_inline u64 vdso_shift_ns(u64 ns, unsigned long shift)
- {
-diff --git a/arch/s390/include/asm/vdso/gettimeofday.h b/arch/s390/include/asm/vdso/gettimeofday.h
-index db84942eb78f..7937765ccfa5 100644
---- a/arch/s390/include/asm/vdso/gettimeofday.h
-+++ b/arch/s390/include/asm/vdso/gettimeofday.h
-@@ -6,16 +6,13 @@
- 
- #define VDSO_HAS_CLOCK_GETRES 1
- 
-+#define VDSO_DELTA_NOMASK 1
-+
- #include <asm/syscall.h>
- #include <asm/timex.h>
- #include <asm/unistd.h>
- #include <linux/compiler.h>
- 
--#define vdso_calc_delta __arch_vdso_calc_delta
--static __always_inline u64 __arch_vdso_calc_delta(u64 cycles, u64 last, u64 mask, u32 mult)
--{
--	return (cycles - last) * mult;
--}
- 
- static __always_inline const struct vdso_data *__arch_get_vdso_data(void)
- {
-diff --git a/lib/vdso/gettimeofday.c b/lib/vdso/gettimeofday.c
-index ce2f69552003..faccf12f7c03 100644
---- a/lib/vdso/gettimeofday.c
-+++ b/lib/vdso/gettimeofday.c
-@@ -6,6 +6,13 @@
- #include <vdso/helpers.h>
- 
- #ifndef vdso_calc_delta
-+
-+#ifdef VDSO_DELTA_NOMASK
-+# define VDSO_DELTA_MASK(mask)	U64_MAX
-+#else
-+# define VDSO_DELTA_MASK(mask)	(mask)
-+#endif
-+
- /*
-  * Default implementation which works for all sane clocksources. That
-  * obviously excludes x86/TSC.
-@@ -13,7 +20,7 @@
- static __always_inline
- u64 vdso_calc_delta(u64 cycles, u64 last, u64 mask, u32 mult)
- {
--	return ((cycles - last) & mask) * mult;
-+	return ((cycles - last) & VDSO_DELTA_MASK(mask)) * mult;
+-	delta = clocksource_delta(cycles, tkr->cycle_last, tkr->mask);
+-	return timekeeping_delta_to_ns(tkr, delta);
++	return timekeeping_cycles_to_ns(tkr, tk_clock_read(tkr));
  }
- #endif
  
+ static inline u64 timekeeping_get_ns(const struct tk_read_base *tkr)
 -- 
 2.34.1
 
