@@ -1,32 +1,32 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E893614A0B2;
-	Mon, 25 Mar 2024 02:16:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3FEE374727;
+	Mon, 25 Mar 2024 03:01:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711332995; cv=none; b=AEB1tRDep8EPJ+vMZ5lxrCrcEOb4UOlFcn8qtbxiD/+HFSYoUcpk+TJdhS8CNeHIHWc7b76f1GdpkLP/Zg8tCBzZMTk6nYiJURLf1Xai5k8gjInfKL0q7GDuq2/P5n3ycDZSqggEEdwOGMkPDHWhANBb+oiO6Aq+2l5grpvmICE=
+	t=1711335674; cv=none; b=bIRXb4pHOghrs2xkxkVzf9gPRvCxocb3rSOiHNgaHTf+XTDLI28pdCC+PIgbynVt7te4+f0ALRhecj1cmBXSpwYXMZxZV3m46iZPWREZB2G32ZluIQMloRwhsIldgzHJgWIvZgFaF1a3rYh8G6zLR1vrDFBcuEv4nIBaXNvXXOA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711332995; c=relaxed/simple;
-	bh=VR4eOEFW5ShmHL6/Vr0s9GQA6Het597iqJLSVzfADdE=;
+	s=arc-20240116; t=1711335674; c=relaxed/simple;
+	bh=8Qfd+A8m4V1tqSb5szRlD3RAirI9yb2FDNe+L0MmL9I=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Z7+716dqTcmFCT5++2zdHp8GufeuQj2AwPVMcCZnQ6Vjr70NuZDsGyFwYzIEPbe8pr9g2icrROUM/vMjEnLcakXpPPRwE1s0KTdcNf9FVbuw73Hhl3A2qwOvjwWwU14CH0p6BvAYqvmmkMreUGYfRZEE6rtbTlGsEhqV9QYE4xU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=hFGNiORE; arc=none smtp.client-ip=115.124.30.131
+	 In-Reply-To:Content-Type; b=sf18XiszyddsMCuIqCK7KQ7mpQF6aLqYHc7/TlWqCVRw1c3t/Hq2EmoxTfIFAIXQ03yeUDKznc0Mwfjt+e+mYQXYUyNH0BflqFwVX5QeGkRgUFbJDuiQOnhjwZVlnySGIgQgZT7fT6230Z4nx0lRgBsKVA3UxT6ob2pJpuX2S4Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Qfe96/kj; arc=none smtp.client-ip=115.124.30.110
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="hFGNiORE"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Qfe96/kj"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1711332990; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=MkXYrKlmDfjBL44cw5UVxBAr7/tz8PrihVky5B6BZsc=;
-	b=hFGNiOREjoYx3RxLx7cnAWhzzaN5tp/gsIrHMZ91ebhioO4FyczeQm/BCJ6+N6R+OztTS7DA7T8EZ5QPqCUkp48jJd7HtltAcnZeUUnK7n1jKI7sBl4z7CaDU9O4jx0dT+J1GTyCfx3TIkoBIR/IL3Os7v0ENsjklpSiIvLZ9NY=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R691e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W389BL6_1711332988;
-Received: from 30.221.130.215(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W389BL6_1711332988)
+	t=1711335666; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=XmVeqKOAT32nVC7FjBmUhKXxG89ac3vc9NUHAgKmK0w=;
+	b=Qfe96/kjt9t6n7Fo4UD1SDcy5/CK8nyvyMHaAGKdygV5sC8P3vsC21zf9hWx7JjduTi/lJviBP7G5qa9CBobiG7p+FFiBv1S5qQBYR46dIlwKzZFzNJCv8PkwY88qbP6QZrOILYDnzSoUZIzDOmZrSNY8hcW0YN/RMHxtfv0Yc8=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R861e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W38Wexa_1711335664;
+Received: from 30.221.130.215(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W38Wexa_1711335664)
           by smtp.aliyun-inc.com;
-          Mon, 25 Mar 2024 10:16:30 +0800
-Message-ID: <535bcbb8-c446-458b-b7d4-c13201537ad5@linux.alibaba.com>
-Date: Mon, 25 Mar 2024 10:16:28 +0800
+          Mon, 25 Mar 2024 11:01:06 +0800
+Message-ID: <f504328f-1fd2-4c85-a657-a14b272c321e@linux.alibaba.com>
+Date: Mon, 25 Mar 2024 11:01:04 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -34,79 +34,172 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next] net/smc: make smc_hash_sk/smc_unhash_sk static
-To: Zhengchao Shao <shaozhengchao@huawei.com>, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
- tonylu@linux.alibaba.com, weiyongjun1@huawei.com, yuehaibing@huawei.com
-References: <20240325012501.709009-1-shaozhengchao@huawei.com>
+Subject: Re: [PATCH v2][next] net/smc: Avoid -Wflex-array-member-not-at-end
+ warnings
+To: "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+ Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
+ "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org,
+ Kees Cook <keescook@chromium.org>
+References: <ZfCXBykRw5XqBvf0@neat>
 From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <20240325012501.709009-1-shaozhengchao@huawei.com>
+In-Reply-To: <ZfCXBykRw5XqBvf0@neat>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
-On 2024/3/25 09:25, Zhengchao Shao wrote:
-> smc_hash_sk and smc_unhash_sk are only used in af_smc.c, so make them
-> static and remove the output symbol. They can be called under the path
-> .prot->hash()/unhash().
+On 2024/3/13 01:55, Gustavo A. R. Silva wrote:
+> -Wflex-array-member-not-at-end is coming in GCC-14, and we are getting
+> ready to enable it globally.
 > 
-> Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+> There are currently a couple of objects in `struct smc_clc_msg_proposal_area`
+> that contain a couple of flexible structures:
+> 
+> struct smc_clc_msg_proposal_area {
+> 	...
+> 	struct smc_clc_v2_extension             pclc_v2_ext;
+> 	...
+> 	struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
+> 	...
+> };
+> 
+> So, in order to avoid ending up with a couple of flexible-array members
+> in the middle of a struct, we use the `struct_group_tagged()` helper to
+> separate the flexible array from the rest of the members in the flexible
+> structure:
+> 
+> struct smc_clc_smcd_v2_extension {
+>          struct_group_tagged(smc_clc_smcd_v2_extension_fixed, fixed,
+>                              u8 system_eid[SMC_MAX_EID_LEN];
+>                              u8 reserved[16];
+>          );
+>          struct smc_clc_smcd_gid_chid gidchid[];
+> };
+> 
+> With the change described above, we now declare objects of the type of
+> the tagged struct without embedding flexible arrays in the middle of
+> another struct:
+> 
+> struct smc_clc_msg_proposal_area {
+>          ...
+>          struct smc_clc_v2_extension_fixed	pclc_v2_ext;
+>          ...
+>          struct smc_clc_smcd_v2_extension_fixed	pclc_smcd_v2_ext;
+>          ...
+> };
+> 
+> We also use `container_of()` when we need to retrieve a pointer to the
+> flexible structures.
+> 
+> So, with these changes, fix the following warnings:
+> 
+> In file included from net/smc/af_smc.c:42:
+> net/smc/smc_clc.h:186:49: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
+>    186 |         struct smc_clc_v2_extension             pclc_v2_ext;
+>        |                                                 ^~~~~~~~~~~
+> net/smc/smc_clc.h:188:49: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
+>    188 |         struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
+>        |                                                 ^~~~~~~~~~~~~~~~
+> 
+> Reviewed-by: Kees Cook <keescook@chromium.org>
+> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-LGTM, Thank you!
+Hi Gustavo,
 
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+Thank you for the v2. Some places may need improvement, see below.
 
 > ---
->   include/net/smc.h | 3 ---
->   net/smc/af_smc.c  | 6 ++----
->   2 files changed, 2 insertions(+), 7 deletions(-)
+> Changes in v2:
+>   - Name the tagged struct *_fixed instead of *_hdr.
+>   - Add Kees' RB tag.
 > 
-> diff --git a/include/net/smc.h b/include/net/smc.h
-> index c9dcb30e3fd9..10684d0a33df 100644
-> --- a/include/net/smc.h
-> +++ b/include/net/smc.h
-> @@ -26,9 +26,6 @@ struct smc_hashinfo {
->   	struct hlist_head ht;
+>   net/smc/smc_clc.c |  5 +++--
+>   net/smc/smc_clc.h | 24 ++++++++++++++----------
+>   2 files changed, 17 insertions(+), 12 deletions(-)
+> 
+> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+> index e55026c7529c..63bb5745ab54 100644
+> --- a/net/smc/smc_clc.c
+> +++ b/net/smc/smc_clc.c
+> @@ -853,8 +853,9 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+>   	pclc_smcd = &pclc->pclc_smcd;
+>   	pclc_prfx = &pclc->pclc_prfx;
+>   	ipv6_prfx = pclc->pclc_prfx_ipv6;
+> -	v2_ext = &pclc->pclc_v2_ext;
+> -	smcd_v2_ext = &pclc->pclc_smcd_v2_ext;
+> +	v2_ext = container_of(&pclc->pclc_v2_ext, struct smc_clc_v2_extension, fixed);
+checkpatch complained 'WARNING: line length of 86 exceeds 80 columns' here.
+
+It can be reproduced by:
+
+./scripts/checkpatch.pl --strict --max-line-length=80 
+--ignore=COMMIT_LOG_LONG_LINE,MACRO_ARG_REUSE,ALLOC_SIZEOF_STRUCT,NO_AUTHOR_SIGN_OFF,GIT_COMMIT_ID,CAMELCASE xxx.patch
+
+> +	smcd_v2_ext = container_of(&pclc->pclc_smcd_v2_ext,
+> +				   struct smc_clc_smcd_v2_extension, fixed);
+>   	gidchids = pclc->pclc_gidchids;
+>   	trl = &pclc->pclc_trl;
+>   
+> diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+> index 7cc7070b9772..2bfb51daf468 100644
+> --- a/net/smc/smc_clc.h
+> +++ b/net/smc/smc_clc.h
+> @@ -134,12 +134,14 @@ struct smc_clc_smcd_gid_chid {
+>   			 */
+>   
+>   struct smc_clc_v2_extension {
+> -	struct smc_clnt_opts_area_hdr hdr;
+> -	u8 roce[16];		/* RoCEv2 GID */
+> -	u8 max_conns;
+> -	u8 max_links;
+> -	__be16 feature_mask;
+> -	u8 reserved[12];
+> +	struct_group_tagged(smc_clc_v2_extension_fixed, fixed,
+> +		struct smc_clnt_opts_area_hdr hdr;
+
+checkpatch: 'CHECK: Alignment should match open parenthesis'
+
+> +		u8 roce[16];		/* RoCEv2 GID */
+> +		u8 max_conns;
+> +		u8 max_links;
+> +		__be16 feature_mask;
+> +		u8 reserved[12];
+> +	);
+>   	u8 user_eids[][SMC_MAX_EID_LEN];
 >   };
 >   
-> -int smc_hash_sk(struct sock *sk);
-> -void smc_unhash_sk(struct sock *sk);
-> -
->   /* SMCD/ISM device driver interface */
->   struct smcd_dmb {
->   	u64 dmb_tok;
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 4b52b3b159c0..e8dcd28a554c 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -177,7 +177,7 @@ static struct smc_hashinfo smc_v6_hashinfo = {
->   	.lock = __RW_LOCK_UNLOCKED(smc_v6_hashinfo.lock),
+> @@ -159,8 +161,10 @@ struct smc_clc_msg_smcd {	/* SMC-D GID information */
 >   };
 >   
-> -int smc_hash_sk(struct sock *sk)
-> +static int smc_hash_sk(struct sock *sk)
->   {
->   	struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
->   	struct hlist_head *head;
-> @@ -191,9 +191,8 @@ int smc_hash_sk(struct sock *sk)
+>   struct smc_clc_smcd_v2_extension {
+> -	u8 system_eid[SMC_MAX_EID_LEN];
+> -	u8 reserved[16];
+> +	struct_group_tagged(smc_clc_smcd_v2_extension_fixed, fixed,
+> +		u8 system_eid[SMC_MAX_EID_LEN];
+
+checkpatch: 'CHECK: Alignment should match open parenthesis'
+
+Thanks!
+Wen Gu
+
+> +		u8 reserved[16];
+> +	);
+>   	struct smc_clc_smcd_gid_chid gidchid[];
+>   };
 >   
->   	return 0;
->   }
-> -EXPORT_SYMBOL_GPL(smc_hash_sk);
->   
-> -void smc_unhash_sk(struct sock *sk)
-> +static void smc_unhash_sk(struct sock *sk)
->   {
->   	struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
->   
-> @@ -202,7 +201,6 @@ void smc_unhash_sk(struct sock *sk)
->   		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
->   	write_unlock_bh(&h->lock);
->   }
-> -EXPORT_SYMBOL_GPL(smc_unhash_sk);
->   
->   /* This will be called before user really release sock_lock. So do the
->    * work which we didn't do because of user hold the sock_lock in the
+> @@ -183,9 +187,9 @@ struct smc_clc_msg_proposal_area {
+>   	struct smc_clc_msg_smcd			pclc_smcd;
+>   	struct smc_clc_msg_proposal_prefix	pclc_prfx;
+>   	struct smc_clc_ipv6_prefix	pclc_prfx_ipv6[SMC_CLC_MAX_V6_PREFIX];
+> -	struct smc_clc_v2_extension		pclc_v2_ext;
+> +	struct smc_clc_v2_extension_fixed	pclc_v2_ext;
+>   	u8			user_eids[SMC_CLC_MAX_UEID][SMC_MAX_EID_LEN];
+> -	struct smc_clc_smcd_v2_extension	pclc_smcd_v2_ext;
+> +	struct smc_clc_smcd_v2_extension_fixed	pclc_smcd_v2_ext;
+>   	struct smc_clc_smcd_gid_chid
+>   				pclc_gidchids[SMCD_CLC_MAX_V2_GID_ENTRIES];
+>   	struct smc_clc_msg_trail		pclc_trl;
