@@ -1,107 +1,110 @@
-Received: from szxga06-in.huawei.com (szxga06-in.huawei.com [45.249.212.32])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3C3F1272A8;
-	Tue, 26 Mar 2024 07:23:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BD45839E2;
+	Tue, 26 Mar 2024 07:38:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711437793; cv=none; b=bFHxPAn3ZB3xvDuzXj8JZRILLTyRREnGkrddhB9uUCyvyrnctSHHLmHcE4jAkEftywzNgPTeoFQh3Zkmb64n2i9CmIWzcexvGxAz7yIegam9a/m/7qUv7L7JnWlc8iKJKLHXFZNJ8sBB7ufm+uE0nARyoknZqg79B7dShji9eT4=
+	t=1711438729; cv=none; b=VFriFRScN4hw8ibcc7bG+rtomZfDsoW3tHArxWHINHz+Tc4GtZaAuHMhNOxhDc6iNGUF3NfZ3B8Mmrta5kYLEV6ZtabNDl4frJSQZFiFOauekHtghrn/W7B0uKi+nXzcKysvh4Zw9b56CVc5iAmDcDGsruY0hTG71jCR51Ln/yU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711437793; c=relaxed/simple;
-	bh=gVdqo+muMxJNWsSySfdIfRgy5LgJ/5g5dMiae7rkDRM=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=f2u8Q3DDU9LEbF0zWywyantk89cFfdxkdiMBh9c5gEBrENy2dK5pQ6ojQgp6r1c7QvHcQvQzEOhSfh5OKxPKe5zzN8/nhWTONYHqXYf7pb2QoPThy18+ZfI//gWTYpxkfyjRssuWt1bqGnUF/Cdscl15IZf176iS9+jrVfn4ddI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.234])
-	by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4V3h855hKhz1wnGj;
-	Tue, 26 Mar 2024 15:22:13 +0800 (CST)
-Received: from dggpeml500026.china.huawei.com (unknown [7.185.36.106])
-	by mail.maildlp.com (Postfix) with ESMTPS id 9A792140120;
-	Tue, 26 Mar 2024 15:23:02 +0800 (CST)
-Received: from huawei.com (10.175.101.6) by dggpeml500026.china.huawei.com
- (7.185.36.106) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.35; Tue, 26 Mar
- 2024 15:23:01 +0800
-From: Zhengchao Shao <shaozhengchao@huawei.com>
-To: <netdev@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
-	<pabeni@redhat.com>
-CC: <wenjia@linux.ibm.com>, <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
-	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>,
-	<weiyongjun1@huawei.com>, <yuehaibing@huawei.com>, <shaozhengchao@huawei.com>
-Subject: [PATCH net-next,RESEND] net/smc: make smc_hash_sk/smc_unhash_sk static
-Date: Tue, 26 Mar 2024 15:29:52 +0800
-Message-ID: <20240326072952.2717904-1-shaozhengchao@huawei.com>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1711438729; c=relaxed/simple;
+	bh=zasrgEQ8PpQSnTnjWuIuknfRyFZDN6ocuqsuM92kjzQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Zei3cahctvIGHu13OO8WyvgZVRlNj3tdYKINllze5SRNS7KKm6mnfFRZ9zAvkUByELZsDGFaJku8z4ZPUP8cZZR6/IoN8zP6mO5iVnS58WcOW2/HZNoIvGQmNazi2SQbybmrOndu5CEu+35ib18847JwTUQVBCHzDzck7Q39Qew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MuUFQBYC; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MuUFQBYC"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42Q5LbsP026333;
+	Tue, 26 Mar 2024 07:38:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=oB4/YmzW/XBsuEVbbPCASdcRnc5ejjoZ5/zY1M4QVqw=;
+ b=MuUFQBYC+X5LOzvVKpOzWltKuUBvsdfLgvkn6JVxiJ0rx3/fDuZlsi8STc/zbvhuLpac
+ dYVOKiEGFnNTH2j0QKmaKpqYrTF+WP+AfITlSJeKxAg4rDjsqFR3S6KA6T8VdC5r34Lx
+ 8QjY1cfYJh7QW8UOnkGJU0BhMhZzW9icIZkJ3uqMjmtZLMitkkTRPmswjnoko40AbkPV
+ +Z2vqp2gZfGo0VK+R+wLQvkddDLClCJ8TmkqdXAL7SU5rbvk6CTbwgpSrw312mxseWjJ
+ QPnZapmXpoc49x+0nnkq66IzwX8IpwaTb1/KoXQEq2lz8MRptZ26KfDTJJdnPPmVKKih hw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x3kb10ukp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 26 Mar 2024 07:38:42 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 42Q7cf4l000915;
+	Tue, 26 Mar 2024 07:38:41 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x3kb10ukj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 26 Mar 2024 07:38:41 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42Q4bnhE003780;
+	Tue, 26 Mar 2024 07:38:40 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x2c42nu9a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 26 Mar 2024 07:38:40 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42Q7cZTB44958184
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 26 Mar 2024 07:38:37 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 40ED32004E;
+	Tue, 26 Mar 2024 07:38:35 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 02B1420040;
+	Tue, 26 Mar 2024 07:38:35 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 26 Mar 2024 07:38:34 +0000 (GMT)
+Date: Tue, 26 Mar 2024 08:38:33 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Peter Xu <peterx@redhat.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v1 0/2] s390/mm: shared zeropage + KVM fix and
+ optimization
+Message-ID: <20240326073833.6078-A-hca@linux.ibm.com>
+References: <20240321215954.177730-1-david@redhat.com>
+ <20240321151353.68f9a3c9c0b261887e4e5411@linux-foundation.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpeml500026.china.huawei.com (7.185.36.106)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240321151353.68f9a3c9c0b261887e4e5411@linux-foundation.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: S0IbuxD46Xgg4Qw0IOpeHf3APGY4p-aQ
+X-Proofpoint-ORIG-GUID: Y3fTsNA5ux-kI7T0fse-O9DbeqeHt6go
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-03-26_04,2024-03-21_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 lowpriorityscore=0 clxscore=1011 spamscore=0
+ phishscore=0 bulkscore=0 suspectscore=0 malwarescore=0 adultscore=0
+ mlxscore=0 mlxlogscore=480 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2403210000 definitions=main-2403260051
 
-smc_hash_sk and smc_unhash_sk are only used in af_smc.c, so make them
-static and remove the output symbol. They can be called under the path
-.prot->hash()/unhash().
+On Thu, Mar 21, 2024 at 03:13:53PM -0700, Andrew Morton wrote:
+> On Thu, 21 Mar 2024 22:59:52 +0100 David Hildenbrand <david@redhat.com> wrote:
+> 
+> > Based on current mm-unstable. Maybe at least the second patch should
+> > go via the s390x tree, I think patch #1 could go that route as well.
+> 
+> Taking both via the s390 tree is OK by me.  I'll drop the mm.git copies
+> if/when these turn up in the linux-next feed.
 
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
----
- include/net/smc.h | 3 ---
- net/smc/af_smc.c  | 6 ++----
- 2 files changed, 2 insertions(+), 7 deletions(-)
-
-diff --git a/include/net/smc.h b/include/net/smc.h
-index c9dcb30e3fd9..10684d0a33df 100644
---- a/include/net/smc.h
-+++ b/include/net/smc.h
-@@ -26,9 +26,6 @@ struct smc_hashinfo {
- 	struct hlist_head ht;
- };
- 
--int smc_hash_sk(struct sock *sk);
--void smc_unhash_sk(struct sock *sk);
--
- /* SMCD/ISM device driver interface */
- struct smcd_dmb {
- 	u64 dmb_tok;
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 4b52b3b159c0..e8dcd28a554c 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -177,7 +177,7 @@ static struct smc_hashinfo smc_v6_hashinfo = {
- 	.lock = __RW_LOCK_UNLOCKED(smc_v6_hashinfo.lock),
- };
- 
--int smc_hash_sk(struct sock *sk)
-+static int smc_hash_sk(struct sock *sk)
- {
- 	struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
- 	struct hlist_head *head;
-@@ -191,9 +191,8 @@ int smc_hash_sk(struct sock *sk)
- 
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(smc_hash_sk);
- 
--void smc_unhash_sk(struct sock *sk)
-+static void smc_unhash_sk(struct sock *sk)
- {
- 	struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
- 
-@@ -202,7 +201,6 @@ void smc_unhash_sk(struct sock *sk)
- 		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
- 	write_unlock_bh(&h->lock);
- }
--EXPORT_SYMBOL_GPL(smc_unhash_sk);
- 
- /* This will be called before user really release sock_lock. So do the
-  * work which we didn't do because of user hold the sock_lock in the
--- 
-2.34.1
-
+Considering the comments I would expect a v2 of this series at some
+time in the future.
