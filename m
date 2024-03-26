@@ -1,137 +1,103 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51B3B1BC4F;
-	Tue, 26 Mar 2024 16:47:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C958B380;
+	Tue, 26 Mar 2024 19:48:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711471638; cv=none; b=cofWrhbsUj3/kSLCu9SoZcIGxzXcCe7CMRcY2SDCeIitTe8U7e490nlSgjdUr9GO/ewKLO0KbczpoVCIYFG/VRPUGLtBF/L6wQkk0HoWC/ELWBFUF8iusx4k9Wte14hq+XG+c0UZ+MHyMZmF+2K0xySLanB3DJog4NFN1Swg/8E=
+	t=1711482494; cv=none; b=M1a2boz7eJMafDyFhW5KGqkC2kuou0tWLDR9X8XCObgujgDWB69vT/HZoEG+MVWv0vnyj2/+oZiYdzG0aPyzJwWuUwiL5WeN86nKXsmyEup7CPpb/Qkfc+1TcqFNp+rM+QYnVMniA22n1lgJDxmJvicaA+lFJbo1tZ9LBHmfBeU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711471638; c=relaxed/simple;
-	bh=9PD+9L0PVL8I44H98mCx75/QxiCwntwIQP0yJEXXBoM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FgOelhnm5PGJbiI6nGAtg0hZpwFyKvqcKwoAlTPr+oAB3R7UHckEobbmcuxblFu545WZ0U4Bic71tb626LVD5qd+o1DCJl3r8dHFS+/UkgzdLJlzueUqoQfd5WrnLNA0d+/s981MTwFGZWEr9laqLoTCrl9UptrBLgw8Ub96tpk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QjX4/lOh; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1711482494; c=relaxed/simple;
+	bh=9cmXfVQI/nC9ykIDRPwIkUayK3sJamHkua2d6Tcdjzo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UfsE28Uh/pE1DpK3G8HGBJvKbx0k+yTfiOihuL7kWorjyDw3H+ZsbcpZFioXT4/ADfHoJy4oMP/Choloq6/ekTXGaNyF/4o9wfxxhr3U7gDAz1J0xjSgYf8wb+2D9TdiQwSzCVR0rQP1kwsaSwqudQuWNlMNwqvOZhSt3hHbHSE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Tr9ln9mE; arc=none smtp.client-ip=209.85.214.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QjX4/lOh"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42QGcG1a007292;
-	Tue, 26 Mar 2024 16:47:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=nA44NqsR5fKRH/saS36EU5J3ow43IZqAtKqBh0Egb6o=;
- b=QjX4/lOh3QQThmM4A5F0PL/4sADAAMjmOdFZz5MW05U1EPgv2vYU9YUBtE/Vjf2COD74
- ufz0/1V82DdR0D89ltRipkrrgOBsMG2qMoKRO3aH1hojF2NDa++JvvxGCqzo9/uSm5ID
- 2sXVY5ZRxCxS39pHHH+nqCXa2m82BDOL4LzKKuSctUqc2W6gx41vujqCeqlm7wfZZRE7
- NaJYm+fHkzMUij1ur0Q6hwQc2ynQawzm22haMWNt5rfOuq9SqZNdsMsMeO2uMCdAtwsw
- aKDi7e3xsgzjGrWQHbpgonKcEf/4e+U04KS8uZsELK0C0vYIXgYNhppO78u67my7EI26 nw== 
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x421ug0wc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 26 Mar 2024 16:47:15 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42QF2Aod013343;
-	Tue, 26 Mar 2024 16:47:14 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3x29t0h453-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 26 Mar 2024 16:47:14 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42QGlBRg40895018
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 26 Mar 2024 16:47:13 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F405958062;
-	Tue, 26 Mar 2024 16:47:10 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 66DBB58057;
-	Tue, 26 Mar 2024 16:47:10 +0000 (GMT)
-Received: from jason-laptop.home.arpa (unknown [9.61.173.44])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 26 Mar 2024 16:47:10 +0000 (GMT)
-From: "Jason J. Herne" <jjherne@linux.ibm.com>
-To: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, akrowiak@linux.ibm.com,
-        borntraeger@de.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        hca@linux.ibm.com
-Subject: [PATCH v4 5/5] docs: Update s390 vfio-ap doc for ap_config sysfs attribute
-Date: Tue, 26 Mar 2024 12:47:06 -0400
-Message-ID: <20240326164706.29167-6-jjherne@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20240326164706.29167-1-jjherne@linux.ibm.com>
-References: <20240326164706.29167-1-jjherne@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Tr9ln9mE"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-1e0fa980d55so7828225ad.3;
+        Tue, 26 Mar 2024 12:48:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1711482492; x=1712087292; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=MxBAPr9eXOadeecJbaBW+PIKQfHxWzuOy7OIoDoAlhI=;
+        b=Tr9ln9mEwIHpI19N0/C0EJpHKXphn2mtuT1W4AriiX3AMp+IC90mvOmZY0EkBc6hni
+         7xtayoWudk30MUKKbxSebe4a3w35kCJelhjlEDtWrKTdDOdYjHGnSBPTaMEKz54ACylt
+         US9Ba4RepM5uko/vevEd5MCFCJWrBHE0tF2FOQRcr+mz4ftZNhjnDy/XqKeORp+mUQ6Q
+         PngtZ2G5uG6rRIWrmqZo5JgXHIQ7uxp7WydV0al2qtBVVoM/txNvSubMQFNFMXA2OdMS
+         vuK4mKagjZLvNTPGeHC/54EfGPT3sQkb1CC7vS5dmKwdpeB1ox3B0jHtndpOJQF9CQD9
+         BSVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711482492; x=1712087292;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=MxBAPr9eXOadeecJbaBW+PIKQfHxWzuOy7OIoDoAlhI=;
+        b=dPFb6IAKBHEHlFkv933l1+rLflMyTDbckn8ppF9CCRte3maIvSunw7vJJ+faOY0nlG
+         hJQ3u16mcWL3kub4Zo1oAb1DbQY3MTk6dH3MCjOv66RSugdu9YuM45wlA5iI5UN7fcwv
+         xhoUv20bg3k3IO6be9VyWjfUSH0x23Wv3BXfbNjj8aOwiRMhyvfut6DtpzZiX5Meif6H
+         8J5QVNQC6m5eYqBnISyYIa3hKtK8F72KXzEdLDXTmokRCb4zOH352EK9gFW3cSbhS2eH
+         uphluOVbvHj4gD8rvMzkkRrDgam12hyZj/dy8KigcpF8RjMDAbFrS198oT69/reO1xrY
+         PdKA==
+X-Forwarded-Encrypted: i=1; AJvYcCUzqbbZPzVoT2I+hKrK/6ljfnOU5pz+A7BojdrrzPOyJTi9/DFhYrNYbT6a88SBhFnus5FYBQnW6fjjkRbJC3EL1UKBb+AspdT76T6JZb8l11CJWEbbBCVixhXjM0NmkGLykwrb+jfI3eDUhIXejZnzAceoW8/icGzySq5Tig==
+X-Gm-Message-State: AOJu0YzckDkl2GLga01cdSgXWykF2RUM3hvm4q6/2o+jE5xnEcHRQ5pG
+	8Qfyq32Ssov0EndUAG2AkG4hcOsvpKWbRYKj1+4rDRVwdkevvRzY
+X-Google-Smtp-Source: AGHT+IHgG6MA5Lsu+aw0wxyCe4+UncFf8kJs1/g6C00v9EoIyHznZ9wyUpauWmcrhILSNtqUOtgwbw==
+X-Received: by 2002:a17:902:ea11:b0:1e0:a731:ea4d with SMTP id s17-20020a170902ea1100b001e0a731ea4dmr2248814plg.62.1711482492054;
+        Tue, 26 Mar 2024 12:48:12 -0700 (PDT)
+Received: from fedora (c-73-170-51-167.hsd1.ca.comcast.net. [73.170.51.167])
+        by smtp.gmail.com with ESMTPSA id p7-20020a170902e74700b001e0b5d4a2a8sm5279877plf.149.2024.03.26.12.48.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 Mar 2024 12:48:11 -0700 (PDT)
+Date: Tue, 26 Mar 2024 12:48:09 -0700
+From: Vishal Moola <vishal.moola@gmail.com>
+To: Qi Zheng <zhengqi.arch@bytedance.com>
+Cc: akpm@linux-foundation.org, hughd@google.com, david@redhat.com,
+	rppt@kernel.org, willy@infradead.org, muchun.song@linux.dev,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH 3/3] s390: supplement for ptdesc conversion
+Message-ID: <ZgMmec2paNA0GFwY@fedora>
+References: <cover.1709541697.git.zhengqi.arch@bytedance.com>
+ <04beaf3255056ffe131a5ea595736066c1e84756.1709541697.git.zhengqi.arch@bytedance.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: M3-ajsD5t3XZ4CnqKjC7RS7A1DNARgpu
-X-Proofpoint-ORIG-GUID: M3-ajsD5t3XZ4CnqKjC7RS7A1DNARgpu
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-26_06,2024-03-21_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 lowpriorityscore=0 bulkscore=0 malwarescore=0 adultscore=0
- mlxlogscore=999 clxscore=1011 mlxscore=0 suspectscore=0 spamscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2403210000 definitions=main-2403260119
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <04beaf3255056ffe131a5ea595736066c1e84756.1709541697.git.zhengqi.arch@bytedance.com>
 
-A new sysfs attribute, ap_config, for the vfio_ap driver is
-documented.
+On Mon, Mar 04, 2024 at 07:07:20PM +0800, Qi Zheng wrote:
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -206,9 +206,11 @@ static void gmap_free(struct gmap *gmap)
+>  
+>  	/* Free additional data for a shadow gmap */
+>  	if (gmap_is_shadow(gmap)) {
+> +		struct ptdesc *ptdesc;
+> +
+>  		/* Free all page tables. */
+> -		list_for_each_entry_safe(page, next, &gmap->pt_list, lru)
+> -			page_table_free_pgste(page);
+> +		list_for_each_entry_safe(ptdesc, next, &gmap->pt_list, pt_list)
+> +			page_table_free_pgste(ptdesc);
 
-Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- Documentation/arch/s390/vfio-ap.rst | 30 +++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+An important note: ptdesc allocation/freeing is different than the
+standard alloc_pages()/free_pages() routines architectures are used to.
+Are we sure we don't have memory leaks here?
 
-diff --git a/Documentation/arch/s390/vfio-ap.rst b/Documentation/arch/s390/vfio-ap.rst
-index 929ee1c1c940..6056a50ee841 100644
---- a/Documentation/arch/s390/vfio-ap.rst
-+++ b/Documentation/arch/s390/vfio-ap.rst
-@@ -380,6 +380,36 @@ matrix device.
-     control_domains:
-       A read-only file for displaying the control domain numbers assigned to the
-       vfio_ap mediated device.
-+    ap_config:
-+        A read/write file that, when written to, allows all three of the
-+        vfio_ap mediated device's ap matrix masks to be replaced in one shot.
-+        Three masks are given, one for adapters, one for domains, and one for
-+        control domains. If the given state cannot be set then no changes are
-+        made to the vfio-ap mediated device.
-+
-+        The format of the data written to ap_config is as follows:
-+        {amask},{dmask},{cmask}\n
-+
-+        \n is a newline character.
-+
-+        amask, dmask, and cmask are masks identifying which adapters, domains,
-+        and control domains should be assigned to the mediated device.
-+
-+        The format of a mask is as follows:
-+        0xNN..NN
-+
-+        Where NN..NN is 64 hexadecimal characters representing a 256-bit value.
-+        The leftmost (highest order) bit represents adapter/domain 0.
-+
-+        For an example set of masks that represent your mdev's current
-+        configuration, simply cat ap_config.
-+
-+        Setting an adapter or domain number greater than the maximum allowed for
-+        the system will result in an error.
-+
-+        This attribute is intended to be used by automation. End users would be
-+        better served using the respective assign/unassign attributes for
-+        adapters, domains, and control domains.
- 
- * functions:
- 
--- 
-2.41.0
+We always allocate and free ptdescs as compound pages; for page table
+struct pages, most archictectures do not. s390 has CRST_ALLOC_ORDER
+pagetables, meaning if we free anything using the ptdesc api, we better
+be sure it was allocated using the ptdesc api as well.
 
+Like you, I don't have a s390 to test on, so hopefully some s390 expert
+can chime in to let us know if we need a fix for this.
