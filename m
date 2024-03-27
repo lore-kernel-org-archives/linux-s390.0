@@ -1,205 +1,118 @@
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE76813F443
-	for <linux-s390@vger.kernel.org>; Tue, 26 Mar 2024 20:24:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AD84219ED
+	for <linux-s390@vger.kernel.org>; Wed, 27 Mar 2024 02:11:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711484668; cv=none; b=e4OtFmLGmJYDVYyUCKcqS4u9HJ9RuZogGagLvaO10wy8nq+d4z3Y4zfo+OqYHMc7F1oCGVrkrf0PaXrcECszX5wbLZBka0djNURp5gjlKITMLycYXhyQfSFlZDtuZSlrN1ravV0SAEobSKwzOTbp4zCvRn/Zsrj/BIlETonUe30=
+	t=1711505483; cv=none; b=fJm/uMrVqsrC8paQ6GgQhAxQhXdmV+3AOGUv1dhIa8lzXVbnaKhvSqNIKd/svQGTnDKno1twk2VSKDnTCF9+oyzkOSH/Pzmz+ubMEvtxkoYHlRphoK7CfvyH54B8T6X9Eb4ZATUBjL5hklXsYeqgUR2R6TlEe9fgZDB6un/DZkE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711484668; c=relaxed/simple;
-	bh=mWwfdGmaJI5/v599SuFLYqcN0BETsqK70kzkErBfIJ0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Bb0aGmFMeU0Ai+hBTp8FFOJLAdObrTyCpxZ50GlbbDeYygpYxqP7MQRiNcahavWa87IPtz88jNmahqad1rI+nLu422tq5g1ExmDoWoxNqakwP94fDCqEZzBTiFLsXDpVelTY4heI94hTNlTXpMlDOtX7c92Y9Zrq6yAw4PGb5CA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=oA1E0f2C; arc=none smtp.client-ip=209.85.208.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1711505483; c=relaxed/simple;
+	bh=y2aifghtI/Ja4XD7u2NtI6N6MTi5BLIEicHNNSMA6SA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=V/7W5taRe94bzetJhabtaz9PRmAITa7oE2mApO+yaIOeXqqoT80v/9abPUmHhkoS5GkINbJKlZ2HiNghoXut/2jTWNRkLygzVfojvhQrQAgwcdzf6dF1DRAWfsxIN32UZQOUbM7Aw/PbYZrE0b2vKtJ6sjurIrF6c1AKTI7k+Dg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=JxRsfOQn; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="oA1E0f2C"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-56bdf81706aso6239223a12.2
-        for <linux-s390@vger.kernel.org>; Tue, 26 Mar 2024 13:24:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="JxRsfOQn"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-29f8403166aso1058051a91.1
+        for <linux-s390@vger.kernel.org>; Tue, 26 Mar 2024 19:11:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1711484664; x=1712089464; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pnO3hfDzNJhG1W8n4621OnBzOy9cpmEtEz5rXGN5tRg=;
-        b=oA1E0f2CaB1GiL1dpzV8XMmWO4z7f9HPGDLCdu4gLvaMwa5GuenxGmFtEGypCE1RIr
-         5J0kveoU40wYNgDxkqqW626XiMeog2jBfgkt1QGcEv9O+1ev9nHMyV0m/Mj9xawhkFAA
-         yJ250IP+MOMCMXsWcyZTR2WCeMEYQJeiR3TdA=
+        d=bytedance.com; s=google; t=1711505480; x=1712110280; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=VKgEZz3gqT/qrPZJxtA6ePPIz6oGvyMPjM3uA1fFlqE=;
+        b=JxRsfOQn8gPSjir6TbrBjWXbK/PJp4ZBSwKtWzwl58PgosmH2htE9+JnrFwfbnzQ2G
+         /qa55/418mac0pI1hfo5vRwTNvgu60YzGuXXTWbPdw4xSCbU9P28mRYteMbrcz9qhLMx
+         fFGwlRPa9ESvMcE90yEh8E3G8fD3dm/8iyo6Cnmor6/SsdhSPMMVI0G/c080B2KXbSsJ
+         95pGqI7L+x9Fw3E6nJNoAc7GSEbX+N1sOw/7QDH9RCfJYh387NdNn+ocZ9vI757IaxX+
+         3OQeXlXkwK+CZSWR1+VNrrJC4rkxeNAlNhGjmxE6yE4ylVRFrSEZiQfYLqdseXO/8ud7
+         F5Ng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711484664; x=1712089464;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=pnO3hfDzNJhG1W8n4621OnBzOy9cpmEtEz5rXGN5tRg=;
-        b=XSRr5FD6wASH/o4S6Gr2EX7N5WOZpaKY8fOkpYQUK/Qo8k5qUUJjFcjITnTYgjpiHm
-         s+SHeusX0YJSRJvL6r5m4mSfl1rHm9KAEodwBa0K5hD4d3tie20xSHLkxQvS+XNMDxpE
-         4D+J+AUg1gN6JznIKe7dxMm1HnrHDYX9tu9gZCmyEW+w8kZuwtIUen0jVoFMW8v9HgHy
-         SKgttry/HbxNbpuFSK6KwiTTnKMBBR12m4M16OWtzTtbrh0zC60qhczvcw4CYW8Uliqe
-         4Q7/Qqj/T3Dot9f0n7nWgwwspbi2QmLohx/a4clM1JABQoyIa2vmMgMsFalJHaJ6pvS/
-         mDWw==
-X-Forwarded-Encrypted: i=1; AJvYcCUcHYMPk/cMlKqX1luqVXrlak7xyT75umnJ01xuaao046rvPx9kvVB8NSQaBK/GDVTy4JMMqQGD/LaS94YuGLPegTNheJRgGv//bA==
-X-Gm-Message-State: AOJu0YwGWm5MSnY2Ho2Fxqrh9pzfinYuLAsAgrZ4ToHb+TPgPaKU6pYa
-	dCvjxIIZX0yj1uZltLAqB5AUzMvwXyOq5i8XJHiz/Y2h5tPV7Ge2jZyUF1t2AAYkjmsZAMbQoFL
-	TTQ==
-X-Google-Smtp-Source: AGHT+IEDMzO50/hxySwwAPYgVKOC+cF2VZ2LnDYs6u+65VnGTTemAEdwK39O5Uvm+4CwfCm7Dln7Tg==
-X-Received: by 2002:a50:a453:0:b0:56a:ae8a:acc0 with SMTP id v19-20020a50a453000000b0056aae8aacc0mr1585112edb.21.1711484663875;
-        Tue, 26 Mar 2024 13:24:23 -0700 (PDT)
-Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com. [209.85.218.51])
-        by smtp.gmail.com with ESMTPSA id x19-20020aa7cd93000000b00568c613570dsm4517997edv.79.2024.03.26.13.24.23
-        for <linux-s390@vger.kernel.org>
+        d=1e100.net; s=20230601; t=1711505480; x=1712110280;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=VKgEZz3gqT/qrPZJxtA6ePPIz6oGvyMPjM3uA1fFlqE=;
+        b=vj4efD+V7AasSOZWIHKlXidMNX3cB1qsjfm+LEQQl3R6SA2rhmQy7h6PvgFz+KiEwm
+         zdSAArAKj7T3o7N3Pqkdvql98F3sn9nu9j8GqFB5wWrpXzuX97iJ3ue0lCidIhuCY/uk
+         /MSBGQT+SMqVG+kRh1mlijBYwhPbzWZexx36Rny59E4o5MXzFAhxlAP7d9f9t5Gp1boc
+         s037kwNiMA5kzP+SsHTr4NcH6MTlemlIYxU/48KO9rsWD+LQrPAJxGTC9q8qurBRql/8
+         MgRZcICD0ZCMhR1kwESLlAoc4t1eOkf7oq3/LyzYl4IoSJSw0eizAfSosBzNrOOrn5na
+         k2Yw==
+X-Forwarded-Encrypted: i=1; AJvYcCWMCMkMhcCjiIn/aARQdDmhwF37BajqoaMmO4wsxtVOCYQYzJWq54Cthltmor7Nqv+JAkTj/512mylVz0fz5LNf/DJJAI5PeKfZ3g==
+X-Gm-Message-State: AOJu0YxWsIQAsfwOTiB7G/YIVQeRaVuCdYHX4SB2syzufT70NMjCHz1H
+	YpMMMAEOjsThkeEJeA+v5kdftua3jdAWJXximmSc8p3BI3yHM6DUih2zsGuwwXo=
+X-Google-Smtp-Source: AGHT+IHOxzsYzXYb2U6hVOGVogL6FmVfZp9EHnweMdH3lzP+3KV1JbtDB3TMm+JsCmDJCYsexHcneA==
+X-Received: by 2002:a17:90a:9f8b:b0:29b:fab2:8a24 with SMTP id o11-20020a17090a9f8b00b0029bfab28a24mr10290068pjp.3.1711505480542;
+        Tue, 26 Mar 2024 19:11:20 -0700 (PDT)
+Received: from [10.254.105.249] ([139.177.225.230])
+        by smtp.gmail.com with ESMTPSA id q5-20020a17090ac10500b0029becfcb97esm335753pjt.22.2024.03.26.19.11.15
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Mar 2024 13:24:23 -0700 (PDT)
-Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-a4a387ff7acso313369466b.2
-        for <linux-s390@vger.kernel.org>; Tue, 26 Mar 2024 13:24:23 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUeUAxOAP/UTTKFgmPZyypTsn+tga7UNRYWQeOzIATtL1BsybDPLh2wt8Loodjam6Dc+OG6iu1O5A7D+Qgth9Y8jhGhJiv/xqrgyA==
-X-Received: by 2002:a17:907:2686:b0:a47:3c66:b396 with SMTP id
- bn6-20020a170907268600b00a473c66b396mr1888708ejc.64.1711484642859; Tue, 26
- Mar 2024 13:24:02 -0700 (PDT)
+        Tue, 26 Mar 2024 19:11:20 -0700 (PDT)
+Message-ID: <7258d29d-0d4b-4463-8685-e3f21d426d2d@bytedance.com>
+Date: Wed, 27 Mar 2024 10:11:13 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
- <20240321101532.59272-2-xuanzhuo@linux.alibaba.com> <CABVzXAkwcKMb7pC21aUDLEM=RoyOtGA2Vim+LF0oWQ7mjUx68g@mail.gmail.com>
- <b420a545-0a7a-431c-aa48-c5db3d221420@redhat.com> <1711346901.0977402-2-xuanzhuo@linux.alibaba.com>
- <041867ab-6cff-4bd1-9a44-2ca847c1ad63@redhat.com>
-In-Reply-To: <041867ab-6cff-4bd1-9a44-2ca847c1ad63@redhat.com>
-From: Daniel Verkamp <dverkamp@chromium.org>
-Date: Tue, 26 Mar 2024 13:23:35 -0700
-X-Gmail-Original-Message-ID: <CABVzXA=QHxAbkN5qorb5e8gKtd-c9P61z_ft07PPkkzaDMxB_A@mail.gmail.com>
-Message-ID: <CABVzXA=QHxAbkN5qorb5e8gKtd-c9P61z_ft07PPkkzaDMxB_A@mail.gmail.com>
-Subject: Re: [PATCH vhost v4 1/6] virtio_balloon: remove the dependence where
- names[] is null
-To: David Hildenbrand <david@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
-	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-	Johannes Berg <johannes@sipsolutions.net>, Hans de Goede <hdegoede@redhat.com>, 
-	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-	Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, 
-	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
-	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org, 
-	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, 
-	kvm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/3] s390: supplement for ptdesc conversion
+Content-Language: en-US
+To: Vishal Moola <vishal.moola@gmail.com>
+Cc: akpm@linux-foundation.org, hughd@google.com, david@redhat.com,
+ rppt@kernel.org, willy@infradead.org, muchun.song@linux.dev,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
+ linux-s390@vger.kernel.org
+References: <cover.1709541697.git.zhengqi.arch@bytedance.com>
+ <04beaf3255056ffe131a5ea595736066c1e84756.1709541697.git.zhengqi.arch@bytedance.com>
+ <ZgMmec2paNA0GFwY@fedora>
+From: Qi Zheng <zhengqi.arch@bytedance.com>
+In-Reply-To: <ZgMmec2paNA0GFwY@fedora>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Mar 25, 2024 at 2:11=E2=80=AFAM David Hildenbrand <david@redhat.com=
-> wrote:
->
-> On 25.03.24 07:08, Xuan Zhuo wrote:
-> > On Fri, 22 Mar 2024 22:02:27 +0100, David Hildenbrand <david@redhat.com=
-> wrote:
-> >> On 22.03.24 20:16, Daniel Verkamp wrote:
-> >>> On Thu, Mar 21, 2024 at 3:16=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.ali=
-baba.com> wrote:
-> >>>>
-> >>>> Currently, the init_vqs function within the virtio_balloon driver re=
-lies
-> >>>> on the condition that certain names array entries are null in order =
-to
-> >>>> skip the initialization of some virtual queues (vqs). This behavior =
-is
-> >>>> unique to this part of the codebase. In an upcoming commit, we plan =
-to
-> >>>> eliminate this dependency by removing the function entirely. Therefo=
-re,
-> >>>> with this change, we are ensuring that the virtio_balloon no longer
-> >>>> depends on the aforementioned function.
-> >>>
-> >>> This is a behavior change, and I believe means that the driver no
-> >>> longer follows the spec [1].
-> >>>
-> >>> For example, the spec says that virtqueue 4 is reporting_vq, and
-> >>> reporting_vq only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set,
-> >>> but there is no mention of its virtqueue number changing if other
-> >>> features are not set. If a device/driver combination negotiates
-> >>> VIRTIO_BALLOON_F_PAGE_REPORTING but not VIRTIO_BALLOON_F_STATS_VQ or
-> >>> VIRTIO_BALLOON_F_FREE_PAGE_HINT, my reading of the specification is
-> >>> that reporting_vq should still be vq number 4, and vq 2 and 3 should
-> >>> be unused. This patch would make the reporting_vq use vq 2 instead in
-> >>> this case.
-> >>>
-> >>> If the new behavior is truly intended, then the spec does not match
-> >>> reality, and it would need to be changed first (IMO); however,
-> >>> changing the spec would mean that any devices implemented correctly
-> >>> per the previous spec would now be wrong, so some kind of mechanism
-> >>> for detecting the new behavior would be warranted, e.g. a new
-> >>> non-device-specific virtio feature flag.
-> >>>
-> >>> I have brought this up previously on the virtio-comment list [2], but
-> >>> it did not receive any satisfying answers at that time.
-> >>
-> >> Rings a bell, but staring at this patch, I thought that there would be
-> >> no behavioral change. Maybe I missed it :/
-> >>
-> >> I stared at virtio_ccw_find_vqs(), and it contains:
-> >>
-> >>      for (i =3D 0; i < nvqs; ++i) {
-> >>              if (!names[i]) {
-> >>                      vqs[i] =3D NULL;
-> >>                      continue;
-> >>              }
-> >>
-> >>              vqs[i] =3D virtio_ccw_setup_vq(vdev, queue_idx++, callbac=
-ks[i],
-> >>                                           names[i], ctx ? ctx[i] : fal=
-se,
-> >>                                           ccw);
-> >>              if (IS_ERR(vqs[i])) {
-> >>                      ret =3D PTR_ERR(vqs[i]);
-> >>                      vqs[i] =3D NULL;
-> >>                      goto out;
-> >>              }
-> >>      }
-> >>
-> >> We increment queue_idx only if an entry was not NULL. SO I thought no
-> >> behavioral change? (at least on s390x :) )
-> >>
-> >> It's late here in Germany, so maybe I'm missing something.
-> >
-> > I think we've encountered a tricky issue. Currently, all transports han=
-dle queue
-> > id by incrementing them in order, without skipping any queue id. So, I'=
-m quite
-> > surprised that my changes would affect the spec. The fact that the
-> > 'names' value is null is just a small trick in the Linux kernel impleme=
-ntation
-> > and should not have an impact on the queue id.
-> >
-> > I believe that my recent modification will not affect the spec. So, let=
-'s
-> > consider the issues with this patch set separately for now. Regarding t=
-he Memory
-> > Balloon Device, it has been operational for many years, and perhaps we =
-should
-> > add to the spec that if a certain vq does not exist, then subsequent vq=
-s will
-> > take over its id.
->
-> Right, if I am not missing something your patch should have no
-> functional change in that regard (that the current
-> behavior/implementation might not match the spec is a different discussio=
-n).
->
-> @Daniel, if I'm missing something, please shout.
 
-Thanks for digging into that - I think you're correct in that the
-patch does not change the behavior, due to changes elsewhere in the
-generic virtio and virtio-pci code. So in that sense, I guess this
-should not block this particular patch.
 
-It would be good to have the spec situation cleared up, though - I
-guess in practice, all relevant drivers and device implementations are
-already following the model where there are no gaps in the queue
-numbering, rather than what the spec seems to indicate.
+On 2024/3/27 03:48, Vishal Moola wrote:
+> On Mon, Mar 04, 2024 at 07:07:20PM +0800, Qi Zheng wrote:
+>> --- a/arch/s390/mm/gmap.c
+>> +++ b/arch/s390/mm/gmap.c
+>> @@ -206,9 +206,11 @@ static void gmap_free(struct gmap *gmap)
+>>   
+>>   	/* Free additional data for a shadow gmap */
+>>   	if (gmap_is_shadow(gmap)) {
+>> +		struct ptdesc *ptdesc;
+>> +
+>>   		/* Free all page tables. */
+>> -		list_for_each_entry_safe(page, next, &gmap->pt_list, lru)
+>> -			page_table_free_pgste(page);
+>> +		list_for_each_entry_safe(ptdesc, next, &gmap->pt_list, pt_list)
+>> +			page_table_free_pgste(ptdesc);
+> 
+> An important note: ptdesc allocation/freeing is different than the
+> standard alloc_pages()/free_pages() routines architectures are used to.
+> Are we sure we don't have memory leaks here?
+> 
+> We always allocate and free ptdescs as compound pages; for page table
+> struct pages, most archictectures do not. s390 has CRST_ALLOC_ORDER
+> pagetables, meaning if we free anything using the ptdesc api, we better
+> be sure it was allocated using the ptdesc api as well.
 
-Thanks,
--- Daniel
+According to the code inspection, all ptdescs added to the pmap->pt_list
+are allocated via page_table_alloc_pgste().
+
+> 
+> Like you, I don't have a s390 to test on, so hopefully some s390 expert
+> can chime in to let us know if we need a fix for this.
+
+Yes, hope so!
+
+
