@@ -1,233 +1,116 @@
-Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29D5184A2A;
-	Wed, 27 Mar 2024 15:10:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B408A12EBEF
+	for <linux-s390@vger.kernel.org>; Wed, 27 Mar 2024 15:21:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711552258; cv=none; b=Gt84/ybaXzp8ZA1eM7AJQ0W7TmmianZyFahfA/KfQ8Yy5uFty07dgRphXxbyZFLRXFIfJ+5rGstR/4Gut015vFr7SqlZun3iv0Fmy/0GvmXcKubnvvgcMt/yEF4kwhQtdLZQDm1KMgZJrT1Au1IuI3SPx695uLTE5VpxLpYLir0=
+	t=1711552908; cv=none; b=QAm9FxZ3KmoRYhUpbHDquUngIclPd5pfQnt2SVxPs9iqfzRPkgCCeDzhOcFKDHsZ/Ts4zGC891KSmYLdJY8GGwjLcFbkVz695LLBfMDMV/kJw7SRP3KeTNKw1LYf/nFZ35PdiKkf4d1mjOWpQ5wv/ufPlkMpEnr6akFYeNhub64=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711552258; c=relaxed/simple;
-	bh=hZADyUy9JYJUx70kDvTSFdOct8TUW++G/hR/m5TbJ5I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=t9D4Qfo6rKAGqd8LE7XF5F9yIYDspV6E2mg7LEm37hxFb6uGIo7sbpldFtQERJS2nw+aDPBrxgxGkYoXlBul1pt+oylRDE74GNBYzFkt6hA47LzE+e+36vuwdPw9YoJ//n/3q2Lf04TjW318mHvwhTMVNSTgQCu8nWUTAPN1cW4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i+uLdb2H; arc=none smtp.client-ip=209.85.210.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1711552908; c=relaxed/simple;
+	bh=mhfoA8jCv1DDC516BG+AAL5xuYfKBZbFsPJx+Vnzofw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=B4jMwf8QeD4MV/1/I1jJLaQfm1y+7qnDoD2NMRYAPi7ih5tlL5Cc3wTHbwInZLKfOw8krP+eEL8yMeFKSxaN6K367oa5lB6ZzRAU7qdrfOxaF6iKEq3O9CXTQqVULJ103O30hRimgZMSahQxdlbFw7N1U0oNwDLL9AH6penUPHg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a8VDp2WD; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i+uLdb2H"
-Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-6e6b54a28d0so4670040b3a.2;
-        Wed, 27 Mar 2024 08:10:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1711552255; x=1712157055; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=GhC1S2pW9btr9pVuDZELsqNgJuQdIsA6xlv8onmT65s=;
-        b=i+uLdb2HWxyuVw5Db3DGWEk9UTq0u831fRAaB2ysl3AReUdwpgOmdJSI3NfmAjaLV3
-         fTyL+m4fn+NLF3FbRspB/r630RmPsawW3kcHO43rIISjS3kbd+nAeY+VKu9cZv6d/k7m
-         uOK8qtUg08v9Yl+cLpg10W3rftFrOmiRtY8pOAXmQwgr6o/j4qM8ZeWw46ptRvqh+8NK
-         eka3CHtIKvAoL4PXYjG4RsqyAJ+osfJTq4IKwKmUQKc1JUMArzxtQ+bKn3L8dsXTb3rt
-         ySIIWblJ4mubCcfXZmdUyGL5CHJ2uJeXMdNoIQXl04bPmBlTci/r7ymym73B4icqjtgB
-         L3UA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a8VDp2WD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1711552905;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4RJOr7EzuI0DVaYxx+XjeXTwjAi2iT7d0lhMZ/VIsjg=;
+	b=a8VDp2WDVgyboA8qBtWpRsUNHVKyVsc8ecB42vWPaCxi7L2I6aLlzUsd12wEni6Bz/IF9e
+	0DXN5FhKemqb74DMpAYYLlKJHsHzh215527tymhMbeAWXwr+MxbzPf1WY3DZBqtdywpvhG
+	TRGFzUEXQPGmKnzuovOS49QyXr5qhPA=
+Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
+ [209.85.210.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-561-tJjtVWESN5iFIRub6arjUw-1; Wed, 27 Mar 2024 11:21:44 -0400
+X-MC-Unique: tJjtVWESN5iFIRub6arjUw-1
+Received: by mail-ot1-f70.google.com with SMTP id 46e09a7af769-6dde25ac92fso3181138a34.0
+        for <linux-s390@vger.kernel.org>; Wed, 27 Mar 2024 08:21:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711552255; x=1712157055;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=GhC1S2pW9btr9pVuDZELsqNgJuQdIsA6xlv8onmT65s=;
-        b=MXJzXQGbINSrOd0jrh7vcHD2mTq/I+jhGLBvaWnAcT7EdQUAlk1wgyhMEGdv9rOw2/
-         bDYUA+7Tm0k4qM3+37ORS5kzDnfjBjrbqEdLcrW883eQfsqhmVZW0v2ps3jKuIaVw5hu
-         u801y4DtvUEZKIJIwQf2aK3rz1khzr2n1c8vIk4DhE6/ETVAus1vxbFkTEy3KPTsFt1a
-         31Mee5cGAVLOAawOJbyyE9TKGxCgM4meGEalK/9mIbMGlNdOYDnrWmAFUxbfx4dYy8er
-         gG69s1TlMyHOXccKfKDmH7W5MnuaiH9Wu1gEQBqC3X2zRY61rhFOWGuMkdpYj1JCYVBo
-         OLlQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVpnzUcC5UQTlsfMkvZ1VUHfkeei8qR7u150mc2S2RgTEJybHqJ7yFZDxeq/4ZqZrOVI4Nc99Agy6yHL9CpYiIh5vbNbWRYwWZCnTZhfM7rkg4vXd9AO13NzZFm4/sNFhvrLtK+S5HBlTbIWk/vwC67FyPEqtExw29529uZQYrwFHUhol916KNNX994ecygkXEZ+jorwFWq6fCr0TYfnFYIKw58Q3+X6drBoEoFcFNXnlnar9b3HwzL1vWlEH5tpZvXUsakludCERBIId2bLab6ZsfHkN3DB+v9c3yro/3/dYEembAu/iMALJ9JWS8oVw==
-X-Gm-Message-State: AOJu0Yw8W7WHi7TVqQIhNDTmQUv0WDfoFRXAmfC88VWaz5eA9nqxLifk
-	b9Jv71yhmkwmKENAJaDxZ66ieazhBkxqTgNHCMcWvacCYnW1Wftz
-X-Google-Smtp-Source: AGHT+IFTcwPFOlfI6eRT+0rf0ZnAMCTISb8ttH9tKFaraPJRt460mqVcAAiNBuFiDAxZrRyiWoSPIw==
-X-Received: by 2002:a05:6a20:f39d:b0:1a0:adbc:7a96 with SMTP id qr29-20020a056a20f39d00b001a0adbc7a96mr225466pzb.36.1711552255375;
-        Wed, 27 Mar 2024 08:10:55 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id u8-20020a62ed08000000b006e4e616e520sm7950526pfh.72.2024.03.27.08.10.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 27 Mar 2024 08:10:54 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <320aacc6-b7e5-4c3d-948e-d0743ab26c5d@roeck-us.net>
-Date: Wed, 27 Mar 2024 08:10:51 -0700
+        d=1e100.net; s=20230601; t=1711552903; x=1712157703;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=4RJOr7EzuI0DVaYxx+XjeXTwjAi2iT7d0lhMZ/VIsjg=;
+        b=T8rlwRKsB8887j7sK+JFTRRDb1gVZ7Ld/cUpDav+haUYxOMysZPkuPG4wIKM2z/GgU
+         WLKr9/zLVw22gyZsiTfBHf4aHM9NHs/P9ZxC3SiTJdEQ3mmqpjj6FEWVwkv7dny/uGqG
+         93fQhz0fS+c8kNB+z0hLD3z+v4TxBWP011W+3ENcSV4Ei4ghPYf3+sn806C6rkIaC1XO
+         7YibEN6x83MiUxopOmXtoGG1zp81ZoZx2+Vxp+qEI/jgbWWTgDvsGkyDT4BD0mP7/ehA
+         QtaSdZpaIFf+bAfUoJHZA6i6Kg+/1UWwGEezmlzVTYyBffnMFQQu//mzw3QScA4J4bVu
+         cwJw==
+X-Forwarded-Encrypted: i=1; AJvYcCVjDkfCIj31FH8VdAkr0TMEIdV/Zyibw4w4cO7wuoW5/2aAuCK93fCBpgqR+ChB+KA5BYPHQvgnpa9K0OTv33BKZODdqnT+B5LYmQ==
+X-Gm-Message-State: AOJu0YxAdSJHRJWgilPVVCb6qRhpXk1SEPkk4WPXJVbnB0bvnAJBik2L
+	LIrq++7CJMGlX9dl+072G/p7unGVrvvvmI6hd9WwN8gjfekxwiADmFzlj0/JMQcVTJ1GLKWazUy
+	khY52nWzlzOPXInmvW5yPU023TgGIiCyvAxoEMh6oVQ+hoYZlz2aYHU+nAG15f6kjy6Q=
+X-Received: by 2002:a05:6808:128a:b0:3c3:d729:1d56 with SMTP id a10-20020a056808128a00b003c3d7291d56mr316756oiw.0.1711552903444;
+        Wed, 27 Mar 2024 08:21:43 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGxT5qAZWntttFMbBHTXwtvywmg90pV0zoL9F4zS7SQ4GsHwDy+Ru4KfcRdtRpsXZfeVg5bqg==
+X-Received: by 2002:a05:6808:128a:b0:3c3:d729:1d56 with SMTP id a10-20020a056808128a00b003c3d7291d56mr316719oiw.0.1711552902921;
+        Wed, 27 Mar 2024 08:21:42 -0700 (PDT)
+Received: from x1n ([99.254.121.117])
+        by smtp.gmail.com with ESMTPSA id r15-20020a056214212f00b0069698528727sm2350243qvc.90.2024.03.27.08.21.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Mar 2024 08:21:42 -0700 (PDT)
+Date: Wed, 27 Mar 2024 11:21:40 -0400
+From: Peter Xu <peterx@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+	Mike Rapoport <rppt@kernel.org>, Jason Gunthorpe <jgg@nvidia.com>,
+	John Hubbard <jhubbard@nvidia.com>,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH RFC 0/3] mm/gup: consistently call it GUP-fast
+Message-ID: <ZgQ5hNltQ2DHQXps@x1n>
+References: <20240327130538.680256-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 12/14] sh: Add support for suppressing warning
- backtraces
-Content-Language: en-US
-To: Simon Horman <horms@kernel.org>
-Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>,
- Arnd Bergmann <arnd@arndb.de>, =?UTF-8?Q?Ma=C3=ADra_Canal?=
- <mcanal@igalia.com>, Dan Carpenter <dan.carpenter@linaro.org>,
- Kees Cook <keescook@chromium.org>, Daniel Diaz <daniel.diaz@linaro.org>,
- David Gow <davidgow@google.com>, Arthur Grillo <arthurgrillo@riseup.net>,
- Brendan Higgins <brendan.higgins@linux.dev>,
- Naresh Kamboju <naresh.kamboju@linaro.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Andrew Morton <akpm@linux-foundation.org>, Maxime Ripard
- <mripard@kernel.org>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?=
- <ville.syrjala@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>,
- Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org,
- kunit-dev@googlegroups.com, linux-arch@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- loongarch@lists.linux.dev, netdev@vger.kernel.org,
- Linux Kernel Functional Testing <lkft@linaro.org>
-References: <20240325175248.1499046-1-linux@roeck-us.net>
- <20240325175248.1499046-13-linux@roeck-us.net>
- <20240327144431.GL403975@kernel.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-In-Reply-To: <20240327144431.GL403975@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20240327130538.680256-1-david@redhat.com>
 
-On 3/27/24 07:44, Simon Horman wrote:
-> On Mon, Mar 25, 2024 at 10:52:46AM -0700, Guenter Roeck wrote:
->> Add name of functions triggering warning backtraces to the __bug_table
->> object section to enable support for suppressing WARNING backtraces.
->>
->> To limit image size impact, the pointer to the function name is only added
->> to the __bug_table section if both CONFIG_KUNIT_SUPPRESS_BACKTRACE and
->> CONFIG_DEBUG_BUGVERBOSE are enabled. Otherwise, the __func__ assembly
->> parameter is replaced with a (dummy) NULL parameter to avoid an image size
->> increase due to unused __func__ entries (this is necessary because __func__
->> is not a define but a virtual variable).
->>
->> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
->> Acked-by: Dan Carpenter <dan.carpenter@linaro.org>
->> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
->> ---
->> - Rebased to v6.9-rc1
->> - Added Tested-by:, Acked-by:, and Reviewed-by: tags
->> - Introduced KUNIT_SUPPRESS_BACKTRACE configuration option
->>
->>   arch/sh/include/asm/bug.h | 26 ++++++++++++++++++++++----
->>   1 file changed, 22 insertions(+), 4 deletions(-)
->>
->> diff --git a/arch/sh/include/asm/bug.h b/arch/sh/include/asm/bug.h
->> index 05a485c4fabc..470ce6567d20 100644
->> --- a/arch/sh/include/asm/bug.h
->> +++ b/arch/sh/include/asm/bug.h
->> @@ -24,21 +24,36 @@
->>    * The offending file and line are encoded in the __bug_table section.
->>    */
->>   #ifdef CONFIG_DEBUG_BUGVERBOSE
->> +
->> +#ifdef CONFIG_KUNIT_SUPPRESS_BACKTRACE
->> +# define HAVE_BUG_FUNCTION
->> +# define __BUG_FUNC_PTR	"\t.long %O2\n"
->> +#else
->> +# define __BUG_FUNC_PTR
->> +#endif /* CONFIG_KUNIT_SUPPRESS_BACKTRACE */
->> +
+On Wed, Mar 27, 2024 at 02:05:35PM +0100, David Hildenbrand wrote:
+> Some cleanups around function names, comments and the config option of
+> "GUP-fast" -- GUP without "lock" safety belts on.
 > 
-> Hi Guenter,
+> With this cleanup it's easy to judge which functions are GUP-fast specific.
+> We now consistently call it "GUP-fast", avoiding mixing it with "fast GUP",
+> "lockless", or simply "gup" (which I always considered confusing in the
+> ode).
 > 
-> a minor nit from my side: this change results in a Kernel doc warning.
+> So the magic now happens in functions that contain "gup_fast", whereby
+> gup_fast() is the entry point into that magic. Comments consistently
+> reference either "GUP-fast" or "gup_fast()".
 > 
->       .../bug.h:29: warning: expecting prototype for _EMIT_BUG_ENTRY(). Prototype was for HAVE_BUG_FUNCTION() instead
+> Based on mm-unstable from today. I won't CC arch maintainers, but only
+> arch mailing lists, to reduce noise.
 > 
-> Perhaps either the new code should be placed above the Kernel doc,
-> or scripts/kernel-doc should be enhanced?
-> 
+> Tested on x86_64, cross compiled on a bunch of archs, whereby some of them
+> don't properly even compile on mm-unstable anymore in my usual setup
+> (alpha, arc, parisc64, sh) ... maybe the cross compilers are outdated,
+> but there are no new ones around. Hm.
 
-Thanks a lot for the feedback.
+I'm not sure what config you tried there; as I am doing some build tests
+recently, I found turning off CONFIG_SAMPLES + CONFIG_GCC_PLUGINS could
+avoid a lot of issues, I think it's due to libc missing.  But maybe not the
+case there.
 
-The definition block needs to be inside CONFIG_DEBUG_BUGVERBOSE,
-so it would be a bit odd to move it above the documentation
-just to make kerneldoc happy. I am not really sure that to do
-about it.
+The series makes sense to me, the naming is confusing.  Btw, thanks for
+posting this as RFC. This definitely has a conflict with the other gup
+series that I had; I'll post v4 of that shortly.
 
-I'll wait for comments from others before making any changes.
-
-Thanks,
-Guenter
-
->>   #define _EMIT_BUG_ENTRY				\
->>   	"\t.pushsection __bug_table,\"aw\"\n"	\
->>   	"2:\t.long 1b, %O1\n"			\
->> -	"\t.short %O2, %O3\n"			\
->> -	"\t.org 2b+%O4\n"			\
->> +	__BUG_FUNC_PTR				\
->> +	"\t.short %O3, %O4\n"			\
->> +	"\t.org 2b+%O5\n"			\
->>   	"\t.popsection\n"
->>   #else
->>   #define _EMIT_BUG_ENTRY				\
->>   	"\t.pushsection __bug_table,\"aw\"\n"	\
->>   	"2:\t.long 1b\n"			\
->> -	"\t.short %O3\n"			\
->> -	"\t.org 2b+%O4\n"			\
->> +	"\t.short %O4\n"			\
->> +	"\t.org 2b+%O5\n"			\
->>   	"\t.popsection\n"
->>   #endif
->>   
->> +#ifdef HAVE_BUG_FUNCTION
->> +# define __BUG_FUNC	__func__
->> +#else
->> +# define __BUG_FUNC	NULL
->> +#endif
->> +
->>   #define BUG()						\
->>   do {							\
->>   	__asm__ __volatile__ (				\
-> 
-> ...
+-- 
+Peter Xu
 
