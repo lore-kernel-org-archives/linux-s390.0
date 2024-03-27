@@ -1,125 +1,170 @@
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C47D380;
-	Wed, 27 Mar 2024 19:36:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69CAC1E52C;
+	Wed, 27 Mar 2024 19:39:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711568162; cv=none; b=IqaR9I7OSVj2cn5pb2amOwEtxcvVrBX0EAMfJwD3p6Ob27Zzb/SuI1Su3Y6wltd4qJ1yDWFc4Ng818HcZ+H4ri68r0fA9/VLXzsqR2OPt/3WA8/xsqJ11/k82+d51DDgjZrzRot0tVOyCL0OWGdktpraTBXuaQ+f+Jh+QK+o/6E=
+	t=1711568368; cv=none; b=FcxLBpnxJPTGsCQKJMaOehbjOnGZv0TNC/pyZ6T7tdFg+uBHQwVGc16bCJcdyNA+71PziK55Za2q+3nBvJUVGuDRHK1jSOYkaQ+9cYpBwUfrfdDVkO+Pv/3MXf5WgcytgMqIv95wAePvIIhynu03vdW+N3nNEUjVYn9UexMxuxI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711568162; c=relaxed/simple;
-	bh=T0Gc63+M14jsX7PKFtiIXFMl0tWSi9oDRmgoUZTW/2w=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=kvWLzCHlXrCLVHGZq9tEGrVrmqm7KSNrNZfM/VNeF3qr9oqwDMT0waNjexrtBYb6MyvcNR0aKcPavrM9Qx1+KwvLDE+6XbMRo3wdksFd9xC7errlqfut1uYd0vGohu9fJUvwGRXMbKgpwpdS/w4jSdfFLTpMMjUYEKK1dPlfb0A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XoaXAMOJ; arc=none smtp.client-ip=209.85.218.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1711568368; c=relaxed/simple;
+	bh=mgDCCV9DYm3gE81YovhkygNKHO9RS0DsGnhFgu3kHyA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ohTEiRVoma0GCSa7EZZ90JwMYtXJic6dw9IzrR9wHmJQ9MtPyovNYumX29+ZdXjgF61t624A31HreBfXT0zzfYOWEhomcosS0n6pTOUuJuYSomT1MhJBycaoToZ++zc1eKJDPY3BzxV7cmdCFuSRbFmNes9+sEUpW4BKTRVKy5o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SKHszxO4; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XoaXAMOJ"
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-a4a393b699fso38648266b.0;
-        Wed, 27 Mar 2024 12:36:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1711568159; x=1712172959; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=aojaArSnA0JfedDto4elyer8YODIKcUTNNFpLzMMgW8=;
-        b=XoaXAMOJ4Ojmd7idhXiyfKsYBXO1nlVNNBH2lrYeTP5tUZYgJcfSMkvYDdSECwJe3O
-         2WPWBYmKXHC3NZWnWbzWbnrHUyovIC/aoenU0HNzQCX/wvlCFvq+1zEn21HC3sezb8Jz
-         SPURbZsQS6fgh2YVN3sqFKrAbjZhNNG29y5z+ZwHL1BZB0eyGa0r1WlwajFoU7kWaoqZ
-         185ZvXwubU7cpqnWYSzx0ODOXGVS3Mu2DrliJPjTMaV7TwMtsw25xfnbYF5dA8TRfuQ7
-         d8HeMsqPzustoXEui2Uc+vAQDibV6fBvr6di3ODvecj0COgUZeNJQykOCy7aPcLPeDfo
-         WMIw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711568159; x=1712172959;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=aojaArSnA0JfedDto4elyer8YODIKcUTNNFpLzMMgW8=;
-        b=n8H1GZxWGCDyZS5GqC4sE0iRZ6/9XuV3nlKHKJkja+AZPJKXTt3r1bhBFrxuwpoXLP
-         /AuIC8w+HXy958J1FQf+Iy8P//jBuByUSsJs7ZDJyzOxYeJqyARMljJnc3A2G5ovAQVV
-         yMucFt5nfs8w5c0R/CmBVsN29G8RYl0rdhnkTA4x68Pr6Tc+sVfTGJwKvGsADzkk0z7r
-         ZuacuYt2GO1+otB+99QWCJ431XrYBpUJo2gJUJx+m70N4HppIHuJ0tJcAoyw1Os/6lNk
-         A7IPnFSrw34Qoq2FEpCdpDNEt2tlRguwX14hgVUljq3KsTPBv+nxZOfx3wZjSjKQheEp
-         eLAw==
-X-Forwarded-Encrypted: i=1; AJvYcCVCYs+LogtakcWjQysrzX6wzvIepjw4NCiF8HoEvdnW+fcNZb6q0ncljdi6I5FBFilRdUn5iZ+bKJKGewBdPfMSzBsWPfsv/XqgvyGupEJypYlJ8aUH+Smswfxo10UetclKXgE97Rq//Icad6T7MUFCuayMEwItobDtws+wo/edI1IwriKnb8wNXfmtCeGm1MhBk9yD4Nb6NeeIE2CJi3siS9XkvdLH2QMXSc9ZKCTqjMnArQ2s2S+y+7efnQKwKB7Sh+JQHr9Oali08QD7nkd9+mTNPPesNdBoy5hJdtpUyesJaRFG3rX27s82zYLOQka3WSwt0L3bww8acX1hFWejjOxv/XPiYIHXlO7Qp7cSCgMumKXmmGj/BBqgbPv+hmcJCoJzk0Vg6rREXD4G2sYYooVDZTkzg1NL6i8W/n3poH6AkiaMGuZvsFSjyjfoKCe5k+uOpdSspnFHnd38kzfXebGQ3IHl5+lOODTNJYDDZ5sfGo533LxVP86Tb/wgi5OoYubNq8S7haZuCCbHvffDGirQVz9dYy5SXNsE+g1zIzM=
-X-Gm-Message-State: AOJu0Yyipuc5TsIErMTNm9jkKX/fFMTmqPVE3UYPTd1po8U8p1sC9R2o
-	ZrFIl5QEdHBNhCaYvqj2qCmN3xq+VhVckML3IqGQ17mgDI+OKPapdtBwuK+1qU0=
-X-Google-Smtp-Source: AGHT+IHWYCsKCZfCKe9WJ0A8h2jBWKCzprPvh9Stt4hH84aJN1DmeskwZihR1IueuTRTWs9wYxpP6Q==
-X-Received: by 2002:a17:906:119a:b0:a47:3766:cfec with SMTP id n26-20020a170906119a00b00a473766cfecmr235001eja.9.1711568159337;
-        Wed, 27 Mar 2024 12:35:59 -0700 (PDT)
-Received: from jernej-laptop.localnet (86-58-6-171.dynamic.telemach.net. [86.58.6.171])
-        by smtp.gmail.com with ESMTPSA id j24-20020a17090643d800b00a4672fb2a03sm5858783ejn.10.2024.03.27.12.35.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Mar 2024 12:35:58 -0700 (PDT)
-From: Jernej =?utf-8?B?xaBrcmFiZWM=?= <jernej.skrabec@gmail.com>
-To: linux-kernel@vger.kernel.org, Allen Pais <apais@linux.microsoft.com>
-Cc: tj@kernel.org, keescook@chromium.org, vkoul@kernel.org, marcan@marcan.st,
- sven@svenpeter.dev, florian.fainelli@broadcom.com, rjui@broadcom.com,
- sbranden@broadcom.com, paul@crapouillou.net, Eugeniy.Paltsev@synopsys.com,
- manivannan.sadhasivam@linaro.org, vireshk@kernel.org, Frank.Li@nxp.com,
- leoyang.li@nxp.com, zw@zh-kernel.org, wangzhou1@hisilicon.com,
- haijie1@huawei.com, shawnguo@kernel.org, s.hauer@pengutronix.de,
- sean.wang@mediatek.com, matthias.bgg@gmail.com,
- angelogioacchino.delregno@collabora.com, afaerber@suse.de,
- logang@deltatee.com, daniel@zonque.org, haojian.zhuang@gmail.com,
- robert.jarzmik@free.fr, andersson@kernel.org, konrad.dybcio@linaro.org,
- orsonzhai@gmail.com, baolin.wang@linux.alibaba.com, zhang.lyra@gmail.com,
- patrice.chotard@foss.st.com, linus.walleij@linaro.org, wens@csie.org,
- peter.ujfalusi@gmail.com, kys@microsoft.com, haiyangz@microsoft.com,
- wei.liu@kernel.org, decui@microsoft.com, jassisinghbrar@gmail.com,
- mchehab@kernel.org, maintainers@bluecherrydvr.com,
- aubin.constans@microchip.com, ulf.hansson@linaro.org, manuel.lauss@gmail.com,
- mirq-linux@rere.qmqm.pl, jh80.chung@samsung.com, oakad@yahoo.com,
- hayashi.kunihiko@socionext.com, mhiramat@kernel.org, brucechang@via.com.tw,
- HaraldWelte@viatech.com, pierre@ossman.eu, duncan.sands@free.fr,
- stern@rowland.harvard.edu, oneukum@suse.com,
- openipmi-developer@lists.sourceforge.net, dmaengine@vger.kernel.org,
- asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- linux-rpi-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
- imx@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
- linux-mediatek@lists.infradead.org, linux-actions@lists.infradead.org,
- linux-arm-msm@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
- linux-hyperv@vger.kernel.org, linux-rdma@vger.kernel.org,
- linux-media@vger.kernel.org, linux-mmc@vger.kernel.org,
- linux-omap@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org
-Subject: Re: [PATCH 9/9] mmc: Convert from tasklet to BH workqueue
-Date: Wed, 27 Mar 2024 20:35:54 +0100
-Message-ID: <9252961.CDJkKcVGEf@jernej-laptop>
-In-Reply-To: <20240327160314.9982-10-apais@linux.microsoft.com>
-References:
- <20240327160314.9982-1-apais@linux.microsoft.com>
- <20240327160314.9982-10-apais@linux.microsoft.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SKHszxO4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3492BC433C7;
+	Wed, 27 Mar 2024 19:39:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1711568368;
+	bh=mgDCCV9DYm3gE81YovhkygNKHO9RS0DsGnhFgu3kHyA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=SKHszxO4HY0/TKQKrYd5xjeNheZExttn6ouZSQo7RamEADgZOHEGKOgxLgWnDAQsX
+	 TQk1EiCgbOjPSXUXVDKc1GHuMb8JYfr2n9dUTSMBL4fPlQCFaWvqtzr7SljGX8ozL0
+	 d+GxeE8i5/jrK3YAq+PzsRs9yg9Ub9Ye0zUWxbvydciwA80gaS/Cm+ZdJSIaW62wjN
+	 8mgdqhfJd0T7WESQFdfsQPBT5oU/lItq2D11cSo/Qk/7TSLc6IaPfRphmumfAFxMTP
+	 w0oml1KABCZkKYStlxNthCpMKTFGN6FZPoQQlay9J46ava0AXCk2S+OoNd/Q7U91J0
+	 LlcAACEC05P/g==
+Date: Wed, 27 Mar 2024 19:39:20 +0000
+From: Simon Horman <horms@kernel.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	=?utf-8?B?TWHDrXJh?= Canal <mcanal@igalia.com>,
+	Dan Carpenter <dan.carpenter@linaro.org>,
+	Kees Cook <keescook@chromium.org>,
+	Daniel Diaz <daniel.diaz@linaro.org>,
+	David Gow <davidgow@google.com>,
+	Arthur Grillo <arthurgrillo@riseup.net>,
+	Brendan Higgins <brendan.higgins@linux.dev>,
+	Naresh Kamboju <naresh.kamboju@linaro.org>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Maxime Ripard <mripard@kernel.org>,
+	Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+	Daniel Vetter <daniel@ffwll.ch>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	dri-devel@lists.freedesktop.org, kunit-dev@googlegroups.com,
+	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org, loongarch@lists.linux.dev,
+	netdev@vger.kernel.org,
+	Linux Kernel Functional Testing <lkft@linaro.org>
+Subject: Re: [PATCH v2 12/14] sh: Add support for suppressing warning
+ backtraces
+Message-ID: <20240327193920.GV403975@kernel.org>
+References: <20240325175248.1499046-1-linux@roeck-us.net>
+ <20240325175248.1499046-13-linux@roeck-us.net>
+ <20240327144431.GL403975@kernel.org>
+ <320aacc6-b7e5-4c3d-948e-d0743ab26c5d@roeck-us.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <320aacc6-b7e5-4c3d-948e-d0743ab26c5d@roeck-us.net>
 
-Dne sreda, 27. marec 2024 ob 17:03:14 CET je Allen Pais napisal(a):
-> The only generic interface to execute asynchronously in the BH context is
-> tasklet; however, it's marked deprecated and has some design flaws. To
-> replace tasklets, BH workqueue support was recently added. A BH workqueue
-> behaves similarly to regular workqueues except that the queued work items
-> are executed in the BH context.
+On Wed, Mar 27, 2024 at 08:10:51AM -0700, Guenter Roeck wrote:
+> On 3/27/24 07:44, Simon Horman wrote:
+> > On Mon, Mar 25, 2024 at 10:52:46AM -0700, Guenter Roeck wrote:
+> > > Add name of functions triggering warning backtraces to the __bug_table
+> > > object section to enable support for suppressing WARNING backtraces.
+> > > 
+> > > To limit image size impact, the pointer to the function name is only added
+> > > to the __bug_table section if both CONFIG_KUNIT_SUPPRESS_BACKTRACE and
+> > > CONFIG_DEBUG_BUGVERBOSE are enabled. Otherwise, the __func__ assembly
+> > > parameter is replaced with a (dummy) NULL parameter to avoid an image size
+> > > increase due to unused __func__ entries (this is necessary because __func__
+> > > is not a define but a virtual variable).
+> > > 
+> > > Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> > > Acked-by: Dan Carpenter <dan.carpenter@linaro.org>
+> > > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> > > ---
+> > > - Rebased to v6.9-rc1
+> > > - Added Tested-by:, Acked-by:, and Reviewed-by: tags
+> > > - Introduced KUNIT_SUPPRESS_BACKTRACE configuration option
+> > > 
+> > >   arch/sh/include/asm/bug.h | 26 ++++++++++++++++++++++----
+> > >   1 file changed, 22 insertions(+), 4 deletions(-)
+> > > 
+> > > diff --git a/arch/sh/include/asm/bug.h b/arch/sh/include/asm/bug.h
+> > > index 05a485c4fabc..470ce6567d20 100644
+> > > --- a/arch/sh/include/asm/bug.h
+> > > +++ b/arch/sh/include/asm/bug.h
+> > > @@ -24,21 +24,36 @@
+> > >    * The offending file and line are encoded in the __bug_table section.
+> > >    */
+> > >   #ifdef CONFIG_DEBUG_BUGVERBOSE
+> > > +
+> > > +#ifdef CONFIG_KUNIT_SUPPRESS_BACKTRACE
+> > > +# define HAVE_BUG_FUNCTION
+> > > +# define __BUG_FUNC_PTR	"\t.long %O2\n"
+> > > +#else
+> > > +# define __BUG_FUNC_PTR
+> > > +#endif /* CONFIG_KUNIT_SUPPRESS_BACKTRACE */
+> > > +
+> > 
+> > Hi Guenter,
+> > 
+> > a minor nit from my side: this change results in a Kernel doc warning.
+> > 
+> >       .../bug.h:29: warning: expecting prototype for _EMIT_BUG_ENTRY(). Prototype was for HAVE_BUG_FUNCTION() instead
+> > 
+> > Perhaps either the new code should be placed above the Kernel doc,
+> > or scripts/kernel-doc should be enhanced?
+> > 
 > 
-> This patch converts drivers/infiniband/* from tasklet to BH workqueue.
-
-infiniband -> mmc
-
-Best regards,
-Jernej
-
+> Thanks a lot for the feedback.
 > 
-> Based on the work done by Tejun Heo <tj@kernel.org>
-> Branch: https://git.kernel.org/pub/scm/linux/kernel/git/tj/wq.git for-6.10
+> The definition block needs to be inside CONFIG_DEBUG_BUGVERBOSE,
+> so it would be a bit odd to move it above the documentation
+> just to make kerneldoc happy. I am not really sure that to do
+> about it.
+
+FWIIW, I agree that would be odd.
+But perhaps the #ifdef could also move above the Kernel doc?
+Maybe not a great idea, but the best one I've had so far.
+
+> I'll wait for comments from others before making any changes.
 > 
-> Signed-off-by: Allen Pais <allen.lkml@gmail.com>
-
-
-
+> Thanks,
+> Guenter
+> 
+> > >   #define _EMIT_BUG_ENTRY				\
+> > >   	"\t.pushsection __bug_table,\"aw\"\n"	\
+> > >   	"2:\t.long 1b, %O1\n"			\
+> > > -	"\t.short %O2, %O3\n"			\
+> > > -	"\t.org 2b+%O4\n"			\
+> > > +	__BUG_FUNC_PTR				\
+> > > +	"\t.short %O3, %O4\n"			\
+> > > +	"\t.org 2b+%O5\n"			\
+> > >   	"\t.popsection\n"
+> > >   #else
+> > >   #define _EMIT_BUG_ENTRY				\
+> > >   	"\t.pushsection __bug_table,\"aw\"\n"	\
+> > >   	"2:\t.long 1b\n"			\
+> > > -	"\t.short %O3\n"			\
+> > > -	"\t.org 2b+%O4\n"			\
+> > > +	"\t.short %O4\n"			\
+> > > +	"\t.org 2b+%O5\n"			\
+> > >   	"\t.popsection\n"
+> > >   #endif
+> > > +#ifdef HAVE_BUG_FUNCTION
+> > > +# define __BUG_FUNC	__func__
+> > > +#else
+> > > +# define __BUG_FUNC	NULL
+> > > +#endif
+> > > +
+> > >   #define BUG()						\
+> > >   do {							\
+> > >   	__asm__ __volatile__ (				\
+> > 
+> > ...
+> 
