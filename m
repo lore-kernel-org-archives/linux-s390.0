@@ -1,112 +1,91 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4204154BEA
-	for <linux-s390@vger.kernel.org>; Wed, 27 Mar 2024 13:06:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F8E112FB05;
+	Wed, 27 Mar 2024 13:15:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711544766; cv=none; b=SvZ42HwcQ1KjZ9yubSEmESYZT+kr5So3gaIhk+1SDrQoDP7DdLjMhaSWqtYeD6etPcqIGPbnYPPovl1VaTu2oNja2TlanSlTCjeoptdjoP7otdAV/c/yiY/jRggIggT+4Q7PtyRL4zjuJIIQPQeKm6w9HNQjrH7rhU7KTrsn2a0=
+	t=1711545324; cv=none; b=MQslS2d2Kcq7bd4yKDRyRNlMZcOt0t4FP2SsMDtGlTCkQ6deC6RRgh4F5y5naiTMWWcxRrxqoxaVEmDK80EtoAcjt8Zbkgf36ray0hz08HgrjwTbVTfe57mG6sUAKT1fBF8BrM01r4izkc2Aka1922zhzUPaWoafUuBfNtVBC8c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711544766; c=relaxed/simple;
-	bh=lz/X6qb6AMvUSigIWTdX8rnHxjWqLuYuDOp4idLDdDk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IVsczhEk8wtqMeaOCHScQxRejfpmsa8Pk6oALx0gdtjxINkgHYdQhYCQ8gX4t7dnd0r5hf7Frch45ixbMpE0E4tw8XIY270Cic3yHenojABdmtJU1Tjod4AQ/ce3nNexQ+rYT7ldVU9WcBqETdIcywtUe7Y6cAWx5tpAS7b1TW0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Hu6pNYAq; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1711545324; c=relaxed/simple;
+	bh=hVWGFMnT3NSh/Y5bcfvnFJ7BOfpWRpHZTt1+sFeRYK4=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=aGvzmMwbQy1HSWRX6ovW9PwQgpqdb/iW6Yurb+Iq7lVjV1FZbQrD59MQr2QzKFggHXI+dCvFghIz0kRFcsLTr+auonKSlY82Jt+70bU6BXdi6Mj2LhjzuRKLy9kCKjDlhlqwEqAcrD1IZ/v3YiJzlkG0Mu5HhmhdccWLlFjpQRg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WlC5zEpA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hu6pNYAq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711544763;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=gSD1jJkroCyXm61fF+oNruRo3coWmssTF4skwAil3Lw=;
-	b=Hu6pNYAqCAazk3FG1Lfp7hQJl8jz/7OPUseDgNpCDGKEAt9W69jVuPb5xbbJvgJ10uUXa4
-	cu4+AepXlBC7F3jvo4C6lK4YnuOOoTXX6mM0TBpNO5PIr018NgDKg+rNlsLwbovHIPaTF2
-	Tw/WxxpQPQjEQZo7UcjGO1tEF/3UP10=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-572-n4vWnbRDMPWu0T-sgcsqLg-1; Wed, 27 Mar 2024 09:06:00 -0400
-X-MC-Unique: n4vWnbRDMPWu0T-sgcsqLg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 82920800265;
-	Wed, 27 Mar 2024 13:05:59 +0000 (UTC)
-Received: from t14s.fritz.box (unknown [10.39.193.208])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 203CF1C060D0;
-	Wed, 27 Mar 2024 13:05:55 +0000 (UTC)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: David Hildenbrand <david@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Jason Gunthorpe <jgg@nvidia.com>,
-	John Hubbard <jhubbard@nvidia.com>,
-	Peter Xu <peterx@redhat.com>,
-	linux-arm-kernel@lists.infradead.org,
-	loongarch@lists.linux.dev,
-	linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-perf-users@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	x86@kernel.org
-Subject: [PATCH RFC 3/3] mm: use "GUP-fast" instead "fast GUP" in remaining comments
-Date: Wed, 27 Mar 2024 14:05:38 +0100
-Message-ID: <20240327130538.680256-4-david@redhat.com>
-In-Reply-To: <20240327130538.680256-1-david@redhat.com>
-References: <20240327130538.680256-1-david@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WlC5zEpA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24B85C433F1;
+	Wed, 27 Mar 2024 13:15:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1711545323;
+	bh=hVWGFMnT3NSh/Y5bcfvnFJ7BOfpWRpHZTt1+sFeRYK4=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+	b=WlC5zEpALyHcMLL7crzKzm7z4rnrwW8uowh4E59sISP/prn0iAEbwxHXS7+uKc/Bw
+	 wqYGQilNWFJ+5kfznbP5jYfOcjMrK1brNMdB9bdD3SvgfimE43gkSodM2ShnLCFCEv
+	 dajJ3Yz10qJsLnDCfEhKopyfEJq0gvIwVYovDawkfcn6oHnklPZtey6rVEgLmyWPEW
+	 E4PyqpPn0WepobbP4ZCzTB0lH2Gu+IQbfjUU9TXdLpBKot4bTj6an5nQ1I4caHFct3
+	 xEXFx6xrVEhsmAkJsShcH7vHCWmfF6SFD+e74pyrl9dxggHDC3ksSqQCHRrsdwas/m
+	 v4ecGkxzUp56A==
+Message-ID: <e15019f54d26898e4b67b84c331cd52d09427258.camel@kernel.org>
+Subject: Re: [PATCH v4 02/14] mm: Switch mm->get_unmapped_area() to a flag
+From: Jarkko Sakkinen <jarkko@kernel.org>
+To: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
+ "keescook@chromium.org" <keescook@chromium.org>, "luto@kernel.org"
+ <luto@kernel.org>,  "dave.hansen@linux.intel.com"
+ <dave.hansen@linux.intel.com>, "debug@rivosinc.com" <debug@rivosinc.com>, 
+ "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+ "Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, 
+ "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>,
+ "mingo@redhat.com" <mingo@redhat.com>,  "christophe.leroy@csgroup.eu"
+ <christophe.leroy@csgroup.eu>, "tglx@linutronix.de" <tglx@linutronix.de>, 
+ "hpa@zytor.com" <hpa@zytor.com>, "peterz@infradead.org"
+ <peterz@infradead.org>, "bp@alien8.de" <bp@alien8.de>, "x86@kernel.org"
+ <x86@kernel.org>, "broonie@kernel.org" <broonie@kernel.org>
+Cc: "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>, 
+ "linux-s390@vger.kernel.org"
+	 <linux-s390@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, 
+ "linux-cxl@vger.kernel.org"
+	 <linux-cxl@vger.kernel.org>, "sparclinux@vger.kernel.org"
+	 <sparclinux@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	 <linux-kernel@vger.kernel.org>, "io-uring@vger.kernel.org"
+	 <io-uring@vger.kernel.org>, "linux-fsdevel@vger.kernel.org"
+	 <linux-fsdevel@vger.kernel.org>, "nvdimm@lists.linux.dev"
+	 <nvdimm@lists.linux.dev>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>
+Date: Wed, 27 Mar 2024 15:15:17 +0200
+In-Reply-To: <5b585bcced9b5fffbcfa093ea92a6403ee8ac462.camel@intel.com>
+References: <20240326021656.202649-1-rick.p.edgecombe@intel.com>
+	 <20240326021656.202649-3-rick.p.edgecombe@intel.com>
+	 <D03NWFQM9XP2.1AWMB9VW98Z98@kernel.org>
+	 <5b585bcced9b5fffbcfa093ea92a6403ee8ac462.camel@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.0 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
 
-Let's fixup the remaining comments to consistently call that thing
-"GUP-fast". With this change, we consistently call it "GUP-fast".
+On Wed, 2024-03-27 at 02:42 +0000, Edgecombe, Rick P wrote:
+> On Tue, 2024-03-26 at 13:57 +0200, Jarkko Sakkinen wrote:
+> > In which conditions which path is used during the initialization of
+> > mm
+> > and why is this the case? It is an open claim in the current form.
+>=20
+> There is an arch_pick_mmap_layout() that arch's can have their own
+> rules for. There is also a
+> generic one. It gets called during exec.
+>=20
+> >=20
+> > That would be nice to have documented for the sake of being
+> > complete
+> > description. I have zero doubts of the claim being untrue.
+>=20
+> ...being untrue?
+>=20
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- mm/filemap.c    | 2 +-
- mm/khugepaged.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+I mean I believe the change itself makes sense, it is just not
+fully documented in the commit message.
 
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 387b394754fa..c668e11cd6ef 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -1810,7 +1810,7 @@ EXPORT_SYMBOL(page_cache_prev_miss);
-  * C. Return the page to the page allocator
-  *
-  * This means that any page may have its reference count temporarily
-- * increased by a speculative page cache (or fast GUP) lookup as it can
-+ * increased by a speculative page cache (or GUP-fast) lookup as it can
-  * be allocated by another user before the RCU grace period expires.
-  * Because the refcount temporarily acquired here may end up being the
-  * last refcount on the page, any page allocation must be freeable by
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 38830174608f..6972fa05132e 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1169,7 +1169,7 @@ static int collapse_huge_page(struct mm_struct *mm, unsigned long address,
- 	 * huge and small TLB entries for the same virtual address to
- 	 * avoid the risk of CPU bugs in that area.
- 	 *
--	 * Parallel fast GUP is fine since fast GUP will back off when
-+	 * Parallel GUP-fast is fine since GUP-fast will back off when
- 	 * it detects PMD is changed.
- 	 */
- 	_pmd = pmdp_collapse_flush(vma, address, pmd);
--- 
-2.43.2
-
+BR, Jarkko
