@@ -1,151 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C97F1304BF;
-	Thu, 28 Mar 2024 15:40:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5676912DD9F;
+	Thu, 28 Mar 2024 15:42:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711640440; cv=none; b=f5gCWPre52hlj4LMzMRpihsfNSy/xEB+q6l5mQ6p2OJBVcYn8YSqY+t7cfo/jU0oEOPwQZDgNCekBpI9+CfLBvO5SoTxHWnXQ9hGDZS9AcOeNpaqLQyjeSM1lyfhl0GK/8sjuQPYB4fMNAYx8SaZakKRDLvUR2zQISki9tbwU/8=
+	t=1711640532; cv=none; b=BBsklcpzttJVqfDhUTSJtQkJVe3tdVZuJDNdRSykixzFEQCLdXIaTX/sXREu0/G8kbpcWBF1TWG6aN30FzzUI+yYgVOjm+Ucm+8AjY9eIgpQPTZJ3Q3mMyymyC5pIkupGdnsDBHcZdWGbmMTzIl1oJRjI/CARurFBXjPGlLlZ6w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711640440; c=relaxed/simple;
-	bh=nUlKXcXbpiwl4TjgmWHkIBUZInnNECY1Y38Or1u8KAo=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=hDFN1VhJuaRMYan8ZIZ2D/MSxvFeiUKoNXXK01X/zjrEpwo+sUam4ZiHAK4F3A3G3nnthY6oCsMtytgZ1NX+yxkji19ZRPK+UxgFtqXQqxxlFgcMo1e7mEBuk0U4v4uzi6xOOPLzJztbg0HGaxiQ+6mH9e7MLdWfoKQiAhbWRz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nwoB0QZV; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1711640532; c=relaxed/simple;
+	bh=gQ+kk0SQBBP3eOv3P5/aVEbuzc4SIcGDP0vMIvNg6lM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZoeahSSZhhrSHkAR9zlGQViuj0nhSDjgSs7xgEMHZYzqapSZXd0+V/XvksY31gLcUvd+HkBtxUvMHhctG//ooIb8N7AF1atHD1tVM9zvRd6rqHYKYgHMr0rEtfO6Dwl4XIgdnoIfQTmf68r1r8jOT8+rm19vEzpFPwo1wNPtp3I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NM5700hM; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nwoB0QZV"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C6DD8C3277D;
-	Thu, 28 Mar 2024 15:40:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711640439;
-	bh=nUlKXcXbpiwl4TjgmWHkIBUZInnNECY1Y38Or1u8KAo=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=nwoB0QZVzndis7CIHjOjgiOMQ0rBSAbcs/dBPN3eXrR9+dj68TxMLnyT9OicpOwCS
-	 D8J4ihPNkKNi2xLgLv6Xbf1D3Ab07/3rhSayK/+hMe0uXFHk7rP3EwHSeYkv0Tlczh
-	 4Z5H3CLrnTqoi+DAw3PVtnWFG6TPcnE8pdY4XO25hoDBaidK7Bv2z7z0NkoclD7d+u
-	 wupshjNEp+vup4NMdIq1TqFm5YocmObuT+0SHqLD6fufKcH4tHUOWID1BofpoVzFSz
-	 r2+tWVj2gMt6jcXwYQ5jvWUNi0KzFblQh9lN8vRHfe/bje5R0dqIcO3eeFX6/o3BkR
-	 oSSFy+625lEfw==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9CB2C54E67;
-	Thu, 28 Mar 2024 15:40:39 +0000 (UTC)
-From: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.org>
-Date: Thu, 28 Mar 2024 16:40:05 +0100
-Subject: [PATCH v2 4/4] ax.25: Remove the now superfluous sentinel elements
- from ctl_table array
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NM5700hM"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42SFaaX9030045;
+	Thu, 28 Mar 2024 15:42:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=+twlGnF486xP3reYJjt5jvhY61DjcP5gxAZnmCwp3pQ=;
+ b=NM5700hMTwbkQ0QAC9ph7e1FyWCBiFbpOMIgFauWwLmPmlrQP7jerJurE9C51iyE/d+e
+ t4yMuv9BQJsPS5HDu4dZoUiFNiEti0E6DZR7y2JswCujQ1ThOIYkRGe7aM4kgO6GVyle
+ EdncqAY3PVo8ghgethGMujz5MLb0afgr8VVpW6exZUPtDldPrBlvEW5E8T5hTb11Xfkf
+ dEDtYweWhErva3jQvdnj0exv2GFgAcsPcAiEGbQDPfRv8jeUI2POWIQzdr+Cnwpd4WPG
+ OxbxwB2ckbcOuQtZBnoCNvfTYrjTd8X/C65TeidSaASs0Payw67Ykm0qXzSorlqixvKD Aw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x5as083yj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 28 Mar 2024 15:42:08 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 42SFg7If007590;
+	Thu, 28 Mar 2024 15:42:07 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x5as083yf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 28 Mar 2024 15:42:07 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42SCbT0B016592;
+	Thu, 28 Mar 2024 15:42:06 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x29duenmt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 28 Mar 2024 15:42:06 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42SFg1N58847684
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 28 Mar 2024 15:42:03 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 44F8C2004B;
+	Thu, 28 Mar 2024 15:42:01 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 77AC620040;
+	Thu, 28 Mar 2024 15:42:00 +0000 (GMT)
+Received: from dilbert5.fritz.box (unknown [9.171.12.209])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 28 Mar 2024 15:42:00 +0000 (GMT)
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Wenjia Zhang <wenjia@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>,
+        Heiko Carstens <hca@linux.ibm.com>, pasic@linux.ibm.com,
+        schnelle@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>
+Subject: [PATCH net 0/1] s390/ism: Fix splice for SMC-D
+Date: Thu, 28 Mar 2024 16:41:43 +0100
+Message-ID: <20240328154144.272275-1-gbayer@linux.ibm.com>
+X-Mailer: git-send-email 2.44.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240328-jag-sysctl_remset_net-v2-4-52c9fad9a1af@samsung.com>
-References: <20240328-jag-sysctl_remset_net-v2-0-52c9fad9a1af@samsung.com>
-In-Reply-To: <20240328-jag-sysctl_remset_net-v2-0-52c9fad9a1af@samsung.com>
-To: "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, Alexander Aring <alex.aring@gmail.com>, 
- Stefan Schmidt <stefan@datenfreihafen.org>, 
- Miquel Raynal <miquel.raynal@bootlin.com>, David Ahern <dsahern@kernel.org>, 
- Steffen Klassert <steffen.klassert@secunet.com>, 
- Herbert Xu <herbert@gondor.apana.org.au>, 
- Matthieu Baerts <matttbe@kernel.org>, Mat Martineau <martineau@kernel.org>, 
- Geliang Tang <geliang@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, 
- Remi Denis-Courmont <courmisch@gmail.com>, 
- Allison Henderson <allison.henderson@oracle.com>, 
- David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, 
- Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
- Xin Long <lucien.xin@gmail.com>, Wenjia Zhang <wenjia@linux.ibm.com>, 
- Jan Karcher <jaka@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>, 
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, 
- Trond Myklebust <trond.myklebust@hammerspace.com>, 
- Anna Schumaker <anna@kernel.org>, Chuck Lever <chuck.lever@oracle.com>, 
- Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, 
- Olga Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>, 
- Tom Talpey <tom@talpey.com>, Jon Maloy <jmaloy@redhat.com>, 
- Ying Xue <ying.xue@windriver.com>, Martin Schiller <ms@dev.tdt.de>, 
- Pablo Neira Ayuso <pablo@netfilter.org>, 
- Jozsef Kadlecsik <kadlec@netfilter.org>, Florian Westphal <fw@strlen.de>, 
- Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, 
- Simon Horman <horms@verge.net.au>, Julian Anastasov <ja@ssi.bg>, 
- Joerg Reuter <jreuter@yaina.de>, Luis Chamberlain <mcgrof@kernel.org>, 
- Kees Cook <keescook@chromium.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- dccp@vger.kernel.org, linux-wpan@vger.kernel.org, mptcp@lists.linux.dev, 
- linux-hams@vger.kernel.org, linux-rdma@vger.kernel.org, 
- rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, 
- linux-sctp@vger.kernel.org, linux-s390@vger.kernel.org, 
- linux-nfs@vger.kernel.org, tipc-discussion@lists.sourceforge.net, 
- linux-x25@vger.kernel.org, netfilter-devel@vger.kernel.org, 
- coreteam@netfilter.org, bridge@lists.linux.dev, lvs-devel@vger.kernel.org, 
- Joel Granados <j.granados@samsung.com>
-X-Mailer: b4 0.13-dev-2d940
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1638;
- i=j.granados@samsung.com; h=from:subject:message-id;
- bh=8B/rrWAL/Wpety1Z6TfAfT8YMsH+ZTrcc2Fe5CJkM6Q=;
- b=owJ4nAHtARL+kA0DAAoBupfNUreWQU8ByyZiAGYFj3UWFMJwECpzMsKOabEHFZ29RUM3Lbkr1
- /uDHBI3u+wM6IkBswQAAQoAHRYhBK5HCVcl5jElzssnkLqXzVK3lkFPBQJmBY91AAoJELqXzVK3
- lkFPxUEL/R/Sp5cRTbTCRDejAzJFEfyWjCXt59NTj6GRoOzv6BqOQTUEgIe4qnlu3vvL3yhgl+F
- tyoQn8JAI5uQEcMzt1QuuaMx9u6qR/ar3Ghya5nYFICCPkeJhZs9dJuJ5nGByrsj8xNl6YIrnf3
- WoPtg1nYm6EKFljogLHRRkvXFybbFNkim3DUIuTNXLOeATFcI7GTWLUqz/pxI23k+ME7VuwikEh
- FU3SdZNXOhrM7WgN9TsQjZZBHmYd2fuJ3w3Seut5m4oLliJSW2SQ9vadfExyGai2tLDv0Ez7n/9
- w0z+nxH7ARBPeLJ9gn7WzG3NOHeGQxiJXJUo+xvxSJWuE48bkhBjQXEUxretS+xVh5CQ7dtYaM+
- mTZhjJUyqjIjJF1XXAZEgRApfuW3gS6oTTgQiRs404iWNxpTXUlnyz62wrhOGTs65xC0WpXfTtZ
- 4xxHauzePSibHy4AEKRf5i2gsSWP8y7s6PZfzt3QkicmxXlwhR3Vs9DstbypRLUMVTnFRydkHi6
- Io=
-X-Developer-Key: i=j.granados@samsung.com; a=openpgp;
- fpr=F1F8E46D30F0F6C4A45FF4465895FAAC338C6E77
-X-Endpoint-Received: by B4 Relay for j.granados@samsung.com/default with
- auth_id=70
-X-Original-From: Joel Granados <j.granados@samsung.com>
-Reply-To: j.granados@samsung.com
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: -MarECeU7iisMw_8gZ5unuERBbbbB4K1
+X-Proofpoint-ORIG-GUID: 7DmgMPNWLmNtiwEXLZL711pGj8_Cy0b4
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-03-28_15,2024-03-27_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 mlxscore=0 bulkscore=0 impostorscore=0 phishscore=0
+ priorityscore=1501 clxscore=1011 suspectscore=0 adultscore=0
+ malwarescore=0 mlxlogscore=997 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2403210000 definitions=main-2403280108
 
-From: Joel Granados <j.granados@samsung.com>
+Hi all,
 
-This commit comes at the tail end of a greater effort to remove the
-empty elements at the end of the ctl_table arrays (sentinels) which will
-reduce the overall build time size of the kernel and run time memory
-bloat by ~64 bytes per sentinel (further information Link :
-https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
+due to a change in the DMA API - to no longer provide compound
+pages with dma_alloc_coherent - splice broke for the SMC-D protocol.
+Here, I'm proposing a fix for that.
 
-When we remove the sentinel from ax25_param_table a buffer overflow
-shows its ugly head. The sentinel's data element used to be changed when
-CONFIG_AX25_DAMA_SLAVE was not defined. This did not have any adverse
-effects as we still stopped on the sentinel because of its null
-procname. But now that we do not have the sentinel element, we are
-careful to check ax25_param_table's size.
+I'm aware that this is a rather coarse fix attempt and a proper
+solution would be to rework the	SMC-D protocol to drop the requirement
+for compound pages. That work might take some more time.
 
-Signed-off-by: Joel Granados <j.granados@samsung.com>
----
- net/ax25/sysctl_net_ax25.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Meanwhile, I'd like to probe if this change in how DMA buffers for ISM
+devices get allocated is acceptable as an interim solution.
 
-diff --git a/net/ax25/sysctl_net_ax25.c b/net/ax25/sysctl_net_ax25.c
-index db66e11e7fe8..e55be8817a1e 100644
---- a/net/ax25/sysctl_net_ax25.c
-+++ b/net/ax25/sysctl_net_ax25.c
-@@ -141,8 +141,6 @@ static const struct ctl_table ax25_param_table[] = {
- 		.extra2		= &max_ds_timeout
- 	},
- #endif
--
--	{ }	/* that's all, folks! */
- };
- 
- int ax25_register_dev_sysctl(ax25_dev *ax25_dev)
-@@ -155,7 +153,7 @@ int ax25_register_dev_sysctl(ax25_dev *ax25_dev)
- 	if (!table)
- 		return -ENOMEM;
- 
--	for (k = 0; k < AX25_MAX_VALUES; k++)
-+	for (k = 0; k < AX25_MAX_VALUES && k < ARRAY_SIZE(ax25_param_table); k++)
- 		table[k].data = &ax25_dev->values[k];
- 
- 	snprintf(path, sizeof(path), "net/ax25/%s", ax25_dev->dev->name);
+With this change applied on top of current master, our test-cases for
+SMC-D splice complete successfully again.
+
+Gerd Bayer (1):
+  s390/ism: fix receive message buffer allocation
+
+ drivers/s390/net/ism_drv.c | 35 ++++++++++++++++++++++++++---------
+ 1 file changed, 26 insertions(+), 9 deletions(-)
 
 -- 
-2.43.0
-
+2.44.0
 
