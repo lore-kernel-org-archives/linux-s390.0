@@ -1,200 +1,176 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA34681752;
-	Thu, 28 Mar 2024 21:52:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B89F73BBF1;
+	Thu, 28 Mar 2024 23:17:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711662772; cv=none; b=Qik0GSD8hd5UJEME8YQT47z3k3k2zsEoRhuKaGCDL1+0TK/tsRdhwe5LpSzATPyaC0/VfamvoKhduVbBpiJgmP0yAmFHGTt33ENhju4AM263p/2smAEEvIfT2mV6sBSa6r+cg+1pHHJ0EQzfwyHxUo7NUZxYUoAuSGRvRalav3Q=
+	t=1711667854; cv=none; b=GXxLly7f42ZVPohQUJrkguieuROh8N+zEdKyQb56kiNhdvp8POAgArD5exAMwV6QkDULSaoYxipMDgWgU2Nfv9RheM7nQsRuoabVtkzsLZaXnBaP2tcxYAd1BngnxixHwJa6NJy47kYInW+nAh24wzgqv0dASW7JVqpd2kSebPk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711662772; c=relaxed/simple;
-	bh=w1K9Bufa+Z0DWgWQVs6wFMPxe2z5PQYgrvQtySXRNbg=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=s2vxcRLL3XNfLsF9V0zS+hjz2OK40SNGHFEp4Tjt7yY0wE9vz8pHe0Ni1dAyPJjeixer3QCyzYiqnJm3RqQMV0/Nu8xlJw7cae7fTsLMAFvhvwZXQsSXTA9hhwInUKs7h03I0lkM9ImfxVTvJbZa8pa34ce1lX5EPiUTn+kaflg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Vxt7De9K; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1711667854; c=relaxed/simple;
+	bh=lxs2ZFR/bExqKNMSEhSfupLSlYECG6xtGJZ2Htju2B4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FIHMp4GUzrUUQ3yTRz/G/FMagjavFSfHSAJrrYmzV7/hTROS/LtudG66Fm/dZ0199SEms9GgsmwvQmVjkXoORw/rIdTZ5VB+sOE40K7GzykLs5AOmru4r53RlmfsmiWuCM6ZiAef1Gh6t7E7diOrBeLx+KgrekEJNREJAwu0wQs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FZORLLVM; arc=none smtp.client-ip=209.85.208.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Vxt7De9K"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F093C433F1;
-	Thu, 28 Mar 2024 21:52:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711662772;
-	bh=w1K9Bufa+Z0DWgWQVs6wFMPxe2z5PQYgrvQtySXRNbg=;
-	h=Date:From:To:Cc:Subject:From;
-	b=Vxt7De9KUA/wpnofxM25TWxdMwuHlkdatMeTbZvEJMj9CTj65Zvt4cksmtTzOo4NM
-	 eL89Z1CkCdtKHKwM9tAMe5hI5zzGEl0vgPx3NU6EH2X33i/Gtc/qyR9yrLuNf6//6z
-	 uHFRUh5TouYdvMeQYFSPsYep2KImwCYg945/lITW4vpvdBMV6E9VOHTtkMHNQph4wt
-	 1qqmC6lpQnQuTvAlKnz0zOy/2BEvpk/Cft//io6nIL4m/rlqCAjHMqQYB03gr1Wkdv
-	 kTB9th+SKeEafozFltA2A9OK2k7IOpgnKZiS7VJgMWP3QBK4d3ec+XfKMp6dnEUVU8
-	 GaMW7hxePYVog==
-Date: Thu, 28 Mar 2024 15:52:49 -0600
-From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-To: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	linux-hardening@vger.kernel.org
-Subject: [PATCH v4][next] net/smc: Avoid -Wflex-array-member-not-at-end
- warnings
-Message-ID: <ZgXmscAd6Y2iQQ6O@neat>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FZORLLVM"
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-2d717603aa5so586161fa.0;
+        Thu, 28 Mar 2024 16:17:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1711667851; x=1712272651; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VBPtswbRJVFEjRlZATnnC5PXpnMT+l8bd9tpx27HnBM=;
+        b=FZORLLVM4zTQrqx2Nmbsi0cxFMKlY+f0aT4H8rCdE6yZSJYjqMDcdjuqe/TEn+Wo7F
+         ghBvacZZoOJOcpwzMcXvG0TG3S/0fOKIdwHFmFRxu2LYqVYBt+rMN7bjgyQnaJBxPkf9
+         h+liqXbkE9MUNcLcxMa0vOhpY7I582D/xgj+HRQALIYoSnC6YUy45xGAbxV5SB/1JeCy
+         6BMhl4d9G3np8DiZMRhYLdJ2NDZd9berzJVlhWriMAj/RaXWcZ2fqquz1dnEdRGvTgGw
+         cT79hNvmyuCk+jFeZoKG0m2pdrOzjq4LEZYArlYYR9pzXxo4ZxayLmm+RDHtfH7PcfSu
+         u3mg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711667851; x=1712272651;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=VBPtswbRJVFEjRlZATnnC5PXpnMT+l8bd9tpx27HnBM=;
+        b=xBC3yMEy+HMKWfXGDitVEIWuIyFzdFfJiXpOKiUUO55CbpduuFFsIX6Q1nmtUIiqAa
+         yrh0Z7vpFFSJbot1mO0B24HeDaMMxLSdUgOElK38mwLLx/JvhSShIKrH6zcCEwgzCFz0
+         EjIVA8mk/ITVub1JKA1wPoflbfpkYtdZWUqpIr3wxmVRMmDBw3VASGu2r5MDfvStJP/3
+         EiZ/w40Vwv7pAb7wrcVkSCcYva05Fy1SZ7lAuezqiZdBD03BB0kiagmOIiTcri9SUOCx
+         FEgcPpaDRxaW6WU9myeJA6xhY8P4eBl++2bSBMep53snjpUDpxqH0Wn3m4khbZkdzx1Z
+         dIdQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUrEhk9ZCNz2T3dkDxm800rRE2SbENK0BG54VELoFgUmeu90XQvXJYAaBWTJb0R/vKfbyGH1N+YU+X4V6FmXQZhvezuJm96cn+XHgqFU/L7f+19eWedq3rADJ3G6q2Y4iTpjdYR3e1CuDm7MUcY7d+Hu1xZxHYiBEshJBjQU/NIS33K7Hx5f3u+u2mk5hjYCHQjjZvuyu3Q0gNUpiOA+w36R7dhy7k4zS9tUlEmDs6kXHb9HgvmU72zuHkzrunOk3HnMrroQzgUNW1kPcmiBr06JnzXwNwo7keA5A==
+X-Gm-Message-State: AOJu0YzLkPKp0+yi/a53yiskBjpLMm/atVgfDkEzvBTNZVeSz9RK3D39
+	0c6gtF6WEEu20HS2BbEKxaMfXuNlIJXO6MBhMDxIvA0xoCXpUQq3YmQb+BLMhmo6KjNFzPleVX6
+	jUb/86upMXvx4sSYsD90CpFmTiPs=
+X-Google-Smtp-Source: AGHT+IG5xIH2Dr8kwrbaPKFwGkwQN2RxPioeS2J7HN42D01hRwbUDEoBKIDHKJKBLqNdT3QFt8lsl8OnqZLOHWZb5Wo=
+X-Received: by 2002:a05:651c:1692:b0:2d6:c7b5:989c with SMTP id
+ bd18-20020a05651c169200b002d6c7b5989cmr378385ljb.28.1711667850565; Thu, 28
+ Mar 2024 16:17:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20240311093526.1010158-1-dongmenglong.8@bytedance.com>
+ <20240311093526.1010158-2-dongmenglong.8@bytedance.com> <CAADnVQKQPS5NcvEouH4JqZ2fKgQAC+LtcwhX9iXYoiEkF_M94Q@mail.gmail.com>
+ <CALz3k9i5G5wWi+rtvHPwVLOUAXVMCiU_8QUZs87TEYgR_0wpPA@mail.gmail.com>
+ <CAADnVQJ_ZCzMmT1aBsNXEBFfYNSVBdBXmLocjR0PPEWtYQrQFw@mail.gmail.com>
+ <CALz3k9icPePb0c4FE67q=u1U0hrePorN9gDpQrKTR_sXbLMfDA@mail.gmail.com>
+ <CAADnVQLwgw8bQ7OHBbqLhcPJ2QpxiGw3fkMFur+2cjZpM_78oA@mail.gmail.com>
+ <CALz3k9g9k7fEwdTZVLhrmGoXp8CE47Q+83r-AZDXrzzuR+CjVA@mail.gmail.com>
+ <CAADnVQLHpi3J6cBJ0QBgCQ2aY6fWGnVvNGdfi3W-jmoa9d1eVQ@mail.gmail.com>
+ <CALz3k9g-U8ih=ycJPRbyU9x_9cp00fNkU3PGQ6jP0WJ+=uKmqQ@mail.gmail.com>
+ <CALz3k9jG5Jrqw=BGjt05yMkEF-1u909GbBYrV-02W0dQtm6KQQ@mail.gmail.com> <20240328111330.194dcbe5@gandalf.local.home>
+In-Reply-To: <20240328111330.194dcbe5@gandalf.local.home>
+From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Date: Thu, 28 Mar 2024 16:17:19 -0700
+Message-ID: <CAADnVQKsuV2OhT4rc+k=WDmVMQxbjDiC4+zNbre2Kpj1hod5xw@mail.gmail.com>
+Subject: Re: [External] Re: [PATCH bpf-next v2 1/9] bpf: tracing: add support
+ to record and check the accessed args
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: =?UTF-8?B?5qKm6b6Z6JGj?= <dongmenglong.8@bytedance.com>, 
+	Jiri Olsa <jolsa@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Song Liu <song@kernel.org>, 
+	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
+	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
+	David Ahern <dsahern@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	X86 ML <x86@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+	Quentin Monnet <quentin@isovalent.com>, bpf <bpf@vger.kernel.org>, 
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, LKML <linux-kernel@vger.kernel.org>, 
+	linux-riscv <linux-riscv@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, 
+	Network Development <netdev@vger.kernel.org>, linux-trace-kernel@vger.kernel.org, 
+	"open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, linux-stm32@st-md-mailman.stormreply.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
--Wflex-array-member-not-at-end is coming in GCC-14, and we are getting
-ready to enable it globally.
+On Thu, Mar 28, 2024 at 8:10=E2=80=AFAM Steven Rostedt <rostedt@goodmis.org=
+> wrote:
+>
+> On Thu, 28 Mar 2024 22:43:46 +0800
+> =E6=A2=A6=E9=BE=99=E8=91=A3 <dongmenglong.8@bytedance.com> wrote:
+>
+> > I have done a simple benchmark on creating 1000
+> > trampolines. It is slow, quite slow, which consume up to
+> > 60s. We can't do it this way.
+> >
+> > Now, I have a bad idea. How about we introduce
+> > a "dynamic trampoline"? The basic logic of it can be:
+> >
+> > """
+> > save regs
+> > bpfs =3D trampoline_lookup_ip(ip)
+> > fentry =3D bpfs->fentries
+> > while fentry:
+> >   fentry(ctx)
+> >   fentry =3D fentry->next
+> >
+> > call origin
+> > save return value
+> >
+> > fexit =3D bpfs->fexits
+> > while fexit:
+> >   fexit(ctx)
+> >   fexit =3D fexit->next
+> >
+> > xxxxxx
+> > """
+> >
+> > And we lookup the "bpfs" by the function ip in a hash map
+> > in trampoline_lookup_ip. The type of "bpfs" is:
+> >
+> > struct bpf_array {
+> >   struct bpf_prog *fentries;
+> >  struct bpf_prog *fexits;
+> >   struct bpf_prog *modify_returns;
+> > }
+> >
+> > When we need to attach the bpf progA to function A/B/C,
+> > we only need to create the bpf_arrayA, bpf_arrayB, bpf_arrayC
+> > and add the progA to them, and insert them to the hash map
+> > "direct_call_bpfs", and attach the "dynamic trampoline" to
+> > A/B/C. If bpf_arrayA exist, just add progA to the tail of
+> > bpf_arrayA->fentries. When we need to attach progB to
+> > B/C, just add progB to bpf_arrayB->fentries and
+> > bpf_arrayB->fentries.
+> >
+> > Compared to the trampoline, extra overhead is introduced
+> > by the hash lookuping.
+> >
+> > I have not begun to code yet, and I am not sure the overhead is
+> > acceptable. Considering that we also need to do hash lookup
+> > by the function in kprobe_multi, maybe the overhead is
+> > acceptable?
+>
+> Sounds like you are just recreating the function management that ftrace
+> has. It also can add thousands of trampolines very quickly, because it do=
+es
+> it in batches. It takes special synchronization steps to attach to fentry=
+.
+> ftrace (and I believe multi-kprobes) updates all the attachments for each
+> step, so the synchronization needed is only done once.
+>
+> If you really want to have thousands of functions, why not just register =
+it
+> with ftrace itself. It will give you the arguments via the ftrace_regs
+> structure. Can't you just register a program as the callback?
+>
+> It will probably make your accounting much easier, and just let ftrace
+> handle the fentry logic. That's what it was made to do.
 
-There are currently a couple of objects in `struct smc_clc_msg_proposal_area`
-that contain a couple of flexible structures:
+Absolutely agree.
+There is no point re-inventing this logic.
 
-struct smc_clc_msg_proposal_area {
-	...
-	struct smc_clc_v2_extension             pclc_v2_ext;
-	...
-	struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
-	...
-};
-
-So, in order to avoid ending up with a couple of flexible-array members
-in the middle of a struct, we use the `struct_group_tagged()` helper to
-separate the flexible array from the rest of the members in the flexible
-structure:
-
-struct smc_clc_smcd_v2_extension {
-        struct_group_tagged(smc_clc_smcd_v2_extension_fixed, fixed,
-                            u8 system_eid[SMC_MAX_EID_LEN];
-                            u8 reserved[16];
-        );
-        struct smc_clc_smcd_gid_chid gidchid[];
-};
-
-With the change described above, we now declare objects of the type of
-the tagged struct without embedding flexible arrays in the middle of
-another struct:
-
-struct smc_clc_msg_proposal_area {
-        ...
-        struct smc_clc_v2_extension_fixed	pclc_v2_ext;
-        ...
-        struct smc_clc_smcd_v2_extension_fixed	pclc_smcd_v2_ext;
-        ...
-};
-
-We also use `container_of()` when we need to retrieve a pointer to the
-flexible structures.
-
-So, with these changes, fix the following warnings:
-
-In file included from net/smc/af_smc.c:42:
-net/smc/smc_clc.h:186:49: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
-  186 |         struct smc_clc_v2_extension             pclc_v2_ext;
-      |                                                 ^~~~~~~~~~~
-net/smc/smc_clc.h:188:49: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
-  188 |         struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
-      |                                                 ^~~~~~~~~~~~~~~~
-
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
----
-Changes v4:
- - Fix code comments (due to copy/paste error, aghhh).
-
-Changes in v3:
- - Adjust code to 80 columns. (Wen Gu)
- - Add a couple of code comments.
- - Link: https://lore.kernel.org/linux-hardening/ZgXlIADfiXSyRz8d@neat/
-
-Changes in v2:
- - Name the tagged struct *_fixed instead of *_hdr.
- - Add Kees' RB tag.
- - Link: https://lore.kernel.org/linux-hardening/ZfCXBykRw5XqBvf0@neat/
-
-v1:
- - Link: https://lore.kernel.org/linux-hardening/ZeIhOT44ON5rjPiP@neat/
-
- net/smc/smc_clc.c |  6 ++++--
- net/smc/smc_clc.h | 26 ++++++++++++++++----------
- 2 files changed, 20 insertions(+), 12 deletions(-)
-
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index e55026c7529c..33fa787c28eb 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -853,8 +853,10 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
- 	pclc_smcd = &pclc->pclc_smcd;
- 	pclc_prfx = &pclc->pclc_prfx;
- 	ipv6_prfx = pclc->pclc_prfx_ipv6;
--	v2_ext = &pclc->pclc_v2_ext;
--	smcd_v2_ext = &pclc->pclc_smcd_v2_ext;
-+	v2_ext = container_of(&pclc->pclc_v2_ext,
-+			      struct smc_clc_v2_extension, fixed);
-+	smcd_v2_ext = container_of(&pclc->pclc_smcd_v2_ext,
-+				   struct smc_clc_smcd_v2_extension, fixed);
- 	gidchids = pclc->pclc_gidchids;
- 	trl = &pclc->pclc_trl;
- 
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index 7cc7070b9772..467effb50cd6 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -134,12 +134,15 @@ struct smc_clc_smcd_gid_chid {
- 			 */
- 
- struct smc_clc_v2_extension {
--	struct smc_clnt_opts_area_hdr hdr;
--	u8 roce[16];		/* RoCEv2 GID */
--	u8 max_conns;
--	u8 max_links;
--	__be16 feature_mask;
--	u8 reserved[12];
-+	/* New members must be added within the struct_group() macro below. */
-+	struct_group_tagged(smc_clc_v2_extension_fixed, fixed,
-+		struct smc_clnt_opts_area_hdr hdr;
-+		u8 roce[16];		/* RoCEv2 GID */
-+		u8 max_conns;
-+		u8 max_links;
-+		__be16 feature_mask;
-+		u8 reserved[12];
-+	);
- 	u8 user_eids[][SMC_MAX_EID_LEN];
- };
- 
-@@ -159,8 +162,11 @@ struct smc_clc_msg_smcd {	/* SMC-D GID information */
- };
- 
- struct smc_clc_smcd_v2_extension {
--	u8 system_eid[SMC_MAX_EID_LEN];
--	u8 reserved[16];
-+	/* New members must be added within the struct_group() macro below. */
-+	struct_group_tagged(smc_clc_smcd_v2_extension_fixed, fixed,
-+		u8 system_eid[SMC_MAX_EID_LEN];
-+		u8 reserved[16];
-+	);
- 	struct smc_clc_smcd_gid_chid gidchid[];
- };
- 
-@@ -183,9 +189,9 @@ struct smc_clc_msg_proposal_area {
- 	struct smc_clc_msg_smcd			pclc_smcd;
- 	struct smc_clc_msg_proposal_prefix	pclc_prfx;
- 	struct smc_clc_ipv6_prefix	pclc_prfx_ipv6[SMC_CLC_MAX_V6_PREFIX];
--	struct smc_clc_v2_extension		pclc_v2_ext;
-+	struct smc_clc_v2_extension_fixed	pclc_v2_ext;
- 	u8			user_eids[SMC_CLC_MAX_UEID][SMC_MAX_EID_LEN];
--	struct smc_clc_smcd_v2_extension	pclc_smcd_v2_ext;
-+	struct smc_clc_smcd_v2_extension_fixed	pclc_smcd_v2_ext;
- 	struct smc_clc_smcd_gid_chid
- 				pclc_gidchids[SMCD_CLC_MAX_V2_GID_ENTRIES];
- 	struct smc_clc_msg_trail		pclc_trl;
--- 
-2.34.1
-
+Menlong,
+before you hook up into ftrace check whether
+it's going to be any different from kprobe-multi,
+since it's the same ftrace underneath.
+I suspect it will look exactly the same.
+So it sounds like multi-fentry idea will be shelved once again.
