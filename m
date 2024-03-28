@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 729DC40852;
-	Thu, 28 Mar 2024 21:46:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA34681752;
+	Thu, 28 Mar 2024 21:52:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711662372; cv=none; b=oPu2SfoD+LB3rkSexg0fMi9L/+tO11rF5H3TS4r++ZKRxNH6n5QgpRLNOrLwv+VcP/N68YUA8T90jml3KMaa5evVeR9Oou81I2F0Aw6CnsA3uiO5Z11dyGgbuZsBfSQkWStJMEgrHM7qq12L24RLOlwuUZIiYeGmhejhYJy5dnw=
+	t=1711662772; cv=none; b=Qik0GSD8hd5UJEME8YQT47z3k3k2zsEoRhuKaGCDL1+0TK/tsRdhwe5LpSzATPyaC0/VfamvoKhduVbBpiJgmP0yAmFHGTt33ENhju4AM263p/2smAEEvIfT2mV6sBSa6r+cg+1pHHJ0EQzfwyHxUo7NUZxYUoAuSGRvRalav3Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711662372; c=relaxed/simple;
-	bh=BUuK9Y3a97hKqqVxYQHw0k12luY8EW9jyYTqhMIgmkM=;
+	s=arc-20240116; t=1711662772; c=relaxed/simple;
+	bh=w1K9Bufa+Z0DWgWQVs6wFMPxe2z5PQYgrvQtySXRNbg=;
 	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=egrCuFvGDoN2dTR7pbxF8GdPjg9w60E6lITZr66cRnF54C5v8emOvLH4pRKGWU9lb6Luq03Mz+zUHcboDlOOTybZvrFu9V2kYbahJDP5rP4HU7WqZOHDXkUlSj41eCmdz1xB5duRN159pcNZlgo7jIzddOiKDUVGQ0BF9PU+92I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EAe6Uqtf; arc=none smtp.client-ip=10.30.226.201
+	 Content-Disposition; b=s2vxcRLL3XNfLsF9V0zS+hjz2OK40SNGHFEp4Tjt7yY0wE9vz8pHe0Ni1dAyPJjeixer3QCyzYiqnJm3RqQMV0/Nu8xlJw7cae7fTsLMAFvhvwZXQsSXTA9hhwInUKs7h03I0lkM9ImfxVTvJbZa8pa34ce1lX5EPiUTn+kaflg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Vxt7De9K; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EAe6Uqtf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D55E5C433F1;
-	Thu, 28 Mar 2024 21:46:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Vxt7De9K"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F093C433F1;
+	Thu, 28 Mar 2024 21:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711662372;
-	bh=BUuK9Y3a97hKqqVxYQHw0k12luY8EW9jyYTqhMIgmkM=;
+	s=k20201202; t=1711662772;
+	bh=w1K9Bufa+Z0DWgWQVs6wFMPxe2z5PQYgrvQtySXRNbg=;
 	h=Date:From:To:Cc:Subject:From;
-	b=EAe6Uqtf8Cj1vU1undhD6AgFufnJX8YBReXNOF+4VK8dhd3e+yOaSqblSu5RRkRNn
-	 xfk1qjmzJ8JhDfq0DsLtIVKqQQvuTlALY/QzFDxdgIQkHSnqflSpgl97hjbgBf54ej
-	 4Kr7TezJMQ5A1cbWFZF49yqNtyMvghdjWXohOkuet19tM2aazs3lg5slPopEh6n4ki
-	 AntoItZr56N8bLxByB8iMJTqIE7PqgijkEC6Lrx/4qRdfUcNq44bGUjWlKl9jie+Hn
-	 Z4VOzPjfR/BG/mjqd2yUzEpp7oEX5u4HZDOqPMd0BkQr4OMWqd+UlaMY7tKqU4fAKM
-	 eAcEYPAOEXWQg==
-Date: Thu, 28 Mar 2024 15:46:08 -0600
+	b=Vxt7De9KUA/wpnofxM25TWxdMwuHlkdatMeTbZvEJMj9CTj65Zvt4cksmtTzOo4NM
+	 eL89Z1CkCdtKHKwM9tAMe5hI5zzGEl0vgPx3NU6EH2X33i/Gtc/qyR9yrLuNf6//6z
+	 uHFRUh5TouYdvMeQYFSPsYep2KImwCYg945/lITW4vpvdBMV6E9VOHTtkMHNQph4wt
+	 1qqmC6lpQnQuTvAlKnz0zOy/2BEvpk/Cft//io6nIL4m/rlqCAjHMqQYB03gr1Wkdv
+	 kTB9th+SKeEafozFltA2A9OK2k7IOpgnKZiS7VJgMWP3QBK4d3ec+XfKMp6dnEUVU8
+	 GaMW7hxePYVog==
+Date: Thu, 28 Mar 2024 15:52:49 -0600
 From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
 To: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
 	"D. Wythe" <alibuda@linux.alibaba.com>,
@@ -38,10 +38,10 @@ To: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
 Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	Kees Cook <keescook@chromium.org>, linux-hardening@vger.kernel.org
-Subject: [PATCH v3][next] net/smc: Avoid -Wflex-array-member-not-at-end
+	linux-hardening@vger.kernel.org
+Subject: [PATCH v4][next] net/smc: Avoid -Wflex-array-member-not-at-end
  warnings
-Message-ID: <ZgXlIADfiXSyRz8d@neat>
+Message-ID: <ZgXmscAd6Y2iQQ6O@neat>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -106,9 +106,13 @@ net/smc/smc_clc.h:188:49: warning: structure containing a flexible array member 
 Reviewed-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 ---
+Changes v4:
+ - Fix code comments (due to copy/paste error, aghhh).
+
 Changes in v3:
  - Adjust code to 80 columns. (Wen Gu)
  - Add a couple of code comments.
+ - Link: https://lore.kernel.org/linux-hardening/ZgXlIADfiXSyRz8d@neat/
 
 Changes in v2:
  - Name the tagged struct *_fixed instead of *_hdr.
@@ -140,7 +144,7 @@ index e55026c7529c..33fa787c28eb 100644
  	trl = &pclc->pclc_trl;
  
 diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index 7cc7070b9772..f37d9a72b635 100644
+index 7cc7070b9772..467effb50cd6 100644
 --- a/net/smc/smc_clc.h
 +++ b/net/smc/smc_clc.h
 @@ -134,12 +134,15 @@ struct smc_clc_smcd_gid_chid {
@@ -153,7 +157,7 @@ index 7cc7070b9772..f37d9a72b635 100644
 -	u8 max_links;
 -	__be16 feature_mask;
 -	u8 reserved[12];
-+	/* New members must be added within the __struct_group() macro below. */
++	/* New members must be added within the struct_group() macro below. */
 +	struct_group_tagged(smc_clc_v2_extension_fixed, fixed,
 +		struct smc_clnt_opts_area_hdr hdr;
 +		u8 roce[16];		/* RoCEv2 GID */
@@ -171,7 +175,7 @@ index 7cc7070b9772..f37d9a72b635 100644
  struct smc_clc_smcd_v2_extension {
 -	u8 system_eid[SMC_MAX_EID_LEN];
 -	u8 reserved[16];
-+	/* New members must be added within the __struct_group() macro below. */
++	/* New members must be added within the struct_group() macro below. */
 +	struct_group_tagged(smc_clc_smcd_v2_extension_fixed, fixed,
 +		u8 system_eid[SMC_MAX_EID_LEN];
 +		u8 reserved[16];
