@@ -1,127 +1,203 @@
-Received: from mail-yb1-f182.google.com (mail-yb1-f182.google.com [209.85.219.182])
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B86FC80605
-	for <linux-s390@vger.kernel.org>; Thu, 28 Mar 2024 13:37:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBF8F127B66
+	for <linux-s390@vger.kernel.org>; Thu, 28 Mar 2024 14:42:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711633045; cv=none; b=Pw0ROvr7+UrEwKFDLA7aRNKtc9rCcb7nf4bfUOAXOwe+X2y0RNjnDbiZfHl6lfU20ErG49B3VxBtt3Dvkb3ruZNoVEWWj/Nf3fzwXVXhFVrNk0KDV3//nY7ubPYkBleHcivCY/BszkkJdmPbYuyyp3A8FkqB/+uGuDh6+MRq2+k=
+	t=1711636947; cv=none; b=M21RmprdbyQgHofmphu1B+3uzCrkrampNlPK+8+tYo4zLI2o6g860RvqawNiJ4iuzGzw7j4JpaQPfrwIWw6SD2NfOOOFKcFvTtNqXZ0PD1e4jGbQpakhgff9RQ3F5gk3MqTjk52wUrocWLamDcZyjh8JVeQDMAGbt/mzydnuZYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711633045; c=relaxed/simple;
-	bh=vhptj9/Vq4Rm0PoGzxaGiCJqIgDUZwkAbXDvc9ksjDI=;
+	s=arc-20240116; t=1711636947; c=relaxed/simple;
+	bh=Gc8satM/FTCQ1mZJea9kW64b0UoXxa5bHnts8j6XkdI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AgN6inN/ovWlrjJszV3kOk9Gb1jIBPa0jYUZNi3OGakT8xG0bzJipNNDl0lRViN+cSJthN3n8PyMIrfYShxRNrta+z2yqrwCf9ULwx7d2dZYlCdr32Av9KkCljuanvikuF/ZzXfBTv8BRdyTKmy9/VZ7zp13K4SUpLP5oZBKYg0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=gquCu54b; arc=none smtp.client-ip=209.85.219.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	 To:Cc:Content-Type; b=mzHmrZCLIfMaj3xEnxfgIA2bcXapm5pNG4mIM0BILQdj6FkonlyQfhVR1E9tSDrMWghBR5PK41fe5e27mkkYtH80wKyIrl90ng3LHQgggiwJ7vYxYilP9ppeCoA/0PdXZ4aXJudFc/82gEG+2PNGQ49KMn5ZutU7UXGfqxNUNkw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=Uj3GWBEf; arc=none smtp.client-ip=209.85.215.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="gquCu54b"
-Received: by mail-yb1-f182.google.com with SMTP id 3f1490d57ef6-dcbcea9c261so962406276.3
-        for <linux-s390@vger.kernel.org>; Thu, 28 Mar 2024 06:37:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="Uj3GWBEf"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-5d42e7ab8a9so598619a12.3
+        for <linux-s390@vger.kernel.org>; Thu, 28 Mar 2024 07:42:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1711633042; x=1712237842; darn=vger.kernel.org;
+        d=bytedance.com; s=google; t=1711636945; x=1712241745; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vhptj9/Vq4Rm0PoGzxaGiCJqIgDUZwkAbXDvc9ksjDI=;
-        b=gquCu54b7my9LLg/q4oPnqkKhGJwkL7ltG07Je+mkXnkO0tce3QQpinYIyA7vcMP/8
-         Sauy3czMzIHrSZ3M3UhQ+GugaxC245fv7DBzi8sGuKlDvKv23NV1VgjUUzcezwu/i0ml
-         3HrBrO9F758spxgQNWF+Ci5uC4PqVuJlKBak5mCFxHIhRfXo6w6Nmf2on3E6OtKniUNV
-         LT+M+VYkCIqd8Ya+BOtEl1V3iANk+gyZjZ1mB7ci4WB+l2OjnJnP7F4pH66J5T09vOM3
-         DIs8FWa5IPBud/6lNqR+RP9dQvkjXcvuHeTQr6oNe2jFd3rTU0IALrzYHbQvhymkZzQM
-         YC1A==
+        bh=zOp5govZZQSJRzD95rrhGtQGcUj+k1AZvhk4Bdb7Q3s=;
+        b=Uj3GWBEfDEWNV6Q9ppTZHPzRDEPC9fxtMAqn1djsqbVx20F79rNmK5bgA+C8ycXzbU
+         oEFFP/gogMOePAlDaU9sVoBoNebgesz3ut+o36ul5HOYBJMd8FDxSpMcBn1jKhPVMvtM
+         DOdpDn/ex6muGP4REazyeb/Gp3+Vf6TU9sEauM9bIcCGDUYSn/p3IKSRnP+fMBS21t5i
+         /qa1vZpEOYBTcSQHBpW+JtgJaF1zEFiESDT0I/7Bw21YTEoLdZ5ZsbLSsNzml8/LiCyi
+         1le6TYrKh/3U7j84SubQtc6js3WFKAVLHZd+ZVJrYF1zJM3z31z5W0BC5+zFqi3Zp6l5
+         1w2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711633042; x=1712237842;
+        d=1e100.net; s=20230601; t=1711636945; x=1712241745;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vhptj9/Vq4Rm0PoGzxaGiCJqIgDUZwkAbXDvc9ksjDI=;
-        b=txhOr0O4YDXc8rRtP/PhQQ1Gcdlr4E3KUw6XuBRb/VDvzmCOAOAKnVQ1+LK49WiBF6
-         ypOur0643n/Zy7s1aAw5mjBxhTP78VygLe4VT0pYbMpqHFSOi3s2oPttBuoL4iudvFO6
-         qOpa9X2VcgAud7aQ3T6ntl4/yS3DCCL1B0K0ha+bX/sWW/9yIhGPYPicm/cTCkMqy3ou
-         fHuroxdXbpIt14F72KK9WUY69j1OGd9TLVFIKsljkiXhg4P9F+sGj6PzPl59Gt4c6Gbn
-         Fr+Hb9PPxo0zwNq0rtFIHX11/0tUVfLvuX9NpAIWSaPYtfb3+bD8kMEHR2i7KmNJDi82
-         ejKw==
-X-Forwarded-Encrypted: i=1; AJvYcCWC02axL542jB0V9Pb3eyRwlIpkNlUmS1tGIpd8z2RNC1gQpHGl3AAS710Ws1kKF3Lc9FAqI6tLpvh64KUaCamHM4tlwC3EBeTyTw==
-X-Gm-Message-State: AOJu0Yz4/VaCOQra6OkY9864avK0ki5Zn5Ro+hJ/SA4Wu2s7Iqr4CUcA
-	ZOGhPV9Ts5yD4LIPJ/pbu4ZQf+X3Bnr42xXB2AJ3rCUCPKJNL4/2TkLGeqhzBp3Saim4mE2mMhH
-	Ru5aFYjNcOTsgzj5YDe1OHYyJUA9j7+GNujCuzg==
-X-Google-Smtp-Source: AGHT+IGjGHEbsk10nKTaVGgOOQzkHc5Qm9STf87bHGVpMP0DEmjO9lKjEWUgvRJ23UvcJC23rRkiymMtwiTmbVMLRs0=
-X-Received: by 2002:a25:b9ca:0:b0:dd1:3cc1:5352 with SMTP id
- y10-20020a25b9ca000000b00dd13cc15352mr2820459ybj.15.1711633040798; Thu, 28
- Mar 2024 06:37:20 -0700 (PDT)
+        bh=zOp5govZZQSJRzD95rrhGtQGcUj+k1AZvhk4Bdb7Q3s=;
+        b=lT53uLFqwwiXuRLZXBoKTjj/V6F/t3PavBcfSJ6nMt1FnhiuWWAPMLn9TVhaDxSPGg
+         3mlW1Ieg39YDM68xz7ORDE5eD0U1xUInctNngRScMxLQa+PDPT/JMLnzVi6VA9N+YMEL
+         JCNK6SbmHdhQV7D3zWSPvDvTDmr2+I08rof0c1JIfk8I+wMMyHN9m+z5uKsy6CLg6hO4
+         X8JfyFM6NcMUNJetoYraUaVVYTQwawdGuwg7/+mifWkHUPIsWbpYaY7HlvONqMfaF0Wh
+         LBiSg3a/JIiSFOrh3szcQMIvKPsRCB086vDOTKrm6ph03tFjIYo5wj+/YFKQoACZ0kyz
+         yzLw==
+X-Forwarded-Encrypted: i=1; AJvYcCVWMDRxrRSwaJyuEceQJLpg+sOyV6W/uwbZuJa5os7yzLMk5Q9OwLDF6EsoFrBZHiI3WEH0g197yRGSUW72t4qrE1iuOCbHZhpBXA==
+X-Gm-Message-State: AOJu0Yz306+nVDfGw7ViXIwMB3svuj+SsLhfsacu1amhDIehM1TZGvsf
+	MLF2EIbgfMNIuIq60qRazhygSJFquSnYsb+IG4Gl+3Voa7b7QxNDTdEg8YRRLzVXbrukeEZJdO1
+	x8gPPGZpqtH/J31II9zMOFrm8dA/MYMwbWQmPHA==
+X-Google-Smtp-Source: AGHT+IHIvCiL9/viH3Zv87RhUz8r9B/nNMpWCgwAx/ZU6AQHkrpwzseaugUZlw+S2sSjSOL/j/AgVGUngrHrFzkoTBM=
+X-Received: by 2002:a17:90a:d481:b0:2a2:88d:19d9 with SMTP id
+ s1-20020a17090ad48100b002a2088d19d9mr1331992pju.1.1711636945073; Thu, 28 Mar
+ 2024 07:42:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240327160314.9982-1-apais@linux.microsoft.com>
- <20240327160314.9982-10-apais@linux.microsoft.com> <CAPDyKFpuKadPQv6+61C2pE4x4FE-DUC5W6WCCPu9Nb2DnDB56g@mail.gmail.com>
-In-Reply-To: <CAPDyKFpuKadPQv6+61C2pE4x4FE-DUC5W6WCCPu9Nb2DnDB56g@mail.gmail.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Thu, 28 Mar 2024 14:37:09 +0100
-Message-ID: <CACRpkdZ7wAbtTUmmLCef7KnATmfZeAL26Q-gLqnGe3CdZ3+O3A@mail.gmail.com>
-Subject: Re: [PATCH 9/9] mmc: Convert from tasklet to BH workqueue
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Allen Pais <apais@linux.microsoft.com>, linux-kernel@vger.kernel.org, tj@kernel.org, 
-	keescook@chromium.org, vkoul@kernel.org, marcan@marcan.st, sven@svenpeter.dev, 
-	florian.fainelli@broadcom.com, rjui@broadcom.com, sbranden@broadcom.com, 
-	paul@crapouillou.net, Eugeniy.Paltsev@synopsys.com, 
-	manivannan.sadhasivam@linaro.org, vireshk@kernel.org, Frank.Li@nxp.com, 
-	leoyang.li@nxp.com, zw@zh-kernel.org, wangzhou1@hisilicon.com, 
-	haijie1@huawei.com, shawnguo@kernel.org, s.hauer@pengutronix.de, 
-	sean.wang@mediatek.com, matthias.bgg@gmail.com, 
-	angelogioacchino.delregno@collabora.com, afaerber@suse.de, 
-	logang@deltatee.com, daniel@zonque.org, haojian.zhuang@gmail.com, 
-	robert.jarzmik@free.fr, andersson@kernel.org, konrad.dybcio@linaro.org, 
-	orsonzhai@gmail.com, baolin.wang@linux.alibaba.com, zhang.lyra@gmail.com, 
-	patrice.chotard@foss.st.com, wens@csie.org, jernej.skrabec@gmail.com, 
-	peter.ujfalusi@gmail.com, kys@microsoft.com, haiyangz@microsoft.com, 
-	wei.liu@kernel.org, decui@microsoft.com, jassisinghbrar@gmail.com, 
-	mchehab@kernel.org, maintainers@bluecherrydvr.com, 
-	aubin.constans@microchip.com, manuel.lauss@gmail.com, mirq-linux@rere.qmqm.pl, 
-	jh80.chung@samsung.com, oakad@yahoo.com, hayashi.kunihiko@socionext.com, 
-	mhiramat@kernel.org, brucechang@via.com.tw, HaraldWelte@viatech.com, 
-	pierre@ossman.eu, duncan.sands@free.fr, stern@rowland.harvard.edu, 
-	oneukum@suse.com, openipmi-developer@lists.sourceforge.net, 
-	dmaengine@vger.kernel.org, asahi@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org, 
-	linux-mips@vger.kernel.org, imx@lists.linux.dev, 
-	linuxppc-dev@lists.ozlabs.org, linux-mediatek@lists.infradead.org, 
-	linux-actions@lists.infradead.org, linux-arm-msm@vger.kernel.org, 
-	linux-riscv@lists.infradead.org, linux-sunxi@lists.linux.dev, 
-	linux-tegra@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, 
-	linux-mmc@vger.kernel.org, linux-omap@vger.kernel.org, 
-	linux-renesas-soc@vger.kernel.org, linux-s390@vger.kernel.org, 
-	netdev@vger.kernel.org, linux-usb@vger.kernel.org
+References: <20240311093526.1010158-1-dongmenglong.8@bytedance.com>
+ <20240311093526.1010158-2-dongmenglong.8@bytedance.com> <CAADnVQKQPS5NcvEouH4JqZ2fKgQAC+LtcwhX9iXYoiEkF_M94Q@mail.gmail.com>
+ <CALz3k9i5G5wWi+rtvHPwVLOUAXVMCiU_8QUZs87TEYgR_0wpPA@mail.gmail.com>
+ <CAADnVQJ_ZCzMmT1aBsNXEBFfYNSVBdBXmLocjR0PPEWtYQrQFw@mail.gmail.com>
+ <CALz3k9icPePb0c4FE67q=u1U0hrePorN9gDpQrKTR_sXbLMfDA@mail.gmail.com>
+ <CAADnVQLwgw8bQ7OHBbqLhcPJ2QpxiGw3fkMFur+2cjZpM_78oA@mail.gmail.com>
+ <CALz3k9g9k7fEwdTZVLhrmGoXp8CE47Q+83r-AZDXrzzuR+CjVA@mail.gmail.com>
+ <CAADnVQLHpi3J6cBJ0QBgCQ2aY6fWGnVvNGdfi3W-jmoa9d1eVQ@mail.gmail.com> <CALz3k9g-U8ih=ycJPRbyU9x_9cp00fNkU3PGQ6jP0WJ+=uKmqQ@mail.gmail.com>
+In-Reply-To: <CALz3k9g-U8ih=ycJPRbyU9x_9cp00fNkU3PGQ6jP0WJ+=uKmqQ@mail.gmail.com>
+From: =?UTF-8?B?5qKm6b6Z6JGj?= <dongmenglong.8@bytedance.com>
+Date: Thu, 28 Mar 2024 22:43:46 +0800
+Message-ID: <CALz3k9jG5Jrqw=BGjt05yMkEF-1u909GbBYrV-02W0dQtm6KQQ@mail.gmail.com>
+Subject: Re: [External] Re: [PATCH bpf-next v2 1/9] bpf: tracing: add support
+ to record and check the accessed args
+To: Alexei Starovoitov <alexei.starovoitov@gmail.com>, Jiri Olsa <jolsa@kernel.org>
+Cc: Andrii Nakryiko <andrii@kernel.org>, Alexei Starovoitov <ast@kernel.org>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <martin.lau@linux.dev>, Eddy Z <eddyz87@gmail.com>, 
+	Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, 
+	John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>, 
+	Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
+	David Ahern <dsahern@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	X86 ML <x86@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Quentin Monnet <quentin@isovalent.com>, 
+	bpf <bpf@vger.kernel.org>, 
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, LKML <linux-kernel@vger.kernel.org>, 
+	linux-riscv <linux-riscv@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, 
+	Network Development <netdev@vger.kernel.org>, linux-trace-kernel@vger.kernel.org, 
+	"open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, linux-stm32@st-md-mailman.stormreply.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 28, 2024 at 1:54=E2=80=AFPM Ulf Hansson <ulf.hansson@linaro.org=
-> wrote:
+On Fri, Mar 15, 2024 at 4:00=E2=80=AFPM =E6=A2=A6=E9=BE=99=E8=91=A3 <dongme=
+nglong.8@bytedance.com> wrote:
+>
+> On Thu, Mar 14, 2024 at 8:27=E2=80=AFAM Alexei Starovoitov
+> <alexei.starovoitov@gmail.com> wrote:
+> >
+> > On Tue, Mar 12, 2024 at 6:53=E2=80=AFPM =E6=A2=A6=E9=BE=99=E8=91=A3 <do=
+ngmenglong.8@bytedance.com> wrote:
+> [......]
+> > > What does "a hundred attachments max" means? Can't I
+> > > trace thousands of kernel functions with a bpf program of
+> > > tracing multi-link?
+> >
+> > I mean what time does it take to attach one program
+> > to 100 fentry-s ?
+> > What is the time for 1k and for 10k ?
+> >
+> > The kprobe multi test attaches to pretty much all funcs in
+> > /sys/kernel/tracing/available_filter_functions
+> > and it's fast enough to run in test_progs on every commit in bpf CI.
+> > See get_syms() in prog_tests/kprobe_multi_test.c
+> >
+> > Can this new multi fentry do that?
+> > and at what speed?
+> > The answer will decide how applicable this api is going to be.
+> > Generating different trampolines for every attach point
+> > is an approach as well. Pls benchmark it too.
+>
+> I see. Creating plenty of trampolines does take a lot of time,
+> and I'll do testing on it.
+>
 
-> At this point we have suggested to drivers to switch to use threaded
-> irq handlers (and regular work queues if needed too). That said,
-> what's the benefit of using the BH work queue?
+I have done a simple benchmark on creating 1000
+trampolines. It is slow, quite slow, which consume up to
+60s. We can't do it this way.
 
-Context:
-https://lwn.net/Articles/960041/
-"Tasklets, in particular, remain because they offer lower latency than
-workqueues which, since they must go through the CPU scheduler,
-can take longer to execute a deferred-work item."
+Now, I have a bad idea. How about we introduce
+a "dynamic trampoline"? The basic logic of it can be:
 
-The BH WQ is controlled by a software IRQ and quicker than an
-ordinary work item.
+"""
+save regs
+bpfs =3D trampoline_lookup_ip(ip)
+fentry =3D bpfs->fentries
+while fentry:
+  fentry(ctx)
+  fentry =3D fentry->next
 
-I don't know if this little latency could actually affect any MMC
-device, I doubt it.
+call origin
+save return value
 
-The other benefit IIUC is that it is easy to mechanically rewrite tasklets
-to BH workqueues and be sure that it is as fast as the tasklet, if you want
-to switch to threaded IRQ handlers or proper work, you need to write a
-lot of elaborate code and test it (preferably on real hardware).
+fexit =3D bpfs->fexits
+while fexit:
+  fexit(ctx)
+  fexit =3D fexit->next
 
-Yours,
-Linus Walleij
+xxxxxx
+"""
+
+And we lookup the "bpfs" by the function ip in a hash map
+in trampoline_lookup_ip. The type of "bpfs" is:
+
+struct bpf_array {
+  struct bpf_prog *fentries;
+ struct bpf_prog *fexits;
+  struct bpf_prog *modify_returns;
+}
+
+When we need to attach the bpf progA to function A/B/C,
+we only need to create the bpf_arrayA, bpf_arrayB, bpf_arrayC
+and add the progA to them, and insert them to the hash map
+"direct_call_bpfs", and attach the "dynamic trampoline" to
+A/B/C. If bpf_arrayA exist, just add progA to the tail of
+bpf_arrayA->fentries. When we need to attach progB to
+B/C, just add progB to bpf_arrayB->fentries and
+bpf_arrayB->fentries.
+
+Compared to the trampoline, extra overhead is introduced
+by the hash lookuping.
+
+I have not begun to code yet, and I am not sure the overhead is
+acceptable. Considering that we also need to do hash lookup
+by the function in kprobe_multi, maybe the overhead is
+acceptable?
+
+Thanks!
+Menglong Dong
+
+> >
+> > > >
+> > > > Let's step back.
+> [......]
+> >
+> > For one trampoline to handle all attach points we might
+> > need some arch support, but we can start simple.
+> > Make btf_func_model with MAX_BPF_FUNC_REG_ARGS
+> > by calling btf_distill_func_proto() with func=3D=3DNULL.
+> > And use that to build a trampoline.
+> >
+> > The challenge is how to use minimal number of trampolines
+> > when bpf_progA is attached for func1, func2, func3
+> > and bpf_progB is attached to func3, func4, func5.
+> > We'd still need 3 trampolines:
+> > for func[12] to call bpf_progA,
+> > for func3 to call bpf_progA and bpf_progB,
+> > for func[45] to call bpf_progB.
+> >
+> > Jiri was trying to solve it in the past. His slides from LPC:
+> > https://lpc.events/event/16/contributions/1350/attachments/1033/1983/pl=
+umbers.pdf
+> >
+> > Pls study them and his prior patchsets to avoid stepping on the same ra=
+kes.
