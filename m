@@ -1,125 +1,131 @@
-Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
+Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D0FA85926
-	for <linux-s390@vger.kernel.org>; Fri, 29 Mar 2024 13:21:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 322D41FBA;
+	Fri, 29 Mar 2024 15:40:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711718507; cv=none; b=oS/BG+4mU9ya184s5xczYu//ECB6dgNNHlYyFwDU5SLctMvr0TrqkiARPudbtXtXc4l2l8ygJsTGnFQSKgLySDtsMGHahc6RT4HqMI9VwfrmVTKQy2IEMorFqWdXsXiNqkdcg/UZde0mRGCIZJzfLdYgHzUzUxjriNv6uv5KQ4A=
+	t=1711726810; cv=none; b=HdL6QUR0uK57/gTcFmuwvsxwp7Is231eNnIyOK3oJoSeiErgq7txZMZXkemJ706h/3MmF23TBwrqyhDa9y9T797U3gTA7l+PYCyGN3Vb9GQ6TMhG45bwnPk+c/GXRpXpOdQ5QM7Yl7gPnUD9NcZZiU/zvvniuIML2PnCNLTipfo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711718507; c=relaxed/simple;
-	bh=RAhOseKWHqjGtVoiQ7a2nR2D+WRBJpAPx8SCmHJSxcc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=G8CXmYEg7uU6GRkLEbu16ohLEPyiOZGL92hNscucVdLKM2tGn0Ix6bZqZ6VUd7oz/WjkAjnL/EkJo6bioPaNMTCbNtWoboOqT+D9dHGiEIIcM4Jzb1qcdwkH1fM6z+x/AHcYZEFhK+U0++TmwjBKrtxmrMZ1qjbVDYGsputFeyk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=mRpzkkk/; arc=none smtp.client-ip=209.85.208.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1711726810; c=relaxed/simple;
+	bh=XCgoZLnAXnGDp3scNF5htnbob5J7JStC8D45eQoM9R4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oCDryKTCwNBa1XESY+HXrS2fCn9Ozuiym1DVVy5CR6Vvze0hKrsJPXVEBXqEViTLFl7Ah4vNuiXZkU1sw6aoJwNBYy/7swRzdJ6OJ4/g2oFdS5u6stGkcvDtlZvAxMIncnK4B4wXmzWtYqljaYhhZLEz+CdqsKwIqq45swgykpU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MUnOUR7H; arc=none smtp.client-ip=209.85.215.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="mRpzkkk/"
-Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-56c63f4a468so5731a12.0
-        for <linux-s390@vger.kernel.org>; Fri, 29 Mar 2024 06:21:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MUnOUR7H"
+Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-53fa455cd94so1519286a12.2;
+        Fri, 29 Mar 2024 08:40:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1711718503; x=1712323303; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=J6Qr+2wZkDiWc+QhngmAmneq974QF4QT4bvvKPeEeCI=;
-        b=mRpzkkk/qOu1huMf7Y1GSiuMGohxIBM4rnlP2tBZoxrQY2yoJxd3ADqafDnSUdQYOp
-         MpzADVyy9tn0zskIXC//tGWfCK/4wBmfYJxQPW5tF4MZY+Nvg3QiZy/rRVelNbg1Uscc
-         Llhi1aZ+jZizXWES7IMGcZAtAwbyNiLeOE1lHXespehUyIy4kKpk+5h0+fEIW6wcnarh
-         8FbWrhxF9Esm911DWgFBqbpHvgHrAKwIDpbm1WHkr8Q8tB/VXO+5UiKAE0/bHuTBEp92
-         XZ69dUpYiANFfyUzMr752lXHxksyRyCwXjB4i382sYGFM1F5G55g4twyKY5pMJ/AoGZ9
-         2h/A==
+        d=gmail.com; s=20230601; t=1711726808; x=1712331608; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=iN31wd2vCkiTGMz1OBtEaB4JW8VyiA1XbISlyEebr3E=;
+        b=MUnOUR7HY6vwYa92neIZHYGUvH5I1dF1Bo7/9/nYC/METJ1LcvRfTJ3UrdSMmUe6FC
+         gOsAAcZI5fuMBtnYd1XYteTpD7iilDnzNJGQCDkjNtdSbNtsjQ+H+tT/p1giGio6N6XG
+         c/fOoWgNLNBTXbnefO75MQyI51dLo+b1SVQJb2BkA3/hB5pZIlony882eQZu9ZFNh0ep
+         33bUFemjBqO3ZNk+x0tiQjkOnJ9fcXv2MQdOFypkFGG4FahpdXL6b/Vj7wCz/gfVSbTO
+         MJv/wJzO/jQ7Kdcxmde4Pb9pySSflIuFcgkUN32tfKWGxoR+Pm6mK6F5SJkvChQwYmRp
+         iBRw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711718503; x=1712323303;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1711726808; x=1712331608;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=J6Qr+2wZkDiWc+QhngmAmneq974QF4QT4bvvKPeEeCI=;
-        b=WQ2XMx1r0Q46b8MbhnTgZ75hAtjgcwa2CJ2+/2IH8wgUdAxO2qtglDQUic71Eu9HbJ
-         AVH6LPARzMba3xmWZmAkZcHX/Xsxkh+KlzOQx2Zztywt8+74IUdMOm+jG0sV2dCUnN7U
-         /c+SOD7x66He5F638LbG5LUbS4/nhJIsCA39LNTASeTASGDcfHvVdo+xs02Jt5p1a7tL
-         HeVNmI1gyeTHm6fwu2iFmD0NBFkXcu+JtcEwkt2E6CBVip1DgfteumZFBCr1pcDeI4c8
-         He6gEX/Fke7eL7+CU59VtGLehkzieh5C8qFUZBC1uD0UOYyWrp+KWhgFjJCsaKGK/t2f
-         F7Pw==
-X-Forwarded-Encrypted: i=1; AJvYcCWbHCunbLeM4CC4Y1fk3AcDKJ/WxntMYXQZTyllWGx9DrCOepDkkEx+iapX9b8bxhxZcZhPaLQYK0AYWTS8k1WvyXmUk6gujqYcog==
-X-Gm-Message-State: AOJu0YyjgmbtO0xHwACBL9U5jl1eBUE72Lah/MAY3m36zl9K+mjPdaoH
-	Tg6a5GkkNIYq+0mk8vgkaAtoF1Bk8vyWpuk3+ObDM/p48u+nX+G03OA+LveEzxwx0/gQLRdUNCe
-	bi5gh/SLJ2ydPZk0Ed3CIs8BaKTdgOvXMmBkT
-X-Google-Smtp-Source: AGHT+IFyUO0LdXXBQqKbbrkev8q9MSFk85GtCswxxjiFZg14xnRhOn+ConDZ24SXfudvkm8YB3u16z3CQV5DlRSNzKM=
-X-Received: by 2002:a05:6402:35d1:b0:56c:63dc:c02b with SMTP id
- z17-20020a05640235d100b0056c63dcc02bmr106182edc.0.1711718502598; Fri, 29 Mar
- 2024 06:21:42 -0700 (PDT)
+        bh=iN31wd2vCkiTGMz1OBtEaB4JW8VyiA1XbISlyEebr3E=;
+        b=UZeXNTugUFF7ZLvxjcEC/t4b+REmywz0B1oaHxSC/FPLuIS2hcg1pnvyr0iY283ORN
+         J5yEbOt82e+srx1WEoeZxx18mHADhxIVjqxIVbQNtO4YiNF84vQOwZMaHanx1QVhiyzi
+         30wGweoNPXMcu+4ZWuBv3tB2/AoFu/tSpvKnPAWTc7R6lGG+QXfoQhPIQ7qjxKDGkZ/v
+         ZJQajuGvmLhkcxFBNd/VvXMN8OomN4lQ8AYg3AZRV7z5QGBJz9SzBiYDR89eJ0i3NxkZ
+         b5QdJT8wzr3pwABneBZST1fjtCVvHVrB0uBTt6LeVO0XZJ6PaIXbQAQEZLISaKtvJJrU
+         M9VA==
+X-Forwarded-Encrypted: i=1; AJvYcCVJOnvfqDstoGNWqya9c2CpvRlfeBuOGCz4oaW4BjNSstCi+JbsgNWSWKPkJTvDezGHP1l1yt3hbnjRuFMnFnP+ODAPa9B0KTgUzCTR4wBP509TYdlj1Yoc63C0gBx0PyATOTXRoU50jgTOCW5LOyzh02XO+PpOPZrzO6aKzu2WEDkkG11VeaYfUts4cuOCmJsj3BdXu8Ah9dTKuzXBAT0pXxXfErO3rzYezy4btqFL9YZzGWecZIDTEK13C8CLPsUfnn+9dXWOLXiWYAyrOYsmXUR2uml0icj4IJpVvUdrtlcQ8t8eBsSlQqEEb3VDGg==
+X-Gm-Message-State: AOJu0Yzacj+0ODnB61m4DFEwTd9U4g+aPd/faEYvzFALoBq7a3kkjEky
+	RWWg6gr0dcatrVIFarTUu05/TalspZjQ1+zHRsDZleqZmcPuyvLR
+X-Google-Smtp-Source: AGHT+IF0O7HII5MYlv2g0E+BHBSm5qRGKAR+0KxI+xwk6+g8c7fXn65jtKX0C7ci+tZdnr/ge20LGw==
+X-Received: by 2002:a05:6a20:3c90:b0:1a5:6bfb:76de with SMTP id b16-20020a056a203c9000b001a56bfb76demr2694088pzj.2.1711726808383;
+        Fri, 29 Mar 2024 08:40:08 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id m9-20020a170902db0900b001dd578121d4sm3581907plx.204.2024.03.29.08.40.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 Mar 2024 08:40:07 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Fri, 29 Mar 2024 08:40:05 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Simon Horman <horms@kernel.org>
+Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	=?iso-8859-1?Q?Ma=EDra?= Canal <mcanal@igalia.com>,
+	Dan Carpenter <dan.carpenter@linaro.org>,
+	Kees Cook <keescook@chromium.org>,
+	Daniel Diaz <daniel.diaz@linaro.org>,
+	David Gow <davidgow@google.com>,
+	Arthur Grillo <arthurgrillo@riseup.net>,
+	Brendan Higgins <brendan.higgins@linux.dev>,
+	Naresh Kamboju <naresh.kamboju@linaro.org>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Maxime Ripard <mripard@kernel.org>,
+	Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>,
+	Daniel Vetter <daniel@ffwll.ch>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	dri-devel@lists.freedesktop.org, kunit-dev@googlegroups.com,
+	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org, loongarch@lists.linux.dev,
+	netdev@vger.kernel.org,
+	Linux Kernel Functional Testing <lkft@linaro.org>
+Subject: Re: [PATCH v2 12/14] sh: Add support for suppressing warning
+ backtraces
+Message-ID: <d7663e19-74d5-478d-becc-0a080075e7d6@roeck-us.net>
+References: <20240325175248.1499046-1-linux@roeck-us.net>
+ <20240325175248.1499046-13-linux@roeck-us.net>
+ <20240327144431.GL403975@kernel.org>
+ <320aacc6-b7e5-4c3d-948e-d0743ab26c5d@roeck-us.net>
+ <20240327193920.GV403975@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240329105610.922675-1-dawei.li@shingroup.cn> <20240329105610.922675-2-dawei.li@shingroup.cn>
-In-Reply-To: <20240329105610.922675-2-dawei.li@shingroup.cn>
-From: Eric Dumazet <edumazet@google.com>
-Date: Fri, 29 Mar 2024 14:21:28 +0100
-Message-ID: <CANn89iJzuw8_ti4P4tJ_A3Fd0QCjHTBjasbm_J3N8up=gK8Aow@mail.gmail.com>
-Subject: Re: [PATCH net-next 1/2] net/iucv: Avoid explicit cpumask var
- allocation on stack
-To: Dawei Li <dawei.li@shingroup.cn>
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
-	ioana.ciornei@nxp.com, wintera@linux.ibm.com, twinkler@linux.ibm.com, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240327193920.GV403975@kernel.org>
 
-On Fri, Mar 29, 2024 at 11:57=E2=80=AFAM Dawei Li <dawei.li@shingroup.cn> w=
-rote:
->
-> For CONFIG_CPUMASK_OFFSTACK=3Dy kernel, explicit allocation of cpumask
-> variable on stack is not recommended since it can cause potential stack
-> overflow.
->
-> Instead, kernel code should always use *cpumask_var API(s) to allocate
-> cpumask var in config-neutral way, leaving allocation strategy to
-> CONFIG_CPUMASK_OFFSTACK.
->
-> Use *cpumask_var API(s) to address it.
->
-> Signed-off-by: Dawei Li <dawei.li@shingroup.cn>
-> ---
->  net/iucv/iucv.c | 37 ++++++++++++++++++++++++++-----------
->  1 file changed, 26 insertions(+), 11 deletions(-)
->
-> diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-> index a4ab615ca3e3..b51f46ec32f9 100644
-> --- a/net/iucv/iucv.c
-> +++ b/net/iucv/iucv.c
-> @@ -520,14 +520,19 @@ static void iucv_setmask_mp(void)
->   */
->  static void iucv_setmask_up(void)
->  {
-> -       cpumask_t cpumask;
-> +       cpumask_var_t cpumask;
->         int cpu;
->
-> +       if (!alloc_cpumask_var(&cpumask, GFP_KERNEL))
-> +               return;
+On Wed, Mar 27, 2024 at 07:39:20PM +0000, Simon Horman wrote:
+[ ... ]
+> > > 
+> > > Hi Guenter,
+> > > 
+> > > a minor nit from my side: this change results in a Kernel doc warning.
+> > > 
+> > >       .../bug.h:29: warning: expecting prototype for _EMIT_BUG_ENTRY(). Prototype was for HAVE_BUG_FUNCTION() instead
+> > > 
+> > > Perhaps either the new code should be placed above the Kernel doc,
+> > > or scripts/kernel-doc should be enhanced?
+> > > 
+> > 
+> > Thanks a lot for the feedback.
+> > 
+> > The definition block needs to be inside CONFIG_DEBUG_BUGVERBOSE,
+> > so it would be a bit odd to move it above the documentation
+> > just to make kerneldoc happy. I am not really sure that to do
+> > about it.
+> 
+> FWIIW, I agree that would be odd.
+> But perhaps the #ifdef could also move above the Kernel doc?
+> Maybe not a great idea, but the best one I've had so far.
+> 
 
-This can not be right. iucv_setmask_up() is not supposed to fail.
+I did that for the next version of the patch series. It is a bit more
+clumsy, so I left it as separate patch on top of this patch. I'd
+still like to get input from others before making the change final.
 
-Since iucv_setmask_up() is only called with iucv_register_mutex held,
-you could simply add a 'static' for @cpumask variable.
-
-
-
-> +
->         /* Disable all cpu but the first in cpu_irq_cpumask. */
-> -       cpumask_copy(&cpumask, &iucv_irq_cpumask);
-> -       cpumask_clear_cpu(cpumask_first(&iucv_irq_cpumask), &cpumask);
-> -       for_each_cpu(cpu, &cpumask)
-> +       cpumask_copy(cpumask, &iucv_irq_cpumask);
-> +       cpumask_clear_cpu(cpumask_first(&iucv_irq_cpumask), cpumask);
-> +       for_each_cpu(cpu, cpumask)
->                 smp_call_function_single(cpu, iucv_block_cpu, NULL, 1);
-> +
-> +       free_cpumask_var(cpumask);
->  }
+Thanks,
+Guenter
