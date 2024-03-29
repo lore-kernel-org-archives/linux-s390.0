@@ -1,34 +1,32 @@
-Received: from smtpbgsg2.qq.com (smtpbgsg2.qq.com [54.254.200.128])
+Received: from smtpbg150.qq.com (smtpbg150.qq.com [18.132.163.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D195E6A034;
-	Fri, 29 Mar 2024 10:59:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.254.200.128
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76A9E6A013;
+	Fri, 29 Mar 2024 10:59:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=18.132.163.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711709956; cv=none; b=Rioe8QRGYcwlwQk4+bCwRvmshfXuDpUzo0+r+W/i2UT0RHgIEQkStE20rzOgQ6GUpcjrp902b6zKk6xekGYUKzm4H6/IqVSair5dOvstRsQq3pGnpHfWZ7bmny8AVb+K4CGYOOhZ+3AhVleJA3K1pnqZSmms9KdS68m6GXRLQ18=
+	t=1711709978; cv=none; b=eT7k3WtkxwOHXy5LL2zd5od1U9Jq+h6EMsfy6LgJrhB7pC4AaqcU5kBm+ByixiGTcYMrcpJwMBwGsgZ4TjiYvhs8T4XRWHWqs2uZnh81nW2x+6lYDioNSVpXhQmP59PfKjHkXnX4QlKL+9E6ko8vmS5zFtZhxxn1DblVgKqiRzE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711709956; c=relaxed/simple;
-	bh=nxx+6xNwnVOmWpIQMEjVW/rRZuWaUlN8c6YVrXlsBh0=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=UUkZ8XgYsON73kfruYhcZ4jTE9dS9qEKdhcM543GUOgNUkOBW0QcqLKeYfnj4z0tK2UEnckQNk9wlX3JiaTHoiz0hYQ/SemXjTXiiYfRG9s/7qXSz9vrQvkXdZcpNu+N8lVKE5lq241GoXLyiHJOIErPp100DXcntzYKcoL6fwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shingroup.cn; spf=pass smtp.mailfrom=shingroup.cn; arc=none smtp.client-ip=54.254.200.128
+	s=arc-20240116; t=1711709978; c=relaxed/simple;
+	bh=k+v0qzwa/G31seXck9YqysYUEETaqx3WTiw/bXysXXc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=TrgMwWQKVfAPgUGfXuEmVvmgFRw7RTgs63GohRIvCF7fkT9kNFgg3TRHbjSZoznl9V1EC5qUOnErbT/r4izY3ulg3jilSiZxP1/mQDKQLohY2Bm5jyU9y57/uVUTG+Ck2koz7BV8tK5q975WIQTQ5A0euN/Q6ZB++BOYIwTlvTg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shingroup.cn; spf=pass smtp.mailfrom=shingroup.cn; arc=none smtp.client-ip=18.132.163.193
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shingroup.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shingroup.cn
-X-QQ-mid: bizesmtp78t1711709854t315a8p1
-X-QQ-Originating-IP: H8w4LcerRMqb3ebuPNSs3LfNThRRyFFZSFHvYx23/XE=
+X-QQ-mid: bizesmtp90t1711709833trhodnwy
+X-QQ-Originating-IP: ip4zIv0IgokV1PIQx8JCNN0m4s34KKdMABqAoCfUXCE=
 Received: from localhost ( [112.0.147.175])
 	by bizesmtp.qq.com (ESMTP) with 
-	id ; Fri, 29 Mar 2024 18:57:32 +0800 (CST)
+	id ; Fri, 29 Mar 2024 18:57:12 +0800 (CST)
 X-QQ-SSF: 01400000000000704000000A0000000
-X-QQ-FEAT: 3M0okmaRx3i4lw8jCv5pRXp7qaLjIhH0Nom7X39gKEaZDUM6z97qAS+K1xyiV
-	uPemEmElYeZZ9MUIMSmYEYFWjkUfeioSa/IBg8MTJgqd5mJTURBXQkRogmBUVfa0DjxpoHT
-	/ct1PrtM9lkrVLQEXtIVpFge1a0v1UwWuAEAkcE6ylNn/zRf5ZZ5DHHc+c2uN4RUKu15lJ9
-	fQqIU0EpHK4oYC8Ury5lbzEOO5wdG3fgWm4LjJyOSbUpP+dDW4/+iFemu+VY178tutQ133a
-	XrCMHstzq/eYYgILgAj4Oe3+U14R3IEbJEg/fqmbsCkFxNWNwbVhKBXH6H4Ug0H2PonnIbA
-	u0f1zayFQkLzJK6Hr+sf6XBpYTpE9W8E6OaHFChg5v/COuEruju3laTNc6ky9N1Y6NB0dkZ
-	AeybAHcHGbw=
+X-QQ-FEAT: 3M0okmaRx3iFSdA6FuP1qfcOUFMFiuSHQF3s31WACj0xlrvJ1/LDtxfHmhYkH
+	RU8ot5MGMvKKsDxe4nphnUcPBEbBybaeU9+BT4+n1TOk6Wy9wI83oh+cATtEaNUMIMh/D0p
+	47m8l1f8URDsOjl4dwtkM3iBOjwZgvZbp3dEIRNGtESCkkDK85s+OBzodj4Y99avaGtokn2
+	11TLQWPvgRzTVgWByAGuAvzEz2G1LwehWJf7f3uVrSSe+ki00Bj6KEVdrgXUaRj3AylLdIP
+	wqJmfDq2518PcBgkEcO86oWen8Uk/asmx38QIlTvNyxc5Qe0N96/aRePTEXMtfolAoDa3Ye
+	sD7YrCN7sHLHF3lJFXEfhVvlFV5ZQb02dO05nMdb0YVahYorDUM3RXX7cuKcA==
 X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 6166159861030876298
+X-BIZMAIL-ID: 1969986897555587113
 From: Dawei Li <dawei.li@shingroup.cn>
 To: davem@davemloft.net,
 	edumazet@google.com,
@@ -41,12 +39,10 @@ Cc: netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	Dawei Li <dawei.li@shingroup.cn>
-Subject: [PATCH net-next 2/2] net/dpaa2: Avoid explicit cpumask var allocation on stack
-Date: Fri, 29 Mar 2024 18:56:10 +0800
-Message-Id: <20240329105610.922675-3-dawei.li@shingroup.cn>
+Subject: [PATCH net-next 0/2] Avoid explicit cpumask var allocation on stack
+Date: Fri, 29 Mar 2024 18:56:08 +0800
+Message-Id: <20240329105610.922675-1-dawei.li@shingroup.cn>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20240329105610.922675-1-dawei.li@shingroup.cn>
-References: <20240329105610.922675-1-dawei.li@shingroup.cn>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -57,63 +53,24 @@ Content-Transfer-Encoding: 8bit
 X-QQ-SENDSIZE: 520
 Feedback-ID: bizesmtp:shingroup.cn:qybglogicsvrgz:qybglogicsvrgz5a-1
 
-For CONFIG_CPUMASK_OFFSTACK=y kernel, explicit allocation of cpumask
-variable on stack is not recommended since it can cause potential stack
-overflow.
+Hi,
 
-Instead, kernel code should always use *cpumask_var API(s) to allocate
-cpumask var in config-neutral way, leaving allocation strategy to
-CONFIG_CPUMASK_OFFSTACK.
+This's a tiny series which replace explicit cpumask var allocation on
+stack with *cpumask_var API to achieve neutrality on config and avoid
+possible stack overfow. 
 
-Use *cpumask_var API(s) to address it.
+Dawei Li (2):
+  net/iucv: Avoid explicit cpumask var allocation on stack
+  net/dpaa2: Avoid explicit cpumask var allocation on stack
 
-Signed-off-by: Dawei Li <dawei.li@shingroup.cn>
----
- drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ .../net/ethernet/freescale/dpaa2/dpaa2-eth.c  | 14 ++++---
+ net/iucv/iucv.c                               | 37 +++++++++++++------
+ 2 files changed, 35 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-index 888509cf1f21..40e881829595 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-@@ -2896,11 +2896,14 @@ static int dpaa2_eth_xdp_xmit(struct net_device *net_dev, int n,
- static int update_xps(struct dpaa2_eth_priv *priv)
- {
- 	struct net_device *net_dev = priv->net_dev;
--	struct cpumask xps_mask;
--	struct dpaa2_eth_fq *fq;
- 	int i, num_queues, netdev_queues;
-+	struct dpaa2_eth_fq *fq;
-+	cpumask_var_t xps_mask;
- 	int err = 0;
- 
-+	if (!alloc_cpumask_var(&xps_mask, GFP_KERNEL))
-+		return -ENOMEM;
-+
- 	num_queues = dpaa2_eth_queue_count(priv);
- 	netdev_queues = (net_dev->num_tc ? : 1) * num_queues;
- 
-@@ -2910,16 +2913,17 @@ static int update_xps(struct dpaa2_eth_priv *priv)
- 	for (i = 0; i < netdev_queues; i++) {
- 		fq = &priv->fq[i % num_queues];
- 
--		cpumask_clear(&xps_mask);
--		cpumask_set_cpu(fq->target_cpu, &xps_mask);
-+		cpumask_clear(xps_mask);
-+		cpumask_set_cpu(fq->target_cpu, xps_mask);
- 
--		err = netif_set_xps_queue(net_dev, &xps_mask, i);
-+		err = netif_set_xps_queue(net_dev, xps_mask, i);
- 		if (err) {
- 			netdev_warn_once(net_dev, "Error setting XPS queue\n");
- 			break;
- 		}
- 	}
- 
-+	free_cpumask_var(xps_mask);
- 	return err;
- }
- 
+Thanks,
+
+    Dawei
+
 -- 
 2.27.0
 
