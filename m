@@ -1,146 +1,151 @@
-Received: from smtpbguseast3.qq.com (smtpbguseast3.qq.com [54.243.244.52])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E4356A8AD;
-	Fri, 29 Mar 2024 10:59:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.243.244.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C7C514A4D8;
+	Fri, 29 Mar 2024 12:29:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711709983; cv=none; b=QjapkStGAf2FAtJnjoh7G41TJlUX9x4uIjKhYuLXbVMcGVCqXA2E3ftIH5McHgk5n7wMLUQfGZnKAlG8kh/PsvkY3ED46buUF0euIjs0YKn9zJ2uIeUn+CXVXbKUOfRWnZojDiOYRIwmoPO6rCGAV7PIZjnYehEn1YSQjhwe1y4=
+	t=1711715350; cv=none; b=Dy0uAtyO11lY0C+Sxet7fVCTc4hsvOYrWAf47DE4cky1yTC8aFEB8ZslDOvFVQa2xshiPqEtYvhwXLBpu4MGfEFSVIpSIsJ3IoJFD0D8ar1xtFz+ifeAnaIbyCMkIHUUSD/pvOloPzQ8pePqtafjNVVsLatUTe6VAvdOa/v2VUk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711709983; c=relaxed/simple;
-	bh=BGdVHyXu2nvr+uV8Gq6vq1qthRDesSy50eK+N7uOi2c=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=jGbDGl5Hj0peVRLcdC0ZXvFd9kEW57ttwXvpDB8BkGj5zFdzciD7zL9NIGPN84nEZS7M/bLOLH4Lo/5cBZxICsnB5c5ct50w9GL9LrSSVTCFP0BHyDmIhB9PUyLqnj8HUX+d3urCzM4IKw5tOAfgeb4T6v0Ruzk8y99h/pl4T64=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shingroup.cn; spf=pass smtp.mailfrom=shingroup.cn; arc=none smtp.client-ip=54.243.244.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shingroup.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shingroup.cn
-X-QQ-mid: bizesmtp82t1711709843tv80s7ov
-X-QQ-Originating-IP: 71LQnl3NJNsvgOKyfpSvsNrOkPFMxIaohKLax+fnpYk=
-Received: from localhost ( [112.0.147.175])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Fri, 29 Mar 2024 18:57:21 +0800 (CST)
-X-QQ-SSF: 01400000000000704000000A0000000
-X-QQ-FEAT: 3M0okmaRx3i4lw8jCv5pReqk8XBDZo4W2Lqox8v053W7I2EUN6+uz7amykeXY
-	UGZSGgJiwCVnbILlJeIBx1IXvUentjK22EK6gxsv37dyLssoRUBFH2RJWuDFQY9XyKeux0x
-	UFxv+MynwpUjZ6Aw/i78cnflRKmEh2TnySUC9C0m6y69i5LVTSZ3UF40Rk10mpqdsB2qdwH
-	3rVww06rDMc5xTqH+llDnXZ2yYgHlBUY3zw6PCNuVQHHIot+AbntyodfvCHjMOvxrnvkQfE
-	bz+WS+INwVRfOTOONWmPMQWkqCbMtaPGXTn4GTd2K4W9y64FtzyAzbB1Ii6rOKbXHDmpIXK
-	c2+2sdCJORS2jNEAs1llYOElRKG3J1SfYVgAdadpbkNwJ91qwMBY0gV70ZhPSoQFwWHkOdr
-	bD7DvGsT4JI=
-X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 8489316982251753822
-From: Dawei Li <dawei.li@shingroup.cn>
-To: davem@davemloft.net,
-	edumazet@google.com,
+	s=arc-20240116; t=1711715350; c=relaxed/simple;
+	bh=4+My7TVnqb+XSwV5DqQBcNUF1++LB0p2QZlH7Y+9RbM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=TpCVy6B1vW7FN/HVHa23vIFFEQBjDsKfQD7ZTcO0phThtMsSroeUzcaSFIsH3un73isSDbf3JRJcR138guKUbC4yqPH2LbNM9O8scp1HXBJDKetZgAnj9gvb9JE4pKUFcCTVpSDRd7osswsPWyIbdoHRyMIuiEgZHLcQ6AUd0Zo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bIjXq1uF; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bIjXq1uF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDF86C43399;
+	Fri, 29 Mar 2024 12:29:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1711715350;
+	bh=4+My7TVnqb+XSwV5DqQBcNUF1++LB0p2QZlH7Y+9RbM=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=bIjXq1uFoKvFvL98mBFRtW3vSmISEOI4XuQ8U/YWWiaS7gDUaBimcXPVOUtDD2B9L
+	 xlbWbX2FQNznHzXciSJw5PUP+mKf5u1aXKWL/PbjnEpOTNoClw+v70jF7GVTCPOb9p
+	 ulKElsxHomJ82AYfCD0TQztWDBJvKbSKtnZX2opOurShukxL/yfhGEDWunxRZn9gZV
+	 GcqkWUWOI+Il1fqaMxcIH3l5QCC9LpD1Fx2Cb4rafruftTvqxqcHyer5Ga42sj2JVW
+	 GooN6UjlGVi/Qh1QYh0ysdLdXNwhN6wEGZToqU/nZAPBWvTth5TZOOecfIauNAA6N8
+	 aijlK/4jYYnkA==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Eric Dumazet <edumazet@google.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Jan Karcher <jaka@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Sasha Levin <sashal@kernel.org>,
+	davem@davemloft.net,
 	kuba@kernel.org,
-	pabeni@redhat.com,
-	ioana.ciornei@nxp.com,
-	wintera@linux.ibm.com,
-	twinkler@linux.ibm.com
-Cc: netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org,
-	Dawei Li <dawei.li@shingroup.cn>
-Subject: [PATCH net-next 1/2] net/iucv: Avoid explicit cpumask var allocation on stack
-Date: Fri, 29 Mar 2024 18:56:09 +0800
-Message-Id: <20240329105610.922675-2-dawei.li@shingroup.cn>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20240329105610.922675-1-dawei.li@shingroup.cn>
-References: <20240329105610.922675-1-dawei.li@shingroup.cn>
+	netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.8 64/68] net/smc: reduce rtnl pressure in smc_pnet_create_pnetids_list()
+Date: Fri, 29 Mar 2024 08:26:00 -0400
+Message-ID: <20240329122652.3082296-64-sashal@kernel.org>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240329122652.3082296-1-sashal@kernel.org>
+References: <20240329122652.3082296-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.8.2
 Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:shingroup.cn:qybglogicsvrgz:qybglogicsvrgz5a-1
 
-For CONFIG_CPUMASK_OFFSTACK=y kernel, explicit allocation of cpumask
-variable on stack is not recommended since it can cause potential stack
-overflow.
+From: Eric Dumazet <edumazet@google.com>
 
-Instead, kernel code should always use *cpumask_var API(s) to allocate
-cpumask var in config-neutral way, leaving allocation strategy to
-CONFIG_CPUMASK_OFFSTACK.
+[ Upstream commit 00af2aa93b76b1bade471ad0d0525d4d29ca5cc0 ]
 
-Use *cpumask_var API(s) to address it.
+Many syzbot reports show extreme rtnl pressure, and many of them hint
+that smc acquires rtnl in netns creation for no good reason [1]
 
-Signed-off-by: Dawei Li <dawei.li@shingroup.cn>
+This patch returns early from smc_pnet_net_init()
+if there is no netdevice yet.
+
+I am not even sure why smc_pnet_create_pnetids_list() even exists,
+because smc_pnet_netdev_event() is also calling
+smc_pnet_add_base_pnetid() when handling NETDEV_UP event.
+
+[1] extract of typical syzbot reports
+
+2 locks held by syz-executor.3/12252:
+  #0: ffffffff8f369610 (pernet_ops_rwsem){++++}-{3:3}, at: copy_net_ns+0x4c7/0x7b0 net/core/net_namespace.c:491
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_create_pnetids_list net/smc/smc_pnet.c:809 [inline]
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_net_init+0x10a/0x1e0 net/smc/smc_pnet.c:878
+2 locks held by syz-executor.4/12253:
+  #0: ffffffff8f369610 (pernet_ops_rwsem){++++}-{3:3}, at: copy_net_ns+0x4c7/0x7b0 net/core/net_namespace.c:491
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_create_pnetids_list net/smc/smc_pnet.c:809 [inline]
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_net_init+0x10a/0x1e0 net/smc/smc_pnet.c:878
+2 locks held by syz-executor.1/12257:
+  #0: ffffffff8f369610 (pernet_ops_rwsem){++++}-{3:3}, at: copy_net_ns+0x4c7/0x7b0 net/core/net_namespace.c:491
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_create_pnetids_list net/smc/smc_pnet.c:809 [inline]
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_net_init+0x10a/0x1e0 net/smc/smc_pnet.c:878
+2 locks held by syz-executor.2/12261:
+  #0: ffffffff8f369610 (pernet_ops_rwsem){++++}-{3:3}, at: copy_net_ns+0x4c7/0x7b0 net/core/net_namespace.c:491
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_create_pnetids_list net/smc/smc_pnet.c:809 [inline]
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_net_init+0x10a/0x1e0 net/smc/smc_pnet.c:878
+2 locks held by syz-executor.0/12265:
+  #0: ffffffff8f369610 (pernet_ops_rwsem){++++}-{3:3}, at: copy_net_ns+0x4c7/0x7b0 net/core/net_namespace.c:491
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_create_pnetids_list net/smc/smc_pnet.c:809 [inline]
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_net_init+0x10a/0x1e0 net/smc/smc_pnet.c:878
+2 locks held by syz-executor.3/12268:
+  #0: ffffffff8f369610 (pernet_ops_rwsem){++++}-{3:3}, at: copy_net_ns+0x4c7/0x7b0 net/core/net_namespace.c:491
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_create_pnetids_list net/smc/smc_pnet.c:809 [inline]
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_net_init+0x10a/0x1e0 net/smc/smc_pnet.c:878
+2 locks held by syz-executor.4/12271:
+  #0: ffffffff8f369610 (pernet_ops_rwsem){++++}-{3:3}, at: copy_net_ns+0x4c7/0x7b0 net/core/net_namespace.c:491
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_create_pnetids_list net/smc/smc_pnet.c:809 [inline]
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_net_init+0x10a/0x1e0 net/smc/smc_pnet.c:878
+2 locks held by syz-executor.1/12274:
+  #0: ffffffff8f369610 (pernet_ops_rwsem){++++}-{3:3}, at: copy_net_ns+0x4c7/0x7b0 net/core/net_namespace.c:491
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_create_pnetids_list net/smc/smc_pnet.c:809 [inline]
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_net_init+0x10a/0x1e0 net/smc/smc_pnet.c:878
+2 locks held by syz-executor.2/12280:
+  #0: ffffffff8f369610 (pernet_ops_rwsem){++++}-{3:3}, at: copy_net_ns+0x4c7/0x7b0 net/core/net_namespace.c:491
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_create_pnetids_list net/smc/smc_pnet.c:809 [inline]
+  #1: ffffffff8f375b88 (rtnl_mutex){+.+.}-{3:3}, at: smc_pnet_net_init+0x10a/0x1e0 net/smc/smc_pnet.c:878
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: Jan Karcher <jaka@linux.ibm.com>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: Tony Lu <tonylu@linux.alibaba.com>
+Cc: Wen Gu <guwen@linux.alibaba.com>
+Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Link: https://lore.kernel.org/r/20240302100744.3868021-1-edumazet@google.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/iucv/iucv.c | 37 ++++++++++++++++++++++++++-----------
- 1 file changed, 26 insertions(+), 11 deletions(-)
+ net/smc/smc_pnet.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-index a4ab615ca3e3..b51f46ec32f9 100644
---- a/net/iucv/iucv.c
-+++ b/net/iucv/iucv.c
-@@ -520,14 +520,19 @@ static void iucv_setmask_mp(void)
-  */
- static void iucv_setmask_up(void)
- {
--	cpumask_t cpumask;
-+	cpumask_var_t cpumask;
- 	int cpu;
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index 9f2c58c5a86b7..2adb92b8c4699 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -806,6 +806,16 @@ static void smc_pnet_create_pnetids_list(struct net *net)
+ 	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
+ 	struct net_device *dev;
  
-+	if (!alloc_cpumask_var(&cpumask, GFP_KERNEL))
++	/* Newly created netns do not have devices.
++	 * Do not even acquire rtnl.
++	 */
++	if (list_empty(&net->dev_base_head))
 +		return;
 +
- 	/* Disable all cpu but the first in cpu_irq_cpumask. */
--	cpumask_copy(&cpumask, &iucv_irq_cpumask);
--	cpumask_clear_cpu(cpumask_first(&iucv_irq_cpumask), &cpumask);
--	for_each_cpu(cpu, &cpumask)
-+	cpumask_copy(cpumask, &iucv_irq_cpumask);
-+	cpumask_clear_cpu(cpumask_first(&iucv_irq_cpumask), cpumask);
-+	for_each_cpu(cpu, cpumask)
- 		smp_call_function_single(cpu, iucv_block_cpu, NULL, 1);
-+
-+	free_cpumask_var(cpumask);
- }
- 
- /*
-@@ -628,23 +633,33 @@ static int iucv_cpu_online(unsigned int cpu)
- 
- static int iucv_cpu_down_prep(unsigned int cpu)
- {
--	cpumask_t cpumask;
-+	cpumask_var_t cpumask;
-+	int ret = 0;
- 
- 	if (!iucv_path_table)
- 		return 0;
- 
--	cpumask_copy(&cpumask, &iucv_buffer_cpumask);
--	cpumask_clear_cpu(cpu, &cpumask);
--	if (cpumask_empty(&cpumask))
-+	if (!alloc_cpumask_var(&cpumask, GFP_KERNEL))
-+		return -ENOMEM;
-+
-+	cpumask_copy(cpumask, &iucv_buffer_cpumask);
-+	cpumask_clear_cpu(cpu, cpumask);
-+	if (cpumask_empty(cpumask)) {
- 		/* Can't offline last IUCV enabled cpu. */
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto __free_cpumask;
-+	}
- 
- 	iucv_retrieve_cpu(NULL);
- 	if (!cpumask_empty(&iucv_irq_cpumask))
--		return 0;
-+		goto __free_cpumask;
-+
- 	smp_call_function_single(cpumask_first(&iucv_buffer_cpumask),
- 				 iucv_allow_cpu, NULL, 1);
--	return 0;
-+
-+__free_cpumask:
-+	free_cpumask_var(cpumask);
-+	return ret;
- }
- 
- /**
++	/* Note: This might not be needed, because smc_pnet_netdev_event()
++	 * is also calling smc_pnet_add_base_pnetid() when handling
++	 * NETDEV_UP event.
++	 */
+ 	rtnl_lock();
+ 	for_each_netdev(net, dev)
+ 		smc_pnet_add_base_pnetid(net, dev, ndev_pnetid);
 -- 
-2.27.0
+2.43.0
 
