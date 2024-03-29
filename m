@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18D6B16ABE0;
-	Fri, 29 Mar 2024 12:33:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C6D0170A2E;
+	Fri, 29 Mar 2024 12:34:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711715633; cv=none; b=idOnTqKBdzR/gc2gy3a7Qrw2VjfQXBd6RAK/GeurrOOskT++CUJa9TIWF5aU2sHCUmvp5Fssb7S0tGgWgwfx52ASItPLr4/xa2KowZupkSBV/CQLRHT3KgNszvSorklPlPalTJwol3bLx2Iu7C4aGaRCQxjKZx3yMTsqFjV3lqU=
+	t=1711715675; cv=none; b=XqGoK0Cq3hYPUj/z5z/5rQEGj/0OXVDXx4K5HxspV5ar8JU20km4T1gvrFSHL64H53ZL2cDj6qGB55pUv/j6mOPho5t5C7DjjV3MXxNi5YG4ZHd3xUkf7XrUeXCrw/01m6SjgNcAp7aCb7tIYiZHavLgXMk3AQYMQWoNrejadaU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711715633; c=relaxed/simple;
-	bh=TXXy+DxlW0egJeLt91ncQFQqaHAPIgMlbEB0ARiCVZ0=;
+	s=arc-20240116; t=1711715675; c=relaxed/simple;
+	bh=vxSUUANd7m4g6XoA75yKSEMka/CZt4z3miE59J4d1vQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=i2yZGXsofR7u3+RpGnw7IJesondL82qzBtYEczVR66CNi7cVwLfAlzXCTWnoK4LSTJ1azyVGRe7+O73wDDrKQ+/2w/t2gdfYOB+utoJ7fxerTYhti+YP1qNUHdFqLGkdUUZyppy9WTIXLlPc5Hk3NG9wPU+Szyk1/iEhOONYrD8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f9W6Rdfk; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=WS7N9t1sssIRc8RysTCgoihMdxfZB2DesSWPJN0873w36xDUr6NO6X47stNS/jKk2e3TEE5VrPkHVTv30GQSt1AyzqZKpk0CF/+besdpdxQ3llpJZWb+XSUQVhcSyR6ecYf+JwMv1ZrB/VIUKQHiMuvpicabJ1oK3MXTOPjdGiE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DPS4uExo; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f9W6Rdfk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 818ABC43390;
-	Fri, 29 Mar 2024 12:33:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DPS4uExo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9FD5C433C7;
+	Fri, 29 Mar 2024 12:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711715633;
-	bh=TXXy+DxlW0egJeLt91ncQFQqaHAPIgMlbEB0ARiCVZ0=;
+	s=k20201202; t=1711715675;
+	bh=vxSUUANd7m4g6XoA75yKSEMka/CZt4z3miE59J4d1vQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=f9W6RdfkRkN0+bi9h2UlXr2AHsbgobGVaXgGk/09XQ/NErkyp8ybe+J043py3yd+/
-	 6cn6DLN+hDt55P3Jk+dzMZxTF2KGK1Y9GZF4kVy39el45U6YT8GoV7Ua27OYOvc40r
-	 AIMIJCHtemSsRBbayZE8Y1cNHl23oKPOW4oifucx7YiYQ9VM8qNsQN0+L+G9CUysLK
-	 rIFAcC/Qz7xSmoer1JvwLscCLUBz29xIR/TU9cL7P8V2h1DbfpyhCMAb8pnFWUjWLG
-	 tjtb2gslyN32QmM9drUMK3ElBRZ75m0HCiQxfWusOrYEccsdD0WLzI7WE8lbD/+a25
-	 lB89oNujmE04g==
+	b=DPS4uExoOXRIrbtTvkMk3GbqKsupck1DXhA4fp4nXo5rn3WlzM8Z5xVKMAyrDuSel
+	 nXknb4tFs1yW2rYjLopQrnlGvqrQtCOGaVMAN6XHtH0Zdm0IQHJJh1w/kBExbUmNBm
+	 bbNGJSjkVTIndtp79oCuKc5NgOQ2ERZ0AZg3Tzml0PO/NOjkiVevZH2CNvdxNemUFe
+	 c3yEnOzxS7ymCCJ9UoeIFeFGQ22n6ZnbEg+WfeX/6pbhJ5Gycber1Mnnqqs4I8DQZA
+	 rNi+H2onz3Mo+DHnFlyUWiInTYc+g4NAEBtWMQD4ZGf/Tz8DODjvjwuxaadAyUoo5w
+	 OqhT4fACCye7Q==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -41,12 +41,12 @@ Cc: Eric Dumazet <edumazet@google.com>,
 	kuba@kernel.org,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 19/20] net/smc: reduce rtnl pressure in smc_pnet_create_pnetids_list()
-Date: Fri, 29 Mar 2024 08:33:07 -0400
-Message-ID: <20240329123316.3085691-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 16/17] net/smc: reduce rtnl pressure in smc_pnet_create_pnetids_list()
+Date: Fri, 29 Mar 2024 08:33:55 -0400
+Message-ID: <20240329123405.3086155-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240329123316.3085691-1-sashal@kernel.org>
-References: <20240329123316.3085691-1-sashal@kernel.org>
+In-Reply-To: <20240329123405.3086155-1-sashal@kernel.org>
+References: <20240329123405.3086155-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -55,7 +55,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.15.153
+X-stable-base: Linux 5.10.214
 Content-Transfer-Encoding: 8bit
 
 From: Eric Dumazet <edumazet@google.com>
@@ -126,10 +126,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 10 insertions(+)
 
 diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index 79ee0618d919b..c9e4b37e65777 100644
+index 30bae60d626c6..ed9cfa11b589f 100644
 --- a/net/smc/smc_pnet.c
 +++ b/net/smc/smc_pnet.c
-@@ -796,6 +796,16 @@ static void smc_pnet_create_pnetids_list(struct net *net)
+@@ -797,6 +797,16 @@ static void smc_pnet_create_pnetids_list(struct net *net)
  	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
  	struct net_device *dev;
  
