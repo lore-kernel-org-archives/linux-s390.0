@@ -1,55 +1,55 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B0766FCA
-	for <linux-s390@vger.kernel.org>; Sat, 30 Mar 2024 03:35:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EE139455
+	for <linux-s390@vger.kernel.org>; Sat, 30 Mar 2024 04:15:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711769719; cv=none; b=o3/K2XsVfd1/I2EbDC1Ts9RGygPF6h0uXu6e67a2QHpUd/DdxBcKjuXFPs0Ohnxj3Dipp4pAU00Nu+NnV0XPNiMUGpzdHnVWZ+HVrAJACBXYxBEAENLtokRIav+8uCdRmT+UBCoprG5R6X1A0pGttAoWzQD+kTJUCGpb6q+OsCU=
+	t=1711772137; cv=none; b=cTqZEhsv6nHrNeDpOUuIIeTWJHxYB+P4iBGkobkqGInD6D22Fn26ogybNH1Yu8n3Qy4wVKEQkgnGR7wc00ePA+rY5jBsd9zrEm2QdjXKWEALbdHMS7/8h0D8ZbVqq9CjECIP5nFiVJ9yBXcmbanOKbULldMXdgt9emAhRWSPfUU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711769719; c=relaxed/simple;
-	bh=VpC0J23Jn0yxmT2wv6lawJLz4zGJD1QUQuuuKn67A+c=;
+	s=arc-20240116; t=1711772137; c=relaxed/simple;
+	bh=qgobxYsoW4+2TT3KspAAgbFZjvWwlDQJ1EahoxZ6SUc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PXC6DwTEBa7aocV3KkJZoUzv0N8HRWVsIXMGL3WhGzI6ZEsRV+983Ohpj3fvouET+pHuUaHWCZRUyOTcg2G1K+fB/Wcu1LB9oWHA6k1/mmYlunRO+pnXyjzvOCzpjY/tB6htHt69SaUdx+P+sivgdz6Dfzp8GRPc1vu4n9WE3Lg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=KuELMr/f; arc=none smtp.client-ip=209.85.216.43
+	 To:Cc:Content-Type; b=ekMHrMAR2x/oVMtGV/zTMtk+3rkihZNIOhVGKhsgpBc0CYCZ47tVMlG98ByD9aXVMQt2MNsAZlb/Dxk0Q4+cj5fY/XqdMt6vKp6/8U325i9V1aOTEgRbjUFyLYP5QaxLdy+pk/lpNM1ls7/3nwpGP0D4XeAE6xZLuo4pCcoo8H0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=lotuHB3Y; arc=none smtp.client-ip=209.85.210.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="KuELMr/f"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-29e0229d6b5so1989285a91.3
-        for <linux-s390@vger.kernel.org>; Fri, 29 Mar 2024 20:35:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="lotuHB3Y"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-6e6f4ad4c57so1969947b3a.2
+        for <linux-s390@vger.kernel.org>; Fri, 29 Mar 2024 21:15:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1711769716; x=1712374516; darn=vger.kernel.org;
+        d=bytedance.com; s=google; t=1711772130; x=1712376930; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=nQY9GynfzjdgI1A44B4TVgDxB7Pe9LKkrSIu40Cboqk=;
-        b=KuELMr/fHUb3LuvaL1wmjrIgOwqE1VjwZmGWVIb/R4EP3rfDlpG9rREXcuMK40a7Zc
-         AGRk8zjmzqoSMSqGWWwRERmKZgpxbGVcxU8j5fZZH3SPYt58Dlz5MdUCRSLk2q8IR+sa
-         WzNm6wsAEdtmK3ukV19cG5+97BWl74qB/bct5O60IeFY9Re7csPxBasiMGBmPwLa06U8
-         TyuafFyvk0kZfhscsfXB0Kqortrcof2oQnv3Z01KhxyCLqfUnRVIJeB5VrfEA2a4l/Bh
-         0tUmbaUO4ddBxnh1VQQhO+7SPXee7HiSfR/s+/iFY79l1dBk3xGeFPzWxPkgl/b1fgjg
-         dgdQ==
+        bh=ofE4DiMnvHuiRZX1XlrIQJQuThx3U4684j2Vrwr4bOc=;
+        b=lotuHB3YqxI5vNiMNQShMPcZpMVUJ465SPLPfA2ZffKWYhtiIpcCAVyZSTq4l0PlVm
+         cPPfJ5K6RIbzdDn0T2br/TIueszyxszgWUTJ380vTjs5mQUui38KoyOVDnG1aNFg3ojX
+         qT7UlrcsXggaNQXe9AuPEuT0Sb7F0MLi7Nw6l+TH1U0d7yiQ+7KnPDVXHegP8jKCK6Em
+         Uow1+d0qBdtY/BbdJh5NtxxGHAY5F7ea4QmX/AcK49wR4lbjbtMz9p1a1106CIP7G/p2
+         F5jxnpW89ievSd3eMy5KK8/Cy/eyEh2UtRV9jEB1VoadAT58X+0FxQfYCzwBApOxWs6q
+         CZyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711769716; x=1712374516;
+        d=1e100.net; s=20230601; t=1711772130; x=1712376930;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=nQY9GynfzjdgI1A44B4TVgDxB7Pe9LKkrSIu40Cboqk=;
-        b=WJ0gSWfeqTedF9bPnyAz1Q8fBHkUaMJl2zqbJRv0VBefFt3e+bvUI/NIykG6P8s8c3
-         RYll4akRHnKL1C4APiDcBNpigen7YzB4YwRsyxLCDQO+H94qGmgHisxCD6gYKyXo6JNx
-         gHVt/6ud6qFc7G5sRsKn/oCL8JNaZGG7S276fd1NJ1h7T1fh45EbfPez8nmc1xOF3n5T
-         5yKysmRdc11AOt8DA5ax4VbVkWfxUrn6qesiGaxCvOJhqwBfVgFxSqlY2jQgR+zwRumS
-         k4JiRmvX0usclt7yU3KkwSAAEx3KzNTYLY1YzvTtWUZZ/DrSbdnA9mdbXTI0VGJ4sOJ4
-         eTWg==
-X-Forwarded-Encrypted: i=1; AJvYcCWJNbu8Bzl6tDkxw6BZ3iRDrVxfljSNf3A+lVGiGk0kugL4vEC460t5megxDlZusY7olWzJWQnn3UaEfS/BiBbzmKlbDGPiDSFv7A==
-X-Gm-Message-State: AOJu0YysxDcZwQHPufPJ2aSru5dIvAqjcsV0EWr6KmlAerEvfeWLjLV+
-	hhBCV9t/EsuK7GKXnuCrqn7Sr1/a/77B9TYOviS6OnyNDUQlc8ecwOIJSAyTfEzH9o6EJl+AzkH
-	EvaWG8bjwEV4iAOT7aEGHRS1oea7GW2fDnVks1Q==
-X-Google-Smtp-Source: AGHT+IFQotfennixOm6ZOmiuiGgpegIwFVTzo5108kmA5lzvm5WNhtg5jy9iBOk0AMJbaUTPpapkU4prCLDmk6G3k3I=
-X-Received: by 2002:a17:90a:474f:b0:29d:fe1c:79e7 with SMTP id
- y15-20020a17090a474f00b0029dfe1c79e7mr3306403pjg.45.1711769716617; Fri, 29
- Mar 2024 20:35:16 -0700 (PDT)
+        bh=ofE4DiMnvHuiRZX1XlrIQJQuThx3U4684j2Vrwr4bOc=;
+        b=ZNMORiI0XccBNhPIBRu66wupAz1KrNy8hyM3DjI3ZjzJ6HMMImTCGFA6HrH4Z6bX7O
+         YzL+tKNpwqdouFY8MF+5mh9uy1Ta6/rOavTY3x5LeGO0OFmy98rNvmlslvJ2uOeMJaqg
+         vVURU3Zr03n5xDWHozuCASZCAqEr0L5m4Ac0V6eY8bhvBXTZVCT8IuelSYjt7x419ndE
+         6s0G1KmAA4FKeUbMdvjqHHY4IDVzmIbs8WeEpGYx3zxtSTjZygqWQXp9/FsVYdwdd/RD
+         uc4RfQszOTF319TSXtakYGuGhSJgOZ5dTOdHREMmRbXtbgfV9TnQO9jJg3E0/fo+urw0
+         HWlg==
+X-Forwarded-Encrypted: i=1; AJvYcCUDdOSMExpr7dahCj6EhYoluZiShqbI3ElxNTPz8zfC3L+7DyqENLkKeMZL26E4oNNXXgSWUs/e/c3ynUSArAnazUIxXBHuEMAKKw==
+X-Gm-Message-State: AOJu0Yxw8hIvZL7Hlt5PkYVjDls/4MrZIbyWBYNXXUbTsckn+1CWknlf
+	NZ8iATTXNGQgARIZPvZQpHqokQbU0f7TB7op5W+GebvQnKXSPeG/g8gpbQCEmUL2MMBRZtdF7ng
+	/lm0oP46x7PvIQ6P1aBMQC8J/LTFTe2NRi5O/pw==
+X-Google-Smtp-Source: AGHT+IGgndwZ3xqfDhf4CyJqUlqHUpBRYWacoRvVkoWzKCTwU3GtudllRjOr+s4vd+S8mdhVeoofK0l9Hh+AwBW0mGw=
+X-Received: by 2002:a05:6a20:17a2:b0:1a3:67fd:46b1 with SMTP id
+ bl34-20020a056a2017a200b001a367fd46b1mr3653617pzb.36.1711772130610; Fri, 29
+ Mar 2024 21:15:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -66,17 +66,18 @@ References: <20240311093526.1010158-1-dongmenglong.8@bytedance.com>
  <CAADnVQLHpi3J6cBJ0QBgCQ2aY6fWGnVvNGdfi3W-jmoa9d1eVQ@mail.gmail.com>
  <CALz3k9g-U8ih=ycJPRbyU9x_9cp00fNkU3PGQ6jP0WJ+=uKmqQ@mail.gmail.com>
  <CALz3k9jG5Jrqw=BGjt05yMkEF-1u909GbBYrV-02W0dQtm6KQQ@mail.gmail.com>
- <20240328111330.194dcbe5@gandalf.local.home> <CAADnVQKsuV2OhT4rc+k=WDmVMQxbjDiC4+zNbre2Kpj1hod5xw@mail.gmail.com>
-In-Reply-To: <CAADnVQKsuV2OhT4rc+k=WDmVMQxbjDiC4+zNbre2Kpj1hod5xw@mail.gmail.com>
+ <20240328111330.194dcbe5@gandalf.local.home> <CAEf4BzYgzOti+Hfdn3SUCjuofGedXRSGApVDD+K2TdG6oNE-pw@mail.gmail.com>
+In-Reply-To: <CAEf4BzYgzOti+Hfdn3SUCjuofGedXRSGApVDD+K2TdG6oNE-pw@mail.gmail.com>
 From: =?UTF-8?B?5qKm6b6Z6JGj?= <dongmenglong.8@bytedance.com>
-Date: Sat, 30 Mar 2024 11:36:38 +0800
-Message-ID: <CALz3k9j3aMpnuy3-6dPB9UiQ82LEE-bPapwJfotxX8DyAOc=iw@mail.gmail.com>
+Date: Sat, 30 Mar 2024 12:16:52 +0800
+Message-ID: <CALz3k9hm6U90K8+d7SprXiKvscRjFno83idqYneHEVwgs4pCiw@mail.gmail.com>
 Subject: Re: [External] Re: [PATCH bpf-next v2 1/9] bpf: tracing: add support
  to record and check the accessed args
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Jiri Olsa <jolsa@kernel.org>, 
-	Andrii Nakryiko <andrii@kernel.org>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <martin.lau@linux.dev>, Song Liu <song@kernel.org>, 
+To: Andrii Nakryiko <andrii.nakryiko@gmail.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Alexei Starovoitov <alexei.starovoitov@gmail.com>, 
+	Jiri Olsa <jolsa@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Eddy Z <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
 	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
 	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>, 
 	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
@@ -91,8 +92,8 @@ Cc: Steven Rostedt <rostedt@goodmis.org>, Jiri Olsa <jolsa@kernel.org>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 29, 2024 at 7:17=E2=80=AFAM Alexei Starovoitov
-<alexei.starovoitov@gmail.com> wrote:
+On Sat, Mar 30, 2024 at 7:28=E2=80=AFAM Andrii Nakryiko
+<andrii.nakryiko@gmail.com> wrote:
 >
 > On Thu, Mar 28, 2024 at 8:10=E2=80=AFAM Steven Rostedt <rostedt@goodmis.o=
 rg> wrote:
@@ -168,42 +169,47 @@ r it
 > >
 > > It will probably make your accounting much easier, and just let ftrace
 > > handle the fentry logic. That's what it was made to do.
+> >
 >
-> Absolutely agree.
-> There is no point re-inventing this logic.
->
-> Menlong,
-> before you hook up into ftrace check whether
-> it's going to be any different from kprobe-multi,
-> since it's the same ftrace underneath.
-> I suspect it will look exactly the same.
+> I thought I'll just ask instead of digging through code, sorry for
+> being lazy :) Is there any way to pass pt_regs/ftrace_regs captured
+> before function execution to a return probe (fexit/kretprobe)? I.e.,
+> how hard is it to pass input function arguments to a kretprobe? That's
+> the biggest advantage of fexit over kretprobe, and if we can make
+> these original pt_regs/ftrace_regs available to kretprobe, then
+> multi-kretprobe will effectively be this multi-fexit.
 
-Yeah, I dig it a little. I think it is different. For multi-kprobe,
-it registers a ftrace_ops to ftrace_ops_list for every bpf
-program. This means that we can register 2 or more
-multi-kprobe in the same function. The bpf is called in
-the following step:
+Yes, we can use multi-kretprobe instead of multi-fexit
+if we can obtain the function args in kretprobe.
+
+I think it's hard. The reason that we can obtain the
+function args is that we have a trampoline, and it
+call the origin function for FEXIT. If we do the same
+for multi-kretprobe, we need to modify ftrace_regs_caller
+to:
 
 ftrace_regs_caller
 |
-__ftrace_ops_list_func -> fprobe_handler -> kprobe_multi_link_handler -> ru=
-n BPF
-
-And for trampoline, it needs to be called directly,
-so it can't be registered as a callback to ftrace_ops_list.
-It need to be called in the following step:
-
-ftrace_regs_caller
+__ftrace_ops_list_func
 |
-__ftrace_ops_list_func -> call_direct_funcs -> save trampoline to
-pt_regs->origin_ax
+call all multi-kprobe callbacks
 |
-call pt_regs->origin_ax if not NULL
+call orgin
+|
+call all multi-kretprobe callbacks
+|
+call bpf trampoline(for TRACING)
 
-> So it sounds like multi-fentry idea will be shelved once again.
+However, this logic conflicts with bpf trampoline,
+as it can also call the origin function. What's more,
+the FENTRY should be called before the "call origin"
+above.
 
-Enn...this is the best solution that I can think of. If it
-doesn't work, I suspect it will be shelved again.
+I'm sure if I understand correctly, as I have not
+figured out how multi-kretprobe works in fprobe.
 
 Thanks!
 Menglong Dong
+
+>
+> > -- Steve
