@@ -1,102 +1,149 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E0E817552;
-	Mon,  1 Apr 2024 15:57:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDFF0249E4;
+	Mon,  1 Apr 2024 19:03:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711987037; cv=none; b=nRUEnkdV9nTDCXyaNss9r0zxsjhqs2+unLdT0Ntd+fqnMT1aGdEEu0Tb8Q1yo5bk6Goe+GaGR+KKdRUj8Fr+k9MLBaMBF+LVLEC/HdL1gssBamsIWtLYoU36RafdBVBaXMDXEn3eZzNDljcTiXy3zPz48/4CpEQlgoPE5Njg3lU=
+	t=1711998186; cv=none; b=GDKdSTiD+YxaWEDfeWtKN2P3Hhi9AdlIObxzIjNoFY5tyUED+dbLhXWRv61n2UnlwX9TuZ7E5Tz+7od4CwH/VD28ae9PDEHkFAr9WKDA6UlZ1WmgGfhqSny75GPXm0XX1rYlmyE+r7QdJFgLEnTw9T7Sa6ezSyM6uBgE/nDRVnY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711987037; c=relaxed/simple;
-	bh=hWWP4R/JFRFxsD5wn5WwHEfJM77NgnC9mgolOKg4FdM=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=kc4KM8If9MVLcx2Pt5XaiXk/SbmBLTBjJ+liGWJD4J3Q85j84V+1xIooH1i6mkZ9KzAmsxmPDcrzwAblhiYUm+OdlN4fu0QjT4bz8/FWVyg9OXBWfGthhCjHOpND+tw+QpZS3e6QYFm8xbDzVjzRDJWvW8wVRFAQK0GsUQMF/tM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77C86C433F1;
-	Mon,  1 Apr 2024 15:57:13 +0000 (UTC)
-Date: Mon, 1 Apr 2024 11:59:28 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: =?UTF-8?B?5qKm6b6Z6JGj?= <dongmenglong.8@bytedance.com>
-Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>, Jiri Olsa
- <jolsa@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, Alexei Starovoitov
- <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau
- <martin.lau@linux.dev>, Eddy Z <eddyz87@gmail.com>, Song Liu
- <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, John Fastabend
- <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>, Stanislav
- Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, "David S.
- Miller" <davem@davemloft.net>, David Ahern <dsahern@kernel.org>, Dave
- Hansen <dave.hansen@linux.intel.com>, X86 ML <x86@kernel.org>, Mathieu
- Desnoyers <mathieu.desnoyers@efficios.com>, Quentin Monnet
- <quentin@isovalent.com>, bpf <bpf@vger.kernel.org>, linux-arm-kernel
- <linux-arm-kernel@lists.infradead.org>, LKML
- <linux-kernel@vger.kernel.org>, linux-riscv
- <linux-riscv@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>,
- Network Development <netdev@vger.kernel.org>,
- linux-trace-kernel@vger.kernel.org, "open list:KERNEL SELFTEST FRAMEWORK"
- <linux-kselftest@vger.kernel.org>, linux-stm32@st-md-mailman.stormreply.com
-Subject: Re: [External] Re: [PATCH bpf-next v2 1/9] bpf: tracing: add
- support to record and check the accessed args
-Message-ID: <20240401115928.3d012be2@gandalf.local.home>
-In-Reply-To: <CALz3k9j_RGqSMdN+GvbHEjRqMWYe4R9VNZRANG7jbfL_jVpoVg@mail.gmail.com>
-References: <20240311093526.1010158-1-dongmenglong.8@bytedance.com>
-	<20240311093526.1010158-2-dongmenglong.8@bytedance.com>
-	<CAADnVQKQPS5NcvEouH4JqZ2fKgQAC+LtcwhX9iXYoiEkF_M94Q@mail.gmail.com>
-	<CALz3k9i5G5wWi+rtvHPwVLOUAXVMCiU_8QUZs87TEYgR_0wpPA@mail.gmail.com>
-	<CAADnVQJ_ZCzMmT1aBsNXEBFfYNSVBdBXmLocjR0PPEWtYQrQFw@mail.gmail.com>
-	<CALz3k9icPePb0c4FE67q=u1U0hrePorN9gDpQrKTR_sXbLMfDA@mail.gmail.com>
-	<CAADnVQLwgw8bQ7OHBbqLhcPJ2QpxiGw3fkMFur+2cjZpM_78oA@mail.gmail.com>
-	<CALz3k9g9k7fEwdTZVLhrmGoXp8CE47Q+83r-AZDXrzzuR+CjVA@mail.gmail.com>
-	<CAADnVQLHpi3J6cBJ0QBgCQ2aY6fWGnVvNGdfi3W-jmoa9d1eVQ@mail.gmail.com>
-	<CALz3k9g-U8ih=ycJPRbyU9x_9cp00fNkU3PGQ6jP0WJ+=uKmqQ@mail.gmail.com>
-	<CALz3k9jG5Jrqw=BGjt05yMkEF-1u909GbBYrV-02W0dQtm6KQQ@mail.gmail.com>
-	<20240328111330.194dcbe5@gandalf.local.home>
-	<CALz3k9idLX10+Gh18xWepwtgvp4VZ3zQfY4aoNXn0gCh8Fs_fA@mail.gmail.com>
-	<20240330153722.65104301@gandalf.local.home>
-	<CALz3k9j_RGqSMdN+GvbHEjRqMWYe4R9VNZRANG7jbfL_jVpoVg@mail.gmail.com>
-X-Mailer: Claws Mail 3.19.1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1711998186; c=relaxed/simple;
+	bh=JbQ/vyagne1B2SNAZ1pSK9x8j0xrTBqxnXBPQrwReEA=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=NjibEzeIE4linYMskbtOxCnmoXJ4CFXxmoZHNSVGNFcQkuBeTT6x0eg/VoLZi5ascGbDipSO01j5LFScKmialA8TNdmlSccqjp4zT/ueroHFnEXghylkrLAJUp0nl3sJmlwoFXg6P8Z/mOnYAKAz71tRRBDkiGged8dh1UlK0Ws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bAc4K7FD; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bAc4K7FD"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 431IvYNB011088;
+	Mon, 1 Apr 2024 19:02:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=JbQ/vyagne1B2SNAZ1pSK9x8j0xrTBqxnXBPQrwReEA=;
+ b=bAc4K7FDIfOzcAy62OkeeAUsX6ql6uHvU/ukjq5DsKj7m96BB1g3nuoRzKfPz/IUm1xt
+ 0fy2cUAG1IgJqQH24E3k0a3ZPX3Z/7hozrvV/+m5MjL4+LdTcbBoT9ZF7AmMq58FUOyD
+ 0ztKcecNXpz9I5+juG+tT9Of/8Bpd6hrSvYBKYCznnVYqCVWK8PnQuoI9gEG5xt3Rc6+
+ L12jo4rcmbD+5bevoeW6ZwlgCvmnMzvTi0SnUHxeamPh0vqoqgZXDEmqxkt4Ig3Zkq4W
+ sdoPpLXleVhq4Kl7GHQYBmIM10vOyMubCxbpyWbqbiKxNCDfRJDOugnp/33z8skRRDmV Kg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x82nf00gs-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 01 Apr 2024 19:02:23 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 431J2MA1020505;
+	Mon, 1 Apr 2024 19:02:22 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x82nf00gn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 01 Apr 2024 19:02:22 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 431J2Ds3015234;
+	Mon, 1 Apr 2024 19:02:21 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x6y9ksk1b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 01 Apr 2024 19:02:21 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 431J2Iru23134946
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 1 Apr 2024 19:02:20 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 536B058058;
+	Mon,  1 Apr 2024 19:02:18 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A75E25805C;
+	Mon,  1 Apr 2024 19:02:15 +0000 (GMT)
+Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.184.184])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  1 Apr 2024 19:02:15 +0000 (GMT)
+Message-ID: <00311e8bb63ba873da9906d87e49499f40df5134.camel@linux.ibm.com>
+Subject: Re: [PATCH vhost v7 2/6] virtio: remove support for names array
+ entries being null.
+From: Eric Farman <farman@linux.ibm.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
+Cc: Richard Weinberger <richard@nod.at>,
+        Anton Ivanov
+ <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg
+ <johannes@sipsolutions.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Ilpo
+ =?ISO-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Vadim
+ Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck
+ <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "Michael
+ S. Tsirkin" <mst@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jason
+ Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
+        platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Date: Mon, 01 Apr 2024 15:02:15 -0400
+In-Reply-To: <20240328080348.3620-3-xuanzhuo@linux.alibaba.com>
+References: <20240328080348.3620-1-xuanzhuo@linux.alibaba.com>
+	 <20240328080348.3620-3-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: P1ukwj2SO_fm-loIj3BYJeRlaiRy_jcA
+X-Proofpoint-GUID: coub_UfOYCf5qBMsA2tFbBkXJ8453ebI
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-01_14,2024-04-01_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1011 malwarescore=0 spamscore=0 adultscore=0 mlxlogscore=999
+ bulkscore=0 lowpriorityscore=0 mlxscore=0 suspectscore=0 impostorscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2403210000 definitions=main-2404010134
 
-On Mon, 1 Apr 2024 10:28:17 +0800
-=E6=A2=A6=E9=BE=99=E8=91=A3 <dongmenglong.8@bytedance.com> wrote:
-
-> On Sun, Mar 31, 2024 at 3:34=E2=80=AFAM Steven Rostedt <rostedt@goodmis.o=
-rg> wrote:
-> >
-> > On Sat, 30 Mar 2024 11:18:29 +0800
-> > =E6=A2=A6=E9=BE=99=E8=91=A3 <dongmenglong.8@bytedance.com> wrote:
-> > =20
-> > > > If you really want to have thousands of functions, why not just reg=
-ister it
-> > > > with ftrace itself. It will give you the arguments via the ftrace_r=
-egs
-> > > > structure. Can't you just register a program as the callback?
-> > > > =20
-> > >
-> > > Ennn...I don't understand. The main purpose for
-> > > me to use TRACING is:
-> > >
-> > > 1. we can directly access the memory, which is more
-> > >    efficient. =20
-> >
-> > I'm not sure what you mean by the above. Access what memory?
-> > =20
+On Thu, 2024-03-28 at 16:03 +0800, Xuan Zhuo wrote:
+> commit 6457f126c888 ("virtio: support reserved vqs") introduced this
+> support. Multiqueue virtio-net use 2N as ctrl vq finally, so the
+> logic
+> doesn't apply. And not one uses this.
 >=20
-> We need to use the helper of bpf_probe_read_kernel
-> when we read "skb->sk" in kprobe, and the "skb" is the
-> 1st arg in ip_rcv(). And we can directly read "skb->sk"
-> in tracing, which is more efficient. Isn't it?
+> On the other side, that makes some trouble for us to refactor the
+> find_vqs() params.
+>=20
+> So I remove this support.
+>=20
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> ---
+> =C2=A0arch/um/drivers/virtio_uml.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 8 ++++----
+> =C2=A0drivers/remoteproc/remoteproc_virtio.c | 11 ++++-------
+> =C2=A0drivers/s390/virtio/virtio_ccw.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0 |=C2=A0 8 ++++----
+> =C2=A0drivers/virtio/virtio_mmio.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 | 11 ++++-------
+> =C2=A0drivers/virtio/virtio_pci_common.c=C2=A0=C2=A0=C2=A0=C2=A0 | 18 +++=
+++++++---------
+> =C2=A0drivers/virtio/virtio_vdpa.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 | 11 ++++-------
+> =C2=A0include/linux/virtio_config.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0 |=C2=A0 2 +-
+> =C2=A07 files changed, 30 insertions(+), 39 deletions(-)
 
-If you add a ftrace_ops function handler that calls a BPF program, I don't
-see why you can't just give it the parameters it needs instead of using bpf
-helpers. It's no different than using a trampoline to do the same thing.
-
--- Steve
+Acked-by: Eric Farman <farman@linux.ibm.com> # s390
