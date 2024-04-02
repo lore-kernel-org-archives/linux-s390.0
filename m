@@ -1,137 +1,136 @@
-Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com [209.85.219.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9BB92BD1C
-	for <linux-s390@vger.kernel.org>; Tue,  2 Apr 2024 07:53:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C7595D749
+	for <linux-s390@vger.kernel.org>; Tue,  2 Apr 2024 10:16:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712044411; cv=none; b=S71BiMFnprDwRHYgfl5zSRzldDWOfT+8+w7PT/UEqzEkg5eEcAZ8+2HS70APGZUEBs3FArHuha1nbyRurEBxpguQpac1esSAqRotpQvyIjc8k6ooQpk7t7aqma6Urh23oPZOUKFBOg07YyVVNg3XS0aGQdWQb5eJMGISizvWIYg=
+	t=1712052985; cv=none; b=mVhoWF6B0FI4vC1beU0m0a4s9hdQ+kFF/z1SQyeRnl+9Mp4b85IlZ6ly9F06+Olw6aLbwx+o90BcYj7u3N9iutZNc+6hWdhaQVknBv5xeKwEjfP8cp+77NJKVMbs5u/Vv7LMBDkFAhqEJjN4FpPKbjMP3lWQrkpH4ZGt2Xm28yY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712044411; c=relaxed/simple;
-	bh=Y4j6W4b2nsvuYc7NSGeH63FNbh0Qhm3lJgZNwtatPSc=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Np0BInQcau7DVnTJOIn2vrKM8KRjddxX73JMzLpkxu9RWe+oY1SPjaoOyaQCzjrS+2magiN5seC5ZRkr75ZuMjOF/vCNnoB3NTCeTtzaE/C8uFY0ygGYeyHovMnOIFWn8fmdXqB4+7PAIrGIs19/N7axUzbGUGK2wOhAiLJGl7g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.214])
-	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4V80Rc70dCz29kHr;
-	Tue,  2 Apr 2024 15:50:36 +0800 (CST)
-Received: from dggpemm100001.china.huawei.com (unknown [7.185.36.93])
-	by mail.maildlp.com (Postfix) with ESMTPS id B81221A016C;
-	Tue,  2 Apr 2024 15:53:21 +0800 (CST)
-Received: from localhost.localdomain (10.175.112.125) by
- dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.35; Tue, 2 Apr 2024 15:53:20 +0800
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-To: <akpm@linux-foundation.org>
-CC: Russell King <linux@armlinux.org.uk>, Catalin Marinas
-	<catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Michael Ellerman
-	<mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy
-	<christophe.leroy@csgroup.eu>, Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
-	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer
-	<gerald.schaefer@linux.ibm.com>, Dave Hansen <dave.hansen@linux.intel.com>,
-	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
-	<x86@kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
-	<linux-s390@vger.kernel.org>, <surenb@google.com>, Kefeng Wang
-	<wangkefeng.wang@huawei.com>
-Subject: [PATCH 7/7] x86: mm: accelerate pagefault when badaccess
-Date: Tue, 2 Apr 2024 15:51:42 +0800
-Message-ID: <20240402075142.196265-8-wangkefeng.wang@huawei.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20240402075142.196265-1-wangkefeng.wang@huawei.com>
-References: <20240402075142.196265-1-wangkefeng.wang@huawei.com>
+	s=arc-20240116; t=1712052985; c=relaxed/simple;
+	bh=uzac7wtIrnnrBvtOLPs8xaD+ikoHcCxqEerEJoMcBFs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=enKEthlKOwcNauN8MDr+6X7d9b9mD9umVC4GrGEzifQRfuB/JkhR5HqqB8JJoJQ0wYz1JUy8W4YzGTCjAJH6psfUTnew5/3h0TXcYYF+CTcflRDsrWSuaVkjOvCvDxhq0NLmI/gfEa98F3mSWCdKu7K/5+9xLDXGmYsCOhGP1zg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=P/19zu7H; arc=none smtp.client-ip=209.85.219.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="P/19zu7H"
+Received: by mail-yb1-f180.google.com with SMTP id 3f1490d57ef6-dcc4de7d901so3942692276.0
+        for <linux-s390@vger.kernel.org>; Tue, 02 Apr 2024 03:16:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1712052982; x=1712657782; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=uzac7wtIrnnrBvtOLPs8xaD+ikoHcCxqEerEJoMcBFs=;
+        b=P/19zu7HhxbqaSZ6tddIYer72gYo22iX74gtm9EbTCsCnmBPVJH56wwx8ina7pHQt+
+         p316gGtpPFNSmMfwYWkooiGf4ik567MMKWJ1fJRb+NnesXmt8S3KOmo1hW/O3yH2uIjf
+         F3SkY7DH8iAQRrcIIOMQyR6tAgVMpinRoEFcTiHyz/45wguXP951zWOOFOEZRV1uWbyn
+         hNrtfhYos8BjukR2a9x7YTIu1mvVMtxWlxNTeXM3ZTuCTXqrHvRkpW0RunoXYl2P2zer
+         H5n509H2Aw3xqdmsadb2X73YaIOldxZWd5/O5TrVs5Wt5fl9C6M1vCFRqYXRh0oRA0v7
+         HRhw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712052982; x=1712657782;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=uzac7wtIrnnrBvtOLPs8xaD+ikoHcCxqEerEJoMcBFs=;
+        b=WPGNc4GWMwhngFUqmk+Md72DGNqKuqUIVCFoylFkHXlA4RUOsQQA1FW4FYt5ou5Wxf
+         mnBCjwQfVMioy7/zcZSUlh11UeeooxJe21+gbWst8YczoRZG7iBRHbAXq+seOJ1x9MRo
+         UaqQlxDDhIOIlFdw/U7I8v83a5QvGrX1pYhi3DdBA7SI3uhWev7rj6rJzXH/KUctEg9t
+         OsiYnX0suZmFoh4lWXbqFpHo4FEvWjNrFmcYGxwffFo4SpsUnOICpEudM7p6AzKRGmv0
+         5fY7325sihagxEkcfkC1q6atSSQqJ/ODttOViQ23t422MLV5j+jKN8iVy35x5y2EHyHI
+         ON4Q==
+X-Forwarded-Encrypted: i=1; AJvYcCV5fuR2bOGAZz1GkcNwhlE+u+mVdqacobx5NLgfe0B1dJ4ElysMI8NY5ZoLJqkgF1VgXfLj+9rb/Toewxb3QQefN/QJVkknx8nLQA==
+X-Gm-Message-State: AOJu0YxDAYrq8tIMVnfK1LleMGzcXnBtqmcMiCugiiB1PMs82Wu8KyAl
+	FwfLht+Ww0TOqPPIqJlXMJu20m/Uwm1u0oHC6YX2vqTcuEaArZC4tprGs/tM8Qb9w0jWu5c35+e
+	8NIDFzJCr7xa+lvytVeKdqAehpXEpDW5m+JvRjw==
+X-Google-Smtp-Source: AGHT+IHzjYx5u+Am4EzQhN6aMsFTdxF/7ehGqP9AXe12JTbN0HclFOy9oE6Q1Tva+ZRKMaaQSSepEoCeBcfLH2AuW+A=
+X-Received: by 2002:a25:b191:0:b0:dcd:b034:b504 with SMTP id
+ h17-20020a25b191000000b00dcdb034b504mr9487652ybj.27.1712052982018; Tue, 02
+ Apr 2024 03:16:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpemm100001.china.huawei.com (7.185.36.93)
+References: <20240327160314.9982-1-apais@linux.microsoft.com>
+ <20240327160314.9982-10-apais@linux.microsoft.com> <CAPDyKFpuKadPQv6+61C2pE4x4FE-DUC5W6WCCPu9Nb2DnDB56g@mail.gmail.com>
+ <ZgWZDtNU4tCwqyeu@slm.duckdns.org>
+In-Reply-To: <ZgWZDtNU4tCwqyeu@slm.duckdns.org>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Date: Tue, 2 Apr 2024 12:15:45 +0200
+Message-ID: <CAPDyKFp5KET0HR+8MwO4cf0O6W2kyFqHoKcVf5jbgBuLuQUcFA@mail.gmail.com>
+Subject: Re: [PATCH 9/9] mmc: Convert from tasklet to BH workqueue
+To: Tejun Heo <tj@kernel.org>
+Cc: Allen Pais <apais@linux.microsoft.com>, linux-kernel@vger.kernel.org, 
+	keescook@chromium.org, vkoul@kernel.org, marcan@marcan.st, sven@svenpeter.dev, 
+	florian.fainelli@broadcom.com, rjui@broadcom.com, sbranden@broadcom.com, 
+	paul@crapouillou.net, Eugeniy.Paltsev@synopsys.com, 
+	manivannan.sadhasivam@linaro.org, vireshk@kernel.org, Frank.Li@nxp.com, 
+	leoyang.li@nxp.com, zw@zh-kernel.org, wangzhou1@hisilicon.com, 
+	haijie1@huawei.com, shawnguo@kernel.org, s.hauer@pengutronix.de, 
+	sean.wang@mediatek.com, matthias.bgg@gmail.com, 
+	angelogioacchino.delregno@collabora.com, afaerber@suse.de, 
+	logang@deltatee.com, daniel@zonque.org, haojian.zhuang@gmail.com, 
+	robert.jarzmik@free.fr, andersson@kernel.org, konrad.dybcio@linaro.org, 
+	orsonzhai@gmail.com, baolin.wang@linux.alibaba.com, zhang.lyra@gmail.com, 
+	patrice.chotard@foss.st.com, linus.walleij@linaro.org, wens@csie.org, 
+	jernej.skrabec@gmail.com, peter.ujfalusi@gmail.com, kys@microsoft.com, 
+	haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com, 
+	jassisinghbrar@gmail.com, mchehab@kernel.org, maintainers@bluecherrydvr.com, 
+	aubin.constans@microchip.com, manuel.lauss@gmail.com, mirq-linux@rere.qmqm.pl, 
+	jh80.chung@samsung.com, oakad@yahoo.com, hayashi.kunihiko@socionext.com, 
+	mhiramat@kernel.org, brucechang@via.com.tw, HaraldWelte@viatech.com, 
+	pierre@ossman.eu, duncan.sands@free.fr, stern@rowland.harvard.edu, 
+	oneukum@suse.com, openipmi-developer@lists.sourceforge.net, 
+	dmaengine@vger.kernel.org, asahi@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org, 
+	linux-mips@vger.kernel.org, imx@lists.linux.dev, 
+	linuxppc-dev@lists.ozlabs.org, linux-mediatek@lists.infradead.org, 
+	linux-actions@lists.infradead.org, linux-arm-msm@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, linux-sunxi@lists.linux.dev, 
+	linux-tegra@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, 
+	linux-mmc@vger.kernel.org, linux-omap@vger.kernel.org, 
+	linux-renesas-soc@vger.kernel.org, linux-s390@vger.kernel.org, 
+	netdev@vger.kernel.org, linux-usb@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-The vm_flags of vma already checked under per-VMA lock, if it is a
-bad access, directly handle error and return, there is no need to
-lock_mm_and_find_vma() and check vm_flags again.
+On Thu, 28 Mar 2024 at 17:21, Tejun Heo <tj@kernel.org> wrote:
+>
+> Hello,
+>
+> On Thu, Mar 28, 2024 at 01:53:25PM +0100, Ulf Hansson wrote:
+> > At this point we have suggested to drivers to switch to use threaded
+> > irq handlers (and regular work queues if needed too). That said,
+> > what's the benefit of using the BH work queue?
+>
+> BH workqueues should behave about the same as tasklets which have more
+> limited interface and is subtly broken in an expensive-to-fix way (around
+> freeing in-flight work item), so the plan is to replace tasklets with BH
+> workqueues and remove tasklets from the kernel.
 
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
----
- arch/x86/mm/fault.c | 23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+Seems like a good approach!
 
-diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-index a4cc20d0036d..67b18adc75dd 100644
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -866,14 +866,17 @@ bad_area_nosemaphore(struct pt_regs *regs, unsigned long error_code,
- 
- static void
- __bad_area(struct pt_regs *regs, unsigned long error_code,
--	   unsigned long address, u32 pkey, int si_code)
-+	   unsigned long address, struct mm_struct *mm,
-+	   struct vm_area_struct *vma, u32 pkey, int si_code)
- {
--	struct mm_struct *mm = current->mm;
- 	/*
- 	 * Something tried to access memory that isn't in our memory map..
- 	 * Fix it, but check if it's kernel or user first..
- 	 */
--	mmap_read_unlock(mm);
-+	if (mm)
-+		mmap_read_unlock(mm);
-+	else
-+		vma_end_read(vma);
- 
- 	__bad_area_nosemaphore(regs, error_code, address, pkey, si_code);
- }
-@@ -897,7 +900,8 @@ static inline bool bad_area_access_from_pkeys(unsigned long error_code,
- 
- static noinline void
- bad_area_access_error(struct pt_regs *regs, unsigned long error_code,
--		      unsigned long address, struct vm_area_struct *vma)
-+		      unsigned long address, struct mm_struct *mm,
-+		      struct vm_area_struct *vma)
- {
- 	/*
- 	 * This OSPKE check is not strictly necessary at runtime.
-@@ -927,9 +931,9 @@ bad_area_access_error(struct pt_regs *regs, unsigned long error_code,
- 		 */
- 		u32 pkey = vma_pkey(vma);
- 
--		__bad_area(regs, error_code, address, pkey, SEGV_PKUERR);
-+		__bad_area(regs, error_code, address, mm, vma, pkey, SEGV_PKUERR);
- 	} else {
--		__bad_area(regs, error_code, address, 0, SEGV_ACCERR);
-+		__bad_area(regs, error_code, address, mm, vma, 0, SEGV_ACCERR);
- 	}
- }
- 
-@@ -1357,8 +1361,9 @@ void do_user_addr_fault(struct pt_regs *regs,
- 		goto lock_mmap;
- 
- 	if (unlikely(access_error(error_code, vma))) {
--		vma_end_read(vma);
--		goto lock_mmap;
-+		bad_area_access_error(regs, error_code, address, NULL, vma);
-+		count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
-+		return;
- 	}
- 	fault = handle_mm_fault(vma, address, flags | FAULT_FLAG_VMA_LOCK, regs);
- 	if (!(fault & (VM_FAULT_RETRY | VM_FAULT_COMPLETED)))
-@@ -1394,7 +1399,7 @@ void do_user_addr_fault(struct pt_regs *regs,
- 	 * we can handle it..
- 	 */
- 	if (unlikely(access_error(error_code, vma))) {
--		bad_area_access_error(regs, error_code, address, vma);
-+		bad_area_access_error(regs, error_code, address, mm, vma);
- 		return;
- 	}
- 
--- 
-2.27.0
+>
+> The [dis]advantages of BH workqueues over threaded IRQs or regular threaded
+> workqueues are the same as when you compare them to tasklets. No thread
+> switching overhead, so latencies will be a bit tighter. Wheteher that
+> actually matters really depends on the use case. Here, the biggest advantage
+> is that it's mostly interchangeable with tasklets and can thus be swapped
+> easily.
 
+Right, thanks for clarifying!
+
+However, the main question is then - if/when it makes sense to use the
+BH workqueue for an mmc host driver. Unless there are some HW
+limitations, a threaded irq handler should be sufficient, I think.
+
+That said, moving to threaded irq handlers is a different topic and
+doesn't prevent us from moving to BH workqueues as it seems like a
+step in the right direction.
+
+Kind regards
+Uffe
