@@ -1,357 +1,123 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 538E183CCB
-	for <linux-s390@vger.kernel.org>; Tue,  2 Apr 2024 12:56:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34D7B84A52;
+	Tue,  2 Apr 2024 13:11:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712062562; cv=none; b=BLUM/CjbvlqOwCnSvyVx4woqBvGpEf/QcgHmLoafi3V+xrZ2Etc3nJ2vpD1PEOXmqVtqwjdMnQLjXhdKWAQan84jSeEdS+6nyIR4MiqNt4Rxr+OQeXdFtV1Mq32kTuhuXsZOinWuejasRskeDfUiuz5T/qvYZvsFxcidi2+A1po=
+	t=1712063487; cv=none; b=Ab+4DOG88HjoOiv4xBM47NxBmgiUFTY3Hy9u7A04HCzOSu5NaXU36utXhJrr9XqYteA58Vepp88PWfxm6gwz+AkPWWY6MSEYgos95d9h2owMCb5CDLtcG02ywQd3NJT2J8z8KmBjuZNtjiGNR8lguydLm74MZtOuQ/1o9cukWos=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712062562; c=relaxed/simple;
-	bh=v9mkatNzYJqa0aDsv7IqQC4sIWtC4aGOcuHM0jbI/hE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=D6ia5AwmcTB7luco/tg1lHmT5mWd2g5n/OX3XYMTaUOPKori+E3+APEBUVrrZBlN19/WlRLXEDW+V/EhL/F3chdj8PruxPlc7p4Hzqr+fnuEBMRHO+asgcHoG08Dx7gZyR+/IoAZYQf4ZrywP+7Y91aII/RTmFRCogk1YZ2D2I4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FFmvgip+; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1712063487; c=relaxed/simple;
+	bh=9zAsnZKUtdaB+0oUBoSFWoiBkfOWRDSb/L5GPa9FOno=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YxBMH/vw9BRleuY+Tgiarjh9bwd72GPxFeu0mmPcJREbnWAJBZN/yKpfG4Kaaw+TbuiZXI9i0CP5GUV3A+mByQFFdOpijlcJdW5RjXrn4OVvBEWp4ZFd+dDZ7/Uk5W0BYB24fbqwaTmKHhiEhGZq2SnC/vrbfUdgjDel2Xq/w7M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pLBmLWbF; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FFmvgip+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712062559;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KmiZaiwFptHJMHSw9D0x+FrvfCn7jycw2VvcIKklrLE=;
-	b=FFmvgip+4J/rcKYIa9Vy+0xTo4gSyvVOP3Kw9Pp+naiWQ4/814p/QA2HreCBASlstAbZwt
-	myeKJwj8KhiWA3WAAv387SW/fw5gAXYP0YApo1OrndcKJMtya03WFnmasYi8vV3wne3II3
-	wRXZjh4qgcheyGdWK5GZsSND0QMBgu8=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-611-rIpFy6zPP_6Tg6et4qWd4w-1; Tue, 02 Apr 2024 08:55:51 -0400
-X-MC-Unique: rIpFy6zPP_6Tg6et4qWd4w-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BBE5A805A65;
-	Tue,  2 Apr 2024 12:55:50 +0000 (UTC)
-Received: from t14s.redhat.com (unknown [10.39.194.247])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id CD7A13C21;
-	Tue,  2 Apr 2024 12:55:46 +0000 (UTC)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org,
-	David Hildenbrand <david@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Jason Gunthorpe <jgg@nvidia.com>,
-	John Hubbard <jhubbard@nvidia.com>,
-	Peter Xu <peterx@redhat.com>,
-	linux-arm-kernel@lists.infradead.org,
-	loongarch@lists.linux.dev,
-	linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	linux-perf-users@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	x86@kernel.org
-Subject: [PATCH v1 2/3] mm/treewide: rename CONFIG_HAVE_FAST_GUP to CONFIG_HAVE_GUP_FAST
-Date: Tue,  2 Apr 2024 14:55:15 +0200
-Message-ID: <20240402125516.223131-3-david@redhat.com>
-In-Reply-To: <20240402125516.223131-1-david@redhat.com>
-References: <20240402125516.223131-1-david@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pLBmLWbF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECE50C433F1;
+	Tue,  2 Apr 2024 13:11:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1712063486;
+	bh=9zAsnZKUtdaB+0oUBoSFWoiBkfOWRDSb/L5GPa9FOno=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=pLBmLWbFq8b7R4iZ1CSvRnROpQc318dtdynLw3zTplx/2SSnxsPhnBaGB0KWLxJLw
+	 gtTVGsvy4tfXtBGJpBXwq9+p3MCPwkvK/hDkMvCwjFUh5usnZu6XFTibfhvcKn+2H6
+	 bNq+gdNLc+F4UpxqMWgGKmEwi+KPVyCSJwAIqsT2U4GGmN/LnMTaAplp/AjMnXlBu3
+	 Ft/ordeAQQOyjQYy8NAB2+7Nq/5pKWCsboYnCGnNR1VKTyBFWEf/lcch7254rsWnWE
+	 MLVvNT3x0cyP38rdvhtkwlombEcbUi6JLHcn3CjFq0MSnQTG+8Cf+UPPNEYFD7jwHP
+	 CjyG1mwKRgoUQ==
+Date: Tue, 2 Apr 2024 18:41:22 +0530
+From: Vinod Koul <vkoul@kernel.org>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Allen Pais <apais@linux.microsoft.com>, linux-kernel@vger.kernel.org,
+	tj@kernel.org, keescook@chromium.org, marcan@marcan.st,
+	sven@svenpeter.dev, florian.fainelli@broadcom.com,
+	rjui@broadcom.com, sbranden@broadcom.com, paul@crapouillou.net,
+	Eugeniy.Paltsev@synopsys.com, manivannan.sadhasivam@linaro.org,
+	vireshk@kernel.org, Frank.Li@nxp.com, leoyang.li@nxp.com,
+	zw@zh-kernel.org, wangzhou1@hisilicon.com, haijie1@huawei.com,
+	shawnguo@kernel.org, s.hauer@pengutronix.de, sean.wang@mediatek.com,
+	matthias.bgg@gmail.com, angelogioacchino.delregno@collabora.com,
+	afaerber@suse.de, logang@deltatee.com, daniel@zonque.org,
+	haojian.zhuang@gmail.com, robert.jarzmik@free.fr,
+	andersson@kernel.org, konrad.dybcio@linaro.org, orsonzhai@gmail.com,
+	baolin.wang@linux.alibaba.com, zhang.lyra@gmail.com,
+	patrice.chotard@foss.st.com, wens@csie.org,
+	jernej.skrabec@gmail.com, peter.ujfalusi@gmail.com,
+	kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
+	decui@microsoft.com, jassisinghbrar@gmail.com, mchehab@kernel.org,
+	maintainers@bluecherrydvr.com, aubin.constans@microchip.com,
+	ulf.hansson@linaro.org, manuel.lauss@gmail.com,
+	mirq-linux@rere.qmqm.pl, jh80.chung@samsung.com, oakad@yahoo.com,
+	hayashi.kunihiko@socionext.com, mhiramat@kernel.org,
+	brucechang@via.com.tw, HaraldWelte@viatech.com, pierre@ossman.eu,
+	duncan.sands@free.fr, stern@rowland.harvard.edu, oneukum@suse.com,
+	openipmi-developer@lists.sourceforge.net, dmaengine@vger.kernel.org,
+	asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-rpi-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+	imx@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+	linux-mediatek@lists.infradead.org,
+	linux-actions@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+	linux-riscv@lists.infradead.org, linux-sunxi@lists.linux.dev,
+	linux-tegra@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	linux-rdma@vger.kernel.org, linux-media@vger.kernel.org,
+	linux-mmc@vger.kernel.org, linux-omap@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org, linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org, linux-usb@vger.kernel.org
+Subject: Re: [PATCH 2/9] dma: Convert from tasklet to BH workqueue
+Message-ID: <ZgwD-iScEb9zzB8H@matsya>
+References: <20240327160314.9982-1-apais@linux.microsoft.com>
+ <20240327160314.9982-3-apais@linux.microsoft.com>
+ <CACRpkdaSBGe0EFm1gK-7qPK4e6T2H1dxFXjhJqO2hWCm1-bNdA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
+In-Reply-To: <CACRpkdaSBGe0EFm1gK-7qPK4e6T2H1dxFXjhJqO2hWCm1-bNdA@mail.gmail.com>
 
-Nowadays, we call it "GUP-fast", the external interface includes
-functions like "get_user_pages_fast()", and we renamed all internal
-functions to reflect that as well.
+On 02-04-24, 14:25, Linus Walleij wrote:
+> Hi Allen,
+> 
+> thanks for your patch!
+> 
+> On Wed, Mar 27, 2024 at 5:03 PM Allen Pais <apais@linux.microsoft.com> wrote:
+> 
+> > The only generic interface to execute asynchronously in the BH context is
+> > tasklet; however, it's marked deprecated and has some design flaws. To
+> > replace tasklets, BH workqueue support was recently added. A BH workqueue
+> > behaves similarly to regular workqueues except that the queued work items
+> > are executed in the BH context.
+> >
+> > This patch converts drivers/dma/* from tasklet to BH workqueue.
+> >
+> > Based on the work done by Tejun Heo <tj@kernel.org>
+> > Branch: git://git.kernel.org/pub/scm/linux/kernel/git/tj/wq.git for-6.10
+> >
+> > Signed-off-by: Allen Pais <allen.lkml@gmail.com>
+> (...)
+> > diff --git a/drivers/dma/ste_dma40.c b/drivers/dma/ste_dma40.c
+> (...)
+> >         if (d40c->pending_tx)
+> > -               tasklet_schedule(&d40c->tasklet);
+> > +               queue_work(system_bh_wq, &d40c->work);
+> 
+> Why is "my" driver not allowed to use system_bh_highpri_wq?
+> 
+> I can't see the reasoning between some drivers using system_bh_wq
+> and others being highpri?
+> 
+> Given the DMA usecase I would expect them all to be high prio.
 
-Let's make the config option reflect that.
+It didnt use tasklet_hi_schedule(), I guess Allen has done the
+conversion of tasklet_schedule -> system_bh_wq and tasklet_hi_schedule
+-> system_bh_highpri_wq
 
-Reviewed-by: Mike Rapoport (IBM) <rppt@kernel.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- arch/arm/Kconfig       |  2 +-
- arch/arm64/Kconfig     |  2 +-
- arch/loongarch/Kconfig |  2 +-
- arch/mips/Kconfig      |  2 +-
- arch/powerpc/Kconfig   |  2 +-
- arch/riscv/Kconfig     |  2 +-
- arch/s390/Kconfig      |  2 +-
- arch/sh/Kconfig        |  2 +-
- arch/x86/Kconfig       |  2 +-
- include/linux/rmap.h   |  8 ++++----
- kernel/events/core.c   |  4 ++--
- mm/Kconfig             |  2 +-
- mm/gup.c               | 10 +++++-----
- mm/internal.h          |  2 +-
- 14 files changed, 22 insertions(+), 22 deletions(-)
+Anyway, we are going to use a dma queue so should be better performance
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index b14aed3a17ab..817918f6635a 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -99,7 +99,7 @@ config ARM
- 	select HAVE_DYNAMIC_FTRACE_WITH_REGS if HAVE_DYNAMIC_FTRACE
- 	select HAVE_EFFICIENT_UNALIGNED_ACCESS if (CPU_V6 || CPU_V6K || CPU_V7) && MMU
- 	select HAVE_EXIT_THREAD
--	select HAVE_FAST_GUP if ARM_LPAE
-+	select HAVE_GUP_FAST if ARM_LPAE
- 	select HAVE_FTRACE_MCOUNT_RECORD if !XIP_KERNEL
- 	select HAVE_FUNCTION_ERROR_INJECTION
- 	select HAVE_FUNCTION_GRAPH_TRACER
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 7b11c98b3e84..de076a191e9f 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -205,7 +205,7 @@ config ARM64
- 	select HAVE_SAMPLE_FTRACE_DIRECT
- 	select HAVE_SAMPLE_FTRACE_DIRECT_MULTI
- 	select HAVE_EFFICIENT_UNALIGNED_ACCESS
--	select HAVE_FAST_GUP
-+	select HAVE_GUP_FAST
- 	select HAVE_FTRACE_MCOUNT_RECORD
- 	select HAVE_FUNCTION_TRACER
- 	select HAVE_FUNCTION_ERROR_INJECTION
-diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
-index a5f300ec6f28..cd642eefd9e5 100644
---- a/arch/loongarch/Kconfig
-+++ b/arch/loongarch/Kconfig
-@@ -119,7 +119,7 @@ config LOONGARCH
- 	select HAVE_EBPF_JIT
- 	select HAVE_EFFICIENT_UNALIGNED_ACCESS if !ARCH_STRICT_ALIGN
- 	select HAVE_EXIT_THREAD
--	select HAVE_FAST_GUP
-+	select HAVE_GUP_FAST
- 	select HAVE_FTRACE_MCOUNT_RECORD
- 	select HAVE_FUNCTION_ARG_ACCESS_API
- 	select HAVE_FUNCTION_ERROR_INJECTION
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 516dc7022bd7..f1aa1bf11166 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -68,7 +68,7 @@ config MIPS
- 	select HAVE_DYNAMIC_FTRACE
- 	select HAVE_EBPF_JIT if !CPU_MICROMIPS
- 	select HAVE_EXIT_THREAD
--	select HAVE_FAST_GUP
-+	select HAVE_GUP_FAST
- 	select HAVE_FTRACE_MCOUNT_RECORD
- 	select HAVE_FUNCTION_GRAPH_TRACER
- 	select HAVE_FUNCTION_TRACER
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 1c4be3373686..e42cc8cd415f 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -236,7 +236,7 @@ config PPC
- 	select HAVE_DYNAMIC_FTRACE_WITH_REGS	if ARCH_USING_PATCHABLE_FUNCTION_ENTRY || MPROFILE_KERNEL || PPC32
- 	select HAVE_EBPF_JIT
- 	select HAVE_EFFICIENT_UNALIGNED_ACCESS
--	select HAVE_FAST_GUP
-+	select HAVE_GUP_FAST
- 	select HAVE_FTRACE_MCOUNT_RECORD
- 	select HAVE_FUNCTION_ARG_ACCESS_API
- 	select HAVE_FUNCTION_DESCRIPTORS	if PPC64_ELF_ABI_V1
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index be09c8836d56..3ee60ddef93e 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -132,7 +132,7 @@ config RISCV
- 	select HAVE_FUNCTION_GRAPH_RETVAL if HAVE_FUNCTION_GRAPH_TRACER
- 	select HAVE_FUNCTION_TRACER if !XIP_KERNEL && !PREEMPTION
- 	select HAVE_EBPF_JIT if MMU
--	select HAVE_FAST_GUP if MMU
-+	select HAVE_GUP_FAST if MMU
- 	select HAVE_FUNCTION_ARG_ACCESS_API
- 	select HAVE_FUNCTION_ERROR_INJECTION
- 	select HAVE_GCC_PLUGINS
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 8f01ada6845e..d9aed4c93ee6 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -174,7 +174,7 @@ config S390
- 	select HAVE_DYNAMIC_FTRACE_WITH_REGS
- 	select HAVE_EBPF_JIT if HAVE_MARCH_Z196_FEATURES
- 	select HAVE_EFFICIENT_UNALIGNED_ACCESS
--	select HAVE_FAST_GUP
-+	select HAVE_GUP_FAST
- 	select HAVE_FENTRY
- 	select HAVE_FTRACE_MCOUNT_RECORD
- 	select HAVE_FUNCTION_ARG_ACCESS_API
-diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-index 2ad3e29f0ebe..7292542f75e8 100644
---- a/arch/sh/Kconfig
-+++ b/arch/sh/Kconfig
-@@ -38,7 +38,7 @@ config SUPERH
- 	select HAVE_DEBUG_BUGVERBOSE
- 	select HAVE_DEBUG_KMEMLEAK
- 	select HAVE_DYNAMIC_FTRACE
--	select HAVE_FAST_GUP if MMU
-+	select HAVE_GUP_FAST if MMU
- 	select HAVE_FUNCTION_GRAPH_TRACER
- 	select HAVE_FUNCTION_TRACER
- 	select HAVE_FTRACE_MCOUNT_RECORD
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 4fff6ed46e90..222b42941cf3 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -221,7 +221,7 @@ config X86
- 	select HAVE_EFFICIENT_UNALIGNED_ACCESS
- 	select HAVE_EISA
- 	select HAVE_EXIT_THREAD
--	select HAVE_FAST_GUP
-+	select HAVE_GUP_FAST
- 	select HAVE_FENTRY			if X86_64 || DYNAMIC_FTRACE
- 	select HAVE_FTRACE_MCOUNT_RECORD
- 	select HAVE_FUNCTION_GRAPH_RETVAL	if HAVE_FUNCTION_GRAPH_TRACER
-diff --git a/include/linux/rmap.h b/include/linux/rmap.h
-index b7944a833668..9bf9324214fc 100644
---- a/include/linux/rmap.h
-+++ b/include/linux/rmap.h
-@@ -284,7 +284,7 @@ static inline int hugetlb_try_share_anon_rmap(struct folio *folio)
- 	VM_WARN_ON_FOLIO(!PageAnonExclusive(&folio->page), folio);
- 
- 	/* Paired with the memory barrier in try_grab_folio(). */
--	if (IS_ENABLED(CONFIG_HAVE_FAST_GUP))
-+	if (IS_ENABLED(CONFIG_HAVE_GUP_FAST))
- 		smp_mb();
- 
- 	if (unlikely(folio_maybe_dma_pinned(folio)))
-@@ -295,7 +295,7 @@ static inline int hugetlb_try_share_anon_rmap(struct folio *folio)
- 	 * This is conceptually a smp_wmb() paired with the smp_rmb() in
- 	 * gup_must_unshare().
- 	 */
--	if (IS_ENABLED(CONFIG_HAVE_FAST_GUP))
-+	if (IS_ENABLED(CONFIG_HAVE_GUP_FAST))
- 		smp_mb__after_atomic();
- 	return 0;
- }
-@@ -541,7 +541,7 @@ static __always_inline int __folio_try_share_anon_rmap(struct folio *folio,
- 	 */
- 
- 	/* Paired with the memory barrier in try_grab_folio(). */
--	if (IS_ENABLED(CONFIG_HAVE_FAST_GUP))
-+	if (IS_ENABLED(CONFIG_HAVE_GUP_FAST))
- 		smp_mb();
- 
- 	if (unlikely(folio_maybe_dma_pinned(folio)))
-@@ -552,7 +552,7 @@ static __always_inline int __folio_try_share_anon_rmap(struct folio *folio,
- 	 * This is conceptually a smp_wmb() paired with the smp_rmb() in
- 	 * gup_must_unshare().
- 	 */
--	if (IS_ENABLED(CONFIG_HAVE_FAST_GUP))
-+	if (IS_ENABLED(CONFIG_HAVE_GUP_FAST))
- 		smp_mb__after_atomic();
- 	return 0;
- }
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 724e6d7e128f..c5a0dc1f135f 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -7539,7 +7539,7 @@ static u64 perf_get_pgtable_size(struct mm_struct *mm, unsigned long addr)
- {
- 	u64 size = 0;
- 
--#ifdef CONFIG_HAVE_FAST_GUP
-+#ifdef CONFIG_HAVE_GUP_FAST
- 	pgd_t *pgdp, pgd;
- 	p4d_t *p4dp, p4d;
- 	pud_t *pudp, pud;
-@@ -7587,7 +7587,7 @@ static u64 perf_get_pgtable_size(struct mm_struct *mm, unsigned long addr)
- 	if (pte_present(pte))
- 		size = pte_leaf_size(pte);
- 	pte_unmap(ptep);
--#endif /* CONFIG_HAVE_FAST_GUP */
-+#endif /* CONFIG_HAVE_GUP_FAST */
- 
- 	return size;
- }
-diff --git a/mm/Kconfig b/mm/Kconfig
-index f0ed3168db00..50df323eaece 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -473,7 +473,7 @@ config ARCH_WANT_OPTIMIZE_HUGETLB_VMEMMAP
- config HAVE_MEMBLOCK_PHYS_MAP
- 	bool
- 
--config HAVE_FAST_GUP
-+config HAVE_GUP_FAST
- 	depends on MMU
- 	bool
- 
-diff --git a/mm/gup.c b/mm/gup.c
-index f1ac2c5a7f6d..929eb89c2e04 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -501,7 +501,7 @@ static inline void mm_set_has_pinned_flag(unsigned long *mm_flags)
- 
- #ifdef CONFIG_MMU
- 
--#if defined(CONFIG_ARCH_HAS_HUGEPD) || defined(CONFIG_HAVE_FAST_GUP)
-+#if defined(CONFIG_ARCH_HAS_HUGEPD) || defined(CONFIG_HAVE_GUP_FAST)
- static int record_subpages(struct page *page, unsigned long sz,
- 			   unsigned long addr, unsigned long end,
- 			   struct page **pages)
-@@ -515,7 +515,7 @@ static int record_subpages(struct page *page, unsigned long sz,
- 
- 	return nr;
- }
--#endif	/* CONFIG_ARCH_HAS_HUGEPD || CONFIG_HAVE_FAST_GUP */
-+#endif	/* CONFIG_ARCH_HAS_HUGEPD || CONFIG_HAVE_GUP_FAST */
- 
- #ifdef CONFIG_ARCH_HAS_HUGEPD
- static unsigned long hugepte_addr_end(unsigned long addr, unsigned long end,
-@@ -2785,7 +2785,7 @@ EXPORT_SYMBOL(get_user_pages_unlocked);
-  *
-  * This code is based heavily on the PowerPC implementation by Nick Piggin.
-  */
--#ifdef CONFIG_HAVE_FAST_GUP
-+#ifdef CONFIG_HAVE_GUP_FAST
- 
- /*
-  * Used in the GUP-fast path to determine whether GUP is permitted to work on
-@@ -3364,7 +3364,7 @@ static inline void gup_fast_pgd_range(unsigned long addr, unsigned long end,
- 		unsigned int flags, struct page **pages, int *nr)
- {
- }
--#endif /* CONFIG_HAVE_FAST_GUP */
-+#endif /* CONFIG_HAVE_GUP_FAST */
- 
- #ifndef gup_fast_permitted
- /*
-@@ -3384,7 +3384,7 @@ static unsigned long gup_fast(unsigned long start, unsigned long end,
- 	int nr_pinned = 0;
- 	unsigned seq;
- 
--	if (!IS_ENABLED(CONFIG_HAVE_FAST_GUP) ||
-+	if (!IS_ENABLED(CONFIG_HAVE_GUP_FAST) ||
- 	    !gup_fast_permitted(start, end))
- 		return 0;
- 
-diff --git a/mm/internal.h b/mm/internal.h
-index 3df06a152ff0..be432314af3e 100644
---- a/mm/internal.h
-+++ b/mm/internal.h
-@@ -1249,7 +1249,7 @@ static inline bool gup_must_unshare(struct vm_area_struct *vma,
- 	}
- 
- 	/* Paired with a memory barrier in folio_try_share_anon_rmap_*(). */
--	if (IS_ENABLED(CONFIG_HAVE_FAST_GUP))
-+	if (IS_ENABLED(CONFIG_HAVE_GUP_FAST))
- 		smp_rmb();
- 
- 	/*
 -- 
-2.44.0
-
+~Vinod
