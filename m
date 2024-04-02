@@ -1,135 +1,116 @@
-Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51E3577F08
-	for <linux-s390@vger.kernel.org>; Tue,  2 Apr 2024 12:25:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D7FF1DFD0;
+	Tue,  2 Apr 2024 12:41:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712060730; cv=none; b=T4Sv4Q8opWj0pxD3C7cQeIwTCXF3Hi7S42YNgjxsfnmZrzBx1go6AfnAKH+T474o8ifca346cHmyADMWsHqrpW87SKY0Ql43rcnO8CZ7wYB54BjfiUC65jAWGboLWic+AyAlS4suUruEQJgw0Y0OHAnMYLguhr+IEpQu1I63Koc=
+	t=1712061710; cv=none; b=jifyGj8thYJWjDKbbnWsZBA1hJ34rFtRo3FJZqSwKVyrxr+YuJ4IGplE+ixAkwLSsu4SipXmoW5O3V9mPJjMdYjHmPB6qKt4fFbC5YWxv9UkoWOFMQbKXwoMI2Nqw82qOdJ8yyBb8y419SxHqq5KUaE2ifL0xzg4bC9SgxbmvaY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712060730; c=relaxed/simple;
-	bh=p/UeUz6BQzzlTj362U5Q+0hUyUg483V1OKi+HLKX4OI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IlgsdJBnSfLU0SEyPu4bAAAYflQPXtlv9i1V07Eu+M81XnVXrmu0pr+DDOqyXWmql5Djx5tfsE7cGqJ8zACZy8te9EGhuGgLh4uBwG5QUbueS6iD7Kjd7sExNiRaH0EUZarNq75cINw8o/3IJrupeEjK1jSZogf3mio7KcN5xos=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=Y/PM2lOG; arc=none smtp.client-ip=209.85.128.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1712061710; c=relaxed/simple;
+	bh=1sK+VypOcmid7qwbW8cHSt6aTLQKQQ5uOqH4Z2IWETA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cJYOzgzjy6NPb4zNyNkGSwnMB/i3joRZcvqyBPwjaTylnaC9N34x3AMehdsB8okKFa8LjhK2s7P7lepmTjDe/6Rqx99xjq/zxZKSJgrYNzF2EXiDxCOxVk38UZrzQll3vd/TJcKzTy8xTksLCHQCOv5e66l760N5tzPk1ENXFu4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=E9ALvRv3; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Y/PM2lOG"
-Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-607c5679842so41712667b3.2
-        for <linux-s390@vger.kernel.org>; Tue, 02 Apr 2024 05:25:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1712060727; x=1712665527; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=XYDEIQksW8zQ45WbeyUEVn5ldQ4luRyFOVVyheFSkHo=;
-        b=Y/PM2lOGfwWISYEdLESt2KTtPtlHr8yg1/CGBA9FdtQYocQGHfZ+cW0YX8gg6woOzV
-         GW2SDVi0/W3ULE54zcjGLCvAVZmtCbh3VTBP3+tIbEtfDVbLhIKmqb1+a4TsXXIi5Yzk
-         SmHdUNPRN3zFBd10rSJY/qlNyGVwoVukAF36q+yItox15kUXELlUSRxcl8Mpdx9vLxmG
-         OY2lC+VOGMvXLQpb+r8L51QY+HHC99dDGGT3DX0N/M8WeSY9BE+U/oYh+6bWOLo9Abss
-         DlybL2mtVJawsbxg5WOsIutmwfbaMVxbHlwZxE2sF43N12B5PAMcfpnEeYIqUQTLlbrm
-         fqRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712060727; x=1712665527;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=XYDEIQksW8zQ45WbeyUEVn5ldQ4luRyFOVVyheFSkHo=;
-        b=ZFu/LYV7P0gvpxxwgv14ynYgpWnI/elNOk0XDYMzJF9BLXY28UJqAJuHyibgs2KqmG
-         28a1FGePozsvQHcJXhPc3JNhtGkgELsJPfkcAOVIdzP2Qaymn0dSzR15pMpxxNonBEn4
-         wFEjyRklHujWJAYeVhX3w3qboCsQyGEoWuuhyph4cwXNbL/xxRmsyMA/rYCu/JVviiiI
-         655+OVEC9SWM3GKdErtSYlVWGYl7SiSucigz0El+ZtYhINgFy81v2Mkcc3Tzzzs8yVVt
-         P5V5p4JpMv0GUxwmQw+YfoKt4J9ALN4DLnOIoec3C3sgNHSRh9LthHJMtYxDOOxfQNbA
-         RRqA==
-X-Forwarded-Encrypted: i=1; AJvYcCXj7A3defclIu1cIg9e69o3pjETX2fygaeVx7tl+zAYqM6EUTTAriDffa2YqBYKYMIJexbZcjlIjzGor9ZWFMXpkIfCk/DtkNfyuQ==
-X-Gm-Message-State: AOJu0Yzy96QtnJna1dqVZ7bnauQWBIp1B8IW1VOqHrfdK/pMbIeMePSK
-	i/MF4Fcn/KnlFeYD/EXFxDSFjv8J76uV2O3glWY7UHykdl/iTAjcfWY1BBVhTJxSj2tuyQEY7Yt
-	6Qpnkwh3SW2/6LYH9r1qxrPU1F4VsJC1BpHlWQg==
-X-Google-Smtp-Source: AGHT+IFUrSspS0uEXi4Mtdf0lWq2f6Bt6/664idaePnQ5n7gs/Aofr4lkRbBJPYECBaOux5ZgxpPBc0T/C/GsKmHDRA=
-X-Received: by 2002:a5b:104:0:b0:dcc:ec02:38b0 with SMTP id
- 4-20020a5b0104000000b00dccec0238b0mr8733778ybx.64.1712060727251; Tue, 02 Apr
- 2024 05:25:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="E9ALvRv3"
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 432CY4mL002252;
+	Tue, 2 Apr 2024 12:41:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=JG8OlfkiM/82pPKQvl5RNdoa+aZbT05Y5kKD3vV3B5k=;
+ b=E9ALvRv3/Pm23UJiv2p82vy4yN9qoVA0b2zs0D6X0PBBjlb44RiEk2qIy1D8fYnL49ju
+ hdY2fnVuwYIAKPGqVdC2xJuo7xbn3WmxSbkZN9WzAB7Z7HyCIp15V1k/zYZw7fshFz+V
+ D32X8oa5eD0UJPlbBjwaj9EI8Ez//pF7XEHXwY8zBxSNpSuucF9852YhnTOdjwEuN77a
+ rUZVaSIg5YVc0AXfGRDdmflsGUrwXxYLieV5SeLGlmY+xxSRBSV0sOxjag4v44U7tbbL
+ jY1lbxaERvCv81xPS40iYGmP6PFAMPIwGbRbmbDYz8BiqobQBS3Zd2/nxvctPU8xBBtF WQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x8j4gr0tv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 02 Apr 2024 12:41:30 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 432CeUKH012188;
+	Tue, 2 Apr 2024 12:41:29 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x8j4gr0ts-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 02 Apr 2024 12:41:29 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4329nZbw008463;
+	Tue, 2 Apr 2024 12:41:28 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x6w2txrf2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 02 Apr 2024 12:41:28 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 432CfPLn39453118
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 2 Apr 2024 12:41:27 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EEC7A2004F;
+	Tue,  2 Apr 2024 12:41:24 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A9FFF2004E;
+	Tue,  2 Apr 2024 12:41:24 +0000 (GMT)
+Received: from [9.152.224.141] (unknown [9.152.224.141])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  2 Apr 2024 12:41:24 +0000 (GMT)
+Message-ID: <4110b0fb-0005-45b6-9996-978b9bab8beb@linux.ibm.com>
+Date: Tue, 2 Apr 2024 14:41:24 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240327160314.9982-1-apais@linux.microsoft.com> <20240327160314.9982-3-apais@linux.microsoft.com>
-In-Reply-To: <20240327160314.9982-3-apais@linux.microsoft.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Tue, 2 Apr 2024 14:25:15 +0200
-Message-ID: <CACRpkdaSBGe0EFm1gK-7qPK4e6T2H1dxFXjhJqO2hWCm1-bNdA@mail.gmail.com>
-Subject: Re: [PATCH 2/9] dma: Convert from tasklet to BH workqueue
-To: Allen Pais <apais@linux.microsoft.com>
-Cc: linux-kernel@vger.kernel.org, tj@kernel.org, keescook@chromium.org, 
-	vkoul@kernel.org, marcan@marcan.st, sven@svenpeter.dev, 
-	florian.fainelli@broadcom.com, rjui@broadcom.com, sbranden@broadcom.com, 
-	paul@crapouillou.net, Eugeniy.Paltsev@synopsys.com, 
-	manivannan.sadhasivam@linaro.org, vireshk@kernel.org, Frank.Li@nxp.com, 
-	leoyang.li@nxp.com, zw@zh-kernel.org, wangzhou1@hisilicon.com, 
-	haijie1@huawei.com, shawnguo@kernel.org, s.hauer@pengutronix.de, 
-	sean.wang@mediatek.com, matthias.bgg@gmail.com, 
-	angelogioacchino.delregno@collabora.com, afaerber@suse.de, 
-	logang@deltatee.com, daniel@zonque.org, haojian.zhuang@gmail.com, 
-	robert.jarzmik@free.fr, andersson@kernel.org, konrad.dybcio@linaro.org, 
-	orsonzhai@gmail.com, baolin.wang@linux.alibaba.com, zhang.lyra@gmail.com, 
-	patrice.chotard@foss.st.com, wens@csie.org, jernej.skrabec@gmail.com, 
-	peter.ujfalusi@gmail.com, kys@microsoft.com, haiyangz@microsoft.com, 
-	wei.liu@kernel.org, decui@microsoft.com, jassisinghbrar@gmail.com, 
-	mchehab@kernel.org, maintainers@bluecherrydvr.com, 
-	aubin.constans@microchip.com, ulf.hansson@linaro.org, manuel.lauss@gmail.com, 
-	mirq-linux@rere.qmqm.pl, jh80.chung@samsung.com, oakad@yahoo.com, 
-	hayashi.kunihiko@socionext.com, mhiramat@kernel.org, brucechang@via.com.tw, 
-	HaraldWelte@viatech.com, pierre@ossman.eu, duncan.sands@free.fr, 
-	stern@rowland.harvard.edu, oneukum@suse.com, 
-	openipmi-developer@lists.sourceforge.net, dmaengine@vger.kernel.org, 
-	asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	linux-rpi-kernel@lists.infradead.org, linux-mips@vger.kernel.org, 
-	imx@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-mediatek@lists.infradead.org, linux-actions@lists.infradead.org, 
-	linux-arm-msm@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	linux-media@vger.kernel.org, linux-mmc@vger.kernel.org, 
-	linux-omap@vger.kernel.org, linux-renesas-soc@vger.kernel.org, 
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2 1/2] net/iucv: Avoid explicit cpumask var
+ allocation on stack
+To: Dawei Li <dawei.li@shingroup.cn>, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, ioana.ciornei@nxp.com,
+        twinkler@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20240331053441.1276826-1-dawei.li@shingroup.cn>
+ <20240331053441.1276826-2-dawei.li@shingroup.cn>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20240331053441.1276826-2-dawei.li@shingroup.cn>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 3KCg2rCe30HM0RqJDpyETp1Dlk6yxmTC
+X-Proofpoint-ORIG-GUID: 5wGrZzyAyOzRZBC_xPLjVLgE2LCnLnX-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-02_06,2024-04-01_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ bulkscore=0 impostorscore=0 suspectscore=0 clxscore=1011 malwarescore=0
+ priorityscore=1501 mlxlogscore=991 lowpriorityscore=0 spamscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2403210000 definitions=main-2404020092
 
-Hi Allen,
 
-thanks for your patch!
 
-On Wed, Mar 27, 2024 at 5:03=E2=80=AFPM Allen Pais <apais@linux.microsoft.c=
-om> wrote:
+On 31.03.24 07:34, Dawei Li wrote:
+> For CONFIG_CPUMASK_OFFSTACK=y kernel, explicit allocation of cpumask
+> variable on stack is not recommended since it can cause potential stack
+> overflow.
+> 
+> Instead, kernel code should always use *cpumask_var API(s) to allocate
+> cpumask var in config-neutral way, leaving allocation strategy to
+> CONFIG_CPUMASK_OFFSTACK.
+> 
+> Use *cpumask_var API(s) to address it.
+> 
+> Signed-off-by: Dawei Li <dawei.li@shingroup.cn>
+> ---
 
-> The only generic interface to execute asynchronously in the BH context is
-> tasklet; however, it's marked deprecated and has some design flaws. To
-> replace tasklets, BH workqueue support was recently added. A BH workqueue
-> behaves similarly to regular workqueues except that the queued work items
-> are executed in the BH context.
->
-> This patch converts drivers/dma/* from tasklet to BH workqueue.
->
-> Based on the work done by Tejun Heo <tj@kernel.org>
-> Branch: git://git.kernel.org/pub/scm/linux/kernel/git/tj/wq.git for-6.10
->
-> Signed-off-by: Allen Pais <allen.lkml@gmail.com>
-(...)
-> diff --git a/drivers/dma/ste_dma40.c b/drivers/dma/ste_dma40.c
-(...)
->         if (d40c->pending_tx)
-> -               tasklet_schedule(&d40c->tasklet);
-> +               queue_work(system_bh_wq, &d40c->work);
+LGTM; 
+Thank you Eric for the comment and solution with the 'static' keyword.
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 
-Why is "my" driver not allowed to use system_bh_highpri_wq?
-
-I can't see the reasoning between some drivers using system_bh_wq
-and others being highpri?
-
-Given the DMA usecase I would expect them all to be high prio.
-
-Yours,
-Linus Walleij
