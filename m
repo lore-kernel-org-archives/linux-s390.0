@@ -1,134 +1,83 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7404E20304;
-	Mon,  1 Apr 2024 19:58:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A563D2BD1C
+	for <linux-s390@vger.kernel.org>; Tue,  2 Apr 2024 07:53:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712001503; cv=none; b=Jt0uFy1YJuVOC0WMAO3WSC4h6BqB+p4K/Gb6oUeM+hOR1rFqdbP5DXiQap9MmH4Hc0QnRoNTrDNXq64KUSmQK+HY0nvMRYbqHotW/oKgiG1GmpsnORHI39ZC10/REMP+kdWJscCggNfYOqxbxG2jdwnFHZAQxe4u8o7InvJBYIE=
+	t=1712044401; cv=none; b=SR7c26jU6naR4uS9HNJzitGhStBu9XzjCthO4Y9pLmwUUax1B0L3gLCmA8fH2dcMZvs/9SzcVz6Z+au8aBVntFnNBvq0NLr7T6NzwSPErNn5nWdyY7jGtaXF/v9gTTRV7+bYId+4VAWXD3R47XLxxCyfjpBUzk5F9XaGHsbY1wY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712001503; c=relaxed/simple;
-	bh=aZXSfjaMBc291x0r5s10KrZuyuUQ5nACgOTXqz/o1xA=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Z7Z9cuDMKJCDV5yUgNV+Y012eg6zM0P0gniJSfqpJ3BTzH651zFPdRVNrfcIyzQAG+hgj9HAa+v4wPBe6Obq1QSyGVgSM2pBb/yUYiTMSCvodrMaRiZvmMf0ar6lBYGgn2g7tsnddqryg4EsKMMKT51jKcz+8cWOLKCuFNfhvq4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MtHMONJu; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MtHMONJu"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 431JvMSh031777;
-	Mon, 1 Apr 2024 19:58:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=aZXSfjaMBc291x0r5s10KrZuyuUQ5nACgOTXqz/o1xA=;
- b=MtHMONJuWI4BS/OncPb0G7UrCd5a1+upLwg++2BRNDWxwG8OTvS/RePABsXe2if5KM4C
- dDkuazOhECPw8qR+s4101+Zft/cEIzyqHsY2YIa3hX88Q4l4oF1oTV8QcQXF6cFvOIZj
- zDCxyI5AksU/IVWVVJWYJE3daa6gbNXDjDjlm6ThtFbOc8GsVoB4cM3v040OVga5p6G1
- AuBAWS0Kz/yOzSBGzC10SPzScenKFWuo+7fKvyVdiJLyo/JpI5j+onOnzcxnq+0Z6mfL
- PpUIV1+gheVFXjFIE3250QLz8q6OL2F+0ET4DDid0vH0rgpTPAtaImyepWK6lc0tYfGj Eg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x83hhg036-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 01 Apr 2024 19:58:01 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 431Jw1S8032297;
-	Mon, 1 Apr 2024 19:58:01 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x83hhg030-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 01 Apr 2024 19:58:01 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 431Ixw7p002194;
-	Mon, 1 Apr 2024 19:57:59 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3x6xjma0by-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 01 Apr 2024 19:57:59 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 431Jvu8Q27067096
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 1 Apr 2024 19:57:58 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A7F5B58054;
-	Mon,  1 Apr 2024 19:57:56 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AAFE65805A;
-	Mon,  1 Apr 2024 19:57:53 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.184.184])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  1 Apr 2024 19:57:53 +0000 (GMT)
-Message-ID: <cbdce01bbf2843062f4afd7e5c9af767e69cc70b.camel@linux.ibm.com>
-Subject: Re: [PATCH vhost v7 0/6] refactor the params of find_vqs()
-From: Eric Farman <farman@linux.ibm.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
-Cc: Richard Weinberger <richard@nod.at>,
-        Anton Ivanov
- <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg
- <johannes@sipsolutions.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Ilpo
- =?ISO-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Vadim
- Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck
- <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        "Michael
- S. Tsirkin" <mst@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Jason
- Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
-        platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Date: Mon, 01 Apr 2024 15:57:53 -0400
-In-Reply-To: <20240328080348.3620-1-xuanzhuo@linux.alibaba.com>
-References: <20240328080348.3620-1-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CVJdQ_e6TRRp_yDfdRwGfh273GvCB2h1
-X-Proofpoint-ORIG-GUID: Ruk7klDLWbFbZ4w-u3ObzCq-1Zf9Ly1V
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	s=arc-20240116; t=1712044401; c=relaxed/simple;
+	bh=IOqmJt1/AaAARoF+FylX1lGFuV+OIgMvhrmNtax4e2Q=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=h5qCYPxpRohjyXYLCYrH79XDD5EwFWMrOmFdZqXePy8YqRltYxk90Pyw0xy0KM9Au2Grqh3OzJoqkwD4p4eFwZVDiZfn7gqvAup+HsGzbW6btA1l81Tq+ly+LAaRChjUp2xiFcCiXWZaEwG8wNXzVsCC8QDgYlyndTSrNAsLHV4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.194])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4V80RS5xc3zwRBB;
+	Tue,  2 Apr 2024 15:50:28 +0800 (CST)
+Received: from dggpemm100001.china.huawei.com (unknown [7.185.36.93])
+	by mail.maildlp.com (Postfix) with ESMTPS id 7B67C140415;
+	Tue,  2 Apr 2024 15:53:15 +0800 (CST)
+Received: from localhost.localdomain (10.175.112.125) by
+ dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Tue, 2 Apr 2024 15:53:14 +0800
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+To: <akpm@linux-foundation.org>
+CC: Russell King <linux@armlinux.org.uk>, Catalin Marinas
+	<catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Michael Ellerman
+	<mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy
+	<christophe.leroy@csgroup.eu>, Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer
+	<gerald.schaefer@linux.ibm.com>, Dave Hansen <dave.hansen@linux.intel.com>,
+	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+	<x86@kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
+	<linux-s390@vger.kernel.org>, <surenb@google.com>, Kefeng Wang
+	<wangkefeng.wang@huawei.com>
+Subject: [PATCH 0/7] arch/mm/fault: accelerate pagefault when badaccess
+Date: Tue, 2 Apr 2024 15:51:35 +0800
+Message-ID: <20240402075142.196265-1-wangkefeng.wang@huawei.com>
+X-Mailer: git-send-email 2.27.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-01_14,2024-04-01_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- lowpriorityscore=0 adultscore=0 priorityscore=1501 malwarescore=0
- phishscore=0 spamscore=0 mlxscore=0 suspectscore=0 mlxlogscore=924
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2403210000 definitions=main-2404010139
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpemm100001.china.huawei.com (7.185.36.93)
 
-On Thu, 2024-03-28 at 16:03 +0800, Xuan Zhuo wrote:
-> This pathset is splited from the
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0
-> http://lore.kernel.org/all/20240229072044.77388-1-xuanzhuo@linux.alibaba.=
-com
->=20
-> That may needs some cycles to discuss. But that notifies too many
-> people.
+After VMA lock-based page fault handling enabled, if bad access met
+under per-vma lock, it will fallback to mmap_lock-based handling,
+so it leads to unnessary mmap lock and vma find again. A test from
+lmbench shows 34% improve after this changes on arm64,
 
-This will need to be rebased to 6.9; there were some conflicts when I
-tried to apply this locally which I didn't chase down, but it works
-fine on 6.8.
+  lat_sig -P 1 prot lat_sig 0.29194 -> 0.19198
 
-Thanks,
-Eric
+Only build test on other archs except arm64.
+
+Kefeng Wang (7):
+  arm64: mm: cleanup __do_page_fault()
+  arm64: mm: accelerate pagefault when VM_FAULT_BADACCESS
+  arm: mm: accelerate pagefault when VM_FAULT_BADACCESS
+  powerpc: mm: accelerate pagefault when badaccess
+  riscv: mm: accelerate pagefault when badaccess
+  s390: mm: accelerate pagefault when badaccess
+  x86: mm: accelerate pagefault when badaccess
+
+ arch/arm/mm/fault.c     |  4 +++-
+ arch/arm64/mm/fault.c   | 31 ++++++++++---------------------
+ arch/powerpc/mm/fault.c | 33 ++++++++++++++++++++-------------
+ arch/riscv/mm/fault.c   |  5 ++++-
+ arch/s390/mm/fault.c    |  3 ++-
+ arch/x86/mm/fault.c     | 23 ++++++++++++++---------
+ 6 files changed, 53 insertions(+), 46 deletions(-)
+
+-- 
+2.27.0
+
