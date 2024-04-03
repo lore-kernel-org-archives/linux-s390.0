@@ -1,149 +1,130 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f173.google.com (mail-vk1-f173.google.com [209.85.221.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD32814F122;
-	Wed,  3 Apr 2024 16:25:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 923CB1B7F4;
+	Wed,  3 Apr 2024 16:44:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712161523; cv=none; b=cKN9TTT8jhL+740h6rFhAvItUP+ioKeWA4gm2MQfTGq+ZUCwPZDovF99Rr6+Ki7se9ma9BIgC8r96/Tkj707v+PPUAcgGyG0v2xfm990y3DaftR0MD9QJxYVMIxo41qYmTKFNopPKV0U98YXA+W6Din73GWZOdS93K04IDgHTaM=
+	t=1712162654; cv=none; b=CDHlBXcmPRoxxJMZbyn5VkACDhQ9TUWXXR1fqJmAvuYqfAOrxh+6nWk9q0LkSvUDORa7/ntY57CeNM79DLrbFQTcOHCTE2ELiaQeWLf8yxujw+Gv4zKEcD503q8LZPHmFh9acDj/+Wtn9gPYKd8w9hVBMvubd0dUYwNAfYW6GzE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712161523; c=relaxed/simple;
-	bh=M2KSxX/qzBohwPJ02hVjKtTS/u8IGLEnJlpOLc775+c=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=A4uFRn7AaCaSPnXdZuoAlQt2XCyqIexTOLALzFuOX8qsxVeg0HABotusZAqEfXgfyDMEgMSdi81hvMZzPXyQKXsvOSswQx7weSnB7u9qJXj4aZSx3zVrsX4gC/9pEwEp+vbQ5sEIRT/fsFMmCBfquI1S4+O2L5X7IisxvHD9MvM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sAjrqesj; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1712162654; c=relaxed/simple;
+	bh=M1neYOlhzngATdBbVyJaKe7fkRAK//9DrStR8GOcQu4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HZT2XFqARwF4Z+85DrgQGT9BNu/Qrhxwgl8kP7Kvm8wgPlOlU/6YaxP4O4hledGA1mkNbcaArPbCmwBNh874p01oMZ7M+zmfhwIFzX9WxPwNE6IJi2Zzcv3q9EeX9nmUg35ytnMDbJMJvOYA0YtYAitbeCsfo+gmgvjcjnhaH6g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i0GskreP; arc=none smtp.client-ip=209.85.221.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sAjrqesj"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 433G2mnG017749;
-	Wed, 3 Apr 2024 16:25:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=UqaB+wRnNOYEb2m53SzDiYd2Jvl8mk/TbCmsEno9obA=;
- b=sAjrqesjJ6yYZeiFMFjQW7W9xciDm/RAp2G44FYgyrNmsN74i9KhwHiFKZGvi+XZq39V
- eUn4H96aidg69kGQWvz9UdlDYiNz5tVLnueLVGzyASv+scU0wWR7qW9r/CghFpxrD5ai
- AOL01EG/FVBYwfoNH2y7XmRNqADoqlIxu6wUgy+a6f40p1318e15Mus+LGOVbGqcG9xa
- gGxFeTNqvRt8/v14QV2flcmpHQrKfixx3Sn4wdTMrOJawZlXFyhsL41dutaEVBY/U6Ay
- E27WUkn4sPhYtWug43OYjTR5p34ojzrUiWUeBwW0x1x1RKKE4KuhX6yklpUSL4md1Wt5 6g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9a9b02jr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Apr 2024 16:25:16 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 433GPGRJ023481;
-	Wed, 3 Apr 2024 16:25:16 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9a9b02jh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Apr 2024 16:25:16 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 433EwYjc025753;
-	Wed, 3 Apr 2024 16:25:15 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3x6x2peegv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Apr 2024 16:25:14 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 433GP9PY25231958
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 3 Apr 2024 16:25:11 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1C71F20065;
-	Wed,  3 Apr 2024 16:25:09 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 02BE52004B;
-	Wed,  3 Apr 2024 16:25:08 +0000 (GMT)
-Received: from [9.171.60.51] (unknown [9.171.60.51])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  3 Apr 2024 16:25:07 +0000 (GMT)
-Message-ID: <3122eece5b484abcf8d23f85d6c18c36f0b939ff.camel@linux.ibm.com>
-Subject: Re: [RFC PATCH net-next v5 04/11] net/smc: implement some
- unsupported operations of loopback-ism
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
-        twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com,
-        jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Date: Wed, 03 Apr 2024 18:25:07 +0200
-In-Reply-To: <20240324135522.108564-5-guwen@linux.alibaba.com>
-References: <20240324135522.108564-1-guwen@linux.alibaba.com>
-	 <20240324135522.108564-5-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.4 (3.50.4-2.fc39app4) 
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i0GskreP"
+Received: by mail-vk1-f173.google.com with SMTP id 71dfb90a1353d-4da6995e58bso3887e0c.1;
+        Wed, 03 Apr 2024 09:44:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1712162651; x=1712767451; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Aej6QFoETxeFvbQm8/sOYYAdEcWAnghw/7Ynm8n0ucQ=;
+        b=i0GskreP3bhVFE7L+jTrP55NTeLGEOiadN1sTEIYfQZF05ZqD7aFwgcHEWZzggB27p
+         Iu9pSvcSJvv9ctMRtptjRYbadJq2t5PSTI2cbljCYV4c1eP3C39UqNHbXsHjXVWPgRF4
+         cUNtQf66y29Ij0Ux473Ma14olhaOmCPIXPj2UkCmSyIiiLfd/Et1NmcTyn3tZ2/5CroR
+         JGJgD9ELhuJW4HPsYoaybFcG5Or8NO7kPPs+wVFcewF/98zylX3MkbB9YRRmtZLed4a1
+         /rF+ytNHfDippVqXcj/p/3MB6p+36Kb2Su2g3ayZiSDGs4JicOJMXB6apxu1GA4my1On
+         wA5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712162651; x=1712767451;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Aej6QFoETxeFvbQm8/sOYYAdEcWAnghw/7Ynm8n0ucQ=;
+        b=e8yBpGhE0mKo3L6OmYGnR55qeIfLG1anmLG/C9J7ZN+3APLmsWh6CvVnaVCYsjCiAq
+         hrNtZxk5KKZnV09ovVAOzQxwB01QW0NNKc7ScDXWNxQ0zT+i61WPf/HwALGzRKQ/BiSX
+         2r2pgmwbGI+J8jma1PQLhQpFVG8uK0yJELN2QNQ/ZEPXA5GxeVSzqk/IdcBm3yahGwRn
+         oed2hqf8dr7V23Fc6MYt4JHlKRTXO29I5BVGoVp8dN9jWEDGfcCwZ82JN9BHBfYpLw+e
+         /dx+zr5qFizvfFylmLkqTFSlx5t4y2pg5rZFtWvn0zdGhdzMxA2/t5cd0Hlv5PzNvCJT
+         s8PQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVpasyVqxm4S9hgcbs8dUy8q6r+F+STTWmT6MCdat3oYYGFf+6rfr/8BT6yKy29uM1AbAIolt6SJh3lZYGu+DdYx9rzuUZiacHksRrNK21d6PVKAmcA2bpy1ts6Yz9bGXjhHCps2uWJIbPr/dVtNNfyydVyE+K1ucGwYnGAjdY8ancrFK+L0hNax/c1XJjskEYv0wHpLr3QYcYae0jP0AbcIV7ty92/ff7x1UVKg/DHrQ4m6vd6MPfODU9MtPOA44TG4uH72P9SYMTl8iJ2Ymh/B+II5LqiE8dVCoxE0cInMo7xr933GhgCTU9KJIPBF0gQ+pJTOetPWCfC4PSf48Ob4/F3T0jmLDQrzHEiBXzlQ9uOWnlsVOsi4UII2DcFQsmqCVxhtgxyxlHQxh8eD2L7lMlo4zNFCgiUX02hHGzwheLA4FNBh6P5J9lVZbQvfyrD8swvpZGH79BZRxgEksXawYvBHZWkIm5bDVqAJDXTaUbQfuH7mx3HADTE5vaD85KO48aJ4TNlbvfSjEfa2sFySReyB4JFNhSFbk7HS6ecFe8=
+X-Gm-Message-State: AOJu0YwxuG7mpFcprqH+unaPXUWhDi4M8kWHnrmwwEENz8OeMEG3DaYw
+	/CXUPwT+I6xRjhFEM44yzLJqF6NH9qPNdRXdt6gxeHK+bYkky7/7uoKKDbs7asmf72EjxBTb0AM
+	t1tSGUHKch652xWodKB7wWjUMX4s=
+X-Google-Smtp-Source: AGHT+IFEFFEcpcdQfCxRWJYlDuuUETZ0sWBciDlGUMCvLnJmEBIY1oP87nAaJSL5QQDatxb4oTnFcly4MrzzQ8OrF5o=
+X-Received: by 2002:a05:6122:499a:b0:4d3:b326:5ae8 with SMTP id
+ ex26-20020a056122499a00b004d3b3265ae8mr10815788vkb.14.1712162651582; Wed, 03
+ Apr 2024 09:44:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: e-maJrEYK3CrbN1gUYBUw5wqMTnGJHjI
-X-Proofpoint-ORIG-GUID: y1xl521ypI8S9m31iHqSuVR8sDJBb3t1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-03_16,2024-04-03_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
- phishscore=0 spamscore=0 mlxlogscore=999 malwarescore=0 mlxscore=0
- suspectscore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2403210000 definitions=main-2404030112
+References: <20240327160314.9982-1-apais@linux.microsoft.com> <20240327160314.9982-2-apais@linux.microsoft.com>
+In-Reply-To: <20240327160314.9982-2-apais@linux.microsoft.com>
+From: Allen <allen.lkml@gmail.com>
+Date: Wed, 3 Apr 2024 09:43:57 -0700
+Message-ID: <CAOMdWSLavg27YZgnfE2QHjO=4RNmFx_7veAURaPG_=qWX=KMVA@mail.gmail.com>
+Subject: Re: [PATCH 1/9] hyperv: Convert from tasklet to BH workqueue
+To: Allen Pais <apais@linux.microsoft.com>
+Cc: linux-kernel@vger.kernel.org, tj@kernel.org, keescook@chromium.org, 
+	vkoul@kernel.org, marcan@marcan.st, sven@svenpeter.dev, 
+	florian.fainelli@broadcom.com, rjui@broadcom.com, sbranden@broadcom.com, 
+	paul@crapouillou.net, Eugeniy.Paltsev@synopsys.com, 
+	manivannan.sadhasivam@linaro.org, vireshk@kernel.org, Frank.Li@nxp.com, 
+	leoyang.li@nxp.com, zw@zh-kernel.org, wangzhou1@hisilicon.com, 
+	haijie1@huawei.com, shawnguo@kernel.org, s.hauer@pengutronix.de, 
+	sean.wang@mediatek.com, matthias.bgg@gmail.com, 
+	angelogioacchino.delregno@collabora.com, afaerber@suse.de, 
+	logang@deltatee.com, daniel@zonque.org, haojian.zhuang@gmail.com, 
+	robert.jarzmik@free.fr, andersson@kernel.org, konrad.dybcio@linaro.org, 
+	orsonzhai@gmail.com, baolin.wang@linux.alibaba.com, zhang.lyra@gmail.com, 
+	patrice.chotard@foss.st.com, linus.walleij@linaro.org, wens@csie.org, 
+	jernej.skrabec@gmail.com, peter.ujfalusi@gmail.com, kys@microsoft.com, 
+	haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com, 
+	jassisinghbrar@gmail.com, mchehab@kernel.org, maintainers@bluecherrydvr.com, 
+	aubin.constans@microchip.com, ulf.hansson@linaro.org, manuel.lauss@gmail.com, 
+	mirq-linux@rere.qmqm.pl, jh80.chung@samsung.com, oakad@yahoo.com, 
+	hayashi.kunihiko@socionext.com, mhiramat@kernel.org, brucechang@via.com.tw, 
+	HaraldWelte@viatech.com, pierre@ossman.eu, duncan.sands@free.fr, 
+	stern@rowland.harvard.edu, oneukum@suse.com, 
+	openipmi-developer@lists.sourceforge.net, dmaengine@vger.kernel.org, 
+	asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+	linux-rpi-kernel@lists.infradead.org, linux-mips@vger.kernel.org, 
+	imx@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	linux-mediatek@lists.infradead.org, linux-actions@lists.infradead.org, 
+	linux-arm-msm@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-media@vger.kernel.org, linux-mmc@vger.kernel.org, 
+	linux-omap@vger.kernel.org, linux-renesas-soc@vger.kernel.org, 
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Sun, 2024-03-24 at 21:55 +0800, Wen Gu wrote:
-> This implements some operations that loopback-ism does not support
-> currently:
->  - vlan operations, since there is no strong use-case for it.
->  - signal_event operations, since there is no event to be processed=20
-> by the loopback-ism device.
+> The only generic interface to execute asynchronously in the BH context is
+> tasklet; however, it's marked deprecated and has some design flaws. To
+> replace tasklets, BH workqueue support was recently added. A BH workqueue
+> behaves similarly to regular workqueues except that the queued work items
+> are executed in the BH context.
+>
+> This patch converts drivers/hv/* from tasklet to BH workqueue.
+>
+> Based on the work done by Tejun Heo <tj@kernel.org>
+> Branch: https://git.kernel.org/pub/scm/linux/kernel/git/tj/wq.git for-6.10
+>
+> Signed-off-by: Allen Pais <allen.lkml@gmail.com>
+> ---
+>  drivers/hv/channel.c      |  8 ++++----
+>  drivers/hv/channel_mgmt.c |  5 ++---
+>  drivers/hv/connection.c   |  9 +++++----
+>  drivers/hv/hv.c           |  3 +--
+>  drivers/hv/hv_balloon.c   |  4 ++--
+>  drivers/hv/hv_fcopy.c     |  8 ++++----
+>  drivers/hv/hv_kvp.c       |  8 ++++----
+>  drivers/hv/hv_snapshot.c  |  8 ++++----
+>  drivers/hv/hyperv_vmbus.h |  9 +++++----
+>  drivers/hv/vmbus_drv.c    | 19 ++++++++++---------
+>  include/linux/hyperv.h    |  2 +-
+>  11 files changed, 42 insertions(+), 41 deletions(-)
 
-Hi Wen,
+Wei,
 
-I wonder if the these operations that are not supported by loopback-ism
-should rather be marked "optional" in the struct smcd_ops, and the
-calling code should call these only when they are implemented.
+ I need to send out a v2 as I did not include the second patch that
+updates drivers/pci/controller/pci-hyperv.c
 
-Of course this would mean more changes to net/smc/smc_core.c - but
-loopback-ism could omit these "boiler-plate" functions.
-
-> =C2=A0
-> +static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +static int smc_lo_del_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +static int smc_lo_set_vlan_required(struct smcd_dev *smcd)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +static int smc_lo_reset_vlan_required(struct smcd_dev *smcd)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +static int smc_lo_signal_event(struct smcd_dev *dev, struct smcd_gid
-> *rgid,
-> +			=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 u32 trigger_irq, u32 event_code,=
- u64
-> info)
-> +{
-> +	return 0;
-> +}
-> +
-
-Just a pattern that I saw elsewhere in the kernel...
-
-Thanks,
-Gerd
+Thanks.
