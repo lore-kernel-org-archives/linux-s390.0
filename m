@@ -1,136 +1,248 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C27FE256D;
-	Fri,  5 Apr 2024 03:42:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 753451C290;
+	Fri,  5 Apr 2024 06:35:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712288573; cv=none; b=F+GH+WdaSljr64UyIk1mDDefzCiz+c/Tn4SiR8C+lHSQIUEQ2FCvqoB8XcUN/rSDN2qVK+AKQ3aAOU92HY7DZ/bpaiwTVWuSvKMgAGjP8g8dgnEjTPOqSAfNlOEYNcYkRw0kccdmvVPNg92kiw70f5hA3R/5SpD6c1/dI/S3YTk=
+	t=1712298949; cv=none; b=mXZHUc4W+ZJzrnjBl+pDQFNcwUC4vvsZ85qNTuBcxtp2XY7F6Zq8gQUZJ0sWDh7bxIhJBt2dCSDsRIAqb93H7gAmvZkqKZhaohImdyRY3KNK1EfRW49YjcWH2kyGM0PoklEKImq8agycUGDk97kfdHW6ct5299Ape/Op0OOkLH0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712288573; c=relaxed/simple;
-	bh=1E4q9iSNFoJ5e8ve8agC1zRQQ+0F+2ROOW1SmEusQhQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=V0H3eQUy6jAdgvlXEGrQ2qZgCUt0qSpk/pgAMe7nMfw+qImX5+KotZnzOBX4pqm+YWoxKFN6VQgXyvMLHZP6WVnGERtaG1fAq7hWuGU4qhxisSZIHMsjtirV/ePo4i4sxq9Q24+4XdcK0adz35W5/9mDEsUWUA8YWpf6Cz4isps=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=BiUkNHHy; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1712298949; c=relaxed/simple;
+	bh=ikYDLn4Ym4RSvRYw/MJO6iKHulOv0NjFGcOsdIQTkHk=;
+	h=Date:From:To:CC:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:References; b=bAyeN+tyuKxnm8itVLwvFUvXyNxRNkHMViHQ3AJb9b6xuPwk8g5Rg6aImNm1Iaq+W5aSbo5JP9iXS5XtEpTyVDyfjQMm3rjH3KIOa5aiUBLoNVTnpAJPR5Gm+kyLIGA/PxYEyKn2vAD5eakn8J5zgildazYVGhoDpvVaHagdKnk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=itp/SGTi; arc=none smtp.client-ip=210.118.77.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="BiUkNHHy"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=GdrhCCARPBrZ0BeKtdp/2ujXMzoo79cn9UM+NnhXtOc=; b=BiUkNHHyRubp6ozZi9ENrekA++
-	yQOYyCgQCr+0Q/os9bqKoxPFMAbMbxNG6VK3KHRf8d5VUDBhQK2d5+yLPqCJMWNEi9A5Np7eRoKb/
-	DBIczCaUGUP4hAyXgNPEyzczgbll9TcpKdoOXd+GyloI5jB85moOyOiFUm+70vucequYLSfNiLsla
-	ICHIK+mjkvj8DeY0YHxe+itsx+qAUbmLmj20OriZ1nYpu04O7xrCKDWqCrYQ3Hc+/LOOT/Nc628nG
-	LvjTUu+/BGPTLzt1GjKxZsMEhtwzjcQrf4qkNfEQ7hNy60oBEO1E+Qkxv1rZfhKyXuJ6e19bJTSD+
-	hTAIPaBg==;
-Received: from willy by casper.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1rsaTY-00000009Y3j-2mgL;
-	Fri, 05 Apr 2024 03:42:48 +0000
-Date: Fri, 5 Apr 2024 04:42:48 +0100
-From: Matthew Wilcox <willy@infradead.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Thomas Huth <thuth@redhat.com>
-Subject: Re: [PATCH v1 0/5] s390: page_mapcount(), page_has_private() and
- PG_arch_1
-Message-ID: <Zg9zOJowhmOozmcp@casper.infradead.org>
-References: <20240404163642.1125529-1-david@redhat.com>
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="itp/SGTi"
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20240405063543euoutp017caa354157006bc1f61d80529ba50133~DTtEjAQed1754517545euoutp01J;
+	Fri,  5 Apr 2024 06:35:43 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20240405063543euoutp017caa354157006bc1f61d80529ba50133~DTtEjAQed1754517545euoutp01J
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1712298943;
+	bh=N7Xk/dqXP1U7JVC+aqhzvUwaPlnQWGEnhGrG4RTCnYM=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=itp/SGTi2KY3001kxEzNTe4JO1ixuRif/PHcEZopCR/ThlW+PCAwOppVIUIVs0r5g
+	 ys+4wUrSRboZ6xjZit8bH2bHUTBfLp7CMo6eJx+GjsI4bw0ya31JItGz/bVMttt4ur
+	 qxZQNdpPRMKMZ5NN9VH5cUark/R3Z1nPY3fy2l5U=
+Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTP id
+	20240405063543eucas1p250905f5211a05d8b253a15262f3744d4~DTtETUjcs1221112211eucas1p2k;
+	Fri,  5 Apr 2024 06:35:43 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+	eusmges3new.samsung.com (EUCPMTA) with SMTP id A2.85.09552.EBB9F066; Fri,  5
+	Apr 2024 07:35:43 +0100 (BST)
+Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20240405063542eucas1p190ab901f5f6faa28cff00f183b9749bb~DTtDsmHF20623506235eucas1p14;
+	Fri,  5 Apr 2024 06:35:42 +0000 (GMT)
+Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+	eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
+	20240405063542eusmtrp1b0b10e8e5ca74e71f569e868d048abf1~DTtDp-qN62498024980eusmtrp1z;
+	Fri,  5 Apr 2024 06:35:42 +0000 (GMT)
+X-AuditID: cbfec7f5-83dff70000002550-20-660f9bbe2cb8
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+	eusmgms2.samsung.com (EUCPMTA) with SMTP id 1C.B2.10702.EBB9F066; Fri,  5
+	Apr 2024 07:35:42 +0100 (BST)
+Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
+	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20240405063542eusmtip16105856c5e39365274c85e3ba56c334c~DTtDTjI3S0803908039eusmtip1Q;
+	Fri,  5 Apr 2024 06:35:42 +0000 (GMT)
+Received: from localhost (106.210.248.50) by CAMSVWEXC02.scsc.local
+	(2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
+	Fri, 5 Apr 2024 07:35:39 +0100
+Date: Wed, 3 Apr 2024 11:16:25 +0200
+From: Joel Granados <j.granados@samsung.com>
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+CC: <devnull+j.granados.samsung.com@kernel.org>, <Dai.Ngo@oracle.com>,
+	<alex.aring@gmail.com>, <alibuda@linux.alibaba.com>,
+	<allison.henderson@oracle.com>, <anna@kernel.org>, <bridge@lists.linux.dev>,
+	<chuck.lever@oracle.com>, <coreteam@netfilter.org>, <courmisch@gmail.com>,
+	<davem@davemloft.net>, <dccp@vger.kernel.org>, <dhowells@redhat.com>,
+	<dsahern@kernel.org>, <edumazet@google.com>, <fw@strlen.de>,
+	<geliang@kernel.org>, <guwen@linux.alibaba.com>,
+	<herbert@gondor.apana.org.au>, <horms@verge.net.au>, <ja@ssi.bg>,
+	<jaka@linux.ibm.com>, <jlayton@kernel.org>, <jmaloy@redhat.com>,
+	<jreuter@yaina.de>, <kadlec@netfilter.org>, <keescook@chromium.org>,
+	<kolga@netapp.com>, <kuba@kernel.org>, <linux-afs@lists.infradead.org>,
+	<linux-hams@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-nfs@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
+	<linux-s390@vger.kernel.org>, <linux-sctp@vger.kernel.org>,
+	<linux-wpan@vger.kernel.org>, <linux-x25@vger.kernel.org>,
+	<lucien.xin@gmail.com>, <lvs-devel@vger.kernel.org>,
+	<marc.dionne@auristor.com>, <marcelo.leitner@gmail.com>,
+	<martineau@kernel.org>, <matttbe@kernel.org>, <mcgrof@kernel.org>,
+	<miquel.raynal@bootlin.com>, <mptcp@lists.linux.dev>, <ms@dev.tdt.de>,
+	<neilb@suse.de>, <netdev@vger.kernel.org>,
+	<netfilter-devel@vger.kernel.org>, <pabeni@redhat.com>,
+	<pablo@netfilter.org>, <ralf@linux-mips.org>, <razor@blackwall.org>,
+	<rds-devel@oss.oracle.com>, <roopa@nvidia.com>, <stefan@datenfreihafen.org>,
+	<steffen.klassert@secunet.com>, <tipc-discussion@lists.sourceforge.net>,
+	<tom@talpey.com>, <tonylu@linux.alibaba.com>,
+	<trond.myklebust@hammerspace.com>, <wenjia@linux.ibm.com>,
+	<ying.xue@windriver.com>
+Subject: Re: [PATCH v2 4/4] ax.25: Remove the now superfluous sentinel
+ elements from ctl_table array
+Message-ID: <20240403091625.lk35wt2iqkvabrmr@joelS2.panther.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="u37e6yueaf43q4xz"
 Content-Disposition: inline
-In-Reply-To: <20240404163642.1125529-1-david@redhat.com>
+In-Reply-To: <20240328194934.42278-1-kuniyu@amazon.com>
+X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
+	CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
+X-Brightmail-Tracker: H4sIAAAAAAAAA2WTaVBTZxSG/e6WKzRyjVQ+xY6dVJ1CrftytBWV4nhHO1PHP7WOU0r1orYQ
+	nESqtVtIAJHNjLjUgCaiYgDBliUIuCAqSFBABUQmKMTEjAiIRERQoMSrrTP995z3Pe/5zvnx
+	saRsPzuR3arYLigVIWFyxoMyV/TXfnox1St01slbBJSrF0LbuXga1NGxBMQUD1NgPp5AwHCL
+	k4DB4t0kuNqcNBjS8xlIq42mYPBOAgO3j9gJ6NK8pCC3JIYAR4VNAuakbATZGisFRc4+BhLa
+	J4G2sBeBfa+NhvqMbgb6M7IkcL/XRkF/siccjtcScD0hHM622CmoMyfTkJGYw4DOMhsai1oI
+	uF2SxkBdWTUND8uTKNAd05LgMD6mwZqSQUHZeQMC25knBGgNPSRoXQ9IGDBV0lCTNEyCPjeL
+	hCadA8Hl3RdouH5GI4HnR6+RcN6gpqDCOB50uRYKnld3IDjU0UDCrXNTwPJsmICafBcNrrSP
+	IcVUQEDpnhcSKKj9ASwDFgIe9DkZGG5auiyQN9XF03yzrZfku2qqEH/09C98qvomxQ/0+/MF
+	mXcJPuFKO8kX61skvLlsKm/Mi+Rflf8t4fOy9jD81cwcgi9uW8Tr0svQGvl6j883CWFbfxKU
+	MwO+89hiGpq/Teu7s8nsQGpUPz4ejWYxNw8fKb1BxSMPVsaZEO57cR+JxTOEUwsPvnFcCLf1
+	9ZBvIyfimmjROIWw+sBB4t8u6/FLpFjkI2zUdBHuCMVNwXE5DsbNDDcd13ZYX4/y5vxwXG7i
+	61Ekly/FVXvu0G5jHBeKX9xzIDdLuWW4u7CKEHksrjpsp9xMcjtxhT1zhNkR9sWnhli3PJpb
+	iC8NXKPdMubkuC97lbj1b9hS0Px6UczdfA8ftl5FohGEHzbkESKPw+2VBRKRJ+HqlERKDKQg
+	fHGoWyIW2QhnRPW+SXyGo+vtbxLLcacrihFfHoObOseKe47B+8yHSFGW4rhYmdg9DWff66B0
+	6CP9O5fp37lM/99lojwdG0t7mP/Jn+CMY49JkZfg3NwnlBFJspCPEKkK3yyo5iqEHTNUIeGq
+	SMXmGRsjwvPQyGetHqrsPYtM7U9nlCOCReVoykjY9ld2HZpIKSIUgtxbmrBMGiqTbgr5eZeg
+	jAhWRoYJqnLky1JyH+nUTZMFGbc5ZLvwoyBsE5RvXYIdPVFNRC3Y0P9KYdixZE1hXBCxfsO6
+	jd/f9Ww8HWj5lZo2O6D9+B1N1qhZw2mLdd2xG+XI2hqu7V/s50x66a1pHHsjtiE0jSJYZ+Xg
+	ypLUWc2++8ty1nxh7vTSxduT596uNpz+M912IzjG7DDs3vcoOfPR01ZXoGpO/eX0tppxXyXL
+	nIlFFas/xOscfeF/5Pub0+st3/iQZc+7e4i1yzuWXs6b11oXJHuYZYzxTg9YmRMZvHj1B8FR
+	a2ey79f4eDUPms/P36XQr2IvqCJP+H494YzfhVq/Rb3OUUWe/p0rgrp6lLz+kH4Fe7F08hKv
+	wme2A6ceTdA0R5cELFhwKTjg92+/nHNSNdd0RU6ptoTM9ieVqpB/APXZk9wnBQAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA2WTe0yTZxSH936XtrA0fgLiK5pl6UoycFaLXE4nMOeC+VjM5pjRZWzTqh8g
+	0mJacNPNpVIRBFEm6mZhgEwR6KiCUO6OVUFpDTDlJhMYCKLQiAhy6UQG1mUm++/J75znlzdv
+	cgSkUxHfTbBLGcOplPIoEc+Rsjy/3rXiSvqCsFUpeS5g0vhBb3USDZpDhwmIr5ilwPhLMgGz
+	XYMEzFQkkDDWO0hDVs5lHmQ0HaJgpj2ZB7d/7ifgUdzfFBgq4wkYqO/jgzFFj0Afd5eCssFJ
+	HiQPLQNt6VME/cf7aGjJfcyD6dwCPvQ87aNg+tjrcCZJS8DNZAWUd/VT0Gw8RkPu0UIepJql
+	0FbWRcDtygweNNdaaLhvSqEg9ayWhIHsYRrupuVSUFuThaDv4ggB2qwnJGjH7pFgy7tOQ2PK
+	LAk6QwEJHakDCK4mXKHh5sU4Pkxk3iChJktDQX22K6QazBRMWKwIfrS2knCrWgzm8VkCGi+P
+	0TCW8Tak5ZUQUHVkig8lTZFgtpkJuDc5yIPZjvfWrmPzmpNotrPvKck+amxAbOav37Lpmj8o
+	1jbtyZbk3yHY5GtDJFuh6+Kzxlp3Nrs4ln1mKuKzxQVHeGxdfiHBVvTK2NScWrRR9LnEXxUd
+	G8O9GRGtjgkQhUrBSyKVgcTLWyaRrvb78l0vH9HKQP+dXNSuvZxqZeA2ScSMrhPtObj0m5mc
+	XqRBt1yTkIMAM974XGIHnYQcBU7MeYRPXjlM2wfLcNF460t2xs/aknj2pVGE+yv/emlcRngs
+	vQvNb1GMGCcWDvDmmce8g5usd8l5dmE8cKLh6AuBZIqE2KpvejFwZsLwVPfAC1nIrMWPSxsI
+	e6sF4RuWYb59sBA3nOmn5plk9uIHOuucLJjjpfjCc8F87MD44d9tN+j5GDMiPKn/0P7qA3hs
+	5j5KRc66V4p0rxTp/iuyx5644/lD4n/xcpx7dpi0cwA2GEaobMQvQC5crFoRrlB7SdRyhTpW
+	GS7ZEa0oRnP3YqyfLilH+UOjEhMiBMiExHNm3yV9M3KjlNFKTuQiTF4rDHMS7pTv28+poreq
+	YqM4tQn5zP3iD6Tboh3Rc8enjNkq9V3lI/X2la3ykfmuFi0WBu9JlDsx4fIYbjfH7eFU/3qE
+	wMFNQ7i3f1w4lXji0oYGWOPpnni65k7Pd5mLJx+V705YLy6VxZ8c7xzuGT03Kqn49LTiYJ2z
+	wltzVWzhJrrl7VGW7KCIFmb5eFnz5rrtDiaVzaxblreC2x5QucRf+1Er/+CCevfzSzJdta9V
+	Bf+5qPrJcOAHbTIKl65pf39TwOL1gdQB4a4NCZ9Nzqw//aA16HjsQ32wVR+aJVD7bLGItlHG
+	Uz2d57/v+WJTdUjJVuKNfb6XrA9zfguJKfvkBLvFuXC/09fd4qojaZJWj43KKFttc0n+1FvF
+	1yZG9PGmSMd1HsEt/PAFOaeEcaGSgsjG7tyF5q9+sg1eqAvKjIjPWLhZHDLiEVoaJKLUEXKp
+	J6lSy/8BW/yY6MQEAAA=
+X-CMS-MailID: 20240405063542eucas1p190ab901f5f6faa28cff00f183b9749bb
+X-Msg-Generator: CA
+X-RootMTR: 20240328195008eucas1p2fc32577c64a80424c10f30e4f69fc11a
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20240328195008eucas1p2fc32577c64a80424c10f30e4f69fc11a
+References: <20240328-jag-sysctl_remset_net-v2-4-52c9fad9a1af@samsung.com>
+	<CGME20240328195008eucas1p2fc32577c64a80424c10f30e4f69fc11a@eucas1p2.samsung.com>
+	<20240328194934.42278-1-kuniyu@amazon.com>
 
-On Thu, Apr 04, 2024 at 06:36:37PM +0200, David Hildenbrand wrote:
-> On my journey to remove page_mapcount(), I got hooked up on other folio
-> cleanups that Willy most certainly will enjoy.
-> 
-> This series removes the s390x usage of:
-> * page_mapcount() [patches WIP]
-> * page_has_private() [have patches to remove it]
-> 
-> ... and makes PG_arch_1 only be set on folio->flags (i.e., never on tail
-> pages of large folios).
-> 
-> Further, one "easy" fix upfront.
+--u37e6yueaf43q4xz
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Looks like you didn't see:
+On Thu, Mar 28, 2024 at 12:49:34PM -0700, Kuniyuki Iwashima wrote:
+> From: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.o=
+rg>
+> Date: Thu, 28 Mar 2024 16:40:05 +0100
+> > This commit comes at the tail end of a greater effort to remove the
+> > empty elements at the end of the ctl_table arrays (sentinels) which will
+> > reduce the overall build time size of the kernel and run time memory
+> > bloat by ~64 bytes per sentinel (further information Link :
+> > https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
+> >=20
+> > When we remove the sentinel from ax25_param_table a buffer overflow
+> > shows its ugly head. The sentinel's data element used to be changed when
+> > CONFIG_AX25_DAMA_SLAVE was not defined.
+>=20
+> I think it's better to define the relation explicitly between the
+> enum and sysctl table by BUILD_BUG_ON() in ax25_register_dev_sysctl()
+>=20
+>   BUILD_BUG_ON(AX25_MAX_VALUES !=3D ARRAY_SIZE(ax25_param_table));
+>=20
+> and guard AX25_VALUES_DS_TIMEOUT with #ifdef CONFIG_AX25_DAMA_SLAVE
+> as done for other enum.
+This is a great idea. I'll also try to look and see where else I can add
+the explicit relation check.
 
-https://lore.kernel.org/linux-s390/20240322161149.2327518-1-willy@infradead.org/
+Thx for the review
 
-> ... unfortunately there is one other issue I spotted that I am not
-> tackling in this series, because I am not 100% sure what we want to
-> do: the usage of page_ref_freeze()/folio_ref_freeze() in
-> make_folio_secure() is unsafe. :(
-> 
-> In make_folio_secure(), we're holding the folio lock, the mmap lock and
-> the PT lock. So we are protected against concurrent fork(), zap, GUP,
-> swapin, migration ... The page_ref_freeze()/ folio_ref_freeze() should
-> also block concurrent GUP-fast very reliably.
-> 
-> But if the folio is mapped into multiple page tables, we could see
-> concurrent zapping of the folio, a pagecache folios could get mapped/
-> accessed concurrent, we could see fork() sharing the page in another
-> process, GUP ... trying to adjust the folio refcount while we froze it.
-> Very bad.
+>=20
+>=20
+> > This did not have any adverse
+> > effects as we still stopped on the sentinel because of its null
+> > procname. But now that we do not have the sentinel element, we are
+> > careful to check ax25_param_table's size.
+> >=20
+> > Signed-off-by: Joel Granados <j.granados@samsung.com>
+> > ---
+> >  net/ax25/sysctl_net_ax25.c | 4 +---
+> >  1 file changed, 1 insertion(+), 3 deletions(-)
+> >=20
+> > diff --git a/net/ax25/sysctl_net_ax25.c b/net/ax25/sysctl_net_ax25.c
+> > index db66e11e7fe8..e55be8817a1e 100644
+> > --- a/net/ax25/sysctl_net_ax25.c
+> > +++ b/net/ax25/sysctl_net_ax25.c
+> > @@ -141,8 +141,6 @@ static const struct ctl_table ax25_param_table[] =
+=3D {
+> >  		.extra2		=3D &max_ds_timeout
+> >  	},
+> >  #endif
+> > -
+> > -	{ }	/* that's all, folks! */
+> >  };
+> > =20
+> >  int ax25_register_dev_sysctl(ax25_dev *ax25_dev)
+> > @@ -155,7 +153,7 @@ int ax25_register_dev_sysctl(ax25_dev *ax25_dev)
+> >  	if (!table)
+> >  		return -ENOMEM;
+> > =20
+> > -	for (k =3D 0; k < AX25_MAX_VALUES; k++)
+> > +	for (k =3D 0; k < AX25_MAX_VALUES && k < ARRAY_SIZE(ax25_param_table)=
+; k++)
+> >  		table[k].data =3D &ax25_dev->values[k];
+> > =20
+> >  	snprintf(path, sizeof(path), "net/ax25/%s", ax25_dev->dev->name);
+> >=20
+> > --=20
+> > 2.43.0
 
-Hmmm.  Why is that not then a problem for, eg, splitting or migrating?
-Is it because they unmap first and then try to freeze?
+--=20
 
-> For anonymous folios, it would likely be sufficient to check that
-> folio_mapcount() == 1. For pagecache folios, that's insufficient, likely
-> we would have to lock the pagecache. To handle folios mapped into
-> multiple page tables, we would have to do what
-> split_huge_page_to_list_to_order() does (temporary migration entries).
-> 
-> So it's a bit more involved, and I'll have to leave that to s390x folks to
-> figure out. There are othe reasonable cleanups I think, but I'll have to
-> focus on other stuff.
-> 
-> Compile tested, but not runtime tested, I'll appreiate some testing help
-> from people with UV access and experience.
-> 
-> Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Janosch Frank <frankja@linux.ibm.com>
-> Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-> Cc: Thomas Huth <thuth@redhat.com>
-> 
-> David Hildenbrand (5):
->   s390/uv: don't call wait_on_page_writeback() without a reference
->   s390/uv: convert gmap_make_secure() to work on folios
->   s390/uv: convert PG_arch_1 users to only work on small folios
->   s390/uv: update PG_arch_1 comment
->   s390/hugetlb: convert PG_arch_1 code to work on folio->flags
-> 
->  arch/s390/include/asm/page.h |   2 +
->  arch/s390/kernel/uv.c        | 112 ++++++++++++++++++++++-------------
->  arch/s390/mm/gmap.c          |   4 +-
->  arch/s390/mm/hugetlbpage.c   |   8 +--
->  4 files changed, 79 insertions(+), 47 deletions(-)
-> 
-> -- 
-> 2.44.0
-> 
+Joel Granados
+
+--u37e6yueaf43q4xz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmYNHmkACgkQupfNUreW
+QU9fpAv/V+3/izS8SFMirWyciVnKdoJrmVBsF8hQm+Rl2pYODrbHb98QR2VXqYAA
+obWYFUsHPBIRPhnwtWK4wOUpYjeavZUAa5M3pkVsCZvB1c1YT+HXKNmejNB0zZlh
+vKO3wNon0gXKjuFUDKptPcTQQN71Whfi0QD7jHGAU0jR8tBRLVSNiqN+FlyTT5ZY
+e058hfkPY19gTxx3Igp6rtxw5uxWPDXCbuZLhvRQ6TOyFBs7pxCpwSYnE8MjIxxu
+TpCF4wl12yNHFwySifpvqF1sxp6TIEbmkmYhKjxGu5JY7ZxrMHuqMDSeqcOT7aj1
+xzfrvk5iUpGheARqyK+1QEoyYiLHYCQo9a8F9KlTJQJOwqVfXtBUYTz21demWx1R
+WwcJfePp1yjkcvZPM6yZoKQk3FAS+OlbbtH7iZ4SfPnlhqpFdKvE/kCxDZ2wvOav
+HMjQx9a08CL5VcXF8rowUt+FYuLRUe4wkODIQOMLHZXCuq3giKeFYEX8cfFteHj1
+668CEtfJ
+=6gPd
+-----END PGP SIGNATURE-----
+
+--u37e6yueaf43q4xz--
