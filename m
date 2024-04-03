@@ -1,32 +1,31 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9448016426;
-	Wed,  3 Apr 2024 06:35:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D3025BAD7
+	for <linux-s390@vger.kernel.org>; Wed,  3 Apr 2024 07:58:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712126149; cv=none; b=tsUzcS3GelzEh0o5tIeXyoKXkdZTuN4bMtK017/cXsR44G+OPjsB0TNXqJ8VCq3lSTIjrJ4XXDSKrjGS892bk8by4MLvtAl/tJxFIEj3h/lRXoFNB4gHoj9W1yJI2TPMaEE5g4mdw3RjNBnd4g3h9TfZ7omADW2aG1Aw1fP9KbE=
+	t=1712131115; cv=none; b=cm4Nv6Vkus81Z1PtoPYMwnjtBHVRD0C9rkxNEV6d/pTv2GvhzZlV1D1aGU2911K0PW+vX9ps2u8sSkSf/AiDmasbrQJqXjcrtfG5cC5DQfmSyIG042Ajg3yo3TR8dodJTbyAiSM3tJo+55+QXwxirB3rJ01cyIJHiD3mKFG9ge4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712126149; c=relaxed/simple;
-	bh=K8UzjhHydr2Hb6RuF1ir1fFhF5U29UMEjP8cwaNN7cI=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=Ac8iOs+ZSHNYSYVaTP8/IuiE/OZ1WpCAE8tBoAFo4dE+CVJHL5QC1k9TbY/zs+EMj30eeP43VTMEEJCIR++765jKkBgH8Gwt06dbq1zG6XjvLI0Xwxiko7Lw3dGi4YT6a3ZajPlkqbnxPTN9JT8etULtHre1wMehm8h/u+exlhY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=U5njhQ60; arc=none smtp.client-ip=115.124.30.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="U5njhQ60"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1712126138; h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type;
-	bh=Wso2cV7BV2xvQ8GUpk+yA1IZcHOWCxmjH1vPoD4/ztM=;
-	b=U5njhQ60vkw5rsirdIP3ybpog+59yIQkzMdioAZUU8vhoyoXwyDY56zFbyCY7r1IvSatKwuxQ9oHwiHH4uP+nSE6xFVf/yPkp0q9r0wg3L7GMwQcgTNXDfLhAofQ8jgwgViK7qHSRoMhD42Iz0BolZilAAzSqxdXly1r0o4jri0=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W3qcjlv_1712126124;
-Received: from 30.221.129.220(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W3qcjlv_1712126124)
-          by smtp.aliyun-inc.com;
-          Wed, 03 Apr 2024 14:35:37 +0800
-Message-ID: <ae3ea4bc-4a9c-416e-a593-2885fea96ae5@linux.alibaba.com>
-Date: Wed, 3 Apr 2024 14:35:24 +0800
+	s=arc-20240116; t=1712131115; c=relaxed/simple;
+	bh=ZHb1qyBfd+eoZoSn4KW7h1lW5l18kh7WGJ0NVJV7P5A=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=JRQAshzQgH9t5HYzQHX9ZYB++6ONgB+lCq9b179cFY6iKz02hmJctYXLlig5qXMt//RvMpSs5nOvMN/6PsSKDZJ9ess0lRRhVBnnDOhZEZJHIa6ZWaR78TPosTiy+JpNsU7MShK4wau7nlZSVU198gOaftgUT7jViYCAKnuTdtQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.163])
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4V8cVx6sv3z29lcf;
+	Wed,  3 Apr 2024 15:55:37 +0800 (CST)
+Received: from dggpemm100001.china.huawei.com (unknown [7.185.36.93])
+	by mail.maildlp.com (Postfix) with ESMTPS id 9387D180063;
+	Wed,  3 Apr 2024 15:58:23 +0800 (CST)
+Received: from [10.174.177.243] (10.174.177.243) by
+ dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Wed, 3 Apr 2024 15:58:22 +0800
+Message-ID: <d5177b0f-db4e-4c78-81f1-5761f08f076d@huawei.com>
+Date: Wed, 3 Apr 2024 15:58:22 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -34,39 +33,132 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-From: Wen Gu <guwen@linux.alibaba.com>
-Subject: Re: [RFC PATCH net-next v5 00/11] net/smc: SMC intra-OS shortcut with
- loopback-ism
-To: wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
- tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org
-References: <20240324135522.108564-1-guwen@linux.alibaba.com>
-In-Reply-To: <20240324135522.108564-1-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 7/7] x86: mm: accelerate pagefault when badaccess
+Content-Language: en-US
+To: Suren Baghdasaryan <surenb@google.com>
+CC: <akpm@linux-foundation.org>, Russell King <linux@armlinux.org.uk>, Catalin
+ Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Michael
+ Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Paul Walmsley
+	<paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou
+	<aou@eecs.berkeley.edu>, Alexander Gordeev <agordeev@linux.ibm.com>, Gerald
+ Schaefer <gerald.schaefer@linux.ibm.com>, Dave Hansen
+	<dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter
+ Zijlstra <peterz@infradead.org>, <x86@kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linuxppc-dev@lists.ozlabs.org>,
+	<linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>
+References: <20240402075142.196265-1-wangkefeng.wang@huawei.com>
+ <20240402075142.196265-8-wangkefeng.wang@huawei.com>
+ <CAJuCfpFoxP78+P1+4WQcCqMzGv7jpC9V8pR_-R8t8zPUg-t+aA@mail.gmail.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+In-Reply-To: <CAJuCfpFoxP78+P1+4WQcCqMzGv7jpC9V8pR_-R8t8zPUg-t+aA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpemm100001.china.huawei.com (7.185.36.93)
 
 
 
-On 2024/3/24 21:55, Wen Gu wrote:
-> This patch set acts as the second part of the new version of [1] (The first
-> part can be referred from [2]), the updated things of this version are listed
-> at the end.
-
-> Change log:
+On 2024/4/3 13:59, Suren Baghdasaryan wrote:
+> On Tue, Apr 2, 2024 at 12:53 AM Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
+>>
+>> The vm_flags of vma already checked under per-VMA lock, if it is a
+>> bad access, directly handle error and return, there is no need to
+>> lock_mm_and_find_vma() and check vm_flags again.
+>>
+>> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 > 
-> RFC v5->RFC v4:
-> - Patch #2: minor changes in description of config SMC_LO and comments.
-> - Patch #10: minor changes in comments and if(smc_ism_support_dmb_nocopy())
->    check in smcd_cdc_msg_send().
-> - Patch #3: change smc_lo_generate_id() to smc_lo_generate_ids() and SMC_LO_CHID
->    to SMC_LO_RESERVED_CHID.
-> - Patch #5: memcpy while holding the ldev->dmb_ht_lock.
-> - Some expression changes in commit logs.
+> Looks safe to me.
+> Using (mm != NULL) to indicate that we are holding mmap_lock is not
+> ideal but I guess that works.
 > 
 
-Hi, Jan. Do you have any comments on this version and should I post a new
-patch series without 'RFC'? Thank you.
+Yes, I will add this part it into change too,
+
+The access_error() of vma already checked under per-VMA lock, if it
+is a bad access, directly handle error, no need to retry with mmap_lock
+again. In order to release the correct lock, pass the mm_struct into
+bad_area_access_error(), if mm is NULL, release vma lock, or release
+mmap_lock. Since the page faut is handled under per-VMA lock, count it
+as a vma lock event with VMA_LOCK_SUCCESS.
+
+Thanks.
+
+
+> Reviewed-by: Suren Baghdasaryan <surenb@google.com>
+> 
+>> ---
+>>   arch/x86/mm/fault.c | 23 ++++++++++++++---------
+>>   1 file changed, 14 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
+>> index a4cc20d0036d..67b18adc75dd 100644
+>> --- a/arch/x86/mm/fault.c
+>> +++ b/arch/x86/mm/fault.c
+>> @@ -866,14 +866,17 @@ bad_area_nosemaphore(struct pt_regs *regs, unsigned long error_code,
+>>
+>>   static void
+>>   __bad_area(struct pt_regs *regs, unsigned long error_code,
+>> -          unsigned long address, u32 pkey, int si_code)
+>> +          unsigned long address, struct mm_struct *mm,
+>> +          struct vm_area_struct *vma, u32 pkey, int si_code)
+>>   {
+>> -       struct mm_struct *mm = current->mm;
+>>          /*
+>>           * Something tried to access memory that isn't in our memory map..
+>>           * Fix it, but check if it's kernel or user first..
+>>           */
+>> -       mmap_read_unlock(mm);
+>> +       if (mm)
+>> +               mmap_read_unlock(mm);
+>> +       else
+>> +               vma_end_read(vma);
+>>
+>>          __bad_area_nosemaphore(regs, error_code, address, pkey, si_code);
+>>   }
+>> @@ -897,7 +900,8 @@ static inline bool bad_area_access_from_pkeys(unsigned long error_code,
+>>
+>>   static noinline void
+>>   bad_area_access_error(struct pt_regs *regs, unsigned long error_code,
+>> -                     unsigned long address, struct vm_area_struct *vma)
+>> +                     unsigned long address, struct mm_struct *mm,
+>> +                     struct vm_area_struct *vma)
+>>   {
+>>          /*
+>>           * This OSPKE check is not strictly necessary at runtime.
+>> @@ -927,9 +931,9 @@ bad_area_access_error(struct pt_regs *regs, unsigned long error_code,
+>>                   */
+>>                  u32 pkey = vma_pkey(vma);
+>>
+>> -               __bad_area(regs, error_code, address, pkey, SEGV_PKUERR);
+>> +               __bad_area(regs, error_code, address, mm, vma, pkey, SEGV_PKUERR);
+>>          } else {
+>> -               __bad_area(regs, error_code, address, 0, SEGV_ACCERR);
+>> +               __bad_area(regs, error_code, address, mm, vma, 0, SEGV_ACCERR);
+>>          }
+>>   }
+>>
+>> @@ -1357,8 +1361,9 @@ void do_user_addr_fault(struct pt_regs *regs,
+>>                  goto lock_mmap;
+>>
+>>          if (unlikely(access_error(error_code, vma))) {
+>> -               vma_end_read(vma);
+>> -               goto lock_mmap;
+>> +               bad_area_access_error(regs, error_code, address, NULL, vma);
+>> +               count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
+>> +               return;
+>>          }
+>>          fault = handle_mm_fault(vma, address, flags | FAULT_FLAG_VMA_LOCK, regs);
+>>          if (!(fault & (VM_FAULT_RETRY | VM_FAULT_COMPLETED)))
+>> @@ -1394,7 +1399,7 @@ void do_user_addr_fault(struct pt_regs *regs,
+>>           * we can handle it..
+>>           */
+>>          if (unlikely(access_error(error_code, vma))) {
+>> -               bad_area_access_error(regs, error_code, address, vma);
+>> +               bad_area_access_error(regs, error_code, address, mm, vma);
+>>                  return;
+>>          }
+>>
+>> --
+>> 2.27.0
+>>
