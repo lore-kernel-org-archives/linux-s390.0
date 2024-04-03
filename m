@@ -1,154 +1,207 @@
-Received: from mail-ot1-f46.google.com (mail-ot1-f46.google.com [209.85.210.46])
+Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8381149C41;
-	Wed,  3 Apr 2024 13:33:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEF6D14A098
+	for <linux-s390@vger.kernel.org>; Wed,  3 Apr 2024 14:23:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712151217; cv=none; b=r+iHO/4bXut4mVh9wfFKchJ3c6drs51yPxw/QW8QcDmt4QHQNVl0snSpqXj0shSIpzpFRjrZUDoGDdniTMUHbm7zONLRcoc/HeqByGXGKNHSylgdDYTsJWvULMCEi2HVio9NWY5e1UWNlGRmH9DKOEvGxOXQHlGmfxBiwzajXgM=
+	t=1712154218; cv=none; b=bvCQUyZRJqu/xm3D+V8PnawRVlyqf7SPwzII8B3Y5tUDhaGXpwUDtwyFNR4lzxIxb44ff6joGDIQXj+m1Siu1k5QyaOuyA311DQmJtBBOAqes0ZAvGHbstwIsLH8g+1QTuzWX21igGPXr4yt06tSj3EEitMBZQYe3xD01ki3+3g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712151217; c=relaxed/simple;
-	bh=Qt01KTjE4NGp5XEomZDf90wNSv9JiA1QkpnnyKlsblA=;
+	s=arc-20240116; t=1712154218; c=relaxed/simple;
+	bh=4z2X6f4byCORZ+98tGQMFxTRKTmnwzsg9rbx++Rxgv0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=okKQmTJA9V2ou0EcVoPoGoTC20G11Agi2nqNNyDKJ8tTQsnOgKG1LMu1M6Xp6s6oTCGiH7vWSNo1cnufA0hlIGZ+YQcTZL/kg9g5hNJPlhyC1SR+SFZ+Y511y76nUsxaJpHGGVbnU1089qET6rNFvGOndKggCL/MavE3P+l0aEs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GFrcg6if; arc=none smtp.client-ip=209.85.210.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=MO2rbX4KYNAZHVBLABHvNIWPe4p6ZqBrVvmMUXvkSoIruZaoDqLr/vftfgvrmktjQETPYEuuL+bm2uGbtUsjWmgU9BjVAqtuhYMBsGDtRdT7uzvJdHSx2A/yPMPL694HhYmwXRgloedeHoNCSpgAnUCeOVBB4/XLGrrnUCRi7pU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vCFNrQxc; arc=none smtp.client-ip=209.85.128.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GFrcg6if"
-Received: by mail-ot1-f46.google.com with SMTP id 46e09a7af769-6e9e1a52b74so109541a34.0;
-        Wed, 03 Apr 2024 06:33:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vCFNrQxc"
+Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-6098a20ab22so57158287b3.2
+        for <linux-s390@vger.kernel.org>; Wed, 03 Apr 2024 07:23:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712151215; x=1712756015; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=UfJ432sdibD0Lka67Qj4+39whrzSunQCkb9XAcwEVWQ=;
-        b=GFrcg6ifPUmcvvrEYoC2e/fgnq3m6ynUXwoJW1avVY6MvV8MtWIreHzW8sGg+/Dgtb
-         +z1o1duNbklzWnVoJk6bAsd1lGlStxJqDkSJbsTd303lw/NCevYRZRs2auW6JrY6UC8l
-         Ykbe4uMJU6fRE5F7cS0aXAJMgQ7wf9U8FtznXnnQ0nJtQPNBguh7WC170paMLQNtV9Pc
-         76sO8TjKSQUENsdMu745TLGpx8ahkqAhaVQhC/AYElH6GpweItCj4bbWGDMuoQa3TyU2
-         oKXzfmQWcPrq/jeH/dvjNeNqnYRKHJbifBAzNRSK1DswOtLRgw09DdW/6BSoPyRPUi/e
-         U6zQ==
+        d=google.com; s=20230601; t=1712154216; x=1712759016; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=iwJNuwyQp3Yvzu+935Rba/rHkgr+XgKaeFBH6ggamVo=;
+        b=vCFNrQxcr3suPfrK3riBgo8DjCkhRgEyqhRgf6CPNAXn5uGQ4qtNpU6j1ZelLazqw9
+         McV7nZp5klk5In7eEoP1et03D+UnUm1i6puJlMdHdTznAoEt4e2j9l0jIVQb3ye6tXO8
+         LFdAoDQ0Y90UqNbEmHhU3KgT3oTdsVEPWi9XtF0dg5HHkDXOvQWqUmDMtREZJTkAHcWn
+         b+uH+q3c1l4fQjnOhqVKlkP0zeS3/Aa00/bqasGAUEzIqjRwb3YNWS0ayXWkzMWM9fPI
+         xI8M3FTnVCXWUWA2r85EWgnOm12zqT4GbgGqjKynD7pYOqcMfubSj5pDj1IvKaO1zfAm
+         GLpA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712151215; x=1712756015;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=UfJ432sdibD0Lka67Qj4+39whrzSunQCkb9XAcwEVWQ=;
-        b=kO4xowc508/21GLenfR1n/ijywgGMDAoh34C7NC1/x8VvWeNw065QYnd5fiurnaspW
-         eP4mgmCJKUQ3S4Owsk2c6+3TPRoDcArZ9+2QlBZ94hqGF6a23oIv/0P7Of4McasxMh1O
-         1JOqLhxSPvM0RFgVQlBnw3eXy7eD5VYtKyVq3pHtt6doD2Klq1nLzK/yKmpfvw7hZEVl
-         6lvra/RXlBHacJpIpDkPDvkJNA/1lYZaMOxUJsWq5NhVjnS0TCqPOEYP+4FMnUQCpzIz
-         IBH/1UoIjTqgsKwP5m7E+nLlll7vh3gwEPjh4NBFVXtGI8Zbdoqj46H2Ly3lt7McwVPi
-         MPXw==
-X-Forwarded-Encrypted: i=1; AJvYcCWq/y2WuoLVfYku4/gGat76A4J4eCMNbwKOlTmpU+P1/U1wqGBPETnqCoMmtHfU7Y1jbk6SgAJsYXltYmlW8qYSJ5Bwi1TJCi/KOXG1LWji7veSWe6T8dokathTeNxjpSj3I36+aVLIPHMihgXkW5tuytoS0LCWNIczqMVfvcf3f8vsElQ7OBOlcQnfjyXVN7wuI++P0+DHwmCtSaOR4yrdZUiO4kIpoZ9ciIm0nrjZFWNRG/QhkUzgT5WcyTKHLPAgNcCiaM3PUm027V6fR+8wzw5xK1UDyv8ren/ktAqJBzQUgt6vcUSOzDuBX4XfrkyMp61Do8ofQaOsxVu9JLuhska0UShrxjtA4mtYcm1LazrqHr9Az1MjNmi8iIkib8CwVxTcDPUP9tXJwqu+O5VPhGK3a9nfLoxLTOc8qTDXo8sEz6X/+BR5bOKyZFFbuSK8Qo2ggiB/znPLEEX01EphopPbUGd9dH1mepavTKYaXW5nPXOCucF8G1cuD9m7fiqSXxDeQbb/Sn8UTyHPRWMaBIyAjpDy9KES9YUo98VBZ9QMne8WwdI4gBa5N8Tk+AsBW7zDX+O2oiApbXR9C80=
-X-Gm-Message-State: AOJu0YyAg0bfQn4eSM/nDFsw20mm33qDbjC45uaTrGRfKXWv8pY3m5+G
-	EQFxVkgoAqVTKbiUNFolH2xe5/RQXnXrKlXBCOxXySJ1HRR3QpNzUBLQ3H3QyxKMb4x/IhzW4j3
-	O27XhK+X9guVH61TyCqFhu+ik8dg=
-X-Google-Smtp-Source: AGHT+IFsoYFg4TPJZ/xBylk5B9Nfa55HU119ldFLC4g550cJsZKKSI+Id/ONzGwerMZ8W2tZHWzr/Kf097BxBvAdyL0=
-X-Received: by 2002:a05:6808:181d:b0:3c5:d426:9b87 with SMTP id
- bh29-20020a056808181d00b003c5d4269b87mr1074785oib.23.1712151214780; Wed, 03
- Apr 2024 06:33:34 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1712154216; x=1712759016;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=iwJNuwyQp3Yvzu+935Rba/rHkgr+XgKaeFBH6ggamVo=;
+        b=bnXeplABaM43iJGSTzHLj6+ILS07/ZQ0FEMOWwI6uKBkCLA5HeqXJ8DOYa34pSrxcR
+         9VzWep96Zc6Pk7aviSCzPbbOq8xm4NFRjDw4oXNXMdg+BMhbz5ok+EJyNWAB4KKm4II0
+         PRDuNgTZfOjajJwvuRlVymyvLTEql+6raDjebwGaznkWseLvFsdC5DfnhW1zlcf3v339
+         zi/U2xU1+KA+ABd2vf4OPhFdFk91iDjGZtl0mlsbQSlyLiVZhpUenL/atq+/j5w9ZfTO
+         ORbPm9G4tjQGfzb18qbA7h5FQL49ayz/zA/mrnn88VkMmkQH1ZweHewNcKh9CjgEQjwC
+         35Dg==
+X-Forwarded-Encrypted: i=1; AJvYcCXocm8eQnuwZD4IeOeXOZ7dP64duMqh5kWm+P8P/ghY5qoWOWbHfj/l6hvuo/dnir4TL2KEywOMQAmqa3Ft2QoEQw9vTfIvqbVSLA==
+X-Gm-Message-State: AOJu0YxKp42IQXKibajmZUpOSGGQyENBS9RAFipAeRmgNK1EsieTlFwy
+	kn6qMj2MPBD9tH7kE9VZjb7Kwxvc8gEeK4d4AVsxaBQA4jCPL4ijsNPghEWA1Jr6pb+/Kqyv6X5
+	o8Xua1iU49lcZWAwjM6v/7AH4sC1ixpmjsjLX
+X-Google-Smtp-Source: AGHT+IHARpbXZVqsZEoa5xySsc3G5/CcR814bUWxWQ15mbjsPwETu+5wjQAHS1k9Hq1FLB9FQjXK6aME+vDVPH/zVfk=
+X-Received: by 2002:a25:ab41:0:b0:dcf:a52d:6134 with SMTP id
+ u59-20020a25ab41000000b00dcfa52d6134mr2682792ybi.26.1712154215477; Wed, 03
+ Apr 2024 07:23:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240327160314.9982-1-apais@linux.microsoft.com>
- <20240327160314.9982-8-apais@linux.microsoft.com> <ea4ac7a3-13ae-4d22-a3d9-fcb7d9e8d751@linux.ibm.com>
-In-Reply-To: <ea4ac7a3-13ae-4d22-a3d9-fcb7d9e8d751@linux.ibm.com>
-From: Allen <allen.lkml@gmail.com>
-Date: Wed, 3 Apr 2024 06:33:23 -0700
-Message-ID: <CAOMdWS+wH9qZ_08nVSQV1sY0C=uHMC+3NmPuFjwKzBFCgMa7MQ@mail.gmail.com>
-Subject: Re: [PATCH 7/9] s390: Convert from tasklet to BH workqueue
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: Allen Pais <apais@linux.microsoft.com>, linux-kernel@vger.kernel.org, tj@kernel.org, 
-	keescook@chromium.org, vkoul@kernel.org, marcan@marcan.st, sven@svenpeter.dev, 
-	florian.fainelli@broadcom.com, rjui@broadcom.com, sbranden@broadcom.com, 
-	paul@crapouillou.net, Eugeniy.Paltsev@synopsys.com, 
-	manivannan.sadhasivam@linaro.org, vireshk@kernel.org, Frank.Li@nxp.com, 
-	leoyang.li@nxp.com, zw@zh-kernel.org, wangzhou1@hisilicon.com, 
-	haijie1@huawei.com, shawnguo@kernel.org, s.hauer@pengutronix.de, 
-	sean.wang@mediatek.com, matthias.bgg@gmail.com, 
-	angelogioacchino.delregno@collabora.com, afaerber@suse.de, 
-	logang@deltatee.com, daniel@zonque.org, haojian.zhuang@gmail.com, 
-	robert.jarzmik@free.fr, andersson@kernel.org, konrad.dybcio@linaro.org, 
-	orsonzhai@gmail.com, baolin.wang@linux.alibaba.com, zhang.lyra@gmail.com, 
-	patrice.chotard@foss.st.com, linus.walleij@linaro.org, wens@csie.org, 
-	jernej.skrabec@gmail.com, peter.ujfalusi@gmail.com, kys@microsoft.com, 
-	haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com, 
-	jassisinghbrar@gmail.com, mchehab@kernel.org, maintainers@bluecherrydvr.com, 
-	aubin.constans@microchip.com, ulf.hansson@linaro.org, manuel.lauss@gmail.com, 
-	mirq-linux@rere.qmqm.pl, jh80.chung@samsung.com, oakad@yahoo.com, 
-	hayashi.kunihiko@socionext.com, mhiramat@kernel.org, brucechang@via.com.tw, 
-	HaraldWelte@viatech.com, pierre@ossman.eu, duncan.sands@free.fr, 
-	stern@rowland.harvard.edu, oneukum@suse.com, 
-	openipmi-developer@lists.sourceforge.net, dmaengine@vger.kernel.org, 
-	asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	linux-rpi-kernel@lists.infradead.org, linux-mips@vger.kernel.org, 
-	imx@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-mediatek@lists.infradead.org, linux-actions@lists.infradead.org, 
-	linux-arm-msm@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	linux-media@vger.kernel.org, linux-mmc@vger.kernel.org, 
-	linux-omap@vger.kernel.org, linux-renesas-soc@vger.kernel.org, 
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org
+References: <20240402075142.196265-1-wangkefeng.wang@huawei.com>
+ <20240402075142.196265-8-wangkefeng.wang@huawei.com> <CAJuCfpFoxP78+P1+4WQcCqMzGv7jpC9V8pR_-R8t8zPUg-t+aA@mail.gmail.com>
+ <d5177b0f-db4e-4c78-81f1-5761f08f076d@huawei.com>
+In-Reply-To: <d5177b0f-db4e-4c78-81f1-5761f08f076d@huawei.com>
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Wed, 3 Apr 2024 07:23:23 -0700
+Message-ID: <CAJuCfpEKg1wxNwhu9JOsvq9kZM9WUA2MNfH_jb6ZQ0jpGJzEdw@mail.gmail.com>
+Subject: Re: [PATCH 7/7] x86: mm: accelerate pagefault when badaccess
+To: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: akpm@linux-foundation.org, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Paul Walmsley <paul.walmsley@sifive.com>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, Apr 3, 2024 at 12:58=E2=80=AFAM Kefeng Wang <wangkefeng.wang@huawei=
+.com> wrote:
+>
+>
+>
+> On 2024/4/3 13:59, Suren Baghdasaryan wrote:
+> > On Tue, Apr 2, 2024 at 12:53=E2=80=AFAM Kefeng Wang <wangkefeng.wang@hu=
+awei.com> wrote:
+> >>
+> >> The vm_flags of vma already checked under per-VMA lock, if it is a
+> >> bad access, directly handle error and return, there is no need to
+> >> lock_mm_and_find_vma() and check vm_flags again.
+> >>
+> >> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 > >
-> > Signed-off-by: Allen Pais <allen.lkml@gmail.com>
-> > ---
-> >  drivers/s390/block/dasd.c              | 42 ++++++++++++------------
-> >  drivers/s390/block/dasd_int.h          | 10 +++---
-> >  drivers/s390/char/con3270.c            | 27 ++++++++--------
-> >  drivers/s390/crypto/ap_bus.c           | 24 +++++++-------
-> >  drivers/s390/crypto/ap_bus.h           |  2 +-
-> >  drivers/s390/crypto/zcrypt_msgtype50.c |  2 +-
-> >  drivers/s390/crypto/zcrypt_msgtype6.c  |  4 +--
-> >  drivers/s390/net/ctcm_fsms.c           |  4 +--
-> >  drivers/s390/net/ctcm_main.c           | 15 ++++-----
-> >  drivers/s390/net/ctcm_main.h           |  5 +--
-> >  drivers/s390/net/ctcm_mpc.c            | 12 +++----
-> >  drivers/s390/net/ctcm_mpc.h            |  7 ++--
-> >  drivers/s390/net/lcs.c                 | 26 +++++++--------
-> >  drivers/s390/net/lcs.h                 |  2 +-
-> >  drivers/s390/net/qeth_core_main.c      |  2 +-
-> >  drivers/s390/scsi/zfcp_qdio.c          | 45 +++++++++++++-------------
-> >  drivers/s390/scsi/zfcp_qdio.h          |  9 +++---
-> >  17 files changed, 117 insertions(+), 121 deletions(-)
+> > Looks safe to me.
+> > Using (mm !=3D NULL) to indicate that we are holding mmap_lock is not
+> > ideal but I guess that works.
 > >
 >
+> Yes, I will add this part it into change too,
 >
-> We're looking into the best way to test this.
->
-> For drivers/s390/net/ctcm* and drivers/s390/net/lcs*:
-> Acked-by: Alexandra Winter <wintera@linux.ibm.com>
+> The access_error() of vma already checked under per-VMA lock, if it
+> is a bad access, directly handle error, no need to retry with mmap_lock
+> again. In order to release the correct lock, pass the mm_struct into
+> bad_area_access_error(), if mm is NULL, release vma lock, or release
+> mmap_lock. Since the page faut is handled under per-VMA lock, count it
+> as a vma lock event with VMA_LOCK_SUCCESS.
 
- Thank you very much.
+The part about passing mm_struct is unnecessary IMHO. It explains "how
+you do things" but changelog should describe only "what you do" and
+"why you do that". The rest we can see from the code.
 
 >
+> Thanks.
 >
-> [...]
-> > diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-> > index a0cce6872075..10ea95abc753 100644
-> > --- a/drivers/s390/net/qeth_core_main.c
-> > +++ b/drivers/s390/net/qeth_core_main.c
-> > @@ -2911,7 +2911,7 @@ static int qeth_init_input_buffer(struct qeth_card *card,
-> >       }
+>
+> > Reviewed-by: Suren Baghdasaryan <surenb@google.com>
 > >
-> >       /*
-> > -      * since the buffer is accessed only from the input_tasklet
-> > +      * since the buffer is accessed only from the input_work
-> >        * there shouldn't be a need to synchronize; also, since we use
-> >        * the QETH_IN_BUF_REQUEUE_THRESHOLD we should never run  out off
-> >        * buffers
->
-> I propose to delete the whole comment block. There have been many changes and
-> I don't think it is helpful for the current qeth driver.
-
-
- Sure, I will have it fixed in v2.
-
-- Allen
+> >> ---
+> >>   arch/x86/mm/fault.c | 23 ++++++++++++++---------
+> >>   1 file changed, 14 insertions(+), 9 deletions(-)
+> >>
+> >> diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
+> >> index a4cc20d0036d..67b18adc75dd 100644
+> >> --- a/arch/x86/mm/fault.c
+> >> +++ b/arch/x86/mm/fault.c
+> >> @@ -866,14 +866,17 @@ bad_area_nosemaphore(struct pt_regs *regs, unsig=
+ned long error_code,
+> >>
+> >>   static void
+> >>   __bad_area(struct pt_regs *regs, unsigned long error_code,
+> >> -          unsigned long address, u32 pkey, int si_code)
+> >> +          unsigned long address, struct mm_struct *mm,
+> >> +          struct vm_area_struct *vma, u32 pkey, int si_code)
+> >>   {
+> >> -       struct mm_struct *mm =3D current->mm;
+> >>          /*
+> >>           * Something tried to access memory that isn't in our memory =
+map..
+> >>           * Fix it, but check if it's kernel or user first..
+> >>           */
+> >> -       mmap_read_unlock(mm);
+> >> +       if (mm)
+> >> +               mmap_read_unlock(mm);
+> >> +       else
+> >> +               vma_end_read(vma);
+> >>
+> >>          __bad_area_nosemaphore(regs, error_code, address, pkey, si_co=
+de);
+> >>   }
+> >> @@ -897,7 +900,8 @@ static inline bool bad_area_access_from_pkeys(unsi=
+gned long error_code,
+> >>
+> >>   static noinline void
+> >>   bad_area_access_error(struct pt_regs *regs, unsigned long error_code=
+,
+> >> -                     unsigned long address, struct vm_area_struct *vm=
+a)
+> >> +                     unsigned long address, struct mm_struct *mm,
+> >> +                     struct vm_area_struct *vma)
+> >>   {
+> >>          /*
+> >>           * This OSPKE check is not strictly necessary at runtime.
+> >> @@ -927,9 +931,9 @@ bad_area_access_error(struct pt_regs *regs, unsign=
+ed long error_code,
+> >>                   */
+> >>                  u32 pkey =3D vma_pkey(vma);
+> >>
+> >> -               __bad_area(regs, error_code, address, pkey, SEGV_PKUER=
+R);
+> >> +               __bad_area(regs, error_code, address, mm, vma, pkey, S=
+EGV_PKUERR);
+> >>          } else {
+> >> -               __bad_area(regs, error_code, address, 0, SEGV_ACCERR);
+> >> +               __bad_area(regs, error_code, address, mm, vma, 0, SEGV=
+_ACCERR);
+> >>          }
+> >>   }
+> >>
+> >> @@ -1357,8 +1361,9 @@ void do_user_addr_fault(struct pt_regs *regs,
+> >>                  goto lock_mmap;
+> >>
+> >>          if (unlikely(access_error(error_code, vma))) {
+> >> -               vma_end_read(vma);
+> >> -               goto lock_mmap;
+> >> +               bad_area_access_error(regs, error_code, address, NULL,=
+ vma);
+> >> +               count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
+> >> +               return;
+> >>          }
+> >>          fault =3D handle_mm_fault(vma, address, flags | FAULT_FLAG_VM=
+A_LOCK, regs);
+> >>          if (!(fault & (VM_FAULT_RETRY | VM_FAULT_COMPLETED)))
+> >> @@ -1394,7 +1399,7 @@ void do_user_addr_fault(struct pt_regs *regs,
+> >>           * we can handle it..
+> >>           */
+> >>          if (unlikely(access_error(error_code, vma))) {
+> >> -               bad_area_access_error(regs, error_code, address, vma);
+> >> +               bad_area_access_error(regs, error_code, address, mm, v=
+ma);
+> >>                  return;
+> >>          }
+> >>
+> >> --
+> >> 2.27.0
+> >>
