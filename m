@@ -1,130 +1,315 @@
-Received: from mail-vk1-f173.google.com (mail-vk1-f173.google.com [209.85.221.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 923CB1B7F4;
-	Wed,  3 Apr 2024 16:44:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BD60153804;
+	Wed,  3 Apr 2024 17:24:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712162654; cv=none; b=CDHlBXcmPRoxxJMZbyn5VkACDhQ9TUWXXR1fqJmAvuYqfAOrxh+6nWk9q0LkSvUDORa7/ntY57CeNM79DLrbFQTcOHCTE2ELiaQeWLf8yxujw+Gv4zKEcD503q8LZPHmFh9acDj/+Wtn9gPYKd8w9hVBMvubd0dUYwNAfYW6GzE=
+	t=1712165090; cv=none; b=UTdbEC9XfD17VyOKC0pJv5f+JOs++h0+JBd9oNK8f9VL+/kXcxDIEWqWVSTlVpdDJnpLsnv34OSXwhcG2x3UHmiG3NtgF4ZKgNMTsJWFCu2E2QSsDTWN/vJzIXsv9AgC8D28Z2VTjreWx15fmqejWOEEpQ/dpejXwCbUvyXezas=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712162654; c=relaxed/simple;
-	bh=M1neYOlhzngATdBbVyJaKe7fkRAK//9DrStR8GOcQu4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HZT2XFqARwF4Z+85DrgQGT9BNu/Qrhxwgl8kP7Kvm8wgPlOlU/6YaxP4O4hledGA1mkNbcaArPbCmwBNh874p01oMZ7M+zmfhwIFzX9WxPwNE6IJi2Zzcv3q9EeX9nmUg35ytnMDbJMJvOYA0YtYAitbeCsfo+gmgvjcjnhaH6g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i0GskreP; arc=none smtp.client-ip=209.85.221.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1712165090; c=relaxed/simple;
+	bh=WSl2CWIioYtJLWZUU5CrGm4F+P0W6P1f7WrRIu4Xl+Q=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=LXyyXxPzV9QN0PHXvCx51ZvoRi156SnNkXRtHoxaxgw1Jl64aQr7sPR285yqF3DJr4FCTj7ZAq0mpwpm/jOF2BnBqwIAXAv3seRd4hkCuYT9ZqceB2oTtS06+/gCSTDh3/yeUzCRKBw0G9Bitcy0TVCeh9Ciag7Vq1taaB33f7E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AH74z72t; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i0GskreP"
-Received: by mail-vk1-f173.google.com with SMTP id 71dfb90a1353d-4da6995e58bso3887e0c.1;
-        Wed, 03 Apr 2024 09:44:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712162651; x=1712767451; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=Aej6QFoETxeFvbQm8/sOYYAdEcWAnghw/7Ynm8n0ucQ=;
-        b=i0GskreP3bhVFE7L+jTrP55NTeLGEOiadN1sTEIYfQZF05ZqD7aFwgcHEWZzggB27p
-         Iu9pSvcSJvv9ctMRtptjRYbadJq2t5PSTI2cbljCYV4c1eP3C39UqNHbXsHjXVWPgRF4
-         cUNtQf66y29Ij0Ux473Ma14olhaOmCPIXPj2UkCmSyIiiLfd/Et1NmcTyn3tZ2/5CroR
-         JGJgD9ELhuJW4HPsYoaybFcG5Or8NO7kPPs+wVFcewF/98zylX3MkbB9YRRmtZLed4a1
-         /rF+ytNHfDippVqXcj/p/3MB6p+36Kb2Su2g3ayZiSDGs4JicOJMXB6apxu1GA4my1On
-         wA5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712162651; x=1712767451;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Aej6QFoETxeFvbQm8/sOYYAdEcWAnghw/7Ynm8n0ucQ=;
-        b=e8yBpGhE0mKo3L6OmYGnR55qeIfLG1anmLG/C9J7ZN+3APLmsWh6CvVnaVCYsjCiAq
-         hrNtZxk5KKZnV09ovVAOzQxwB01QW0NNKc7ScDXWNxQ0zT+i61WPf/HwALGzRKQ/BiSX
-         2r2pgmwbGI+J8jma1PQLhQpFVG8uK0yJELN2QNQ/ZEPXA5GxeVSzqk/IdcBm3yahGwRn
-         oed2hqf8dr7V23Fc6MYt4JHlKRTXO29I5BVGoVp8dN9jWEDGfcCwZ82JN9BHBfYpLw+e
-         /dx+zr5qFizvfFylmLkqTFSlx5t4y2pg5rZFtWvn0zdGhdzMxA2/t5cd0Hlv5PzNvCJT
-         s8PQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVpasyVqxm4S9hgcbs8dUy8q6r+F+STTWmT6MCdat3oYYGFf+6rfr/8BT6yKy29uM1AbAIolt6SJh3lZYGu+DdYx9rzuUZiacHksRrNK21d6PVKAmcA2bpy1ts6Yz9bGXjhHCps2uWJIbPr/dVtNNfyydVyE+K1ucGwYnGAjdY8ancrFK+L0hNax/c1XJjskEYv0wHpLr3QYcYae0jP0AbcIV7ty92/ff7x1UVKg/DHrQ4m6vd6MPfODU9MtPOA44TG4uH72P9SYMTl8iJ2Ymh/B+II5LqiE8dVCoxE0cInMo7xr933GhgCTU9KJIPBF0gQ+pJTOetPWCfC4PSf48Ob4/F3T0jmLDQrzHEiBXzlQ9uOWnlsVOsi4UII2DcFQsmqCVxhtgxyxlHQxh8eD2L7lMlo4zNFCgiUX02hHGzwheLA4FNBh6P5J9lVZbQvfyrD8swvpZGH79BZRxgEksXawYvBHZWkIm5bDVqAJDXTaUbQfuH7mx3HADTE5vaD85KO48aJ4TNlbvfSjEfa2sFySReyB4JFNhSFbk7HS6ecFe8=
-X-Gm-Message-State: AOJu0YwxuG7mpFcprqH+unaPXUWhDi4M8kWHnrmwwEENz8OeMEG3DaYw
-	/CXUPwT+I6xRjhFEM44yzLJqF6NH9qPNdRXdt6gxeHK+bYkky7/7uoKKDbs7asmf72EjxBTb0AM
-	t1tSGUHKch652xWodKB7wWjUMX4s=
-X-Google-Smtp-Source: AGHT+IFEFFEcpcdQfCxRWJYlDuuUETZ0sWBciDlGUMCvLnJmEBIY1oP87nAaJSL5QQDatxb4oTnFcly4MrzzQ8OrF5o=
-X-Received: by 2002:a05:6122:499a:b0:4d3:b326:5ae8 with SMTP id
- ex26-20020a056122499a00b004d3b3265ae8mr10815788vkb.14.1712162651582; Wed, 03
- Apr 2024 09:44:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AH74z72t"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 433GxsWX025271;
+	Wed, 3 Apr 2024 17:24:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=EgsLd81nrFvAc2UOfRG3wkL5UTIq3fQxcwLsijO8Pps=;
+ b=AH74z72tniQJjt0ZNSUfJakvXumtwiskiqCLvyVUA8ITSypIycWSRiP12qT2SWhXfdrf
+ WYperHvKwuCWtrTU+APBbQTNMHTbAz6vhJaTVc5wFe4oXcWq1d7UIi6kHYLFoMpaTf9P
+ a0x5wYs5y9jBufASCyBrrQdT/AGRgs4nMsrHeJB9h6eBkNvJIRaseheKI7z2inaU1g1w
+ +MJPlwPyaHMaYkK83YkMX2knOzx0W0oN5UczzCx7PwLkvRthhDgMLOFhMF4Q++1Gjzka
+ 445Bdxhr4lIfd7k6BbzwAsGHb1TGZK36vaJSN1I5RAe/VJYt0sgpWa9kzjukoc5ckOZ8 fg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9ass8579-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 03 Apr 2024 17:24:43 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 433HKcnT003882;
+	Wed, 3 Apr 2024 17:20:39 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9ass8571-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 03 Apr 2024 17:20:38 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 433FjUFo029616;
+	Wed, 3 Apr 2024 17:20:37 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x6ys36baa-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 03 Apr 2024 17:20:37 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 433HKW2i50987312
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 3 Apr 2024 17:20:34 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1CD132004B;
+	Wed,  3 Apr 2024 17:20:32 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 368E620040;
+	Wed,  3 Apr 2024 17:20:31 +0000 (GMT)
+Received: from [9.171.60.51] (unknown [9.171.60.51])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  3 Apr 2024 17:20:31 +0000 (GMT)
+Message-ID: <9a17268d4046f99b30f3620079b5749a9ddc5cd9.camel@linux.ibm.com>
+Subject: Re: [RFC PATCH net-next v5 05/11] net/smc: implement DMB-related
+ operations of loopback-ism
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
+        twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com,
+        jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Date: Wed, 03 Apr 2024 19:20:30 +0200
+In-Reply-To: <20240324135522.108564-6-guwen@linux.alibaba.com>
+References: <20240324135522.108564-1-guwen@linux.alibaba.com>
+	 <20240324135522.108564-6-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.4 (3.50.4-2.fc39app4) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240327160314.9982-1-apais@linux.microsoft.com> <20240327160314.9982-2-apais@linux.microsoft.com>
-In-Reply-To: <20240327160314.9982-2-apais@linux.microsoft.com>
-From: Allen <allen.lkml@gmail.com>
-Date: Wed, 3 Apr 2024 09:43:57 -0700
-Message-ID: <CAOMdWSLavg27YZgnfE2QHjO=4RNmFx_7veAURaPG_=qWX=KMVA@mail.gmail.com>
-Subject: Re: [PATCH 1/9] hyperv: Convert from tasklet to BH workqueue
-To: Allen Pais <apais@linux.microsoft.com>
-Cc: linux-kernel@vger.kernel.org, tj@kernel.org, keescook@chromium.org, 
-	vkoul@kernel.org, marcan@marcan.st, sven@svenpeter.dev, 
-	florian.fainelli@broadcom.com, rjui@broadcom.com, sbranden@broadcom.com, 
-	paul@crapouillou.net, Eugeniy.Paltsev@synopsys.com, 
-	manivannan.sadhasivam@linaro.org, vireshk@kernel.org, Frank.Li@nxp.com, 
-	leoyang.li@nxp.com, zw@zh-kernel.org, wangzhou1@hisilicon.com, 
-	haijie1@huawei.com, shawnguo@kernel.org, s.hauer@pengutronix.de, 
-	sean.wang@mediatek.com, matthias.bgg@gmail.com, 
-	angelogioacchino.delregno@collabora.com, afaerber@suse.de, 
-	logang@deltatee.com, daniel@zonque.org, haojian.zhuang@gmail.com, 
-	robert.jarzmik@free.fr, andersson@kernel.org, konrad.dybcio@linaro.org, 
-	orsonzhai@gmail.com, baolin.wang@linux.alibaba.com, zhang.lyra@gmail.com, 
-	patrice.chotard@foss.st.com, linus.walleij@linaro.org, wens@csie.org, 
-	jernej.skrabec@gmail.com, peter.ujfalusi@gmail.com, kys@microsoft.com, 
-	haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com, 
-	jassisinghbrar@gmail.com, mchehab@kernel.org, maintainers@bluecherrydvr.com, 
-	aubin.constans@microchip.com, ulf.hansson@linaro.org, manuel.lauss@gmail.com, 
-	mirq-linux@rere.qmqm.pl, jh80.chung@samsung.com, oakad@yahoo.com, 
-	hayashi.kunihiko@socionext.com, mhiramat@kernel.org, brucechang@via.com.tw, 
-	HaraldWelte@viatech.com, pierre@ossman.eu, duncan.sands@free.fr, 
-	stern@rowland.harvard.edu, oneukum@suse.com, 
-	openipmi-developer@lists.sourceforge.net, dmaengine@vger.kernel.org, 
-	asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	linux-rpi-kernel@lists.infradead.org, linux-mips@vger.kernel.org, 
-	imx@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-mediatek@lists.infradead.org, linux-actions@lists.infradead.org, 
-	linux-arm-msm@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	linux-media@vger.kernel.org, linux-mmc@vger.kernel.org, 
-	linux-omap@vger.kernel.org, linux-renesas-soc@vger.kernel.org, 
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: _k7M7X341RIZlu6Ws_JCrzymVAeJc5bb
+X-Proofpoint-ORIG-GUID: GGVGokz-tYaB_sbZebDOcMVEhJjtyg1y
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-03_18,2024-04-03_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
+ malwarescore=0 suspectscore=0 clxscore=1015 mlxlogscore=999
+ impostorscore=0 priorityscore=1501 bulkscore=0 spamscore=0 phishscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2403210000 definitions=main-2404030117
 
-> The only generic interface to execute asynchronously in the BH context is
-> tasklet; however, it's marked deprecated and has some design flaws. To
-> replace tasklets, BH workqueue support was recently added. A BH workqueue
-> behaves similarly to regular workqueues except that the queued work items
-> are executed in the BH context.
->
-> This patch converts drivers/hv/* from tasklet to BH workqueue.
->
-> Based on the work done by Tejun Heo <tj@kernel.org>
-> Branch: https://git.kernel.org/pub/scm/linux/kernel/git/tj/wq.git for-6.10
->
-> Signed-off-by: Allen Pais <allen.lkml@gmail.com>
-> ---
->  drivers/hv/channel.c      |  8 ++++----
->  drivers/hv/channel_mgmt.c |  5 ++---
->  drivers/hv/connection.c   |  9 +++++----
->  drivers/hv/hv.c           |  3 +--
->  drivers/hv/hv_balloon.c   |  4 ++--
->  drivers/hv/hv_fcopy.c     |  8 ++++----
->  drivers/hv/hv_kvp.c       |  8 ++++----
->  drivers/hv/hv_snapshot.c  |  8 ++++----
->  drivers/hv/hyperv_vmbus.h |  9 +++++----
->  drivers/hv/vmbus_drv.c    | 19 ++++++++++---------
->  include/linux/hyperv.h    |  2 +-
->  11 files changed, 42 insertions(+), 41 deletions(-)
+On Sun, 2024-03-24 at 21:55 +0800, Wen Gu wrote:
 
-Wei,
+When I instrumented this to see, why I still see tons of my other
+temporary instrumentation messages from the "ism" driver, I found that
+in my setup loopback-ism is used rather infrequently.
 
- I need to send out a v2 as I did not include the second patch that
-updates drivers/pci/controller/pci-hyperv.c
+I suspect this is due to how the SMC proposals are constructed in
+net/smc/af_smc.c and net/smc/smc_pnet.c - and later evaluated in
+smc_check_ism_v2_match() - where there is a first-come-first-serve
+selection.
 
-Thanks.
+I wonder if one should change that to favour loopback-ism over "real"
+ISM devices - and how this could be achieved elegantly.
+
+Just some food for thought... Probably little you can do on x86.
+
+Thanks,
+Gerd
+
+> +static int smc_lo_register_dmb(struct smcd_dev *smcd, struct
+> smcd_dmb *dmb,
+> +			=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 void *client_priv)
+> +{
+> +	struct smc_lo_dmb_node *dmb_node, *tmp_node;
+> +	struct smc_lo_dev *ldev =3D smcd->priv;
+> +	int sba_idx, rc;
+> +
+> +	/* check space for new dmb */
+> +	for_each_clear_bit(sba_idx, ldev->sba_idx_mask,
+> SMC_LO_MAX_DMBS) {
+> +		if (!test_and_set_bit(sba_idx, ldev->sba_idx_mask))
+> +			break;
+> +	}
+> +	if (sba_idx =3D=3D SMC_LO_MAX_DMBS)
+> +		return -ENOSPC;
+> +
+> +	dmb_node =3D kzalloc(sizeof(*dmb_node), GFP_KERNEL);
+> +	if (!dmb_node) {
+> +		rc =3D -ENOMEM;
+> +		goto err_bit;
+> +	}
+> +
+> +	dmb_node->sba_idx =3D sba_idx;
+> +	dmb_node->len =3D dmb->dmb_len;
+> +	dmb_node->cpu_addr =3D kzalloc(dmb_node->len, GFP_KERNEL |
+> +				=C2=A0=C2=A0=C2=A0=C2=A0 __GFP_NOWARN | __GFP_NORETRY |
+> +				=C2=A0=C2=A0=C2=A0=C2=A0 __GFP_NOMEMALLOC);
+> +	if (!dmb_node->cpu_addr) {
+> +		rc =3D -ENOMEM;
+> +		goto err_node;
+> +	}
+> +	dmb_node->dma_addr =3D SMC_DMA_ADDR_INVALID;
+> +
+> +again:
+> +	/* add new dmb into hash table */
+> +	get_random_bytes(&dmb_node->token, sizeof(dmb_node->token));
+> +	write_lock_bh(&ldev->dmb_ht_lock);
+> +	hash_for_each_possible(ldev->dmb_ht, tmp_node, list,
+> dmb_node->token) {
+> +		if (tmp_node->token =3D=3D dmb_node->token) {
+> +			write_unlock_bh(&ldev->dmb_ht_lock);
+> +			goto again;
+> +		}
+> +	}
+> +	hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
+> +	write_unlock_bh(&ldev->dmb_ht_lock);
+> +
+> +	dmb->sba_idx =3D dmb_node->sba_idx;
+> +	dmb->dmb_tok =3D dmb_node->token;
+> +	dmb->cpu_addr =3D dmb_node->cpu_addr;
+> +	dmb->dma_addr =3D dmb_node->dma_addr;
+> +	dmb->dmb_len =3D dmb_node->len;
+> +
+> +	return 0;
+> +
+> +err_node:
+> +	kfree(dmb_node);
+> +err_bit:
+> +	clear_bit(sba_idx, ldev->sba_idx_mask);
+> +	return rc;
+> +}
+> +
+> +static int smc_lo_unregister_dmb(struct smcd_dev *smcd, struct
+> smcd_dmb *dmb)
+> +{
+> +	struct smc_lo_dmb_node *dmb_node =3D NULL, *tmp_node;
+> +	struct smc_lo_dev *ldev =3D smcd->priv;
+> +
+> +	/* remove dmb from hash table */
+> +	write_lock_bh(&ldev->dmb_ht_lock);
+> +	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb-
+> >dmb_tok) {
+> +		if (tmp_node->token =3D=3D dmb->dmb_tok) {
+> +			dmb_node =3D tmp_node;
+> +			break;
+> +		}
+> +	}
+> +	if (!dmb_node) {
+> +		write_unlock_bh(&ldev->dmb_ht_lock);
+> +		return -EINVAL;
+> +	}
+> +	hash_del(&dmb_node->list);
+> +	write_unlock_bh(&ldev->dmb_ht_lock);
+> +
+> +	clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
+> +	kfree(dmb_node->cpu_addr);
+> +	kfree(dmb_node);
+> +
+> +	return 0;
+> +}
+> +
+> =C2=A0static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
+> =C2=A0{
+> =C2=A0	return -EOPNOTSUPP;
+> @@ -75,6 +164,38 @@ static int smc_lo_signal_event(struct smcd_dev
+> *dev, struct smcd_gid *rgid,
+> =C2=A0	return 0;
+> =C2=A0}
+> =C2=A0
+> +static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok,
+> +			=C2=A0=C2=A0=C2=A0 unsigned int idx, bool sf, unsigned int
+> offset,
+> +			=C2=A0=C2=A0=C2=A0 void *data, unsigned int size)
+> +{
+> +	struct smc_lo_dmb_node *rmb_node =3D NULL, *tmp_node;
+> +	struct smc_lo_dev *ldev =3D smcd->priv;
+> +	struct smc_connection *conn;
+> +
+> +	read_lock_bh(&ldev->dmb_ht_lock);
+> +	hash_for_each_possible(ldev->dmb_ht, tmp_node, list,
+> dmb_tok) {
+> +		if (tmp_node->token =3D=3D dmb_tok) {
+> +			rmb_node =3D tmp_node;
+> +			break;
+> +		}
+> +	}
+> +	if (!rmb_node) {
+> +		read_unlock_bh(&ldev->dmb_ht_lock);
+> +		return -EINVAL;
+> +	}
+> +	memcpy((char *)rmb_node->cpu_addr + offset, data, size);
+> +	read_unlock_bh(&ldev->dmb_ht_lock);
+> +
+> +	if (sf) {
+> +		conn =3D smcd->conn[rmb_node->sba_idx];
+> +		if (conn && !conn->killed)
+> +			tasklet_schedule(&conn->rx_tsklet);
+> +		else
+> +			return -EPIPE;
+> +	}
+> +	return 0;
+> +}
+> +
+> =C2=A0static int smc_lo_supports_v2(void)
+> =C2=A0{
+> =C2=A0	return SMC_LO_V2_CAPABLE;
+> @@ -101,14 +222,14 @@ static struct device *smc_lo_get_dev(struct
+> smcd_dev *smcd)
+> =C2=A0
+> =C2=A0static const struct smcd_ops lo_ops =3D {
+> =C2=A0	.query_remote_gid =3D smc_lo_query_rgid,
+> -	.register_dmb		=3D NULL,
+> -	.unregister_dmb		=3D NULL,
+> +	.register_dmb =3D smc_lo_register_dmb,
+> +	.unregister_dmb =3D smc_lo_unregister_dmb,
+> =C2=A0	.add_vlan_id =3D smc_lo_add_vlan_id,
+> =C2=A0	.del_vlan_id =3D smc_lo_del_vlan_id,
+> =C2=A0	.set_vlan_required =3D smc_lo_set_vlan_required,
+> =C2=A0	.reset_vlan_required =3D smc_lo_reset_vlan_required,
+> =C2=A0	.signal_event =3D smc_lo_signal_event,
+> -	.move_data		=3D NULL,
+> +	.move_data =3D smc_lo_move_data,
+> =C2=A0	.supports_v2 =3D smc_lo_supports_v2,
+> =C2=A0	.get_local_gid =3D smc_lo_get_local_gid,
+> =C2=A0	.get_chid =3D smc_lo_get_chid,
+> @@ -173,6 +294,8 @@ static void smcd_lo_unregister_dev(struct
+> smc_lo_dev *ldev)
+> =C2=A0static int smc_lo_dev_init(struct smc_lo_dev *ldev)
+> =C2=A0{
+> =C2=A0	smc_lo_generate_ids(ldev);
+> +	rwlock_init(&ldev->dmb_ht_lock);
+> +	hash_init(ldev->dmb_ht);
+> =C2=A0	return smcd_lo_register_dev(ldev);
+> =C2=A0}
+> =C2=A0
+> diff --git a/net/smc/smc_loopback.h b/net/smc/smc_loopback.h
+> index 11868e5ac732..6c4a390430f3 100644
+> --- a/net/smc/smc_loopback.h
+> +++ b/net/smc/smc_loopback.h
+> @@ -20,13 +20,26 @@
+> =C2=A0
+> =C2=A0#if IS_ENABLED(CONFIG_SMC_LO)
+> =C2=A0#define SMC_LO_MAX_DMBS		5000
+> +#define SMC_LO_DMBS_HASH_BITS	12
+> =C2=A0#define SMC_LO_RESERVED_CHID	0xFFFF
+> =C2=A0
+> +struct smc_lo_dmb_node {
+> +	struct hlist_node list;
+> +	u64 token;
+> +	u32 len;
+> +	u32 sba_idx;
+> +	void *cpu_addr;
+> +	dma_addr_t dma_addr;
+> +};
+> +
+> =C2=A0struct smc_lo_dev {
+> =C2=A0	struct smcd_dev *smcd;
+> =C2=A0	struct device dev;
+> =C2=A0	u16 chid;
+> =C2=A0	struct smcd_gid local_gid;
+> +	rwlock_t dmb_ht_lock;
+> +	DECLARE_BITMAP(sba_idx_mask, SMC_LO_MAX_DMBS);
+> +	DECLARE_HASHTABLE(dmb_ht, SMC_LO_DMBS_HASH_BITS);
+> =C2=A0};
+> =C2=A0#endif
+> =C2=A0
+
