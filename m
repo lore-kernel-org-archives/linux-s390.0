@@ -1,67 +1,67 @@
-Received: from mail-yb1-f169.google.com (mail-yb1-f169.google.com [209.85.219.169])
+Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com [209.85.219.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6389046425
-	for <linux-s390@vger.kernel.org>; Wed,  3 Apr 2024 05:34:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E35BB1D69E
+	for <linux-s390@vger.kernel.org>; Wed,  3 Apr 2024 05:37:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712122459; cv=none; b=UFdGQUBeJ80TXX9Lub11LpB+lSL23JF3HF5SgjuLHn/8ShXdg24ywzq/9XySjZeDrMnTFWvYDPskoaI5/St6bXhyyliC446W+1Rm2/x12rwap2ewDEhGO4+PlNTf1P+bDwzX+JP3uglEpkgv/PGVnQBOeYv0UlWYt0vWMMdGE1I=
+	t=1712122676; cv=none; b=k7E7f9dLG5k8HVq0RGW635xZUB2QkVxk9mPWb9ZJ6GZQSF4zO9z17DUX3VvhB+1MAkz9hMbdDqJN1IGbqPEdkoc6to6qk2bHxlnFi6MxFvwfpfRHHx9UTwPnYGQ6IDVt4FKJ2yBWHuY3Vjp5z84UCb75D+7xf4TXpqzGcffiSo8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712122459; c=relaxed/simple;
-	bh=g2433262rfiIDw2tKiUj8pVtr0AB+Ckz6n38HXE8CnY=;
+	s=arc-20240116; t=1712122676; c=relaxed/simple;
+	bh=txr2+JM9tiLKvxakApi06LPCnou9f+rYPTAbzYrTnuM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=m+cIv9QTpCQpYCxUkGlWy/+RLSNkSBV7ioMaXmgncGVxX1QcVDtNeJ6+Fy9bcy+QNL/dmi30uvaPwXUprzO38YCQ6ixt+O1jS+wxnJARaB6mpM24t0SY4YjUzmS3ZdNT+DbSntOTiZBzR47B3pm/V2GfJejnu7X6rO5rDzLc9Ok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=BiKUJp/i; arc=none smtp.client-ip=209.85.219.169
+	 To:Cc:Content-Type; b=DJ8XBKVBNMgvVDTLsANuct7dxX0kvx2jMtjqx8CJ3G8p/epwBrXdPb9G0Ji8JTCoN8qfeSomF86732Hlc9x44nikZw1K9QWQn8PAuS2Wr6ak4M9wHzZdXYoBFTZ49xYvTrARfwV1pEDXeluUd20mmg7mDn/OIa7AFL/MbDctiQU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=NokWvb5B; arc=none smtp.client-ip=209.85.219.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BiKUJp/i"
-Received: by mail-yb1-f169.google.com with SMTP id 3f1490d57ef6-dc742543119so5873699276.0
-        for <linux-s390@vger.kernel.org>; Tue, 02 Apr 2024 22:34:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="NokWvb5B"
+Received: by mail-yb1-f181.google.com with SMTP id 3f1490d57ef6-dc6d8bd612dso6043683276.1
+        for <linux-s390@vger.kernel.org>; Tue, 02 Apr 2024 22:37:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1712122456; x=1712727256; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1712122674; x=1712727474; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=VMhJUAqYdUyXE6Qj5LLiAEui3/1WTCPuc8rsDHLD3M0=;
-        b=BiKUJp/i1YGtbRQkXO8nQ4UDXhjaRpNMnN4f/O/uaNbRIB93PJr88w24FXCOGC1i3L
-         fMKWa2LzhUSvuHxEykpvkf0Yf0WU6Lg2IPTEdNlvqRuM1EW4jqGwueFqdEswiU47qQKG
-         MngG43YwOLy5apqFDuNtnQVAYuwZO/Jk5TU5SzmAQmupynql+P8QO2vQeu8mCf7ERfKt
-         B/6pOw97qM83+f7s5RJGLGzvomXVz69nN9gs53xDgzjbpGLxH8AafqGhqY47vnHw9lR4
-         zIddT+ZrY51NZN9KdlUMAyY1PlTrzfhi7Hw2cu/6V6KGSy46aktht++5E2h3Z1RjsCYx
-         cTYA==
+        bh=e7ujj04+OlaPcvnr/mU1u92sbiZXtwW3xdBUhXyZWrg=;
+        b=NokWvb5B2PXrd109FGXmgmtorwnzKYKJ82m/aHMS8x74awdjhvE+fNGB0WaqJSFAPq
+         PJ9n0r1LCw3tV/KSqzCaCMFRc2i/eGj8dzn/yxSncrKRxW4OdaN44tOyVRrKqcT3sYQb
+         nG4ePVysjXN1VoVSVED2ql7lUvZ99el/qZFZ+vvO9NGkYJhsK6hHiFFQwZZmDGxbbTbO
+         jIteMEWrgBI+9emSAle4lJ1sULFPpPp31NuKHFFnIE0CHj4bkOzFV0NRCgOPiFujFEn9
+         5ztdtXqu5WeY6F8UkkKVyS/NlVDj4GE3fA/1/qjSiU19JphHFqPZcgp92jwTmVTCgPS+
+         G84Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712122456; x=1712727256;
+        d=1e100.net; s=20230601; t=1712122674; x=1712727474;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=VMhJUAqYdUyXE6Qj5LLiAEui3/1WTCPuc8rsDHLD3M0=;
-        b=CmAoBkW+VnYJuwI3v+DeaOby9Wk87aeUShhM56FINmyDl7PYt7moFCg7wuDlq/TAd8
-         IBnYgH694DJNjo15M9pOuG4wC/Ij2bxSYOgQU+l8VXmljDZlfBAbMVmaERbHQI2ghVyD
-         NUoUn/8O+Z9bXzq0MyMmD3xPd5ce3HLkswXglVnZQsxXamdPh6rpNBQeC468HAIu/4hp
-         Una1HWIg2d89fxUmTHPHW7cvmhHZcJbpwMzfRjq9SF+V/WAejpHZ7Fzxa1Qejz/2duaa
-         sqSHFheLqyBR5sop/joiOiSlc54k9Jd8Fh7R0kkqbG2e8VAHm59FPUMxCWbMcAJ+e7vj
-         ngjg==
-X-Forwarded-Encrypted: i=1; AJvYcCW04XT5w0WO45PlDOhy+VUxRiMO9Y6SO1AIww4TuNf4yAftNi4YI8KRKALYutFGF5Ub4kn4skjEkttOnKlhCFjO1FcLsGFfuGOObg==
-X-Gm-Message-State: AOJu0YxeSKR4jjy/uvZYWNlc7dHEdCjxW1txnL161Ix8PdSQrSTsmCtc
-	jBoW3EpaD+jbqy1jg5cp5VUWtfudz8sS+9KNg2pwya0kldmFmNM3AwXdgPJcUF8fFKQsQ259td2
-	TyIZBDKnafdTdKH1vOs8V2ODqHZ2gPIHFdDCy
-X-Google-Smtp-Source: AGHT+IFHtHI+kOgQbA0jN0HDYS831HEs6w0y5y/YrI4Iocm+EMqRSzcSDQggfc1RbHP4jEbfZEvpbo6dJNCJOpQwGVo=
-X-Received: by 2002:a25:a28a:0:b0:dcd:3575:db79 with SMTP id
- c10-20020a25a28a000000b00dcd3575db79mr1551217ybi.6.1712122456055; Tue, 02 Apr
- 2024 22:34:16 -0700 (PDT)
+        bh=e7ujj04+OlaPcvnr/mU1u92sbiZXtwW3xdBUhXyZWrg=;
+        b=RlKSkoE0bCVkhCRINIwPBGzLKoD3yJhu1xQMvy1/WJI1GWoh+RcwNwLTHX1FgxRagR
+         FA9jr6kvwplH7laNHijIAtCQYBH8n3EPr7P1BvEzXf0/byX0TTPTjL8KB8gN8JaqSVry
+         8Bgi+2QpyTR3xsECFzt1Dvkcj6pCeTYRDyIxonzrctJkjZfr+yIzmWcjQbqfeP0/J22f
+         PEEGuq5vpRl/PMvHztteG6/jwLHNae+XsugCd9c3RAqM47z7e8IZWl/a3o9qDeNDW/VS
+         CeFu8Fk17dnoXT74YQjHQcrXlKJHlcjXnr81sww7VBgxfFZcfaVeTFORitaIvkTna2l8
+         W6Bg==
+X-Forwarded-Encrypted: i=1; AJvYcCVhdYEzoQC9Y4YVz/5TyIPH3zXl6KHW2WxW09iafdA5nhS1i875pD3jT+rLiZKMXFh4ku/lipr1ZJY5iY4GNrjiYzdGGnzyVSTnjQ==
+X-Gm-Message-State: AOJu0Yx8PITY6hAA8k0acM1V4kA1syIOr+qO5AIDaQhdCv347erSwwlT
+	ZpNsgPWMXf9biBqorBIdyesSKpDI57VkxIDoZt5uAGB7sPO4u++bSBJG3liAGC/qN24zmvYxllH
+	NUTM6UrMIP6rFwmJxnau0shCGqA1MDMP1bL0Y
+X-Google-Smtp-Source: AGHT+IHpjlrFXGBHC8xjiSR2pkdos7fU1V4MIpNPbQfj0CNzmJ1GKeTFoSnYGK3QnW6iiu8Gm/GTnJLLIVUWpqvl8zo=
+X-Received: by 2002:a25:bfc5:0:b0:dc6:bbeb:d889 with SMTP id
+ q5-20020a25bfc5000000b00dc6bbebd889mr12522955ybm.52.1712122673515; Tue, 02
+ Apr 2024 22:37:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240402075142.196265-1-wangkefeng.wang@huawei.com> <20240402075142.196265-5-wangkefeng.wang@huawei.com>
-In-Reply-To: <20240402075142.196265-5-wangkefeng.wang@huawei.com>
+References: <20240402075142.196265-1-wangkefeng.wang@huawei.com> <20240402075142.196265-6-wangkefeng.wang@huawei.com>
+In-Reply-To: <20240402075142.196265-6-wangkefeng.wang@huawei.com>
 From: Suren Baghdasaryan <surenb@google.com>
-Date: Tue, 2 Apr 2024 22:34:02 -0700
-Message-ID: <CAJuCfpGhF9xLhJ1_fWKRirVdeT2C0QCMsWht2sB62q3ZaWA2wQ@mail.gmail.com>
-Subject: Re: [PATCH 4/7] powerpc: mm: accelerate pagefault when badaccess
+Date: Tue, 2 Apr 2024 22:37:42 -0700
+Message-ID: <CAJuCfpGa746Fn+i=M0oDEGMEJYTJhZ3m-paZ6k3tbZs+yJgu8g@mail.gmail.com>
+Subject: Re: [PATCH 5/7] riscv: mm: accelerate pagefault when badaccess
 To: Kefeng Wang <wangkefeng.wang@huawei.com>
 Cc: akpm@linux-foundation.org, Russell King <linux@armlinux.org.uk>, 
 	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
@@ -85,119 +85,29 @@ On Tue, Apr 2, 2024 at 12:53=E2=80=AFAM Kefeng Wang <wangkefeng.wang@huawei=
 >
 > Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-Code-wise looks correct to me and almost identical to x86 change but
-someone with more experience with this architecture should review.
+Reviewed-by: Suren Baghdasaryan <surenb@google.com>
 
 > ---
->  arch/powerpc/mm/fault.c | 33 ++++++++++++++++++++-------------
->  1 file changed, 20 insertions(+), 13 deletions(-)
+>  arch/riscv/mm/fault.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 >
-> diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
-> index 53335ae21a40..215690452495 100644
-> --- a/arch/powerpc/mm/fault.c
-> +++ b/arch/powerpc/mm/fault.c
-> @@ -71,23 +71,26 @@ static noinline int bad_area_nosemaphore(struct pt_re=
-gs *regs, unsigned long add
->         return __bad_area_nosemaphore(regs, address, SEGV_MAPERR);
->  }
+> diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
+> index 3ba1d4dde5dd..b3fcf7d67efb 100644
+> --- a/arch/riscv/mm/fault.c
+> +++ b/arch/riscv/mm/fault.c
+> @@ -292,7 +292,10 @@ void handle_page_fault(struct pt_regs *regs)
 >
-> -static int __bad_area(struct pt_regs *regs, unsigned long address, int s=
-i_code)
-> +static int __bad_area(struct pt_regs *regs, unsigned long address, int s=
-i_code,
-> +                     struct mm_struct *mm, struct vm_area_struct *vma)
->  {
-> -       struct mm_struct *mm =3D current->mm;
->
->         /*
->          * Something tried to access memory that isn't in our memory map.=
-.
->          * Fix it, but check if it's kernel or user first..
->          */
-> -       mmap_read_unlock(mm);
-> +       if (mm)
-> +               mmap_read_unlock(mm);
-> +       else
-> +               vma_end_read(vma);
->
->         return __bad_area_nosemaphore(regs, address, si_code);
->  }
->
->  static noinline int bad_access_pkey(struct pt_regs *regs, unsigned long =
-address,
-> +                                   struct mm_struct *mm,
->                                     struct vm_area_struct *vma)
->  {
-> -       struct mm_struct *mm =3D current->mm;
->         int pkey;
->
->         /*
-> @@ -109,7 +112,10 @@ static noinline int bad_access_pkey(struct pt_regs *=
-regs, unsigned long address,
->          */
->         pkey =3D vma_pkey(vma);
->
-> -       mmap_read_unlock(mm);
-> +       if (mm)
-> +               mmap_read_unlock(mm);
-> +       else
-> +               vma_end_read(vma);
->
->         /*
->          * If we are in kernel mode, bail out with a SEGV, this will
-> @@ -124,9 +130,10 @@ static noinline int bad_access_pkey(struct pt_regs *=
-regs, unsigned long address,
->         return 0;
->  }
->
-> -static noinline int bad_access(struct pt_regs *regs, unsigned long addre=
-ss)
-> +static noinline int bad_access(struct pt_regs *regs, unsigned long addre=
-ss,
-> +                              struct mm_struct *mm, struct vm_area_struc=
-t *vma)
->  {
-> -       return __bad_area(regs, address, SEGV_ACCERR);
-> +       return __bad_area(regs, address, SEGV_ACCERR, mm, vma);
->  }
->
->  static int do_sigbus(struct pt_regs *regs, unsigned long address,
-> @@ -479,13 +486,13 @@ static int ___do_page_fault(struct pt_regs *regs, u=
-nsigned long address,
->
->         if (unlikely(access_pkey_error(is_write, is_exec,
->                                        (error_code & DSISR_KEYFAULT), vma=
-))) {
-> -               vma_end_read(vma);
+>         if (unlikely(access_error(cause, vma))) {
+>                 vma_end_read(vma);
 > -               goto lock_mmap;
 > +               count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
-> +               return bad_access_pkey(regs, address, NULL, vma);
+> +               tsk->thread.bad_cause =3D SEGV_ACCERR;
+> +               bad_area_nosemaphore(regs, code, addr);
+> +               return;
 >         }
 >
->         if (unlikely(access_error(is_write, is_exec, vma))) {
-> -               vma_end_read(vma);
-> -               goto lock_mmap;
-> +               count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
-> +               return bad_access(regs, address, NULL, vma);
->         }
->
->         fault =3D handle_mm_fault(vma, address, flags | FAULT_FLAG_VMA_LO=
-CK, regs);
-> @@ -521,10 +528,10 @@ static int ___do_page_fault(struct pt_regs *regs, u=
-nsigned long address,
->
->         if (unlikely(access_pkey_error(is_write, is_exec,
->                                        (error_code & DSISR_KEYFAULT), vma=
-)))
-> -               return bad_access_pkey(regs, address, vma);
-> +               return bad_access_pkey(regs, address, mm, vma);
->
->         if (unlikely(access_error(is_write, is_exec, vma)))
-> -               return bad_access(regs, address);
-> +               return bad_access(regs, address, mm, vma);
->
->         /*
->          * If for any reason at all we couldn't handle the fault,
+>         fault =3D handle_mm_fault(vma, addr, flags | FAULT_FLAG_VMA_LOCK,=
+ regs);
 > --
 > 2.27.0
 >
