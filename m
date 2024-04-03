@@ -1,49 +1,35 @@
-Received: from szxga06-in.huawei.com (szxga06-in.huawei.com [45.249.212.32])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD16A26286
-	for <linux-s390@vger.kernel.org>; Wed,  3 Apr 2024 08:38:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1D7613B587;
+	Wed,  3 Apr 2024 10:10:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712133519; cv=none; b=Mu1HvF3vlLkG+A1b48lvINBIUkVZAYJRovlnMw/4Ok3CurwvotOIYLmM8IRkyU0IVRdwVPxRO4I5oPY9Ha4D3SzWHWTYYrRI5D5laT49P0be0z6HjC8U+5Z7ApyQYbx4DugI4cTv5RyONtq5RaQ7ZIxV5K5AWEQelxFYMkVRb9A=
+	t=1712139029; cv=none; b=Kn2JEzvpnj7G9UlaEqxXXcFsja79KMUprPrz6C56V0T3OBs5sxdnIka/nLkY9oAaDbBxgzDBWnInKjXo2E7BKkvSJBtg47PyepZ2GY0qnkilXpr037cprPFp+EgsLr9cZDUOoG2CxpCKZv4cUD6uyd7aotm5YPVG25SdPu020Wc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712133519; c=relaxed/simple;
-	bh=xfl1mCRpIKulkfh7x79vnLXi+aTig+FZP+O0JFwT6Qs=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=myrmhBAynJpzoT6Mk5oYgNvCtigJsQ/Eh/sEAXAAmzc00bv4kZi8hOL+hU6DoXTTceIW816suvpi7l1bdNfySxEHbjTIMT2EdCE5z/QEYMbNjIQfIzyVxMER69LQ9eRaTuKwGjrhe7ixkYnkwA/dz85Zwf+ttFc2fWSH0xgwzG8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.214])
-	by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4V8dRP0T1xz17MxK;
-	Wed,  3 Apr 2024 16:37:37 +0800 (CST)
-Received: from dggpemm100001.china.huawei.com (unknown [7.185.36.93])
-	by mail.maildlp.com (Postfix) with ESMTPS id 67C731A016C;
-	Wed,  3 Apr 2024 16:38:29 +0800 (CST)
-Received: from localhost.localdomain (10.175.112.125) by
- dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.35; Wed, 3 Apr 2024 16:38:28 +0800
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-To: <akpm@linux-foundation.org>
-CC: Russell King <linux@armlinux.org.uk>, Catalin Marinas
-	<catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Michael Ellerman
-	<mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy
-	<christophe.leroy@csgroup.eu>, Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
-	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer
-	<gerald.schaefer@linux.ibm.com>, Dave Hansen <dave.hansen@linux.intel.com>,
-	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
-	<x86@kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
-	<linux-s390@vger.kernel.org>, <surenb@google.com>, <linux-mm@kvack.org>,
-	Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH v2 7/7] x86: mm: accelerate pagefault when badaccess
-Date: Wed, 3 Apr 2024 16:38:05 +0800
-Message-ID: <20240403083805.1818160-8-wangkefeng.wang@huawei.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20240403083805.1818160-1-wangkefeng.wang@huawei.com>
-References: <20240403083805.1818160-1-wangkefeng.wang@huawei.com>
+	s=arc-20240116; t=1712139029; c=relaxed/simple;
+	bh=8X0qRYwm8y4DjExx4iOfuaA9BKNaLtM2/LhmpI9xN7o=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=gsv+LOWFesD+pLn1jNWrdAK0Ec2sMrpOx5hSFy3hS1i71yUAFQqpa9HHCbhmyGVR328TqrS0sXmS5v8NtsQZSHynoswAghBnGtp8FDmVA6Nyfv+EfvvKAs5awLXheUntxaTzn/HP/tWxqLcm+UYRvjUKrxAa8+8jG5HqZ7jOOqQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HYpQMVyl; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HYpQMVyl"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 6B9AAC433F1;
+	Wed,  3 Apr 2024 10:10:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1712139029;
+	bh=8X0qRYwm8y4DjExx4iOfuaA9BKNaLtM2/LhmpI9xN7o=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=HYpQMVylRafHU5iGeUi5QjZwoOMcXupbL2hmzXVo/i5bfy4NMUPpLsrBTHog+RQfX
+	 Rv1JdP9DcW+UaY6TQXI2pvmnpTsqErCGWrpkhsf1jeOkIMW01ZCUegQC+0qGPzjadI
+	 QlZX7nqikA4vsvSqXn32av6VivssSThdnxcp7YKLgtqdoY5mjjyZWmeDb44hdzUIEN
+	 2e6s8HZWqqghRSNl0OZgSityOZF4jVwdnfoLHqoR7zlLCe8ID8VvVEeVgXPNoeMqyd
+	 Kbucl7RmYUApwqvuwr6yDcZQDy7wx8AYR/05m8w8zeExZsFjfwbmzlSiLC/xGO2qs5
+	 3fF5zJCYoVKkQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 60275D9A158;
+	Wed,  3 Apr 2024 10:10:29 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -51,91 +37,50 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpemm100001.china.huawei.com (7.185.36.93)
+Subject: Re: [PATCH v4][next] net/smc: Avoid -Wflex-array-member-not-at-end
+ warnings
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <171213902938.4996.5946401642859225175.git-patchwork-notify@kernel.org>
+Date: Wed, 03 Apr 2024 10:10:29 +0000
+References: <ZgXmscAd6Y2iQQ6O@neat>
+In-Reply-To: <ZgXmscAd6Y2iQQ6O@neat>
+To: Gustavo A. R. Silva <gustavoars@kernel.org>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
 
-The access_error() of vma already checked under per-VMA lock, if it
-is a bad access, directly handle error, no need to retry with mmap_lock
-again. In order to release the correct lock, pass the mm_struct into
-bad_area_access_error(), if mm is NULL, release vma lock, or release
-mmap_lock. Since the page faut is handled under per-VMA lock, count it
-as a vma lock event with VMA_LOCK_SUCCESS.
+Hello:
 
-Reviewed-by: Suren Baghdasaryan <surenb@google.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
----
- arch/x86/mm/fault.c | 23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+This patch was applied to netdev/net-next.git (main)
+by David S. Miller <davem@davemloft.net>:
 
-diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-index a4cc20d0036d..67b18adc75dd 100644
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -866,14 +866,17 @@ bad_area_nosemaphore(struct pt_regs *regs, unsigned long error_code,
- 
- static void
- __bad_area(struct pt_regs *regs, unsigned long error_code,
--	   unsigned long address, u32 pkey, int si_code)
-+	   unsigned long address, struct mm_struct *mm,
-+	   struct vm_area_struct *vma, u32 pkey, int si_code)
- {
--	struct mm_struct *mm = current->mm;
- 	/*
- 	 * Something tried to access memory that isn't in our memory map..
- 	 * Fix it, but check if it's kernel or user first..
- 	 */
--	mmap_read_unlock(mm);
-+	if (mm)
-+		mmap_read_unlock(mm);
-+	else
-+		vma_end_read(vma);
- 
- 	__bad_area_nosemaphore(regs, error_code, address, pkey, si_code);
- }
-@@ -897,7 +900,8 @@ static inline bool bad_area_access_from_pkeys(unsigned long error_code,
- 
- static noinline void
- bad_area_access_error(struct pt_regs *regs, unsigned long error_code,
--		      unsigned long address, struct vm_area_struct *vma)
-+		      unsigned long address, struct mm_struct *mm,
-+		      struct vm_area_struct *vma)
- {
- 	/*
- 	 * This OSPKE check is not strictly necessary at runtime.
-@@ -927,9 +931,9 @@ bad_area_access_error(struct pt_regs *regs, unsigned long error_code,
- 		 */
- 		u32 pkey = vma_pkey(vma);
- 
--		__bad_area(regs, error_code, address, pkey, SEGV_PKUERR);
-+		__bad_area(regs, error_code, address, mm, vma, pkey, SEGV_PKUERR);
- 	} else {
--		__bad_area(regs, error_code, address, 0, SEGV_ACCERR);
-+		__bad_area(regs, error_code, address, mm, vma, 0, SEGV_ACCERR);
- 	}
- }
- 
-@@ -1357,8 +1361,9 @@ void do_user_addr_fault(struct pt_regs *regs,
- 		goto lock_mmap;
- 
- 	if (unlikely(access_error(error_code, vma))) {
--		vma_end_read(vma);
--		goto lock_mmap;
-+		bad_area_access_error(regs, error_code, address, NULL, vma);
-+		count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
-+		return;
- 	}
- 	fault = handle_mm_fault(vma, address, flags | FAULT_FLAG_VMA_LOCK, regs);
- 	if (!(fault & (VM_FAULT_RETRY | VM_FAULT_COMPLETED)))
-@@ -1394,7 +1399,7 @@ void do_user_addr_fault(struct pt_regs *regs,
- 	 * we can handle it..
- 	 */
- 	if (unlikely(access_error(error_code, vma))) {
--		bad_area_access_error(regs, error_code, address, vma);
-+		bad_area_access_error(regs, error_code, address, mm, vma);
- 		return;
- 	}
- 
+On Thu, 28 Mar 2024 15:52:49 -0600 you wrote:
+> -Wflex-array-member-not-at-end is coming in GCC-14, and we are getting
+> ready to enable it globally.
+> 
+> There are currently a couple of objects in `struct smc_clc_msg_proposal_area`
+> that contain a couple of flexible structures:
+> 
+> struct smc_clc_msg_proposal_area {
+> 	...
+> 	struct smc_clc_v2_extension             pclc_v2_ext;
+> 	...
+> 	struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
+> 	...
+> };
+> 
+> [...]
+
+Here is the summary with links:
+  - [v4,next] net/smc: Avoid -Wflex-array-member-not-at-end warnings
+    https://git.kernel.org/netdev/net-next/c/9748dbc9f265
+
+You are awesome, thank you!
 -- 
-2.27.0
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
