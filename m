@@ -1,207 +1,149 @@
-Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEF6D14A098
-	for <linux-s390@vger.kernel.org>; Wed,  3 Apr 2024 14:23:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD32814F122;
+	Wed,  3 Apr 2024 16:25:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712154218; cv=none; b=bvCQUyZRJqu/xm3D+V8PnawRVlyqf7SPwzII8B3Y5tUDhaGXpwUDtwyFNR4lzxIxb44ff6joGDIQXj+m1Siu1k5QyaOuyA311DQmJtBBOAqes0ZAvGHbstwIsLH8g+1QTuzWX21igGPXr4yt06tSj3EEitMBZQYe3xD01ki3+3g=
+	t=1712161523; cv=none; b=cKN9TTT8jhL+740h6rFhAvItUP+ioKeWA4gm2MQfTGq+ZUCwPZDovF99Rr6+Ki7se9ma9BIgC8r96/Tkj707v+PPUAcgGyG0v2xfm990y3DaftR0MD9QJxYVMIxo41qYmTKFNopPKV0U98YXA+W6Din73GWZOdS93K04IDgHTaM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712154218; c=relaxed/simple;
-	bh=4z2X6f4byCORZ+98tGQMFxTRKTmnwzsg9rbx++Rxgv0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MO2rbX4KYNAZHVBLABHvNIWPe4p6ZqBrVvmMUXvkSoIruZaoDqLr/vftfgvrmktjQETPYEuuL+bm2uGbtUsjWmgU9BjVAqtuhYMBsGDtRdT7uzvJdHSx2A/yPMPL694HhYmwXRgloedeHoNCSpgAnUCeOVBB4/XLGrrnUCRi7pU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vCFNrQxc; arc=none smtp.client-ip=209.85.128.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1712161523; c=relaxed/simple;
+	bh=M2KSxX/qzBohwPJ02hVjKtTS/u8IGLEnJlpOLc775+c=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=A4uFRn7AaCaSPnXdZuoAlQt2XCyqIexTOLALzFuOX8qsxVeg0HABotusZAqEfXgfyDMEgMSdi81hvMZzPXyQKXsvOSswQx7weSnB7u9qJXj4aZSx3zVrsX4gC/9pEwEp+vbQ5sEIRT/fsFMmCBfquI1S4+O2L5X7IisxvHD9MvM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sAjrqesj; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vCFNrQxc"
-Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-6098a20ab22so57158287b3.2
-        for <linux-s390@vger.kernel.org>; Wed, 03 Apr 2024 07:23:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1712154216; x=1712759016; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iwJNuwyQp3Yvzu+935Rba/rHkgr+XgKaeFBH6ggamVo=;
-        b=vCFNrQxcr3suPfrK3riBgo8DjCkhRgEyqhRgf6CPNAXn5uGQ4qtNpU6j1ZelLazqw9
-         McV7nZp5klk5In7eEoP1et03D+UnUm1i6puJlMdHdTznAoEt4e2j9l0jIVQb3ye6tXO8
-         LFdAoDQ0Y90UqNbEmHhU3KgT3oTdsVEPWi9XtF0dg5HHkDXOvQWqUmDMtREZJTkAHcWn
-         b+uH+q3c1l4fQjnOhqVKlkP0zeS3/Aa00/bqasGAUEzIqjRwb3YNWS0ayXWkzMWM9fPI
-         xI8M3FTnVCXWUWA2r85EWgnOm12zqT4GbgGqjKynD7pYOqcMfubSj5pDj1IvKaO1zfAm
-         GLpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712154216; x=1712759016;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=iwJNuwyQp3Yvzu+935Rba/rHkgr+XgKaeFBH6ggamVo=;
-        b=bnXeplABaM43iJGSTzHLj6+ILS07/ZQ0FEMOWwI6uKBkCLA5HeqXJ8DOYa34pSrxcR
-         9VzWep96Zc6Pk7aviSCzPbbOq8xm4NFRjDw4oXNXMdg+BMhbz5ok+EJyNWAB4KKm4II0
-         PRDuNgTZfOjajJwvuRlVymyvLTEql+6raDjebwGaznkWseLvFsdC5DfnhW1zlcf3v339
-         zi/U2xU1+KA+ABd2vf4OPhFdFk91iDjGZtl0mlsbQSlyLiVZhpUenL/atq+/j5w9ZfTO
-         ORbPm9G4tjQGfzb18qbA7h5FQL49ayz/zA/mrnn88VkMmkQH1ZweHewNcKh9CjgEQjwC
-         35Dg==
-X-Forwarded-Encrypted: i=1; AJvYcCXocm8eQnuwZD4IeOeXOZ7dP64duMqh5kWm+P8P/ghY5qoWOWbHfj/l6hvuo/dnir4TL2KEywOMQAmqa3Ft2QoEQw9vTfIvqbVSLA==
-X-Gm-Message-State: AOJu0YxKp42IQXKibajmZUpOSGGQyENBS9RAFipAeRmgNK1EsieTlFwy
-	kn6qMj2MPBD9tH7kE9VZjb7Kwxvc8gEeK4d4AVsxaBQA4jCPL4ijsNPghEWA1Jr6pb+/Kqyv6X5
-	o8Xua1iU49lcZWAwjM6v/7AH4sC1ixpmjsjLX
-X-Google-Smtp-Source: AGHT+IHARpbXZVqsZEoa5xySsc3G5/CcR814bUWxWQ15mbjsPwETu+5wjQAHS1k9Hq1FLB9FQjXK6aME+vDVPH/zVfk=
-X-Received: by 2002:a25:ab41:0:b0:dcf:a52d:6134 with SMTP id
- u59-20020a25ab41000000b00dcfa52d6134mr2682792ybi.26.1712154215477; Wed, 03
- Apr 2024 07:23:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sAjrqesj"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 433G2mnG017749;
+	Wed, 3 Apr 2024 16:25:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=UqaB+wRnNOYEb2m53SzDiYd2Jvl8mk/TbCmsEno9obA=;
+ b=sAjrqesjJ6yYZeiFMFjQW7W9xciDm/RAp2G44FYgyrNmsN74i9KhwHiFKZGvi+XZq39V
+ eUn4H96aidg69kGQWvz9UdlDYiNz5tVLnueLVGzyASv+scU0wWR7qW9r/CghFpxrD5ai
+ AOL01EG/FVBYwfoNH2y7XmRNqADoqlIxu6wUgy+a6f40p1318e15Mus+LGOVbGqcG9xa
+ gGxFeTNqvRt8/v14QV2flcmpHQrKfixx3Sn4wdTMrOJawZlXFyhsL41dutaEVBY/U6Ay
+ E27WUkn4sPhYtWug43OYjTR5p34ojzrUiWUeBwW0x1x1RKKE4KuhX6yklpUSL4md1Wt5 6g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9a9b02jr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 03 Apr 2024 16:25:16 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 433GPGRJ023481;
+	Wed, 3 Apr 2024 16:25:16 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9a9b02jh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 03 Apr 2024 16:25:16 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 433EwYjc025753;
+	Wed, 3 Apr 2024 16:25:15 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3x6x2peegv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 03 Apr 2024 16:25:14 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 433GP9PY25231958
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 3 Apr 2024 16:25:11 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1C71F20065;
+	Wed,  3 Apr 2024 16:25:09 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 02BE52004B;
+	Wed,  3 Apr 2024 16:25:08 +0000 (GMT)
+Received: from [9.171.60.51] (unknown [9.171.60.51])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  3 Apr 2024 16:25:07 +0000 (GMT)
+Message-ID: <3122eece5b484abcf8d23f85d6c18c36f0b939ff.camel@linux.ibm.com>
+Subject: Re: [RFC PATCH net-next v5 04/11] net/smc: implement some
+ unsupported operations of loopback-ism
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
+        twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com,
+        jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Date: Wed, 03 Apr 2024 18:25:07 +0200
+In-Reply-To: <20240324135522.108564-5-guwen@linux.alibaba.com>
+References: <20240324135522.108564-1-guwen@linux.alibaba.com>
+	 <20240324135522.108564-5-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.4 (3.50.4-2.fc39app4) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240402075142.196265-1-wangkefeng.wang@huawei.com>
- <20240402075142.196265-8-wangkefeng.wang@huawei.com> <CAJuCfpFoxP78+P1+4WQcCqMzGv7jpC9V8pR_-R8t8zPUg-t+aA@mail.gmail.com>
- <d5177b0f-db4e-4c78-81f1-5761f08f076d@huawei.com>
-In-Reply-To: <d5177b0f-db4e-4c78-81f1-5761f08f076d@huawei.com>
-From: Suren Baghdasaryan <surenb@google.com>
-Date: Wed, 3 Apr 2024 07:23:23 -0700
-Message-ID: <CAJuCfpEKg1wxNwhu9JOsvq9kZM9WUA2MNfH_jb6ZQ0jpGJzEdw@mail.gmail.com>
-Subject: Re: [PATCH 7/7] x86: mm: accelerate pagefault when badaccess
-To: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: akpm@linux-foundation.org, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, Paul Walmsley <paul.walmsley@sifive.com>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: e-maJrEYK3CrbN1gUYBUw5wqMTnGJHjI
+X-Proofpoint-ORIG-GUID: y1xl521ypI8S9m31iHqSuVR8sDJBb3t1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-03_16,2024-04-03_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
+ phishscore=0 spamscore=0 mlxlogscore=999 malwarescore=0 mlxscore=0
+ suspectscore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2403210000 definitions=main-2404030112
 
-On Wed, Apr 3, 2024 at 12:58=E2=80=AFAM Kefeng Wang <wangkefeng.wang@huawei=
-.com> wrote:
->
->
->
-> On 2024/4/3 13:59, Suren Baghdasaryan wrote:
-> > On Tue, Apr 2, 2024 at 12:53=E2=80=AFAM Kefeng Wang <wangkefeng.wang@hu=
-awei.com> wrote:
-> >>
-> >> The vm_flags of vma already checked under per-VMA lock, if it is a
-> >> bad access, directly handle error and return, there is no need to
-> >> lock_mm_and_find_vma() and check vm_flags again.
-> >>
-> >> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> >
-> > Looks safe to me.
-> > Using (mm !=3D NULL) to indicate that we are holding mmap_lock is not
-> > ideal but I guess that works.
-> >
->
-> Yes, I will add this part it into change too,
->
-> The access_error() of vma already checked under per-VMA lock, if it
-> is a bad access, directly handle error, no need to retry with mmap_lock
-> again. In order to release the correct lock, pass the mm_struct into
-> bad_area_access_error(), if mm is NULL, release vma lock, or release
-> mmap_lock. Since the page faut is handled under per-VMA lock, count it
-> as a vma lock event with VMA_LOCK_SUCCESS.
+On Sun, 2024-03-24 at 21:55 +0800, Wen Gu wrote:
+> This implements some operations that loopback-ism does not support
+> currently:
+>  - vlan operations, since there is no strong use-case for it.
+>  - signal_event operations, since there is no event to be processed=20
+> by the loopback-ism device.
 
-The part about passing mm_struct is unnecessary IMHO. It explains "how
-you do things" but changelog should describe only "what you do" and
-"why you do that". The rest we can see from the code.
+Hi Wen,
 
->
-> Thanks.
->
->
-> > Reviewed-by: Suren Baghdasaryan <surenb@google.com>
-> >
-> >> ---
-> >>   arch/x86/mm/fault.c | 23 ++++++++++++++---------
-> >>   1 file changed, 14 insertions(+), 9 deletions(-)
-> >>
-> >> diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-> >> index a4cc20d0036d..67b18adc75dd 100644
-> >> --- a/arch/x86/mm/fault.c
-> >> +++ b/arch/x86/mm/fault.c
-> >> @@ -866,14 +866,17 @@ bad_area_nosemaphore(struct pt_regs *regs, unsig=
-ned long error_code,
-> >>
-> >>   static void
-> >>   __bad_area(struct pt_regs *regs, unsigned long error_code,
-> >> -          unsigned long address, u32 pkey, int si_code)
-> >> +          unsigned long address, struct mm_struct *mm,
-> >> +          struct vm_area_struct *vma, u32 pkey, int si_code)
-> >>   {
-> >> -       struct mm_struct *mm =3D current->mm;
-> >>          /*
-> >>           * Something tried to access memory that isn't in our memory =
-map..
-> >>           * Fix it, but check if it's kernel or user first..
-> >>           */
-> >> -       mmap_read_unlock(mm);
-> >> +       if (mm)
-> >> +               mmap_read_unlock(mm);
-> >> +       else
-> >> +               vma_end_read(vma);
-> >>
-> >>          __bad_area_nosemaphore(regs, error_code, address, pkey, si_co=
-de);
-> >>   }
-> >> @@ -897,7 +900,8 @@ static inline bool bad_area_access_from_pkeys(unsi=
-gned long error_code,
-> >>
-> >>   static noinline void
-> >>   bad_area_access_error(struct pt_regs *regs, unsigned long error_code=
-,
-> >> -                     unsigned long address, struct vm_area_struct *vm=
-a)
-> >> +                     unsigned long address, struct mm_struct *mm,
-> >> +                     struct vm_area_struct *vma)
-> >>   {
-> >>          /*
-> >>           * This OSPKE check is not strictly necessary at runtime.
-> >> @@ -927,9 +931,9 @@ bad_area_access_error(struct pt_regs *regs, unsign=
-ed long error_code,
-> >>                   */
-> >>                  u32 pkey =3D vma_pkey(vma);
-> >>
-> >> -               __bad_area(regs, error_code, address, pkey, SEGV_PKUER=
-R);
-> >> +               __bad_area(regs, error_code, address, mm, vma, pkey, S=
-EGV_PKUERR);
-> >>          } else {
-> >> -               __bad_area(regs, error_code, address, 0, SEGV_ACCERR);
-> >> +               __bad_area(regs, error_code, address, mm, vma, 0, SEGV=
-_ACCERR);
-> >>          }
-> >>   }
-> >>
-> >> @@ -1357,8 +1361,9 @@ void do_user_addr_fault(struct pt_regs *regs,
-> >>                  goto lock_mmap;
-> >>
-> >>          if (unlikely(access_error(error_code, vma))) {
-> >> -               vma_end_read(vma);
-> >> -               goto lock_mmap;
-> >> +               bad_area_access_error(regs, error_code, address, NULL,=
- vma);
-> >> +               count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
-> >> +               return;
-> >>          }
-> >>          fault =3D handle_mm_fault(vma, address, flags | FAULT_FLAG_VM=
-A_LOCK, regs);
-> >>          if (!(fault & (VM_FAULT_RETRY | VM_FAULT_COMPLETED)))
-> >> @@ -1394,7 +1399,7 @@ void do_user_addr_fault(struct pt_regs *regs,
-> >>           * we can handle it..
-> >>           */
-> >>          if (unlikely(access_error(error_code, vma))) {
-> >> -               bad_area_access_error(regs, error_code, address, vma);
-> >> +               bad_area_access_error(regs, error_code, address, mm, v=
-ma);
-> >>                  return;
-> >>          }
-> >>
-> >> --
-> >> 2.27.0
-> >>
+I wonder if the these operations that are not supported by loopback-ism
+should rather be marked "optional" in the struct smcd_ops, and the
+calling code should call these only when they are implemented.
+
+Of course this would mean more changes to net/smc/smc_core.c - but
+loopback-ism could omit these "boiler-plate" functions.
+
+> =C2=A0
+> +static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
+> +{
+> +	return -EOPNOTSUPP;
+> +}
+> +
+> +static int smc_lo_del_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
+> +{
+> +	return -EOPNOTSUPP;
+> +}
+> +
+> +static int smc_lo_set_vlan_required(struct smcd_dev *smcd)
+> +{
+> +	return -EOPNOTSUPP;
+> +}
+> +
+> +static int smc_lo_reset_vlan_required(struct smcd_dev *smcd)
+> +{
+> +	return -EOPNOTSUPP;
+> +}
+> +
+> +static int smc_lo_signal_event(struct smcd_dev *dev, struct smcd_gid
+> *rgid,
+> +			=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 u32 trigger_irq, u32 event_code,=
+ u64
+> info)
+> +{
+> +	return 0;
+> +}
+> +
+
+Just a pattern that I saw elsewhere in the kernel...
+
+Thanks,
+Gerd
