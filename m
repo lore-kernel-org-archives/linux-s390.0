@@ -1,201 +1,87 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2BFC15666B
-	for <linux-s390@vger.kernel.org>; Wed,  3 Apr 2024 21:20:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8532414285;
+	Thu,  4 Apr 2024 01:34:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712179238; cv=none; b=R3RBNXcvFgRR5ZrZtNQUBKsQButNoRSRGtyzQLxlZxoZoQ0tF77KWnNOdoQqeR7z3dLQMepc2CU3gcrywDBaXfacgTotJ+VPwoD/RJphcOjYu8kIqd3gIL7qhPxZ6yZcDtWxl98/dKdUgiFUWare51Wj7R/fal/lKoDiiMTEc5A=
+	t=1712194455; cv=none; b=PH0a30A2BP3UeUxqqbbHn6XKGs9Qe9QcC294hECFJaFQP8RZKcBTL444TfQrhyC10vmyr/3LF+8zqKhV4vEz/k84hsM7vUdz1g3krF27/jlmqhr8Be0NQnfbSScHB3w7UsaytZz/NST6GoI7S9FFs/0PmQK7biFjaf7pgJi4jnQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712179238; c=relaxed/simple;
-	bh=qNCBndGvASRj94i9gCbn2Ois8Kwv0gWWiWeAMOMLgEQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=civ2Xe7YNab3qFZDFK3aSgDwAsrgvGOf47pkI3XDym/qLk8RIVl36COFBNa5DsWERad4UoXVYeQySPael9d0CF/bz98HmZXes532m3WaH+JVKrsc7kxGgGoKE4drunAYKz+OeAooWZBxhIUq6h85vdidxfpvOqIla/OB/dlM6Y4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Ptx5/DWJ; arc=none smtp.client-ip=209.85.214.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1712194455; c=relaxed/simple;
+	bh=PLHX9CmuF+jzJhTft7r/1Y8OPKACX4mI6u4er178G2M=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=kSymGw5ScfNgpXpy52rMtSiloUPRCHA5eJIHweEs9DSg5cnsmBOsotOjwrimS7dTw+pTckMMkFH6xLHT8fNTGh1lGtk8JmtHIhJtTdW+MtXHWGx5AhQe2TfBOTTO0ReN1f0FG4FIK/kgq+9KSTMR0r7e4kvlIZLBVeyDIHp3bqo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qb1JzlHC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Ptx5/DWJ"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-1e28be94d32so2255255ad.0
-        for <linux-s390@vger.kernel.org>; Wed, 03 Apr 2024 14:20:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1712179236; x=1712784036; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=gk/7t8bB/vPp5RYyhmHYp9/pKPIZpl1c0Hpc1VIArKM=;
-        b=Ptx5/DWJGOU9bqEoPLyU4ZVnUh9y3Xg9DvWbgEX4H/YrkQLkMUJSAnSiWexQ4Gzw1R
-         647vdzB8MXYOeAzQ/sAS2yYZmG3d071l5agv91Eq+IyAH5kdO42jY6PPSVrRvxB+lNOk
-         xCuL5r/sFUNSFKhut5mZeJ47HjuCvvl+8N89U=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712179236; x=1712784036;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gk/7t8bB/vPp5RYyhmHYp9/pKPIZpl1c0Hpc1VIArKM=;
-        b=UfKZkP6jRpIS5joArIkhWfXpVPUJtgozlxXmSqUDfFHZqcq6n33VlLPChCIm3gWvYX
-         P3dvqB6dENQxCz9a0pWDxFuHMbklb/zfK8aZg+4VQJ9fGgbrzYcNh5HAFBAQHhbTWktM
-         uAcfNthbIxnpR+9K9KPjrMpHUYcu3ONLLYp4cwICIuseGqf9XW4h5WTuL5UizHy0UUeT
-         y7y5X+E/BGY/O1BOWRrxBN2FgMs2j9s3z6dWmegm70+t1LL2xDPth/8ng7kkJWY4PhiB
-         xMPwuOLbw45QQs9g8tTvLJZSWTvpluRfQ2uAqGsK1s+27XhEymjrjp+ga5m7YcV0vhgN
-         YmVw==
-X-Forwarded-Encrypted: i=1; AJvYcCW4Qu5Osf3N6R+vJuAH803QebWv9B747aVQ7UIRYUaiCRMuf5ypoNnsCzL2GR9ZyQapEJXJPRRO+giU0IPlhMtujqHdS4q3AZsy/g==
-X-Gm-Message-State: AOJu0Yz3h7o3618JREslyqvondTQmFc7qvu8qFJgxJJBQYQ3M9xIqroP
-	H0ZmbMCMzP+rOjq7iAF0kadANAvqDgI/wbNqWRZpWug9hHwPToAbcFD1Eqv9bQ==
-X-Google-Smtp-Source: AGHT+IFNWSt+grv0aoo3QXgpCvCZ7QxZ9IBnA1B4gdZs5eLtWkdhNXO9ogb9Q/XDMKHoC6MfZl34Wg==
-X-Received: by 2002:a17:903:110f:b0:1e0:f25b:e795 with SMTP id n15-20020a170903110f00b001e0f25be795mr509491plh.11.1712179236057;
-        Wed, 03 Apr 2024 14:20:36 -0700 (PDT)
-Received: from www.outflux.net ([198.0.35.241])
-        by smtp.gmail.com with ESMTPSA id m16-20020a170902bb9000b001e2a87d7d2dsm163988pls.253.2024.04.03.14.20.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Apr 2024 14:20:35 -0700 (PDT)
-Date: Wed, 3 Apr 2024 14:20:34 -0700
-From: Kees Cook <keescook@chromium.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qb1JzlHC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A94D4C433C7;
+	Thu,  4 Apr 2024 01:34:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1712194455;
+	bh=PLHX9CmuF+jzJhTft7r/1Y8OPKACX4mI6u4er178G2M=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=qb1JzlHCkOQ0xQR9xEkxKvsw8OA1eBs2sTlr4JQ5PzuUXWpA08puhxOS0+HGL5xJt
+	 p+tSFhHdI0/W38jVkWUzbZ83SoA9Ze3oVX0I/xz35tzw9J8ehO4Ej2Z+v4WDgVFly6
+	 bK1uHAbfHAa/MKwQyDRnXJvZKbn2ZQDjArtD+Ho/3cPayZMvc1juvsoNzlmJRr/Ju4
+	 IiompHkE91W7nulKLmrSnjlpjrH1dYJE6//xltRqVI5kAJhGo2sMI29VSfrrA1CwJ3
+	 2VTX8Ds9j7vLv82qYyQgrRRjYVgNl7GVkee7GY7YJqfjkE9sRb6rgoQPF1hbD/SIKA
+	 JnLshHl50ZGTA==
+Date: Wed, 3 Apr 2024 18:34:12 -0700
+From: Jakub Kicinski <kuba@kernel.org>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	=?iso-8859-1?Q?Ma=EDra?= Canal <mcanal@igalia.com>,
-	Dan Carpenter <dan.carpenter@linaro.org>,
-	Daniel Diaz <daniel.diaz@linaro.org>,
-	David Gow <davidgow@google.com>,
-	Arthur Grillo <arthurgrillo@riseup.net>,
-	Brendan Higgins <brendan.higgins@linux.dev>,
-	Naresh Kamboju <naresh.kamboju@linaro.org>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Maxime Ripard <mripard@kernel.org>,
-	Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>,
-	Daniel Vetter <daniel@ffwll.ch>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	dri-devel@lists.freedesktop.org, kunit-dev@googlegroups.com,
-	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org, loongarch@lists.linux.dev,
-	netdev@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v3 00/15] Add support for suppressing warning backtraces
-Message-ID: <202404031414.645255D868@keescook>
+Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>, Arnd
+ Bergmann <arnd@arndb.de>, =?UTF-8?B?TWHDrXJh?= Canal <mcanal@igalia.com>,
+ Dan Carpenter <dan.carpenter@linaro.org>, Kees Cook
+ <keescook@chromium.org>, Daniel Diaz <daniel.diaz@linaro.org>, David Gow
+ <davidgow@google.com>, Arthur Grillo <arthurgrillo@riseup.net>, Brendan
+ Higgins <brendan.higgins@linux.dev>, Naresh Kamboju
+ <naresh.kamboju@linaro.org>, Maarten Lankhorst
+ <maarten.lankhorst@linux.intel.com>, Andrew Morton
+ <akpm@linux-foundation.org>, Maxime Ripard <mripard@kernel.org>, Ville
+ =?UTF-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Daniel Vetter
+ <daniel@ffwll.ch>, Thomas Zimmermann <tzimmermann@suse.de>,
+ dri-devel@lists.freedesktop.org, kunit-dev@googlegroups.com,
+ linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, loongarch@lists.linux.dev,
+ netdev@vger.kernel.org, x86@kernel.org, Linux Kernel Functional Testing
+ <lkft@linaro.org>, Eric Dumazet <edumazet@google.com>
+Subject: Re: [PATCH v3 06/15] net: kunit: Suppress lock warning noise at end
+ of dev_addr_lists tests
+Message-ID: <20240403183412.16254318@kernel.org>
+In-Reply-To: <20240403131936.787234-7-linux@roeck-us.net>
 References: <20240403131936.787234-1-linux@roeck-us.net>
+	<20240403131936.787234-7-linux@roeck-us.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240403131936.787234-1-linux@roeck-us.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Apr 03, 2024 at 06:19:21AM -0700, Guenter Roeck wrote:
-> Some unit tests intentionally trigger warning backtraces by passing bad
-> parameters to kernel API functions. Such unit tests typically check the
-> return value from such calls, not the existence of the warning backtrace.
+On Wed,  3 Apr 2024 06:19:27 -0700 Guenter Roeck wrote:
+> dev_addr_lists_test generates lock warning noise at the end of tests
+> if lock debugging is enabled. There are two sets of warnings.
 > 
-> Such intentionally generated warning backtraces are neither desirable
-> nor useful for a number of reasons.
-> - They can result in overlooked real problems.
-> - A warning that suddenly starts to show up in unit tests needs to be
->   investigated and has to be marked to be ignored, for example by
->   adjusting filter scripts. Such filters are ad-hoc because there is
->   no real standard format for warnings. On top of that, such filter
->   scripts would require constant maintenance.
+> WARNING: CPU: 0 PID: 689 at kernel/locking/mutex.c:923 __mutex_unlock_slowpath.constprop.0+0x13c/0x368
+> DEBUG_LOCKS_WARN_ON(__owner_task(owner) != __get_current())
 > 
-> One option to address problem would be to add messages such as "expected
-> warning backtraces start / end here" to the kernel log.  However, that
-> would again require filter scripts, it might result in missing real
-> problematic warning backtraces triggered while the test is running, and
-> the irrelevant backtrace(s) would still clog the kernel log.
+> WARNING: kunit_try_catch/1336 still has locks held!
 > 
-> Solve the problem by providing a means to identify and suppress specific
-> warning backtraces while executing test code. Support suppressing multiple
-> backtraces while at the same time limiting changes to generic code to the
-> absolute minimum. Architecture specific changes are kept at minimum by
-> retaining function names only if both CONFIG_DEBUG_BUGVERBOSE and
-> CONFIG_KUNIT are enabled.
+> KUnit test cleanup is not guaranteed to run in the same thread as the test
+> itself. For this test, this means that rtnl_lock() and rtnl_unlock() may
+> be called from different threads. This triggers the warnings.
+> Suppress the warnings because they are irrelevant for the test and just
+> confusing and distracting.
 > 
-> The first patch of the series introduces the necessary infrastructure.
-> The second patch introduces support for counting suppressed backtraces.
-> This capability is used in patch three to implement unit tests.
-> Patch four documents the new API.
-> The next two patches add support for suppressing backtraces in drm_rect
-> and dev_addr_lists unit tests. These patches are intended to serve as
-> examples for the use of the functionality introduced with this series.
-> The remaining patches implement the necessary changes for all
-> architectures with GENERIC_BUG support.
-> 
-> With CONFIG_KUNIT enabled, image size increase with this series applied is
-> approximately 1%. The image size increase (and with it the functionality
-> introduced by this series) can be avoided by disabling
-> CONFIG_KUNIT_SUPPRESS_BACKTRACE.
-> 
-> This series is based on the RFC patch and subsequent discussion at
-> https://patchwork.kernel.org/project/linux-kselftest/patch/02546e59-1afe-4b08-ba81-d94f3b691c9a@moroto.mountain/
-> and offers a more comprehensive solution of the problem discussed there.
-> 
-> Design note:
->   Function pointers are only added to the __bug_table section if both
->   CONFIG_KUNIT_SUPPRESS_BACKTRACE and CONFIG_DEBUG_BUGVERBOSE are enabled
->   to avoid image size increases if CONFIG_KUNIT is disabled. There would be
->   some benefits to adding those pointers all the time (reduced complexity,
->   ability to display function names in BUG/WARNING messages). That change,
->   if desired, can be made later.
-> 
-> Checkpatch note:
->   Remaining checkpatch errors and warnings were deliberately ignored.
->   Some are triggered by matching coding style or by comments interpreted
->   as code, others by assembler macros which are disliked by checkpatch.
->   Suggestions for improvements are welcome.
-> 
-> Changes since RFC:
-> - Introduced CONFIG_KUNIT_SUPPRESS_BACKTRACE
-> - Minor cleanups and bug fixes
-> - Added support for all affected architectures
-> - Added support for counting suppressed warnings
-> - Added unit tests using those counters
-> - Added patch to suppress warning backtraces in dev_addr_lists tests
-> 
-> Changes since v1:
-> - Rebased to v6.9-rc1
-> - Added Tested-by:, Acked-by:, and Reviewed-by: tags
->   [I retained those tags since there have been no functional changes]
-> - Introduced KUNIT_SUPPRESS_BACKTRACE configuration option, enabled by
->   default.
-> 
-> Changes since v2:
-> - Rebased to v6.9-rc2
-> - Added comments to drm warning suppression explaining why it is needed.
-> - Added patch to move conditional code in arch/sh/include/asm/bug.h
->   to avoid kerneldoc warning
-> - Added architecture maintainers to Cc: for architecture specific patches
-> - No functional changes
-> 
-> ----------------------------------------------------------------
-> Guenter Roeck (15):
->       bug/kunit: Core support for suppressing warning backtraces
->       kunit: bug: Count suppressed warning backtraces
->       kunit: Add test cases for backtrace warning suppression
->       kunit: Add documentation for warning backtrace suppression API
->       drm: Suppress intentional warning backtraces in scaling unit tests
->       net: kunit: Suppress lock warning noise at end of dev_addr_lists tests
->       x86: Add support for suppressing warning backtraces
->       arm64: Add support for suppressing warning backtraces
->       loongarch: Add support for suppressing warning backtraces
->       parisc: Add support for suppressing warning backtraces
->       s390: Add support for suppressing warning backtraces
->       sh: Add support for suppressing warning backtraces
->       sh: Move defines needed for suppressing warning backtraces
->       riscv: Add support for suppressing warning backtraces
->       powerpc: Add support for suppressing warning backtraces
+> The first warning can be suppressed by using START_SUPPRESSED_WARNING()
+> and END_SUPPRESSED_WARNING() around the call to rtnl_unlock(). To suppress
+> the second warning, it is necessary to set debug_locks_silent while the
+> rtnl lock is held.
 
-Tested-by: Kees Cook <keescook@chromium.org>
-
-(for x86 and um)
-
-I was planning to add warning suppression for the "overflow" KUnit
-tests, but it seems the vmalloc routines aren't calling warn_alloc() any
-more for impossible sizes. So, I think, no patches needed for
-lib/overflow_kunit.c, but at the end of the day, I've tested this series
-is working for me. :P
-
--- 
-Kees Cook
+Is it okay if I move the locking into the tests, instead?
+It's only 4 lines more and no magic required, seems to work fine.
