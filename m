@@ -1,105 +1,120 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40CF276023;
-	Thu,  4 Apr 2024 13:44:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 324891C68C
+	for <linux-s390@vger.kernel.org>; Thu,  4 Apr 2024 14:56:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712238293; cv=none; b=k+zcoo2n/mfPb9uh8Sz5uERAwJqAKyhzbTct5EI9LwMtIiIgfSycE02F1eBaxW+t3vXKm5tWBSzJRNSgBNqT5TcdQ0e9bYcFDuK5NFKyGecZrZFw8nh/sMw33o8Oj2fJdETE8p7XuL5plfBCpkD6R00FCqySzU/L7c9a+CMnctM=
+	t=1712242615; cv=none; b=WTIA9BrTojNyQxZ7U8DCKfUUUqledlEXyW4tm6JYeaxmlDKTdR623U/RMUXoZu0IpfZD1JSIQe7e6jWTeGFaHe6pQWUS26CCM2ZIxHaAdU33GMPGovST5eRokXbqBO8xctESzHbgdcKnh/Zxmon9gt/+lk3zeOH+A/25VFfbsGg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712238293; c=relaxed/simple;
-	bh=tAAtr7pnR4MH/4TMN77ugW13pgkeIiTR+g76NLCU3ds=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ayOWBDwlMlJCLtJzr47kkX41z9+LBT3lWXdzu/Pp1O1AKzCao+ZE750npVvjDFuGQnlSaqe2PZkEfgdpnajB6CX0f8SRIU3xa1ebnZLqe1RarD+uRd4X4t3mwC1nM96tUoTSvbmEaXEuZXOI5rrF9adJMP8u3MU3hGhlswhlF6U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=S5qcrfZm; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1712242615; c=relaxed/simple;
+	bh=fuDd+HFyND9G6HPXN8Zppo06oelLFc9HJWZBWUJI2LA=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=eaDq89CyXxwhVNpXuZti93QTRC8t6EQ45eCy83UwJLjg/wlG0ZUkmMYjORgPI96KsT1TpBhNWTLUG5o40nQmAYDvFW0EaEyXG6omA9kmkGd4YaRWqx7sHCaU6Ww7NsSnI7D09oxMgd13VAvcE85UfOFjzTfCFw8CiOseZxx7ZEo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UDivKTfd; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="S5qcrfZm"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1712238280; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=O+o5H6Rp/YKTpylXkB7+dR8XqLzGRaNwaFZPCluqRS8=;
-	b=S5qcrfZm1dko10hBCbO8YldAe+QslRnlpEVQBpZ76+NqGZUfVErND4p+JrABcyINl3+O3JmpGiQ2lC0P0YRDcgx3cqQ4V3A5Ypdo6CQE31FlAlb64oquLJPI0Jwu0v4Swah4Xq0HlN2JkGWFWLWsDauCmHa8h8nGs1c3ONIEhuU=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R431e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=20;SR=0;TI=SMTPD_---0W3uXJtx_1712238278;
-Received: from 30.236.60.242(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W3uXJtx_1712238278)
-          by smtp.aliyun-inc.com;
-          Thu, 04 Apr 2024 21:44:39 +0800
-Message-ID: <7c3733b7-a3f2-45ba-9b8d-880957ed5cdf@linux.alibaba.com>
-Date: Thu, 4 Apr 2024 21:44:37 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UDivKTfd"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 434EINXJ017808;
+	Thu, 4 Apr 2024 14:56:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=5Zfpe6oWhfW4sW6J1O2VoKZ7ZJWinYmtxRJeM4U3kT0=;
+ b=UDivKTfdDU61hcnqbqnLJLen20YUObYu+CBTXRvMQG6VnNrKdgrkYxv5Lenh1GQYzbrk
+ xwizfdg2OkQ7LUPyw1cqtwzM0elmgzGKDG34OLWBlUpXkj1Rxfc8TH4tt3MjegtxtMwX
+ f5Yn4ZCqReFvMdl4iqNXClShMYJEuELquXbujen9wJVZ/sQ6rEJigbQPkFwC4EDE7sbH
+ Gd/DEKfdAsSWCSQNOtVIbOTe1W22nx1l2y+/ZYMLUMfOZVp96vD5THHGVD5wibEyZlVP
+ irUfJXiHDhesBJo9Co957afvunUWhmoq6CJss8NavZZ16PISRd4yNTlfCm2D1lT4rCBh 7w== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9wuk83qd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 04 Apr 2024 14:56:45 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 434DgYkN022293;
+	Thu, 4 Apr 2024 14:56:45 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3x9eq0cr8f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 04 Apr 2024 14:56:45 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 434Eudax17629522
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 4 Apr 2024 14:56:41 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5D67620043;
+	Thu,  4 Apr 2024 14:56:39 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BE33220040;
+	Thu,  4 Apr 2024 14:56:38 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.171.24.188])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu,  4 Apr 2024 14:56:38 +0000 (GMT)
+Date: Thu, 4 Apr 2024 16:56:36 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Matthew Wilcox <willy@infradead.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Vasily
+ Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 0/2] Convert some gmap functions to use folios
+Message-ID: <20240404165636.3d8eb24f@p-imbrenda>
+In-Reply-To: <Zg6tb7DMYGF57o2i@casper.infradead.org>
+References: <20240322161149.2327518-1-willy@infradead.org>
+	<20240326074127.6078-B-hca@linux.ibm.com>
+	<Zg6tb7DMYGF57o2i@casper.infradead.org>
+Organization: IBM
+X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH net-next v5 05/11] net/smc: implement DMB-related
- operations of loopback-ism
-To: Niklas Schnelle <schnelle@linux.ibm.com>,
- Gerd Bayer <gbayer@linux.ibm.com>, wintera@linux.ibm.com,
- twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org
-References: <20240324135522.108564-1-guwen@linux.alibaba.com>
- <20240324135522.108564-6-guwen@linux.alibaba.com>
- <9a17268d4046f99b30f3620079b5749a9ddc5cd9.camel@linux.ibm.com>
- <92b0c4b1-4844-4adf-a15a-a9323fb859e1@linux.alibaba.com>
- <6d3cfa04c9826a24f0ad8d401940af3ad02a67bc.camel@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <6d3cfa04c9826a24f0ad8d401940af3ad02a67bc.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: WaylIibrGnNWblpLvLZkOd1u0uJdFsNK
+X-Proofpoint-GUID: WaylIibrGnNWblpLvLZkOd1u0uJdFsNK
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-04_10,2024-04-04_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=981
+ impostorscore=0 bulkscore=0 clxscore=1011 suspectscore=0
+ priorityscore=1501 phishscore=0 lowpriorityscore=0 adultscore=0 mlxscore=0
+ spamscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404040103
 
+On Thu, 4 Apr 2024 14:38:55 +0100
+Matthew Wilcox <willy@infradead.org> wrote:
 
-
-On 2024/4/4 19:27, Niklas Schnelle wrote:
-> On Thu, 2024-04-04 at 18:20 +0800, Wen Gu wrote:
->>
->> On 2024/4/4 01:20, Gerd Bayer wrote:
->>> On Sun, 2024-03-24 at 21:55 +0800, Wen Gu wrote:
->>>
->>> When I instrumented this to see, why I still see tons of my other
->>> temporary instrumentation messages from the "ism" driver, I found that
->>> in my setup loopback-ism is used rather infrequently.
->>>
->>> I suspect this is due to how the SMC proposals are constructed in
->>> net/smc/af_smc.c and net/smc/smc_pnet.c - and later evaluated in
->>> smc_check_ism_v2_match() - where there is a first-come-first-serve
->>> selection.
->>>
->>> I wonder if one should change that to favour loopback-ism over "real"
->>> ISM devices - and how this could be achieved elegantly.
->>>
->>> Just some food for thought... Probably little you can do on x86.
->>>
->>
->> Yes, it is about the priority of available ISM devices, and now it
->> is decided by their order in the smcd_dev_list. The later registered
->> ISMv2 devices(without pnetid) will be added to the beginning of the
->> list (see smcd_register_dev()). So there is a probability that
->> loopback-ism will not be ranked first, since it is added into list
->> earlier during smc_init().
->>
->> If we have the runtime switch of loopback-ism, we can re-active the
->> loopback-ism, that make it be re-added into the beginning of the dev
->> list and be chosen first. Or a new netlink command to adjust the slot
->> order of available ISM devices in the list. As we discussed before,
->> that could be tasks in stage 1 or stage 2.
->>
->> Thanks!
+> On Tue, Mar 26, 2024 at 08:41:27AM +0100, Heiko Carstens wrote:
+> > On Fri, Mar 22, 2024 at 04:11:45PM +0000, Matthew Wilcox (Oracle) wrote:  
+> > > struct page is going to lose its refcount (someday) and as part of
+> > > that page_ref_freeze() will go away.  s390's ultravisor is one of
+> > > the few remaining places that uses it, so convert it over to folios.
+> > > From previous interactions, I understand that ultravisor doesn't support
+> > > large folios, so this simply declines to make large folios secure.
+> > > I think you'd be better off splitting the folio if it is large, but
+> > > that's something I'd rather leave to someone who can test it.  
+> > 
+> > Christian, Janosch, or Claudio, could you have a look at this please;
+> > and provide an ACK if this is ok with you?  
 > 
-> Maybe when adding the ISM devices we could instead make sure that all
-> ISM devices are added after loopback and loopback is added in the
-> beginning. I think loopback should always be preferred and would
-> consider it a bug if it isn't faster too. Between virtio-ism and ISM it
-> may be less clear so maybe for stage 2 we would want a priority setting
-> and then insert ordered by priority. Thoughts?
-I have no objection. If we all agree, I will keep it at the beginning of the list.
+> Ping?
 
-Thanks!
+hi,
 
+we've been looking into it and running some tests to see if anything
+catches fire. I thought someone had replied to tell you, but apparently
+it should have been me, and I forgot :)
+
+
+you can tack this on:
+
+Acked-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
