@@ -1,67 +1,67 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4766B1D537;
-	Thu,  4 Apr 2024 15:15:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27EBA2C189;
+	Thu,  4 Apr 2024 15:24:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712243734; cv=none; b=WDOKEuZkAhliHy1n33wMMKUv/PzhRhlFrEqlZaEw2UBtraWyDzbKeljvupnwTPiWVx/PAI1FpXLxMA9tFDjsmmmf5itj8q484Vk+Xz3ZKqtkHRPRPHgO9zyvnFMF5JghKRkq2n6qXruv70fReonS7Y8ikb1L4bytIc/zsjDwlbo=
+	t=1712244262; cv=none; b=Ak1xDXxPAJo9KbaYPlmz9gIWbirUU+CsUcCDOv0uApMKt1C0x07XiDh5VUFkLkW7ntHIjNwgqKNwteZbavI0iRfyW7OAENbvxhfsGrCIVkVvKiARq2CtUOKBQOA2deuOg5UuRTFsGvdKcHesUR3EObKWk1paSoRexkLXE5Pz0rU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712243734; c=relaxed/simple;
-	bh=phx8it4Rc5OV6ul+lZvVZLQ6ZP8J9uT1AFJPwVkAUw8=;
+	s=arc-20240116; t=1712244262; c=relaxed/simple;
+	bh=dbQ1trhuJKXs3anCNmSXg45s7lhrffrC+0yZB/m8usA=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=lPefhgfcKSAm0VgGBLIx/Bnmkr5yNZsqADxwFxlp28TTyIfdYdIsV6AeChaU5079R750jpOhLIx7MwPIBfHFJsQZ2DcFKEsQM698JeM4Vw0GM/dw9TbnNrwWz1KnpoGene4muSu/HTl0GuyuC2y6FkQ99wHV3dtvi9vKnigpKfU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CrV1UXTj; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:MIME-Version; b=pxKGaWcNvFh0JljXsm09aoEF9iiBUq8p3HMBgQL5dKe9PXtnHavPaQ3Y7c3DhT8WmRx9Ky9EZuC8s1RGKjCB9f4wr/mting/gcKHsI9gdW7AHBkrAn0C/s8T+zen/uXg7usbnyj3DB6YTPUlIiVfq84m7Ria1tysEKFvVPMsrMw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JqL4StCT; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CrV1UXTj"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 434EIio0017997;
-	Thu, 4 Apr 2024 15:15:26 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JqL4StCT"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 434EvUjW000772;
+	Thu, 4 Apr 2024 15:24:18 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
  from : to : cc : date : in-reply-to : references : content-type :
  content-transfer-encoding : mime-version; s=pp1;
- bh=yZBOTaaWjEwpYDYXL847pAYDYbLtO4xPzUdVp+Kfm4k=;
- b=CrV1UXTj+Z10hFJR5x6yAhWl2yPi7jnT2Uy9Qwbgd4oCyCDtKpYMFONW94B8taadZmis
- ZYl97H2cKjyzwHzHUs7RU/xkaVOpv3evxl3cswbzOk8oF+IIKsRaNSeU8wuOqffJm7Sm
- hgtT4PUjcyCJ/wuGUzYjS/O0XcwPhBW11X5Ui2dH0wqgvbQEzBVOFyCzlq0OInAjm8mh
- aAt7+Tfo5Rj/67phDBXR8e5Z/GiY/V8ASlJ591fi1MjbgJrVmj8nOmsfrofNEmX6AW1g
- 6DD9tTBzn1GRytl8KzQ3YlFmQlVR+fnYZtweqDX5cs8OYKtLlxboBGjPNkO/7mJ1AbrR iA== 
+ bh=dbQ1trhuJKXs3anCNmSXg45s7lhrffrC+0yZB/m8usA=;
+ b=JqL4StCT9PKfW11g4MiIN2hsWq1+JyGXhJ9iPJsQ/1N48JbiLQ2GCoooOI17/ceSYvCi
+ jRwKDYqM7FyGP5Kbel45PPt79M7cyvQRlNjTB+jEOBvtx7VYD+ufvexsBRKEChadJGCa
+ vZbDPPqsmdwwl0uiRkEDQIrTintvgOVrQzsN9MYBL9v3QM+ViBOWwUVQzCbfTQbfinsX
+ W+AVaddjJdn0sjTvW/kvv9VNapsqp3725dDI7PAoViRUutPXTjkBwwo1AkD6/S8VGh2Q
+ KBO/TN0DrpttUh+6yz89ogPvfDN/rAzzYyFtu5E/3F6Jcl1IyiliRo/DThPrusYIneOJ mg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9wuk85a5-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9xdu830w-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Apr 2024 15:15:26 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 434FCZTU011588;
-	Thu, 4 Apr 2024 15:15:25 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9wuk85a1-1
+	Thu, 04 Apr 2024 15:24:17 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 434FIB3n004639;
+	Thu, 4 Apr 2024 15:24:17 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9xdu830p-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Apr 2024 15:15:25 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 434DcRuM007696;
-	Thu, 4 Apr 2024 15:15:25 GMT
+	Thu, 04 Apr 2024 15:24:16 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 434DcZuG031075;
+	Thu, 4 Apr 2024 15:24:15 GMT
 Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x9epwmuat-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x9epxmw3c-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Apr 2024 15:15:24 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 434FFJ5x50528614
+	Thu, 04 Apr 2024 15:24:15 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 434FOAnO39387526
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 4 Apr 2024 15:15:21 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 78A9C2004D;
-	Thu,  4 Apr 2024 15:15:19 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 149A120043;
-	Thu,  4 Apr 2024 15:15:18 +0000 (GMT)
+	Thu, 4 Apr 2024 15:24:12 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4739B20043;
+	Thu,  4 Apr 2024 15:24:10 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F374E20040;
+	Thu,  4 Apr 2024 15:24:08 +0000 (GMT)
 Received: from [9.171.68.41] (unknown [9.171.68.41])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  4 Apr 2024 15:15:17 +0000 (GMT)
-Message-ID: <7291dd1b2d16fd9bbd90988ac5bcc3a46d17e3f4.camel@linux.ibm.com>
-Subject: Re: [RFC PATCH net-next v5 04/11] net/smc: implement some
- unsupported operations of loopback-ism
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  4 Apr 2024 15:24:08 +0000 (GMT)
+Message-ID: <60b4aec0b4bf4474d651b653c86c280dafc4518a.camel@linux.ibm.com>
+Subject: Re: [RFC PATCH net-next v5 05/11] net/smc: implement DMB-related
+ operations of loopback-ism
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 To: Wen Gu <guwen@linux.alibaba.com>, Gerd Bayer <gbayer@linux.ibm.com>,
         wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
@@ -71,14 +71,14 @@ To: Wen Gu <guwen@linux.alibaba.com>, Gerd Bayer <gbayer@linux.ibm.com>,
 Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
         tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Date: Thu, 04 Apr 2024 17:15:17 +0200
-In-Reply-To: <7a0fc481-658e-4c99-add7-ccbd5f9dce1e@linux.alibaba.com>
+Date: Thu, 04 Apr 2024 17:24:08 +0200
+In-Reply-To: <7c3733b7-a3f2-45ba-9b8d-880957ed5cdf@linux.alibaba.com>
 References: <20240324135522.108564-1-guwen@linux.alibaba.com>
-	 <20240324135522.108564-5-guwen@linux.alibaba.com>
-	 <3122eece5b484abcf8d23f85d6c18c36f0b939ff.camel@linux.ibm.com>
-	 <1db6ccab-b49f-45d2-a93c-05b0f79371a3@linux.alibaba.com>
-	 <3b3ff37643e9030ec1246e67720683a2cf5660e5.camel@linux.ibm.com>
-	 <7a0fc481-658e-4c99-add7-ccbd5f9dce1e@linux.alibaba.com>
+	 <20240324135522.108564-6-guwen@linux.alibaba.com>
+	 <9a17268d4046f99b30f3620079b5749a9ddc5cd9.camel@linux.ibm.com>
+	 <92b0c4b1-4844-4adf-a15a-a9323fb859e1@linux.alibaba.com>
+	 <6d3cfa04c9826a24f0ad8d401940af3ad02a67bc.camel@linux.ibm.com>
+	 <7c3733b7-a3f2-45ba-9b8d-880957ed5cdf@linux.alibaba.com>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k/ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc3/1pjpNlSaX/qg3ZM8+/EiSGc7uEPklLYu3gRGxcWV/944HdUyLcnjrZwCn2+gg9ncVJjsimS0ro/2wU2RPE4ju6NMBn5Go26sAj1owdYQQv9t0d71CmZS9Bh+2+cLjC7HvyTHKFxVGOznUL+j1a45VrVSXQ+nhTVjvgvXR84z10bOvLiwxJZ/00pwNi7uCdSYnZFLQ4S/JGMs4lhOiCGJhJ/9FR7JVw/1t1G9aUlqVp23AXwzbcoV2fxyE/CsVpHcyOWGDahGLcH7QeitN6cjltf9ymw2spBzpRnfFn80nVxgSYVG1dw75ksBAuQ/3e+oTQk4GAa2ShoNVsvR9GYn7rnsDN5pVILDhdPO3J2PGIXa5ipQnvwb3EHvPXyzakYtK50fBUPKk3XnkRwRYEbbPEB7YT+ccF/HioCryqDPWUivXF8qf6Jw5T1mhwukUV1i+QyJzJxGPh19/N2/GK7/yS5wrt0Lwxzevc5g+jX8RyjzywOZGHTVu9KIQiG8Pqx33UxZvykjaqTMjo7kaAdGEkrHZdVHqoPZwhCsgQARAQABtChOaWtsYXMgU2NobmVsbGUgPHNjaG5lbGxlQGxpbnV4LmlibS5jb20+iQJXBBMBCABBAhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAhkBFiEEnbAAstJ1IDCl9y3cr+Q/FejCYJAFAmWVooIFCQWP+TMACgkQr+Q/FejCYJCmLg/+OgZD6wTjooE77/ZHmW6Egb5nUH6DU+2nMHMHUupkE3dKuLcuzI4aEf/6wGG2xF/LigMRrbb1iKRVk/VG/swyLh/OBOTh8cJnhdmURnj3jhaef
 	zslA1wTHcxeH4wMGJWVRAhOfDUpMMYV2J5XoroiA1+acSuppelmKAK5voVn9/fNtrVr6mgBXT5RUnmW60UUq5z6a1zTMOe8lofwHLVvyG9zMgv6Z9IQJc/oVnjR9PWYDUX4jqFL3yO6DDt5iIQCN8WKaodlNP61lFKAYujV8JY4Ln+IbMIV2h34cGpIJ7f76OYt2XR4RANbOd41+qvlYgpYSvIBDml/fT2vWEjmncm7zzpVyPtCZlijV3npsTVerGbh0Ts/xC6ERQrB+rkUqN/fx+dGnTT9I7FLUQFBhK2pIuD+U1K+A+EgwUiTyiGtyRMqz12RdWzerRmWFo5Mmi8N1jhZRTs0yAUn3MSCdRHP1Nu3SMk/0oE+pVeni3ysdJ69SlkCAZoaf1TMRdSlF71oT/fNgSnd90wkCHUK9pUJGRTUxgV9NjafZy7sx1Gz11s4QzJE6JBelClBUiF6QD4a+MzFh9TkUcpG0cPNsFfEGyxtGzuoeE86sL1tk3yO6ThJSLZyqFFLrZBIJvYK2UiD+6E7VWRW9y1OmPyyFBPBosOvmrkLlDtAtyfYInO0KU5pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNjaG5lbGxlQGlibS5jb20+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAAstJ1IDCl9y3cr+Q/FejCYJAFAmWVoosFCQWP+TMACgkQr+Q/FejCYJB7oxAAksHYU+myhSZD0YSuYZl3oLDUEFP3fm9m6N9zgtiOg/GGI0jHc+Tt8qiQaLEtVeP/waWKgQnje/emHJOEDZTb0AdeXZk+T5/ydrKRLmYC6rPge3ue1yQUCiA+T72O3WfjZILI2yOstNwd1f0epQ32YaAvM+QbKDloJSmKhGWZlvdVUDXWkS6/maUtUwZpddFY8InXBxsYCbJsqiKF3kPVD515/6keIZmZh1cTIFQ+Kc+UZaz0MxkhiCyWC4
@@ -97,96 +97,73 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: t-ny1DfZ8OHmWGhmmy2yitYCVoMXUCWd
-X-Proofpoint-GUID: wa4GxS-CAInGvwY7UP1oU9Ly64X8TC5F
+X-Proofpoint-GUID: _4qqAcs-zfpBcBywPobFkOZTwfHYnlNU
+X-Proofpoint-ORIG-GUID: Pr24ORbtycK8UlERMQhxaKdADfRvP5Z8
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-04-04_11,2024-04-04_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- impostorscore=0 bulkscore=0 clxscore=1015 suspectscore=0
- priorityscore=1501 phishscore=0 lowpriorityscore=0 adultscore=0 mlxscore=0
- spamscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2404040105
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ clxscore=1015 spamscore=0 impostorscore=0 bulkscore=0 lowpriorityscore=0
+ mlxlogscore=999 suspectscore=0 priorityscore=1501 mlxscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
+ definitions=main-2404040107
 
-On Thu, 2024-04-04 at 21:12 +0800, Wen Gu wrote:
+On Thu, 2024-04-04 at 21:44 +0800, Wen Gu wrote:
 >=20
-> On 2024/4/4 19:42, Niklas Schnelle wrote:
-> > On Thu, 2024-04-04 at 17:32 +0800, Wen Gu wrote:
+> On 2024/4/4 19:27, Niklas Schnelle wrote:
+> > On Thu, 2024-04-04 at 18:20 +0800, Wen Gu wrote:
 > > >=20
-> > > On 2024/4/4 00:25, Gerd Bayer wrote:
+> > > On 2024/4/4 01:20, Gerd Bayer wrote:
 > > > > On Sun, 2024-03-24 at 21:55 +0800, Wen Gu wrote:
-> > > > > This implements some operations that loopback-ism does not suppor=
-t
-> > > > > currently:
-> > > > >    - vlan operations, since there is no strong use-case for it.
-> > > > >    - signal_event operations, since there is no event to be proce=
-ssed
-> > > > > by the loopback-ism device.
 > > > >=20
-> > > > Hi Wen,
+> > > > When I instrumented this to see, why I still see tons of my other
+> > > > temporary instrumentation messages from the "ism" driver, I found t=
+hat
+> > > > in my setup loopback-ism is used rather infrequently.
 > > > >=20
-> > > > I wonder if the these operations that are not supported by loopback=
--ism
-> > > > should rather be marked "optional" in the struct smcd_ops, and the
-> > > > calling code should call these only when they are implemented.
+> > > > I suspect this is due to how the SMC proposals are constructed in
+> > > > net/smc/af_smc.c and net/smc/smc_pnet.c - and later evaluated in
+> > > > smc_check_ism_v2_match() - where there is a first-come-first-serve
+> > > > selection.
 > > > >=20
-> > > > Of course this would mean more changes to net/smc/smc_core.c - but
-> > > > loopback-ism could omit these "boiler-plate" functions.
+> > > > I wonder if one should change that to favour loopback-ism over "rea=
+l"
+> > > > ISM devices - and how this could be achieved elegantly.
+> > > >=20
+> > > > Just some food for thought... Probably little you can do on x86.
 > > > >=20
 > > >=20
-> > > Hi Gerd.
+> > > Yes, it is about the priority of available ISM devices, and now it
+> > > is decided by their order in the smcd_dev_list. The later registered
+> > > ISMv2 devices(without pnetid) will be added to the beginning of the
+> > > list (see smcd_register_dev()). So there is a probability that
+> > > loopback-ism will not be ranked first, since it is added into list
+> > > earlier during smc_init().
 > > >=20
-> > > Thank you for the thoughts! I agree that checks like 'if(smcd->ops->x=
-xx)'
-> > > can avoid the device driver from implementing unsupported operations.=
- But I
-> > > am afraid that which operations need to be defined as 'optional' may =
-differ
-> > > from different device perspectives (e.g. for loopback-ism they are vl=
-an-related
-> > > opts and signal_event). So I perfer to simply let the smc protocol as=
-sume
-> > > that all operations have been implemented, and let drivers to decide =
-which
-> > > ones are unsupported in implementation. What do you think?
+> > > If we have the runtime switch of loopback-ism, we can re-active the
+> > > loopback-ism, that make it be re-added into the beginning of the dev
+> > > list and be chosen first. Or a new netlink command to adjust the slot
+> > > order of available ISM devices in the list. As we discussed before,
+> > > that could be tasks in stage 1 or stage 2.
 > > >=20
 > > > Thanks!
-> > >=20
 > >=20
-> > I agree with Gerd, in my opinion it is better to document ops as
-> > optional and then allow their function pointers to be NULL and check
-> > for that. Acting like they are supported and then they turn out to be
-> > nops to me seems to contradict the principle of least surprises. I also
-> > think we can find a subset of mandatory ops without which SMC-D is
-> > impossible and then everything else should be optional.
->=20
-> I see. If we all agree to classify smcd_ops into mandatory and optional o=
-nes,
-> I'll add a patch to mark the optional ops and check if they are implement=
-ed.
-
-Keep in mind I don't speak for the SMC maintainers but that does sound
-reasonable to me.
-
->=20
-> >=20
-> > As a first guess I think the following options may be mandatory:
-> >=20
-> > * query_remote_gid()
-> > * register_dmb()/unregister_dmb()
-> > * move_data()
-> >    For this one could argue that either move_data() or
-> >    attach_dmb()/detach_dmb() is required though personally I would
-> >    prefer to always have move_data() as a fallback and simple API
-> > * supports_v2()
-> > * get_local_gid()
-> > * get_chid()
-> > * get_dev()
-> I agree with this classification. Just one point, maybe we can take
-> supports_v2() as an optional ops, like support_dmb_nocopy()? e.g. if
-> it is not implemented, we treat it as an ISMv1.
+> > Maybe when adding the ISM devices we could instead make sure that all
+> > ISM devices are added after loopback and loopback is added in the
+> > beginning. I think loopback should always be preferred and would
+> > consider it a bug if it isn't faster too. Between virtio-ism and ISM it
+> > may be less clear so maybe for stage 2 we would want a priority setting
+> > and then insert ordered by priority. Thoughts?
+> I have no objection. If we all agree, I will keep it at the beginning of =
+the list.
 >=20
 > Thanks!
+>=20
+>=20
 
-Interpreting a NULL supports_v2() as not supporting v2 sounds
-reasonable to me.
+I think this is a decision that needs to be made by the SMC maintainers
+and Wenjia will be back next week. That said the current code basically
+prioritizes ISM devices without that having been a conscious and
+documented decision. Also note that due to hotplug an LPAR could be
+using loopback-ism happily until suddenly an ISM device is hot plugged
+and new connections suddenly switch to ISM.
