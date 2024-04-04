@@ -1,32 +1,32 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDB0559B61;
-	Thu,  4 Apr 2024 08:46:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 567DD71730;
+	Thu,  4 Apr 2024 09:32:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712220399; cv=none; b=HqS8edkyjqPWWMIJoSSwO2Vfc5E/5MLiHkYXc16PAx5JFXxL9fz6szv7/lxlgfT5K/2CHOe/A+FXpPQKYBnn1fZNTgl3XI1DTxzbxcP/NLCzsgeOvU2uRUAy4Y7vNOVsFlIay0Flg9IdWb0BW1zNXCq3NVtgmt6FLlowcOvLx5Q=
+	t=1712223131; cv=none; b=hygvL4P14CwlKGTD8dDH7yydlY1jqJ35pDpYrx5LGiiHrPuyO6GhtDWEs2ZsfWzStRx0YJmNq9lwYkBTE1LhYavajBRtMaiGIQpcfFWvFnEgHf5vNItDrCGvAHxaqSnZsi/e/Tgf7lDnf2SLsPkOZ0HtVUnGstgDqd56Sj1co50=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712220399; c=relaxed/simple;
-	bh=ULy23BdVwOg3nM6dJBIocsCHWzDPBNYc7lsB3kTJzMw=;
+	s=arc-20240116; t=1712223131; c=relaxed/simple;
+	bh=NTkIUFsN+o79sd3pZSLcsMIjH/xgf74EVtlGOhG5jsc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pyEtYnJiVMy+tYiTkcq2aCyuzc0CtCPc1o1b+s02X98rjRSU2C4xg4Y1aFDSW7zhqfQefIqFywqTED/PrTuMA02Nexozf6wNpfNG+77E0sKNjZ3y93kHPoZjurKGtHv3dfABzJ6nELcKS+otMUeFLAkiFvsOlgZiCgSiI4XvvMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=x3LnyKNw; arc=none smtp.client-ip=115.124.30.119
+	 In-Reply-To:Content-Type; b=XG99hH/yiLkczDToWy6gldXKdoTufH+FLb6oif/8raPTAzNnjIu8GLL5CTJbbv2CzoCd/ZkcDNx6CWKfJogpiQKmN1z/f0GkiDCev+9iVzX4dJOpQ8zt7DNml4AEMenYESiWyzhqhc7Syeknp5Bwk9rkLe7ECn+xwTwKSqO8Xeg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=OpQiInbP; arc=none smtp.client-ip=115.124.30.100
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="x3LnyKNw"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="OpQiInbP"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1712220387; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=yN9NXHIIQrWMKDXF9lcAAvhHqGpWd7OG1nzyd2CnLSU=;
-	b=x3LnyKNwevqaNsiZ/j9nzCSkb6I/mQl1HBz+lWGUtd+z19XqY/6gmmMNNsyHHZSoQ2HBT6z5DJdCGwfGGXMFo1vt1QzGWCAUMiYxQUdYCjwCHbNqqUwFbyg79I3yWjdCSbEM0G3DtTb4hzIOAMzxuKwJmF/wTQm0hZP4HPe0yyQ=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W3u3LIx_1712220385;
-Received: from 30.39.185.155(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W3u3LIx_1712220385)
+	t=1712223126; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=vcxcoTPPCvHJeWJFRiHn9mDGeolKMHFN0SNJlYjkGaw=;
+	b=OpQiInbPmiTtgXoqMNav2dCQ+hrEWjUHoWO//wF9a/2hqIBgmuCkP7zdRUPfhwmKNd1JgbwENlILZSQoamFBf/TtLrAspbiPA/67m3eMWx9oKTssDu0qPpVomQkAvebeYtswy3Smr6IDy1Zn5rV2Nmng91iRlPazZZBEvkJ2VFE=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W3u1izQ_1712223124;
+Received: from 30.39.185.155(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W3u1izQ_1712223124)
           by smtp.aliyun-inc.com;
-          Thu, 04 Apr 2024 16:46:26 +0800
-Message-ID: <0724c357-1d74-47b8-85cb-bf344eb4cc52@linux.alibaba.com>
-Date: Thu, 4 Apr 2024 16:46:24 +0800
+          Thu, 04 Apr 2024 17:32:05 +0800
+Message-ID: <1db6ccab-b49f-45d2-a93c-05b0f79371a3@linux.alibaba.com>
+Date: Thu, 4 Apr 2024 17:32:03 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -34,8 +34,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH net-next v5 02/11] net/smc: introduce loopback-ism for
- SMC intra-OS shortcut
+Subject: Re: [RFC PATCH net-next v5 04/11] net/smc: implement some unsupported
+ operations of loopback-ism
 To: Gerd Bayer <gbayer@linux.ibm.com>, wintera@linux.ibm.com,
  twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
  agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
@@ -45,129 +45,76 @@ Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
  linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
  netdev@vger.kernel.org
 References: <20240324135522.108564-1-guwen@linux.alibaba.com>
- <20240324135522.108564-3-guwen@linux.alibaba.com>
- <a9e1cdfba05279c36b7b85f327af66cf497d42b9.camel@linux.ibm.com>
+ <20240324135522.108564-5-guwen@linux.alibaba.com>
+ <3122eece5b484abcf8d23f85d6c18c36f0b939ff.camel@linux.ibm.com>
 From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <a9e1cdfba05279c36b7b85f327af66cf497d42b9.camel@linux.ibm.com>
+In-Reply-To: <3122eece5b484abcf8d23f85d6c18c36f0b939ff.camel@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
 
 
-On 2024/4/3 19:27, Gerd Bayer wrote:
+On 2024/4/4 00:25, Gerd Bayer wrote:
 > On Sun, 2024-03-24 at 21:55 +0800, Wen Gu wrote:
->> Configuration of this feature is managed through the config SMC_LO.
+>> This implements some operations that loopback-ism does not support
+>> currently:
+>>   - vlan operations, since there is no strong use-case for it.
+>>   - signal_event operations, since there is no event to be processed
+>> by the loopback-ism device.
 > 
 > Hi Wen,
 > 
-> you could omit building smc_loopback.o if CONFIG_SMC_LO was not set if
-> you included the following fixup-patch. I think it's cleaner to put a
-> few parts of net/smc/af_smc.c under conditional compile rather than
-> have most of the contents of net/smc/smc_loopback.c under #ifdef.
+> I wonder if the these operations that are not supported by loopback-ism
+> should rather be marked "optional" in the struct smcd_ops, and the
+> calling code should call these only when they are implemented.
+> 
+> Of course this would mean more changes to net/smc/smc_core.c - but
+> loopback-ism could omit these "boiler-plate" functions.
 > 
 
-Hi Gerd. That is a really good suggestion. It is much cleaner in this way.
-I will improve it in next version. Thank you very much!
+Hi Gerd.
 
->  From 11a9cfce550f0c4df10eafdd30aa4226d4d522a8 Mon Sep 17 00:00:00 2001
-> From: Gerd Bayer <gbayer@linux.ibm.com>
-> Date: Wed, 3 Apr 2024 11:43:36 +0200
-> Subject: [PATCH] fixup! net/smc: introduce loopback-ism for SMC intra-
-> OS
->   shortcut
+Thank you for the thoughts! I agree that checks like 'if(smcd->ops->xxx)'
+can avoid the device driver from implementing unsupported operations. But I
+am afraid that which operations need to be defined as 'optional' may differ
+from different device perspectives (e.g. for loopback-ism they are vlan-related
+opts and signal_event). So I perfer to simply let the smc protocol assume
+that all operations have been implemented, and let drivers to decide which
+ones are unsupported in implementation. What do you think?
+
+Thanks!
+
+>>   
+>> +static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
+>> +{
+>> +	return -EOPNOTSUPP;
+>> +}
+>> +
+>> +static int smc_lo_del_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
+>> +{
+>> +	return -EOPNOTSUPP;
+>> +}
+>> +
+>> +static int smc_lo_set_vlan_required(struct smcd_dev *smcd)
+>> +{
+>> +	return -EOPNOTSUPP;
+>> +}
+>> +
+>> +static int smc_lo_reset_vlan_required(struct smcd_dev *smcd)
+>> +{
+>> +	return -EOPNOTSUPP;
+>> +}
+>> +
+>> +static int smc_lo_signal_event(struct smcd_dev *dev, struct smcd_gid
+>> *rgid,
+>> +			       u32 trigger_irq, u32 event_code, u64
+>> info)
+>> +{
+>> +	return 0;
+>> +}
+>> +
 > 
-> ---
->   net/smc/Makefile       | 5 +++--
->   net/smc/af_smc.c       | 6 ++++++
->   net/smc/smc_loopback.c | 8 --------
->   3 files changed, 9 insertions(+), 10 deletions(-)
+> Just a pattern that I saw elsewhere in the kernel...
 > 
-> diff --git a/net/smc/Makefile b/net/smc/Makefile
-> index a8c37111abe1..3b73c9d561bb 100644
-> --- a/net/smc/Makefile
-> +++ b/net/smc/Makefile
-> @@ -4,5 +4,6 @@ obj-$(CONFIG_SMC)	+= smc.o
->   obj-$(CONFIG_SMC_DIAG)	+= smc_diag.o
->   smc-y := af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o
-> smc_llc.o
->   smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o
-> smc_netlink.o smc_stats.o
-> -smc-y += smc_tracepoint.o smc_loopback.o
-> -smc-$(CONFIG_SYSCTL) += smc_sysctl.o
-> +smc-y += smc_tracepoint.o
-> +smc-$(CONFIG_SMC_LO)	+= smc_loopback.o
-> +smc-$(CONFIG_SYSCTL)	+= smc_sysctl.o
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index fce7a5b2ce5c..bcbf600cd271 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -3574,11 +3574,13 @@ static int __init smc_init(void)
->   		goto out_sock;
->   	}
->   
-> +#if IS_ENABLED(CONFIG_SMC_LO)
->   	rc = smc_loopback_init();
->   	if (rc) {
->   		pr_err("%s: smc_loopback_init fails with %d\n",
-> __func__, rc);
->   		goto out_ib;
->   	}
-> +#endif
->   
->   	rc = tcp_register_ulp(&smc_ulp_ops);
->   	if (rc) {
-> @@ -3590,8 +3592,10 @@ static int __init smc_init(void)
->   	return 0;
->   
->   out_lo:
-> +#if IS_ENABLED(CONFIG_SMC_LO)
->   	smc_loopback_exit();
->   out_ib:
-> +#endif
->   	smc_ib_unregister_client();
->   out_sock:
->   	sock_unregister(PF_SMC);
-> @@ -3628,7 +3632,9 @@ static void __exit smc_exit(void)
->   	tcp_unregister_ulp(&smc_ulp_ops);
->   	sock_unregister(PF_SMC);
->   	smc_core_exit();
-> +#if IS_ENABLED(CONFIG_SMC_LO)
->   	smc_loopback_exit();
-> +#endif
->   	smc_ib_unregister_client();
->   	smc_ism_exit();
->   	destroy_workqueue(smc_close_wq);
-> diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
-> index 994fe39930ad..8d0181635ded 100644
-> --- a/net/smc/smc_loopback.c
-> +++ b/net/smc/smc_loopback.c
-> @@ -19,7 +19,6 @@
->   #include "smc_ism.h"
->   #include "smc_loopback.h"
->   
-> -#if IS_ENABLED(CONFIG_SMC_LO)
->   #define SMC_LO_V2_CAPABLE	0x1 /* loopback-ism acts as ISMv2 */
->   #define SMC_LO_SUPPORT_NOCOPY	0x1
->   #define SMC_DMA_ADDR_INVALID	(~(dma_addr_t)0)
-> @@ -442,20 +441,13 @@ static void smc_lo_dev_remove(void)
->   	smc_lo_dev_exit(lo_dev);
->   	put_device(&lo_dev->dev); /* device_initialize in
-> smc_lo_dev_probe */
->   }
-> -#endif
->   
->   int smc_loopback_init(void)
->   {
-> -#if IS_ENABLED(CONFIG_SMC_LO)
->   	return smc_lo_dev_probe();
-> -#else
-> -	return 0;
-> -#endif
->   }
->   
->   void smc_loopback_exit(void)
->   {
-> -#if IS_ENABLED(CONFIG_SMC_LO)
->   	smc_lo_dev_remove();
-> -#endif
->   }
+> Thanks,
+> Gerd
