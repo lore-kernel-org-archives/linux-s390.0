@@ -1,179 +1,149 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4E968061C;
-	Thu,  4 Apr 2024 11:10:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81B0C811F8;
+	Thu,  4 Apr 2024 11:27:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712229039; cv=none; b=Fnc94i+olI01j9U452kuwvw8Gp3lp7kjFMdOsT6OcCWFtB0hUQ9LWxkotnPeihqWKxPI7LO97VIhHhnlQCW7b3pKOaO4knMr82BLXIdgQogPNvucun1E0AXP+P3yDLXF5Pkl7gPR7Eg+8+VK8vfbvg1fnzFwm8QLh95TfedlERQ=
+	t=1712230074; cv=none; b=jI3d/ZBqMHIgPtwQIRf5LOXXvbuyaEfiLPdxf73HTWQZezwezIxhWytEuKmNyV1O0FmB+GU4g3qPeF8RH3fNY7lrQwWTcO30dLSZjM7JJS+xnjXvSq1/LPi23YR3PuZ5Opw+d6LBywJZR7w1JJM7x7ZtVBChYjS5nq6JLtkzXmo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712229039; c=relaxed/simple;
-	bh=WMjkJTdFFtjI0VIdYjo+49cEcxDsHkkR20fgJigQFhA=;
+	s=arc-20240116; t=1712230074; c=relaxed/simple;
+	bh=+jHFERI1GgeMfz30niMt948PlLrx2icxJxsL8auktG8=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=ciJk62eRbEw+nwJ5Ia317eMZksVKTu6awgCXuM1ihskeSiMHA3Xrt9zoaxUVc3nWyciJr2HcfZjcXcsoxMvvugIjoWyfk0saBJRKsakWCsL73a60Xc7SurbMy9Nhn8EO2cuRf2gKDqDAbIfZw1hYDiyF50Zpynqv4pkWY5DQ1vA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dIsFVDq9; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:MIME-Version; b=BV3IsGfYWzqHGzD34mGc+kvJ2ci6DMKtV9B4mxxB40CNSVDQ+188mTYaJ9EFryk+ZgvcLuMvQMNIluXvRAKYLQeMLsH1any4X9/Mgfu9zL+T0bbFCxHq0gNCfUqBCuyxonAr1XWgqaH+DjU4K6M7Sd1qSnO+OaGcYQtQFtZ/GWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ICOuCdeB; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dIsFVDq9"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 434AghNM003847;
-	Thu, 4 Apr 2024 11:10:33 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ICOuCdeB"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 434BRHRN020162;
+	Thu, 4 Apr 2024 11:27:49 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
  from : to : cc : date : in-reply-to : references : content-type :
  content-transfer-encoding : mime-version; s=pp1;
- bh=Y7rT3wbvNimPqRZV8+pCJV9SipoHmQS0tWVux4Dh6JU=;
- b=dIsFVDq90RNMlQV9p8VjF8wXddDqpYlJ0Uj9r6SXsembIoe2YyG69JfHf9lNr/AUjKdR
- PlCbf+eVsDgqryZKQnXJsQrwCg2Bmy0pL7WrqTwvL53srkwXduuktcmyhzG3tePwZpEm
- BTQknRou08R9eYk3yuDIShFBJRbqNyHqyBMUVPXi2bXgmKilpxX09MTkdCz2n3ZBU3Jj
- reRiaNCuEhFekyTd6HA96gmPTztzUggfUvb/b+YBgKhDEbzSrximViW/lpaZ8/j7qxHB
- VqjE7u+pLO5DRDPxxzmo+4uWGLqWHghL47yWL0QIAApN4dSkMTOCJVluXRM1QJMXH44O vg== 
+ bh=+jHFERI1GgeMfz30niMt948PlLrx2icxJxsL8auktG8=;
+ b=ICOuCdeBA3+pOJ63TTR9Y28V3XKbg28jrwY+Y5hKmZoouV9RbndFlxowdvhb6LfA2p69
+ HKvLNJYGICAKCHbRn/3hPXzgrvb53ysZ7LdmoVw65qxayJ82ymHOS5DeLuD976pjpqY+
+ CHeHl6uNUl0eD5bbgCw98erf1NryIsB0aDzbSJz+M5Fxw5yY0xF5rfGLTWH5gZE5aj8E
+ qW/WbWpkQdl+x0e2gQ8/GBzTsDs3tTB2Aa4ne/Dn3Z01ptp8TV1m2yxtlcf3spO30DBC
+ ZhvESYaqedCAwtQgtQRxYZuE5PeOhQrfosjgRYoXnHdyGBHHpGLJABIzI0yq3M8/INHx iw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9tpar2ft-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9ubc001q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Apr 2024 11:10:33 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 434BAWld014453;
-	Thu, 4 Apr 2024 11:10:32 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9tpar2fm-1
+	Thu, 04 Apr 2024 11:27:48 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 434BRlFY020378;
+	Thu, 4 Apr 2024 11:27:48 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x9ubc001k-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Apr 2024 11:10:32 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 434AG0XZ003612;
-	Thu, 4 Apr 2024 11:10:31 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x9epybqut-1
+	Thu, 04 Apr 2024 11:27:47 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 434AFihO031075;
+	Thu, 4 Apr 2024 11:27:47 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x9epxkte2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Apr 2024 11:10:31 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 434BAQGO48759092
+	Thu, 04 Apr 2024 11:27:47 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 434BRfZj33358438
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 4 Apr 2024 11:10:28 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EA0F12005A;
-	Thu,  4 Apr 2024 11:10:25 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6379720043;
-	Thu,  4 Apr 2024 11:10:25 +0000 (GMT)
-Received: from [9.155.208.153] (unknown [9.155.208.153])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  4 Apr 2024 11:10:25 +0000 (GMT)
-Message-ID: <cb7b036b4d3db02ab70d17ee83e6bc4f2df03171.camel@linux.ibm.com>
-Subject: Re: [PATCH net 1/1] s390/ism: fix receive message buffer allocation
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Paolo Abeni <pabeni@redhat.com>, Wenjia Zhang <wenjia@linux.ibm.com>,
-        Wen Gu <guwen@linux.alibaba.com>, Heiko Carstens <hca@linux.ibm.com>,
-        pasic@linux.ibm.com, schnelle@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        Alexandra Winter
- <wintera@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Vasily
- Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>, Christoph Hellwig <hch@lst.de>
-Date: Thu, 04 Apr 2024 13:10:20 +0200
-In-Reply-To: <68ce59955f13751b3ced82cd557b069ed397085a.camel@redhat.com>
-References: <20240328154144.272275-1-gbayer@linux.ibm.com>
-	 <20240328154144.272275-2-gbayer@linux.ibm.com>
-	 <68ce59955f13751b3ced82cd557b069ed397085a.camel@redhat.com>
+	Thu, 4 Apr 2024 11:27:43 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 64BC320040;
+	Thu,  4 Apr 2024 11:27:41 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 43D6820043;
+	Thu,  4 Apr 2024 11:27:40 +0000 (GMT)
+Received: from [9.171.68.41] (unknown [9.171.68.41])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  4 Apr 2024 11:27:40 +0000 (GMT)
+Message-ID: <6d3cfa04c9826a24f0ad8d401940af3ad02a67bc.camel@linux.ibm.com>
+Subject: Re: [RFC PATCH net-next v5 05/11] net/smc: implement DMB-related
+ operations of loopback-ism
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Wen Gu <guwen@linux.alibaba.com>, Gerd Bayer <gbayer@linux.ibm.com>,
+        wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Date: Thu, 04 Apr 2024 13:27:39 +0200
+In-Reply-To: <92b0c4b1-4844-4adf-a15a-a9323fb859e1@linux.alibaba.com>
+References: <20240324135522.108564-1-guwen@linux.alibaba.com>
+	 <20240324135522.108564-6-guwen@linux.alibaba.com>
+	 <9a17268d4046f99b30f3620079b5749a9ddc5cd9.camel@linux.ibm.com>
+	 <92b0c4b1-4844-4adf-a15a-a9323fb859e1@linux.alibaba.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
 Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.50.4 (3.50.4-2.fc39app4) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: nLjX6XP8Y0FKlwWH22i-JIS_ZPcJZBV3
-X-Proofpoint-ORIG-GUID: rRAtMI-qMNO3waY_57VCcQTalw_2_kpr
 Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: HBK0XHW2Ctxv8spf25CfC94aOb_koXIS
+X-Proofpoint-ORIG-GUID: xm5chBUglIVTce67M6M5GZ9NDfDZy0pl
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-04-04_07,2024-04-04_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 impostorscore=0 phishscore=0 adultscore=0 clxscore=1015
- bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=732 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2404040076
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
+ priorityscore=1501 impostorscore=0 phishscore=0 clxscore=1015 mlxscore=0
+ suspectscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
+ definitions=main-2404040078
 
-On Thu, 2024-04-04 at 10:13 +0200, Paolo Abeni wrote:
-> On Thu, 2024-03-28 at 16:41 +0100, Gerd Bayer wrote:
-> > Since [1], dma_alloc_coherent() does not accept requests for
-> > GFP_COMP anymore, even on archs that may be able to fulfill this.
-> > Functionality that relied on the receive buffer being a compound
-> > page broke at that point:
-> > The SMC-D protocol, that utilizes the ism device driver, passes
-> > receive buffers to the splice processor in a struct
-> > splice_pipe_desc with a single entry list of struct pages. As the
-> > buffer is no longer a compound page, the splice processor now
-> > rejects requests to handle more than a page worth of data.
-> >=20
-> > Replace dma_alloc_coherent() and allocate a buffer with kmalloc()
-> > then create a DMA map for it with dma_map_page(). Since only=20
-> > receive buffers on ISM devices use DMA, qualify the mapping as
-> > FROM_DEVICE.
-> > Since ISM devices are available on arch s390, only and on that arch
-> > all DMA is coherent, there is no need to introduce and export some
-> > kind of dma_sync_to_cpu() method to be called by the SMC-D protocol
-> > layer.
-> >=20
-> > Analogously, replace dma_free_coherent by a two step
-> > dma_unmap_page, then kfree to free the receive buffer.
-> >=20
-> > [1] https://lore.kernel.org/all/20221113163535.884299-1-hch@lst.de/
-> >=20
-> > Fixes: c08004eede4b ("s390/ism: don't pass bogus GFP_ flags to
-> > dma_alloc_coherent")
-> >=20
-
-[...]
-
-> > @@ -315,14 +319,27 @@ static int ism_alloc_dmb(struct ism_dev *ism,
-> > struct ism_dmb *dmb)
-> > =C2=A0	=C2=A0=C2=A0=C2=A0 test_and_set_bit(dmb->sba_idx, ism->sba_bitma=
-p))
-> > =C2=A0		return -EINVAL;
-> > =C2=A0
-> > -	dmb->cpu_addr =3D dma_alloc_coherent(&ism->pdev->dev, dmb-
-> > >dmb_len,
-> > -					=C2=A0=C2=A0 &dmb->dma_addr,
-> > -					=C2=A0=C2=A0 GFP_KERNEL |
-> > __GFP_NOWARN |
-> > -					=C2=A0=C2=A0 __GFP_NOMEMALLOC |
-> > __GFP_NORETRY);
-> > -	if (!dmb->cpu_addr)
-> > -		clear_bit(dmb->sba_idx, ism->sba_bitmap);
-> > +	dmb->cpu_addr =3D kmalloc(dmb->dmb_len, GFP_KERNEL |
-> > __GFP_NOWARN |
-> > +				__GFP_COMP | __GFP_NOMEMALLOC |
-> > __GFP_NORETRY);
+On Thu, 2024-04-04 at 18:20 +0800, Wen Gu wrote:
 >=20
-> Out of sheer ignorance on my side, the __GFP_COMP flag looks
-> suspicious here. I *think* that is relevant only for the page
-> allocator.=20
+> On 2024/4/4 01:20, Gerd Bayer wrote:
+> > On Sun, 2024-03-24 at 21:55 +0800, Wen Gu wrote:
+> >=20
+> > When I instrumented this to see, why I still see tons of my other
+> > temporary instrumentation messages from the "ism" driver, I found that
+> > in my setup loopback-ism is used rather infrequently.
+> >=20
+> > I suspect this is due to how the SMC proposals are constructed in
+> > net/smc/af_smc.c and net/smc/smc_pnet.c - and later evaluated in
+> > smc_check_ism_v2_match() - where there is a first-come-first-serve
+> > selection.
+> >=20
+> > I wonder if one should change that to favour loopback-ism over "real"
+> > ISM devices - and how this could be achieved elegantly.
+> >=20
+> > Just some food for thought... Probably little you can do on x86.
+> >=20
 >=20
-> Why can't you use get_free_pages() (or similar) here? (possibly
-> rounding up to the relevant page_aligned size).=20
+> Yes, it is about the priority of available ISM devices, and now it
+> is decided by their order in the smcd_dev_list. The later registered
+> ISMv2 devices(without pnetid) will be added to the beginning of the
+> list (see smcd_register_dev()). So there is a probability that
+> loopback-ism will not be ranked first, since it is added into list
+> earlier during smc_init().
+>=20
+> If we have the runtime switch of loopback-ism, we can re-active the
+> loopback-ism, that make it be re-added into the beginning of the dev
+> list and be chosen first. Or a new netlink command to adjust the slot
+> order of available ISM devices in the list. As we discussed before,
+> that could be tasks in stage 1 or stage 2.
+>=20
+> Thanks!
 
-Thanks Paolo for your suggestion. However, I wanted to stay as close to
-the implementation pre [1] - that used to use __GFP_COMP, too. I'd
-rather avoid to change interfaces from "cpu_addr" to "struct page*" at
-this point. In the long run, I'd like to drop the requirement for
-compound pages entirely, since that *appears* to exist primarily for a
-simplified handling of the interface to splice_to_pipe() in
-net/smc/smc_rx.c. And of course there might be performance
-implications...
-
-At this point, I'm more concerned about my usage of the DMA API with
-this patch.
-
-Thanks again,
-Gerd
-
-
+Maybe when adding the ISM devices we could instead make sure that all
+ISM devices are added after loopback and loopback is added in the
+beginning. I think loopback should always be preferred and would
+consider it a bug if it isn't faster too. Between virtio-ism and ISM it
+may be less clear so maybe for stage 2 we would want a priority setting
+and then insert ordered by priority. Thoughts?
