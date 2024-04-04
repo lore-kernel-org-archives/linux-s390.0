@@ -1,45 +1,45 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10C76130ACA
-	for <linux-s390@vger.kernel.org>; Thu,  4 Apr 2024 16:37:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89726130E57
+	for <linux-s390@vger.kernel.org>; Thu,  4 Apr 2024 16:37:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712248654; cv=none; b=T7W1JFWQu3msX6PlJvu81ZSDqgE3ziBmC1WSBCb73VKS10HJnvwEGzv0qWk9E9J+Kkti5PJexlGDSn3WSK6dGT16YDEjH9H0ubdv/P4wFEhYQAXnjo1wKeuG+Zpb4gymqhODS2h1uDWNAiDhYOVojR59/p4NYZGAxjMItfpa/0A=
+	t=1712248658; cv=none; b=HQH6usxFgRN9dtYFZD736TtCqYa/q4v6sSemcGrXg74dYw1rOH1Ye8tOvHKx5jonJlfeu63w1+o3Hiwy/JiATMAIp26m+6ppzAwe+xnDv4qzGzrD/5GX2h6Mq7sdCqG7FxHThYrUO6IcMAk6e8FSa2f9CIwjEobgqj4b6R1KJeY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712248654; c=relaxed/simple;
-	bh=aCPNbBl5JKNxYSnh7bsg4bMZsFTro2yxg6Wzh277+Fs=;
+	s=arc-20240116; t=1712248658; c=relaxed/simple;
+	bh=MRKvUOhgbx1JCPqRkZYfqZCtresFIov/9ISiCIQgDR4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rgQSLMOEmobL3fsShHiXQg7/BDPo9PcEsXLbK4+XNTox2DSpBFB3t1z04qku+tuDdxvkr3gblmu6pqzb39MCom29CvPXxdlaF3XChuOzfp/sFq25t716yP3E2pyYCACEZ74W+vjKhbOAscNMVJcvXRulUO4eIlR6j8vRxco/AKE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GzHsUmHy; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=VTDJuluRbM7FLPKOVhNkfDyAdgSrdLLvGUzBaKCRXEtUw7W2c9rzNMVeddrfubYa+NgkxLTvWl/MTdJ3//qwsOONUBWQ9ZaJINt0/5qNKwD/n10TZqq9MX9t+IvRcHeTRjw0rjSx6vxtUSxSXFzbpPp/XHaWOPitLgsXq+QXhYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XjOIYAFp; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GzHsUmHy"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XjOIYAFp"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712248652;
+	s=mimecast20190719; t=1712248655;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=wn9vbDVG4YtRegf5ZBlenhUihh95CLw8Qi8j4juWPxs=;
-	b=GzHsUmHyCQoTsB73RAAyHST7A7/syxAUBkvOuoBnPqxte9SXiojxx6yokp62rebPmwSqju
-	XnYSCktC7WGrMpCE6O9v8TTJqP22+WBkG4j+OHVVOhwzb11c5qbQRGtl/us0O74y2tMJ26
-	uYny28Bq87d0bv68BrFNMfH1hrSSvN8=
+	bh=Q3q+pZ5P34ghakudMZLyDnJaIa/cVUQD0kuqVhWGHj8=;
+	b=XjOIYAFpxvj2lctppkjJdZ4GRCD7Q2wJrFxsh+c8SfrnuY67WJe8eNJbW+QJSfFOPx5TA+
+	OxD/TeT/qbjuYAKgM4nYSpwQL9BQTm8ZRf/Nu7x26/f77EZcYwpCodlgkl6BXkU//cmC//
+	5FWoh8muvxcEN76rEmD5wIra7C8EGkI=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-546-ZB9ewTULNjmhHBCUXGQC7Q-1; Thu, 04 Apr 2024 12:37:26 -0400
-X-MC-Unique: ZB9ewTULNjmhHBCUXGQC7Q-1
+ us-mta-383-iKIcEnTlP7OdF8dgEB13LQ-1; Thu, 04 Apr 2024 12:37:30 -0400
+X-MC-Unique: iKIcEnTlP7OdF8dgEB13LQ-1
 Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9D4C688D01A;
-	Thu,  4 Apr 2024 16:37:25 +0000 (UTC)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9AC5E88D016;
+	Thu,  4 Apr 2024 16:37:29 +0000 (UTC)
 Received: from t14s.fritz.box (unknown [10.39.192.101])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 1ADD23C54;
-	Thu,  4 Apr 2024 16:37:21 +0000 (UTC)
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 0804E3C24;
+	Thu,  4 Apr 2024 16:37:25 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -56,9 +56,9 @@ Cc: linux-mm@kvack.org,
 	Claudio Imbrenda <imbrenda@linux.ibm.com>,
 	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
 	Thomas Huth <thuth@redhat.com>
-Subject: [PATCH v1 4/5] s390/uv: update PG_arch_1 comment
-Date: Thu,  4 Apr 2024 18:36:41 +0200
-Message-ID: <20240404163642.1125529-5-david@redhat.com>
+Subject: [PATCH v1 5/5] s390/hugetlb: convert PG_arch_1 code to work on folio->flags
+Date: Thu,  4 Apr 2024 18:36:42 +0200
+Message-ID: <20240404163642.1125529-6-david@redhat.com>
 In-Reply-To: <20240404163642.1125529-1-david@redhat.com>
 References: <20240404163642.1125529-1-david@redhat.com>
 Precedence: bulk
@@ -70,38 +70,70 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
 
-We removed the usage of PG_arch_1 for page tables in commit
-a51324c430db ("s390/cmma: rework no-dat handling").
-
-Let's update the comment in UV to reflect that.
+Let's make it clearer that we are always working on folio flags and
+never page flags of tail pages.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/kernel/uv.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/s390/mm/gmap.c        | 4 ++--
+ arch/s390/mm/hugetlbpage.c | 8 ++++----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index 9c0113b26735..76fc61333fae 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -471,13 +471,12 @@ int arch_make_page_accessible(struct page *page)
- 		return 0;
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 9233b0acac89..ca31f2143bc0 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2731,7 +2731,7 @@ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
+ {
+ 	pmd_t *pmd = (pmd_t *)pte;
+ 	unsigned long start, end;
+-	struct page *page = pmd_page(*pmd);
++	struct folio *folio = pmd_folio(*pmd);
  
  	/*
--	 * PG_arch_1 is used in 3 places:
--	 * 1. for kernel page tables during early boot
--	 * 2. for storage keys of huge pages and KVM
--	 * 3. As an indication that this small folio might be secure. This can
-+	 * PG_arch_1 is used in 2 places:
-+	 * 1. for storage keys of hugetlb folios and KVM
-+	 * 2. As an indication that this small folio might be secure. This can
- 	 *    overindicate, e.g. we set the bit before calling
- 	 *    convert_to_secure.
--	 * As secure pages are never huge, all 3 variants can co-exists.
-+	 * As secure pages are never large folios, both variants can co-exists.
- 	 */
- 	if (!test_bit(PG_arch_1, &folio->flags))
- 		return 0;
+ 	 * The write check makes sure we do not set a key on shared
+@@ -2746,7 +2746,7 @@ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
+ 	start = pmd_val(*pmd) & HPAGE_MASK;
+ 	end = start + HPAGE_SIZE - 1;
+ 	__storage_key_init_range(start, end);
+-	set_bit(PG_arch_1, &page->flags);
++	set_bit(PG_arch_1, &folio->flags);
+ 	cond_resched();
+ 	return 0;
+ }
+diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
+index e1e63dc1b23d..21ed6ac5f1c5 100644
+--- a/arch/s390/mm/hugetlbpage.c
++++ b/arch/s390/mm/hugetlbpage.c
+@@ -121,7 +121,7 @@ static inline pte_t __rste_to_pte(unsigned long rste)
+ 
+ static void clear_huge_pte_skeys(struct mm_struct *mm, unsigned long rste)
+ {
+-	struct page *page;
++	struct folio *folio;
+ 	unsigned long size, paddr;
+ 
+ 	if (!mm_uses_skeys(mm) ||
+@@ -129,16 +129,16 @@ static void clear_huge_pte_skeys(struct mm_struct *mm, unsigned long rste)
+ 		return;
+ 
+ 	if ((rste & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R3) {
+-		page = pud_page(__pud(rste));
++		folio = page_folio(pud_page(__pud(rste)));
+ 		size = PUD_SIZE;
+ 		paddr = rste & PUD_MASK;
+ 	} else {
+-		page = pmd_page(__pmd(rste));
++		folio = pmd_folio(__pmd(rste));
+ 		size = PMD_SIZE;
+ 		paddr = rste & PMD_MASK;
+ 	}
+ 
+-	if (!test_and_set_bit(PG_arch_1, &page->flags))
++	if (!test_and_set_bit(PG_arch_1, &folio->flags))
+ 		__storage_key_init_range(paddr, paddr + size - 1);
+ }
+ 
 -- 
 2.44.0
 
