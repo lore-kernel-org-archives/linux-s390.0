@@ -1,133 +1,133 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A229F16EC0B;
-	Fri,  5 Apr 2024 16:20:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A620F1CA87;
+	Fri,  5 Apr 2024 18:31:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712334023; cv=none; b=AdrHaGquIBeE1VYPJoXeT+j6pafJDdaneJ3n03R/ybdf96Iacdy3kmUB+luXONESbIU+VKLSIB2MaMPIw/Bp4Dss79/i4TU/fiK1hSltHYaG2CzTygY/zb3qtSoloUq7isnNk5qggnl6uaBz7MDQ0FlhdKFtZyf3/9f8lbmcCRs=
+	t=1712341871; cv=none; b=mivwRx7cOnANIQEOdIzbZx6Yl7y4rKHAv+Wp0RV44hCBr5lcHv0lKqrNhwcb4NhuyNtiKKUpeXho9blF8YBOOQePTGvkBgLnWYHCSuf7ghNwfqQPWKnI8u6w6+qbDP02JK0aY4kgNXTEjAZUi6D7cSEa7DOdsytdASKags1CJ0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712334023; c=relaxed/simple;
-	bh=STODT/c3z6ypoEyUkP1OAtZ6EfyLMQK08sm/bPAw1AU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bpCe1wr+PhrXcDLHMINC/2k3Hfz7yUiqrhZCFfQQwCsrEXp/a/fYnvuxwHxGt9pQtCawtRIofy9vFYuMuZLcSey5CbBMeUTlfFuT95YLKbh/ZmuFctV1pxRayk6ulrG4Uxdt71HFIqxABpWkSwSSJPo471TRVEp1IfONY+SVDVY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=C/HZKJyO; arc=none smtp.client-ip=198.175.65.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1712341871; c=relaxed/simple;
+	bh=SpJ5IQ9UhqrJWD/qugetHjxi8hPNKx//RaZUEP7dXMk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YSEkRGUj4YO3kqDQ6tWQAqyluFYXGnwxoAB/8Q6iKHrcxjNOZiqatuMhajZKC7wQw/nWHPXXkXkruWARn7hAyl4gSMXLPSoiOxRdxm15C8/fi2WCzYFToQCFRvVFfCpHqmFy6ujWQIK28xXm06yd4hTbirI6kSkoPCGzGEUlKIA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PjsNhh0f; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="C/HZKJyO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1712334022; x=1743870022;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=STODT/c3z6ypoEyUkP1OAtZ6EfyLMQK08sm/bPAw1AU=;
-  b=C/HZKJyOXQsAnQLLdmXcHCDA1Oj9zUYbkZJI3PKPtdR14MbisCDrDaB2
-   r5e0RsjB6CgPAD5n2FAuURvNDJscUSlVjKokVsRNBfzkvdkx/VLPo9jfr
-   wcHaxJyEPoE4BNO5SbRekOeDN5GSNg05N0VwD/Ng42ZTgkYG35vq4jCPu
-   welg7W7cuKNTu+rsVkPVQ5ccEpLGhuJtyfJuzysb5SzSEBfAMujObO0Q3
-   y/sW3at4rgzjODiCno7yi00nesMOHXwWrH9DI22WB5RTSxtst9rA0vBuT
-   OhlrFWlej/VLezTiY2N7B719jUixuNzr9T9FCWGZH1ExFDb2FLOrYaz0t
-   w==;
-X-CSE-ConnectionGUID: VfvLy42BRLKqtvdc08ALkQ==
-X-CSE-MsgGUID: Lkc5O6X7Sd6hAg5bOc/uqA==
-X-IronPort-AV: E=McAfee;i="6600,9927,11035"; a="11462790"
-X-IronPort-AV: E=Sophos;i="6.07,181,1708416000"; 
-   d="scan'208";a="11462790"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2024 09:20:21 -0700
-X-CSE-ConnectionGUID: EGOUsw1jS4iffZcF7In7vA==
-X-CSE-MsgGUID: OzVkpaElRkSa/fAWFgBa3A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,181,1708416000"; 
-   d="scan'208";a="19141333"
-Received: from ahajda-mobl.ger.corp.intel.com (HELO [10.245.80.70]) ([10.245.80.70])
-  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2024 09:20:15 -0700
-Message-ID: <340d23fc-7abf-4ad0-bd95-f1760b9ac458@intel.com>
-Date: Fri, 5 Apr 2024 18:20:11 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PjsNhh0f"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C78FFC433F1;
+	Fri,  5 Apr 2024 18:31:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1712341871;
+	bh=SpJ5IQ9UhqrJWD/qugetHjxi8hPNKx//RaZUEP7dXMk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=PjsNhh0fjSHbdf2868fr6XGX0ymVpLd72hs4QqY449d2ixqqIbiOZ9KGWsTScBEdM
+	 MmD6oO1ZFR5n/8XBcvJfrg+1fJuE6RWAslDhUeScY/894NlfAHOyDlBtG+Jpj6Xgim
+	 AEpzgBbfrsVfqV97+U4MIZvB6mlskGvejsxy0uQkrvJ6HQBnEonvJPKwG4UwRXSFPC
+	 sokGvl/2IbsBR2HRjgP5VVh/y6bBeOez+JNtA6wzhbGF/BxyaWGie9mhpM3y8Fsgqy
+	 nccatqMs+mRkE11DcKuPOVmzq2/2RT6tsP9WZvm4sK8QAsHlkDj+GzXZn741rHxhYU
+	 UZgSQsgWkKskQ==
+Date: Fri, 5 Apr 2024 19:31:02 +0100
+From: Simon Horman <horms@kernel.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	=?utf-8?B?TWHDrXJh?= Canal <mcanal@igalia.com>,
+	Dan Carpenter <dan.carpenter@linaro.org>,
+	Kees Cook <keescook@chromium.org>,
+	Daniel Diaz <daniel.diaz@linaro.org>,
+	David Gow <davidgow@google.com>,
+	Arthur Grillo <arthurgrillo@riseup.net>,
+	Brendan Higgins <brendan.higgins@linux.dev>,
+	Naresh Kamboju <naresh.kamboju@linaro.org>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Maxime Ripard <mripard@kernel.org>,
+	Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+	Daniel Vetter <daniel@ffwll.ch>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	dri-devel@lists.freedesktop.org, kunit-dev@googlegroups.com,
+	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org, loongarch@lists.linux.dev,
+	netdev@vger.kernel.org, x86@kernel.org,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Subject: Re: [PATCH v3 13/15] sh: Move defines needed for suppressing warning
+ backtraces
+Message-ID: <20240405183102.GU26556@kernel.org>
+References: <20240403131936.787234-1-linux@roeck-us.net>
+ <20240403131936.787234-14-linux@roeck-us.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [Intel-gfx] [PATCH v5 0/7] Introduce __xchg, non-atomic xchg
-To: Jani Nikula <jani.nikula@linux.intel.com>,
- Peter Zijlstra <peterz@infradead.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, linux-ia64@vger.kernel.org,
- linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-snps-arc@lists.infradead.org,
- intel-gfx@lists.freedesktop.org, linux-xtensa@linux-xtensa.org,
- Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>,
- linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org,
- loongarch@lists.linux.dev, Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-alpha@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org
-References: <20230118153529.57695-1-andrzej.hajda@intel.com>
- <Y/ZLH5F8LA3H10aL@hirez.programming.kicks-ass.net>
- <17f40b7c-f98d-789d-fa19-12ec077b756a@intel.com>
- <Y/y0/VoPAVCXGKp3@hirez.programming.kicks-ass.net> <87r0fjc1cz.fsf@intel.com>
-Content-Language: en-US
-From: Andrzej Hajda <andrzej.hajda@intel.com>
-Organization: Intel Technology Poland sp. z o.o. - ul. Slowackiego 173, 80-298
- Gdansk - KRS 101882 - NIP 957-07-52-316
-In-Reply-To: <87r0fjc1cz.fsf@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240403131936.787234-14-linux@roeck-us.net>
 
+On Wed, Apr 03, 2024 at 06:19:34AM -0700, Guenter Roeck wrote:
+> Declaring the defines needed for suppressing warning inside
+> '#ifdef CONFIG_DEBUG_BUGVERBOSE' results in a kerneldoc warning.
+> 
+> .../bug.h:29: warning: expecting prototype for _EMIT_BUG_ENTRY().
+> 	Prototype was for HAVE_BUG_FUNCTION() instead
+> 
+> Move the defines above the kerneldoc entry for _EMIT_BUG_ENTRY
+> to make kerneldoc happy.
+> 
+> Reported-by: Simon Horman <horms@kernel.org>
+> Cc: Simon Horman <horms@kernel.org>
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+> v3: Added patch. Possibly squash into previous patch.
 
+FWIIW, this looks good to me.
 
-On 05.04.2024 16:47, Jani Nikula wrote:
-> On Mon, 27 Feb 2023, Peter Zijlstra <peterz@infradead.org> wrote:
->> On Thu, Feb 23, 2023 at 10:24:19PM +0100, Andrzej Hajda wrote:
->>> On 22.02.2023 18:04, Peter Zijlstra wrote:
->>>> On Wed, Jan 18, 2023 at 04:35:22PM +0100, Andrzej Hajda wrote:
->>>>
->>>>> Andrzej Hajda (7):
->>>>>     arch: rename all internal names __xchg to __arch_xchg
->>>>>     linux/include: add non-atomic version of xchg
->>>>>     arch/*/uprobes: simplify arch_uretprobe_hijack_return_addr
->>>>>     llist: simplify __llist_del_all
->>>>>     io_uring: use __xchg if possible
->>>>>     qed: use __xchg if possible
->>>>>     drm/i915/gt: use __xchg instead of internal helper
->>>> Nothing crazy in here I suppose, I somewhat wonder why you went through
->>>> the trouble, but meh.
->>> If you are asking why I have proposed this patchset, then the answer is
->>> simple, 1st I've tried to find a way to move internal i915 helper to core
->>> (see patch 7).
->>> Then I was looking for possible other users of this helper. And apparently
->>> there are many of them, patches 3-7 shows some.
->>>
->>>
->>>> You want me to take this through te locking tree (for the next cycle,
->>>> not this one) where I normally take atomic things or does someone else
->>>> want this?
->>> If you could take it I will be happy.
->> OK, I'll go queue it in tip/locking/core after -rc1. Thanks!
-> Is this where the series fell between the cracks, or was there some
-> follow-up that I missed?
->
-> I think this would still be useful. Andrzej, would you mind rebasing and
-> resending if there are no objections?
-
-The patchset was rejected/dropped by Linus at the pull-request stage.
-He didn't like many things, but the most __xchg name. However he was 
-quite positive about i915 name fetch_and_zero.
-I can try to revive patchset with fetch_and_zero, and maybe 
-fetch_and_set, instead of __xchg.
-
-Regards
-Andrzej
-
->
-> BR,
-> Jani.
->
->
-
+>  arch/sh/include/asm/bug.h | 16 +++++++++-------
+>  1 file changed, 9 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/sh/include/asm/bug.h b/arch/sh/include/asm/bug.h
+> index 470ce6567d20..bf4947d51d69 100644
+> --- a/arch/sh/include/asm/bug.h
+> +++ b/arch/sh/include/asm/bug.h
+> @@ -11,6 +11,15 @@
+>  #define HAVE_ARCH_BUG
+>  #define HAVE_ARCH_WARN_ON
+>  
+> +#ifdef CONFIG_DEBUG_BUGVERBOSE
+> +#ifdef CONFIG_KUNIT_SUPPRESS_BACKTRACE
+> +# define HAVE_BUG_FUNCTION
+> +# define __BUG_FUNC_PTR	"\t.long %O2\n"
+> +#else
+> +# define __BUG_FUNC_PTR
+> +#endif /* CONFIG_KUNIT_SUPPRESS_BACKTRACE */
+> +#endif /* CONFIG_DEBUG_BUGVERBOSE */
+> +
+>  /**
+>   * _EMIT_BUG_ENTRY
+>   * %1 - __FILE__
+> @@ -25,13 +34,6 @@
+>   */
+>  #ifdef CONFIG_DEBUG_BUGVERBOSE
+>  
+> -#ifdef CONFIG_KUNIT_SUPPRESS_BACKTRACE
+> -# define HAVE_BUG_FUNCTION
+> -# define __BUG_FUNC_PTR	"\t.long %O2\n"
+> -#else
+> -# define __BUG_FUNC_PTR
+> -#endif /* CONFIG_KUNIT_SUPPRESS_BACKTRACE */
+> -
+>  #define _EMIT_BUG_ENTRY				\
+>  	"\t.pushsection __bug_table,\"aw\"\n"	\
+>  	"2:\t.long 1b, %O1\n"			\
+> -- 
+> 2.39.2
+> 
