@@ -1,87 +1,123 @@
-Received: from out-188.mta1.migadu.com (out-188.mta1.migadu.com [95.215.58.188])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A642516F296
-	for <linux-s390@vger.kernel.org>; Fri,  5 Apr 2024 14:42:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 259D116F280;
+	Fri,  5 Apr 2024 14:48:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712328161; cv=none; b=USxHEr7PCITGbj+Ic8C+KDYTGm8uQF7ts9xk6HZ92fkg0DANKJ7k4c0du4ssW/owNeegKVJIupU03zG3HqYpV7X/1qWOf6TUTFmFBXyGyNi9R70MdXTGuu5HQ5lhfFIhtMVy92ZUiP7Ob/rV8ATe2U+By4PPOtoVTTuoEFWHYms=
+	t=1712328491; cv=none; b=LUFsDxlIPRpMyJylD3fmQLddTD+uCdz94Vpv1Z2lMUoeV3zHV0WBNh4cQx59G4MWbCZ9ttVj72o4dJvJW6A77hVXdflkdmObv+ModvsH82kAor28cz5Mu28ODBBs7OU2ZmYm6r/PzvxJh6V897dhwLJSBEwyaH5vZ3B4jNZC9e4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712328161; c=relaxed/simple;
-	bh=IBgLqZ3buoW3IdRadEfg19LCfS2zlDBoNVByQfz6mhc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SPX6Hq88+mbslP50sWTRZZLl0ei4HCDm5Eo6o/3wdefOzhe8ZGd7a6JgbimMO61EHuG7sYAa1UIHFTd9+PAXvDYZv+nQDQIl/FwrJP030so7rU8vVElM1cpmG0C5K87dCGEtNlmU0yf+cLHZAmW1h0Ir/WA+PJSOIwlxU/i3ZQg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=gJEPi+8c; arc=none smtp.client-ip=95.215.58.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1712328491; c=relaxed/simple;
+	bh=LreOfBm3nT3gJWEyzyhSzgs3L/UNn7htcugC08IxS+o=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=FhgyibBrjJJerqiN/xeELx8ulCCrttsO0ifuLkAQRilvHTt8dc17/78NwwTJnSXQEqrJQ8DisuzIHcFqbHjvPn01zf4LD/EJBHgwdOEMyr7Gr7BsIfFsUNcHoR6ig7bid8SbbcBFr9WiRyN282kf8SRPz1aT+thhXGL6mPaITkU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Dwol0GCP; arc=none smtp.client-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="gJEPi+8c"
-Date: Fri, 5 Apr 2024 16:42:35 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1712328157;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=MtcQADxBXA1YhPpuZ7fmH3qMlXh/3dMUEIRBQ9SwmCw=;
-	b=gJEPi+8cQKLjU7x3MMQHoNFtaKwz61gNAoQCnLPgjgrRqvnNyCapGWfbD4SlPswFdBxkOD
-	sdmzbXkHO1tZ2+56b1t5cpLOcKoKIsuEJTs5uaNS31QkFWn9MTzM5x4rb64Gjc8GBjPfP5
-	Qie3NDNKWKaC8D2zo5PfCQVSghaXbDY=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Andrew Jones <andrew.jones@linux.dev>
-To: Nicholas Piggin <npiggin@gmail.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, 
-	Alexandru Elisei <alexandru.elisei@arm.com>, Eric Auger <eric.auger@redhat.com>, 
-	Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
-	Nico =?utf-8?B?QsO2aHI=?= <nrb@linux.ibm.com>, David Hildenbrand <david@redhat.com>, 
-	Shaoqin Huang <shahuang@redhat.com>, Nikos Nikoleris <nikos.nikoleris@arm.com>, 
-	Nadav Amit <namit@vmware.com>, David Woodhouse <dwmw@amazon.co.uk>, 
-	Ricardo Koller <ricarkol@google.com>, rminmin <renmm6@chinaunicom.cn>, Gavin Shan <gshan@redhat.com>, 
-	Nina Schoetterl-Glausch <nsg@linux.ibm.com>, Sean Christopherson <seanjc@google.com>, kvm@vger.kernel.org, 
-	kvmarm@lists.linux.dev, kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests RFC PATCH 16/17] shellcheck: Fix SC2153
-Message-ID: <20240405-8c07ba91470a6bb355c3fdba@orel>
-References: <20240405090052.375599-1-npiggin@gmail.com>
- <20240405090052.375599-17-npiggin@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Dwol0GCP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1712328490; x=1743864490;
+  h=from:to:cc:subject:in-reply-to:references:date:
+   message-id:mime-version;
+  bh=LreOfBm3nT3gJWEyzyhSzgs3L/UNn7htcugC08IxS+o=;
+  b=Dwol0GCPWx+Us9Nc1oDUYLAbXkYQJcB5drZ+e/z/NKeBnRPKlHflWqwg
+   Yw4hfY96xZ99qi69FRx5ApTzn4s2dFblzbbBBZNmELoBZmGrLsyqtM1Tt
+   7XjrCxjQMHslh/maB2ZlqYKL/yOQMjvgJRfWGYWnGNV7Vntchhy9rR8TZ
+   Bb2dQ7D0gvEJ7yATUvatm8poVjm9GIXwUZIigfZX2E2sxkH557mmMjsO5
+   rZ7L7bNjJUz2yHE8sx+31QYnqvC2LiTeEdXaUSgSRysjyX39H+VV/136X
+   wLuzAh2SxZvbL9cXjjV9ut1CJiMFoQgDWGkSykGgExg565dSBn0UcBDyS
+   g==;
+X-CSE-ConnectionGUID: pNjzk4eXTSSVd+EE9ISQhg==
+X-CSE-MsgGUID: xKDuxmsPSK60Uth0ervh2Q==
+X-IronPort-AV: E=McAfee;i="6600,9927,11035"; a="11478923"
+X-IronPort-AV: E=Sophos;i="6.07,181,1708416000"; 
+   d="scan'208";a="11478923"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2024 07:48:09 -0700
+X-CSE-ConnectionGUID: H55LyW5ASaqr4vhL9J0MYQ==
+X-CSE-MsgGUID: +963A5O0TASYUpMZv+tuJQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,181,1708416000"; 
+   d="scan'208";a="23821308"
+Received: from dtorrice-mobl1.ger.corp.intel.com (HELO localhost) ([10.252.41.202])
+  by fmviesa004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2024 07:47:59 -0700
+From: Jani Nikula <jani.nikula@linux.intel.com>
+To: Peter Zijlstra <peterz@infradead.org>, Andrzej Hajda
+ <andrzej.hajda@intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-ia64@vger.kernel.org,
+ linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ intel-gfx@lists.freedesktop.org, linux-xtensa@linux-xtensa.org, Arnd
+ Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>,
+ linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org,
+ loongarch@lists.linux.dev, Rodrigo Vivi <rodrigo.vivi@intel.com>, Andy
+ Shevchenko <andriy.shevchenko@linux.intel.com>,
+ linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-alpha@vger.kernel.org, Andrew Morton
+ <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org
+Subject: Re: [Intel-gfx] [PATCH v5 0/7] Introduce __xchg, non-atomic xchg
+In-Reply-To: <Y/y0/VoPAVCXGKp3@hirez.programming.kicks-ass.net>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <20230118153529.57695-1-andrzej.hajda@intel.com>
+ <Y/ZLH5F8LA3H10aL@hirez.programming.kicks-ass.net>
+ <17f40b7c-f98d-789d-fa19-12ec077b756a@intel.com>
+ <Y/y0/VoPAVCXGKp3@hirez.programming.kicks-ass.net>
+Date: Fri, 05 Apr 2024 17:47:56 +0300
+Message-ID: <87r0fjc1cz.fsf@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240405090052.375599-17-npiggin@gmail.com>
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain
 
-On Fri, Apr 05, 2024 at 07:00:48PM +1000, Nicholas Piggin wrote:
->   SC2153 (info): Possible misspelling: ACCEL may not be assigned. Did
->   you mean accel?
-> 
-> Looks like a bug?
-
-Agreed.
-
-> 
-> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-> ---
->  scripts/s390x/func.bash | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/scripts/s390x/func.bash b/scripts/s390x/func.bash
-> index 6c75e89ae..fa47d0191 100644
-> --- a/scripts/s390x/func.bash
-> +++ b/scripts/s390x/func.bash
-> @@ -21,7 +21,7 @@ function arch_cmd_s390x()
->  	"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
->  
->  	# run PV test case
-> -	if [ "$ACCEL" = 'tcg' ] || grep -q "migration" <<< "$groups"; then
-> +	if [ "$accel" = 'tcg' ] || grep -q "migration" <<< "$groups"; then
->  		return
->  	fi
->  	kernel=${kernel%.elf}.pv.bin
-> -- 
-> 2.43.0
+On Mon, 27 Feb 2023, Peter Zijlstra <peterz@infradead.org> wrote:
+> On Thu, Feb 23, 2023 at 10:24:19PM +0100, Andrzej Hajda wrote:
+>> On 22.02.2023 18:04, Peter Zijlstra wrote:
+>> > On Wed, Jan 18, 2023 at 04:35:22PM +0100, Andrzej Hajda wrote:
+>> > 
+>> > > Andrzej Hajda (7):
+>> > >    arch: rename all internal names __xchg to __arch_xchg
+>> > >    linux/include: add non-atomic version of xchg
+>> > >    arch/*/uprobes: simplify arch_uretprobe_hijack_return_addr
+>> > >    llist: simplify __llist_del_all
+>> > >    io_uring: use __xchg if possible
+>> > >    qed: use __xchg if possible
+>> > >    drm/i915/gt: use __xchg instead of internal helper
+>> > 
+>> > Nothing crazy in here I suppose, I somewhat wonder why you went through
+>> > the trouble, but meh.
+>> 
+>> If you are asking why I have proposed this patchset, then the answer is
+>> simple, 1st I've tried to find a way to move internal i915 helper to core
+>> (see patch 7).
+>> Then I was looking for possible other users of this helper. And apparently
+>> there are many of them, patches 3-7 shows some.
+>> 
+>> 
+>> > 
+>> > You want me to take this through te locking tree (for the next cycle,
+>> > not this one) where I normally take atomic things or does someone else
+>> > want this?
+>> 
+>> If you could take it I will be happy.
 >
+> OK, I'll go queue it in tip/locking/core after -rc1. Thanks!
 
-Reviewed-by: Andrew Jones <andrew.jones@linux.dev>
+Is this where the series fell between the cracks, or was there some
+follow-up that I missed?
+
+I think this would still be useful. Andrzej, would you mind rebasing and
+resending if there are no objections?
+
+BR,
+Jani.
+
+
+-- 
+Jani Nikula, Intel
