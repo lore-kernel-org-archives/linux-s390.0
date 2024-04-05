@@ -1,183 +1,133 @@
-Received: from out-177.mta1.migadu.com (out-177.mta1.migadu.com [95.215.58.177])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3090516EBED
-	for <linux-s390@vger.kernel.org>; Fri,  5 Apr 2024 14:55:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A229F16EC0B;
+	Fri,  5 Apr 2024 16:20:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712328921; cv=none; b=tcOerbv7S7hAn/eo3qto1l5nsK6H1D09amz+W8AikjQ99FbF6qXBknk8d87H4ijMCEvoD1uKkMdVCB4lklYzZ1+KooI7O2LGQePBL7WVRd/HNlWs2s4NICRyAil7Gom41OXmDoaNxzaUsNcMSJ/guBauFVIgprUIBWpGmZqMuak=
+	t=1712334023; cv=none; b=AdrHaGquIBeE1VYPJoXeT+j6pafJDdaneJ3n03R/ybdf96Iacdy3kmUB+luXONESbIU+VKLSIB2MaMPIw/Bp4Dss79/i4TU/fiK1hSltHYaG2CzTygY/zb3qtSoloUq7isnNk5qggnl6uaBz7MDQ0FlhdKFtZyf3/9f8lbmcCRs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712328921; c=relaxed/simple;
-	bh=TIvxRamlGcEopprPfoOfil978It8TfZKohpyLwgS5xQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sGYE5+Dk4xc4hMyq/eV2i1lZvycNfNUNknrulwTFwba2pgz5f0J/PdZojqWVgdOTt4HAVj3c92r59ZwlKsPQfW38V9IlRpfyz8ms1/J7FD7cPmP1WXgLWGgIqySSQEpWsUrCnFhmJUaj5MsxD77Ew0NSXGYWC+z7j1PNNDwqmnE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=UPGfh8js; arc=none smtp.client-ip=95.215.58.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1712334023; c=relaxed/simple;
+	bh=STODT/c3z6ypoEyUkP1OAtZ6EfyLMQK08sm/bPAw1AU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bpCe1wr+PhrXcDLHMINC/2k3Hfz7yUiqrhZCFfQQwCsrEXp/a/fYnvuxwHxGt9pQtCawtRIofy9vFYuMuZLcSey5CbBMeUTlfFuT95YLKbh/ZmuFctV1pxRayk6ulrG4Uxdt71HFIqxABpWkSwSSJPo471TRVEp1IfONY+SVDVY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=C/HZKJyO; arc=none smtp.client-ip=198.175.65.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="UPGfh8js"
-Date: Fri, 5 Apr 2024 16:55:11 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1712328915;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KuvmwAv3VPVb8MBua4W2SdgjKunVcw3LYDYqO33OqqI=;
-	b=UPGfh8jsD5lqKDj1vL6jVkxU1ehLYEyqACmwvkXo4A1QODGZmTkJYm/uoZxk+tugSvUT8m
-	Fzy/T3wbUTwQmj77BvsmaHSJAXPmNFrLIClAlvK2Q8BtdZDUVktaxUM662+3ZGI3MqQz+P
-	P+5k6FDHCXb+SpXhh4QPmx/BEktxQHg=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Andrew Jones <andrew.jones@linux.dev>
-To: Nicholas Piggin <npiggin@gmail.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, 
-	Alexandru Elisei <alexandru.elisei@arm.com>, Eric Auger <eric.auger@redhat.com>, 
-	Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
-	Nico =?utf-8?B?QsO2aHI=?= <nrb@linux.ibm.com>, David Hildenbrand <david@redhat.com>, 
-	Shaoqin Huang <shahuang@redhat.com>, Nikos Nikoleris <nikos.nikoleris@arm.com>, 
-	Nadav Amit <namit@vmware.com>, David Woodhouse <dwmw@amazon.co.uk>, 
-	Ricardo Koller <ricarkol@google.com>, rminmin <renmm6@chinaunicom.cn>, Gavin Shan <gshan@redhat.com>, 
-	Nina Schoetterl-Glausch <nsg@linux.ibm.com>, Sean Christopherson <seanjc@google.com>, kvm@vger.kernel.org, 
-	kvmarm@lists.linux.dev, kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests RFC PATCH 17/17] shellcheck: Suppress various
- messages
-Message-ID: <20240405-7c0ad5d3ce76e1ad9ad2f5a9@orel>
-References: <20240405090052.375599-1-npiggin@gmail.com>
- <20240405090052.375599-18-npiggin@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="C/HZKJyO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1712334022; x=1743870022;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=STODT/c3z6ypoEyUkP1OAtZ6EfyLMQK08sm/bPAw1AU=;
+  b=C/HZKJyOXQsAnQLLdmXcHCDA1Oj9zUYbkZJI3PKPtdR14MbisCDrDaB2
+   r5e0RsjB6CgPAD5n2FAuURvNDJscUSlVjKokVsRNBfzkvdkx/VLPo9jfr
+   wcHaxJyEPoE4BNO5SbRekOeDN5GSNg05N0VwD/Ng42ZTgkYG35vq4jCPu
+   welg7W7cuKNTu+rsVkPVQ5ccEpLGhuJtyfJuzysb5SzSEBfAMujObO0Q3
+   y/sW3at4rgzjODiCno7yi00nesMOHXwWrH9DI22WB5RTSxtst9rA0vBuT
+   OhlrFWlej/VLezTiY2N7B719jUixuNzr9T9FCWGZH1ExFDb2FLOrYaz0t
+   w==;
+X-CSE-ConnectionGUID: VfvLy42BRLKqtvdc08ALkQ==
+X-CSE-MsgGUID: Lkc5O6X7Sd6hAg5bOc/uqA==
+X-IronPort-AV: E=McAfee;i="6600,9927,11035"; a="11462790"
+X-IronPort-AV: E=Sophos;i="6.07,181,1708416000"; 
+   d="scan'208";a="11462790"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2024 09:20:21 -0700
+X-CSE-ConnectionGUID: EGOUsw1jS4iffZcF7In7vA==
+X-CSE-MsgGUID: OzVkpaElRkSa/fAWFgBa3A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,181,1708416000"; 
+   d="scan'208";a="19141333"
+Received: from ahajda-mobl.ger.corp.intel.com (HELO [10.245.80.70]) ([10.245.80.70])
+  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2024 09:20:15 -0700
+Message-ID: <340d23fc-7abf-4ad0-bd95-f1760b9ac458@intel.com>
+Date: Fri, 5 Apr 2024 18:20:11 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240405090052.375599-18-npiggin@gmail.com>
-X-Migadu-Flow: FLOW_OUT
-
-On Fri, Apr 05, 2024 at 07:00:49PM +1000, Nicholas Piggin wrote:
-> Various info and warnings are suppressed here, where circumstances
-> (commented) warrant.
-> 
-> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-> ---
->  run_tests.sh            | 3 +++
->  scripts/arch-run.bash   | 9 +++++++++
->  scripts/mkstandalone.sh | 2 ++
->  scripts/runtime.bash    | 2 ++
->  4 files changed, 16 insertions(+)
-> 
-> diff --git a/run_tests.sh b/run_tests.sh
-> index 938bb8edf..152323ffc 100755
-> --- a/run_tests.sh
-> +++ b/run_tests.sh
-> @@ -45,6 +45,9 @@ fi
->  only_tests=""
->  list_tests=""
->  args=$(getopt -u -o ag:htj:vl -l all,group:,help,tap13,parallel:,verbose,list,probe-maxsmp -- "$@")
-> +# Shellcheck likes to test commands directly rather than with $? but sometimes they
-> +# are too long to put in the same test.
-> +# shellcheck disable=SC2181
->  [ $? -ne 0 ] && exit 2;
->  set -- $args;
->  while [ $# -gt 0 ]; do
-> diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
-> index ed440b4aa..fe8785cfd 100644
-> --- a/scripts/arch-run.bash
-> +++ b/scripts/arch-run.bash
-> @@ -44,6 +44,8 @@ run_qemu ()
->  	if [ "$errors" ]; then
->  		sig=$(grep 'terminating on signal' <<<"$errors")
->  		if [ "$sig" ]; then
-> +			# This is too complex for ${var/search/replace}
-> +			# shellcheck disable=SC2001
->  			sig=$(sed 's/.*terminating on signal \([0-9][0-9]*\).*/\1/' <<<"$sig")
->  		fi
->  	fi
-> @@ -174,9 +176,12 @@ run_migration ()
->  
->  	# Holding both ends of the input fifo open prevents opens from
->  	# blocking and readers getting EOF when a writer closes it.
-> +	# These fds appear to be unused to shellcheck so quieten the warning.
->  	mkfifo ${src_infifo}
->  	mkfifo ${dst_infifo}
-> +	# shellcheck disable=SC2034
->  	exec {src_infifo_fd}<>${src_infifo}
-> +	# shellcheck disable=SC2034
->  	exec {dst_infifo_fd}<>${dst_infifo}
->  
->  	"${migcmdline[@]}" \
-> @@ -184,6 +189,8 @@ run_migration ()
->  		-mon chardev=mon,mode=control \
->  		< ${src_infifo} > ${src_outfifo} &
->  	live_pid=$!
-> +	# SC complains about useless cat but I prefer it over redirect here.
-
-Let's spell out 'shellcheck' when referring to it rather than call it
-'SC'. And instead of "but I prefer..." let's write
-
- # shellcheck complains about a useless cat, but using a redirect here is
- # harder to read
-
-or something like that. Don't tell my cat-loving daughter that I just
-wrote "a useless cat"!
+User-Agent: Mozilla Thunderbird
+Subject: Re: [Intel-gfx] [PATCH v5 0/7] Introduce __xchg, non-atomic xchg
+To: Jani Nikula <jani.nikula@linux.intel.com>,
+ Peter Zijlstra <peterz@infradead.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-ia64@vger.kernel.org,
+ linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ intel-gfx@lists.freedesktop.org, linux-xtensa@linux-xtensa.org,
+ Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>,
+ linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org,
+ loongarch@lists.linux.dev, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-alpha@vger.kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org
+References: <20230118153529.57695-1-andrzej.hajda@intel.com>
+ <Y/ZLH5F8LA3H10aL@hirez.programming.kicks-ass.net>
+ <17f40b7c-f98d-789d-fa19-12ec077b756a@intel.com>
+ <Y/y0/VoPAVCXGKp3@hirez.programming.kicks-ass.net> <87r0fjc1cz.fsf@intel.com>
+Content-Language: en-US
+From: Andrzej Hajda <andrzej.hajda@intel.com>
+Organization: Intel Technology Poland sp. z o.o. - ul. Slowackiego 173, 80-298
+ Gdansk - KRS 101882 - NIP 957-07-52-316
+In-Reply-To: <87r0fjc1cz.fsf@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-> +	# shellcheck disable=SC2002
->  	cat ${src_outfifo} | tee ${src_out} | filter_quiet_msgs &
->  
->  	# Start the first destination QEMU machine in advance of the test
-> @@ -224,6 +231,8 @@ do_migration ()
->  		-mon chardev=mon,mode=control -incoming unix:${dst_incoming} \
->  		< ${dst_infifo} > ${dst_outfifo} &
->  	incoming_pid=$!
-> +	# SC complains about useless cat but I prefer it over redirect here.
 
-Same comment as above.
+On 05.04.2024 16:47, Jani Nikula wrote:
+> On Mon, 27 Feb 2023, Peter Zijlstra <peterz@infradead.org> wrote:
+>> On Thu, Feb 23, 2023 at 10:24:19PM +0100, Andrzej Hajda wrote:
+>>> On 22.02.2023 18:04, Peter Zijlstra wrote:
+>>>> On Wed, Jan 18, 2023 at 04:35:22PM +0100, Andrzej Hajda wrote:
+>>>>
+>>>>> Andrzej Hajda (7):
+>>>>>     arch: rename all internal names __xchg to __arch_xchg
+>>>>>     linux/include: add non-atomic version of xchg
+>>>>>     arch/*/uprobes: simplify arch_uretprobe_hijack_return_addr
+>>>>>     llist: simplify __llist_del_all
+>>>>>     io_uring: use __xchg if possible
+>>>>>     qed: use __xchg if possible
+>>>>>     drm/i915/gt: use __xchg instead of internal helper
+>>>> Nothing crazy in here I suppose, I somewhat wonder why you went through
+>>>> the trouble, but meh.
+>>> If you are asking why I have proposed this patchset, then the answer is
+>>> simple, 1st I've tried to find a way to move internal i915 helper to core
+>>> (see patch 7).
+>>> Then I was looking for possible other users of this helper. And apparently
+>>> there are many of them, patches 3-7 shows some.
+>>>
+>>>
+>>>> You want me to take this through te locking tree (for the next cycle,
+>>>> not this one) where I normally take atomic things or does someone else
+>>>> want this?
+>>> If you could take it I will be happy.
+>> OK, I'll go queue it in tip/locking/core after -rc1. Thanks!
+> Is this where the series fell between the cracks, or was there some
+> follow-up that I missed?
+>
+> I think this would still be useful. Andrzej, would you mind rebasing and
+> resending if there are no objections?
 
-> +	# shellcheck disable=SC2002
->  	cat ${dst_outfifo} | tee ${dst_out} | filter_quiet_msgs &
->  
->  	# The test must prompt the user to migrate, so wait for the
-> diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
-> index 756647f29..2318a85f0 100755
-> --- a/scripts/mkstandalone.sh
-> +++ b/scripts/mkstandalone.sh
-> @@ -65,6 +65,8 @@ generate_test ()
->  	fi
->  
->  	temp_file bin "$kernel"
-> +	# Don't want to expand $bin but print it as-is.
-> +	# shellcheck disable=SC2016
->  	args[3]='$bin'
->  
->  	(echo "#!/usr/bin/env bash"
-> diff --git a/scripts/runtime.bash b/scripts/runtime.bash
-> index 3b76aec9e..c87613b96 100644
-> --- a/scripts/runtime.bash
-> +++ b/scripts/runtime.bash
-> @@ -137,6 +137,8 @@ function run()
->      # the check line can contain multiple files to check separated by a space
->      # but each check parameter needs to be of the form <path>=<value>
->      if [ "$check" ]; then
-> +        # There is no globbing allowed in the check parameter.
-> +        # shellcheck disable=SC2206
->          check=($check)
+The patchset was rejected/dropped by Linus at the pull-request stage.
+He didn't like many things, but the most __xchg name. However he was 
+quite positive about i915 name fetch_and_zero.
+I can try to revive patchset with fetch_and_zero, and maybe 
+fetch_and_set, instead of __xchg.
 
-Hmm, I'm not sure about this one. $check is an arbitrary path, which means
-it can have spaces, then =, and then an arbitrary value, which means it can
-contain spaces. If there are multiple check path=value pairs then
-separation by space is a bad idea, and any deliminator really is. It seems
-like each pair should be quoted, i.e.
+Regards
+Andrzej
 
- check = "path1=value1" "path2=value2"
-
-and then that should be managed here.
-
->          for check_param in "${check[@]}"; do
->              path=${check_param%%=*}
-> -- 
-> 2.43.0
+>
+> BR,
+> Jani.
+>
 >
 
-Thanks,
-drew
