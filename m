@@ -1,57 +1,57 @@
-Received: from mail-oi1-f182.google.com (mail-oi1-f182.google.com [209.85.167.182])
+Received: from mail-il1-f170.google.com (mail-il1-f170.google.com [209.85.166.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 494E115FCFE;
-	Fri,  5 Apr 2024 08:37:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 351E1145340;
+	Fri,  5 Apr 2024 08:38:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712306267; cv=none; b=CxcSxoeZFhkX6sccIUBlHzFQEB8ovGrpzuXTSMC7qcFljYLGXmtrhx7ntpEfmHDyDqe5Uwp42vGvpiDMMQSCWIfWwBPpfv2J0V+vsUZCfHQmd/+lJsx2Pe68TmRz6yfsQnZ2jBlFUBr7MFeTJvE485UZOwLLfh0X9iDBIpYa8uY=
+	t=1712306289; cv=none; b=ukXIlaQhAgAFwWGeZQPfKInqRrUMLdtINjoW1uUipUQ9S1rKltZgjdS/W+diRcYiQRZjP+ofC53MUmxyUYBWstpai3pnIRov+OccwHbvWMAca3yh0NQXmDBXqA5y/jZVcfqKBZWHrPjTE4dqHYSXPpiIT1v4StegkrWm80mhwX4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712306267; c=relaxed/simple;
-	bh=AKckDfCTXypWrrOdAxRwikYyybwFfW5X617fvy582RA=;
+	s=arc-20240116; t=1712306289; c=relaxed/simple;
+	bh=7yO6yPDHGesSmeOkN/fR8ci49hsn9kz43K4p5e/8WBo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=JQ3DDD4l/+zRec3xDs4CR4TSXDWyd7SgdPky7FfWTXNMBsHSgb1nQG7HtNePEuZIRHJ3x09hux2yQoP7qglQx8aOmyc5Rr8DoE5PKGHWGBjZ9YtdUPhd8z2uIRfdDAAI2/k6e7sYT0RcplNqY8roSH0lmh5J0gS9DLpAQXkAA38=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DS2YMK4O; arc=none smtp.client-ip=209.85.167.182
+	 MIME-Version:Content-Type; b=NPyp+ab04/PLA2TuCdlxf5tfmbkHmYsytSzVlFrSaxgNbv1avFXRE5DPiOce7ETg9OonSymviWyxkMACrMldioKcbTy7TXDiDVPXKHrOS7CHBexJ2aWYlpDIJKuwrOU4MPLOHHxR/o7X/xRXUKU3gQGVo/2BLupRC00KtYqwBy4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l7ICoocC; arc=none smtp.client-ip=209.85.166.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DS2YMK4O"
-Received: by mail-oi1-f182.google.com with SMTP id 5614622812f47-3bbbc6b4ed1so1212347b6e.2;
-        Fri, 05 Apr 2024 01:37:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l7ICoocC"
+Received: by mail-il1-f170.google.com with SMTP id e9e14a558f8ab-369f3082524so9070115ab.1;
+        Fri, 05 Apr 2024 01:38:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712306265; x=1712911065; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1712306287; x=1712911087; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ecQCAwbQxkkxUlhSFJlIXC1kR8UrvIOTCdxcEI2+MAs=;
-        b=DS2YMK4ODsZYI3NXwG0GmTtZOZkAcY5vNLxFpnicx4SFXJACY8v+hkUBAyEiVgZenW
-         /09znhelN4HAkYcqHpNfAV62aa1tLuzNpLDfvW8l/PDOdXtd3Mk1bZUbPnpS0lnx75Ny
-         0lr3bXwUFQDRq+m6vkD83jCOw7UgzZb7MDVJxSNtNptW/1huk4NYoZvIp8mD+fFnSUC1
-         LYACe7PmdAj3AaROC7KVvo8yOQgZJNxbsGW+mT4nuQBwEB5bANYa2ty7dfLgnTGGrs2I
-         Wy7nekmRHq09vLAMe3ZTD0MR8JO1ZcnEKUk7Q7yWcALEBo7Yc1Ym1MqYzSrlRFh1ATj6
-         G+pA==
+        bh=sGCyPgl3I2RhYB72u4qf5QL0i6/5w7xwNKgPUqw6zXE=;
+        b=l7ICoocCNkIi2YZdv7IbL3mmqh6w8cOCWlqq9CYSEVQWhHLIWm6aQcNOfUqnwzKDLo
+         hTkyQRL1pJ+zv1zo+53RKi8sxZQpwN47pcVc9pqsA1U/wuHh8SjJLPS82RRRuU1rns+Q
+         LnMVMqEXXCS0+06Q3N+EnhdhNrvb8+E4MSjjhzasRXrx68CNtd1b+CMqh/nvYiRsMZBI
+         BIpGRoUh94p0icBWPHYlQH5Fk1+iohDfQzruikS92Qan3XLoE7go2VipOCNffh1ePOYH
+         L0V8otZziJPpRxZDVNW0EZdrLErsGUjxcAjgZhEgiUfi1430FNqusj+i1IoXmEuXIVL6
+         ZDIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712306265; x=1712911065;
+        d=1e100.net; s=20230601; t=1712306287; x=1712911087;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ecQCAwbQxkkxUlhSFJlIXC1kR8UrvIOTCdxcEI2+MAs=;
-        b=NQXJnJLcRqDBgcq8jwgeMrJXut805fFojxpBf+jaVXVcVuf/yP/sTsKIxY1JxsTj9y
-         XAirp63epjYq7KYH3N9n+b6eBJA2rOL57yKIdu+GkHs2OIP4298vQAclTtqSMSaawnFt
-         GkPrKUQ2SIOxr+aN7SgyrVvfaIVpd5Q+f5fyrcVoBt3t2ODwrn8yaqk1vN6m2igxjh+y
-         H0r1Eo4vQzp1aA5Aw/JSp5q6REvBC1cKCE2AA308ZAKZnfnDio0hiZU6gBqZcv6JVdRY
-         Z8AmmattNDy8UCyvJxwnhWJIOyDkFEHV+uSootPG3V3KJdr5FRo5Poop/yAazEPiyYFN
-         7npg==
-X-Forwarded-Encrypted: i=1; AJvYcCUSG31ZlWGfHeIaYbHH2V5GwtSJ5IZbI/390cxYAny6tdp8XBAYiAOUk6ElJzoReyloBtYFQxKhuI7Fdp5gWYx+B+jRYT2nwaVoAvNXj/nGU2mM/ltKGWgbHHSKvmaSYQ==
-X-Gm-Message-State: AOJu0Yy34UaMki31337ex2BHWxUTB6fsdqWnBbPqWKL9VhLx7y43Rb4p
-	zE7rWPg60zsV6ZhMulpgAO5w6PxNxnh+Ik1e0I5s7IZj/35kyqxj
-X-Google-Smtp-Source: AGHT+IGW29UYKqDLZAk+yL4v7/50eGF/rvzg/Lhhx6XRFsz75OKULY49heFMhhxfjo56f8CDu05fmw==
-X-Received: by 2002:aca:f13:0:b0:3c4:f89f:2a8e with SMTP id 19-20020aca0f13000000b003c4f89f2a8emr780399oip.44.1712306265363;
-        Fri, 05 Apr 2024 01:37:45 -0700 (PDT)
+        bh=sGCyPgl3I2RhYB72u4qf5QL0i6/5w7xwNKgPUqw6zXE=;
+        b=b4PGvOsgWRH62kz91MwIwTEOqfKO1e4apBSFluJOZBqZvG4ELSTLKkuhEg8ZSMmO0w
+         ouxR5ObpvWXovSj35m6xyceZc7EzmLjYzwZRHyHQczslErC1h2Jd8RuHdmwNJeDLUgyS
+         1VxGkYdtNXE/BVabhUd2BSvn9r5MX3ismE68/kgKy3aqwbGAF11ni5cKCdLEkPpg+Oes
+         C1K2lkfNC0oI4QD5HO4yHB5FEZra3oVeQdB0NG4Ii0HI5C62BinKfbAJxiYVU+pemjI6
+         /8AO3U5U815ZWH/BYNnqpGs4KGthBK5sXsCAPslc/bKdhCpvgSa/5I0L1j4pOCFcdX0J
+         RSyw==
+X-Forwarded-Encrypted: i=1; AJvYcCWLLA3gyDSPIuQtfU8uH9/3Wd6y7mWkCQoU0FJKeHKyTWZuPyCUzyNq2T4jroLnsfHmfRn1ZrjrtlWVxRoafvYWentuY1SF53PwaNJDnOOHO/rG5zOiOuNQubx+8FHRpw==
+X-Gm-Message-State: AOJu0Yx4g1zo9jO+VLogpY96cLZYKVJKfiD42WS2qagOhUJP3cMwHery
+	iHZNDi6NHKiQ7g3nXrlsbpVmQlT5SbcH9c35CgzfGuFDxTEXPlN/
+X-Google-Smtp-Source: AGHT+IEXdRMMtpxkTXLY1QR9+bDc6JrDHOZHEaNaHrlHrdrhRUuA/h4JbDJfUfZ+VZMIfoOk2EDb4A==
+X-Received: by 2002:a05:6e02:219b:b0:368:a856:aa20 with SMTP id j27-20020a056e02219b00b00368a856aa20mr661890ila.20.1712306287401;
+        Fri, 05 Apr 2024 01:38:07 -0700 (PDT)
 Received: from wheely.local0.net (124-169-104-130.tpgi.com.au. [124.169.104.130])
-        by smtp.gmail.com with ESMTPSA id y7-20020a63de47000000b005e838b99c96sm808638pgi.80.2024.04.05.01.37.40
+        by smtp.gmail.com with ESMTPSA id y7-20020a63de47000000b005e838b99c96sm808638pgi.80.2024.04.05.01.38.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Apr 2024 01:37:44 -0700 (PDT)
+        Fri, 05 Apr 2024 01:38:07 -0700 (PDT)
 From: Nicholas Piggin <npiggin@gmail.com>
 To: Thomas Huth <thuth@redhat.com>
 Cc: Nicholas Piggin <npiggin@gmail.com>,
@@ -60,14 +60,18 @@ Cc: Nicholas Piggin <npiggin@gmail.com>,
 	Paolo Bonzini <pbonzini@redhat.com>,
 	linuxppc-dev@lists.ozlabs.org,
 	kvm@vger.kernel.org,
-	Janosch Frank <frankja@linux.ibm.com>,
+	Alexandru Elisei <alexandru.elisei@arm.com>,
 	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	=?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>,
 	David Hildenbrand <david@redhat.com>,
-	linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v8 28/35] common/sieve: Use vmalloc.h for setup_mmu definition
-Date: Fri,  5 Apr 2024 18:35:29 +1000
-Message-ID: <20240405083539.374995-29-npiggin@gmail.com>
+	Eric Auger <eric.auger@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	=?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	kvmarm@lists.linux.dev,
+	kvm-riscv@lists.infradead.org
+Subject: [kvm-unit-tests PATCH v8 33/35] configure: Make arch_libdir a first-class entity
+Date: Fri,  5 Apr 2024 18:35:34 +1000
+Message-ID: <20240405083539.374995-34-npiggin@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240405083539.374995-1-npiggin@gmail.com>
 References: <20240405083539.374995-1-npiggin@gmail.com>
@@ -80,165 +84,114 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-There is no good reason to put setup_vm in libcflat.h when it's
-defined in vmalloc.h.
+arch_libdir was brought in to improve the heuristic determination of
+the lib/ directory based on arch and testdir names, but it did not
+entirely clean that mess up.
 
+Remove the arch_libdir->arch->testdir heuristic and just require
+everybody sets arch_libdir correctly. Fail if the lib/arch or
+lib/arch/asm directories can not be found.
+
+Cc: Alexandru Elisei <alexandru.elisei@arm.com>
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Eric Auger <eric.auger@redhat.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>
+Cc: Laurent Vivier <lvivier@redhat.com>
+Cc: Nico Böhr <nrb@linux.ibm.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Thomas Huth <thuth@redhat.com>
-Cc: Janosch Frank <frankja@linux.ibm.com>
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: Nico Böhr <nrb@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>
 Cc: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org
-Acked-by: Andrew Jones <andrew.jones@linux.dev>
+Cc: kvmarm@lists.linux.dev
+Cc: kvm-riscv@lists.infradead.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Reviewed-by: Andrew Jones <andrew.jones@linux.dev>
 Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 ---
- common/sieve.c         | 1 +
- lib/libcflat.h         | 2 --
- lib/s390x/io.c         | 1 +
- lib/s390x/uv.h         | 1 +
- lib/x86/vm.h           | 1 +
- s390x/mvpg.c           | 1 +
- s390x/selftest.c       | 1 +
- x86/pmu.c              | 1 +
- x86/pmu_lbr.c          | 1 +
- x86/vmexit.c           | 1 +
- x86/vmware_backdoors.c | 1 +
- 11 files changed, 10 insertions(+), 2 deletions(-)
+ Makefile  |  2 +-
+ configure | 18 +++++++++++++-----
+ 2 files changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/common/sieve.c b/common/sieve.c
-index 8150f2d98..8fe05ef13 100644
---- a/common/sieve.c
-+++ b/common/sieve.c
-@@ -1,5 +1,6 @@
- #include "alloc.h"
- #include "libcflat.h"
-+#include "vmalloc.h"
+diff --git a/Makefile b/Makefile
+index 4f35fffc6..4e0f54543 100644
+--- a/Makefile
++++ b/Makefile
+@@ -10,7 +10,7 @@ include config.mak
+ VPATH = $(SRCDIR)
  
- static int sieve(char* data, int size)
- {
-diff --git a/lib/libcflat.h b/lib/libcflat.h
-index 700f43527..8c8dd0286 100644
---- a/lib/libcflat.h
-+++ b/lib/libcflat.h
-@@ -152,8 +152,6 @@ do {									\
- void binstr(unsigned long x, char out[BINSTR_SZ]);
- void print_binstr(unsigned long x);
+ libdirs-get = $(shell [ -d "lib/$(1)" ] && echo "lib/$(1) lib/$(1)/asm")
+-ARCH_LIBDIRS := $(call libdirs-get,$(ARCH_LIBDIR)) $(call libdirs-get,$(TEST_DIR))
++ARCH_LIBDIRS := $(call libdirs-get,$(ARCH_LIBDIR))
+ OBJDIRS := $(ARCH_LIBDIRS)
  
--extern void setup_vm(void);
--
- #endif /* !__ASSEMBLY__ */
+ DESTDIR := $(PREFIX)/share/kvm-unit-tests/
+diff --git a/configure b/configure
+index e19ba6f0c..a1308db8e 100755
+--- a/configure
++++ b/configure
+@@ -216,7 +216,6 @@ fi
+ arch_name=$arch
+ [ "$arch" = "aarch64" ] && arch="arm64"
+ [ "$arch_name" = "arm64" ] && arch_name="aarch64"
+-arch_libdir=$arch
  
- #define SZ_256			(1 << 8)
-diff --git a/lib/s390x/io.c b/lib/s390x/io.c
-index fb7b7ddaa..2b28ccaa0 100644
---- a/lib/s390x/io.c
-+++ b/lib/s390x/io.c
-@@ -10,6 +10,7 @@
-  */
- #include <libcflat.h>
- #include <argv.h>
-+#include <vmalloc.h>
- #include <asm/spinlock.h>
- #include <asm/facility.h>
- #include <asm/sigp.h>
-diff --git a/lib/s390x/uv.h b/lib/s390x/uv.h
-index 286933caa..00a370410 100644
---- a/lib/s390x/uv.h
-+++ b/lib/s390x/uv.h
-@@ -4,6 +4,7 @@
+ if [ "$arch" = "riscv" ]; then
+     echo "riscv32 or riscv64 must be specified"
+@@ -286,8 +285,10 @@ fi
  
- #include <sie.h>
- #include <asm/pgtable.h>
-+#include <vmalloc.h>
+ if [ "$arch" = "i386" ] || [ "$arch" = "x86_64" ]; then
+     testdir=x86
++    arch_libdir=x86
+ elif [ "$arch" = "arm" ] || [ "$arch" = "arm64" ]; then
+     testdir=arm
++    arch_libdir=$arch
+     if [ "$target" = "qemu" ]; then
+         arm_uart_early_addr=0x09000000
+     elif [ "$target" = "kvmtool" ]; then
+@@ -336,6 +337,7 @@ elif [ "$arch" = "arm" ] || [ "$arch" = "arm64" ]; then
+     fi
+ elif [ "$arch" = "ppc64" ]; then
+     testdir=powerpc
++    arch_libdir=ppc64
+     firmware="$testdir/boot_rom.bin"
+     if [ "$endian" != "little" ] && [ "$endian" != "big" ]; then
+         echo "You must provide endianness (big or little)!"
+@@ -346,6 +348,7 @@ elif [ "$arch" = "riscv32" ] || [ "$arch" = "riscv64" ]; then
+     arch_libdir=riscv
+ elif [ "$arch" = "s390x" ]; then
+     testdir=s390x
++    arch_libdir=s390x
+ else
+     echo "arch $arch is not supported!"
+     arch=
+@@ -355,6 +358,10 @@ if [ ! -d "$srcdir/$testdir" ]; then
+     echo "$srcdir/$testdir does not exist!"
+     exit 1
+ fi
++if [ ! -d "$srcdir/lib/$arch_libdir" ]; then
++    echo "$srcdir/lib/$arch_libdir does not exist!"
++    exit 1
++fi
  
- bool uv_os_is_guest(void);
- bool uv_os_is_host(void);
-diff --git a/lib/x86/vm.h b/lib/x86/vm.h
-index 4b714bad7..cf39787aa 100644
---- a/lib/x86/vm.h
-+++ b/lib/x86/vm.h
-@@ -2,6 +2,7 @@
- #define _X86_VM_H_
- 
- #include "processor.h"
-+#include "vmalloc.h"
- #include "asm/page.h"
- #include "asm/io.h"
- #include "asm/bitops.h"
-diff --git a/s390x/mvpg.c b/s390x/mvpg.c
-index 296338d4f..a0cfc575a 100644
---- a/s390x/mvpg.c
-+++ b/s390x/mvpg.c
-@@ -15,6 +15,7 @@
- #include <asm/page.h>
- #include <asm/facility.h>
- #include <asm/mem.h>
-+#include <vmalloc.h>
- #include <alloc_page.h>
- #include <bitops.h>
- #include <hardware.h>
-diff --git a/s390x/selftest.c b/s390x/selftest.c
-index 92ed4e5d3..3eaae9b06 100644
---- a/s390x/selftest.c
-+++ b/s390x/selftest.c
-@@ -9,6 +9,7 @@
- #include <libcflat.h>
- #include <util.h>
- #include <alloc.h>
-+#include <vmalloc.h>
- #include <asm/interrupt.h>
- #include <asm/barrier.h>
- #include <asm/pgtable.h>
-diff --git a/x86/pmu.c b/x86/pmu.c
-index 47a1a602a..7062c1ad9 100644
---- a/x86/pmu.c
-+++ b/x86/pmu.c
-@@ -6,6 +6,7 @@
- #include "x86/apic.h"
- #include "x86/desc.h"
- #include "x86/isr.h"
-+#include "vmalloc.h"
- #include "alloc.h"
- 
- #include "libcflat.h"
-diff --git a/x86/pmu_lbr.c b/x86/pmu_lbr.c
-index 40b63fa3d..c6f010847 100644
---- a/x86/pmu_lbr.c
-+++ b/x86/pmu_lbr.c
-@@ -2,6 +2,7 @@
- #include "x86/processor.h"
- #include "x86/pmu.h"
- #include "x86/desc.h"
-+#include "vmalloc.h"
- 
- #define N 1000000
- 
-diff --git a/x86/vmexit.c b/x86/vmexit.c
-index eb5d3023a..48a38f60f 100644
---- a/x86/vmexit.c
-+++ b/x86/vmexit.c
-@@ -1,6 +1,7 @@
- #include "libcflat.h"
- #include "acpi.h"
- #include "smp.h"
-+#include "vmalloc.h"
- #include "pci.h"
- #include "x86/vm.h"
- #include "x86/desc.h"
-diff --git a/x86/vmware_backdoors.c b/x86/vmware_backdoors.c
-index bc1002056..f8cf7ecb1 100644
---- a/x86/vmware_backdoors.c
-+++ b/x86/vmware_backdoors.c
-@@ -6,6 +6,7 @@
- #include "x86/desc.h"
- #include "x86/isr.h"
- #include "alloc.h"
-+#include "vmalloc.h"
- #include "setjmp.h"
- #include "usermode.h"
- #include "fault_test.h"
+ if [ "$efi" = "y" ] && [ -f "$srcdir/$testdir/efi/run" ]; then
+     ln -fs "$srcdir/$testdir/efi/run" $testdir-run
+@@ -417,10 +424,11 @@ fi
+ # link lib/asm for the architecture
+ rm -f lib/asm
+ asm="asm-generic"
+-if [ -d "$srcdir/lib/$arch/asm" ]; then
+-	asm="$srcdir/lib/$arch/asm"
+-elif [ -d "$srcdir/lib/$testdir/asm" ]; then
+-	asm="$srcdir/lib/$testdir/asm"
++if [ -d "$srcdir/lib/$arch_libdir/asm" ]; then
++    asm="$srcdir/lib/$arch_libdir/asm"
++else
++    echo "$srcdir/lib/$arch_libdir/asm does not exist"
++    exit 1
+ fi
+ mkdir -p lib
+ ln -sf "$asm" lib/asm
 -- 
 2.43.0
 
