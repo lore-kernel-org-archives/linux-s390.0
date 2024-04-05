@@ -1,32 +1,31 @@
-Received: from out-185.mta0.migadu.com (out-185.mta0.migadu.com [91.218.175.185])
+Received: from out-176.mta0.migadu.com (out-176.mta0.migadu.com [91.218.175.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A81DC16E897
-	for <linux-s390@vger.kernel.org>; Fri,  5 Apr 2024 14:12:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.185
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 268F516EBF2
+	for <linux-s390@vger.kernel.org>; Fri,  5 Apr 2024 14:14:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712326342; cv=none; b=g3jKWKQwM7i5X8W2zybSflwskSrrX9IWK50YbqeIc4McTmztTOGCusjPM/0+b/BJa/vN2bR9bOw2G45FY1BtWgeIGJ8GS9HLbCOdHsbKdIWAb23x7+mhvZ7h/3bNopFVaZHhZyVanmL5W9hJcyT0c8fw6hhs3nB5nn24j0XIqI4=
+	t=1712326482; cv=none; b=a6VU5rxCtdTkggUe2+xhpp28zgqq7cN9u9wVHVGzxtT78GO7Hnba83WoQ6EHy20KaFU8o13sDCC80K/lXIATYk8XjlkMCi/fPj/c3gAu3su4XWoj+lVzcCyN8ULSc3TlSmQZ00Z1lELgimG17Gj0lAwYha4rcvV+gaBHTfPiLak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712326342; c=relaxed/simple;
-	bh=hfTXsKXQqlzKDkzFApYh2Oz6Ru67sRkqT+Ju0docQhc=;
+	s=arc-20240116; t=1712326482; c=relaxed/simple;
+	bh=60gtkwZJtkUtTxXHSjKwbcJb39g5QFNR0ZBBLFlidoA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WR9mTRGDrGc49qxzVM7SF/uxRMqjhGdcFHa8l0kkfitQ8UtMIM5D03xQGiOx5WNtwLMfbr3qoDnURW1FdvoFg6OKgOFIr4fQZWrIhu6CJ+GPHSbiFUX9zBG4FeQgzXWNHK0v9WAVjCDsjnkb9NbSFRCbr6b8p6AmaLE6yTeUguQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=J6I3F9Tm; arc=none smtp.client-ip=91.218.175.185
+	 Content-Type:Content-Disposition:In-Reply-To; b=oL6YavryHtB7i8mw2N2z4ZBcjWxe6yjMugmvtTnjzskvPL/mPJBLUFvp9n3wcZnJnWWsL2fz8GxrAM3oIzKz8BqeHKFJYuJf71FD+uYFE4TVz9iWUT/VksTMrKMRoo++XXYwdkWmgUEOX/47W9v+Rvsiu3JOqV7OYvUcrrccy3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=V93lojpq; arc=none smtp.client-ip=91.218.175.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="J6I3F9Tm"
-Date: Fri, 5 Apr 2024 16:12:13 +0200
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="V93lojpq"
+Date: Fri, 5 Apr 2024 16:14:36 +0200
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1712326336;
+	t=1712326479;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=aQoJLZJ33UvQFVjEky3Db6r8F1/Ban2xfzk7iT3Ccso=;
-	b=J6I3F9TmBsm0gp5AQe3Z69FaPMRuU9W7CtOWUYnWVuqH02b0zi86Mk+VycuRhnJIJH58f9
-	RH/BfSyKg/1/j25LJVVmbhryi2XwYZ1PIyzfuZsLtdigNttTZF7N7x21fSGcMx/tonFpoS
-	vRM5R0J9n55AxAerAjKiqE8Q5SUay3I=
+	bh=heAcEwYd7ijpY/xlwlhbXGvXei4nJYnvLvvU1hD8rP4=;
+	b=V93lojpqVYIlZQiqZXFDquqlSKvLYFNQmgaNMvkBsWqYVRGAYZ07rhsZq9/EOH58OovLUc
+	uzn5SHI1jOD9TlgGpyWWBTH0cj0dhdAC9366N2qxkkawJ/G743tzPpM8/tQzjvFXjeH4PJ
+	86IB1uMsalwse7274aB/YXZukh83xS8=
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 From: Andrew Jones <andrew.jones@linux.dev>
 To: Nicholas Piggin <npiggin@gmail.com>
@@ -39,140 +38,60 @@ Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>,
 	Ricardo Koller <ricarkol@google.com>, rminmin <renmm6@chinaunicom.cn>, Gavin Shan <gshan@redhat.com>, 
 	Nina Schoetterl-Glausch <nsg@linux.ibm.com>, Sean Christopherson <seanjc@google.com>, kvm@vger.kernel.org, 
 	kvmarm@lists.linux.dev, kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests RFC PATCH 01/17] Add initial shellcheck checking
-Message-ID: <20240405-4880f3f2b12bcae5f3383043@orel>
+Subject: Re: [kvm-unit-tests RFC PATCH 02/17] shellcheck: Fix SC2223
+Message-ID: <20240405-04a2850c5340d5e29c822124@orel>
 References: <20240405090052.375599-1-npiggin@gmail.com>
- <20240405090052.375599-2-npiggin@gmail.com>
+ <20240405090052.375599-3-npiggin@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240405090052.375599-2-npiggin@gmail.com>
+In-Reply-To: <20240405090052.375599-3-npiggin@gmail.com>
 X-Migadu-Flow: FLOW_OUT
 
-On Fri, Apr 05, 2024 at 07:00:33PM +1000, Nicholas Piggin wrote:
-> This adds a basic shellcheck sytle file, some directives to help
-> find scripts, and a make shellcheck target.
+On Fri, Apr 05, 2024 at 07:00:34PM +1000, Nicholas Piggin wrote:
+>   SC2223 (info): This default assignment may cause DoS due to globbing.
+>   Quote it.
 > 
-> When changes settle down this could be made part of the standard
-> build / CI flow.
-> 
-> Suggested-by: Andrew Jones <andrew.jones@linux.dev>
 > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 > ---
->  .shellcheckrc       | 32 ++++++++++++++++++++++++++++++++
->  Makefile            |  4 ++++
->  README.md           |  2 ++
->  scripts/common.bash |  5 ++++-
->  4 files changed, 42 insertions(+), 1 deletion(-)
->  create mode 100644 .shellcheckrc
+>  run_tests.sh         | 4 ++--
+>  scripts/runtime.bash | 4 ++--
+>  2 files changed, 4 insertions(+), 4 deletions(-)
 > 
-> diff --git a/.shellcheckrc b/.shellcheckrc
-> new file mode 100644
-> index 000000000..2a9a57c42
-> --- /dev/null
-> +++ b/.shellcheckrc
-> @@ -0,0 +1,32 @@
-> +# shellcheck configuration file
-> +external-sources=true
-> +
-> +# Optional extras --  https://www.shellcheck.net/wiki/Optional
-> +# Possibilities, e.g., -
-> +# quote‐safe‐variables
-> +# require-double-brackets
-> +# require-variable-braces
-> +# add-default-case
-> +
-> +# Disable SC2004 style? I.e.,
-> +# In run_tests.sh line 67:
-> +#            if (( $unittest_run_queues <= 0 )); then
-> +#                  ^------------------^ SC2004 (style): $/${} is unnecessary on arithmetic variables.
-> +disable=SC2004
-
-I vote keep disabled. The problem pointed out in the wiki can be handled
-with ($a), similar to how one handles variables to C preprocessor macros.
-
-> +
-> +# Disable SC2034 - config.mak contains a lot of these unused variable errors.
-> +# Maybe we could have a script extract the ones used by shell script and put
-> +# them in a generated file, to re-enable the warning.
-> +#
-> +# In config.mak line 1:
-> +# SRCDIR=/home/npiggin/src/kvm-unit-tests
-> +# ^----^ SC2034 (warning): SRCDIR appears unused. Verify use (or export if used externally).
-> +disable=SC2034
-
-Maybe we should export everything in config.mak.
-
-> +
-> +# Disable SC2086 for now, double quote to prevent globbing and word
-> +# splitting. There are lots of places that use it for word splitting
-> +# (e.g., invoking commands with arguments) that break. Should have a
-> +# more consistent approach for this (perhaps use arrays for such cases)
-> +# but for now disable.
-> +# SC2086 (info): Double quote to prevent globbing and word splitting.
-> +disable=SC2086
-
-Agreed. We can cross this bridge later.
-
-> diff --git a/Makefile b/Makefile
-> index 4e0f54543..4863cfdc6 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -141,6 +141,10 @@ cscope:
->  		-name '*.[chsS]' -exec realpath --relative-base=$(CURDIR) {} \; | sort -u > ./cscope.files
->  	cscope -bk
->  
-> +.PHONY: shellcheck
-> +shellcheck:
-> +	shellcheck -a run_tests.sh */run */efi/run scripts/mkstandalone.sh
-> +
->  .PHONY: tags
->  tags:
->  	ctags -R
-> diff --git a/README.md b/README.md
-> index 6e82dc225..77718675e 100644
-> --- a/README.md
-> +++ b/README.md
-> @@ -193,3 +193,5 @@ with `git config diff.orderFile scripts/git.difforder` enables it.
->  
->  We strive to follow the Linux kernels coding style so it's recommended
->  to run the kernel's ./scripts/checkpatch.pl on new patches.
-> +
-> +Also run make shellcheck before submitting a patch.
-
-which touches Bash scripts.
-
-
-> diff --git a/scripts/common.bash b/scripts/common.bash
-> index ee1dd8659..3aa557c8c 100644
-> --- a/scripts/common.bash
-> +++ b/scripts/common.bash
-> @@ -82,8 +82,11 @@ function arch_cmd()
+> diff --git a/run_tests.sh b/run_tests.sh
+> index bb3024ff9..9067e529e 100755
+> --- a/run_tests.sh
+> +++ b/run_tests.sh
+> @@ -158,8 +158,8 @@ function run_task()
+>  	fi
 >  }
 >  
->  # The current file has to be the only file sourcing the arch helper
-> -# file
-> +# file. Shellcheck can't follow this so help it out. There doesn't appear to be a
-> +# way to specify multiple alternatives, so we will have to rethink this if things
-> +# get more complicated.
->  ARCH_FUNC=scripts/${ARCH}/func.bash
->  if [ -f "${ARCH_FUNC}" ]; then
-> +# shellcheck source=scripts/s390x/func.bash
->  	source "${ARCH_FUNC}"
->  fi
+> -: ${unittest_log_dir:=logs}
+> -: ${unittest_run_queues:=1}
+> +: "${unittest_log_dir:=logs}"
+> +: "${unittest_run_queues:=1}"
+>  config=$TEST_DIR/unittests.cfg
+>  
+>  print_testname()
+> diff --git a/scripts/runtime.bash b/scripts/runtime.bash
+> index e4ad1962f..2d7ff5baa 100644
+> --- a/scripts/runtime.bash
+> +++ b/scripts/runtime.bash
+> @@ -1,6 +1,6 @@
+>  : "${RUNTIME_arch_run?}"
+> -: ${MAX_SMP:=$(getconf _NPROCESSORS_ONLN)}
+> -: ${TIMEOUT:=90s}
+> +: "${MAX_SMP:=$(getconf _NPROCESSORS_ONLN)}"
+> +: "${TIMEOUT:=90s}"
+>  
+>  PASS() { echo -ne "\e[32mPASS\e[0m"; }
+>  SKIP() { echo -ne "\e[33mSKIP\e[0m"; }
 > -- 
 > 2.43.0
->
-
-Other than the extension to the sentence in the README,
 
 Reviewed-by: Andrew Jones <andrew.jones@linux.dev>
-
-Thanks,
-drew
