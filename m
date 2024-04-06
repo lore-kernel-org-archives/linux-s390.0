@@ -1,151 +1,228 @@
-Received: from smtp-fw-9106.amazon.com (smtp-fw-9106.amazon.com [207.171.188.206])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82DCE175557;
-	Fri,  5 Apr 2024 22:27:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.171.188.206
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29C90125C1;
+	Sat,  6 Apr 2024 06:31:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712356047; cv=none; b=u+xTbhwsmRezwWfNUAyD1JnRzYl/RJ/gI33aR37BWnetkFsDlfuOE49y0jw4NlmNvPl+IRzp3v9tKVfEynZUheaDyRaLRI7r5G6eGY6/33jNYzyHjj++ENwlF76h46xJp4yZrTbnCZTWPFcbF4NglQgipCGifrHbHr8YbrgMt50=
+	t=1712385091; cv=none; b=aSUuMNdPzFl/k/Vb9/5LlgRpMCVbnGwWPTT19mmFsxq4u51JrZlZZAY/vMJ8whNNih/6pq/EBHgw2jTK7W+vGEwWh1cYjIt271t92v8itUbNvcm8XEasHNw1MBleXnRcl49OaXsQOQtHWfnHjbPgM0WyrtWKiyJ9feYMpkTW2xM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712356047; c=relaxed/simple;
-	bh=qrrZBeX1vtGWgwK5O99qDlCfzTKu2CnGs6Zioe/+/30=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Z0aoUwsMtCAaySyGhoMv85FBhIAl7qXo9RqNcGHUA6nx0srvUfdJ0sUczzXtFonspXftrqI+tIQu3FI9Q5mPxzBi7tsHpXZLaZeA7USE3YTTRH9sj5p2/pxHsoCBKQygnR/hJPHMos+OzJ6ckIQP/hqFBl3Qp1ulx67fVGhsHKk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=LMoCvuAv; arc=none smtp.client-ip=207.171.188.206
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
+	s=arc-20240116; t=1712385091; c=relaxed/simple;
+	bh=KV/wB10K9PldvqN8/z4eMzHUcgIzx9r1HmzzSRp81s8=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
+	 References:In-Reply-To; b=Dt51vv3cmPxBfNvRBIE/ixZda3D013igtSTG9MbGPkU7vEBJZqxIf05IZTWwP58APhSuxrrzoBg8ZdmpmfSNhZ0bMilyuDFOWLFjSsLLL5mV1md0m1f6AtDNHQZHL60C/h/dXybEBLi8af/76/qLz2Ld5DXvXSgKzLfTcRG7JDQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fNOLXNZ/; arc=none smtp.client-ip=209.85.210.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="LMoCvuAv"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fNOLXNZ/"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-6ecea46e1bfso2609513b3a.3;
+        Fri, 05 Apr 2024 23:31:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1712356045; x=1743892045;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=MZmfmRuTm98xxNT3u4GoRIvJJsGslBrgcovMMdqPwTw=;
-  b=LMoCvuAvAiKpauBjBvG9rZqvq6Adv0g22tVGZIEI0d5TB8C2HlDl1LHj
-   ASgigsE0s2Il2hca+iDoCM6AQH10YBXw8e5uCk/kWQjy44Sa3yPPKf9V2
-   ge0Y/ag/602Bo2vu9PmOTCQz5V4tyWdDcU0BFbPvDDGjaYJf/FMeOaHPI
-   Q=;
-X-IronPort-AV: E=Sophos;i="6.07,182,1708387200"; 
-   d="scan'208";a="716520780"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.210])
-  by smtp-border-fw-9106.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2024 22:27:19 +0000
-Received: from EX19MTAUWB002.ant.amazon.com [10.0.7.35:33431]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.50.222:2525] with esmtp (Farcaster)
- id d323b31d-9f42-407f-b466-8125712ac6f4; Fri, 5 Apr 2024 22:27:18 +0000 (UTC)
-X-Farcaster-Flow-ID: d323b31d-9f42-407f-b466-8125712ac6f4
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1258.28; Fri, 5 Apr 2024 22:27:17 +0000
-Received: from 88665a182662.ant.amazon.com (10.106.101.45) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.28;
- Fri, 5 Apr 2024 22:27:06 +0000
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-To: <j.granados@samsung.com>
-CC: <Dai.Ngo@oracle.com>, <alex.aring@gmail.com>, <alibuda@linux.alibaba.com>,
-	<allison.henderson@oracle.com>, <anna@kernel.org>, <bridge@lists.linux.dev>,
-	<chuck.lever@oracle.com>, <coreteam@netfilter.org>, <courmisch@gmail.com>,
-	<davem@davemloft.net>, <dccp@vger.kernel.org>,
-	<devnull+j.granados.samsung.com@kernel.org>, <dhowells@redhat.com>,
-	<dsahern@kernel.org>, <edumazet@google.com>, <fw@strlen.de>,
-	<geliang@kernel.org>, <guwen@linux.alibaba.com>,
-	<herbert@gondor.apana.org.au>, <horms@verge.net.au>, <ja@ssi.bg>,
-	<jaka@linux.ibm.com>, <jlayton@kernel.org>, <jmaloy@redhat.com>,
-	<jreuter@yaina.de>, <kadlec@netfilter.org>, <keescook@chromium.org>,
-	<kolga@netapp.com>, <kuba@kernel.org>, <kuniyu@amazon.com>,
-	<linux-afs@lists.infradead.org>, <linux-hams@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-nfs@vger.kernel.org>,
-	<linux-rdma@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<linux-sctp@vger.kernel.org>, <linux-wpan@vger.kernel.org>,
-	<linux-x25@vger.kernel.org>, <lucien.xin@gmail.com>,
-	<lvs-devel@vger.kernel.org>, <marc.dionne@auristor.com>,
-	<marcelo.leitner@gmail.com>, <martineau@kernel.org>, <matttbe@kernel.org>,
-	<mcgrof@kernel.org>, <miquel.raynal@bootlin.com>, <mptcp@lists.linux.dev>,
-	<ms@dev.tdt.de>, <neilb@suse.de>, <netdev@vger.kernel.org>,
-	<netfilter-devel@vger.kernel.org>, <pabeni@redhat.com>,
-	<pablo@netfilter.org>, <ralf@linux-mips.org>, <razor@blackwall.org>,
-	<rds-devel@oss.oracle.com>, <roopa@nvidia.com>, <stefan@datenfreihafen.org>,
-	<steffen.klassert@secunet.com>, <tipc-discussion@lists.sourceforge.net>,
-	<tom@talpey.com>, <tonylu@linux.alibaba.com>,
-	<trond.myklebust@hammerspace.com>, <wenjia@linux.ibm.com>,
-	<ying.xue@windriver.com>
-Subject: Re: [PATCH v2 4/4] ax.25: Remove the now superfluous sentinel elements from ctl_table array
-Date: Fri, 5 Apr 2024 15:26:58 -0700
-Message-ID: <20240405222658.3615-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20240405071531.fv6smp55znlfnul2@joelS2.panther.com>
-References: <20240405071531.fv6smp55znlfnul2@joelS2.panther.com>
+        d=gmail.com; s=20230601; t=1712385088; x=1712989888; darn=vger.kernel.org;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=C3gFO0LBD4TsLCWewzw78bLLIgfF1Yq2lATDwkzzjxE=;
+        b=fNOLXNZ/wIcdOy8njSjN+S6b8OHi3iKTruGohgQPigzeaD2T99as2OT7uoYSFL+2Ex
+         yY9eQVTQl6G42WvPorC5EGR0tb7SPvmw67z1Po2me+G/fptQHRHxLfxqKZ97dKSu1PLz
+         3zljGz0r4XKwriVj2OgSEwzNW9xK5wqTJvlA+tawIrwT3W0yiCWZ2nOGttlMD407I6D5
+         RzxitXwwRvQpGcXdBODLD9BCG33jH07P1IqRfbIn6ojwqYxfVsV+MRHtHor5/b9llT4X
+         /1gmXoaG9gTxduOyagmWShV758QW4CRp2sZtef8IOROckpgGDDUklAMk0t2jUJmsVmQt
+         cuPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712385088; x=1712989888;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=C3gFO0LBD4TsLCWewzw78bLLIgfF1Yq2lATDwkzzjxE=;
+        b=XYoNoHendfEb1kaocdpN7GSwLo7ennQDNAkYfU3ciLjWGY3mZ50g4gqUKIFhQew2My
+         2SdsnDW4N2/Z6/XZ44TuAK3la64/tLHEi7pKnfxK9NJYJcJWjM1tUIxXuo/2BZAjKJkd
+         znJrAg4RZDcQfJzJFMKYYw/nAq7CMNscPs0D3c5p5Vbp62vKOpU9x0BUAt0cdrd3O65i
+         Rt+BIoTZkSMZITjtVhv5fzuwLV9dDdvrcjHZS9QO/Mt5qKvCnsZ0Y+JdQqccS97TLowb
+         DuJqeNhvZXtg3T3HYV2ViN3+3PXO0WBEXTX3EQR0lhgZzRE4LQu0SH5nYk+fDwQ3uZ8x
+         Gw0g==
+X-Forwarded-Encrypted: i=1; AJvYcCWAVnMvFSawD4PkjGhM4ALfOkVHFMSYypQFMFYxcbH3yU4nYFmyC+avrPau2h5oTdOJ3dLaj642E1VVjtViG4JpIIqiqFL3hopEt4NfAySCNYWrjxu3tpIceytv+CDGZg==
+X-Gm-Message-State: AOJu0YxpuVnDt+uEJmBWII1Y9VF+HCN3PAib8l4fi2+T5y4v+W0QZRzH
+	xtUic0SvDo+LQ4afqIhpNMoJF4rCULJYUb2hTipe7ZguBm5oQxJK
+X-Google-Smtp-Source: AGHT+IFALmVk08NKzMWMyCDJd6QtuwmTTglOMhS/paEBbUp86/OqFJdFQ+4zrRK30sQPpbpFcknh1Q==
+X-Received: by 2002:aa7:8893:0:b0:6ec:ed90:65ea with SMTP id z19-20020aa78893000000b006eced9065eamr3711769pfe.32.1712385088140;
+        Fri, 05 Apr 2024 23:31:28 -0700 (PDT)
+Received: from localhost (124-169-104-130.tpgi.com.au. [124.169.104.130])
+        by smtp.gmail.com with ESMTPSA id km23-20020a056a003c5700b006e6bf17ba8asm2549066pfb.65.2024.04.05.23.31.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 05 Apr 2024 23:31:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: EX19D035UWB001.ant.amazon.com (10.13.138.33) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Sat, 06 Apr 2024 16:31:17 +1000
+Message-Id: <D0CTUKHP4IZV.2OQZNUD6J9U1P@gmail.com>
+Subject: Re: [kvm-unit-tests RFC PATCH 17/17] shellcheck: Suppress various
+ messages
+From: "Nicholas Piggin" <npiggin@gmail.com>
+To: "Andrew Jones" <andrew.jones@linux.dev>
+Cc: "Paolo Bonzini" <pbonzini@redhat.com>, "Thomas Huth" <thuth@redhat.com>,
+ "Alexandru Elisei" <alexandru.elisei@arm.com>, "Eric Auger"
+ <eric.auger@redhat.com>, "Janosch Frank" <frankja@linux.ibm.com>, "Claudio
+ Imbrenda" <imbrenda@linux.ibm.com>, =?utf-8?q?Nico_B=C3=B6hr?=
+ <nrb@linux.ibm.com>, "David Hildenbrand" <david@redhat.com>, "Shaoqin
+ Huang" <shahuang@redhat.com>, "Nikos Nikoleris" <nikos.nikoleris@arm.com>,
+ "Nadav Amit" <namit@vmware.com>, "David Woodhouse" <dwmw@amazon.co.uk>,
+ "Ricardo Koller" <ricarkol@google.com>, "rminmin" <renmm6@chinaunicom.cn>,
+ "Gavin Shan" <gshan@redhat.com>, "Nina Schoetterl-Glausch"
+ <nsg@linux.ibm.com>, "Sean Christopherson" <seanjc@google.com>,
+ <kvm@vger.kernel.org>, <kvmarm@lists.linux.dev>,
+ <kvm-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>
+X-Mailer: aerc 0.17.0
+References: <20240405090052.375599-1-npiggin@gmail.com>
+ <20240405090052.375599-18-npiggin@gmail.com>
+ <20240405-7c0ad5d3ce76e1ad9ad2f5a9@orel>
+In-Reply-To: <20240405-7c0ad5d3ce76e1ad9ad2f5a9@orel>
 
-From: Joel Granados <j.granados@samsung.com>
-Date: Fri, 5 Apr 2024 09:15:31 +0200
-> On Thu, Mar 28, 2024 at 12:49:34PM -0700, Kuniyuki Iwashima wrote:
-> > From: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.org>
-> > Date: Thu, 28 Mar 2024 16:40:05 +0100
-> > > This commit comes at the tail end of a greater effort to remove the
-> > > empty elements at the end of the ctl_table arrays (sentinels) which will
-> > > reduce the overall build time size of the kernel and run time memory
-> > > bloat by ~64 bytes per sentinel (further information Link :
-> > > https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
-> > > 
-> > > When we remove the sentinel from ax25_param_table a buffer overflow
-> > > shows its ugly head. The sentinel's data element used to be changed when
-> > > CONFIG_AX25_DAMA_SLAVE was not defined.
-> > 
-> > I think it's better to define the relation explicitly between the
-> > enum and sysctl table by BUILD_BUG_ON() in ax25_register_dev_sysctl()
-> > 
-> >   BUILD_BUG_ON(AX25_MAX_VALUES != ARRAY_SIZE(ax25_param_table));
-> > 
-> > and guard AX25_VALUES_DS_TIMEOUT with #ifdef CONFIG_AX25_DAMA_SLAVE
-> > as done for other enum.
-> 
-> When I remove AX25_VALUES_DS_TIMEOUT from the un-guarded build it
-> complains in net/ax25/ax25_ds_timer.c (ax25_ds_set_timer). Here is the
-> report https://lore.kernel.org/oe-kbuild-all/202404040301.qzKmVQGB-lkp@intel.com/.
-> 
-> How best to address this? Should we just guard the whole function and do
-> nothing when not set? like this:
+On Sat Apr 6, 2024 at 12:55 AM AEST, Andrew Jones wrote:
+> On Fri, Apr 05, 2024 at 07:00:49PM +1000, Nicholas Piggin wrote:
+> > Various info and warnings are suppressed here, where circumstances
+> > (commented) warrant.
+> >=20
+> > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> > ---
+> >  run_tests.sh            | 3 +++
+> >  scripts/arch-run.bash   | 9 +++++++++
+> >  scripts/mkstandalone.sh | 2 ++
+> >  scripts/runtime.bash    | 2 ++
+> >  4 files changed, 16 insertions(+)
+> >=20
+> > diff --git a/run_tests.sh b/run_tests.sh
+> > index 938bb8edf..152323ffc 100755
+> > --- a/run_tests.sh
+> > +++ b/run_tests.sh
+> > @@ -45,6 +45,9 @@ fi
+> >  only_tests=3D""
+> >  list_tests=3D""
+> >  args=3D$(getopt -u -o ag:htj:vl -l all,group:,help,tap13,parallel:,ver=
+bose,list,probe-maxsmp -- "$@")
+> > +# Shellcheck likes to test commands directly rather than with $? but s=
+ometimes they
+> > +# are too long to put in the same test.
+> > +# shellcheck disable=3DSC2181
+> >  [ $? -ne 0 ] && exit 2;
+> >  set -- $args;
+> >  while [ $# -gt 0 ]; do
+> > diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
+> > index ed440b4aa..fe8785cfd 100644
+> > --- a/scripts/arch-run.bash
+> > +++ b/scripts/arch-run.bash
+> > @@ -44,6 +44,8 @@ run_qemu ()
+> >  	if [ "$errors" ]; then
+> >  		sig=3D$(grep 'terminating on signal' <<<"$errors")
+> >  		if [ "$sig" ]; then
+> > +			# This is too complex for ${var/search/replace}
+> > +			# shellcheck disable=3DSC2001
+> >  			sig=3D$(sed 's/.*terminating on signal \([0-9][0-9]*\).*/\1/' <<<"$=
+sig")
+> >  		fi
+> >  	fi
+> > @@ -174,9 +176,12 @@ run_migration ()
+> > =20
+> >  	# Holding both ends of the input fifo open prevents opens from
+> >  	# blocking and readers getting EOF when a writer closes it.
+> > +	# These fds appear to be unused to shellcheck so quieten the warning.
+> >  	mkfifo ${src_infifo}
+> >  	mkfifo ${dst_infifo}
+> > +	# shellcheck disable=3DSC2034
+> >  	exec {src_infifo_fd}<>${src_infifo}
+> > +	# shellcheck disable=3DSC2034
+> >  	exec {dst_infifo_fd}<>${dst_infifo}
+> > =20
+> >  	"${migcmdline[@]}" \
+> > @@ -184,6 +189,8 @@ run_migration ()
+> >  		-mon chardev=3Dmon,mode=3Dcontrol \
+> >  		< ${src_infifo} > ${src_outfifo} &
+> >  	live_pid=3D$!
+> > +	# SC complains about useless cat but I prefer it over redirect here.
+>
+> Let's spell out 'shellcheck' when referring to it rather than call it
+> 'SC'. And instead of "but I prefer..." let's write
+>
+>  # shellcheck complains about a useless cat, but using a redirect here is
+>  # harder to read
 
-It seems fine to me.
+Sounds good, will do.
 
-ax25_ds_timeout() checks !ax25_dev->dama.slave_timeout, but it's
-initialised by kzalloc() during dev setup, so it will be a noop.
+>
+> or something like that. Don't tell my cat-loving daughter that I just
+> wrote "a useless cat"!
 
+:D
 
-> 
-> ```
-> void ax25_ds_set_timer(ax25_dev *ax25_dev)
-> {
-> #ifdef COFNIG_AX25_DAMA_SLAVE
->         if (ax25_dev == NULL)        ···/* paranoia */
->                 return;
-> 
->         ax25_dev->dama.slave_timeout =
->                 msecs_to_jiffies(ax25_dev->values[AX25_VALUES_DS_TIMEOUT]) / 10;
->         mod_timer(&ax25_dev->dama.slave_timer, jiffies + HZ);
-> #else
->         return;
-> #endif
-> }
-> 
-> ```
-> 
-> I'm not too familiar with this, so pointing me to the "correct" way to
-> handle this would be helpfull.
+>
+>
+> > +	# shellcheck disable=3DSC2002
+> >  	cat ${src_outfifo} | tee ${src_out} | filter_quiet_msgs &
+> > =20
+> >  	# Start the first destination QEMU machine in advance of the test
+> > @@ -224,6 +231,8 @@ do_migration ()
+> >  		-mon chardev=3Dmon,mode=3Dcontrol -incoming unix:${dst_incoming} \
+> >  		< ${dst_infifo} > ${dst_outfifo} &
+> >  	incoming_pid=3D$!
+> > +	# SC complains about useless cat but I prefer it over redirect here.
+>
+> Same comment as above.
+>
+> > +	# shellcheck disable=3DSC2002
+> >  	cat ${dst_outfifo} | tee ${dst_out} | filter_quiet_msgs &
+> > =20
+> >  	# The test must prompt the user to migrate, so wait for the
+> > diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
+> > index 756647f29..2318a85f0 100755
+> > --- a/scripts/mkstandalone.sh
+> > +++ b/scripts/mkstandalone.sh
+> > @@ -65,6 +65,8 @@ generate_test ()
+> >  	fi
+> > =20
+> >  	temp_file bin "$kernel"
+> > +	# Don't want to expand $bin but print it as-is.
+> > +	# shellcheck disable=3DSC2016
+> >  	args[3]=3D'$bin'
+> > =20
+> >  	(echo "#!/usr/bin/env bash"
+> > diff --git a/scripts/runtime.bash b/scripts/runtime.bash
+> > index 3b76aec9e..c87613b96 100644
+> > --- a/scripts/runtime.bash
+> > +++ b/scripts/runtime.bash
+> > @@ -137,6 +137,8 @@ function run()
+> >      # the check line can contain multiple files to check separated by =
+a space
+> >      # but each check parameter needs to be of the form <path>=3D<value=
+>
+> >      if [ "$check" ]; then
+> > +        # There is no globbing allowed in the check parameter.
+> > +        # shellcheck disable=3DSC2206
+> >          check=3D($check)
+>
+> Hmm, I'm not sure about this one. $check is an arbitrary path, which mean=
+s
+> it can have spaces, then =3D, and then an arbitrary value, which means it=
+ can
+> contain spaces. If there are multiple check path=3Dvalue pairs then
+> separation by space is a bad idea, and any deliminator really is. It seem=
+s
+> like each pair should be quoted, i.e.
+>
+>  check =3D "path1=3Dvalue1" "path2=3Dvalue2"
+>
+> and then that should be managed here.
 
-Also, you will need to guard another use of AX25_VALUES_DS_TIMEOUT in
-ax25_dev_device_up().
+Yeah I did think of that, valid paths could also have =3D and ", and even
+with double quotes it seems to be tricky to handle spaces.
 
-Thanks!
+Maybe I'll just add to the unittest.cfg docs to stick with alphanumeric
+paths, and we can improve it if someone complains?
+
+Thanks,
+Nick
