@@ -1,92 +1,115 @@
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF3136F06B
-	for <linux-s390@vger.kernel.org>; Mon,  8 Apr 2024 12:43:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 277BD8061F;
+	Mon,  8 Apr 2024 14:22:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712580186; cv=none; b=HFBHCpwugE1WQx99j4lFdvhckDzClcTdWQ1j17TlPM48Ccz/FPTPc04ezmmNdQ4AsesaErGqhfiA/BFCKxgR7mIphcpiR1N6zf6k5yJYEgW3ep6fEolrzDEhDGIwp6oDbIodf3WNpPNBlvDYuol94uizR9sex364x9l3yXs6EZk=
+	t=1712586164; cv=none; b=HdqFjvh3sVU9kmCKQsjFHBZQgiqkLHj+/KKAYNyL0UDbndKqvjiGgVCNmIBA0NUfP23//MuUAUkmRH7tK9cDmYZSMguUP5cEUARNi3cdgWz2Jf/ACXsN7nvvd/scN2p7LIj38TJKQXpl51DfKqmzo2fHeyBuY5mz28MVOr14Ts0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712580186; c=relaxed/simple;
-	bh=bj+zCFiaSngsf1RnmUNrOHE0R/4I7AH4K4X2+QbvPnA=;
-	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=llK+rWznzHQ+t6wGafj4l/QnQvHKnklbzzekJ5hJbLBfCBySz2opj3gD4nn9yLLvqLvygBxj/fhKHnjoOQlC6PmOobowpmjhjE20/5M+XPxEXFLXoNnVgvqEEvKDCJWCYJcOzLU6K6H/U/ooOMCBLqWDDt2zfvEKMxLH5MNnP18=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=toblux.com; spf=none smtp.mailfrom=toblux.com; dkim=pass (2048-bit key) header.d=toblux-com.20230601.gappssmtp.com header.i=@toblux-com.20230601.gappssmtp.com header.b=foj/BEl8; arc=none smtp.client-ip=209.85.218.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=toblux.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=toblux.com
+	s=arc-20240116; t=1712586164; c=relaxed/simple;
+	bh=J1/fqstbM5sABZsuP5LWcr7jv6Ko56PfgEUWHAOq6+s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ot3JKJVIZvXUB+862JOOnHy4h5vxFU8fXXVWmaP+XgMO9oE+uX4aLqps5/tWISs/YqLA2pehy8vRZWDes5USAYsARDxQf/fq17ghzKZE+82a4Ds47EMWbdljETkZJPXopntVIG+4k7jAEsUc27KxVdIm5MT8Me9/w0NrguVqQBE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=C8yRrVg6; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=toblux-com.20230601.gappssmtp.com header.i=@toblux-com.20230601.gappssmtp.com header.b="foj/BEl8"
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-a44f2d894b7so507049966b.1
-        for <linux-s390@vger.kernel.org>; Mon, 08 Apr 2024 05:43:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=toblux-com.20230601.gappssmtp.com; s=20230601; t=1712580183; x=1713184983; darn=vger.kernel.org;
-        h=to:references:message-id:content-transfer-encoding:cc:date
-         :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bj+zCFiaSngsf1RnmUNrOHE0R/4I7AH4K4X2+QbvPnA=;
-        b=foj/BEl8mHLsFcxY/4hSaHE9Z0jZARB2tEr+pyWbtIJzZll6jgyar4fp/dtIubnUFl
-         pZsfy/2FTWZ2hXEWkUsRazxX5YgjS9ejzO3ggVcjbu3WpQJI9jG6gGJUkyp+NcVSl7gI
-         wIVEukPyCjfU0pGJ5IvrAAnIlzsfhDw4xjF+ceEIaDqh0m3PQbyOBLrjFERf8K8JndMe
-         wmTm8Kiw1tPTC0gRyfD5CgIcb4Ppn2/Y8eUdv6iP/+eYwdIGujph6YSxeSLTPGX7K/LF
-         BSlgXDlk8Z8qsqCvIb02JXBvlo3CqAiK1CD+dzpbyrjNrlReVp29DgvaNzo37zUaaxos
-         Rk0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712580183; x=1713184983;
-        h=to:references:message-id:content-transfer-encoding:cc:date
-         :in-reply-to:from:subject:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=bj+zCFiaSngsf1RnmUNrOHE0R/4I7AH4K4X2+QbvPnA=;
-        b=N4LeNY4wYqjdap2j+Kso2PCfdMOH+Hl3+qrlnnM311R1JxMfKsVopfB9FLgnA6AAFG
-         Nr+7bPHMYhugHmnJGoHK3X7ck9H3igff86Of0XSsHCkdo/fc10f2w683i+4O61/cXu8g
-         B6tL5NTQABr8LQA5zMYKj3jCGfpPZuiWHs8GBsw/APFUuFxXK4X/qr1B4tB5cpYR/op0
-         K83yG9g8ls74JyiseDK7nBU3Q4fzKI8UvSn/fJ/LadRwk3sxeDmBMyOM2qpBTF4kwD0M
-         wIif5FSMh/RTiabdMf3bCMzu8l6LefHl081gdwk32+tl/y3cNH0qAOZasQptBp6C2ERB
-         4gtg==
-X-Forwarded-Encrypted: i=1; AJvYcCUY46dGRA/5IgyGG9H+LxLpJyVTtuX8ZrSa4FNzCM0/dG7dw08Ylq47BSWkPtSYFZAGnLeP5tBA7eedhgAN4OUK9SOUHCtwMCmFjQ==
-X-Gm-Message-State: AOJu0Yz/u/R8R+gdB4GGoDzRm/9s37qd0URcOshB+T5kLDGdiFDA4Hk9
-	htVYBzgTiIedlba4oLeFPaKJB3fvJrjeHDflhk8S8qcopqqn10tGycIiY3PEgzM=
-X-Google-Smtp-Source: AGHT+IGDD2DAXc57z2cnZ7DXnGu+eOjPdA/p1faP571apS05EgwVdkCDrTge5mJIsjcO3AGCGFfWPw==
-X-Received: by 2002:a17:907:9496:b0:a51:bc68:fa94 with SMTP id dm22-20020a170907949600b00a51bc68fa94mr5218668ejc.21.1712580183218;
-        Mon, 08 Apr 2024 05:43:03 -0700 (PDT)
-Received: from smtpclient.apple ([2001:a61:10c6:ce01:bd98:da4e:9b4c:75b3])
-        by smtp.gmail.com with ESMTPSA id d21-20020a170906c21500b00a4e28cacbddsm4384024ejz.57.2024.04.08.05.43.01
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Apr 2024 05:43:02 -0700 (PDT)
-Content-Type: text/plain;
-	charset=us-ascii
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="C8yRrVg6"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 438Dq4Jx026068;
+	Mon, 8 Apr 2024 14:22:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=lUVGF3u8yqzsf9tOwSFu7MTvf+cbSRWHzIgwMIHLc0c=;
+ b=C8yRrVg6AoxzingXHiy/NZdvSvUrHrw/YaHKNn+adwLZAnKNyFecJqBT6Sg8EQFCxbSn
+ NWupffX6HRFuK/5nqmKqsB+e5h23r7UFcsPdQPsHOi2FMEOGVVCNbXy98qLF56XwwQQk
+ AXhz5D7P8qQ50Fozc6xeLfynbzzSEcXaWMo5FrDbVNK7wXzlSmRueKKh1GaACQ2YwYZk
+ BEAxCPMvDlg3+EvnvqfmGMBEFYjLr/SjLRZXr87SyfP5DwUNpIsXEh+fAq3ndZX8NV7N
+ 915C2RGNidUPVAyVu+gmreXDGyIHuGjtODKLKKEd6U8KvsQd0y5UA3eo50igmfZEPZeA Tw== 
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xchuc03s5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 08 Apr 2024 14:22:41 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 438Bmp0Y022627;
+	Mon, 8 Apr 2024 14:22:39 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xbhqnrgtr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 08 Apr 2024 14:22:39 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 438EMYA538666574
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 8 Apr 2024 14:22:36 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 07DDB2004D;
+	Mon,  8 Apr 2024 14:22:34 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C0C7620049;
+	Mon,  8 Apr 2024 14:22:33 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon,  8 Apr 2024 14:22:33 +0000 (GMT)
+Date: Mon, 8 Apr 2024 16:22:32 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: "Jason J. Herne" <jjherne@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        pasic@linux.ibm.com, akrowiak@linux.ibm.com, borntraeger@de.ibm.com,
+        gor@linux.ibm.com, hca@linux.ibm.com,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+Subject: Re: [PATCH v4 4/5] s390/vfio-ap: Add write support to sysfs attr
+ ap_config
+Message-ID: <ZhP9qHs6tjPbh1/J@tuxmaker.boeblingen.de.ibm.com>
+References: <20240326164706.29167-1-jjherne@linux.ibm.com>
+ <20240326164706.29167-5-jjherne@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3774.500.171.1.1\))
-Subject: Re: [PATCH] s390/tools: Use ARRAY_SIZE() to fix Coccinelle warnings
-From: Thorsten Blum <thorsten.blum@toblux.com>
-In-Reply-To: <20240408115104.9447-C-hca@linux.ibm.com>
-Date: Mon, 8 Apr 2024 14:42:51 +0200
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Hendrik Brueckner <brueckner@linux.ibm.com>,
- linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <7934000F-958F-4B64-BCC1-2686DCAF87B5@toblux.com>
-References: <20240408105515.2328-3-thorsten.blum@toblux.com>
- <20240408115104.9447-C-hca@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-X-Mailer: Apple Mail (2.3774.500.171.1.1)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240326164706.29167-5-jjherne@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: nZCmbvNW4oYQi_YX7IiFYqSRUNTitnZD
+X-Proofpoint-GUID: nZCmbvNW4oYQi_YX7IiFYqSRUNTitnZD
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-08_12,2024-04-05_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
+ spamscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0 malwarescore=0
+ priorityscore=1501 phishscore=0 impostorscore=0 bulkscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
+ definitions=main-2404080111
 
-On 8. Apr 2024, at 13:51, Heiko Carstens <hca@linux.ibm.com> wrote:
->=20
-> Let's wait until a compile bot reports compile error. It would be
-> helpful to at least compile patches, before sending them.
+On Tue, Mar 26, 2024 at 12:47:05PM -0400, Jason J. Herne wrote:
 
-Sorry about that. I usually compile the patch before submitting it, but =
-missed
-this one somehow.
+Hi Jason,
 
-Just including the missing header file also doesn't work.
+This series still has some issues.
 
-Please ignore this patch for now.=
+> +	newbuf = rest = kstrndup(buf, AP_CONFIG_STRLEN, GFP_KERNEL);
+
+This line triggers a checkpatch warning. Would it make sense
+to turn it into below instead?
+
+	newbuf = kstrndup(buf, AP_CONFIG_STRLEN, GFP_KERNEL);
+> +	if (!newbuf)
+> +		return -ENOMEM;
+	rest = newbuf;
+
+Also, please address other checkpatch suggestions.
+
+> +	/* Save old state */
+> +	/* The volatile cast here is to work around a gcc false positive
+> +	 * Wstringop-overread-warning.
+> +	 */
+> +	ap_matrix_copy(&m_old, (*(struct ap_matrix * volatile *)(&matrix_mdev->matrix)));
+
+Could you please come up with a different workaround? This issue has already
+been resolved in the past in different ways. See commit 34186b48d29b ("ARM:
+sharpsl_param: work around -Wstringop-overread warning") for example.
+
+Thanks!
