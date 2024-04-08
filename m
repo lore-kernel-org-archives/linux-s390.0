@@ -1,70 +1,68 @@
-Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35CF65FB8F
-	for <linux-s390@vger.kernel.org>; Mon,  8 Apr 2024 10:52:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 964F35F861
+	for <linux-s390@vger.kernel.org>; Mon,  8 Apr 2024 10:56:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712573576; cv=none; b=k4eodVsum7cZ9gONrydLO1fq8LiKZXbI+PXUFI0HXpeQQ1XTeLC0locBIaGcoXD66sJR1th7o49EaUtUNLbqxWTBOLsewOw7Dqzy3N14Nrdbbj1zJeav5dnEqORu6VTByRix9BSucL7fa78OlNawLSXbfKfnU3GiuzmSk7DyXEU=
+	t=1712573763; cv=none; b=uiQ2QJufgEUGhnsCtf3OO7HI/JFxZUfOxs+1cRV7LNgzxB+CJ6e98GOReovkEwPaKOXcvu4LrlftGRcgyDaJzMKWv0h85iPZbTb+6yVYp7L+7i1tdgLPcKBh5tpMYr82vKbFH31i5QAP5y3Rq6pJUiuqZkB7cbR6hmrok5Zyw30=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712573576; c=relaxed/simple;
-	bh=aF/W46UoLp2taMYWzXVCLlW68M9W3n2oWkNKNWSuY7A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ux5PT83PaopFuf4+d+H5hFHEzFWk4IsR51MgDPGOa5+W0E/rmNcmh/1J+R+JhGTfP4UuZoBDyjfG2ReviEgSUwDyKrSHhhRShFhT5LWiBuiu7gUqfYriJY66WJHH9V+jDwzSwx1bXCxV6BodlaFt2i6uXmvJty/LpTM5yvQysY0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=toblux.com; spf=none smtp.mailfrom=toblux.com; dkim=pass (2048-bit key) header.d=toblux-com.20230601.gappssmtp.com header.i=@toblux-com.20230601.gappssmtp.com header.b=gWjvX8kn; arc=none smtp.client-ip=209.85.218.44
+	s=arc-20240116; t=1712573763; c=relaxed/simple;
+	bh=kEgF9I/ipHqHK/VgVuJ8B/ldXF4n52hinx8TTVFqrbA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uRufIWhBlnMTRh0oLwr6YCDqG8AOdrqoepS4S5PcOoIIc6Wo2CYp8FifU4T8q5AvB3KcQrtIP46FXaxRYwb5MDgNeGQ+NNyarVWyPSdYPF16J0Z0gnY5/NhGVDx+UQW6TPJJgz9c8+8anuUUaVbB7vQwoMA9jyxMJglUYnxxAwg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=toblux.com; spf=none smtp.mailfrom=toblux.com; dkim=pass (2048-bit key) header.d=toblux-com.20230601.gappssmtp.com header.i=@toblux-com.20230601.gappssmtp.com header.b=NRks62Cy; arc=none smtp.client-ip=209.85.208.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=toblux.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=toblux.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=toblux-com.20230601.gappssmtp.com header.i=@toblux-com.20230601.gappssmtp.com header.b="gWjvX8kn"
-Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-a51a7d4466bso316127966b.2
-        for <linux-s390@vger.kernel.org>; Mon, 08 Apr 2024 03:52:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=toblux-com.20230601.gappssmtp.com header.i=@toblux-com.20230601.gappssmtp.com header.b="NRks62Cy"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-565c6cf4819so9085941a12.1
+        for <linux-s390@vger.kernel.org>; Mon, 08 Apr 2024 03:56:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=toblux-com.20230601.gappssmtp.com; s=20230601; t=1712573573; x=1713178373; darn=vger.kernel.org;
+        d=toblux-com.20230601.gappssmtp.com; s=20230601; t=1712573759; x=1713178559; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=c+6FLVqqHt8Puy85HABB6phKSAnHTOaWceMatcPamvE=;
-        b=gWjvX8knPeP5lAuTtc5pkOU7gKGKBK4a6gsdE+UzCEpIAPbSIGGCuVW+zGGkRbIz4B
-         2cHMdu8RdnEXacrIZZCCaK6yHj1fDj4DUNkL78X/TAjVpRo7TRGsLAYVHzXgU7kGjlcZ
-         RFcoVKA59Olsh4Czgk9NcqUGGSY8YvaZ4u6WPH6BaVo0NAY1zinpZl1wWqPJi0Z3C0yn
-         x75XIvAGsRvLn5sGUIdfghFBnTW23xn2OqhvJ2KQOAH1RgIdLBg/jmGTHTkjJtJwsMB5
-         HlegJhSPQFtKdf5Ii3XtmyJAYQGJzyAvBbGfg4a0m67KDyDfCPLWk8VbnSOVTWlA5aOA
-         YcbA==
+        bh=mqQDXPfK9efO5t44B+8ce16kPk2snvMFmnndCGXCakU=;
+        b=NRks62CyFjyz5+5YWPmKk2fIYwrWL1k6CmwblsjoG753AflHpDyJub2cQ4CoSCJSjI
+         p8McSBpthGrgghmrORwnTB6Wdzuiko6OzmiAdeCSOLEA7Ebc/9NQhso1DE5Rk4QqShj0
+         89rn3PR+A+ktzlWBmnFLTBmPnfPHDbImn6uRjVO/vkdou07UbsuCy50CwlFU5NXpQDtF
+         NBx17W/uEmNm9Is/Fhw2dUfb2F8rQLideTxoSQWcpdL+l9tFS8pC1YUMvRBYomaTJKTx
+         0jxbXZJOdRWRxloDjWbjuPc9gitvsKNW6u1chaxxgpQyUBdedaUOStOClzC0I8GnYidM
+         Kktg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712573573; x=1713178373;
+        d=1e100.net; s=20230601; t=1712573759; x=1713178559;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=c+6FLVqqHt8Puy85HABB6phKSAnHTOaWceMatcPamvE=;
-        b=TFIvaa6Kws0wx3+pKVAfwHvzQ6Pg13mwk/AUE47ATvDCvLDHuo2au9PMuwgsnb2znU
-         RfAGgz2jvN5msehu70sjp+k2rgnof+q2f+LMUtam3JsXFNgJ0VJ/6rPzAQ8tYmu9Wf8x
-         zLw11vmc+WvMiAczwAtob/3o/GUsrsvfwhII9aTx4BsVSSdBbqTHVeIxLhTewxr3yGyA
-         GMYYCj6byrLtnHNZxd57DflGT5sBZerZVRaQ1ehA+AnDWxN7m/u/b5C8Cwdkdwc6c9Z6
-         gsgHYB4bLE5+F22qdlH8rrnSyskUux/EitnSWRNhfT9qW6AfyBa5a8h7I2Tgrvol4Dhq
-         zZuQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXvzOYV2og52ERChCKyHZLELMdXYcArWdBt/HHY4vLC/4Hfu6tSiujNUF6o1C+K0WFoOTQej8JD3/V0Lwt1XYnbAk96o5f50u9fYA==
-X-Gm-Message-State: AOJu0YzEoZoCNgHYFtHrMAEbd+/Kh/UAf0ObtunfL5fr0w5gCfKsK5Bx
-	NxcWmNo6tyADRBPghLcKVwOIreZILhgsnCLkbQUa1FytsEsYwd9P1rhDLrycHzMvN1uEYxPdBNw
-	Ga/Y=
-X-Google-Smtp-Source: AGHT+IHtnHD0iZGBcOLtZepHusEAfnU6WYK0+W/v7TX2d8AXCJpOSAKOKV0P/Fas9oUdy52dsQXIyg==
-X-Received: by 2002:a17:906:c104:b0:a51:aad5:8c62 with SMTP id do4-20020a170906c10400b00a51aad58c62mr6350921ejc.60.1712573573514;
-        Mon, 08 Apr 2024 03:52:53 -0700 (PDT)
+        bh=mqQDXPfK9efO5t44B+8ce16kPk2snvMFmnndCGXCakU=;
+        b=E3e2TAANU14dC8UCJCM8ytaqjp+BBr+ZclzegIay+QdNwCkBnW5vEYz3q8txpzgvKA
+         ixa4A/13iZ1DgsH5HWPV8U3Zx/exVPhTM5v5dxiXwDFJ4zNmInT+fKDd5rxArNLifew0
+         sLmvv18v4S+hoR6tvEe7YpAHM7Msq6vhZ84J3+fJDu8fLDRkLHHRGLrAKLdERlxV6DKs
+         lHatfBLI/fVWeHkJwc7p1ozK77zKaa7Q8Dzzbm9S9f7U+5Ym+iQ5jUDuXl2vk9t9PmKz
+         cSkjkyk6T0njh1+YTIjtTRbYaEgkFH9w5f1KtN9Hg7zJbz/rx1/RyklrXbebO13z/t4a
+         h3Pw==
+X-Forwarded-Encrypted: i=1; AJvYcCXTryiSVjusou3gYxq2vWjYha2KTWfyEPeRDnfwavNYnwssW4XtMWwZJebW4VVSZOnaOf8wOBdbOaE/W935KyRf54Rrj2GzGqK51w==
+X-Gm-Message-State: AOJu0YzdS/BsXfCC6WY6Q8au/c1GHJ7/kEpxXM9+qEym2pP0n1haeQZ8
+	fyPsv6F7TIOq9iNMcWjBWTDQRBTxZJvlY5aqluiCUpBB6uVfYvZAIYF8mRxhFSQ=
+X-Google-Smtp-Source: AGHT+IGVaPWTXesL6CrfDHvqS/I8wRxWNWsnEaZhlmzN2xzxmYEK/dbsAWen74B807WwEhMUvEGwuw==
+X-Received: by 2002:a17:907:7e85:b0:a51:ab81:6062 with SMTP id qb5-20020a1709077e8500b00a51ab816062mr9443862ejc.30.1712573758841;
+        Mon, 08 Apr 2024 03:55:58 -0700 (PDT)
 Received: from fedora.fritz.box (aftr-82-135-80-212.dynamic.mnet-online.de. [82.135.80.212])
-        by smtp.gmail.com with ESMTPSA id gx12-20020a1709068a4c00b00a4e03c28fd5sm4310119ejc.43.2024.04.08.03.52.52
+        by smtp.gmail.com with ESMTPSA id se1-20020a170906ce4100b00a51a9d87570sm4008517ejb.17.2024.04.08.03.55.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Apr 2024 03:52:53 -0700 (PDT)
+        Mon, 08 Apr 2024 03:55:58 -0700 (PDT)
 From: Thorsten Blum <thorsten.blum@toblux.com>
 To: Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>
-Cc: Frederic Weisbecker <frederic@kernel.org>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
+Cc: Hendrik Brueckner <brueckner@linux.ibm.com>,
 	linux-s390@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Thorsten Blum <thorsten.blum@toblux.com>
-Subject: [PATCH] s390/smp: Use min() to fix Coccinelle warning
-Date: Mon,  8 Apr 2024 12:51:25 +0200
-Message-ID: <20240408105124.2162-2-thorsten.blum@toblux.com>
+Subject: [PATCH] s390/tools: Use ARRAY_SIZE() to fix Coccinelle warnings
+Date: Mon,  8 Apr 2024 12:55:17 +0200
+Message-ID: <20240408105515.2328-3-thorsten.blum@toblux.com>
 X-Mailer: git-send-email 2.44.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -74,29 +72,44 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Fixes the following Coccinelle/coccicheck warning reported by
-minmax.cocci:
+Fixes the following two Coccinelle/coccicheck warnings reported by
+array_size.cocci:
 
-	WARNING opportunity for min()
+	WARNING: Use ARRAY_SIZE
+	WARNING: Use ARRAY_SIZE
 
 Signed-off-by: Thorsten Blum <thorsten.blum@toblux.com>
 ---
- arch/s390/kernel/smp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/tools/gen_facilities.c   | 2 +-
+ arch/s390/tools/gen_opcode_table.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 0324649aae0a..d69cf2475744 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -1205,7 +1205,7 @@ static int __init s390_smp_init(void)
+diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+index 68580cbea4e6..ebd8a947e97c 100644
+--- a/arch/s390/tools/gen_facilities.c
++++ b/arch/s390/tools/gen_facilities.c
+@@ -149,7 +149,7 @@ static void print_facility_lists(void)
+ {
+ 	unsigned int i;
  
- 	rc = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "s390/smp:online",
- 			       smp_cpu_online, smp_cpu_pre_down);
--	rc = rc <= 0 ? rc : 0;
-+	rc = min(rc, 0);
- out:
- 	return rc;
+-	for (i = 0; i < sizeof(facility_defs) / sizeof(facility_defs[0]); i++)
++	for (i = 0; i < ARRAY_SIZE(facility_defs); i++)
+ 		print_facility_list(&facility_defs[i]);
  }
+ 
+diff --git a/arch/s390/tools/gen_opcode_table.c b/arch/s390/tools/gen_opcode_table.c
+index a1bc02b29c81..468b70c85f62 100644
+--- a/arch/s390/tools/gen_opcode_table.c
++++ b/arch/s390/tools/gen_opcode_table.c
+@@ -138,7 +138,7 @@ static struct insn_type *insn_format_to_type(char *format)
+ 	strcpy(tmp, format);
+ 	base_format = tmp;
+ 	base_format = strsep(&base_format, "_");
+-	for (i = 0; i < sizeof(insn_type_table) / sizeof(insn_type_table[0]); i++) {
++	for (i = 0; i < ARRAY_SIZE(insn_type_table); i++) {
+ 		ptr = insn_type_table[i].format;
+ 		while (*ptr) {
+ 			if (!strcmp(base_format, *ptr))
 -- 
 2.44.0
 
