@@ -1,1006 +1,257 @@
-Received: from out-172.mta1.migadu.com (out-172.mta1.migadu.com [95.215.58.172])
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A79A93C064;
-	Sun,  7 Apr 2024 18:56:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1EAE2576E;
+	Mon,  8 Apr 2024 07:31:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712516205; cv=none; b=R22scikEiPz65G+kYVRYKSxIrrWEDPBEa4GfhwoZkd3S2LSthgQ+0Kdkksg/ZlN1L1xj30csPIV4trdDDWbJDo5FcX7/KYBez8fBiqn/5fU1QkO3urVQR9xry6efkTzVoBe3RfEwWwdppYIRgYdDIYbJnPsidRBpsEyfA8tkLbg=
+	t=1712561502; cv=none; b=Gu4p7a/1YW86BExy7b6+HbQc+5V00Zm9ptdqlDl65yoyfbn3zFN/IAYUVA8vUsyHm38ufM9gJa2SC5FO9wITwVuX8dRQTY/V2IYjMyUALeiALIFFbMsHaY8RDarszHbSh8KCELisc4WIqtJ9nBmlmoWdQnSSsU3m+lF5pTNm+nU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712516205; c=relaxed/simple;
-	bh=XUCEUi3tlAK5SiGgAyJi822HRi/+WAizduBAWmVOpPY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QcK+IF7chD+k/ocMsiIYt2yyumw/YsA5Exwd8aXPcsk8pgmDnObbHMYv+0nZ8Zosq77Fk5aj5wUUkEbF7Rcsym69L2Uv232QHMT7cWHRrYvotVcg4wdCzSbC3xFAfP1/z/ur62PECqle9/vOvgN+6shB4oYjerSPnmWTARgqn8k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Q5liLnbm; arc=none smtp.client-ip=95.215.58.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1712561502; c=relaxed/simple;
+	bh=lmsBm5nTnffgSx2fS/ryKsYEj/upOdvS9elDu44URUg=;
+	h=Date:From:To:CC:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:References; b=UtEMZdJ1z/lvf1NtUxBWEaKTxHfr5IFqPc3yHLUkwz4jj+tDm4OAZ1ZWUieTEvSoLLLojpTUHnIT0STMhEu7QXOY2+CELlwMf3uOo2oWIqn/UHQS+FfNw2yitburOkUXqJdDow0Box0OSiCUqhmXRn4/76YVekkTsNQqvWg2TfI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=R4igch+N; arc=none smtp.client-ip=210.118.77.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Q5liLnbm"
-Message-ID: <20158645-6637-4f36-a247-d3a15ff56d63@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1712516198;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VPWMmDLO77UTrV5Jci0z2krEZP1mwBlTU+VWJnRngNk=;
-	b=Q5liLnbmSKwUcufa6Y/hCudLg415TvisZKo+32dn2P1GN0Cz/UdESwnaEu+89Vnp2zLK4I
-	/qgPFYLf1pT/TpYGYYWBkP/+c/BbYo7gOSvhzDlobjaZUyLlmwjwnadI5XNGD1V4SQqNQ8
-	TNsraRLAtKkEMRR6LzCj9vEfrS5OgLo=
-Date: Sun, 7 Apr 2024 20:56:29 +0200
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="R4igch+N"
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20240408072050euoutp02410e3d635aa40075dd940878b76f66a4~EPQUwTE-M0578505785euoutp02B;
+	Mon,  8 Apr 2024 07:20:50 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20240408072050euoutp02410e3d635aa40075dd940878b76f66a4~EPQUwTE-M0578505785euoutp02B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1712560850;
+	bh=dic+LWsSv8Akr20ymbAxctCZm+7tnRnSHjjKdWufs+M=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=R4igch+NX9vZcyEjz9xuRWmkA2q91FagNMFNpqwDiitOV/D+OsI7RYwSyzHBsmqyX
+	 ZbUGCEyohbKzcPinP/cCJzFkJJPMzO2eVGE/eOVVrc004e5YNvgIGJZePbaWm9q22j
+	 YVQMOM9+DH6PHsDVg1joqLelPhU4kImKEQjIhdvY=
+Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTP id
+	20240408072050eucas1p1a8c0beb906ba7d9b12d86046bb4fa42d~EPQUi2_Q42048920489eucas1p1M;
+	Mon,  8 Apr 2024 07:20:50 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+	eusmges1new.samsung.com (EUCPMTA) with SMTP id CB.3B.09624.2DA93166; Mon,  8
+	Apr 2024 08:20:50 +0100 (BST)
+Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+	20240408072049eucas1p2bc84263f53c4eb375742a6739a2f8fbd~EPQTyuEjs2668926689eucas1p2J;
+	Mon,  8 Apr 2024 07:20:49 +0000 (GMT)
+Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+	eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
+	20240408072049eusmtrp113df4514d474d7cbd59d368c0190ea5e~EPQTvd1e20866108661eusmtrp1J;
+	Mon,  8 Apr 2024 07:20:49 +0000 (GMT)
+X-AuditID: cbfec7f2-bfbff70000002598-fe-66139ad20952
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+	eusmgms2.samsung.com (EUCPMTA) with SMTP id ED.02.09010.1DA93166; Mon,  8
+	Apr 2024 08:20:49 +0100 (BST)
+Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
+	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20240408072049eusmtip1eaef4a235fff5b1d93272c279edd8416~EPQTa7RNP0059900599eusmtip13;
+	Mon,  8 Apr 2024 07:20:49 +0000 (GMT)
+Received: from localhost (106.110.32.44) by CAMSVWEXC02.scsc.local
+	(2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
+	Mon, 8 Apr 2024 08:20:48 +0100
+Date: Mon, 8 Apr 2024 09:20:43 +0200
+From: Joel Granados <j.granados@samsung.com>
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+CC: <Dai.Ngo@oracle.com>, <alex.aring@gmail.com>,
+	<alibuda@linux.alibaba.com>, <allison.henderson@oracle.com>,
+	<anna@kernel.org>, <bridge@lists.linux.dev>, <chuck.lever@oracle.com>,
+	<coreteam@netfilter.org>, <courmisch@gmail.com>, <davem@davemloft.net>,
+	<dccp@vger.kernel.org>, <devnull+j.granados.samsung.com@kernel.org>,
+	<dhowells@redhat.com>, <dsahern@kernel.org>, <edumazet@google.com>,
+	<fw@strlen.de>, <geliang@kernel.org>, <guwen@linux.alibaba.com>,
+	<herbert@gondor.apana.org.au>, <horms@verge.net.au>, <ja@ssi.bg>,
+	<jaka@linux.ibm.com>, <jlayton@kernel.org>, <jmaloy@redhat.com>,
+	<jreuter@yaina.de>, <kadlec@netfilter.org>, <keescook@chromium.org>,
+	<kolga@netapp.com>, <kuba@kernel.org>, <linux-afs@lists.infradead.org>,
+	<linux-hams@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-nfs@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
+	<linux-s390@vger.kernel.org>, <linux-sctp@vger.kernel.org>,
+	<linux-wpan@vger.kernel.org>, <linux-x25@vger.kernel.org>,
+	<lucien.xin@gmail.com>, <lvs-devel@vger.kernel.org>,
+	<marc.dionne@auristor.com>, <marcelo.leitner@gmail.com>,
+	<martineau@kernel.org>, <matttbe@kernel.org>, <mcgrof@kernel.org>,
+	<miquel.raynal@bootlin.com>, <mptcp@lists.linux.dev>, <ms@dev.tdt.de>,
+	<neilb@suse.de>, <netdev@vger.kernel.org>,
+	<netfilter-devel@vger.kernel.org>, <pabeni@redhat.com>,
+	<pablo@netfilter.org>, <ralf@linux-mips.org>, <razor@blackwall.org>,
+	<rds-devel@oss.oracle.com>, <roopa@nvidia.com>, <stefan@datenfreihafen.org>,
+	<steffen.klassert@secunet.com>, <tipc-discussion@lists.sourceforge.net>,
+	<tom@talpey.com>, <tonylu@linux.alibaba.com>,
+	<trond.myklebust@hammerspace.com>, <wenjia@linux.ibm.com>,
+	<ying.xue@windriver.com>
+Subject: Re: [PATCH v2 4/4] ax.25: Remove the now superfluous sentinel
+ elements from ctl_table array
+Message-ID: <20240408072043.j5p3dcyalm5yrozo@joelS2.panther.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH 3/9] IB: Convert from tasklet to BH workqueue
-To: Allen Pais <apais@linux.microsoft.com>, linux-kernel@vger.kernel.org
-Cc: tj@kernel.org, keescook@chromium.org, vkoul@kernel.org, marcan@marcan.st,
- sven@svenpeter.dev, florian.fainelli@broadcom.com, rjui@broadcom.com,
- sbranden@broadcom.com, paul@crapouillou.net, Eugeniy.Paltsev@synopsys.com,
- manivannan.sadhasivam@linaro.org, vireshk@kernel.org, Frank.Li@nxp.com,
- leoyang.li@nxp.com, zw@zh-kernel.org, wangzhou1@hisilicon.com,
- haijie1@huawei.com, shawnguo@kernel.org, s.hauer@pengutronix.de,
- sean.wang@mediatek.com, matthias.bgg@gmail.com,
- angelogioacchino.delregno@collabora.com, afaerber@suse.de,
- logang@deltatee.com, daniel@zonque.org, haojian.zhuang@gmail.com,
- robert.jarzmik@free.fr, andersson@kernel.org, konrad.dybcio@linaro.org,
- orsonzhai@gmail.com, baolin.wang@linux.alibaba.com, zhang.lyra@gmail.com,
- patrice.chotard@foss.st.com, linus.walleij@linaro.org, wens@csie.org,
- jernej.skrabec@gmail.com, peter.ujfalusi@gmail.com, kys@microsoft.com,
- haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
- jassisinghbrar@gmail.com, mchehab@kernel.org, maintainers@bluecherrydvr.com,
- aubin.constans@microchip.com, ulf.hansson@linaro.org,
- manuel.lauss@gmail.com, mirq-linux@rere.qmqm.pl, jh80.chung@samsung.com,
- oakad@yahoo.com, hayashi.kunihiko@socionext.com, mhiramat@kernel.org,
- brucechang@via.com.tw, HaraldWelte@viatech.com, pierre@ossman.eu,
- duncan.sands@free.fr, stern@rowland.harvard.edu, oneukum@suse.com,
- openipmi-developer@lists.sourceforge.net, dmaengine@vger.kernel.org,
- asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- linux-rpi-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
- imx@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
- linux-mediatek@lists.infradead.org, linux-actions@lists.infradead.org,
- linux-arm-msm@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
- linux-hyperv@vger.kernel.org, linux-rdma@vger.kernel.org,
- linux-media@vger.kernel.org, linux-mmc@vger.kernel.org,
- linux-omap@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org
-References: <20240327160314.9982-1-apais@linux.microsoft.com>
- <20240327160314.9982-4-apais@linux.microsoft.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
-In-Reply-To: <20240327160314.9982-4-apais@linux.microsoft.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="a36pnpbxxry3pzoc"
+Content-Disposition: inline
+In-Reply-To: <20240405222658.3615-1-kuniyu@amazon.com>
+X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
+	CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
+X-Brightmail-Tracker: H4sIAAAAAAAAA2WTeUxUVxTGc982M1TwAUZulCpSpBUVi9X2VK1So/aVNpFg26RNrJ3CA5HN
+	zIhLGxvKqmyOLIJTEMRkGAcc6YDoqMAULchABAVZJoAwDJIiLmVHWQo8jSb973e+73z3nvPH
+	EZN2aeIl4sDQQ7wsVBrszFhRpVUT9WvvK+39P0xvXgSVEZ9A9814GiKiYwmI0c9QUHohgYCZ
+	jj4CpvRxJAx199GQk1fMQFZ9NAVTLQkMNGZbCHga+ZIC7fUYAnqrzCIoTSpAUBDZTsHVvjEG
+	EvodIerKCALLKTMNTarnDEyoNCJ4OGKmYCL5HTgbH0VAXUIIXOuwUNBQmkyDKvESAwqjBzRf
+	7SCg8XoWAw2GWhoeVSZRoDgfRUJv7mMa2lNVFBjKchCYLz8jICpnkISooR4SXqirabibNEOC
+	UqshoVXRi+BWXDkNdZcjRTB67g4JZTkRFFTlLgaF1kjBaO0AgoyBByTcv+kCxuEZAu4WD9Ew
+	lPUBpKpLCLhxclwEJfUHwPjCSEDPWB8DM63bPLdz6oZ4mjOZR0ju6d0axJ0r/JX7I+Iexb2Y
+	cONKLrYRXMLtfpLTKztEXKlhJZerC+cmK/8UcTrNSYb7++IlgtN3f8op8gzI2/kHqy1+fHDg
+	YV62butPVvsHux6IDg46Hs3R/RiBTA7xSCLG7AasnX5OzbEdq0ZYkxEYj6xmeRjhtKk2RiiG
+	EM6/pBC9TujTz9CCkY/wqDrlTZdpYooSCh3CDbpJei5CsS64JUUzzwy7BtcPtJNzvIhdhU9o
+	E+efItlia5yRcRrNGfasPx7v7J1na9YT95ieEQLb4pqzlvlpSfYo1k1OzfaIZ3kpzp8Wz8kS
+	9mM8Vq0lhVFX4JELnZTAx7GxxETM/YXZBwuwuaARCcYOfK+ujxHYHvdXl7za0xHXpiZSQiAV
+	4Yrp5yKhKEBY9fsIIXRtxtFNlleJz3FF3tj8RJi1wa1PbIVBbXBKaQYpyNb4RKyd0O2KCzoH
+	KAV6T/nWasq3VlO+WU2Q3XFrehrzP3k1Vp1/TAr8GdZqn1G5SKRBDny4PCSAl3uE8kfc5dIQ
+	eXhogLtvWIgOzR5r7XT14DWU3f+veyUixKgSucyGzUUFDWgJFRoWyjsvst6z0dbfztpPeuwX
+	Xha2TxYezMsr0VIx5exgvdJvOW/HBkgP8UE8f5CXvXYJsWRJBOG9Xd8jfjjsPtTlF9P87rJy
+	+wX3DdmrmsW7vyxav0nF9rTGpGxw+Wjr09kb3Ha5sJz18qlZX9Z27Ksz/6zLDAyjG31vbvzW
+	a2DNE0nQkdbvJY9O7ewW5e8sDHIqMuzd1/V+tCu1OCt9f4LPvd1qvUe8W7bGxslk41vmWFgz
+	8bXGx8lZ3jm+MO5MUnnqbabpeFrXptEQ29+W29MHv9nlMHZ4MsD4yJjputdjpPt07MKWYnPQ
+	ahfvXVnLMo8Frc08fGXS1Fa2uMkpZWfFHYlPnjrFMu6yqSVqbJdX+7hFnNxhsfs51vPAns0v
+	e1c0lQR/d6P8Vt/aHONf0i9cYTjWNSY8c4tBku7vTMn3Sz3cSJlc+h9Ib7zGJwUAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA2WTf1DTZRzHe76/NrXZBMzvoXW6w/JX0wHDD56KaZ7fugzT6xdewcIvw4JN
+	NuDMrJCBwPDHwstwiBuQEzadMWEyE+WwmPwQUFTQGxhjQCExdU5FBQJXl3f993ren/f7/Tz3
+	3H24uJ+FE8jdKktmFTJJgoCaTDSO2jvfuKz1j1tiuiCA2rSl0H1WTUJaxm4MMm1jBFhLcjEY
+	6+zHYMSWhYOnu58EXfEpCg63ZBAw0p5LQVuhC4Oh9CcEmM9kYtBb5+SAda8JgSndQcDp/ocU
+	5A7MAlWlF4Frv5OEq4Y7FAwbjBy45XUSMLxvChxSqzBoyk2Eqk4XAa3WfSQY9pygQNMgguun
+	OzFoO3OYgtaaRhL6avcSoClS4dCrv02C44CBgJpqHQLnSTcGKt09HFSeHhwel9pJaN47hoPW
+	bMShQ9OL4ELWORKaTqZz4MGRizhU69IIqNO/DBpzAwEPGgcR/Dh4DYcrZ4Og4f4YBs2nPCR4
+	Ds+DA6UVGPyS84gDFS1fQMPjBgx6HvZTMNYRsWo1U9qqJpmbTi/ODDXXI+bI8a+ZgrTLBPN4
+	eAFTUXYDY3J/HcAZm7aTw1hr5jJ6SwrztLacw1iMORTzW9kJjLF1hzOa4hq0QRAlXK6QpySz
+	s+PlyuQVgs0iCBaKwkEYHBouFIUs/XRZsFiweOXyLWzC1lRWsXhljDC+QW8jtt2ZtV2nuYvS
+	UMcMNZrEpfmhtO2Hg6QaTeb68Y8i+syAB/MNZtHl96+RPvann15XUz7TXURXlbQQvoMF0b8b
+	rZwJF8EPotvzjM8SFH8R3TLowCc4gD+fzjbveXYFzi/n0cNZR5+Z/Plx9KOuXjTBPP4quuem
+	G/O11iDacKX0n8E0uv6Qi5hgnJ9K5/+UN97KHeeZ9LFR7oQ8iR9GP7Sbcd9T59Deki7Cx9/Q
+	npE+pEH+2ueatM81af9r8smLaFulg/qfvJA2FN3GfbyCNpvdhB5xjCiATVEmShOVwUKlJFGZ
+	IpMKY+WJFjS+MNa64YoqVDZwV1iLMC6qRUHjSefPplYUSMjkMlYQwNsknhbnx9si+WoHq5BH
+	K1ISWGUtEo9/4/d44PRY+fj2yZKjRWFLxKLQsPAl4vCwEMEM3tvbsiV+fKkkmf2SZbexin9z
+	GHdSYBoWw8Pr1hJ5a485/0iMUL7zpuDgfpejMTLakL1aPzd/Tk/mPGPSdx9y+0JGNiUnfa7K
+	KLAf2fwo8rWkDRZ3Zt96R39qPqv66PyFmwWKre/9qR6tbPKavu2q9uzMckvx1IzdDyJdhwrX
+	TJfuZI4e1zVpn+66vSWnyrs+iHo/JNISXtpiLyE+kX/QvmlZ/kslEoN0f8y614uag2c66lVD
+	67dbrxa8EDafU51eP7/Rf05pHLrhLpReWjiC7O53u7ra1OL2qRt3DRtUo2UbI6QmeXxEcTn/
+	xZzzfQFRutmxUz97NfatHQP7yCmF93qj3Odu5f315IBr0Z2P7byLpkunX5Gvo9YqoioFhDJe
+	IlqAK5SSvwH5lVNtxQQAAA==
+X-CMS-MailID: 20240408072049eucas1p2bc84263f53c4eb375742a6739a2f8fbd
+X-Msg-Generator: CA
+X-RootMTR: 20240405222730eucas1p16a0790be308342130a19a5b489ffae1e
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20240405222730eucas1p16a0790be308342130a19a5b489ffae1e
+References: <20240405071531.fv6smp55znlfnul2@joelS2.panther.com>
+	<CGME20240405222730eucas1p16a0790be308342130a19a5b489ffae1e@eucas1p1.samsung.com>
+	<20240405222658.3615-1-kuniyu@amazon.com>
 
-在 2024/3/27 17:03, Allen Pais 写道:
-> The only generic interface to execute asynchronously in the BH context is
-> tasklet; however, it's marked deprecated and has some design flaws. To
-> replace tasklets, BH workqueue support was recently added. A BH workqueue
-> behaves similarly to regular workqueues except that the queued work items
-> are executed in the BH context.
-> 
-> This patch converts drivers/infiniband/* from tasklet to BH workqueue.
-> 
-> Based on the work done by Tejun Heo <tj@kernel.org>
-> Branch: https://git.kernel.org/pub/scm/linux/kernel/git/tj/wq.git for-6.10
+--a36pnpbxxry3pzoc
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I made simple tests. And I can not find the difference on latency and 
-throughput on RoCEv2 devices.
+On Fri, Apr 05, 2024 at 03:26:58PM -0700, Kuniyuki Iwashima wrote:
+> From: Joel Granados <j.granados@samsung.com>
+> Date: Fri, 5 Apr 2024 09:15:31 +0200
+> > On Thu, Mar 28, 2024 at 12:49:34PM -0700, Kuniyuki Iwashima wrote:
+> > > From: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kern=
+el.org>
+> > > Date: Thu, 28 Mar 2024 16:40:05 +0100
+> > > > This commit comes at the tail end of a greater effort to remove the
+> > > > empty elements at the end of the ctl_table arrays (sentinels) which=
+ will
+> > > > reduce the overall build time size of the kernel and run time memory
+> > > > bloat by ~64 bytes per sentinel (further information Link :
+> > > > https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.o=
+rg/)
+> > > >=20
+> > > > When we remove the sentinel from ax25_param_table a buffer overflow
+> > > > shows its ugly head. The sentinel's data element used to be changed=
+ when
+> > > > CONFIG_AX25_DAMA_SLAVE was not defined.
+> > >=20
+> > > I think it's better to define the relation explicitly between the
+> > > enum and sysctl table by BUILD_BUG_ON() in ax25_register_dev_sysctl()
+> > >=20
+> > >   BUILD_BUG_ON(AX25_MAX_VALUES !=3D ARRAY_SIZE(ax25_param_table));
+> > >=20
+> > > and guard AX25_VALUES_DS_TIMEOUT with #ifdef CONFIG_AX25_DAMA_SLAVE
+> > > as done for other enum.
+> >=20
+> > When I remove AX25_VALUES_DS_TIMEOUT from the un-guarded build it
+> > complains in net/ax25/ax25_ds_timer.c (ax25_ds_set_timer). Here is the
+> > report https://lore.kernel.org/oe-kbuild-all/202404040301.qzKmVQGB-lkp@=
+intel.com/.
+> >=20
+> > How best to address this? Should we just guard the whole function and do
+> > nothing when not set? like this:
+>=20
+> It seems fine to me.
+>=20
+> ax25_ds_timeout() checks !ax25_dev->dama.slave_timeout, but it's
+> initialised by kzalloc() during dev setup, so it will be a noop.
+thx. I'll solve it like this then
 
-Anyone also made tests with these patches on IB? Any difference on 
-Latency and throughput?
+>=20
+>=20
+> >=20
+> > ```
+> > void ax25_ds_set_timer(ax25_dev *ax25_dev)
+> > {
+> > #ifdef COFNIG_AX25_DAMA_SLAVE
+> >         if (ax25_dev =3D=3D NULL)        =B7=B7=B7/* paranoia */
+> >                 return;
+> >=20
+> >         ax25_dev->dama.slave_timeout =3D
+> >                 msecs_to_jiffies(ax25_dev->values[AX25_VALUES_DS_TIMEOU=
+T]) / 10;
+> >         mod_timer(&ax25_dev->dama.slave_timer, jiffies + HZ);
+> > #else
+> >         return;
+> > #endif
+> > }
+> >=20
+> > ```
+> >=20
+> > I'm not too familiar with this, so pointing me to the "correct" way to
+> > handle this would be helpfull.
+>=20
+> Also, you will need to guard another use of AX25_VALUES_DS_TIMEOUT in
+> ax25_dev_device_up().
+Yes. I had noticed this already. This was a trivial one though, so I did
+not ask about it.
 
-Thanks,
-Zhu Yanjun
+Thx.
 
-> 
-> Signed-off-by: Allen Pais <allen.lkml@gmail.com>
-> ---
->   drivers/infiniband/hw/bnxt_re/bnxt_re.h    |  3 +-
->   drivers/infiniband/hw/bnxt_re/qplib_fp.c   | 21 ++++++------
->   drivers/infiniband/hw/bnxt_re/qplib_fp.h   |  2 +-
->   drivers/infiniband/hw/bnxt_re/qplib_rcfw.c | 25 ++++++++-------
->   drivers/infiniband/hw/bnxt_re/qplib_rcfw.h |  2 +-
->   drivers/infiniband/hw/erdma/erdma.h        |  3 +-
->   drivers/infiniband/hw/erdma/erdma_eq.c     | 11 ++++---
->   drivers/infiniband/hw/hfi1/rc.c            |  2 +-
->   drivers/infiniband/hw/hfi1/sdma.c          | 37 +++++++++++-----------
->   drivers/infiniband/hw/hfi1/sdma.h          |  9 +++---
->   drivers/infiniband/hw/hfi1/tid_rdma.c      |  6 ++--
->   drivers/infiniband/hw/irdma/ctrl.c         |  2 +-
->   drivers/infiniband/hw/irdma/hw.c           | 24 +++++++-------
->   drivers/infiniband/hw/irdma/main.h         |  5 +--
->   drivers/infiniband/hw/qib/qib.h            |  7 ++--
->   drivers/infiniband/hw/qib/qib_iba7322.c    |  9 +++---
->   drivers/infiniband/hw/qib/qib_rc.c         | 16 +++++-----
->   drivers/infiniband/hw/qib/qib_ruc.c        |  4 +--
->   drivers/infiniband/hw/qib/qib_sdma.c       | 11 ++++---
->   drivers/infiniband/sw/rdmavt/qp.c          |  2 +-
->   20 files changed, 106 insertions(+), 95 deletions(-)
-> 
-> diff --git a/drivers/infiniband/hw/bnxt_re/bnxt_re.h b/drivers/infiniband/hw/bnxt_re/bnxt_re.h
-> index 9dca451ed522..f511c8415806 100644
-> --- a/drivers/infiniband/hw/bnxt_re/bnxt_re.h
-> +++ b/drivers/infiniband/hw/bnxt_re/bnxt_re.h
-> @@ -42,6 +42,7 @@
->   #include <rdma/uverbs_ioctl.h>
->   #include "hw_counters.h"
->   #include <linux/hashtable.h>
-> +#include <linux/workqueue.h>
->   #define ROCE_DRV_MODULE_NAME		"bnxt_re"
->   
->   #define BNXT_RE_DESC	"Broadcom NetXtreme-C/E RoCE Driver"
-> @@ -162,7 +163,7 @@ struct bnxt_re_dev {
->   	u8				cur_prio_map;
->   
->   	/* FP Notification Queue (CQ & SRQ) */
-> -	struct tasklet_struct		nq_task;
-> +	struct work_struct 		nq_work;
->   
->   	/* RCFW Channel */
->   	struct bnxt_qplib_rcfw		rcfw;
-> diff --git a/drivers/infiniband/hw/bnxt_re/qplib_fp.c b/drivers/infiniband/hw/bnxt_re/qplib_fp.c
-> index 439d0c7c5d0c..052906982cdf 100644
-> --- a/drivers/infiniband/hw/bnxt_re/qplib_fp.c
-> +++ b/drivers/infiniband/hw/bnxt_re/qplib_fp.c
-> @@ -46,6 +46,7 @@
->   #include <linux/delay.h>
->   #include <linux/prefetch.h>
->   #include <linux/if_ether.h>
-> +#include <linux/workqueue.h>
->   #include <rdma/ib_mad.h>
->   
->   #include "roce_hsi.h"
-> @@ -294,9 +295,9 @@ static void __wait_for_all_nqes(struct bnxt_qplib_cq *cq, u16 cnq_events)
->   	}
->   }
->   
-> -static void bnxt_qplib_service_nq(struct tasklet_struct *t)
-> +static void bnxt_qplib_service_nq(struct work_struct *t)
->   {
-> -	struct bnxt_qplib_nq *nq = from_tasklet(nq, t, nq_tasklet);
-> +	struct bnxt_qplib_nq *nq = from_work(nq, t, nq_work);
->   	struct bnxt_qplib_hwq *hwq = &nq->hwq;
->   	struct bnxt_qplib_cq *cq;
->   	int budget = nq->budget;
-> @@ -394,7 +395,7 @@ void bnxt_re_synchronize_nq(struct bnxt_qplib_nq *nq)
->   	int budget = nq->budget;
->   
->   	nq->budget = nq->hwq.max_elements;
-> -	bnxt_qplib_service_nq(&nq->nq_tasklet);
-> +	bnxt_qplib_service_nq(&nq->nq_work);
->   	nq->budget = budget;
->   }
->   
-> @@ -409,7 +410,7 @@ static irqreturn_t bnxt_qplib_nq_irq(int irq, void *dev_instance)
->   	prefetch(bnxt_qplib_get_qe(hwq, sw_cons, NULL));
->   
->   	/* Fan out to CPU affinitized kthreads? */
-> -	tasklet_schedule(&nq->nq_tasklet);
-> +	queue_work(system_bh_wq, &nq->nq_work);
->   
->   	return IRQ_HANDLED;
->   }
-> @@ -430,8 +431,8 @@ void bnxt_qplib_nq_stop_irq(struct bnxt_qplib_nq *nq, bool kill)
->   	nq->name = NULL;
->   
->   	if (kill)
-> -		tasklet_kill(&nq->nq_tasklet);
-> -	tasklet_disable(&nq->nq_tasklet);
-> +		cancel_work_sync(&nq->nq_work);
-> +	disable_work_sync(&nq->nq_work);
->   }
->   
->   void bnxt_qplib_disable_nq(struct bnxt_qplib_nq *nq)
-> @@ -465,9 +466,9 @@ int bnxt_qplib_nq_start_irq(struct bnxt_qplib_nq *nq, int nq_indx,
->   
->   	nq->msix_vec = msix_vector;
->   	if (need_init)
-> -		tasklet_setup(&nq->nq_tasklet, bnxt_qplib_service_nq);
-> +		INIT_WORK(&nq->nq_work, bnxt_qplib_service_nq);
->   	else
-> -		tasklet_enable(&nq->nq_tasklet);
-> +		enable_and_queue_work(system_bh_wq, &nq->nq_work);
->   
->   	nq->name = kasprintf(GFP_KERNEL, "bnxt_re-nq-%d@pci:%s",
->   			     nq_indx, pci_name(res->pdev));
-> @@ -477,7 +478,7 @@ int bnxt_qplib_nq_start_irq(struct bnxt_qplib_nq *nq, int nq_indx,
->   	if (rc) {
->   		kfree(nq->name);
->   		nq->name = NULL;
-> -		tasklet_disable(&nq->nq_tasklet);
-> +		disable_work_sync(&nq->nq_work);
->   		return rc;
->   	}
->   
-> @@ -541,7 +542,7 @@ int bnxt_qplib_enable_nq(struct pci_dev *pdev, struct bnxt_qplib_nq *nq,
->   	nq->cqn_handler = cqn_handler;
->   	nq->srqn_handler = srqn_handler;
->   
-> -	/* Have a task to schedule CQ notifiers in post send case */
-> +	/* Have a work to schedule CQ notifiers in post send case */
->   	nq->cqn_wq  = create_singlethread_workqueue("bnxt_qplib_nq");
->   	if (!nq->cqn_wq)
->   		return -ENOMEM;
-> diff --git a/drivers/infiniband/hw/bnxt_re/qplib_fp.h b/drivers/infiniband/hw/bnxt_re/qplib_fp.h
-> index 7fd4506b3584..6ee3e501d136 100644
-> --- a/drivers/infiniband/hw/bnxt_re/qplib_fp.h
-> +++ b/drivers/infiniband/hw/bnxt_re/qplib_fp.h
-> @@ -494,7 +494,7 @@ struct bnxt_qplib_nq {
->   	u16				ring_id;
->   	int				msix_vec;
->   	cpumask_t			mask;
-> -	struct tasklet_struct		nq_tasklet;
-> +	struct work_struct 		nq_work;
->   	bool				requested;
->   	int				budget;
->   
-> diff --git a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c
-> index 3ffaef0c2651..2fba712d88db 100644
-> --- a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c
-> +++ b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c
-> @@ -43,6 +43,7 @@
->   #include <linux/pci.h>
->   #include <linux/prefetch.h>
->   #include <linux/delay.h>
-> +#include <linux/workqueue.h>
->   
->   #include "roce_hsi.h"
->   #include "qplib_res.h"
-> @@ -51,7 +52,7 @@
->   #include "qplib_fp.h"
->   #include "qplib_tlv.h"
->   
-> -static void bnxt_qplib_service_creq(struct tasklet_struct *t);
-> +static void bnxt_qplib_service_creq(struct work_struct *t);
->   
->   /**
->    * bnxt_qplib_map_rc  -  map return type based on opcode
-> @@ -165,7 +166,7 @@ static int __wait_for_resp(struct bnxt_qplib_rcfw *rcfw, u16 cookie)
->   		if (!crsqe->is_in_used)
->   			return 0;
->   
-> -		bnxt_qplib_service_creq(&rcfw->creq.creq_tasklet);
-> +		bnxt_qplib_service_creq(&rcfw->creq.creq_work);
->   
->   		if (!crsqe->is_in_used)
->   			return 0;
-> @@ -206,7 +207,7 @@ static int __block_for_resp(struct bnxt_qplib_rcfw *rcfw, u16 cookie)
->   
->   		udelay(1);
->   
-> -		bnxt_qplib_service_creq(&rcfw->creq.creq_tasklet);
-> +		bnxt_qplib_service_creq(&rcfw->creq.creq_work);
->   		if (!crsqe->is_in_used)
->   			return 0;
->   
-> @@ -403,7 +404,7 @@ static int __poll_for_resp(struct bnxt_qplib_rcfw *rcfw, u16 cookie)
->   
->   		usleep_range(1000, 1001);
->   
-> -		bnxt_qplib_service_creq(&rcfw->creq.creq_tasklet);
-> +		bnxt_qplib_service_creq(&rcfw->creq.creq_work);
->   		if (!crsqe->is_in_used)
->   			return 0;
->   		if (jiffies_to_msecs(jiffies - issue_time) >
-> @@ -727,9 +728,9 @@ static int bnxt_qplib_process_qp_event(struct bnxt_qplib_rcfw *rcfw,
->   }
->   
->   /* SP - CREQ Completion handlers */
-> -static void bnxt_qplib_service_creq(struct tasklet_struct *t)
-> +static void bnxt_qplib_service_creq(struct work_struct *t)
->   {
-> -	struct bnxt_qplib_rcfw *rcfw = from_tasklet(rcfw, t, creq.creq_tasklet);
-> +	struct bnxt_qplib_rcfw *rcfw = from_work(rcfw, t, creq.creq_work);
->   	struct bnxt_qplib_creq_ctx *creq = &rcfw->creq;
->   	u32 type, budget = CREQ_ENTRY_POLL_BUDGET;
->   	struct bnxt_qplib_hwq *hwq = &creq->hwq;
-> @@ -800,7 +801,7 @@ static irqreturn_t bnxt_qplib_creq_irq(int irq, void *dev_instance)
->   	sw_cons = HWQ_CMP(hwq->cons, hwq);
->   	prefetch(bnxt_qplib_get_qe(hwq, sw_cons, NULL));
->   
-> -	tasklet_schedule(&creq->creq_tasklet);
-> +	queue_work(system_bh_wq, &creq->creq_work);
->   
->   	return IRQ_HANDLED;
->   }
-> @@ -1007,8 +1008,8 @@ void bnxt_qplib_rcfw_stop_irq(struct bnxt_qplib_rcfw *rcfw, bool kill)
->   	creq->irq_name = NULL;
->   	atomic_set(&rcfw->rcfw_intr_enabled, 0);
->   	if (kill)
-> -		tasklet_kill(&creq->creq_tasklet);
-> -	tasklet_disable(&creq->creq_tasklet);
-> +		cancel_work_sync(&creq->creq_work);
-> +	disable_work_sync(&creq->creq_work);
->   }
->   
->   void bnxt_qplib_disable_rcfw_channel(struct bnxt_qplib_rcfw *rcfw)
-> @@ -1045,9 +1046,9 @@ int bnxt_qplib_rcfw_start_irq(struct bnxt_qplib_rcfw *rcfw, int msix_vector,
->   
->   	creq->msix_vec = msix_vector;
->   	if (need_init)
-> -		tasklet_setup(&creq->creq_tasklet, bnxt_qplib_service_creq);
-> +		INIT_WORK(&creq->creq_work, bnxt_qplib_service_creq);
->   	else
-> -		tasklet_enable(&creq->creq_tasklet);
-> +		enable_and_queue_work(system_bh_wq, &creq->creq_work);
->   
->   	creq->irq_name = kasprintf(GFP_KERNEL, "bnxt_re-creq@pci:%s",
->   				   pci_name(res->pdev));
-> @@ -1058,7 +1059,7 @@ int bnxt_qplib_rcfw_start_irq(struct bnxt_qplib_rcfw *rcfw, int msix_vector,
->   	if (rc) {
->   		kfree(creq->irq_name);
->   		creq->irq_name = NULL;
-> -		tasklet_disable(&creq->creq_tasklet);
-> +		disable_work_sync(&creq->creq_work);
->   		return rc;
->   	}
->   	creq->requested = true;
-> diff --git a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.h b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.h
-> index 45996e60a0d0..8efa474fcf3f 100644
-> --- a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.h
-> +++ b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.h
-> @@ -207,7 +207,7 @@ struct bnxt_qplib_creq_ctx {
->   	struct bnxt_qplib_hwq		hwq;
->   	struct bnxt_qplib_creq_db	creq_db;
->   	struct bnxt_qplib_creq_stat	stats;
-> -	struct tasklet_struct		creq_tasklet;
-> +	struct work_struct 		creq_work;
->   	aeq_handler_t			aeq_handler;
->   	u16				ring_id;
->   	int				msix_vec;
-> diff --git a/drivers/infiniband/hw/erdma/erdma.h b/drivers/infiniband/hw/erdma/erdma.h
-> index 5df401a30cb9..9a47c1432c27 100644
-> --- a/drivers/infiniband/hw/erdma/erdma.h
-> +++ b/drivers/infiniband/hw/erdma/erdma.h
-> @@ -11,6 +11,7 @@
->   #include <linux/netdevice.h>
->   #include <linux/pci.h>
->   #include <linux/xarray.h>
-> +#include <linux/workqueue.h>
->   #include <rdma/ib_verbs.h>
->   
->   #include "erdma_hw.h"
-> @@ -161,7 +162,7 @@ struct erdma_eq_cb {
->   	void *dev; /* All EQs use this fields to get erdma_dev struct */
->   	struct erdma_irq irq;
->   	struct erdma_eq eq;
-> -	struct tasklet_struct tasklet;
-> +	struct work_struct work;
->   };
->   
->   struct erdma_resource_cb {
-> diff --git a/drivers/infiniband/hw/erdma/erdma_eq.c b/drivers/infiniband/hw/erdma/erdma_eq.c
-> index ea47cb21fdb8..252906fd73b0 100644
-> --- a/drivers/infiniband/hw/erdma/erdma_eq.c
-> +++ b/drivers/infiniband/hw/erdma/erdma_eq.c
-> @@ -160,14 +160,16 @@ static irqreturn_t erdma_intr_ceq_handler(int irq, void *data)
->   {
->   	struct erdma_eq_cb *ceq_cb = data;
->   
-> -	tasklet_schedule(&ceq_cb->tasklet);
-> +	queue_work(system_bh_wq, &ceq_cb->work);
->   
->   	return IRQ_HANDLED;
->   }
->   
-> -static void erdma_intr_ceq_task(unsigned long data)
-> +static void erdma_intr_ceq_task(struct work_struct *t)
->   {
-> -	erdma_ceq_completion_handler((struct erdma_eq_cb *)data);
-> +	struct erdma_eq_cb *ceq_cb = from_work(ceq_cb, t, work);
-> +
-> +	erdma_ceq_completion_handler(ceq_cb);
->   }
->   
->   static int erdma_set_ceq_irq(struct erdma_dev *dev, u16 ceqn)
-> @@ -179,8 +181,7 @@ static int erdma_set_ceq_irq(struct erdma_dev *dev, u16 ceqn)
->   		 pci_name(dev->pdev));
->   	eqc->irq.msix_vector = pci_irq_vector(dev->pdev, ceqn + 1);
->   
-> -	tasklet_init(&dev->ceqs[ceqn].tasklet, erdma_intr_ceq_task,
-> -		     (unsigned long)&dev->ceqs[ceqn]);
-> +	INIT_WORK(&dev->ceqs[ceqn].work, erdma_intr_ceq_task);
->   
->   	cpumask_set_cpu(cpumask_local_spread(ceqn + 1, dev->attrs.numa_node),
->   			&eqc->irq.affinity_hint_mask);
-> diff --git a/drivers/infiniband/hw/hfi1/rc.c b/drivers/infiniband/hw/hfi1/rc.c
-> index b36242c9d42c..ec19ddbfdacb 100644
-> --- a/drivers/infiniband/hw/hfi1/rc.c
-> +++ b/drivers/infiniband/hw/hfi1/rc.c
-> @@ -1210,7 +1210,7 @@ static inline void hfi1_queue_rc_ack(struct hfi1_packet *packet, bool is_fecn)
->   	if (is_fecn)
->   		qp->s_flags |= RVT_S_ECN;
->   
-> -	/* Schedule the send tasklet. */
-> +	/* Schedule the send work. */
->   	hfi1_schedule_send(qp);
->   unlock:
->   	spin_unlock_irqrestore(&qp->s_lock, flags);
-> diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
-> index b67d23b1f286..5e1a1dd45511 100644
-> --- a/drivers/infiniband/hw/hfi1/sdma.c
-> +++ b/drivers/infiniband/hw/hfi1/sdma.c
-> @@ -11,6 +11,7 @@
->   #include <linux/timer.h>
->   #include <linux/vmalloc.h>
->   #include <linux/highmem.h>
-> +#include <linux/workqueue.h>
->   
->   #include "hfi.h"
->   #include "common.h"
-> @@ -190,11 +191,11 @@ static const struct sdma_set_state_action sdma_action_table[] = {
->   static void sdma_complete(struct kref *);
->   static void sdma_finalput(struct sdma_state *);
->   static void sdma_get(struct sdma_state *);
-> -static void sdma_hw_clean_up_task(struct tasklet_struct *);
-> +static void sdma_hw_clean_up_task(struct work_struct *);
->   static void sdma_put(struct sdma_state *);
->   static void sdma_set_state(struct sdma_engine *, enum sdma_states);
->   static void sdma_start_hw_clean_up(struct sdma_engine *);
-> -static void sdma_sw_clean_up_task(struct tasklet_struct *);
-> +static void sdma_sw_clean_up_task(struct work_struct *);
->   static void sdma_sendctrl(struct sdma_engine *, unsigned);
->   static void init_sdma_regs(struct sdma_engine *, u32, uint);
->   static void sdma_process_event(
-> @@ -503,9 +504,9 @@ static void sdma_err_progress_check(struct timer_list *t)
->   	schedule_work(&sde->err_halt_worker);
->   }
->   
-> -static void sdma_hw_clean_up_task(struct tasklet_struct *t)
-> +static void sdma_hw_clean_up_task(struct work_struct *t)
->   {
-> -	struct sdma_engine *sde = from_tasklet(sde, t,
-> +	struct sdma_engine *sde = from_work(sde, t,
->   					       sdma_hw_clean_up_task);
->   	u64 statuscsr;
->   
-> @@ -563,9 +564,9 @@ static void sdma_flush_descq(struct sdma_engine *sde)
->   		sdma_desc_avail(sde, sdma_descq_freecnt(sde));
->   }
->   
-> -static void sdma_sw_clean_up_task(struct tasklet_struct *t)
-> +static void sdma_sw_clean_up_task(struct work_struct *t)
->   {
-> -	struct sdma_engine *sde = from_tasklet(sde, t, sdma_sw_clean_up_task);
-> +	struct sdma_engine *sde = from_work(sde, t, sdma_sw_clean_up_task);
->   	unsigned long flags;
->   
->   	spin_lock_irqsave(&sde->tail_lock, flags);
-> @@ -624,7 +625,7 @@ static void sdma_sw_tear_down(struct sdma_engine *sde)
->   
->   static void sdma_start_hw_clean_up(struct sdma_engine *sde)
->   {
-> -	tasklet_hi_schedule(&sde->sdma_hw_clean_up_task);
-> +	queue_work(system_bh_highpri_wq, &sde->sdma_hw_clean_up_task);
->   }
->   
->   static void sdma_set_state(struct sdma_engine *sde,
-> @@ -1415,9 +1416,9 @@ int sdma_init(struct hfi1_devdata *dd, u8 port)
->   		sde->tail_csr =
->   			get_kctxt_csr_addr(dd, this_idx, SD(TAIL));
->   
-> -		tasklet_setup(&sde->sdma_hw_clean_up_task,
-> +		INIT_WORK(&sde->sdma_hw_clean_up_task,
->   			      sdma_hw_clean_up_task);
-> -		tasklet_setup(&sde->sdma_sw_clean_up_task,
-> +		INIT_WORK(&sde->sdma_sw_clean_up_task,
->   			      sdma_sw_clean_up_task);
->   		INIT_WORK(&sde->err_halt_worker, sdma_err_halt_wait);
->   		INIT_WORK(&sde->flush_worker, sdma_field_flush);
-> @@ -2741,7 +2742,7 @@ static void __sdma_process_event(struct sdma_engine *sde,
->   		switch (event) {
->   		case sdma_event_e00_go_hw_down:
->   			sdma_set_state(sde, sdma_state_s00_hw_down);
-> -			tasklet_hi_schedule(&sde->sdma_sw_clean_up_task);
-> +			queue_work(system_bh_highpri_wq, &sde->sdma_sw_clean_up_task);
->   			break;
->   		case sdma_event_e10_go_hw_start:
->   			break;
-> @@ -2783,13 +2784,13 @@ static void __sdma_process_event(struct sdma_engine *sde,
->   		switch (event) {
->   		case sdma_event_e00_go_hw_down:
->   			sdma_set_state(sde, sdma_state_s00_hw_down);
-> -			tasklet_hi_schedule(&sde->sdma_sw_clean_up_task);
-> +			queue_work(system_bh_highpri_wq, &sde->sdma_sw_clean_up_task);
->   			break;
->   		case sdma_event_e10_go_hw_start:
->   			break;
->   		case sdma_event_e15_hw_halt_done:
->   			sdma_set_state(sde, sdma_state_s30_sw_clean_up_wait);
-> -			tasklet_hi_schedule(&sde->sdma_sw_clean_up_task);
-> +			queue_work(system_bh_highpri_wq, &sde->sdma_sw_clean_up_task);
->   			break;
->   		case sdma_event_e25_hw_clean_up_done:
->   			break;
-> @@ -2824,13 +2825,13 @@ static void __sdma_process_event(struct sdma_engine *sde,
->   		switch (event) {
->   		case sdma_event_e00_go_hw_down:
->   			sdma_set_state(sde, sdma_state_s00_hw_down);
-> -			tasklet_hi_schedule(&sde->sdma_sw_clean_up_task);
-> +			queue_work(system_bh_highpri_wq, &sde->sdma_sw_clean_up_task);
->   			break;
->   		case sdma_event_e10_go_hw_start:
->   			break;
->   		case sdma_event_e15_hw_halt_done:
->   			sdma_set_state(sde, sdma_state_s30_sw_clean_up_wait);
-> -			tasklet_hi_schedule(&sde->sdma_sw_clean_up_task);
-> +			queue_work(system_bh_highpri_wq, &sde->sdma_sw_clean_up_task);
->   			break;
->   		case sdma_event_e25_hw_clean_up_done:
->   			break;
-> @@ -2864,7 +2865,7 @@ static void __sdma_process_event(struct sdma_engine *sde,
->   		switch (event) {
->   		case sdma_event_e00_go_hw_down:
->   			sdma_set_state(sde, sdma_state_s00_hw_down);
-> -			tasklet_hi_schedule(&sde->sdma_sw_clean_up_task);
-> +			queue_work(system_bh_highpri_wq, &sde->sdma_sw_clean_up_task);
->   			break;
->   		case sdma_event_e10_go_hw_start:
->   			break;
-> @@ -2888,7 +2889,7 @@ static void __sdma_process_event(struct sdma_engine *sde,
->   			break;
->   		case sdma_event_e81_hw_frozen:
->   			sdma_set_state(sde, sdma_state_s82_freeze_sw_clean);
-> -			tasklet_hi_schedule(&sde->sdma_sw_clean_up_task);
-> +			queue_work(system_bh_highpri_wq, &sde->sdma_sw_clean_up_task);
->   			break;
->   		case sdma_event_e82_hw_unfreeze:
->   			break;
-> @@ -2903,7 +2904,7 @@ static void __sdma_process_event(struct sdma_engine *sde,
->   		switch (event) {
->   		case sdma_event_e00_go_hw_down:
->   			sdma_set_state(sde, sdma_state_s00_hw_down);
-> -			tasklet_hi_schedule(&sde->sdma_sw_clean_up_task);
-> +			queue_work(system_bh_highpri_wq, &sde->sdma_sw_clean_up_task);
->   			break;
->   		case sdma_event_e10_go_hw_start:
->   			break;
-> @@ -2947,7 +2948,7 @@ static void __sdma_process_event(struct sdma_engine *sde,
->   		switch (event) {
->   		case sdma_event_e00_go_hw_down:
->   			sdma_set_state(sde, sdma_state_s00_hw_down);
-> -			tasklet_hi_schedule(&sde->sdma_sw_clean_up_task);
-> +			queue_work(system_bh_highpri_wq, &sde->sdma_sw_clean_up_task);
->   			break;
->   		case sdma_event_e10_go_hw_start:
->   			break;
-> diff --git a/drivers/infiniband/hw/hfi1/sdma.h b/drivers/infiniband/hw/hfi1/sdma.h
-> index d77246b48434..3f047260cebe 100644
-> --- a/drivers/infiniband/hw/hfi1/sdma.h
-> +++ b/drivers/infiniband/hw/hfi1/sdma.h
-> @@ -11,6 +11,7 @@
->   #include <asm/byteorder.h>
->   #include <linux/workqueue.h>
->   #include <linux/rculist.h>
-> +#include <linux/workqueue.h>
->   
->   #include "hfi.h"
->   #include "verbs.h"
-> @@ -346,11 +347,11 @@ struct sdma_engine {
->   
->   	/* CONFIG SDMA for now, just blindly duplicate */
->   	/* private: */
-> -	struct tasklet_struct sdma_hw_clean_up_task
-> +	struct work_struct sdma_hw_clean_up_task
->   		____cacheline_aligned_in_smp;
->   
->   	/* private: */
-> -	struct tasklet_struct sdma_sw_clean_up_task
-> +	struct work_struct sdma_sw_clean_up_task
->   		____cacheline_aligned_in_smp;
->   	/* private: */
->   	struct work_struct err_halt_worker;
-> @@ -471,7 +472,7 @@ void _sdma_txreq_ahgadd(
->    * Completions of submitted requests can be gotten on selected
->    * txreqs by giving a completion routine callback to sdma_txinit() or
->    * sdma_txinit_ahg().  The environment in which the callback runs
-> - * can be from an ISR, a tasklet, or a thread, so no sleeping
-> + * can be from an ISR, a work, or a thread, so no sleeping
->    * kernel routines can be used.   Aspects of the sdma ring may
->    * be locked so care should be taken with locking.
->    *
-> @@ -551,7 +552,7 @@ static inline int sdma_txinit_ahg(
->    * Completions of submitted requests can be gotten on selected
->    * txreqs by giving a completion routine callback to sdma_txinit() or
->    * sdma_txinit_ahg().  The environment in which the callback runs
-> - * can be from an ISR, a tasklet, or a thread, so no sleeping
-> + * can be from an ISR, a work, or a thread, so no sleeping
->    * kernel routines can be used.   The head size of the sdma ring may
->    * be locked so care should be taken with locking.
->    *
-> diff --git a/drivers/infiniband/hw/hfi1/tid_rdma.c b/drivers/infiniband/hw/hfi1/tid_rdma.c
-> index c465966a1d9c..31cb5a092f42 100644
-> --- a/drivers/infiniband/hw/hfi1/tid_rdma.c
-> +++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
-> @@ -2316,7 +2316,7 @@ void hfi1_rc_rcv_tid_rdma_read_req(struct hfi1_packet *packet)
->   	 */
->   	qpriv->r_tid_alloc = qp->r_head_ack_queue;
->   
-> -	/* Schedule the send tasklet. */
-> +	/* Schedule the send work. */
->   	qp->s_flags |= RVT_S_RESP_PENDING;
->   	if (fecn)
->   		qp->s_flags |= RVT_S_ECN;
-> @@ -3807,7 +3807,7 @@ void hfi1_rc_rcv_tid_rdma_write_req(struct hfi1_packet *packet)
->   	hfi1_tid_write_alloc_resources(qp, true);
->   	trace_hfi1_tid_write_rsp_rcv_req(qp);
->   
-> -	/* Schedule the send tasklet. */
-> +	/* Schedule the send work. */
->   	qp->s_flags |= RVT_S_RESP_PENDING;
->   	if (fecn)
->   		qp->s_flags |= RVT_S_ECN;
-> @@ -5389,7 +5389,7 @@ static void hfi1_do_tid_send(struct rvt_qp *qp)
->   
->   			/*
->   			 * If the packet cannot be sent now, return and
-> -			 * the send tasklet will be woken up later.
-> +			 * the send work will be woken up later.
->   			 */
->   			if (hfi1_verbs_send(qp, &ps))
->   				return;
-> diff --git a/drivers/infiniband/hw/irdma/ctrl.c b/drivers/infiniband/hw/irdma/ctrl.c
-> index 6aed6169c07d..e9644f2b774d 100644
-> --- a/drivers/infiniband/hw/irdma/ctrl.c
-> +++ b/drivers/infiniband/hw/irdma/ctrl.c
-> @@ -5271,7 +5271,7 @@ int irdma_process_cqp_cmd(struct irdma_sc_dev *dev,
->   }
->   
->   /**
-> - * irdma_process_bh - called from tasklet for cqp list
-> + * irdma_process_bh - called from work for cqp list
->    * @dev: sc device struct
->    */
->   int irdma_process_bh(struct irdma_sc_dev *dev)
-> diff --git a/drivers/infiniband/hw/irdma/hw.c b/drivers/infiniband/hw/irdma/hw.c
-> index ad50b77282f8..18d552919c28 100644
-> --- a/drivers/infiniband/hw/irdma/hw.c
-> +++ b/drivers/infiniband/hw/irdma/hw.c
-> @@ -440,12 +440,12 @@ static void irdma_ena_intr(struct irdma_sc_dev *dev, u32 msix_id)
->   }
->   
->   /**
-> - * irdma_dpc - tasklet for aeq and ceq 0
-> - * @t: tasklet_struct ptr
-> + * irdma_dpc - work for aeq and ceq 0
-> + * @t: work_struct ptr
->    */
-> -static void irdma_dpc(struct tasklet_struct *t)
-> +static void irdma_dpc(struct work_struct *t)
->   {
-> -	struct irdma_pci_f *rf = from_tasklet(rf, t, dpc_tasklet);
-> +	struct irdma_pci_f *rf = from_work(rf, t, dpc_work);
->   
->   	if (rf->msix_shared)
->   		irdma_process_ceq(rf, rf->ceqlist);
-> @@ -455,11 +455,11 @@ static void irdma_dpc(struct tasklet_struct *t)
->   
->   /**
->    * irdma_ceq_dpc - dpc handler for CEQ
-> - * @t: tasklet_struct ptr
-> + * @t: work_struct ptr
->    */
-> -static void irdma_ceq_dpc(struct tasklet_struct *t)
-> +static void irdma_ceq_dpc(struct work_struct *t)
->   {
-> -	struct irdma_ceq *iwceq = from_tasklet(iwceq, t, dpc_tasklet);
-> +	struct irdma_ceq *iwceq = from_work(iwceq, t, dpc_work);
->   	struct irdma_pci_f *rf = iwceq->rf;
->   
->   	irdma_process_ceq(rf, iwceq);
-> @@ -533,7 +533,7 @@ static irqreturn_t irdma_irq_handler(int irq, void *data)
->   {
->   	struct irdma_pci_f *rf = data;
->   
-> -	tasklet_schedule(&rf->dpc_tasklet);
-> +	queue_work(system_bh_wq, &rf->dpc_work);
->   
->   	return IRQ_HANDLED;
->   }
-> @@ -550,7 +550,7 @@ static irqreturn_t irdma_ceq_handler(int irq, void *data)
->   	if (iwceq->irq != irq)
->   		ibdev_err(to_ibdev(&iwceq->rf->sc_dev), "expected irq = %d received irq = %d\n",
->   			  iwceq->irq, irq);
-> -	tasklet_schedule(&iwceq->dpc_tasklet);
-> +	queue_work(system_bh_wq, &iwceq->dpc_work);
->   
->   	return IRQ_HANDLED;
->   }
-> @@ -1121,14 +1121,14 @@ static int irdma_cfg_ceq_vector(struct irdma_pci_f *rf, struct irdma_ceq *iwceq,
->   	if (rf->msix_shared && !ceq_id) {
->   		snprintf(msix_vec->name, sizeof(msix_vec->name) - 1,
->   			 "irdma-%s-AEQCEQ-0", dev_name(&rf->pcidev->dev));
-> -		tasklet_setup(&rf->dpc_tasklet, irdma_dpc);
-> +		INIT_WORK(&rf->dpc_work, irdma_dpc);
->   		status = request_irq(msix_vec->irq, irdma_irq_handler, 0,
->   				     msix_vec->name, rf);
->   	} else {
->   		snprintf(msix_vec->name, sizeof(msix_vec->name) - 1,
->   			 "irdma-%s-CEQ-%d",
->   			 dev_name(&rf->pcidev->dev), ceq_id);
-> -		tasklet_setup(&iwceq->dpc_tasklet, irdma_ceq_dpc);
-> +		INIT_WORK(&iwceq->dpc_work, irdma_ceq_dpc);
->   
->   		status = request_irq(msix_vec->irq, irdma_ceq_handler, 0,
->   				     msix_vec->name, iwceq);
-> @@ -1162,7 +1162,7 @@ static int irdma_cfg_aeq_vector(struct irdma_pci_f *rf)
->   	if (!rf->msix_shared) {
->   		snprintf(msix_vec->name, sizeof(msix_vec->name) - 1,
->   			 "irdma-%s-AEQ", dev_name(&rf->pcidev->dev));
-> -		tasklet_setup(&rf->dpc_tasklet, irdma_dpc);
-> +		INIT_WORK(&rf->dpc_work, irdma_dpc);
->   		ret = request_irq(msix_vec->irq, irdma_irq_handler, 0,
->   				  msix_vec->name, rf);
->   	}
-> diff --git a/drivers/infiniband/hw/irdma/main.h b/drivers/infiniband/hw/irdma/main.h
-> index b65bc2ea542f..54301093b746 100644
-> --- a/drivers/infiniband/hw/irdma/main.h
-> +++ b/drivers/infiniband/hw/irdma/main.h
-> @@ -30,6 +30,7 @@
->   #endif
->   #include <linux/auxiliary_bus.h>
->   #include <linux/net/intel/iidc.h>
-> +#include <linux/workqueue.h>
->   #include <crypto/hash.h>
->   #include <rdma/ib_smi.h>
->   #include <rdma/ib_verbs.h>
-> @@ -192,7 +193,7 @@ struct irdma_ceq {
->   	u32 irq;
->   	u32 msix_idx;
->   	struct irdma_pci_f *rf;
-> -	struct tasklet_struct dpc_tasklet;
-> +	struct work_struct dpc_work;
->   	spinlock_t ce_lock; /* sync cq destroy with cq completion event notification */
->   };
->   
-> @@ -316,7 +317,7 @@ struct irdma_pci_f {
->   	struct mc_table_list mc_qht_list;
->   	struct irdma_msix_vector *iw_msixtbl;
->   	struct irdma_qvlist_info *iw_qvlist;
-> -	struct tasklet_struct dpc_tasklet;
-> +	struct work_struct dpc_work;
->   	struct msix_entry *msix_entries;
->   	struct irdma_dma_mem obj_mem;
->   	struct irdma_dma_mem obj_next;
-> diff --git a/drivers/infiniband/hw/qib/qib.h b/drivers/infiniband/hw/qib/qib.h
-> index 26c615772be3..d2ebaf31ce5a 100644
-> --- a/drivers/infiniband/hw/qib/qib.h
-> +++ b/drivers/infiniband/hw/qib/qib.h
-> @@ -53,6 +53,7 @@
->   #include <linux/sched.h>
->   #include <linux/kthread.h>
->   #include <linux/xarray.h>
-> +#include <linux/workqueue.h>
->   #include <rdma/ib_hdrs.h>
->   #include <rdma/rdma_vt.h>
->   
-> @@ -562,7 +563,7 @@ struct qib_pportdata {
->   	u8                    sdma_generation;
->   	u8                    sdma_intrequest;
->   
-> -	struct tasklet_struct sdma_sw_clean_up_task
-> +	struct work_struct sdma_sw_clean_up_task
->   		____cacheline_aligned_in_smp;
->   
->   	wait_queue_head_t state_wait; /* for state_wanted */
-> @@ -1068,8 +1069,8 @@ struct qib_devdata {
->   	u8 psxmitwait_supported;
->   	/* cycle length of PS* counters in HW (in picoseconds) */
->   	u16 psxmitwait_check_rate;
-> -	/* high volume overflow errors defered to tasklet */
-> -	struct tasklet_struct error_tasklet;
-> +	/* high volume overflow errors defered to work */
-> +	struct work_struct error_work;
->   
->   	int assigned_node_id; /* NUMA node closest to HCA */
->   };
-> diff --git a/drivers/infiniband/hw/qib/qib_iba7322.c b/drivers/infiniband/hw/qib/qib_iba7322.c
-> index f93906d8fc09..c3325071f2b3 100644
-> --- a/drivers/infiniband/hw/qib/qib_iba7322.c
-> +++ b/drivers/infiniband/hw/qib/qib_iba7322.c
-> @@ -46,6 +46,7 @@
->   #include <rdma/ib_smi.h>
->   #ifdef CONFIG_INFINIBAND_QIB_DCA
->   #include <linux/dca.h>
-> +#include <linux/workqueue.h>
->   #endif
->   
->   #include "qib.h"
-> @@ -1711,9 +1712,9 @@ static noinline void handle_7322_errors(struct qib_devdata *dd)
->   	return;
->   }
->   
-> -static void qib_error_tasklet(struct tasklet_struct *t)
-> +static void qib_error_work(struct work_struct *t)
->   {
-> -	struct qib_devdata *dd = from_tasklet(dd, t, error_tasklet);
-> +	struct qib_devdata *dd = from_work(dd, t, error_work);
->   
->   	handle_7322_errors(dd);
->   	qib_write_kreg(dd, kr_errmask, dd->cspec->errormask);
-> @@ -3001,7 +3002,7 @@ static noinline void unlikely_7322_intr(struct qib_devdata *dd, u64 istat)
->   		unknown_7322_gpio_intr(dd);
->   	if (istat & QIB_I_C_ERROR) {
->   		qib_write_kreg(dd, kr_errmask, 0ULL);
-> -		tasklet_schedule(&dd->error_tasklet);
-> +		queue_work(system_bh_wq, &dd->error_work);
->   	}
->   	if (istat & INT_MASK_P(Err, 0) && dd->rcd[0])
->   		handle_7322_p_errors(dd->rcd[0]->ppd);
-> @@ -3515,7 +3516,7 @@ static void qib_setup_7322_interrupt(struct qib_devdata *dd, int clearpend)
->   	for (i = 0; i < ARRAY_SIZE(redirect); i++)
->   		qib_write_kreg(dd, kr_intredirect + i, redirect[i]);
->   	dd->cspec->main_int_mask = mask;
-> -	tasklet_setup(&dd->error_tasklet, qib_error_tasklet);
-> +	INIT_WORK(&dd->error_work, qib_error_work);
->   }
->   
->   /**
-> diff --git a/drivers/infiniband/hw/qib/qib_rc.c b/drivers/infiniband/hw/qib/qib_rc.c
-> index a1c20ffb4490..79e31921e384 100644
-> --- a/drivers/infiniband/hw/qib/qib_rc.c
-> +++ b/drivers/infiniband/hw/qib/qib_rc.c
-> @@ -593,7 +593,7 @@ int qib_make_rc_req(struct rvt_qp *qp, unsigned long *flags)
->    *
->    * This is called from qib_rc_rcv() and qib_kreceive().
->    * Note that RDMA reads and atomics are handled in the
-> - * send side QP state and tasklet.
-> + * send side QP state and work.
->    */
->   void qib_send_rc_ack(struct rvt_qp *qp)
->   {
-> @@ -670,7 +670,7 @@ void qib_send_rc_ack(struct rvt_qp *qp)
->   		/*
->   		 * We are out of PIO buffers at the moment.
->   		 * Pass responsibility for sending the ACK to the
-> -		 * send tasklet so that when a PIO buffer becomes
-> +		 * send work so that when a PIO buffer becomes
->   		 * available, the ACK is sent ahead of other outgoing
->   		 * packets.
->   		 */
-> @@ -715,7 +715,7 @@ void qib_send_rc_ack(struct rvt_qp *qp)
->   		qp->s_nak_state = qp->r_nak_state;
->   		qp->s_ack_psn = qp->r_ack_psn;
->   
-> -		/* Schedule the send tasklet. */
-> +		/* Schedule the send work. */
->   		qib_schedule_send(qp);
->   	}
->   unlock:
-> @@ -806,7 +806,7 @@ static void reset_psn(struct rvt_qp *qp, u32 psn)
->   	qp->s_psn = psn;
->   	/*
->   	 * Set RVT_S_WAIT_PSN as qib_rc_complete() may start the timer
-> -	 * asynchronously before the send tasklet can get scheduled.
-> +	 * asynchronously before the send work can get scheduled.
->   	 * Doing it in qib_make_rc_req() is too late.
->   	 */
->   	if ((qib_cmp24(qp->s_psn, qp->s_sending_hpsn) <= 0) &&
-> @@ -1292,7 +1292,7 @@ static void qib_rc_rcv_resp(struct qib_ibport *ibp,
->   		    (qib_cmp24(qp->s_sending_psn, qp->s_sending_hpsn) <= 0)) {
->   
->   			/*
-> -			 * If send tasklet not running attempt to progress
-> +			 * If send work not running attempt to progress
->   			 * SDMA queue.
->   			 */
->   			if (!(qp->s_flags & RVT_S_BUSY)) {
-> @@ -1629,7 +1629,7 @@ static int qib_rc_rcv_error(struct ib_other_headers *ohdr,
->   	case OP(FETCH_ADD): {
->   		/*
->   		 * If we didn't find the atomic request in the ack queue
-> -		 * or the send tasklet is already backed up to send an
-> +		 * or the send work is already backed up to send an
->   		 * earlier entry, we can ignore this request.
->   		 */
->   		if (!e || e->opcode != (u8) opcode || old_req)
-> @@ -1996,7 +1996,7 @@ void qib_rc_rcv(struct qib_ctxtdata *rcd, struct ib_header *hdr,
->   		qp->r_nak_state = 0;
->   		qp->r_head_ack_queue = next;
->   
-> -		/* Schedule the send tasklet. */
-> +		/* Schedule the send work. */
->   		qp->s_flags |= RVT_S_RESP_PENDING;
->   		qib_schedule_send(qp);
->   
-> @@ -2059,7 +2059,7 @@ void qib_rc_rcv(struct qib_ctxtdata *rcd, struct ib_header *hdr,
->   		qp->r_nak_state = 0;
->   		qp->r_head_ack_queue = next;
->   
-> -		/* Schedule the send tasklet. */
-> +		/* Schedule the send work. */
->   		qp->s_flags |= RVT_S_RESP_PENDING;
->   		qib_schedule_send(qp);
->   
-> diff --git a/drivers/infiniband/hw/qib/qib_ruc.c b/drivers/infiniband/hw/qib/qib_ruc.c
-> index 1fa21938f310..f44a2a8b4b1e 100644
-> --- a/drivers/infiniband/hw/qib/qib_ruc.c
-> +++ b/drivers/infiniband/hw/qib/qib_ruc.c
-> @@ -257,7 +257,7 @@ void _qib_do_send(struct work_struct *work)
->    * @qp: pointer to the QP
->    *
->    * Process entries in the send work queue until credit or queue is
-> - * exhausted.  Only allow one CPU to send a packet per QP (tasklet).
-> + * exhausted.  Only allow one CPU to send a packet per QP (work).
->    * Otherwise, two threads could send packets out of order.
->    */
->   void qib_do_send(struct rvt_qp *qp)
-> @@ -299,7 +299,7 @@ void qib_do_send(struct rvt_qp *qp)
->   			spin_unlock_irqrestore(&qp->s_lock, flags);
->   			/*
->   			 * If the packet cannot be sent now, return and
-> -			 * the send tasklet will be woken up later.
-> +			 * the send work will be woken up later.
->   			 */
->   			if (qib_verbs_send(qp, priv->s_hdr, qp->s_hdrwords,
->   					   qp->s_cur_sge, qp->s_cur_size))
-> diff --git a/drivers/infiniband/hw/qib/qib_sdma.c b/drivers/infiniband/hw/qib/qib_sdma.c
-> index 5e86cbf7d70e..facb3964d2ec 100644
-> --- a/drivers/infiniband/hw/qib/qib_sdma.c
-> +++ b/drivers/infiniband/hw/qib/qib_sdma.c
-> @@ -34,6 +34,7 @@
->   #include <linux/spinlock.h>
->   #include <linux/netdevice.h>
->   #include <linux/moduleparam.h>
-> +#include <linux/workqueue.h>
->   
->   #include "qib.h"
->   #include "qib_common.h"
-> @@ -62,7 +63,7 @@ static void sdma_get(struct qib_sdma_state *);
->   static void sdma_put(struct qib_sdma_state *);
->   static void sdma_set_state(struct qib_pportdata *, enum qib_sdma_states);
->   static void sdma_start_sw_clean_up(struct qib_pportdata *);
-> -static void sdma_sw_clean_up_task(struct tasklet_struct *);
-> +static void sdma_sw_clean_up_task(struct work_struct *);
->   static void unmap_desc(struct qib_pportdata *, unsigned);
->   
->   static void sdma_get(struct qib_sdma_state *ss)
-> @@ -119,9 +120,9 @@ static void clear_sdma_activelist(struct qib_pportdata *ppd)
->   	}
->   }
->   
-> -static void sdma_sw_clean_up_task(struct tasklet_struct *t)
-> +static void sdma_sw_clean_up_task(struct work_struct *t)
->   {
-> -	struct qib_pportdata *ppd = from_tasklet(ppd, t,
-> +	struct qib_pportdata *ppd = from_work(ppd, t,
->   						 sdma_sw_clean_up_task);
->   	unsigned long flags;
->   
-> @@ -188,7 +189,7 @@ static void sdma_sw_tear_down(struct qib_pportdata *ppd)
->   
->   static void sdma_start_sw_clean_up(struct qib_pportdata *ppd)
->   {
-> -	tasklet_hi_schedule(&ppd->sdma_sw_clean_up_task);
-> +	queue_work(system_bh_highpri_wq, &ppd->sdma_sw_clean_up_task);
->   }
->   
->   static void sdma_set_state(struct qib_pportdata *ppd,
-> @@ -437,7 +438,7 @@ int qib_setup_sdma(struct qib_pportdata *ppd)
->   
->   	INIT_LIST_HEAD(&ppd->sdma_activelist);
->   
-> -	tasklet_setup(&ppd->sdma_sw_clean_up_task, sdma_sw_clean_up_task);
-> +	INIT_WORK(&ppd->sdma_sw_clean_up_task, sdma_sw_clean_up_task);
->   
->   	ret = dd->f_init_sdma_regs(ppd);
->   	if (ret)
-> diff --git a/drivers/infiniband/sw/rdmavt/qp.c b/drivers/infiniband/sw/rdmavt/qp.c
-> index e6203e26cc06..efe4689151c2 100644
-> --- a/drivers/infiniband/sw/rdmavt/qp.c
-> +++ b/drivers/infiniband/sw/rdmavt/qp.c
-> @@ -1306,7 +1306,7 @@ int rvt_error_qp(struct rvt_qp *qp, enum ib_wc_status err)
->   
->   	rdi->driver_f.notify_error_qp(qp);
->   
-> -	/* Schedule the sending tasklet to drain the send work queue. */
-> +	/* Schedule the sending work to drain the send work queue. */
->   	if (READ_ONCE(qp->s_last) != qp->s_head)
->   		rdi->driver_f.schedule_send(qp);
->   
+Best
 
+--=20
+
+Joel Granados
+
+--a36pnpbxxry3pzoc
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmYTmsoACgkQupfNUreW
+QU9ICwv6A6h0aHFqNdUCkstNuQDQL6/IKZsdnmejFWMbFZKYFjyGWo1/Qa5SnEmf
+5aN4REQAWpaHGznkRrbgZHVET5CqmXOIbIvP/+AZsENF0RfL0CZW6hcEjRMUF6tb
+jpJ8KT/wl2xmmvfCcZkV3rymYiOxwtp2lMdUM7Zx5QZ33CaStmeKvfoA8ngQX3Ri
+u2fO/A856mzsUuUvYqJsCRqNfe9LQZQ7uFEY+0f31BpCagdivfXyFpvFk7Ol0tvB
+k7DExa1ndy/G92OzYPEOsTdzRv9xlujgnBVHIapZ2Le6aZ1YGplwI3X+m1n7kNjV
+X10vWmuQOZ81xz2n3ZjdCPmu6VfWkwyBfkaVJ/ehqjYkfQ8+s80iSRxU/g6EV2oX
+fsfSUYyolzz1Vp8nllQRiWuygSAIeaLlpXl+vwa7rQKSdLYXsoC8YqM/gEBUThe3
+X/KQMPBl7qYM2CqAkoar8omqvkBratmAJwScZQEqZxGmosEn4KWDWc4de3toUFCR
+JsRQKj4e
+=iYz3
+-----END PGP SIGNATURE-----
+
+--a36pnpbxxry3pzoc--
