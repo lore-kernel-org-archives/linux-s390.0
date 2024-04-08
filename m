@@ -1,125 +1,152 @@
-Received: from mail-ua1-f49.google.com (mail-ua1-f49.google.com [209.85.222.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C885143884
-	for <linux-s390@vger.kernel.org>; Mon,  8 Apr 2024 17:15:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70CFFF51B;
+	Mon,  8 Apr 2024 19:06:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712596560; cv=none; b=ju5ahxET6l3ICEmwwzR6+BQW39hn2ypb0ejPq5NMFSjcMg67NESnY2ISm9hDuAxG+tUD24Xzmw7cQ4aRak7UMRFJYa8utBzhN8Lu+Ee9oMZOD76/lhN3U56aJa8ONj4/9DeemqyzEo9ZOygZzOR2JU9QnwEFtatzOiQoft3SK8k=
+	t=1712603176; cv=none; b=CD4Du/sMHlcOMIJQpuGfoN1tHBIuTFCvV5YmYD+ZW+LCPBVEXh+bsYUXJibxSWivFxUkWvKRT/pgX7KbT2z/XR5YNOTNMvudBk1hm8gSqK+I6yTBUa8zQw/uM/pUA094+lqQUoyzychCrbzXIEULCoYcPF8ilY15zH4kHp3C4mk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712596560; c=relaxed/simple;
-	bh=WzIOBFBkD2VF+X/O36wHgqJzYEwGWtCcZYrHSWH0pUE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=r/ZrB6fNmUdc/Y0Uz3YcFHbPptqJY1YnjtBM6lEasfGnuh6XpEBYEMJeWKgu7fIw0AX1Zu3XFNjVxqO1ezYSFDLfRDuw7rbjPezK9m4HhtQPc+7wtwzF0QI67nNwz4quTFh++d1ziIs2mYhJJhIrAVpypbpN0FgiJh9BjQzxs8g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=T0N1ia1H; arc=none smtp.client-ip=209.85.222.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1712603176; c=relaxed/simple;
+	bh=vjOCP4OiBVZzjLbSPcM9Y1By12q63aZiclbN49HLSMA=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=QEMr4ux6wgq4d/mBOtRpFVTndjMH20W+yot2Ox84qR7XeXxT2tpnYvGbrw6EsVeVCqYw63csZ32FdAxokdmEffGEyg4dTx53QXF9/FxV8T8xprsxCVS3fK3KkRnN0r2x6888S/oQfE+anxRjsQ+4Cpj9b68DwUe8giYk1Omce5o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=K1b7djLm; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="T0N1ia1H"
-Received: by mail-ua1-f49.google.com with SMTP id a1e0cc1a2514c-7e3c4736d6dso849486241.2
-        for <linux-s390@vger.kernel.org>; Mon, 08 Apr 2024 10:15:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1712596556; x=1713201356; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=qMNf7A6k8nLtZDPsfj34GNgCGUzYdTJ3ArVvRF7NLxI=;
-        b=T0N1ia1HCZUIfD5me3hD/7haseWLZWvH6VnymmhWs+pzrD6F57B+znGEWdsMlx5WKB
-         x1gDvHQIo/ZrOeD3AG6uR8cS3hpOpiuliQh8YVirw+Ep8gnNm0o+mhvbsKuuy0qeaIlP
-         6GlmFKW4QIYRMEMuylztBvh0M+NLERW+XIOmuItmXvbZdrdYQt47bWEk0JrmE6S6BIyQ
-         ltfg6vjWDWT9VmkI0cvfZsQu+qMXYryXsu3/rQEiGJZ5KwXHOOSN+C9cRtglkUddxTKP
-         vwOP3f8Om2/Tkm62FKchMr8j0pFQqR9jUFd3diuaYWD2+Uoj0hH2MlcEViiWYuGTnFCF
-         LLEw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712596556; x=1713201356;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=qMNf7A6k8nLtZDPsfj34GNgCGUzYdTJ3ArVvRF7NLxI=;
-        b=EhitjXsb+S1AbycpM6t8o4N0kwksq1jOlK4235uQaehWs3MMH6TMGyAariUCn5Zv0G
-         bUQOTM4y+32Gh2Elf6MQdMdBSYpswBWtdlmpMNbCGP5R+eBuhJ/Caem8AZQCZ8b2Hv2b
-         Q4UR2Jmr6fdueI9L5skMKKzGs3A+nfG/F89DxslLtRiYIc+8S5Quy3hZlgUqxFCti2NW
-         mi+xyoqL066TcESCS7vXyz5alhZB4x8ZxaxC8dqv/vgQkzdAGNK6lH+Bm4uZp1ezdjBz
-         IfhUygHUr3igQPGl3MayFZ+o3Ycr/cXt1mfaUb5P3UCvYWGXCqk+JTJIh7mxzm3C2ld5
-         +bqA==
-X-Forwarded-Encrypted: i=1; AJvYcCW4Ww7A78HO4i5AUB9Hfkq5Bgt0loMqFu1ocnOA2bfyu9oopEXzuw+Vy0BSxcj8t6ihkKnVAATQY9o09MmPtjcQr24hDBLYO7uMIQ==
-X-Gm-Message-State: AOJu0YxkDnosH2CTxwCu1+RyHVJxHAyND1qO4TOehBX+RZF0HjVGUFpi
-	MbnSXDO4KFkx2sBcMnf4ZlFlwuFN/39Ev5Y/+rq6gBnUYxU+SXnEWs2NKm3g1w3tIpCBykJAnoV
-	vW6aYwD5qfuRDLIagsN6aQQTIBu925QLzQjFG7w==
-X-Google-Smtp-Source: AGHT+IGH5m+zw44aHKIWpc2eCPDcCytI9gca4fjAbaev/T3kTlbpcREmReh2WF2ua2H28ryZdpuTMcSK6lK7YYEObFE=
-X-Received: by 2002:a05:6102:6ca:b0:47a:ff5:fcc5 with SMTP id
- m10-20020a05610206ca00b0047a0ff5fcc5mr1097660vsg.4.1712596555926; Mon, 08 Apr
- 2024 10:15:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="K1b7djLm"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 438I78ck026339;
+	Mon, 8 Apr 2024 19:06:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=vjOCP4OiBVZzjLbSPcM9Y1By12q63aZiclbN49HLSMA=;
+ b=K1b7djLms1a2e63qbHztU7s/pHJLBb/0D1T8koIJSgH0kpLzft0VZe3b060b19jW7kkk
+ ecW1Cz00qEPfMle51vUT+KGxRxrtg2vKxsBg2F1Hpwc63Hmpauq93kfByJXwYwarApgP
+ SPu6dDm4Z76kecstECkZb2XBq79K8TfbyKKbauSOtbOODHtyZPA4j5kwzcOkmDvcmeWx
+ Gs89gXv2ZP7+/OHcMHU+nabERzF7+BEstKESf1PK9X7OrSvM/PG7R9tY2nd97N1oIeex
+ cx4+4OnYMI0duC4MCORMOlgB5MdJ2c6Y6qaErrXTWsR2aKeCkI9z7cHvuhJujB6KAvq0 Hw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xcnjvg39t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 08 Apr 2024 19:06:08 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 438J68A8026207;
+	Mon, 8 Apr 2024 19:06:08 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xcnjvg39e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 08 Apr 2024 19:06:08 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 438IUCeg029940;
+	Mon, 8 Apr 2024 19:05:54 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xbj7m1puj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 08 Apr 2024 19:05:54 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 438J5mng17039748
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 8 Apr 2024 19:05:51 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DBDDB2004D;
+	Mon,  8 Apr 2024 19:05:48 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 12BC02004B;
+	Mon,  8 Apr 2024 19:05:48 +0000 (GMT)
+Received: from [9.171.3.244] (unknown [9.171.3.244])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  8 Apr 2024 19:05:47 +0000 (GMT)
+Message-ID: <7e6baff2338ef4c3af9073c46b5492f271bdd9ae.camel@linux.ibm.com>
+Subject: Re: [PATCH net v2] s390/ism: fix receive message buffer allocation
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Niklas Schnelle <schnelle@linux.ibm.com>,
+        "David S.Miller"
+	 <davem@davemloft.net>
+Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
+        pabeni@redhat.com, hch@lst.de, pasic@linux.ibm.com,
+        wenjia@linux.ibm.com, guwen@linux.alibaba.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com
+Date: Mon, 08 Apr 2024 21:05:47 +0200
+In-Reply-To: <87cfb39893b0e38164e8f3014089c2bb5a79d63f.camel@linux.ibm.com>
+References: <20240405111606.1785928-1-gbayer@linux.ibm.com>
+	 <171257402789.26748.7616466981510318816.git-patchwork-notify@kernel.org>
+	 <87cfb39893b0e38164e8f3014089c2bb5a79d63f.camel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.50.4 (3.50.4-2.fc39app4) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 3D7BVhtmeeMfVdps4NeeGOz9Mpa3Zf6W
+X-Proofpoint-GUID: 09ObFrvA-3gjMQjg7iH4Mel5IB8PP06S
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240408125306.643546457@linuxfoundation.org>
-In-Reply-To: <20240408125306.643546457@linuxfoundation.org>
-From: Naresh Kamboju <naresh.kamboju@linaro.org>
-Date: Mon, 8 Apr 2024 22:45:44 +0530
-Message-ID: <CA+G9fYsvgN2ixfmDKc_x8yFnZ3SfrmSV5Ck1QC5KfmYN89CFYQ@mail.gmail.com>
-Subject: Re: [PATCH 6.6 000/252] 6.6.26-rc1 review
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org, patches@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, 
-	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org, 
-	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de, 
-	jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, 
-	srw@sladewatkins.net, rwarsow@gmx.de, conor@kernel.org, allen.lkml@gmail.com, 
-	broonie@kernel.org, Thomas Richter <tmricht@linux.ibm.com>, 
-	Sumanth Korikkar <sumanthk@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-08_16,2024-04-05_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 suspectscore=0 mlxscore=0 malwarescore=0 phishscore=0
+ bulkscore=0 mlxlogscore=951 spamscore=0 clxscore=1015 impostorscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404080148
 
-On Mon, 8 Apr 2024 at 18:30, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 6.6.26 release.
-> There are 252 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 10 Apr 2024 12:52:23 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.6.26-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.6.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Mon, 2024-04-08 at 14:40 +0200, Niklas Schnelle wrote:
+> On Mon, 2024-04-08 at 11:00 +0000, patchwork-bot+netdevbpf@kernel.org
+> wrote:
+> > Hello:
+> >=20
+> > This patch was applied to netdev/net.git (main)
+> > by David S. Miller <davem@davemloft.net>:
+> >=20
+> > On Fri,=C2=A0 5 Apr 2024 13:16:06 +0200 you wrote:
+> > > Since [1], dma_alloc_coherent() does not accept requests for
+> > > GFP_COMP
+> > > anymore, even on archs that may be able to fulfill this.
+> > > Functionality that
+> > > relied on the receive buffer being a compound page broke at that
+> > > point:
+> > > The SMC-D protocol, that utilizes the ism device driver, passes
+> > > receive
+> > > buffers to the splice processor in a struct splice_pipe_desc with
+> > > a
+> > > single entry list of struct pages. As the buffer is no longer a
+> > > compound
+> > > page, the splice processor now rejects requests to handle more
+> > > than a
+> > > page worth of data.
+> > >=20
+> > > [...]
+> >=20
+> > Here is the summary with links:
+> > =C2=A0 - [net,v2] s390/ism: fix receive message buffer allocation
+> > =C2=A0=C2=A0=C2=A0 https://git.kernel.org/netdev/net/c/58effa347653
+> >=20
+> > You are awesome, thank you!
+>=20
+> This version of the patch has an outstanding issue around handling
+> allocation failure see the comments on v1 here[0]. Please drop. Gerd
+> will send a v3 with that issue fixed.
+>=20
+> Thanks,
+> Niklas
+>=20
+> [0] https://lore.kernel.org/all/20240405143641.GA5865@lst.de/
 
-The s390 defconfig build failed with gcc-13 and clang-17 due following
-build warning / errors on Linux stable-rc linux-6.6.y.
+Hi Dave,
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+so how do we go forward? Would you revert this v2 in the netdev tree to
+have my next v3 properly reviewed?
 
-Build error:
---------
-arch/s390/kernel/perf_pai_crypto.c: In function 'paicrypt_stop':
-arch/s390/kernel/perf_pai_crypto.c:280:51: error: 'paicrypt_root'
-undeclared (first use in this function); did you mean 'paicrypt_stop'?
-  280 |         struct paicrypt_mapptr *mp = this_cpu_ptr(paicrypt_root.mapptr);
-      |                                                   ^~~~~~~~~~~~~
+Second best option: I can send a fixup to address the last issue from
+[0], but that would still leave some pieces sent with (v1/v2) not
+properly R-by'd or at least ack'd.
 
-Commit detail,
-  s390/pai: fix sampling event removal for PMU device driver
-  [ Upstream commit e9f3af02f63909f41b43c28330434cc437639c5c ]
-
-Steps to reproduce:
-# tuxmake --runtime podman --target-arch s390 --toolchain gcc-13
---kconfig defconfig
-
-Links:
-  - https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.6.y/build/v6.6.25-253-gec59b99017e9/testrun/23347738/suite/build/test/gcc-13-defconfig/log
-  - https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.6.y/build/v6.6.25-253-gec59b99017e9/testrun/23347738/suite/build/test/gcc-13-defconfig/details/
-  - https://storage.tuxsuite.com/public/linaro/lkft/builds/2eozoS8GQGxb94EUWNTPuXvYjVU/
-
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Thanks,
+Gerd
