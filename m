@@ -1,124 +1,120 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF6EC6EB72;
-	Tue,  9 Apr 2024 06:27:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A41E57D413;
+	Tue,  9 Apr 2024 08:18:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712644027; cv=none; b=JyUGyF4T3eqLtpeAvz9AVyoJ16KFmdf6kAXRCwbd888d6sXM76fUsL9UJk72u1JX2h9ihtSIw6uYXD1NYYL+K6/CcXOO6vr0mdYlmOii7AdT0DTox09UbCRhiTDtiArhxr6aFCvEpAUFGqrr75IY+sQzYuo91WNC8uhhwJwme/k=
+	t=1712650718; cv=none; b=XiE4DJLSiAZomiKNBvmVEfCEASGkBNreGsm2IqbRTt5Wmhr0xK7keeC7fjh3o5zKLm1ntZ2kMucQtuk7ByrMV3g/cGiUgPZjiSmY2im7HHPKxO8R9fU5FO3mLEInosm9kTYtyvxecYVZxlIiee2glYBcLNsJdqy7gzw58T9+cd0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712644027; c=relaxed/simple;
-	bh=YBgFeEcKNu6z1EOuKIDtV8ucxUi4txUooaEev8PsP28=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=EMPJooZMe1g3veisa8CVLAb/Xm0KM4uveW8RgRDirDpQpY7/3cv8ditkXvD+Q2lgDHPBuZtE0xQUX+9UWDwrMesogbpvjnMqpoS13b5BVgTFL3DtI03iRPGv62iaACJsnZtwD55w03dXZgCiUZWwZWRBITC3wXLwbBki3xPbkH4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=miU+wAIC; arc=none smtp.client-ip=198.175.65.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1712650718; c=relaxed/simple;
+	bh=l1v5E5H/ARIMqBmXKs16oujyTTKBZGMxBIN6eAzCkPc=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=e0XpDqk6UFD44HUelHHVsYHXxPAFRg1iZgKfY58ogg13fyHnxaPES2BFt5a2O3+kkAFSFODMVXA327cxfS/X7PMzaOhaz59rttRD9VDZm1i6iMls41EV42hps4EXVUubTlffHIn+ARONidAIkwClECRNHIW1skt5StepoCUoUA0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jIHd9F1X; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="miU+wAIC"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1712644025; x=1744180025;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=YBgFeEcKNu6z1EOuKIDtV8ucxUi4txUooaEev8PsP28=;
-  b=miU+wAICFFcFOK7b9Dmg5vu9UP0H4+ZOgiDv2bPK9JVIZyLVxdQOMxwW
-   kGCaDFU7vM3MSt1R07nhG62iQo1PDSHvudeWDcKkWA5pn0fNKk6GWsphW
-   K71ZnhTACbZXPcWEvPcCvzIUyXICKpDp5v/D/4QRyw9jetqGnyeYFce3W
-   f+/G/DVDkgDGyhYHJQn7QTfJ3ZrmtPQrS7G8c29bMewb+7uYFhevupoDq
-   WfrGDUxltz1aJy1sTNT9yDerQTFEVtzVBIYiQ7msgHPeq3XLy6st3Hxhx
-   9IZK7W8wiH2nf6PQAPuyF8Qf8WeKuTu6GdokMJMheGYa5GS3E80h2/E/m
-   Q==;
-X-CSE-ConnectionGUID: zlronA/dQIKXGUkaEzQQDg==
-X-CSE-MsgGUID: k4KOnJmTSB2UFhSUaOq4fg==
-X-IronPort-AV: E=McAfee;i="6600,9927,11038"; a="30436608"
-X-IronPort-AV: E=Sophos;i="6.07,188,1708416000"; 
-   d="scan'208";a="30436608"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2024 23:27:05 -0700
-X-CSE-ConnectionGUID: i4DhQ/5wQ5+lYrCrL9n3Kg==
-X-CSE-MsgGUID: HlKELBhTQnaCEeG1ZpmSMw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,188,1708416000"; 
-   d="scan'208";a="51129094"
-Received: from ahunter6-mobl1.ger.corp.intel.com (HELO ahunter-VirtualBox.home\044ger.corp.intel.com) ([10.249.37.26])
-  by orviesa002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2024 23:26:57 -0700
-From: Adrian Hunter <adrian.hunter@intel.com>
-To: Thomas Gleixner <tglx@linutronix.de>,
-	Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Vincenzo Frascino <vincenzo.frascino@arm.com>,
-	John Stultz <jstultz@google.com>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Anna-Maria Behnsen <anna-maria@linutronix.de>,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org
-Subject: [PATCH] vdso: Fix powerpc build U64_MAX undeclared error
-Date: Tue,  9 Apr 2024 09:26:39 +0300
-Message-Id: <20240409062639.3393-1-adrian.hunter@intel.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jIHd9F1X"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 4397gGCe031808;
+	Tue, 9 Apr 2024 08:18:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=l1v5E5H/ARIMqBmXKs16oujyTTKBZGMxBIN6eAzCkPc=;
+ b=jIHd9F1XFssyD+zDjvpAYRt2/CTHeiBJY1OSrs/9Cl1CNgPnoSO0gDx0CVar5ONlN5JW
+ y0KImKkok3e3flS1zChyAMD7u37UoU2u64EM+fq1q+QIcpd770zforCJBr12/p0/u4Mi
+ kk7cEu6dHDOwdT4c001iHlJMdPQxZS8Hw7FR5TensGrHbd/0znNlE1K1ht6cGQgGCnHa
+ 9xMMwW2UwurPJIweUUXyhYfwsP4gluOjBkJ6QKlKFMpCwlpCHkbJGP/VzrR05RK48vmE
+ O9UYj2thsOxzSb5pC26NvOP3cWfwfpUuJVc0xSXNLJGs3KuWOm12pFeRdPokY2LiTyWS 1A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xd1h0r25x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Apr 2024 08:18:24 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4398INf8030730;
+	Tue, 9 Apr 2024 08:18:23 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xd1h0r25r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Apr 2024 08:18:23 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4395mFSm029951;
+	Tue, 9 Apr 2024 07:59:02 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xbj7m4tpg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Apr 2024 07:59:02 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4397wvjF54722858
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 9 Apr 2024 07:58:59 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 22E132004B;
+	Tue,  9 Apr 2024 07:58:57 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7187820040;
+	Tue,  9 Apr 2024 07:58:56 +0000 (GMT)
+Received: from [9.155.208.153] (unknown [9.155.208.153])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  9 Apr 2024 07:58:56 +0000 (GMT)
+Message-ID: <fbf1d5a4bfd77c6eac64669dba67f58cfd8c3f8a.camel@linux.ibm.com>
+Subject: Re: [PATCH net v2] s390/ism: fix receive message buffer allocation
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
+        "David S.Miller"
+	 <davem@davemloft.net>, wintera@linux.ibm.com,
+        twinkler@linux.ibm.com, hca@linux.ibm.com, pabeni@redhat.com,
+        hch@lst.de, pasic@linux.ibm.com, wenjia@linux.ibm.com,
+        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com
+Date: Tue, 09 Apr 2024 09:58:52 +0200
+In-Reply-To: <20240408124609.4ca811f2@kernel.org>
+References: <20240405111606.1785928-1-gbayer@linux.ibm.com>
+	 <171257402789.26748.7616466981510318816.git-patchwork-notify@kernel.org>
+	 <87cfb39893b0e38164e8f3014089c2bb5a79d63f.camel@linux.ibm.com>
+	 <7e6baff2338ef4c3af9073c46b5492f271bdd9ae.camel@linux.ibm.com>
+	 <20240408124609.4ca811f2@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.4 (3.50.4-2.fc39app4) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki, Business Identity Code: 0357606 - 4, Domiciled in Helsinki
-Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: PbVInA8_1VS3A-wzmWkht-vzE2mfB724
+X-Proofpoint-ORIG-GUID: ra2FIbrB45c2FDdsliPvx_DnOUx8phwd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-09_05,2024-04-05_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=614 bulkscore=0 impostorscore=0 suspectscore=0
+ priorityscore=1501 adultscore=0 mlxscore=0 spamscore=0 phishscore=0
+ malwarescore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2404010000 definitions=main-2404090052
 
-U64_MAX is not in include/vdso/limits.h, although that isn't noticed on x86
-because x86 includes include/linux/limits.h indirectly. However powerpc
-is more selective, resulting in the following build error:
+On Mon, 2024-04-08 at 12:46 -0700, Jakub Kicinski wrote:
+> On Mon, 08 Apr 2024 21:05:47 +0200 Gerd Bayer wrote:
+> > Hi Dave,
+>=20
+> Hi, from the Dave replacement service.
 
-  In file included from <command-line>:
-  lib/vdso/gettimeofday.c: In function 'vdso_calc_ns':
-  lib/vdso/gettimeofday.c:11:33: error: 'U64_MAX' undeclared
-     11 | # define VDSO_DELTA_MASK(vd)    U64_MAX
-        |                                 ^~~~~~~
+Hi Jakub,
 
-Use ULLONG_MAX instead which will work just as well and is in
-include/vdso/limits.h.
+> If there's a chance we can get an incremental fix ready to merge by
+> Wednesday morning, let's try that. If we fail please post a revert by
+> Wednesday morning. On Thu morning EU time we'll ship the fixes to
+> Linus, so we gotta have the tree in a good share at that point.
 
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Closes: https://lore.kernel.org/all/20240409124905.6816db37@canb.auug.org.au/
-Fixes: c8e3a8b6f2e6 ("vdso: Consolidate vdso_calc_delta()")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
----
- lib/vdso/gettimeofday.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I'm preparing a revert right now, as I'm not sure the review is at the
+bottom of things, yet.
 
-diff --git a/lib/vdso/gettimeofday.c b/lib/vdso/gettimeofday.c
-index 9c3a8d2440c9..899850bd6f0b 100644
---- a/lib/vdso/gettimeofday.c
-+++ b/lib/vdso/gettimeofday.c
-@@ -8,7 +8,7 @@
- #ifndef vdso_calc_ns
- 
- #ifdef VDSO_DELTA_NOMASK
--# define VDSO_DELTA_MASK(vd)	U64_MAX
-+# define VDSO_DELTA_MASK(vd)	ULLONG_MAX
- #else
- # define VDSO_DELTA_MASK(vd)	(vd->mask)
- #endif
--- 
-2.34.1
+Thanks,
+Gerd
 
