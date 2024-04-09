@@ -1,20 +1,20 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9313D84D02
-	for <linux-s390@vger.kernel.org>; Tue,  9 Apr 2024 11:14:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0109D84D02
+	for <linux-s390@vger.kernel.org>; Tue,  9 Apr 2024 11:15:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712661285; cv=none; b=Fr3R0V6aK5j09nTQIAn7ZxiRxKiZvP3djaAOE6H3F3L4k8Y10CCymburYTU7g5kdm6iMmMrW0WkispZ7giiH1pyUwqzVSsJn2gVnABJgZ9egdGLayP75ZrOKYV8kdMX2GhHRyLBGxsX5THiuu6EYqewHNtDDFhlO1QLo7LSOEDY=
+	t=1712661316; cv=none; b=gzDujLNjhc90KzPA+mLMH8GGQlCX5SlVTH6TKNmiQKEkonRb5qhL4dtM7MR5+S0Wa3QzZySSBcGFShZaLaDA69nHFWWkCuxSxEif8A9JjbpGSFZon48MBPrfxPoXvrWPW7WZQa6ZqsYdTxNwvrU2KHX6GHZHfwWM0SFAxdXzoAE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712661285; c=relaxed/simple;
-	bh=g5WDgYmd1tGygYxCeeHhAYcVKdvhkUte9n/R9xJVUZE=;
+	s=arc-20240116; t=1712661316; c=relaxed/simple;
+	bh=++hTOCRPz5YoxqYCSkwLvqB3M5X+cC6Ji1XngwxiU/Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BVhZtNDmzmj+8cJREtQ/87YO3T3yjw2E6sBRVUJuC7XV235Pm8Z7LdTF+wALGQEtDlC4p/CSEfNnnkiIGi+uSrE4uaxvFtILDvqK2BJz0ZgqAEmas5DBcBDdMfLnS/m4lMoUnlnVxOAQNGE5ZGJmVzP0lOOZbCnAHU9334rB8WA=
+	 Content-Type:Content-Disposition:In-Reply-To; b=s4mJZ70aXfZHK1TixnOPh5rWNTEWilckcBXuEfQ2cfkkFh3cvfkwPicGFXEyY3ycgbSFk+2BPkZgsYE2yiYr+98/7xpfghCtbDdRUMC8U78ysCj8+HQx9B82DfOA5WwKSkWhBGow53A6+fUv4L2dcV9eNKzoyMJ2UX0DvmWtZdI=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35FC7C433F1;
-	Tue,  9 Apr 2024 11:14:41 +0000 (UTC)
-Date: Tue, 9 Apr 2024 12:14:38 +0100
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57168C433F1;
+	Tue,  9 Apr 2024 11:15:11 +0000 (UTC)
+Date: Tue, 9 Apr 2024 12:15:09 +0100
 From: Catalin Marinas <catalin.marinas@arm.com>
 To: Kefeng Wang <wangkefeng.wang@huawei.com>
 Cc: akpm@linux-foundation.org, Russell King <linux@armlinux.org.uk>,
@@ -33,10 +33,11 @@ Cc: akpm@linux-foundation.org, Russell King <linux@armlinux.org.uk>,
 	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
 	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
 	surenb@google.com, linux-mm@kvack.org
-Subject: Re: [PATCH v2 1/7] arm64: mm: cleanup __do_page_fault()
-Message-ID: <ZhUjHkyIjalU0MAA@arm.com>
+Subject: Re: [PATCH v2 2/7] arm64: mm: accelerate pagefault when
+ VM_FAULT_BADACCESS
+Message-ID: <ZhUjPZj5dij8JM9g@arm.com>
 References: <20240403083805.1818160-1-wangkefeng.wang@huawei.com>
- <20240403083805.1818160-2-wangkefeng.wang@huawei.com>
+ <20240403083805.1818160-3-wangkefeng.wang@huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -45,16 +46,18 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240403083805.1818160-2-wangkefeng.wang@huawei.com>
+In-Reply-To: <20240403083805.1818160-3-wangkefeng.wang@huawei.com>
 
-On Wed, Apr 03, 2024 at 04:37:59PM +0800, Kefeng Wang wrote:
-> The __do_page_fault() only calls handle_mm_fault() after vm_flags
-> checked, and it is only called by do_page_fault(), let's squash
-> it into do_page_fault() to cleanup code.
+On Wed, Apr 03, 2024 at 04:38:00PM +0800, Kefeng Wang wrote:
+> The vm_flags of vma already checked under per-VMA lock, if it is a
+> bad access, directly set fault to VM_FAULT_BADACCESS and handle error,
+> no need to retry with mmap_lock again, the latency time reduces 34% in
+> 'lat_sig -P 1 prot lat_sig' from lmbench testcase.
+> 
+> Since the page faut is handled under per-VMA lock, count it as a vma lock
+> event with VMA_LOCK_SUCCESS.
 > 
 > Reviewed-by: Suren Baghdasaryan <surenb@google.com>
 > Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-
-As I reviewed v1 and the changes are minimal:
 
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
