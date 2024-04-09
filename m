@@ -1,36 +1,35 @@
-Received: from mail.tkos.co.il (guitar.tkos.co.il [84.110.109.230])
+Received: from mail.tkos.co.il (wiki.tkos.co.il [84.110.109.230])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72E7D524AF;
-	Tue,  9 Apr 2024 06:18:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5CA56E5EC;
+	Tue,  9 Apr 2024 06:25:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.110.109.230
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712643504; cv=none; b=EeKCDzvCq08XfAVcQjySJm86ldQg2hS+U2RerxpmDoTPPwSD1G9lX8vf+sXg7iCqOdFA/WFJFomMcJoLKBvNwdIzuxLD9CuO79um/Efdf/9ShJsNcNtMd3GXBTyv9PKelgwuw9d1BhLr2bB0Czbl3gn8esokmvPUZy00mrDwNIk=
+	t=1712643940; cv=none; b=gyjOFi6dtkRW7iBG0PeZYhAb2RYdax/8B3SuAjp9BQfMriCmYPLXNFer8SN6MMQ0kie4G2CBvOYq/rah67yXDMn+8xfKR/z02XEGaDETFJhviEnYp9geu+jbwxqjLto+Wl23LezK9eo73aWZHfHf0HkEtdZ8xDqd4CZBu0SY8hQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712643504; c=relaxed/simple;
-	bh=R7K6bnEO9GvrFuZ5cBFijMFOruRQKScFkxZi8ojrTRc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UXxhH/KOyLIjo0v7B+ttvaOzE24upXLbyKk6jN5lgihovaLs8lCX1EyZrFeG9z15pkO3LDfxAK8uwLS5vcMm7V4zXxDsLuOyvle/AhiUZFZKQ7/oGJyFJ9Hsvykz3ksTXxiS3uFYMb8MiTNw3LOL2GLYKRq5teE7y0NoinpfPPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il; spf=pass smtp.mailfrom=tkos.co.il; dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b=SUexIQz8; arc=none smtp.client-ip=84.110.109.230
+	s=arc-20240116; t=1712643940; c=relaxed/simple;
+	bh=bnuGCfoRD/GHBH5oPlzJgRbdryYdtuyyryw5PvMST3k=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DQIZqvm3X8KeZr+pY139s7hOL35L147hYAECCtNDAT6cf67S+Ps56K1tBYN0aG05droJK0UKWQ1xte3X9dBv1zckpOjXAdEJShlQD5Ths5oWivFvB/LdtHNuGfJdggOOmzvylvCnSUHglrZarUSqlAt5Asfcy3sr8JEpgR/D8OY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il; spf=pass smtp.mailfrom=tkos.co.il; dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b=a4c9OXqG; arc=none smtp.client-ip=84.110.109.230
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tkos.co.il
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b="SUexIQz8"
+	dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b="a4c9OXqG"
 Received: from tarshish.tkos.co.il (unknown [10.0.8.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.tkos.co.il (Postfix) with ESMTPS id 48858440459;
-	Tue,  9 Apr 2024 09:17:45 +0300 (IDT)
+	by mail.tkos.co.il (Postfix) with ESMTPS id 5C128440209;
+	Tue,  9 Apr 2024 09:17:42 +0300 (IDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tkos.co.il;
-	s=default; t=1712643465;
-	bh=R7K6bnEO9GvrFuZ5cBFijMFOruRQKScFkxZi8ojrTRc=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=SUexIQz8PPD4zBDvys8qW4vICsMoWwrv/Gnfl1XbfryJUgAXmhmvGF4hBnq0rrs9u
-	 dJkOWwvsTTJp49f/96CsJAOe7SVxyJYmn5IBK2tBlDDM4FQfyhOmfOsb7RCYJ7mGFQ
-	 Z4pxD5uzbWSNMoTrZSEaMPdDEDESwEICV6BGapb1jO3WPznEXPBWQu8Uyy1eK7bhgh
-	 VJ2vFMvDL4Ab8KkyRmwnBkXCZkJWEUa948eREug5DCra0Vd7D1+U+jx3rFF10m0DVj
-	 SXe8/7ivvfBvgkUsoa+sOWN7M+3AT9z4tW1kFS6QMaNP60x6miJmpnTgoukgFTIE6O
-	 pV1sS2D6zWaJw==
+	s=default; t=1712643462;
+	bh=bnuGCfoRD/GHBH5oPlzJgRbdryYdtuyyryw5PvMST3k=;
+	h=From:To:Cc:Subject:Date:From;
+	b=a4c9OXqGbWvMqcGamtbGvNOylokFOW+P/K6pK1HJUkwAsoEkr11JAJ94N9DueCzUL
+	 Sh9pTDCYg72vzxXwwgo7aoVROdIbGvzuaSAzdizDy/f66CdkraK47/FHVX0aLnAylz
+	 bgZYDCW9qIt0nfbBWhnvW9LIjltl/WjI8PVkpsVa1LcktqpmDJo4MwsQO93eEn4bkp
+	 pD3oGKocfvAQF8y7xcMH/10bUZEagZl00KRqDBhV8dfGmtr7MUP90ka7K3D46nD30L
+	 t9hnstbzUOSxvqVeJL72Jv475/gjlo0tBTgGxCv2+6SrIF50HZzI/hnozSsPuc56BP
+	 1euAVmAgJnV3w==
 From: Baruch Siach <baruch@tkos.co.il>
 To: Christoph Hellwig <hch@lst.de>,
 	Marek Szyprowski <m.szyprowski@samsung.com>,
@@ -49,12 +48,10 @@ Cc: Baruch Siach <baruch@tkos.co.il>,
 	=?UTF-8?q?Petr=20Tesa=C5=99=C3=ADk?= <petr@tesarici.cz>,
 	Ramon Fried <ramon@neureality.ai>,
 	Elad Nachman <enachman@marvell.com>
-Subject: [PATCH RFC v2 5/5] arm64: mm: take DMA zone offset into account
-Date: Tue,  9 Apr 2024 09:17:58 +0300
-Message-ID: <2fa9d7954a99b018a32314b9baab25ba18504f15.1712642324.git.baruch@tkos.co.il>
+Subject: [PATCH RFC v2 0/5] arm64: support DMA zone starting above 4GB
+Date: Tue,  9 Apr 2024 09:17:53 +0300
+Message-ID: <cover.1712642324.git.baruch@tkos.co.il>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <cover.1712642324.git.baruch@tkos.co.il>
-References: <cover.1712642324.git.baruch@tkos.co.il>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -63,62 +60,58 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Commit 791ab8b2e3db ("arm64: Ignore any DMA offsets in the
-max_zone_phys() calculation") made DMA/DMA32 zones span the entire RAM
-when RAM starts above 32-bits. This breaks hardware with DMA area that
-start above 32-bits. But the commit log says that "we haven't noticed
-any such hardware". It turns out that such hardware does exist.
+DMA zones code assumes that DMA lower limit is zero. When there is no RAM 
+below 4GB, arm64 platform code sets DMA/DMA32 zone limits to cover the entire 
+RAM[0].
 
-One such platform has RAM starting at 32GB with an internal bus that has
-the following DMA limits:
+The platform I have has RAM starting at 32GB. Devices with 30-bit DMA mask are 
+mapped to 1GB at the bottom of RAM, between 32GB - 33GB. A DMA zone over the 
+entire RAM breaks DMA allocation for these devices.
 
-  #address-cells = <2>;
-  #size-cells = <2>;
-  dma-ranges = <0x00 0xc0000000 0x08 0x00000000 0x00 0x40000000>;
+In response to a previous RFC hack[1] Catalin Marinas suggested to add a
+separate offset value as base address for the DMA zone. This RFC series 
+attempts to implement that suggestion.
 
-Devices under this bus can see 1GB of DMA range between 3GB-4GB in each
-device address space. This range is mapped to CPU memory at 32GB-33GB.
-With current code DMA allocations for devices under this bus are not
-limited to DMA area, leading to run-time allocation failure.
+With this series applied, the DMA zone covers the right RAM range for my 
+platform.
 
-Modify 'zone_dma_bits' calculation (via dt_zone_dma_bits) to only cover
-the actual DMA area starting at 'zone_dma_off'. Use the newly introduced
-'min' parameter of of_dma_get_cpu_limits() to set 'zone_dma_off'.
+RFC v2:
 
-DMA32 zone is useless in this configuration, so make its limit the same
-as the DMA zone when the lower DMA limit is higher than 32-bits.
+  * Add patch from Catalin[2] changing zone_dma_bits to zone_dma_limit to 
+    simplify subsequent patches
 
-The result is DMA zone that properly reflects the hardware constraints
-as follows:
+  * Test on real hardware
 
-[    0.000000] Zone ranges:
-[    0.000000]   DMA      [mem 0x0000000800000000-0x000000083fffffff]
-[    0.000000]   DMA32    empty
-[    0.000000]   Normal   [mem 0x0000000840000000-0x0000000bffffffff]
+RFC v1: https://lore.kernel.org/all/cover.1703683642.git.baruch@tkos.co.il/
 
-Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
----
- arch/arm64/mm/init.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+[0] See commit 791ab8b2e3db ("arm64: Ignore any DMA offsets in the 
+    max_zone_phys() calculation")
 
-diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index 77e942ca578b..cd283ae0178d 100644
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -128,9 +128,11 @@ static void __init zone_sizes_init(void)
- 
- #ifdef CONFIG_ZONE_DMA
- 	acpi_zone_dma_limit = acpi_iort_dma_get_max_cpu_address();
--	of_dma_get_cpu_limits(NULL, &dt_zone_dma_limit, NULL);
-+	of_dma_get_cpu_limits(NULL, &dt_zone_dma_limit, &zone_dma_base);
- 	zone_dma_limit = min(dt_zone_dma_limit, acpi_zone_dma_limit);
- 	arm64_dma_phys_limit = max_zone_phys(zone_dma_limit);
-+	if (zone_dma_base > U32_MAX)
-+		dma32_phys_limit = arm64_dma_phys_limit;
- 	max_zone_pfns[ZONE_DMA] = PFN_DOWN(arm64_dma_phys_limit);
- #endif
- #ifdef CONFIG_ZONE_DMA32
+[1] https://lore.kernel.org/all/9af8a19c3398e7dc09cfc1fbafed98d795d9f83e.1699464622.git.baruch@tkos.co.il/
+
+[2] https://lore.kernel.org/all/ZZ2HnHJV3gdzu1Aj@arm.com/
+
+Baruch Siach (4):
+  of: get dma area lower limit
+  of: unittest: add test for of_dma_get_cpu_limits() 'min' param
+  dma-direct: add base offset to zone_dma_bits
+  arm64: mm: take DMA zone offset into account
+
+Catalin Marinas (1):
+  dma-mapping: replace zone_dma_bits by zone_dma_limit
+
+ arch/arm64/mm/init.c       | 34 ++++++++++++----------------------
+ arch/powerpc/mm/mem.c      |  9 ++++-----
+ arch/s390/mm/init.c        |  2 +-
+ drivers/of/address.c       | 38 +++++++++++++++++++++++++++-----------
+ drivers/of/unittest.c      | 17 ++++++++++-------
+ include/linux/dma-direct.h |  3 ++-
+ include/linux/of.h         | 11 ++++++++---
+ kernel/dma/direct.c        | 11 ++++++-----
+ kernel/dma/pool.c          |  2 +-
+ kernel/dma/swiotlb.c       |  4 ++--
+ 10 files changed, 73 insertions(+), 58 deletions(-)
+
 -- 
 2.43.0
 
