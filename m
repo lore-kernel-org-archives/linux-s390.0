@@ -1,188 +1,104 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAA5E12DD84;
-	Tue,  9 Apr 2024 11:38:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7A624F883;
+	Tue,  9 Apr 2024 12:17:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712662699; cv=none; b=HwsHK3cdbkox0YqopcklEyHspZdNPrzJlWL2EdLhcZsFqz7vbyqYkOIxysqJYd6i/a61Yfovi+JJ95nPGJ2Das3U1u68ZBLLPAdbxmjlz82jE0gK2tq3UAKxuMmoCJYqczTLn2dDAn1qPudXMby85jQW37Ugdm+pZBQpyPrPIOw=
+	t=1712665055; cv=none; b=qY/u6LkJnOp9bc7WJai7SSuPWapMljuvAupFnpKQScD9WvFF92Ic9g//gfkCiL0kmE+U0Z3qh4pzHRXKyStSD8/zEGkZ8TpvFIGOesK1qyL7pPXcib5lW4SJZ8ZHZHLIsJRMawJ5nztdPbyv/HXmsWu75Js/i4bJDaMX8yGlfEI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712662699; c=relaxed/simple;
-	bh=6vC1mJ5GazGW7BDjWM1xiZUkKNPwSg2Bb5ytJgiXO+M=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Uzmc8xzAYyOuBx1Ziv5L7EUKP1+Dx8zFwBq/YuNOySmsi2fzJeKYvlalaiVrcJxJipFq3nlLrjWD1T5aEkWQslI43vAR3eChxJqwiYfC0f2W/uhWGr3pfxf+NAlI0ZJCXRv+29N3GD2zmoIuHtYtLst1rxuR9sZl8o3iKOVgUoo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aVb5VoWC; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1712665055; c=relaxed/simple;
+	bh=fH+pqInuqCP8bPr3hH0Y8Q86LVIvkMeVKXe0pif5V9c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jLws1CWK3JJ8GVC3bQTiPBwMbIYaLgZ27zs+WrA/a+BkktBKHFSRajp3K+HX8RIc+g/6h8hg7T6mN188fjAkS01RCY9PdjUROLC6knZlNBvNgIeC9jmUk0dcHd8Iark9reFMO/8d3sEH7dQqOqivQtZq0oIog+bDqaE6uDz2lQM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=0EWtxBMo; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aVb5VoWC"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 439B1N6N030724;
-	Tue, 9 Apr 2024 11:38:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=2yuqS5Khw7084zEnbbKJBNp9GQR5WjpgzXBBu/4s3kA=;
- b=aVb5VoWCYMFNuUDiStBJ4bbN+KZLP5pOP26H9cQP1htDKJg8qnIt9nuImcop7sQ1g4tv
- DhKNr4Fne2++flqU8L/bhof8tic7hfraToZgGF6Jr97WHIt8dBzvITea48yN8aF12Szu
- CW88hD/8Ejj/CYlE/OH5gBIWs7tgRd7C+FMgj20l5g5M5s+op36zJqABFyM3yKyu9sv9
- RhfOEvpmG9Eb3KFSxRaR6hBItJYoFEgY0oy6WtbcLBtBCljYQRvvvkG3kNIfaGB0US4w
- p5VK4Qfbg6bpeXepsAjJsgtDI7tFNfGqMqL5IcnaXWchINFrtdQkQ2s+uCE70xmXq43/ sw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xd2nsg8u6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Apr 2024 11:38:03 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 439Bc2vQ023253;
-	Tue, 9 Apr 2024 11:38:02 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xd2nsg8u3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Apr 2024 11:38:02 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 439A4boL021515;
-	Tue, 9 Apr 2024 11:38:02 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xbjxknmww-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Apr 2024 11:38:01 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 439BbuaT16908656
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Apr 2024 11:37:58 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9ABA42004D;
-	Tue,  9 Apr 2024 11:37:56 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 30A2220043;
-	Tue,  9 Apr 2024 11:37:56 +0000 (GMT)
-Received: from dilbert5.boeblingen.de.ibm.com (unknown [9.155.208.153])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  9 Apr 2024 11:37:56 +0000 (GMT)
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>, Paolo Abeni <pabeni@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, Jakub Kicinski <kuba@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>
-Cc: Wenjia Zhang <wenjia@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, pasic@linux.ibm.com,
-        schnelle@linux.ibm.com, Gerd Bayer <gbayer@linux.ibm.com>
-Subject: [PATCH net] Revert "s390/ism: fix receive message buffer allocation"
-Date: Tue,  9 Apr 2024 13:37:53 +0200
-Message-ID: <20240409113753.2181368-1-gbayer@linux.ibm.com>
-X-Mailer: git-send-email 2.44.0
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="0EWtxBMo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1DB4C433F1;
+	Tue,  9 Apr 2024 12:17:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1712665054;
+	bh=fH+pqInuqCP8bPr3hH0Y8Q86LVIvkMeVKXe0pif5V9c=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=0EWtxBMoqzphz7amkYmvLeLupc2mz5UF6CXnZt1n6bkV5RlOez9HF4pe9jifCU4Fh
+	 a5ihOtuJpxsDI9TX2knf3Nl2NS9d4dQJlGOfeCLqmqVvKhp6XAQlOehOvPz7x0awI9
+	 TUiUYJzJ18gZh9Unq9ncbHzICF+PO9DDY+A5SAgY=
+Date: Tue, 9 Apr 2024 14:17:31 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc: stable@vger.kernel.org, patches@lists.linux.dev,
+	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+	jonathanh@nvidia.com, f.fainelli@gmail.com,
+	sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
+	conor@kernel.org, allen.lkml@gmail.com, broonie@kernel.org,
+	Thomas Richter <tmricht@linux.ibm.com>,
+	Sumanth Korikkar <sumanthk@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 6.6 000/252] 6.6.26-rc1 review
+Message-ID: <2024040912-item-nearby-d068@gregkh>
+References: <20240408125306.643546457@linuxfoundation.org>
+ <CA+G9fYsvgN2ixfmDKc_x8yFnZ3SfrmSV5Ck1QC5KfmYN89CFYQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ih4EjGBrz3HQRV4aRx3BJBmsd9AaJ37J
-X-Proofpoint-ORIG-GUID: FWlATgMz-U1Pm9dHBEzHkK0XLFkr_vDf
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-09_08,2024-04-09_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- mlxscore=0 priorityscore=1501 impostorscore=0 mlxlogscore=999 bulkscore=0
- adultscore=0 suspectscore=0 lowpriorityscore=0 clxscore=1015 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
- definitions=main-2404090074
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYsvgN2ixfmDKc_x8yFnZ3SfrmSV5Ck1QC5KfmYN89CFYQ@mail.gmail.com>
 
-This reverts commit 58effa3476536215530c9ec4910ffc981613b413.
-Review was not finished on this patch. So it's not ready for
-upstreaming.
+On Mon, Apr 08, 2024 at 10:45:44PM +0530, Naresh Kamboju wrote:
+> On Mon, 8 Apr 2024 at 18:30, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 6.6.26 release.
+> > There are 252 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Wed, 10 Apr 2024 12:52:23 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.6.26-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.6.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> The s390 defconfig build failed with gcc-13 and clang-17 due following
+> build warning / errors on Linux stable-rc linux-6.6.y.
+> 
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> 
+> Build error:
+> --------
+> arch/s390/kernel/perf_pai_crypto.c: In function 'paicrypt_stop':
+> arch/s390/kernel/perf_pai_crypto.c:280:51: error: 'paicrypt_root'
+> undeclared (first use in this function); did you mean 'paicrypt_stop'?
+>   280 |         struct paicrypt_mapptr *mp = this_cpu_ptr(paicrypt_root.mapptr);
+>       |                                                   ^~~~~~~~~~~~~
+> 
+> Commit detail,
+>   s390/pai: fix sampling event removal for PMU device driver
+>   [ Upstream commit e9f3af02f63909f41b43c28330434cc437639c5c ]
+> 
+> Steps to reproduce:
+> # tuxmake --runtime podman --target-arch s390 --toolchain gcc-13
+> --kconfig defconfig
+> 
+> Links:
+>   - https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.6.y/build/v6.6.25-253-gec59b99017e9/testrun/23347738/suite/build/test/gcc-13-defconfig/log
+>   - https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.6.y/build/v6.6.25-253-gec59b99017e9/testrun/23347738/suite/build/test/gcc-13-defconfig/details/
+>   - https://storage.tuxsuite.com/public/linaro/lkft/builds/2eozoS8GQGxb94EUWNTPuXvYjVU/
 
-Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
----
+Thanks, I'll go drop a bunch of s390 patches from this tree and push out
+a -rc2 later tonight.
 
-Hi,
-
-this is broken for a little while already and I'd rather have the full 
-solution properly reviewed and acked in one patch. So please do not upstream
-this yet.
-
-Thank you,
-Gerd
-
- drivers/s390/net/ism_drv.c | 38 +++++++++-----------------------------
- 1 file changed, 9 insertions(+), 29 deletions(-)
-
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index affb05521e14..2c8e964425dc 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -14,8 +14,6 @@
- #include <linux/err.h>
- #include <linux/ctype.h>
- #include <linux/processor.h>
--#include <linux/dma-mapping.h>
--#include <linux/mm.h>
- 
- #include "ism.h"
- 
-@@ -294,15 +292,13 @@ static int ism_read_local_gid(struct ism_dev *ism)
- static void ism_free_dmb(struct ism_dev *ism, struct ism_dmb *dmb)
- {
- 	clear_bit(dmb->sba_idx, ism->sba_bitmap);
--	dma_unmap_page(&ism->pdev->dev, dmb->dma_addr, dmb->dmb_len,
--		       DMA_FROM_DEVICE);
--	folio_put(virt_to_folio(dmb->cpu_addr));
-+	dma_free_coherent(&ism->pdev->dev, dmb->dmb_len,
-+			  dmb->cpu_addr, dmb->dma_addr);
- }
- 
- static int ism_alloc_dmb(struct ism_dev *ism, struct ism_dmb *dmb)
- {
- 	unsigned long bit;
--	int rc;
- 
- 	if (PAGE_ALIGN(dmb->dmb_len) > dma_get_max_seg_size(&ism->pdev->dev))
- 		return -EINVAL;
-@@ -319,30 +315,14 @@ static int ism_alloc_dmb(struct ism_dev *ism, struct ism_dmb *dmb)
- 	    test_and_set_bit(dmb->sba_idx, ism->sba_bitmap))
- 		return -EINVAL;
- 
--	dmb->cpu_addr =
--		folio_address(folio_alloc(GFP_KERNEL | __GFP_NOWARN |
--					  __GFP_NOMEMALLOC | __GFP_NORETRY,
--					  get_order(dmb->dmb_len)));
-+	dmb->cpu_addr = dma_alloc_coherent(&ism->pdev->dev, dmb->dmb_len,
-+					   &dmb->dma_addr,
-+					   GFP_KERNEL | __GFP_NOWARN |
-+					   __GFP_NOMEMALLOC | __GFP_NORETRY);
-+	if (!dmb->cpu_addr)
-+		clear_bit(dmb->sba_idx, ism->sba_bitmap);
- 
--	if (!dmb->cpu_addr) {
--		rc = -ENOMEM;
--		goto out_bit;
--	}
--	dmb->dma_addr = dma_map_page(&ism->pdev->dev,
--				     virt_to_page(dmb->cpu_addr), 0,
--				     dmb->dmb_len, DMA_FROM_DEVICE);
--	if (dma_mapping_error(&ism->pdev->dev, dmb->dma_addr)) {
--		rc = -ENOMEM;
--		goto out_free;
--	}
--
--	return 0;
--
--out_free:
--	kfree(dmb->cpu_addr);
--out_bit:
--	clear_bit(dmb->sba_idx, ism->sba_bitmap);
--	return rc;
-+	return dmb->cpu_addr ? 0 : -ENOMEM;
- }
- 
- int ism_register_dmb(struct ism_dev *ism, struct ism_dmb *dmb,
-
-base-commit: b46f4eaa4f0ec38909fb0072eea3aeddb32f954e
--- 
-2.44.0
-
+greg k-h
