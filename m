@@ -1,108 +1,140 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7434156870;
-	Tue,  9 Apr 2024 18:11:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 046171C0DF7;
+	Wed, 10 Apr 2024 02:47:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=150.107.74.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712686266; cv=none; b=Y6CxGQ0GUf2ehi0stcvZpABUFDO68EsyQ4ZZjGei7E0IAiTpzANV0cdpU1Sd60JMih0sBiPznkbh9NyQ7ILA0RtnAj7NO5rCk9MhOD8qNyINsmuYGPlRlZsWeAu4HTfzypV7xc/EAiZAGozoN3qf3CIWcjZ5tQm7Uoh6xcUVmII=
+	t=1712717269; cv=none; b=XZdxhbUl6o1q9ZVMU+LdfO7gDgEEyOieVrpJmQ/diEwP3JdvDUYYtAstoi1uXsg5dcOExx2A7JaNfWGW56dliMJpdKzHHVIN/JE8TYvrADMeM+jtNKsvOSh3ZwSWPHfXcskeUJoZC52gZay1MYTKuuVWRgHDrZKhoP59cCUEeZ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712686266; c=relaxed/simple;
-	bh=HqaMdhT5LRYjCxR6gMHB6EOhgxJSaOa8vauHB4zv+2E=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VEcXLkEQW6JyFiEwmibcC3WtjFMfD79IkVnGtESa8JlYs4ay5DUpopaCaLfXmKFzko6SIUQtdxstnBUDafbxRBsJKoGPCrdA7Vk860hmUqt0Am/x1Qg+YQ4VBolz/2UF1AjyYYVKUKz3CWRCQ2HF0kScy+9Ca0RDkS80k4Y0/YQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FttKq7Yz; arc=none smtp.client-ip=209.85.214.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1712717269; c=relaxed/simple;
+	bh=mOWD7xTxVomrfTmp8YHIIxoM7MCWN5VLKqDyKnTWfg4=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=UVjodMqNDsIPLN/rjz2UDFPHZ+DZH8ZuW5ecQ/3DqgdJSRKg2aFU4VJIXgnSTFamLhJ/1aJxtqoiBNDjKA+Qd3dVm/VuacopAkExq7fcI0j3V17AhbXhTVIKE+DHs4q0JoVEXSHPYnKbc3bqfAasc4oyesrEgFNFrlRfb0q2qQQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canb.auug.org.au; spf=pass smtp.mailfrom=canb.auug.org.au; dkim=pass (2048-bit key) header.d=canb.auug.org.au header.i=@canb.auug.org.au header.b=ghhVpQV6; arc=none smtp.client-ip=150.107.74.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canb.auug.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canb.auug.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FttKq7Yz"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-1e220e40998so37525675ad.1;
-        Tue, 09 Apr 2024 11:11:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712686264; x=1713291064; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=J9dSAKFdynyhKujjaxO9n/FtMdq9OcS8F/T8JeifJ1k=;
-        b=FttKq7YzQibSu3QkW5wm1cfur0Sb9eg8CtXs6WKUr9zGDaPWl6iuiLJeLdFeC/iNY4
-         8LFySLpve+36Cug69jRdkAr49JZayGOQ+h79XwJLmN+RGRoU5XlOio1N1e8jd9GEJEmv
-         JRMv+qzkoHFdB1b4Bxkp0G2VFJ3rVPH65aFOHo/NDDOX/PNkNDIVWpjBAvpVTOv7ykb3
-         9ug8dXeQdHgfj6UX7ce9WAcNpBnhctkosX4i9G4T6hn4u3kGmYVz8wHyawwXjvaARlGr
-         yFs6XU8whVQDxMNKSkr4yiUhYOMcVBmPngklvhlTodqo1z1xR4SxxVKF1dlxKqaRVvui
-         668g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712686264; x=1713291064;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=J9dSAKFdynyhKujjaxO9n/FtMdq9OcS8F/T8JeifJ1k=;
-        b=HP7vlWjUZAWHHrddjNVv3YgPx0I5azs3kmojBst3vtYYxrA1D71oIL1wOH19ZY4TUs
-         ftaKyJOnrw+v9UBFB6a0bqBKbqbLpNs68NhxBc6I4UQlLhfvlyNm7sZzP5HRpPyyMRxw
-         QVJ6GxsL0bzbuCMLLppGiH+IjkYaaBcj2IV9fcIdUXrq2ShDqTfQuupwK8tiTUbdR8OO
-         OkNIo0AogoEn0JW5q0nLKvHf37jwnzqqiZbnxJXTcIE6YW9tbYBas7IdP4x23WyjvAjD
-         FN0NrJuAkwufQY83aDqkWLEtN1t1r1vTmI+aONn9zP6XzWpktxVLO4uGULpNYulWc91k
-         CGAA==
-X-Forwarded-Encrypted: i=1; AJvYcCWOIUq17MX3ojkp1V6Cw9t8Qzn0i7G+B0PGVWhNdNF0DHrikTZ1ScpOCibZaWUiQp6wgT+fg9eMxG/BrIIsRv+ANw33tAjJ8YbWCmPgmBXNdd2CZ9lphiimSkE8vBeIC6loU/9Ymmbt0q30VcajpRlnS34lU1J3DxmLpI8px8Vrd/4WT97R1PLf03PTLkeZ8F32eeVIrP3AiQyVZfVGiTyuaal6tu0B5qARapkRPBBrrJpzrPwvQfwmsTJSMHcsEjkaej8h+uRDEB1Drihu5D3Nyx/memLkjrg5udbv9++s8OCrYu/nGgSZYMTdhiMc7Q==
-X-Gm-Message-State: AOJu0YzL7OMOZU2B65EthKr0eCDvgim79p+ud0OvzG96sNBtdoh9Tnph
-	832vI1K28ki+3abjxbs+JvC89QxEWnzd7y3ealZCI+MUo6NH3lPv
-X-Google-Smtp-Source: AGHT+IGrjPVdFECKS3becNGGDDo38peM0R3uLnfzfKLi+hNrIYGQpqn6EkGBto25qlTyktqlNq6njg==
-X-Received: by 2002:a17:902:82c8:b0:1e2:3e1e:3d9 with SMTP id u8-20020a17090282c800b001e23e1e03d9mr529751plz.63.1712686263974;
-        Tue, 09 Apr 2024 11:11:03 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id j18-20020a170902f25200b001e256cb48f7sm9195770plc.197.2024.04.09.11.11.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Apr 2024 11:11:03 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Tue, 9 Apr 2024 11:11:02 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: David Gow <davidgow@google.com>
-Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	=?iso-8859-1?Q?Ma=EDra?= Canal <mcanal@igalia.com>,
-	Dan Carpenter <dan.carpenter@linaro.org>,
-	Kees Cook <keescook@chromium.org>,
-	Daniel Diaz <daniel.diaz@linaro.org>,
-	Arthur Grillo <arthurgrillo@riseup.net>,
-	Brendan Higgins <brendan.higgins@linux.dev>,
-	Naresh Kamboju <naresh.kamboju@linaro.org>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Maxime Ripard <mripard@kernel.org>,
-	Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>,
-	Daniel Vetter <daniel@ffwll.ch>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	dri-devel@lists.freedesktop.org, kunit-dev@googlegroups.com,
-	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org, loongarch@lists.linux.dev,
-	netdev@vger.kernel.org, x86@kernel.org,
-	Linux Kernel Functional Testing <lkft@linaro.org>
-Subject: Re: [PATCH v3 03/15] kunit: Add test cases for backtrace warning
- suppression
-Message-ID: <aad25d52-83ed-492f-9d56-71d26895173b@roeck-us.net>
-References: <20240403131936.787234-1-linux@roeck-us.net>
- <20240403131936.787234-4-linux@roeck-us.net>
- <CABVgOSknXkT=WU-fwi5wP4bWv04DKByxSYAPmhYhC--FaQH-PQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=canb.auug.org.au header.i=@canb.auug.org.au header.b="ghhVpQV6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canb.auug.org.au;
+	s=201702; t=1712717261;
+	bh=mLlc3a7A+WiO812az/hZEqjgAVnAiZZT9ETARfh1iIo=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=ghhVpQV6j6zTYnf8M+aMSVN1f9gZri4s+bEJdqtEIOLh1KPMF1KTMt6HWCbCfjoBF
+	 RRB4JmWVZFQscEriXNCNxIqxCH0AOHKLcJWp+8Lkk1+58cNHC/lvyl1n4u2Ck+SlA2
+	 nVJUmS4CsNykMeINn64MkPmT3HMh2ImdUllN3YfAAd/bWFq/MgoK95zTA/P7ZLQ7b8
+	 gnw8X4oBPQP3+zamYColJ+YKsw+nXgSBjbNgYTxzatwkK+BJYxibdEvncrzRdLtwpO
+	 cudnNUzSrZn32FePqeZ+J32kAAHSVfxO7zAxsLrTWqmcZOghS9unMhycziPKB9SLj6
+	 PIjY+ICZ/rlnA==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mail.ozlabs.org (Postfix) with ESMTPSA id 4VDnLL2nwhz4wcn;
+	Wed, 10 Apr 2024 12:47:38 +1000 (AEST)
+Date: Wed, 10 Apr 2024 12:47:35 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Michael Ellerman
+ <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy
+ <christophe.leroy@csgroup.eu>, "Aneesh Kumar K.V"
+ <aneesh.kumar@kernel.org>, "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Ingo
+ Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
+ <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
+ <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Vincenzo Frascino
+ <vincenzo.frascino@arm.com>, John Stultz <jstultz@google.com>, Stephen Boyd
+ <sboyd@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap
+ <rdunlap@infradead.org>, Bjorn Helgaas <bhelgaas@google.com>, Arnd Bergmann
+ <arnd@arndb.de>, Anna-Maria Behnsen <anna-maria@linutronix.de>,
+ linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org
+Subject: Re: [PATCH] vdso: Fix powerpc build U64_MAX undeclared error
+Message-ID: <20240410124735.4c118aba@canb.auug.org.au>
+In-Reply-To: <20240409062639.3393-1-adrian.hunter@intel.com>
+References: <20240409062639.3393-1-adrian.hunter@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CABVgOSknXkT=WU-fwi5wP4bWv04DKByxSYAPmhYhC--FaQH-PQ@mail.gmail.com>
+Content-Type: multipart/signed; boundary="Sig_/vOfEbzDCAvOKJVGaVwivnDx";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 
-On Tue, Apr 09, 2024 at 04:29:42PM +0800, David Gow wrote:
-> > +ifeq ($(CCONFIG_KUNIT_SUPPRESS_BACKTRACE),y)
-> 
-> s/CCONFIG_/CONFIG_/ ?
-> 
-> 
-Odd, I know I tested this (and it still works ;-).
-The additional "C" must have slipped in at some point.
-Thanks for noticing!
+--Sig_/vOfEbzDCAvOKJVGaVwivnDx
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Guenter
+Hi Adrian,
+
+On Tue,  9 Apr 2024 09:26:39 +0300 Adrian Hunter <adrian.hunter@intel.com> =
+wrote:
+>
+> U64_MAX is not in include/vdso/limits.h, although that isn't noticed on x=
+86
+> because x86 includes include/linux/limits.h indirectly. However powerpc
+> is more selective, resulting in the following build error:
+>=20
+>   In file included from <command-line>:
+>   lib/vdso/gettimeofday.c: In function 'vdso_calc_ns':
+>   lib/vdso/gettimeofday.c:11:33: error: 'U64_MAX' undeclared
+>      11 | # define VDSO_DELTA_MASK(vd)    U64_MAX
+>         |                                 ^~~~~~~
+>=20
+> Use ULLONG_MAX instead which will work just as well and is in
+> include/vdso/limits.h.
+>=20
+> Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+> Closes: https://lore.kernel.org/all/20240409124905.6816db37@canb.auug.org=
+.au/
+> Fixes: c8e3a8b6f2e6 ("vdso: Consolidate vdso_calc_delta()")
+> Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+> ---
+>  lib/vdso/gettimeofday.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/lib/vdso/gettimeofday.c b/lib/vdso/gettimeofday.c
+> index 9c3a8d2440c9..899850bd6f0b 100644
+> --- a/lib/vdso/gettimeofday.c
+> +++ b/lib/vdso/gettimeofday.c
+> @@ -8,7 +8,7 @@
+>  #ifndef vdso_calc_ns
+> =20
+>  #ifdef VDSO_DELTA_NOMASK
+> -# define VDSO_DELTA_MASK(vd)	U64_MAX
+> +# define VDSO_DELTA_MASK(vd)	ULLONG_MAX
+>  #else
+>  # define VDSO_DELTA_MASK(vd)	(vd->mask)
+>  #endif
+> --=20
+> 2.34.1
+>=20
+
+I have applied that to linux-next today and it builds for me.
+
+Tested-by: Stephen Rothwell <sfr@canb.auug.org.au> # build only
+
+--=20
+Cheers,
+Stephen Rothwell
+
+--Sig_/vOfEbzDCAvOKJVGaVwivnDx
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAmYV/ccACgkQAVBC80lX
+0GyhBgf+Jf8pX6z5I6OHsmD8CbYP6GnKCBxvh+gR4ghWc9UAElgV+QAxw5qUh13q
+pwIl5H6aCeg7RoNnVXYeIXDu7lzsJCgMWXwAC9Cl5us+ob0kvhCp33VGNZAFNBRr
+6I6OSBNcIOpYtvjtMGHuD59I+u6X7v6vFJvQPBh0AdTHT+RnL3FGbV6kJGcF3+fs
+HYIU3+af8/QqSYJ6bYu1Mr+YuRtWlQaQf+M+tPgFumWJEqqZnPfswcEHYlEvXU0L
+HZrGroFagXi+Cl5pkmHWNaJIIzJpP9w8Fsyrc1D8iutNbEVrrXsiaKx0xROEIIx1
+WGN5Qw9igAxfEy8yrGK8VRo74cTy6Q==
+=GLls
+-----END PGP SIGNATURE-----
+
+--Sig_/vOfEbzDCAvOKJVGaVwivnDx--
