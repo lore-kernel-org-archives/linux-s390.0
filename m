@@ -1,107 +1,92 @@
-Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com [209.85.210.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3465317552;
-	Wed, 10 Apr 2024 04:36:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 561D21119F
+	for <linux-s390@vger.kernel.org>; Wed, 10 Apr 2024 07:33:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712723774; cv=none; b=Hj3MxMrCdCLU160TxhZ2H1OqvPkHiahyNHzQURLD9wZAieFuicbyEWtyWYSLsGs8wosTCThM4vtPcSK+gK45dKvDcZpD8GKhS++iKLOWubb6uXUFrXY/KJ++SYDA/LXIc02XvaisnN90k6Qrb3rzRwXe1HLl3XgscyASWSE+BvA=
+	t=1712734387; cv=none; b=b0QQlBB7kH0CMQrm7VXTHvbv+0I5OZaMuA4HpPcLaTBnTnPJLoSEaRrfuLEz6r4lNACC/dxDyQi5tcQByc5SniXIrvKP+8crtNoG0gIJRzIYtqSueMXrzeLuvenS1qJgtcdx7QHN81KEaScVOryMJDmkNOGKTJO414SVKk/tuek=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712723774; c=relaxed/simple;
-	bh=ro+sOnBvLDHRbfi78dhOX4EHZIAZUCGDHP43waHZGJw=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
-	 References:In-Reply-To; b=pBK9vlZBXgIgYJ4F6wqVjdxqDo5dEBWdENwE9+9NtvHuUrepV15s14MGOFb4P0s+9k2EOExDycHHzYR/innVakFOfwv9RA+hOU+l0kZUz9cwFKnwFEQE88JxBd93wowVvZ1uBC5gdR6POMGeU8ihf2JlfSvALiQ1Kl2pzSdprQk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ho6iRtCJ; arc=none smtp.client-ip=209.85.210.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ho6iRtCJ"
-Received: by mail-ot1-f42.google.com with SMTP id 46e09a7af769-6e9e1a52b74so1179207a34.0;
-        Tue, 09 Apr 2024 21:36:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712723772; x=1713328572; darn=vger.kernel.org;
-        h=in-reply-to:references:cc:to:from:subject:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ro+sOnBvLDHRbfi78dhOX4EHZIAZUCGDHP43waHZGJw=;
-        b=ho6iRtCJWdXjcvEQHD6NgiRbL1chhYlGZ/Ma/KwpieqT726gsuET8kGrXyyLv51b9T
-         ohKRAQtT2FAd8vTak+wRGZVv4FP5WTTl/f6b9I7HuQ96C0PtygdJdVDxgPmy0+qs17wm
-         sqX7TULkY7wahfZGbMOkwCYH+CDp+AP4V44pkf6XXrCQpZXRHSMhMIXPqA8F3xOI+vA/
-         yC5J88YnfzUmuYHUtf4Uo0iaM2kVVPYrYnrIb3Nw3XCrV5nI7KdMFB23QVGw5lykK+a0
-         wNs11i346rG6hJDO7H9EiLZM6yyr/4N41ILTf/USE3xlaLUb+6m67lkmOfbDVe+FDPMw
-         p2OQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712723772; x=1713328572;
-        h=in-reply-to:references:cc:to:from:subject:message-id:date
-         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=ro+sOnBvLDHRbfi78dhOX4EHZIAZUCGDHP43waHZGJw=;
-        b=aKaxK0+62iGmSBlRvrofi6fqN+KGKfyPC4mgBvOtxoZmWeVUWra1EWTLFwu+mYwNxe
-         XDPXgcXpNJB1TaSU25xAVlU4tzbBlBMBYcdFi4cE08udVCOkIDb2OMGesqIz4p6Yq3Jz
-         D7u82C7cAramkVFL2JCaR0qxxlsrYWwpPSfDUFQLyeageVki8Dl0PTY2he9TZL6mr923
-         sSvhNLTPALYpQXMYv8bi2O8NPaGQRtASUkPnJmBP9FF5usUEq+6Wl/n1xplVMCpDCjI9
-         MPGHhVSVmYDCHDHSoP+8338dx5e1B2nFF6v5uVL0hMlkPjh1FdI6zjmnJYj/BcHX5hQG
-         pDzQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUpjT+sDldyPS500GUPOpsqzd8HGRy4DDMSU1UUcNV+L+szKP3Sp5Ht70ZP6XNEoJV/6c08URN/UhpKs9Eyxc1gGOY6jOiSUt4c2saLR2+URkGXum1qIekAO/OYJ+4Lrw==
-X-Gm-Message-State: AOJu0YyQtTVihucqjx71I875OhoJr+SFKBgd/tQXMmBT3KH1N1Nh9Dis
-	hb5HE7C7+yGMlAnDNpGLzE5RbYwPo3+QX+uj+aHWVqMBkDR7xHlS
-X-Google-Smtp-Source: AGHT+IGhSPXm27dnXVfgSG625LDcyRQ8nYRBSxzxIChAtMwkU71eYgb0mZ/xOFtDqSbVqRYzQurG2g==
-X-Received: by 2002:aca:1309:0:b0:3c5:e551:2770 with SMTP id e9-20020aca1309000000b003c5e5512770mr1407949oii.31.1712723772303;
-        Tue, 09 Apr 2024 21:36:12 -0700 (PDT)
-Received: from localhost ([1.146.50.27])
-        by smtp.gmail.com with ESMTPSA id z6-20020aa79e46000000b006ed059cdf02sm8245522pfq.116.2024.04.09.21.35.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Apr 2024 21:36:05 -0700 (PDT)
+	s=arc-20240116; t=1712734387; c=relaxed/simple;
+	bh=e5SX4vrM400HSXvbN5eLp+ozWk13PyajsTLsxoZfV+U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=q2QPABC5iX1Nfo5gX9gVgAAm74+R9gM2KQv1ycKaZjjWeNREOcKvrbaPKIHWDAQP18d0QSUocBJhIfuB+KR+oJ/nzJ9zRobkGa9Z9LErq10JTfztKd/JZ1r/pcqq+oxxunvIfAFQdGYHjbmRl0VEJ3/0nZ1I+NXOGZqXKdC9Q0k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ghiti.fr; spf=pass smtp.mailfrom=ghiti.fr; arc=none smtp.client-ip=217.70.183.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ghiti.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ghiti.fr
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 45A9B40006;
+	Wed, 10 Apr 2024 07:32:51 +0000 (UTC)
+Message-ID: <8fe1a53f-f031-4423-97e1-28d93d0cd59e@ghiti.fr>
+Date: Wed, 10 Apr 2024 09:32:51 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 10 Apr 2024 14:34:56 +1000
-Message-Id: <D0G5VO2EJDMG.3Q6W17DPX6L86@gmail.com>
-Subject: Re: [kvm-unit-tests PATCH 2/2] s390x: Fix is_pv check in run script
-From: "Nicholas Piggin" <npiggin@gmail.com>
-To: "Janosch Frank" <frankja@linux.ibm.com>, "Thomas Huth"
- <thuth@redhat.com>
-Cc: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, =?utf-8?q?Nico_B=C3=B6hr?=
- <nrb@linux.ibm.com>, "David Hildenbrand" <david@redhat.com>, "Andrew Jones"
- <andrew.jones@linux.dev>, <linux-s390@vger.kernel.org>,
- <kvm@vger.kernel.org>
-X-Mailer: aerc 0.17.0
-References: <20240406122456.405139-1-npiggin@gmail.com>
- <20240406122456.405139-3-npiggin@gmail.com>
- <d7832c46-4542-477d-b746-7d7132d29dcb@linux.ibm.com>
-In-Reply-To: <d7832c46-4542-477d-b746-7d7132d29dcb@linux.ibm.com>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 5/7] riscv: mm: accelerate pagefault when badaccess
+Content-Language: en-US
+To: Kefeng Wang <wangkefeng.wang@huawei.com>, akpm@linux-foundation.org
+Cc: Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
+ <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
+ <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org,
+ linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ surenb@google.com, linux-mm@kvack.org
+References: <20240403083805.1818160-1-wangkefeng.wang@huawei.com>
+ <20240403083805.1818160-6-wangkefeng.wang@huawei.com>
+From: Alexandre Ghiti <alex@ghiti.fr>
+In-Reply-To: <20240403083805.1818160-6-wangkefeng.wang@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-GND-Sasl: alex@ghiti.fr
 
-On Mon Apr 8, 2024 at 9:46 PM AEST, Janosch Frank wrote:
-> On 4/6/24 14:24, Nicholas Piggin wrote:
-> > Shellcheck reports "is_pv references arguments, but none are ever
-> > passed." and suggests "use is_pv "$@" if function's $1 should mean
-> > script's $1."
-> >=20
-> > The is_pv test does not evaluate to true for .pv.bin file names, only
-> > for _PV suffix test names. The arch_cmd_s390x() function appends
-> > .pv.bin to the file name AND _PV to the test name, so this does not
-> > affect run_tests.sh runs, but it might prevent PV tests from being
-> > run directly with the s390x-run command.
-> >=20
+Hi Kefeng,
+
+On 03/04/2024 10:38, Kefeng Wang wrote:
+> The access_error() of vma already checked under per-VMA lock, if it
+> is a bad access, directly handle error, no need to retry with mmap_lock
+> again. Since the page faut is handled under per-VMA lock, count it as
+> a vma lock event with VMA_LOCK_SUCCESS.
 >
-> The only thing that changes with this patch is that we get the error=20
-> message from s390x/run and not from QEMU which complains about the=20
-> unpack facility (needed for PV) not being available (because TCG does=20
-> not implement it).
-> And that's likely why we never ran into any problems.
+> Reviewed-by: Suren Baghdasaryan <surenb@google.com>
+> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> ---
+>   arch/riscv/mm/fault.c | 5 ++++-
+>   1 file changed, 4 insertions(+), 1 deletion(-)
+>
+> diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
+> index 3ba1d4dde5dd..b3fcf7d67efb 100644
+> --- a/arch/riscv/mm/fault.c
+> +++ b/arch/riscv/mm/fault.c
+> @@ -292,7 +292,10 @@ void handle_page_fault(struct pt_regs *regs)
+>   
+>   	if (unlikely(access_error(cause, vma))) {
+>   		vma_end_read(vma);
+> -		goto lock_mmap;
+> +		count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
+> +		tsk->thread.bad_cause = SEGV_ACCERR;
 
-Yeah it did look relatively minor. Thanks for taking a look.
+
+I think we should use the cause variable here instead of SEGV_ACCERR, as 
+bad_cause is a riscv internal status which describes the real fault that 
+happened.
 
 Thanks,
-Nick
 
->
->
-> Patch looks fine to me:
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Alex
 
+
+> +		bad_area_nosemaphore(regs, code, addr);
+> +		return;
+>   	}
+>   
+>   	fault = handle_mm_fault(vma, addr, flags | FAULT_FLAG_VMA_LOCK, regs);
