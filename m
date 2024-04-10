@@ -1,137 +1,183 @@
-Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 230661779B4
-	for <linux-s390@vger.kernel.org>; Wed, 10 Apr 2024 17:28:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12ED11779B4;
+	Wed, 10 Apr 2024 17:36:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712770132; cv=none; b=ciCLFkhfaB9vV4bZuovhQIa7M4tNUy14KxEXCccy9h94awaUMOr1pWW5r49x802RBBfo0KH23rP5RUF02mRF8LXEDsZohijwSzKO10dWkRTYrOBqqGYCQVIsnCH1509yPWpkY31pCSa1CT5TVyDuXVSC5Lvye9M30CVLRKX1lqA=
+	t=1712770571; cv=none; b=ufmzr/kxYKt4NTP9Vv/eyTUSMaAz2nDiGNT+ZRYVTmMm1G/mQsE14HMOrFdWgvhHIM5FJDKArOnrFEXbSj0bgtL4EKpga4XvUrbH1K7UQLRwes1vtQswpNIqRC9ztZKUYjB7XbjU8znidFZTGR/kkgr3JHiRrWt6kt9tmREXylg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712770132; c=relaxed/simple;
-	bh=ETnQirs5fRm8m7RdYtYH9GJ6zgGe/Rx2orEadgmxkgc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NNYzycT/Cbn065Q4qCwGQKxjVBTXxbJAzqUwMz9baTzdmOMOoLIerzCGnFV6ilWhFBgDwD12v8a9hCuVw3ziJTHsoWrV84zMK63GvC+l81zlmOQDewryONp4ejz3s8Kyeb09mvHqDalLqnLQa0wYoHC2XwVAFVPrNIHz2a/chik=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ghiti.fr; spf=pass smtp.mailfrom=ghiti.fr; arc=none smtp.client-ip=217.70.183.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ghiti.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ghiti.fr
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 376E7C0004;
-	Wed, 10 Apr 2024 17:28:36 +0000 (UTC)
-Message-ID: <3493a2f4-9cae-4773-a6a1-2eeb2d23f0c8@ghiti.fr>
-Date: Wed, 10 Apr 2024 19:28:36 +0200
+	s=arc-20240116; t=1712770571; c=relaxed/simple;
+	bh=s7AlPHnjW1gFs3weqR//JnIAW3hG+/Mp+aTuvYmxgTU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=p2+x3X32CoKrZ801XtkYFNGmkdaDWfFjB3IA9loQOFj+haLX+43yX/Qrqx0UVHKz2mKYkJhVdUEuz67bSAPtr4mMpb+FH5h03XTzcdKa4Z0aPLJ98l6kBSsGYiWHwwnMnpqbGgQrgr1WO8tVj0ye7KrJMr1S9CA6R6ITlRItAw4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Wo/su6ux; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=pwQ8usD0; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Wo/su6ux; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=pwQ8usD0; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Wo/su6ux";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="pwQ8usD0";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Wo/su6ux";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="pwQ8usD0"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 3395033A89;
+	Wed, 10 Apr 2024 17:36:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1712770567;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0ZHHE5aOwQ1Ezn/ab1buAuDtcCLPcpIIchKLIUxoBbM=;
+	b=Wo/su6uxAz3KDCet7sG1IMbLmZNu/s492NxBN+stUG6oo2qYtuABn+4iFfLZA7KwEty81H
+	IdrOqxowTjwdMcGmvVJuVhd3KhUwlHGwlvUKUWet7620GxVeKx3CiehY9/HodlAMarXBGu
+	QKA3ILsUtN07gfz8aoS5W8ffx3zw7mU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1712770567;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0ZHHE5aOwQ1Ezn/ab1buAuDtcCLPcpIIchKLIUxoBbM=;
+	b=pwQ8usD0NAyGD6U1k6UXV+bVfsviAAMcwHC0rXMTXFxYTDSQht5I5OMD0LYFtofyWnG5ZB
+	JIolcEC5hlnuCvCg==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1712770567;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0ZHHE5aOwQ1Ezn/ab1buAuDtcCLPcpIIchKLIUxoBbM=;
+	b=Wo/su6uxAz3KDCet7sG1IMbLmZNu/s492NxBN+stUG6oo2qYtuABn+4iFfLZA7KwEty81H
+	IdrOqxowTjwdMcGmvVJuVhd3KhUwlHGwlvUKUWet7620GxVeKx3CiehY9/HodlAMarXBGu
+	QKA3ILsUtN07gfz8aoS5W8ffx3zw7mU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1712770567;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0ZHHE5aOwQ1Ezn/ab1buAuDtcCLPcpIIchKLIUxoBbM=;
+	b=pwQ8usD0NAyGD6U1k6UXV+bVfsviAAMcwHC0rXMTXFxYTDSQht5I5OMD0LYFtofyWnG5ZB
+	JIolcEC5hlnuCvCg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id EFAAD13691;
+	Wed, 10 Apr 2024 17:36:06 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 20hgOgbOFmZrWQAAD6G6ig
+	(envelope-from <dsterba@suse.cz>); Wed, 10 Apr 2024 17:36:06 +0000
+Date: Wed, 10 Apr 2024 19:28:37 +0200
+From: David Sterba <dsterba@suse.cz>
+To: Jan Kara <jack@suse.cz>
+Cc: Matthew Wilcox <willy@infradead.org>, Yu Kuai <yukuai1@huaweicloud.com>,
+	axboe@kernel.dk, roger.pau@citrix.com, colyli@suse.de,
+	kent.overstreet@gmail.com, joern@lazybastard.org,
+	miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+	sth@linux.ibm.com, hoeppner@linux.ibm.com, hca@linux.ibm.com,
+	gor@linux.ibm.com, agordeev@linux.ibm.com, jejb@linux.ibm.com,
+	martin.petersen@oracle.com, clm@fb.com, josef@toxicpanda.com,
+	dsterba@suse.com, viro@zeniv.linux.org.uk, brauner@kernel.org,
+	nico@fluxnic.net, xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
+	adilger.kernel@dilger.ca, jack@suse.com, konishi.ryusuke@gmail.com,
+	akpm@linux-foundation.org, hare@suse.de, p.raghav@samsung.com,
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+	xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
+	linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-bcachefs@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+	linux-nilfs@vger.kernel.org, yukuai3@huawei.com,
+	yi.zhang@huawei.com, yangerkun@huawei.com
+Subject: Re: [PATCH RFC v3 for-6.8/block 09/17] btrfs: use bdev apis
+Message-ID: <20240410172837.GO3492@suse.cz>
+Reply-To: dsterba@suse.cz
+References: <20231221085712.1766333-1-yukuai1@huaweicloud.com>
+ <20231221085712.1766333-10-yukuai1@huaweicloud.com>
+ <ZYcZi5YYvt5QHrG9@casper.infradead.org>
+ <20240104114958.f3cit5q7syp3tn3a@quack3>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 5/7] riscv: mm: accelerate pagefault when badaccess
-Content-Language: en-US
-To: Kefeng Wang <wangkefeng.wang@huawei.com>, akpm@linux-foundation.org
-Cc: Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
- <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- surenb@google.com, linux-mm@kvack.org
-References: <20240403083805.1818160-1-wangkefeng.wang@huawei.com>
- <20240403083805.1818160-6-wangkefeng.wang@huawei.com>
- <8fe1a53f-f031-4423-97e1-28d93d0cd59e@ghiti.fr>
- <ac978061-ce1a-40a4-8b0a-61883b42bea7@huawei.com>
-From: Alexandre Ghiti <alex@ghiti.fr>
-In-Reply-To: <ac978061-ce1a-40a4-8b0a-61883b42bea7@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-GND-Sasl: alex@ghiti.fr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240104114958.f3cit5q7syp3tn3a@quack3>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+X-Spam-Flag: NO
+X-Spam-Score: -2.50
+X-Spam-Level: 
+X-Spamd-Result: default: False [-2.50 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	HAS_REPLYTO(0.30)[dsterba@suse.cz];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_TWELVE(0.00)[49];
+	TO_DN_SOME(0.00)[];
+	ARC_NA(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLtpaten8pmzgjg419jubxqoa7)];
+	REPLYTO_ADDR_EQ_FROM(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[infradead.org,huaweicloud.com,kernel.dk,citrix.com,suse.de,gmail.com,lazybastard.org,bootlin.com,nod.at,ti.com,linux.ibm.com,oracle.com,fb.com,toxicpanda.com,suse.com,zeniv.linux.org.uk,kernel.org,fluxnic.net,mit.edu,dilger.ca,linux-foundation.org,samsung.com,vger.kernel.org,lists.xenproject.org,lists.infradead.org,lists.ozlabs.org,huawei.com];
+	RCVD_COUNT_TWO(0.00)[2];
+	TAGGED_RCPT(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
 
-On 10/04/2024 10:07, Kefeng Wang wrote:
->
->
-> On 2024/4/10 15:32, Alexandre Ghiti wrote:
->> Hi Kefeng,
->>
->> On 03/04/2024 10:38, Kefeng Wang wrote:
->>> The access_error() of vma already checked under per-VMA lock, if it
->>> is a bad access, directly handle error, no need to retry with mmap_lock
->>> again. Since the page faut is handled under per-VMA lock, count it as
->>> a vma lock event with VMA_LOCK_SUCCESS.
->>>
->>> Reviewed-by: Suren Baghdasaryan <surenb@google.com>
->>> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
->>> ---
->>>   arch/riscv/mm/fault.c | 5 ++++-
->>>   1 file changed, 4 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
->>> index 3ba1d4dde5dd..b3fcf7d67efb 100644
->>> --- a/arch/riscv/mm/fault.c
->>> +++ b/arch/riscv/mm/fault.c
->>> @@ -292,7 +292,10 @@ void handle_page_fault(struct pt_regs *regs)
->>>       if (unlikely(access_error(cause, vma))) {
->>>           vma_end_read(vma);
->>> -        goto lock_mmap;
->>> +        count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
->>> +        tsk->thread.bad_cause = SEGV_ACCERR;
->>
->>
->> I think we should use the cause variable here instead of SEGV_ACCERR, 
->> as bad_cause is a riscv internal status which describes the real 
->> fault that happened.
->
-> Oh, I see, it is exception causes on riscv, so it should be
->
-> diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
-> index b3fcf7d67efb..5224f3733802 100644
-> --- a/arch/riscv/mm/fault.c
-> +++ b/arch/riscv/mm/fault.c
-> @@ -293,8 +293,8 @@ void handle_page_fault(struct pt_regs *regs)
->         if (unlikely(access_error(cause, vma))) {
->                 vma_end_read(vma);
->                 count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
-> -               tsk->thread.bad_cause = SEGV_ACCERR;
-> -               bad_area_nosemaphore(regs, code, addr);
-> +               tsk->thread.bad_cause = cause;
-> +               bad_area_nosemaphore(regs, SEGV_ACCERR, addr);
->                 return;
->         }
->
-> Hi Alex, could you help to check it?
->
-> Hi Andrew, please help to squash it after Alex ack it.
->
-> Thanks both.
+On Thu, Jan 04, 2024 at 12:49:58PM +0100, Jan Kara wrote:
+> On Sat 23-12-23 17:31:55, Matthew Wilcox wrote:
+> > On Thu, Dec 21, 2023 at 04:57:04PM +0800, Yu Kuai wrote:
+> > > @@ -3674,16 +3670,17 @@ struct btrfs_super_block *btrfs_read_dev_one_super(struct block_device *bdev,
+> > >  		 * Drop the page of the primary superblock, so later read will
+> > >  		 * always read from the device.
+> > >  		 */
+> > > -		invalidate_inode_pages2_range(mapping,
+> > > -				bytenr >> PAGE_SHIFT,
+> > > +		invalidate_bdev_range(bdev, bytenr >> PAGE_SHIFT,
+> > >  				(bytenr + BTRFS_SUPER_INFO_SIZE) >> PAGE_SHIFT);
+> > >  	}
+> > >  
+> > > -	page = read_cache_page_gfp(mapping, bytenr >> PAGE_SHIFT, GFP_NOFS);
+> > > -	if (IS_ERR(page))
+> > > -		return ERR_CAST(page);
+> > > +	nofs_flag = memalloc_nofs_save();
+> > > +	folio = bdev_read_folio(bdev, bytenr);
+> > > +	memalloc_nofs_restore(nofs_flag);
+> > 
+> > This is the wrong way to use memalloc_nofs_save/restore.  They should be
+> > used at the point that the filesystem takes/releases whatever lock is
+> > also used during reclaim.  I don't know btrfs well enough to suggest
+> > what lock is missing these annotations.
+> 
+> In principle I agree with you but in this particular case I agree the ask
+> is just too big. I suspect it is one of btrfs btree locks or maybe
+> chunk_mutex but I doubt even btrfs developers know and maybe it is just a
+> cargo cult. And it is not like this would be the first occurence of this
+> anti-pattern in btrfs - see e.g. device_list_add(), add_missing_dev(),
+> btrfs_destroy_delalloc_inodes() (here the wrapping around
+> invalidate_inode_pages2() looks really weird), and many others...
 
-
-So I have just tested Kefeng's fixup on my usual CI and with a simple 
-program that triggers such bad access, everything went fine so with the 
-fixup applied:
-
-Reviewed-by: Alexandre Ghiti <alexghiti@rivosinc.com>
-Tested-by: Alexandre Ghiti <alexghiti@rivosinc.com>
-
-Thanks,
-
-Alex
-
-
-
->
->
->>
->> Thanks,
->>
->> Alex
->>
->>
->>> +        bad_area_nosemaphore(regs, code, addr);
->>> +        return;
->>>       }
->>>       fault = handle_mm_fault(vma, addr, flags | 
->>> FAULT_FLAG_VMA_LOCK, regs);
+The pattern is intentional and a temporary solution before we could
+implement the scoped NOFS. Functions calling allocations get converted
+from GFP_NOFS to GFP_KERNEL but in case they're called from a context
+that either holds big locks or can recursively enter the filesystem then
+it's protected by the memalloc calls. This should not be surprising.
+What may not be obvious is which locks or kmalloc calling functions it
+could be, this depends on the analysis of the function call chain and
+usually there's enough evidence why it's needed.
