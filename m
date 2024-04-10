@@ -1,140 +1,124 @@
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 046171C0DF7;
-	Wed, 10 Apr 2024 02:47:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=150.107.74.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36537A32;
+	Wed, 10 Apr 2024 04:30:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712717269; cv=none; b=XZdxhbUl6o1q9ZVMU+LdfO7gDgEEyOieVrpJmQ/diEwP3JdvDUYYtAstoi1uXsg5dcOExx2A7JaNfWGW56dliMJpdKzHHVIN/JE8TYvrADMeM+jtNKsvOSh3ZwSWPHfXcskeUJoZC52gZay1MYTKuuVWRgHDrZKhoP59cCUEeZ4=
+	t=1712723420; cv=none; b=BRspZF0Wq3AdkRGyL19ZTSUpdDoq7y1p2PMIxQom+e/Wy7XlZ+g9C6efn0II3CSq1ugU9G8UjNcP2FRcF9uHA8874vmi7mocLeVklDOeLOR1Zz7MudtlUCGAqSXnsDVlvCA30LBFy2t+ZjXPAEShUJeJJOiMBI4b2YrWP9mtli8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712717269; c=relaxed/simple;
-	bh=mOWD7xTxVomrfTmp8YHIIxoM7MCWN5VLKqDyKnTWfg4=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=UVjodMqNDsIPLN/rjz2UDFPHZ+DZH8ZuW5ecQ/3DqgdJSRKg2aFU4VJIXgnSTFamLhJ/1aJxtqoiBNDjKA+Qd3dVm/VuacopAkExq7fcI0j3V17AhbXhTVIKE+DHs4q0JoVEXSHPYnKbc3bqfAasc4oyesrEgFNFrlRfb0q2qQQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canb.auug.org.au; spf=pass smtp.mailfrom=canb.auug.org.au; dkim=pass (2048-bit key) header.d=canb.auug.org.au header.i=@canb.auug.org.au header.b=ghhVpQV6; arc=none smtp.client-ip=150.107.74.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canb.auug.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canb.auug.org.au
+	s=arc-20240116; t=1712723420; c=relaxed/simple;
+	bh=0Z7assce/3I12gYPPiGPO4kSljCAX8pzDC5GmLlI8Qw=;
+	h=Mime-Version:Content-Type:Date:Message-Id:To:Cc:Subject:From:
+	 References:In-Reply-To; b=eAkmxE6TrmYvL0yCZN8qOVaYO6idWJ349Sg/Bq3XosQ/8HypFHmTQ7c9obZTyyk0jD8czvjMl+Ts40fvq/xf8tUpZGobsACsL6WicRs/FNan7TnLe+PslBja4QQY8lzoMQD+MiGXKxJpMDncvSN3oXclIw9q+Zhf0WFTJCejPG8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WQn2qGJt; arc=none smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canb.auug.org.au header.i=@canb.auug.org.au header.b="ghhVpQV6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canb.auug.org.au;
-	s=201702; t=1712717261;
-	bh=mLlc3a7A+WiO812az/hZEqjgAVnAiZZT9ETARfh1iIo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=ghhVpQV6j6zTYnf8M+aMSVN1f9gZri4s+bEJdqtEIOLh1KPMF1KTMt6HWCbCfjoBF
-	 RRB4JmWVZFQscEriXNCNxIqxCH0AOHKLcJWp+8Lkk1+58cNHC/lvyl1n4u2Ck+SlA2
-	 nVJUmS4CsNykMeINn64MkPmT3HMh2ImdUllN3YfAAd/bWFq/MgoK95zTA/P7ZLQ7b8
-	 gnw8X4oBPQP3+zamYColJ+YKsw+nXgSBjbNgYTxzatwkK+BJYxibdEvncrzRdLtwpO
-	 cudnNUzSrZn32FePqeZ+J32kAAHSVfxO7zAxsLrTWqmcZOghS9unMhycziPKB9SLj6
-	 PIjY+ICZ/rlnA==
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail.ozlabs.org (Postfix) with ESMTPSA id 4VDnLL2nwhz4wcn;
-	Wed, 10 Apr 2024 12:47:38 +1000 (AEST)
-Date: Wed, 10 Apr 2024 12:47:35 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Michael Ellerman
- <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy
- <christophe.leroy@csgroup.eu>, "Aneesh Kumar K.V"
- <aneesh.kumar@kernel.org>, "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Ingo
- Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
- <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Vincenzo Frascino
- <vincenzo.frascino@arm.com>, John Stultz <jstultz@google.com>, Stephen Boyd
- <sboyd@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap
- <rdunlap@infradead.org>, Bjorn Helgaas <bhelgaas@google.com>, Arnd Bergmann
- <arnd@arndb.de>, Anna-Maria Behnsen <anna-maria@linutronix.de>,
- linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org
-Subject: Re: [PATCH] vdso: Fix powerpc build U64_MAX undeclared error
-Message-ID: <20240410124735.4c118aba@canb.auug.org.au>
-In-Reply-To: <20240409062639.3393-1-adrian.hunter@intel.com>
-References: <20240409062639.3393-1-adrian.hunter@intel.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WQn2qGJt"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-1e3ca4fe4cfso26654725ad.2;
+        Tue, 09 Apr 2024 21:30:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1712723418; x=1713328218; darn=vger.kernel.org;
+        h=in-reply-to:references:from:subject:cc:to:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Csxyj22wIzJdfuKfBsOG2KZ1/xHCIZLSCJ4TL2dEF78=;
+        b=WQn2qGJtXnOA8puMpI4aZSLlyyyvfbnHjiY637JdjDGC+gLlOm57xrOIJsKOUDSsTy
+         ntWwGhMjsEgghVVJVMzy2X0aVP9qiIsGRAHTm9SeI3Ah3gDotWfc9F3rK0/h2/awNnii
+         5jBXdb8NXwzFP0z02q9Gq6EHrffBa5cai+csWDN8WL+LzF2+Jqu46vUZnQjPEGh1vbvM
+         8+oKT2wS2Pe1xgZcYfXtTU6nu0ycchomGU1ccGGqNIE41sskxpsOJgs36b4qPn4U3qaO
+         YpHbewmCdvo8yFKOV0rB8zyZOaeKtrbKzg8sC7t63l2v35ua5kDzFkiHCVK4Z0OHGsdd
+         KTfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712723418; x=1713328218;
+        h=in-reply-to:references:from:subject:cc:to:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Csxyj22wIzJdfuKfBsOG2KZ1/xHCIZLSCJ4TL2dEF78=;
+        b=tO2y2YHDqslSDVhZ+1lcOWWqWkBM3amhDdqTnSviLH3QoeuTyu6MHv9gnfuocfl6WB
+         G9NDfA8pXUvhxWgVpvlu0IKFUSBbOZF4IPkCt+mQAq2pehXEre0Uf/Vq/5a4fRes7nO1
+         lGG0h2df3L+JTaT/TOuXL1E7RVD4bLcEyWqruvJjplaZUqFcNrO34EcDIpqWwo8t7HY8
+         CgKPUdwrTDbiIqwQbEcw5lgxDA1svW2c4jE9q+PmsinRQQyEyYN9b9dpyb7aHqnrbkRZ
+         EtNfZr1qvmrJCUTCg8u3xuNhHR4IxjU4GxpY7RgI7kOkIJnvFHHkRwnhP5n18h+dObyT
+         lu+g==
+X-Forwarded-Encrypted: i=1; AJvYcCVBSb+WoDahTCXCKXF8OxO44a6drs0BFOqkeArbTzgW+CUYxrQ2q8iMnzrRhadiMqRgPlSFqL1HKWYyrHMcSUdtiscTX55MATlzsqTcRBWU5tCwVh07Qv5IZF3b9mlfcQ==
+X-Gm-Message-State: AOJu0YyaEI7dBclBUyWjwrLFkvTkxncTlUU/mwAR3/96ZZaZTpdzMTvt
+	ZkYEPoq1fiF5zoSYiO76IwriKmPc/kPgGC37qyvpqRUXBxTJ1KZdrniAk1Uu
+X-Google-Smtp-Source: AGHT+IGdR4rPr8TUXSWQaLrOeaK8mYg5Q5R6NaSSX/xdgpewKjFBLWqlZ6z5OnIo3xmO1MqeuZvX9A==
+X-Received: by 2002:a17:902:6503:b0:1e2:d4da:6c72 with SMTP id b3-20020a170902650300b001e2d4da6c72mr1669964plk.0.1712723418347;
+        Tue, 09 Apr 2024 21:30:18 -0700 (PDT)
+Received: from localhost ([1.146.50.27])
+        by smtp.gmail.com with ESMTPSA id l10-20020a170903244a00b001e29833ada6sm9760884pls.140.2024.04.09.21.29.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Apr 2024 21:30:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/vOfEbzDCAvOKJVGaVwivnDx";
- protocol="application/pgp-signature"; micalg=pgp-sha256
-
---Sig_/vOfEbzDCAvOKJVGaVwivnDx
-Content-Type: text/plain; charset=US-ASCII
+Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 10 Apr 2024 14:29:40 +1000
+Message-Id: <D0G5RMOPNMCI.3HVFHWC8KQWBC@gmail.com>
+To: "Andrew Jones" <andrew.jones@linux.dev>
+Cc: "Paolo Bonzini" <pbonzini@redhat.com>, "Thomas Huth" <thuth@redhat.com>,
+ "Alexandru Elisei" <alexandru.elisei@arm.com>, "Eric Auger"
+ <eric.auger@redhat.com>, "Janosch Frank" <frankja@linux.ibm.com>, "Claudio
+ Imbrenda" <imbrenda@linux.ibm.com>, =?utf-8?q?Nico_B=C3=B6hr?=
+ <nrb@linux.ibm.com>, "David Hildenbrand" <david@redhat.com>, "Shaoqin
+ Huang" <shahuang@redhat.com>, "Nikos Nikoleris" <nikos.nikoleris@arm.com>,
+ "David Woodhouse" <dwmw@amazon.co.uk>, "Ricardo Koller"
+ <ricarkol@google.com>, "rminmin" <renmm6@chinaunicom.cn>, "Gavin Shan"
+ <gshan@redhat.com>, "Nina Schoetterl-Glausch" <nsg@linux.ibm.com>, "Sean
+ Christopherson" <seanjc@google.com>, <kvm@vger.kernel.org>,
+ <kvmarm@lists.linux.dev>, <kvm-riscv@lists.infradead.org>,
+ <linux-s390@vger.kernel.org>
+Subject: Re: [RFC kvm-unit-tests PATCH v2 08/14] shellcheck: Fix SC2013
+From: "Nicholas Piggin" <npiggin@gmail.com>
+X-Mailer: aerc 0.17.0
+References: <20240406123833.406488-1-npiggin@gmail.com>
+ <20240406123833.406488-9-npiggin@gmail.com>
+ <20240408-840ece34e7b407365a18227d@orel>
+In-Reply-To: <20240408-840ece34e7b407365a18227d@orel>
 
-Hi Adrian,
-
-On Tue,  9 Apr 2024 09:26:39 +0300 Adrian Hunter <adrian.hunter@intel.com> =
-wrote:
+On Mon Apr 8, 2024 at 5:34 PM AEST, Andrew Jones wrote:
+> On Sat, Apr 06, 2024 at 10:38:17PM +1000, Nicholas Piggin wrote:
+> >   SC2013 (info): To read lines rather than words, pipe/redirect to a
+> >   'while read' loop.
+> >=20
+> > Not a bug.
+> >=20
+> > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> > ---
+> >  scripts/arch-run.bash | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >=20
+> > diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
+> > index cd75405c8..45ec8f57d 100644
+> > --- a/scripts/arch-run.bash
+> > +++ b/scripts/arch-run.bash
+> > @@ -487,7 +487,7 @@ env_file ()
+> > =20
+> >  	[ ! -f "$KVM_UNIT_TESTS_ENV_OLD" ] && return
+> > =20
+> > -	for line in $(grep -E '^[[:blank:]]*[[:alpha:]_][[:alnum:]_]*=3D' "$K=
+VM_UNIT_TESTS_ENV_OLD"); do
+> > +	grep -E '^[[:blank:]]*[[:alpha:]_][[:alnum:]_]*=3D' "$KVM_UNIT_TESTS_=
+ENV_OLD" | while IFS=3D read -r line ; do
+> >  		var=3D${line%%=3D*}
+> >  		if ! grep -q "^$var=3D" $KVM_UNIT_TESTS_ENV; then
+> >  			eval export "$line"
+> > --=20
+> > 2.43.0
+> >
 >
-> U64_MAX is not in include/vdso/limits.h, although that isn't noticed on x=
-86
-> because x86 includes include/linux/limits.h indirectly. However powerpc
-> is more selective, resulting in the following build error:
->=20
->   In file included from <command-line>:
->   lib/vdso/gettimeofday.c: In function 'vdso_calc_ns':
->   lib/vdso/gettimeofday.c:11:33: error: 'U64_MAX' undeclared
->      11 | # define VDSO_DELTA_MASK(vd)    U64_MAX
->         |                                 ^~~~~~~
->=20
-> Use ULLONG_MAX instead which will work just as well and is in
-> include/vdso/limits.h.
->=20
-> Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-> Closes: https://lore.kernel.org/all/20240409124905.6816db37@canb.auug.org=
-.au/
-> Fixes: c8e3a8b6f2e6 ("vdso: Consolidate vdso_calc_delta()")
-> Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-> ---
->  lib/vdso/gettimeofday.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/lib/vdso/gettimeofday.c b/lib/vdso/gettimeofday.c
-> index 9c3a8d2440c9..899850bd6f0b 100644
-> --- a/lib/vdso/gettimeofday.c
-> +++ b/lib/vdso/gettimeofday.c
-> @@ -8,7 +8,7 @@
->  #ifndef vdso_calc_ns
-> =20
->  #ifdef VDSO_DELTA_NOMASK
-> -# define VDSO_DELTA_MASK(vd)	U64_MAX
-> +# define VDSO_DELTA_MASK(vd)	ULLONG_MAX
->  #else
->  # define VDSO_DELTA_MASK(vd)	(vd->mask)
->  #endif
-> --=20
-> 2.34.1
->=20
+> I already gave an r-b on this one. Here it is again,
+>
+> Reviewed-by: Andrew Jones <andrew.jones@linux.dev>
 
-I have applied that to linux-next today and it builds for me.
+Yeah I realised just after sending. Thank you.
 
-Tested-by: Stephen Rothwell <sfr@canb.auug.org.au> # build only
-
---=20
-Cheers,
-Stephen Rothwell
-
---Sig_/vOfEbzDCAvOKJVGaVwivnDx
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAmYV/ccACgkQAVBC80lX
-0GyhBgf+Jf8pX6z5I6OHsmD8CbYP6GnKCBxvh+gR4ghWc9UAElgV+QAxw5qUh13q
-pwIl5H6aCeg7RoNnVXYeIXDu7lzsJCgMWXwAC9Cl5us+ob0kvhCp33VGNZAFNBRr
-6I6OSBNcIOpYtvjtMGHuD59I+u6X7v6vFJvQPBh0AdTHT+RnL3FGbV6kJGcF3+fs
-HYIU3+af8/QqSYJ6bYu1Mr+YuRtWlQaQf+M+tPgFumWJEqqZnPfswcEHYlEvXU0L
-HZrGroFagXi+Cl5pkmHWNaJIIzJpP9w8Fsyrc1D8iutNbEVrrXsiaKx0xROEIIx1
-WGN5Qw9igAxfEy8yrGK8VRo74cTy6Q==
-=GLls
------END PGP SIGNATURE-----
-
---Sig_/vOfEbzDCAvOKJVGaVwivnDx--
+Thanks,
+Nick
