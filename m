@@ -1,133 +1,127 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC9FB15B137;
-	Wed, 10 Apr 2024 15:31:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FFA216F0DE;
+	Wed, 10 Apr 2024 15:32:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712763076; cv=none; b=dZy5fWsORkYP1p9y2V0qsLysqlHv0HDbMi7oaV5D5fh2/Iq4jAgE0Tu/w4dRMalUVtXicd0VvkIkM5YjQKJgrFw7yQjVXYoRGFCKwkNZwFlSXLBQN17qJDzya+McYjEMPWkxHGyqU8+eWmlEDU5VGwa4BNEwSfPvlaCIfoP4ecg=
+	t=1712763155; cv=none; b=MikozRnuxq0TRnHxnl6L9PBwj9bj/7GLW/PWnk7dSuNPaKEiDAuyR2ilgDmhVntjmxmRP+RppONo1D53zgxbj4/PObNJNdgh+w9qGaJuZ/jFu55O6bDZIMBH9W+Jaj5Wk78jaQyFY5UbatRV10MhZ3yGotJxGxYaYkz6je4NClk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712763076; c=relaxed/simple;
-	bh=pH+z7kT+B4G554baL6gQ+2qPvr9hlaRu9zM0ygTBqww=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bkHfowmXKOPXoI0lOHPSqwzbmJrMpLbLFjJ1gKQ/G46L+ju7kGdazzF3k6FtQOpoZP8hbjDCNwFaJMGCwhbYwbLc2nHUJaDDLE9rHSEM7+NbHfZkiaq1geVYosumYNUSUs8ciqK96FR+8njsB1iwcik0duza+QmtDOh2rRb6nnU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qViPEqHI; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1712763155; c=relaxed/simple;
+	bh=dEgjPQZVrrL7vqI7IKViUp1qmoIOfEl5s9dyPS1YBmo=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=cLYmwuBBgUHZp4kmjMRVHHswntlSVxzHqeV4/JYWt0qD2kaxfj/K+5jyuJamf3KlxCpGtS5rzF/EoXCOYsPcqv8uWkvKwsgZq7dvUgyrsYUtkvsj5rHxrmhAPNivBMhXsWlPX8GJ9nVLYHpJj/DgD3oqnlI8NNeHIIGVrYzXPWk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=iWCZQnVb; arc=none smtp.client-ip=198.175.65.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qViPEqHI"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43ADvQvd002584;
-	Wed, 10 Apr 2024 15:31:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- content-transfer-encoding : in-reply-to; s=pp1;
- bh=Cbi/eAWd7VhxaqxfaHTml+ueD1AIDaz+ba8OE4CCdvA=;
- b=qViPEqHIuBk9CBux21zCp8UMLj//yBpq37q5ojeITXSi8J/V8GrSYW3oKyFtC8PKQ+S+
- jr0OhNNdhKo+mOCUbqWdK/lNmqCc2cNxhf6ejca2zxlBcdRMMlsNZhh8pbBlSQTJ+cGT
- GJSo67C6hCJT5OzwqYENJ/tcY43p+woUjruAfstycZ5vCHtTWkZO+L/3B8pPB3Qre+1A
- kbCdGBSDon3MT4zO6YL1Ejx0HvY7IVWO2AVHuf7g7Z5i39EUrFtZIIwvsMa8nha9f8kJ
- 1aAEDABtFv13w7dxCcY14UBIuYa+KqH3EXEgAv0JDBI2zgg1TKSAxI54/uxGqSwdt0K6 uQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xds6k8s0y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Apr 2024 15:31:03 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43AFV3XD021875;
-	Wed, 10 Apr 2024 15:31:03 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xds6k8s0n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Apr 2024 15:31:03 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43AEXDuU029966;
-	Wed, 10 Apr 2024 15:26:47 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xbj7mdf1c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Apr 2024 15:26:47 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43AFQf4j30867974
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 10 Apr 2024 15:26:44 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D3E2E20043;
-	Wed, 10 Apr 2024 15:26:41 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 32FE12004F;
-	Wed, 10 Apr 2024 15:26:41 +0000 (GMT)
-Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.171.29.198])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 10 Apr 2024 15:26:41 +0000 (GMT)
-Date: Wed, 10 Apr 2024 17:26:39 +0200
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: akpm@linux-foundation.org, linux-mm@kvack.org, hughd@google.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        iii@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm/shmem: Inline shmem_is_huge() for disabled
- transparent hugepages
-Message-ID: <Zhavr9NxvayDhU9X@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-References: <20240409155407.2322714-1-sumanthk@linux.ibm.com>
- <594dbec7-b560-44e5-a684-93dcb8ba85df@redhat.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="iWCZQnVb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1712763153; x=1744299153;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=dEgjPQZVrrL7vqI7IKViUp1qmoIOfEl5s9dyPS1YBmo=;
+  b=iWCZQnVbXhhwoJgU9P8mSUi0d7N3zO4INJQTJsrwa6qu12P95EaAG7cG
+   38hhQbvgU4EA848mMPQ2aaDIq8Hi2+6/05nwCxkpnrg2++OjsWeKzA6rF
+   mddIB+QQq1Txy68tVYKKore5ysVS5A8ADBVkKOKPbIUIkqmgNaP82h4gk
+   stQQiU+n/8+ts2sL9AJgy7gQftRQwYZ7lz/wPKmu/5oxICHoZ1daCTF9q
+   13RsPQkqhkR1XUa1F4Orf9DrlQt0QS3WiSJpaah7EAIU+nkcsOv4Jt2k5
+   nGgi+4d7cgxIKGYIOcXJ26LYRbRXTTNDOwUBAkkQ/A2T0tO5a1Md7+4D+
+   g==;
+X-CSE-ConnectionGUID: q2C80GErSLWIl5FV1BB36Q==
+X-CSE-MsgGUID: RalOf9Y1Sv6SpUSjJoatFQ==
+X-IronPort-AV: E=McAfee;i="6600,9927,11039"; a="8260339"
+X-IronPort-AV: E=Sophos;i="6.07,190,1708416000"; 
+   d="scan'208";a="8260339"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2024 08:32:32 -0700
+X-CSE-ConnectionGUID: m+bpUFx2Q5yIztOqKC/y2g==
+X-CSE-MsgGUID: eZS9QWdnQA+wEYN3JBJnXA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,190,1708416000"; 
+   d="scan'208";a="51568789"
+Received: from ahunter6-mobl1.ger.corp.intel.com (HELO ahunter-VirtualBox.home\044ger.corp.intel.com) ([10.251.214.234])
+  by orviesa002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2024 08:32:25 -0700
+From: Adrian Hunter <adrian.hunter@intel.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Naresh Kamboju <naresh.kamboju@linaro.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Vincenzo Frascino <vincenzo.frascino@arm.com>,
+	John Stultz <jstultz@google.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org
+Subject: [PATCH] bug: Fix no-return-statement warning with !CONFIG_BUG
+Date: Wed, 10 Apr 2024 18:32:12 +0300
+Message-Id: <20240410153212.127477-1-adrian.hunter@intel.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
+Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki, Business Identity Code: 0357606 - 4, Domiciled in Helsinki
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <594dbec7-b560-44e5-a684-93dcb8ba85df@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: L612PNMowBeXj8vY2YP3t3EszkoVv0Uk
-X-Proofpoint-ORIG-GUID: GxlMHGTjvPmiE1LhuQok0TrbcWFwqCxD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-10_04,2024-04-09_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
- spamscore=0 suspectscore=0 bulkscore=0 priorityscore=1501 impostorscore=0
- phishscore=0 clxscore=1015 mlxlogscore=368 malwarescore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
- definitions=main-2404100112
 
-On Wed, Apr 10, 2024 at 02:34:35PM +0200, David Hildenbrand wrote:
-> On 09.04.24 17:54, Sumanth Korikkar wrote:
-> > In order to  minimize code size (CONFIG_CC_OPTIMIZE_FOR_SIZE=y),
-> > compiler might choose to make a regular function call (out-of-line) for
-> > shmem_is_huge() instead of inlining it. When transparent hugepages are
-> > disabled (CONFIG_TRANSPARENT_HUGEPAGE=n), it can cause compilation
-> > error.
-> > 
-> > mm/shmem.c: In function ‘shmem_getattr’:
-> > ./include/linux/huge_mm.h:383:27: note: in expansion of macro ‘BUILD_BUG’
-> >    383 | #define HPAGE_PMD_SIZE ({ BUILD_BUG(); 0; })
-> >        |                           ^~~~~~~~~
-> > mm/shmem.c:1148:33: note: in expansion of macro ‘HPAGE_PMD_SIZE’
-> >   1148 |                 stat->blksize = HPAGE_PMD_SIZE;
-> > 
-> > To prevent the possible error, always inline shmem_is_huge() when
-> > transparent hugepages are disabled.
-> > 
-> 
-> Do you know which commit introduced that?
-Hi David,
+BUG() does not return, and arch implementations of BUG() use unreachable()
+or other non-returning code. However with !CONFIG_BUG, the default
+implementation is often used instead, and that does not do that. x86 always
+uses its own implementation, but powerpc with !CONFIG_BUG gives a build
+error:
 
-Currently with CONFIG_CC_OPTIMIZE_FOR_SIZE=y and expirementing with
--fPIC kernel compiler option, I could see this error on s390.
+  kernel/time/timekeeping.c: In function ‘timekeeping_debug_get_ns’:
+  kernel/time/timekeeping.c:286:1: error: no return statement in function
+  returning non-void [-Werror=return-type]
 
-However, default kernel compiler options doesnt end up with the above
-pattern right now.
+Add unreachable() to default !CONFIG_BUG BUG() implementation.
 
-I think, shmem_is_huge() for disabled transparent hugepages comes from:
-Commit 5e6e5a12a44c ("huge tmpfs: shmem_is_huge(vma, inode, index)")
+Fixes: e8e9d21a5df6 ("timekeeping: Refactor timekeeping helpers")
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Closes: https://lore.kernel.org/all/CA+G9fYvjdZCW=7ZGxS6A_3bysjQ56YF7S-+PNLQ_8a4DKh1Bhg@mail.gmail.com/
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+---
+ include/asm-generic/bug.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-However, HPAGE_PMD_SIZE macros for !CONFIG_TRANSPARENT_HUGEPAGE
-originates from:
-Commit d8c37c480678 ("thp: add HPAGE_PMD_* definitions for
-!CONFIG_TRANSPARENT_HUGEPAGE")
+diff --git a/include/asm-generic/bug.h b/include/asm-generic/bug.h
+index 6e794420bd39..b7de3a4eade1 100644
+--- a/include/asm-generic/bug.h
++++ b/include/asm-generic/bug.h
+@@ -156,7 +156,10 @@ extern __printf(1, 2) void __warn_printk(const char *fmt, ...);
+ 
+ #else /* !CONFIG_BUG */
+ #ifndef HAVE_ARCH_BUG
+-#define BUG() do {} while (1)
++#define BUG() do {		\
++	do {} while (1);	\
++	unreachable();		\
++} while (0)
+ #endif
+ 
+ #ifndef HAVE_ARCH_BUG_ON
+-- 
+2.34.1
 
-Thanks,
-Sumanth
