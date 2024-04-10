@@ -1,143 +1,146 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5A5D178CE7
-	for <linux-s390@vger.kernel.org>; Wed, 10 Apr 2024 15:56:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 674A71791FB;
+	Wed, 10 Apr 2024 16:08:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712764571; cv=none; b=DEWNW8+5KCLH3uomAYZZvpSnMs48ngm6X29Coc43lzTFoWQLhas1e40YBGa/JVzIW2qlGnfrHIOiPcGKdVXBp4FYbyjcdSLkZa8JThYPZHhPE7cnfvAwdIXnE/p7lsq7pT3MdhvrASD6rVLixadaxiw9vHfD9OMGSS2BjUCn6xo=
+	t=1712765292; cv=none; b=IqXr/chaEaa0tPq1BYRFWFIlaJT1UwUysI8Dmhcr5ryMTifIqt8eVckz9anQXvWT5l3z4JbwoXg6jOU9b5FAwxqXQX/RrRZzQ8c9BovItQ1uU7tnEsiMSMsVtc0qTmqWQqcplbc9wpN9tWLvPjNFiFo7tSOV/RFMozAOgNHDZL8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712764571; c=relaxed/simple;
-	bh=ib/Czh9TMd/11JWLM99RkSfUuaLTcKgI+kz9vZpIItQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=N0i43GF9SYIsk6ZXbKTr2rrXii+0XDzRzC4UnvRjZfcwxozg1R1+XaWGDMrZCkie1oQtqcRPGGVtibbftwdFfKmXHKPkxNB8vygQgIFMIvlSO/c8sRvlddCCCGyCCu9ZRCpNNwVider7DFmBLrQ3PagQN6g33lpKrLdYqpylL10=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dkZh4oMv; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1712765292; c=relaxed/simple;
+	bh=TYSbglhUGKkp+nQF65/gBniM6ORpHD/r7dxLRKAY3CU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mfgOJiSpPoDPvzh9VdbJbNiXMdfIBZXbXLGT0h5JKCE+zXA+/IUykvF//WmyEgkIkPx6hH7Grq+5pISxaUQbLPF5M6NyLkEqnTKAmXgkaYWQL7NY+an+PXdbZUOME2CvJmJx/HDyy9u7RB5NtAN8XDa1XUguFt0k36PW00R849o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bz+xp+Vq; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dkZh4oMv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712764568;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=P8ZsNI89NzeHBwo5bvI1yofxYUq5jUxcvm+li/FE14A=;
-	b=dkZh4oMv/vf3Q67wIKopWjS53RoA1TvxsQ2Km3Ap7CUM1LOl2sYjFVljHCKGfaCyAdcY4I
-	iVK7VSDSa16G9eckvhz8aIBcWUqBrgbomQeP83gZzQ/OkSKx/Wf8xoRPYxQlvu+dEN4bS5
-	a1w0sz3zLtG+xo5/N21k3bBhXkKGYk0=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-591-sePtCS1xOjyfrSAEA2ASBA-1; Wed, 10 Apr 2024 11:56:04 -0400
-X-MC-Unique: sePtCS1xOjyfrSAEA2ASBA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8930C8007BA;
-	Wed, 10 Apr 2024 15:56:03 +0000 (UTC)
-Received: from t14s.fritz.box (unknown [10.39.193.162])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 82C97920;
-	Wed, 10 Apr 2024 15:56:00 +0000 (UTC)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org,
-	x86@kernel.org,
-	linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org,
-	David Hildenbrand <david@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Yonghua Huang <yonghua.huang@intel.com>,
-	Fei Li <fei1.li@intel.com>,
-	Christoph Hellwig <hch@lst.de>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Ingo Molnar <mingo@redhat.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH v1 3/3] mm: follow_pte() improvements
-Date: Wed, 10 Apr 2024 17:55:27 +0200
-Message-ID: <20240410155527.474777-4-david@redhat.com>
-In-Reply-To: <20240410155527.474777-1-david@redhat.com>
-References: <20240410155527.474777-1-david@redhat.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bz+xp+Vq"
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43AG3vwA016370;
+	Wed, 10 Apr 2024 16:08:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ content-transfer-encoding : in-reply-to; s=pp1;
+ bh=n+nI9qSzX6fe4b6bLe/CP34ytrHVPciQDdwr8ktXFOM=;
+ b=bz+xp+VqP3XyScImRa/54OkA6ZyBSnmwJML+NPsZc9HvwLrSe4pll8LRwua2lGCHnqRX
+ wzVatIm2SwqrmKhtCEQ25WsXRsOMxNobbAKWtdR4eEnevIMwLEpYNp06ggrcw+wE0+T9
+ q4wFD0JNXoCh+9oVcM/ZeZanGvocN6yOJ7o2giFY2sOnrh1mh7eWY4D+pg1b9T9fcYKO
+ mcIoGs/hlqIjjvGAiiWJMW5Xh70ny4dPMtl3+5nYxvNZxA8NoCpZ/0nYJiU/TpBRIO9S
+ 27jwqq+FES0JeZj+DFirQXgg2G4Sbje/Wvo6IpQN+6sYOP4tG9v/QofmnpoF6Rv9uc2G 3A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xdwxsr0hy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 10 Apr 2024 16:08:00 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43AG80sP022647;
+	Wed, 10 Apr 2024 16:08:00 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xdwxsr0hu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 10 Apr 2024 16:08:00 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43AFb0J0016996;
+	Wed, 10 Apr 2024 16:07:59 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xbke2nbgn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 10 Apr 2024 16:07:59 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43AG7sWf33161638
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 10 Apr 2024 16:07:56 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EFB302004D;
+	Wed, 10 Apr 2024 16:07:53 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 451BD20043;
+	Wed, 10 Apr 2024 16:07:53 +0000 (GMT)
+Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.171.29.198])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 10 Apr 2024 16:07:53 +0000 (GMT)
+Date: Wed, 10 Apr 2024 18:07:51 +0200
+From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: akpm@linux-foundation.org, linux-mm@kvack.org, hughd@google.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        iii@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm/shmem: Inline shmem_is_huge() for disabled
+ transparent hugepages
+Message-ID: <Zha5V0QxODZR4qOW@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+References: <20240409155407.2322714-1-sumanthk@linux.ibm.com>
+ <594dbec7-b560-44e5-a684-93dcb8ba85df@redhat.com>
+ <Zhavr9NxvayDhU9X@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+ <29b613a8-f0d5-4f5f-adbc-d64ed8908044@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
+In-Reply-To: <29b613a8-f0d5-4f5f-adbc-d64ed8908044@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: diLl3fzGZHAouOz23n5C0cevWaObunjs
+X-Proofpoint-GUID: _1YMLRsYJXVgNhSs5Kv8fJoHDrrYdjkM
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-10_04,2024-04-09_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 spamscore=0 bulkscore=0 clxscore=1015 mlxlogscore=699
+ malwarescore=0 adultscore=0 suspectscore=0 phishscore=0 lowpriorityscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404100117
 
-follow_pte() is now our main function to lookup PTEs in VM_PFNMAP/VM_IO
-VMAs. Let's perform some more sanity checks to make this exported function
-harder to abuse.
+On Wed, Apr 10, 2024 at 05:51:28PM +0200, David Hildenbrand wrote:
+> On 10.04.24 17:26, Sumanth Korikkar wrote:
+> > On Wed, Apr 10, 2024 at 02:34:35PM +0200, David Hildenbrand wrote:
+> > > On 09.04.24 17:54, Sumanth Korikkar wrote:
+> > > > In order to  minimize code size (CONFIG_CC_OPTIMIZE_FOR_SIZE=y),
+> > > > compiler might choose to make a regular function call (out-of-line) for
+> > > > shmem_is_huge() instead of inlining it. When transparent hugepages are
+> > > > disabled (CONFIG_TRANSPARENT_HUGEPAGE=n), it can cause compilation
+> > > > error.
+> > > > 
+> > > > mm/shmem.c: In function ‘shmem_getattr’:
+> > > > ./include/linux/huge_mm.h:383:27: note: in expansion of macro ‘BUILD_BUG’
+> > > >     383 | #define HPAGE_PMD_SIZE ({ BUILD_BUG(); 0; })
+> > > >         |                           ^~~~~~~~~
+> > > > mm/shmem.c:1148:33: note: in expansion of macro ‘HPAGE_PMD_SIZE’
+> > > >    1148 |                 stat->blksize = HPAGE_PMD_SIZE;
+> > > > 
+> > > > To prevent the possible error, always inline shmem_is_huge() when
+> > > > transparent hugepages are disabled.
+> > > > 
+> > > 
+> > > Do you know which commit introduced that?
+> > Hi David,
+> > 
+> > Currently with CONFIG_CC_OPTIMIZE_FOR_SIZE=y and expirementing with
+> > -fPIC kernel compiler option, I could see this error on s390.
+> 
+> Got it. I assume on Linus' tree, not mm/unstable?
 
-Further, extend the doc a bit, it still focuses on the KVM use case with
-MMU notifiers. Drop the KVM+follow_pfn() comment, follow_pfn() is no more,
-and we have other users nowadays.
+It's not yet upstream.
+> 
+> > 
+> > However, default kernel compiler options doesnt end up with the above
+> > pattern right now.
+> 
+> Okay, just asking if this is related to recent HPAGE_PMD_SIZE changes:
+> 
+> commit c1a1e497a3d5711dbf8fa6d7432d6b83ec18c26f
+> Author: Peter Xu <peterx@redhat.com>
+> Date:   Wed Mar 27 11:23:22 2024 -0400
+> 
+>     mm: make HPAGE_PXD_* macros even if !THP
+> 
+> Which is still in mm-unstable and not upstream.
 
-Also extend the doc regarding refcounted pages and the interaction with MMU
-notifiers.
+Not related to this commit. I tried on master branch.
 
-KVM is one example that uses MMU notifiers and can deal with refcounted
-pages properly. VFIO is one example that doesn't use MMU notifiers, and
-to prevent use-after-free, rejects refcounted pages:
-pfn_valid(pfn) && !PageReserved(pfn_to_page(pfn)). Protection changes are
-less of a concern for users like VFIO: the behavior is similar to
-longterm-pinning a page, and getting the PTE protection changed afterwards.
-
-The primary concern with refcounted pages is use-after-free, which
-callers should be aware of.
-
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- mm/memory.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
-
-diff --git a/mm/memory.c b/mm/memory.c
-index ab01fb69dc72..535ef2686f95 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -5935,15 +5935,21 @@ int __pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long address)
-  *
-  * On a successful return, the pointer to the PTE is stored in @ptepp;
-  * the corresponding lock is taken and its location is stored in @ptlp.
-- * The contents of the PTE are only stable until @ptlp is released;
-- * any further use, if any, must be protected against invalidation
-- * with MMU notifiers.
-+ *
-+ * The contents of the PTE are only stable until @ptlp is released using
-+ * pte_unmap_unlock(). This function will fail if the PTE is non-present.
-+ * Present PTEs may include PTEs that map refcounted pages, such as
-+ * anonymous folios in COW mappings.
-+ *
-+ * Callers must be careful when relying on PTE content after
-+ * pte_unmap_unlock(). Especially if the PTE maps a refcounted page,
-+ * callers must protect against invalidation with MMU notifiers; otherwise
-+ * access to the PFN at a later point in time can trigger use-after-free.
-  *
-  * Only IO mappings and raw PFN mappings are allowed.  The mmap semaphore
-  * should be taken for read.
-  *
-- * KVM uses this function.  While it is arguably less bad than the historic
-- * ``follow_pfn``, it is not a good general-purpose API.
-+ * This function must not be used to modify PTE content.
-  *
-  * Return: zero on success, -ve otherwise.
-  */
-@@ -5957,6 +5963,10 @@ int follow_pte(struct vm_area_struct *vma, unsigned long address,
- 	pmd_t *pmd;
- 	pte_t *ptep;
- 
-+	mmap_assert_locked(mm);
-+	if (unlikely(address < vma->vm_start || address >= vma->vm_end))
-+		goto out;
-+
- 	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
- 		goto out;
- 
--- 
-2.44.0
-
+Thanks,
+Sumanth
