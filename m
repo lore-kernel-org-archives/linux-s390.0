@@ -1,117 +1,196 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ADE4139593;
-	Thu, 11 Apr 2024 16:04:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6276625575
+	for <linux-s390@vger.kernel.org>; Thu, 11 Apr 2024 16:14:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712851462; cv=none; b=iQhBwbcFW4ofeOLYf3G7vigTR81VEslTlNSyrk+OYHj7JcdBPPSjT0Y96nUaAO+qdha8H7hEzE0YSDmaiHdnY2Lh8ntC7UTLXArR2KVMjDevyQXHRvqOS9pWjy2PZU+/mTt567tQpu52ozCJcNpeDInAAn4YmUn0pvxkB7Ak/60=
+	t=1712852096; cv=none; b=IsEYH4dmWxi2BWRNDOjfa5Ud9PmWhnaWcKkpzbaEkMVSEwdiRm0GgFMWqEGCJAPh0DPySsw7z/xdE73ZdSMDDhOa30kyVCJnvaFo5MC4qffDCsE823LwX3ZvPE8DVHW9bGy4VxqtTnqvJjF/1WRwcwglB2ZxuAjr/IF50djeBfE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712851462; c=relaxed/simple;
-	bh=+AOj3OMDSB3feHYUPdQfVhUVtDWDdcImqVlO1v4xpng=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=BD3pHuQclkBAFe2caaWI5oY4SOEUKJRc3L5jktQRUbizb6teNiYjC/+E3LjzlkMRq6epTtk3Cbu2+SIH6NNIUI51vEGJDNd5S3dlQtgFO56Sfvlk4vtiW2x4rcZp5WMAQIlDDxIzyycjatVBbAI5/V4zY6grndtgRsQ+kiw9Rcs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SxJIf0UP; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1712852096; c=relaxed/simple;
+	bh=bIGD7TEXYxMqNuHPxtOApDGnJHOvQ/kaNLS9oW0lEDg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DBDTG3471G2pwMioRgBfar0hETkJxx76FCPj0AX6tIK/NEjJbsWqHQJQVIdTLGQmjjRfmtIoWyc1jc4j5eKZmqxTHMF7BMHsajDzkyNFdy72e4+XDgcPPpH4w1dtNFE61OGoB0sAmdeW5FEyx38VIA8J+qsGSmEjWIxcqEU1FDE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hoMfXpVc; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SxJIf0UP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1098C113CD;
-	Thu, 11 Apr 2024 16:04:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1712851461;
-	bh=+AOj3OMDSB3feHYUPdQfVhUVtDWDdcImqVlO1v4xpng=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=SxJIf0UPAU/LSJIdhd5VJkQ97hM+Vopgra/mjrFIBCe+cviCEtH8l//T3816NvlXD
-	 JNi13TTDCZkr1Fg3WXdPtQ+MZRUJwf1k1qRoeQyxufSwG+h+JZeR8/tvkEBGc8TcVR
-	 4kRT3j5Stzw4SWMef8fiEbIX6jEtbDFYCl6VOLTAE7qUe+BaJYoN70qBRU9UyVdRdK
-	 SnPe3YHBtYQkdMJyF6t+OlokdAyToH6ZaN+xGGpQSe+9dEZuQCdf7HQ8nt9T2j9jQX
-	 o3VlR73dRPQLNATQXpf1b4JuRSG48Vtoma+TPIBkV3i2OZl6wAJsdHYuvFMkZ7Tt+a
-	 /PvhAgJJc2OoQ==
-From: Mike Rapoport <rppt@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hoMfXpVc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1712852094;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=ZhbzH0ImR3r/1f0GcYB335mQQPuC0QvnUY34Zu4C8Ic=;
+	b=hoMfXpVctuLBpxlWC7VpT8CBjnc4XyZI4usCaaz2zl859oQFr7c+rPpj/2nyb9lTSIR0b2
+	Kb3gEDlVnQfzyTxyQGqnNlMSHpp9EybmC0DoVCyCTKkUwK+xkdUbCavTeywsg8nbwQXDqM
+	iLooOCszykzs0kGYmoKqkjT7WbG8tWA=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-550-0jne7cuaOEKLOPpDSddeiQ-1; Thu, 11 Apr 2024 12:14:51 -0400
+X-MC-Unique: 0jne7cuaOEKLOPpDSddeiQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 30A7088E861;
+	Thu, 11 Apr 2024 16:14:50 +0000 (UTC)
+Received: from t14s.redhat.com (unknown [10.39.194.173])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 2D60E10E4B;
+	Thu, 11 Apr 2024 16:14:45 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Cc: Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	=?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Donald Dutile <ddutile@redhat.com>,
-	Eric Chanudet <echanude@redhat.com>,
+Cc: linux-mm@kvack.org,
+	David Hildenbrand <david@redhat.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
-	Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Mike Rapoport <rppt@kernel.org>,
-	Nadav Amit <nadav.amit@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Puranjay Mohan <puranjay12@gmail.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Song Liu <song@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Will Deacon <will@kernel.org>,
-	bpf@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mips@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-modules@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	loongarch@lists.linux.dev,
-	netdev@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	x86@kernel.org
-Subject: [PATCH v4 15/15] bpf: remove CONFIG_BPF_JIT dependency on CONFIG_MODULES of
-Date: Thu, 11 Apr 2024 19:00:51 +0300
-Message-ID: <20240411160051.2093261-16-rppt@kernel.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240411160051.2093261-1-rppt@kernel.org>
-References: <20240411160051.2093261-1-rppt@kernel.org>
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Peter Xu <peterx@redhat.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Andrea Arcangeli <aarcange@redhat.com>,
+	kvm@vger.kernel.org,
+	linux-s390@vger.kernel.org
+Subject: [PATCH v3 0/2] s390/mm: shared zeropage + KVM fixes
+Date: Thu, 11 Apr 2024 18:14:39 +0200
+Message-ID: <20240411161441.910170-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
 
-From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+This series fixes one issue with uffd + shared zeropages on s390x and
+fixes that "ordinary" KVM guests can make use of shared zeropages again.
 
-BPF just-in-time compiler depended on CONFIG_MODULES because it used
-module_alloc() to allocate memory for the generated code.
+userfaultfd could currently end up mapping shared zeropages into processes
+that forbid shared zeropages. This only apples to s390x, relevant for
+handling PV guests and guests that use storage kets correctly. Fix it
+by placing a zeroed folio instead of the shared zeropage during
+UFFDIO_ZEROPAGE instead.
 
-Since code allocations are now implemented with execmem, drop dependency of
-CONFIG_BPF_JIT on CONFIG_MODULES and make it select CONFIG_EXECMEM.
+I stumbled over this issue while looking into a customer scenario that
+is using:
 
-Suggested-by: Björn Töpel <bjorn@kernel.org>
-Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
----
- kernel/bpf/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+(1) Memory ballooning for dynamic resizing. Start a VM with, say, 100 GiB
+    and inflate the balloon during boot to 60 GiB. The VM has ~40 GiB
+    available and additional memory can be "fake hotplugged" to the VM
+    later on demand by deflating the balloon. Actual memory overcommit is
+    not desired, so physical memory would only be moved between VMs.
 
-diff --git a/kernel/bpf/Kconfig b/kernel/bpf/Kconfig
-index bc25f5098a25..f999e4e0b344 100644
---- a/kernel/bpf/Kconfig
-+++ b/kernel/bpf/Kconfig
-@@ -43,7 +43,7 @@ config BPF_JIT
- 	bool "Enable BPF Just In Time compiler"
- 	depends on BPF
- 	depends on HAVE_CBPF_JIT || HAVE_EBPF_JIT
--	depends on MODULES
-+	select EXECMEM
- 	help
- 	  BPF programs are normally handled by a BPF interpreter. This option
- 	  allows the kernel to generate native code when a program is loaded
+(2) Live migration of VMs between sites to evacuate servers in case of
+    emergency.
+
+Without the shared zeropage, during (2), the VM would suddenly consume
+100 GiB on the migration source and destination. On the migration source,
+where we don't excpect memory overcommit, we could easilt end up crashing
+the VM during migration.
+
+Independent of that, memory handed back to the hypervisor using "free page
+reporting" would end up consuming actual memory after the migration on the
+destination, not getting freed up until reused+freed again.
+
+While there might be ways to optimize parts of this in QEMU, we really
+should just support the shared zeropage again for ordinary VMs.
+
+We only expect legcy guests to make use of storage keys, so let's handle
+zeropages again when enabling storage keys or when enabling PV. To not
+break userfaultfd like we did in the past, don't zap the shared zeropages,
+but instead trigger unsharing faults, just like we do for unsharing
+KSM pages in break_ksm().
+
+Unsharing faults will simply replace the shared zeropage by a zeroed
+anonymous folio. We can already trigger the same fault path using GUP,
+when trying to long-term pin a shared zeropage, but also when unmerging
+a KSM-placed zeropages, so this is nothing new.
+
+Patch #1 tested on 86-64 by forcing mm_forbids_zeropage() to be 1, and
+running the uffd selftests.
+
+Patch #2 tested on s390x: the live migration scenario now works as
+expected, and kvm-unit-tests that trigger usage of skeys work well, whereby
+I can see detection and unsharing of shared zeropages.
+
+Further (as broken in v2), I tested that the shared zeropage is no
+longer populated after skeys are used -- that mm_forbids_zeropage() works
+as expected:
+  ./s390x-run s390x/skey.elf \
+   -no-shutdown \
+   -chardev socket,id=monitor,path=/var/tmp/mon,server,nowait \
+   -mon chardev=monitor,mode=readline
+
+  Then, in another shell:
+
+  # cat /proc/`pgrep qemu`/smaps_rollup | grep Rss
+  Rss:               31484 kB
+  #  echo "dump-guest-memory tmp" | sudo nc -U /var/tmp/mon
+  ...
+  # cat /proc/`pgrep qemu`/smaps_rollup | grep Rss
+  Rss:              160452 kB
+
+  -> Reading guest memory does not populate the shared zeropage
+
+  Doing the same with selftest.elf (no skeys)
+
+  # cat /proc/`pgrep qemu`/smaps_rollup | grep Rss
+  Rss:               30900 kB
+  #  echo "dump-guest-memory tmp" | sudo nc -U /var/tmp/mon
+  ...
+  # cat /proc/`pgrep qemu`/smaps_rollup | grep Rsstmp/mon
+  Rss:               30924 kB
+
+  -> Reading guest memory does populate the shared zeropage
+
+Based on s390/features. Andrew agreed that both patches can go via the
+s390x tree.
+
+v2 -> v3:
+* "mm/userfaultfd: don't place zeropages when zeropages are disallowed"
+ -> Fix wrong mm_forbids_zeropage check
+* "s390/mm: re-enable the shared zeropage for !PV and !skeys KVM guests"
+ -> Fix wrong mm_forbids_zeropage define
+
+v1 -> v2:
+* "mm/userfaultfd: don't place zeropages when zeropages are disallowed"
+ -> Minor "ret" ahndling tweaks
+* "s390/mm: re-enable the shared zeropage for !PV and !skeys KVM guests"
+ -> Added Fixes: tag
+
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+
+
+David Hildenbrand (2):
+  mm/userfaultfd: don't place zeropages when zeropages are disallowed
+  s390/mm: re-enable the shared zeropage for !PV and !skeys KVM guests
+
+ arch/s390/include/asm/gmap.h        |   2 +-
+ arch/s390/include/asm/mmu.h         |   5 +
+ arch/s390/include/asm/mmu_context.h |   1 +
+ arch/s390/include/asm/pgtable.h     |  16 ++-
+ arch/s390/kvm/kvm-s390.c            |   4 +-
+ arch/s390/mm/gmap.c                 | 163 +++++++++++++++++++++-------
+ mm/userfaultfd.c                    |  34 ++++++
+ 7 files changed, 178 insertions(+), 47 deletions(-)
+
 -- 
-2.43.0
+2.44.0
 
