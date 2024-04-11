@@ -1,127 +1,254 @@
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FD67145B13
-	for <linux-s390@vger.kernel.org>; Thu, 11 Apr 2024 10:28:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.58.86.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDB12148319
+	for <linux-s390@vger.kernel.org>; Thu, 11 Apr 2024 10:38:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712831286; cv=none; b=Lul7SuzViZXvEjaR1v8h+uJqxDDFpN2NfAk75j+8BFGDtvXFE6pPhF6f0rXcv3t0Ju8N37xXxKOywgNoNsZYCgkxRJfEXbHqGAz4x4ZV/oh6ucR1n3Wc5lcxdc7Z9hOvinQguZ/a/71e9l/nBRfzyfVqrzdt9P2p3k+4gldJffo=
+	t=1712831904; cv=none; b=Sv5kIkynJYfD+0QPrtKsystqOm6WIyqsBuFySKoFR/xIP1TEd1mEWBon6dSXZ4k7EtFdHJCGifigckLjq28t9xK7IJ7caSpDCkC0ZgOY1CA++LW7FYgXyAm4h47p2A+Raig1d/mSpaKkffdxH0M510f7ZB0H5eoYrL5x6Xw883U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712831286; c=relaxed/simple;
-	bh=S8CuP0uAJf1JsvKaTi8HzyGFRr5zKo+GObz4MF1+pT8=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 MIME-Version:Content-Type; b=ssnc45VSGaO3zL1kl6b2DS+PbDkdA4E5Fytt40PHbpmgJUjsyehRzpcIMib1/UuU4i/bcClMMYPw44XT87CNz5Vw1RjTrnVRTz19Li4FyIGg3oApEJdKPlCmMIIx2bhj8EP8UNF/Ll1h4tz2gP0sZjMqsAdhELFsDr4nafwADa4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM; spf=pass smtp.mailfrom=aculab.com; arc=none smtp.client-ip=185.58.86.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aculab.com
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-37-dtAk8lfNPqaLMtFIigBSZg-1; Thu, 11 Apr 2024 11:27:51 +0100
-X-MC-Unique: dtAk8lfNPqaLMtFIigBSZg-1
-Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
- (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Thu, 11 Apr
- 2024 11:27:23 +0100
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.048; Thu, 11 Apr 2024 11:27:23 +0100
-From: David Laight <David.Laight@ACULAB.COM>
-To: 'Adrian Hunter' <adrian.hunter@intel.com>, Arnd Bergmann <arnd@arndb.de>
-CC: Peter Zijlstra <peterz@infradead.org>, Dave Hansen
-	<dave.hansen@linux.intel.com>, John Stultz <jstultz@google.com>, "H. Peter
- Anvin" <hpa@zytor.com>, Alexander Gordeev <agordeev@linux.ibm.com>, "Vincenzo
- Frascino" <vincenzo.frascino@arm.com>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, Naresh Kamboju <naresh.kamboju@linaro.org>,
-	"x86@kernel.org" <x86@kernel.org>, Aneesh Kumar K.V
-	<aneesh.kumar@kernel.org>, Ingo Molnar <mingo@redhat.com>, "Naveen N. Rao"
-	<naveen.n.rao@linux.ibm.com>, Christian Borntraeger
-	<borntraeger@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, Nicholas Piggin <npiggin@gmail.com>, "Borislav
- Petkov" <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Bjorn Helgaas
-	<bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>, "Anna-Maria
- Gleixner" <anna-maria@linutronix.de>, Stephen Boyd <sboyd@kernel.org>, "Randy
- Dunlap" <rdunlap@infradead.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, Sven Schnelle <svens@linux.ibm.com>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
-Subject: RE: [PATCH] bug: Fix no-return-statement warning with !CONFIG_BUG
-Thread-Topic: [PATCH] bug: Fix no-return-statement warning with !CONFIG_BUG
-Thread-Index: AQHai+8rQSO3zfnELkWMcaajEoNC87Fi2ofw
-Date: Thu, 11 Apr 2024 10:27:23 +0000
-Message-ID: <a0776e05c5074da2b8394926b2f787a2@AcuMS.aculab.com>
-References: <20240410153212.127477-1-adrian.hunter@intel.com>
- <87be83da-6102-483d-b1dc-a77eecc9f780@app.fastmail.com>
- <c9f382b2-cd96-4ee3-ad68-95381d9e09c0@intel.com>
- <cac3f357-0dc2-46ba-9ea0-7b1f4278e8ff@app.fastmail.com>
- <0fd5e869-720f-41bb-9f0f-c0f3925ffc1b@intel.com>
-In-Reply-To: <0fd5e869-720f-41bb-9f0f-c0f3925ffc1b@intel.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
+	s=arc-20240116; t=1712831904; c=relaxed/simple;
+	bh=A36ZAloLwaYSGQai3GcnLMWmp+ye1CTGensaBkn7/es=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BMHWDkhMUBGOA+5hMLfC/ao67obx+eYGwf7sVcvez8XLKvk55wPqB5dVQXOzoeIrbvB/yVSkX+Vj9fdpG0ISZaXFVwM2bTvEccdmRn0/0lL7LYleZ2so0o65xYc7S3Jib4/eBmzOldqJD05L2IEKE7/+NVco56TF1pLlzHFEX9M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IrO9Rhh5; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IrO9Rhh5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1712831901;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=7JcOYshX9ei46X4mRDWaaw3M19ekCpvyRkfUCo7ditw=;
+	b=IrO9Rhh5CYI4zd/RPd3U4Yv5+DVh0ZB5ZjC5zAwxR3o5e531ZaosoVRgR0RMl2L5e4wNOp
+	1its3ImBCcL0gJIx9v6b65aibte5GfOQoKAcE5v2r6M9rc/K+vIw7EW+JqbKfQeYZCB5Rr
+	QDWzkQwrzqe3B8FMQqLxzZUHGs3ebFU=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-670-M7o5SS-9OGeY9aAjG3QGrQ-1; Thu, 11 Apr 2024 06:38:20 -0400
+X-MC-Unique: M7o5SS-9OGeY9aAjG3QGrQ-1
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a4488afb812so356831466b.3
+        for <linux-s390@vger.kernel.org>; Thu, 11 Apr 2024 03:38:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712831899; x=1713436699;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=7JcOYshX9ei46X4mRDWaaw3M19ekCpvyRkfUCo7ditw=;
+        b=rMGCSArnmLbpQewC3DXHcfQOo3hAclRhLIg80GzW9WUxnE7PNpWNac+I2C67gFmEwf
+         FG6LTDnTwalapJfgqyDYN/3MushLJXU4qCul/ko/HqoPeOPaAkAoDyj89JANLbDvwzqx
+         g3F939MBamIbPm89fuvIvHXOpd6Dzo/X61jt0l4yoxMUjFml2ytq3rHLTWhMJJ0CmWv2
+         a/Uo3g3lhOBFlk/9Wk8U+vpdoyloghMCiB50fbYe3FMVa2EW41Piz0OxOreB7h2M5pTJ
+         dNlh/svn57xf006AHvUbeUpRrYK9pVDSIAm1WIEIess4bvBY6gnmjsSnir1EJ9nQBm1+
+         HASg==
+X-Forwarded-Encrypted: i=1; AJvYcCVD73MiNRpBo9INWXr2n6Xb7MBVwu3Z0XWQOecp0tD8hXNWFuKI23mvZovxdCDeoW0KyGIk0I32KI/Exb6ML8hhsGA6y7Z4gNFPtA==
+X-Gm-Message-State: AOJu0Yxui9SvGokb60iljSUyIYdmmiVKIKWznTD1VH1AyS3DNMPT622y
+	1PzNiu4J3f4u8nG4UflQOAAkOw8N8nEbq6V6dXtt2MSiBnUb0UjoPym5A4+2Chj6Bked4z0dJiv
+	f18VoPYVyQuMyASVA0xJ9mhYNQuAHj3O2xuJ1PETLiFKtD1L1K3L4VV54YlI=
+X-Received: by 2002:a17:906:e294:b0:a51:cdfd:8ef7 with SMTP id gg20-20020a170906e29400b00a51cdfd8ef7mr3022190ejb.39.1712831898966;
+        Thu, 11 Apr 2024 03:38:18 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGH485Wl09TCGoI26RjLOHyTRD9RSVVHCBLzAhCODunIyB30xmD8xJHN/RRwNBFo35wXu/Pcg==
+X-Received: by 2002:a17:906:e294:b0:a51:cdfd:8ef7 with SMTP id gg20-20020a170906e29400b00a51cdfd8ef7mr3022178ejb.39.1712831898539;
+        Thu, 11 Apr 2024 03:38:18 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c724:4300:430f:1c83:1abc:1d66? (p200300cbc7244300430f1c831abc1d66.dip0.t-ipconnect.de. [2003:cb:c724:4300:430f:1c83:1abc:1d66])
+        by smtp.gmail.com with ESMTPSA id iv18-20020a05600c549200b004174ff337f4sm1937619wmb.7.2024.04.11.03.38.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 11 Apr 2024 03:38:18 -0700 (PDT)
+Message-ID: <c9bfaf90-d744-4371-8f6f-5739f3373072@redhat.com>
+Date: Thu, 11 Apr 2024 12:38:17 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 3/5] s390/uv: convert PG_arch_1 users to only work on
+ small folios
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+ Matthew Wilcox <willy@infradead.org>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Thomas Huth <thuth@redhat.com>
+References: <20240404163642.1125529-1-david@redhat.com>
+ <20240404163642.1125529-4-david@redhat.com>
+ <20240410194236.1c89eb7d@p-imbrenda>
+From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20240410194236.1c89eb7d@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-RnJvbTogQWRyaWFuIEh1bnRlcg0KPiBTZW50OiAxMSBBcHJpbCAyMDI0IDEwOjA0DQo+IA0KPiBP
-biAxMS8wNC8yNCAxMDo1NiwgQXJuZCBCZXJnbWFubiB3cm90ZToNCj4gPiBPbiBUaHUsIEFwciAx
-MSwgMjAyNCwgYXQgMDk6MTYsIEFkcmlhbiBIdW50ZXIgd3JvdGU6DQo+ID4+IE9uIDExLzA0LzI0
-IDEwOjA0LCBBcm5kIEJlcmdtYW5uIHdyb3RlOg0KPiA+Pj4gT24gV2VkLCBBcHIgMTAsIDIwMjQs
-IGF0IDE3OjMyLCBBZHJpYW4gSHVudGVyIHdyb3RlOg0KPiA+Pj4+IEJVRygpIGRvZXMgbm90IHJl
-dHVybiwgYW5kIGFyY2ggaW1wbGVtZW50YXRpb25zIG9mIEJVRygpIHVzZSB1bnJlYWNoYWJsZSgp
-DQo+ID4+Pj4gb3Igb3RoZXIgbm9uLXJldHVybmluZyBjb2RlLiBIb3dldmVyIHdpdGggIUNPTkZJ
-R19CVUcsIHRoZSBkZWZhdWx0DQo+ID4+Pj4gaW1wbGVtZW50YXRpb24gaXMgb2Z0ZW4gdXNlZCBp
-bnN0ZWFkLCBhbmQgdGhhdCBkb2VzIG5vdCBkbyB0aGF0LiB4ODYgYWx3YXlzDQo+ID4+Pj4gdXNl
-cyBpdHMgb3duIGltcGxlbWVudGF0aW9uLCBidXQgcG93ZXJwYyB3aXRoICFDT05GSUdfQlVHIGdp
-dmVzIGEgYnVpbGQNCj4gPj4+PiBlcnJvcjoNCj4gPj4+Pg0KPiA+Pj4+ICAga2VybmVsL3RpbWUv
-dGltZWtlZXBpbmcuYzogSW4gZnVuY3Rpb24g4oCYdGltZWtlZXBpbmdfZGVidWdfZ2V0X25z4oCZ
-Og0KPiA+Pj4+ICAga2VybmVsL3RpbWUvdGltZWtlZXBpbmcuYzoyODY6MTogZXJyb3I6IG5vIHJl
-dHVybiBzdGF0ZW1lbnQgaW4gZnVuY3Rpb24NCj4gPj4+PiAgIHJldHVybmluZyBub24tdm9pZCBb
-LVdlcnJvcj1yZXR1cm4tdHlwZV0NCj4gPj4+Pg0KPiA+Pj4+IEFkZCB1bnJlYWNoYWJsZSgpIHRv
-IGRlZmF1bHQgIUNPTkZJR19CVUcgQlVHKCkgaW1wbGVtZW50YXRpb24uDQo+ID4+Pg0KPiA+Pj4g
-SSdtIGEgYml0IHdvcnJpZWQgYWJvdXQgdGhpcyBwYXRjaCwgc2luY2Ugd2UgaGF2ZSBoYWQgcHJv
-YmxlbXMNCj4gPj4+IHdpdGggdW5yZWFjaGFibGUoKSBpbnNpZGUgb2YgQlVHKCkgaW4gdGhlIHBh
-c3QsIGFuZCBhcyBmYXIgYXMgSQ0KPiA+Pj4gY2FuIHJlbWVtYmVyLCB0aGUgY3VycmVudCB2ZXJz
-aW9uIHdhcyB0aGUgb25seSBvbmUgdGhhdA0KPiA+Pj4gYWN0dWFsbHkgZGlkIHRoZSByaWdodCB0
-aGluZyBvbiBhbGwgY29tcGlsZXJzLg0KPiA+Pj4NCj4gPj4+IE9uZSBwcm9ibGVtIHdpdGggYW4g
-dW5yZWFjaGFibGUoKSBhbm5vdGF0aW9uIGhlcmUgaXMgdGhhdCBpZg0KPiA+Pj4gYSBjb21waWxl
-ciBtaXNhbmFseXNlcyB0aGUgZW5kbGVzcyBsb29wLCBpdCBjYW4gZGVjaWRlIHRvDQo+ID4+PiB0
-aHJvdyBvdXQgdGhlIGVudGlyZSBjb2RlIHBhdGggbGVhZGluZyB1cCB0byBpdCBhbmQganVzdA0K
-PiA+Pj4gcnVuIGludG8gdW5kZWZpbmVkIGJlaGF2aW9yIGluc3RlYWQgb2YgcHJpbnRpbmcgYSBC
-VUcoKQ0KPiA+Pj4gbWVzc2FnZS4NCj4gPj4+DQo+ID4+PiBEbyB5b3Uga25vdyB3aGljaCBjb21w
-aWxlciB2ZXJzaW9uIHNob3cgdGhlIHdhcm5pbmcgYWJvdmU/DQo+ID4+DQo+ID4+IE9yaWdpbmFs
-IHJlcG9ydCBoYXMgYSBsaXN0DQo+ID4+DQo+ID4NCj4gPiBJdCBsb29rcyBsaWtlIGl0J3MgYWxs
-IHZlcnNpb25zIG9mIGdjYywgdGhvdWdoIG5vIHZlcnNpb25zDQo+ID4gb2YgY2xhbmcgc2hvdyB0
-aGUgd2FybmluZ3MuIEkgZGlkIGEgZmV3IG1vcmUgdGVzdHMgYW5kIGNvdWxkDQo+ID4gbm90IGZp
-bmQgYW55IGRpZmZlcmVuY2VzIG9uIGFjdHVhbCBjb2RlIGdlbmVyYXRpb24sIGJ1dA0KPiA+IEkn
-ZCBzdGlsbCBmZWVsIG1vcmUgY29tZm9ydGFibGUgY2hhbmdpbmcgdGhlIGNhbGxlciB0aGFuDQo+
-ID4gdGhlIEJVRygpIG1hY3JvLiBJdCdzIHRyaXZpYWwgdG8gYWRkIGEgJ3JldHVybiAwJyB0aGVy
-ZS4NCj4gDQo+IEFGQUlDVCBldmVyeSBpbXBsZW1lbnRhdGlvbiBvZiBCVUcoKSBleGNlcHQgdGhp
-cyBvbmUgaGFzDQo+IHVucmVhY2hhYmxlKCkgb3IgZXF1aXZhbGVudCwgc28gdGhhdCBpbmNvbnNp
-c3RlbmN5IHNlZW1zDQo+IHdyb25nLg0KPiANCj4gQ291bGQgYWRkICdyZXR1cm4gMCcsIGJ1dCBJ
-IGRvIG5vdGljZSBvdGhlciBjYXNlcw0KPiB3aGVyZSBhIGZ1bmN0aW9uIGRvZXMgbm90IGhhdmUg
-YSByZXR1cm4gdmFsdWUsIHN1Y2ggYXMNCj4gY3B1c19oYXZlX2ZpbmFsX2Jvb3RfY2FwKCksIHNv
-IHRoZXJlIGlzIGFscmVhZHkgYW4gZXhwZWN0YXRpb24NCj4gdGhhdCB0aGF0IGlzIE9LLg0KDQpJ
-c24ndCB0aGF0IGxpa2VseSB0byBnZW5lcmF0ZSBhbiAndW5yZWFjaGFibGUgY29kZScgd2Fybmlu
-Zz8NCkkgYW55IGNhc2UgdGhlIGNvbXBpbGVyIGNhbiBnZW5lcmF0ZSBiZXR0ZXIgY29kZSBmb3Ig
-dGhlIG5vbi1CVUcoKQ0KcGF0aCBpZiBpdCBrbm93cyBCVUcoKSBkb2Vzbid0IHJldHVybi4NCihB
-bmQgY29uZnVzZSBzdGFjayBiYWNrLXRyYWNlIGNvZGUgaW4gdGhlIHByb2Nlc3MuKQ0KDQo+IA0K
-PiA+IEFub3RoZXIgaW50ZXJlc3Rpbmcgb2JzZXJ2YXRpb24gaXMgdGhhdCBjbGFuZy0xMSBhbmQg
-ZWFybGllcg0KPiA+IHZlcnNpb25zIGVuZCB1cCBza2lwcGluZyB0aGUgZW5kbGVzcyBsb29wLCBi
-b3RoIHdpdGggYW5kDQo+ID4gd2l0aG91dCB0aGUgX19idWlsdGluX3VucmVhY2hhYmxlLCBzZWUN
-Cj4gPiBodHRwczovL2dvZGJvbHQub3JnL3ovYXFhOXpxejh4DQo+IA0KPiBBZGRpbmcgdm9sYXRp
-bGUgYXNtKCIiKSB0byB0aGUgbG9vcCB3b3VsZCBwcm9iYWJseSBmaXggdGhhdCwNCj4gYnV0IGl0
-IHNlZW1zIGxpa2UgYSBzZXBhcmF0ZSBpc3N1ZS4NCg0KSSdkIGd1ZXNzIGJhcnJpZXIoKSB3b3Vs
-ZCBiZSBiZXR0ZXIuDQpJdCBtaWdodCBiZSBuZWVkZWQgYmVmb3JlIHRoZSBsb29wc3RvcCBmb3Ig
-b3RoZXIgcmVhc29ucy4NClRoZSBjb21waWxlciBtaWdodCBiZSBqdXN0IG1vdmluZyBjb2RlIGJl
-bG93IHRoZSBsb29wIGFuZCB0aGVuDQpkaXNjYXJkaW5nIGl0IGFzIHVucmVhY2hhYmxlLg0KDQoJ
-RGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1v
-dW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEz
-OTczODYgKFdhbGVzKQ0K
+On 10.04.24 19:42, Claudio Imbrenda wrote:
+> On Thu,  4 Apr 2024 18:36:40 +0200
+> David Hildenbrand <david@redhat.com> wrote:
+> 
+>> Now that make_folio_secure() may only set PG_arch_1 for small folios,
+>> let's convert relevant remaining UV code to only work on (small) folios
+>> and simply reject large folios early. This way, we'll never end up
+>> touching PG_arch_1 on tail pages of a large folio in UV code.
+>>
+>> The folio_get()/folio_put() for functions that are documented to already
+>> hold a folio reference look weird and it should probably be removed.
+>> Similarly, uv_destroy_owned_page() and uv_convert_owned_from_secure()
+>> should really consume a folio reference instead. But these are cleanups for
+>> another day.
+>>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>   arch/s390/include/asm/page.h |  1 +
+>>   arch/s390/kernel/uv.c        | 39 +++++++++++++++++++++---------------
+>>   2 files changed, 24 insertions(+), 16 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+>> index 54d015bcd8e3..b64384872c0f 100644
+>> --- a/arch/s390/include/asm/page.h
+>> +++ b/arch/s390/include/asm/page.h
+>> @@ -214,6 +214,7 @@ static inline unsigned long __phys_addr(unsigned long x, bool is_31bit)
+>>   #define pfn_to_phys(pfn)	((pfn) << PAGE_SHIFT)
+>>   
+>>   #define phys_to_page(phys)	pfn_to_page(phys_to_pfn(phys))
+>> +#define phys_to_folio(phys)	page_folio(phys_to_page(phys))
+>>   #define page_to_phys(page)	pfn_to_phys(page_to_pfn(page))
+>>   #define folio_to_phys(page)	pfn_to_phys(folio_pfn(folio))
+>>   
+>> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+>> index adcbd4b13035..9c0113b26735 100644
+>> --- a/arch/s390/kernel/uv.c
+>> +++ b/arch/s390/kernel/uv.c
+>> @@ -134,14 +134,17 @@ static int uv_destroy_page(unsigned long paddr)
+>>    */
+>>   int uv_destroy_owned_page(unsigned long paddr)
+>>   {
+>> -	struct page *page = phys_to_page(paddr);
+>> +	struct folio *folio = phys_to_folio(paddr);
+>>   	int rc;
+>>   
+>> -	get_page(page);
+>> +	if (unlikely(folio_test_large(folio)))
+>> +		return 0;
+> 
+> please add a comment here to explain why it's ok to just return 0
+> here...
+
+
+Will use
+
+"/* See gmap_make_secure(): large folios cannot be protected */"
+
+> 
+>> +
+>> +	folio_get(folio);
+>>   	rc = uv_destroy_page(paddr);
+>>   	if (!rc)
+>> -		clear_bit(PG_arch_1, &page->flags);
+>> -	put_page(page);
+>> +		clear_bit(PG_arch_1, &folio->flags);
+>> +	folio_put(folio);
+>>   	return rc;
+>>   }
+>>   
+>> @@ -169,14 +172,17 @@ int uv_convert_from_secure(unsigned long paddr)
+>>    */
+>>   int uv_convert_owned_from_secure(unsigned long paddr)
+>>   {
+>> -	struct page *page = phys_to_page(paddr);
+>> +	struct folio *folio = phys_to_folio(paddr);
+>>   	int rc;
+>>   
+>> -	get_page(page);
+>> +	if (unlikely(folio_test_large(folio)))
+>> +		return 0;
+> 
+> ... and here
+
+here as well and ...
+
+> 
+>> +
+>> +	folio_get(folio);
+>>   	rc = uv_convert_from_secure(paddr);
+>>   	if (!rc)
+>> -		clear_bit(PG_arch_1, &page->flags);
+>> -	put_page(page);
+>> +		clear_bit(PG_arch_1, &folio->flags);
+>> +	folio_put(folio);
+>>   	return rc;
+>>   }
+>>   
+>> @@ -457,33 +463,34 @@ EXPORT_SYMBOL_GPL(gmap_destroy_page);
+>>    */
+>>   int arch_make_page_accessible(struct page *page)
+>>   {
+>> +	struct folio *folio = page_folio(page);
+>>   	int rc = 0;
+>>   
+>> -	/* Hugepage cannot be protected, so nothing to do */
+>> -	if (PageHuge(page))
+>> +	/* Large folios cannot be protected, so nothing to do */
+
+^ here as well.
+
+>> +	if (unlikely(folio_test_large(folio)))
+>>   		return 0;
+>>   
+
+-- 
+Cheers,
+
+David / dhildenb
 
