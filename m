@@ -1,190 +1,163 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB62F144D2A;
-	Thu, 11 Apr 2024 09:33:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C862144D19;
+	Thu, 11 Apr 2024 09:41:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712828004; cv=none; b=QC3tkd26JoJNBRpx7hnQh+sUkYE8MLhZuSW7ca/tYEzINS8fDxMXqlwekNEd+7344yw/qEdXCElFlpEAZB1my0PdwCxEPLNA8NP/9YsnA4jePydDSHWqlRk1ZRzuKJcFZ4YMRq9+TC8xQ5ibiQXTuOSdoPHI2ZfjkK+FOg6sOsE=
+	t=1712828467; cv=none; b=g9A6uVRdwby//VByVjk5bb9SDyEr75VcHdpaZ1mF9TmRP0u5blcKjGcOkQI1UIDcpNjKivbeY6dG4BZkMn0N2hngAys8PVksJQEm10Y5vkmgLC+/muWb1JAnSvF6vmgMHx78JT3DiX/D+N72+VH5BXBDZa8GkEDNSX2mxEfvoHo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712828004; c=relaxed/simple;
-	bh=NPUjbygY7dOut/w/ZBzQBO8x18aPGw21EDbfje4x9Wc=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=FwA3pKH9beoMJ0Dmgod80pXJ0J7cSCxsyvp1AIFMWvI82lhHiaOadyRI2NFyNydMW5SmAI1Sf62BqfG3qwRm+nBvKTc2XKiAs8fqxtfXMtmlcApvjcXvciSHPceuqtvLFFLgEmS/nX3u/u9pKySL7CuPPBl5FP2i0RmGRn9kGNk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gyt1CYYw; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1712828467; c=relaxed/simple;
+	bh=+Wg76Rr5RpC44PwUml/Iat64zCG3ensJyqmbX+IiM98=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PIyBaemu82rjBpQa8Q8gGXXNDwurmAndbolC+Cj92VV9inAA9I+NgNVNtgf6rwMMoDw+2j/1PsM6q6O/5Y/wz7v9zrj7LNKbPa2JlMym2z3LebGrvE9vtr6/V/K8BJCUq3nyZNDlJqTkEhXHfqxlTNXc4TShl9VVLm4Rw4OaX/8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PBQnQW28; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gyt1CYYw"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PBQnQW28"
 Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43B91IU7011364;
-	Thu, 11 Apr 2024 09:33:12 GMT
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43B925gl013991;
+	Thu, 11 Apr 2024 09:40:51 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=GNfbBQyMK7y6+Ln1Yl3MWg1C2ZKWaofyJvThpeHIeB4=;
- b=gyt1CYYwYp7U/XDm2LaIZ+8nuGFUcIG2KOgilFgsKCEYvlmQRZBAu2aL9o78kl6KkP7H
- iyF+NytN3lT8V97mEKxeMqTHobv0Jv+aUDgz/iPWQOIBCuJWqFiB3YB3RKZWk99EZlXO
- SPz3ZHn575u4sN8QEdlUpFOzPP0ahxcpSpFnyEC77QrQxwmH/femkZF41+5wV/v7ONRm
- jUKJGSairtA1nwmPnSm74kHPYrJum7Qrgre9hXTUz4kFRrG32HDmyK8tQP/t7msddAGq
- MR6Ib38LwqkW4p4OtpB2DOS0GKjjjfij/EfOMupbUE+fdY/Hc9an0je0dYzDDIHseLYm Cw== 
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=J+BYRkoBYT87K/TajWc7Vbg01RHkqC5TQaE3/hh3BY4=;
+ b=PBQnQW280KQa48nIme/UTLnLEsq4A2K+JlKnqB8pjRwZ4n9NxTRcGGveVmWZlU9G+cuG
+ gHG462EIyrs/0kFuUVy0WMKJA4HmlR6yKm9zp/xnCcwnt9xLHAe8FWL8L8inGwyTzaAn
+ Okj2Bu6x5duuo2Kw0PnVUd+zjytRF5PHFjquwMzEwBMPSohqjQ8oDcYBhFzl/nQFRj0T
+ EjuEhnLLOZ+yv/gwHpvN5ojX80s4d4WazwWCOpXyJlTVfiJIwkxitHosatb50HtL8+Dp
+ 17ROn3P1ooFQDGkVqF+xwG9EKXUlHM8inxfZKhstEWe4Mnzr0t6VX0YS7QKNT60zGFdr UA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xeap80d1g-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xeap80dm2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Apr 2024 09:33:12 +0000
+	Thu, 11 Apr 2024 09:40:51 +0000
 Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43B9XBWY030359;
-	Thu, 11 Apr 2024 09:33:11 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xeap80d1c-1
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43B9IV1W006511;
+	Thu, 11 Apr 2024 09:40:50 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xeap80dm1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Apr 2024 09:33:11 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43B7xEFt017031;
-	Thu, 11 Apr 2024 09:33:10 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xbke2sxdu-1
+	Thu, 11 Apr 2024 09:40:50 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43B8ZDOx013544;
+	Thu, 11 Apr 2024 09:40:49 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xbgqttn2t-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Apr 2024 09:33:10 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43B9X7t119923690
+	Thu, 11 Apr 2024 09:40:49 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43B9eiXK44630460
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 11 Apr 2024 09:33:09 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C630B58066;
-	Thu, 11 Apr 2024 09:33:05 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6BCE958072;
-	Thu, 11 Apr 2024 09:33:02 +0000 (GMT)
-Received: from [9.179.30.10] (unknown [9.179.30.10])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 11 Apr 2024 09:33:02 +0000 (GMT)
-Message-ID: <ddd181fc-307f-4c2f-bc9b-6941a17f16d9@linux.ibm.com>
-Date: Thu, 11 Apr 2024 11:32:58 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH net-next v5 00/11] net/smc: SMC intra-OS shortcut with
- loopback-ism
-Content-Language: en-GB
-To: Wen Gu <guwen@linux.alibaba.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-        jaka@linux.ibm.com
-Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-References: <20240324135522.108564-1-guwen@linux.alibaba.com>
- <ae3ea4bc-4a9c-416e-a593-2885fea96ae5@linux.alibaba.com>
- <27deaa5dbb30c467fcdaa0667ef39da86bcee03f.camel@linux.ibm.com>
- <fc274220-cb6e-43be-aa76-69e37449e535@linux.alibaba.com>
-From: Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <fc274220-cb6e-43be-aa76-69e37449e535@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: BSFtNKy1vmi4bC4EQpAeMyxktRppxZCx
-X-Proofpoint-ORIG-GUID: JB91-AKHYEvEA27xqbpBi3V2FdwQY33H
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	Thu, 11 Apr 2024 09:40:46 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 53EC620043;
+	Thu, 11 Apr 2024 09:40:44 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D1ED420040;
+	Thu, 11 Apr 2024 09:40:43 +0000 (GMT)
+Received: from [9.171.36.159] (unknown [9.171.36.159])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 11 Apr 2024 09:40:43 +0000 (GMT)
+Message-ID: <f2fa30de-b34d-41cf-9bce-55d1e078b95e@linux.ibm.com>
+Date: Thu, 11 Apr 2024 11:40:43 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH 1/2] s390x: Fix misspelt variable name in
+ func.bash
+To: Nicholas Piggin <npiggin@gmail.com>, Thomas Huth <thuth@redhat.com>
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        =?UTF-8?Q?Nico_B=C3=B6hr?=
+ <nrb@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Andrew Jones <andrew.jones@linux.dev>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+References: <20240406122456.405139-1-npiggin@gmail.com>
+ <20240406122456.405139-2-npiggin@gmail.com>
+ <e8ea1c30-2211-4060-9cb2-c57364c80ea8@linux.ibm.com>
+ <D0G5W6ZJ5ZBC.33NKLB5X3DIK9@gmail.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <D0G5W6ZJ5ZBC.33NKLB5X3DIK9@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: DHM5lhwEBPrsFnd0uwuyfY3BfiMeyhca
+X-Proofpoint-ORIG-GUID: EPSFIq_9w4w6LV62vYewRkVaX4xfnDsU
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-04-11_03,2024-04-09_01,2023-05-22_02
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- clxscore=1011 malwarescore=0 suspectscore=0 lowpriorityscore=0
- impostorscore=0 priorityscore=1501 mlxscore=0 adultscore=0 mlxlogscore=999
+ clxscore=1015 malwarescore=0 suspectscore=0 lowpriorityscore=0
+ impostorscore=0 priorityscore=1501 mlxscore=0 adultscore=0 mlxlogscore=927
  spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2404110068
+ engine=8.12.0-2404010000 definitions=main-2404110069
 
-
-
-On 11.04.24 09:45, Wen Gu wrote:
-> 
-> 
-> On 2024/4/3 19:10, Gerd Bayer wrote:
->> On Wed, 2024-04-03 at 14:35 +0800, Wen Gu wrote:
+On 4/10/24 06:35, Nicholas Piggin wrote:
+> On Mon Apr 8, 2024 at 9:59 PM AEST, Janosch Frank wrote:
+>> On 4/6/24 14:24, Nicholas Piggin wrote:
+>>> The if statement is intended to run non-migration tests with PV on KVM.
+>>> With the misspelling, they are run on KVM or TCG.
 >>>
->>>
->>> On 2024/3/24 21:55, Wen Gu wrote:
->>>> This patch set acts as the second part of the new version of [1]
->>>> (The first
->>>> part can be referred from [2]), the updated things of this version
->>>> are listed
->>>> at the end.
->>>
->>>> Change log:
->>>>
->>>> RFC v5->RFC v4:
->>>> - Patch #2: minor changes in description of config SMC_LO and
->>>> comments.
->>>> - Patch #10: minor changes in comments and
->>>> if(smc_ism_support_dmb_nocopy())
->>>>     check in smcd_cdc_msg_send().
->>>> - Patch #3: change smc_lo_generate_id() to smc_lo_generate_ids()
->>>> and SMC_LO_CHID
->>>>     to SMC_LO_RESERVED_CHID.
->>>> - Patch #5: memcpy while holding the ldev->dmb_ht_lock.
->>>> - Some expression changes in commit logs.
->>>>
->>>
->>> Hi, Jan. Do you have any comments on this version and should I post a
->>> new patch series without 'RFC'? Thank you.
 >>
->> Hi Wen,
+>> It's not misspelt, is it?
+>> It's in the wrong case.
+> 
+> Yes, that's the right word.
+> 
 >>
->> Jan has been out sick for a little while now, and Wenjia is expected
->> back from a longer vacation tomorrow. So if you could hold off until
->> begin of next week, Wenjia might have some more feedback.
 >>
->> In the meantime, I'm looking at your patchset...
->>
->> Thank you, Gerd
->>
+>> I'm fine with the code though.
 > 
-> Hi Gerd, is there any further information? I am wondering if I
-> should wait for more feedback from SMC maintainers. Thanks!
-> 
-> 
-> Hi Wenjia, when it's convenient for you, could you please confirm
-> if [1] and [2] need to be included in the next version? Thanks!
-> 
-> [1] 
-> https://lore.kernel.org/netdev/7291dd1b2d16fd9bbd90988ac5bcc3a46d17e3f4.camel@linux.ibm.com/
-> [2] 
-> https://lore.kernel.org/netdev/60b4aec0b4bf4474d651b653c86c280dafc4518a.camel@linux.ibm.com/
-> 
+> Thanks, I'll take that as an Acked-by: you
 
-Hi Wen,
+Could you send out a fixed version that I can pick or do you want me to 
+fix that up?
 
-I'm just back, thank you for the patience!
-
-Firstly I want to thank Gerd and Niklas for review and bringing up these 
-points!
-
-Here are some of my options on that:
-
-To [1]:
-I agree to document the ops as otional if it must not be supported. 
-Since I don't really have any ideas, the classification souds reasonable 
-to me. Going to the details, what about to take following options as 
-mandatory:
-
-* query_remote_gid()
-* register_dmb()/unregister_dmb()
-* move_data() : I do see the necessary here.
-* get_local_gid()
-* get_chid()
-* get_dev()
-
-To [2]:
-I also agree to keep the ism-loopback at the very beginning of the List. 
-That acting is also what I imaged previously. Thank you, gerd, again for 
-testing it and find it out!
-
-Thanks,
-Wenjia
