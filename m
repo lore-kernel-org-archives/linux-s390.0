@@ -1,208 +1,252 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from wfout7-smtp.messagingengine.com (wfout7-smtp.messagingengine.com [64.147.123.150])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CECB1474BA;
-	Thu, 11 Apr 2024 11:12:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E1D81482E9;
+	Thu, 11 Apr 2024 11:27:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=64.147.123.150
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712833959; cv=none; b=BQbBrcGB8NkcQ3IIkaptcUrxDXV/TjfspaNGTQZcVbmSi01us56+CqIEXsJ4iNhnJ8/7i0Zr1CJcimJH4NyyLDpWliepBE2wCqdWsspJdp/m2yUsrkRVyduT0Unv+nmp6t1T9UghmhdxwDXRwaDKSaXWQdwDXRkIGXJoBKioejY=
+	t=1712834840; cv=none; b=jHevurR1JQ2mw1KThSHYCpr5X2ESGhr9NNyjWHwx0tM3QqWFtfMB8qkBePAKalZL/PJrcvxmtcHH3qIQ0whS1hUPzDmMbmZAcCpVvkxllWbwDkshrera3covDX1TB4LQmgM+qcQ5DaqzCHY7nHBXU+03noKvADciZLUKP9TOkUU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712833959; c=relaxed/simple;
-	bh=XWXUyl1Nz91NBxdPg+48EdN2ElgiJkR3ew64Yn5yz/Q=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=d5MAWuXLPLtdseCGh2x0VPQ6dTQ8NKUaD1ta/1H/BcYAjTgu6C38injBLZDtSfSscxxXV4oJfugCkCE7cy1wesIL1a+xqjh0fsnWJ+6+IznBqoLQnjjTxbPh+GPKiRhIL1m3F7hMBi6ZcUCWcV5/ma8lfNJ4B5leSNNLIum+Er4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QWJFcBlU; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1712834840; c=relaxed/simple;
+	bh=yvmhDCALkIthMGM5UYLP3R3ULZ4LHD9/7osM8YAdgLA=;
+	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
+	 Subject:Content-Type; b=YeVfLTE1uSx6aR9XWKLy+aRFoJzpWMjbYfaXiCTVaAUScah3EXuQH2NahCc7+fAueZNFHrJCeNdrTfPZvf1MUMOYH7Yy/gNMju7/sbltH3ArdagZoFBetZWJoB2fYv+MPhNZVrfVNfxp5pbGkxofSLF9GD/OKv/j+OEEguCK1Gw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=k16UMDS3; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=NPqmVCml; arc=none smtp.client-ip=64.147.123.150
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QWJFcBlU"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43BAW5lC027333;
-	Thu, 11 Apr 2024 11:12:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=uhcvB6tpxrkxE/KaZ+ck3RH3SA1Z9JkugprvYlNNlwk=;
- b=QWJFcBlUByKAlYtOaYGkA8IRTEAbJODcZ945EbsZLdKxBHI6hiwSjqRFPPLUxTVp9CD4
- oaKs+pMb16VK8nL0CDf56CyosGxXQvpaGbcASX6138cUXuDR/rThAZd+W0UMZ1wUJ19d
- P+U24VUJZOzf4DI/a/GSnIlrgB8wUVk/OdE1ZAB9yzooD2hIO6NW6cDr30UjkJLMMI3f
- AZVxi/mRtfLWszRCVMwOwFJiQctqXCm7V+nP25ljgyVFgHnc6NuaYzVQ6DwP9LPDJi87
- D72LROOzInxQ1M6JAf0aEe13fZ2YlKIyF4JUfTsKPFHGgcS1drvAwg4O+XaVMB4el8JI eA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xebfy8eda-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Apr 2024 11:12:30 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43BBCT3h021006;
-	Thu, 11 Apr 2024 11:12:29 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xebfy8ed6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Apr 2024 11:12:29 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43B8ZDpV013544;
-	Thu, 11 Apr 2024 11:12:29 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xbgqtu1qt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Apr 2024 11:12:28 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43BBCNUX16974168
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 11 Apr 2024 11:12:25 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AC8CE2004B;
-	Thu, 11 Apr 2024 11:12:23 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5D04A20043;
-	Thu, 11 Apr 2024 11:12:23 +0000 (GMT)
-Received: from [9.152.224.141] (unknown [9.152.224.141])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 11 Apr 2024 11:12:23 +0000 (GMT)
-Message-ID: <12ae995f-4af4-4c6b-9130-04672d157293@linux.ibm.com>
-Date: Thu, 11 Apr 2024 13:12:23 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH net-next v5 04/11] net/smc: implement some unsupported
- operations of loopback-ism
-To: Wen Gu <guwen@linux.alibaba.com>,
-        Niklas Schnelle
- <schnelle@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, twinkler@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org
-References: <20240324135522.108564-1-guwen@linux.alibaba.com>
- <20240324135522.108564-5-guwen@linux.alibaba.com>
- <3122eece5b484abcf8d23f85d6c18c36f0b939ff.camel@linux.ibm.com>
- <1db6ccab-b49f-45d2-a93c-05b0f79371a3@linux.alibaba.com>
- <3b3ff37643e9030ec1246e67720683a2cf5660e5.camel@linux.ibm.com>
- <7a0fc481-658e-4c99-add7-ccbd5f9dce1e@linux.alibaba.com>
- <7291dd1b2d16fd9bbd90988ac5bcc3a46d17e3f4.camel@linux.ibm.com>
- <46e8e227-8058-4062-a9db-6b9c774f63cc@linux.alibaba.com>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <46e8e227-8058-4062-a9db-6b9c774f63cc@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: lH8IiSDzd6CHB4tJ3S8jUQABn86FFQBx
-X-Proofpoint-ORIG-GUID: Dn9t7sHizOmtClU9DfBA8utLe4LTNm47
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="k16UMDS3";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="NPqmVCml"
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+	by mailfout.west.internal (Postfix) with ESMTP id ADBF71C00137;
+	Thu, 11 Apr 2024 07:27:14 -0400 (EDT)
+Received: from imap51 ([10.202.2.101])
+  by compute5.internal (MEProxy); Thu, 11 Apr 2024 07:27:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1712834834;
+	 x=1712921234; bh=HHmF8u/Kgp0w2MiOBXchBKlXBDAOLG0zhFsdn3Q3LKU=; b=
+	k16UMDS3YHupSnmwEP0/HA0z1W0kHE8mUnFxzHkqIsGKnqejihmaLKS+ydgZZHPZ
+	4k/nfA6B8mGj6p0fe3q7vkhgn+Ft5kLluwBHTZbpzdSU+wi9oe2OfZfgF6nR1Q9w
+	NUjaGTPYqJkI69McIYxvmOwMD2F0ZLmG8S/FwlNusmpA66o0fKNa0t574OQ+BNdb
+	lmL7X2Qxx84toenW4EYPEQ7Gx6MHJfJBf/CxcVIavumaMnmIXMmgymZPtk2Q0p41
+	DjITQCF+YdPpOoU9hHdWEilPrOwsBPfcblfDrRfoEKMVdmIuxootB8arnUUdGlKo
+	AiSoKEveNjbKxJ04sRyWag==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1712834834; x=
+	1712921234; bh=HHmF8u/Kgp0w2MiOBXchBKlXBDAOLG0zhFsdn3Q3LKU=; b=N
+	PqmVCmlO8qu+ao6PmlZfi7Y24d44/jfZRx5qxQcAoXLlkiCUOasykG+E2JdPz3AZ
+	nl5qHdIkvbM8XMASmY5PwAcjKoWD574XPtl7j2flIWHqTMOucjHbASYq9+JaNTXT
+	V1t29oYeUFnYMkhjJPZoysmKH4tIkX24d/ciI2xBu6dUAfycWkl2gQD5vhP9jJzH
+	BjZQtLLGTw6xJTY+IdtxafZ396fVFhLcz/cb2KCCGploBDTbAXH5WNtk/GXoGgTf
+	UgfpTOJkURzvrYBdRLlN4pEl059sxLKC0h1YBsNYbYc5cic0wIeAfGw4rxjyST3t
+	HQ1WLOIhvcuLROPRf/xhA==
+X-ME-Sender: <xms:EckXZp_JMGVr04CcPO7Zi8vlSysZ4dGB6jHuu9Jmk78K0zYGeoRx-Q>
+    <xme:EckXZtvOdPNfmi5oNB1_mZPSAusDzHoHjx5Qvf_oivfbtPfPFNBGAx-qxjaH_0SAX
+    iLemeul88EkI1JrL38>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrudehkedggeduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvfevufgtgfesthhqredtreerjeenucfhrhhomhepfdet
+    rhhnugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrg
+    htthgvrhhnpeegfeejhedvledvffeijeeijeeivddvhfeliedvleevheejleetgedukedt
+    gfejveenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    grrhhnugesrghrnhgusgdruggv
+X-ME-Proxy: <xmx:EckXZnAt2S3P-B4UONMSL2sxDqEy28T02-OW3kU-0CtPKbnzG3Xzww>
+    <xmx:EckXZtdkbuyl5tUZneukUa8ax4-H1O5f2yb3bjfdoHgsoQ2ofnTbqA>
+    <xmx:EckXZuPdEX4JvNTAFe0W1u82Yp87aPaFB5jg8pNCdf7OKL_4LSvvsg>
+    <xmx:EckXZvkHIKP5vqZVZF1sC-kRvHGTGAIQa3365tAcLRW-xAhSp0JmQw>
+    <xmx:EskXZj-lCmKV2uVI2uldem5i9qYjtVjQscgpTn-bkl5DAOWQsRzSqHyn>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+	id 05606B60092; Thu, 11 Apr 2024 07:27:12 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.11.0-alpha0-379-gabd37849b7-fm-20240408.001-gabd37849
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-11_04,2024-04-09_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- spamscore=0 lowpriorityscore=0 impostorscore=0 mlxlogscore=999 mlxscore=0
- bulkscore=0 adultscore=0 phishscore=0 malwarescore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
- definitions=main-2404110081
+Message-Id: <dd6653b2-3a88-4b95-af13-c6fda5b27b39@app.fastmail.com>
+In-Reply-To: <4d429a10-eb45-4262-8e74-69af810ef1ac@intel.com>
+References: <20240410153212.127477-1-adrian.hunter@intel.com>
+ <87be83da-6102-483d-b1dc-a77eecc9f780@app.fastmail.com>
+ <c9f382b2-cd96-4ee3-ad68-95381d9e09c0@intel.com>
+ <a434248a-1e9f-4f4f-8f90-d36d8e979f53@csgroup.eu>
+ <ff9d7032-a3b6-4ecd-ac26-d7d4a06a5c7f@csgroup.eu>
+ <4d429a10-eb45-4262-8e74-69af810ef1ac@intel.com>
+Date: Thu, 11 Apr 2024 13:26:52 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Adrian Hunter" <adrian.hunter@intel.com>,
+ "Christophe Leroy" <christophe.leroy@csgroup.eu>
+Cc: "Peter Zijlstra" <peterz@infradead.org>,
+ "Dave Hansen" <dave.hansen@linux.intel.com>,
+ "John Stultz" <jstultz@google.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Vincenzo Frascino" <vincenzo.frascino@arm.com>,
+ "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+ "Naresh Kamboju" <naresh.kamboju@linaro.org>,
+ "x86@kernel.org" <x86@kernel.org>,
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+ "Ingo Molnar" <mingo@redhat.com>,
+ "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Heiko Carstens" <hca@linux.ibm.com>,
+ "Nicholas Piggin" <npiggin@gmail.com>, "Borislav Petkov" <bp@alien8.de>,
+ "Andy Lutomirski" <luto@kernel.org>,
+ "Bjorn Helgaas" <bhelgaas@google.com>,
+ "Thomas Gleixner" <tglx@linutronix.de>,
+ "Anna-Maria Gleixner" <anna-maria@linutronix.de>,
+ "Stephen Boyd" <sboyd@kernel.org>,
+ "Randy Dunlap" <rdunlap@infradead.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "Sven Schnelle" <svens@linux.ibm.com>,
+ "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
+Subject: Re: [PATCH] bug: Fix no-return-statement warning with !CONFIG_BUG
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-
-
-On 09.04.24 03:44, Wen Gu wrote:
-> 
-> 
-> On 2024/4/4 23:15, Niklas Schnelle wrote:
->> On Thu, 2024-04-04 at 21:12 +0800, Wen Gu wrote:
+On Thu, Apr 11, 2024, at 11:27, Adrian Hunter wrote:
+> On 11/04/24 11:22, Christophe Leroy wrote:
+>> Le 11/04/2024 =C3=A0 10:12, Christophe Leroy a =C3=A9crit=C2=A0:
 >>>
->>> On 2024/4/4 19:42, Niklas Schnelle wrote:
->>>> On Thu, 2024-04-04 at 17:32 +0800, Wen Gu wrote:
->>>>>
->>>>> On 2024/4/4 00:25, Gerd Bayer wrote:
->>>>>> On Sun, 2024-03-24 at 21:55 +0800, Wen Gu wrote:
->>>>>>> This implements some operations that loopback-ism does not support
->>>>>>> currently:
->>>>>>>     - vlan operations, since there is no strong use-case for it.
->>>>>>>     - signal_event operations, since there is no event to be processed
->>>>>>> by the loopback-ism device.
->>>>>>
->>>>>> Hi Wen,
->>>>>>
->>>>>> I wonder if the these operations that are not supported by loopback-ism
->>>>>> should rather be marked "optional" in the struct smcd_ops, and the
->>>>>> calling code should call these only when they are implemented.
->>>>>>
->>>>>> Of course this would mean more changes to net/smc/smc_core.c - but
->>>>>> loopback-ism could omit these "boiler-plate" functions.
->>>>>>
->>>>>
->>>>> Hi Gerd.
->>>>>
->>>>> Thank you for the thoughts! I agree that checks like 'if(smcd->ops->xxx)'
->>>>> can avoid the device driver from implementing unsupported operations. But I
->>>>> am afraid that which operations need to be defined as 'optional' may differ
->>>>> from different device perspectives (e.g. for loopback-ism they are vlan-related
->>>>> opts and signal_event). So I perfer to simply let the smc protocol assume
->>>>> that all operations have been implemented, and let drivers to decide which
->>>>> ones are unsupported in implementation. What do you think?
->>>>>
->>>>> Thanks!
->>>>>
->>>>
->>>> I agree with Gerd, in my opinion it is better to document ops as
->>>> optional and then allow their function pointers to be NULL and check
->>>> for that. Acting like they are supported and then they turn out to be
->>>> nops to me seems to contradict the principle of least surprises. I also
->>>> think we can find a subset of mandatory ops without which SMC-D is
->>>> impossible and then everything else should be optional.
->>>
->>> I see. If we all agree to classify smcd_ops into mandatory and optional ones,
->>> I'll add a patch to mark the optional ops and check if they are implemented.
->>
->> Keep in mind I don't speak for the SMC maintainers but that does sound
->> reasonable to me.
->>
-> 
-> Hi Wenjia and Jan, do you have any comments on this and [1]? Thanks!
-> 
-> [1] https://lore.kernel.org/netdev/60b4aec0b4bf4474d651b653c86c280dafc4518a.camel@linux.ibm.com/
-> 
->>>
->>>>
->>>> As a first guess I think the following options may be mandatory:
->>>>
->>>> * query_remote_gid()
->>>> * register_dmb()/unregister_dmb()
->>>> * move_data()
->>>>     For this one could argue that either move_data() or
->>>>     attach_dmb()/detach_dmb() is required though personally I would
->>>>     prefer to always have move_data() as a fallback and simple API
->>>> * supports_v2()
->>>> * get_local_gid()
->>>> * get_chid()
->>>> * get_dev()
->>> I agree with this classification. Just one point, maybe we can take
->>> supports_v2() as an optional ops, like support_dmb_nocopy()? e.g. if
->>> it is not implemented, we treat it as an ISMv1.
->>>
->>> Thanks!
->>
->> Interpreting a NULL supports_v2() as not supporting v2 sounds
->> reasonable to me.
-> 
+>>> Looking at the report, I think the correct fix should be to use=20
+>>> BUILD_BUG() instead of BUG()
+>>=20
+>> I confirm the error goes away with the following change to next-20240=
+411=20
+>> on powerpc tinyconfig with gcc 13.2
+>>=20
+>> diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
+>> index 4e18db1819f8..3d5ac0cdd721 100644
+>> --- a/kernel/time/timekeeping.c
+>> +++ b/kernel/time/timekeeping.c
+>> @@ -282,7 +282,7 @@ static inline void timekeeping_check_update(struc=
+t=20
+>> timekeeper *tk, u64 offset)
+>>   }
+>>   static inline u64 timekeeping_debug_get_ns(const struct tk_read_bas=
+e *tkr)
+>>   {
+>> -	BUG();
+>> +	BUILD_BUG();
+>>   }
+>>   #endif
+>>=20
+>
+> That is fragile because it depends on defined(__OPTIMIZE__),
+> so it should still be:
 
-Let me add my thoughts to the discussion:
-For the vlan operations and signal_event operations that loopback-ism does
-not support:
-I like the idea to set the ops to NULL and make sure the caller checks that
-and can live with it. That is readable and efficient.
+If there is a function that is defined but that must never be
+called, I think we are doing something wrong. Before
+e8e9d21a5df6 ("timekeeping: Refactor timekeeping helpers"),
+the #ifdef made some sense, but now the #else is not really
+that useful.
 
-I don't think there is a need to discuss a strategy now, which ops could be
-optional in the future. This is all inside the kernel. loopback-ism is even 
-inside the smc module. Such comments in the code get outdated very easily.
+Ideally we would make timekeeping_debug_get_delta() and
+timekeeping_check_update() just return in case of
+!IS_ENABLED(CONFIG_DEBUG_TIMEKEEPING), but unfortunately
+the code uses some struct members that are undefined then.
 
-I would propose to mark those as optional struct smcd_ops, where all callers can 
-handle a NULL pointer and still be productive.
-Future support of other devices for SMC-D can update that.
+The patch below moves the #ifdef check into these functions,
+which is not great, but it avoids defining useless
+functions. Maybe there is a better way here. How about
+just removing the BUG()?
 
+     Arnd
 
-
+diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
+index 4e18db1819f8..16c6dba64dd6 100644
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -195,12 +195,11 @@ static inline u64 tk_clock_read(const struct tk_re=
+ad_base *tkr)
+        return clock->read(clock);
+ }
+=20
+-#ifdef CONFIG_DEBUG_TIMEKEEPING
+ #define WARNING_FREQ (HZ*300) /* 5 minute rate-limiting */
+=20
+ static void timekeeping_check_update(struct timekeeper *tk, u64 offset)
+ {
+-
++#ifdef CONFIG_DEBUG_TIMEKEEPING
+        u64 max_cycles =3D tk->tkr_mono.clock->max_cycles;
+        const char *name =3D tk->tkr_mono.clock->name;
+=20
+@@ -235,12 +234,19 @@ static void timekeeping_check_update(struct timeke=
+eper *tk, u64 offset)
+                }
+                tk->overflow_seen =3D 0;
+        }
++#endif
+ }
+=20
+ static inline u64 timekeeping_cycles_to_ns(const struct tk_read_base *t=
+kr, u64 cycles);
+=20
+-static inline u64 timekeeping_debug_get_ns(const struct tk_read_base *t=
+kr)
++static u64 __timekeeping_get_ns(const struct tk_read_base *tkr)
++{
++       return timekeeping_cycles_to_ns(tkr, tk_clock_read(tkr));
++}
++
++static inline u64 timekeeping_get_ns(const struct tk_read_base *tkr)
+ {
++#ifdef CONFIG_DEBUG_TIMEKEEPING
+        struct timekeeper *tk =3D &tk_core.timekeeper;
+        u64 now, last, mask, max, delta;
+        unsigned int seq;
+@@ -275,16 +281,10 @@ static inline u64 timekeeping_debug_get_ns(const s=
+truct tk_read_base *tkr)
+=20
+        /* timekeeping_cycles_to_ns() handles both under and overflow */
+        return timekeeping_cycles_to_ns(tkr, now);
+-}
+ #else
+-static inline void timekeeping_check_update(struct timekeeper *tk, u64 =
+offset)
+-{
+-}
+-static inline u64 timekeeping_debug_get_ns(const struct tk_read_base *t=
+kr)
+-{
+-       BUG();
+-}
++       return __timekeeping_get_ns(tkr);
+ #endif
++}
+=20
+ /**
+  * tk_setup_internals - Set up internals to use clocksource clock.
+@@ -390,19 +390,6 @@ static inline u64 timekeeping_cycles_to_ns(const st=
+ruct tk_read_base *tkr, u64 c
+        return ((delta * tkr->mult) + tkr->xtime_nsec) >> tkr->shift;
+ }
+=20
+-static __always_inline u64 __timekeeping_get_ns(const struct tk_read_ba=
+se *tkr)
+-{
+-       return timekeeping_cycles_to_ns(tkr, tk_clock_read(tkr));
+-}
+-
+-static inline u64 timekeeping_get_ns(const struct tk_read_base *tkr)
+-{
+-       if (IS_ENABLED(CONFIG_DEBUG_TIMEKEEPING))
+-               return timekeeping_debug_get_ns(tkr);
+-
+-       return __timekeeping_get_ns(tkr);
+-}
+-
+ /**
+  * update_fast_timekeeper - Update the fast and NMI safe monotonic time=
+keeper.
+  * @tkr: Timekeeping readout base from which we take the update
