@@ -1,159 +1,190 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 228AB1448E4;
-	Thu, 11 Apr 2024 09:28:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB62F144D2A;
+	Thu, 11 Apr 2024 09:33:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712827689; cv=none; b=NWcZmzuvRjNHBsoy+mKe7tSHnPUTswIq77PlpCnQibtZ6fot9IY8AqhsnRNtjzz5uEceCBxPmNbe/1IY24WUwb0nC+Qgk7LeRhjDSNOn/vstrTuHIXnlHNOWRgn1Y6CGc9vTI78Xgj8V2xhezgW+DyI5KFUh76ZMb+5VT613T4Y=
+	t=1712828004; cv=none; b=QC3tkd26JoJNBRpx7hnQh+sUkYE8MLhZuSW7ca/tYEzINS8fDxMXqlwekNEd+7344yw/qEdXCElFlpEAZB1my0PdwCxEPLNA8NP/9YsnA4jePydDSHWqlRk1ZRzuKJcFZ4YMRq9+TC8xQ5ibiQXTuOSdoPHI2ZfjkK+FOg6sOsE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712827689; c=relaxed/simple;
-	bh=zITqgZVojLh4dUSaGKV239z9RvbFs2+NfPNhuOaA6RY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kiKzvkUoW2M3UdHshXibZwI4Rp6HBTh4cululUDP5QG+4vUWIJpQDEeMXMoR3V6xzXVHYGfGfCB60VjG+rOi8VMzf7QF9kx8+d1MRRNqwYBMNGiu5d0U8anUxlpHYjUJGr0h7iJC99IKNV2VgV8G/yfLLWhfqHLWYgLrMS2uvqI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=OHHacQgD; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1712828004; c=relaxed/simple;
+	bh=NPUjbygY7dOut/w/ZBzQBO8x18aPGw21EDbfje4x9Wc=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=FwA3pKH9beoMJ0Dmgod80pXJ0J7cSCxsyvp1AIFMWvI82lhHiaOadyRI2NFyNydMW5SmAI1Sf62BqfG3qwRm+nBvKTc2XKiAs8fqxtfXMtmlcApvjcXvciSHPceuqtvLFFLgEmS/nX3u/u9pKySL7CuPPBl5FP2i0RmGRn9kGNk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gyt1CYYw; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="OHHacQgD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1712827687; x=1744363687;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=zITqgZVojLh4dUSaGKV239z9RvbFs2+NfPNhuOaA6RY=;
-  b=OHHacQgDYRiNowmTSbhA9P6GvF9lTuwW6mgJXtjAN9CVGs3v5hpa9Vwl
-   Zc59bfEg+q8kR7mwDw9FFe7D2NYeVZ4GkfW6a7u+q2mfhdFgXRRm0MW4C
-   LukqIi47l/0LlE2x9FMWiyrxQjqSr97ogBGszsoIgRTEw95bVFMzo+0vl
-   2l45m0l/QgvDIg2PrXvNbF+Daqj9cl/gHV8WdKQk9+2p70iDU8yWLoo34
-   J8xzKtFVL8KCAgywbAvbM2z0I5G0ljaNaWuGSArXV+QKMFifZcRBIPk8m
-   IySOuRBZO0O88lwLkw6JkyjvoaS1XxQbjvBWuhZGBI/+9gEfZVnTqNtOW
-   w==;
-X-CSE-ConnectionGUID: N9AKuPqDSkqw1ah5BaW1UA==
-X-CSE-MsgGUID: 9iM7Pl4AR+apieVATzFJ0A==
-X-IronPort-AV: E=McAfee;i="6600,9927,11039"; a="8083353"
-X-IronPort-AV: E=Sophos;i="6.07,193,1708416000"; 
-   d="scan'208";a="8083353"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Apr 2024 02:28:05 -0700
-X-CSE-ConnectionGUID: off1ptQUS5SR8wQ5l3jZ/Q==
-X-CSE-MsgGUID: WwenVoetQbuHdgS5T+1EqA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,193,1708416000"; 
-   d="scan'208";a="25622263"
-Received: from ahunter6-mobl1.ger.corp.intel.com (HELO [10.0.2.15]) ([10.251.215.66])
-  by orviesa005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Apr 2024 02:27:58 -0700
-Message-ID: <4d429a10-eb45-4262-8e74-69af810ef1ac@intel.com>
-Date: Thu, 11 Apr 2024 12:27:53 +0300
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gyt1CYYw"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43B91IU7011364;
+	Thu, 11 Apr 2024 09:33:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=GNfbBQyMK7y6+Ln1Yl3MWg1C2ZKWaofyJvThpeHIeB4=;
+ b=gyt1CYYwYp7U/XDm2LaIZ+8nuGFUcIG2KOgilFgsKCEYvlmQRZBAu2aL9o78kl6KkP7H
+ iyF+NytN3lT8V97mEKxeMqTHobv0Jv+aUDgz/iPWQOIBCuJWqFiB3YB3RKZWk99EZlXO
+ SPz3ZHn575u4sN8QEdlUpFOzPP0ahxcpSpFnyEC77QrQxwmH/femkZF41+5wV/v7ONRm
+ jUKJGSairtA1nwmPnSm74kHPYrJum7Qrgre9hXTUz4kFRrG32HDmyK8tQP/t7msddAGq
+ MR6Ib38LwqkW4p4OtpB2DOS0GKjjjfij/EfOMupbUE+fdY/Hc9an0je0dYzDDIHseLYm Cw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xeap80d1g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Apr 2024 09:33:12 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43B9XBWY030359;
+	Thu, 11 Apr 2024 09:33:11 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xeap80d1c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Apr 2024 09:33:11 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43B7xEFt017031;
+	Thu, 11 Apr 2024 09:33:10 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xbke2sxdu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Apr 2024 09:33:10 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43B9X7t119923690
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 11 Apr 2024 09:33:09 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C630B58066;
+	Thu, 11 Apr 2024 09:33:05 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6BCE958072;
+	Thu, 11 Apr 2024 09:33:02 +0000 (GMT)
+Received: from [9.179.30.10] (unknown [9.179.30.10])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 11 Apr 2024 09:33:02 +0000 (GMT)
+Message-ID: <ddd181fc-307f-4c2f-bc9b-6941a17f16d9@linux.ibm.com>
+Date: Thu, 11 Apr 2024 11:32:58 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH net-next v5 00/11] net/smc: SMC intra-OS shortcut with
+ loopback-ism
+Content-Language: en-GB
+To: Wen Gu <guwen@linux.alibaba.com>, Gerd Bayer <gbayer@linux.ibm.com>,
+        jaka@linux.ibm.com
+Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org
+References: <20240324135522.108564-1-guwen@linux.alibaba.com>
+ <ae3ea4bc-4a9c-416e-a593-2885fea96ae5@linux.alibaba.com>
+ <27deaa5dbb30c467fcdaa0667ef39da86bcee03f.camel@linux.ibm.com>
+ <fc274220-cb6e-43be-aa76-69e37449e535@linux.alibaba.com>
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <fc274220-cb6e-43be-aa76-69e37449e535@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: BSFtNKy1vmi4bC4EQpAeMyxktRppxZCx
+X-Proofpoint-ORIG-GUID: JB91-AKHYEvEA27xqbpBi3V2FdwQY33H
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] bug: Fix no-return-statement warning with !CONFIG_BUG
-To: Christophe Leroy <christophe.leroy@csgroup.eu>,
- Arnd Bergmann <arnd@arndb.de>
-Cc: Naresh Kamboju <naresh.kamboju@linaro.org>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
- "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "x86@kernel.org" <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
- Andy Lutomirski <luto@kernel.org>,
- Vincenzo Frascino <vincenzo.frascino@arm.com>,
- John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap@infradead.org>,
- Bjorn Helgaas <bhelgaas@google.com>,
- Anna-Maria Gleixner <anna-maria@linutronix.de>,
- "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>
-References: <20240410153212.127477-1-adrian.hunter@intel.com>
- <87be83da-6102-483d-b1dc-a77eecc9f780@app.fastmail.com>
- <c9f382b2-cd96-4ee3-ad68-95381d9e09c0@intel.com>
- <a434248a-1e9f-4f4f-8f90-d36d8e979f53@csgroup.eu>
- <ff9d7032-a3b6-4ecd-ac26-d7d4a06a5c7f@csgroup.eu>
-Content-Language: en-US
-From: Adrian Hunter <adrian.hunter@intel.com>
-Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki,
- Business Identity Code: 0357606 - 4, Domiciled in Helsinki
-In-Reply-To: <ff9d7032-a3b6-4ecd-ac26-d7d4a06a5c7f@csgroup.eu>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-11_03,2024-04-09_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ clxscore=1011 malwarescore=0 suspectscore=0 lowpriorityscore=0
+ impostorscore=0 priorityscore=1501 mlxscore=0 adultscore=0 mlxlogscore=999
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404110068
 
-On 11/04/24 11:22, Christophe Leroy wrote:
+
+
+On 11.04.24 09:45, Wen Gu wrote:
 > 
 > 
-> Le 11/04/2024 à 10:12, Christophe Leroy a écrit :
->>
->>
->> Le 11/04/2024 à 09:16, Adrian Hunter a écrit :
->>> On 11/04/24 10:04, Arnd Bergmann wrote:
->>>> On Wed, Apr 10, 2024, at 17:32, Adrian Hunter wrote:
->>>>> BUG() does not return, and arch implementations of BUG() use 
->>>>> unreachable()
->>>>> or other non-returning code. However with !CONFIG_BUG, the default
->>>>> implementation is often used instead, and that does not do that. x86 
->>>>> always
->>>>> uses its own implementation, but powerpc with !CONFIG_BUG gives a build
->>>>> error:
->>>>>
->>>>>    kernel/time/timekeeping.c: In function ‘timekeeping_debug_get_ns’:
->>>>>    kernel/time/timekeeping.c:286:1: error: no return statement in 
->>>>> function
->>>>>    returning non-void [-Werror=return-type]
->>>>>
->>>>> Add unreachable() to default !CONFIG_BUG BUG() implementation.
->>>>
->>>> I'm a bit worried about this patch, since we have had problems
->>>> with unreachable() inside of BUG() in the past, and as far as I
->>>> can remember, the current version was the only one that
->>>> actually did the right thing on all compilers.
->>>>
->>>> One problem with an unreachable() annotation here is that if
->>>> a compiler misanalyses the endless loop, it can decide to
->>>> throw out the entire code path leading up to it and just
->>>> run into undefined behavior instead of printing a BUG()
->>>> message.
->>>>
->>>> Do you know which compiler version show the warning above?
+> On 2024/4/3 19:10, Gerd Bayer wrote:
+>> On Wed, 2024-04-03 at 14:35 +0800, Wen Gu wrote:
 >>>
->>> Original report has a list
 >>>
->>>     https://lore.kernel.org/all/CA+G9fYvjdZCW=7ZGxS6A_3bysjQ56YF7S-+PNLQ_8a4DKh1Bhg@mail.gmail.com/
+>>> On 2024/3/24 21:55, Wen Gu wrote:
+>>>> This patch set acts as the second part of the new version of [1]
+>>>> (The first
+>>>> part can be referred from [2]), the updated things of this version
+>>>> are listed
+>>>> at the end.
 >>>
+>>>> Change log:
+>>>>
+>>>> RFC v5->RFC v4:
+>>>> - Patch #2: minor changes in description of config SMC_LO and
+>>>> comments.
+>>>> - Patch #10: minor changes in comments and
+>>>> if(smc_ism_support_dmb_nocopy())
+>>>>     check in smcd_cdc_msg_send().
+>>>> - Patch #3: change smc_lo_generate_id() to smc_lo_generate_ids()
+>>>> and SMC_LO_CHID
+>>>>     to SMC_LO_RESERVED_CHID.
+>>>> - Patch #5: memcpy while holding the ldev->dmb_ht_lock.
+>>>> - Some expression changes in commit logs.
+>>>>
+>>>
+>>> Hi, Jan. Do you have any comments on this version and should I post a
+>>> new patch series without 'RFC'? Thank you.
 >>
->> Looking at the report, I think the correct fix should be to use 
->> BUILD_BUG() instead of BUG()
+>> Hi Wen,
+>>
+>> Jan has been out sick for a little while now, and Wenjia is expected
+>> back from a longer vacation tomorrow. So if you could hold off until
+>> begin of next week, Wenjia might have some more feedback.
+>>
+>> In the meantime, I'm looking at your patchset...
+>>
+>> Thank you, Gerd
+>>
 > 
-> I confirm the error goes away with the following change to next-20240411 
-> on powerpc tinyconfig with gcc 13.2
+> Hi Gerd, is there any further information? I am wondering if I
+> should wait for more feedback from SMC maintainers. Thanks!
 > 
-> diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-> index 4e18db1819f8..3d5ac0cdd721 100644
-> --- a/kernel/time/timekeeping.c
-> +++ b/kernel/time/timekeeping.c
-> @@ -282,7 +282,7 @@ static inline void timekeeping_check_update(struct 
-> timekeeper *tk, u64 offset)
->   }
->   static inline u64 timekeeping_debug_get_ns(const struct tk_read_base *tkr)
->   {
-> -	BUG();
-> +	BUILD_BUG();
->   }
->   #endif
+> 
+> Hi Wenjia, when it's convenient for you, could you please confirm
+> if [1] and [2] need to be included in the next version? Thanks!
+> 
+> [1] 
+> https://lore.kernel.org/netdev/7291dd1b2d16fd9bbd90988ac5bcc3a46d17e3f4.camel@linux.ibm.com/
+> [2] 
+> https://lore.kernel.org/netdev/60b4aec0b4bf4474d651b653c86c280dafc4518a.camel@linux.ibm.com/
 > 
 
-That is fragile because it depends on defined(__OPTIMIZE__),
-so it should still be:
+Hi Wen,
 
-	BUILD_BUG();
-	return 0;
+I'm just back, thank you for the patience!
 
+Firstly I want to thank Gerd and Niklas for review and bringing up these 
+points!
+
+Here are some of my options on that:
+
+To [1]:
+I agree to document the ops as otional if it must not be supported. 
+Since I don't really have any ideas, the classification souds reasonable 
+to me. Going to the details, what about to take following options as 
+mandatory:
+
+* query_remote_gid()
+* register_dmb()/unregister_dmb()
+* move_data() : I do see the necessary here.
+* get_local_gid()
+* get_chid()
+* get_dev()
+
+To [2]:
+I also agree to keep the ism-loopback at the very beginning of the List. 
+That acting is also what I imaged previously. Thank you, gerd, again for 
+testing it and find it out!
+
+Thanks,
+Wenjia
