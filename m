@@ -1,199 +1,157 @@
-Received: from mailrelay1-1.pub.mailoutpod2-cph3.one.com (mailrelay1-1.pub.mailoutpod2-cph3.one.com [46.30.211.176])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1763F25575
-	for <linux-s390@vger.kernel.org>; Thu, 11 Apr 2024 20:54:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.30.211.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFC352CCD7
+	for <linux-s390@vger.kernel.org>; Thu, 11 Apr 2024 21:10:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712868900; cv=none; b=DkHhHuSsouWK+y0gVLqIMK/td+++Zy0JNprzkn5kKhyd0iItkMpYIVLb40N8g6/CgxzNQMLaq30Iv6VNvnrI+ftBjnu+P1BjT4ytqWCybniAHtQ5vIKCnfxTR2lrZDcvsiBzbwD7W4UWphk1vcGuNLzdrg59IEMWtbXl8ir/+MA=
+	t=1712869802; cv=none; b=SKpJRnHC1NeGt+vu5qE+XOjSkMfrbW1psF0oitbRd1/SvQaAw9An6G7mxQ0GhlOMKc0nKb8lTPCirAl6xS+DPVMz9kxc66wcoUrYif3GGzFEH72b8Y3y4bAvX1SA99R0s4TrXBwQJrod9Laq3Cv0k7+cZT5siMKemQxAi1/xrJ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712868900; c=relaxed/simple;
-	bh=TF5y+t4h39/TPgiK6Hbd3LRpWjocizBPcHQbaJ6xqOE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qJZ4wLrYbLEGnpMNNcPi5+17RuZPqcxncfE4ki6CVgZebgwP69db2w42TXEGqNWiB4Gs0EP62a8xnYFluT8fDbQ52t5WWrMJB97CsbSYiY1QFrWCP4c6GUb5EawcvKzxO1ntUAxy83UoRwI7PLLYvzhp+I6RUqUNh5mSrl960hg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ravnborg.org; spf=none smtp.mailfrom=ravnborg.org; dkim=pass (2048-bit key) header.d=ravnborg.org header.i=@ravnborg.org header.b=kv3VYS1n; dkim=permerror (0-bit key) header.d=ravnborg.org header.i=@ravnborg.org header.b=2lz6/kgt; arc=none smtp.client-ip=46.30.211.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ravnborg.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ravnborg.org
+	s=arc-20240116; t=1712869802; c=relaxed/simple;
+	bh=s9V4lX+WBS4vVYQ0lQwXJ24tIV2KKInZS/L0bpTDWvE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=L5HHXU/GdW8ljYXApzichAsTJy+WvlTXEAJOSDCFLb4DyzYNFRm6951tio6fZMu7ugK2O40qWWJydy4ah9BXu88U6tOuNdVffddVoxCSO74VyM+E2kMWvS4BYXo5PNuMz9+SA2KgmIHfussdaKvbl+KEeZj7np4sC1oJD4yrR3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MlP8o/X7; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ravnborg.org header.i=@ravnborg.org header.b="kv3VYS1n";
-	dkim=permerror (0-bit key) header.d=ravnborg.org header.i=@ravnborg.org header.b="2lz6/kgt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=ravnborg.org; s=rsa1;
-	h=in-reply-to:content-type:mime-version:references:message-id:subject:cc:to:
-	 from:date:from;
-	bh=8iZCIbXv/o+9vFGi/T/APUrhuAqs9LM6RRA1ferZ2wg=;
-	b=kv3VYS1nb+1jhVe9oEyryqOQdogTQlFfldT5zGFYz9zCFOW49UnzyKwrJoDnpG5By8Wz6/89q37/J
-	 74y1ANyGrc4+nAdiZLdwTQ7At1BMHShrpW21ksmQCnho4ndLVURK71dGIBPbwAmFDNXGQ3nhWfJORf
-	 kv6U7sF+UeIM9uVpTWy6T9yWjx+pcsw/GMhx3KJhDEBn/z0Ta31X9WEj03K6p1on5B6YlTztmnenxM
-	 6t/dz3ghpSDNSSOo+Nh+gwCqPRCFFIbfiAkM9VZsrPcOKFRvNMfm1iQmPZN5y4JbJlPGl97XHjBdfO
-	 1z6v1BSheYGCsHilS105+mOpPAp8U2Q==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed;
-	d=ravnborg.org; s=ed1;
-	h=in-reply-to:content-type:mime-version:references:message-id:subject:cc:to:
-	 from:date:from;
-	bh=8iZCIbXv/o+9vFGi/T/APUrhuAqs9LM6RRA1ferZ2wg=;
-	b=2lz6/kgt5Ws9Bwhsrc83nOkDSczAnngGL2Yh8km6qYY8h6ibpExr6aVD63x7Bbyn4q9jSyAbA/9ij
-	 5z3+8uwDQ==
-X-HalOne-ID: 9634f2b2-f845-11ee-b2f6-516168859393
-Received: from ravnborg.org (2-105-2-98-cable.dk.customer.tdc.net [2.105.2.98])
-	by mailrelay1.pub.mailoutpod2-cph3.one.com (Halon) with ESMTPSA
-	id 9634f2b2-f845-11ee-b2f6-516168859393;
-	Thu, 11 Apr 2024 20:53:48 +0000 (UTC)
-Date: Thu, 11 Apr 2024 22:53:46 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Mike Rapoport <rppt@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Donald Dutile <ddutile@redhat.com>,
-	Eric Chanudet <echanude@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nadav Amit <nadav.amit@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Puranjay Mohan <puranjay12@gmail.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
-	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-mm@kvack.org, linux-modules@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v4 06/15] mm/execmem, arch: convert simple overrides of
- module_alloc to execmem
-Message-ID: <20240411205346.GA66667@ravnborg.org>
-References: <20240411160051.2093261-1-rppt@kernel.org>
- <20240411160051.2093261-7-rppt@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MlP8o/X7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1712869799;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=J+80ReQc7M1pEGormuyDQ6yIDR9iLb7a0p87DAjEAX0=;
+	b=MlP8o/X71XiMHipzpKHi4NtGdch7yAj6tbnz877xIWm+GdbPls6IFe0ugPlyUmMY+gOkAz
+	huwP840GWgIETTOtkpVpCKZCa3ynHsw2STzxHjRP4obC29H1FlXqImlt2Rbei1UTd85veM
+	fCyTxfBk2j+Wx5nn7lmxNolas/QuI4E=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-343-CW9_ae-SN76r-kp8K97s8g-1; Thu, 11 Apr 2024 17:09:56 -0400
+X-MC-Unique: CW9_ae-SN76r-kp8K97s8g-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-346c08df987so156245f8f.0
+        for <linux-s390@vger.kernel.org>; Thu, 11 Apr 2024 14:09:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712869795; x=1713474595;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=J+80ReQc7M1pEGormuyDQ6yIDR9iLb7a0p87DAjEAX0=;
+        b=VpB/XckbrUjBlW/EPuRyqNzHbyCH22qVGWfMN0/IWGMAWZHRgkoqs6ec+MqweKw4x0
+         lvfXGWjxz2UHPQ1c5K/TOsiDxEdQYWdPPZ0bQOc0uk0TC46kGEFZ31X3TOzAgGROKM84
+         1ByH/a27c5KoTB9cf2eKvBX0+EeVpQuIphX6RLMKb3vvzy1c2TozE5Q1HlLTaxLV+cYi
+         p00kTAlpkRiWruiHB8+pKJcoCI4hVPZeu8dHm3KlYSI6qibKZWfNTPpFVl62fJe8Wuq6
+         krxpgH9uveZGtM+/i8458qxKmiGvDrXIfltI8gEUWCxp0IMHOw8mAlks+WeXd4NNheC2
+         D44A==
+X-Forwarded-Encrypted: i=1; AJvYcCX2KReCa0gbwlMXbdoPYn0OcS/GzGxSrbUXdoMIV99uddrjHL8OSD2cVd4j7Inn3kQYT3SIGCTZU6g/yxhXvPM4tS2+W3EfesPgQA==
+X-Gm-Message-State: AOJu0YxCTaK0XPyaVsqqIDzlFUpyKtF1NJQEnxKY5+UtNxA/jYwB5nXc
+	bzwt0SjimkwJf5HVCeUmblO3CSuGgHp7aizjnAWP2EneERKlVyBLPTlw0kCbTtReebecMUriP4Q
+	Ww4UnDDgr8UsJmtNF21aa+EwSTdBiho0G2qB6ZLyxNs8hiFn67wqB+naYWTA=
+X-Received: by 2002:a05:6000:1007:b0:346:ad3d:a4c with SMTP id a7-20020a056000100700b00346ad3d0a4cmr3351154wrx.22.1712869795193;
+        Thu, 11 Apr 2024 14:09:55 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEXaHzAk1v7mxSrnFa6TalSxkE3ETu1v14h80T6klU99WWdsmcBAT9bnK6eMkSSelyYxx04zg==
+X-Received: by 2002:a05:6000:1007:b0:346:ad3d:a4c with SMTP id a7-20020a056000100700b00346ad3d0a4cmr3351140wrx.22.1712869794848;
+        Thu, 11 Apr 2024 14:09:54 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c724:4300:430f:1c83:1abc:1d66? (p200300cbc7244300430f1c831abc1d66.dip0.t-ipconnect.de. [2003:cb:c724:4300:430f:1c83:1abc:1d66])
+        by smtp.gmail.com with ESMTPSA id x11-20020adfcc0b000000b0034658db39d7sm2634546wrh.8.2024.04.11.14.09.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 11 Apr 2024 14:09:54 -0700 (PDT)
+Message-ID: <bd4d940e-5710-446f-9dc5-928e67920ec6@redhat.com>
+Date: Thu, 11 Apr 2024 23:09:53 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240411160051.2093261-7-rppt@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/2] s390/mm: re-enable the shared zeropage for !PV and
+ !skeys KVM guests
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Andrew Morton <akpm@linux-foundation.org>, Peter Xu <peterx@redhat.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org,
+ linux-s390@vger.kernel.org
+References: <20240411161441.910170-1-david@redhat.com>
+ <20240411161441.910170-3-david@redhat.com>
+ <ZhgRxB9qxz90tAwy@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <ZhgRxB9qxz90tAwy@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Mike.
-
-On Thu, Apr 11, 2024 at 07:00:42PM +0300, Mike Rapoport wrote:
-> From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+On 11.04.24 18:37, Alexander Gordeev wrote:
+> On Thu, Apr 11, 2024 at 06:14:41PM +0200, David Hildenbrand wrote:
 > 
-> Several architectures override module_alloc() only to define address
-> range for code allocations different than VMALLOC address space.
+> David, Christian,
 > 
-> Provide a generic implementation in execmem that uses the parameters for
-> address space ranges, required alignment and page protections provided
-> by architectures.
+>> Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 > 
-> The architectures must fill execmem_info structure and implement
-> execmem_arch_setup() that returns a pointer to that structure. This way the
-> execmem initialization won't be called from every architecture, but rather
-> from a central place, namely a core_initcall() in execmem.
-> 
-> The execmem provides execmem_alloc() API that wraps __vmalloc_node_range()
-> with the parameters defined by the architectures.  If an architecture does
-> not implement execmem_arch_setup(), execmem_alloc() will fall back to
-> module_alloc().
-> 
-> Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
-> ---
+> Please, correct me if I am wrong, but (to my understanding) the
+> Tested-by for v2 does not apply for this version of the patch?
 
-This code snippet could be more readable ...
-> diff --git a/arch/sparc/kernel/module.c b/arch/sparc/kernel/module.c
-> index 66c45a2764bc..b70047f944cc 100644
-> --- a/arch/sparc/kernel/module.c
-> +++ b/arch/sparc/kernel/module.c
-> @@ -14,6 +14,7 @@
->  #include <linux/string.h>
->  #include <linux/ctype.h>
->  #include <linux/mm.h>
-> +#include <linux/execmem.h>
->  
->  #include <asm/processor.h>
->  #include <asm/spitfire.h>
-> @@ -21,34 +22,26 @@
->  
->  #include "entry.h"
->  
-> +static struct execmem_info execmem_info __ro_after_init = {
-> +	.ranges = {
-> +		[EXECMEM_DEFAULT] = {
->  #ifdef CONFIG_SPARC64
-> -
-> -#include <linux/jump_label.h>
-> -
-> -static void *module_map(unsigned long size)
-> -{
-> -	if (PAGE_ALIGN(size) > MODULES_LEN)
-> -		return NULL;
-> -	return __vmalloc_node_range(size, 1, MODULES_VADDR, MODULES_END,
-> -				GFP_KERNEL, PAGE_KERNEL, 0, NUMA_NO_NODE,
-> -				__builtin_return_address(0));
-> -}
-> +			.start = MODULES_VADDR,
-> +			.end = MODULES_END,
->  #else
-> -static void *module_map(unsigned long size)
-> +			.start = VMALLOC_START,
-> +			.end = VMALLOC_END,
-> +#endif
-> +			.alignment = 1,
-> +		},
-> +	},
-> +};
-> +
-> +struct execmem_info __init *execmem_arch_setup(void)
->  {
-> -	return vmalloc(size);
-> -}
-> -#endif /* CONFIG_SPARC64 */
-> -
-> -void *module_alloc(unsigned long size)
-> -{
-> -	void *ret;
-> -
-> -	ret = module_map(size);
-> -	if (ret)
-> -		memset(ret, 0, size);
-> +	execmem_info.ranges[EXECMEM_DEFAULT].pgprot = PAGE_KERNEL;
->  
-> -	return ret;
-> +	return &execmem_info;
->  }
->  
->  /* Make generic code ignore STT_REGISTER dummy undefined symbols.  */
+I thought I'd removed it -- you're absolutely, this should be dropped. 
+Hopefully Christian has time to retest.
 
-... if the following was added:
+Thanks!
 
-diff --git a/arch/sparc/include/asm/pgtable_32.h b/arch/sparc/include/asm/pgtable_32.h
-index 9e85d57ac3f2..62bcafe38b1f 100644
---- a/arch/sparc/include/asm/pgtable_32.h
-+++ b/arch/sparc/include/asm/pgtable_32.h
-@@ -432,6 +432,8 @@ static inline int io_remap_pfn_range(struct vm_area_struct *vma,
+-- 
+Cheers,
 
- #define VMALLOC_START           _AC(0xfe600000,UL)
- #define VMALLOC_END             _AC(0xffc00000,UL)
-+#define MODULES_VADDR           VMALLOC_START
-+#define MODULES_END             VMALLOC_END
+David / dhildenb
 
-
-Then the #ifdef CONFIG_SPARC64 could be dropped and the code would be
-the same for 32 and 64 bits.
-
-Just a drive-by comment.
-
-	Sam
