@@ -1,66 +1,66 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DBAE148855
-	for <linux-s390@vger.kernel.org>; Thu, 11 Apr 2024 12:48:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 258AE47773
+	for <linux-s390@vger.kernel.org>; Thu, 11 Apr 2024 12:55:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712839707; cv=none; b=RAXHGkIaLa0OzsAF3unYKXAIiYWwuWtH/IgX+YU9f5qsaBUj1qdIGk2OMyf1cfc48AXZt05R/FwWe5+a5eaPmiCbB8ShlIQsXpyWl15+sILE5UheL1UunRIDCRz+4fsjLYIoCxhjMyHhZ2u24Ev05uXbIZWrlRaqxEwF7dFdj+E=
+	t=1712840120; cv=none; b=gQ6ebW40by1T5rBmO1e8ASxqn8CLzGSQeXOxiCFn73Sxe65sX7g3woWNPyVBpvMaUSPMiN6Cje8AC0NPKQ7aJ8OPo5oBBgqOa19G8REfFptI3pYPYBN2U023oO/c+J/0pbsvvrDGftjN4gbRB47+sFUxdwIA1cksQyEzjtNfqAU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712839707; c=relaxed/simple;
-	bh=WdDOMX9tnc1tmWwRoL7QOvCRxUbQx0s/YjWcKqoMOXI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TWWcOVx04lFhh6OrMlX4zi22wqSaxy2mSmZIRF+7zo4YokZzNuIIzK7HJyMJJ2ih0mvRL9gWTuP9+1lTzZmu6SHPbzTzzcRXLxaZRMA30m9Eem1s3G77WvtoL2+kdG4l/k+LKcUVLWaEzxiMUxF3NunJkjm1LyyXQ8SMXxZTmwk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PbU0hoag; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1712840120; c=relaxed/simple;
+	bh=0qo6OhoSErPaFuLwx7TL3Ivrq7vIGHd69HrhbTInzjE=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=MrG31okLVWKwNswIR8aCPUEiQZwHPRa253GtdUYJI1du+q9le0d0lelfNEHfaY3jdBnQeVbyHQAAey68MXSvQ7ZkrvAPUB/uRYK+4/mFom9RwJEA2ZXOw0tdUn37wsQkJCotMqe27xXuC3GN9uQ2lE7QKFz2ZV250p0SPtveelQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hAkVHYUO; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PbU0hoag"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hAkVHYUO"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712839704;
+	s=mimecast20190719; t=1712840118;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=YGv0oxILWFs0mMfSSjVAs+Z0hudt/O6Xh0nJxcnvIcY=;
-	b=PbU0hoagDybfxRGKROP0nnsZxGi8NpPeQpFfnjNqK+vTUvw5k40WlcOawBHyGOjBLLApDd
-	cH302QLGEHyLi0bMHAs3nS5J7apVHS6ekrKq2e1lfm79ljEGjmG+JMfE+RPXVfVP/2A8td
-	r4c73KHFMPDC9jrKU+TQrlOmBslZFgo=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=uxxTM9LQHbxdCULEs1M1u2JdrM0DQBJCHzt/sGa542U=;
+	b=hAkVHYUOT30KBnojAvsHQ84A9t/n8ipGvlXIe+7jL9JRl7kQlb/O9hL3xz8kvPsxIZ4IsT
+	dWpUhLHZf5qnOZXI4puNDn/gP2a5cjsB0zFpocz/WYsP7i4zdjWKKBDY+0q+cf8F3wXD9b
+	/KQDLniSyfLHVW3iz00x/8E5Drw7inQ=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-592-7AiBnIH0Ocir7-uCO6x5eQ-1; Thu, 11 Apr 2024 08:48:23 -0400
-X-MC-Unique: 7AiBnIH0Ocir7-uCO6x5eQ-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-346b8ef7e10so393751f8f.3
-        for <linux-s390@vger.kernel.org>; Thu, 11 Apr 2024 05:48:22 -0700 (PDT)
+ us-mta-534-pTIVZ63dMmuggoB3SK6xPw-1; Thu, 11 Apr 2024 08:55:16 -0400
+X-MC-Unique: pTIVZ63dMmuggoB3SK6xPw-1
+Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2d8a7bb09afso28620871fa.0
+        for <linux-s390@vger.kernel.org>; Thu, 11 Apr 2024 05:55:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712839702; x=1713444502;
+        d=1e100.net; s=20230601; t=1712840114; x=1713444914;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
+         :content-language:references:cc:to:from:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=YGv0oxILWFs0mMfSSjVAs+Z0hudt/O6Xh0nJxcnvIcY=;
-        b=JowtgQorvfcHGXeSZ9x74Ihh+MoSBUY9sgw7DEiTjK7cOnYNn/VEyZzScJSRNlqKat
-         i5BppYfDDYcIw8DV3Xg/Dr1hHKY32u6f3v+sg/T1WyptvPGPU8qWNtPP4YPEcwVtxgzS
-         73N4UfqoJFTAgCFT+x4wWePVetye7TvMcf+zPa4e/Brreh5m/SV9POfV6ljmSkmUJK5B
-         qwpQkU8wCGqRkA5S52GwwAuSfZN9KueHmf4AAH/kvgurhjMlu2o3ke0j0HIAfqEoJkF5
-         0XjSFosavpeA5ptOt2MctxxX22j7Vwz/A29TUUfcUerG/YLaZR0TWbQcIfl/n0Ay5nmA
-         CSGw==
-X-Forwarded-Encrypted: i=1; AJvYcCXVbPh7p2Qvi8+FcOuJjzMMxdptLVn1Nj5mUSPfkVADqxSZQFx9NwFa5XpoxC20KbHeDIYnFOazh+671QBuQdRwPakpcZDxe1OgIA==
-X-Gm-Message-State: AOJu0Yw+q3zEnzx511LYSomBeyWUOY4iFPOrmiDBnlqLpjzdIbkEX5bi
-	d9H7rBPE9gTVcWJ1bROMUUuZ3bep69S1yD8NRskJMecHDZh1sT23UoBW8cw28cMtlCzusOac9O5
-	pzOxLxna6hzdRXH76IxlL6kVLybw1oduyGrwh7QHWrpd9lTHq5ZiwqEJUEWA=
-X-Received: by 2002:adf:e259:0:b0:33e:cc16:387 with SMTP id bl25-20020adfe259000000b0033ecc160387mr3810155wrb.54.1712839701836;
-        Thu, 11 Apr 2024 05:48:21 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFHI7e7R7IE4IicBalLusII+MbmDxKJG2iEJMqCJIjaUxwJC11oCyxgblPO8jFK/XF2/CifNA==
-X-Received: by 2002:adf:e259:0:b0:33e:cc16:387 with SMTP id bl25-20020adfe259000000b0033ecc160387mr3810136wrb.54.1712839701399;
-        Thu, 11 Apr 2024 05:48:21 -0700 (PDT)
+        bh=uxxTM9LQHbxdCULEs1M1u2JdrM0DQBJCHzt/sGa542U=;
+        b=nsB2YPBgUpWRPjrKccm7t8mMK8Hykheecz5OXGdBKPdGglbTsfwBcdBwVZ8rUhF+10
+         5BVnLfZzuz5uvuk9a5Mu2QMUUVhtQSjMkUd93OXgwYsfM8C8T2N8hCU399c5C2OTYG4G
+         M6sOgYToTWvjgIWdPcHWr0hIuK9h+7HyDzywpePrC1N2SazLsLyM4cYalpTYudAxlmJN
+         Jq8FVMXZK27sPUH0S9v9g/r54ZZ1WAjHRBw7Gbl5nsK8tp9SiQzMYC5yos820Iz0tJTZ
+         fGIU85snmGTwowAxHKhz5TWHJW16ctecBg2c+SzSiI883F+ccdKmy9jNwmpYC10sy1fv
+         Vulw==
+X-Forwarded-Encrypted: i=1; AJvYcCU6J6TCpKe70znWXIWi8Z8TlXSZWy6oFAdR8BOgfVpCRduM7pgVIHgD8kGjJyPPfhEYfxO7VYXPwktcCTa0dxhPaMDD9pOCOl7Zdg==
+X-Gm-Message-State: AOJu0YyJqolPx7mlr9HUMVnGKjKgR2F8YCq2cL62lsd4651EOp3V1Ccq
+	l++RPtIe71sS04a/w4Oubo753w5u68dTh9JN5OXfA1Ni2WjvrJJTEcuNNakkFRbOZkKuKJKMbci
+	j1gYTmNfwjlPNOuV8QWWlvtOICObDf5uogfX4XsZPXNOU+4mDLex8org9/kM=
+X-Received: by 2002:ac2:5451:0:b0:517:8b17:1f1a with SMTP id d17-20020ac25451000000b005178b171f1amr1357768lfn.68.1712840114397;
+        Thu, 11 Apr 2024 05:55:14 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFW7rThKEgUHr9qfAmY0TCRkzXRb83o/dAyDyLZJckFU+Wgg9LufwCuNE0aO0wij1RiIu6GEw==
+X-Received: by 2002:ac2:5451:0:b0:517:8b17:1f1a with SMTP id d17-20020ac25451000000b005178b171f1amr1357754lfn.68.1712840113952;
+        Thu, 11 Apr 2024 05:55:13 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c724:4300:430f:1c83:1abc:1d66? (p200300cbc7244300430f1c831abc1d66.dip0.t-ipconnect.de. [2003:cb:c724:4300:430f:1c83:1abc:1d66])
-        by smtp.gmail.com with ESMTPSA id gb32-20020a05600045a000b003462b54bc8asm1691536wrb.109.2024.04.11.05.48.20
+        by smtp.gmail.com with ESMTPSA id fc6-20020a05600c524600b00417ced7f6e4sm2218295wmb.45.2024.04.11.05.55.12
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 11 Apr 2024 05:48:20 -0700 (PDT)
-Message-ID: <329758ca-c795-43a3-9788-d83c09247dce@redhat.com>
-Date: Thu, 11 Apr 2024 14:48:19 +0200
+        Thu, 11 Apr 2024 05:55:13 -0700 (PDT)
+Message-ID: <15bb1139-97aa-484c-9087-dccf6612ed39@redhat.com>
+Date: Thu, 11 Apr 2024 14:55:12 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,8 +68,9 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] s390/mm: re-enable the shared zeropage for !PV and
- !skeys KVM guests
+Subject: Re: [PATCH v2 1/2] mm/userfaultfd: don't place zeropages when
+ zeropages are disallowed
+From: David Hildenbrand <david@redhat.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Christian Borntraeger <borntraeger@linux.ibm.com>,
@@ -82,9 +83,9 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org,
  linux-s390@vger.kernel.org
 References: <20240327171737.919590-1-david@redhat.com>
- <20240327171737.919590-3-david@redhat.com>
- <ZhfYrVERxUijQbAL@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-From: David Hildenbrand <david@redhat.com>
+ <20240327171737.919590-2-david@redhat.com>
+ <ZhfW7qzAGPQo3mJN@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <b9d9af94-5935-4034-bf3f-9ba283df3ede@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -131,37 +132,33 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <ZhfYrVERxUijQbAL@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+In-Reply-To: <b9d9af94-5935-4034-bf3f-9ba283df3ede@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 11.04.24 14:33, Alexander Gordeev wrote:
-> On Wed, Mar 27, 2024 at 06:17:37PM +0100, David Hildenbrand wrote:
->> index 60950e7a25f5..1a71cb19c089 100644
->> --- a/arch/s390/include/asm/pgtable.h
->> +++ b/arch/s390/include/asm/pgtable.h
->> @@ -566,10 +566,19 @@ static inline pud_t set_pud_bit(pud_t pud, pgprot_t prot)
->>   }
->>   
->>   /*
->> - * In the case that a guest uses storage keys
->> - * faults should no longer be backed by zero pages
->> + * As soon as the guest uses storage keys or enables PV, we deduplicate all
->> + * mapped shared zeropages and prevent new shared zeropages from getting
->> + * mapped.
->>    */
->> -#define mm_forbids_zeropage mm_has_pgste
+On 11.04.24 14:30, David Hildenbrand wrote:
+> On 11.04.24 14:26, Alexander Gordeev wrote:
+>> On Wed, Mar 27, 2024 at 06:17:36PM +0100, David Hildenbrand wrote:
+>>
+>> Hi David,
+>> ...
+>>>    static int mfill_atomic_pte_zeropage(pmd_t *dst_pmd,
+>>>    				     struct vm_area_struct *dst_vma,
+>>>    				     unsigned long dst_addr)
+>>> @@ -324,6 +355,9 @@ static int mfill_atomic_pte_zeropage(pmd_t *dst_pmd,
+>>>    	spinlock_t *ptl;
+>>>    	int ret;
+>>>    
+>>> +	if (mm_forbids_zeropage(dst_vma->mm))
+>>
+>> I assume, you were going to pass dst_vma->vm_mm here?
+>> This patch does not compile otherwise.
 > 
-> Should it be the below insted?
-> 
-> #define mm_forbids_zeropage mm_forbids_zeropage
-> 
-> Once I add it, it fails to compile, due to the issue in patch #1.
+> Ah, I compiled it only on x86, where the parameter is ignored ... and
+> for testing the code path I forced mm_forbids_zeropage to be 1 on x86.
 
-I guess yes. So we tested the unsharing part (why I was seeing unsharing 
-triggering), but would have allowed zeropages afterwards. Sight.
-
-Let me retest and resend. Thanks!
+Now I get it, I compiled it all on s390x, but not the individual 
+patches, so patch #2 hid the issue in patch #1. Sneaky. :)
 
 -- 
 Cheers,
