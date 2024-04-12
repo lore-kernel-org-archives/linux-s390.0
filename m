@@ -1,108 +1,139 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77B2C481AA;
-	Fri, 12 Apr 2024 06:41:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BC2138DD8;
+	Fri, 12 Apr 2024 09:16:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712904086; cv=none; b=FcEPPII0PjuyIcdaDdrNQgRGh0jHTZJ64CCC+El55BAD71bsFllRqYtMsxuiTRwmIH+6zZnvlB5y5AUl5wH3s1mCNb9YHQCKfE/+3nmyyCL49/KnMMSsVyiBZc7CZmYQuwVd73jZ75sEp6m8ftE0iY0OVcTg9b17N1jRVNm4YZ0=
+	t=1712913377; cv=none; b=NGjY0MkPICJqk/pof9+n6eROPtux8P3oo4vkhsrc9cKqDZjV5cpyT7u2inrB5kjMgXf0wHTSxfwdiP3Bs+AVUEgIyNHlE+Tuh2l7KMywTkCzlbonoV2iUChrYhMbwKiGICrBDWEh+lwai70zycKHLIFMMtlUaSjjp37WyI7sNJQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712904086; c=relaxed/simple;
-	bh=nnftp3y20mnefQs/zA7rIGucHoCz77k4ThTY/2DnxXQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=WqZ4u2bp1etrmGwN4LvsEPc5P8AJHqF7YOdeX3PUsI0f7yW5353sMQfumFije+dnpo+1RbsV2oEBzu3BzyCh7zMWMGVGqHnsEXXP8w5YLHiRn6isxA0DilztxWv482/N9jaaplh0LdXlp6iYChmbPWluqpwmjkDKYt0JX8kP8AQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=iSIG88PM; arc=none smtp.client-ip=192.198.163.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1712913377; c=relaxed/simple;
+	bh=T/TL4P6RqoXnShkICgxGFcoEXV/L8guRkl+BR8oz3qQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ra6zP4ElDYTP0tsWtoX7uKraN2Fj4uGF707LCAB37cozdE29w55xB3xd0Zkby9UPN7Oxk8aI4me7VVNWYtCLWHY81VT6R6wmFuzna4JQkiyjs7UrcwtBGxUU1/s8fTQJDl39XoH8UbiIuUmOBH5IQfE0Rp1J+ShVeD6GTna4HPQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OOfxs4gw; arc=none smtp.client-ip=209.85.208.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="iSIG88PM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1712904084; x=1744440084;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version;
-  bh=nnftp3y20mnefQs/zA7rIGucHoCz77k4ThTY/2DnxXQ=;
-  b=iSIG88PM9b2YgdRQ4szSPTsiEdHfMD5rvawOOi/wLLg8jMk/6RvNaAhh
-   oT8MCDqfxNcRKZIaxcmdnyc5dZFarta68w/0F5iqI/qjN12Q0xqiv/d3W
-   MzpkPrK3w3Kcc1AHe6HVTykvzAnyMk67pILZRjDVT2hnvtRmoe/Cw2Fd+
-   /uyq9R6DLLbY1+VPi8oWLD8fXYhTK1fOKpK5axS7YL1HSBv2I+Lw0Wccf
-   fe1j1FKLmWJwforIh40KJUeHO8Jk2MX9Ubj2Z2DTWjc8yz7+KWokasxYk
-   5t7Q9ylV9NvBLIftWfB78uD0Vkjhd9A4DcbrwRJ02bVl04XgItkgpfDlz
-   A==;
-X-CSE-ConnectionGUID: Y0HDLEZfStSZpp9NVKZxxw==
-X-CSE-MsgGUID: /QL/ha6+TkaFPIYYcUqo0A==
-X-IronPort-AV: E=McAfee;i="6600,9927,11041"; a="19059686"
-X-IronPort-AV: E=Sophos;i="6.07,195,1708416000"; 
-   d="scan'208";a="19059686"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Apr 2024 23:41:22 -0700
-X-CSE-ConnectionGUID: gXMdnuYmRRqCKEW6OOQMYA==
-X-CSE-MsgGUID: D1rZkMzDT4yyHA2nqy/ldg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,195,1708416000"; 
-   d="scan'208";a="21056020"
-Received: from gjantea-mobl.ger.corp.intel.com (HELO localhost) ([10.252.60.121])
-  by orviesa010-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Apr 2024 23:41:15 -0700
-From: Jani Nikula <jani.nikula@linux.intel.com>
-To: Thorsten Blum <thorsten.blum@toblux.com>, Dan Carpenter
- <dan.carpenter@linaro.org>
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
- speakup@linux-speakup.org, intel-gfx@lists.freedesktop.org,
- intel-xe@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
- linux-wireless@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-afs@lists.infradead.org, ecryptfs@vger.kernel.org,
- netfs@lists.linux.dev, linux-fsdevel@vger.kernel.org,
- linux-unionfs@vger.kernel.org, linux-arch@vger.kernel.org,
- io-uring@vger.kernel.org, cocci@inria.fr, linux-perf-users@vger.kernel.org
-Subject: Re: [PATCH] treewide: Fix common grammar mistake "the the"
-In-Reply-To: <193B959E-60A3-499A-BFF3-EA7B2D0B6C12@toblux.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20240411150437.496153-4-thorsten.blum@toblux.com>
- <0bd7ccc2-4d8c-455b-a6c2-972ebe1fcb08@moroto.mountain>
- <193B959E-60A3-499A-BFF3-EA7B2D0B6C12@toblux.com>
-Date: Fri, 12 Apr 2024 09:41:10 +0300
-Message-ID: <87y19j3wxl.fsf@intel.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OOfxs4gw"
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-56c404da0ebso974821a12.0;
+        Fri, 12 Apr 2024 02:16:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1712913374; x=1713518174; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1P5rS5dDZ6bz9RnNGWXjXGeZ5LSFZB2izV8TdsSyfhY=;
+        b=OOfxs4gwGdSJYF5Rg1YrEPMa7aeAv3TXdkArvWg7NxpuxZ+eQflhdOQQREts0AWpFH
+         OiCjfBQWQM0eYpv+b8QlzIkfhqgKkAdXKkJ8xIU8keCiO9qD/6L8dCADBbUJEVR7SxOq
+         DXe+RoOC2Be5trhfR+hNGmrVl3wkxSAYTZPs2i9bGawVCW7V86nVB/xqHRp8Fa9TCSWU
+         CandjXr5Bdh9jksVy37KzaU4YV58iY+HxPJIOPrgmqGt02QA+sL8Re56nvhddQ6DY2eF
+         UcnPl1y3nY7H8667oqVxZ4Ffu5M9GMM6NyAnNb1sjVlipM0fP8lSJYGo3BRU4KwtP3eZ
+         jpiA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712913374; x=1713518174;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1P5rS5dDZ6bz9RnNGWXjXGeZ5LSFZB2izV8TdsSyfhY=;
+        b=Z7lqARcsm6CccpGbcjPISLnBHKJzfNk8pN08gMcCL2OD3v0oZ0/SMs2OiwRTOpBS66
+         UuLBr6pEQMRqfAx7osL/08VFpRekxub+LdF+7tLpgPE1dfMaxzkHqwcIMJG1mXJQMZ7t
+         9PZrwjuT2iCh6fEGmlxk3oK9HBfOz8FE/06p5wNK5Rbm9G+6HnSCTom7oNRXXoO0B4kW
+         TVdoS71chMLO1cCRDoJf2cSakvoeMGukwQlZhISe4S/n8EPmoIU26FIBaAwmqCjrzANI
+         UdmP9LJqNt651L/m/urQUZkIlfQN7nSD2+vN+G+K1eZPM5wp26fTLkGHNmB+OuCZYlh3
+         yN5Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUPEX8P9Ow3xwnnn9l7E+J+ej1dDoB77dawHjEnNWSfOQaUpOd+hs4GzMVrq/1LnBkieU4uQ31wxq32CJDrxvg/NqZoY2COxkKJRSHIBcGxqutnoDFKDvsf+dw1f9PH8EyZbtjVbi52w7E8XZUUdZtC0xeQPm8U8qufFe7KeJU7eO+wSKqwXwRm4wM3VAjXQssJ6AkJcCoJO6qiq/5+QTDyWlS5CK0s6wL1s6NSakFqVgpyqhXT6Sm4rKSOLaKufjhtwXYCHqDlQYissNSY7xIv94C/p4Gm5aTYKBAZdNXF62AOWRe4iIDpA1IOYPqEpABUKjqzrwlTr1vJaJh34/BRBGBguHXOjst4+BeRiitNh9CakGpdgRUTdQGtW1u5lXxMKI6YpVUv/kIFuhg=
+X-Gm-Message-State: AOJu0YwKcgA7Q+Mgdg5hZnfBVwvIn/EJqMurxXosdswDTSCgg6jk3TYh
+	LcchT5B9Af7nZ+vSdVKRii+R89lIJIkMEZvMIvNwt/g3+6m/jGIU
+X-Google-Smtp-Source: AGHT+IF2JLt070H6U+NVwXUCGShMgUTVG3TFLf6L4pd2nPVSBBMwXn0qR7EXkAPf+SwG43RHlRZl8g==
+X-Received: by 2002:a50:f68d:0:b0:56e:4039:add5 with SMTP id d13-20020a50f68d000000b0056e4039add5mr1892328edn.22.1712913374186;
+        Fri, 12 Apr 2024 02:16:14 -0700 (PDT)
+Received: from gmail.com (1F2EF1A5.nat.pool.telekom.hu. [31.46.241.165])
+        by smtp.gmail.com with ESMTPSA id el9-20020a056402360900b0056fe755f1e6sm1454709edb.91.2024.04.12.02.16.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Apr 2024 02:16:13 -0700 (PDT)
+Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
+Date: Fri, 12 Apr 2024 11:16:10 +0200
+From: Ingo Molnar <mingo@kernel.org>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Alexandre Ghiti <alexghiti@rivosinc.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Donald Dutile <ddutile@redhat.com>,
+	Eric Chanudet <echanude@redhat.com>,
+	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nadav Amit <nadav.amit@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Puranjay Mohan <puranjay12@gmail.com>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+	linux-mm@kvack.org, linux-modules@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v4 05/15] mm: introduce execmem_alloc() and execmem_free()
+Message-ID: <Zhj72l6uN9OFilxA@gmail.com>
+References: <20240411160051.2093261-1-rppt@kernel.org>
+ <20240411160051.2093261-6-rppt@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-
-On Fri, 12 Apr 2024, Thorsten Blum <thorsten.blum@toblux.com> wrote:
-> On 11. Apr 2024, at 17:25, Dan Carpenter <dan.carpenter@linaro.org> wrote:
->> 
->> It's tricky to know which tree a patch like this would go through.
->
-> The patch is based on the mainline tree. Should I have sent it directly to
-> Linus then?
->
-> I'm relatively new here and therefore only sent it to the corresponding mailing
-> lists.
-
-It's not just about mailing lists, it's also about changes flowing in to
-mainline via a plethora of subsystem and driver repos and branches. See
-MAINTAINERS. Or this old LWN page [1]. The development happens in those
-branches, and if you make treewide changes like this, it's not clear who
-should take it, and you also risk unnecessary conflicts if those places
-get modified in the individual branches. So it might just be easiest to
-split this up to smaller patches sent to the appropriate lists.
-
-Anyway, all that said,
-
-Acked-by: Jani Nikula <jani.nikula@intel.com>
-
-on the i915 changes here.
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240411160051.2093261-6-rppt@kernel.org>
 
 
-BR,
-Jani.
+* Mike Rapoport <rppt@kernel.org> wrote:
 
+> +/**
+> + * enum execmem_type - types of executable memory ranges
+> + *
+> + * There are several subsystems that allocate executable memory.
+> + * Architectures define different restrictions on placement,
+> + * permissions, alignment and other parameters for memory that can be used
+> + * by these subsystems.
+> + * Types in this enum identify subsystems that allocate executable memory
+> + * and let architectures define parameters for ranges suitable for
+> + * allocations by each subsystem.
+> + *
+> + * @EXECMEM_DEFAULT: default parameters that would be used for types that
+> + * are not explcitly defined.
+> + * @EXECMEM_MODULE_TEXT: parameters for module text sections
+> + * @EXECMEM_KPROBES: parameters for kprobes
+> + * @EXECMEM_FTRACE: parameters for ftrace
+> + * @EXECMEM_BPF: parameters for BPF
+> + * @EXECMEM_TYPE_MAX:
+> + */
+> +enum execmem_type {
+> +	EXECMEM_DEFAULT,
+> +	EXECMEM_MODULE_TEXT = EXECMEM_DEFAULT,
+> +	EXECMEM_KPROBES,
+> +	EXECMEM_FTRACE,
+> +	EXECMEM_BPF,
+> +	EXECMEM_TYPE_MAX,
+> +};
 
-[1] https://lwn.net/Articles/737094/
+s/explcitly
+ /explicitly
 
--- 
-Jani Nikula, Intel
+Thanks,
+
+	Ingo
