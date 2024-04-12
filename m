@@ -1,109 +1,169 @@
-Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7579046558
-	for <linux-s390@vger.kernel.org>; Thu, 11 Apr 2024 22:40:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F8B9523A;
+	Fri, 12 Apr 2024 02:02:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712875207; cv=none; b=FYFBRdccCHv2vHmEoG7l/WUxI4tZ7jruIk776BIEjSQioB7HPuH2qlHC9hA8eAWm9I4uxganxHKFiXKkMckwZjWWv2l0VCY0DnjfMOK+0apX2JmZ6J+2knteAZMzaPmWf3Fpja1549VNM5HrX1Dai1Od/hOQsQ1c5nlceIDCXF0=
+	t=1712887366; cv=none; b=i3QnFML6UTopmxa92Ypxz9LeVTBvKHPi2HRUAkBe2e65bB0wzT5D0rS1cY2Xx0EfpG0oq9xDfGZctLUjZB9puZTM+z3T/BwLshggynmSSyk1RE8wt8r+FcU+5i7BPDGOtZV5dPKySPzrQNRMdUVDzTmrfA6AAmHH96RFN6b539o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712875207; c=relaxed/simple;
-	bh=S4TnsFcjuXgA9nuQRAvIeS3/zSNBm8/9BgUmS0MLmqs=;
-	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=ukHZ8uZ8jpCauihr3lylKFKnrHi6TpSB0KnoNIbr+dnBu7pc5TyLeUU8c3W3e0/M/Xen8v6Lk3Kqwa/9buJJg5OpGW0I07TcGlafR1BXS2mqF8TtSqDEBWLqpW2wYgzt2i9cHtf8N1UxR6nYRrF34oQnig0E91eBefd3K6EvY4E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=toblux.com; spf=none smtp.mailfrom=toblux.com; dkim=pass (2048-bit key) header.d=toblux-com.20230601.gappssmtp.com header.i=@toblux-com.20230601.gappssmtp.com header.b=HrE7Vx3V; arc=none smtp.client-ip=209.85.208.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=toblux.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=toblux.com
+	s=arc-20240116; t=1712887366; c=relaxed/simple;
+	bh=+EZtMTU/ARwhQkmhBZM/lagfNPeu0TVZRPivRQMHV8M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=OicV7cyhoIoYvmBl6V5whNwuGya5Cgro69H/you89MgGArljo+SJACfluXTWc1XQ100Twww8c2t8cqldWV1CqJ7ngCx+N8Am2Nx3VuQNIA03F4y9cXx1f5bI5GRR/gAKLBcWolcbviHcxA4qPsx6s+rmXFyV9JdKu9zoWoWKLyk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=SToS/+cW; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=toblux-com.20230601.gappssmtp.com header.i=@toblux-com.20230601.gappssmtp.com header.b="HrE7Vx3V"
-Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-2d87660d5c9so2816611fa.2
-        for <linux-s390@vger.kernel.org>; Thu, 11 Apr 2024 15:40:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=toblux-com.20230601.gappssmtp.com; s=20230601; t=1712875203; x=1713480003; darn=vger.kernel.org;
-        h=to:references:message-id:content-transfer-encoding:cc:date
-         :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=S4TnsFcjuXgA9nuQRAvIeS3/zSNBm8/9BgUmS0MLmqs=;
-        b=HrE7Vx3VsjO9zx09zpOJKe5SAZpjbJiQlry9KLYoRT4w8RbuXZeMwwSh/XEXQESIck
-         gKMtNsMOwu9skWe5ekfDSLBm9kAKGi6YBVIC3zq9r8w2dIOlyjPm54EOXt6ohzfsymWF
-         cDzSb8jCYm4lcNa8gKha+9ObHZf9RrEPBm+D1TdrFVFbU1vkRKRrbxomgI18JDI02dXL
-         cnJEIiUlTz6UgXyGQUrkOXv+UjTQZKKbD9r7+S62qMAbE7sw33tjxBw+CrspLAqlSGlZ
-         MxDn6xfZu/vVjV2ou24iQm57Z6ry3iRc/F8pO+WVLF7OOEwOoFiggiVktAhIxaqG3Nwf
-         ilHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712875203; x=1713480003;
-        h=to:references:message-id:content-transfer-encoding:cc:date
-         :in-reply-to:from:subject:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=S4TnsFcjuXgA9nuQRAvIeS3/zSNBm8/9BgUmS0MLmqs=;
-        b=MvcFxGB/XcwTigQF5fYGhd3yaBgUca88M/dvmvwxIIHtlUke1dNMG6/MZ7CLAs8+BV
-         wuQv41s7azvvV0XyTKiqH667fu6lWRMBnRKurbVk/jaSRUetMRpXBaKuBDWx3atyjPOC
-         xCz2fKHHZzraHc6Sa7I7r9siKenLhEMm61NCmJUT3/375KH6iBk5U30NiY3FVWK1Vs/0
-         bzB0LkcLaepjGMrhciqfgOmYf5Zm6W9JJgzItGYAxecD2poAB+P4viUIYWINOAJtEaGs
-         FFZL3iUI+Q/vSw5TgwSa5jDZBV+bEGAlL9uqYtMYGxobMPVegCSXROqVgPiN7SlqHvK9
-         EPjg==
-X-Forwarded-Encrypted: i=1; AJvYcCX8jifoaEQ/0Ig6ykcLPM8ZMsFoFkaHURc/KQEJj1uXH2CFbI/ydsOvJ6oywcHCF1M3WhyKpezbbD7AI592Z5Nne45N+voI4hqqtA==
-X-Gm-Message-State: AOJu0YxHHBeSns1080Jg26VeLHD8dlt7GBysQH6FGLpRuqw9WJlE/4MA
-	AbX9FCGfkv+KfnsVXEyx9K4CnBcJB+YYLQFWSoNK9qdx15C/0J48WXidHlAP468=
-X-Google-Smtp-Source: AGHT+IGY8qJhojjfCfabFUjR9vvGK5A/WLCfM1Bk52OhJKElMImmd0eUpMrnmf84M99SmcErfv1epA==
-X-Received: by 2002:ac2:57db:0:b0:513:eeaa:8f1f with SMTP id k27-20020ac257db000000b00513eeaa8f1fmr649500lfo.47.1712875203340;
-        Thu, 11 Apr 2024 15:40:03 -0700 (PDT)
-Received: from smtpclient.apple ([2001:a61:10c6:ce01:a470:5d20:8e1a:464a])
-        by smtp.gmail.com with ESMTPSA id jx24-20020a170907761800b00a46aba003eesm1144762ejc.215.2024.04.11.15.40.01
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Apr 2024 15:40:02 -0700 (PDT)
-Content-Type: text/plain;
-	charset=us-ascii
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="SToS/+cW"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1712887360; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=VKbsRDbyF9GBLUuAIXQgOv40gno2BZ2XnQ4Pd7U2cmA=;
+	b=SToS/+cWNzr3GLsIw1Xqhr4XHHC+CzL6VhJbZKCNTBITfRvSH8F88zBTsdhvgtLyECQdH1yQucLuPVX+74hr3jh/60JYJQmYrpEFyG3e8X1UH8ahy2djfhb7o9mHMobKQifANp8g7hiV6R4c4XejoNgsPITsmgC6d9Fuf8Nt9IM=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=20;SR=0;TI=SMTPD_---0W4Mc7Bm_1712887358;
+Received: from 30.221.129.174(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W4Mc7Bm_1712887358)
+          by smtp.aliyun-inc.com;
+          Fri, 12 Apr 2024 10:02:39 +0800
+Message-ID: <44ea7d83-4fa7-427b-9d54-678f05fd09e9@linux.alibaba.com>
+Date: Fri, 12 Apr 2024 10:02:37 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3774.500.171.1.1\))
-Subject: Re: [PATCH] treewide: Fix common grammar mistake "the the"
-From: Thorsten Blum <thorsten.blum@toblux.com>
-In-Reply-To: <0bd7ccc2-4d8c-455b-a6c2-972ebe1fcb08@moroto.mountain>
-Date: Fri, 12 Apr 2024 00:39:51 +0200
-Cc: kernel-janitors@vger.kernel.org,
- linux-kernel@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org,
- linux-doc@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org,
- linux-s390@vger.kernel.org,
- speakup@linux-speakup.org,
- intel-gfx@lists.freedesktop.org,
- intel-xe@lists.freedesktop.org,
- dri-devel@lists.freedesktop.org,
- linux-wireless@vger.kernel.org,
- linux-scsi@vger.kernel.org,
- linux-afs@lists.infradead.org,
- ecryptfs@vger.kernel.org,
- netfs@lists.linux.dev,
- linux-fsdevel@vger.kernel.org,
- linux-unionfs@vger.kernel.org,
- linux-arch@vger.kernel.org,
- io-uring@vger.kernel.org,
- cocci@inria.fr,
- linux-perf-users@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <193B959E-60A3-499A-BFF3-EA7B2D0B6C12@toblux.com>
-References: <20240411150437.496153-4-thorsten.blum@toblux.com>
- <0bd7ccc2-4d8c-455b-a6c2-972ebe1fcb08@moroto.mountain>
-To: Dan Carpenter <dan.carpenter@linaro.org>
-X-Mailer: Apple Mail (2.3774.500.171.1.1)
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH net-next v5 04/11] net/smc: implement some unsupported
+ operations of loopback-ism
+To: Alexandra Winter <wintera@linux.ibm.com>,
+ Niklas Schnelle <schnelle@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
+ twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org
+References: <20240324135522.108564-1-guwen@linux.alibaba.com>
+ <20240324135522.108564-5-guwen@linux.alibaba.com>
+ <3122eece5b484abcf8d23f85d6c18c36f0b939ff.camel@linux.ibm.com>
+ <1db6ccab-b49f-45d2-a93c-05b0f79371a3@linux.alibaba.com>
+ <3b3ff37643e9030ec1246e67720683a2cf5660e5.camel@linux.ibm.com>
+ <7a0fc481-658e-4c99-add7-ccbd5f9dce1e@linux.alibaba.com>
+ <7291dd1b2d16fd9bbd90988ac5bcc3a46d17e3f4.camel@linux.ibm.com>
+ <46e8e227-8058-4062-a9db-6b9c774f63cc@linux.alibaba.com>
+ <12ae995f-4af4-4c6b-9130-04672d157293@linux.ibm.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <12ae995f-4af4-4c6b-9130-04672d157293@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On 11. Apr 2024, at 17:25, Dan Carpenter <dan.carpenter@linaro.org> =
-wrote:
->=20
-> It's tricky to know which tree a patch like this would go through.
 
-The patch is based on the mainline tree. Should I have sent it directly =
-to
-Linus then?
 
-I'm relatively new here and therefore only sent it to the corresponding =
-mailing
-lists.
+On 2024/4/11 19:12, Alexandra Winter wrote:
+> 
+> 
+> On 09.04.24 03:44, Wen Gu wrote:
+>>
+>>
+>> On 2024/4/4 23:15, Niklas Schnelle wrote:
+>>> On Thu, 2024-04-04 at 21:12 +0800, Wen Gu wrote:
+>>>>
+>>>> On 2024/4/4 19:42, Niklas Schnelle wrote:
+>>>>> On Thu, 2024-04-04 at 17:32 +0800, Wen Gu wrote:
+>>>>>>
+>>>>>> On 2024/4/4 00:25, Gerd Bayer wrote:
+>>>>>>> On Sun, 2024-03-24 at 21:55 +0800, Wen Gu wrote:
+>>>>>>>> This implements some operations that loopback-ism does not support
+>>>>>>>> currently:
+>>>>>>>>      - vlan operations, since there is no strong use-case for it.
+>>>>>>>>      - signal_event operations, since there is no event to be processed
+>>>>>>>> by the loopback-ism device.
+>>>>>>>
+>>>>>>> Hi Wen,
+>>>>>>>
+>>>>>>> I wonder if the these operations that are not supported by loopback-ism
+>>>>>>> should rather be marked "optional" in the struct smcd_ops, and the
+>>>>>>> calling code should call these only when they are implemented.
+>>>>>>>
+>>>>>>> Of course this would mean more changes to net/smc/smc_core.c - but
+>>>>>>> loopback-ism could omit these "boiler-plate" functions.
+>>>>>>>
+>>>>>>
+>>>>>> Hi Gerd.
+>>>>>>
+>>>>>> Thank you for the thoughts! I agree that checks like 'if(smcd->ops->xxx)'
+>>>>>> can avoid the device driver from implementing unsupported operations. But I
+>>>>>> am afraid that which operations need to be defined as 'optional' may differ
+>>>>>> from different device perspectives (e.g. for loopback-ism they are vlan-related
+>>>>>> opts and signal_event). So I perfer to simply let the smc protocol assume
+>>>>>> that all operations have been implemented, and let drivers to decide which
+>>>>>> ones are unsupported in implementation. What do you think?
+>>>>>>
+>>>>>> Thanks!
+>>>>>>
+>>>>>
+>>>>> I agree with Gerd, in my opinion it is better to document ops as
+>>>>> optional and then allow their function pointers to be NULL and check
+>>>>> for that. Acting like they are supported and then they turn out to be
+>>>>> nops to me seems to contradict the principle of least surprises. I also
+>>>>> think we can find a subset of mandatory ops without which SMC-D is
+>>>>> impossible and then everything else should be optional.
+>>>>
+>>>> I see. If we all agree to classify smcd_ops into mandatory and optional ones,
+>>>> I'll add a patch to mark the optional ops and check if they are implemented.
+>>>
+>>> Keep in mind I don't speak for the SMC maintainers but that does sound
+>>> reasonable to me.
+>>>
+>>
+>> Hi Wenjia and Jan, do you have any comments on this and [1]? Thanks!
+>>
+>> [1] https://lore.kernel.org/netdev/60b4aec0b4bf4474d651b653c86c280dafc4518a.camel@linux.ibm.com/
+>>
+>>>>
+>>>>>
+>>>>> As a first guess I think the following options may be mandatory:
+>>>>>
+>>>>> * query_remote_gid()
+>>>>> * register_dmb()/unregister_dmb()
+>>>>> * move_data()
+>>>>>      For this one could argue that either move_data() or
+>>>>>      attach_dmb()/detach_dmb() is required though personally I would
+>>>>>      prefer to always have move_data() as a fallback and simple API
+>>>>> * supports_v2()
+>>>>> * get_local_gid()
+>>>>> * get_chid()
+>>>>> * get_dev()
+>>>> I agree with this classification. Just one point, maybe we can take
+>>>> supports_v2() as an optional ops, like support_dmb_nocopy()? e.g. if
+>>>> it is not implemented, we treat it as an ISMv1.
+>>>>
+>>>> Thanks!
+>>>
+>>> Interpreting a NULL supports_v2() as not supporting v2 sounds
+>>> reasonable to me.
+>>
+> 
+> Let me add my thoughts to the discussion:
+> For the vlan operations and signal_event operations that loopback-ism does
+> not support:
+> I like the idea to set the ops to NULL and make sure the caller checks that
+> and can live with it. That is readable and efficient.
+> 
+> I don't think there is a need to discuss a strategy now, which ops could be
+> optional in the future. This is all inside the kernel. loopback-ism is even
+> inside the smc module. Such comments in the code get outdated very easily.
+> 
+> I would propose to mark those as optional struct smcd_ops, where all callers can
+> handle a NULL pointer and still be productive.
+> Future support of other devices for SMC-D can update that.
+> 
+> 
 
-Thanks,
-Thorsten=
+Hi Sandy, just to confirm if I understand you correctly.
+
+You are proposing that don't draw a conclusion about the classification now,
+but supplementally mark which one become a optional operation in struct smcd_ops
+during the introduction of new devices for SMC-D.
