@@ -1,79 +1,70 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81FA55914B;
-	Fri, 12 Apr 2024 13:25:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1519F8614D;
+	Fri, 12 Apr 2024 14:18:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712928344; cv=none; b=jTyGSvjHM3wSj9C+rAXz6WhUXq29pilulefaBmD8HOOg3zybso85ho74yh88zoguecKc5TD0/NJR68pidhldnl5XX+K7LtqL4QJL27Kper1IoXI6PCv7LKhFmbuS72Tm/38XoBr5P2OVlCz5Qiqg7HhYa41FQy/adbfh25wTBbc=
+	t=1712931524; cv=none; b=bHnOTUPFKNuUdiiD/8T/nRn/kaHNGHN+0s4PeqHaNOIZab7aIVPY247B8KoNCenDItlax5eG449Z5oeQG5yW+8xeQnOTLYmYgzlZiggPMXmgZtrqB20APKpBLFVMYabHZ8NV32ArJEKo/h23jfqPY3VgigbCko51ZPNyXRiRFVQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712928344; c=relaxed/simple;
-	bh=K/PYnVuBs0NW40S2J0gna2ybcb3BjjN7UycpWMIRUkI=;
+	s=arc-20240116; t=1712931524; c=relaxed/simple;
+	bh=vQmIHW35IfACeoF8Y3ELfJZWzuetDxk2uQ38pUrHrDI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sHGv8m5uE/wmjuapUCrFCmEA5euvwRf/Akjx99dJYEPaMU3h6TlF6ut1pu17ioBEC5TvDSYE2bo3YUDMhbKl5ZPKUv3Ikemrad7o4XwehCEhVCT9qTc1Dz2UzUG7JA3wqk7l8RaOVMPFeIXws7Ta8Xi/47892stM/kgcxxwqFo8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PWlaWm+y; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:Content-Disposition:In-Reply-To; b=PYDmvPSZyLhYgKFV1CwO3NzEH8OaMAwyXIvXFZTOCkHNtDQnBFdnyhwuiEj0Ba5Hre8Ysl3rbsob5dL6UScMOea2tSalTNRgV4pY6SU6FXa2YYfG8K7QJzVYvnScvV+5fnFwh+MRmvkzbEgA9FmKq5FGz2Gck2+sSGNHjpgaKSk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NPKtwTUa; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PWlaWm+y"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43CDEigZ029173;
-	Fri, 12 Apr 2024 13:25:36 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NPKtwTUa"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43CEIHhw016321;
+	Fri, 12 Apr 2024 14:18:42 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=1V3Ezxl7WVDhos2t68PZAZjGKM6z5yy3zHT/ac8+FeM=;
- b=PWlaWm+yJcii3DuGyA6u+KghBCvAsrayUGxgAifIZOQMoSBinQK7vhRRodtD5V9AaWx5
- U93hHTbZdf8pjiT4oXGeoanJ5uSoQqhVCqL8RGXR5ksKAzDyc6RaHKEL6jKbK3xwBPv/
- PsirN4mnjKlZFEeDnqcKlm8FtSrJAW+lxadCmqR4WWdh4FYSGxcbll2hzS+U8L0VlWxc
- swopzkeobPGqr+bJl3L0mdnrzGHWcgwEz6Sq/20T2vZCBBCMLS8z8pGoVKg4oMM/jSXt
- MYSJaqEsDYPT6c+pAZA+JFV0jG2flWSzMDOC5urh9H55x3Bp7+9/Zl9/9BFEYCz6EgZt Ig== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xf5du81yg-1
+ in-reply-to; s=pp1; bh=vQmIHW35IfACeoF8Y3ELfJZWzuetDxk2uQ38pUrHrDI=;
+ b=NPKtwTUaichaw0k/dXCTeMspl499W9DVCJru8ytmjqLU3RuxJUjU4z0dPTuj1zSqmlWd
+ OpjMKWAImtaqMiCzxmH4FbjSLWEuLGomumTi2RHY5L8fomDESwMqn/mWyp/kREawWDDY
+ ofE0hpoCM5KtHn8K710Nky5boUuZQCgcB7s58/Zbl39taR2b1dO/1jHoFqTQK29GKwRL
+ 5rMDbDgbtLQ76mz/wPlQjUI6bplirrhbIs8UmxSNJQJdVg94GpNGb78sPF7QzV9GJDNn
+ YZZ854cy/4IGOmb2JCujheecocpS3fIqDRrxWU+BF7Y8p+PkiSpvSPckxQ8eb6lB3nDn Ig== 
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xf55y072r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 12 Apr 2024 13:25:35 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43CDPZha016327;
-	Fri, 12 Apr 2024 13:25:35 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xf5du81yc-1
+	Fri, 12 Apr 2024 14:18:42 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43CDTtME013594;
+	Fri, 12 Apr 2024 14:18:41 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xbgqu2hf1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 12 Apr 2024 13:25:35 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43CCf2xS017031;
-	Fri, 12 Apr 2024 13:25:34 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xbke31kva-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 12 Apr 2024 13:25:34 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43CDPS7o50856318
+	Fri, 12 Apr 2024 14:18:41 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43CEIZuB52560198
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 12 Apr 2024 13:25:30 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CCB2A20043;
-	Fri, 12 Apr 2024 13:25:28 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9C81D20040;
-	Fri, 12 Apr 2024 13:25:28 +0000 (GMT)
+	Fri, 12 Apr 2024 14:18:37 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BBC542004B;
+	Fri, 12 Apr 2024 14:18:35 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8146F20040;
+	Fri, 12 Apr 2024 14:18:35 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 12 Apr 2024 13:25:28 +0000 (GMT)
-Date: Fri, 12 Apr 2024 15:25:27 +0200
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 12 Apr 2024 14:18:35 +0000 (GMT)
+Date: Fri, 12 Apr 2024 16:18:34 +0200
 From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Xu <peterx@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 0/2] s390/mm: shared zeropage + KVM fixes
-Message-ID: <Zhk2R4UsX4SQCW7R@tuxmaker.boeblingen.de.ibm.com>
-References: <20240411161441.910170-1-david@redhat.com>
+To: "Jason J. Herne" <jjherne@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        pasic@linux.ibm.com, akrowiak@linux.ibm.com, borntraeger@de.ibm.com,
+        gor@linux.ibm.com, hca@linux.ibm.com,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+Subject: Re: [PATCH v4 4/5] s390/vfio-ap: Add write support to sysfs attr
+ ap_config
+Message-ID: <ZhlCuhqpDjUFHW/u@tuxmaker.boeblingen.de.ibm.com>
+References: <20240326164706.29167-1-jjherne@linux.ibm.com>
+ <20240326164706.29167-5-jjherne@linux.ibm.com>
+ <ZhP9qHs6tjPbh1/J@tuxmaker.boeblingen.de.ibm.com>
+ <95b551f1-7599-96e1-b528-0701465baf5a@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -82,31 +73,28 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240411161441.910170-1-david@redhat.com>
+In-Reply-To: <95b551f1-7599-96e1-b528-0701465baf5a@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Ul0IUwYd-HCOVsPE5cAk8RWULY_gRTAH
-X-Proofpoint-GUID: JODNUjsZTdjuGQ9BHarCbC85GqjBwMpA
+X-Proofpoint-GUID: uFIXWrhIja2-9B5Z_Rq8JEpCimc7IlDX
+X-Proofpoint-ORIG-GUID: uFIXWrhIja2-9B5Z_Rq8JEpCimc7IlDX
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-12_09,2024-04-09_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- priorityscore=1501 mlxscore=0 suspectscore=0 malwarescore=0 bulkscore=0
- clxscore=1015 adultscore=0 mlxlogscore=420 impostorscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2404120095
+ definitions=2024-04-12_10,2024-04-09_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ lowpriorityscore=0 phishscore=0 mlxscore=0 malwarescore=0 spamscore=0
+ clxscore=1015 impostorscore=0 priorityscore=1501 mlxlogscore=550
+ bulkscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404120103
 
-> David Hildenbrand (2):
->   mm/userfaultfd: don't place zeropages when zeropages are disallowed
->   s390/mm: re-enable the shared zeropage for !PV and !skeys KVM guests
-> 
->  arch/s390/include/asm/gmap.h        |   2 +-
->  arch/s390/include/asm/mmu.h         |   5 +
->  arch/s390/include/asm/mmu_context.h |   1 +
->  arch/s390/include/asm/pgtable.h     |  16 ++-
->  arch/s390/kvm/kvm-s390.c            |   4 +-
->  arch/s390/mm/gmap.c                 | 163 +++++++++++++++++++++-------
->  mm/userfaultfd.c                    |  34 ++++++
->  7 files changed, 178 insertions(+), 47 deletions(-)
+On Fri, Apr 12, 2024 at 08:29:44AM -0400, Jason J. Herne wrote:
+Hi Jason,
+> Yes, I can make that change. My checkpatch.pl script does not point this
+> issue out with --strict. Should I be running checkpatch with --strict?
 
-Applied.
-Thanks, David!
+Yes.
+AFAIR --strict produced that.
+
+> > Also, please address other checkpatch suggestions.
+> Yep, I'll run with --strict and address everything.
+
+Thanks!
