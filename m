@@ -1,228 +1,183 @@
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2059.outbound.protection.outlook.com [40.107.237.59])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 711761CA8B;
-	Sat, 13 Apr 2024 03:45:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.189
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712979954; cv=none; b=G58SUkkYKVeV2m4UfCpztP+RYjfdaw3BqF7hyCvVVtotwyBDHJp5TQPPfp8I+HivKvhma5wjrrz7Zbx2Dh2WXwQadZTZhuQwr/EwTEAlbCN5HDGLNLqgMbczU6lmDxrr/hCfSvBPVhqNgISOM7MD2Q8MvGYXdKUFUDV8jgnpZbc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712979954; c=relaxed/simple;
-	bh=/ejGiVcUig8QB++zDGVUnFoHvRSF0CKBsYK5yhBULZ0=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=KplbIAwP7z5bVzLYgLdqzqiQnlz4YcPXy/VPLZo38uTP//w0R+ee4JW84UxofNl/6LIZIouL/2rR0lOohApR+kH1LgjwdNHhNx0Wiv7mixAIECtM5aD98/nCCvo2nVbPIfEpaLzTu1GvLLNEPH3qEyWfgz/2OC0U5TqZo7XYD84=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.189
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.105])
-	by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4VGfRP3RQ4zNnqh;
-	Sat, 13 Apr 2024 11:43:29 +0800 (CST)
-Received: from dggpeml500026.china.huawei.com (unknown [7.185.36.106])
-	by mail.maildlp.com (Postfix) with ESMTPS id 88E8C1403D3;
-	Sat, 13 Apr 2024 11:45:48 +0800 (CST)
-Received: from huawei.com (10.175.101.6) by dggpeml500026.china.huawei.com
- (7.185.36.106) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.35; Sat, 13 Apr
- 2024 11:45:47 +0800
-From: Zhengchao Shao <shaozhengchao@huawei.com>
-To: <linux-s390@vger.kernel.org>, <netdev@vger.kernel.org>,
-	<davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
-	<pabeni@redhat.com>
-CC: <wenjia@linux.ibm.com>, <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
-	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>,
-	<weiyongjun1@huawei.com>, <yuehaibing@huawei.com>,
-	<shaozhengchao@huawei.com>, <tangchengchang@huawei.com>
-Subject: [PATCH net] net/smc: fix potential sleeping issue in smc_switch_conns
-Date: Sat, 13 Apr 2024 11:51:50 +0800
-Message-ID: <20240413035150.3338977-1-shaozhengchao@huawei.com>
-X-Mailer: git-send-email 2.34.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82BAB4F20A;
+	Sat, 13 Apr 2024 20:08:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.237.59
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1713038886; cv=fail; b=sacb96EtupCf/Q56CGVErXPPfYva3MLIoyHm7MPKXe5o0orF9hthdGvD4RXd1s6kTFqt2m9cb6znFE25uox3vxIwC5rJlVV7dNYmZVjs9CUBkkK0IDYerx4hiBU/X+RWjfdxdMC7P9f0bdsvPaBRQF4RLePnrW2Nn5fL6d3HkjI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1713038886; c=relaxed/simple;
+	bh=HNNzN3334tX/pU3zEVAjlWFi1Ge7jvyKR0KtNp1OsAY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=ofzWirSLUuxR+mkot1sGQVvBTSTX2Cubp+c+wrUhT54kKuEI/0B9yBkMuFFr9blZWbV0nftHLjJbHXT1fRW5IysXZ3gokd50fdzrLq/cixNwRO1xyzN5nwOzl2B7N7V08IEBDqAJHiLiG3Sy4Ct5ojRUcDgm1PlRYFDZaTM0lRI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=YtkWpABM; arc=fail smtp.client-ip=40.107.237.59
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="YtkWpABM"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=j8WuDCbX66hoJbEa46MaN65oRrqhNUby6oAamMBXdNECD+Q59zYhCCgzP7H/xdqWH8vFzx3p8o3a2epxFU9W8NCns7TSgBX5D6qiXtTd9/r1oDSlC/2m7t3IKdjS8t19JODXcrXx1wkKom43uDadTgv25CQfMUETOQz1dcAcf4c9aBrV7N4EhGhOJxbYP1w8bw4iJ+ilfLuo1MX9aILv0xYaZ0vYLqchY2O9Rij8+PQXGCccoudHsVKiUEU9GmvEeMv4j5vOFY5doXT85TfJaAgxHT808ReTWjmZC1jK3yvRJVLKNEQ+7tiRu1CxU2kplSHgwVe9P/LlsffYf3sK4g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=7Ldy4aGEadHWsLGVGxixwC5Xmy2B/Sn2gi1wsIlA9SU=;
+ b=Da6YMRIVZO465D4FtfVtCRK95c/jRORMYs0cGjimzDW9Jp1f2xdr8crlah0f2FzjtMnp3we4/zJwrnhKrsIWXVznKnhHar3SSxdAJuTIGgd9FrtGgAa2z/DrHtWPqnsui7B9pBwj1fMLhhj4JurwtgWfyrdeL9P0v/K3m7McHuqz0nVCf8bgzQCjGbw/19obdEaFdofE7f7Zcu9Lp5uoyskCfbtIldaHzhNE82h+zblNNGF8dQ/SsA+cBME4GjOfHuWoIzWIYrnyp9rIFhrf+LIJr0H5jfe5djvO5il8F1+J8ATvLYVbDNxK8N2VdO8WalKi8qOIpYDULf1ZuoH4Yg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7Ldy4aGEadHWsLGVGxixwC5Xmy2B/Sn2gi1wsIlA9SU=;
+ b=YtkWpABMS/AR9OW1eZo36RHZPgUsbLCreM+F1KcnV8GQ2QFG7cNXMlb5Pec01dEuhKHKejfelddquUVOLRuqYV5Yy0kME3I+C/BMZQD8H2BtNKpY2U3gHntE6qPE8I0QksztK6QgFIdpQK5kUAgBxEO2E5YBJD0ERHTEyEDMKR1QghBcjRlhRjydIhzCmip4818DjiC3JyaznjIZgsonFToRThxKhmyRE/FXNC5/sSujeiANmYKyYPyk5aBh4Xhh2p8vNzf+vBTfzrg3Zv86MM056pbpJIkLY+OEYDwpn/cRKgyP69gVUruGnxKDAq5mCAGGA4iNShI47zZeddNzaw==
+Received: from SA0PR11CA0034.namprd11.prod.outlook.com (2603:10b6:806:d0::9)
+ by CY5PR12MB6647.namprd12.prod.outlook.com (2603:10b6:930:40::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.54; Sat, 13 Apr
+ 2024 20:07:59 +0000
+Received: from SN1PEPF0002636C.namprd02.prod.outlook.com
+ (2603:10b6:806:d0:cafe::60) by SA0PR11CA0034.outlook.office365.com
+ (2603:10b6:806:d0::9) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7472.31 via Frontend
+ Transport; Sat, 13 Apr 2024 20:07:59 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ SN1PEPF0002636C.mail.protection.outlook.com (10.167.241.137) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7452.22 via Frontend Transport; Sat, 13 Apr 2024 20:07:59 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Sat, 13 Apr
+ 2024 13:07:53 -0700
+Received: from [10.110.48.28] (10.126.230.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.12; Sat, 13 Apr
+ 2024 13:07:52 -0700
+Message-ID: <24b88e53-a1fe-4fba-a7b5-ffcbeba88a73@nvidia.com>
+Date: Sat, 13 Apr 2024 13:07:52 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- dggpeml500026.china.huawei.com (7.185.36.106)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/3] mm/gup: consistently name GUP-fast functions
+To: David Hildenbrand <david@redhat.com>, <linux-kernel@vger.kernel.org>
+CC: <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, "Mike
+ Rapoport" <rppt@kernel.org>, Jason Gunthorpe <jgg@nvidia.com>, Peter Xu
+	<peterx@redhat.com>, <linux-arm-kernel@lists.infradead.org>,
+	<loongarch@lists.linux.dev>, <linux-mips@vger.kernel.org>,
+	<linuxppc-dev@lists.ozlabs.org>, <linux-s390@vger.kernel.org>,
+	<linux-sh@vger.kernel.org>, <linux-perf-users@vger.kernel.org>,
+	<linux-fsdevel@vger.kernel.org>, <linux-riscv@lists.infradead.org>,
+	<x86@kernel.org>
+References: <20240402125516.223131-1-david@redhat.com>
+ <20240402125516.223131-2-david@redhat.com>
+Content-Language: en-US
+From: John Hubbard <jhubbard@nvidia.com>
+In-Reply-To: <20240402125516.223131-2-david@redhat.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SN1PEPF0002636C:EE_|CY5PR12MB6647:EE_
+X-MS-Office365-Filtering-Correlation-Id: 40dcf203-1e71-41f9-509f-08dc5bf56ae6
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	/Yh8kiGrxSEYZAQRKZ4+LFpmEH/MXvcK7Bd6ZaKz5mXR7hSl3pBC9OcSHtRPRLv68jtBcL9wDJRMrFW3BwZegnfwQ8Da65eoEJppmnIDnCcY/xfsHHyNWwtEoA/p6HNwQZtQ13xxNzzKQuMFn/ESRAS4fp6g/6oIsgOknsu+EISPCQA21IiTdonAk9nJbN2ndwv/l7DlutS3tZ4MZjoVssLon/GRUlB5D8Wwl5/q+4CocXjkIQa1QLF4eYj9RuIe0lycJrwFKsUEEnVz5u/8VEoaaOYoqxAp4ytevAFWDvKqt4PneEbKWQWBTzyJrlqv9bquDur6v4/jbEH1ujo71HwxFXRIshg8A7jL2mWRitO1fM9v5pZVAdaRN6XwtLwaqxOBVuxCbxC5eer25cFzLWYbB7TNGTHZC+AdBUgwyD6ltsH4a0hy3d2pyWsL3nybbuNzwslnhaMNRlkSqKDeb3Sorm6mmBS3fc7Hnm0gUdI85AiqR9fFvHkmxZKcXZoq1jAtZM3Jp+7dq5sUFwB3xzIweBzh0hb0QiQVjhE+34A5rLvlExI3Oiil5qCoVDIyPtsnfpUgQY3/hyHFGagnlS5FEuvRulIh0PW6Nl31NgPJLTjQDiPTLoW0aBBDldsm3am/hrsyS1p9aXn4WO1vH/EnPrbFTvfADdXyakOf49ffZWIOy8i49rBsuSBMQduj21y0LEmmCdyNXwOuB2Brs+E7O5p5EGgNGV3Nclobg/Z/3GPHxZXIW6eyRlWTzKvj
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(1800799015)(7416005)(376005)(82310400014)(36860700004);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Apr 2024 20:07:59.6800
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 40dcf203-1e71-41f9-509f-08dc5bf56ae6
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SN1PEPF0002636C.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6647
 
-Potential sleeping issue exists in the following processes:
-smc_switch_conns
-  spin_lock_bh(&conn->send_lock)
-  smc_switch_link_and_count
-    smcr_link_put
-      __smcr_link_clear
-        smc_lgr_put
-          __smc_lgr_free
-            smc_lgr_free_bufs
-              __smc_lgr_free_bufs
-                smc_buf_free
-                  smcr_buf_free
-                    smcr_buf_unmap_link
-                      smc_ib_put_memory_region
-                        ib_dereg_mr
-                          ib_dereg_mr_user
-                            mr->device->ops.dereg_mr
-If scheduling exists when the IB driver implements .dereg_mr hook
-function, the bug "scheduling while atomic" will occur. For example,
-cxgb4 and efa driver. Use mutex lock instead of spin lock to fix it.
+On 4/2/24 5:55 AM, David Hildenbrand wrote:
+> Let's consistently call the "fast-only" part of GUP "GUP-fast" and rename
+> all relevant internal functions to start with "gup_fast", to make it
+> clearer that this is not ordinary GUP. The current mixture of
+> "lockless", "gup" and "gup_fast" is confusing.
+> 
+> Further, avoid the term "huge" when talking about a "leaf" -- for
+> example, we nowadays check pmd_leaf() because pmd_huge() is gone. For the
+> "hugepd"/"hugepte" stuff, it's part of the name ("is_hugepd"), so that
+> stays.
+> 
+> What remains is the "external" interface:
+> * get_user_pages_fast_only()
+> * get_user_pages_fast()
+> * pin_user_pages_fast()
+> 
+> The high-level internal functions for GUP-fast (+slow fallback) are now:
+> * internal_get_user_pages_fast() -> gup_fast_fallback()
+> * lockless_pages_from_mm() -> gup_fast()
+> 
+> The basic GUP-fast walker functions:
+> * gup_pgd_range() -> gup_fast_pgd_range()
+> * gup_p4d_range() -> gup_fast_p4d_range()
+> * gup_pud_range() -> gup_fast_pud_range()
+> * gup_pmd_range() -> gup_fast_pmd_range()
+> * gup_pte_range() -> gup_fast_pte_range()
+> * gup_huge_pgd()  -> gup_fast_pgd_leaf()
+> * gup_huge_pud()  -> gup_fast_pud_leaf()
+> * gup_huge_pmd()  -> gup_fast_pmd_leaf()
 
-Fixes: 20c9398d3309 ("net/smc: Resolve the race between SMC-R link access and clear")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
----
- net/smc/af_smc.c   |  2 +-
- net/smc/smc.h      |  2 +-
- net/smc/smc_cdc.c  | 14 +++++++-------
- net/smc/smc_core.c |  8 ++++----
- net/smc/smc_tx.c   |  8 ++++----
- 5 files changed, 17 insertions(+), 17 deletions(-)
+This is my favorite cleanup of 2024 so far. The above mix was confusing
+even if one worked on this file all day long--you constantly have to
+translate from function name, to "is this fast or slow?". whew.
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index ad5bab6a44b6..c0a228def6da 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -386,7 +386,7 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
- 	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
- 	INIT_LIST_HEAD(&smc->accept_q);
- 	spin_lock_init(&smc->accept_q_lock);
--	spin_lock_init(&smc->conn.send_lock);
-+	mutex_init(&smc->conn.send_lock);
- 	sk->sk_prot->hash(sk);
- 	mutex_init(&smc->clcsock_release_lock);
- 	smc_init_saved_callbacks(smc);
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 18c8b7870198..ba8efed240e3 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -194,7 +194,7 @@ struct smc_connection {
- 	atomic_t		sndbuf_space;	/* remaining space in sndbuf */
- 	u16			tx_cdc_seq;	/* sequence # for CDC send */
- 	u16			tx_cdc_seq_fin;	/* sequence # - tx completed */
--	spinlock_t		send_lock;	/* protect wr_sends */
-+	struct mutex		send_lock;	/* protect wr_sends */
- 	atomic_t		cdc_pend_tx_wr; /* number of pending tx CDC wqe
- 						 * - inc when post wqe,
- 						 * - dec on polled tx cqe
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 3c06625ceb20..f8ad0035905a 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -186,10 +186,10 @@ static int smcr_cdc_get_slot_and_msg_send(struct smc_connection *conn)
- 	if (rc)
- 		goto put_out;
- 
--	spin_lock_bh(&conn->send_lock);
-+	mutex_lock(&conn->send_lock);
- 	if (link != conn->lnk) {
- 		/* link of connection changed, try again one time*/
--		spin_unlock_bh(&conn->send_lock);
-+		mutex_unlock(&conn->send_lock);
- 		smc_wr_tx_put_slot(link,
- 				   (struct smc_wr_tx_pend_priv *)pend);
- 		smc_wr_tx_link_put(link);
-@@ -199,7 +199,7 @@ static int smcr_cdc_get_slot_and_msg_send(struct smc_connection *conn)
- 		goto again;
- 	}
- 	rc = smc_cdc_msg_send(conn, wr_buf, pend);
--	spin_unlock_bh(&conn->send_lock);
-+	mutex_unlock(&conn->send_lock);
- put_out:
- 	smc_wr_tx_link_put(link);
- 	return rc;
-@@ -214,9 +214,9 @@ int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn)
- 		return -EPIPE;
- 
- 	if (conn->lgr->is_smcd) {
--		spin_lock_bh(&conn->send_lock);
-+		mutex_lock(&conn->send_lock);
- 		rc = smcd_cdc_msg_send(conn);
--		spin_unlock_bh(&conn->send_lock);
-+		mutex_unlock(&conn->send_lock);
- 	} else {
- 		rc = smcr_cdc_get_slot_and_msg_send(conn);
- 	}
-@@ -308,10 +308,10 @@ static void smc_cdc_msg_validate(struct smc_sock *smc, struct smc_cdc_msg *cdc,
- 	if (diff < 0) { /* diff larger than 0x7fff */
- 		/* drop connection */
- 		conn->out_of_sync = 1;	/* prevent any further receives */
--		spin_lock_bh(&conn->send_lock);
-+		mutex_lock(&conn->send_lock);
- 		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
- 		conn->lnk = link;
--		spin_unlock_bh(&conn->send_lock);
-+		mutex_unlock(&conn->send_lock);
- 		sock_hold(&smc->sk); /* sock_put in abort_work */
- 		if (!queue_work(smc_close_wq, &conn->abort_work))
- 			sock_put(&smc->sk);
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 9b84d5897aa5..21e0d95ab8c8 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1083,9 +1083,9 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 		    smc->sk.sk_state == SMC_PEERFINCLOSEWAIT ||
- 		    smc->sk.sk_state == SMC_PEERABORTWAIT ||
- 		    smc->sk.sk_state == SMC_PROCESSABORT) {
--			spin_lock_bh(&conn->send_lock);
-+			mutex_lock(&conn->send_lock);
- 			smc_switch_link_and_count(conn, to_lnk);
--			spin_unlock_bh(&conn->send_lock);
-+			mutex_unlock(&conn->send_lock);
- 			continue;
- 		}
- 		sock_hold(&smc->sk);
-@@ -1095,10 +1095,10 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 		if (rc)
- 			goto err_out;
- 		/* avoid race with smcr_tx_sndbuf_nonempty() */
--		spin_lock_bh(&conn->send_lock);
-+		mutex_lock(&conn->send_lock);
- 		smc_switch_link_and_count(conn, to_lnk);
- 		rc = smc_switch_cursor(smc, pend, wr_buf);
--		spin_unlock_bh(&conn->send_lock);
-+		mutex_unlock(&conn->send_lock);
- 		sock_put(&smc->sk);
- 		if (rc)
- 			goto err_out;
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 214ac3cbcf9a..b6790bd82b4e 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -573,7 +573,7 @@ static int smcr_tx_sndbuf_nonempty(struct smc_connection *conn)
- 		return rc;
- 	}
- 
--	spin_lock_bh(&conn->send_lock);
-+	mutex_lock(&conn->send_lock);
- 	if (link != conn->lnk) {
- 		/* link of connection changed, tx_work will restart */
- 		smc_wr_tx_put_slot(link,
-@@ -597,7 +597,7 @@ static int smcr_tx_sndbuf_nonempty(struct smc_connection *conn)
- 	}
- 
- out_unlock:
--	spin_unlock_bh(&conn->send_lock);
-+	mutex_unlock(&conn->send_lock);
- 	smc_wr_tx_link_put(link);
- 	return rc;
- }
-@@ -607,7 +607,7 @@ static int smcd_tx_sndbuf_nonempty(struct smc_connection *conn)
- 	struct smc_cdc_producer_flags *pflags = &conn->local_tx_ctrl.prod_flags;
- 	int rc = 0;
- 
--	spin_lock_bh(&conn->send_lock);
-+	mutex_lock(&conn->send_lock);
- 	if (!pflags->urg_data_present)
- 		rc = smc_tx_rdma_writes(conn, NULL);
- 	if (!rc)
-@@ -617,7 +617,7 @@ static int smcd_tx_sndbuf_nonempty(struct smc_connection *conn)
- 		pflags->urg_data_pending = 0;
- 		pflags->urg_data_present = 0;
- 	}
--	spin_unlock_bh(&conn->send_lock);
-+	mutex_unlock(&conn->send_lock);
- 	return rc;
- }
- 
+
+> 
+> The weird hugepd stuff:
+> * gup_huge_pd() -> gup_fast_hugepd()
+> * gup_hugepte() -> gup_fast_hugepte()
+> 
+> The weird devmap stuff:
+> * __gup_device_huge_pud() -> gup_fast_devmap_pud_leaf()
+> * __gup_device_huge_pmd   -> gup_fast_devmap_pmd_leaf()
+> * __gup_device_huge()     -> gup_fast_devmap_leaf()
+> * undo_dev_pagemap()      -> gup_fast_undo_dev_pagemap()
+> 
+> Helper functions:
+> * unpin_user_pages_lockless() -> gup_fast_unpin_user_pages()
+> * gup_fast_folio_allowed() is already properly named
+> * gup_fast_permitted() is already properly named
+> 
+> With "gup_fast()", we now even have a function that is referred to in
+> comment in mm/mmu_gather.c.
+> 
+> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> Reviewed-by: Mike Rapoport (IBM) <rppt@kernel.org>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>   mm/gup.c | 205 ++++++++++++++++++++++++++++---------------------------
+>   1 file changed, 103 insertions(+), 102 deletions(-)
+> 
+
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+
+
+thanks,
 -- 
-2.34.1
+John Hubbard
+NVIDIA
 
