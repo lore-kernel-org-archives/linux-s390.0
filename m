@@ -1,30 +1,30 @@
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3ED823748;
-	Sun, 14 Apr 2024 04:03:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5FB72A1D4;
+	Sun, 14 Apr 2024 04:03:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713067413; cv=none; b=NmfNjHmxYtHDSMpX+lXcySbUAISmDjos8tVlgKTwomObvADlp9mszFswJlWVDfxzPOuP9sC++NmQ65sUF0SDbakIjVB3FpaMzzKozLCkAQ5wn78etEhGTAUb+vN2i+wu0jeDC69/j6UCOn/TghZYFjYDEmRJn1wwdw9C0iw2AUQ=
+	t=1713067415; cv=none; b=A9p5GgNFEalHqHQw7SYr2V5qZFVDREym+iMFr19v/MZmHdS1JAZnmzWgT4V8DwJDcGvtxv+2KO8BInfIpgt616U+IyRJWaBrWr5tn8MEfIj29KdCgeD6xVYd9VdFxS+WQSJIrX00jQmszt8X8/NmCG3KjG/GMZvsqwRTDfYwAFU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713067413; c=relaxed/simple;
-	bh=+l8zWQElahWaPkmyYvk6aEolLdDlyQu2GF741usRILk=;
+	s=arc-20240116; t=1713067415; c=relaxed/simple;
+	bh=ml8XBd4t/EjacVpGSk9tropHTdaruhEtaMNNWhn9OjQ=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Nj+MzwRNvd8BTTaB1/1yqTUsKA+lrsUKSWdTg5QapgROogIBed4gA6w0qyjsx4YABrmI1t3YiadKzqIYxPUz+EAnG6ZtrGpF7XHsnrvpYuk+BW3YJmGxgmr9W9lIiFSyQ7kx7HeCB2xhJc5daAPptF1+iCPh7j2bX31iFby8pL8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=bA6RFt7V; arc=none smtp.client-ip=115.124.30.130
+	 MIME-Version; b=G+Ibq7ErFem+i/Z0HhpnXPBCYjSZaied85gr9oy6+aFE0NaPxqpAQ4sIE+mAcZIQRZEkO8fNmS0G0QAy9G9Tc+Wdn56dQV8WPqLL3LWa8UlQoAy/B8h6wkMzYh9a23faUJnS/PMDlUIxY5rY40FwO8LoXEyRqfOWz2pZt7xdngE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=qPTs0jpu; arc=none smtp.client-ip=115.124.30.100
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="bA6RFt7V"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="qPTs0jpu"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1713067408; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=Nb2nmxeq5eLGuWB1JKOUkoCi1VXxe+Li0Jy9GmclvdY=;
-	b=bA6RFt7VvXoGzXqERbqQwMVC1sKSJ6nFdGgFq16ale+KJcvWQNkhI7KABsbvj6hltUo9c/nR51sG+R2WOF/jKxHSQtib2L3Jbsn7r/3gW9hb0lWyibKJ3fUhPKbF7I9+oiNcZKLNPrY06dM/B/lRjB3uDgSNlnVleijxYifaBzI=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W4Ru4ZW_1713067406;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W4Ru4ZW_1713067406)
+	t=1713067404; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=TRMkEBmhvkR4yW3s8bf6OAtkd66aTfemcZ+2Tsdt1r4=;
+	b=qPTs0jpuHvTUCDPEnojm+g1hwNT+CRIcFcTSB0lTbgza43fmT/21jEcPkqc7ECQSsfdurpBJah5eybpQBjK9KIwtYiYveLz/HohD9gFV2xYM5Rnnb9KYbKKib8tH1MERW5QQYs2EmP5HAPtWQocTwg42K+PDAY/DFQxr3kifAJg=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W4RqRI2_1713067402;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W4RqRI2_1713067402)
           by smtp.aliyun-inc.com;
-          Sun, 14 Apr 2024 12:03:27 +0800
+          Sun, 14 Apr 2024 12:03:24 +0800
 From: Wen Gu <guwen@linux.alibaba.com>
 To: wintera@linux.ibm.com,
 	twinkler@linux.ibm.com,
@@ -45,9 +45,9 @@ Cc: borntraeger@linux.ibm.com,
 	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org
-Subject: [PATCH net-next v6 10/11] net/smc: adapt cursor update when sndbuf and peer DMB are merged
-Date: Sun, 14 Apr 2024 12:03:03 +0800
-Message-Id: <20240414040304.54255-11-guwen@linux.alibaba.com>
+Subject: [PATCH net-next v6 08/11] net/smc: add operations to merge sndbuf with peer DMB
+Date: Sun, 14 Apr 2024 12:03:01 +0800
+Message-Id: <20240414040304.54255-9-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240414040304.54255-1-guwen@linux.alibaba.com>
 References: <20240414040304.54255-1-guwen@linux.alibaba.com>
@@ -59,85 +59,116 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-If the local sndbuf shares the same physical memory with peer DMB,
-the cursor update processing needs to be adapted to ensure that the
-data to be consumed won't be overwritten.
+In some scenarios using Emulated-ISM device, sndbuf can share the same
+physical memory region with peer DMB to avoid data copy from one side
+to the other. In such case the sndbuf is only a descriptor that
+describes the shared memory and does not actually occupy memory, it's
+more like a ghost buffer.
 
-So in this case, the fin_curs and sndbuf_space that were originally
-updated after sending the CDC message should be modified to not be
-update until the peer updates cons_curs.
+      +----------+                     +----------+
+      | socket A |                     | socket B |
+      +----------+                     +----------+
+            |                               |
+       +--------+                       +--------+
+       | sndbuf |                       |  DMB   |
+       |  desc  |                       |  desc  |
+       +--------+                       +--------+
+            |                               |
+            |                          +----v-----+
+            +-------------------------->  memory  |
+                                       +----------+
+
+So here introduces three new SMC-D device operations to check if this
+feature is supported by device, and to {attach|detach} ghost sndbuf to
+peer DMB. For now only loopback-ism supports this.
 
 Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- net/smc/smc_cdc.c | 34 +++++++++++++++++++++++++++++++++-
- 1 file changed, 33 insertions(+), 1 deletion(-)
+ include/net/smc.h |  3 +++
+ net/smc/smc_ism.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_ism.h |  4 ++++
+ 3 files changed, 47 insertions(+)
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 3c06625ceb20..5e95347ae497 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -18,6 +18,7 @@
- #include "smc_tx.h"
- #include "smc_rx.h"
- #include "smc_close.h"
-+#include "smc_ism.h"
+diff --git a/include/net/smc.h b/include/net/smc.h
+index 33b753115e43..db84e4e35080 100644
+--- a/include/net/smc.h
++++ b/include/net/smc.h
+@@ -74,6 +74,9 @@ struct smcd_ops {
+ 	int (*reset_vlan_required)(struct smcd_dev *dev);
+ 	int (*signal_event)(struct smcd_dev *dev, struct smcd_gid *rgid,
+ 			    u32 trigger_irq, u32 event_code, u64 info);
++	int (*support_dmb_nocopy)(struct smcd_dev *dev);
++	int (*attach_dmb)(struct smcd_dev *dev, struct smcd_dmb *dmb);
++	int (*detach_dmb)(struct smcd_dev *dev, u64 token);
+ };
  
- /********************************** send *************************************/
+ struct smcd_dev {
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 6bed0a61b746..84f98e18c7db 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -250,6 +250,46 @@ int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
+ 	return rc;
+ }
  
-@@ -255,6 +256,14 @@ int smcd_cdc_msg_send(struct smc_connection *conn)
- 		return rc;
- 	smc_curs_copy(&conn->rx_curs_confirmed, &curs, conn);
- 	conn->local_rx_ctrl.prod_flags.cons_curs_upd_req = 0;
++bool smc_ism_support_dmb_nocopy(struct smcd_dev *smcd)
++{
++	/* for now only loopback-ism supports
++	 * merging sndbuf with peer DMB to avoid
++	 * data copies between them.
++	 */
++	return (smcd->ops->support_dmb_nocopy &&
++		smcd->ops->support_dmb_nocopy(smcd));
++}
 +
-+	if (smc_ism_support_dmb_nocopy(conn->lgr->smcd))
-+		/* if local sndbuf shares the same memory region with
-+		 * peer DMB, then don't update the tx_curs_fin
-+		 * and sndbuf_space until peer has consumed the data.
-+		 */
-+		return rc;
++int smc_ism_attach_dmb(struct smcd_dev *dev, u64 token,
++		       struct smc_buf_desc *dmb_desc)
++{
++	struct smcd_dmb dmb;
++	int rc = 0;
 +
- 	/* Calculate transmitted data and increment free send buffer space */
- 	diff = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
- 			     &conn->tx_curs_sent);
-@@ -323,7 +332,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- {
- 	union smc_host_cursor cons_old, prod_old;
- 	struct smc_connection *conn = &smc->conn;
--	int diff_cons, diff_prod;
-+	int diff_cons, diff_prod, diff_tx;
- 
- 	smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
- 	smc_curs_copy(&cons_old, &conn->local_rx_ctrl.cons, conn);
-@@ -339,6 +348,29 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- 		atomic_add(diff_cons, &conn->peer_rmbe_space);
- 		/* guarantee 0 <= peer_rmbe_space <= peer_rmbe_size */
- 		smp_mb__after_atomic();
++	if (!dev->ops->attach_dmb)
++		return -EINVAL;
 +
-+		/* if local sndbuf shares the same memory region with
-+		 * peer RMB, then update tx_curs_fin and sndbuf_space
-+		 * here since peer has already consumed the data.
-+		 */
-+		if (conn->lgr->is_smcd &&
-+		    smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
-+			/* Calculate consumed data and
-+			 * increment free send buffer space.
-+			 */
-+			diff_tx = smc_curs_diff(conn->sndbuf_desc->len,
-+						&conn->tx_curs_fin,
-+						&conn->local_rx_ctrl.cons);
-+			/* increase local sndbuf space and fin_curs */
-+			smp_mb__before_atomic();
-+			atomic_add(diff_tx, &conn->sndbuf_space);
-+			/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
-+			smp_mb__after_atomic();
-+			smc_curs_copy(&conn->tx_curs_fin,
-+				      &conn->local_rx_ctrl.cons, conn);
++	memset(&dmb, 0, sizeof(dmb));
++	dmb.dmb_tok = token;
++	rc = dev->ops->attach_dmb(dev, &dmb);
++	if (!rc) {
++		dmb_desc->sba_idx = dmb.sba_idx;
++		dmb_desc->token = dmb.dmb_tok;
++		dmb_desc->cpu_addr = dmb.cpu_addr;
++		dmb_desc->dma_addr = dmb.dma_addr;
++		dmb_desc->len = dmb.dmb_len;
++	}
++	return rc;
++}
 +
-+			smc_tx_sndbuf_nonfull(smc);
-+		}
- 	}
- 
- 	diff_prod = smc_curs_diff(conn->rmb_desc->len, &prod_old,
++int smc_ism_detach_dmb(struct smcd_dev *dev, u64 token)
++{
++	if (!dev->ops->detach_dmb)
++		return -EINVAL;
++
++	return dev->ops->detach_dmb(dev, token);
++}
++
+ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
+ 				  struct sk_buff *skb,
+ 				  struct netlink_callback *cb)
+diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
+index e6f57e5e1ef9..6763133dd8d0 100644
+--- a/net/smc/smc_ism.h
++++ b/net/smc/smc_ism.h
+@@ -48,6 +48,10 @@ int smc_ism_put_vlan(struct smcd_dev *dev, unsigned short vlan_id);
+ int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
+ 			 struct smc_buf_desc *dmb_desc);
+ int smc_ism_unregister_dmb(struct smcd_dev *dev, struct smc_buf_desc *dmb_desc);
++bool smc_ism_support_dmb_nocopy(struct smcd_dev *smcd);
++int smc_ism_attach_dmb(struct smcd_dev *dev, u64 token,
++		       struct smc_buf_desc *dmb_desc);
++int smc_ism_detach_dmb(struct smcd_dev *dev, u64 token);
+ int smc_ism_signal_shutdown(struct smc_link_group *lgr);
+ void smc_ism_get_system_eid(u8 **eid);
+ u16 smc_ism_get_chid(struct smcd_dev *dev);
 -- 
 2.32.0.3.g01195cf9f
 
