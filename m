@@ -1,193 +1,148 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C82052C868;
-	Mon, 15 Apr 2024 08:03:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44FC23FE5D;
+	Mon, 15 Apr 2024 08:41:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713168236; cv=none; b=HWF4GD2Lxmj906WHA4TLryPBM5gIvdUvuiItwD71mM4VcDQ83wv1Bl5lR7NGw8+RqugD1739KjaEOVObfqiQ52bEWok6yUlCSlWhHpiUH0QsCv7nS0kLb050/lDHRXrnWSbEHJC1KgpFIaYCYNvcEarSZfkBsAc8Sa7VDeStzIo=
+	t=1713170507; cv=none; b=hP1y2SnRI5FsI0PQaGy5AFqSroLMRXGhNZs5pCRG8t6idQa56KZ1QSoToYiqkKqBwHr38xpOrMdrNHikGrYNlnEIuSE8O/k/BZEAbIbG4gtuhx7mUM9UkB/2m3aIYm+HHoCNtm8E+Vsz1LcVCQdlBpJZOXU2ci9nVDn4R2FesV4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713168236; c=relaxed/simple;
-	bh=uAA0xNw3uXQEeAj18M82ry2VhWPmemP8F66GIQVJJSo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rm+izJIVMHv2b3ER5HvDOyanVNOjJPEbRWmDw25wQYLRzjUVIhty5tPZDfEFNwdg7WAIW4XkyYwPmgQm1v2RQeRyaowT8067IkJ6Fz3Md4dWSuUpj4ds46VZ8tIywQoqCOsT1l6j+xmY+fSLxjcYxTOZx7GXLBZIzrcqfuxEjtM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=hKFfLh3Z; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1713170507; c=relaxed/simple;
+	bh=7SORiU4shsWpZ0cGSl/ZJwxVqtAvvRLpEiZ0sdTzGuo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NiFaIkvaktuaYNXMzKqNnoTQvbYOHB1xU+/suM8w4Lzb1gjX4cl0TOh7Q1aEp+sv8x0jXsG8lKXOHdNZWecGX7n1xBgTHkKsl+TFDdBLX9q9p3QVlBGU1hUhAI7nWkoteNHr12IJtICq/hJV9RsLZ8HJyiSDJs5vt3zxRIO4iAI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=L+D8zPfb; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="hKFfLh3Z"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=SnC5QhRh3mlXbiY7BQLXM/Gh385CPpYbuU5jeG1ji44=; b=hKFfLh3ZzFSzJGPDsRiopYa0ZT
-	efNxCJqPzVqpITxLJsqCQRDO/uvf69qkc9BXqmWr7IXteAQce+itGNJYH8NcZtrv9mowEIaYK6OnE
-	zu1E4zjHKlTRzhIC1ZV1QOADiXZdrVLff1qYNP1JR24KuBKOy5EmbA81XuxsDuKJyy+iJ89PdOUI/
-	efJhNT73J6k+ohWLAe+NOaJ0tLI7iHDK5KHmXtq9go12IpYLvh58Vu6qfltj09NU88Ez/5/ao6M2e
-	ksvVbHfa9e2PLeJq7LlMBgltQx/i+r0JGyYLxMjQF0iD8WvUaOibeLqFhJKeJcs34Gs9iz6tlyZPZ
-	lKITRWCQ==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1rwHJC-0000000FFhi-3aDy;
-	Mon, 15 Apr 2024 08:03:22 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 12C5730040C; Mon, 15 Apr 2024 10:03:22 +0200 (CEST)
-Date: Mon, 15 Apr 2024 10:03:21 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Mike Rapoport <rppt@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Donald Dutile <ddutile@redhat.com>,
-	Eric Chanudet <echanude@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nadav Amit <nadav.amit@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Puranjay Mohan <puranjay12@gmail.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
-	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-mm@kvack.org, linux-modules@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v4 06/15] mm/execmem, arch: convert simple overrides of
- module_alloc to execmem
-Message-ID: <20240415080321.GG40213@noisy.programming.kicks-ass.net>
-References: <20240411160051.2093261-1-rppt@kernel.org>
- <20240411160051.2093261-7-rppt@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="L+D8zPfb"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43F3PK4C023259;
+	Mon, 15 Apr 2024 08:41:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=egqo3iTg7vXMcfRfDBzI5al7YP7luBSca8DUzS4Mp8A=;
+ b=L+D8zPfb6fU46rTtaTkxZ4nCRlftT+hXJZxP3BSbsbzb+4ZSxLuHkbAyQdXO+neP5ZZU
+ nAvJBcuuRyxW49kAqJITqjdiMODmkpEVA6eGkI3mkdRROeyKPiDhUH//SH9k8kXMVCTZ
+ iz+1a6kKNKfshw8iZg8+jTA2gwf8E4IfDn12EPeAucpwxRnIvJcAfgsFBQhKdRQ2Omwv
+ BfOb8VHS9fOXVKjfDV5gVRzhIbSXr0Jrs1+/dtVbdbzbs7kNnV5/GBbk6A6bMeX4ZJva
+ GeCCfkuib38WlvklNCcvviEIqXQujm9cs8vox8WANjIbIARyjofMrnvX6/DuMeMM5snv iQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xfhsd3ees-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Apr 2024 08:41:40 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43F8feVX029314;
+	Mon, 15 Apr 2024 08:41:40 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xfhsd3eem-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Apr 2024 08:41:40 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43F7UxAT011111;
+	Mon, 15 Apr 2024 08:41:39 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xg7326cfr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Apr 2024 08:41:38 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43F8fXQF47907286
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 15 Apr 2024 08:41:35 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7376020043;
+	Mon, 15 Apr 2024 08:41:33 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 808C620040;
+	Mon, 15 Apr 2024 08:41:32 +0000 (GMT)
+Received: from [9.171.17.66] (unknown [9.171.17.66])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 15 Apr 2024 08:41:32 +0000 (GMT)
+Message-ID: <c7f6be91-6591-4b00-95c3-48417bf98ac1@linux.ibm.com>
+Date: Mon, 15 Apr 2024 10:41:32 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240411160051.2093261-7-rppt@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v6 01/11] net/smc: decouple ism_client from SMC-D
+ DMB registration
+To: Wen Gu <guwen@linux.alibaba.com>, twinkler@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+References: <20240414040304.54255-1-guwen@linux.alibaba.com>
+ <20240414040304.54255-2-guwen@linux.alibaba.com>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20240414040304.54255-2-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: VyKdymiKN2yGTsfh4upxcjoyes97lM_-
+X-Proofpoint-ORIG-GUID: SoDffycIF7sHlVzV8EEaVAgQ31Cj4La0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-15_08,2024-04-09_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1015 mlxscore=0 spamscore=0 malwarescore=0 mlxlogscore=999
+ adultscore=0 phishscore=0 suspectscore=0 impostorscore=0
+ lowpriorityscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2404010000 definitions=main-2404150057
 
-On Thu, Apr 11, 2024 at 07:00:42PM +0300, Mike Rapoport wrote:
-> +static struct execmem_info execmem_info __ro_after_init = {
-> +	.ranges = {
-> +		[EXECMEM_DEFAULT] = {
-> +			.start = MODULES_VADDR,
-> +			.end = MODULES_END,
-> +			.alignment = 1,
-> +		},
-> +	},
-> +};
-> +
-> +struct execmem_info __init *execmem_arch_setup(void)
->  {
-> +	execmem_info.ranges[EXECMEM_DEFAULT].pgprot = PAGE_KERNEL;
-> +
-> +	return &execmem_info;
->  }
 
-> +static struct execmem_info execmem_info __ro_after_init = {
-> +	.ranges = {
-> +		[EXECMEM_DEFAULT] = {
-> +			.start = MODULES_VADDR,
-> +			.end = MODULES_END,
-> +			.pgprot = PAGE_KERNEL_EXEC,
-> +			.alignment = 1,
-> +		},
-> +	},
-> +};
-> +
-> +struct execmem_info __init *execmem_arch_setup(void)
->  {
-> +	return &execmem_info;
->  }
 
-> +static struct execmem_info execmem_info __ro_after_init = {
-> +	.ranges = {
-> +		[EXECMEM_DEFAULT] = {
-> +			.pgprot = PAGE_KERNEL_RWX,
-> +			.alignment = 1,
-> +		},
-> +	},
-> +};
-> +
-> +struct execmem_info __init *execmem_arch_setup(void)
->  {
-> +	execmem_info.ranges[EXECMEM_DEFAULT].start = VMALLOC_START;
-> +	execmem_info.ranges[EXECMEM_DEFAULT].end = VMALLOC_END;
-> +
-> +	return &execmem_info;
->  }
+On 14.04.24 06:02, Wen Gu wrote:
+> The struct 'ism_client' is specialized for s390 platform firmware ISM.
+> So replace it with 'void' to make SMCD DMB registration helper generic
+> for both Emulated-ISM and existing ISM.
+> 
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
 
-> +static struct execmem_info execmem_info __ro_after_init = {
-> +	.ranges = {
-> +		[EXECMEM_DEFAULT] = {
-> +			.pgprot = PAGE_KERNEL,
-> +			.alignment = 1,
-> +		},
-> +	},
-> +};
-> +
-> +struct execmem_info __init *execmem_arch_setup(void)
->  {
-> +	execmem_info.ranges[EXECMEM_DEFAULT].start = MODULES_VADDR;
-> +	execmem_info.ranges[EXECMEM_DEFAULT].end = MODULES_END;
-> +
-> +	return &execmem_info;
->  }
+Just a thought:
+The client concept is really specific to s390 platform firmware ISM.
+So wouldn't it be nice to do something like:
 
-> +static struct execmem_info execmem_info __ro_after_init = {
-> +	.ranges = {
-> +		[EXECMEM_DEFAULT] = {
->  #ifdef CONFIG_SPARC64
-> +			.start = MODULES_VADDR,
-> +			.end = MODULES_END,
->  #else
-> +			.start = VMALLOC_START,
-> +			.end = VMALLOC_END,
-> +#endif
-> +			.alignment = 1,
-> +		},
-> +	},
-> +};
-> +
-> +struct execmem_info __init *execmem_arch_setup(void)
->  {
-> +	execmem_info.ranges[EXECMEM_DEFAULT].pgprot = PAGE_KERNEL;
->  
-> +	return &execmem_info;
->  }
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index 78cca4839a31..37dcdf2bc044 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -747,10 +747,9 @@ static int smcd_query_rgid(struct smcd_dev *smcd, struct smcd_gid *rgid,
+        return ism_query_rgid(smcd->priv, rgid->gid, vid_valid, vid);
+ }
 
-I'm amazed by the weird and inconsistent breakup of initializations.
+-static int smcd_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
+-                            struct ism_client *client)
++static int smcd_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
+ {
+-       return ism_register_dmb(smcd->priv, (struct ism_dmb *)dmb, client);
++       return ism_register_dmb(smcd->priv, (struct ism_dmb *)dmb, &smc_ism_client);
+ }
 
-What exactly is wrong with something like:
+ static int smcd_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
 
-static struct execmem_info execmem_info __ro_after_init;
+--------------
 
-struct execmem_info __init *execmem_arch_setup(void)
-{
-	execmem_info = (struct execmem_info){
-		.ranges = {
-			[EXECMEM_DEFAULT] = {
-				.start	= MODULES_VADDR,
-				.end	= MODULES_END,
-				.pgprot	= PAGE_KERNEL,
-				.alignment = 1,
-			},
-		},
-	};
-	return &execmem_info;
-}
+This is not a real patch, just a sketch, but I hope you
+get the idea.
 
+
+This may be a step in the direction of moving the ism_client concept from 
+net/smc/smc_ism.c to drivers/s390/net/ism*
+
+
+I know that there are several dependencies to consider. 
+And I haven't looked at the other patches in this series yet in detail, to see how you solve
+things like smcd_register_dev. Seems like smcd_register_dmb() is the only one of the smcd_ops
+that you need for loopback and uses ism_client.
+
+
+
+Wenjia, Gerd, and others what do you think?
