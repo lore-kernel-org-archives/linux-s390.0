@@ -1,64 +1,68 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45A5C763F8;
-	Mon, 15 Apr 2024 15:26:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EC1174E11;
+	Mon, 15 Apr 2024 15:26:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713194763; cv=none; b=aF1gJBakBnRD2Xm79WH2aOaPPlEkG2Twoa0tOInRZq+o8mZX/Ae+1kX+KOYzGZL8aABkW+nUB1+2m+8/Anxedn/OQ1pBk4IQ/DlAW3L/YQJSRVXM30zTShADMf05MpmkkrBTUFg85yPV+y+6wZZDrVZT+5XPapaXWZT4+ZtJ8Ng=
+	t=1713194764; cv=none; b=A+JEZ5pmZSnJR3YNgQod9Ef3tvN6/GGb51hiKrY+VehYqRkE45sH+zDK+3c7eY91O05cMrqe6vIx+izx7Enq/PgHa+Z1Hf6ASDEI2SSV+qGiF7rVNqPj0jdtT7Lypx1hQZmuaCvhCTfnIXJJ93NBo4o64ZzaPaeobv+6zee9aUo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713194763; c=relaxed/simple;
-	bh=i9eQj7lhojYBRW0/0mk4jofZg3pf6CTqO67Fb5FswCQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NN9cxMgRa95Q9rSQfeQxeFT+PByJ7crPoEFqV7HIRKyzTC5yj3lZQ+LR9cGV99Nhum/N1ggKJsy8hj6m/TlBDMJ3OOIvWB7X0FGOz8kwWcz6k1Gs4QWJh5oTuY/regi40CjiR1E8Tik0fc+TQYdfc6npqX9EFKIxFJy07aMuqRs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cd0dzL0V; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1713194764; c=relaxed/simple;
+	bh=5c6guQ2FUVHHwyr6ZU/rcOyICNnEuFH5vN8FXZhfREY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=W2/CVUKbs1TzlKTp2EaSRa21Ioa/g4+/nFv56ynmGblgmm9lNxQorVqElFHLcxXAWzvu7i72ZgrjKJWLuiIf+zS23hEWt5yby0wMMJkzA6hfTIANY6bkIEqgktnwhcyDbX99LVlC1wR4kEoYSxutFAG2YpJRBgAtfmDHOfPKFrw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TYJvVt+7; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cd0dzL0V"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43FFOW9w026050;
-	Mon, 15 Apr 2024 15:26:00 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TYJvVt+7"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43FF8k23030098;
+	Mon, 15 Apr 2024 15:26:01 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=jk2jHuQVg21C6LLxh4Kt+xaPngk00G7rXooowfFRmBg=;
- b=cd0dzL0V6XvVCqq3Ob6HJUZjkEbAZ2ll2YQGDVSPM1aYaVxj07llIrMP9PyuGt/qZ1rt
- ys6xiE5hVoqoZ0HAqevBQ96tr2BRWbk3GEOrQOlxfVn1UkPL/pJdBGRABD3+ui/hz41o
- r4TV9Nx6jRMhKYS3DbfeMjGBGFu0P/e0GiYhfkVhtUEiFx7uyK2waqAkANOcTt45We5V
- HezGORRUrBgxe9An0P3Oytlmjb4WLv0glbOEqbvb+WphjyS7FLoo4xbcUD+IOxydvTX6
- lLiLA2zmkMZ/DM/0BojkBH9h7XV4YSrQOuKvOZJ33TvwEYNOW+V9LaADSSsvrV5wQmBi Qg== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=6XGvqxQKmD74K7o3lJi96exBfyvMPYZq144pIakSGTg=;
+ b=TYJvVt+7rupkMpB7Uo+1JsgR4qKrBDOsmFAKasYZUX/yerZIFoii3Py2d10e5Q8nTJhM
+ bZi78CdB8fgXjvpa7/G4oNRL4aiQZD6iRx/8cAORFNcwXjkmV0ULaZpd0BWRe0hNfip7
+ UuRy4idaoey/QgsShZw5Crpsz9I9u70nXPdiDXrZu5C+jctVmhkei6V9U9c5lVoHlClm
+ zUddeA46jHGPPNOI927u/nQnoX58ZXJ6vRTpuyvbUKeU+8lngku0eJLxVMMRQTnAws1h
+ yU08CClDtMSgGwqvvvyWJy/GNW4i/2eMmBh54yR70zpCf1xiwRPPLf5XiXuDCrrfzQyi sQ== 
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xh4r0rafd-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xh6m8r167-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Apr 2024 15:25:59 +0000
+	Mon, 15 Apr 2024 15:26:01 +0000
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43FD1GRb023575;
-	Mon, 15 Apr 2024 15:25:59 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xg5cnrk8a-1
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43FChWhr023572;
+	Mon, 15 Apr 2024 15:26:00 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xg5cnrk8m-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Apr 2024 15:25:59 +0000
+	Mon, 15 Apr 2024 15:26:00 +0000
 Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43FFPu1N23593548
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43FFPvrC46727542
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 15 Apr 2024 15:25:58 GMT
+	Mon, 15 Apr 2024 15:25:59 GMT
 Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F26755805F;
-	Mon, 15 Apr 2024 15:25:55 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5CE925805E;
+	Mon, 15 Apr 2024 15:25:57 +0000 (GMT)
 Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 61CFA58043;
-	Mon, 15 Apr 2024 15:25:55 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B950858043;
+	Mon, 15 Apr 2024 15:25:56 +0000 (GMT)
 Received: from jason-laptop.ibmuc.com (unknown [9.61.81.98])
 	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 15 Apr 2024 15:25:55 +0000 (GMT)
+	Mon, 15 Apr 2024 15:25:56 +0000 (GMT)
 From: "Jason J. Herne" <jjherne@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, akrowiak@linux.ibm.com,
         borntraeger@de.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        hca@linux.ibm.com
-Subject: [PATCH v5 0/5] s390/vfio-ap: ap_config sysfs attribute for mdevctl automation
-Date: Mon, 15 Apr 2024 11:25:50 -0400
-Message-ID: <20240415152555.13152-1-jjherne@linux.ibm.com>
+        hca@linux.ibm.com, Matthew Rosato <mjrosato@linux.ibm.com>
+Subject: [PATCH v5 2/5] s390/vfio-ap: Add sysfs attr, ap_config, to export mdev state
+Date: Mon, 15 Apr 2024 11:25:52 -0400
+Message-ID: <20240415152555.13152-3-jjherne@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20240415152555.13152-1-jjherne@linux.ibm.com>
+References: <20240415152555.13152-1-jjherne@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,61 +71,78 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 89rZbfIgvzSkqUmp3bMiL9ciFq8W9C3L
-X-Proofpoint-ORIG-GUID: 89rZbfIgvzSkqUmp3bMiL9ciFq8W9C3L
+X-Proofpoint-GUID: SGw0_5sNH0CuDD0-vEru1XVSqGmfpvIW
+X-Proofpoint-ORIG-GUID: SGw0_5sNH0CuDD0-vEru1XVSqGmfpvIW
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-04-15_12,2024-04-15_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- mlxlogscore=999 mlxscore=0 spamscore=0 lowpriorityscore=0 suspectscore=0
- clxscore=1015 adultscore=0 impostorscore=0 priorityscore=1501 phishscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ suspectscore=0 phishscore=0 lowpriorityscore=0 bulkscore=0 malwarescore=0
+ priorityscore=1501 spamscore=0 mlxlogscore=999 impostorscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2404010000 definitions=main-2404150100
 
-Mdevctl requires a way to atomically query and atomically update a vfio-ap
-mdev's current state. This patch set creates the ap_config sysfs attribute.
-This new attribute allows reading and writing an mdev's entire state in one go.
-If a newly written state is invalid for any reason the entire state is rejected
-and the target mdev remains unchanged.
+Add ap_config sysfs attribute. This will provide the means for
+setting or displaying the adapters, domains and control domains assigned
+to the vfio-ap mediated device in a single operation. This sysfs
+attribute is comprised of three masks: One for adapters, one for domains,
+and one for control domains.
 
-Changelog
-==========
-v5
-  - Replaced 'volatile' Wstringop-overread-warning workaround with a much
-    nicer !null check in ap_matrix_copy
-  - Fixed spacing & double assignment issues reported by checkpatch.pl --strict
-v4
-  - Added volatile cast to fixup false positive gcc warning: 
-    Wstringop-overread-warning
-  - Added new Reviewed-By tags
-v3
-  - Optimization: hot unplug functions skip apcb update if nothing was actually
-    unplugged.
-  - Hot unplug functions modified to zero bitmaps before use.
-  - Rename ap_matrix_length_check to ap_matrix_overflow_check
-  - Fixed omissions and errors in several commit messages and the docs.
-  - Added Tested-by tags.
-v2
-  - Rebased patched on top of latest master
-  - Reworked code to fit changes introduced by f848cba767e59
-      s390/vfio-ap: reset queues filtered from the guest's AP config
-  - Moved docs changes to separate patch
+This attribute is intended to be used by mdevctl to query a vfio-ap
+mediated device's state.
 
-Jason J. Herne (5):
-  s390/ap: Externalize AP bus specific bitmap reading function
-  s390/vfio-ap: Add sysfs attr, ap_config, to export mdev state
-  s390/vfio-ap: Ignore duplicate link requests in
-    vfio_ap_mdev_link_queue
-  s390/vfio-ap: Add write support to sysfs attr ap_config
-  docs: Update s390 vfio-ap doc for ap_config sysfs attribute
+Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
+Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
- Documentation/arch/s390/vfio-ap.rst   |  30 ++++
- drivers/s390/crypto/ap_bus.c          |  13 +-
- drivers/s390/crypto/ap_bus.h          |  22 +++
- drivers/s390/crypto/vfio_ap_ops.c     | 224 ++++++++++++++++++++++++--
- drivers/s390/crypto/vfio_ap_private.h |   6 +-
- 5 files changed, 266 insertions(+), 29 deletions(-)
-
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index fc169bc61593..e01f53a3c5b7 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1570,6 +1570,32 @@ static ssize_t guest_matrix_show(struct device *dev,
+ }
+ static DEVICE_ATTR_RO(guest_matrix);
+ 
++static ssize_t write_ap_bitmap(unsigned long *bitmap, char *buf, int offset, char sep)
++{
++	return sysfs_emit_at(buf, offset, "0x%016lx%016lx%016lx%016lx%c",
++			 bitmap[0], bitmap[1], bitmap[2], bitmap[3], sep);
++}
++
++static ssize_t ap_config_show(struct device *dev, struct device_attribute *attr,
++			      char *buf)
++{
++	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
++	int idx = 0;
++
++	idx += write_ap_bitmap(matrix_mdev->matrix.apm, buf, idx, ',');
++	idx += write_ap_bitmap(matrix_mdev->matrix.aqm, buf, idx, ',');
++	idx += write_ap_bitmap(matrix_mdev->matrix.adm, buf, idx, '\n');
++
++	return idx;
++}
++
++static ssize_t ap_config_store(struct device *dev, struct device_attribute *attr,
++			       const char *buf, size_t count)
++{
++	return count;
++}
++static DEVICE_ATTR_RW(ap_config);
++
+ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_assign_adapter.attr,
+ 	&dev_attr_unassign_adapter.attr,
+@@ -1577,6 +1603,7 @@ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_unassign_domain.attr,
+ 	&dev_attr_assign_control_domain.attr,
+ 	&dev_attr_unassign_control_domain.attr,
++	&dev_attr_ap_config.attr,
+ 	&dev_attr_control_domains.attr,
+ 	&dev_attr_matrix.attr,
+ 	&dev_attr_guest_matrix.attr,
 -- 
 2.41.0
 
