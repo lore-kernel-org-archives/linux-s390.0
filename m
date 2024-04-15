@@ -1,137 +1,155 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from fout5-smtp.messagingengine.com (fout5-smtp.messagingengine.com [103.168.172.148])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF61D79B84;
-	Mon, 15 Apr 2024 15:26:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBEB378C78;
+	Mon, 15 Apr 2024 15:35:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.148
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713194766; cv=none; b=rY/9HQXT8AYSkUbv4zgtQHEc6zD5U1kIZkC2qmPL6gUmFLdXo0070zl09DUbaUTL1mTsUTlp0yyOhhvkuY2D2ruBnBuU5IPBaIHCqCLv6Zvfd7qsHxQLSnqR+v93RbIRz4YAmM/6sp3m7oXS0MiFAUwJOwB+EhR39I3bB14VrlM=
+	t=1713195354; cv=none; b=eyogk7nOrkATzI3LWM/hWLkw42uuk7SVV8UxUOVc7kT+k5GYnF2EI82pv23IleSM06Np5sNbqqDYUpe5dnotVHJvWiIxnyyOiueKxFvyz+bjKHYG+KZ4LxxpGVL0aMU1nTH451maWvMOwuJ1dslRYe/q3jS/S/Pn11cF8tiganc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713194766; c=relaxed/simple;
-	bh=9PD+9L0PVL8I44H98mCx75/QxiCwntwIQP0yJEXXBoM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Tx2EgO0jXOYba2WQLOhqzts0DltmUCv0Ub/TGmiaa6l9OMqwsFrpV8xkGQ3x94XaRvkDhKuP2RHXrsD0oOGKAGHM8XDPKVJLmpFrfDH1wvl20O0WVAs9ENBMIsyEn9JlGasHhI3fSNCVjM9ZKCEnqYd6GaigL+CRt1/JDfYjkCE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QW26d0We; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1713195354; c=relaxed/simple;
+	bh=+Hr1RSEs61KbR8I+XiQic0F3lvj+u2G4lhHUoJS4y8s=;
+	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
+	 Subject:Content-Type; b=quGtutM/NV1sXomgVEROG4VKJ0qHV7S52XKs7CNWhohi/O6vX1EVmSU9an2xGXpnztFfCbmepUgnRNfJTU5SMD0rJtzcA/v2aWYWYDThSMu68RIa52s1JxQvKmzHMtf28wPThUGnExsK+4wl4spx22HOFUo2hPx/dnvfE/SYUCc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=nsCdW1U5; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=s/cIWt86; arc=none smtp.client-ip=103.168.172.148
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QW26d0We"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43FEOirp008827;
-	Mon, 15 Apr 2024 15:26:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=nA44NqsR5fKRH/saS36EU5J3ow43IZqAtKqBh0Egb6o=;
- b=QW26d0WeRKPSFtHkwEhITWAJVzNYRvWZVJoMmtp+G3ySVOkvvvdiXk8i0jP/2VzWPiZx
- QnlJkwAl3Mut4fZr1orW7MG0Jj3GMY9gKkxM4lySDzDC677n92WzyetdefvUSghZB14+
- aM1GIEdQXFnzYC99PddGAs4cQItAuCLqURLiWHeoIf4x850TIA7xN+k20WmUFmjste12
- KK4i1JQ4XfJbVVnSs1QFuJmzEd1qHCyGdLZmXjaxQwfxWIMGZsVsoQaNmVX8ofcbx6l0
- ZkaZm+0hDqdJ4jSf1yd3U+eeAVz5Ry5gPP2E2H+YNiNrboMg9Jilr6SGgbyvOz4d26IU Qw== 
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xh0btgwfw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Apr 2024 15:26:03 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43FFGhVj027354;
-	Mon, 15 Apr 2024 15:26:02 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xg4ryrrj1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Apr 2024 15:26:02 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43FFPxY922020848
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 15 Apr 2024 15:26:01 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5501B58059;
-	Mon, 15 Apr 2024 15:25:59 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C99C158043;
-	Mon, 15 Apr 2024 15:25:58 +0000 (GMT)
-Received: from jason-laptop.ibmuc.com (unknown [9.61.81.98])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 15 Apr 2024 15:25:58 +0000 (GMT)
-From: "Jason J. Herne" <jjherne@linux.ibm.com>
-To: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, akrowiak@linux.ibm.com,
-        borntraeger@de.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        hca@linux.ibm.com
-Subject: [PATCH v5 5/5] docs: Update s390 vfio-ap doc for ap_config sysfs attribute
-Date: Mon, 15 Apr 2024 11:25:55 -0400
-Message-ID: <20240415152555.13152-6-jjherne@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20240415152555.13152-1-jjherne@linux.ibm.com>
-References: <20240415152555.13152-1-jjherne@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="nsCdW1U5";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="s/cIWt86"
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+	by mailfout.nyi.internal (Postfix) with ESMTP id E4015138008C;
+	Mon, 15 Apr 2024 11:35:51 -0400 (EDT)
+Received: from imap51 ([10.202.2.101])
+  by compute5.internal (MEProxy); Mon, 15 Apr 2024 11:35:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm2; t=1713195351; x=1713281751; bh=NKyHVd6O5G
+	xyMIbK6qGm5hs8jJkIZEH0cqFINvkbpUA=; b=nsCdW1U51jfzeMkyZHn0Fbb0ao
+	ikCGQ2m8sEt8IzFsf2Y91pKjA743pr4et54buHMJ18+wfoUyu3+1T7yMo0N3EMsh
+	hWjPJIREZSzKTcUCEwZ+QOl5GTgcvtYkLYF8kUBxyhPLhWyBqgrc2SVV9U17rNDy
+	uauUhhaFKZCVAoxZz5Ay8zxq6zC5i36nA5JnhbLa/v7qbxKR6I4MkRKkYjADdOwu
+	4G7RGEeqWX6T097kMoVwWJ+r5PcR3IIsqplnh0PtQe2jVoqaDAISxlQPXrzetgBj
+	MnxKIeEe20mYTZhOWN/bDJRJ7r8ycT0+eC4hE62WUXfgrQ1hKQQ03IJMXb5Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm2; t=1713195351; x=1713281751; bh=NKyHVd6O5GxyMIbK6qGm5hs8jJkI
+	ZEH0cqFINvkbpUA=; b=s/cIWt866OUPpq+SGeHRpY+cwbQKV7lcLczMsPVcaV/F
+	EDnq1h1asCSMTzxemSxR94D2ne4gbYsHdeW+1AE4cLr13usIaEG1EmVhoxDB3rve
+	7rnXELuXrBx6N01XziYoAIXPdiiVtB9/rEpj5wwnZEaUXRzeTtT3+8mjFrYxPvaf
+	noJ0OL90mNlKaBMKarEqwh4VwXAIXzOaRS+a7BEvH4XRSIRd621Izyrg2gW8Elfo
+	yj2nhZYxmIVYNuW5NkjZe5L1JDtE5GxMvxO1iDpmvKbT2qOwIJ4LwbFHFv10qZ3K
+	Gcog4XGLOGqSWPm2WqhKCJYrtYPFK11WR1PuT62lLw==
+X-ME-Sender: <xms:V0kdZl5-Ks5H4ZIMsueKvNzcseWUdcxlN1bHo3L0FXNmQAsoQ3hquA>
+    <xme:V0kdZi5ePkAR-UV1hDdBO-DisyYak1ddjUBzwzTSUMNH0IoJtrRPE_mkO6L2fNfZk
+    9Hx0bBdT-m6Ozfx9O8>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrudejvddgledvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
+    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
+    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
+    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
+    hrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:V0kdZsfF8xA-hXd_nvSYSobS20nFGN0x9XjtFi1OVnyGUtW02lPinQ>
+    <xmx:V0kdZuJr02V0bjMWLu1OYgLN3jcRy0kJ6DD5ZaM4sJ1lo4Ma5OpIgA>
+    <xmx:V0kdZpK_jfoTK42y2-Lb5lgs7xKkOdfc1q9LaoaXqDQWTjQuEfBrNw>
+    <xmx:V0kdZnxZ9r8LEj0Ct9uR5wPh--IidebIgB3b5JmFA7rg4QgbW2ftZA>
+    <xmx:V0kdZn2NOqZbkoIdGySo0kb7whsiu5YeDLfPLZVeDsnKGEuee0WQkEjg>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+	id E9918B6008D; Mon, 15 Apr 2024 11:35:50 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.11.0-alpha0-379-gabd37849b7-fm-20240408.001-gabd37849
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: hzVM5490X0k7TcU-tw1URiTXQJS3q44R
-X-Proofpoint-GUID: hzVM5490X0k7TcU-tw1URiTXQJS3q44R
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-15_12,2024-04-15_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- suspectscore=0 spamscore=0 impostorscore=0 mlxlogscore=999 phishscore=0
- adultscore=0 priorityscore=1501 lowpriorityscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2404150100
+Message-Id: <e0cf6827-06c2-4212-848c-10d275c75546@app.fastmail.com>
+In-Reply-To: <875xwjcqpl.fsf@mail.lhotse>
+References: <20240410153212.127477-1-adrian.hunter@intel.com>
+ <87be83da-6102-483d-b1dc-a77eecc9f780@app.fastmail.com>
+ <c9f382b2-cd96-4ee3-ad68-95381d9e09c0@intel.com>
+ <a434248a-1e9f-4f4f-8f90-d36d8e979f53@csgroup.eu>
+ <ff9d7032-a3b6-4ecd-ac26-d7d4a06a5c7f@csgroup.eu>
+ <4d429a10-eb45-4262-8e74-69af810ef1ac@intel.com>
+ <dd6653b2-3a88-4b95-af13-c6fda5b27b39@app.fastmail.com>
+ <875xwjcqpl.fsf@mail.lhotse>
+Date: Mon, 15 Apr 2024 17:35:30 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Michael Ellerman" <mpe@ellerman.id.au>,
+ "Adrian Hunter" <adrian.hunter@intel.com>,
+ "Christophe Leroy" <christophe.leroy@csgroup.eu>
+Cc: "Peter Zijlstra" <peterz@infradead.org>,
+ "Dave Hansen" <dave.hansen@linux.intel.com>,
+ "John Stultz" <jstultz@google.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Vincenzo Frascino" <vincenzo.frascino@arm.com>,
+ "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+ "Naresh Kamboju" <naresh.kamboju@linaro.org>,
+ "x86@kernel.org" <x86@kernel.org>,
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+ "Ingo Molnar" <mingo@redhat.com>,
+ "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Heiko Carstens" <hca@linux.ibm.com>,
+ "Nicholas Piggin" <npiggin@gmail.com>, "Borislav Petkov" <bp@alien8.de>,
+ "Andy Lutomirski" <luto@kernel.org>,
+ "Bjorn Helgaas" <bhelgaas@google.com>,
+ "Thomas Gleixner" <tglx@linutronix.de>,
+ "Anna-Maria Gleixner" <anna-maria@linutronix.de>,
+ "Stephen Boyd" <sboyd@kernel.org>,
+ "Randy Dunlap" <rdunlap@infradead.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "Sven Schnelle" <svens@linux.ibm.com>,
+ "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
+Subject: Re: [PATCH] bug: Fix no-return-statement warning with !CONFIG_BUG
+Content-Type: text/plain
 
-A new sysfs attribute, ap_config, for the vfio_ap driver is
-documented.
+On Mon, Apr 15, 2024, at 04:19, Michael Ellerman wrote:
+> "Arnd Bergmann" <arnd@arndb.de> writes:
+>> On Thu, Apr 11, 2024, at 11:27, Adrian Hunter wrote:
+>>> On 11/04/24 11:22, Christophe Leroy wrote:
+>>>
+>>> That is fragile because it depends on defined(__OPTIMIZE__),
+>>> so it should still be:
+>>
+>> If there is a function that is defined but that must never be
+>> called, I think we are doing something wrong.
+>
+> It's a pretty inevitable result of using IS_ENABLED(), which the docs
+> encourage people to use.
 
-Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- Documentation/arch/s390/vfio-ap.rst | 30 +++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+Using IS_ENABLED() is usually a good idea, as it helps avoid
+adding extra #ifdef checks and just drops static functions as
+dead code, or lets you call extern functions that are conditionally
+defined in a different file.
 
-diff --git a/Documentation/arch/s390/vfio-ap.rst b/Documentation/arch/s390/vfio-ap.rst
-index 929ee1c1c940..6056a50ee841 100644
---- a/Documentation/arch/s390/vfio-ap.rst
-+++ b/Documentation/arch/s390/vfio-ap.rst
-@@ -380,6 +380,36 @@ matrix device.
-     control_domains:
-       A read-only file for displaying the control domain numbers assigned to the
-       vfio_ap mediated device.
-+    ap_config:
-+        A read/write file that, when written to, allows all three of the
-+        vfio_ap mediated device's ap matrix masks to be replaced in one shot.
-+        Three masks are given, one for adapters, one for domains, and one for
-+        control domains. If the given state cannot be set then no changes are
-+        made to the vfio-ap mediated device.
-+
-+        The format of the data written to ap_config is as follows:
-+        {amask},{dmask},{cmask}\n
-+
-+        \n is a newline character.
-+
-+        amask, dmask, and cmask are masks identifying which adapters, domains,
-+        and control domains should be assigned to the mediated device.
-+
-+        The format of a mask is as follows:
-+        0xNN..NN
-+
-+        Where NN..NN is 64 hexadecimal characters representing a 256-bit value.
-+        The leftmost (highest order) bit represents adapter/domain 0.
-+
-+        For an example set of masks that represent your mdev's current
-+        configuration, simply cat ap_config.
-+
-+        Setting an adapter or domain number greater than the maximum allowed for
-+        the system will result in an error.
-+
-+        This attribute is intended to be used by automation. End users would be
-+        better served using the respective assign/unassign attributes for
-+        adapters, domains, and control domains.
- 
- * functions:
- 
--- 
-2.41.0
+The thing is that here it does not do either of those and
+adds more complexity than it avoids.
 
+> In this case it could easily be turned into a build error by just making
+> it an extern rather than a static inline.
+>
+> But I think Christophe's solution is actually better, because it's more
+> explicit, ie. this function should not be called and if it is that's a
+> build time error.
+
+I haven't seen a good solution here. Ideally we'd just define
+the functions unconditionally and have IS_ENABLED() take care
+of letting the compiler drop them silently, but that doesn't
+build because of missing struct members.
+
+I won't object to either an 'extern' declaration or the
+'BUILD_BUG_ON()' if you and others prefer that, both are better
+than BUG() here. I still think my suggestion would be a little
+simpler.
+
+     Arnd
