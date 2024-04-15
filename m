@@ -1,196 +1,120 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 213BE17565;
-	Sun, 14 Apr 2024 07:28:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1A881171C;
+	Mon, 15 Apr 2024 02:19:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=150.107.74.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713079683; cv=none; b=ekIp91v3s3LBHAb2WunZcXrjH4xV3xGCu+c6oWltHqyO/V7ICXpHU7SFrr9NaxZu6OCYlp3u1+MZsxen3cNlwzBzpYU8k/j+Z5/7qoVjgTf8av2a1ickI3nlBiVyab0RNknvZV/Z1KU4m4IYjvdxuZHAMrCHC9NhD2YLRBTf7LE=
+	t=1713147603; cv=none; b=aVDQN3/hwD7pfBZq74lZHm/FsunK+tHIkQyIypd8E4P2Fr5K97U5deHSDl0WjJRuUdawBjjs8Q732qFL2byBhL813Pm/Yn9MXTKf29kj58cU9brzr/caDKAykmMR86f5WVxHE3OVxcYeZq/svT/ewINb3JL+jfuAG4oKFbTIYBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713079683; c=relaxed/simple;
-	bh=7UcAoz/SHZJ9dQ0bgxdPwC8jDXsqkfxw4nZlv0SLw5o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qbtxOfhZcaHsLD9jYrV2UIUzMCUE9EUXt1oaTpBMKzUZn1goQjZB8pC3+WRqLnjsOZnjz5GFc1H0/VPGjPGUY5yL3HHcR6uudTMBBTuF9XHxapMb6wL1ZZxvPcrwVX7L6g+IAnkXJRbzpuc2X1Q9qW95KlpFG4HTyJ5E5ImdaFE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mSn3bFIT; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1713147603; c=relaxed/simple;
+	bh=3oU2p1In4W0koqh6Uc5YWekxPtYLC4K4W2NNnFMhURg=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=Zija+UX4+NovIuO79+qsNwT9xPRsaBdQ6eKC7wDaU4YK8H/MeMaO4yorlv2ubpmzhM0/CLg4OSoGHaev5OU2qX2xy1gQ7H0fHFkH67ajNnju0FoG8MFPOObzw6YH1D2ChbrumWU4IHt2lv/Jyqa7wCySEStQJZA8NtV4BfcONGA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au; spf=pass smtp.mailfrom=ellerman.id.au; dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b=Wfh3cBf0; arc=none smtp.client-ip=150.107.74.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ellerman.id.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mSn3bFIT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 759F8C072AA;
-	Sun, 14 Apr 2024 07:27:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713079682;
-	bh=7UcAoz/SHZJ9dQ0bgxdPwC8jDXsqkfxw4nZlv0SLw5o=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=mSn3bFITK7eYlJdTFbScch0ThBeU+CtfVZynIF2TKYAjwpfIWpT9mvprRtl/vRdi+
-	 PWs0IudDlFW6Beno7xjDAiW1ip7pL/FGhEaTkCamfUxQ5eDkHTs4QkNm97zhVJccwv
-	 UxX9+hkJgUV7GSohwVI620vdp0JYtwTWKKysZvcjBk9t6kUNPFg5Eeatgn84u8vivs
-	 7On6vy8KLlD97z5wp8DI0bLXFhxIaSTkHjS//iWFuOPg7CQ+rJyeDYDISTJa6W6AFc
-	 TXNbcHaOhhepqyuh8BUKoPaV89wZMsoGzWH9gtBjUYYSDb1AqF+wsfY3ZeQjYF2dQ5
-	 tmillpYns8epg==
-Date: Sun, 14 Apr 2024 10:26:47 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org, Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Donald Dutile <ddutile@redhat.com>,
-	Eric Chanudet <echanude@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nadav Amit <nadav.amit@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Puranjay Mohan <puranjay12@gmail.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
-	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-mm@kvack.org, linux-modules@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v4 06/15] mm/execmem, arch: convert simple overrides of
- module_alloc to execmem
-Message-ID: <ZhuFNyaZcfOrp7Cl@kernel.org>
-References: <20240411160051.2093261-1-rppt@kernel.org>
- <20240411160051.2093261-7-rppt@kernel.org>
- <20240411205346.GA66667@ravnborg.org>
+	dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b="Wfh3cBf0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+	s=201909; t=1713147597;
+	bh=8o4K5dRyl8sIUjU0EgivmjJC3lGXyfUukYQCR3Ov8pA=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=Wfh3cBf0QS/1UiJCGd9wNTsg4Z3JgU/S53A7sXuE66QjWbiVD9T5UErj+qdU+566N
+	 hjbiVLnV+ds0WJ+Ev+xRCLWWsYkNs/ydYleOUGiOgEvXor3j+0XD5ZTGMx7r9XyYx5
+	 jn2svY0f1Sry8eWSJqE0BMCHAzNMPGqqW0t7XdRo/lDxhdZw7wJ9e8/OC/PSiEPyk7
+	 59A2AycixIle915lKXR/ZEVvbbDPyQIwTiMKuZDpZGbvMmBz2pFKC82F8PzOQcpTbi
+	 j7+dgyBZn3vKLSDfhQN2vQw0ZU/QKf2x+gGzusuyAGdNvKz8OxQs5aM4xz/lfB0l96
+	 UWGlHWQT/t0iQ==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mail.ozlabs.org (Postfix) with ESMTPSA id 4VHrV23GDlz4wcr;
+	Mon, 15 Apr 2024 12:19:53 +1000 (AEST)
+From: Michael Ellerman <mpe@ellerman.id.au>
+To: Arnd Bergmann <arnd@arndb.de>, Adrian Hunter <adrian.hunter@intel.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Peter Zijlstra <peterz@infradead.org>, Dave Hansen
+ <dave.hansen@linux.intel.com>, John Stultz <jstultz@google.com>, "H. Peter
+ Anvin" <hpa@zytor.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Vincenzo Frascino <vincenzo.frascino@arm.com>,
+ "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Naresh Kamboju
+ <naresh.kamboju@linaro.org>, "x86@kernel.org" <x86@kernel.org>, "Aneesh
+ Kumar K.V" <aneesh.kumar@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko
+ Carstens <hca@linux.ibm.com>, Nicholas Piggin <npiggin@gmail.com>,
+ Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Bjorn
+ Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Anna-Maria Gleixner <anna-maria@linutronix.de>, Stephen Boyd
+ <sboyd@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sven
+ Schnelle <svens@linux.ibm.com>, "linuxppc-dev@lists.ozlabs.org"
+ <linuxppc-dev@lists.ozlabs.org>
+Subject: Re: [PATCH] bug: Fix no-return-statement warning with !CONFIG_BUG
+In-Reply-To: <dd6653b2-3a88-4b95-af13-c6fda5b27b39@app.fastmail.com>
+References: <20240410153212.127477-1-adrian.hunter@intel.com>
+ <87be83da-6102-483d-b1dc-a77eecc9f780@app.fastmail.com>
+ <c9f382b2-cd96-4ee3-ad68-95381d9e09c0@intel.com>
+ <a434248a-1e9f-4f4f-8f90-d36d8e979f53@csgroup.eu>
+ <ff9d7032-a3b6-4ecd-ac26-d7d4a06a5c7f@csgroup.eu>
+ <4d429a10-eb45-4262-8e74-69af810ef1ac@intel.com>
+ <dd6653b2-3a88-4b95-af13-c6fda5b27b39@app.fastmail.com>
+Date: Mon, 15 Apr 2024 12:19:50 +1000
+Message-ID: <875xwjcqpl.fsf@mail.lhotse>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240411205346.GA66667@ravnborg.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Apr 11, 2024 at 10:53:46PM +0200, Sam Ravnborg wrote:
-> Hi Mike.
-> 
-> On Thu, Apr 11, 2024 at 07:00:42PM +0300, Mike Rapoport wrote:
-> > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
-> > 
-> > Several architectures override module_alloc() only to define address
-> > range for code allocations different than VMALLOC address space.
-> > 
-> > Provide a generic implementation in execmem that uses the parameters for
-> > address space ranges, required alignment and page protections provided
-> > by architectures.
-> > 
-> > The architectures must fill execmem_info structure and implement
-> > execmem_arch_setup() that returns a pointer to that structure. This way the
-> > execmem initialization won't be called from every architecture, but rather
-> > from a central place, namely a core_initcall() in execmem.
-> > 
-> > The execmem provides execmem_alloc() API that wraps __vmalloc_node_range()
-> > with the parameters defined by the architectures.  If an architecture does
-> > not implement execmem_arch_setup(), execmem_alloc() will fall back to
-> > module_alloc().
-> > 
-> > Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
-> > ---
-> 
-> This code snippet could be more readable ...
-> > diff --git a/arch/sparc/kernel/module.c b/arch/sparc/kernel/module.c
-> > index 66c45a2764bc..b70047f944cc 100644
-> > --- a/arch/sparc/kernel/module.c
-> > +++ b/arch/sparc/kernel/module.c
-> > @@ -14,6 +14,7 @@
-> >  #include <linux/string.h>
-> >  #include <linux/ctype.h>
-> >  #include <linux/mm.h>
-> > +#include <linux/execmem.h>
-> >  
-> >  #include <asm/processor.h>
-> >  #include <asm/spitfire.h>
-> > @@ -21,34 +22,26 @@
-> >  
-> >  #include "entry.h"
-> >  
-> > +static struct execmem_info execmem_info __ro_after_init = {
-> > +	.ranges = {
-> > +		[EXECMEM_DEFAULT] = {
-> >  #ifdef CONFIG_SPARC64
-> > -
-> > -#include <linux/jump_label.h>
-> > -
-> > -static void *module_map(unsigned long size)
-> > -{
-> > -	if (PAGE_ALIGN(size) > MODULES_LEN)
-> > -		return NULL;
-> > -	return __vmalloc_node_range(size, 1, MODULES_VADDR, MODULES_END,
-> > -				GFP_KERNEL, PAGE_KERNEL, 0, NUMA_NO_NODE,
-> > -				__builtin_return_address(0));
-> > -}
-> > +			.start = MODULES_VADDR,
-> > +			.end = MODULES_END,
-> >  #else
-> > -static void *module_map(unsigned long size)
-> > +			.start = VMALLOC_START,
-> > +			.end = VMALLOC_END,
-> > +#endif
-> > +			.alignment = 1,
-> > +		},
-> > +	},
-> > +};
-> > +
-> > +struct execmem_info __init *execmem_arch_setup(void)
-> >  {
-> > -	return vmalloc(size);
-> > -}
-> > -#endif /* CONFIG_SPARC64 */
-> > -
-> > -void *module_alloc(unsigned long size)
-> > -{
-> > -	void *ret;
-> > -
-> > -	ret = module_map(size);
-> > -	if (ret)
-> > -		memset(ret, 0, size);
-> > +	execmem_info.ranges[EXECMEM_DEFAULT].pgprot = PAGE_KERNEL;
-> >  
-> > -	return ret;
-> > +	return &execmem_info;
-> >  }
-> >  
-> >  /* Make generic code ignore STT_REGISTER dummy undefined symbols.  */
-> 
-> ... if the following was added:
-> 
-> diff --git a/arch/sparc/include/asm/pgtable_32.h b/arch/sparc/include/asm/pgtable_32.h
-> index 9e85d57ac3f2..62bcafe38b1f 100644
-> --- a/arch/sparc/include/asm/pgtable_32.h
-> +++ b/arch/sparc/include/asm/pgtable_32.h
-> @@ -432,6 +432,8 @@ static inline int io_remap_pfn_range(struct vm_area_struct *vma,
-> 
->  #define VMALLOC_START           _AC(0xfe600000,UL)
->  #define VMALLOC_END             _AC(0xffc00000,UL)
-> +#define MODULES_VADDR           VMALLOC_START
-> +#define MODULES_END             VMALLOC_END
-> 
-> 
-> Then the #ifdef CONFIG_SPARC64 could be dropped and the code would be
-> the same for 32 and 64 bits.
- 
-Yeah, the #ifdef there can be dropped even regardless of execmem.
-I'll add a patch for that.
+"Arnd Bergmann" <arnd@arndb.de> writes:
+> On Thu, Apr 11, 2024, at 11:27, Adrian Hunter wrote:
+>> On 11/04/24 11:22, Christophe Leroy wrote:
+>>> Le 11/04/2024 =C3=A0 10:12, Christophe Leroy a =C3=A9crit=C2=A0:
+>>>>
+>>>> Looking at the report, I think the correct fix should be to use=20
+>>>> BUILD_BUG() instead of BUG()
+>>>=20
+>>> I confirm the error goes away with the following change to next-2024041=
+1=20
+>>> on powerpc tinyconfig with gcc 13.2
+>>>=20
+>>> diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
+>>> index 4e18db1819f8..3d5ac0cdd721 100644
+>>> --- a/kernel/time/timekeeping.c
+>>> +++ b/kernel/time/timekeeping.c
+>>> @@ -282,7 +282,7 @@ static inline void timekeeping_check_update(struct=
+=20
+>>> timekeeper *tk, u64 offset)
+>>>   }
+>>>   static inline u64 timekeeping_debug_get_ns(const struct tk_read_base =
+*tkr)
+>>>   {
+>>> -	BUG();
+>>> +	BUILD_BUG();
+>>>   }
+>>>   #endif
+>>>=20
+>>
+>> That is fragile because it depends on defined(__OPTIMIZE__),
+>> so it should still be:
+>
+> If there is a function that is defined but that must never be
+> called, I think we are doing something wrong.
 
-> Just a drive-by comment.
-> 
-> 	Sam
-> 
+It's a pretty inevitable result of using IS_ENABLED(), which the docs
+encourage people to use.
 
--- 
-Sincerely yours,
-Mike.
+In this case it could easily be turned into a build error by just making
+it an extern rather than a static inline.
+
+But I think Christophe's solution is actually better, because it's more
+explicit, ie. this function should not be called and if it is that's a
+build time error.
+
+cheers
