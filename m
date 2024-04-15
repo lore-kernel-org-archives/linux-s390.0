@@ -1,184 +1,124 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C44966B5E
-	for <linux-s390@vger.kernel.org>; Mon, 15 Apr 2024 12:00:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1126271B4B;
+	Mon, 15 Apr 2024 13:15:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713182403; cv=none; b=tLAemu7TnhOkNl7umuegz2IT4AKLJDyXf+iYTLwu35EcNfIk2pTx38lxDYmGFm339nVyaPhFV9Frh9EQmNPqt9KEclzBVeyc2JL5Fwzodiv7kMVxqjCIwpFRFRFNyHBoMNGkqk6N5HdoF+QhRNC06nWd/WnhLUE3pG3UATfgkNc=
+	t=1713186918; cv=none; b=OFiume3G4xDrgtbmpG4vxO+vOk6QAyCXn+ZofrvuDw20vSdEkbZnNEIhr+Uyy5JwqhOvHZvuE7Ng2UQI4saa3E9bPGOLjNq4td2ylwkoy7HxHcPtg5Kn/KeTVUusIDjbp3HOZW2PvkDFnV/A4XUnXmiN807QCqS5sDEnSAmI84E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713182403; c=relaxed/simple;
-	bh=napJXjLj3U8I6q7OUl8fTUznItnXsqsg1UsCutw66zM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uGGXtTwV6xt6JVq/SKiA1Uaht5XgY2OK25cZHYbOTUSjW6MzIKKuZjCccTg7lhLiFWEAu/58dTvOh/0ufS1zcwWybIYacLbLNHBd2VVrjpxI1n/aGBgS9TSfQtOOWB5khqOj5ry9s7Ix5LahYZSKAWLjZJeP9DhOU1KPtWzduy8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MvPtsF6a; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1713186918; c=relaxed/simple;
+	bh=cgfDAaVZZtWPrtKdxCE2gH6bdJu8NmsHhTkgce2G2lw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BFYFSH3FEkL979hij/3hy+CWu1lYHhdR1El759I45iTkIuTTFXpCIWlZ+ND5/b0PnUsxTKkGLOKReyQZOu/dHRl2yy8EF6cBFqZnHWGBHhHRPynKe38QRQ8Y2E+MC4lAi+R6isLpaY+JygoEB2AYb7rdYeOmFelrav2UbtSdYrE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AEkZu/Mm; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MvPtsF6a"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713182400;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=X2FokXM5pJzeEUQHx+N783w38I8i9hW9WaFMev4UKRo=;
-	b=MvPtsF6aPmZvurVRi6rSMIdIip9DhPe7V+Wj1n5ahgqacefcimMFL5pCtKCe8avyG6iVph
-	EkzSK4YDMl8FYvi7ZUvlHjlvuuKT1ZPpnF3T8WyLc7S7qZY5IZtVgXTKTPuUSAVQbjKxoH
-	20sV5dNdCf5jcszwQbAYxiAQSHfqF/4=
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
- [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-261-S8Gct52UMGKyp2sM8FxVJA-1; Mon, 15 Apr 2024 07:59:58 -0400
-X-MC-Unique: S8Gct52UMGKyp2sM8FxVJA-1
-Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-43473ded688so33113601cf.1
-        for <linux-s390@vger.kernel.org>; Mon, 15 Apr 2024 04:59:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713182398; x=1713787198;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=X2FokXM5pJzeEUQHx+N783w38I8i9hW9WaFMev4UKRo=;
-        b=Tyu9lwej5H7AAd+6MDUr1XEStwKU7704xK9qsZNd5dNBIY2yXIWHmqOAPp2Vkl0Fts
-         gNZafH/pB+/TrjirYtCaRyMaTUvuZ5UEqIqyFFwgZwOqOEBAdHonZuUEjLpHSGMLVq1u
-         ljONkk9Cb4eOyWW3nXcGE6U2wRLrQjQmaREVP+uI90qUYAADqiVGTTPQFlRSYRWSZzk9
-         U13tOGrJP5/MbO8yB2EfUHsPB4O12m8iTmoiGoXWbklmwWaPpwRhpdfCn+tj3CEhOS/g
-         fGq84c14fJ1XNU859dPbKBNb3mHhwLiPRHqVJwLn8zXa05FqFvxGJ+iTwqnwjAyT5TsB
-         TYKw==
-X-Forwarded-Encrypted: i=1; AJvYcCVvvmSjX5iVAapdKeA9u1J0naVuhYjpQCFNIo7aXYNjIIfMW7GmIldRxiVZCQ/qk9ctp82h/ClHExXkxqzE4xbTMR/IYRvJeayJ3Q==
-X-Gm-Message-State: AOJu0Yx0c9jIMNd26CYWgyU8TUE9FwfqzSupj7Zncx+Iqz8/qRiyIsai
-	l0cUPYTASjAwojTEgG3HuljezV/+Z35/wnfWtt8Bcnn9e80aNbqsh5RiN2ny+cJofylQl2cnpCy
-	NyGxnZW864gbLdbTP75akoQ/7LjwD1cYg+l5h4rimmuBCAivPa4Jd8G0tkww=
-X-Received: by 2002:a05:620a:191b:b0:78d:6427:6176 with SMTP id bj27-20020a05620a191b00b0078d64276176mr13511923qkb.61.1713182398425;
-        Mon, 15 Apr 2024 04:59:58 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGyR3ka1K2kLSCsQ2AnoVFeEamqSD/fRjjnTltJe9LRL9AaBLcdMWNNamrfpWiMyPq2otZwpA==
-X-Received: by 2002:a05:620a:191b:b0:78d:6427:6176 with SMTP id bj27-20020a05620a191b00b0078d64276176mr13511886qkb.61.1713182398031;
-        Mon, 15 Apr 2024 04:59:58 -0700 (PDT)
-Received: from [192.168.0.9] (ip-109-43-179-142.web.vodafone.de. [109.43.179.142])
-        by smtp.gmail.com with ESMTPSA id da8-20020a05620a360800b0078d5af15c4csm6268025qkb.38.2024.04.15.04.59.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 15 Apr 2024 04:59:57 -0700 (PDT)
-Message-ID: <a7cdd98e-93c1-4546-bba4-ac3a465f01f5@redhat.com>
-Date: Mon, 15 Apr 2024 13:59:50 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AEkZu/Mm"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43F7PIRQ026480;
+	Mon, 15 Apr 2024 13:15:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=3rN8HQolmFxM+YUKj2uZxSUDCD7dmomLpdfAKbofYKI=;
+ b=AEkZu/Mm7Ca+NFMCjtJrRKZNcU2479rSJi3pmnksZWpZAKnK+uxDRgxP+MMwdKoxpzdI
+ m3LGYAukWvsk3u8UmLsK2zNqN8UnI52a/OeysImif87mmxx/17mmY07WOgzVbh0zmGnQ
+ o/GV//yItdyYyJIEv/nkcSZs+Hj1m2cyV9GqmjVjU3S6Jo5nIvMJ2Rc5qhPwVYL3uvx1
+ JoXTVb8ZZNyP1kNrNGbc7kKNqjZMYmOaFJbrfn1DoO8id7M9rCPjjfjrDMwIA5IB+1za
+ LQteC1XGnCcVdd51OgggkHnaP0HAMUQbD/jvAI5nrFX2/+d4YPVdrE7m0ZvL3zLKV6Md Ag== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xgueuh492-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Apr 2024 13:15:10 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43FDF9cq018621;
+	Mon, 15 Apr 2024 13:15:09 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xgueuh48x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Apr 2024 13:15:09 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43FCF5Za027323;
+	Mon, 15 Apr 2024 13:15:08 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xg4ryr51r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Apr 2024 13:15:08 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43FDF2Qe30736856
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 15 Apr 2024 13:15:04 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A94F72004F;
+	Mon, 15 Apr 2024 13:15:02 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0A8762004B;
+	Mon, 15 Apr 2024 13:15:01 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.5.235])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 15 Apr 2024 13:15:00 +0000 (GMT)
+Date: Mon, 15 Apr 2024 15:14:59 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Xu <peterx@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 2/2] s390/mm: re-enable the shared zeropage for !PV
+ and !skeys KVM guests
+Message-ID: <Zh0oUwOqQaUxqqOt@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240411161441.910170-1-david@redhat.com>
+ <20240411161441.910170-3-david@redhat.com>
+ <ZhgRxB9qxz90tAwy@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <bd4d940e-5710-446f-9dc5-928e67920ec6@redhat.com>
+ <2a4ce6bc-49cc-45b8-ba15-82eb330f409f@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC kvm-unit-tests PATCH v2 00/14] add shellcheck support
-To: Nicholas Piggin <npiggin@gmail.com>, Andrew Jones <andrew.jones@linux.dev>
-Cc: Paolo Bonzini <pbonzini@redhat.com>,
- Alexandru Elisei <alexandru.elisei@arm.com>,
- Eric Auger <eric.auger@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, =?UTF-8?Q?Nico_B=C3=B6hr?=
- <nrb@linux.ibm.com>, David Hildenbrand <david@redhat.com>,
- Shaoqin Huang <shahuang@redhat.com>,
- Nikos Nikoleris <nikos.nikoleris@arm.com>,
- David Woodhouse <dwmw@amazon.co.uk>, Ricardo Koller <ricarkol@google.com>,
- rminmin <renmm6@chinaunicom.cn>, Gavin Shan <gshan@redhat.com>,
- Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
- Sean Christopherson <seanjc@google.com>, kvm@vger.kernel.org,
- kvmarm@lists.linux.dev, kvm-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org
-References: <20240406123833.406488-1-npiggin@gmail.com>
-From: Thomas Huth <thuth@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <20240406123833.406488-1-npiggin@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2a4ce6bc-49cc-45b8-ba15-82eb330f409f@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: zS_AuAQk6eAifeK-Okqo40-aOdlhSPHG
+X-Proofpoint-ORIG-GUID: ocuVy9OvAL0I0P9GUTSSneucdjWqhqk3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-15_10,2024-04-15_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
+ malwarescore=0 priorityscore=1501 clxscore=1015 mlxscore=0 bulkscore=0
+ spamscore=0 mlxlogscore=791 lowpriorityscore=0 phishscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
+ definitions=main-2404150086
 
-On 06/04/2024 14.38, Nicholas Piggin wrote:
-> Tree here
-> 
-> https://gitlab.com/npiggin/kvm-unit-tests/-/tree/shellcheck
-> 
-> Again on top of the "v8 migration, powerpc improvements" series. I
-> don't plan to rebase the other way around since it's a lot of work.
-> So this is still in RFC until the other big series gets merged.
-> 
-> Thanks to Andrew for a lot of review. A submitted the likely s390x
-> bugs separately ahead of this series, and also disabled one of the
-> tests and dropped its fix patch as-per review comments. Hence 3 fewer
-> patches. Other than that, since last post:
-> 
-> * Tidied commit messages and added some of Andrew's comments.
-> * Removed the "SC2034 unused variable" blanket disable, and just
->    suppressed the config.mak and a couple of other warnings.
-> * Blanket disabled "SC2235 Use { ..; } instead of (..)" and dropped
->    the fix for it.
-> * Change warning suppression comments as per Andrew's review, also
->    mention in the new unittests doc about the "check =" option not
->    allowing whitespace etc in the name since we don't cope with that.
-> 
-> Thanks,
-> Nick
-> 
-> Nicholas Piggin (14):
->    Add initial shellcheck checking
->    shellcheck: Fix SC2223
->    shellcheck: Fix SC2295
->    shellcheck: Fix SC2094
->    shellcheck: Fix SC2006
->    shellcheck: Fix SC2155
->    shellcheck: Fix SC2143
->    shellcheck: Fix SC2013
->    shellcheck: Fix SC2145
->    shellcheck: Fix SC2124
->    shellcheck: Fix SC2294
->    shellcheck: Fix SC2178
->    shellcheck: Fix SC2048
->    shellcheck: Suppress various messages
+On Mon, Apr 15, 2024 at 01:49:15PM +0200, Christian Borntraeger wrote:
 
-I went ahead and pushed a bunch of your patches to the k-u-t master branch 
-now. However, there were also some patches which did not apply cleanly to 
-master anymore, so please rebase the remaining patches and then send them again.
+Hi Christian,
 
-  Thanks!
-   Thomas
+> > On 11.04.24 18:37, Alexander Gordeev wrote:
+> > > On Thu, Apr 11, 2024 at 06:14:41PM +0200, David Hildenbrand wrote:
+> > > David, Christian,
+> > > > Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> > > Please, correct me if I am wrong, but (to my understanding) the
+> > > Tested-by for v2 does not apply for this version of the patch?
+> > I thought I'd removed it -- you're absolutely, this should be dropped. Hopefully Christian has time to retest.
+> 
+> So I can confirm that this patch does continue fix the qemu memory consumption for a guest doing managedsave/start.
 
+I will re-add your Tested-by.
 
+> A quick check of other aspects seems to be ok. We will have more coverage on the base functionality as soon as it hits next(via Andrew) as our daily CI will pick this up for lots of KVM tests.
+
+As per the cover letter I will pull it via s390 tree:
+"Based on s390/features. Andrew agreed that both patches can go via the
+s390x tree."
+
+Thanks!
