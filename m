@@ -1,140 +1,140 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id A082386630;
-	Mon, 15 Apr 2024 17:36:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6D8784D24;
+	Mon, 15 Apr 2024 17:37:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713202626; cv=none; b=m4eQ6SR7zHQL4WMM4wt71bfbtg7jo/Nqpnf9N+UnsMU++KZn/GzVMkT66KfZBqWD2R1kfNbFDg1ajhqrM9kViSwB8NcxE0zfNA92aoN8CeS7Do6fD5QeYXVm9s2fUtYtH7hhMXxexxko83dtLQypF29BEXr3mkqB5jwnxud3W4E=
+	t=1713202657; cv=none; b=pQDm+m4UbqdaYqOl9BAYs7cUHVlANkYg6pYfXmcq+xvrdj5eskLfRaZXDPz57n9tluMd1CLXh4PRuBN5EijU2Q5hjNLngmwlWZq0uVZCiO1R0o1Vfwezd3X3dwJrlex/hfH14Y+9LvuagERdLnbqocVK622HwkQsHOH7TuiBFD0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713202626; c=relaxed/simple;
-	bh=ugJ7VhityyPTecy8wf9JRI9YbfU9MGW+oLb8yf0nono=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lz398WWt3ASiObpqk1Z5cKfqqu9lzTk6vRmdOAFSzKUdkrUjXW7A99sMSDWgXkhb/WbdGPpGOV4HO4VOEtytUzYkyJL2VTeuFJWzpqgJbnt7xnGyy5Bt98pl8+nOQ+SpNYhzDXIQrbaUNXWMDOuS4D7dK4DnRuoS8T6E/JGVY/Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 30ED11515;
-	Mon, 15 Apr 2024 10:37:23 -0700 (PDT)
-Received: from FVFF77S0Q05N.cambridge.arm.com (FVFF77S0Q05N.cambridge.arm.com [10.1.38.162])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6579A3F64C;
-	Mon, 15 Apr 2024 10:36:49 -0700 (PDT)
-Date: Mon, 15 Apr 2024 18:36:39 +0100
-From: Mark Rutland <mark.rutland@arm.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org,
-	Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"Bj\"orn T\"opel" <bjorn@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Donald Dutile <ddutile@redhat.com>,
-	Eric Chanudet <echanude@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nadav Amit <nadav.amit@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Puranjay Mohan <puranjay12@gmail.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
-	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-mm@kvack.org, linux-modules@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v4 05/15] mm: introduce execmem_alloc() and execmem_free()
-Message-ID: <Zh1lnIdgFeM1o8S5@FVFF77S0Q05N.cambridge.arm.com>
-References: <20240411160051.2093261-1-rppt@kernel.org>
- <20240411160051.2093261-6-rppt@kernel.org>
- <20240415075241.GF40213@noisy.programming.kicks-ass.net>
+	s=arc-20240116; t=1713202657; c=relaxed/simple;
+	bh=aRXYP7whVmwGDAAoL4RxJq5dXy/yDUYDAJLbCRKjIv0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=lmnSMtLqQG/H6OiKknN4UsDFbix8toVvaxoT9frenH6pmZuUJPonKZ4o9iQ7QEByUz5rl4JKNbnHw+0xspB1C7Ekyln8DnB+f5+s2twoAFur8Fe/jH4toNXWZ4Q2pZUsLxrDyB5K0+gasxYtecXdo1L+0I4wWj0JDsBOo2eyhBA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=f8QTb1Ru; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="f8QTb1Ru"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43FHTd7t032517;
+	Mon, 15 Apr 2024 17:37:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=giuL7psBnCYmcCNZfVK84ryizKXG50Ihblmwkj3wriw=;
+ b=f8QTb1RuyUjHKdTvFgX2dE7EA1EgVPrHkNiroZulh4nqHh3HykkQyUWdconiEhzFGDzk
+ noIruYi4krEUsJodLiYHeizRDMUiK7WlEvGAwnVD0HpHJ04xCKqNSkqEhaMMFAOUMF13
+ 0Mvt7NeZs5FOrg+mSs2sM6R92+vLbP66oCXpsv2wbLMFqGJjOLR4U5zpaEBZvy7JzwUx
+ cTFcAMK0AJbRWtOSRklP/Yss6hte0tqkT3yDouT1kipVb2XDc0N4I4a336wS2tg+hCyC
+ 0Urr+7j8W00KA6KUjBwM4goi+5LevkAoFCXyXPw0DzS6eF4iAzIow3bygupdMDTyjAsw bw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xh8p280k0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Apr 2024 17:37:14 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43FHbDnu012027;
+	Mon, 15 Apr 2024 17:37:14 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xh8p280jv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Apr 2024 17:37:13 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43FHUiHA011118;
+	Mon, 15 Apr 2024 17:37:13 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xg7328t8n-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Apr 2024 17:37:13 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43FHbAex29098500
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 15 Apr 2024 17:37:12 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3FB7158060;
+	Mon, 15 Apr 2024 17:37:10 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BB51C5804E;
+	Mon, 15 Apr 2024 17:37:07 +0000 (GMT)
+Received: from [9.171.82.37] (unknown [9.171.82.37])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 15 Apr 2024 17:37:07 +0000 (GMT)
+Message-ID: <f664c557-7924-4a75-a782-040cfc23f404@linux.ibm.com>
+Date: Mon, 15 Apr 2024 19:37:06 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240415075241.GF40213@noisy.programming.kicks-ass.net>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: fix potential sleeping issue in
+ smc_switch_conns
+Content-Language: en-GB
+To: Zhengchao Shao <shaozhengchao@huawei.com>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
+Cc: jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        guwen@linux.alibaba.com, weiyongjun1@huawei.com, yuehaibing@huawei.com,
+        tangchengchang@huawei.com
+References: <20240413035150.3338977-1-shaozhengchao@huawei.com>
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <20240413035150.3338977-1-shaozhengchao@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XTtCLkSoJ02eeTFokA2wyIm50YiP5hc1
+X-Proofpoint-GUID: HhPyQvNa9dY9xt4VfAgyIeATCj8gdNQw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-15_14,2024-04-15_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxlogscore=876
+ spamscore=0 priorityscore=1501 suspectscore=0 mlxscore=0 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 adultscore=0 phishscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
+ definitions=main-2404150116
 
-On Mon, Apr 15, 2024 at 09:52:41AM +0200, Peter Zijlstra wrote:
-> On Thu, Apr 11, 2024 at 07:00:41PM +0300, Mike Rapoport wrote:
-> > +/**
-> > + * enum execmem_type - types of executable memory ranges
-> > + *
-> > + * There are several subsystems that allocate executable memory.
-> > + * Architectures define different restrictions on placement,
-> > + * permissions, alignment and other parameters for memory that can be used
-> > + * by these subsystems.
-> > + * Types in this enum identify subsystems that allocate executable memory
-> > + * and let architectures define parameters for ranges suitable for
-> > + * allocations by each subsystem.
-> > + *
-> > + * @EXECMEM_DEFAULT: default parameters that would be used for types that
-> > + * are not explcitly defined.
-> > + * @EXECMEM_MODULE_TEXT: parameters for module text sections
-> > + * @EXECMEM_KPROBES: parameters for kprobes
-> > + * @EXECMEM_FTRACE: parameters for ftrace
-> > + * @EXECMEM_BPF: parameters for BPF
-> > + * @EXECMEM_TYPE_MAX:
-> > + */
-> > +enum execmem_type {
-> > +	EXECMEM_DEFAULT,
-> > +	EXECMEM_MODULE_TEXT = EXECMEM_DEFAULT,
-> > +	EXECMEM_KPROBES,
-> > +	EXECMEM_FTRACE,
-> > +	EXECMEM_BPF,
-> > +	EXECMEM_TYPE_MAX,
-> > +};
+
+
+On 13.04.24 05:51, Zhengchao Shao wrote:
+> Potential sleeping issue exists in the following processes:
+> smc_switch_conns
+>    spin_lock_bh(&conn->send_lock)
+>    smc_switch_link_and_count
+>      smcr_link_put
+>        __smcr_link_clear
+>          smc_lgr_put
+>            __smc_lgr_free
+>              smc_lgr_free_bufs
+>                __smc_lgr_free_bufs
+>                  smc_buf_free
+>                    smcr_buf_free
+>                      smcr_buf_unmap_link
+>                        smc_ib_put_memory_region
+>                          ib_dereg_mr
+>                            ib_dereg_mr_user
+>                              mr->device->ops.dereg_mr
+> If scheduling exists when the IB driver implements .dereg_mr hook
+> function, the bug "scheduling while atomic" will occur. For example,
+> cxgb4 and efa driver. Use mutex lock instead of spin lock to fix it.
 > 
-> Can we please get a break-down of how all these types are actually
-> different from one another?
+> Fixes: 20c9398d3309 ("net/smc: Resolve the race between SMC-R link access and clear")
+> Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+> ---
+>   net/smc/af_smc.c   |  2 +-
+>   net/smc/smc.h      |  2 +-
+>   net/smc/smc_cdc.c  | 14 +++++++-------
+>   net/smc/smc_core.c |  8 ++++----
+>   net/smc/smc_tx.c   |  8 ++++----
+>   5 files changed, 17 insertions(+), 17 deletions(-)
 > 
-> I'm thinking some platforms have a tiny immediate space (arm64 comes to
-> mind) and has less strict placement constraints for some of them?
 
-Yeah, and really I'd *much* rather deal with that in arch code, as I have said
-several times.
+Hi Zhengchao,
 
-For arm64 we have two bsaic restrictions: 
+If I understand correctly, the sleeping issue is not the core issue, it 
+looks like a kind of deadlock or kernel pointer dereference issue. Did 
+you get crash? Do you have any backtrace? Why do you think the mutex 
+lock will fix it?
 
-1) Direct branches can go +/-128M
-   We can expand this range by having direct branches go to PLTs, at a
-   performance cost.
-
-2) PREL32 relocations can go +/-2G
-   We cannot expand this further.
-
-* We don't need to allocate memory for ftrace. We do not use trampolines.
-
-* Kprobes XOL areas don't care about either of those; we don't place any
-  PC-relative instructions in those. Maybe we want to in future.
-
-* Modules care about both; we'd *prefer* to place them within +/-128M of all
-  other kernel/module code, but if there's no space we can use PLTs and expand
-  that to +/-2G. Since modules can refreence other modules, that ends up
-  actually being halved, and modules have to fit within some 2G window that
-  also covers the kernel.
-
-* I'm not sure about BPF's requirements; it seems happy doing the same as
-  modules.
-
-So if we *must* use a common execmem allocator, what we'd reall want is our own
-types, e.g.
-
-	EXECMEM_ANYWHERE
-	EXECMEM_NOPLT
-	EXECMEM_PREL32
-
-... and then we use those in arch code to implement module_alloc() and friends.
-
-Mark.
+Thanks,
+Wenjia
