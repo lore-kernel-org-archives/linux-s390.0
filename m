@@ -1,101 +1,98 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7466612CD9A;
-	Tue, 16 Apr 2024 14:06:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5012D13AA59;
+	Tue, 16 Apr 2024 15:53:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713276374; cv=none; b=HqA0cvAdRSc8QpPg/9wI7HVkeYuOhIlZULlTotFDKA3NOR1zsJN2rLej9TMroFNiNMo563sWkHA5Cl96xpfNmHjFsmzzizPB7681AqsN+yr/Sn58wB5oU71BxM0cxGEuy1AXk6okdrtzmHeml3NH7a9m8udFQd/L1lzXqwiLMwY=
+	t=1713282828; cv=none; b=bhmnBDJfWcqPVD3zHs3zRL3iOzjhfj0gDINtlt1D/jtXVQI2SIsaYs/N3C7/GQOZmjkd2UNUgCF9f701ClUljFji1A0sD+nU6gYqN5ilp1faGMKh5Mnt83pnjF4wnuEOH2yGpcLzA983BwVDo+EJC5XYD66uTUmXIeJPfvrgisE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713276374; c=relaxed/simple;
-	bh=OIjBZ2uSrRRCPA7njEkAYgEvMcESbAP5c3QefnQVxTg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ptpJD4R3w3gCnpHS4LDaUKEnT1Z+/TBXh6xNv9IQ+WuiOU1l47/Qwsb9MCtXKxctqpJugExfkxSsfZRyVjzF/O1ZpUHkCEIXqCSlxn/xFANmzYoNAYaQFZmUvNNtJk2BOV4juKniaJneVFf5wHFf/YRZg5ApDLufBINLjPE6btE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=AzKDH9U5; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1713282828; c=relaxed/simple;
+	bh=9bq8yrtQK9l1i0+gE8ENhkGDnD4PPiMZHJ7vhwh/RsA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JetB5cOtUqSbAgmMmnoccMUUKD58NDjbbIMc2fLme7rJhR1TEIZbm9htue1jg94BdlZyoUqZ9Q1NZ6f53TI5DIg9impg5DFpV7oHcYGlQH0ixRuJd7Us39vcsUMmMRlcgLwHMnc2sCZKicr6MEzmW++WijS192wQwP3wzPNuIOc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iYx1ySOU; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="AzKDH9U5"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1713276369; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=xEYEMePmztZfbv9xHlEGvnUIEV3Ro9LAXkzvLijPqCM=;
-	b=AzKDH9U57bdwbad16JV9nYVCvrfGqIt1Z59x5f/IyczPiIjwxucwaM9LDa7zZzIBXBBRn0FA2ysg8KM3hWZuwhe+XcdScnJcXQ0lQrg3Li3m/Bljzwr9mpnRiG4gGDnGu1OAnbECgoEJSEFGqSOIPWk3JY/wDTWLL0bRVKFx3oY=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W4i8467_1713276365;
-Received: from 30.213.156.135(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W4i8467_1713276365)
-          by smtp.aliyun-inc.com;
-          Tue, 16 Apr 2024 22:06:07 +0800
-Message-ID: <eb7eb42a-ea96-41d9-b385-c459379bed99@linux.alibaba.com>
-Date: Tue, 16 Apr 2024 22:06:04 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iYx1ySOU"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43GFqHc3006661;
+	Tue, 16 Apr 2024 15:53:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=ahwo9ygXLQPCBFtu1iJRpeFoiFvLTQacsCaUnSPP0Ks=;
+ b=iYx1ySOUoceuxXKwor+p7dQ0GWGHPhOtoYP/hcb3nKMwY7FmdKBO++cZzzq1b57hASw4
+ a/Bjw5dvCYCHwtEtFPRcO1FHpO6mnHdMvFo+szLsWU2xLk5ajV5UkfEtltW1fbVIkZ4Y
+ FTTVTk19MgP3jSOM5HfWYTM/okv86x6A4W6e5FKaav9u8LsbXOWVPgtO/i8JGEIDLI9d
+ dxs65E/EOvVPhzua5aSRFLRGIvifXfrgAPQlmNKOZYkp9DP2GAbuQQRZ4vocxJu4I5Ns
+ waPr5V9yUyRBuYf/uxLZbErNJthVxj7B+fK/tz6bq/T+/wjwGLYvxbiqMzFzb5qjF4uH ug== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xhvbgg08b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Apr 2024 15:53:45 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43GFri1p009295;
+	Tue, 16 Apr 2024 15:53:44 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xhvbgg087-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Apr 2024 15:53:44 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43GFl7gr015862;
+	Tue, 16 Apr 2024 15:53:43 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xg5vm6w08-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Apr 2024 15:53:43 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43GFrbTs17039840
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 16 Apr 2024 15:53:39 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B5C1520040;
+	Tue, 16 Apr 2024 15:53:37 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 74ABB2004B;
+	Tue, 16 Apr 2024 15:53:37 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 16 Apr 2024 15:53:37 +0000 (GMT)
+Date: Tue, 16 Apr 2024 17:53:36 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        frankja@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com,
+        borntraeger@de.ibm.com, hca@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, david@redhat.com
+Subject: Re: [PATCH v1 0/2] s390/mm: fix improper use of
+ __storage_key_init_range
+Message-ID: <Zh6fAG5sQHQ564mJ@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240416114220.28489-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v6 10/11] net/smc: adapt cursor update when
- sndbuf and peer DMB are merged
-To: Simon Horman <horms@kernel.org>
-Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- wenjia@linux.ibm.com, jaka@linux.ibm.com, borntraeger@linux.ibm.com,
- svens@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org
-References: <20240414040304.54255-1-guwen@linux.alibaba.com>
- <20240414040304.54255-11-guwen@linux.alibaba.com>
- <20240416110538.GK2320920@kernel.org>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <20240416110538.GK2320920@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240416114220.28489-1-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: BKcx-THJItvXurArp0MEw8DP_czU-NGu
+X-Proofpoint-ORIG-GUID: InaTEFXBxA9QVPmQsrYoVtEBR_5DXgIG
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-16_13,2024-04-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ priorityscore=1501 mlxlogscore=633 mlxscore=0 phishscore=0 suspectscore=0
+ impostorscore=0 adultscore=0 clxscore=1015 lowpriorityscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
+ definitions=main-2404160097
 
+On Tue, Apr 16, 2024 at 01:42:18PM +0200, Claudio Imbrenda wrote:
+>  arch/s390/mm/gmap.c        | 2 +-
+>  arch/s390/mm/hugetlbpage.c | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 
-
-On 2024/4/16 19:05, Simon Horman wrote:
-> On Sun, Apr 14, 2024 at 12:03:03PM +0800, Wen Gu wrote:
->> If the local sndbuf shares the same physical memory with peer DMB,
->> the cursor update processing needs to be adapted to ensure that the
->> data to be consumed won't be overwritten.
->>
->> So in this case, the fin_curs and sndbuf_space that were originally
->> updated after sending the CDC message should be modified to not be
->> update until the peer updates cons_curs.
->>
->> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-> 
-> ...
-> 
->> @@ -255,6 +256,14 @@ int smcd_cdc_msg_send(struct smc_connection *conn)
->>   		return rc;
->>   	smc_curs_copy(&conn->rx_curs_confirmed, &curs, conn);
->>   	conn->local_rx_ctrl.prod_flags.cons_curs_upd_req = 0;
->> +
->> +	if (smc_ism_support_dmb_nocopy(conn->lgr->smcd))
->> +		/* if local sndbuf shares the same memory region with
->> +		 * peer DMB, then don't update the tx_curs_fin
->> +		 * and sndbuf_space until peer has consumed the data.
->> +		 */
->> +		return rc;
-> 
-> Hi Wen Gu,
-> 
-> A minor nit from my side:
-> 
-> To my mind "return rc" implies returning an error value.
-> But here rc is 0, which based on the comment seems correct.
-> So perhaps it would be clearer to simply return 0.
-> 
-> Flagged by Smatch.
-> 
->> +
->>   	/* Calculate transmitted data and increment free send buffer space */
->>   	diff = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
->>   			     &conn->tx_curs_sent);
-> 
-> ...
-
-OK. I will improve it and another 'return rc' at the end of
-smcd_cdc_msg_send(). Thanks! Simon.
+Applied, thanks!
