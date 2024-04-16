@@ -1,57 +1,57 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D740233FE;
-	Tue, 16 Apr 2024 02:29:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1092611C92;
+	Tue, 16 Apr 2024 03:26:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713234553; cv=none; b=U/nsdG7CsbybSrW55rfaD6y276NreaNtosQxNbZpoau5SvVYL6lcYCaKisH4Q8Au8HoK0twB0iOJKg84qiRIxuT7ItczmINVmSwf4Zd2XeUo4Rz58L+yNMOEXiDm6GLCx5EI+GSHRnp6O0XH4myf5DGzUvQWnnrBlDDKtoCRcN0=
+	t=1713238000; cv=none; b=tCr4DHNWhVpFoa4AW8VBGbL3cK0PGjpvz3zKtI91Hg/omAAKCiny8POV3GxFGZkvxyuBarxkmMI2Qa/2Uogl1jYbP+gIzKTK04QRdkLbQ3L4z+bcEnGyGB2RQurFspVHPpTY6noKMw2cwJMJuKesnJFwM8VU1J9wq25v7CYiTb4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713234553; c=relaxed/simple;
-	bh=5iU+XhhTd+fybz7n3eyHlc3+k/nj+Dy3UMKk1gHpbZ4=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
-	 References:In-Reply-To; b=DOkPNxjGn75UhoomauYXyfGog5CzS/RVHx43TM1tiufgR4ZUBzFngl7gROA2Gd430MknliryAMAmo/DULt9+oI6uW9i8hNx78/s6N5nkv3Ssq82oJcJcIvXYSdaPIUrTGhB0KwXeufBvQyuVfzIoL7WRNy/IJa3haK0mMPU6et4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=geFmS6oa; arc=none smtp.client-ip=209.85.210.169
+	s=arc-20240116; t=1713238000; c=relaxed/simple;
+	bh=mSo87wrI4SUul6dOUELPanCj87ouMVYaGJuolIWl2OY=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=mijXqbVVjh7QB45fJQKf4KCjD7cHKTRJav5RnLOi9KOWWWotiXnzsm48GTBlvBDU2151XXQ/M7qoWa3aUfhS3ibgcrWAOQk7IOMoFg+ziuuJs14YR73LSQRtBQ5V+2CroeTGk46Ksn41exPtZEa9Kid9G1BZWWGPFFqlxd+X5LQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AjQEDMVm; arc=none smtp.client-ip=209.85.215.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="geFmS6oa"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-6ecf3943040so3058198b3a.0;
-        Mon, 15 Apr 2024 19:29:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AjQEDMVm"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-53fbf2c42bfso3036956a12.3;
+        Mon, 15 Apr 2024 20:26:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713234551; x=1713839351; darn=vger.kernel.org;
-        h=in-reply-to:references:cc:to:from:subject:message-id:date
+        d=gmail.com; s=20230601; t=1713237998; x=1713842798; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
          :content-transfer-encoding:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5iU+XhhTd+fybz7n3eyHlc3+k/nj+Dy3UMKk1gHpbZ4=;
-        b=geFmS6oa5k3wtddP7D9MkWHoRDD6Cse04IKhqBvLtQeLDAlw/sWD3/cYjKULPejKs0
-         ITJGwU99TKtluUk2NUqVIm9/j3R5/T+UO5GLHBu31aO8tjnGwjLesyOvx3fyFcfbwtCD
-         920HcgDZnTF3w5OuCngoCdWTSSd1SQLIBsmqrxr9uJbMXzjt3CafPP7ut5yMJWliYuz6
-         qgz8hBpslcDiGHOPePkXB1R4aYew4modc3rMlaJ7GeGjlYpzsXnp344Pngz26DP3ed6A
-         CGxGaVzH523iKS8mZ3GQNFR966j0kuj0/NgHoU6A2Rq2RmRro5nub2F30RcCYqlQ5K4W
-         ixAg==
+        bh=V1fKVH44Qpf52nV3xcVtDJdI4iDiW1jMW0xvMeM9U7A=;
+        b=AjQEDMVmg0b8HwRpV0JWcQJ+s2JUXJe04LvgriC3wXxOjU6A+C9JRe26zcZdA2CN0s
+         mikfjc2UiTSjHf2b8HOB/9U35ueX4oBCU0+6ZWaTjCMmgIlzrKCdo72TY9gIdZ9PmEUQ
+         /hppsPyZNxmzG6AD5vnDIe5QrH72mtgBZNV8yw2H0q7cOIff5ATyVdrjTITg7Y+ePayL
+         Rw8COEuNLb9UyxgmjCpvRbm/jDLc4LVGXOGeF7OiZGnFmyOxt/kuFWW3r1V9DYBIdaQF
+         hHqfCZG1bAOVraV0rnPsBcoM72LBdS6vIYewzkQ1+TQBHDoNNqGZ2eJ6EY9/Zh+IY5mx
+         T1rA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713234551; x=1713839351;
-        h=in-reply-to:references:cc:to:from:subject:message-id:date
+        d=1e100.net; s=20230601; t=1713237998; x=1713842798;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
          :content-transfer-encoding:mime-version:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=5iU+XhhTd+fybz7n3eyHlc3+k/nj+Dy3UMKk1gHpbZ4=;
-        b=C6bZyks1E6om2AD2/s3lYULBKrJh5X+WcxWrOjaV5JShOIXLyGZwZknL+JzqEwQUYb
-         rbzT0C/Z9hspswEwO/6qdYIQ4VJfSWvCm/EamG1vdJanfaKs0l9CBjidbCKBMx4aHkeM
-         t1om8f2Pq7o04D0qxkTuUXzJYJJtvg/+fSu53VZKcTzIMIBGEg/wxmirKcGZizeHMGEe
-         vi/3Ew6O9EYRG6AThIjHhxYs6zt0cQ40yKlSekyzb5i0e8sl9LBxg/sQ/Kc+agqInKZN
-         /nEig9rduDvhSAUZBoQ9HU09KWSFNzgBI2OujYDq60KPgwIEK2HxppgmQEyrutYx4bh7
-         8JEg==
-X-Forwarded-Encrypted: i=1; AJvYcCWJdfO2OYC5XrwymuAQDuw23HgkF7crS3FDenMnBRFGefi8sfDW3kIE06Lo+12e1MDKRs8xKWLZ9y7vMXJpjZ/2UYUeYuErPAyV2Kkt24qQY1hbW1tURxiPVxKkuoSgvQ==
-X-Gm-Message-State: AOJu0YzEYQ6GLVqRD5BgYE9eUQs30KJSUZ9R/3zZwC0f2AbtyoXKuW/U
-	PAeuZADUdN8yU8Nzf9WAAO8aqBmUGlusb/dvBDAZ7q9G/bmt/GNs
-X-Google-Smtp-Source: AGHT+IFEzywwHt2hRakEkq7838HX9fXPyyAWuTOZUJ3YO0ixYif2IEtFi2l27vzeTVH1gYgEGK8GdQ==
-X-Received: by 2002:a05:6a00:4642:b0:6ee:1c9d:b471 with SMTP id kp2-20020a056a00464200b006ee1c9db471mr13087419pfb.25.1713234551124;
-        Mon, 15 Apr 2024 19:29:11 -0700 (PDT)
-Received: from localhost ([1.146.24.97])
-        by smtp.gmail.com with ESMTPSA id gx15-20020a056a001e0f00b006e71aec34a8sm7906152pfb.167.2024.04.15.19.29.07
+        bh=V1fKVH44Qpf52nV3xcVtDJdI4iDiW1jMW0xvMeM9U7A=;
+        b=udF70XU9TlBaX4rhlKFvBPTB5qcy4Wun/Tu/Ka1oUDrVDjAgXRM4k7bGhCFUwzdjtd
+         UMdxtMNnIJpQn/NW3O7zqg77SO0iE7RKHH8JW9ZGvlyjGBNEHms5Jy1cECbi5EsKOVpB
+         q45xQYR30LRJmIZLVDHabnm2R79DkW9Lf7MBqvQzDEoDJU7TBrDhabjy5hOdsvRarbGK
+         WPK4ts+e2hGcly0Sh+G0oaz9vx4wROBuiV8lqP7IhycRsdpbHyt4gToLsk0SVUeSCuTC
+         L+29lWwIowI1tLOmy8kHcFFHJ0gOKS+/asOJ3GP4IwDEpHIYc+iMQaCm3Szlt7rt+cuw
+         rlgQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWMbyUNYuD/qOJvVoohAZwowLWDar37c0YEoSXLsafGM+vH8fmNQcDyIgCxzRbZoA+rWzmPez80Kom523aB1YQbL0uU4LJ4Gdub0qrpuUqc/RvWsHWyGNzQPv+QuQmFOA==
+X-Gm-Message-State: AOJu0YygK4SjUcy9t832QnIt8zEktBHubKa3oT0RjZoP3aVeQzrZMgAi
+	dMi2MiBZF2Hn6183MT28vjZscZa6FgzbpPziWH0CFi43H9wAOeLY
+X-Google-Smtp-Source: AGHT+IG5x5Eh/Udr2OWTDSmF61V8WPyGJpOzKZ0mm5b1COfHDZpLuwTMMl+u7FXvmjLfRKTR71F77A==
+X-Received: by 2002:a05:6a20:718a:b0:1a7:51e1:258c with SMTP id s10-20020a056a20718a00b001a751e1258cmr12219760pzb.61.1713237998278;
+        Mon, 15 Apr 2024 20:26:38 -0700 (PDT)
+Received: from localhost ([1.146.57.129])
+        by smtp.gmail.com with ESMTPSA id u9-20020a1709026e0900b001e4753f7715sm7263967plk.12.2024.04.15.20.26.30
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 15 Apr 2024 19:29:10 -0700 (PDT)
+        Mon, 15 Apr 2024 20:26:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -60,52 +60,82 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Date: Tue, 16 Apr 2024 12:29:05 +1000
-Message-Id: <D0L6YKP6KN2Q.SLUJM0FJ3H85@gmail.com>
-Subject: Re: [kvm-unit-tests PATCH 1/2] s390x: Fix misspelt variable name in
- func.bash
+Date: Tue, 16 Apr 2024 13:26:28 +1000
+Message-Id: <D0L86IDPMTI3.2XFZ8C6UCVD1B@gmail.com>
+Cc: "Paolo Bonzini" <pbonzini@redhat.com>, "Alexandru Elisei"
+ <alexandru.elisei@arm.com>, "Eric Auger" <eric.auger@redhat.com>, "Janosch
+ Frank" <frankja@linux.ibm.com>, "Claudio Imbrenda"
+ <imbrenda@linux.ibm.com>, =?utf-8?q?Nico_B=C3=B6hr?= <nrb@linux.ibm.com>,
+ "David Hildenbrand" <david@redhat.com>, "Shaoqin Huang"
+ <shahuang@redhat.com>, "Nikos Nikoleris" <nikos.nikoleris@arm.com>, "David
+ Woodhouse" <dwmw@amazon.co.uk>, "Ricardo Koller" <ricarkol@google.com>,
+ "rminmin" <renmm6@chinaunicom.cn>, "Gavin Shan" <gshan@redhat.com>, "Nina
+ Schoetterl-Glausch" <nsg@linux.ibm.com>, "Sean Christopherson"
+ <seanjc@google.com>, <kvm@vger.kernel.org>, <kvmarm@lists.linux.dev>,
+ <kvm-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>
+Subject: Re: [RFC kvm-unit-tests PATCH v2 00/14] add shellcheck support
 From: "Nicholas Piggin" <npiggin@gmail.com>
-To: "Janosch Frank" <frankja@linux.ibm.com>, "Thomas Huth"
- <thuth@redhat.com>
-Cc: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, =?utf-8?q?Nico_B=C3=B6hr?=
- <nrb@linux.ibm.com>, "David Hildenbrand" <david@redhat.com>, "Andrew Jones"
- <andrew.jones@linux.dev>, <linux-s390@vger.kernel.org>,
- <kvm@vger.kernel.org>
+To: "Thomas Huth" <thuth@redhat.com>, "Andrew Jones"
+ <andrew.jones@linux.dev>
 X-Mailer: aerc 0.17.0
-References: <20240406122456.405139-1-npiggin@gmail.com>
- <20240406122456.405139-2-npiggin@gmail.com>
- <e8ea1c30-2211-4060-9cb2-c57364c80ea8@linux.ibm.com>
- <D0G5W6ZJ5ZBC.33NKLB5X3DIK9@gmail.com>
- <f2fa30de-b34d-41cf-9bce-55d1e078b95e@linux.ibm.com>
-In-Reply-To: <f2fa30de-b34d-41cf-9bce-55d1e078b95e@linux.ibm.com>
+References: <20240406123833.406488-1-npiggin@gmail.com>
+ <a7cdd98e-93c1-4546-bba4-ac3a465f01f5@redhat.com>
+In-Reply-To: <a7cdd98e-93c1-4546-bba4-ac3a465f01f5@redhat.com>
 
-On Thu Apr 11, 2024 at 7:40 PM AEST, Janosch Frank wrote:
-> On 4/10/24 06:35, Nicholas Piggin wrote:
-> > On Mon Apr 8, 2024 at 9:59 PM AEST, Janosch Frank wrote:
-> >> On 4/6/24 14:24, Nicholas Piggin wrote:
-> >>> The if statement is intended to run non-migration tests with PV on KV=
-M.
-> >>> With the misspelling, they are run on KVM or TCG.
-> >>>
-> >>
-> >> It's not misspelt, is it?
-> >> It's in the wrong case.
+On Mon Apr 15, 2024 at 9:59 PM AEST, Thomas Huth wrote:
+> On 06/04/2024 14.38, Nicholas Piggin wrote:
+> > Tree here
 > >=20
-> > Yes, that's the right word.
+> > https://gitlab.com/npiggin/kvm-unit-tests/-/tree/shellcheck
 > >=20
-> >>
-> >>
-> >> I'm fine with the code though.
+> > Again on top of the "v8 migration, powerpc improvements" series. I
+> > don't plan to rebase the other way around since it's a lot of work.
+> > So this is still in RFC until the other big series gets merged.
 > >=20
-> > Thanks, I'll take that as an Acked-by: you
+> > Thanks to Andrew for a lot of review. A submitted the likely s390x
+> > bugs separately ahead of this series, and also disabled one of the
+> > tests and dropped its fix patch as-per review comments. Hence 3 fewer
+> > patches. Other than that, since last post:
+> >=20
+> > * Tidied commit messages and added some of Andrew's comments.
+> > * Removed the "SC2034 unused variable" blanket disable, and just
+> >    suppressed the config.mak and a couple of other warnings.
+> > * Blanket disabled "SC2235 Use { ..; } instead of (..)" and dropped
+> >    the fix for it.
+> > * Change warning suppression comments as per Andrew's review, also
+> >    mention in the new unittests doc about the "check =3D" option not
+> >    allowing whitespace etc in the name since we don't cope with that.
+> >=20
+> > Thanks,
+> > Nick
+> >=20
+> > Nicholas Piggin (14):
+> >    Add initial shellcheck checking
+> >    shellcheck: Fix SC2223
+> >    shellcheck: Fix SC2295
+> >    shellcheck: Fix SC2094
+> >    shellcheck: Fix SC2006
+> >    shellcheck: Fix SC2155
+> >    shellcheck: Fix SC2143
+> >    shellcheck: Fix SC2013
+> >    shellcheck: Fix SC2145
+> >    shellcheck: Fix SC2124
+> >    shellcheck: Fix SC2294
+> >    shellcheck: Fix SC2178
+> >    shellcheck: Fix SC2048
+> >    shellcheck: Suppress various messages
 >
-> Could you send out a fixed version that I can pick or do you want me to=
+> I went ahead and pushed a bunch of your patches to the k-u-t master branc=
+h=20
+> now. However, there were also some patches which did not apply cleanly to=
 =20
-> fix that up?
+> master anymore, so please rebase the remaining patches and then send them=
+ again.
 
-I was going to at some point, but was juggling a bunch of other
-things and have some travel and vacation. You are welcome to take
-over them if you like it would be helpful.
+Hey Thomas,
+
+Yeah the sc patches were based on top of the big series, so some
+collisions expected. I'll look at rebasing.
 
 Thanks,
 Nick
