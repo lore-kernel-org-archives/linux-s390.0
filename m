@@ -1,32 +1,32 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4353012CD8C;
-	Tue, 16 Apr 2024 13:58:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7466612CD9A;
+	Tue, 16 Apr 2024 14:06:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713275902; cv=none; b=cLnJq15wro8IYxTlJDyx5i0GEJ0dyKeCUND+wQzUVrDcW2f276JS9rDMgU4vTuNGeFw3/6KPN2snOQs9oN6DhwXxHJLzZXpLMSBSdFMbJ9+BsiNlpH/cetUikt6iKjbZAqi2C0EzHiEFuwFH7rjh+hSIQYxMaEMFPvCK1bGe74s=
+	t=1713276374; cv=none; b=HqA0cvAdRSc8QpPg/9wI7HVkeYuOhIlZULlTotFDKA3NOR1zsJN2rLej9TMroFNiNMo563sWkHA5Cl96xpfNmHjFsmzzizPB7681AqsN+yr/Sn58wB5oU71BxM0cxGEuy1AXk6okdrtzmHeml3NH7a9m8udFQd/L1lzXqwiLMwY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713275902; c=relaxed/simple;
-	bh=bVObwWVu5VNJo3NA5gkLnTyvUBGMjZWlseKPTAVlCq4=;
+	s=arc-20240116; t=1713276374; c=relaxed/simple;
+	bh=OIjBZ2uSrRRCPA7njEkAYgEvMcESbAP5c3QefnQVxTg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Z47IONXB9Gp048cXWgM7D+jrqIV0xlL4KYLZnntfYGTCAwVVz08YxpzfiUqD+BDMJuCwKz9d2c/rb9o49aY3lbM3IHC1dAR468yh4OVWljQR9ExRoIF2ggRAlE4VQwBVAR0Q3h2gOawYUSvQRJKGXR8tgcR237pcxKhcINTTkWU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=mzbtWPQZ; arc=none smtp.client-ip=115.124.30.119
+	 In-Reply-To:Content-Type; b=ptpJD4R3w3gCnpHS4LDaUKEnT1Z+/TBXh6xNv9IQ+WuiOU1l47/Qwsb9MCtXKxctqpJugExfkxSsfZRyVjzF/O1ZpUHkCEIXqCSlxn/xFANmzYoNAYaQFZmUvNNtJk2BOV4juKniaJneVFf5wHFf/YRZg5ApDLufBINLjPE6btE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=AzKDH9U5; arc=none smtp.client-ip=115.124.30.97
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="mzbtWPQZ"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="AzKDH9U5"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1713275896; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=BC/5DvwfhJ3cE4ERIBbj5/0ioEzu3C+4IXCq9AiJ8bA=;
-	b=mzbtWPQZynN6PjHdJA97ssE/mFs5wimFZhqo0KD7WxQzD+uc6Zm+1WfVw/wBaOiDCUMw8I8xF4Na/WIPd1EX6RUWemSNElLK7r3xHpUgllpftpJXfz0N9i6Hys26Zjr6jj19CMAHiEv9PCYzBLcNrEfAqC/mgEMzcva5bqZI0gw=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W4i82Hn_1713275893;
-Received: from 30.213.156.135(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W4i82Hn_1713275893)
+	t=1713276369; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=xEYEMePmztZfbv9xHlEGvnUIEV3Ro9LAXkzvLijPqCM=;
+	b=AzKDH9U57bdwbad16JV9nYVCvrfGqIt1Z59x5f/IyczPiIjwxucwaM9LDa7zZzIBXBBRn0FA2ysg8KM3hWZuwhe+XcdScnJcXQ0lQrg3Li3m/Bljzwr9mpnRiG4gGDnGu1OAnbECgoEJSEFGqSOIPWk3JY/wDTWLL0bRVKFx3oY=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W4i8467_1713276365;
+Received: from 30.213.156.135(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W4i8467_1713276365)
           by smtp.aliyun-inc.com;
-          Tue, 16 Apr 2024 21:58:15 +0800
-Message-ID: <46c56be1-a8a5-4ad4-9a58-5b3e5f629eeb@linux.alibaba.com>
-Date: Tue, 16 Apr 2024 21:58:12 +0800
+          Tue, 16 Apr 2024 22:06:07 +0800
+Message-ID: <eb7eb42a-ea96-41d9-b385-c459379bed99@linux.alibaba.com>
+Date: Tue, 16 Apr 2024 22:06:04 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -34,81 +34,68 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v6 01/11] net/smc: decouple ism_client from SMC-D
- DMB registration
-To: Alexandra Winter <wintera@linux.ibm.com>, twinkler@linux.ibm.com,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+Subject: Re: [PATCH net-next v6 10/11] net/smc: adapt cursor update when
+ sndbuf and peer DMB are merged
+To: Simon Horman <horms@kernel.org>
+Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ wenjia@linux.ibm.com, jaka@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
  linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
  netdev@vger.kernel.org
 References: <20240414040304.54255-1-guwen@linux.alibaba.com>
- <20240414040304.54255-2-guwen@linux.alibaba.com>
- <c7f6be91-6591-4b00-95c3-48417bf98ac1@linux.ibm.com>
+ <20240414040304.54255-11-guwen@linux.alibaba.com>
+ <20240416110538.GK2320920@kernel.org>
 From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <c7f6be91-6591-4b00-95c3-48417bf98ac1@linux.ibm.com>
+In-Reply-To: <20240416110538.GK2320920@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
-On 2024/4/15 16:41, Alexandra Winter wrote:
-> 
-> 
-> On 14.04.24 06:02, Wen Gu wrote:
->> The struct 'ism_client' is specialized for s390 platform firmware ISM.
->> So replace it with 'void' to make SMCD DMB registration helper generic
->> for both Emulated-ISM and existing ISM.
+On 2024/4/16 19:05, Simon Horman wrote:
+> On Sun, Apr 14, 2024 at 12:03:03PM +0800, Wen Gu wrote:
+>> If the local sndbuf shares the same physical memory with peer DMB,
+>> the cursor update processing needs to be adapted to ensure that the
+>> data to be consumed won't be overwritten.
+>>
+>> So in this case, the fin_curs and sndbuf_space that were originally
+>> updated after sending the CDC message should be modified to not be
+>> update until the peer updates cons_curs.
 >>
 >> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
->> ---
 > 
-> Just a thought:
-> The client concept is really specific to s390 platform firmware ISM.
-> So wouldn't it be nice to do something like:
+> ...
 > 
-> diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-> index 78cca4839a31..37dcdf2bc044 100644
-> --- a/drivers/s390/net/ism_drv.c
-> +++ b/drivers/s390/net/ism_drv.c
-> @@ -747,10 +747,9 @@ static int smcd_query_rgid(struct smcd_dev *smcd, struct smcd_gid *rgid,
->          return ism_query_rgid(smcd->priv, rgid->gid, vid_valid, vid);
->   }
+>> @@ -255,6 +256,14 @@ int smcd_cdc_msg_send(struct smc_connection *conn)
+>>   		return rc;
+>>   	smc_curs_copy(&conn->rx_curs_confirmed, &curs, conn);
+>>   	conn->local_rx_ctrl.prod_flags.cons_curs_upd_req = 0;
+>> +
+>> +	if (smc_ism_support_dmb_nocopy(conn->lgr->smcd))
+>> +		/* if local sndbuf shares the same memory region with
+>> +		 * peer DMB, then don't update the tx_curs_fin
+>> +		 * and sndbuf_space until peer has consumed the data.
+>> +		 */
+>> +		return rc;
 > 
-> -static int smcd_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
-> -                            struct ism_client *client)
-> +static int smcd_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
->   {
-> -       return ism_register_dmb(smcd->priv, (struct ism_dmb *)dmb, client);
-> +       return ism_register_dmb(smcd->priv, (struct ism_dmb *)dmb, &smc_ism_client);
->   }
+> Hi Wen Gu,
 > 
->   static int smcd_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
+> A minor nit from my side:
 > 
-> --------------
+> To my mind "return rc" implies returning an error value.
+> But here rc is 0, which based on the comment seems correct.
+> So perhaps it would be clearer to simply return 0.
 > 
-> This is not a real patch, just a sketch, but I hope you
-> get the idea.
+> Flagged by Smatch.
 > 
+>> +
+>>   	/* Calculate transmitted data and increment free send buffer space */
+>>   	diff = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
+>>   			     &conn->tx_curs_sent);
 > 
-> This may be a step in the direction of moving the ism_client concept from
-> net/smc/smc_ism.c to drivers/s390/net/ism*
-> 
-> 
-> I know that there are several dependencies to consider.
+> ...
 
-Yeah.. I think so too. The move of ism_client concept may involve much work.
-
-> And I haven't looked at the other patches in this series yet in detail, to see how you solve
-> things like smcd_register_dev. Seems like smcd_register_dmb() is the only one of the smcd_ops
-> that you need for loopback and uses ism_client.
-> 
-
-loopback-ism uses smcd_lo_register_dev instead. And yes, smcd_register_dmb() is
-the only one of smcd_ops that use ism_client in its function argument.
-
-> 
-> 
-> Wenjia, Gerd, and others what do you think?
+OK. I will improve it and another 'return rc' at the end of
+smcd_cdc_msg_send(). Thanks! Simon.
