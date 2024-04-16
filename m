@@ -1,158 +1,111 @@
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5EF76AB9;
-	Tue, 16 Apr 2024 02:15:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D740233FE;
+	Tue, 16 Apr 2024 02:29:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713233739; cv=none; b=Ja/NvWke/CxnU1JQbAuviw2p3ZwmWjZMKsuznpJW4yxrEU/g89zwyY9788IybnjYBU6GGJkdU/eDOhRgafto9dnNXtd4NIHkC9P93p5Ox3fvMcFPYA1/AezGravgJwtJoSAFlwfxnyhGC/4Rn731Y9xXSDFj9RaYPR77GDfEZPg=
+	t=1713234553; cv=none; b=U/nsdG7CsbybSrW55rfaD6y276NreaNtosQxNbZpoau5SvVYL6lcYCaKisH4Q8Au8HoK0twB0iOJKg84qiRIxuT7ItczmINVmSwf4Zd2XeUo4Rz58L+yNMOEXiDm6GLCx5EI+GSHRnp6O0XH4myf5DGzUvQWnnrBlDDKtoCRcN0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713233739; c=relaxed/simple;
-	bh=M+wwQmoj9wuZNZd03g/cTlUpWrAdQP5uv73jgzPsryo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CMjlVrkuvMZmcVigLhCgzUj+aRuu2NDTGYy+50jhv7KapicWMlwTIXbUnFZamGhLNu1jIveemFzIaVC4Vfr1VVi10rOeEIMkNQZT5tsggQXBzrr9un1gHiBR0BVt7xnvHSzTIDy4LzvwQv1XpKImCgAfhCWLt7RGAfeLxGBlX8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=I3jTKg0J; arc=none smtp.client-ip=115.124.30.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1713234553; c=relaxed/simple;
+	bh=5iU+XhhTd+fybz7n3eyHlc3+k/nj+Dy3UMKk1gHpbZ4=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
+	 References:In-Reply-To; b=DOkPNxjGn75UhoomauYXyfGog5CzS/RVHx43TM1tiufgR4ZUBzFngl7gROA2Gd430MknliryAMAmo/DULt9+oI6uW9i8hNx78/s6N5nkv3Ssq82oJcJcIvXYSdaPIUrTGhB0KwXeufBvQyuVfzIoL7WRNy/IJa3haK0mMPU6et4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=geFmS6oa; arc=none smtp.client-ip=209.85.210.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="I3jTKg0J"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1713233733; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=EESeKY/2yO7IjB+fY3Jic74ae6X1hFCE6UgR8Wk3Mn8=;
-	b=I3jTKg0JrPWi/mGe7J0GFxpOYA6UPpxf4jQDHlHh3s6OrF8zYCUVrFHRZTaPuqXBySQm42C0Js5j7fIOOcAzBkYUiX/2Af67Q42D5x39xZknBkxRM/H//4W4jNl/sM3w1gaZbo0UTgN99RR2iORcu19+5FCHwUdsBkK7p1QKT8g=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W4fjcQS_1713233731;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0W4fjcQS_1713233731)
-          by smtp.aliyun-inc.com;
-          Tue, 16 Apr 2024 10:15:32 +0800
-Date: Tue, 16 Apr 2024 10:15:29 +0800
-From: Tony Lu <tonylu@linux.alibaba.com>
-To: Yewon Choi <woni9911@gmail.com>
-Cc: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	"Dae R. Jeong" <threeearcat@gmail.com>
-Subject: Re: net/smc: Buggy reordering scenario in smc socket
-Message-ID: <Zh3fQUstAYV5UGrz@TONYMAC-ALIBABA.local>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <Zh0JLYHtd0i416XO@libra05>
- <CAFgxCDwA8Lv8LLwEpJur3FKs=Gkkc0KE=bx7Q1Do2+iwdAzoCw@mail.gmail.com>
- <Zh0Mpr5fZqFUGzkb@libra05>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="geFmS6oa"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-6ecf3943040so3058198b3a.0;
+        Mon, 15 Apr 2024 19:29:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1713234551; x=1713839351; darn=vger.kernel.org;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5iU+XhhTd+fybz7n3eyHlc3+k/nj+Dy3UMKk1gHpbZ4=;
+        b=geFmS6oa5k3wtddP7D9MkWHoRDD6Cse04IKhqBvLtQeLDAlw/sWD3/cYjKULPejKs0
+         ITJGwU99TKtluUk2NUqVIm9/j3R5/T+UO5GLHBu31aO8tjnGwjLesyOvx3fyFcfbwtCD
+         920HcgDZnTF3w5OuCngoCdWTSSd1SQLIBsmqrxr9uJbMXzjt3CafPP7ut5yMJWliYuz6
+         qgz8hBpslcDiGHOPePkXB1R4aYew4modc3rMlaJ7GeGjlYpzsXnp344Pngz26DP3ed6A
+         CGxGaVzH523iKS8mZ3GQNFR966j0kuj0/NgHoU6A2Rq2RmRro5nub2F30RcCYqlQ5K4W
+         ixAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713234551; x=1713839351;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=5iU+XhhTd+fybz7n3eyHlc3+k/nj+Dy3UMKk1gHpbZ4=;
+        b=C6bZyks1E6om2AD2/s3lYULBKrJh5X+WcxWrOjaV5JShOIXLyGZwZknL+JzqEwQUYb
+         rbzT0C/Z9hspswEwO/6qdYIQ4VJfSWvCm/EamG1vdJanfaKs0l9CBjidbCKBMx4aHkeM
+         t1om8f2Pq7o04D0qxkTuUXzJYJJtvg/+fSu53VZKcTzIMIBGEg/wxmirKcGZizeHMGEe
+         vi/3Ew6O9EYRG6AThIjHhxYs6zt0cQ40yKlSekyzb5i0e8sl9LBxg/sQ/Kc+agqInKZN
+         /nEig9rduDvhSAUZBoQ9HU09KWSFNzgBI2OujYDq60KPgwIEK2HxppgmQEyrutYx4bh7
+         8JEg==
+X-Forwarded-Encrypted: i=1; AJvYcCWJdfO2OYC5XrwymuAQDuw23HgkF7crS3FDenMnBRFGefi8sfDW3kIE06Lo+12e1MDKRs8xKWLZ9y7vMXJpjZ/2UYUeYuErPAyV2Kkt24qQY1hbW1tURxiPVxKkuoSgvQ==
+X-Gm-Message-State: AOJu0YzEYQ6GLVqRD5BgYE9eUQs30KJSUZ9R/3zZwC0f2AbtyoXKuW/U
+	PAeuZADUdN8yU8Nzf9WAAO8aqBmUGlusb/dvBDAZ7q9G/bmt/GNs
+X-Google-Smtp-Source: AGHT+IFEzywwHt2hRakEkq7838HX9fXPyyAWuTOZUJ3YO0ixYif2IEtFi2l27vzeTVH1gYgEGK8GdQ==
+X-Received: by 2002:a05:6a00:4642:b0:6ee:1c9d:b471 with SMTP id kp2-20020a056a00464200b006ee1c9db471mr13087419pfb.25.1713234551124;
+        Mon, 15 Apr 2024 19:29:11 -0700 (PDT)
+Received: from localhost ([1.146.24.97])
+        by smtp.gmail.com with ESMTPSA id gx15-20020a056a001e0f00b006e71aec34a8sm7906152pfb.167.2024.04.15.19.29.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 15 Apr 2024 19:29:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Zh0Mpr5fZqFUGzkb@libra05>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 16 Apr 2024 12:29:05 +1000
+Message-Id: <D0L6YKP6KN2Q.SLUJM0FJ3H85@gmail.com>
+Subject: Re: [kvm-unit-tests PATCH 1/2] s390x: Fix misspelt variable name in
+ func.bash
+From: "Nicholas Piggin" <npiggin@gmail.com>
+To: "Janosch Frank" <frankja@linux.ibm.com>, "Thomas Huth"
+ <thuth@redhat.com>
+Cc: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, =?utf-8?q?Nico_B=C3=B6hr?=
+ <nrb@linux.ibm.com>, "David Hildenbrand" <david@redhat.com>, "Andrew Jones"
+ <andrew.jones@linux.dev>, <linux-s390@vger.kernel.org>,
+ <kvm@vger.kernel.org>
+X-Mailer: aerc 0.17.0
+References: <20240406122456.405139-1-npiggin@gmail.com>
+ <20240406122456.405139-2-npiggin@gmail.com>
+ <e8ea1c30-2211-4060-9cb2-c57364c80ea8@linux.ibm.com>
+ <D0G5W6ZJ5ZBC.33NKLB5X3DIK9@gmail.com>
+ <f2fa30de-b34d-41cf-9bce-55d1e078b95e@linux.ibm.com>
+In-Reply-To: <f2fa30de-b34d-41cf-9bce-55d1e078b95e@linux.ibm.com>
 
-On Mon, Apr 15, 2024 at 08:16:54PM +0900, Yewon Choi wrote:
-> 
-> On Mon, Apr 15, 2024 at 8:02 PM Yewon Choi <woni9911@gmail.com> wrote:
-> > Hello,
-> > we suspect some buggy scenario due to memory reordering in concurrent
-> > execution
-> > of setsockopt() and sendmmsg().
-> >
-> > (CPU 1) setsockopt():
-> >     case TCP_FASTOPEN_NO_COOKIE:
-> >         ...
-> >         smc_switch_to_fallback():
-> >             clcsock->file = sk.sk_socket->file; // (1)
-> >             clcsock->file->private_data = clcsock; // (2)
-> >
-> > (CPU 2) __sys_sendmmsg():
-> >     sockfd_lookup_light():
-> >         sock_from_file():
-> >             sock = file->private_data; // (3)
-> >     ...
-> >     fput_light(sock->file, fput_needed): // (4)
-> >         fput():
-> >             refcount_dec_and_test(sock->file->f_count) // null-ptr-deref
-> >
-> > There is no memory barrier between (1) and (2), so (1) might be reordered
-> > after
-> > (2) is written to memory. Then, execution order can be (2)->(3)->(4)->(1)
-> > and (4) will read uninitialized value which may cause system crash.
-> >
-> >
-> > This kind of reordering may happen in smc_ulp_init():
-> >
-> > (CPU 1) smc_ulp_init():
-> >     ...
-> >     smcsock->file = tcp->file; // (5)
-> >         smcsock->file->private_data = smcsock; // (6)
-> >
-> > Execution order can be (6)->(3)->(4)->(5), showing same symptom as above.
-> >
-> >
-> > One possible solution seems to be adding release semantic in (2) and (6).
-> >
-> > diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> > index 4b52b3b159c0..37c23ef3e2d5 100644
-> > --- a/net/smc/af_smc.c
-> > +++ b/net/smc/af_smc.c
-> > @@ -921,7 +921,7 @@ static int smc_switch_to_fallback(struct smc_sock
-> > *smc, int reason_code)
-> >         trace_smc_switch_to_fallback(smc, reason_code);
-> >         if (smc->sk.sk_socket && smc->sk.sk_socket->file) {
-> >                 smc->clcsock->file = smc->sk.sk_socket->file;
-> > -               smc->clcsock->file->private_data = smc->clcsock;
-> > +               smp_store_release(&smc->clcsock->file->private_data,
-> > smc->clcsock);
-> >                 smc->clcsock->wq.fasync_list =
-> >                         smc->sk.sk_socket->wq.fasync_list;
-> >                 smc->sk.sk_socket->wq.fasync_list = NULL;
-> > @@ -3410,7 +3410,7 @@ static int smc_ulp_init(struct sock *sk)
-> >
-> >         /* replace tcp socket to smc */
-> >         smcsock->file = tcp->file;
-> > -       smcsock->file->private_data = smcsock;
-> > +       smp_store_release(&smcsock->file->private_data, smcsock);
-> >         smcsock->file->f_inode = SOCK_INODE(smcsock); /* replace inode
-> > when sock_close */
-> >         smcsock->file->f_path.dentry->d_inode = SOCK_INODE(smcsock); /*
-> > dput() in __fput */
-> >         tcp->file = NULL;
-> >
-> > I think we don't need memory barrier between (3) and (4) because there are
-> > critical section between (3) and (4), so lock(lock_sock/release_sock) will
-> > do this.
-> >
-> >
-> > Could you check these? If confirmed to be a bug, we will send a patch.
-> >
-> > Best Regards,
-> > Yewon Choi
-> >
-> 
-> Additionally, we found that below line (1) in smc_ulp_init() triggers 
-> kernel panic even when normaly executed. 
-> 
-> smc_ulp_init():
->     ...
->     tcp->file = NULL; // (1)
-> 
-> It can be triggered by simple system calls: 
->     int sk = socket(0xa, 0x1, 0)
->     setsockopt(sk, 0x6, 0x1f, "smc", sizeof("smc"))
-> 
+On Thu Apr 11, 2024 at 7:40 PM AEST, Janosch Frank wrote:
+> On 4/10/24 06:35, Nicholas Piggin wrote:
+> > On Mon Apr 8, 2024 at 9:59 PM AEST, Janosch Frank wrote:
+> >> On 4/6/24 14:24, Nicholas Piggin wrote:
+> >>> The if statement is intended to run non-migration tests with PV on KV=
+M.
+> >>> With the misspelling, they are run on KVM or TCG.
+> >>>
+> >>
+> >> It's not misspelt, is it?
+> >> It's in the wrong case.
+> >=20
+> > Yes, that's the right word.
+> >=20
+> >>
+> >>
+> >> I'm fine with the code though.
+> >=20
+> > Thanks, I'll take that as an Acked-by: you
+>
+> Could you send out a fixed version that I can pick or do you want me to=
+=20
+> fix that up?
 
-SMC ULP isn't as widely used as we had hoped, because it has some
-potential race conditions when interacting with files. Thanks for your
-findings, and I will remove this ULP once its alternative solution,
-eBPF with IPROTO_SMC proposal, is sent out. For now, it should be
-considered as deprecated.
-
-For the two scenarios above, I'll go over them.
+I was going to at some point, but was juggling a bunch of other
+things and have some travel and vacation. You are welcome to take
+over them if you like it would be helpful.
 
 Thanks,
-Tony Lu
+Nick
