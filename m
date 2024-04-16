@@ -1,180 +1,187 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D9336EB75;
-	Tue, 16 Apr 2024 07:23:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 184596D1AF
+	for <linux-s390@vger.kernel.org>; Tue, 16 Apr 2024 08:18:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713252206; cv=none; b=VHkeyzIbKbKGyGXLYc8WCAkzSIf45pmkXFPO39XulTqCp8JJt/VEmI/5zqg1Jqo6Wmy/ZVyh5thfkGWRbDRnp74yq47yDxrd7F053nt8oEP+d4VPJgUEmNNM5xh9f+yPPiB28qE+352P3m7l/fO/+G+uFsyTPbXrNkjMhaV64ZI=
+	t=1713255532; cv=none; b=Tj7G+C4hFngmcFLUPzi5/A1wuiclY7Kljll09b5yi4r4dYXvbcyOauRjvoOu8Ag2hfO/xu0mueOI0ZgAP7eES2LWECXW+duksK6IL1YSb/6lSLSyK6JC2vWMv0l+y74XxDqvDpVkqKbP+esaIHjUYw4N+rF4FQrzqWF1cRxCDNw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713252206; c=relaxed/simple;
-	bh=ULqJjlTCraVJ0ruf913jYz2dlG1gS6UCOgmOiRdXRlo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UjCvUPLzf0P3JLPBqJW2/Sn+xfkNer8nzPpJ1PQZr0VieC5pN2cPRDtF86WlRWoIMN163+SoQ1iEKRXtCwXwxWKOfl+DcQCsuFTcPeEUDF3NH+HFL84kVCy3ArKqnHlZf/m0tWDuZLJTDnBDJy2NWegGodnzs2laWUFeMHkhecM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ekk8HCBF; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1713255532; c=relaxed/simple;
+	bh=WSUcYTGfMiJPS6dBoWIy1OiuZHDqhA72PAGbwoqjEHc=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=awTVqLZ7yApq3WhnUEyr+SR8w0IsEh7edqbwEfYIoV1e5jw0AfNHfZpVqUa7cJTCDvN48qe09PVehno/S3xN/S2osYL/rJxDDoYg4WnQcenJRTlAJ2xvPeIP4Y735p7aPCRtmwar/65NroMSu9ZBH4k/O1a09QbwL+3luU+y434=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TByiiSen; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ekk8HCBF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BBECC113CE;
-	Tue, 16 Apr 2024 07:23:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713252205;
-	bh=ULqJjlTCraVJ0ruf913jYz2dlG1gS6UCOgmOiRdXRlo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ekk8HCBFjthC7O7PxrFN7j/GM7z/nWOuO8k9QOUSLiGyz09GAO2cg64dmGZlUlds7
-	 00Ewxyx3C6wcPZBoIkKGD6lbL3qbO2ksVpnRUlonLdQr9BhpV1yf7+bx9loZNn41At
-	 rywVk+bWOXuipnXUZImOPnzXQlyIpQamAXCi97V5XEUtgpABiSiT97flmkQAEFDr7A
-	 YcuRY0rwjZPTJIRXEph9PF+jUZc4mOVTGomsCx8EugJ6WC8EEbdEckfhASAJlczMAM
-	 pEgjXqHCw7T7cVdoBUzlejwen9ZBJYRh+vjYrzCI4CZ6xsCi82SwkYS2yHPnvfOsma
-	 Wo31Nl9r7Gz/Q==
-Date: Tue, 16 Apr 2024 10:22:14 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org,
-	Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"Bj\"orn T\"opel" <bjorn@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Donald Dutile <ddutile@redhat.com>,
-	Eric Chanudet <echanude@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nadav Amit <nadav.amit@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Puranjay Mohan <puranjay12@gmail.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
-	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-mm@kvack.org, linux-modules@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v4 05/15] mm: introduce execmem_alloc() and execmem_free()
-Message-ID: <Zh4nJp8rv1qRBs8m@kernel.org>
-References: <20240411160051.2093261-1-rppt@kernel.org>
- <20240411160051.2093261-6-rppt@kernel.org>
- <20240415075241.GF40213@noisy.programming.kicks-ass.net>
- <Zh1lnIdgFeM1o8S5@FVFF77S0Q05N.cambridge.arm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TByiiSen"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1713255529;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=sx9FIAo9TZjFdKuhika+AQetmZMIT9vu9nUh+3JKCOQ=;
+	b=TByiiSen8u4aSXJIcOd8ZEvHzJ1U8Izegjbg0vUe7+kU55q01CaBCCds/86hosbbmARQWZ
+	uFNPqUQIlAVqsVjxpRhoiT4PZyXfUqjAGHzVy2nIkE/wnPu51iHD057H8lfoyAwzq0zZbV
+	S/LoLmJ64E/oz1JfvlTyAQPDixFuCRQ=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-75-4tOcHGcSMSGTVM8NpM7FuQ-1; Tue, 16 Apr 2024 04:18:47 -0400
+X-MC-Unique: 4tOcHGcSMSGTVM8NpM7FuQ-1
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a51a65f488cso86113966b.1
+        for <linux-s390@vger.kernel.org>; Tue, 16 Apr 2024 01:18:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713255526; x=1713860326;
+        h=mime-version:user-agent:content-transfer-encoding:autocrypt
+         :references:in-reply-to:date:cc:to:from:subject:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=sx9FIAo9TZjFdKuhika+AQetmZMIT9vu9nUh+3JKCOQ=;
+        b=auKfCvDSZqwQ1+8wpFgXZywg2cjH9Snq3DFANoxYOM5M/pmYtHM/IFgpC4l+q9kOEc
+         lQiD1q/EYRi1T3gs5zkm0cykWto64iJaCkHvD9Od1ki9ZrRbXUeLMqLPDTTJULBJPY2q
+         XHB57dfEGGsGNk67BHGuHwEqxUQDi5SkUB+ZRACzGG9VPAcSkvZ9mLoDjdbNtI/v+vLI
+         Dx1iEDceE/y4+ttt0NTYPx3E/jO55ZQ43F66U+jzUhlg/nNVcMg7sPE439TI8Zey31TI
+         DnNgRK99upfsykoeVcHrIfLqWBqNIw10qP5fHndNS9NgC65iJXl1bdynz6KDO5UZ1p1A
+         mapA==
+X-Forwarded-Encrypted: i=1; AJvYcCVn4wQE4G6SXgB9JLJLbXpJZI2HWhFkI+875H0Br0ULc9mzQARPeYaAtLpi+j0e+GD/+exHE8Gqm7eJmnb7J0ntCc/BNaigVo9qdQ==
+X-Gm-Message-State: AOJu0YzSOF7h6Hc4v7NPNLW7uNBSBDsWbel53tC2dYeExuk5tYN2lLyL
+	wV4VzIk6ftCGO2opQ9P+Kw9ejUY9N61S8DXFTZziKLUyAsyWnHk/QnGBNIY9HdgKCjKOukqpb5c
+	Zq92+DaOiw32RMRk6s27eVihx2Q+SBTS+rwY+jKevxz/8jAytzMyNjfGatbc=
+X-Received: by 2002:a17:906:4ecf:b0:a52:6535:d078 with SMTP id i15-20020a1709064ecf00b00a526535d078mr3213751ejv.7.1713255526655;
+        Tue, 16 Apr 2024 01:18:46 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEeWubKk9sfU5n4Eg4r0fgR17oDosoRykSHGnpq+PCrNmzGMeRZ2HKjVJzu/+KOc5EhcE24Ng==
+X-Received: by 2002:a17:906:4ecf:b0:a52:6535:d078 with SMTP id i15-20020a1709064ecf00b00a526535d078mr3213728ejv.7.1713255526227;
+        Tue, 16 Apr 2024 01:18:46 -0700 (PDT)
+Received: from gerbillo.redhat.com (146-241-231-31.dyn.eolo.it. [146.241.231.31])
+        by smtp.gmail.com with ESMTPSA id gf14-20020a170906e20e00b00a51e6222200sm6539922ejb.156.2024.04.16.01.18.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Apr 2024 01:18:45 -0700 (PDT)
+Message-ID: <be056435353af60a564f457c79dacc16c6ea920e.camel@redhat.com>
+Subject: Re: [PATCH v3 1/4] networking: Remove the now superfluous sentinel
+ elements from ctl_table array
+From: Paolo Abeni <pabeni@redhat.com>
+To: Kuniyuki Iwashima <kuniyu@amazon.com>, 
+	devnull+j.granados.samsung.com@kernel.org
+Cc: Dai.Ngo@oracle.com, alex.aring@gmail.com, alibuda@linux.alibaba.com, 
+ allison.henderson@oracle.com, anna@kernel.org, bridge@lists.linux.dev, 
+ chuck.lever@oracle.com, coreteam@netfilter.org, courmisch@gmail.com, 
+ davem@davemloft.net, dccp@vger.kernel.org, dhowells@redhat.com,
+ dsahern@kernel.org,  edumazet@google.com, fw@strlen.de, geliang@kernel.org,
+ guwen@linux.alibaba.com,  herbert@gondor.apana.org.au, horms@verge.net.au,
+ j.granados@samsung.com, ja@ssi.bg,  jaka@linux.ibm.com, jlayton@kernel.org,
+ jmaloy@redhat.com, jreuter@yaina.de,  kadlec@netfilter.org,
+ keescook@chromium.org, kolga@netapp.com, kuba@kernel.org, 
+ linux-afs@lists.infradead.org, linux-hams@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+ linux-sctp@vger.kernel.org, linux-wpan@vger.kernel.org, 
+ linux-x25@vger.kernel.org, lucien.xin@gmail.com, lvs-devel@vger.kernel.org,
+  marc.dionne@auristor.com, marcelo.leitner@gmail.com, martineau@kernel.org,
+  matttbe@kernel.org, mcgrof@kernel.org, miquel.raynal@bootlin.com, 
+ mptcp@lists.linux.dev, ms@dev.tdt.de, neilb@suse.de,
+ netdev@vger.kernel.org,  netfilter-devel@vger.kernel.org,
+ pablo@netfilter.org, ralf@linux-mips.org,  razor@blackwall.org,
+ rds-devel@oss.oracle.com, roopa@nvidia.com,  stefan@datenfreihafen.org,
+ steffen.klassert@secunet.com,  tipc-discussion@lists.sourceforge.net,
+ tom@talpey.com, tonylu@linux.alibaba.com,  trond.myklebust@hammerspace.com,
+ wenjia@linux.ibm.com, ying.xue@windriver.com
+Date: Tue, 16 Apr 2024 10:18:42 +0200
+In-Reply-To: <20240415231210.22785-1-kuniyu@amazon.com>
+References: <20240412-jag-sysctl_remset_net-v3-1-11187d13c211@samsung.com>
+	 <20240415231210.22785-1-kuniyu@amazon.com>
+Autocrypt: addr=pabeni@redhat.com; prefer-encrypt=mutual; keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Zh1lnIdgFeM1o8S5@FVFF77S0Q05N.cambridge.arm.com>
 
-On Mon, Apr 15, 2024 at 06:36:39PM +0100, Mark Rutland wrote:
-> On Mon, Apr 15, 2024 at 09:52:41AM +0200, Peter Zijlstra wrote:
-> > On Thu, Apr 11, 2024 at 07:00:41PM +0300, Mike Rapoport wrote:
-> > > +/**
-> > > + * enum execmem_type - types of executable memory ranges
-> > > + *
-> > > + * There are several subsystems that allocate executable memory.
-> > > + * Architectures define different restrictions on placement,
-> > > + * permissions, alignment and other parameters for memory that can be used
-> > > + * by these subsystems.
-> > > + * Types in this enum identify subsystems that allocate executable memory
-> > > + * and let architectures define parameters for ranges suitable for
-> > > + * allocations by each subsystem.
-> > > + *
-> > > + * @EXECMEM_DEFAULT: default parameters that would be used for types that
-> > > + * are not explcitly defined.
-> > > + * @EXECMEM_MODULE_TEXT: parameters for module text sections
-> > > + * @EXECMEM_KPROBES: parameters for kprobes
-> > > + * @EXECMEM_FTRACE: parameters for ftrace
-> > > + * @EXECMEM_BPF: parameters for BPF
-> > > + * @EXECMEM_TYPE_MAX:
-> > > + */
-> > > +enum execmem_type {
-> > > +	EXECMEM_DEFAULT,
-> > > +	EXECMEM_MODULE_TEXT = EXECMEM_DEFAULT,
-> > > +	EXECMEM_KPROBES,
-> > > +	EXECMEM_FTRACE,
-> > > +	EXECMEM_BPF,
-> > > +	EXECMEM_TYPE_MAX,
-> > > +};
-> > 
-> > Can we please get a break-down of how all these types are actually
-> > different from one another?
-> > 
-> > I'm thinking some platforms have a tiny immediate space (arm64 comes to
-> > mind) and has less strict placement constraints for some of them?
-> 
-> Yeah, and really I'd *much* rather deal with that in arch code, as I have said
-> several times.
-> 
-> For arm64 we have two bsaic restrictions: 
-> 
-> 1) Direct branches can go +/-128M
->    We can expand this range by having direct branches go to PLTs, at a
->    performance cost.
-> 
-> 2) PREL32 relocations can go +/-2G
->    We cannot expand this further.
-> 
-> * We don't need to allocate memory for ftrace. We do not use trampolines.
-> 
-> * Kprobes XOL areas don't care about either of those; we don't place any
->   PC-relative instructions in those. Maybe we want to in future.
-> 
-> * Modules care about both; we'd *prefer* to place them within +/-128M of all
->   other kernel/module code, but if there's no space we can use PLTs and expand
->   that to +/-2G. Since modules can refreence other modules, that ends up
->   actually being halved, and modules have to fit within some 2G window that
->   also covers the kernel.
-> 
-> * I'm not sure about BPF's requirements; it seems happy doing the same as
->   modules.
+On Mon, 2024-04-15 at 16:12 -0700, Kuniyuki Iwashima wrote:
+> From: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.o=
+rg>
+> Date: Fri, 12 Apr 2024 16:48:29 +0200
+> > From: Joel Granados <j.granados@samsung.com>
+> >=20
+> > This commit comes at the tail end of a greater effort to remove the
+> > empty elements at the end of the ctl_table arrays (sentinels) which
+> > will reduce the overall build time size of the kernel and run time
+> > memory bloat by ~64 bytes per sentinel (further information Link :
+> > https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
+> >=20
+> > * Remove sentinel element from ctl_table structs.
+> > * Remove extra element in ctl_table arrays declarations
+> > * Remove instances where an array element is zeroed out to make it look
+> >   like a sentinel. This is not longer needed and is safe after commit
+> >   c899710fe7f9 ("networking: Update to register_net_sysctl_sz") added
+> >   the array size to the ctl_table registration
+> > * Replace the for loop stop condition that tests for procname =3D=3D NU=
+LL with
+> >   one that depends on array size
+> > * Removed the "-1" that adjusted for having an extra empty element when
+> >   looping over ctl_table arrays
+> > * Removing the unprivileged user check in ipv6_route_sysctl_init is
+> >   safe as it is replaced by calling ipv6_route_sysctl_table_size;
+> >   introduced in commit c899710fe7f9 ("networking: Update to
+> >   register_net_sysctl_sz")
+> > * Replace empty array registration with the register_net_sysctl_sz call=
+.
+> >=20
+> > Signed-off-by: Joel Granados <j.granados@samsung.com>
+> > ---
+> >  net/core/neighbour.c                | 5 +----
+> >  net/core/sysctl_net_core.c          | 9 ++++-----
+> >  net/dccp/sysctl.c                   | 2 --
+> >  net/ieee802154/6lowpan/reassembly.c | 6 +-----
+> >  net/ipv4/devinet.c                  | 5 ++---
+> >  net/ipv4/ip_fragment.c              | 2 --
+> >  net/ipv4/route.c                    | 8 ++------
+> >  net/ipv4/sysctl_net_ipv4.c          | 7 +++----
+> >  net/ipv4/xfrm4_policy.c             | 1 -
+> >  net/ipv6/addrconf.c                 | 5 +----
+> >  net/ipv6/icmp.c                     | 1 -
+> >  net/ipv6/reassembly.c               | 2 --
+> >  net/ipv6/route.c                    | 5 -----
+> >  net/ipv6/sysctl_net_ipv6.c          | 4 +---
+> >  net/ipv6/xfrm6_policy.c             | 1 -
+> >  net/llc/sysctl_net_llc.c            | 8 ++------
+> >  net/mpls/af_mpls.c                  | 3 +--
+> >  net/mptcp/ctrl.c                    | 1 -
+> >  net/netrom/sysctl_net_netrom.c      | 1 -
+> >  net/phonet/sysctl.c                 | 1 -
+> >  net/rds/ib_sysctl.c                 | 1 -
+> >  net/rds/sysctl.c                    | 1 -
+> >  net/rds/tcp.c                       | 1 -
+> >  net/rose/sysctl_net_rose.c          | 1 -
+> >  net/rxrpc/sysctl.c                  | 1 -
+> >  net/sctp/sysctl.c                   | 6 +-----
+> >  net/smc/smc_sysctl.c                | 1 -
+> >  net/sunrpc/sysctl.c                 | 1 -
+> >  net/sunrpc/xprtrdma/svc_rdma.c      | 1 -
+> >  net/sunrpc/xprtrdma/transport.c     | 1 -
+> >  net/sunrpc/xprtsock.c               | 1 -
+> >  net/tipc/sysctl.c                   | 1 -
+> >  net/unix/sysctl_net_unix.c          | 1 -
+> >  net/x25/sysctl_net_x25.c            | 1 -
+> >  net/xfrm/xfrm_sysctl.c              | 5 +----
+> >  35 files changed, 20 insertions(+), 81 deletions(-)
+>=20
+> You may want to split patch based on subsystem or the type of changes
+> to make review easier.
 
-BPF are happy with vmalloc().
- 
-> So if we *must* use a common execmem allocator, what we'd reall want is our own
-> types, e.g.
-> 
-> 	EXECMEM_ANYWHERE
-> 	EXECMEM_NOPLT
-> 	EXECMEM_PREL32
-> 
-> ... and then we use those in arch code to implement module_alloc() and friends.
+I agree with Kuniyuki. I think the x25 chunks can me moved in the last
+patch, and at least sunrpc and rds could go in separate patches,
+possibly even xfrm and smc.
 
-I'm looking at execmem_types more as definition of the consumers, maybe I
-should have named the enum execmem_consumer at the first place.
+Thanks,
 
-And the arch constrains defined in struct execmem_range describe how memory
-should be allocated for each consumer.
+Paolo
 
-These constraints are defined early at boot and remain static, so
-initializing them once and letting a common allocator use them makes
-perfect sense to me.
-
-I agree that fallback_{start,end} are not ideal, but we have 3
-architectures that have preferred and secondary range for modules. And arm
-and powerpc use the same logic for kprobes as well, and I don't see why this
-code should be duplicated.
-
-And, for instance, if you decide to place PC-relative instructions if
-kprobes XOL areas, you'd only need to update execmem_range for kprobes to
-be more like the range for modules.
-
-With central allocator it's easier to deal with the things like
-VM_FLUSH_RESET_PERMS and caching of ROX memory and I think it will be more
-maintainable that module_alloc(), alloc_insn_page() and
-bpf_jit_alloc_exec() spread all over the place.
- 
-> Mark.
-
--- 
-Sincerely yours,
-Mike.
