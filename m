@@ -1,195 +1,195 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B92AE381BD
-	for <linux-s390@vger.kernel.org>; Tue, 16 Apr 2024 04:46:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DD716E2BE;
+	Tue, 16 Apr 2024 06:37:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713242784; cv=none; b=VmzLgeQRJD60PLJ5uu8aL0vU++PacCK9dkN9uM9yqCvgGoW+02mZcixksYxKGxJWNZEgLeDE8G+v3m5peatZT2IMwJihyEYJEsH36E+cnDJTDo+mWJ/ERUDL+zKjvAMvIPS7inNDZvBCHD8lNZNzRQxSGnbw6hMTD5MgJRj47fo=
+	t=1713249467; cv=none; b=rJT58qiJK+W5ebceFAzrkye7zuLWl2TsItV7B+GBehVve8b/DWo8wzq5kVuHvjjDvlpGX8crYtwjn7PSe2NQdp5KO4fr9/v+2htifTgag6LZSHGk/dNbEfV0boplVoyHfVaxuj0kNnNEFQ1JkJIwxrK+2by7zbn93wSlfA5yF+s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713242784; c=relaxed/simple;
-	bh=80hUjCkjKS5u7V5gbiuzD+oIL+4s0qQV1OKu5uzzkvs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fb45k5eYF8alsBiM0WIRPe80HR2Ytym8LbRQukhzGnZ7izXIhTkdWRC3VkAzx6PQ1vDOvjBk5eGzkM2DkyyUdfDAJ+58e02tzNOLfHr8Rchm1CTf3BzKe/qWj3x0RDvEeuQLUJ3NrYyQ3lqUFMhwdzRIky1RpZCuwlW3ZCguLEU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FA0eGcjg; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1713249467; c=relaxed/simple;
+	bh=s+gbjt6MpgxLQHQApyrgOzXlfWR857SWR8AJZfMyGMc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fIE6quxnXXRNFFcjJ/KGlYLSvToQ82vWFHokX5RfwIkEWf2qMzXLrPeRiUb1ZVieR7Ez03/ZK2szcPqSHDtzOpozLUtHQSzxFFX9vwlIz1IKrJpBZ2RqCyX33xoOGpauRGFbquAjv7iEky4kC9YMKb68NSaWe4tOFgtiJkS9MKY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=C52ykLAI; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FA0eGcjg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713242781;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=rMDcgaXiXzVs8uPv0yj1Wn6dMRjFJOR9or+OJI4S4LI=;
-	b=FA0eGcjg6+Iod/uCWL1tUWiHX1zK2pisrZrqma48XAwOxbPFw0pZpuHIMmt1PLINy//iZT
-	psVYDEnvh5j0GjNQE69ibd22HSxYnz9l5F/0gql0mLTbMSyj2zCtKVRw/kLgTgNSI//S0e
-	72ysg4sWdOY44eMXHDGwQrB73YJr5Yw=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-315-c2rQ-zhTPjGCcMPpD_g0_A-1; Tue, 16 Apr 2024 00:46:19 -0400
-X-MC-Unique: c2rQ-zhTPjGCcMPpD_g0_A-1
-Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-568a9f3ba97so2252331a12.1
-        for <linux-s390@vger.kernel.org>; Mon, 15 Apr 2024 21:46:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713242778; x=1713847578;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=rMDcgaXiXzVs8uPv0yj1Wn6dMRjFJOR9or+OJI4S4LI=;
-        b=W6RDqR5BGY9XQ+ai0GK5wNNwLlR6vck9IPVubHSHCxaUuwpVF16cTanyi2U8fWizlg
-         2uzVZ0thX4hmfVnQmQx6DBb6I/Af+0/AR+4e71+3PJWuwRW7bjF8MshlEJyAifRNw5yp
-         A4Kp8yaDdLL241HC/y7ArnL2zZrFDaQmoexiR9u+cx6andCpSwk0oAbaWoeybEEryZ5P
-         5omysssqg9L4mlSsKC6SJw+T3TxnIe2G+BygzxvJU1Grfw94TZNZA0e/aB4b1Zr438fw
-         yfkrr9j71HTz57wOb27W8sQ8rKwFG4U/hlQ4DAvdFHRL/XcDnul5gQlnvGNCCQ56fbH2
-         PyEg==
-X-Forwarded-Encrypted: i=1; AJvYcCUKJjQ8ln08+JbH7e/s5KeB7U2elpQl6eWfGdXSHxdOzDR8qFBCTM4GXy+Qm7FDj9nTrV0IslOF3VrixYMhmYz3xD0o5kooBbr3AA==
-X-Gm-Message-State: AOJu0Yzfx7+bRIZ/q3PPUTRgf+IIyB62WLf/VmyQG4JtmqHgBLKR0GEn
-	Nznyw+M8/LoF00bq89edOA03NQH0QwFKVWmlb5w6SqnPI8a31QZ6NGR6JI2Jq920C/1jNM7EE0O
-	4hs0uNPpKdgRh6pRHd0B/4svC03HCfT2LLUmDMIrxNaYjwiYLsOSl04nIq88=
-X-Received: by 2002:a50:ab15:0:b0:56e:2493:e3c2 with SMTP id s21-20020a50ab15000000b0056e2493e3c2mr7416009edc.37.1713242778412;
-        Mon, 15 Apr 2024 21:46:18 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHjJiN4sk7slyW1gbhfGoFcXXDmV9FAeRULRLojKqmJEU/91CsGyWgRN1k0slv+TC4KPAhXiw==
-X-Received: by 2002:a50:ab15:0:b0:56e:2493:e3c2 with SMTP id s21-20020a50ab15000000b0056e2493e3c2mr7415995edc.37.1713242778055;
-        Mon, 15 Apr 2024 21:46:18 -0700 (PDT)
-Received: from [192.168.0.9] (ip-109-43-179-50.web.vodafone.de. [109.43.179.50])
-        by smtp.gmail.com with ESMTPSA id i8-20020a05640200c800b00562d908daf4sm5602008edu.84.2024.04.15.21.46.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 15 Apr 2024 21:46:17 -0700 (PDT)
-Message-ID: <3ed01604-3b9e-4131-9ec0-c354c6d65cc8@redhat.com>
-Date: Tue, 16 Apr 2024 06:46:15 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="C52ykLAI"
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43G5fOSv004182;
+	Tue, 16 Apr 2024 06:37:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=DW16ByiGfzFf/HY70BHZqJnP86YV7zinx9U7rOft9MA=;
+ b=C52ykLAIL5hb9D87Z0TQLaf/5sslvrWqpVCXBCTQbhn9BD1krcLVW34ItjEuOov28X5y
+ YP2tSP1nI+MdLgYjocz5VK+noEtMXpb8K0iTS7F8BRUMfrEYygx8u0I6Z8Hvxip6yX9a
+ Y4wNo79g+F6N6Se53JH/1+maVulxeiXDo5p4JMbXz6z+Wt3vti3psg9J+O5aR3WEOqd6
+ aLLZVZYJ+JAlB7oBBILaNpDJet5wQYLy5LJ0IiefzhoGmDCK7mi7AkOPJLMD9tFpNu7g
+ 7phT32WfGXgBLV6CNqKXDkoIJ/adHBrxptsqH0Yc5xzBpFloX0Xbl+bHnFmQANgqLCNu fw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xhk9pr37j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Apr 2024 06:37:38 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43G6TY0u011654;
+	Tue, 16 Apr 2024 06:37:38 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xhk9pr37e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Apr 2024 06:37:37 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43G3nxam011111;
+	Tue, 16 Apr 2024 06:37:37 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xg732c2p5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Apr 2024 06:37:37 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43G6bV4948628208
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 16 Apr 2024 06:37:34 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D703620067;
+	Tue, 16 Apr 2024 06:37:31 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DD6E62004B;
+	Tue, 16 Apr 2024 06:37:30 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.55.218])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 16 Apr 2024 06:37:30 +0000 (GMT)
+Date: Tue, 16 Apr 2024 08:37:29 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Xu <peterx@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 2/2] s390/mm: re-enable the shared zeropage for !PV
+ and !skeys KVM guests
+Message-ID: <Zh4cqZkuPR9V1t1o@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240411161441.910170-1-david@redhat.com>
+ <20240411161441.910170-3-david@redhat.com>
+ <Zh1w1QTNSy+rrCH7@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <8533cb18-42ff-42bc-b9e5-b0537aa51b21@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC kvm-unit-tests PATCH v2 00/14] add shellcheck support
-To: Nicholas Piggin <npiggin@gmail.com>, Andrew Jones <andrew.jones@linux.dev>
-Cc: Paolo Bonzini <pbonzini@redhat.com>,
- Alexandru Elisei <alexandru.elisei@arm.com>,
- Eric Auger <eric.auger@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, =?UTF-8?Q?Nico_B=C3=B6hr?=
- <nrb@linux.ibm.com>, David Hildenbrand <david@redhat.com>,
- Shaoqin Huang <shahuang@redhat.com>,
- Nikos Nikoleris <nikos.nikoleris@arm.com>,
- David Woodhouse <dwmw@amazon.co.uk>, Ricardo Koller <ricarkol@google.com>,
- rminmin <renmm6@chinaunicom.cn>, Gavin Shan <gshan@redhat.com>,
- Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
- Sean Christopherson <seanjc@google.com>, kvm@vger.kernel.org,
- kvmarm@lists.linux.dev, kvm-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org
-References: <20240406123833.406488-1-npiggin@gmail.com>
- <a7cdd98e-93c1-4546-bba4-ac3a465f01f5@redhat.com>
- <D0L86IDPMTI3.2XFZ8C6UCVD1B@gmail.com>
-From: Thomas Huth <thuth@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <D0L86IDPMTI3.2XFZ8C6UCVD1B@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8533cb18-42ff-42bc-b9e5-b0537aa51b21@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: VQ3fX6EJCnt1qACDHjS0ldPm_TLFiIBK
+X-Proofpoint-ORIG-GUID: BHnBQ49bCE71R5CAArUmGZYPuxCu31hV
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-16_03,2024-04-15_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ lowpriorityscore=0 spamscore=0 suspectscore=0 clxscore=1015 adultscore=0
+ priorityscore=1501 bulkscore=0 malwarescore=0 impostorscore=0
+ mlxlogscore=781 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404160038
 
-On 16/04/2024 05.26, Nicholas Piggin wrote:
-> On Mon Apr 15, 2024 at 9:59 PM AEST, Thomas Huth wrote:
->> On 06/04/2024 14.38, Nicholas Piggin wrote:
->>> Tree here
->>>
->>> https://gitlab.com/npiggin/kvm-unit-tests/-/tree/shellcheck
->>>
->>> Again on top of the "v8 migration, powerpc improvements" series. I
->>> don't plan to rebase the other way around since it's a lot of work.
->>> So this is still in RFC until the other big series gets merged.
->>>
->>> Thanks to Andrew for a lot of review. A submitted the likely s390x
->>> bugs separately ahead of this series, and also disabled one of the
->>> tests and dropped its fix patch as-per review comments. Hence 3 fewer
->>> patches. Other than that, since last post:
->>>
->>> * Tidied commit messages and added some of Andrew's comments.
->>> * Removed the "SC2034 unused variable" blanket disable, and just
->>>     suppressed the config.mak and a couple of other warnings.
->>> * Blanket disabled "SC2235 Use { ..; } instead of (..)" and dropped
->>>     the fix for it.
->>> * Change warning suppression comments as per Andrew's review, also
->>>     mention in the new unittests doc about the "check =" option not
->>>     allowing whitespace etc in the name since we don't cope with that.
->>>
->>> Thanks,
->>> Nick
->>>
->>> Nicholas Piggin (14):
->>>     Add initial shellcheck checking
->>>     shellcheck: Fix SC2223
->>>     shellcheck: Fix SC2295
->>>     shellcheck: Fix SC2094
->>>     shellcheck: Fix SC2006
->>>     shellcheck: Fix SC2155
->>>     shellcheck: Fix SC2143
->>>     shellcheck: Fix SC2013
->>>     shellcheck: Fix SC2145
->>>     shellcheck: Fix SC2124
->>>     shellcheck: Fix SC2294
->>>     shellcheck: Fix SC2178
->>>     shellcheck: Fix SC2048
->>>     shellcheck: Suppress various messages
->>
->> I went ahead and pushed a bunch of your patches to the k-u-t master branch
->> now. However, there were also some patches which did not apply cleanly to
->> master anymore, so please rebase the remaining patches and then send them again.
+On Mon, Apr 15, 2024 at 09:14:03PM +0200, David Hildenbrand wrote:
+> > > +retry:
+> > > +		rc = walk_page_range_vma(vma, addr, vma->vm_end,
+> > > +					 &find_zeropage_ops, &addr);
+> > > +		if (rc <= 0)
+> > > +			continue;
+> > 
+> > So in case an error is returned for the last vma, __s390_unshare_zeropage()
+> > finishes with that error. By contrast, the error for a non-last vma would
+> > be ignored?
 > 
-> Hey Thomas,
+> Right, it looks a bit off. walk_page_range_vma() shouldn't fail
+> unless find_zeropage_pte_entry() would fail -- which would also be
+> very unexpected.
 > 
-> Yeah the sc patches were based on top of the big series, so some
-> collisions expected. I'll look at rebasing.
+> To handle it cleanly in case we would ever get a weird zeropage where we
+> don't expect it, we should probably just exit early.
+> 
+> Something like the following (not compiled, addressing the comment below):
 
-Ah, ok, we can also try to get in the big series first ... I just lack 
-enough spare time for reviewing currently, so it might take a while :-/
+> @@ -2618,7 +2618,8 @@ static int __s390_unshare_zeropages(struct mm_struct *mm)
+>  	struct vm_area_struct *vma;
+>  	VMA_ITERATOR(vmi, mm, 0);
+>  	unsigned long addr;
+> -	int rc;
+> +	vm_fault_t rc;
+> +	int zero_page;
 
-  Thomas
+I would use "fault" for mm faults (just like everywhere else handle_mm_fault() is
+called) and leave rc as is:
 
+	vm_fault_t fault;
+	int rc;
 
+>  	for_each_vma(vmi, vma) {
+>  		/*
+> @@ -2631,9 +2632,11 @@ static int __s390_unshare_zeropages(struct mm_struct *mm)
+>  		addr = vma->vm_start;
+>  retry:
+> -		rc = walk_page_range_vma(vma, addr, vma->vm_end,
+> -					 &find_zeropage_ops, &addr);
+> -		if (rc <= 0)
+> +		zero_page = walk_page_range_vma(vma, addr, vma->vm_end,
+> +						&find_zeropage_ops, &addr);
+> +		if (zero_page < 0)
+> +			return zero_page;
+> +		else if (!zero_page)
+>  			continue;
+>  		/* addr was updated by find_zeropage_pte_entry() */
+> @@ -2656,7 +2659,7 @@ static int __s390_unshare_zeropages(struct mm_struct *mm)
+>  		goto retry;
+>  	}
+> -	return rc;
+> +	return 0;
+>  }
+>  static int __s390_disable_cow_sharing(struct mm_struct *mm)
+
+...
+
+> > > +		/* addr was updated by find_zeropage_pte_entry() */
+> > > +		rc = handle_mm_fault(vma, addr,
+> > > +				     FAULT_FLAG_UNSHARE | FAULT_FLAG_REMOTE,
+> > > +				     NULL);
+> > > +		if (rc & VM_FAULT_OOM)
+> > > +			return -ENOMEM;
+> > 
+> > Heiko pointed out that rc type is inconsistent vs vm_fault_t returned by
+> 
+> Right, let's use another variable for that.
+> 
+> > handle_mm_fault(). While fixing it up, I've got concerned whether is it
+> > fine to continue in case any other error is met (including possible future
+> > VM_FAULT_xxxx)?
+> 
+> Such future changes would similarly break break_ksm(). Staring at it, I do wonder
+> if break_ksm() should be handling VM_FAULT_HWPOISON ... very likely we should
+> handle it and fail -- we might get an MC while copying from the source page.
+> 
+> VM_FAULT_HWPOISON on the shared zeropage would imply a lot of trouble, so
+> I'm not concerned about that for the case here, but handling it in the future
+> would be cleaner.
+> 
+> Note that we always retry the lookup, so we won't just skip a zeropage on unexpected
+> errors.
+> 
+> We could piggy-back on vm_fault_to_errno(). We could use
+> vm_fault_to_errno(rc, FOLL_HWPOISON), and only continue (retry) if the rc is 0 or
+> -EFAULT, otherwise fail with the returned error.
+> 
+> But I'd do that as a follow up, and also use it in break_ksm() in the same fashion.
+
+@Christian, do you agree with this suggestion?
+
+Thanks!
