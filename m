@@ -1,81 +1,112 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CD0B13CFAF;
-	Wed, 17 Apr 2024 12:00:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70A6013CFBD;
+	Wed, 17 Apr 2024 12:46:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713355228; cv=none; b=gorbCn5zLVMBsprtLkqrVuQqReDxVjBHgUkDWmJ7AkqT5Kd4G8MHlnNm7sB2qwr54aOSEzsJr2fKK0Ddxm4uQFPyc5rBdFc94oR08/1mVA0h54bBePbbVA2Pfu1hwezlZYf5ACv/OjXxIm4PtTMvWKnddbnUdYBhrD9FlRzz0lw=
+	t=1713357984; cv=none; b=lLnGotsw8pgGWUzntfOff6gxjR7TkBqhXG8SKT9oE078SOZ64pkzqizVg0EMN+cx206WF1AWGAL2OWZl4RJDTyzDapoT6juhMvsZmZD8AlbW16OV8M9QK9rusyOpF68QkLWmCK2G4o7olMDydrU3OykKLgXaMTgQ+WgVEMpFOeQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713355228; c=relaxed/simple;
-	bh=s/iFbCV9rIybHPFZJdbUwB5clC746c5zJyRTz59Ty90=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=NGPuHihH6pEBt3yd3pZtEYcsTU6Nql4LPuouilWP1wLRyq6G+Hwhtuas5PoQCLWRo5R1oWPz+MRygczuxpL29UdhSsbS4YdhBrMuGG8VVFL2xadori8hAbfUJSHTO0/DXWxzi1CPS93QWhdqrWoc82geqw4gfhSpkFcxNILZ8fg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RMrpGDtT; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1713357984; c=relaxed/simple;
+	bh=fiavUOvWZVE5pmBDnmjK1riI/G3q7OCzJP2xW2NEEg4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=LV4OfEsWTGfG/zahM/5tgWGueCI0pt4jkvhsJQ9Q3UicA2H8fzVRwx9asVlH3pAnY+nm8sZBfSuJflewwI5V2crxde4OKj1zb9H4kqg9aHxdIqILQPiWWepqx8SQMrJ6wULvBUu/Q3es4oIdX/cW0hRH/KrI5BWGUy3T8SQGgGM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cgIPe3xp; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RMrpGDtT"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 2AA67C32783;
-	Wed, 17 Apr 2024 12:00:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713355228;
-	bh=s/iFbCV9rIybHPFZJdbUwB5clC746c5zJyRTz59Ty90=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=RMrpGDtTPr3Jp3bi0ly8dvnR2F9Pg2aIHepdtewC7CcsB/2p6qBD/T6lwWaQrhpxj
-	 lU4Ix2OnFsmeEqjkBr4X1frzidHJCjKR4Xpah5NZSAsEE/qQ4fQKpavMHRsxqM/+UM
-	 VRy6hZcVGcKA+N6UUXut91YsVS5JRT3d1Fqz8qCXT0qAJZCCV8UDIZmcEF8uVIRLgL
-	 V8lg0RwHEZh1WryoJB4/n4Dbt7GBAPRP2cZNg4bbYeYyQwbCSaKb1Iggg23XTV9l99
-	 11fU8HEAxHGxQ4C5HK6CvvK/t9KcezFsaL1f8XqYPJj5F9IT32xC978NEVnCrSHf8t
-	 4eHZJd6TirfPg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 1C802C54BB3;
-	Wed, 17 Apr 2024 12:00:28 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cgIPe3xp"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43HC5rn3011335;
+	Wed, 17 Apr 2024 12:46:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=fiavUOvWZVE5pmBDnmjK1riI/G3q7OCzJP2xW2NEEg4=;
+ b=cgIPe3xpoTIrAKgl6UmWHPMcuN/H+jVwdE7EDyOfXoRFRcv7hpdIcaybO3g0+bDktiuP
+ C43Uvft7mYulucB+rRAzmbeMxQUTXKRaiFcxuuJSBIGxOpnWCHDJP868Z8qUKN1y5GEL
+ ad1H0FP5ZmCSTdMX6w0TO4LPn3S0zWmmxBakTNbobUWTUnrar8tO245odV6t/mZrYH7B
+ vOYq9DP9+h1iQ4NHATAW88Gh84cAkN49eJx3rPXbF/GOr5EoLw0on9pgLk9IUSvLbavE
+ ecVr9sPLTdTevCtxbjbFKfWAzfGLwoFKYDg3HHsgw8JcwGpikq/3tSQsfnkjDs9oHd3i pQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xje4cr31s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Apr 2024 12:46:16 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43HCgsqu001129;
+	Wed, 17 Apr 2024 12:46:15 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xje4cr31m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Apr 2024 12:46:15 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43HAX5k0021366;
+	Wed, 17 Apr 2024 12:46:15 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xg6kkm3sv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Apr 2024 12:46:15 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43HCk9Cb14811424
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 17 Apr 2024 12:46:11 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B1E3220043;
+	Wed, 17 Apr 2024 12:46:09 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6AF5620040;
+	Wed, 17 Apr 2024 12:46:09 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 17 Apr 2024 12:46:09 +0000 (GMT)
+Date: Wed, 17 Apr 2024 14:46:08 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Xu <peterx@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 0/2] s390/mm: shared zeropage + KVM fixes
+Message-ID: <Zh/EkOPBRS1q0ru2@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240411161441.910170-1-david@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240411161441.910170-1-david@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: DiMi4inaKsPPHwYi2zSjQpD6kQB3mZz4
+X-Proofpoint-ORIG-GUID: HRLfBySLDHbhCMwMIzRcmBKuqE6JUE-a
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] s390/ism: Properly fix receive message buffer allocation
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <171335522811.25671.11363979683780241618.git-patchwork-notify@kernel.org>
-Date: Wed, 17 Apr 2024 12:00:28 +0000
-References: <20240415131507.156931-1-gbayer@linux.ibm.com>
-In-Reply-To: <20240415131507.156931-1-gbayer@linux.ibm.com>
-To: Gerd Bayer <gbayer@linux.ibm.com>
-Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
- pabeni@redhat.com, hch@lst.de, schnelle@linux.ibm.com, kuba@kernel.org,
- davem@davemloft.net, wenjia@linux.ibm.com, guwen@linux.alibaba.com,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org, gor@linux.ibm.com,
- agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- pasic@linux.ibm.com
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-17_09,2024-04-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ impostorscore=0 bulkscore=0 mlxscore=0 adultscore=0 phishscore=0
+ spamscore=0 mlxlogscore=587 suspectscore=0 priorityscore=1501
+ lowpriorityscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2404010000 definitions=main-2404170086
 
-Hello:
+On Thu, Apr 11, 2024 at 06:14:39PM +0200, David Hildenbrand wrote:
 
-This patch was applied to netdev/net.git (main)
-by David S. Miller <davem@davemloft.net>:
+Hi David,
 
-On Mon, 15 Apr 2024 15:15:07 +0200 you wrote:
-> Since [1], dma_alloc_coherent() does not accept requests for GFP_COMP
-> anymore, even on archs that may be able to fulfill this. Functionality that
-> relied on the receive buffer being a compound page broke at that point:
-> The SMC-D protocol, that utilizes the ism device driver, passes receive
-> buffers to the splice processor in a struct splice_pipe_desc with a
-> single entry list of struct pages. As the buffer is no longer a compound
-> page, the splice processor now rejects requests to handle more than a
-> page worth of data.
-> 
-> [...]
+> Based on s390/features. Andrew agreed that both patches can go via the
+> s390x tree.
 
-Here is the summary with links:
-  - [net] s390/ism: Properly fix receive message buffer allocation
-    https://git.kernel.org/netdev/net/c/83781384a96b
+I am going to put on a branch this series together with the selftest:
+https://lore.kernel.org/r/20240412084329.30315-1-david@redhat.com
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+I there something in s390/features your three patches depend on?
+Or v6.9-rc2 contains everything needed already?
 
-
+Thanks!
