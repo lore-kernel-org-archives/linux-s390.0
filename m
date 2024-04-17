@@ -1,107 +1,129 @@
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B88066EB41;
-	Wed, 17 Apr 2024 08:30:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA04213AD1D;
+	Wed, 17 Apr 2024 10:20:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713342603; cv=none; b=uRlpESvHXWP61J90AcfNzB4PIyUsUwz4hLL179plPwm/m0tv/Y4p+S7gZsPaX8Lh2ZRrrwGgXDyZH1s75tIf9dbCjvm7KGXnbnPmw9hl1yA4ThCtFJdZ3FYx2vNSsvStEyHsfelxx8QorV00LQhFBvCn6Y/8voL1CBDkFqRlRhg=
+	t=1713349223; cv=none; b=CV+brkzLy3y6NimzN0ch6mF0xbiomvk7V1gzGm52nRHLWRbShfhF7clBVBXtGqKRJ5aBobVomoWz2yUPsJjBNE/RmiUIJFoTCUU5cylPD+wPzao0xv5hRdj7lmRVs9kB1st3pr51FtcttSVRcjEJ/JE+N+KZrND43XzY4bHbisk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713342603; c=relaxed/simple;
-	bh=EfYL9cZU7RrxQ7DUbJyJ74A6qUdlrFq+rgm3gzhCbhY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=g5+hLbfAahktkiuaj19mXd9B5h9NVwjm//WsHjsIk+baMLfGYcNDEWzyN315uK2Sg6i0+rVPbCmFipweyZRHtP9+l3ha5fxkHFyIwYBMQN/h8Kn4xOUDsf+7Civ9hJJvOmePbUexr+ZjANDwQdOPM5mnRX1OH+2uQTBtFtkJtek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.174])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4VKDXn2gC1ztQb5;
-	Wed, 17 Apr 2024 16:27:05 +0800 (CST)
-Received: from dggpeml500026.china.huawei.com (unknown [7.185.36.106])
-	by mail.maildlp.com (Postfix) with ESMTPS id C9ED2140447;
-	Wed, 17 Apr 2024 16:29:57 +0800 (CST)
-Received: from [10.174.178.66] (10.174.178.66) by
- dggpeml500026.china.huawei.com (7.185.36.106) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.35; Wed, 17 Apr 2024 16:29:57 +0800
-Message-ID: <ed5f3665-43ae-cbab-b397-c97c922d26eb@huawei.com>
-Date: Wed, 17 Apr 2024 16:29:56 +0800
+	s=arc-20240116; t=1713349223; c=relaxed/simple;
+	bh=BL9sVr1FX2Bl7U7DH4Ih8dPNhWgEwo/nV1rJcFVOilg=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=VPpbNU6xXN5bCUvF1ACBxPcKjGl/xK1TiTNZ7WJeYdRVut9QTbraeSmqD5ZQyHWfiFPVpmVSBJDN6FF9qH1lKBio8BeQKmweDJs+X136jW8f30rb0U11XWUqye6CnwIsnKMFpgTDqZQkmhZQadZGr4fmgPDrWw22cG6J6ddhGhA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SlGgvyop; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SlGgvyop"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43H9sgAb031215;
+	Wed, 17 Apr 2024 10:20:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=BL9sVr1FX2Bl7U7DH4Ih8dPNhWgEwo/nV1rJcFVOilg=;
+ b=SlGgvyopI8pehtw2KLxtPHePnESLMfJCSbBzmAOQ5hSWXcQ1aAY0jC3EXXkxk43qjdfL
+ 55d0MgDgF9WR9d2McwmKCkW9bI1ezvOE6xAtkdYUAKM0vcbwuuXopkdP0AhV/Lj/VYIH
+ NSOy1GoHFTNIc/LHP/X3IxBg+1iKYbPpR39rCgyq+8oiq2sPaRLe8HxFaDQThwaK8YQj
+ dOHCcHW140EBkmu0SzmIwdZnLoMQa9I/UNjle7VUhjiUOS67JnireicYzi2eEuEalpY8
+ fq6x6pa7lbiP6tHT61VpTrje3PQ92yeeiAS0evaBlcvI9wD4isJpLmofNIDDTVyuW0BC YA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xjbc4r5xw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Apr 2024 10:20:15 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43HAKEdb017897;
+	Wed, 17 Apr 2024 10:20:14 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xjbc4r5xp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Apr 2024 10:20:14 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43H8Umm0027323;
+	Wed, 17 Apr 2024 10:20:12 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xg4s03tt9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Apr 2024 10:20:12 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43HAK7Q131588628
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 17 Apr 2024 10:20:09 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 32D6E20063;
+	Wed, 17 Apr 2024 10:20:07 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4BE422005A;
+	Wed, 17 Apr 2024 10:20:06 +0000 (GMT)
+Received: from [9.179.14.55] (unknown [9.179.14.55])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 17 Apr 2024 10:20:06 +0000 (GMT)
+Message-ID: <5c1ef62610506524763bc2d4f673279e0cb624b6.camel@linux.ibm.com>
+Subject: Re: [PATCH net-next v6 02/11] net/smc: introduce loopback-ism for
+ SMC intra-OS shortcut
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
+        twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com,
+        jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Date: Wed, 17 Apr 2024 12:20:06 +0200
+In-Reply-To: <20240414040304.54255-3-guwen@linux.alibaba.com>
+References: <20240414040304.54255-1-guwen@linux.alibaba.com>
+	 <20240414040304.54255-3-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.4 (3.50.4-2.fc39app4) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.0.2
-Subject: Re: [PATCH net] net/smc: fix potential sleeping issue in
- smc_switch_conns
-To: Guangguan Wang <guangguan.wang@linux.alibaba.com>,
-	<linux-s390@vger.kernel.org>, <netdev@vger.kernel.org>,
-	<davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
-	<pabeni@redhat.com>
-CC: <wenjia@linux.ibm.com>, <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
-	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>,
-	<weiyongjun1@huawei.com>, <yuehaibing@huawei.com>,
-	<tangchengchang@huawei.com>
-References: <20240413035150.3338977-1-shaozhengchao@huawei.com>
- <6520c574-e1c6-49e0-8bb1-760032faaf7a@linux.alibaba.com>
-From: shaozhengchao <shaozhengchao@huawei.com>
-In-Reply-To: <6520c574-e1c6-49e0-8bb1-760032faaf7a@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpeml500026.china.huawei.com (7.185.36.106)
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: nq42N4N8rAnD0oGf9Kk5FcUB5bWQ0kOK
+X-Proofpoint-ORIG-GUID: xEYjGSR6ovHWU4xcYSmlh8GzMhk0EH_v
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-17_08,2024-04-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
+ malwarescore=0 phishscore=0 clxscore=1011 lowpriorityscore=0 spamscore=0
+ priorityscore=1501 suspectscore=0 adultscore=0 mlxlogscore=937 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
+ definitions=main-2404170071
 
+On Sun, 2024-04-14 at 12:02 +0800, Wen Gu wrote:
+> This introduces a kind of Emulated-ISM device named loopback-ism for
+> SMCv2.1. The loopback-ism device is currently exclusive for SMC
+> usage, and aims to provide an SMC shortcut for sockets within the
+> same kernel, leading to improved intra-OS traffic performance.
+> Configuration of this feature is managed through the config SMC_LO.
+>=20
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
+> =C2=A0net/smc/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 1=
+3 ++++
+> =C2=A0net/smc/Makefile=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 =
+1 +
+> =C2=A0net/smc/af_smc.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 12 +++=
+-
+> =C2=A0net/smc/smc_loopback.c | 156
+> +++++++++++++++++++++++++++++++++++++++++
+> =C2=A0net/smc/smc_loopback.h |=C2=A0 43 ++++++++++++
+> =C2=A05 files changed, 224 insertions(+), 1 deletion(-)
+> =C2=A0create mode 100644 net/smc/smc_loopback.c
+> =C2=A0create mode 100644 net/smc/smc_loopback.h
+>=20
 
-Hi Guangguan:
-   Thank you for your review. When I used the hns driver, I ran into the
-problem of "scheduling while atomic". But the problem was tested on the
-5.10 kernel branch, and I'm still trying to reproduce it using the
-mainline.
+Thanks Wen Gu,
 
-Zhengchao Shao
+this looks good to me now. A W=3D1 compile-test of the whole series with
+SMC_LO undefined showed that there were no additional unresolved
+symbols introduced.
 
-On 2024/4/17 16:00, Guangguan Wang wrote:
-> 
-> 
-> On 2024/4/13 11:51, Zhengchao Shao wrote:
->> Potential sleeping issue exists in the following processes:
->> smc_switch_conns
->>    spin_lock_bh(&conn->send_lock)
->>    smc_switch_link_and_count
->>      smcr_link_put
->>        __smcr_link_clear
->>          smc_lgr_put
->>            __smc_lgr_free
->>              smc_lgr_free_bufs
->>                __smc_lgr_free_bufs
->>                  smc_buf_free
->>                    smcr_buf_free
->>                      smcr_buf_unmap_link
->>                        smc_ib_put_memory_region
->>                          ib_dereg_mr
->>                            ib_dereg_mr_user
->>                              mr->device->ops.dereg_mr
->> If scheduling exists when the IB driver implements .dereg_mr hook
->> function, the bug "scheduling while atomic" will occur. For example,
->> cxgb4 and efa driver. Use mutex lock instead of spin lock to fix it.
->>
->> Fixes: 20c9398d3309 ("net/smc: Resolve the race between SMC-R link access and clear")
->> Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
->> ---
->>   net/smc/af_smc.c   |  2 +-
->>   net/smc/smc.h      |  2 +-
->>   net/smc/smc_cdc.c  | 14 +++++++-------
->>   net/smc/smc_core.c |  8 ++++----
->>   net/smc/smc_tx.c   |  8 ++++----
->>   5 files changed, 17 insertions(+), 17 deletions(-)
->>
-> 
-> Hi Zhengchao,
-> 
-> I doubt whether this bug really exists, as efa supports SRD QP while SMC-R relies on RC QP,
-> cxgb4 is a IWARP adaptor while SMC-R relies on ROCE adaptor.
-> 
-> Thanks,
-> Guangguan Wang
+Feel free to add my
+Reviewed-by: Gerd Bayer <gbayer@linux.ibm.com>
