@@ -1,157 +1,99 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23AB463A9;
-	Wed, 17 Apr 2024 01:40:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A5EA42A93;
+	Wed, 17 Apr 2024 07:32:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713318053; cv=none; b=bb5J5Mx8G+L6mjwrxYHk5HGanjV4IGkDGyciUYCPVv0OwLDf/S/YrsC1JWKCdoiDzT5vmOzUFxHLlDrIIIM04UxQ7iCpfqp4T8fvxn65jPL4XIWA6lMLc+WrZ6ubw6uFvPFQURauxzKbb9nf8lSLv46Ybhh/IneMDD+qNOn4cbc=
+	t=1713339133; cv=none; b=YQsMd/Y6d9B6Nw1fnIjUSSnqeIQEUyPMNQOgQRfTZ6cv/a87wGLhYugUQ7blcfLNa5Us4vyX5mf8L3g8kFaHmNg3c3iyF9tkJdJKTby9Mo/r9rAMVCaIguxIaAlHrIhd6jbZlDHORbiHVlgjdQC0pmXed89ulrXmkU0Jb3TMalE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713318053; c=relaxed/simple;
-	bh=qd+oXhdytQdMGQjfxPuaaFQdJ9/xiGThuh+6RN0NtNo=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
-	 References:In-Reply-To; b=adLmtgUh4V0AqymCuK3y6uYoznhrLK18T2UUHnrhCWx3BcPoQDOJ9vJOxrvGbVR+naM+pDYRVQkSN5a9xwHhnn5phev7Et450FiUNkZAsJ/l5YjQ3A0p+KuQq9XdgfUSH/phaHTtcNb6ooofBusUwqKpiBuiO0Jg2YQbdDA/JiQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fmMEKnsB; arc=none smtp.client-ip=209.85.216.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1713339133; c=relaxed/simple;
+	bh=EVw/Ed5zPAVSDnFiWaniJiOl38I+q/uv8b6G8VpZDRE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=eIX3WT6qGbTssFw8Ek3wD0qsyiG3RDnYktSZ7Cfe5w9JFJt7xdgeV1/mGHLkhBOInykkN2jW/AlzDZsJyRoj5ztHmoT662Qf2FtWJ+DP1snvvRu+IDQNpXuGW469TbR/gqIbQGomY88QSW5s08WkY2HS/UmuVbVQoYpwf5WfUWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=F/Y1k1w5; arc=none smtp.client-ip=115.124.30.97
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fmMEKnsB"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-2a614b0391dso3473765a91.1;
-        Tue, 16 Apr 2024 18:40:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713318051; x=1713922851; darn=vger.kernel.org;
-        h=in-reply-to:references:cc:to:from:subject:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=m6kw6dCQ+cydDghFyBvYaAs0p3Ma1QKkt6qhRC1Ap34=;
-        b=fmMEKnsB4rbUTUAs93w1/FF9uu3HbInuwO9K6tQhYafnF18FEDNXguh6p4yZ24Kc7q
-         4feeTdD9aecW4x3mdUmzSmEoa7ixdYUwv3uSK/Uwx9cwjK7mrtv4dAOFZIqowsW86HW8
-         ypa+9wM0O9JXuG1ozU04rLKhtkjtTVsDr8x7/kTaTsNNTPz2FHHc4eOGHmCInPMwS2pR
-         V/EQW9atcHDDWd/bfys2SxiyWyTAY3C6FUD8vOHXRqe7+IxOPHGgRJLQABHM5DlZ5NAs
-         PzqOXuMqs5E9bAZ3IINaamc6RxOGQY8m7gt0ii8wlNKZSoWKpOThTwp3CZ2SrvTXMa3U
-         MRUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713318051; x=1713922851;
-        h=in-reply-to:references:cc:to:from:subject:message-id:date
-         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=m6kw6dCQ+cydDghFyBvYaAs0p3Ma1QKkt6qhRC1Ap34=;
-        b=bd7zp+eJMedMxYNCQf77PgPGDiec10l0phN6LcJNvTFmyar6lrQbvfQzuRuSlVzNuO
-         UVs/fVSa80zTI2LM4sE7aHQHga8uiwWo1v9+y7iyZY1uu/84nqiQmDdWTTwNiFC+jrC0
-         IWgxWdmeEewVy3t8/J0/A/baDSMcd9xsvCHnD4aOH4eduKjPaK6NcRtZ0S2wgUP62OLe
-         OMf1iaLP6cvGN4A5ZEJJcS64zRGCaq17hUOVnHrqu+Gbg2qD0HvWdoB533zYsbcJ+BB6
-         19fNaV/taub5F2f1fBicKmAvUUiwIMez+2T4wB++ZeKJxjmB1sfWh1oFmTeUOjswsh61
-         ouGw==
-X-Forwarded-Encrypted: i=1; AJvYcCUCmoW15yQnF0RMfoMV2SKKg9zbhH1h/HYLUt+5eni4z0S8C0uJsMC4SpDwSrGa/0MqLqiNYmnRXVAdXmzqebKjoMCd+F7M427p7441HcRtancz6ErBzdX/A9N5vkDerQ==
-X-Gm-Message-State: AOJu0YxZES6vPn1gvVuo5Q3HleUM/okkcyH8vJa0xvAT8Q/PwSmMdU8e
-	DfY1DgqVeib2HPrYi2D4kwMUtryhItmFScz77vDHkMUMgZs6ybf2
-X-Google-Smtp-Source: AGHT+IEuN9i6b2kO7+yPYNxq5M/Sp0bpfJQ/y0HJK8y0kGe81d5INGjTCRH6pUQ3OUq2XgGUoTKysA==
-X-Received: by 2002:a17:90a:d24d:b0:2a5:c3a7:39d9 with SMTP id o13-20020a17090ad24d00b002a5c3a739d9mr11513430pjw.45.1713318051302;
-        Tue, 16 Apr 2024 18:40:51 -0700 (PDT)
-Received: from localhost (gla2734477.lnk.telstra.net. [110.145.172.154])
-        by smtp.gmail.com with ESMTPSA id p9-20020a17090a428900b002a3a154b974sm250417pjg.55.2024.04.16.18.40.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 16 Apr 2024 18:40:51 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="F/Y1k1w5"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1713339128; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=xLo8OYi1UoX+I4QYqt1VXA9tqhdb6DaD+9+18rKvBOo=;
+	b=F/Y1k1w5wtGeioZ0h3fyfAXddrfiDODOnBdWPknlXyTdqNWXIAY+CM2gspAyckRyAfKOFhhvXPm8tr4LOr9aXKog7B+crnI62Ck6+UEC6ZU4gDNB8mDJo6KWqvWRRbh4OVQfin+w6Qvf4bTVO2qtsYWuq9wroxrojpmWVXFJ5yQ=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R541e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W4kf6IF_1713339126;
+Received: from 30.221.101.43(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0W4kf6IF_1713339126)
+          by smtp.aliyun-inc.com;
+          Wed, 17 Apr 2024 15:32:07 +0800
+Message-ID: <a94de96f-8b18-482c-90e2-7f8584528bc8@linux.alibaba.com>
+Date: Wed, 17 Apr 2024 15:32:05 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: fix potential sleeping issue in
+ smc_switch_conns
+To: Paolo Abeni <pabeni@redhat.com>, Zhengchao Shao <shaozhengchao@huawei.com>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com, weiyongjun1@huawei.com,
+ yuehaibing@huawei.com, tangchengchang@huawei.com, kuba@kernel.org,
+ edumazet@google.com, davem@davemloft.net, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org
+References: <20240413035150.3338977-1-shaozhengchao@huawei.com>
+ <b2573ccf2340a19b6cb039dac639b2d431c1404c.camel@redhat.com>
+Content-Language: en-US
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+In-Reply-To: <b2573ccf2340a19b6cb039dac639b2d431c1404c.camel@redhat.com>
 Content-Type: text/plain; charset=UTF-8
-Date: Wed, 17 Apr 2024 11:40:40 +1000
-Message-Id: <D0M0K25RUX0G.1FCOQS1GR21N4@gmail.com>
-Subject: Re: [RFC kvm-unit-tests PATCH v2 00/14] add shellcheck support
-From: "Nicholas Piggin" <npiggin@gmail.com>
-To: "Thomas Huth" <thuth@redhat.com>, "Andrew Jones"
- <andrew.jones@linux.dev>
-Cc: "Paolo Bonzini" <pbonzini@redhat.com>, "Alexandru Elisei"
- <alexandru.elisei@arm.com>, "Eric Auger" <eric.auger@redhat.com>, "Janosch
- Frank" <frankja@linux.ibm.com>, "Claudio Imbrenda"
- <imbrenda@linux.ibm.com>, =?utf-8?q?Nico_B=C3=B6hr?= <nrb@linux.ibm.com>,
- "David Hildenbrand" <david@redhat.com>, "Shaoqin Huang"
- <shahuang@redhat.com>, "Nikos Nikoleris" <nikos.nikoleris@arm.com>, "David
- Woodhouse" <dwmw@amazon.co.uk>, "Ricardo Koller" <ricarkol@google.com>,
- "rminmin" <renmm6@chinaunicom.cn>, "Gavin Shan" <gshan@redhat.com>, "Nina
- Schoetterl-Glausch" <nsg@linux.ibm.com>, "Sean Christopherson"
- <seanjc@google.com>, <kvm@vger.kernel.org>, <kvmarm@lists.linux.dev>,
- <kvm-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>
-X-Mailer: aerc 0.17.0
-References: <20240406123833.406488-1-npiggin@gmail.com>
- <a7cdd98e-93c1-4546-bba4-ac3a465f01f5@redhat.com>
- <D0L86IDPMTI3.2XFZ8C6UCVD1B@gmail.com>
- <3ed01604-3b9e-4131-9ec0-c354c6d65cc8@redhat.com>
-In-Reply-To: <3ed01604-3b9e-4131-9ec0-c354c6d65cc8@redhat.com>
+Content-Transfer-Encoding: 7bit
 
-On Tue Apr 16, 2024 at 2:46 PM AEST, Thomas Huth wrote:
-> On 16/04/2024 05.26, Nicholas Piggin wrote:
-> > On Mon Apr 15, 2024 at 9:59 PM AEST, Thomas Huth wrote:
-> >> On 06/04/2024 14.38, Nicholas Piggin wrote:
-> >>> Tree here
-> >>>
-> >>> https://gitlab.com/npiggin/kvm-unit-tests/-/tree/shellcheck
-> >>>
-> >>> Again on top of the "v8 migration, powerpc improvements" series. I
-> >>> don't plan to rebase the other way around since it's a lot of work.
-> >>> So this is still in RFC until the other big series gets merged.
-> >>>
-> >>> Thanks to Andrew for a lot of review. A submitted the likely s390x
-> >>> bugs separately ahead of this series, and also disabled one of the
-> >>> tests and dropped its fix patch as-per review comments. Hence 3 fewer
-> >>> patches. Other than that, since last post:
-> >>>
-> >>> * Tidied commit messages and added some of Andrew's comments.
-> >>> * Removed the "SC2034 unused variable" blanket disable, and just
-> >>>     suppressed the config.mak and a couple of other warnings.
-> >>> * Blanket disabled "SC2235 Use { ..; } instead of (..)" and dropped
-> >>>     the fix for it.
-> >>> * Change warning suppression comments as per Andrew's review, also
-> >>>     mention in the new unittests doc about the "check =3D" option not
-> >>>     allowing whitespace etc in the name since we don't cope with that=
-.
-> >>>
-> >>> Thanks,
-> >>> Nick
-> >>>
-> >>> Nicholas Piggin (14):
-> >>>     Add initial shellcheck checking
-> >>>     shellcheck: Fix SC2223
-> >>>     shellcheck: Fix SC2295
-> >>>     shellcheck: Fix SC2094
-> >>>     shellcheck: Fix SC2006
-> >>>     shellcheck: Fix SC2155
-> >>>     shellcheck: Fix SC2143
-> >>>     shellcheck: Fix SC2013
-> >>>     shellcheck: Fix SC2145
-> >>>     shellcheck: Fix SC2124
-> >>>     shellcheck: Fix SC2294
-> >>>     shellcheck: Fix SC2178
-> >>>     shellcheck: Fix SC2048
-> >>>     shellcheck: Suppress various messages
-> >>
-> >> I went ahead and pushed a bunch of your patches to the k-u-t master br=
-anch
-> >> now. However, there were also some patches which did not apply cleanly=
- to
-> >> master anymore, so please rebase the remaining patches and then send t=
-hem again.
-> >=20
-> > Hey Thomas,
-> >=20
-> > Yeah the sc patches were based on top of the big series, so some
-> > collisions expected. I'll look at rebasing.
->
-> Ah, ok, we can also try to get in the big series first ... I just lack=20
 
-They should have come first, but I'd written the multi migration code
-before Andrew suggested adding sc, and it looked like hard work to
-rebase the other way. I'll try again.
 
-> enough spare time for reviewing currently, so it might take a while :-/
+On 2024/4/16 20:06, Paolo Abeni wrote:
+> On Sat, 2024-04-13 at 11:51 +0800, Zhengchao Shao wrote:
+>> Potential sleeping issue exists in the following processes:
+>> smc_switch_conns
+>>   spin_lock_bh(&conn->send_lock)
+>>   smc_switch_link_and_count
+>>     smcr_link_put
+>>       __smcr_link_clear
+>>         smc_lgr_put
+>>           __smc_lgr_free
+>>             smc_lgr_free_bufs
+>>               __smc_lgr_free_bufs
+>>                 smc_buf_free
+>>                   smcr_buf_free
+>>                     smcr_buf_unmap_link
+>>                       smc_ib_put_memory_region
+>>                         ib_dereg_mr
+>>                           ib_dereg_mr_user
+>>                             mr->device->ops.dereg_mr
+>> If scheduling exists when the IB driver implements .dereg_mr hook
+>> function, the bug "scheduling while atomic" will occur. For example,
+>> cxgb4 and efa driver. Use mutex lock instead of spin lock to fix it.
+> 
+> I tried to inspect all the lock call sites, and it *look* like they are
+> all in process context, so the switch should be feasible.
 
-Understandable. You've done heaps of reviewing already so I really
-appreciate it.
+There exist some calls from tasklet, where mutex lock is infeasible.
+For example:
+- tasklet -> smc_wr_tx_tasklet_fn -> smc_wr_tx_process_cqe -> pnd_snd.handler -> smc_cdc_tx_handler -> smc_tx_pending -> smc_tx_sndbuf_nonempty -> smcr_tx_sndbuf_nonempty -> spin_lock_bh(&conn->send_lock)
+- tasklet -> smc_wr_rx_tasklet_fn -> smc_wr_rx_process_cqes -> smc_wr_rx_demultiplex -> smc_cdc_rx_handler -> smc_cdc_msg_validate -> spin_lock_bh(&conn->send_lock)
 
 Thanks,
-Nick
+Guangguan Wang
+
+> 
+> Still the fact that the existing lock is a BH variant is suspect.
+> Either the BH part was not needed or this can introduce subtle
+> regressions/issues. 
+> 
+> I think this deserves at least a 3rd party testing.
+> 
+> Thanks,
+> 
+> Paolo
+> 
