@@ -1,129 +1,106 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA04213AD1D;
-	Wed, 17 Apr 2024 10:20:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6612C13B280;
+	Wed, 17 Apr 2024 10:27:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713349223; cv=none; b=CV+brkzLy3y6NimzN0ch6mF0xbiomvk7V1gzGm52nRHLWRbShfhF7clBVBXtGqKRJ5aBobVomoWz2yUPsJjBNE/RmiUIJFoTCUU5cylPD+wPzao0xv5hRdj7lmRVs9kB1st3pr51FtcttSVRcjEJ/JE+N+KZrND43XzY4bHbisk=
+	t=1713349654; cv=none; b=E92uw+nj2Req4Q2Z8GClqKo4t++7slS1cu8EuZNQXhGZYFG5HoJjsfSBkYXZajyVDsdEi/hZdI6/wfWQqIM6La672V1FbMx1RoPPdfq15Gv0mYcab9lk4xL2ypm4xmT5geKwiNjYV4M9/NPxehWPkqLAovTD1rKSE+bfmrjBePw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713349223; c=relaxed/simple;
-	bh=BL9sVr1FX2Bl7U7DH4Ih8dPNhWgEwo/nV1rJcFVOilg=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=VPpbNU6xXN5bCUvF1ACBxPcKjGl/xK1TiTNZ7WJeYdRVut9QTbraeSmqD5ZQyHWfiFPVpmVSBJDN6FF9qH1lKBio8BeQKmweDJs+X136jW8f30rb0U11XWUqye6CnwIsnKMFpgTDqZQkmhZQadZGr4fmgPDrWw22cG6J6ddhGhA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SlGgvyop; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1713349654; c=relaxed/simple;
+	bh=Kn55+1luOn7/FcJIZC3jmFgE9ttr5he8xI+XlEEncLQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oMzLjF6hPq4/fzQrju7tHcYqmykNmWOyq0THK2kBgoDDOZFVwR14KPpktAmtY1ne5qDoI4PMQcjhSzw1gAHubRazUN2VelUUixe5SjK6p/zgS2KXM72WtB+aIpHE4WP7/uioXEXEsIpxrmE0Lwa6A2e20rAWUH+ePxOuKNt5JvE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DEFiqQxJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SlGgvyop"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43H9sgAb031215;
-	Wed, 17 Apr 2024 10:20:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=BL9sVr1FX2Bl7U7DH4Ih8dPNhWgEwo/nV1rJcFVOilg=;
- b=SlGgvyopI8pehtw2KLxtPHePnESLMfJCSbBzmAOQ5hSWXcQ1aAY0jC3EXXkxk43qjdfL
- 55d0MgDgF9WR9d2McwmKCkW9bI1ezvOE6xAtkdYUAKM0vcbwuuXopkdP0AhV/Lj/VYIH
- NSOy1GoHFTNIc/LHP/X3IxBg+1iKYbPpR39rCgyq+8oiq2sPaRLe8HxFaDQThwaK8YQj
- dOHCcHW140EBkmu0SzmIwdZnLoMQa9I/UNjle7VUhjiUOS67JnireicYzi2eEuEalpY8
- fq6x6pa7lbiP6tHT61VpTrje3PQ92yeeiAS0evaBlcvI9wD4isJpLmofNIDDTVyuW0BC YA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xjbc4r5xw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 17 Apr 2024 10:20:15 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43HAKEdb017897;
-	Wed, 17 Apr 2024 10:20:14 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xjbc4r5xp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 17 Apr 2024 10:20:14 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43H8Umm0027323;
-	Wed, 17 Apr 2024 10:20:12 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xg4s03tt9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 17 Apr 2024 10:20:12 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43HAK7Q131588628
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 17 Apr 2024 10:20:09 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 32D6E20063;
-	Wed, 17 Apr 2024 10:20:07 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4BE422005A;
-	Wed, 17 Apr 2024 10:20:06 +0000 (GMT)
-Received: from [9.179.14.55] (unknown [9.179.14.55])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 17 Apr 2024 10:20:06 +0000 (GMT)
-Message-ID: <5c1ef62610506524763bc2d4f673279e0cb624b6.camel@linux.ibm.com>
-Subject: Re: [PATCH net-next v6 02/11] net/smc: introduce loopback-ism for
- SMC intra-OS shortcut
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
-        twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com,
-        jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Date: Wed, 17 Apr 2024 12:20:06 +0200
-In-Reply-To: <20240414040304.54255-3-guwen@linux.alibaba.com>
-References: <20240414040304.54255-1-guwen@linux.alibaba.com>
-	 <20240414040304.54255-3-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.4 (3.50.4-2.fc39app4) 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DEFiqQxJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 700D2C072AA;
+	Wed, 17 Apr 2024 10:27:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1713349653;
+	bh=Kn55+1luOn7/FcJIZC3jmFgE9ttr5he8xI+XlEEncLQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=DEFiqQxJikBmYetX669hS5i6+49i3etN/k12je52FNMd3AEbvv6F/WNPUq4XpQdoH
+	 Pey9pRqtiFJ6ZxfPQ423YXzhUgKPNN3izpgUPmfhSH392RRB8V2FKSTFmIHWgO2YDI
+	 Sq617YCRsZmA0CIAvVcsIiUoP5kU0WivRAEhT+ltkgYR1Yee6GjwffBnzUIarIYMIK
+	 E6qzV1Hnmi+O1f/Kfgb/q5y9fprLgHc72diHQ5D2U0BubxRr+HHAGUqHFRkVP4etDR
+	 26iQbeBlx0rNDDsiSS9E06RKRgp8VGfBsjSIy0CC0K2Pul/0wqDpMY2iFVuSYryWRk
+	 Peq5m7BlJk+Uw==
+Date: Wed, 17 Apr 2024 12:27:30 +0200
+From: Frederic Weisbecker <frederic@kernel.org>
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+	Ingo Molnar <mingo@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-arch@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH v2 RESEND 0/5] sched/vtime: vtime.h headers cleanup
+Message-ID: <Zh-kEvJbNR2krwmx@localhost.localdomain>
+References: <cover.1712760275.git.agordeev@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: nq42N4N8rAnD0oGf9Kk5FcUB5bWQ0kOK
-X-Proofpoint-ORIG-GUID: xEYjGSR6ovHWU4xcYSmlh8GzMhk0EH_v
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-17_08,2024-04-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- malwarescore=0 phishscore=0 clxscore=1011 lowpriorityscore=0 spamscore=0
- priorityscore=1501 suspectscore=0 adultscore=0 mlxlogscore=937 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
- definitions=main-2404170071
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <cover.1712760275.git.agordeev@linux.ibm.com>
 
-On Sun, 2024-04-14 at 12:02 +0800, Wen Gu wrote:
-> This introduces a kind of Emulated-ISM device named loopback-ism for
-> SMCv2.1. The loopback-ism device is currently exclusive for SMC
-> usage, and aims to provide an SMC shortcut for sockets within the
-> same kernel, leading to improved intra-OS traffic performance.
-> Configuration of this feature is managed through the config SMC_LO.
->=20
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-> ---
-> =C2=A0net/smc/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 1=
-3 ++++
-> =C2=A0net/smc/Makefile=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 =
-1 +
-> =C2=A0net/smc/af_smc.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 12 +++=
--
-> =C2=A0net/smc/smc_loopback.c | 156
-> +++++++++++++++++++++++++++++++++++++++++
-> =C2=A0net/smc/smc_loopback.h |=C2=A0 43 ++++++++++++
-> =C2=A05 files changed, 224 insertions(+), 1 deletion(-)
-> =C2=A0create mode 100644 net/smc/smc_loopback.c
-> =C2=A0create mode 100644 net/smc/smc_loopback.h
->=20
+Le Wed, Apr 10, 2024 at 05:09:43PM +0200, Alexander Gordeev a écrit :
+> Hi All,
+> 
+> There are no changes since the last post, just a re-send.
+> 
+> v2:
+> - patch 4: commit message reworded (Heiko)
+> - patch 5: vtime.h is removed from Kbuild scripts (PowerPC only) (Heiko)
+> 
+> v1:
+> Please find a small cleanup to vtime_task_switch() wiring.
+> I split it into smaller patches to allow separate PowerPC
+> vs s390 reviews. Otherwise patches 2+3 and 4+5 could have
+> been merged.
+> 
+> I tested it on s390 and compile-tested it on 32- and 64-bit
+> PowerPC and few other major architectures only, but it is
+> only of concern for CONFIG_VIRT_CPU_ACCOUNTING_NATIVE-capable
+> ones (AFAICT).
+> 
+> Thanks!
 
-Thanks Wen Gu,
+It probably makes sense to apply the whole series to the scheduler tree.
+Does any powerpc or s390 maintainer oppose to that?
 
-this looks good to me now. A W=3D1 compile-test of the whole series with
-SMC_LO undefined showed that there were no additional unresolved
-symbols introduced.
+Thanks.
 
-Feel free to add my
-Reviewed-by: Gerd Bayer <gbayer@linux.ibm.com>
+> 
+> 
+> Alexander Gordeev (5):
+>   sched/vtime: remove confusing arch_vtime_task_switch() declaration
+>   sched/vtime: get rid of generic vtime_task_switch() implementation
+>   s390/vtime: remove unused __ARCH_HAS_VTIME_TASK_SWITCH leftover
+>   s390/irq,nmi: include <asm/vtime.h> header directly
+>   sched/vtime: do not include <asm/vtime.h> header
+> 
+>  arch/powerpc/include/asm/Kbuild    |  1 -
+>  arch/powerpc/include/asm/cputime.h | 13 -------------
+>  arch/powerpc/kernel/time.c         | 22 ++++++++++++++++++++++
+>  arch/s390/include/asm/vtime.h      |  2 --
+>  arch/s390/kernel/irq.c             |  1 +
+>  arch/s390/kernel/nmi.c             |  1 +
+>  include/asm-generic/vtime.h        |  1 -
+>  include/linux/vtime.h              |  5 -----
+>  kernel/sched/cputime.c             | 13 -------------
+>  9 files changed, 24 insertions(+), 35 deletions(-)
+>  delete mode 100644 include/asm-generic/vtime.h
+> 
+> -- 
+> 2.40.1
+> 
