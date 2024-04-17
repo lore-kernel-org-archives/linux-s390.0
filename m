@@ -1,32 +1,32 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A5EA42A93;
-	Wed, 17 Apr 2024 07:32:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFC7033CC2;
+	Wed, 17 Apr 2024 08:00:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713339133; cv=none; b=YQsMd/Y6d9B6Nw1fnIjUSSnqeIQEUyPMNQOgQRfTZ6cv/a87wGLhYugUQ7blcfLNa5Us4vyX5mf8L3g8kFaHmNg3c3iyF9tkJdJKTby9Mo/r9rAMVCaIguxIaAlHrIhd6jbZlDHORbiHVlgjdQC0pmXed89ulrXmkU0Jb3TMalE=
+	t=1713340810; cv=none; b=i/q9tm+d8XjhgoLNLlqZpl8hLZaD6grtIVwMSEqWtbQ4EYNkKPSYwXoWGvRAuOFmEJw69aowx7pIQplnbtzq8bzFpsbMoewAdtCrqgYynanoBTqiiUvh/Gyc5zxK2y++rcklajMXf4/VC1fnIpmTquIRWnIGeWR2dbBaDlHlJRE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713339133; c=relaxed/simple;
-	bh=EVw/Ed5zPAVSDnFiWaniJiOl38I+q/uv8b6G8VpZDRE=;
+	s=arc-20240116; t=1713340810; c=relaxed/simple;
+	bh=1d8Das0aWluPw1yvMOJaa8hAwf+veUsd5fsg+jQfw60=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eIX3WT6qGbTssFw8Ek3wD0qsyiG3RDnYktSZ7Cfe5w9JFJt7xdgeV1/mGHLkhBOInykkN2jW/AlzDZsJyRoj5ztHmoT662Qf2FtWJ+DP1snvvRu+IDQNpXuGW469TbR/gqIbQGomY88QSW5s08WkY2HS/UmuVbVQoYpwf5WfUWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=F/Y1k1w5; arc=none smtp.client-ip=115.124.30.97
+	 In-Reply-To:Content-Type; b=FIBuMSkQi4JbxNoQQaFS0ceyo7cTiaSUKO6b7EcE0k0vN26p15qr5rr17wVRpBbiIry7GqCvjk50TC+FW1IqgMiiMYOCQVOhpFQSw2ze8m2M3jUKgZ4NVpUqw9cFhtVW9Hk59XZLHel8Fx3wD2ciDcMsPCpyzZZnAJ+zXt2RQ6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=vNpMyzk5; arc=none smtp.client-ip=115.124.30.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="F/Y1k1w5"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="vNpMyzk5"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1713339128; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=xLo8OYi1UoX+I4QYqt1VXA9tqhdb6DaD+9+18rKvBOo=;
-	b=F/Y1k1w5wtGeioZ0h3fyfAXddrfiDODOnBdWPknlXyTdqNWXIAY+CM2gspAyckRyAfKOFhhvXPm8tr4LOr9aXKog7B+crnI62Ck6+UEC6ZU4gDNB8mDJo6KWqvWRRbh4OVQfin+w6Qvf4bTVO2qtsYWuq9wroxrojpmWVXFJ5yQ=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R541e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W4kf6IF_1713339126;
-Received: from 30.221.101.43(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0W4kf6IF_1713339126)
+	t=1713340803; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=LUeR/jp3bxeHCiX5tZat99Q/kYEgiO/5uqllP4LX6T4=;
+	b=vNpMyzk5G0yxht/1rMyVxFhbD8RanJHbtwtCXwfqNLDCZ5L/uAl8iWkSUi0eDrn2XehqtAVSCiOuiS5kOw0Yh+F0Rfu0cxvbDEnjSQh7WbqioMMhzrjaJuvTg7+PnpwuwzugCz0eeoegSmXw6uLiaxedTgQGg6t1fL73IkEzzBI=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W4kiX3p_1713340801;
+Received: from 30.221.101.43(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0W4kiX3p_1713340801)
           by smtp.aliyun-inc.com;
-          Wed, 17 Apr 2024 15:32:07 +0800
-Message-ID: <a94de96f-8b18-482c-90e2-7f8584528bc8@linux.alibaba.com>
-Date: Wed, 17 Apr 2024 15:32:05 +0800
+          Wed, 17 Apr 2024 16:00:02 +0800
+Message-ID: <6520c574-e1c6-49e0-8bb1-760032faaf7a@linux.alibaba.com>
+Date: Wed, 17 Apr 2024 16:00:01 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -36,64 +36,58 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH net] net/smc: fix potential sleeping issue in
  smc_switch_conns
-To: Paolo Abeni <pabeni@redhat.com>, Zhengchao Shao <shaozhengchao@huawei.com>
+To: Zhengchao Shao <shaozhengchao@huawei.com>, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com
 Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
  tonylu@linux.alibaba.com, guwen@linux.alibaba.com, weiyongjun1@huawei.com,
- yuehaibing@huawei.com, tangchengchang@huawei.com, kuba@kernel.org,
- edumazet@google.com, davem@davemloft.net, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org
+ yuehaibing@huawei.com, tangchengchang@huawei.com
 References: <20240413035150.3338977-1-shaozhengchao@huawei.com>
- <b2573ccf2340a19b6cb039dac639b2d431c1404c.camel@redhat.com>
 Content-Language: en-US
 From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <b2573ccf2340a19b6cb039dac639b2d431c1404c.camel@redhat.com>
+In-Reply-To: <20240413035150.3338977-1-shaozhengchao@huawei.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 
 
-On 2024/4/16 20:06, Paolo Abeni wrote:
-> On Sat, 2024-04-13 at 11:51 +0800, Zhengchao Shao wrote:
->> Potential sleeping issue exists in the following processes:
->> smc_switch_conns
->>   spin_lock_bh(&conn->send_lock)
->>   smc_switch_link_and_count
->>     smcr_link_put
->>       __smcr_link_clear
->>         smc_lgr_put
->>           __smc_lgr_free
->>             smc_lgr_free_bufs
->>               __smc_lgr_free_bufs
->>                 smc_buf_free
->>                   smcr_buf_free
->>                     smcr_buf_unmap_link
->>                       smc_ib_put_memory_region
->>                         ib_dereg_mr
->>                           ib_dereg_mr_user
->>                             mr->device->ops.dereg_mr
->> If scheduling exists when the IB driver implements .dereg_mr hook
->> function, the bug "scheduling while atomic" will occur. For example,
->> cxgb4 and efa driver. Use mutex lock instead of spin lock to fix it.
+On 2024/4/13 11:51, Zhengchao Shao wrote:
+> Potential sleeping issue exists in the following processes:
+> smc_switch_conns
+>   spin_lock_bh(&conn->send_lock)
+>   smc_switch_link_and_count
+>     smcr_link_put
+>       __smcr_link_clear
+>         smc_lgr_put
+>           __smc_lgr_free
+>             smc_lgr_free_bufs
+>               __smc_lgr_free_bufs
+>                 smc_buf_free
+>                   smcr_buf_free
+>                     smcr_buf_unmap_link
+>                       smc_ib_put_memory_region
+>                         ib_dereg_mr
+>                           ib_dereg_mr_user
+>                             mr->device->ops.dereg_mr
+> If scheduling exists when the IB driver implements .dereg_mr hook
+> function, the bug "scheduling while atomic" will occur. For example,
+> cxgb4 and efa driver. Use mutex lock instead of spin lock to fix it.
 > 
-> I tried to inspect all the lock call sites, and it *look* like they are
-> all in process context, so the switch should be feasible.
+> Fixes: 20c9398d3309 ("net/smc: Resolve the race between SMC-R link access and clear")
+> Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+> ---
+>  net/smc/af_smc.c   |  2 +-
+>  net/smc/smc.h      |  2 +-
+>  net/smc/smc_cdc.c  | 14 +++++++-------
+>  net/smc/smc_core.c |  8 ++++----
+>  net/smc/smc_tx.c   |  8 ++++----
+>  5 files changed, 17 insertions(+), 17 deletions(-)
+> 
 
-There exist some calls from tasklet, where mutex lock is infeasible.
-For example:
-- tasklet -> smc_wr_tx_tasklet_fn -> smc_wr_tx_process_cqe -> pnd_snd.handler -> smc_cdc_tx_handler -> smc_tx_pending -> smc_tx_sndbuf_nonempty -> smcr_tx_sndbuf_nonempty -> spin_lock_bh(&conn->send_lock)
-- tasklet -> smc_wr_rx_tasklet_fn -> smc_wr_rx_process_cqes -> smc_wr_rx_demultiplex -> smc_cdc_rx_handler -> smc_cdc_msg_validate -> spin_lock_bh(&conn->send_lock)
+Hi Zhengchao,
+
+I doubt whether this bug really exists, as efa supports SRD QP while SMC-R relies on RC QP,
+cxgb4 is a IWARP adaptor while SMC-R relies on ROCE adaptor.
 
 Thanks,
 Guangguan Wang
-
-> 
-> Still the fact that the existing lock is a BH variant is suspect.
-> Either the BH part was not needed or this can introduce subtle
-> regressions/issues. 
-> 
-> I think this deserves at least a 3rd party testing.
-> 
-> Thanks,
-> 
-> Paolo
-> 
