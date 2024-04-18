@@ -1,88 +1,84 @@
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94288376;
-	Thu, 18 Apr 2024 01:00:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=150.107.74.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0F99A93B;
+	Thu, 18 Apr 2024 01:48:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713402048; cv=none; b=OZP4E0efDSNfelfX16/yzDukmlNHXb7cD/HvxGOTgAi0jW8wlkrz2FEGicHDHypupFLPoR/gIPlxGRBiC06I2D95u8yDg+MTql47HEKGH1I4BTp+1kyoyLHI78Yt3zBquVmWRyrAMiWJ2lU4B0z5fmW45hfPF7lY1NchFUTG5VY=
+	t=1713404939; cv=none; b=WZQlC/0JBKZ9ojXxIiiC5r+1tk8mndXsdCA4Ry10KBR7zsyYPJ62+qHRZD3+PVHX7KlIJ6lmFVKo05Y7Xjq+o7E5WpdUWEpczhZT/XybWf3N5abG/B78F2FM5w5JeU3ky1E9P1vvaiOCV8GFz6Ef6xsdro8eIjCpgbm883GydmY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713402048; c=relaxed/simple;
-	bh=vTanqau4t/U+Uyls6+AXjIbwm8dSM1/9KWNhqrmGuGY=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=otEjDYYAxJzUPU8dIoTzzJUQEzhpYqWb6RLecslo7r8ZwZ4efbl+X2Xji6PiyeyqT3kZvZuAkxLYYsLderBNpJKlnbS2zU9pXdS6mwkTQgfvoerdhVoOsp4UpWKKUxfGge14+y0YkmXKzNfz8ZmVkPGKU1fVKaZjuRpAjm3xSYw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au; spf=pass smtp.mailfrom=ellerman.id.au; dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b=SDAV5RYY; arc=none smtp.client-ip=150.107.74.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ellerman.id.au
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b="SDAV5RYY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-	s=201909; t=1713402045;
-	bh=vTanqau4t/U+Uyls6+AXjIbwm8dSM1/9KWNhqrmGuGY=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=SDAV5RYYCtv9/IfXyhzcOOOTEmUMqPzfiEGS4GgSjQnGQUV7yADPMa14Nd0rmUE/K
-	 aquXYXEUaYGpBv5GCsf8zH15kInnF/2Xi9xZigUB1VFYkbS3IWcata7UA7dTgHg+rs
-	 7Fd+yV9yJBuUoLZkiMLrspqMbOl6FKqPUQ87rykTej4IKlGrkD83YiCNOwliRNm4yR
-	 osPxlSCN9oSgSQNXy9fbIMcKfAXI08A3mrZCyZ3alA/xpYUJRjClRlIDtlLJqY56IV
-	 SHmyD7lVNtHX7SS+8Q95mEw1DDSmFAz18MUgX1C0dHSN0cUPgvKKr58M4Yvj5nc+fc
-	 4UEOJKGC3p1iA==
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail.ozlabs.org (Postfix) with ESMTPSA id 4VKfbJ1h6Hz4wc8;
-	Thu, 18 Apr 2024 11:00:44 +1000 (AEST)
-From: Michael Ellerman <mpe@ellerman.id.au>
-To: Frederic Weisbecker <frederic@kernel.org>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Ingo Molnar <mingo@kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
- Juri Lelli <juri.lelli@redhat.com>, Vincent Guittot
- <vincent.guittot@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-arch@vger.kernel.org, Nicholas Piggin
- <npiggin@gmail.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>
-Subject: Re: [PATCH v2 RESEND 0/5] sched/vtime: vtime.h headers cleanup
-In-Reply-To: <Zh-kEvJbNR2krwmx@localhost.localdomain>
-References: <cover.1712760275.git.agordeev@linux.ibm.com>
- <Zh-kEvJbNR2krwmx@localhost.localdomain>
-Date: Thu, 18 Apr 2024 11:00:43 +1000
-Message-ID: <87h6fzbi2s.fsf@mail.lhotse>
+	s=arc-20240116; t=1713404939; c=relaxed/simple;
+	bh=2YbOWUTzBCM/VOm648w1kjTYt8pu0NEiyfJ88M/zC/0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=QvcU9dEWtRJq940TMfMbXioT2HQHANHoEfdOf6NLAPR0M4Qr7FKDkGFqEYIajQeYNetFga+15fpPNNaPBhIs+dpbVQ7bSWGKlFMkMa2Yc+iV2dhlz/XAS9HQSTrJRQJohCgVpvY5qzLWTbLoRpnv39YHawP2BsLTeJlmMK4eAps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.174])
+	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4VKgb21G9pzXlVJ;
+	Thu, 18 Apr 2024 09:45:34 +0800 (CST)
+Received: from dggpeml500026.china.huawei.com (unknown [7.185.36.106])
+	by mail.maildlp.com (Postfix) with ESMTPS id ED129140120;
+	Thu, 18 Apr 2024 09:48:53 +0800 (CST)
+Received: from [10.174.178.66] (10.174.178.66) by
+ dggpeml500026.china.huawei.com (7.185.36.106) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Thu, 18 Apr 2024 09:48:53 +0800
+Message-ID: <cd006e26-6f6e-2771-d1bc-76098a5970ac@huawei.com>
+Date: Thu, 18 Apr 2024 09:48:52 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.0.2
+Subject: Re: [PATCH net] net/smc: fix potential sleeping issue in
+ smc_switch_conns
+To: Wenjia Zhang <wenjia@linux.ibm.com>, Guangguan Wang
+	<guangguan.wang@linux.alibaba.com>, <linux-s390@vger.kernel.org>,
+	<netdev@vger.kernel.org>, <davem@davemloft.net>, <edumazet@google.com>,
+	<kuba@kernel.org>, <pabeni@redhat.com>
+CC: <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
+	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>,
+	<weiyongjun1@huawei.com>, <yuehaibing@huawei.com>,
+	<tangchengchang@huawei.com>
+References: <20240413035150.3338977-1-shaozhengchao@huawei.com>
+ <6520c574-e1c6-49e0-8bb1-760032faaf7a@linux.alibaba.com>
+ <ed5f3665-43ae-cbab-b397-c97c922d26eb@huawei.com>
+ <c6deb857-2236-4ec0-b4c7-25a160f1bcfb@linux.ibm.com>
+From: shaozhengchao <shaozhengchao@huawei.com>
+In-Reply-To: <c6deb857-2236-4ec0-b4c7-25a160f1bcfb@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggpeml500026.china.huawei.com (7.185.36.106)
 
-Frederic Weisbecker <frederic@kernel.org> writes:
-> Le Wed, Apr 10, 2024 at 05:09:43PM +0200, Alexander Gordeev a =C3=A9crit :
->> Hi All,
->>=20
->> There are no changes since the last post, just a re-send.
->>=20
->> v2:
->> - patch 4: commit message reworded (Heiko)
->> - patch 5: vtime.h is removed from Kbuild scripts (PowerPC only) (Heiko)
->>=20
->> v1:
->> Please find a small cleanup to vtime_task_switch() wiring.
->> I split it into smaller patches to allow separate PowerPC
->> vs s390 reviews. Otherwise patches 2+3 and 4+5 could have
->> been merged.
->>=20
->> I tested it on s390 and compile-tested it on 32- and 64-bit
->> PowerPC and few other major architectures only, but it is
->> only of concern for CONFIG_VIRT_CPU_ACCOUNTING_NATIVE-capable
->> ones (AFAICT).
->>=20
->> Thanks!
->
-> It probably makes sense to apply the whole series to the scheduler tree.
-> Does any powerpc or s390 maintainer oppose to that?
 
-No objection. It has acks and reviews from powerpc.
 
-cheers
+On 2024/4/17 23:23, Wenjia Zhang wrote:
+> 
+> 
+> On 17.04.24 10:29, shaozhengchao wrote:
+>>
+>> Hi Guangguan:
+>>    Thank you for your review. When I used the hns driver, I ran into the
+>> problem of "scheduling while atomic". But the problem was tested on the
+>> 5.10 kernel branch, and I'm still trying to reproduce it using the
+>> mainline.
+>>
+>> Zhengchao Shao
+>>
+> 
+Hi Wenjia:
+   I will try to reproduce it. In addition, the last time I sent you a
+issue about the smc-tool, do you have any idea?
+
+Thank you
+Zhengchao Shao
+> Could you please try to reproduce the bug with the latest kernel? And 
+> show more details (e.g. kernel log) on this bug?
+> 
+> Thanks,
+> Wenjia
