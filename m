@@ -1,103 +1,115 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C57C17A938;
-	Thu, 18 Apr 2024 20:32:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B75B1181BB2;
+	Thu, 18 Apr 2024 21:01:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713472355; cv=none; b=A3YdQxntT3vvqWk+9Ggc5phAAq82HQLbJGzP9FcJ820yo2/NSD0blPHm7z2G9i06QeZDwf9xu7COYJaz+UT2zKL/1dMxSWlzhxuwMUEs0qzjdtGyyQvEVh81/Wd4Fg29EeefgxYvTSVskQMcjjvvV4GmtC4xZ949r7CvPWWXDLw=
+	t=1713474096; cv=none; b=juJVu8Pax7GY/2jO7F3QFUV2bMvNmO3PYQKqR270aq9nhRsFMRT1pHXTh6vNegjsO76hGpnp27D/LZOsYB3prDpto9hAp5SelZsC8WUZFZ9/EkLMlASjIUFCAJYgnLxDIYe2HRMUR5+/drE8yZWwtdFFsLi4XqdUCCjKBs2OwgU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713472355; c=relaxed/simple;
-	bh=i6IHCK7Y8d6u6GANr3/DxbBo5khouz5aFu33Kjmu+/Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MZ5/9c7kQTwWOqf9dpzy/H1o+fvf+YBCO7G/Lo2MkjG0RlXLE8z/grJ/XRPnhtjVKkN5nc8n8/VtMdrGmwmVIp1BsdM6lAGpGnDBFXKc5/CtnBEkH14qa1b6QfNyDUZWpbQH7sEER+koCp1KfqShLuQtDdjKWhAr520BzLSoB/I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jcu3C3rj; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1713474096; c=relaxed/simple;
+	bh=Q9xFEu3Y5LoeO0EqCkhUGHL0dsvPtZI4/AmKYvf5MnY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=b+0txUzk5jK372QzTaz06e3UetBupnMUMh0c0sXUWXVGXQbNID8oChy+JzzSmHlvrbXEBhABFCYWr1jkplkUVNUld8ypXwzVqN/rfPwJ3r67GfYI2KH1PZxyEhljlZQoB3vXJHhS1sFr5xDKu3NQSoWCKV7cNkptrG0rWtw4EI8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=os3i7OUl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jcu3C3rj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54D53C113CC;
-	Thu, 18 Apr 2024 20:32:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="os3i7OUl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2941AC116B1;
+	Thu, 18 Apr 2024 21:01:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713472355;
-	bh=i6IHCK7Y8d6u6GANr3/DxbBo5khouz5aFu33Kjmu+/Q=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=jcu3C3rjY9LFfERyGgNHl8DlmNsLigxeBPR9EZpb9xk970H77vQLgB69t0/BpqWeW
-	 O8cIt8I3CwT7N0zZ8v//yXlpOtDc7pI4kFWxtimZVY+hBtkkaV/mPqvInZS/GQyLpY
-	 8BSs2MPPEGvuzChKpNQVGsEpBKw05tUtfFi0VhbMe/0uoXozbOdkbglsUyfpPEr0pR
-	 WWFqBL6qdz+9nG9KqWYvOFmISQyxIeoykVDYmFH0yEpGR2QaL8LuHv2w6FNo/D9xvD
-	 5rsiWROIzH9e00wSyBeEJDbeh8cpfcykJCZF0jiOTLz8poQXEhSEqdD65wwys1HuV7
-	 YHBKGkG+P5USw==
-Date: Thu, 18 Apr 2024 13:32:32 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: akpm@linux-foundation.org, arnd@arndb.de, gor@linux.ibm.com,
-	agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-	svens@linux.ibm.com, wintera@linux.ibm.com, twinkler@linux.ibm.com,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	llvm@lists.linux.dev, patches@lists.linux.dev
-Subject: Re: [PATCH 1/3] s390/vmlogrdr: Remove function pointer cast
-Message-ID: <20240418203232.GA2962980@dev-arch.thelio-3990X>
-References: <20240417-s390-drivers-fix-cast-function-type-v1-0-fd048c9903b0@kernel.org>
- <20240417-s390-drivers-fix-cast-function-type-v1-1-fd048c9903b0@kernel.org>
- <20240418095438.6056-A-hca@linux.ibm.com>
- <20240418102549.6056-B-hca@linux.ibm.com>
- <20240418145121.GA1435416@dev-arch.thelio-3990X>
- <20240418151501.6056-C-hca@linux.ibm.com>
- <20240418153406.GC1435416@dev-arch.thelio-3990X>
- <20240418192100.6741-A-hca@linux.ibm.com>
+	s=k20201202; t=1713474096;
+	bh=Q9xFEu3Y5LoeO0EqCkhUGHL0dsvPtZI4/AmKYvf5MnY=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=os3i7OUlnuFPwuywx5IIlmo6dtB59/Q7XJaGiZcHLePn7Eo9BufTvQVTR9mtW/eWI
+	 r4VK8QYyOlINdoOVjMcOehKmc6Sz4RWc7AtrGTHCmGpbXOTolpO+C2kb76Yr0cYvCD
+	 FMV4Iw8AtSf28SLOw4t9ku4hBlZ5jBKnjL2Jb3XS6QpCLdtSLjS9TIGuRVkBAtaceK
+	 Ynk+zxcFm8+Rdi8k+nN2pCkddAj7x4BuIRqRa6CNsxBp/r1PxXoHz9fS6XaoKD1pY8
+	 suIp6V5PCH1MCOf8eW5abdXsn+Qdv014GIVeNCWNab/ijMMs94IjvrIAImNdFlp9rg
+	 H2pmiaunPJ3ng==
+Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-5193363d255so1680614e87.3;
+        Thu, 18 Apr 2024 14:01:36 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXdsvnbLDbcUzdTwvNlfEf/J2+sRkWH+nKCsviXNlfBx3cDYng6/7AWgS6PTAFPIlk3Z7Emj69Zu/ZGHHYs6zSXTa+Oy+ttoUBdIdBtHg0AB+4XjekacyTx1qh8Xh4+4JHTTQhdTQ+jGFirf0pTn4wZvIlU+Wg4vdnMjDWgzIaVaAd7rS03c8i+nPQWdUt3TjBWi1VarY3Px16fo2aGdrqPKH5CS/6T4MWguKsofonzcpAiBdB4iLBHmVm10oLwbvgCTsWQd3fJz6jm6LstPIDpaYS3CwJv7i1M4sTdgKKMHw3vdySSytDoWcsXfUPNvSW4GNQcgA3k4V+741spUVa0kElB0fwD4htNDnjEwsEkAZxtyKRztK773FFcbfUfBoJAj6GsNkKwJzXlhAmzpWfTwhRIFnPCpXf8aOD/IRjXSd/AhUAO1LLgLos=
+X-Gm-Message-State: AOJu0YyVr8D8aTN3AsKi5MTkbI+ETPboRkITKyi31uZXtp7shRbDFjct
+	TfiUcwVZ+Ay5YhV7bwS6+4UzYAL+m0x4/5LUtYwf4kuu7tAZbeG0JeItREuz8sqnDrsZA2qeiTN
+	xRtZE+HXyocLjRYPOJs5fQESe6dY=
+X-Google-Smtp-Source: AGHT+IHNxy9sJsnZs3KQVfU0+czeg8tBpsYhbjwNsSaDNt4tlgSyRo9Mz2ssjEN7kjA5vVRJEg5DihQkgyMA2Jl/jC4=
+X-Received: by 2002:a05:6512:1251:b0:516:cec0:1fc0 with SMTP id
+ fb17-20020a056512125100b00516cec01fc0mr104453lfb.63.1713474094462; Thu, 18
+ Apr 2024 14:01:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240418192100.6741-A-hca@linux.ibm.com>
+References: <20240411160051.2093261-1-rppt@kernel.org> <20240411160051.2093261-6-rppt@kernel.org>
+ <20240415075241.GF40213@noisy.programming.kicks-ass.net> <Zh1lnIdgFeM1o8S5@FVFF77S0Q05N.cambridge.arm.com>
+ <Zh4nJp8rv1qRBs8m@kernel.org> <CAPhsuW6Pbg2k_Gu4dsBx+H8H5XCHvNdtEZJBPiG_eT0qqr9D1w@mail.gmail.com>
+ <ZiE91CJcNw7gBj9g@kernel.org> <CAPhsuW4au6v8k8Ab7Ff6Yj64rGvZ7wkz=Xrgh8ZZtLyscpChqQ@mail.gmail.com>
+ <ZiFd567L4Zzm2okO@kernel.org>
+In-Reply-To: <ZiFd567L4Zzm2okO@kernel.org>
+From: Song Liu <song@kernel.org>
+Date: Thu, 18 Apr 2024 14:01:22 -0700
+X-Gmail-Original-Message-ID: <CAPhsuW5SL4_=ZXdHZV8o0KS+5Vf25UMvEKhRgFQLioFtf2pgoQ@mail.gmail.com>
+Message-ID: <CAPhsuW5SL4_=ZXdHZV8o0KS+5Vf25UMvEKhRgFQLioFtf2pgoQ@mail.gmail.com>
+Subject: Re: [PATCH v4 05/15] mm: introduce execmem_alloc() and execmem_free()
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Peter Zijlstra <peterz@infradead.org>, 
+	linux-kernel@vger.kernel.org, Alexandre Ghiti <alexghiti@rivosinc.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Bjorn Topel <bjorn@kernel.org>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	"David S. Miller" <davem@davemloft.net>, Dinh Nguyen <dinguyen@kernel.org>, 
+	Donald Dutile <ddutile@redhat.com>, Eric Chanudet <echanude@redhat.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, 
+	Kent Overstreet <kent.overstreet@linux.dev>, Luis Chamberlain <mcgrof@kernel.org>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nadav Amit <nadav.amit@gmail.com>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Puranjay Mohan <puranjay12@gmail.com>, 
+	Rick Edgecombe <rick.p.edgecombe@intel.com>, Russell King <linux@armlinux.org.uk>, 
+	Steven Rostedt <rostedt@goodmis.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, bpf@vger.kernel.org, 
+	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-modules@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
+	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Apr 18, 2024 at 09:21:00PM +0200, Heiko Carstens wrote:
-> Hi Nathan,
-> 
-> > > > > > > -		/*
-> > > > > > > -		 * The release function could be called after the
-> > > > > > > -		 * module has been unloaded. It's _only_ task is to
-> > > > > > > -		 * free the struct. Therefore, we specify kfree()
-> > > > > > > -		 * directly here. (Probably a little bit obfuscating
-> > > > > > > -		 * but legitime ...).
-> > > > > > > -		 */
-> > > 
-> > > That doesn't answer my question what prevents the release function
-> > > from being called after the module has been unloaded.
-> > > 
-> > > At least back then when the code was added it was a real bug.
-> > 
-> > I do not know the answer to that question (and I suspect there is
-> > nothing preventing ->release() from being called after module unload),
-> > so I'll just bring back the comment (although I'll need to adjust it
-> > since kfree() is not being used there directly anymore). Andrew, would
-> > you prefer a diff from what's in -mm or a v2?
-> 
-> I guess there is some confusion here :) My request was not to keep the
+On Thu, Apr 18, 2024 at 10:54=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wr=
+ote:
+>
+> On Thu, Apr 18, 2024 at 09:13:27AM -0700, Song Liu wrote:
+> > On Thu, Apr 18, 2024 at 8:37=E2=80=AFAM Mike Rapoport <rppt@kernel.org>=
+ wrote:
+> > > > >
+> > > > > I'm looking at execmem_types more as definition of the consumers,=
+ maybe I
+> > > > > should have named the enum execmem_consumer at the first place.
+> > > >
+> > > > I think looking at execmem_type from consumers' point of view adds
+> > > > unnecessary complexity. IIUC, for most (if not all) archs, ftrace, =
+kprobe,
+> > > > and bpf (and maybe also module text) all have the same requirements=
+.
+> > > > Did I miss something?
+> > >
+> > > It's enough to have one architecture with different constrains for kp=
+robes
+> > > and bpf to warrant a type for each.
+> >
+> > AFAICT, some of these constraints can be changed without too much work.
+>
+> But why?
+> I honestly don't understand what are you trying to optimize here. A few
+> lines of initialization in execmem_info?
 
-Heh, yes, my apologies for being rather dense, I was not interpreting
-the comment or the thread you linked properly... :(
+IIUC, having separate EXECMEM_BPF and EXECMEM_KPROBE makes it
+harder for bpf and kprobe to share the same ROX page. In many use cases,
+a 2MiB page (assuming x86_64) is enough for all BPF, kprobe, ftrace, and
+module text. It is not efficient if we have to allocate separate pages for =
+each
+of these use cases. If this is not a problem, the current approach works.
 
-> comment. I'm much rather afraid that the comment is still valid; and if
-> that is the case then your patch series adds three bugs, exactly what is
-> described in the comment.
-> 
-> Right now the release function is kfree which is always within the kernel
-> image, and therefore always a valid branch target. If however the code is
-> changed to what you propose, then the release function would be inside of
-> the module, which potentially does not exist anymore when the release
-> function is called, since the module was unloaded.
-> So the branch target would be invalid.
-
-That is super subtle :/ I can understand what the comment is warning
-about with that extra context. I see Arnd's suggestion which may fix
-this problem and get rid of the warning but if there are other ideas, I
-am all ears. I guess we could just disable -Wcast-function-type-strict
-for this code since s390 does not support kCFI right now but since it
-could, it seems better to resolve it properly.
-
-Thanks a lot for the quick review and catching my mistake, cheers!
-Nathan
+Thanks,
+Song
