@@ -1,156 +1,554 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f48.google.com (mail-oa1-f48.google.com [209.85.160.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9435023D7;
-	Thu, 18 Apr 2024 16:13:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40E03175551
+	for <linux-s390@vger.kernel.org>; Thu, 18 Apr 2024 17:33:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713456821; cv=none; b=b5gXJpVfXCTedyIO9rdVajN0bQEu/RPKLlNCRzsKU8ScYvRtNPDSy+y/U+fKd02JKK2CaR7HcFYb4BPOIyFxiSNIgXkb/SThSfCOXikPnN+0pOJobb3VYuGfp+T5F0gLQoKRldfNWQE0qTxtIGc1m1PGCIkyA4TKroO9XRDtyp8=
+	t=1713461611; cv=none; b=FHhOs/4c9q2EkoQ2ZEnRRk0KRwicxcSTBJ0S7DDSrSVaKz9sx9//qWqRQ7MWNFRIGhjbyTlqUDc7/fuI/9xG6H1F2K4MzDSKSfzrxmcqniTBeTYS/blM8IcDwlHsWZFOValMMZLgh8jMh7TjLLYxmXss5HHKPZ/BROqKpBrslnQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713456821; c=relaxed/simple;
-	bh=q/TFlw8SQh+Cko4nU/ng2SJ+spicGdHxGtHPBf/Abnk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sa5qnWUQX0RErrpdnnxH7GgWCr5lEqhJwDAuJnGGize3UarOoOIuloejC7OxMSPLUwwPPT1eEdd9me6y0BaubUNVx7nV5Dix2Fj+CvTEwHFU2X31FKk5Xed6nJQ+i3oeN2e/Doq0jWcPc62fTzQTO1p+xnswM3qk9TRO4PfG7KY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M66D379U; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1713461611; c=relaxed/simple;
+	bh=vVoc5zq0qVRDbnyGYqUu5jY97W87uQbiK+3UuEoP9F8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RWZGvVkbfKBOGCUq8/uqobXTN56OBUFYZY+uLr6/M8hrgee1Hjv8G5vw4TBMdPEvZQDrOEi8Ly2VgSiJXper88URdPFUwqcemyBPLsfRxnNcapplyx0QSiIhrVpDKY10ovJCFrj4ZGYhqykaX6edS8Qax8U9Ke4Nt4b0uc9SmIM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=JMLBZWMe; arc=none smtp.client-ip=209.85.160.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M66D379U"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24FA7C32783;
-	Thu, 18 Apr 2024 16:13:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713456821;
-	bh=q/TFlw8SQh+Cko4nU/ng2SJ+spicGdHxGtHPBf/Abnk=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=M66D379UjZi2pzII5y0MS95jTIIdgeaP5CeOU5t6T8ugoVGoFqm+PLgIbtbjL7jJB
-	 NWZmI3wmyAW6yd89gdzYoIAx8VH5oZAnUb+Nm6vIWzmLAIwB+yayQqOZ7130lPGtZc
-	 76JyrlVTFHePR2a2syZozERpds1Ug/Dsrn50BaO6JXr296Nahb9Dr77AX8YroHZzWq
-	 ciX+VZkyUUoI9u3hjnf+cfLWuwOsKCHK6cQNotuS8wjUQA9NYe2vZrosUyMIWeB+1J
-	 tItBnOKtFJxbN9219aDk9FhAD2AC9p6dPGaByqxXhKspOCjdnFu5QP7jGAJaqTXGND
-	 Hk/edIrXHleKg==
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5196fe87775so1055976e87.3;
-        Thu, 18 Apr 2024 09:13:41 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCWzxuaphsl+RABbKWgK+hHzWpVoE5uljVBdLb52fmQ0owrzbH3CEcvvjgOCi5BH9Kyow2XR2gNjz+j65gOSvQuBKFO7vv/Rx787BrFVcKQF2toqDopOnNBcDMgwIxPCbBeBVah/xoVOxcH6QBZMzbn+Bz0mwpNeIgh23YBHjPRyDcEJXse08UfAEJSpArLWBpHd7YcJfnJBwhxF6tbG7Trce9qqIPM5nEL+OLV2VLnsaL9eQsQMlSzM6e1OGKpKfTjCwMcaYUIOd4txRINW1sBWAQxyJfKcnnIL7Cmh1ag2Sq9WE5b12vaF8fIZ3rwGK557FUEvg8Fo4mzjwSjuhjx2QNw+aOaGkWpsdsHdbSLAruZytryCfxkikgcKk0WI/sx9mQE3oYxhoJzzPyOCXEfgmpqimuGlMpAK5Ofy4XHmjECTrH0Y3XgIifc=
-X-Gm-Message-State: AOJu0YwmiN4vTEBt/JgaK4RfY8DCk8e/WtC0+HAR6P6/ODoCrPpahoYl
-	Fl1u33dU7gW4WNBpEHPDJEOuhZSfyJ8cRzLZymo5mR8lTKpNwRux4SIYTchgMsu9LcgjJwJuIZM
-	uq6vAGlg/julyKhA4aAUTNtsK/QU=
-X-Google-Smtp-Source: AGHT+IHLiDWbpJNv5cpg7tSucX1RJbILlT9QE6EE0zaOt0RsDuLJ8JfO9fqfVmmivnqe0091gRHYHRJJ+tsSYBR5kLA=
-X-Received: by 2002:ac2:5fad:0:b0:519:569b:361b with SMTP id
- s13-20020ac25fad000000b00519569b361bmr1973077lfe.63.1713456819439; Thu, 18
- Apr 2024 09:13:39 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="JMLBZWMe"
+Received: by mail-oa1-f48.google.com with SMTP id 586e51a60fabf-238fd648224so520401fac.2
+        for <linux-s390@vger.kernel.org>; Thu, 18 Apr 2024 10:33:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1713461608; x=1714066408; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Su/0jhVB60Wlg9G5Him3VvxG/87i2p2Lv2g9MqI6bUU=;
+        b=JMLBZWMeoJ3pn4AjTfN4NPROPvKxhG7zRayH4/JQoWirBjKQTbdwp8L5kuyP6meJZq
+         xF3Qe9AU9k01C8tIlKlvZZUt8rIgxWP8YJKZjNa+kiJoqpp41Ng9Q2MoElau9z+9Qj7j
+         LlygJe2LBcQocZo5FQMsOscxXv57A3G+8A0y0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713461608; x=1714066408;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Su/0jhVB60Wlg9G5Him3VvxG/87i2p2Lv2g9MqI6bUU=;
+        b=gJ8CM1Im6r98nVci7zptiVdPH34o08I5fkG7YRg4DM3h5wPaycolULZ9hlsqdaITP0
+         FQ+DKal+SQ2ySw1EAIQXAtji2gnWZ0F0J2uChICeprS/hBNhIXVmwYRhHpw7LiqT+LCJ
+         A66oco5ukfzn8kJlhme0BS2w170z/iMllG8C9QizUe+3rprqcFmYQnIX057IaLU2e9oM
+         BHvORjx9X6KtAS1tYbO4Xv7ZrQMsFoVfMhYklNpuus00wMhpQ1dUHvoF142+0+JasjXg
+         U1BxlkS32IrG3RWprryXYBZ8pHuDLvav6Mtd7w5kpLSdQKwsgNvwWS4pcJf2xudy6lP/
+         l/tQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUb6q8Cq76vsxk3OOM7N7Vm3GjGX5enyc9P4MkQY1U/LOhg4TUoV1K7PlVkNT7Pn2CnkUisB+e0YEDaRF9Bp/ASicd1eRPgO59o3A==
+X-Gm-Message-State: AOJu0Yz2FZ147DSig+XM8c9yG47YIXAoW2MOBZsJTb18okRxRIBOpEJZ
+	hAiLlt4wGQOJcjE6ylv7aEwXV17knt0P8f61wBSa/kqN2HkTNw9nahd0TVCbsQ==
+X-Google-Smtp-Source: AGHT+IGA2jtQNRvB9rGrp0xvC3LVrf3b0mrd0c1k+WW3TidBwOQ3bB57iP8v8X9wDFCdBcLCvEqCvQ==
+X-Received: by 2002:a05:6870:e8c5:b0:22e:959b:cf74 with SMTP id r5-20020a056870e8c500b0022e959bcf74mr4409603oan.40.1713461608313;
+        Thu, 18 Apr 2024 10:33:28 -0700 (PDT)
+Received: from www.outflux.net ([198.0.35.241])
+        by smtp.gmail.com with ESMTPSA id s21-20020a632155000000b005cd8044c6fesm1689076pgm.23.2024.04.18.10.33.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Apr 2024 10:33:27 -0700 (PDT)
+Date: Thu, 18 Apr 2024 10:33:27 -0700
+From: Kees Cook <keescook@chromium.org>
+To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>
+Cc: David Ahern <dsahern@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Joel Granados <j.granados@samsung.com>,
+	Joerg Reuter <jreuter@yaina.de>,
+	Pablo Neira Ayuso <pablo@netfilter.org>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Alexander Aring <alex.aring@gmail.com>,
+	Stefan Schmidt <stefan@datenfreihafen.org>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Steffen Klassert <steffen.klassert@secunet.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Matthieu Baerts <matttbe@kernel.org>,
+	Mat Martineau <martineau@kernel.org>,
+	Geliang Tang <geliang@kernel.org>,
+	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+	Xin Long <lucien.xin@gmail.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Jan Karcher <jaka@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-hams@vger.kernel.org, netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org, bridge@lists.linux.dev,
+	linux-wpan@vger.kernel.org, mptcp@lists.linux.dev,
+	linux-sctp@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2] sysctl: treewide: constify
+ ctl_table_header::ctl_table_arg
+Message-ID: <202404181026.1E2AA3457@keescook>
+References: <20240418-sysctl-const-table-arg-v2-1-4012abc31311@weissschuh.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240411160051.2093261-1-rppt@kernel.org> <20240411160051.2093261-6-rppt@kernel.org>
- <20240415075241.GF40213@noisy.programming.kicks-ass.net> <Zh1lnIdgFeM1o8S5@FVFF77S0Q05N.cambridge.arm.com>
- <Zh4nJp8rv1qRBs8m@kernel.org> <CAPhsuW6Pbg2k_Gu4dsBx+H8H5XCHvNdtEZJBPiG_eT0qqr9D1w@mail.gmail.com>
- <ZiE91CJcNw7gBj9g@kernel.org>
-In-Reply-To: <ZiE91CJcNw7gBj9g@kernel.org>
-From: Song Liu <song@kernel.org>
-Date: Thu, 18 Apr 2024 09:13:27 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW4au6v8k8Ab7Ff6Yj64rGvZ7wkz=Xrgh8ZZtLyscpChqQ@mail.gmail.com>
-Message-ID: <CAPhsuW4au6v8k8Ab7Ff6Yj64rGvZ7wkz=Xrgh8ZZtLyscpChqQ@mail.gmail.com>
-Subject: Re: [PATCH v4 05/15] mm: introduce execmem_alloc() and execmem_free()
-To: Mike Rapoport <rppt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Peter Zijlstra <peterz@infradead.org>, 
-	linux-kernel@vger.kernel.org, Alexandre Ghiti <alexghiti@rivosinc.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, Bjorn Topel <bjorn@kernel.org>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	"David S. Miller" <davem@davemloft.net>, Dinh Nguyen <dinguyen@kernel.org>, 
-	Donald Dutile <ddutile@redhat.com>, Eric Chanudet <echanude@redhat.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, 
-	Kent Overstreet <kent.overstreet@linux.dev>, Luis Chamberlain <mcgrof@kernel.org>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nadav Amit <nadav.amit@gmail.com>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Puranjay Mohan <puranjay12@gmail.com>, 
-	Rick Edgecombe <rick.p.edgecombe@intel.com>, Russell King <linux@armlinux.org.uk>, 
-	Steven Rostedt <rostedt@goodmis.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, bpf@vger.kernel.org, 
-	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-modules@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
-	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20240418-sysctl-const-table-arg-v2-1-4012abc31311@weissschuh.net>
 
-On Thu, Apr 18, 2024 at 8:37=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wro=
-te:
->
-[...]
-> >
-> > Is +/- 2G enough for all realistic use cases? If so, I guess we don't
-> > really need
-> > EXECMEM_ANYWHERE below?
-> >
-> > > >
-> > > > * I'm not sure about BPF's requirements; it seems happy doing the s=
-ame as
-> > > >   modules.
-> > >
-> > > BPF are happy with vmalloc().
-> > >
-> > > > So if we *must* use a common execmem allocator, what we'd reall wan=
-t is our own
-> > > > types, e.g.
-> > > >
-> > > >       EXECMEM_ANYWHERE
-> > > >       EXECMEM_NOPLT
-> > > >       EXECMEM_PREL32
-> > > >
-> > > > ... and then we use those in arch code to implement module_alloc() =
-and friends.
-> > >
-> > > I'm looking at execmem_types more as definition of the consumers, may=
-be I
-> > > should have named the enum execmem_consumer at the first place.
-> >
-> > I think looking at execmem_type from consumers' point of view adds
-> > unnecessary complexity. IIUC, for most (if not all) archs, ftrace, kpro=
-be,
-> > and bpf (and maybe also module text) all have the same requirements.
-> > Did I miss something?
->
-> It's enough to have one architecture with different constrains for kprobe=
-s
-> and bpf to warrant a type for each.
->
+On Thu, Apr 18, 2024 at 11:40:08AM +0200, Thomas Weiﬂschuh wrote:
+> To be able to constify instances of struct ctl_tables it is necessary to
+> remove ways through which non-const versions are exposed from the
+> sysctl core.
+> One of these is the ctl_table_arg member of struct ctl_table_header.
+> 
+> Constify this reference as a prerequisite for the full constification of
+> struct ctl_table instances.
+> No functional change.
+> 
+> Signed-off-by: Thomas Weiﬂschuh <linux@weissschuh.net>
+> ---
+> Changes in v2:
+> - Add link to original monolithic series
+> - Send to all maintainers again
+> - Link to v1: https://lore.kernel.org/r/20240322-sysctl-const-table-arg-v1-1-88436d34961b@weissschuh.net
+> ---
+> This is a standalone version of PATCH 11 from my original const-sysctl
+> series at
+> https://lore.kernel.org/lkml/20231204-const-sysctl-v2-0-7a5060b11447@weissschuh.net/
+> 
+> It is based upon the branch constfy of
+> https://git.kernel.org/pub/scm/linux/kernel/git/sysctl/sysctl.git/
+> 
+> This patch is meant to be applied through the sysctl tree.
+> 
+> It was implemented by manually searching for "ctl_table_arg"
+> throughout the tree and inspecing each found site.
+> 
+> If somebody comes up with a cocciscript for this, I'll be happy to use
+> that.
 
-AFAICT, some of these constraints can be changed without too much work.
+My simple attempt doesn't find any additional instances:
 
-> Where do you see unnecessary complexity?
->
-> > IOW, we have
-> >
-> > enum execmem_type {
-> >         EXECMEM_DEFAULT,
-> >         EXECMEM_TEXT,
-> >         EXECMEM_KPROBES =3D EXECMEM_TEXT,
-> >         EXECMEM_FTRACE =3D EXECMEM_TEXT,
-> >         EXECMEM_BPF =3D EXECMEM_TEXT,      /* we may end up without
-> > _KPROBE, _FTRACE, _BPF */
-> >         EXECMEM_DATA,  /* rw */
-> >         EXECMEM_RO_DATA,
-> >         EXECMEM_RO_AFTER_INIT,
-> >         EXECMEM_TYPE_MAX,
-> > };
-> >
-> > Does this make sense?
->
-> How do you suggest to deal with e.g. riscv that has separate address spac=
-es
-> for modules, kprobes and bpf?
+@constify@
+identifier VAR;
+expression EXP;
+@@
 
-IIUC, modules and bpf use the same address space on riscv, while kprobes us=
-e
-vmalloc address. I haven't tried this yet, but I think we can let
-kprobes use the
-same space as modules and bpf, which is:
+-       struct ctl_table *VAR;
++       const struct ctl_table *VAR;
+        ...
+        VAR = (EXP)->ctl_table_arg
 
-ffffffff00000000 |  -4     GB | ffffffff7fffffff |    2 GB | modules, BPF
+it actually misses a few. :P
 
-Did I get this right?
+Reviewed-by: Kees Cook <keescook@chromium.org>
 
-Thanks,
-Song
+> ---
+>  drivers/net/vrf.c                       | 2 +-
+>  include/linux/sysctl.h                  | 2 +-
+>  ipc/ipc_sysctl.c                        | 2 +-
+>  ipc/mq_sysctl.c                         | 2 +-
+>  kernel/ucount.c                         | 2 +-
+>  net/ax25/sysctl_net_ax25.c              | 2 +-
+>  net/bridge/br_netfilter_hooks.c         | 2 +-
+>  net/core/sysctl_net_core.c              | 2 +-
+>  net/ieee802154/6lowpan/reassembly.c     | 2 +-
+>  net/ipv4/devinet.c                      | 2 +-
+>  net/ipv4/ip_fragment.c                  | 2 +-
+>  net/ipv4/route.c                        | 2 +-
+>  net/ipv4/sysctl_net_ipv4.c              | 2 +-
+>  net/ipv4/xfrm4_policy.c                 | 2 +-
+>  net/ipv6/addrconf.c                     | 2 +-
+>  net/ipv6/netfilter/nf_conntrack_reasm.c | 2 +-
+>  net/ipv6/reassembly.c                   | 2 +-
+>  net/ipv6/sysctl_net_ipv6.c              | 6 +++---
+>  net/ipv6/xfrm6_policy.c                 | 2 +-
+>  net/mpls/af_mpls.c                      | 4 ++--
+>  net/mptcp/ctrl.c                        | 2 +-
+>  net/netfilter/nf_conntrack_standalone.c | 2 +-
+>  net/netfilter/nf_log.c                  | 2 +-
+>  net/sctp/sysctl.c                       | 2 +-
+>  net/smc/smc_sysctl.c                    | 2 +-
+>  net/unix/sysctl_net_unix.c              | 2 +-
+>  net/xfrm/xfrm_sysctl.c                  | 2 +-
+>  27 files changed, 30 insertions(+), 30 deletions(-)
+> 
+> diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
+> index bb95ce43cd97..66f8542f3b18 100644
+> --- a/drivers/net/vrf.c
+> +++ b/drivers/net/vrf.c
+> @@ -1971,7 +1971,7 @@ static int vrf_netns_init_sysctl(struct net *net, struct netns_vrf *nn_vrf)
+>  static void vrf_netns_exit_sysctl(struct net *net)
+>  {
+>  	struct netns_vrf *nn_vrf = net_generic(net, vrf_net_id);
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	table = nn_vrf->ctl_hdr->ctl_table_arg;
+>  	unregister_net_sysctl_table(nn_vrf->ctl_hdr);
+> diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+> index 47bd28ffa88f..09db2f2e6488 100644
+> --- a/include/linux/sysctl.h
+> +++ b/include/linux/sysctl.h
+> @@ -171,7 +171,7 @@ struct ctl_table_header {
+>  		struct rcu_head rcu;
+>  	};
+>  	struct completion *unregistering;
+> -	struct ctl_table *ctl_table_arg;
+> +	const struct ctl_table *ctl_table_arg;
+>  	struct ctl_table_root *root;
+>  	struct ctl_table_set *set;
+>  	struct ctl_dir *parent;
+> diff --git a/ipc/ipc_sysctl.c b/ipc/ipc_sysctl.c
+> index 19b2a67aef40..113452038303 100644
+> --- a/ipc/ipc_sysctl.c
+> +++ b/ipc/ipc_sysctl.c
+> @@ -305,7 +305,7 @@ bool setup_ipc_sysctls(struct ipc_namespace *ns)
+>  
+>  void retire_ipc_sysctls(struct ipc_namespace *ns)
+>  {
+> -	struct ctl_table *tbl;
+> +	const struct ctl_table *tbl;
+>  
+>  	tbl = ns->ipc_sysctls->ctl_table_arg;
+>  	unregister_sysctl_table(ns->ipc_sysctls);
+> diff --git a/ipc/mq_sysctl.c b/ipc/mq_sysctl.c
+> index 43c0825da9e8..068e7d5aa42b 100644
+> --- a/ipc/mq_sysctl.c
+> +++ b/ipc/mq_sysctl.c
+> @@ -159,7 +159,7 @@ bool setup_mq_sysctls(struct ipc_namespace *ns)
+>  
+>  void retire_mq_sysctls(struct ipc_namespace *ns)
+>  {
+> -	struct ctl_table *tbl;
+> +	const struct ctl_table *tbl;
+>  
+>  	tbl = ns->mq_sysctls->ctl_table_arg;
+>  	unregister_sysctl_table(ns->mq_sysctls);
+> diff --git a/kernel/ucount.c b/kernel/ucount.c
+> index 90300840256b..366a2c1971f5 100644
+> --- a/kernel/ucount.c
+> +++ b/kernel/ucount.c
+> @@ -119,7 +119,7 @@ bool setup_userns_sysctls(struct user_namespace *ns)
+>  void retire_userns_sysctls(struct user_namespace *ns)
+>  {
+>  #ifdef CONFIG_SYSCTL
+> -	struct ctl_table *tbl;
+> +	const struct ctl_table *tbl;
+>  
+>  	tbl = ns->sysctls->ctl_table_arg;
+>  	unregister_sysctl_table(ns->sysctls);
+> diff --git a/net/ax25/sysctl_net_ax25.c b/net/ax25/sysctl_net_ax25.c
+> index db66e11e7fe8..e0128dc9def3 100644
+> --- a/net/ax25/sysctl_net_ax25.c
+> +++ b/net/ax25/sysctl_net_ax25.c
+> @@ -171,7 +171,7 @@ int ax25_register_dev_sysctl(ax25_dev *ax25_dev)
+>  void ax25_unregister_dev_sysctl(ax25_dev *ax25_dev)
+>  {
+>  	struct ctl_table_header *header = ax25_dev->sysheader;
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	if (header) {
+>  		ax25_dev->sysheader = NULL;
+> diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+> index 35e10c5a766d..a09118c56c7d 100644
+> --- a/net/bridge/br_netfilter_hooks.c
+> +++ b/net/bridge/br_netfilter_hooks.c
+> @@ -1268,7 +1268,7 @@ static int br_netfilter_sysctl_init_net(struct net *net)
+>  static void br_netfilter_sysctl_exit_net(struct net *net,
+>  					 struct brnf_net *brnet)
+>  {
+> -	struct ctl_table *table = brnet->ctl_hdr->ctl_table_arg;
+> +	const struct ctl_table *table = brnet->ctl_hdr->ctl_table_arg;
+>  
+>  	unregister_net_sysctl_table(brnet->ctl_hdr);
+>  	if (!net_eq(net, &init_net))
+> diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
+> index 6973dda3abda..903ab4a51c17 100644
+> --- a/net/core/sysctl_net_core.c
+> +++ b/net/core/sysctl_net_core.c
+> @@ -743,7 +743,7 @@ static __net_init int sysctl_core_net_init(struct net *net)
+>  
+>  static __net_exit void sysctl_core_net_exit(struct net *net)
+>  {
+> -	struct ctl_table *tbl;
+> +	const struct ctl_table *tbl;
+>  
+>  	tbl = net->core.sysctl_hdr->ctl_table_arg;
+>  	unregister_net_sysctl_table(net->core.sysctl_hdr);
+> diff --git a/net/ieee802154/6lowpan/reassembly.c b/net/ieee802154/6lowpan/reassembly.c
+> index 6dd960ec558c..2a983cf450da 100644
+> --- a/net/ieee802154/6lowpan/reassembly.c
+> +++ b/net/ieee802154/6lowpan/reassembly.c
+> @@ -399,7 +399,7 @@ static int __net_init lowpan_frags_ns_sysctl_register(struct net *net)
+>  
+>  static void __net_exit lowpan_frags_ns_sysctl_unregister(struct net *net)
+>  {
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  	struct netns_ieee802154_lowpan *ieee802154_lowpan =
+>  		net_ieee802154_lowpan(net);
+>  
+> diff --git a/net/ipv4/devinet.c b/net/ipv4/devinet.c
+> index 7a437f0d4190..7592f242336b 100644
+> --- a/net/ipv4/devinet.c
+> +++ b/net/ipv4/devinet.c
+> @@ -2749,7 +2749,7 @@ static __net_init int devinet_init_net(struct net *net)
+>  static __net_exit void devinet_exit_net(struct net *net)
+>  {
+>  #ifdef CONFIG_SYSCTL
+> -	struct ctl_table *tbl;
+> +	const struct ctl_table *tbl;
+>  
+>  	tbl = net->ipv4.forw_hdr->ctl_table_arg;
+>  	unregister_net_sysctl_table(net->ipv4.forw_hdr);
+> diff --git a/net/ipv4/ip_fragment.c b/net/ipv4/ip_fragment.c
+> index a4941f53b523..6b9285fd6f06 100644
+> --- a/net/ipv4/ip_fragment.c
+> +++ b/net/ipv4/ip_fragment.c
+> @@ -632,7 +632,7 @@ static int __net_init ip4_frags_ns_ctl_register(struct net *net)
+>  
+>  static void __net_exit ip4_frags_ns_ctl_unregister(struct net *net)
+>  {
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	table = net->ipv4.frags_hdr->ctl_table_arg;
+>  	unregister_net_sysctl_table(net->ipv4.frags_hdr);
+> diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+> index c8f76f56dc16..af30b5942ba4 100644
+> --- a/net/ipv4/route.c
+> +++ b/net/ipv4/route.c
+> @@ -3590,7 +3590,7 @@ static __net_init int sysctl_route_net_init(struct net *net)
+>  
+>  static __net_exit void sysctl_route_net_exit(struct net *net)
+>  {
+> -	struct ctl_table *tbl;
+> +	const struct ctl_table *tbl;
+>  
+>  	tbl = net->ipv4.route_hdr->ctl_table_arg;
+>  	unregister_net_sysctl_table(net->ipv4.route_hdr);
+> diff --git a/net/ipv4/sysctl_net_ipv4.c b/net/ipv4/sysctl_net_ipv4.c
+> index 7e4f16a7dcc1..ce5d19978a26 100644
+> --- a/net/ipv4/sysctl_net_ipv4.c
+> +++ b/net/ipv4/sysctl_net_ipv4.c
+> @@ -1554,7 +1554,7 @@ static __net_init int ipv4_sysctl_init_net(struct net *net)
+>  
+>  static __net_exit void ipv4_sysctl_exit_net(struct net *net)
+>  {
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	kfree(net->ipv4.sysctl_local_reserved_ports);
+>  	table = net->ipv4.ipv4_hdr->ctl_table_arg;
+> diff --git a/net/ipv4/xfrm4_policy.c b/net/ipv4/xfrm4_policy.c
+> index c33bca2c3841..1dda59e0aeab 100644
+> --- a/net/ipv4/xfrm4_policy.c
+> +++ b/net/ipv4/xfrm4_policy.c
+> @@ -186,7 +186,7 @@ static __net_init int xfrm4_net_sysctl_init(struct net *net)
+>  
+>  static __net_exit void xfrm4_net_sysctl_exit(struct net *net)
+>  {
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	if (!net->ipv4.xfrm4_hdr)
+>  		return;
+> diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+> index 247bd4d8ee45..9c34a351f115 100644
+> --- a/net/ipv6/addrconf.c
+> +++ b/net/ipv6/addrconf.c
+> @@ -7235,7 +7235,7 @@ static int __addrconf_sysctl_register(struct net *net, char *dev_name,
+>  static void __addrconf_sysctl_unregister(struct net *net,
+>  					 struct ipv6_devconf *p, int ifindex)
+>  {
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	if (!p->sysctl_header)
+>  		return;
+> diff --git a/net/ipv6/netfilter/nf_conntrack_reasm.c b/net/ipv6/netfilter/nf_conntrack_reasm.c
+> index 1a51a44571c3..98809f846229 100644
+> --- a/net/ipv6/netfilter/nf_conntrack_reasm.c
+> +++ b/net/ipv6/netfilter/nf_conntrack_reasm.c
+> @@ -105,7 +105,7 @@ static int nf_ct_frag6_sysctl_register(struct net *net)
+>  static void __net_exit nf_ct_frags6_sysctl_unregister(struct net *net)
+>  {
+>  	struct nft_ct_frag6_pernet *nf_frag = nf_frag_pernet(net);
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	table = nf_frag->nf_frag_frags_hdr->ctl_table_arg;
+>  	unregister_net_sysctl_table(nf_frag->nf_frag_frags_hdr);
+> diff --git a/net/ipv6/reassembly.c b/net/ipv6/reassembly.c
+> index acb4f119e11f..ee95cdcc8747 100644
+> --- a/net/ipv6/reassembly.c
+> +++ b/net/ipv6/reassembly.c
+> @@ -487,7 +487,7 @@ static int __net_init ip6_frags_ns_sysctl_register(struct net *net)
+>  
+>  static void __net_exit ip6_frags_ns_sysctl_unregister(struct net *net)
+>  {
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	table = net->ipv6.sysctl.frags_hdr->ctl_table_arg;
+>  	unregister_net_sysctl_table(net->ipv6.sysctl.frags_hdr);
+> diff --git a/net/ipv6/sysctl_net_ipv6.c b/net/ipv6/sysctl_net_ipv6.c
+> index 888676163e90..75de55f907b0 100644
+> --- a/net/ipv6/sysctl_net_ipv6.c
+> +++ b/net/ipv6/sysctl_net_ipv6.c
+> @@ -313,9 +313,9 @@ static int __net_init ipv6_sysctl_net_init(struct net *net)
+>  
+>  static void __net_exit ipv6_sysctl_net_exit(struct net *net)
+>  {
+> -	struct ctl_table *ipv6_table;
+> -	struct ctl_table *ipv6_route_table;
+> -	struct ctl_table *ipv6_icmp_table;
+> +	const struct ctl_table *ipv6_table;
+> +	const struct ctl_table *ipv6_route_table;
+> +	const struct ctl_table *ipv6_icmp_table;
+>  
+>  	ipv6_table = net->ipv6.sysctl.hdr->ctl_table_arg;
+>  	ipv6_route_table = net->ipv6.sysctl.route_hdr->ctl_table_arg;
+> diff --git a/net/ipv6/xfrm6_policy.c b/net/ipv6/xfrm6_policy.c
+> index 42fb6996b077..4891012b692f 100644
+> --- a/net/ipv6/xfrm6_policy.c
+> +++ b/net/ipv6/xfrm6_policy.c
+> @@ -218,7 +218,7 @@ static int __net_init xfrm6_net_sysctl_init(struct net *net)
+>  
+>  static void __net_exit xfrm6_net_sysctl_exit(struct net *net)
+>  {
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	if (!net->ipv6.sysctl.xfrm6_hdr)
+>  		return;
+> diff --git a/net/mpls/af_mpls.c b/net/mpls/af_mpls.c
+> index 6dab883a08dd..973881b8faa3 100644
+> --- a/net/mpls/af_mpls.c
+> +++ b/net/mpls/af_mpls.c
+> @@ -1438,7 +1438,7 @@ static void mpls_dev_sysctl_unregister(struct net_device *dev,
+>  				       struct mpls_dev *mdev)
+>  {
+>  	struct net *net = dev_net(dev);
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	if (!mdev->sysctl)
+>  		return;
+> @@ -2706,7 +2706,7 @@ static void mpls_net_exit(struct net *net)
+>  {
+>  	struct mpls_route __rcu **platform_label;
+>  	size_t platform_labels;
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  	unsigned int index;
+>  
+>  	table = net->mpls.ctl->ctl_table_arg;
+> diff --git a/net/mptcp/ctrl.c b/net/mptcp/ctrl.c
+> index 13fe0748dde8..8d661156ab8c 100644
+> --- a/net/mptcp/ctrl.c
+> +++ b/net/mptcp/ctrl.c
+> @@ -198,7 +198,7 @@ static int mptcp_pernet_new_table(struct net *net, struct mptcp_pernet *pernet)
+>  
+>  static void mptcp_pernet_del_table(struct mptcp_pernet *pernet)
+>  {
+> -	struct ctl_table *table = pernet->ctl_table_hdr->ctl_table_arg;
+> +	const struct ctl_table *table = pernet->ctl_table_hdr->ctl_table_arg;
+>  
+>  	unregister_net_sysctl_table(pernet->ctl_table_hdr);
+>  
+> diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
+> index 0ee98ce5b816..bb9dea676ec1 100644
+> --- a/net/netfilter/nf_conntrack_standalone.c
+> +++ b/net/netfilter/nf_conntrack_standalone.c
+> @@ -1122,7 +1122,7 @@ static int nf_conntrack_standalone_init_sysctl(struct net *net)
+>  static void nf_conntrack_standalone_fini_sysctl(struct net *net)
+>  {
+>  	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	table = cnet->sysctl_header->ctl_table_arg;
+>  	unregister_net_sysctl_table(cnet->sysctl_header);
+> diff --git a/net/netfilter/nf_log.c b/net/netfilter/nf_log.c
+> index 370f8231385c..efedd2f13ac7 100644
+> --- a/net/netfilter/nf_log.c
+> +++ b/net/netfilter/nf_log.c
+> @@ -514,7 +514,7 @@ static int netfilter_log_sysctl_init(struct net *net)
+>  
+>  static void netfilter_log_sysctl_exit(struct net *net)
+>  {
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	table = net->nf.nf_log_dir_header->ctl_table_arg;
+>  	unregister_net_sysctl_table(net->nf.nf_log_dir_header);
+> diff --git a/net/sctp/sysctl.c b/net/sctp/sysctl.c
+> index f65d6f92afcb..25bdf17c7262 100644
+> --- a/net/sctp/sysctl.c
+> +++ b/net/sctp/sysctl.c
+> @@ -624,7 +624,7 @@ int sctp_sysctl_net_register(struct net *net)
+>  
+>  void sctp_sysctl_net_unregister(struct net *net)
+>  {
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	table = net->sctp.sysctl_header->ctl_table_arg;
+>  	unregister_net_sysctl_table(net->sctp.sysctl_header);
+> diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+> index a5946d1b9d60..4e8baa2e7ea4 100644
+> --- a/net/smc/smc_sysctl.c
+> +++ b/net/smc/smc_sysctl.c
+> @@ -133,7 +133,7 @@ int __net_init smc_sysctl_net_init(struct net *net)
+>  
+>  void __net_exit smc_sysctl_net_exit(struct net *net)
+>  {
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	table = net->smc.smc_hdr->ctl_table_arg;
+>  	unregister_net_sysctl_table(net->smc.smc_hdr);
+> diff --git a/net/unix/sysctl_net_unix.c b/net/unix/sysctl_net_unix.c
+> index 3e84b31c355a..44996af61999 100644
+> --- a/net/unix/sysctl_net_unix.c
+> +++ b/net/unix/sysctl_net_unix.c
+> @@ -52,7 +52,7 @@ int __net_init unix_sysctl_register(struct net *net)
+>  
+>  void unix_sysctl_unregister(struct net *net)
+>  {
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	table = net->unx.ctl->ctl_table_arg;
+>  	unregister_net_sysctl_table(net->unx.ctl);
+> diff --git a/net/xfrm/xfrm_sysctl.c b/net/xfrm/xfrm_sysctl.c
+> index 7fdeafc838a7..e972930c292b 100644
+> --- a/net/xfrm/xfrm_sysctl.c
+> +++ b/net/xfrm/xfrm_sysctl.c
+> @@ -76,7 +76,7 @@ int __net_init xfrm_sysctl_init(struct net *net)
+>  
+>  void __net_exit xfrm_sysctl_fini(struct net *net)
+>  {
+> -	struct ctl_table *table;
+> +	const struct ctl_table *table;
+>  
+>  	table = net->xfrm.sysctl_hdr->ctl_table_arg;
+>  	unregister_net_sysctl_table(net->xfrm.sysctl_hdr);
+> 
+> ---
+> base-commit: 48a8b5270db856be233021e47a5f1dc02d47ed0d
+> change-id: 20231226-sysctl-const-table-arg-2c828e0264dc
+> 
+> Best regards,
+> -- 
+> Thomas Weiﬂschuh <linux@weissschuh.net>
+> 
+
+-- 
+Kees Cook
