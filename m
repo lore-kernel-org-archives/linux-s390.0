@@ -1,133 +1,110 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8B8015AD88;
-	Thu, 18 Apr 2024 10:27:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCDB315E1FB;
+	Thu, 18 Apr 2024 11:01:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713436059; cv=none; b=Nnfvl8J0Opb7rV7Obead2k479ryqxBl8scjOFBrmQ47dE/HkqN/md3F0ugLJ4ZL8fyPLz9dQ7tE7JkAKveKBvypozCYwDfRJSfnZwBcKhnjMnBPqZA+6Jx3cpfrKK4en2EbOXc3wk+05tQ0WzQm62AvD5ngV7M+EITs/RVDEhn0=
+	t=1713438088; cv=none; b=aNyrI/JKuPgQ1FoWXmhKHdgpqGy+y42bQQpVIC7wAJ5ldHCNvdl7M4zSoVud/Q+X17A7bjCquAzoC7TtDCSbbKhoQLBinhdanw5xNH20iyN1WyDvRm+D7+cSfUMea6016IBRU+vwrT/nf23mlnriqjfIpPfNSRi0xAJKwUgrx54=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713436059; c=relaxed/simple;
-	bh=l0PktlGfNBkP770IX+SQswEFDu9IgkacUZXUZrm+544=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=gr4xHWI53f4D3fBnZsoEt33jHFdthW7b/xtIgkP2Ikib/BIVK2S7OPaHJsMb68i5EVJ8p6mWioTiJIndzqr0LcjX/bFzz1oVdEj8nqK/3mTADpe+dHugXQs9zNNgKXgXzIpfDr2IGGoCzjthBJ7Y4MACO7Pi2w1bYJlpNObpvXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QaEsYsP7; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QaEsYsP7"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43I9qnTB021464;
-	Thu, 18 Apr 2024 10:27:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=VFEM4yX673OCnQWsK1sjaApOyag8baUFgsw0s/TifqA=;
- b=QaEsYsP7kkhj5ssPZYiAWl2NRwFNMs9grtRaJPs1QkEghQ6ZwrqNhj/nUAYF5jIo6jsk
- xq5ES36M03mW9/+nwB7jOQ7vKAbKbZi37cuVL6eYwXnOgIW9Zlc+/t6L6goQZZVgU60n
- eTVIfGN2REXmIHNZz6OlnKYZ0fZem1F+J1QHFo1SU63f8WE48lPFFLfCWH+ZfvYdDWk4
- 9f5c70dfuZMN7xUSdLoN9Q1pLVMu2oAxISdxbb/hNcgNNAfGer2J1ZBbRcFfyA99n/t2
- fbpNGhKX+1XwcCVfBu8NPU/zgK9P9CWXrXSiQiZkrHtzz05zsD7Sm/KRnYsNWdWnr33x KQ== 
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xk18ug2af-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 18 Apr 2024 10:27:29 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43I8M5MQ023555;
-	Thu, 18 Apr 2024 10:25:57 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xg5cpa29x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 18 Apr 2024 10:25:57 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43IAPp9k52429122
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 18 Apr 2024 10:25:53 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9CC5620040;
-	Thu, 18 Apr 2024 10:25:51 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 538EC20043;
-	Thu, 18 Apr 2024 10:25:51 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 18 Apr 2024 10:25:51 +0000 (GMT)
-Date: Thu, 18 Apr 2024 12:25:49 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Nathan Chancellor <nathan@kernel.org>, akpm@linux-foundation.org,
-        arnd@arndb.de, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, wintera@linux.ibm.com,
-        twinkler@linux.ibm.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, llvm@lists.linux.dev, patches@lists.linux.dev
-Subject: Re: [PATCH 1/3] s390/vmlogrdr: Remove function pointer cast
-Message-ID: <20240418102549.6056-B-hca@linux.ibm.com>
-References: <20240417-s390-drivers-fix-cast-function-type-v1-0-fd048c9903b0@kernel.org>
- <20240417-s390-drivers-fix-cast-function-type-v1-1-fd048c9903b0@kernel.org>
- <20240418095438.6056-A-hca@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240418095438.6056-A-hca@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: wCs8fo8EhTRhucgf_a-lZhHdO296ll8B
-X-Proofpoint-ORIG-GUID: wCs8fo8EhTRhucgf_a-lZhHdO296ll8B
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	s=arc-20240116; t=1713438088; c=relaxed/simple;
+	bh=IWBVXvEKNivmLFW4lhGxT3c3JjTMOajf11zBuAEveQk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=cGev8K6ceMTYi2sUQgfGjRbcsDw6+SI0+RLd9VUgPzEaTqNnzHb+3PeMC/9n6jPn9P8UsT/7V4N3OaGFDbYBcOcj22CqrP2wabrVPM2glErf603XMLk+ykuhbTghv4X1V3hz88Q12u5wkFAeoAnqV5115/RRxSR0NFF56Cz2pEo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.162.254])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4VKvrm0sHWzwS8W;
+	Thu, 18 Apr 2024 18:58:16 +0800 (CST)
+Received: from dggpeml500026.china.huawei.com (unknown [7.185.36.106])
+	by mail.maildlp.com (Postfix) with ESMTPS id 557751800C3;
+	Thu, 18 Apr 2024 19:01:20 +0800 (CST)
+Received: from [10.174.178.66] (10.174.178.66) by
+ dggpeml500026.china.huawei.com (7.185.36.106) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Thu, 18 Apr 2024 19:01:19 +0800
+Message-ID: <7672ae57-86b9-91c2-b03e-2700b931b677@huawei.com>
+Date: Thu, 18 Apr 2024 19:01:19 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-18_08,2024-04-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
- adultscore=0 lowpriorityscore=0 priorityscore=1501 mlxlogscore=999
- phishscore=0 spamscore=0 mlxscore=0 impostorscore=0 suspectscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2404180074
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.0.2
+Subject: Re: [PATCH net] net/smc: fix potential sleeping issue in
+ smc_switch_conns
+To: Wenjia Zhang <wenjia@linux.ibm.com>, Guangguan Wang
+	<guangguan.wang@linux.alibaba.com>, <linux-s390@vger.kernel.org>,
+	<netdev@vger.kernel.org>, <davem@davemloft.net>, <edumazet@google.com>,
+	<kuba@kernel.org>, <pabeni@redhat.com>
+CC: <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
+	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>,
+	<weiyongjun1@huawei.com>, <yuehaibing@huawei.com>,
+	<tangchengchang@huawei.com>
+References: <20240413035150.3338977-1-shaozhengchao@huawei.com>
+ <6520c574-e1c6-49e0-8bb1-760032faaf7a@linux.alibaba.com>
+ <ed5f3665-43ae-cbab-b397-c97c922d26eb@huawei.com>
+ <c6deb857-2236-4ec0-b4c7-25a160f1bcfb@linux.ibm.com>
+ <cd006e26-6f6e-2771-d1bc-76098a5970ac@huawei.com>
+ <0cbb1082-8f5f-4887-b13c-802c2bbcca36@linux.ibm.com>
+From: shaozhengchao <shaozhengchao@huawei.com>
+In-Reply-To: <0cbb1082-8f5f-4887-b13c-802c2bbcca36@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpeml500026.china.huawei.com (7.185.36.106)
 
-On Thu, Apr 18, 2024 at 11:54:38AM +0200, Heiko Carstens wrote:
-> On Wed, Apr 17, 2024 at 11:24:35AM -0700, Nathan Chancellor wrote:
-> > Clang warns (or errors with CONFIG_WERROR) after enabling
-> > -Wcast-function-type-strict by default:
-> > 
-> >   drivers/s390/char/vmlogrdr.c:746:18: error: cast from 'void (*)(const void *)' to 'void (*)(struct device *)' converts to incompatible function type [-Werror,-Wcast-function-type-strict]
-> >     746 |                 dev->release = (void (*)(struct device *))kfree;
-> >         |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> >   1 error generated.
-> > 
-> > Add a standalone function to fix the warning properly, which addresses
-> > the root of the warning that these casts are not safe for kCFI. The
-> > comment is not really relevant after this change, so remove it.
-> > 
-> > Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> > ---
-> >  drivers/s390/char/vmlogrdr.c | 13 +++++--------
-> >  1 file changed, 5 insertions(+), 8 deletions(-)
+
+
+On 2024/4/18 15:50, Wenjia Zhang wrote:
 > 
-> > @@ -736,14 +740,7 @@ static int vmlogrdr_register_device(struct vmlogrdr_priv_t *priv)
-> >  		dev->driver = &vmlogrdr_driver;
-> >  		dev->groups = vmlogrdr_attr_groups;
-> >  		dev_set_drvdata(dev, priv);
-> > -		/*
-> > -		 * The release function could be called after the
-> > -		 * module has been unloaded. It's _only_ task is to
-> > -		 * free the struct. Therefore, we specify kfree()
-> > -		 * directly here. (Probably a little bit obfuscating
-> > -		 * but legitime ...).
-> > -		 */
 > 
-> Why is the comment not relevant after this change? Or better: why is it not
-> valid before this change, which is why the code was introduced a very long
-> time ago? Any reference?
+> On 18.04.24 03:48, shaozhengchao wrote:
+>>
+>>
+>> On 2024/4/17 23:23, Wenjia Zhang wrote:
+>>>
+>>>
+>>> On 17.04.24 10:29, shaozhengchao wrote:
+>>>>
+>>>> Hi Guangguan:
+>>>>    Thank you for your review. When I used the hns driver, I ran into 
+>>>> the
+>>>> problem of "scheduling while atomic". But the problem was tested on the
+>>>> 5.10 kernel branch, and I'm still trying to reproduce it using the
+>>>> mainline.
+>>>>
+>>>> Zhengchao Shao
+>>>>
+>>>
+>> Hi Wenjia:
+>>    I will try to reproduce it. 
 > 
-> I've seen the warning since quite some time, but didn't change the code
-> before sure that this doesn't introduce the bug described in the comment.
+> Thanks!
+> 
+> In addition, the last time I sent you a
+>> issue about the smc-tool, do you have any idea?
+>>
+> 
+Hi Wenjia:
+   I have send it to you. Could you receive it?
 
-From only 20 years ago:
-
-https://lore.kernel.org/all/20040316170812.GA14971@kroah.com/
-
-The particular code (zfcp) was changed, so it doesn't have this code
-(or never did?)  anymore, but for the rest this may or may not still
-be valid.
+Thank you.
+Zhengchao Shao
+> mhhh, I just see a patch from you on smc_hash_sk/smc_unhash_sk, and it 
+> is already applied during my vacation and it does look good to me. If 
+> you mean others, could you send me the link again please, I mightbe have 
+> missed out on it.
+> 
+>> Thank you
+>> Zhengchao Shao
+>>> Could you please try to reproduce the bug with the latest kernel? And 
+>>> show more details (e.g. kernel log) on this bug?
+>>>
+>>> Thanks,
+>>> Wenjia
+>>
+> 
