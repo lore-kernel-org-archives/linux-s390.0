@@ -1,102 +1,202 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3229C16C6B1;
-	Thu, 18 Apr 2024 15:34:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30B5616C6B2;
+	Thu, 18 Apr 2024 15:37:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713454449; cv=none; b=qZz7zD3wbfsufqOju+uSwMKUqioy1HqntfjjNl76kAK5yHYE09xLJy5GTOgITUPpghE8Fnzzu/gpLNFJjTGcfFS1COC8e8InONxbYQEfxAB4fj7wYyuOUBn87fjtGUbD4O2nf5LdXwz3bAbDB518L9Se6uuRcINXGAQlQ1+UyOA=
+	t=1713454627; cv=none; b=EjsNuF/e3w8gwcWSe5prn/SOCOKoMzrSXPVzcmHEgb7phSP9Hf2cHHUXuXjcY99tQuuknSehA+9ts4b/VehqPGs10AzLz+w8RvpyL/igJNXIivbHvvHM9YMRV/OyOdPVZbwp015fcNi6m4f2nWG8ZUfOb1dh7CgOeVysTiWlzCE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713454449; c=relaxed/simple;
-	bh=vg4Qlt/Y9xtKES/hpBiuoGKsulseP9UqrUFMo9Ixo1A=;
+	s=arc-20240116; t=1713454627; c=relaxed/simple;
+	bh=/6e7koqBjxGvjgcyfyqozsKjWrzhFa989KlG6h+G83A=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AhR4josoyLnCidC1S/NiH13OfxuFFtlTP4LowyrUMSw8TePbg6s0wkLmR4ScmfvES13V+CSOjStvd/+seWwsG1BfRR/qOYJq55ZNYpKBLUJRjPjuIWdE9UO+REWavTt7qE2QP30vKP16XjDlzmXMaMtQDTwO3pSh1DnnqrQRBvA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fBW2Cdgl; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=h/O/9YP2XAw2VJx+ElzT1qWtTQidbE/OLxYy6Fzyo9F5B7biSUsL6bqeMzZSKjn7InQ4yAMugzGRAvatMWtdbH7T/vaU6jJCiKgAeMxOAXvruBfYx1zX6hNrABOkKWwNKsYy+mDa7efNr9gRlbw1Gv6fJXr+zGrLrKj33ePkgk0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aeWcQxDn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fBW2Cdgl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47D8AC113CC;
-	Thu, 18 Apr 2024 15:34:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aeWcQxDn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19B5DC113CC;
+	Thu, 18 Apr 2024 15:36:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713454449;
-	bh=vg4Qlt/Y9xtKES/hpBiuoGKsulseP9UqrUFMo9Ixo1A=;
+	s=k20201202; t=1713454626;
+	bh=/6e7koqBjxGvjgcyfyqozsKjWrzhFa989KlG6h+G83A=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=fBW2CdglSwCiQcnjggV9goby5Pi0ukJlB9vAgq/NnPobnVJGDOUdvT0LNloAsjVRG
-	 iz/Ck4yP54mtvv2ewejtww5mZ37l6IJPvcKFp0JJDY25EHRFqwJ4+7A4teKNTFN83R
-	 28X3uODSXZdiRfJ9x2UKYOF3Mxurp1eskBSiq6BVE5DICPe2G2zklzqctUWkoTFa0X
-	 WJoiu8XCIbQtXRV2Ff7YXQPQoVlK5L7A2jU6iF35q0RK0PT7NeCLPG6cB7jDOKWmBB
-	 4hlIauFSYRLmA3zmcy7mV1gYmNx6KE3fp7dXi1cRW+8mFWuVQCxkAexuhLbRAiXdXk
-	 xyDtgj5uYKDdg==
-Date: Thu, 18 Apr 2024 08:34:06 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: akpm@linux-foundation.org, arnd@arndb.de, gor@linux.ibm.com,
-	agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-	svens@linux.ibm.com, wintera@linux.ibm.com, twinkler@linux.ibm.com,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	llvm@lists.linux.dev, patches@lists.linux.dev
-Subject: Re: [PATCH 1/3] s390/vmlogrdr: Remove function pointer cast
-Message-ID: <20240418153406.GC1435416@dev-arch.thelio-3990X>
-References: <20240417-s390-drivers-fix-cast-function-type-v1-0-fd048c9903b0@kernel.org>
- <20240417-s390-drivers-fix-cast-function-type-v1-1-fd048c9903b0@kernel.org>
- <20240418095438.6056-A-hca@linux.ibm.com>
- <20240418102549.6056-B-hca@linux.ibm.com>
- <20240418145121.GA1435416@dev-arch.thelio-3990X>
- <20240418151501.6056-C-hca@linux.ibm.com>
+	b=aeWcQxDnlnHobtWl/wSsLjnz0sXveyb3C9ZWUzhRio2isgl/ECkWL5MfHpcmEMTW7
+	 /3gTsH9zle5F7iUK2MtYGoEYVXSVNBMbfrRBJdAbuLXT5C4Rci/tim3vMb2/HkXNT3
+	 0BdaT4fZ5qEwRw4j04psUJzOpDE+rRKi3VjZ9pFXSPLklZtfjmSfaFH4UR8286lGH5
+	 60/sHoFS02dtG3EW7cMEMNkjH3P1jYGW/oaOVey/LIzfE2ojr8NLFIf5bqbQCitx7d
+	 hsc5w5cHL6aJI5zSA/0oAAIzFKyYOhtBXIDwcp4O2/SqIU/0gLgXdRamRK8O7d7lre
+	 JIoqk7vYwCgbA==
+Date: Thu, 18 Apr 2024 18:35:48 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: Song Liu <song@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>,
+	Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org,
+	Alexandre Ghiti <alexghiti@rivosinc.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Bjorn Topel <bjorn@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Donald Dutile <ddutile@redhat.com>,
+	Eric Chanudet <echanude@redhat.com>,
+	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nadav Amit <nadav.amit@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Puranjay Mohan <puranjay12@gmail.com>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+	linux-mm@kvack.org, linux-modules@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v4 05/15] mm: introduce execmem_alloc() and execmem_free()
+Message-ID: <ZiE91CJcNw7gBj9g@kernel.org>
+References: <20240411160051.2093261-1-rppt@kernel.org>
+ <20240411160051.2093261-6-rppt@kernel.org>
+ <20240415075241.GF40213@noisy.programming.kicks-ass.net>
+ <Zh1lnIdgFeM1o8S5@FVFF77S0Q05N.cambridge.arm.com>
+ <Zh4nJp8rv1qRBs8m@kernel.org>
+ <CAPhsuW6Pbg2k_Gu4dsBx+H8H5XCHvNdtEZJBPiG_eT0qqr9D1w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20240418151501.6056-C-hca@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAPhsuW6Pbg2k_Gu4dsBx+H8H5XCHvNdtEZJBPiG_eT0qqr9D1w@mail.gmail.com>
 
-On Thu, Apr 18, 2024 at 05:15:01PM +0200, Heiko Carstens wrote:
-> Hi Nathan,
+On Wed, Apr 17, 2024 at 04:32:49PM -0700, Song Liu wrote:
+> On Tue, Apr 16, 2024 at 12:23 AM Mike Rapoport <rppt@kernel.org> wrote:
+> >
+> > On Mon, Apr 15, 2024 at 06:36:39PM +0100, Mark Rutland wrote:
+> > > On Mon, Apr 15, 2024 at 09:52:41AM +0200, Peter Zijlstra wrote:
+> > > > On Thu, Apr 11, 2024 at 07:00:41PM +0300, Mike Rapoport wrote:
+> > > > > +/**
+> > > > > + * enum execmem_type - types of executable memory ranges
+> > > > > + *
+> > > > > + * There are several subsystems that allocate executable memory.
+> > > > > + * Architectures define different restrictions on placement,
+> > > > > + * permissions, alignment and other parameters for memory that can be used
+> > > > > + * by these subsystems.
+> > > > > + * Types in this enum identify subsystems that allocate executable memory
+> > > > > + * and let architectures define parameters for ranges suitable for
+> > > > > + * allocations by each subsystem.
+> > > > > + *
+> > > > > + * @EXECMEM_DEFAULT: default parameters that would be used for types that
+> > > > > + * are not explcitly defined.
+> > > > > + * @EXECMEM_MODULE_TEXT: parameters for module text sections
+> > > > > + * @EXECMEM_KPROBES: parameters for kprobes
+> > > > > + * @EXECMEM_FTRACE: parameters for ftrace
+> > > > > + * @EXECMEM_BPF: parameters for BPF
+> > > > > + * @EXECMEM_TYPE_MAX:
+> > > > > + */
+> > > > > +enum execmem_type {
+> > > > > + EXECMEM_DEFAULT,
+> > > > > + EXECMEM_MODULE_TEXT = EXECMEM_DEFAULT,
+> > > > > + EXECMEM_KPROBES,
+> > > > > + EXECMEM_FTRACE,
+> > > > > + EXECMEM_BPF,
+> > > > > + EXECMEM_TYPE_MAX,
+> > > > > +};
+> > > >
+> > > > Can we please get a break-down of how all these types are actually
+> > > > different from one another?
+> > > >
+> > > > I'm thinking some platforms have a tiny immediate space (arm64 comes to
+> > > > mind) and has less strict placement constraints for some of them?
+> > >
+> > > Yeah, and really I'd *much* rather deal with that in arch code, as I have said
+> > > several times.
+> > >
+> > > For arm64 we have two bsaic restrictions:
+> > >
+> > > 1) Direct branches can go +/-128M
+> > >    We can expand this range by having direct branches go to PLTs, at a
+> > >    performance cost.
+> > >
+> > > 2) PREL32 relocations can go +/-2G
+> > >    We cannot expand this further.
+> > >
+> > > * We don't need to allocate memory for ftrace. We do not use trampolines.
+> > >
+> > > * Kprobes XOL areas don't care about either of those; we don't place any
+> > >   PC-relative instructions in those. Maybe we want to in future.
+> > >
+> > > * Modules care about both; we'd *prefer* to place them within +/-128M of all
+> > >   other kernel/module code, but if there's no space we can use PLTs and expand
+> > >   that to +/-2G. Since modules can refreence other modules, that ends up
+> > >   actually being halved, and modules have to fit within some 2G window that
+> > >   also covers the kernel.
 > 
-> > > > > -		/*
-> > > > > -		 * The release function could be called after the
-> > > > > -		 * module has been unloaded. It's _only_ task is to
-> > > > > -		 * free the struct. Therefore, we specify kfree()
-> > > > > -		 * directly here. (Probably a little bit obfuscating
-> > > > > -		 * but legitime ...).
-> > > > > -		 */
-> > > > 
-> > > > Why is the comment not relevant after this change? Or better: why is it not
-> > > > valid before this change, which is why the code was introduced a very long
-> > > > time ago? Any reference?
-> > > > 
-> > > > I've seen the warning since quite some time, but didn't change the code
-> > > > before sure that this doesn't introduce the bug described in the comment.
-> > > 
-> > > From only 20 years ago:
-> > > 
-> > > https://lore.kernel.org/all/20040316170812.GA14971@kroah.com/
-> > > 
-> > > The particular code (zfcp) was changed, so it doesn't have this code
-> > > (or never did?)  anymore, but for the rest this may or may not still
-> > > be valid.
-> > 
-> > I guess relevant may not have been the correct word. Maybe obvious? I
-> > can keep the comment but I do not really see what it adds, although
-> > reading the above thread, I suppose it was added as justification for
-> > calling kfree() as ->release() for a 'struct device'? Kind of seems like
-> > that ship has sailed since I see this all over the place as a
-> > ->release() function. I do not see how this patch could have a function
-> > change beyond that but I may be misreading or misinterpreting your full
-> > comment.
+> Is +/- 2G enough for all realistic use cases? If so, I guess we don't
+> really need
+> EXECMEM_ANYWHERE below?
 > 
-> That doesn't answer my question what prevents the release function
-> from being called after the module has been unloaded.
+> > >
+> > > * I'm not sure about BPF's requirements; it seems happy doing the same as
+> > >   modules.
+> >
+> > BPF are happy with vmalloc().
+> >
+> > > So if we *must* use a common execmem allocator, what we'd reall want is our own
+> > > types, e.g.
+> > >
+> > >       EXECMEM_ANYWHERE
+> > >       EXECMEM_NOPLT
+> > >       EXECMEM_PREL32
+> > >
+> > > ... and then we use those in arch code to implement module_alloc() and friends.
+> >
+> > I'm looking at execmem_types more as definition of the consumers, maybe I
+> > should have named the enum execmem_consumer at the first place.
 > 
-> At least back then when the code was added it was a real bug.
+> I think looking at execmem_type from consumers' point of view adds
+> unnecessary complexity. IIUC, for most (if not all) archs, ftrace, kprobe,
+> and bpf (and maybe also module text) all have the same requirements.
+> Did I miss something?
 
-I do not know the answer to that question (and I suspect there is
-nothing preventing ->release() from being called after module unload),
-so I'll just bring back the comment (although I'll need to adjust it
-since kfree() is not being used there directly anymore). Andrew, would
-you prefer a diff from what's in -mm or a v2?
+It's enough to have one architecture with different constrains for kprobes
+and bpf to warrant a type for each.
 
-Cheers,
-Nathan
+Where do you see unnecessary complexity?
+ 
+> IOW, we have
+> 
+> enum execmem_type {
+>         EXECMEM_DEFAULT,
+>         EXECMEM_TEXT,
+>         EXECMEM_KPROBES = EXECMEM_TEXT,
+>         EXECMEM_FTRACE = EXECMEM_TEXT,
+>         EXECMEM_BPF = EXECMEM_TEXT,      /* we may end up without
+> _KPROBE, _FTRACE, _BPF */
+>         EXECMEM_DATA,  /* rw */
+>         EXECMEM_RO_DATA,
+>         EXECMEM_RO_AFTER_INIT,
+>         EXECMEM_TYPE_MAX,
+> };
+> 
+> Does this make sense?
+ 
+How do you suggest to deal with e.g. riscv that has separate address spaces
+for modules, kprobes and bpf?
+
+> Thanks,
+> Song
+
+-- 
+Sincerely yours,
+Mike.
