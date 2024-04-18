@@ -1,142 +1,123 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D2311442F4;
-	Thu, 18 Apr 2024 17:53:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72F5617AD96;
+	Thu, 18 Apr 2024 19:21:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713462839; cv=none; b=i9w5i8935nPo1sdrS6/UQmSKRCap9P+Ga8M96m0Aa2f/AaDznnb7SrkKX6zzJPlkzGj83Owk1yKukmnFLuQFHgUBDKAeCJDUXlKZERBL97VW/vtESPO+UH/iOIi0RdTKmrDjokSBxgUbb1c47Q6ersSVFvKXv18DQNEr6rzQYDs=
+	t=1713468079; cv=none; b=q3bs5Yoi6Xi/jHVcwR2TUt24Wc0SnqfxKCoVszQqNcCNbMg1fRGQM5XDT110EKfNlCx4ShDAoXrLfc77vDr2sQuYkRm5GGeFiEpk98cGpNRXMIHzV0+PaBYjP1JMMPssRerm2wdcVR1YAj0Wx89rtZpSMtRiE5kCYIzK1GKRHlM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713462839; c=relaxed/simple;
-	bh=GVKHg9/GMb+Q7svthQO5bm+rPzNDL6zXlQZOsDeKWL0=;
+	s=arc-20240116; t=1713468079; c=relaxed/simple;
+	bh=hJrwwBQ4Vx1GONc5Vq5YhsnllNAU1r7+qHTtosiwSNo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iPDzZv5Y/UdvP5C0JHl0OsL2oiIyxexW4QoxqHuXhvBsKnOxQsbvnFrhuqK/y8RwqIwVgQLyace7C4RywoTWZIjx8w1Mvl2OrVeuA6YyeEuJdEVgz7BIGd8GYISmj1vCGm/Slf3tCd6PZdiqc/ocV0DX5HFZ9kCkgZCd25yjBMc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qitx/umw; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=LFqn0cHp/YekfKkLKBaSk7It02OV40kTZZdJdTMzHMqJnucdHT2balvoMe9XVFpS/syonDBDw0UGpdbf4PP3VyvBNLlz85pxIz7uj+RMJHsoP4eZzDxxsvpPJWY3/LjsycZr0/FYtRwVyTIiRNRnl/dLbpTbbCddECtJrFPrM+g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ING9fYPF; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qitx/umw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F12DC3277B;
-	Thu, 18 Apr 2024 17:53:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713462839;
-	bh=GVKHg9/GMb+Q7svthQO5bm+rPzNDL6zXlQZOsDeKWL0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=qitx/umwjvXDKNme47QxvztrUiipBcKV2Lg0Yvd1RXezrm9EMN+zfFrxXb923+dxO
-	 AxZ6KgXvjlorR3mUIjvBXST4+3n8nelthPynguxJTOQoS9rNBrqZ+3MIlU37kTQ9FA
-	 a4e+nx+8unMMLT17+KcFFJ93DVlkbK2eXc4Av0nU3f2Yxj+rBXrkR0WI95IANr/7qX
-	 uZj4q1Xb4qjUIP87QNJk+Jgy4oid7eW9FtvEPOx7D0x1Tt1iXSqSWNLPcTP4XbQ2OW
-	 z8BEya9Rxr0dlQHlDm5T4jpRs2aqcA2Iy8EkKuiv4ehWjUKDt48ywWZ7K+xjdgeN4d
-	 Qxf4CJCyjHkiA==
-Date: Thu, 18 Apr 2024 20:52:39 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Song Liu <song@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>,
-	Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org,
-	Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Bjorn Topel <bjorn@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Donald Dutile <ddutile@redhat.com>,
-	Eric Chanudet <echanude@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nadav Amit <nadav.amit@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Puranjay Mohan <puranjay12@gmail.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
-	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-mm@kvack.org, linux-modules@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v4 05/15] mm: introduce execmem_alloc() and execmem_free()
-Message-ID: <ZiFd567L4Zzm2okO@kernel.org>
-References: <20240411160051.2093261-1-rppt@kernel.org>
- <20240411160051.2093261-6-rppt@kernel.org>
- <20240415075241.GF40213@noisy.programming.kicks-ass.net>
- <Zh1lnIdgFeM1o8S5@FVFF77S0Q05N.cambridge.arm.com>
- <Zh4nJp8rv1qRBs8m@kernel.org>
- <CAPhsuW6Pbg2k_Gu4dsBx+H8H5XCHvNdtEZJBPiG_eT0qqr9D1w@mail.gmail.com>
- <ZiE91CJcNw7gBj9g@kernel.org>
- <CAPhsuW4au6v8k8Ab7Ff6Yj64rGvZ7wkz=Xrgh8ZZtLyscpChqQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ING9fYPF"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43IITnRE028914;
+	Thu, 18 Apr 2024 19:21:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=GXr0LHselm0BbFDNOrdaYHwydELDu9Uc+uNv6Pm+rSo=;
+ b=ING9fYPFoohunGhIgnmtf7JEn7GKD98uwD7pDq6/yfzIJhf9JvUC7Qax4XI1j/cZFPmq
+ pJ9AtTocK/fL2twjhB49tG4MtM+AouwbDSEJq8uXofDgA0zngH/iU6bpq41U9lQLDvpJ
+ gz643sGjXNvKYnAk25MmqzjYv3K8WEo1xezHDF8FW5FMb3URINRGE/uexX8MdksNOxo8
+ rz1xjiHubwU2AD+LL6iVap4mXlRLhN3S6rYc0vYCVgAG9jJUPyJX9tfIDa3372xme2Ay
+ H46VSEqMgze5X/3KOYJS/p364sGQ8aHgiqg/hPaEBFz8nnkf21OIJy3dO4pqARdu0vMH 5A== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xk8ts04m7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 18 Apr 2024 19:21:09 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43IGpolm027308;
+	Thu, 18 Apr 2024 19:21:08 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xg4s0cpmd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 18 Apr 2024 19:21:08 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43IJL2rw40042880
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 18 Apr 2024 19:21:04 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A186A20040;
+	Thu, 18 Apr 2024 19:21:02 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DFE9920043;
+	Thu, 18 Apr 2024 19:21:01 +0000 (GMT)
+Received: from osiris (unknown [9.171.91.213])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 18 Apr 2024 19:21:01 +0000 (GMT)
+Date: Thu, 18 Apr 2024 21:21:00 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Nathan Chancellor <nathan@kernel.org>
+Cc: akpm@linux-foundation.org, arnd@arndb.de, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        wintera@linux.ibm.com, twinkler@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        llvm@lists.linux.dev, patches@lists.linux.dev
+Subject: Re: [PATCH 1/3] s390/vmlogrdr: Remove function pointer cast
+Message-ID: <20240418192100.6741-A-hca@linux.ibm.com>
+References: <20240417-s390-drivers-fix-cast-function-type-v1-0-fd048c9903b0@kernel.org>
+ <20240417-s390-drivers-fix-cast-function-type-v1-1-fd048c9903b0@kernel.org>
+ <20240418095438.6056-A-hca@linux.ibm.com>
+ <20240418102549.6056-B-hca@linux.ibm.com>
+ <20240418145121.GA1435416@dev-arch.thelio-3990X>
+ <20240418151501.6056-C-hca@linux.ibm.com>
+ <20240418153406.GC1435416@dev-arch.thelio-3990X>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAPhsuW4au6v8k8Ab7Ff6Yj64rGvZ7wkz=Xrgh8ZZtLyscpChqQ@mail.gmail.com>
+In-Reply-To: <20240418153406.GC1435416@dev-arch.thelio-3990X>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: GRMe9dYnECViWJSf3KZGA3UiFLVN3bMu
+X-Proofpoint-GUID: GRMe9dYnECViWJSf3KZGA3UiFLVN3bMu
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-18_17,2024-04-17_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
+ mlxlogscore=325 bulkscore=0 mlxscore=0 malwarescore=0 adultscore=0
+ lowpriorityscore=0 suspectscore=0 priorityscore=1501 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404180139
 
-On Thu, Apr 18, 2024 at 09:13:27AM -0700, Song Liu wrote:
-> On Thu, Apr 18, 2024 at 8:37 AM Mike Rapoport <rppt@kernel.org> wrote:
-> > > >
-> > > > I'm looking at execmem_types more as definition of the consumers, maybe I
-> > > > should have named the enum execmem_consumer at the first place.
-> > >
-> > > I think looking at execmem_type from consumers' point of view adds
-> > > unnecessary complexity. IIUC, for most (if not all) archs, ftrace, kprobe,
-> > > and bpf (and maybe also module text) all have the same requirements.
-> > > Did I miss something?
-> >
-> > It's enough to have one architecture with different constrains for kprobes
-> > and bpf to warrant a type for each.
+Hi Nathan,
+
+> > > > > > -		/*
+> > > > > > -		 * The release function could be called after the
+> > > > > > -		 * module has been unloaded. It's _only_ task is to
+> > > > > > -		 * free the struct. Therefore, we specify kfree()
+> > > > > > -		 * directly here. (Probably a little bit obfuscating
+> > > > > > -		 * but legitime ...).
+> > > > > > -		 */
+> > 
+> > That doesn't answer my question what prevents the release function
+> > from being called after the module has been unloaded.
+> > 
+> > At least back then when the code was added it was a real bug.
 > 
-> AFAICT, some of these constraints can be changed without too much work.
+> I do not know the answer to that question (and I suspect there is
+> nothing preventing ->release() from being called after module unload),
+> so I'll just bring back the comment (although I'll need to adjust it
+> since kfree() is not being used there directly anymore). Andrew, would
+> you prefer a diff from what's in -mm or a v2?
 
-But why?
-I honestly don't understand what are you trying to optimize here. A few
-lines of initialization in execmem_info?
-What is the advantage in forcing architectures to have imposed limits on
-kprobes or bpf allocations?
+I guess there is some confusion here :) My request was not to keep the
+comment. I'm much rather afraid that the comment is still valid; and if
+that is the case then your patch series adds three bugs, exactly what is
+described in the comment.
 
-> > Where do you see unnecessary complexity?
-> >
-> > > IOW, we have
-> > >
-> > > enum execmem_type {
-> > >         EXECMEM_DEFAULT,
-> > >         EXECMEM_TEXT,
-> > >         EXECMEM_KPROBES = EXECMEM_TEXT,
-> > >         EXECMEM_FTRACE = EXECMEM_TEXT,
-> > >         EXECMEM_BPF = EXECMEM_TEXT,      /* we may end up without
-> > > _KPROBE, _FTRACE, _BPF */
-> > >         EXECMEM_DATA,  /* rw */
-> > >         EXECMEM_RO_DATA,
-> > >         EXECMEM_RO_AFTER_INIT,
-> > >         EXECMEM_TYPE_MAX,
-> > > };
-> > >
-> > > Does this make sense?
-> >
-> > How do you suggest to deal with e.g. riscv that has separate address spaces
-> > for modules, kprobes and bpf?
-> 
-> IIUC, modules and bpf use the same address space on riscv
-
-Not exactly, bpf is a subset of modules on riscv.
-
-> while kprobes use vmalloc address.
-
-The whole point of using the entire vmalloc for kprobes is to avoid
-pollution of limited modules space.
- 
-> Thanks,
-> Song
-
--- 
-Sincerely yours,
-Mike.
+Right now the release function is kfree which is always within the kernel
+image, and therefore always a valid branch target. If however the code is
+changed to what you propose, then the release function would be inside of
+the module, which potentially does not exist anymore when the release
+function is called, since the module was unloaded.
+So the branch target would be invalid.
