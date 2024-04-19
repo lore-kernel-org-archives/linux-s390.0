@@ -1,127 +1,127 @@
-Received: from mail-ot1-f50.google.com (mail-ot1-f50.google.com [209.85.210.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ECAA130E52
-	for <linux-s390@vger.kernel.org>; Fri, 19 Apr 2024 16:11:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF79E81216;
+	Fri, 19 Apr 2024 16:43:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713543100; cv=none; b=L2gQnO7DtzJ3/8H7hURYKHgfHFL7Y1X86UFPAItjC4+7VZhBhy5pzBUGUUDL0IUDAzpB1mgxdg3xYQGHtXntz49vYYHa+zALvuUWuCDO/ZBJc4FkfcxzKke2FyN3cDeAQswXdiypnBLR5jgQvwVMKryIqLOK5vp/xm3OWEAtlf0=
+	t=1713545030; cv=none; b=Zu04Ld3e5WsidtJa7MjbMe2s+QIU5liiBJdUrJ9mW2LUKTsv/RzdPbIKmR6TglH32QGdGG8OIC9MiWYPWGEXQA1Wx2d72ZfCiffQugNmyz3b4rr4rj9oLj+AQjYKnWhVyKAatR9BFndUuOGSha4Br0ysa2Yf1Gj+AazfR7Kl9Ig=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713543100; c=relaxed/simple;
-	bh=c355FjzRXp2PV5fV7cTtv8D/0hSyaEEZty37+zds9PA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=G/B3i1l6hPVC3lKTEa0vd6BNQqTvBkT/oMwFCD+foFk/01p9ItktkPwKZr/f0s2NlpJYTX/VqtcbKIPxNAIC0u+04mvw+VQBB/Cm+Mfaw7smu2trgdsLqtrbAzdhZLsBWMwtmOKIKTJkSLitXE+VOnaBIIvIRKgWlyJt1+5Zjsw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=B08WCqC/; arc=none smtp.client-ip=209.85.210.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1713545030; c=relaxed/simple;
+	bh=rXg3N5b05dfWhPDIHb+7PQ9EHjAo3PdLesmeK9C7vjQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=TbiHDa4rR5b2X5ES6O66YIub30VccPh2pG52Tw9ghcE5UDO+IdPoQOD2haSN8wmpBXw2KQg94L5g7BUWE7y0J/amUTeoADsdk4St4lTPqxw8VtddQ8NrRsBVGr/PswqMTPcZOGi/y484Nm2piIuDDKWFU8TKSPoFpGWHotTHoRI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HNamWsO6; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="B08WCqC/"
-Received: by mail-ot1-f50.google.com with SMTP id 46e09a7af769-6eb7d1a5d39so1273346a34.2
-        for <linux-s390@vger.kernel.org>; Fri, 19 Apr 2024 09:11:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1713543096; x=1714147896; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=gPdDMUXyiuiq86o/a5LL/jaZpq2sMZf3qusGMS3HcBg=;
-        b=B08WCqC/Tlnrq8SKJFHKOOhcHEKDCWyhvENSKiZ47tVdUkiSGE1zWPRCsywsSFebTc
-         T+GtiRhCq29lQ7czlkfKIcu4UlQ4iFHwvNoGuIA2z8hQrSIQrM/SJBSbn01+iSrs5J6W
-         VaFp3+KzY23aUWCkHkU/xXwrylnpJKzX10mlUPpGvbTxqhGXdWELY/Hu6cwcmnn647Hp
-         zqJTEOnh394QwaR7G6OiAgPaGW33XT62z5I+W930K90NZAsCRu6Jnfc1PjdvFi7h+ktd
-         bOv6qmTwUIsL1Nk7oBiNGNqUD4sJgpQzu7PCD3bhUONcOlqX+sRomnFIBajV/vyciMIh
-         w9nA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713543096; x=1714147896;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gPdDMUXyiuiq86o/a5LL/jaZpq2sMZf3qusGMS3HcBg=;
-        b=m2WjWBlMZR1MaynwSXUOwWFCgVMevBfj7+CKDu0HehJC3QK/R3rDN6YAzxe6lTVeJD
-         KzLmALVJp9FF1KpZXT9lzuXATwFOz1aXh2bNbPVrsRCiFvF0mBa+fFRWyxjElE40TAzi
-         CO86EFPO7onVQ1T81kxPWiDw4Ou4paZ3fcJ6EKzLqSaXzi8aY/9+4rvieaWuZBkIAFM7
-         NxKwraTX1/VU5TSXDmpLZ1ZOn/s8WxA/G8D49/FNIinrcflAtDAiOSm65LAT4PoFrjBL
-         dAGK15B1I4CelxcLvWz8CRCgZtfnbDLYQCHOLOVaI+Y23Jdd0+cLaIVKn3m8q8KcCgRm
-         znAg==
-X-Forwarded-Encrypted: i=1; AJvYcCVMqXLFDdZgCghYeF9+3DJhAtS8LcVuNfo+INFIU3o8M6dAP8UE2vSGbXJlWiQtKj8Jz1+PtNPMl0eqJSBhxDuW0Z+y3Elgrx2GKQ==
-X-Gm-Message-State: AOJu0YxFz5OYxPKXIMxk1l3vc7lA1rL+7x52clKRXeQn88mC7V52I5x9
-	zAOu1HvD0SAYeRcd/6rptz0MIU2VOv012aDbYmzaB9ovg/Mol94p3K8oyzi+5k0=
-X-Google-Smtp-Source: AGHT+IF7DVUq+dJZOo43uX5z1JMrxdHIu7CEnQutVFVuFx4NCCMcQbbW/K0XBawjCJRf1j78VXk34A==
-X-Received: by 2002:a9d:7e8b:0:b0:6eb:b2d4:dd30 with SMTP id m11-20020a9d7e8b000000b006ebb2d4dd30mr2812878otp.0.1713543096601;
-        Fri, 19 Apr 2024 09:11:36 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
-        by smtp.gmail.com with ESMTPSA id p2-20020a9d76c2000000b006ea19aa0e4fsm733309otl.29.2024.04.19.09.11.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Apr 2024 09:11:36 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1rxqpr-00Fd4B-5i;
-	Fri, 19 Apr 2024 13:11:35 -0300
-Date: Fri, 19 Apr 2024 13:11:35 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Gerd Bayer <gbayer@linux.ibm.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Ankit Agrawal <ankita@nvidia.com>,
-	Yishai Hadas <yishaih@nvidia.com>, kvm@vger.kernel.org,
-	linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-	Ben Segal <bpsegal@us.ibm.com>
-Subject: Re: [PATCH] vfio/pci: Support 8-byte PCI loads and stores
-Message-ID: <20240419161135.GF223006@ziepe.ca>
-References: <20240419135323.1282064-1-gbayer@linux.ibm.com>
- <20240419135823.GE223006@ziepe.ca>
- <c5ba134a1d4f4465b5956027e6a4ea6f6beff969.camel@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HNamWsO6"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43JGgwOX001835;
+	Fri, 19 Apr 2024 16:43:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=qqY0ggVd6vRY8E1NNhjzfUM0pu6D+sORLvesEWRZxRg=;
+ b=HNamWsO6qm4UMJDnN2vDI7REwEulQvLmP3wsGalosHd5BGKfLzRsDr5ektEv1mYmlbB+
+ fmbXNsOPBcWecVTHP1W3MitvVwA6FZux7uR2E01kvGkHfMpHsm+0vFJGXteWKKy3zA5S
+ +D9L3k5RTwMTVa8GexD3rFmMQusFq3LJ9SUnOT8rKRPF4NoIIdj8uT7wDgMRj90ZqCDF
+ O9fSGLGtNXlyUl3z6ORSZMreCz8SK+k6ezZXdHX9lq8/a0oUdtVPBBnuFCqbgQNgjzJW
+ 0GdyBPoHJCGIg3MmI7U4Pyl+bsD2eabhCcGYRnBtalySBALJNVl4oSaXPWk1bmng0CY9 Bg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xkvc4g03a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 19 Apr 2024 16:43:46 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43JGhkgH002452;
+	Fri, 19 Apr 2024 16:43:46 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xkvc4g038-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 19 Apr 2024 16:43:46 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43JFPgZc030372;
+	Fri, 19 Apr 2024 16:43:45 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xkbmcms9g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 19 Apr 2024 16:43:45 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43JGhekg52494700
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 19 Apr 2024 16:43:42 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 09E632004D;
+	Fri, 19 Apr 2024 16:43:40 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C167820043;
+	Fri, 19 Apr 2024 16:43:39 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 19 Apr 2024 16:43:39 +0000 (GMT)
+Date: Fri, 19 Apr 2024 18:43:38 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: borntraeger@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] KVM: s390: Check kvm pointer when testing
+ KVM_CAP_S390_HPAGE_1M
+Message-ID: <20240419184338.51efead9@p-imbrenda>
+In-Reply-To: <20240419160723.320910-2-jean-philippe@linaro.org>
+References: <20240419160723.320910-2-jean-philippe@linaro.org>
+Organization: IBM
+X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c5ba134a1d4f4465b5956027e6a4ea6f6beff969.camel@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 3en2dehuIMVGPmT8vH6jWyHtI88mefx2
+X-Proofpoint-ORIG-GUID: 1RYE2lgh0OVdiaTuwwgzYziUYsjPzneu
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-19_11,2024-04-19_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
+ lowpriorityscore=0 bulkscore=0 phishscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 spamscore=0 priorityscore=1501 clxscore=1011
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404190127
 
-On Fri, Apr 19, 2024 at 05:57:52PM +0200, Niklas Schnelle wrote:
-> On Fri, 2024-04-19 at 10:58 -0300, Jason Gunthorpe wrote:
-> > On Fri, Apr 19, 2024 at 03:53:23PM +0200, Gerd Bayer wrote:
-> > > From: Ben Segal <bpsegal@us.ibm.com>
-> > > 
-> > > Many PCI adapters can benefit or even require full 64bit read
-> > > and write access to their registers. In order to enable work on
-> > > user-space drivers for these devices add two new variations
-> > > vfio_pci_core_io{read|write}64 of the existing access methods
-> > > when the architecture supports 64-bit ioreads and iowrites.
-> > > 
-> > > Signed-off-by: Ben Segal <bpsegal@us.ibm.com>
-> > > Co-developed-by: Gerd Bayer <gbayer@linux.ibm.com>
-> > > Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
-> > > ---
-> > > 
-> > > Hi all,
-> > > 
-> > > we've successfully used this patch with a user-mode driver for a PCI
-> > > device that requires 64bit register read/writes on s390.
-> > 
-> > But why? S390 already has a system call for userspace to do the 64 bit
-> > write, and newer S390 has a userspace instruction to do it.
-> > 
-> > Why would you want to use a VFIO system call on the mmio emulation
-> > path?
-> > 
-> > mmap the registers and access them normally?
+On Fri, 19 Apr 2024 17:07:24 +0100
+Jean-Philippe Brucker <jean-philippe@linaro.org> wrote:
+
+> KVM allows issuing the KVM_CHECK_EXTENSION ioctl either on the /dev/kvm
+> fd or the VM fd. In the first case, kvm_vm_ioctl_check_extension() is
+> called with kvm==NULL. Ensure we don't dereference the pointer in that
+> case.
 > 
-> It's a very good point and digging into why this wasn't used by
-> Benjamin. It turns out VFIO_PCI_MMAP is disabled for S390 which it
-> really shouldn't be especially now that we have the user-space
-> instructions. Before that though Benjamin turned to this interface
-> which then lead him to this limitation. So yeah we'll definitely verify
-> that it also works via VFIO_PCI_MMAP and send a patch to enable that.
+> Fixes: 40ebdb8e59df ("KVM: s390: Make huge pages unavailable in ucontrol VMs")
+> Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 
-Make sense to me!
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-> That said I still think it's odd not to have the 8 byte case working
-> here even if it isn't the right approach. Could still be useful for
-> debug/testing without having to add the MIO instructions or the our
-> special syscall.
+> ---
+> Only build-tested
+> ---
+>  arch/s390/kvm/kvm-s390.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 5147b943a864a..7721eb522f43d 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -587,7 +587,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  		break;
+>  	case KVM_CAP_S390_HPAGE_1M:
+>  		r = 0;
+> -		if (hpage && !kvm_is_ucontrol(kvm))
+> +		if (hpage && !(kvm && kvm_is_ucontrol(kvm)))
+>  			r = 1;
+>  		break;
+>  	case KVM_CAP_S390_MEM_OP:
 
-Yes, this also makes sense, but this patch needs some adjusting
-
-Jason
