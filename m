@@ -1,79 +1,69 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E40318063B;
-	Fri, 19 Apr 2024 14:12:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A52BC77F13;
+	Fri, 19 Apr 2024 15:50:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713535980; cv=none; b=GtgW+B2vlDmBwShWwIC2/v1+IxHLns5c94FZkRmmb41uFgNwPUavJu9WTwcxdYuLysjAesd3VQ3TKd6K8tUdeCImMCBnhCLSXQDani6jUBoqM569Jfg5BHbl5auXGZ19idD/4X5TrxJUMmaujkjw/RguXWQDfYrf7GZH7awyRos=
+	t=1713541839; cv=none; b=llxUtTwdAiKq8S2FEKL8LydSacvUQ9TpvrR9IJhg6N05U6DgWqyv6AGjaWydIydVEz5g0C0lpIwrVRZkWuNf/mYF7s6xZI1D5eBUk476x9Pph/MxBKWrwKPxcSuyAi/6wqycKbzEIdg91jxUnH9NppKyaWOLzDxaonOTtiP4YfE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713535980; c=relaxed/simple;
-	bh=W7nz7OkHCmep10jAH1zdX1jJiug2o21YnaZ0mID7HqI=;
+	s=arc-20240116; t=1713541839; c=relaxed/simple;
+	bh=4syrMVBjLG+mqSAuWdu45onjerLE6hugRcJZYIbTm9w=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=liRVJWxD4KiE3G6xPmEubw3wgfDAw4PlB9ZdvqvDx7jCKncfZ1iryHMn+zTdW+Zj9Jov/NEuqg/Ld7byIZoyRQHQM45CpMj7N0TtkH4q09YX9cqfFAvU/PQjRP29XS1KvUHLllNkVPn2HnDjltRwJbt0dbCXu6LUImfE/nnvJQU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nY8rVz34; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=eRQOzsrj/ljKZqDXeCjzoqjDfNZ7gDiQqNMj/V3zxy6Yy3GW8lNZ8Wpj+4Ze0h9to0OYve361+ZtgU+i+EptEWjNOZhPbTulto8OduVyHbVsfZKROE8yHI0m5CxDzD1YOGYxJOieOXc7RpR1PtGT81f/avI2+EjtzQDf6o8E0W0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OHj3fHUB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nY8rVz34"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43JE2fA8019125;
-	Fri, 19 Apr 2024 14:12:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=u9YtZMQy/yMuVHw+gYdBGdrRJW64WCI/XorTOSGTd+I=;
- b=nY8rVz34PbIwW0rxYPqhyi9iZxqdkvC3qXwrp0O5OGTw76KGY39naXkmKroOSrjJ9+Xd
- wjMDt9mT9IegW/sATAIp8Wqqo91pAWqQHPa5hdCUtBRQRDQgSautjCfM0bjXES+z2xxK
- At6ns7WYeOGztFaXDACNPU44QYe4fmJIazrQOVyJLSlbS/tWwLk0LmYrHH2hQhlPfuV5
- HNovFMTqtGHWA0voUOkQJg2+l2p35hBRSCzD03iOGEzMSsAfPH8Vnb2UTajVvR5/1oWo
- xGjpLb/WAbbxc24we1PTXYszBPqIRznu+LRVyNsCHVqY790weEjqwnmHm7C0dOm5AREm jg== 
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xkt1401a0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Apr 2024 14:12:53 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43JCRuK9020837;
-	Fri, 19 Apr 2024 14:12:52 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xkbm9m1ca-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Apr 2024 14:12:52 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43JECkpP25952790
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 19 Apr 2024 14:12:48 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7489120077;
-	Fri, 19 Apr 2024 14:12:46 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D2F9F2004E;
-	Fri, 19 Apr 2024 14:12:45 +0000 (GMT)
-Received: from osiris (unknown [9.171.8.18])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 19 Apr 2024 14:12:45 +0000 (GMT)
-Date: Fri, 19 Apr 2024 16:12:44 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Alexandra Winter <wintera@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>, gor@linux.ibm.com,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Netdev <netdev@vger.kernel.org>, llvm@lists.linux.dev,
-        patches@lists.linux.dev
-Subject: Re: [PATCH 1/3] s390/vmlogrdr: Remove function pointer cast
-Message-ID: <20240419141244.23824-B-hca@linux.ibm.com>
-References: <20240417-s390-drivers-fix-cast-function-type-v1-0-fd048c9903b0@kernel.org>
- <20240417-s390-drivers-fix-cast-function-type-v1-1-fd048c9903b0@kernel.org>
- <20240418095438.6056-A-hca@linux.ibm.com>
- <20240418102549.6056-B-hca@linux.ibm.com>
- <20240418145121.GA1435416@dev-arch.thelio-3990X>
- <20240418151501.6056-C-hca@linux.ibm.com>
- <798df2d7-b13f-482a-8d4a-106c6492af01@app.fastmail.com>
- <20240419121506.23824-A-hca@linux.ibm.com>
- <1509513f-0423-4834-9e77-b0c2392a4260@app.fastmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OHj3fHUB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B33F9C3277B;
+	Fri, 19 Apr 2024 15:50:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1713541839;
+	bh=4syrMVBjLG+mqSAuWdu45onjerLE6hugRcJZYIbTm9w=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=OHj3fHUBZ5oW6uWZr153zLjsZ6q0yv8DxwxD0Zy4isctsEWry5XXGSfR8Vc3hMrh/
+	 vizLT7qFrrEF533kmJCP3HWtZ7Qzr6mVAw251VXfA8O2WlqLyeSYgvuFfPALuIdv03
+	 8KfWQePVkfruiceot7yZycnjNdoMZw4MifC81l3AU9dBYam0QRDoIaUN7a6lFYb8MN
+	 K0Whze6qtl25bkJdh4oiv03gWibiSz5LhY9l5mv+w3PTDhkRKRk4JGDzV2xKnexhV7
+	 tGBMGlG1WEFnNmkggVGWaWOAgxzIa+Avjitv3Mny3kNElAG5XpvzSHnQsEDp7b51Tm
+	 Ziw7Ozh3aQ/+w==
+Date: Fri, 19 Apr 2024 18:49:17 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: Masami Hiramatsu <masami.hiramatsu@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Alexandre Ghiti <alexghiti@rivosinc.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Donald Dutile <ddutile@redhat.com>,
+	Eric Chanudet <echanude@redhat.com>,
+	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nadav Amit <nadav.amit@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Puranjay Mohan <puranjay12@gmail.com>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+	linux-mm@kvack.org, linux-modules@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v4 14/15] kprobes: remove dependency on CONFIG_MODULES
+Message-ID: <ZiKSffcTiP2c6fbs@kernel.org>
+References: <20240411160051.2093261-1-rppt@kernel.org>
+ <20240411160051.2093261-15-rppt@kernel.org>
+ <20240418061615.5fad23b954bf317c029acc4d@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -82,31 +72,41 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1509513f-0423-4834-9e77-b0c2392a4260@app.fastmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: oRqBSk2thqJzykLmaUtobGDXFnArPjuU
-X-Proofpoint-GUID: oRqBSk2thqJzykLmaUtobGDXFnArPjuU
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-19_09,2024-04-19_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
- lowpriorityscore=0 adultscore=0 mlxlogscore=352 spamscore=0 bulkscore=0
- malwarescore=0 mlxscore=0 impostorscore=0 priorityscore=1501 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
- definitions=main-2404190107
+In-Reply-To: <20240418061615.5fad23b954bf317c029acc4d@gmail.com>
 
-On Fri, Apr 19, 2024 at 02:19:14PM +0200, Arnd Bergmann wrote:
-> On Fri, Apr 19, 2024, at 14:15, Heiko Carstens wrote:
-> >
-> > Plus we need to fix the potential bug you introduced with commit
-> > 42af6bcbc351 ("tty: hvc-iucv: fix function pointer casts"). But at
-> > least this is also iucv_bus related.
-> >
-> > Alexandra, Thorsten, any objections if CONFIG_IUCV would be changed so
-> > it can only be compiled in or out, but not as a module anymore?
+Hi Masami,
+
+On Thu, Apr 18, 2024 at 06:16:15AM +0900, Masami Hiramatsu wrote:
+> Hi Mike,
 > 
-> You can also just drop the iucv_exit() function, making the
-> module non-removable when it has an init function but no exit.
+> On Thu, 11 Apr 2024 19:00:50 +0300
+> Mike Rapoport <rppt@kernel.org> wrote:
+> 
+> > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+> > 
+> > kprobes depended on CONFIG_MODULES because it has to allocate memory for
+> > code.
+> > 
+> > Since code allocations are now implemented with execmem, kprobes can be
+> > enabled in non-modular kernels.
+> > 
+> > Add #ifdef CONFIG_MODULE guards for the code dealing with kprobes inside
+> > modules, make CONFIG_KPROBES select CONFIG_EXECMEM and drop the
+> > dependency of CONFIG_KPROBES on CONFIG_MODULES.
+> 
+> Thanks for this work, but this conflicts with the latest fix in v6.9-rc4.
+> Also, can you use IS_ENABLED(CONFIG_MODULES) instead of #ifdefs in
+> function body? We have enough dummy functions for that, so it should
+> not make a problem.
 
-Right, that's better, and also what I did back then for the zfcp
-module for the same reason.
+The code in check_kprobe_address_safe() that gets the module and checks for
+__init functions does not compile with IS_ENABLED(CONFIG_MODULES). 
+I can pull it out to a helper or leave #ifdef in the function body,
+whichever you prefer.
+ 
+> -- 
+> Masami Hiramatsu
+
+-- 
+Sincerely yours,
+Mike.
