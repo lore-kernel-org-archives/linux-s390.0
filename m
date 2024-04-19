@@ -1,195 +1,126 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f47.google.com (mail-oo1-f47.google.com [209.85.161.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FB8312C534;
-	Fri, 19 Apr 2024 13:53:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2890B12CDBF
+	for <linux-s390@vger.kernel.org>; Fri, 19 Apr 2024 13:58:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713534818; cv=none; b=arVBADXYMbmFmngM/qd5sT9tCZS7TRCAHfPu8oxjGpvCFCtCbYeybpSk/od2adN9CQRVWHaUKAV9erGUmLs3hCFE8vK3zkkOMqkanPw9QdhOxBfnQ/aavCaVxas3qkQPWnVxQRs6Fw+62onICuBh2euWE64C0QUl2P1J1sPNzhQ=
+	t=1713535107; cv=none; b=TmPEJtfi+RKdL/gjzvMJyZa+c9xH+sCwGOwpCyY2c2zVZ08b7vbkWsonVjuZOaNlgYN2ClZuWE4RZJGJe3N24Q3oEqj61N+PdXF3pbXk4F6ukuXi2fYja1/2uZ4ZOrZoglN4oW2gjfcHJ9zKJddz2E5HoE48FMJiaA3uf5K0x9E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713534818; c=relaxed/simple;
-	bh=iDYeJLnLcgO40R6gEmIE6Jo/vKhEDL5cey5xmLIJnN8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=f1mzGyKTWq6TbjiZyb/ovB8QVeiVZJjJzLII0Ijz4kz6bZ2DvL2rODhedEHk/nczAS7p2rYxc/e+yb7+VwpEQVZ6/gPsvY2fqMKMQltob+6wTdqCUOh6NHj140UO9zz+82W/szca5SEX88MRHJYdUuu4oZsx5fuFYjjfbrS8gRM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EmKPcGhZ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1713535107; c=relaxed/simple;
+	bh=UNW3QZV4+gJLU3id30uoS/EvPlzfwIriWW0qthqWIDw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pNf7KAXmlqfSjmgbTrth1GkkciLFZ1HPfNo5nuVXkW0L6/o00yjA6136nUdciKxipE3IHn6yE1qf3hUImq+ySvrT8MDi47U+vFqATZ3MFuv9ffDQ8+3kKcJavhFCF3MtE10ASkvHp0NBjWfds0qwik+SbGBwSNPpDBTAzoxtbZ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=Rd+AGjnd; arc=none smtp.client-ip=209.85.161.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EmKPcGhZ"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43JDllSc017688;
-	Fri, 19 Apr 2024 13:53:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=5OD2gteKqsKmUUPyL9EwUUlgJQzDAzMpVdrUU7VCHn4=;
- b=EmKPcGhZGVjfg2+qfA3Udsfhuru9euAKy0JrIndmOaXZRZkQjX7J3u8xCEnUVy5CCXUH
- AAFGXqdY1jBVrmiZpEY2D1PBkmMq0vg+F4b2C5YliK/vPGhAJaoW5z6W0tUpur/UlJfZ
- MoxhAmbOLT6dhP6uWLavsxrhpo51aW9obzp5aFu/YuhuDIjr3tlE+61v+RO/sgBH8atn
- qQNUa6Z3bbMRykKMsoaga61mSstJr5d2b3PG5L151wFQBoZ0Wnao0wryxHAoBccmadfI
- 1pQN58Rkgd/z31AZG6KLLh5gd+5xZm5drxNFHcCnGMiUWT4RCKVSS+rwdn/3bPLcbubw uQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xkske01er-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Apr 2024 13:53:33 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43JDrW0f026661;
-	Fri, 19 Apr 2024 13:53:32 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xkske01en-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Apr 2024 13:53:32 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43JCOGvc010653;
-	Fri, 19 Apr 2024 13:53:32 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xkbmm3x2d-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Apr 2024 13:53:31 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43JDrQ8647382864
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 19 Apr 2024 13:53:28 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4C9832004B;
-	Fri, 19 Apr 2024 13:53:26 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ECA1A20043;
-	Fri, 19 Apr 2024 13:53:25 +0000 (GMT)
-Received: from dilbert5.boeblingen.de.ibm.com (unknown [9.155.208.153])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 19 Apr 2024 13:53:25 +0000 (GMT)
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Alex Williamson <alex.williamson@redhat.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Ankit Agrawal <ankita@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Ben Segal <bpsegal@us.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>
-Subject: [PATCH] vfio/pci: Support 8-byte PCI loads and stores
-Date: Fri, 19 Apr 2024 15:53:23 +0200
-Message-ID: <20240419135323.1282064-1-gbayer@linux.ibm.com>
-X-Mailer: git-send-email 2.44.0
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="Rd+AGjnd"
+Received: by mail-oo1-f47.google.com with SMTP id 006d021491bc7-5aa3af24775so1322716eaf.0
+        for <linux-s390@vger.kernel.org>; Fri, 19 Apr 2024 06:58:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1713535105; x=1714139905; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=NIwb+Ip4VmhAzCakCe7bX4ZZtS5svATpWYgr8CM6tXM=;
+        b=Rd+AGjnd3xrIUr5O7zNhi04vTQmYowFVxlp9HJJ1eUeBNLM/LGLUSDyDHV+fid2be5
+         /jcW068jKmsGciyts9aWwcjDN50j0NPmAFNGhV0RjF5a1MUDnX+dlAUk+VDl53RrqEMo
+         /AlY8Tm3TwLwKBbMTnudWhv1CeM7z36ZhC1uBznKfLBXTKwGJaTvjR/f99P/a8vRUHw4
+         +RSqJTMHwsJJuaxgC7PLsL4GkaOqCRkBPhZRvqD479tZss2pediRaPw4plkf6neDc5ig
+         DscOI0ATVN1rxzi+WUlHrmejwKb3w8z5hAHZW5mViiwX7ILrX7yD7I+X9xm2TcKttc9+
+         9EbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713535105; x=1714139905;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=NIwb+Ip4VmhAzCakCe7bX4ZZtS5svATpWYgr8CM6tXM=;
+        b=fO+/SLlHcxCJ+Rm13BLqdEk+1Qmvmo7pNKrGBtxZfQZlVabx/mQ6U2yr8bFH++H7L1
+         N/0hXu5IaLun8EKoOQss81iktbr6joaKi1YWZVelewfj5vh4s50+3aLWHl+0chBseLjz
+         8ebKxP+CWfHOLJXdbEqGXqPOoQVlfPm1vPHT1ccedcs1G408pnLDb8GP5jIS3eE8byJU
+         YbNSD05R2RQImm0r0NShFBg/4sO+1kRTgG4RP0bGpMmIgmtje0VVFx8Gqmdyqp9HlKS7
+         Yg4A/q5wfV1GsvCPH08ucUu/wYGkyFkJsO3USqlOrJPKnE76s+nKzVLNDBhMe2LgaGxS
+         bzxw==
+X-Forwarded-Encrypted: i=1; AJvYcCVAFu0NLONrUxAI1asAIhzf+fsuFuxfUwpRNetl+s02sQ63oBvu19AUfkCGncCghkcFuqCHksWAQNcVjGljplHw16NEnqpiZ4Gbxw==
+X-Gm-Message-State: AOJu0Yxdto5V1Aph1v/V9DFxBbfX03Y9Y4/zIjCqZMjdBYgnz9EEJpkS
+	Bd8HCPiJu8veik6UDcj8OooJsp+kCx6KwFB9aJ21qceAV9DrkULu8Vphs2Gztfs=
+X-Google-Smtp-Source: AGHT+IHOvq+gGQEh6mSTA+Vgr5DSOayWVdz/vb+zjSDQL4rbJiN/Dw6sDw9HEs4d8HUAav7a6oKDhA==
+X-Received: by 2002:a4a:384:0:b0:5ac:bdbe:9cc8 with SMTP id 126-20020a4a0384000000b005acbdbe9cc8mr2404932ooi.4.1713535105273;
+        Fri, 19 Apr 2024 06:58:25 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
+        by smtp.gmail.com with ESMTPSA id p6-20020a4aac06000000b005a4bcb155basm836308oon.23.2024.04.19.06.58.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Apr 2024 06:58:24 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1rxokx-00FTTb-RV;
+	Fri, 19 Apr 2024 10:58:23 -0300
+Date: Fri, 19 Apr 2024 10:58:23 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Gerd Bayer <gbayer@linux.ibm.com>
+Cc: Alex Williamson <alex.williamson@redhat.com>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Yishai Hadas <yishaih@nvidia.com>, kvm@vger.kernel.org,
+	linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Ben Segal <bpsegal@us.ibm.com>
+Subject: Re: [PATCH] vfio/pci: Support 8-byte PCI loads and stores
+Message-ID: <20240419135823.GE223006@ziepe.ca>
+References: <20240419135323.1282064-1-gbayer@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 11fIw2jmKjLm80pLk7Ud5m8_8ifjlVet
-X-Proofpoint-ORIG-GUID: hHIEC9zBqar6UtHTzqN-0FxwS8rQaZuc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-19_09,2024-04-19_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- phishscore=0 clxscore=1011 lowpriorityscore=0 adultscore=0 bulkscore=0
- mlxlogscore=665 mlxscore=0 impostorscore=0 priorityscore=1501 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
- definitions=main-2404190104
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240419135323.1282064-1-gbayer@linux.ibm.com>
 
-From: Ben Segal <bpsegal@us.ibm.com>
+On Fri, Apr 19, 2024 at 03:53:23PM +0200, Gerd Bayer wrote:
+> From: Ben Segal <bpsegal@us.ibm.com>
+> 
+> Many PCI adapters can benefit or even require full 64bit read
+> and write access to their registers. In order to enable work on
+> user-space drivers for these devices add two new variations
+> vfio_pci_core_io{read|write}64 of the existing access methods
+> when the architecture supports 64-bit ioreads and iowrites.
+> 
+> Signed-off-by: Ben Segal <bpsegal@us.ibm.com>
+> Co-developed-by: Gerd Bayer <gbayer@linux.ibm.com>
+> Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+> ---
+> 
+> Hi all,
+> 
+> we've successfully used this patch with a user-mode driver for a PCI
+> device that requires 64bit register read/writes on s390.
 
-Many PCI adapters can benefit or even require full 64bit read
-and write access to their registers. In order to enable work on
-user-space drivers for these devices add two new variations
-vfio_pci_core_io{read|write}64 of the existing access methods
-when the architecture supports 64-bit ioreads and iowrites.
+But why? S390 already has a system call for userspace to do the 64 bit
+write, and newer S390 has a userspace instruction to do it.
 
-Signed-off-by: Ben Segal <bpsegal@us.ibm.com>
-Co-developed-by: Gerd Bayer <gbayer@linux.ibm.com>
-Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
----
+Why would you want to use a VFIO system call on the mmio emulation
+path?
 
-Hi all,
+mmap the registers and access them normally?
 
-we've successfully used this patch with a user-mode driver for a PCI
-device that requires 64bit register read/writes on s390. A quick grep
-showed that there are several other drivers for PCI devices in the kernel
-that use readq/writeq and eventually could use this too.
-So we decided to propose this for general inclusion.
+>   * Read or write from an __iomem region (MMIO or I/O port) with an excluded
+> @@ -114,7 +117,41 @@ ssize_t vfio_pci_core_do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
+>  		else
+>  			fillable = 0;
+>  
+> -		if (fillable >= 4 && !(off % 4)) {
+> +		if (fillable >= 8 && !(off % 8)) {
+> +#if defined(ioread64) || defined(iowrite64)
+> +			u64 val;
+> +#endif
+> +
+> +			if (iswrite) {
+> +#ifndef iowrite64
+> +				pr_err_once("vfio does not support iowrite64 on this arch");
+> +				return -EIO;
 
-We've added conditional compiles for non-64bit architectures that
-produce graceful run-time errors. However, that path is just
-compile-tested.
+can't do that you have to go back to what the old stuff did and do the
+4 byte copy.
 
-Thank you,
-Gerd Bayer
-
- drivers/vfio/pci/vfio_pci_rdwr.c | 39 +++++++++++++++++++++++++++++++-
- include/linux/vfio_pci_core.h    |  3 +++
- 2 files changed, 41 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
-index 03b8f7ada1ac..3f91945ea3ff 100644
---- a/drivers/vfio/pci/vfio_pci_rdwr.c
-+++ b/drivers/vfio/pci/vfio_pci_rdwr.c
-@@ -89,6 +89,9 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_ioread##size);
- VFIO_IOREAD(8)
- VFIO_IOREAD(16)
- VFIO_IOREAD(32)
-+#ifdef ioread64
-+VFIO_IOREAD(64)
-+#endif
- 
- /*
-  * Read or write from an __iomem region (MMIO or I/O port) with an excluded
-@@ -114,7 +117,41 @@ ssize_t vfio_pci_core_do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
- 		else
- 			fillable = 0;
- 
--		if (fillable >= 4 && !(off % 4)) {
-+		if (fillable >= 8 && !(off % 8)) {
-+#if defined(ioread64) || defined(iowrite64)
-+			u64 val;
-+#endif
-+
-+			if (iswrite) {
-+#ifndef iowrite64
-+				pr_err_once("vfio does not support iowrite64 on this arch");
-+				return -EIO;
-+#else
-+				if (copy_from_user(&val, buf, 8))
-+					return -EFAULT;
-+
-+				ret = vfio_pci_core_iowrite64(vdev, test_mem,
-+							 val, io + off);
-+				if (ret)
-+					return ret;
-+#endif
-+			} else {
-+#ifndef ioread64
-+				pr_err_once("vfio does not support ioread64 on this arch");
-+				return -EIO;
-+#else
-+				ret = vfio_pci_core_ioread64(vdev, test_mem,
-+							&val, io + off);
-+				if (ret)
-+					return ret;
-+
-+				if (copy_to_user(buf, &val, 8))
-+					return -EFAULT;
-+#endif
-+			}
-+
-+			filled = 8;
-+		} else if (fillable >= 4 && !(off % 4)) {
- 			u32 val;
- 
- 			if (iswrite) {
-diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-index a2c8b8bba711..f4cf5fd2350c 100644
---- a/include/linux/vfio_pci_core.h
-+++ b/include/linux/vfio_pci_core.h
-@@ -157,5 +157,8 @@ int vfio_pci_core_ioread##size(struct vfio_pci_core_device *vdev,	\
- VFIO_IOREAD_DECLATION(8)
- VFIO_IOREAD_DECLATION(16)
- VFIO_IOREAD_DECLATION(32)
-+#ifdef ioread64
-+VFIO_IOREAD_DECLATION(64)
-+#endif
- 
- #endif /* VFIO_PCI_CORE_H */
--- 
-2.44.0
-
+Jason
