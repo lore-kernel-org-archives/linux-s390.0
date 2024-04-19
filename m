@@ -1,128 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D77DA63E;
-	Fri, 19 Apr 2024 06:56:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72A1C76056;
+	Fri, 19 Apr 2024 09:36:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713509798; cv=none; b=uSluC9zo28vHSoNgnpCTH08/ccnBLEO8gH6TK5xWBiFM5Mj2WodUMDcTCP+DgAZvoSe/JFTO7t0wTfWMQxTdeY+XuOSCRP+QGzcwAi1XwGisjgI+chvmpjnSOeV7+zLindn5TMjqfqYWoRFBugF/QePjG3f07+1kKDwNSJ20dLU=
+	t=1713519388; cv=none; b=XYnOu0FfkQV6r/RKM/J4mTxWordal97KLhGog7EYYf6VB+DFlTpL1wnhN7eF5e8tbaT4HtkYvTIwpSeYPjeWxXSPS0mQJ51JHadivELg34Le10psq8a+U8xyOcInCPlB0w21/c54/McFxsQsh9plvaqoo8ShOm6nQSEXBnDn8Fc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713509798; c=relaxed/simple;
-	bh=QyMnC6yNCYeGf0vrwo+bvOEGlhU1enTkpEMS1UdTz3o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nfeXrSOHRfzoP83QFoYBbmVcyWej2sBnyV6u8bkYQKL4THyJKWx3Lf+tKiXXLWm+KPl3tx31E9mwK1BP+kQCHb38y9WM8sYfUi+nPCaL24bUDc5/YYAghrAP3yqhqoIAzAMprsIP3bJUFivCquJ9mBFkvBGfLUPa1kXva/J6dFY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GGPxC8PC; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1713519388; c=relaxed/simple;
+	bh=pVoEBispAuhz1X3KRKt7GjhxZ39A1cips6MmJgeFskk=;
+	h=Date:From:To:Cc:Subject:Message-ID:Content-Type:
+	 Content-Disposition:MIME-Version; b=Wx/dOOMpUGsm/fMHdqgclvi6/Q3w9UDvL3P4zYFoCp0/Dt2opP2ZgQW1vTcueiox98afcwMTGrDnAP3jW+dkf89pJPoO0RFabXt8e0B2eEDXZMvyRyD50b7E6sHLO2srhiJmT+/Og2jVWDcDxnzOeB5m6TNdHU1S0dV2IDQ5JMk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sFtrDPpn; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GGPxC8PC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5881C072AA;
-	Fri, 19 Apr 2024 06:56:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713509797;
-	bh=QyMnC6yNCYeGf0vrwo+bvOEGlhU1enTkpEMS1UdTz3o=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=GGPxC8PCY8SnZrF0RCOMbIgSLrKy8hMUcTwQhGg04AArCCIqcrHmv5Ozj+/15Mxmb
-	 Z5tAH7Vdwb4CwNtAt3c/UrCpMIZJPngEV7ak2csa/7FlHToGNqqaiOtjXXYFiXJWt3
-	 6ObsP+646nnF8SnH5skC5WEdWELGtHSHzBDWXZqXYwBofamn2QdDvdgy5CTKGNpPOO
-	 1v84dtOt7AKF4KxvZWU3TOdBN2g9tkVxrJyakFg/qwL0NKQfGsXLfFOWV0O05jtLTZ
-	 wM29U64qOuZV772RLQ5j7ljjoO+qx0/azdfHFMH7xioH9AhimXQ/fqnfmBiI3Sy0+P
-	 8Za6g/P3pUaVg==
-Date: Fri, 19 Apr 2024 09:55:16 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Song Liu <song@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>,
-	Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org,
-	Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Bjorn Topel <bjorn@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Donald Dutile <ddutile@redhat.com>,
-	Eric Chanudet <echanude@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nadav Amit <nadav.amit@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Puranjay Mohan <puranjay12@gmail.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
-	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-mm@kvack.org, linux-modules@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v4 05/15] mm: introduce execmem_alloc() and execmem_free()
-Message-ID: <ZiIVVBgaDN4RsroT@kernel.org>
-References: <20240411160051.2093261-1-rppt@kernel.org>
- <20240411160051.2093261-6-rppt@kernel.org>
- <20240415075241.GF40213@noisy.programming.kicks-ass.net>
- <Zh1lnIdgFeM1o8S5@FVFF77S0Q05N.cambridge.arm.com>
- <Zh4nJp8rv1qRBs8m@kernel.org>
- <CAPhsuW6Pbg2k_Gu4dsBx+H8H5XCHvNdtEZJBPiG_eT0qqr9D1w@mail.gmail.com>
- <ZiE91CJcNw7gBj9g@kernel.org>
- <CAPhsuW4au6v8k8Ab7Ff6Yj64rGvZ7wkz=Xrgh8ZZtLyscpChqQ@mail.gmail.com>
- <ZiFd567L4Zzm2okO@kernel.org>
- <CAPhsuW5SL4_=ZXdHZV8o0KS+5Vf25UMvEKhRgFQLioFtf2pgoQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sFtrDPpn"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43J9U5dm002818;
+	Fri, 19 Apr 2024 09:36:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=cc+E30QdgRway+asTrkjxwCgKoF2SlLFeoyzKYQYxQk=;
+ b=sFtrDPpn+8wtJdtqwXFFdNa/yZ78+UTz4F/lwe7mpvDEdDrn6AR2bwmDwPJe4sDV0SC6
+ t+5x6vEjnTsAogVVq5ZnUkNjPrh5nrRUV76iQzsoMkqUvEZr4yHbviDAf5Td3BlnRVpQ
+ iJtk9V9MNiWT8rzJCrN+WFq0xA21GxWOWaXxbnqNFPnkw8ZS3jtuKsI2f8UA8XDP8nWM
+ /DDVjO4PA9lmchn6xgm3R2QZ4cE8VxcZIMNGaRW7YDwPuAymrDl+c45K0eSyB1aIRfF2
+ iVWo+D6lf0JVTFEDHuQ98x+Rxm/YeMXnLBdM3SJuiYoKQvTFx4oDr61+Qrh66rZLnEju 6A== 
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xkp0h00fw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 19 Apr 2024 09:36:23 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43J8joMk022762;
+	Fri, 19 Apr 2024 09:36:23 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xkbk92ty2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 19 Apr 2024 09:36:23 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43J9aHa351970446
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 19 Apr 2024 09:36:19 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7DDF32004D;
+	Fri, 19 Apr 2024 09:36:17 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 58E2520043;
+	Fri, 19 Apr 2024 09:36:17 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 19 Apr 2024 09:36:17 +0000 (GMT)
+Date: Fri, 19 Apr 2024 11:36:15 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] s390 fixes for 6.9-rc5
+Message-ID: <ZiI7D+RjyM57l+PE@tuxmaker.boeblingen.de.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: XVMtfh6PJ59zpa70HxKcQ2wbBTnnts6_
+X-Proofpoint-ORIG-GUID: XVMtfh6PJ59zpa70HxKcQ2wbBTnnts6_
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAPhsuW5SL4_=ZXdHZV8o0KS+5Vf25UMvEKhRgFQLioFtf2pgoQ@mail.gmail.com>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-19_06,2024-04-17_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1011
+ mlxscore=0 spamscore=0 bulkscore=0 mlxlogscore=387 suspectscore=0
+ phishscore=0 priorityscore=1501 lowpriorityscore=0 impostorscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404190070
 
-On Thu, Apr 18, 2024 at 02:01:22PM -0700, Song Liu wrote:
-> On Thu, Apr 18, 2024 at 10:54 AM Mike Rapoport <rppt@kernel.org> wrote:
-> >
-> > On Thu, Apr 18, 2024 at 09:13:27AM -0700, Song Liu wrote:
-> > > On Thu, Apr 18, 2024 at 8:37 AM Mike Rapoport <rppt@kernel.org> wrote:
-> > > > > >
-> > > > > > I'm looking at execmem_types more as definition of the consumers, maybe I
-> > > > > > should have named the enum execmem_consumer at the first place.
-> > > > >
-> > > > > I think looking at execmem_type from consumers' point of view adds
-> > > > > unnecessary complexity. IIUC, for most (if not all) archs, ftrace, kprobe,
-> > > > > and bpf (and maybe also module text) all have the same requirements.
-> > > > > Did I miss something?
-> > > >
-> > > > It's enough to have one architecture with different constrains for kprobes
-> > > > and bpf to warrant a type for each.
-> > >
-> > > AFAICT, some of these constraints can be changed without too much work.
-> >
-> > But why?
-> > I honestly don't understand what are you trying to optimize here. A few
-> > lines of initialization in execmem_info?
-> 
-> IIUC, having separate EXECMEM_BPF and EXECMEM_KPROBE makes it
-> harder for bpf and kprobe to share the same ROX page. In many use cases,
-> a 2MiB page (assuming x86_64) is enough for all BPF, kprobe, ftrace, and
-> module text. It is not efficient if we have to allocate separate pages for each
-> of these use cases. If this is not a problem, the current approach works.
+Hi Linus,
 
-The caching of large ROX pages does not need to be per type. 
+please pull s390 fixes for 6.9-rc5.
 
-In the POC I've posted for caching of large ROX pages on x86 [1], the cache is
-global and to make kprobes and bpf use it it's enough to set a flag in
-execmem_info.
+Thanks,
+Alexander
 
-[1] https://lore.kernel.org/all/20240411160526.2093408-1-rppt@kernel.org
+The following changes since commit 378ca2d2ad410a1cd5690d06b46c5e2297f4c8c0:
 
-> Thanks,
-> Song
+  s390/entry: align system call table on 8 bytes (2024-04-03 15:00:20 +0200)
 
--- 
-Sincerely yours,
-Mike.
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.9-4
+
+for you to fetch changes up to d111855ab7ffffc552f6a475259dc392f2319b6d:
+
+  s390/mm: Fix NULL pointer dereference (2024-04-17 17:26:34 +0200)
+
+----------------------------------------------------------------
+s390 updates for 6.9-rc5
+
+- Fix NULL pointer dereference in program check handler
+
+- Fake IRBs are important events relevant for problem analysis.
+  Add traces when queueing and delivering
+
+- Fix a race condition in ccw_device_set_online() that can cause the
+  online process to fail
+
+- Deferred condition code 1 response indicates that I/O was not started
+  and should be retried. The current QDIO implementation handles a cc1
+  response as an error, resulting in a failed QDIO setup. Fix that by
+  retrying the setup when a cc1 response is received
+
+----------------------------------------------------------------
+Peter Oberparleiter (3):
+      s390/qdio: handle deferred cc1
+      s390/cio: fix race condition during online processing
+      s390/cio: log fake IRB events
+
+Sven Schnelle (1):
+      s390/mm: Fix NULL pointer dereference
+
+ arch/s390/kernel/entry.S      |  3 ++-
+ drivers/s390/cio/device.c     | 13 ++++++++-----
+ drivers/s390/cio/device_fsm.c |  5 +++++
+ drivers/s390/cio/device_ops.c |  8 ++++++++
+ drivers/s390/cio/qdio_main.c  | 28 +++++++++++++++++++++++-----
+ 5 files changed, 46 insertions(+), 11 deletions(-)
