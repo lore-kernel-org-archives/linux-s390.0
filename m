@@ -1,118 +1,145 @@
-Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59415153819
-	for <linux-s390@vger.kernel.org>; Mon, 22 Apr 2024 17:43:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A85A41847;
+	Mon, 22 Apr 2024 18:32:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713807789; cv=none; b=bWYBPvMN4NOigVR/k6hvtbQ0YiynI8VCvb0vvT/lwzSZi1adKHTz8fEe3wel1ikm3IZH8Yoj3S03CmAhfAql6unlqo3IvzgDQlSvfXRTRs0+eMGoOkq6XHcKqnva866xwv3rJJ//C2jjnuvEmpMGp1KWTWb7SjQYp/apbuKOWyc=
+	t=1713810736; cv=none; b=QznZ5pBJl0AHmDy48WduUBUcGmD1B5IijLy07IEf5r/lnv88qxYRvA5oQaYlwdAlpqc1GVY1w1jWVl0QJqGwczxeeYfnZSSyAcfepfHnjKaKOF2nbfqgLPQaF761qomi9Pp7CLQeTv3/4Q6nT+jkRFMRRAHrU+7khNTTDfbwIaI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713807789; c=relaxed/simple;
-	bh=FPRYflSYPTzX630Jd0+hB1WOM3PbajZTXlGiVPiZLwM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=G7FvJCJllsVmFEeTcHkMG6hfBkZnYqUE80zlHcbyDRoP1TldQuyoGkkDPc4nBkIST20Ushfpk+NQbNFNfJU0CNhHTxdXaHp8ue7cWmjx7zY+H/ZpJJKGsq5cz2b0Iy3QvqptJgfrXZzlXijRK2yGGIFANOw8v1UGW/JQFh7Kzxk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=DUQwm9ry; arc=none smtp.client-ip=209.85.222.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1713810736; c=relaxed/simple;
+	bh=41bQmayZLa9F2TS6BjEFSDm7V8S6LLEq/o95h7wxG6E=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=l28eZyiFEZGZ1i/VsciXHLakue8jpER4MkOl+eJHmzT4EU9NaymBI9aKgNE9lZM/8yoE6WRNH4NyIldiPpWKYf1t9kvuTHhyts5SEsj2/ZLFCkaNrcxQpiqy6FhTHbHod+xQPd+97s1/vPOsXJ5KKbqXRqeBgtbDl/8gOtm5gBA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WFjAm3nG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="DUQwm9ry"
-Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-78f0593f45dso334556885a.2
-        for <linux-s390@vger.kernel.org>; Mon, 22 Apr 2024 10:43:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1713807786; x=1714412586; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=k/KOCqovdO5PsKSs9PxME/OsGBVBN8Xn1TisHFdx68w=;
-        b=DUQwm9ryLZY0bh3kXfAbzC7p/jLS0DsNSzp0F6Xrso2bUIDG0KSP//+N1wUGLLwnfx
-         x5Qe4eJV2BgMp/R7vpPijfIwOPPtfj1HTPk/jdKeAWj//gzi+dCOUviK/CqxPfQ3C5Lg
-         RYB6ViVzk8WuAba5UjVxgYzdG6YCEWDyD/tGp775u5jVOxuKOx/Dy7yVxqKmfa+2IDfq
-         OEtQ9VW0TXKEsb3ehsczY/VJ043vTpmetD2J8YrbdX/IHQKBteoueg3F80KCzkxvJr6J
-         03d2weegRHQPRaX0ZuP5D+hZrLXplxdixVqqUU7YtRvsyvZa+1PAYNJR/Tsej6o+vMUh
-         zOTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713807786; x=1714412586;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=k/KOCqovdO5PsKSs9PxME/OsGBVBN8Xn1TisHFdx68w=;
-        b=tI51lAyn2Cm88pXy2UOwyjCNL25XbdgXXgy5JME1Z3rjjTq2Fh+KtyY/tkzblA4QaW
-         wo85dymZn+KEdRUxTQRq+CasvPKj0znkKkePKXjRVZKyv9V+rjojJ9m772JmSlRT8xXI
-         h6PlBlHQIF5B5Dxj73XuQq00nJz/pwnPS+QFHLcNAjNwxQLOpc9wqLOkYC6QPhcoucVc
-         JkdlAXlPS2iaOH15EyUKkeIJifVBIzY/uV46OfP+7sCBR0WMOyQ7cHIZjpuAoWtMpSNq
-         gAt8v7drmRpaqiANVn7AZfaK7IdoLkvelzWSpFvKocZLtYja6IR7l+BzK4RkOGDfpbaH
-         3oPg==
-X-Forwarded-Encrypted: i=1; AJvYcCWLml4YYdyZ+Xv0fpvEyDojRXT1U8TnxUZNa5Z4/IxffsJ/ZsDgwd5JlF+sCta8cF66QvL/HYnHo8bWqDL3qlT5qz6vHvVz96Uh+Q==
-X-Gm-Message-State: AOJu0Yxf0awT3EWcRu/i2Y+3HkIHep78RHxMJgtr4VdKN1wT0E7QlU8S
-	yHr208nyN24vM5DQZqwgyM6wchgbKRv8lQOHHHmG7BhgeQTWUFd5FvY0CAzeHRw=
-X-Google-Smtp-Source: AGHT+IGHiFa58Cxg/cz+5GibMHdsBS0/TvPvketvKNLRvd4ffYu0hhtDDfBaJpWtYAmFnVmikIfyBA==
-X-Received: by 2002:a0c:f8c9:0:b0:6a0:5e9a:a9a4 with SMTP id h9-20020a0cf8c9000000b006a05e9aa9a4mr12406744qvo.7.1713807786099;
-        Mon, 22 Apr 2024 10:43:06 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
-        by smtp.gmail.com with ESMTPSA id x1-20020a0c8e81000000b0069b40c06b11sm4430054qvb.105.2024.04.22.10.43.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Apr 2024 10:43:05 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1ryxh3-000ykz-20;
-	Mon, 22 Apr 2024 14:43:05 -0300
-Date: Mon, 22 Apr 2024 14:43:05 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Gerd Bayer <gbayer@linux.ibm.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>,
-	Niklas Schnelle <schnelle@linux.ibm.com>, kvm@vger.kernel.org,
-	linux-s390@vger.kernel.org, Ankit Agrawal <ankita@nvidia.com>,
-	Yishai Hadas <yishaih@nvidia.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Julian Ruess <julianr@linux.ibm.com>,
-	Ben Segal <bpsegal@us.ibm.com>
-Subject: Re: [PATCH v2] vfio/pci: Support 8-byte PCI loads and stores
-Message-ID: <20240422174305.GB231144@ziepe.ca>
-References: <20240422153508.2355844-1-gbayer@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WFjAm3nG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AA94C4AF0B;
+	Mon, 22 Apr 2024 18:32:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1713810736;
+	bh=41bQmayZLa9F2TS6BjEFSDm7V8S6LLEq/o95h7wxG6E=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=WFjAm3nG7XUTrBnb9o2ks89OQgjxiSe5eWX8YxXd1sW0hbIxt8VjaFgdNY7jwwl/k
+	 AfWjBBQkR55Va8AnJ9aZ9HNo3aWGj92Hg8yQfe6AZc/sgCyr09/ddJev56eXLxhUbk
+	 bYRNUKDXSWSv0PHnlWydUHx0kp/IGq0ZRSR0xO71ow/Lfv7EI3MTbMaLFw4v7bXSFJ
+	 3STUYz/yJHlp6VqKWBeoWQO13+U5j6+pSZw+u4eCUWHpkY832oOPrwYV84rmuYW4C/
+	 bOCj02N41ZbDl+Gdwcz6EkWfYsWwZ5MhWh4lcO8wHP44/mjOjwNi1xfPxSrEJkKHPw
+	 nRWV7XhBkaFPQ==
+Received: by mail-lj1-f171.google.com with SMTP id 38308e7fff4ca-2da08b06e0dso56752861fa.2;
+        Mon, 22 Apr 2024 11:32:16 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCVAiL4f0XpoTnbX2tsCYaeKCYRiAi5LlPsAXRg2XqaLnBfw0mAuWdG/n2s/rm1fN67yq2GFli/x7nix6Ci20zGBFF2tfTCPkpcU/cIUBXZfkl7bWOQ674srKDnADgriyGJjKil0QaqrFI6dYTBROAkgPQKjtNQoJOgjlaRxPYZtdGQ1xcGmfmo0LD51lKKVhfV+73d6mxcL3emy2Up/snWYvkBkSLoI6l8HPx139+GJVqJqGWEqCwbslJXVJ+i8E6ipAnU54pLeSVwJhoM1dTOLgvLRzXWjcDvU2C4oMB/Tgx3uj0qCNRGpKIrpvjSk81tsEbxLki9rk8infjoGwWTgUgZ/U+KECMhad5na35inrctV6TP7qU+I+9l7U++LRZ9ZsqeiFMXTp8B2pjo9iEXyJe6o+/8L3LQDsvbol2gD9M6TJmM+Tb/uvUQ=
+X-Gm-Message-State: AOJu0YzIVj4kudDkOfIdSzPU7qWk5hi4ACyrTbrFxV2xQk0sd40r9cdc
+	G+YEaqz2iHHiLezycD0rMYEcmoO8FS2eYfkJpBR1rkwmo709PQ8NsIDTsIZrqnsyZnn0247incU
+	B6rCbtRT3RUAl8E2ws3o7ouKDoIs=
+X-Google-Smtp-Source: AGHT+IEL0FWUHmCKYIOk93aax6U4BdFHP3q3Bogcq6+CoScwmomqpj0/rB2eiX3SYQzXlZuuQSNAuqDXXtIwEOxd65Y=
+X-Received: by 2002:a2e:9496:0:b0:2d8:1d29:23a8 with SMTP id
+ c22-20020a2e9496000000b002d81d2923a8mr6582027ljh.29.1713810734431; Mon, 22
+ Apr 2024 11:32:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240422153508.2355844-1-gbayer@linux.ibm.com>
+References: <ZiE91CJcNw7gBj9g@kernel.org> <CAPhsuW4au6v8k8Ab7Ff6Yj64rGvZ7wkz=Xrgh8ZZtLyscpChqQ@mail.gmail.com>
+ <ZiFd567L4Zzm2okO@kernel.org> <CAPhsuW5SL4_=ZXdHZV8o0KS+5Vf25UMvEKhRgFQLioFtf2pgoQ@mail.gmail.com>
+ <ZiIVVBgaDN4RsroT@kernel.org> <CAPhsuW7WoU+a46FhqqH8f-3=ehxeD4wSgKDWegMin1pT49OSWw@mail.gmail.com>
+ <ZiKjmaDgz_56ovbv@kernel.org> <CAPhsuW7Nj1Sa_9xQtTgHz9AmX39zdh2x2COqA-qmkfpfX9hNWw@mail.gmail.com>
+ <ZiLNGgVSQ7_cg58y@kernel.org> <CAPhsuW4KRM4O4RFbYQrt=Coqyh9w29WiF2YF=8soDfauLFsKBA@mail.gmail.com>
+ <ZiNDGjkcqEPqruza@kernel.org> <20240420181121.d6c7be11a6f98dc2462f8b41@kernel.org>
+In-Reply-To: <20240420181121.d6c7be11a6f98dc2462f8b41@kernel.org>
+From: Song Liu <song@kernel.org>
+Date: Mon, 22 Apr 2024 11:32:02 -0700
+X-Gmail-Original-Message-ID: <CAPhsuW5RYfq8FOtMkO69cdQ3Bc1p2kQPWE2crts1UMhqJr+7sQ@mail.gmail.com>
+Message-ID: <CAPhsuW5RYfq8FOtMkO69cdQ3Bc1p2kQPWE2crts1UMhqJr+7sQ@mail.gmail.com>
+Subject: Re: [PATCH v4 05/15] mm: introduce execmem_alloc() and execmem_free()
+To: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Mike Rapoport <rppt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+	Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, 
+	Alexandre Ghiti <alexghiti@rivosinc.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	Bjorn Topel <bjorn@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, "David S. Miller" <davem@davemloft.net>, 
+	Dinh Nguyen <dinguyen@kernel.org>, Donald Dutile <ddutile@redhat.com>, 
+	Eric Chanudet <echanude@redhat.com>, Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, 
+	Huacai Chen <chenhuacai@kernel.org>, Kent Overstreet <kent.overstreet@linux.dev>, 
+	Luis Chamberlain <mcgrof@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nadav Amit <nadav.amit@gmail.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Puranjay Mohan <puranjay12@gmail.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
+	Russell King <linux@armlinux.org.uk>, Steven Rostedt <rostedt@goodmis.org>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner <tglx@linutronix.de>, 
+	Will Deacon <will@kernel.org>, bpf@vger.kernel.org, linux-arch@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, 
+	linux-mm@kvack.org, linux-modules@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
+	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 22, 2024 at 05:35:08PM +0200, Gerd Bayer wrote:
-> From: Ben Segal <bpsegal@us.ibm.com>
-> 
-> Many PCI adapters can benefit or even require full 64bit read
-> and write access to their registers. In order to enable work on
-> user-space drivers for these devices add two new variations
-> vfio_pci_core_io{read|write}64 of the existing access methods
-> when the architecture supports 64-bit ioreads and iowrites.
-> 
-> Since these access methods are instantiated on 64bit architectures,
-> only, their use in vfio_pci_core_do_io_rw() is restricted by conditional
-> compiles to these architectures.
-> 
-> Signed-off-by: Ben Segal <bpsegal@us.ibm.com>
-> Co-developed-by: Gerd Bayer <gbayer@linux.ibm.com>
-> Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
-> ---
-> Hi all,
-> 
-> we've successfully used this patch with a user-mode driver for a PCI
-> device that requires 64bit register read/writes on s390. A quick grep
-> showed that there are several other drivers for PCI devices in the kernel
-> that use readq/writeq and eventually could use this, too.
-> So we decided to propose this for general inclusion.
-> 
-> Thank you,
-> Gerd Bayer
-> 
-> Changes v1 -> v2:
-> - On non 64bit architecture use at most 32bit accesses in
->   vfio_pci_core_do_io_rw and describe that in the commit message.
-> - Drop the run-time error on 32bit architectures.
-> - The #endif splitting the "else if" is not really fortunate, but I'm
->   open to suggestions.
+Hi Masami and Mike,
 
-Provide a iowrite64() that does back to back writes for 32 bit?
+On Sat, Apr 20, 2024 at 2:11=E2=80=AFAM Masami Hiramatsu <mhiramat@kernel.o=
+rg> wrote:
+[...]
+> > >
+> > > IIUC, we need to update __execmem_cache_alloc() to take a range point=
+er as
+> > > input. module text will use "range" for EXECMEM_MODULE_TEXT, while kp=
+robe
+> > > will use "range" for EXECMEM_KPROBE. Without "map to" concept or shar=
+ing
+> > > the "range" object, we will have to compare different range parameter=
+s to check
+> > > we can share cached pages between module text and kprobe, which is no=
+t
+> > > efficient. Did I miss something?
+>
+> Song, thanks for trying to eplain. I think I need to explain why I used
+> module_alloc() originally.
+>
+> This depends on how kprobe features are implemented on the architecture, =
+and
+> how much features are supported on kprobes.
+>
+> Because kprobe jump optimization and kprobe jump-back optimization need t=
+o
+> use a jump instruction to jump into the trampoline and jump back from the
+> trampoline directly, if the architecuture jmp instruction supports +-2GB =
+range
+> like x86, it needs to allocate the trampoline buffer inside such address =
+space.
+> This requirement is similar to the modules (because module function needs=
+ to
+> call other functions in the kernel etc.), at least kprobes on x86 used
+> module_alloc().
+>
+> However, if an architecture only supports breakpoint/trap based kprobe,
+> it does not need to consider whether the execmem is allocated.
+>
+> >
+> > We can always share large ROX pages as long as they are within the corr=
+ect
+> > address space. The permissions for them are ROX and the alignment
+> > differences are due to KASAN and this is handled during allocation of t=
+he
+> > large page to refill the cache. __execmem_cache_alloc() only needs to l=
+imit
+> > the search for the address space of the range.
+>
+> So I don't think EXECMEM_KPROBE always same as EXECMEM_MODULE_TEXT, it
+> should be configured for each arch. Especially, if it is only used for
+> searching parameter, it looks OK to me.
 
-Jason
+Thanks for the explanation!
+
+I was thinking "we can have EXECMEM_KPROBE share the same parameters as
+EXECMEM_MODULE_TEXT for all architectures". But this thought is built on to=
+p
+of assumptions on future changes/improvements within multiple sub systems.
+At this moment, I have no objections moving forward with current execmem AP=
+Is.
+
+Thanks,
+Song
