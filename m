@@ -1,167 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 676CC14273;
-	Sat, 20 Apr 2024 10:53:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CD324F20C;
+	Mon, 22 Apr 2024 07:43:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713610428; cv=none; b=dhiY3/x0/9/8c2XF3wZ3TuyZQtQSeoHqlsIJIg/Hgw9p3R4PBClSUWy2l0eIP2ae8MC5Y5E2CmmKKfdMzSSd0l7HaFbQMyvUaF2IxqBx1YPh/9YevN9N/+D6BvVZ9d9/aHcKceuFFeBOa1zEn/loWPRDysDt549816haSrqwOKI=
+	t=1713771835; cv=none; b=paGjAtOy/hR+8o9+uIfCrNfZSLAzeUjwcisqU/0qexPsR8r5tNKvBicdZGS61bzyu/CH1XvNR2EfK4fZeYWnLopRxUj9IlwEuh6EHdvjQWj0Sxp+TGHYByLzO1YMM9/M/aDyLErCSuMC61qmiYWZygYNXGBjACu/wvMUJEnBYOo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713610428; c=relaxed/simple;
-	bh=SM7VfRahGBLcoMQTiuF9XwON0oAIQm3UPvX2eiqyDXo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=B379p1/kc4juQFlkHH+3LJhZad49RSBm76RIHBkLVYifKzVKHEa96448eyXSnKi4w/TAZFTFpNipR/I9vPkm5C2+2oR/halV7ENDHl6/5mlL/V/TweTfv1cOIZGDJczKd52N/dDx8B+KIueL4VTLH5Jp94MLgvJcranozjJ/qiM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X3eyeiLy; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1713771835; c=relaxed/simple;
+	bh=5WRrp2XlCBbaYWPMG2K05cHdvPj+ojQddV0PAVsqUck=;
+	h=Content-Type:MIME-Version:In-Reply-To:References:From:Cc:Subject:
+	 To:Message-ID:Date; b=pXj2a4RUhhRHqkTKbBs7WIQJGM08oqDAyzgTW5cL91D8C0cIVSh/aBqiwLtS1oUiNHjNiQk31RHPaJl0DM92d2VhJdXnJ9Yqt6lAqMKS1MOOiYjm1tUPW+6Y5lV0UcKa03m/CI3a3TTJldFFwf1uSQUNYpimLMBncUNOHRc4hRs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mo12oYDq; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X3eyeiLy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F744C072AA;
-	Sat, 20 Apr 2024 10:53:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713610427;
-	bh=SM7VfRahGBLcoMQTiuF9XwON0oAIQm3UPvX2eiqyDXo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=X3eyeiLylPAUkLSbyyrlGHXzvYV/bgYpLPhV7vw8xijwr2D1MExbuRdRactesAT8X
-	 zdt7h71F5DqBQu/eRbhv/5Y0Rre5yGM+3/QnKDXleUxYNRTZmWf1Vo3WU+1+o9lafL
-	 JRP9zqL5lB14IFxVzQv/2Y2x11fPGHO1UTIDooMmj7MCyEzwQSZ7FSoL/8Q352iA+B
-	 xJtavt8SFXQQ13eBr6UXoSA7CP3oDA+2zBywG990wKdhsiRvE/zNe3PUQwDEQ+0Y6e
-	 BUuBnLZ3CWf9tTcjXso+bnm9SeKBHDu3KkkjgF+H+J+dCs6K3ICndd93HsxM2BWoMW
-	 e8kLY5pax56uw==
-Date: Sat, 20 Apr 2024 13:52:27 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Donald Dutile <ddutile@redhat.com>,
-	Eric Chanudet <echanude@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nadav Amit <nadav.amit@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Puranjay Mohan <puranjay12@gmail.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
-	"bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-	"linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-	"linux-mm@kvack.org" <linux-mm@kvack.org>,
-	"linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>,
-	"linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-	"linux-trace-kernel@vger.kernel.org" <linux-trace-kernel@vger.kernel.org>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-	"x86@kernel.org" <x86@kernel.org>
-Subject: Re: [PATCH v4 14/15] kprobes: remove dependency on CONFIG_MODULES
-Message-ID: <ZiOea81saMutayxt@kernel.org>
-References: <20240411160051.2093261-1-rppt@kernel.org>
- <20240411160051.2093261-15-rppt@kernel.org>
- <20240418061615.5fad23b954bf317c029acc4d@gmail.com>
- <ZiKSffcTiP2c6fbs@kernel.org>
- <321def3e-8bf1-4920-92dd-037b20f1272d@csgroup.eu>
- <ZiNv0jY7Ebw75iQl@kernel.org>
- <20240420181500.07b39c77f1ca086e8a5161b4@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mo12oYDq"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43M6Y6xI006118;
+	Mon, 22 Apr 2024 07:43:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : from
+ : cc : subject : to : message-id : date; s=pp1;
+ bh=aScYhJOHOcLVhAWwC78J6jMDinp6nCGDxDPg3cyBaHY=;
+ b=mo12oYDqlF5GBwP+RQclj7YSn+EbVP0QQcgXasYRa3izQO4ZQQEWxcyPhQtB84DK7FsI
+ WlVAPTcjWTlWIBIlgq0UXjcWyCX9P2rnG7R+JGGqSr2XjaBcrCRZiBHbAb/ZtE0LGhSk
+ zA2AAd1wgSWUxZbgrYm3FSBGB0XrhC7gRuU3VvqsupWjIOpNPtQYbu80dDLgKTiNkKsp
+ +GvUiEEaFI1b0aAS1y7uLTGA0uAo3tjvD8mEr9k/YavVsNNVDdEqxT873rAh0y56HITm
+ 5G0eiQH/yDlQjSzWQUaUJ4TfgGl73VJ9VxV3xSHtEIJkv0mPe8ZYA2KjeMWbwM+XL+y1 /w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xnjq804pt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 22 Apr 2024 07:43:52 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43M7hpXW024022;
+	Mon, 22 Apr 2024 07:43:51 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xnjq804pn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 22 Apr 2024 07:43:51 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43M6a6ud023012;
+	Mon, 22 Apr 2024 07:43:50 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xms1npdew-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 22 Apr 2024 07:43:50 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43M7hi7R18088380
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 22 Apr 2024 07:43:47 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DBC1E2004D;
+	Mon, 22 Apr 2024 07:43:44 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BBED220049;
+	Mon, 22 Apr 2024 07:43:44 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.40.163])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 22 Apr 2024 07:43:44 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240420181500.07b39c77f1ca086e8a5161b4@kernel.org>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20240201142356.534783-3-frankja@linux.ibm.com>
+References: <20240201142356.534783-1-frankja@linux.ibm.com> <20240201142356.534783-3-frankja@linux.ibm.com>
+From: Nico Boehr <nrb@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, thuth@redhat.com,
+        david@redhat.com, nsg@linux.ibm.com
+Subject: Re: [kvm-unit-tests RFC 2/2] lib: s390x: css: Name inline assembly arguments and clean them up
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Message-ID: <171377182433.14316.15188579220205837716@t14-nrb>
+User-Agent: alot/0.8.1
+Date: Mon, 22 Apr 2024 09:43:44 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Zuf2ESIbACEZbowOvwK844F4A_dNpinX
+X-Proofpoint-ORIG-GUID: ZML52YoSLp85LC0Sl7VzlhAdaZqGa1w1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-22_04,2024-04-19_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 malwarescore=0 mlxscore=0 adultscore=0 bulkscore=0
+ clxscore=1011 priorityscore=1501 suspectscore=0 spamscore=0
+ mlxlogscore=887 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2404010000 definitions=main-2404220035
 
-On Sat, Apr 20, 2024 at 06:15:00PM +0900, Masami Hiramatsu wrote:
-> On Sat, 20 Apr 2024 10:33:38 +0300
-> Mike Rapoport <rppt@kernel.org> wrote:
-> 
-> > On Fri, Apr 19, 2024 at 03:59:40PM +0000, Christophe Leroy wrote:
-> > > 
-> > > 
-> > > Le 19/04/2024 à 17:49, Mike Rapoport a écrit :
-> > > > Hi Masami,
-> > > > 
-> > > > On Thu, Apr 18, 2024 at 06:16:15AM +0900, Masami Hiramatsu wrote:
-> > > >> Hi Mike,
-> > > >>
-> > > >> On Thu, 11 Apr 2024 19:00:50 +0300
-> > > >> Mike Rapoport <rppt@kernel.org> wrote:
-> > > >>
-> > > >>> From: "Mike Rapoport (IBM)" <rppt@kernel.org>
-> > > >>>
-> > > >>> kprobes depended on CONFIG_MODULES because it has to allocate memory for
-> > > >>> code.
-> > > >>>
-> > > >>> Since code allocations are now implemented with execmem, kprobes can be
-> > > >>> enabled in non-modular kernels.
-> > > >>>
-> > > >>> Add #ifdef CONFIG_MODULE guards for the code dealing with kprobes inside
-> > > >>> modules, make CONFIG_KPROBES select CONFIG_EXECMEM and drop the
-> > > >>> dependency of CONFIG_KPROBES on CONFIG_MODULES.
-> > > >>
-> > > >> Thanks for this work, but this conflicts with the latest fix in v6.9-rc4.
-> > > >> Also, can you use IS_ENABLED(CONFIG_MODULES) instead of #ifdefs in
-> > > >> function body? We have enough dummy functions for that, so it should
-> > > >> not make a problem.
-> > > > 
-> > > > The code in check_kprobe_address_safe() that gets the module and checks for
-> > > > __init functions does not compile with IS_ENABLED(CONFIG_MODULES).
-> > > > I can pull it out to a helper or leave #ifdef in the function body,
-> > > > whichever you prefer.
-> > > 
-> > > As far as I can see, the only problem is MODULE_STATE_COMING.
-> > > Can we move 'enum module_state' out of #ifdef CONFIG_MODULES in module.h  ?
-> > 
-> > There's dereference of 'struct module' there:
-> >  
-> > 		(*probed_mod)->state != MODULE_STATE_COMING) {
-> > 			...
-> > 		}
-> > 
-> > so moving out 'enum module_state' won't be enough.
-> 
-> Hmm, this part should be inline functions like;
-> 
-> #ifdef CONFIG_MODULES
-> static inline bool module_is_coming(struct module *mod)
-> {
-> 	return mod->state == MODULE_STATE_COMING;
-> }
-> #else
-> #define module_is_coming(mod) (false)
+Quoting Janosch Frank (2024-02-01 15:23:56)
+[...]
+> diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+> index 504b3f14..e4311124 100644
+> --- a/lib/s390x/css.h
+> +++ b/lib/s390x/css.h
+[...]
+> @@ -167,11 +167,11 @@ static inline int msch(unsigned long schid, struct =
+schib *addr)
+>         int cc;
+> =20
+>         asm volatile(
+> -               "       msch    0(%3)\n"
+> -               "       ipm     %0\n"
+> -               "       srl     %0,28"
+> -               : "=3Dd" (cc)
+> -               : "d" (reg1), "m" (*addr), "a" (addr)
+> +               "       msch    0(%[addr])\n"
+> +               "       ipm     %[cc]\n"
+> +               "       srl     %[cc],28"
+> +               : [cc] "=3Dd" (cc)
+> +               : "d" (reg1), [addr] "a" (addr)
 
-I'd prefer
+I think there was a reason why the "m"(*addr) was here. Either add it back
+or add a memory clobber.
 
-static inline module_is_coming(struct module *mod)
-{
-	return false;
-}
-
-> #endif
->
-> Then we don't need the enum.
-> Thank you,
-> 
-> -- 
-> Masami Hiramatsu (Google) <mhiramat@kernel.org>
-
--- 
-Sincerely yours,
-Mike.
+I will only take the first patch of this series for now.
