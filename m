@@ -1,191 +1,136 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FEAE1514E2;
-	Mon, 22 Apr 2024 15:35:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36934153BF7;
+	Mon, 22 Apr 2024 16:42:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713800123; cv=none; b=evQ1cU1s7hP9bF7HdigN3DS35akc/EmMLQFJ058b9du9eg0TPxEk87v423XfmwJCx1GFGiO3e3tji8ivSGvOPOWCPBKMa3ndl3X07BQUv82njKkNgTWnKfuI2/pquE9fGYBEuLFqxJ/xebmNYAMmce97SrTJXTk1qgcXvELWoXA=
+	t=1713804133; cv=none; b=j9nVy3iTdobqmNFp+zVB7SZPDfqmSuAKFGuQnJkn0+mD+s5HRF4ceku+KK19mUcwpq9CRL9C6Aj0cpuwlTHjrjhNYcTEjGBXhmFYWOz2q+8etT15GezaaqMpuNsgVZoYCUTvug0w/AcGD5QcWZI5YK1dqQ73e9wFRsoTB61SfFc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713800123; c=relaxed/simple;
-	bh=OT9j+oGsCjZdFZ8us98Sja1932X6F0WY0NHiAMKCxtY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Hh5/08qV27Ykoj92USpgEmVuawG9Km6ems27x8z25+h1pB+xlZ4/dDhn6EKRyBdjWLOXh8n4k6lsgkduMuSus/QWdJ7EgbIESaOZOTok+tz+lJxfouoBH9RF/jY9gGgJVfLs9mXF8lRapvBOjDyq5quFUqw7HmjfbS67buShQw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=O2MQwnsz; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1713804133; c=relaxed/simple;
+	bh=4k4l2I6DGmn+gj2ky1zg3DSJ96wBO9Y/fF4JVtQyMUw=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=W/49fHBM3N9nmdWZNc6IpQI+PCnKZa3FW9NFRV/dqDmrKpVJSIos1HWjfnl1ZvUJvAjGwNJiusqOp3nGgZWGyMZAxQ40Y1jAcCQdIeOAgcRJ2E8oET33FLmuZwiAlpPdAa1M1oXATU7hGu/O1E4WPArbgjb5VX4YDjy56s/7FZk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=b/KvQ4Ex; arc=none smtp.client-ip=209.85.214.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="O2MQwnsz"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43MFY0TV015070;
-	Mon, 22 Apr 2024 15:35:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=IpgcEh6xvVmvzxloEihIB40oDZ7R1Q2/tT+C3qP/rMA=;
- b=O2MQwnszRfDp/Ub0W3YDm+0jdTHSca7cVyNCbd+dQXE8HU2rBRmS0+JBZ3vrzRxrF5eu
- QfE5RuLa/cv8nAMu7gilFaCO1hyj2EqRG0V5x+nnmQwGOyqtigvyBeMAAuEQz07n8WbV
- Qmsxr3fOqcy9CLlZYgkQJH5YD4rld+UUYN8JJ/09JzG+uDJ+rL1JF7FNZDarjsUpoB0C
- ecPxNxpolBB7yCS58ddKznXR8IDBTBgN9Fj7Lc2gJ5+yxK4yfY69WY0VXzXNXne7lDYH
- 9Bc1/K3W3+VKXtgzt8PS+frHoYI+KxjjXKjyrNXG3Vdhd6mgj+qVfQTISJ5TCKP1H1Br AQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xnt0503h5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Apr 2024 15:35:17 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43MFZGLl019122;
-	Mon, 22 Apr 2024 15:35:16 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xnt0503h2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Apr 2024 15:35:16 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43MCIRG1029862;
-	Mon, 22 Apr 2024 15:35:15 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xmr1t8p10-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Apr 2024 15:35:15 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43MFZAUH49348948
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 22 Apr 2024 15:35:12 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6EA2920067;
-	Mon, 22 Apr 2024 15:35:10 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EE4702005A;
-	Mon, 22 Apr 2024 15:35:09 +0000 (GMT)
-Received: from dilbert5.fritz.box (unknown [9.171.18.8])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 22 Apr 2024 15:35:09 +0000 (GMT)
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Alex Williamson <alex.williamson@redhat.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Ankit Agrawal <ankita@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>, Ben Segal <bpsegal@us.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>
-Subject: [PATCH v2] vfio/pci: Support 8-byte PCI loads and stores
-Date: Mon, 22 Apr 2024 17:35:08 +0200
-Message-ID: <20240422153508.2355844-1-gbayer@linux.ibm.com>
-X-Mailer: git-send-email 2.44.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b/KvQ4Ex"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-1e5b6e8f662so35962175ad.0;
+        Mon, 22 Apr 2024 09:42:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1713804131; x=1714408931; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=kJ/s9bshwX2Z/U5SUCiWUY86dhIqbJUGtlQVX2ISVdU=;
+        b=b/KvQ4ExVqmKddxjtkltFTZA8xjaGylYDvtpyAAFC0HFjf+zGYSOOFc/ZAe4sa1IZw
+         bHnlwvVp0WErMqfs+c1MeIBqcvu8xPl1O4kkjapKVEwuQ0973EFKQ7UYklh5C/mWWNBt
+         ADIDxtF2JHmOtDOct5pvXbULwX3zlWbS/BOKU+8t1AnyD4kjrpFo2MBGJbXRJXoEUKPn
+         3A40ERdsmjIzadR0eD+LotnW/cJe7jCi+x2CnFkHxjA8ANsN8m9KNFtj1X6CdlymIkAa
+         g1uxDlZlO30XnOWm4Qi8o77ruXGEDUcuHeG01FNTft6JGryX3/CTNAXQZA9nYLQy02f4
+         /rLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713804131; x=1714408931;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=kJ/s9bshwX2Z/U5SUCiWUY86dhIqbJUGtlQVX2ISVdU=;
+        b=Jjhx5n9zDJO/pzvhwTbNWv313ErPfuaQ7AqfOkj4qjwKs+toTSu1htvfARpipuKPIt
+         xYTOreRF2dI/hnA7UrpxHwZHXTwXZYtn6Kbp4723IzCHD41rb4Gq/eBKTQft/B9mdE9d
+         IciwO9ad/2mbs1kqLaSyFE9Ai/xs9YlUfO3oGzAh2m69XdRR6d02sn7xNc0pSsdMDs8V
+         kX/Hv5o1AaZAj0BO7Y08JkbyySXm50Igq7Oqj0YHAMAGaTw21YHOFATISbVoL9oi00Sj
+         lnmD+xVPBAR2t8dTuL8tbntmEkbc86J7HJy/tyKFUn4s4OisXWGGiQymjuJM1VYghDqj
+         A7dg==
+X-Forwarded-Encrypted: i=1; AJvYcCUPqxGYGtFRAyc8CCsYku3dM9LQ/VebXybl/GoVvDeVsJjekBJh49+xYoLlvPRHMVcy/9CaRVE4OGM5XDINFfpyK7ejc87/JNtiCEqiQlbOM5yxxEbjy9iy9EXSbrcMOc3PSoMGu940oqVNlbKugz+Q40hhBzv9nULvBiUXRbINlkTn2odvPwBejkE0NzcQ9oYx+HoI9M9c3jE1eT0=
+X-Gm-Message-State: AOJu0YwKnX+HVTzxsIdt8T0L60ncD2EmKLD9lxtnKuppEKH447deGt3I
+	FmeLJl0lwViOOEqyewCKdmcqDl41JH8crO7d1rWeaIC8KeezohE1
+X-Google-Smtp-Source: AGHT+IED/ttmM4v5ReF4QaWXjGqNL66DutVSsH/8jOtbJsWcX9E8Nfp6e2ZYUo/WyQMOpfHpKmMv3A==
+X-Received: by 2002:a17:902:d4c7:b0:1e2:76ad:cb2 with SMTP id o7-20020a170902d4c700b001e276ad0cb2mr10960924plg.15.1713804131274;
+        Mon, 22 Apr 2024 09:42:11 -0700 (PDT)
+Received: from [127.0.1.1] ([2001:ee0:50f5:5d0:f32d:f608:a763:3732])
+        by smtp.googlemail.com with ESMTPSA id p3-20020a170902780300b001e7b8c21ebesm8461702pll.225.2024.04.22.09.42.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Apr 2024 09:42:10 -0700 (PDT)
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: [PATCH 0/5] Ensure the copied buf is NULL terminated
+Date: Mon, 22 Apr 2024 23:41:35 +0700
+Message-Id: <20240422-fix-oob-read-v1-0-e02854c30174@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: vqgah47FaacsI0KebgNUxsXdZ6nMf_bo
-X-Proofpoint-ORIG-GUID: 718mfT8MxwHJOq861LQZog9gF4GCBRfh
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-22_09,2024-04-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=895 clxscore=1015
- adultscore=0 impostorscore=0 priorityscore=1501 spamscore=0 suspectscore=0
- lowpriorityscore=0 mlxscore=0 phishscore=0 bulkscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
- definitions=main-2404220066
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAD+TJmYC/x2MQQqAIBAAvyJ7bkFNsPpKdLBcay8aChGIf086D
+ sNMhUKZqcAiKmR6uHCKHdQg4LhcPAnZdwYttZFGawz8Yko7ZnIe1ezIhimMVinoyZ2p+3+3bq1
+ 91dxRI14AAAA=
+To: Jesse Brandeburg <jesse.brandeburg@intel.com>, 
+ Tony Nguyen <anthony.l.nguyen@intel.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>, 
+ Rasesh Mody <rmody@marvell.com>, Sudarsana Kalluru <skalluru@marvell.com>, 
+ GR-Linux-NIC-Dev@marvell.com, Krishna Gudipati <kgudipat@brocade.com>, 
+ Anil Gurumurthy <anil.gurumurthy@qlogic.com>, 
+ Sudarsana Kalluru <sudarsana.kalluru@qlogic.com>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ "Martin K. Petersen" <martin.petersen@oracle.com>, 
+ Fabian Frederick <fabf@skynet.be>, Saurav Kashyap <skashyap@marvell.com>, 
+ Javed Hasan <jhasan@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com, 
+ Nilesh Javali <nilesh.javali@cavium.com>, Arun Easi <arun.easi@cavium.com>, 
+ Manish Rangankar <manish.rangankar@cavium.com>, 
+ Vineeth Vijayan <vneethv@linux.ibm.com>, 
+ Peter Oberparleiter <oberpar@linux.ibm.com>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>
+Cc: intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, 
+ Saurav Kashyap <saurav.kashyap@cavium.com>, linux-s390@vger.kernel.org, 
+ Jens Axboe <axboe@kernel.dk>, Bui Quang Minh <minhquangbui99@gmail.com>
+X-Mailer: b4 0.13.0
 
-From: Ben Segal <bpsegal@us.ibm.com>
+Hi everyone,
 
-Many PCI adapters can benefit or even require full 64bit read
-and write access to their registers. In order to enable work on
-user-space drivers for these devices add two new variations
-vfio_pci_core_io{read|write}64 of the existing access methods
-when the architecture supports 64-bit ioreads and iowrites.
+I found that some drivers contains an out-of-bound read pattern like this
 
-Since these access methods are instantiated on 64bit architectures,
-only, their use in vfio_pci_core_do_io_rw() is restricted by conditional
-compiles to these architectures.
+	kern_buf = memdup_user(user_buf, count);
+	...
+	sscanf(kern_buf, ...);
 
-Signed-off-by: Ben Segal <bpsegal@us.ibm.com>
-Co-developed-by: Gerd Bayer <gbayer@linux.ibm.com>
-Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+The sscanf can be replaced by some other string-related functions. This
+pattern can lead to out-of-bound read of kern_buf in string-related
+functions.
+
+This series fix the above issue by replacing memdup_user with
+memdup_user_nul or allocating count + 1 buffer then writing the NULL
+terminator to end of buffer after userspace copying.
+
+Thanks,
+Quang Minh.
+
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 ---
-Hi all,
+Bui Quang Minh (5):
+      drivers/net/ethernet/intel-ice: ensure the copied buf is NULL terminated
+      drivers/net/brocade-bnad: ensure the copied buf is NULL terminated
+      drivers/scsi/bfa/bfad: ensure the copied buf is NULL terminated
+      drivers/scsi/qedf: ensure the copied buf is NULL terminated
+      drivers/s390/cio: ensure the copied buf is NULL terminated
 
-we've successfully used this patch with a user-mode driver for a PCI
-device that requires 64bit register read/writes on s390. A quick grep
-showed that there are several other drivers for PCI devices in the kernel
-that use readq/writeq and eventually could use this, too.
-So we decided to propose this for general inclusion.
+ drivers/net/ethernet/brocade/bna/bnad_debugfs.c | 4 ++--
+ drivers/net/ethernet/intel/ice/ice_debugfs.c    | 8 ++++----
+ drivers/s390/cio/cio_inject.c                   | 3 ++-
+ drivers/scsi/bfa/bfad_debugfs.c                 | 4 ++--
+ drivers/scsi/qedf/qedf_debugfs.c                | 2 +-
+ 5 files changed, 11 insertions(+), 10 deletions(-)
+---
+base-commit: ed30a4a51bb196781c8058073ea720133a65596f
+change-id: 20240422-fix-oob-read-19ae7f8f3711
 
-Thank you,
-Gerd Bayer
-
-Changes v1 -> v2:
-- On non 64bit architecture use at most 32bit accesses in
-  vfio_pci_core_do_io_rw and describe that in the commit message.
-- Drop the run-time error on 32bit architectures.
-- The #endif splitting the "else if" is not really fortunate, but I'm
-  open to suggestions.
-
- drivers/vfio/pci/vfio_pci_rdwr.c | 28 ++++++++++++++++++++++++++++
- include/linux/vfio_pci_core.h    |  3 +++
- 2 files changed, 31 insertions(+)
-
-diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
-index 03b8f7ada1ac..d83cb0bb7aa5 100644
---- a/drivers/vfio/pci/vfio_pci_rdwr.c
-+++ b/drivers/vfio/pci/vfio_pci_rdwr.c
-@@ -89,6 +89,9 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_ioread##size);
- VFIO_IOREAD(8)
- VFIO_IOREAD(16)
- VFIO_IOREAD(32)
-+#ifdef ioread64
-+VFIO_IOREAD(64)
-+#endif
- 
- /*
-  * Read or write from an __iomem region (MMIO or I/O port) with an excluded
-@@ -114,6 +117,31 @@ ssize_t vfio_pci_core_do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
- 		else
- 			fillable = 0;
- 
-+#if defined(ioread64) && defined(iowrite64)
-+		if (fillable >= 8 && !(off % 8)) {
-+			u64 val;
-+
-+			if (iswrite) {
-+				if (copy_from_user(&val, buf, 8))
-+					return -EFAULT;
-+
-+				ret = vfio_pci_core_iowrite64(vdev, test_mem,
-+							 val, io + off);
-+				if (ret)
-+					return ret;
-+			} else {
-+				ret = vfio_pci_core_ioread64(vdev, test_mem,
-+							&val, io + off);
-+				if (ret)
-+					return ret;
-+
-+				if (copy_to_user(buf, &val, 8))
-+					return -EFAULT;
-+			}
-+
-+			filled = 8;
-+		} else
-+#endif /* defined(ioread64) && defined(iowrite64) */
- 		if (fillable >= 4 && !(off % 4)) {
- 			u32 val;
- 
-diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-index a2c8b8bba711..f4cf5fd2350c 100644
---- a/include/linux/vfio_pci_core.h
-+++ b/include/linux/vfio_pci_core.h
-@@ -157,5 +157,8 @@ int vfio_pci_core_ioread##size(struct vfio_pci_core_device *vdev,	\
- VFIO_IOREAD_DECLATION(8)
- VFIO_IOREAD_DECLATION(16)
- VFIO_IOREAD_DECLATION(32)
-+#ifdef ioread64
-+VFIO_IOREAD_DECLATION(64)
-+#endif
- 
- #endif /* VFIO_PCI_CORE_H */
+Best regards,
 -- 
-2.44.0
+Bui Quang Minh <minhquangbui99@gmail.com>
 
