@@ -1,164 +1,139 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFF5C14601F;
-	Mon, 22 Apr 2024 11:08:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE6D61474AD
+	for <linux-s390@vger.kernel.org>; Mon, 22 Apr 2024 12:11:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713784116; cv=none; b=Z70ApHsyWiOT7BxP8dBd49jqYmFXcxZkJbI/gMVCm0+YWimwqBhSWcuI+pVzXwUo9NcRu7dBKMoLFUHZseGQ3rHAsJBNek2n8bUloOS0G0kO23sVXSjYhA3fGFXBXdV14Ujv/g9GT2gOlkU43gLxQorDv+LVBhFti51y6cuOGEM=
+	t=1713787901; cv=none; b=amz8NUBC7/CjbMpFyJ5Oq5JbawiyKYZlSIjFT7MirFz/EHITx5jaQ4HhSeaw1mqigy/yAsw0PJNBih/ky+pJEeqZ01mb9njY8yd8vb+CGgAeCM5KeigAdo0NiQnJvSZB4aFpwdhExZphHrALJQyK0bnmxd5fT9uu1gGZqXhWb24=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713784116; c=relaxed/simple;
-	bh=/WBjXrhKs3Vk7S/GTe32slJtuFE1Vv6/BDiUV4NM6wQ=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=cNnYVNefAsBl13v5uf4mpt7u+ZZm8E4UkZrO2b2niMbArnV6idXTkSmd8UznvkwgWABPKyCQyAYwT9CjjzcK1kD2H14WyNGF5Z57AbOgdF+q2eYHCHXOs/D4QLd8/Uo++iWN66EIDHgNr/5TjGDh8be1qkqyuom65TpBR0a4+aI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tawZ/Z05; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1713787901; c=relaxed/simple;
+	bh=P+ngD7651DKaxK2xXQRIyCnuFIb7V6Y5I4v0Y+4liW4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cBFBqxnT4Gx0IOJ9xrvP+CyUiok5H3ieDtkpr+jmSnTzMAtEBFBP5sOOq/yGAscRbq/50irrppfpyAwSEedGYS2jVRd/GhcTFWGQje66x8Xo4dLCAaGhFe6ZTv8MLecR05OR5nVHiKNS4lAOAW4ySqhDsTcytAp9Szos2+VQSC4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=CFHTz0AC; arc=none smtp.client-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tawZ/Z05"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43MATDev024208;
-	Mon, 22 Apr 2024 11:08:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=/WBjXrhKs3Vk7S/GTe32slJtuFE1Vv6/BDiUV4NM6wQ=;
- b=tawZ/Z05Ys8xGypNOq2TbhoW0v+3D/uYXnGlIixj6o9Jjgr7pKTFfnuTd1iDmfs/dR3K
- cGRfUf/ZQoQ1YZt5yCaQLAblPLgjX8YtvhDUo2dFLaJQ5FMGrh0IzfpgdmuWOLaI91jQ
- jYwF9t9YVippy/O3YOQi3rpND7RuizMlDm9/pyg1VIFZ21kwnzVXPyYCoORAUyskTnKx
- j6lGW3XQ7YzY4wD7aAb4+AEFgihdpFGVDHqBizvJWRrK5AX0sE/aFq/YqCD6XrX3Cnio
- ZlOH6c8Q9lR3fmqkH+iJUXv+vtOK6rpmn6opU0P0ZQm+A9HGW0+eu+HtjnFheUUOA8I3 fg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xnp5h82mr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Apr 2024 11:08:31 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43MB8UM9023891;
-	Mon, 22 Apr 2024 11:08:30 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xnp5h82mk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Apr 2024 11:08:30 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43M80RiS005352;
-	Mon, 22 Apr 2024 11:08:29 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xmx3c62c2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Apr 2024 11:08:29 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43MB8OqX16646428
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 22 Apr 2024 11:08:26 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 006D52004B;
-	Mon, 22 Apr 2024 11:08:24 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8DDE920040;
-	Mon, 22 Apr 2024 11:08:23 +0000 (GMT)
-Received: from [9.171.18.8] (unknown [9.171.18.8])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 22 Apr 2024 11:08:23 +0000 (GMT)
-Message-ID: <5fe2171422c4ca388e351cd55c14ec3bd8aefe40.camel@linux.ibm.com>
-Subject: Re: [PATCH] vfio/pci: Support 8-byte PCI loads and stores
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Alex Williamson <alex.williamson@redhat.com>,
-        Jason Gunthorpe
- <jgg@ziepe.ca>
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
-        Ankit Agrawal
- <ankita@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Halil Pasic
- <pasic@linux.ibm.com>, Ben Segal <bpsegal@us.ibm.com>
-Date: Mon, 22 Apr 2024 13:08:23 +0200
-In-Reply-To: <20240419104745.01ebb96f.alex.williamson@redhat.com>
-References: <20240419135323.1282064-1-gbayer@linux.ibm.com>
-	 <20240419135823.GE223006@ziepe.ca>
-	 <c5ba134a1d4f4465b5956027e6a4ea6f6beff969.camel@linux.ibm.com>
-	 <20240419161135.GF223006@ziepe.ca>
-	 <20240419104745.01ebb96f.alex.williamson@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.4 (3.50.4-2.fc39app4) 
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="CFHTz0AC"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-41a7aa24c4fso3332405e9.1
+        for <linux-s390@vger.kernel.org>; Mon, 22 Apr 2024 05:11:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1713787897; x=1714392697; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=bCRnuZK0O/QOXHu1Ldkstjl1doP0jCVLWLbPZKH0WnQ=;
+        b=CFHTz0ACeA5cePDuWJvlh0c8tKCX+vdZE51F+lymx2ic2Y7hs2eXx05OW4IBWO5NY7
+         enwTee91Ffu3VfDwyIkmea7VIvN1ABlqbVpYWHDO8qGLChX0hoAO+wasQMUtc896zpHB
+         QxjKoTPskxJNDiDIqOlKG4CIT6U73cuCt0Vs9fgQM0ezVMx0psIJB9CigTkRj5XWIUKW
+         xaeJd3fUGhkumQtrwTPbnfBgS5vg69UeFthGeF6sKzOfXwJNG5K2/VFS9jCmhxkfP77J
+         31QAA9xu9VEv3dBKe3932dOMZdSw5hMYLReIRTM78EV4NCYcxeN6zzWPjQTuz5Shh7PR
+         Wv3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713787897; x=1714392697;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=bCRnuZK0O/QOXHu1Ldkstjl1doP0jCVLWLbPZKH0WnQ=;
+        b=P2dxHi3XU/rTqSb3Nd36nHOQgj0o/uOVIBoPuxSz5/00zJrq84ViEZClfUtRh0V8Ej
+         xi4IoY2UClxs7ro4VJYsOApGUt1lXu6laCh7KXM9Bxng3DrvEJtRNgYsJc7/tiFPyaNX
+         v4oHsJBTFSUeeSPUzqxJMdiRWOVrslf64TEEVMqtDblctRZVyVF9Hh2Z3Z2Zoh8m2jSO
+         mB38ie66FfGkA+yUkO3dw9c2AqkRidRdPoUUVpeDczdRR9DqGkFOJplAEsWovQaA6xGF
+         XbwRa3w5WURVsRobzf1z+LWu12Ns/rlS60CT5tnY58DRwCTvhGw7xqG/mgEg8axOf5Zt
+         ZfwQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVCDJClv+zg4jmxQeCQv724+7pqZ0DwIioI0V6IwkU0lgA0EW5UeFYv6hbqMul0Kl/qtw3S8HmcLD2l4y5ORL+/6uLNFaDisAklIQ==
+X-Gm-Message-State: AOJu0YxY3TEWNDvUYQQbklThPFgFo33NdWHhjfzAKl7vHnVZy+1I6h6s
+	HE984PKxaBko1BCt4mWAqw74vwtc2Fl+JmXNZSEDCrJ81QhoS6KSEKxurzEemYU=
+X-Google-Smtp-Source: AGHT+IHynTNWSPs7rYJt+CqENDAY0rj5tOUJ3mwkpUrvPfTTqXCsLGZ4LMBMh1xVXt1DdTNJhAB4yQ==
+X-Received: by 2002:a05:600c:3552:b0:419:7fd:2fbe with SMTP id i18-20020a05600c355200b0041907fd2fbemr5536580wmq.11.1713787897251;
+        Mon, 22 Apr 2024 05:11:37 -0700 (PDT)
+Received: from [192.168.1.28] (lfbn-bay-1-170-196.w83-193.abo.wanadoo.fr. [83.193.250.196])
+        by smtp.gmail.com with ESMTPSA id r14-20020a05600c458e00b00417e5b71188sm16503881wmo.34.2024.04.22.05.11.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 22 Apr 2024 05:11:36 -0700 (PDT)
+Message-ID: <fb942d49-1c72-40a6-8309-ef3331d8f8dc@linaro.org>
+Date: Mon, 22 Apr 2024 14:11:34 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: M0Q70jls1TvizGsyJ_kCMoW4u5antUWp
-X-Proofpoint-ORIG-GUID: cLHKeSBxSQBz_Vuh5crlM-xAmIA7y7pv
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-22_09,2024-04-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- mlxlogscore=867 malwarescore=0 mlxscore=0 spamscore=0 bulkscore=0
- suspectscore=0 impostorscore=0 priorityscore=1501 adultscore=0
- clxscore=1015 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2404220050
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 11/15] arch: make execmem setup available regardless of
+ CONFIG_MODULES
+To: Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org
+Cc: Alexandre Ghiti <alexghiti@rivosinc.com>,
+ Andrew Morton <akpm@linux-foundation.org>, =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?=
+ <bjorn@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ "David S. Miller" <davem@davemloft.net>, Dinh Nguyen <dinguyen@kernel.org>,
+ Donald Dutile <ddutile@redhat.com>, Eric Chanudet <echanude@redhat.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
+ Huacai Chen <chenhuacai@kernel.org>,
+ Kent Overstreet <kent.overstreet@linux.dev>,
+ Luis Chamberlain <mcgrof@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Masami Hiramatsu <mhiramat@kernel.org>, Michael Ellerman
+ <mpe@ellerman.id.au>, Nadav Amit <nadav.amit@gmail.com>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Peter Zijlstra <peterz@infradead.org>,
+ Rick Edgecombe <rick.p.edgecombe@intel.com>,
+ Russell King <linux@armlinux.org.uk>, Sam Ravnborg <sam@ravnborg.org>,
+ Song Liu <song@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+ bpf@vger.kernel.org, linux-arch@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+ linux-mm@kvack.org, linux-modules@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+ netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+References: <20240422094436.3625171-1-rppt@kernel.org>
+ <20240422094436.3625171-12-rppt@kernel.org>
+Content-Language: en-US
+From: =?UTF-8?Q?Philippe_Mathieu-Daud=C3=A9?= <philmd@linaro.org>
+In-Reply-To: <20240422094436.3625171-12-rppt@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Fri, 2024-04-19 at 10:47 -0600, Alex Williamson wrote:
-> On Fri, 19 Apr 2024 13:11:35 -0300
-> Jason Gunthorpe <jgg@ziepe.ca> wrote:
->=20
-> > On Fri, Apr 19, 2024 at 05:57:52PM +0200, Niklas Schnelle wrote:
-> > > On Fri, 2024-04-19 at 10:58 -0300, Jason Gunthorpe wrote:=C2=A0=20
-> > > > On Fri, Apr 19, 2024 at 03:53:23PM +0200, Gerd Bayer wrote:=C2=A0=
-=20
-> > > > > From: Ben Segal <bpsegal@us.ibm.com>
-> > > > >=20
-> > > > > Many PCI adapters can benefit or even require full 64bit read
-> > > > > and write access to their registers. In order to enable work
-> > > > > on
-> > > > > user-space drivers for these devices add two new variations
-> > > > > vfio_pci_core_io{read|write}64 of the existing access methods
-> > > > > when the architecture supports 64-bit ioreads and iowrites.
-> > > > >=20
-> > > > > Signed-off-by: Ben Segal <bpsegal@us.ibm.com>
-> > > > > Co-developed-by: Gerd Bayer <gbayer@linux.ibm.com>
-> > > > > Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
-> > > > > ---
-> > > > >=20
-> > > > > Hi all,
-> > > > >=20
-> > > > > we've successfully used this patch with a user-mode driver
-> > > > > for a PCI device that requires 64bit register read/writes on
-> > > > > s390.=C2=A0=20
-> > > >=20
-> > > > But why? S390 already has a system call for userspace to do the
-> > > > 64 bit write, and newer S390 has a userspace instruction to do
-> > > > it.
-> > > >=20
-> > > > Why would you want to use a VFIO system call on the mmio
-> > > > emulation path?
-> > > >=20
-> > > > mmap the registers and access them normally?=C2=A0=20
-> > >=20
-> > > It's a very good point and digging into why this wasn't used by
-> > > Benjamin. It turns out VFIO_PCI_MMAP is disabled for S390 which
-> > > it really shouldn't be especially now that we have the user-space
-> > > instructions. Before that though Benjamin turned to this
-> > > interface which then lead him to this limitation. So yeah we'll
-> > > definitely verify that it also works via VFIO_PCI_MMAP and send a
-> > > patch to enable that.=C2=A0=20
-> >=20
-> > Make sense to me!
-> >=20
-> > > That said I still think it's odd not to have the 8 byte case
-> > > working here even if it isn't the right approach. Could still be
-> > > useful for debug/testing without having to add the MIO
-> > > instructions or the our special syscall.=C2=A0=20
-> >=20
-> > Yes, this also makes sense, but this patch needs some adjusting
->=20
-> Yes, I think so too, falling back to 4-byte accesses of course if
-> 8-byte is not available.=C2=A0 Thanks,
+On 22/4/24 11:44, Mike Rapoport wrote:
+> From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+> 
+> execmem does not depend on modules, on the contrary modules use
+> execmem.
+> 
+> To make execmem available when CONFIG_MODULES=n, for instance for
+> kprobes, split execmem_params initialization out from
+> arch/*/kernel/module.c and compile it when CONFIG_EXECMEM=y
+> 
+> Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
+> ---
+>   arch/arm/kernel/module.c       |  43 ----------
+>   arch/arm/mm/init.c             |  45 +++++++++++
+>   arch/arm64/kernel/module.c     | 140 ---------------------------------
+>   arch/arm64/mm/init.c           | 140 +++++++++++++++++++++++++++++++++
+>   arch/loongarch/kernel/module.c |  19 -----
+>   arch/loongarch/mm/init.c       |  21 +++++
+>   arch/mips/kernel/module.c      |  22 ------
+>   arch/mips/mm/init.c            |  23 ++++++
+>   arch/nios2/kernel/module.c     |  20 -----
+>   arch/nios2/mm/init.c           |  21 +++++
+>   arch/parisc/kernel/module.c    |  20 -----
+>   arch/parisc/mm/init.c          |  23 +++++-
+>   arch/powerpc/kernel/module.c   |  63 ---------------
+>   arch/powerpc/mm/mem.c          |  64 +++++++++++++++
+>   arch/riscv/kernel/module.c     |  44 -----------
+>   arch/riscv/mm/init.c           |  45 +++++++++++
+>   arch/s390/kernel/module.c      |  27 -------
+>   arch/s390/mm/init.c            |  30 +++++++
+>   arch/sparc/kernel/module.c     |  19 -----
+>   arch/sparc/mm/Makefile         |   2 +
+>   arch/sparc/mm/execmem.c        |  21 +++++
+>   arch/x86/kernel/module.c       |  27 -------
+>   arch/x86/mm/init.c             |  29 +++++++
+>   23 files changed, 463 insertions(+), 445 deletions(-)
+>   create mode 100644 arch/sparc/mm/execmem.c
 
-So I'll rework this to simply fall back to 32-bit if 64-bit is not
-available in a v2. And we'll investigate the VFIO_PCI_MMAP case
-separately.
+Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
 
-Thank you,
-Gerd
