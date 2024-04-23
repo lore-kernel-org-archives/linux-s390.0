@@ -1,179 +1,156 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 165028528B;
-	Tue, 23 Apr 2024 12:58:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB3936A03F;
+	Tue, 23 Apr 2024 14:27:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713877111; cv=none; b=u3lpBSjVw01q2hmYRNkkxsr4XcgRpytQ4Io/WYvuXKnnE7T/tc+8SI4PwTd7aAiXIBEX5NlL9faHVX4BIqfX5ZpKFpuD6gB+8OtFKdaePicgPNdWECikfr9PiNwuWG6DtuHjHPtn32H7Hl+2CHmPwisKhomfq9Qk2kcmV+C6qbU=
+	t=1713882453; cv=none; b=GZU+UC6uOEjA8oNUBGFSVxHy+pZxpAM88SZwmMwTZHcQK9I4VjDzdFKjm/a3ngS6XpvZpxnAv73bVZ4fRHISnOCkxst6xEvn0d2uZ7wMdOvRBfL/tQ0F+IZmL7a4V4UBBPuPANAGxjo45xM9ilKy94QUEnpaTPzj8EzOaVrn2qI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713877111; c=relaxed/simple;
-	bh=F5n1rFXubAuYd6cBWkPk//PKxeqlAp6AECoQpFOQTNI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=f2f7pTUWy6Voy9leTqZJH+Ec62pvnGuchnP5w8nAHE5+cLF21t7w+IcTpqstyHH8aL03jTIJuMJ0BB5eV/0fRBfl8Bxo8GNP7wUGvevNzq7JuGfZowPl3FhKbYgzI+dmcMwW9/AQvGvCX+p8AOU3KRhiLj1HNbcm2L4ppu1GVDc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cOV9PG3s; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1713882453; c=relaxed/simple;
+	bh=sCTX9KuTywRM/pWRYqSYFtiiuUiSaGUp7UzV1B5BGeE=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=hIvZFbX5thtdU9nK3L/qXfS+c2F9tbsBXqjbaN3+cSUCclN0shswROSwIm8KnJVwbes0/MQHlWl+o8icg8hXSc5AJ8E9Z8qB7/8veHjF3vxMWmoT4uhZKxuoMdDAxb1kyVxvFqi7512txOkl0rk7G1rQoWmj7drYr26filULXCo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=z5Y8iPty; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=2qRowrdR; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=fkg8i3TO; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=1XvpnQg1; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cOV9PG3s"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43NCMWpR028877;
-	Tue, 23 Apr 2024 12:58:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=d5KCl+8ixX+/EoYCDbeBVUc03Ua5s0d1bJJq1n7BCjc=;
- b=cOV9PG3slMGGrTr/tVXJG++yKg2lxbYhv94lln6Gz1jRMYr2v4BeX++DMK1KD10CqI6o
- MQuKmqU0wT3s+SiERjGEHytJ3XS245UNyDSl+am6OtKyJa5rCmF1Ei8iRprQ38vcHRRu
- MGuixYuwRB4c/5XrqmvWgzgm8iOboz+bgomwX3gs/b33v/WRQ5+3t+068quu02or+oTM
- 0n2ucskT/+pDUXpt0fQ9VbbTG8YNvnwnwHL5S6G9pMixBCo5zMTMKljRMwGfS8/DYllf
- goRSPQefW8bnQHjygsrLwSBmBBGBrq9RHYgFL9Da0bA1CvZMNQtxKpg/nKlUOJzkLyPm jg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xpcxa82wc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Apr 2024 12:58:27 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43NCwR5G024841;
-	Tue, 23 Apr 2024 12:58:27 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xpcxa82wa-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Apr 2024 12:58:27 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43NBB4JS023051;
-	Tue, 23 Apr 2024 12:58:26 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xms1nwmu2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Apr 2024 12:58:25 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43NCwK8B50463014
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 23 Apr 2024 12:58:22 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 44DCA2004B;
-	Tue, 23 Apr 2024 12:58:20 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0926520040;
-	Tue, 23 Apr 2024 12:58:20 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 23 Apr 2024 12:58:19 +0000 (GMT)
-Date: Tue, 23 Apr 2024 14:57:31 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Nico Boehr <nrb@linux.ibm.com>
-Cc: frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v3 1/1] s390x: cmm: test no-translate bit
- after reset
-Message-ID: <20240423145731.65194864@p-imbrenda>
-In-Reply-To: <20240423103529.313782-2-nrb@linux.ibm.com>
-References: <20240423103529.313782-1-nrb@linux.ibm.com>
-	<20240423103529.313782-2-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-redhat-linux-gnu)
-Content-Type: text/plain; charset=US-ASCII
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ct9FkvS-8c7xV_NkeTHxETDPdvzZEwCd
-X-Proofpoint-GUID: WlftlrgCCXQzFtS5C0cETsUeRrY17sKf
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="z5Y8iPty";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="2qRowrdR";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="fkg8i3TO";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="1XvpnQg1"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id C54506006B;
+	Tue, 23 Apr 2024 14:27:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1713882450; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=K6b1flxTTrxOdv+q2tkFyEXERe9nDT45zxP7j+afeUI=;
+	b=z5Y8iPtyjN1x3XkyagDdrcFLsX0ii57/iBnRLmsbF0sL5X4p2jKal1xz4M2W3wKyCWvXYc
+	AS3wdTxKqp55mwpOkJgg7Nxle6pnHaP8/xqh0YGVOTrWVXHueJP2yAAQu/LUF9OmFWyn1Q
+	1zDmZyZwOyjCNB7jUbarSl0f6Zck3KM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1713882450;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=K6b1flxTTrxOdv+q2tkFyEXERe9nDT45zxP7j+afeUI=;
+	b=2qRowrdRAGiiKmywVePCSVuFnvpambBS6xK/NowGwpYvHcC8BvoYJD11Lxv8/S9Jxbo5Pb
+	SjVWQnhX07cZ4VAQ==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1713882448; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=K6b1flxTTrxOdv+q2tkFyEXERe9nDT45zxP7j+afeUI=;
+	b=fkg8i3TO67ggAnsS2oYoWUMEwytWzSLRNfyx8m+8uGG4QZPu9jxcrAATB/gMlfrbHK8cWY
+	Sy+4lBfo4xmlWS7fZICT8I+W0Nx0hysitjyNQ8DzHlRKopanjn2kv4QuWdY1RA/Sil8SpL
+	DeJonSTodfanS80tfwUBUhVM9qlRZhg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1713882448;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=K6b1flxTTrxOdv+q2tkFyEXERe9nDT45zxP7j+afeUI=;
+	b=1XvpnQg1T711xESPLAPi7TzL1moQ1rk4Vf4pMy0mqVjEsnnGq7xrmTJYKfL0xuNhTEDw8d
+	FSNxGczKt89Al2Cg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 123EB13929;
+	Tue, 23 Apr 2024 14:27:27 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([10.150.64.162])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id nlbjOE/FJ2ZefAAAD6G6ig
+	(envelope-from <jdelvare@suse.de>); Tue, 23 Apr 2024 14:27:27 +0000
+Date: Tue, 23 Apr 2024 16:27:24 +0200
+From: Jean Delvare <jdelvare@suse.de>
+To: linux-s390@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, Niklas Schnelle
+ <schnelle@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Subject: [PATCH RFC] s390/pci: Drop unneeded reference to CONFIG_DMI
+Message-ID: <20240423162724.3966265a@endymion.delvare>
+Organization: SUSE Linux
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.34; x86_64-suse-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-23_11,2024-04-23_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- clxscore=1015 impostorscore=0 spamscore=0 mlxscore=0 lowpriorityscore=0
- malwarescore=0 phishscore=0 bulkscore=0 suspectscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2404230033
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Flag: NO
+X-Spam-Score: -3.92
+X-Spam-Level: 
+X-Spamd-Result: default: False [-3.92 / 50.00];
+	BAYES_HAM(-2.62)[98.32%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	HAS_ORG_HEADER(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_THREE(0.00)[4];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:email]
 
-On Tue, 23 Apr 2024 12:34:59 +0200
-Nico Boehr <nrb@linux.ibm.com> wrote:
+The S/390 architecture doesn't support SMBIOS, so CONFIG_DMI will
+never be defined there. So we can simply omit these preprocessing
+directives and speed up the build a bit.
 
-> KVM did not properly reset the no-translate bit after reset, see
-> https://lore.kernel.org/kvm/20231109123624.37314-1-imbrenda@linux.ibm.com/
-> 
-> Add a test which performs a load normal reset (includes a subsystem
-> reset) and verify that this clears the no-translate bit.
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+---
+Niklas, you added these preprocessing directives as part of commit
+81bbf03905aa ("s390/pci: expose a PCI device's UID as its index").
+I do not understand the purpose. Am I missing something?
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+ arch/s390/pci/pci_sysfs.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
-> ---
->  s390x/cmm.c | 34 ++++++++++++++++++++++++++++++++++
->  1 file changed, 34 insertions(+)
-> 
-> diff --git a/s390x/cmm.c b/s390x/cmm.c
-> index af852838851e..536f2bfc3c93 100644
-> --- a/s390x/cmm.c
-> +++ b/s390x/cmm.c
-> @@ -9,13 +9,17 @@
->   */
->  
->  #include <libcflat.h>
-> +#include <bitops.h>
->  #include <asm/asm-offsets.h>
->  #include <asm/interrupt.h>
->  #include <asm/page.h>
->  #include <asm/cmm.h>
-> +#include <asm/facility.h>
->  
->  static uint8_t pagebuf[PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
->  
-> +extern int diag308_load_reset(u64);
-> +
->  static void test_params(void)
->  {
->  	report_prefix_push("invalid ORC 8");
-> @@ -35,6 +39,35 @@ static void test_priv(void)
->  	report_prefix_pop();
->  }
->  
-> +static void test_reset_no_translate(void)
-> +{
-> +	const uint64_t mask_no_translate = BIT(63 - 58);
-> +	unsigned long state;
-> +
-> +	if (!test_facility(147)) {
-> +		report_prefix_push("no-translate unavailable");
-> +		expect_pgm_int();
-> +		essa(ESSA_SET_STABLE_NODAT, (unsigned long)pagebuf);
-> +		check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-> +		report_prefix_pop();
-> +		return;
-> +	}
-> +
-> +	report_prefix_push("reset no-translate");
-> +	essa(ESSA_SET_STABLE_NODAT, (unsigned long)pagebuf);
-> +
-> +	state = essa(ESSA_GET_STATE, (unsigned long)pagebuf);
-> +	report(state & mask_no_translate, "no-translate bit set before reset");
-> +
-> +	/* Load normal reset - includes subsystem reset */
-> +	diag308_load_reset(1);
-> +
-> +	state = essa(ESSA_GET_STATE, (unsigned long)pagebuf);
-> +	report(!(state & mask_no_translate), "no-translate bit unset after reset");
-> +
-> +	report_prefix_pop();
-> +}
-> +
->  int main(void)
->  {
->  	bool has_essa = check_essa_available();
-> @@ -47,6 +80,7 @@ int main(void)
->  
->  	test_priv();
->  	test_params();
-> +	test_reset_no_translate();
->  done:
->  	report_prefix_pop();
->  	return report_summary();
+--- linux-6.8.orig/arch/s390/pci/pci_sysfs.c
++++ linux-6.8/arch/s390/pci/pci_sysfs.c
+@@ -156,7 +156,6 @@ static ssize_t uid_is_unique_show(struct
+ }
+ static DEVICE_ATTR_RO(uid_is_unique);
+ 
+-#ifndef CONFIG_DMI
+ /* analogous to smbios index */
+ static ssize_t index_show(struct device *dev,
+ 			  struct device_attribute *attr, char *buf)
+@@ -186,7 +185,6 @@ static struct attribute_group zpci_ident
+ 	.attrs = zpci_ident_attrs,
+ 	.is_visible = zpci_index_is_visible,
+ };
+-#endif
+ 
+ static struct bin_attribute *zpci_bin_attrs[] = {
+ 	&bin_attr_util_string,
+@@ -229,8 +227,6 @@ static struct attribute_group pfip_attr_
+ const struct attribute_group *zpci_attr_groups[] = {
+ 	&zpci_attr_group,
+ 	&pfip_attr_group,
+-#ifndef CONFIG_DMI
+ 	&zpci_ident_attr_group,
+-#endif
+ 	NULL,
+ };
 
+-- 
+Jean Delvare
+SUSE L3 Support
