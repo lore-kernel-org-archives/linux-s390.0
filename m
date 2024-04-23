@@ -1,152 +1,131 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F18D5F505;
-	Tue, 23 Apr 2024 06:51:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4F6F1CAA2;
+	Tue, 23 Apr 2024 07:34:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713855103; cv=none; b=YPprvMEU2hOMq2x/ALeoIK8kcuhxmBRU/c1rELMXTXburP4GPpNsWgqfTv2TlEuW1S071au5SXQNIkCY7msJ7tToeP1wUluPWcQVlsxcEuBNClDOMWaHjUfGaKqA4Nlw3cEqpuPgJOooFot6NdQlZ6MhTmR5K8jZTDaHW9LCi8g=
+	t=1713857671; cv=none; b=tnYWNSjoG7IACwdvkFlb2VOc5JT/B8+OFzv9Y3M/EBp1IgDK/UCuQumv9zzCSLh3y5eRKAivFI+SOe6Cdd/xwfBWzMeKU904oCkLrOmqGN4RdK7PorTMoUVLhtZq9HKi1FxCYX/squyNWSr4Es3IJJIFoAae+q+dM/Jl88zm/Kw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713855103; c=relaxed/simple;
-	bh=QperoU/mvTPRltqXgO/IwLoya48jN35EvU9e2LuVbn8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FoUtwfucOD5MAb6OAyRSCQUYAkRY3RVBz/O+QUcqdEWBQtLUaLGHW52lsRSM6OFImJZ8S2hPSJa9Q04Ep7usVD/cAENpCu/2KMrMRM83UL7p36ctj6IQ07uIIHRPby0xKzX524XLLkYOG8mrrGOMotklghow/PdkveGBwntdgtk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=p1KCIPLA; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1713857671; c=relaxed/simple;
+	bh=rsjaTFtx8348euuafPffUlSsi6BwUWE6TeBUbrJ6wCw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=MDhZyHYQDZc9jlYTcYGK4JIoGHeGV6zOn2JUGwnfdsKwSVaID4oPd/2SBJw0nOZl8YKEWGneqXvMQADAPAo5HRvk6om91bShXkZok3bcOEJ1PxbG5OORJ653LSAztHWJ8EiJoBxnZa3KHjbOtyklZpzOgl3dyQDwSuNCy5k3qus=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BG24f1lJ; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="p1KCIPLA"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43N6WiAK032224;
-	Tue, 23 Apr 2024 06:51:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=0vDYHtZfJ1aUyePbfpMoafpgYffvxy1KKavTMUyKAF4=;
- b=p1KCIPLA0+3M/jOTJH91Ettn+kfkxFl9NTIwFZkm/W9bK1jNyvqDyW7u7eyRNiT2sHct
- ykLF3vRjDdn61hsC1nO5dBh4XmTDd0Oa1toeaQZ/0x3My4VFJ5oPg2D9yS84c65Huu+c
- dnjYWyrHG2dj8tYNBLIYnoDpnStf3ZwBWi9WL68PmylT+N2qQPo9uarstANzXbl82Cce
- L26wYggPXUsxa/yyjkJOBDKuK6xXsHe6p6a5p3V4xzY1AXnI89/UmmdSGhPn+WyIJ5MR
- GLM9dQZXRPFnxN6uA5VTFDa6X9LMRHEjDTQpS5c7GQnr9lCg2do4q/diWsEjB4qvBYoB PQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xp7t6g10p-1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BG24f1lJ"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43N6YHSc017465;
+	Tue, 23 Apr 2024 07:34:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=MA6f4FuIjJi9F9IQBzC8zuD52Y6zja9gJ48dXbUrcEw=;
+ b=BG24f1lJ0o18OnQs8wGZxCZaOuY645GTXGGm0YfgpBotc8wSafE4v3E0us4mFhsP08Yp
+ j/9owU2mbdov29VWp5FVpdLol8jK1JdrxgRdVwupNiWXa8JbaWW43IlXkZQ2u7CxztYH
+ tsmrvMZvSRK8VrDolEoBcsWpNv+wUGHZlfqViczEX0otiddu72gzWjTdxg1np0u24fm+
+ zhBCvUvtXT5HrEPQxAyKh/yH2R8fOFPUxd7/+17b7EF95CQFVv/nrmjWe9uQIF0So2C8
+ D7osYcIQP1BMbgmwN1pxAXH9HBabvB47ZyQcVHl8JrJ0AIPw9ZxSjVSKeiJS8fQqN9Ly aA== 
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xp7thg3cw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Apr 2024 06:51:02 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43N6p1NU002965;
-	Tue, 23 Apr 2024 06:51:02 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xp7t6g10g-1
+	Tue, 23 Apr 2024 07:34:20 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43N4kF93015302;
+	Tue, 23 Apr 2024 07:34:19 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xmshm451m-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Apr 2024 06:51:01 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43N6fD5W020920;
-	Tue, 23 Apr 2024 06:51:00 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xmrdyv8r3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Apr 2024 06:51:00 +0000
+	Tue, 23 Apr 2024 07:34:19 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43N6osOE41681280
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43N7YC7d18940368
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 23 Apr 2024 06:50:56 GMT
+	Tue, 23 Apr 2024 07:34:14 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A1EEE2004D;
-	Tue, 23 Apr 2024 06:50:54 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8A2DE2004D;
+	Tue, 23 Apr 2024 07:34:12 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2956D20040;
-	Tue, 23 Apr 2024 06:50:54 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 23 Apr 2024 06:50:54 +0000 (GMT)
-Date: Tue, 23 Apr 2024 08:50:52 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
-        Rasesh Mody <rmody@marvell.com>,
-        Sudarsana Kalluru <skalluru@marvell.com>, GR-Linux-NIC-Dev@marvell.com,
-        Krishna Gudipati <kgudipat@brocade.com>,
-        Anil Gurumurthy <anil.gurumurthy@qlogic.com>,
-        Sudarsana Kalluru <sudarsana.kalluru@qlogic.com>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Fabian Frederick <fabf@skynet.be>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Javed Hasan <jhasan@marvell.com>,
-        GR-QLogic-Storage-Upstream@marvell.com,
-        Nilesh Javali <nilesh.javali@cavium.com>,
-        Arun Easi <arun.easi@cavium.com>,
-        Manish Rangankar <manish.rangankar@cavium.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, intel-wired-lan@lists.osuosl.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, Saurav Kashyap <saurav.kashyap@cavium.com>,
-        linux-s390@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH 5/5] drivers/s390/cio: ensure the copied buf is NULL
- terminated
-Message-ID: <20240423065052.10211-C-hca@linux.ibm.com>
-References: <20240422-fix-oob-read-v1-0-e02854c30174@gmail.com>
- <20240422-fix-oob-read-v1-5-e02854c30174@gmail.com>
+	by IMSVA (Postfix) with ESMTP id 5B1F220067;
+	Tue, 23 Apr 2024 07:34:12 +0000 (GMT)
+Received: from [9.152.224.141] (unknown [9.152.224.141])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 23 Apr 2024 07:34:12 +0000 (GMT)
+Message-ID: <3b836dbb-98a1-484a-b88c-4beff45f2685@linux.ibm.com>
+Date: Tue, 23 Apr 2024 09:34:12 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240422-fix-oob-read-v1-5-e02854c30174@gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] s390/vmlogrdr: Remove function pointer cast
+To: Heiko Carstens <hca@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>
+Cc: Thorsten Winkler <twinkler@linux.ibm.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>, gor@linux.ibm.com,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Netdev <netdev@vger.kernel.org>, llvm@lists.linux.dev,
+        patches@lists.linux.dev
+References: <20240417-s390-drivers-fix-cast-function-type-v1-0-fd048c9903b0@kernel.org>
+ <20240417-s390-drivers-fix-cast-function-type-v1-1-fd048c9903b0@kernel.org>
+ <20240418095438.6056-A-hca@linux.ibm.com>
+ <20240418102549.6056-B-hca@linux.ibm.com>
+ <20240418145121.GA1435416@dev-arch.thelio-3990X>
+ <20240418151501.6056-C-hca@linux.ibm.com>
+ <798df2d7-b13f-482a-8d4a-106c6492af01@app.fastmail.com>
+ <20240419121506.23824-A-hca@linux.ibm.com>
+ <1509513f-0423-4834-9e77-b0c2392a4260@app.fastmail.com>
+ <20240419141244.23824-B-hca@linux.ibm.com>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20240419141244.23824-B-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: JfbWZJYjgQ-6sEoUNR3sO4YsC4Gb-N7m
-X-Proofpoint-ORIG-GUID: dN-FvMKmlspL8yk4i7YrijWq2YdDYnU8
+X-Proofpoint-ORIG-GUID: h2w07tsfKsJgwyplVoK3Dm8wnf87Tl2Q
+X-Proofpoint-GUID: h2w07tsfKsJgwyplVoK3Dm8wnf87Tl2Q
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-04-23_04,2024-04-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 suspectscore=0
- priorityscore=1501 mlxscore=0 malwarescore=0 adultscore=0
- lowpriorityscore=0 phishscore=0 mlxlogscore=965 bulkscore=0
- impostorscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2404010000 definitions=main-2404230019
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ impostorscore=0 suspectscore=0 mlxlogscore=539 clxscore=1011
+ lowpriorityscore=0 adultscore=0 mlxscore=0 bulkscore=0 priorityscore=1501
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404230020
 
-On Mon, Apr 22, 2024 at 11:41:40PM +0700, Bui Quang Minh wrote:
-> Currently, we allocate a lbuf-sized kernel buffer and copy lbuf from
-> userspace to that buffer. Later, we use scanf on this buffer but we don't
-> ensure that the string is terminated inside the buffer, this can lead to
-> OOB read when using scanf. Fix this issue by allocating 1 more byte to at
-> the end of buffer and write NULL terminator to the end of buffer after
-> userspace copying.
+
+
+On 19.04.24 16:12, Heiko Carstens wrote:
+> On Fri, Apr 19, 2024 at 02:19:14PM +0200, Arnd Bergmann wrote:
+>> On Fri, Apr 19, 2024, at 14:15, Heiko Carstens wrote:
+>>>
+>>> Plus we need to fix the potential bug you introduced with commit
+>>> 42af6bcbc351 ("tty: hvc-iucv: fix function pointer casts"). But at
+>>> least this is also iucv_bus related.
+>>>
+>>> Alexandra, Thorsten, any objections if CONFIG_IUCV would be changed so
+>>> it can only be compiled in or out, but not as a module anymore?
+>>
+>> You can also just drop the iucv_exit() function, making the
+>> module non-removable when it has an init function but no exit.
 > 
-> Fixes: a4f17cc72671 ("s390/cio: add CRW inject functionality")
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> ---
->  drivers/s390/cio/cio_inject.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> Right, that's better, and also what I did back then for the zfcp
+> module for the same reason.
 > 
-> diff --git a/drivers/s390/cio/cio_inject.c b/drivers/s390/cio/cio_inject.c
-> index 8613fa937237..9b69fbf49f60 100644
-> --- a/drivers/s390/cio/cio_inject.c
-> +++ b/drivers/s390/cio/cio_inject.c
-> @@ -95,10 +95,11 @@ static ssize_t crw_inject_write(struct file *file, const char __user *buf,
->  		return -EINVAL;
->  	}
->  
-> -	buffer = vmemdup_user(buf, lbuf);
-> +	buffer = vmemdup_user(buf, lbuf + 1);
->  	if (IS_ERR(buffer))
->  		return -ENOMEM;
->  
-> +	buffer[lbuf] = '\0';
 
-This would read one byte too much from user space, and could potentially
-fault.
+Heiko,
+as discussed f2f: 'no module' or 'non-removable module'
+both options are fine with me. I would prefer non-removable.
+Both are better than calling removed functions.
 
-Why isn't this simply memdup_user_nul() like all others, which would do the
-right thing?
+This also applies to patches 2 and 3 of this series:
+drivers/s390/net/smsgiucv_app.c
+drivers/s390/net/netiucv.c
+
+Thank you
+Alexandra
