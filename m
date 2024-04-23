@@ -1,71 +1,152 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22FCC4779D;
-	Tue, 23 Apr 2024 06:45:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F18D5F505;
+	Tue, 23 Apr 2024 06:51:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713854724; cv=none; b=Lja9G0JpMYyXgpDGjSMO/yq4kFMdD83CQMFjwE5EfyXar+Q8v7xOIXbIqNl0YY1iDuVvKBht64P4coC2fT0YMapG5qHmydBE0ur3Gz1ZIKcJZxLk6QVG0YAQZbJasFbkraxFR0rlu88nmOe2CYvdaw/5ROXLhWOeoO6SpEHQMEE=
+	t=1713855103; cv=none; b=YPprvMEU2hOMq2x/ALeoIK8kcuhxmBRU/c1rELMXTXburP4GPpNsWgqfTv2TlEuW1S071au5SXQNIkCY7msJ7tToeP1wUluPWcQVlsxcEuBNClDOMWaHjUfGaKqA4Nlw3cEqpuPgJOooFot6NdQlZ6MhTmR5K8jZTDaHW9LCi8g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713854724; c=relaxed/simple;
-	bh=/8UG4gXHPEjzqQauQjn7i+cz8eMeT4m/eMNC5CnSkI4=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=IVERTG1cIR0LlWP8Xm4k2OHFXRiOMbu0MkI0Cp03tU4sQnfgCjhwUuf20CfOAhFNrwR4LVbqzb0z36mgk3TkohiWPN9JlyPExO3DiMVr8Flq1oup6MYlRu59WONTc+wOJHBp/REbrteJVpxayX3VxUrWSI9qKlA+YT+c2t1PMXU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=rhPQ2CV+; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1713855103; c=relaxed/simple;
+	bh=QperoU/mvTPRltqXgO/IwLoya48jN35EvU9e2LuVbn8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FoUtwfucOD5MAb6OAyRSCQUYAkRY3RVBz/O+QUcqdEWBQtLUaLGHW52lsRSM6OFImJZ8S2hPSJa9Q04Ep7usVD/cAENpCu/2KMrMRM83UL7p36ctj6IQ07uIIHRPby0xKzX524XLLkYOG8mrrGOMotklghow/PdkveGBwntdgtk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=p1KCIPLA; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="rhPQ2CV+"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1713854712; h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type;
-	bh=2Bh4K1u+LZbAykGU6w9RgWH0PLEDjVXql/jyM2G15cE=;
-	b=rhPQ2CV+JZYFooyDt2EV76dDmv6+oLP86ViNlpwSeKlQ5xZq/4YeaC/2xN/WsZhpZkG1SeD65+5Jh2MgqCJJungfJ2be1hcqiLLVZdXgEztiIhncWh2jE0T/2SKulbzkSSigISJPJDx1ngQCHdw3vLS+zW4R8aFMgq1SaztvZNU=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R991e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W580vZc_1713854701;
-Received: from 30.221.129.150(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W580vZc_1713854701)
-          by smtp.aliyun-inc.com;
-          Tue, 23 Apr 2024 14:45:11 +0800
-Message-ID: <6907c23c-a9b4-4366-99e5-b175319f9061@linux.alibaba.com>
-Date: Tue, 23 Apr 2024 14:45:00 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="p1KCIPLA"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43N6WiAK032224;
+	Tue, 23 Apr 2024 06:51:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=0vDYHtZfJ1aUyePbfpMoafpgYffvxy1KKavTMUyKAF4=;
+ b=p1KCIPLA0+3M/jOTJH91Ettn+kfkxFl9NTIwFZkm/W9bK1jNyvqDyW7u7eyRNiT2sHct
+ ykLF3vRjDdn61hsC1nO5dBh4XmTDd0Oa1toeaQZ/0x3My4VFJ5oPg2D9yS84c65Huu+c
+ dnjYWyrHG2dj8tYNBLIYnoDpnStf3ZwBWi9WL68PmylT+N2qQPo9uarstANzXbl82Cce
+ L26wYggPXUsxa/yyjkJOBDKuK6xXsHe6p6a5p3V4xzY1AXnI89/UmmdSGhPn+WyIJ5MR
+ GLM9dQZXRPFnxN6uA5VTFDa6X9LMRHEjDTQpS5c7GQnr9lCg2do4q/diWsEjB4qvBYoB PQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xp7t6g10p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 23 Apr 2024 06:51:02 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43N6p1NU002965;
+	Tue, 23 Apr 2024 06:51:02 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xp7t6g10g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 23 Apr 2024 06:51:01 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43N6fD5W020920;
+	Tue, 23 Apr 2024 06:51:00 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xmrdyv8r3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 23 Apr 2024 06:51:00 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43N6osOE41681280
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 23 Apr 2024 06:50:56 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A1EEE2004D;
+	Tue, 23 Apr 2024 06:50:54 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2956D20040;
+	Tue, 23 Apr 2024 06:50:54 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 23 Apr 2024 06:50:54 +0000 (GMT)
+Date: Tue, 23 Apr 2024 08:50:52 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
+        Rasesh Mody <rmody@marvell.com>,
+        Sudarsana Kalluru <skalluru@marvell.com>, GR-Linux-NIC-Dev@marvell.com,
+        Krishna Gudipati <kgudipat@brocade.com>,
+        Anil Gurumurthy <anil.gurumurthy@qlogic.com>,
+        Sudarsana Kalluru <sudarsana.kalluru@qlogic.com>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        Javed Hasan <jhasan@marvell.com>,
+        GR-QLogic-Storage-Upstream@marvell.com,
+        Nilesh Javali <nilesh.javali@cavium.com>,
+        Arun Easi <arun.easi@cavium.com>,
+        Manish Rangankar <manish.rangankar@cavium.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, intel-wired-lan@lists.osuosl.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org, Saurav Kashyap <saurav.kashyap@cavium.com>,
+        linux-s390@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 5/5] drivers/s390/cio: ensure the copied buf is NULL
+ terminated
+Message-ID: <20240423065052.10211-C-hca@linux.ibm.com>
+References: <20240422-fix-oob-read-v1-0-e02854c30174@gmail.com>
+ <20240422-fix-oob-read-v1-5-e02854c30174@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Wen Gu <guwen@linux.alibaba.com>
-Subject: Re: [PATCH net-next v6 00/11] net/smc: SMC intra-OS shortcut with
- loopback-ism
-To: Wenjia Zhang <wenjia@linux.ibm.com>, wintera@linux.ibm.com,
- twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org
-References: <20240414040304.54255-1-guwen@linux.alibaba.com>
- <3bc12c1e-c36c-4b34-8bc4-57ebb07038c2@linux.ibm.com>
-In-Reply-To: <3bc12c1e-c36c-4b34-8bc4-57ebb07038c2@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240422-fix-oob-read-v1-5-e02854c30174@gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: JfbWZJYjgQ-6sEoUNR3sO4YsC4Gb-N7m
+X-Proofpoint-ORIG-GUID: dN-FvMKmlspL8yk4i7YrijWq2YdDYnU8
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-23_04,2024-04-22_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 suspectscore=0
+ priorityscore=1501 mlxscore=0 malwarescore=0 adultscore=0
+ lowpriorityscore=0 phishscore=0 mlxlogscore=965 bulkscore=0
+ impostorscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2404010000 definitions=main-2404230019
 
-
-
-On 2024/4/17 23:36, Wenjia Zhang wrote:
+On Mon, Apr 22, 2024 at 11:41:40PM +0700, Bui Quang Minh wrote:
+> Currently, we allocate a lbuf-sized kernel buffer and copy lbuf from
+> userspace to that buffer. Later, we use scanf on this buffer but we don't
+> ensure that the string is terminated inside the buffer, this can lead to
+> OOB read when using scanf. Fix this issue by allocating 1 more byte to at
+> the end of buffer and write NULL terminator to the end of buffer after
+> userspace copying.
 > 
+> Fixes: a4f17cc72671 ("s390/cio: add CRW inject functionality")
+> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+> ---
+>  drivers/s390/cio/cio_inject.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> On 14.04.24 06:02, Wen Gu wrote:
->> This patch set acts as the second part of the new version of [1] (The first
->> part can be referred from [2]), the updated things of this version are listed
->> at the end.
->>
->>
-> Still need some time to review the patches.
-> 
-> Thanks for your patience!
+> diff --git a/drivers/s390/cio/cio_inject.c b/drivers/s390/cio/cio_inject.c
+> index 8613fa937237..9b69fbf49f60 100644
+> --- a/drivers/s390/cio/cio_inject.c
+> +++ b/drivers/s390/cio/cio_inject.c
+> @@ -95,10 +95,11 @@ static ssize_t crw_inject_write(struct file *file, const char __user *buf,
+>  		return -EINVAL;
+>  	}
+>  
+> -	buffer = vmemdup_user(buf, lbuf);
+> +	buffer = vmemdup_user(buf, lbuf + 1);
+>  	if (IS_ERR(buffer))
+>  		return -ENOMEM;
+>  
+> +	buffer[lbuf] = '\0';
 
-Hi Wenjia, is there any update on the review?
+This would read one byte too much from user space, and could potentially
+fault.
 
-Thanks!
+Why isn't this simply memdup_user_nul() like all others, which would do the
+right thing?
