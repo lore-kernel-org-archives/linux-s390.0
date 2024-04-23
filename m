@@ -1,156 +1,158 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB3936A03F;
-	Tue, 23 Apr 2024 14:27:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBC108F5E;
+	Tue, 23 Apr 2024 14:46:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713882453; cv=none; b=GZU+UC6uOEjA8oNUBGFSVxHy+pZxpAM88SZwmMwTZHcQK9I4VjDzdFKjm/a3ngS6XpvZpxnAv73bVZ4fRHISnOCkxst6xEvn0d2uZ7wMdOvRBfL/tQ0F+IZmL7a4V4UBBPuPANAGxjo45xM9ilKy94QUEnpaTPzj8EzOaVrn2qI=
+	t=1713883610; cv=none; b=dEZeWkMq2nsCZJ/nUKUbv3x65aeXG+GofpfnWtw8iOckCpcsX9D9xe3M3nYaEFIMPZhjAaEAOkfz7bD9B8ran+DV4+c8BdIn06vFAH36yOGzklmVLyH+2CFQgoqqPZTXXYv4Q/hybucWEPJ6WRYWhZegIrtsZE8hzn/ws+lW+pk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713882453; c=relaxed/simple;
-	bh=sCTX9KuTywRM/pWRYqSYFtiiuUiSaGUp7UzV1B5BGeE=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=hIvZFbX5thtdU9nK3L/qXfS+c2F9tbsBXqjbaN3+cSUCclN0shswROSwIm8KnJVwbes0/MQHlWl+o8icg8hXSc5AJ8E9Z8qB7/8veHjF3vxMWmoT4uhZKxuoMdDAxb1kyVxvFqi7512txOkl0rk7G1rQoWmj7drYr26filULXCo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=z5Y8iPty; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=2qRowrdR; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=fkg8i3TO; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=1XvpnQg1; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1713883610; c=relaxed/simple;
+	bh=ToGncwj89AClxloq2GR3iiMSNF1CUJnuDODivUGYRAo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mA7QD4hK2Hj1Ng+BY3LoPVFeWioVIPD3uMOZnuaiUtFD/uSJ2HFAiHrLN0/cMtqb55HTYtvUgeqTaVHC6yatAK7hZB59zc6RYUWseWHM+TpNd9vwrUoE9j0p2/KGyB/KD0OUrD3obY1zMvdEt800b7lDqvenBt5cI1XjClW0vRI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DWbbKtvH; arc=none smtp.client-ip=209.85.210.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="z5Y8iPty";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="2qRowrdR";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="fkg8i3TO";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="1XvpnQg1"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id C54506006B;
-	Tue, 23 Apr 2024 14:27:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1713882450; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=K6b1flxTTrxOdv+q2tkFyEXERe9nDT45zxP7j+afeUI=;
-	b=z5Y8iPtyjN1x3XkyagDdrcFLsX0ii57/iBnRLmsbF0sL5X4p2jKal1xz4M2W3wKyCWvXYc
-	AS3wdTxKqp55mwpOkJgg7Nxle6pnHaP8/xqh0YGVOTrWVXHueJP2yAAQu/LUF9OmFWyn1Q
-	1zDmZyZwOyjCNB7jUbarSl0f6Zck3KM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1713882450;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=K6b1flxTTrxOdv+q2tkFyEXERe9nDT45zxP7j+afeUI=;
-	b=2qRowrdRAGiiKmywVePCSVuFnvpambBS6xK/NowGwpYvHcC8BvoYJD11Lxv8/S9Jxbo5Pb
-	SjVWQnhX07cZ4VAQ==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1713882448; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=K6b1flxTTrxOdv+q2tkFyEXERe9nDT45zxP7j+afeUI=;
-	b=fkg8i3TO67ggAnsS2oYoWUMEwytWzSLRNfyx8m+8uGG4QZPu9jxcrAATB/gMlfrbHK8cWY
-	Sy+4lBfo4xmlWS7fZICT8I+W0Nx0hysitjyNQ8DzHlRKopanjn2kv4QuWdY1RA/Sil8SpL
-	DeJonSTodfanS80tfwUBUhVM9qlRZhg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1713882448;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=K6b1flxTTrxOdv+q2tkFyEXERe9nDT45zxP7j+afeUI=;
-	b=1XvpnQg1T711xESPLAPi7TzL1moQ1rk4Vf4pMy0mqVjEsnnGq7xrmTJYKfL0xuNhTEDw8d
-	FSNxGczKt89Al2Cg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 123EB13929;
-	Tue, 23 Apr 2024 14:27:27 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([10.150.64.162])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id nlbjOE/FJ2ZefAAAD6G6ig
-	(envelope-from <jdelvare@suse.de>); Tue, 23 Apr 2024 14:27:27 +0000
-Date: Tue, 23 Apr 2024 16:27:24 +0200
-From: Jean Delvare <jdelvare@suse.de>
-To: linux-s390@vger.kernel.org
-Cc: LKML <linux-kernel@vger.kernel.org>, Niklas Schnelle
- <schnelle@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Subject: [PATCH RFC] s390/pci: Drop unneeded reference to CONFIG_DMI
-Message-ID: <20240423162724.3966265a@endymion.delvare>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.34; x86_64-suse-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DWbbKtvH"
+Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-6f103b541aeso2862068b3a.3;
+        Tue, 23 Apr 2024 07:46:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1713883608; x=1714488408; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Vb/jtEQiqMYQ/ISAQh9mg0MTb6zQnFx3hOrCArI3w1E=;
+        b=DWbbKtvHDAMwRw51MQT/rsxrsRjCAkZaOczYUrHsiLHWSnc+6qxwEdTC0m1THnAbcs
+         3vrCdNWRkhImjZz2HbxRg0+2ddHQNoQUCLbExcy0baU4PpTZvnZ8Q/WeSY9TeQjkFyRg
+         xebZuErcwDN8h2O4GcIQHHUYPBgzapZJ+yTHTx5BPc7hsB5H5ZeXxv1OgwFNBuSRqdDD
+         vYKHfE7rTz0trpu+m49fUQXPAddmOsK01hnT+UEbygM3KMG/Ini1bmApMbBdnoRX3Ucs
+         YQnvw7frWjb2uaPFQq7jGTmOnDhuRdriHYNEnadW60flv3rJkxaNdekV9JK6Kj7kx7UU
+         889A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713883608; x=1714488408;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Vb/jtEQiqMYQ/ISAQh9mg0MTb6zQnFx3hOrCArI3w1E=;
+        b=Yj22KoMIMbgR3Qt4ons/OSTtL79sRiKf30ppw4o+hxnJ3LzI37aZdhgZFJKaoPGNCz
+         HaRoN7h/noRo3Bf3bfaJWIHAcY6GZZSTK5aSMBeHnyZ6TzfEDxRGdELqikZ01xFZQfy6
+         Ip2l2BBmg/gLzYHdRI9CSbyaF8AmUXE9fSjRodiSgdVjOojiOHY7OaYitABq2k86giUE
+         mVDGoBiS+5GdRU9cH0dVW34srmS90fpo3LOQZTo1MG/lcVh8n6Cu//PMydchTmTAdVlH
+         P2wExGYCvu7wLm57t4qLpC14dk56syTsSEgy9XmuYnNi6/nDjnv9bkMIVS2NWBnFFHUK
+         zOUw==
+X-Forwarded-Encrypted: i=1; AJvYcCVRzvOIiYB6u8nwICMC6ZzZUji5PAbn+LrzPcm6x8WGnD6VwXCWLto2OIZQ85c5SSv4Y6WkZBnNA2a2vz8tUC4aq7PfKBbO9olXFmMTJ/4fCQsaebRYowM7S54AAi4GrZEqf0Cm4KMHzIMmqwqwGO29rETmmSoyQlimwz636I7LHJQ4okMpfhfQy0d9D9xQqnbv122rcC3Fq7fCIUI=
+X-Gm-Message-State: AOJu0YwsAvAFBdyeplJDKZfEUMnuEjpWKO7d94MQDWZXpcqQioLBROef
+	uBdvNym3121+/kUAnQYqdid2a1rB/H6C+I1wMMeeSa3ed0yYK/Of
+X-Google-Smtp-Source: AGHT+IE1b3OGo1AOOyHI2O/gtQLNNZdbLcFXucTipISHaNiAukcRoQ6PFKyPGYCIilU3YAqWXr+loQ==
+X-Received: by 2002:a05:6a21:2792:b0:1aa:6a28:cf6e with SMTP id rn18-20020a056a21279200b001aa6a28cf6emr12043604pzb.48.1713883607972;
+        Tue, 23 Apr 2024 07:46:47 -0700 (PDT)
+Received: from ?IPV6:2001:ee0:50f5:5d0:b2f6:b23d:3030:9638? ([2001:ee0:50f5:5d0:b2f6:b23d:3030:9638])
+        by smtp.gmail.com with ESMTPSA id l185-20020a6391c2000000b005ffd8019f01sm3689182pge.20.2024.04.23.07.46.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 23 Apr 2024 07:46:47 -0700 (PDT)
+Message-ID: <e4f5cbd0-c803-4c3c-9703-f52e56864106@gmail.com>
+Date: Tue, 23 Apr 2024 21:46:35 +0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 5/5] drivers/s390/cio: ensure the copied buf is NULL
+ terminated
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>,
+ Tony Nguyen <anthony.l.nguyen@intel.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
+ Rasesh Mody <rmody@marvell.com>, Sudarsana Kalluru <skalluru@marvell.com>,
+ GR-Linux-NIC-Dev@marvell.com, Krishna Gudipati <kgudipat@brocade.com>,
+ Anil Gurumurthy <anil.gurumurthy@qlogic.com>,
+ Sudarsana Kalluru <sudarsana.kalluru@qlogic.com>,
+ "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Fabian Frederick <fabf@skynet.be>, Saurav Kashyap <skashyap@marvell.com>,
+ Javed Hasan <jhasan@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com,
+ Nilesh Javali <nilesh.javali@cavium.com>, Arun Easi <arun.easi@cavium.com>,
+ Manish Rangankar <manish.rangankar@cavium.com>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, intel-wired-lan@lists.osuosl.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-scsi@vger.kernel.org, Saurav Kashyap <saurav.kashyap@cavium.com>,
+ linux-s390@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+References: <20240422-fix-oob-read-v1-0-e02854c30174@gmail.com>
+ <20240422-fix-oob-read-v1-5-e02854c30174@gmail.com>
+ <20240423065052.10211-C-hca@linux.ibm.com>
+Content-Language: en-US
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <20240423065052.10211-C-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Score: -3.92
-X-Spam-Level: 
-X-Spamd-Result: default: False [-3.92 / 50.00];
-	BAYES_HAM(-2.62)[98.32%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	HAS_ORG_HEADER(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_THREE(0.00)[4];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:email]
 
-The S/390 architecture doesn't support SMBIOS, so CONFIG_DMI will
-never be defined there. So we can simply omit these preprocessing
-directives and speed up the build a bit.
+On 4/23/24 13:50, Heiko Carstens wrote:
+> On Mon, Apr 22, 2024 at 11:41:40PM +0700, Bui Quang Minh wrote:
+>> Currently, we allocate a lbuf-sized kernel buffer and copy lbuf from
+>> userspace to that buffer. Later, we use scanf on this buffer but we don't
+>> ensure that the string is terminated inside the buffer, this can lead to
+>> OOB read when using scanf. Fix this issue by allocating 1 more byte to at
+>> the end of buffer and write NULL terminator to the end of buffer after
+>> userspace copying.
+>>
+>> Fixes: a4f17cc72671 ("s390/cio: add CRW inject functionality")
+>> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+>> ---
+>>   drivers/s390/cio/cio_inject.c | 3 ++-
+>>   1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/s390/cio/cio_inject.c b/drivers/s390/cio/cio_inject.c
+>> index 8613fa937237..9b69fbf49f60 100644
+>> --- a/drivers/s390/cio/cio_inject.c
+>> +++ b/drivers/s390/cio/cio_inject.c
+>> @@ -95,10 +95,11 @@ static ssize_t crw_inject_write(struct file *file, const char __user *buf,
+>>   		return -EINVAL;
+>>   	}
+>>   
+>> -	buffer = vmemdup_user(buf, lbuf);
+>> +	buffer = vmemdup_user(buf, lbuf + 1);
+>>   	if (IS_ERR(buffer))
+>>   		return -ENOMEM;
+>>   
+>> +	buffer[lbuf] = '\0';
+> 
+> This would read one byte too much from user space, and could potentially
+> fault.
+> 
+> Why isn't this simply memdup_user_nul() like all others, which would do the
+> right thing?
 
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
----
-Niklas, you added these preprocessing directives as part of commit
-81bbf03905aa ("s390/pci: expose a PCI device's UID as its index").
-I do not understand the purpose. Am I missing something?
+Thanks for your review. It's my mistake, I blindly follow the pattern in 
+rvu_debugfs
 
- arch/s390/pci/pci_sysfs.c |    4 ----
- 1 file changed, 4 deletions(-)
+static ssize_t rvu_dbg_qsize_write(struct file *filp,
+				   const char __user *buffer, size_t count,
+				   loff_t *ppos, int blktype)
+{
+	cmd_buf = memdup_user(buffer, count + 1);
+	if (IS_ERR(cmd_buf))
+		return -ENOMEM;
 
---- linux-6.8.orig/arch/s390/pci/pci_sysfs.c
-+++ linux-6.8/arch/s390/pci/pci_sysfs.c
-@@ -156,7 +156,6 @@ static ssize_t uid_is_unique_show(struct
- }
- static DEVICE_ATTR_RO(uid_is_unique);
- 
--#ifndef CONFIG_DMI
- /* analogous to smbios index */
- static ssize_t index_show(struct device *dev,
- 			  struct device_attribute *attr, char *buf)
-@@ -186,7 +185,6 @@ static struct attribute_group zpci_ident
- 	.attrs = zpci_ident_attrs,
- 	.is_visible = zpci_index_is_visible,
- };
--#endif
- 
- static struct bin_attribute *zpci_bin_attrs[] = {
- 	&bin_attr_util_string,
-@@ -229,8 +227,6 @@ static struct attribute_group pfip_attr_
- const struct attribute_group *zpci_attr_groups[] = {
- 	&zpci_attr_group,
- 	&pfip_attr_group,
--#ifndef CONFIG_DMI
- 	&zpci_ident_attr_group,
--#endif
- 	NULL,
- };
+	cmd_buf[count] = '\0';
+}
 
--- 
-Jean Delvare
-SUSE L3 Support
+I will send a patch to fix this too.
+
+For this case, as the original code uses vmemdup_user, which internally 
+uses kvmalloc not kmalloc, so I try to keep the original behavior. And 
+vmemdup_user does not have the counterpart vmemdup_user_nul. I can 
+kvmalloc(lbuf + 1), then copy_to_user(lbuf) and set buffer[lbuf] = '\0' 
+or do you think I should create vmemdup_user_nul?
+
+Thanks,
+Quang Minh.
