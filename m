@@ -1,104 +1,140 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2D9A366;
-	Tue, 23 Apr 2024 10:35:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20EDF80028;
+	Tue, 23 Apr 2024 11:10:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713868540; cv=none; b=OWC9WZUMkhTGaStExwwnQDN2LoXe7SHbubJPrNVO3Kg+tcQS/AHTOofHzb8qsBi3g08NctbcoKHQTn9tlTvk3QphjPUgNhuSqJGRHjxSeBA9M5x6Hy/XvxCppVfBdRdCmI9rR7w3adcNvygJvGY98/xYFwtrK0Ynnbt2W3f9cBo=
+	t=1713870646; cv=none; b=McIFTCSSLlautCAxL3r8ISgCDKGc0PtRggL2S+KbrCwPhsDhWwLCBbosgekjZIIvy53Cts8GbLC0eRZ+g9W2cW3iUqoKCov7id1Eg8rx9UPnBMbwoZFMycvmfpWT55qBwsv5EvBIyxSuGjvxvM5te/7GlzVSyAJiffqZgNU4+98=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713868540; c=relaxed/simple;
-	bh=btRVjF9EZJO72pyvfqReK15CD7G/8b0lMxgTKU7v25Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Y0Qtv1fvc8rtRtVjaevGlw3B3loB8XnHwYEEhJ1wN5l7qKt2Fn0cBCQ70hQ5Q85j2gyHtZi9cm+vOfQxrTHinmtfVAuXftTQoISREivOgSM14CRRj+uyX/1MbHTjUw4W7/TtrkP/wE2dfCxxuUFlNwI5fOFDgihpF+SfepAHF3Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=n7bpQhsf; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1713870646; c=relaxed/simple;
+	bh=FhMYwpD0Jy+0t5UX4wrDuIaENfV+qwJP/+xWhZFZCdQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GHkX7VD6nLSh6upVA9fIJm9w2KmOdWzm9TWX+uBPXXpxGUDUmefcuoqmVEyjgqCW2K94IDiuVvYT+wyKl7LXiF3vssX8M54uUlDsi7aLOrxTg8hhBpXwQ+zhnUyR4tskoNOC50PDjo4jJs1A5YICrpNEAV9CY/jUZVYBhBidrD8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ERnBvNby; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="n7bpQhsf"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43NAVIrG017974;
-	Tue, 23 Apr 2024 10:35:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=RLidVQvklFP/Wc6vuXQ/xuFQO3M7Y6qaT9nYLcfp+qg=;
- b=n7bpQhsfyBZReAZDIl5T3sJ1c6+jVw4+mP1eF/JmkPqZ2GaaHdEb6BGCfjPg+DXeFlAs
- 9HcBOVZb4WtnqA8Retd8cRq+M55Jj6QTD9sbWAMVdp4j/tb5g0f8YRlwTp4zTZh2Issi
- BadsdLUtBhNDVXzSrJb9WEb2DyPNROpFQL6VnYoS1LA3cO7DMpzg5uBc2Dpl58z1mTkp
- QFYyzPV2hlW1RGd1mxFud4VTXdeXb4XiklBKSH9DHbGWKxBlWXqFW56xYzYkgO2n7MaX
- qbtMhiV5/yZZK+WukdiWl+SlpBtvPs6PSPFwGHX74KHjs4mJCHyXSPrI3HqmgCOmnuZQ uw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xp6d10nkt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Apr 2024 10:35:37 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43NAZapx026458;
-	Tue, 23 Apr 2024 10:35:36 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xp6d10nks-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Apr 2024 10:35:36 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43N96GcC028319;
-	Tue, 23 Apr 2024 10:35:35 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xmtr2ckkb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Apr 2024 10:35:35 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43NAZULx28639816
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 23 Apr 2024 10:35:32 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 285612004E;
-	Tue, 23 Apr 2024 10:35:30 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AB44A2004B;
-	Tue, 23 Apr 2024 10:35:29 +0000 (GMT)
-Received: from a46lp57.lnxne.boe (unknown [9.152.108.100])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 23 Apr 2024 10:35:29 +0000 (GMT)
-From: Nico Boehr <nrb@linux.ibm.com>
-To: frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v3 0/1] s390x: cmm: test no-translate bit after reset
-Date: Tue, 23 Apr 2024 12:34:58 +0200
-Message-ID: <20240423103529.313782-1-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ERnBvNby"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1713870645; x=1745406645;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=FhMYwpD0Jy+0t5UX4wrDuIaENfV+qwJP/+xWhZFZCdQ=;
+  b=ERnBvNbyFK6VwTLE/1IyNhrnjvj0TxFuN2XL4Gq4yAOJ7yN7lSkTHEOX
+   CDlc2aCKPJPboY8CRQ9p25ZrTi0xPKZuDho4/fJGNiDcoXAExx5WCcUT7
+   k1Ot3Y0us4F2uybfjrr42Qo85nTF/Jmcg9zLevTfktr3qGwmdSW6fDX4u
+   oTSHr0zY+q3Of+/1/hBTnL1uVqM88Npsrax+/yF5sxl/b18eE4LkXFwEC
+   8rX2uGqbODoQIr+zy0zp+Xw2b4xHI78iHrjfyCgGijDyqdO1VYQBh/OOC
+   Igdk54FoXmzzQn2j3gpp4kz7UQAw2sFDxEGa/Tc3pVTe6HmSSwbPnLjKU
+   A==;
+X-CSE-ConnectionGUID: yTIwQevkT9CXDZpZ5SC9lQ==
+X-CSE-MsgGUID: 8EmlvmEuT8+Ut7spIoLwrQ==
+X-IronPort-AV: E=McAfee;i="6600,9927,11052"; a="26905757"
+X-IronPort-AV: E=Sophos;i="6.07,222,1708416000"; 
+   d="scan'208";a="26905757"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2024 04:10:45 -0700
+X-CSE-ConnectionGUID: GHANmPF1QaSu/tzRusNdUw==
+X-CSE-MsgGUID: zm+oKK03QECvY3VX9hfdGA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,222,1708416000"; 
+   d="scan'208";a="24342606"
+Received: from mszycik-mobl1.ger.corp.intel.com (HELO [10.246.35.198]) ([10.246.35.198])
+  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2024 04:10:37 -0700
+Message-ID: <eb54c7bb-db63-4361-b42f-dc02e2c37fbf@linux.intel.com>
+Date: Tue, 23 Apr 2024 13:10:16 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Dt_qoksTgtvdRRGAl51S44_cYpnme4QK
-X-Proofpoint-ORIG-GUID: IHoCCIuMy2z0MN-n-pfNMsXKC_Ijad0T
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-23_09,2024-04-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
- suspectscore=0 adultscore=0 spamscore=0 phishscore=0 lowpriorityscore=0
- impostorscore=0 mlxlogscore=999 clxscore=1015 priorityscore=1501
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2404230028
+User-Agent: Mozilla Thunderbird
+Subject: Re: [Intel-wired-lan] [PATCH 0/5] Ensure the copied buf is NULL
+ terminated
+To: Bui Quang Minh <minhquangbui99@gmail.com>,
+ Jesse Brandeburg <jesse.brandeburg@intel.com>,
+ Tony Nguyen <anthony.l.nguyen@intel.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
+ Rasesh Mody <rmody@marvell.com>, Sudarsana Kalluru <skalluru@marvell.com>,
+ GR-Linux-NIC-Dev@marvell.com, Krishna Gudipati <kgudipat@brocade.com>,
+ Anil Gurumurthy <anil.gurumurthy@qlogic.com>,
+ Sudarsana Kalluru <sudarsana.kalluru@qlogic.com>,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Fabian Frederick <fabf@skynet.be>, Saurav Kashyap <skashyap@marvell.com>,
+ Javed Hasan <jhasan@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com,
+ Nilesh Javali <nilesh.javali@cavium.com>, Arun Easi <arun.easi@cavium.com>,
+ Manish Rangankar <manish.rangankar@cavium.com>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, intel-wired-lan@lists.osuosl.org,
+ Saurav Kashyap <saurav.kashyap@cavium.com>
+References: <20240422-fix-oob-read-v1-0-e02854c30174@gmail.com>
+Content-Language: en-US
+From: Marcin Szycik <marcin.szycik@linux.intel.com>
+In-Reply-To: <20240422-fix-oob-read-v1-0-e02854c30174@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-v3:
----
-* fix specification exception when ESSA no-dat is not available
-
-v2:
----
-* fix reverse christmas tree
 
 
+On 22.04.2024 18:41, Bui Quang Minh wrote:
+> Hi everyone,
+> 
+> I found that some drivers contains an out-of-bound read pattern like this
+> 
+> 	kern_buf = memdup_user(user_buf, count);
+> 	...
+> 	sscanf(kern_buf, ...);
+> 
+> The sscanf can be replaced by some other string-related functions. This
+> pattern can lead to out-of-bound read of kern_buf in string-related
+> functions.
+> 
+> This series fix the above issue by replacing memdup_user with
+> memdup_user_nul or allocating count + 1 buffer then writing the NULL
+> terminator to end of buffer after userspace copying.
+> 
+> Thanks,
+> Quang Minh.
+> 
+> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+> ---
+> Bui Quang Minh (5):
+>       drivers/net/ethernet/intel-ice: ensure the copied buf is NULL terminated
+>       drivers/net/brocade-bnad: ensure the copied buf is NULL terminated
+>       drivers/scsi/bfa/bfad: ensure the copied buf is NULL terminated
+>       drivers/scsi/qedf: ensure the copied buf is NULL terminated
+>       drivers/s390/cio: ensure the copied buf is NULL terminated
 
-Nico Boehr (1):
-  s390x: cmm: test no-translate bit after reset
+Typically you don't include path to module in title, instead:
+ice: ensure the copied buf is NULL terminated
+bna: ensure the copied buf is NULL terminated
+etc.
 
- s390x/cmm.c | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+> 
+>  drivers/net/ethernet/brocade/bna/bnad_debugfs.c | 4 ++--
+>  drivers/net/ethernet/intel/ice/ice_debugfs.c    | 8 ++++----
+>  drivers/s390/cio/cio_inject.c                   | 3 ++-
+>  drivers/scsi/bfa/bfad_debugfs.c                 | 4 ++--
+>  drivers/scsi/qedf/qedf_debugfs.c                | 2 +-
+>  5 files changed, 11 insertions(+), 10 deletions(-)
+> ---
+> base-commit: ed30a4a51bb196781c8058073ea720133a65596f
+> change-id: 20240422-fix-oob-read-19ae7f8f3711
+> 
+> Best regards,
 
--- 
-2.41.0
-
+Thanks,
+Marcin
