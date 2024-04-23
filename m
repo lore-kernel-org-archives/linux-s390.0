@@ -1,158 +1,165 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBC108F5E;
-	Tue, 23 Apr 2024 14:46:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1E8413C687;
+	Tue, 23 Apr 2024 15:59:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713883610; cv=none; b=dEZeWkMq2nsCZJ/nUKUbv3x65aeXG+GofpfnWtw8iOckCpcsX9D9xe3M3nYaEFIMPZhjAaEAOkfz7bD9B8ran+DV4+c8BdIn06vFAH36yOGzklmVLyH+2CFQgoqqPZTXXYv4Q/hybucWEPJ6WRYWhZegIrtsZE8hzn/ws+lW+pk=
+	t=1713887979; cv=none; b=bV6oRYg7VuLhE/IBtRs4deZHtOaUD3Czra8wlbWKch+jpXP0wWhPexDGUZZLjNxnBMiuWP7ST24NmkmqWV5FFMlBI0HDJG9NvjRr0Ko1GvpYqVS7XTreEhBvbhkcfzfw0FgvG2F9x71fwtmkycvtB9R+KfjyWHgxxZbhiRf4vjs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713883610; c=relaxed/simple;
-	bh=ToGncwj89AClxloq2GR3iiMSNF1CUJnuDODivUGYRAo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mA7QD4hK2Hj1Ng+BY3LoPVFeWioVIPD3uMOZnuaiUtFD/uSJ2HFAiHrLN0/cMtqb55HTYtvUgeqTaVHC6yatAK7hZB59zc6RYUWseWHM+TpNd9vwrUoE9j0p2/KGyB/KD0OUrD3obY1zMvdEt800b7lDqvenBt5cI1XjClW0vRI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DWbbKtvH; arc=none smtp.client-ip=209.85.210.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1713887979; c=relaxed/simple;
+	bh=3W3+gTlMMlGg1n5siDppY1Jls5G/5X/Gqih9vYnq/kU=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=YXPxuCS6OfCHGQpCHygXdKQbOihpful64yMuJ4C/c6UFxxHFe/K9cnQC8E0LsStv+Gyy6ZxsTWce+PeSmCkJRl4pjB/MPT08X6coRPtOQ4uFIEHXwf61852re9UXAHKpiOe3uU8ZyI96aRlYF8ZVaP4B/OAxwApWMyHGqSA2+SA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mqps9JPz; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DWbbKtvH"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-6f103b541aeso2862068b3a.3;
-        Tue, 23 Apr 2024 07:46:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713883608; x=1714488408; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Vb/jtEQiqMYQ/ISAQh9mg0MTb6zQnFx3hOrCArI3w1E=;
-        b=DWbbKtvHDAMwRw51MQT/rsxrsRjCAkZaOczYUrHsiLHWSnc+6qxwEdTC0m1THnAbcs
-         3vrCdNWRkhImjZz2HbxRg0+2ddHQNoQUCLbExcy0baU4PpTZvnZ8Q/WeSY9TeQjkFyRg
-         xebZuErcwDN8h2O4GcIQHHUYPBgzapZJ+yTHTx5BPc7hsB5H5ZeXxv1OgwFNBuSRqdDD
-         vYKHfE7rTz0trpu+m49fUQXPAddmOsK01hnT+UEbygM3KMG/Ini1bmApMbBdnoRX3Ucs
-         YQnvw7frWjb2uaPFQq7jGTmOnDhuRdriHYNEnadW60flv3rJkxaNdekV9JK6Kj7kx7UU
-         889A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713883608; x=1714488408;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Vb/jtEQiqMYQ/ISAQh9mg0MTb6zQnFx3hOrCArI3w1E=;
-        b=Yj22KoMIMbgR3Qt4ons/OSTtL79sRiKf30ppw4o+hxnJ3LzI37aZdhgZFJKaoPGNCz
-         HaRoN7h/noRo3Bf3bfaJWIHAcY6GZZSTK5aSMBeHnyZ6TzfEDxRGdELqikZ01xFZQfy6
-         Ip2l2BBmg/gLzYHdRI9CSbyaF8AmUXE9fSjRodiSgdVjOojiOHY7OaYitABq2k86giUE
-         mVDGoBiS+5GdRU9cH0dVW34srmS90fpo3LOQZTo1MG/lcVh8n6Cu//PMydchTmTAdVlH
-         P2wExGYCvu7wLm57t4qLpC14dk56syTsSEgy9XmuYnNi6/nDjnv9bkMIVS2NWBnFFHUK
-         zOUw==
-X-Forwarded-Encrypted: i=1; AJvYcCVRzvOIiYB6u8nwICMC6ZzZUji5PAbn+LrzPcm6x8WGnD6VwXCWLto2OIZQ85c5SSv4Y6WkZBnNA2a2vz8tUC4aq7PfKBbO9olXFmMTJ/4fCQsaebRYowM7S54AAi4GrZEqf0Cm4KMHzIMmqwqwGO29rETmmSoyQlimwz636I7LHJQ4okMpfhfQy0d9D9xQqnbv122rcC3Fq7fCIUI=
-X-Gm-Message-State: AOJu0YwsAvAFBdyeplJDKZfEUMnuEjpWKO7d94MQDWZXpcqQioLBROef
-	uBdvNym3121+/kUAnQYqdid2a1rB/H6C+I1wMMeeSa3ed0yYK/Of
-X-Google-Smtp-Source: AGHT+IE1b3OGo1AOOyHI2O/gtQLNNZdbLcFXucTipISHaNiAukcRoQ6PFKyPGYCIilU3YAqWXr+loQ==
-X-Received: by 2002:a05:6a21:2792:b0:1aa:6a28:cf6e with SMTP id rn18-20020a056a21279200b001aa6a28cf6emr12043604pzb.48.1713883607972;
-        Tue, 23 Apr 2024 07:46:47 -0700 (PDT)
-Received: from ?IPV6:2001:ee0:50f5:5d0:b2f6:b23d:3030:9638? ([2001:ee0:50f5:5d0:b2f6:b23d:3030:9638])
-        by smtp.gmail.com with ESMTPSA id l185-20020a6391c2000000b005ffd8019f01sm3689182pge.20.2024.04.23.07.46.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 23 Apr 2024 07:46:47 -0700 (PDT)
-Message-ID: <e4f5cbd0-c803-4c3c-9703-f52e56864106@gmail.com>
-Date: Tue, 23 Apr 2024 21:46:35 +0700
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mqps9JPz"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43NDYXPe022325;
+	Tue, 23 Apr 2024 15:59:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=3W3+gTlMMlGg1n5siDppY1Jls5G/5X/Gqih9vYnq/kU=;
+ b=mqps9JPzmmucqUQt1PS5DpvKXj+m+I4wBgM99Xeublap5Lm4PUB52nQ6oJEy7dF4lmNG
+ oyCc2GSF3y/4aZ09KbqCMzTbTpmeMwF/e2EObUBBCZ7jhdoxHJir0WwQ78oTjg4H2eYw
+ sEGzZrN0GMgQhj+rywyUJkBqkxTzAlqxwarrwr3ak0lIOdjplVXo2ujXeAi0IVAnrUuR
+ O9MDgl1ua9IRLpVHA7OxroOgD2NxRUcyaMSYGDU5wahzm1zlVBy/71KpFqHFlno1/AUf
+ Tk7S4gzP2+sCcC24C2stgMHjnzp9LpDcBIHlFlNvU852DnjY3bBSYwWAZzkoOVu2lh1C Nw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xpdyg0ats-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 23 Apr 2024 15:59:34 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43NFxXdY029213;
+	Tue, 23 Apr 2024 15:59:33 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xpdyg0atp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 23 Apr 2024 15:59:33 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43NFqeKZ005328;
+	Tue, 23 Apr 2024 15:59:32 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xmx3cd7p1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 23 Apr 2024 15:59:32 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43NFxRhe27066918
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 23 Apr 2024 15:59:29 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 54DD520043;
+	Tue, 23 Apr 2024 15:59:27 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1B1A420040;
+	Tue, 23 Apr 2024 15:59:27 +0000 (GMT)
+Received: from [9.152.212.201] (unknown [9.152.212.201])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 23 Apr 2024 15:59:27 +0000 (GMT)
+Message-ID: <6300ad008ed0822e3cfb93a57e16745510dff441.camel@linux.ibm.com>
+Subject: Re: [PATCH v2] vfio/pci: Support 8-byte PCI loads and stores
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Alex Williamson <alex.williamson@redhat.com>,
+        Niklas Schnelle
+ <schnelle@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Ankit Agrawal <ankita@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>, Halil
+ Pasic <pasic@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>, Ben
+ Segal <bpsegal@us.ibm.com>
+Date: Tue, 23 Apr 2024 17:59:22 +0200
+In-Reply-To: <20240422174305.GB231144@ziepe.ca>
+References: <20240422153508.2355844-1-gbayer@linux.ibm.com>
+	 <20240422174305.GB231144@ziepe.ca>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.4 (3.50.4-2.fc39app4) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 5/5] drivers/s390/cio: ensure the copied buf is NULL
- terminated
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>,
- Tony Nguyen <anthony.l.nguyen@intel.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
- Rasesh Mody <rmody@marvell.com>, Sudarsana Kalluru <skalluru@marvell.com>,
- GR-Linux-NIC-Dev@marvell.com, Krishna Gudipati <kgudipat@brocade.com>,
- Anil Gurumurthy <anil.gurumurthy@qlogic.com>,
- Sudarsana Kalluru <sudarsana.kalluru@qlogic.com>,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Fabian Frederick <fabf@skynet.be>, Saurav Kashyap <skashyap@marvell.com>,
- Javed Hasan <jhasan@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com,
- Nilesh Javali <nilesh.javali@cavium.com>, Arun Easi <arun.easi@cavium.com>,
- Manish Rangankar <manish.rangankar@cavium.com>,
- Vineeth Vijayan <vneethv@linux.ibm.com>,
- Peter Oberparleiter <oberpar@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, intel-wired-lan@lists.osuosl.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-scsi@vger.kernel.org, Saurav Kashyap <saurav.kashyap@cavium.com>,
- linux-s390@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-References: <20240422-fix-oob-read-v1-0-e02854c30174@gmail.com>
- <20240422-fix-oob-read-v1-5-e02854c30174@gmail.com>
- <20240423065052.10211-C-hca@linux.ibm.com>
-Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <20240423065052.10211-C-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 9-odmDINHHJ3gKzDZSoa6-wA3JiKwOgN
+X-Proofpoint-GUID: ImA8AYdnkIuKeZXyWWOTRGQt0Bd9_i_F
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-04-23_13,2024-04-23_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
+ adultscore=0 lowpriorityscore=0 priorityscore=1501 mlxlogscore=894
+ impostorscore=0 spamscore=0 phishscore=0 mlxscore=0 malwarescore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404230037
 
-On 4/23/24 13:50, Heiko Carstens wrote:
-> On Mon, Apr 22, 2024 at 11:41:40PM +0700, Bui Quang Minh wrote:
->> Currently, we allocate a lbuf-sized kernel buffer and copy lbuf from
->> userspace to that buffer. Later, we use scanf on this buffer but we don't
->> ensure that the string is terminated inside the buffer, this can lead to
->> OOB read when using scanf. Fix this issue by allocating 1 more byte to at
->> the end of buffer and write NULL terminator to the end of buffer after
->> userspace copying.
->>
->> Fixes: a4f17cc72671 ("s390/cio: add CRW inject functionality")
->> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
->> ---
->>   drivers/s390/cio/cio_inject.c | 3 ++-
->>   1 file changed, 2 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/s390/cio/cio_inject.c b/drivers/s390/cio/cio_inject.c
->> index 8613fa937237..9b69fbf49f60 100644
->> --- a/drivers/s390/cio/cio_inject.c
->> +++ b/drivers/s390/cio/cio_inject.c
->> @@ -95,10 +95,11 @@ static ssize_t crw_inject_write(struct file *file, const char __user *buf,
->>   		return -EINVAL;
->>   	}
->>   
->> -	buffer = vmemdup_user(buf, lbuf);
->> +	buffer = vmemdup_user(buf, lbuf + 1);
->>   	if (IS_ERR(buffer))
->>   		return -ENOMEM;
->>   
->> +	buffer[lbuf] = '\0';
-> 
-> This would read one byte too much from user space, and could potentially
-> fault.
-> 
-> Why isn't this simply memdup_user_nul() like all others, which would do the
-> right thing?
+On Mon, 2024-04-22 at 14:43 -0300, Jason Gunthorpe wrote:
+> On Mon, Apr 22, 2024 at 05:35:08PM +0200, Gerd Bayer wrote:
+> > From: Ben Segal <bpsegal@us.ibm.com>
+> >=20
+> > Many PCI adapters can benefit or even require full 64bit read
+> > and write access to their registers. In order to enable work on
+> > user-space drivers for these devices add two new variations
+> > vfio_pci_core_io{read|write}64 of the existing access methods
+> > when the architecture supports 64-bit ioreads and iowrites.
+> >=20
+> > Since these access methods are instantiated on 64bit architectures,
+> > only, their use in vfio_pci_core_do_io_rw() is restricted by
+> > conditional
+> > compiles to these architectures.
+> >=20
+> > Signed-off-by: Ben Segal <bpsegal@us.ibm.com>
+> > Co-developed-by: Gerd Bayer <gbayer@linux.ibm.com>
+> > Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+> > ---
+> > Hi all,
+> >=20
+> > we've successfully used this patch with a user-mode driver for a
+> > PCI
+> > device that requires 64bit register read/writes on s390. A quick
+> > grep
+> > showed that there are several other drivers for PCI devices in the
+> > kernel
+> > that use readq/writeq and eventually could use this, too.
+> > So we decided to propose this for general inclusion.
+> >=20
+> > Thank you,
+> > Gerd Bayer
+> >=20
+> > Changes v1 -> v2:
+> > - On non 64bit architecture use at most 32bit accesses in
+> > =C2=A0 vfio_pci_core_do_io_rw and describe that in the commit message.
+> > - Drop the run-time error on 32bit architectures.
+> > - The #endif splitting the "else if" is not really fortunate, but
+> > I'm
+> > =C2=A0 open to suggestions.
+>=20
+> Provide a iowrite64() that does back to back writes for 32 bit?
 
-Thanks for your review. It's my mistake, I blindly follow the pattern in 
-rvu_debugfs
+Hi Jason,
 
-static ssize_t rvu_dbg_qsize_write(struct file *filp,
-				   const char __user *buffer, size_t count,
-				   loff_t *ppos, int blktype)
-{
-	cmd_buf = memdup_user(buffer, count + 1);
-	if (IS_ERR(cmd_buf))
-		return -ENOMEM;
+unfortunately, the nomenclature in vfio_pci_rdwr.c is not very clear...
+vfio_io{read|write}64 are mapped to io{read|write}64 as defined in
+include/asm-generic/io.h prior to my change already. OTOH, looks like
+vfio_io{read|write}64 are consumed only by the
+vfio_pci_core_io{read|write}64 functions. This however is an exported
+symbol - that seems to be used only as vfio_pci_core_io{read|write}16,
+so far.
 
-	cmd_buf[count] = '\0';
-}
+vfio_pci_core_io{read|write}X is also used by vfio_pci_core_do_io_rw()
+which does "bulk" reads/writes using the largest suitable access size.
+I think there, we can live without 64bit accesses as the while loop
+there will use 32bit read/writes back-to-back as applicable.
 
-I will send a patch to fix this too.
+So I think 64bit accesses on 32bit architectures through VFIO are
+somewhat uncharted territory - and I'm not sure that back-to-back 32bit
+accesses are the right thing to do. If the device defined 64bit
+registers, you could trigger side-effects in the wrong order (or not at
+all).
 
-For this case, as the original code uses vmemdup_user, which internally 
-uses kvmalloc not kmalloc, so I try to keep the original behavior. And 
-vmemdup_user does not have the counterpart vmemdup_user_nul. I can 
-kvmalloc(lbuf + 1), then copy_to_user(lbuf) and set buffer[lbuf] = '\0' 
-or do you think I should create vmemdup_user_nul?
+Somewhat overwhelmed,
+Gerd
 
-Thanks,
-Quang Minh.
