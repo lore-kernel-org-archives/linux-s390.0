@@ -1,221 +1,99 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2A6612C555;
-	Thu, 25 Apr 2024 12:03:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CE961494DA;
+	Thu, 25 Apr 2024 13:06:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714046620; cv=none; b=fDWwx2j8d0v9c2XLCxStLd7xbvEP+mInyY3y6ZrmliFIrUqOFfchZT3Mnod+weBfc2OEl2fQeHqbA1+kmG7xngcLmNGaFD4WbpqATZTAmTgmu4ThyfeB8y1ut2ix4uQr5+roN+3QQdvGBroUgg3ncwBjOlvSTNdUGBnBrMrKRgo=
+	t=1714050373; cv=none; b=EaPq22ryIbXMN79D3MmH6JE6qF0ur18pe1IH0ZoZRK9FnlG3x0uUVUjXz83EuNTQZzuvFmT9Rr0zCyWTD+I5wHMw4Ui7ntoWkt6FH1CG4jlxDM50fSfxLtvn1yYWPADMLtOPGFjzfiHZKDl3cTGMYRvdZWZYWg9PK5zAK8hAEAI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714046620; c=relaxed/simple;
-	bh=GH2bezeza5fhtu1z47o7+tK1nF0tM45eNw6jY53xEPE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=oxMoZnyYPcMIOtfzzylGB/K93s5Y3AZ9aFCnOwhW+ya5n5ljDulSMP1tB7DUKOL4x+6gMX7syzvdYsd7uY2GNCJ4GdUY8anlJ1T3z0GmLy95GCyoV7hNPVzGkQHgUNcULtX5ZvX2wXpsKmerQowrJ5CG8EwSdNZVsjpHi8ssdKA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hlvwO97+; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1714050373; c=relaxed/simple;
+	bh=qEsA4fMSLkxiExCUcAUU2HEHNNs8axftNFScUXDPiew=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RGVisPSWWW+IZWHSS3IvlCDCyFPA9hKta7HV5fhaCZjX4T1VLV0CSGeTfbbWLhx+Bz0YQ4WLA5YsY5e6R5aCIv4CXsi0zTHahyfAm8vy0/95BnVNTI7urAg0uYLXjE/yjFWrEM2YuhULFeABL52BRX41ZaoHTNyFpsWgW9Dkewk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tLduG9PE; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hlvwO97+"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 57C80C4AF07;
-	Thu, 25 Apr 2024 12:03:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714046620;
-	bh=GH2bezeza5fhtu1z47o7+tK1nF0tM45eNw6jY53xEPE=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=hlvwO97+skX0DnQ7KmoLQpuPjt5gbTop7ZeYcx75/u+/9Dz09gddrHv517YKzxw7w
-	 Qjy7nqjM8G86/k9CgiST/x5bMoYOIIcwOv30WR2ZV5/GarZzexpzOPDVcEibmCOghx
-	 4hFik8LQp2ncQCjfaztxW2QBBoQ1tJmJeVoXovOuUKUq4y9quxWzEinehnlw2t14+1
-	 fln8Odj11rSU4B4R6moihsXxptrLiHoliaLwWZIIPTW8WKm2wGlV83UhCzWIy74oaO
-	 YIUN3cxvWDIGUHcvrZL5yTE9XiDzORjnedQPSsWYJCP662KTMiXlQMjRtkzIwXld86
-	 Je/gyqEIaFnAg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DD62C10F15;
-	Thu, 25 Apr 2024 12:03:40 +0000 (UTC)
-From: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.org>
-Date: Thu, 25 Apr 2024 14:03:06 +0200
-Subject: [PATCH v4 8/8] ax.25: x.25: Remove the now superfluous sentinel
- elements from ctl_table array
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tLduG9PE"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43PD26gN005234;
+	Thu, 25 Apr 2024 13:06:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=gsj6tYdabVaphThcZgq+iWqbQLRoqpAoC3FzceEswqw=;
+ b=tLduG9PEYYUbvteT6UeisKhiq7fCfPx2v9VBHM5R6Z08Dd0hwdUZgh/glV8FJKqzf2sc
+ 9jpwDEf2jH5BmQJ3ZmbAhdzZ1r+UrDmlE7a2/Pktc4WDiGmqsgLC0eeQeQtLS6iCa7W7
+ ioR9I3ArKMwGB33bbz/3BhIF9JtuUWgUvM7fzvpiGWaAZKIKHi4QctbX2VYdMyIzQMdI
+ RKJTvH8uMZ0rGup0PCdXrF+q5PedZbTy1S5iYt+qTPBCjacd9FQUSD6dFXAHuATcke1B
+ f7zg1+jWlicbR1DA4h55hLCmPaf0uZaCwQfKJzyruf5ImgjX5Y759+qsL9ijDFWoqMZK KA== 
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xqqpwr0c9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 25 Apr 2024 13:06:09 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43PCNv6b023068;
+	Thu, 25 Apr 2024 13:06:08 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xms1p9u6s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 25 Apr 2024 13:06:08 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43PD621a35651882
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 25 Apr 2024 13:06:04 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6A3C62006A;
+	Thu, 25 Apr 2024 13:06:02 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2758C2004B;
+	Thu, 25 Apr 2024 13:06:01 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.171.50.16])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 25 Apr 2024 13:06:01 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        borntraeger@de.ibm.com
+Subject: [PATCH v1 0/2] s390/pgtable: misc small improvements
+Date: Thu, 25 Apr 2024 15:05:53 +0200
+Message-ID: <20240425130555.73132-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.44.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240425-jag-sysctl_remset_net-v4-8-9e82f985777d@samsung.com>
-References: <20240425-jag-sysctl_remset_net-v4-0-9e82f985777d@samsung.com>
-In-Reply-To: <20240425-jag-sysctl_remset_net-v4-0-9e82f985777d@samsung.com>
-To: "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, Alexander Aring <alex.aring@gmail.com>, 
- Stefan Schmidt <stefan@datenfreihafen.org>, 
- Miquel Raynal <miquel.raynal@bootlin.com>, David Ahern <dsahern@kernel.org>, 
- Steffen Klassert <steffen.klassert@secunet.com>, 
- Herbert Xu <herbert@gondor.apana.org.au>, 
- Matthieu Baerts <matttbe@kernel.org>, Mat Martineau <martineau@kernel.org>, 
- Geliang Tang <geliang@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, 
- Remi Denis-Courmont <courmisch@gmail.com>, 
- Allison Henderson <allison.henderson@oracle.com>, 
- David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, 
- Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
- Xin Long <lucien.xin@gmail.com>, Wenjia Zhang <wenjia@linux.ibm.com>, 
- Jan Karcher <jaka@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>, 
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, 
- Trond Myklebust <trond.myklebust@hammerspace.com>, 
- Anna Schumaker <anna@kernel.org>, Chuck Lever <chuck.lever@oracle.com>, 
- Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, 
- Olga Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>, 
- Tom Talpey <tom@talpey.com>, Jon Maloy <jmaloy@redhat.com>, 
- Ying Xue <ying.xue@windriver.com>, Martin Schiller <ms@dev.tdt.de>, 
- Pablo Neira Ayuso <pablo@netfilter.org>, 
- Jozsef Kadlecsik <kadlec@netfilter.org>, Florian Westphal <fw@strlen.de>, 
- Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, 
- Simon Horman <horms@verge.net.au>, Julian Anastasov <ja@ssi.bg>, 
- Joerg Reuter <jreuter@yaina.de>, Luis Chamberlain <mcgrof@kernel.org>, 
- Kees Cook <keescook@chromium.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- dccp@vger.kernel.org, linux-wpan@vger.kernel.org, mptcp@lists.linux.dev, 
- linux-hams@vger.kernel.org, linux-rdma@vger.kernel.org, 
- rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, 
- linux-sctp@vger.kernel.org, linux-s390@vger.kernel.org, 
- linux-nfs@vger.kernel.org, tipc-discussion@lists.sourceforge.net, 
- linux-x25@vger.kernel.org, netfilter-devel@vger.kernel.org, 
- coreteam@netfilter.org, bridge@lists.linux.dev, lvs-devel@vger.kernel.org, 
- Joel Granados <j.granados@samsung.com>
-X-Mailer: b4 0.13-dev-2d940
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3995;
- i=j.granados@samsung.com; h=from:subject:message-id;
- bh=NZnJW6XWgopf75vh1g8TgFTlOj8qaKFukPEjDf1p53c=;
- b=owJ4nAHtARL+kA0DAAoBupfNUreWQU8ByyZiAGYqRphNUhwxu2kexo/hYhmJ491ahYV7cLFwq
- w7VYyxuqYw7eokBswQAAQoAHRYhBK5HCVcl5jElzssnkLqXzVK3lkFPBQJmKkaYAAoJELqXzVK3
- lkFP/g4L/Rw4jFAj8rRf+PUjXY8X6e94Tuaw6P4lDE+mlm7nTxevertGEyJPmkNLQDVRzXXjZ6x
- DIDWA6v0PSTnMQotoOGKoGWYNg5JfbvP4TLw874hFMnI6G9rxnbeOzwh1L7Ks+lwv48hoZ7danV
- hTUguAsJyW5uxY0s53pEEm7tZzUXkO2aHOldg2oqKyXaGeRsmif7sWTkdwww31zTzWRXWJ+dZpG
- nIxdmPJRJOjhU8L7Jw0NppJvjTdKjdCf3BqjlQfbwKqpU+pb6BJSSFJeOzMsAGpMbFOqqYyijt9
- QHjSF8II19VF3jrxsRhb3ZGFHIY0v64VhBPZv3IeFm7cqaV7aSkSazJl8PLjCZCDQ0y24sR0Dpp
- Jl9tM99YG88VpBPncqPYzTrXWVwHs01y9eyV9iyTJozFFLoEAYvGC0Dvl8rnbNpTG5bD+T0eF6Z
- Eh162u2q2KdMYqraFWbaHk5T5OblKsB7S33tJM5YpdSKXmqW0g3RieYS9ac3pL7TWz4rwfyDdY6
- 8Y=
-X-Developer-Key: i=j.granados@samsung.com; a=openpgp;
- fpr=F1F8E46D30F0F6C4A45FF4465895FAAC338C6E77
-X-Endpoint-Received: by B4 Relay for j.granados@samsung.com/default with
- auth_id=70
-X-Original-From: Joel Granados <j.granados@samsung.com>
-Reply-To: j.granados@samsung.com
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: qKexw6tJUdX7hlIm233UcH7nHME1p4le
+X-Proofpoint-GUID: qKexw6tJUdX7hlIm233UcH7nHME1p4le
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-04-25_13,2024-04-25_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=572 adultscore=0
+ phishscore=0 suspectscore=0 priorityscore=1501 malwarescore=0
+ lowpriorityscore=0 mlxscore=0 spamscore=0 bulkscore=0 impostorscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404250095
 
-From: Joel Granados <j.granados@samsung.com>
+This series has two small improvements for the s390 page tables.
 
-This commit comes at the tail end of a greater effort to remove the
-empty elements at the end of the ctl_table arrays (sentinels) which will
-reduce the overall build time size of the kernel and run time memory
-bloat by ~64 bytes per sentinel (further information Link :
-https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
+The first aligns the layout of large puds with that of large pmds;
+there is no reason for the large pud read and write softbits to be
+swapped compared to large pmds.
 
-Avoid a buffer overflow when traversing the ctl_table by ensuring that
-AX25_MAX_VALUES is the same as the size of ax25_param_table. This is
-done with a BUILD_BUG_ON where ax25_param_table is defined and a
-CONFIG_AX25_DAMA_SLAVE guard in the unnamed enum definition as well as
-in the ax25_dev_device_up and ax25_ds_set_timer functions.
+The second introduces _REGION3_ENTRY_HARDWARE_BITS_LARGE, for
+completeness, which is a bitmask of the hardware bits for large puds.
 
-The overflow happened when the sentinel was removed from
-ax25_param_table. The sentinel's data element was changed when
-CONFIG_AX25_DAMA_SLAVE was undefined. This had no adverse effects as it
-still stopped on the sentinel's null procname but needed to be addressed
-once the sentinel was removed.
+Claudio Imbrenda (2):
+  s390/pgtable: switch read and write softbits for puds
+  s390/pgtable: introduce _REGION3_ENTRY_HARDWARE_BITS_LARGE
 
-Signed-off-by: Joel Granados <j.granados@samsung.com>
----
- include/net/ax25.h         | 2 ++
- net/ax25/ax25_dev.c        | 3 +++
- net/ax25/ax25_ds_timer.c   | 4 ++++
- net/ax25/sysctl_net_ax25.c | 3 +--
- net/x25/sysctl_net_x25.c   | 1 -
- 5 files changed, 10 insertions(+), 3 deletions(-)
-
-diff --git a/include/net/ax25.h b/include/net/ax25.h
-index 0d939e5aee4e..eb9cee8252c8 100644
---- a/include/net/ax25.h
-+++ b/include/net/ax25.h
-@@ -139,7 +139,9 @@ enum {
- 	AX25_VALUES_N2,		/* Default N2 value */
- 	AX25_VALUES_PACLEN,	/* AX.25 MTU */
- 	AX25_VALUES_PROTOCOL,	/* Std AX.25, DAMA Slave, DAMA Master */
-+#ifdef CONFIG_AX25_DAMA_SLAVE
- 	AX25_VALUES_DS_TIMEOUT,	/* DAMA Slave timeout */
-+#endif
- 	AX25_MAX_VALUES		/* THIS MUST REMAIN THE LAST ENTRY OF THIS LIST */
- };
- 
-diff --git a/net/ax25/ax25_dev.c b/net/ax25/ax25_dev.c
-index c5462486dbca..af547e185a94 100644
---- a/net/ax25/ax25_dev.c
-+++ b/net/ax25/ax25_dev.c
-@@ -78,7 +78,10 @@ void ax25_dev_device_up(struct net_device *dev)
- 	ax25_dev->values[AX25_VALUES_N2]        = AX25_DEF_N2;
- 	ax25_dev->values[AX25_VALUES_PACLEN]	= AX25_DEF_PACLEN;
- 	ax25_dev->values[AX25_VALUES_PROTOCOL]  = AX25_DEF_PROTOCOL;
-+
-+#ifdef CONFIG_AX25_DAMA_SLAVE
- 	ax25_dev->values[AX25_VALUES_DS_TIMEOUT]= AX25_DEF_DS_TIMEOUT;
-+#endif
- 
- #if defined(CONFIG_AX25_DAMA_SLAVE) || defined(CONFIG_AX25_DAMA_MASTER)
- 	ax25_ds_setup_timer(ax25_dev);
-diff --git a/net/ax25/ax25_ds_timer.c b/net/ax25/ax25_ds_timer.c
-index c4f8adbf8144..8f385d2a7628 100644
---- a/net/ax25/ax25_ds_timer.c
-+++ b/net/ax25/ax25_ds_timer.c
-@@ -49,12 +49,16 @@ void ax25_ds_del_timer(ax25_dev *ax25_dev)
- 
- void ax25_ds_set_timer(ax25_dev *ax25_dev)
- {
-+#ifdef CONFIG_AX25_DAMA_SLAVE
- 	if (ax25_dev == NULL)		/* paranoia */
- 		return;
- 
- 	ax25_dev->dama.slave_timeout =
- 		msecs_to_jiffies(ax25_dev->values[AX25_VALUES_DS_TIMEOUT]) / 10;
- 	mod_timer(&ax25_dev->dama.slave_timer, jiffies + HZ);
-+#else
-+	return;
-+#endif
- }
- 
- /*
-diff --git a/net/ax25/sysctl_net_ax25.c b/net/ax25/sysctl_net_ax25.c
-index db66e11e7fe8..4e593d36d311 100644
---- a/net/ax25/sysctl_net_ax25.c
-+++ b/net/ax25/sysctl_net_ax25.c
-@@ -141,8 +141,6 @@ static const struct ctl_table ax25_param_table[] = {
- 		.extra2		= &max_ds_timeout
- 	},
- #endif
--
--	{ }	/* that's all, folks! */
- };
- 
- int ax25_register_dev_sysctl(ax25_dev *ax25_dev)
-@@ -155,6 +153,7 @@ int ax25_register_dev_sysctl(ax25_dev *ax25_dev)
- 	if (!table)
- 		return -ENOMEM;
- 
-+	BUILD_BUG_ON(ARRAY_SIZE(ax25_param_table) != AX25_MAX_VALUES);
- 	for (k = 0; k < AX25_MAX_VALUES; k++)
- 		table[k].data = &ax25_dev->values[k];
- 
-diff --git a/net/x25/sysctl_net_x25.c b/net/x25/sysctl_net_x25.c
-index e9802afa43d0..643f50874dfe 100644
---- a/net/x25/sysctl_net_x25.c
-+++ b/net/x25/sysctl_net_x25.c
-@@ -71,7 +71,6 @@ static struct ctl_table x25_table[] = {
- 		.mode = 	0644,
- 		.proc_handler = proc_dointvec,
- 	},
--	{ },
- };
- 
- int __init x25_register_sysctl(void)
+ arch/s390/include/asm/pgtable.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 -- 
-2.43.0
-
+2.44.0
 
