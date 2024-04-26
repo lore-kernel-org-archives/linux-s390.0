@@ -1,109 +1,100 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2895E12BF28;
-	Thu, 25 Apr 2024 22:58:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A37D71C3E;
+	Fri, 26 Apr 2024 02:30:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714085889; cv=none; b=UKjIzWySvO4bE+i+R07JJinYA6FOo2fgfdBFLJ3wQsJ0Ok25V2DCMWZBkQBYtSET2LC27Og0tYkdXfrFfv03nMyQkP9h1Lncpdki3gcPrmb5lFvQhoHvgaKk2sdzBM2nGSLhUCDDRygz1qY/K/P0Xw/qlOeyUpgQChD9V6DnhaU=
+	t=1714098628; cv=none; b=HH7+7RjzJpXKX9uqECgAHtH9M029jsqdn/FqFR43dUUrODShZ8ZrOtRsQJXNnLr2kJ1Q1dr8llhtfSYvrCGtA7WD24oFQIU/XiHyZdUYpFgxIFCWHcX6Zx7g7dShMAbw2Zi8G7JjNQjF6IHhvIiSI5aMVRXvaIsXTQKoNTqcWt4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714085889; c=relaxed/simple;
-	bh=KZ6d6tmhKGWfhPvc5pe1zvmWKH4eLy2i/SVKQGqyco4=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=c1vIRoD0mqVvzd8eT81Nx2JjmImmwuRoGApm7OfcIEB5r5siU77rQvOIqfyBWoBcXS7m1f/U+fkG12v5/s/R8XCY5r65N4mlj/rmGVwdfN2HctNxdKYVFd8toU0YMA5PjN9VHxnOPywOXT5opCRreZhCqQ36x9VUUBYu/SZ04Z4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XQHjP+/I; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1714098628; c=relaxed/simple;
+	bh=eurkqHk3uRy+1rn1ochibBTH2vrQVR6SvX9c5yj2Uag=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=FS2Xh4Wc3XuqXO9IUFE9ZOYjR6BZ1FADqx9dgTlMtOucoRra9AM9l8mF5bWFiI0e346TspkQYeYQZlYwd1248FU5ORmaEoLX/H/Gud8Tzdhe/i2l4BWVL4wWVqMNyS0BSmExdvnaW6F/Oi6lEEq5mjN1ABjHsbpfHOREjgcuVYg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NOPT3X7I; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XQHjP+/I"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3902C113CC;
-	Thu, 25 Apr 2024 22:58:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NOPT3X7I"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 2F0BBC2BBFC;
+	Fri, 26 Apr 2024 02:30:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714085888;
-	bh=KZ6d6tmhKGWfhPvc5pe1zvmWKH4eLy2i/SVKQGqyco4=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=XQHjP+/IEP3Hod/NE4TIvhSjSrvdrjAy9k2SyFIAJjFzNY8+Nh3Sx4POcNt5btuMm
-	 3im4slzGoWYkGm7TS50kvWPPVYBYIGT0/MZhkPK2muqrQmmbWC0GyjmcZ0ybOYTxW9
-	 SMkcyLR9W1KlZ7QqBNuRE0iMGbU80vuL7IHG1jEi41QYuf83RSpP92ZQTtRVvOQLlr
-	 v3hS48+RITvJrg9TWBKbL4CriqzPOg3Tsg+Vt50QKETrvCXiqDRTehoqDAJ9x/Y1u/
-	 a3230EtuGUq8KzmygdeZcglcAOIPu4ukSmpzRXKV2jvztr04ZgWZjoIRpRbueNQj+A
-	 zP3uYbLEZ8C/g==
-Date: Thu, 25 Apr 2024 15:58:04 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.org>
-Cc: j.granados@samsung.com, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Alexander
- Aring <alex.aring@gmail.com>, Stefan Schmidt <stefan@datenfreihafen.org>,
- Miquel Raynal <miquel.raynal@bootlin.com>, David Ahern
- <dsahern@kernel.org>, Steffen Klassert <steffen.klassert@secunet.com>,
- Herbert Xu <herbert@gondor.apana.org.au>, Matthieu Baerts
- <matttbe@kernel.org>, Mat Martineau <martineau@kernel.org>, Geliang Tang
- <geliang@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, Remi
- Denis-Courmont <courmisch@gmail.com>, Allison Henderson
- <allison.henderson@oracle.com>, David Howells <dhowells@redhat.com>, Marc
- Dionne <marc.dionne@auristor.com>, Marcelo Ricardo Leitner
- <marcelo.leitner@gmail.com>, Xin Long <lucien.xin@gmail.com>, Wenjia Zhang
- <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>, "D. Wythe"
- <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, Wen Gu
- <guwen@linux.alibaba.com>, Trond Myklebust
- <trond.myklebust@hammerspace.com>, Anna Schumaker <anna@kernel.org>, Chuck
- Lever <chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil
- Brown <neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, Dai Ngo
- <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Jon Maloy
- <jmaloy@redhat.com>, Ying Xue <ying.xue@windriver.com>, Martin Schiller
- <ms@dev.tdt.de>, Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik
- <kadlec@netfilter.org>, Florian Westphal <fw@strlen.de>, Roopa Prabhu
- <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, Simon Horman
- <horms@verge.net.au>, Julian Anastasov <ja@ssi.bg>, Joerg Reuter
- <jreuter@yaina.de>, Luis Chamberlain <mcgrof@kernel.org>, Kees Cook
- <keescook@chromium.org>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, dccp@vger.kernel.org,
- linux-wpan@vger.kernel.org, mptcp@lists.linux.dev,
- linux-hams@vger.kernel.org, linux-rdma@vger.kernel.org,
- rds-devel@oss.oracle.com, linux-afs@lists.infradead.org,
- linux-sctp@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-nfs@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
- linux-x25@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, bridge@lists.linux.dev, lvs-devel@vger.kernel.org
-Subject: Re: [PATCH v4 1/8] net: Remove the now superfluous sentinel
- elements from ctl_table array
-Message-ID: <20240425155804.66f3bed5@kernel.org>
-In-Reply-To: <20240425-jag-sysctl_remset_net-v4-1-9e82f985777d@samsung.com>
-References: <20240425-jag-sysctl_remset_net-v4-0-9e82f985777d@samsung.com>
-	<20240425-jag-sysctl_remset_net-v4-1-9e82f985777d@samsung.com>
+	s=k20201202; t=1714098628;
+	bh=eurkqHk3uRy+1rn1ochibBTH2vrQVR6SvX9c5yj2Uag=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=NOPT3X7IeFl2EkRwRIVLn4bp/lBz/P9PVLpmU9i7nHEZYzqAUBm4JX8rsMrSnUrHN
+	 biPRfnqFQwOqKrc2TyuER/CO+VOUls/m+Bfs6Tn8XAL3l4UkdOhHhk76HEj4cwp4hQ
+	 NVdcdArE9v4DyIPjgZHDoIE3elvaxeY7BjGuHqNUi3HvZKjRjiffVLypz+eCRBMvtk
+	 9ngzeTfWdgizj3jykjL6O7COU44bMoHxTyA009S8sPutklby/m3IAfmRrx71xeNJVJ
+	 uWblH+kbfyJIZ3Z7B+4JMlVR8Xu42lFf2i0lGzxILzaWRd/57kt/uZGL9wqNi70AK5
+	 i5D4EHTpsudSw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 17608C43140;
+	Fri, 26 Apr 2024 02:30:28 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v2 0/6] Ensure the copied buf is NUL terminated
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <171409862809.13456.12723948130853178022.git-patchwork-notify@kernel.org>
+Date: Fri, 26 Apr 2024 02:30:28 +0000
+References: <20240424-fix-oob-read-v2-0-f1f1b53a10f4@gmail.com>
+In-Reply-To: <20240424-fix-oob-read-v2-0-f1f1b53a10f4@gmail.com>
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: jesse.brandeburg@intel.com, anthony.l.nguyen@intel.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ paul.m.stillwell.jr@intel.com, rmody@marvell.com, skalluru@marvell.com,
+ GR-Linux-NIC-Dev@marvell.com, anil.gurumurthy@qlogic.com,
+ sudarsana.kalluru@qlogic.com, James.Bottomley@HansenPartnership.com,
+ martin.petersen@oracle.com, fabf@skynet.be, skashyap@marvell.com,
+ GR-QLogic-Storage-Upstream@marvell.com, nilesh.javali@cavium.com,
+ arun.easi@cavium.com, manish.rangankar@cavium.com, vneethv@linux.ibm.com,
+ oberpar@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ sgoutham@marvell.com, lcherian@marvell.com, gakula@marvell.com,
+ jerinj@marvell.com, hkelam@marvell.com, sbhatta@marvell.com,
+ intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+ saurav.kashyap@cavium.com, linux-s390@vger.kernel.org, axboe@kernel.dk,
+ przemyslaw.kitszel@intel.com
 
-On Thu, 25 Apr 2024 14:02:59 +0200 Joel Granados via B4 Relay wrote:
-> -	for (i =3D 0; i < ARRAY_SIZE(mpls_table) - 1; i++)
-> +	for (i =3D 0; i < tabel_size; i++)
->  		table[i].data =3D (char *)net + (uintptr_t)table[i].data;
-> =20
->  	net->mpls.ctl =3D register_net_sysctl_sz(net, "net/mpls", table,
-> -					       ARRAY_SIZE(mpls_table));
-> +					       tabel_size);
+Hello:
 
-../net/mpls/af_mpls.c: In function =E2=80=98mpls_net_init=E2=80=99:
-../net/mpls/af_mpls.c:2676:25: error: =E2=80=98tabel_size=E2=80=99 undeclar=
-ed (first use in this function); did you mean =E2=80=98table_size=E2=80=99?
- 2676 |         for (i =3D 0; i < tabel_size; i++)
-      |                         ^~~~~~~~~~
-      |                         table_size
-../net/mpls/af_mpls.c:2676:25: note: each undeclared identifier is reported=
- only once for each function it appears in
-../net/mpls/af_mpls.c:2660:16: warning: unused variable =E2=80=98table_size=
-=E2=80=99 [-Wunused-variable]
- 2660 |         size_t table_size =3D ARRAY_SIZE(mpls_table);
-      |                ^~~~~~~~~~
---=20
-netdev FAQ tl;dr:
- - designate your patch to a tree - [PATCH net] or [PATCH net-next]
- - for fixes the Fixes: tag is required, regardless of the tree
- - don't post large series (> 15 patches), break them up
- - don't repost your patches within one 24h period
+This series was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-pw-bot: cr
+On Wed, 24 Apr 2024 21:44:17 +0700 you wrote:
+> Hi everyone,
+> 
+> I found that some drivers contains an out-of-bound read pattern like this
+> 
+> 	kern_buf = memdup_user(user_buf, count);
+> 	...
+> 	sscanf(kern_buf, ...);
+> 
+> [...]
+
+Here is the summary with links:
+  - [v2,1/6] ice: ensure the copied buf is NUL terminated
+    https://git.kernel.org/netdev/net/c/666854ea9cad
+  - [v2,2/6] bna: ensure the copied buf is NUL terminated
+    https://git.kernel.org/netdev/net/c/8c34096c7fdf
+  - [v2,3/6] bfa: ensure the copied buf is NUL terminated
+    (no matching commit)
+  - [v2,4/6] qedf: ensure the copied buf is NUL terminated
+    (no matching commit)
+  - [v2,5/6] cio: ensure the copied buf is NUL terminated
+    (no matching commit)
+  - [v2,6/6] octeontx2-af: avoid off-by-one read from userspace
+    https://git.kernel.org/netdev/net/c/f299ee709fb4
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
