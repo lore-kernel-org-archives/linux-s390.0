@@ -1,119 +1,104 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B441E13D52F;
-	Fri, 26 Apr 2024 08:32:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6406514293;
+	Fri, 26 Apr 2024 08:50:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714120332; cv=none; b=haWEOI+7SSue+syBSyTWLkIs8nLPTtqVU+x9wW9KUmSPagxNFNvkohkT5nfvwAZ6+bh6MVqgqqU5m3M0uW007GEdGqhaC4B/hgSrxkIx7nc8X4/ccSvWJxlQk4ZDZkdGjLUd3JjoEFfea/RSTLlcHFsf85uL1dOFZiK4BiITKoA=
+	t=1714121433; cv=none; b=fzfKILN/pX5TOSZYbtzrX6gxlxyKcP0xww5zuTUCLF0MZsDg1bmHw4TbjYlbnKU50eZ+dN5Cv/H1Bpd8Nen8CIhiWk30z42hpdyruTxtVNY37mEVmmiU2qeflhT3KIQfLX6tpMyTIECyk9xHuQ3PaoJcVIO5SPq1ktSdXhDAwi8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714120332; c=relaxed/simple;
-	bh=+AOj3OMDSB3feHYUPdQfVhUVtDWDdcImqVlO1v4xpng=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=d4yTNvNciG6F2KxfthpWPe879IjVVOii7I592AN79HB+9qBhcmHkq03D4g3j+IRSgegoqfikD2DD0rKmxNror5Y8UyYoNENPAGSj1jPnOWFR2yND0pzvMRW9+GUbly1Eg3mt4oZivJEKVU6aELbc5YjpYysFWgMkIGxUdm5zXJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vQ8mtMLc; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1714121433; c=relaxed/simple;
+	bh=KRBem6yyH/hsarYTRIMbpvFb6J+7dWjqrcQljKdmr9o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=A1EKfdZJfQSiWObnc3/XFgfFffFASVTMckAN4Ml3GRZWX7kze+tSZKS8tYVvFFwa8Y7PP6bdt/CY5WYtI/sE+uBfpXSIIiZnA4oGvwIDSF/tTnVj9jkSTMAT7yAvJpjKgLEWSv9zcQzvkm0K+Q4TnMYl0JuNxx//0zZ3F7KZIFc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YYK/UEaJ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vQ8mtMLc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5724C2BD10;
-	Fri, 26 Apr 2024 08:32:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714120332;
-	bh=+AOj3OMDSB3feHYUPdQfVhUVtDWDdcImqVlO1v4xpng=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=vQ8mtMLcrimNPX91Y2YQmvdQw4cikExY2pLxFz+/UT+e9TLir0xOZ3FBo5RrzGpzb
-	 JWR44T3XJshDZMYXiba7l/A544v2LOC9MQLrngwOyrxDozIHscwKHoIb5QIGzqfNXg
-	 hlLFV/4Q2E5d2sHTZ7tlXh/zsv1dp1lvJElyqwmb0wchrenBmob4Dc1MtkVQ+MEtdh
-	 7oC9vfii7ckW0bsH176/J480uOF/fn8rgcExibP+RvW506G6An6Z0c8ibMrhm9JIVO
-	 4Z8XvkBOO1+QWHViSo081jrAt8THz37irqAEYTIKSADYbtZr55Yu4BB7vII7ZC4wKk
-	 Q8kmGiXMxjpQQ==
-From: Mike Rapoport <rppt@kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	=?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Donald Dutile <ddutile@redhat.com>,
-	Eric Chanudet <echanude@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Mike Rapoport <rppt@kernel.org>,
-	Nadav Amit <nadav.amit@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Song Liu <song@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Will Deacon <will@kernel.org>,
-	bpf@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mips@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-modules@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	loongarch@lists.linux.dev,
-	netdev@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	x86@kernel.org
-Subject: [PATCH v6 16/16] bpf: remove CONFIG_BPF_JIT dependency on CONFIG_MODULES of
-Date: Fri, 26 Apr 2024 11:28:54 +0300
-Message-ID: <20240426082854.7355-17-rppt@kernel.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240426082854.7355-1-rppt@kernel.org>
-References: <20240426082854.7355-1-rppt@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YYK/UEaJ"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43Q8Jq4P023551;
+	Fri, 26 Apr 2024 08:50:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=f+t4HTh4Ix4xV1YHIH/zdI8jS/jqqnAYQL0A/VtbcJw=;
+ b=YYK/UEaJOLXdwp+xlkUXHLVxSjgLY4K1vWUux92S+k6pU9102vOh5QPx2C8yAt18Zf6y
+ PrMZIFY3tWFYhIwPtJpIQTDdovFh6shNZUMivyEcLkGK56tfUzqAwUQXhmi65xfqjq2T
+ 0d5MMdSeJMG0vIiLmBQsH8IRj2OHjjDEBtkCX5JbARW/RIJLiHY8Gk36dpEG5BvPDIWw
+ /qhswUe/7lzSfOEYbTM/lgAeK35Y3wH+KS2nQ7LYBKKv/pwpdlR29dQIVotKHE7eForU
+ VE3WDOJdauosmgiEmrvGHRczfrLoS+tXIqzSvj71l0fTiy/rjxSBJRhBPJvHmEDgvDGb BQ== 
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xr8ddg3ny-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 26 Apr 2024 08:50:29 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43Q7vev5028341;
+	Fri, 26 Apr 2024 08:50:29 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xmtr2xacg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 26 Apr 2024 08:50:28 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43Q8oNBL46792960
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 26 Apr 2024 08:50:25 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A5C8D2004D;
+	Fri, 26 Apr 2024 08:50:23 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 29F972004B;
+	Fri, 26 Apr 2024 08:50:23 +0000 (GMT)
+Received: from osiris (unknown [9.171.34.163])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 26 Apr 2024 08:50:23 +0000 (GMT)
+Date: Fri, 26 Apr 2024 10:50:21 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, borntraeger@de.ibm.com
+Subject: Re: [PATCH v1 1/2] s390/pgtable: switch read and write softbits for
+ puds
+Message-ID: <20240426085021.8950-E-hca@linux.ibm.com>
+References: <20240425130555.73132-1-imbrenda@linux.ibm.com>
+ <20240425130555.73132-2-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240425130555.73132-2-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: -ymecmfiFOyw2Om_A95F-Gz_ntyzkcbb
+X-Proofpoint-ORIG-GUID: -ymecmfiFOyw2Om_A95F-Gz_ntyzkcbb
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-04-26_09,2024-04-26_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 spamscore=0 lowpriorityscore=0 clxscore=1015 impostorscore=0
+ mlxscore=0 suspectscore=0 malwarescore=0 mlxlogscore=568 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404260056
 
-From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+On Thu, Apr 25, 2024 at 03:05:54PM +0200, Claudio Imbrenda wrote:
+> There is no reason for the read and write softbits to be swapped in the
+> puds compared to pmds. They are different only because the softbits for
+> puds were introduced at the same time when the softbits for pmds were
+> swapped.
+> 
+> The current implementation is not wrong per se, since the macros are
+> defined correctly; only the documentation does not reflect reality.
+> 
+> With this patch, the read and write softbits for large pmd and large
+> puds will have the same layout, and will match the existing
+> documentation.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/pgtable.h | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-BPF just-in-time compiler depended on CONFIG_MODULES because it used
-module_alloc() to allocate memory for the generated code.
-
-Since code allocations are now implemented with execmem, drop dependency of
-CONFIG_BPF_JIT on CONFIG_MODULES and make it select CONFIG_EXECMEM.
-
-Suggested-by: Björn Töpel <bjorn@kernel.org>
-Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
----
- kernel/bpf/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/kernel/bpf/Kconfig b/kernel/bpf/Kconfig
-index bc25f5098a25..f999e4e0b344 100644
---- a/kernel/bpf/Kconfig
-+++ b/kernel/bpf/Kconfig
-@@ -43,7 +43,7 @@ config BPF_JIT
- 	bool "Enable BPF Just In Time compiler"
- 	depends on BPF
- 	depends on HAVE_CBPF_JIT || HAVE_EBPF_JIT
--	depends on MODULES
-+	select EXECMEM
- 	help
- 	  BPF programs are normally handled by a BPF interpreter. This option
- 	  allows the kernel to generate native code when a program is loaded
--- 
-2.43.0
-
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
