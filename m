@@ -1,230 +1,194 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0D87567F;
-	Fri, 26 Apr 2024 07:03:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4841B13BC09
+	for <linux-s390@vger.kernel.org>; Fri, 26 Apr 2024 07:17:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714114989; cv=none; b=umiyW4Hg/JaDs+teouq2qzZZmr2IgtmwJoCE2e4NVW+tNMYBEOPbr49y2j6y0LosfFvj5pyU/T3NQbusV01eUjABpYbiCG3csZPMFAk1Ea3fnaiKSWmAx89YI7y3tQdqyH7INKtEDseEHdAzMSEgrYBZ7rDb4Fk350KXZ7aMHBo=
+	t=1714115875; cv=none; b=rX7gjcp+qzmbOedZhV+DlSd55Eau7Ayt+iSjwwBeG7zXXgmAiRUM+X+93zvLfgfc/yTlQau9+Y9Bcoc3kdHKS1N1gcbMyrV86q3m5DUpw0EiuTl4FEuYzB3tJQrxgtptzJk9iIZtDLLuhhZnOa7RhH2i0oGPatCEe26KI97Pllg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714114989; c=relaxed/simple;
-	bh=IvTH72RWSEFgKEux7+oDcRKaZa76lkq/3U0lfobgA7E=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=f2Eb6l7e/gl0tVGHB+dCF05vvEi4LY01A1KemjxNwIFX73UND8cagdZcJcaXJGvdRQkd2zO1/ZnjaFbjinZFtnkkk0izcxso+lKKtFmJTtFLkaqpxsWtCYlPuo+NtNaYxJa/YPJgu3QLPB3A4Tmg7OnxMYENKvTKvFiLfU2ZSFg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eHONCeLC; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1714115875; c=relaxed/simple;
+	bh=/IQdzt/FX7EnCChiCGBQqy1tgXqmr3oy/j/ZaYq1k/0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=U475qNxuP2prKWs6jald3bumA4l6++zAD4Sjmcytd2iTK0rfrol9DegKRNQYsecM8NloJ3bGxwX8rOQa9jbB1AtKvhfjVc3jIlWDOQArqz0sPgvfajjnUKyISD03mJGZgZjAD0vXtI95ppjjj3kFo1dLwXLvF58hlszWH5ZwCFE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fEM4hzHD; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eHONCeLC"
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43Q72RBA006163;
-	Fri, 26 Apr 2024 07:02:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=gn+OA+eWtFQ0TbrlYBUsxOrQSF+lCgWVOrEmHKbpjF0=;
- b=eHONCeLCatfKXfkK5H/0BHT4T0dp7zr9JqJN80e5/BCSJ/7Ek8ZgzQimbka5puTaBc5R
- k7j3ToaFJhFo3jpzAB20Lhpk5sn3tydZvkwixCJ/JincYI4j+5C4iDO6Mi621SFyrUOF
- 7PxG+AniE/S5seInN0c8VQGGjPgA9r7mAyB6fhhK00pOwo5CzUHK1aw5Z4s81oVXnsoN
- 5BwX/M7vcGap6toqkxG0ZgEzBKNxstmv/pJR2ctw45ySX/Z9jkbdEDeUtWx0oM0DsyP3
- JFrnZPtY6NtImqF6AbCwxkrbsSxzQ5mITRQR7HuGChYuh37v7Xbv1StgVmpWgr1M7vAa YA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xr7h8r02h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 26 Apr 2024 07:02:56 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43Q72uPT006995;
-	Fri, 26 Apr 2024 07:02:56 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xr7h8r02b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 26 Apr 2024 07:02:56 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43Q5ZGnM015343;
-	Fri, 26 Apr 2024 07:02:54 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xmshmp6jg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 26 Apr 2024 07:02:54 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43Q72n4x54854034
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 26 Apr 2024 07:02:51 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2B4CC2004F;
-	Fri, 26 Apr 2024 07:02:49 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 00E8C20063;
-	Fri, 26 Apr 2024 07:02:48 +0000 (GMT)
-Received: from [9.171.7.244] (unknown [9.171.7.244])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 26 Apr 2024 07:02:47 +0000 (GMT)
-Message-ID: <5f50bc62-f7d5-4094-94de-a77a103fc111@linux.ibm.com>
-Date: Fri, 26 Apr 2024 09:02:47 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v6 00/11] net/smc: SMC intra-OS shortcut with
- loopback-ism
-To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
-        twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org
-References: <20240414040304.54255-1-guwen@linux.alibaba.com>
-From: Jan Karcher <jaka@linux.ibm.com>
-Organization: IBM - Network Linux on Z
-In-Reply-To: <20240414040304.54255-1-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: S69eD35reIvaQmH81gvuG5azWnZJyWmN
-X-Proofpoint-GUID: VXcwIiokXeiKQzTJsMTZqwouEkYfg2ba
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fEM4hzHD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1714115873;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=+ui6jDL8G61kFh00hFF389OEWlO0ttAKpE3pTUl0yoI=;
+	b=fEM4hzHDdtxbgQjwV+RLW6dAaqSbqJ2eXNnml9tBtueyKgGu0SVuIJgCm5onfjJOmyWmxm
+	+eBXbQkVAbDf4yLqe9Zj5NV7LlwQnkRvtsx8Eo3lA2mop/dh/ZTBi/KhXHj77q+j5Ze0CE
+	dyPsQfs6mYL98rKmOWqRDwMHtd8Phu0=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-140-TaBHKXoKMCCdXirn229sew-1; Fri, 26 Apr 2024 03:17:51 -0400
+X-MC-Unique: TaBHKXoKMCCdXirn229sew-1
+Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2d9ee5db226so14681021fa.1
+        for <linux-s390@vger.kernel.org>; Fri, 26 Apr 2024 00:17:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714115870; x=1714720670;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=+ui6jDL8G61kFh00hFF389OEWlO0ttAKpE3pTUl0yoI=;
+        b=I+zpxAfMzmCAtxNt88bqyMleIK+3DJbF+hEX5eIhXt2Hq1vL/MnBeN4wgn2tzoEHyB
+         47XEK/NyXVibW3yhtqotGqlxDelRkLC8hPnYde15412mQFfx9ErhBzpUKb+gO7pee+zx
+         js0hTjqA+innGn/rzeedszZQasgH0QqaF1bHCV6tg4JzW356S3zNvuBuTjGkphii2Swq
+         SUZusjbM4BZ4MnXQQe5wLaFHmqxBok8xahplJnF/rXjVki+Qz+8bvlgf/0qybVPCefmt
+         l8E80wV4Oz8XFT9mp1wFWanO4HfPD+pgo6oJtzoRcIA/WRaG8Ue96YZjBtvJC2VRCl3c
+         1Rdg==
+X-Forwarded-Encrypted: i=1; AJvYcCW6rBcZ+7FFPIJO+VZY0cHTnOQQ9hd5s1h5lkML/xfomuk2OS1Vdn/zmxQzta5oxEEm2MmkMD0IDvLCaD4RIHe6RF3xOEEE+Pbd+w==
+X-Gm-Message-State: AOJu0YxL5FT0PYP5BALw8IqsmrvZpv26WNmuDNTWDL60VrahcCGHHZmK
+	yYDV2U02IB2x/p3eG/2oH+HExlhZN/VoFMn93dbwdabbtig/ptESv9KjpdS+Gm18T0Lh4E/b4x+
+	o/y7ukkqr3KFtfr3VbduNW3yyd+Mtr92VEl4IYktPo3/HSzH6DW98k3JoCu41caZs3fk=
+X-Received: by 2002:a05:651c:19a9:b0:2df:6eb1:c501 with SMTP id bx41-20020a05651c19a900b002df6eb1c501mr383308ljb.11.1714115869997;
+        Fri, 26 Apr 2024 00:17:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG24EL02T0x+m1JovGDBMONyU/2x7/q4VtFLKKFSWeomSG6lLj/kueLfpyifkJIct6xZaSxcg==
+X-Received: by 2002:a05:651c:19a9:b0:2df:6eb1:c501 with SMTP id bx41-20020a05651c19a900b002df6eb1c501mr383278ljb.11.1714115869533;
+        Fri, 26 Apr 2024 00:17:49 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c726:6100:20f2:6848:5b74:ca82? (p200300cbc726610020f268485b74ca82.dip0.t-ipconnect.de. [2003:cb:c726:6100:20f2:6848:5b74:ca82])
+        by smtp.gmail.com with ESMTPSA id u17-20020a05600c19d100b00416b163e52bsm33354825wmq.14.2024.04.26.00.17.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 26 Apr 2024 00:17:49 -0700 (PDT)
+Message-ID: <e685c532-8330-4a57-bc08-c67845e0c352@redhat.com>
+Date: Fri, 26 Apr 2024 09:17:47 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
- definitions=2024-04-26_07,2024-04-25_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- mlxlogscore=999 clxscore=1011 phishscore=0 impostorscore=0 suspectscore=0
- lowpriorityscore=0 mlxscore=0 bulkscore=0 priorityscore=1501 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
- definitions=main-2404260043
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/3] mm/gup: consistently name GUP-fast functions
+To: linux-kernel@vger.kernel.org, Peter Xu <peterx@redhat.com>
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+ Mike Rapoport <rppt@kernel.org>, Jason Gunthorpe <jgg@nvidia.com>,
+ John Hubbard <jhubbard@nvidia.com>, linux-arm-kernel@lists.infradead.org,
+ loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-riscv@lists.infradead.org,
+ x86@kernel.org
+References: <20240402125516.223131-1-david@redhat.com>
+ <20240402125516.223131-2-david@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20240402125516.223131-2-david@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+On 02.04.24 14:55, David Hildenbrand wrote:
+> Let's consistently call the "fast-only" part of GUP "GUP-fast" and rename
+> all relevant internal functions to start with "gup_fast", to make it
+> clearer that this is not ordinary GUP. The current mixture of
+> "lockless", "gup" and "gup_fast" is confusing.
+> 
+> Further, avoid the term "huge" when talking about a "leaf" -- for
+> example, we nowadays check pmd_leaf() because pmd_huge() is gone. For the
+> "hugepd"/"hugepte" stuff, it's part of the name ("is_hugepd"), so that
+> stays.
+> 
+> What remains is the "external" interface:
+> * get_user_pages_fast_only()
+> * get_user_pages_fast()
+> * pin_user_pages_fast()
+> 
+> The high-level internal functions for GUP-fast (+slow fallback) are now:
+> * internal_get_user_pages_fast() -> gup_fast_fallback()
+> * lockless_pages_from_mm() -> gup_fast()
+> 
+> The basic GUP-fast walker functions:
+> * gup_pgd_range() -> gup_fast_pgd_range()
+> * gup_p4d_range() -> gup_fast_p4d_range()
+> * gup_pud_range() -> gup_fast_pud_range()
+> * gup_pmd_range() -> gup_fast_pmd_range()
+> * gup_pte_range() -> gup_fast_pte_range()
+> * gup_huge_pgd()  -> gup_fast_pgd_leaf()
+> * gup_huge_pud()  -> gup_fast_pud_leaf()
+> * gup_huge_pmd()  -> gup_fast_pmd_leaf()
+> 
+> The weird hugepd stuff:
+> * gup_huge_pd() -> gup_fast_hugepd()
+> * gup_hugepte() -> gup_fast_hugepte()
+
+I just realized that we end up calling these from follow_hugepd() as 
+well. And something seems to be off, because gup_fast_hugepd() won't 
+have the VMA even in the slow-GUP case to pass it to gup_must_unshare().
+
+So these are GUP-fast functions and the terminology seem correct. But 
+the usage from follow_hugepd() is questionable,
+
+commit a12083d721d703f985f4403d6b333cc449f838f6
+Author: Peter Xu <peterx@redhat.com>
+Date:   Wed Mar 27 11:23:31 2024 -0400
+
+     mm/gup: handle hugepd for follow_page()
 
 
+states "With previous refactors on fast-gup gup_huge_pd(), most of the 
+code can be leveraged", which doesn't look quite true just staring the 
+the gup_must_unshare() call where we don't pass the VMA. Also, 
+"unlikely(pte_val(pte) != pte_val(ptep_get(ptep)" doesn't make any sense 
+for slow GUP ...
 
-On 14/04/2024 06:02, Wen Gu wrote:
-> This patch set acts as the second part of the new version of [1] (The first
-> part can be referred from [2]), the updated things of this version are listed
-> at the end.
-> 
-> - Background
-> 
-> SMC-D is now used in IBM z with ISM function to optimize network interconnect
-> for intra-CPC communications. Inspired by this, we try to make SMC-D available
-> on the non-s390 architecture through a software-implemented Emulated-ISM device,
-> that is the loopback-ism device here, to accelerate inter-process or
-> inter-containers communication within the same OS instance.
-> 
-> - Design
-> 
-> This patch set includes 3 parts:
-> 
->   - Patch #1: some prepare work for loopback-ism.
->   - Patch #2-#7: implement loopback-ism device and adapt SMC-D for it.
->     loopback-ism now serves only SMC and no userspace interfaces exposed.
->   - Patch #8-#11: memory copy optimization for intra-OS scenario.
-> 
-> The loopback-ism device is designed as an ISMv2 device and not be limited to
-> a specific net namespace, ends of both inter-process connection (1/1' in diagram
-> below) or inter-container connection (2/2' in diagram below) can find the same
-> available loopback-ism and choose it during the CLC handshake.
-> 
->   Container 1 (ns1)                              Container 2 (ns2)
->   +-----------------------------------------+    +-------------------------+
->   | +-------+      +-------+      +-------+ |    |        +-------+        |
->   | | App A |      | App B |      | App C | |    |        | App D |<-+     |
->   | +-------+      +---^---+      +-------+ |    |        +-------+  |(2') |
->   |     |127.0.0.1 (1')|             |192.168.0.11       192.168.0.12|     |
->   |  (1)|   +--------+ | +--------+  |(2)   |    | +--------+   +--------+ |
->   |     `-->|   lo   |-` |  eth0  |<-`      |    | |   lo   |   |  eth0  | |
->   +---------+--|---^-+---+-----|--+---------+    +-+--------+---+-^------+-+
->                |   |           |                                  |
->   Kernel       |   |           |                                  |
->   +----+-------v---+-----------v----------------------------------+---+----+
->   |    |                            TCP                               |    |
->   |    |                                                              |    |
->   |    +--------------------------------------------------------------+    |
->   |                                                                        |
->   |                           +--------------+                             |
->   |                           | smc loopback |                             |
->   +---------------------------+--------------+-----------------------------+
-> 
-> loopback-ism device creates DMBs (shared memory) for each connection peer.
-> Since data transfer occurs within the same kernel, the sndbuf of each peer
-> is only a descriptor and point to the same memory region as peer DMB, so that
-> the data copy from sndbuf to peer DMB can be avoided in loopback-ism case.
-> 
->   Container 1 (ns1)                              Container 2 (ns2)
->   +-----------------------------------------+    +-------------------------+
->   | +-------+                               |    |        +-------+        |
->   | | App C |-----+                         |    |        | App D |        |
->   | +-------+     |                         |    |        +-^-----+        |
->   |               |                         |    |          |              |
->   |           (2) |                         |    |     (2') |              |
->   |               |                         |    |          |              |
->   +---------------|-------------------------+    +----------|--------------+
->                   |                                         |
->   Kernel          |                                         |
->   +---------------|-----------------------------------------|--------------+
->   | +--------+ +--v-----+                           +--------+ +--------+  |
->   | |dmb_desc| |snd_desc|                           |dmb_desc| |snd_desc|  |
->   | +-----|--+ +--|-----+                           +-----|--+ +--------+  |
->   | +-----|--+    |                                 +-----|--+             |
->   | | DMB C  |    +---------------------------------| DMB D  |             |
->   | +--------+                                      +--------+             |
->   |                                                                        |
->   |                           +--------------+                             |
->   |                           | smc loopback |                             |
->   +---------------------------+--------------+-----------------------------+
-> 
-> - Benchmark Test
-> 
->   * Test environments:
->        - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
->        - SMC sndbuf/DMB size 1MB.
-> 
->   * Test object:
->        - TCP: run on TCP loopback.
->        - SMC lo: run on SMC loopback-ism.
-> 
-> 1. ipc-benchmark (see [3])
-> 
->   - ./<foo> -c 1000000 -s 100
-> 
->                              TCP                  SMC-lo
-> Message
-> rate (msg/s)              79693                  148236(+86.01%)
-> 
-> 2. sockperf
-> 
->   - serv: <smc_run> sockperf sr --tcp
->   - clnt: <smc_run> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
-> 
->                              TCP                  SMC-lo
-> Bandwidth(MBps)         4815.18                 8061.77(+67.42%)
-> Latency(us)               6.176                   3.449(-44.15%)
-> 
-> 3. nginx/wrk
-> 
->   - serv: <smc_run> nginx
->   - clnt: <smc_run> wrk -t 8 -c 1000 -d 30 http://127.0.0.1:80
-> 
->                             TCP                   SMC-lo
-> Requests/s           196555.02                263270.95(+33.94%)
-> 
-> 4. redis-benchmark
-> 
->   - serv: <smc_run> redis-server
->   - clnt: <smc_run> redis-benchmark -h 127.0.0.1 -q -t set,get -n 400000 -c 200 -d 1024
-> 
->                             TCP                   SMC-lo
-> GET(Requests/s)       88711.47                120048.02(+35.32%)
-> SET(Requests/s)       89465.44                123152.71(+37.65%)
-> 
-> 
+@Peter, any insights?
 
-Hi Wen Gu,
+-- 
+Cheers,
 
-I did run the tests again with the v6 and reviewed the patchset. If you 
-decide to address Simons nit feel free to add my:
+David / dhildenb
 
-Reviewed-and-tested-by: Jan Karcher <jaka@linux.ibm.com>
-
-Thanks for your effort and contribution.
-- J
