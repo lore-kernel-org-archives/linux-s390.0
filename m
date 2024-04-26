@@ -1,78 +1,64 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0F911474D1;
-	Fri, 26 Apr 2024 14:19:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB6661487F2;
+	Fri, 26 Apr 2024 14:29:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714141188; cv=none; b=QVJr4o7qL9Sdoh/FpaFgauTC+12exowSnZduA19ovNGXv/6Fm/gIMReucahMFWV1jlQgLUle/IGTZall43ocACczX9ceSeDOZhrVCCA0I+swNioIS66Qlgill7h1+Ow6qLX73zBSH0eNx9Est8JXCnsRTs/LUZ6ayzl0DwiqZyU=
+	t=1714141778; cv=none; b=bwSsokwvcWOVJ5R0675PJjJv09wIeplSq83aXUIstm1xyFFtvuLsIXLTZWVHJt3ozvgic946Ebqe/X7oPfYgN1zFMmCgm8VnoausDaAh6gKqu2zPU+fkNNmCjMiRvkJbSH9lVUw5qdXvkxaGek7ZxlOpiXo6OsVYooabm9uI+lI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714141188; c=relaxed/simple;
-	bh=1YPIyGpDitR6xzxqcXAI3KlvDHPDnDAVBabxqnFbikg=;
+	s=arc-20240116; t=1714141778; c=relaxed/simple;
+	bh=D3wKqM03L7wKjDEPdv4b0+dxrNwGKgX3ntMzPx9bXCI=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ga//kroBx8lz6v18UU3ZibbHDAD+Om+y1Taup7v7or7sJjDfCKB2vpgVORX1bc77PQr1lNd7HlnRYjir0yeO3tBclSKDo93hxFUxag8ETrUJf7jmlKbUG+XkHcl9pgVQdtx4H4d+z6Xi5bc0GN0dwKXclKpKr2qIoN8DrFq1hP4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B7PconPL; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=b+Tzm2Pw1oo/kWIZs9fC1V/jSts7nDGW6d99wXTXxRcilBkj4hJE8LEWpkGyieQcbNyiO6kE1A2qPvWvHcWwm8U8Fq4ivw4zEOkPJervoI4UykxJXMWscKmxQKKOeSmMHKRSd+b00p1nQ/L3ceyrzodVYV57DKugC8RLb3c5yLg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jC4/NKyP; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B7PconPL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E0EDC116B1;
-	Fri, 26 Apr 2024 14:19:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jC4/NKyP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA6B9C113CD;
+	Fri, 26 Apr 2024 14:29:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714141187;
-	bh=1YPIyGpDitR6xzxqcXAI3KlvDHPDnDAVBabxqnFbikg=;
+	s=k20201202; t=1714141777;
+	bh=D3wKqM03L7wKjDEPdv4b0+dxrNwGKgX3ntMzPx9bXCI=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=B7PconPLHaZbsSE+E2qb7kFxKKPiSGifdJxIO5nhpOcR+i/H6Rf/QpegOYMOrwrIT
-	 ZRBYBF7gNYzqS+/qeUumbeqlcHdDGW+dcRhBg8s7V/Bx2ygqJnoWHiS5PphSoESsHY
-	 wRLQw4fRqH4m26AoF1Fv5sD5hYTSpNK20oIHkZcB8KD5h1QygEo8apSWV73UV/NctU
-	 L4LxYtbi0OBSyEtXylLUnPdQBuisvmnPgFoxGk/57wq4H8Sikhl+RJz0nfdW862a6j
-	 ZTEGse7JAdOTZn5tS7OrtXwoHnMwy7yTsx06qEaYDXg2z1j1lkSEKF/9WUoF/Aj8KT
-	 kEQlDp7qR5gnA==
-Date: Fri, 26 Apr 2024 07:19:44 -0700
+	b=jC4/NKyPtYBapka0fEDWLEC+l8sFcA8lrkKpQ4+IBz5j3DoHvd12xkr4IZl3Gu9Mm
+	 pi0Mr4hMYvA9ajOcMreC5jOkf7IllNBsmBzSIlXEF4vJmQzzB4OWN1dbCkEdQ0lzjj
+	 BLzVkvqIIXy80MpHe5kjbzUbbmiVBuUYeg92zMjUUd/Wyu3DDE3qmUgeLcS6o4hXTG
+	 17Ctw4aZRuj97Desn+YWKTaaNo2q3RPFfOgBCEPQiJsMBiwk5qoIs8GNtPGPPD0ZE2
+	 Xxhy3jfy5o90qR8UsvuaWAWlvtf3V9dmcEhA6sz2eNLwvZrKzyQxt2NHEp4JeaY5pG
+	 hgNVTuUjUHzjw==
+Date: Fri, 26 Apr 2024 07:29:34 -0700
 From: Jakub Kicinski <kuba@kernel.org>
-To: Joel Granados <j.granados@samsung.com>
-Cc: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.org>,
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Bui Quang Minh <minhquangbui99@gmail.com>, Jesse Brandeburg
+ <jesse.brandeburg@intel.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet
- <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Alexander Aring
- <alex.aring@gmail.com>, Stefan Schmidt <stefan@datenfreihafen.org>, Miquel
- Raynal <miquel.raynal@bootlin.com>, David Ahern <dsahern@kernel.org>,
- Steffen Klassert <steffen.klassert@secunet.com>, Herbert Xu
- <herbert@gondor.apana.org.au>, Matthieu Baerts <matttbe@kernel.org>, Mat
- Martineau <martineau@kernel.org>, Geliang Tang <geliang@kernel.org>, Ralf
- Baechle <ralf@linux-mips.org>, Remi Denis-Courmont <courmisch@gmail.com>,
- Allison Henderson <allison.henderson@oracle.com>, David Howells
- <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, Marcelo
- Ricardo Leitner <marcelo.leitner@gmail.com>, Xin Long
- <lucien.xin@gmail.com>, Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher
- <jaka@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu
- <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, Trond
- Myklebust <trond.myklebust@hammerspace.com>, Anna Schumaker
- <anna@kernel.org>, Chuck Lever <chuck.lever@oracle.com>, Jeff Layton
- <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga Kornievskaia
- <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey
- <tom@talpey.com>, Jon Maloy <jmaloy@redhat.com>, Ying Xue
- <ying.xue@windriver.com>, Martin Schiller <ms@dev.tdt.de>, Pablo Neira
- Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>,
- Florian Westphal <fw@strlen.de>, Roopa Prabhu <roopa@nvidia.com>, Nikolay
- Aleksandrov <razor@blackwall.org>, Simon Horman <horms@verge.net.au>,
- Julian Anastasov <ja@ssi.bg>, Joerg Reuter <jreuter@yaina.de>, Luis
- Chamberlain <mcgrof@kernel.org>, Kees Cook <keescook@chromium.org>,
- <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- <dccp@vger.kernel.org>, <linux-wpan@vger.kernel.org>,
- <mptcp@lists.linux.dev>, <linux-hams@vger.kernel.org>,
- <linux-rdma@vger.kernel.org>, <rds-devel@oss.oracle.com>,
- <linux-afs@lists.infradead.org>, <linux-sctp@vger.kernel.org>,
- <linux-s390@vger.kernel.org>, <linux-nfs@vger.kernel.org>,
- <tipc-discussion@lists.sourceforge.net>, <linux-x25@vger.kernel.org>,
- <netfilter-devel@vger.kernel.org>, <coreteam@netfilter.org>,
- <bridge@lists.linux.dev>, <lvs-devel@vger.kernel.org>
-Subject: Re: [PATCH v4 1/8] net: Remove the now superfluous sentinel
- elements from ctl_table array
-Message-ID: <20240426071944.206e9cff@kernel.org>
-In-Reply-To: <20240426065931.wyrzevlheburnf47@joelS2.panther.com>
-References: <20240425-jag-sysctl_remset_net-v4-0-9e82f985777d@samsung.com>
-	<20240425-jag-sysctl_remset_net-v4-1-9e82f985777d@samsung.com>
-	<CGME20240425225817eucas1p21d1f3bcedc248575285a74af88e66966@eucas1p2.samsung.com>
-	<20240425155804.66f3bed5@kernel.org>
-	<20240426065931.wyrzevlheburnf47@joelS2.panther.com>
+ <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Paul M Stillwell Jr
+ <paul.m.stillwell.jr@intel.com>, Rasesh Mody <rmody@marvell.com>, Sudarsana
+ Kalluru <skalluru@marvell.com>, GR-Linux-NIC-Dev@marvell.com, Anil
+ Gurumurthy <anil.gurumurthy@qlogic.com>, Sudarsana Kalluru
+ <sudarsana.kalluru@qlogic.com>, "James E.J. Bottomley"
+ <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen"
+ <martin.petersen@oracle.com>, Fabian Frederick <fabf@skynet.be>, Saurav
+ Kashyap <skashyap@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com,
+ Nilesh Javali <nilesh.javali@cavium.com>, Arun Easi <arun.easi@cavium.com>,
+ Manish Rangankar <manish.rangankar@cavium.com>, Vineeth Vijayan
+ <vneethv@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko
+ Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian
+ Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
+ <svens@linux.ibm.com>, Sunil Goutham <sgoutham@marvell.com>, Linu Cherian
+ <lcherian@marvell.com>, Geetha sowjanya <gakula@marvell.com>, Jerin Jacob
+ <jerinj@marvell.com>, hariprasad <hkelam@marvell.com>, Subbaraya Sundeep
+ <sbhatta@marvell.com>, intel-wired-lan@lists.osuosl.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-scsi@vger.kernel.org, Saurav Kashyap <saurav.kashyap@cavium.com>,
+ linux-s390@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH v2 5/6] cio: ensure the copied buf is NUL terminated
+Message-ID: <20240426072934.776f7b4d@kernel.org>
+In-Reply-To: <Zit9myOJp0SYFL1F@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240424-fix-oob-read-v2-0-f1f1b53a10f4@gmail.com>
+	<20240424-fix-oob-read-v2-5-f1f1b53a10f4@gmail.com>
+	<ZikiZsSTGUUM69GE@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+	<Zit9myOJp0SYFL1F@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -82,15 +68,13 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Fri, 26 Apr 2024 08:59:31 +0200 Joel Granados wrote:
-> Sorry about this. I pulled the trigger way too early. This is already
-> fixed in my v4.
-> >       |                ^~~~~~~~~~
-> > -- 
-> > netdev FAQ tl;dr:
-> >  - designate your patch to a tree - [PATCH net] or [PATCH net-next]
-> >  - for fixes the Fixes: tag is required, regardless of the tree
-> >  - don't post large series (> 15 patches), break them up
-> >  - don't repost your patches within one 24h period
+On Fri, 26 Apr 2024 12:10:35 +0200 Alexander Gordeev wrote:
+> On Wed, Apr 24, 2024 at 05:16:56PM +0200, Alexander Gordeev wrote:
+> > Applied, thanks!  
+> 
+> Hi Jakub,
+> 
+> I just want to make sure you do not have plans to pull this patch
+> via the net tree, right? (I schedulled it for the s390 tree already).
 
-I guess you didn't bother reading the tl;dr I put in here.. SMH.
+Yes, go for it. I picked 1, 2 and 6, no interest in the other 3 :)
