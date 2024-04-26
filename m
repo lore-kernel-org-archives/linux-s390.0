@@ -1,192 +1,287 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 118AB14293;
-	Fri, 26 Apr 2024 08:17:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12F2F13C9BC;
+	Fri, 26 Apr 2024 08:29:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714119437; cv=none; b=LWtiK1rW+bE1GF4mqOQ6fGzajCxNOcDE7XMDbx3s8ECEafwPAuVxI6SyhQM8d1IDPuDCbmaFVw1U3VP6qtYIkMACVjYAMPjLVhAs09YS4Ji+OxeTM2Zvk4CgW5QMFvl7CEfRuFIKkLcaOSXlfha1IaJgktyeVxrPecsX6UgL3cI=
+	t=1714120155; cv=none; b=IBeX1d7ELZ29ufOOCL/b2h3TC0xRiekrKoBNfs2zE2FyFrrR+nqvh5LZIJdvJJAiZDAWpkVPxxsOkqoh45T8uKyWiYztMRajcvx07nBXTYrkiyEDNK1Gcnd2HUWqq7xSVxv88NkCl0c3rzs3rshtwG/c2fV5B7rbj/ipE8MSCUs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714119437; c=relaxed/simple;
-	bh=KYXaZjdI+5IkXp0DualbSWgVlbRSytaWokMYpK++Zbc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ElFSAY1x5tnGYLiqT3vGHwpJL+GSs1AlkQbDe7brv/7A150SUjy+xirEcEtINo22rakPZRzOs3jZnQpYhwqXgW+lDYYTFdnLi9ui90m53LGlfkmcdCo6fXScjEnu1XiIfemas+y/cEFWhfR31p58R+cTtqmW37DkOnGVyFvpM/w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ZCTRv1x4; arc=none smtp.client-ip=115.124.30.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1714120155; c=relaxed/simple;
+	bh=bpZVCNetPyptINEqz5nCWQcjIsogDuW2407VcgZHC0c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=otuWn4L0PUEOP86+aol6zjSYyvvr9+O4t5GRkD4xRZu3RlOcM8JiOBwQbD88y/ETVZIeDb78At085vd5J3thUKkBJ2I+dHpz5Gpz3orkYR81o4r6GTgmMcKAfiF7A2uBBSj5JxC3gYiUsuFOxdyE1EohHH3yQRrNmVxxsoHkJuI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E44X2qyG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ZCTRv1x4"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1714119431; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=aS7zNkUjp+X466NnRKZw+mwarWr8jMNg/0m58+2vk84=;
-	b=ZCTRv1x46T6wUAiLrn0pjNOLPIZOzryCpGstk4b419L8hjZFwx4ZtXzroSj0I80Wy7Gy+zWpBOArUW96jAl0VDtq1OcmNQdFu4s/wIhoHrYZPzKHS3FskXefbuoDpPtYG/CZa3MF8DCzxAmG9c/D7/doAoHwkcaZfmGpC33jRto=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W5ISEMi_1714119429;
-Received: from 30.221.129.216(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W5ISEMi_1714119429)
-          by smtp.aliyun-inc.com;
-          Fri, 26 Apr 2024 16:17:10 +0800
-Message-ID: <3f2a7456-c310-4fdc-a507-896fcaaad454@linux.alibaba.com>
-Date: Fri, 26 Apr 2024 16:17:08 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E44X2qyG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3C63C113CD;
+	Fri, 26 Apr 2024 08:29:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1714120154;
+	bh=bpZVCNetPyptINEqz5nCWQcjIsogDuW2407VcgZHC0c=;
+	h=From:To:Cc:Subject:Date:From;
+	b=E44X2qyG2/tPBg7Ns9Pp27d8abTSd1/BDDwbCkeKJulUGHMsAqYEyRfC00z/x1rO7
+	 ZszG8GLXnQglIBQi8IQPPErabm6P7tCA8JwBkwZ/vfEdJz4OfetUOK19ZVQQ0nRst4
+	 vsjqQYS7pTankosz1dx1cr4jw7+3m7NeWFkmE2+xg5Q1f7VrQkzc98C7yOqJPulfLj
+	 OhFc7a4ZN72ewP9WixTiswpoW6Y899OMog1ge1uCePlSgcdMjUvYaR/bKGpJHiya6f
+	 o2EyJZGZ2FmGFIOqdlQ+J7zo101axix3gfHH3nWnh8JWL7BYuRgIz2Ok/p8N6Bj4Rs
+	 YAReSasOmax1Q==
+From: Mike Rapoport <rppt@kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Alexandre Ghiti <alexghiti@rivosinc.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	=?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Donald Dutile <ddutile@redhat.com>,
+	Eric Chanudet <echanude@redhat.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Mike Rapoport <rppt@kernel.org>,
+	Nadav Amit <nadav.amit@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Song Liu <song@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Will Deacon <will@kernel.org>,
+	bpf@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mips@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-modules@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	loongarch@lists.linux.dev,
+	netdev@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	x86@kernel.org
+Subject: [PATCH v6 00/16] mm: jit/text allocator
+Date: Fri, 26 Apr 2024 11:28:38 +0300
+Message-ID: <20240426082854.7355-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v6 00/11] net/smc: SMC intra-OS shortcut with
- loopback-ism
-To: Jan Karcher <jaka@linux.ibm.com>, wintera@linux.ibm.com,
- twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org
-References: <20240414040304.54255-1-guwen@linux.alibaba.com>
- <5f50bc62-f7d5-4094-94de-a77a103fc111@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <5f50bc62-f7d5-4094-94de-a77a103fc111@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
+From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+
+Hi,
+
+The patches are also available in git:
+https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git/log/?h=execmem/v6
+
+v6 changes:
+* restore patch "arm64: extend execmem_info for generated code
+  allocations" that disappeared in v5 rebase
+* update execmem initialization so that by default it will be
+  initialized early while late initialization will be an opt-in
+
+v5: https://lore.kernel.org/all/20240422094436.3625171-1-rppt@kernel.org
+* rebase on v6.9-rc4 to avoid a conflict in kprobes
+* add copyrights to mm/execmem.c (Luis)
+* fix spelling (Ingo)
+* define MODULES_VADDDR for sparc (Sam)
+* consistently initialize struct execmem_info (Peter)
+* reduce #ifdefs in function bodies in kprobes (Masami) 
+
+v4: https://lore.kernel.org/all/20240411160051.2093261-1-rppt@kernel.org
+* rebase on v6.9-rc2
+* rename execmem_params to execmem_info and execmem_arch_params() to
+  execmem_arch_setup()
+* use single execmem_alloc() API instead of execmem_{text,data}_alloc() (Song)
+* avoid extra copy of execmem parameters (Rick)
+* run execmem_init() as core_initcall() except for the architectures that
+  may allocated text really early (currently only x86) (Will)
+* add acks for some of arm64 and riscv changes, thanks Will and Alexandre
+* new commits:
+  - drop call to kasan_alloc_module_shadow() on arm64 because it's not
+    needed anymore
+  - rename MODULE_START to MODULES_VADDR on MIPS
+  - use CONFIG_EXECMEM instead of CONFIG_MODULES on powerpc as per Christophe:
+    https://lore.kernel.org/all/79062fa3-3402-47b3-8920-9231ad05e964@csgroup.eu/
+
+v3: https://lore.kernel.org/all/20230918072955.2507221-1-rppt@kernel.org
+* add type parameter to execmem allocation APIs
+* remove BPF dependency on modules
+
+v2: https://lore.kernel.org/all/20230616085038.4121892-1-rppt@kernel.org
+* Separate "module" and "others" allocations with execmem_text_alloc()
+and jit_text_alloc()
+* Drop ROX entailment on x86
+* Add ack for nios2 changes, thanks Dinh Nguyen
+
+v1: https://lore.kernel.org/all/20230601101257.530867-1-rppt@kernel.org
+
+= Cover letter from v1 (sligtly updated) =
+
+module_alloc() is used everywhere as a mean to allocate memory for code.
+
+Beside being semantically wrong, this unnecessarily ties all subsystmes
+that need to allocate code, such as ftrace, kprobes and BPF to modules and
+puts the burden of code allocation to the modules code.
+
+Several architectures override module_alloc() because of various
+constraints where the executable memory can be located and this causes
+additional obstacles for improvements of code allocation.
+
+A centralized infrastructure for code allocation allows allocations of
+executable memory as ROX, and future optimizations such as caching large
+pages for better iTLB performance and providing sub-page allocations for
+users that only need small jit code snippets.
+
+Rick Edgecombe proposed perm_alloc extension to vmalloc [1] and Song Liu
+proposed execmem_alloc [2], but both these approaches were targeting BPF
+allocations and lacked the ground work to abstract executable allocations
+and split them from the modules core.
+
+Thomas Gleixner suggested to express module allocation restrictions and
+requirements as struct mod_alloc_type_params [3] that would define ranges,
+protections and other parameters for different types of allocations used by
+modules and following that suggestion Song separated allocations of
+different types in modules (commit ac3b43283923 ("module: replace
+module_layout with module_memory")) and posted "Type aware module
+allocator" set [4].
+
+I liked the idea of parametrising code allocation requirements as a
+structure, but I believe the original proposal and Song's module allocator
+was too module centric, so I came up with these patches.
+
+This set splits code allocation from modules by introducing execmem_alloc()
+and and execmem_free(), APIs, replaces call sites of module_alloc() and
+module_memfree() with the new APIs and implements core text and related
+allocations in a central place.
+
+Instead of architecture specific overrides for module_alloc(), the
+architectures that require non-default behaviour for text allocation must
+fill execmem_info structure and implement execmem_arch_setup() that returns
+a pointer to that structure. If an architecture does not implement
+execmem_arch_setup(), the defaults compatible with the current
+modules::module_alloc() are used.
+
+Since architectures define different restrictions on placement,
+permissions, alignment and other parameters for memory that can be used by
+different subsystems that allocate executable memory, execmem APIs
+take a type argument, that will be used to identify the calling subsystem
+and to allow architectures to define parameters for ranges suitable for that
+subsystem.
+
+The new infrastructure allows decoupling of BPF, kprobes and ftrace from
+modules, and most importantly it paves the way for ROX allocations for
+executable memory.
+
+[1] https://lore.kernel.org/lkml/20201120202426.18009-1-rick.p.edgecombe@intel.com/
+[2] https://lore.kernel.org/all/20221107223921.3451913-1-song@kernel.org/
+[3] https://lore.kernel.org/all/87v8mndy3y.ffs@tglx/
+[4] https://lore.kernel.org/all/20230526051529.3387103-1-song@kernel.org
 
 
-On 2024/4/26 15:02, Jan Karcher wrote:
-> 
-> 
-> On 14/04/2024 06:02, Wen Gu wrote:
->> This patch set acts as the second part of the new version of [1] (The first
->> part can be referred from [2]), the updated things of this version are listed
->> at the end.
->>
->> - Background
->>
->> SMC-D is now used in IBM z with ISM function to optimize network interconnect
->> for intra-CPC communications. Inspired by this, we try to make SMC-D available
->> on the non-s390 architecture through a software-implemented Emulated-ISM device,
->> that is the loopback-ism device here, to accelerate inter-process or
->> inter-containers communication within the same OS instance.
->>
->> - Design
->>
->> This patch set includes 3 parts:
->>
->>   - Patch #1: some prepare work for loopback-ism.
->>   - Patch #2-#7: implement loopback-ism device and adapt SMC-D for it.
->>     loopback-ism now serves only SMC and no userspace interfaces exposed.
->>   - Patch #8-#11: memory copy optimization for intra-OS scenario.
->>
->> The loopback-ism device is designed as an ISMv2 device and not be limited to
->> a specific net namespace, ends of both inter-process connection (1/1' in diagram
->> below) or inter-container connection (2/2' in diagram below) can find the same
->> available loopback-ism and choose it during the CLC handshake.
->>
->>   Container 1 (ns1)                              Container 2 (ns2)
->>   +-----------------------------------------+    +-------------------------+
->>   | +-------+      +-------+      +-------+ |    |        +-------+        |
->>   | | App A |      | App B |      | App C | |    |        | App D |<-+     |
->>   | +-------+      +---^---+      +-------+ |    |        +-------+  |(2') |
->>   |     |127.0.0.1 (1')|             |192.168.0.11       192.168.0.12|     |
->>   |  (1)|   +--------+ | +--------+  |(2)   |    | +--------+   +--------+ |
->>   |     `-->|   lo   |-` |  eth0  |<-`      |    | |   lo   |   |  eth0  | |
->>   +---------+--|---^-+---+-----|--+---------+    +-+--------+---+-^------+-+
->>                |   |           |                                  |
->>   Kernel       |   |           |                                  |
->>   +----+-------v---+-----------v----------------------------------+---+----+
->>   |    |                            TCP                               |    |
->>   |    |                                                              |    |
->>   |    +--------------------------------------------------------------+    |
->>   |                                                                        |
->>   |                           +--------------+                             |
->>   |                           | smc loopback |                             |
->>   +---------------------------+--------------+-----------------------------+
->>
->> loopback-ism device creates DMBs (shared memory) for each connection peer.
->> Since data transfer occurs within the same kernel, the sndbuf of each peer
->> is only a descriptor and point to the same memory region as peer DMB, so that
->> the data copy from sndbuf to peer DMB can be avoided in loopback-ism case.
->>
->>   Container 1 (ns1)                              Container 2 (ns2)
->>   +-----------------------------------------+    +-------------------------+
->>   | +-------+                               |    |        +-------+        |
->>   | | App C |-----+                         |    |        | App D |        |
->>   | +-------+     |                         |    |        +-^-----+        |
->>   |               |                         |    |          |              |
->>   |           (2) |                         |    |     (2') |              |
->>   |               |                         |    |          |              |
->>   +---------------|-------------------------+    +----------|--------------+
->>                   |                                         |
->>   Kernel          |                                         |
->>   +---------------|-----------------------------------------|--------------+
->>   | +--------+ +--v-----+                           +--------+ +--------+  |
->>   | |dmb_desc| |snd_desc|                           |dmb_desc| |snd_desc|  |
->>   | +-----|--+ +--|-----+                           +-----|--+ +--------+  |
->>   | +-----|--+    |                                 +-----|--+             |
->>   | | DMB C  |    +---------------------------------| DMB D  |             |
->>   | +--------+                                      +--------+             |
->>   |                                                                        |
->>   |                           +--------------+                             |
->>   |                           | smc loopback |                             |
->>   +---------------------------+--------------+-----------------------------+
->>
->> - Benchmark Test
->>
->>   * Test environments:
->>        - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
->>        - SMC sndbuf/DMB size 1MB.
->>
->>   * Test object:
->>        - TCP: run on TCP loopback.
->>        - SMC lo: run on SMC loopback-ism.
->>
->> 1. ipc-benchmark (see [3])
->>
->>   - ./<foo> -c 1000000 -s 100
->>
->>                              TCP                  SMC-lo
->> Message
->> rate (msg/s)              79693                  148236(+86.01%)
->>
->> 2. sockperf
->>
->>   - serv: <smc_run> sockperf sr --tcp
->>   - clnt: <smc_run> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
->>
->>                              TCP                  SMC-lo
->> Bandwidth(MBps)         4815.18                 8061.77(+67.42%)
->> Latency(us)               6.176                   3.449(-44.15%)
->>
->> 3. nginx/wrk
->>
->>   - serv: <smc_run> nginx
->>   - clnt: <smc_run> wrk -t 8 -c 1000 -d 30 http://127.0.0.1:80
->>
->>                             TCP                   SMC-lo
->> Requests/s           196555.02                263270.95(+33.94%)
->>
->> 4. redis-benchmark
->>
->>   - serv: <smc_run> redis-server
->>   - clnt: <smc_run> redis-benchmark -h 127.0.0.1 -q -t set,get -n 400000 -c 200 -d 1024
->>
->>                             TCP                   SMC-lo
->> GET(Requests/s)       88711.47                120048.02(+35.32%)
->> SET(Requests/s)       89465.44                123152.71(+37.65%)
->>
->>
-> 
-> Hi Wen Gu,
-> 
-> I did run the tests again with the v6 and reviewed the patchset. If you decide to address Simons nit feel free to add my:
-> 
-> Reviewed-and-tested-by: Jan Karcher <jaka@linux.ibm.com>
-> 
-> Thanks for your effort and contribution.
-> - J
+Mike Rapoport (IBM) (16):
+  arm64: module: remove unneeded call to kasan_alloc_module_shadow()
+  mips: module: rename MODULE_START to MODULES_VADDR
+  nios2: define virtual address space for modules
+  sparc: simplify module_alloc()
+  module: make module_memory_{alloc,free} more self-contained
+  mm: introduce execmem_alloc() and execmem_free()
+  mm/execmem, arch: convert simple overrides of module_alloc to execmem
+  mm/execmem, arch: convert remaining overrides of module_alloc to
+    execmem
+  riscv: extend execmem_params for generated code allocations
+  arm64: extend execmem_info for generated code allocations
+  powerpc: extend execmem_params for kprobes allocations
+  arch: make execmem setup available regardless of CONFIG_MODULES
+  x86/ftrace: enable dynamic ftrace without CONFIG_MODULES
+  powerpc: use CONFIG_EXECMEM instead of CONFIG_MODULES where
+    appropriate
+  kprobes: remove dependency on CONFIG_MODULES
+  bpf: remove CONFIG_BPF_JIT dependency on CONFIG_MODULES of
 
-Thank you all for the review and test! I will address Simon's nit and
-collect the Rb tags in the next version.
+ arch/Kconfig                         |  10 +-
+ arch/arm/kernel/module.c             |  34 -------
+ arch/arm/mm/init.c                   |  45 +++++++++
+ arch/arm64/Kconfig                   |   1 +
+ arch/arm64/kernel/module.c           | 126 -----------------------
+ arch/arm64/kernel/probes/kprobes.c   |   7 --
+ arch/arm64/mm/init.c                 | 140 ++++++++++++++++++++++++++
+ arch/arm64/net/bpf_jit_comp.c        |  11 --
+ arch/loongarch/kernel/module.c       |   6 --
+ arch/loongarch/mm/init.c             |  21 ++++
+ arch/mips/include/asm/pgtable-64.h   |   4 +-
+ arch/mips/kernel/module.c            |  10 --
+ arch/mips/mm/fault.c                 |   4 +-
+ arch/mips/mm/init.c                  |  23 +++++
+ arch/nios2/include/asm/pgtable.h     |   5 +-
+ arch/nios2/kernel/module.c           |  20 ----
+ arch/nios2/mm/init.c                 |  21 ++++
+ arch/parisc/kernel/module.c          |  12 ---
+ arch/parisc/mm/init.c                |  23 ++++-
+ arch/powerpc/Kconfig                 |   2 +-
+ arch/powerpc/include/asm/kasan.h     |   2 +-
+ arch/powerpc/kernel/head_8xx.S       |   4 +-
+ arch/powerpc/kernel/head_book3s_32.S |   6 +-
+ arch/powerpc/kernel/kprobes.c        |  22 +---
+ arch/powerpc/kernel/module.c         |  38 -------
+ arch/powerpc/lib/code-patching.c     |   2 +-
+ arch/powerpc/mm/book3s32/mmu.c       |   2 +-
+ arch/powerpc/mm/mem.c                |  64 ++++++++++++
+ arch/riscv/kernel/module.c           |  12 ---
+ arch/riscv/kernel/probes/kprobes.c   |  10 --
+ arch/riscv/mm/init.c                 |  45 +++++++++
+ arch/riscv/net/bpf_jit_core.c        |  13 ---
+ arch/s390/kernel/ftrace.c            |   4 +-
+ arch/s390/kernel/kprobes.c           |   4 +-
+ arch/s390/kernel/module.c            |  42 +-------
+ arch/s390/mm/init.c                  |  30 ++++++
+ arch/sparc/include/asm/pgtable_32.h  |   2 +
+ arch/sparc/kernel/module.c           |  30 ------
+ arch/sparc/mm/Makefile               |   2 +
+ arch/sparc/mm/execmem.c              |  21 ++++
+ arch/sparc/net/bpf_jit_comp_32.c     |   8 +-
+ arch/x86/Kconfig                     |   1 +
+ arch/x86/kernel/ftrace.c             |  16 +--
+ arch/x86/kernel/kprobes/core.c       |   4 +-
+ arch/x86/kernel/module.c             |  51 ----------
+ arch/x86/mm/init.c                   |  29 ++++++
+ include/linux/execmem.h              | 132 ++++++++++++++++++++++++
+ include/linux/module.h               |   9 ++
+ include/linux/moduleloader.h         |  15 ---
+ kernel/bpf/Kconfig                   |   2 +-
+ kernel/bpf/core.c                    |   6 +-
+ kernel/kprobes.c                     |  63 +++++++-----
+ kernel/module/Kconfig                |   1 +
+ kernel/module/main.c                 | 105 +++++++++----------
+ kernel/trace/trace_kprobe.c          |  20 +++-
+ mm/Kconfig                           |   3 +
+ mm/Makefile                          |   1 +
+ mm/execmem.c                         | 144 +++++++++++++++++++++++++++
+ mm/mm_init.c                         |   2 +
+ 59 files changed, 911 insertions(+), 581 deletions(-)
+ create mode 100644 arch/sparc/mm/execmem.c
+ create mode 100644 include/linux/execmem.h
+ create mode 100644 mm/execmem.c
 
-Thanks!
+
+base-commit: 0bbac3facb5d6cc0171c45c9873a2dc96bea9680
+-- 
+2.43.0
+
