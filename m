@@ -1,225 +1,230 @@
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19A9913BADA;
-	Fri, 26 Apr 2024 06:59:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0D87567F;
+	Fri, 26 Apr 2024 07:03:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714114782; cv=none; b=CKtCHCWXFDvR1ZE5ActtLoe0cbfXwL2s1+Fgxed+h5oLaLH2FyZ+M4yaK4B3InBFyLqrLkUmNsJw/HTARJGwwOWNYtqduAnT0x7RzTBWMWqEY/N9BYZkUQQVw9K5dLU3vr/e36RGNyD/mKUHAOoiCR8l0SkiRVS45EBUeIqAwHw=
+	t=1714114989; cv=none; b=umiyW4Hg/JaDs+teouq2qzZZmr2IgtmwJoCE2e4NVW+tNMYBEOPbr49y2j6y0LosfFvj5pyU/T3NQbusV01eUjABpYbiCG3csZPMFAk1Ea3fnaiKSWmAx89YI7y3tQdqyH7INKtEDseEHdAzMSEgrYBZ7rDb4Fk350KXZ7aMHBo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714114782; c=relaxed/simple;
-	bh=VegRhdx8vhbP1fdPNReSsBiQd6jF0kNOXjrPgTBgW2g=;
-	h=Date:From:To:CC:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:References; b=mvkJ82DunPAxXJWQMEVQzI6kTK9nEE1z0kPO7eQdP/lOzRV9YAS3/WRnrXy4TEapc8R65cEEqx8M3ZGHvRaFG7y3uyVrspaEQQs3lp9sB5Ju3Kad12OvAs98cAyucCLdtpuucrqil6c0bL41g+7XxKg297N986QBvToxZcCYsng=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=o3gAAC4D; arc=none smtp.client-ip=210.118.77.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1714114989; c=relaxed/simple;
+	bh=IvTH72RWSEFgKEux7+oDcRKaZa76lkq/3U0lfobgA7E=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=f2Eb6l7e/gl0tVGHB+dCF05vvEi4LY01A1KemjxNwIFX73UND8cagdZcJcaXJGvdRQkd2zO1/ZnjaFbjinZFtnkkk0izcxso+lKKtFmJTtFLkaqpxsWtCYlPuo+NtNaYxJa/YPJgu3QLPB3A4Tmg7OnxMYENKvTKvFiLfU2ZSFg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eHONCeLC; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="o3gAAC4D"
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20240426065937euoutp027cea4fdb8852804e5cac02c0bf0ab966~Jwk8Ih6jH1312713127euoutp02C;
-	Fri, 26 Apr 2024 06:59:37 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20240426065937euoutp027cea4fdb8852804e5cac02c0bf0ab966~Jwk8Ih6jH1312713127euoutp02C
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1714114777;
-	bh=RAahLIMOGiGmOJ9Ik/GbtwXwXyGGxOO3w+fnlrkOweI=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=o3gAAC4DRR19i8p+CY7Jaz+Qo7PWP06ureHe9d/TcZriAHZ2f3aAxLOXB8qIqAjmJ
-	 c0zR+f5CxaDOMhWQSuyRA1I6WXwTVGjbpwksc0S34zwT5P9PHBqZAExdEPB+VC3oYY
-	 1EA1odNQZ9TB3mOjACaztmiuamJXVODpZ1+3kfMI=
-Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-	20240426065937eucas1p17e6e14a8fa83a831e1f46436d35ff764~Jwk74nzHJ2936429364eucas1p1F;
-	Fri, 26 Apr 2024 06:59:37 +0000 (GMT)
-Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
-	eusmges3new.samsung.com (EUCPMTA) with SMTP id 19.CD.09620.9D05B266; Fri, 26
-	Apr 2024 07:59:37 +0100 (BST)
-Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-	20240426065936eucas1p2971394a913727d431786adef9db8e9b4~Jwk7TFZ3o0634906349eucas1p2L;
-	Fri, 26 Apr 2024 06:59:36 +0000 (GMT)
-Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
-	eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
-	20240426065936eusmtrp2aa3306842099a9b2cba9d4fa0c84649c~Jwk7RY8kS1910019100eusmtrp2Y;
-	Fri, 26 Apr 2024 06:59:36 +0000 (GMT)
-X-AuditID: cbfec7f5-d1bff70000002594-9d-662b50d95d99
-Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
-	eusmgms1.samsung.com (EUCPMTA) with SMTP id 51.F1.08810.8D05B266; Fri, 26
-	Apr 2024 07:59:36 +0100 (BST)
-Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
-	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20240426065936eusmtip1d5ad5eb9c96b466fadc134bb0b11d2c7~Jwk63eBOi1002010020eusmtip1x;
-	Fri, 26 Apr 2024 06:59:36 +0000 (GMT)
-Received: from localhost (106.110.32.44) by CAMSVWEXC02.scsc.local
-	(2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
-	Fri, 26 Apr 2024 07:59:35 +0100
-Date: Fri, 26 Apr 2024 08:59:31 +0200
-From: Joel Granados <j.granados@samsung.com>
-To: Jakub Kicinski <kuba@kernel.org>
-CC: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.org>,
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
-	Paolo Abeni <pabeni@redhat.com>, Alexander Aring <alex.aring@gmail.com>,
-	Stefan Schmidt <stefan@datenfreihafen.org>, Miquel Raynal
-	<miquel.raynal@bootlin.com>, David Ahern <dsahern@kernel.org>, Steffen
-	Klassert <steffen.klassert@secunet.com>, Herbert Xu
-	<herbert@gondor.apana.org.au>, Matthieu Baerts <matttbe@kernel.org>, Mat
-	Martineau <martineau@kernel.org>, Geliang Tang <geliang@kernel.org>, Ralf
-	Baechle <ralf@linux-mips.org>, Remi Denis-Courmont <courmisch@gmail.com>,
-	Allison Henderson <allison.henderson@oracle.com>, David Howells
-	<dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, Marcelo
-	Ricardo Leitner <marcelo.leitner@gmail.com>, Xin Long
-	<lucien.xin@gmail.com>, Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher
-	<jaka@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu
-	<tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, Trond
-	Myklebust <trond.myklebust@hammerspace.com>, Anna Schumaker
-	<anna@kernel.org>, Chuck Lever <chuck.lever@oracle.com>, Jeff Layton
-	<jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga Kornievskaia
-	<kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey
-	<tom@talpey.com>, Jon Maloy <jmaloy@redhat.com>, Ying Xue
-	<ying.xue@windriver.com>, Martin Schiller <ms@dev.tdt.de>, Pablo Neira Ayuso
-	<pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, Florian
-	Westphal <fw@strlen.de>, Roopa Prabhu <roopa@nvidia.com>, Nikolay
-	Aleksandrov <razor@blackwall.org>, Simon Horman <horms@verge.net.au>, Julian
-	Anastasov <ja@ssi.bg>, Joerg Reuter <jreuter@yaina.de>, Luis Chamberlain
-	<mcgrof@kernel.org>, Kees Cook <keescook@chromium.org>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<dccp@vger.kernel.org>, <linux-wpan@vger.kernel.org>,
-	<mptcp@lists.linux.dev>, <linux-hams@vger.kernel.org>,
-	<linux-rdma@vger.kernel.org>, <rds-devel@oss.oracle.com>,
-	<linux-afs@lists.infradead.org>, <linux-sctp@vger.kernel.org>,
-	<linux-s390@vger.kernel.org>, <linux-nfs@vger.kernel.org>,
-	<tipc-discussion@lists.sourceforge.net>, <linux-x25@vger.kernel.org>,
-	<netfilter-devel@vger.kernel.org>, <coreteam@netfilter.org>,
-	<bridge@lists.linux.dev>, <lvs-devel@vger.kernel.org>
-Subject: Re: [PATCH v4 1/8] net: Remove the now superfluous sentinel
- elements from ctl_table array
-Message-ID: <20240426065931.wyrzevlheburnf47@joelS2.panther.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eHONCeLC"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43Q72RBA006163;
+	Fri, 26 Apr 2024 07:02:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=gn+OA+eWtFQ0TbrlYBUsxOrQSF+lCgWVOrEmHKbpjF0=;
+ b=eHONCeLCatfKXfkK5H/0BHT4T0dp7zr9JqJN80e5/BCSJ/7Ek8ZgzQimbka5puTaBc5R
+ k7j3ToaFJhFo3jpzAB20Lhpk5sn3tydZvkwixCJ/JincYI4j+5C4iDO6Mi621SFyrUOF
+ 7PxG+AniE/S5seInN0c8VQGGjPgA9r7mAyB6fhhK00pOwo5CzUHK1aw5Z4s81oVXnsoN
+ 5BwX/M7vcGap6toqkxG0ZgEzBKNxstmv/pJR2ctw45ySX/Z9jkbdEDeUtWx0oM0DsyP3
+ JFrnZPtY6NtImqF6AbCwxkrbsSxzQ5mITRQR7HuGChYuh37v7Xbv1StgVmpWgr1M7vAa YA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xr7h8r02h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 26 Apr 2024 07:02:56 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43Q72uPT006995;
+	Fri, 26 Apr 2024 07:02:56 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xr7h8r02b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 26 Apr 2024 07:02:56 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43Q5ZGnM015343;
+	Fri, 26 Apr 2024 07:02:54 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xmshmp6jg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 26 Apr 2024 07:02:54 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43Q72n4x54854034
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 26 Apr 2024 07:02:51 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2B4CC2004F;
+	Fri, 26 Apr 2024 07:02:49 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 00E8C20063;
+	Fri, 26 Apr 2024 07:02:48 +0000 (GMT)
+Received: from [9.171.7.244] (unknown [9.171.7.244])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 26 Apr 2024 07:02:47 +0000 (GMT)
+Message-ID: <5f50bc62-f7d5-4094-94de-a77a103fc111@linux.ibm.com>
+Date: Fri, 26 Apr 2024 09:02:47 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v6 00/11] net/smc: SMC intra-OS shortcut with
+ loopback-ism
+To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
+        twinkler@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+References: <20240414040304.54255-1-guwen@linux.alibaba.com>
+From: Jan Karcher <jaka@linux.ibm.com>
+Organization: IBM - Network Linux on Z
+In-Reply-To: <20240414040304.54255-1-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: S69eD35reIvaQmH81gvuG5azWnZJyWmN
+X-Proofpoint-GUID: VXcwIiokXeiKQzTJsMTZqwouEkYfg2ba
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="6aeoqlr4wnxytbye"
-Content-Disposition: inline
-In-Reply-To: <20240425155804.66f3bed5@kernel.org>
-X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
-	CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
-X-Brightmail-Tracker: H4sIAAAAAAAAA1WTfUxTVxjGc+69vS2wbpdi9FiMmwwM6gbicL4wNyUac7OvaMzG3KLCxlWZ
-	ULWFKTNmlVL5/tiQCFgoCEMELAq1CgJiN0QKQxzoUPmQApIBCoLlGzq6Ytz+e97n/T3nnOeP
-	IyBF8QKxIFASwkkl/kFOtC2luzXZ+O6D7Wv2rY1SikEv3wBdFTE8kEecIkBZZqZAlxNLgLm9
-	j4DZskgSRrv6eKA+V0qD6k4EBbN/xdLQnNFDwLPwaQo05UoCem8Z+aCLL0RQGN5GwdW+cRpi
-	+5eB4ooJQU+ikQctecM0TOYV8KHTZKRgMsEO0mIUBDTEBsO19h4KmnQJPEgyeMD9q+0ENJer
-	aGiqrufBE308BUnZChJ6swZ40JacR0F1pRqBsXiIAIV6hATFaDcJU/m1PGiMN5OQrikgoTWp
-	F8FvkVU8aCgO58NY5m0SKtVyCm5lLYYkjYGCsfpBBGcG75HwZ4UzGF6YCWgsHeXBqMoVkvO1
-	BFyPnuCD9s73YJgyENA93keDuXUTnGzQ8Tf7sA+NJpJ91liH2Myi4+xZ+V2KnZpczWovPCDY
-	2N/7SbYsvZ3P6qpd2KySUHZGf5nPlhRE02zNhYsEW9blxSadq0Zsae5P21d8bbsxgAsK/IGT
-	un/kZ3sgLTwRHb7ncKyozE6O4pgYZCPAjCd+PNBCxyBbgYjJR1ido0fW4QXC2TUqZKFEzCjC
-	fcYTLxMzF1MWEucRTslrXkjMQ7MZfTzrUIpwR93j+UEgoBgXnN2DLWmaeQffGWwjLXoR44wj
-	StMoC08yFSKcMFZFW3gHJgD/nCyzSCGzGSvqfC24kLHHdWk9lMUmmWP4didtlY74/JzAQtgw
-	HrgyNh5Zn7kCm3I6KKs+gQ3ah4TlIsz88Ro+3annWxdbsTL6+QLkgPtrtQv+MmwuUy8EkhG+
-	MTfMtw6FCOedNBFW6gMc0dKzkPDBas2Vf+ti5nXc+tTeYpPz8hfdGdJqC3HUKZGVXokLOwap
-	JPR2+n+apb9qlv6qmVWuwsXl7v9zLaevwXnZA6RVf4g1miEqC/EL0BIuVBa8n5O9J+GOusn8
-	g2Whkv1u3x0KLkHzv7R+rtZ0DeX3P3fTI0KA9Mh5Pmy8VNiExJTkkIRzWiR88Nx1n0gY4B/2
-	Iyc9tFcaGsTJ9MhRQDktEboEvMmJmP3+IdxBjjvMSV9uCYGNWE4UZHI3vi2/fHzE46zt0tkD
-	ezdmbHF29UwNlyZ/Jlet21Cwm107POO4bUwQdrPG3XtnzeLGSzvMDlrv3vzJXPL0Q78rvUca
-	PENy2h4dfEMlJIyVqdfsSGhTl4gucN6pGXteNER5rR/+fOtGpV+K21P33UcqPEf23U0cpG9s
-	+lXsOFG1pzh65JHXVqlpR71Y/GVofOc3yr/X3VwVeF1jFzJrd3q6bknTel/bmQGf5UO7dnUr
-	WhML475apWyc8Dn1yNvGw0Y1e3Svb9zFt3LHPwla6eXutlPR8CzMOfBJZPrSp7mRpdqK492a
-	iY/vSg1jRSN17m3TEpncqXZL03L79+9TgydiPkVfOFGyA/4eq0mpzP8f5hGj+SAFAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA2WTfUxTZxTGfe+9vS2Qmivg9gaZU4KbQSkUCpw6P9jM4jXLEv1ny8ac6+AC
-	TltMP4xDndWqYFmxzsEEERAdasGiFIE6IKw4GODAyUQ0LdMCMj4UHSKWFRhNt8xk//3Oc57n
-	yZs3OQLS38wPEmxTqDmlQrYjhPal2mdaHOE9m1YkRx57sRJs2jh4UKfngfbQEQIOW2cpqD6b
-	RcCsY5CAaWsGCeMPBnlQVGKhoaDzEAXTd7Jo6DrdT8Djg39RYL52mICBZicfqg1lCMoO2imo
-	GZykIWs4GHRXJxD0H3Py4LfSJzS4Sk18+H3CSYEr2w/y9DoCbmTJodbRT8HN6mweGNvE0F3j
-	IKDrWgENNxvbefDQZqDAeEZHwkDxCA/sJ0opaKwvQuCsGCNAV/QnCbrxPhKmLrTwoMMwS0K+
-	2URCj3EAQVNGAw9uVBzkw/PCn0moL9JS0Fz8ChjNbRQ8bx9F8N3obRJu1YVC27NZAjos4zwY
-	L1gOJy5UEfDD0Rd8qOr8Atqm2gjomxykYbZnHRy4Uc2Pf5u955wg2ccdrYgtLN/DntL+SrFT
-	rjC26uJdgs26Pkyy1nwHn61uXMYWV2pYt+0Kn600HaXZny5eIljrAylrLGlErOXc/k1LPxat
-	VqZp1NyS1DSVek1IghiiRGIpiKIkUpE4Om7LqqiYkIi1q5O4Hdt2ccqItZ+JUg1GC9rZFbD7
-	uNNEa5Ge0SMfAWYk2H0ph/awP/M9wgbza149GF95dpvn5QDs7tbPeXznPE8R7m5o/2ewIJzz
-	vJPQI4GAYpbhM/3YE6CZlbhz1E56OJAJxYcseZTHTzJ1/rh1qIHvWQQwSfhC/deUJytk4rGu
-	9UNv5xEC5+QOEh6PkFmAW/P6KQ+TzC6cXTBFevwkswifnxF4ZB9GjOuzDMj70KV44mwv5eV9
-	eHz6ITKigPyXmvJfasr/r8krv4ndhbf+L6/ApWdGSC+vwWbzGFWM+CYUyGlU8hS5SixSyeQq
-	jSJFlJgmr0Rzx1Ld7LLUosLhpyIbIgTIhkLnks7LZTdREKVIU3AhgcK7T5cn+wuTZF+mc8q0
-	rUrNDk5lQzFzn3icDFqYmDZ3eQr1VnFsZIxYEiuNjJHGRoe8Kty4M1Pmz6TI1Nx2jtvJKf/N
-	EQKfIC0RGDE0KR27oj/3Vm+57l4NR4e+ozYFNp/O0/yYkv4w6f1d5UIL78CQ/Y95l32Pvksb
-	rJ9e6k62x4c9+fZ8rzx7hDgvL07I/8S9vWeEZwgcl0j0AxUdQvdouu/96f1te+vnhysSDLLM
-	3OvlPjZc94vPhug97o2PxvZJniy5HynZvDjDwZS899X6/fYoxrbujbM9cYZEv+MwbD3duW37
-	3lMX4+pOzGzI1X4UHrdlc90Cag+qer3LtNxgzS1tOvWNy+IXn7pYj1yak58vmlcrDZ9pOllh
-	T2/Ru5hNj2pykhcGO8Kp9eq+erYkM3vJ7rKrnCxnfvkqq47ovxMd1Gxq+GA6eTKEUqXKxGGk
-	UiX7G1ARo/DBBAAA
-X-CMS-MailID: 20240426065936eucas1p2971394a913727d431786adef9db8e9b4
-X-Msg-Generator: CA
-X-RootMTR: 20240425225817eucas1p21d1f3bcedc248575285a74af88e66966
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20240425225817eucas1p21d1f3bcedc248575285a74af88e66966
-References: <20240425-jag-sysctl_remset_net-v4-0-9e82f985777d@samsung.com>
-	<20240425-jag-sysctl_remset_net-v4-1-9e82f985777d@samsung.com>
-	<CGME20240425225817eucas1p21d1f3bcedc248575285a74af88e66966@eucas1p2.samsung.com>
-	<20240425155804.66f3bed5@kernel.org>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-04-26_07,2024-04-25_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ mlxlogscore=999 clxscore=1011 phishscore=0 impostorscore=0 suspectscore=0
+ lowpriorityscore=0 mlxscore=0 bulkscore=0 priorityscore=1501 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
+ definitions=main-2404260043
 
---6aeoqlr4wnxytbye
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Apr 25, 2024 at 03:58:04PM -0700, Jakub Kicinski wrote:
-> On Thu, 25 Apr 2024 14:02:59 +0200 Joel Granados via B4 Relay wrote:
-> > -	for (i =3D 0; i < ARRAY_SIZE(mpls_table) - 1; i++)
-> > +	for (i =3D 0; i < tabel_size; i++)
-> >  		table[i].data =3D (char *)net + (uintptr_t)table[i].data;
-> > =20
-> >  	net->mpls.ctl =3D register_net_sysctl_sz(net, "net/mpls", table,
-> > -					       ARRAY_SIZE(mpls_table));
-> > +					       tabel_size);
->=20
-> ../net/mpls/af_mpls.c: In function =E2=80=98mpls_net_init=E2=80=99:
-> ../net/mpls/af_mpls.c:2676:25: error: =E2=80=98tabel_size=E2=80=99 undecl=
-ared (first use in this function); did you mean =E2=80=98table_size=E2=80=
-=99?
->  2676 |         for (i =3D 0; i < tabel_size; i++)
->       |                         ^~~~~~~~~~
->       |                         table_size
-> ../net/mpls/af_mpls.c:2676:25: note: each undeclared identifier is report=
-ed only once for each function it appears in
-> ../net/mpls/af_mpls.c:2660:16: warning: unused variable =E2=80=98table_si=
-ze=E2=80=99 [-Wunused-variable]
->  2660 |         size_t table_size =3D ARRAY_SIZE(mpls_table);
-Sorry about this. I pulled the trigger way too early. This is already
-fixed in my v4.
->       |                ^~~~~~~~~~
-> --=20
-> netdev FAQ tl;dr:
->  - designate your patch to a tree - [PATCH net] or [PATCH net-next]
->  - for fixes the Fixes: tag is required, regardless of the tree
->  - don't post large series (> 15 patches), break them up
->  - don't repost your patches within one 24h period
->=20
-> pw-bot: cr
 
---=20
+On 14/04/2024 06:02, Wen Gu wrote:
+> This patch set acts as the second part of the new version of [1] (The first
+> part can be referred from [2]), the updated things of this version are listed
+> at the end.
+> 
+> - Background
+> 
+> SMC-D is now used in IBM z with ISM function to optimize network interconnect
+> for intra-CPC communications. Inspired by this, we try to make SMC-D available
+> on the non-s390 architecture through a software-implemented Emulated-ISM device,
+> that is the loopback-ism device here, to accelerate inter-process or
+> inter-containers communication within the same OS instance.
+> 
+> - Design
+> 
+> This patch set includes 3 parts:
+> 
+>   - Patch #1: some prepare work for loopback-ism.
+>   - Patch #2-#7: implement loopback-ism device and adapt SMC-D for it.
+>     loopback-ism now serves only SMC and no userspace interfaces exposed.
+>   - Patch #8-#11: memory copy optimization for intra-OS scenario.
+> 
+> The loopback-ism device is designed as an ISMv2 device and not be limited to
+> a specific net namespace, ends of both inter-process connection (1/1' in diagram
+> below) or inter-container connection (2/2' in diagram below) can find the same
+> available loopback-ism and choose it during the CLC handshake.
+> 
+>   Container 1 (ns1)                              Container 2 (ns2)
+>   +-----------------------------------------+    +-------------------------+
+>   | +-------+      +-------+      +-------+ |    |        +-------+        |
+>   | | App A |      | App B |      | App C | |    |        | App D |<-+     |
+>   | +-------+      +---^---+      +-------+ |    |        +-------+  |(2') |
+>   |     |127.0.0.1 (1')|             |192.168.0.11       192.168.0.12|     |
+>   |  (1)|   +--------+ | +--------+  |(2)   |    | +--------+   +--------+ |
+>   |     `-->|   lo   |-` |  eth0  |<-`      |    | |   lo   |   |  eth0  | |
+>   +---------+--|---^-+---+-----|--+---------+    +-+--------+---+-^------+-+
+>                |   |           |                                  |
+>   Kernel       |   |           |                                  |
+>   +----+-------v---+-----------v----------------------------------+---+----+
+>   |    |                            TCP                               |    |
+>   |    |                                                              |    |
+>   |    +--------------------------------------------------------------+    |
+>   |                                                                        |
+>   |                           +--------------+                             |
+>   |                           | smc loopback |                             |
+>   +---------------------------+--------------+-----------------------------+
+> 
+> loopback-ism device creates DMBs (shared memory) for each connection peer.
+> Since data transfer occurs within the same kernel, the sndbuf of each peer
+> is only a descriptor and point to the same memory region as peer DMB, so that
+> the data copy from sndbuf to peer DMB can be avoided in loopback-ism case.
+> 
+>   Container 1 (ns1)                              Container 2 (ns2)
+>   +-----------------------------------------+    +-------------------------+
+>   | +-------+                               |    |        +-------+        |
+>   | | App C |-----+                         |    |        | App D |        |
+>   | +-------+     |                         |    |        +-^-----+        |
+>   |               |                         |    |          |              |
+>   |           (2) |                         |    |     (2') |              |
+>   |               |                         |    |          |              |
+>   +---------------|-------------------------+    +----------|--------------+
+>                   |                                         |
+>   Kernel          |                                         |
+>   +---------------|-----------------------------------------|--------------+
+>   | +--------+ +--v-----+                           +--------+ +--------+  |
+>   | |dmb_desc| |snd_desc|                           |dmb_desc| |snd_desc|  |
+>   | +-----|--+ +--|-----+                           +-----|--+ +--------+  |
+>   | +-----|--+    |                                 +-----|--+             |
+>   | | DMB C  |    +---------------------------------| DMB D  |             |
+>   | +--------+                                      +--------+             |
+>   |                                                                        |
+>   |                           +--------------+                             |
+>   |                           | smc loopback |                             |
+>   +---------------------------+--------------+-----------------------------+
+> 
+> - Benchmark Test
+> 
+>   * Test environments:
+>        - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
+>        - SMC sndbuf/DMB size 1MB.
+> 
+>   * Test object:
+>        - TCP: run on TCP loopback.
+>        - SMC lo: run on SMC loopback-ism.
+> 
+> 1. ipc-benchmark (see [3])
+> 
+>   - ./<foo> -c 1000000 -s 100
+> 
+>                              TCP                  SMC-lo
+> Message
+> rate (msg/s)              79693                  148236(+86.01%)
+> 
+> 2. sockperf
+> 
+>   - serv: <smc_run> sockperf sr --tcp
+>   - clnt: <smc_run> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
+> 
+>                              TCP                  SMC-lo
+> Bandwidth(MBps)         4815.18                 8061.77(+67.42%)
+> Latency(us)               6.176                   3.449(-44.15%)
+> 
+> 3. nginx/wrk
+> 
+>   - serv: <smc_run> nginx
+>   - clnt: <smc_run> wrk -t 8 -c 1000 -d 30 http://127.0.0.1:80
+> 
+>                             TCP                   SMC-lo
+> Requests/s           196555.02                263270.95(+33.94%)
+> 
+> 4. redis-benchmark
+> 
+>   - serv: <smc_run> redis-server
+>   - clnt: <smc_run> redis-benchmark -h 127.0.0.1 -q -t set,get -n 400000 -c 200 -d 1024
+> 
+>                             TCP                   SMC-lo
+> GET(Requests/s)       88711.47                120048.02(+35.32%)
+> SET(Requests/s)       89465.44                123152.71(+37.65%)
+> 
+> 
 
-Joel Granados
+Hi Wen Gu,
 
---6aeoqlr4wnxytbye
-Content-Type: application/pgp-signature; name="signature.asc"
+I did run the tests again with the v6 and reviewed the patchset. If you 
+decide to address Simons nit feel free to add my:
 
------BEGIN PGP SIGNATURE-----
+Reviewed-and-tested-by: Jan Karcher <jaka@linux.ibm.com>
 
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmYrUNMACgkQupfNUreW
-QU8Lzgv/TJmurVNSgO2iDBVQ8bKTLVZCDWpkqOISTJcAhPeC7GVAN0DUGnndUsYY
-VWlk378kGRgh4o4vkVoT+vDFGcLfekyBZ7A7+1Hch+Ej8pBi3ehx+O6lrTIvfSLP
-WLzkYqO7D1w7m8im/Bxj5D3i3d1oGVY4SYptq2ZFMzwecJMwEVxKTd12FPvaKDWj
-3dIO/lGPDyMckpa1NNjioclQH/3bjchV7EN9vMgX9tq031kCW6IHzijIecYxoxC1
-03w84MltO003waD5EsSw7/V14Db62XqxmYwMXzIv4MLe0prEc7s18scPpP9nJOpF
-1oHVmtXm/iz9O1E6r+cuiGGZTNMF8NOF7XfmgosExm43utnVXCzjouGOn5FbFd8O
-hZ6YkOLlQaNXi6B8TveTe0PKN8h0TzKporAIjD6vuKpaSRrM2i74Mo7870R6STD5
-niiT2phZNFuC2ezKpGVCgY67f87SnHLmu1uXbDdoI7aVATzEWUNwDp6V7DHP0vB5
-+KgDXCQs
-=+u1k
------END PGP SIGNATURE-----
-
---6aeoqlr4wnxytbye--
+Thanks for your effort and contribution.
+- J
