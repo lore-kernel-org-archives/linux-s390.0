@@ -1,132 +1,130 @@
-Received: from us-smtp-delivery-44.mimecast.com (us-smtp-delivery-44.mimecast.com [207.211.30.44])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA11F446AF
-	for <linux-s390@vger.kernel.org>; Sat, 27 Apr 2024 08:14:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.211.30.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AED14F888;
+	Sat, 27 Apr 2024 14:26:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714205695; cv=none; b=jNpQFIdE39k4zlucvsGjptoxa3ot8/7b8asDhsKSiMwf23FrJTzFHEW2QBgCK9E/0gBA+4v37hi87/L4qOyEmaidNgBPMOynXFTUF+9o/AB5oDyKTiGDecUNM/aGY0dAI+wFLxdIBHQ1e+qiHKf4DOuxKF5829AGWD+yvYSc5qw=
+	t=1714227967; cv=none; b=FEhH26UaBsM3nk2wPSTLvBhbGSkJuAtZiBkv1WgIgDs3/hdKlpe4y+cqLkcLc0P2Kve4vYA4T2khAuZHV8gwXdR6FCCou985NaOFYLeI5dAohBqqSuK5Bq15dlt6kL6LemM6/D3a2JiQBSB0BGzmRzpIRP8UG8JEWlLVMfAuG+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714205695; c=relaxed/simple;
-	bh=yonDWqdlxvIDOh++86MACveVtWv+lfo/zS7623cId9Q=;
+	s=arc-20240116; t=1714227967; c=relaxed/simple;
+	bh=t/apW+NTFNF4ubyJBw+vwSAslJlVBGHf0Ykms0SIwzE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Dp3n9NWaPR9oDKa9wchVCj/xlTETqxBmzW3+jRdO2zdwa6UgdDBQ+UKG+HDiLje06EoVOcosVUPpYf6a6GyIzkf/pZIFXHzmjYW9MiaXB/dYVy597PosD8qmpYUEQKEj3xeAkEZPzv/TTQVYLok5vkcuvBCd/avL1XRFCKIiPKA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=none smtp.mailfrom=queasysnail.net; arc=none smtp.client-ip=207.211.30.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=queasysnail.net
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-637-ISDaXyS1NyqDVnSv6P_Hvg-1; Sat, 27 Apr 2024 04:14:47 -0400
-X-MC-Unique: ISDaXyS1NyqDVnSv6P_Hvg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CA54D8001B2;
-	Sat, 27 Apr 2024 08:14:46 +0000 (UTC)
-Received: from hog (unknown [10.39.193.137])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id D2F3B202450F;
-	Sat, 27 Apr 2024 08:14:37 +0000 (UTC)
-Date: Sat, 27 Apr 2024 10:14:36 +0200
-From: Sabrina Dubroca <sd@queasysnail.net>
-To: Joel Granados <j.granados@samsung.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexander Aring <alex.aring@gmail.com>,
-	Stefan Schmidt <stefan@datenfreihafen.org>,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	David Ahern <dsahern@kernel.org>,
-	Steffen Klassert <steffen.klassert@secunet.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Matthieu Baerts <matttbe@kernel.org>,
-	Mat Martineau <martineau@kernel.org>,
-	Geliang Tang <geliang@kernel.org>,
-	Remi Denis-Courmont <courmisch@gmail.com>,
-	Allison Henderson <allison.henderson@oracle.com>,
-	David Howells <dhowells@redhat.com>,
-	Marc Dionne <marc.dionne@auristor.com>,
-	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-	Xin Long <lucien.xin@gmail.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Trond Myklebust <trond.myklebust@hammerspace.com>,
-	Anna Schumaker <anna@kernel.org>,
-	Chuck Lever <chuck.lever@oracle.com>,
-	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>,
-	Olga Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>,
-	Tom Talpey <tom@talpey.com>, Jon Maloy <jmaloy@redhat.com>,
-	Ying Xue <ying.xue@windriver.com>, Martin Schiller <ms@dev.tdt.de>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Jozsef Kadlecsik <kadlec@netfilter.org>,
-	Florian Westphal <fw@strlen.de>, Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Simon Horman <horms@verge.net.au>, Julian Anastasov <ja@ssi.bg>,
-	Joerg Reuter <jreuter@yaina.de>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Kees Cook <keescook@chromium.org>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, dccp@vger.kernel.org,
-	linux-wpan@vger.kernel.org, mptcp@lists.linux.dev,
-	linux-hams@vger.kernel.org, linux-rdma@vger.kernel.org,
-	rds-devel@oss.oracle.com, linux-afs@lists.infradead.org,
-	linux-sctp@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-nfs@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
-	linux-x25@vger.kernel.org, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, bridge@lists.linux.dev,
-	lvs-devel@vger.kernel.org
-Subject: Re: [PATCH v5 8/8] ax.25: x.25: Remove the now superfluous sentinel
- elements from ctl_table array
-Message-ID: <ZiyxJFnJimaRr9nK@hog>
-References: <20240426-jag-sysctl_remset_net-v5-0-e3b12f6111a6@samsung.com>
- <20240426-jag-sysctl_remset_net-v5-8-e3b12f6111a6@samsung.com>
+	 Content-Type:Content-Disposition:In-Reply-To; b=YRAkr1ZRH5WaNcE8le1Ubo9XITeDW6IAh6EnoY1IVPhi3PEvJpAW5rqqXQmmYSAEvJVuhvjJpOU7oZLr+a+gbb5tTE8YtXewFCFml+A4NGt455Gf/HIGDsFGbQApRxP7NzNmGr6rqjcyMgO5H0u3986BAuQTtjl9T2FEsu5Mp4c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=QljWQy1j; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="QljWQy1j"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63DEC113CE;
+	Sat, 27 Apr 2024 14:26:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1714227967;
+	bh=t/apW+NTFNF4ubyJBw+vwSAslJlVBGHf0Ykms0SIwzE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=QljWQy1j6T1fBvnrVOQ0OTHQltI9XvKWK8WO9LbKVYCDgJ1VyIk2jlJP0NeWoJwJ9
+	 6ksVP9DX/QhwT53mY74+g8J3Xu03mNpnn+bfUkIZGIfTlqJ4OAgZSGxznZ7T0xMCba
+	 xXELV103kWwCMPk/T11BXOs2gHxHKKiW4zPE6jrI=
+Date: Sat, 27 Apr 2024 16:26:04 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: Naresh Kamboju <naresh.kamboju@linaro.org>, stable@vger.kernel.org,
+	patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+	torvalds@linux-foundation.org, akpm@linux-foundation.org,
+	linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+	lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+	f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+	srw@sladewatkins.net, rwarsow@gmx.de, conor@kernel.org,
+	allen.lkml@gmail.com, broonie@kernel.org,
+	linux-s390@vger.kernel.org,
+	Alexandra Winter <wintera@linux.ibm.com>
+Subject: Re: [PATCH 5.15 00/71] 5.15.157-rc1 review
+Message-ID: <2024042757--e526@gregkh>
+References: <20240423213844.122920086@linuxfoundation.org>
+ <CA+G9fYsm9OYUh+H9X2kpJWXsPdde36=WbSWc+mU0vO0i-QaWOw@mail.gmail.com>
+ <3b6b4973-0973-40e4-a107-4c81840c9ed3@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20240426-jag-sysctl_remset_net-v5-8-e3b12f6111a6@samsung.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.4
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: queasysnail.net
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <3b6b4973-0973-40e4-a107-4c81840c9ed3@linux.ibm.com>
 
-2024-04-26, 12:47:00 +0200, Joel Granados via B4 Relay wrote:
-> diff --git a/net/ax25/ax25_ds_timer.c b/net/ax25/ax25_ds_timer.c
-> index c4f8adbf8144..8f385d2a7628 100644
-> --- a/net/ax25/ax25_ds_timer.c
-> +++ b/net/ax25/ax25_ds_timer.c
-> @@ -49,12 +49,16 @@ void ax25_ds_del_timer(ax25_dev *ax25_dev)
-> =20
->  void ax25_ds_set_timer(ax25_dev *ax25_dev)
->  {
-> +#ifdef CONFIG_AX25_DAMA_SLAVE
+On Wed, Apr 24, 2024 at 11:21:05AM +0200, Peter Oberparleiter wrote:
+> On 24.04.2024 09:57, Naresh Kamboju wrote:
+> > On Wed, 24 Apr 2024 at 03:16, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> >>
+> >> This is the start of the stable review cycle for the 5.15.157 release.
+> >> There are 71 patches in this series, all will be posted as a response
+> >> to this one.  If anyone has any issues with these being applied, please
+> >> let me know.
+> >>
+> >> Responses should be made by Thu, 25 Apr 2024 21:38:28 +0000.
+> >> Anything received after that time might be too late.
+> >>
+> >> The whole patch series can be found in one patch at:
+> >>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.157-rc1.gz
+> >> or in the git tree and branch at:
+> >>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> >> and the diffstat can be found below.
+> >>
+> >> thanks,
+> >>
+> >> greg k-h
+> > 
+> > 
+> > The s390 defconfig build failed with gcc-12 and clang-17 on the Linux
+> > stable-rc linux.5.15.y branch.
+> > 
+> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> > 
+> > Build log:
+> > ---
+> > drivers/s390/cio/qdio_main.c: In function 'qdio_int_handler':
+> > drivers/s390/cio/qdio_main.c:761:52: error: incompatible type for
+> > argument 2 of 'ccw_device_start'
+> >   761 |                 rc = ccw_device_start(cdev, irq_ptr->ccw,
+> > intparm, 0, 0);
+> >       |                                             ~~~~~~~^~~~~
+> >       |                                                    |
+> >       |                                                    struct ccw1
+> > In file included from arch/s390/include/asm/qdio.h:13,
+> >                  from drivers/s390/cio/qdio_main.c:18:
+> > arch/s390/include/asm/ccwdev.h:172:50: note: expected 'struct ccw1 *'
+> > but argument is of type 'struct ccw1'
+> >   172 | extern int ccw_device_start(struct ccw_device *, struct ccw1 *,
+> >       |                                                  ^~~~~~~~~~~~~
+> > make[3]: *** [scripts/Makefile.build:289: drivers/s390/cio/qdio_main.o] Error 1
+> > 
+> > 
+> > Suspected commit:
+> > --------
+> > s390/qdio: handle deferred cc1
+> >   [ Upstream commit 607638faf2ff1cede37458111496e7cc6c977f6f ]
+> 
+> This is due to a type change of field 'ccw' in 'struct qdio_irq' that
+> was introduced in v5.17 via commit 718ce9e10171 ("s390/qdio: avoid
+> allocating the qdio_irq with GFP_DMA").
+> 
+> The following change to commit 607638faf2ff ("s390/qdio: handle deferred
+> cc1") fixes the compile error on v5.15:
+> 
+> --- a/drivers/s390/cio/qdio_main.c
+> +++ b/drivers/s390/cio/qdio_main.c
+> @@ -758,7 +758,7 @@ void qdio_int_handler(struct ccw_device *cdev, unsigned long intparm,
+> 
+>  	if (rc == -EAGAIN) {
+>  		DBF_DEV_EVENT(DBF_INFO, irq_ptr, "qint retry");
+> -		rc = ccw_device_start(cdev, irq_ptr->ccw, intparm, 0, 0);
+> +		rc = ccw_device_start(cdev, &irq_ptr->ccw, intparm, 0, 0);
+>  		if (!rc)
+>  			return;
+>  		DBF_ERROR("%4x RETRY ERR", irq_ptr->schid.sch_no);
+> 
+> 
 
-Is this really needed? Looks like this file is only compiled when this
-config is set:
+Fix now made, thanks for this!
 
-grep ax25_ds_timer net/ax25/Makefile
-ax25-$(CONFIG_AX25_DAMA_SLAVE) +=3D ax25_ds_in.o ax25_ds_subr.o ax25_ds_tim=
-er.o
-
-
->  =09if (ax25_dev =3D=3D NULL)=09=09/* paranoia */
->  =09=09return;
-> =20
->  =09ax25_dev->dama.slave_timeout =3D
->  =09=09msecs_to_jiffies(ax25_dev->values[AX25_VALUES_DS_TIMEOUT]) / 10;
->  =09mod_timer(&ax25_dev->dama.slave_timer, jiffies + HZ);
-> +#else
-> +=09return;
-> +#endif
->  }
-
---=20
-Sabrina
-
+greg k-h
