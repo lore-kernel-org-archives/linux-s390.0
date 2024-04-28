@@ -1,154 +1,115 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 673CB4AED9;
-	Sun, 28 Apr 2024 06:08:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64DB6EED0;
+	Sun, 28 Apr 2024 06:56:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714284496; cv=none; b=ZZBfCHMF8Lj4Tua668RmyX3PC/cVK2C4XAKSxCT5jcJ8Agl2ffKWVrhSFSkBp0Yo69GxTTJk525ipgojNVknpPhPE8WuEoBhUZbKZb2rMrqZsoDy6QjIaJCr7qHdnvxH95C0hlz8CUQkGE6X6YAmo0ll3YRgQwTWD2FCsqL99uA=
+	t=1714287394; cv=none; b=ayp2SHFhmGd+wutBIzD6ayDbef85RnziqESmRg6c5gRUihh9nEzhXmNGTgUyFryj68TbWD3+ddD92gYmk0wesyaiAH28gSAxGUmNKMoSTESWOFVs2ebXHEgvsp8nx3l/yMXL6savh59lY49HDQkJSagBgnwuzDTl6K0KqWDqaIM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714284496; c=relaxed/simple;
-	bh=dYVOZ5uv5kzjH64+MEFvDOxuaVg/4gd/nxDGY/qDbA4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Fjb6VfsmW5sx2lWK+aqBurbyvpjIIWl3olexlvqqwHFYSYI1eCXJip05JNhMZDIR8rsnpiCgXqqRnZD7lNu+8iD8Zmtg5eUqOCbov6x32ya0tirYN0kE6ptN2MMb8djEgE6uoUwnEtLLLdkPvfG5BlzYGo1fJ0PTGhi69EZ9tN4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=uPyM6bBH; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1714287394; c=relaxed/simple;
+	bh=r0oXOuLVQhCBCby5vRLJpkXcTQDGNz/eiiiW5fCcIdI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=a3imFH0UThs4DbUDvBr+5fkIgB6IpQo/fUZaBMk5DDIGuu6KfBltQKm3BV26tnRVo16uOcU4DKhJnJ2I59yYqHD82Xet+D1osjE743YGS1JtVIrC8jKFmmvgoNfrgzmFOo9N7WUs7LKNGlDt0jRy5A0N7f5uPFo9yZE7c9o/NZk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XTZs9sEm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="uPyM6bBH"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1714284486; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=Gi+M/EoleW0EgcdBRIvdzYOSiAW9UaYiBQlrK1/nYTE=;
-	b=uPyM6bBH9xw4DrAEsvE0E4VAZIcJbo0WeIhGgPR1eBgsybOX7iVH9G4vzOPF66DhtpRNrNKnBB44tSTPuvr5ZULkDbwcfk7x3+SwfrL9BGuupM9SB0U4Dcw14l8jVswS0hu0YjMSkUgxDEQNQ2slCvHyI3116zJmg6lkcKr05sE=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R941e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067113;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W5NS3H9_1714284483;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W5NS3H9_1714284483)
-          by smtp.aliyun-inc.com;
-          Sun, 28 Apr 2024 14:08:05 +0800
-From: Wen Gu <guwen@linux.alibaba.com>
-To: wintera@linux.ibm.com,
-	twinkler@linux.ibm.com,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	wenjia@linux.ibm.com,
-	jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org
-Subject: [PATCH net-next v7 10/11] net/smc: adapt cursor update when sndbuf and peer DMB are merged
-Date: Sun, 28 Apr 2024 14:07:37 +0800
-Message-Id: <20240428060738.60843-11-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240428060738.60843-1-guwen@linux.alibaba.com>
-References: <20240428060738.60843-1-guwen@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XTZs9sEm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 702DBC113CC;
+	Sun, 28 Apr 2024 06:56:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1714287393;
+	bh=r0oXOuLVQhCBCby5vRLJpkXcTQDGNz/eiiiW5fCcIdI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=XTZs9sEmm6/FaMuCbn9MAi43Dw5JaVHQ6Qo9kJKbgmQydz8t76xJqWvnLhWUbFuTg
+	 eamwTb265HrxR6LlvTN02ea5enG0DyL5UUA409iL+FIlWuV8f+cOfIaceW/tsQa49F
+	 k2+JGlrBeOuDTKAFlJG+dXckGS6E9qKllGv1lUiwvcOxOHi2PgVOFnk2K6JjT6mOLy
+	 8wMBJhYy7rqcZ88dgAjki/503FzqraXQOZ8LtGXr77oJlvx8mQlCJ0bpcLxvSbj8II
+	 FNv6UFgUz6gnk7tZPPzx3XToNx6Luyxbilf/EWAJ9azbxmvqxQI0iy3aMf/86QxAUL
+	 09CFFAwUkdXQQ==
+Date: Sun, 28 Apr 2024 09:55:02 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: Song Liu <song@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Alexandre Ghiti <alexghiti@rivosinc.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Donald Dutile <ddutile@redhat.com>,
+	Eric Chanudet <echanude@redhat.com>,
+	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nadav Amit <nadav.amit@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+	linux-mm@kvack.org, linux-modules@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v6 08/16] mm/execmem, arch: convert remaining overrides
+ of module_alloc to execmem
+Message-ID: <Zi3yxk_7rMEPp0lT@kernel.org>
+References: <20240426082854.7355-1-rppt@kernel.org>
+ <20240426082854.7355-9-rppt@kernel.org>
+ <CAPhsuW52MYy4Md5O=7XVGvkw395-LB+BiSadxoDdw8CrLw5t7A@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAPhsuW52MYy4Md5O=7XVGvkw395-LB+BiSadxoDdw8CrLw5t7A@mail.gmail.com>
 
-If the local sndbuf shares the same physical memory with peer DMB,
-the cursor update processing needs to be adapted to ensure that the
-data to be consumed won't be overwritten.
+On Fri, Apr 26, 2024 at 12:01:34PM -0700, Song Liu wrote:
+> On Fri, Apr 26, 2024 at 1:30 AM Mike Rapoport <rppt@kernel.org> wrote:
+> >
+> > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+> >
+> > Extend execmem parameters to accommodate more complex overrides of
+> > module_alloc() by architectures.
+> >
+> > This includes specification of a fallback range required by arm, arm64
+> > and powerpc, EXECMEM_MODULE_DATA type required by powerpc, support for
+> > allocation of KASAN shadow required by s390 and x86 and support for
+> > late initialization of execmem required by arm64.
+> >
+> > The core implementation of execmem_alloc() takes care of suppressing
+> > warnings when the initial allocation fails but there is a fallback range
+> > defined.
+> >
+> > Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
+> > Acked-by: Will Deacon <will@kernel.org>
+> 
+> nit: We should probably move the logic for ARCH_WANTS_EXECMEM_LATE
+> to a separate patch.
 
-So in this case, the fin_curs and sndbuf_space that were originally
-updated after sending the CDC message should be modified to not be
-update until the peer updates cons_curs.
+This would require to split arm64 and I prefer to keep all these changes
+together. 
 
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Reviewed-and-tested-by: Jan Karcher <jaka@linux.ibm.com>
----
- net/smc/smc_cdc.c | 36 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 34 insertions(+), 2 deletions(-)
+> Otherwise,
+> 
+> Acked-by: Song Liu <song@kernel.org>
+ 
+Thanks!
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 3c06625ceb20..619b3bab3824 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -18,6 +18,7 @@
- #include "smc_tx.h"
- #include "smc_rx.h"
- #include "smc_close.h"
-+#include "smc_ism.h"
- 
- /********************************** send *************************************/
- 
-@@ -255,6 +256,14 @@ int smcd_cdc_msg_send(struct smc_connection *conn)
- 		return rc;
- 	smc_curs_copy(&conn->rx_curs_confirmed, &curs, conn);
- 	conn->local_rx_ctrl.prod_flags.cons_curs_upd_req = 0;
-+
-+	if (smc_ism_support_dmb_nocopy(conn->lgr->smcd))
-+		/* if local sndbuf shares the same memory region with
-+		 * peer DMB, then don't update the tx_curs_fin
-+		 * and sndbuf_space until peer has consumed the data.
-+		 */
-+		return 0;
-+
- 	/* Calculate transmitted data and increment free send buffer space */
- 	diff = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
- 			     &conn->tx_curs_sent);
-@@ -266,7 +275,7 @@ int smcd_cdc_msg_send(struct smc_connection *conn)
- 	smc_curs_copy(&conn->tx_curs_fin, &conn->tx_curs_sent, conn);
- 
- 	smc_tx_sndbuf_nonfull(smc);
--	return rc;
-+	return 0;
- }
- 
- /********************************* receive ***********************************/
-@@ -323,7 +332,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- {
- 	union smc_host_cursor cons_old, prod_old;
- 	struct smc_connection *conn = &smc->conn;
--	int diff_cons, diff_prod;
-+	int diff_cons, diff_prod, diff_tx;
- 
- 	smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
- 	smc_curs_copy(&cons_old, &conn->local_rx_ctrl.cons, conn);
-@@ -339,6 +348,29 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- 		atomic_add(diff_cons, &conn->peer_rmbe_space);
- 		/* guarantee 0 <= peer_rmbe_space <= peer_rmbe_size */
- 		smp_mb__after_atomic();
-+
-+		/* if local sndbuf shares the same memory region with
-+		 * peer RMB, then update tx_curs_fin and sndbuf_space
-+		 * here since peer has already consumed the data.
-+		 */
-+		if (conn->lgr->is_smcd &&
-+		    smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
-+			/* Calculate consumed data and
-+			 * increment free send buffer space.
-+			 */
-+			diff_tx = smc_curs_diff(conn->sndbuf_desc->len,
-+						&conn->tx_curs_fin,
-+						&conn->local_rx_ctrl.cons);
-+			/* increase local sndbuf space and fin_curs */
-+			smp_mb__before_atomic();
-+			atomic_add(diff_tx, &conn->sndbuf_space);
-+			/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
-+			smp_mb__after_atomic();
-+			smc_curs_copy(&conn->tx_curs_fin,
-+				      &conn->local_rx_ctrl.cons, conn);
-+
-+			smc_tx_sndbuf_nonfull(smc);
-+		}
- 	}
- 
- 	diff_prod = smc_curs_diff(conn->rmb_desc->len, &prod_old,
 -- 
-2.32.0.3.g01195cf9f
-
+Sincerely yours,
+Mike.
