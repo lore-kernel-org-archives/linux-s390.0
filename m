@@ -1,35 +1,35 @@
 Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F191971B25;
-	Sun, 28 Apr 2024 18:58:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0F9A17C96;
+	Sun, 28 Apr 2024 23:23:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714330711; cv=none; b=J5eaDwYe1zEXKiHmJNf4U78SzkepkHjaHjYOrAvU0gN7LDuS24j7dWQsAOAmNLsEdhiZDyg7rcs8bcQJRWjwmSiYQkYLsBH+rw7ch1DwMr5Cd5X0KDYwFdmP/2UK6yfOUjMjv7xPERR6WPbm/j7Hm4WRemN5iiaAv1XYkyHC6fQ=
+	t=1714346637; cv=none; b=E2L+4BoijQSzTjA84dLordivdG/K9yCzajnxLoouatznfMI5kboi0kKWKyGOagwTqGC0iZVuKZZrMaG7GiqrOcWzfw4sRf8UezuNwDsRFaTrt+mnDMhRrZPbt69F4txhiYVegZ8e21sJHryfyg+0dEos/msEIgvplxtaxep+8mM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714330711; c=relaxed/simple;
-	bh=u2ZtkqxxcCpJtfkEaULrWkv4u+hez/5B6PoU3df+/uk=;
+	s=arc-20240116; t=1714346637; c=relaxed/simple;
+	bh=G8bcd97UC4AdurHIryOXHBOgo8XBvyOM0yQ3eotL3G0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XhiPn5enx/rQAA8iplm7TgOW4aMDxigNq9fQftRaR0cDVbug/k58HmF9wzBJN33P8ZYoOHxO0fX3O3RHUQWvvQEbbftcGmwpKE6+y3F5IYnF98QVZimJRrKbU83jlZboiaEJdsX7NoD7IHrof1P3lX0KKGejz4F4IRHYkv7ACSU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=U0r2nH1Q; arc=none smtp.client-ip=62.89.141.173
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ou5UI/MZNCx7lSbSwkny0GzMs/68mA5sAhpWv+3wvpt5u4KdYShT6zwI7jpFwsdu4xjUWpdrzHvsr1bdTkqImI2gxNKDs8/+jf0ik9JNqZqMZYZ3BmCXE6djfyAlk0xJSI7J5ghFSd9yCDMWuKzrTPlUrQC+YVCv9PZUcDoutHA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=U6rtpiMs; arc=none smtp.client-ip=62.89.141.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="U0r2nH1Q"
+	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="U6rtpiMs"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
 	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=mBuI6KLe53HXsLCkW0E3ngY1egf0eTXGKyNTP/1IL4o=; b=U0r2nH1Q1fZ+zxHW/3LVsJ5p1J
-	Lhs1SBXV0fARFuOjwkyxM1HqIoCK2lnbohJoYV3ddkn0MspnhRsLs8rKeISIA7mAJ2TrA+gfrhR0Y
-	o1M9PBtviRrJhRwTT68MsuVKe1dLrDetuNFiXCTVM2W9X+jyp+w7cJsFh8xCPj8szri+TGrAXHjKr
-	w9RiUvEnFt0QHXupMu5neM5i45RnLl4GB4ToEpQORNQTuGDbC500wIvar8HbIs9PAcDwCJT2MNaNY
-	YAU+jZF4qFO6H0CvXugDSCGfYYAoTvfp/GvnDqkRN6uNInQKU2Ci6zzJA4u/SXgNh9rewYZ2aG2yw
-	XSO6+FUg==;
+	bh=GvGwY/VyPI7NHMoTrlnxk5E4tmObsoCK28HHsMidyBY=; b=U6rtpiMsmVcjaZOh8OKTi7XMW0
+	yNj5zje20sL7z+USF0KWoWTTODzk7u+FeS0dmRZX+kTzBjUtyO1eurUWHR4Va8Lfo3SgWHErayv7J
+	JVtGN4aHwopsGKTxEx/SpI0Ph4UoD0aVm0/3wxuEqe84gBrbNyr27BjTLrof11+GYauwS9q4gQnoo
+	IbiRHLy6hLj9Jyx6qWgfXDjDUW8M0X48vLNYMI505f0nBelbKOGMMUw54+mNuU9nXyr/VMHl9hr8S
+	RD9+aPrVw//LujYmUv3X4mdx+Od+dvshzXb29N/baU3KijKHYB/9RqlDEpSGtYd9xRbpekjG+AsaQ
+	btyP2fFQ==;
 Received: from viro by zeniv.linux.org.uk with local (Exim 4.96 #2 (Red Hat Linux))
-	id 1s19jD-006w1h-1G;
-	Sun, 28 Apr 2024 18:58:23 +0000
-Date: Sun, 28 Apr 2024 19:58:23 +0100
+	id 1s1Ds5-006zcl-2p;
+	Sun, 28 Apr 2024 23:23:49 +0000
+Date: Mon, 29 Apr 2024 00:23:49 +0100
 From: Al Viro <viro@zeniv.linux.org.uk>
 To: Stefan Haberland <sth@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, jack@suse.cz, hch@lst.de,
@@ -41,12 +41,13 @@ Cc: linux-s390@vger.kernel.org, jack@suse.cz, hch@lst.de,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Jan Hoeppner <hoeppner@linux.ibm.com>
 Subject: Re: [PATCH vfs.all 15/26] s390/dasd: use bdev api in dasd_format()
-Message-ID: <20240428185823.GW2118490@ZenIV>
+Message-ID: <20240428232349.GY2118490@ZenIV>
 References: <20240406090930.2252838-1-yukuai1@huaweicloud.com>
  <20240406090930.2252838-16-yukuai1@huaweicloud.com>
  <20240416013555.GZ2118490@ZenIV>
  <Zh47IY7M1LQXjckX@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
  <ca513589-2110-45fe-95b7-5ce23487ea10@linux.ibm.com>
+ <20240428185823.GW2118490@ZenIV>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -55,27 +56,35 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ca513589-2110-45fe-95b7-5ce23487ea10@linux.ibm.com>
+In-Reply-To: <20240428185823.GW2118490@ZenIV>
 Sender: Al Viro <viro@ftp.linux.org.uk>
 
-On Wed, Apr 17, 2024 at 02:47:14PM +0200, Stefan Haberland wrote:
-
-> set_blocksize() does basically also set i_blkbits like it was before.
-> The dasd_format ioctl does only work on a disabled device. To achieve this
-> all partitions need to be unmounted.
-> The tooling also refuses to work on disks actually in use.
+On Sun, Apr 28, 2024 at 07:58:23PM +0100, Al Viro wrote:
+> On Wed, Apr 17, 2024 at 02:47:14PM +0200, Stefan Haberland wrote:
 > 
-> So there should be no page cache to evict.
+> > set_blocksize() does basically also set i_blkbits like it was before.
+> > The dasd_format ioctl does only work on a disabled device. To achieve this
+> > all partitions need to be unmounted.
+> > The tooling also refuses to work on disks actually in use.
+> > 
+> > So there should be no page cache to evict.
+> 
+> You mean this?
+>         if (base->state != DASD_STATE_BASIC) {
+>                 pr_warn("%s: The DASD cannot be formatted while it is enabled\n",
+>                         dev_name(&base->cdev->dev));
+>                 return -EBUSY;
+>         }  
+> 
+> OK, but what would prevent dasd_ioctl_disable() from working while
+> disk is in use?  And I don't see anything that would evict the
+> page cache in dasd_ioctl_disable() either, actually...
+> 
+> What am I missing here?
 
-You mean this?
-        if (base->state != DASD_STATE_BASIC) {
-                pr_warn("%s: The DASD cannot be formatted while it is enabled\n",
-                        dev_name(&base->cdev->dev));
-                return -EBUSY;
-        }  
-
-OK, but what would prevent dasd_ioctl_disable() from working while
-disk is in use?  And I don't see anything that would evict the
-page cache in dasd_ioctl_disable() either, actually...
-
-What am I missing here?
+BTW, you are updating block size according to new device size, before
+        rc = base->discipline->format_device(base, fdata, 1);
+	if (rc == -EAGAIN)
+		rc = base->discipline->format_device(base, fdata, 0);
+Unless something very unidiomatic is going on, this attempt to
+format might fail...
