@@ -1,30 +1,30 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3136225601;
-	Sun, 28 Apr 2024 06:07:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EE852A1CF;
+	Sun, 28 Apr 2024 06:07:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714284480; cv=none; b=h+7+A9JUKa3Xndjbj80J9JrrIvDOWfaMheQPwh+XyVwHFCyeJ8z8T6mtnzDpI6mdfvNWm8xHpOUz2wIe/LyVrtSZrUq4n9hBM2qgHqWh4sXd9jAMuxPWVNNUJKRbYEMYtDlmf82sYu+g7KL8relhXIGsmNzAJ6VwiYm4X8N8Dro=
+	t=1714284481; cv=none; b=TfM3U4OaS5hfry7OZnoIezur27JW4LTId8bgtghvCvbCR6qAq0zNAcPQJ/BBYnYK1nCzXjoS8KKWe2Bls8LrX+UnWX4eNvf2nZxiuDzrh8c0ajLT2eEAM7LQtyWNapUxaQXEs/oPJUxDhW4jQ5XtsffaaBfHqpAadtc4W3OBsr0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714284480; c=relaxed/simple;
-	bh=K60X7h90/uD+qZ8BrD49lGCe+O6q6gKnxUPjgBIXdpA=;
+	s=arc-20240116; t=1714284481; c=relaxed/simple;
+	bh=1JQxQkQu+eycNvPHIcvaTtnK6KJeeCWc01FzIlP3PHI=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=PWNqF/nXP9Ap8L6EmpsxN4mYxtQQ2vry1RXqsL5EDnUTVeGgE4Uiu1pe+2t24OAVLM4pFznVITViN+1WXPacCMeL3HNVBFoBxuKVLjXN6W/rD+wjiTJNdSbd1Ezlnx8spRLxn4W6a8dTXJZWZjKeAbEYf4bNtKSjrwW4dWbT90M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=MC++bQWh; arc=none smtp.client-ip=115.124.30.100
+	 MIME-Version; b=DqwoGOT/TRdjr5nC0Q0l5P+/N9sm61D5fygOxHpI9MzgN4a2c6m8+KGNbgsgxwpRiL0gupnd2+suMhfzHfJL8fahooZi7bM87HeBoF/VkZUrQnU1JKjNgQUmOt44bPaCYwNDB1NkXu6Yfk04DefjGT5BGtJuTJDF6ab4XHXTGLc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=NfEeyswJ; arc=none smtp.client-ip=115.124.30.112
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="MC++bQWh"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="NfEeyswJ"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1714284469; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=l2Yps7c5Bty1sh7vbh22vWd/lSPyr22qvyKVft35gVY=;
-	b=MC++bQWhhuFfUV2uBPX2WDYtbAqZOVhkVTlcjftJyE49eBYF/kMvfMJwCgRW7PmcW/ANjzYep+2qK/fB6P9lq6gEiElbaSdEeUeq3SQudaQofCs3iigoCC38XByZYM3rTF8vhXVm2j1GamYZhafebYb8nlZMCN72DWK6RtLixa8=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R321e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W5NS3AC_1714284466;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W5NS3AC_1714284466)
+	t=1714284477; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=amtQ9xRDlPUZxKPiAQamAg0aoynwXc4CEw6KroOqPls=;
+	b=NfEeyswJ7LLrYIW2icJs5PZQj3GB59MoTbMkb2XvSxxAMLfhuowfKZS884tpBVvLryUcbMKgzZio3azF6TECAD8M+0YTHlJh1JVaCfwxkX01HZXiUDjxxniZlvJ9P8a6M2e17cp8Mfg6QxU5OrnHBae189WtWmp4n2keobWAdEs=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W5NS3Cl_1714284474;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W5NS3Cl_1714284474)
           by smtp.aliyun-inc.com;
-          Sun, 28 Apr 2024 14:07:48 +0800
+          Sun, 28 Apr 2024 14:07:56 +0800
 From: Wen Gu <guwen@linux.alibaba.com>
 To: wintera@linux.ibm.com,
 	twinkler@linux.ibm.com,
@@ -45,9 +45,9 @@ Cc: borntraeger@linux.ibm.com,
 	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org
-Subject: [PATCH net-next v7 03/11] net/smc: implement ID-related operations of loopback-ism
-Date: Sun, 28 Apr 2024 14:07:30 +0800
-Message-Id: <20240428060738.60843-4-guwen@linux.alibaba.com>
+Subject: [PATCH net-next v7 06/11] net/smc: ignore loopback-ism when dumping SMC-D devices
+Date: Sun, 28 Apr 2024 14:07:33 +0800
+Message-Id: <20240428060738.60843-7-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240428060738.60843-1-guwen@linux.alibaba.com>
 References: <20240428060738.60843-1-guwen@linux.alibaba.com>
@@ -59,128 +59,47 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This implements operations related to IDs for the loopback-ism device.
-loopback-ism uses an Extended GID that is a 128-bit GID instead of the
-existing ISM 64-bit GID, and uses the CHID defined with the reserved
-value 0xFFFF.
+Since loopback-ism is not a PCI device, the PCI information fed back by
+smc_nl_handle_smcd_dev() does not apply to loopback-ism. So currently
+ignore loopback-ism when dumping SMC-D devices. The netlink function of
+loopback-ism will be refactored when SMC netlink interface is updated.
 
+Link: https://lore.kernel.org/r/caab067b-f5c3-490f-9259-262624c236b4@linux.ibm.com/
 Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
 Reviewed-and-tested-by: Jan Karcher <jaka@linux.ibm.com>
 ---
- net/smc/smc_loopback.c | 62 ++++++++++++++++++++++++++++++++++++++----
- net/smc/smc_loopback.h |  3 ++
- 2 files changed, 60 insertions(+), 5 deletions(-)
+ net/smc/smc_ism.c | 2 ++
+ net/smc/smc_ism.h | 5 +++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
-index c364e3e6e3fb..0349632a76c4 100644
---- a/net/smc/smc_loopback.c
-+++ b/net/smc/smc_loopback.c
-@@ -18,11 +18,62 @@
- #include "smc_ism.h"
- #include "smc_loopback.h"
- 
-+#define SMC_LO_V2_CAPABLE	0x1 /* loopback-ism acts as ISMv2 */
-+
- static const char smc_lo_dev_name[] = "loopback-ism";
- static struct smc_lo_dev *lo_dev;
- 
-+static void smc_lo_generate_ids(struct smc_lo_dev *ldev)
-+{
-+	struct smcd_gid *lgid = &ldev->local_gid;
-+	uuid_t uuid;
-+
-+	uuid_gen(&uuid);
-+	memcpy(&lgid->gid, &uuid, sizeof(lgid->gid));
-+	memcpy(&lgid->gid_ext, (u8 *)&uuid + sizeof(lgid->gid),
-+	       sizeof(lgid->gid_ext));
-+
-+	ldev->chid = SMC_LO_RESERVED_CHID;
-+}
-+
-+static int smc_lo_query_rgid(struct smcd_dev *smcd, struct smcd_gid *rgid,
-+			     u32 vid_valid, u32 vid)
-+{
-+	struct smc_lo_dev *ldev = smcd->priv;
-+
-+	/* rgid should be the same as lgid */
-+	if (!ldev || rgid->gid != ldev->local_gid.gid ||
-+	    rgid->gid_ext != ldev->local_gid.gid_ext)
-+		return -ENETUNREACH;
-+	return 0;
-+}
-+
-+static int smc_lo_supports_v2(void)
-+{
-+	return SMC_LO_V2_CAPABLE;
-+}
-+
-+static void smc_lo_get_local_gid(struct smcd_dev *smcd,
-+				 struct smcd_gid *smcd_gid)
-+{
-+	struct smc_lo_dev *ldev = smcd->priv;
-+
-+	smcd_gid->gid = ldev->local_gid.gid;
-+	smcd_gid->gid_ext = ldev->local_gid.gid_ext;
-+}
-+
-+static u16 smc_lo_get_chid(struct smcd_dev *smcd)
-+{
-+	return ((struct smc_lo_dev *)smcd->priv)->chid;
-+}
-+
-+static struct device *smc_lo_get_dev(struct smcd_dev *smcd)
-+{
-+	return &((struct smc_lo_dev *)smcd->priv)->dev;
-+}
-+
- static const struct smcd_ops lo_ops = {
--	.query_remote_gid	= NULL,
-+	.query_remote_gid = smc_lo_query_rgid,
- 	.register_dmb		= NULL,
- 	.unregister_dmb		= NULL,
- 	.add_vlan_id		= NULL,
-@@ -31,10 +82,10 @@ static const struct smcd_ops lo_ops = {
- 	.reset_vlan_required	= NULL,
- 	.signal_event		= NULL,
- 	.move_data		= NULL,
--	.supports_v2		= NULL,
--	.get_local_gid		= NULL,
--	.get_chid		= NULL,
--	.get_dev		= NULL,
-+	.supports_v2 = smc_lo_supports_v2,
-+	.get_local_gid = smc_lo_get_local_gid,
-+	.get_chid = smc_lo_get_chid,
-+	.get_dev = smc_lo_get_dev,
- };
- 
- static struct smcd_dev *smcd_lo_alloc_dev(const struct smcd_ops *ops,
-@@ -94,6 +145,7 @@ static void smcd_lo_unregister_dev(struct smc_lo_dev *ldev)
- 
- static int smc_lo_dev_init(struct smc_lo_dev *ldev)
- {
-+	smc_lo_generate_ids(ldev);
- 	return smcd_lo_register_dev(ldev);
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 36459a3c739d..188fd28423c2 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -322,6 +322,8 @@ static void smc_nl_prep_smcd_dev(struct smcd_dev_list *dev_list,
+ 	list_for_each_entry(smcd, &dev_list->list, list) {
+ 		if (num < snum)
+ 			goto next;
++		if (smc_ism_is_loopback(smcd))
++			goto next;
+ 		if (smc_nl_handle_smcd_dev(smcd, skb, cb))
+ 			goto errout;
+ next:
+diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
+index 165cd013404b..322973527c61 100644
+--- a/net/smc/smc_ism.h
++++ b/net/smc/smc_ism.h
+@@ -84,4 +84,9 @@ static inline bool smc_ism_is_emulated(struct smcd_dev *smcd)
+ 	return __smc_ism_is_emulated(chid);
  }
  
-diff --git a/net/smc/smc_loopback.h b/net/smc/smc_loopback.h
-index 7fc4b374bc82..d7df79f7bb64 100644
---- a/net/smc/smc_loopback.h
-+++ b/net/smc/smc_loopback.h
-@@ -20,10 +20,13 @@
- 
- #if IS_ENABLED(CONFIG_SMC_LO)
- #define SMC_LO_MAX_DMBS		5000
-+#define SMC_LO_RESERVED_CHID	0xFFFF
- 
- struct smc_lo_dev {
- 	struct smcd_dev *smcd;
- 	struct device dev;
-+	u16 chid;
-+	struct smcd_gid local_gid;
- };
- 
- int smc_loopback_init(void);
++static inline bool smc_ism_is_loopback(struct smcd_dev *smcd)
++{
++	return (smcd->ops->get_chid(smcd) == 0xFFFF);
++}
++
+ #endif
 -- 
 2.32.0.3.g01195cf9f
 
