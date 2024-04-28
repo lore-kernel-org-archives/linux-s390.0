@@ -1,71 +1,52 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5614B1C2D;
-	Sun, 28 Apr 2024 15:49:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F191971B25;
+	Sun, 28 Apr 2024 18:58:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714319398; cv=none; b=Re8B7K0aHt7KyFO2z/DruYM4LrJb9qh+SKVXq9NxriFT9nKAqDTD3fj7PuyrJTp+7onHb2Ih4MN1QVKgvMctcxAXj6DgMgXzrwNJu8bgaFWM8860t6ge9WPgelziqzsHwYMY3f65/dQiGuvonMgUYkJY0vafth1zvxFuUzmlTcw=
+	t=1714330711; cv=none; b=J5eaDwYe1zEXKiHmJNf4U78SzkepkHjaHjYOrAvU0gN7LDuS24j7dWQsAOAmNLsEdhiZDyg7rcs8bcQJRWjwmSiYQkYLsBH+rw7ch1DwMr5Cd5X0KDYwFdmP/2UK6yfOUjMjv7xPERR6WPbm/j7Hm4WRemN5iiaAv1XYkyHC6fQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714319398; c=relaxed/simple;
-	bh=07TZqXoPnXo6kvi3NcZOLkjhzi/ng8HAmR/yQB8pKds=;
+	s=arc-20240116; t=1714330711; c=relaxed/simple;
+	bh=u2ZtkqxxcCpJtfkEaULrWkv4u+hez/5B6PoU3df+/uk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ib7qHTZIpys6L44N2c3GO7UKLuSdt8nsEVGkbkX0xGmdbvYvDQyDiZ9We2CnHYcy1OQdXSsOcoEj9fXAW3veaZJO/I6DA5LIdk+LqkhX1I/FxThHS8sd7DCt3ecGasANJFlHk94g6Td0JK0ltmALBiYP1jC5FVxCs6PCnXMMsl4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lZTDbZQ+; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=XhiPn5enx/rQAA8iplm7TgOW4aMDxigNq9fQftRaR0cDVbug/k58HmF9wzBJN33P8ZYoOHxO0fX3O3RHUQWvvQEbbftcGmwpKE6+y3F5IYnF98QVZimJRrKbU83jlZboiaEJdsX7NoD7IHrof1P3lX0KKGejz4F4IRHYkv7ACSU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=U0r2nH1Q; arc=none smtp.client-ip=62.89.141.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lZTDbZQ+"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-1e4bf0b3e06so36642745ad.1;
-        Sun, 28 Apr 2024 08:49:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1714319396; x=1714924196; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=6z2sPI3J7JXbse3qp8S6MNg8FiyBd8jGuDwTFMs0lPg=;
-        b=lZTDbZQ+wps5usKdMOUmTQmVHCUPVp2fOfQDWbg8qf7S13sNniZzSngwMoEidyMwg9
-         V3Zz0AdRBpY1+2Gfi88YB53NJn1nbqq1jOuWRSfMdNV1JrK+EAF5UzzQ9bzlMevxkDmH
-         NtUVl5AqI4oqCQP9XD7gcIWjjcKsKp1KxDYsRPDkgzBvWvpXHvrPD/a3RsrKJgiRPSc0
-         AZHIkXENNwww+OsXi0JGWAnE9pJiImD7ZfyqfIoXT7Nn9W1bmkQmrBhyrNLNp/c97FjM
-         NLbPl16FkIIEDx6peIEN1mK0OPACLowhZuQTZ0CNKR0vAUoD5KFX1yqh8yxdPcEcpfBN
-         TWLQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714319396; x=1714924196;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6z2sPI3J7JXbse3qp8S6MNg8FiyBd8jGuDwTFMs0lPg=;
-        b=VXEY8z3tkGkEKXAfRNcjdn1qLCCDr1+eY7mh/MwRJLP/4QjeLMUOsCbww+jQuTdR0b
-         W63SvNTBqBkA0Un/jEYK++rwQRUzEaQGIP8ioM9jSDzfYsA1zQKelAWGzOIF4c4a2jKr
-         CNvOv21u3zAb5GtjKrnj4WoPFDZIdryhcfSrYiuXlwnD0kUO/FJPAw3r8B9j9lXlgQr3
-         sEzHBxl1M9PAYUwHY5PcDdA+ct3new3zOnJ2O/dq3LmQ0DcfANZVACHtGKW2laRC8GuY
-         J9JjnAT0dr3E4XCmvRHKsIz25fe2JESJ8U3KRLwK4Djo2BaWvbFNGOC1zcG3oanlod62
-         zc2w==
-X-Forwarded-Encrypted: i=1; AJvYcCWTGVM9XYgrfvVH4t9DYqZzGuHP1X5Q2R9IJsTQ2KDGcDexO1kE7XWityefBNoefgujS9CjP7USwQmJq2eLlbwE3Wan+1PlEKEjnd1uhJc5+9rycKd3phfBXyPdHDXwI5q9zAYz+8/Z3Y4VeAVeat5cSD2HeePb7NmpFwIx2efMqST9ZOhyuqfGRmgiGsiWPdIvWiad+A==
-X-Gm-Message-State: AOJu0YyadDUhiWFsK3NaiZjsPrLNZ/mmLP5yqk+v5/GKHP0Fy0+9Zf/Y
-	Ufh4Y5wZgmO5dhLyvyFXZOSrmj7SmXVV1Dm5f4A2WTGDw5KECgKa
-X-Google-Smtp-Source: AGHT+IEjMGzGw4T9qC+hSir5dxMIK2/kRy04CEQiCSlSQWKiQDmLyfZX7FxhwB7vdagjvmCJow6BIQ==
-X-Received: by 2002:a17:902:7285:b0:1e7:e7ed:7787 with SMTP id d5-20020a170902728500b001e7e7ed7787mr8145663pll.51.1714319396545;
-        Sun, 28 Apr 2024 08:49:56 -0700 (PDT)
-Received: from localhost ([2601:647:6881:9060:89bd:330c:30be:6758])
-        by smtp.gmail.com with ESMTPSA id l5-20020a170902d34500b001dd578121d4sm18592101plk.204.2024.04.28.08.49.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Apr 2024 08:49:55 -0700 (PDT)
-Date: Sun, 28 Apr 2024 08:49:54 -0700
-From: Cong Wang <xiyou.wangcong@gmail.com>
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
-	gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	wenjia@linux.ibm.com, jaka@linux.ibm.com, borntraeger@linux.ibm.com,
-	svens@linux.ibm.com, alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	bpf@vger.kernel.org
-Subject: Re: [PATCH net-next v7 00/11] net/smc: SMC intra-OS shortcut with
- loopback-ism
-Message-ID: <Zi5wIrf3nAeJh1u5@pop-os.localdomain>
-References: <20240428060738.60843-1-guwen@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="U0r2nH1Q"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
+	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=mBuI6KLe53HXsLCkW0E3ngY1egf0eTXGKyNTP/1IL4o=; b=U0r2nH1Q1fZ+zxHW/3LVsJ5p1J
+	Lhs1SBXV0fARFuOjwkyxM1HqIoCK2lnbohJoYV3ddkn0MspnhRsLs8rKeISIA7mAJ2TrA+gfrhR0Y
+	o1M9PBtviRrJhRwTT68MsuVKe1dLrDetuNFiXCTVM2W9X+jyp+w7cJsFh8xCPj8szri+TGrAXHjKr
+	w9RiUvEnFt0QHXupMu5neM5i45RnLl4GB4ToEpQORNQTuGDbC500wIvar8HbIs9PAcDwCJT2MNaNY
+	YAU+jZF4qFO6H0CvXugDSCGfYYAoTvfp/GvnDqkRN6uNInQKU2Ci6zzJA4u/SXgNh9rewYZ2aG2yw
+	XSO6+FUg==;
+Received: from viro by zeniv.linux.org.uk with local (Exim 4.96 #2 (Red Hat Linux))
+	id 1s19jD-006w1h-1G;
+	Sun, 28 Apr 2024 18:58:23 +0000
+Date: Sun, 28 Apr 2024 19:58:23 +0100
+From: Al Viro <viro@zeniv.linux.org.uk>
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, jack@suse.cz, hch@lst.de,
+	brauner@kernel.org, axboe@kernel.dk, linux-fsdevel@vger.kernel.org,
+	linux-block@vger.kernel.org, yi.zhang@huawei.com,
+	yangerkun@huawei.com, yukuai3@huawei.com,
+	Yu Kuai <yukuai1@huaweicloud.com>,
+	Eduard Shishkin <edward6@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Jan Hoeppner <hoeppner@linux.ibm.com>
+Subject: Re: [PATCH vfs.all 15/26] s390/dasd: use bdev api in dasd_format()
+Message-ID: <20240428185823.GW2118490@ZenIV>
+References: <20240406090930.2252838-1-yukuai1@huaweicloud.com>
+ <20240406090930.2252838-16-yukuai1@huaweicloud.com>
+ <20240416013555.GZ2118490@ZenIV>
+ <Zh47IY7M1LQXjckX@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <ca513589-2110-45fe-95b7-5ce23487ea10@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,32 +55,27 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240428060738.60843-1-guwen@linux.alibaba.com>
+In-Reply-To: <ca513589-2110-45fe-95b7-5ce23487ea10@linux.ibm.com>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 
-On Sun, Apr 28, 2024 at 02:07:27PM +0800, Wen Gu wrote:
-> This patch set acts as the second part of the new version of [1] (The first
-> part can be referred from [2]), the updated things of this version are listed
-> at the end.
+On Wed, Apr 17, 2024 at 02:47:14PM +0200, Stefan Haberland wrote:
+
+> set_blocksize() does basically also set i_blkbits like it was before.
+> The dasd_format ioctl does only work on a disabled device. To achieve this
+> all partitions need to be unmounted.
+> The tooling also refuses to work on disks actually in use.
 > 
-> - Background
-> 
-> SMC-D is now used in IBM z with ISM function to optimize network interconnect
-> for intra-CPC communications. Inspired by this, we try to make SMC-D available
-> on the non-s390 architecture through a software-implemented Emulated-ISM device,
-> that is the loopback-ism device here, to accelerate inter-process or
-> inter-containers communication within the same OS instance.
+> So there should be no page cache to evict.
 
-Just FYI:
+You mean this?
+        if (base->state != DASD_STATE_BASIC) {
+                pr_warn("%s: The DASD cannot be formatted while it is enabled\n",
+                        dev_name(&base->cdev->dev));
+                return -EBUSY;
+        }  
 
-Cilium has implemented this kind of shortcut with sockmap and sockops.
-In fact, for intra-OS case, it is _very_ simple. The core code is less
-than 50 lines. Please take a look here:
-https://github.com/cilium/cilium/blob/v1.11.4/bpf/sockops/bpf_sockops.c
+OK, but what would prevent dasd_ioctl_disable() from working while
+disk is in use?  And I don't see anything that would evict the
+page cache in dasd_ioctl_disable() either, actually...
 
-Like I mentioned in my LSF/MM/BPF proposal, we plan to implement
-similiar eBPF things for inter-OS (aka VM) case.
-
-More importantly, even LD_PRELOAD is not needed for this eBPF approach.
-:)
-
-Thanks.
+What am I missing here?
