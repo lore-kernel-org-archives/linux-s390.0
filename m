@@ -1,225 +1,113 @@
-Received: from mail-vs1-f52.google.com (mail-vs1-f52.google.com [209.85.217.52])
+Received: from mail-vk1-f175.google.com (mail-vk1-f175.google.com [209.85.221.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67B76140E50
-	for <linux-s390@vger.kernel.org>; Mon, 29 Apr 2024 20:09:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDFC0179955
+	for <linux-s390@vger.kernel.org>; Mon, 29 Apr 2024 20:43:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714421355; cv=none; b=KIZUo7Lr+a0GyctEgiabHeFonn4cgI52GDpV8Zzq/ab+qk0vIfDrqZ4O60IGr+lExLuAv4TAB/H2kNs32dc4gBftRvJ1EnWCKlelherOfJLoRY2JrhSnUxxdGQyy83TEG5kjc7mOAhht0aBur58qY7qQ8QnOblbrXqa+LkFkSVo=
+	t=1714423440; cv=none; b=XANB1qPI3ptEviuUaSepgI1shW/bBIwWfe2npolS0+bSULeEvfvtW685CioWmgtWAskrI/FimRUv7u0P01JC/JMqhGUCenTXintVlP1YY+Sm0qm4WvmGBXi2kXMnrKIYK35lGAA4zzFdc9OGzDNWu/8zopPvtvjWnJRVYNXLy7w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714421355; c=relaxed/simple;
-	bh=u3uInMv3GovLySt6hNXkxVXG4iYHsM1cHCrDPmXBXh8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HTZR9Ec79kT4vB9XofBCIe8Hd/Dn8/HmCydt+lL+C5InupemXxRrsX01DwECJt6EfClqPZmXE+l3+5ReJx6vg9MJUbanWjMoxhtGHrTTSEEGyljydCB5QjsejE+mxZqoX0Vf+RA8h9dGkLwWU7vSGW9eXv3eIrLdqRKYoXkPZF0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=mNXiMw6s; arc=none smtp.client-ip=209.85.217.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1714423440; c=relaxed/simple;
+	bh=DlJMFV/5TBkqj5Xgp0aq/ty+b2/P8lMPnJnVQ5Jw5rY=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=O9apKE0w/vs2tnXdo74ImQeu4YE2KS5EytgO0nd9jD9ephGxfSXO4Xuyzw+hLcwZlr7tIGDbeSJxnVf3jqo+/Rye1Mtsg6FkVIc5U86IkuoUzFb9Muc+ZbBP3+UC4f2Rt0aXXaZ1ij5vV187m5R0YNF6njtT6QJs5l+1ThpLQew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=HVB7+WEP; arc=none smtp.client-ip=209.85.221.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="mNXiMw6s"
-Received: by mail-vs1-f52.google.com with SMTP id ada2fe7eead31-47a0bebeacaso1381672137.0
-        for <linux-s390@vger.kernel.org>; Mon, 29 Apr 2024 13:09:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="HVB7+WEP"
+Received: by mail-vk1-f175.google.com with SMTP id 71dfb90a1353d-4affeacaff9so1030924e0c.3
+        for <linux-s390@vger.kernel.org>; Mon, 29 Apr 2024 13:43:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1714421352; x=1715026152; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=6uD+v0Myecvi4JLGVtz2H/p0vC9IC2MSMPkRl0WDjKA=;
-        b=mNXiMw6sPelScyuE1lviE/XN7CzkkOvJ5afenaJwdAESOYa7VAnXYjBsp+EuTl/eQn
-         tyXpgE1KWtzC8pvNQZEief/mIUdoX95A1FG34PjAVpF4vUkk2a/u0NBTbXUCwiQHlYr+
-         UkPpUDsIILxppQ4VcCyztogW5pfmusi7k4ZwchU+KDcoxEW1ch+5uiHak6XZo44lKlLD
-         fM80o1yV2KemG+DY5/oLgDn4MhGX7bBYnvufrBT8Y5ZwNO0E7zEsScIklOr55XmNHyoR
-         Fcez+JUTAqG+eMEsrWiz+E16rGO9PTuMzvdIJTo0QbDpXN0S1XCyeF6GsF7XfptCG6oU
-         WumA==
+        d=linaro.org; s=google; t=1714423437; x=1715028237; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=nFLm7dyUtqCFeQ1Y3Oad/n2nmA3y2+DD3YB2hxxWLCM=;
+        b=HVB7+WEPg71CIsMaiqAiANEz0jgJkmKVNob0zzxNdQK2+t1nZF+dCLrmBL2rsTfBHK
+         W19GVRcmslOLu7TAkFz7YwlNzGohk4Sa+1aPHuI826V0yXsI5cTC0mAGOQAjmr0Ab/HH
+         QcvfvWpsbIvEzWAUrltlIREHslThEjAuDDtyOjo3i9rwjq2IFmLpR2RbocYMyxvycE5t
+         Dvc2EmmPzC0zmC9JHj4Eb5yWqIl0iQO7BCz3FEnp/s3Ri7m9b3YnrhM39UujdSNWhxCa
+         enN3uo33/LmHMQaFdMt+jkMvaLl1fdqv//lE1uBoSKG1STiuuHBhNDWdQC9YYk0ubRg6
+         wGKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714421352; x=1715026152;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6uD+v0Myecvi4JLGVtz2H/p0vC9IC2MSMPkRl0WDjKA=;
-        b=rWS0bFaeZSBk0EVSl8BpwEy7f0EWr12F5jBv1TNFs9ZV596i378zDzh8q1IEJjb0Lf
-         sLnsyxS5tKIg6OJoPpEdTHTK2PIYFecFKrn2iQQqojWNy53geZC94S7rA2PMJ+E1dwMY
-         ZVVmroprwkm7YI8ay9TqTsXmMzoV7Jw3LuktbizvdoQe090xVkuFXHQdgkUBCFK/26HF
-         kbbf5fsMa9+f2dbxvWn1EVkRYbRFhdgMilfRiBECB1cVOa4SyvIRELCEx87cz23rJLzG
-         eWQndBNbH2QvBGnYK0Q4brRq0l0BD2HVB9xVJ8PFtrciYEu5hvV60Z3ZMA54JCeQ/Df2
-         3KcA==
-X-Forwarded-Encrypted: i=1; AJvYcCUOx3O9jPcPwHas7ndtfsTuSLEEAO/FI1CkYOo/0pXgpIdsrt89bJWLWxUuAZlzS0sJAZd5xyLNIYqI81+XSgyLOVbn6awsKuYPAw==
-X-Gm-Message-State: AOJu0Yzyi8yz2SbK7njTAvGblZjhsSkHzYNfBuLBkXMkewahTn0cvmfT
-	ZJ7/8xrcvGWAvlKJ/O69+7IcN9rVCv0pZSd0pR9kpBan2kGqk0YFT3zMPuZSZ1A=
-X-Google-Smtp-Source: AGHT+IEQp5LAzSUEqceAMOZ4Uu3U4DXrwe0G8FjiRbH/1M7d5c095lndVdyyR3xsIqyzMfvxI1xSMw==
-X-Received: by 2002:a67:f683:0:b0:47b:d7e7:a8a9 with SMTP id n3-20020a67f683000000b0047bd7e7a8a9mr12027600vso.5.1714421352233;
-        Mon, 29 Apr 2024 13:09:12 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
-        by smtp.gmail.com with ESMTPSA id w15-20020a0ce10f000000b0069b6e19090csm10783967qvk.10.2024.04.29.13.09.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Apr 2024 13:09:11 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1s1XJG-002nm2-H1;
-	Mon, 29 Apr 2024 17:09:10 -0300
-Date: Mon, 29 Apr 2024 17:09:10 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Gerd Bayer <gbayer@linux.ibm.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>,
-	Niklas Schnelle <schnelle@linux.ibm.com>, kvm@vger.kernel.org,
-	linux-s390@vger.kernel.org, Ankit Agrawal <ankita@nvidia.com>,
-	Yishai Hadas <yishaih@nvidia.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Julian Ruess <julianr@linux.ibm.com>
-Subject: Re: [PATCH v3 1/3] vfio/pci: Extract duplicated code into macro
-Message-ID: <20240429200910.GQ231144@ziepe.ca>
-References: <20240425165604.899447-1-gbayer@linux.ibm.com>
- <20240425165604.899447-2-gbayer@linux.ibm.com>
+        d=1e100.net; s=20230601; t=1714423437; x=1715028237;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=nFLm7dyUtqCFeQ1Y3Oad/n2nmA3y2+DD3YB2hxxWLCM=;
+        b=G6xL0ILYvZwfS3NUG2Nma92jKQQZ4eJi8bhziYluf/goPooUp5ZTc7eBl7UNrhFqWU
+         FkEBgbxX92WNYAX/Iu6TjiytCSSSvek2Nl1u1brFAcP10OBhCX6ZyU8MYGfUji1/uY6q
+         6+wUtL1dZOh9sLREq01ymac95N2isaTxgBoGJ9yIsmgtyNEFNMReYqx7kWMS8bg+dpTA
+         QYfqOipRwFLQjJ3LHtA8FzBgZ1jZbu5zQwdQLFI1rTz6GNat4w6vt8QHhg+EDTIm45I5
+         HhAeT1b7GZzVagy3IkKX185ejp6MCG0kkUXX5nvlAVtRA2I/DtDvF2hj+6IwPpGPV/T7
+         Ti9A==
+X-Gm-Message-State: AOJu0YzXJZFYnTi6WUYWElCnbUl1KYYq1CMKJbCpH3KUOL/OXs/UxTLj
+	Qq1IIVBvuorKzsJ20LtZygyT5CjtfS7yCr3rJRUy3+f8A32oBzRtWmRAXvjsGgxCeW48Qpup12C
+	VCiaTq9NhETga4M8a7/FdZBuKC0Td9Kym3zF/7KzczNdSvSMuRl8=
+X-Google-Smtp-Source: AGHT+IELY2zwLnQIzK1qbE3Sp9Z06BUgG4WlkmnHrcqV/8QmexyPMqSjZnChm2MVfRJ3gQJpaKv37A2s5enuif64LHI=
+X-Received: by 2002:a05:6122:725:b0:4de:daa8:b8e2 with SMTP id
+ 37-20020a056122072500b004dedaa8b8e2mr9482653vki.3.1714423436022; Mon, 29 Apr
+ 2024 13:43:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240425165604.899447-2-gbayer@linux.ibm.com>
+From: Naresh Kamboju <naresh.kamboju@linaro.org>
+Date: Tue, 30 Apr 2024 02:13:44 +0530
+Message-ID: <CA+G9fYuP7S+a89Ep5g5_Ad69EMwRkJ8nM+MMTzbEcP+6H2oMXQ@mail.gmail.com>
+Subject: s390: clk-imx8mp-audiomix.c:363:12: error: 'clk_imx8mp_audiomix_runtime_resume'
+ defined but not used
+To: linux-s390@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, 
+	linux-clk <linux-clk@vger.kernel.org>, lkft-triage@lists.linaro.org, 
+	Linux Regressions <regressions@lists.linux.dev>, imx@lists.linux.dev
+Cc: Shengjiu Wang <shengjiu.wang@nxp.com>, Shawn Guo <shawnguo@kernel.org>, 
+	Michael Turquette <mturquette@baylibre.com>, Abel Vesa <abelvesa@kernel.org>, 
+	Arnd Bergmann <arnd@arndb.de>, Dan Carpenter <dan.carpenter@linaro.org>, 
+	Anders Roxell <anders.roxell@linaro.org>, peng.fan@nxp.com, 
+	Abel Vesa <abel.vesa@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, Apr 25, 2024 at 06:56:02PM +0200, Gerd Bayer wrote:
-> vfio_pci_core_do_io_rw() repeats the same code for multiple access
-> widths. Factor this out into a macro
-> 
-> Suggested-by: Alex Williamson <alex.williamson@redhat.com>
-> Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
-> ---
->  drivers/vfio/pci/vfio_pci_rdwr.c | 106 ++++++++++++++-----------------
->  1 file changed, 46 insertions(+), 60 deletions(-)
-> 
-> diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
-> index 03b8f7ada1ac..3335f1b868b1 100644
-> --- a/drivers/vfio/pci/vfio_pci_rdwr.c
-> +++ b/drivers/vfio/pci/vfio_pci_rdwr.c
-> @@ -90,6 +90,40 @@ VFIO_IOREAD(8)
->  VFIO_IOREAD(16)
->  VFIO_IOREAD(32)
->  
-> +#define VFIO_IORDWR(size)						\
-> +static int vfio_pci_core_iordwr##size(struct vfio_pci_core_device *vdev,\
-> +				bool iswrite, bool test_mem,		\
-> +				void __iomem *io, char __user *buf,	\
-> +				loff_t off, size_t *filled)		\
-> +{									\
-> +	u##size val;							\
-> +	int ret;							\
-> +									\
-> +	if (iswrite) {							\
-> +		if (copy_from_user(&val, buf, sizeof(val)))		\
-> +			return -EFAULT;					\
-> +									\
-> +		ret = vfio_pci_core_iowrite##size(vdev, test_mem,	\
-> +						  val, io + off);	\
-> +		if (ret)						\
-> +			return ret;					\
-> +	} else {							\
-> +		ret = vfio_pci_core_ioread##size(vdev, test_mem,	\
-> +						 &val, io + off);	\
-> +		if (ret)						\
-> +			return ret;					\
-> +									\
-> +		if (copy_to_user(buf, &val, sizeof(val)))		\
-> +			return -EFAULT;					\
-> +	}								\
-> +									\
-> +	*filled = sizeof(val);						\
-> +	return 0;							\
-> +}									\
-> +
-> +VFIO_IORDWR(8)
-> +VFIO_IORDWR(16)
-> +VFIO_IORDWR(32)
+The s390 allmodconfig builds failed on Linux next master branch with gcc-13.
 
-I'd suggest to try writing this without so many macros.
+s390:
+ allmodconfig - gcc-13 - fail
 
-This isn't very performance optimal already, we take a lock on every
-iteration, so there isn't much point in inlining multiple copies of
-everything to save an branch.
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Push the sizing switch down to the bottom, start with a function like:
+Build log:
+--------
+drivers/clk/imx/clk-imx8mp-audiomix.c:363:12: error:
+'clk_imx8mp_audiomix_runtime_resume' defined but not used
+[-Werror=unused-function]
+  363 | static int clk_imx8mp_audiomix_runtime_resume(struct device *dev)
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/clk/imx/clk-imx8mp-audiomix.c:356:12: error:
+'clk_imx8mp_audiomix_runtime_suspend' defined but not used
+[-Werror=unused-function]
+  356 | static int clk_imx8mp_audiomix_runtime_suspend(struct device *dev)
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
 
-static void __iowrite(const void *val, void __iomem *io, size_t len)
-{
-	switch (len) {
-	case 8: {
-#ifdef iowrite64 // NOTE this doesn't seem to work on x86?
-		if (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
-			return iowrite64be(*(const u64 *)val, io);
-		return iowrite64(*(const u64 *)val, io);
-#else
-		if (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN)) {
-			iowrite32be(*(const u32 *)val, io);
-			iowrite32be(*(const u32 *)(val + 4), io + 4);
-		} else {
-			iowrite32(*(const u32 *)val, io);
-			iowrite32(*(const u32 *)(val + 4), io + 4);
-		}
-		return;
-#endif
-	}
+metadata:
+----
+  git_describe: next-20240429
+  git_repo: https://gitlab.com/Linaro/lkft/mirrors/next/linux-next
+  git_short_log: b0a2c79c6f35 ("Add linux-next specific files for 20240429")
+  arch: s390
+  toolchain: gcc-13
 
-	case 4:
-		if (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
-			return iowrite32be(*(const u32 *)val, io);
-		return iowrite32(*(const u32 *)val, io);
-	case 2:
-		if (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
-			return iowrite16be(*(const u16 *)val, io);
-		return iowrite16(*(const u16 *)val, io);
+Steps to reproduce:
+---
+ # tuxmake --runtime podman --target-arch s390 --toolchain gcc-13
+--kconfig allmodconfig
 
-	case 1:
-		return iowrite8(*(const u8 *)val, io);
-	}
-}
 
-And then wrap it with the copy and the lock:
+Links:
+----
+ - https://storage.tuxsuite.com/public/linaro/lkft/builds/2fmJ3qzFbmI2ACNTo81vzzgQaLS/
+ - https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20240429/testrun/23715243/suite/build/test/gcc-13-allmodconfig/details/
 
-static int do_iordwr(struct vfio_pci_core_device *vdev, bool test_mem,
-		     const void __user *buf, void __iomem *io, size_t len,
-		     bool iswrite)
-{
-	u64 val;
 
-	if (iswrite && copy_from_user(&val, buf, len))
-		return -EFAULT;
-
-	if (test_mem) {
-		down_read(&vdev->memory_lock);
-		if (!__vfio_pci_memory_enabled(vdev)) {
-			up_read(&vdev->memory_lock);
-			return -EIO;
-		}
-	}
-
-	if (iswrite)
-		__iowrite(&val, io, len);
-	else
-		__ioread(&val, io, len);
-
-	if (test_mem)
-		up_read(&vdev->memory_lock);
-
-	if (!iswrite && copy_to_user(buf, &val, len))
-		return -EFAULT;
-
-	return 0;
-}
-
-And then the loop can be simple:
-
-		if (fillable) {
-			filled = num_bytes(fillable, off);
-			ret = do_iordwr(vdev, test_mem, buf, io + off, filled,
-					iswrite);
-			if (ret)
-				return ret;
-		} else {
-			filled = min(count, (size_t)(x_end - off));
-			/* Fill reads with -1, drop writes */
-			ret = fill_err(buf, filled);
-			if (ret)
-				return ret;
-		}
-
-Jason
+--
+Linaro LKFT
+https://lkft.linaro.org
