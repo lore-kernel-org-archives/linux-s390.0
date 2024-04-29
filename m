@@ -1,76 +1,76 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 873AC84E1B
-	for <linux-s390@vger.kernel.org>; Mon, 29 Apr 2024 16:32:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62A8684E1B
+	for <linux-s390@vger.kernel.org>; Mon, 29 Apr 2024 16:32:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714408324; cv=none; b=VW/Dg5Spk5kDngfj3KoyEk95zX45N0FyuYdk4ZlVCOfDyON85X3Qk29PKO/Ub9q2gRUaZTKvzPNLn1kxyEmJqSYn09zVga8tLrcHCHHwc2dTzpJiazMTDFQjarWgZ2Vq0N+WtgLCHB72qqY92pkhXxsgnSzUPkeR4dHdevY3uIs=
+	t=1714408328; cv=none; b=i1Vj8RRKiRE2qf5A7FRyItRKeO/UkQ+VycQmPxs03qYMlAczdtiRzRqHQ8kdDZmQiuqQSJlg349FSlgxxx17Qkcx4fPEZbrjdwYkOL5sfbjmc6pjRWBBvDy0PYTRMeDASY3h3Qvk2Qh2b1gEQNW0hooMZ0FsVG1QgQ0mz/BpBC0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714408324; c=relaxed/simple;
-	bh=SpeshAmi98dBcbV7325o4E6VAiG2EGqrc+62Du4gDRk=;
+	s=arc-20240116; t=1714408328; c=relaxed/simple;
+	bh=KNY7YfkCFOCGJEjKFw4J5ymcqJqQzD2TMjdp9S6DTnU=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=JeJSXbdYpthDQutxLPu+SSBe/u5GUXDcl3nR21U0e/yL/41gc36OOwwNc4ILOOPyz1KUNC2eXNCnUMAJ8kvNSmELKv2H+g+MOkvcK4Tsyl7Y3z5kgqAwVU8b13JRUGYCAdx+M0j+QrlUGCitPu/mHDCaJ8dr9Zm9UJNaCqvzEzY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c5bZiCfJ; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-Type; b=bpQl96A8VK/XFKJ698YOjOD2c1gEoxCr0xN53IEKpMPRZFQ3r6GJ6+djcjbbMW6Do0VBrnT3XBccLORL2Ck1/CEXkbVJgbvMTl3gnFLGTXFv70T+mXXravumhTa3KEqxZTciNr/cNTKnEiH9kiF4AdqGmNMUEoTTgooUaLoyYZ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XX1Z08lD; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c5bZiCfJ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XX1Z08lD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714408319;
+	s=mimecast20190719; t=1714408325;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=0VUOcdCYHg1vZaTRhcIVHvzHPzcMRX3lSm1goA8OZ2U=;
-	b=c5bZiCfJuks08Xuojy49IThYtzGp96FodqdL5EXqxp6pxfO/fQXSp7D/YXY7t/cuedk38y
-	fi/0Y0s2qgOIsn72qC+TTAN4TCuE3KW+Ezr3lNvSfJX1C6FOpitY9iKs9wv9Ep3n21QW5S
-	jX9e62iTFuU7sZjMFfvZNpIcIydhpuk=
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
- [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=krZbL0UMrNCqvGgRWhIvx68Omsbhhm2kSbHqmbczntg=;
+	b=XX1Z08lDuWtq9NKAeoomemt9SaOfLTB9GOrFr8LmSvG8zVk+KLmdPtPi2DOc3q0EIvR/dP
+	qX85Y9BrQP4C5zHhu1hkGs99ZHImfK3fnCB/xNF9L3EBN86ZHUQvXfpMvW3E+6TLD64hz8
+	RmnvpXza+jQ26pSkZA5+DyYQ1Z+q5/w=
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
+ [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-556-PO4zotTTNqudCcB6ZbzUfQ-1; Mon, 29 Apr 2024 12:31:58 -0400
-X-MC-Unique: PO4zotTTNqudCcB6ZbzUfQ-1
-Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-7ddf0219685so518718939f.3
-        for <linux-s390@vger.kernel.org>; Mon, 29 Apr 2024 09:31:58 -0700 (PDT)
+ us-mta-113-Ei67r5X4Ni6sAd_UUfmgeg-1; Mon, 29 Apr 2024 12:32:03 -0400
+X-MC-Unique: Ei67r5X4Ni6sAd_UUfmgeg-1
+Received: by mail-io1-f70.google.com with SMTP id ca18e2360f4ac-7d9d0936d6aso537179439f.0
+        for <linux-s390@vger.kernel.org>; Mon, 29 Apr 2024 09:32:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714408318; x=1715013118;
+        d=1e100.net; s=20230601; t=1714408323; x=1715013123;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=0VUOcdCYHg1vZaTRhcIVHvzHPzcMRX3lSm1goA8OZ2U=;
-        b=s8dJdVH8fnNAGxY5NRMuewWMylZ9KjItv2GRSDBQVftpo9YlhyyPcJiXeCviwREtVC
-         9vFMRh/vOVvbCCzHDXREkTe0IK7R3lLv/f5RnxgL3OGwkB2FPYnfp+/ym9SLQkQ5mmVe
-         ZXUAJNmEdCxnFAT9axc1j/v49P/QcsavynOyPk7EnHc6VLYc8NH7fYvev9ItcaUPmAQ/
-         xu0d+nVMamVJAtJPbEyGzU0Y6K4CihqAMsEyCtTtRISMQUjrd4wr3O9csuLYCmL/urWk
-         7zQZmK952YU7c3+dxSa5/iHDciOI3fjK6gTV2wBnE9Q6A8w0nfscjWXEgcELhn9kfilg
-         YBBw==
-X-Forwarded-Encrypted: i=1; AJvYcCUgAwwfN/6JNZG+ISrS9HTke9TbOi77bzrfXdcRQOlog/KPBeSTWnAP16yB8jBUV12cMuKFWuAlDWIGQM8zhI9JjosqcxIs+VBC6Q==
-X-Gm-Message-State: AOJu0YzZx4q4AmvLj149WFbXqcl9c3KXgo3tP4r9X7rHMzvhloqLzYBo
-	XQvPZw1MHUmdjOfpzpN9D3WGBe/8rPCAZbxm7esUHKopMlc0VeTESyhLoQIYysDzjRCtYl/Q7/h
-	eZHvUmvwHzrQDV3Hwr3qyp+x89VcANaKZ4x96NLWs3oi++xSIH1drcbvMn9E=
-X-Received: by 2002:a5e:da43:0:b0:7de:ca48:4fab with SMTP id o3-20020a5eda43000000b007deca484fabmr4571701iop.2.1714408317724;
-        Mon, 29 Apr 2024 09:31:57 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEY7MZRCb8QUzQbM63MCxVsid75E5bV/VH+WHEvPEtafrrxpxa9msmYaYzEBqEiNVPw81DjTw==
-X-Received: by 2002:a5e:da43:0:b0:7de:ca48:4fab with SMTP id o3-20020a5eda43000000b007deca484fabmr4571683iop.2.1714408317455;
-        Mon, 29 Apr 2024 09:31:57 -0700 (PDT)
+        bh=krZbL0UMrNCqvGgRWhIvx68Omsbhhm2kSbHqmbczntg=;
+        b=KdCW7iJ1Nop7/OlFl1bWE2xqm0ieR8sVYwDwlyIK1zaMXxH8/eLRPebhUrX3/EiJbM
+         4mhURNGZFlDy3xQhsrQeAysVw/gViHlMvxGz5fJeitWkbso7BrJJH/LaCoLGMg/BNpOe
+         6UM+/9q4ChsCBlMoaGAr5LIPzps/fNd7Za4wouKcDBTgxg/S1GsTfWU9EqbFFkqTcJsR
+         6q2l6QuhtU1tIu0k9xIJo5ApGDLmWsICIPs4bm0hBR6t8ZLSX4qGUtCAXD6PdFaQy4TX
+         Bj1fIegeZ0hKD0kxdUR6i9i0kD4XwdlE1cSKpCr0nS7920QtsJ9SyzhCKcO23cwoODqK
+         cHww==
+X-Forwarded-Encrypted: i=1; AJvYcCXK8Pv47yHUKI/wzBajG3vzPPd8LLeNkWQngSFBhKTgcSm20tx3XOv0+/qeBTlyWSYWRau/kAFuMioaXllvZXhAyio8vny4asPvvg==
+X-Gm-Message-State: AOJu0YxSa3Soeo6vSRMMXwDo6kxII7BgeFdtB/pyN0Aj4JGHY4eV5TbF
+	z5X2N2tjg0hViTwV+VUEZ19ZCBsxSumQ3ZTUU9zTzWsh5SalsH3eLlpS/AsQwnacc555S6jyZg6
+	2LFjzt+MTThY0XnwPoGHpr2CHolTG0zhzGJO4EeoMftnEnB/OQSfmzUFMgNo=
+X-Received: by 2002:a6b:7802:0:b0:7da:a00d:8b55 with SMTP id j2-20020a6b7802000000b007daa00d8b55mr12471086iom.17.1714408323037;
+        Mon, 29 Apr 2024 09:32:03 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGuu3m9KV8Dkpua6ArPjFefWK1kmulefZ84u2kCvEoe9tguZjAfNmfbuuSm83m/jDnLO7QT2w==
+X-Received: by 2002:a6b:7802:0:b0:7da:a00d:8b55 with SMTP id j2-20020a6b7802000000b007daa00d8b55mr12471056iom.17.1714408322693;
+        Mon, 29 Apr 2024 09:32:02 -0700 (PDT)
 Received: from redhat.com ([38.15.36.11])
-        by smtp.gmail.com with ESMTPSA id e11-20020a02860b000000b00482bd47b861sm7383330jai.50.2024.04.29.09.31.56
+        by smtp.gmail.com with ESMTPSA id iu21-20020a056638861500b00487366e2e1bsm2547608jab.144.2024.04.29.09.32.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Apr 2024 09:31:57 -0700 (PDT)
-Date: Mon, 29 Apr 2024 10:31:56 -0600
+        Mon, 29 Apr 2024 09:32:02 -0700 (PDT)
+Date: Mon, 29 Apr 2024 10:32:01 -0600
 From: Alex Williamson <alex.williamson@redhat.com>
 To: Gerd Bayer <gbayer@linux.ibm.com>
 Cc: Jason Gunthorpe <jgg@ziepe.ca>, Niklas Schnelle
  <schnelle@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
  Ankit Agrawal <ankita@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>, Halil
- Pasic <pasic@linux.ibm.com>, Julian Ruess <julianr@linux.ibm.com>, Ben
- Segal <bpsegal@us.ibm.com>
-Subject: Re: [PATCH v3 2/3] vfio/pci: Support 8-byte PCI loads and stores
-Message-ID: <20240429103156.50793b98.alex.williamson@redhat.com>
-In-Reply-To: <20240425165604.899447-3-gbayer@linux.ibm.com>
+ Pasic <pasic@linux.ibm.com>, Julian Ruess <julianr@linux.ibm.com>
+Subject: Re: [PATCH v3 3/3] vfio/pci: Continue to refactor
+ vfio_pci_core_do_io_rw
+Message-ID: <20240429103201.7e07e502.alex.williamson@redhat.com>
+In-Reply-To: <20240425165604.899447-4-gbayer@linux.ibm.com>
 References: <20240425165604.899447-1-gbayer@linux.ibm.com>
-	<20240425165604.899447-3-gbayer@linux.ibm.com>
+	<20240425165604.899447-4-gbayer@linux.ibm.com>
 X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -81,87 +81,112 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Thu, 25 Apr 2024 18:56:03 +0200
+On Thu, 25 Apr 2024 18:56:04 +0200
 Gerd Bayer <gbayer@linux.ibm.com> wrote:
 
-> From: Ben Segal <bpsegal@us.ibm.com>
+> Convert if-elseif-chain into switch-case.
+> Separate out and generalize the code from the if-clauses so the result
+> can be used in the switch statement.
 > 
-> Many PCI adapters can benefit or even require full 64bit read
-> and write access to their registers. In order to enable work on
-> user-space drivers for these devices add two new variations
-> vfio_pci_core_io{read|write}64 of the existing access methods
-> when the architecture supports 64-bit ioreads and iowrites.
-> 
-> Signed-off-by: Ben Segal <bpsegal@us.ibm.com>
-> Co-developed-by: Gerd Bayer <gbayer@linux.ibm.com>
 > Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
 > ---
->  drivers/vfio/pci/vfio_pci_rdwr.c | 16 ++++++++++++++++
->  include/linux/vfio_pci_core.h    |  3 +++
->  2 files changed, 19 insertions(+)
+>  drivers/vfio/pci/vfio_pci_rdwr.c | 30 ++++++++++++++++++++++++------
+>  1 file changed, 24 insertions(+), 6 deletions(-)
 > 
 > diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
-> index 3335f1b868b1..8ed06edaee23 100644
+> index 8ed06edaee23..634c00b03c71 100644
 > --- a/drivers/vfio/pci/vfio_pci_rdwr.c
 > +++ b/drivers/vfio/pci/vfio_pci_rdwr.c
-> @@ -89,6 +89,9 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_ioread##size);
->  VFIO_IOREAD(8)
->  VFIO_IOREAD(16)
->  VFIO_IOREAD(32)
-> +#ifdef ioread64
-> +VFIO_IOREAD(64)
-> +#endif
+> @@ -131,6 +131,20 @@ VFIO_IORDWR(32)
+>  VFIO_IORDWR(64)
+
+#define MAX_FILL_SIZE 8
+#else
+#define MAX_FILL_SIZE 4
+
+>  #endif
 >  
->  #define VFIO_IORDWR(size)						\
->  static int vfio_pci_core_iordwr##size(struct vfio_pci_core_device *vdev,\
-> @@ -124,6 +127,10 @@ static int vfio_pci_core_iordwr##size(struct vfio_pci_core_device *vdev,\
->  VFIO_IORDWR(8)
->  VFIO_IORDWR(16)
->  VFIO_IORDWR(32)
+> +static int fill_size(size_t fillable, loff_t off)
+> +{
+> +	unsigned int fill_size;
+
+	unsigned int fill_size = MAX_FILL_SIZE;
+
 > +#if defined(ioread64) && defined(iowrite64)
-> +VFIO_IORDWR(64)
-> +#endif
+> +	for (fill_size = 8; fill_size >= 0; fill_size /= 2) {
+> +#else
+> +	for (fill_size = 4; fill_size >= 0; fill_size /= 2) {
+> +#endif /* defined(ioread64) && defined(iowrite64) */
+> +		if (fillable >= fill_size && !(off % fill_size))
+> +			return fill_size;
+> +	}
+> +	return -1;
+> +}
 > +
 >  /*
 >   * Read or write from an __iomem region (MMIO or I/O port) with an excluded
 >   * range which is inaccessible.  The excluded range drops writes and fills
-> @@ -148,6 +155,15 @@ ssize_t vfio_pci_core_do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
+> @@ -155,34 +169,38 @@ ssize_t vfio_pci_core_do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
 >  		else
 >  			fillable = 0;
 >  
-> +#if defined(ioread64) && defined(iowrite64)
+> +		switch (fill_size(fillable, off)) {
+>  #if defined(ioread64) && defined(iowrite64)
+> -		if (fillable >= 8 && !(off % 8)) {
+> +		case 8:
+>  			ret = vfio_pci_core_iordwr64(vdev, iswrite, test_mem,
+>  						     io, buf, off, &filled);
+>  			if (ret)
+>  				return ret;
+> +			break;
+>  
+> -		} else
 
-Nit, #ifdef vfio_pci_core_iordwr64
+AFAICT, avoiding this dangling else within the #ifdef is really the
+only tangible advantage of conversion to a switch statement.  Getting
+rid of that alone while keeping, and actually increasing, the inline
+ifdefs in the code doesn't seem worthwhile to me.  I'd probably only go
+this route if we could make vfio_pci_iordwr64() stubbed as a BUG_ON
+when we don't have the ioread64 and iowrite64 accessors, in which case
+the switch helper would never return 8 and the function would be
+unreachable.
 
-> +		if (fillable >= 8 && !(off % 8)) {
-> +			ret = vfio_pci_core_iordwr64(vdev, iswrite, test_mem,
-> +						     io, buf, off, &filled);
-> +			if (ret)
-> +				return ret;
-> +
-> +		} else
-> +#endif /* defined(ioread64) && defined(iowrite64) */
+>  #endif /* defined(ioread64) && defined(iowrite64) */
+> -		if (fillable >= 4 && !(off % 4)) {
+> +		case 4:
+>  			ret = vfio_pci_core_iordwr32(vdev, iswrite, test_mem,
+>  						     io, buf, off, &filled);
+>  			if (ret)
+>  				return ret;
+> +			break;
+>  
+> -		} else if (fillable >= 2 && !(off % 2)) {
+> +		case 2:
+>  			ret = vfio_pci_core_iordwr16(vdev, iswrite, test_mem,
+>  						     io, buf, off, &filled);
+>  			if (ret)
+>  				return ret;
+> +			break;
+>  
+> -		} else if (fillable) {
+> +		case 1:
+>  			ret = vfio_pci_core_iordwr8(vdev, iswrite, test_mem,
+>  						    io, buf, off, &filled);
+>  			if (ret)
+>  				return ret;
+> +			break;
+>  
+> -		} else {
+> +		default:
 
-AFAIK, the comment appended to the #endif is really only suggested when
-the code block is too long to reasonable fit in a terminal.  That's no
-longer the case with the new helper.  Thanks,
+This condition also seems a little more obfuscated without being
+preceded by the 'if (fillable)' test, which might warrant handling
+separate from the switch if we continue to pursue the switch
+conversion.  Thanks,
 
 Alex
 
->  		if (fillable >= 4 && !(off % 4)) {
->  			ret = vfio_pci_core_iordwr32(vdev, iswrite, test_mem,
->  						     io, buf, off, &filled);
-> diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-> index a2c8b8bba711..f4cf5fd2350c 100644
-> --- a/include/linux/vfio_pci_core.h
-> +++ b/include/linux/vfio_pci_core.h
-> @@ -157,5 +157,8 @@ int vfio_pci_core_ioread##size(struct vfio_pci_core_device *vdev,	\
->  VFIO_IOREAD_DECLATION(8)
->  VFIO_IOREAD_DECLATION(16)
->  VFIO_IOREAD_DECLATION(32)
-> +#ifdef ioread64
-> +VFIO_IOREAD_DECLATION(64)
-> +#endif
->  
->  #endif /* VFIO_PCI_CORE_H */
+>  			/* Fill reads with -1, drop writes */
+>  			filled = min(count, (size_t)(x_end - off));
+>  			if (!iswrite) {
 
