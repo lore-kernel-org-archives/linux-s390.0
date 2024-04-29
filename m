@@ -1,251 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0649C74E11;
-	Mon, 29 Apr 2024 13:48:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82F36763FC;
+	Mon, 29 Apr 2024 14:04:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714398493; cv=none; b=Bx3nJaq6+ORDpsE0y3q9YGrux+vU/ZVyMa+Ecn+G6cy+Urip+PK+HdZz+t5zpiSJSjGoM7cbhdx1fdzAcqhwlaveQ5LfIg6nHX/BghnChDgeu10k2PQ9e8vuH7XOTjd1LVXCXYrXtefRlPMc/Autd5e7MT91oKEweIvH3Od+rfg=
+	t=1714399495; cv=none; b=aSYCeW2SM0+ZkGegcv7f8+QwC2GIZhTdwjyms+SXVdkEupIQpSkr2R2DUf3phsps7XdbI966BWo3Wuiic03KAsDe71LmP/38AvFAvyEtg5e+0kmU6Wk7MeNWNjO4OSx1hCQVQpxGvCHWAfmZZlwM6a/1ZZKyIW4kHEvZPSyPQyg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714398493; c=relaxed/simple;
-	bh=2OmxYBcG8kYWa15/HKPOVgxwdgSzJ8/xMevqt/hqwIo=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=iykIDcNFJPk5Gh0ScGi69j7sSEOGBELBYdkPhQtxZZkye8DUhdaEUncCM+7nYLDiA60JDHB0iDkFsUCoybLlmPajyGCQhALlhaScJfXy/YkZyoXOkWhLwC58+TApD9Cq1gaQtf6KnDg7SsMgL2sJMsZ/y1YwuZAni07kA5PAw0c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lyORC9o2; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1714399495; c=relaxed/simple;
+	bh=zjARx+/GtRRv+02D1RxjEuNjW2h1b2KhrsRFMuJzsmc=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=O7NhfaTp3Rm6LokTnWfUIa3poFfZxqfTv96/VojghwYW0pqvruJUuzwCQty7bAs+5RR2bkOzrm8AX40Ln6Y5icPGreVekgM8h2RtoQgnI1hn179G9eUxY2n6dxPaULBfp+6HyB5z/pxLZvkpdkg1oRjuJht1N1GaJDHK0qMrAMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VX0+5we7; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lyORC9o2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 427D1C113CD;
-	Mon, 29 Apr 2024 13:48:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714398492;
-	bh=2OmxYBcG8kYWa15/HKPOVgxwdgSzJ8/xMevqt/hqwIo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=lyORC9o2Lm+u2avM+eOyj/ccYiyuxZQLnwqOF6FZV49QnzRN+Dcvvb8f+L/I+DIcc
-	 bR6gzWrxR06bLVpEA1X1PfPHzCF0nDSdsFIGgv/R/Ztx7jvyn/LZvp5GTSxbA3X+Ea
-	 5Q5++mVTUse/so5L++FV3pac1nAd6FyimPuc/dQPplc7m0nyf+JoSS48zL0c07gOKG
-	 +Q9TxDTXUAv++YZPpMLvDQVzMH1VHt+BXIScwupTc1u15EnhRP870WSg23oHheSEFh
-	 X/E2DhZuUkcbr1ov6EZLQFmBffBmxl2jf1fX5T3O6khvfYPOQWnrKD7j3rIrd7dwdJ
-	 AMHlyJcx5ffMw==
-Date: Mon, 29 Apr 2024 22:48:03 +0900
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-To: Stephen Brennan <stephen.s.brennan@oracle.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Mark Rutland
- <mark.rutland@arm.com>, Guo Ren <guoren@kernel.org>, Huacai Chen
- <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge
- Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas
- Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, "Naveen N. Rao"
- <naveen.n.rao@linux.ibm.com>, Paul Walmsley <paul.walmsley@sifive.com>,
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas
- Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav
- Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH] kprobe/ftrace: bail out if ftrace was killed
-Message-Id: <20240429224803.49d420b514e22d51412e1602@kernel.org>
-In-Reply-To: <20240426225834.993353-1-stephen.s.brennan@oracle.com>
-References: <20240426225834.993353-1-stephen.s.brennan@oracle.com>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VX0+5we7"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43TDgh7J032410;
+	Mon, 29 Apr 2024 14:04:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ZUGOkK+F6Z/S7qp5pIGSND8iBVS08pT++7QX/o/4sxU=;
+ b=VX0+5we75Via2kE2mtJMg33dATo6/kWUcaJcBfBE2i9jZhelRQlAE8hT8ddLBaghBVG9
+ zaUZFbtX1VLlWcO5nBgRHtcbU7DiKBydKRVrIdJimwD3kWJUwwO7l4qYd0rdr/Lor48o
+ IiIfJNfjRirVOJRcpSUsMO6rApajNuMGVIgcOxkyz8I4hctEAKlXvhXH0yvMi+15mXjm
+ 0xSI40ioXO8CJipQNhLVZRMQtOBnbXISkPvYzC7d02cXMS9aF9Xbv9dcwfNijW4+gVhJ
+ Y50YXoWpxc4JmU9SHpxRRQdXbe8fe0PBmRiqDsdXmBfp11R2yLWAf1rvxnGuuaF+XHQ+ TQ== 
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xtcnt8239-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Apr 2024 14:04:02 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43TB5Phq001433;
+	Mon, 29 Apr 2024 14:04:01 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xsbptqvab-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Apr 2024 14:04:01 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43TE3tIm17957170
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 29 Apr 2024 14:03:57 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A4A0A2004B;
+	Mon, 29 Apr 2024 14:03:55 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7DA7820040;
+	Mon, 29 Apr 2024 14:03:55 +0000 (GMT)
+Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 29 Apr 2024 14:03:55 +0000 (GMT)
+Date: Mon, 29 Apr 2024 16:03:54 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, borntraeger@de.ibm.com
+Subject: Re: [PATCH v3 2/2] s390/pgtable: add missing hardware bits for
+ puds, pmds
+Message-ID: <20240429160354.47f05bfc@p-imbrenda.boeblingen.de.ibm.com>
+In-Reply-To: <20240429131149.29046-M-hca@linux.ibm.com>
+References: <20240426120447.34318-1-imbrenda@linux.ibm.com>
+	<20240426120447.34318-3-imbrenda@linux.ibm.com>
+	<20240429131149.29046-M-hca@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: xxqSgTpP99SUCF5qRzTJtRbHwppMqYCy
+X-Proofpoint-GUID: xxqSgTpP99SUCF5qRzTJtRbHwppMqYCy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-04-29_12,2024-04-29_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
+ lowpriorityscore=0 suspectscore=0 spamscore=0 malwarescore=0 clxscore=1015
+ priorityscore=1501 mlxscore=0 phishscore=0 bulkscore=0 impostorscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
+ definitions=main-2404290089
 
-Hi Stephen,
+On Mon, 29 Apr 2024 15:11:49 +0200
+Heiko Carstens <hca@linux.ibm.com> wrote:
 
-On Fri, 26 Apr 2024 15:58:34 -0700
-Stephen Brennan <stephen.s.brennan@oracle.com> wrote:
+> On Fri, Apr 26, 2024 at 02:04:47PM +0200, Claudio Imbrenda wrote:
+> > Add the table type and ACCF validity bits to _SEGMENT_ENTRY_BITS and
+> > _SEGMENT_ENTRY_HARDWARE_BITS{,_LARGE}.
+> > 
+> > For completeness, introduce _REGION3_ENTRY_HARDWARE_BITS_LARGE and
+> > _REGION3_ENTRY_HARDWARE_BITS, containing the hardware bits used for
+> > large puds and normal puds.
+> > 
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > ---
+> >  arch/s390/include/asm/pgtable.h | 8 +++++---
+> >  1 file changed, 5 insertions(+), 3 deletions(-)  
+> 
+> ...
+> > +#define _REGION3_ENTRY_HARDWARE_BITS_LARGE	0xffffffff8001073cUL
+> > +#define _REGION3_ENTRY_HARDWARE_BITS		0xfffffffffffff6ffUL  
+> ...
+> > +#define _SEGMENT_ENTRY_BITS			0xfffffffffffffe3fUL
+> > +#define _SEGMENT_ENTRY_HARDWARE_BITS		0xfffffffffffffe3cUL
+> > +#define _SEGMENT_ENTRY_HARDWARE_BITS_LARGE	0xfffffffffff1073cUL  
+> 
+> Please resend and make sure the order (BITS, BITS_LARGE, ...) is the
+> same; then Alexander can pick this up.
 
-> If an error happens in ftrace, ftrace_kill() will prevent disarming
-> kprobes. Eventually, the ftrace_ops associated with the kprobes will be
-> freed, yet the kprobes will still be active, and when triggered, they
-> will use the freed memory, likely resulting in a page fault and panic.
-
-Hmm, indeed.
+oops, will fix
 
 > 
-> This behavior can be reproduced quite easily, by creating a kprobe and
-> then triggering a ftrace_kill(). For simplicity, we can simulate an
-> ftrace error with a kernel module like [1]:
-> 
-> [1]: https://github.com/brenns10/kernel_stuff/tree/master/ftrace_killer
-> 
->   sudo perf probe --add commit_creds
->   sudo perf trace -e probe:commit_creds
->   # In another terminal
->   make
->   sudo insmod ftrace_killer.ko  # calls ftrace_kill(), simulating bug
->   # Back to perf terminal
->   # ctrl-c
->   sudo perf probe --del commit_creds
-> 
-> After a short period, a page fault and panic would occur as the kprobe
-> continues to execute and uses the freed ftrace_ops. While ftrace_kill()
-> is supposed to be used only in extreme circumstances, it is invoked in
-> FTRACE_WARN_ON() and so there are many places where an unexpected bug
-> could be triggered, yet the system may continue operating, possibly
-> without the administrator noticing. If ftrace_kill() does not panic the
-> system, then we should do everything we can to continue operating,
-> rather than leave a ticking time bomb.
+> For the definitions:
+> Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 
-OK, the patch looks good to me.
-
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-
-Thanks!
-
-> 
-> Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
-> ---
-> 
-> Apologies for the wide net cast here. I recognize that a change like this
-> may need to be split up and go through arch-specific trees. I hoped to get
-> feedback on the patch itself. If it's satisfactory and the architecture
-> maintainers prefer it split out, I'm glad to do it. Thanks!
-> 
->  arch/csky/kernel/probes/ftrace.c     | 3 +++
->  arch/loongarch/kernel/ftrace_dyn.c   | 3 +++
->  arch/parisc/kernel/ftrace.c          | 3 +++
->  arch/powerpc/kernel/kprobes-ftrace.c | 3 +++
->  arch/riscv/kernel/probes/ftrace.c    | 3 +++
->  arch/s390/kernel/ftrace.c            | 3 +++
->  arch/x86/kernel/kprobes/ftrace.c     | 3 +++
->  include/linux/ftrace.h               | 2 ++
->  8 files changed, 23 insertions(+)
-> 
-> diff --git a/arch/csky/kernel/probes/ftrace.c b/arch/csky/kernel/probes/ftrace.c
-> index 834cffcfbce3..3931bf9f707b 100644
-> --- a/arch/csky/kernel/probes/ftrace.c
-> +++ b/arch/csky/kernel/probes/ftrace.c
-> @@ -12,6 +12,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
->  	struct kprobe_ctlblk *kcb;
->  	struct pt_regs *regs;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
->  	if (bit < 0)
->  		return;
-> diff --git a/arch/loongarch/kernel/ftrace_dyn.c b/arch/loongarch/kernel/ftrace_dyn.c
-> index 73858c9029cc..82c952cb5be0 100644
-> --- a/arch/loongarch/kernel/ftrace_dyn.c
-> +++ b/arch/loongarch/kernel/ftrace_dyn.c
-> @@ -287,6 +287,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
->  	struct kprobe *p;
->  	struct kprobe_ctlblk *kcb;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
->  	if (bit < 0)
->  		return;
-> diff --git a/arch/parisc/kernel/ftrace.c b/arch/parisc/kernel/ftrace.c
-> index 621a4b386ae4..3660834f54c3 100644
-> --- a/arch/parisc/kernel/ftrace.c
-> +++ b/arch/parisc/kernel/ftrace.c
-> @@ -206,6 +206,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
->  	struct kprobe *p;
->  	int bit;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
->  	if (bit < 0)
->  		return;
-> diff --git a/arch/powerpc/kernel/kprobes-ftrace.c b/arch/powerpc/kernel/kprobes-ftrace.c
-> index 072ebe7f290b..85eb55aa1457 100644
-> --- a/arch/powerpc/kernel/kprobes-ftrace.c
-> +++ b/arch/powerpc/kernel/kprobes-ftrace.c
-> @@ -21,6 +21,9 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
->  	struct pt_regs *regs;
->  	int bit;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(nip, parent_nip);
->  	if (bit < 0)
->  		return;
-> diff --git a/arch/riscv/kernel/probes/ftrace.c b/arch/riscv/kernel/probes/ftrace.c
-> index 7142ec42e889..8814fbe4c888 100644
-> --- a/arch/riscv/kernel/probes/ftrace.c
-> +++ b/arch/riscv/kernel/probes/ftrace.c
-> @@ -11,6 +11,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
->  	struct kprobe_ctlblk *kcb;
->  	int bit;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
->  	if (bit < 0)
->  		return;
-> diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
-> index c46381ea04ec..ccbe8ccf945b 100644
-> --- a/arch/s390/kernel/ftrace.c
-> +++ b/arch/s390/kernel/ftrace.c
-> @@ -296,6 +296,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
->  	struct kprobe *p;
->  	int bit;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
->  	if (bit < 0)
->  		return;
-> diff --git a/arch/x86/kernel/kprobes/ftrace.c b/arch/x86/kernel/kprobes/ftrace.c
-> index dd2ec14adb77..c73f9ab7ff50 100644
-> --- a/arch/x86/kernel/kprobes/ftrace.c
-> +++ b/arch/x86/kernel/kprobes/ftrace.c
-> @@ -21,6 +21,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
->  	struct kprobe_ctlblk *kcb;
->  	int bit;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
->  	if (bit < 0)
->  		return;
-> diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
-> index 54d53f345d14..ba83e99c1fbe 100644
-> --- a/include/linux/ftrace.h
-> +++ b/include/linux/ftrace.h
-> @@ -399,6 +399,7 @@ int ftrace_lookup_symbols(const char **sorted_syms, size_t cnt, unsigned long *a
->  #define register_ftrace_function(ops) ({ 0; })
->  #define unregister_ftrace_function(ops) ({ 0; })
->  static inline void ftrace_kill(void) { }
-> +static inline int ftrace_is_dead(void) { return 0; }
->  static inline void ftrace_free_init_mem(void) { }
->  static inline void ftrace_free_mem(struct module *mod, void *start, void *end) { }
->  static inline int ftrace_lookup_symbols(const char **sorted_syms, size_t cnt, unsigned long *addrs)
-> @@ -914,6 +915,7 @@ static inline bool is_ftrace_trampoline(unsigned long addr)
->  
->  /* totally disable ftrace - can not re-enable after this */
->  void ftrace_kill(void);
-> +int ftrace_is_dead(void);
->  
->  static inline void tracer_disable(void)
->  {
-> -- 
-> 2.39.3
-> 
-
-
--- 
-Masami Hiramatsu (Google) <mhiramat@kernel.org>
