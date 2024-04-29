@@ -1,51 +1,53 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AF157C09E;
-	Mon, 29 Apr 2024 14:34:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 390777D414;
+	Mon, 29 Apr 2024 14:39:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714401296; cv=none; b=KgSKpOaXmBs3CWnKoutFMeNe9gHFVMxAD9/ayYMETyXuzQT8oTfIUGYDyKYfvXhL4yYtIKNJuBQ47TLIMhaRgIjjMwnGIQaLfFdqsBsQ0FyI66RftykS0WUVmTScfNqssZy9KHmIMh3RyBxENsWDrF7+olcVvD2QKe1qE4bHztI=
+	t=1714401545; cv=none; b=DeAHKoCjsN9IQIQUn5DvffyDQWURlJS/CGSOUtshRIc6UkMMABIrFw8P1XUkwVEjgVu/FXCbMeCoSu+HAb4MdhVjhc/7XpUUateLJ0ojdNP54+LyKde+oyUr36kQ0rcGqDETPYCn/t3QgvMhwDHGI2wz/lLY5y/98Thkk8pF6T4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714401296; c=relaxed/simple;
-	bh=zUpyn1o89qFVs68bNIOAc5MbuA2BtS5raoqVCeAk+Y4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=itHcmXSpiRs+OapfPQBVgpbOt6vbNizBj6LTudQOKfJjDh+PNdIErpED2IeohqnM0zW9euG2poi8uVG11TBPQBNieUM3NdjkDXziKNtxrEExdxh2xMqK9juy2sp00lZ6Pqa6grS6VnNEH5ThFUE4BMAXOLls0rUcb/eSYEZJDvs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Kmdvju6N; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1714401545; c=relaxed/simple;
+	bh=yqDFAGwQ/4bW2IO8SlK51MnqLhjG3NHRDDa/q7krM2E=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=DtTygBah01Hy8aHEcC+ShL4mcz45M+Fb8p/Oe1G4ALHJdYDKQMu3v3NsAaa81tC2XSoaEwq+eH9hSlfBpz7xEc/xoeegJE2ZvNDz7qlRVzkpOPPq/V5cVvMWuU7PaFiwzjfVm/fY7XlSox6LKWyEr9h5P0nYvYKno/lFKwItRTE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HkNXZUHO; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Kmdvju6N"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43TEYrH9013595;
-	Mon, 29 Apr 2024 14:34:53 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HkNXZUHO"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43TEcSUw021640;
+	Mon, 29 Apr 2024 14:39:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=zbWERgzpSe4fhT45WlE6zBKjb8DNyAlKjuxmxcI0OVw=;
- b=Kmdvju6N5Bz5mpnu28gtqavPYQiSwgp02cltY/RwousJwPZ7qaC3SI6r9dsetNthXF9W
- FFGY7rC5BGMswRvStGJvu90+qZEqEVQhd+ole8B1NtTZnoZoi0jdmp6tRafzslvtwlZf
- gJMdCbdyPu1Vjjv6ydl7Cbaxf3utTa8PVEjSYvNso7SX28hMWI/j7OL7a07OtV5GJOCd
- zfre50A9Wx3EzRecWHHPxipj6e4Z5yJvP/S/lZHo8k88WlbOZBUuqWCPxEu8ccvmGFpY
- pNor+09VXO4AfZ8V5/3bTx0JSsvoURH7TQkR5VDSKMR7bGPiHy0Cd2dpJwqf34/4v/U+ Tw== 
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xtdcfg0jm-1
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=Nm10ZvH55y6cuJAEAuMj5wG2OTMU7DW8ViD8a6hS5+I=;
+ b=HkNXZUHOH+Z5r5RGGuQ5ZKbwOVnEMfGQTmUSxkmRrs+/DE73+EUv79e3xxpgmtD51D0z
+ KQViWYLqkn5NCPESx6crCXooEXdBkLgtWr7BCd3sGT6FLPK8Tn1YolvF17omAskGkFBa
+ 3u7FGvAbxmejGa4ZAVzlc2b8Wdo8wEkKCOg7bM9T23KaD1LLtqTMQq4Wg/+mT3SCtEvT
+ odiptBIgCRyZhNMKrE/DzCjEP/T9lvFdNvsxJW2BpBU362crt+m2in57eiNIp4YC2y8o
+ c9XmEFuycJdy9suDQep/cODV/F1qpN13oBYIbp3SzXQJzYET9u2y46HlsQMIfM9T6wyn zA== 
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xtdfhr03d-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 29 Apr 2024 14:34:52 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43TE5oP0001440;
+	Mon, 29 Apr 2024 14:39:03 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43TCFa0x022258;
 	Mon, 29 Apr 2024 14:34:15 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xsbptr0wq-1
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xsd6mfn9a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 29 Apr 2024 14:34:15 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43TEY9HG36569440
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43TEYApu31130300
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 29 Apr 2024 14:34:11 GMT
+	Mon, 29 Apr 2024 14:34:12 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 80AE520049;
-	Mon, 29 Apr 2024 14:34:09 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0CC212004D;
+	Mon, 29 Apr 2024 14:34:10 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3FAA920040;
+	by IMSVA (Postfix) with ESMTP id CAC862004E;
 	Mon, 29 Apr 2024 14:34:09 +0000 (GMT)
 Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -55,10 +57,12 @@ To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, gerald.schaefer@linux.ibm.com,
         borntraeger@de.ibm.com
-Subject: [PATCH v4 0/2] s390/pgtable: misc small improvements
-Date: Mon, 29 Apr 2024 16:34:07 +0200
-Message-ID: <20240429143409.49892-1-imbrenda@linux.ibm.com>
+Subject: [PATCH v4 2/2] s390/pgtable: add missing hardware bits for puds, pmds
+Date: Mon, 29 Apr 2024 16:34:09 +0200
+Message-ID: <20240429143409.49892-3-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.44.0
+In-Reply-To: <20240429143409.49892-1-imbrenda@linux.ibm.com>
+References: <20240429143409.49892-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,47 +71,56 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QM_UG90wo0vEQyuKclGFtMwKYrE34PzH
-X-Proofpoint-ORIG-GUID: QM_UG90wo0vEQyuKclGFtMwKYrE34PzH
+X-Proofpoint-ORIG-GUID: 2Zna0nsdeuffqy67UB6gS6eGYhzy0dGB
+X-Proofpoint-GUID: 2Zna0nsdeuffqy67UB6gS6eGYhzy0dGB
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
  definitions=2024-04-29_12,2024-04-29_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- malwarescore=0 priorityscore=1501 spamscore=0 impostorscore=0
- clxscore=1015 suspectscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0
- mlxlogscore=664 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ bulkscore=0 adultscore=0 clxscore=1015 phishscore=0 impostorscore=0
+ lowpriorityscore=0 spamscore=0 suspectscore=0 priorityscore=1501
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2404010000 definitions=main-2404290092
 
-This series has two small improvements for the s390 page tables. they
-fix some small inconsistencies and missing things.
+Add the table type and ACCF validity bits to _SEGMENT_ENTRY_BITS and
+_SEGMENT_ENTRY_HARDWARE_BITS{,_LARGE}.
 
-The first aligns the layout of large puds with that of large pmds;
-there is no reason for the large pud read and write softbits to be
-swapped compared to large pmds.
+For completeness, introduce _REGION3_ENTRY_HARDWARE_BITS_LARGE and
+_REGION3_ENTRY_HARDWARE_BITS, containing the hardware bits used for
+large puds and normal puds.
 
-The second adds a few bits to _SEGMENT_ENTRY_BITS,
-_SEGMENT_ENTRY_HARDWARE_BITS and _SEGMENT_ENTRY_HARDWARE_BITS_LARGE;
-those bits are supposed to always be zero, the current code was working
-correctly since those bits were being ignored and always left set to
-zero. The patch also introduces _REGION3_ENTRY_HARDWARE_BITS and
-_REGION3_ENTRY_HARDWARE_BITS_LARGE, for completeness, which are the
-bitmasks of the hardware bits for normal puds and large puds.
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/include/asm/pgtable.h | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-v3->v4
-* fix order of _REGION3_ENTRY_HARDWARE_BITS* macros to be the same as
-  the _SEGMENT_ENTRY_HARDWARE_BITS* macros
-v3->v2
-* update patch description for the second patch
-v2->v1
-* add the missing pmd bits and _REGION3_ENTRY_HARDWARE_BITS
-
-Claudio Imbrenda (2):
-  s390/pgtable: switch read and write softbits for puds
-  s390/pgtable: add missing hardware bits for puds, pmds
-
- arch/s390/include/asm/pgtable.h | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
-
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 3da2995fd196..c8947ee36f1a 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -262,6 +262,8 @@ static inline int is_module_addr(void *addr)
+ #define _REGION3_ENTRY		(_REGION_ENTRY_TYPE_R3 | _REGION_ENTRY_LENGTH)
+ #define _REGION3_ENTRY_EMPTY	(_REGION_ENTRY_TYPE_R3 | _REGION_ENTRY_INVALID)
+ 
++#define _REGION3_ENTRY_HARDWARE_BITS		0xfffffffffffff6ffUL
++#define _REGION3_ENTRY_HARDWARE_BITS_LARGE	0xffffffff8001073cUL
+ #define _REGION3_ENTRY_ORIGIN_LARGE ~0x7fffffffUL /* large page address	     */
+ #define _REGION3_ENTRY_DIRTY	0x2000	/* SW region dirty bit */
+ #define _REGION3_ENTRY_YOUNG	0x1000	/* SW region young bit */
+@@ -278,9 +280,9 @@ static inline int is_module_addr(void *addr)
+ #define _REGION_ENTRY_BITS	 0xfffffffffffff22fUL
+ 
+ /* Bits in the segment table entry */
+-#define _SEGMENT_ENTRY_BITS			0xfffffffffffffe33UL
+-#define _SEGMENT_ENTRY_HARDWARE_BITS		0xfffffffffffffe30UL
+-#define _SEGMENT_ENTRY_HARDWARE_BITS_LARGE	0xfffffffffff00730UL
++#define _SEGMENT_ENTRY_BITS			0xfffffffffffffe3fUL
++#define _SEGMENT_ENTRY_HARDWARE_BITS		0xfffffffffffffe3cUL
++#define _SEGMENT_ENTRY_HARDWARE_BITS_LARGE	0xfffffffffff1073cUL
+ #define _SEGMENT_ENTRY_ORIGIN_LARGE ~0xfffffUL /* large page address	    */
+ #define _SEGMENT_ENTRY_ORIGIN	~0x7ffUL/* page table origin		    */
+ #define _SEGMENT_ENTRY_PROTECT	0x200	/* segment protection bit	    */
 -- 
 2.44.0
 
