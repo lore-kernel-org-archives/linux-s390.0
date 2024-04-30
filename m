@@ -1,113 +1,106 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67DFD12C47A;
-	Tue, 30 Apr 2024 11:35:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E636A1304BA;
+	Tue, 30 Apr 2024 11:40:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714476956; cv=none; b=jS+Ub4NMszyWxGY8+1Nw76dO1JEIXA9KrJpOVcx7QUNSLOdpUwTLvfAuZ+itFIsq1TTvZjuyKTOCBCwGKXppT2Bab9HQChCknJKgqmDTm4ubThKup/OmaoY7kj7B3iRcLSwHPPHrnnwJ1cAiQaCtlasjUKlFvXUPSnFAQrYQgF8=
+	t=1714477234; cv=none; b=Y/w7bkb1brh7whZhLxzF+9z/lRdqnNVmRoI+fPYAlc8m1WU86SYp/r+uNJxhPeg/Qq/zdB/z28bhrkfulVfV4MsKfJnAOtahlYJr8lJ2Pytu8/SQSwenr73OEjNgB2ZbUIc6hR+nu8iw1Kku/p/RzPTTZKfiITQWyYH+VMVskyU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714476956; c=relaxed/simple;
-	bh=g+cBr5orEjmAzQPCYbsMIuUiqJOlAHEMvwGH1h//IOQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JbolQhZT3aKxqfOc3rRb47o+Ecc14rFQcH30th8SaSUW0IVIlUu0dwr6TYhmhEt2OvF8iGfgt3HfzSFfuikYS0o5G8Lizj9WZlr10fCmA5VvXCrQzsRIVWggUvtEbgcRnVgTRSrDiDd+vJuoJxAHCeOFW3ME9bIia3Ub8Wx12As=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=p5MeRN+6; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1714477234; c=relaxed/simple;
+	bh=wGhItbg8hWpo6Y3Z2EUM1pYHhakVAaxuom4u9x7t8KI=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=kDYBJKHEahojEw8WBb2Q+9+Uis71z7hlHmVRpzuyzbM5fHKiAA9PpO3Esq7pyQqwGXf//rPZg4TfCbcJCxthCCGM1T4NNDMcFKHVu5ZyuBDMXgG4wIxEMcXNK5A946RUubg370/fgtRP8c9vg0AOn6Prqx11qzyE6MBxf0432Jc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qVFUyQE/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="p5MeRN+6"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43UBRLmn014950;
-	Tue, 30 Apr 2024 11:35:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Rz9uygTbqVG62LQ7p2+/PWf+aNdpv9MlmOBId+rAPVU=;
- b=p5MeRN+6BvR5gu5pdMowbZIbZUXkxcEk9rpIE2pbvx0/fWIpcpb7XIShwJ4k/k9GXKvk
- 0qne6Haivv7viZ0LolsY5bRYaFMXaly2pTRHR4Y68juVp5ZVXprTb6S265IVd5NVfcDi
- OE6Gw1RHoQN7Acm4dvMOqGfSzLCkEt4oOoV82OgPC5ndZ5Rm6m3umKArELou45t+gs+c
- EDcYRSN2wT0yKSXKOMv89BpQEyqGSkh864ntzzOm1c3CDeQF1DPRAA9mN6jQvPfS/u4k
- NShcMFi7dT3sCIL7qdjqEd5sqU3t93j3MTYnbJ6KyESOc1GTPv6LlP1Xe7ZbcsaYfJZM Bw== 
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xtysgg0pc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Apr 2024 11:35:25 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43UB79BO015592;
-	Tue, 30 Apr 2024 11:35:24 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xsed2vbtp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Apr 2024 11:35:24 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43UBZLbl15336182
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 30 Apr 2024 11:35:23 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1E18458059;
-	Tue, 30 Apr 2024 11:35:21 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7C33058055;
-	Tue, 30 Apr 2024 11:35:18 +0000 (GMT)
-Received: from [9.152.212.230] (unknown [9.152.212.230])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 30 Apr 2024 11:35:18 +0000 (GMT)
-Message-ID: <84024ec7-4689-4f68-85ce-bee9fc7b1c5c@linux.ibm.com>
-Date: Tue, 30 Apr 2024 13:35:17 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qVFUyQE/"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 5FC4BC4AF18;
+	Tue, 30 Apr 2024 11:40:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1714477233;
+	bh=wGhItbg8hWpo6Y3Z2EUM1pYHhakVAaxuom4u9x7t8KI=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=qVFUyQE/3JznSZlQI0nbEO3LrrIlBeZe29GwHTM8YX1OLe7EeXEZSekzjd6a9pOD0
+	 VQqCkugKMBc6ot7zsGdeZAMIqjdZvznS9r6CF6atMybWCz84MrHuKNxsX+Nc+w3Dsr
+	 EyYna3ZXzQqld+vxsN2EpqFUvwZ7NU5KJg9ZjztQQyOYzTAKcf/5kLy6xKWH8ZX3rF
+	 mOqoFMpV5sonHzM0fpuZoXOKZ8oBUFG0iqvPhC+lpNusGAU6LTIiwkdwCxZd6RRcPV
+	 oIBRmoDNOIyUQdToxizmr89E82ZLXWw7Tb3KNLrDj+tSWiqYiHLBgFSg0ncFygmBjq
+	 XMggzAF4KN/ag==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 4D60FC43440;
+	Tue, 30 Apr 2024 11:40:33 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH vfs.all 15/26] s390/dasd: use bdev api in dasd_format()
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: linux-s390@vger.kernel.org, jack@suse.cz, hch@lst.de, brauner@kernel.org,
-        axboe@kernel.dk, linux-fsdevel@vger.kernel.org,
-        linux-block@vger.kernel.org, yi.zhang@huawei.com, yangerkun@huawei.com,
-        yukuai3@huawei.com, Yu Kuai <yukuai1@huaweicloud.com>,
-        Eduard Shishkin <edward6@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>
-References: <20240406090930.2252838-1-yukuai1@huaweicloud.com>
- <20240406090930.2252838-16-yukuai1@huaweicloud.com>
- <20240416013555.GZ2118490@ZenIV>
- <Zh47IY7M1LQXjckX@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <ca513589-2110-45fe-95b7-5ce23487ea10@linux.ibm.com>
- <20240428185823.GW2118490@ZenIV> <20240428232349.GY2118490@ZenIV>
- <dc4325fb-d723-4d9f-adb7-7ee65a195231@linux.ibm.com>
- <20240430003036.GD2118490@ZenIV>
-Content-Language: en-US
-From: Stefan Haberland <sth@linux.ibm.com>
-In-Reply-To: <20240430003036.GD2118490@ZenIV>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -ZYTew2xQeNqA-vYR2MxqK4HBtCiky7r
-X-Proofpoint-ORIG-GUID: -ZYTew2xQeNqA-vYR2MxqK4HBtCiky7r
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
- definitions=2024-04-30_04,2024-04-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
- bulkscore=0 priorityscore=1501 impostorscore=0 mlxscore=0 malwarescore=0
- lowpriorityscore=0 suspectscore=0 spamscore=0 mlxlogscore=565 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
- definitions=main-2404300083
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v7 00/11] net/smc: SMC intra-OS shortcut with
+ loopback-ism
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <171447723331.10444.16965496844638818442.git-patchwork-notify@kernel.org>
+Date: Tue, 30 Apr 2024 11:40:33 +0000
+References: <20240428060738.60843-1-guwen@linux.alibaba.com>
+In-Reply-To: <20240428060738.60843-1-guwen@linux.alibaba.com>
+To: Wen Gu <guwen@linux.alibaba.com>
+Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ wenjia@linux.ibm.com, jaka@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org
 
-Am 30.04.24 um 02:30 schrieb Al Viro:
-> On Mon, Apr 29, 2024 at 04:41:19PM +0200, Stefan Haberland wrote:
->
->> The dasdfmt tool checks if the disk is actually in use and refuses to
->> work on an 'in use' DASD.
->> So for example a partition that was in use has to be unmounted first.
-> Hmm...  How is that check done?  Does it open device exclusive?
->
+Hello:
 
-No, it just checks the open_count gathered from the driver through 
-another ioctl.
+This series was applied to netdev/net-next.git (main)
+by Paolo Abeni <pabeni@redhat.com>:
 
-And yes, of course there is a race in this check that between gathering 
-the data
-and disabling the device it could be opened.
+On Sun, 28 Apr 2024 14:07:27 +0800 you wrote:
+> This patch set acts as the second part of the new version of [1] (The first
+> part can be referred from [2]), the updated things of this version are listed
+> at the end.
+> 
+> - Background
+> 
+> SMC-D is now used in IBM z with ISM function to optimize network interconnect
+> for intra-CPC communications. Inspired by this, we try to make SMC-D available
+> on the non-s390 architecture through a software-implemented Emulated-ISM device,
+> that is the loopback-ism device here, to accelerate inter-process or
+> inter-containers communication within the same OS instance.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next,v7,01/11] net/smc: decouple ism_client from SMC-D DMB registration
+    https://git.kernel.org/netdev/net-next/c/784c46f5467c
+  - [net-next,v7,02/11] net/smc: introduce loopback-ism for SMC intra-OS shortcut
+    https://git.kernel.org/netdev/net-next/c/46ac64419ded
+  - [net-next,v7,03/11] net/smc: implement ID-related operations of loopback-ism
+    https://git.kernel.org/netdev/net-next/c/45783ee85bf3
+  - [net-next,v7,04/11] net/smc: implement DMB-related operations of loopback-ism
+    https://git.kernel.org/netdev/net-next/c/f7a22071dbf3
+  - [net-next,v7,05/11] net/smc: mark optional smcd_ops and check for support when called
+    https://git.kernel.org/netdev/net-next/c/d1d8d0b6c7c6
+  - [net-next,v7,06/11] net/smc: ignore loopback-ism when dumping SMC-D devices
+    https://git.kernel.org/netdev/net-next/c/c8df2d449f64
+  - [net-next,v7,07/11] net/smc: register loopback-ism into SMC-D device list
+    https://git.kernel.org/netdev/net-next/c/04791343d858
+  - [net-next,v7,08/11] net/smc: add operations to merge sndbuf with peer DMB
+    https://git.kernel.org/netdev/net-next/c/439888826858
+  - [net-next,v7,09/11] net/smc: {at|de}tach sndbuf to peer DMB if supported
+    https://git.kernel.org/netdev/net-next/c/ae2be35cbed2
+  - [net-next,v7,10/11] net/smc: adapt cursor update when sndbuf and peer DMB are merged
+    https://git.kernel.org/netdev/net-next/c/cc0ab806fc52
+  - [net-next,v7,11/11] net/smc: implement DMB-merged operations of loopback-ism
+    https://git.kernel.org/netdev/net-next/c/c3a910f2380f
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
