@@ -1,152 +1,175 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FC23194C92
-	for <linux-s390@vger.kernel.org>; Tue, 30 Apr 2024 18:49:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DDEB7710B;
+	Tue, 30 Apr 2024 19:31:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714502982; cv=none; b=W2AfAZsXkpWFXWm9EqUQDR4PhEoEc3XOTLuyIJq//6MpQTGY+I2ACKl27QWLTiCYeuulD0nj4FRvFXTUOCUjdP9PTgCkdQs9exjtErRhoVnSuML00T+48iYqciQ0iJu2Kh+tkT983eNZDfyXZHe236tWpRNQFlbtpe1Bez2vp/s=
+	t=1714505478; cv=none; b=mB59+FvZdzrn9fKgZ+nxAol5XPUWd47LDyVSTdN7aGRg9Wb7kJ6jVtc6/ouFuEfWfL6TKVwq/I0L/Ommns/NKH7/TpxCXnrTLPK+MpyUM+Bkj4xP8rwMwP/0q9lPb1UPVZT3V+4VzxRO2z0uETGJsZzEItYUUvNCzh9NVsz/kOs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714502982; c=relaxed/simple;
-	bh=EokB8aqsQ9XlXisWKz+gIXK6A5fWVoC7f0dsqWjTBac=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rbHtJi/RR4l9fNqYxIS+lqT9SnRPPPj2A86h8UU7K321y0m1+gZCYr8oR3/fz00+zPvcdIK7qSTChEDMG3dxcBsmNbwhJ++fo8mtZ2gIZzDTOe+29+v/AbmQYkNTY/ryxMo9uEI4zNP7Ip5xR875zY3OBYRl6S5QgCQofQefXm0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NakN7T70; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1714505478; c=relaxed/simple;
+	bh=NCkfdFfYPyv+cxw3YGXRQCLfnck0tkHnGZpWYoan5MQ=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=b3bJP84y7PZ3v3s2tDJpTmyC5uS88FjKARvUDDHktvKFJkOjnjuI8jucSfSVcWmUYIHWzuT1c7FSMOrWRgmp5YXffCtMtjJTCXnbBV7oHJl7eXpydJyxiCaaxHmYiPhiHWuHlXVl6sq6U1KR/Av/99mnz9ti++BKc2y4EaQwYD4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FtBfdoph; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NakN7T70"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714502979;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=Qfz69FNF3QRvVYgj0UwtUm//NyFH48AvJNB/+Nb6D8Y=;
-	b=NakN7T70fbFNtPqDdBfLGe1ld1Opubmdmv6bDt1cgJxW2Z/54hzOoMwV2UHvAHSTNs0Z/K
-	MSUr6sSmXUJ/0vh/b3oUp/Hlie8Bzxexs3uEsWuKIWM7jB5+zWYqLvVQMf9imwsl+dbnLd
-	CWnJwYojdELdDnZkczlKX6yF7Xv8ydw=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-639-XkoxJ4gaPey2oc_q_OlrXQ-1; Tue, 30 Apr 2024 14:49:34 -0400
-X-MC-Unique: XkoxJ4gaPey2oc_q_OlrXQ-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-41c095d5b07so13403465e9.2
-        for <linux-s390@vger.kernel.org>; Tue, 30 Apr 2024 11:49:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714502973; x=1715107773;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Qfz69FNF3QRvVYgj0UwtUm//NyFH48AvJNB/+Nb6D8Y=;
-        b=nxci7IPFSrL0XfBPPt32VnbSrdPMU39wFNqqd4V9LeYuA16500xwkSVIOQJVMMP4X1
-         jhPrUCAVW4nLGShIU5NRw7iRFyExXdXJZ8WmHKZibNUG1u5mnIGwnS128EwiPG6RvzS+
-         9tv25wAHosOE2HG8qfQYS65LRxGbD7jMiCWQOQ6GlXf2AmBPg0ZTVcZYlq9g2KJolBkR
-         81OoInE2imiYTuLI4Mo0esDmvg9EBs00wHnqI1ppwFyCNoz6VYRN+V+C8l8sMjbhyKew
-         hO9RONyf7K8NTCieE+wFi+LZ8LtqCjIjlpzQrROjhLOi0J/S4C4r2oWVrap7Nrf4isrc
-         uLZg==
-X-Forwarded-Encrypted: i=1; AJvYcCXw1hmeGIde4o7oStrxT76WCQ9QhOxq0hcHvwHXXuJux/+23ViJdcuRoYZoTS9SEVZcs9WGAUBj5KrHzaiuQBrUqlj90EjioovEtw==
-X-Gm-Message-State: AOJu0YydKA5Ft1O4SLv6tu7Lbc4OCk0J2WlJ2VJ3Uf+Ni+0/7D1tva6i
-	caFGeCsJARUKN2Slj5qek/tEC8euiSdMkWCnW88RULs1ftMEcaR6NlCmxDxSKGYs3/gS+osJzYR
-	9t1u3EoJUsjhcrwv0YyKSmH51qGmtTtp7JZ6PI+47nCnntFlGIAuA87fjoKE=
-X-Received: by 2002:a05:600c:a46:b0:418:fd27:692 with SMTP id c6-20020a05600c0a4600b00418fd270692mr279726wmq.14.1714502973735;
-        Tue, 30 Apr 2024 11:49:33 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFtv+iFHHId6nLFHEu3MtX/5V5u/gZtD6mgrFVt8qSZNtHT0ztHDzVrQD1olm74qMQBnGjjCA==
-X-Received: by 2002:a05:600c:a46:b0:418:fd27:692 with SMTP id c6-20020a05600c0a4600b00418fd270692mr279715wmq.14.1714502973308;
-        Tue, 30 Apr 2024 11:49:33 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c707:3d00:d57f:b4c9:850e:d0b8? (p200300cbc7073d00d57fb4c9850ed0b8.dip0.t-ipconnect.de. [2003:cb:c707:3d00:d57f:b4c9:850e:d0b8])
-        by smtp.gmail.com with ESMTPSA id k6-20020a5d6286000000b0034c124b80f7sm14230030wru.61.2024.04.30.11.49.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 30 Apr 2024 11:49:32 -0700 (PDT)
-Message-ID: <f53a87ed-c3fe-4a60-8723-3eea25189553@redhat.com>
-Date: Tue, 30 Apr 2024 20:49:31 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FtBfdoph"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43UJSXHM012934;
+	Tue, 30 Apr 2024 19:31:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=NCkfdFfYPyv+cxw3YGXRQCLfnck0tkHnGZpWYoan5MQ=;
+ b=FtBfdophn3v5VnKFI58xajgjWC6nphVsubfh3Yq0lHKX/IZPcPQzbvzTKKjKjMCSApUF
+ 1CrJ2iBRGbNwUaPeiDwYXVo+j2tmXokBNdnLFKxdg+tQpeupbADaoFA+vSgxJoAtiocw
+ qFbjpGlsGYLHDxkGbKGak6yES2Hm5b0+UZNSXy3hQ8bFhh5xi4TVb5HDlQHvZxW3Trc6
+ 0SB1+OziqXJ4PzWdXN+tX5oYvDRjRxf3lJY527ZASPUXZfaM6w01z8pCKhAxlyRy8Z3A
+ Y5F60CPlFaLTXQ3Xz+LeO1gScYBiT4bLzuutL1le6dSfmmjWAgSe1AQVG0nfM9qyXvC+ eA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xu6tx804h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 30 Apr 2024 19:31:14 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43UJVE7X016586;
+	Tue, 30 Apr 2024 19:31:14 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xu6tx804f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 30 Apr 2024 19:31:13 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43UGnd0O002989;
+	Tue, 30 Apr 2024 19:31:13 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xscppet9n-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 30 Apr 2024 19:31:13 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43UJVA4t36766094
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 30 Apr 2024 19:31:12 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DD0805806D;
+	Tue, 30 Apr 2024 19:31:08 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1FC0858070;
+	Tue, 30 Apr 2024 19:31:08 +0000 (GMT)
+Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.85.173])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 30 Apr 2024 19:31:08 +0000 (GMT)
+Message-ID: <0cfe41f08d89481125ddc1f0087af6bd6bcd1b39.camel@linux.ibm.com>
+Subject: Re: [PATCH] KVM: s390: vsie: retry SIE instruction on host
+ intercepts
+From: Eric Farman <farman@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        David Hildenbrand
+ <david@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda
+ <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens
+	 <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+	 <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Date: Tue, 30 Apr 2024 15:31:07 -0400
+In-Reply-To: <dceeac23-0c58-4c78-850a-d09e7b45d6e8@linux.ibm.com>
+References: <20240301204342.3217540-1-farman@linux.ibm.com>
+	 <338544a6-4838-4eeb-b1b2-2faa6c11c1be@redhat.com>
+	 <1deb0e32-7351-45d2-a342-96a659402be8@linux.ibm.com>
+	 <8fbd41c0fb16a5e10401f6c2888d44084e9af86a.camel@linux.ibm.com>
+	 <dceeac23-0c58-4c78-850a-d09e7b45d6e8@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 00/10] s390: PG_arch_1+folio cleanups for uv+hugetlb
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Matthew Wilcox <willy@infradead.org>, Thomas Huth <thuth@redhat.com>
-References: <20240412142120.220087-1-david@redhat.com>
-Content-Language: en-US
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20240412142120.220087-1-david@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: uDnnbdN_dTEFkyRZhTcmu8ADGFKDn_5c
+X-Proofpoint-ORIG-GUID: ly8BUBbMSAWihqa4Zm65oKhVkATqD_f3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-04-30_12,2024-04-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ malwarescore=0 suspectscore=0 priorityscore=1501 spamscore=0
+ lowpriorityscore=0 clxscore=1011 impostorscore=0 mlxlogscore=398
+ phishscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404300139
 
-On 12.04.24 16:21, David Hildenbrand wrote:
-> This is v2 of [1] with changed subject:
->   "[PATCH v1 0/5] s390: page_mapcount(), page_has_private() and PG_arch_1"
-> 
-> Rebased on s390x/features which contains the page_mapcount() and
-> page_has_private() cleanups, and some PG_arch_1 cleanups from Willy. To
-> compensate, I added some more cleanups ;)
-> 
-> One "easy" fix upfront. Another issue I spotted is documented in [1].
-> 
-> Once this hits upstream, we can remove HAVE_ARCH_MAKE_PAGE_ACCESSIBLE
-> from core-mm and s390x, so only the folio variant will remain.
+On Mon, 2024-04-29 at 12:18 +0200, Christian Borntraeger wrote:
+> Am 04.03.24 um 16:37 schrieb Eric Farman:
+> > On Mon, 2024-03-04 at 09:44 +0100, Christian Borntraeger wrote:
+> > >=20
+> > >=20
+> > > Am 04.03.24 um 09:35 schrieb David Hildenbrand:
+> > > > On 01.03.24 21:43, Eric Farman wrote:
+> > > > > It's possible that SIE exits for work that the host needs to
+> > > > > perform
+> > > > > rather than something that is intended for the guest.
+> > > > >=20
+> > > > > A Linux guest will ignore this intercept code since there is
+> > > > > nothing
+> > > > > for it to do, but a more robust solution would rewind the PSW
+> > > > > back to
+> > > > > the SIE instruction. This will transparently resume the guest
+> > > > > once
+> > > > > the host completes its work, without the guest needing to
+> > > > > process
+> > > > > what is effectively a NOP and re-issue SIE itself.
+> > > >=20
+> > > > I recall that 0-intercepts are valid by the architecture.
+> > > > Further,
+> > > > I recall that there were some rather tricky corner cases where
+> > > > avoiding 0-intercepts would not be that easy.
+> >=20
+> > Any chance you recall any details of those corner cases? I can try
+> > to
+> > chase some of them down.
+> >=20
+> > > >=20
+> > > > Now, it's been a while ago, and maybe I misremember. SoI'm
+> > > > trusting
+> > > > people with access to documentation can review this.
+> > >=20
+> > > Yes, 0-intercepts are allowed, and this also happens when LPAR
+> > > has an
+> > > exit.
+> >=20
+> > =C2=A0From an offline conversation I'd had some months back:
+> >=20
+> > """
+> > The arch does allow ICODE=3D0 to be stored, but it's supposed to
+> > happen
+> > only upon a host interruption -- in which case the old PSW is
+> > supposed
+> > to point back at the SIE, to resume guest execution if the host
+> > should
+> > LPSW oldPSW.
+> > """
+>=20
+> Just re-read the architecture again and I agree, the SIE instruction
+> should
+> be nullified. So we should go forward with this somehow.
+>=20
+> Eric, can you maybe add this to devel for CI coverage so that we see
+> if there
+> are corner cases?=C2=A0
 
-Ping.
+Sure thing.
 
--- 
-Cheers,
+> Maybe also try to do some performance things (how many IPIs
+> can we get in guest2 when a guest3 is running and how many IPIs are
+> possible
+> in a guest3).
+>=20
 
-David / dhildenb
-
+Fair enough. I'll see if I can come up with something and report back
+here.
