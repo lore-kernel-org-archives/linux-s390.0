@@ -1,265 +1,225 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09B8C1113;
-	Tue, 30 Apr 2024 01:28:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB0B73BBE3;
+	Tue, 30 Apr 2024 08:16:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.255
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714440538; cv=none; b=dPjJI4US6isk3P2MZiCIL40osGc7bVMsM36IKUtXWXzyv/fhudv8ZWgIkTGmQm7rBVjtsgVmilHTEx5zrfttFl42ZIyyHMJfu382qor/w3W1CFpNxpLESzQAfj9TwKsjzg+zv833GsvEVbfkenvI4YW3j1EIElXvVFBFJt79/GM=
+	t=1714464974; cv=none; b=hhO8qIoMWZNXGGtoN5wu2ucp620edqbvoQh2C03WkTqZY66Tbu+ox/5jRVyEzLxQvw4A096lTRRlRK1E0KJ/YqwphUrZLbfFt6qDsPdnFYifHWGlX0B0lS+NFbYyd/IMDzS2hg0KSHhx9XYJ4JhntYPBB+DrVSSRR+Zvuj7OtoE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714440538; c=relaxed/simple;
-	bh=vZXZGGfngFJ0WNpbRcyE+hTiMjoBmt228mDRlue9Ap0=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=kEXeHfGhDJy7ZrtOkmmoXmKADBQpErLp6HLhdWo58PQJqSHJqEkGVSKTuIFAfExDzLie3BnTVanY9vgCHDm3K+8tTmcNjMwEgCZrsU8Puxth9veHNGG1ya1CiGOtVOguVUrIRCsU48aoYLnH2++c+wd7S+suINNqTpLUyqzZ6dI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16B6AC116B1;
-	Tue, 30 Apr 2024 01:28:53 +0000 (UTC)
-Date: Mon, 29 Apr 2024 21:29:33 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Stephen Brennan <stephen.s.brennan@oracle.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>, Mark Rutland
- <mark.rutland@arm.com>, Guo Ren <guoren@kernel.org>, Huacai Chen
- <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, "James E.J.
- Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller
- <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin
- <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, "Naveen N. Rao"
- <naveen.n.rao@linux.ibm.com>, Paul Walmsley <paul.walmsley@sifive.com>,
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas
- Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav
- Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2] kprobe/ftrace: bail out if ftrace was killed
-Message-ID: <20240429212933.327aae6e@gandalf.local.home>
-In-Reply-To: <20240429174718.1347900-1-stephen.s.brennan@oracle.com>
-References: <20240426225834.993353-1-stephen.s.brennan@oracle.com>
-	<20240429174718.1347900-1-stephen.s.brennan@oracle.com>
-X-Mailer: Claws Mail 3.19.1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1714464974; c=relaxed/simple;
+	bh=HDyM3m3TGv9X/zHy050CdrWlgb3mJGwItrwS0q5WZZk=;
+	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=AXXhcfd5uEfAeECF88WBtOcls3fvC5yBzHfKeBK37jVvg/AgRkSgUJ18gDkRXv2V2FTqVs1EnSZX2wrOUn2bhK5+/NA1i7JMGv66a/VyxH/NxfoW8J7F41BHt+qxN13K38NlpNnTQz9YD38wToY1NL7sfyW5N8Aj91xiHJr1ym4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.255
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.252])
+	by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4VTCcT1VXBz1R9sK;
+	Tue, 30 Apr 2024 16:12:57 +0800 (CST)
+Received: from kwepemm600005.china.huawei.com (unknown [7.193.23.191])
+	by mail.maildlp.com (Postfix) with ESMTPS id 6538A180A9C;
+	Tue, 30 Apr 2024 16:16:06 +0800 (CST)
+Received: from [10.67.121.110] (10.67.121.110) by
+ kwepemm600005.china.huawei.com (7.193.23.191) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Tue, 30 Apr 2024 16:16:05 +0800
+Subject: Re: [PATCH v3 1/3] vfio/pci: Extract duplicated code into macro
+To: Alex Williamson <alex.williamson@redhat.com>, Jason Gunthorpe
+	<jgg@ziepe.ca>
+CC: Gerd Bayer <gbayer@linux.ibm.com>, Niklas Schnelle
+	<schnelle@linux.ibm.com>, <kvm@vger.kernel.org>,
+	<linux-s390@vger.kernel.org>, Ankit Agrawal <ankita@nvidia.com>, Yishai Hadas
+	<yishaih@nvidia.com>, Halil Pasic <pasic@linux.ibm.com>, Julian Ruess
+	<julianr@linux.ibm.com>
+References: <20240425165604.899447-1-gbayer@linux.ibm.com>
+ <20240425165604.899447-2-gbayer@linux.ibm.com>
+ <20240429200910.GQ231144@ziepe.ca>
+ <20240429161103.655b4010.alex.williamson@redhat.com>
+From: liulongfang <liulongfang@huawei.com>
+Message-ID: <8c1cb908-1de8-eac6-7afa-7495b23a7fe9@huawei.com>
+Date: Tue, 30 Apr 2024 16:16:05 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20240429161103.655b4010.alex.williamson@redhat.com>
+Content-Type: text/plain; charset="gbk"
 Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ kwepemm600005.china.huawei.com (7.193.23.191)
 
-On Mon, 29 Apr 2024 10:47:18 -0700
-Stephen Brennan <stephen.s.brennan@oracle.com> wrote:
-
-> If an error happens in ftrace, ftrace_kill() will prevent disarming
-> kprobes. Eventually, the ftrace_ops associated with the kprobes will be
-> freed, yet the kprobes will still be active, and when triggered, they
-> will use the freed memory, likely resulting in a page fault and panic.
+On 2024/4/30 6:11, Alex Williamson wrote:
+> On Mon, 29 Apr 2024 17:09:10 -0300
+> Jason Gunthorpe <jgg@ziepe.ca> wrote:
 > 
-> This behavior can be reproduced quite easily, by creating a kprobe and
-> then triggering a ftrace_kill(). For simplicity, we can simulate an
-> ftrace error with a kernel module like [1]:
+>> On Thu, Apr 25, 2024 at 06:56:02PM +0200, Gerd Bayer wrote:
+>>> vfio_pci_core_do_io_rw() repeats the same code for multiple access
+>>> widths. Factor this out into a macro
+>>>
+>>> Suggested-by: Alex Williamson <alex.williamson@redhat.com>
+>>> Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+>>> ---
+>>>  drivers/vfio/pci/vfio_pci_rdwr.c | 106 ++++++++++++++-----------------
+>>>  1 file changed, 46 insertions(+), 60 deletions(-)
+>>>
+>>> diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
+>>> index 03b8f7ada1ac..3335f1b868b1 100644
+>>> --- a/drivers/vfio/pci/vfio_pci_rdwr.c
+>>> +++ b/drivers/vfio/pci/vfio_pci_rdwr.c
+>>> @@ -90,6 +90,40 @@ VFIO_IOREAD(8)
+>>>  VFIO_IOREAD(16)
+>>>  VFIO_IOREAD(32)
+>>>  
+>>> +#define VFIO_IORDWR(size)						\
+>>> +static int vfio_pci_core_iordwr##size(struct vfio_pci_core_device *vdev,\
+>>> +				bool iswrite, bool test_mem,		\
+>>> +				void __iomem *io, char __user *buf,	\
+>>> +				loff_t off, size_t *filled)		\
+>>> +{									\
+>>> +	u##size val;							\
+>>> +	int ret;							\
+>>> +									\
+>>> +	if (iswrite) {							\
+>>> +		if (copy_from_user(&val, buf, sizeof(val)))		\
+>>> +			return -EFAULT;					\
+>>> +									\
+>>> +		ret = vfio_pci_core_iowrite##size(vdev, test_mem,	\
+>>> +						  val, io + off);	\
+>>> +		if (ret)						\
+>>> +			return ret;					\
+>>> +	} else {							\
+>>> +		ret = vfio_pci_core_ioread##size(vdev, test_mem,	\
+>>> +						 &val, io + off);	\
+>>> +		if (ret)						\
+>>> +			return ret;					\
+>>> +									\
+>>> +		if (copy_to_user(buf, &val, sizeof(val)))		\
+>>> +			return -EFAULT;					\
+>>> +	}								\
+>>> +									\
+>>> +	*filled = sizeof(val);						\
+>>> +	return 0;							\
+>>> +}									\
+>>> +
+>>> +VFIO_IORDWR(8)
+>>> +VFIO_IORDWR(16)
+>>> +VFIO_IORDWR(32)  
+>>
+>> I'd suggest to try writing this without so many macros.
+>>
+>> This isn't very performance optimal already, we take a lock on every
+>> iteration, so there isn't much point in inlining multiple copies of
+>> everything to save an branch.
 > 
-> [1]: https://github.com/brenns10/kernel_stuff/tree/master/ftrace_killer
+> These macros are to reduce duplicate code blocks and the errors that
+
+Although simple and straightforward writing will result in more lines of code.
+But it's not easy to squeeze in "extra" code.
+The backdoor of "XZ Utils" is implanted through code complication.
+
+Thanks.
+Longfang.
+
+> typically come from such duplication, as well as to provide type safe
+> functions in the spirit of the ioread# and iowrite# helpers.  It really
+> has nothing to do with, nor is it remotely effective at saving a branch.
+> Thanks,
 > 
->   sudo perf probe --add commit_creds
->   sudo perf trace -e probe:commit_creds
->   # In another terminal
->   make
->   sudo insmod ftrace_killer.ko  # calls ftrace_kill(), simulating bug
->   # Back to perf terminal
->   # ctrl-c
->   sudo perf probe --del commit_creds
+> Alex
 > 
-> After a short period, a page fault and panic would occur as the kprobe
-> continues to execute and uses the freed ftrace_ops. While ftrace_kill()
-> is supposed to be used only in extreme circumstances, it is invoked in
-> FTRACE_WARN_ON() and so there are many places where an unexpected bug
-> could be triggered, yet the system may continue operating, possibly
-> without the administrator noticing. If ftrace_kill() does not panic the
-> system, then we should do everything we can to continue operating,
-> rather than leave a ticking time bomb.
+>> Push the sizing switch down to the bottom, start with a function like:
+>>
+>> static void __iowrite(const void *val, void __iomem *io, size_t len)
+>> {
+>> 	switch (len) {
+>> 	case 8: {
+>> #ifdef iowrite64 // NOTE this doesn't seem to work on x86?
+>> 		if (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
+>> 			return iowrite64be(*(const u64 *)val, io);
+>> 		return iowrite64(*(const u64 *)val, io);
+>> #else
+>> 		if (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN)) {
+>> 			iowrite32be(*(const u32 *)val, io);
+>> 			iowrite32be(*(const u32 *)(val + 4), io + 4);
+>> 		} else {
+>> 			iowrite32(*(const u32 *)val, io);
+>> 			iowrite32(*(const u32 *)(val + 4), io + 4);
+>> 		}
+>> 		return;
+>> #endif
+>> 	}
+>>
+>> 	case 4:
+>> 		if (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
+>> 			return iowrite32be(*(const u32 *)val, io);
+>> 		return iowrite32(*(const u32 *)val, io);
+>> 	case 2:
+>> 		if (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
+>> 			return iowrite16be(*(const u16 *)val, io);
+>> 		return iowrite16(*(const u16 *)val, io);
+>>
+>> 	case 1:
+>> 		return iowrite8(*(const u8 *)val, io);
+>> 	}
+>> }
+>>
+>> And then wrap it with the copy and the lock:
+>>
+>> static int do_iordwr(struct vfio_pci_core_device *vdev, bool test_mem,
+>> 		     const void __user *buf, void __iomem *io, size_t len,
+>> 		     bool iswrite)
+>> {
+>> 	u64 val;
+>>
+>> 	if (iswrite && copy_from_user(&val, buf, len))
+>> 		return -EFAULT;
+>>
+>> 	if (test_mem) {
+>> 		down_read(&vdev->memory_lock);
+>> 		if (!__vfio_pci_memory_enabled(vdev)) {
+>> 			up_read(&vdev->memory_lock);
+>> 			return -EIO;
+>> 		}
+>> 	}
+>>
+>> 	if (iswrite)
+>> 		__iowrite(&val, io, len);
+>> 	else
+>> 		__ioread(&val, io, len);
+>>
+>> 	if (test_mem)
+>> 		up_read(&vdev->memory_lock);
+>>
+>> 	if (!iswrite && copy_to_user(buf, &val, len))
+>> 		return -EFAULT;
+>>
+>> 	return 0;
+>> }
+>>
+>> And then the loop can be simple:
+>>
+>> 		if (fillable) {
+>> 			filled = num_bytes(fillable, off);
+>> 			ret = do_iordwr(vdev, test_mem, buf, io + off, filled,
+>> 					iswrite);
+>> 			if (ret)
+>> 				return ret;
+>> 		} else {
+>> 			filled = min(count, (size_t)(x_end - off));
+>> 			/* Fill reads with -1, drop writes */
+>> 			ret = fill_err(buf, filled);
+>> 			if (ret)
+>> 				return ret;
+>> 		}
+>>
+>> Jason
+>>
 > 
-> Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
-> ---
-> Difference from v1: removed both existing declarations of ftrace_is_dead()
-> from kernel/trace/trace.h.
 > 
->  arch/csky/kernel/probes/ftrace.c     | 3 +++
->  arch/loongarch/kernel/ftrace_dyn.c   | 3 +++
->  arch/parisc/kernel/ftrace.c          | 3 +++
->  arch/powerpc/kernel/kprobes-ftrace.c | 3 +++
->  arch/riscv/kernel/probes/ftrace.c    | 3 +++
->  arch/s390/kernel/ftrace.c            | 3 +++
->  arch/x86/kernel/kprobes/ftrace.c     | 3 +++
->  include/linux/ftrace.h               | 2 ++
->  kernel/trace/trace.h                 | 2 --
->  9 files changed, 23 insertions(+), 2 deletions(-)
+> .
 > 
-> diff --git a/arch/csky/kernel/probes/ftrace.c b/arch/csky/kernel/probes/ftrace.c
-> index 834cffcfbce3..3931bf9f707b 100644
-> --- a/arch/csky/kernel/probes/ftrace.c
-> +++ b/arch/csky/kernel/probes/ftrace.c
-> @@ -12,6 +12,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
->  	struct kprobe_ctlblk *kcb;
->  	struct pt_regs *regs;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
->  	if (bit < 0)
->  		return;
-> diff --git a/arch/loongarch/kernel/ftrace_dyn.c b/arch/loongarch/kernel/ftrace_dyn.c
-> index 73858c9029cc..82c952cb5be0 100644
-> --- a/arch/loongarch/kernel/ftrace_dyn.c
-> +++ b/arch/loongarch/kernel/ftrace_dyn.c
-> @@ -287,6 +287,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
->  	struct kprobe *p;
->  	struct kprobe_ctlblk *kcb;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
->  	if (bit < 0)
->  		return;
-> diff --git a/arch/parisc/kernel/ftrace.c b/arch/parisc/kernel/ftrace.c
-> index 621a4b386ae4..3660834f54c3 100644
-> --- a/arch/parisc/kernel/ftrace.c
-> +++ b/arch/parisc/kernel/ftrace.c
-> @@ -206,6 +206,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
->  	struct kprobe *p;
->  	int bit;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
->  	if (bit < 0)
->  		return;
-> diff --git a/arch/powerpc/kernel/kprobes-ftrace.c b/arch/powerpc/kernel/kprobes-ftrace.c
-> index 072ebe7f290b..85eb55aa1457 100644
-> --- a/arch/powerpc/kernel/kprobes-ftrace.c
-> +++ b/arch/powerpc/kernel/kprobes-ftrace.c
-> @@ -21,6 +21,9 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
->  	struct pt_regs *regs;
->  	int bit;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(nip, parent_nip);
->  	if (bit < 0)
->  		return;
-> diff --git a/arch/riscv/kernel/probes/ftrace.c b/arch/riscv/kernel/probes/ftrace.c
-> index 7142ec42e889..8814fbe4c888 100644
-> --- a/arch/riscv/kernel/probes/ftrace.c
-> +++ b/arch/riscv/kernel/probes/ftrace.c
-> @@ -11,6 +11,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
->  	struct kprobe_ctlblk *kcb;
->  	int bit;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
->  	if (bit < 0)
->  		return;
-> diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
-> index c46381ea04ec..ccbe8ccf945b 100644
-> --- a/arch/s390/kernel/ftrace.c
-> +++ b/arch/s390/kernel/ftrace.c
-> @@ -296,6 +296,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
->  	struct kprobe *p;
->  	int bit;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
->  	if (bit < 0)
->  		return;
-> diff --git a/arch/x86/kernel/kprobes/ftrace.c b/arch/x86/kernel/kprobes/ftrace.c
-> index dd2ec14adb77..c73f9ab7ff50 100644
-> --- a/arch/x86/kernel/kprobes/ftrace.c
-> +++ b/arch/x86/kernel/kprobes/ftrace.c
-> @@ -21,6 +21,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
->  	struct kprobe_ctlblk *kcb;
->  	int bit;
->  
-> +	if (unlikely(ftrace_is_dead()))
-> +		return;
-> +
->  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
->  	if (bit < 0)
->  		return;
-> diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
-> index 54d53f345d14..ba83e99c1fbe 100644
-> --- a/include/linux/ftrace.h
-> +++ b/include/linux/ftrace.h
-> @@ -399,6 +399,7 @@ int ftrace_lookup_symbols(const char **sorted_syms, size_t cnt, unsigned long *a
->  #define register_ftrace_function(ops) ({ 0; })
->  #define unregister_ftrace_function(ops) ({ 0; })
->  static inline void ftrace_kill(void) { }
-> +static inline int ftrace_is_dead(void) { return 0; }
->  static inline void ftrace_free_init_mem(void) { }
->  static inline void ftrace_free_mem(struct module *mod, void *start, void *end) { }
->  static inline int ftrace_lookup_symbols(const char **sorted_syms, size_t cnt, unsigned long *addrs)
-> @@ -914,6 +915,7 @@ static inline bool is_ftrace_trampoline(unsigned long addr)
->  
->  /* totally disable ftrace - can not re-enable after this */
->  void ftrace_kill(void);
-> +int ftrace_is_dead(void);
->  
->  static inline void tracer_disable(void)
->  {
-> diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
-> index 64450615ca0c..70a37ee41813 100644
-> --- a/kernel/trace/trace.h
-> +++ b/kernel/trace/trace.h
-> @@ -1026,7 +1026,6 @@ static inline int ftrace_trace_task(struct trace_array *tr)
->  	return this_cpu_read(tr->array_buffer.data->ftrace_ignore_pid) !=
->  		FTRACE_PID_IGNORE;
->  }
-> -extern int ftrace_is_dead(void);
-
-Honestly I rather not expose this function outside of the tracing
-infrastructure. Instead, we should have a kprobe_ftrace_kill() function,
-and have ftrace_kill() call that.
-
-Then kprobe_ftrace_kill() can set its own variable that is exposed to all
-these functions and they can test that instead of adding the extra overhead
-in the fast path of a function call to ftrace_is_dead()
-
-extern bool kprobes_ftrace_disabled __read_mostly;
-
-void kprobe_ftrace_kill(void)
-{
-	kprobes_ftrace_disabled = true;
-}
-
-And you can then replace all these with:
-
-	if (kprobes_ftrace_disabled)
-		return;
-
-Which is faster.
-
--- Steve
-
->  int ftrace_create_function_files(struct trace_array *tr,
->  				 struct dentry *parent);
->  void ftrace_destroy_function_files(struct trace_array *tr);
-> @@ -1046,7 +1045,6 @@ static inline int ftrace_trace_task(struct trace_array *tr)
->  {
->  	return 1;
->  }
-> -static inline int ftrace_is_dead(void) { return 0; }
->  static inline int
->  ftrace_create_function_files(struct trace_array *tr,
->  			     struct dentry *parent)
-
