@@ -1,106 +1,92 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E636A1304BA;
-	Tue, 30 Apr 2024 11:40:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAB1712CD90;
+	Tue, 30 Apr 2024 11:46:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714477234; cv=none; b=Y/w7bkb1brh7whZhLxzF+9z/lRdqnNVmRoI+fPYAlc8m1WU86SYp/r+uNJxhPeg/Qq/zdB/z28bhrkfulVfV4MsKfJnAOtahlYJr8lJ2Pytu8/SQSwenr73OEjNgB2ZbUIc6hR+nu8iw1Kku/p/RzPTTZKfiITQWyYH+VMVskyU=
+	t=1714477581; cv=none; b=mjjhq82kq7lmt/f6TEwKqEsHakX/EqZJYxoUnFGnBkSL4xYwYtcdQjBy8DUDpEFaXxFPmepym1U89os9YsEtS4nPyCzfWgqLEd37OUAglyb6taaHP9G62b+IbcH5pZ8vpKUHp6PIB4JF79C30OTf2LHIiDR+UmDhanqUDoviDIw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714477234; c=relaxed/simple;
-	bh=wGhItbg8hWpo6Y3Z2EUM1pYHhakVAaxuom4u9x7t8KI=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=kDYBJKHEahojEw8WBb2Q+9+Uis71z7hlHmVRpzuyzbM5fHKiAA9PpO3Esq7pyQqwGXf//rPZg4TfCbcJCxthCCGM1T4NNDMcFKHVu5ZyuBDMXgG4wIxEMcXNK5A946RUubg370/fgtRP8c9vg0AOn6Prqx11qzyE6MBxf0432Jc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qVFUyQE/; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1714477581; c=relaxed/simple;
+	bh=fNYJN9v/aw6h3Dg5grO4fn4gIASAmBjbnxWMvirxUaY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VKuhOmP3gm5lFSlZvG+EczLRdeaA/aHmfTdvifc+/TB3nlqP/I7I3TrU8YKoQO3b/wLz/vHe0FjLZJ0KO7dhJy/pU2xXKnj5lMIQlmcXa6seaUMqZPVNs6RyFQ3o1kUfL8XoEaHgm5lJNrLuF6ALJ7GvHj63j2YExVP7P4l9rUE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pARSUFY2; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qVFUyQE/"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 5FC4BC4AF18;
-	Tue, 30 Apr 2024 11:40:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714477233;
-	bh=wGhItbg8hWpo6Y3Z2EUM1pYHhakVAaxuom4u9x7t8KI=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=qVFUyQE/3JznSZlQI0nbEO3LrrIlBeZe29GwHTM8YX1OLe7EeXEZSekzjd6a9pOD0
-	 VQqCkugKMBc6ot7zsGdeZAMIqjdZvznS9r6CF6atMybWCz84MrHuKNxsX+Nc+w3Dsr
-	 EyYna3ZXzQqld+vxsN2EpqFUvwZ7NU5KJg9ZjztQQyOYzTAKcf/5kLy6xKWH8ZX3rF
-	 mOqoFMpV5sonHzM0fpuZoXOKZ8oBUFG0iqvPhC+lpNusGAU6LTIiwkdwCxZd6RRcPV
-	 oIBRmoDNOIyUQdToxizmr89E82ZLXWw7Tb3KNLrDj+tSWiqYiHLBgFSg0ncFygmBjq
-	 XMggzAF4KN/ag==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 4D60FC43440;
-	Tue, 30 Apr 2024 11:40:33 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pARSUFY2"
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43UBbERo014914;
+	Tue, 30 Apr 2024 11:46:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=nOAEiljfgjz9j9RXSmVo3QnxjiAkMgDefh4MrN+YCBA=;
+ b=pARSUFY2r1HnHlXC1h4FwLp41lGEW2tolpgDyCW7/AxnmSlvq0sm8J9pwj/uEAsheal8
+ IYwNd+fOQUMi+tmcD4hkSKFSkRkVDmQJAknkjmzZRjnIN7fPRz284BCLzEjDZC0yNUjB
+ 8UN1z1ICZJSAltMFGQx4T8nf6LDy5PqEhvMjUqE6wZtqfMDg/deosL3EltF1HezZ4lwZ
+ 5/5nidjJDnwyB7R7LcpSeAoDynCryDRUM2x/o2EhXyfyhX4gQ1J9hxyX4awXmVgKBfNk
+ Xv0QsULP+YI4BtQrTIzd2C6Wg7bIPMYRJBG18Hx3LJkZpG4t++inOHweFh7F4akHFHA+ EQ== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xtyqkg1sg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 30 Apr 2024 11:46:18 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43U94IZA027556;
+	Tue, 30 Apr 2024 11:46:17 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xsc30cy1f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 30 Apr 2024 11:46:17 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43UBkBcA50725184
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 30 Apr 2024 11:46:13 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B5C8320040;
+	Tue, 30 Apr 2024 11:46:11 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7D1C62004B;
+	Tue, 30 Apr 2024 11:46:11 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 30 Apr 2024 11:46:11 +0000 (GMT)
+Date: Tue, 30 Apr 2024 13:46:10 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        hca@linux.ibm.com, gor@linux.ibm.com, svens@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, borntraeger@de.ibm.com
+Subject: Re: [PATCH v4 0/2] s390/pgtable: misc small improvements
+Message-ID: <ZjDaAgfmPFPuHnaF@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240429143409.49892-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v7 00/11] net/smc: SMC intra-OS shortcut with
- loopback-ism
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <171447723331.10444.16965496844638818442.git-patchwork-notify@kernel.org>
-Date: Tue, 30 Apr 2024 11:40:33 +0000
-References: <20240428060738.60843-1-guwen@linux.alibaba.com>
-In-Reply-To: <20240428060738.60843-1-guwen@linux.alibaba.com>
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- wenjia@linux.ibm.com, jaka@linux.ibm.com, borntraeger@linux.ibm.com,
- svens@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240429143409.49892-1-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: aaJHfBlvIXgbh988kWOX7GsN7BsUvKFv
+X-Proofpoint-ORIG-GUID: aaJHfBlvIXgbh988kWOX7GsN7BsUvKFv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-04-30_04,2024-04-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 suspectscore=0
+ malwarescore=0 clxscore=1015 phishscore=0 mlxlogscore=612
+ priorityscore=1501 impostorscore=0 mlxscore=0 bulkscore=0
+ lowpriorityscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2404010000 definitions=main-2404300084
 
-Hello:
-
-This series was applied to netdev/net-next.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
-
-On Sun, 28 Apr 2024 14:07:27 +0800 you wrote:
-> This patch set acts as the second part of the new version of [1] (The first
-> part can be referred from [2]), the updated things of this version are listed
-> at the end.
+On Mon, Apr 29, 2024 at 04:34:07PM +0200, Claudio Imbrenda wrote:
+> Claudio Imbrenda (2):
+>   s390/pgtable: switch read and write softbits for puds
+>   s390/pgtable: add missing hardware bits for puds, pmds
 > 
-> - Background
-> 
-> SMC-D is now used in IBM z with ISM function to optimize network interconnect
-> for intra-CPC communications. Inspired by this, we try to make SMC-D available
-> on the non-s390 architecture through a software-implemented Emulated-ISM device,
-> that is the loopback-ism device here, to accelerate inter-process or
-> inter-containers communication within the same OS instance.
-> 
-> [...]
+>  arch/s390/include/asm/pgtable.h | 12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
 
-Here is the summary with links:
-  - [net-next,v7,01/11] net/smc: decouple ism_client from SMC-D DMB registration
-    https://git.kernel.org/netdev/net-next/c/784c46f5467c
-  - [net-next,v7,02/11] net/smc: introduce loopback-ism for SMC intra-OS shortcut
-    https://git.kernel.org/netdev/net-next/c/46ac64419ded
-  - [net-next,v7,03/11] net/smc: implement ID-related operations of loopback-ism
-    https://git.kernel.org/netdev/net-next/c/45783ee85bf3
-  - [net-next,v7,04/11] net/smc: implement DMB-related operations of loopback-ism
-    https://git.kernel.org/netdev/net-next/c/f7a22071dbf3
-  - [net-next,v7,05/11] net/smc: mark optional smcd_ops and check for support when called
-    https://git.kernel.org/netdev/net-next/c/d1d8d0b6c7c6
-  - [net-next,v7,06/11] net/smc: ignore loopback-ism when dumping SMC-D devices
-    https://git.kernel.org/netdev/net-next/c/c8df2d449f64
-  - [net-next,v7,07/11] net/smc: register loopback-ism into SMC-D device list
-    https://git.kernel.org/netdev/net-next/c/04791343d858
-  - [net-next,v7,08/11] net/smc: add operations to merge sndbuf with peer DMB
-    https://git.kernel.org/netdev/net-next/c/439888826858
-  - [net-next,v7,09/11] net/smc: {at|de}tach sndbuf to peer DMB if supported
-    https://git.kernel.org/netdev/net-next/c/ae2be35cbed2
-  - [net-next,v7,10/11] net/smc: adapt cursor update when sndbuf and peer DMB are merged
-    https://git.kernel.org/netdev/net-next/c/cc0ab806fc52
-  - [net-next,v7,11/11] net/smc: implement DMB-merged operations of loopback-ism
-    https://git.kernel.org/netdev/net-next/c/c3a910f2380f
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Applied, thanks!
