@@ -1,175 +1,406 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DDEB7710B;
-	Tue, 30 Apr 2024 19:31:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714505478; cv=none; b=mB59+FvZdzrn9fKgZ+nxAol5XPUWd47LDyVSTdN7aGRg9Wb7kJ6jVtc6/ouFuEfWfL6TKVwq/I0L/Ommns/NKH7/TpxCXnrTLPK+MpyUM+Bkj4xP8rwMwP/0q9lPb1UPVZT3V+4VzxRO2z0uETGJsZzEItYUUvNCzh9NVsz/kOs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714505478; c=relaxed/simple;
-	bh=NCkfdFfYPyv+cxw3YGXRQCLfnck0tkHnGZpWYoan5MQ=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=b3bJP84y7PZ3v3s2tDJpTmyC5uS88FjKARvUDDHktvKFJkOjnjuI8jucSfSVcWmUYIHWzuT1c7FSMOrWRgmp5YXffCtMtjJTCXnbBV7oHJl7eXpydJyxiCaaxHmYiPhiHWuHlXVl6sq6U1KR/Av/99mnz9ti++BKc2y4EaQwYD4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FtBfdoph; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4F8117BB15;
+	Tue, 30 Apr 2024 23:03:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1714518215; cv=fail; b=lxGQIfyNU8l55UgNoccWYJfC/Hq/H01KJtk+PqlIT3H2xirmjTZpQGaT6MqySskLlZ7gufDrQ3bsZEllkjzkfnLwNvHbUH1zOcS+O8qF/DsXftKJc2pb4WyzUmJ20VLMTvA8oR/RkDMAh+r/pQi7CqgV+zF1IVauKplNuvq8LZE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1714518215; c=relaxed/simple;
+	bh=BWLENVfAJp/NmxdUga5uiEHqAJmVpotDNhuRXfbHJx4=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 Content-Type:MIME-Version; b=Seh+sCa5CBctea98k+ljTnkue3+648S1wdR+2i3TmuHxruZLboOvuwjiLZK4tZQo5gq+HFo47ritpZ4r8HZKoMkY6ktLs2ZSHIQv4iRMtZi66F8fVU//ZPCb2pehiOiAaaNMiLinVHsH4xOl2IIQME9P36aAGZs9QgK4RImubWM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=dRmAXMM0; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=y8TkkBM8; arc=fail smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FtBfdoph"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43UJSXHM012934;
-	Tue, 30 Apr 2024 19:31:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=NCkfdFfYPyv+cxw3YGXRQCLfnck0tkHnGZpWYoan5MQ=;
- b=FtBfdophn3v5VnKFI58xajgjWC6nphVsubfh3Yq0lHKX/IZPcPQzbvzTKKjKjMCSApUF
- 1CrJ2iBRGbNwUaPeiDwYXVo+j2tmXokBNdnLFKxdg+tQpeupbADaoFA+vSgxJoAtiocw
- qFbjpGlsGYLHDxkGbKGak6yES2Hm5b0+UZNSXy3hQ8bFhh5xi4TVb5HDlQHvZxW3Trc6
- 0SB1+OziqXJ4PzWdXN+tX5oYvDRjRxf3lJY527ZASPUXZfaM6w01z8pCKhAxlyRy8Z3A
- Y5F60CPlFaLTXQ3Xz+LeO1gScYBiT4bLzuutL1le6dSfmmjWAgSe1AQVG0nfM9qyXvC+ eA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xu6tx804h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Apr 2024 19:31:14 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43UJVE7X016586;
-	Tue, 30 Apr 2024 19:31:14 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xu6tx804f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Apr 2024 19:31:13 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43UGnd0O002989;
-	Tue, 30 Apr 2024 19:31:13 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xscppet9n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Apr 2024 19:31:13 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43UJVA4t36766094
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 30 Apr 2024 19:31:12 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DD0805806D;
-	Tue, 30 Apr 2024 19:31:08 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1FC0858070;
-	Tue, 30 Apr 2024 19:31:08 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.85.173])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 30 Apr 2024 19:31:08 +0000 (GMT)
-Message-ID: <0cfe41f08d89481125ddc1f0087af6bd6bcd1b39.camel@linux.ibm.com>
-Subject: Re: [PATCH] KVM: s390: vsie: retry SIE instruction on host
- intercepts
-From: Eric Farman <farman@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        David Hildenbrand
- <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda
- <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens
-	 <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
-	 <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Date: Tue, 30 Apr 2024 15:31:07 -0400
-In-Reply-To: <dceeac23-0c58-4c78-850a-d09e7b45d6e8@linux.ibm.com>
-References: <20240301204342.3217540-1-farman@linux.ibm.com>
-	 <338544a6-4838-4eeb-b1b2-2faa6c11c1be@redhat.com>
-	 <1deb0e32-7351-45d2-a342-96a659402be8@linux.ibm.com>
-	 <8fbd41c0fb16a5e10401f6c2888d44084e9af86a.camel@linux.ibm.com>
-	 <dceeac23-0c58-4c78-850a-d09e7b45d6e8@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="dRmAXMM0";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="y8TkkBM8"
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43UKTgld017528;
+	Tue, 30 Apr 2024 23:02:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : in-reply-to : references : date : message-id : content-type :
+ mime-version; s=corp-2023-11-20;
+ bh=EL/hN2kBBnpDCBhosmnxg3lDM1xxbhAS0BsL10gyA8k=;
+ b=dRmAXMM066dO7yPWz1iWMf4DG015ndRPVcX6yIZB1yi3NeYkfoT/6Y91ctD0VlApGTkr
+ 4kF9eOKAIImXsE9drKdlCyCzFIiL+/2bEP53L79YzRdW7LXJvSYvQtD+rZAjTVHLE9tm
+ fa8Pz6Kp/oHwnBPkd4lha9D0CPLTzI4kNzHOknFjzvpNl920fPzQhAeA19XxjSYlaVaf
+ amyoeP+azzjRv4nvj2xnfVoF5MMotlOStyXqNxdKyavws68FcnEVlWT675icSzh/CvM5
+ kR/wYjG65VKlQYkFT6abeWJ81wT9k2I77we+gU5DTgOr6urhw1O9cuBm9DgFqCFdTvyc 8A== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3xrswvpax9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 30 Apr 2024 23:02:09 +0000
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 43UMAgc7005069;
+	Tue, 30 Apr 2024 23:02:08 GMT
+Received: from nam04-mw2-obe.outbound.protection.outlook.com (mail-mw2nam04lp2169.outbound.protection.outlook.com [104.47.73.169])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3xrqt85fwq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 30 Apr 2024 23:02:08 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZQwI9LnHQWce26XDNmjF/RFD1GyjbI2eAWUDMQzR2HJOg0/hqOZ9sufucnuNexB9cnGc+Y3ctUzks72A5+OmHvb3z01aEEo+SKH3xEn6MvdVQT3nIkPFMhj5Xvam/Z8T8gJQoqw9zVPCaEHO3J2tGwM8GRVCQCVSSfV5SbrY0KP3kfiSbENzAavdE4YDd2kkWK4ALZpsfrA/BWS2i4n+qaSUu1N+2xtb1zn5ouUc3X7awBwNKZ7yW1hxwmg8HOAoOts3CJIPb7lV3K64OKr+oylUEd0YkaWnGwSkYl3nh2lk7zCaW52bU7r0ccYy+NYhpszbCfNS7S05OFMTQPOx3Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=EL/hN2kBBnpDCBhosmnxg3lDM1xxbhAS0BsL10gyA8k=;
+ b=V5MBwoD6/kzan4WL/rS7iXv1bM65Ewq0Z8o8UxY2sl7CD3NVhILSCDl6CUM3GYZjWkuKwiZidxUT4B1MrYx0e5CcC+tMvIk8IQ59zftosedHdVmo5pbXTodNjRJb8qX7HWR2h7zwa2+VIHzp97EbTugRgaklV6GL6M8Ki4//Dmhj+O6HIKCC+3MI3gKQiOLploB0o2rW40XirkgHMByhGV2CxWGA9M4BhUZRqKyR0PB+5tS/MnlBLLnwqiB9n6bvXNqhtr3LNUnEd9NhfLLBS9jMFhnvQuDiiTMXFGLvjiQv9jOmznFtZ0kmVw7SeDwPSJEea3/ZrqUvaZPJKY80zg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=EL/hN2kBBnpDCBhosmnxg3lDM1xxbhAS0BsL10gyA8k=;
+ b=y8TkkBM85Xy9ONQ4/uLb7E48uPaF9Ht/Kh0X3ZoC4uuD9qJiF7hs4A6GZfbLEba7lUyD1KY0jAeQsjdZLcNpBshtibF2VebTMtMZ32xWVDCj/7tZUO1AUZlfAAWcvHXETQsyiSV/soy+fyiSL6ADZJvk9u5lqsisRLR91+GT/Lc=
+Received: from PH8PR10MB6597.namprd10.prod.outlook.com (2603:10b6:510:226::20)
+ by SA1PR10MB7853.namprd10.prod.outlook.com (2603:10b6:806:3ac::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7519.34; Tue, 30 Apr
+ 2024 23:01:44 +0000
+Received: from PH8PR10MB6597.namprd10.prod.outlook.com
+ ([fe80::6874:4af6:bf0a:6ca]) by PH8PR10MB6597.namprd10.prod.outlook.com
+ ([fe80::6874:4af6:bf0a:6ca%3]) with mapi id 15.20.7519.031; Tue, 30 Apr 2024
+ 23:01:44 +0000
+From: Stephen Brennan <stephen.s.brennan@oracle.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>,
+        Mark Rutland
+ <mark.rutland@arm.com>, Guo Ren <guoren@kernel.org>,
+        Huacai Chen
+ <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
+        "James E.J.
+ Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller
+ <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin
+ <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+        "Naveen N. Rao"
+ <naveen.n.rao@linux.ibm.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas
+ Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+        Borislav
+ Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        linux-trace-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2] kprobe/ftrace: bail out if ftrace was killed
+In-Reply-To: <20240429212933.327aae6e@gandalf.local.home>
+References: <20240426225834.993353-1-stephen.s.brennan@oracle.com>
+ <20240429174718.1347900-1-stephen.s.brennan@oracle.com>
+ <20240429212933.327aae6e@gandalf.local.home>
+Date: Tue, 30 Apr 2024 16:01:43 -0700
+Message-ID: <87r0emsbe0.fsf@oracle.com>
+Content-Type: text/plain
+X-ClientProxiedBy: BYAPR05CA0105.namprd05.prod.outlook.com
+ (2603:10b6:a03:e0::46) To PH8PR10MB6597.namprd10.prod.outlook.com
+ (2603:10b6:510:226::20)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: uDnnbdN_dTEFkyRZhTcmu8ADGFKDn_5c
-X-Proofpoint-ORIG-GUID: ly8BUBbMSAWihqa4Zm65oKhVkATqD_f3
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH8PR10MB6597:EE_|SA1PR10MB7853:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6f1c8aa0-cd97-450c-1fc7-08dc69698171
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230031|1800799015|376005|7416005|366007;
+X-Microsoft-Antispam-Message-Info: 
+	=?us-ascii?Q?r1K6VA0L6MsJHB0fa1/SMvct/u7qbLAcWiOWVCfhDecvfBiq/Tnk4ZZFWB8Q?=
+ =?us-ascii?Q?cj+znQX6zkeSQZ1qwjRjh0t3I3EP/KVvfmjaibsEP+dlHL9simsUs3EyzSXT?=
+ =?us-ascii?Q?ILz32+EEEQ3jL8AULOSdHjIToJYxfMHBmoQbnMEFCbd6LFvTEbnvcnbg8Hf3?=
+ =?us-ascii?Q?JyvNBcUHsHAzTybnLpprucuO2kUPBnC75OopwGh3DIOrhU7iSmSFSOhyJ4Iy?=
+ =?us-ascii?Q?RalaJb98DiMQgmZgQb93EDqmsalWhgqedrqg/+et6UNAST5hBwWQBjKhpF2I?=
+ =?us-ascii?Q?tvUcCKqe9KcLeCa6Rh9sJvRGm7qTtfcq2dEttNwvw7hAr5jWffDzk3rSTSJu?=
+ =?us-ascii?Q?14HWP95lN9uY6jwsE5aADA2dWpwFwV0w4mV1UErXHoQ5+e6C2Ezri7htBqbA?=
+ =?us-ascii?Q?HvFk++v3+ujA7trsvQyxl3mr5yunklqIF86IOGa1hz1TRInpQCvqhKIvkdyh?=
+ =?us-ascii?Q?W58MaWHcvcto+jd1CCSWCCSTrImz7PypfOHtO4xMa+YsooRlXyEXQXm2B5/b?=
+ =?us-ascii?Q?Xs0cyuaxMbmcmVnU2D6x+2FioztQz1cXkfVwcBlluN0m62Z/m/kvz4yWOmFf?=
+ =?us-ascii?Q?hG/2DZ07djjTD6hGNkbYa2HpYNRSDhULhiSWTRt7PE9RK3MDStOrf0b8GcRI?=
+ =?us-ascii?Q?go6tFyOLOMbRX+FoJnP+Pap9psO4OPsJnK+mM68bLT4ETD6RVMTJymedeMMt?=
+ =?us-ascii?Q?m8vttQiQGEY4ysR8dKCoMfrlyDVDhwigggkFHXYoCYeFVJHzgQ6YgIzDtRTF?=
+ =?us-ascii?Q?G1WGMxoMtw9x9r0wuNicOUZYrNnCvQit2weEK/lFz2UIxvpEi0hzg0fbgiTC?=
+ =?us-ascii?Q?m4oy5Tm2Pfdu242bOi8C2uM3lOazrDxr52mPKYH47oDb7WMuDduhvYOeQHwM?=
+ =?us-ascii?Q?vl+NCVAoIjp0jhwUWMBZ3C9Z1bZ5O5S3SyDouWOe+lohorwHPO1CWf3xwO7O?=
+ =?us-ascii?Q?RFla824/c6X3r5b+CgcBBTQg91delIOUN4vn6yoLyj06PU6Vlyh3HHxbJaSC?=
+ =?us-ascii?Q?KEe4BXjOSdbJAjhpRUdAQBTOXWnkVIEk9jXfQswwB9FGFMgGhhuiyZbxyLfv?=
+ =?us-ascii?Q?2YPBrLlsv38l3eOvfkFwuq3kkeEP91Q0hJHP63MpkR9e4trj8nLceCdMWvmI?=
+ =?us-ascii?Q?Mt2Jz+r/YJI8YrGikw6ObeIl94WnwGzX61aG5xZ0pE1zg/e4sEgtm5Ug+Xj+?=
+ =?us-ascii?Q?mSHXaH5XVwLhBzZVXFDFm40/NjN6tytGS0jf6f2W//kmCxyTtwJ+H7y9UwKb?=
+ =?us-ascii?Q?ceTGxh6xo+lNgvyHFezpxeVX/3vUWLkhEAyBy69ZsQ=3D=3D?=
+X-Forefront-Antispam-Report: 
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH8PR10MB6597.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(1800799015)(376005)(7416005)(366007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: 
+	=?us-ascii?Q?pXo/huBOXaQoihrnZoR8TwBcl9H9LRDz4xSrRGZrSnOreJm4f/j4GlfZrxx/?=
+ =?us-ascii?Q?Tb+GsIHeko/GIEidkYmfUCYbl3zmppV8jYsSeQEGmYym6vJQm35vRBKdqgHU?=
+ =?us-ascii?Q?R6/PyolgvDIVZwaqAHMn0bkliwY6VZk7jX/muUVZupj4AoG8/94XU/+9r9wX?=
+ =?us-ascii?Q?IpZA5WSarcQ4xjqB947JGyy89KW5hudxDYRzm2TtEgubIqLSUa1ZLUi69NaH?=
+ =?us-ascii?Q?EO8ccoF+TetrN+gFpU1lr37AhsjgNXufs1FwIyuAY3X8Xj/EwGCllsm89LFc?=
+ =?us-ascii?Q?VFJc9k9Hai8eC0odF8LzC1Y+vdJNm3BozJ4gF1W4huZnzl03MKrUVdcNIa/A?=
+ =?us-ascii?Q?G3n/uK9UM5Sm3uNg5Wpoc5A1tDq2IptFAs7JWYK4rYSSrjXExJ9e12DUUh/M?=
+ =?us-ascii?Q?dR+mvsBlgEqV2tfY+NcJEhGrGX1DHvBDppcqrnHXFCborrysY/XjwFXUM0a0?=
+ =?us-ascii?Q?cbgJfTf4vaZ0U3T1pQNh1eHg7IJN1jH54n9siZAJ28Dp9v6ejYhXAmXOZbeW?=
+ =?us-ascii?Q?t3Iw4uDwoH4U53bOcCE+Y/QiHV9iRMU6JWHmdESsHm3Q7WeZUEcaIGSnX4ZU?=
+ =?us-ascii?Q?zxISLlltfZOCsaNzRxQqBXHamiF45iX9XZ+xv0fSj4xqusovABOH0cm5IP/q?=
+ =?us-ascii?Q?MB7KrANI0hpHY9Y4Qa9onyVS1vhhAHe7n5PM/2vWZrlIip7fZrO/hqkNeNWu?=
+ =?us-ascii?Q?cYUezi86d/nDBWgsAVBb1DeFJwQT3szwhpvl11DF8hnbG869SCCqsTe6n80k?=
+ =?us-ascii?Q?AgyuPoue9qIchQ9qFfHzgZkH6E8UKMl7uoZmIH+zZ8m6BRgscyzfRvWDhyaR?=
+ =?us-ascii?Q?Ok2V2pK+ZOl0wC2nWDfanmG3nVd0Zh3N7wMI3fWM+5Q7WE7DV7Fb8S2qzUgK?=
+ =?us-ascii?Q?2J2bWTNA38UA7TsGEuotYc7FB+++lTa0BucBy4KmnY4f25JDDkakXzB46oNX?=
+ =?us-ascii?Q?G0BLj/F4Pda/Ns7DBKtohU6gJ8ivjI+UO7y9eZRR1TwRSHMrDO+h7fHx5jgL?=
+ =?us-ascii?Q?LQggmob/sDt21n88JjLdblngQYY8GipiLPre4bqwwC8dV5xZ9wHpFgd+wVht?=
+ =?us-ascii?Q?Ok/kWlpV8OAjiXfNnRYyEaDZiSeVNbqqHZvlTQ6dddBzu2VYp0z2UMM2aLd3?=
+ =?us-ascii?Q?ZA3YHL67c64Ey9c7qLHw9x6mPQYCgwjOcjSa/hykSslNeGt0AHt2scaUKrnc?=
+ =?us-ascii?Q?mCC0pfCjhtfNcS7mPU2GcKO4NKBjh7LRWZammVsWX5kamGAnC54n6EMFQTNr?=
+ =?us-ascii?Q?VZgym9z/rLswPcwbbDbJH9UUXIBIp53Jc7l8+A2iJXV07eB1FtY88RvZw/pL?=
+ =?us-ascii?Q?8IqaPPwmmQNVVR458J+YPGPncOq46shPt8InLh+NkVFqMF9KHsK0bTA7h8rT?=
+ =?us-ascii?Q?IoZEkdN0+3OhO6uZXRb+mvDonJhPKoG5LWWMIYDyLsmmPjwbZ8FGJPH1X6b+?=
+ =?us-ascii?Q?J/ytXKuxxTlGoI7UBDOVqTPTUTUnjbXK2NFY+T0XW+8zOtNS+cmvVC8BJYhz?=
+ =?us-ascii?Q?NGcHVM9MoZaE0FsnMFYF4oHVVi7l9XDQ1I2V4fYLRfLeROoLYSg44lp/nfVz?=
+ =?us-ascii?Q?e7B4NJwTdBmJZQ/m8DzNtqEOXPDEZtJKAKqGI4BEbeRudqaTrJpLsUJzAuPG?=
+ =?us-ascii?Q?/d4oF7Q1BQHoR/06KtihGhM=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
+	ifUFJ7L2wQRApi6G/SvYgmyWfkEQWEqJ2mqmZvoRswNygqj0OXFXPVkG9TZPnBRDyUnAZoqd2WiD64SFFKfGX3iKZTh5jRBmGaxSy39CpdfZcvjgWPn9g1JG6k4rhZw+Iz7S1FoS2YlHuEYKeZO79Lc4naGaO+1fBnWm5WdB/UmS5SU0pH/hLnj+aw+Ct9EQ44Yf3jaD4rI6EajAHiW+8W4sNG7g7/JPZtKJ0dQejASQptqVa+6l64H3Vr/iqBBcjKENYRhERugVGLKqEI0KLfaTLPE17exHPIthtkxOK1tB3rADie+3hgCWi7gtyJyD648h0aiES62r+I7VhayPqG+vwlpkbq3Bb1qSdQfYmVlwMsaHSY11kTZC2QhM3jN1TodXqgS2hh12DP/G/kVaug0ABivTkgM5C/Qe5uoK0QVlz+Ud8bL8u6gb+z60vbCOxo/TmqQ5Jj/kUFnOFQ04PoSUmlQfvKvcK2rOYq7hTS6W6iOfRHBU+VS0UPT1YDMPSmmNUDRLkFh0u7GeJD3Uj0XMuMiOU0DaYfaQkXXXkhDCtlNQs/ze4fJ0jYiw4wvSQYyLNYfM54zlMzE+8sMRuu/TvKst/q/CbNTNXXLOJN0=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6f1c8aa0-cd97-450c-1fc7-08dc69698171
+X-MS-Exchange-CrossTenant-AuthSource: PH8PR10MB6597.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Apr 2024 23:01:44.6215
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: MLWVJBuEBoY59icYc8TKxnePyI6NH9U5G/V8rNGFk7lTyXNpoeWSTQ825n75wT5STla3Gwg79dgkypgyXg5tOJb61XZk+DN5rGsSz6XI5c4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR10MB7853
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
- definitions=2024-04-30_12,2024-04-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- malwarescore=0 suspectscore=0 priorityscore=1501 spamscore=0
- lowpriorityscore=0 clxscore=1011 impostorscore=0 mlxlogscore=398
- phishscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2404300139
+ definitions=2024-04-30_14,2024-04-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 bulkscore=0 adultscore=0
+ phishscore=0 mlxscore=0 suspectscore=0 mlxlogscore=999 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
+ definitions=main-2404300163
+X-Proofpoint-GUID: -xZPmWW_3fkgZx_8ZuMwhJyzgCUF0MJH
+X-Proofpoint-ORIG-GUID: -xZPmWW_3fkgZx_8ZuMwhJyzgCUF0MJH
 
-On Mon, 2024-04-29 at 12:18 +0200, Christian Borntraeger wrote:
-> Am 04.03.24 um 16:37 schrieb Eric Farman:
-> > On Mon, 2024-03-04 at 09:44 +0100, Christian Borntraeger wrote:
-> > >=20
-> > >=20
-> > > Am 04.03.24 um 09:35 schrieb David Hildenbrand:
-> > > > On 01.03.24 21:43, Eric Farman wrote:
-> > > > > It's possible that SIE exits for work that the host needs to
-> > > > > perform
-> > > > > rather than something that is intended for the guest.
-> > > > >=20
-> > > > > A Linux guest will ignore this intercept code since there is
-> > > > > nothing
-> > > > > for it to do, but a more robust solution would rewind the PSW
-> > > > > back to
-> > > > > the SIE instruction. This will transparently resume the guest
-> > > > > once
-> > > > > the host completes its work, without the guest needing to
-> > > > > process
-> > > > > what is effectively a NOP and re-issue SIE itself.
-> > > >=20
-> > > > I recall that 0-intercepts are valid by the architecture.
-> > > > Further,
-> > > > I recall that there were some rather tricky corner cases where
-> > > > avoiding 0-intercepts would not be that easy.
-> >=20
-> > Any chance you recall any details of those corner cases? I can try
-> > to
-> > chase some of them down.
-> >=20
-> > > >=20
-> > > > Now, it's been a while ago, and maybe I misremember. SoI'm
-> > > > trusting
-> > > > people with access to documentation can review this.
-> > >=20
-> > > Yes, 0-intercepts are allowed, and this also happens when LPAR
-> > > has an
-> > > exit.
-> >=20
-> > =C2=A0From an offline conversation I'd had some months back:
-> >=20
-> > """
-> > The arch does allow ICODE=3D0 to be stored, but it's supposed to
-> > happen
-> > only upon a host interruption -- in which case the old PSW is
-> > supposed
-> > to point back at the SIE, to resume guest execution if the host
-> > should
-> > LPSW oldPSW.
-> > """
->=20
-> Just re-read the architecture again and I agree, the SIE instruction
-> should
-> be nullified. So we should go forward with this somehow.
->=20
-> Eric, can you maybe add this to devel for CI coverage so that we see
-> if there
-> are corner cases?=C2=A0
+Steven Rostedt <rostedt@goodmis.org> writes:
+> On Mon, 29 Apr 2024 10:47:18 -0700
+> Stephen Brennan <stephen.s.brennan@oracle.com> wrote:
+>
+>> If an error happens in ftrace, ftrace_kill() will prevent disarming
+>> kprobes. Eventually, the ftrace_ops associated with the kprobes will be
+>> freed, yet the kprobes will still be active, and when triggered, they
+>> will use the freed memory, likely resulting in a page fault and panic.
+>> 
+>> This behavior can be reproduced quite easily, by creating a kprobe and
+>> then triggering a ftrace_kill(). For simplicity, we can simulate an
+>> ftrace error with a kernel module like [1]:
+>> 
+>> [1]: https://github.com/brenns10/kernel_stuff/tree/master/ftrace_killer
+>> 
+>>   sudo perf probe --add commit_creds
+>>   sudo perf trace -e probe:commit_creds
+>>   # In another terminal
+>>   make
+>>   sudo insmod ftrace_killer.ko  # calls ftrace_kill(), simulating bug
+>>   # Back to perf terminal
+>>   # ctrl-c
+>>   sudo perf probe --del commit_creds
+>> 
+>> After a short period, a page fault and panic would occur as the kprobe
+>> continues to execute and uses the freed ftrace_ops. While ftrace_kill()
+>> is supposed to be used only in extreme circumstances, it is invoked in
+>> FTRACE_WARN_ON() and so there are many places where an unexpected bug
+>> could be triggered, yet the system may continue operating, possibly
+>> without the administrator noticing. If ftrace_kill() does not panic the
+>> system, then we should do everything we can to continue operating,
+>> rather than leave a ticking time bomb.
+>> 
+>> Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
+>> ---
+>> Difference from v1: removed both existing declarations of ftrace_is_dead()
+>> from kernel/trace/trace.h.
+>> 
+>>  arch/csky/kernel/probes/ftrace.c     | 3 +++
+>>  arch/loongarch/kernel/ftrace_dyn.c   | 3 +++
+>>  arch/parisc/kernel/ftrace.c          | 3 +++
+>>  arch/powerpc/kernel/kprobes-ftrace.c | 3 +++
+>>  arch/riscv/kernel/probes/ftrace.c    | 3 +++
+>>  arch/s390/kernel/ftrace.c            | 3 +++
+>>  arch/x86/kernel/kprobes/ftrace.c     | 3 +++
+>>  include/linux/ftrace.h               | 2 ++
+>>  kernel/trace/trace.h                 | 2 --
+>>  9 files changed, 23 insertions(+), 2 deletions(-)
+>> 
+>> diff --git a/arch/csky/kernel/probes/ftrace.c b/arch/csky/kernel/probes/ftrace.c
+>> index 834cffcfbce3..3931bf9f707b 100644
+>> --- a/arch/csky/kernel/probes/ftrace.c
+>> +++ b/arch/csky/kernel/probes/ftrace.c
+>> @@ -12,6 +12,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>>  	struct kprobe_ctlblk *kcb;
+>>  	struct pt_regs *regs;
+>>  
+>> +	if (unlikely(ftrace_is_dead()))
+>> +		return;
+>> +
+>>  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+>>  	if (bit < 0)
+>>  		return;
+>> diff --git a/arch/loongarch/kernel/ftrace_dyn.c b/arch/loongarch/kernel/ftrace_dyn.c
+>> index 73858c9029cc..82c952cb5be0 100644
+>> --- a/arch/loongarch/kernel/ftrace_dyn.c
+>> +++ b/arch/loongarch/kernel/ftrace_dyn.c
+>> @@ -287,6 +287,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>>  	struct kprobe *p;
+>>  	struct kprobe_ctlblk *kcb;
+>>  
+>> +	if (unlikely(ftrace_is_dead()))
+>> +		return;
+>> +
+>>  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+>>  	if (bit < 0)
+>>  		return;
+>> diff --git a/arch/parisc/kernel/ftrace.c b/arch/parisc/kernel/ftrace.c
+>> index 621a4b386ae4..3660834f54c3 100644
+>> --- a/arch/parisc/kernel/ftrace.c
+>> +++ b/arch/parisc/kernel/ftrace.c
+>> @@ -206,6 +206,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>>  	struct kprobe *p;
+>>  	int bit;
+>>  
+>> +	if (unlikely(ftrace_is_dead()))
+>> +		return;
+>> +
+>>  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+>>  	if (bit < 0)
+>>  		return;
+>> diff --git a/arch/powerpc/kernel/kprobes-ftrace.c b/arch/powerpc/kernel/kprobes-ftrace.c
+>> index 072ebe7f290b..85eb55aa1457 100644
+>> --- a/arch/powerpc/kernel/kprobes-ftrace.c
+>> +++ b/arch/powerpc/kernel/kprobes-ftrace.c
+>> @@ -21,6 +21,9 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
+>>  	struct pt_regs *regs;
+>>  	int bit;
+>>  
+>> +	if (unlikely(ftrace_is_dead()))
+>> +		return;
+>> +
+>>  	bit = ftrace_test_recursion_trylock(nip, parent_nip);
+>>  	if (bit < 0)
+>>  		return;
+>> diff --git a/arch/riscv/kernel/probes/ftrace.c b/arch/riscv/kernel/probes/ftrace.c
+>> index 7142ec42e889..8814fbe4c888 100644
+>> --- a/arch/riscv/kernel/probes/ftrace.c
+>> +++ b/arch/riscv/kernel/probes/ftrace.c
+>> @@ -11,6 +11,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>>  	struct kprobe_ctlblk *kcb;
+>>  	int bit;
+>>  
+>> +	if (unlikely(ftrace_is_dead()))
+>> +		return;
+>> +
+>>  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+>>  	if (bit < 0)
+>>  		return;
+>> diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
+>> index c46381ea04ec..ccbe8ccf945b 100644
+>> --- a/arch/s390/kernel/ftrace.c
+>> +++ b/arch/s390/kernel/ftrace.c
+>> @@ -296,6 +296,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>>  	struct kprobe *p;
+>>  	int bit;
+>>  
+>> +	if (unlikely(ftrace_is_dead()))
+>> +		return;
+>> +
+>>  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+>>  	if (bit < 0)
+>>  		return;
+>> diff --git a/arch/x86/kernel/kprobes/ftrace.c b/arch/x86/kernel/kprobes/ftrace.c
+>> index dd2ec14adb77..c73f9ab7ff50 100644
+>> --- a/arch/x86/kernel/kprobes/ftrace.c
+>> +++ b/arch/x86/kernel/kprobes/ftrace.c
+>> @@ -21,6 +21,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>>  	struct kprobe_ctlblk *kcb;
+>>  	int bit;
+>>  
+>> +	if (unlikely(ftrace_is_dead()))
+>> +		return;
+>> +
+>>  	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+>>  	if (bit < 0)
+>>  		return;
+>> diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
+>> index 54d53f345d14..ba83e99c1fbe 100644
+>> --- a/include/linux/ftrace.h
+>> +++ b/include/linux/ftrace.h
+>> @@ -399,6 +399,7 @@ int ftrace_lookup_symbols(const char **sorted_syms, size_t cnt, unsigned long *a
+>>  #define register_ftrace_function(ops) ({ 0; })
+>>  #define unregister_ftrace_function(ops) ({ 0; })
+>>  static inline void ftrace_kill(void) { }
+>> +static inline int ftrace_is_dead(void) { return 0; }
+>>  static inline void ftrace_free_init_mem(void) { }
+>>  static inline void ftrace_free_mem(struct module *mod, void *start, void *end) { }
+>>  static inline int ftrace_lookup_symbols(const char **sorted_syms, size_t cnt, unsigned long *addrs)
+>> @@ -914,6 +915,7 @@ static inline bool is_ftrace_trampoline(unsigned long addr)
+>>  
+>>  /* totally disable ftrace - can not re-enable after this */
+>>  void ftrace_kill(void);
+>> +int ftrace_is_dead(void);
+>>  
+>>  static inline void tracer_disable(void)
+>>  {
+>> diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
+>> index 64450615ca0c..70a37ee41813 100644
+>> --- a/kernel/trace/trace.h
+>> +++ b/kernel/trace/trace.h
+>> @@ -1026,7 +1026,6 @@ static inline int ftrace_trace_task(struct trace_array *tr)
+>>  	return this_cpu_read(tr->array_buffer.data->ftrace_ignore_pid) !=
+>>  		FTRACE_PID_IGNORE;
+>>  }
+>> -extern int ftrace_is_dead(void);
+>
+> Honestly I rather not expose this function outside of the tracing
+> infrastructure. Instead, we should have a kprobe_ftrace_kill() function,
+> and have ftrace_kill() call that.
+>
+> Then kprobe_ftrace_kill() can set its own variable that is exposed to all
+> these functions and they can test that instead of adding the extra overhead
+> in the fast path of a function call to ftrace_is_dead()
+>
+> extern bool kprobes_ftrace_disabled __read_mostly;
+>
+> void kprobe_ftrace_kill(void)
+> {
+> 	kprobes_ftrace_disabled = true;
+> }
+>
+> And you can then replace all these with:
+>
+> 	if (kprobes_ftrace_disabled)
+> 		return;
+>
+> Which is faster.
 
-Sure thing.
+Thanks, that does make a lot more sense. It's faster, and doesn't
+involve exporting that function. I'll go ahead and use this approach.
 
-> Maybe also try to do some performance things (how many IPIs
-> can we get in guest2 when a guest3 is running and how many IPIs are
-> possible
-> in a guest3).
->=20
-
-Fair enough. I'll see if I can come up with something and report back
-here.
+Thanks,
+Stephen
