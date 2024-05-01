@@ -1,185 +1,408 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E377A12FB06
-	for <linux-s390@vger.kernel.org>; Wed,  1 May 2024 15:54:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714578871; cv=none; b=nvNRw0QS4U7vibiZhBYRr8l1NmeAH6mvE1qYmRglDz7R2Q6LY4XoFQBVrITEe4WFmFwbdGDeZbi9KSHfSbsazfPJH3Z6tMID1hmY+ifv1opuijrEdKXurx88yflGcHiarvu4j5XlpZqvxKL2cWCEUMCfI8Ohxv3gGFDgkAsvGns=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714578871; c=relaxed/simple;
-	bh=71Le3lhOqF7mJtXiAKBiwjI7NHwk1zXCvXbuooCnktY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nVXTKbUxevpdMrBO7QyPaulBWm2do9jiX0aro2hXIyaKVAtMggsvn5MtYT5OeAj6bS5vx5Esse3dLJOasZ/eDQFELkP2f3sXGpD4FgUDVJRlMZ5lc0j3ehtdNRw1Mdt1tHT5WS+aQGA81ZW21/bXeUSqFvDP3Wz82f9zvipxq2M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Euyjg3qp; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB768748D;
+	Wed,  1 May 2024 16:31:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1714581069; cv=fail; b=gOp8sa/273UJlhVYSeYnLrGjTr3KLN4kvWRiqE6lrGOTECbipf68avBya1HIeWz2KWce7G1764L+jXTfBfGat/buM0+PHWwpFx6wgUaGjn4IkAi/CuRn1jwYFcY7+j2mCKFlCK6KzBtr+aGie1KXOYB/btgBerV5LxApSlpZ2JU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1714581069; c=relaxed/simple;
+	bh=sAF9EXAAVJMGY6lj49sFM2NAgocSL0S4NLDIZonhzys=;
+	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=oTpDSf53OF8Jl1uWagw5WD2UM9By3pQJreoaevqkkOPI76wGfG3YXSloOIO3v73/4F7QbkvyI+fO5KA3EZtKrf9SXUHppZ047UrGDU/ufdcNQvcT/l9qqyUGJ+uwDo2T2ERzc3E5QyQEfbdUVDqmTgEQHYkXGlxonEZuWSxcebs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=GznjsAFR; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=Xuf/hNig; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Euyjg3qp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714578868;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=dra4crM6SuKxZJFC32MDFH32iIO5Ahcz86JXAbj7hAo=;
-	b=Euyjg3qpaqY1uWKxrESKQ+39YcT4iLzqY/xmvRaXeMZCofCJvDxPVyiYooeiQ3nCgyyNA9
-	2asRDoCew3rIb9DHdN1BEqrl65l/eKNoN+PMlV+n6KPqrfQ3SP/UTNc9n9sY2EB792rxom
-	jheWM1K8GG/n0JHW/tpymKV3DCpaB5U=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-303-7VPUJc2oOMWlVA8c98pvhw-1; Wed, 01 May 2024 11:54:24 -0400
-X-MC-Unique: 7VPUJc2oOMWlVA8c98pvhw-1
-Received: by mail-lj1-f197.google.com with SMTP id 38308e7fff4ca-2dddea1449dso57585991fa.0
-        for <linux-s390@vger.kernel.org>; Wed, 01 May 2024 08:54:24 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714578863; x=1715183663;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=dra4crM6SuKxZJFC32MDFH32iIO5Ahcz86JXAbj7hAo=;
-        b=FqtNdEjzy2ymk06xk0NoJxGQ1OT0xCUgi+8yVlJN3fbCGIzALdOic6znLxcnzHYiUO
-         8wu3j9akiee2JIM4CFoCLQoktXbbcDNdHrwlkr1k+UxGOvevXYbkfVzb5XsA/UQKxrPO
-         JY4DAeeoByvwvByslu8a8V/UJ76V+wfxsINim4XTEVaVJzmZ5j6CztZwXnyIQR6nElgC
-         +lsKFSPdjb1NZfUU6LW1WFsK0GiZ28RYJSa4Dj1rKZE5dVVeb/zjmHoEAjluCDqVm5h+
-         DEG1Rrw3YEehRq9H6j+QsS5a6hJZR7lR8SC0qXytGqNgCBbpVftz7l9vUky4Ho2QSUMO
-         ALzw==
-X-Forwarded-Encrypted: i=1; AJvYcCWpM/jHb8JQaSJf4Ew/AewLP9Eus1ynLo68SU/URfoxXD4wl3zL8pByWcv4HGjkB4ir5LvK4CIEIP2I4icj4pFo61SnwcftwXkfWQ==
-X-Gm-Message-State: AOJu0YwXOW74mh0N3ne3eh+hBKGPZaX++Pov5yN/SxFQiCF3svoxaCgw
-	zkjJYGto184fpOsLts6/djEZepIBLmKCe3CrZ/cO6N9w9rjAAQuz15bR6s6CyC5maCiOR1aQPBS
-	MUWpc8AS31SJM652TdTGsDM2lzH5Ge2cRc1Tc8hrR2SlQXLekGxK0C0fTkUE=
-X-Received: by 2002:a2e:9b8f:0:b0:2de:8197:4cfe with SMTP id z15-20020a2e9b8f000000b002de81974cfemr1797710lji.42.1714578862723;
-        Wed, 01 May 2024 08:54:22 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHKr7d6c/oB7PFq2oL854rqRRnRilrbgxqDDmOJ1RvTkaJGXBxXwYZLNlmieyrQ97pKCT8ojA==
-X-Received: by 2002:a2e:9b8f:0:b0:2de:8197:4cfe with SMTP id z15-20020a2e9b8f000000b002de81974cfemr1797697lji.42.1714578862194;
-        Wed, 01 May 2024 08:54:22 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c712:aa00:299:f96e:f7b3:adae? (p200300cbc712aa000299f96ef7b3adae.dip0.t-ipconnect.de. [2003:cb:c712:aa00:299:f96e:f7b3:adae])
-        by smtp.gmail.com with ESMTPSA id w20-20020a05600c475400b0041befc2652csm2604047wmo.31.2024.05.01.08.54.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 01 May 2024 08:54:21 -0700 (PDT)
-Message-ID: <736282e2-e17f-4434-9009-8252055451c5@redhat.com>
-Date: Wed, 1 May 2024 17:54:20 +0200
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="GznjsAFR";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="Xuf/hNig"
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 441ASQCh000841;
+	Wed, 1 May 2024 16:30:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : content-transfer-encoding : content-type :
+ mime-version; s=corp-2023-11-20;
+ bh=D6Q0HjUFQndlmfDDOu29602YdmMwTwaW0ee4gdbrLvE=;
+ b=GznjsAFRA9efiy0DMDjtuml6b17+xU/gR3/X0ZIHEBJ0AmgKlYFaVLQ8EVxq+oKIitfK
+ 6goQt3MxkKGZ4Jmp7AxBm5xlWUAeqbpk20nKrS11heVlmr3wkro+PdlEgPTur3qxRiyn
+ gRynODercvq8Bf0gmiKfRccGpmqn56iVxPlnCo22rFN17OS0s7BnCKhWmhz9WPuAudEc
+ OUJLoPRa3TcPmVV3kYzNHB60JfLf/4TFC0jjUaTJlwK4DOcNbuUJ4z6FUN5zVeH9JTO5
+ CpPn3GMI5eY9x6fke4QfY0vitYJtRQLA1v1t8wKoh2rsnyfahPtXdCql+3/80ZKshIQG lA== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3xrqseyftt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 01 May 2024 16:30:03 +0000
+Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 441G4BBP016672;
+	Wed, 1 May 2024 16:30:02 GMT
+Received: from nam02-dm3-obe.outbound.protection.outlook.com (mail-dm3nam02lp2040.outbound.protection.outlook.com [104.47.56.40])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3xrqtfgxcy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 01 May 2024 16:30:02 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=XB6g7+2uwwDgcRTdu4+fb/7XpTAfFLSFSaOZFaeBEHF059d3VcSip1yhSIEF/oYheVGdGmX03HYsCJJwwIE1U2R1njFNffFlKx4N1is5+qs6+lIoSgMrbth5eoVccMLBQI5NN2jUb0Mu3YAAJ+Q/Zb+bmcqtmCDwtVuuC6iBTQWQ8MgXoPshsrzByP6yUhAEMRcUnmne6yWZFUKcGGMX+L8ynY/lyDSFQkhrXUf9vlynBf/Irm3pR2urr8Kbg9Dt4ctLCPnqs6tIqAHMDQ8UgyhROmvmb3AOiRruK2DpaEDpIxsQLUltSU2pAvbN9m1DcGLwJLQ0Mk82l4qAUHbQgg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=D6Q0HjUFQndlmfDDOu29602YdmMwTwaW0ee4gdbrLvE=;
+ b=FyrngWj4mMJpuJRH2g7fJY5Of+EXEUYR5yKQRNZCU7nGvTq/7yZDYCnOX9ep0FMMAozUMaXx1wk06ChS0C/mKxROiyOAL61zSD3jhGa4D0kue50hjv5C7sjUYsyKm9c59kyQHv3TQQKL5kHvkwtRdFaTN+RYnc+nEM4OuQuhloh+84t9B/jJxpGvGyq5Ur/jXMG7J+a/e6Z5mp89gxwFBekbf8wa5qIKWpf9/WXw0/JShBqY9YxvSr34Oi9kiiSzTfXd7sUPC7wqhB73YEpvrWcgxG8MDhN0zbvxmmLCb0v8g1MmeWSdb788Wzmu3prpoR+QQll4vr1DFhOypm7WVg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=D6Q0HjUFQndlmfDDOu29602YdmMwTwaW0ee4gdbrLvE=;
+ b=Xuf/hNigxZ4jndcg6Ra9W6BBmOanMKJLq34Fp7bF11oWEDNwvjfiO/e2CfoZOTemVNQRnf8FbhJAFC4Z+RAEOez7e5GgpDNvt/TNVz2wLxK+b2xwA9YkqTpmEpllkMYA2NiE/GgDstpOqbKG+mc2c+JzzbSli3/c0qtVdWPxUK4=
+Received: from PH8PR10MB6597.namprd10.prod.outlook.com (2603:10b6:510:226::20)
+ by PH7PR10MB7840.namprd10.prod.outlook.com (2603:10b6:510:2fd::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7519.37; Wed, 1 May
+ 2024 16:29:59 +0000
+Received: from PH8PR10MB6597.namprd10.prod.outlook.com
+ ([fe80::6874:4af6:bf0a:6ca]) by PH8PR10MB6597.namprd10.prod.outlook.com
+ ([fe80::6874:4af6:bf0a:6ca%3]) with mapi id 15.20.7519.031; Wed, 1 May 2024
+ 16:29:59 +0000
+From: Stephen Brennan <stephen.s.brennan@oracle.com>
+To: Steven Rostedt <rostedt@goodmis.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Cc: Guo Ren <guoren@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        linux-trace-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org,
+        Stephen Brennan <stephen.s.brennan@oracle.com>
+Subject: [PATCH v3] kprobe/ftrace: bail out if ftrace was killed
+Date: Wed,  1 May 2024 09:29:56 -0700
+Message-Id: <20240501162956.229427-1-stephen.s.brennan@oracle.com>
+X-Mailer: git-send-email 2.39.3
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BLAPR03CA0050.namprd03.prod.outlook.com
+ (2603:10b6:208:32d::25) To PH8PR10MB6597.namprd10.prod.outlook.com
+ (2603:10b6:510:226::20)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5] mm/rmap: do not add fully unmapped large folio to
- deferred split list
-To: Zi Yan <ziy@nvidia.com>, Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- Yang Shi <shy828301@gmail.com>, Ryan Roberts <ryan.roberts@arm.com>,
- Barry Song <21cnbao@gmail.com>, Lance Yang <ioworker0@gmail.com>,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20240426190253.541419-1-zi.yan@sent.com>
- <ZjJCdodEf4CBa1N7@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <5FAD7FB6-4AC0-4427-B56E-4942A95DB68C@nvidia.com>
-Content-Language: en-US
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <5FAD7FB6-4AC0-4427-B56E-4942A95DB68C@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH8PR10MB6597:EE_|PH7PR10MB7840:EE_
+X-MS-Office365-Filtering-Correlation-Id: d72807aa-f8a2-4316-35fe-08dc69fbf1b9
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230031|366007|7416005|376005|1800799015;
+X-Microsoft-Antispam-Message-Info: 
+	=?us-ascii?Q?L9LO8DTteml+3KZfyHgQD+oFpQc8F6lpOY1EgvhC64Tjc9xRHAoLOQSW/rMd?=
+ =?us-ascii?Q?vlmSnpeiVl644KpsbheP8y3XRxtQKIA8lyxvL6r6s3H6h02TkpeoNBuIkQhO?=
+ =?us-ascii?Q?8bJFEsltaKTIj8kLCBph8QgrQWPfwHgsO5wVSQCB981Y6fDq4iYD4T0rHDaH?=
+ =?us-ascii?Q?OyXhQ+3MZWAoj0xbPyWoNJSMZs8t0eiYnB+PC0CWU54a+9V770NR8kRIs3Z8?=
+ =?us-ascii?Q?CFJ6Bb0S9uSJua9eacUIFmT8nxScqw7sinFcMlL3yJa34dlSsKWcRmaTJrHO?=
+ =?us-ascii?Q?CXZSTFlcx2qEuKQu4yhTKdi87s0qZLASi+R/UND2SGX6ZxljW2huzujgq9d9?=
+ =?us-ascii?Q?Ie89wFy9ChpBRXrTD6JECQlTFe7SBQerz2wSK4//ORobmz9FeItvTNYLw4Zj?=
+ =?us-ascii?Q?rya0CG8xXzmFj9mW2tbOqiFTQktG5T+m+ixwazK11Sn1mMHcfCwJ3aI6ejgK?=
+ =?us-ascii?Q?Lj/KZNgFCtmZ/KA/J1JT+NMT6LAxQsLb7EOR6B6Su5jnU7Y3HFpsYXNAOJi5?=
+ =?us-ascii?Q?RnpORYEP9f7n0me0CbZuyKkCXeARNRf5J+3vwpg75XnPWcwhTlwhO1LdtWT5?=
+ =?us-ascii?Q?E2IW0khSbX8Ja2BR5uZ1IUSkpnjfJQImSzHcF0TbR2E6/lqVP9t8XVPQFITN?=
+ =?us-ascii?Q?u29qcHk+djTQqo6/vQQha6rbH440nqT3q/HOjPhS3eiB9rMbWszwReGBPz9H?=
+ =?us-ascii?Q?hoYrREFjmpn+Jf+f0sldK4Jd+m1e/VitwZtrXNdRr/GF5rCH44FXQEqyP0kf?=
+ =?us-ascii?Q?IkLP0bNUtPp2q+4t8zNyC3+QirqfU+8KaPvlzvywhFsgr9E7GWgUHEW8TsjK?=
+ =?us-ascii?Q?pdolT4UTMDd37OM/bP/67YrqDeCrvdKEB+6zzQTeQWiULvk+YroZ55WDjWm7?=
+ =?us-ascii?Q?+IgavoJBRU1glWE60+5fE9AOXBT6277BRSPsvMdcq/B3Io4BuS59VTKqUXrM?=
+ =?us-ascii?Q?Tdl5NbC7tvI+20vfY+oBYEjl7x7b68voomXrjVg9ee4Dx+pONWzpIV1O2AmG?=
+ =?us-ascii?Q?irc413A2uHGYwdcVJXiK2UZKhZ8uR+eTzJa98+ohFRqXqZFKPICcpijlD26y?=
+ =?us-ascii?Q?rQBq2/lSVE1bHTFZmK1kzX7plch1CkzaHJ79ZCRQoGG3U30MLoYx5+VhVyhy?=
+ =?us-ascii?Q?JAYc44GqWHrBJqWWEzM4DDWMDzj3Sj8+JmjGbBHn4Qo3HBFgfNltRuGop168?=
+ =?us-ascii?Q?bjR4iZ7GsaQUZ4s4K/36rfb4tfWQ1vOK2oHxGPpsV1OFSAFiRJ00XGtOc5c?=
+ =?us-ascii?Q?=3D?=
+X-Forefront-Antispam-Report: 
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH8PR10MB6597.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366007)(7416005)(376005)(1800799015);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: 
+	=?us-ascii?Q?/bWbJrhPiwZfcZiGFn0Sidf7VfP0BtX95W72LtHGyGkYfV08QGpPw/YQlfn9?=
+ =?us-ascii?Q?YtN75Nm9hFvJEdKpVOcuxbPaTLSEwMc8zxnNzLggsgt9TbDLQ5g1XriMD5R2?=
+ =?us-ascii?Q?Jug4KxTPhPZ55+Al9tglHuwqYNEmFt7WUDqgbt87goPjUfekJ5OYT1jgGjCf?=
+ =?us-ascii?Q?3/rcZ+4H7rONhvyUsEAH8Tgo1dUBoEeH6of/IExqQg/NdKA9RNUlaRp6MEQg?=
+ =?us-ascii?Q?USB4BCxrjtGIR83op59GHogl90h7g0mrmykbKLhpmz04MXoXL0zCKM9/Ynb3?=
+ =?us-ascii?Q?AEQYO8TLq3Sk0rEjnudCFGk53M4l7+0NNPpmPHom6pDsaQWAhb2RUW/LhR6c?=
+ =?us-ascii?Q?Ipu+fUfCuFeeTRpfGOnIgzS3o7oILH9YeJr6XGhiA3osUul8VeAJ4ommyOnt?=
+ =?us-ascii?Q?VuIi33GSg4hrYne03prVm6Yz+9YAXq829uyE4afFOCdMmjOyBgmGS1RKf+jY?=
+ =?us-ascii?Q?8YGL+tkq2zEDpNsSwXJC5hyYHNikj18P5EWeDVlEX+TuFiTChp+DR9r07HlM?=
+ =?us-ascii?Q?oVrW7DV+IH5kIKAeL7H7//NIr9Nmt5aC9Bn6Q+ZQNr7pnSqXoMxCds/2U7Wj?=
+ =?us-ascii?Q?4jMPJqUBf8D3RZ79szMimr6dNjHDh2VH2d1OeXG4RhGN/8tc9m2XUFJTwHHg?=
+ =?us-ascii?Q?O54SZokW+8qIYKhiRl8uAIpQhfKzG7l0Gj90DNzWOnidv4NQPP+vN9HT2Uwl?=
+ =?us-ascii?Q?6DWv9bIvgpgIX5FtbSvxKoxAxwHn9LXd1ZN7+VFLAiDXlfYLxx7EIOOgIknK?=
+ =?us-ascii?Q?jZzNdxOP8tfhdA7zAzFcmrYzs9c+u99TJkZDva7Zo1eF1EiLeANS75EllyJ9?=
+ =?us-ascii?Q?oKWnCbV9dHgOHbU24m9tlHAHMFjjBTQvnLDV+8hUmCkQBbX5y7EvArhkFvwZ?=
+ =?us-ascii?Q?++0FG9ArZ85IWOBICwzEAv8NCzuawEHyvt9W2Kz/0DUeNhEZxqP9jqTXprnw?=
+ =?us-ascii?Q?QtjeVtpQ5GitZPi37l+l216qSLy+eDDjB92J7s/jg0g42YdT0wYhKbRnpF6d?=
+ =?us-ascii?Q?I3+Vq1tNvzqS1Xk0LevBT0W9Z5pcOJVbGedsKejcTGyA75oYIRNjM/qPDXt6?=
+ =?us-ascii?Q?IQlvaOF15ksWsc6JnM4gcF1vFu7fkZ5639yY7+LPdO191fC8Z66rAKwHVnzl?=
+ =?us-ascii?Q?y2Mg1bZCgRLHcbHGh6cC/hjv7kn1kGTl3JjXZlmirKeAJxvuMByUGC8QbLqL?=
+ =?us-ascii?Q?Ul4JDEraEmv2XbZzcAM7MVWk7QAnUbQxTqYDjSb47TbX8dAQO4pUHFhXS1LE?=
+ =?us-ascii?Q?2/9QNIqqB2p7UzysBMIUab27bf45IC/koqpF+w4w16cxH0vOlSw66C7W1NuP?=
+ =?us-ascii?Q?T1VKEclsdkY08f+GwLxfL+1JEbCnbBSjkLVffLrCMHD8/uZiDoEvM3MyQjP5?=
+ =?us-ascii?Q?dk6KY/VGy1SmUsnBkDgP66V8DsZvmlZdeQO/IQsuZ42rs1tgvAGPlYiNEj01?=
+ =?us-ascii?Q?/5sBGwk75z1l/PXCuzUOiopRLyBLprDw4asN6PmGfJ50PvGC738BbNGgTGcP?=
+ =?us-ascii?Q?hv4/Gjlp47Gv3b/6OOhWk5ZiYaX0EUTt4/eFV8ypuqJbKwBZ1U2PYeRHJuXW?=
+ =?us-ascii?Q?0xS9hebWEwTGMnCCSDRkNfFxugHOV3cwynNyCfHq8TrzrPyHgZfdoOhIosvQ?=
+ =?us-ascii?Q?QXmO3D3W4RXQU6VUtjjqu1VfE19dORM4nztFP/j5WinU?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
+	y6en0yKetvTWgNvSB5JFVxUVVCrmLP0EpnNUPHNiuacbYgdYGfHk96SSnocaXsd9Do5MNIfuwrVofh0T2I4/8kkJ6V1aRa1ToUKT7d3t5fL5JkpbmEdKI4leIZX5jpe4kONx1oMRZ4FRUe5ZxoFqNPn9u7/NIlwlsHgFH9JJKa4GIgjaBisZcs5lByCsfTIr8ekVZyt71i7sSB7Kv+RKPrbgXcGyiiF5S2rcS4S6K/6RPaCEtJrT9AsJf77xomSCLmrXgRby7c4lxas7jtR7z8qFKCnvClHQ4Co/Fm6u00NiL7SRASdlr5V+3k0yr5oFqqQoUcqr0rpTgXHKPIFNkxQIf9lY9V8yNs51WSVJa7Bg1Pa+l4perpf/6XSCZIf5Bql5r4eQBNPvp64WNhiJeTKn7SApT4whsBUyoOPpBGanG2MQ+9xEXhFfspOhtx+K4A47aeG/VRbdOMkvx8cwXHarzRXCLCziUgsOkKl5xopLmWqcw1Revg9p4zt4WzDRUHGmw3/lvhH/5ViS+uTWS3bYFOLJM/rQSmw/EPiGDHYdrCmCTLhVnG67hfcO0XsPSoiN+R1pS8HUDN6HIV3SfOfuuVhnsuURADw40yUeElQ=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d72807aa-f8a2-4316-35fe-08dc69fbf1b9
+X-MS-Exchange-CrossTenant-AuthSource: PH8PR10MB6597.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 May 2024 16:29:59.5016
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 8vdZLDWPguGAKCD8OMXSgHR2XDHP/dNrKnfMlDzG9x3ssOwuEwuMzF9viOdolbxvhzuuJxKmgvXfdtLhmnhvvkETPJVBbjhWFPMSp5h4LX0=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR10MB7840
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-05-01_16,2024-04-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 malwarescore=0
+ phishscore=0 spamscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2405010116
+X-Proofpoint-ORIG-GUID: IXmcrLujswrITd78LZ4dHtCKDsyzi5aM
+X-Proofpoint-GUID: IXmcrLujswrITd78LZ4dHtCKDsyzi5aM
 
-On 01.05.24 15:38, Zi Yan wrote:
-> On 1 May 2024, at 9:24, Alexander Gordeev wrote:
-> 
->> On Fri, Apr 26, 2024 at 03:02:53PM -0400, Zi Yan wrote:
->>
->> Hi Zi,
->>
->> It increasingly looks like this commit is crashing on s390 since
->> 2024-04-30 in linux-next. If I do not miss something - since it
->> was included in mm-everything.
->>
->>> @@ -1553,9 +1558,10 @@ static __always_inline void __folio_remove_rmap(struct folio *folio,
->>>   		 * page of the folio is unmapped and at least one page
->>>   		 * is still mapped.
->>>   		 */
->>> -		if (folio_test_large(folio) && folio_test_anon(folio))
->>> -			if (level == RMAP_LEVEL_PTE || nr < nr_pmdmapped)
->>> -				deferred_split_folio(folio);
->>> +		if (folio_test_anon(folio) &&
->>> +		    list_empty(&folio->_deferred_list) &&
->>
->> An attempt to reference folio->_deferred_list causes the crash below.
-> 
-> So if you remove this line, the crash no longer happens? It looks strange to
-> me that referencing a anonymous folio's _deferred_list would cause a crash.
-> Hmm, unless the folio is order-0.
-> 
-> Can you try the patch below and see if it fixes the crash? It moves partially_mapped
-> ahead to exclude order-0 folios.
-> 
-> diff --git a/mm/rmap.c b/mm/rmap.c
-> index 087a79f1f611..2d27c92bb6d5 100644
-> --- a/mm/rmap.c
-> +++ b/mm/rmap.c
-> @@ -1557,9 +1557,8 @@ static __always_inline void __folio_remove_rmap(struct folio *folio,
->                   * page of the folio is unmapped and at least one page
->                   * is still mapped.
->                   */
-> -               if (folio_test_anon(folio) &&
-> -                   list_empty(&folio->_deferred_list) &&
-> -                   partially_mapped)
-> +               if (folio_test_anon(folio) && partially_mapped &&
-> +                   list_empty(&folio->_deferred_list))
->                          deferred_split_folio(folio);
+If an error happens in ftrace, ftrace_kill() will prevent disarming
+kprobes. Eventually, the ftrace_ops associated with the kprobes will be
+freed, yet the kprobes will still be active, and when triggered, they
+will use the freed memory, likely resulting in a page fault and panic.
 
-Yes, that should fix it and is the right thing to do. For small folios, 
-partially_mapped will always be false.
+This behavior can be reproduced quite easily, by creating a kprobe and
+then triggering a ftrace_kill(). For simplicity, we can simulate an
+ftrace error with a kernel module like [1]:
 
+[1]: https://github.com/brenns10/kernel_stuff/tree/master/ftrace_killer
+
+  sudo perf probe --add commit_creds
+  sudo perf trace -e probe:commit_creds
+  # In another terminal
+  make
+  sudo insmod ftrace_killer.ko  # calls ftrace_kill(), simulating bug
+  # Back to perf terminal
+  # ctrl-c
+  sudo perf probe --del commit_creds
+
+After a short period, a page fault and panic would occur as the kprobe
+continues to execute and uses the freed ftrace_ops. While ftrace_kill()
+is supposed to be used only in extreme circumstances, it is invoked in
+FTRACE_WARN_ON() and so there are many places where an unexpected bug
+could be triggered, yet the system may continue operating, possibly
+without the administrator noticing. If ftrace_kill() does not panic the
+system, then we should do everything we can to continue operating,
+rather than leave a ticking time bomb.
+
+Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
+---
+Changes in v3:
+  Don't expose ftrace_is_dead(). Create a "kprobe_ftrace_disabled"
+  variable and check it directly in the kprobe handlers.
+Link to v1/v2 discussion:
+  https://lore.kernel.org/all/20240426225834.993353-1-stephen.s.brennan@oracle.com/
+
+ arch/csky/kernel/probes/ftrace.c     | 3 +++
+ arch/loongarch/kernel/ftrace_dyn.c   | 3 +++
+ arch/parisc/kernel/ftrace.c          | 3 +++
+ arch/powerpc/kernel/kprobes-ftrace.c | 3 +++
+ arch/riscv/kernel/probes/ftrace.c    | 3 +++
+ arch/s390/kernel/ftrace.c            | 3 +++
+ arch/x86/kernel/kprobes/ftrace.c     | 3 +++
+ include/linux/kprobes.h              | 7 +++++++
+ kernel/kprobes.c                     | 6 ++++++
+ kernel/trace/ftrace.c                | 1 +
+ 10 files changed, 35 insertions(+)
+
+diff --git a/arch/csky/kernel/probes/ftrace.c b/arch/csky/kernel/probes/ftrace.c
+index 834cffcfbce3..7ba4b98076de 100644
+--- a/arch/csky/kernel/probes/ftrace.c
++++ b/arch/csky/kernel/probes/ftrace.c
+@@ -12,6 +12,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 	struct kprobe_ctlblk *kcb;
+ 	struct pt_regs *regs;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/arch/loongarch/kernel/ftrace_dyn.c b/arch/loongarch/kernel/ftrace_dyn.c
+index 73858c9029cc..bff058317062 100644
+--- a/arch/loongarch/kernel/ftrace_dyn.c
++++ b/arch/loongarch/kernel/ftrace_dyn.c
+@@ -287,6 +287,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 	struct kprobe *p;
+ 	struct kprobe_ctlblk *kcb;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/arch/parisc/kernel/ftrace.c b/arch/parisc/kernel/ftrace.c
+index 621a4b386ae4..c91f9c2e61ed 100644
+--- a/arch/parisc/kernel/ftrace.c
++++ b/arch/parisc/kernel/ftrace.c
+@@ -206,6 +206,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 	struct kprobe *p;
+ 	int bit;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/arch/powerpc/kernel/kprobes-ftrace.c b/arch/powerpc/kernel/kprobes-ftrace.c
+index 072ebe7f290b..f8208c027148 100644
+--- a/arch/powerpc/kernel/kprobes-ftrace.c
++++ b/arch/powerpc/kernel/kprobes-ftrace.c
+@@ -21,6 +21,9 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
+ 	struct pt_regs *regs;
+ 	int bit;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(nip, parent_nip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/arch/riscv/kernel/probes/ftrace.c b/arch/riscv/kernel/probes/ftrace.c
+index 7142ec42e889..a69dfa610aa8 100644
+--- a/arch/riscv/kernel/probes/ftrace.c
++++ b/arch/riscv/kernel/probes/ftrace.c
+@@ -11,6 +11,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 	struct kprobe_ctlblk *kcb;
+ 	int bit;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
+index c46381ea04ec..7f6f8c438c26 100644
+--- a/arch/s390/kernel/ftrace.c
++++ b/arch/s390/kernel/ftrace.c
+@@ -296,6 +296,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 	struct kprobe *p;
+ 	int bit;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/arch/x86/kernel/kprobes/ftrace.c b/arch/x86/kernel/kprobes/ftrace.c
+index dd2ec14adb77..15af7e98e161 100644
+--- a/arch/x86/kernel/kprobes/ftrace.c
++++ b/arch/x86/kernel/kprobes/ftrace.c
+@@ -21,6 +21,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 	struct kprobe_ctlblk *kcb;
+ 	int bit;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/include/linux/kprobes.h b/include/linux/kprobes.h
+index 0ff44d6633e3..5fcbc254d186 100644
+--- a/include/linux/kprobes.h
++++ b/include/linux/kprobes.h
+@@ -378,11 +378,15 @@ static inline void wait_for_kprobe_optimizer(void) { }
+ extern void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 				  struct ftrace_ops *ops, struct ftrace_regs *fregs);
+ extern int arch_prepare_kprobe_ftrace(struct kprobe *p);
++/* Set when ftrace has been killed: kprobes on ftrace must be disabled for safety */
++extern bool kprobe_ftrace_disabled __read_mostly;
++extern void kprobe_ftrace_kill(void);
+ #else
+ static inline int arch_prepare_kprobe_ftrace(struct kprobe *p)
+ {
+ 	return -EINVAL;
+ }
++static inline void kprobe_ftrace_kill(void) {}
+ #endif /* CONFIG_KPROBES_ON_FTRACE */
+ 
+ /* Get the kprobe at this addr (if any) - called with preemption disabled */
+@@ -495,6 +499,9 @@ static inline void kprobe_flush_task(struct task_struct *tk)
+ static inline void kprobe_free_init_mem(void)
+ {
+ }
++static inline void kprobe_ftrace_kill(void)
++{
++}
+ static inline int disable_kprobe(struct kprobe *kp)
+ {
+ 	return -EOPNOTSUPP;
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 65adc815fc6e..166ebf81dc45 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1068,6 +1068,7 @@ static struct ftrace_ops kprobe_ipmodify_ops __read_mostly = {
+ 
+ static int kprobe_ipmodify_enabled;
+ static int kprobe_ftrace_enabled;
++bool kprobe_ftrace_disabled;
+ 
+ static int __arm_kprobe_ftrace(struct kprobe *p, struct ftrace_ops *ops,
+ 			       int *cnt)
+@@ -1136,6 +1137,11 @@ static int disarm_kprobe_ftrace(struct kprobe *p)
+ 		ipmodify ? &kprobe_ipmodify_ops : &kprobe_ftrace_ops,
+ 		ipmodify ? &kprobe_ipmodify_enabled : &kprobe_ftrace_enabled);
+ }
++
++void kprobe_ftrace_kill()
++{
++	kprobe_ftrace_disabled = true;
++}
+ #else	/* !CONFIG_KPROBES_ON_FTRACE */
+ static inline int arm_kprobe_ftrace(struct kprobe *p)
+ {
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index da1710499698..96db99c347b3 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -7895,6 +7895,7 @@ void ftrace_kill(void)
+ 	ftrace_disabled = 1;
+ 	ftrace_enabled = 0;
+ 	ftrace_trace_function = ftrace_stub;
++	kprobe_ftrace_kill();
+ }
+ 
+ /**
 -- 
-Cheers,
-
-David / dhildenb
+2.39.3
 
