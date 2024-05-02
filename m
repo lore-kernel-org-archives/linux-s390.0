@@ -1,60 +1,75 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 453D28462
-	for <linux-s390@vger.kernel.org>; Thu,  2 May 2024 23:05:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7563B57C84;
+	Thu,  2 May 2024 23:07:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714691107; cv=none; b=qdoFt5kCRojSWNnVqnHzszi81zjO5XmrXKxZ4nUYmAITg6EDTOpifDYbuUy25JqlJaQomLJhIXoOzM2BSqENc2RRTGnrf/BCU58qamDw2q/9ow8wRr0qPPJdQDJvQWdDJHMYvqQIZXQIfHk6czo/v7zu1L7C8UZTT6Afps1m84g=
+	t=1714691234; cv=none; b=SDlZ8eH1Z2o/9RIugDIilyxHmNXwtkb0ZVALBGd2L48Yvumrn3eJnXf2u69lndrgRLuBqyRYduledB0R6RPDlvN1vq8/fnkIgWPebZwIipOFLtvEXq2/IlkUi9DwZjDDlEjm+o/uz5uA3nWINvtkPV4nTcNFG8Zww/NAbP3rGQs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714691107; c=relaxed/simple;
-	bh=MPVcnmZTn5myPy90Yqyb5lNdeL6BG4wP9B/f5s2O3GE=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=YztIJofnMcoSFD7nRPzTyQ6dm/i0t/JLOdVm55D4vR0X3utcXUCP856MXFP4Oqb0lDvLPoiIIzscnLI7QBLBSUiaIpku5VPiVXwMDgVUL3Sq5n+oGVKZt0/dHYfT/10TWR54nSe1LHcz0oyrQUlaATjYtUwJHkzJzS7oAVQdsq0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=cjvQ8vcb; arc=none smtp.client-ip=192.198.163.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1714691234; c=relaxed/simple;
+	bh=Hwv7feoOXYxWl+2p0rOmp4K2sjI+B0d+XTLeu1NjFTA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FxREbvzVt3rEqp9oJya7pMBVT1wlgNFfWZxcSUHSvuHmEzHnSznpsAueOPGHUpoIf3s7j6+xioOCWLi6wYVTLpqzzJYTFTYk+ycY9QADi8aNQKbTRnwbUIPIEJLJ+1wKklfQyfXtWSCLgrmVsl1syxdFNI/ODobhSNRQA6fbAUs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Lb7IPdzU; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="cjvQ8vcb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1714691106; x=1746227106;
-  h=date:from:to:cc:subject:message-id:mime-version;
-  bh=MPVcnmZTn5myPy90Yqyb5lNdeL6BG4wP9B/f5s2O3GE=;
-  b=cjvQ8vcbzud/2D0h+YY0MTAGcPXMdMVfAEc7z/E5mnUbSJBrUPKppCFi
-   q/iYN6wk+mYgEpZsYWCy8OUKPu/p14+2lASEfbw2Don+zPZvuw0P1fuT7
-   gq4ctzHnm20zOBtDTg4laUYjSnmZQzE9O+GiY8cVYqk1u6ouep/KM9jlQ
-   4NIKaqSZE73/WRy5e9MalHm0rroOVyX2mveuBAS/QP7Ke6A1bPCb9JbqU
-   tDUqM7POtdcHMI59Ue0RBrZ4icSZ2Vdd+W+jFs7iVYw5WCodNz5L4hscy
-   IXrwfv7g5cwK8vUd78R7yLuVGr9rtestMkE38jZhWaF2YxUVvza6WzGj5
-   g==;
-X-CSE-ConnectionGUID: a/7fNiDUQQCFo3gOeNdiNw==
-X-CSE-MsgGUID: HbDvO5esR1aRiy0Nj9+bnQ==
-X-IronPort-AV: E=McAfee;i="6600,9927,11062"; a="13440054"
-X-IronPort-AV: E=Sophos;i="6.07,247,1708416000"; 
-   d="scan'208";a="13440054"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 May 2024 16:05:05 -0700
-X-CSE-ConnectionGUID: C4fR4l1RSJ+WdJyhwq+U/g==
-X-CSE-MsgGUID: NOD1MESLT+m/Vm1HZ1l08g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,247,1708416000"; 
-   d="scan'208";a="27359672"
-Received: from lkp-server01.sh.intel.com (HELO e434dd42e5a1) ([10.239.97.150])
-  by fmviesa010.fm.intel.com with ESMTP; 02 May 2024 16:05:04 -0700
-Received: from kbuild by e434dd42e5a1 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1s2fU6-000B7i-1N;
-	Thu, 02 May 2024 23:05:02 +0000
-Date: Fri, 3 May 2024 07:04:21 +0800
-From: kernel test robot <lkp@intel.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: oe-kbuild-all@lists.linux.dev, linux-s390@vger.kernel.org
-Subject: [s390:features 50/52]
- arch/s390/kvm/../../../virt/kvm/vfio.c:60:(.text+0x186): relocation
- truncated to fit: R_390_PLT32DBL against undefined symbol
- `vfio_file_enforced_coherent'
-Message-ID: <202405030642.Dzc41pZn-lkp@intel.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Lb7IPdzU"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
+	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=Ggldfb+SnGyHf9Y0PSAxHLGif2nJQj+Ec7fEJVGb75o=; b=Lb7IPdzUBf5fxuHKvzI9o6uLSf
+	RnddZfhFt7Wuoo+yO08qYqKgdD9hHqwCFkcXYKBIB+4X+0JdnnJtpsqFaMT0wnnv6M9IkA/gRz3dO
+	CfH7Qf8EWypK6L/TUeZ0Du7foM4ykeRc3vnVXR/Q8UVZHuQgHqu0NqfWmBjcCr8SvcyvuW4Mkqc28
+	xofGGkYwiKsmCUnJHJzx95tE5MA+DQjtoUN9fqejczoSwHyZ+Ikhq12KowJl3pBhgYGyiVQ4bqUvD
+	yp2jYj6J2Re5TMWfN03xgZqm/nkb4xW8EoAJALaAt82gNWBFuA9GWVogzaVAH0hDHMU3YDgdcYW0+
+	OkmsCkaw==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1s2fW5-0000000ECkp-3WzA;
+	Thu, 02 May 2024 23:07:05 +0000
+Date: Thu, 2 May 2024 16:07:05 -0700
+From: Luis Chamberlain <mcgrof@kernel.org>
+To: Liviu Dudau <liviu@dudau.co.uk>
+Cc: Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org,
+	Alexandre Ghiti <alexghiti@rivosinc.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Donald Dutile <ddutile@redhat.com>,
+	Eric Chanudet <echanude@redhat.com>,
+	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nadav Amit <nadav.amit@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Philippe =?iso-8859-1?Q?Mathieu-Daud=E9?= <philmd@linaro.org>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Sam Ravnborg <sam@ravnborg.org>, Song Liu <song@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+	linux-mm@kvack.org, linux-modules@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v7 00/16] mm: jit/text allocator
+Message-ID: <ZjQcmcA0sNH7jfD7@bombadil.infradead.org>
+References: <20240429121620.1186447-1-rppt@kernel.org>
+ <Zi_K4K-j-VB_WI4i@bombadil.infradead.org>
+ <ZjQYvOYgURx9/+d0@bart.dudau.co.uk>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -63,87 +78,64 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <ZjQYvOYgURx9/+d0@bart.dudau.co.uk>
+Sender: Luis Chamberlain <mcgrof@infradead.org>
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-head:   7f20dda18a42526c4ce19c043c5e5f62e6c52d64
-commit: 9ecaa2e94e602a3cbcbfe182535f6297f7630b98 [50/52] s390: Relocate vmlinux ELF data to virtual address space
-config: s390-randconfig-r026-20230815 (https://download.01.org/0day-ci/archive/20240503/202405030642.Dzc41pZn-lkp@intel.com/config)
-compiler: s390-linux-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240503/202405030642.Dzc41pZn-lkp@intel.com/reproduce)
+On Thu, May 02, 2024 at 11:50:36PM +0100, Liviu Dudau wrote:
+> On Mon, Apr 29, 2024 at 09:29:20AM -0700, Luis Chamberlain wrote:
+> > On Mon, Apr 29, 2024 at 03:16:04PM +0300, Mike Rapoport wrote:
+> > > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+> > > 
+> > > Hi,
+> > > 
+> > > The patches are also available in git:
+> > > https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git/log/?h=execmem/v7
+> > > 
+> > > v7 changes:
+> > > * define MODULE_{VADDR,END} for riscv32 to fix the build and avoid
+> > >   #ifdefs in a function body
+> > > * add Acks, thanks everybody
+> > 
+> > Thanks, I've pushed this to modules-next for further exposure / testing.
+> > Given the status of testing so far with prior revisions, in that only a
+> > few issues were found and that those were fixed, and the status of
+> > reviews, this just might be ripe for v6.10.
+> 
+> Looks like there is still some work needed. I've picked up next-20240501
+> and on arch/mips with CONFIG_MODULE_COMPRESS_XZ=y and CONFIG_MODULE_DECOMPRESS=y
+> I fail to load any module:
+> 
+> # modprobe rfkill
+> [11746.539090] Invalid ELF header magic: != ELF
+> [11746.587149] execmem: unable to allocate memory
+> modprobe: can't load module rfkill (kernel/net/rfkill/rfkill.ko.xz): Out of memory
+> 
+> The (hopefully) relevant parts of my .config:
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202405030642.Dzc41pZn-lkp@intel.com/
+Thanks for the report! Any chance we can get you to try a bisection? I
+think it should take 2-3 test boots. To help reduce scope you try modules-next:
 
-All errors (new ones prefixed by >>):
+https://git.kernel.org/pub/scm/linux/kernel/git/mcgrof/linux.git/log/?h=modules-next
 
-   virt/kvm/vfio.o: in function `kvm_vfio_file_enforced_coherent':
->> arch/s390/kvm/../../../virt/kvm/vfio.c:60:(.text+0x186): relocation truncated to fit: R_390_PLT32DBL against undefined symbol `vfio_file_enforced_coherent'
-   virt/kvm/vfio.o: in function `kvm_vfio_file_set_kvm':
->> arch/s390/kvm/../../../virt/kvm/vfio.c:46:(.text+0x346): relocation truncated to fit: R_390_PLT32DBL against undefined symbol `vfio_file_set_kvm'
-   arch/s390/kvm/../../../virt/kvm/vfio.c:46:(.text+0x582): relocation truncated to fit: R_390_PLT32DBL against undefined symbol `vfio_file_set_kvm'
-   virt/kvm/vfio.o: in function `kvm_vfio_file_is_valid':
->> arch/s390/kvm/../../../virt/kvm/vfio.c:76:(.text+0x7f2): relocation truncated to fit: R_390_PLT32DBL against undefined symbol `vfio_file_is_valid'
-   virt/kvm/vfio.o: in function `kvm_vfio_file_set_kvm':
-   arch/s390/kvm/../../../virt/kvm/vfio.c:46:(.text+0xa26): relocation truncated to fit: R_390_PLT32DBL against undefined symbol `vfio_file_set_kvm'
+Then can you check by resetting your tree to commmit 3fbe6c2f820a76 (mm:
+introduce execmem_alloc() and execmem_free()"). I suspect that should
+boot, so your bad commit would be the tip 3c2c250cb3a5fbb ("bpf: remove
+CONFIG_BPF_JIT dependency on CONFIG_MODULES of").
 
+That gives us only a few commits to bisect:
 
-vim +60 arch/s390/kvm/../../../virt/kvm/vfio.c
+git log --oneline 3fbe6c2f820a76bc36d5546bda85832f57c8fce2..
+3c2c250cb3a5 (HEAD -> modules-next, korg/modules-next) bpf: remove CONFIG_BPF_JIT dependency on CONFIG_MODULES of
+11e8e65cce5c kprobes: remove dependency on CONFIG_MODULES
+e10cbc38697b powerpc: use CONFIG_EXECMEM instead of CONFIG_MODULES where appropriate
+4da3d38f24c5 x86/ftrace: enable dynamic ftrace without CONFIG_MODULES
+13ae3d74ee70 arch: make execmem setup available regardless of CONFIG_MODULES
+460bbbc70a47 powerpc: extend execmem_params for kprobes allocations
+e1a14069b5b4 arm64: extend execmem_info for generated code allocations
+971e181c6585 riscv: extend execmem_params for generated code allocations
+0fa276f26721 mm/execmem, arch: convert remaining overrides of module_alloc to execmem
+022cef244287 mm/execmem, arch: convert simple overrides of module_alloc to execmem
 
-ec53500fae421e Alex Williamson 2013-10-30  37  
-ba70a89f3c2a82 Jason Gunthorpe 2022-05-04  38  static void kvm_vfio_file_set_kvm(struct file *file, struct kvm *kvm)
-2fc1bec1588353 Jike Song       2016-12-01  39  {
-ba70a89f3c2a82 Jason Gunthorpe 2022-05-04  40  	void (*fn)(struct file *file, struct kvm *kvm);
-2fc1bec1588353 Jike Song       2016-12-01  41  
-ba70a89f3c2a82 Jason Gunthorpe 2022-05-04  42  	fn = symbol_get(vfio_file_set_kvm);
-2fc1bec1588353 Jike Song       2016-12-01  43  	if (!fn)
-2fc1bec1588353 Jike Song       2016-12-01  44  		return;
-2fc1bec1588353 Jike Song       2016-12-01  45  
-ba70a89f3c2a82 Jason Gunthorpe 2022-05-04 @46  	fn(file, kvm);
-2fc1bec1588353 Jike Song       2016-12-01  47  
-ba70a89f3c2a82 Jason Gunthorpe 2022-05-04  48  	symbol_put(vfio_file_set_kvm);
-2fc1bec1588353 Jike Song       2016-12-01  49  }
-2fc1bec1588353 Jike Song       2016-12-01  50  
-a905ad043f32bb Jason Gunthorpe 2022-05-04  51  static bool kvm_vfio_file_enforced_coherent(struct file *file)
-9d830d47c7a756 Alex Williamson 2014-02-26  52  {
-a905ad043f32bb Jason Gunthorpe 2022-05-04  53  	bool (*fn)(struct file *file);
-a905ad043f32bb Jason Gunthorpe 2022-05-04  54  	bool ret;
-9d830d47c7a756 Alex Williamson 2014-02-26  55  
-a905ad043f32bb Jason Gunthorpe 2022-05-04  56  	fn = symbol_get(vfio_file_enforced_coherent);
-9d830d47c7a756 Alex Williamson 2014-02-26  57  	if (!fn)
-9d830d47c7a756 Alex Williamson 2014-02-26  58  		return false;
-9d830d47c7a756 Alex Williamson 2014-02-26  59  
-a905ad043f32bb Jason Gunthorpe 2022-05-04 @60  	ret = fn(file);
-9d830d47c7a756 Alex Williamson 2014-02-26  61  
-a905ad043f32bb Jason Gunthorpe 2022-05-04  62  	symbol_put(vfio_file_enforced_coherent);
-9d830d47c7a756 Alex Williamson 2014-02-26  63  
-a905ad043f32bb Jason Gunthorpe 2022-05-04  64  	return ret;
-9d830d47c7a756 Alex Williamson 2014-02-26  65  }
-9d830d47c7a756 Alex Williamson 2014-02-26  66  
-b1a59be8a2b64d Yi Liu          2023-07-18  67  static bool kvm_vfio_file_is_valid(struct file *file)
-4b22ef042d6f54 Jason Gunthorpe 2022-10-07  68  {
-4b22ef042d6f54 Jason Gunthorpe 2022-10-07  69  	bool (*fn)(struct file *file);
-4b22ef042d6f54 Jason Gunthorpe 2022-10-07  70  	bool ret;
-4b22ef042d6f54 Jason Gunthorpe 2022-10-07  71  
-b1a59be8a2b64d Yi Liu          2023-07-18  72  	fn = symbol_get(vfio_file_is_valid);
-4b22ef042d6f54 Jason Gunthorpe 2022-10-07  73  	if (!fn)
-4b22ef042d6f54 Jason Gunthorpe 2022-10-07  74  		return false;
-4b22ef042d6f54 Jason Gunthorpe 2022-10-07  75  
-4b22ef042d6f54 Jason Gunthorpe 2022-10-07 @76  	ret = fn(file);
-4b22ef042d6f54 Jason Gunthorpe 2022-10-07  77  
-b1a59be8a2b64d Yi Liu          2023-07-18  78  	symbol_put(vfio_file_is_valid);
-4b22ef042d6f54 Jason Gunthorpe 2022-10-07  79  
-4b22ef042d6f54 Jason Gunthorpe 2022-10-07  80  	return ret;
-4b22ef042d6f54 Jason Gunthorpe 2022-10-07  81  }
-4b22ef042d6f54 Jason Gunthorpe 2022-10-07  82  
+With 2-3 boots we should be to tell which is the bad commit.
 
-:::::: The code at line 60 was first introduced by commit
-:::::: a905ad043f32bbb0c35d4325036397f20f30c8a9 vfio: Change vfio_external_check_extension() to vfio_file_enforced_coherent()
-
-:::::: TO: Jason Gunthorpe <jgg@nvidia.com>
-:::::: CC: Alex Williamson <alex.williamson@redhat.com>
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+  Luis
