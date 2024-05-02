@@ -1,133 +1,116 @@
-Received: from laurent.telenet-ops.be (laurent.telenet-ops.be [195.130.137.89])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F4306341B
-	for <linux-s390@vger.kernel.org>; Thu,  2 May 2024 12:11:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.130.137.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 773FEC8F3;
+	Thu,  2 May 2024 13:18:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714651867; cv=none; b=LbBGk/VRg3Xo/0DGePZFB9W6JFBjdADPqbRRq+8Ul39s5Gg2R9CY2aMslpsT/zWNZcdmbjWMVlK0K5KnKt3FR9tqLgqi5c9RxTSI4DF6B1vMN9GE2tI+jAsPuW4zwNAM27LNlPXJpa5++qeOmEL1csZ9pT+B6WTc75Z0hwamM30=
+	t=1714655912; cv=none; b=tjAi5Dv0zUdh/0zkDen+HwWWBOfTbNacXk3V9EV5+8sCNpbKsGjEFwgrTWZhKek0OcHpNKXlI2jnveJHbbkmJqMQOytbdFe2uxdDinK2OOQI0ZhTTmeoLkGXIje8KJN7fyBT9qSsSUIYf6ZtRtgn9ytsxJXLtHhydK4HfHjI2zQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714651867; c=relaxed/simple;
-	bh=J0ys2nCMeqQznpcv3TvixEojj3WOQhbihu0iZmOz7CM=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=GMhCrYtvDC2gPdjOLF7Drh7qyW6Iv0w9twC6jMRGlsNjL3fIpAm7Ql3LyjdQoXrROdiVciHCmJaNoGDjDySoCRku0zxYLHO7KjJs2fvltz5fe1synAGESj9gQGwejHeZBKx5/FFaaP2vgfQuNGOz7PcopPt+I/uVhk+0FOqAgrc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=glider.be; spf=none smtp.mailfrom=linux-m68k.org; arc=none smtp.client-ip=195.130.137.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=glider.be
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux-m68k.org
-Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed80:93f:7d7e:5c98:dabc])
-	by laurent.telenet-ops.be with bizsmtp
-	id JCB12C00P3PjoSD01CB1XB; Thu, 02 May 2024 14:11:02 +0200
-Received: from rox.of.borg ([192.168.97.57])
-	by ramsan.of.borg with esmtp (Exim 4.95)
-	(envelope-from <geert@linux-m68k.org>)
-	id 1s2VGR-0034NX-Be;
-	Thu, 02 May 2024 14:11:01 +0200
-Received: from geert by rox.of.borg with local (Exim 4.95)
-	(envelope-from <geert@linux-m68k.org>)
-	id 1s2VHB-004jt6-I9;
-	Thu, 02 May 2024 14:11:01 +0200
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-To: Peter Zijlstra <peterz@infradead.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Will Deacon <will@kernel.org>,
-	Waiman Long <longman@redhat.com>,
-	Boqun Feng <boqun.feng@gmail.com>,
-	Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH resend v2] locking/spinlocks: Make __raw_* lock ops static
-Date: Thu,  2 May 2024 14:10:59 +0200
-Message-Id: <d3300a978761220729b58367f7051212826b0f16.1714651617.git.geert+renesas@glider.be>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1714655912; c=relaxed/simple;
+	bh=Bpw6E9degoi8gZxzY0FT2XijVicqw22P7pA9Yn93K4Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YKrGOU3Cxk7WeIl3P+2ToGA2O3Qf4eD2Flzl+mG+lQvLcSj9gUSYR7ky83Thnp5tqr2LZhY9hBPiQhuYwUQZu2pdDONnm/4Beb1WEOhhzVGpVHMwtRLJMigHMS3nxkgj/qfNwhIWZJHfqXIv6Y91SKYmYk2wOBQycDTaSfU+qaI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DHXEplGZ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DHXEplGZ"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 442Cv9LJ029749;
+	Thu, 2 May 2024 13:18:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=XN99BF71thSSfY5SqQDfuMkL/hrnNQt2dqkH+sfTj0o=;
+ b=DHXEplGZp8ioVYGbxto3cHIrNbtkQtbgZ69TPO1EY+gOzkpUe0PM1anwWjrkg4j0R11a
+ +C65LwsOt8WD+1Sc4KXksTzPM8jWm44QxSgnmekpykUJ/bfXaGbJow810I6ROEdHRYZS
+ FZVWzmsOlSk25ZriqurIieEFkI9YTgGmrAo6JGfVxzLsG1F/Li2q4Dr0pBHfo0iE0eA9
+ AQAPWat0P5PZniLPh9rFW5DfbUaqNNJzbWC2XdP+xk0SvPK2/bqAE3E2pWMVLoyeY255
+ GBTVR4RbxgUU6gTGeCpolYkg1QX8lVQAUnJxBtENnO0og3j56uEz4zfBxfAyN9VM6aRf Mw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xvb9mr30n-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 02 May 2024 13:18:15 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 442DDQ0U028210;
+	Thu, 2 May 2024 13:18:14 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xvb9mr30k-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 02 May 2024 13:18:14 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 442AnYYc001450;
+	Thu, 2 May 2024 13:18:13 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xsbpu8bj0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 02 May 2024 13:18:13 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 442DIA9w51446098
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 2 May 2024 13:18:12 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DF0F220040;
+	Thu,  2 May 2024 13:18:09 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A1E062004E;
+	Thu,  2 May 2024 13:18:09 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu,  2 May 2024 13:18:09 +0000 (GMT)
+Date: Thu, 2 May 2024 15:18:08 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Zi Yan <ziy@nvidia.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Yang Shi <shy828301@gmail.com>, Ryan Roberts <ryan.roberts@arm.com>,
+        Barry Song <21cnbao@gmail.com>, David Hildenbrand <david@redhat.com>,
+        Lance Yang <ioworker0@gmail.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v5] mm/rmap: do not add fully unmapped large folio to
+ deferred split list
+Message-ID: <ZjOSkPc8f5u5J6m5@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240426190253.541419-1-zi.yan@sent.com>
+ <ZjJCdodEf4CBa1N7@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <5FAD7FB6-4AC0-4427-B56E-4942A95DB68C@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5FAD7FB6-4AC0-4427-B56E-4942A95DB68C@nvidia.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: BhJXFo5jULS1X6MGd4EQvaIkCzsPI8zC
+X-Proofpoint-GUID: 1BuLqmGV0xhRbwjDw_Q2SRtfZ5-i6DOQ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-05-02_02,2024-05-02_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 bulkscore=0 adultscore=0 mlxscore=0 phishscore=0
+ spamscore=0 clxscore=1015 malwarescore=0 mlxlogscore=999 impostorscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2405020085
 
-If CONFIG_GENERIC_LOCKBREAK=y and CONFIG_DEBUG_LOCK_ALLOC=n
-(e.g. sh/sdk7786_defconfig):
+On Wed, May 01, 2024 at 09:38:24AM -0400, Zi Yan wrote:
+Hi Zi,
+> @@ -1557,9 +1557,8 @@ static __always_inline void __folio_remove_rmap(struct folio *folio,
+>                  * page of the folio is unmapped and at least one page
+>                  * is still mapped.
+>                  */
+> -               if (folio_test_anon(folio) &&
+> -                   list_empty(&folio->_deferred_list) &&
+> -                   partially_mapped)
+> +               if (folio_test_anon(folio) && partially_mapped &&
+> +                   list_empty(&folio->_deferred_list))
+>                         deferred_split_folio(folio);
+>         }
 
-    kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__raw_spin_lock' [-Wmissing-prototypes]
-    kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__raw_spin_lock_irqsave' [-Wmissing-prototypes]
-    kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__raw_spin_lock_irq' [-Wmissing-prototypes]
-    kernel/locking/spinlock.c:103:17: warning: no previous prototype for '__raw_spin_lock_bh' [-Wmissing-prototypes]
-    kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__raw_read_lock' [-Wmissing-prototypes]
-    kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__raw_read_lock_irqsave' [-Wmissing-prototypes]
-    kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__raw_read_lock_irq' [-Wmissing-prototypes]
-    kernel/locking/spinlock.c:103:17: warning: no previous prototype for '__raw_read_lock_bh' [-Wmissing-prototypes]
-    kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__raw_write_lock' [-Wmissing-prototypes]
-    kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__raw_write_lock_irqsave' [-Wmissing-prototypes]
-    kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__raw_write_lock_irq' [-Wmissing-prototypes]
-    kernel/locking/spinlock.c:103:17: warning: no previous prototype for '__raw_write_lock_bh' [-Wmissing-prototypes]
+That helps.
 
-All __raw_* lock ops are internal functions without external callers.
-Hence fix this by making them static.
+> Best Regards,
+> Yan, Zi
 
-Note that if CONFIG_GENERIC_LOCKBREAK=y, no lock ops are inlined, as all
-of CONFIG_INLINE_*_LOCK* depend on !GENERIC_LOCKBREAK.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Waiman Long <longman@redhat.com>
----
-Compile-tested on all defconfigs that have CONFIG_GENERIC_LOCKBREAK=y:
-  - sh/sdk7786_defconfig,
-  - sh/shx3_defconfig,
-  - s390/debug_defconfig,
-and also on s390/debug_defconfig after changing:
-    CONFIG_DEBUG_LOCK_ALLOC=n
-    CONFIG_DEBUG_WW_MUTEX_SLOWPATH=n
-    CONFIG_LOCK_STAT=n
-    CONFIG_PROVE_LOCKING=n
-
-v2:
-  - Add Acked-by,
-  - Drop RFC,
-  - Improve patch description.
----
- kernel/locking/spinlock.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/kernel/locking/spinlock.c b/kernel/locking/spinlock.c
-index 8475a0794f8c5ad2..7009b568e6255d64 100644
---- a/kernel/locking/spinlock.c
-+++ b/kernel/locking/spinlock.c
-@@ -65,7 +65,7 @@ EXPORT_PER_CPU_SYMBOL(__mmiowb_state);
-  * towards that other CPU that it should break the lock ASAP.
-  */
- #define BUILD_LOCK_OPS(op, locktype)					\
--void __lockfunc __raw_##op##_lock(locktype##_t *lock)			\
-+static void __lockfunc __raw_##op##_lock(locktype##_t *lock)		\
- {									\
- 	for (;;) {							\
- 		preempt_disable();					\
-@@ -77,7 +77,7 @@ void __lockfunc __raw_##op##_lock(locktype##_t *lock)			\
- 	}								\
- }									\
- 									\
--unsigned long __lockfunc __raw_##op##_lock_irqsave(locktype##_t *lock)	\
-+static unsigned long __lockfunc __raw_##op##_lock_irqsave(locktype##_t *lock) \
- {									\
- 	unsigned long flags;						\
- 									\
-@@ -95,12 +95,12 @@ unsigned long __lockfunc __raw_##op##_lock_irqsave(locktype##_t *lock)	\
- 	return flags;							\
- }									\
- 									\
--void __lockfunc __raw_##op##_lock_irq(locktype##_t *lock)		\
-+static void __lockfunc __raw_##op##_lock_irq(locktype##_t *lock)	\
- {									\
- 	_raw_##op##_lock_irqsave(lock);					\
- }									\
- 									\
--void __lockfunc __raw_##op##_lock_bh(locktype##_t *lock)		\
-+static void __lockfunc __raw_##op##_lock_bh(locktype##_t *lock)		\
- {									\
- 	unsigned long flags;						\
- 									\
--- 
-2.34.1
-
+Thanks!
