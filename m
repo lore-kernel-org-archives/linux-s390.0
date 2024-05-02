@@ -1,84 +1,135 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
+Received: from smtp.dudau.co.uk (dliviu.plus.com [80.229.23.120])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 171BA176FB7
-	for <linux-s390@vger.kernel.org>; Thu,  2 May 2024 19:14:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DC341C6A7;
+	Thu,  2 May 2024 23:00:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.229.23.120
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714677298; cv=none; b=I5IgDlo8T0LwKBffmBPdyNGgfkhBlQxQN8IB3zU2Ts8HlQkUqIygmip4pSEBDJXt+HBeBrVj4nF2o0mTIM3feoOuKYEt3haThDTRKIOyoLlaxjfP48BMpigf2H0XFJVWpnurQJ0CMpCXSzTM1sFTOnBBtYgZUj66/Z8cQcvt3/o=
+	t=1714690831; cv=none; b=MEPtpvDWf7s26QV4qi3UG6Yb3HPMrj3kQwkS2sKU1ctEjTEQ4PjDOUjmQAlQinX+k7Da7PMcbj+ejHm2pn7noKYCI+sFVKtnfZ9fn8O0mW8c5nBNQ7swkiaLqBy56f1/c3TNGPMbUaaM8jvVDf4HpL7aWAOyHLt681uQ+CzBwe8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714677298; c=relaxed/simple;
-	bh=TgiBfvsQP3pwuzwzdLXyDX+4/QuSAnrNHYRKJ4v10Do=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=L0tafLCKYOzK6H7zyNae2ByJdT2Zux0bBmvjloxkg452EkICm0cVqRximbbo0qeOzRfnXf7x0hRRpftFG/1Q9omrkgv1yFQilrJBfcFGIk0ROAhrCNSlVYf2SogNiZ/ZThVQss1kiEA6g11XfctdTKhAp7xVGXVcIp5PP+RkDss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KEejJxBZ; arc=none smtp.client-ip=192.198.163.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KEejJxBZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1714677297; x=1746213297;
-  h=date:from:to:cc:subject:message-id:mime-version;
-  bh=TgiBfvsQP3pwuzwzdLXyDX+4/QuSAnrNHYRKJ4v10Do=;
-  b=KEejJxBZP3++bdF9jNW6B0L0hET8dlpl7QxTRZSgQ2kLXP6DuuvxRCP1
-   6pB5YP4L39bFkoL42MkcYHbCJ6vZ21hzH3XK6pq/PYUmgJ9gpCD/POJrE
-   Xex/7zNo2q6/Jcd3wLxmq3hMTNmeAiHpgTGaQ8Tjk/QvM7VylQEvq87hw
-   9ZzlvziEIp8JhmstMFnS508HCQSRutPcTW0hVhr6rXdnAwV7PYqw3JDuo
-   hTRaxwzFw/QMiJZYnztKaX7hlCj3Z03JDhq5nec91/agzf+zXZwHaGnId
-   2uG/1YXfkrErEpqsJHzanFOHh1MTdsbxcqV8ZiuEgXS3GRBfLWRBSekKb
-   A==;
-X-CSE-ConnectionGUID: XRU13z5RSteO/JeBwRnusg==
-X-CSE-MsgGUID: BL5UMRlSQQOSqZrbgMj/oQ==
-X-IronPort-AV: E=McAfee;i="6600,9927,11062"; a="21875899"
-X-IronPort-AV: E=Sophos;i="6.07,247,1708416000"; 
-   d="scan'208";a="21875899"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 May 2024 12:14:56 -0700
-X-CSE-ConnectionGUID: 66qQVYvLTQG4y5gShzojcg==
-X-CSE-MsgGUID: iOQjgrEPTkySgZdQHRj00A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,247,1708416000"; 
-   d="scan'208";a="27722793"
-Received: from lkp-server01.sh.intel.com (HELO e434dd42e5a1) ([10.239.97.150])
-  by orviesa007.jf.intel.com with ESMTP; 02 May 2024 12:14:55 -0700
-Received: from kbuild by e434dd42e5a1 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1s2btM-000Auk-25;
-	Thu, 02 May 2024 19:14:52 +0000
-Date: Fri, 3 May 2024 03:13:57 +0800
-From: kernel test robot <lkp@intel.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: oe-kbuild-all@lists.linux.dev, linux-s390@vger.kernel.org
-Subject: [s390:features 50/52] ibm.c:(.text+0x8bc): relocation truncated to
- fit: R_390_PLT32DBL against undefined symbol `dasd_biodasdinfo'
-Message-ID: <202405030347.s7RYreRn-lkp@intel.com>
+	s=arc-20240116; t=1714690831; c=relaxed/simple;
+	bh=RHdXinQzCxW7+a0qagt11WYAo+XBPVjylUdFscA6mww=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=A/OYe4MMAIuuc2PCNBkOIUadGm7kp9nWv566E9aEYEH5MHHTbX4fD+lZaZyf4kslCsCeSK1wuqXgGIyGR63jGo+2diDTfQs3pQDdDYgJa7cAgJ8OC/86iID/eAz0mdyx4KHz0CAyiNWs5wk85f+IQ+TYdXONA8+BttvakZwHnyw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dudau.co.uk; spf=pass smtp.mailfrom=dudau.co.uk; arc=none smtp.client-ip=80.229.23.120
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dudau.co.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dudau.co.uk
+Received: from mail.dudau.co.uk (bart.dudau.co.uk [192.168.14.2])
+	by smtp.dudau.co.uk (Postfix) with SMTP id 557B041D12F3;
+	Thu, 02 May 2024 23:50:36 +0100 (BST)
+Received: by mail.dudau.co.uk (sSMTP sendmail emulation); Thu, 02 May 2024 23:50:36 +0100
+Date: Thu, 2 May 2024 23:50:36 +0100
+From: Liviu Dudau <liviu@dudau.co.uk>
+To: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org,
+	Alexandre Ghiti <alexghiti@rivosinc.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	=?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Donald Dutile <ddutile@redhat.com>,
+	Eric Chanudet <echanude@redhat.com>,
+	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nadav Amit <nadav.amit@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Philippe =?utf-8?Q?Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Sam Ravnborg <sam@ravnborg.org>, Song Liu <song@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+	linux-mm@kvack.org, linux-modules@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v7 00/16] mm: jit/text allocator
+Message-ID: <ZjQYvOYgURx9/+d0@bart.dudau.co.uk>
+References: <20240429121620.1186447-1-rppt@kernel.org>
+ <Zi_K4K-j-VB_WI4i@bombadil.infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+In-Reply-To: <Zi_K4K-j-VB_WI4i@bombadil.infradead.org>
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-head:   7f20dda18a42526c4ce19c043c5e5f62e6c52d64
-commit: 9ecaa2e94e602a3cbcbfe182535f6297f7630b98 [50/52] s390: Relocate vmlinux ELF data to virtual address space
-config: s390-randconfig-r031-20211104 (https://download.01.org/0day-ci/archive/20240503/202405030347.s7RYreRn-lkp@intel.com/config)
-compiler: s390-linux-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240503/202405030347.s7RYreRn-lkp@intel.com/reproduce)
+On Mon, Apr 29, 2024 at 09:29:20AM -0700, Luis Chamberlain wrote:
+> On Mon, Apr 29, 2024 at 03:16:04PM +0300, Mike Rapoport wrote:
+> > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+> > 
+> > Hi,
+> > 
+> > The patches are also available in git:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git/log/?h=execmem/v7
+> > 
+> > v7 changes:
+> > * define MODULE_{VADDR,END} for riscv32 to fix the build and avoid
+> >   #ifdefs in a function body
+> > * add Acks, thanks everybody
+> 
+> Thanks, I've pushed this to modules-next for further exposure / testing.
+> Given the status of testing so far with prior revisions, in that only a
+> few issues were found and that those were fixed, and the status of
+> reviews, this just might be ripe for v6.10.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202405030347.s7RYreRn-lkp@intel.com/
+Looks like there is still some work needed. I've picked up next-20240501
+and on arch/mips with CONFIG_MODULE_COMPRESS_XZ=y and CONFIG_MODULE_DECOMPRESS=y
+I fail to load any module:
 
-All errors (new ones prefixed by >>):
+# modprobe rfkill
+[11746.539090] Invalid ELF header magic: != ELF
+[11746.587149] execmem: unable to allocate memory
+modprobe: can't load module rfkill (kernel/net/rfkill/rfkill.ko.xz): Out of memory
 
-   block/partitions/ibm.o: in function `ibm_partition':
->> ibm.c:(.text+0x8bc): relocation truncated to fit: R_390_PLT32DBL against undefined symbol `dasd_biodasdinfo'
+The (hopefully) relevant parts of my .config:
+
+CONFIG_HAVE_KERNEL_XZ=y
+CONFIG_MIPS=y
+CONFIG_RALINK=y
+CONFIG_SOC_MT7621=y
+CONFIG_EXECMEM=y
+CONFIG_MODULES_USE_ELF_REL=y
+CONFIG_MODULES=y
+# CONFIG_MODULE_DEBUG is not set
+# CONFIG_MODULE_FORCE_LOAD is not set
+CONFIG_MODULE_UNLOAD=y
+# CONFIG_MODULE_FORCE_UNLOAD is not set
+# CONFIG_MODULE_UNLOAD_TAINT_TRACKING is not set
+# CONFIG_MODULE_SRCVERSION_ALL is not set
+# CONFIG_MODULE_SIG is not set
+# CONFIG_MODULE_COMPRESS_NONE is not set
+# CONFIG_MODULE_COMPRESS_GZIP is not set
+CONFIG_MODULE_COMPRESS_XZ=y
+# CONFIG_MODULE_COMPRESS_ZSTD is not set
+CONFIG_MODULE_DECOMPRESS=y
+# CONFIG_MODULE_ALLOW_MISSING_NAMESPACE_IMPORTS is not set
+CONFIG_MODULES_TREE_LOOKUP=y
+
+
+Best regards,
+Liviu
+
+
+> 
+>   Luis
+> 
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Everyone who uses computers frequently has had, from time to time,
+a mad desire to attack the precocious abacus with an axe.
+       	   	      	     	  -- John D. Clark, Ignition!
