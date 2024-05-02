@@ -1,77 +1,99 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-189.mta1.migadu.com (out-189.mta1.migadu.com [95.215.58.189])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7218D200A0;
-	Thu,  2 May 2024 08:00:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70CE92C190
+	for <linux-s390@vger.kernel.org>; Thu,  2 May 2024 08:12:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.189
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714636831; cv=none; b=O6GKIyJO+e9sCT81zuM0HnYVGVgfT5nVVRazqg9AhchSQXunI1fAMBi+9d2LNGednvxiNqOMpsokW3w4auBZTjvwb/tFiz+1iqqUZCchaU6kOJr0HnEey8tHj0K5BH6BE/cGEi5dkVevtguInikl54RVcp4vHneZwMU4RcUNzEU=
+	t=1714637577; cv=none; b=JQU5Vi+CU6/xPFtIrxunYJDYirduQLTLgOK7w3xl/Ap5tuj49cFOfXyJ0GJUvRNgdiJuzOG0v4UUk+bNrwBdRIwzaWRvBhjAlWmV3LouoSRhCDC0eszpi+FXZ6C8qsdR0nGDkM0Ct+hGuZmgLYIveIPd37jZKAgorZSmBGSlhVo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714636831; c=relaxed/simple;
-	bh=+mqEBn4LYyIDvatHH5ciyy89qzxftjOS7yojeGalSTg=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=G7wi/QLRCw6DJKK0DPlR1mtmnOa0LerVb+Ng9jCq84GIkzya6nX46Yu63hxmd5S45d2/4A45RMG9vfEeSyUC+7ZUb4zp5Hjk5nFRbi6TbUHv6LileVQrRnOxYm5u3e6BU6sUuamHVL1mauVByfXMqNpgMQemZWhz9DwM1I6HSt8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sP3nx2M8; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1714637577; c=relaxed/simple;
+	bh=TR3FnC2XQLQk2Rb/Gmxahb2SbM8bPc1uVT2H1D+gSIc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=f44/Y/ESCBeVGKHmpBNR+SIeyAhzVjBFPbA5v4/l3cZI0HjMAIHgNOk6fS8injkckIUDp/PR/ClLtU2Spcr9iH8qnPv3jX+USYvZ6LxbxQrBr/0n3b2wb33+/1e1yQZvAbdy3JJk3jG75sO49A53DhWqUN+jWH7xgDpHJLu/DhM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Pa1zKq3H; arc=none smtp.client-ip=95.215.58.189
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sP3nx2M8"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id EE1EEC116B1;
-	Thu,  2 May 2024 08:00:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714636831;
-	bh=+mqEBn4LYyIDvatHH5ciyy89qzxftjOS7yojeGalSTg=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=sP3nx2M8j2c5zR/a7SqlVVfvafIB3qXHUb7gLB0NBItg3PilWj8gBd7GgDfh9hm4z
-	 G3GqLnXt8uPo+5WsIocmEcLlTRqFukrkRXKvADLF+em4dTrNSLrfwMc5IbLNcqHCtM
-	 4uA9UrTfCE8FeEkvBp1hkqSgbR9sc7eeS6XMMf3fKdwB4FN8PNjhC0rHtlXkE38n5X
-	 jtfRKDD2WW7KAK9nTSlpw7+OOxz5SKFTJ0QumMIA4PWY9EV5Ze19hzu+gifjlUJahi
-	 4GAN/f1VqJ+zuHx1eoYfPxtV/0R3XA1IWQJIAX/cK0wnRXdk5H5NJQe9ABmEcjjcNL
-	 VhI/v/BzBWMSw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id DA1D9C43336;
-	Thu,  2 May 2024 08:00:30 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Pa1zKq3H"
+Date: Thu, 2 May 2024 10:12:44 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1714637573;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=1uKFvOuyhI8Wif3LnkCVMq1U4LOjcoLCFDlwXYp89GI=;
+	b=Pa1zKq3HhQIBbzzCmOknO89qOFWc4kE6FUiHowe688JiawO5Th1/LRgkRdX1WG/DvjqPLv
+	JX4TtJPxSoHRQmcob97KrCwLoK6hvSAzKnrOFuhfHB1mIKU788xWl0v2skzHPhiven+rm1
+	8LJOAd0NiV/yKPioW466udQlqI6Q5Ys=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Andrew Jones <andrew.jones@linux.dev>
+To: Nicholas Piggin <npiggin@gmail.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, 
+	Alexandru Elisei <alexandru.elisei@arm.com>, Eric Auger <eric.auger@redhat.com>, 
+	Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
+	Nico =?utf-8?B?QsO2aHI=?= <nrb@linux.ibm.com>, David Hildenbrand <david@redhat.com>, 
+	Shaoqin Huang <shahuang@redhat.com>, Nikos Nikoleris <nikos.nikoleris@arm.com>, 
+	David Woodhouse <dwmw@amazon.co.uk>, Ricardo Koller <ricarkol@google.com>, 
+	rminmin <renmm6@chinaunicom.cn>, Gavin Shan <gshan@redhat.com>, 
+	Nina Schoetterl-Glausch <nsg@linux.ibm.com>, Sean Christopherson <seanjc@google.com>, kvm@vger.kernel.org, 
+	kvmarm@lists.linux.dev, kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v3 0/5] add shellcheck support
+Message-ID: <20240502-0e53a1b2873fbb04cdd2840c@orel>
+References: <20240501112938.931452-1-npiggin@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] s390/qeth: Fix kernel panic after setting hsuid
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <171463683088.19132.13776000447707999251.git-patchwork-notify@kernel.org>
-Date: Thu, 02 May 2024 08:00:30 +0000
-References: <20240430091004.2265683-1-wintera@linux.ibm.com>
-In-Reply-To: <20240430091004.2265683-1-wintera@linux.ibm.com>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
- edumazet@google.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- twinkler@linux.ibm.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240501112938.931452-1-npiggin@gmail.com>
+X-Migadu-Flow: FLOW_OUT
 
-Hello:
-
-This patch was applied to netdev/net.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
-
-On Tue, 30 Apr 2024 11:10:04 +0200 you wrote:
-> Symptom:
-> When the hsuid attribute is set for the first time on an IQD Layer3
-> device while the corresponding network interface is already UP,
-> the kernel will try to execute a napi function pointer that is NULL.
+On Wed, May 01, 2024 at 09:29:29PM GMT, Nicholas Piggin wrote:
+> This is based on upstream directly now, not ahead of the powerpc
+> series.
 > 
-> Example:
+> Since v2:
+> - Rebased to upstream with some patches merged.
+> - Just a few comment typos and small issues (e.g., quoting
+>   `make shellcheck` in docs) that people picked up from the
+>   last round.
 > 
-> [...]
+> `make shellcheck` passes with no warnings for me after this series.
+> (You should be able to put patch 1 at the end without conflicts if
+> you prefer to only introduce the shellcheck Makefile target when the
+> tree is clean.)
+> 
+> Thanks,
+> Nick
+> 
+> Nicholas Piggin (5):
+>   Add initial shellcheck checking
+>   shellcheck: Fix SC2155
+>   shellcheck: Fix SC2124
+>   shellcheck: Fix SC2294
+>   shellcheck: Suppress various messages
+> 
+>  .shellcheckrc           | 30 ++++++++++++++++++++++++++++++
+>  Makefile                |  4 ++++
+>  README.md               |  3 +++
+>  configure               |  2 ++
+>  run_tests.sh            |  3 +++
+>  scripts/arch-run.bash   | 33 ++++++++++++++++++++++++++-------
+>  scripts/common.bash     |  5 ++++-
+>  scripts/mkstandalone.sh |  2 ++
+>  scripts/runtime.bash    |  6 +++++-
+>  9 files changed, 79 insertions(+), 9 deletions(-)
+>  create mode 100644 .shellcheckrc
+> 
+> -- 
+> 2.43.0
+>
 
-Here is the summary with links:
-  - [net] s390/qeth: Fix kernel panic after setting hsuid
-    https://git.kernel.org/netdev/net/c/8a2e4d37afb8
+Merged.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Thanks,
+drew
