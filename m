@@ -1,74 +1,74 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6301F290F;
-	Fri,  3 May 2024 06:30:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2F7C139CF1;
+	Fri,  3 May 2024 07:51:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714717807; cv=none; b=n0tOFaQGjpyEUMzyJMPGyZzbT84K8TO3gxS3mDqAuWiAdYDL2e8EwKMPR1YNBaH6D5qwCTNQ8dZ6U7oHtXrRmrj6EOEMpfKGzcQJswS8ZL2I0KRq+8y2GwnA4Ie8mWCbB9s2cnAyfYCjo6XU9Dsi+dum3dt/st/eEk/JNrOHi6U=
+	t=1714722666; cv=none; b=nEiwO64CZ/9Qh5xjOYhEIDLyvBiZ9W0y/idxoHGIGiopLSWCBRGKhjWtSJrLiWzjcO2QxiCc/EKWtaCRiRX3CKVZMnY3WIGMW43nZlQccba0T5FIupxsaCK9h9BjlcVjxR1q2JsaOmmSHXVVMluG+0qVMmr8EssFP8xzwXYU6ps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714717807; c=relaxed/simple;
-	bh=NSC6FggAGOpolvtOOTtzvsapYt7Z43kurk5+y2tvQkw=;
+	s=arc-20240116; t=1714722666; c=relaxed/simple;
+	bh=yIjNmxIML1FbsXVtMsyttZ8dFCoK45Lmn+U46u/czgk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FAn7sUBqCC0nTdJ35qTL7x//Utm3Hk9o92guZgi/R/Le4A9jpnx1SQT9UmOjTLGSBEiLvaOmolQVrHL5u4hCG0wWF0IKL1CaxnhnFQTXtCMkxMg0veRik4AE0MqUPPeYeyO+2N3PgFiZWrLoSVFezMDR3/oF8SIaLVDYhXTl25E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bwAj/o4z; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=lE8a0h+davp5/R/XIdLml1DmlTNBz5xHDkgjUYT5W9iB4L0AWzJ2jPIqJlXdp59O6LE1qha3sxt3YzHUWt7EO58aTs/V+XSCoAvCeHIdXNzbtVWiz1fXFWavWd2Z43/wP8DERIT3KkqMyH9sN+hRxBIgOwY8I9FU1qKdK56Y2mc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gR8/3huL; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bwAj/o4z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D10BEC4AF18;
-	Fri,  3 May 2024 06:29:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714717806;
-	bh=NSC6FggAGOpolvtOOTtzvsapYt7Z43kurk5+y2tvQkw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=bwAj/o4z6mxVc4acT1p204cItFIICj4lolnvi6/B+2I69ijFUkW4kL43jJvFF5SNj
-	 UmKFV+2tDRa5Q0FuZXLq62NUw0f9R//Mhh7KhGfTfGvwsYTuWAbe8R8gF66PSIjIuK
-	 FeqRVhFSGE/4hC/ZWczfyriqj4oj0hhlnmoXy3QJUtLWmPOLtD42M3kP1GFnNA0u1m
-	 j7L4KS44qkZKAWDpzX4XROQYHr18P+iqEATDzZbnCq6whosLlxL/Atwq7kVYkiGMwb
-	 BfuhaXRN8F5uX61hlrlpunm62OWFEbNCk5y1p4CaZ97gubj5n8xiuGbc1yDd9WEY0K
-	 w1DM+OB1PDqTw==
-Date: Fri, 3 May 2024 09:28:25 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Liviu Dudau <liviu@dudau.co.uk>
-Cc: Luis Chamberlain <mcgrof@kernel.org>, linux-kernel@vger.kernel.org,
-	Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Donald Dutile <ddutile@redhat.com>,
-	Eric Chanudet <echanude@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nadav Amit <nadav.amit@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Philippe =?iso-8859-1?Q?Mathieu-Daud=E9?= <philmd@linaro.org>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Sam Ravnborg <sam@ravnborg.org>, Song Liu <song@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
-	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-mm@kvack.org, linux-modules@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v7 00/16] mm: jit/text allocator
-Message-ID: <ZjSECeooxZELXSC1@kernel.org>
-References: <20240429121620.1186447-1-rppt@kernel.org>
- <Zi_K4K-j-VB_WI4i@bombadil.infradead.org>
- <ZjQYvOYgURx9/+d0@bart.dudau.co.uk>
- <ZjQcmcA0sNH7jfD7@bombadil.infradead.org>
- <ZjQuggSFcO8FXSd2@bart.dudau.co.uk>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gR8/3huL"
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 4437GHmD029492;
+	Fri, 3 May 2024 07:51:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=6TfG+m/b+Q0DJTgqARcvPfAZDfe6qFgeYAx1R3LLzJ0=;
+ b=gR8/3huLDXEpZM7+E/FADsM9OV9y9I+ByO+S4rtcYc8z8VTDivV/PlPrN1KCnkh+IWMg
+ 7ZT657mB9WEu74Mk0CvQLH6ULTUxt7mMrX7mNBKCj0yAK3PlZTLQRnKY+EKuEcBXo0iG
+ qpidM/lDDO/3YMt32/v5AG/yQbLo5kWTINH7xuZhvrX8svHTElSdDVYgRZewXJFZ+jSv
+ gcf+Ic8CyJATd+n7wKbNIllKIDnEmIEQstH40Zk5R1QGGn0HJ4YEwo6XrbDlBaoPcvG4
+ pDcHdMd6jEX29tNxtU47BNlIyuIs3hXXeFe9VBOZ0tHV9YdMSd6l0SWifA69y4y6XJdb sQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xvtp9g5p1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 03 May 2024 07:51:02 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4437p2ej019183;
+	Fri, 3 May 2024 07:51:02 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xvtp9g5ny-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 03 May 2024 07:51:02 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 44369Eel003622;
+	Fri, 3 May 2024 07:51:01 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xscppvgup-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 03 May 2024 07:51:01 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4437oter53150080
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 3 May 2024 07:50:57 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C88AD20067;
+	Fri,  3 May 2024 07:50:55 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5CA9C2005A;
+	Fri,  3 May 2024 07:50:55 +0000 (GMT)
+Received: from osiris (unknown [9.171.17.237])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri,  3 May 2024 07:50:55 +0000 (GMT)
+Date: Fri, 3 May 2024 09:50:53 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Thomas Huth <thuth@redhat.com>
+Cc: linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-kernel@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH] s390: Remove comment about TIF_FPU
+Message-ID: <20240503075053.9139-A-hca@linux.ibm.com>
+References: <20240502172527.56835-1-thuth@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -77,102 +77,43 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZjQuggSFcO8FXSd2@bart.dudau.co.uk>
+In-Reply-To: <20240502172527.56835-1-thuth@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: jBqv7RWMhwUeki5oK_uU5Z14dsFnZcBR
+X-Proofpoint-GUID: Hnm-zw5HsnZbbfDxyQBBp5zBEMWLVvWf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-05-03_04,2024-05-03_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 spamscore=0 adultscore=0 priorityscore=1501 mlxscore=0
+ phishscore=0 impostorscore=0 suspectscore=0 clxscore=1015 mlxlogscore=731
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2405030055
 
-On Fri, May 03, 2024 at 01:23:30AM +0100, Liviu Dudau wrote:
-> On Thu, May 02, 2024 at 04:07:05PM -0700, Luis Chamberlain wrote:
-> > On Thu, May 02, 2024 at 11:50:36PM +0100, Liviu Dudau wrote:
-> > > On Mon, Apr 29, 2024 at 09:29:20AM -0700, Luis Chamberlain wrote:
-> > > > On Mon, Apr 29, 2024 at 03:16:04PM +0300, Mike Rapoport wrote:
-> > > > > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
-> > > > > 
-> > > > > Hi,
-> > > > > 
-> > > > > The patches are also available in git:
-> > > > > https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git/log/?h=execmem/v7
-> > > > > 
-> > > > > v7 changes:
-> > > > > * define MODULE_{VADDR,END} for riscv32 to fix the build and avoid
-> > > > >   #ifdefs in a function body
-> > > > > * add Acks, thanks everybody
-> > > > 
-> > > > Thanks, I've pushed this to modules-next for further exposure / testing.
-> > > > Given the status of testing so far with prior revisions, in that only a
-> > > > few issues were found and that those were fixed, and the status of
-> > > > reviews, this just might be ripe for v6.10.
-> > > 
-> > > Looks like there is still some work needed. I've picked up next-20240501
-> > > and on arch/mips with CONFIG_MODULE_COMPRESS_XZ=y and CONFIG_MODULE_DECOMPRESS=y
-> > > I fail to load any module:
-> > > 
-> > > # modprobe rfkill
-> > > [11746.539090] Invalid ELF header magic: != ELF
-> > > [11746.587149] execmem: unable to allocate memory
-> > > modprobe: can't load module rfkill (kernel/net/rfkill/rfkill.ko.xz): Out of memory
-> > > 
-> > > The (hopefully) relevant parts of my .config:
-> > 
-> > Thanks for the report! Any chance we can get you to try a bisection? I
-> > think it should take 2-3 test boots. To help reduce scope you try modules-next:
-> > 
-> > https://git.kernel.org/pub/scm/linux/kernel/git/mcgrof/linux.git/log/?h=modules-next
-> > 
-> > Then can you check by resetting your tree to commmit 3fbe6c2f820a76 (mm:
-> > introduce execmem_alloc() and execmem_free()"). I suspect that should
-> > boot, so your bad commit would be the tip 3c2c250cb3a5fbb ("bpf: remove
-> > CONFIG_BPF_JIT dependency on CONFIG_MODULES of").
-> > 
-> > That gives us only a few commits to bisect:
-> > 
-> > git log --oneline 3fbe6c2f820a76bc36d5546bda85832f57c8fce2..
-> > 3c2c250cb3a5 (HEAD -> modules-next, korg/modules-next) bpf: remove CONFIG_BPF_JIT dependency on CONFIG_MODULES of
-> > 11e8e65cce5c kprobes: remove dependency on CONFIG_MODULES
-> > e10cbc38697b powerpc: use CONFIG_EXECMEM instead of CONFIG_MODULES where appropriate
-> > 4da3d38f24c5 x86/ftrace: enable dynamic ftrace without CONFIG_MODULES
-> > 13ae3d74ee70 arch: make execmem setup available regardless of CONFIG_MODULES
-> > 460bbbc70a47 powerpc: extend execmem_params for kprobes allocations
-> > e1a14069b5b4 arm64: extend execmem_info for generated code allocations
-> > 971e181c6585 riscv: extend execmem_params for generated code allocations
-> > 0fa276f26721 mm/execmem, arch: convert remaining overrides of module_alloc to execmem
-> > 022cef244287 mm/execmem, arch: convert simple overrides of module_alloc to execmem
-> > 
-> > With 2-3 boots we should be to tell which is the bad commit.
+On Thu, May 02, 2024 at 07:25:27PM +0200, Thomas Huth wrote:
+> It has been removed in commit 2c6b96762fbd ("s390/fpu: remove TIF_FPU"),
+> so we should not mention TIF_FPU in the comment here anymore.
 > 
-> Looks like 0fa276f26721 is the first bad commit.
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
+> ---
+>  arch/s390/kernel/process.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> $ git bisect log
-> # bad: [3c2c250cb3a5fbbccc4a4ff4c9354c54af91f02c] bpf: remove CONFIG_BPF_JIT dependency on CONFIG_MODULES of
-> # good: [3fbe6c2f820a76bc36d5546bda85832f57c8fce2] mm: introduce execmem_alloc() and execmem_free()
-> git bisect start '3c2c250cb3a5' '3fbe6c2f820a76'
-> # bad: [460bbbc70a47e929b1936ca68979f3b79f168fc6] powerpc: extend execmem_params for kprobes allocations
-> git bisect bad 460bbbc70a47e929b1936ca68979f3b79f168fc6
-> # bad: [0fa276f26721e0ffc2ae9c7cf67dcc005b43c67e] mm/execmem, arch: convert remaining overrides of module_alloc to execmem
-> git bisect bad 0fa276f26721e0ffc2ae9c7cf67dcc005b43c67e
-> # good: [022cef2442870db738a366d3b7a636040c081859] mm/execmem, arch: convert simple overrides of module_alloc to execmem
-> git bisect good 022cef2442870db738a366d3b7a636040c081859
-> # first bad commit: [0fa276f26721e0ffc2ae9c7cf67dcc005b43c67e] mm/execmem, arch: convert remaining overrides of module_alloc to execmem
-> 
-> Maybe MIPS also needs a ARCH_WANTS_EXECMEM_LATE?
+> diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
+> index dd456b475861..3e7df2e579f1 100644
+> --- a/arch/s390/kernel/process.c
+> +++ b/arch/s390/kernel/process.c
+> @@ -88,8 +88,7 @@ int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
+>  {
+>  	/*
+>  	 * Save the floating-point or vector register state of the current
+> -	 * task and set the TIF_FPU flag to lazy restore the FPU register
+> -	 * state when returning to user space.
+> +	 * task.
+>  	 */
+>  	save_user_fpu_regs();
 
-I don't think so. It rather seems there's a bug in the initialization of
-the defaults in execmem. This should fix it:
+Could you change your patch to remove the whole comment instead, please?
 
-diff --git a/mm/execmem.c b/mm/execmem.c
-index f6dc3fabc1ca..0c4b36bc6d10 100644
---- a/mm/execmem.c
-+++ b/mm/execmem.c
-@@ -118,7 +118,6 @@ static void __init __execmem_init(void)
- 		info->ranges[EXECMEM_DEFAULT].end = VMALLOC_END;
- 		info->ranges[EXECMEM_DEFAULT].pgprot = PAGE_KERNEL_EXEC;
- 		info->ranges[EXECMEM_DEFAULT].alignment = 1;
--		return;
- 	}
- 
- 	if (!execmem_validate(info))
- 
-> Best regards,
-> Liviu
-
--- 
-Sincerely yours,
-Mike.
+Without the TIF_FPU part the comment becomes quite pointless, since it
+only documents the obvious.
