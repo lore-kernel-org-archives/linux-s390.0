@@ -1,188 +1,178 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BED042A91
-	for <linux-s390@vger.kernel.org>; Fri,  3 May 2024 05:13:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6301F290F;
+	Fri,  3 May 2024 06:30:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714713232; cv=none; b=ZohyH6cLW9vp921b3mepAYvw5zy1GdFShBYjN9binLC0yXxeqQCOcy35DOp6F60wh80hzayuA9zOdXvJhk/Gu9oQ2cnDsB2UsEfdaa/bhdv0bAd5pcA8s1vsh94Dzh/uV73hkIaeYjoaCOzMmNEr8ohpaiqjNcah/t+Pu9QLUJY=
+	t=1714717807; cv=none; b=n0tOFaQGjpyEUMzyJMPGyZzbT84K8TO3gxS3mDqAuWiAdYDL2e8EwKMPR1YNBaH6D5qwCTNQ8dZ6U7oHtXrRmrj6EOEMpfKGzcQJswS8ZL2I0KRq+8y2GwnA4Ie8mWCbB9s2cnAyfYCjo6XU9Dsi+dum3dt/st/eEk/JNrOHi6U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714713232; c=relaxed/simple;
-	bh=RT9/PmKCnW4nOT5ejHyHi2G/78U2RlAU3posvNIoMnQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=baG3/3eyaQyo+xNr+3xclBFSEudfml4E1sFmPCxtYiK1o2LHascZESuxbQ5pMlKezPNP0O2dOhbVYli9qZWwX3JNhqTeoLYMsxrFHlyjMrQIS1SKddQIDFD3CU5iBRNoXo4w+MmY+BGn3gmUxvYmuEgqV52eXLsmbz+Jp2jQil8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MgS1IHrR; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1714717807; c=relaxed/simple;
+	bh=NSC6FggAGOpolvtOOTtzvsapYt7Z43kurk5+y2tvQkw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FAn7sUBqCC0nTdJ35qTL7x//Utm3Hk9o92guZgi/R/Le4A9jpnx1SQT9UmOjTLGSBEiLvaOmolQVrHL5u4hCG0wWF0IKL1CaxnhnFQTXtCMkxMg0veRik4AE0MqUPPeYeyO+2N3PgFiZWrLoSVFezMDR3/oF8SIaLVDYhXTl25E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bwAj/o4z; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MgS1IHrR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714713229;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=Opojcr/NBDOoIzZkhJbTlqDTHfqUYKezeK7i6rDG2Vg=;
-	b=MgS1IHrRkUWANqZPw+Uu7yS9TrpR4+tUs9CAtRRhMrMgyUJfpQtA9DvSh6yLYwS3wvFkRs
-	61PAGi0OMmOsX1Zkc7g71KlRPMOzkIjRF4IUPwkSF7wMoBj6smiSeWCoDhx6BiVuv7jukw
-	ZbbVqcMIjcl82fkFjyAMJtHkoJVSelY=
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
- [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-306-hALUuHT2NGyU54NSwrrtdw-1; Fri, 03 May 2024 01:13:47 -0400
-X-MC-Unique: hALUuHT2NGyU54NSwrrtdw-1
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-790f55f69a7so744670085a.0
-        for <linux-s390@vger.kernel.org>; Thu, 02 May 2024 22:13:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714713227; x=1715318027;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Opojcr/NBDOoIzZkhJbTlqDTHfqUYKezeK7i6rDG2Vg=;
-        b=UgqFzW5tNro3+aKF1cNheEfzNYEGFrSey4SpD0NqtgriAU8l94B2hHAQcUTKGKzSnp
-         rwbmU6nOvFgzYi1NKyOVgPxCo/d/deFFYpTN4pNDNkHHOysHlAmyoiZvLb1q3bIaCZn7
-         zzpLP/bFgIT5G54zCrzQiKTeo7UlNB+sUJFHZytxQGTBA66mr87eJM6Q/NrdUa47qQD0
-         Z8KxxMJdzNbyQ0cMC4WDRK7RrQ5iHR+AcL49qsbDXkiNVfs5uthTG5sjzSYU8E+H7EZU
-         bIjTkuLnJYBxm4Zn7tYGtPpRF59WlVsv9y3E70OtlCfaU0nBV/YdVXDLFyXAtcHqDG0r
-         k0Bg==
-X-Forwarded-Encrypted: i=1; AJvYcCX8LFMyZ+yP4GA+Dlx0RvhQSu3C+udG5Cq7C+Aw9q99+zFFyHAiF6+WIRZ/TabYi64UFv/ywGbN7QOKEB38tQuXT0ek65MvIYV4dg==
-X-Gm-Message-State: AOJu0YwNVtoFda/68XCqAqalxOX/M0Pmk+T7v9xhFRogtTj778UfBbdl
-	TqniyXwjAeBgrGnuDZtdQJZJtSsoOQWP6tSJWoinB9/KhMKiUqJdEfkZP8Jg2e00W3reGrfQhwc
-	8UU1y/YNCRnyz4XIqmmtv3ved57E7rxuT2l75SNbBbEPc+vcBfRUxEy+k8xs=
-X-Received: by 2002:a05:620a:172b:b0:78e:d2e7:3e9e with SMTP id az43-20020a05620a172b00b0078ed2e73e9emr2131185qkb.68.1714713227301;
-        Thu, 02 May 2024 22:13:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG9BdZ/K1alGXgb2csMR8tC5uIoyHecq+rjFXh+y2bCp7O4HtpsnfSxnbJvLhK2n50FqDu/8g==
-X-Received: by 2002:a05:620a:172b:b0:78e:d2e7:3e9e with SMTP id az43-20020a05620a172b00b0078ed2e73e9emr2131160qkb.68.1714713226902;
-        Thu, 02 May 2024 22:13:46 -0700 (PDT)
-Received: from [192.168.0.9] (ip-109-43-179-34.web.vodafone.de. [109.43.179.34])
-        by smtp.gmail.com with ESMTPSA id fj15-20020a05622a550f00b00434946547d3sm1183826qtb.53.2024.05.02.22.13.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 02 May 2024 22:13:46 -0700 (PDT)
-Message-ID: <4b934481-49f9-42e6-87f5-74318f2597db@redhat.com>
-Date: Fri, 3 May 2024 07:13:39 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bwAj/o4z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D10BEC4AF18;
+	Fri,  3 May 2024 06:29:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1714717806;
+	bh=NSC6FggAGOpolvtOOTtzvsapYt7Z43kurk5+y2tvQkw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=bwAj/o4z6mxVc4acT1p204cItFIICj4lolnvi6/B+2I69ijFUkW4kL43jJvFF5SNj
+	 UmKFV+2tDRa5Q0FuZXLq62NUw0f9R//Mhh7KhGfTfGvwsYTuWAbe8R8gF66PSIjIuK
+	 FeqRVhFSGE/4hC/ZWczfyriqj4oj0hhlnmoXy3QJUtLWmPOLtD42M3kP1GFnNA0u1m
+	 j7L4KS44qkZKAWDpzX4XROQYHr18P+iqEATDzZbnCq6whosLlxL/Atwq7kVYkiGMwb
+	 BfuhaXRN8F5uX61hlrlpunm62OWFEbNCk5y1p4CaZ97gubj5n8xiuGbc1yDd9WEY0K
+	 w1DM+OB1PDqTw==
+Date: Fri, 3 May 2024 09:28:25 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: Liviu Dudau <liviu@dudau.co.uk>
+Cc: Luis Chamberlain <mcgrof@kernel.org>, linux-kernel@vger.kernel.org,
+	Alexandre Ghiti <alexghiti@rivosinc.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Donald Dutile <ddutile@redhat.com>,
+	Eric Chanudet <echanude@redhat.com>,
+	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nadav Amit <nadav.amit@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Philippe =?iso-8859-1?Q?Mathieu-Daud=E9?= <philmd@linaro.org>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Sam Ravnborg <sam@ravnborg.org>, Song Liu <song@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+	bpf@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+	linux-mm@kvack.org, linux-modules@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v7 00/16] mm: jit/text allocator
+Message-ID: <ZjSECeooxZELXSC1@kernel.org>
+References: <20240429121620.1186447-1-rppt@kernel.org>
+ <Zi_K4K-j-VB_WI4i@bombadil.infradead.org>
+ <ZjQYvOYgURx9/+d0@bart.dudau.co.uk>
+ <ZjQcmcA0sNH7jfD7@bombadil.infradead.org>
+ <ZjQuggSFcO8FXSd2@bart.dudau.co.uk>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v3 0/5] add shellcheck support
-To: Nicholas Piggin <npiggin@gmail.com>, Andrew Jones <andrew.jones@linux.dev>
-Cc: Paolo Bonzini <pbonzini@redhat.com>,
- Alexandru Elisei <alexandru.elisei@arm.com>,
- Eric Auger <eric.auger@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, =?UTF-8?Q?Nico_B=C3=B6hr?=
- <nrb@linux.ibm.com>, David Hildenbrand <david@redhat.com>,
- Shaoqin Huang <shahuang@redhat.com>,
- Nikos Nikoleris <nikos.nikoleris@arm.com>,
- David Woodhouse <dwmw@amazon.co.uk>, Ricardo Koller <ricarkol@google.com>,
- rminmin <renmm6@chinaunicom.cn>, Gavin Shan <gshan@redhat.com>,
- Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
- Sean Christopherson <seanjc@google.com>, kvm@vger.kernel.org,
- kvmarm@lists.linux.dev, kvm-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org
-References: <20240501112938.931452-1-npiggin@gmail.com>
- <2be99a78-878c-4819-8c42-1b795019af2f@redhat.com>
- <20240502-d231f770256b3ed812eb4246@orel>
- <28975cc5-ef8f-4471-baca-0bb792a62084@redhat.com>
- <D0ZQV7VH839A.3RQVN9RKAGH2N@gmail.com>
-From: Thomas Huth <thuth@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <D0ZQV7VH839A.3RQVN9RKAGH2N@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZjQuggSFcO8FXSd2@bart.dudau.co.uk>
 
-On 03/05/2024 07.02, Nicholas Piggin wrote:
-> On Thu May 2, 2024 at 7:34 PM AEST, Thomas Huth wrote:
->> On 02/05/2024 10.56, Andrew Jones wrote:
->>> On Thu, May 02, 2024 at 10:23:22AM GMT, Thomas Huth wrote:
->>>> On 01/05/2024 13.29, Nicholas Piggin wrote:
->>>>> This is based on upstream directly now, not ahead of the powerpc
->>>>> series.
->>>>
->>>> Thanks! ... maybe you could also rebase the powerpc series on this now? (I
->>>> haven't forgotten about it, just did not find enough spare time for more
->>>> reviewing yet)
->>>>
->>>>> Since v2:
->>>>> - Rebased to upstream with some patches merged.
->>>>> - Just a few comment typos and small issues (e.g., quoting
->>>>>      `make shellcheck` in docs) that people picked up from the
->>>>>      last round.
->>>>
->>>> When I now run "make shellcheck", I'm still getting an error:
->>>>
->>>> In config.mak line 16:
->>>> AR=ar
->>>> ^-- SC2209 (warning): Use var=$(command) to assign output (or quote to
->>>> assign string).
->>>
->>> I didn't see this one when testing. I have shellcheck version 0.9.0.
->>
->> I'm also using 0.9.0 (from Fedora). Maybe we've got a different default config?
+On Fri, May 03, 2024 at 01:23:30AM +0100, Liviu Dudau wrote:
+> On Thu, May 02, 2024 at 04:07:05PM -0700, Luis Chamberlain wrote:
+> > On Thu, May 02, 2024 at 11:50:36PM +0100, Liviu Dudau wrote:
+> > > On Mon, Apr 29, 2024 at 09:29:20AM -0700, Luis Chamberlain wrote:
+> > > > On Mon, Apr 29, 2024 at 03:16:04PM +0300, Mike Rapoport wrote:
+> > > > > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+> > > > > 
+> > > > > Hi,
+> > > > > 
+> > > > > The patches are also available in git:
+> > > > > https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git/log/?h=execmem/v7
+> > > > > 
+> > > > > v7 changes:
+> > > > > * define MODULE_{VADDR,END} for riscv32 to fix the build and avoid
+> > > > >   #ifdefs in a function body
+> > > > > * add Acks, thanks everybody
+> > > > 
+> > > > Thanks, I've pushed this to modules-next for further exposure / testing.
+> > > > Given the status of testing so far with prior revisions, in that only a
+> > > > few issues were found and that those were fixed, and the status of
+> > > > reviews, this just might be ripe for v6.10.
+> > > 
+> > > Looks like there is still some work needed. I've picked up next-20240501
+> > > and on arch/mips with CONFIG_MODULE_COMPRESS_XZ=y and CONFIG_MODULE_DECOMPRESS=y
+> > > I fail to load any module:
+> > > 
+> > > # modprobe rfkill
+> > > [11746.539090] Invalid ELF header magic: != ELF
+> > > [11746.587149] execmem: unable to allocate memory
+> > > modprobe: can't load module rfkill (kernel/net/rfkill/rfkill.ko.xz): Out of memory
+> > > 
+> > > The (hopefully) relevant parts of my .config:
+> > 
+> > Thanks for the report! Any chance we can get you to try a bisection? I
+> > think it should take 2-3 test boots. To help reduce scope you try modules-next:
+> > 
+> > https://git.kernel.org/pub/scm/linux/kernel/git/mcgrof/linux.git/log/?h=modules-next
+> > 
+> > Then can you check by resetting your tree to commmit 3fbe6c2f820a76 (mm:
+> > introduce execmem_alloc() and execmem_free()"). I suspect that should
+> > boot, so your bad commit would be the tip 3c2c250cb3a5fbb ("bpf: remove
+> > CONFIG_BPF_JIT dependency on CONFIG_MODULES of").
+> > 
+> > That gives us only a few commits to bisect:
+> > 
+> > git log --oneline 3fbe6c2f820a76bc36d5546bda85832f57c8fce2..
+> > 3c2c250cb3a5 (HEAD -> modules-next, korg/modules-next) bpf: remove CONFIG_BPF_JIT dependency on CONFIG_MODULES of
+> > 11e8e65cce5c kprobes: remove dependency on CONFIG_MODULES
+> > e10cbc38697b powerpc: use CONFIG_EXECMEM instead of CONFIG_MODULES where appropriate
+> > 4da3d38f24c5 x86/ftrace: enable dynamic ftrace without CONFIG_MODULES
+> > 13ae3d74ee70 arch: make execmem setup available regardless of CONFIG_MODULES
+> > 460bbbc70a47 powerpc: extend execmem_params for kprobes allocations
+> > e1a14069b5b4 arm64: extend execmem_info for generated code allocations
+> > 971e181c6585 riscv: extend execmem_params for generated code allocations
+> > 0fa276f26721 mm/execmem, arch: convert remaining overrides of module_alloc to execmem
+> > 022cef244287 mm/execmem, arch: convert simple overrides of module_alloc to execmem
+> > 
+> > With 2-3 boots we should be to tell which is the bad commit.
 > 
-> I have 0.10.0 from Debian with no changes to config defaults and no
-> warning.
-
-If I understood it correctly, it warns for AR=ar but it does not warn for 
-AR=powerpc-linux-gnu-ar ... could you try the first term, too, if you 
-haven't done so yet?
-
->> Anyway, I'm in favor of turning this warning of in the config file, it does
->> not seem to be really helpful in my eyes. What do you think?
+> Looks like 0fa276f26721 is the first bad commit.
 > 
-> Maybe it would be useful. I don't mind quoting strings usually, although
-> for this kind of pattern it's a bit pointless and config.mak is also
-> Makefile so that has its own issues. Maybe just disable it for this
-> file?
+> $ git bisect log
+> # bad: [3c2c250cb3a5fbbccc4a4ff4c9354c54af91f02c] bpf: remove CONFIG_BPF_JIT dependency on CONFIG_MODULES of
+> # good: [3fbe6c2f820a76bc36d5546bda85832f57c8fce2] mm: introduce execmem_alloc() and execmem_free()
+> git bisect start '3c2c250cb3a5' '3fbe6c2f820a76'
+> # bad: [460bbbc70a47e929b1936ca68979f3b79f168fc6] powerpc: extend execmem_params for kprobes allocations
+> git bisect bad 460bbbc70a47e929b1936ca68979f3b79f168fc6
+> # bad: [0fa276f26721e0ffc2ae9c7cf67dcc005b43c67e] mm/execmem, arch: convert remaining overrides of module_alloc to execmem
+> git bisect bad 0fa276f26721e0ffc2ae9c7cf67dcc005b43c67e
+> # good: [022cef2442870db738a366d3b7a636040c081859] mm/execmem, arch: convert simple overrides of module_alloc to execmem
+> git bisect good 022cef2442870db738a366d3b7a636040c081859
+> # first bad commit: [0fa276f26721e0ffc2ae9c7cf67dcc005b43c67e] mm/execmem, arch: convert remaining overrides of module_alloc to execmem
+> 
+> Maybe MIPS also needs a ARCH_WANTS_EXECMEM_LATE?
 
-Yes, either for this file only, or globally ... I don't mind. Could you send 
-a patch, please?
+I don't think so. It rather seems there's a bug in the initialization of
+the defaults in execmem. This should fix it:
 
-  Thanks,
-   Thomas
+diff --git a/mm/execmem.c b/mm/execmem.c
+index f6dc3fabc1ca..0c4b36bc6d10 100644
+--- a/mm/execmem.c
++++ b/mm/execmem.c
+@@ -118,7 +118,6 @@ static void __init __execmem_init(void)
+ 		info->ranges[EXECMEM_DEFAULT].end = VMALLOC_END;
+ 		info->ranges[EXECMEM_DEFAULT].pgprot = PAGE_KERNEL_EXEC;
+ 		info->ranges[EXECMEM_DEFAULT].alignment = 1;
+-		return;
+ 	}
+ 
+ 	if (!execmem_validate(info))
+ 
+> Best regards,
+> Liviu
 
+-- 
+Sincerely yours,
+Mike.
