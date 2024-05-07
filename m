@@ -1,130 +1,111 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C79C158A38;
-	Tue,  7 May 2024 12:29:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 316AD8F6B;
+	Tue,  7 May 2024 12:32:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715084996; cv=none; b=S9jkvmmkmuh2GAptW967ankWhOG1nTLGxmEMULWK6ja8tgUKaDqOemPQJB1qgPLjV1t3hFawLrwfplQcr7aviNkSvflDYQNaEpOUqTUzzB4Zb1n84X1LJ0VVm7weAuBgjvXHyY9QTBgb5eG3Dap4WS9pN8ZZZnBY+Of+D6YmqoY=
+	t=1715085164; cv=none; b=WUj7rAXFR252tnOhimY+xfVIca/xj17uWwcyrYy+fzgBJFUalwzvO5v40H3ioiCt2tdv4YOqE1pf/enbNqYTZU6BvsKnlTqE58NZd/9WMeF2vyULXPCNhafCGLAkpwPbEfG0G3l1mq44NqcVGlrM7CFM+6KDB86Xu+OLF/Ynn5M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715084996; c=relaxed/simple;
-	bh=zAHe1IUHovaCbU6OjlueVt49fZmtkRXts7NoV5IczPs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XYEJAh64hdx3wvi7l/2NNHKRl52Qf/edsBPYCKOQWd/bupzxTlIVYTe1Dt0qiBISbZhPUoq7xK+g4d0UuYCiTKF0nL8CH2pXpDgV3sgaYe8kiWZFPMZCW4ITbr0b1wVEvicEe7jugmFWGmBsI5RfeVs8JFGSSPHoUX4IEUmwmrs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rm7YHu/2; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1715085164; c=relaxed/simple;
+	bh=/gUkLjOR4jSCzfgQ8uwQGC9Tyk0qbgfnT/0lr9ZVJOQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bpWRtjVwtFfBFXCf/LNIqv+1q3ZsbgZaZiY6M7YSNTAEHjdUttXXSRlM5fg5X1XA4RUBfcqHDm5G6eYVcRHodiDqHGNISeXEqEuKEU0965joJjJ5IissKiHTcuT2OiD+Op6pYroLBnXowmOS3SfgvQfiknlxe/ag8LxSwJr144I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VdkNTI4T; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rm7YHu/2"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 447CTED4002895;
-	Tue, 7 May 2024 12:29:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=YV8AjjX0dJ7+H/bOjGDouEUu9rDMBYcwGvwnSsx2MzQ=;
- b=rm7YHu/2EuvGb8baN3sQBzPjaKhT8o2hpT6nXqZ5JjU2u9gDt1M6xuepJ/aVYrkfuW8h
- ynym2abSh5OdN9s8/1+UiV/h1avhM1dBe5w6qQZ/ZJpuF2c2Dhj1VSobQkSNeJiT71PB
- kEttQ40LMvC3c83WkAbKcX9tCCwu9eJnJ0Gn2wX6n+we7fKruCrktFfYmcUgHmyj+4nr
- gmyZ0J2/tMhQbkW61dhsDeZWETxziHGdN8xiRL7X9F8CEq6GRBegKdGHhcOMftZur7UA
- +TeVcAOjQKdW29nVlUjEThtfn3lABIvjagr5VblDBGr5qr2TlFIDBiLt363ylkNbouo1 IQ== 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VdkNTI4T"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 447C1UU9015313;
+	Tue, 7 May 2024 12:32:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=VsUJTSdpnWOM0cDbhrM/hZOQ5xrPm9c9WsS553P/z/w=;
+ b=VdkNTI4TvNiS/ClQQJlFKwqrM0Cser+ehQ5uLfyBzhB2/c0vQHwJtacd2vLRCKnav+bH
+ nnLTsgNt06ySpcwn0AmlqHpm4iWV87OM3NovoDZphhFbIUT6fAGUzS30FemEVKYE8GaJ
+ bRGdIqu19dHaH31diGU5+1rK4FYRMh5XA+F2lELm+V0sZcWPWG0mY4p+OgfKIlQNPFaQ
+ wZAqxpkb2FTUsvGSlnRpGbYJ7aAVXFnSRcLEtm5x2kL00qkigYQKQnx6cVt1YU/dXZYD
+ TchUzAOW2JemvxtVrzH09/loP9a+eD8hMNTFhERWros9j8dBEkKo67fZTrGrC1Csk0Xu Ig== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xymbb002n-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyknd03f6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 May 2024 12:29:53 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 447CTqm0003655;
-	Tue, 7 May 2024 12:29:52 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xymbb002k-1
+	Tue, 07 May 2024 12:32:30 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 447CWTEw004456;
+	Tue, 7 May 2024 12:32:29 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyknd03f3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 May 2024 12:29:52 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 447BKlFm004759;
-	Tue, 7 May 2024 12:29:52 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xx5yh4nf9-1
+	Tue, 07 May 2024 12:32:29 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 447ANOgQ022508;
+	Tue, 7 May 2024 12:32:28 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xx1jkwre3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 May 2024 12:29:52 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 447CTkI852298096
+	Tue, 07 May 2024 12:32:28 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 447CWNTs54985020
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 7 May 2024 12:29:48 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 65CB420043;
-	Tue,  7 May 2024 12:29:46 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 150B02004E;
-	Tue,  7 May 2024 12:29:46 +0000 (GMT)
-Received: from m83lp52.lnxne.boe (unknown [9.152.108.100])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  7 May 2024 12:29:46 +0000 (GMT)
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+	Tue, 7 May 2024 12:32:25 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 410352004B;
+	Tue,  7 May 2024 12:32:23 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 502632004D;
+	Tue,  7 May 2024 12:32:22 +0000 (GMT)
+Received: from osiris (unknown [9.171.44.40])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue,  7 May 2024 12:32:22 +0000 (GMT)
+Date: Tue, 7 May 2024 14:32:20 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Nathan Chancellor <nathan@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
         Thomas Huth <thuth@redhat.com>,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: [GIT PULL 1/1] KVM: s390: Check kvm pointer when testing KVM_CAP_S390_HPAGE_1M
-Date: Tue,  7 May 2024 14:29:45 +0200
-Message-ID: <20240507122945.2571-2-borntraeger@linux.ibm.com>
-X-Mailer: git-send-email 2.45.0
-In-Reply-To: <20240507122945.2571-1-borntraeger@linux.ibm.com>
-References: <20240507122945.2571-1-borntraeger@linux.ibm.com>
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>, netdev@vger.kernel.org,
+        llvm@lists.linux.dev, patches@lists.linux.dev,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH 0/6] s390: Unify IUCV device allocation
+Message-ID: <20240507123220.7301-A-hca@linux.ibm.com>
+References: <20240506194454.1160315-1-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240506194454.1160315-1-hca@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: fWR656KgzOWZaNgc84d4Fq2Ar-rvsSJ1
-X-Proofpoint-ORIG-GUID: qGHd1l5VFlIRhP-PUK1dYIVqP2o3jxQP
+X-Proofpoint-ORIG-GUID: WKUqx34HX5S2SSp48t5luArWznjCnPse
+X-Proofpoint-GUID: 31WKNj7By9EH0_0BmBk-Q_I_6TUFYrCo
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.11.176.26
  definitions=2024-05-07_06,2024-05-06_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=905
- priorityscore=1501 phishscore=0 lowpriorityscore=0 malwarescore=0
- suspectscore=0 adultscore=0 spamscore=0 mlxscore=0 clxscore=1011
- impostorscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2404010000 definitions=main-2405070086
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=459 mlxscore=0 lowpriorityscore=0 malwarescore=0 adultscore=0
+ spamscore=0 impostorscore=0 clxscore=1015 bulkscore=0 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2405070086
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+On Mon, May 06, 2024 at 09:44:48PM +0200, Heiko Carstens wrote:
+> Unify IUCV device allocation as suggested by Arnd Bergmann in order
+> to get rid of code duplication in various device drivers.
+> 
+> This also removes various warnings caused by
+> -Wcast-function-type-strict as reported by Nathan Lynch.
+                                             ^^^^^^^^^^^^
 
-KVM allows issuing the KVM_CHECK_EXTENSION ioctl either on the /dev/kvm
-fd or the VM fd. In the first case, kvm_vm_ioctl_check_extension() is
-called with kvm==NULL. Ensure we don't dereference the pointer in that
-case.
+Ahem :)
 
-Fixes: 40ebdb8e59df ("KVM: s390: Make huge pages unavailable in ucontrol VMs")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Message-ID: <20240419160723.320910-2-jean-philippe@linaro.org>
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 5147b943a864..7721eb522f43 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -587,7 +587,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 		break;
- 	case KVM_CAP_S390_HPAGE_1M:
- 		r = 0;
--		if (hpage && !kvm_is_ucontrol(kvm))
-+		if (hpage && !(kvm && kvm_is_ucontrol(kvm)))
- 			r = 1;
- 		break;
- 	case KVM_CAP_S390_MEM_OP:
--- 
-2.44.0
-
+This should have been Nathan Chancellor, of course. Sorry for this!
