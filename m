@@ -1,65 +1,65 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E6DF16D324;
-	Tue,  7 May 2024 16:35:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0878C16DEB9;
+	Tue,  7 May 2024 16:35:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715099708; cv=none; b=PU/WDqv6mTei5ru2FcWihbahFLUkA3t4SOL19n+kmegFlhGn6UQVfBdFk+1KKwK4PS+UeLZGviEGcgQneH3A1jKghpKayb6XSYH3drerA5lnCjCDeM6v7VbZVS5Mo5NuLss1bHg0P5NloWtCv56yO+Nha7aHY7CNfdVm55gBFrU=
+	t=1715099710; cv=none; b=gTQceoJMeHsYJelmZRh1RJODKTlWoA5KePZP2KcJVCj+MKW2oSkHUD+bLMRZZrFkf/Lxc120aQz2CljNLm8Emtej0SoOKMd88q1ZoBKu1Wie91zC5HrdkPaDVnObqBkfWBnBvxafyN8Q4DDfXlH1GcBHI2Rp4Bo/toO8XZAfyAo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715099708; c=relaxed/simple;
-	bh=NjDWS2e4urHOZKxzJetAdtuFJD2CgyrBwJ5bZQD66To=;
+	s=arc-20240116; t=1715099710; c=relaxed/simple;
+	bh=cxjvocoLOgBJsiBEum3IUb6ePAtVX/F8rInQlrpfh4Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=dDCTJ9WoWW9CipGMl+xAnCSSTm+93ayyMdbsEtN5jYFkfLsiTHK4kE3KyfJSTW2MiB2YrzP/7ekgrdr4FzJzefzESt0UN9qRWUVfm5BjuaxKjTy72NFuwsW6GH1ZZteAthXtq2QrvfCZJdsvtEcmC+oZAJiBJ4NxT655W67e33g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=G9VhPaYv; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version:Content-Type; b=MmQyNRJIjPVBdMjvSleuUt3qcPn5bYybxoyFY/ETg3Hq+3VGZltCS8/sSei9sy6RSPgTV0w6b/ftmmjWpQAVG2sJx10j1ThtCzrlQNq9em0hyHNG+CvIBy6wfREYSvZhnKBmEj6zCIaefJuoZjzYOQgCYBcDC4UVVe9e3a0uAbM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sKEO5UJJ; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="G9VhPaYv"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 447GOPG4001337;
-	Tue, 7 May 2024 16:35:04 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sKEO5UJJ"
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 447FtWw1016317;
+	Tue, 7 May 2024 16:35:06 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=Vef/B1jTE04cYAPD3j1lZ9mGWWo9zBLDBTYaEHdtAhw=;
- b=G9VhPaYvWhD5qO3TKy0IS3BGTNT5As6lu+HA3X9X49CxR6iEAIPQqawWv6rODK6qT71F
- gISOhzTc4hWp1qSWjcOQ+A5oTjzObI2BjDUiPIr5M0K5fzFCZjDNydM2TnEg9dc8Og5U
- x12dq2fmVB5QxiQRPbEL6FQG+S1UNRAsB9KI+/X6jIh0fyrc7KUq8wVpgqgF4/G7gVpm
- 2EG0O095rv4rizF3VF7KLPrfFJ9uBKd/UUivP8Df+uGQiXSJmN5rG/kJgDnPPPGGe7wI
- zX9OMN/VNXrIroHsOK+L0ttJMXYWymBA+hfsUSeOfYw/n7HuRNxeVtS1cNQHRYOGG08Z qA== 
+ bh=BZYNarLIhYKZZqXR0McvXxtswW95XKP1igzduv4REC8=;
+ b=sKEO5UJJDlRuF1I4FCk90jaw9/QdgPyX4tbpRzjq0KR8M1JuDT4n897cYI6f5OOGJmwc
+ 0kiLd4NjVuehKzIQUerAyQSYjdfAyZDTQeYafP4kY7zpIsqycLBKqk89xCho7Yfd3kaw
+ DWmdUNtsY0XBQIWoFGM6cPDimdzdrAvGCWA0rOkyGBmKNA9LBtZuJvOZ1DtVY1EAqIgZ
+ 2+hBDQANXz2LKPnKpJRQmxOPi0gQwWH8bVHdbYkr/MhagOihdoi40PVc6ReiPT/E++PG
+ gciI2T9yfCK+YgDjU8sa+N/wQMKJvEmLcNcJQmQA1oE/Dpn4X7/eNTn+SKSZ2KHhw2JE /g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyqpv012g-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyqc503fs-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 May 2024 16:35:03 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 447GZ3Pi019449;
-	Tue, 7 May 2024 16:35:03 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyqpv012c-1
+	Tue, 07 May 2024 16:35:05 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 447GZ5bl013699;
+	Tue, 7 May 2024 16:35:05 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyqc503fn-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 May 2024 16:35:03 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 447EZ7Qs030920;
-	Tue, 7 May 2024 16:35:02 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xwybtyj37-1
+	Tue, 07 May 2024 16:35:05 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 447FSc1k010632;
+	Tue, 7 May 2024 16:35:04 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xx0bp7ad9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 May 2024 16:35:02 +0000
+	Tue, 07 May 2024 16:35:04 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 447GYubk53543318
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 447GYwWl47841592
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 7 May 2024 16:34:59 GMT
+	Tue, 7 May 2024 16:35:00 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DC77D2004F;
-	Tue,  7 May 2024 16:34:56 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 6DE0820043;
+	Tue,  7 May 2024 16:34:58 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9E92C20040;
-	Tue,  7 May 2024 16:34:56 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 39B342004D;
+	Tue,  7 May 2024 16:34:58 +0000 (GMT)
 Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  7 May 2024 16:34:56 +0000 (GMT)
-Date: Tue, 7 May 2024 18:33:07 +0200
+	Tue,  7 May 2024 16:34:58 +0000 (GMT)
+Date: Tue, 7 May 2024 17:27:54 +0200
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: David Hildenbrand <david@redhat.com>
 Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
@@ -75,12 +75,12 @@ Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
  Schaefer <gerald.schaefer@linux.ibm.com>,
         Matthew Wilcox
  <willy@infradead.org>, Thomas Huth <thuth@redhat.com>
-Subject: Re: [PATCH v2 10/10] s390/hugetlb: convert PG_arch_1 code to work
- on folio->flags
-Message-ID: <20240507183307.3336dabc@p-imbrenda.boeblingen.de.ibm.com>
-In-Reply-To: <20240412142120.220087-11-david@redhat.com>
+Subject: Re: [PATCH v2 02/10] s390/uv: gmap_make_secure() cleanups for
+ further changes
+Message-ID: <20240507172754.3f238ec7@p-imbrenda.boeblingen.de.ibm.com>
+In-Reply-To: <20240412142120.220087-3-david@redhat.com>
 References: <20240412142120.220087-1-david@redhat.com>
-	<20240412142120.220087-11-david@redhat.com>
+	<20240412142120.220087-3-david@redhat.com>
 Organization: IBM
 X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-redhat-linux-gnu)
 Precedence: bulk
@@ -92,91 +92,129 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Iiz6veNj8m8Ui57Lj9a9hJIPjnkuk3__
-X-Proofpoint-ORIG-GUID: VrB8HqYh09u_Zqzs8sklBI0m0zW6Z4Un
+X-Proofpoint-GUID: oQ1HgBRMnVAuWl6kivk67gjAb8cuiymf
+X-Proofpoint-ORIG-GUID: DFOT80QhjKwAScxsyrWVGbXVOzSAwTUH
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.11.176.26
- definitions=2024-05-07_10,2024-05-06_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 mlxscore=0 spamscore=0 suspectscore=0 mlxlogscore=999
- lowpriorityscore=0 clxscore=1015 priorityscore=1501 adultscore=0
- phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2405070113
+ definitions=2024-05-07_09,2024-05-06_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 mlxscore=0 clxscore=1015 phishscore=0 mlxlogscore=999
+ suspectscore=0 bulkscore=0 spamscore=0 adultscore=0 lowpriorityscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2405070112
 
-On Fri, 12 Apr 2024 16:21:20 +0200
+On Fri, 12 Apr 2024 16:21:12 +0200
 David Hildenbrand <david@redhat.com> wrote:
 
-> Let's make it clearer that we are always working on folio flags and
-> never page flags of tail pages.
-
-please be a little more verbose, and explain what you are doing (i.e.
-converting usages of page flags to folio flags), not just why.
-
+> Let's factor out handling of LRU cache draining and convert the if-else
+> chain to a switch-case.
 > 
 > Signed-off-by: David Hildenbrand <david@redhat.com>
 
-with a few extra words in the description:
+it is a little ugly with the bool* parameter, but I can't think of
+a better/nicer way to do it
 
 Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
 > ---
->  arch/s390/mm/gmap.c        | 4 ++--
->  arch/s390/mm/hugetlbpage.c | 8 ++++----
->  2 files changed, 6 insertions(+), 6 deletions(-)
+>  arch/s390/kernel/uv.c | 66 ++++++++++++++++++++++++++-----------------
+>  1 file changed, 40 insertions(+), 26 deletions(-)
 > 
-> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index 0351cb139df4..9eea05cd93b7 100644
-> --- a/arch/s390/mm/gmap.c
-> +++ b/arch/s390/mm/gmap.c
-> @@ -2648,7 +2648,7 @@ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
->  {
->  	pmd_t *pmd = (pmd_t *)pte;
->  	unsigned long start, end;
-> -	struct page *page = pmd_page(*pmd);
-> +	struct folio *folio = page_folio(pmd_page(*pmd));
->  
->  	/*
->  	 * The write check makes sure we do not set a key on shared
-> @@ -2663,7 +2663,7 @@ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
->  	start = pmd_val(*pmd) & HPAGE_MASK;
->  	end = start + HPAGE_SIZE - 1;
->  	__storage_key_init_range(start, end);
-> -	set_bit(PG_arch_1, &page->flags);
-> +	set_bit(PG_arch_1, &folio->flags);
->  	cond_resched();
->  	return 0;
->  }
-> diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
-> index c2e8242bd15d..a32047315f9a 100644
-> --- a/arch/s390/mm/hugetlbpage.c
-> +++ b/arch/s390/mm/hugetlbpage.c
-> @@ -121,7 +121,7 @@ static inline pte_t __rste_to_pte(unsigned long rste)
->  
->  static void clear_huge_pte_skeys(struct mm_struct *mm, unsigned long rste)
->  {
-> -	struct page *page;
-> +	struct folio *folio;
->  	unsigned long size, paddr;
->  
->  	if (!mm_uses_skeys(mm) ||
-> @@ -129,16 +129,16 @@ static void clear_huge_pte_skeys(struct mm_struct *mm, unsigned long rste)
->  		return;
->  
->  	if ((rste & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R3) {
-> -		page = pud_page(__pud(rste));
-> +		folio = page_folio(pud_page(__pud(rste)));
->  		size = PUD_SIZE;
->  		paddr = rste & PUD_MASK;
->  	} else {
-> -		page = pmd_page(__pmd(rste));
-> +		folio = page_folio(pmd_page(__pmd(rste)));
->  		size = PMD_SIZE;
->  		paddr = rste & PMD_MASK;
->  	}
->  
-> -	if (!test_and_set_bit(PG_arch_1, &page->flags))
-> +	if (!test_and_set_bit(PG_arch_1, &folio->flags))
->  		__storage_key_init_range(paddr, paddr + size - 1);
+> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> index 016993e9eb72..25fe28d189df 100644
+> --- a/arch/s390/kernel/uv.c
+> +++ b/arch/s390/kernel/uv.c
+> @@ -266,6 +266,36 @@ static bool should_export_before_import(struct uv_cb_header *uvcb, struct mm_str
+>  	return atomic_read(&mm->context.protected_count) > 1;
 >  }
 >  
+> +/*
+> + * Drain LRU caches: the local one on first invocation and the ones of all
+> + * CPUs on successive invocations. Returns "true" on the first invocation.
+> + */
+> +static bool drain_lru(bool *drain_lru_called)
+> +{
+> +	/*
+> +	 * If we have tried a local drain and the folio refcount
+> +	 * still does not match our expected safe value, try with a
+> +	 * system wide drain. This is needed if the pagevecs holding
+> +	 * the page are on a different CPU.
+> +	 */
+> +	if (*drain_lru_called) {
+> +		lru_add_drain_all();
+> +		/* We give up here, don't retry immediately. */
+> +		return false;
+> +	}
+> +	/*
+> +	 * We are here if the folio refcount does not match the
+> +	 * expected safe value. The main culprits are usually
+> +	 * pagevecs. With lru_add_drain() we drain the pagevecs
+> +	 * on the local CPU so that hopefully the refcount will
+> +	 * reach the expected safe value.
+> +	 */
+> +	lru_add_drain();
+> +	*drain_lru_called = true;
+> +	/* The caller should try again immediately */
+> +	return true;
+> +}
+> +
+>  /*
+>   * Requests the Ultravisor to make a page accessible to a guest.
+>   * If it's brought in the first time, it will be cleared. If
+> @@ -275,7 +305,7 @@ static bool should_export_before_import(struct uv_cb_header *uvcb, struct mm_str
+>  int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
+>  {
+>  	struct vm_area_struct *vma;
+> -	bool local_drain = false;
+> +	bool drain_lru_called = false;
+>  	spinlock_t *ptelock;
+>  	unsigned long uaddr;
+>  	struct folio *folio;
+> @@ -331,37 +361,21 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
+>  out:
+>  	mmap_read_unlock(gmap->mm);
+>  
+> -	if (rc == -EAGAIN) {
+> +	switch (rc) {
+> +	case -EAGAIN:
+>  		/*
+>  		 * If we are here because the UVC returned busy or partial
+>  		 * completion, this is just a useless check, but it is safe.
+>  		 */
+>  		folio_wait_writeback(folio);
+>  		folio_put(folio);
+> -	} else if (rc == -EBUSY) {
+> -		/*
+> -		 * If we have tried a local drain and the folio refcount
+> -		 * still does not match our expected safe value, try with a
+> -		 * system wide drain. This is needed if the pagevecs holding
+> -		 * the page are on a different CPU.
+> -		 */
+> -		if (local_drain) {
+> -			lru_add_drain_all();
+> -			/* We give up here, and let the caller try again */
+> -			return -EAGAIN;
+> -		}
+> -		/*
+> -		 * We are here if the folio refcount does not match the
+> -		 * expected safe value. The main culprits are usually
+> -		 * pagevecs. With lru_add_drain() we drain the pagevecs
+> -		 * on the local CPU so that hopefully the refcount will
+> -		 * reach the expected safe value.
+> -		 */
+> -		lru_add_drain();
+> -		local_drain = true;
+> -		/* And now we try again immediately after draining */
+> -		goto again;
+> -	} else if (rc == -ENXIO) {
+> +		return -EAGAIN;
+> +	case -EBUSY:
+> +		/* Additional folio references. */
+> +		if (drain_lru(&drain_lru_called))
+> +			goto again;
+> +		return -EAGAIN;
+> +	case -ENXIO:
+>  		if (gmap_fault(gmap, gaddr, FAULT_FLAG_WRITE))
+>  			return -EFAULT;
+>  		return -EAGAIN;
 
