@@ -1,111 +1,99 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 316AD8F6B;
-	Tue,  7 May 2024 12:32:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6942C53E18;
+	Tue,  7 May 2024 12:53:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715085164; cv=none; b=WUj7rAXFR252tnOhimY+xfVIca/xj17uWwcyrYy+fzgBJFUalwzvO5v40H3ioiCt2tdv4YOqE1pf/enbNqYTZU6BvsKnlTqE58NZd/9WMeF2vyULXPCNhafCGLAkpwPbEfG0G3l1mq44NqcVGlrM7CFM+6KDB86Xu+OLF/Ynn5M=
+	t=1715086426; cv=none; b=MIw909k2SaAO0d0YhsloVwMOUnn6vYc6OC+NyiBd/CFDojhQ4mNKuZN/Q/atqEMX8VziV5LIQLOW8DmV3udRkLK+qQlq8S5YQ65WzgPVyQn0ptccZm6APbxBRATiezwfo5JDXENQkCiYQ9ew4uAyTI8BmgTqFtnezxVUYI/iLNE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715085164; c=relaxed/simple;
-	bh=/gUkLjOR4jSCzfgQ8uwQGC9Tyk0qbgfnT/0lr9ZVJOQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bpWRtjVwtFfBFXCf/LNIqv+1q3ZsbgZaZiY6M7YSNTAEHjdUttXXSRlM5fg5X1XA4RUBfcqHDm5G6eYVcRHodiDqHGNISeXEqEuKEU0965joJjJ5IissKiHTcuT2OiD+Op6pYroLBnXowmOS3SfgvQfiknlxe/ag8LxSwJr144I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VdkNTI4T; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1715086426; c=relaxed/simple;
+	bh=Yxnfyeh2IaAdO4T8qDfP6RexxVdxlIo3CQDZRvPFWAU=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=FodTaw06kIZ7JGgDWU9BHZxpmcERybVKaDCHL7Rv27GziomL/+tvAs+SQFTmKqJVdRY41tml1g607FPKHwWfQwgtmw/eXkZCKQbMRSS8/9JhWw7ri7OCQK+iGoecU7r34DqouFRvGM4EZBBMvNYrUcD/mVughDwFFJgETbZQF9s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Oj1I7pDB; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VdkNTI4T"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 447C1UU9015313;
-	Tue, 7 May 2024 12:32:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=VsUJTSdpnWOM0cDbhrM/hZOQ5xrPm9c9WsS553P/z/w=;
- b=VdkNTI4TvNiS/ClQQJlFKwqrM0Cser+ehQ5uLfyBzhB2/c0vQHwJtacd2vLRCKnav+bH
- nnLTsgNt06ySpcwn0AmlqHpm4iWV87OM3NovoDZphhFbIUT6fAGUzS30FemEVKYE8GaJ
- bRGdIqu19dHaH31diGU5+1rK4FYRMh5XA+F2lELm+V0sZcWPWG0mY4p+OgfKIlQNPFaQ
- wZAqxpkb2FTUsvGSlnRpGbYJ7aAVXFnSRcLEtm5x2kL00qkigYQKQnx6cVt1YU/dXZYD
- TchUzAOW2JemvxtVrzH09/loP9a+eD8hMNTFhERWros9j8dBEkKo67fZTrGrC1Csk0Xu Ig== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyknd03f6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 May 2024 12:32:30 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 447CWTEw004456;
-	Tue, 7 May 2024 12:32:29 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyknd03f3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 May 2024 12:32:29 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 447ANOgQ022508;
-	Tue, 7 May 2024 12:32:28 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xx1jkwre3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 May 2024 12:32:28 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 447CWNTs54985020
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 7 May 2024 12:32:25 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 410352004B;
-	Tue,  7 May 2024 12:32:23 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 502632004D;
-	Tue,  7 May 2024 12:32:22 +0000 (GMT)
-Received: from osiris (unknown [9.171.44.40])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  7 May 2024 12:32:22 +0000 (GMT)
-Date: Tue, 7 May 2024 14:32:20 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Nathan Chancellor <nathan@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Thomas Huth <thuth@redhat.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, netdev@vger.kernel.org,
-        llvm@lists.linux.dev, patches@lists.linux.dev,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: Re: [PATCH 0/6] s390: Unify IUCV device allocation
-Message-ID: <20240507123220.7301-A-hca@linux.ibm.com>
-References: <20240506194454.1160315-1-hca@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Oj1I7pDB"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715086414; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=+8CSt1B3wcEFd+rtPMw0xXAdxHRKF4spwCM9JWpEye4=;
+	b=Oj1I7pDBJ4R+a1Zd1TZG5Q6iCAdoJIhz7GZ1dEIylwO0kg6i4owFl+Ys+eUmAg+8k5HJ3RoZl3SBDuBiKwC4i7UAGylLpvTee5CN90MUbzpzaD/c4iWk66mckjJ0OT3oZNz+k8WaLBIVEqGLKWPwHe6dmzLDRuFcumgpc2Z+kog=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R261e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W607thJ_1715086411;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W607thJ_1715086411)
+          by smtp.aliyun-inc.com;
+          Tue, 07 May 2024 20:53:33 +0800
+From: Wen Gu <guwen@linux.alibaba.com>
+To: wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com
+Cc: kgraul@linux.ibm.com,
+	alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net v2] net/smc: fix neighbour and rtable leak in smc_ib_find_route()
+Date: Tue,  7 May 2024 20:53:31 +0800
+Message-Id: <20240507125331.2808-1-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240506194454.1160315-1-hca@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: WKUqx34HX5S2SSp48t5luArWznjCnPse
-X-Proofpoint-GUID: 31WKNj7By9EH0_0BmBk-Q_I_6TUFYrCo
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.11.176.26
- definitions=2024-05-07_06,2024-05-06_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=459 mlxscore=0 lowpriorityscore=0 malwarescore=0 adultscore=0
- spamscore=0 impostorscore=0 clxscore=1015 bulkscore=0 phishscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2405070086
+Content-Transfer-Encoding: 8bit
 
-On Mon, May 06, 2024 at 09:44:48PM +0200, Heiko Carstens wrote:
-> Unify IUCV device allocation as suggested by Arnd Bergmann in order
-> to get rid of code duplication in various device drivers.
-> 
-> This also removes various warnings caused by
-> -Wcast-function-type-strict as reported by Nathan Lynch.
-                                             ^^^^^^^^^^^^
+In smc_ib_find_route(), the neighbour found by neigh_lookup() and rtable
+resolved by ip_route_output_flow() are not released or put before return.
+It may cause the refcount leak, so fix it.
 
-Ahem :)
+Link: https://lore.kernel.org/r/20240506015439.108739-1-guwen@linux.alibaba.com
+Fixes: e5c4744cfb59 ("net/smc: add SMC-Rv2 connection establishment")
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
+v2->v1
+- call ip_rt_put() to release rt as well.
+---
+ net/smc/smc_ib.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-This should have been Nathan Chancellor, of course. Sorry for this!
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 97704a9e84c7..9297dc20bfe2 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -209,13 +209,18 @@ int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
+ 	if (IS_ERR(rt))
+ 		goto out;
+ 	if (rt->rt_uses_gateway && rt->rt_gw_family != AF_INET)
+-		goto out;
+-	neigh = rt->dst.ops->neigh_lookup(&rt->dst, NULL, &fl4.daddr);
+-	if (neigh) {
+-		memcpy(nexthop_mac, neigh->ha, ETH_ALEN);
+-		*uses_gateway = rt->rt_uses_gateway;
+-		return 0;
+-	}
++		goto out_rt;
++	neigh = dst_neigh_lookup(&rt->dst, &fl4.daddr);
++	if (!neigh)
++		goto out_rt;
++	memcpy(nexthop_mac, neigh->ha, ETH_ALEN);
++	*uses_gateway = rt->rt_uses_gateway;
++	neigh_release(neigh);
++	ip_rt_put(rt);
++	return 0;
++
++out_rt:
++	ip_rt_put(rt);
+ out:
+ 	return -ENOENT;
+ }
+-- 
+2.32.0.3.g01195cf9f
+
