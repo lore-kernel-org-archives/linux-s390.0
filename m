@@ -1,74 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EA5E15F335;
-	Tue,  7 May 2024 14:33:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CC3A15DBC1;
+	Tue,  7 May 2024 14:34:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715092401; cv=none; b=iciMn6HyLAe9jfgwGk/HvfO6bkTgjLi4fCUfgKagyyfZlxZkO+p4Kw3AVK8Fs+WenineNuD+qci0qOWErjqEcSk4WOzCP7nGNCrXVw3kTQdzS2VHkJmTqZeVquecNIaXj3cYclK5dD8xxx+2ENXXwsW357Di/elKHbFLdkVRHU0=
+	t=1715092473; cv=none; b=FzVWi4Xigq5apxaFRKQmorIITZ8titCk0W5q988te8lVJXm012UFsPDlItLJXAH+xIvZRMr4Rw6ySqsRnN0BvxAKJuGMCcMW1xa3eEABdi8hv+DR8GXy3wpcI9nzaYWwRlniNoaIldpSraf+Oemxcq3TfYLXwNfHNhP0ti61hSo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715092401; c=relaxed/simple;
-	bh=EBmRdpXpY3jTuvjE4yr75q9neMahEjgCbpk68GxzIw8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=W/JxSj1O0kORijlMFErl0if3tywaUS824RWypzcKERh7Fk+xBKBX5IeRzW6LvnUFrcCrxX1BqwlQbUQKA33skabZKEU62g7dfq5bC37Kpo3sEDrONQgHb9oHCAwtq6tfgr9skyzAGAftmhL5DY/XvcTQQsiveNfXPVKpPJoS/pA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bmQBMUrP; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1715092473; c=relaxed/simple;
+	bh=Rn98kkZoCRyzEDUHujvEdeSt3a+LcvSTBCAGe29A2To=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=nKyutH8wGubMf2A8EkNfTdfDZmI8/7lhPMhBj1kfuQssxarF+Nz5eAraaRuQ2739NS7DT+0LleuTvPOHDIDJS6r+XGuQdDCWtQQi9PMr0Wsg4dc1ev5f2rCdSHQAvSnE0UN4132HsyA2MTu7D0YzrjmvGczLnWDYOnlJkdSfjng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=dD/2g+G8; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bmQBMUrP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3302C2BBFC;
-	Tue,  7 May 2024 14:33:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715092401;
-	bh=EBmRdpXpY3jTuvjE4yr75q9neMahEjgCbpk68GxzIw8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=bmQBMUrPQBcSMpETW16eR5aaMhhaSBxw394wOLqCfmVBeDzMrHvubtRvko4pnrvzy
-	 l2H1avHk9dzyyW9H8mdYNYogNbfzASksMdijFC/n089+Ewcd5Mp2ahuT89sqtytxPD
-	 /t6EIayh1+EnLfcmVBen0du/go+XD9RzlR+y6LdxxKGX8SL2uABaYqsuaXfhlHjYeP
-	 J46wTWlorZUUctaDLxN2SLFjI65eIId4xShLp97lDE2QaY7kVgt6rnfbazkVH5+F3F
-	 8e4SD2ouNP63z6zgQHxFeFsvcq1+cLobjWeOoZiZl8im/XeIHlu8IEnU2j4fGrMGhl
-	 WJLefNTNqLPsA==
-Date: Tue, 7 May 2024 07:33:18 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Thomas Huth <thuth@redhat.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Jiri Slaby <jirislaby@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>, netdev@vger.kernel.org,
-	llvm@lists.linux.dev, patches@lists.linux.dev,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: Re: [PATCH 0/6] s390: Unify IUCV device allocation
-Message-ID: <20240507143318.GC2746430@thelio-3990X>
-References: <20240506194454.1160315-1-hca@linux.ibm.com>
- <20240507123220.7301-A-hca@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="dD/2g+G8"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715092463; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=o6bWFqpzN6Wrt8MSD5ofMjZort1RodcrLsBtj4xyd/s=;
+	b=dD/2g+G8AcBnrB61lNFhlUquRhuOdpa4VZwRIBd6gdWgM0ONU3jakQRnCAYgJoUUKsxdkgTtJv49y9LnIFJWF3F8Kk6F6maLJkztb3LmD2+aZ5kht0R3mz7Tgn+FX8sQ0t8oZxXofJ8qp73gcZAd/VOeA4WHAj4FX/8Bn21Xlfc=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R951e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=20;SR=0;TI=SMTPD_---0W60RrX4_1715092449;
+Received: from 30.221.130.197(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W60RrX4_1715092449)
+          by smtp.aliyun-inc.com;
+          Tue, 07 May 2024 22:34:22 +0800
+Message-ID: <2e34e4ea-b198-487e-be5b-ba854965dbeb@linux.alibaba.com>
+Date: Tue, 7 May 2024 22:34:09 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240507123220.7301-A-hca@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v7 00/11] net/smc: SMC intra-OS shortcut with
+ loopback-ism
+To: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ wenjia@linux.ibm.com, jaka@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, bpf@vger.kernel.org
+References: <20240428060738.60843-1-guwen@linux.alibaba.com>
+ <Zi5wIrf3nAeJh1u5@pop-os.localdomain>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <Zi5wIrf3nAeJh1u5@pop-os.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, May 07, 2024 at 02:32:20PM +0200, Heiko Carstens wrote:
-> On Mon, May 06, 2024 at 09:44:48PM +0200, Heiko Carstens wrote:
-> > Unify IUCV device allocation as suggested by Arnd Bergmann in order
-> > to get rid of code duplication in various device drivers.
-> > 
-> > This also removes various warnings caused by
-> > -Wcast-function-type-strict as reported by Nathan Lynch.
->                                              ^^^^^^^^^^^^
+
+
+On 2024/4/28 23:49, Cong Wang wrote:
+> On Sun, Apr 28, 2024 at 02:07:27PM +0800, Wen Gu wrote:
+>> This patch set acts as the second part of the new version of [1] (The first
+>> part can be referred from [2]), the updated things of this version are listed
+>> at the end.
+>>
+>> - Background
+>>
+>> SMC-D is now used in IBM z with ISM function to optimize network interconnect
+>> for intra-CPC communications. Inspired by this, we try to make SMC-D available
+>> on the non-s390 architecture through a software-implemented Emulated-ISM device,
+>> that is the loopback-ism device here, to accelerate inter-process or
+>> inter-containers communication within the same OS instance.
 > 
-> Ahem :)
+> Just FYI:
 > 
-> This should have been Nathan Chancellor, of course. Sorry for this!
+> Cilium has implemented this kind of shortcut with sockmap and sockops.
+> In fact, for intra-OS case, it is _very_ simple. The core code is less
+> than 50 lines. Please take a look here:
+> https://github.com/cilium/cilium/blob/v1.11.4/bpf/sockops/bpf_sockops.c
+> 
+> Like I mentioned in my LSF/MM/BPF proposal, we plan to implement
+> similiar eBPF things for inter-OS (aka VM) case.
+> 
+> More importantly, even LD_PRELOAD is not needed for this eBPF approach.
+> :)
+> 
+> Thanks.
 
-Heh, at least you got it right on the patches :)
+Hi, Cong. Thank you very much for the information. I learned about sockmap
+before and from my perspective smcd loopback and sockmap each have their own
+pros and cons.
 
-Cheers,
-Nathan
+The pros of smcd loopback is that it uses a standard process that defined
+by RFC-7609 for negotiation, this CLC handshake helps smc correctly determine
+whether the tcp connection should be upgraded no matter what middleware the
+connection passes, e.g. through NAT. So we don't need to pay extra effort to
+check whether the connection should be shortcut, unlike checking various policy
+by bpf_sock_ops_ipv4() in sockmap. And since the handshake automatically select
+different underlay devices for different scenarios (loopback-ism in intra-OS,
+ISM in inter-VM of IBM z and RDMA in inter-VM of different hosts), various
+scenarios can be covered through one smc protocol stack.
+
+The cons of smcd loopback is also related to the CLC handshake, one more round
+handshake may cause smc to perform worse than TCP in short-lived connection
+scenarios. So we basically use smc upgrade in long-lived connection scenarios
+and are exploring IPPROTO_SMC[1] to provide lossless fallback under adverse cases.
+
+And we are also working on other upgrade ways than LD_PRELOAD, e.g. using eBPF
+hook[2] with IPPROTO_SMC, to enhance the usability.
+
+[1] https://lore.kernel.org/netdev/1708412505-34470-1-git-send-email-alibuda@linux.alibaba.com/
+[2] https://lore.kernel.org/all/ac84be00f97072a46f8a72b4e2be46cbb7fa5053.1692147782.git.geliang.tang@suse.com/
+
+Thanks!
