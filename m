@@ -1,166 +1,235 @@
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B202515FD19;
-	Tue,  7 May 2024 16:10:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94A6116C686;
+	Tue,  7 May 2024 16:35:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715098245; cv=none; b=WgWJKK5s4y6ijB6jVfLMii1zYzb5iG8EbB7LTXPBEjb3xbMHoO/9bluEo7ldUzUcnHSorZlB/IR7oEiZ1K05vWdoaAidBIgGqlwh/maG9qiOFTpDZHLxjqceTlU39tObd0CAifIhxddkiEzp42TGtqytoe1bDR8L0GF4HGF2/0E=
+	t=1715099706; cv=none; b=ItP9/NEgUgqiHg9XJQzvf9vnWI3ETfajTSoTYmWMABMUrwsoG5/a2C4VHSl4aQx0NdIGwQbSdM8FrFAxmgieiHepHz0GqS26kKymb1hIA21/dWWkfcjmKjRLFppVHkGXK2MfoZQ6Gjy/nNsc/NsbQu462TCwlV8JCio6oO6zHKU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715098245; c=relaxed/simple;
-	bh=5tsHnXmIxTBlUcXYWObthWr72n5cZAQT1HTvetuqPcc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cXv35PXcYK2qBZHhbWTE9Gxon2sFrr7s1P1vEQ9IPlFHDJ9EHbRKrpjuXX8gm9lXL0/8bGhdtvj3WvwhOct14bgZcFCMhsg4TmMfjI4M+9+EAnEAVql+nLcYc6WFI0joGRi/37O4rjWXTSCeZ64qhW33ooI54oYzopk7/d4SRr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d53XCll1; arc=none smtp.client-ip=209.85.215.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1715099706; c=relaxed/simple;
+	bh=Yw+W6EOpS5324//V7p9SZfoADD4/uyq/iHCqqoA3zes=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=UuA/TCr6c7aRnX1+vfVWgEBtH/j2wMH2rWuWAbpPUvn82BW5ARH62yrDJeSAHjkK4TGGfOZSRVI2uQFXz+64rZ96saYZnKqJtXP6zB4unSBGXN/nqPYuCEc6fa2AkVmFw/ewukSxM/GYNlZ5wyOxdHjGapzmTcjInPY4QWi6d5Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hudbxpW9; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d53XCll1"
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-5d8b519e438so2686305a12.1;
-        Tue, 07 May 2024 09:10:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1715098243; x=1715703043; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=9V4CAV643r+hpQSsd0E4UmJxUAxHNoFtxM2SvNIpo/Q=;
-        b=d53XCll1hDtkcj5/6cJRenoOekyjXcZ1fv7Di0I9MSb3aIpKqpqKpaDzrYAN5sWEaq
-         t7xcsw+fMZaDjKIj6q52iqFqyYxNkbiN/QNO4LCQzToCKVjPwZnJW77TztOpzzTBQMKQ
-         6D1IjXlCgoy2z6tuLFci+jB4f+phmXeRPbppFCKNWNGm3fb5OgSx8Ve2+2q35KrPKnI9
-         GzIWXGZv1ixE+bzwz+yj3nYmKrALdEx5mxIqwBCERFULf3amgd2rp/VnYQO9zUYW4+AS
-         lkqc6pLYmN1h+t4FkvKTLtNOx1MjvkbcTiXe4nhk6QEX0YPIEw1/7p9tC6xcs5amjTky
-         yTPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715098243; x=1715703043;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9V4CAV643r+hpQSsd0E4UmJxUAxHNoFtxM2SvNIpo/Q=;
-        b=Iae/qSZVaI+P9YGFUyOqZ8addk/MPte29eLs174EEgvdD5RMUpQkcIgCCCc7nKr1ae
-         5VJoLw6CqEMxWGptA3nuhOa91NmpG/jc9JdREyjSlhFcxOn7wRp+nnBHxhEffnhjWHtC
-         LOISUbMdyIZohfa3YuznYGE3tLMyPay5AtCzwVEq7Zh3LFb/CGcqMPQbU4xk4E+6wRVs
-         mr4PiD33I+EGNPcb59FSu5WUqoSeVavbWcwBdQR5mvGq7hG1mkmh1jeGLR4DfJuvqjbg
-         fV80TUFXmtdttY7M1y1lk+nV0sdYxOfDHck9TgbTpgEfjo3/yk5i4lOA57MkEURngf7d
-         x2Sg==
-X-Forwarded-Encrypted: i=1; AJvYcCU/1Xo2ltgy+8ijZE2FFkulVjpbCbsFw1F2a8sJJ9nsPvPbeEVbQvQs/fa+k/2qVPodClF2vdOCr6ECyq8UTOjs7nPtGoRXpcUwBiKeyvFlU2vWuh48+AmjMouSRJJHg/lhO+Hun7xfDseIyZq9IXWxvcZuwgGwNMQ/TDdHtuYqTgTT0qGTWaJD0uJjwAM/GKjPx/LbSA==
-X-Gm-Message-State: AOJu0YyldpTLy4BmfywR3dbdsjxzVjwSDfv/IldkPKXVXk+glMPGNEP/
-	Da2j5HQpV+Ca30UZVdcHtj39VH0bnsiMBjsoCB5t0XNASCmt6zi9
-X-Google-Smtp-Source: AGHT+IGRyzCrdevZxKFBhUxDnOddgvpqme+M7ROiFiCztDKR/gn94LV80ZC0+hX8YvKA9BtIRQ//0w==
-X-Received: by 2002:a17:90a:898f:b0:2b2:7055:5a8b with SMTP id 98e67ed59e1d1-2b6165c5232mr23151a91.21.1715098242936;
-        Tue, 07 May 2024 09:10:42 -0700 (PDT)
-Received: from localhost ([2601:647:6881:9060:f3e4:f9ee:d229:5b64])
-        by smtp.gmail.com with ESMTPSA id rr3-20020a17090b2b4300b002b113ad5f10sm11956609pjb.12.2024.05.07.09.10.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 May 2024 09:10:42 -0700 (PDT)
-Date: Tue, 7 May 2024 09:10:41 -0700
-From: Cong Wang <xiyou.wangcong@gmail.com>
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, hca@linux.ibm.com,
-	gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	wenjia@linux.ibm.com, jaka@linux.ibm.com, borntraeger@linux.ibm.com,
-	svens@linux.ibm.com, alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	bpf@vger.kernel.org
-Subject: Re: [PATCH net-next v7 00/11] net/smc: SMC intra-OS shortcut with
- loopback-ism
-Message-ID: <ZjpSgWyHaNC/ikNP@pop-os.localdomain>
-References: <20240428060738.60843-1-guwen@linux.alibaba.com>
- <Zi5wIrf3nAeJh1u5@pop-os.localdomain>
- <2e34e4ea-b198-487e-be5b-ba854965dbeb@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hudbxpW9"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 447GPWDL003420;
+	Tue, 7 May 2024 16:35:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ZpdvGe/PCF9K79lOhhzmJsF+6EynaPR8HQUF5y3sTcY=;
+ b=hudbxpW9xTG57XuDMUQ+VtA5I8gngOXUFigovOpmjFXqwlwf9Q8FlP4UxODNJq8tXnEs
+ FTsuBjXPEPq1DeSyev7yeCKr949ry/PpstWs4hg2sMV9tZ95s/m1+5Hqpud0c/lN0BUX
+ xg+SSQFjvrQYTeaX1ZPeYNaD4Nc2vcjYG4PviUiLmKF7M+3kAud4lo+3aMfat6sPG9h7
+ qBrPzE/bFEl5W1ki4jDP6WrCIdKkRypCztirv1AFJ5+8F76oFpEfW3WjtQqIorZP1WDx
+ xw+ZIuqAyhZwMLp6aBEb2rOMWZjH6f/u6nnQd6YSLTzUEZeimlGqexcAeCkWulZjci/s 9w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyqpv0123-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 May 2024 16:34:59 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 447GYxAB019237;
+	Tue, 7 May 2024 16:34:59 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyqpv011y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 May 2024 16:34:59 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 447FKNjQ028545;
+	Tue, 7 May 2024 16:34:58 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xwyr07efy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 May 2024 16:34:57 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 447GYq5331064632
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 7 May 2024 16:34:54 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 468C72004E;
+	Tue,  7 May 2024 16:34:52 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 12A612004B;
+	Tue,  7 May 2024 16:34:52 +0000 (GMT)
+Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  7 May 2024 16:34:52 +0000 (GMT)
+Date: Tue, 7 May 2024 17:49:00 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily
+ Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Gerald
+ Schaefer <gerald.schaefer@linux.ibm.com>,
+        Matthew Wilcox
+ <willy@infradead.org>, Thomas Huth <thuth@redhat.com>
+Subject: Re: [PATCH v2 04/10] s390/uv: convert PG_arch_1 users to only work
+ on small folios
+Message-ID: <20240507174900.0b05791a@p-imbrenda.boeblingen.de.ibm.com>
+In-Reply-To: <20240412142120.220087-5-david@redhat.com>
+References: <20240412142120.220087-1-david@redhat.com>
+	<20240412142120.220087-5-david@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2e34e4ea-b198-487e-be5b-ba854965dbeb@linux.alibaba.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: OQgibnyqv9J8IT-0kxPNUMzQBczh4WlT
+X-Proofpoint-ORIG-GUID: WO723TopDS_-VtXiq7lKIJbcRXsNGkx4
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-05-07_10,2024-05-06_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 mlxscore=0 spamscore=0 suspectscore=0 mlxlogscore=999
+ lowpriorityscore=0 clxscore=1015 priorityscore=1501 adultscore=0
+ phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2405070113
 
-On Tue, May 07, 2024 at 10:34:09PM +0800, Wen Gu wrote:
+On Fri, 12 Apr 2024 16:21:14 +0200
+David Hildenbrand <david@redhat.com> wrote:
+
+> Now that make_folio_secure() may only set PG_arch_1 for small folios,
+> let's convert relevant remaining UV code to only work on (small) folios
+> and simply reject large folios early. This way, we'll never end up
+> touching PG_arch_1 on tail pages of a large folio in UV code.
 > 
+> The folio_get()/folio_put() for functions that are documented to already
+> hold a folio reference look weird; likely they are required to make
+> concurrent gmap_make_secure() back off because the caller might only hold
+> an implicit reference due to the page mapping. So leave that alone for now.
 > 
-> On 2024/4/28 23:49, Cong Wang wrote:
-> > On Sun, Apr 28, 2024 at 02:07:27PM +0800, Wen Gu wrote:
-> > > This patch set acts as the second part of the new version of [1] (The first
-> > > part can be referred from [2]), the updated things of this version are listed
-> > > at the end.
-> > > 
-> > > - Background
-> > > 
-> > > SMC-D is now used in IBM z with ISM function to optimize network interconnect
-> > > for intra-CPC communications. Inspired by this, we try to make SMC-D available
-> > > on the non-s390 architecture through a software-implemented Emulated-ISM device,
-> > > that is the loopback-ism device here, to accelerate inter-process or
-> > > inter-containers communication within the same OS instance.
-> > 
-> > Just FYI:
-> > 
-> > Cilium has implemented this kind of shortcut with sockmap and sockops.
-> > In fact, for intra-OS case, it is _very_ simple. The core code is less
-> > than 50 lines. Please take a look here:
-> > https://github.com/cilium/cilium/blob/v1.11.4/bpf/sockops/bpf_sockops.c
-> > 
-> > Like I mentioned in my LSF/MM/BPF proposal, we plan to implement
-> > similiar eBPF things for inter-OS (aka VM) case.
-> > 
-> > More importantly, even LD_PRELOAD is not needed for this eBPF approach.
-> > :)
-> > 
-> > Thanks.
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+> ---
+>  arch/s390/include/asm/page.h |  2 ++
+>  arch/s390/kernel/uv.c        | 41 ++++++++++++++++++++++--------------
+>  2 files changed, 27 insertions(+), 16 deletions(-)
 > 
-> Hi, Cong. Thank you very much for the information. I learned about sockmap
-> before and from my perspective smcd loopback and sockmap each have their own
-> pros and cons.
-> 
-> The pros of smcd loopback is that it uses a standard process that defined
-> by RFC-7609 for negotiation, this CLC handshake helps smc correctly determine
-> whether the tcp connection should be upgraded no matter what middleware the
-> connection passes, e.g. through NAT. So we don't need to pay extra effort to
-> check whether the connection should be shortcut, unlike checking various policy
-> by bpf_sock_ops_ipv4() in sockmap. And since the handshake automatically select
-> different underlay devices for different scenarios (loopback-ism in intra-OS,
-> ISM in inter-VM of IBM z and RDMA in inter-VM of different hosts), various
-> scenarios can be covered through one smc protocol stack.
-> 
-> The cons of smcd loopback is also related to the CLC handshake, one more round
-> handshake may cause smc to perform worse than TCP in short-lived connection
-> scenarios. So we basically use smc upgrade in long-lived connection scenarios
-> and are exploring IPPROTO_SMC[1] to provide lossless fallback under adverse cases.
+> diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+> index 9381879f7ecf..b64384872c0f 100644
+> --- a/arch/s390/include/asm/page.h
+> +++ b/arch/s390/include/asm/page.h
+> @@ -214,7 +214,9 @@ static inline unsigned long __phys_addr(unsigned long x, bool is_31bit)
+>  #define pfn_to_phys(pfn)	((pfn) << PAGE_SHIFT)
+>  
+>  #define phys_to_page(phys)	pfn_to_page(phys_to_pfn(phys))
+> +#define phys_to_folio(phys)	page_folio(phys_to_page(phys))
+>  #define page_to_phys(page)	pfn_to_phys(page_to_pfn(page))
+> +#define folio_to_phys(page)	pfn_to_phys(folio_pfn(folio))
+>  
+>  static inline void *pfn_to_virt(unsigned long pfn)
+>  {
+> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> index 3c6d86e3e828..914dcec27329 100644
+> --- a/arch/s390/kernel/uv.c
+> +++ b/arch/s390/kernel/uv.c
+> @@ -135,14 +135,18 @@ static int uv_destroy_page(unsigned long paddr)
+>   */
+>  int uv_destroy_owned_page(unsigned long paddr)
+>  {
+> -	struct page *page = phys_to_page(paddr);
+> +	struct folio *folio = phys_to_folio(paddr);
+>  	int rc;
+>  
+> -	get_page(page);
+> +	/* See gmap_make_secure(): large folios cannot be secure */
+> +	if (unlikely(folio_test_large(folio)))
+> +		return 0;
+> +
+> +	folio_get(folio);
+>  	rc = uv_destroy_page(paddr);
+>  	if (!rc)
+> -		clear_bit(PG_arch_1, &page->flags);
+> -	put_page(page);
+> +		clear_bit(PG_arch_1, &folio->flags);
+> +	folio_put(folio);
+>  	return rc;
+>  }
+>  
+> @@ -170,14 +174,18 @@ int uv_convert_from_secure(unsigned long paddr)
+>   */
+>  int uv_convert_owned_from_secure(unsigned long paddr)
+>  {
+> -	struct page *page = phys_to_page(paddr);
+> +	struct folio *folio = phys_to_folio(paddr);
+>  	int rc;
+>  
+> -	get_page(page);
+> +	/* See gmap_make_secure(): large folios cannot be secure */
+> +	if (unlikely(folio_test_large(folio)))
+> +		return 0;
+> +
+> +	folio_get(folio);
+>  	rc = uv_convert_from_secure(paddr);
+>  	if (!rc)
+> -		clear_bit(PG_arch_1, &page->flags);
+> -	put_page(page);
+> +		clear_bit(PG_arch_1, &folio->flags);
+> +	folio_put(folio);
+>  	return rc;
+>  }
+>  
+> @@ -479,33 +487,34 @@ EXPORT_SYMBOL_GPL(gmap_destroy_page);
+>   */
+>  int arch_make_page_accessible(struct page *page)
+>  {
+> +	struct folio *folio = page_folio(page);
+>  	int rc = 0;
+>  
+> -	/* Hugepage cannot be protected, so nothing to do */
+> -	if (PageHuge(page))
+> +	/* See gmap_make_secure(): large folios cannot be secure */
+> +	if (unlikely(folio_test_large(folio)))
+>  		return 0;
+>  
+>  	/*
+>  	 * PG_arch_1 is used in 3 places:
+>  	 * 1. for kernel page tables during early boot
+>  	 * 2. for storage keys of huge pages and KVM
+> -	 * 3. As an indication that this page might be secure. This can
+> +	 * 3. As an indication that this small folio might be secure. This can
+>  	 *    overindicate, e.g. we set the bit before calling
+>  	 *    convert_to_secure.
+>  	 * As secure pages are never huge, all 3 variants can co-exists.
+>  	 */
+> -	if (!test_bit(PG_arch_1, &page->flags))
+> +	if (!test_bit(PG_arch_1, &folio->flags))
+>  		return 0;
+>  
+> -	rc = uv_pin_shared(page_to_phys(page));
+> +	rc = uv_pin_shared(folio_to_phys(folio));
+>  	if (!rc) {
+> -		clear_bit(PG_arch_1, &page->flags);
+> +		clear_bit(PG_arch_1, &folio->flags);
+>  		return 0;
+>  	}
+>  
+> -	rc = uv_convert_from_secure(page_to_phys(page));
+> +	rc = uv_convert_from_secure(folio_to_phys(folio));
+>  	if (!rc) {
+> -		clear_bit(PG_arch_1, &page->flags);
+> +		clear_bit(PG_arch_1, &folio->flags);
+>  		return 0;
+>  	}
+>  
 
-You don't have to bother RFC's, since you could define your own TCP
-options. And, the eBPF approach could also use TCP options whenver
-needed. Cilium probably does not use them only because for intra-OS case
-it is too simple to bother TCP options, as everything can be shared via a
-shared socketmap.
-
-In reality, the setup is not that complex. In many cases we already know
-whether we have VM or container (or mixed) setup before we develop (as
-a part of requirement gathering). And they rarely change.
-
-Taking one step back, the discovery of VM or container or loopback cases
-could be done via TCP options too, to deal with complex cases like
-KataContainer. There is no reason to bother RFC's, maybe except the RDMA
-case.
-
-In fact, this is an advantage to me. We don't need to argue with anyone
-on our own TCP option or eBPF code, we don't even have to share our own
-eBPF code here.
-
-> 
-> And we are also working on other upgrade ways than LD_PRELOAD, e.g. using eBPF
-> hook[2] with IPPROTO_SMC, to enhance the usability.
-
-That is wrong IMHO, because basically it just overwrites kernel modules
-with eBPF, not how eBPF is supposed to be used. IOW, you could not use
-it at all without SMC/MPTCP modules.
-
-BTW, this approach does not work for kernel sockets, because you only
-hook __sys_socket().
-
-Of course, for sockmap or sockops, they could be used independently for
-any other purposes. I hope now you could see the flexiblities of eBPF
-over kernel modules.
-
-Thanks.
