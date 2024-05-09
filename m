@@ -1,144 +1,75 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 334A812FB38
-	for <linux-s390@vger.kernel.org>; Wed,  8 May 2024 18:30:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 831283C482;
+	Thu,  9 May 2024 01:00:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715193046; cv=none; b=gsVWgQtdDbinAmWGi29pLxWXmZ4w6ji/CBIJkIGvrX/D4hNy5k46ysBhB3s5JAGIN8glF4qcVcjSXM3KD057FdKl753nNOvZJK8MFsR55G4pRHnJCZxPWpjfW5RNKUqCkeB1kIlu7Md3qaG2CLUGqQwCF2l0AeApv7cdydaPwE4=
+	t=1715216407; cv=none; b=RL1grU9u8BizPG2QPtO1zPIwJngMB3Zi9pNHr37fol/9BUIDZyWojMkoec3avbqqlb4MebiE4F+rgltEecTrGwcW4RPRQdbv/hUEXXBlsIoKmTX1+hrlVTtxooeKz67AgpFkOH3BWLcZE9QW/DdYWp0igkpZZ1IT3ndMGxF0yrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715193046; c=relaxed/simple;
-	bh=REiKTjB5W6PjMHaoXVnysNIszjXK5RKLJJ6FNByQdzE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YqbIqUlS106VrtIQwoEokkIk+pYutQEh75Dc/V1+XpPWhbLg7ZWNgdYAYywmU1yxKfAyneuGazFJr4evOHhMPHSZC1I7qdyxeYLZhxv45f6Q/OZL4OvsGDBDbu8SEXfDF1+OLh5MxHndAWZhvNY0MiWP/fYDj1MyJdxX1pWIocI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Pil1Dy9+; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1715216407; c=relaxed/simple;
+	bh=9n6emzJJV1YX0cAHx4F9eAW5P1FzVQRtiGBpOCeJFX0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=mwTcP3GNqcXYU2MyuzppKuCymmVzS1qKHYHT7jA4w8Px9g5tXzzM+WPpVyu/Tx/O4vi1iVyN4bLbSrfbLkJpKV3Jwxk4iQtBnyE6dV3nFpCo0tf1TVmPz+ddfAxAdgPLWALtRyWTyPixU/8zcdsLRoxXdEPPfU9tcbpl64YLVu8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D0za5rf8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pil1Dy9+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1715193044;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=co8YhVpiS2u93sCq2Y2snJ8ldSVnZQFxzC5QqTWtcW8=;
-	b=Pil1Dy9+E/usWUdXppmLVyC+3S1OQL5X4nWoAf2BQ32SjzR9ZxdEwNVwUk5b6zvqiBI1B/
-	AW/DTiR+UF9IjiWSew3YGcVE+wJknh14+2YLGZQN9T4wHu6ABeQsfs91uD8+dYzxfMyM42
-	AIg+LdrsbERyFTv7N7UxJdw5fxV9q8w=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-690-kc1v_k0JNoCo06US66xzHQ-1; Wed, 08 May 2024 14:30:41 -0400
-X-MC-Unique: kc1v_k0JNoCo06US66xzHQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D140684B165;
-	Wed,  8 May 2024 18:30:33 +0000 (UTC)
-Received: from t14s.fritz.box (unknown [10.39.192.63])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 3EC961005B83;
-	Wed,  8 May 2024 18:30:30 +0000 (UTC)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	David Hildenbrand <david@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Matthew Wilcox <willy@infradead.org>,
-	Thomas Huth <thuth@redhat.com>
-Subject: [PATCH v3 10/10] s390/hugetlb: convert PG_arch_1 code to work on folio->flags
-Date: Wed,  8 May 2024 20:29:55 +0200
-Message-ID: <20240508182955.358628-11-david@redhat.com>
-In-Reply-To: <20240508182955.358628-1-david@redhat.com>
-References: <20240508182955.358628-1-david@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D0za5rf8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5827C113CC;
+	Thu,  9 May 2024 01:00:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1715216405;
+	bh=9n6emzJJV1YX0cAHx4F9eAW5P1FzVQRtiGBpOCeJFX0=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=D0za5rf8sBZLeTFfBwvH/5N1DEtRx4ddPaEKSxntYldtCZFiYr+kZfL/DPfTpd57y
+	 FkhTonAdznnnMsG/Jp8zcJ/5PM+gP0HSB24OIa5SvzI6O66EgZUZWygQB8n3m664Vk
+	 iw2gLzWak8zQqGD7NWJHmLYv7ayRF7VNeJDvoJQbuuL4ka1sD6Vgqp+3H5xH816G20
+	 IgUv7nVLhAegE3iIM6ZwFEP1kfHbzk6yoOEt4uVmR2mApKLXHKB1BZi2CcWGV8jx04
+	 kONXdu6CLktRjchT/w65rRI6tXLJZuu9lzLKHyav3WPKnjku1XOKMFyOYjqa3XcRWl
+	 nEfGC6fd23pIg==
+Date: Wed, 8 May 2024 18:00:03 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Kees Cook <keescook@chromium.org>
+Cc: Thomas =?UTF-8?B?V2Vpw59zY2h1aA==?= <linux@weissschuh.net>, Luis
+ Chamberlain <mcgrof@kernel.org>, Joel Granados <j.granados@samsung.com>,
+ Eric Dumazet <edumazet@google.com>, Dave Chinner <david@fromorbit.com>,
+ linux-fsdevel@vger.kernel.org, netdev@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-mm@kvack.org, linux-security-module@vger.kernel.org,
+ bpf@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-xfs@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, kexec@lists.infradead.org,
+ linux-hardening@vger.kernel.org, bridge@lists.linux.dev,
+ lvs-devel@vger.kernel.org, linux-rdma@vger.kernel.org,
+ rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
+ linux-nfs@vger.kernel.org, apparmor@lists.ubuntu.com
+Subject: Re: [PATCH v3 00/11] sysctl: treewide: constify ctl_table argument
+ of sysctl handlers
+Message-ID: <20240508180003.548af21b@kernel.org>
+In-Reply-To: <202405080959.104A73A914@keescook>
+References: <20240423-sysctl-const-handler-v3-0-e0beccb836e2@weissschuh.net>
+	<20240424201234.3cc2b509@kernel.org>
+	<202405080959.104A73A914@keescook>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Let's make it clearer that we are always working on folio flags and
-never page flags of tail pages by converting remaining PG_arch_1 users
-that modify page->flags to modify folio->flags instead.
+On Wed, 8 May 2024 10:11:35 -0700 Kees Cook wrote:
+> > Split this per subsystem, please.  
+> 
+> I've done a few painful API transitions before, and I don't think the
+> complexity of these changes needs a per-subsystem constification pass. I
+> think this series is the right approach, but that patch 11 will need
+> coordination with Linus. We regularly do system-wide prototype changes
+> like this right at the end of the merge window before -rc1 comes out.
 
-No functional change intended, because we would always have worked with
-the head page (where page->flags corresponds to folio->flags) and never
-with tail pages.
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- arch/s390/mm/gmap.c        | 4 ++--
- arch/s390/mm/hugetlbpage.c | 8 ++++----
- 2 files changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 797068dccb73..7319be707a98 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -2733,7 +2733,7 @@ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
- {
- 	pmd_t *pmd = (pmd_t *)pte;
- 	unsigned long start, end;
--	struct page *page = pmd_page(*pmd);
-+	struct folio *folio = page_folio(pmd_page(*pmd));
- 
- 	/*
- 	 * The write check makes sure we do not set a key on shared
-@@ -2748,7 +2748,7 @@ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
- 	start = pmd_val(*pmd) & HPAGE_MASK;
- 	end = start + HPAGE_SIZE - 1;
- 	__storage_key_init_range(start, end);
--	set_bit(PG_arch_1, &page->flags);
-+	set_bit(PG_arch_1, &folio->flags);
- 	cond_resched();
- 	return 0;
- }
-diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
-index c2e8242bd15d..a32047315f9a 100644
---- a/arch/s390/mm/hugetlbpage.c
-+++ b/arch/s390/mm/hugetlbpage.c
-@@ -121,7 +121,7 @@ static inline pte_t __rste_to_pte(unsigned long rste)
- 
- static void clear_huge_pte_skeys(struct mm_struct *mm, unsigned long rste)
- {
--	struct page *page;
-+	struct folio *folio;
- 	unsigned long size, paddr;
- 
- 	if (!mm_uses_skeys(mm) ||
-@@ -129,16 +129,16 @@ static void clear_huge_pte_skeys(struct mm_struct *mm, unsigned long rste)
- 		return;
- 
- 	if ((rste & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R3) {
--		page = pud_page(__pud(rste));
-+		folio = page_folio(pud_page(__pud(rste)));
- 		size = PUD_SIZE;
- 		paddr = rste & PUD_MASK;
- 	} else {
--		page = pmd_page(__pmd(rste));
-+		folio = page_folio(pmd_page(__pmd(rste)));
- 		size = PMD_SIZE;
- 		paddr = rste & PMD_MASK;
- 	}
- 
--	if (!test_and_set_bit(PG_arch_1, &page->flags))
-+	if (!test_and_set_bit(PG_arch_1, &folio->flags))
- 		__storage_key_init_range(paddr, paddr + size - 1);
- }
- 
--- 
-2.45.0
-
+Right. I didn't read the code closely enough before responding.
+Chalk my response up to being annoyed by the constant stream of
+cross-tree changes in procfs without proper cover letter explaining 
+how they will be merged :|
