@@ -1,80 +1,120 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E846312D76E;
-	Thu,  9 May 2024 08:20:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBC6439AC9;
+	Thu,  9 May 2024 15:05:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715242829; cv=none; b=JQ6BQ2pKc3f++VjEX/xdpPU6H1bNiz926Fa8x4PDulasazXpd+OAYjUN8a2nnjAOeo6fBC7raxOnB23KF/ZoSgX6JG6TcR8WxSUKlCqVsAKqnthFCz0H2nEl0nSl3JtccSCjhUPSMFjYdooARFnrNlGau1QxqbBoI2TF+q7nYGQ=
+	t=1715267125; cv=none; b=PGdFz+oSlJyLZN3E2+G62oZm/EOuX2i5aLp+haZjnIVDfmrVs9qJPdD53ZnR1O9dLA5lCnaSaJ7x5cXij5TsfRMqTyKzjXgCYxUVGJLCh28wHwCQFOdLVyFd0haCJLibl6VcjnmTlNTuSULQ2mpGmP+PrUdrsmMClIDBXBgXzBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715242829; c=relaxed/simple;
-	bh=FlMUqvYrfJFhE+zcBZdCUl/oxTB00wwnITCr+xwtjYQ=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=GI6H06gtoeIc9Bqhje7Z0p75QX6nDvGcR/BtUkw4LeGzDMO7ktNjJPiwTWqnG0IwVwdCVPGqkcYhhNjT2fN88e3RsO/fC7kCOCXSBsssT6pjtQI3KiNm2owhg7aw08ha54eqBVesf5QP7zFEdb7xqNtLW0m8TzrxBE65fDYz2G8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NK1doKm7; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1715267125; c=relaxed/simple;
+	bh=fDDk+OytCDgLeiBOfAWSUC4PwjJtsWMWHyWSbnMu3Wc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=E2H/PptuJw2tmqH8F5SqZggD2sJIrA7d/62FSYaTXahTN2N4GU8Jd20nJO2wdbu2piw1fFd0f+7xDhM+ggIWxke5uyyMFCaTDEHKfjK45Zup6pGCEHE4iSPHt7GrqcfxDuadoFH1S2KYED/FuWwGywUej4C75Z8R4Gb2vHA6EyM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mAnfqiCx; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NK1doKm7"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 6AE03C2BBFC;
-	Thu,  9 May 2024 08:20:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715242828;
-	bh=FlMUqvYrfJFhE+zcBZdCUl/oxTB00wwnITCr+xwtjYQ=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=NK1doKm7EzNAW/oUTLLVBDPHbJVoIGVZJbxZ6zFhQnChzbhvK1UhXigkXbE4CBZYH
-	 FFMZKF6qCfjcIGtpGH5tJD6t5ZBfSuy3BGb6vsoJvhkjcd9HGuL3HJ0c3zzjWXqXcE
-	 U5bLxyzvj3ENyPKZ2e3F1yM3eifHPeO1PH/TQttmiY8Mnx1FP7oJ+x8WVAEnpd/cPd
-	 SvNoFsCvg8IqopUd6xlV9E6kUfolx6eFsF2X0bOAYt4p6883i5XEIFkecD1HzaZ+k3
-	 hvaX/EqSe2rzla38HKJ8DIo4DGtLxATLt7PcTNDe13fWN9Ia6n80JEFoKJEiS7qIQe
-	 j65d53KjBKkzQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 5AB8CC32759;
-	Thu,  9 May 2024 08:20:28 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mAnfqiCx"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 449EgXMq010803;
+	Thu, 9 May 2024 15:05:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=0BoWS1URMndnGijkXUpbozrc7xc/t2T7Orm5y+7rPRM=;
+ b=mAnfqiCxK77z9C9sOBWZDa0elFLPIW+LjuoEkSKh11EGStGeEVs3dXX9sq1oxbIUeOfp
+ SdFLmVBlC2OdwK7YpQ+CodJDhpRe8XcBbigzLl5a+Wf0pc4sFsNBa9Kye7BOZfNQB//T
+ +pEZs0gWEE+dtIioUK4fORFOMnd3oipxfFEkUd0hTm3EXRFOXvy6N67JFW+TiXwot7oG
+ ng7kaSYOzCUsYx07axkdpXcRKdJySVHeXzYq3oXOHbT+3eOBuS3t0ZFWGPZz6EzZGxAy
+ WBErbVOdJoRjuqqAXLpR5RAO3mHr5qJzd4moylwsUnNVtwyBywIOh06DIJdCSNLX+Sgs bA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3y10fx02d6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 09 May 2024 15:05:10 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 449F5ARU019220;
+	Thu, 9 May 2024 15:05:10 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3y10fx02d2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 09 May 2024 15:05:10 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 449F4vwn009327;
+	Thu, 9 May 2024 15:05:09 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xyshuugxx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 09 May 2024 15:05:09 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 449F533930409332
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 9 May 2024 15:05:05 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B12792006E;
+	Thu,  9 May 2024 15:05:01 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F0B432004E;
+	Thu,  9 May 2024 15:05:00 +0000 (GMT)
+Received: from osiris (unknown [9.171.33.183])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu,  9 May 2024 15:05:00 +0000 (GMT)
+Date: Thu, 9 May 2024 17:04:59 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Matthew Wilcox <willy@infradead.org>, Thomas Huth <thuth@redhat.com>
+Subject: Re: [PATCH v3 00/10] s390: PG_arch_1+folio cleanups for uv+hugetlb
+Message-ID: <20240509150459.12056-A-hca@linux.ibm.com>
+References: <20240508182955.358628-1-david@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240508182955.358628-1-david@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 2GicvU8MHc_i4sl9SPrSTpMXuetyH1lT
+X-Proofpoint-GUID: VI2Q2YeRd-Lr97pq3VMV0JYa0QdW1vpY
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v2] net/smc: fix neighbour and rtable leak in
- smc_ib_find_route()
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <171524282836.9047.9322288635530734098.git-patchwork-notify@kernel.org>
-Date: Thu, 09 May 2024 08:20:28 +0000
-References: <20240507125331.2808-1-guwen@linux.alibaba.com>
-In-Reply-To: <20240507125331.2808-1-guwen@linux.alibaba.com>
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- kgraul@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-05-09_08,2024-05-09_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 phishscore=0
+ adultscore=0 bulkscore=0 malwarescore=0 suspectscore=0 mlxscore=0
+ lowpriorityscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2405010000 definitions=main-2405090101
 
-Hello:
-
-This patch was applied to netdev/net.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
-
-On Tue,  7 May 2024 20:53:31 +0800 you wrote:
-> In smc_ib_find_route(), the neighbour found by neigh_lookup() and rtable
-> resolved by ip_route_output_flow() are not released or put before return.
-> It may cause the refcount leak, so fix it.
+On Wed, May 08, 2024 at 08:29:45PM +0200, David Hildenbrand wrote:
+> Rebased on 390x/features. Cleanups around PG_arch_1 and folio handling
+> in UV and hugetlb code.
 > 
-> Link: https://lore.kernel.org/r/20240506015439.108739-1-guwen@linux.alibaba.com
-> Fixes: e5c4744cfb59 ("net/smc: add SMC-Rv2 connection establishment")
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> One "easy" fix upfront. Another issue I spotted is documented in [1].
 > 
-> [...]
+> Once this hits upstream, we can remove HAVE_ARCH_MAKE_PAGE_ACCESSIBLE
+> from core-mm and s390x, so only the folio variant will remain.
+> 
+> Compile tested, but not runtime tested with UV, I'll appreciate some
+> testing help from people with UV access and experience.
+> 
+> [1] https://lkml.kernel.org/r/20240404163642.1125529-1-david@redhat.com
+> 
+> v2 -> v3:
+> * "s390/uv: split large folios in gmap_make_secure()"
+>  -> Spelling fix
+> * "s390/hugetlb: convert PG_arch_1 code to work on folio->flags"
+>  -> Extended patch description
 
-Here is the summary with links:
-  - [net,v2] net/smc: fix neighbour and rtable leak in smc_ib_find_route()
-    https://git.kernel.org/netdev/net/c/2ddc0dd7fec8
+Added Claudio's Reviewed-by from v2 to the third patch, and fixed a
+typo in the commit message of patch 9.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Applied, thanks!
