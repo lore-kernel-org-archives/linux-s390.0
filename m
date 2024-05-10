@@ -1,143 +1,73 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 119F377119;
-	Fri, 10 May 2024 08:45:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C72977119;
+	Fri, 10 May 2024 09:14:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715330750; cv=none; b=N3513MAyZOQfsSAV8uGpKiLp+r492dzBOn1FCA1Jp5lzwDbvWBhFo/AfgiV0H4AgZZvMvva2uPyKA9h57Ryuk26k8xRz+S8z7bq1lCQ5Stabi9wUmVmIU3LRFjH3nj80ocwjuaPblP8Op0BbfbS0t00+0MzNWULOQ5CIJ6Thfag=
+	t=1715332463; cv=none; b=pqgXTVhr6A4D7lSe6Pp5lfMn0D7tYzMIIWdITq1gkGkqKj9eBnO9kDpK21Gcx2vPuu5aZcesv97oE51qW32+k8ImSAIAknO7ix4rzQBADoZgQIwP8zDXs/ZD0e32WNxYnqtnuActP238Oy8NLDcD5Nel4dTwEOnJtkjJIqRAkg0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715330750; c=relaxed/simple;
-	bh=mtf4M6QHGLU2mdvuYjnmJR1Z668vvViE62vcSrsirHY=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=kkEA4tt6FWoTB3SX5ZwmdRP2e65XEnnJ/xqFwzqxG4zlOadCQHiazK9qm6rvXK+t18BGkiky99fqm09BH2YySqPylHdP+MdT5RMFqLknbnlLFhEogT91GQURQo88hgiUYYDDhIAo1VLcqu77T3r/jNUHFkz3+uOf1A4M7475ctA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=c1Z1PbAi; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1715332463; c=relaxed/simple;
+	bh=W6EfEcxkzj+33/w5SVI935EGKINwwG4AtG59hsNqWD8=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=QZVuAX4RPmr6vzbCcSnwVhvXzjNVxaD6AsPkh8SQMYhjqUjey8OGf6GJW8LZ+CCSl7VYWdl0GCl+vfxUdgbwFHDw/L9jJoIjsiKmSGeUfd+IjFi0n2C59NEQXuWGEtumDXvEyAx2pQFfe61/YqbW0Cq6B4UONHODxDlEAAnl39w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=VFMBqrbP; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="c1Z1PbAi"
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 44A8WSdR021726;
-	Fri, 10 May 2024 08:45:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=+Z0ovvhQJtmJaRWOeUf86VOrNKt/1WQyF/jJNP+F8Co=;
- b=c1Z1PbAia1nYJGopwOgQbu4EURch9CQ0H1nfQ9st98QX7bNvtKUWYr4JwEY1rzTp3FwS
- McSAsxiWxXV78BHvjUHYrsq7Jm9aD7pcPBiXK2YKzjKDcH9/XZTPYyuG2EdFctyrUvA/
- nHdSbMGIqdEh3hCi/lD6yJfXiKph9WQXQQTqZP+8nZUfmB6vRLqNDPaSfHP0pMfos7nD
- d+ddk+/LmxWBXJKjdJA7c89zhoKM/M657x0jpIYv+SYXHBMIcBDcc1yGNGOcWiZaZYbI
- Qk1Vsj0ldwDXsigLTdibdRmlm3Hl2ycTvfZ1o0z/y/7gqz18KwFYaRbsUkzHqdXP/dlk Bg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3y1edbrarm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 May 2024 08:45:39 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 44A8jdnl008664;
-	Fri, 10 May 2024 08:45:39 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3y1edbrarf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 May 2024 08:45:39 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 44A77EQl009449;
-	Fri, 10 May 2024 08:45:38 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xysfxr742-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 May 2024 08:45:38 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 44A8jWMY51184066
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 10 May 2024 08:45:34 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 771D42004E;
-	Fri, 10 May 2024 08:45:32 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9F2DC2004D;
-	Fri, 10 May 2024 08:45:31 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.179.0.171])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Fri, 10 May 2024 08:45:31 +0000 (GMT)
-Date: Fri, 10 May 2024 10:45:29 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily
- Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Gerald
- Schaefer <gerald.schaefer@linux.ibm.com>,
-        Matthew Wilcox
- <willy@infradead.org>, Thomas Huth <thuth@redhat.com>
-Subject: Re: [PATCH v2 10/10] s390/hugetlb: convert PG_arch_1 code to work
- on folio->flags
-Message-ID: <20240510104529.26f68fd8@p-imbrenda>
-In-Reply-To: <36c6bdd3-b010-4b58-b358-395462d8765b@redhat.com>
-References: <20240412142120.220087-1-david@redhat.com>
-	<20240412142120.220087-11-david@redhat.com>
-	<20240507183307.3336dabc@p-imbrenda.boeblingen.de.ibm.com>
-	<36c6bdd3-b010-4b58-b358-395462d8765b@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-redhat-linux-gnu)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="VFMBqrbP"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715332458; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type;
+	bh=W6EfEcxkzj+33/w5SVI935EGKINwwG4AtG59hsNqWD8=;
+	b=VFMBqrbPAizbnoeePKlz3usqVfqNJByZreOh61mT5AYnmnXv1wkK8YldCcEVbwY8cMbHCQxdDtOAScDnYW8SXA+PtlJ8TpRChw1idxLNXyRxNLtxtCuUoGWONG9Cbtr98rsfra2NgtGOviUxPV3xNUW+09xoI46Wzh+WqjJ7+BE=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W69yFeK_1715332455;
+Received: from 30.221.149.42(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0W69yFeK_1715332455)
+          by smtp.aliyun-inc.com;
+          Fri, 10 May 2024 17:14:17 +0800
+Message-ID: <daf475c1-f729-47ab-81bf-f0e2d2e24b08@linux.alibaba.com>
+Date: Fri, 10 May 2024 17:14:14 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 855y7kWyZVhWhXV1CI38E4Dj2f_TUtmv
-X-Proofpoint-GUID: EpPFmLPUYHFm3vqW3A0A4a34i8NNfmcK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.11.176.26
- definitions=2024-05-10_06,2024-05-10_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=991
- malwarescore=0 suspectscore=0 bulkscore=0 impostorscore=0
- priorityscore=1501 mlxscore=0 spamscore=0 adultscore=0 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2405010000 definitions=main-2405100062
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 0/2] Introduce IPPROTO_SMC
+From: "D. Wythe" <alibuda@linux.alibaba.com>
+To: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+ wintera@linux.ibm.com, guwen@linux.alibaba.com
+Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+ tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
+References: <1715314333-107290-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Language: en-US
+In-Reply-To: <1715314333-107290-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Wed, 8 May 2024 20:08:07 +0200
-David Hildenbrand <david@redhat.com> wrote:
 
-> On 07.05.24 18:33, Claudio Imbrenda wrote:
-> > On Fri, 12 Apr 2024 16:21:20 +0200
-> > David Hildenbrand <david@redhat.com> wrote:
-> >   
-> >> Let's make it clearer that we are always working on folio flags and
-> >> never page flags of tail pages.  
-> > 
-> > please be a little more verbose, and explain what you are doing (i.e.
-> > converting usages of page flags to folio flags), not just why.
-> >   
-> >>
-> >> Signed-off-by: David Hildenbrand <david@redhat.com>  
-> > 
-> > with a few extra words in the description:  
-> 
->      Let's make it clearer that we are always working on folio flags and
->      never page flags of tail pages by converting remaining PG_arch_1 users
->      that modify page->flags to modify folio->flags instead.
->      
->      No functional change intended, because we would always have worked with
->      the head page (where page->flags corresponds to folio->flags) and never
->      with tail pages.
 
-this works, thanks!
+On 5/10/24 12:12 PM, D. Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>
+> This patch allows to create smc socket via AF_INET,
+> similar to the following code,
+>
+> /* create v4 smc sock */
+> v4 = socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
 
-> 
-> 
-> > 
-> > Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>  
-> 
-> Thanks for all the review!
-> 
+A eBPF version of smc_run is also available here:
 
+https://github.com/D-Wythe/smc-tools/tree/ipproto_smc
+
+You can test IPPROTO_SMC by script:
+
+   smc_run.pid COMMAND
+
+While you can still test AF_SMC by script:
+
+   smc_run COMMAND
+
+D. Wythe
