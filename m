@@ -1,158 +1,145 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C282171671;
-	Fri, 10 May 2024 11:30:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82B4117BA2;
+	Fri, 10 May 2024 17:09:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715340606; cv=none; b=GfR6bD9eruedaNH3yGCVwfU1anqhJ+CRdni+ROLM03EJQio0yIrxgyxyT82R6P0anbvjz5AXSMThsq6jCguKYEm9MR3FC6Or5rSfeYFMo3RZl0WqWJpUN7tPHDuLN56j+fvEjFoCimyoJJGkygTNDXCHvskgj5EIfwMzMzR9+CI=
+	t=1715360970; cv=none; b=neoElRA4j/HMAfEA0JYkhpRfHndg3l6HZL0huJrUUAhPHMpQemuVHGZ5Abfj5aJRykvc54e7WkNttmuYGXsyypHJJwJV+aF0ROpLPnQau6HiHDbJtnWXQLYGQ8zb8WYUBpU8nbT6LAxV/5uKiexCskUiLctUFKTACfPdaW/Qtwg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715340606; c=relaxed/simple;
-	bh=zYqs8Blgq16kxQx7VcBdzBxJvOtpTvAiNlyfrMvtVk0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Qcdy/mA1wAFANSMj0OeaDLMJtZCuPs4JLM2grCTJGRM+rTE6QiCO3GdYLOz2mxqbi5FW5oxRPPSs/UwfaOe0Oh6/8I0NTZC5CCDaRb5Y5/gqMXcYltP0a3jYoZqTK1ev2D1JFPCrH4/pQZd7zo2/VkVIXBCjhTAjc0B7NCLuhSY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=sLpfb55S; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1715360970; c=relaxed/simple;
+	bh=qSTaOA+Y7IeRNxGNDOeKkRpF7oBKmwmi5GT5xSEmXdk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AQCLDtSh8qlFG+D9WxfFgxvFlWtIqvft2YbqCrIHUZmQMd1n0C/KNhlDqminNV5aZMPtUjmvjy5LdoeWdOT7Frrx7JMYJaknFGJuIeK2FEKRf8rxCOe+v7d+f2gtRtC3HYaV0uLvc2Vf64ZbhNIFZ5eYBNLY997YSnBHOrdkUik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=AZyWs0du; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="sLpfb55S"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1715340601; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=6a2jVqnUdZ6fFSdIg+M4MMQ1vek14VbpFo818pvhYwA=;
-	b=sLpfb55Sk5ujEOK1e+v/M898FG4c5iwplzwKg2pcJOyAf304Y1yHizCrDR806GIWqBoANe/6moSl+WkR8UCJpCuXF+p2AYFGi98iqJ6pvOOrvqRvW+8CQ9WW6JdxxEcGhKX1zUNAZ/P5G73X6i6gfO5aY3nTGQn+CSCMhpvGldA=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R871e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0W6ACDCf_1715340598;
-Received: from 30.221.130.133(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W6ACDCf_1715340598)
-          by smtp.aliyun-inc.com;
-          Fri, 10 May 2024 19:30:00 +0800
-Message-ID: <7511f44c-9887-403a-91f3-45f84ff7bb3c@linux.alibaba.com>
-Date: Fri, 10 May 2024 19:29:58 +0800
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="AZyWs0du"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1715360968; x=1746896968;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=qSTaOA+Y7IeRNxGNDOeKkRpF7oBKmwmi5GT5xSEmXdk=;
+  b=AZyWs0duprVgW7GRl1RI+tVLFvprOTHTxHZILzEWSsRO28qZ9uzs2OcO
+   U+xWw1hbD1OsjcT+mR90ONVkoNvch+vARu8euE4Dgm5qxORanwN2ZG3QZ
+   U3opN/dbRfSaeCRqTCahVAMd5Hp1R5zatH3ZrOy6Yw4uNZXs4UYzOR4n8
+   4ZEq8eOpVay516QFU2hk6BxnbAcbJzxP81hLVP+5vbJGiKwuIrukXU9Vg
+   HAJOqKe0FdRidfFXYF3w9ygeuZI1RDDlhzGeZn2zmfFuu4vvJqqxZi6dh
+   lqR7cL1rE6BPQ34GreMtsu4dxI98m1vr8IwlxizIWRphK18jn77IbaH2L
+   w==;
+X-CSE-ConnectionGUID: mG4W036FRwqlKWTPOyKJ/g==
+X-CSE-MsgGUID: zxnH3M6bThad8gKctjMgHw==
+X-IronPort-AV: E=McAfee;i="6600,9927,11069"; a="11513339"
+X-IronPort-AV: E=Sophos;i="6.08,151,1712646000"; 
+   d="scan'208";a="11513339"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2024 10:09:27 -0700
+X-CSE-ConnectionGUID: F0qyHsW1SoOTvyONG6EWRQ==
+X-CSE-MsgGUID: DH7RKwmcQzq2ZdGdLdoaqA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,151,1712646000"; 
+   d="scan'208";a="34438249"
+Received: from lkp-server01.sh.intel.com (HELO f8b243fe6e68) ([10.239.97.150])
+  by orviesa005.jf.intel.com with ESMTP; 10 May 2024 10:09:23 -0700
+Received: from kbuild by f8b243fe6e68 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1s5TkG-0006PL-3B;
+	Fri, 10 May 2024 17:09:20 +0000
+Date: Sat, 11 May 2024 01:09:05 +0800
+From: kernel test robot <lkp@intel.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com,
+	guwen@linux.alibaba.com
+Cc: oe-kbuild-all@lists.linux.dev, kuba@kernel.org, davem@davemloft.net,
+	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org, tonylu@linux.alibaba.com,
+	pabeni@redhat.com, edumazet@google.com
+Subject: Re: [PATCH net-next 2/2] net/smc: Introduce IPPROTO_SMC
+Message-ID: <202405110124.GxQs28cK-lkp@intel.com>
+References: <1715314333-107290-3-git-send-email-alibuda@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: some questions about restrictions in SMC-R v2's implementation
-To: Wenjia Zhang <wenjia@linux.ibm.com>,
- Guangguan Wang <guangguan.wang@linux.alibaba.com>, jaka@linux.ibm.com,
- kgraul@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <6d6e870a-3fbf-4802-9818-32ff46489448@linux.alibaba.com>
- <ba4c7916-d6c4-44b6-a649-1e17c65e87f9@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <ba4c7916-d6c4-44b6-a649-1e17c65e87f9@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1715314333-107290-3-git-send-email-alibuda@linux.alibaba.com>
+
+Hi Wythe,
+
+kernel test robot noticed the following build warnings:
+
+[auto build test WARNING on net-next/main]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/D-Wythe/net-smc-refatoring-initialization-of-smc-sock/20240510-121442
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/1715314333-107290-3-git-send-email-alibuda%40linux.alibaba.com
+patch subject: [PATCH net-next 2/2] net/smc: Introduce IPPROTO_SMC
+config: i386-buildonly-randconfig-002-20240510 (https://download.01.org/0day-ci/archive/20240511/202405110124.GxQs28cK-lkp@intel.com/config)
+compiler: gcc-7 (Ubuntu 7.5.0-6ubuntu2) 7.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240511/202405110124.GxQs28cK-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202405110124.GxQs28cK-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+   net/smc/af_smc.c: In function 'smc_init':
+>> net/smc/af_smc.c:3710:1: warning: label 'out_inet_prot' defined but not used [-Wunused-label]
+    out_inet_prot:
+    ^~~~~~~~~~~~~
 
 
+vim +/out_inet_prot +3710 net/smc/af_smc.c
 
-On 2024/5/10 17:40, Wenjia Zhang wrote:
-> 
-> 
-> On 07.05.24 07:54, Guangguan Wang wrote:
->> Hi, Wenjia and Jan,
->>
->> When testing SMC-R v2, I found some scenarios where SMC-R v2 should be worked, but due to some restrictions in SMC-R 
->> v2's implementation,
->> fallback happened. I want to know why these restrictions exist and what would happen if these restrictions were removed.
->>
->> The first is in the function smc_ib_determine_gid_rcu, where restricts the subnet matching between smcrv2->saddr and 
->> the RDMA related netdev.
->> codes here:
->> static int smc_ib_determine_gid_rcu(...)
->> {
->>      ...
->>          in_dev_for_each_ifa_rcu(ifa, in_dev) {
->>              if (!inet_ifa_match(smcrv2->saddr, ifa))
->>                  continue;
->>              subnet_match = true;
->>              break;
->>          }
->>          if (!subnet_match)
->>              goto out;
->>      ...
->> out:
->>      return -ENODEV;
->> }
->> In my testing environment, either server or client, exists two netdevs, eth0 in netnamespace1 and eth0 in 
->> netnamespace2. For the sake of clarity
->> in the following text, we will refer to eth0 in netnamespace1 as eth1, and eth0 in netnamespace2 as eth2. The eth1's 
->> ip is 192.168.0.3/32 and the
->> eth2's ip is 192.168.0.4/24. The netmask of eth1 must be 32 due to some reasons. The eth1 is a RDMA related netdev, 
->> which means the adaptor of eth1
->> has RDMA function. The eth2 has been associated to the eth1's RDMA device using smc_pnet. When testing connection in 
->> netnamespace2(using eth2 for
->> SMC-R connection), we got fallback connection, rsn is 0x03010000, due to the above subnet matching restriction. But in 
->> this scenario, I think
->> SMC-R should work.
->> In my another testing environment, either server or client, exists two netdevs, eth0 in netnamespace1 and eth1 in 
->> netnamespace1. The eth0's ip is
->> 192.168.0.3/24 and the eth1's ip is 192.168.1.4/24. The eth0 is a RDMA related netdev, which means the adaptor of eth0 
->> has RDMA function. The eth1 has
->> been associated to the eth0's RDMA device using smc_pnet. When testing SMC-R connection through eth1, we got fallback 
->> connection, rsn is 0x03010000,
->> due to the above subnet matching restriction. In my environment, eth0 and eth1 have the same network connectivity even 
->> though they have different
->> subnet. I think SMC-R should work in this scenario.
->>
->> The other is in the function smc_connect_rdma_v2_prepare, where restricts the symmetric configuration of routing 
->> between client and server. codes here:
->> static int smc_connect_rdma_v2_prepare(...)
->> {
->>      ...
->>      if (fce->v2_direct) {
->>          memcpy(ini->smcrv2.nexthop_mac, &aclc->r0.lcl.mac, ETH_ALEN);
->>          ini->smcrv2.uses_gateway = false;
->>      } else {
->>          if (smc_ib_find_route(net, smc->clcsock->sk->sk_rcv_saddr,
->>                smc_ib_gid_to_ipv4(aclc->r0.lcl.gid),
->>                ini->smcrv2.nexthop_mac,
->>                &ini->smcrv2.uses_gateway))
->>              return SMC_CLC_DECL_NOROUTE;
->>          if (!ini->smcrv2.uses_gateway) {
->>              /* mismatch: peer claims indirect, but its direct */
->>              return SMC_CLC_DECL_NOINDIRECT;
->>          }
->>      }
->>      ...
->> }
->> In my testing environment, server's ip is 192.168.0.3/24, client's ip 192.168.0.4/24, regarding how many netdev in 
->> server or client. Server has special
->> route setting due to some other reasons, which results in indirect route from 192.168.0.3/24 to 192.168.0.4/24. Thus, 
->> when CLC handshake, client will
->> get fce->v2_direct==false, but client has no special routing setting and will find direct route from 192.168.0.4/24 to 
->> 192.168.0.3/24. Due to the above
->> symmetric configuration of routing restriction, we got fallback connection, rsn is 0x030f0000. But I think SMC-R 
->> should work in this scenario.
->> And more, why check the symmetric configuration of routing only when server is indirect route?
->>
->> Waiting for your reply.
->>
->> Thanks,
->> Guangguan Wang
->>
-> Hi Guangguan,
-> 
-> Thank you for the questions. We also asked ourselves the same questions a while ago, and also did some research on it. 
-> Unfortunately, it was not yet done and I had to delay it because of my vacation last month. Now it's time to pick it up 
-> again ;) I'll come back to you as soon as I can give a very certain answer.
-> 
-> Thanks,
-> Wenjia
+  3707	
+  3708		static_branch_enable(&tcp_have_smc);
+  3709		return 0;
+> 3710	out_inet_prot:
+  3711		inet_unregister_protosw(&smc_inet_protosw);
+  3712		proto_unregister(&smc_inet_prot);
+  3713	out_ulp:
+  3714		tcp_unregister_ulp(&smc_ulp_ops);
+  3715	out_lo:
+  3716		smc_loopback_exit();
+  3717	out_ib:
+  3718		smc_ib_unregister_client();
+  3719	out_sock:
+  3720		sock_unregister(PF_SMC);
+  3721	out_proto6:
+  3722		proto_unregister(&smc_proto6);
+  3723	out_proto:
+  3724		proto_unregister(&smc_proto);
+  3725	out_core:
+  3726		smc_core_exit();
+  3727	out_alloc_wqs:
+  3728		destroy_workqueue(smc_close_wq);
+  3729	out_alloc_hs_wq:
+  3730		destroy_workqueue(smc_hs_wq);
+  3731	out_alloc_tcp_ls_wq:
+  3732		destroy_workqueue(smc_tcp_ls_wq);
+  3733	out_pnet:
+  3734		smc_pnet_exit();
+  3735	out_nl:
+  3736		smc_nl_exit();
+  3737	out_ism:
+  3738		smc_clc_exit();
+  3739		smc_ism_exit();
+  3740	out_pernet_subsys_stat:
+  3741		unregister_pernet_subsys(&smc_net_stat_ops);
+  3742	out_pernet_subsys:
+  3743		unregister_pernet_subsys(&smc_net_ops);
+  3744	
+  3745		return rc;
+  3746	}
+  3747	
 
-Hi, Wenjia.
-
-Following Guangguan's questions, I noticed that in SMCv2, ini->smcrv2.saddr stores clcsock->sk->sk_rcv_saddr
-and ini->smcrv2.daddr stores the IP converted from peer RNIC's gid (smc_ib_gid_to_ipv4(smc_v2_ext->roce)),
-e.g. in smc_find_rdma_v2_device_serv(). And this is also how src address and dst address are considered in many
-other places, such as in smc_ib_find_route() mentioned above. I am confused why such 'asymmetrical' usage?
-
-    * clc src addr <----> clc dst addr
-    local RNIC gid <----> * peer RNIC gid          (*) means used for saddr or daddr
-
-I guess there might be some reason behind this and I'd really appreciate if you have a answer.
-
-Thank you!
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
