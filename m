@@ -1,145 +1,350 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC46811713;
-	Fri, 10 May 2024 18:32:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B4BE18049;
+	Sat, 11 May 2024 02:23:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715365954; cv=none; b=gccDsCkUBgE85ZNZgMeCrGVUVDOSGakKxxWicBLkXS1qZ1/EeCjQgjyK3AgDmHTj2weEZHIWECHzhDW+CBToIL0y70DdkZGu+PY01v98GuYSP9CdcxNvabGHd8M9dix5F7Spbhxwbr4+Omr92FjD/Shx9WhRMQuzu7Z4qp8sOu4=
+	t=1715394228; cv=none; b=FeyBqYhshBhbTjEpIMqC5T13FJCFQD3KfPbYgnHDr7R2QIgGa4VoSUZAWvb5RQn5kuDcP8ePbq2UiQwGCILfbX8OdwcTNq4Ab/eRk4eLR7uqziJypQsQ0TMEmzaR5vLBEO2KI1Df5a27WGHWEDpkFyiJRkwuTL/Y3EtlPR1Nzgo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715365954; c=relaxed/simple;
-	bh=G9gYYTn56ZMRHxXCgVo54QvAy2pxEZPAYMOd+dNXTOI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=i11/I1d6jKCcy7/4zZ+JAHuiA30uRmIYQCRMrpiegodyOPp/iDrGizz3oy+JpOv7AeivbL2MEMqfZ1y4f8U2wblIqFEcLO3u0lNXD/rWf95TeWVecsKv8KutRrisnjo61/tNd2ltl39N6DTGhKsJucKgoO5tYw9HJwafoZOfBQM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mymfPGRj; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1715394228; c=relaxed/simple;
+	bh=uZVCk9PRCIK8m4wksaSyZDihOk6/GHJd+lixXee/NGM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tyrPcWon004wgwecJ5LggJGW1XDsb7YNc88VWKjGnGVqg/3BF1APrDfmSqynWAcu3/pMyw/NaEH7TpR0XJO1t6EgX68wLtM+jj9QK207dU5gi9vbK/zrg0pw0h2e6RNcrhAUXbjb+EduMVZJhRBvoeiCp51y6rPnXpPmZ2jNbyE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Ndn/QfUo; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mymfPGRj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1715365952; x=1746901952;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=G9gYYTn56ZMRHxXCgVo54QvAy2pxEZPAYMOd+dNXTOI=;
-  b=mymfPGRjH9eiE0vGGMXUay5nNyHr1ahfchjC/yKBzqFhTjSvAI8diFG8
-   re6MRTo0UMNzva4A+pLZBGzWm3IJlEgPF8QLY2mmsx28dm9ytil44AvtJ
-   GgO9dZ0FUJuZB3m3FjG6CzJPlYm6XoZUPi1IRSkUGfMZttK2J4RmPNqgJ
-   l6HOFf3dSlsOHohl2QAqR85kRzg9QPA9BEGYryoc4ER6HHX+Tgborgqit
-   VjZIGzdcxPrlKeqoRAjNLvrYrgIMJcZ0jsLLKhLNSGFQyrOnjflM2+NsV
-   N84Db5BgJRIGXHKcCZqA9s3wF1pJdb782bKGyGAQEScBg9JpS+tsB/Jnq
-   g==;
-X-CSE-ConnectionGUID: 4LtJP3F4QX24hv0OxphQMQ==
-X-CSE-MsgGUID: MCCV+7LpT1aoIUFB3nI+wg==
-X-IronPort-AV: E=McAfee;i="6600,9927,11069"; a="21939974"
-X-IronPort-AV: E=Sophos;i="6.08,151,1712646000"; 
-   d="scan'208";a="21939974"
-Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2024 11:32:31 -0700
-X-CSE-ConnectionGUID: r4wIFvRLScGBHjGvpUXJDQ==
-X-CSE-MsgGUID: y2uJc1LGTVGEQOFQXka1xg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,151,1712646000"; 
-   d="scan'208";a="34135245"
-Received: from lkp-server01.sh.intel.com (HELO f8b243fe6e68) ([10.239.97.150])
-  by fmviesa005.fm.intel.com with ESMTP; 10 May 2024 11:32:27 -0700
-Received: from kbuild by f8b243fe6e68 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1s5V2f-0006U7-0Z;
-	Fri, 10 May 2024 18:32:25 +0000
-Date: Sat, 11 May 2024 02:32:23 +0800
-From: kernel test robot <lkp@intel.com>
-To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com,
-	guwen@linux.alibaba.com
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev, kuba@kernel.org,
-	davem@davemloft.net, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-	tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
-Subject: Re: [PATCH net-next 2/2] net/smc: Introduce IPPROTO_SMC
-Message-ID: <202405110225.7378HJe1-lkp@intel.com>
-References: <1715314333-107290-3-git-send-email-alibuda@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Ndn/QfUo"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715394215; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=FW0YcrHuFe37PByS9fK7ItADg/7K5l8KdMmlbz0om8s=;
+	b=Ndn/QfUoyPV8vFK6rRopfeHYHd5+ThhLzfN7Fq3mvEFxjbUKsg0E1UNqVNF8UZlQKtwb9yNimp1YI2yjQqUv3yHyaNEyj1MEPHIkFpdA+APneofQoO/kNTJ0iwNzQ2UK7gfUtd40m/Nxl3i7D4mOvH31/S4bXue033n3veheVFA=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W6Biehz_1715394213;
+Received: from 30.221.147.218(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0W6Biehz_1715394213)
+          by smtp.aliyun-inc.com;
+          Sat, 11 May 2024 10:23:34 +0800
+Message-ID: <76710317-8e9d-4efa-b3e9-1e361ee30135@linux.alibaba.com>
+Date: Sat, 11 May 2024 10:23:31 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1715314333-107290-3-git-send-email-alibuda@linux.alibaba.com>
-
-Hi Wythe,
-
-kernel test robot noticed the following build warnings:
-
-[auto build test WARNING on net-next/main]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/D-Wythe/net-smc-refatoring-initialization-of-smc-sock/20240510-121442
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/1715314333-107290-3-git-send-email-alibuda%40linux.alibaba.com
-patch subject: [PATCH net-next 2/2] net/smc: Introduce IPPROTO_SMC
-config: x86_64-randconfig-002-20240510 (https://download.01.org/0day-ci/archive/20240511/202405110225.7378HJe1-lkp@intel.com/config)
-compiler: clang version 18.1.5 (https://github.com/llvm/llvm-project 617a15a9eac96088ae5e9134248d8236e34b91b1)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240511/202405110225.7378HJe1-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202405110225.7378HJe1-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> net/smc/af_smc.c:3710:1: warning: unused label 'out_inet_prot' [-Wunused-label]
-    3710 | out_inet_prot:
-         | ^~~~~~~~~~~~~~
-   1 warning generated.
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 2/2] net/smc: Introduce IPPROTO_SMC
+To: dust.li@linux.alibaba.com, kgraul@linux.ibm.com, wenjia@linux.ibm.com,
+ jaka@linux.ibm.com, wintera@linux.ibm.com, guwen@linux.alibaba.com
+Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+ tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
+References: <1715314333-107290-1-git-send-email-alibuda@linux.alibaba.com>
+ <1715314333-107290-3-git-send-email-alibuda@linux.alibaba.com>
+ <20240510095711.GB78725@linux.alibaba.com>
+Content-Language: en-US
+From: "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <20240510095711.GB78725@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-vim +/out_inet_prot +3710 net/smc/af_smc.c
 
-  3707	
-  3708		static_branch_enable(&tcp_have_smc);
-  3709		return 0;
-> 3710	out_inet_prot:
-  3711		inet_unregister_protosw(&smc_inet_protosw);
-  3712		proto_unregister(&smc_inet_prot);
-  3713	out_ulp:
-  3714		tcp_unregister_ulp(&smc_ulp_ops);
-  3715	out_lo:
-  3716		smc_loopback_exit();
-  3717	out_ib:
-  3718		smc_ib_unregister_client();
-  3719	out_sock:
-  3720		sock_unregister(PF_SMC);
-  3721	out_proto6:
-  3722		proto_unregister(&smc_proto6);
-  3723	out_proto:
-  3724		proto_unregister(&smc_proto);
-  3725	out_core:
-  3726		smc_core_exit();
-  3727	out_alloc_wqs:
-  3728		destroy_workqueue(smc_close_wq);
-  3729	out_alloc_hs_wq:
-  3730		destroy_workqueue(smc_hs_wq);
-  3731	out_alloc_tcp_ls_wq:
-  3732		destroy_workqueue(smc_tcp_ls_wq);
-  3733	out_pnet:
-  3734		smc_pnet_exit();
-  3735	out_nl:
-  3736		smc_nl_exit();
-  3737	out_ism:
-  3738		smc_clc_exit();
-  3739		smc_ism_exit();
-  3740	out_pernet_subsys_stat:
-  3741		unregister_pernet_subsys(&smc_net_stat_ops);
-  3742	out_pernet_subsys:
-  3743		unregister_pernet_subsys(&smc_net_ops);
-  3744	
-  3745		return rc;
-  3746	}
-  3747	
+On 5/10/24 5:57 PM, Dust Li wrote:
+> On 2024-05-10 12:12:13, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+>> This patch allows to create smc socket via AF_INET,
+>> similar to the following code,
+>>
+>> /* create v4 smc sock */
+>> v4 = socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
+>>
+>> /* create v6 smc sock */
+>> v6 = socket(AF_INET6, SOCK_STREAM, IPPROTO_SMC);
+>>
+>> There are several reasons why we believe it is appropriate here:
+>>
+>> 1. For smc sockets, it actually use IPv4 (AF-INET) or IPv6 (AF-INET6)
+>> address. There is no AF_SMC address at all.
+>>
+>> 2. Create smc socket in the AF_INET(6) path, which allows us to reuse
+>> the infrastructure of AF_INET(6) path, such as common ebpf hooks.
+>> Otherwise, smc have to implement it again in AF_SMC path.
+>>
+>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>> ---
+>> include/uapi/linux/in.h |   2 +
+>> net/smc/af_smc.c        | 129 +++++++++++++++++++++++++++++++++++++++++++++++-
+>> net/smc/inet_smc.h      |  32 ++++++++++++
+>> 3 files changed, 162 insertions(+), 1 deletion(-)
+>> create mode 100644 net/smc/inet_smc.h
+>>
+>> diff --git a/include/uapi/linux/in.h b/include/uapi/linux/in.h
+>> index e682ab6..74c12e33 100644
+>> --- a/include/uapi/linux/in.h
+>> +++ b/include/uapi/linux/in.h
+>> @@ -83,6 +83,8 @@ enum {
+>> #define IPPROTO_RAW		IPPROTO_RAW
+>>    IPPROTO_MPTCP = 262,		/* Multipath TCP connection		*/
+>> #define IPPROTO_MPTCP		IPPROTO_MPTCP
+>> +  IPPROTO_SMC = 263,		/* Shared Memory Communications */
+>                                                             ^ use tab to align here
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+There is a problem here, all previous definitions were aligned with 2 
+spaces.
+
+>> +#define IPPROTO_SMC		IPPROTO_SMC
+>>    IPPROTO_MAX
+>> };
+>> #endif
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> index 1f03724..b4557828 100644
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -54,6 +54,7 @@
+>> #include "smc_tracepoint.h"
+>> #include "smc_sysctl.h"
+>> #include "smc_loopback.h"
+>> +#include "inet_smc.h"
+>>
+>> static DEFINE_MUTEX(smc_server_lgr_pending);	/* serialize link group
+>> 						 * creation on server
+>> @@ -3402,6 +3403,16 @@ static int smc_create(struct net *net, struct socket *sock, int protocol,
+>> 	.create	= smc_create,
+>> };
+>>
+> Why not put those whole bunch of inet staff into smc_inet.c ?
+> Looks like your smc_inet.h is meanless without smc_inet.c
+>
+
+This header file was originally reserved for future merging of socks. If 
+nobody likes it, I can move it to the
+af_smc.c
+
+>> +int smc_inet_init_sock(struct sock *sk)
+>> +{
+>> +	struct net *net = sock_net(sk);
+>> +
+>> +	/* init common smc sock */
+>> +	smc_sock_init(net, sk, IPPROTO_SMC);
+>> +	/* create clcsock */
+>> +	return __smc_create_clcsk(net, sk, sk->sk_family);
+>> +}
+>> +
+>> static int smc_ulp_init(struct sock *sk)
+>> {
+>> 	struct socket *tcp = sk->sk_socket;
+>> @@ -3460,6 +3471,90 @@ static void smc_ulp_clone(const struct request_sock *req, struct sock *newsk,
+>> 	.clone		= smc_ulp_clone,
+>> };
+>>
+>> +struct proto smc_inet_prot = {
+>> +	.name			= "INET_SMC",
+>> +	.owner			= THIS_MODULE,
+>> +	.init			= smc_inet_init_sock,
+>> +	.hash			= smc_hash_sk,
+>> +	.unhash			= smc_unhash_sk,
+>> +	.release_cb		= smc_release_cb,
+>> +	.obj_size		= sizeof(struct smc_sock),
+>> +	.h.smc_hash	= &smc_v4_hashinfo,
+>> +	.slab_flags	= SLAB_TYPESAFE_BY_RCU,
+>                  ^
+> Align please.
+>
+Got it.
+>> +};
+>> +
+>> +const struct proto_ops smc_inet_stream_ops = {
+>> +	.family		= PF_INET,
+>> +	.owner		= THIS_MODULE,
+>> +	.release	= smc_release,
+>> +	.bind		= smc_bind,
+>> +	.connect	= smc_connect,
+>> +	.socketpair	= sock_no_socketpair,
+>> +	.accept		= smc_accept,
+>> +	.getname	= smc_getname,
+>> +	.poll		= smc_poll,
+>> +	.ioctl		= smc_ioctl,
+>> +	.listen		= smc_listen,
+>> +	.shutdown	= smc_shutdown,
+>> +	.setsockopt	= smc_setsockopt,
+>> +	.getsockopt	= smc_getsockopt,
+>> +	.sendmsg	= smc_sendmsg,
+>> +	.recvmsg	= smc_recvmsg,
+>> +	.mmap		= sock_no_mmap,
+>> +	.splice_read	= smc_splice_read,
+> Ditto
+>
+>> +};
+>> +
+>> +struct inet_protosw smc_inet_protosw = {
+>> +	.type       = SOCK_STREAM,
+>> +	.protocol   = IPPROTO_SMC,
+>> +	.prot   = &smc_inet_prot,
+> Ditto
+>
+>> +	.ops    = &smc_inet_stream_ops,
+>> +	.flags  = INET_PROTOSW_ICSK,
+>> +};
+>> +
+>> +#if IS_ENABLED(CONFIG_IPV6)
+>> +struct proto smc_inet6_prot = {
+>> +	.name			= "INET6_SMC",
+>> +	.owner			= THIS_MODULE,
+>> +	.init			= smc_inet_init_sock,
+>> +	.hash			= smc_hash_sk,
+>> +	.unhash			= smc_unhash_sk,
+>> +	.release_cb		= smc_release_cb,
+>> +	.obj_size		= sizeof(struct smc_sock),
+>> +	.h.smc_hash		= &smc_v6_hashinfo,
+>> +	.slab_flags		= SLAB_TYPESAFE_BY_RCU,
+>> +};
+>> +
+>> +const struct proto_ops smc_inet6_stream_ops = {
+>> +	.family		= PF_INET6,
+>> +	.owner		= THIS_MODULE,
+>> +	.release	= smc_release,
+>> +	.bind		= smc_bind,
+>> +	.connect	= smc_connect,
+>> +	.socketpair	= sock_no_socketpair,
+>> +	.accept		= smc_accept,
+>> +	.getname	= smc_getname,
+>> +	.poll		= smc_poll,
+>> +	.ioctl		= smc_ioctl,
+>> +	.listen		= smc_listen,
+>> +	.shutdown	= smc_shutdown,
+>> +	.setsockopt	= smc_setsockopt,
+>> +	.getsockopt	= smc_getsockopt,
+>> +	.sendmsg	= smc_sendmsg,
+>> +	.recvmsg	= smc_recvmsg,
+>> +	.mmap		= sock_no_mmap,
+>> +	.splice_read	= smc_splice_read,
+> Ditto
+>
+>> +};
+>> +
+>> +struct inet_protosw smc_inet6_protosw = {
+>> +	.type       = SOCK_STREAM,
+>> +	.protocol   = IPPROTO_SMC,
+>> +	.prot   = &smc_inet6_prot,
+>> +	.ops    = &smc_inet6_stream_ops,
+>> +	.flags  = INET_PROTOSW_ICSK,
+> Ditto
+>
+>> +};
+>> +#endif
+>> +
+>> unsigned int smc_net_id;
+>>
+>> static __net_init int smc_net_init(struct net *net)
+>> @@ -3595,9 +3690,28 @@ static int __init smc_init(void)
+>> 		goto out_lo;
+>> 	}
+>>
+>> +	rc = proto_register(&smc_inet_prot, 1);
+>> +	if (rc) {
+>> +		pr_err("%s: proto_register smc_inet_prot fails with %d\n", __func__, rc);
+>> +		goto out_ulp;
+>> +	}
+>> +	inet_register_protosw(&smc_inet_protosw);
+>> +#if IS_ENABLED(CONFIG_IPV6)
+>> +	rc = proto_register(&smc_inet6_prot, 1);
+>> +	if (rc) {
+>> +		pr_err("%s: proto_register smc_inet6_prot fails with %d\n", __func__, rc);
+>> +		goto out_inet_prot;
+>> +	}
+>> +	inet6_register_protosw(&smc_inet6_protosw);
+>> +#endif
+>> +
+>> 	static_branch_enable(&tcp_have_smc);
+>> 	return 0;
+>> -
+>> +out_inet_prot:
+>> +	inet_unregister_protosw(&smc_inet_protosw);
+>> +	proto_unregister(&smc_inet_prot);
+>> +out_ulp:
+>> +	tcp_unregister_ulp(&smc_ulp_ops);
+>> out_lo:
+>> 	smc_loopback_exit();
+>> out_ib:
+>> @@ -3634,6 +3748,10 @@ static int __init smc_init(void)
+>> static void __exit smc_exit(void)
+>> {
+>> 	static_branch_disable(&tcp_have_smc);
+>> +	inet_unregister_protosw(&smc_inet_protosw);
+>> +#if IS_ENABLED(CONFIG_IPV6)
+>> +	inet6_unregister_protosw(&smc_inet6_protosw);
+>> +#endif
+>> 	tcp_unregister_ulp(&smc_ulp_ops);
+>> 	sock_unregister(PF_SMC);
+>> 	smc_core_exit();
+>> @@ -3645,6 +3763,10 @@ static void __exit smc_exit(void)
+>> 	destroy_workqueue(smc_hs_wq);
+>> 	proto_unregister(&smc_proto6);
+>> 	proto_unregister(&smc_proto);
+>> +	proto_unregister(&smc_inet_prot);
+>> +#if IS_ENABLED(CONFIG_IPV6)
+>> +	proto_unregister(&smc_inet6_prot);
+>> +#endif
+>> 	smc_pnet_exit();
+>> 	smc_nl_exit();
+>> 	smc_clc_exit();
+>> @@ -3661,4 +3783,9 @@ static void __exit smc_exit(void)
+>> MODULE_LICENSE("GPL");
+>> MODULE_ALIAS_NETPROTO(PF_SMC);
+>> MODULE_ALIAS_TCP_ULP("smc");
+>> +/* 263 for IPPROTO_SMC and 1 for SOCK_STREAM */
+>> +MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_INET, 263, 1);
+>> +#if IS_ENABLED(CONFIG_IPV6)
+>> +MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_INET6, 263, 1);
+>> +#endif
+>> MODULE_ALIAS_GENL_FAMILY(SMC_GENL_FAMILY_NAME);
+>> diff --git a/net/smc/inet_smc.h b/net/smc/inet_smc.h
+>> new file mode 100644
+>> index 00000000..fcdcb61
+>> --- /dev/null
+>> +++ b/net/smc/inet_smc.h
+>> @@ -0,0 +1,32 @@
+>> +/* SPDX-License-Identifier: GPL-2.0 */
+>> +/*
+>> + *  Shared Memory Communications over RDMA (SMC-R) and RoCE
+>> + *
+>> + *  Definitions for the SMC module (socket related)
+>> +
+>> + *  Copyright IBM Corp. 2016
+> You should update this.
+Got it.
+>> + *
+>> + */
+>> +#ifndef __INET_SMC
+>> +#define __INET_SMC
+>> +
+>> +#include <net/protocol.h>
+>> +#include <net/sock.h>
+>> +#include <net/tcp.h>
+>> +
+>> +extern struct proto smc_inet_prot;
+>> +extern const struct proto_ops smc_inet_stream_ops;
+>> +extern struct inet_protosw smc_inet_protosw;
+>> +
+>> +#if IS_ENABLED(CONFIG_IPV6)
+>> +#include <net/ipv6.h>
+>> +/* MUST after net/tcp.h or warning */
+>> +#include <net/transp_v6.h>
+>> +extern struct proto smc_inet6_prot;
+>> +extern const struct proto_ops smc_inet6_stream_ops;
+>> +extern struct inet_protosw smc_inet6_protosw;
+>> +#endif
+>> +
+>> +int smc_inet_init_sock(struct sock *sk);
+>> +
+>> +#endif // __INET_SMC
+>           ^
+>           use /* __INET_SMC */ instead
+>
+>> -- 
+>> 1.8.3.1
+>>
+
