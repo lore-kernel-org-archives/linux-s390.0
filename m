@@ -1,211 +1,130 @@
-Received: from out-177.mta0.migadu.com (out-177.mta0.migadu.com [91.218.175.177])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8DA055E43
-	for <linux-s390@vger.kernel.org>; Sat, 11 May 2024 12:21:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30B4118EBF;
+	Sat, 11 May 2024 19:00:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.165.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715430097; cv=none; b=Xl0sleOh7cq/HiTClj5lTass3nvXpdWGURIqNYZecmKLIxmp4YPP3flpYnIeSDfbPNH3+ftvfM1buQXdkg8PnPZnHeOH86wXs6trT1F+LarAnDjFcAvaVwxu9IiCmeUcQxeZ1FxAO6kUPjZy+MoNj0K3RMXGG7HsrvYtM5fGBI8=
+	t=1715454042; cv=none; b=Rxhm2FLZknILZlFtq+inuZPNl6fCYMSDJzJ1hjO6A/ezEtDTjFXzwkByqxAWSH9uE2Vhj/Fwu6lDTjbLrSjvumqxchSqWnSOZGJrF79P1oUmYql8HemJ6Sk+7yfq86XyyOaGQKHKrTVa8bq8c5TNRS4Cq4rXzZV8XktLwP1Kow0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715430097; c=relaxed/simple;
-	bh=/s/EJ4Je67SgUx8knRzcJnnkEqUgDovl83UXXVmO9NM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hLUZDYTSfnaq3bxQo+SzfndtE38wpl/Q59S7CqqZfKZrQdLXkWLoIeLsABxbsCB//M2JPiVA6NkFnEKH+JIhloCWyIMEpET0ZVGPYBFmqFnlbU9nBo9uD1dEvF/Z27NatOg39LN2v4Icx7O1xEorixfB4/QESYVDtj3xGv8IEgg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=TlLqps4Q; arc=none smtp.client-ip=91.218.175.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1715454042; c=relaxed/simple;
+	bh=g1p0fcYuj6Vmv6EravnVzqiDOl2tHcv3wZAdG0Cs3TM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=K2BqSEHqQvAE3qliZCsQSeliVcSciw61kOMUwhbpPEdqB/oW8TJh+TJWzDhFyQjW3UZIXb5V9XEwshzCoLK0zqhm4oJY65Ac5s8i3jv5WECVltdDr+Y27IPS/n05FFZtjCKvaXYeddcKwZ+pqzYsGrCStH8wO2PaLyaJZO+2bUM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=L5kCz3c6; arc=none smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="TlLqps4Q"
-Message-ID: <11f7d33c-80b1-40db-87c0-566ed24c389e@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1715430093;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Tlvf+UlQ8ivFvfmxIaptV3Ron15h1w/sRKGEJBxcYgc=;
-	b=TlLqps4QtC+iBmiJlBJAtOvBjiHGZqg3Q+ulvm29I6tV0AwhEVhfKTHlGd+7C95A8FfTeX
-	D8wZc6KevLkBHzx4MwuaFOgSK23JMMUXEkcu1NUbo1NIboMLTFB1yDdPtzF4QaO4dIdRxs
-	HlLHgqQlO72H1Y4THirO1Nb+sa9+veM=
-Date: Sat, 11 May 2024 14:21:28 +0200
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="L5kCz3c6"
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 44BIbdYX023817;
+	Sat, 11 May 2024 18:55:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=corp-2023-11-20;
+ bh=V6g8oKn6rig+zs765hUUYo3FL3WRsS9mpUom0ai8PII=;
+ b=L5kCz3c6MAFuvjwHXxSN80HLlCHhMi8kw2XYu3pCPFMu0dLU9umpVv5pz0ys/hwoKlgM
+ ku074/oaX76Xw3MJCrvXzQsXHyZeX6pxAhFNtuajAwoFjs5FmZ+JM/T5J1ZCV4NcFdyQ
+ qPF8uWPNgB1vSsOHt7/dJIJbOCe3g7xhyNrOpRWMTCRCQjgspt7cTQiaXgbGKpEpS3Ku
+ h08iKB/n0S6pwiKQStV23Ss/bMJrLnJdQ/f4moTAgsAUd1Tb4Px/PocmW+hqZiqJL8xP
+ GXG/rbzHgBPOFjz/ikxDR3Frn3h+XFTL0bm9HZQrThXfoKa3nrN57LSamjfpFzbVWrCQ gA== 
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3y2c2cg2w6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 11 May 2024 18:55:02 +0000
+Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 44BGN5Dn022420;
+	Sat, 11 May 2024 18:39:58 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3y1y44fn7c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 11 May 2024 18:39:58 +0000
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 44BIZYPU028255;
+	Sat, 11 May 2024 18:39:57 GMT
+Received: from ca-mkp2.ca.oracle.com.com (mpeterse-ol9.allregionaliads.osdevelopmeniad.oraclevcn.com [100.100.251.135])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 3y1y44fn5r-4;
+	Sat, 11 May 2024 18:39:57 +0000
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+To: Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
+        Rasesh Mody <rmody@marvell.com>,
+        Sudarsana Kalluru <skalluru@marvell.com>, GR-Linux-NIC-Dev@marvell.com,
+        Anil Gurumurthy <anil.gurumurthy@qlogic.com>,
+        Sudarsana Kalluru <sudarsana.kalluru@qlogic.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        GR-QLogic-Storage-Upstream@marvell.com,
+        Nilesh Javali <nilesh.javali@cavium.com>,
+        Arun Easi <arun.easi@cavium.com>,
+        Manish Rangankar <manish.rangankar@cavium.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        Linu Cherian <lcherian@marvell.com>,
+        Geetha sowjanya <gakula@marvell.com>, Jerin Jacob <jerinj@marvell.com>,
+        hariprasad <hkelam@marvell.com>,
+        Subbaraya Sundeep <sbhatta@marvell.com>,
+        Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: "Martin K . Petersen" <martin.petersen@oracle.com>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+        Saurav Kashyap <saurav.kashyap@cavium.com>, linux-s390@vger.kernel.org,
+        Jens Axboe <axboe@kernel.dk>,
+        Przemek Kitszel <przemyslaw.kitszel@intel.com>
+Subject: Re: [PATCH v2 0/6] Ensure the copied buf is NUL terminated
+Date: Sat, 11 May 2024 14:39:10 -0400
+Message-ID: <171545260076.2119337.3238318559945813238.b4-ty@oracle.com>
+X-Mailer: git-send-email 2.44.0
+In-Reply-To: <20240424-fix-oob-read-v2-0-f1f1b53a10f4@gmail.com>
+References: <20240424-fix-oob-read-v2-0-f1f1b53a10f4@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH net-next 1/2] net/smc: refatoring initialization of smc
- sock
-To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
- wenjia@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com,
- guwen@linux.alibaba.com
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
- tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
-References: <1715314333-107290-1-git-send-email-alibuda@linux.alibaba.com>
- <1715314333-107290-2-git-send-email-alibuda@linux.alibaba.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
-In-Reply-To: <1715314333-107290-2-git-send-email-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-05-11_06,2024-05-10_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=986 adultscore=0
+ bulkscore=0 phishscore=0 suspectscore=0 spamscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2405010000
+ definitions=main-2405110139
+X-Proofpoint-ORIG-GUID: JSR1LgQlB64XVUSSquWoWZNhZ3hLuE8Y
+X-Proofpoint-GUID: JSR1LgQlB64XVUSSquWoWZNhZ3hLuE8Y
 
-在 2024/5/10 6:12, D. Wythe 写道:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
+On Wed, 24 Apr 2024 21:44:17 +0700, Bui Quang Minh wrote:
+
+> I found that some drivers contains an out-of-bound read pattern like this
 > 
-> This patch aims to isolate the shared components of SMC socket
-> allocation by introducing smc_sock_init() for sock initialization
-> and __smc_create_clcsk() for the initialization of clcsock.
+> 	kern_buf = memdup_user(user_buf, count);
+> 	...
+> 	sscanf(kern_buf, ...);
 > 
-> This is in preparation for the subsequent implementation of the
-> AF_INET version of SMC.
+> The sscanf can be replaced by some other string-related functions. This
+> pattern can lead to out-of-bound read of kern_buf in string-related
+> functions.
 > 
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
->   net/smc/af_smc.c | 93 +++++++++++++++++++++++++++++++-------------------------
->   1 file changed, 52 insertions(+), 41 deletions(-)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 9389f0c..1f03724 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -361,34 +361,43 @@ static void smc_destruct(struct sock *sk)
->   		return;
->   }
->   
-> -static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
-> -				   int protocol)
-> +static void smc_sock_init(struct net *net, struct sock *sk, int protocol)
->   {
-> -	struct smc_sock *smc;
-> -	struct proto *prot;
-> -	struct sock *sk;
-> -
-> -	prot = (protocol == SMCPROTO_SMC6) ? &smc_proto6 : &smc_proto;
-> -	sk = sk_alloc(net, PF_SMC, GFP_KERNEL, prot, 0);
-> -	if (!sk)
-> -		return NULL;
-> +	struct smc_sock *smc = smc_sk(sk);
->   
-> -	sock_init_data(sock, sk); /* sets sk_refcnt to 1 */
->   	sk->sk_state = SMC_INIT;
-> -	sk->sk_destruct = smc_destruct;
->   	sk->sk_protocol = protocol;
-> +	mutex_init(&smc->clcsock_release_lock);
+> [...]
 
-Please add mutex_destroy(&smc->clcsock_release_lock); when 
-smc->clcsock_release_lock is no longer used.
+Applied to 6.10/scsi-queue, thanks!
 
-Or else some tools will notify errors.
+[3/6] bfa: ensure the copied buf is NUL terminated
+      https://git.kernel.org/mkp/scsi/c/13d0cecb4626
+[4/6] qedf: ensure the copied buf is NUL terminated
+      https://git.kernel.org/mkp/scsi/c/d0184a375ee7
 
-Zhu Yanjun
-
->   	WRITE_ONCE(sk->sk_sndbuf, 2 * READ_ONCE(net->smc.sysctl_wmem));
->   	WRITE_ONCE(sk->sk_rcvbuf, 2 * READ_ONCE(net->smc.sysctl_rmem));
-> -	smc = smc_sk(sk);
->   	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
->   	INIT_WORK(&smc->connect_work, smc_connect_work);
->   	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
->   	INIT_LIST_HEAD(&smc->accept_q);
->   	spin_lock_init(&smc->accept_q_lock);
->   	spin_lock_init(&smc->conn.send_lock);
-> -	sk->sk_prot->hash(sk);
-> -	mutex_init(&smc->clcsock_release_lock);
->   	smc_init_saved_callbacks(smc);
-> +	smc->limit_smc_hs = net->smc.limit_smc_hs;
-> +	smc->use_fallback = false; /* assume rdma capability first */
-> +	smc->fallback_rsn = 0;
-> +
-> +	sk->sk_destruct = smc_destruct;
-> +	sk->sk_prot->hash(sk);
-> +}
-> +
-> +static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
-> +				   int protocol)
-> +{
-> +	struct proto *prot;
-> +	struct sock *sk;
-> +
-> +	prot = (protocol == SMCPROTO_SMC6) ? &smc_proto6 : &smc_proto;
-> +	sk = sk_alloc(net, PF_SMC, GFP_KERNEL, prot, 0);
-> +	if (!sk)
-> +		return NULL;
-> +
-> +	sock_init_data(sock, sk); /* sets sk_refcnt to 1 */
-> +	smc_sock_init(net, sk, protocol);
->   
->   	return sk;
->   }
-> @@ -3321,6 +3330,31 @@ static ssize_t smc_splice_read(struct socket *sock, loff_t *ppos,
->   	.splice_read	= smc_splice_read,
->   };
->   
-> +static int __smc_create_clcsk(struct net *net, struct sock *sk, int family)
-> +{
-> +	struct smc_sock *smc = smc_sk(sk);
-> +	int rc;
-> +
-> +	rc = sock_create_kern(net, family, SOCK_STREAM, IPPROTO_TCP,
-> +			      &smc->clcsock);
-> +	if (rc) {
-> +		sk_common_release(sk);
-> +		return rc;
-> +	}
-> +
-> +	/* smc_clcsock_release() does not wait smc->clcsock->sk's
-> +	 * destruction;  its sk_state might not be TCP_CLOSE after
-> +	 * smc->sk is close()d, and TCP timers can be fired later,
-> +	 * which need net ref.
-> +	 */
-> +	sk = smc->clcsock->sk;
-> +	__netns_tracker_free(net, &sk->ns_tracker, false);
-> +	sk->sk_net_refcnt = 1;
-> +	get_net_track(net, &sk->ns_tracker, GFP_KERNEL);
-> +	sock_inuse_add(net, 1);
-> +	return 0;
-> +}
-> +
->   static int __smc_create(struct net *net, struct socket *sock, int protocol,
->   			int kern, struct socket *clcsock)
->   {
-> @@ -3346,35 +3380,12 @@ static int __smc_create(struct net *net, struct socket *sock, int protocol,
->   
->   	/* create internal TCP socket for CLC handshake and fallback */
->   	smc = smc_sk(sk);
-> -	smc->use_fallback = false; /* assume rdma capability first */
-> -	smc->fallback_rsn = 0;
-> -
-> -	/* default behavior from limit_smc_hs in every net namespace */
-> -	smc->limit_smc_hs = net->smc.limit_smc_hs;
->   
->   	rc = 0;
-> -	if (!clcsock) {
-> -		rc = sock_create_kern(net, family, SOCK_STREAM, IPPROTO_TCP,
-> -				      &smc->clcsock);
-> -		if (rc) {
-> -			sk_common_release(sk);
-> -			goto out;
-> -		}
-> -
-> -		/* smc_clcsock_release() does not wait smc->clcsock->sk's
-> -		 * destruction;  its sk_state might not be TCP_CLOSE after
-> -		 * smc->sk is close()d, and TCP timers can be fired later,
-> -		 * which need net ref.
-> -		 */
-> -		sk = smc->clcsock->sk;
-> -		__netns_tracker_free(net, &sk->ns_tracker, false);
-> -		sk->sk_net_refcnt = 1;
-> -		get_net_track(net, &sk->ns_tracker, GFP_KERNEL);
-> -		sock_inuse_add(net, 1);
-> -	} else {
-> +	if (!clcsock)
-> +		rc = __smc_create_clcsk(net, sk, family);
-> +	else
->   		smc->clcsock = clcsock;
-> -	}
-> -
->   out:
->   	return rc;
->   }
-
+-- 
+Martin K. Petersen	Oracle Linux Engineering
