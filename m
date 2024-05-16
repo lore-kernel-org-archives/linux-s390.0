@@ -1,159 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3285B1877;
-	Thu, 16 May 2024 00:24:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 579278821;
+	Thu, 16 May 2024 16:38:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715819046; cv=none; b=V/TIrWS3SwCcMSfMryZJ4Q64BlJjUobYFyQGbteHtMPbaeKF/DB7JC4tQp3pwcP4hrHK9/bKsHTCYimQ5lkEOaAkhnmJyyDXhsr5K/kUN4coeb0Uob0O7ZcSKlFKOm/BaklkchzUj70t0hqUZMON349WufcAHNC/WcSMxtK6N08=
+	t=1715877510; cv=none; b=qX2gGFyF+f29Z0GgxsAoZoMNwoL383mhD7ZbqAHiE3Hz1vZguHQ0JEksXJ1MK2z9Rr4ZxEhB5AA+AEqTmmA44XOjuaSSxVnvy0vvSo4BX0vnHFukvY42oP/LiZp1o61bj1UtBztCZmbJBIMK0fjzkgdB6PxbKEFXL1W3A2bfBp0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715819046; c=relaxed/simple;
-	bh=2mTyV3yHsXnpIz+Hf8dHwdpSsS9bL76Nasiv3NlJOGU=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=l1QI9khiLElR7VFjzE5or0yCKtQTm1UPHdHFUtG8qZM/wRHYZZaRZmRraCJx+an6l6BO1PV8A6GVEiqLQm20tEPYY995CkuIwhIYYNEczIM7+014gTqnGq+xOz5amnD7OukLZYAwkx/JrjT1pmJKQRzhBrH86B3fx+r4YzJTjj0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eyhYvQrh; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1715877510; c=relaxed/simple;
+	bh=YjsP4L4icgq/Y6Q4/G0kLiCQWYTDum7px1qoh4b1Pb0=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=DexYgErVdDxkeyCF4yfbEaikmu07ysmnfR6I1szBRRj1af5F6FC7da8QWQgWWIIQjq4eMHWJwxH3OEXVVCu0B5gab/MjgM+zz8Cyrkoqo/QvdFdLLSKwtbSwwILfQxkXH4tMSBQgdN7YvAa7vMBvGhY8t4W1b6f0BVwkB9kW3jU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YUOJPQPb; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eyhYvQrh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34B95C116B1;
-	Thu, 16 May 2024 00:23:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715819045;
-	bh=2mTyV3yHsXnpIz+Hf8dHwdpSsS9bL76Nasiv3NlJOGU=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=eyhYvQrhNljUOqI7QNUxGGddgXbxg9y2eAf3SrTd+rZn8BqfPQoiuSPf3cJR34dYa
-	 zSvce/f+OH48w4hBDOW3RJtYyeJg/nH46JmYm2E1PnSRHy3kF0o/T3lOVha7lvTJZL
-	 uwq0IQjHw/2eZmSVpTKVdnQCl4UR4thsmYHeiq/1GVjfoMBQqd3nuLCklTZ9PM9S84
-	 D8LoRdc+cO+u2c30aTUmBWeafhneREBkpHfzgJUF++utFsobb1GHqqrDGDR8WHyFxG
-	 uiknNVRd2iWPJ5aH2ELN/FibJPqRnrW3ba5PPk+Mf7re8cp/Bm8sj9dFC7CoxlOg4B
-	 VDJeBnkbZygiA==
-Date: Thu, 16 May 2024 09:23:55 +0900
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-To: Stephen Brennan <stephen.s.brennan@oracle.com>
-Cc: Guo Ren <guoren@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Mark
- Rutland <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>, WANG
- Xuerui <kernel@xen0n.name>, "James E.J. Bottomley"
- <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>, "Aneesh Kumar K.V"
- <aneesh.kumar@kernel.org>, "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas
- Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav
- Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3] kprobe/ftrace: bail out if ftrace was killed
-Message-Id: <20240516092355.4eaab560b7f4e22953f73cfc@kernel.org>
-In-Reply-To: <87r0e2pvmn.fsf@oracle.com>
-References: <20240501162956.229427-1-stephen.s.brennan@oracle.com>
-	<CAJF2gTT8a4PBU3ekZFNTi6EuETT9hhKfhXrPgGGpn92rQMNSvg@mail.gmail.com>
-	<20240502110348.016f190e0b0565b7e9ecdb48@kernel.org>
-	<87r0e2pvmn.fsf@oracle.com>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YUOJPQPb"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 44GGVJPB018436;
+	Thu, 16 May 2024 16:38:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : in-reply-to : references : date : message-id : mime-version :
+ content-type; s=pp1; bh=mL2ixIV4yHVtZCx+rAwU6k84asoS2aeQfzHRCssL2Vs=;
+ b=YUOJPQPbEYYFutYkCQkc99kuAzU85sKyDTb5lNqcEvXtXgFiFGUz6oDCIM/AFZhuFvw5
+ Vliki+kqlrj1/3rUvInswqS29sd2toZB5dCXMp6JBSopfiaS7TigHb2KYoO3lebNHj3l
+ e915XGpmEuh2MLI3K0VX1U85Qwg9nv1mkOxP5LWw8UdUEd9LG70L90cK45uFsg9ufi/f
+ kpq0A//RvtbAMEaMoCqtL6O4WzCKSBKfVa7NLO++GZI0OcALtwnjbDDaEWCVPVEAOrmX
+ Tx8npJ0Jb0ppTNVzS5CFYVHwzn72lVarLxz7nbYtZiFmiStAECedqR8oe248VOIP8ZKV dQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3y5m9mr9us-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 May 2024 16:38:12 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 44GGcB5H031698;
+	Thu, 16 May 2024 16:38:11 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3y5m9mr9un-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 May 2024 16:38:11 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 44GG032q006027;
+	Thu, 16 May 2024 16:38:10 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3y2nq32jtn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 May 2024 16:38:10 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 44GGc6Yu50463124
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 16 May 2024 16:38:08 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B9E542004E;
+	Thu, 16 May 2024 16:38:06 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8E71C2004F;
+	Thu, 16 May 2024 16:38:06 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 16 May 2024 16:38:06 +0000 (GMT)
+From: Sven Schnelle <svens@linux.ibm.com>
+To: Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: Valentin Schneider <vschneid@redhat.com>,
+        Juri Lelli
+ <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt
+ <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+        Mel Gorman
+ <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sched/core: Test online status in available_idle_cpu()
+In-Reply-To: <yt9dcypwrc96.fsf@linux.ibm.com> (Sven Schnelle's message of
+	"Wed, 08 May 2024 09:31:01 +0200")
+References: <20240429055415.3278672-1-svens@linux.ibm.com>
+	<xhsmhzft86wap.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+	<yt9dcypwrc96.fsf@linux.ibm.com>
+Date: Thu, 16 May 2024 18:38:06 +0200
+Message-ID: <yt9dcyplg1ap.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 5pjcHBMCZzEwX7JOBh20VbQir2_jpalz
+X-Proofpoint-ORIG-GUID: FE1He3IUYj5Qu-s1LFpWnP_-O3LLwCPE
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-05-16_07,2024-05-15_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
+ malwarescore=0 spamscore=0 impostorscore=0 phishscore=0 bulkscore=0
+ clxscore=1011 mlxlogscore=673 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2405010000 definitions=main-2405160118
 
-On Wed, 15 May 2024 15:18:08 -0700
-Stephen Brennan <stephen.s.brennan@oracle.com> wrote:
+Sven Schnelle <svens@linux.ibm.com> writes:
 
-> Masami Hiramatsu (Google) <mhiramat@kernel.org> writes:
-> > On Thu, 2 May 2024 01:35:16 +0800
-> > Guo Ren <guoren@kernel.org> wrote:
-> >
-> >> On Thu, May 2, 2024 at 12:30 AM Stephen Brennan
-> >> <stephen.s.brennan@oracle.com> wrote:
-> >> >
-> >> > If an error happens in ftrace, ftrace_kill() will prevent disarming
-> >> > kprobes. Eventually, the ftrace_ops associated with the kprobes will be
-> >> > freed, yet the kprobes will still be active, and when triggered, they
-> >> > will use the freed memory, likely resulting in a page fault and panic.
-> >> >
-> >> > This behavior can be reproduced quite easily, by creating a kprobe and
-> >> > then triggering a ftrace_kill(). For simplicity, we can simulate an
-> >> > ftrace error with a kernel module like [1]:
-> >> >
-> >> > [1]: https://github.com/brenns10/kernel_stuff/tree/master/ftrace_killer
-> >> >
-> >> >   sudo perf probe --add commit_creds
-> >> >   sudo perf trace -e probe:commit_creds
-> >> >   # In another terminal
-> >> >   make
-> >> >   sudo insmod ftrace_killer.ko  # calls ftrace_kill(), simulating bug
-> >> >   # Back to perf terminal
-> >> >   # ctrl-c
-> >> >   sudo perf probe --del commit_creds
-> >> >
-> >> > After a short period, a page fault and panic would occur as the kprobe
-> >> > continues to execute and uses the freed ftrace_ops. While ftrace_kill()
-> >> > is supposed to be used only in extreme circumstances, it is invoked in
-> >> > FTRACE_WARN_ON() and so there are many places where an unexpected bug
-> >> > could be triggered, yet the system may continue operating, possibly
-> >> > without the administrator noticing. If ftrace_kill() does not panic the
-> >> > system, then we should do everything we can to continue operating,
-> >> > rather than leave a ticking time bomb.
-> >> >
-> >> > Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
-> >> > ---
-> >> > Changes in v3:
-> >> >   Don't expose ftrace_is_dead(). Create a "kprobe_ftrace_disabled"
-> >> >   variable and check it directly in the kprobe handlers.
-> >> > Link to v1/v2 discussion:
-> >> >   https://lore.kernel.org/all/20240426225834.993353-1-stephen.s.brennan@oracle.com/
-> >> >
-> >> >  arch/csky/kernel/probes/ftrace.c     | 3 +++
-> >> >  arch/loongarch/kernel/ftrace_dyn.c   | 3 +++
-> >> >  arch/parisc/kernel/ftrace.c          | 3 +++
-> >> >  arch/powerpc/kernel/kprobes-ftrace.c | 3 +++
-> >> >  arch/riscv/kernel/probes/ftrace.c    | 3 +++
-> >> >  arch/s390/kernel/ftrace.c            | 3 +++
-> >> >  arch/x86/kernel/kprobes/ftrace.c     | 3 +++
-> >> >  include/linux/kprobes.h              | 7 +++++++
-> >> >  kernel/kprobes.c                     | 6 ++++++
-> >> >  kernel/trace/ftrace.c                | 1 +
-> >> >  10 files changed, 35 insertions(+)
-> >> >
-> >> > diff --git a/arch/csky/kernel/probes/ftrace.c b/arch/csky/kernel/probes/ftrace.c
-> >> > index 834cffcfbce3..7ba4b98076de 100644
-> >> > --- a/arch/csky/kernel/probes/ftrace.c
-> >> > +++ b/arch/csky/kernel/probes/ftrace.c
-> >> > @@ -12,6 +12,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
-> >> >         struct kprobe_ctlblk *kcb;
-> >> >         struct pt_regs *regs;
-> >> >
-> >> > +       if (unlikely(kprobe_ftrace_disabled))
-> >> > +               return;
-> >> > +
-> >> For csky part.
-> >> Acked-by: Guo Ren <guoren@kernel.org>
-> >
-> > Thanks Stephen, Guo and Steve!
-> >
-> > Let me pick this to probes/for-next!
-> 
-> Thank you Masami!
-> 
-> I did want to check, is this the correct git tree to be watching?
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/trace/linux-trace.git/log/?h=probes/for-next
-> 
-> ( I'm not trying to pressure on timing, as I know the merge window is
->   hectic. Just making sure I'm watching the correct place! )
+> Valentin Schneider <vschneid@redhat.com> writes:
+>
+>> On 29/04/24 07:54, Sven Schnelle wrote:
+>>> The current implementation of available_idle_cpu() doesn't test
+>>> whether a possible cpu is offline. On s390 this dereferences a
+>>> NULL pointer in arch_vcpu_is_preempted() because lowcore is not
+>>> allocated for offline cpus. On x86, tracing also shows calls to
+>>> available_idle_cpu() after a cpu is disabled, but it looks like
+>>> this isn't causing any (obvious) issue. Nevertheless, add a check
+>>> and return early if the cpu isn't online.
+>>>
+>>> Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+>>
+>>
+>> So most of the uses of that function is in wakeup task placement.
+>> o find_idlest_cpu() works on the sched_domain spans, so shouldn't
+> deal with
+>>   offline CPUs.
+>> o select_idle_sibling() may issue an available_idle_cpu(prev) with
+> an
+>>   offline previous, which would trigger your issue.
+>>
+>> Currently, even if select_idle_sibling() picks an offline CPU, this
+> will
+>> get corrected by select_fallback_rq() at the end of
+>> select_task_rq(). However, it would make sense to realize @prev
+> isn't a
+>> suitable pick before making it to the fallback machinery, in which
+> case
+>> your patch makes sense beyond just fixing s390.
+>>
+>> Reviewed-by: Valentin Schneider <vschneid@redhat.com>
+>
+> Thanks for the review! Ingo/Peter, gentle ping, are you planning to
+> take
+> this patch?
 
-Sorry, I forgot to push it from my local tree. Now it should be there.
+Ping?
 
 Thanks,
 
--- 
-Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Sven
