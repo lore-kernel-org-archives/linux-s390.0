@@ -1,160 +1,122 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mail.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BE0E145A11;
-	Thu, 23 May 2024 11:11:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8711914533A;
+	Thu, 23 May 2024 11:14:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=150.107.74.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716462669; cv=none; b=uhMJ/zk5ZaiTgZ4zIW7cv7KgPl4mbKPwfWUPxfyrldzfEqjfx0yXfqSOo+dwpYhHZ/Kg1m8XHOHhCQnbKXkxzi1fCyhlL31d4dN1v19YaISEFiIS1fU1xu1NOEjUCK7xuHiG2uxdB9HMqRzy/drmRFLiO3MV6MH6YxWYkXSrCCo=
+	t=1716462846; cv=none; b=MR3muuHM2jzBMBzDnz6N2TM5L8/UIK31+Kh5jAkyTUveL4OrAvkpefbY/8jzbFjnaOe9GRxTMguSGLFz44af5WezEAA5NLvxJpVD4Melo8Ivk++0nqKQMeIg8S7FUvUYnft1UZRk+k0zD3Q3qlfzORaKvMgN7Adc5kipJ8MfrOE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716462669; c=relaxed/simple;
-	bh=9h92woMooMl3UnL2kypvfI8Bf7RkEfan6j2YoC/grP8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ef2QCGLWUlju3prtv39mEoiPSf9OfVrgpJGVjjftnc4AlyCv+jZe3GliBhtANOsvgvbEDanSlpvrw6vhaOQz/euSe3X4LHnMUIusMfhjLRIUovlTCTbzdBWaqTk5cYeawlWUOVJKtmDJd4jvcs4/rnwUK7hTipptZvcAPZ7oFXY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=N8Cmuh5t; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1716462846; c=relaxed/simple;
+	bh=WsFGnwTm99wDa34rj9YU1yMy/PbnfLe5oRW6cl9M6ko=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=HYcJS1d5juOshDeyboeZfNu5m7IKloK+m7TMmZUy24KCQkhXKkf5ZvVy8EvRIcYApgThj1ggR/lVUM1efykco2tnP7BH6v2PFdrInAg/J6GB2URHSud5Gxi7DTa2wbpNZy4y7fpF4J7We/8Oos1Y0thXD11DyqChAL6SPZUPeZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au; spf=pass smtp.mailfrom=ellerman.id.au; dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b=TrAFcD/0; arc=none smtp.client-ip=150.107.74.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ellerman.id.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="N8Cmuh5t"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 44NAuVX4012736;
-	Thu, 23 May 2024 11:11:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : date : subject :
- mime-version : content-type : content-transfer-encoding : message-id :
- references : in-reply-to : to : cc; s=pp1;
- bh=4vhUEqiabPhzigiMYomjmv/L8qT55BUby37dsyFtlO4=;
- b=N8Cmuh5tocDif4yvgGv1oFl64fCrepPJ9YTqMBVStaEbE8DCpWRJm4/gKSr7247gIj7Y
- JtEi5c4HZ5oku6Md0ZGSLh4DUrJDGjyKdeb06IMZLwsjD6nCzEQPoJWHpOCJxvu3Eyqa
- iXDXcJ18Me1NiNqPvPrLDRVWgRj6kP9mLDM+HU8xYstXMmMel6/zxwJwHLTbwx5moItC
- LhKptwRoRZavb5hLSGNpLsNT98VMmHjbvNmTrfD4kP3iFN+phXEl6kc5e6/luE6T5xGx
- fmfCzMyuknJ9gmv+7LVB0Rc/gQMNInGKUZCKpKeNmnwroxeyzIz/c9QQj95HuVuRJg8v Kg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ya20rrfh7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 May 2024 11:11:06 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 44NBB5kV005709;
-	Thu, 23 May 2024 11:11:05 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ya20rrfg9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 May 2024 11:10:38 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 44N8ADSP026474;
-	Thu, 23 May 2024 11:10:37 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3y785msgj1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 May 2024 11:10:37 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 44NBAXFx8061468
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 May 2024 11:10:35 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8C93658052;
-	Thu, 23 May 2024 11:10:33 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 324A658064;
-	Thu, 23 May 2024 11:10:31 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 23 May 2024 11:10:31 +0000 (GMT)
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-Date: Thu, 23 May 2024 13:10:15 +0200
-Subject: [PATCH v2 2/3] vfio/pci: Tolerate oversized BARs by disallowing
- mmap
+	dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b="TrAFcD/0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+	s=201909; t=1716462840;
+	bh=RQkvd78utY4Ja+S0DO/1Mye5FaeMmZbhGPyeP5EJKQQ=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=TrAFcD/0oCSj4bONcbgtSXsgS11T7S6E6WEE0gffpW7ra3PdygToDHYnWt9FP325X
+	 Ulu0bqi0OxVHifCazgqTPTcv/aaBzA/83J1DT67GuP6P4kjWTmxYpR3k5d8QUw5SLX
+	 KaBhSbgX+yGymHJf39ImQ6bnlzCPqhwGCGOmHgS0sHnNQgFIAZ6faJ7xj1yh2/HfZ9
+	 /Z9LFLWzTrGlhqhCpc9jNxdoVnW04Z3oqkCtkFgdgatmkjO7vuIyMxPYAtcwoYLtH4
+	 NkZDz2N+aA5I64TWM3LiovfgstkBhV29OKuQ0ghCtOqMnTp1QDGg0kge9VdLNWKmjf
+	 eyL0seoYf1YEg==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mail.ozlabs.org (Postfix) with ESMTPSA id 4VlQXk23Vyz4wcK;
+	Thu, 23 May 2024 21:13:58 +1000 (AEST)
+From: Michael Ellerman <mpe@ellerman.id.au>
+To: Eric Chanudet <echanude@redhat.com>, Dave Hansen
+ <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter
+ Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter
+ Anvin" <hpa@zytor.com>, Mike Rapoport <rppt@kernel.org>, Andrew Morton
+ <akpm@linux-foundation.org>, Baoquan He <bhe@redhat.com>, Nick Piggin
+ <npiggin@gmail.com>
+Cc: x86@kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Eric Chanudet
+ <echanude@redhat.com>
+Subject: Re: [PATCH v2] mm/mm_init: use node's number of cpus in
+ deferred_page_init_max_threads
+In-Reply-To: <20240522203758.626932-4-echanude@redhat.com>
+References: <20240522203758.626932-4-echanude@redhat.com>
+Date: Thu, 23 May 2024 21:13:55 +1000
+Message-ID: <87jzjk3hn0.fsf@mail.lhotse>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240523-vfio_pci_mmap-v2-2-0dc6c139a4f1@linux.ibm.com>
-References: <20240523-vfio_pci_mmap-v2-0-0dc6c139a4f1@linux.ibm.com>
-In-Reply-To: <20240523-vfio_pci_mmap-v2-0-0dc6c139a4f1@linux.ibm.com>
-To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>
-X-Mailer: b4 0.12.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1976;
- i=schnelle@linux.ibm.com; h=from:subject:message-id;
- bh=9h92woMooMl3UnL2kypvfI8Bf7RkEfan6j2YoC/grP8=;
- b=owGbwMvMwCH2Wz534YHOJ2GMp9WSGNL8VRTvCRn+mx0Xeyb1W1YDF8OBwseuCkpPJmTVPhD9z
- 2v80Ka8o5SFQYyDQVZMkWVRl7PfuoIppnuC+jtg5rAygQxh4OIUgImc4mb4X7Xy5ewvU85Vaz2s
- OLjdMdyExfjhxmCX2vrKe3UCPabrbBkZZt1fvSNTL+6eI7vL4ulFk6ZWR5xY/MXFSbK9PX2pjUM
- cLwA=
-X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
- fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: n2Bhay_KVzIppJzu2WO6CADZYFHUvhnD
-X-Proofpoint-ORIG-GUID: p6NNyfaFozhoYhlDfarBpulVQ2-cNG6j
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
- definitions=2024-05-23_07,2024-05-23_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 malwarescore=0
- spamscore=0 priorityscore=1501 mlxscore=0 bulkscore=0 impostorscore=0
- clxscore=1015 phishscore=0 adultscore=0 mlxlogscore=999 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2405010000
- definitions=main-2405230076
+Content-Type: text/plain
 
-On s390 there is a virtual PCI device called ISM which has a few rather
-annoying oddities. For one it claims to have a 256 TiB PCI BAR (not
-a typo) which leads to any attempt to mmap() it failing during vmap.
+Eric Chanudet <echanude@redhat.com> writes:
+> x86_64 is already using the node's cpu as maximum threads. Make that the
+> default for all archs setting DEFERRED_STRUCT_PAGE_INIT.
+>
+> This returns to the behavior prior making the function arch-specific
+> with commit ecd096506922 ("mm: make deferred init's max threads
+> arch-specific").
+>
+> Signed-off-by: Eric Chanudet <echanude@redhat.com>
+>
+> ---
+> Setting DEFERRED_STRUCT_PAGE_INIT and testing on a few arm64 platforms
+> shows faster deferred_init_memmap completions:
+>
+> |         | x13s        | SA8775p-ride | Ampere R137-P31 | Ampere HR330 |
+> |         | Metal, 32GB | VM, 36GB     | VM, 58GB        | Metal, 128GB |
+> |         | 8cpus       | 8cpus        | 8cpus           | 32cpus       |
+> |---------|-------------|--------------|-----------------|--------------|
+> | threads |  ms     (%) | ms       (%) |  ms         (%) |  ms      (%) |
+> |---------|-------------|--------------|-----------------|--------------|
+> | 1       | 108    (0%) | 72      (0%) | 224        (0%) | 324     (0%) |
+> | cpus    |  24  (-77%) | 36    (-50%) |  40      (-82%) |  56   (-82%) |
+>
+> - v1: https://lore.kernel.org/linux-arm-kernel/20240520231555.395979-5-echanude@redhat.com
+> - Changes since v1:
+>  - Make the generic function return the number of cpus of the node as
+>    max threads limit instead overriding it for arm64.
+> - Drop Baoquan He's R-b on v1 since the logic changed.
+> - Add CCs according to patch changes (ppc and s390 set
+>   DEFERRED_STRUCT_PAGE_INIT by default).
+>
+>  arch/x86/mm/init_64.c | 12 ------------
+>  mm/mm_init.c          |  2 +-
+>  2 files changed, 1 insertion(+), 13 deletions(-)
 
-Even if one tried to map this "BAR" only partially the mapping would not
-be usable on systems with MIO support enabled however. This is because
-of another oddity in that this virtual PCI device does not support the
-newer memory I/O (MIO) PCI instructions and legacy PCI instructions are
-not accessible by user-space when MIO is in use. If this device needs to
-be accessed by user-space it will thus need a vfio-pci variant driver.
-Until then work around both issues by excluding resources which don't
-fit between IOREMAP_START and IOREMAP_END in vfio_pci_probe_mmaps().
+On a machine here (1TB, 40 cores, 4KB pages) the existing code gives:
 
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
- drivers/vfio/pci/vfio_pci_core.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+  [    0.500124] node 2 deferred pages initialised in 210ms
+  [    0.515790] node 3 deferred pages initialised in 230ms
+  [    0.516061] node 0 deferred pages initialised in 230ms
+  [    0.516522] node 7 deferred pages initialised in 230ms
+  [    0.516672] node 4 deferred pages initialised in 230ms
+  [    0.516798] node 6 deferred pages initialised in 230ms
+  [    0.517051] node 5 deferred pages initialised in 230ms
+  [    0.523887] node 1 deferred pages initialised in 240ms
 
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index d94d61b92c1a..23961299b695 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -28,6 +28,7 @@
- #include <linux/nospec.h>
- #include <linux/sched/mm.h>
- #include <linux/iommufd.h>
-+#include <linux/ioremap.h>
- #if IS_ENABLED(CONFIG_EEH)
- #include <asm/eeh.h>
- #endif
-@@ -129,9 +130,12 @@ static void vfio_pci_probe_mmaps(struct vfio_pci_core_device *vdev)
- 		/*
- 		 * The PCI core shouldn't set up a resource with a
- 		 * type but zero size. But there may be bugs that
--		 * cause us to do that.
-+		 * cause us to do that. There is also at least one
-+		 * device which advertises a resource too large to
-+		 * ioremap().
- 		 */
--		if (!resource_size(res))
-+		if (!resource_size(res) ||
-+		    resource_size(res) > (IOREMAP_END + 1 - IOREMAP_START))
- 			goto no_mmap;
- 
- 		if (resource_size(res) >= PAGE_SIZE) {
+vs with the patch:
 
--- 
-2.40.1
+  [    0.379613] node 0 deferred pages initialised in 90ms
+  [    0.380388] node 1 deferred pages initialised in 90ms
+  [    0.380540] node 4 deferred pages initialised in 100ms
+  [    0.390239] node 6 deferred pages initialised in 100ms
+  [    0.390249] node 2 deferred pages initialised in 100ms
+  [    0.390786] node 3 deferred pages initialised in 110ms
+  [    0.396721] node 5 deferred pages initialised in 110ms
+  [    0.397095] node 7 deferred pages initialised in 110ms
 
+Which is a nice speedup.
+
+Tested-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+
+cheers
