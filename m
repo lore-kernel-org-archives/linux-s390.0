@@ -1,239 +1,211 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71893127E24;
-	Thu, 23 May 2024 21:53:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.9
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716501186; cv=fail; b=pObypzoQ7jAzyA+XgzNPM6S6BirZH1gCwGq3usrIBrdxWplSEEt77CV6wc5IitKjGdp21Dx5Siao1Bs3pHIpoGmUfJBoPLUx3cPvf+xMRpUJMDxpA2nxBOshO9mmaF98JI61iv+51JsULDKrZiLFaJLDs0Lhm3nuXR9tx/qsC4g=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716501186; c=relaxed/simple;
-	bh=AoBwdosOuUXhMIA/VLiHQG2Y2oShV2sIHgPp4RCWHBw=;
-	h=Message-ID:Date:Subject:From:To:CC:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=mQGin+DozkdNsDdLq5OUtRM9+T0vwuLk0Wadddaxrur+SskUn1cQp8+usxVSgVH8UmlKHBB1F9CFaorsYThPK1paEXTaPlEz6sXO6zhSIcYzo5KGXcbQwQpxrZzoF/tSeCMrmQ6c06Afvyjm02eYVOOKN+MZexvrEWV8UhvYWDo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nug2YzR2; arc=fail smtp.client-ip=192.198.163.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7088A48CCC;
+	Fri, 24 May 2024 13:42:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1716558169; cv=none; b=HZxCCWPNQOms6MUVVxaWO9tuaeAmnbQpWS/xvaGQGbBWGsL2E9A434+AotmIy4girsGlM3mEwa8Sd7AvWc+KmllUfdaWWPcHuGl+yk/n3TpaOB1XNlCbFBgw8fFPkVrLQkpXQNJm8wHIRXy/v5mLNq6AR0Uky+/YLOKHH3yXzAA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1716558169; c=relaxed/simple;
+	bh=kPSkmn6cHWFn0+BYM5ctJCrWSKG+QGjVtlxOyGnU+38=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=bTmnY8yf9rBCD4rfP+bG85yjo4zrPAmrbRLOYOpHa4Cr6tcfvGG5+fDqTXp4bQWNcbuDATDsmwSBZmrVVrxX5T1LhtPSyARK2bLLX71YniFSutWsWXpqbQuZ/HO+FbZLPL33/ikFhLbs/3z41tzuAU65DKmbv6oWAwQgIsalA8o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=COrHDNKy; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nug2YzR2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1716501184; x=1748037184;
-  h=message-id:date:subject:from:to:cc:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=AoBwdosOuUXhMIA/VLiHQG2Y2oShV2sIHgPp4RCWHBw=;
-  b=nug2YzR2hNNkvFFJSEP63ktm3i+hYTzhCKnkprl8KdpE6FWzhcTzOADl
-   ycgUcOUYghst49wRp6EBOOfQK+QVaqhW1yk1bi/8cO9Ilwt2m0Ri7Ny0d
-   W+fY28016fGIGRk/30CyeS6+4xM4jHpCjpXdV4MlNbywTn9JvdVRuqSv7
-   dbq0/2wpjdGr6vcchWHb1wV+GlZqtbtMxrKjeY7Aq89dxsuZB0dflorPz
-   wv11tWLtmiIaW4h2fdcTgYix1wKOFzLnLyu72OYMMHp5gah5y8+L6WYyT
-   YjW5FHM2HkgGDYA9QApgcKmWU88jkWq6Cp922M9ylvgG5Jqip+566LlT8
-   g==;
-X-CSE-ConnectionGUID: BkNoT5BATd+a+h3WXF3TXg==
-X-CSE-MsgGUID: o1k0CwBTTl22hVHBGMopDQ==
-X-IronPort-AV: E=McAfee;i="6600,9927,11081"; a="23523639"
-X-IronPort-AV: E=Sophos;i="6.08,183,1712646000"; 
-   d="scan'208";a="23523639"
-Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 May 2024 14:53:01 -0700
-X-CSE-ConnectionGUID: 788+XmAIR2aslU3UC2wnpw==
-X-CSE-MsgGUID: RszIB5dHSwS+VPdyCl7K/g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,183,1712646000"; 
-   d="scan'208";a="38218809"
-Received: from fmsmsx601.amr.corp.intel.com ([10.18.126.81])
-  by fmviesa005.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 23 May 2024 14:53:01 -0700
-Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
- fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Thu, 23 May 2024 14:53:01 -0700
-Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39 via Frontend Transport; Thu, 23 May 2024 14:53:01 -0700
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (104.47.66.40) by
- edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.39; Thu, 23 May 2024 14:53:00 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OZ8zeoAGUGQ3K6mH4pRJfO3wJcohrCoE9qS5AVCc75M+ABvlsbAExmIqw/lOvynRG7OlPzyxsGNOsstyIsfZ8CxEV0iwKL7nfUDAjGU+4mc/Dfrwwu8MHNnt5sMnvOKYIoYvze9xiG5e/wviMCInoNmaADEDal9MN0ssvChlCjoQmILEYFkMa0EummBBvFHQMKiJtsrGvf7yBR1MsuQyBItjEKhAqEq639rPHvxqFFGpdZuMbLtI5BOnvZF3hgqv7lVspBwZpC7Ie7L3fS4XDCNeHKfcs/bmTZ9sKrNjaFNzTpVDKpMptxtjKrvicawyX747JeEdMhwKTzdAEEKIYQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=3DLK+dhbgHWOvGfPni5jzecNHjTZ1dz76HKZE6kN0hY=;
- b=dmDkZg7pTjrdQz2nAj9g/4akx0qbSovWX+ZcDvw6a29qF2WPNHxaBFOZwaJG4wGoO0kHHJIoq0YoGCTz7r01xzFb06SMNfUG8aFQKF0pELy8WcFXFjBP2NYpPcYekjomsvYEqNDHbrMZX6JdmY5OxcAyWREkFOOgUOIlS210+BkYUtVOvjzXVVxyjs4UXKN2eb6jaU0NB+iuT/lq/+9AZu79gg+EmOTpTJiNEUvrh7+qze4ZLOTXgm2A/0anGwO4gT+3m5PZvUtgPbIjlj4D6LL05BmrSMxMnaXDWw6TWaXDJaXeiOjXSK7lDdlIGMg3tHURrpe6hnQDixDer4kBew==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from BYAPR11MB2535.namprd11.prod.outlook.com (2603:10b6:a02:be::32)
- by LV8PR11MB8486.namprd11.prod.outlook.com (2603:10b6:408:1e8::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7611.20; Thu, 23 May
- 2024 21:52:54 +0000
-Received: from BYAPR11MB2535.namprd11.prod.outlook.com
- ([fe80::391:2d89:2ce4:a1c7]) by BYAPR11MB2535.namprd11.prod.outlook.com
- ([fe80::391:2d89:2ce4:a1c7%5]) with mapi id 15.20.7587.035; Thu, 23 May 2024
- 21:52:53 +0000
-Message-ID: <be2c357e-5314-42d2-a085-a211d8a12c5f@intel.com>
-Date: Thu, 23 May 2024 14:52:50 -0700
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/3] vfio/pci: Support 8-byte PCI loads and stores
-From: Ramesh Thomas <ramesh.thomas@intel.com>
-To: "Tian, Kevin" <kevin.tian@intel.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-	Alex Williamson <alex.williamson@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Niklas Schnelle <schnelle@linux.ibm.com>
-CC: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, Ankit Agrawal <ankita@nvidia.com>, Yishai Hadas
-	<yishaih@nvidia.com>, Halil Pasic <pasic@linux.ibm.com>, Julian Ruess
-	<julianr@linux.ibm.com>, Ben Segal <bpsegal@us.ibm.com>
-References: <20240425165604.899447-1-gbayer@linux.ibm.com>
- <20240425165604.899447-3-gbayer@linux.ibm.com>
- <d29a8b0d-37e6-4d87-9993-f195a5b7666c@intel.com>
- <BN9PR11MB5276194485E102747890C54D8CE92@BN9PR11MB5276.namprd11.prod.outlook.com>
- <a0acd183-a3b9-45cb-b0cb-4c7f0ec0b380@intel.com>
-Content-Language: en-US
-In-Reply-To: <a0acd183-a3b9-45cb-b0cb-4c7f0ec0b380@intel.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: MW3PR06CA0002.namprd06.prod.outlook.com
- (2603:10b6:303:2a::7) To BYAPR11MB2535.namprd11.prod.outlook.com
- (2603:10b6:a02:be::32)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="COrHDNKy"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 44ODgSDC010784;
+	Fri, 24 May 2024 13:42:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=kPSkmn6cHWFn0+BYM5ctJCrWSKG+QGjVtlxOyGnU+38=;
+ b=COrHDNKyGnkXqbKsJkS8rjAQJ13r8jA4zYl1v/kMNnhdXBdZea1PjcbVHoCgG2zUFUfQ
+ bErNqiXKZzVPuHse7jeczkyuchYZO5xV6RTQaKY6E3ib/azhjyddybL0ASD41z9cHOb8
+ xA8M3uUmJCVYev6B6xgpMJJ6RBZ7631s7Fva8XzDoFTgBlFWForei+yctdifxGCLxRn8
+ lYnMUnRJHm8g8MBjd53gDH3e6pXJX+Kfsl2DmTLSO0/7jZXdoeLLr4DvEAOcoiQ8VZRr
+ bULQ4nBzYiGY1TjH1y+VjR1uzSoAVAhSeZkuwTk+rdgsv7ovXhOia+RQA4xaOrF/QJMc Mg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yav0r801t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 May 2024 13:42:44 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 44ODghOS011468;
+	Fri, 24 May 2024 13:42:43 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yav0r801q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 May 2024 13:42:43 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 44OCC3eF022112;
+	Fri, 24 May 2024 13:42:42 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3y76nu94fr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 May 2024 13:42:42 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 44ODga4J14025018
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 24 May 2024 13:42:38 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ACA802004F;
+	Fri, 24 May 2024 13:42:36 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EC3DC2004D;
+	Fri, 24 May 2024 13:42:35 +0000 (GMT)
+Received: from [9.171.48.154] (unknown [9.171.48.154])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 24 May 2024 13:42:35 +0000 (GMT)
+Message-ID: <b0a5bf684bc264dd4bc1a13657c51db5ee006b59.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 2/3] vfio/pci: Support 8-byte PCI loads and stores
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Ramesh Thomas <ramesh.thomas@intel.com>,
+        Alex Williamson
+ <alex.williamson@redhat.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Niklas
+ Schnelle <schnelle@linux.ibm.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Ankit Agrawal
+	 <ankita@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>,
+        Halil Pasic
+	 <pasic@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>, Ben Segal
+	 <bpsegal@us.ibm.com>
+Date: Fri, 24 May 2024 15:42:35 +0200
+In-Reply-To: <8675abf2-00ca-4140-93be-8b45b04a5b7b@intel.com>
+References: <20240522150651.1999584-1-gbayer@linux.ibm.com>
+	 <20240522150651.1999584-3-gbayer@linux.ibm.com>
+	 <2b6e91c2-a799-402f-9354-759fb6a5a271@intel.com>
+	 <b1ee705ee3309405273ed1914a4326b9b024edf8.camel@linux.ibm.com>
+	 <8675abf2-00ca-4140-93be-8b45b04a5b7b@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.52.1 (3.52.1-1.fc40app1) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: nNSy0tfT6t5EFCQrl6H3UiAF6uHuOV-6
+X-Proofpoint-ORIG-GUID: xZgIp47IbEMHrCSSkokOgiJPohgsDC1j
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BYAPR11MB2535:EE_|LV8PR11MB8486:EE_
-X-MS-Office365-Filtering-Correlation-Id: c75218ed-aacd-4548-5dd7-08dc7b72b2e8
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230031|366007|7416005|376005|1800799015;
-X-Microsoft-Antispam-Message-Info: =?utf-8?B?NGdkYWs4dWcxY3NRSWdEcEFCc1ZTT1MxZzNOcUh2bjVlSEkrTWVwSjhyNktv?=
- =?utf-8?B?ZmVCL1ROd1o0UzN3d2ZCWTBOa3Zzd2ZtZXRjdFBVOWVqN0ZLc05pR05Eb3Z3?=
- =?utf-8?B?Z3Q1ZFUybkp2LzhmYUt0R2JESTNhN1dQazVSRkRwSHlVNWEzaWtMU1VGM3Zj?=
- =?utf-8?B?Vm51Sms0THBmR2lJWlhXYTNFcHI1WndxSHEycjVzYWZDdXQ3ZkoxaEdad0E0?=
- =?utf-8?B?bFl3Q3daYjhoeEw1R1JETGk1N0JMMGxxVjR2OWp1bzFKWG0xSHdaOG10cm84?=
- =?utf-8?B?L2k5TGxRWWtGbUE2dXkxcFFUVlZGaGRrNW9kdlA4a1lLejRsMzJPaUc0aDFF?=
- =?utf-8?B?RURHcSs0MEIwaDh5YUdZaWppcjdjL0lhaU1nOGV4bDhVR2pyeko5c2MvYU85?=
- =?utf-8?B?aEtBVzVCZ0ZXWUJodXFZc08wTW1TWHZmMnhnZCtidTNpdHZBeUJzYkpSZi9R?=
- =?utf-8?B?NkZ5empmRFBSYUs5alE5Q1ZUOThXbFRaeElDOTdiOEdDcGszbFFyVDJzTTMx?=
- =?utf-8?B?L0I0cVNlcFJBZmxXQmNMT3NQR1BtM3ZSdm5OUHVLTk1Vc21JVXdaTzJCYnhC?=
- =?utf-8?B?ZDducGhLeXVRUFZvRHFNYjdaU2JGQ1dKN1hkcHh0NXZySFRaM21oQXpnRmlZ?=
- =?utf-8?B?SHhoM0JVRnF2aGIzSjhxZ05EMS85OUczV2dFSVdiQStjYlNJbHpwSlJGZi9l?=
- =?utf-8?B?ZWlnL3hKMUp0Z0JUSjZDSFlIVFYxQXNkalh0ZklNdDU0WDNkTVJVb0liRHZs?=
- =?utf-8?B?NnIrNnFlK2RrdHY4cWhjR29zekF0QjlKbEV3ZGFzWERuK2JlSi9QR2RzWXds?=
- =?utf-8?B?V0RzUndYdkNtT3hiZDZmZWVKUk1rSTN3MWM2SmN0M0h5VWIrZVNoelNhQzMx?=
- =?utf-8?B?dFlFZXRacERvQjgzcjk1Zm9pUnBWcXpyV0h2Um1uYlJ4WWhaWnM5UUVTWUNr?=
- =?utf-8?B?VEZObkVZaVlLSkVYSjZiTU9RYW5mOU9QRWhLQ21PcXVLMUJ6ajZxbEkrb3J3?=
- =?utf-8?B?WDdldTVhS3NORzViYUtTMmtmWmdlUEs5QlplT1Vjay91V2xwMFpjYXlENFZP?=
- =?utf-8?B?dnZPcVNSbzhxN2J2ZVMwVXBSdlNtaGdYUU1UcTQzRE9UL053TVVVd0pKNFNq?=
- =?utf-8?B?dUdVVUtIbEpZS2kzN1Z3R3BRdXM4QzFOc0c2NXdNUG0yUkNnUktjQ2dHamRW?=
- =?utf-8?B?UnlJR29Rbmc0YkZ4MERWZTRYZU8vaDF4OFVKS1p1UUxPL0hSTXh0a3RxdFYx?=
- =?utf-8?B?MzAxWXFTejlXYkp3S05YczltcGpCOWtQTVhYdnRPcGtMRm1xeEIwaEtaNGNG?=
- =?utf-8?B?bTBNRlRUMXg1M2l3bVNvc2d4a0lwU0ZzVzdPdnpiNmh0ejFLbm9sQ2g0TGgr?=
- =?utf-8?B?U21RZ3ZRa0RNQ1VxZ2RZTkRzYzhxVWl0Q005TWdETzQ1Q1J4K2Q5RE45OTlW?=
- =?utf-8?B?dm5MRW8xY1R5K0NheEw0Rm9qYTRmSVJVZ05hZXZncHc5TnU5d3IydlRHaDJj?=
- =?utf-8?B?eWs2R25KbWdReEphUzRrRFFmdWVqSDZ4ZTRZVStpY3NaRUpGbTdCWGZ4anQw?=
- =?utf-8?B?RnZvcmJyRkZ5cEk5bmErVUNWaXFTWmZRajVPNCtDNDd6Z0JxeDlzOFJGcytm?=
- =?utf-8?B?dmRvVlNyWHZZc2FaL1hBWTVVSjRpcWpTVWZEczV1KzlCb044aS9QUDgrRm9q?=
- =?utf-8?B?cStHZzN5bWRQVHFDVVMwV2t2MkFlYlhOVlU4QzE0UFozVlJRajBMMTVBPT0=?=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR11MB2535.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366007)(7416005)(376005)(1800799015);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?VUxPc2xQUXA2ekF1SkxGd3JubSt5a00wR0duUncxN1BJalIzZk4zL2xvTEJo?=
- =?utf-8?B?U2E0aWZQL3d1TlBOV3BUYm54VnpKb1BuWTZTYUpGLzJpRjhBUEs1OFEzWFZQ?=
- =?utf-8?B?bUYxdXo4dTZQQTZpZXFFSnc2Sy9PcGYvMW1NcCs0c2RUcHlvalFUL2h5YUVp?=
- =?utf-8?B?YytrbW1SK0hQUTBuTHEwQURtSnQyRTFpUklCRWdWdE9xMEFEY0xnalZHYmg5?=
- =?utf-8?B?SlFXR3FvOXcxT2duMGpKcmpObmQvVzluMzBldG5tQUlIMWsrU1o4UlJsSXlI?=
- =?utf-8?B?SXJlNTNmZmNIS29sWC85TmNHS0dPWFd0VGhMakpxSGtQZzl1OVhmaHMrOU54?=
- =?utf-8?B?aWlsNjJ6M21tRkRrVHdYZm9yL2V4UmltY0JSd3IzVGpMM0Q4MEMwTkdYenI2?=
- =?utf-8?B?SXBIaytqdzBJd3E3cGpkQ1lBbDlScXB2a3B4RGVLS2VVR2YrenBKcmdBVzVF?=
- =?utf-8?B?MXZpS3BBWXFRaml0QUkwN2lwTkI1T2ZHWjRCcU1xTEg3TDZrL3dmcXJWNHY0?=
- =?utf-8?B?Ym1RelZWdjFPNFVLR0ZtM21FWFNWTTBlaXB3WlZ1SUNKV3hBcm54cTA3Y0pq?=
- =?utf-8?B?ay83Y25FRzdDU1VRZUpDTnNMZ1JKcXN4djZkQmFxYzRVZC9KMHp4UGowbkRE?=
- =?utf-8?B?enIvQUNNNU11RVRuSk9ZNmErdnNKekpFMCtNeGo5eVJDbk5YbDRSWTN3bHFV?=
- =?utf-8?B?bklqY1M2WERqeXR0cmJtcTJXUUdzbndVTEVKTXJNRyt1cUlxRUtibWJKNEJP?=
- =?utf-8?B?Q2lpWWFwVEtlZkFSYkRZM0wvKy9iS0UxcmNWRU5DdUxhZnJXUkpwUEkxcEN2?=
- =?utf-8?B?SU1CSE9oOXNhTTJZeWtaL3RCOXhVN09aWm4zYk5aalFGWGVZUWtMWGxMOFpr?=
- =?utf-8?B?WEY4MHltV3Z3eFRhdWxnS1dKcm9VYWw4UWUwOUsybk5pMXN3UlczR2VWN01U?=
- =?utf-8?B?MnhHWXJLVWVWZ0U5WWJFWjFCcENjRXluejk0SDl6SEZqOHB5VGN4cmNjcXF6?=
- =?utf-8?B?YXp0ZEJtN2VoT3Btczh1bC9hd2xxMVJSbTh5TFlIRm5IQ25OcXJoV2trUkR4?=
- =?utf-8?B?ekRobzNKS3c3UkRJcFdISE1ka0ZyS1ZnTFA5UHhmMXJsdDVEZXE4ZHNPTGMw?=
- =?utf-8?B?MklJN21lL3lYRjJpSGxmS003SjJLTTE5b3RXQ0E3ZzIyZU80cS9GRmI5YVJo?=
- =?utf-8?B?U2ZMdEN3Y3I0Y1NLMk8vbExvdlNJRVhXcnRIdXhlZzNNYkFjaVlHWGJ3WUUz?=
- =?utf-8?B?VFJQQUFpaEhpc000VFR4YytnL3V1R1NBS2RnTlh3b0dhL2RORStxdytuTmFr?=
- =?utf-8?B?TzNhZFZSUmtEMjEzcVRWcUZXS09tQVBYNmZMbjV6cGNUWThvTk8xc2NVQ3Jy?=
- =?utf-8?B?V3haaDNKUE9lRExyWDhWaU5IVW5Lc3BOZ1hUUUtFUE56cUJpQWVKSnJhWnM1?=
- =?utf-8?B?RHFySWFyQ2RVSENGWUEyTGRKTzRUSVVQYkkwaXZwcnBzb1FpenFjUnNxeTBk?=
- =?utf-8?B?anF4ZXE5UUdLclo4eURXYnhtZ1ZoaTZ5ajRYOVhRUE5kczYyak5keW54Nlpr?=
- =?utf-8?B?K2Z1RURKU0lNbjd6MGdNZjhneXk1M1lyLys1Uk9xVjNRZDcvZ1J1T2d2KzJz?=
- =?utf-8?B?M29NdXoyZDNiaWQrY3lGVnh0QStPWFpka1V3MkROSlR6blhSKyt6Zjd6UE8v?=
- =?utf-8?B?aDJjQ05pT2ZGTnRLb2RQaU1ESVgySlJrN2p2bjF4cEtBRGkvRUpFYjN0Qk9z?=
- =?utf-8?B?d0N0cG54ZG9zRTZMRnJPMHdqY0hpc0F0QmdIN2RZY2hSc0N5ZUV4M2NRNjd6?=
- =?utf-8?B?Nmd2WnhpRWNTZ3B4RmtTeVQ2UzJ5dm8yYTFPVVFHeHVDN1pTMjZpb2hWY0lO?=
- =?utf-8?B?MmtTdlhYZ2ExZHVDOUpXd2hscVk2dG1SWUxxdjZHRE56M3VVNVdaaU1Td2dV?=
- =?utf-8?B?ZzE5YUJkQUZSV2o5TW1JdnEzWVBiMEdLNVQ4bVJ5L2hzNHY0aEk0VlBpeEE0?=
- =?utf-8?B?NVhQaHR2bjZYNHdyQjlnTWQyV2habUZNdDVwN2xwZk9uTHZEMGdFVWswK2tY?=
- =?utf-8?B?MGRqQlJmek1nbHlicFpEbUJDRStobVZkWjRxNzQzQTM2MXF1Slo0WlBEeXM4?=
- =?utf-8?Q?oKSPj4R6wYuJjF+zKfPEFidGE?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: c75218ed-aacd-4548-5dd7-08dc7b72b2e8
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR11MB2535.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 May 2024 21:52:53.9182
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: fHSGD9COoCxKLXVZZINIgB+F7YhM6ZxfHtGc+LPcHNY9PU/vs69a5kiyM/bhPs1l1TAFcey1NIU0b1mizu78vw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR11MB8486
-X-OriginatorOrg: intel.com
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
+ definitions=2024-05-24_04,2024-05-24_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 clxscore=1011
+ priorityscore=1501 spamscore=0 suspectscore=0 phishscore=0 malwarescore=0
+ mlxscore=0 mlxlogscore=250 bulkscore=0 impostorscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2405010000
+ definitions=main-2405240095
 
-On 5/22/2024 5:11 PM, Ramesh Thomas wrote:
-> On 5/20/2024 2:02 AM, Tian, Kevin wrote:
->>> From: Ramesh Thomas <ramesh.thomas@intel.com>
->>> Sent: Friday, May 17, 2024 6:30 PM
->>>
->>> On 4/25/2024 9:56 AM, Gerd Bayer wrote:
->>>> From: Ben Segal <bpsegal@us.ibm.com>
->>>>
->>>> @@ -148,6 +155,15 @@ ssize_t vfio_pci_core_do_io_rw(struct
->>> vfio_pci_core_device *vdev, bool test_mem,
->>>>            else
->>>>                fillable = 0;
->>>>
->>>> +#if defined(ioread64) && defined(iowrite64)
->>>
->>> Can we check for #ifdef CONFIG_64BIT instead? In x86, ioread64 and
->>> iowrite64 get declared as extern functions if CONFIG_GENERIC_IOMAP is
->>> defined and this check always fails. In include/asm-generic/io.h,
->>> asm-generic/iomap.h gets included which declares them as extern 
->>> functions.
->>>
->>> One more thing to consider io-64-nonatomic-hi-lo.h and
->>> io-64-nonatomic-lo-hi.h, if included would define it as a macro that
->>> calls a function that rw 32 bits back to back.
->>
->> I don't see the problem here. when the defined check fails it falls
->> back to back-to-back vfio_pci_core_iordwr32(). there is no need to
->> do it in an indirect way via including io-64-nonatomic-hi-lo.h.
-> 
-> The issue is iowrite64 and iowrite64 was not getting defined when 
-> CONFIG_GENERIC_IOMAP was not defined, even though the architecture 
+On Thu, 2024-05-23 at 14:47 -0700, Ramesh Thomas wrote:
+> On 5/23/2024 8:01 AM, Gerd Bayer wrote:
+> > Hi Ramesh,
+> >=20
+> > On Wed, 2024-05-22 at 16:38 -0700, Ramesh Thomas wrote:
+> > > The removal of the check for iowrite64 and ioread64 causes build
+> > > error because those macros don't get defined anywhere if
+> > > CONFIG_GENERIC_IOMAP is not defined. However, I do think the
+> > > removal of the checks is correct.
+> >=20
+> > Wait, I believe it is the other way around. If your config *is*
+> > specifying CONFIG_GENERIC_IOMAP, lib/iomap.c will provide
+> > implementations for back-to-back 32bit operations to emulate 64bit
+> > accesses - and you have to "select" which of the two types of
+> > emulation (hi/lo or lo/hi order) get mapped onto ioread64(be) or
+> > iowrite64(be) by including linux/io-64-nonatomic-lo-hi.h (or -hi-
+> > lo.h).
+>=20
+> Sorry, yes I meant to write they don't get defined anywhere in your
+> code path if CONFIG_GENERIC_IOMAP *is defined*. The only place in
+> your code path where iowrit64 and ioread64 get defined is in
+> asm/io.h. Those definitions are surrounded by #ifndef
+> CONFIG_GENERIC_IOMAP. CONFIG_GENERIC_IOMAP gets defined for x86.
 
-Sorry, I meant they were not getting defined when CONFIG_GENERIC_IOMAP 
-*was defined*. The only definitions of ioread64 and iowrite64 in the 
-code path are in asm/io.h where they are surrounded by #ifndef 
-CONFIG_GENERIC_IOMAP
+Now I got it - I think. And I see that plain x86 is aleady affected by
+this issue.
 
-> implemented the 64 bit rw functions readq and writeq. 
-> io-64-nonatomic-hi-lo.h and io-64-nonatomic-lo-hi.h define them and map 
-> them to generic implementations in lib/iomap.c. The implementation calls 
-> the 64 bit rw functions if present, otherwise does 32 bit back to back 
-> rw. Besides it also has sanity checks for port numbers in the iomap 
-> path. I think it is better to rely on this existing generic method than 
-> implementing the checks at places where iowrite64 and ioread64 get 
-> called, at least in the IOMAP path.
+> > > It is better to include linux/io-64-nonatomic-lo-hi.h which
+> > > define those macros mapping to generic implementations in
+> > > lib/iomap.c.
+> > > If the architecture does not implement 64 bit rw functions
+> > > (readq/writeq), then=C2=A0 it does 32 bit back to back. I have sent a
+> > > patch with the change that includes the above header file. Please
+> > > review and include in this patch series if ok.
+> >=20
+> > I did find your patch, thank you. I had a very hard time to find a
+> > kernel config that actually showed the unresolved symbols
+> > situation:
+> > Some 64bit MIPS config, that relied on GENERIC_IOMAP. And with your
+> > patch applied, I could compile successfully.
+> > Do you have an easier way steer a kernel config into this dead-end?
+>=20
+> The generic implementation takes care of all conditions. I guess some
+> build bot would report error on build failures. But checks like
+> #ifdef iowrite64 would hide the missing definitions error.
+
+Yes definitely, we need to avoid this.
+
+> >=20
+> > > Thanks,
+> > > Ramesh
+> >=20
+> > Frankly, I'd rather not make any assumptions in this rather generic
+> > vfio/pci layer about whether hi-lo or lo-hi is the right order to >
+> > emulate a 64bit access when the base architecture does not support
+> > 64bit accesses naturally. So, if CONFIG_64BIT is no guarantee that
+> > there's a definitive implementation of ioread64/iowrite64, I'd
+> > rather
+>=20
+> There is already an assumption of the order in the current=20
+> implementation regardless e.g. vfio_pci_core_do_io_rw(). If there is
+> no iowrite64 found, the code does back to back 34 bit writes without=20
+> checking for any particular order requirements.
+>=20
+> io-64-nonatomic-lo-hi.h and io-64-nonatomic-hi-lo.h would define=20
+> ioread64/iowrite64 only if they are not already defined in asm/io.h.
+>=20
+> Also since there is a check for CONFIG_64BIT, most likely a 64 bit=20
+> readq/writeq will get used in the lib/iomap.c implementations. I
+> think we can pick either lo-hi or hi-lo for the unlikely 32 bit fall
+> through when CONFIG_64BIT is defined.
+
+I dug into lib/iomap.c some more today and I see your point, that it is
+desireable to make the 64bit accessors useable through vfio/pci when
+they're implemented in lib/iomap.c. And I follow your argument that in
+most cases these will map onto readq/writeq - only programmed IO (PIO)
+has to emulate this with 2 32bit back-to-back accesses.
+
+If only the code in lib/iomap.c was structured differently - and made
+readq/writeq available under ioread64/iowrite64 proper and only fell
+back to the nonatomic hi-lo or lo-hi emulation with 32bit accesses if
+PIO is used.
+
+As much as I'd like to have it differently, it seems like it was a
+lengthy process to have that change accepted at the time:
+https://lore.kernel.org/all/20181106205234.25792-1-logang@deltatee.com/
+
+I'm not sure if we can clean that up, easily. Plus there are appear to
+be plenty of users of io-64-nonatomic-{lo-hi|-hi-lo}.h in tree already
+- 103 and 18, resp.
+
+> > revert to make the conditional compiles depend on those
+> > definitions. But maybe Alex has an opinion on this, too?
+> >=20
+> > Thanks,
+> > Gerd
+
+So I'd like to hear from Alex and Tian (who was not a big fan) if we
+should support 64bit accessors in vfio/pci (primarily) on x86 with this
+series, or not at all, or split that work off, maybe?
+
+Thanks,
+Gerd
 
