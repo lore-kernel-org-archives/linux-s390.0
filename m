@@ -1,211 +1,121 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7088A48CCC;
-	Fri, 24 May 2024 13:42:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C00585277
+	for <linux-s390@vger.kernel.org>; Fri, 24 May 2024 14:00:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716558169; cv=none; b=HZxCCWPNQOms6MUVVxaWO9tuaeAmnbQpWS/xvaGQGbBWGsL2E9A434+AotmIy4girsGlM3mEwa8Sd7AvWc+KmllUfdaWWPcHuGl+yk/n3TpaOB1XNlCbFBgw8fFPkVrLQkpXQNJm8wHIRXy/v5mLNq6AR0Uky+/YLOKHH3yXzAA=
+	t=1716559219; cv=none; b=Gh9+ilSlwLQNHrPOAM2bk97EbriwMvlzrkWVP7SHtztCmW/slXVVbe9TlVwAyR2bNxDwYRjVMgiaSsx4wFx9UQQBEo9blpiirSvppZfNYy2ih1Klnq5sxC85vjf7/Yo0RZPMw1+SwBdsAHewvbIsoGjVBSV5huN4qBl1R44QL7Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716558169; c=relaxed/simple;
-	bh=kPSkmn6cHWFn0+BYM5ctJCrWSKG+QGjVtlxOyGnU+38=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=bTmnY8yf9rBCD4rfP+bG85yjo4zrPAmrbRLOYOpHa4Cr6tcfvGG5+fDqTXp4bQWNcbuDATDsmwSBZmrVVrxX5T1LhtPSyARK2bLLX71YniFSutWsWXpqbQuZ/HO+FbZLPL33/ikFhLbs/3z41tzuAU65DKmbv6oWAwQgIsalA8o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=COrHDNKy; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1716559219; c=relaxed/simple;
+	bh=m9EXEHgn58Nz0k3zepJ67YxfXXLeManwCE96gtpQJlQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rf2ICCF0V0/vXzMl1jlCYB2Y97NQj6DHw8lTIUswMFdYAe30JIMeSgM2zd8aJ83OycaZRV6S+EruUnysHYlxQ3rooqwj0g82YSwtlBI6Uskek3quDIKHiWW8USpdXgS4fh2LGUZc90kwtOuTBW8wD8lgBILklUQwd5zO5H0Zb/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=K+UERycP; arc=none smtp.client-ip=209.85.222.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="COrHDNKy"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 44ODgSDC010784;
-	Fri, 24 May 2024 13:42:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=kPSkmn6cHWFn0+BYM5ctJCrWSKG+QGjVtlxOyGnU+38=;
- b=COrHDNKyGnkXqbKsJkS8rjAQJ13r8jA4zYl1v/kMNnhdXBdZea1PjcbVHoCgG2zUFUfQ
- bErNqiXKZzVPuHse7jeczkyuchYZO5xV6RTQaKY6E3ib/azhjyddybL0ASD41z9cHOb8
- xA8M3uUmJCVYev6B6xgpMJJ6RBZ7631s7Fva8XzDoFTgBlFWForei+yctdifxGCLxRn8
- lYnMUnRJHm8g8MBjd53gDH3e6pXJX+Kfsl2DmTLSO0/7jZXdoeLLr4DvEAOcoiQ8VZRr
- bULQ4nBzYiGY1TjH1y+VjR1uzSoAVAhSeZkuwTk+rdgsv7ovXhOia+RQA4xaOrF/QJMc Mg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yav0r801t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 May 2024 13:42:44 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 44ODghOS011468;
-	Fri, 24 May 2024 13:42:43 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yav0r801q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 May 2024 13:42:43 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 44OCC3eF022112;
-	Fri, 24 May 2024 13:42:42 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3y76nu94fr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 May 2024 13:42:42 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 44ODga4J14025018
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 May 2024 13:42:38 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ACA802004F;
-	Fri, 24 May 2024 13:42:36 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EC3DC2004D;
-	Fri, 24 May 2024 13:42:35 +0000 (GMT)
-Received: from [9.171.48.154] (unknown [9.171.48.154])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 24 May 2024 13:42:35 +0000 (GMT)
-Message-ID: <b0a5bf684bc264dd4bc1a13657c51db5ee006b59.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 2/3] vfio/pci: Support 8-byte PCI loads and stores
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Ramesh Thomas <ramesh.thomas@intel.com>,
-        Alex Williamson
- <alex.williamson@redhat.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Niklas
- Schnelle <schnelle@linux.ibm.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Ankit Agrawal
-	 <ankita@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>,
-        Halil Pasic
-	 <pasic@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>, Ben Segal
-	 <bpsegal@us.ibm.com>
-Date: Fri, 24 May 2024 15:42:35 +0200
-In-Reply-To: <8675abf2-00ca-4140-93be-8b45b04a5b7b@intel.com>
-References: <20240522150651.1999584-1-gbayer@linux.ibm.com>
-	 <20240522150651.1999584-3-gbayer@linux.ibm.com>
-	 <2b6e91c2-a799-402f-9354-759fb6a5a271@intel.com>
-	 <b1ee705ee3309405273ed1914a4326b9b024edf8.camel@linux.ibm.com>
-	 <8675abf2-00ca-4140-93be-8b45b04a5b7b@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.52.1 (3.52.1-1.fc40app1) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: nNSy0tfT6t5EFCQrl6H3UiAF6uHuOV-6
-X-Proofpoint-ORIG-GUID: xZgIp47IbEMHrCSSkokOgiJPohgsDC1j
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="K+UERycP"
+Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-794aa87af7cso34804985a.0
+        for <linux-s390@vger.kernel.org>; Fri, 24 May 2024 07:00:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1716559215; x=1717164015; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Mn2WGg2eQ70N/KJT+N/gGNSB60ehRMCCIv//ULnCXQ8=;
+        b=K+UERycPlUY1khzMRqKshMhy5oFgAJ6RXXON+4+VEhif6i4SU8heQk7cg5ttSj6xED
+         vD6WmyTXv82uS7sqWLoauj6Q+Ow/tkuZ+tHt75UpAEJqPkXImlJKC5ctfI9AWSsrnHpO
+         MsS09vmk7+LKCtAqPg5iWcY3mh3V0ifT1s+QwkfO/RJB3qQGcUT5bmQiv5TxD2WiFMFc
+         yrX/ZCkuUOdxVmjH0k3/JzvbgyLgd1nW7g8X4ncf/Ghp8/REXX9uvKKi8zdZuX30HOoM
+         EW2iXk3WT80NEe8nQgb2wwAO15crv0zA5VS1HIuzjqUpFnadBrfPUlkxS4brZYjQUOFc
+         VZ5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716559215; x=1717164015;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Mn2WGg2eQ70N/KJT+N/gGNSB60ehRMCCIv//ULnCXQ8=;
+        b=HOgYboATX1nZEA0LmrLPldR6poX7qhRSK241d0wX2nYVazvb/50p/26Fd2weSm4Stu
+         fdX0y5CrPMkYSO0VDBqdA06ZlsL6MGqaV2Bsso/wYs/5ZaWt5ATfLq+qjF8LYSHRi6Az
+         T/SLshVtf2Ncv6pIsTgfg34nLWFmDaSahD+dSx5CL7Xw7PRnw5d5FLaCVWmBd1WSWhV7
+         MF/11Gela1PZQkLj6dSC3fP+3OpGL3Nz/z5Rsr/qCAhjv8knPfXI/y9LiChqV4iJajNr
+         y8f/qZ9LrOPUDQk5um7QwgCj+99sF2rn2RRSyK3vSAxOcb+/iAyOofNNoiq390McAkax
+         IPkQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXy/PTZjF0xms0jxAIKHxfA+IVngjXXbsQ7zpqOdVeC1fq5WJPOPrPu2sYYexJObFq+xb+JzMgVo1BZFDdrUgXdV4Ov7jv4d9EpPA==
+X-Gm-Message-State: AOJu0Yw7BnSc8xk1UPXWnFG7cM0DpVhpsEAKpG9ura4F0mGKqf9YJyvl
+	GdJq0DJYM266EWcwd3vqT8AK+QSID8WiI3FKwc37aoWCDnyu9bO2iATNekWq+XA=
+X-Google-Smtp-Source: AGHT+IHxOBaD+7IzWccHqf8dVfDLepdFFdrMdqpmsYeH9ASfCrINsAAnEEUG9Ei91kpeZM575T0SHQ==
+X-Received: by 2002:a05:620a:3916:b0:794:a0ec:6a0a with SMTP id af79cd13be357-794ab060b47mr272043185a.8.1716559214959;
+        Fri, 24 May 2024 07:00:14 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-794abcc22c8sm66766985a.32.2024.05.24.07.00.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 May 2024 07:00:14 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1sAVSv-001IGC-IT;
+	Fri, 24 May 2024 11:00:13 -0300
+Date: Fri, 24 May 2024 11:00:13 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Ramesh Thomas <ramesh.thomas@intel.com>
+Cc: alex.williamson@redhat.com, schnelle@linux.ibm.com,
+	gbayer@linux.ibm.com, kvm@vger.kernel.org,
+	linux-s390@vger.kernel.org, ankita@nvidia.com, yishaih@nvidia.com,
+	pasic@linux.ibm.com, julianr@linux.ibm.com, bpsegal@us.ibm.com,
+	kevin.tian@intel.com
+Subject: Re: [PATCH] vfio/pci: Add iowrite64 and ioread64 support for vfio pci
+Message-ID: <20240524140013.GM69273@ziepe.ca>
+References: <20240522232125.548643-1-ramesh.thomas@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
- definitions=2024-05-24_04,2024-05-24_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 clxscore=1011
- priorityscore=1501 spamscore=0 suspectscore=0 phishscore=0 malwarescore=0
- mlxscore=0 mlxlogscore=250 bulkscore=0 impostorscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2405010000
- definitions=main-2405240095
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240522232125.548643-1-ramesh.thomas@intel.com>
 
-On Thu, 2024-05-23 at 14:47 -0700, Ramesh Thomas wrote:
-> On 5/23/2024 8:01 AM, Gerd Bayer wrote:
-> > Hi Ramesh,
-> >=20
-> > On Wed, 2024-05-22 at 16:38 -0700, Ramesh Thomas wrote:
-> > > The removal of the check for iowrite64 and ioread64 causes build
-> > > error because those macros don't get defined anywhere if
-> > > CONFIG_GENERIC_IOMAP is not defined. However, I do think the
-> > > removal of the checks is correct.
-> >=20
-> > Wait, I believe it is the other way around. If your config *is*
-> > specifying CONFIG_GENERIC_IOMAP, lib/iomap.c will provide
-> > implementations for back-to-back 32bit operations to emulate 64bit
-> > accesses - and you have to "select" which of the two types of
-> > emulation (hi/lo or lo/hi order) get mapped onto ioread64(be) or
-> > iowrite64(be) by including linux/io-64-nonatomic-lo-hi.h (or -hi-
-> > lo.h).
->=20
-> Sorry, yes I meant to write they don't get defined anywhere in your
-> code path if CONFIG_GENERIC_IOMAP *is defined*. The only place in
-> your code path where iowrit64 and ioread64 get defined is in
-> asm/io.h. Those definitions are surrounded by #ifndef
-> CONFIG_GENERIC_IOMAP. CONFIG_GENERIC_IOMAP gets defined for x86.
+On Wed, May 22, 2024 at 04:21:25PM -0700, Ramesh Thomas wrote:
+> ioread64 and iowrite64 macros called by vfio pci implementations are
+> defined in asm/io.h if CONFIG_GENERIC_IOMAP is not defined. Include
+> linux/io-64-nonatomic-lo-hi.h to define iowrite64 and ioread64 macros
+> when they are not defined. io-64-nonatomic-lo-hi.h maps the macros to
+> generic implementation in lib/iomap.c. The generic implementation
+> does 64 bit rw if readq/writeq is defined for the architecture,
+> otherwise it would do 32 bit back to back rw.
+> 
+> Note that there are two versions of the generic implementation that
+> differs in the order the 32 bit words are written if 64 bit support is
+> not present. This is not the little/big endian ordering, which is
+> handled separately. This patch uses the lo followed by hi word ordering
+> which is consistent with current back to back implementation in the
+> vfio/pci code.
+> 
+> Refer patch series the requirement originated from:
+> https://lore.kernel.org/all/20240522150651.1999584-1-gbayer@linux.ibm.com/
+> 
+> Signed-off-by: Ramesh Thomas <ramesh.thomas@intel.com>
+> ---
+>  drivers/vfio/pci/vfio_pci_priv.h | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/vfio/pci/vfio_pci_priv.h b/drivers/vfio/pci/vfio_pci_priv.h
+> index 5e4fa69aee16..5eab5abf2ff2 100644
+> --- a/drivers/vfio/pci/vfio_pci_priv.h
+> +++ b/drivers/vfio/pci/vfio_pci_priv.h
+> @@ -3,6 +3,7 @@
+>  #define VFIO_PCI_PRIV_H
+>  
+>  #include <linux/vfio_pci_core.h>
+> +#include <linux/io-64-nonatomic-lo-hi.h>
 
-Now I got it - I think. And I see that plain x86 is aleady affected by
-this issue.
+Why include it here though?
 
-> > > It is better to include linux/io-64-nonatomic-lo-hi.h which
-> > > define those macros mapping to generic implementations in
-> > > lib/iomap.c.
-> > > If the architecture does not implement 64 bit rw functions
-> > > (readq/writeq), then=C2=A0 it does 32 bit back to back. I have sent a
-> > > patch with the change that includes the above header file. Please
-> > > review and include in this patch series if ok.
-> >=20
-> > I did find your patch, thank you. I had a very hard time to find a
-> > kernel config that actually showed the unresolved symbols
-> > situation:
-> > Some 64bit MIPS config, that relied on GENERIC_IOMAP. And with your
-> > patch applied, I could compile successfully.
-> > Do you have an easier way steer a kernel config into this dead-end?
->=20
-> The generic implementation takes care of all conditions. I guess some
-> build bot would report error on build failures. But checks like
-> #ifdef iowrite64 would hide the missing definitions error.
+It should go in vfio_pci_rdwr.c and this patch should remove all the
+"#ifdef iowrite64"'s from that file too.
 
-Yes definitely, we need to avoid this.
-
-> >=20
-> > > Thanks,
-> > > Ramesh
-> >=20
-> > Frankly, I'd rather not make any assumptions in this rather generic
-> > vfio/pci layer about whether hi-lo or lo-hi is the right order to >
-> > emulate a 64bit access when the base architecture does not support
-> > 64bit accesses naturally. So, if CONFIG_64BIT is no guarantee that
-> > there's a definitive implementation of ioread64/iowrite64, I'd
-> > rather
->=20
-> There is already an assumption of the order in the current=20
-> implementation regardless e.g. vfio_pci_core_do_io_rw(). If there is
-> no iowrite64 found, the code does back to back 34 bit writes without=20
-> checking for any particular order requirements.
->=20
-> io-64-nonatomic-lo-hi.h and io-64-nonatomic-hi-lo.h would define=20
-> ioread64/iowrite64 only if they are not already defined in asm/io.h.
->=20
-> Also since there is a check for CONFIG_64BIT, most likely a 64 bit=20
-> readq/writeq will get used in the lib/iomap.c implementations. I
-> think we can pick either lo-hi or hi-lo for the unlikely 32 bit fall
-> through when CONFIG_64BIT is defined.
-
-I dug into lib/iomap.c some more today and I see your point, that it is
-desireable to make the 64bit accessors useable through vfio/pci when
-they're implemented in lib/iomap.c. And I follow your argument that in
-most cases these will map onto readq/writeq - only programmed IO (PIO)
-has to emulate this with 2 32bit back-to-back accesses.
-
-If only the code in lib/iomap.c was structured differently - and made
-readq/writeq available under ioread64/iowrite64 proper and only fell
-back to the nonatomic hi-lo or lo-hi emulation with 32bit accesses if
-PIO is used.
-
-As much as I'd like to have it differently, it seems like it was a
-lengthy process to have that change accepted at the time:
-https://lore.kernel.org/all/20181106205234.25792-1-logang@deltatee.com/
-
-I'm not sure if we can clean that up, easily. Plus there are appear to
-be plenty of users of io-64-nonatomic-{lo-hi|-hi-lo}.h in tree already
-- 103 and 18, resp.
-
-> > revert to make the conditional compiles depend on those
-> > definitions. But maybe Alex has an opinion on this, too?
-> >=20
-> > Thanks,
-> > Gerd
-
-So I'd like to hear from Alex and Tian (who was not a big fan) if we
-should support 64bit accessors in vfio/pci (primarily) on x86 with this
-series, or not at all, or split that work off, maybe?
+But the idea looks right to me
 
 Thanks,
-Gerd
-
+Jason
