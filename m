@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D2CC224FD;
-	Tue, 28 May 2024 02:18:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 478AE4436E;
+	Tue, 28 May 2024 02:18:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716862718; cv=none; b=ervWPrR3P1vsm0DyZSa/nVk4YC8mULGOXVUfCbz8tZG0fFN69icapGBGuAFeLVBlzSHpqRuTOP/HiL2rE9bmoP1GK542B4YpuAnUKoFuECPAR3Hj8/ASAJltaZjueKejYHslIN9qI2w/Y/eBLe/jSfWH4oR5tsVOMPnFcYfJge4=
+	t=1716862733; cv=none; b=dyFKa2AM7afMzy67o4W/C4xt0ypsOlEGDLsJbLKssWWHERksxftqW9W7hX0XforTzTu97Et9Uikafi4xdjJXGbpKM8knTyPc++VWGYAnykhxjc6zPwurGPuvPJi0/1f8iJh39ZD+wfR/IRT28+vxD2+uM4Y/2ZrUdm+TThR7ReE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716862718; c=relaxed/simple;
-	bh=XUVDaLZZB0jtTHQ/d7v6HdM3/mdUtKGlHBGeb0bnkQI=;
+	s=arc-20240116; t=1716862733; c=relaxed/simple;
+	bh=lA8NtYKtmK3cU7OzJId506XmthIl4+Xkz0k+EAhBp88=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nAkLWqhaGxv5IjzgukdsDTmnUj/qHyQKkQOAVcpEpDpChicG648GiCCUGnSK9t2TKv9wPA4wgRyQTwuA5Q9l/4evokU6zKkPxxSlXqZQbMWd2+MZSc2t7EO7mcJmwQ7Wl+I54B50DM55o5AVMEmojAQ8J89MpIQMSFltyfzOS6E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C0RiCU16; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=t0ty7aRlzPH3PobEnmIDAR2+pbd8TiJo1L3B+NquXXN2I7SYZyFsjPCDpJDv8ImINfVWi4qA4bcxOHAHTYAwfNmwTJ+k6URZj7h2uuVvAyiyMkQgFgXLrFM7u1J7IYifOkmc92ecKoy8VekSMM0H4gSUUHEvNCR4wpt7O8IfgbY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Axvz5ywf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C0RiCU16"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50B11C4AF12;
-	Tue, 28 May 2024 02:18:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Axvz5ywf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B045C32782;
+	Tue, 28 May 2024 02:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1716862718;
-	bh=XUVDaLZZB0jtTHQ/d7v6HdM3/mdUtKGlHBGeb0bnkQI=;
+	s=k20201202; t=1716862732;
+	bh=lA8NtYKtmK3cU7OzJId506XmthIl4+Xkz0k+EAhBp88=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=C0RiCU16crLO7qqM8wuP/SCjsXP5NeNjJoo4SOSonXHkRo5Lq3GV1Gak37Cg85r4Y
-	 jOVk8o6mg2FGWNxuzG80awNx409EYgmt6lkaaopofcNHkhboS5POGcGEapTEHiQO2l
-	 m/ovXc0SugZOBbOb0FNFuNuQ3ctPXpxT15sL2BIAHKcK+9PfrOCzH0fk2OXrcP9ZDv
-	 XrZ2oTmhQMu4xuW+ZImESosPuMym0YtM09Ph8kMGYQnOqADZNThrHLZyWoYAh9Sffr
-	 b9+6HaVND3kj/MX9QukXgATFCZvfJLrafCwIqCAnNKtiKnPW9IGfoCtC2+61+MnF4R
-	 D+3oQdKtaKE2Q==
+	b=Axvz5ywfvv5NCCeWiNd4DctfJCA0vjaT485oNWPEQKjVqj0Y2+3+36tWY0sBG2ad2
+	 OLAzvC9jRTUbWifS1heZBpzhnAyovbATXzNZI+IturryiEU4Ya0NLkOMbvVxOCxcv7
+	 iftnDNda/gOyLih5LkWt6dtQe6uz++kwoqVj/eVksdrsB9b7MaGjzMsmOHjGgrekLD
+	 qgJwezvdf2yiPvnALMJZGZIczT99F7OFi5CGpPu0o7pCr/hplaeUAJdVMcKZA4M1Qx
+	 1rhSbhpeRCEJX9YYcX5YqzUPNwZFufKX948Y6k6lzoUWh+sv2XCaFMLb1CWgqgecyz
+	 ctiu/mRuFJ2uQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -54,12 +54,12 @@ Cc: Stephen Brennan <stephen.s.brennan@oracle.com>,
 	linuxppc-dev@lists.ozlabs.org,
 	linux-riscv@lists.infradead.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.9 5/5] kprobe/ftrace: bail out if ftrace was killed
-Date: Mon, 27 May 2024 22:18:21 -0400
-Message-ID: <20240528021823.3904980-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.8 4/4] kprobe/ftrace: bail out if ftrace was killed
+Date: Mon, 27 May 2024 22:18:39 -0400
+Message-ID: <20240528021840.3905128-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240528021823.3904980-1-sashal@kernel.org>
-References: <20240528021823.3904980-1-sashal@kernel.org>
+In-Reply-To: <20240528021840.3905128-1-sashal@kernel.org>
+References: <20240528021840.3905128-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,7 +68,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.9.2
+X-stable-base: Linux 6.8.11
 Content-Transfer-Encoding: 8bit
 
 From: Stephen Brennan <stephen.s.brennan@oracle.com>
@@ -278,10 +278,10 @@ index 65adc815fc6e6..166ebf81dc450 100644
  static inline int arm_kprobe_ftrace(struct kprobe *p)
  {
 diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index da1710499698b..96db99c347b3b 100644
+index 83ba342aef31f..4bdaed40e30d0 100644
 --- a/kernel/trace/ftrace.c
 +++ b/kernel/trace/ftrace.c
-@@ -7895,6 +7895,7 @@ void ftrace_kill(void)
+@@ -7892,6 +7892,7 @@ void ftrace_kill(void)
  	ftrace_disabled = 1;
  	ftrace_enabled = 0;
  	ftrace_trace_function = ftrace_stub;
