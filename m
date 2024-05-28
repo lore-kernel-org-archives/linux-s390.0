@@ -1,129 +1,159 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CC3A71748;
-	Tue, 28 May 2024 06:59:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C072416B737;
+	Tue, 28 May 2024 10:44:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716879559; cv=none; b=pPwwPZp/glfXSWAecYp74c0l6Te0BdtyXaD7ug7JbXi8+wZblBIsncyOxWGowo/tlAcoRLcfXvZUN/LZtG2fftD+1VRRL4UBQlByj6II/GulSu9Px664ZzJ7nLhK3QBfEQP+FdCneEyLy0aDn/voWMvP5hIqji81Kx1VwIT0SoQ=
+	t=1716893071; cv=none; b=A6NW99jLcegY8FLw1TfGyaAWGnbi2vQBGXtX79FAyton7v0KVbHzIddh0MHmS+UPKu3a6O/+jXz/21Y59EEFOonZDJ9F17viLIn8TdFFSS3th+cI/K/PqA/YBH+0ECrDOqI/n0hWhNl+DtUEODmxW6UkbvF5QdfDKIk94ofalJk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716879559; c=relaxed/simple;
-	bh=/Yf0JW8LDSFnss/0AtKBiH9oDph8w4srLwrP3mK8GV8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DNfzvt4c17BhjJQGS+bMrevVHsp5ov+tLYk3CQnixRkMBm9lPV0jmJzDSiugi0n1R+VMEd9Wcv/rL8vH23+dfmolpbx+v3ecG1U0pLiecK/HADaaDoO4kFuacT5EIi0SSpcmmTLJ5jD9j9MlqSJBcEJpRZx3BeH9xGkrECT+8+w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=tBV6bLoE; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="tBV6bLoE"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1716879553; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=lGfdc1RsIqK8uE57Ip0a1BffAQvQcBg5SDFMlNn4XIM=;
-	b=tBV6bLoENcZBaUATwZkvWn23ci1Oxb1aC1yku1QO4bocaEVRgZsgTNnaZRuexEc2ojzZfvMi01cvocA1749t3a2ckhWewHBznVJNts2M7eRga4BJr9aHtsejj3A0JVm5an9TCexi7Kj/RtaTFNzdOiNhPpn7arcVqDpTw38gEkM=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033022160150;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0W7OoVNI_1716879551;
-Received: from 30.221.100.241(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0W7OoVNI_1716879551)
-          by smtp.aliyun-inc.com;
-          Tue, 28 May 2024 14:59:13 +0800
-Message-ID: <0560e117-6f2c-4dbc-a1a9-4df7164ab129@linux.alibaba.com>
-Date: Tue, 28 May 2024 14:59:09 +0800
+	s=arc-20240116; t=1716893071; c=relaxed/simple;
+	bh=L9sl9joEHYI7Apj1HmECq/NcptPUb7PxBXgqwlLgIhw=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=ksyxCV0HxQgkVZjpD8YouxlixjOWPZUFROCZgn4+yhRc/O1/tuO1y2sI7itcbFcOSAuViB4yR+kQxTA3CFA9NjZ68dqguKLuZlo1pqxmMbPIQZ/CvTiuSsgFqdgRDY7s8I+rIkQMnbXaRBWZfxaU4ViUCHjSulnas+/LOImjFho=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 44S9rGnK019160;
+	Tue, 28 May 2024 10:44:27 GMT
+DKIM-Signature: =?UTF-8?Q?v=3D1;_a=3Drsa-sha256;_c=3Drelaxed/relaxed;_d=3Dibm.com;_h=3Dcc?=
+ =?UTF-8?Q?:content-transfer-encoding:content-type:date:from:in-reply-to:m?=
+ =?UTF-8?Q?essage-id:mime-version:references:subject:to;_s=3Dpp1;_bh=3D1wC?=
+ =?UTF-8?Q?XWJj9AUMJhBSCRCyTg5j7hQg058gA/hYuaM5LEIs=3D;_b=3DId1m9FXSvPE6Bh?=
+ =?UTF-8?Q?MA3cTYatzTIM0/1taPiGYHf8nzaE35Cf8Wo8FvxkrI5ePSJN0+oDDD_Q0CGyDVW?=
+ =?UTF-8?Q?Qch95/9vhiRWo5CHxIBybw7b985ZtXuyWv8NWck4x72f/pYc8G9p2OZ9u13J_Rv?=
+ =?UTF-8?Q?zTH3PnV0NymAYiKX9YkRzT6r9I+/jo5fh1UwpviyE83x1EZm7yHmkCROGfK0Z53?=
+ =?UTF-8?Q?xrq_/59HHPAcmvEHyS0bQQhSJJGnrY2HJhhwf+gRObCI1uDYQbcC0IKJ1hLAIV1?=
+ =?UTF-8?Q?Mfnec6u/B_v3NJ+Tf8xx2ZljmF+se+lO86C3AGWFt/HEQsQ28qlNo2fo/U24xj2?=
+ =?UTF-8?Q?/YLpfa7PrhBiMKZ_rA=3D=3D_?=
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ydd14040j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 May 2024 10:44:27 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 44SAiQYs012963;
+	Tue, 28 May 2024 10:44:26 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ydd14040b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 May 2024 10:44:26 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 44S7hTKV010968;
+	Tue, 28 May 2024 10:44:17 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ybw12nwa6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 May 2024 10:44:17 +0000
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 44SAiFcA48038150
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 28 May 2024 10:44:17 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3274D5805C;
+	Tue, 28 May 2024 10:44:15 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4FCE358051;
+	Tue, 28 May 2024 10:44:14 +0000 (GMT)
+Received: from [9.171.27.182] (unknown [9.171.27.182])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 28 May 2024 10:44:14 +0000 (GMT)
+Message-ID: <2db8bc9a-5ff0-40ec-92ba-29c90b6976c7@linux.ibm.com>
+Date: Tue, 28 May 2024 12:44:19 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] btrfs: zlib: do not do unnecessary page copying for
+ compression
+To: Qu Wenruo <quwenruo.btrfs@gmx.com>, Qu Wenruo <wqu@suse.com>,
+        linux-btrfs@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>
+References: <0a24cc8a48821e8cf3bd01263b453c4cbc22d832.1716801849.git.wqu@suse.com>
+ <08aca5cf-f259-4963-bb2a-356847317d94@linux.ibm.com>
+ <a24ef846-95f9-413d-abfa-54b06281047a@gmx.com>
+Content-Language: en-US
+From: Zaslonko Mikhail <zaslonko@linux.ibm.com>
+In-Reply-To: <a24ef846-95f9-413d-abfa-54b06281047a@gmx.com>
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: liD5LPDhxrFa_kS_hCGT88pkiFAtrLIg
+X-Proofpoint-ORIG-GUID: Lvmj4tMaeNUN0D79phWz-FEumdHBX-Nt
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: some questions about restrictions in SMC-R v2's implementation
-To: Wenjia Zhang <wenjia@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, jaka@linux.ibm.com, kgraul@linux.ibm.com
-References: <6d6e870a-3fbf-4802-9818-32ff46489448@linux.alibaba.com>
- <c3c13531-f8be-4159-b8df-b316adb2d3fc@linux.ibm.com>
- <38c8a10a-339f-402e-836b-baf38994c7b2@linux.alibaba.com>
- <9be5a19c-1641-4b2e-8dac-d2d715cadd42@linux.ibm.com>
-Content-Language: en-US
-From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <9be5a19c-1641-4b2e-8dac-d2d715cadd42@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
+ definitions=2024-05-28_07,2024-05-28_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
+ malwarescore=0 priorityscore=1501 spamscore=0 mlxlogscore=833 mlxscore=0
+ bulkscore=0 impostorscore=0 clxscore=1015 adultscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2405010000
+ definitions=main-2405280080
 
+Hello Qu,
 
-
-On 2024/5/27 22:57, Wenjia Zhang wrote:
+On 28.05.2024 00:09, Qu Wenruo wrote:
 > 
 > 
-> On 21.05.24 12:52, Guangguan Wang wrote:
+> 在 2024/5/28 01:55, Zaslonko Mikhail 写道:
+>> Hello Qu,
 >>
+>> I remember implementing btrfs zlib changes related to s390 dfltcc compression support a while ago:
+>> https://lwn.net/Articles/808809/
 >>
->> On 2024/5/17 15:41, Wenjia Zhang wrote:
->>>
->>>
->>> On 07.05.24 07:54, Guangdong Wang wrote:
->>>> Hi, Wenjia and Jan,
->>>>
->>>> When testing SMC-R v2, I found some scenarios where SMC-R v2 should be worked, but due to some restrictions in SMC-R v2's implementation,
->>>> fallback happened. I want to know why these restrictions exist and what would happen if these restrictions were removed.
->>>>
->>>
->>> Hi Guangguan and Wen,
->>>
->>> please see my answer below.
->>>> The first is in the function smc_ib_determine_gid_rcu, where restricts the subnet matching between smcrv2->saddr and the RDMA related netdev.
->>>> ...
->>>>
->>> The purpose of the restriction is to simplify the IP routing topology allowing IP routing to use the destination host's subnet route. Because each host must also have a valid IP route to the peer’s RoCE IP address to create RC QP. If the IP route used is the same IP Route as the associated TCP/IP connection, the reuse of the IP routing topology could be achieved. I think it is what the following sentence means in the doc https://www.ibm.com/support/pages/system/files/inline-files/IBM%20Shared%20Memory%20Communications%20Version%202_2.pdf
->>>
->>> "
->>> For HA, multiple RoCE adapters should be provisioned along with multiple equal cost IP routes to the peer host (i.e., reusing the TCP/IP routing topology).
->>> "
->>> And the "Figure 19. SMC-Rv2 with RoCEv2 Connectivity" in the doc also mentions the restriction.
->>>
->>> The SMCRv2 on linux is indeed implemented with this purpose. Please see the function smc_ib_modify_qp_rtr(). During the first contact processing, the Mac address of the next hop IP address for the IP route is resolved by performing e.g. ARP and used to create the RoCEv2 RC QP. If the route is not usable for the RoCE IP address to reach the peer's RoCE IP address i.e. without this restriction, the UDP/IP packets would not be transported in a right way.
->>>
+>> The workspace buffer size was indeed enlarged for performance reasons.
 >>
->> Hi, Wenjia
+>> Please see my comments below.
 >>
->> Thanks for the answer.
->>
->> I am clear about the restriction of subnet matching.
->>
->>> BTW, the fallback would still happen without the restriction. Because at the end of the CLC handshake(TCP/IP traffic), the first link will be created by sending and receiving LLC confirm message (SMCRv2 traffic). If one peer can just send but not receive the LLC confirm message, he will send CLC decline message with the reason "Time Out".
+>> On 27.05.2024 11:24, Qu Wenruo wrote:
+>>> [BUG]
+>>> In function zlib_compress_folios(), we handle the input by:
 >>>
->>> Now let's have a look at your examples above. Both of your RDMA related device have another IP route as the TCP/IP connection, so that the reuse of the IP routing topology is not possible.
+>>> - If there are multiple pages left
+>>>    We copy the page content into workspace->buf, and use workspace->buf
+>>>    as input for compression.
 >>>
->>> Any thought still?
+>>>    But on x86_64 (which doesn't support dfltcc), that buffer size is just
+>>>    one page, so we're wasting our CPU time copying the page for no
+>>>    benefit.
 >>>
->>>> The other is in the function smc_connect_rdma_v2_prepare, where restricts the symmetric configuration of routing between client and server. codes here:
->>>> ...
->>>> In my testing environment, server's ip is 192.168.0.3/24, client's ip 192.168.0.4/24, regarding how many netdev in server or client. Server has special
->>>> route setting due to some other reasons, which results in indirect route from 192.168.0.3/24 to 192.168.0.4/24. Thus, when CLC handshake, client will
->>>> get fce->v2_direct==false, but client has no special routing setting and will find direct route from 192.168.0.4/24 to 192.168.0.3/24. Due to the above
->>>> symmetric configuration of routing restriction, we got fallback connection, rsn is 0x030f0000. But I think SMC-R should work in this scenario.
->>>> And more, why check the symmetric configuration of routing only when server is indirect route?
->>>>
->>> That is to check if the IP routing topology is the same on both sides. Then I'd like to ask why you use asymmetric routing for your connection? From the perspective of Networking set up, does it make any sense that the peers communicate with each other with different IP routing topology?
+>>> - If there is only one page left
+>>>    We use the mapped page address as input for compression.
+>>>
+>>> The problem is, this means we will copy the whole input range except the
+>>> last page (can be as large as 124K), without much obvious benefit.
+>>>
+>>> Meanwhile the cost is pretty obvious.
 >>
->> I have looked into the configuration of my testing environment's routing table and found that the configuration can be optimized.
->> And the sketch in the attachment used to describe the topology and route configuration of my testing environment.
->> After optimizing the route setting, the fallback disappear.
+>> Actually, the behavior for kernels w/o dfltcc support (currently available on s390
+>> only) should not be affected.
+>> We copy input pages to the workspace->buf only if the buffer size is larger than 1 page.
+>> At least it worked this way after my original btrfs zlib patch:
+>> https://lwn.net/ml/linux-kernel/20200108105103.29028-1-zaslonko@linux.ibm.com/
 >>
->> But why check the symmetric configuration of routing only when server is indirect route is still not clear.
->>
->>
->> Thanks,
->> Guangguan Wang
+>> Has this behavior somehow changed after your page->folio conversion performed for btrfs?
+>> https://lore.kernel.org/all/cover.1706521511.git.wqu@suse.com/
 > 
-> The optimized configuration looks much more reasonable to me. Thus, why do we need to do the symmetric check when the server is direct route? Don't we expect for a direct route on the client's side? If not, I have to repeat my question: does it make any sense that the peers communicate with each other with different IP routing topology structures, like your first version of configuration? If yes, I need convincing argument.
+> My bad, I forgot that the buf_size for non-S390 systems is fixed to one
+> page thus the page copy is not utilized for x86_64.
+> 
+> But I'm still wondering if we do not go 4 pages as buffer, how much
+> performance penalty would there be?
+> 
+> One of the objective is to prepare for the incoming sector perfect
+> subpage compression support, thus I'm re-checking the existing
+> compression code, preparing to change them to be subpage compatible.
+> 
+> If we can simplify the behavior without too large performance penalty,
+> can we consider just using one single page as buffer?
 
-I agree it is more reasonable that peers communicate with each other in same IP routing topology structures.
-
-My question is that when server is direct routing, why do not check the route configuration in client side?
-For routing configuration, I think it is equal for both sides, either server or client can be misconfigured.
-
-Thanks,
-Guangguan Wang
+Based on my earlier estimates, bigger buffer provided up to 60% performance for inflate and up to 30% for
+deflate on s390 with dfltcc support.
+I don't think giving it away for simplification would be a good idea.
 
 > 
 > Thanks,
-> Wenjia
+> Qu
