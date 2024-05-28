@@ -1,135 +1,243 @@
-Received: from mail-lj1-f171.google.com (mail-lj1-f171.google.com [209.85.208.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C1C513D29B
-	for <linux-s390@vger.kernel.org>; Tue, 28 May 2024 22:03:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.171
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716933788; cv=none; b=LrJm7W/RMIGRuUOWHg2MyvK9iqpfopq1MtauaNshXw8EhbPFOfu5y4aynxXZDkQfHK3kzYlKKeOxnEh/waU+DUpoz0PXc+ZUC1Z5Q1t4qbWdD/rFAHFWxwiJF3CO59FIcJlL9ioBVeFpQC63dcJy7l7kN9PVW12+ZgUqYmYz5Rg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716933788; c=relaxed/simple;
-	bh=6dR0TVFfyiSaynxrc8HqYHuyfp8lRjhMTghZIQUKmZ0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=s/pDGd21REVeIDlpWamhJXyYN5LTL2mjOQGUI1GwZGVlDY4Zuq9/FYAWdpicLjDZbzByJURnpGbrvM7EyFkksCABSgT5plrNmjDakrI4ckdsKf2ZlQSfSGfF2VFyIYkIMtTJNPgHU6QNsPED7cGhfbup8XvhrMlVAa19Lwwvs2E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=SbC2duol; arc=none smtp.client-ip=209.85.208.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD70217E8F3;
+	Tue, 28 May 2024 22:48:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.17
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1716936524; cv=fail; b=Wm/hVsGBHIakVnBIdLR9bpkKx8KndBuJ2f0vAGx4hpFjHMI6Ziui7CnggQaN9rbGMPivo85V8XgUwrfwk8l8Nw/ZDED5PYvtQljWzeU3IKCAPOaQX+NGY+dyrRw8ADDexuM2K3xLEc0yrVQdJ248vBmw5elG1sYkuUO+Glmpc0A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1716936524; c=relaxed/simple;
+	bh=pRw0V/YbiV9giAtxSnAJoXbpm37s8/GWNum0YbUsqGc=;
+	h=Message-ID:Date:Subject:To:CC:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=dFbXsmNRwvOezRcEZ8Cjh6WQpgwA+v6abYfitydR2VSdiokEgS2E+fRyGjNaUqri3rZmCcHbPUIpwDiAaxq5l9CllZmqGDqDDrMThqW8qPMj1ei6DhGTRG3GhD/60S9kTSklKmXAYbl/tbAfktozHvj4qc7kpcVCZlGd+PyC6Fc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KLaDcYK4; arc=fail smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="SbC2duol"
-Received: by mail-lj1-f171.google.com with SMTP id 38308e7fff4ca-2e964acff1aso13939121fa.0
-        for <linux-s390@vger.kernel.org>; Tue, 28 May 2024 15:03:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1716933784; x=1717538584; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=ozLHkJmijyEcijsJIlg7rU3H7zvIY0vd9gob+uXPOsY=;
-        b=SbC2duolOW0qbnc9HwlM6DVvpQFjY9hGl7Auu2aHWxrGqozx3EAUv49i6pZMUgC+RJ
-         MEuT2lQW2lPUkojezPTrXGt8pACiob+8l8cjwtEBBtjSWK1u+5RA0hJIjqz4RPdHUzJh
-         5aYdYMe5U/Kh+cyWX+gZ3MFT7RuMrhD2fTrcSBWRlS0m8E52/TCG+DGldpp9D7r9kdPm
-         rIwFELgXGA+LB9islnRJvNwTIF1ZcKopHe7Luy2pCv6avS/nxoZBzc4wuWrYq1sveXcc
-         xI0GPy/vc6i8lKZYGubRC5eiwI/XqdNu2DCghrFdUVF/6Fw3vY0bpSlNROx1C0JqRLDt
-         5Jdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716933784; x=1717538584;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ozLHkJmijyEcijsJIlg7rU3H7zvIY0vd9gob+uXPOsY=;
-        b=bE+wSCN0w+28ufi64inPHnAjXBU+Ep5exLEcUCY3v1karjtHnCJXEp5WO3WrU4S3YM
-         UyTppzj4jomJ4dFB3or2Y/pHxwLwGTeOxhLDOUuBKSLA/e/1uM9KfbpxNHQYkUvQNp5K
-         QZNcfTEqzeyBPWivteD0lbgn376n8zDEVRmDyAAuJRPA+NeXBAynyID1xoH6Z2CMWWej
-         5gUe+eeKrz2PEY9n1LAwDnEImgZLESc03JNKtO84QTCplL4ajAtMmkQ4dppRPl7/Zz1v
-         7pJNObaO2mxOjE5/qOtuwrJ1sHK3hc9Fhln1S6eQ41SMpz/V8L4GNLRkIznzpwCrnZJU
-         HUFw==
-X-Forwarded-Encrypted: i=1; AJvYcCVIBw65EyXztVGmt8uMjzEQcR7I3UM6dOklo0pMyVTaH9VmEtA2cvSoYBeuhCc6am42l9a9Ez91aG6qFHnIUl18JdwqKbsi8Ib6+g==
-X-Gm-Message-State: AOJu0YwaScjFg5vfrhwSDWp291He0o0rDDECrAQA4fnGoh/s5xxaNTwt
-	4zc1o1WXJ6K8Oh8BQnfoM9TMql/EY0TLEloVARB0ShPFAkyvQRBQXy88GTtSa88=
-X-Google-Smtp-Source: AGHT+IFSlWFNVUOxV4lr95h/gJfRtfKsaiT4upArCCJB+M0+D4CCLz8QxF33KW+4hi3B8pAS8MMlpQ==
-X-Received: by 2002:a2e:bc08:0:b0:2e9:570e:1cf with SMTP id 38308e7fff4ca-2e95b3089d9mr100629691fa.52.1716933784476;
-        Tue, 28 May 2024 15:03:04 -0700 (PDT)
-Received: from ?IPV6:2403:580d:fda1::299? (2403-580d-fda1--299.ip6.aussiebb.net. [2403:580d:fda1::299])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-6f8fcbeb199sm6855027b3a.105.2024.05.28.15.03.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 28 May 2024 15:03:04 -0700 (PDT)
-Message-ID: <4c012b7d-52f9-469d-b272-bd93f3e73854@suse.com>
-Date: Wed, 29 May 2024 07:32:58 +0930
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KLaDcYK4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1716936523; x=1748472523;
+  h=message-id:date:subject:to:cc:references:from:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=pRw0V/YbiV9giAtxSnAJoXbpm37s8/GWNum0YbUsqGc=;
+  b=KLaDcYK4h2aK//lrAve09oFv6n1Xly1qI6kSCF6BeLSVBtPdMi6P+5cf
+   nSiU/TB5PZIo+d9BriAr5NbQVdcaB0u5FuIi61VHi0Rlg1tFrNIrH9jG/
+   aVyOdlnu5q9emaf23Y/IQAb/7IWNdlzN9/T65HilSfDqfDv839nTGHyaK
+   BWFCviU92qGLPYiq3UaXF6/g7hmPPPRVnmfdM3T/ShL89PqcmsbodC6U1
+   uWzuueTDgORwtQAtAc3J2IZfOslI0aZ/V46mGObHUE4qQjmnG/fMb7npE
+   a+LMHdlzh4oLf/ugJrXxeEZK2wmvCVyTh3oKx2fQNgG77Bhm+cWaT55D6
+   Q==;
+X-CSE-ConnectionGUID: hsB/F6NcT1SEADd5V1URFQ==
+X-CSE-MsgGUID: HGhqNbxjRcWgAuYUevkGYw==
+X-IronPort-AV: E=McAfee;i="6600,9927,11085"; a="13187216"
+X-IronPort-AV: E=Sophos;i="6.08,196,1712646000"; 
+   d="scan'208";a="13187216"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 May 2024 15:48:42 -0700
+X-CSE-ConnectionGUID: 0/kH5DtkS22rMIP849hBqw==
+X-CSE-MsgGUID: Qffu1z5oR5qpRHbO1lBQQA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,196,1712646000"; 
+   d="scan'208";a="35206292"
+Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
+  by fmviesa008.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 28 May 2024 15:48:42 -0700
+Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Tue, 28 May 2024 15:48:41 -0700
+Received: from fmsedg602.ED.cps.intel.com (10.1.192.136) by
+ fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39 via Frontend Transport; Tue, 28 May 2024 15:48:41 -0700
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (104.47.58.101)
+ by edgegateway.intel.com (192.55.55.71) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.39; Tue, 28 May 2024 15:48:41 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=OkQ2dqijpGvQv2Nla3V/6+CyCwRv4JKHIq0olE4X1IqZZkHGXwSqOULmX6G2ropYXrWDjJyApesbDCQcAcTuaA/DxnCl5qPHfMwgG3Fo4Gnj85R18yCf63PbaJ1PS+5Ssj6p943rFfzYhbSlIDlbivPK+d8ZdjaCOvJc/budJh7PkOvrsyJPXBletVmjCORJfDpfR4KhfyFsWj5X0HZueqQKf7qD+bZtyu2AQn3B+p4UYMqEVOuu1fs2BBBl2LF7fJqjR2WGSYiCXc2e+/gJjvfTgQBAtZNTGHXCuNI3yubMu5ibKxhfe1gCBr7Bmf8EvPidmLzvDaRURdkw6/8uQg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=/H04MWnbkMyUppWIMG6HyE87vvIPEznfkbv3bbM8sjA=;
+ b=XwROKY37IYHioW0VMS7A7Nw/PUCQVaXiz7hMvujnbyCygfZZf2mRRf19IhdPkOxnHhHKbPgVbGkp1dPTSQG9dggv1cPvO8zHU8XuWPrfXkSERDLeBXbwtRa4u85VyqH2HxQn+DZTDmYCYfg6l8aG/4Y286IQw2DDOWp0r0Gk35LJehi/fQiAabJ5kVavKUJpGaXpaaSXqsqj3S4c6JFTq/bp6Ojkj/GP6DMPwrtJ0dq0BAtugydAyTi000WgliTwuuJSBuGKWnPT4EDlL/AXYCELdSlAIHIS/oajSspqOCLVll2ikjQf75dgQ/sO38EHPmlHsaDpJnnkZJKaVyAqsA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from BYAPR11MB2535.namprd11.prod.outlook.com (2603:10b6:a02:be::32)
+ by PH8PR11MB8037.namprd11.prod.outlook.com (2603:10b6:510:25d::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7611.30; Tue, 28 May
+ 2024 22:48:39 +0000
+Received: from BYAPR11MB2535.namprd11.prod.outlook.com
+ ([fe80::391:2d89:2ce4:a1c7]) by BYAPR11MB2535.namprd11.prod.outlook.com
+ ([fe80::391:2d89:2ce4:a1c7%6]) with mapi id 15.20.7611.030; Tue, 28 May 2024
+ 22:48:39 +0000
+Message-ID: <bfb273b2-fc5e-4a8b-a40d-56996fc9e0af@intel.com>
+Date: Tue, 28 May 2024 15:48:35 -0700
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vfio/pci: Add iowrite64 and ioread64 support for vfio pci
+To: Jason Gunthorpe <jgg@ziepe.ca>
+CC: <alex.williamson@redhat.com>, <schnelle@linux.ibm.com>,
+	<gbayer@linux.ibm.com>, <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+	<ankita@nvidia.com>, <yishaih@nvidia.com>, <pasic@linux.ibm.com>,
+	<julianr@linux.ibm.com>, <bpsegal@us.ibm.com>, <kevin.tian@intel.com>
+References: <20240522232125.548643-1-ramesh.thomas@intel.com>
+ <20240524140013.GM69273@ziepe.ca>
+Content-Language: en-US
+From: Ramesh Thomas <ramesh.thomas@intel.com>
+In-Reply-To: <20240524140013.GM69273@ziepe.ca>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: MW4PR04CA0091.namprd04.prod.outlook.com
+ (2603:10b6:303:83::6) To BYAPR11MB2535.namprd11.prod.outlook.com
+ (2603:10b6:a02:be::32)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] btrfs: zlib: do not do unnecessary page copying for
- compression
-To: dsterba@suse.cz, Zaslonko Mikhail <zaslonko@linux.ibm.com>
-Cc: Qu Wenruo <quwenruo.btrfs@gmx.com>, linux-btrfs@vger.kernel.org,
- linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>
-References: <0a24cc8a48821e8cf3bd01263b453c4cbc22d832.1716801849.git.wqu@suse.com>
- <08aca5cf-f259-4963-bb2a-356847317d94@linux.ibm.com>
- <a24ef846-95f9-413d-abfa-54b06281047a@gmx.com>
- <2db8bc9a-5ff0-40ec-92ba-29c90b6976c7@linux.ibm.com>
- <20240528214350.GI8631@twin.jikos.cz>
-Content-Language: en-US
-From: Qu Wenruo <wqu@suse.com>
-Autocrypt: addr=wqu@suse.com; keydata=
- xsBNBFnVga8BCACyhFP3ExcTIuB73jDIBA/vSoYcTyysFQzPvez64TUSCv1SgXEByR7fju3o
- 8RfaWuHCnkkea5luuTZMqfgTXrun2dqNVYDNOV6RIVrc4YuG20yhC1epnV55fJCThqij0MRL
- 1NxPKXIlEdHvN0Kov3CtWA+R1iNN0RCeVun7rmOrrjBK573aWC5sgP7YsBOLK79H3tmUtz6b
- 9Imuj0ZyEsa76Xg9PX9Hn2myKj1hfWGS+5og9Va4hrwQC8ipjXik6NKR5GDV+hOZkktU81G5
- gkQtGB9jOAYRs86QG/b7PtIlbd3+pppT0gaS+wvwMs8cuNG+Pu6KO1oC4jgdseFLu7NpABEB
- AAHNGFF1IFdlbnJ1byA8d3F1QHN1c2UuY29tPsLAlAQTAQgAPgIbAwULCQgHAgYVCAkKCwIE
- FgIDAQIeAQIXgBYhBC3fcuWlpVuonapC4cI9kfOhJf6oBQJjTSJVBQkNOgemAAoJEMI9kfOh
- Jf6oapEH/3r/xcalNXMvyRODoprkDraOPbCnULLPNwwp4wLP0/nKXvAlhvRbDpyx1+Ht/3gW
- p+Klw+S9zBQemxu+6v5nX8zny8l7Q6nAM5InkLaD7U5OLRgJ0O1MNr/UTODIEVx3uzD2X6MR
- ECMigQxu9c3XKSELXVjTJYgRrEo8o2qb7xoInk4mlleji2rRrqBh1rS0pEexImWphJi+Xgp3
- dxRGHsNGEbJ5+9yK9Nc5r67EYG4bwm+06yVT8aQS58ZI22C/UeJpPwcsYrdABcisd7dddj4Q
- RhWiO4Iy5MTGUD7PdfIkQ40iRcQzVEL1BeidP8v8C4LVGmk4vD1wF6xTjQRKfXHOwE0EWdWB
- rwEIAKpT62HgSzL9zwGe+WIUCMB+nOEjXAfvoUPUwk+YCEDcOdfkkM5FyBoJs8TCEuPXGXBO
- Cl5P5B8OYYnkHkGWutAVlUTV8KESOIm/KJIA7jJA+Ss9VhMjtePfgWexw+P8itFRSRrrwyUf
- E+0WcAevblUi45LjWWZgpg3A80tHP0iToOZ5MbdYk7YFBE29cDSleskfV80ZKxFv6koQocq0
- vXzTfHvXNDELAuH7Ms/WJcdUzmPyBf3Oq6mKBBH8J6XZc9LjjNZwNbyvsHSrV5bgmu/THX2n
- g/3be+iqf6OggCiy3I1NSMJ5KtR0q2H2Nx2Vqb1fYPOID8McMV9Ll6rh8S8AEQEAAcLAfAQY
- AQgAJgIbDBYhBC3fcuWlpVuonapC4cI9kfOhJf6oBQJjTSJuBQkNOge/AAoJEMI9kfOhJf6o
- rq8H/3LJmWxL6KO2y/BgOMYDZaFWE3TtdrlIEG8YIDJzIYbNIyQ4lw61RR+0P4APKstsu5VJ
- 9E3WR7vfxSiOmHCRIWPi32xwbkD5TwaA5m2uVg6xjb5wbdHm+OhdSBcw/fsg19aHQpsmh1/Q
- bjzGi56yfTxxt9R2WmFIxe6MIDzLlNw3JG42/ark2LOXywqFRnOHgFqxygoMKEG7OcGy5wJM
- AavA+Abj+6XoedYTwOKkwq+RX2hvXElLZbhYlE+npB1WsFYn1wJ22lHoZsuJCLba5lehI+//
- ShSsZT5Tlfgi92e9P7y+I/OzMvnBezAll+p/Ly2YczznKM5tV0gboCWeusM=
-In-Reply-To: <20240528214350.GI8631@twin.jikos.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BYAPR11MB2535:EE_|PH8PR11MB8037:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8bbcd029-9934-464a-8b61-08dc7f685102
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230031|366007|376005|1800799015|7416005;
+X-Microsoft-Antispam-Message-Info: =?utf-8?B?dWw3TitDQWpjb2Z5eGtobk1TZWJjOWdNR0NLQVBlQ3RHZUtmWStxZ3M0dXZ5?=
+ =?utf-8?B?ckN4bi85WUloWnNLUWlFVjNua0Q3SVJVRDNLZ29NMXJXWDhsaWFSVEJFK05q?=
+ =?utf-8?B?WEZiTmJJbVZxOEdKUGNuZlNxN08rWFJseVVkV0NlMXBXRjJvdnFJTkE5UjUv?=
+ =?utf-8?B?K0VwcVVYbFd5elQ1QklHTjczbnQ1bzhNcjdiTWNua3NiWXBEd3loTHBmQTVu?=
+ =?utf-8?B?ZkRGUklXMy9LcEEwdXdvZEpRM0tRQWZIOVZRUEJ4VytXenRQU1lING1ZZjl2?=
+ =?utf-8?B?VXpSWkphYmY3YWJ3bGVVS2NSekUrYmxZY2xxdGsvNWxxcGd3SU02SzRldUNB?=
+ =?utf-8?B?RmR1TEljTkpNaURDR1o2ZUhXeFo3UnowOUdjd3JEU2twZHpnZ3ZMakYzaXMz?=
+ =?utf-8?B?dEFmZFgxSGhpVHVOZE1ON2FiRGF6UllxRzk2MkluYm00ZmIyR3BkdjFONmVH?=
+ =?utf-8?B?N0ZzYTArMXlwdldIenlLYk0zRWljR0hOWXFCMHZVeUlkYjhYVmxvdE5Xdncy?=
+ =?utf-8?B?elBlVW9KNkRXK2xOMGQ4aHY5SU16MitIM250cXJXYlIzd0MxenFKa3d3UXg2?=
+ =?utf-8?B?am9tckVFQWQ2YjU1OHdXMVRXT01XSmNMK3orTzZGaTg4TFAyQ1FtN1dwajIx?=
+ =?utf-8?B?YUtoTTBRWUsxMFRMbURUNHVBc0Mva0taTXVPU3h3VlZmOFBFZExWdnYweFIw?=
+ =?utf-8?B?K0hEamFwWmIwb0hTQUJtbjJEcXlrejYzK3JFMjkxSDNLaVM4Q1VLVXJ5MTV2?=
+ =?utf-8?B?aVBoZ2F4RldWYTZHaXdxSkx2OC8zRFAydUlhN2x3Z2x1ZEtVMCtRNEYrMXpa?=
+ =?utf-8?B?VkEwQitMSXF2SC9nOEtxclFSZFB4a1k2SldlL2tLREUvejZlc2syZUxXb3ky?=
+ =?utf-8?B?ZFJ3eENuSlBTc0pBcnhLVi91TTdIQ1FKZ3RLL2Nza1RwV0NDbHIvdHB4V2pj?=
+ =?utf-8?B?a21CeHpWbE4wdGJQY2F0N2FLdTVqTzB1djBhd3FMMGxlR0Y1M3U1WW1jMmJZ?=
+ =?utf-8?B?SXowZUJlT3NSWldOcFZRcTQycUU3RWVaeVI3QndUSzI1MitjLzJkaFJoUkIr?=
+ =?utf-8?B?bFlmYXVWbUg3eHI0UUc2TVJvcFlFN3dyMTdDMmRVcm81aEhXeENmbVFYYVEz?=
+ =?utf-8?B?UitCZnUyWWIxanAzUVFZdC9mTWhFNktWc3NuWldUcS9VS2hzd0g2Ynl2MDdU?=
+ =?utf-8?B?TzdPUnhLaTJZYXh5ZFcwSlBYcENHK2J6c0pDVEVSWDhyc1dXVy92K3lrdmwz?=
+ =?utf-8?B?THhLVWs4U0hodXdIbmF6WkEwWWpJRXJFbWhqNWRIMm9aUkZYK2pUWWNJRDIz?=
+ =?utf-8?B?aHg1ZHk1N2xFbEJQb2xtZ1NscUlTTmRtYWN3ZE1FSjQ5MzFUVWl4a2xHQW9W?=
+ =?utf-8?B?elY2WXBDLzVGSTRqekhaMTkwejUrSEoyd2xzL2Z1dFY4SHlrZC9QVVZHdW9T?=
+ =?utf-8?B?OVBpZGdOUjhCL09QcWVzdzBPQkhMQUV5NllmeXZzVDRRV1NLZ3RHOEswd1dw?=
+ =?utf-8?B?eTd0bG5zcDd2SzVhNDZINm9JdHJFUmF2K0RTVmZlUUJDRGdMRWV1dGxSTjB1?=
+ =?utf-8?B?OGFBK0FBU2VQTWhRalJvUTgrUkN2OE13SkNraFJ1TUJRbTlCYlh3OWtaR3hZ?=
+ =?utf-8?Q?a1bpLoqowOZdbsklQaA1vL7wyzyCYPro/A+MYUdtSvro=3D?=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR11MB2535.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366007)(376005)(1800799015)(7416005);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?K3JjVjJ6eHJlMWpZakhPYnQ5cXU0WGJic3pMY01WRmtEUm1vQ1BrdXczTHQ3?=
+ =?utf-8?B?eDhVK3dvOFExOHZFMWZHTmU4b0w3dWtJSFVrcjFOYnExUk1GaUdhYmMrNG43?=
+ =?utf-8?B?NGJGSmM3ditwVGs0SUlKdURUVFBaZXlxV1NacThLZjBqdTducFFGdll1SjZE?=
+ =?utf-8?B?TkhnbTJJTjgyRmpldnBRVFlOV1VibmNkVkE0Zkt6bGwwSFc3WWNjenBpZGhQ?=
+ =?utf-8?B?ZHVhMFpsR3dyL1RzdlNDV0dqNFM5UnkxRmF1TTZVUFkzczhpeW5CTk9kcWoz?=
+ =?utf-8?B?ZW9WNVd0REtzeUI3Nm9OVjZQMG5LRmM1dm5PcWZNekUvUVBocEZMZHh0ZUxX?=
+ =?utf-8?B?TnQ1THBnUXJrUkV5Rng3bytNSXRIZjhqYk1STDJHZFFFNm5YVkpES0s0azR0?=
+ =?utf-8?B?UDdFRlRjYkE3VEFaQ0djclltR3VjSEJ2Q1RGeUlWclhpQWdtNzlUcHlNNy9M?=
+ =?utf-8?B?dWJ3dWdVY2pBQms4VysvM05lQklnVFMraEJlaDlFMEh5OTBXZGtIRmdYSVdP?=
+ =?utf-8?B?THl1WFpTa2h4NzNCcVFIOXhCdTBSamNtVG1wMEtPM0J1UkFnZEt5Kyt5QmJm?=
+ =?utf-8?B?REhGbFlLWVoyc1gvTmd4TnBZUTg0NEVwVkxYVUsvaE1EY09Gengva1ZjZm1L?=
+ =?utf-8?B?ajljcXc0YlZvbnI5WUR4TEM1ZHp1Nk50UmNuY0ZUdlM3TjVsVElUU2pXdWdh?=
+ =?utf-8?B?WDV5d255UUVBdlc1SDV2NWNPdTlUV3Fpb3FOT2ZQaWkyaFZ1dlBxNmFkMjBC?=
+ =?utf-8?B?emxvbXVvNW9RTFdiVWtrdjVlVnRjOEhEallRbHd6MEo4eTR3WkpSZ0RaQ3Ba?=
+ =?utf-8?B?YmNxeVFIY0F6NnNuQTZCM2ZuR0RtSGJKK3BjKzdOVEpnb2xobHVEbUNJcWVu?=
+ =?utf-8?B?SkRwZ3J0d1AzTkhjYnFjUXpkUHF4dGxoamtDMHM2MGtIZWVRZlJldzJNeDlm?=
+ =?utf-8?B?U3BVNWlyU1RLUERONnlvcHMvTlRweXF6eWwxTnphVHdLNGd6SmM1Smx6YjJs?=
+ =?utf-8?B?ZlBweGp6MUYwbmk0ZjVDZWZIVFVoRzJMeVl2NVRFaEppelArVTBXYTlKR244?=
+ =?utf-8?B?ZytWQVh2SVVQaFZrZlV3Z0ZSOU10VkhaTFZ3QnpjRlNTcmpTU0haaTdJUWV4?=
+ =?utf-8?B?NDJRT215SGdhMjFMMzhWOXJpUWpxRDFGcGtHRUxYTUFJbmZwY0wrcVRXR2pU?=
+ =?utf-8?B?OThJWHlRd0N2SmxaUTBBQUpVSEkxNHQ2SDR2MGtIOUtrYk0ySk1vZzNEemtz?=
+ =?utf-8?B?aGpOTFFPUDduamp2NkNhMFBITTJDZ3FhWDg4WFAxcEd2Y2kzd1dSdnBwSk1J?=
+ =?utf-8?B?dWptWitEajZEbG5aam9BSVVZa2tXK1JEVkloMkQ1TkplS0ZldkpCeU5XWGRw?=
+ =?utf-8?B?UU1VN1VvNVlGRXNxUkhGRW9KSERibG03eEoxR3gzYTh4Y1JuampXMzJuMlRX?=
+ =?utf-8?B?YmNadVpyTmFheExJVnJENUdLSkF6TFY3WnhXbVg5RmZCeGhlN3BQOGlVU3U1?=
+ =?utf-8?B?M2dxVnJtVVl0Zi9rdHRycFlXczNlWjlXalFvNXZaVGNFU3NnUStFTUZSdUxX?=
+ =?utf-8?B?eG5SbFJSOTdwRGt6S28yYzBIL252RHJRaVRQeEN4cHYvZUo0Sm43OTFKTTRW?=
+ =?utf-8?B?OThTQjcxTGFDeDNhZHdZVE9YVHl4SkhYY05BME1NS3h6cWZlOTBkZjVOQ1E4?=
+ =?utf-8?B?NmhKVkdCK1NGRkplczlDL3VrcEZUd1prNFZQaWNiRDVCUzlibWxMMUk4Mkhu?=
+ =?utf-8?B?d2d5Y2FKOEs0SVhqM2pCQ05jTXJIZUQxTzE3dEZZZnlYVWthbG9NN05KOGZV?=
+ =?utf-8?B?QTV4K3lGOFl4d3h1azZZSlVvOE91dzRnTUlVSXFZcXZSdDZGRk1oeFJKZEJD?=
+ =?utf-8?B?ZXhuRW5LZ0E0ZnJzcHI3ZHg4SXNGamdheGRpMFVvK3BkWEd2UG03TTJ0Smpt?=
+ =?utf-8?B?UzdnKzZvd20vRXgxN0FSVTJYeG90aWJhWHVwdXZxVU4ybDRNSEgxRUZnSDV0?=
+ =?utf-8?B?VTd5ckczR3VQbEI3Kzg1dEd4dEZCOGkxQlhPZHBpeUkyd2pGSytSMTdXTW1n?=
+ =?utf-8?B?Nk1tNERRb09wT0M1UFBtdjhSWHl0anl4MVBQbSthZVd4Qm5nUXlYQzlvQ01y?=
+ =?utf-8?Q?KV2GTdVgLx0yC6qY4Z2dJiAmh?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8bbcd029-9934-464a-8b61-08dc7f685102
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR11MB2535.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 May 2024 22:48:39.3951
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: G7KC5FlVFgBphANyDkfhzp//NB+Nu8QQcidOo/qmWCxTBNZ8Dwp1FOHD60+u89PzmXtPLAd3++S7u27DmcLi4g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR11MB8037
+X-OriginatorOrg: intel.com
+
+Hi Jason,
 
 
-
-在 2024/5/29 07:13, David Sterba 写道:
-> On Tue, May 28, 2024 at 12:44:19PM +0200, Zaslonko Mikhail wrote:
->>> But I'm still wondering if we do not go 4 pages as buffer, how much
->>> performance penalty would there be?
->>>
->>> One of the objective is to prepare for the incoming sector perfect
->>> subpage compression support, thus I'm re-checking the existing
->>> compression code, preparing to change them to be subpage compatible.
->>>
->>> If we can simplify the behavior without too large performance penalty,
->>> can we consider just using one single page as buffer?
+On 5/24/2024 7:00 AM, Jason Gunthorpe wrote:
+> On Wed, May 22, 2024 at 04:21:25PM -0700, Ramesh Thomas wrote:
+>> ioread64 and iowrite64 macros called by vfio pci implementations are
+>> defined in asm/io.h if CONFIG_GENERIC_IOMAP is not defined. Include
+>> linux/io-64-nonatomic-lo-hi.h to define iowrite64 and ioread64 macros
+>> when they are not defined. io-64-nonatomic-lo-hi.h maps the macros to
+>> generic implementation in lib/iomap.c. The generic implementation
+>> does 64 bit rw if readq/writeq is defined for the architecture,
+>> otherwise it would do 32 bit back to back rw.
 >>
->> Based on my earlier estimates, bigger buffer provided up to 60% performance for inflate and up to 30% for
->> deflate on s390 with dfltcc support.
->> I don't think giving it away for simplification would be a good idea.
+>> Note that there are two versions of the generic implementation that
+>> differs in the order the 32 bit words are written if 64 bit support is
+>> not present. This is not the little/big endian ordering, which is
+>> handled separately. This patch uses the lo followed by hi word ordering
+>> which is consistent with current back to back implementation in the
+>> vfio/pci code.
+>>
+>> Refer patch series the requirement originated from:
+>> https://lore.kernel.org/all/20240522150651.1999584-1-gbayer@linux.ibm.com/
+>>
+>> Signed-off-by: Ramesh Thomas <ramesh.thomas@intel.com>
+>> ---
+>>   drivers/vfio/pci/vfio_pci_priv.h | 1 +
+>>   1 file changed, 1 insertion(+)
+>>
+>> diff --git a/drivers/vfio/pci/vfio_pci_priv.h b/drivers/vfio/pci/vfio_pci_priv.h
+>> index 5e4fa69aee16..5eab5abf2ff2 100644
+>> --- a/drivers/vfio/pci/vfio_pci_priv.h
+>> +++ b/drivers/vfio/pci/vfio_pci_priv.h
+>> @@ -3,6 +3,7 @@
+>>   #define VFIO_PCI_PRIV_H
+>>   
+>>   #include <linux/vfio_pci_core.h>
+>> +#include <linux/io-64-nonatomic-lo-hi.h>
 > 
-> 60% and 30% sound like significant gain, I agree this takes precedence
-> over code simplification. Eventually the s390 optimized case can be
-> moved to a separate function if the conditions are satisfied so it's not
-> mixed with the page-by-page code.
+> Why include it here though?
+> 
+> It should go in vfio_pci_rdwr.c and this patch should remove all the
+> "#ifdef iowrite64"'s from that file too.
 
-Thanks a lot for the numbers, the number is indeed impressive.
-
-I'll definitely leave the larger buffer support untouched.
-And thankfully since S390 only supports 4K page size, we won't need to 
-bother too much for that routine.
+I was trying to make it future proof, but I agree it should be included 
+only where iowrite64/ioread64 is getting called. I will make both the 
+changes.
 
 Thanks,
-Qu
+Ramesh
+
+> 
+> But the idea looks right to me
+> 
+> Thanks,
+> Jason
+
