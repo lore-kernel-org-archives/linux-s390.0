@@ -1,163 +1,294 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.15])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA5F7167268;
-	Mon, 27 May 2024 22:09:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D2CC224FD;
+	Tue, 28 May 2024 02:18:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716847761; cv=none; b=hwyXECOG4J132UewfL/yOwgXzzD+svC8TX7tSRv7+SQBuPHtI6c6zZfHXCxLUd0vA87GhF9Q0j+kaZL913dH1BJyGjvsPLES0dA5rfzXV+UqhzfaUVGwVcCw7Wwe8uGopMEGks4srL6o8iETB7+aheiPtCACK8sJ/byaEAwWYnE=
+	t=1716862718; cv=none; b=ervWPrR3P1vsm0DyZSa/nVk4YC8mULGOXVUfCbz8tZG0fFN69icapGBGuAFeLVBlzSHpqRuTOP/HiL2rE9bmoP1GK542B4YpuAnUKoFuECPAR3Hj8/ASAJltaZjueKejYHslIN9qI2w/Y/eBLe/jSfWH4oR5tsVOMPnFcYfJge4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716847761; c=relaxed/simple;
-	bh=LejF+lbDllU+PLUCkYss+jeUlPDjp0RUG6VcxNTB00c=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=r0p/V0jmchShKSTzhS1ySIduRopCFnT4uhQzUbl1r1IajGHH1JTosFm54J/xz/FeuEMWkkYZ55sSgWY133meP6Jyb1MQEb0dooDouCXlBkQy1ftmWgtgXbauY0LRaysHRRbDEiURqlO0/v51VtjD4hNb5lgLXCiTpUDjoyeXHXY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com; spf=pass smtp.mailfrom=gmx.com; dkim=pass (2048-bit key) header.d=gmx.com header.i=quwenruo.btrfs@gmx.com header.b=dl6J4mJZ; arc=none smtp.client-ip=212.227.15.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.com
+	s=arc-20240116; t=1716862718; c=relaxed/simple;
+	bh=XUVDaLZZB0jtTHQ/d7v6HdM3/mdUtKGlHBGeb0bnkQI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=nAkLWqhaGxv5IjzgukdsDTmnUj/qHyQKkQOAVcpEpDpChicG648GiCCUGnSK9t2TKv9wPA4wgRyQTwuA5Q9l/4evokU6zKkPxxSlXqZQbMWd2+MZSc2t7EO7mcJmwQ7Wl+I54B50DM55o5AVMEmojAQ8J89MpIQMSFltyfzOS6E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C0RiCU16; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.com header.i=quwenruo.btrfs@gmx.com header.b="dl6J4mJZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.com;
-	s=s31663417; t=1716847754; x=1717452554; i=quwenruo.btrfs@gmx.com;
-	bh=5NrbD5yDT8j/S9sunqGjgkg3ffPU9cWiimgHKo1bj3s=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
-	 References:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:cc:content-transfer-encoding:
-	 content-type:date:from:message-id:mime-version:reply-to:subject:
-	 to;
-	b=dl6J4mJZCdTyreXW1JeeQjpvLlwy6JslJ5R9HA0uW8vrQpZ2QO3rW3AcNr5I8xUn
-	 Sqw+0Jxsas70/M16T7lsnW+ovhTIlQXIGu81m+nCPAIls7UIMms8FJnMrtozEvmef
-	 jsTjFfAAa7PWq/kjXHRTNicA0YozAF2XJvsG53GNmgzWDxBsJ7MOKQYwDd+82+iDB
-	 pEmkw4rhABrFZ1bKgdnrs5+3xUeBnnEXD1CSZb/OthG/u0k2l+miQhkgC3W/k0PFw
-	 w4QGcFAIjIuaacMnEOJrJeQPgH7PlUJiSxzIqZziSKPIg85h8mIhatVjeYoKTghB0
-	 9OegvTj8Cr8yKeIRug==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from [172.16.0.219] ([159.196.52.54]) by mail.gmx.net (mrgmx005
- [212.227.17.184]) with ESMTPSA (Nemesis) id 1N79yQ-1sZ4sf1Upo-017XE0; Tue, 28
- May 2024 00:09:14 +0200
-Message-ID: <a24ef846-95f9-413d-abfa-54b06281047a@gmx.com>
-Date: Tue, 28 May 2024 07:39:05 +0930
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C0RiCU16"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50B11C4AF12;
+	Tue, 28 May 2024 02:18:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1716862718;
+	bh=XUVDaLZZB0jtTHQ/d7v6HdM3/mdUtKGlHBGeb0bnkQI=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=C0RiCU16crLO7qqM8wuP/SCjsXP5NeNjJoo4SOSonXHkRo5Lq3GV1Gak37Cg85r4Y
+	 jOVk8o6mg2FGWNxuzG80awNx409EYgmt6lkaaopofcNHkhboS5POGcGEapTEHiQO2l
+	 m/ovXc0SugZOBbOb0FNFuNuQ3ctPXpxT15sL2BIAHKcK+9PfrOCzH0fk2OXrcP9ZDv
+	 XrZ2oTmhQMu4xuW+ZImESosPuMym0YtM09Ph8kMGYQnOqADZNThrHLZyWoYAh9Sffr
+	 b9+6HaVND3kj/MX9QukXgATFCZvfJLrafCwIqCAnNKtiKnPW9IGfoCtC2+61+MnF4R
+	 D+3oQdKtaKE2Q==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Stephen Brennan <stephen.s.brennan@oracle.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Guo Ren <guoren@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Sasha Levin <sashal@kernel.org>,
+	mingo@redhat.com,
+	jejb@parisc-linux.org,
+	deller@gmx.de,
+	benh@kernel.crashing.org,
+	paulus@samba.org,
+	mpe@ellerman.id.au,
+	palmer@sifive.com,
+	aou@eecs.berkeley.edu,
+	schwidefsky@de.ibm.com,
+	heiko.carstens@de.ibm.com,
+	tglx@linutronix.de,
+	bp@alien8.de,
+	x86@kernel.org,
+	naveen.n.rao@linux.vnet.ibm.com,
+	anil.s.keshavamurthy@intel.com,
+	davem@davemloft.net,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.9 5/5] kprobe/ftrace: bail out if ftrace was killed
+Date: Mon, 27 May 2024 22:18:21 -0400
+Message-ID: <20240528021823.3904980-5-sashal@kernel.org>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240528021823.3904980-1-sashal@kernel.org>
+References: <20240528021823.3904980-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] btrfs: zlib: do not do unnecessary page copying for
- compression
-To: Zaslonko Mikhail <zaslonko@linux.ibm.com>, Qu Wenruo <wqu@suse.com>,
- linux-btrfs@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>
-References: <0a24cc8a48821e8cf3bd01263b453c4cbc22d832.1716801849.git.wqu@suse.com>
- <08aca5cf-f259-4963-bb2a-356847317d94@linux.ibm.com>
-Content-Language: en-US
-From: Qu Wenruo <quwenruo.btrfs@gmx.com>
-Autocrypt: addr=quwenruo.btrfs@gmx.com; keydata=
- xsBNBFnVga8BCACyhFP3ExcTIuB73jDIBA/vSoYcTyysFQzPvez64TUSCv1SgXEByR7fju3o
- 8RfaWuHCnkkea5luuTZMqfgTXrun2dqNVYDNOV6RIVrc4YuG20yhC1epnV55fJCThqij0MRL
- 1NxPKXIlEdHvN0Kov3CtWA+R1iNN0RCeVun7rmOrrjBK573aWC5sgP7YsBOLK79H3tmUtz6b
- 9Imuj0ZyEsa76Xg9PX9Hn2myKj1hfWGS+5og9Va4hrwQC8ipjXik6NKR5GDV+hOZkktU81G5
- gkQtGB9jOAYRs86QG/b7PtIlbd3+pppT0gaS+wvwMs8cuNG+Pu6KO1oC4jgdseFLu7NpABEB
- AAHNIlF1IFdlbnJ1byA8cXV3ZW5ydW8uYnRyZnNAZ214LmNvbT7CwJQEEwEIAD4CGwMFCwkI
- BwIGFQgJCgsCBBYCAwECHgECF4AWIQQt33LlpaVbqJ2qQuHCPZHzoSX+qAUCY00iVQUJDToH
- pgAKCRDCPZHzoSX+qNKACACkjDLzCvcFuDlgqCiS4ajHAo6twGra3uGgY2klo3S4JespWifr
- BLPPak74oOShqNZ8yWzB1Bkz1u93Ifx3c3H0r2vLWrImoP5eQdymVqMWmDAq+sV1Koyt8gXQ
- XPD2jQCrfR9nUuV1F3Z4Lgo+6I5LjuXBVEayFdz/VYK63+YLEAlSowCF72Lkz06TmaI0XMyj
- jgRNGM2MRgfxbprCcsgUypaDfmhY2nrhIzPUICURfp9t/65+/PLlV4nYs+DtSwPyNjkPX72+
- LdyIdY+BqS8cZbPG5spCyJIlZonADojLDYQq4QnufARU51zyVjzTXMg5gAttDZwTH+8LbNI4
- mm2YzsBNBFnVga8BCACqU+th4Esy/c8BnvliFAjAfpzhI1wH76FD1MJPmAhA3DnX5JDORcga
- CbPEwhLj1xlwTgpeT+QfDmGJ5B5BlrrQFZVE1fChEjiJvyiSAO4yQPkrPVYTI7Xj34FnscPj
- /IrRUUka68MlHxPtFnAHr25VIuOS41lmYKYNwPNLRz9Ik6DmeTG3WJO2BQRNvXA0pXrJH1fN
- GSsRb+pKEKHKtL1803x71zQxCwLh+zLP1iXHVM5j8gX9zqupigQR/Cel2XPS44zWcDW8r7B0
- q1eW4Jrv0x19p4P923voqn+joIAostyNTUjCeSrUdKth9jcdlam9X2DziA/DHDFfS5eq4fEv
- ABEBAAHCwHwEGAEIACYCGwwWIQQt33LlpaVbqJ2qQuHCPZHzoSX+qAUCY00ibgUJDToHvwAK
- CRDCPZHzoSX+qK6vB/9yyZlsS+ijtsvwYDjGA2WhVhN07Xa5SBBvGCAycyGGzSMkOJcOtUUf
- tD+ADyrLbLuVSfRN1ke738UojphwkSFj4t9scG5A+U8GgOZtrlYOsY2+cG3R5vjoXUgXMP37
- INfWh0KbJodf0G48xouesn08cbfUdlphSMXujCA8y5TcNyRuNv2q5Nizl8sKhUZzh4BascoK
- DChBuznBsucCTAGrwPgG4/ul6HnWE8DipMKvkV9ob1xJS2W4WJRPp6QdVrBWJ9cCdtpR6GbL
- iQi22uZXoSPv/0oUrGU+U5X4IvdnvT+8viPzszL5wXswJZfqfy8tmHM85yjObVdIG6AlnrrD
-In-Reply-To: <08aca5cf-f259-4963-bb2a-356847317d94@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:38KOF2XBhgcnOElfLhrhwKqhUdPmn15/7UfViG+KAVis31oiOgi
- bJxx11oJBj5ATI2XGS4W0WOuAggrdh+nkLZEvfgEPxWkwDT+q6/7MD7SvauRSgoH0KBm9/M
- xP2QZ5kUzFidpmBcLDQ1qtPtO1+kInBJ8axSd/hFFuq5D719XsH7Rw7WwszpS2du+5LYHhw
- BhBYxoUBR91vFz8DXM4fQ==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:ibswbUFPcJU=;vdFSdoNXbw9tBLlN8yoWQ9M+ksa
- LKCEzic7Aq3FTMPVVBrf1hMbdLpBqEC7Z9xw51PaB8oAsYrWCbTjnpdtLALR0U2i4yrKnzuO9
- 4CRVsVeIKQVVCi1VvR0gv+rrwA7eh+wUalGzL3iJlgpRrvGYTctzxiplAwz2bf2n3n7qR7k1F
- OCo0YTMif+My6dZvozbWT8YQk+ls0aMlvHzqHMiy4HLgYuoXpJQQBA2ZxFzqeW6O3MK1JOORh
- DEw7+VJf56T7JXM3oEol0N8E4UDQHenhZ1enh6gMrl/s44/IuZAdZfb7e42YSH5M4mRYQ7sE3
- nEYctlFrMdudq76ro3VfkyMSzpOjLPqKEY28iOCUjxcZjPZdcRrCHtjZEaEwgDCr/ABm5GYcZ
- WdetopLzPCJDoI1kgaT9IbTE1hpilzSAJKcK5OxsOkbHjHTr85zrabSxDoOrxIN2zxuP8qOi4
- BA0IARhwwx7V4oz8GRwISsVfRnyKYTlpOGGh1t5jF7WhZJFlgJDH5Vmb+UR0nfYZCS8BXR+pJ
- DDerd21YZTIlRVNmpuHHd8UmffKn4l37W9Am4dmPeNrt3dEm8agPGZ+mwbCdN+uLKrrTNgK4n
- vxa3xcAUC3w2WdzMwTj3ZW34RjCLJqddEpbVNpB0OhcnNs9VC8qkTowzHbyeq07WrsoCifBcG
- GhoKCEAAjuJdatkdZUdrH1GAT4n6CxDpu2SQTRZmgKFb48vL1/P8SdEYpBW1v9X3BixXVWoRP
- 3IxOo9K0tqLUQsBguJN2lEueK6khMennTsBbLp//FL3TMGS9akBIaDVpMLSuJQkF7i+/pWGZV
- +nWf9FZKxEL9FcUsKlQXHqZR5/FCUln7bqtDUHOeMjE7A=
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.9.2
+Content-Transfer-Encoding: 8bit
 
+From: Stephen Brennan <stephen.s.brennan@oracle.com>
 
+[ Upstream commit 1a7d0890dd4a502a202aaec792a6c04e6e049547 ]
 
-=E5=9C=A8 2024/5/28 01:55, Zaslonko Mikhail =E5=86=99=E9=81=93:
-> Hello Qu,
->
-> I remember implementing btrfs zlib changes related to s390 dfltcc compre=
-ssion support a while ago:
-> https://lwn.net/Articles/808809/
->
-> The workspace buffer size was indeed enlarged for performance reasons.
->
-> Please see my comments below.
->
-> On 27.05.2024 11:24, Qu Wenruo wrote:
->> [BUG]
->> In function zlib_compress_folios(), we handle the input by:
->>
->> - If there are multiple pages left
->>    We copy the page content into workspace->buf, and use workspace->buf
->>    as input for compression.
->>
->>    But on x86_64 (which doesn't support dfltcc), that buffer size is ju=
-st
->>    one page, so we're wasting our CPU time copying the page for no
->>    benefit.
->>
->> - If there is only one page left
->>    We use the mapped page address as input for compression.
->>
->> The problem is, this means we will copy the whole input range except th=
-e
->> last page (can be as large as 124K), without much obvious benefit.
->>
->> Meanwhile the cost is pretty obvious.
->
-> Actually, the behavior for kernels w/o dfltcc support (currently availab=
-le on s390
-> only) should not be affected.
-> We copy input pages to the workspace->buf only if the buffer size is lar=
-ger than 1 page.
-> At least it worked this way after my original btrfs zlib patch:
-> https://lwn.net/ml/linux-kernel/20200108105103.29028-1-zaslonko@linux.ib=
-m.com/
->
-> Has this behavior somehow changed after your page->folio conversion perf=
-ormed for btrfs?
-> https://lore.kernel.org/all/cover.1706521511.git.wqu@suse.com/
+If an error happens in ftrace, ftrace_kill() will prevent disarming
+kprobes. Eventually, the ftrace_ops associated with the kprobes will be
+freed, yet the kprobes will still be active, and when triggered, they
+will use the freed memory, likely resulting in a page fault and panic.
 
-My bad, I forgot that the buf_size for non-S390 systems is fixed to one
-page thus the page copy is not utilized for x86_64.
+This behavior can be reproduced quite easily, by creating a kprobe and
+then triggering a ftrace_kill(). For simplicity, we can simulate an
+ftrace error with a kernel module like [1]:
 
-But I'm still wondering if we do not go 4 pages as buffer, how much
-performance penalty would there be?
+[1]: https://github.com/brenns10/kernel_stuff/tree/master/ftrace_killer
 
-One of the objective is to prepare for the incoming sector perfect
-subpage compression support, thus I'm re-checking the existing
-compression code, preparing to change them to be subpage compatible.
+  sudo perf probe --add commit_creds
+  sudo perf trace -e probe:commit_creds
+  # In another terminal
+  make
+  sudo insmod ftrace_killer.ko  # calls ftrace_kill(), simulating bug
+  # Back to perf terminal
+  # ctrl-c
+  sudo perf probe --del commit_creds
 
-If we can simplify the behavior without too large performance penalty,
-can we consider just using one single page as buffer?
+After a short period, a page fault and panic would occur as the kprobe
+continues to execute and uses the freed ftrace_ops. While ftrace_kill()
+is supposed to be used only in extreme circumstances, it is invoked in
+FTRACE_WARN_ON() and so there are many places where an unexpected bug
+could be triggered, yet the system may continue operating, possibly
+without the administrator noticing. If ftrace_kill() does not panic the
+system, then we should do everything we can to continue operating,
+rather than leave a ticking time bomb.
 
-Thanks,
-Qu
+Link: https://lore.kernel.org/all/20240501162956.229427-1-stephen.s.brennan@oracle.com/
+
+Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Acked-by: Guo Ren <guoren@kernel.org>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/csky/kernel/probes/ftrace.c     | 3 +++
+ arch/loongarch/kernel/ftrace_dyn.c   | 3 +++
+ arch/parisc/kernel/ftrace.c          | 3 +++
+ arch/powerpc/kernel/kprobes-ftrace.c | 3 +++
+ arch/riscv/kernel/probes/ftrace.c    | 3 +++
+ arch/s390/kernel/ftrace.c            | 3 +++
+ arch/x86/kernel/kprobes/ftrace.c     | 3 +++
+ include/linux/kprobes.h              | 7 +++++++
+ kernel/kprobes.c                     | 6 ++++++
+ kernel/trace/ftrace.c                | 1 +
+ 10 files changed, 35 insertions(+)
+
+diff --git a/arch/csky/kernel/probes/ftrace.c b/arch/csky/kernel/probes/ftrace.c
+index 834cffcfbce32..7ba4b98076de1 100644
+--- a/arch/csky/kernel/probes/ftrace.c
++++ b/arch/csky/kernel/probes/ftrace.c
+@@ -12,6 +12,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 	struct kprobe_ctlblk *kcb;
+ 	struct pt_regs *regs;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/arch/loongarch/kernel/ftrace_dyn.c b/arch/loongarch/kernel/ftrace_dyn.c
+index 73858c9029cc9..bff058317062e 100644
+--- a/arch/loongarch/kernel/ftrace_dyn.c
++++ b/arch/loongarch/kernel/ftrace_dyn.c
+@@ -287,6 +287,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 	struct kprobe *p;
+ 	struct kprobe_ctlblk *kcb;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/arch/parisc/kernel/ftrace.c b/arch/parisc/kernel/ftrace.c
+index 621a4b386ae4f..c91f9c2e61ed2 100644
+--- a/arch/parisc/kernel/ftrace.c
++++ b/arch/parisc/kernel/ftrace.c
+@@ -206,6 +206,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 	struct kprobe *p;
+ 	int bit;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/arch/powerpc/kernel/kprobes-ftrace.c b/arch/powerpc/kernel/kprobes-ftrace.c
+index 072ebe7f290ba..f8208c027148f 100644
+--- a/arch/powerpc/kernel/kprobes-ftrace.c
++++ b/arch/powerpc/kernel/kprobes-ftrace.c
+@@ -21,6 +21,9 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
+ 	struct pt_regs *regs;
+ 	int bit;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(nip, parent_nip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/arch/riscv/kernel/probes/ftrace.c b/arch/riscv/kernel/probes/ftrace.c
+index 7142ec42e889f..a69dfa610aa85 100644
+--- a/arch/riscv/kernel/probes/ftrace.c
++++ b/arch/riscv/kernel/probes/ftrace.c
+@@ -11,6 +11,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 	struct kprobe_ctlblk *kcb;
+ 	int bit;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
+index c46381ea04ecb..7f6f8c438c265 100644
+--- a/arch/s390/kernel/ftrace.c
++++ b/arch/s390/kernel/ftrace.c
+@@ -296,6 +296,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 	struct kprobe *p;
+ 	int bit;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/arch/x86/kernel/kprobes/ftrace.c b/arch/x86/kernel/kprobes/ftrace.c
+index dd2ec14adb77b..15af7e98e161a 100644
+--- a/arch/x86/kernel/kprobes/ftrace.c
++++ b/arch/x86/kernel/kprobes/ftrace.c
+@@ -21,6 +21,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 	struct kprobe_ctlblk *kcb;
+ 	int bit;
+ 
++	if (unlikely(kprobe_ftrace_disabled))
++		return;
++
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+diff --git a/include/linux/kprobes.h b/include/linux/kprobes.h
+index 0ff44d6633e33..5fcbc254d1864 100644
+--- a/include/linux/kprobes.h
++++ b/include/linux/kprobes.h
+@@ -378,11 +378,15 @@ static inline void wait_for_kprobe_optimizer(void) { }
+ extern void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 				  struct ftrace_ops *ops, struct ftrace_regs *fregs);
+ extern int arch_prepare_kprobe_ftrace(struct kprobe *p);
++/* Set when ftrace has been killed: kprobes on ftrace must be disabled for safety */
++extern bool kprobe_ftrace_disabled __read_mostly;
++extern void kprobe_ftrace_kill(void);
+ #else
+ static inline int arch_prepare_kprobe_ftrace(struct kprobe *p)
+ {
+ 	return -EINVAL;
+ }
++static inline void kprobe_ftrace_kill(void) {}
+ #endif /* CONFIG_KPROBES_ON_FTRACE */
+ 
+ /* Get the kprobe at this addr (if any) - called with preemption disabled */
+@@ -495,6 +499,9 @@ static inline void kprobe_flush_task(struct task_struct *tk)
+ static inline void kprobe_free_init_mem(void)
+ {
+ }
++static inline void kprobe_ftrace_kill(void)
++{
++}
+ static inline int disable_kprobe(struct kprobe *kp)
+ {
+ 	return -EOPNOTSUPP;
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 65adc815fc6e6..166ebf81dc450 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1068,6 +1068,7 @@ static struct ftrace_ops kprobe_ipmodify_ops __read_mostly = {
+ 
+ static int kprobe_ipmodify_enabled;
+ static int kprobe_ftrace_enabled;
++bool kprobe_ftrace_disabled;
+ 
+ static int __arm_kprobe_ftrace(struct kprobe *p, struct ftrace_ops *ops,
+ 			       int *cnt)
+@@ -1136,6 +1137,11 @@ static int disarm_kprobe_ftrace(struct kprobe *p)
+ 		ipmodify ? &kprobe_ipmodify_ops : &kprobe_ftrace_ops,
+ 		ipmodify ? &kprobe_ipmodify_enabled : &kprobe_ftrace_enabled);
+ }
++
++void kprobe_ftrace_kill()
++{
++	kprobe_ftrace_disabled = true;
++}
+ #else	/* !CONFIG_KPROBES_ON_FTRACE */
+ static inline int arm_kprobe_ftrace(struct kprobe *p)
+ {
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index da1710499698b..96db99c347b3b 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -7895,6 +7895,7 @@ void ftrace_kill(void)
+ 	ftrace_disabled = 1;
+ 	ftrace_enabled = 0;
+ 	ftrace_trace_function = ftrace_stub;
++	kprobe_ftrace_kill();
+ }
+ 
+ /**
+-- 
+2.43.0
+
