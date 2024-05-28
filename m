@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 478AE4436E;
-	Tue, 28 May 2024 02:18:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5166D4CE09;
+	Tue, 28 May 2024 02:19:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716862733; cv=none; b=dyFKa2AM7afMzy67o4W/C4xt0ypsOlEGDLsJbLKssWWHERksxftqW9W7hX0XforTzTu97Et9Uikafi4xdjJXGbpKM8knTyPc++VWGYAnykhxjc6zPwurGPuvPJi0/1f8iJh39ZD+wfR/IRT28+vxD2+uM4Y/2ZrUdm+TThR7ReE=
+	t=1716862748; cv=none; b=Jr8UwF0YiQKVr+nwWEK9i+sQne+PaJrkHhNT7nAT8a65LYfk9B6bmhgn6CZEbn9BxPLO2sCBpXJHnd2MqF4UPbNiRNi66d7swuYHEX8qaWRHph3FCnNxKCLlpuRtcpuZ9obk4/F2/ZcQ/W4hFWghDr1z/P1uIB3D+xEh5efhp9I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716862733; c=relaxed/simple;
-	bh=lA8NtYKtmK3cU7OzJId506XmthIl4+Xkz0k+EAhBp88=;
+	s=arc-20240116; t=1716862748; c=relaxed/simple;
+	bh=DYwIRoN2C7rBJfLlUVd7IdAgf6u/jVHpwWH2EcdaZ94=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=t0ty7aRlzPH3PobEnmIDAR2+pbd8TiJo1L3B+NquXXN2I7SYZyFsjPCDpJDv8ImINfVWi4qA4bcxOHAHTYAwfNmwTJ+k6URZj7h2uuVvAyiyMkQgFgXLrFM7u1J7IYifOkmc92ecKoy8VekSMM0H4gSUUHEvNCR4wpt7O8IfgbY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Axvz5ywf; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=UUr+rgu/iOP/7zpXXA11VhrGIJ13/fx/SOpiFCrowhCDmaAmAageHC+HOXd9Shxt/woiH+L645vUH6tm42Y+WtZQh6JNQr+yiQmtTgLbDTkoqtG9onnOS6Tar++Yytq4jH/sM8Yw0pJ44haBn5EVPlZaQEb5XS2gXp7xnKo19fo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XpEnBpfF; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Axvz5ywf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B045C32782;
-	Tue, 28 May 2024 02:18:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XpEnBpfF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02233C2BBFC;
+	Tue, 28 May 2024 02:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1716862732;
-	bh=lA8NtYKtmK3cU7OzJId506XmthIl4+Xkz0k+EAhBp88=;
+	s=k20201202; t=1716862748;
+	bh=DYwIRoN2C7rBJfLlUVd7IdAgf6u/jVHpwWH2EcdaZ94=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Axvz5ywfvv5NCCeWiNd4DctfJCA0vjaT485oNWPEQKjVqj0Y2+3+36tWY0sBG2ad2
-	 OLAzvC9jRTUbWifS1heZBpzhnAyovbATXzNZI+IturryiEU4Ya0NLkOMbvVxOCxcv7
-	 iftnDNda/gOyLih5LkWt6dtQe6uz++kwoqVj/eVksdrsB9b7MaGjzMsmOHjGgrekLD
-	 qgJwezvdf2yiPvnALMJZGZIczT99F7OFi5CGpPu0o7pCr/hplaeUAJdVMcKZA4M1Qx
-	 1rhSbhpeRCEJX9YYcX5YqzUPNwZFufKX948Y6k6lzoUWh+sv2XCaFMLb1CWgqgecyz
-	 ctiu/mRuFJ2uQ==
+	b=XpEnBpfFtPGHxHkGcvJKww/D6f4dF/3j/joEH05If9tPrbU74Ddk9zRReYGlvt1up
+	 nKi5A3PymMXULM3I3s0etiUxCigLqDjFh6JE9mXaIeWP0RRgGi4tyFv2OICCeBasaa
+	 +7a9bq6+5GQnzgt60vJn0IPQgfNzSjph+7smS/kL44t3tr9ifUug39yQx9fT6b4Z9n
+	 Aqln8NjxpnKX39X9zYfmvPwhKMPYpXoDXpwQ9No3z7moE+i3Agbsb+SjMgpt3N+OJj
+	 0/5P2iK/UeyeXLDpA4RioUtx7Weya1WhOYPmwtkP+s/FR6JTdKaYnOu2cQ+f0evLvH
+	 O/S785S6Nzm1w==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -54,12 +54,12 @@ Cc: Stephen Brennan <stephen.s.brennan@oracle.com>,
 	linuxppc-dev@lists.ozlabs.org,
 	linux-riscv@lists.infradead.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.8 4/4] kprobe/ftrace: bail out if ftrace was killed
-Date: Mon, 27 May 2024 22:18:39 -0400
-Message-ID: <20240528021840.3905128-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.6 4/4] kprobe/ftrace: bail out if ftrace was killed
+Date: Mon, 27 May 2024 22:18:53 -0400
+Message-ID: <20240528021854.3905245-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240528021840.3905128-1-sashal@kernel.org>
-References: <20240528021840.3905128-1-sashal@kernel.org>
+In-Reply-To: <20240528021854.3905245-1-sashal@kernel.org>
+References: <20240528021854.3905245-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,7 +68,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.8.11
+X-stable-base: Linux 6.6.32
 Content-Transfer-Encoding: 8bit
 
 From: Stephen Brennan <stephen.s.brennan@oracle.com>
@@ -224,10 +224,10 @@ index dd2ec14adb77b..15af7e98e161a 100644
  	if (bit < 0)
  		return;
 diff --git a/include/linux/kprobes.h b/include/linux/kprobes.h
-index 0ff44d6633e33..5fcbc254d1864 100644
+index 8de5d51a0b5e7..45d5b0a76b0bd 100644
 --- a/include/linux/kprobes.h
 +++ b/include/linux/kprobes.h
-@@ -378,11 +378,15 @@ static inline void wait_for_kprobe_optimizer(void) { }
+@@ -383,11 +383,15 @@ static inline void wait_for_kprobe_optimizer(void) { }
  extern void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
  				  struct ftrace_ops *ops, struct ftrace_regs *fregs);
  extern int arch_prepare_kprobe_ftrace(struct kprobe *p);
@@ -243,7 +243,7 @@ index 0ff44d6633e33..5fcbc254d1864 100644
  #endif /* CONFIG_KPROBES_ON_FTRACE */
  
  /* Get the kprobe at this addr (if any) - called with preemption disabled */
-@@ -495,6 +499,9 @@ static inline void kprobe_flush_task(struct task_struct *tk)
+@@ -496,6 +500,9 @@ static inline void kprobe_flush_task(struct task_struct *tk)
  static inline void kprobe_free_init_mem(void)
  {
  }
@@ -254,7 +254,7 @@ index 0ff44d6633e33..5fcbc254d1864 100644
  {
  	return -EOPNOTSUPP;
 diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 65adc815fc6e6..166ebf81dc450 100644
+index c2841e5957130..c8720bed8ed6a 100644
 --- a/kernel/kprobes.c
 +++ b/kernel/kprobes.c
 @@ -1068,6 +1068,7 @@ static struct ftrace_ops kprobe_ipmodify_ops __read_mostly = {
