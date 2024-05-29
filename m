@@ -1,50 +1,44 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8EFE6AB8;
-	Wed, 29 May 2024 05:32:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51E2C15D5CB;
+	Wed, 29 May 2024 06:14:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716960740; cv=none; b=ewYPDZylUz8Nw1JrHJoSMfHR1qsu6SVXuNaLPl2KCPIC0Scn/vwt6J664LPDgyTXvPWnBulBP/lV7uQdiq1AogdEWu5D5orbB8gJ2WsVx4Z6l5UrWj8VVrAR4js6cgrJMmxcnOlsZttDa8QyqbwSMuuFKALpvmqCvc7s/0Dym80=
+	t=1716963291; cv=none; b=FcsTLei5QZ5nwM2WmpcKxn5NVcBtwLpTBTYHKru3nYYt7thpu/oFyDZOJiyv2csaT69u/CnFHB1OGfF0OyAjhjArrfjDov7v/uYq4pm2+CZxAJLYj2FKX09zrkeilbLlZbgZGGHJKpMTwUO4BXWfgzX+iAWWhUZ/8az8maGvB2U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716960740; c=relaxed/simple;
-	bh=aBznwI196mCXdIjypa7AmSwqqkGS5EsYJK31pzgSYXA=;
+	s=arc-20240116; t=1716963291; c=relaxed/simple;
+	bh=bJMJ6Epti2dWai0NaRpK4JKUFx7iBJ2mNkR45h0S66w=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Anw3k28OxNx+aKzId/IrGt7MpT+Z1/F11WZes45Zq7ao1//Qp5N6AgMOOqD4mBUAMdl5ZrE23wojPI7cbMsx099f5fO9njEODUxyTXVumreJq+NECsE23rRaAkMfNWJAOz25BY7UZ/vi7Hwajacd0h8MTGq1m8CusmrMT8zcuRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LeEZBqXs; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=AXo7mNuH3byLfqCArNQSFFDn6oxdVySNUyM83Bh23ks7mpkWvbcquW+1LUfbfxydEfuvB/RDhKsS3YxDUph+R6k57Pm7ODipMqzMWdXwiLEEydlGK6eWXybM8CZ0sLohRyLfUKx9iyAtuanf5UURtE7KDeIQZlWTJb2uqQbV8FQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=WnfKT0cS; arc=none smtp.client-ip=115.124.30.119
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LeEZBqXs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A7FFC2BD10;
-	Wed, 29 May 2024 05:32:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1716960739;
-	bh=aBznwI196mCXdIjypa7AmSwqqkGS5EsYJK31pzgSYXA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=LeEZBqXsaFwHKqq22xYJkq1anme+3hC9y4dtkgVlEK8L0HpFZWUwdSNmDY9Dkw6NW
-	 jmYzLhjePapm2TqQULKLIdowZXJ5+4rkJdUNI6remV3ooCQ/tnpDnrCOCjxWLhxWUa
-	 wnIWzdQOEkuJE9hEeHvETExo8PPpuO700JnCabxsCN0WeaNU6RsdbqNH06C052cUbz
-	 pcYHVG/nEm6xkBGENDwx7i0hAa/WwhPnHmaFiBu7FRjnOtZfVtTI158ewx8yBQdXzA
-	 2PEUKqEd3KrOUZjq6zO2DU3cPgp149y+59wWRzK4VAWqxaA4LAIaxHdvKkBqK7f830
-	 Q8mHay2aWjJlg==
-Date: Wed, 29 May 2024 08:30:27 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Eric Chanudet <echanude@redhat.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Baoquan He <bhe@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>,
-	Nick Piggin <npiggin@gmail.com>, x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH v3] mm/mm_init: use node's number of cpus in
- deferred_page_init_max_threads
-Message-ID: <Zla9cwSorlNg98F5@kernel.org>
-References: <20240528185455.643227-4-echanude@redhat.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="WnfKT0cS"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1716963279; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=iKQ1UBWmg6fXE5kM2DVpXPJ8KpZs7Evw5A+8h2ZriCo=;
+	b=WnfKT0cShG0aC8cb5N5/fe35O9jATMRnQ+IjG24Qsbs5eKVkO04B3NZ8dlTwXtc/ehu3In/2xOD6GJiQd7trAtOxISwdEAlxMitgWMqvjS8ApoejTgSBRiBvFucm7fXTMG3Mzb1RTcYU1YkoL/+5mdYlwg/Ee6lQbQjoGQKTCd4=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R911e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033022160150;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W7Rez7r_1716963278;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0W7Rez7r_1716963278)
+          by smtp.aliyun-inc.com;
+          Wed, 29 May 2024 14:14:38 +0800
+Date: Wed, 29 May 2024 14:14:37 +0800
+From: Tony Lu <tonylu@linux.alibaba.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+	wintera@linux.ibm.com, guwen@linux.alibaba.com, kuba@kernel.org,
+	davem@davemloft.net, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+	pabeni@redhat.com, edumazet@google.com
+Subject: Re: [PATCH net-next v4 1/3] net/smc: refactoring initialization of
+ smc sock
+Message-ID: <ZlbHzZ_FizAqPvNp@TONYMAC-ALIBABA.local>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <1716955147-88923-1-git-send-email-alibuda@linux.alibaba.com>
+ <1716955147-88923-2-git-send-email-alibuda@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -53,123 +47,172 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240528185455.643227-4-echanude@redhat.com>
+In-Reply-To: <1716955147-88923-2-git-send-email-alibuda@linux.alibaba.com>
 
-On Tue, May 28, 2024 at 02:54:58PM -0400, Eric Chanudet wrote:
-> When DEFERRED_STRUCT_PAGE_INIT=y, use a node's cpu count as maximum
-> thread count for the deferred initialization of struct pages via padata.
-> This should result in shorter boot times for these configurations by
-> going through page_alloc_init_late() faster as systems tend not to be
-> under heavy load that early in the bootstrap.
+On Wed, May 29, 2024 at 11:59:05AM +0800, D. Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
 > 
-> Only x86_64 does that now. Make it archs agnostic when
-> DEFERRED_STRUCT_PAGE_INIT is set. With the default defconfigs, that
-> includes powerpc and s390.
+> This patch aims to isolate the shared components of SMC socket
+> allocation by introducing smc_sk_init() for sock initialization
+> and __smc_create_clcsk() for the initialization of clcsock.
 > 
-> It used to be so before offering archs to override the function for
-> tuning with commit ecd096506922 ("mm: make deferred init's max threads
-> arch-specific").
+> This is in preparation for the subsequent implementation of the
+> AF_INET version of SMC.
 > 
-> Setting DEFERRED_STRUCT_PAGE_INIT and testing on a few arm64 platforms
-> shows faster deferred_init_memmap completions:
-> |         | x13s        | SA8775p-ride | Ampere R137-P31 | Ampere HR330 |
-> |         | Metal, 32GB | VM, 36GB     | VM, 58GB        | Metal, 128GB |
-> |         | 8cpus       | 8cpus        | 8cpus           | 32cpus       |
-> |---------|-------------|--------------|-----------------|--------------|
-> | threads |  ms     (%) | ms       (%) |  ms         (%) |  ms      (%) |
-> |---------|-------------|--------------|-----------------|--------------|
-> | 1       | 108    (0%) | 72      (0%) | 224        (0%) | 324     (0%) |
-> | cpus    |  24  (-77%) | 36    (-50%) |  40      (-82%) |  56   (-82%) |
-> 
-> Michael Ellerman on a powerpc machine (1TB, 40 cores, 4KB pages) reports
-> faster deferred_init_memmap from 210-240ms to 90-110ms between nodes.
-> 
-> Signed-off-by: Eric Chanudet <echanude@redhat.com>
-> Tested-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 
-Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
+v4 looks good for me, thanks.
+
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
 
 > ---
-> - v1: https://lore.kernel.org/linux-arm-kernel/20240520231555.395979-5-echanude@redhat.com
-> - Changes since v1:
->  - Make the generic function return the number of cpus of the node as
->    max threads limit instead overriding it for arm64.
->  - Drop Baoquan He's R-b on v1 since the logic changed.
->  - Add CCs according to patch changes (ppc and s390 set
->    DEFERRED_STRUCT_PAGE_INIT by default).
+>  net/smc/af_smc.c | 86 +++++++++++++++++++++++++++++++-------------------------
+>  net/smc/smc.h    |  5 ++++
+>  2 files changed, 53 insertions(+), 38 deletions(-)
 > 
-> - v2: https://lore.kernel.org/linux-arm-kernel/20240522203758.626932-4-echanude@redhat.com/
-> - Changes since v2:
->  - deferred_page_init_max_threads returns unsigned and use max instead
->    of max_t.
->  - Make deferred_page_init_max_threads static since there are no more
->    override.
->  - Rephrase description.
->  - Add T-b and report from Michael Ellerman.
-> 
->  arch/x86/mm/init_64.c    | 12 ------------
->  include/linux/memblock.h |  2 --
->  mm/mm_init.c             |  5 ++---
->  3 files changed, 2 insertions(+), 17 deletions(-)
-> 
-> diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-> index 7e177856ee4f..adec42928ec1 100644
-> --- a/arch/x86/mm/init_64.c
-> +++ b/arch/x86/mm/init_64.c
-> @@ -1354,18 +1354,6 @@ void __init mem_init(void)
->  	preallocate_vmalloc_pages();
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index e50a286..77a9d58 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -361,25 +361,15 @@ static void smc_destruct(struct sock *sk)
+>  		return;
 >  }
 >  
-> -#ifdef CONFIG_DEFERRED_STRUCT_PAGE_INIT
-> -int __init deferred_page_init_max_threads(const struct cpumask *node_cpumask)
-> -{
-> -	/*
-> -	 * More CPUs always led to greater speedups on tested systems, up to
-> -	 * all the nodes' CPUs.  Use all since the system is otherwise idle
-> -	 * now.
-> -	 */
-> -	return max_t(int, cpumask_weight(node_cpumask), 1);
-> -}
-> -#endif
-> -
->  int kernel_set_to_readonly;
->  
->  void mark_rodata_ro(void)
-> diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-> index e2082240586d..40c62aca36ec 100644
-> --- a/include/linux/memblock.h
-> +++ b/include/linux/memblock.h
-> @@ -335,8 +335,6 @@ void __next_mem_pfn_range_in_zone(u64 *idx, struct zone *zone,
->  	for (; i != U64_MAX;					  \
->  	     __next_mem_pfn_range_in_zone(&i, zone, p_start, p_end))
->  
-> -int __init deferred_page_init_max_threads(const struct cpumask *node_cpumask);
-> -
->  #endif /* CONFIG_DEFERRED_STRUCT_PAGE_INIT */
->  
->  /**
-> diff --git a/mm/mm_init.c b/mm/mm_init.c
-> index f72b852bd5b8..acfeba508796 100644
-> --- a/mm/mm_init.c
-> +++ b/mm/mm_init.c
-> @@ -2122,11 +2122,10 @@ deferred_init_memmap_chunk(unsigned long start_pfn, unsigned long end_pfn,
->  	}
->  }
->  
-> -/* An arch may override for more concurrency. */
-> -__weak int __init
-> +static unsigned int __init
->  deferred_page_init_max_threads(const struct cpumask *node_cpumask)
+> -static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
+> -				   int protocol)
+> +void smc_sk_init(struct net *net, struct sock *sk, int protocol)
 >  {
-> -	return 1;
-> +	return max(cpumask_weight(node_cpumask), 1U);
->  }
+> -	struct smc_sock *smc;
+> -	struct proto *prot;
+> -	struct sock *sk;
+> -
+> -	prot = (protocol == SMCPROTO_SMC6) ? &smc_proto6 : &smc_proto;
+> -	sk = sk_alloc(net, PF_SMC, GFP_KERNEL, prot, 0);
+> -	if (!sk)
+> -		return NULL;
+> +	struct smc_sock *smc = smc_sk(sk);
 >  
->  /* Initialise remaining memory on a node */
+> -	sock_init_data(sock, sk); /* sets sk_refcnt to 1 */
+>  	sk->sk_state = SMC_INIT;
+>  	sk->sk_destruct = smc_destruct;
+>  	sk->sk_protocol = protocol;
+>  	WRITE_ONCE(sk->sk_sndbuf, 2 * READ_ONCE(net->smc.sysctl_wmem));
+>  	WRITE_ONCE(sk->sk_rcvbuf, 2 * READ_ONCE(net->smc.sysctl_rmem));
+> -	smc = smc_sk(sk);
+>  	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
+>  	INIT_WORK(&smc->connect_work, smc_connect_work);
+>  	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
+> @@ -389,6 +379,24 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
+>  	sk->sk_prot->hash(sk);
+>  	mutex_init(&smc->clcsock_release_lock);
+>  	smc_init_saved_callbacks(smc);
+> +	smc->limit_smc_hs = net->smc.limit_smc_hs;
+> +	smc->use_fallback = false; /* assume rdma capability first */
+> +	smc->fallback_rsn = 0;
+> +}
+> +
+> +static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
+> +				   int protocol)
+> +{
+> +	struct proto *prot;
+> +	struct sock *sk;
+> +
+> +	prot = (protocol == SMCPROTO_SMC6) ? &smc_proto6 : &smc_proto;
+> +	sk = sk_alloc(net, PF_SMC, GFP_KERNEL, prot, 0);
+> +	if (!sk)
+> +		return NULL;
+> +
+> +	sock_init_data(sock, sk); /* sets sk_refcnt to 1 */
+> +	smc_sk_init(net, sk, protocol);
+>  
+>  	return sk;
+>  }
+> @@ -3321,6 +3329,31 @@ static ssize_t smc_splice_read(struct socket *sock, loff_t *ppos,
+>  	.splice_read	= smc_splice_read,
+>  };
+>  
+> +int smc_create_clcsk(struct net *net, struct sock *sk, int family)
+> +{
+> +	struct smc_sock *smc = smc_sk(sk);
+> +	int rc;
+> +
+> +	rc = sock_create_kern(net, family, SOCK_STREAM, IPPROTO_TCP,
+> +			      &smc->clcsock);
+> +	if (rc) {
+> +		sk_common_release(sk);
+> +		return rc;
+> +	}
+> +
+> +	/* smc_clcsock_release() does not wait smc->clcsock->sk's
+> +	 * destruction;  its sk_state might not be TCP_CLOSE after
+> +	 * smc->sk is close()d, and TCP timers can be fired later,
+> +	 * which need net ref.
+> +	 */
+> +	sk = smc->clcsock->sk;
+> +	__netns_tracker_free(net, &sk->ns_tracker, false);
+> +	sk->sk_net_refcnt = 1;
+> +	get_net_track(net, &sk->ns_tracker, GFP_KERNEL);
+> +	sock_inuse_add(net, 1);
+> +	return 0;
+> +}
+> +
+>  static int __smc_create(struct net *net, struct socket *sock, int protocol,
+>  			int kern, struct socket *clcsock)
+>  {
+> @@ -3346,35 +3379,12 @@ static int __smc_create(struct net *net, struct socket *sock, int protocol,
+>  
+>  	/* create internal TCP socket for CLC handshake and fallback */
+>  	smc = smc_sk(sk);
+> -	smc->use_fallback = false; /* assume rdma capability first */
+> -	smc->fallback_rsn = 0;
+> -
+> -	/* default behavior from limit_smc_hs in every net namespace */
+> -	smc->limit_smc_hs = net->smc.limit_smc_hs;
+>  
+>  	rc = 0;
+> -	if (!clcsock) {
+> -		rc = sock_create_kern(net, family, SOCK_STREAM, IPPROTO_TCP,
+> -				      &smc->clcsock);
+> -		if (rc) {
+> -			sk_common_release(sk);
+> -			goto out;
+> -		}
+> -
+> -		/* smc_clcsock_release() does not wait smc->clcsock->sk's
+> -		 * destruction;  its sk_state might not be TCP_CLOSE after
+> -		 * smc->sk is close()d, and TCP timers can be fired later,
+> -		 * which need net ref.
+> -		 */
+> -		sk = smc->clcsock->sk;
+> -		__netns_tracker_free(net, &sk->ns_tracker, false);
+> -		sk->sk_net_refcnt = 1;
+> -		get_net_track(net, &sk->ns_tracker, GFP_KERNEL);
+> -		sock_inuse_add(net, 1);
+> -	} else {
+> +	if (clcsock)
+>  		smc->clcsock = clcsock;
+> -	}
+> -
+> +	else
+> +		rc = smc_create_clcsk(net, sk, family);
+>  out:
+>  	return rc;
+>  }
+> diff --git a/net/smc/smc.h b/net/smc/smc.h
+> index 18c8b78..3edec1e 100644
+> --- a/net/smc/smc.h
+> +++ b/net/smc/smc.h
+> @@ -34,6 +34,11 @@
+>  extern struct proto smc_proto;
+>  extern struct proto smc_proto6;
+>  
+> +/* smc sock initialization */
+> +void smc_sk_init(struct net *net, struct sock *sk, int protocol);
+> +/* clcsock initialization */
+> +int smc_create_clcsk(struct net *net, struct sock *sk, int family);
+> +
+>  #ifdef ATOMIC64_INIT
+>  #define KERNEL_HAS_ATOMIC64
+>  #endif
 > -- 
-> 2.44.0
-> 
-
--- 
-Sincerely yours,
-Mike.
+> 1.8.3.1
