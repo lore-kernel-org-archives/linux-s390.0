@@ -1,243 +1,239 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD70217E8F3;
-	Tue, 28 May 2024 22:48:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.17
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716936524; cv=fail; b=Wm/hVsGBHIakVnBIdLR9bpkKx8KndBuJ2f0vAGx4hpFjHMI6Ziui7CnggQaN9rbGMPivo85V8XgUwrfwk8l8Nw/ZDED5PYvtQljWzeU3IKCAPOaQX+NGY+dyrRw8ADDexuM2K3xLEc0yrVQdJ248vBmw5elG1sYkuUO+Glmpc0A=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716936524; c=relaxed/simple;
-	bh=pRw0V/YbiV9giAtxSnAJoXbpm37s8/GWNum0YbUsqGc=;
-	h=Message-ID:Date:Subject:To:CC:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=dFbXsmNRwvOezRcEZ8Cjh6WQpgwA+v6abYfitydR2VSdiokEgS2E+fRyGjNaUqri3rZmCcHbPUIpwDiAaxq5l9CllZmqGDqDDrMThqW8qPMj1ei6DhGTRG3GhD/60S9kTSklKmXAYbl/tbAfktozHvj4qc7kpcVCZlGd+PyC6Fc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KLaDcYK4; arc=fail smtp.client-ip=192.198.163.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4818917E8F0;
+	Wed, 29 May 2024 02:36:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1716950207; cv=none; b=YIYkjrNNIJBGU9U+te2cfhg2Q/gSDd9tEqgzdfitix+YFIMCMhj59iUFykfqONa1b4rc+3O7Pachc0Or76ej5nl2a44fxz7FTvRn1KmWMIJgZROGLt1ev0G97iFcJfXAHwwzqF2+4ie0arMtCDkavnjuIN6odIQd1CDcIESu2m0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1716950207; c=relaxed/simple;
+	bh=/prjtynIALKef+NidgM/TwteCz1yQxr8kvZyr3UStrk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=OKI0391PdqOAjQqNfIYLgn/0zVGQhF29frghFzPaRtylir4+TZg9qPIzWjDPeneNmxApp64JcA4LTtKGS7bNQh7CABjIkeTNuoDTv7UeXm5D3llBcm8YNkAekjns1erhZ/Aa/ZlHrCuqmPLuwrGrJA7AkIo46t7NNDINxO/XUrE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Bu+hDgvm; arc=none smtp.client-ip=115.124.30.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KLaDcYK4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1716936523; x=1748472523;
-  h=message-id:date:subject:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=pRw0V/YbiV9giAtxSnAJoXbpm37s8/GWNum0YbUsqGc=;
-  b=KLaDcYK4h2aK//lrAve09oFv6n1Xly1qI6kSCF6BeLSVBtPdMi6P+5cf
-   nSiU/TB5PZIo+d9BriAr5NbQVdcaB0u5FuIi61VHi0Rlg1tFrNIrH9jG/
-   aVyOdlnu5q9emaf23Y/IQAb/7IWNdlzN9/T65HilSfDqfDv839nTGHyaK
-   BWFCviU92qGLPYiq3UaXF6/g7hmPPPRVnmfdM3T/ShL89PqcmsbodC6U1
-   uWzuueTDgORwtQAtAc3J2IZfOslI0aZ/V46mGObHUE4qQjmnG/fMb7npE
-   a+LMHdlzh4oLf/ugJrXxeEZK2wmvCVyTh3oKx2fQNgG77Bhm+cWaT55D6
-   Q==;
-X-CSE-ConnectionGUID: hsB/F6NcT1SEADd5V1URFQ==
-X-CSE-MsgGUID: HGhqNbxjRcWgAuYUevkGYw==
-X-IronPort-AV: E=McAfee;i="6600,9927,11085"; a="13187216"
-X-IronPort-AV: E=Sophos;i="6.08,196,1712646000"; 
-   d="scan'208";a="13187216"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 May 2024 15:48:42 -0700
-X-CSE-ConnectionGUID: 0/kH5DtkS22rMIP849hBqw==
-X-CSE-MsgGUID: Qffu1z5oR5qpRHbO1lBQQA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,196,1712646000"; 
-   d="scan'208";a="35206292"
-Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
-  by fmviesa008.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 28 May 2024 15:48:42 -0700
-Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Tue, 28 May 2024 15:48:41 -0700
-Received: from fmsedg602.ED.cps.intel.com (10.1.192.136) by
- fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39 via Frontend Transport; Tue, 28 May 2024 15:48:41 -0700
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (104.47.58.101)
- by edgegateway.intel.com (192.55.55.71) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.39; Tue, 28 May 2024 15:48:41 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OkQ2dqijpGvQv2Nla3V/6+CyCwRv4JKHIq0olE4X1IqZZkHGXwSqOULmX6G2ropYXrWDjJyApesbDCQcAcTuaA/DxnCl5qPHfMwgG3Fo4Gnj85R18yCf63PbaJ1PS+5Ssj6p943rFfzYhbSlIDlbivPK+d8ZdjaCOvJc/budJh7PkOvrsyJPXBletVmjCORJfDpfR4KhfyFsWj5X0HZueqQKf7qD+bZtyu2AQn3B+p4UYMqEVOuu1fs2BBBl2LF7fJqjR2WGSYiCXc2e+/gJjvfTgQBAtZNTGHXCuNI3yubMu5ibKxhfe1gCBr7Bmf8EvPidmLzvDaRURdkw6/8uQg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/H04MWnbkMyUppWIMG6HyE87vvIPEznfkbv3bbM8sjA=;
- b=XwROKY37IYHioW0VMS7A7Nw/PUCQVaXiz7hMvujnbyCygfZZf2mRRf19IhdPkOxnHhHKbPgVbGkp1dPTSQG9dggv1cPvO8zHU8XuWPrfXkSERDLeBXbwtRa4u85VyqH2HxQn+DZTDmYCYfg6l8aG/4Y286IQw2DDOWp0r0Gk35LJehi/fQiAabJ5kVavKUJpGaXpaaSXqsqj3S4c6JFTq/bp6Ojkj/GP6DMPwrtJ0dq0BAtugydAyTi000WgliTwuuJSBuGKWnPT4EDlL/AXYCELdSlAIHIS/oajSspqOCLVll2ikjQf75dgQ/sO38EHPmlHsaDpJnnkZJKaVyAqsA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from BYAPR11MB2535.namprd11.prod.outlook.com (2603:10b6:a02:be::32)
- by PH8PR11MB8037.namprd11.prod.outlook.com (2603:10b6:510:25d::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7611.30; Tue, 28 May
- 2024 22:48:39 +0000
-Received: from BYAPR11MB2535.namprd11.prod.outlook.com
- ([fe80::391:2d89:2ce4:a1c7]) by BYAPR11MB2535.namprd11.prod.outlook.com
- ([fe80::391:2d89:2ce4:a1c7%6]) with mapi id 15.20.7611.030; Tue, 28 May 2024
- 22:48:39 +0000
-Message-ID: <bfb273b2-fc5e-4a8b-a40d-56996fc9e0af@intel.com>
-Date: Tue, 28 May 2024 15:48:35 -0700
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] vfio/pci: Add iowrite64 and ioread64 support for vfio pci
-To: Jason Gunthorpe <jgg@ziepe.ca>
-CC: <alex.williamson@redhat.com>, <schnelle@linux.ibm.com>,
-	<gbayer@linux.ibm.com>, <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<ankita@nvidia.com>, <yishaih@nvidia.com>, <pasic@linux.ibm.com>,
-	<julianr@linux.ibm.com>, <bpsegal@us.ibm.com>, <kevin.tian@intel.com>
-References: <20240522232125.548643-1-ramesh.thomas@intel.com>
- <20240524140013.GM69273@ziepe.ca>
-Content-Language: en-US
-From: Ramesh Thomas <ramesh.thomas@intel.com>
-In-Reply-To: <20240524140013.GM69273@ziepe.ca>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: MW4PR04CA0091.namprd04.prod.outlook.com
- (2603:10b6:303:83::6) To BYAPR11MB2535.namprd11.prod.outlook.com
- (2603:10b6:a02:be::32)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Bu+hDgvm"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1716950195; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=kTh5iBvwSDqWZxPNhWhI/gl1LaGJ95imBRViouswUz4=;
+	b=Bu+hDgvmthSpldJVDVjLPPBnrUJYBlR4QWV042hurObHkhGzxEBXXqtvELZtiae0zs+jHZPfTF2Vln+HCYkktfa7H0rBMZ4lcKDfoc4vYwB7RFSwmlIFVXpK5jsVO8KURekciZ9QtDre6OSGiuvtbLB/0icI9u1CgObbs7UxTl0=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W7R7OGN_1716950194;
+Received: from 30.221.145.238(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0W7R7OGN_1716950194)
+          by smtp.aliyun-inc.com;
+          Wed, 29 May 2024 10:36:35 +0800
+Message-ID: <5bb36a9c-6f2e-4d60-a210-fd2c01da5b60@linux.alibaba.com>
+Date: Wed, 29 May 2024 10:36:33 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BYAPR11MB2535:EE_|PH8PR11MB8037:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8bbcd029-9934-464a-8b61-08dc7f685102
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230031|366007|376005|1800799015|7416005;
-X-Microsoft-Antispam-Message-Info: =?utf-8?B?dWw3TitDQWpjb2Z5eGtobk1TZWJjOWdNR0NLQVBlQ3RHZUtmWStxZ3M0dXZ5?=
- =?utf-8?B?ckN4bi85WUloWnNLUWlFVjNua0Q3SVJVRDNLZ29NMXJXWDhsaWFSVEJFK05q?=
- =?utf-8?B?WEZiTmJJbVZxOEdKUGNuZlNxN08rWFJseVVkV0NlMXBXRjJvdnFJTkE5UjUv?=
- =?utf-8?B?K0VwcVVYbFd5elQ1QklHTjczbnQ1bzhNcjdiTWNua3NiWXBEd3loTHBmQTVu?=
- =?utf-8?B?ZkRGUklXMy9LcEEwdXdvZEpRM0tRQWZIOVZRUEJ4VytXenRQU1lING1ZZjl2?=
- =?utf-8?B?VXpSWkphYmY3YWJ3bGVVS2NSekUrYmxZY2xxdGsvNWxxcGd3SU02SzRldUNB?=
- =?utf-8?B?RmR1TEljTkpNaURDR1o2ZUhXeFo3UnowOUdjd3JEU2twZHpnZ3ZMakYzaXMz?=
- =?utf-8?B?dEFmZFgxSGhpVHVOZE1ON2FiRGF6UllxRzk2MkluYm00ZmIyR3BkdjFONmVH?=
- =?utf-8?B?N0ZzYTArMXlwdldIenlLYk0zRWljR0hOWXFCMHZVeUlkYjhYVmxvdE5Xdncy?=
- =?utf-8?B?elBlVW9KNkRXK2xOMGQ4aHY5SU16MitIM250cXJXYlIzd0MxenFKa3d3UXg2?=
- =?utf-8?B?am9tckVFQWQ2YjU1OHdXMVRXT01XSmNMK3orTzZGaTg4TFAyQ1FtN1dwajIx?=
- =?utf-8?B?YUtoTTBRWUsxMFRMbURUNHVBc0Mva0taTXVPU3h3VlZmOFBFZExWdnYweFIw?=
- =?utf-8?B?K0hEamFwWmIwb0hTQUJtbjJEcXlrejYzK3JFMjkxSDNLaVM4Q1VLVXJ5MTV2?=
- =?utf-8?B?aVBoZ2F4RldWYTZHaXdxSkx2OC8zRFAydUlhN2x3Z2x1ZEtVMCtRNEYrMXpa?=
- =?utf-8?B?VkEwQitMSXF2SC9nOEtxclFSZFB4a1k2SldlL2tLREUvejZlc2syZUxXb3ky?=
- =?utf-8?B?ZFJ3eENuSlBTc0pBcnhLVi91TTdIQ1FKZ3RLL2Nza1RwV0NDbHIvdHB4V2pj?=
- =?utf-8?B?a21CeHpWbE4wdGJQY2F0N2FLdTVqTzB1djBhd3FMMGxlR0Y1M3U1WW1jMmJZ?=
- =?utf-8?B?SXowZUJlT3NSWldOcFZRcTQycUU3RWVaeVI3QndUSzI1MitjLzJkaFJoUkIr?=
- =?utf-8?B?bFlmYXVWbUg3eHI0UUc2TVJvcFlFN3dyMTdDMmRVcm81aEhXeENmbVFYYVEz?=
- =?utf-8?B?UitCZnUyWWIxanAzUVFZdC9mTWhFNktWc3NuWldUcS9VS2hzd0g2Ynl2MDdU?=
- =?utf-8?B?TzdPUnhLaTJZYXh5ZFcwSlBYcENHK2J6c0pDVEVSWDhyc1dXVy92K3lrdmwz?=
- =?utf-8?B?THhLVWs4U0hodXdIbmF6WkEwWWpJRXJFbWhqNWRIMm9aUkZYK2pUWWNJRDIz?=
- =?utf-8?B?aHg1ZHk1N2xFbEJQb2xtZ1NscUlTTmRtYWN3ZE1FSjQ5MzFUVWl4a2xHQW9W?=
- =?utf-8?B?elY2WXBDLzVGSTRqekhaMTkwejUrSEoyd2xzL2Z1dFY4SHlrZC9QVVZHdW9T?=
- =?utf-8?B?OVBpZGdOUjhCL09QcWVzdzBPQkhMQUV5NllmeXZzVDRRV1NLZ3RHOEswd1dw?=
- =?utf-8?B?eTd0bG5zcDd2SzVhNDZINm9JdHJFUmF2K0RTVmZlUUJDRGdMRWV1dGxSTjB1?=
- =?utf-8?B?OGFBK0FBU2VQTWhRalJvUTgrUkN2OE13SkNraFJ1TUJRbTlCYlh3OWtaR3hZ?=
- =?utf-8?Q?a1bpLoqowOZdbsklQaA1vL7wyzyCYPro/A+MYUdtSvro=3D?=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR11MB2535.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366007)(376005)(1800799015)(7416005);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?K3JjVjJ6eHJlMWpZakhPYnQ5cXU0WGJic3pMY01WRmtEUm1vQ1BrdXczTHQ3?=
- =?utf-8?B?eDhVK3dvOFExOHZFMWZHTmU4b0w3dWtJSFVrcjFOYnExUk1GaUdhYmMrNG43?=
- =?utf-8?B?NGJGSmM3ditwVGs0SUlKdURUVFBaZXlxV1NacThLZjBqdTducFFGdll1SjZE?=
- =?utf-8?B?TkhnbTJJTjgyRmpldnBRVFlOV1VibmNkVkE0Zkt6bGwwSFc3WWNjenBpZGhQ?=
- =?utf-8?B?ZHVhMFpsR3dyL1RzdlNDV0dqNFM5UnkxRmF1TTZVUFkzczhpeW5CTk9kcWoz?=
- =?utf-8?B?ZW9WNVd0REtzeUI3Nm9OVjZQMG5LRmM1dm5PcWZNekUvUVBocEZMZHh0ZUxX?=
- =?utf-8?B?TnQ1THBnUXJrUkV5Rng3bytNSXRIZjhqYk1STDJHZFFFNm5YVkpES0s0azR0?=
- =?utf-8?B?UDdFRlRjYkE3VEFaQ0djclltR3VjSEJ2Q1RGeUlWclhpQWdtNzlUcHlNNy9M?=
- =?utf-8?B?dWJ3dWdVY2pBQms4VysvM05lQklnVFMraEJlaDlFMEh5OTBXZGtIRmdYSVdP?=
- =?utf-8?B?THl1WFpTa2h4NzNCcVFIOXhCdTBSamNtVG1wMEtPM0J1UkFnZEt5Kyt5QmJm?=
- =?utf-8?B?REhGbFlLWVoyc1gvTmd4TnBZUTg0NEVwVkxYVUsvaE1EY09Gengva1ZjZm1L?=
- =?utf-8?B?ajljcXc0YlZvbnI5WUR4TEM1ZHp1Nk50UmNuY0ZUdlM3TjVsVElUU2pXdWdh?=
- =?utf-8?B?WDV5d255UUVBdlc1SDV2NWNPdTlUV3Fpb3FOT2ZQaWkyaFZ1dlBxNmFkMjBC?=
- =?utf-8?B?emxvbXVvNW9RTFdiVWtrdjVlVnRjOEhEallRbHd6MEo4eTR3WkpSZ0RaQ3Ba?=
- =?utf-8?B?YmNxeVFIY0F6NnNuQTZCM2ZuR0RtSGJKK3BjKzdOVEpnb2xobHVEbUNJcWVu?=
- =?utf-8?B?SkRwZ3J0d1AzTkhjYnFjUXpkUHF4dGxoamtDMHM2MGtIZWVRZlJldzJNeDlm?=
- =?utf-8?B?U3BVNWlyU1RLUERONnlvcHMvTlRweXF6eWwxTnphVHdLNGd6SmM1Smx6YjJs?=
- =?utf-8?B?ZlBweGp6MUYwbmk0ZjVDZWZIVFVoRzJMeVl2NVRFaEppelArVTBXYTlKR244?=
- =?utf-8?B?ZytWQVh2SVVQaFZrZlV3Z0ZSOU10VkhaTFZ3QnpjRlNTcmpTU0haaTdJUWV4?=
- =?utf-8?B?NDJRT215SGdhMjFMMzhWOXJpUWpxRDFGcGtHRUxYTUFJbmZwY0wrcVRXR2pU?=
- =?utf-8?B?OThJWHlRd0N2SmxaUTBBQUpVSEkxNHQ2SDR2MGtIOUtrYk0ySk1vZzNEemtz?=
- =?utf-8?B?aGpOTFFPUDduamp2NkNhMFBITTJDZ3FhWDg4WFAxcEd2Y2kzd1dSdnBwSk1J?=
- =?utf-8?B?dWptWitEajZEbG5aam9BSVVZa2tXK1JEVkloMkQ1TkplS0ZldkpCeU5XWGRw?=
- =?utf-8?B?UU1VN1VvNVlGRXNxUkhGRW9KSERibG03eEoxR3gzYTh4Y1JuampXMzJuMlRX?=
- =?utf-8?B?YmNadVpyTmFheExJVnJENUdLSkF6TFY3WnhXbVg5RmZCeGhlN3BQOGlVU3U1?=
- =?utf-8?B?M2dxVnJtVVl0Zi9rdHRycFlXczNlWjlXalFvNXZaVGNFU3NnUStFTUZSdUxX?=
- =?utf-8?B?eG5SbFJSOTdwRGt6S28yYzBIL252RHJRaVRQeEN4cHYvZUo0Sm43OTFKTTRW?=
- =?utf-8?B?OThTQjcxTGFDeDNhZHdZVE9YVHl4SkhYY05BME1NS3h6cWZlOTBkZjVOQ1E4?=
- =?utf-8?B?NmhKVkdCK1NGRkplczlDL3VrcEZUd1prNFZQaWNiRDVCUzlibWxMMUk4Mkhu?=
- =?utf-8?B?d2d5Y2FKOEs0SVhqM2pCQ05jTXJIZUQxTzE3dEZZZnlYVWthbG9NN05KOGZV?=
- =?utf-8?B?QTV4K3lGOFl4d3h1azZZSlVvOE91dzRnTUlVSXFZcXZSdDZGRk1oeFJKZEJD?=
- =?utf-8?B?ZXhuRW5LZ0E0ZnJzcHI3ZHg4SXNGamdheGRpMFVvK3BkWEd2UG03TTJ0Smpt?=
- =?utf-8?B?UzdnKzZvd20vRXgxN0FSVTJYeG90aWJhWHVwdXZxVU4ybDRNSEgxRUZnSDV0?=
- =?utf-8?B?VTd5ckczR3VQbEI3Kzg1dEd4dEZCOGkxQlhPZHBpeUkyd2pGSytSMTdXTW1n?=
- =?utf-8?B?Nk1tNERRb09wT0M1UFBtdjhSWHl0anl4MVBQbSthZVd4Qm5nUXlYQzlvQ01y?=
- =?utf-8?Q?KV2GTdVgLx0yC6qY4Z2dJiAmh?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8bbcd029-9934-464a-8b61-08dc7f685102
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR11MB2535.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 May 2024 22:48:39.3951
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: G7KC5FlVFgBphANyDkfhzp//NB+Nu8QQcidOo/qmWCxTBNZ8Dwp1FOHD60+u89PzmXtPLAd3++S7u27DmcLi4g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR11MB8037
-X-OriginatorOrg: intel.com
-
-Hi Jason,
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v3 1/3] net/smc: refatoring initialization of smc
+ sock
+To: Tony Lu <tonylu@linux.alibaba.com>
+Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+ wintera@linux.ibm.com, guwen@linux.alibaba.com, kuba@kernel.org,
+ davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-rdma@vger.kernel.org, pabeni@redhat.com, edumazet@google.com
+References: <1716863394-112399-1-git-send-email-alibuda@linux.alibaba.com>
+ <1716863394-112399-2-git-send-email-alibuda@linux.alibaba.com>
+ <ZlVJib8rRvwPJJJi@TONYMAC-ALIBABA.local>
+Content-Language: en-US
+From: "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <ZlVJib8rRvwPJJJi@TONYMAC-ALIBABA.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-On 5/24/2024 7:00 AM, Jason Gunthorpe wrote:
-> On Wed, May 22, 2024 at 04:21:25PM -0700, Ramesh Thomas wrote:
->> ioread64 and iowrite64 macros called by vfio pci implementations are
->> defined in asm/io.h if CONFIG_GENERIC_IOMAP is not defined. Include
->> linux/io-64-nonatomic-lo-hi.h to define iowrite64 and ioread64 macros
->> when they are not defined. io-64-nonatomic-lo-hi.h maps the macros to
->> generic implementation in lib/iomap.c. The generic implementation
->> does 64 bit rw if readq/writeq is defined for the architecture,
->> otherwise it would do 32 bit back to back rw.
+
+On 5/28/24 11:03 AM, Tony Lu wrote:
+> In subject, refatoring -> refactoring.
+
+Oops... thanks for that.
+
+>
+> On Tue, May 28, 2024 at 10:29:52AM +0800, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
 >>
->> Note that there are two versions of the generic implementation that
->> differs in the order the 32 bit words are written if 64 bit support is
->> not present. This is not the little/big endian ordering, which is
->> handled separately. This patch uses the lo followed by hi word ordering
->> which is consistent with current back to back implementation in the
->> vfio/pci code.
+>> This patch aims to isolate the shared components of SMC socket
+>> allocation by introducing smc_sock_init() for sock initialization
+>> and __smc_create_clcsk() for the initialization of clcsock.
 >>
->> Refer patch series the requirement originated from:
->> https://lore.kernel.org/all/20240522150651.1999584-1-gbayer@linux.ibm.com/
+>> This is in preparation for the subsequent implementation of the
+>> AF_INET version of SMC.
 >>
->> Signed-off-by: Ramesh Thomas <ramesh.thomas@intel.com>
+>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 >> ---
->>   drivers/vfio/pci/vfio_pci_priv.h | 1 +
->>   1 file changed, 1 insertion(+)
+>>   net/smc/af_smc.c | 86 +++++++++++++++++++++++++++++++-------------------------
+>>   net/smc/smc.h    |  5 ++++
+>>   2 files changed, 53 insertions(+), 38 deletions(-)
 >>
->> diff --git a/drivers/vfio/pci/vfio_pci_priv.h b/drivers/vfio/pci/vfio_pci_priv.h
->> index 5e4fa69aee16..5eab5abf2ff2 100644
->> --- a/drivers/vfio/pci/vfio_pci_priv.h
->> +++ b/drivers/vfio/pci/vfio_pci_priv.h
->> @@ -3,6 +3,7 @@
->>   #define VFIO_PCI_PRIV_H
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> index 9389f0c..d8c116e 100644
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -361,25 +361,15 @@ static void smc_destruct(struct sock *sk)
+>>   		return;
+>>   }
 >>   
->>   #include <linux/vfio_pci_core.h>
->> +#include <linux/io-64-nonatomic-lo-hi.h>
-> 
-> Why include it here though?
-> 
-> It should go in vfio_pci_rdwr.c and this patch should remove all the
-> "#ifdef iowrite64"'s from that file too.
+>> -static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
+>> -				   int protocol)
+>> +void smc_sock_init(struct net *net, struct sock *sk, int protocol)
+>              ^^^^                       ^^^^^^^^^^^^^^^^
+>
+> Using smc_sk_init to align the others' name style.
 
-I was trying to make it future proof, but I agree it should be included 
-only where iowrite64/ioread64 is getting called. I will make both the 
-changes.
+Make sense, I will do it in the next version.
+
+
+>>   {
+>> -	struct smc_sock *smc;
+>> -	struct proto *prot;
+>> -	struct sock *sk;
+>> -
+>> -	prot = (protocol == SMCPROTO_SMC6) ? &smc_proto6 : &smc_proto;
+>> -	sk = sk_alloc(net, PF_SMC, GFP_KERNEL, prot, 0);
+>> -	if (!sk)
+>> -		return NULL;
+>> +	struct smc_sock *smc = smc_sk(sk);
+>>   
+>> -	sock_init_data(sock, sk); /* sets sk_refcnt to 1 */
+>>   	sk->sk_state = SMC_INIT;
+>>   	sk->sk_destruct = smc_destruct;
+>>   	sk->sk_protocol = protocol;
+>>   	WRITE_ONCE(sk->sk_sndbuf, 2 * READ_ONCE(net->smc.sysctl_wmem));
+>>   	WRITE_ONCE(sk->sk_rcvbuf, 2 * READ_ONCE(net->smc.sysctl_rmem));
+>> -	smc = smc_sk(sk);
+>>   	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
+>>   	INIT_WORK(&smc->connect_work, smc_connect_work);
+>>   	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
+>> @@ -389,6 +379,24 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
+>>   	sk->sk_prot->hash(sk);
+>>   	mutex_init(&smc->clcsock_release_lock);
+>>   	smc_init_saved_callbacks(smc);
+>> +	smc->limit_smc_hs = net->smc.limit_smc_hs;
+>> +	smc->use_fallback = false; /* assume rdma capability first */
+>> +	smc->fallback_rsn = 0;
+>> +}
+>> +
+>> +static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
+>> +				   int protocol)
+>> +{
+>> +	struct proto *prot;
+>> +	struct sock *sk;
+>> +
+>> +	prot = (protocol == SMCPROTO_SMC6) ? &smc_proto6 : &smc_proto;
+>> +	sk = sk_alloc(net, PF_SMC, GFP_KERNEL, prot, 0);
+>> +	if (!sk)
+>> +		return NULL;
+>> +
+>> +	sock_init_data(sock, sk); /* sets sk_refcnt to 1 */
+>> +	smc_sock_init(net, sk, protocol);
+>>   
+>>   	return sk;
+>>   }
+>> @@ -3321,6 +3329,31 @@ static ssize_t smc_splice_read(struct socket *sock, loff_t *ppos,
+>>   	.splice_read	= smc_splice_read,
+>>   };
+>>   
+>> +int smc_create_clcsk(struct net *net, struct sock *sk, int family)
+>> +{
+>> +	struct smc_sock *smc = smc_sk(sk);
+>> +	int rc;
+>> +
+>> +	rc = sock_create_kern(net, family, SOCK_STREAM, IPPROTO_TCP,
+>> +			      &smc->clcsock);
+>> +	if (rc) {
+>> +		sk_common_release(sk);
+>> +		return rc;
+>> +	}
+>> +
+>> +	/* smc_clcsock_release() does not wait smc->clcsock->sk's
+>> +	 * destruction;  its sk_state might not be TCP_CLOSE after
+>> +	 * smc->sk is close()d, and TCP timers can be fired later,
+>> +	 * which need net ref.
+>> +	 */
+>> +	sk = smc->clcsock->sk;
+>> +	__netns_tracker_free(net, &sk->ns_tracker, false);
+>> +	sk->sk_net_refcnt = 1;
+>> +	get_net_track(net, &sk->ns_tracker, GFP_KERNEL);
+>> +	sock_inuse_add(net, 1);
+>> +	return 0;
+>> +}
+>> +
+>>   static int __smc_create(struct net *net, struct socket *sock, int protocol,
+>>   			int kern, struct socket *clcsock)
+>>   {
+>> @@ -3346,35 +3379,12 @@ static int __smc_create(struct net *net, struct socket *sock, int protocol,
+>>   
+>>   	/* create internal TCP socket for CLC handshake and fallback */
+>>   	smc = smc_sk(sk);
+>> -	smc->use_fallback = false; /* assume rdma capability first */
+>> -	smc->fallback_rsn = 0;
+>> -
+>> -	/* default behavior from limit_smc_hs in every net namespace */
+>> -	smc->limit_smc_hs = net->smc.limit_smc_hs;
+>>   
+>>   	rc = 0;
+>> -	if (!clcsock) {
+>> -		rc = sock_create_kern(net, family, SOCK_STREAM, IPPROTO_TCP,
+>> -				      &smc->clcsock);
+>> -		if (rc) {
+>> -			sk_common_release(sk);
+>> -			goto out;
+>> -		}
+>> -
+>> -		/* smc_clcsock_release() does not wait smc->clcsock->sk's
+>> -		 * destruction;  its sk_state might not be TCP_CLOSE after
+>> -		 * smc->sk is close()d, and TCP timers can be fired later,
+>> -		 * which need net ref.
+>> -		 */
+>> -		sk = smc->clcsock->sk;
+>> -		__netns_tracker_free(net, &sk->ns_tracker, false);
+>> -		sk->sk_net_refcnt = 1;
+>> -		get_net_track(net, &sk->ns_tracker, GFP_KERNEL);
+>> -		sock_inuse_add(net, 1);
+>> -	} else {
+>> +	if (!clcsock)
+>> +		rc = smc_create_clcsk(net, sk, family);
+>> +	else
+>>   		smc->clcsock = clcsock;
+>> -	}
+> Using if (clcsock) is more intuitive.
+
+Sounds reasonable. I'll take it.
+
 
 Thanks,
-Ramesh
+D. Wythe
 
-> 
-> But the idea looks right to me
-> 
-> Thanks,
-> Jason
+
+>> -
+>>   out:
+>>   	return rc;
+>>   }
+>> diff --git a/net/smc/smc.h b/net/smc/smc.h
+>> index 18c8b78..a0accb5 100644
+>> --- a/net/smc/smc.h
+>> +++ b/net/smc/smc.h
+>> @@ -34,6 +34,11 @@
+>>   extern struct proto smc_proto;
+>>   extern struct proto smc_proto6;
+>>   
+>> +/* smc sock initialization */
+>> +void smc_sock_init(struct net *net, struct sock *sk, int protocol);
+>> +/* clcsock initialization */
+>> +int smc_create_clcsk(struct net *net, struct sock *sk, int family);
+>> +
+>>   #ifdef ATOMIC64_INIT
+>>   #define KERNEL_HAS_ATOMIC64
+>>   #endif
+>> -- 
+>> 1.8.3.1
 
