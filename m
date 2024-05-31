@@ -1,110 +1,234 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23406155A53;
-	Fri, 31 May 2024 08:54:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B37A7770FD;
+	Fri, 31 May 2024 09:03:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717145682; cv=none; b=jXpHZXaN/U1O3vSaFI1/67CDQKE7H5hOsWKw790vI884KeH92tjoVqeLC8bvWaZTpmFU8BlKnR4FbxB4l56VaKSrlolTyBWZNIQ2e3zwXw3PT56XP4HgGi9EJ9ssZfbgmA9I468jQV11J/LpwxC6o6F3ezAyAMUMJ836mIjUXQc=
+	t=1717146215; cv=none; b=JFUiNqikYv4+9i8nkANMFDuZElYz2B6OszOFCWqWTynKlHCReGqxVPcb+0bxPIX/nKeNWsR5OyFwJDAYp613QwzskAH19Ld/Xqn+vxMUar/0lEd57zl53II4y8Q9avP/DW1HuebBXbxTi+X9KXY1PB22TUcXkk+C7MIN7oQ9kVY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717145682; c=relaxed/simple;
-	bh=JFEYnpKVhC3OKPMmlFbiYqQ6JmpSsmBSmRlLuUInyTk=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=XgbkS4HAlyQ0OnmJmHoHmYamjzNqY8zDvGmjCMax69iXQgIjEUJkps17Mi/XubLUGtJWmE1aDaDRWyS4jfyh6bUcGBseQmf1SSHBHPU864cdKdtvQSgKJ8v0PTANvMRPAopzoRxAHJSXx7rL87rYPRoU26xkYtOzBu6jAXl3VZ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=E6Q56tQl; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1717146215; c=relaxed/simple;
+	bh=S0ZKYYnPoHPKYkKOnAkf25zs6aVUOp2ahpjN8lCEaOg=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=M5j9dP8IPDCSt+vtN+SPxqw/XUL9Q/xmDitdiL6PzLQwLSbLlBP/tP+4IOdioNKBc8mb7mm8Y1MHum7h3kd0bNu1c0IKRsb4RGRXR/xmCGUPkeOXpjqNHaF4QL85w0yrKbej5fbth7wjcQt1zz/udK0AzJApEKQSi88/Dp5OMv4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oyuFEjCX; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="E6Q56tQl"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1717145670; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=u45yl/ongPk3D/+8eUViTWu0t7iGmxovN58bXNXSZhI=;
-	b=E6Q56tQlOz9ZCIS3rCuk651obBOfEO9XZciEF0mskSpsVfJUJmcdtKnarL748g57sjlYfVvfjzqKrsndHPT3177ZyxjhR61/Xkeb07324ZVsZLewgVYxpLs6jX7PyhM4DczHEP5Bnln2OHMYFW1R7CjPg5xQ0HEgmTwEQS6JQGg=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W7ZRJhf_1717145657;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W7ZRJhf_1717145657)
-          by smtp.aliyun-inc.com;
-          Fri, 31 May 2024 16:54:30 +0800
-From: Wen Gu <guwen@linux.alibaba.com>
-To: gbayer@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com
-Cc: alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net] net/smc: avoid overwriting when adjusting sock bufsizes
-Date: Fri, 31 May 2024 16:54:17 +0800
-Message-Id: <20240531085417.43104-1-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oyuFEjCX"
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 44V8Pllt005650;
+	Fri, 31 May 2024 09:03:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc :
+ content-transfer-encoding : content-type : date : from : in-reply-to :
+ message-id : mime-version : references : subject : to; s=pp1;
+ bh=XydXLZ2izbHKZATJ4GMzAav3AkDiEapDJQW2XKsdEDE=;
+ b=oyuFEjCXTagFnA/OGazviomD5ka/oUQd+lq+gup2Ax6qeeB0YeLKqblXki480GxEAV0V
+ FwXgzlYvsW4xO7h8y3gikx7QfpphY8s5ObeQCvitewLGseG/A5oppgRZbDBKNrBvY9qh
+ kkgS3BQei/yFPZyRfGt8XLWAXBJpvjtp2RdnN9q/a9os54ynoK8hNLQncuGukf9svPvu
+ ux8IQz8oFgR5OK5QTOafkp5LpCERUBT97bcRbJMFuuitr+ds45kZfvGBY8q2uBQEW+6H
+ E1ZMEubB9WRSu3yDhGchqUZ+0WE6+LXyr/y/dA3lgQmsrwFG/Dm+dEHaQk3wZdFOLg8c SQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yfaatr6jx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 31 May 2024 09:03:27 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 44V93Q9s031992;
+	Fri, 31 May 2024 09:03:26 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yfaatr6jt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 31 May 2024 09:03:26 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 44V8jkoM029003;
+	Fri, 31 May 2024 09:03:25 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ydpayy168-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 31 May 2024 09:03:25 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 44V93MDu29164142
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 31 May 2024 09:03:24 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3AC4158065;
+	Fri, 31 May 2024 09:03:22 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BBD815804B;
+	Fri, 31 May 2024 09:03:19 +0000 (GMT)
+Received: from [9.171.25.186] (unknown [9.171.25.186])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 31 May 2024 09:03:19 +0000 (GMT)
+Message-ID: <0f590cb7-9b67-4dce-93a4-5da89812a075@linux.ibm.com>
+Date: Fri, 31 May 2024 11:03:18 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 0/2] Change the upper boundary of SMC-R's snd_buf
+ and rcv_buf to 512MB
+To: Guangguan Wang <guangguan.wang@linux.alibaba.com>, jaka@linux.ibm.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com
+Cc: kgraul@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20240528135138.99266-1-guangguan.wang@linux.alibaba.com>
+ <328ea674-0904-4c81-a6e2-7be3420ad578@linux.ibm.com>
+ <e2d0dae7-827e-41f8-bcd5-7d10fd7df594@linux.alibaba.com>
+Content-Language: en-US
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <e2d0dae7-827e-41f8-bcd5-7d10fd7df594@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: wgKl3mqkdsnyIbOV6nixZhSNyYNUSMOi
+X-Proofpoint-ORIG-GUID: GWWSKTeXVKpKorl7dO_hdR4akTS0zHmz
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
+ definitions=2024-05-31_05,2024-05-30_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxlogscore=999
+ mlxscore=0 impostorscore=0 suspectscore=0 malwarescore=0 clxscore=1015
+ lowpriorityscore=0 adultscore=0 priorityscore=1501 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2405010000 definitions=main-2405310066
 
-When copying smc settings to clcsock, avoid setting clcsock's sk_sndbuf
-to sysctl_tcp_wmem[1], since this may overwrite the value set by
-tcp_sndbuf_expand() in TCP connection establishment.
 
-And the other setting sk_{snd|rcv}buf to sysctl value in
-smc_adjust_sock_bufsizes() can also be omitted since the initialization
-of smc sock and clcsock has set sk_{snd|rcv}buf to smc.sysctl_{w|r}mem
-or ipv4_sysctl_tcp_{w|r}mem[1].
 
-Fixes: 30c3c4a4497c ("net/smc: Use correct buffer sizes when switching between TCP and SMC")
-Link: https://lore.kernel.org/r/5eaf3858-e7fd-4db8-83e8-3d7a3e0e9ae2@linux.alibaba.com
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----
-FYI,
-The detailed motivation and testing can be found in the link above.
----
- net/smc/af_smc.c | 22 ++--------------------
- 1 file changed, 2 insertions(+), 20 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 9389f0cfa374..a35281153067 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -459,29 +459,11 @@ static int smc_bind(struct socket *sock, struct sockaddr *uaddr,
- static void smc_adjust_sock_bufsizes(struct sock *nsk, struct sock *osk,
- 				     unsigned long mask)
- {
--	struct net *nnet = sock_net(nsk);
--
- 	nsk->sk_userlocks = osk->sk_userlocks;
--	if (osk->sk_userlocks & SOCK_SNDBUF_LOCK) {
-+	if (osk->sk_userlocks & SOCK_SNDBUF_LOCK)
- 		nsk->sk_sndbuf = osk->sk_sndbuf;
--	} else {
--		if (mask == SK_FLAGS_SMC_TO_CLC)
--			WRITE_ONCE(nsk->sk_sndbuf,
--				   READ_ONCE(nnet->ipv4.sysctl_tcp_wmem[1]));
--		else
--			WRITE_ONCE(nsk->sk_sndbuf,
--				   2 * READ_ONCE(nnet->smc.sysctl_wmem));
--	}
--	if (osk->sk_userlocks & SOCK_RCVBUF_LOCK) {
-+	if (osk->sk_userlocks & SOCK_RCVBUF_LOCK)
- 		nsk->sk_rcvbuf = osk->sk_rcvbuf;
--	} else {
--		if (mask == SK_FLAGS_SMC_TO_CLC)
--			WRITE_ONCE(nsk->sk_rcvbuf,
--				   READ_ONCE(nnet->ipv4.sysctl_tcp_rmem[1]));
--		else
--			WRITE_ONCE(nsk->sk_rcvbuf,
--				   2 * READ_ONCE(nnet->smc.sysctl_rmem));
--	}
- }
- 
- static void smc_copy_sock_settings(struct sock *nsk, struct sock *osk,
--- 
-2.32.0.3.g01195cf9f
-
+On 31.05.24 10:15, Guangguan Wang wrote:
+> 
+> 
+> On 2024/5/30 00:28, Wenjia Zhang wrote:
+>>
+>>
+>> On 28.05.24 15:51, Guangguan Wang wrote:
+>>> SMCR_RMBE_SIZES is the upper boundary of SMC-R's snd_buf and rcv_buf.
+>>> The maximum bytes of snd_buf and rcv_buf can be calculated by 2^SMCR_
+>>> RMBE_SIZES * 16KB. SMCR_RMBE_SIZES = 5 means the upper boundary is 512KB.
+>>> TCP's snd_buf and rcv_buf max size is configured by net.ipv4.tcp_w/rmem[2]
+>>> whose defalut value is 4MB or 6MB, is much larger than SMC-R's upper
+>>> boundary.
+>>>
+>>> In some scenarios, such as Recommendation System, the communication
+>>> pattern is mainly large size send/recv, where the size of snd_buf and
+>>> rcv_buf greatly affects performance. Due to the upper boundary
+>>> disadvantage, SMC-R performs poor than TCP in those scenarios. So it
+>>> is time to enlarge the upper boundary size of SMC-R's snd_buf and rcv_buf,
+>>> so that the SMC-R's snd_buf and rcv_buf can be configured to larger size
+>>> for performance gain in such scenarios.
+>>>
+>>> The SMC-R rcv_buf's size will be transferred to peer by the field
+>>> rmbe_size in clc accept and confirm message. The length of the field
+>>> rmbe_size is four bits, which means the maximum value of SMCR_RMBE_SIZES
+>>> is 15. In case of frequently adjusting the value of SMCR_RMBE_SIZES
+>>> in different scenarios, set the value of SMCR_RMBE_SIZES to the maximum
+>>> value 15, which means the upper boundary of SMC-R's snd_buf and rcv_buf
+>>> is 512MB. As the real memory usage is determined by the value of
+>>> net.smc.w/rmem, not by the upper boundary, set the value of SMCR_RMBE_SIZES
+>>> to the maximum value has no side affects.
+>>>
+>> Hi Guangguan,
+>>
+>> That is correct that the maximum buffer(snd_buf and rcv_buf) size of SMCR is much smaller than TCP's. If I remember correctly, that was because the 512KB was enough for the traffic and did not waist memory space after some experiment. Sure, that was years ago, and it could be very different nowadays. But I'm still curious if you have any concrete scenario with performance benchmark which shows the distinguish disadvantage of the current maximum buffer size.
+>>
+> 
+> Hi Wenjia,
+> 
+> The performance benchmark can be "Wide & Deep Recommender Model Training in TensorFlow" (https://github.com/NVIDIA/DeepLearningExamples/tree/master/TensorFlow/Recommendation/WideAndDeep).
+> The related paper here: https://arxiv.org/pdf/1606.07792.
+> 
+> The performance unit is steps/s, where a higher value indicates better performance.
+> 
+> 1) using 512KB snd_buf/recv_buf for SMC-R, default(4MB snd_buf/6MB recv_buf) for TCP:
+>   SMC-R performance vs TCP performance = 24.21 steps/s vs 24.85 steps/s
+> 
+> ps smcr stat:
+> RX Stats
+>    Data transmitted (Bytes)    37600503985 (37.60G)
+>    Total requests                   677841
+>    Buffer full                       40074 (5.91%)
+>              8KB    16KB    32KB    64KB   128KB   256KB   512KB  >512KB
+>    Bufs        0       0       0       0       0       0       4       0
+>    Reqs   178.2K  12.69K  8.125K  45.71K  23.51K  20.75K  60.16K       0
+> TX Stats
+>    Data transmitted (Bytes)   118471581684 (118.5G)
+>    Total requests                   874395
+>    Buffer full                      343080 (39.24%)
+>    Buffer full (remote)             468523 (53.58%)
+>    Buffer too small                 607914 (69.52%)
+>    Buffer too small (remote)        607914 (69.52%)
+>              8KB    16KB    32KB    64KB   128KB   256KB   512KB  >512KB
+>    Bufs        0       0       0       0       0       0       4       0
+>    Reqs   119.7K  3.169K  2.662K  5.583K  8.523K  21.55K  34.58K  318.0K
+> 
+> worker smcr stat:
+> RX Stats
+>    Data transmitted (Bytes)   118471581723 (118.5G)
+>    Total requests                   835959
+>    Buffer full                       99227 (11.87%)
+>              8KB    16KB    32KB    64KB   128KB   256KB   512KB  >512KB
+>    Bufs        0       0       0       0       0       0       4       0
+>    Reqs   125.4K  13.14K  17.49K  16.78K  34.27K  34.12K  223.8K       0
+> TX Stats
+>    Data transmitted (Bytes)    37600504139 (37.60G)
+>    Total requests                   606822
+>    Buffer full                       86597 (14.27%)
+>    Buffer full (remote)             156098 (25.72%)
+>    Buffer too small                 154218 (25.41%)
+>    Buffer too small (remote)        154218 (25.41%)
+>              8KB    16KB    32KB    64KB   128KB   256KB   512KB  >512KB
+>    Bufs        0       0       0       0       0       0       4       0
+>    Reqs   323.6K  13.26K  6.979K  50.84K  19.43K  14.46K  8.231K  81.80K
+> 
+> 2) using 4MB snd_buf and 6MB recv_buf for SMC-R, default(4MB snd_buf/6MB recv_buf) for TCP:
+>   SMC-R performance vs TCP performance = 29.35 steps/s vs 24.85 steps/s
+> 
+> ps smcr stat:
+> RX Stats
+>    Data transmitted (Bytes)   110853495554 (110.9G)
+>    Total requests                  1165230
+>    Buffer full                           0 (0.00%)
+>              8KB    16KB    32KB    64KB   128KB   256KB   512KB  >512KB
+>    Bufs        0       0       0       0       0       0       0       4
+>    Reqs   340.2K  29.65K  19.58K  76.32K  55.37K  39.15K  7.042K  43.88K
+> TX Stats
+>    Data transmitted (Bytes)   349072090590 (349.1G)
+>    Total requests                   922705
+>    Buffer full                      154765 (16.77%)
+>    Buffer full (remote)             309940 (33.59%)
+>    Buffer too small                  46896 (5.08%)
+>    Buffer too small (remote)         14304 (1.55%)
+>              8KB    16KB    32KB    64KB   128KB   256KB   512KB  >512KB
+>    Bufs        0       0       0       0       0       0       0       4
+>    Reqs   420.8K  11.15K  3.609K  12.28K  13.05K  26.08K  22.13K  240.3K
+> 
+> worker smcr stat:
+> RX Stats
+>    Data transmitted (Bytes)   349072090590 (349.1G)
+>    Total requests                   585165
+>    Buffer full                           0 (0.00%)
+>              8KB    16KB    32KB    64KB   128KB   256KB   512KB  >512KB
+>    Bufs        0       0       0       0       0       0       0       4
+>    Reqs   155.4K  13.42K  4.070K  4.462K  3.628K  9.720K  12.01K  165.0K
+> TX Stats
+>    Data transmitted (Bytes)   110854684711 (110.9G)
+>    Total requests                  1052628
+>    Buffer full                       34760 (3.30%)
+>    Buffer full (remote)              77630 (7.37%)
+>    Buffer too small                  22330 (2.12%)
+>    Buffer too small (remote)          7040 (0.67%)
+>              8KB    16KB    32KB    64KB   128KB   256KB   512KB  >512KB
+>    Bufs        0       0       0       0       0       0       0       4
+>    Reqs   666.3K  38.43K  20.65K  135.1K  54.19K  36.69K  3.948K  56.42K
+> 
+> 
+>  From the above smcr stat, we can see quantities send/recv with large size more than 512KB, and quantities send blocked due to
+> buffer full or buffer too small. And when configured with larger send/recv buffer, we get less send block and better performance.
+> 
+That is exactly what I asked for, thank you for the details! Please give 
+me some days to try by ourselves. If the performance is also significant 
+as yours and no other side effect, why not?!
