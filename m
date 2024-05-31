@@ -1,162 +1,110 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 167E214F9EE;
-	Fri, 31 May 2024 08:35:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23406155A53;
+	Fri, 31 May 2024 08:54:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717144530; cv=none; b=bu6JTXXA+s86mQ2uQinmlWG628n3CLnD+3PMIkGwPnkqw6Su06TQ9GPOt4JvJCQF9J2GJVtoMAB3PwitoJfxUGLO1oYxNixOad8c0czl0yhDXYJeGSHcQmPsYBa4PaL7nEhdGQb6SE+DptI66cZHkTfit7EOVR1tB7rYETqR4C4=
+	t=1717145682; cv=none; b=jXpHZXaN/U1O3vSaFI1/67CDQKE7H5hOsWKw790vI884KeH92tjoVqeLC8bvWaZTpmFU8BlKnR4FbxB4l56VaKSrlolTyBWZNIQ2e3zwXw3PT56XP4HgGi9EJ9ssZfbgmA9I468jQV11J/LpwxC6o6F3ezAyAMUMJ836mIjUXQc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717144530; c=relaxed/simple;
-	bh=HQvoDqK60c0HziAFW58bTtlxbgZFzYALbQqMlQCXe34=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=HXPKtneyF00VtjICWs74pBWdVh5PH0eBEMpcAwYqlI3AXNVIJYB1zw39QmcYxHbEPjKy8JuFEbFRRr87kpHBbtkUY63a5OlzRV+Aia2j7cT7m1+QE0g9KT9L4yXd4T/5TxwGkIaieKS35WVu5bc57XxFsBXPigtWh4D1bkWz0Co=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Cw4xuoEw; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1717145682; c=relaxed/simple;
+	bh=JFEYnpKVhC3OKPMmlFbiYqQ6JmpSsmBSmRlLuUInyTk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=XgbkS4HAlyQ0OnmJmHoHmYamjzNqY8zDvGmjCMax69iXQgIjEUJkps17Mi/XubLUGtJWmE1aDaDRWyS4jfyh6bUcGBseQmf1SSHBHPU864cdKdtvQSgKJ8v0PTANvMRPAopzoRxAHJSXx7rL87rYPRoU26xkYtOzBu6jAXl3VZ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=E6Q56tQl; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Cw4xuoEw"
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 44V87KPv031165;
-	Fri, 31 May 2024 08:35:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc :
- content-transfer-encoding : content-type : date : from : in-reply-to :
- message-id : mime-version : references : subject : to; s=pp1;
- bh=1y6y1eXrv6sruReBVh9hGh2wEZ2WHcWE1MoRbCvgWQo=;
- b=Cw4xuoEwtmNtZUYbm/VKLDZwx6lhKZdcMNWv+DGntOlaMuFXLd3iLjW/PBHFDMLEmZpe
- gDKuDl/9ahfu074EN5Y6DxmC5EWcZA1AB6+VVIE34tdu7TVKZ/fq82/ospRpFC8O/Hgq
- /DgrcZC4SXzUiykRnK1AcQ1ENJkSq48CYjOchWbgetAgr12E2GQ6dBmTd0wIAJaUaS96
- FMK2K4QymrgUb2hZijjEfxn6rJIjVpiT5/8Q7lMd/RXISUiPE/ojSLLaMasSHtPoC/ef
- bYdVSRok5TazeZFSbP9wwR8j1+8CsIaPeZ81G4iT08nrPFUA2e4kj5LLAdezIAatl3+C iQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yfarr02bp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 May 2024 08:35:24 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 44V8ZNRv012833;
-	Fri, 31 May 2024 08:35:23 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yfarr02ba-6
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 May 2024 08:35:23 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 44V56l9Q006890;
-	Fri, 31 May 2024 08:06:50 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ydpebprgk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 May 2024 08:06:50 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 44V86lE412845622
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 31 May 2024 08:06:49 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E6C635806D;
-	Fri, 31 May 2024 08:06:46 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6C6755805B;
-	Fri, 31 May 2024 08:06:44 +0000 (GMT)
-Received: from [9.171.25.186] (unknown [9.171.25.186])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 31 May 2024 08:06:44 +0000 (GMT)
-Message-ID: <882713c2-02bd-4396-83be-c527b9d24eef@linux.ibm.com>
-Date: Fri, 31 May 2024 10:06:43 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v5 0/3] Introduce IPPROTO_SMC
-To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com, wintera@linux.ibm.com, guwen@linux.alibaba.com
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
-References: <1717061440-59937-1-git-send-email-alibuda@linux.alibaba.com>
- <bd80b8f9-9c86-4a9b-a7ba-07471dcd5a7c@linux.alibaba.com>
-Content-Language: en-US
-From: Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <bd80b8f9-9c86-4a9b-a7ba-07471dcd5a7c@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: _BZ4CaLMBLezEpodBiGmWMvgj76_bl20
-X-Proofpoint-GUID: 0bX0-E3mnhLzEtiWJDaFgvmShrW_jIq9
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="E6Q56tQl"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1717145670; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=u45yl/ongPk3D/+8eUViTWu0t7iGmxovN58bXNXSZhI=;
+	b=E6Q56tQlOz9ZCIS3rCuk651obBOfEO9XZciEF0mskSpsVfJUJmcdtKnarL748g57sjlYfVvfjzqKrsndHPT3177ZyxjhR61/Xkeb07324ZVsZLewgVYxpLs6jX7PyhM4DczHEP5Bnln2OHMYFW1R7CjPg5xQ0HEgmTwEQS6JQGg=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W7ZRJhf_1717145657;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W7ZRJhf_1717145657)
+          by smtp.aliyun-inc.com;
+          Fri, 31 May 2024 16:54:30 +0800
+From: Wen Gu <guwen@linux.alibaba.com>
+To: gbayer@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com
+Cc: alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net] net/smc: avoid overwriting when adjusting sock bufsizes
+Date: Fri, 31 May 2024 16:54:17 +0800
+Message-Id: <20240531085417.43104-1-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
- definitions=2024-05-31_04,2024-05-30_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- malwarescore=0 priorityscore=1501 mlxlogscore=999 lowpriorityscore=0
- bulkscore=0 phishscore=0 adultscore=0 impostorscore=0 spamscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2405010000 definitions=main-2405310064
+Content-Transfer-Encoding: 8bit
 
+When copying smc settings to clcsock, avoid setting clcsock's sk_sndbuf
+to sysctl_tcp_wmem[1], since this may overwrite the value set by
+tcp_sndbuf_expand() in TCP connection establishment.
 
+And the other setting sk_{snd|rcv}buf to sysctl value in
+smc_adjust_sock_bufsizes() can also be omitted since the initialization
+of smc sock and clcsock has set sk_{snd|rcv}buf to smc.sysctl_{w|r}mem
+or ipv4_sysctl_tcp_{w|r}mem[1].
 
-On 30.05.24 12:14, D. Wythe wrote:
-> 
-> 
-> On 5/30/24 5:30 PM, D. Wythe wrote:
->> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>
->> This patch allows to create smc socket via AF_INET,
->> similar to the following code,
->>
->> /* create v4 smc sock */
->> v4 = socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
->>
->> /* create v6 smc sock */
->> v6 = socket(AF_INET6, SOCK_STREAM, IPPROTO_SMC);
-> 
-> Welcome everyone to try out the eBPF based version of smc_run during 
-> testing, I have added a separate command called smc_run.bpf,
-> it was equivalent to normal smc_run but with IPPROTO_SMC via eBPF.
-> 
-> You can obtain the code and more info from: 
-> https://github.com/D-Wythe/smc-tools
-> 
-> Usage:
-> 
-> smc_run.bpf
-> An eBPF implemented smc_run based on IPPROTO_SMC:
-> 
-> 1. Support to transparent replacement based on command (Just like smc_run).
-> 2. Supprot to transparent replacement based on pid configuration. And 
-> supports the inheritance of this capability between parent and child 
-> processes.
-> 3. Support to transparent replacement based on per netns configuration.
-> 
-> smc_run.bpf COMMAND
-> 
-> 1. Equivalent to smc_run but with IPPROTO_SMC via eBPF
-> 
-> smc_run.bpf -p pid
-> 
->   1. Add the process with target pid to the map. Afterward, all socket() 
-> calls of the process and its descendant processes will be replaced from 
-> IPPROTO_TCP to IPPROTO_SMC.
->   2. Mapping will be automatically deleted when process exits.
->   3. Specifically, COMMAND mode is actually works like following:
-> 
->      smc_run.bpf -p $$
->      COMMAND
->      exit
-> 
-> smc_run.bpf -n 1
-> 
->   1. Make all socket() calls of the current netns to be replaced from 
-> IPPROTO_TCP to IPPROTO_SMC.
->   2. Turn off it by smc_run.bpf -n 0
-> 
-> 
-Hi D. Wythe,
+Fixes: 30c3c4a4497c ("net/smc: Use correct buffer sizes when switching between TCP and SMC")
+Link: https://lore.kernel.org/r/5eaf3858-e7fd-4db8-83e8-3d7a3e0e9ae2@linux.alibaba.com
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
+FYI,
+The detailed motivation and testing can be found in the link above.
+---
+ net/smc/af_smc.c | 22 ++--------------------
+ 1 file changed, 2 insertions(+), 20 deletions(-)
 
-Thank you for the info and description! The code generally looks good to 
-me, just still some details I need to check again. And I'd like to give 
-smc_run.bpf a try, and maybe let you know if it works for me next week.
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 9389f0cfa374..a35281153067 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -459,29 +459,11 @@ static int smc_bind(struct socket *sock, struct sockaddr *uaddr,
+ static void smc_adjust_sock_bufsizes(struct sock *nsk, struct sock *osk,
+ 				     unsigned long mask)
+ {
+-	struct net *nnet = sock_net(nsk);
+-
+ 	nsk->sk_userlocks = osk->sk_userlocks;
+-	if (osk->sk_userlocks & SOCK_SNDBUF_LOCK) {
++	if (osk->sk_userlocks & SOCK_SNDBUF_LOCK)
+ 		nsk->sk_sndbuf = osk->sk_sndbuf;
+-	} else {
+-		if (mask == SK_FLAGS_SMC_TO_CLC)
+-			WRITE_ONCE(nsk->sk_sndbuf,
+-				   READ_ONCE(nnet->ipv4.sysctl_tcp_wmem[1]));
+-		else
+-			WRITE_ONCE(nsk->sk_sndbuf,
+-				   2 * READ_ONCE(nnet->smc.sysctl_wmem));
+-	}
+-	if (osk->sk_userlocks & SOCK_RCVBUF_LOCK) {
++	if (osk->sk_userlocks & SOCK_RCVBUF_LOCK)
+ 		nsk->sk_rcvbuf = osk->sk_rcvbuf;
+-	} else {
+-		if (mask == SK_FLAGS_SMC_TO_CLC)
+-			WRITE_ONCE(nsk->sk_rcvbuf,
+-				   READ_ONCE(nnet->ipv4.sysctl_tcp_rmem[1]));
+-		else
+-			WRITE_ONCE(nsk->sk_rcvbuf,
+-				   2 * READ_ONCE(nnet->smc.sysctl_rmem));
+-	}
+ }
+ 
+ static void smc_copy_sock_settings(struct sock *nsk, struct sock *osk,
+-- 
+2.32.0.3.g01195cf9f
 
-Thanks,
-Wenjia
