@@ -1,45 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8845134BC;
-	Sat,  1 Jun 2024 08:35:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F65E14E2E4;
+	Sat,  1 Jun 2024 13:06:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717230924; cv=none; b=C5nsxuqg5txRmpHMwWMiG3HWU7J14WpLS6UFWvOeTXbHrqhQw7Z4tJmt1cmiX/kIOT6kaFkxz+M+JvFIE3O4dNzCDY+iPsd+eHX6WXX0QtkZ3tTSdRh90pTHuqO/bgfgt8biHT8r+mwOwovMwMr/A2xaUsuyKtdXG6FpTP7v2PE=
+	t=1717247194; cv=none; b=iskFkcM7zSJMeKFCU5Q9yvMhd26qlIeZGE8R/RFFGDD+3eDFk9so9RmtsqMqDCEav4RpnphKbmdSNOuBTpeBNahALBQXKvC779U5++DqM8J8wb8MfjgAFgXOYIaHL+5Gyx5fE8h6mIEfyQSpnivbuU/oB9AU0KAXaCITahCDH2s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717230924; c=relaxed/simple;
-	bh=i6QXw0K5kD5BqtAZxeo4zpXZBwWLBWtzp1J9e0muU8c=;
+	s=arc-20240116; t=1717247194; c=relaxed/simple;
+	bh=pUHMnLaHbw8fQVrrxom6RhMVZBz2hDqPwbP8h+otBQs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MsWQlqva6K/vhYefX1zg+m7H7wslf6kDTIA+NbT43jbKcNSXPFcTkqoOKrt8j9k3ABbJy0SmJOXyiTvfFawk2wwjhZAznP7Lm7Uj7oKWMoTJiiOL35D/j2f697ytP0sSnNYQFnxJn4bvdlwikVZ5KMr8QDAVGuHv/7DXiC9gakU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=t33ghpcn; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=d382zeuIbUPXFdC1wBjzEl7dZa/VRtvN5I7s8pdTtfCwOGok3EoffuwD5TTm67KMkBQgGU//gA27le1sJA2sJ0uoo8v3Lv8RLijaU7nXTzeliryCJO4bPFkOHi0fNB35i4oER/gWyO9HbhmxsnrUzSAy0EHOqgHgujiuaAckl7o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C745STl5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="t33ghpcn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E2F7C116B1;
-	Sat,  1 Jun 2024 08:35:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C745STl5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93421C116B1;
+	Sat,  1 Jun 2024 13:06:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1717230923;
-	bh=i6QXw0K5kD5BqtAZxeo4zpXZBwWLBWtzp1J9e0muU8c=;
+	s=k20201202; t=1717247193;
+	bh=pUHMnLaHbw8fQVrrxom6RhMVZBz2hDqPwbP8h+otBQs=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=t33ghpcnE/BmCqaAshrQt17eVB2iwIAhBihh8ANAqgvrW4XD6/WzPzv+ZI2bxvs6/
-	 wzuDIYcORClcDYgFhJKGsq1Wh7GnTciiLgKXNKhExNdR5tbfz5eLAg+Pr1qupo9oOx
-	 q97iT3Vl+4eEJejchQbdxGFYU9S8yK3k7/QlmFqj7cb6KLwqJPff960P6jZiXAaSDZ
-	 qyzGupR6m9hLvhOLioR0cYZjYD7CAP4dOdk5gO5pFTZPxx4VjJ6lzyGAeqddh6vGI+
-	 90O1nLsAOO8XJD7N5lBT9L6sAcemJe0q3+m+iKIeHK3AvbZEc0BrP9yzo6DPvB2SJh
-	 w1tjKH6vzJi6g==
-Date: Sat, 1 Jun 2024 09:35:17 +0100
+	b=C745STl5epF6aTYeO8Z9UCteuLF1VypR0q76OamDulIddu6EGywENXKWxFO5qZnpT
+	 eTxA0XIwAzafejYUfk6H1h3Jp82Fzs70gMQ5dioQQfCc9vGwQ8y4lKJKphX+Gzt4go
+	 aLChAKfyBMF0x0p/SuJg94gp7o23i43qfgCTUfj921SwUPtO6Ve/KnWyfzHxq1yiuY
+	 KDcoaXHMd+5ST36ksBFPO7l+EfJ37gioTffV9r91MOBdFYRiDFDhnS3DuljU3HqMhL
+	 XZzDnzcZ3jkvV+3JF7zsC65K62/uDTrUSTBI4r09K4QPapIjbw2StSnbrE44YzKdVl
+	 eTnCesujt/SXQ==
+Date: Sat, 1 Jun 2024 14:06:28 +0100
 From: Simon Horman <horms@kernel.org>
-To: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	kgraul@linux.ibm.com, alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next 1/2] net/smc: set rmb's SG_MAX_SINGLE_ALLOC
- limitation only when CONFIG_ARCH_NO_SG_CHAIN is defined
-Message-ID: <20240601083517.GX491852@kernel.org>
-References: <20240528135138.99266-1-guangguan.wang@linux.alibaba.com>
- <20240528135138.99266-2-guangguan.wang@linux.alibaba.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+	wintera@linux.ibm.com, guwen@linux.alibaba.com, kuba@kernel.org,
+	davem@davemloft.net, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+	tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
+Subject: Re: [PATCH net-next v4 3/3] net/smc: Introduce IPPROTO_SMC
+Message-ID: <20240601130628.GK491852@kernel.org>
+References: <1716955147-88923-1-git-send-email-alibuda@linux.alibaba.com>
+ <1716955147-88923-4-git-send-email-alibuda@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,36 +46,75 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240528135138.99266-2-guangguan.wang@linux.alibaba.com>
+In-Reply-To: <1716955147-88923-4-git-send-email-alibuda@linux.alibaba.com>
 
-On Tue, May 28, 2024 at 09:51:37PM +0800, Guangguan Wang wrote:
-> SG_MAX_SINGLE_ALLOC is used to limit maximum number of entries that
-> will be allocated in one piece of scatterlist. When the entries of
-> scatterlist exceeds SG_MAX_SINGLE_ALLOC, sg chain will be used. From
-> commit 7c703e54cc71 ("arch: switch the default on ARCH_HAS_SG_CHAIN"),
-> we can know that the macro CONFIG_ARCH_NO_SG_CHAIN is used to identify
-> whether sg chain is supported. So, SMC-R's rmb buffer should be limitted
-
-Hi Guangguan Wang,
-
-As it looks like there will be a v2:
-
-In this patch: limitted -> limited
-In patch 2/2:  defalut -> default
-
-checkpatch.pl --codespell is your friend.
-
-> by SG_MAX_SINGLE_ALLOC only when the macro CONFIG_ARCH_NO_SG_CHAIN is
-> defined.
+On Wed, May 29, 2024 at 11:59:07AM +0800, D. Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
 > 
-> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-> Co-developed-by: Wen Gu <guwen@linux.alibaba.com>
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-> Fixes: a3fe3d01bd0d ("net/smc: introduce sg-logic for RMBs")
+> This patch allows to create smc socket via AF_INET,
+> similar to the following code,
+> 
+> /* create v4 smc sock */
+> v4 = socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
+> 
+> /* create v6 smc sock */
+> v6 = socket(AF_INET6, SOCK_STREAM, IPPROTO_SMC);
+> 
+> There are several reasons why we believe it is appropriate here:
+> 
+> 1. For smc sockets, it actually use IPv4 (AF-INET) or IPv6 (AF-INET6)
+> address. There is no AF_SMC address at all.
+> 
+> 2. Create smc socket in the AF_INET(6) path, which allows us to reuse
+> the infrastructure of AF_INET(6) path, such as common ebpf hooks.
+> Otherwise, smc have to implement it again in AF_SMC path.
+> 
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 
-I think it is usual to put the fixes tag above the Signed-of tags,
-although I don't see anything about that in [1].
+...
 
-[1] https://www.kernel.org/doc/html/latest/process/submitting-patches.html#using-reported-by-tested-by-reviewed-by-suggested-by-and-fixes
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+
+...
+
+> @@ -3594,9 +3595,31 @@ static int __init smc_init(void)
+>  		goto out_lo;
+>  	}
+>  
+> +	rc = proto_register(&smc_inet_prot, 1);
+> +	if (rc) {
+> +		pr_err("%s: proto_register smc_inet_prot fails with %d\n", __func__, rc);
+
+Hi,
+
+FWIIW, my feeling is that if a log message includes __func__ then it should
+be a debug level message, and even then I'm dubious about the value of
+__func__: we do have many tools including dynamic tracing or pinpointing
+problems.
+
+So I would suggest rephrasing this message and dropping __func__.
+Or maybe removing it entirely.
+Or if not, lowering the priority of this message to debug.
+
+If for some reason __func__ remains, please do consider wrapping
+the line to 80c columns or less, which can be trivially done here
+(please don't split the format string in any case).
+
+Flagged by checkpatch.pl --max-line-length=80
+
+> +		goto out_ulp;
+> +	}
+> +	inet_register_protosw(&smc_inet_protosw);
+> +#if IS_ENABLED(CONFIG_IPV6)
+> +	rc = proto_register(&smc_inet6_prot, 1);
+> +	if (rc) {
+> +		pr_err("%s: proto_register smc_inet6_prot fails with %d\n", __func__, rc);
+
+Here too.
+
+> +		goto out_inet_prot;
+> +	}
+> +	inet6_register_protosw(&smc_inet6_protosw);
+> +#endif
 
 ...
