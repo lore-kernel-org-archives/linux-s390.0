@@ -1,66 +1,66 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8CFB8595B;
-	Mon,  3 Jun 2024 11:54:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 884FB84A49
+	for <linux-s390@vger.kernel.org>; Mon,  3 Jun 2024 11:56:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717415657; cv=none; b=OiTsfaTfulf/ZJA/Ft0tDNMz+9hqoz2LhjkhEM10uZIt/rbtxLBtlW8UhJeYd8FQxqaJcxTNzwFCvWqwUFwKZvQviLqB9tcp6Q49OB8UcdPCdQziLAJ3xVOZJefgderd6b9BNq6UI70JfTyyxDbjCvncQwFLNHPElhHYRxrZGDU=
+	t=1717415770; cv=none; b=BvvLyDdpdG2PMIoUPSdIX4J3nzeuuw6J8oUTSW54B9o2KmQx3Xi/dUcZ8z+QnmX2O339N+6gEeKihbwoEbQuIzDBtQjvswK24z3UE+UFAzoM+6Y5n+T9Bi7F8oI4SLQVoii7dKBGNQ04NNeeLlxBk2wFn+BcLfQ9eZYpqMlxL6Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717415657; c=relaxed/simple;
-	bh=2sBFMjDZ1M5Cv9zG9zNE0OXVDXeuvivmxzduiNPwO8M=;
+	s=arc-20240116; t=1717415770; c=relaxed/simple;
+	bh=XJEC/B4uhAgLk6EAxMOUwh3tuLIakX/Zi7ywfYEhcVM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=e28N/ZpghiPVw9K0qLBX3sCr5P0K2p4xLluVxt0ABJwiNXInK3aD6sVshnkO8Focht3cXbVlcFphu6sDYJkWaiC3mNrp3EAFGXmmG0PWDvV4N5iPVTS2ZmmBChOwKQWoqiRWBm9qEMLTF4cAr7HBQmxBKek3b2hYURoj9GNbWaE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=E64knQvs; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=SWt/BI5iK7TSFoQliMlCkatVfQpf+Gn6yJTlpOlKf9bk0QqRIM7qPQMNF+AcnCj8TdhnwoWwgyLaHom7n3fsbDLmrzbcYzpRScm+ySWJnFdsToAuplGAYM9imYPG0JhEGAeIktKL7Je62f1h+BkECG376QBJVzq4LGpOoMGiqEk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FIEYVpWz; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="E64knQvs"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 453BoeQd015642;
-	Mon, 3 Jun 2024 11:54:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc :
- content-transfer-encoding : content-type : date : from : in-reply-to :
- message-id : mime-version : references : subject : to; s=pp1;
- bh=CAnWL9HpPtXZDoD2tqvp91DiN5lz6o6gdafPn+E9V1k=;
- b=E64knQvs7hdHmucH17H23fVFzyWq76KkN4B0YXoQCovQDrQumd3pqRLPhPYJ/1vgIz8I
- fQbZY/TBjKz+hn2f8WkCSubw2DpNnCXCypSuLpiFHw0gkkzV9TxF2HHcUrPKTzrF4wEg
- xifN7JI7ve26ZrpnqYJ257jbyzOEiFhUMPdyVfo/aVNaNeybSVNpuK9s+X2xdL+FlZ1t
- U6ept8n+Zk1FnwxmWpX5tkVk/RZc5QpZ7dmdufMYilt8FbDjLpfILvOf63AMip76XUW0
- ONed5K/OoU2X5gabI61f3ogeECu3QsqwhlN+YlZJLazKXWLLk3Fn46hiWEtuSlXRiUOX 4Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yhctt02t1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Jun 2024 11:54:14 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 453Bqusl018302;
-	Mon, 3 Jun 2024 11:54:14 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yhctt02t0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Jun 2024 11:54:14 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 453AqD7a022786;
-	Mon, 3 Jun 2024 11:54:13 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ygg6kyapp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Jun 2024 11:54:13 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 453Bs7K745416922
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Jun 2024 11:54:09 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B35F820043;
-	Mon,  3 Jun 2024 11:54:07 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6552D20040;
-	Mon,  3 Jun 2024 11:54:07 +0000 (GMT)
-Received: from [9.171.88.151] (unknown [9.171.88.151])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Jun 2024 11:54:07 +0000 (GMT)
-Message-ID: <5b63cc59-88ec-45a6-947f-7f44e8e0bbf3@linux.ibm.com>
-Date: Mon, 3 Jun 2024 13:54:07 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FIEYVpWz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1717415767;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=O8e5+PKQhh8KirLRZQvLEvNDQfhGdSve44+Cczu7Yxk=;
+	b=FIEYVpWzs+vihxCP7hx3r0NaI33mX2HTkJYoMTM4i5PFRi+DgieEkbmUvnoh+BaehQa4gn
+	7gvwXE8GLFiLF9QhJLal7JWRA6MHgxD7wKw4GhR3IBnF/PB+PAMfeDJCTqtnest8dCD6hJ
+	F7ck44ygMeebeXG5o+DF0WJT9YANSCg=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-601-1CxxjrFjPjuUxPlG7Simxg-1; Mon, 03 Jun 2024 07:56:06 -0400
+X-MC-Unique: 1CxxjrFjPjuUxPlG7Simxg-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-35dca4a8f2dso2272581f8f.3
+        for <linux-s390@vger.kernel.org>; Mon, 03 Jun 2024 04:56:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1717415765; x=1718020565;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=O8e5+PKQhh8KirLRZQvLEvNDQfhGdSve44+Cczu7Yxk=;
+        b=u0aE96KooNwetceoNcgPC2/sJMD8ExDE1AKErxJDrKSGzLx9MwehObWvlWJLPhn6Jm
+         81BwSj8hJN1Bfjz05W/TQah9mc9x1p/RkBfxbDN4M5mt4Euoq4ouQoNvPG041Ys1sBvd
+         tDxQIq9rNHtJ08eq0B0JCQAyySD5i1HthQKevVGl5kRgnteDOpuV1zFzvvbfgP5jkKnS
+         qDNzedjXXYGH2eKzEKTrrmF68l88ngbsNm0m6Ymr0/zllm2BWsXO460iSoLv6ITCVpPz
+         0aJ0Z3ySzs5H1YyX3rOzVfy/Fy5t698NRE1yzKRh2R0IZtIoh+/jVBi5iRJsipFjqfOZ
+         2q6A==
+X-Forwarded-Encrypted: i=1; AJvYcCUE2KT0DYT0fjGwFPdqO6oAX3/CLH9F9v7Rwgec3NiIa6/TruMObC6MopO/+7icqLq2CPfDY/4aGOijEZwlcWNo8HUbL0He7G4+Lg==
+X-Gm-Message-State: AOJu0YxDOLO0p/K3CuH667C/vjRU4L+OHGs1k7VAYl+S/MGjtq3khhOg
+	fim7tkO0p13Wvw2DiN/R+pgKiBK+CjY20x2SsB6mjYh3qJnuPjkdDd9Amvjj0AO230drAqGu8zM
+	MCHIQtRww26Dd+Vj5I9K9kkfKi4Zhs+Z68neqRnItgaXuDPN2OLY3ccFmHcI3vF2F79k=
+X-Received: by 2002:adf:a189:0:b0:346:92d2:a496 with SMTP id ffacd0b85a97d-35e0f2852f6mr6150357f8f.29.1717415764871;
+        Mon, 03 Jun 2024 04:56:04 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFuWqIirAQ+VHnp40beRP4/AfgO/I/Awh5FXaoVZpoFOgAsvmH14g2EzP1NeRHPVksYNF9cGw==
+X-Received: by 2002:adf:a189:0:b0:346:92d2:a496 with SMTP id ffacd0b85a97d-35e0f2852f6mr6150336f8f.29.1717415764470;
+        Mon, 03 Jun 2024 04:56:04 -0700 (PDT)
+Received: from [192.168.0.4] (ip-109-43-176-229.web.vodafone.de. [109.43.176.229])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-35dd04c4388sm8692285f8f.14.2024.06.03.04.56.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 Jun 2024 04:56:04 -0700 (PDT)
+Message-ID: <cebdd4e9-4754-47a6-86c8-283eddd797f8@redhat.com>
+Date: Mon, 3 Jun 2024 13:56:02 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,86 +68,79 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH 1/2] s390x: Only run genprotimg if
- necessary
-To: Nicholas Piggin <npiggin@gmail.com>, linux-s390@vger.kernel.org
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        =?UTF-8?Q?Nico_B=C3=B6hr?=
- <nrb@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>,
-        kvm@vger.kernel.org
-References: <20240602130656.120866-1-npiggin@gmail.com>
- <20240602130656.120866-2-npiggin@gmail.com>
+Subject: Re: [kvm-unit-tests PATCH] scripts/s390x: Fix the execution of the PV
+ tests
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
+ =?UTF-8?Q?Nico_B=C3=B6hr?= <nrb@linux.ibm.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>, linux-s390@vger.kernel.org,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ Marc Hartmayer <mhartmay@linux.ibm.com>
+References: <20240603075944.150445-1-thuth@redhat.com>
+ <b3444016-91b5-40cc-a4f2-9cb0f5c0cc28@linux.ibm.com>
 Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20240602130656.120866-2-npiggin@gmail.com>
+From: Thomas Huth <thuth@redhat.com>
+Autocrypt: addr=thuth@redhat.com; keydata=
+ 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
+In-Reply-To: <b3444016-91b5-40cc-a4f2-9cb0f5c0cc28@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: JyGQIDLE_NA-KaT0BZf0ebSZNgjP_-Bn
-X-Proofpoint-GUID: a8P22Sczo6K3E6evYPT_CaJhsxaxMtTD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
- definitions=2024-06-03_08,2024-05-30_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 spamscore=0 adultscore=0
- mlxlogscore=883 phishscore=0 clxscore=1015 malwarescore=0 impostorscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2405010000 definitions=main-2406030099
 
-On 6/2/24 15:06, Nicholas Piggin wrote:
-> genprotimg is not required if the --host-key-document= configure option
-> is not specified, so avoid running it in that case. This prevents the
-> build message:
+On 03/06/2024 13.05, Janosch Frank wrote:
+> On 6/3/24 09:59, Thomas Huth wrote:
+>> Commit ccb37496 ("scripts: allow machine option to be specified in
+>> unittests.cfg") added an additonal parameter (the "machine"), but
+>> we forgot to add it to the spot that runs the PV test cases, so
+>> those are currently broken without this fix.
+>>
+>> Fixes: ccb37496 ("scripts: allow machine option to be specified in 
+>> unittests.cfg")
+>> Signed-off-by: Thomas Huth <thuth@redhat.com>
 > 
->    bash: line 1: genprotimg: command not found
-> 
-> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> LGTM
+> Has this issue come up in the Gitlab CI or in your internal CI?
 
-This solves the immediate problem but I think we're really missing a lot 
-more checks in the makefile and configure to sanitize the SE option space.
+Gitlab CI does not run the PV tests yet - I just noticed it while running 
+the tests on the s390x machine that I've got access to.
 
-Anyway:
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+  Thomas
+
