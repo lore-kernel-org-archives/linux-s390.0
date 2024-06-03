@@ -1,134 +1,192 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B667013211F;
-	Mon,  3 Jun 2024 15:50:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5B9841366;
+	Mon,  3 Jun 2024 17:34:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717429825; cv=none; b=mc9ljL5ZOIU6Cam0o7jccq/4uqUj9csoL5y2Ndn7SY4+BrmLiItKG0xZB3I5MDJvXGdUBuM78pODI//yZp4kI9LD6DcGp99R5O5M4mLAXCyQ9kdfnSespKAt5swhcgnRfPXBXt2SRoXmk6IpBVdx8zu+NdZN6hg/X6QO6++rNsQ=
+	t=1717436098; cv=none; b=FCfTHfEDddyBQEn1WhZnWryYKueBt1KPLCbSY+3BereApdu77pBzVVv3L5aKUkaPr3fKJMD3vRAG3zd7Q5LLW+b2reG/syj4QAVUYt0dpSeiVT1CjjEJNZhQWruUVcdAapozOdsZbudnrk7PsEiue9rH2ggaKjvft+KM0at6uXE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717429825; c=relaxed/simple;
-	bh=09GW141vyhA3TWVs31bX+SwPdXlmzElACeiTQ7Wkt5U=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nNj+Y4nvKe0Mj9J14FZOptjoTJFwZ24evBayO3k7qhrVto3QG7N3R4mqA5xx22XGl+4mzGkCFalOwhCDx3XB7nwfiYWl3mAuH5rgrR4owC4QxA8qpfGGIWGorgZRaG5Uvt6nOy39kXfZaog8Wdo/tnL5S85rHDPsXA77dzZ/HeU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QwdmpTse; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1717436098; c=relaxed/simple;
+	bh=DKulNpWMB5g4h3LO0UnPAP8vpdAsv+ZuVpLPHeUsdwQ=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=M5XH+hIln6mlA4WGV/JhOO/EonsIduLgZHDrUlZAeQ7PmkPS4batJRkkVZEsNCt64qWewd77f3Nsn0WvmmDYM/IIm/SLCqu9RodrycAo2f5o+S8DJtw/YaN54OgdCj4NXt+ct9P12fTPu41eIuKs77zxP/F7AcOa+AxicHiMpgA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=arwB9k2c; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QwdmpTse"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 453EML8h011843;
-	Mon, 3 Jun 2024 15:50:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc :
- content-transfer-encoding : content-type : date : from : in-reply-to :
- message-id : mime-version : references : subject : to; s=pp1;
- bh=ePULW9uS93kgG+OIgTAxeB/WyHwiznBkNJw1F1YpuBE=;
- b=QwdmpTseb4DoqUJZONNMyuTdOn1J31an/jDi+UobJiCyf74Hspz5UtUeCSG3XdegDFug
- /ocHPQ+NDJJZRtQI6WVbyOnQoQo4ODl3gCVBjdkhF2TDXEt3zZPikUz2J9t10IibTKrs
- y45w0qZoW05psOZYrC0HtUQgOytIqU7DYjm3AHNUiw7w2BH/TxPYXColqHcpjyBZ3fVf
- tRauuNhUJgdojrmahftaTWagN4zPKE/6h0EhGqU3HYeY2q0jqjtIaWfzZGxF+RZ/KrvN
- U0j6F5EQ73pZpG1Fv3fA9445yDqAt+Z4qxOg9zrJFHgL7NdihePu1ttXN5qCcxGxc9j4 SA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yhfhf08yd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Jun 2024 15:50:21 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 453FoKMe027561;
-	Mon, 3 Jun 2024 15:50:21 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yhfhf08yb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Jun 2024 15:50:20 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 453DsDn8022851;
-	Mon, 3 Jun 2024 15:50:20 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ygg6m0d8v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Jun 2024 15:50:19 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 453FoEY530212802
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Jun 2024 15:50:16 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6B1B32004D;
-	Mon,  3 Jun 2024 15:50:14 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B41CF20043;
-	Mon,  3 Jun 2024 15:50:13 +0000 (GMT)
-Received: from [9.171.29.243] (unknown [9.171.29.243])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Jun 2024 15:50:13 +0000 (GMT)
-Message-ID: <0a4622ce-3826-4b08-ab81-375887ab6a46@linux.ibm.com>
-Date: Mon, 3 Jun 2024 17:50:13 +0200
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="arwB9k2c"
+Received: from smtpclient.apple (d66-183-91-182.bchsia.telus.net [66.183.91.182])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 4684920681D5;
+	Mon,  3 Jun 2024 10:25:13 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 4684920681D5
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1717435514;
+	bh=4DfOU8aQl0aDoujS+l1W8I9cPbB9Sd5aNNyJFDGp/QQ=;
+	h=Subject:From:In-Reply-To:Date:Cc:References:To:From;
+	b=arwB9k2cp5qmOpH04JZQJkpaQ68dKr6NHq6/nWjIeKTEglSLJZbHneTkxRo0iYye3
+	 dopPLk66Mp6Cqqtct/3LWOtVyWSXCVY5VMtnmDbdTLbXrzM1H6t1A8KCeQ5Sp+gzGS
+	 Acr7rY4qAUIDkO+vSD/92kHIH7AgZovgYBJ1BnFc=
+Content-Type: text/plain;
+	charset=utf-8
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 0/3] vfio/pci: s390: Fix issues preventing
- VFIO_PCI_MMAP=y for s390 and enable it
-To: Niklas Schnelle <schnelle@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-References: <20240529-vfio_pci_mmap-v3-0-cd217d019218@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20240529-vfio_pci_mmap-v3-0-cd217d019218@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: yLwbTIUJCGJRQ7SW9Ff88cFp0q37B-SI
-X-Proofpoint-ORIG-GUID: cCbs5DZtHoS1VFTHzvR-EER9Z_FDY-XW
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
- definitions=2024-06-03_12,2024-05-30_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
- clxscore=1011 mlxscore=0 bulkscore=0 spamscore=0 suspectscore=0
- priorityscore=1501 malwarescore=0 lowpriorityscore=0 mlxlogscore=877
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2405010000 definitions=main-2406030131
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3774.600.62\))
+Subject: Re: [PATCH 9/9] mmc: Convert from tasklet to BH workqueue
+From: Allen Pais <apais@linux.microsoft.com>
+In-Reply-To: <7e618af0-51a7-4941-a386-0ac68c66d358@microchip.com>
+Date: Mon, 3 Jun 2024 10:25:02 -0700
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Tejun Heo <tj@kernel.org>,
+ Kees Cook <keescook@chromium.org>,
+ Vinod Koul <vkoul@kernel.org>,
+ marcan@marcan.st,
+ sven@svenpeter.dev,
+ florian.fainelli@broadcom.com,
+ Ray Jui <rjui@broadcom.com>,
+ Scott Branden <sbranden@broadcom.com>,
+ Paul Cercueil <paul@crapouillou.net>,
+ Eugeniy.Paltsev@synopsys.com,
+ manivannan.sadhasivam@linaro.org,
+ Viresh Kumar <vireshk@kernel.org>,
+ Frank.Li@nxp.com,
+ Leo Li <leoyang.li@nxp.com>,
+ zw@zh-kernel.org,
+ Zhou Wang <wangzhou1@hisilicon.com>,
+ haijie1@huawei.com,
+ Shawn Guo <shawnguo@kernel.org>,
+ Sascha Hauer <s.hauer@pengutronix.de>,
+ Sean Wang <sean.wang@mediatek.com>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ angelogioacchino.delregno@collabora.com,
+ =?utf-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>,
+ Logan Gunthorpe <logang@deltatee.com>,
+ Daniel Mack <daniel@zonque.org>,
+ Haojian Zhuang <haojian.zhuang@gmail.com>,
+ Robert Jarzmik <robert.jarzmik@free.fr>,
+ andersson@kernel.org,
+ konrad.dybcio@linaro.org,
+ Orson Zhai <orsonzhai@gmail.com>,
+ baolin.wang@linux.alibaba.com,
+ Lyra Zhang <zhang.lyra@gmail.com>,
+ Patrice CHOTARD <patrice.chotard@foss.st.com>,
+ Linus Walleij <linus.walleij@linaro.org>,
+ Chen-Yu Tsai <wens@csie.org>,
+ =?utf-8?Q?Jernej_=C5=A0krabec?= <jernej.skrabec@gmail.com>,
+ peter.ujfalusi@gmail.com,
+ kys@microsoft.com,
+ haiyangz@microsoft.com,
+ wei.liu@kernel.org,
+ decui@microsoft.com,
+ jassisinghbrar@gmail.com,
+ mchehab@kernel.org,
+ maintainers@bluecherrydvr.com,
+ ulf.hansson@linaro.org,
+ manuel.lauss@gmail.com,
+ mirq-linux@rere.qmqm.pl,
+ jh80.chung@samsung.com,
+ oakad@yahoo.com,
+ hayashi.kunihiko@socionext.com,
+ mhiramat@kernel.org,
+ brucechang@via.com.tw,
+ HaraldWelte@viatech.com,
+ pierre@ossman.eu,
+ duncan.sands@free.fr,
+ stern@rowland.harvard.edu,
+ oneukum@suse.com,
+ openipmi-developer@lists.sourceforge.net,
+ dmaengine@vger.kernel.org,
+ asahi@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org,
+ linux-rpi-kernel@lists.infradead.org,
+ linux-mips@vger.kernel.org,
+ imx@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org,
+ linux-mediatek@lists.infradead.org,
+ linux-actions@lists.infradead.org,
+ linux-arm-msm@vger.kernel.org,
+ linux-riscv@lists.infradead.org,
+ linux-sunxi@lists.linux.dev,
+ linux-tegra@vger.kernel.org,
+ linux-hyperv@vger.kernel.org,
+ linux-rdma@vger.kernel.org,
+ linux-media@vger.kernel.org,
+ linux-mmc@vger.kernel.org,
+ linux-omap@vger.kernel.org,
+ linux-renesas-soc@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org,
+ linux-usb@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <61F36002-C765-410C-8EF9-203593C269FF@linux.microsoft.com>
+References: <20240327160314.9982-1-apais@linux.microsoft.com>
+ <20240327160314.9982-10-apais@linux.microsoft.com>
+ <7e618af0-51a7-4941-a386-0ac68c66d358@microchip.com>
+To: Aubin Constans <aubin.constans@microchip.com>
+X-Mailer: Apple Mail (2.3774.600.62)
 
-Am 29.05.24 um 13:36 schrieb Niklas Schnelle:
-> With the introduction of memory I/O (MIO) instructions enbaled in commit
-> 71ba41c9b1d9 ("s390/pci: provide support for MIO instructions") s390
-> gained support for direct user-space access to mapped PCI resources.
-> Even without those however user-space can access mapped PCI resources
-> via the s390 specific MMIO syscalls. There is thus nothing fundamentally
-> preventing s390 from supporting VFIO_PCI_MMAP allowing user-space drivers
-> to access PCI resources without going through the pread() interface.
-> To actually enable VFIO_PCI_MMAP a few issues need fixing however.
-> 
-> Firstly the s390 MMIO syscalls do not cause a page fault when
-> follow_pte() fails due to the page not being present. This breaks
-> vfio-pci's mmap() handling which lazily maps on first access.
-> 
-> Secondly on s390 there is a virtual PCI device called ISM which has
-> a few oddities. For one it claims to have a 256 TiB PCI BAR (not a typo)
-> which leads to any attempt to mmap() it fail with the following message:
-> 
->      vmap allocation for size 281474976714752 failed: use vmalloc=<size> to increase size
-> 
-> Even if one tried to map this BAR only partially the mapping would not
-> be usable on systems with MIO support enabled. So just block mapping
-> BARs which don't fit between IOREMAP_START and IOREMAP_END.
-> 
-> Note:
-> For your convenience the code is also available in the tagged
-> b4/vfio_pci_mmap branch on my git.kernel.org site below:
-> https: //git.kernel.org/pub/scm/linux/kernel/git/niks/linux.git/
 
 
-I guess its now mostly a question of who picks those patches? Alex?
+> On Jun 3, 2024, at 5:38=E2=80=AFAM, Aubin Constans =
+<aubin.constans@microchip.com> wrote:
+>=20
+> On 27/03/2024 17:03, Allen Pais wrote:
+>> EXTERNAL EMAIL: Do not click links or open attachments unless you =
+know the content is safe
+>> The only generic interface to execute asynchronously in the BH =
+context is
+>> tasklet; however, it's marked deprecated and has some design flaws. =
+To
+>> replace tasklets, BH workqueue support was recently added. A BH =
+workqueue
+>> behaves similarly to regular workqueues except that the queued work =
+items
+>> are executed in the BH context.
+>> This patch converts drivers/infiniband/* from tasklet to BH =
+workqueue.
+>> Based on the work done by Tejun Heo <tj@kernel.org>
+>> Branch: https://git.kernel.org/pub/scm/linux/kernel/git/tj/wq.git =
+for-6.10
+>> Signed-off-by: Allen Pais <allen.lkml@gmail.com>
+>> ---
+>>  drivers/mmc/host/atmel-mci.c                  | 35 ++++-----
+> [...]
+>=20
+> For atmel-mci, judging from a few simple tests, performance is =
+preserved.
+> E.g. writing to a SD Card on the SAMA5D3-Xplained board:
+> time dd if=3D/dev/zero of=3D/opt/_del_me bs=3D4k count=3D64k
+>=20
+>     Base 6.9.0 : 0.07user 5.05system 0:18.92elapsed 27%CPU
+>  Patched 6.9.0+: 0.12user 4.92system 0:18.76elapsed 26%CPU
+>=20
+> However, please resolve what checkpatch is complaining about:
+> scripts/checkpatch.pl --strict =
+PATCH-9-9-mmc-Convert-from-tasklet-to-BH-workqueue.mbox
+>=20
+>  WARNING: please, no space before tabs
+>  #72: FILE: drivers/mmc/host/atmel-mci.c:367:
+>  +^Istruct work_struct ^Iwork;$
+>=20
+> Same as discussions on the USB patch[1] and others in this series, I =
+am also in favour of "workqueue" or similar in the comments, rather than =
+just "work".
 
-Any patch suitable for stable?
+ Will send out a new version.
+
+Thank you very much for testing and providing your review.
+
+- Allen
+
+>=20
+> Apart from that:
+> Tested-by: Aubin Constans <aubin.constans@microchip.com>
+> Acked-by: Aubin Constans <aubin.constans@microchip.com>
+>=20
+> Thanks.
+>=20
+> [1]: =
+https://lore.kernel.org/linux-mmc/CAOMdWSLipPfm3OZTpjZz4uF4M+E_8QAoTeMcKBX=
+awLnkTQx6Jg@mail.gmail.com/
+
