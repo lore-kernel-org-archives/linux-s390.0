@@ -1,81 +1,143 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6018752F64
-	for <linux-s390@vger.kernel.org>; Mon,  3 Jun 2024 08:02:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA0DC3A29F;
+	Mon,  3 Jun 2024 10:57:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717401757; cv=none; b=AeqkXbas2qjq4tb7IZs6s87+64nxiYrKHAMEOLZTqp2rKp1KAyuvu/gfJwxf0I0A9Mxj74wuydDMpwrx4Nty5JoYpN1EWooGaPeNH8yMWABTDsr7OfPzwY+3WKcY28pvepWY/LT8+fgNNw8YuQEqHCXzCpbiMWSVpU0EttwKAKs=
+	t=1717412248; cv=none; b=uLSgaOoZjBU5Si1bfqvkKxN5DW42CKN1GolpvrrSJJ/cg6hM1K1+IW6PY7ZsoqliCIbTBDRDmCWv5yAMZP7OJt9dwOcsI2rGUXdBq9SEw0OhUuZwSurJsZvGDFB40MARIDd+Bt7aPmBuCa7Dsv9p6R53E55yqriy/t2qtqeBtjQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717401757; c=relaxed/simple;
-	bh=yWTQCmiw4llmYam/bGTKz7lHQI6y+oAREBxoG7gqRkc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lHloOf1KUcIp1OnIvSMWQEtRpVCiuLd80GWGulUIWsIWcHPG1TBGsLlN23w0dg5NEn7KA4IyqTwN3e5UuJ6sm0cZxm/dQPOeqsHn9K+vnOuwjJiPnj48gRUt52P96v0KQZHzj3w8FHYBCRt4fhcSGxC3P5oZL7lx808ZgjGPW00=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DacFEVCn; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1717412248; c=relaxed/simple;
+	bh=U637qIPpluyUP28yygBh9aAQco2F5V+4ar/YKIpUVZg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=OUsLv8HG627SGN3KRTKHcHV68w+c/+xJgomsEPIKmYJf1W8eYfBv54Wb+buoXtTFqowpRbYg5nNFXYW5Sf2ubs1AkwmN0u3WiY8ytMM5JqKqJR3Ugouu3Gnsdg9Cb2ccoTOPQgAH1eMXYaFYn+8Nf6eX2K/wcuD6C+kfW5/PhN8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HQSzVD2+; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DacFEVCn"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1717401755;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=ScFxO/z1YMI1dmk8FoS6VTnuVsBY6a6Y1MFjYPtT/MQ=;
-	b=DacFEVCn2UrlHGcH8DC3uglIlZyDFYPsfLSNIO10elo4+71DJcUq/3CaPt7RUyaesVxDjD
-	iz0E+aV1kmGBqAJ1x64uKXCqc+Kb32T1GjG4y/OTDsvqPR+X1ljU1UZIBXpdSdPP/NvTzW
-	skdkqqsPKCITgfyAeTI0YDGNKoPWOYY=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-173-KSZA082aM9ert8dtDWV_rw-1; Mon, 03 Jun 2024 04:02:31 -0400
-X-MC-Unique: KSZA082aM9ert8dtDWV_rw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 35582800281;
-	Mon,  3 Jun 2024 08:02:31 +0000 (UTC)
-Received: from thuth-p1g4.redhat.com (unknown [10.39.192.65])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id CF2B4C15BFC;
-	Mon,  3 Jun 2024 08:02:29 +0000 (UTC)
-From: Thomas Huth <thuth@redhat.com>
-To: kvm@vger.kernel.org,
-	=?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>
-Cc: Janosch Frank <frankja@linux.ibm.com>,
-	linux-s390@vger.kernel.org,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH] MAINTAINERS: Add scripts/s390x/ to the s390x section
-Date: Mon,  3 Jun 2024 10:02:28 +0200
-Message-ID: <20240603080228.150742-1-thuth@redhat.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HQSzVD2+"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 453A2lRZ029156;
+	Mon, 3 Jun 2024 10:57:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc :
+ content-transfer-encoding : content-type : date : from : in-reply-to :
+ message-id : mime-version : references : subject : to; s=pp1;
+ bh=A1XJCyILwIjRwAcHti/ypsSueFrC4jVwQvgaeAxVSMg=;
+ b=HQSzVD2+0rUuys6qf0iBIcD7cKWekPA6dCcW2v9sEoQ3I12PYCM2WRz0/8vXPjQ0pYYZ
+ w9w1qhUOUpR214QmN57FbmeBH5n/6/Me2nP9mf3GJ+WuDPrfGBdltEzywX4ah8Dij+NO
+ B28xYq30IypBvfLKTigp10e0tZLowilLDE0leZ8VjVMUA7y0b7uq2iGUNTBz9RjgwHGZ
+ X/zqzpcWOkXu2UDWe0Tvsqly79a8UTkIdw2E5FxmP9MsZvt7eQJ7iUxcxaIhW/FVkn2z
+ a136FKg8Ucur31E9ssF6nECFCrThGQNMhR5GTXGA2nPGTRhZHGYjKR2wMCDdHz9I8weu Jw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yhbqqg3y0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Jun 2024 10:57:24 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 453AvOe4028213;
+	Mon, 3 Jun 2024 10:57:24 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yhbqqg3xx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Jun 2024 10:57:24 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45388Fe4000800;
+	Mon, 3 Jun 2024 10:57:23 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ygdytqmwn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Jun 2024 10:57:23 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 453AvHVL31589048
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 3 Jun 2024 10:57:20 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DEEDE20040;
+	Mon,  3 Jun 2024 10:57:17 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9AFDE2004E;
+	Mon,  3 Jun 2024 10:57:17 +0000 (GMT)
+Received: from [9.171.88.151] (unknown [9.171.88.151])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  3 Jun 2024 10:57:17 +0000 (GMT)
+Message-ID: <17a2d62e-c232-4f73-ac24-9bafff37af76@linux.ibm.com>
+Date: Mon, 3 Jun 2024 12:57:17 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.8
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH] MAINTAINERS: Add scripts/s390x/ to the
+ s390x section
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org,
+        =?UTF-8?Q?Nico_B=C3=B6hr?= <nrb@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>
+References: <20240603080228.150742-1-thuth@redhat.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20240603080228.150742-1-thuth@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Att3YOkYh-JBLMGZl73eYJhvCNXWqMW6
+X-Proofpoint-GUID: jlEiZSs5KdeRrlN_MR7GW3OhpS7lYhMd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
+ definitions=2024-06-03_07,2024-05-30_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ mlxlogscore=885 lowpriorityscore=0 bulkscore=0 adultscore=0 mlxscore=0
+ phishscore=0 spamscore=0 suspectscore=0 clxscore=1011 malwarescore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2405010000 definitions=main-2406030091
 
-Make sure that the right people are CC:-ed when changing the
-script in scripts/s390x/.
+On 6/3/24 10:02, Thomas Huth wrote:
+> Make sure that the right people are CC:-ed when changing the
+> script in scripts/s390x/.
+> 
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index a2fa437d..6ceea991 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -112,6 +112,7 @@ R: Thomas Huth <thuth@redhat.com>
- L: linux-s390@vger.kernel.org
- F: s390x/
- F: lib/s390x/
-+F: scripts/s390x/
- 
- X86
- M: Paolo Bonzini <pbonzini@redhat.com>
--- 
-2.45.1
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
