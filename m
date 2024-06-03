@@ -1,66 +1,50 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 884FB84A49
-	for <linux-s390@vger.kernel.org>; Mon,  3 Jun 2024 11:56:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E167212C473;
+	Mon,  3 Jun 2024 12:39:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.154.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717415770; cv=none; b=BvvLyDdpdG2PMIoUPSdIX4J3nzeuuw6J8oUTSW54B9o2KmQx3Xi/dUcZ8z+QnmX2O339N+6gEeKihbwoEbQuIzDBtQjvswK24z3UE+UFAzoM+6Y5n+T9Bi7F8oI4SLQVoii7dKBGNQ04NNeeLlxBk2wFn+BcLfQ9eZYpqMlxL6Q=
+	t=1717418358; cv=none; b=Vk/eOovX1rtovngQD33wcFTz1tsOUENVxJq7oWHjIIkuDlOAfn+NRPefGKpXBrAbMD50P4EbdgXOKdCcxLNL7DYlxk9cqoBEgxaMajy6MT/GW7Xs68CHKfCTICBVr1+VzP5LZFXDuYgx/E4lqc9xiPrtd7U4dA/3EcNCTKfKZc0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717415770; c=relaxed/simple;
-	bh=XJEC/B4uhAgLk6EAxMOUwh3tuLIakX/Zi7ywfYEhcVM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SWt/BI5iK7TSFoQliMlCkatVfQpf+Gn6yJTlpOlKf9bk0QqRIM7qPQMNF+AcnCj8TdhnwoWwgyLaHom7n3fsbDLmrzbcYzpRScm+ySWJnFdsToAuplGAYM9imYPG0JhEGAeIktKL7Je62f1h+BkECG376QBJVzq4LGpOoMGiqEk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FIEYVpWz; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1717418358; c=relaxed/simple;
+	bh=LEM9nLCZweC6fzBGd3LiqBJyI0EVR5DWYNV+RHxhfJc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=Rk9j9+yPewQeBwWkcfpqTv/2MUBRkd96DN9uvKLncenknwEqkwIwWeL8LvNvxyVGw8zoK+QqXBUX33BV8gf5Cbs2FbbzDo9+qlb17gWRUNQTHVawf2rIrDf61oFVDX+5MOspdqPCl2cPHh1zlYtsNrCpSRcyyZD1TBaDnCVrwbo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=Hqcgmw4m; arc=none smtp.client-ip=68.232.154.123
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FIEYVpWz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1717415767;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=O8e5+PKQhh8KirLRZQvLEvNDQfhGdSve44+Cczu7Yxk=;
-	b=FIEYVpWzs+vihxCP7hx3r0NaI33mX2HTkJYoMTM4i5PFRi+DgieEkbmUvnoh+BaehQa4gn
-	7gvwXE8GLFiLF9QhJLal7JWRA6MHgxD7wKw4GhR3IBnF/PB+PAMfeDJCTqtnest8dCD6hJ
-	F7ck44ygMeebeXG5o+DF0WJT9YANSCg=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-601-1CxxjrFjPjuUxPlG7Simxg-1; Mon, 03 Jun 2024 07:56:06 -0400
-X-MC-Unique: 1CxxjrFjPjuUxPlG7Simxg-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-35dca4a8f2dso2272581f8f.3
-        for <linux-s390@vger.kernel.org>; Mon, 03 Jun 2024 04:56:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717415765; x=1718020565;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=O8e5+PKQhh8KirLRZQvLEvNDQfhGdSve44+Cczu7Yxk=;
-        b=u0aE96KooNwetceoNcgPC2/sJMD8ExDE1AKErxJDrKSGzLx9MwehObWvlWJLPhn6Jm
-         81BwSj8hJN1Bfjz05W/TQah9mc9x1p/RkBfxbDN4M5mt4Euoq4ouQoNvPG041Ys1sBvd
-         tDxQIq9rNHtJ08eq0B0JCQAyySD5i1HthQKevVGl5kRgnteDOpuV1zFzvvbfgP5jkKnS
-         qDNzedjXXYGH2eKzEKTrrmF68l88ngbsNm0m6Ymr0/zllm2BWsXO460iSoLv6ITCVpPz
-         0aJ0Z3ySzs5H1YyX3rOzVfy/Fy5t698NRE1yzKRh2R0IZtIoh+/jVBi5iRJsipFjqfOZ
-         2q6A==
-X-Forwarded-Encrypted: i=1; AJvYcCUE2KT0DYT0fjGwFPdqO6oAX3/CLH9F9v7Rwgec3NiIa6/TruMObC6MopO/+7icqLq2CPfDY/4aGOijEZwlcWNo8HUbL0He7G4+Lg==
-X-Gm-Message-State: AOJu0YxDOLO0p/K3CuH667C/vjRU4L+OHGs1k7VAYl+S/MGjtq3khhOg
-	fim7tkO0p13Wvw2DiN/R+pgKiBK+CjY20x2SsB6mjYh3qJnuPjkdDd9Amvjj0AO230drAqGu8zM
-	MCHIQtRww26Dd+Vj5I9K9kkfKi4Zhs+Z68neqRnItgaXuDPN2OLY3ccFmHcI3vF2F79k=
-X-Received: by 2002:adf:a189:0:b0:346:92d2:a496 with SMTP id ffacd0b85a97d-35e0f2852f6mr6150357f8f.29.1717415764871;
-        Mon, 03 Jun 2024 04:56:04 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFuWqIirAQ+VHnp40beRP4/AfgO/I/Awh5FXaoVZpoFOgAsvmH14g2EzP1NeRHPVksYNF9cGw==
-X-Received: by 2002:adf:a189:0:b0:346:92d2:a496 with SMTP id ffacd0b85a97d-35e0f2852f6mr6150336f8f.29.1717415764470;
-        Mon, 03 Jun 2024 04:56:04 -0700 (PDT)
-Received: from [192.168.0.4] (ip-109-43-176-229.web.vodafone.de. [109.43.176.229])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-35dd04c4388sm8692285f8f.14.2024.06.03.04.56.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 03 Jun 2024 04:56:04 -0700 (PDT)
-Message-ID: <cebdd4e9-4754-47a6-86c8-283eddd797f8@redhat.com>
-Date: Mon, 3 Jun 2024 13:56:02 +0200
+	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="Hqcgmw4m"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1717418356; x=1748954356;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=LEM9nLCZweC6fzBGd3LiqBJyI0EVR5DWYNV+RHxhfJc=;
+  b=Hqcgmw4moR5xrn3ljGdNG2NQIqkjpx77ho9zS40XDNG2X3wb34CUkuya
+   X/mt32h+rUIU0pzJci/Ji1fsu/fcQxsni0pycwJPYZMybmJ9+da3Bqhe+
+   QRLyxgI0JOR7uXmU/EF8JF1RKBIpsXNd0o16tFy+L44kcuJp+QW/q6oJ0
+   NhAJzLZ0M4xuF5Aw+lk8aZ6MkwDPrIcWdT4qJPG61eu3enuINwaherele
+   ghX+9sPDzlaZ4vZOYHUNDgiwNl+85sbGEvJA0Sk9jhg6rhrPNTEVHkd5V
+   SipaiU+scw1XcuBPMYKDZUtj4XS3gEvmCQCTM12MAE38i40ax4V1plv7I
+   g==;
+X-CSE-ConnectionGUID: mGTV6IY0SjuqO4B8d/I3Zg==
+X-CSE-MsgGUID: cs2mH/dwScqctcaN/BguNA==
+X-IronPort-AV: E=Sophos;i="6.08,211,1712646000"; 
+   d="scan'208";a="194291692"
+X-Amp-Result: SKIPPED(no attachment in message)
+Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
+  by esa6.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 03 Jun 2024 05:39:11 -0700
+Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
+ chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Mon, 3 Jun 2024 05:38:36 -0700
+Received: from [10.159.227.221] (10.10.85.11) by chn-vm-ex04.mchp-main.com
+ (10.10.85.152) with Microsoft SMTP Server id 15.1.2507.35 via Frontend
+ Transport; Mon, 3 Jun 2024 05:38:23 -0700
+Message-ID: <7e618af0-51a7-4941-a386-0ac68c66d358@microchip.com>
+Date: Mon, 3 Jun 2024 14:38:22 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,79 +52,93 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH] scripts/s390x: Fix the execution of the PV
- tests
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
- =?UTF-8?Q?Nico_B=C3=B6hr?= <nrb@linux.ibm.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>, linux-s390@vger.kernel.org,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- Marc Hartmayer <mhartmay@linux.ibm.com>
-References: <20240603075944.150445-1-thuth@redhat.com>
- <b3444016-91b5-40cc-a4f2-9cb0f5c0cc28@linux.ibm.com>
-Content-Language: en-US
-From: Thomas Huth <thuth@redhat.com>
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <b3444016-91b5-40cc-a4f2-9cb0f5c0cc28@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: [PATCH 9/9] mmc: Convert from tasklet to BH workqueue
+To: Allen Pais <apais@linux.microsoft.com>, <linux-kernel@vger.kernel.org>
+CC: <tj@kernel.org>, <keescook@chromium.org>, <vkoul@kernel.org>,
+	<marcan@marcan.st>, <sven@svenpeter.dev>, <florian.fainelli@broadcom.com>,
+	<rjui@broadcom.com>, <sbranden@broadcom.com>, <paul@crapouillou.net>,
+	<Eugeniy.Paltsev@synopsys.com>, <manivannan.sadhasivam@linaro.org>,
+	<vireshk@kernel.org>, <Frank.Li@nxp.com>, <leoyang.li@nxp.com>,
+	<zw@zh-kernel.org>, <wangzhou1@hisilicon.com>, <haijie1@huawei.com>,
+	<shawnguo@kernel.org>, <s.hauer@pengutronix.de>, <sean.wang@mediatek.com>,
+	<matthias.bgg@gmail.com>, <angelogioacchino.delregno@collabora.com>,
+	<afaerber@suse.de>, <logang@deltatee.com>, <daniel@zonque.org>,
+	<haojian.zhuang@gmail.com>, <robert.jarzmik@free.fr>, <andersson@kernel.org>,
+	<konrad.dybcio@linaro.org>, <orsonzhai@gmail.com>,
+	<baolin.wang@linux.alibaba.com>, <zhang.lyra@gmail.com>,
+	<patrice.chotard@foss.st.com>, <linus.walleij@linaro.org>, <wens@csie.org>,
+	<jernej.skrabec@gmail.com>, <peter.ujfalusi@gmail.com>, <kys@microsoft.com>,
+	<haiyangz@microsoft.com>, <wei.liu@kernel.org>, <decui@microsoft.com>,
+	<jassisinghbrar@gmail.com>, <mchehab@kernel.org>,
+	<maintainers@bluecherrydvr.com>, <ulf.hansson@linaro.org>,
+	<manuel.lauss@gmail.com>, <mirq-linux@rere.qmqm.pl>,
+	<jh80.chung@samsung.com>, <oakad@yahoo.com>,
+	<hayashi.kunihiko@socionext.com>, <mhiramat@kernel.org>,
+	<brucechang@via.com.tw>, <HaraldWelte@viatech.com>, <pierre@ossman.eu>,
+	<duncan.sands@free.fr>, <stern@rowland.harvard.edu>, <oneukum@suse.com>,
+	<openipmi-developer@lists.sourceforge.net>, <dmaengine@vger.kernel.org>,
+	<asahi@lists.linux.dev>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-rpi-kernel@lists.infradead.org>, <linux-mips@vger.kernel.org>,
+	<imx@lists.linux.dev>, <linuxppc-dev@lists.ozlabs.org>,
+	<linux-mediatek@lists.infradead.org>, <linux-actions@lists.infradead.org>,
+	<linux-arm-msm@vger.kernel.org>, <linux-riscv@lists.infradead.org>,
+	<linux-sunxi@lists.linux.dev>, <linux-tegra@vger.kernel.org>,
+	<linux-hyperv@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
+	<linux-media@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
+	<linux-omap@vger.kernel.org>, <linux-renesas-soc@vger.kernel.org>,
+	<linux-s390@vger.kernel.org>, <netdev@vger.kernel.org>,
+	<linux-usb@vger.kernel.org>
+References: <20240327160314.9982-1-apais@linux.microsoft.com>
+ <20240327160314.9982-10-apais@linux.microsoft.com>
+Content-Language: en-US, fr
+From: Aubin Constans <aubin.constans@microchip.com>
+In-Reply-To: <20240327160314.9982-10-apais@linux.microsoft.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 03/06/2024 13.05, Janosch Frank wrote:
-> On 6/3/24 09:59, Thomas Huth wrote:
->> Commit ccb37496 ("scripts: allow machine option to be specified in
->> unittests.cfg") added an additonal parameter (the "machine"), but
->> we forgot to add it to the spot that runs the PV test cases, so
->> those are currently broken without this fix.
->>
->> Fixes: ccb37496 ("scripts: allow machine option to be specified in 
->> unittests.cfg")
->> Signed-off-by: Thomas Huth <thuth@redhat.com>
+On 27/03/2024 17:03, Allen Pais wrote:
+> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
 > 
-> LGTM
-> Has this issue come up in the Gitlab CI or in your internal CI?
+> The only generic interface to execute asynchronously in the BH context is
+> tasklet; however, it's marked deprecated and has some design flaws. To
+> replace tasklets, BH workqueue support was recently added. A BH workqueue
+> behaves similarly to regular workqueues except that the queued work items
+> are executed in the BH context.
+> 
+> This patch converts drivers/infiniband/* from tasklet to BH workqueue.
+> 
+> Based on the work done by Tejun Heo <tj@kernel.org>
+> Branch: https://git.kernel.org/pub/scm/linux/kernel/git/tj/wq.git for-6.10
+> 
+> Signed-off-by: Allen Pais <allen.lkml@gmail.com>
+> ---
+>   drivers/mmc/host/atmel-mci.c                  | 35 ++++-----
+[...]
 
-Gitlab CI does not run the PV tests yet - I just noticed it while running 
-the tests on the s390x machine that I've got access to.
+For atmel-mci, judging from a few simple tests, performance is preserved.
+E.g. writing to a SD Card on the SAMA5D3-Xplained board:
+time dd if=/dev/zero of=/opt/_del_me bs=4k count=64k
 
-  Thomas
+      Base 6.9.0 : 0.07user 5.05system 0:18.92elapsed 27%CPU
+   Patched 6.9.0+: 0.12user 4.92system 0:18.76elapsed 26%CPU
 
+However, please resolve what checkpatch is complaining about:
+scripts/checkpatch.pl --strict 
+PATCH-9-9-mmc-Convert-from-tasklet-to-BH-workqueue.mbox
+
+   WARNING: please, no space before tabs
+   #72: FILE: drivers/mmc/host/atmel-mci.c:367:
+   +^Istruct work_struct ^Iwork;$
+
+Same as discussions on the USB patch[1] and others in this series, I am 
+also in favour of "workqueue" or similar in the comments, rather than 
+just "work".
+
+Apart from that:
+Tested-by: Aubin Constans <aubin.constans@microchip.com>
+Acked-by: Aubin Constans <aubin.constans@microchip.com>
+
+Thanks.
+
+[1]: 
+https://lore.kernel.org/linux-mmc/CAOMdWSLipPfm3OZTpjZz4uF4M+E_8QAoTeMcKBXawLnkTQx6Jg@mail.gmail.com/
