@@ -1,57 +1,57 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4DC928F1;
-	Tue,  4 Jun 2024 04:50:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0D617C6D5;
+	Tue,  4 Jun 2024 05:19:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717476619; cv=none; b=C1Blxt6+HrdYRI1iPPyUS1VOLyzYKkd2/ZpT72louXmiszZmZOwzFs8fzqFOYJMb4pnuEckHE5Tbh1PR38NMAC2JyuSB7o9CVwdUA91yTzMyvU/N7QNH6dwOgQVFMifM4e0XIAnSsqGWqqVNaaBgUToXUOJkRiPZzuEljHYzrKU=
+	t=1717478343; cv=none; b=SPrDmlEMQEQULRgbaxbmFyAoRmysZFF5TCO3haJxVNsTT1jKtvHoP7LpH8+3EjmCgRWbiTTuPwDPVUp4+iYtNfPYpXoOesDXcfxkQkHvpNi+dIPNE3Xja+zS8cF+cXcPzPFSc2Z2R8NfRRlPA+/zmj6n4vhOSuOiG7vkuI+r3AU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717476619; c=relaxed/simple;
-	bh=DudRRgoEa5jHJRY3IN/CW9D5ii+dbxYVCVLrA1F/ib8=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=ifJ+N4p+GJlhPNraWpYiCGOowK8me/yujzPLWZ0DFd9qznw4/EhzO33d0+Zc/0cYKkum2ThQEZ0iiiViiX86mR3ubNQ6N6D3pzgplLS6BsB3q1ITsuJBKh1R5/j9BOGREgpgVCknKpvoKq/xMCpOee5D3hrqjdwWJpi5pRYbTyA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vp2lWNtS; arc=none smtp.client-ip=209.85.210.169
+	s=arc-20240116; t=1717478343; c=relaxed/simple;
+	bh=xeu34K5A5S0biHhmQKMzt/e1R/2zzfNr7WOs+SqkY+M=;
+	h=Mime-Version:Content-Type:Date:Message-Id:To:Cc:Subject:From:
+	 References:In-Reply-To; b=WGLQJ/AotEFtcSGvdm+qU7DL1gIFmOSgrYbjXeC64OuhfZ6RAVMY/HgY1RByH7/bHVamAufH2nsyOp+C/Or6G72wz55TDHW7GMLGsAUXF5Ai5srkwUlpTX2qsmkm1LGNR9AwgTVDAmd2xhoXPrZrvZuyQvLWDgVgl5q9rEVLHy8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N+2wA7Uv; arc=none smtp.client-ip=209.85.216.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vp2lWNtS"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-702447766fdso4109423b3a.1;
-        Mon, 03 Jun 2024 21:50:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N+2wA7Uv"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-2c19e6dc3dcso4184231a91.3;
+        Mon, 03 Jun 2024 22:19:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1717476617; x=1718081417; darn=vger.kernel.org;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
+        d=gmail.com; s=20230601; t=1717478341; x=1718083141; darn=vger.kernel.org;
+        h=in-reply-to:references:from:subject:cc:to:message-id:date
          :content-transfer-encoding:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=+F7nF+doqarEoPywuAW2Gy7h9rHleKMNJkteWHh22os=;
-        b=Vp2lWNtSYCiFlltKz80X3DoJnrH3Fkt5gysHe3uzsbydhdBS/fQmwInZqufw8vy4mM
-         PFCk87zKe7vuH2jLfd5jZ3WNbYnvdwfr5j3lkdZaADijwV6GoQC6bMLob9W4gludUqg5
-         fQznXHYFWk4xTWjqrIda4j0+YtsVZTCt0+SGyWN9MQC3odSJf7xDkQl91FWNLymvrV5B
-         RfpG5exdbr4oSgeuqvvjsePGUCP2cSAq07te3b/7E6P8UEZC/BYUiGcJr9z110FAx18n
-         xWvuXppCFWWzls8Y5hK7ZKgCqKxJoDGF9SWHcSTi+VxmmObPpq+dfk95i64ZgjFpZkrH
-         JVPA==
+        bh=khY/yRLDLPiQ4jnvCprzEMeF4fDY9ZPnATCsqggrcXo=;
+        b=N+2wA7UvGhwO6JDHaUg3VGJw6LlMyaqc4vOu5YCg9+4wX8jgnGSwjG97mLzaJgs4mt
+         JvSmmKGsoorBobX+qQCZ7KGUxvFyIKsW+7SkTVBH0O5FXBTOtv69yDDdCkgFi0nTlXpE
+         oN3LBpesFqnO9GlmcTFrASRq5LHaeSMs0/Y1zvfkbIISqnB8K8FQT8IhTect/EinJGY4
+         6o22qB7Kbo98gx7IxlckUziJaqq2QTqgp/g4M6qX5lgTNoQDLlVMCZvTV30t+ePB2FxX
+         2VVINhQORwRAV4B2aOOI2bMIh84/pbwgB2ASObcDrXDzlprdGY9FQ1QLUWh0GkIEvCO3
+         TglA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717476617; x=1718081417;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
+        d=1e100.net; s=20230601; t=1717478341; x=1718083141;
+        h=in-reply-to:references:from:subject:cc:to:message-id:date
          :content-transfer-encoding:mime-version:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=+F7nF+doqarEoPywuAW2Gy7h9rHleKMNJkteWHh22os=;
-        b=GeQ8IKF3VtC3ojeLn5TUowJwSKkMFo+6hPV7758/RTtwmWtEFPcxGvV7UleY9a8E3X
-         vwJlDE4V7JtDOl6v8UC6W5BQFCfqysFyNHkuJIv2yXPgBFYm/b5ZkqjXt1v2FOYaaEFH
-         d+gdgRKsbwm5u/I3iB+nvIak1aDOhzPf277rcSHMXaNPBWqvLGB85AM5kIqP7m49M7E7
-         nsEp2YDvst9k8jerS1aNWx1LwBeTj2nbCfvZl5o3nhrqVe6uETOncGqy1QmvcI+nchYN
-         4CUtlmmGXOwpQI24H5gO1pUqhUSVBNu5jCXOVSmZA5Vnk7eMqr7pzd9rr95CI1RzTwYg
-         suuQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWEgv8i9JZ/WCGrTSo3JqVeAmd4SFO5Giz4PMoJSGsEjGBKQzsJgzCl7MFuvMiG5l1gWcYZELMcsy3CPqnLxLOdaABQFB6i3Yu0JHwajXyyzeP4DxXNu8mFrAbr02dWQQ==
-X-Gm-Message-State: AOJu0Yxn19/RYhzxV01cNjlbNmu/xGQSzFjMn4ylMrYxrZ4C6Y+Mq/pH
-	UEz1C+ah3EbJUs2cYBUy5PlTP3wxdvxYQT7JHK7ikZJ7GbbfoQSf1bO/zQ==
-X-Google-Smtp-Source: AGHT+IGxVvJ2CSSKYh/WvReNMuJdAPJ7oNeNW1yNouCBe7KpzIvIXtl2khNyBS0BJVOf8JHCQ7e1mg==
-X-Received: by 2002:a05:6a20:5a81:b0:1af:7180:494f with SMTP id adf61e73a8af0-1b26f2cc183mr9715496637.41.1717476616956;
-        Mon, 03 Jun 2024 21:50:16 -0700 (PDT)
+        bh=khY/yRLDLPiQ4jnvCprzEMeF4fDY9ZPnATCsqggrcXo=;
+        b=EinlrTWcXbhU+e2wdvvSfEu6okdOg1O2DWbBgltOLoIsc19QwZIdILvGUeneHY26mH
+         0PEIPNxv1WW8iKKgL9TK0ek991MNlkn5nlTzW01XSxK6COaOVEytrQWW2L3QUuVw7Wzj
+         4e8NL0CzwNzT+LHicNODioPfQ8hFEhJeQL52mngslPIbEvIhujrpMqsWyM43JWH8QbXZ
+         b4Y5+aO5UJJcd2fWHtopdfWNtwi0IkkJAsT0hI1AqdvnbwEMIv8CEFHtLAAUI7uc6hrx
+         J8ufotYp13HcjJyvY0Tb83onTkwGvYk3apRkyiPSVqrkQPXn+Wa8ou6f7u62RrkyiUY3
+         DM5g==
+X-Forwarded-Encrypted: i=1; AJvYcCW8FQ6B/Hji58jTEcsR2vn7oyH0swQgyC/u0wZx5GWlfLkXWBMXGtR4ddb7AgIzdXCeJi5cV/HrIo1qAXwxApxfsPNKZEry/49rsXrNCsw5HaDdC7jvmppwEeCHClc1iQ==
+X-Gm-Message-State: AOJu0YxzfhB2OUoGoNLj1xD+yGjl0rm9CMegMgr2UlC2dt1mxYoCMQ3V
+	UWI//wlyd2n4Pdf9UMFNTZHYOZ7s4Xn+5AOjetkMBC66y8T7y08a5uLxAw==
+X-Google-Smtp-Source: AGHT+IHpeS7f3bfu6OTpTuKjK8mrogwZyeYXdceMuYcrUq/374sujKVL7qDwZ6TT/oeKuZFAhAeHeg==
+X-Received: by 2002:a17:90a:c907:b0:2bf:c92d:2948 with SMTP id 98e67ed59e1d1-2c1dc56c451mr9583521a91.3.1717478340981;
+        Mon, 03 Jun 2024 22:19:00 -0700 (PDT)
 Received: from localhost ([1.146.11.115])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-70255bf1f29sm4536615b3a.94.2024.06.03.21.50.11
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2c1a776f526sm9493080a91.13.2024.06.03.22.18.57
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 03 Jun 2024 21:50:16 -0700 (PDT)
+        Mon, 03 Jun 2024 22:19:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -60,50 +60,44 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Date: Tue, 04 Jun 2024 14:50:06 +1000
-Message-Id: <D1QYN902JX0V.2DJE0WMU5DRFK@gmail.com>
-Cc: "Janosch Frank" <frankja@linux.ibm.com>, <linux-s390@vger.kernel.org>,
- "Claudio Imbrenda" <imbrenda@linux.ibm.com>, "Marc Hartmayer"
- <mhartmay@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH] scripts/s390x: Fix the execution of the
- PV tests
+Date: Tue, 04 Jun 2024 15:18:55 +1000
+Message-Id: <D1QZ9B6HBZAC.338VDWAS8FMKP@gmail.com>
+To: "Janosch Frank" <frankja@linux.ibm.com>, <linux-s390@vger.kernel.org>
+Cc: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, =?utf-8?q?Nico_B=C3=B6hr?=
+ <nrb@linux.ibm.com>, "David Hildenbrand" <david@redhat.com>, "Thomas Huth"
+ <thuth@redhat.com>, <kvm@vger.kernel.org>
+Subject: Re: [kvm-unit-tests PATCH 1/2] s390x: Only run genprotimg if
+ necessary
 From: "Nicholas Piggin" <npiggin@gmail.com>
-To: "Thomas Huth" <thuth@redhat.com>, <kvm@vger.kernel.org>,
- =?utf-8?q?Nico_B=C3=B6hr?= <nrb@linux.ibm.com>
 X-Mailer: aerc 0.17.0
-References: <20240603075944.150445-1-thuth@redhat.com>
-In-Reply-To: <20240603075944.150445-1-thuth@redhat.com>
+References: <20240602130656.120866-1-npiggin@gmail.com>
+ <20240602130656.120866-2-npiggin@gmail.com>
+ <5b63cc59-88ec-45a6-947f-7f44e8e0bbf3@linux.ibm.com>
+In-Reply-To: <5b63cc59-88ec-45a6-947f-7f44e8e0bbf3@linux.ibm.com>
 
-On Mon Jun 3, 2024 at 5:59 PM AEST, Thomas Huth wrote:
-> Commit ccb37496 ("scripts: allow machine option to be specified in
-> unittests.cfg") added an additonal parameter (the "machine"), but
-> we forgot to add it to the spot that runs the PV test cases, so
-> those are currently broken without this fix.
+On Mon Jun 3, 2024 at 9:54 PM AEST, Janosch Frank wrote:
+> On 6/2/24 15:06, Nicholas Piggin wrote:
+> > genprotimg is not required if the --host-key-document=3D configure opti=
+on
+> > is not specified, so avoid running it in that case. This prevents the
+> > build message:
+> >=20
+> >    bash: line 1: genprotimg: command not found
+> >=20
+> > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+>
+> This solves the immediate problem but I think we're really missing a lot=
+=20
+> more checks in the makefile and configure to sanitize the SE option space=
+.
 
-Thanks, this is the one you already found? Looks good to me.
+Agree, it would be ideal to find genprotimg at configure time
+and warn or fail if other options were specified. That looked
+like a bigger job and I don't have a PV environment to test with
+at the moment.
+
+> Anyway:
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
 Thanks,
 Nick
-
->
-> Fixes: ccb37496 ("scripts: allow machine option to be specified in unitte=
-sts.cfg")
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-> ---
->  scripts/s390x/func.bash | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/scripts/s390x/func.bash b/scripts/s390x/func.bash
-> index 6b817727..f04e8e2a 100644
-> --- a/scripts/s390x/func.bash
-> +++ b/scripts/s390x/func.bash
-> @@ -35,5 +35,5 @@ function arch_cmd_s390x()
->  		print_result 'SKIP' $testname '' 'PVM image was not created'
->  		return 2
->  	fi
-> -	"$cmd" "$testname" "$groups pv" "$smp" "$kernel" "$opts" "$arch" "$chec=
-k" "$accel" "$timeout"
-> +	"$cmd" "$testname" "$groups pv" "$smp" "$kernel" "$opts" "$arch" "$mach=
-ine" "$check" "$accel" "$timeout"
->  }
-
