@@ -1,149 +1,209 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4EB41419A0
-	for <linux-s390@vger.kernel.org>; Tue,  4 Jun 2024 07:54:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22A4683CD8;
+	Tue,  4 Jun 2024 09:28:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717487646; cv=none; b=cNAGjwthgNh6g8wnlEt6vei5JzB8lzsuhplN4O5kNG5DFMRWipokfGVb+wYGkWrog/RPTdcna9lirgftqnAXl4jn0KV/iwS0CrQ/l2by54/1A0C7bflNrmylD62oLVYZrGWD1SPkHqDhCiUTD4yYILhkj9eoFrmRnAZbJS6jpss=
+	t=1717493284; cv=none; b=e6+xawip2wAC+NZc76GddpPP1jWcCNhFKCdZY0n2Hxe/ZqskJuP28XL4CKzaYi4TuD6c1gLwbI+wTexIgM008oGrRgsOxq7xy5+yEixlGg+VJL1A1MR9quRjW6ZG3Lho2T4phPP/Ru006aqK0c1y+DVag1VzOkGPRv99F1I/1yk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717487646; c=relaxed/simple;
-	bh=Mn8Xo/wTKP2ugCgYK+UKLIJqA94nE6aPZb+pX+GxmxU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JhegOnnmWVrxIIYtIbjBRM5+8pn2mkZmmvooXasJ8hiEU/kvjGIOfnYBCVEf80nQ31Y8XmnYHPIfucy5NyOY7EohUlOR8uL5wkpSFzfrF8d8Mh526qz9S/pqv3ZiAdUU58jKQfYPzSKVT1Wj4v03+JaLnbqsxOyZ85JFaVoVRjw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PmG5esUc; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1717493284; c=relaxed/simple;
+	bh=qtV6WkWEV85Gwke+5sDv0lGuSW3BGovIvI6AmpxP6eI=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Z8Zbefn1SRZtlcew0HRplR9jugwzAeXvFGEx2blHMdUvFB0tvfpNXEXTCMwdyxhn1HxOXj31g+O634Ws/1OEyrL0bXpZrEHOKJNVkAsiBGTfrspTYdN/oCBk4hS/pqn984kSh+peaxEkhcgSeNrXOU4gVbmsPXJ1GgL3mpDDY8o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MeJXKTTl; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PmG5esUc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1717487643;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=vjx0ykS4nJ+697RVcEhJUXV4++oM9wmiHnBblhEdRT0=;
-	b=PmG5esUcagtKQm0vD+D/7hXOoPz+V8HeMfI3qyw5Nb/tWQrNCPWxfAY6Mf2dJN8c3y7OjT
-	vjLQcyfeuKReBkxI06QigabCVXKOKTqkwaDqJgKjLS4Ifbp8epd5MZ6dfkAYbZVml4syn2
-	bxREtgLDQ0PriVfJKqaWsvLHYGOGgYs=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-7-CXl-zA7VOjimaXmZifDv2A-1; Tue, 04 Jun 2024 03:53:49 -0400
-X-MC-Unique: CXl-zA7VOjimaXmZifDv2A-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-35858762c31so1856016f8f.0
-        for <linux-s390@vger.kernel.org>; Tue, 04 Jun 2024 00:53:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717487628; x=1718092428;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vjx0ykS4nJ+697RVcEhJUXV4++oM9wmiHnBblhEdRT0=;
-        b=gcDwdatEfLnUOvqNAcUIr7CaIzdbrlvVTofcP/fTqQP3xj3363exUdnMPm2/VkLzJT
-         f+kiGYLIVVIGeEMZzZVShic0trG/dxSCV3j5iu2sk66YeivPv+HJVnSQoOOMHQ+2yuxT
-         0twqGVDMkbT7AK4L6ryJrYGMWL12vcOylqi74IgPoh3ldIxhn7feYvcH3RkjcX7Oi824
-         ZE5Jh1tH5T551PoAdXKAO2nA30qCFmUIKZaZWzfkuMh7yYFQrCo6MmUMJzwLRBEI75S2
-         P2n4T8iELcXDTGCWKQULFpnI5c0vYxWqFRNg/PGIG95/ikludZ9S1oLPaogBLqTQHVa6
-         uRrg==
-X-Forwarded-Encrypted: i=1; AJvYcCVAbM8YjCO+Rg1CKA6ICIF/tYQMOlGyRyc0f36EFVOFnnw0sm4+axKXonLB0J2/yLaZF9CfQyIvW4zWsiYm2/XkCg0M51kvNmqBLA==
-X-Gm-Message-State: AOJu0YxQebvhoojzPI4iwIc0D6FmaIpx/qM/mHSb2hJYC7gapErH940L
-	QztpxN9ag0DNe06Qig8HwZUFuLf2LtW7+tM65xV8Ugx+NuXP9G1MFvQ5jd8z1ww5vCgGpD4kHDB
-	gPuLP+I5vIpkTn7dubpW65j+sIVpw91jgYjPYU9SwwKs+9clh2Net7b3qhfc=
-X-Received: by 2002:a5d:69cd:0:b0:357:16f6:71dc with SMTP id ffacd0b85a97d-35e7c52d9e1mr1553254f8f.13.1717487628720;
-        Tue, 04 Jun 2024 00:53:48 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG/buMjqh/S6XIE3/Gj7KXIbP8ZU5F/ofjLANGt6dwHgExj1IaPc6eVwgDYsQUxonlxF7aukg==
-X-Received: by 2002:a5d:69cd:0:b0:357:16f6:71dc with SMTP id ffacd0b85a97d-35e7c52d9e1mr1553224f8f.13.1717487628397;
-        Tue, 04 Jun 2024 00:53:48 -0700 (PDT)
-Received: from [192.168.0.4] (ip-109-43-178-97.web.vodafone.de. [109.43.178.97])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-35e5e3d1902sm3814122f8f.32.2024.06.04.00.53.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Jun 2024 00:53:48 -0700 (PDT)
-Message-ID: <a9e7ea2d-2737-4f4c-ab38-59349e325dfa@redhat.com>
-Date: Tue, 4 Jun 2024 09:53:46 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MeJXKTTl"
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 4549HY7t001747;
+	Tue, 4 Jun 2024 09:28:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc :
+ content-transfer-encoding : content-type : date : from : in-reply-to :
+ message-id : mime-version : references : subject : to; s=pp1;
+ bh=+PBvxOT9WIZi0i2wHiWHGNA6bgAo22c3cf6fHA4qwao=;
+ b=MeJXKTTlYwrL+5cKPN6czrU8CiNmuKpQy8m/s6mw1bmtN61pz9wy94xbw20QJZ6ZYOAo
+ KxUzJyqVNf+MHWRYSv2EYd44Oo8vs6EYXk/Z/O7NebAIba3OTjI5fGSWcgfzIdIwvCqK
+ IgNznFsKItWwzIE8JGElCyH3z9ch0FKGesPXLIQE7eFxYcFwZ72Or2Xp/GBHt1nrRO1U
+ qfInxjBPkc84pMsIV+SBApcJXiZuh9hhtm2QfKdvtSB4Y4P1m49nIiFX31xNqgtvQsRl
+ d2fNFZa+BDw9S/1KBjIYDS6DgfGf26GoSpDFFbuaKbuVufE/temoJz92BTyXDnr8pA5b ew== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yj05ng0xg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Jun 2024 09:28:00 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4549OeoW015142;
+	Tue, 4 Jun 2024 09:28:00 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yj05ng0xd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Jun 2024 09:28:00 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4548QNPR008458;
+	Tue, 4 Jun 2024 09:27:59 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ygec0negy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Jun 2024 09:27:59 +0000
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4549Rusc40829440
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 4 Jun 2024 09:27:58 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1688058065;
+	Tue,  4 Jun 2024 09:27:56 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3D0575805A;
+	Tue,  4 Jun 2024 09:27:54 +0000 (GMT)
+Received: from oc-fedora.boeblingen.de.ibm.com (unknown [9.152.212.216])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  4 Jun 2024 09:27:54 +0000 (GMT)
+Message-ID: <b816efd7dd3d5f6fead3433d8a800c7f4372a091.camel@linux.ibm.com>
+Subject: Re: [PATCH v3 0/3] vfio/pci: s390: Fix issues preventing
+ VFIO_PCI_MMAP=y for s390 and enable it
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Gerald Schaefer
+ <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alex Williamson
+ <alex.williamson@redhat.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Matthew
+ Rosato <mjrosato@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Date: Tue, 04 Jun 2024 11:27:53 +0200
+In-Reply-To: <0a4622ce-3826-4b08-ab81-375887ab6a46@linux.ibm.com>
+References: <20240529-vfio_pci_mmap-v3-0-cd217d019218@linux.ibm.com>
+	 <0a4622ce-3826-4b08-ab81-375887ab6a46@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.1 (3.52.1-1.fc40) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v9 23/31] common/sieve: Use vmalloc.h for
- setup_mmu definition
-To: Nicholas Piggin <npiggin@gmail.com>
-Cc: Laurent Vivier <lvivier@redhat.com>, Andrew Jones
- <andrew.jones@linux.dev>, linuxppc-dev@lists.ozlabs.org,
- kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, =?UTF-8?Q?Nico_B=C3=B6hr?=
- <nrb@linux.ibm.com>, David Hildenbrand <david@redhat.com>,
- linux-s390@vger.kernel.org
-References: <20240504122841.1177683-1-npiggin@gmail.com>
- <20240504122841.1177683-24-npiggin@gmail.com>
-Content-Language: en-US
-From: Thomas Huth <thuth@redhat.com>
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <20240504122841.1177683-24-npiggin@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: yE8rqb7HLFBblCStVzGjDJG42WSTd8dO
+X-Proofpoint-ORIG-GUID: A2vWTWj028cwHTWVJppbX6H87F1MjySW
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
+ definitions=2024-06-04_03,2024-05-30_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 adultscore=0 spamscore=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 mlxscore=0 bulkscore=0 impostorscore=0
+ phishscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2405010000 definitions=main-2406040076
 
-On 04/05/2024 14.28, Nicholas Piggin wrote:
-> There is no good reason to put setup_vm in libcflat.h when it's
-> defined in vmalloc.h.
-> 
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Thomas Huth <thuth@redhat.com>
-> Cc: Janosch Frank <frankja@linux.ibm.com>
-> Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Cc: Nico Böhr <nrb@linux.ibm.com>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: kvm@vger.kernel.org
-> Cc: linux-s390@vger.kernel.org
-> Acked-by: Andrew Jones <andrew.jones@linux.dev>
-> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-> ---
+On Mon, 2024-06-03 at 17:50 +0200, Christian Borntraeger wrote:
+> Am 29.05.24 um 13:36 schrieb Niklas Schnelle:
+> > With the introduction of memory I/O (MIO) instructions enbaled in commi=
+t
+> > 71ba41c9b1d9 ("s390/pci: provide support for MIO instructions") s390
+> > gained support for direct user-space access to mapped PCI resources.
+> > Even without those however user-space can access mapped PCI resources
+> > via the s390 specific MMIO syscalls. There is thus nothing fundamentall=
+y
+> > preventing s390 from supporting VFIO_PCI_MMAP allowing user-space drive=
+rs
+> > to access PCI resources without going through the pread() interface.
+> > To actually enable VFIO_PCI_MMAP a few issues need fixing however.
+> >=20
+> > Firstly the s390 MMIO syscalls do not cause a page fault when
+> > follow_pte() fails due to the page not being present. This breaks
+> > vfio-pci's mmap() handling which lazily maps on first access.
+> >=20
+> > Secondly on s390 there is a virtual PCI device called ISM which has
+> > a few oddities. For one it claims to have a 256 TiB PCI BAR (not a typo=
+)
+> > which leads to any attempt to mmap() it fail with the following message=
+:
+> >=20
+> >      vmap allocation for size 281474976714752 failed: use vmalloc=3D<si=
+ze> to increase size
+> >=20
+> > Even if one tried to map this BAR only partially the mapping would not
+> > be usable on systems with MIO support enabled. So just block mapping
+> > BARs which don't fit between IOREMAP_START and IOREMAP_END.
+> >=20
+> > Note:
+> > For your convenience the code is also available in the tagged
+> > b4/vfio_pci_mmap branch on my git.kernel.org site below:
+> > https: //git.kernel.org/pub/scm/linux/kernel/git/niks/linux.git/
+>=20
+>=20
+> I guess its now mostly a question of who picks those patches? Alex?
 
+That matches my understanding as well.
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+>=20
+> Any patch suitable for stable?
 
+I'd almost say all but the last one may be candidates for stable. I
+found it hard to pinpoint a specific commit they fix though, hence the
+lack of Fixes tag. For the first one I'm actually not sure if e.g.
+rdma-core users could also run into this problem when they get swapped
+out as I'm not sure if the mapping is pinned there.
