@@ -1,192 +1,109 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5B9841366;
-	Mon,  3 Jun 2024 17:34:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4DC928F1;
+	Tue,  4 Jun 2024 04:50:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717436098; cv=none; b=FCfTHfEDddyBQEn1WhZnWryYKueBt1KPLCbSY+3BereApdu77pBzVVv3L5aKUkaPr3fKJMD3vRAG3zd7Q5LLW+b2reG/syj4QAVUYt0dpSeiVT1CjjEJNZhQWruUVcdAapozOdsZbudnrk7PsEiue9rH2ggaKjvft+KM0at6uXE=
+	t=1717476619; cv=none; b=C1Blxt6+HrdYRI1iPPyUS1VOLyzYKkd2/ZpT72louXmiszZmZOwzFs8fzqFOYJMb4pnuEckHE5Tbh1PR38NMAC2JyuSB7o9CVwdUA91yTzMyvU/N7QNH6dwOgQVFMifM4e0XIAnSsqGWqqVNaaBgUToXUOJkRiPZzuEljHYzrKU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717436098; c=relaxed/simple;
-	bh=DKulNpWMB5g4h3LO0UnPAP8vpdAsv+ZuVpLPHeUsdwQ=;
-	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=M5XH+hIln6mlA4WGV/JhOO/EonsIduLgZHDrUlZAeQ7PmkPS4batJRkkVZEsNCt64qWewd77f3Nsn0WvmmDYM/IIm/SLCqu9RodrycAo2f5o+S8DJtw/YaN54OgdCj4NXt+ct9P12fTPu41eIuKs77zxP/F7AcOa+AxicHiMpgA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=arwB9k2c; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1717476619; c=relaxed/simple;
+	bh=DudRRgoEa5jHJRY3IN/CW9D5ii+dbxYVCVLrA1F/ib8=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=ifJ+N4p+GJlhPNraWpYiCGOowK8me/yujzPLWZ0DFd9qznw4/EhzO33d0+Zc/0cYKkum2ThQEZ0iiiViiX86mR3ubNQ6N6D3pzgplLS6BsB3q1ITsuJBKh1R5/j9BOGREgpgVCknKpvoKq/xMCpOee5D3hrqjdwWJpi5pRYbTyA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vp2lWNtS; arc=none smtp.client-ip=209.85.210.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="arwB9k2c"
-Received: from smtpclient.apple (d66-183-91-182.bchsia.telus.net [66.183.91.182])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 4684920681D5;
-	Mon,  3 Jun 2024 10:25:13 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 4684920681D5
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1717435514;
-	bh=4DfOU8aQl0aDoujS+l1W8I9cPbB9Sd5aNNyJFDGp/QQ=;
-	h=Subject:From:In-Reply-To:Date:Cc:References:To:From;
-	b=arwB9k2cp5qmOpH04JZQJkpaQ68dKr6NHq6/nWjIeKTEglSLJZbHneTkxRo0iYye3
-	 dopPLk66Mp6Cqqtct/3LWOtVyWSXCVY5VMtnmDbdTLbXrzM1H6t1A8KCeQ5Sp+gzGS
-	 Acr7rY4qAUIDkO+vSD/92kHIH7AgZovgYBJ1BnFc=
-Content-Type: text/plain;
-	charset=utf-8
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vp2lWNtS"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-702447766fdso4109423b3a.1;
+        Mon, 03 Jun 2024 21:50:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1717476617; x=1718081417; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+F7nF+doqarEoPywuAW2Gy7h9rHleKMNJkteWHh22os=;
+        b=Vp2lWNtSYCiFlltKz80X3DoJnrH3Fkt5gysHe3uzsbydhdBS/fQmwInZqufw8vy4mM
+         PFCk87zKe7vuH2jLfd5jZ3WNbYnvdwfr5j3lkdZaADijwV6GoQC6bMLob9W4gludUqg5
+         fQznXHYFWk4xTWjqrIda4j0+YtsVZTCt0+SGyWN9MQC3odSJf7xDkQl91FWNLymvrV5B
+         RfpG5exdbr4oSgeuqvvjsePGUCP2cSAq07te3b/7E6P8UEZC/BYUiGcJr9z110FAx18n
+         xWvuXppCFWWzls8Y5hK7ZKgCqKxJoDGF9SWHcSTi+VxmmObPpq+dfk95i64ZgjFpZkrH
+         JVPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1717476617; x=1718081417;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=+F7nF+doqarEoPywuAW2Gy7h9rHleKMNJkteWHh22os=;
+        b=GeQ8IKF3VtC3ojeLn5TUowJwSKkMFo+6hPV7758/RTtwmWtEFPcxGvV7UleY9a8E3X
+         vwJlDE4V7JtDOl6v8UC6W5BQFCfqysFyNHkuJIv2yXPgBFYm/b5ZkqjXt1v2FOYaaEFH
+         d+gdgRKsbwm5u/I3iB+nvIak1aDOhzPf277rcSHMXaNPBWqvLGB85AM5kIqP7m49M7E7
+         nsEp2YDvst9k8jerS1aNWx1LwBeTj2nbCfvZl5o3nhrqVe6uETOncGqy1QmvcI+nchYN
+         4CUtlmmGXOwpQI24H5gO1pUqhUSVBNu5jCXOVSmZA5Vnk7eMqr7pzd9rr95CI1RzTwYg
+         suuQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWEgv8i9JZ/WCGrTSo3JqVeAmd4SFO5Giz4PMoJSGsEjGBKQzsJgzCl7MFuvMiG5l1gWcYZELMcsy3CPqnLxLOdaABQFB6i3Yu0JHwajXyyzeP4DxXNu8mFrAbr02dWQQ==
+X-Gm-Message-State: AOJu0Yxn19/RYhzxV01cNjlbNmu/xGQSzFjMn4ylMrYxrZ4C6Y+Mq/pH
+	UEz1C+ah3EbJUs2cYBUy5PlTP3wxdvxYQT7JHK7ikZJ7GbbfoQSf1bO/zQ==
+X-Google-Smtp-Source: AGHT+IGxVvJ2CSSKYh/WvReNMuJdAPJ7oNeNW1yNouCBe7KpzIvIXtl2khNyBS0BJVOf8JHCQ7e1mg==
+X-Received: by 2002:a05:6a20:5a81:b0:1af:7180:494f with SMTP id adf61e73a8af0-1b26f2cc183mr9715496637.41.1717476616956;
+        Mon, 03 Jun 2024 21:50:16 -0700 (PDT)
+Received: from localhost ([1.146.11.115])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-70255bf1f29sm4536615b3a.94.2024.06.03.21.50.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 Jun 2024 21:50:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3774.600.62\))
-Subject: Re: [PATCH 9/9] mmc: Convert from tasklet to BH workqueue
-From: Allen Pais <apais@linux.microsoft.com>
-In-Reply-To: <7e618af0-51a7-4941-a386-0ac68c66d358@microchip.com>
-Date: Mon, 3 Jun 2024 10:25:02 -0700
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Tejun Heo <tj@kernel.org>,
- Kees Cook <keescook@chromium.org>,
- Vinod Koul <vkoul@kernel.org>,
- marcan@marcan.st,
- sven@svenpeter.dev,
- florian.fainelli@broadcom.com,
- Ray Jui <rjui@broadcom.com>,
- Scott Branden <sbranden@broadcom.com>,
- Paul Cercueil <paul@crapouillou.net>,
- Eugeniy.Paltsev@synopsys.com,
- manivannan.sadhasivam@linaro.org,
- Viresh Kumar <vireshk@kernel.org>,
- Frank.Li@nxp.com,
- Leo Li <leoyang.li@nxp.com>,
- zw@zh-kernel.org,
- Zhou Wang <wangzhou1@hisilicon.com>,
- haijie1@huawei.com,
- Shawn Guo <shawnguo@kernel.org>,
- Sascha Hauer <s.hauer@pengutronix.de>,
- Sean Wang <sean.wang@mediatek.com>,
- Matthias Brugger <matthias.bgg@gmail.com>,
- angelogioacchino.delregno@collabora.com,
- =?utf-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>,
- Logan Gunthorpe <logang@deltatee.com>,
- Daniel Mack <daniel@zonque.org>,
- Haojian Zhuang <haojian.zhuang@gmail.com>,
- Robert Jarzmik <robert.jarzmik@free.fr>,
- andersson@kernel.org,
- konrad.dybcio@linaro.org,
- Orson Zhai <orsonzhai@gmail.com>,
- baolin.wang@linux.alibaba.com,
- Lyra Zhang <zhang.lyra@gmail.com>,
- Patrice CHOTARD <patrice.chotard@foss.st.com>,
- Linus Walleij <linus.walleij@linaro.org>,
- Chen-Yu Tsai <wens@csie.org>,
- =?utf-8?Q?Jernej_=C5=A0krabec?= <jernej.skrabec@gmail.com>,
- peter.ujfalusi@gmail.com,
- kys@microsoft.com,
- haiyangz@microsoft.com,
- wei.liu@kernel.org,
- decui@microsoft.com,
- jassisinghbrar@gmail.com,
- mchehab@kernel.org,
- maintainers@bluecherrydvr.com,
- ulf.hansson@linaro.org,
- manuel.lauss@gmail.com,
- mirq-linux@rere.qmqm.pl,
- jh80.chung@samsung.com,
- oakad@yahoo.com,
- hayashi.kunihiko@socionext.com,
- mhiramat@kernel.org,
- brucechang@via.com.tw,
- HaraldWelte@viatech.com,
- pierre@ossman.eu,
- duncan.sands@free.fr,
- stern@rowland.harvard.edu,
- oneukum@suse.com,
- openipmi-developer@lists.sourceforge.net,
- dmaengine@vger.kernel.org,
- asahi@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org,
- linux-rpi-kernel@lists.infradead.org,
- linux-mips@vger.kernel.org,
- imx@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org,
- linux-mediatek@lists.infradead.org,
- linux-actions@lists.infradead.org,
- linux-arm-msm@vger.kernel.org,
- linux-riscv@lists.infradead.org,
- linux-sunxi@lists.linux.dev,
- linux-tegra@vger.kernel.org,
- linux-hyperv@vger.kernel.org,
- linux-rdma@vger.kernel.org,
- linux-media@vger.kernel.org,
- linux-mmc@vger.kernel.org,
- linux-omap@vger.kernel.org,
- linux-renesas-soc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- netdev@vger.kernel.org,
- linux-usb@vger.kernel.org
+Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Message-Id: <61F36002-C765-410C-8EF9-203593C269FF@linux.microsoft.com>
-References: <20240327160314.9982-1-apais@linux.microsoft.com>
- <20240327160314.9982-10-apais@linux.microsoft.com>
- <7e618af0-51a7-4941-a386-0ac68c66d358@microchip.com>
-To: Aubin Constans <aubin.constans@microchip.com>
-X-Mailer: Apple Mail (2.3774.600.62)
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 04 Jun 2024 14:50:06 +1000
+Message-Id: <D1QYN902JX0V.2DJE0WMU5DRFK@gmail.com>
+Cc: "Janosch Frank" <frankja@linux.ibm.com>, <linux-s390@vger.kernel.org>,
+ "Claudio Imbrenda" <imbrenda@linux.ibm.com>, "Marc Hartmayer"
+ <mhartmay@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH] scripts/s390x: Fix the execution of the
+ PV tests
+From: "Nicholas Piggin" <npiggin@gmail.com>
+To: "Thomas Huth" <thuth@redhat.com>, <kvm@vger.kernel.org>,
+ =?utf-8?q?Nico_B=C3=B6hr?= <nrb@linux.ibm.com>
+X-Mailer: aerc 0.17.0
+References: <20240603075944.150445-1-thuth@redhat.com>
+In-Reply-To: <20240603075944.150445-1-thuth@redhat.com>
 
+On Mon Jun 3, 2024 at 5:59 PM AEST, Thomas Huth wrote:
+> Commit ccb37496 ("scripts: allow machine option to be specified in
+> unittests.cfg") added an additonal parameter (the "machine"), but
+> we forgot to add it to the spot that runs the PV test cases, so
+> those are currently broken without this fix.
 
+Thanks, this is the one you already found? Looks good to me.
 
-> On Jun 3, 2024, at 5:38=E2=80=AFAM, Aubin Constans =
-<aubin.constans@microchip.com> wrote:
->=20
-> On 27/03/2024 17:03, Allen Pais wrote:
->> EXTERNAL EMAIL: Do not click links or open attachments unless you =
-know the content is safe
->> The only generic interface to execute asynchronously in the BH =
-context is
->> tasklet; however, it's marked deprecated and has some design flaws. =
-To
->> replace tasklets, BH workqueue support was recently added. A BH =
-workqueue
->> behaves similarly to regular workqueues except that the queued work =
-items
->> are executed in the BH context.
->> This patch converts drivers/infiniband/* from tasklet to BH =
-workqueue.
->> Based on the work done by Tejun Heo <tj@kernel.org>
->> Branch: https://git.kernel.org/pub/scm/linux/kernel/git/tj/wq.git =
-for-6.10
->> Signed-off-by: Allen Pais <allen.lkml@gmail.com>
->> ---
->>  drivers/mmc/host/atmel-mci.c                  | 35 ++++-----
-> [...]
->=20
-> For atmel-mci, judging from a few simple tests, performance is =
-preserved.
-> E.g. writing to a SD Card on the SAMA5D3-Xplained board:
-> time dd if=3D/dev/zero of=3D/opt/_del_me bs=3D4k count=3D64k
->=20
->     Base 6.9.0 : 0.07user 5.05system 0:18.92elapsed 27%CPU
->  Patched 6.9.0+: 0.12user 4.92system 0:18.76elapsed 26%CPU
->=20
-> However, please resolve what checkpatch is complaining about:
-> scripts/checkpatch.pl --strict =
-PATCH-9-9-mmc-Convert-from-tasklet-to-BH-workqueue.mbox
->=20
->  WARNING: please, no space before tabs
->  #72: FILE: drivers/mmc/host/atmel-mci.c:367:
->  +^Istruct work_struct ^Iwork;$
->=20
-> Same as discussions on the USB patch[1] and others in this series, I =
-am also in favour of "workqueue" or similar in the comments, rather than =
-just "work".
+Thanks,
+Nick
 
- Will send out a new version.
-
-Thank you very much for testing and providing your review.
-
-- Allen
-
->=20
-> Apart from that:
-> Tested-by: Aubin Constans <aubin.constans@microchip.com>
-> Acked-by: Aubin Constans <aubin.constans@microchip.com>
->=20
-> Thanks.
->=20
-> [1]: =
-https://lore.kernel.org/linux-mmc/CAOMdWSLipPfm3OZTpjZz4uF4M+E_8QAoTeMcKBX=
-awLnkTQx6Jg@mail.gmail.com/
+>
+> Fixes: ccb37496 ("scripts: allow machine option to be specified in unitte=
+sts.cfg")
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
+> ---
+>  scripts/s390x/func.bash | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/scripts/s390x/func.bash b/scripts/s390x/func.bash
+> index 6b817727..f04e8e2a 100644
+> --- a/scripts/s390x/func.bash
+> +++ b/scripts/s390x/func.bash
+> @@ -35,5 +35,5 @@ function arch_cmd_s390x()
+>  		print_result 'SKIP' $testname '' 'PVM image was not created'
+>  		return 2
+>  	fi
+> -	"$cmd" "$testname" "$groups pv" "$smp" "$kernel" "$opts" "$arch" "$chec=
+k" "$accel" "$timeout"
+> +	"$cmd" "$testname" "$groups pv" "$smp" "$kernel" "$opts" "$arch" "$mach=
+ine" "$check" "$accel" "$timeout"
+>  }
 
