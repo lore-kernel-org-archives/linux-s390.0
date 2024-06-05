@@ -1,126 +1,80 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7530D1922FC;
-	Wed,  5 Jun 2024 08:04:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2002A1946AA;
+	Wed,  5 Jun 2024 08:50:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717574651; cv=none; b=FOmM6ch9g7aQtcEb4b1BcTSBhIHnVDyb9yjtPUVuvwUj8ZqkOAArE+GIOzBU3TN0pRRJZukGjN3L9Bo35V8RMeTeunKnVaw7JxRFs1+NF6dmdsO+uRmb1c7CF3dZfGs0tmmlEoKIRP5zmHhnZ69iO0VQveHX5P0kgOOxqjAOxOw=
+	t=1717577431; cv=none; b=MAR9CKn+buGPDZ/798OI6vszYt6xijbm7MdGHTuyUDE7YJUfQWXIaEcK0hZkKTzj4xhnOTyJ/pVgKNo5rTbhCHFXf+oXCS1xQB0toH5QrviK851wOKn4i/5IfRYju8GSB8Dbd3P4hokSW9PRnercvYP9EqfBgke5DQ/Cwhdy7QQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717574651; c=relaxed/simple;
-	bh=WKQnc3QTe0PxphsvXKC79sDS7wi3IedNFAMTiPs5h0c=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=Lx1f5gYg1FkqW2WzQoY7ADF3S3n3ngqVO3MaWvnvSuqXiAV7PpkgaoVPjHXaTZ21FDzdjptdekDd8ClyBHk1SfTvtSquhFpqylsN5buhVeF5wZ6jngwYa3xw3Z/zrp+Br6jIX4HhDxK9vGc+ySiyw1i7RvHDJwpJ2O0JUwLsnws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IxLxnyLC; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1717577431; c=relaxed/simple;
+	bh=cmMrnBLmILI34bSTEqGAFTuSRh1IzjExT7ZUARg/WJY=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=sj6H6zeq1AFWttKa080Y5HZ+PW3cPGzFjkN/2KhXgNN/ach2CNJYTRhTbXAf0afKVneo12ZdlrUNbxCmMmeUfDX8dBStNZmTMcsf81bCkwEuV0BQzjsslBh2Yin3cKvdik5VWg4eRi75Kq33BXx2LyE9qEeNUQUwXOC+2+mUDJI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N6xtsRDk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IxLxnyLC"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 4557ol44019906;
-	Wed, 5 Jun 2024 08:04:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc :
- content-transfer-encoding : content-type : date : from : in-reply-to :
- message-id : mime-version : references : subject : to; s=pp1;
- bh=Lktxp1xHnwpzLetO0Bqvbde0xJLvKLX2c4YkPCMknos=;
- b=IxLxnyLCh+eeegt+nH9oyhu3ZMVxyzQfL8qIM6dooKDuwCi2XZKWHC040kjFpFK1y1ED
- m/5Bkjar2RIBwaUGCzmpW+DTxSeyQUfBbwEGgLDRmoq9RYbCEMJJtuNr35Sx5oLWOIFz
- W3TrlLg7kJTd3SY91vu9v2p0A/rEi5zNsmX40faOSy6nsQJgGOZLYkIBrP85Rcd9q5O3
- a1C57G2+HD/B7MQ9dKYvQhX5Olq2XpqKpCnaKJrrJaSG5/pq9y6twhTQaqzFxegNmf2g
- 98n5jqaW3wbyNuiO5NAdMi9jGIzlbzdo2g2NXNOjK7Ee2kbJe/oVS0qZHAYOo04dt+0D RA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yjjm5g97m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Jun 2024 08:04:08 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4558476u010748;
-	Wed, 5 Jun 2024 08:04:07 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yjjm5g97j-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Jun 2024 08:04:07 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 455828SJ026652;
-	Wed, 5 Jun 2024 08:04:06 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yggp32hfg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Jun 2024 08:04:06 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4558402a22282692
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 5 Jun 2024 08:04:03 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E19EF2004B;
-	Wed,  5 Jun 2024 08:04:00 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6918920040;
-	Wed,  5 Jun 2024 08:04:00 +0000 (GMT)
-Received: from li-1de7cd4c-3205-11b2-a85c-d27f97db1fe1.ibm.com (unknown [9.171.49.245])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed,  5 Jun 2024 08:04:00 +0000 (GMT)
-From: "Marc Hartmayer" <mhartmay@linux.ibm.com>
-To: Nicholas Piggin <npiggin@gmail.com>, linux-s390@vger.kernel.org,
-        Thomas
- Huth <thuth@redhat.com>
-Cc: kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
-        Nico Boehr
- <nrb@linux.ibm.com>, Steffen Eiden <seiden@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v1 0/3] s390x: small Makefile improvements
-In-Reply-To: <D1RP1BC65XW5.NC0D2AFAL0TD@gmail.com>
-References: <20240604115932.86596-1-mhartmay@linux.ibm.com>
- <D1RP1BC65XW5.NC0D2AFAL0TD@gmail.com>
-Date: Wed, 05 Jun 2024 10:03:59 +0200
-Message-ID: <87jzj3eryo.fsf@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N6xtsRDk"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id A4210C32781;
+	Wed,  5 Jun 2024 08:50:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1717577430;
+	bh=cmMrnBLmILI34bSTEqGAFTuSRh1IzjExT7ZUARg/WJY=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=N6xtsRDkaq49UIDroEsNvxouCqW8q7CcDA3lpeYf6sY4DDrKSmIwwB8gZOtLJ8Rf7
+	 krBx8JxYUCWaDy2ekP3RhVd3dnmxxshy5iyj+9bWmqPgE2sO9PAfXWyiYNh8D5oXFs
+	 BQUy9B8C2lcrEOtRTR51BLfqClYlG8puJUyJDLpmNh3iCnH6XgfdhGUDWM+IG+XS7o
+	 23E66TDeg3Yh4Iu1beS1z/mNxel7paKJmXjC6Vqxeo0H+mveYzkNztNU2w0Vrlcvy3
+	 YOazODgZxAeRBsnaugeYXZbLfLuohruaKakbINlF2aXdKdn/Y//ZMvSSIt9OWF+AsH
+	 CwqyHcKug8BEg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 92768D3E997;
+	Wed,  5 Jun 2024 08:50:30 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: UZ6VEKp1wLGlkQ3dbfSa_qSUy9Pi-i3C
-X-Proofpoint-GUID: VC39B002tDEYLwsmX__CWuK-v7zZ1J-v
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-04_11,2024-06-05_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- priorityscore=1501 adultscore=0 malwarescore=0 mlxscore=0 suspectscore=0
- phishscore=0 bulkscore=0 lowpriorityscore=0 spamscore=0 mlxlogscore=731
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2405010000 definitions=main-2406050059
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net/smc: avoid overwriting when adjusting sock bufsizes
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <171757743059.31154.18322845885224431622.git-patchwork-notify@kernel.org>
+Date: Wed, 05 Jun 2024 08:50:30 +0000
+References: <20240531085417.43104-1-guwen@linux.alibaba.com>
+In-Reply-To: <20240531085417.43104-1-guwen@linux.alibaba.com>
+To: Wen Gu <guwen@linux.alibaba.com>
+Cc: gbayer@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
 
-On Wed, Jun 05, 2024 at 11:30 AM +1000, "Nicholas Piggin" <npiggin@gmail.co=
-m> wrote:
-> On Tue Jun 4, 2024 at 9:59 PM AEST, Marc Hartmayer wrote:
->> The first patch is useful anyway, the third could be dropped to be consi=
-stent
->> with the other architectures.
->
-> Interesting. Is this the reason for the warning on all the other
-> archs?
+Hello:
 
-Could be, but the .eh_frame and .eh_frame_hdr sections are sometimes
-required, e.g for __builtin_return_address(n),=E2=80=A6. Another fix would =
-be to
-specify the sections in the linker scripts explicitly - but I=E2=80=99ve to=
- ask
-whether this has other side effects=E2=80=A6
+This patch was applied to netdev/net.git (main)
+by David S. Miller <davem@davemloft.net>:
 
-> Maybe they should all use the same options and all remove the explicit
-> PHDR specification?
->
-> Thanks,
-> Nick
->
---=20
-Kind regards / Beste Gr=C3=BC=C3=9Fe
-   Marc Hartmayer
+On Fri, 31 May 2024 16:54:17 +0800 you wrote:
+> When copying smc settings to clcsock, avoid setting clcsock's sk_sndbuf
+> to sysctl_tcp_wmem[1], since this may overwrite the value set by
+> tcp_sndbuf_expand() in TCP connection establishment.
+> 
+> And the other setting sk_{snd|rcv}buf to sysctl value in
+> smc_adjust_sock_bufsizes() can also be omitted since the initialization
+> of smc sock and clcsock has set sk_{snd|rcv}buf to smc.sysctl_{w|r}mem
+> or ipv4_sysctl_tcp_{w|r}mem[1].
+> 
+> [...]
 
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Wolfgang Wendt
-Gesch=C3=A4ftsf=C3=BChrung: David Faller
-Sitz der Gesellschaft: B=C3=B6blingen
-Registergericht: Amtsgericht Stuttgart, HRB 243294
+Here is the summary with links:
+  - [net] net/smc: avoid overwriting when adjusting sock bufsizes
+    https://git.kernel.org/netdev/net/c/fb0aa0781a5f
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
