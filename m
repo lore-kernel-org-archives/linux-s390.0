@@ -1,303 +1,238 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F72D19412D;
-	Wed,  5 Jun 2024 12:56:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B6864776A;
+	Wed,  5 Jun 2024 16:01:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717592198; cv=none; b=DDpKI/vB7+m7PUicrQPW1WNJdkIuAoTWilZs7s9nKDeEOsNW1NeM80tJT5+eekI1WLwZS6aAIVAi572NiEm5nBp7r983mBFT9IAqPo7YFnu6XGn8FyafYET2JhnmtsBzV4ojM4hSuV8RXiHwBaReKLHbnkG1iWEdJTg3MTHqNHg=
+	t=1717603294; cv=none; b=tQqpRjp87izrIHa60kh3n9mL31LZcUILZSirYJpoD81pxhlDOaEcnD0v3FPc9sPjZn6hFR/aBIYBDQFcEXVVrRds0vlL6lBbVvXI9mJsz4oH2jjOCwECO0linBCEWgdBhGzJHTJtUbtTSlfnCe2mdnsji1kDOJC3oHgXTOZYjwo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717592198; c=relaxed/simple;
-	bh=FSix8fbVytiAYRCjf3U5x+vB1uBinyX+qaThH7i8GyE=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=kGlJvbX9qiuPhPfmevBCVhMFs6T3NoqbiG4zHA+MWGEZZZgbtmTneKkumHcrj61G5C5uxmD/EDt63h9J9gHc5ylYTQj/MJix+a2J7VzFQwnmuvOeMuVllFCOlwgCfw5laPPES9IIxrpxjcroVRKIdWcud9b2XeVJV09L9Qvypuc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=n/kyuZ4s; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1717603294; c=relaxed/simple;
+	bh=F8E5qCXZsUzJj4+kRSAjsgbydKJF3GVK8ajMZne5bPc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ZPB+FhPBxzS9Flvke518bLCS3YjWNkfm30nbSRVvdQi4No/+iSXkGywMuuLXDcVErtyU905cRMPcMfSCaL5JQseAXbXExRQfKq5JTCFBDogUFtsbWLpEQsGnJu4vHZzp4ZK6lsKYSs45hWfD3DN4Yhd3c63YxVFstTDqhJIeTV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iCEkBKrY; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="n/kyuZ4s"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1717592186; h=From:To:Subject:Date:Message-Id;
-	bh=WccimR8a0Usk8PrBUu0npp4F7atMe4rnyDy55Q4iTA8=;
-	b=n/kyuZ4s4iHtXAH2to3EDghWHMKdHEVztaDeTPqH4nTZZdLfczR9B4r/skgXyAaaJvip1XO4OxH4kI7FvaoBDUgYzuS1kgjIVvj4JOQbQGxxv+zlXnzrchlowpA50vWt3WewrKb0+3KpnG6AqEkIKFKFfiD4w2xCWjySOxCHodM=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W7vCi8f_1717592186;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0W7vCi8f_1717592186)
-          by smtp.aliyun-inc.com;
-          Wed, 05 Jun 2024 20:56:26 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-To: kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	wintera@linux.ibm.com,
-	guwen@linux.alibaba.com
-Cc: kuba@kernel.org,
-	davem@davemloft.net,
-	netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	tonylu@linux.alibaba.com,
-	pabeni@redhat.com,
-	edumazet@google.com
-Subject: [PATCH net-next v6 2/3] net/smc: expose smc proto operations
-Date: Wed,  5 Jun 2024 20:56:19 +0800
-Message-Id: <1717592180-66181-3-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1717592180-66181-1-git-send-email-alibuda@linux.alibaba.com>
-References: <1717592180-66181-1-git-send-email-alibuda@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iCEkBKrY"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 455FVOPh005773;
+	Wed, 5 Jun 2024 16:01:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc :
+ content-transfer-encoding : date : from : in-reply-to : message-id :
+ mime-version : references : subject : to; s=pp1;
+ bh=zGZKQo+BF+IuRlQsgDPQAPqNsv2GRr3QMxcWzaD1q4I=;
+ b=iCEkBKrYBpBFV+fsC/6izs8MraakclhhCAR6lGBeS0Z6lkHhJLZqsFV7ph5mHK0Kvf0v
+ /K5HSzTHQAtXM5S042q9jCLLMa7x8pYMSd/8m+v9+OtkVb2qcG7tVyezTHqFho01hoJW
+ kubKL/6dUyDI2chZfmk40kbn+2DQJ4JyHxQhft29K44iTGoLvqZxaqAvKcGptClt262w
+ TuoUmgoBR0RNdy10webOxQMf+5fwjXGfflsh4RhF6E7M8jOJITcD4I/eyfBW6M4XexAn
+ PZdr6WHviSuv0/PbQVHA7z1lJmmWGGt+j+9FJiqW4rjpAmbuxDPymvfSS43Hr4veVtJ2 oA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yjsta08kv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Jun 2024 16:01:28 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 455G1ShF025284;
+	Wed, 5 Jun 2024 16:01:28 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yjsta08kt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Jun 2024 16:01:28 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 455DQ9Io031142;
+	Wed, 5 Jun 2024 16:01:27 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ygeypn2wx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Jun 2024 16:01:27 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 455G1LFb51904852
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 5 Jun 2024 16:01:23 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A3E412005A;
+	Wed,  5 Jun 2024 16:01:21 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 764C22004E;
+	Wed,  5 Jun 2024 16:01:21 +0000 (GMT)
+Received: from dilbert5.boeblingen.de.ibm.com (unknown [9.152.224.39])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  5 Jun 2024 16:01:21 +0000 (GMT)
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Alex Williamson <alex.williamson@redhat.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Ramesh Thomas <ramesh.thomas@intel.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Ankit Agrawal <ankita@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>,
+        Halil Pasic <pasic@linux.ibm.com>, Ben Segal <bpsegal@us.ibm.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>
+Subject: [PATCH v5 1/3] vfio/pci: Extract duplicated code into macro
+Date: Wed,  5 Jun 2024 18:01:10 +0200
+Message-ID: <20240605160112.925957-2-gbayer@linux.ibm.com>
+X-Mailer: git-send-email 2.45.1
+In-Reply-To: <20240605160112.925957-1-gbayer@linux.ibm.com>
+References: <20240605160112.925957-1-gbayer@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Nz5Pp5l_8F8cDjTBDCa9HBQ-2Ek9sDU9
+X-Proofpoint-ORIG-GUID: A_0JKbmmqIOVjc65MSz1Af9y-vK8NEkp
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-05_02,2024-06-05_02,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
+ mlxlogscore=999 priorityscore=1501 malwarescore=0 phishscore=0 bulkscore=0
+ impostorscore=0 lowpriorityscore=0 mlxscore=0 clxscore=1015 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2405010000
+ definitions=main-2406050121
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+vfio_pci_core_do_io_rw() repeats the same code for multiple access
+widths. Factor this out into a macro
 
-Externalize smc proto operations (smc_xxx) to allow
-access from files other than af_smc.c
-
-This is in preparation for the subsequent implementation
-of the AF_INET version of SMC.
-
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Suggested-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
 ---
- net/smc/af_smc.c | 60 ++++++++++++++++++++++++++++----------------------------
- net/smc/smc.h    | 33 +++++++++++++++++++++++++++++++
- 2 files changed, 63 insertions(+), 30 deletions(-)
+ drivers/vfio/pci/vfio_pci_rdwr.c | 106 ++++++++++++++-----------------
+ 1 file changed, 46 insertions(+), 60 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 77a9d58..8e3ce76 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -170,15 +170,15 @@ static bool smc_hs_congested(const struct sock *sk)
- 	return false;
- }
+diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
+index 03b8f7ada1ac..d07bfb0ab892 100644
+--- a/drivers/vfio/pci/vfio_pci_rdwr.c
++++ b/drivers/vfio/pci/vfio_pci_rdwr.c
+@@ -90,6 +90,40 @@ VFIO_IOREAD(8)
+ VFIO_IOREAD(16)
+ VFIO_IOREAD(32)
  
--static struct smc_hashinfo smc_v4_hashinfo = {
-+struct smc_hashinfo smc_v4_hashinfo = {
- 	.lock = __RW_LOCK_UNLOCKED(smc_v4_hashinfo.lock),
- };
- 
--static struct smc_hashinfo smc_v6_hashinfo = {
-+struct smc_hashinfo smc_v6_hashinfo = {
- 	.lock = __RW_LOCK_UNLOCKED(smc_v6_hashinfo.lock),
- };
- 
--static int smc_hash_sk(struct sock *sk)
-+int smc_hash_sk(struct sock *sk)
- {
- 	struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
- 	struct hlist_head *head;
-@@ -193,7 +193,7 @@ static int smc_hash_sk(struct sock *sk)
- 	return 0;
- }
- 
--static void smc_unhash_sk(struct sock *sk)
-+void smc_unhash_sk(struct sock *sk)
- {
- 	struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
- 
-@@ -207,7 +207,7 @@ static void smc_unhash_sk(struct sock *sk)
-  * work which we didn't do because of user hold the sock_lock in the
-  * BH context
-  */
--static void smc_release_cb(struct sock *sk)
-+void smc_release_cb(struct sock *sk)
- {
- 	struct smc_sock *smc = smc_sk(sk);
- 
-@@ -307,7 +307,7 @@ static int __smc_release(struct smc_sock *smc)
- 	return rc;
- }
- 
--static int smc_release(struct socket *sock)
-+int smc_release(struct socket *sock)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -401,8 +401,8 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
- 	return sk;
- }
- 
--static int smc_bind(struct socket *sock, struct sockaddr *uaddr,
--		    int addr_len)
-+int smc_bind(struct socket *sock, struct sockaddr *uaddr,
-+	     int addr_len)
- {
- 	struct sockaddr_in *addr = (struct sockaddr_in *)uaddr;
- 	struct sock *sk = sock->sk;
-@@ -1649,8 +1649,8 @@ static void smc_connect_work(struct work_struct *work)
- 	release_sock(&smc->sk);
- }
- 
--static int smc_connect(struct socket *sock, struct sockaddr *addr,
--		       int alen, int flags)
-+int smc_connect(struct socket *sock, struct sockaddr *addr,
-+		int alen, int flags)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -2631,7 +2631,7 @@ static void smc_clcsock_data_ready(struct sock *listen_clcsock)
- 	read_unlock_bh(&listen_clcsock->sk_callback_lock);
- }
- 
--static int smc_listen(struct socket *sock, int backlog)
-+int smc_listen(struct socket *sock, int backlog)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -2696,8 +2696,8 @@ static int smc_listen(struct socket *sock, int backlog)
- 	return rc;
- }
- 
--static int smc_accept(struct socket *sock, struct socket *new_sock,
--		      struct proto_accept_arg *arg)
-+int smc_accept(struct socket *sock, struct socket *new_sock,
-+	       struct proto_accept_arg *arg)
- {
- 	struct sock *sk = sock->sk, *nsk;
- 	DECLARE_WAITQUEUE(wait, current);
-@@ -2766,8 +2766,8 @@ static int smc_accept(struct socket *sock, struct socket *new_sock,
- 	return rc;
- }
- 
--static int smc_getname(struct socket *sock, struct sockaddr *addr,
--		       int peer)
-+int smc_getname(struct socket *sock, struct sockaddr *addr,
-+		int peer)
- {
- 	struct smc_sock *smc;
- 
-@@ -2780,7 +2780,7 @@ static int smc_getname(struct socket *sock, struct sockaddr *addr,
- 	return smc->clcsock->ops->getname(smc->clcsock, addr, peer);
- }
- 
--static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
-+int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -2818,8 +2818,8 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 	return rc;
- }
- 
--static int smc_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
--		       int flags)
-+int smc_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
-+		int flags)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -2868,8 +2868,8 @@ static __poll_t smc_accept_poll(struct sock *parent)
- 	return mask;
- }
- 
--static __poll_t smc_poll(struct file *file, struct socket *sock,
--			     poll_table *wait)
-+__poll_t smc_poll(struct file *file, struct socket *sock,
-+		  poll_table *wait)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -2921,7 +2921,7 @@ static __poll_t smc_poll(struct file *file, struct socket *sock,
- 	return mask;
- }
- 
--static int smc_shutdown(struct socket *sock, int how)
-+int smc_shutdown(struct socket *sock, int how)
- {
- 	struct sock *sk = sock->sk;
- 	bool do_shutdown = true;
-@@ -3061,8 +3061,8 @@ static int __smc_setsockopt(struct socket *sock, int level, int optname,
- 	return rc;
- }
- 
--static int smc_setsockopt(struct socket *sock, int level, int optname,
--			  sockptr_t optval, unsigned int optlen)
-+int smc_setsockopt(struct socket *sock, int level, int optname,
-+		   sockptr_t optval, unsigned int optlen)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -3148,8 +3148,8 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 	return rc;
- }
- 
--static int smc_getsockopt(struct socket *sock, int level, int optname,
--			  char __user *optval, int __user *optlen)
-+int smc_getsockopt(struct socket *sock, int level, int optname,
-+		   char __user *optval, int __user *optlen)
- {
- 	struct smc_sock *smc;
- 	int rc;
-@@ -3174,8 +3174,8 @@ static int smc_getsockopt(struct socket *sock, int level, int optname,
- 	return rc;
- }
- 
--static int smc_ioctl(struct socket *sock, unsigned int cmd,
--		     unsigned long arg)
-+int smc_ioctl(struct socket *sock, unsigned int cmd,
-+	      unsigned long arg)
- {
- 	union smc_host_cursor cons, urg;
- 	struct smc_connection *conn;
-@@ -3261,9 +3261,9 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
-  * Note that subsequent recv() calls have to wait till all splice() processing
-  * completed.
-  */
--static ssize_t smc_splice_read(struct socket *sock, loff_t *ppos,
--			       struct pipe_inode_info *pipe, size_t len,
--			       unsigned int flags)
-+ssize_t smc_splice_read(struct socket *sock, loff_t *ppos,
-+			struct pipe_inode_info *pipe, size_t len,
-+			unsigned int flags)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 3edec1e..34b781e 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -34,6 +34,39 @@
- extern struct proto smc_proto;
- extern struct proto smc_proto6;
- 
-+extern struct smc_hashinfo smc_v4_hashinfo;
-+extern struct smc_hashinfo smc_v6_hashinfo;
++#define VFIO_IORDWR(size)						\
++static int vfio_pci_iordwr##size(struct vfio_pci_core_device *vdev,\
++				bool iswrite, bool test_mem,		\
++				void __iomem *io, char __user *buf,	\
++				loff_t off, size_t *filled)		\
++{									\
++	u##size val;							\
++	int ret;							\
++									\
++	if (iswrite) {							\
++		if (copy_from_user(&val, buf, sizeof(val)))		\
++			return -EFAULT;					\
++									\
++		ret = vfio_pci_core_iowrite##size(vdev, test_mem,	\
++						  val, io + off);	\
++		if (ret)						\
++			return ret;					\
++	} else {							\
++		ret = vfio_pci_core_ioread##size(vdev, test_mem,	\
++						 &val, io + off);	\
++		if (ret)						\
++			return ret;					\
++									\
++		if (copy_to_user(buf, &val, sizeof(val)))		\
++			return -EFAULT;					\
++	}								\
++									\
++	*filled = sizeof(val);						\
++	return 0;							\
++}									\
 +
-+int smc_hash_sk(struct sock *sk);
-+void smc_unhash_sk(struct sock *sk);
-+void smc_release_cb(struct sock *sk);
-+
-+int smc_release(struct socket *sock);
-+int smc_bind(struct socket *sock, struct sockaddr *uaddr,
-+	     int addr_len);
-+int smc_connect(struct socket *sock, struct sockaddr *addr,
-+		int alen, int flags);
-+int smc_accept(struct socket *sock, struct socket *new_sock,
-+	       struct proto_accept_arg *arg);
-+int smc_getname(struct socket *sock, struct sockaddr *addr,
-+		int peer);
-+__poll_t smc_poll(struct file *file, struct socket *sock,
-+		  poll_table *wait);
-+int smc_ioctl(struct socket *sock, unsigned int cmd,
-+	      unsigned long arg);
-+int smc_listen(struct socket *sock, int backlog);
-+int smc_shutdown(struct socket *sock, int how);
-+int smc_setsockopt(struct socket *sock, int level, int optname,
-+		   sockptr_t optval, unsigned int optlen);
-+int smc_getsockopt(struct socket *sock, int level, int optname,
-+		   char __user *optval, int __user *optlen);
-+int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len);
-+int smc_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
-+		int flags);
-+ssize_t smc_splice_read(struct socket *sock, loff_t *ppos,
-+			struct pipe_inode_info *pipe, size_t len,
-+			unsigned int flags);
-+
- /* smc sock initialization */
- void smc_sk_init(struct net *net, struct sock *sk, int protocol);
- /* clcsock initialization */
++VFIO_IORDWR(8)
++VFIO_IORDWR(16)
++VFIO_IORDWR(32)
+ /*
+  * Read or write from an __iomem region (MMIO or I/O port) with an excluded
+  * range which is inaccessible.  The excluded range drops writes and fills
+@@ -115,71 +149,23 @@ ssize_t vfio_pci_core_do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
+ 			fillable = 0;
+ 
+ 		if (fillable >= 4 && !(off % 4)) {
+-			u32 val;
+-
+-			if (iswrite) {
+-				if (copy_from_user(&val, buf, 4))
+-					return -EFAULT;
+-
+-				ret = vfio_pci_core_iowrite32(vdev, test_mem,
+-							      val, io + off);
+-				if (ret)
+-					return ret;
+-			} else {
+-				ret = vfio_pci_core_ioread32(vdev, test_mem,
+-							     &val, io + off);
+-				if (ret)
+-					return ret;
+-
+-				if (copy_to_user(buf, &val, 4))
+-					return -EFAULT;
+-			}
++			ret = vfio_pci_iordwr32(vdev, iswrite, test_mem,
++						io, buf, off, &filled);
++			if (ret)
++				return ret;
+ 
+-			filled = 4;
+ 		} else if (fillable >= 2 && !(off % 2)) {
+-			u16 val;
+-
+-			if (iswrite) {
+-				if (copy_from_user(&val, buf, 2))
+-					return -EFAULT;
+-
+-				ret = vfio_pci_core_iowrite16(vdev, test_mem,
+-							      val, io + off);
+-				if (ret)
+-					return ret;
+-			} else {
+-				ret = vfio_pci_core_ioread16(vdev, test_mem,
+-							     &val, io + off);
+-				if (ret)
+-					return ret;
+-
+-				if (copy_to_user(buf, &val, 2))
+-					return -EFAULT;
+-			}
++			ret = vfio_pci_iordwr16(vdev, iswrite, test_mem,
++						io, buf, off, &filled);
++			if (ret)
++				return ret;
+ 
+-			filled = 2;
+ 		} else if (fillable) {
+-			u8 val;
+-
+-			if (iswrite) {
+-				if (copy_from_user(&val, buf, 1))
+-					return -EFAULT;
+-
+-				ret = vfio_pci_core_iowrite8(vdev, test_mem,
+-							     val, io + off);
+-				if (ret)
+-					return ret;
+-			} else {
+-				ret = vfio_pci_core_ioread8(vdev, test_mem,
+-							    &val, io + off);
+-				if (ret)
+-					return ret;
+-
+-				if (copy_to_user(buf, &val, 1))
+-					return -EFAULT;
+-			}
++			ret = vfio_pci_iordwr8(vdev, iswrite, test_mem,
++					       io, buf, off, &filled);
++			if (ret)
++				return ret;
+ 
+-			filled = 1;
+ 		} else {
+ 			/* Fill reads with -1, drop writes */
+ 			filled = min(count, (size_t)(x_end - off));
 -- 
-1.8.3.1
+2.45.1
 
