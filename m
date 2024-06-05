@@ -1,116 +1,139 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECEFB225D9;
-	Wed,  5 Jun 2024 06:01:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70526138C;
+	Wed,  5 Jun 2024 07:32:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717567293; cv=none; b=fGUxUmBNJ4gO20gPi9HdUMYhHkSJ4CbPICsuHH1R0FXNL713X0n8Aiwp5VKw21qybhT4G6ZfrS/tNyb4UB/b9C/uqJlp9+8q7YXN5pEIqAupfRX0fmV2wDjBFjJI1+stXP4tRG6b9ApGvy+MmU4dVdn4/htfAr8rIm0L/3fsB1g=
+	t=1717572742; cv=none; b=i8MJGsqDJfBSl3q6iP5eYghQFpdQF9lrgfOrJuxS2tIO4veTqs1QcgaeHq93BHoXHy46MM0xGKppUGvv7HFonsmefsrllhwKAMOusxgo8WFDatQ0dATEnRfGDVYPAkMHyprMLOgVN2mVhUMyQKDSnw+a1lZxerYTMsCtf5O3EwI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717567293; c=relaxed/simple;
-	bh=kspRoPiqT+60w/910CphqXYKi5/A7+b0R+YvgoUpxZc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DLXKgmW/eslF6jbeLaWu8Q/rH+MK7sFMZoXhbyvVajyw5IU7/QpOEm6ukI0uQ9d+gbTu6kfpOQocuUG5svhdDcYguQclHCnDS2K9AZC1rNwtbvWbMO2axYS77/5zK0TAh4w13CFLTOqm4vXOwHafP+g/m36ZJbfb1pn9xwgEvRQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=St/YVqDJ; arc=none smtp.client-ip=115.124.30.100
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1717572742; c=relaxed/simple;
+	bh=jxiMqK/qoSpG7BoFuO7Uq645iV9+VIvBfydEXV+kbh8=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=D2VspmoVm7edymuqD5Oz9Waa6A8OD1ixwwkCy3+XGnA3Bvj4CSzwxG0knWfk8Ob+tZw5Og8gqG6B3Iwy1iCpXbQc4Vq0tiTQSVJVfv7yWLQLO70s9/Zk5wesVVvIR6Xtigo4urLUZRL2SyZ+mdn9lOA8iDc9vvvkEJlVze1P4H8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UmkJ9PZs; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="St/YVqDJ"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1717567282; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=7770HT+DXXn2uXZuUaw8VKFeHVqNBA2X1DYZ7hOedW8=;
-	b=St/YVqDJe1lhFH2rmcg3mHt8YDInlq7ToOb77QOwpq3qha8rbSTPWt1yytlsMaWF//NmIVJcgVUe3Wdk1BrUdyiNxCFeW3JgV5nq9brwnbwDto8FsIxN6JoqLJHaMSY7gfRQkK8CvtKGSo61y9FCYJcnb4wensfOsqMfprcF8x8=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0W7t4AJs_1717567280;
-Received: from 30.221.129.197(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W7t4AJs_1717567280)
-          by smtp.aliyun-inc.com;
-          Wed, 05 Jun 2024 14:01:21 +0800
-Message-ID: <1884a3ff-1a1a-419c-b474-4d37bf760a77@linux.alibaba.com>
-Date: Wed, 5 Jun 2024 14:01:20 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UmkJ9PZs"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 4557KgZa031215;
+	Wed, 5 Jun 2024 07:32:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc :
+ content-transfer-encoding : content-type : date : from : in-reply-to :
+ message-id : mime-version : references : subject : to; s=pp1;
+ bh=yaPFcbWJ5avj4dovrxFDY+m3nOHUcg+2PK5N5iWoeY0=;
+ b=UmkJ9PZsR3a8kGaWzBqPV1Vt78FV0PW8tlUnhmWTgnlr3pYYtgzOfv4L5cfk1Ja4ZTzD
+ Pn37BTgxMDPTY81Z96l7YxTlHUVvKpD3DKkNBUEN/+kPe2WAClDLxYHHyTnowQpqEocl
+ UtgHleMF/1f63xU5L6eIXkxqrtuOTWNuIDMbw/Rv72qjqDPheJ6IZDcOqSVPOzw4rBKj
+ wVmtg1cCIHefrnoo7FDgq/yGX6Hb8UGGN0mxpaSCVi5cNcJ7fBiAH/QL3AeRp20uAEf+
+ LpPDRPjfNxFWu27/fjd/NgA99y/Ss68sdbcwru54UXOD7QW+45aFPd1QONIv0BJW/0TG Nw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yjjm5g69f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Jun 2024 07:32:18 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4557WHEN021901;
+	Wed, 5 Jun 2024 07:32:17 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yjjm5g69e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Jun 2024 07:32:17 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45550ccp026550;
+	Wed, 5 Jun 2024 07:32:16 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yggp32d55-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Jun 2024 07:32:16 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4557WB5350135526
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 5 Jun 2024 07:32:13 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8C4E92004D;
+	Wed,  5 Jun 2024 07:32:11 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0D3BB20040;
+	Wed,  5 Jun 2024 07:32:11 +0000 (GMT)
+Received: from li-1de7cd4c-3205-11b2-a85c-d27f97db1fe1.ibm.com (unknown [9.171.49.245])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed,  5 Jun 2024 07:32:10 +0000 (GMT)
+From: "Marc Hartmayer" <mhartmay@linux.ibm.com>
+To: Nicholas Piggin <npiggin@gmail.com>, linux-s390@vger.kernel.org,
+        Thomas
+ Huth <thuth@redhat.com>
+Cc: kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
+        Nico Boehr
+ <nrb@linux.ibm.com>, Steffen Eiden <seiden@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v1 1/3] s390x/Makefile: snippets: Add
+ separate target for the ELF snippets
+In-Reply-To: <D1ROTQ8S7W3G.3V7M7B6AMQWOR@gmail.com>
+References: <20240604115932.86596-1-mhartmay@linux.ibm.com>
+ <20240604115932.86596-2-mhartmay@linux.ibm.com>
+ <D1ROTQ8S7W3G.3V7M7B6AMQWOR@gmail.com>
+Date: Wed, 05 Jun 2024 09:32:09 +0200
+Message-ID: <87msnzetfq.fsf@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: avoid overwriting when adjusting sock
- bufsizes
-To: Gerd Bayer <gbayer@linux.ibm.com>, wenjia@linux.ibm.com,
- jaka@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com
-Cc: alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20240531085417.43104-1-guwen@linux.alibaba.com>
- <cc606c7b6fb53d00d80122b987c94bd7cb385af0.camel@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <cc606c7b6fb53d00d80122b987c94bd7cb385af0.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Wy3Kvo6EJ-tJr9R2NeGeHV1seNrC4oNS
+X-Proofpoint-GUID: 4rKtzRlyWxlHYXnprUF14i13wCGeagJd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-04_11,2024-06-05_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 adultscore=0 malwarescore=0 mlxscore=0 suspectscore=0
+ phishscore=0 bulkscore=0 lowpriorityscore=0 spamscore=0 mlxlogscore=999
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2405010000 definitions=main-2406050055
 
+On Wed, Jun 05, 2024 at 11:21 AM +1000, "Nicholas Piggin" <npiggin@gmail.co=
+m> wrote:
+> On Tue Jun 4, 2024 at 9:59 PM AEST, Marc Hartmayer wrote:
+>> It's unusual to create multiple files in one target rule, and it's even =
+more
+>> unusual to create an ELF file with a `.gbin` file extension first, and t=
+hen
+>> overwrite it in the next step. It might even lead to errors as the input=
+ file
+>> path is also used as the output file path - but this depends on the objc=
+opy
+>> implementation. Therefore, create an extra target for the ELF files and =
+list it
+>> as a prerequisite for the *.gbin targets.
+>
+> I had some pain trying to figure out another ("pretty printing") patch
+> that changed some s390x/Makefile because of this. As far as I can tell
+> it looks good.
 
+Hehe yes. Thomas sent me the following error message:
 
-On 2024/6/5 00:16, Gerd Bayer wrote:
-> Hi Wen Gu,
-> 
-> sorry for the late reply, I'm just catching up after a bit of a
-> vacation.
+/usr/bin/s390x-linux-gnu-ld: warning: s390x/snippets/c/mvpg-snippet.gbin
+has a LOAD segment with RWX permissions
 
-No worries at all, I hope you had a great vacation!
+=E2=80=A6and at first this was totally confusing until I=E2=80=99ve looked =
+at the code=E2=80=A6 :)
 
-> 
-> On Fri, 2024-05-31 at 16:54 +0800, Wen Gu wrote:
->> When copying smc settings to clcsock, avoid setting clcsock's
->> sk_sndbuf to sysctl_tcp_wmem[1], since this may overwrite the value
->> set by tcp_sndbuf_expand() in TCP connection establishment.
->>
->> And the other setting sk_{snd|rcv}buf to sysctl value in
->> smc_adjust_sock_bufsizes() can also be omitted since the
->> initialization of smc sock and clcsock has set sk_{snd|rcv}buf to
->> smc.sysctl_{w|r}mem or ipv4_sysctl_tcp_{w|r}mem[1].
->>
->> Fixes: 30c3c4a4497c ("net/smc: Use correct buffer sizes when
->> switching between TCP and SMC")
->> Link:
->> https://lore.kernel.org/r/5eaf3858-e7fd-4db8-83e8-3d7a3e0e9ae2@linux.alibaba.com
->> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
->> ---
->> FYI,
->> The detailed motivation and testing can be found in the link above.
->> ---
+>
+> Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
 
-<...>
+Thanks.
 
-> 
-> As Wenjia already said, we've discussed this a bit.
-> As I remember, I've added the sections to copy over the sysctl values
-> as a "safety measure" when moving between smc/clc sockets - but had the
-> wrong assumption in mind that e.g. in a fall-back a new TCP handshake
-> would be done. Apparently, we didn't test the buffer size behavior in
-> these scenarios enough to notice the "weird" behavior.
-> 
-> So we reviewed your initial report of the oddity per your message in
-> the link above, too.
-> 
-> We fully agree that if no connection at the SMC level could be
-> established, you should expect the socket buffersizes be used that had
-> been established for the TCP connection - regardless if the fallback is
-> due to the server or the client.
-> 
-> So feel free to add my
-> Reviewed-by: Gerd Bayer <gbayer@linux.ibm.com>, too.
-> 
+[=E2=80=A6snip]
 
-Hi, Gerd and Wenjia. Thanks a lot for your confirmation.
+--=20
+Kind regards / Beste Gr=C3=BC=C3=9Fe
+   Marc Hartmayer
 
-And as for the last question in the initial report (link above), that
-why the server does not call smc_copy_sock_settings_to_clc() like the
-client when fallback happens, I guess it is because at the time that
-server fallback, the new_smc sock has not been accepted, so there will
-be no user's sock settings that needs to be copied to clcsock.
-
-Thanks!
-
-> Thanks,
-> Gerd
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Wolfgang Wendt
+Gesch=C3=A4ftsf=C3=BChrung: David Faller
+Sitz der Gesellschaft: B=C3=B6blingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
