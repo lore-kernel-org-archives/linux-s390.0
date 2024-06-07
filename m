@@ -1,80 +1,63 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC8CA143864;
-	Fri,  7 Jun 2024 20:32:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C32B1154C09;
+	Fri,  7 Jun 2024 22:07:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717792371; cv=none; b=P1lmhmltIUCRjSMl0kFq9GNhIkwVSzUIhkRNRCIAqe7UGzRl5We4FS+6aGGkB7q5IEk9djtgXF1Q1Iz/x1D2Cmvx0MexlGH2ogpoXZZQ1ChT0Y5daCNtjQTuzOJ+vBzDZZ0Xc3uXsVncdAwyrMc1jy8snbPTJjnMZtgdDmCt2hE=
+	t=1717798072; cv=none; b=VLm8egWYCIt0xAH16azFjRKFAAVrqJK6g42cDbXVspR1werr2GIPdGoZvW81hIe/Pa8KhGgsL9GcLkZ7lJ3rRAjse3/mZsdGDHhnHGX9iR4IKPCq1MfEQzancL+BzbvxmLevXCUv2AmYlOwUkRxhNN9OtSzOiFZoXElgHDckh80=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717792371; c=relaxed/simple;
-	bh=cQS3SD3BPxuj8SuRnqpzvh5wVyukzx93gck4SNGGdYE=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=pji5xthcKDyxRWfIXQkRZpvTUl26p6hyHRHYCWLyC5UIrPLbEQX9BSuVYp53a0oFOnAzFE8m13w/d7/fomF43CSpvwqBZc1EVy46VVVLbuC7rV3ae6tBcygB9JnJPPzDYEAOhPc+mS0mjC9vCdbraTU0QoP/egPrAH+zuLld0yQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JczuZEET; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1717798072; c=relaxed/simple;
+	bh=kQc3uyz5rcLUQ8DXfZdiGnT4ldBszqckC2ZqYRG8IdY=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=fHs2JCiiQl5xAMDvNc8Xj6/Q81p7zIDquB9TyJSOJvL+X0M3D87lzxg7Hx58aum/Ydz3fNl2Nb6hr36LCJpLQbFnzIA2u3hxrcDPhpUUmmwb0fLccKxNKCbArk+M5+6ffsIqyD9NPgXwgGMPnuwf03lr+0jd+aY3vZ1BegpC1/c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C3H6zkjA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JczuZEET"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12F0FC2BBFC;
-	Fri,  7 Jun 2024 20:32:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C3H6zkjA"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 68027C32781;
+	Fri,  7 Jun 2024 22:07:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1717792371;
-	bh=cQS3SD3BPxuj8SuRnqpzvh5wVyukzx93gck4SNGGdYE=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=JczuZEETSt8ZKgu0sh6D9aTbTcq+mqMZlw8pQFQOHG+T5xSafn6vY9Lc7owldFs0x
-	 sEbsmYEAz2182B8LwxmUtWbAm6vj2z2nE8yILXdGmlyVAHV8clBgMvooXTY27NTad4
-	 We8vD99+OB0JTgivP9CO1fb95Lj23ZVuZk0nxWIkZGGAtt1t5Vze/QU0NXKsMhbg3g
-	 50C3hwxCyuM7FflN8XMcpQvlk3q2uQRsclZJOZphzUEGHBRW+DAubWWvswmuoMQpQ/
-	 7gpONk1qu5NsSwDtydhxvmrSbZBTjEC0WI10ggc9FMkBGjzC+Luo2s7ywhSbDeNXu5
-	 Bmh94AkOMSvlA==
-Date: Fri, 7 Jun 2024 13:32:50 -0700 (PDT)
-From: Mat Martineau <martineau@kernel.org>
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-cc: Matthieu Baerts <matttbe@kernel.org>, kgraul@linux.ibm.com, 
-    wenjia@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com, 
-    guwen@linux.alibaba.com, kuba@kernel.org, davem@davemloft.net, 
-    netdev@vger.kernel.org, linux-s390@vger.kernel.org, 
-    linux-rdma@vger.kernel.org, tonylu@linux.alibaba.com, 
-    Paolo Abeni <pabeni@redhat.com>, edumazet@google.com
-Subject: Re: [PATCH net-next v6 3/3] net/smc: Introduce IPPROTO_SMC
-In-Reply-To: <e6b66001-f3cb-4367-aeaf-600fbc5f77b2@linux.alibaba.com>
-Message-ID: <ae0e195a-28d2-039f-6f3e-65161ada47d7@kernel.org>
-References: <1717592180-66181-1-git-send-email-alibuda@linux.alibaba.com> <1717592180-66181-4-git-send-email-alibuda@linux.alibaba.com> <6e0f1c4a-4911-51c3-02fa-a449f2434ef1@kernel.org> <ffe06909-6152-4349-9b60-5697a038ac19@linux.alibaba.com>
- <ed6bde75-2783-446e-b667-204ed55071b5@kernel.org> <61b94bf6-a383-afff-db62-261cac7360c7@kernel.org> <e6b66001-f3cb-4367-aeaf-600fbc5f77b2@linux.alibaba.com>
+	s=k20201202; t=1717798072;
+	bh=kQc3uyz5rcLUQ8DXfZdiGnT4ldBszqckC2ZqYRG8IdY=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=C3H6zkjAyEbK+PyL//07vojlvhc2KIkvpagEK8m/Xg+Eyfcqh6CRWiCSH0Fmd037u
+	 w2JPnlfL/PnbBStgTX6olKos3UAHIbhbDucsoCMTrK/UI/QllHOEMkuwKxmWlW4gX4
+	 xaaibaOXB72IsJUxzdbDY/ypTUuuBRGqkKsUr/pmorZk4CXKO6UYjKxtPz43q1nYRU
+	 0PNFKFoEU3wbr44qCLTNE53xnJ2xRqODCbXyH9xn8KrXtjj4fkimlLEiZwxCnlPa0f
+	 rGYZPBwwozmFF+lnKD3JJ3ktrqQPZlPIIjDG9nx6LyuXUB7HFlz7iLEGrIvJ8HBdSt
+	 k+M+xpjtWITvw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 5C534CF3BA3;
+	Fri,  7 Jun 2024 22:07:52 +0000 (UTC)
+Subject: Re: [GIT PULL] s390 fixes for 6.10-rc3
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <ZmMWz7/EN3YsRfOH@tuxmaker.boeblingen.de.ibm.com>
+References: <ZmMWz7/EN3YsRfOH@tuxmaker.boeblingen.de.ibm.com>
+X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
+X-PR-Tracked-Message-Id: <ZmMWz7/EN3YsRfOH@tuxmaker.boeblingen.de.ibm.com>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.10-3
+X-PR-Tracked-Commit-Id: 01c51a32dc18f128d2e55a7b2128b77fc01a2285
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 8d6b029e15ab47986e486f52b2b768ca6faa5cbe
+Message-Id: <171779807236.32288.14386927163885041612.pr-tracker-bot@kernel.org>
+Date: Fri, 07 Jun 2024 22:07:52 +0000
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-2041299453-1717792371=:89802"
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+The pull request you sent on Fri, 7 Jun 2024 16:18:55 +0200:
 
---0-2041299453-1717792371=:89802
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8BIT
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.10-3
 
-On Sat, 8 Jun 2024, D. Wythe wrote:
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/8d6b029e15ab47986e486f52b2b768ca6faa5cbe
 
-> Hi Mat and Matthieu,
->
-> Thanks very much for your feedback!  The reasons you all have provided are 
-> already quite convincing.
-> In fact, as I mentioned earlier, I actually don't have sufficient grounds to 
-> insist on 263.  It seems it's time for a change. 😉
->
+Thank you!
 
-Ok, sounds like a good plan.
-
-> Regarding the new value of IPPROTO_SMC, do you have any recommendations?
-> Which one might be better, 256 or 261?
-
-Not sure there's a clear winner. If you use 256 that could be a hint for 
-the next developer to use 257 for a future IPPROTO, so I slightly prefer 
-256.
-
-
-- Mat
-
---0-2041299453-1717792371=:89802--
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
