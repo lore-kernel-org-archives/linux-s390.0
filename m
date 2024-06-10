@@ -1,305 +1,125 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 306D1153BC3;
-	Sat,  8 Jun 2024 09:12:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72B6B139578
+	for <linux-s390@vger.kernel.org>; Mon, 10 Jun 2024 15:10:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717837966; cv=none; b=u6ACrp+zP2C+o/1ae6B8JHgCUGEDH02FuTrE1SrckOjezkCq0OYvV6WzjxeoLXLWmRuPFSyPHoOQ2jGJRxy1nDl4fWhxJCs+iN5m3Fj3RxEAIlNxDdZfhKKLO2UV4iWI5ZRLFCPtTVzG2Ko9UWzlvslGp/6ozuLw6J48Nkx37HI=
+	t=1718032258; cv=none; b=qe6ElWXcZU69+esk9FzmILuswzYdIrX3jBSOlSaHzgrBer3VnI7jHdL0YEL9c9Rr1++w73mXchX/Wvdf9Om/yW4ugXtsegxSHfbUmCk6OuMN6tjbIvRSl4DF0UzqGnVCjqMB4WCY3aPtcKwUMGkh4GBPgpZO8qzdyb9yfswOJzY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717837966; c=relaxed/simple;
-	bh=Luz3dC9ONvaKo5cRyEIjnxiQfVhft3Knnn1gUhb7Kjs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=JBFT+nNBXkf6uV3cJb+VFEqRKCdGl5cLvdxHAMtZTNBix3RfrJeq3BADh7XrVQvPUOtL5zH5JZbYadOMfFZaZM4j1OfkhQ0AKjonYw2d4j1VJV98Ze6A7ak6EdzSYw/j+ktEaYjq8XXyVz//g2icujR/2pBS/uTx8ft4jumCG7o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=FrCLg9Li; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1718032258; c=relaxed/simple;
+	bh=xry+WaKilr/02uNr1YK8GZQa/FXdBwI7DmGZAcKOIJk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=P5ZE/xiGZky7nUUtVITNu9HAygI4shTuTz7xGep9MmotDGyTGXbxaciqt/TlqJkywCsi8aD0PvWa0jc9AYtdq4d9D8dxjwfxBCYgRU2rgDFxXVxNtphLESJEWeQcmGFj30TaCfbiM6KutEYDHea9JE0VZMUCtwB6qlu42tPM+mc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UUIe9Vsn; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="FrCLg9Li"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1717837955; h=From:To:Subject:Date:Message-Id;
-	bh=tMxW1FUK15/1/ssi2GhdfFGJD/4Xaom1SZF0WgIWpu4=;
-	b=FrCLg9LiA+Rhhi7g9uQCTRjwI5QU8SuYMU68tCM/tWHRbqs7eOsIdgpnE2cLskI7u0YnWTbUlSxVmwKlq999G+mJo8yh/8GwE12VCCzuWYv1VGCxx3jUlHpT+tnkJlZkaryFKrPVMxQo5rdlpeGaugyX6JCZzU8w3rlHHTZ4A5M=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W81AVIn_1717837954;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0W81AVIn_1717837954)
-          by smtp.aliyun-inc.com;
-          Sat, 08 Jun 2024 17:12:34 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-To: kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	wintera@linux.ibm.com,
-	guwen@linux.alibaba.com
-Cc: kuba@kernel.org,
-	davem@davemloft.net,
-	netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	tonylu@linux.alibaba.com,
-	pabeni@redhat.com,
-	edumazet@google.com
-Subject: [PATCH net-next v7 2/3] net/smc: expose smc proto operations
-Date: Sat,  8 Jun 2024 17:12:28 +0800
-Message-Id: <1717837949-88904-3-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1717837949-88904-1-git-send-email-alibuda@linux.alibaba.com>
-References: <1717837949-88904-1-git-send-email-alibuda@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UUIe9Vsn"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45AEwpRX000808
+	for <linux-s390@vger.kernel.org>; Mon, 10 Jun 2024 15:10:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:mime-version
+	:content-transfer-encoding; s=pp1; bh=zdjjMU/+35scgx9NoZZ85F8XcE
+	gm+xyuASJk3PDoLbI=; b=UUIe9VsnAND4Ns5jJJGzKPUwF6oKFFZMNv0wdlBduQ
+	ds1+Zi3XCr+gXCPSyqsiO8d9rY1pkCvAsVItFrTFDMJZuNICVylcfeJ+UHoCb0gd
+	EWSLJbANVi54zfkx2KATdQ9CR00zeb8jvZw5AUp/aEsm0c1jjeC3eVZR/11X5iL3
+	0QVac1aDUOt7dwU2Xa59cOLuN5UbGHm1RUWB0PKiz0TONDtrAcKljmvE1IlraoWM
+	7CrF5akwAxIoL69e20Aq6NircIbogUCq88FqaJK0iJrh+NjFa7L/KIJQwuRBWs0w
+	/dEqIckt7vfmhS0JZeQrKJWZlM12mRI1dsgC06lNhU9g==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yp3qe011r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Mon, 10 Jun 2024 15:10:55 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45ADb6n0027209
+	for <linux-s390@vger.kernel.org>; Mon, 10 Jun 2024 15:10:54 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yn210gb15-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Mon, 10 Jun 2024 15:10:54 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45AFAmhQ45285684
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 10 Jun 2024 15:10:50 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 995DF2004B;
+	Mon, 10 Jun 2024 15:10:48 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 88D7120040;
+	Mon, 10 Jun 2024 15:10:48 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 10 Jun 2024 15:10:48 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+	id 22FAAE11CB; Mon, 10 Jun 2024 17:10:48 +0200 (CEST)
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Subject: [PATCH] s390/sclp: define commands for storage (un)assignment
+Date: Mon, 10 Jun 2024 17:10:48 +0200
+Message-Id: <20240610151048.2548428-1-agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: B3pGgNECvDh2EK1NZbS6iM4xdO6k_iSU
+X-Proofpoint-GUID: B3pGgNECvDh2EK1NZbS6iM4xdO6k_iSU
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-10_02,2024-06-10_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 impostorscore=0 phishscore=0 adultscore=0 clxscore=1015
+ bulkscore=0 malwarescore=0 lowpriorityscore=0 suspectscore=0 mlxscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2405170001 definitions=main-2406100113
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+Replace immediate values with SCLP_CMDW_UN|ASSIGN_STORAGE defines.
 
-Externalize smc proto operations (smc_xxx) to allow
-access from files other than af_smc.c
-
-This is in preparation for the subsequent implementation
-of the AF_INET version of SMC.
-
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Tested-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 ---
- net/smc/af_smc.c | 60 ++++++++++++++++++++++++++++----------------------------
- net/smc/smc.h    | 33 +++++++++++++++++++++++++++++++
- 2 files changed, 63 insertions(+), 30 deletions(-)
+ drivers/s390/char/sclp_cmd.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 77a9d58..8e3ce76 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -170,15 +170,15 @@ static bool smc_hs_congested(const struct sock *sk)
- 	return false;
- }
+diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
+index 11c428f4c7cf..9741d849febb 100644
+--- a/drivers/s390/char/sclp_cmd.c
++++ b/drivers/s390/char/sclp_cmd.c
+@@ -29,6 +29,9 @@
  
--static struct smc_hashinfo smc_v4_hashinfo = {
-+struct smc_hashinfo smc_v4_hashinfo = {
- 	.lock = __RW_LOCK_UNLOCKED(smc_v4_hashinfo.lock),
- };
+ #include "sclp.h"
  
--static struct smc_hashinfo smc_v6_hashinfo = {
-+struct smc_hashinfo smc_v6_hashinfo = {
- 	.lock = __RW_LOCK_UNLOCKED(smc_v6_hashinfo.lock),
- };
- 
--static int smc_hash_sk(struct sock *sk)
-+int smc_hash_sk(struct sock *sk)
++#define SCLP_CMDW_ASSIGN_STORAGE	0x000d0001
++#define SCLP_CMDW_UNASSIGN_STORAGE	0x000c0001
++
+ static void sclp_sync_callback(struct sclp_req *req, void *data)
  {
- 	struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
- 	struct hlist_head *head;
-@@ -193,7 +193,7 @@ static int smc_hash_sk(struct sock *sk)
- 	return 0;
- }
- 
--static void smc_unhash_sk(struct sock *sk)
-+void smc_unhash_sk(struct sock *sk)
- {
- 	struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
- 
-@@ -207,7 +207,7 @@ static void smc_unhash_sk(struct sock *sk)
-  * work which we didn't do because of user hold the sock_lock in the
-  * BH context
-  */
--static void smc_release_cb(struct sock *sk)
-+void smc_release_cb(struct sock *sk)
- {
- 	struct smc_sock *smc = smc_sk(sk);
- 
-@@ -307,7 +307,7 @@ static int __smc_release(struct smc_sock *smc)
- 	return rc;
- }
- 
--static int smc_release(struct socket *sock)
-+int smc_release(struct socket *sock)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -401,8 +401,8 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
- 	return sk;
- }
- 
--static int smc_bind(struct socket *sock, struct sockaddr *uaddr,
--		    int addr_len)
-+int smc_bind(struct socket *sock, struct sockaddr *uaddr,
-+	     int addr_len)
- {
- 	struct sockaddr_in *addr = (struct sockaddr_in *)uaddr;
- 	struct sock *sk = sock->sk;
-@@ -1649,8 +1649,8 @@ static void smc_connect_work(struct work_struct *work)
- 	release_sock(&smc->sk);
- }
- 
--static int smc_connect(struct socket *sock, struct sockaddr *addr,
--		       int alen, int flags)
-+int smc_connect(struct socket *sock, struct sockaddr *addr,
-+		int alen, int flags)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -2631,7 +2631,7 @@ static void smc_clcsock_data_ready(struct sock *listen_clcsock)
- 	read_unlock_bh(&listen_clcsock->sk_callback_lock);
- }
- 
--static int smc_listen(struct socket *sock, int backlog)
-+int smc_listen(struct socket *sock, int backlog)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -2696,8 +2696,8 @@ static int smc_listen(struct socket *sock, int backlog)
- 	return rc;
- }
- 
--static int smc_accept(struct socket *sock, struct socket *new_sock,
--		      struct proto_accept_arg *arg)
-+int smc_accept(struct socket *sock, struct socket *new_sock,
-+	       struct proto_accept_arg *arg)
- {
- 	struct sock *sk = sock->sk, *nsk;
- 	DECLARE_WAITQUEUE(wait, current);
-@@ -2766,8 +2766,8 @@ static int smc_accept(struct socket *sock, struct socket *new_sock,
- 	return rc;
- }
- 
--static int smc_getname(struct socket *sock, struct sockaddr *addr,
--		       int peer)
-+int smc_getname(struct socket *sock, struct sockaddr *addr,
-+		int peer)
- {
- 	struct smc_sock *smc;
- 
-@@ -2780,7 +2780,7 @@ static int smc_getname(struct socket *sock, struct sockaddr *addr,
- 	return smc->clcsock->ops->getname(smc->clcsock, addr, peer);
- }
- 
--static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
-+int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -2818,8 +2818,8 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 	return rc;
- }
- 
--static int smc_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
--		       int flags)
-+int smc_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
-+		int flags)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -2868,8 +2868,8 @@ static __poll_t smc_accept_poll(struct sock *parent)
- 	return mask;
- }
- 
--static __poll_t smc_poll(struct file *file, struct socket *sock,
--			     poll_table *wait)
-+__poll_t smc_poll(struct file *file, struct socket *sock,
-+		  poll_table *wait)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -2921,7 +2921,7 @@ static __poll_t smc_poll(struct file *file, struct socket *sock,
- 	return mask;
- }
- 
--static int smc_shutdown(struct socket *sock, int how)
-+int smc_shutdown(struct socket *sock, int how)
- {
- 	struct sock *sk = sock->sk;
- 	bool do_shutdown = true;
-@@ -3061,8 +3061,8 @@ static int __smc_setsockopt(struct socket *sock, int level, int optname,
- 	return rc;
- }
- 
--static int smc_setsockopt(struct socket *sock, int level, int optname,
--			  sockptr_t optval, unsigned int optlen)
-+int smc_setsockopt(struct socket *sock, int level, int optname,
-+		   sockptr_t optval, unsigned int optlen)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-@@ -3148,8 +3148,8 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 	return rc;
- }
- 
--static int smc_getsockopt(struct socket *sock, int level, int optname,
--			  char __user *optval, int __user *optlen)
-+int smc_getsockopt(struct socket *sock, int level, int optname,
-+		   char __user *optval, int __user *optlen)
- {
- 	struct smc_sock *smc;
+ 	struct completion *completion = data;
+@@ -223,7 +226,7 @@ static int sclp_assign_storage(u16 rn)
+ 	unsigned long long start;
  	int rc;
-@@ -3174,8 +3174,8 @@ static int smc_getsockopt(struct socket *sock, int level, int optname,
- 	return rc;
+ 
+-	rc = do_assign_storage(0x000d0001, rn);
++	rc = do_assign_storage(SCLP_CMDW_ASSIGN_STORAGE, rn);
+ 	if (rc)
+ 		return rc;
+ 	start = rn2addr(rn);
+@@ -233,7 +236,7 @@ static int sclp_assign_storage(u16 rn)
+ 
+ static int sclp_unassign_storage(u16 rn)
+ {
+-	return do_assign_storage(0x000c0001, rn);
++	return do_assign_storage(SCLP_CMDW_UNASSIGN_STORAGE, rn);
  }
  
--static int smc_ioctl(struct socket *sock, unsigned int cmd,
--		     unsigned long arg)
-+int smc_ioctl(struct socket *sock, unsigned int cmd,
-+	      unsigned long arg)
- {
- 	union smc_host_cursor cons, urg;
- 	struct smc_connection *conn;
-@@ -3261,9 +3261,9 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
-  * Note that subsequent recv() calls have to wait till all splice() processing
-  * completed.
-  */
--static ssize_t smc_splice_read(struct socket *sock, loff_t *ppos,
--			       struct pipe_inode_info *pipe, size_t len,
--			       unsigned int flags)
-+ssize_t smc_splice_read(struct socket *sock, loff_t *ppos,
-+			struct pipe_inode_info *pipe, size_t len,
-+			unsigned int flags)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 3edec1e..34b781e 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -34,6 +34,39 @@
- extern struct proto smc_proto;
- extern struct proto smc_proto6;
- 
-+extern struct smc_hashinfo smc_v4_hashinfo;
-+extern struct smc_hashinfo smc_v6_hashinfo;
-+
-+int smc_hash_sk(struct sock *sk);
-+void smc_unhash_sk(struct sock *sk);
-+void smc_release_cb(struct sock *sk);
-+
-+int smc_release(struct socket *sock);
-+int smc_bind(struct socket *sock, struct sockaddr *uaddr,
-+	     int addr_len);
-+int smc_connect(struct socket *sock, struct sockaddr *addr,
-+		int alen, int flags);
-+int smc_accept(struct socket *sock, struct socket *new_sock,
-+	       struct proto_accept_arg *arg);
-+int smc_getname(struct socket *sock, struct sockaddr *addr,
-+		int peer);
-+__poll_t smc_poll(struct file *file, struct socket *sock,
-+		  poll_table *wait);
-+int smc_ioctl(struct socket *sock, unsigned int cmd,
-+	      unsigned long arg);
-+int smc_listen(struct socket *sock, int backlog);
-+int smc_shutdown(struct socket *sock, int how);
-+int smc_setsockopt(struct socket *sock, int level, int optname,
-+		   sockptr_t optval, unsigned int optlen);
-+int smc_getsockopt(struct socket *sock, int level, int optname,
-+		   char __user *optval, int __user *optlen);
-+int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len);
-+int smc_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
-+		int flags);
-+ssize_t smc_splice_read(struct socket *sock, loff_t *ppos,
-+			struct pipe_inode_info *pipe, size_t len,
-+			unsigned int flags);
-+
- /* smc sock initialization */
- void smc_sk_init(struct net *net, struct sock *sk, int protocol);
- /* clcsock initialization */
+ struct attach_storage_sccb {
 -- 
-1.8.3.1
+2.40.1
 
