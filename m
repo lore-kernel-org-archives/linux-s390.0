@@ -1,93 +1,164 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38419757EE
-	for <linux-s390@vger.kernel.org>; Mon, 10 Jun 2024 15:28:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72652BA42;
+	Tue, 11 Jun 2024 03:17:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718033307; cv=none; b=iGZbXAneYeCi0YNQDHxnxe2aLM5K7mg4zClTKKMk2qLyIqcNEEElxAfSOGeTqzKstwVyukCpV/lVK3FpwTNYGkKKQEeQTiQAzoOwMkGyyjQ4oX27Xa1amEzC4tdXVSdl2p7ZxRVyhyynUNV1p8Sx82bJAJJMSpZWMyjH7Bfv5YQ=
+	t=1718075843; cv=none; b=Kc+0nl1+YoKblT/IzKsCvRc8BgehVt0B2Rt7j5N7IJt5AhQ9yUvL17rPKf/Q8S9szgPUHykZSR1C/5rhMBrT/4SCk/UI2Z8Gx1GqTlZiHAD8ghx3k9UrKfhV2RP46JvypqbsoehZozjByPoHynY9ztHb1adZlCGiFb326EZ0WLQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718033307; c=relaxed/simple;
-	bh=REavA+9qwQCksGNRC4cky+85H2qlYJLMCFR36VDKq6Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BNXZ2dPADaHVE1wZNwMWwonvZgg+dviSFYV0OrvY+4OxLvewBYfIinOwaAQxG3ejoIGNRW4C71yc23SDW3aewmdeNINbZlO5wCSJHSA/j3WsmET2nPuzHQftl7mifwcEPBIm1ivuRN3o52G/QPZzzeUs5oqvtl9/b+nxO9kjL38=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=r7/VpHBT; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="r7/VpHBT"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45ADRAk4007811
-	for <linux-s390@vger.kernel.org>; Mon, 10 Jun 2024 15:28:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:references:mime-version
-	:content-type:in-reply-to; s=pp1; bh=l/CXmdQGnauQ0sAUq5GDPmNOXQg
-	XTo1rzOjyOmjJwVc=; b=r7/VpHBTx2Nrer84gwJOtJVALj7XWK3vRku+ejkJpNW
-	psTU0rNmNJSu2iTlbMU6osbmm5czhA9gl0w41hRJPiWDRxDGByquFOqGthLKEthT
-	WUu/v7lMCwpKrTWVyS8Y6W4qQNhO0OPY7Ixn93RbhBFJ0k+Akbob8YdQr/Ewu9+h
-	b9M/ssRO16F8M/koQ5rCCW1L3j0Kxaj/qO8ltQapOn9HziiaTSl6oJzW/AEQ0X+N
-	N0bNcJJQ/714NQEy7YAJy1z2x7gBkC6R4G7T2rXZJo5uKPhPYO7bbb/hM9oZxPDW
-	Ptco/MBcGwaqjOV34jLWbdNiFd3Q9VfMj7V2W/Ir9zg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yp1y50fh9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Mon, 10 Jun 2024 15:28:25 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45ADb6rk027209
-	for <linux-s390@vger.kernel.org>; Mon, 10 Jun 2024 15:28:24 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yn210gda1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Mon, 10 Jun 2024 15:28:24 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45AFSIM022872520
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 10 Jun 2024 15:28:20 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 588C42004F;
-	Mon, 10 Jun 2024 15:28:18 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0699220043;
-	Mon, 10 Jun 2024 15:28:18 +0000 (GMT)
-Received: from osiris (unknown [9.179.30.137])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 10 Jun 2024 15:28:17 +0000 (GMT)
-Date: Mon, 10 Jun 2024 17:28:16 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH] s390/sclp: define commands for storage (un)assignment
-Message-ID: <20240610152816.20549-C-hca@linux.ibm.com>
-References: <20240610151048.2548428-1-agordeev@linux.ibm.com>
+	s=arc-20240116; t=1718075843; c=relaxed/simple;
+	bh=jTg1jp0c8Fovh+0yRZbaZ+CIe7vWhQquUeeZ4ruU8q0=;
+	h=Message-ID:Date:From:To:Cc:Subject:References:MIME-Version:
+	 Content-Type; b=ZvIFT0FOgklKnRqDfUinTQ2okqfU6E78DrWCqmjPEUzSWjJAY9EI67EqsLQAjPJyDO2xyVvzo2i9NBbTPAXoRUjPmAOXeXVgXlaVbjh7uS72Vb4A4lsz5Csr67JEvSycs2BAbhhzsBBVVEZ7aOepB3cWFo7AxATnTJPHPPZScqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07B51C2BBFC;
+	Tue, 11 Jun 2024 03:17:23 +0000 (UTC)
+Received: from rostedt by gandalf with local (Exim 4.97)
+	(envelope-from <rostedt@goodmis.org>)
+	id 1sGs0v-00000001Jgi-42JD;
+	Mon, 10 Jun 2024 23:17:37 -0400
+Message-ID: <20240611031737.821995106@goodmis.org>
+User-Agent: quilt/0.68
+Date: Mon, 10 Jun 2024 23:09:35 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: linux-kernel@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org,
+ loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org
+Cc: Masami Hiramatsu <mhiramat@kernel.org>,
+ Mark Rutland <mark.rutland@arm.com>,
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ Jonathan Corbet <corbet@lwn.net>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Will Deacon <will@kernel.org>,
+ Guo Ren <guoren@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>,
+ Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+ Paul Walmsley <paul.walmsley@sifive.com>,
+ Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>,
+ Yang Li <yang.lee@linux.alibaba.com>
+Subject: [PATCH 1/2] function_graph: Fix up ftrace_graph_ret_addr()
+References: <20240611030934.162955582@goodmis.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240610151048.2548428-1-agordeev@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: jLbl30xGj4df4JAPhg8feht2VOUF5uwr
-X-Proofpoint-GUID: jLbl30xGj4df4JAPhg8feht2VOUF5uwr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-10_02,2024-06-10_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- mlxlogscore=635 impostorscore=0 adultscore=0 mlxscore=0 spamscore=0
- lowpriorityscore=0 priorityscore=1501 clxscore=1011 phishscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2405170001 definitions=main-2406100117
+Content-Type: text/plain; charset=UTF-8
 
-On Mon, Jun 10, 2024 at 05:10:48PM +0200, Alexander Gordeev wrote:
-> Replace immediate values with SCLP_CMDW_UN|ASSIGN_STORAGE defines.
-> 
-> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> ---
->  drivers/s390/char/sclp_cmd.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
 
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Yang Li sent a patch to fix the kerneldoc of ftrace_graph_ret_addr().
+While reviewing it, I realized that the comments in the entire function
+header needed a rewrite. When doing that, I realized that @idx parameter
+was being ignored. Every time this was called by the unwinder, it would
+start the loop at the top of the shadow stack and look for the matching
+stack pointer. When it found it, it would return it. When the unwinder
+asked for the next function, it would search from the beginning again.
+
+In reality, it should start from where it left off. That was the reason
+for the @idx parameter in the first place. The first time the unwinder
+calls this function, the @idx pointer would contain zero. That would mean
+to start from the top of the stack. The function was supposed to update
+the @idx with the index where it found the return address, so that the
+next time the unwinder calls this function it doesn't have to search
+through the previous addresses it found (making it O(n^2)!).
+
+This speeds up the unwinder's use of ftrace_graph_ret_addr() by an order
+of magnitude.
+
+Link: https://lore.kernel.org/linux-trace-kernel/20240610181746.656e3759@gandalf.local.home/
+
+Reported-by: Yang Li <yang.lee@linux.alibaba.com>
+Fixes: 7aa1eaef9f428 ("function_graph: Allow multiple users to attach to function graph")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+---
+ kernel/trace/fgraph.c | 28 ++++++++++++++++++++--------
+ 1 file changed, 20 insertions(+), 8 deletions(-)
+
+diff --git a/kernel/trace/fgraph.c b/kernel/trace/fgraph.c
+index 63d0c2f84ce1..91f1eef256af 100644
+--- a/kernel/trace/fgraph.c
++++ b/kernel/trace/fgraph.c
+@@ -870,18 +870,24 @@ ftrace_graph_get_ret_stack(struct task_struct *task, int idx)
+ }
+ 
+ /**
+- * ftrace_graph_ret_addr - convert a potentially modified stack return address
+- *			   to its original value
++ * ftrace_graph_ret_addr - return the original value of the return address
++ * @task: The task the unwinder is being executed on
++ * @idx: An initialized pointer to the next stack index to use
++ * @ret: The current return address (likely pointing to return_handler)
++ * @retp: The address on the stack of the current return location
+  *
+  * This function can be called by stack unwinding code to convert a found stack
+- * return address ('ret') to its original value, in case the function graph
++ * return address (@ret) to its original value, in case the function graph
+  * tracer has modified it to be 'return_to_handler'.  If the address hasn't
+- * been modified, the unchanged value of 'ret' is returned.
++ * been modified, the unchanged value of @ret is returned.
+  *
+- * 'idx' is a state variable which should be initialized by the caller to zero
+- * before the first call.
++ * @idx holds the last index used to know where to start from. It should be
++ * initialized to zero for the first iteration as that will mean to start
++ * at the top of the shadow stack. If the location is found, this pointer
++ * will be assigned that location so that if called again, it will continue
++ * where it left off.
+  *
+- * 'retp' is a pointer to the return address on the stack.  It's ignored if
++ * @retp is a pointer to the return address on the stack.  It's ignored if
+  * the arch doesn't have HAVE_FUNCTION_GRAPH_RET_ADDR_PTR defined.
+  */
+ #ifdef HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
+@@ -895,6 +901,10 @@ unsigned long ftrace_graph_ret_addr(struct task_struct *task, int *idx,
+ 	if (ret != return_handler)
+ 		return ret;
+ 
++	if (!idx)
++		return ret;
++
++	i = *idx ? : task->curr_ret_stack;
+ 	while (i > 0) {
+ 		ret_stack = get_ret_stack(current, i, &i);
+ 		if (!ret_stack)
+@@ -908,8 +918,10 @@ unsigned long ftrace_graph_ret_addr(struct task_struct *task, int *idx,
+ 		 * Thus we will continue to find real return address.
+ 		 */
+ 		if (ret_stack->retp == retp &&
+-		    ret_stack->ret != return_handler)
++		    ret_stack->ret != return_handler) {
++			*idx = i;
+ 			return ret_stack->ret;
++		}
+ 	}
+ 
+ 	return ret;
+-- 
+2.43.0
+
+
