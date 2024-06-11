@@ -1,241 +1,105 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B53051DA4E;
-	Tue, 11 Jun 2024 15:56:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C7C758ADD
+	for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2024 16:50:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718121417; cv=none; b=jCwO2xDh9rpYdpsnT9pXxHIpHbPPkdDwz1LT48MLX/PZ9Pp9MVBpzVqe4f/4z+wc06ok2akifxjmTu4b6S3454m/IdJctdBsrfFwyIQRF0iOCiQAapfmkHuaCEA7n/or307hlldWQ95dscNvAhpiv8JHQvmQHMFG8PZ4YVObC6Q=
+	t=1718124660; cv=none; b=GfiiYF9BzQGd7Q5noLh9IeJ9UP9ARE3lDqDxTYLaKDoA7Wrra8kADHnzU4S9ww00iGLEV0XYhJcLxxUmlxavnx3Q1qUr72GRJA+1TFMixVD8zMlnWh9VzvX7KnIZNg7vuEYHmDWI94wqazWCL2G1vsZ4mejf1sGN3ErtpYXvVJA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718121417; c=relaxed/simple;
-	bh=45+dVaWKEseo9wRgdUbebA5x8u1OeoPOZXERLsoqD5A=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=I1u4HiZukwPTUmXWYcCEdEoX1NtKoT9HOTJGNbyvNfj3Ly2ryGgJXaVVgkbJTd4SI5E7t3KWSXYzIEKacoyZ1PIJ1Fe/b5KedqgIYffosLgRGAB4lg5CPfkhzyB7YHPazdtyYpIXoaD3e0yViN2OKMwlLtK3inKlwpw9co1JeBA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=i0SwK53x; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1718124660; c=relaxed/simple;
+	bh=2FT/emrK48iE3dx07WXN0ST/iq8T21acuyaCQMRLCLQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=N8Zv5CwySfiWAbVp1jyL56B2PcXchJyu0qW3eBDtz5BjpwBsFJMJFDt6OI1HU8+NpS2b59B/x2fXbpRw+B5PLP8RDflJp4qPgsIiZkqFxW8c+bSM8bpAFpD+nkzG7JX5EizLYyru1T1P4nqMoy0KnA/1E0dcuLh55dRG3jHyuBs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=toxicpanda.com; spf=none smtp.mailfrom=toxicpanda.com; dkim=pass (2048-bit key) header.d=toxicpanda-com.20230601.gappssmtp.com header.i=@toxicpanda-com.20230601.gappssmtp.com header.b=Zt6ibg/s; arc=none smtp.client-ip=209.85.219.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=toxicpanda.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=toxicpanda.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="i0SwK53x"
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45BDRAPK030409;
-	Tue, 11 Jun 2024 15:56:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:subject:from:to:cc:date:in-reply-to:references
-	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
-	45+dVaWKEseo9wRgdUbebA5x8u1OeoPOZXERLsoqD5A=; b=i0SwK53xA6lC6JVJ
-	gotszV1ia/m2nXYoEYtEPkir92GzedxRAwwqG5l3zA6kOn33KWvhItyXslXsxcLo
-	u1b8E9xn1OhrUUnRotp6kMxb90cqVA5IvKTl66346ARHumFq/pgclsblE9ibL9Gm
-	z4Xi+jKfFHhCzgke8caud+HOOqc/gDDPi/3X11Jn1PNRyuLNRFfVb2BUqB/w7JDA
-	e1goxjBYz1xp7OZVHz97AVp0zWo1u+hhI1rmePOA0ZzfR+8MglrHvdE4pAPv6l6z
-	pwEVWBKtQgZU7LOVImDrDkVCqDTeWb/L9CpacGu9iN8xGqdbWWQ747AQ/y92dk1D
-	0/EefA==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ypnrcrnmf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Jun 2024 15:56:54 +0000 (GMT)
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45BFuJHP002650;
-	Tue, 11 Jun 2024 15:56:53 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ypnrcrnmb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Jun 2024 15:56:53 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45BEVcSa020066;
-	Tue, 11 Jun 2024 15:56:52 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yn34mxk54-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Jun 2024 15:56:52 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45BFun1845548140
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Jun 2024 15:56:51 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B0DEF58059;
-	Tue, 11 Jun 2024 15:56:49 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E46DD5804B;
-	Tue, 11 Jun 2024 15:56:46 +0000 (GMT)
-Received: from [9.179.8.185] (unknown [9.179.8.185])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Jun 2024 15:56:46 +0000 (GMT)
-Message-ID: <b7d247a8759982f3fda64ad250151672452aed84.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 1/3] s390/pci: Fix s390_mmio_read/write syscall page
- fault handling
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>,
-        Gerald Schaefer
- <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily
- Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Gerd
- Bayer <gbayer@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Suren Baghdasaryan <surenb@google.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Date: Tue, 11 Jun 2024 17:56:46 +0200
-In-Reply-To: <89c74380-6a60-4091-ba57-93c75d9a37d7@redhat.com>
-References: <20240529-vfio_pci_mmap-v3-0-cd217d019218@linux.ibm.com>
-	 <20240529-vfio_pci_mmap-v3-1-cd217d019218@linux.ibm.com>
-	 <98de56b1ba37f51639b9a2c15a745e19a45961a0.camel@linux.ibm.com>
-	 <30ecb17b7a3414aeb605c51f003582c7f2cf6444.camel@linux.ibm.com>
-	 <db10735e74d5a89aed73ad3268e0be40394efc31.camel@linux.ibm.com>
-	 <ce7b9655-aaeb-4a13-a3ac-bd4a70bbd173@redhat.com>
-	 <32b515269a31e177779f4d2d4fe2c05660beccc4.camel@linux.ibm.com>
-	 <89c74380-6a60-4091-ba57-93c75d9a37d7@redhat.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
- /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
- 3/1pjpNlSaX/qg3ZM8+/EiSGc7uEPklLYu3gRGxcWV/944HdUyLcnjrZwCn2+gg9ncVJjsimS0ro/
- 2wU2RPE4ju6NMBn5Go26sAj1owdYQQv9t0d71CmZS9Bh+2+cLjC7HvyTHKFxVGOznUL+j1a45VrVS
- XQ+nhTVjvgvXR84z10bOvLiwxJZ/00pwNi7uCdSYnZFLQ4S/JGMs4lhOiCGJhJ/9FR7JVw/1t1G9a
- UlqVp23AXwzbcoV2fxyE/CsVpHcyOWGDahGLcH7QeitN6cjltf9ymw2spBzpRnfFn80nVxgSYVG1d
- w75ksBAuQ/3e+oTQk4GAa2ShoNVsvR9GYn7rnsDN5pVILDhdPO3J2PGIXa5ipQnvwb3EHvPXyzakY
- tK50fBUPKk3XnkRwRYEbbPEB7YT+ccF/HioCryqDPWUivXF8qf6Jw5T1mhwukUV1i+QyJzJxGPh19
- /N2/GK7/yS5wrt0Lwxzevc5g+jX8RyjzywOZGHTVu9KIQiG8Pqx33UxZvykjaqTMjo7kaAdGEkrHZ
- dVHqoPZwhCsgQARAQABtChOaWtsYXMgU2NobmVsbGUgPHNjaG5lbGxlQGxpbnV4LmlibS5jb20+iQ
- JXBBMBCABBAhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAhkBFiEEnbAAstJ1IDCl9y3cr+Q/Fej
- CYJAFAmWVooIFCQWP+TMACgkQr+Q/FejCYJCmLg/+OgZD6wTjooE77/ZHmW6Egb5nUH6DU+2nMHMH
- UupkE3dKuLcuzI4aEf/6wGG2xF/LigMRrbb1iKRVk/VG/swyLh/OBOTh8cJnhdmURnj3jhaefzslA
- 1wTHcxeH4wMGJWVRAhOfDUpMMYV2J5XoroiA1+acSuppelmKAK5voVn9/fNtrVr6mgBXT5RUnmW60
- UUq5z6a1zTMOe8lofwHLVvyG9zMgv6Z9IQJc/oVnjR9PWYDUX4jqFL3yO6DDt5iIQCN8WKaodlNP6
- 1lFKAYujV8JY4Ln+IbMIV2h34cGpIJ7f76OYt2XR4RANbOd41+qvlYgpYSvIBDml/fT2vWEjmncm7
- zzpVyPtCZlijV3npsTVerGbh0Ts/xC6ERQrB+rkUqN/fx+dGnTT9I7FLUQFBhK2pIuD+U1K+A+Egw
- UiTyiGtyRMqz12RdWzerRmWFo5Mmi8N1jhZRTs0yAUn3MSCdRHP1Nu3SMk/0oE+pVeni3ysdJ69Sl
- kCAZoaf1TMRdSlF71oT/fNgSnd90wkCHUK9pUJGRTUxgV9NjafZy7sx1Gz11s4QzJE6JBelClBUiF
- 6QD4a+MzFh9TkUcpG0cPNsFfEGyxtGzuoeE86sL1tk3yO6ThJSLZyqFFLrZBIJvYK2UiD+6E7VWRW
- 9y1OmPyyFBPBosOvmrkLlDtAtyfYInO0KU5pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNjaG5lbGxlQ
- GlibS5jb20+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAAstJ1IDCl9y
- 3cr+Q/FejCYJAFAmWVoosFCQWP+TMACgkQr+Q/FejCYJB7oxAAksHYU+myhSZD0YSuYZl3oLDUEFP
- 3fm9m6N9zgtiOg/GGI0jHc+Tt8qiQaLEtVeP/waWKgQnje/emHJOEDZTb0AdeXZk+T5/ydrKRLmYC
- 6rPge3ue1yQUCiA+T72O3WfjZILI2yOstNwd1f0epQ32YaAvM+QbKDloJSmKhGWZlvdVUDXWkS6/m
- aUtUwZpddFY8InXBxsYCbJsqiKF3kPVD515/6keIZmZh1cTIFQ+Kc+UZaz0MxkhiCyWC4cH6HZGKR
- fiXLhPlmmAyW9FiZK9pwDocTLemfgMR6QXOiB0uisdoFnjhXNfp6OHSy7w7LTIHzCsJoHk+vsyvSp
- +fxkjCXgFzGRQaJkoX33QZwQj1mxeWl594QUfR4DIZ2KERRNI0OMYjJVEtB5jQjnD/04qcTrSCpJ5
- ZPtiQ6Umsb1c9tBRIJnL7gIslo/OXBe/4q5yBCtCZOoD6d683XaMPGhi/F6+fnGvzsi6a9qDBgVvt
- arI8ybayhXDuS6/StR8qZKCyzZ/1CUofxGVIdgkseDhts0dZ4AYwRVCUFQULeRtyoT4dKfEot7hPE
- /4wjm9qZf2mDPRvJOqss6jObTNuw1YzGlpe9OvDYtGeEfHgcZqEmHbiMirwfGLaTG2xKDx4g2jd2z
- Ocf83TCERFKJEhvZxB3tRiUQTd3dZ1TIaisv/o+y0K05pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNj
- aG5lbGxlQGdtYWlsLmNvbT6JAlQEEwEIAD4CGwEFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AWIQSds
- ACy0nUgMKX3Ldyv5D8V6MJgkAUCZZWiiwUJBY/5MwAKCRCv5D8V6MJgkNVuEACo12niyoKhnXLQFt
- NaqxNZ+8p/MGA7g2XcVJ1bYMPoZ2Wh8zwX0sKX/dLlXVHIAeqelL5hIv6GoTykNqQGUN2Kqf0h/z7
- b85o3tHiqMAQV0dAB0y6qdIwdiB69SjpPNK5KKS1+AodLzosdIVKb+LiOyqUFKhLnablni1hiKlqY
- yDeD4k5hePeQdpFixf1YZclGZLFbKlF/A/0Q13USOHuAMYoA/iSgJQDMSUWkuC0mNxdhfVt/gVJnu
- Kq+uKUghcHflhK+yodqezlxmmRxg6HrPVqRG4pZ6YNYO7YXuEWy9JiEH7MmFYcjNdgjn+kxx4IoYU
- O0MJ+DjLpVCV1QP1ZvMy8qQxScyEn7pMpQ0aW6zfJBsvoV3EHCR1emwKYO6rJOfvtu1rElGCTe3sn
- sScV9Z1oXlvo8pVNH5a2SlnsuEBQe0RXNXNJ4RAls8VraGdNSHi4MxcsYEgAVHVaAdTLfJcXZNCIU
- cZejkOE+U2talW2n5sMvx+yURAEVsT/50whYcvomt0y81ImvCgUz4xN1axZ3PCjkgyhNiqLe+vzge
- xq7B2Kx2++hxIBDCKLUTn8JUAtQ1iGBZL9RuDrBy2rR7xbHcU2424iSbP0zmnpav5KUg4F1JVYG12
- vDCi5tq5lORCL28rjOQqE0aLHU1M1D2v51kjkmNuc2pgLDFzpvgLQhTmlrbGFzIFNjaG5lbGxlIDx
- uaWtzQGtlcm5lbC5vcmc+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAA
- stJ1IDCl9y3cr+Q/FejCYJAFAmWVoosFCQWP+TMACgkQr+Q/FejCYJAglRAAihbDxiGLOWhJed5cF
- kOwdTZz6MyYgazbr+2sFrfAhX3hxPFoG4ogY/BzsjkN0cevWpSigb2I8Y1sQD7BFWJ2OjpEpVQd0D
- sk5VbJBXEWIVDBQ4VMoACLUKgfrb0xiwMRg9C2h6KlwrPBlfgctfvrWWLBq7+oqx73CgxqTcGpfFy
- tD87R4ovR9W1doZbh7pjsH5Ae9xX5PnQFHruib3y35zC8+tvSgvYWv3Eg/8H4QWlrjLHHy2AfZDVl
- 9F5t5RfGL8NRsiTdVg9VFYg/GDdck9WPEgdO3L/qoq3Iuk0SZccGl+Nj8vtWYPKNlu2UvgYEbB8cl
- UoWhg+SjjYQka7/p6tc+CCPZ8JUpkgkAdt7yXt6370wP1gct2VztS6SEGcmAE1qxtGhi5Kuln4ZJ/
- UO2yxhPHgoW99OuZw3IRHe0+mNR67JbIpSuFWDFNjZ0nckQcU1taSEUi0euWs7i4MEkm0NsOsVhbs
- 4D2vMiC6kO/FqWOPmWZeAjyJw/KRUG4PaJAr5zJUx57nhKWgeTniW712n4DwCUh77D/PHY0nqBTG/
- B+QQCR/FYGpTFkO4DRVfapT8njDrsWyVpP9o64VNZP42S+DuRGWfUKCMAXsM/wPzRiDEVfnZMcUR9
- vwLSHeoV7MiIFC0xIrp5ES9R00t4UFgqtGc36DV71qjR+66Im0=
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.2 (3.52.2-1.fc40) 
+	dkim=pass (2048-bit key) header.d=toxicpanda-com.20230601.gappssmtp.com header.i=@toxicpanda-com.20230601.gappssmtp.com header.b="Zt6ibg/s"
+Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-dfa727cde2dso6227390276.0
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2024 09:50:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=toxicpanda-com.20230601.gappssmtp.com; s=20230601; t=1718124657; x=1718729457; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=k7qH/Egkqtc5OmSCKcG8suDn1pwScsKWRQ+gioBgKgY=;
+        b=Zt6ibg/sXDFPcB1PdqLbi9y9Lq84fI4dtsabAaKnS71DR4ge4yMuB1Z9lS7wA4wHrn
+         shpAYklqhBt+02fv/lI70+9yLugOwkE6jd95eVKnaVgZYxsTh2WCsmHTgQ1UVgNRVLal
+         wmO5N6RWxwgoiytstIBOrWyQFGmt3N38VbBAgwcFn/bnZiw+iwyuahz+8bpIWwoYMk5k
+         XMp/oVXEeglCEkIcBUpukavQm3svwzpoI5LogCeDIIPsZ/TBEY3fH93kounsMrkvv0iU
+         qwThWU60dMvFW8JzcIe4TZiEEXk0LdCstA848HdLhK4LdxhwQLIYyB46hHTq4v902MUD
+         ZUhQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718124657; x=1718729457;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=k7qH/Egkqtc5OmSCKcG8suDn1pwScsKWRQ+gioBgKgY=;
+        b=R9CFYwsGpisc4xIACWH/4BOOoeGbL9DdL/KtdalEe3P+s8WEb3kBq8tYVtRSSFyBv7
+         jJ8ggmKNuaVzS2bG3bQiR9DvWoUYiOJB6Yc5K3nA9MLtMz3NdD59pnh0Wa/kQv531SVW
+         C1IcCZnig5X8tdxLx0qwlcKW/4mPAyOQykVWG+jRgTsnjVNaHn2DcAtC0+bVxMdZgugh
+         gW7hFkjiwWTW1Q6jjjcpT7IGMkPiq0zLfAhiG+yvdLpfbrrAk58yRLCPneGwqHDXz63W
+         g/stKfxisiA2pu7u6sNKRHbvSUqdDxZlLwR7wpplHm/nNZMMU6XYdpW5z9gGnSLf9i1D
+         kWDw==
+X-Forwarded-Encrypted: i=1; AJvYcCWECIKc+SNdLcsyr+uq0j/B7ZB/jvEJqv3nwfodWIrf7apex5u6OFck7zR4DRr5OkoJSm6yLZTVHxOAsBhtSqKBfxGUXrLGBM5vdw==
+X-Gm-Message-State: AOJu0YzCEz93YO/1h7PffjSS0Xwvg+O8y4WYwxTFl8AQWReLew5fdcuF
+	7n14iwiszE+tYbljDEnb1y7AXA7r2yMl+NnKMjmhkEAHPqcCpQFLIkve1nkdQh0=
+X-Google-Smtp-Source: AGHT+IFLbNcRGoXteJvsvQz9ePKtTqtffGprFSIVvQoC+S7q0aJ0DFFhhqHjAFy+KyUVXYjD8ktBew==
+X-Received: by 2002:a0d:d851:0:b0:618:95a3:70b9 with SMTP id 00721157ae682-62cd565129cmr130634777b3.36.1718124656832;
+        Tue, 11 Jun 2024 09:50:56 -0700 (PDT)
+Received: from localhost (syn-076-182-020-124.res.spectrum.com. [76.182.20.124])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-62ccaef2825sm20935207b3.139.2024.06.11.09.50.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Jun 2024 09:50:56 -0700 (PDT)
+Date: Tue, 11 Jun 2024 12:50:55 -0400
+From: Josef Bacik <josef@toxicpanda.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Geert Uytterhoeven <geert@linux-m68k.org>,
+	Richard Weinberger <richard@nod.at>,
+	Philipp Reisner <philipp.reisner@linbit.com>,
+	Lars Ellenberg <lars.ellenberg@linbit.com>,
+	Christoph =?iso-8859-1?Q?B=F6hmwalder?= <christoph.boehmwalder@linbit.com>,
+	Ming Lei <ming.lei@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Roger Pau =?iso-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>,
+	Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
+	Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
+	Yu Kuai <yukuai3@huawei.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
+	drbd-dev@lists.linbit.com, nbd@other.debian.org,
+	linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+	linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
+	linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
+	linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
+	linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
+Subject: Re: [PATCH 09/26] nbd: move setting the cache control flags to
+ __nbd_set_size
+Message-ID: <20240611165055.GD247672@perftesting>
+References: <20240611051929.513387-1-hch@lst.de>
+ <20240611051929.513387-10-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0nJyeWLg9QpUTK0SdVYcJDDvlXBRGmUk
-X-Proofpoint-GUID: Y-yDEF0epXdZjAlLdMais6SfnTi6TkgT
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-11_09,2024-06-11_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1015 mlxscore=0 suspectscore=0 phishscore=0 bulkscore=0
- adultscore=0 priorityscore=1501 malwarescore=0 impostorscore=0
- mlxlogscore=787 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2405170001 definitions=main-2406110114
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240611051929.513387-10-hch@lst.de>
 
-On Tue, 2024-06-11 at 17:10 +0200, David Hildenbrand wrote:
-> > >=20
-> > > which checks mmap_assert_write_locked().
-> > >=20
-> > > Setting VMA flags would be racy with the mmap lock in read mode.
-> > >=20
-> > >=20
-> > > remap_pfn_range() documents: "this is only safe if the mm semaphore i=
-s
-> > > held when called." which doesn't spell out if it needs to be held in
-> > > write mode (which I think it does) :)
-> >=20
-> > Logically this makes sense to me. At the same time it looks like
-> > fixup_user_fault() expects the caller to only hold mmap_read_lock() as
-> > I do here. In there it even retakes mmap_read_lock(). But then wouldn't
-> > any fault handling by its nature need to hold the write lock?
->=20
-> Well, if you're calling remap_pfn_range() right now the expectation is=
-=20
-> that we hold it in write mode. :)
->=20
-> Staring at some random users, they all call it from mmap(), where you=20
-> hold the mmap lock in write mode.
->=20
->=20
-> I wonder why we are not seeing that splat with vfio all of the time?
->=20
-> That mmap lock check was added "recently". In 1c71222e5f23 we started=20
-> using vm_flags_set(). That (including the mmap_assert_write_locked())=20
-> check was added via bc292ab00f6c almost 1.5 years ago.
->=20
-> Maybe vfio is a bit special and was never really run with lockdep?
->=20
-> >=20
-> > >=20
-> > >=20
-> > > My best guess is: if you are using remap_pfn_range() from a fault
-> > > handler (not during mmap time) you are doing something wrong, that's =
-why
-> > > you get that report.
-> >=20
-> > @Alex: I guess so far the vfio_pci_mmap_fault() handler is only ever
-> > triggered by "normal"/"actual" page faults where this isn't a problem?
-> > Or could it be a problem there too?
-> >=20
->=20
-> I think we should see it there as well, unless I am missing something.
->=20
-> > >=20
-> > > vmf_insert_pfn() and friends might be better alternatives, that make
-> > > sure that the VMA already received the proper VMA flags at mmap time.
-> > >=20
->=20
->=20
-> There would be ways of silencing that check: for example, making sure at=
-=20
-> mmap time that these flags are already set, and skipping modifications=
-=20
-> if the flags are already set.
->=20
-> But, we'll run into more similar checks in x86 VM_PAT code, where we=20
-> would do vm_flags_set(vma, VM_PAT) from track_pfn_remap. Some of that=20
-> code really doesn't want to be called concurrently (e.g., "vma->vm_pgoff=
-=20
-> =3D pfn;").
->=20
-> I thought that we silenced some of these warnings in the past using=20
-> __vm_flags_mod(). But it sounds hacky.
->=20
-> CCing Sureen.
->=20
+On Tue, Jun 11, 2024 at 07:19:09AM +0200, Christoph Hellwig wrote:
+> Move setting the cache control flags in nbd in preparation for moving
+> these flags into the queue_limits structure.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Before I forget it, thanks a lot for your incredible help David!
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+
+Thanks,
+
+Josef
