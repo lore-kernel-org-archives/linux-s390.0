@@ -1,291 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8212E1E488;
-	Tue, 11 Jun 2024 03:17:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7C3F8C04;
+	Tue, 11 Jun 2024 05:19:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718075843; cv=none; b=bzFhPBjXkT2+OQSGdRKTUXzMmJgmnFPm776I2tAVlvuMrfzi8Pup8DiFu5USKX+geBps/pPmsc0OHkVXuxejaFeSaaNoVXjU01AZU0tgV8zTKpgytS1XRWsra0aLWhZ4LfH6IckOlLEi+HFVaS3Po4IIwCbvmtUZpTHIoMguj1w=
+	t=1718083188; cv=none; b=I/S/koMU/tjEFElJFDL86bu5pKIY2QqIHnTXty0FQ/1IB99n5GfgmkqKLGHyUXDFrnUGiUbHhjrsFwWAxwWOmuebCxngVoUSb1df9MTmVWH/Eh3GbW0PYFYZ2YLUwvRaSTMdjUXerJBESClwYJHayVU/63DuT4GFNoO3Wgq6ebI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718075843; c=relaxed/simple;
-	bh=lUzhAUVd8BVhSUWECv6sd9TH51t8XCPlXoOV4Dg21+Q=;
-	h=Message-ID:Date:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type; b=tPMeBuFfhW5qKhY3U3DcCFYw6t5FSY7mL2mJajhuNGj/bTgSggpBoXM7cT7oF+0IfhxYR6y+bceP6sTFUHCq0mlkP8Fk1fRAEi/uI4uMouy5vrNR1eIuUofFl8E5i5nUZlul0XFxIKE/OsluyASmCyb1KoA4z/hfeuXTuufVy7I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C7E5C4AF1C;
-	Tue, 11 Jun 2024 03:17:23 +0000 (UTC)
-Received: from rostedt by gandalf with local (Exim 4.97)
-	(envelope-from <rostedt@goodmis.org>)
-	id 1sGs0w-00000001JhD-0WrV;
-	Mon, 10 Jun 2024 23:17:38 -0400
-Message-ID: <20240611031737.982047614@goodmis.org>
-User-Agent: quilt/0.68
-Date: Mon, 10 Jun 2024 23:09:36 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: linux-kernel@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org,
- linux-doc@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org,
- loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Jonathan Corbet <corbet@lwn.net>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Will Deacon <will@kernel.org>,
- Guo Ren <guoren@kernel.org>,
- Huacai Chen <chenhuacai@kernel.org>,
- WANG Xuerui <kernel@xen0n.name>,
- Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- Paul Walmsley <paul.walmsley@sifive.com>,
- Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>
-Subject: [PATCH 2/2] function_graph: Everyone uses HAVE_FUNCTION_GRAPH_RET_ADDR_PTR,
- remove it
-References: <20240611030934.162955582@goodmis.org>
+	s=arc-20240116; t=1718083188; c=relaxed/simple;
+	bh=pJHJWcNs/pJcnRM22ACgcER3q2shJV55AlIb3h7/28E=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=piQLpDRc+vLSU6w1LvAdWuJmNy0VD5ijkVvERRp+DvxQohI4+02XKxWU4tPPvz5QGZUpbqo7pZuHMEML6EGw5pbcuNJYon0cffukJzwg/V4T5dIF73he9m8qhARn7cwN7Fquwahp9YHxT4FxYjvW6K0KVN6oZJbqwUqNbmDsgDI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=rUA9ZaXU; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="rUA9ZaXU"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
+	:Reply-To:Content-Type:Content-ID:Content-Description;
+	bh=lvXE5gTUk5P3TVKgX5q5Q8J1/DjEMwO75JeCg7ieY7s=; b=rUA9ZaXUx5MpyhS2j5LBHsyXxQ
+	KbTuAJUR1haH+9S1m8G4GZVBD1g7bx2ayPONElMYjcxYJ0QDJPl5o5zOp4k78Qgw0XyFdjZCPo5wp
+	vIgPX59oPcfHLDliRB8Y+Bi/vjpbtw2V1cwzkbepDA/QzMJIwAsmVAdMFC3UF8wgtmukkiprCLdOG
+	RnSyiCv+Mvh3ga6qyL+ash+wP6WvC9+JDwisvTf85QvcZuGjp66L5kSvkUkgxcMfJHjnZZ91k2qO0
+	ThG6qMn0y6iW42CQt05TqF0tEm3cI9aOk07AkgbKRZMt1CIdlg2QNDBGCgPEgHOzn7Iuc8T8ztdEX
+	0c6zkTmg==;
+Received: from 2a02-8389-2341-5b80-cdb4-8e7d-405d-6b77.cable.dynamic.v6.surfer.at ([2a02:8389:2341:5b80:cdb4:8e7d:405d:6b77] helo=localhost)
+	by bombadil.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sGtux-00000007Qnu-0nLE;
+	Tue, 11 Jun 2024 05:19:35 +0000
+From: Christoph Hellwig <hch@lst.de>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Richard Weinberger <richard@nod.at>,
+	Philipp Reisner <philipp.reisner@linbit.com>,
+	Lars Ellenberg <lars.ellenberg@linbit.com>,
+	=?UTF-8?q?Christoph=20B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
+	Josef Bacik <josef@toxicpanda.com>,
+	Ming Lei <ming.lei@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	=?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+	Alasdair Kergon <agk@redhat.com>,
+	Mike Snitzer <snitzer@kernel.org>,
+	Mikulas Patocka <mpatocka@redhat.com>,
+	Song Liu <song@kernel.org>,
+	Yu Kuai <yukuai3@huawei.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	linux-m68k@lists.linux-m68k.org,
+	linux-um@lists.infradead.org,
+	drbd-dev@lists.linbit.com,
+	nbd@other.debian.org,
+	linuxppc-dev@lists.ozlabs.org,
+	ceph-devel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	xen-devel@lists.xenproject.org,
+	linux-bcache@vger.kernel.org,
+	dm-devel@lists.linux.dev,
+	linux-raid@vger.kernel.org,
+	linux-mmc@vger.kernel.org,
+	linux-mtd@lists.infradead.org,
+	nvdimm@lists.linux.dev,
+	linux-nvme@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	linux-block@vger.kernel.org
+Subject: [PATCH 01/26] sd: fix sd_is_zoned
+Date: Tue, 11 Jun 2024 07:19:01 +0200
+Message-ID: <20240611051929.513387-2-hch@lst.de>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240611051929.513387-1-hch@lst.de>
+References: <20240611051929.513387-1-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Since commit 7437bb73f087 ("block: remove support for the host aware zone
+model"), only ZBC devices expose a zoned access model.  sd_is_zoned is
+used to check for that and thus return false for host aware devices.
 
-All architectures that implement function graph also implements
-HAVE_FUNCTION_GRAPH_RET_ADDR_PTR. Remove it, as it is no longer a
-differentiator.
-
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: 7437bb73f087 ("block: remove support for the host aware zone model")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- Documentation/trace/ftrace-design.rst | 12 ---------
- arch/arm64/include/asm/ftrace.h       | 11 ---------
- arch/csky/include/asm/ftrace.h        |  2 --
- arch/loongarch/include/asm/ftrace.h   |  1 -
- arch/powerpc/include/asm/ftrace.h     |  2 --
- arch/riscv/include/asm/ftrace.h       |  1 -
- arch/s390/include/asm/ftrace.h        |  1 -
- arch/x86/include/asm/ftrace.h         |  2 --
- include/linux/ftrace.h                |  2 --
- kernel/trace/fgraph.c                 | 35 +--------------------------
- 10 files changed, 1 insertion(+), 68 deletions(-)
+ drivers/scsi/sd.h     | 7 ++++++-
+ drivers/scsi/sd_zbc.c | 7 +------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/trace/ftrace-design.rst b/Documentation/trace/ftrace-design.rst
-index 6893399157f0..dc82d64b3a44 100644
---- a/Documentation/trace/ftrace-design.rst
-+++ b/Documentation/trace/ftrace-design.rst
-@@ -217,18 +217,6 @@ along to ftrace_push_return_trace() instead of a stub value of 0.
+diff --git a/drivers/scsi/sd.h b/drivers/scsi/sd.h
+index 726f1613f6cb56..65dff3c2108926 100644
+--- a/drivers/scsi/sd.h
++++ b/drivers/scsi/sd.h
+@@ -222,9 +222,14 @@ static inline sector_t sectors_to_logical(struct scsi_device *sdev, sector_t sec
  
- Similarly, when you call ftrace_return_to_handler(), pass it the frame pointer.
+ void sd_dif_config_host(struct scsi_disk *sdkp, struct queue_limits *lim);
  
--HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
----------------------------------
--
--An arch may pass in a pointer to the return address on the stack.  This
--prevents potential stack unwinding issues where the unwinder gets out of
--sync with ret_stack and the wrong addresses are reported by
--ftrace_graph_ret_addr().
--
--Adding support for it is easy: just define the macro in asm/ftrace.h and
--pass the return address pointer as the 'retp' argument to
--ftrace_push_return_trace().
--
- HAVE_SYSCALL_TRACEPOINTS
- ------------------------
- 
-diff --git a/arch/arm64/include/asm/ftrace.h b/arch/arm64/include/asm/ftrace.h
-index ab158196480c..dc9cf0bd2a4c 100644
---- a/arch/arm64/include/asm/ftrace.h
-+++ b/arch/arm64/include/asm/ftrace.h
-@@ -12,17 +12,6 @@
- 
- #define HAVE_FUNCTION_GRAPH_FP_TEST
- 
--/*
-- * HAVE_FUNCTION_GRAPH_RET_ADDR_PTR means that the architecture can provide a
-- * "return address pointer" which can be used to uniquely identify a return
-- * address which has been overwritten.
-- *
-- * On arm64 we use the address of the caller's frame record, which remains the
-- * same for the lifetime of the instrumented function, unlike the return
-- * address in the LR.
-- */
--#define HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
--
- #ifdef CONFIG_DYNAMIC_FTRACE_WITH_ARGS
- #define ARCH_SUPPORTS_FTRACE_OPS 1
- #else
-diff --git a/arch/csky/include/asm/ftrace.h b/arch/csky/include/asm/ftrace.h
-index fd215c38ef27..00f9f7647e3f 100644
---- a/arch/csky/include/asm/ftrace.h
-+++ b/arch/csky/include/asm/ftrace.h
-@@ -7,8 +7,6 @@
- 
- #define HAVE_FUNCTION_GRAPH_FP_TEST
- 
--#define HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
--
- #define ARCH_SUPPORTS_FTRACE_OPS 1
- 
- #define MCOUNT_ADDR	((unsigned long)_mcount)
-diff --git a/arch/loongarch/include/asm/ftrace.h b/arch/loongarch/include/asm/ftrace.h
-index de891c2c83d4..c0a682808e07 100644
---- a/arch/loongarch/include/asm/ftrace.h
-+++ b/arch/loongarch/include/asm/ftrace.h
-@@ -28,7 +28,6 @@ struct dyn_ftrace;
- struct dyn_arch_ftrace { };
- 
- #define ARCH_SUPPORTS_FTRACE_OPS 1
--#define HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
- 
- #define ftrace_init_nop ftrace_init_nop
- int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec);
-diff --git a/arch/powerpc/include/asm/ftrace.h b/arch/powerpc/include/asm/ftrace.h
-index 107fc5a48456..559560286e6d 100644
---- a/arch/powerpc/include/asm/ftrace.h
-+++ b/arch/powerpc/include/asm/ftrace.h
-@@ -8,8 +8,6 @@
- #define MCOUNT_ADDR		((unsigned long)(_mcount))
- #define MCOUNT_INSN_SIZE	4 /* sizeof mcount call */
- 
--#define HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
--
- /* Ignore unused weak functions which will have larger offsets */
- #if defined(CONFIG_MPROFILE_KERNEL) || defined(CONFIG_ARCH_USING_PATCHABLE_FUNCTION_ENTRY)
- #define FTRACE_MCOUNT_MAX_OFFSET	16
-diff --git a/arch/riscv/include/asm/ftrace.h b/arch/riscv/include/asm/ftrace.h
-index 9eb31a7ea0aa..2cddd79ff21b 100644
---- a/arch/riscv/include/asm/ftrace.h
-+++ b/arch/riscv/include/asm/ftrace.h
-@@ -11,7 +11,6 @@
- #if defined(CONFIG_FUNCTION_GRAPH_TRACER) && defined(CONFIG_FRAME_POINTER)
- #define HAVE_FUNCTION_GRAPH_FP_TEST
- #endif
--#define HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
- 
- #define ARCH_SUPPORTS_FTRACE_OPS 1
- #ifndef __ASSEMBLY__
-diff --git a/arch/s390/include/asm/ftrace.h b/arch/s390/include/asm/ftrace.h
-index 77e479d44f1e..fbadca645af7 100644
---- a/arch/s390/include/asm/ftrace.h
-+++ b/arch/s390/include/asm/ftrace.h
-@@ -2,7 +2,6 @@
- #ifndef _ASM_S390_FTRACE_H
- #define _ASM_S390_FTRACE_H
- 
--#define HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
- #define ARCH_SUPPORTS_FTRACE_OPS 1
- #define MCOUNT_INSN_SIZE	6
- 
-diff --git a/arch/x86/include/asm/ftrace.h b/arch/x86/include/asm/ftrace.h
-index 897cf02c20b1..0152a81d9b4a 100644
---- a/arch/x86/include/asm/ftrace.h
-+++ b/arch/x86/include/asm/ftrace.h
-@@ -20,8 +20,6 @@
- #define ARCH_SUPPORTS_FTRACE_OPS 1
- #endif
- 
--#define HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
--
- #ifndef __ASSEMBLY__
- extern void __fentry__(void);
- 
-diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
-index 4135dc171447..845c2ab0bc1c 100644
---- a/include/linux/ftrace.h
-+++ b/include/linux/ftrace.h
-@@ -1071,9 +1071,7 @@ struct ftrace_ret_stack {
- #ifdef HAVE_FUNCTION_GRAPH_FP_TEST
- 	unsigned long fp;
- #endif
--#ifdef HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
- 	unsigned long *retp;
--#endif
- };
- 
- /*
-diff --git a/kernel/trace/fgraph.c b/kernel/trace/fgraph.c
-index 91f1eef256af..8317d1a7f43a 100644
---- a/kernel/trace/fgraph.c
-+++ b/kernel/trace/fgraph.c
-@@ -593,9 +593,7 @@ ftrace_push_return_trace(unsigned long ret, unsigned long func,
- #ifdef HAVE_FUNCTION_GRAPH_FP_TEST
- 	ret_stack->fp = frame_pointer;
- #endif
--#ifdef HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
- 	ret_stack->retp = retp;
--#endif
- 	return offset;
- }
- 
-@@ -887,10 +885,8 @@ ftrace_graph_get_ret_stack(struct task_struct *task, int idx)
-  * will be assigned that location so that if called again, it will continue
-  * where it left off.
-  *
-- * @retp is a pointer to the return address on the stack.  It's ignored if
-- * the arch doesn't have HAVE_FUNCTION_GRAPH_RET_ADDR_PTR defined.
-+ * @retp is a pointer to the return address on the stack.
-  */
--#ifdef HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
- unsigned long ftrace_graph_ret_addr(struct task_struct *task, int *idx,
- 				    unsigned long ret, unsigned long *retp)
++/*
++ * Check if we support a zoned model for this device.
++ *
++ * Note that host aware devices are treated as conventional by Linux.
++ */
+ static inline int sd_is_zoned(struct scsi_disk *sdkp)
  {
-@@ -926,35 +922,6 @@ unsigned long ftrace_graph_ret_addr(struct task_struct *task, int *idx,
- 
- 	return ret;
+-	return sdkp->zoned == 1 || sdkp->device->type == TYPE_ZBC;
++	return sdkp->device->type == TYPE_ZBC;
  }
--#else /* !HAVE_FUNCTION_GRAPH_RET_ADDR_PTR */
--unsigned long ftrace_graph_ret_addr(struct task_struct *task, int *idx,
--				    unsigned long ret, unsigned long *retp)
--{
--	struct ftrace_ret_stack *ret_stack;
--	unsigned long return_handler = (unsigned long)dereference_kernel_function_descriptor(return_to_handler);
--	int offset = task->curr_ret_stack;
--	int i;
--
--	if (ret != return_handler)
--		return ret;
--
--	if (!idx)
--		return ret;
--
--	i = *idx;
--	do {
--		ret_stack = get_ret_stack(task, offset, &offset);
--		if (ret_stack && ret_stack->ret == return_handler)
--			continue;
--		i--;
--	} while (i >= 0 && ret_stack);
--
--	if (ret_stack)
--		return ret_stack->ret;
--
--	return ret;
--}
--#endif /* HAVE_FUNCTION_GRAPH_RET_ADDR_PTR */
  
- static struct ftrace_ops graph_ops = {
- 	.func			= ftrace_graph_func,
+ #ifdef CONFIG_BLK_DEV_ZONED
+diff --git a/drivers/scsi/sd_zbc.c b/drivers/scsi/sd_zbc.c
+index f685838d9ed214..422eaed8457227 100644
+--- a/drivers/scsi/sd_zbc.c
++++ b/drivers/scsi/sd_zbc.c
+@@ -598,13 +598,8 @@ int sd_zbc_read_zones(struct scsi_disk *sdkp, struct queue_limits *lim,
+ 	u32 zone_blocks = 0;
+ 	int ret;
+ 
+-	if (!sd_is_zoned(sdkp)) {
+-		/*
+-		 * Device managed or normal SCSI disk, no special handling
+-		 * required.
+-		 */
++	if (!sd_is_zoned(sdkp))
+ 		return 0;
+-	}
+ 
+ 	/* READ16/WRITE16/SYNC16 is mandatory for ZBC devices */
+ 	sdkp->device->use_16_for_rw = 1;
 -- 
 2.43.0
-
 
