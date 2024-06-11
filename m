@@ -1,66 +1,66 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 289601514FA;
-	Tue, 11 Jun 2024 12:09:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD39C1802CF;
+	Tue, 11 Jun 2024 13:23:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718107744; cv=none; b=MLPE4q2wq1hclfk3/DmfJfIcQAm4o6W+NN2DkSgGE9VyLW+QxatBp+iNWanFyMhq4YFJKCBLTfFXwZawxA560mmv0d8+wt1bVfGLYs/6O+j1HBXKCYDgUg6xUOmC26fdpKnGt6b98R8d/dEU2rR11lrpSg5uZG69UjXJvULa4o0=
+	t=1718112216; cv=none; b=rD1z0bsGggvMBDfPaHVVKjUfrQJkGYnFlzrGwhf5URoZ4TjoDRdlCG4kaMELoYs1NQ6sNADDnM/tykr1qqWX6E2ehrhOuScw0uvPciZHRT/fjdkZ9QamD554fm4X4PHBzVOLyLuYnjWE32YVCEHFR2OrOYcZvnKQDhDRC5yurfs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718107744; c=relaxed/simple;
-	bh=aqK6Fi295dHCGyuBaNjPGpuf7wIvc21g+dvbBTz0jfM=;
+	s=arc-20240116; t=1718112216; c=relaxed/simple;
+	bh=Oj8hTpHqRt5Wv8Za1TW2g+HdJy6YR5bszvzFPxAunV4=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=iNXAphFqPVFijuG77R1ZODGEOYvfnmRaXl9BIm7xD0sLLM/jbsgL//KN3LHpwRtb8uG7O6EswezpiXJ7CWGwmPngM5CGTnlCTsEor8SP9UYCotpr12SlCbVE4CJakW7kuBxKmWoQ8GMb76Dzq0v1i2vhDP4Z39+7lUFVmioHXmM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KxzrBYb+; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:MIME-Version; b=Pq++WV1sDxFRz5n0J7gn+FNDMRQMb13fjH/ALqjQjiySAeNb0AafH9eABIlot1fkfFNZZe/+bCIpZ5g9BxLQ5aHkfc/iZe9hChtRHhUQNOxY29pRoNASp/7gGWVnDditnVqqHi/yxn5+f+MCGaPIruApvcAefQxHL6/47OQrhVw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cjs9pIZ2; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KxzrBYb+"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45B9LBWm025014;
-	Tue, 11 Jun 2024 12:09:01 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cjs9pIZ2"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45BBSilx015944;
+	Tue, 11 Jun 2024 13:23:33 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
 	message-id:subject:from:to:cc:date:in-reply-to:references
 	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
-	5BnPLicy5/fJrEdpbUTwJx1r8VHrffPcyWPfBtU5DlA=; b=KxzrBYb+97KI5fNq
-	MvGLpYV3/jwhoM2Y+rNftInCAQ071zd4LzLoHLOzNGU6Fmt/stzKgUUYYB50zKZf
-	+vGEUStIP9NrjAuA47tH/a2CkBUyrmIjaxMKKH3woWAdjymIw4g49iSp49LQz1fT
-	P35uNXMcE1TPc9gFMTDbGO044zrNk5OG/BPfgXDyR+W4jb6NqETKkeypVU/jRoO9
-	Mm0TqKDcGL1vakV92ckJ1oML/njCwX/+RVeZRh6l42FWsbqgUTy5PtLe8qHD/VKT
-	8wVIF0gNYTuWJi8vuNBdUv4ByKNbfVPMEP8OJR9VMqLLDIEnkUtanDXT+NERlxYm
-	IVf+Dw==
+	GUDLAz90LJa54aUdAoi/lqQUowtLtFY+JLWY7HYgIWs=; b=cjs9pIZ239FI+GrY
+	AM7G9tFmtgOiJb4X+lPcXLDvfC7qCUuf6bfKS9mQ3IY4ke9lcHbvPcahSrkFe4ms
+	NN/BNW/rRjOJ9WYW0OcHy5KVhn2vBhieCL+S8sGts95QUtWCPPryWU6kr80VJreQ
+	+1fxilLMEr5+uoHANaWclYSvQnbpmZWXnZD+LGGNpwEdjwRF/y9LgidJr2ZHnR7V
+	PoFZNhbusKGdSI5fqafs9sHH8M6PqNFuH7CsQpBc9IfGdTPcvgfs+pXCfCDTndew
+	h2TYpu0Mr6OR0G7R84Y4cJp6zOwhZ/cyLlK2WbbrQVkYe5nxUKuhEmuxCAEq4Rd9
+	Gk7yjQ==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ypk3b0jwr-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ypnr0r8x3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Jun 2024 12:09:00 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45BC90GD031796;
-	Tue, 11 Jun 2024 12:09:00 GMT
+	Tue, 11 Jun 2024 13:23:32 +0000 (GMT)
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45BDNWTi030894;
+	Tue, 11 Jun 2024 13:23:32 GMT
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ypk3b0jwm-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ypnr0r8wy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Jun 2024 12:09:00 +0000 (GMT)
+	Tue, 11 Jun 2024 13:23:32 +0000 (GMT)
 Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45BAPY6F027234;
-	Tue, 11 Jun 2024 12:08:59 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yn210nsuy-1
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45BAAKef027243;
+	Tue, 11 Jun 2024 13:23:31 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yn210p3gy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Jun 2024 12:08:59 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45BC8uFo50004308
+	Tue, 11 Jun 2024 13:23:31 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45BDNRnI61473112
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Jun 2024 12:08:58 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 262CF58053;
-	Tue, 11 Jun 2024 12:08:56 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 70F2258043;
-	Tue, 11 Jun 2024 12:08:53 +0000 (GMT)
+	Tue, 11 Jun 2024 13:23:29 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BEC445804B;
+	Tue, 11 Jun 2024 13:23:27 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EF77B5805B;
+	Tue, 11 Jun 2024 13:23:24 +0000 (GMT)
 Received: from [9.179.8.185] (unknown [9.179.8.185])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Jun 2024 12:08:53 +0000 (GMT)
-Message-ID: <30ecb17b7a3414aeb605c51f003582c7f2cf6444.camel@linux.ibm.com>
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 11 Jun 2024 13:23:24 +0000 (GMT)
+Message-ID: <db10735e74d5a89aed73ad3268e0be40394efc31.camel@linux.ibm.com>
 Subject: Re: [PATCH v3 1/3] s390/pci: Fix s390_mmio_read/write syscall page
  fault handling
 From: Niklas Schnelle <schnelle@linux.ibm.com>
@@ -78,12 +78,13 @@ To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Jason Gunthorpe <jgg@ziepe.ca>
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Date: Tue, 11 Jun 2024 14:08:52 +0200
-In-Reply-To: <98de56b1ba37f51639b9a2c15a745e19a45961a0.camel@linux.ibm.com>
+        kvm@vger.kernel.org, David Hildenbrand <david@redhat.com>
+Date: Tue, 11 Jun 2024 15:23:24 +0200
+In-Reply-To: <30ecb17b7a3414aeb605c51f003582c7f2cf6444.camel@linux.ibm.com>
 References: <20240529-vfio_pci_mmap-v3-0-cd217d019218@linux.ibm.com>
 	 <20240529-vfio_pci_mmap-v3-1-cd217d019218@linux.ibm.com>
 	 <98de56b1ba37f51639b9a2c15a745e19a45961a0.camel@linux.ibm.com>
+	 <30ecb17b7a3414aeb605c51f003582c7f2cf6444.camel@linux.ibm.com>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
  /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
@@ -149,134 +150,145 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: bOUCD0TBTE44-5gEaTVDd7I0XH2cmHoB
-X-Proofpoint-GUID: ny3ZuMfMfSDNMZTHWFfE6TyWDUCsMfPE
+X-Proofpoint-GUID: aY4gU-zkfQ-ro1uJhQ6bnF4PWlgiYKNk
+X-Proofpoint-ORIG-GUID: RuNS6Dv8-1LyqhTOBG3mUOgTCqMaB-uQ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-06-11_07,2024-06-11_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 phishscore=0 mlxlogscore=975 spamscore=0 bulkscore=0
- priorityscore=1501 adultscore=0 clxscore=1015 mlxscore=0
- lowpriorityscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2405170001 definitions=main-2406110089
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
+ priorityscore=1501 mlxscore=0 lowpriorityscore=0 phishscore=0 adultscore=0
+ malwarescore=0 mlxlogscore=999 spamscore=0 suspectscore=0 impostorscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2405170001
+ definitions=main-2406110097
 
-On Tue, 2024-06-11 at 13:21 +0200, Niklas Schnelle wrote:
-> On Wed, 2024-05-29 at 13:36 +0200, Niklas Schnelle wrote:
-> > The s390 MMIO syscalls when using the classic PCI instructions do not
-> > cause a page fault when follow_pte() fails due to the page not being
-> > present. Besides being a general deficiency this breaks vfio-pci's mmap=
-()
-> > handling once VFIO_PCI_MMAP gets enabled as this lazily maps on first
-> > access. Fix this by following a failed follow_pte() with
-> > fixup_user_page() and retrying the follow_pte().
+On Tue, 2024-06-11 at 14:08 +0200, Niklas Schnelle wrote:
+> On Tue, 2024-06-11 at 13:21 +0200, Niklas Schnelle wrote:
+> > On Wed, 2024-05-29 at 13:36 +0200, Niklas Schnelle wrote:
+> > > The s390 MMIO syscalls when using the classic PCI instructions do not
+> > > cause a page fault when follow_pte() fails due to the page not being
+> > > present. Besides being a general deficiency this breaks vfio-pci's mm=
+ap()
+> > > handling once VFIO_PCI_MMAP gets enabled as this lazily maps on first
+> > > access. Fix this by following a failed follow_pte() with
+> > > fixup_user_page() and retrying the follow_pte().
+> > >=20
+> > > Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> > > Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> > > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > ---
+> > >  arch/s390/pci/pci_mmio.c | 18 +++++++++++++-----
+> > >  1 file changed, 13 insertions(+), 5 deletions(-)
+> > >=20
+> > > diff --git a/arch/s390/pci/pci_mmio.c b/arch/s390/pci/pci_mmio.c
+> > > index 5398729bfe1b..80c21b1a101c 100644
+> > > --- a/arch/s390/pci/pci_mmio.c
+> > > +++ b/arch/s390/pci/pci_mmio.c
+> > > @@ -170,8 +170,12 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned lo=
+ng, mmio_addr,
+> > >  		goto out_unlock_mmap;
+> > > =20
+> > >  	ret =3D follow_pte(vma, mmio_addr, &ptep, &ptl);
+> > > -	if (ret)
+> > > -		goto out_unlock_mmap;
+> > > +	if (ret) {
+> > > +		fixup_user_fault(current->mm, mmio_addr, FAULT_FLAG_WRITE, NULL);
+> > > +		ret =3D follow_pte(vma, mmio_addr, &ptep, &ptl);
+> > > +		if (ret)
+> > > +			goto out_unlock_mmap;
+> > > +	}
+> > > =20
+> > >  	io_addr =3D (void __iomem *)((pte_pfn(*ptep) << PAGE_SHIFT) |
+> > >  			(mmio_addr & ~PAGE_MASK));
+> > > @@ -305,12 +309,16 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned lo=
+ng, mmio_addr,
+> > >  	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
+> > >  		goto out_unlock_mmap;
+> > >  	ret =3D -EACCES;
+> > > -	if (!(vma->vm_flags & VM_WRITE))
+> > > +	if (!(vma->vm_flags & VM_READ))
+> > >  		goto out_unlock_mmap;
+> > > =20
+> > >  	ret =3D follow_pte(vma, mmio_addr, &ptep, &ptl);
+> > > -	if (ret)
+> > > -		goto out_unlock_mmap;
+> > > +	if (ret) {
+> > > +		fixup_user_fault(current->mm, mmio_addr, 0, NULL);
+> > > +		ret =3D follow_pte(vma, mmio_addr, &ptep, &ptl);
+> > > +		if (ret)
+> > > +			goto out_unlock_mmap;
+> > > +	}
+> > > =20
+> > >  	io_addr =3D (void __iomem *)((pte_pfn(*ptep) << PAGE_SHIFT) |
+> > >  			(mmio_addr & ~PAGE_MASK));
+> > >=20
 > >=20
-> > Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> > Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > ---
-> >  arch/s390/pci/pci_mmio.c | 18 +++++++++++++-----
-> >  1 file changed, 13 insertions(+), 5 deletions(-)
+> > Ughh, I think I just stumbled over a problem with this. This is a
+> > failing lock held assertion via __is_vma_write_locked() in
+> > remap_pfn_range_notrack() but I'm not sure yet what exactly causes this
 > >=20
-> > diff --git a/arch/s390/pci/pci_mmio.c b/arch/s390/pci/pci_mmio.c
-> > index 5398729bfe1b..80c21b1a101c 100644
-> > --- a/arch/s390/pci/pci_mmio.c
-> > +++ b/arch/s390/pci/pci_mmio.c
-> > @@ -170,8 +170,12 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long=
-, mmio_addr,
-> >  		goto out_unlock_mmap;
-> > =20
-> >  	ret =3D follow_pte(vma, mmio_addr, &ptep, &ptl);
-> > -	if (ret)
-> > -		goto out_unlock_mmap;
-> > +	if (ret) {
-> > +		fixup_user_fault(current->mm, mmio_addr, FAULT_FLAG_WRITE, NULL);
-> > +		ret =3D follow_pte(vma, mmio_addr, &ptep, &ptl);
-> > +		if (ret)
-> > +			goto out_unlock_mmap;
-> > +	}
-> > =20
-> >  	io_addr =3D (void __iomem *)((pte_pfn(*ptep) << PAGE_SHIFT) |
-> >  			(mmio_addr & ~PAGE_MASK));
-> > @@ -305,12 +309,16 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long=
-, mmio_addr,
-> >  	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
-> >  		goto out_unlock_mmap;
-> >  	ret =3D -EACCES;
-> > -	if (!(vma->vm_flags & VM_WRITE))
-> > +	if (!(vma->vm_flags & VM_READ))
-> >  		goto out_unlock_mmap;
-> > =20
-> >  	ret =3D follow_pte(vma, mmio_addr, &ptep, &ptl);
-> > -	if (ret)
-> > -		goto out_unlock_mmap;
-> > +	if (ret) {
-> > +		fixup_user_fault(current->mm, mmio_addr, 0, NULL);
-> > +		ret =3D follow_pte(vma, mmio_addr, &ptep, &ptl);
-> > +		if (ret)
-> > +			goto out_unlock_mmap;
-> > +	}
-> > =20
-> >  	io_addr =3D (void __iomem *)((pte_pfn(*ptep) << PAGE_SHIFT) |
-> >  			(mmio_addr & ~PAGE_MASK));
+> > [   67.338855] ------------[ cut here ]------------
+> > [   67.338865] WARNING: CPU: 15 PID: 2056 at include/linux/rwsem.h:85 r=
+emap_pfn_range_notrack+0x596/0x5b0
+> > [   67.338874] Modules linked in: <--- 8< --->
+> > [   67.338931] CPU: 15 PID: 2056 Comm: vfio-test Not tainted 6.10.0-rc1=
+-pci-pfault-00004-g193e3a513cee #5
+> > [   67.338934] Hardware name: IBM 3931 A01 701 (LPAR)
+> > [   67.338935] Krnl PSW : 0704c00180000000 000003e54c9730ea (remap_pfn_=
+range_notrack+0x59a/0x5b0)
+> > [   67.338940]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0=
+ PM:0 RI:0 EA:3
+> > [   67.338944] Krnl GPRS: 0000000000000100 000003655915fb78 000002d80b9=
+a5928 000003ff7fa00000
+> > [   67.338946]            0004008000000000 0000000000004000 00000000000=
+00711 000003ff7fa04000
+> > [   67.338948]            000002d80c533f00 000002d800000100 000002d81bb=
+e6c28 000002d80b9a5928
+> > [   67.338950]            000003ff7fa00000 000002d80c533f00 000003e54c9=
+73120 000003655915fab0
+> > [   67.338956] Krnl Code: 000003e54c9730de: a708ffea            lhi    =
+ %r0,-22
+> >                           000003e54c9730e2: a7f4fff6            brc    =
+ 15,000003e54c9730ce
+> >                          #000003e54c9730e6: af000000            mc     =
+ 0,0
+> >                          >000003e54c9730ea: a7f4fd6e            brc    =
+ 15,000003e54c972bc6
+> >                           000003e54c9730ee: af000000            mc     =
+ 0,0
+> >                           000003e54c9730f2: af000000            mc     =
+ 0,0
+> >                           000003e54c9730f6: 0707                bcr    =
+ 0,%r7
+> >                           000003e54c9730f8: 0707                bcr    =
+ 0,%r7
+> > [   67.339025] Call Trace:
+> > [   67.339027]  [<000003e54c9730ea>] remap_pfn_range_notrack+0x59a/0x5b=
+0
+> > [   67.339032]  [<000003e54c973120>] remap_pfn_range+0x20/0x30
+> > [   67.339035]  [<000003e4cce5396c>] vfio_pci_mmap_fault+0xec/0x1d0 [vf=
+io_pci_core]
+> > [   67.339043]  [<000003e54c977240>] handle_mm_fault+0x6b0/0x25a0
+> > [   67.339046]  [<000003e54c966328>] fixup_user_fault+0x138/0x310
+> > [   67.339048]  [<000003e54c63a91c>] __s390x_sys_s390_pci_mmio_read+0x2=
+8c/0x3a0
+> > [   67.339051]  [<000003e54c5e200a>] do_syscall+0xea/0x120
+> > [   67.339055]  [<000003e54d5f9954>] __do_syscall+0x94/0x140
+> > [   67.339059]  [<000003e54d611020>] system_call+0x70/0xa0
+> > [   67.339063] Last Breaking-Event-Address:
+> > [   67.339065]  [<000003e54c972bc2>] remap_pfn_range_notrack+0x72/0x5b0
+> > [   67.339067] ---[ end trace 0000000000000000 ]---
 > >=20
 >=20
-> Ughh, I think I just stumbled over a problem with this. This is a
-> failing lock held assertion via __is_vma_write_locked() in
-> remap_pfn_range_notrack() but I'm not sure yet what exactly causes this
->=20
-> [   67.338855] ------------[ cut here ]------------
-> [   67.338865] WARNING: CPU: 15 PID: 2056 at include/linux/rwsem.h:85 rem=
-ap_pfn_range_notrack+0x596/0x5b0
-> [   67.338874] Modules linked in: <--- 8< --->
-> [   67.338931] CPU: 15 PID: 2056 Comm: vfio-test Not tainted 6.10.0-rc1-p=
-ci-pfault-00004-g193e3a513cee #5
-> [   67.338934] Hardware name: IBM 3931 A01 701 (LPAR)
-> [   67.338935] Krnl PSW : 0704c00180000000 000003e54c9730ea (remap_pfn_ra=
-nge_notrack+0x59a/0x5b0)
-> [   67.338940]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 P=
-M:0 RI:0 EA:3
-> [   67.338944] Krnl GPRS: 0000000000000100 000003655915fb78 000002d80b9a5=
-928 000003ff7fa00000
-> [   67.338946]            0004008000000000 0000000000004000 0000000000000=
-711 000003ff7fa04000
-> [   67.338948]            000002d80c533f00 000002d800000100 000002d81bbe6=
-c28 000002d80b9a5928
-> [   67.338950]            000003ff7fa00000 000002d80c533f00 000003e54c973=
-120 000003655915fab0
-> [   67.338956] Krnl Code: 000003e54c9730de: a708ffea            lhi     %=
-r0,-22
->                           000003e54c9730e2: a7f4fff6            brc     1=
-5,000003e54c9730ce
->                          #000003e54c9730e6: af000000            mc      0=
-,0
->                          >000003e54c9730ea: a7f4fd6e            brc     1=
-5,000003e54c972bc6
->                           000003e54c9730ee: af000000            mc      0=
-,0
->                           000003e54c9730f2: af000000            mc      0=
-,0
->                           000003e54c9730f6: 0707                bcr     0=
-,%r7
->                           000003e54c9730f8: 0707                bcr     0=
-,%r7
-> [   67.339025] Call Trace:
-> [   67.339027]  [<000003e54c9730ea>] remap_pfn_range_notrack+0x59a/0x5b0
-> [   67.339032]  [<000003e54c973120>] remap_pfn_range+0x20/0x30
-> [   67.339035]  [<000003e4cce5396c>] vfio_pci_mmap_fault+0xec/0x1d0 [vfio=
-_pci_core]
-> [   67.339043]  [<000003e54c977240>] handle_mm_fault+0x6b0/0x25a0
-> [   67.339046]  [<000003e54c966328>] fixup_user_fault+0x138/0x310
-> [   67.339048]  [<000003e54c63a91c>] __s390x_sys_s390_pci_mmio_read+0x28c=
-/0x3a0
-> [   67.339051]  [<000003e54c5e200a>] do_syscall+0xea/0x120
-> [   67.339055]  [<000003e54d5f9954>] __do_syscall+0x94/0x140
-> [   67.339059]  [<000003e54d611020>] system_call+0x70/0xa0
-> [   67.339063] Last Breaking-Event-Address:
-> [   67.339065]  [<000003e54c972bc2>] remap_pfn_range_notrack+0x72/0x5b0
-> [   67.339067] ---[ end trace 0000000000000000 ]---
+> This has me a bit confused so far as __is_vma_write_locked() checks
+> mmap_assert_write_locked(vma->vm_mm) but most other users of
+> fixup_user_fault() hold mmap_read_lock() just like this code and
+> clearly in the non page fault case we only need the read lock.
 >=20
 
-This has me a bit confused so far as __is_vma_write_locked() checks
-mmap_assert_write_locked(vma->vm_mm) but most other users of
-fixup_user_fault() hold mmap_read_lock() just like this code and
-clearly in the non page fault case we only need the read lock.
+And it gets weirder, as I could have sworn that I properly tested this
+on v1, I retested with v1 (tags/sent/vfio_pci_mmap-v1 on my
+git.kernel.org/niks and based on v6.9) and there I don't get the above
+warning. I also made sure that it's not caused by my change to
+"current->mm" for v2. But I'm also not hitting the checks David moved
+into follow_pte() so yeah not sure what's going on here.
+
