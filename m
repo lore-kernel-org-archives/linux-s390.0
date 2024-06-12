@@ -1,152 +1,75 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7086322092;
-	Wed, 12 Jun 2024 04:42:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F80423769;
+	Wed, 12 Jun 2024 04:46:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718167373; cv=none; b=sEoaU528KWUDz6iLN3yAUYr1yUDUDYJRB8t+bz/hTvcwwCTsShxxxUeFCSdoz5qkfPa+oDWwi702cs6JukqHw+Bd2u7f7fvK9m/pEMmeYJVUNfhX1hp0iCs4vVcpXNMiMbJiZq/PsS9+IhAWh4ufqdOCu/x9A9GPYJn58bDQKC8=
+	t=1718167568; cv=none; b=GXJ8Dt7d25mmQz1KZNtvTUckAsSt4xhDjAse05EAKzsq+BvIB2UPv7WA9o4bI7N0KnvL3RXrHH0uHTCH50qJmAWwVDbxRwLKw5QBC5mY1Zp06cvVwklQQmGZT2FxyESKI5ve78A36wMECj2USbwKQmponUCC1nwMORg/dWyEHCo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718167373; c=relaxed/simple;
-	bh=uybxDxR4RrOc+lmzdhnsTV2MydU3qxq3iFowjLn3ArI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=s8jlUQLrx4t9ZAGLS29rsoF9ViyxMndObs3h74YSpb9mrDsFm7cqqBS0fUeGTinsd9wF5fqk3bij7+VxMvVjDZ4BiBylbQbHaL9zoUYidPBc+fE4x4i5PPZ0CNwpzwEfcJ81C8YAal+4mVnnEcdBxANBsmF6+b0w8joN5SIRu1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NH2Twx/M; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NH2Twx/M"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-1f717608231so20497415ad.2;
-        Tue, 11 Jun 2024 21:42:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1718167371; x=1718772171; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=y8v3v+i8Ggw/AVGwDDCI9JHG5YYl3a/3EDerkme1e7c=;
-        b=NH2Twx/M9q8YPUIjuP9CH9zL/D4epXkF57DDmKfpR0mI9UlunsMkGG8lnGtB3pADJO
-         sblqYI84S8vxlwUwMU8rlRw8tkL/BUChO425qwAuXlLhJLIuWeDJaRz0K44b2cwDt3pX
-         tghZWjHWdv6OpvF6GPG8v+ARWpCq+crHjS82gxAa19x57CtuInpJGgD37boEzAGEjsZO
-         W6ZlKrzpNeW5vJycPNTNuahadrimsfm9xxjGwKIs3nzTWY5XnYS3OhrcOZOQ9XVvaS71
-         rdqNMj1wOJ/bOyK+ZtsZnjhLrGx5p+zbsPra993hI7DF9twGEg2urGiCQVHeJz3gLJ/c
-         22Jg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718167371; x=1718772171;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=y8v3v+i8Ggw/AVGwDDCI9JHG5YYl3a/3EDerkme1e7c=;
-        b=VAVU0bc1Uv9X3eR2gOMd/e6t/lFKh4C6lwWZ9LcErKB7TPU1FcynpeJvypHhD1jP8S
-         6DxAvtuXsA8mibU6p74+t9VCm14cZCCRsRsoCYHVs1nIJFzUZ3URxEclCQGXp46Hlc6U
-         gQOHIdJNJ6IUAW11qMKSsHIxnLn5Hhmpg4mg12sflepI/X2tZYHAWtjDML4n8upHy03R
-         shwWS5Ogny9ihiQ7gPPyCWibf2Fuc+OFIc5/HTir53gX/Bpnuymxbsfz2T+VILYu9R9K
-         U5G/PxCGjqnC5RgeuXgTAwhwbOni6dT3lYdSzPNmi6LX2mXVCSR+jYhW//Y9qcmSHpnB
-         YJ4Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUY6M0UEL4u0Rt8JE1Ed1vsaD0hW5OtmvPPxHhASX35AodI1DOtdO6eDIa75WCFWANbJxYfNfrh3n91dShETKTUFQNMveWRkNi9XxyRkyY/avNestfiizKmHEyJoNN5dA==
-X-Gm-Message-State: AOJu0YzcoOuLRV2hGAPKUlued/UaLUetQINRm48723HPTgvJZPIvCJoW
-	i9sSnyNTRMGTZeajmuLcyiE/QEIDWbSpwX7MMzSG9LYOS2OoSp82
-X-Google-Smtp-Source: AGHT+IHpwHlh4iJRWgbNKg9wzqjgXtSTZ/ZgvwJw6UxQFuG3nQAI47SaA434g24rShYkZX8sK7hePg==
-X-Received: by 2002:a17:903:234d:b0:1f7:3d0d:4c8 with SMTP id d9443c01a7336-1f83b569c9amr9508185ad.13.1718167370569;
-        Tue, 11 Jun 2024 21:42:50 -0700 (PDT)
-Received: from wheely.local0.net (220-235-199-47.tpgi.com.au. [220.235.199.47])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1f71017b639sm52957535ad.21.2024.06.11.21.42.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Jun 2024 21:42:49 -0700 (PDT)
-From: Nicholas Piggin <npiggin@gmail.com>
-To: Thomas Huth <thuth@redhat.com>,
-	kvm@vger.kernel.org
-Cc: Nicholas Piggin <npiggin@gmail.com>,
-	Andrew Jones <andrew.jones@linux.dev>,
-	Marc Hartmayer <mhartmay@linux.ibm.com>,
-	kvmarm@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org,
-	kvm-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH] build: retain intermediate .aux.o targets
-Date: Wed, 12 Jun 2024 14:42:32 +1000
-Message-ID: <20240612044234.212156-1-npiggin@gmail.com>
-X-Mailer: git-send-email 2.45.1
+	s=arc-20240116; t=1718167568; c=relaxed/simple;
+	bh=lmEUDVQ2LAtfkGS2NiQcL/waPbmMTp1rN5KRFay4VZc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rTksj1quJJHuqZhRrKJwGeypJoFPOwHm649qpNLE7CozPunYfVWraPl7WUT2ygvMjGMjVRg8CNPAWre0uHpJuIXoc1/mGLls/tmITrO6xfVSoX8HZVH5MXxo7s3WVmksgUNTdJeEu+iCh0rF2yrdkxfL/Gr5HJWc1RVTfkL37wA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id 2B0FA68BEB; Wed, 12 Jun 2024 06:45:59 +0200 (CEST)
+Date: Wed, 12 Jun 2024 06:45:58 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Damien Le Moal <dlemoal@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Richard Weinberger <richard@nod.at>,
+	Philipp Reisner <philipp.reisner@linbit.com>,
+	Lars Ellenberg <lars.ellenberg@linbit.com>,
+	Christoph =?iso-8859-1?Q?B=F6hmwalder?= <christoph.boehmwalder@linbit.com>,
+	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Roger Pau =?iso-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>,
+	Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
+	Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
+	Yu Kuai <yukuai3@huawei.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
+	drbd-dev@lists.linbit.com, nbd@other.debian.org,
+	linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+	linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
+	linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
+	linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
+	linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
+Subject: Re: [PATCH 02/26] sd: move zone limits setup out of
+ sd_read_block_characteristics
+Message-ID: <20240612044558.GA26468@lst.de>
+References: <20240611051929.513387-1-hch@lst.de> <20240611051929.513387-3-hch@lst.de> <40ca8052-6ac1-4c1b-8c39-b0a7948839f8@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40ca8052-6ac1-4c1b-8c39-b0a7948839f8@kernel.org>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 
-arm, powerpc, riscv, build .aux.o targets with implicit pattern rules
-in dependency chains that cause them to be made as intermediate files,
-which get removed when make finishes. This results in unnecessary
-partial rebuilds. If make is run again, this time the .aux.o targets
-are not intermediate, possibly due to being made via different
-dependencies.
+On Tue, Jun 11, 2024 at 02:51:24PM +0900, Damien Le Moal wrote:
+> > -	if (!sd_is_zoned(sdkp))
+> > +	if (!sd_is_zoned(sdkp)) {
+> > +		lim->zoned = false;
+> 
+> Maybe we should clear the other zone related limits here ? If the drive is
+> reformatted/converted from SMR to CMR (FORMAT WITH PRESET), the other zone
+> limits may be set already, no ?
 
-Adding .aux.o files to .PRECIOUS prevents them being removed and solves
-the rebuild problem.
+Yes, but we would not end up here.  The device type is constant over
+the struct of the scsi_device and we'd have to fully reprobe it.
 
-s390x does not have the problem because .SECONDARY prevents dependancies
-from being built as intermediate. However the same change is made for
-s390x, for consistency.
-
-Suggested-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
----
- arm/Makefile.common     | 2 +-
- powerpc/Makefile.common | 2 +-
- riscv/Makefile          | 2 +-
- s390x/Makefile          | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/arm/Makefile.common b/arm/Makefile.common
-index f828dbe01..0b26a92a6 100644
---- a/arm/Makefile.common
-+++ b/arm/Makefile.common
-@@ -31,7 +31,7 @@ CFLAGS += -O2
- CFLAGS += -I $(SRCDIR)/lib -I $(SRCDIR)/lib/libfdt -I lib
- 
- # We want to keep intermediate files
--.PRECIOUS: %.elf %.o
-+.PRECIOUS: %.elf %.o %.aux.o
- 
- asm-offsets = lib/$(ARCH)/asm-offsets.h
- include $(SRCDIR)/scripts/asm-offsets.mak
-diff --git a/powerpc/Makefile.common b/powerpc/Makefile.common
-index b98f71c2f..16f14577e 100644
---- a/powerpc/Makefile.common
-+++ b/powerpc/Makefile.common
-@@ -30,7 +30,7 @@ CFLAGS += -I $(SRCDIR)/lib -I $(SRCDIR)/lib/libfdt -I lib
- CFLAGS += -Wa,-mregnames
- 
- # We want to keep intermediate files
--.PRECIOUS: %.o
-+.PRECIOUS: %.o %.aux.o
- 
- asm-offsets = lib/$(ARCH)/asm-offsets.h
- include $(SRCDIR)/scripts/asm-offsets.mak
-diff --git a/riscv/Makefile b/riscv/Makefile
-index 919a3ebb5..7207ff988 100644
---- a/riscv/Makefile
-+++ b/riscv/Makefile
-@@ -53,7 +53,7 @@ AUXFLAGS ?= 0x0
- KEEP_FRAME_POINTER := y
- 
- # We want to keep intermediate files
--.PRECIOUS: %.elf %.o
-+.PRECIOUS: %.elf %.o %.aux.o
- 
- define arch_elf_check =
- 	$(if $(shell ! $(READELF) -rW $(1) >&/dev/null && echo "nok"),
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 23342bd64..d436c6e9a 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -85,7 +85,7 @@ CFLAGS += -fno-delete-null-pointer-checks
- LDFLAGS += -Wl,--build-id=none
- 
- # We want to keep intermediate files
--.PRECIOUS: %.o %.lds
-+.PRECIOUS: %.o %.aux.o %.lds
- 
- asm-offsets = lib/$(ARCH)/asm-offsets.h
- include $(SRCDIR)/scripts/asm-offsets.mak
--- 
-2.45.1
+So we don't need to clear any flags, including the actual zoned flag
+here.
 
