@@ -1,215 +1,152 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24E3018EAB
-	for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2024 22:21:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7086322092;
+	Wed, 12 Jun 2024 04:42:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718144490; cv=none; b=Durky2qSndJlX9o8+Ia140ZTYUsth7RTJQYGz06Qg3CgczKBg4EXjFhhGkqJgeD9+47UYeuGEcScw1bhZjM9C5tsteot4onE0nlKqREygAedoTs1YqufIlLRe30MZVxx1fVSoz9yN9K62tIq+yJkHqpplwgMTGR7AN0ujBJ7R44=
+	t=1718167373; cv=none; b=sEoaU528KWUDz6iLN3yAUYr1yUDUDYJRB8t+bz/hTvcwwCTsShxxxUeFCSdoz5qkfPa+oDWwi702cs6JukqHw+Bd2u7f7fvK9m/pEMmeYJVUNfhX1hp0iCs4vVcpXNMiMbJiZq/PsS9+IhAWh4ufqdOCu/x9A9GPYJn58bDQKC8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718144490; c=relaxed/simple;
-	bh=1BaXhoKSY0jcaVNcI4emnVP144YL7TFNPcNk9dMJmrg=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=S4N+9yekT7+QJkrytBq9g2EaIwUT6RsQmE2yio+0mGSVw7qSgy9YwnqJFeWyHOwVduk0FRr9eb2LLD3+f3bZtgXR4VZ/95p6MWZLIEgnQWF4V0CHXBr7AuZM6qUVPClvhWEJu+OJCqcd++dJRxzFFZIU5fOidQpnt4NMBsZGeyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PRYZ+Ven; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1718167373; c=relaxed/simple;
+	bh=uybxDxR4RrOc+lmzdhnsTV2MydU3qxq3iFowjLn3ArI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=s8jlUQLrx4t9ZAGLS29rsoF9ViyxMndObs3h74YSpb9mrDsFm7cqqBS0fUeGTinsd9wF5fqk3bij7+VxMvVjDZ4BiBylbQbHaL9zoUYidPBc+fE4x4i5PPZ0CNwpzwEfcJ81C8YAal+4mVnnEcdBxANBsmF6+b0w8joN5SIRu1k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NH2Twx/M; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PRYZ+Ven"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718144487;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=DatEcFGN+0ZIwiKEmnb9vwdAqYXlhMMgpgcnDRaoZ+o=;
-	b=PRYZ+VenQNza3vB7wdCZYypxS9JT2DESaPUiqvQ1BoIs2WVVOoeCho3SGlIG2Cfp2WjgEf
-	sn3A/nj/LRpBpJ1V9TcGNP4IE3voKGTfqeBVeg0glAiYtQNrRtMiAu8ym8JVsqMs+ahpfF
-	LTXOwThycJ3AwAHwy8jCGtgKByPJnZQ=
-Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
- [209.85.210.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-608-kuMQ7rKANF-nlGblzk0hFA-1; Tue, 11 Jun 2024 18:21:25 -0400
-X-MC-Unique: kuMQ7rKANF-nlGblzk0hFA-1
-Received: by mail-ot1-f71.google.com with SMTP id 46e09a7af769-6f8eeaeb4b2so1573300a34.0
-        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2024 15:21:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NH2Twx/M"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-1f717608231so20497415ad.2;
+        Tue, 11 Jun 2024 21:42:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1718167371; x=1718772171; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=y8v3v+i8Ggw/AVGwDDCI9JHG5YYl3a/3EDerkme1e7c=;
+        b=NH2Twx/M9q8YPUIjuP9CH9zL/D4epXkF57DDmKfpR0mI9UlunsMkGG8lnGtB3pADJO
+         sblqYI84S8vxlwUwMU8rlRw8tkL/BUChO425qwAuXlLhJLIuWeDJaRz0K44b2cwDt3pX
+         tghZWjHWdv6OpvF6GPG8v+ARWpCq+crHjS82gxAa19x57CtuInpJGgD37boEzAGEjsZO
+         W6ZlKrzpNeW5vJycPNTNuahadrimsfm9xxjGwKIs3nzTWY5XnYS3OhrcOZOQ9XVvaS71
+         rdqNMj1wOJ/bOyK+ZtsZnjhLrGx5p+zbsPra993hI7DF9twGEg2urGiCQVHeJz3gLJ/c
+         22Jg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718144485; x=1718749285;
-        h=content-transfer-encoding:mime-version:organization:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=DatEcFGN+0ZIwiKEmnb9vwdAqYXlhMMgpgcnDRaoZ+o=;
-        b=ZnEYu4DirVRtRi/mxkivVbGAuqvgm9ItsjaCGmhJrBNnJz2IgxSCq9rkNR54RanN0U
-         HJwupo0D01wHRyOxexygNWj3JvYU4GkN8MZ/oMRqSsN/wzAhfPh5nI7qo6mgWS/kaFQz
-         g7e97Y6FXtfhg4Z1aDIh2n+9gjYc+ReKo1+Ws6vekxesmMuTF92VLbsNiH7MK8lRrFR8
-         ZNIqr+aLt9xPfLO5+tMVKioKF3KnuEiDRe/VrViSLaWl4U6v4/HoHO8sZ5TXFLVt6s3s
-         /pLMKnDDIDA6JDkbpEI7oSOE3pYtGA75HNCRQ4D/OYTkn9d9OfqnrcE/+zryVNNseGwx
-         4kRQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUlXElHK6S9ycQuSHdt1YowqeyFLdI8ciXYU1XI5GsTG2tKYmSrmv0NJa77VMtCMXR3mrBLinCYUWy2nO4I+Jtktm4VoVE8y/s0ZA==
-X-Gm-Message-State: AOJu0YwZ5e1owxv35mcq8mjP03ciZkOfw7zKV32lXmG1T3q4Zff4XbEK
-	xGqJhPOp0OXCyILlTN+F9MYT4aBJnh4IxESn81deTY8sdfTQ3rcBAdO0F38CyzajQblgeAgMkX+
-	5lNl4uzH/zJXo9kZ+vXxudE1PSNU4+HHhNtCv6kloaUzliRxjmVbpvxZJ6gY=
-X-Received: by 2002:a05:6830:1e1c:b0:6f9:ecfb:6c98 with SMTP id 46e09a7af769-6fa1c222978mr73378a34.24.1718144484623;
-        Tue, 11 Jun 2024 15:21:24 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHWqJsi/lpTX61iOR3KZ19pif3tSW4wF5q5hqI6RDE+uV2Q3A4Wf86dWHbtNQ/mVPuv8gWCFw==
-X-Received: by 2002:a05:6830:1e1c:b0:6f9:ecfb:6c98 with SMTP id 46e09a7af769-6fa1c222978mr73350a34.24.1718144484027;
-        Tue, 11 Jun 2024 15:21:24 -0700 (PDT)
-Received: from redhat.com ([38.15.36.11])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-6f96bf1c127sm1557633a34.74.2024.06.11.15.21.22
+        d=1e100.net; s=20230601; t=1718167371; x=1718772171;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=y8v3v+i8Ggw/AVGwDDCI9JHG5YYl3a/3EDerkme1e7c=;
+        b=VAVU0bc1Uv9X3eR2gOMd/e6t/lFKh4C6lwWZ9LcErKB7TPU1FcynpeJvypHhD1jP8S
+         6DxAvtuXsA8mibU6p74+t9VCm14cZCCRsRsoCYHVs1nIJFzUZ3URxEclCQGXp46Hlc6U
+         gQOHIdJNJ6IUAW11qMKSsHIxnLn5Hhmpg4mg12sflepI/X2tZYHAWtjDML4n8upHy03R
+         shwWS5Ogny9ihiQ7gPPyCWibf2Fuc+OFIc5/HTir53gX/Bpnuymxbsfz2T+VILYu9R9K
+         U5G/PxCGjqnC5RgeuXgTAwhwbOni6dT3lYdSzPNmi6LX2mXVCSR+jYhW//Y9qcmSHpnB
+         YJ4Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUY6M0UEL4u0Rt8JE1Ed1vsaD0hW5OtmvPPxHhASX35AodI1DOtdO6eDIa75WCFWANbJxYfNfrh3n91dShETKTUFQNMveWRkNi9XxyRkyY/avNestfiizKmHEyJoNN5dA==
+X-Gm-Message-State: AOJu0YzcoOuLRV2hGAPKUlued/UaLUetQINRm48723HPTgvJZPIvCJoW
+	i9sSnyNTRMGTZeajmuLcyiE/QEIDWbSpwX7MMzSG9LYOS2OoSp82
+X-Google-Smtp-Source: AGHT+IHpwHlh4iJRWgbNKg9wzqjgXtSTZ/ZgvwJw6UxQFuG3nQAI47SaA434g24rShYkZX8sK7hePg==
+X-Received: by 2002:a17:903:234d:b0:1f7:3d0d:4c8 with SMTP id d9443c01a7336-1f83b569c9amr9508185ad.13.1718167370569;
+        Tue, 11 Jun 2024 21:42:50 -0700 (PDT)
+Received: from wheely.local0.net (220-235-199-47.tpgi.com.au. [220.235.199.47])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1f71017b639sm52957535ad.21.2024.06.11.21.42.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Jun 2024 15:21:23 -0700 (PDT)
-Date: Tue, 11 Jun 2024 16:21:19 -0600
-From: Alex Williamson <alex.williamson@redhat.com>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>, Gerald Schaefer
- <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily
- Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
- <svens@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>, Matthew Rosato
- <mjrosato@linux.ibm.com>, Jason Gunthorpe <jgg@ziepe.ca>, Suren
- Baghdasaryan <surenb@google.com>, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH v3 1/3] s390/pci: Fix s390_mmio_read/write syscall page
- fault handling
-Message-ID: <20240611162119.6bc04d61.alex.williamson@redhat.com>
-In-Reply-To: <b38b571b753441314c090c3eb51c49c0e28a19d5.camel@linux.ibm.com>
-References: <20240529-vfio_pci_mmap-v3-0-cd217d019218@linux.ibm.com>
-	<20240529-vfio_pci_mmap-v3-1-cd217d019218@linux.ibm.com>
-	<98de56b1ba37f51639b9a2c15a745e19a45961a0.camel@linux.ibm.com>
-	<30ecb17b7a3414aeb605c51f003582c7f2cf6444.camel@linux.ibm.com>
-	<db10735e74d5a89aed73ad3268e0be40394efc31.camel@linux.ibm.com>
-	<ce7b9655-aaeb-4a13-a3ac-bd4a70bbd173@redhat.com>
-	<32b515269a31e177779f4d2d4fe2c05660beccc4.camel@linux.ibm.com>
-	<89c74380-6a60-4091-ba57-93c75d9a37d7@redhat.com>
-	<b38b571b753441314c090c3eb51c49c0e28a19d5.camel@linux.ibm.com>
-Organization: Red Hat
+        Tue, 11 Jun 2024 21:42:49 -0700 (PDT)
+From: Nicholas Piggin <npiggin@gmail.com>
+To: Thomas Huth <thuth@redhat.com>,
+	kvm@vger.kernel.org
+Cc: Nicholas Piggin <npiggin@gmail.com>,
+	Andrew Jones <andrew.jones@linux.dev>,
+	Marc Hartmayer <mhartmay@linux.ibm.com>,
+	kvmarm@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	kvm-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH] build: retain intermediate .aux.o targets
+Date: Wed, 12 Jun 2024 14:42:32 +1000
+Message-ID: <20240612044234.212156-1-npiggin@gmail.com>
+X-Mailer: git-send-email 2.45.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Tue, 11 Jun 2024 17:37:20 +0200
-Niklas Schnelle <schnelle@linux.ibm.com> wrote:
+arm, powerpc, riscv, build .aux.o targets with implicit pattern rules
+in dependency chains that cause them to be made as intermediate files,
+which get removed when make finishes. This results in unnecessary
+partial rebuilds. If make is run again, this time the .aux.o targets
+are not intermediate, possibly due to being made via different
+dependencies.
 
-> On Tue, 2024-06-11 at 17:10 +0200, David Hildenbrand wrote:
-> > > > 
-> > > > which checks mmap_assert_write_locked().
-> > > > 
-> > > > Setting VMA flags would be racy with the mmap lock in read mode.
-> > > > 
-> > > > 
-> > > > remap_pfn_range() documents: "this is only safe if the mm semaphore is
-> > > > held when called." which doesn't spell out if it needs to be held in
-> > > > write mode (which I think it does) :)  
-> > > 
-> > > Logically this makes sense to me. At the same time it looks like
-> > > fixup_user_fault() expects the caller to only hold mmap_read_lock() as
-> > > I do here. In there it even retakes mmap_read_lock(). But then wouldn't
-> > > any fault handling by its nature need to hold the write lock?  
-> > 
-> > Well, if you're calling remap_pfn_range() right now the expectation is 
-> > that we hold it in write mode. :)
-> > 
-> > Staring at some random users, they all call it from mmap(), where you 
-> > hold the mmap lock in write mode.
-> > 
-> > 
-> > I wonder why we are not seeing that splat with vfio all of the time?
-> > 
-> > That mmap lock check was added "recently". In 1c71222e5f23 we started 
-> > using vm_flags_set(). That (including the mmap_assert_write_locked()) 
-> > check was added via bc292ab00f6c almost 1.5 years ago.
-> > 
-> > Maybe vfio is a bit special and was never really run with lockdep?
-> >   
-> > >   
-> > > > 
-> > > > 
-> > > > My best guess is: if you are using remap_pfn_range() from a fault
-> > > > handler (not during mmap time) you are doing something wrong, that's why
-> > > > you get that report.  
-> > > 
-> > > @Alex: I guess so far the vfio_pci_mmap_fault() handler is only ever
-> > > triggered by "normal"/"actual" page faults where this isn't a problem?
-> > > Or could it be a problem there too?
-> > >   
-> > 
-> > I think we should see it there as well, unless I am missing something.  
-> 
-> Well good news for me, bad news for everyone else. I just reproduced
-> the same problem on my x86_64 workstation. I "ported over" (hacked it
-> until it compiles) an x86 version of my trivial vfio-pci user-space
-> test code that mmaps() the BAR 0 of an NVMe and MMIO reads the NVMe
-> version field at offset 8. On my x86_64 box this leads to the following
-> splat (still on v6.10-rc1).
+Adding .aux.o files to .PRECIOUS prevents them being removed and solves
+the rebuild problem.
 
-There's already a fix for this queued[1] in my for-linus branch for
-v6.10.  The problem has indeed existed with lockdep for some time but
-only with the recent lockdep changes to generate a warning regardless
-of debug kernel settings has it gone from just sketchy to having a fire
-under it.  There's still an outstanding question of whether we
-can/should insert as many pfns as we can during the fault[2] to reduce
-the new overhead and hopefully at some point we'll have an even cleaner
-option to use huge_fault for pfnmaps, but currently
-vmf_insert_pfn_{pmd,pud} don't work with those pfnmaps.
+s390x does not have the problem because .SECONDARY prevents dependancies
+from being built as intermediate. However the same change is made for
+s390x, for consistency.
 
-So hopefully this problem disappears on current linux-next, but let me
-know if there's still an issue.  Thanks,
+Suggested-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+---
+ arm/Makefile.common     | 2 +-
+ powerpc/Makefile.common | 2 +-
+ riscv/Makefile          | 2 +-
+ s390x/Makefile          | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-Alex
-
-[1]https://lore.kernel.org/all/20240530045236.1005864-1-alex.williamson@redhat.com/
-[2]https://lore.kernel.org/all/20240607035213.2054226-1-alex.williamson@redhat.com/
-
-> [  555.396773] ------------[ cut here ]------------
-> [  555.396774] WARNING: CPU: 3 PID: 1424 at include/linux/rwsem.h:85 remap_pfn_range_notrack+0x625/0x650
-> [  555.396778] Modules linked in: vfio_pci <-- 8< -->
-> [  555.396877] CPU: 3 PID: 1424 Comm: vfio-test Tainted: G        W          6.10.0-rc1-niks-00007-gb19d6d864df1 #4 d09afec01ce27ca8218580af28295f25e2d2ed53
-> [  555.396880] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./X570 Creator, BIOS P3.40 01/28/2021
-> [  555.396881] RIP: 0010:remap_pfn_range_notrack+0x625/0x650
-> [  555.396884] Code: a8 00 00 00 75 39 44 89 e0 48 81 c4 b0 00 00 00 5b 41 5c 41 5d 41 5e 41 5f 5d e9 26 a7 e5 00 cc 0f 0b 41 bc ea ff ff ff eb c9 <0f> 0b 49 8b 47 10 e9 72 fa ff ff e8 8b 56 b5 ff e9 c0 fa ff ff e8
-> [  555.396887] RSP: 0000:ffffaf8b04ed3bc0 EFLAGS: 00010246
-> [  555.396889] RAX: ffff9ea747cfe300 RBX: 00000000000ee200 RCX: 0000000000000100
-> [  555.396890] RDX: 00000000000ee200 RSI: ffff9ea747cfe300 RDI: ffff9ea76db58fd0
-> [  555.396892] RBP: 00000000ffffffea R08: 8000000000000035 R09: 0000000000000000
-> [  555.396894] R10: ffff9ea76d9bbf40 R11: ffffffff96e5ce50 R12: 0000000000004000
-> [  555.396895] R13: 00007f23b988a000 R14: ffff9ea76db58fd0 R15: ffff9ea76db58fd0
-> [  555.396897] FS:  00007f23b9561740(0000) GS:ffff9eb66e780000(0000) knlGS:0000000000000000
-> [  555.396899] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [  555.396901] CR2: 00007f23b988a008 CR3: 0000000136bde000 CR4: 0000000000350ef0
-> [  555.396903] Call Trace:
-> [  555.396904]  <TASK>
-> [  555.396905]  ? __warn+0x18c/0x2a0
-> [  555.396908]  ? remap_pfn_range_notrack+0x625/0x650
-> [  555.396911]  ? report_bug+0x1bb/0x270
-> [  555.396915]  ? handle_bug+0x42/0x70
-> [  555.396917]  ? exc_invalid_op+0x1a/0x50
-> [  555.396920]  ? asm_exc_invalid_op+0x1a/0x20
-> [  555.396923]  ? __pfx_is_ISA_range+0x10/0x10
-> [  555.396926]  ? remap_pfn_range_notrack+0x625/0x650
-> [  555.396929]  ? asm_exc_invalid_op+0x1a/0x20
-> [  555.396933]  ? track_pfn_remap+0x170/0x180
-> [  555.396936]  remap_pfn_range+0x6f/0xc0
-> [  555.396940]  vfio_pci_mmap_fault+0xf3/0x1b0 [vfio_pci_core 6df3b7ac5dcecb63cb090734847a65c799a8fef2]
-> [  555.396946]  __do_fault+0x11b/0x210
-> [  555.396949]  do_pte_missing+0x239/0x1350
-> [  555.396953]  handle_mm_fault+0xb10/0x18b0
-> [  555.396959]  do_user_addr_fault+0x293/0x710
-> [  555.396963]  exc_page_fault+0x82/0x1c0
-> [  555.396966]  asm_exc_page_fault+0x26/0x30
-> [  555.396968] RIP: 0033:0x55b0ea8bb7ac
-> [  555.396972] Code: 00 00 b0 00 e8 e5 f8 ff ff 31 c0 48 83 c4 20 5d c3 66 66 66 66 2e 0f 1f 84 00 00 00 00 00 55 48 89 e5 48 89 7d f8 48 8b 45 f8 <8b> 00 89 c0 5d c3 66 66 66 66 66 2e 0f 1f 84 00 00 00 00 00 55 48
-> [  555.396974] RSP: 002b:00007fff80973530 EFLAGS: 00010202
-> [  555.396976] RAX: 00007f23b988a008 RBX: 00007fff80973738 RCX: 00007f23b988a000
-> [  555.396978] RDX: 0000000000000001 RSI: 00007fff809735e8 RDI: 00007f23b988a008
-> [  555.396979] RBP: 00007fff80973530 R08: 0000000000000005 R09: 0000000000000000
-> [  555.396981] R10: 0000000000000001 R11: 0000000000000246 R12: 0000000000000002
-> [  555.396982] R13: 0000000000000000 R14: 00007f23b98c8000 R15: 000055b0ea8bddc0
-> [  555.396986]  </TASK>
-> [  555.396987] ---[ end trace 0000000000000000 ]---
-> 
+diff --git a/arm/Makefile.common b/arm/Makefile.common
+index f828dbe01..0b26a92a6 100644
+--- a/arm/Makefile.common
++++ b/arm/Makefile.common
+@@ -31,7 +31,7 @@ CFLAGS += -O2
+ CFLAGS += -I $(SRCDIR)/lib -I $(SRCDIR)/lib/libfdt -I lib
+ 
+ # We want to keep intermediate files
+-.PRECIOUS: %.elf %.o
++.PRECIOUS: %.elf %.o %.aux.o
+ 
+ asm-offsets = lib/$(ARCH)/asm-offsets.h
+ include $(SRCDIR)/scripts/asm-offsets.mak
+diff --git a/powerpc/Makefile.common b/powerpc/Makefile.common
+index b98f71c2f..16f14577e 100644
+--- a/powerpc/Makefile.common
++++ b/powerpc/Makefile.common
+@@ -30,7 +30,7 @@ CFLAGS += -I $(SRCDIR)/lib -I $(SRCDIR)/lib/libfdt -I lib
+ CFLAGS += -Wa,-mregnames
+ 
+ # We want to keep intermediate files
+-.PRECIOUS: %.o
++.PRECIOUS: %.o %.aux.o
+ 
+ asm-offsets = lib/$(ARCH)/asm-offsets.h
+ include $(SRCDIR)/scripts/asm-offsets.mak
+diff --git a/riscv/Makefile b/riscv/Makefile
+index 919a3ebb5..7207ff988 100644
+--- a/riscv/Makefile
++++ b/riscv/Makefile
+@@ -53,7 +53,7 @@ AUXFLAGS ?= 0x0
+ KEEP_FRAME_POINTER := y
+ 
+ # We want to keep intermediate files
+-.PRECIOUS: %.elf %.o
++.PRECIOUS: %.elf %.o %.aux.o
+ 
+ define arch_elf_check =
+ 	$(if $(shell ! $(READELF) -rW $(1) >&/dev/null && echo "nok"),
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 23342bd64..d436c6e9a 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -85,7 +85,7 @@ CFLAGS += -fno-delete-null-pointer-checks
+ LDFLAGS += -Wl,--build-id=none
+ 
+ # We want to keep intermediate files
+-.PRECIOUS: %.o %.lds
++.PRECIOUS: %.o %.aux.o %.lds
+ 
+ asm-offsets = lib/$(ARCH)/asm-offsets.h
+ include $(SRCDIR)/scripts/asm-offsets.mak
+-- 
+2.45.1
 
