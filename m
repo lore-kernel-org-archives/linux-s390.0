@@ -1,99 +1,157 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8729181312;
-	Wed, 12 Jun 2024 15:55:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D82D3181320
+	for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2024 15:56:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718207758; cv=none; b=TqXTeEeTAyXVbweCTjoWfBrrGZJUwDrCPyIDjVgVE3FZ26jyM9Z3RPxx6/LeAjEp3TsP95CT+n6UP0CUMsRsB8M3+YQyKDh1oR2OoF1wnWNVpe8KaS7+09BcaDD6vEo2GpIVOIzC3TiLZ1xqA9gNc9zEuyE5KGmvuf/A4EuNMZA=
+	t=1718207780; cv=none; b=mXw7hgQNGTJYrc9tjJ86bUGXrPkXAW3VNdqxff67cfLfvpxtKlmycmuX6EI1GLoB8WMp4dokPn0qyYhwFvUJTC7AQZJxkCTG9l2xPrmVC2PmDAaRkMu4PGEfPBp29VnkzLOU0MASzFDm0YV8ys6O6YUSXwxF7YILxaro56iQY+U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718207758; c=relaxed/simple;
-	bh=OGohKvk0MjWf9+Q8+mvrBX+1BAlKKRyUXLbfH75xyb4=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=aVOTTwsJpcctQuUjdTM8dhm19LLOc1Dt6AuwIhKCXrejUHcYcJPE5H4DC9Fzyw6QCAdYqEK0nP0ui81Knrinl0W7LiaUbPTrmLHR1XPSyo1uTsFW2/6YtmNxiP9jkihUCMxy7nnZMPsyNeMQ5f1h0fnSNwiH7kbWlovFqnKdm34=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kYWVzenO; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1718207780; c=relaxed/simple;
+	bh=WxiyGuZAC7bj+QrxGa2lDi15MZrXhgJnJEV+bRK2uiI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ivfq1tzb3PZTGLYlt/JAA0X0mNoDHDtB2d7HFG5AtIa9TN6IhBJkMfZDEFzKkyscUZ3JcHjXkt8Jccr3ZTo5+/a5vyjBgAhw7WTgsFncbr/lu92slTWLHW0Xp9AEI2hsiMVNLRLGfolTr/drudJE5flsyZD+mwK0DHLHlRfDZmw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=citrix.com; spf=pass smtp.mailfrom=cloud.com; dkim=pass (1024-bit key) header.d=citrix.com header.i=@citrix.com header.b=V7cG6Ag/; arc=none smtp.client-ip=209.85.219.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=citrix.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cloud.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kYWVzenO"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 7AEC7C4DDE4;
-	Wed, 12 Jun 2024 15:55:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1718207757;
-	bh=OGohKvk0MjWf9+Q8+mvrBX+1BAlKKRyUXLbfH75xyb4=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=kYWVzenO6v46dav7m+6VeeBQvWtkfZ2ijSROLzZNF2xhVox8NT4g6D7nEQ7Yr1CvD
-	 QbMqbzoNwKvtHxN4oOUSJGsdzFSOiqxLCA02gKqMCQ7TCsZzzusBONx5M/RWdCVpV3
-	 EiLccKqgRHfAnZUsG10WiKCsIr5ffuOoIqg1qhcsU6IhDG8FGsX5pkowWNVMy10FlC
-	 cn2EJB/8N7UtSBq02dCqRuSQs3PZ1MDiLAg7XtxdpzyjShLg11I47hWenlonizyvmL
-	 MeVPPNyid+I2VhiIZBpPj5WbK56sRWz78MH6UY8PKtaaCMSFrdgOOixPo+5vEX+bSG
-	 8/iqEXeUVgsUQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 61107C43618;
-	Wed, 12 Jun 2024 15:55:57 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=citrix.com header.i=@citrix.com header.b="V7cG6Ag/"
+Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-6afc61f9a2eso170276d6.0
+        for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2024 08:56:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=citrix.com; s=google; t=1718207778; x=1718812578; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=0JAgWI6yypeQvJHtBsLjxy9EsiTAtsBZFfQkPH4VMNc=;
+        b=V7cG6Ag/z6iCUMnCyee02CpPpVNNKq0aFi2gbS3Dd7usN46ko1fDHLZJlYgCyUyzgM
+         PkWsxqJiUKaH93GKZqh+J6Tx9GmEzvjLAPs83YmL2Gkt9gUBj/Q88Lr7e+uzv1URoIzD
+         VKiz75cG3gC5YRvgiukyfUkbgvM5OnMGUnJzU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718207778; x=1718812578;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=0JAgWI6yypeQvJHtBsLjxy9EsiTAtsBZFfQkPH4VMNc=;
+        b=PKnXT50ukSQWFfdozHU9jcZCTjY9j/q/Z1sHiPE4BmTylIvxOGbQAN7TDOmILaFbuG
+         R+SV+KtoOIG04U4gpOF5e3aopN1kcf192/TCRq6k0yaMaRiyywHo+zECB4wm6W4brwc5
+         /alXGWHJSK6f72T9MHBVw5P1jNKzTDKDbj7Kyc72LrY9yD/bmZE9c6oV7iFjqZmGQ6LZ
+         nH4HjcETVOby4Ry3K8QGHhEZMQPT0J25ibhE8C9L+7a2jP0oAzWtG4jJJgvhNt4Z6Xek
+         u5RyYIouGJ6x9n7VZRSwZxOQNUZwl5+LCoKmqfYgBmJoX7B3TiK7M6MHOABlC111Zdsn
+         xFzg==
+X-Forwarded-Encrypted: i=1; AJvYcCVf/vzi3TjWK2x1SxQNE87j5JmInRpRP69uCgz3SsWET1pv8Rj/tZgS3KfhHjlS9Ox+GsS4/wMh+G5n4jmaLOBqqKpyoA/qP17mkA==
+X-Gm-Message-State: AOJu0YxFNpCtiqGtLt8D0GqgQP4ldrJzMYSvFiW5zch14BGnXXiAquCg
+	mOfXqPlk08SVsMFoWUfXl6nsB01hOh6CYR3AABXeCMqdXOGOZ74IHFMXUtYbIbU=
+X-Google-Smtp-Source: AGHT+IH3vJ/Cfk8LzYoeLv9cXT/SgN6Pt3X56xC7VVYFazmjn8i4deMSmAqg4iM25NKqjeo5TBvU1g==
+X-Received: by 2002:a05:6214:2a47:b0:6b0:7365:dde0 with SMTP id 6a1803df08f44-6b2a33de160mr1306776d6.18.1718207777691;
+        Wed, 12 Jun 2024 08:56:17 -0700 (PDT)
+Received: from localhost ([213.195.124.163])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b0884337e9sm22877866d6.16.2024.06.12.08.56.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 Jun 2024 08:56:17 -0700 (PDT)
+Date: Wed, 12 Jun 2024 17:56:15 +0200
+From: Roger Pau =?utf-8?B?TW9ubsOp?= <roger.pau@citrix.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Geert Uytterhoeven <geert@linux-m68k.org>,
+	Richard Weinberger <richard@nod.at>,
+	Philipp Reisner <philipp.reisner@linbit.com>,
+	Lars Ellenberg <lars.ellenberg@linbit.com>,
+	Christoph =?utf-8?Q?B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
+	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, Alasdair Kergon <agk@redhat.com>,
+	Mike Snitzer <snitzer@kernel.org>,
+	Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
+	Yu Kuai <yukuai3@huawei.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
+	drbd-dev@lists.linbit.com, nbd@other.debian.org,
+	linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+	linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
+	linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
+	linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
+	linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
+Subject: Re: [PATCH 10/26] xen-blkfront: don't disable cache flushes when
+ they fail
+Message-ID: <ZmnFH17bTV2Ot_iR@macbook>
+References: <20240611051929.513387-1-hch@lst.de>
+ <20240611051929.513387-11-hch@lst.de>
+ <ZmlVziizbaboaBSn@macbook>
+ <20240612150030.GA29188@lst.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Subject: Re: [f2fs-dev] [PATCH] tracing/treewide: Remove second parameter of
- __assign_str()
-From: patchwork-bot+f2fs@kernel.org
-Message-Id: 
- <171820775738.32393.13116890369510221266.git-patchwork-notify@kernel.org>
-Date: Wed, 12 Jun 2024 15:55:57 +0000
-References: <20240516133454.681ba6a0@rorschach.local.home>
-In-Reply-To: <20240516133454.681ba6a0@rorschach.local.home>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linux-hyperv@vger.kernel.org, kvm@vger.kernel.org,
- dri-devel@lists.freedesktop.org, ath10k@lists.infradead.org,
- Julia.Lawall@inria.fr, linux-s390@vger.kernel.org, dev@openvswitch.org,
- linux-cifs@vger.kernel.org, linux-bcachefs@vger.kernel.org,
- linux-rdma@vger.kernel.org, amd-gfx@lists.freedesktop.org,
- io-uring@vger.kernel.org, torvalds@linux-foundation.org,
- iommu@lists.linux.dev, ath11k@lists.infradead.org,
- linux-media@vger.kernel.org, linux-wpan@vger.kernel.org,
- linux-pm@vger.kernel.org, selinux@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- linux-erofs@lists.ozlabs.org, virtualization@lists.linux.dev,
- linux-sound@vger.kernel.org, linux-block@vger.kernel.org,
- ocfs2-devel@lists.linux.dev, mathieu.desnoyers@efficios.com,
- linux-cxl@vger.kernel.org, linux-tegra@vger.kernel.org,
- intel-xe@lists.freedesktop.org, linux-edac@vger.kernel.org,
- linux-hwmon@vger.kernel.org, brcm80211-dev-list.pdl@broadcom.com,
- linuxppc-dev@lists.ozlabs.org, linux-usb@vger.kernel.org,
- linux-wireless@vger.kernel.org, brcm80211@lists.linux.dev,
- linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org,
- ath12k@lists.infradead.org, tipc-discussion@lists.sourceforge.net,
- mhiramat@kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org,
- freedreno@lists.freedesktop.org, linux-nfs@vger.kernel.org,
- linux-btrfs@vger.kernel.org
+In-Reply-To: <20240612150030.GA29188@lst.de>
 
-Hello:
-
-This patch was applied to jaegeuk/f2fs.git (dev)
-by Steven Rostedt (Google) <rostedt@goodmis.org>:
-
-On Thu, 16 May 2024 13:34:54 -0400 you wrote:
-> From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+On Wed, Jun 12, 2024 at 05:00:30PM +0200, Christoph Hellwig wrote:
+> On Wed, Jun 12, 2024 at 10:01:18AM +0200, Roger Pau Monné wrote:
+> > On Tue, Jun 11, 2024 at 07:19:10AM +0200, Christoph Hellwig wrote:
+> > > blkfront always had a robust negotiation protocol for detecting a write
+> > > cache.  Stop simply disabling cache flushes when they fail as that is
+> > > a grave error.
+> > 
+> > It's my understanding the current code attempts to cover up for the
+> > lack of guarantees the feature itself provides:
 > 
-> [
->    This is a treewide change. I will likely re-create this patch again in
->    the second week of the merge window of v6.10 and submit it then. Hoping
->    to keep the conflicts that it will cause to a minimum.
-> ]
+> > So even when the feature is exposed, the backend might return
+> > EOPNOTSUPP for the flush/barrier operations.
 > 
-> [...]
+> How is this supposed to work?  I mean in the worst case we could
+> just immediately complete the flush requests in the driver, but
+> we're really lying to any upper layer.
 
-Here is the summary with links:
-  - [f2fs-dev] tracing/treewide: Remove second parameter of __assign_str()
-    https://git.kernel.org/jaegeuk/f2fs/c/2c92ca849fcc
+Right.  AFAICT advertising "feature-barrier" and/or
+"feature-flush-cache" could be done based on whether blkback
+understand those commands, not on whether the underlying storage
+supports the equivalent of them.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Worst case we can print a warning message once about the underlying
+storage failing to complete flush/barrier requests, and that data
+integrity might not be guaranteed going forward, and not propagate the
+error to the upper layer?
 
+What would be the consequence of propagating a flush error to the
+upper layers?
 
+> > Such failure is tied on whether the underlying blkback storage
+> > supports REQ_OP_WRITE with REQ_PREFLUSH operation.  blkback will
+> > expose "feature-barrier" and/or "feature-flush-cache" without knowing
+> > whether the underlying backend supports those operations, hence the
+> > weird fallback in blkfront.
+> 
+> If we are just talking about the Linux blkback driver (I know there
+> probably are a few other implementations) it won't every do that.
+> I see it has code to do so, but the Linux block layer doesn't
+> allow the flush operation to randomly fail if it was previously
+> advertised.  Note that even blkfront conforms to this as it fixes
+> up the return value when it gets this notsupp error to ok.
+
+Yes, I'm afraid it's impossible to know what the multiple incarnations
+of all the scattered blkback implementations possibly do (FreeBSD,
+NetBSD, QEMU and blktap at least I know of).
+
+> > Overall blkback should ensure that REQ_PREFLUSH is supported before
+> > exposing "feature-barrier" or "feature-flush-cache", as then the
+> > exposed features would really match what the underlying backend
+> > supports (rather than the commands blkback knows about).
+> 
+> Yes.  The in-tree xen-blkback does that, but even without that the
+> Linux block layer actually makes sure flushes sent by upper layers
+> always succeed even when not supported.
+
+Given the description of the feature in the blkif header, I'm afraid
+we cannot guarantee that seeing the feature exposed implies barrier or
+flush support, since the request could fail at any time (or even from
+the start of the disk attachment) and it would still sadly be a correct
+implementation given the description of the options.
+
+Thanks, Roger.
