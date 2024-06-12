@@ -1,160 +1,1225 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD1A617D894
-	for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2024 14:04:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA78F17F38E
+	for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2024 14:54:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718201069; cv=none; b=ZWX3+AHnjvhcPJF4fPJ2bljbDl3H7Ku0cDst61z/z1C6OvVh8bHZK5mIDTGubUiB1W/9fgcuUoY2UFwDYz+DqVUP5nSkpEZpfW4ovUjLuGunVTq9oFpZ9ZGTozAU+H2Do0sLl6dpMFi8dvYkch7omzkqyQ9kLUZsv/uH94bOA2o=
+	t=1718204051; cv=none; b=tytVgaV+0PhIqM5SOWopdYHAbHS2ld+3W+adHqxtsOjpyGTK8r/6oea97qaI2XVtBZjstP9Pq1cXpZpCL1zOmkSseqxybqK718DihDtTpTo8akT6t5FCN0Q8k3yb4x3tEowWLHN5P4edxwrTGXw4LeCKgI3SzR37b/j0uuzNzA8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718201069; c=relaxed/simple;
-	bh=n6rQcdlTzLyq3J1ACt2i5X2K8jWLz6x7Pyg6vl9BQmw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jG+myaUG3MKRQcYxFmGCF6ARXt9v8ADqc41tpjYfsmtnJTpH9l0dJBSHuYDQWfMTV8pqDYdeuM7gpUa/ZNNee5rmvklEJx88YXu/eJQofLiuF6/OVy9SMakanRMSjBDLPsGeMD9zNUk/66migb1LaZ1UjAZlwBn169YLlQZu5qU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=U6LYRqwY; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1718204051; c=relaxed/simple;
+	bh=WNdBlRT4LavRAwat+INAKlqe3QxmBVNAHSDB6TYVQkM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mW+86mqZgg0SMaVA0aNxZfoTF86KSDHT5r82TI9WaCTOpxu1rWH43CiRS+JFW+R1YsNmshUE5vSeHUro5J2/ICPZDrrhWZBbOF9MIwQLNoeT63Uq6lgWcVXi+yfA5FQrq0N9ibT++kCcNwIr5YeSwphelXUvyr/1AfMmzOo2LGY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=croPvAR7; arc=none smtp.client-ip=209.85.128.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="U6LYRqwY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718201066;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=VHS87YElUOWkANf6E72nxalS03lPC9WT8JCafxHD7gY=;
-	b=U6LYRqwYxyWLr04hHswdwO9ZRdR4ZPeKdGsOIvYw8tIjPgK9bZjFFfK7i2gXaqtGafnZzp
-	9WAX8Z3i4FteN5dRfLxylxZFWhUeYyQZsr4LPB9n8UpOOdthccdFNryLL9/zwO405fyr6W
-	AwDsj9uwkqTPSYjNdcPdD8Td5t4d2dM=
-Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
- [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-323-LBwLKgfWOq-f9PiN91MP9w-1; Wed, 12 Jun 2024 10:04:23 -0400
-X-MC-Unique: LBwLKgfWOq-f9PiN91MP9w-1
-Received: by mail-qv1-f72.google.com with SMTP id 6a1803df08f44-6b062c433cfso24379876d6.0
-        for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2024 07:04:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="croPvAR7"
+Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-62fbbaf5615so8086847b3.2
+        for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2024 07:54:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1718204047; x=1718808847; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=bziVRdXSiVshwhhdlB5Zfeta9rMg2I/94yUew4zEeXk=;
+        b=croPvAR7XypelT6ItC4vkGqPKqLiiW8I8LSnZCr2TIUYQ55do1Z/GDzqBEaqr4oCSP
+         JGxmYHWQaCNBZWFOY78MWzYK+TBugglkdCn6hgF3i017a8Am8LYFBSg9JB/oIFv4p9HK
+         0GYWv/eYzpyWpPECprQUMQ8wFEQGzyP849P23HFMrvodGQzf0Z2VrQtMcV21CB+QfkUO
+         WB83M9dgt0occRMKQjnuBug3VuGFS31/20ySeKvZ6otdYYsV8gf1N1nnyG4hKodMnCRH
+         TlTcTZ5luX4uCKCgAacjITBbqRMHTXR6Z3REypO0VrqucX7GiTRJlk7t6gkD2wuRdeZD
+         faRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718201063; x=1718805863;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=1e100.net; s=20230601; t=1718204047; x=1718808847;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=VHS87YElUOWkANf6E72nxalS03lPC9WT8JCafxHD7gY=;
-        b=ATWVmVM4Vebp4QLnT/7j96aOAB+nBd3R37nG8nx8Z9tcOXQHTR1unCCcxD1gV1qTpF
-         gk/UGNQlM9TNwIttn6ZBd6vVGpw6/1N6kbqWcXLVS5xO87QnpEqSCKo96BTjicgcgJyt
-         aPyFEPg52yOLG2mEZDJWu9M4cPKR8oeWMHCc9ONGRh8ytMR3O3+SVNsDS/O4mEWO+iCc
-         6o6n6/ap2/8x/N2EPtB+gprRooXiV+aa51FBhWxwN1pT0jyjr2dMGNtwGaYsGQLisO3H
-         iXkmSmu6jlRk4hMTcKccv4HAZMdIdluRlxSIgfOo0+gfbLu+dD01Je3rPWRr4Sek/Q8k
-         Txxg==
-X-Forwarded-Encrypted: i=1; AJvYcCUntbUf8cfz6KW8mQi0tHWbKNnF0OEcWJNBDg9qFn9Dzo1TCI4Px6cgUPsLlbL4fAHRs+UJBbLfVUGqenYimuC4vK+QBBUd9QBNnQ==
-X-Gm-Message-State: AOJu0YzPEzIkdBQOnK+s5ml7cj58OPN7g7Y5kE9HtJdDPHcF1g4ghYjI
-	vDGHRd2mIBaqWh/EN1+a1Dpg2meSyUcVsbJyk+VmUX2F7IKP9bkUD7BFwTgJHOLaGLISUTRxoT2
-	rKx87gDETMIJdOmdJu6b521y0cCeKoamhiIOWV8EAu2TPEbJloLKv6264CvS0d90R+40=
-X-Received: by 2002:a05:6214:2b90:b0:6b0:7821:4026 with SMTP id 6a1803df08f44-6b1a6c57871mr20407056d6.52.1718201062939;
-        Wed, 12 Jun 2024 07:04:22 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHis29s85ghN1wCvWNHSB3z3fEhPObl0T66oMycOn7F9OWRQIQYakS2Z/8aehOyVDRyZ6GOEQ==
-X-Received: by 2002:a05:6214:2b90:b0:6b0:7821:4026 with SMTP id 6a1803df08f44-6b1a6c57871mr20406306d6.52.1718201062563;
-        Wed, 12 Jun 2024 07:04:22 -0700 (PDT)
-Received: from [192.168.0.4] (ip-109-43-176-68.web.vodafone.de. [109.43.176.68])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b2a1515903sm958436d6.58.2024.06.12.07.04.18
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 12 Jun 2024 07:04:22 -0700 (PDT)
-Message-ID: <6086ef5e-48e7-40f3-b0a7-ff67b20aeae3@redhat.com>
-Date: Wed, 12 Jun 2024 16:04:15 +0200
+        bh=bziVRdXSiVshwhhdlB5Zfeta9rMg2I/94yUew4zEeXk=;
+        b=We2ptHbxZ4hGPi+uPxAvYdgmA4idNovmlYP0IatT/3G/PdyW62caTcYa3QQ7rHnudA
+         gH+PYHOFO5pMD8PmkSBj3RwkCXOovx46wmxSCjVGY/Ntg4GhO65yupDRiLbiuyqZKZQ1
+         Xc1cPw3VV/ur4uFiSkUMg3tubfvzKD7KBeQ4jdoFgJ/3DESPfWfcQmQrurO0f/zd9KTu
+         py5/UN1e0GXZ/6FPWytJbIuPcmLFr/hZPWuLiVi2MgXXSZxcHKvAwCjSwww+eXrws6iQ
+         +gsFf764NhhpI6QQENe0EeogBSW3OGRRUW8ka9Cz4FCN2+Zt8eJEgQbGXhXwn/ZpcOeT
+         KOmQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXD/lTWgnSEqQOYtAyQI4NArItI9mzn5Ox/m1HvTHZRh+KmroEHArgTXTx8PbN3o/4dm2tUHLGhj0SlecuaH/0/yKTjJ4XUtwUi0Q==
+X-Gm-Message-State: AOJu0YziAi9zoJ9JsGc9VmoNyHnfXA+u59ywgVrkDE6a997XxCHFqTB7
+	baAQglWflIdN7yFnfkJTRBE0M5fGwi3pO1GnRNp5kZOudHE9Cxw3hCMUhTQ8+W1YvwmbprOwfx0
+	NvQ78uUKN1TsvwEuf/wDDLZDlRXJO2F6wKcYwjg==
+X-Google-Smtp-Source: AGHT+IFCxCnLhA/PF4dGFj22NjNJfNyDagLJmvuQKDpy4ehXHJPkwxBLp6VP7TUPMCoJJJ2fz6XxV2M8hd2gzn3jjIQ=
+X-Received: by 2002:a25:c5c8:0:b0:dfb:24e4:cee3 with SMTP id
+ 3f1490d57ef6-dfe668718f8mr1977546276.24.1718204046206; Wed, 12 Jun 2024
+ 07:54:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/1] s390/virtio_ccw: fix config change notifications
-To: Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>,
- Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Cc: Boqiao Fu <bfu@redhat.com>, Sebastian Mitterle <smitterl@redhat.com>
-References: <20240611214716.1002781-1-pasic@linux.ibm.com>
-From: Thomas Huth <thuth@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <20240611214716.1002781-1-pasic@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20240611051929.513387-1-hch@lst.de> <20240611051929.513387-14-hch@lst.de>
+In-Reply-To: <20240611051929.513387-14-hch@lst.de>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Date: Wed, 12 Jun 2024 16:53:29 +0200
+Message-ID: <CAPDyKFrv+Gg=BKzKN249MiQy+bPCRALM-LL-zyhbJ38GHtHgAA@mail.gmail.com>
+Subject: Re: [PATCH 13/26] block: move cache control settings out of queue->flags
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Geert Uytterhoeven <geert@linux-m68k.org>, 
+	Richard Weinberger <richard@nod.at>, Philipp Reisner <philipp.reisner@linbit.com>, 
+	Lars Ellenberg <lars.ellenberg@linbit.com>, 
+	=?UTF-8?Q?Christoph_B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>, 
+	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	=?UTF-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>, 
+	Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>, 
+	Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>, Yu Kuai <yukuai3@huawei.com>, 
+	Vineeth Vijayan <vneethv@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, 
+	linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org, 
+	drbd-dev@lists.linbit.com, nbd@other.debian.org, 
+	linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org, 
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org, 
+	linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev, 
+	linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org, 
+	linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev, 
+	linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org, 
+	linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On 11/06/2024 23.47, Halil Pasic wrote:
-> Commit e3e9bda38e6d ("s390/virtio_ccw: use DMA handle from DMA API")
-> broke configuration change notifications for virtio-ccw by putting the
-> DMA address of *indicatorp directly into ccw->cda disregarding the fact
-> that if !!(vcdev->is_thinint) then the function
-> virtio_ccw_register_adapter_ind() will overwrite that ccw->cda value
-> with the address of the virtio_thinint_area so it can actually set up
-> the adapter interrupts via CCW_CMD_SET_IND_ADAPTER.  Thus we end up
-> pointing to the wrong object for both CCW_CMD_SET_IND if setting up the
-> adapter interrupts fails, and for CCW_CMD_SET_CONF_IND regardless
-> whether it succeeds or fails.
-> 
-> To fix this, let us save away the dma address of *indicatorp in a local
-> variable, and copy it to ccw->cda after the "vcdev->is_thinint" branch.
-> 
-> Reported-by: Boqiao Fu <bfu@redhat.com>
-> Reported-by: Sebastian Mitterle <smitterl@redhat.com>
-> Fixes: e3e9bda38e6d ("s390/virtio_ccw: use DMA handle from DMA API")
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+On Tue, 11 Jun 2024 at 07:24, Christoph Hellwig <hch@lst.de> wrote:
+>
+> Move the cache control settings into the queue_limits so that they
+> can be set atomically and all I/O is frozen when changing the
+> flags.
+>
+> Add new features and flags field for the driver set flags, and internal
+> (usually sysfs-controlled) flags in the block layer.  Note that we'll
+> eventually remove enough field from queue_limits to bring it back to the
+> previous size.
+>
+> The disable flag is inverted compared to the previous meaning, which
+> means it now survives a rescan, similar to the max_sectors and
+> max_discard_sectors user limits.
+>
+> The FLUSH and FUA flags are now inherited by blk_stack_limits, which
+> simplified the code in dm a lot, but also causes a slight behavior
+> change in that dm-switch and dm-unstripe now advertise a write cache
+> despite setting num_flush_bios to 0.  The I/O path will handle this
+> gracefully, but as far as I can tell the lack of num_flush_bios
+> and thus flush support is a pre-existing data integrity bug in those
+> targets that really needs fixing, after which a non-zero num_flush_bios
+> should be required in dm for targets that map to underlying devices.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+
+Acked-by: Ulf Hansson <ulf.hansson@linaro.org> # For MMC
+
+FYI, for now I don't expect any other patches in my mmc tree to clash
+with this for v6.11, assuming that is the target.
+
+Kind regards
+Uffe
+
 > ---
-> I know that checkpatch.pl complains about a missing 'Closes' tag.
-> Unfortunately I don't have an appropriate URL at hand. @Sebastian,
-> @Boqiao: do you have any suggetions?
-
-Closes: https://issues.redhat.com/browse/RHEL-39983
-?
-
-Anyway, I've tested the patch and it indeed fixes the problem with 
-virtio-balloon and the link state for me:
-
-Tested-by: Thomas Huth <thuth@redhat.com>
-
+>  .../block/writeback_cache_control.rst         | 67 +++++++++++--------
+>  arch/um/drivers/ubd_kern.c                    |  2 +-
+>  block/blk-core.c                              |  2 +-
+>  block/blk-flush.c                             |  9 ++-
+>  block/blk-mq-debugfs.c                        |  2 -
+>  block/blk-settings.c                          | 29 ++------
+>  block/blk-sysfs.c                             | 29 +++++---
+>  block/blk-wbt.c                               |  4 +-
+>  drivers/block/drbd/drbd_main.c                |  2 +-
+>  drivers/block/loop.c                          |  9 +--
+>  drivers/block/nbd.c                           | 14 ++--
+>  drivers/block/null_blk/main.c                 | 12 ++--
+>  drivers/block/ps3disk.c                       |  7 +-
+>  drivers/block/rnbd/rnbd-clt.c                 | 10 +--
+>  drivers/block/ublk_drv.c                      |  8 ++-
+>  drivers/block/virtio_blk.c                    | 20 ++++--
+>  drivers/block/xen-blkfront.c                  |  9 ++-
+>  drivers/md/bcache/super.c                     |  7 +-
+>  drivers/md/dm-table.c                         | 39 +++--------
+>  drivers/md/md.c                               |  8 ++-
+>  drivers/mmc/core/block.c                      | 42 ++++++------
+>  drivers/mmc/core/queue.c                      | 12 ++--
+>  drivers/mmc/core/queue.h                      |  3 +-
+>  drivers/mtd/mtd_blkdevs.c                     |  5 +-
+>  drivers/nvdimm/pmem.c                         |  4 +-
+>  drivers/nvme/host/core.c                      |  7 +-
+>  drivers/nvme/host/multipath.c                 |  6 --
+>  drivers/scsi/sd.c                             | 28 +++++---
+>  include/linux/blkdev.h                        | 38 +++++++++--
+>  29 files changed, 227 insertions(+), 207 deletions(-)
+>
+> diff --git a/Documentation/block/writeback_cache_control.rst b/Documentation/block/writeback_cache_control.rst
+> index b208488d0aae85..9cfe27f90253c7 100644
+> --- a/Documentation/block/writeback_cache_control.rst
+> +++ b/Documentation/block/writeback_cache_control.rst
+> @@ -46,41 +46,50 @@ worry if the underlying devices need any explicit cache flushing and how
+>  the Forced Unit Access is implemented.  The REQ_PREFLUSH and REQ_FUA flags
+>  may both be set on a single bio.
+>
+> +Feature settings for block drivers
+> +----------------------------------
+>
+> -Implementation details for bio based block drivers
+> ---------------------------------------------------------------
+> +For devices that do not support volatile write caches there is no driver
+> +support required, the block layer completes empty REQ_PREFLUSH requests before
+> +entering the driver and strips off the REQ_PREFLUSH and REQ_FUA bits from
+> +requests that have a payload.
+>
+> -These drivers will always see the REQ_PREFLUSH and REQ_FUA bits as they sit
+> -directly below the submit_bio interface.  For remapping drivers the REQ_FUA
+> -bits need to be propagated to underlying devices, and a global flush needs
+> -to be implemented for bios with the REQ_PREFLUSH bit set.  For real device
+> -drivers that do not have a volatile cache the REQ_PREFLUSH and REQ_FUA bits
+> -on non-empty bios can simply be ignored, and REQ_PREFLUSH requests without
+> -data can be completed successfully without doing any work.  Drivers for
+> -devices with volatile caches need to implement the support for these
+> -flags themselves without any help from the block layer.
+> +For devices with volatile write caches the driver needs to tell the block layer
+> +that it supports flushing caches by setting the
+>
+> +   BLK_FEAT_WRITE_CACHE
+>
+> -Implementation details for request_fn based block drivers
+> ----------------------------------------------------------
+> +flag in the queue_limits feature field.  For devices that also support the FUA
+> +bit the block layer needs to be told to pass on the REQ_FUA bit by also setting
+> +the
+>
+> -For devices that do not support volatile write caches there is no driver
+> -support required, the block layer completes empty REQ_PREFLUSH requests before
+> -entering the driver and strips off the REQ_PREFLUSH and REQ_FUA bits from
+> -requests that have a payload.  For devices with volatile write caches the
+> -driver needs to tell the block layer that it supports flushing caches by
+> -doing::
+> +   BLK_FEAT_FUA
+> +
+> +flag in the features field of the queue_limits structure.
+> +
+> +Implementation details for bio based block drivers
+> +--------------------------------------------------
+> +
+> +For bio based drivers the REQ_PREFLUSH and REQ_FUA bit are simplify passed on
+> +to the driver if the drivers sets the BLK_FEAT_WRITE_CACHE flag and the drivers
+> +needs to handle them.
+> +
+> +*NOTE*: The REQ_FUA bit also gets passed on when the BLK_FEAT_FUA flags is
+> +_not_ set.  Any bio based driver that sets BLK_FEAT_WRITE_CACHE also needs to
+> +handle REQ_FUA.
+>
+> -       blk_queue_write_cache(sdkp->disk->queue, true, false);
+> +For remapping drivers the REQ_FUA bits need to be propagated to underlying
+> +devices, and a global flush needs to be implemented for bios with the
+> +REQ_PREFLUSH bit set.
+>
+> -and handle empty REQ_OP_FLUSH requests in its prep_fn/request_fn.  Note that
+> -REQ_PREFLUSH requests with a payload are automatically turned into a sequence
+> -of an empty REQ_OP_FLUSH request followed by the actual write by the block
+> -layer.  For devices that also support the FUA bit the block layer needs
+> -to be told to pass through the REQ_FUA bit using::
+> +Implementation details for blk-mq drivers
+> +-----------------------------------------
+>
+> -       blk_queue_write_cache(sdkp->disk->queue, true, true);
+> +When the BLK_FEAT_WRITE_CACHE flag is set, REQ_OP_WRITE | REQ_PREFLUSH requests
+> +with a payload are automatically turned into a sequence of a REQ_OP_FLUSH
+> +request followed by the actual write by the block layer.
+>
+> -and the driver must handle write requests that have the REQ_FUA bit set
+> -in prep_fn/request_fn.  If the FUA bit is not natively supported the block
+> -layer turns it into an empty REQ_OP_FLUSH request after the actual write.
+> +When the BLK_FEA_FUA flags is set, the REQ_FUA bit simplify passed on for the
+> +REQ_OP_WRITE request, else a REQ_OP_FLUSH request is sent by the block layer
+> +after the completion of the write request for bio submissions with the REQ_FUA
+> +bit set.
+> diff --git a/arch/um/drivers/ubd_kern.c b/arch/um/drivers/ubd_kern.c
+> index cdcb75a68989dd..19e01691ea0ea7 100644
+> --- a/arch/um/drivers/ubd_kern.c
+> +++ b/arch/um/drivers/ubd_kern.c
+> @@ -835,6 +835,7 @@ static int ubd_add(int n, char **error_out)
+>         struct queue_limits lim = {
+>                 .max_segments           = MAX_SG,
+>                 .seg_boundary_mask      = PAGE_SIZE - 1,
+> +               .features               = BLK_FEAT_WRITE_CACHE,
+>         };
+>         struct gendisk *disk;
+>         int err = 0;
+> @@ -882,7 +883,6 @@ static int ubd_add(int n, char **error_out)
+>         }
+>
+>         blk_queue_flag_set(QUEUE_FLAG_NONROT, disk->queue);
+> -       blk_queue_write_cache(disk->queue, true, false);
+>         disk->major = UBD_MAJOR;
+>         disk->first_minor = n << UBD_SHIFT;
+>         disk->minors = 1 << UBD_SHIFT;
+> diff --git a/block/blk-core.c b/block/blk-core.c
+> index 82c3ae22d76d88..2b45a4df9a1aa1 100644
+> --- a/block/blk-core.c
+> +++ b/block/blk-core.c
+> @@ -782,7 +782,7 @@ void submit_bio_noacct(struct bio *bio)
+>                 if (WARN_ON_ONCE(bio_op(bio) != REQ_OP_WRITE &&
+>                                  bio_op(bio) != REQ_OP_ZONE_APPEND))
+>                         goto end_io;
+> -               if (!test_bit(QUEUE_FLAG_WC, &q->queue_flags)) {
+> +               if (!bdev_write_cache(bdev)) {
+>                         bio->bi_opf &= ~(REQ_PREFLUSH | REQ_FUA);
+>                         if (!bio_sectors(bio)) {
+>                                 status = BLK_STS_OK;
+> diff --git a/block/blk-flush.c b/block/blk-flush.c
+> index 2234f8b3fc05f2..30b9d5033a2b85 100644
+> --- a/block/blk-flush.c
+> +++ b/block/blk-flush.c
+> @@ -381,8 +381,8 @@ static void blk_rq_init_flush(struct request *rq)
+>  bool blk_insert_flush(struct request *rq)
+>  {
+>         struct request_queue *q = rq->q;
+> -       unsigned long fflags = q->queue_flags;  /* may change, cache */
+>         struct blk_flush_queue *fq = blk_get_flush_queue(q, rq->mq_ctx);
+> +       bool supports_fua = q->limits.features & BLK_FEAT_FUA;
+>         unsigned int policy = 0;
+>
+>         /* FLUSH/FUA request must never be merged */
+> @@ -394,11 +394,10 @@ bool blk_insert_flush(struct request *rq)
+>         /*
+>          * Check which flushes we need to sequence for this operation.
+>          */
+> -       if (fflags & (1UL << QUEUE_FLAG_WC)) {
+> +       if (blk_queue_write_cache(q)) {
+>                 if (rq->cmd_flags & REQ_PREFLUSH)
+>                         policy |= REQ_FSEQ_PREFLUSH;
+> -               if (!(fflags & (1UL << QUEUE_FLAG_FUA)) &&
+> -                   (rq->cmd_flags & REQ_FUA))
+> +               if ((rq->cmd_flags & REQ_FUA) && !supports_fua)
+>                         policy |= REQ_FSEQ_POSTFLUSH;
+>         }
+>
+> @@ -407,7 +406,7 @@ bool blk_insert_flush(struct request *rq)
+>          * REQ_PREFLUSH and FUA for the driver.
+>          */
+>         rq->cmd_flags &= ~REQ_PREFLUSH;
+> -       if (!(fflags & (1UL << QUEUE_FLAG_FUA)))
+> +       if (!supports_fua)
+>                 rq->cmd_flags &= ~REQ_FUA;
+>
+>         /*
+> diff --git a/block/blk-mq-debugfs.c b/block/blk-mq-debugfs.c
+> index 770c0c2b72faaa..e8b9db7c30c455 100644
+> --- a/block/blk-mq-debugfs.c
+> +++ b/block/blk-mq-debugfs.c
+> @@ -93,8 +93,6 @@ static const char *const blk_queue_flag_name[] = {
+>         QUEUE_FLAG_NAME(INIT_DONE),
+>         QUEUE_FLAG_NAME(STABLE_WRITES),
+>         QUEUE_FLAG_NAME(POLL),
+> -       QUEUE_FLAG_NAME(WC),
+> -       QUEUE_FLAG_NAME(FUA),
+>         QUEUE_FLAG_NAME(DAX),
+>         QUEUE_FLAG_NAME(STATS),
+>         QUEUE_FLAG_NAME(REGISTERED),
+> diff --git a/block/blk-settings.c b/block/blk-settings.c
+> index f11c8676eb4c67..536ee202fcdccb 100644
+> --- a/block/blk-settings.c
+> +++ b/block/blk-settings.c
+> @@ -261,6 +261,9 @@ static int blk_validate_limits(struct queue_limits *lim)
+>                 lim->misaligned = 0;
+>         }
+>
+> +       if (!(lim->features & BLK_FEAT_WRITE_CACHE))
+> +               lim->features &= ~BLK_FEAT_FUA;
+> +
+>         err = blk_validate_integrity_limits(lim);
+>         if (err)
+>                 return err;
+> @@ -454,6 +457,8 @@ int blk_stack_limits(struct queue_limits *t, struct queue_limits *b,
+>  {
+>         unsigned int top, bottom, alignment, ret = 0;
+>
+> +       t->features |= (b->features & BLK_FEAT_INHERIT_MASK);
+> +
+>         t->max_sectors = min_not_zero(t->max_sectors, b->max_sectors);
+>         t->max_user_sectors = min_not_zero(t->max_user_sectors,
+>                         b->max_user_sectors);
+> @@ -711,30 +716,6 @@ void blk_set_queue_depth(struct request_queue *q, unsigned int depth)
+>  }
+>  EXPORT_SYMBOL(blk_set_queue_depth);
+>
+> -/**
+> - * blk_queue_write_cache - configure queue's write cache
+> - * @q:         the request queue for the device
+> - * @wc:                write back cache on or off
+> - * @fua:       device supports FUA writes, if true
+> - *
+> - * Tell the block layer about the write cache of @q.
+> - */
+> -void blk_queue_write_cache(struct request_queue *q, bool wc, bool fua)
+> -{
+> -       if (wc) {
+> -               blk_queue_flag_set(QUEUE_FLAG_HW_WC, q);
+> -               blk_queue_flag_set(QUEUE_FLAG_WC, q);
+> -       } else {
+> -               blk_queue_flag_clear(QUEUE_FLAG_HW_WC, q);
+> -               blk_queue_flag_clear(QUEUE_FLAG_WC, q);
+> -       }
+> -       if (fua)
+> -               blk_queue_flag_set(QUEUE_FLAG_FUA, q);
+> -       else
+> -               blk_queue_flag_clear(QUEUE_FLAG_FUA, q);
+> -}
+> -EXPORT_SYMBOL_GPL(blk_queue_write_cache);
+> -
+>  int bdev_alignment_offset(struct block_device *bdev)
+>  {
+>         struct request_queue *q = bdev_get_queue(bdev);
+> diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
+> index 5c787965b7d09e..4f524c1d5e08bd 100644
+> --- a/block/blk-sysfs.c
+> +++ b/block/blk-sysfs.c
+> @@ -423,32 +423,41 @@ static ssize_t queue_io_timeout_store(struct request_queue *q, const char *page,
+>
+>  static ssize_t queue_wc_show(struct request_queue *q, char *page)
+>  {
+> -       if (test_bit(QUEUE_FLAG_WC, &q->queue_flags))
+> -               return sprintf(page, "write back\n");
+> -
+> -       return sprintf(page, "write through\n");
+> +       if (q->limits.features & BLK_FLAGS_WRITE_CACHE_DISABLED)
+> +               return sprintf(page, "write through\n");
+> +       return sprintf(page, "write back\n");
+>  }
+>
+>  static ssize_t queue_wc_store(struct request_queue *q, const char *page,
+>                               size_t count)
+>  {
+> +       struct queue_limits lim;
+> +       bool disable;
+> +       int err;
+> +
+>         if (!strncmp(page, "write back", 10)) {
+> -               if (!test_bit(QUEUE_FLAG_HW_WC, &q->queue_flags))
+> -                       return -EINVAL;
+> -               blk_queue_flag_set(QUEUE_FLAG_WC, q);
+> +               disable = false;
+>         } else if (!strncmp(page, "write through", 13) ||
+> -                !strncmp(page, "none", 4)) {
+> -               blk_queue_flag_clear(QUEUE_FLAG_WC, q);
+> +                  !strncmp(page, "none", 4)) {
+> +               disable = true;
+>         } else {
+>                 return -EINVAL;
+>         }
+>
+> +       lim = queue_limits_start_update(q);
+> +       if (disable)
+> +               lim.flags |= BLK_FLAGS_WRITE_CACHE_DISABLED;
+> +       else
+> +               lim.flags &= ~BLK_FLAGS_WRITE_CACHE_DISABLED;
+> +       err = queue_limits_commit_update(q, &lim);
+> +       if (err)
+> +               return err;
+>         return count;
+>  }
+>
+>  static ssize_t queue_fua_show(struct request_queue *q, char *page)
+>  {
+> -       return sprintf(page, "%u\n", test_bit(QUEUE_FLAG_FUA, &q->queue_flags));
+> +       return sprintf(page, "%u\n", !!(q->limits.features & BLK_FEAT_FUA));
+>  }
+>
+>  static ssize_t queue_dax_show(struct request_queue *q, char *page)
+> diff --git a/block/blk-wbt.c b/block/blk-wbt.c
+> index 64472134dd26df..1a5e4b049ecd1d 100644
+> --- a/block/blk-wbt.c
+> +++ b/block/blk-wbt.c
+> @@ -206,8 +206,8 @@ static void wbt_rqw_done(struct rq_wb *rwb, struct rq_wait *rqw,
+>          */
+>         if (wb_acct & WBT_DISCARD)
+>                 limit = rwb->wb_background;
+> -       else if (test_bit(QUEUE_FLAG_WC, &rwb->rqos.disk->queue->queue_flags) &&
+> -                !wb_recent_wait(rwb))
+> +       else if (blk_queue_write_cache(rwb->rqos.disk->queue) &&
+> +                !wb_recent_wait(rwb))
+>                 limit = 0;
+>         else
+>                 limit = rwb->wb_normal;
+> diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+> index 113b441d4d3670..bf42a46781fa21 100644
+> --- a/drivers/block/drbd/drbd_main.c
+> +++ b/drivers/block/drbd/drbd_main.c
+> @@ -2697,6 +2697,7 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
+>                  * connect.
+>                  */
+>                 .max_hw_sectors         = DRBD_MAX_BIO_SIZE_SAFE >> 8,
+> +               .features               = BLK_FEAT_WRITE_CACHE | BLK_FEAT_FUA,
+>         };
+>
+>         device = minor_to_device(minor);
+> @@ -2736,7 +2737,6 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
+>         disk->private_data = device;
+>
+>         blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, disk->queue);
+> -       blk_queue_write_cache(disk->queue, true, true);
+>
+>         device->md_io.page = alloc_page(GFP_KERNEL);
+>         if (!device->md_io.page)
+> diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+> index 2c4a5eb3a6a7f9..0b23fdc4e2edcc 100644
+> --- a/drivers/block/loop.c
+> +++ b/drivers/block/loop.c
+> @@ -985,6 +985,9 @@ static int loop_reconfigure_limits(struct loop_device *lo, unsigned short bsize)
+>         lim.logical_block_size = bsize;
+>         lim.physical_block_size = bsize;
+>         lim.io_min = bsize;
+> +       lim.features &= ~BLK_FEAT_WRITE_CACHE;
+> +       if (file->f_op->fsync && !(lo->lo_flags & LO_FLAGS_READ_ONLY))
+> +               lim.features |= BLK_FEAT_WRITE_CACHE;
+>         if (!backing_bdev || bdev_nonrot(backing_bdev))
+>                 blk_queue_flag_set(QUEUE_FLAG_NONROT, lo->lo_queue);
+>         else
+> @@ -1078,9 +1081,6 @@ static int loop_configure(struct loop_device *lo, blk_mode_t mode,
+>         lo->old_gfp_mask = mapping_gfp_mask(mapping);
+>         mapping_set_gfp_mask(mapping, lo->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
+>
+> -       if (!(lo->lo_flags & LO_FLAGS_READ_ONLY) && file->f_op->fsync)
+> -               blk_queue_write_cache(lo->lo_queue, true, false);
+> -
+>         error = loop_reconfigure_limits(lo, config->block_size);
+>         if (WARN_ON_ONCE(error))
+>                 goto out_unlock;
+> @@ -1131,9 +1131,6 @@ static void __loop_clr_fd(struct loop_device *lo, bool release)
+>         struct file *filp;
+>         gfp_t gfp = lo->old_gfp_mask;
+>
+> -       if (test_bit(QUEUE_FLAG_WC, &lo->lo_queue->queue_flags))
+> -               blk_queue_write_cache(lo->lo_queue, false, false);
+> -
+>         /*
+>          * Freeze the request queue when unbinding on a live file descriptor and
+>          * thus an open device.  When called from ->release we are guaranteed
+> diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+> index 44b8c671921e5c..cb1c86a6a3fb9d 100644
+> --- a/drivers/block/nbd.c
+> +++ b/drivers/block/nbd.c
+> @@ -342,12 +342,14 @@ static int __nbd_set_size(struct nbd_device *nbd, loff_t bytesize,
+>                 lim.max_hw_discard_sectors = UINT_MAX;
+>         else
+>                 lim.max_hw_discard_sectors = 0;
+> -       if (!(nbd->config->flags & NBD_FLAG_SEND_FLUSH))
+> -               blk_queue_write_cache(nbd->disk->queue, false, false);
+> -       else if (nbd->config->flags & NBD_FLAG_SEND_FUA)
+> -               blk_queue_write_cache(nbd->disk->queue, true, true);
+> -       else
+> -               blk_queue_write_cache(nbd->disk->queue, true, false);
+> +       if (!(nbd->config->flags & NBD_FLAG_SEND_FLUSH)) {
+> +               lim.features &= ~(BLK_FEAT_WRITE_CACHE | BLK_FEAT_FUA);
+> +       } else if (nbd->config->flags & NBD_FLAG_SEND_FUA) {
+> +               lim.features |= BLK_FEAT_WRITE_CACHE | BLK_FEAT_FUA;
+> +       } else {
+> +               lim.features |= BLK_FEAT_WRITE_CACHE;
+> +               lim.features &= ~BLK_FEAT_FUA;
+> +       }
+>         lim.logical_block_size = blksize;
+>         lim.physical_block_size = blksize;
+>         error = queue_limits_commit_update(nbd->disk->queue, &lim);
+> diff --git a/drivers/block/null_blk/main.c b/drivers/block/null_blk/main.c
+> index 631dca2e4e8442..73e4aecf5bb492 100644
+> --- a/drivers/block/null_blk/main.c
+> +++ b/drivers/block/null_blk/main.c
+> @@ -1928,6 +1928,13 @@ static int null_add_dev(struct nullb_device *dev)
+>                         goto out_cleanup_tags;
+>         }
+>
+> +       if (dev->cache_size > 0) {
+> +               set_bit(NULLB_DEV_FL_CACHE, &nullb->dev->flags);
+> +               lim.features |= BLK_FEAT_WRITE_CACHE;
+> +               if (dev->fua)
+> +                       lim.features |= BLK_FEAT_FUA;
+> +       }
+> +
+>         nullb->disk = blk_mq_alloc_disk(nullb->tag_set, &lim, nullb);
+>         if (IS_ERR(nullb->disk)) {
+>                 rv = PTR_ERR(nullb->disk);
+> @@ -1940,11 +1947,6 @@ static int null_add_dev(struct nullb_device *dev)
+>                 nullb_setup_bwtimer(nullb);
+>         }
+>
+> -       if (dev->cache_size > 0) {
+> -               set_bit(NULLB_DEV_FL_CACHE, &nullb->dev->flags);
+> -               blk_queue_write_cache(nullb->q, true, dev->fua);
+> -       }
+> -
+>         nullb->q->queuedata = nullb;
+>         blk_queue_flag_set(QUEUE_FLAG_NONROT, nullb->q);
+>
+> diff --git a/drivers/block/ps3disk.c b/drivers/block/ps3disk.c
+> index b810ac0a5c4b97..8b73cf459b5937 100644
+> --- a/drivers/block/ps3disk.c
+> +++ b/drivers/block/ps3disk.c
+> @@ -388,9 +388,8 @@ static int ps3disk_probe(struct ps3_system_bus_device *_dev)
+>                 .max_segments           = -1,
+>                 .max_segment_size       = dev->bounce_size,
+>                 .dma_alignment          = dev->blk_size - 1,
+> +               .features               = BLK_FEAT_WRITE_CACHE,
+>         };
+> -
+> -       struct request_queue *queue;
+>         struct gendisk *gendisk;
+>
+>         if (dev->blk_size < 512) {
+> @@ -447,10 +446,6 @@ static int ps3disk_probe(struct ps3_system_bus_device *_dev)
+>                 goto fail_free_tag_set;
+>         }
+>
+> -       queue = gendisk->queue;
+> -
+> -       blk_queue_write_cache(queue, true, false);
+> -
+>         priv->gendisk = gendisk;
+>         gendisk->major = ps3disk_major;
+>         gendisk->first_minor = devidx * PS3DISK_MINORS;
+> diff --git a/drivers/block/rnbd/rnbd-clt.c b/drivers/block/rnbd/rnbd-clt.c
+> index b7ffe03c61606d..02c4b173182719 100644
+> --- a/drivers/block/rnbd/rnbd-clt.c
+> +++ b/drivers/block/rnbd/rnbd-clt.c
+> @@ -1389,6 +1389,12 @@ static int rnbd_client_setup_device(struct rnbd_clt_dev *dev,
+>                         le32_to_cpu(rsp->max_discard_sectors);
+>         }
+>
+> +       if (rsp->cache_policy & RNBD_WRITEBACK) {
+> +               lim.features |= BLK_FEAT_WRITE_CACHE;
+> +               if (rsp->cache_policy & RNBD_FUA)
+> +                       lim.features |= BLK_FEAT_FUA;
+> +       }
+> +
+>         dev->gd = blk_mq_alloc_disk(&dev->sess->tag_set, &lim, dev);
+>         if (IS_ERR(dev->gd))
+>                 return PTR_ERR(dev->gd);
+> @@ -1397,10 +1403,6 @@ static int rnbd_client_setup_device(struct rnbd_clt_dev *dev,
+>
+>         blk_queue_flag_set(QUEUE_FLAG_SAME_COMP, dev->queue);
+>         blk_queue_flag_set(QUEUE_FLAG_SAME_FORCE, dev->queue);
+> -       blk_queue_write_cache(dev->queue,
+> -                             !!(rsp->cache_policy & RNBD_WRITEBACK),
+> -                             !!(rsp->cache_policy & RNBD_FUA));
+> -
+>         return rnbd_clt_setup_gen_disk(dev, rsp, idx);
+>  }
+>
+> diff --git a/drivers/block/ublk_drv.c b/drivers/block/ublk_drv.c
+> index 4e159948c912c2..e45c65c1848d31 100644
+> --- a/drivers/block/ublk_drv.c
+> +++ b/drivers/block/ublk_drv.c
+> @@ -487,8 +487,6 @@ static void ublk_dev_param_basic_apply(struct ublk_device *ub)
+>         struct request_queue *q = ub->ub_disk->queue;
+>         const struct ublk_param_basic *p = &ub->params.basic;
+>
+> -       blk_queue_write_cache(q, p->attrs & UBLK_ATTR_VOLATILE_CACHE,
+> -                       p->attrs & UBLK_ATTR_FUA);
+>         if (p->attrs & UBLK_ATTR_ROTATIONAL)
+>                 blk_queue_flag_clear(QUEUE_FLAG_NONROT, q);
+>         else
+> @@ -2210,6 +2208,12 @@ static int ublk_ctrl_start_dev(struct ublk_device *ub, struct io_uring_cmd *cmd)
+>                 lim.max_zone_append_sectors = p->max_zone_append_sectors;
+>         }
+>
+> +       if (ub->params.basic.attrs & UBLK_ATTR_VOLATILE_CACHE) {
+> +               lim.features |= BLK_FEAT_WRITE_CACHE;
+> +               if (ub->params.basic.attrs & UBLK_ATTR_FUA)
+> +                       lim.features |= BLK_FEAT_FUA;
+> +       }
+> +
+>         if (wait_for_completion_interruptible(&ub->completion) != 0)
+>                 return -EINTR;
+>
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 378b241911ca87..b1a3c293528519 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -1100,6 +1100,7 @@ cache_type_store(struct device *dev, struct device_attribute *attr,
+>         struct gendisk *disk = dev_to_disk(dev);
+>         struct virtio_blk *vblk = disk->private_data;
+>         struct virtio_device *vdev = vblk->vdev;
+> +       struct queue_limits lim;
+>         int i;
+>
+>         BUG_ON(!virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_CONFIG_WCE));
+> @@ -1108,7 +1109,17 @@ cache_type_store(struct device *dev, struct device_attribute *attr,
+>                 return i;
+>
+>         virtio_cwrite8(vdev, offsetof(struct virtio_blk_config, wce), i);
+> -       blk_queue_write_cache(disk->queue, virtblk_get_cache_mode(vdev), false);
+> +
+> +       lim = queue_limits_start_update(disk->queue);
+> +       if (virtblk_get_cache_mode(vdev))
+> +               lim.features |= BLK_FEAT_WRITE_CACHE;
+> +       else
+> +               lim.features &= ~BLK_FEAT_WRITE_CACHE;
+> +       blk_mq_freeze_queue(disk->queue);
+> +       i = queue_limits_commit_update(disk->queue, &lim);
+> +       blk_mq_unfreeze_queue(disk->queue);
+> +       if (i)
+> +               return i;
+>         return count;
+>  }
+>
+> @@ -1504,6 +1515,9 @@ static int virtblk_probe(struct virtio_device *vdev)
+>         if (err)
+>                 goto out_free_tags;
+>
+> +       if (virtblk_get_cache_mode(vdev))
+> +               lim.features |= BLK_FEAT_WRITE_CACHE;
+> +
+>         vblk->disk = blk_mq_alloc_disk(&vblk->tag_set, &lim, vblk);
+>         if (IS_ERR(vblk->disk)) {
+>                 err = PTR_ERR(vblk->disk);
+> @@ -1519,10 +1533,6 @@ static int virtblk_probe(struct virtio_device *vdev)
+>         vblk->disk->fops = &virtblk_fops;
+>         vblk->index = index;
+>
+> -       /* configure queue flush support */
+> -       blk_queue_write_cache(vblk->disk->queue, virtblk_get_cache_mode(vdev),
+> -                       false);
+> -
+>         /* If disk is read-only in the host, the guest should obey */
+>         if (virtio_has_feature(vdev, VIRTIO_BLK_F_RO))
+>                 set_disk_ro(vblk->disk, 1);
+> diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+> index 9794ac2d3299d1..de38e025769b14 100644
+> --- a/drivers/block/xen-blkfront.c
+> +++ b/drivers/block/xen-blkfront.c
+> @@ -956,6 +956,12 @@ static void blkif_set_queue_limits(const struct blkfront_info *info,
+>                         lim->max_secure_erase_sectors = UINT_MAX;
+>         }
+>
+> +       if (info->feature_flush) {
+> +               lim->features |= BLK_FEAT_WRITE_CACHE;
+> +               if (info->feature_fua)
+> +                       lim->features |= BLK_FEAT_FUA;
+> +       }
+> +
+>         /* Hard sector size and max sectors impersonate the equiv. hardware. */
+>         lim->logical_block_size = info->sector_size;
+>         lim->physical_block_size = info->physical_sector_size;
+> @@ -1150,9 +1156,6 @@ static int xlvbd_alloc_gendisk(blkif_sector_t capacity,
+>         info->sector_size = sector_size;
+>         info->physical_sector_size = physical_sector_size;
+>
+> -       blk_queue_write_cache(info->rq, info->feature_flush ? true : false,
+> -                             info->feature_fua ? true : false);
+> -
+>         pr_info("blkfront: %s: %s %s %s %s %s %s %s\n",
+>                 info->gd->disk_name, flush_info(info),
+>                 "persistent grants:", info->feature_persistent ?
+> diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+> index 4d11fc664cb0b8..cb6595c8b5514e 100644
+> --- a/drivers/md/bcache/super.c
+> +++ b/drivers/md/bcache/super.c
+> @@ -897,7 +897,6 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
+>                 sector_t sectors, struct block_device *cached_bdev,
+>                 const struct block_device_operations *ops)
+>  {
+> -       struct request_queue *q;
+>         const size_t max_stripes = min_t(size_t, INT_MAX,
+>                                          SIZE_MAX / sizeof(atomic_t));
+>         struct queue_limits lim = {
+> @@ -909,6 +908,7 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
+>                 .io_min                 = block_size,
+>                 .logical_block_size     = block_size,
+>                 .physical_block_size    = block_size,
+> +               .features               = BLK_FEAT_WRITE_CACHE | BLK_FEAT_FUA,
+>         };
+>         uint64_t n;
+>         int idx;
+> @@ -975,12 +975,7 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
+>         d->disk->fops           = ops;
+>         d->disk->private_data   = d;
+>
+> -       q = d->disk->queue;
+> -
+>         blk_queue_flag_set(QUEUE_FLAG_NONROT, d->disk->queue);
+> -
+> -       blk_queue_write_cache(q, true, true);
+> -
+>         return 0;
+>
+>  out_bioset_exit:
+> diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+> index fd789eeb62d943..fbe125d55e25b4 100644
+> --- a/drivers/md/dm-table.c
+> +++ b/drivers/md/dm-table.c
+> @@ -1686,34 +1686,16 @@ int dm_calculate_queue_limits(struct dm_table *t,
+>         return validate_hardware_logical_block_alignment(t, limits);
+>  }
+>
+> -static int device_flush_capable(struct dm_target *ti, struct dm_dev *dev,
+> -                               sector_t start, sector_t len, void *data)
+> -{
+> -       unsigned long flush = (unsigned long) data;
+> -       struct request_queue *q = bdev_get_queue(dev->bdev);
+> -
+> -       return (q->queue_flags & flush);
+> -}
+> -
+> -static bool dm_table_supports_flush(struct dm_table *t, unsigned long flush)
+> +/*
+> + * Check if an target requires flush support even if none of the underlying
+> + * devices need it (e.g. to persist target-specific metadata).
+> + */
+> +static bool dm_table_supports_flush(struct dm_table *t)
+>  {
+> -       /*
+> -        * Require at least one underlying device to support flushes.
+> -        * t->devices includes internal dm devices such as mirror logs
+> -        * so we need to use iterate_devices here, which targets
+> -        * supporting flushes must provide.
+> -        */
+>         for (unsigned int i = 0; i < t->num_targets; i++) {
+>                 struct dm_target *ti = dm_table_get_target(t, i);
+>
+> -               if (!ti->num_flush_bios)
+> -                       continue;
+> -
+> -               if (ti->flush_supported)
+> -                       return true;
+> -
+> -               if (ti->type->iterate_devices &&
+> -                   ti->type->iterate_devices(ti, device_flush_capable, (void *) flush))
+> +               if (ti->num_flush_bios && ti->flush_supported)
+>                         return true;
+>         }
+>
+> @@ -1855,7 +1837,6 @@ static int device_requires_stable_pages(struct dm_target *ti,
+>  int dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+>                               struct queue_limits *limits)
+>  {
+> -       bool wc = false, fua = false;
+>         int r;
+>
+>         if (dm_table_supports_nowait(t))
+> @@ -1876,12 +1857,8 @@ int dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+>         if (!dm_table_supports_secure_erase(t))
+>                 limits->max_secure_erase_sectors = 0;
+>
+> -       if (dm_table_supports_flush(t, (1UL << QUEUE_FLAG_WC))) {
+> -               wc = true;
+> -               if (dm_table_supports_flush(t, (1UL << QUEUE_FLAG_FUA)))
+> -                       fua = true;
+> -       }
+> -       blk_queue_write_cache(q, wc, fua);
+> +       if (dm_table_supports_flush(t))
+> +               limits->features |= BLK_FEAT_WRITE_CACHE | BLK_FEAT_FUA;
+>
+>         if (dm_table_supports_dax(t, device_not_dax_capable)) {
+>                 blk_queue_flag_set(QUEUE_FLAG_DAX, q);
+> diff --git a/drivers/md/md.c b/drivers/md/md.c
+> index 67ece2cd725f50..2f4c5d1755d857 100644
+> --- a/drivers/md/md.c
+> +++ b/drivers/md/md.c
+> @@ -5785,7 +5785,10 @@ struct mddev *md_alloc(dev_t dev, char *name)
+>         int partitioned;
+>         int shift;
+>         int unit;
+> -       int error ;
+> +       int error;
+> +       struct queue_limits lim = {
+> +               .features               = BLK_FEAT_WRITE_CACHE | BLK_FEAT_FUA,
+> +       };
+>
+>         /*
+>          * Wait for any previous instance of this device to be completely
+> @@ -5825,7 +5828,7 @@ struct mddev *md_alloc(dev_t dev, char *name)
+>                  */
+>                 mddev->hold_active = UNTIL_STOP;
+>
+> -       disk = blk_alloc_disk(NULL, NUMA_NO_NODE);
+> +       disk = blk_alloc_disk(&lim, NUMA_NO_NODE);
+>         if (IS_ERR(disk)) {
+>                 error = PTR_ERR(disk);
+>                 goto out_free_mddev;
+> @@ -5843,7 +5846,6 @@ struct mddev *md_alloc(dev_t dev, char *name)
+>         disk->fops = &md_fops;
+>         disk->private_data = mddev;
+>
+> -       blk_queue_write_cache(disk->queue, true, true);
+>         disk->events |= DISK_EVENT_MEDIA_CHANGE;
+>         mddev->gendisk = disk;
+>         error = add_disk(disk);
+> diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+> index 367509b5b6466c..2c9963248fcbd6 100644
+> --- a/drivers/mmc/core/block.c
+> +++ b/drivers/mmc/core/block.c
+> @@ -2466,8 +2466,7 @@ static struct mmc_blk_data *mmc_blk_alloc_req(struct mmc_card *card,
+>         struct mmc_blk_data *md;
+>         int devidx, ret;
+>         char cap_str[10];
+> -       bool cache_enabled = false;
+> -       bool fua_enabled = false;
+> +       unsigned int features = 0;
+>
+>         devidx = ida_alloc_max(&mmc_blk_ida, max_devices - 1, GFP_KERNEL);
+>         if (devidx < 0) {
+> @@ -2499,7 +2498,24 @@ static struct mmc_blk_data *mmc_blk_alloc_req(struct mmc_card *card,
+>          */
+>         md->read_only = mmc_blk_readonly(card);
+>
+> -       md->disk = mmc_init_queue(&md->queue, card);
+> +       if (mmc_host_cmd23(card->host)) {
+> +               if ((mmc_card_mmc(card) &&
+> +                    card->csd.mmca_vsn >= CSD_SPEC_VER_3) ||
+> +                   (mmc_card_sd(card) &&
+> +                    card->scr.cmds & SD_SCR_CMD23_SUPPORT))
+> +                       md->flags |= MMC_BLK_CMD23;
+> +       }
+> +
+> +       if (md->flags & MMC_BLK_CMD23 &&
+> +           ((card->ext_csd.rel_param & EXT_CSD_WR_REL_PARAM_EN) ||
+> +            card->ext_csd.rel_sectors)) {
+> +               md->flags |= MMC_BLK_REL_WR;
+> +               features |= (BLK_FEAT_WRITE_CACHE | BLK_FEAT_FUA);
+> +       } else if (mmc_cache_enabled(card->host)) {
+> +               features |= BLK_FEAT_WRITE_CACHE;
+> +       }
+> +
+> +       md->disk = mmc_init_queue(&md->queue, card, features);
+>         if (IS_ERR(md->disk)) {
+>                 ret = PTR_ERR(md->disk);
+>                 goto err_kfree;
+> @@ -2539,26 +2555,6 @@ static struct mmc_blk_data *mmc_blk_alloc_req(struct mmc_card *card,
+>
+>         set_capacity(md->disk, size);
+>
+> -       if (mmc_host_cmd23(card->host)) {
+> -               if ((mmc_card_mmc(card) &&
+> -                    card->csd.mmca_vsn >= CSD_SPEC_VER_3) ||
+> -                   (mmc_card_sd(card) &&
+> -                    card->scr.cmds & SD_SCR_CMD23_SUPPORT))
+> -                       md->flags |= MMC_BLK_CMD23;
+> -       }
+> -
+> -       if (md->flags & MMC_BLK_CMD23 &&
+> -           ((card->ext_csd.rel_param & EXT_CSD_WR_REL_PARAM_EN) ||
+> -            card->ext_csd.rel_sectors)) {
+> -               md->flags |= MMC_BLK_REL_WR;
+> -               fua_enabled = true;
+> -               cache_enabled = true;
+> -       }
+> -       if (mmc_cache_enabled(card->host))
+> -               cache_enabled  = true;
+> -
+> -       blk_queue_write_cache(md->queue.queue, cache_enabled, fua_enabled);
+> -
+>         string_get_size((u64)size, 512, STRING_UNITS_2,
+>                         cap_str, sizeof(cap_str));
+>         pr_info("%s: %s %s %s%s\n",
+> diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
+> index 241cdc2b2a2a3b..97ff993d31570c 100644
+> --- a/drivers/mmc/core/queue.c
+> +++ b/drivers/mmc/core/queue.c
+> @@ -344,10 +344,12 @@ static const struct blk_mq_ops mmc_mq_ops = {
+>  };
+>
+>  static struct gendisk *mmc_alloc_disk(struct mmc_queue *mq,
+> -               struct mmc_card *card)
+> +               struct mmc_card *card, unsigned int features)
+>  {
+>         struct mmc_host *host = card->host;
+> -       struct queue_limits lim = { };
+> +       struct queue_limits lim = {
+> +               .features               = features,
+> +       };
+>         struct gendisk *disk;
+>
+>         if (mmc_can_erase(card))
+> @@ -413,10 +415,12 @@ static inline bool mmc_merge_capable(struct mmc_host *host)
+>   * mmc_init_queue - initialise a queue structure.
+>   * @mq: mmc queue
+>   * @card: mmc card to attach this queue
+> + * @features: block layer features (BLK_FEAT_*)
+>   *
+>   * Initialise a MMC card request queue.
+>   */
+> -struct gendisk *mmc_init_queue(struct mmc_queue *mq, struct mmc_card *card)
+> +struct gendisk *mmc_init_queue(struct mmc_queue *mq, struct mmc_card *card,
+> +               unsigned int features)
+>  {
+>         struct mmc_host *host = card->host;
+>         struct gendisk *disk;
+> @@ -460,7 +464,7 @@ struct gendisk *mmc_init_queue(struct mmc_queue *mq, struct mmc_card *card)
+>                 return ERR_PTR(ret);
+>
+>
+> -       disk = mmc_alloc_disk(mq, card);
+> +       disk = mmc_alloc_disk(mq, card, features);
+>         if (IS_ERR(disk))
+>                 blk_mq_free_tag_set(&mq->tag_set);
+>         return disk;
+> diff --git a/drivers/mmc/core/queue.h b/drivers/mmc/core/queue.h
+> index 9ade3bcbb714e4..1498840a4ea008 100644
+> --- a/drivers/mmc/core/queue.h
+> +++ b/drivers/mmc/core/queue.h
+> @@ -94,7 +94,8 @@ struct mmc_queue {
+>         struct work_struct      complete_work;
+>  };
+>
+> -struct gendisk *mmc_init_queue(struct mmc_queue *mq, struct mmc_card *card);
+> +struct gendisk *mmc_init_queue(struct mmc_queue *mq, struct mmc_card *card,
+> +               unsigned int features);
+>  extern void mmc_cleanup_queue(struct mmc_queue *);
+>  extern void mmc_queue_suspend(struct mmc_queue *);
+>  extern void mmc_queue_resume(struct mmc_queue *);
+> diff --git a/drivers/mtd/mtd_blkdevs.c b/drivers/mtd/mtd_blkdevs.c
+> index 3caa0717d46c01..1b9f57f231e8be 100644
+> --- a/drivers/mtd/mtd_blkdevs.c
+> +++ b/drivers/mtd/mtd_blkdevs.c
+> @@ -336,6 +336,8 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
+>         lim.logical_block_size = tr->blksize;
+>         if (tr->discard)
+>                 lim.max_hw_discard_sectors = UINT_MAX;
+> +       if (tr->flush)
+> +               lim.features |= BLK_FEAT_WRITE_CACHE;
+>
+>         /* Create gendisk */
+>         gd = blk_mq_alloc_disk(new->tag_set, &lim, new);
+> @@ -373,9 +375,6 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
+>         spin_lock_init(&new->queue_lock);
+>         INIT_LIST_HEAD(&new->rq_list);
+>
+> -       if (tr->flush)
+> -               blk_queue_write_cache(new->rq, true, false);
+> -
+>         blk_queue_flag_set(QUEUE_FLAG_NONROT, new->rq);
+>         blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, new->rq);
+>
+> diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
+> index 598fe2e89bda45..aff818469c114c 100644
+> --- a/drivers/nvdimm/pmem.c
+> +++ b/drivers/nvdimm/pmem.c
+> @@ -455,6 +455,7 @@ static int pmem_attach_disk(struct device *dev,
+>                 .logical_block_size     = pmem_sector_size(ndns),
+>                 .physical_block_size    = PAGE_SIZE,
+>                 .max_hw_sectors         = UINT_MAX,
+> +               .features               = BLK_FEAT_WRITE_CACHE,
+>         };
+>         int nid = dev_to_node(dev), fua;
+>         struct resource *res = &nsio->res;
+> @@ -495,6 +496,8 @@ static int pmem_attach_disk(struct device *dev,
+>                 dev_warn(dev, "unable to guarantee persistence of writes\n");
+>                 fua = 0;
+>         }
+> +       if (fua)
+> +               lim.features |= BLK_FEAT_FUA;
+>
+>         if (!devm_request_mem_region(dev, res->start, resource_size(res),
+>                                 dev_name(&ndns->dev))) {
+> @@ -543,7 +546,6 @@ static int pmem_attach_disk(struct device *dev,
+>         }
+>         pmem->virt_addr = addr;
+>
+> -       blk_queue_write_cache(q, true, fua);
+>         blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
+>         blk_queue_flag_set(QUEUE_FLAG_SYNCHRONOUS, q);
+>         if (pmem->pfn_flags & PFN_MAP)
+> diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+> index 5a673fa5cb2612..9fc5e36fe2e55e 100644
+> --- a/drivers/nvme/host/core.c
+> +++ b/drivers/nvme/host/core.c
+> @@ -2056,7 +2056,6 @@ static int nvme_update_ns_info_generic(struct nvme_ns *ns,
+>  static int nvme_update_ns_info_block(struct nvme_ns *ns,
+>                 struct nvme_ns_info *info)
+>  {
+> -       bool vwc = ns->ctrl->vwc & NVME_CTRL_VWC_PRESENT;
+>         struct queue_limits lim;
+>         struct nvme_id_ns_nvm *nvm = NULL;
+>         struct nvme_zone_info zi = {};
+> @@ -2106,6 +2105,11 @@ static int nvme_update_ns_info_block(struct nvme_ns *ns,
+>             ns->head->ids.csi == NVME_CSI_ZNS)
+>                 nvme_update_zone_info(ns, &lim, &zi);
+>
+> +       if (ns->ctrl->vwc & NVME_CTRL_VWC_PRESENT)
+> +               lim.features |= BLK_FEAT_WRITE_CACHE | BLK_FEAT_FUA;
+> +       else
+> +               lim.features &= ~(BLK_FEAT_WRITE_CACHE | BLK_FEAT_FUA);
+> +
+>         /*
+>          * Register a metadata profile for PI, or the plain non-integrity NVMe
+>          * metadata masquerading as Type 0 if supported, otherwise reject block
+> @@ -2132,7 +2136,6 @@ static int nvme_update_ns_info_block(struct nvme_ns *ns,
+>         if ((id->dlfeat & 0x7) == 0x1 && (id->dlfeat & (1 << 3)))
+>                 ns->head->features |= NVME_NS_DEAC;
+>         set_disk_ro(ns->disk, nvme_ns_is_readonly(ns, info));
+> -       blk_queue_write_cache(ns->disk->queue, vwc, vwc);
+>         set_bit(NVME_NS_READY, &ns->flags);
+>         blk_mq_unfreeze_queue(ns->disk->queue);
+>
+> diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+> index 12c59db02539e5..3d0e23a0a4ddd8 100644
+> --- a/drivers/nvme/host/multipath.c
+> +++ b/drivers/nvme/host/multipath.c
+> @@ -521,7 +521,6 @@ static void nvme_requeue_work(struct work_struct *work)
+>  int nvme_mpath_alloc_disk(struct nvme_ctrl *ctrl, struct nvme_ns_head *head)
+>  {
+>         struct queue_limits lim;
+> -       bool vwc = false;
+>
+>         mutex_init(&head->lock);
+>         bio_list_init(&head->requeue_list);
+> @@ -562,11 +561,6 @@ int nvme_mpath_alloc_disk(struct nvme_ctrl *ctrl, struct nvme_ns_head *head)
+>         if (ctrl->tagset->nr_maps > HCTX_TYPE_POLL &&
+>             ctrl->tagset->map[HCTX_TYPE_POLL].nr_queues)
+>                 blk_queue_flag_set(QUEUE_FLAG_POLL, head->disk->queue);
+> -
+> -       /* we need to propagate up the VMC settings */
+> -       if (ctrl->vwc & NVME_CTRL_VWC_PRESENT)
+> -               vwc = true;
+> -       blk_queue_write_cache(head->disk->queue, vwc, vwc);
+>         return 0;
+>  }
+>
+> diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+> index 5bfed61c70db8f..8764ea14c9b881 100644
+> --- a/drivers/scsi/sd.c
+> +++ b/drivers/scsi/sd.c
+> @@ -120,17 +120,18 @@ static const char *sd_cache_types[] = {
+>         "write back, no read (daft)"
+>  };
+>
+> -static void sd_set_flush_flag(struct scsi_disk *sdkp)
+> +static void sd_set_flush_flag(struct scsi_disk *sdkp,
+> +               struct queue_limits *lim)
+>  {
+> -       bool wc = false, fua = false;
+> -
+>         if (sdkp->WCE) {
+> -               wc = true;
+> +               lim->features |= BLK_FEAT_WRITE_CACHE;
+>                 if (sdkp->DPOFUA)
+> -                       fua = true;
+> +                       lim->features |= BLK_FEAT_FUA;
+> +               else
+> +                       lim->features &= ~BLK_FEAT_FUA;
+> +       } else {
+> +               lim->features &= ~(BLK_FEAT_WRITE_CACHE | BLK_FEAT_FUA);
+>         }
+> -
+> -       blk_queue_write_cache(sdkp->disk->queue, wc, fua);
+>  }
+>
+>  static ssize_t
+> @@ -168,9 +169,18 @@ cache_type_store(struct device *dev, struct device_attribute *attr,
+>         wce = (ct & 0x02) && !sdkp->write_prot ? 1 : 0;
+>
+>         if (sdkp->cache_override) {
+> +               struct queue_limits lim;
+> +
+>                 sdkp->WCE = wce;
+>                 sdkp->RCD = rcd;
+> -               sd_set_flush_flag(sdkp);
+> +
+> +               lim = queue_limits_start_update(sdkp->disk->queue);
+> +               sd_set_flush_flag(sdkp, &lim);
+> +               blk_mq_freeze_queue(sdkp->disk->queue);
+> +               ret = queue_limits_commit_update(sdkp->disk->queue, &lim);
+> +               blk_mq_unfreeze_queue(sdkp->disk->queue);
+> +               if (ret)
+> +                       return ret;
+>                 return count;
+>         }
+>
+> @@ -3659,7 +3669,7 @@ static int sd_revalidate_disk(struct gendisk *disk)
+>          * We now have all cache related info, determine how we deal
+>          * with flush requests.
+>          */
+> -       sd_set_flush_flag(sdkp);
+> +       sd_set_flush_flag(sdkp, &lim);
+>
+>         /* Initial block count limit based on CDB TRANSFER LENGTH field size. */
+>         dev_max = sdp->use_16_for_rw ? SD_MAX_XFER_BLOCKS : SD_DEF_XFER_BLOCKS;
+> diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+> index c792d4d81e5fcc..4e8931a2c76b07 100644
+> --- a/include/linux/blkdev.h
+> +++ b/include/linux/blkdev.h
+> @@ -282,6 +282,28 @@ static inline bool blk_op_is_passthrough(blk_opf_t op)
+>         return op == REQ_OP_DRV_IN || op == REQ_OP_DRV_OUT;
+>  }
+>
+> +/* flags set by the driver in queue_limits.features */
+> +enum {
+> +       /* supports a a volatile write cache */
+> +       BLK_FEAT_WRITE_CACHE                    = (1u << 0),
+> +
+> +       /* supports passing on the FUA bit */
+> +       BLK_FEAT_FUA                            = (1u << 1),
+> +};
+> +
+> +/*
+> + * Flags automatically inherited when stacking limits.
+> + */
+> +#define BLK_FEAT_INHERIT_MASK \
+> +       (BLK_FEAT_WRITE_CACHE | BLK_FEAT_FUA)
+> +
+> +
+> +/* internal flags in queue_limits.flags */
+> +enum {
+> +       /* do not send FLUSH or FUA command despite advertised write cache */
+> +       BLK_FLAGS_WRITE_CACHE_DISABLED          = (1u << 31),
+> +};
+> +
+>  /*
+>   * BLK_BOUNCE_NONE:    never bounce (default)
+>   * BLK_BOUNCE_HIGH:    bounce all highmem pages
+> @@ -292,6 +314,8 @@ enum blk_bounce {
+>  };
+>
+>  struct queue_limits {
+> +       unsigned int            features;
+> +       unsigned int            flags;
+>         enum blk_bounce         bounce;
+>         unsigned long           seg_boundary_mask;
+>         unsigned long           virt_boundary_mask;
+> @@ -536,12 +560,9 @@ struct request_queue {
+>  #define QUEUE_FLAG_ADD_RANDOM  10      /* Contributes to random pool */
+>  #define QUEUE_FLAG_SYNCHRONOUS 11      /* always completes in submit context */
+>  #define QUEUE_FLAG_SAME_FORCE  12      /* force complete on same CPU */
+> -#define QUEUE_FLAG_HW_WC       13      /* Write back caching supported */
+>  #define QUEUE_FLAG_INIT_DONE   14      /* queue is initialized */
+>  #define QUEUE_FLAG_STABLE_WRITES 15    /* don't modify blks until WB is done */
+>  #define QUEUE_FLAG_POLL                16      /* IO polling enabled if set */
+> -#define QUEUE_FLAG_WC          17      /* Write back caching */
+> -#define QUEUE_FLAG_FUA         18      /* device supports FUA writes */
+>  #define QUEUE_FLAG_DAX         19      /* device supports DAX */
+>  #define QUEUE_FLAG_STATS       20      /* track IO start and completion times */
+>  #define QUEUE_FLAG_REGISTERED  22      /* queue has been registered to a disk */
+> @@ -951,7 +972,6 @@ void queue_limits_stack_bdev(struct queue_limits *t, struct block_device *bdev,
+>                 sector_t offset, const char *pfx);
+>  extern void blk_queue_update_dma_pad(struct request_queue *, unsigned int);
+>  extern void blk_queue_rq_timeout(struct request_queue *, unsigned int);
+> -extern void blk_queue_write_cache(struct request_queue *q, bool enabled, bool fua);
+>
+>  struct blk_independent_access_ranges *
+>  disk_alloc_independent_access_ranges(struct gendisk *disk, int nr_ia_ranges);
+> @@ -1305,14 +1325,20 @@ static inline bool bdev_stable_writes(struct block_device *bdev)
+>         return test_bit(QUEUE_FLAG_STABLE_WRITES, &q->queue_flags);
+>  }
+>
+> +static inline bool blk_queue_write_cache(struct request_queue *q)
+> +{
+> +       return (q->limits.features & BLK_FEAT_WRITE_CACHE) &&
+> +               (q->limits.flags & BLK_FLAGS_WRITE_CACHE_DISABLED);
+> +}
+> +
+>  static inline bool bdev_write_cache(struct block_device *bdev)
+>  {
+> -       return test_bit(QUEUE_FLAG_WC, &bdev_get_queue(bdev)->queue_flags);
+> +       return blk_queue_write_cache(bdev_get_queue(bdev));
+>  }
+>
+>  static inline bool bdev_fua(struct block_device *bdev)
+>  {
+> -       return test_bit(QUEUE_FLAG_FUA, &bdev_get_queue(bdev)->queue_flags);
+> +       return bdev_get_queue(bdev)->limits.features & BLK_FEAT_FUA;
+>  }
+>
+>  static inline bool bdev_nowait(struct block_device *bdev)
+> --
+> 2.43.0
+>
+>
