@@ -1,64 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 878E014AD20;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72CC512E1C2;
 	Thu, 13 Jun 2024 15:40:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718293217; cv=none; b=eXxmcawHZsTPTirnV41MVw95UcsA+aLJlCsk1yZzuwBKs3WBaxmgaajqpHK+rrm+/OFd7sqmq29vi292HDk+q9SoL4aSjj8a5OB9olonDezyV3F71o438s229PFfJ7dSGVt7mHuTeASnOUnxtZwzfyfyjLMavQZ473APWKtVpks=
+	t=1718293217; cv=none; b=VyGgr3VT+ruqCSuJ1rrxfrm4lwcW7fWEN2S9+lJ/TOUks/Esz7N/P7QSjURGoO7MC8N+CrqYgbPefur9KdgRu1dlQOTdGZ/tr9bBNEqspBC6/qTi5LhE99pJEJBs5dRxdscVLKIzwBoFJw72y3RGi8rc1t6E94Eta95d7pEgvLM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1718293217; c=relaxed/simple;
-	bh=9mtnEo9f7Z9X4RqEPPyq7RaAbdSjFpMgwwWTU5364dA=;
+	bh=ZE4s9vXdBqS6M4ueN2Ozq7zT4w7ShtK+n52RYLf16ko=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UgbWc8jcpdNSXpC5ej2KgjMRXIriFHTMchiXUIS/KmD7+4M+iN3eNOyT3JvQu7xSJlO6cWg2X+Tw6VUuuWc4ddmQ2syVVs+3wmNM4hOIB8qdX7bDungpaRtBh2dmP9VPDKrx26pY6YmSFHUmXysEqZ0m1oSr7L4PWFsu3nPV+UY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RsI2daEi; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=rqPQpI0829XO6kQufxUk62CtZeDEe7q3kZ0RWFz3C/F7UvlosjHqEENoVaqhObX65Hzn8itmxm/nqKoST87QIUF7m6Br7ONlFuxdjgG3Ff8Jau4zfeoLgJelc07UKn6qqLqq+BufUD7TvZyvlreA4c/xtXOfPswor7kZHKDGylE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RNt9Kpbt; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RsI2daEi"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45DCR4sF031250;
-	Thu, 13 Jun 2024 15:40:02 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RNt9Kpbt"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45DFQWrG031303;
+	Thu, 13 Jun 2024 15:39:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
 	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=7JeBzaeHcq491
-	tpoSsSSp7r/Korv/EUFDTbEVwfZL58=; b=RsI2daEiF9ND3bNcAH0qXOGCmYhas
-	LCtgBfZijDXKU00NNeiTkSbgQ34bBCfj9oopPoOSmu9bJ6QMiy9HzNzidmNIveJ3
-	MQkK0TCpzk2EU4Bf8DGL6vLnEapa51pVXH8tUdujAr8k+mT5hNF/eDBjMo2b50Qo
-	s4455qCrnxey33CVjAlKgtSMS4Za425EG9cESZr9TuaIwcL/6QU7YYeZMnH7CRgm
-	YxFUslJ5ec70Dh0uatBhqYMJwFE6BeYxbaD3lunKsO7VMlZvarForJ68LE8GPmKm
-	Rx7ElcvsW+AEDCLuxFxUWWy0gxvbYPeRKj45DpBG+6qecSsnFUzVICm3A==
+	:mime-version:content-transfer-encoding; s=pp1; bh=tPY2/xfj0WoIT
+	wfgq4isE+nahUee+x7RgpdrRutXdLc=; b=RNt9KpbtT8zBkD+WuuQkoJfVFmKu+
+	RBc4v4DPmomg9KJxhTXgP8qrxggTUGaCDs47zrux0UusTn9FwnbEVBQX8oAbMHwE
+	BM07tWNkcX1Vrvkei0vClxE5jmniD5YF7qz7dybD09S/HpUj9gXOhsRIcX+/55v3
+	GOWK8oXqqG6Pw1wulaZR4jrZwWT+nBA7V9yxg6xmnzafzIZgurR9rbj5pm7so0J/
+	3603+UzkIGPonrxREn4ivyIpoTNoW7725FjQTp5ldA2fMjnCRylHQ8xghvUAuGgj
+	q+Qn0GgicoRg5HbGCpqtQoR4U0Dr/VhLL4WuwjTz7MxsZTfI6lIZT9r7Q==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yqq4rt37v-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yqrw7hv3h-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Jun 2024 15:40:01 +0000 (GMT)
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45DFe11d026967;
-	Thu, 13 Jun 2024 15:40:01 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yqq4rt37p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Jun 2024 15:40:01 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45DF399g003886;
-	Thu, 13 Jun 2024 15:39:59 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yn2mq918f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Jun 2024 15:39:57 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45DFdpLh56754580
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 13 Jun 2024 15:39:54 +0000 (GMT)
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45DFdrZX022239;
 	Thu, 13 Jun 2024 15:39:53 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yqrw7hv3d-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 13 Jun 2024 15:39:53 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45DF9UK0004368;
+	Thu, 13 Jun 2024 15:39:52 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yn2mq917v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 13 Jun 2024 15:39:52 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45DFdkST44368360
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 13 Jun 2024 15:39:48 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 184A920063;
-	Thu, 13 Jun 2024 15:39:51 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A5DC12004D;
+	Thu, 13 Jun 2024 15:39:46 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 99B2E2005A;
-	Thu, 13 Jun 2024 15:39:50 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 3367320043;
+	Thu, 13 Jun 2024 15:39:46 +0000 (GMT)
 Received: from black.boeblingen.de.ibm.com (unknown [9.155.200.166])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 13 Jun 2024 15:39:50 +0000 (GMT)
+	Thu, 13 Jun 2024 15:39:46 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -79,9 +79,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v4 33/35] s390/unwind: Disable KMSAN checks
-Date: Thu, 13 Jun 2024 17:34:35 +0200
-Message-ID: <20240613153924.961511-34-iii@linux.ibm.com>
+Subject: [PATCH v4 25/35] s390/cpumf: Unpoison STCCTM output buffer
+Date: Thu, 13 Jun 2024 17:34:27 +0200
+Message-ID: <20240613153924.961511-26-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.45.1
 In-Reply-To: <20240613153924.961511-1-iii@linux.ibm.com>
 References: <20240613153924.961511-1-iii@linux.ibm.com>
@@ -93,50 +93,55 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MBiMewjTh2VDm9je00K5k1pmxCgmdgTt
-X-Proofpoint-GUID: cnW0ACph4WoIlEz2MYjl9fcGbGh72JK_
+X-Proofpoint-ORIG-GUID: hp04Eoi4U7PgytUYtQKm5O50m1EiIDWu
+X-Proofpoint-GUID: aOZfXgWJlu59bLyx5qDPGv483tF6W8_R
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-13_08,2024-06-13_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=896 adultscore=0
- spamscore=0 mlxscore=0 priorityscore=1501 bulkscore=0 malwarescore=0
- lowpriorityscore=0 clxscore=1015 impostorscore=0 suspectscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2405170001 definitions=main-2406130109
+ definitions=2024-06-13_09,2024-06-13_02,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=957
+ malwarescore=0 spamscore=0 adultscore=0 bulkscore=0 mlxscore=0
+ phishscore=0 clxscore=1015 priorityscore=1501 lowpriorityscore=0
+ impostorscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2405170001 definitions=main-2406130112
 
-The unwind code can read uninitialized frames. Furthermore, even in
-the good case, KMSAN does not emit shadow for backchains. Therefore
-disable it for the unwinding functions.
+stcctm() uses the "Q" constraint for dest, therefore KMSAN does not
+understand that it fills multiple doublewords pointed to by dest, not
+just one. This results in false positives.
 
+Unpoison the whole dest manually with kmsan_unpoison_memory().
+
+Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Reviewed-by: Alexander Potapenko <glider@google.com>
 Acked-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- arch/s390/kernel/unwind_bc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/s390/include/asm/cpu_mf.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/s390/kernel/unwind_bc.c b/arch/s390/kernel/unwind_bc.c
-index 0ece156fdd7c..cd44be2b6ce8 100644
---- a/arch/s390/kernel/unwind_bc.c
-+++ b/arch/s390/kernel/unwind_bc.c
-@@ -49,6 +49,8 @@ static inline bool is_final_pt_regs(struct unwind_state *state,
- 	       READ_ONCE_NOCHECK(regs->psw.mask) & PSW_MASK_PSTATE;
+diff --git a/arch/s390/include/asm/cpu_mf.h b/arch/s390/include/asm/cpu_mf.h
+index a0de5b9b02ea..9e4bbc3e53f8 100644
+--- a/arch/s390/include/asm/cpu_mf.h
++++ b/arch/s390/include/asm/cpu_mf.h
+@@ -10,6 +10,7 @@
+ #define _ASM_S390_CPU_MF_H
+ 
+ #include <linux/errno.h>
++#include <linux/kmsan-checks.h>
+ #include <asm/asm-extable.h>
+ #include <asm/facility.h>
+ 
+@@ -239,6 +240,11 @@ static __always_inline int stcctm(enum stcctm_ctr_set set, u64 range, u64 *dest)
+ 		: "=d" (cc)
+ 		: "Q" (*dest), "d" (range), "i" (set)
+ 		: "cc", "memory");
++	/*
++	 * If cc == 2, less than RANGE counters are stored, but it's not easy
++	 * to tell how many. Always unpoison the whole range for simplicity.
++	 */
++	kmsan_unpoison_memory(dest, range * sizeof(u64));
+ 	return cc;
  }
  
-+/* Avoid KMSAN false positives from touching uninitialized frames. */
-+__no_kmsan_checks
- bool unwind_next_frame(struct unwind_state *state)
- {
- 	struct stack_info *info = &state->stack_info;
-@@ -118,6 +120,8 @@ bool unwind_next_frame(struct unwind_state *state)
- }
- EXPORT_SYMBOL_GPL(unwind_next_frame);
- 
-+/* Avoid KMSAN false positives from touching uninitialized frames. */
-+__no_kmsan_checks
- void __unwind_start(struct unwind_state *state, struct task_struct *task,
- 		    struct pt_regs *regs, unsigned long first_frame)
- {
 -- 
 2.45.1
 
