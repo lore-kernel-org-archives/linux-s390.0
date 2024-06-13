@@ -1,64 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D51012D762;
-	Thu, 13 Jun 2024 15:40:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2C9212DDAB;
+	Thu, 13 Jun 2024 15:40:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718293210; cv=none; b=LDWqg9E8PpFahLG4nr3/zE5LLCxwXQ1R6hai4Z9BgDqP3h+gvb6G5awVZpHFEypYBTMiTgqmyD54sbiZQn/hlQcPAtB7y7ZE/qtH6K5Ork6ReEDzrl8LJpSJDt+RMgQImPD1/ofFlKPvUtaHnWGWKgk8TGDoh9NqyNcKfLYGUHs=
+	t=1718293210; cv=none; b=rPnxdDNWGdaKw9DASKktF4VkzR/a0qFYZO/Vq97ecQuChczW2++JifYMihsGNPy/EdMDKoMJCbgU/1lKQXWQSTgjKM+RR4Zhz4R1UmT79Q09dYTwS5HVMvCMQaDctiF6zVf2ikZckfjHIjP2IXSFOb40v4ly4PCSZttBEAe59+8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1718293210; c=relaxed/simple;
-	bh=we+8YEIjIruLSlIl4JJyOmsbiXxMUAovQv4VftLclJQ=;
+	bh=A+dXVVqm8DvHqPQe4kTNX+ClO2D6uvRYrjqfjtfbS78=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=tYHkoU39wpU07i6qYVi/6/9w5uFGTtiPKR0b1bm8h4FapaeUQKZ0xsqhMbWWWHIB9Ne2d+mtPoy7oR3Id49avZ7a3bKAbGFIW+tGhAPROaKOKxKuf7rrR6y/Lqf642pLEnfC/crVlxVBRthplQQD8NT+kSQE+etcdWWeFxH5bSE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oLMpNDAG; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=PNnCLEdWSVoQEVjdQF0gS6bbiHFOyUySgZ+zlzEP/JoZlNGV6GCHTjJg7w+TIkN+VbubQMFGMkNRUbeJQsVNPk6iE9S+ElZfjJsAEqxKDFKfBa1SxmJtLLAa3M66JbvG/MSDbipbiKYPZm2wyRnDlSfJ8ZHOeTNifIabWpQTbtM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TpSsq8cF; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oLMpNDAG"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45DEHJou025389;
-	Thu, 13 Jun 2024 15:39:43 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TpSsq8cF"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45DEQSMW026603;
+	Thu, 13 Jun 2024 15:39:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
 	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=Scz6uta8wJUcm
-	kDwOaiOL8UogdsQpVaK9UJlhoWG7HU=; b=oLMpNDAGW3lNjF35W0Na5bsnFjVsP
-	ChO+aFMnL8nZrB32nIvqrttlnBjcBqom8/0JUKbcyowxJaeI80aNtEvz4J3cIsQR
-	PIR+A5pxUN5+j8voxvKphmIMHEL8tJV/u4U3ZUdVxIwjhi5jdTwjqtQq0vNOHx7N
-	yH9R14bvr8YbXvCq47eA1Q3gkmlqUuaixM93T2sC58bd4b9JNqr2tQfWJAiJLu2X
-	XScLUxujz+0ZJxMCS0HXH595V2kG8ubf+UO5lGwfna7RWVkvs29WrtsSvorb80uF
-	lRhRak6zevbquv2VLL4ycw6FxZ4GiK5iML03hT3+bb9t98VHxSW7gNzJQ==
+	:content-transfer-encoding:mime-version; s=pp1; bh=pcK1rMwKAY+PK
+	8Ytyz/2vRX/RRHh9XTkiYTIv46ktrM=; b=TpSsq8cFzJnwe+u1suk+FoH+lPoVM
+	M0wKWuXfnzK24xPI/asMuY0NJLtc/QQp1E8CuZWPrRfAIxHh7L6vtwUO9WCobLCc
+	KNXiKGdxN5ltwzKdCslukI62H2Gbhtv2hih2dOS4Fc/upBNGBPSKnFsB4UcNYD/m
+	GnamVPbgk676OGVACc7WZ0WdSFjmdCc/P9o5+i/Mev0kxAq/u6yKK0HLzs0feBAK
+	5s5YgKXZaH+73ir1mf7kp7TYwWfeYek8KacEbuD+IY16WLmBo+BOs6St4lQ1OMHE
+	kFmWgE6lOV31MU2ov/KzIoIPMEnsolHL+WIQ12Z2d3gdXgK1F5hfsr1Yg==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yqq4rt36k-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yqq4u2373-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Jun 2024 15:39:42 +0000 (GMT)
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45DFdfK3026738;
-	Thu, 13 Jun 2024 15:39:42 GMT
+	Thu, 13 Jun 2024 15:39:49 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45DFdn8N009704;
+	Thu, 13 Jun 2024 15:39:49 GMT
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yqq4rt36d-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yqq4u236x-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Jun 2024 15:39:41 +0000 (GMT)
+	Thu, 13 Jun 2024 15:39:49 +0000 (GMT)
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45DEAZNj008701;
-	Thu, 13 Jun 2024 15:39:40 GMT
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45DEAZNn008701;
+	Thu, 13 Jun 2024 15:39:48 GMT
 Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yn4b3rk0b-1
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yn4b3rk19-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Jun 2024 15:39:40 +0000
+	Thu, 13 Jun 2024 15:39:48 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45DFdZ6i53084524
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45DFdgpn54854064
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 13 Jun 2024 15:39:37 GMT
+	Thu, 13 Jun 2024 15:39:45 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1A0222004D;
-	Thu, 13 Jun 2024 15:39:35 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id CEE4A2006A;
+	Thu, 13 Jun 2024 15:39:42 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9AE382004E;
-	Thu, 13 Jun 2024 15:39:34 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5C27C20067;
+	Thu, 13 Jun 2024 15:39:42 +0000 (GMT)
 Received: from black.boeblingen.de.ibm.com (unknown [9.155.200.166])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 13 Jun 2024 15:39:34 +0000 (GMT)
+	Thu, 13 Jun 2024 15:39:42 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -79,58 +79,121 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v4 04/35] kmsan: Increase the maximum store size to 4096
-Date: Thu, 13 Jun 2024 17:34:06 +0200
-Message-ID: <20240613153924.961511-5-iii@linux.ibm.com>
+Subject: [PATCH v4 18/35] lib/zlib: Unpoison DFLTCC output buffers
+Date: Thu, 13 Jun 2024 17:34:20 +0200
+Message-ID: <20240613153924.961511-19-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.45.1
 In-Reply-To: <20240613153924.961511-1-iii@linux.ibm.com>
 References: <20240613153924.961511-1-iii@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ZkRkVKlaPl-5RHA19x1OqnW-klsEghkh
+X-Proofpoint-ORIG-GUID: Ftz9VuNKiSSNqeta_DO5F7fudUAWQDRT
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Rjws6SciTz59Dde6VDV_aw_xavPEr1pZ
-X-Proofpoint-GUID: Xwy5kU6ucR_kMY8jtxtA8RihxWWe-8mA
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-06-13_08,2024-06-13_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=742 adultscore=0
- spamscore=0 mlxscore=0 priorityscore=1501 bulkscore=0 malwarescore=0
- lowpriorityscore=0 clxscore=1015 impostorscore=0 suspectscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
+ clxscore=1015 impostorscore=0 adultscore=0 priorityscore=1501
+ lowpriorityscore=0 mlxlogscore=999 bulkscore=0 malwarescore=0 mlxscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2405170001 definitions=main-2406130109
 
-The inline assembly block in s390's chsc() stores that much.
+The constraints of the DFLTCC inline assembly are not precise: they
+do not communicate the size of the output buffers to the compiler, so
+it cannot automatically instrument it.
 
+Add the manual kmsan_unpoison_memory() calls for the output buffers.
+The logic is the same as in [1].
+
+[1] https://github.com/zlib-ng/zlib-ng/commit/1f5ddcc009ac3511e99fc88736a9e1a6381168c5
+
+Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Reviewed-by: Alexander Potapenko <glider@google.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- mm/kmsan/instrumentation.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ lib/zlib_dfltcc/dfltcc.h      |  1 +
+ lib/zlib_dfltcc/dfltcc_util.h | 28 ++++++++++++++++++++++++++++
+ 2 files changed, 29 insertions(+)
 
-diff --git a/mm/kmsan/instrumentation.c b/mm/kmsan/instrumentation.c
-index cc3907a9c33a..470b0b4afcc4 100644
---- a/mm/kmsan/instrumentation.c
-+++ b/mm/kmsan/instrumentation.c
-@@ -110,11 +110,10 @@ void __msan_instrument_asm_store(void *addr, uintptr_t size)
+diff --git a/lib/zlib_dfltcc/dfltcc.h b/lib/zlib_dfltcc/dfltcc.h
+index b96232bdd44d..0f2a16d7a48a 100644
+--- a/lib/zlib_dfltcc/dfltcc.h
++++ b/lib/zlib_dfltcc/dfltcc.h
+@@ -80,6 +80,7 @@ struct dfltcc_param_v0 {
+     uint8_t csb[1152];
+ };
  
- 	ua_flags = user_access_save();
- 	/*
--	 * Most of the accesses are below 32 bytes. The two exceptions so far
--	 * are clwb() (64 bytes) and FPU state (512 bytes).
--	 * It's unlikely that the assembly will touch more than 512 bytes.
-+	 * Most of the accesses are below 32 bytes. The exceptions so far are
-+	 * clwb() (64 bytes), FPU state (512 bytes) and chsc() (4096 bytes).
- 	 */
--	if (size > 512) {
-+	if (size > 4096) {
- 		WARN_ONCE(1, "assembly store size too big: %ld\n", size);
- 		size = 8;
- 	}
++static_assert(offsetof(struct dfltcc_param_v0, csb) == 384);
+ static_assert(sizeof(struct dfltcc_param_v0) == 1536);
+ 
+ #define CVT_CRC32 0
+diff --git a/lib/zlib_dfltcc/dfltcc_util.h b/lib/zlib_dfltcc/dfltcc_util.h
+index 4a46b5009f0d..10509270d822 100644
+--- a/lib/zlib_dfltcc/dfltcc_util.h
++++ b/lib/zlib_dfltcc/dfltcc_util.h
+@@ -2,6 +2,8 @@
+ #ifndef DFLTCC_UTIL_H
+ #define DFLTCC_UTIL_H
+ 
++#include "dfltcc.h"
++#include <linux/kmsan-checks.h>
+ #include <linux/zutil.h>
+ 
+ /*
+@@ -20,6 +22,7 @@ typedef enum {
+ #define DFLTCC_CMPR 2
+ #define DFLTCC_XPND 4
+ #define HBT_CIRCULAR (1 << 7)
++#define DFLTCC_FN_MASK ((1 << 7) - 1)
+ #define HB_BITS 15
+ #define HB_SIZE (1 << HB_BITS)
+ 
+@@ -34,6 +37,7 @@ static inline dfltcc_cc dfltcc(
+ )
+ {
+     Byte *t2 = op1 ? *op1 : NULL;
++    unsigned char *orig_t2 = t2;
+     size_t t3 = len1 ? *len1 : 0;
+     const Byte *t4 = op2 ? *op2 : NULL;
+     size_t t5 = len2 ? *len2 : 0;
+@@ -59,6 +63,30 @@ static inline dfltcc_cc dfltcc(
+                      : "cc", "memory");
+     t2 = r2; t3 = r3; t4 = r4; t5 = r5;
+ 
++    /*
++     * Unpoison the parameter block and the output buffer.
++     * This is a no-op in non-KMSAN builds.
++     */
++    switch (fn & DFLTCC_FN_MASK) {
++    case DFLTCC_QAF:
++        kmsan_unpoison_memory(param, sizeof(struct dfltcc_qaf_param));
++        break;
++    case DFLTCC_GDHT:
++        kmsan_unpoison_memory(param, offsetof(struct dfltcc_param_v0, csb));
++        break;
++    case DFLTCC_CMPR:
++        kmsan_unpoison_memory(param, sizeof(struct dfltcc_param_v0));
++        kmsan_unpoison_memory(
++                orig_t2,
++                t2 - orig_t2 +
++                    (((struct dfltcc_param_v0 *)param)->sbb == 0 ? 0 : 1));
++        break;
++    case DFLTCC_XPND:
++        kmsan_unpoison_memory(param, sizeof(struct dfltcc_param_v0));
++        kmsan_unpoison_memory(orig_t2, t2 - orig_t2);
++        break;
++    }
++
+     if (op1)
+         *op1 = t2;
+     if (len1)
 -- 
 2.45.1
 
