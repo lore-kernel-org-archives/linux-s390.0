@@ -1,157 +1,221 @@
-Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D82D3181320
-	for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2024 15:56:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EB957FB;
+	Thu, 13 Jun 2024 07:19:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718207780; cv=none; b=mXw7hgQNGTJYrc9tjJ86bUGXrPkXAW3VNdqxff67cfLfvpxtKlmycmuX6EI1GLoB8WMp4dokPn0qyYhwFvUJTC7AQZJxkCTG9l2xPrmVC2PmDAaRkMu4PGEfPBp29VnkzLOU0MASzFDm0YV8ys6O6YUSXwxF7YILxaro56iQY+U=
+	t=1718263156; cv=none; b=WNRAqLo+3sH8/b9W7KwvygkBiFZ2Bl55/aYjNZdaFcr25V+h44VZGPjQ8IJwGX40VQWjmVLkAJKSsQZDGC1UeSih3HLM7MdF7CK+1r49JSjyMZX44Y2LPk/RlTHOXwbxzOrL+9gcbRrGxbwn7l105dpdGmAstkJiAjlt/kTpeLc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718207780; c=relaxed/simple;
-	bh=WxiyGuZAC7bj+QrxGa2lDi15MZrXhgJnJEV+bRK2uiI=;
+	s=arc-20240116; t=1718263156; c=relaxed/simple;
+	bh=bpXX6LlaNiPg2YVfB+CCMKceQhG66Hmc332O+CKqz4A=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ivfq1tzb3PZTGLYlt/JAA0X0mNoDHDtB2d7HFG5AtIa9TN6IhBJkMfZDEFzKkyscUZ3JcHjXkt8Jccr3ZTo5+/a5vyjBgAhw7WTgsFncbr/lu92slTWLHW0Xp9AEI2hsiMVNLRLGfolTr/drudJE5flsyZD+mwK0DHLHlRfDZmw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=citrix.com; spf=pass smtp.mailfrom=cloud.com; dkim=pass (1024-bit key) header.d=citrix.com header.i=@citrix.com header.b=V7cG6Ag/; arc=none smtp.client-ip=209.85.219.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=citrix.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cloud.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Q7smW4/hfGjUKqwelP8/1yS26L51ek3p+gS0pjPcv2v3IG3cEp7gntrmdNZTcNuiyY/hkarE4tL7cyLILykXskZ6qBB/ztfxei3f/kWLF4quZVY5B+34wUXR1Big9m5Vw1VaQKXrpPk1LO27QGyTGtihYijMuh6C9SCyEgX+L0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=MxQXJsh6; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=citrix.com header.i=@citrix.com header.b="V7cG6Ag/"
-Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-6afc61f9a2eso170276d6.0
-        for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2024 08:56:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=citrix.com; s=google; t=1718207778; x=1718812578; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=0JAgWI6yypeQvJHtBsLjxy9EsiTAtsBZFfQkPH4VMNc=;
-        b=V7cG6Ag/z6iCUMnCyee02CpPpVNNKq0aFi2gbS3Dd7usN46ko1fDHLZJlYgCyUyzgM
-         PkWsxqJiUKaH93GKZqh+J6Tx9GmEzvjLAPs83YmL2Gkt9gUBj/Q88Lr7e+uzv1URoIzD
-         VKiz75cG3gC5YRvgiukyfUkbgvM5OnMGUnJzU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718207778; x=1718812578;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=0JAgWI6yypeQvJHtBsLjxy9EsiTAtsBZFfQkPH4VMNc=;
-        b=PKnXT50ukSQWFfdozHU9jcZCTjY9j/q/Z1sHiPE4BmTylIvxOGbQAN7TDOmILaFbuG
-         R+SV+KtoOIG04U4gpOF5e3aopN1kcf192/TCRq6k0yaMaRiyywHo+zECB4wm6W4brwc5
-         /alXGWHJSK6f72T9MHBVw5P1jNKzTDKDbj7Kyc72LrY9yD/bmZE9c6oV7iFjqZmGQ6LZ
-         nH4HjcETVOby4Ry3K8QGHhEZMQPT0J25ibhE8C9L+7a2jP0oAzWtG4jJJgvhNt4Z6Xek
-         u5RyYIouGJ6x9n7VZRSwZxOQNUZwl5+LCoKmqfYgBmJoX7B3TiK7M6MHOABlC111Zdsn
-         xFzg==
-X-Forwarded-Encrypted: i=1; AJvYcCVf/vzi3TjWK2x1SxQNE87j5JmInRpRP69uCgz3SsWET1pv8Rj/tZgS3KfhHjlS9Ox+GsS4/wMh+G5n4jmaLOBqqKpyoA/qP17mkA==
-X-Gm-Message-State: AOJu0YxFNpCtiqGtLt8D0GqgQP4ldrJzMYSvFiW5zch14BGnXXiAquCg
-	mOfXqPlk08SVsMFoWUfXl6nsB01hOh6CYR3AABXeCMqdXOGOZ74IHFMXUtYbIbU=
-X-Google-Smtp-Source: AGHT+IH3vJ/Cfk8LzYoeLv9cXT/SgN6Pt3X56xC7VVYFazmjn8i4deMSmAqg4iM25NKqjeo5TBvU1g==
-X-Received: by 2002:a05:6214:2a47:b0:6b0:7365:dde0 with SMTP id 6a1803df08f44-6b2a33de160mr1306776d6.18.1718207777691;
-        Wed, 12 Jun 2024 08:56:17 -0700 (PDT)
-Received: from localhost ([213.195.124.163])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b0884337e9sm22877866d6.16.2024.06.12.08.56.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Jun 2024 08:56:17 -0700 (PDT)
-Date: Wed, 12 Jun 2024 17:56:15 +0200
-From: Roger Pau =?utf-8?B?TW9ubsOp?= <roger.pau@citrix.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Geert Uytterhoeven <geert@linux-m68k.org>,
-	Richard Weinberger <richard@nod.at>,
-	Philipp Reisner <philipp.reisner@linbit.com>,
-	Lars Ellenberg <lars.ellenberg@linbit.com>,
-	Christoph =?utf-8?Q?B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
-	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>, Alasdair Kergon <agk@redhat.com>,
-	Mike Snitzer <snitzer@kernel.org>,
-	Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
-	Yu Kuai <yukuai3@huawei.com>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
-	drbd-dev@lists.linbit.com, nbd@other.debian.org,
-	linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
-	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
-	linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
-	linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
-	linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
-	linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
-Subject: Re: [PATCH 10/26] xen-blkfront: don't disable cache flushes when
- they fail
-Message-ID: <ZmnFH17bTV2Ot_iR@macbook>
-References: <20240611051929.513387-1-hch@lst.de>
- <20240611051929.513387-11-hch@lst.de>
- <ZmlVziizbaboaBSn@macbook>
- <20240612150030.GA29188@lst.de>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="MxQXJsh6"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1718263149; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=uSS/HnnLu36EYiUk1VYLsstcCCEfbL6d7aU1ouqmUvA=;
+	b=MxQXJsh6Arjsfbt78qOIWpW/9J16o9QRiWb7MEjyD6seDfuSYqzPhA6829pJKMrY4lCyXkP4zesWETsSycPu87HQtZXsf3r+mco2S3nB7iHydsX35AXwUc+lMWWXFbWEHVv5RjSWBeVDQ3He3DTlCS9oHWaDdi60YGjwEzr6wOg=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W8N1f5e_1718263148;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0W8N1f5e_1718263148)
+          by smtp.aliyun-inc.com;
+          Thu, 13 Jun 2024 15:19:09 +0800
+Date: Thu, 13 Jun 2024 15:19:08 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com,
+	guwen@linux.alibaba.com
+Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+	tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
+Subject: Re: [PATCH net-next v7 1/3] net/smc: refactoring initialization of
+ smc sock
+Message-ID: <20240613071908.GO78725@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <1717837949-88904-1-git-send-email-alibuda@linux.alibaba.com>
+ <1717837949-88904-2-git-send-email-alibuda@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240612150030.GA29188@lst.de>
+In-Reply-To: <1717837949-88904-2-git-send-email-alibuda@linux.alibaba.com>
 
-On Wed, Jun 12, 2024 at 05:00:30PM +0200, Christoph Hellwig wrote:
-> On Wed, Jun 12, 2024 at 10:01:18AM +0200, Roger Pau Monné wrote:
-> > On Tue, Jun 11, 2024 at 07:19:10AM +0200, Christoph Hellwig wrote:
-> > > blkfront always had a robust negotiation protocol for detecting a write
-> > > cache.  Stop simply disabling cache flushes when they fail as that is
-> > > a grave error.
-> > 
-> > It's my understanding the current code attempts to cover up for the
-> > lack of guarantees the feature itself provides:
+On 2024-06-08 17:12:27, D. Wythe wrote:
+>From: "D. Wythe" <alibuda@linux.alibaba.com>
+>
+>This patch aims to isolate the shared components of SMC socket
+>allocation by introducing smc_sk_init() for sock initialization
+>and __smc_create_clcsk() for the initialization of clcsock.
+>
+>This is in preparation for the subsequent implementation of the
+>AF_INET version of SMC.
+>
+>Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+>Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+>Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+>Tested-by: Wenjia Zhang <wenjia@linux.ibm.com>
+
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+
+>---
+> net/smc/af_smc.c | 86 +++++++++++++++++++++++++++++++-------------------------
+> net/smc/smc.h    |  5 ++++
+> 2 files changed, 53 insertions(+), 38 deletions(-)
+>
+>diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>index e50a286..77a9d58 100644
+>--- a/net/smc/af_smc.c
+>+++ b/net/smc/af_smc.c
+>@@ -361,25 +361,15 @@ static void smc_destruct(struct sock *sk)
+> 		return;
+> }
 > 
-> > So even when the feature is exposed, the backend might return
-> > EOPNOTSUPP for the flush/barrier operations.
+>-static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
+>-				   int protocol)
+>+void smc_sk_init(struct net *net, struct sock *sk, int protocol)
+> {
+>-	struct smc_sock *smc;
+>-	struct proto *prot;
+>-	struct sock *sk;
+>-
+>-	prot = (protocol == SMCPROTO_SMC6) ? &smc_proto6 : &smc_proto;
+>-	sk = sk_alloc(net, PF_SMC, GFP_KERNEL, prot, 0);
+>-	if (!sk)
+>-		return NULL;
+>+	struct smc_sock *smc = smc_sk(sk);
 > 
-> How is this supposed to work?  I mean in the worst case we could
-> just immediately complete the flush requests in the driver, but
-> we're really lying to any upper layer.
-
-Right.  AFAICT advertising "feature-barrier" and/or
-"feature-flush-cache" could be done based on whether blkback
-understand those commands, not on whether the underlying storage
-supports the equivalent of them.
-
-Worst case we can print a warning message once about the underlying
-storage failing to complete flush/barrier requests, and that data
-integrity might not be guaranteed going forward, and not propagate the
-error to the upper layer?
-
-What would be the consequence of propagating a flush error to the
-upper layers?
-
-> > Such failure is tied on whether the underlying blkback storage
-> > supports REQ_OP_WRITE with REQ_PREFLUSH operation.  blkback will
-> > expose "feature-barrier" and/or "feature-flush-cache" without knowing
-> > whether the underlying backend supports those operations, hence the
-> > weird fallback in blkfront.
+>-	sock_init_data(sock, sk); /* sets sk_refcnt to 1 */
+> 	sk->sk_state = SMC_INIT;
+> 	sk->sk_destruct = smc_destruct;
+> 	sk->sk_protocol = protocol;
+> 	WRITE_ONCE(sk->sk_sndbuf, 2 * READ_ONCE(net->smc.sysctl_wmem));
+> 	WRITE_ONCE(sk->sk_rcvbuf, 2 * READ_ONCE(net->smc.sysctl_rmem));
+>-	smc = smc_sk(sk);
+> 	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
+> 	INIT_WORK(&smc->connect_work, smc_connect_work);
+> 	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
+>@@ -389,6 +379,24 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
+> 	sk->sk_prot->hash(sk);
+> 	mutex_init(&smc->clcsock_release_lock);
+> 	smc_init_saved_callbacks(smc);
+>+	smc->limit_smc_hs = net->smc.limit_smc_hs;
+>+	smc->use_fallback = false; /* assume rdma capability first */
+>+	smc->fallback_rsn = 0;
+>+}
+>+
+>+static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
+>+				   int protocol)
+>+{
+>+	struct proto *prot;
+>+	struct sock *sk;
+>+
+>+	prot = (protocol == SMCPROTO_SMC6) ? &smc_proto6 : &smc_proto;
+>+	sk = sk_alloc(net, PF_SMC, GFP_KERNEL, prot, 0);
+>+	if (!sk)
+>+		return NULL;
+>+
+>+	sock_init_data(sock, sk); /* sets sk_refcnt to 1 */
+>+	smc_sk_init(net, sk, protocol);
 > 
-> If we are just talking about the Linux blkback driver (I know there
-> probably are a few other implementations) it won't every do that.
-> I see it has code to do so, but the Linux block layer doesn't
-> allow the flush operation to randomly fail if it was previously
-> advertised.  Note that even blkfront conforms to this as it fixes
-> up the return value when it gets this notsupp error to ok.
-
-Yes, I'm afraid it's impossible to know what the multiple incarnations
-of all the scattered blkback implementations possibly do (FreeBSD,
-NetBSD, QEMU and blktap at least I know of).
-
-> > Overall blkback should ensure that REQ_PREFLUSH is supported before
-> > exposing "feature-barrier" or "feature-flush-cache", as then the
-> > exposed features would really match what the underlying backend
-> > supports (rather than the commands blkback knows about).
+> 	return sk;
+> }
+>@@ -3321,6 +3329,31 @@ static ssize_t smc_splice_read(struct socket *sock, loff_t *ppos,
+> 	.splice_read	= smc_splice_read,
+> };
 > 
-> Yes.  The in-tree xen-blkback does that, but even without that the
-> Linux block layer actually makes sure flushes sent by upper layers
-> always succeed even when not supported.
-
-Given the description of the feature in the blkif header, I'm afraid
-we cannot guarantee that seeing the feature exposed implies barrier or
-flush support, since the request could fail at any time (or even from
-the start of the disk attachment) and it would still sadly be a correct
-implementation given the description of the options.
-
-Thanks, Roger.
+>+int smc_create_clcsk(struct net *net, struct sock *sk, int family)
+>+{
+>+	struct smc_sock *smc = smc_sk(sk);
+>+	int rc;
+>+
+>+	rc = sock_create_kern(net, family, SOCK_STREAM, IPPROTO_TCP,
+>+			      &smc->clcsock);
+>+	if (rc) {
+>+		sk_common_release(sk);
+>+		return rc;
+>+	}
+>+
+>+	/* smc_clcsock_release() does not wait smc->clcsock->sk's
+>+	 * destruction;  its sk_state might not be TCP_CLOSE after
+>+	 * smc->sk is close()d, and TCP timers can be fired later,
+>+	 * which need net ref.
+>+	 */
+>+	sk = smc->clcsock->sk;
+>+	__netns_tracker_free(net, &sk->ns_tracker, false);
+>+	sk->sk_net_refcnt = 1;
+>+	get_net_track(net, &sk->ns_tracker, GFP_KERNEL);
+>+	sock_inuse_add(net, 1);
+>+	return 0;
+>+}
+>+
+> static int __smc_create(struct net *net, struct socket *sock, int protocol,
+> 			int kern, struct socket *clcsock)
+> {
+>@@ -3346,35 +3379,12 @@ static int __smc_create(struct net *net, struct socket *sock, int protocol,
+> 
+> 	/* create internal TCP socket for CLC handshake and fallback */
+> 	smc = smc_sk(sk);
+>-	smc->use_fallback = false; /* assume rdma capability first */
+>-	smc->fallback_rsn = 0;
+>-
+>-	/* default behavior from limit_smc_hs in every net namespace */
+>-	smc->limit_smc_hs = net->smc.limit_smc_hs;
+> 
+> 	rc = 0;
+>-	if (!clcsock) {
+>-		rc = sock_create_kern(net, family, SOCK_STREAM, IPPROTO_TCP,
+>-				      &smc->clcsock);
+>-		if (rc) {
+>-			sk_common_release(sk);
+>-			goto out;
+>-		}
+>-
+>-		/* smc_clcsock_release() does not wait smc->clcsock->sk's
+>-		 * destruction;  its sk_state might not be TCP_CLOSE after
+>-		 * smc->sk is close()d, and TCP timers can be fired later,
+>-		 * which need net ref.
+>-		 */
+>-		sk = smc->clcsock->sk;
+>-		__netns_tracker_free(net, &sk->ns_tracker, false);
+>-		sk->sk_net_refcnt = 1;
+>-		get_net_track(net, &sk->ns_tracker, GFP_KERNEL);
+>-		sock_inuse_add(net, 1);
+>-	} else {
+>+	if (clcsock)
+> 		smc->clcsock = clcsock;
+>-	}
+>-
+>+	else
+>+		rc = smc_create_clcsk(net, sk, family);
+> out:
+> 	return rc;
+> }
+>diff --git a/net/smc/smc.h b/net/smc/smc.h
+>index 18c8b78..3edec1e 100644
+>--- a/net/smc/smc.h
+>+++ b/net/smc/smc.h
+>@@ -34,6 +34,11 @@
+> extern struct proto smc_proto;
+> extern struct proto smc_proto6;
+> 
+>+/* smc sock initialization */
+>+void smc_sk_init(struct net *net, struct sock *sk, int protocol);
+>+/* clcsock initialization */
+>+int smc_create_clcsk(struct net *net, struct sock *sk, int family);
+>+
+> #ifdef ATOMIC64_INIT
+> #define KERNEL_HAS_ATOMIC64
+> #endif
+>-- 
+>1.8.3.1
+>
