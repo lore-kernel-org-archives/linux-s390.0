@@ -1,64 +1,64 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DE2612DDA7;
-	Thu, 13 Jun 2024 15:40:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D51012D762;
+	Thu, 13 Jun 2024 15:40:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718293209; cv=none; b=CY37EpZPfN4nxkKmFnbJ7oHQriltJm56/jrKS5etl4KpmdSiY9gBi6hxhaNe/9XR7Qc3xyRAp71gJPU6j4Ypsq1uIOUpW4gMe4eVKHZKtze+iYeYE3oENKEwcHDNsa4gGw2uSzLstZ3I/F0Wdg71Dj5iMNRJ+Pn6MxGVZouDFKE=
+	t=1718293210; cv=none; b=LDWqg9E8PpFahLG4nr3/zE5LLCxwXQ1R6hai4Z9BgDqP3h+gvb6G5awVZpHFEypYBTMiTgqmyD54sbiZQn/hlQcPAtB7y7ZE/qtH6K5Ork6ReEDzrl8LJpSJDt+RMgQImPD1/ofFlKPvUtaHnWGWKgk8TGDoh9NqyNcKfLYGUHs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718293209; c=relaxed/simple;
-	bh=yEkUFwHzqM2QxOJ6rCJjLwbF170i74UCFAzqXMXYm3s=;
+	s=arc-20240116; t=1718293210; c=relaxed/simple;
+	bh=we+8YEIjIruLSlIl4JJyOmsbiXxMUAovQv4VftLclJQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FrUvuiUNV3BC5XaSvgeT5GVdUREGGvY8QO4/cMwQ2taTwC1R1wvKK9pHdW2ZJQ28jMSdUrXC9xmCHHINfVisLt3y++Kl9Nx4zLCXZsQBVwWyHhP/Iw43y3SOwyftXKsB1zszYB0tfvt6w2o3GNEm+ZNp6ihIz3VpJntu6b3m8KY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ryxyigWW; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=tYHkoU39wpU07i6qYVi/6/9w5uFGTtiPKR0b1bm8h4FapaeUQKZ0xsqhMbWWWHIB9Ne2d+mtPoy7oR3Id49avZ7a3bKAbGFIW+tGhAPROaKOKxKuf7rrR6y/Lqf642pLEnfC/crVlxVBRthplQQD8NT+kSQE+etcdWWeFxH5bSE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oLMpNDAG; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ryxyigWW"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45DFSfR3005622;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oLMpNDAG"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45DEHJou025389;
 	Thu, 13 Jun 2024 15:39:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
 	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=1qF7H4bGHDZ6i
-	OOMBP071rdyF1q1YAWA6gRStiWbHSM=; b=ryxyigWWBAbBzH974FCHVE7kIkoK7
-	di4AAZ53RZtshynJdpHipao6ULTlz0/VdrdNOHq/6zOPyLw20BIAkb/RDeH5NmB/
-	zLpinOzGqxtkXlIoufDeKr0cHILt6UX0V58cRn9fmGGd9XTyTCyID555g/Ltuasm
-	p5RTpBphzm+RkKrKAIWN9Vuas4JMbAQoRQcEphMj93XRoW3kimg5kgsYeFRgoNzm
-	rFwhwPli8yS0IFozsZ7yvROKojDVx1VTgZAn7k/lioAzhWwlS+AIEkXCGCWhCt5E
-	eD6B7yunqu0LJF4otUHQAvC3QTgCnqPqHO8moN3/Jwj5wgiiIah/BS6BQ==
+	:mime-version:content-transfer-encoding; s=pp1; bh=Scz6uta8wJUcm
+	kDwOaiOL8UogdsQpVaK9UJlhoWG7HU=; b=oLMpNDAGW3lNjF35W0Na5bsnFjVsP
+	ChO+aFMnL8nZrB32nIvqrttlnBjcBqom8/0JUKbcyowxJaeI80aNtEvz4J3cIsQR
+	PIR+A5pxUN5+j8voxvKphmIMHEL8tJV/u4U3ZUdVxIwjhi5jdTwjqtQq0vNOHx7N
+	yH9R14bvr8YbXvCq47eA1Q3gkmlqUuaixM93T2sC58bd4b9JNqr2tQfWJAiJLu2X
+	XScLUxujz+0ZJxMCS0HXH595V2kG8ubf+UO5lGwfna7RWVkvs29WrtsSvorb80uF
+	lRhRak6zevbquv2VLL4ycw6FxZ4GiK5iML03hT3+bb9t98VHxSW7gNzJQ==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yqrw11ymw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Jun 2024 15:39:43 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45DFdgZ7026429;
-	Thu, 13 Jun 2024 15:39:42 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yqrw11ymj-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yqq4rt36k-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 13 Jun 2024 15:39:42 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45DELJwo008711;
-	Thu, 13 Jun 2024 15:39:41 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yn4b3rk0e-1
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45DFdfK3026738;
+	Thu, 13 Jun 2024 15:39:42 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yqq4rt36d-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Jun 2024 15:39:41 +0000
+	Thu, 13 Jun 2024 15:39:41 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45DEAZNj008701;
+	Thu, 13 Jun 2024 15:39:40 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yn4b3rk0b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 13 Jun 2024 15:39:40 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45DFda8o48038272
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45DFdZ6i53084524
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 13 Jun 2024 15:39:38 GMT
+	Thu, 13 Jun 2024 15:39:37 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 310F220067;
-	Thu, 13 Jun 2024 15:39:36 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B32ED20065;
+	by IMSVA (Postfix) with ESMTP id 1A0222004D;
 	Thu, 13 Jun 2024 15:39:35 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9AE382004E;
+	Thu, 13 Jun 2024 15:39:34 +0000 (GMT)
 Received: from black.boeblingen.de.ibm.com (unknown [9.155.200.166])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 13 Jun 2024 15:39:35 +0000 (GMT)
+	Thu, 13 Jun 2024 15:39:34 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -79,9 +79,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v4 06/35] kmsan: Fix kmsan_copy_to_user() on arches with overlapping address spaces
-Date: Thu, 13 Jun 2024 17:34:08 +0200
-Message-ID: <20240613153924.961511-7-iii@linux.ibm.com>
+Subject: [PATCH v4 04/35] kmsan: Increase the maximum store size to 4096
+Date: Thu, 13 Jun 2024 17:34:06 +0200
+Message-ID: <20240613153924.961511-5-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.45.1
 In-Reply-To: <20240613153924.961511-1-iii@linux.ibm.com>
 References: <20240613153924.961511-1-iii@linux.ibm.com>
@@ -93,42 +93,44 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: vlPBHhf6wo8Wwm-gnrID75BnVJjJBeF8
-X-Proofpoint-ORIG-GUID: vSngS5dm6lATwFHi4uKxppdf7UV1X5cJ
+X-Proofpoint-ORIG-GUID: Rjws6SciTz59Dde6VDV_aw_xavPEr1pZ
+X-Proofpoint-GUID: Xwy5kU6ucR_kMY8jtxtA8RihxWWe-8mA
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-13_09,2024-06-13_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
- malwarescore=0 spamscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
- phishscore=0 priorityscore=1501 mlxlogscore=801 mlxscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2405170001
- definitions=main-2406130112
+ definitions=2024-06-13_08,2024-06-13_02,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=742 adultscore=0
+ spamscore=0 mlxscore=0 priorityscore=1501 bulkscore=0 malwarescore=0
+ lowpriorityscore=0 clxscore=1015 impostorscore=0 suspectscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2405170001 definitions=main-2406130109
 
-Comparing pointers with TASK_SIZE does not make sense when kernel and
-userspace overlap. Assume that we are handling user memory access in
-this case.
+The inline assembly block in s390's chsc() stores that much.
 
-Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Reviewed-by: Alexander Potapenko <glider@google.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- mm/kmsan/hooks.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/kmsan/instrumentation.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/mm/kmsan/hooks.c b/mm/kmsan/hooks.c
-index 22e8657800ef..b408714f9ba3 100644
---- a/mm/kmsan/hooks.c
-+++ b/mm/kmsan/hooks.c
-@@ -267,7 +267,8 @@ void kmsan_copy_to_user(void __user *to, const void *from, size_t to_copy,
- 		return;
+diff --git a/mm/kmsan/instrumentation.c b/mm/kmsan/instrumentation.c
+index cc3907a9c33a..470b0b4afcc4 100644
+--- a/mm/kmsan/instrumentation.c
++++ b/mm/kmsan/instrumentation.c
+@@ -110,11 +110,10 @@ void __msan_instrument_asm_store(void *addr, uintptr_t size)
  
  	ua_flags = user_access_save();
--	if ((u64)to < TASK_SIZE) {
-+	if (!IS_ENABLED(CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE) ||
-+	    (u64)to < TASK_SIZE) {
- 		/* This is a user memory access, check it. */
- 		kmsan_internal_check_memory((void *)from, to_copy - left, to,
- 					    REASON_COPY_TO_USER);
+ 	/*
+-	 * Most of the accesses are below 32 bytes. The two exceptions so far
+-	 * are clwb() (64 bytes) and FPU state (512 bytes).
+-	 * It's unlikely that the assembly will touch more than 512 bytes.
++	 * Most of the accesses are below 32 bytes. The exceptions so far are
++	 * clwb() (64 bytes), FPU state (512 bytes) and chsc() (4096 bytes).
+ 	 */
+-	if (size > 512) {
++	if (size > 4096) {
+ 		WARN_ONCE(1, "assembly store size too big: %ld\n", size);
+ 		size = 8;
+ 	}
 -- 
 2.45.1
 
