@@ -1,92 +1,133 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F23B1836F7
-	for <linux-s390@vger.kernel.org>; Fri, 14 Jun 2024 08:14:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40FD518FC84;
+	Fri, 14 Jun 2024 08:39:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718352895; cv=none; b=ThE//X1zbaVD6wO8GsSxE/wFDlhWl+0skFLjfmqGGxOLCGJvi/BhsalWnhnt/A4qR2Ns+YI59/EHgHkE570O1fQOY2jgLbxS3+XEgzuo1uybMKrQbiGzPMyiJCx/hbsgVtqmO15SMjp7JrGuQl2ROR6AXWyDa+4YyXNgU9nQ+hE=
+	t=1718354344; cv=none; b=bbyg3FIqUIwekDpGdW7eczZGnU3aDGxwThIhxVo49nb5RY7W4AGfQidRYOSKk6uyx+kWC2Qw36zptl6Es77BlU8xkvAfeJRVLZH1H1eN7+Qa9A6w4ASaSqVJ8oUbMYfBH2JWOt2ot6IudAm/ntofjWvfBb5a+ZTiWoK8dTFF+Cc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718352895; c=relaxed/simple;
-	bh=AJr56AIyxw1AV+8imWQzB4XZoQsJAgsK6sLrW1PzyvM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iCH1lmXXkN6f/B7/XUT+Iq0m0jdCLvkPZ1K3FKORPQxuv3FljPiF9GhJJHmBEOKkwfrVfAuwKlBgvN/AcqftAt5KJEWAveVYcSIOc++7zsjbs3wkDpoCkq4lB16GMnIcG9BqITEQc0RTbXr8vNgyF0CyclYNNNyxujvrS4tqog8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JTLcW4ro; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1718354344; c=relaxed/simple;
+	bh=RVJ3HNfS/LTVgt0bhHVJerIJHiZbdVxp4/zR+A9dP3w=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=FSZ0T8v4h0hkwDg4gOU5D6NYhrntOIOtgCWwcyfccJ17R0divTQ/nzj8NAJkcf7AKIEah1/z7QTZyVFeMmsdZNxwNtkEIsOIWxkzBIQi5KbNErMf2mHeoeYIW1EPhOccr7CyvDaPbsgTCYmgUgZgNmvbNX6GSeyas7f5TGExc/o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V/ULAhgo; arc=none smtp.client-ip=209.85.210.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JTLcW4ro"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718352893;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=kpIVMcrxNUuot3WrmRIeXJx5cyzexiU4T4G3Mxhn+Fo=;
-	b=JTLcW4robLBqfPe3b9cv5ple224032ejYhxrlBAs6z0G0GAIVX+7V75oxbka4+VsS5F8aS
-	xm6EmT+FtnyC4/2U0Nvow6fL0LKfGk9vAEMpYwBlfyuiGJuswkDrSMp9P5+rc63Ky0q9na
-	EHq6W8AVWr298kBHo6aCz15b0lJs+aQ=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-608-QPyfIbc7Np-25l__XOO7DQ-1; Fri,
- 14 Jun 2024 04:14:47 -0400
-X-MC-Unique: QPyfIbc7Np-25l__XOO7DQ-1
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C0BBC19560AE;
-	Fri, 14 Jun 2024 08:14:45 +0000 (UTC)
-Received: from thuth-p1g4.redhat.com (unknown [10.39.193.73])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id F2DDA19560BF;
-	Fri, 14 Jun 2024 08:14:40 +0000 (UTC)
-From: Thomas Huth <thuth@redhat.com>
-To: linux-doc@vger.kernel.org,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Jonathan Corbet <corbet@lwn.net>,
-	Sven Schnelle <svens@linux.ibm.com>
-Subject: [PATCH] Documentation: Add "S390" to the swiotlb kernel parameter
-Date: Fri, 14 Jun 2024 10:14:38 +0200
-Message-ID: <20240614081438.553160-1-thuth@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V/ULAhgo"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-705cffc5bcfso1392160b3a.3;
+        Fri, 14 Jun 2024 01:39:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1718354342; x=1718959142; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=NGy8Qk7vHjHfh3JaIY/2KaWeJmy159LbqRE46FH8bXg=;
+        b=V/ULAhgopLt2G9oiOgNMzmhZuoJWZIrIppBKZecQO6bH6c9YMPqVNERdgpTv3L+pkw
+         OZx021tMr5KUt3uVKrTXn0Y2Ls9hzWEAhz8SAYTKGo5BTiQ75bXg+YWOg2O0OuhSoW3N
+         t4hO248cd+TskEtKrO/mlArhUzKQ72IDbMR6USwiLO17cwqtsBnAkVTUY2Wi6vMvLPn+
+         uKHxYpcw4OiQQTXLCumeycAT7zKwDoCKejEwCF2rz4o8364tveWGPnZjnr/+8UA0W1Gr
+         UV8+i/6cQkofxPNXan9AICEVWP7l1T2cxA1+cQ/F1kEOVv8Uc4K3pmN/d7NmNqLoNg0K
+         EWQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718354342; x=1718959142;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=NGy8Qk7vHjHfh3JaIY/2KaWeJmy159LbqRE46FH8bXg=;
+        b=O3vix/XIIVGXYlJHEXTwR92EfarCgXzH8r9swJY9PFWHAEguMnFbXIuvqQlr47uvgX
+         AgrEa4XUWRfFgoidNQK7owGD4gxr7NU5pAjiMftTtE4S1dWMW+vE45aRheRpmyu1UafA
+         1uwih4vdxoaFKvS7D2S/GJ0XQGW2iPIgWgCGxE7lPEzAe5PSDSr3lGU5+jFO1P9/jcMK
+         Hlu3zqcVTJskRAZPdHgmTpompwqvNkVqV8+QeyMNqzVcRoYCgxyVnJ+WPwCbgICV7ZGn
+         4RdsHzj2GLPSweaWuFQtStwpMUt7R8+oWSwi/BJkuvC1xLjtgMdc3mZ7XOTu1Sr9/q1P
+         DluA==
+X-Forwarded-Encrypted: i=1; AJvYcCXg/pcP5Ql6mI0hkHs6VMX74GaxNm6OQd+jEgc5vYOLPKxTKLHLwUb6RL1UtFJ9rMqUrNk0Ixrq3N0oE1JDzPcTktwNxi0iB7uAnMZS+7kgB7s3EuYOonTjyuQOzyhsXA==
+X-Gm-Message-State: AOJu0YyhxXWQhhtb9xkORGlWV0z7kqQEjLZxmHXWfe2XLNoJj00o0QBp
+	n+KqcbZxiQoQbo8gI6JbxUelIPX2WXl6pB3g7arwZKKFelgqMika
+X-Google-Smtp-Source: AGHT+IE6pXW+ie68+vtXwkMfCghwPmHr4/AQacJLhgnTEyIreahfjP48hPsxIsT9zufhQ8cyfHE9eg==
+X-Received: by 2002:a05:6a21:81a9:b0:1b5:69cd:87c with SMTP id adf61e73a8af0-1bae7e88366mr2104777637.27.1718354341640;
+        Fri, 14 Jun 2024 01:39:01 -0700 (PDT)
+Received: from localhost (220-235-199-47.tpgi.com.au. [220.235.199.47])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2c4a769beb8sm5500935a91.41.2024.06.14.01.38.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 14 Jun 2024 01:39:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 14 Jun 2024 18:38:54 +1000
+Message-Id: <D1ZLRVNGPWTV.5H76A3E8DJCV@gmail.com>
+Cc: "Thomas Huth" <thuth@redhat.com>, <kvm@vger.kernel.org>,
+ <linux-s390@vger.kernel.org>, "Andrew Jones" <andrew.jones@linux.dev>,
+ "Marc Hartmayer" <mhartmay@linux.ibm.com>, <kvm-riscv@lists.infradead.org>,
+ <kvmarm@lists.linux.dev>, <linuxppc-dev@lists.ozlabs.org>
+Subject: Re: [kvm-unit-tests PATCH] build: retain intermediate .aux.o
+ targets
+From: "Nicholas Piggin" <npiggin@gmail.com>
+To: "Segher Boessenkool" <segher@kernel.crashing.org>
+X-Mailer: aerc 0.17.0
+References: <20240612044234.212156-1-npiggin@gmail.com>
+ <20240612082847.GG19790@gate.crashing.org>
+ <D1ZBO021MLHV.3C7E4V3WOHO8V@gmail.com>
+ <20240614010856.GK19790@gate.crashing.org>
+In-Reply-To: <20240614010856.GK19790@gate.crashing.org>
 
-The "swiotlb" kernel parameter is used on s390 for protected virt since
-commit 64e1f0c531d1 ("s390/mm: force swiotlb for protected virtualization")
-and thus should be marked in kernel-parameters.txt accordingly.
+On Fri Jun 14, 2024 at 11:08 AM AEST, Segher Boessenkool wrote:
+> On Fri, Jun 14, 2024 at 10:43:39AM +1000, Nicholas Piggin wrote:
+> > On Wed Jun 12, 2024 at 6:28 PM AEST, Segher Boessenkool wrote:
+> > > On Wed, Jun 12, 2024 at 02:42:32PM +1000, Nicholas Piggin wrote:
+> > > > arm, powerpc, riscv, build .aux.o targets with implicit pattern rul=
+es
+> > > > in dependency chains that cause them to be made as intermediate fil=
+es,
+> > > > which get removed when make finishes. This results in unnecessary
+> > > > partial rebuilds. If make is run again, this time the .aux.o target=
+s
+> > > > are not intermediate, possibly due to being made via different
+> > > > dependencies.
+> > > >=20
+> > > > Adding .aux.o files to .PRECIOUS prevents them being removed and so=
+lves
+> > > > the rebuild problem.
+> > > >=20
+> > > > s390x does not have the problem because .SECONDARY prevents dependa=
+ncies
+> > > > from being built as intermediate. However the same change is made f=
+or
+> > > > s390x, for consistency.
+> > >
+> > > This is exactly what .SECONDARY is for, as its documentation says,
+> > > even.  Wouldn't it be better to just add a .SECONDARY to the other
+> > > targets as well?
+> >=20
+> > Yeah we were debating that and agreed .PRECIOUS may not be the
+> > cleanest fix but since we already use that it's okay for a
+> > minimal fix.
+>
+> But why add it to s390x then?  It is not a fix there at all!
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- PS: I wonder whether we could remove IA-64 nowadays...?
+Eh, not a big deal. I mentioned that in the changelog it doesn't seem to
+pracicaly fix something. And I rather the makefiles converge as much as
+possible rather than diverge more.
 
- Documentation/admin-guide/kernel-parameters.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+.SECONDARY was added independently and not to fix this problem in
+s390x. And s390x has .SECONDARY slightly wrong AFAIKS. It mentions
+.SECONDARY: twice in a way that looks like it was meant to depend on
+specific targets, it actually gives it no dependencies and the
+resulting semantics are that all intermediate files in the build are
+treated as secondary. So somethig there should be cleaned up. If the
+.SECONDARY was changed to only depend on the .gobj and .hdr.obj then
+suddenly that would break .aux.o if I don't make the change.
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index b600df82669d..423427bf6e49 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6548,7 +6548,7 @@
- 			This parameter controls use of the Protected
- 			Execution Facility on pSeries.
- 
--	swiotlb=	[ARM,IA-64,PPC,MIPS,X86,EARLY]
-+	swiotlb=	[ARM,IA-64,PPC,MIPS,X86,S390,EARLY]
- 			Format: { <int> [,<int>] | force | noforce }
- 			<int> -- Number of I/O TLB slabs
- 			<int> -- Second integer after comma. Number of swiotlb
--- 
-2.45.2
+So I'm meaning to work out what to do with all that, i.e., whether to
+add blanket .SECONDARY for all and trim or remove the .PRECIOUS files,
+or remove s390x's secondary, or make it more specific, or something
+else. But it takes a while for me to do makefile work.
 
+Thanks,
+Nick
