@@ -1,109 +1,113 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CCEB2E403;
-	Sun, 16 Jun 2024 01:23:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D0253D6B
+	for <linux-s390@vger.kernel.org>; Sun, 16 Jun 2024 01:36:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718501009; cv=none; b=dxKmo1XkAZLISKwILbPbASy/eXuKEGelNWKvM5yI2iTP9403Mga3XFaMy+gt5l3n/hrXtTsGREDAQ9HZjJ38jlU2L+9NYgUdiOar5AyJb9/UssuUcf1PC+NitklByUNsmMzEJyX/U3CacfXmjJZ/KgXycUbSAd3Nvkz3474K58Q=
+	t=1718501763; cv=none; b=aM0M5YcguojOu4vzP2imHQLl9SxlwD6NjlONDvpecpB5Xac9Lcwh4cummhe04GfhOxgVkVyDEApqWepJrhRd33Awe7mFowo7tQODWJmCIIkEL3Ea0atWhOYrfjX2UqBtHZriCUTr73uRq/uzR+qZHeBTrMM5ulpsb0a+K0NDqKM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718501009; c=relaxed/simple;
-	bh=VvyT3rRkET4hnFgBAFEwQnLwekfT0zcexKkGgHZ9wcA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:To:CC; b=OGvOwEFk6/PudAGCbngBkianSsN1CgCjtsl7Af9i5z0VtOkoLMpoT6i3IBvcc5CpK8IMXVxnysBxnce2Pv9IQs1v6NMQXz882KiStaeHXZKr4m898OrhDLjJDS19IeYjNfrGf/b8fjtIPV/DCYJN66jjQk45JRjdgVLgjmwPLEY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=dzNv++bX; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1718501763; c=relaxed/simple;
+	bh=eewxmgfHmCdoJSXXMgRzESdyPhOdYCe5chjx/EMYjxk=;
+	h=From:To:Cc:Subject:Date:Message-Id; b=cPy3fgt8hArdpjrWckc8JpwCqOQC8IZv33O0WdvNex8MSA+90k9IgM9ACJh21hrEFehac36dIFvrVDx/WnKmwSyl6WArTRP7lij3iVnNCpVwnHNjUI76Fj56/8oqcHJHeobK7yxJXGEd1jXQFVK/oZXBs7deqF3RMwFSkOm/Ebw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FVFcmG7P; arc=none smtp.client-ip=209.85.208.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="dzNv++bX"
-Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45G05jTt019170;
-	Sun, 16 Jun 2024 01:23:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=qcppdkim1; bh=Kvrhe4tiwKNstnmbSAG2zL
-	OZuyz9v+p7yugfSwm/0NQ=; b=dzNv++bXB+oiQh6rxuBLzbh6XBso3JkDintPQK
-	ZucDYZva1yXU5kLH/6Fs47ErkE+8iDsDSPLH1c6smFZU4qv43L9za/V0z6pGwNMh
-	UFe9JYtq67H9Xd7XRPO37iAQp2eV2LAVNsU5fUB0kImCbKgewFFZRyesZdbLooeL
-	KGkFk8779VvHaEGRWtQKaRnb5SX9kH2oDaOAOjjoaKFTafB38YsLF7V/ZhlRSXKs
-	ccmuCKNwScrTn/WF81hOdIAIfJT5TnDjILV1D5Gw/5jHHReEYflnb9rDAm+W6NYO
-	XNzTprEAQAPjRzjUIH1BkebdQqPnu4l53GqA9mm3lsnvuKqQ==
-Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3ys0an1fk0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sun, 16 Jun 2024 01:23:25 +0000 (GMT)
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-	by NALASPPMTA05.qualcomm.com (8.17.1.19/8.17.1.19) with ESMTPS id 45G1NO8I027402
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sun, 16 Jun 2024 01:23:24 GMT
-Received: from [169.254.0.1] (10.49.16.6) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Sat, 15 Jun
- 2024 18:23:23 -0700
-From: Jeff Johnson <quic_jjohnson@quicinc.com>
-Date: Sat, 15 Jun 2024 18:23:21 -0700
-Subject: [PATCH] s390/mm: add missing MODULE_DESCRIPTION() macro
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FVFcmG7P"
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-57c8353d8d0so4303790a12.1
+        for <linux-s390@vger.kernel.org>; Sat, 15 Jun 2024 18:36:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1718501760; x=1719106560; darn=vger.kernel.org;
+        h=message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Oq96Rf9+3SaAN8Q2fFpUtHn84wg3Cq2hV46UyTATzaQ=;
+        b=FVFcmG7PrKYyFhO7xql6aYgVK7piz7DkEIjxh05jQ8Y0C2akWyHgMMikUNjfVgjryV
+         z+ljFMqJnauoOA2jf5GFaQRqvdGCumaAhKRBv/Wb4jl/lMNIZf5TgrqBdYqK+UtmKpiA
+         wM0C3d+7klzZGk2YLjwukQVNiHxstx0DXzuFbjFdi/QFs8q2nP8eWdy+2wWCGYwGzcVu
+         cnXD6bwF8goRviY8vhq3dDN6xNht8vG3TocwOr4LN3hRMDszH7+wge7vIn920bvvD4mn
+         RZztMJecxcbpNublsomlD8GeDDWaRPLfwokeIkX5Dq1mBPBuT0UJRWeOxLZ3ERPjhA1z
+         ltRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718501760; x=1719106560;
+        h=message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Oq96Rf9+3SaAN8Q2fFpUtHn84wg3Cq2hV46UyTATzaQ=;
+        b=C1xOtYAkZareJkhi8+hUrue6kgfxfz+zMT33ojvZyPS1z9BThx5vgzCs3a6t/7XAly
+         bU7XsmslDS0z1KI9oknp+zavWtvI46A0R1HcoUPBGvK2duwz++3ZENmCcUn5YyRf49Q/
+         IOuJOoEx5rNZkbCdDhNp5ZlrbRUTd4nkkjufbDXni6zW/JP0BCvHauihr5d35Uy6Vho6
+         GUCMXMI/wViB+dxw/HqTZ7t2V/XVqUX6r2GucRRP99f+aAMTx5JORz87Du1W5Ob+ZB8h
+         HWNfpboOIsLu0I9K6q0dduKnOYN5qtVzBmZlbowN9fsS4UJte2+N5Y40Bp9dzCtDqlAt
+         hs/A==
+X-Gm-Message-State: AOJu0YxW9MH8QdJqWDOqbpeL9d9sYLUuaD89fNH4SYqv8/z3+xGPvG7r
+	zvfURH+KZA012lZ9kWKUjs/kkKihoV8CVDj8I21nuLVpS7h80kBPRLh2d43Q5vw=
+X-Google-Smtp-Source: AGHT+IH+6aWufJ6UlOo1msIz9ZpIvQp78Ti1Dc/pT5Fo42u/qllH30wvrpapVJvtDZMvAxFLSVrfLg==
+X-Received: by 2002:a50:a69b:0:b0:57c:acf4:c6c5 with SMTP id 4fb4d7f45d1cf-57cbd67f735mr3674394a12.24.1718501760278;
+        Sat, 15 Jun 2024 18:36:00 -0700 (PDT)
+Received: from localhost ([185.92.221.13])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-57cb7439606sm4388843a12.90.2024.06.15.18.35.59
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Sat, 15 Jun 2024 18:35:59 -0700 (PDT)
+From: Wei Yang <richard.weiyang@gmail.com>
+To: agordeev@linux.ibm.com,
+	gerald.schaefer@linux.ibm.com,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com
+Cc: linux-s390@vger.kernel.org,
+	linux-mm@kvack.org,
+	Wei Yang <richard.weiyang@gmail.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	David Hildenbrand <david@redhat.com>
+Subject: [PATCH] s390/mm: get total ram pages from memblock
+Date: Sun, 16 Jun 2024 01:35:37 +0000
+Message-Id: <20240616013537.20338-1-richard.weiyang@gmail.com>
+X-Mailer: git-send-email 2.11.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-ID: <20240615-md-s390-arch-s390-mm-v1-1-a360eed8c7c3@quicinc.com>
-X-B4-Tracking: v=1; b=H4sIAIg+bmYC/yXMQQrCMBCF4auUWTuQtFXUq4iLNDMxAybKTJVC6
- d2Nunvf4v0rGKuwwblbQfktJo/a4HcdxBzqjVGoGXrXj+7g91gIbTg5DBrzf5WC4zEReeLkBoJ
- 2fSonWX7Zy7V5CsY4aagxf2N3qa8FS7CZFbbtA/9Ekp+FAAAA
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Gerald Schaefer
-	<gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "Vasily
- Gorbik" <gor@linux.ibm.com>,
-        Christian Borntraeger
-	<borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-CC: <linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <kernel-janitors@vger.kernel.org>,
-        Jeff Johnson <quic_jjohnson@quicinc.com>
-X-Mailer: b4 0.14.0
-X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: 6VqzuNPI-f11LbPXLSYKWQDdcu1aLOrH
-X-Proofpoint-ORIG-GUID: 6VqzuNPI-f11LbPXLSYKWQDdcu1aLOrH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-15_18,2024-06-14_03,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- bulkscore=0 impostorscore=0 priorityscore=1501 spamscore=0 clxscore=1011
- suspectscore=0 mlxscore=0 adultscore=0 lowpriorityscore=0 mlxlogscore=752
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2405170001
- definitions=main-2406160009
 
-With ARCH=s390, make allmodconfig && make W=1 C=1 reports:
-WARNING: modpost: missing MODULE_DESCRIPTION() in arch/s390/mm/cmm.o
+On s390, zero page's size relies on total ram pages.
 
-Add the missing invocation of the MODULE_DESCRIPTION() macro.
+Since we plan to move the accounting into __free_pages_core(),
+totalram_pages may not represent the total usable pages on system
+at this point when defer_init is enabled.
 
-Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
+We can get the total usable pages from memblock directly. The size maybe
+not accurate due to the alignment, but enough for the calculation.
+
+Signed-off-by: Wei Yang <richard.weiyang@gmail.com>
+CC: Mike Rapoport (IBM) <rppt@kernel.org>
+CC: David Hildenbrand <david@redhat.com>
+
 ---
- arch/s390/mm/cmm.c | 1 +
- 1 file changed, 1 insertion(+)
+Not tested on a machine, hope it is fine.
+---
+ arch/s390/mm/init.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
-index f8b13f247646..5cb5e724cde3 100644
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -427,4 +427,5 @@ static void __exit cmm_exit(void)
- }
- module_exit(cmm_exit);
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index e769d2726f4e..d811ffa5e147 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -65,12 +65,13 @@ static void __init setup_zero_pages(void)
+ 	unsigned int order;
+ 	struct page *page;
+ 	int i;
++	unsigned long total_pages = PHYS_PFN(memblock_phys_mem_size() - memblock_reserved_size());
  
-+MODULE_DESCRIPTION("Cooperative memory management interface");
- MODULE_LICENSE("GPL");
-
----
-base-commit: 83a7eefedc9b56fe7bfeff13b6c7356688ffa670
-change-id: 20240615-md-s390-arch-s390-mm-48fdd1def03d
+ 	/* Latest machines require a mapping granularity of 512KB */
+ 	order = 7;
+ 
+ 	/* Limit number of empty zero pages for small memory sizes */
+-	while (order > 2 && (totalram_pages() >> 10) < (1UL << order))
++	while (order > 2 && (total_pages >> 10) < (1UL << order))
+ 		order--;
+ 
+ 	empty_zero_page = __get_free_pages(GFP_KERNEL | __GFP_ZERO, order);
+-- 
+2.34.1
 
