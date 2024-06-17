@@ -1,39 +1,48 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 306811C68C;
-	Mon, 17 Jun 2024 15:52:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 102741991D0;
+	Mon, 17 Jun 2024 18:22:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718639562; cv=none; b=RuaCauuaFRRhKxcM3RjQKjOmYowDgB8M+b4RKCDR5kG1BsJs47q317eCSKEDt9iM+gZhT97AevD4WZwV6rCjg7rAHC4CnOvbW15n/L1R6YVKvzQ2bByVEFsQtXjGX3cdET7eYTqYeIjj4waV4aYhsL1aPD51xFW27mnlSk7miis=
+	t=1718648576; cv=none; b=YcNTiNgOjxMqNi3+yja4BuJ1pRW+Q2RdRxosM5bAe9HuZLuoB2kaPZLofW6r74Nj8/JhCyOW/UyHKWxrIU9/eEJ3TUofio5Oa2sMwUPxcZphK6Rh4c+Vop+w8lhrHnUTlcg3Ne8y2enJAPTa40Dp6zMeUaurHetqmPCnXBjhXcg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718639562; c=relaxed/simple;
-	bh=6q1k+tASKAJjoZxu/hiIOiLEZYJBiePlxyUNs5o4lks=;
+	s=arc-20240116; t=1718648576; c=relaxed/simple;
+	bh=NCfs8+3fHX5/tKNCnEGfSHtJp8L4wyAuoa/GOOiGtoo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DfPWKL4n8M5xst5V8++Op8gsqMRZZ1WwlZUzx6DpqB/ecXvQ2flQuNd28LdhYKQNl1mxDckItpIT878YUNgM+1oQW4TemFNkiSSN0oQVLUlCgSbh1TKMoeN7L35JbheN/H51TZOoCc2kXPEOXcHA6BXvpbHmC6mFkGF2nqpV4Bk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0CDA7DA7;
-	Mon, 17 Jun 2024 08:53:03 -0700 (PDT)
-Received: from J2N7QTR9R3 (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6C1F13F64C;
-	Mon, 17 Jun 2024 08:52:34 -0700 (PDT)
-Date: Mon, 17 Jun 2024 16:52:15 +0100
-From: Mark Rutland <mark.rutland@arm.com>
-To: Yuntao Liu <liuyuntao12@huawei.com>
-Cc: x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-hardening@vger.kernel.org, catalin.marinas@arm.com,
-	will@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
-	agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-	svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
-	bp@alien8.de, dave.hansen@linux.intel.com, hpa@zytor.com,
-	kees@kernel.org, gustavoars@kernel.org, arnd@arndb.de,
+	 Content-Type:Content-Disposition:In-Reply-To; b=BS4x1zx8KxvM5KP3JLTuYKFIgHrsJclflQf0QnnF2nHOllrmrx4ZenAwWmHjO+1PyOSJ3GI3/iI15wfygNJmeZpcM46Y46IL4dpoys5RQXtdJC4k6GeXBnUr10RqYiB6Wxq0e1j/tNikKzilSAdh97PCht7ucnwdM0qzdSky724=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OYTKNQDk; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OYTKNQDk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7838C2BD10;
+	Mon, 17 Jun 2024 18:22:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1718648575;
+	bh=NCfs8+3fHX5/tKNCnEGfSHtJp8L4wyAuoa/GOOiGtoo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=OYTKNQDkBo4oTu9itBH1S+qnTg9b9i6GMOgnDPStEM6Pa/BynSfWqQ3mgzbBtNcZ1
+	 bhHhT78ngG45kzg9IIAZESHxq+jnZwKuJC4lP1pYyMV0t1ilAraGndXeTiFEdnpsHH
+	 vT/vRStrwMYfu9Zxn1IkG1tK4uU4Fvj4vmdS1PVOLLSOKDGKi+laFMAMs1iqvDx9E/
+	 GPCUHFVkoS1Unx6OZXfJJ1Vq+IE0rbmT2G6OQeHLi65iKl6JdERAaZ1bJRXF2hz22S
+	 vl7GtpyBXdLLSFjhYQXmOrdVVgh7WwStO1Q0JZSINGTAwXILEhWJyEz2tU0p3/lfOl
+	 KroXUSvl1cGKA==
+Date: Mon, 17 Jun 2024 11:22:55 -0700
+From: Kees Cook <kees@kernel.org>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Yuntao Liu <liuyuntao12@huawei.com>, x86@kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org,
+	catalin.marinas@arm.com, will@kernel.org, hca@linux.ibm.com,
+	gor@linux.ibm.com, agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com, svens@linux.ibm.com, tglx@linutronix.de,
+	mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+	hpa@zytor.com, gustavoars@kernel.org, arnd@arndb.de,
 	leobras@redhat.com, broonie@kernel.org, imbrenda@linux.ibm.com,
 	pawan.kumar.gupta@linux.intel.com
 Subject: Re: [PATCH] remove AND operation in choose_random_kstack_offset()
-Message-ID: <ZnBbr2CAqBGDe2aN@J2N7QTR9R3>
+Message-ID: <202406171122.B5FDA6A@keescook>
 References: <20240617133721.377540-1-liuyuntao12@huawei.com>
+ <ZnBbr2CAqBGDe2aN@J2N7QTR9R3>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -42,71 +51,27 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240617133721.377540-1-liuyuntao12@huawei.com>
+In-Reply-To: <ZnBbr2CAqBGDe2aN@J2N7QTR9R3>
 
-On Mon, Jun 17, 2024 at 01:37:21PM +0000, Yuntao Liu wrote:
-> Since the offset would be bitwise ANDed with 0x3FF in
-> add_random_kstack_offset(), so just remove AND operation here.
+On Mon, Jun 17, 2024 at 04:52:15PM +0100, Mark Rutland wrote:
+> On Mon, Jun 17, 2024 at 01:37:21PM +0000, Yuntao Liu wrote:
+> > Since the offset would be bitwise ANDed with 0x3FF in
+> > add_random_kstack_offset(), so just remove AND operation here.
+> > 
+> > Signed-off-by: Yuntao Liu <liuyuntao12@huawei.com>
 > 
-> Signed-off-by: Yuntao Liu <liuyuntao12@huawei.com>
-
-The comments in arm64 and x86 say that they're deliberately capping the
-offset at fewer bits than the result of KSTACK_OFFSET_MAX() masking the
-value with 0x3FF.
-
-Maybe it's ok to expand that, but if that's the case the commit message
-needs to explain why it's safe add extra bits (2 on arm64, 3 on s39 and
-x86), and those comments need to be updated accordingly.
-
-As-is, I do not think this patch is ok.
-
-Mark.
-
-> ---
->  arch/arm64/kernel/syscall.c          | 2 +-
->  arch/s390/include/asm/entry-common.h | 2 +-
->  arch/x86/include/asm/entry-common.h  | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
+> The comments in arm64 and x86 say that they're deliberately capping the
+> offset at fewer bits than the result of KSTACK_OFFSET_MAX() masking the
+> value with 0x3FF.
 > 
-> diff --git a/arch/arm64/kernel/syscall.c b/arch/arm64/kernel/syscall.c
-> index ad198262b981..43f555f7cd2d 100644
-> --- a/arch/arm64/kernel/syscall.c
-> +++ b/arch/arm64/kernel/syscall.c
-> @@ -63,7 +63,7 @@ static void invoke_syscall(struct pt_regs *regs, unsigned int scno,
->  	 *
->  	 * The resulting 5 bits of entropy is seen in SP[8:4].
->  	 */
-> -	choose_random_kstack_offset(get_random_u16() & 0x1FF);
-> +	choose_random_kstack_offset(get_random_u16());
->  }
->  
->  static inline bool has_syscall_work(unsigned long flags)
-> diff --git a/arch/s390/include/asm/entry-common.h b/arch/s390/include/asm/entry-common.h
-> index 7f5004065e8a..35555c944630 100644
-> --- a/arch/s390/include/asm/entry-common.h
-> +++ b/arch/s390/include/asm/entry-common.h
-> @@ -54,7 +54,7 @@ static __always_inline void arch_exit_to_user_mode(void)
->  static inline void arch_exit_to_user_mode_prepare(struct pt_regs *regs,
->  						  unsigned long ti_work)
->  {
-> -	choose_random_kstack_offset(get_tod_clock_fast() & 0xff);
-> +	choose_random_kstack_offset(get_tod_clock_fast());
->  }
->  
->  #define arch_exit_to_user_mode_prepare arch_exit_to_user_mode_prepare
-> diff --git a/arch/x86/include/asm/entry-common.h b/arch/x86/include/asm/entry-common.h
-> index 7e523bb3d2d3..b28a307f2014 100644
-> --- a/arch/x86/include/asm/entry-common.h
-> +++ b/arch/x86/include/asm/entry-common.h
-> @@ -85,7 +85,7 @@ static inline void arch_exit_to_user_mode_prepare(struct pt_regs *regs,
->  	 * Therefore, final stack offset entropy will be 5 (x86_64) or
->  	 * 6 (ia32) bits.
->  	 */
-> -	choose_random_kstack_offset(rdtsc() & 0xFF);
-> +	choose_random_kstack_offset(rdtsc());
->  }
->  #define arch_exit_to_user_mode_prepare arch_exit_to_user_mode_prepare
->  
-> -- 
-> 2.34.1
+> Maybe it's ok to expand that, but if that's the case the commit message
+> needs to explain why it's safe add extra bits (2 on arm64, 3 on s39 and
+> x86), and those comments need to be updated accordingly.
 > 
+> As-is, I do not think this patch is ok.
+
+Yeah, I agree: the truncation is intentional and tuned to the
+architecture.
+
+-- 
+Kees Cook
