@@ -1,165 +1,83 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9372194ADF;
-	Mon, 17 Jun 2024 10:45:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95DFE1957E0;
+	Mon, 17 Jun 2024 12:20:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718621137; cv=none; b=DmRa6DYRphfOC1bPqMpHaCTw9jpA5a8ZjE37uEYTregB1LYwpcDPHV8cqPzcyhU+RaPAakiQxARC0VNa9+Qh7qRZbRLfYcp+RR/IyEU+FJBCcKnkr62+aQCePmeDdMA2fbs538Bh1y5C4SO0MeQsjFpjk3MvYbeWuhuspDhQcVo=
+	t=1718626830; cv=none; b=P9Hr0Jyh/vQowSqn0DDMPLHlok5SDGbjohtsMUoKdmBGU+W++qoN6npzs/WaD6+SaZ83SEwlceH1nPWnhfzfsccMMnrISys/xCezZd4Jlc3MgHpATrw9xw6D3fUOVoy+0Z0FXgV5gw82MzXA1cCyLS77OX7NY2qTNpy8KH7tKM0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718621137; c=relaxed/simple;
-	bh=eRoBK5/4xu/plFLs53OdfVIJexRh8oeq7oJw1sSkyF0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QAWe4uvyxI3PJHrHYceLEi8bn6wd5xcDshcc/a3TMtdFizYVbrY7INIkfiosUfPEvE4inFp9N4cC6PHxlsMty4d+mP3DPd41eWFTBeIu/p1248x2ZuPXoTd9Mf6sgYTjRU/y9HLNr0QFKmtzvC2PW7B84shuXe4G2CKqvvlR0XM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=cHdgn9W4; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=j6x1ql3o; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=cHdgn9W4; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=j6x1ql3o; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1718626830; c=relaxed/simple;
+	bh=4fHPDN5JIammBw7jv1D0hJOKHmpU3vwq+9qfinwxLBg=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=ptglLSsMZ7Mhepf/UTyeGuWCdJCZ8VHVLkeS2OM1dp8qHjLR2OW1Md8B7OaRq1ZIHnE+x+rIx1GcJ4uVyKmDvE2FQJve4RwRGaBnNegkDfwmj5MU0fy2KOOCWujwmpGanru2gg1I2iNy+5ae96P2ftguibzFIxi7PdId++1qu64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Sx7j8cLu; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="cHdgn9W4";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="j6x1ql3o";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="cHdgn9W4";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="j6x1ql3o"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id CCF9C3804B;
-	Mon, 17 Jun 2024 10:45:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1718621133; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=slP8wzcVm+UAH6cgQCtZYK/eQ7AbIkDnYf3KLR9axr8=;
-	b=cHdgn9W4G9J0bE9J3jdrIA5h9r80guqMNBb5W5GdFASLapAtRmAO+S/TDk3J9mxlXYKQ3p
-	XeyPNYiHIsartGEh8VHnpDVPl9PlSbixXhfd1N8WS6mi9euOFHAttCLDL2I6PiAjR9dt4c
-	b8iVdUv2vEMMALrToXYEjc2bLtRNGCk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1718621133;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=slP8wzcVm+UAH6cgQCtZYK/eQ7AbIkDnYf3KLR9axr8=;
-	b=j6x1ql3oipn4My7hzsZomUyOPKAHtZ3GuatVGjA1bA/HdSpLPFhhpg/i+I1E4ZCYoxxHNa
-	kb4ijVWkbYZKZPAA==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1718621133; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=slP8wzcVm+UAH6cgQCtZYK/eQ7AbIkDnYf3KLR9axr8=;
-	b=cHdgn9W4G9J0bE9J3jdrIA5h9r80guqMNBb5W5GdFASLapAtRmAO+S/TDk3J9mxlXYKQ3p
-	XeyPNYiHIsartGEh8VHnpDVPl9PlSbixXhfd1N8WS6mi9euOFHAttCLDL2I6PiAjR9dt4c
-	b8iVdUv2vEMMALrToXYEjc2bLtRNGCk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1718621133;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=slP8wzcVm+UAH6cgQCtZYK/eQ7AbIkDnYf3KLR9axr8=;
-	b=j6x1ql3oipn4My7hzsZomUyOPKAHtZ3GuatVGjA1bA/HdSpLPFhhpg/i+I1E4ZCYoxxHNa
-	kb4ijVWkbYZKZPAA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6C97B13AAA;
-	Mon, 17 Jun 2024 10:45:33 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id xJQVGs0TcGYTDwAAD6G6ig
-	(envelope-from <hare@suse.de>); Mon, 17 Jun 2024 10:45:33 +0000
-Message-ID: <94db71a8-75ef-4490-a28a-aea26f6dd945@suse.de>
-Date: Mon, 17 Jun 2024 12:45:33 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Sx7j8cLu"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 64E3DC4AF1C;
+	Mon, 17 Jun 2024 12:20:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1718626830;
+	bh=4fHPDN5JIammBw7jv1D0hJOKHmpU3vwq+9qfinwxLBg=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=Sx7j8cLua9VPiJ+D/ORWOZeaJkFQGTNylOo9Ql9/4wGwWHf3X3259/nIIV/WIAokr
+	 cLnuWiE3K1Ok5kuVoPxa5S+q06t3ekl/Iajoa3Igc+P5YrJVD5XEkOVYYZOQNNSV1Y
+	 7WGebBixqfywJX22y/VbZDjzWgnJlP6M5MzrtClajl5G/+ht+ZqWqE0xgslwRlw2xC
+	 HLLb8BiyCEVhZMJjfGDuZ6vQXaNniawmvfF9pZcQpnsbuK+S4xqziXbdUOby/IsQr/
+	 I1gguO0Vk07+RJkIZzFUnh/IEru5621ZXncQosNHN3qa1PLtpiZlXuMzRPl+OW3+ns
+	 bsf8uL/RUK9NA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 50CEFC4332E;
+	Mon, 17 Jun 2024 12:20:30 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 26/26] block: move the bounce flag into the features field
-To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
- Richard Weinberger <richard@nod.at>,
- Philipp Reisner <philipp.reisner@linbit.com>,
- Lars Ellenberg <lars.ellenberg@linbit.com>,
- =?UTF-8?Q?Christoph_B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
- Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- =?UTF-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>,
- Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
- Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
- Yu Kuai <yukuai3@huawei.com>, Vineeth Vijayan <vneethv@linux.ibm.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
- drbd-dev@lists.linbit.com, nbd@other.debian.org,
- linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
- virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
- linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
- linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
- linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
- linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-block@vger.kernel.org,
- Damien Le Moal <dlemoal@kernel.org>
-References: <20240617060532.127975-1-hch@lst.de>
- <20240617060532.127975-27-hch@lst.de>
-Content-Language: en-US
-From: Hannes Reinecke <hare@suse.de>
-In-Reply-To: <20240617060532.127975-27-hch@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-8.29 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	XM_UA_NO_VERSION(0.01)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[38];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLex1noz7jcsrkfdtgx8bqesde)];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,lst.de:email,suse.de:email]
-X-Spam-Flag: NO
-X-Spam-Score: -8.29
-X-Spam-Level: 
+Subject: Re: [PATCH net-next v8 0/3] Introduce IPPROTO_SMC
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <171862683032.300.18237417031769140758.git-patchwork-notify@kernel.org>
+Date: Mon, 17 Jun 2024 12:20:30 +0000
+References: <1718301630-63692-1-git-send-email-alibuda@linux.alibaba.com>
+In-Reply-To: <1718301630-63692-1-git-send-email-alibuda@linux.alibaba.com>
+To: D. Wythe <alibuda@linux.alibaba.com>
+Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+ wintera@linux.ibm.com, guwen@linux.alibaba.com, kuba@kernel.org,
+ davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-rdma@vger.kernel.org, tonylu@linux.alibaba.com, pabeni@redhat.com,
+ edumazet@google.com
 
-On 6/17/24 08:04, Christoph Hellwig wrote:
-> Move the bounce flag into the features field to reclaim a little bit of
-> space.
+Hello:
+
+This series was applied to netdev/net-next.git (main)
+by David S. Miller <davem@davemloft.net>:
+
+On Fri, 14 Jun 2024 02:00:27 +0800 you wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
-> ---
->   block/blk-settings.c    | 1 -
->   block/blk.h             | 2 +-
->   drivers/scsi/scsi_lib.c | 2 +-
->   include/linux/blkdev.h  | 6 ++++--
->   4 files changed, 6 insertions(+), 5 deletions(-)
+> This patch allows to create smc socket via AF_INET,
+> similar to the following code,
 > 
-Reviewed-by: Hannes Reinecke <hare@suse.de>
+> /* create v4 smc sock */
+> v4 = socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
+> 
+> [...]
 
-Cheers,
+Here is the summary with links:
+  - [net-next,v8,1/3] net/smc: refactoring initialization of smc sock
+    https://git.kernel.org/netdev/net-next/c/d0e35656d834
+  - [net-next,v8,2/3] net/smc: expose smc proto operations
+    https://git.kernel.org/netdev/net-next/c/13543d02c90d
+  - [net-next,v8,3/3] net/smc: Introduce IPPROTO_SMC
+    https://git.kernel.org/netdev/net-next/c/d25a92ccae6b
 
-Hannes
+You are awesome, thank you!
 -- 
-Dr. Hannes Reinecke                  Kernel Storage Architect
-hare@suse.de                                +49 911 74053 688
-SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
-HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
