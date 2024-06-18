@@ -1,131 +1,176 @@
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05D891AC78E
-	for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 09:52:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 047BA20C5AF
+	for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 09:57:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718704363; cv=none; b=UyUUqDzBhWH4h/cWyGTcwNIvs1vUgElREkEa+gIEFgxB7kH2yWP/zbt0qzarOeraCHHHKi1lizKrLPO23VCG+L4RBf5aH1JFYCP4CJGyxXToMqrAb34Hr2o9rVihccTOP/ygnV17X92KhogUnnDZE7qCzN93yF+ch7LVcXIxMsQ=
+	t=1718704647; cv=none; b=L5UgdHeuO4CQm3dyiQq5Bv1lzrBVEtAMhCccNtFKMf4pukbw8L/WOo7CN7H/iQWXQVGFRN5E4HdmIG5cfqTQxZY+oaXUNmSKt1EDmY/lcfORLC05GX1IxlH7IlgvFU+zrbRt2ccN6C3vDXnIiTG3qEf8+2+5fn3XbEiPReIkvVw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718704363; c=relaxed/simple;
-	bh=/lD+4/1pW5cDhxFei3+MLKsCC6iwlHSFD/OS/9oOq0k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MBNDeMrG0Ggr7rYBZ9BgWZ4t82LmAr6HaNDZdKNIK68UXI0oW5ORYlOnBj7ZXXQa1Sj5bL0/jP9lrV3t2rLykNw04LmkEfI/JlGsddqFAd+uE1RfJsihJW+RB4ck9MgomcZWH8x6Bbn81jq+JDq0ULfK/MsfUnKLXCe2lk11xaI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=VsjrAVmf; arc=none smtp.client-ip=209.85.128.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1718704647; c=relaxed/simple;
+	bh=zHKySP+EhAjEhkOM4e6WVbgojcJbC7/esjDgsPt5RJU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VORZlMc8/pAaXQ87yWYnAHxQbx3whHtWw1R3oeXid09Wtnk1/FrRsWx9IHJbAIb+0naSGYzX8UjLGBt9pPJFv2RMF5aEMOMFmRIWh6NQfXDDL+QGl/S1iyLJxEA4YJvRVXomNCQlmc0iDWNKWTE6rqQxd/3v7K4ymMT7prnK+nA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XdrFMMFv; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="VsjrAVmf"
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-632750bf73bso35973337b3.2
-        for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 02:52:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1718704361; x=1719309161; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/lD+4/1pW5cDhxFei3+MLKsCC6iwlHSFD/OS/9oOq0k=;
-        b=VsjrAVmfhgKgk0BZz2OIJMF9bkJgUftEQSucdt4LClcFdeaIEazUlInTIYbKQswyIV
-         d+4RBPWvUu3nPmnArN0vcFRyv0q+/c/+QqtkfkN++EMG/fbX80mjNeuQZWV88lo0V0yN
-         G8ce0zJGquwCtM1xrfKMvuo+U/1xuHM3dkGDswFfwXlPaE4tASod2Dwb1l3J35H+9a4K
-         hgtODdwdRk5QVlkwnKqXv/PHSvTHBWfSM27tibrPdCi0jKqihzSbBoAVdgOq+KNfaXws
-         P8D6bu6wFEz2B7WXRuDd+YogrqAcVmzM2/x/tHk3/2thUU8MGwh6VJQ/Bg9ccMWw4udb
-         cTVw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XdrFMMFv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718704644;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=WbXpHb98FLaqgjtCsdMyl1KZ1e/Ur0AIXYqnzGExZh8=;
+	b=XdrFMMFv2XK8PupO9k4SK1JsZpObrAEkR1h/g/KVm5JrUw0MXCuHyaF/QUbNEDCKmcZd/e
+	lRKyaestCl1DVMtr3d4pob0O28Ux2zEMzF90ilRwSq/wAdp47GEfCrY5Esm5W6Bal+iNOb
+	u0SG/ziMTYTHptUDHkj65rzbvgaZ3zU=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-328-J0zTDy-MN2aPwaB79HjBcA-1; Tue, 18 Jun 2024 05:57:23 -0400
+X-MC-Unique: J0zTDy-MN2aPwaB79HjBcA-1
+Received: by mail-lf1-f69.google.com with SMTP id 2adb3069b0e04-52c989652e6so3729302e87.0
+        for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 02:57:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718704361; x=1719309161;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/lD+4/1pW5cDhxFei3+MLKsCC6iwlHSFD/OS/9oOq0k=;
-        b=fz3WrqhSPpxT+qAPcqYlROIxjZ834eF9mZiV3aJAUPVQwo8tuTSuiFwHVq8MLnc/Hh
-         cl8niAZpA94i+wZQGa6aSFFav9u4kNdAqRyUUfbJfRhpLTxhggXDSr8JoFybq6xmF9rV
-         XooTblSTxuYlEP49ELbGLRwkMtTGaFIcwOgz6LSiTWnJ8KIxhzkSlBnNc0k+kbmXFWgF
-         4yQch6gcHTcBF23iOpXvTtiECjo9Bs1zVOPUAnSAjevekd+ofkyJZFSeQc30bxnYe8OI
-         CYRt7Km76kp9rsbFfvSpup8WYjkoo92zBWb/EYfYOiASFMUaBlRoO4qZaeJ3PR/+9FnB
-         73eA==
-X-Forwarded-Encrypted: i=1; AJvYcCWV6XpENmmExYA2/GiOOu9aTYoKQlMe9BGCm4o86N6nxaHjDlJYjDRFztkYO0ToKB54KjtkWgrsgoIUh64m8wwkoNI8GyMVVxlh/Q==
-X-Gm-Message-State: AOJu0YzSHvMWrdCSo+B/bntfGhliwpghyh7tp/YbuI/pAz40+NxF3Ie4
-	0VzczoOWPkKtvTU2Bep2gr4lk410cPJdH4QeqEHXLsxMC5Nx2JPgxU6bT/M+LqYk97b1uQ2uykj
-	StKR+jbvu1wv77ETCniyizIstpZFMUkAxI/6o
-X-Google-Smtp-Source: AGHT+IHXX6s3T5giMDf3tx1b3GNQGpbXZt612lcGTYaBiEl87A/J206Ls33wh8SD7x8kKB2X9MD+tfEpY+oW/2ib5Ck=
-X-Received: by 2002:a0d:d456:0:b0:632:c442:2316 with SMTP id
- 00721157ae682-632c44224b4mr101739057b3.3.1718704360687; Tue, 18 Jun 2024
- 02:52:40 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1718704642; x=1719309442;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WbXpHb98FLaqgjtCsdMyl1KZ1e/Ur0AIXYqnzGExZh8=;
+        b=KWvgpvZk3HrJUkLMK3IdQoBHT8GbiYD+zCIgHc9hE4r+5jbbIeER023XBm0OMsxm4T
+         j5YgFJcMumQwg2uj/djIbAVpBtaOoOZuXwC7JG4+zL+cvHyiS4qX0hyoOddlqkH+D6+1
+         HEULI7byKPVynE636kx5+h39osB2IoaJq8ru9CY2VBbkJaqWG5f7YYflo731txyhLBDO
+         r53f4yghrl+ijmYIuXpE37uVAfV0aAZ771mRH7J6w2yXSl3GhPnlyZvCtLNuEqwRsPu6
+         JvmLW5SZ6fnTXlbC4xQIg2/hjzn1olhC8NurK47uQ+E/PlqBphbJwIuDEajzEGmPvRMk
+         Gh3w==
+X-Gm-Message-State: AOJu0Yz0dEvvIc8O+fHTBHy9eqbznxQ2P3ntCg4wa0uwko9UMhm+ECOj
+	q0Gi5r9rMrMwpk5g6A8Kz2F8DeuXEAVB9hKsHOpycCv5B69gzGG2tLFM71733EQDP+S4ZcH7cDr
+	zw7HwjbSvKsBTzcxW9NWabkb8ss8AgLYVZ2ypib/he6iNizEYJS90e1FEYgs=
+X-Received: by 2002:ac2:58e5:0:b0:52b:bd21:eea7 with SMTP id 2adb3069b0e04-52ca6e9a4bemr8845385e87.66.1718704641731;
+        Tue, 18 Jun 2024 02:57:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHR09GmuA97h360mswfj4ZRjZr+Cfz9q2tgOxitakWoOPfHa/LPgqv0uUKMzXBacQAhJWUUJg==
+X-Received: by 2002:ac2:58e5:0:b0:52b:bd21:eea7 with SMTP id 2adb3069b0e04-52ca6e9a4bemr8845372e87.66.1718704641251;
+        Tue, 18 Jun 2024 02:57:21 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c705:1400:78ba:c2d2:22a1:8858? (p200300cbc705140078bac2d222a18858.dip0.t-ipconnect.de. [2003:cb:c705:1400:78ba:c2d2:22a1:8858])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-422f641a6c1sm184681675e9.40.2024.06.18.02.57.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Jun 2024 02:57:20 -0700 (PDT)
+Message-ID: <75ee1ec6-12b0-461e-9dab-6fb6d5cc235f@redhat.com>
+Date: Tue, 18 Jun 2024 11:57:19 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240613153924.961511-1-iii@linux.ibm.com> <20240613153924.961511-33-iii@linux.ibm.com>
- <CAG_fn=X6wHfmGsVgdqwms_Hk1CQAZ6M5623WyatjVp=Uk-z9pQ@mail.gmail.com> <e91768f518876ec9b53ffa8069b798107434d0dd.camel@linux.ibm.com>
-In-Reply-To: <e91768f518876ec9b53ffa8069b798107434d0dd.camel@linux.ibm.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Tue, 18 Jun 2024 11:52:03 +0200
-Message-ID: <CAG_fn=XhWpLKbMO6ZHpnxQDh+PXrTxBnL9X-1zZtBj-CoVk0=g@mail.gmail.com>
-Subject: Re: [PATCH v4 32/35] s390/uaccess: Add KMSAN support to put_user()
- and get_user()
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
-	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] s390/mm: get total ram pages from memblock
+To: Wei Yang <richard.weiyang@gmail.com>, agordeev@linux.ibm.com,
+ gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+ borntraeger@linux.ibm.com, svens@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
+ Mike Rapoport <rppt@kernel.org>
+References: <20240616013537.20338-1-richard.weiyang@gmail.com>
+Content-Language: en-US
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20240616013537.20338-1-richard.weiyang@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jun 18, 2024 at 11:40=E2=80=AFAM Ilya Leoshkevich <iii@linux.ibm.co=
-m> wrote:
->
-> On Tue, 2024-06-18 at 11:24 +0200, Alexander Potapenko wrote:
-> > On Thu, Jun 13, 2024 at 5:39=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm=
-.com>
-> > wrote:
-> > >
-> > > put_user() uses inline assembly with precise constraints, so Clang
-> > > is
-> > > in principle capable of instrumenting it automatically.
-> > > Unfortunately,
-> > > one of the constraints contains a dereferenced user pointer, and
-> > > Clang
-> > > does not currently distinguish user and kernel pointers. Therefore
-> > > KMSAN attempts to access shadow for user pointers, which is not a
-> > > right
-> > > thing to do.
-> > >
-> > > An obvious fix to add __no_sanitize_memory to __put_user_fn() does
-> > > not
-> > > work, since it's __always_inline. And __always_inline cannot be
-> > > removed
-> > > due to the __put_user_bad() trick.
-> > >
-> > > A different obvious fix of using the "a" instead of the "+Q"
-> > > constraint
-> > > degrades the code quality, which is very important here, since it's
-> > > a
-> > > hot path.
-> > >
-> > > Instead, repurpose the __put_user_asm() macro to define
-> > > __put_user_{char,short,int,long}_noinstr() functions and mark them
-> > > with
-> > > __no_sanitize_memory. For the non-KMSAN builds make them
-> > > __always_inline in order to keep the generated code quality. Also
-> > > define __put_user_{char,short,int,long}() functions, which call the
-> > > aforementioned ones and which *are* instrumented, because they call
-> > > KMSAN hooks, which may be implemented as macros.
-> >
-> > I am not really familiar with s390 assembly, but I think you still
-> > need to call kmsan_copy_to_user() and kmsan_copy_from_user() to
-> > properly initialize the copied data and report infoleaks.
-> > Would it be possible to insert calls to linux/instrumented.h hooks
-> > into uaccess functions?
->
-> Aren't the existing instrument_get_user() / instrument_put_user() calls
-> sufficient?
+On 16.06.24 03:35, Wei Yang wrote:
+> On s390, zero page's size relies on total ram pages.
+> 
+> Since we plan to move the accounting into __free_pages_core(),
+> totalram_pages may not represent the total usable pages on system
+> at this point when defer_init is enabled.
+> 
+> We can get the total usable pages from memblock directly. The size maybe
+> not accurate due to the alignment, but enough for the calculation.
+> 
+> Signed-off-by: Wei Yang <richard.weiyang@gmail.com>
+> CC: Mike Rapoport (IBM) <rppt@kernel.org>
+> CC: David Hildenbrand <david@redhat.com>
+> 
+> ---
+> Not tested on a machine, hope it is fine.
+> ---
+>   arch/s390/mm/init.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+> index e769d2726f4e..d811ffa5e147 100644
+> --- a/arch/s390/mm/init.c
+> +++ b/arch/s390/mm/init.c
+> @@ -65,12 +65,13 @@ static void __init setup_zero_pages(void)
+>   	unsigned int order;
+>   	struct page *page;
+>   	int i;
+> +	unsigned long total_pages = PHYS_PFN(memblock_phys_mem_size() - memblock_reserved_size());
+>   
+>   	/* Latest machines require a mapping granularity of 512KB */
+>   	order = 7;
+>   
+>   	/* Limit number of empty zero pages for small memory sizes */
+> -	while (order > 2 && (totalram_pages() >> 10) < (1UL << order))
+> +	while (order > 2 && (total_pages >> 10) < (1UL << order))
+>   		order--;
+>   
+>   	empty_zero_page = __get_free_pages(GFP_KERNEL | __GFP_ZERO, order);
 
-Oh, sorry, I overlooked them. Yes, those should be sufficient.
-But you don't include linux/instrumented.h, do you?
+I suspect that this is good enough as an approximation for that purpose.
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+Cheers,
+
+David / dhildenb
+
