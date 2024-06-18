@@ -1,102 +1,147 @@
-Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com [209.85.128.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C771D13C697
-	for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 12:23:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 640EF15217A;
+	Tue, 18 Jun 2024 12:52:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718713408; cv=none; b=d66IHi5yznZgReMEGt8W4tgAmlThMg5BqJkn0jLtV83+nN1XEmMYGYsrKq/hjOc0t5nZ9/YclwURCLjb3X2iUGIY5BLY7K+Ct62Yp+VYy7nQMi5VrLkSUYp5cb8jKff+uwmPheKY3uvXJsw+ktACs6HVtB7o19SPaF89yO9a00M=
+	t=1718715160; cv=none; b=lnnfXb3ZLK3lVh80lqvPTc3txljEjkI69rFSMT0APz3UlWIidxEh8PoX+CGXk0uWGQ926/y7E/5EgFucWoD10MGv5oGrf/n5uVE1psTEDFDfno94UUaGU3JNDIwIh3QdiSVOGs1lphONYc8RoEL9kHv0OvG3V7M7i1omqG85YJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718713408; c=relaxed/simple;
-	bh=7r9377QHeRx4YGuRMxxudwYWoomRsoHVd1b1XjrAH4c=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ttqHvWIUDDvRaZgUdAJz82uST6yYji9XbHFi7wWCs3o8fsDbr79e3M0DS0T6xMXo7mEGnuDzz4gq/xKVpmNCXQRY5G+xI9Vk27c5u8LJM8Sz6sLm30U/y+hFEvZcqNVoO5Zs/9GT1g+RIz3mNFOOBbj/BE2AiTfCAh4xce3U++U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=oLjLXBdU; arc=none smtp.client-ip=209.85.128.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1718715160; c=relaxed/simple;
+	bh=pBn80IzhuGRdmTZVHYfLCIkKKqjBbgAETcNFsymps04=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cAe6R3mnuJenQti3rfxk7zi9uI/Og1NLfz+k7AcGt+OIBF/tENX0b2GIlu3iSFwUxBHsNiCpB3AA9HMVr4zelQEHbMUAhjEpw4nc/w+yYhZL9SdWFDaysbmsny/pt0VkCQYJtokAYXeIjbZzAQCQ7ne2m7OQ/FVCLAr+SM7A/Bs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NcF6YQZp; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="oLjLXBdU"
-Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-6383f01d1deso17350137b3.0
-        for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 05:23:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1718713406; x=1719318206; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7r9377QHeRx4YGuRMxxudwYWoomRsoHVd1b1XjrAH4c=;
-        b=oLjLXBdU73Qyz9mlpjJ51V9DXeiY4HN4EDhGZg87mJIhSS2mT3BGSHB73eqQj2LSmP
-         wPPZva3HcVqLg3GrYTTpB+VkZsOKaEHE4vNavIICp++EhkybhGPQsxCrw0p4FsyizT/r
-         mPGTl9oAeTuSiEuHC/Z6Xd7vHBCuekZFCAhljPcM4DZeGwyJe6BbTfYq/3IyKsBfeAkt
-         jDNScJDAjWSKEsguf9DFCakl3YS0E1/pg6Ig95g+scgdfab2fWMbuCRSIP32GhGLVCWt
-         4pIqCuQy6/9Wld+OGfiLK9d+N6oKGFdW9kc/GeeXdPxuuy+03n83VmZ8Q+BLV+F9xljy
-         Rjdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718713406; x=1719318206;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=7r9377QHeRx4YGuRMxxudwYWoomRsoHVd1b1XjrAH4c=;
-        b=FQnldnUmzYJc2lxqPZHglkCSzXW18/ordCduEm+0Uc3T5YWpYuHFxTOMmjzQIbSj7a
-         aTVyrh3pp9gqpUn7ZgTepFbCSxXY9jHi7hXQaN+gCgJsqR0fDmlHHpV+yghCbpBqr8tP
-         oeVC2JYLRbfkrfR7pfRhuHnA5Q0h0REUuJz5bs2B0G3iYxeZGs1K3oprDk65IXfhWzHA
-         hQGMuRKhIfZnBrBu/Mhh067hOJ2Z7Iul/4WWtvFmWUrsXpsosjh02NLkIA1813t2Dhpi
-         s4XoUDwLey/Q7hGAs/UQJpGbJ+ZxXpLBrE28JD44e1LjTLqxMI3LUW0OVoSh7Mc03gSF
-         7hMw==
-X-Forwarded-Encrypted: i=1; AJvYcCXpH8V0OctkQs/zczWz9PxpWRQyK/X45fiGDDu7ClDe36YOScNVcKchdsiyl09XzcnGoWnUwJyiy9JAyvXV3jNnJDr9p4rzWER3fA==
-X-Gm-Message-State: AOJu0YwmcZGanq2vuC2Eyy78CjSUgJqZUNTcdB2hNVmP682pqHp2HHk+
-	noMbacHZQ/wqb/QWxO068h1eiNL8E7RMvJ7ZoMQFJFlU7Kgj7lQ2wj0X1M5XiXCi8Jc6XrQTEHe
-	1GE+Z7tQU0U4C/FB8FAeMD9CDiQlAhd4yPLy3
-X-Google-Smtp-Source: AGHT+IGByXTFHMVNXIbwEPuEy6ECS8UlQ7NjRzqMyf5rOrRSa+3k76BSDfeXF6KiRmwBQfl6+NuPndA17rE7v9lMezs=
-X-Received: by 2002:a05:690c:6a09:b0:62c:f01a:17a3 with SMTP id
- 00721157ae682-63222a586e9mr136731667b3.15.1718713405543; Tue, 18 Jun 2024
- 05:23:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NcF6YQZp"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45ICj8Es011062;
+	Tue, 18 Jun 2024 12:52:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=U
+	+4m8KYIdzZvREkSj/dSgWtwYRuSrHOhhAO28kw7O94=; b=NcF6YQZpPFXgEzgJU
+	WCL7luYEdCobKKY/0NDzFQAcYizsIdBHHzz0wd2tEnBJVN/K8dHzK575CvM8Hv8N
+	7jCHY8xDFj6wcD7xQwWN+j4kDzuuyAMoi99hDEsoNbOU/A1oDTaUjrwvqPPfVvCJ
+	uDQ3APnhNFZoRTBbDbygmb2WBcW7I25FUhhAaVIfqnAH8uYg5PXQiG5SoMCm7+rX
+	Q70YDNj1kMvhc0ZFI1X5a3tV8mSY8nw+RSg9sPRbkxgpMRqyHkolhQiYAVXqNj7A
+	PyQaSrJwGAHvg+ctX9jM4pQiLA8uyTUkMX8fVx2Fv/Um2YYeE0lQVzvwoYryDYbh
+	QEvGg==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yua9p82ae-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 18 Jun 2024 12:52:34 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45IC1Yn8009433;
+	Tue, 18 Jun 2024 12:52:33 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ysqgmjukv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 18 Jun 2024 12:52:33 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45ICqRVv17891672
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 18 Jun 2024 12:52:29 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 851AA2004F;
+	Tue, 18 Jun 2024 12:52:27 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 464E22004D;
+	Tue, 18 Jun 2024 12:52:27 +0000 (GMT)
+Received: from [9.152.212.186] (unknown [9.152.212.186])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 18 Jun 2024 12:52:27 +0000 (GMT)
+Message-ID: <064eb313-2f38-479d-80bd-14777f7d3d62@linux.ibm.com>
+Date: Tue, 18 Jun 2024 14:52:26 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240613153924.961511-1-iii@linux.ibm.com> <20240613153924.961511-12-iii@linux.ibm.com>
-In-Reply-To: <20240613153924.961511-12-iii@linux.ibm.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Tue, 18 Jun 2024 14:22:44 +0200
-Message-ID: <CAG_fn=UEutgfgiE5xcFT=LXk51_PYmcCXCeNg3zSSEPYJ+tttg@mail.gmail.com>
-Subject: Re: [PATCH v4 11/35] kmsan: Allow disabling KMSAN checks for the
- current task
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
-	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] s390/cio: add missing MODULE_DESCRIPTION() macros
+Content-Language: en-US
+To: Jeff Johnson <quic_jjohnson@quicinc.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, kernel-janitors@vger.kernel.org
+References: <20240615-md-s390-drivers-s390-cio-v1-1-8fc9584e8595@quicinc.com>
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
+In-Reply-To: <20240615-md-s390-drivers-s390-cio-v1-1-8fc9584e8595@quicinc.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: NsIo8IT7sIOm_ZqKTw8PjkyJK5nEJUZs
+X-Proofpoint-GUID: NsIo8IT7sIOm_ZqKTw8PjkyJK5nEJUZs
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-18_02,2024-06-17_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
+ clxscore=1011 mlxscore=0 priorityscore=1501 mlxlogscore=999 spamscore=0
+ phishscore=0 impostorscore=0 lowpriorityscore=0 malwarescore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2405170001 definitions=main-2406180092
 
-On Thu, Jun 13, 2024 at 5:39=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.com=
-> wrote:
->
-> Like for KASAN, it's useful to temporarily disable KMSAN checks around,
-> e.g., redzone accesses. Introduce kmsan_disable_current() and
-> kmsan_enable_current(), which are similar to their KASAN counterparts.
->
-> Make them reentrant in order to handle memory allocations in interrupt
-> context. Repurpose the allow_reporting field for this.
 
-I am still a bit reluctant, because these nested counters always end
-up being inconsistent.
-But your patch series fixes support for SLUB_DEBUG, and I don't have
-better ideas how to do this.
 
-Could you please extend "Disabling the instrumentation" in kmsan.rst
-so that it explains the new enable/disable API?
-I think we should mention that the users need to be careful with it,
-keeping the regions short and preferring other ways to disable
-instrumentation, where possible.
+On 6/16/24 05:56, Jeff Johnson wrote:
+> With ARCH=s390, make allmodconfig && make W=1 C=1 reports:
+> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/s390/cio/ccwgroup.o
+> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/s390/cio/vfio_ccw.o
+> 
+> Add the missing invocations of the MODULE_DESCRIPTION() macro.
+> 
+> Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
+> ---
+>   drivers/s390/cio/ccwgroup.c     | 1 +
+>   drivers/s390/cio/vfio_ccw_drv.c | 1 +
+>   2 files changed, 2 insertions(+)
+> 
+> diff --git a/drivers/s390/cio/ccwgroup.c b/drivers/s390/cio/ccwgroup.c
+> index b72f672a7720..a741e5012fce 100644
+> --- a/drivers/s390/cio/ccwgroup.c
+> +++ b/drivers/s390/cio/ccwgroup.c
+> @@ -550,4 +550,5 @@ void ccwgroup_remove_ccwdev(struct ccw_device *cdev)
+>   	put_device(&gdev->dev);
+>   }
+>   EXPORT_SYMBOL(ccwgroup_remove_ccwdev);
+> +MODULE_DESCRIPTION("CCW group bus driver");
 
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
+the name of the bus here is "ccwgroup" bus without a space.
+Otherwise this change in ccwgroup.c looks good to me.
+Thank you for the patch.
+
+With the correction mentioned above,
+Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+
+
+>   MODULE_LICENSE("GPL");
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> index 8ad49030a7bf..49da348355b4 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -488,4 +488,5 @@ static void __exit vfio_ccw_sch_exit(void)
+>   module_init(vfio_ccw_sch_init);
+>   module_exit(vfio_ccw_sch_exit);
+>   
+> +MODULE_DESCRIPTION("VFIO based Physical Subchannel device driver");
+
+Halil/Mathew/Eric,
+Could you please comment on this ?
+
+>   MODULE_LICENSE("GPL v2");
+> 
+> ---
+> base-commit: 83a7eefedc9b56fe7bfeff13b6c7356688ffa670
+> change-id: 20240615-md-s390-drivers-s390-cio-3598abb802ad
+> 
