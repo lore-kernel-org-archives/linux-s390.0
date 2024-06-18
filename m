@@ -1,198 +1,189 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB0D213DDDF;
-	Tue, 18 Jun 2024 18:26:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 087361BF50
+	for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 19:01:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718735168; cv=none; b=kBIX+iMqPMNSv+T/R1g9Dku5iaf1DmNvePZtinyujXGB3i3bXgKdw+AVgz0n7h9m5qAEFxDfsrXSPYfF2bnEMt49Qe2da72JFyEgU9HbwNLShI9IkDJssNG0mJkp2KJPciZDBHB+VTNbansnr4Jprmz/QrFEy+J0860C9RzGkGc=
+	t=1718737268; cv=none; b=beW8PtCH8usaluBo0xUbY0djH9PvtYhqEVMtX+lv53pNIjSwU3NzTb1b9uBcxtmJdUmnXwGN6zWleANFwLiPnFamtyYT3MaOa21/2yr/EBaMGa/A9VAJlNSE0VXealgGcIvS9vb7W+fp1oyR1blaPMS9GSB2PQk36pPpjDzYcQs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718735168; c=relaxed/simple;
-	bh=eIhKmpC3djJFZ9shjBBZf16rVsZJLfZRd1LV9/wQDMI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RnalVy1l+BCv/mkh/+Co6TsrZZKwW7vdGdFJiVcVvzDaf9baSXtyMM/6LaXpfgym8L+NeuKwsJ5tlYVsQIm0HoqhuuBiGpO7UkS5AaOkmUyoABH21H15Uz/dk9rgOslKjcMtagE3rMbPMQ8DgiCRHyA7V8vkAjSFrjSP4FpdisU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 716D2C3277B;
-	Tue, 18 Jun 2024 18:26:04 +0000 (UTC)
-Date: Tue, 18 Jun 2024 19:26:02 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: Baruch Siach <baruch@tkos.co.il>
-Cc: Christoph Hellwig <hch@lst.de>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Rob Herring <robh@kernel.org>,
-	Saravana Kannan <saravanak@google.com>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	iommu@lists.linux.dev, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Petr =?utf-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>,
-	Ramon Fried <ramon@neureality.ai>,
-	Elad Nachman <enachman@marvell.com>
-Subject: Re: [PATCH RFC v2 1/5] dma-mapping: replace zone_dma_bits by
- zone_dma_limit
-Message-ID: <ZnHROk1Xs7KcR4I0@arm.com>
-References: <cover.1712642324.git.baruch@tkos.co.il>
- <fda45c91f69e65ec14b9aaec9aa053e6982e5b87.1712642324.git.baruch@tkos.co.il>
+	s=arc-20240116; t=1718737268; c=relaxed/simple;
+	bh=RZdzogOuc1kq4sjLYqFyUe9bGzfScwyKnQmviKovzjk=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=CdNswscK/TELABABP3SA644DAGPLgjHVQoj9TBToAuXQM+V3voxbDs6OjpHj4eCWlfgexrJ2uc9IGpQGlJ64jeghK/S9JuJ0SSge00LFBPHLRBN3QdUC3GFRYkfbClYWBzuSw33namZYum8cJghGADMNNpTahVyguf4j/Qhfuek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fBhxWS/o; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fBhxWS/o"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718737265;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iONNWsSJIhRiflyqzXYngvOSW75NSKM8t1pbHy6XOt8=;
+	b=fBhxWS/o/iPbCCTwunjtM1Wm9ig9d18Kjse4QtunrOJ+Z6VYQ1VnJm0QiYoSLyGzFFr1Gb
+	o/50HYrwUYwso5nXZlPhoonGKyIH7vFnNLogkl8sLh/2AQcfFSijq5bySk1WPLhDhJsTzq
+	SjT0Z+WmKuJAlcKi5vz47uWUBsvSPpE=
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
+ [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-73-Mgkhq3VrNPmqsL96tjtcbw-1; Tue, 18 Jun 2024 15:01:04 -0400
+X-MC-Unique: Mgkhq3VrNPmqsL96tjtcbw-1
+Received: by mail-io1-f71.google.com with SMTP id ca18e2360f4ac-7eb7c3b8cf8so712423539f.0
+        for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 12:01:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718737263; x=1719342063;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=iONNWsSJIhRiflyqzXYngvOSW75NSKM8t1pbHy6XOt8=;
+        b=X6UXHAARjgeBBM5i4Hk0ntpWvxVEHz9Qako/LIau+T2pRUIejGNm+bXucJjw0aLW0k
+         PyWCGbk5eHcZ7Hoco2nUdM1okHSVagPv+Jc0s5cy7p8x70foHOEtgv3LV6ACqYRRYtN3
+         /6jiitm65d4zEPAw644d08Z9z+2267F6QVaUv8dxyTZ5lg+fGmpKFQFVNJdyndWvZV17
+         RutLE9nqZYui3sPnH/4QJhUC8nhUQOCUhd7Q4wrA6vOB1ROsgyrEa78HEBLffNv7NiJ3
+         ExKK4kG6FgJMmzjbuz033EvF3HekwS1QgoK1nURfmbX67819tBekvRs31k/lh2+9wIsO
+         WVcQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV66S7KKebJZGT/8CzrxsErkhXeTcmDYEOlPPOHqQqrDJAeSqIGKWnQMNoG8F5hfJg1U2xbuG+WvgsNtOiXa/NHqsli5u4vbLY7vA==
+X-Gm-Message-State: AOJu0YxunGJiEudk1z99u8qx6ZqymY/IUTESAELX2QaKlenaJofVVqKm
+	gvgbaG9FmXbX6ZhrgQPUAiefpqYdzs+HEZRlxa0GMQzwgaI2L3JgRAYvshEL1Yn7SMaX55MnjUd
+	nTA79Vw+IvucHKTvR9sQYPLPHIeyrz4poyQKZmzobZE/L6vftqcctOh+8pCg=
+X-Received: by 2002:a05:6602:13ce:b0:7eb:8d08:e9de with SMTP id ca18e2360f4ac-7f13ee617f3mr87313839f.14.1718737263720;
+        Tue, 18 Jun 2024 12:01:03 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEt6/Yo+vizoGd9kpvkDUEN0YgXOl2lw7rJTfvjGTAnXaZt0xOJLqn58TmtgF3f7CbCJGzNrg==
+X-Received: by 2002:a05:6602:13ce:b0:7eb:8d08:e9de with SMTP id ca18e2360f4ac-7f13ee617f3mr87309739f.14.1718737263284;
+        Tue, 18 Jun 2024 12:01:03 -0700 (PDT)
+Received: from redhat.com ([38.15.36.11])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4b95693f330sm3278327173.61.2024.06.18.12.01.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jun 2024 12:01:02 -0700 (PDT)
+Date: Tue, 18 Jun 2024 13:01:00 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Gerd Bayer <gbayer@linux.ibm.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, Niklas Schnelle
+ <schnelle@linux.ibm.com>, Ramesh Thomas <ramesh.thomas@intel.com>,
+ kvm@vger.kernel.org, linux-s390@vger.kernel.org, Ankit Agrawal
+ <ankita@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>, Halil Pasic
+ <pasic@linux.ibm.com>, Ben Segal <bpsegal@us.ibm.com>, "Tian, Kevin"
+ <kevin.tian@intel.com>, Julian Ruess <julianr@linux.ibm.com>
+Subject: Re: [PATCH v5 3/3] vfio/pci: Fix typo in macro to declare accessors
+Message-ID: <20240618130100.4d7a901f.alex.williamson@redhat.com>
+In-Reply-To: <162e40498e962258e965661b7ad8457e2e97ecdf.camel@linux.ibm.com>
+References: <20240605160112.925957-1-gbayer@linux.ibm.com>
+	<20240605160112.925957-4-gbayer@linux.ibm.com>
+	<20240618112020.3e348767.alex.williamson@redhat.com>
+	<162e40498e962258e965661b7ad8457e2e97ecdf.camel@linux.ibm.com>
+X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fda45c91f69e65ec14b9aaec9aa053e6982e5b87.1712642324.git.baruch@tkos.co.il>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-(finally getting around to looking at this series, sorry for the delay)
+On Tue, 18 Jun 2024 20:04:26 +0200
+Gerd Bayer <gbayer@linux.ibm.com> wrote:
 
-On Tue, Apr 09, 2024 at 09:17:54AM +0300, Baruch Siach wrote:
-> From: Catalin Marinas <catalin.marinas@arm.com>
-> 
-> Hardware DMA limit might not be power of 2. When RAM range starts above
-> 0, say 4GB, DMA limit of 30 bits should end at 5GB. A single high bit
-> can not encode this limit.
-> 
-> Use direct phys_addr_t limit address for DMA zone limit.
-> 
-> Following commits will add explicit base address to DMA zone.
-> 
-> ---
-> Catalin,
-> 
-> This is taken almost verbatim from your email:
-> 
->   https://lore.kernel.org/all/ZZ2HnHJV3gdzu1Aj@arm.com/
-> 
-> Would you provide your sign-off?
+> On Tue, 2024-06-18 at 11:20 -0600, Alex Williamson wrote:
+> > On Wed,=C2=A0 5 Jun 2024 18:01:12 +0200
+> > Gerd Bayer <gbayer@linux.ibm.com> wrote:
+> >  =20
+> > > Correct spelling of DECLA[RA]TION =20
+> >=20
+> > But why did we also transfer the semicolon from the body of the macro
+> > to the call site?=C2=A0 This doesn't match how we handle macros for
+> > VFIO_IOWRITE, VFIO_IOREAD, or the new VFIO_IORDWR added in this
+> > series.
+> > Thanks,
+> >=20
+> > Alex =20
+>=20
+> Hi Alex,
+>=20
+> I wanted to make it visible, already in the contracted form, that
+> VFIO_IO{READ|WRITE}_DECLARATION is in fact expanding to a function
+> prototype declaration, while the marco defines in
+> drivers/vfio/pci/vfio_pci_core.c expand to function implementations.
+>=20
+> My quick searching for in-tree precedence was pretty inconclusive
+> though. So, I can revert that if you want.
 
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Hi Gerd,
 
-Thanks for writing a commit log. However, I think more work is needed.
-See below.
+I'd tend to keep them as is since both are declaring something, a
+prototype or a function, rather than a macro intended to be used
+inline.  Ideally one macro could handle both declarations now that we
+sort of have symmetry but we'd currently still need a #ifdef in the
+macro which doesn't trivially work.  If we were to do something like
+that though, relocating the semicolon doesn't make sense.
 
-> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-> index 03efd86dce0a..00508c69ca9e 100644
-> --- a/arch/arm64/mm/init.c
-> +++ b/arch/arm64/mm/init.c
-> @@ -113,36 +113,24 @@ static void __init arch_reserve_crashkernel(void)
->  				    low_size, high);
->  }
->  
-> -/*
-> - * Return the maximum physical address for a zone accessible by the given bits
-> - * limit. If DRAM starts above 32-bit, expand the zone to the maximum
-> - * available memory, otherwise cap it at 32-bit.
-> - */
-> -static phys_addr_t __init max_zone_phys(unsigned int zone_bits)
-> +static phys_addr_t __init max_zone_phys(phys_addr_t zone_limit)
->  {
-> -	phys_addr_t zone_mask = DMA_BIT_MASK(zone_bits);
-> -	phys_addr_t phys_start = memblock_start_of_DRAM();
-> -
-> -	if (phys_start > U32_MAX)
-> -		zone_mask = PHYS_ADDR_MAX;
-> -	else if (phys_start > zone_mask)
-> -		zone_mask = U32_MAX;
-> -
-> -	return min(zone_mask, memblock_end_of_DRAM() - 1) + 1;
-> +	return min(zone_limit, memblock_end_of_DRAM() - 1) + 1;
->  }
->  
->  static void __init zone_sizes_init(void)
->  {
->  	unsigned long max_zone_pfns[MAX_NR_ZONES]  = {0};
-> -	unsigned int __maybe_unused acpi_zone_dma_bits;
-> -	unsigned int __maybe_unused dt_zone_dma_bits;
-> -	phys_addr_t __maybe_unused dma32_phys_limit = max_zone_phys(32);
-> +	phys_addr_t __maybe_unused acpi_zone_dma_limit;
-> +	phys_addr_t __maybe_unused dt_zone_dma_limit;
-> +	phys_addr_t __maybe_unused dma32_phys_limit =
-> +		max_zone_phys(DMA_BIT_MASK(32));
->  
->  #ifdef CONFIG_ZONE_DMA
-> -	acpi_zone_dma_bits = fls64(acpi_iort_dma_get_max_cpu_address());
-> -	dt_zone_dma_bits = fls64(of_dma_get_max_cpu_address(NULL));
-> -	zone_dma_bits = min3(32U, dt_zone_dma_bits, acpi_zone_dma_bits);
-> -	arm64_dma_phys_limit = max_zone_phys(zone_dma_bits);
-> +	acpi_zone_dma_limit = acpi_iort_dma_get_max_cpu_address();
-> +	dt_zone_dma_limit = of_dma_get_max_cpu_address(NULL);
-> +	zone_dma_limit = min(dt_zone_dma_limit, acpi_zone_dma_limit);
-> +	arm64_dma_phys_limit = max_zone_phys(zone_dma_limit);
->  	max_zone_pfns[ZONE_DMA] = PFN_DOWN(arm64_dma_phys_limit);
->  #endif
->  #ifdef CONFIG_ZONE_DMA32
+In any case, this proposal is stated as just a typo fix, but it's more.
+Thanks,
 
-I think this goes wrong if zone_dma_limit ends up above 32-bit (e.g. no
-restrictive dma-ranges properties) but the start of RAM is below 4G.
-We'd simply reduce ZONE_DMA32 to zero and ZONE_DMA potentially covering
-the whole RAM. Prior to this change, we capped zone_dma_bits to 32 via
-min3(). I think we should maintain this cap if memblock_start_of_DRAM()
-is below 4G.
+Alex
 
-We could fix this up in max_zone_phys() above:
+> > > Suggested-by: Ramesh Thomas <ramesh.thomas@intel.com>
+> > > Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+> > > ---
+> > > =C2=A0include/linux/vfio_pci_core.h | 24 ++++++++++++------------
+> > > =C2=A01 file changed, 12 insertions(+), 12 deletions(-)
+> > >=20
+> > > diff --git a/include/linux/vfio_pci_core.h
+> > > b/include/linux/vfio_pci_core.h
+> > > index f4cf5fd2350c..fa59d40573f1 100644
+> > > --- a/include/linux/vfio_pci_core.h
+> > > +++ b/include/linux/vfio_pci_core.h
+> > > @@ -139,26 +139,26 @@ bool
+> > > vfio_pci_core_range_intersect_range(loff_t buf_start, size_t
+> > > buf_cnt,
+> > > =C2=A0					 loff_t *buf_offset,
+> > > =C2=A0					 size_t *intersect_count,
+> > > =C2=A0					 size_t *register_offset);
+> > > -#define VFIO_IOWRITE_DECLATION(size) \
+> > > +#define VFIO_IOWRITE_DECLARATION(size) \
+> > > =C2=A0int vfio_pci_core_iowrite##size(struct vfio_pci_core_device
+> > > *vdev,	\
+> > > -			bool test_mem, u##size val, void __iomem
+> > > *io);
+> > > +			bool test_mem, u##size val, void __iomem
+> > > *io)
+> > > =C2=A0
+> > > -VFIO_IOWRITE_DECLATION(8)
+> > > -VFIO_IOWRITE_DECLATION(16)
+> > > -VFIO_IOWRITE_DECLATION(32)
+> > > +VFIO_IOWRITE_DECLARATION(8);
+> > > +VFIO_IOWRITE_DECLARATION(16);
+> > > +VFIO_IOWRITE_DECLARATION(32);
+> > > =C2=A0#ifdef iowrite64
+> > > -VFIO_IOWRITE_DECLATION(64)
+> > > +VFIO_IOWRITE_DECLARATION(64);
+> > > =C2=A0#endif
+> > > =C2=A0
+> > > -#define VFIO_IOREAD_DECLATION(size) \
+> > > +#define VFIO_IOREAD_DECLARATION(size) \
+> > > =C2=A0int vfio_pci_core_ioread##size(struct vfio_pci_core_device
+> > > *vdev,	\
+> > > -			bool test_mem, u##size *val, void __iomem
+> > > *io);
+> > > +			bool test_mem, u##size *val, void __iomem
+> > > *io)
+> > > =C2=A0
+> > > -VFIO_IOREAD_DECLATION(8)
+> > > -VFIO_IOREAD_DECLATION(16)
+> > > -VFIO_IOREAD_DECLATION(32)
+> > > +VFIO_IOREAD_DECLARATION(8);
+> > > +VFIO_IOREAD_DECLARATION(16);
+> > > +VFIO_IOREAD_DECLARATION(32);
+> > > =C2=A0#ifdef ioread64
+> > > -VFIO_IOREAD_DECLATION(64)
+> > > +VFIO_IOREAD_DECLARATION(64);
+> > > =C2=A0#endif
+> > > =C2=A0
+> > > =C2=A0#endif /* VFIO_PCI_CORE_H */ =20
+> >=20
+> >  =20
+>=20
 
-	if (memblock_start_of_DRAM() < U32_MAX)
-		zone_limit = min(U32_MAX, zone_limit);
-
-	return min(zone_limit, memblock_end_of_DRAM() - 1) + 1;
-
-> diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-> index 4d543b1e9d57..3b2ebcd4f576 100644
-> --- a/kernel/dma/direct.c
-> +++ b/kernel/dma/direct.c
-> @@ -20,7 +20,7 @@
->   * it for entirely different regions. In that case the arch code needs to
->   * override the variable below for dma-direct to work properly.
->   */
-> -unsigned int zone_dma_bits __ro_after_init = 24;
-> +phys_addr_t zone_dma_limit __ro_after_init = DMA_BIT_MASK(24);
->  
->  static inline dma_addr_t phys_to_dma_direct(struct device *dev,
->  		phys_addr_t phys)
-> @@ -59,7 +59,7 @@ static gfp_t dma_direct_optimal_gfp_mask(struct device *dev, u64 *phys_limit)
->  	 * zones.
->  	 */
->  	*phys_limit = dma_to_phys(dev, dma_limit);
-> -	if (*phys_limit <= DMA_BIT_MASK(zone_dma_bits))
-> +	if (*phys_limit <= zone_dma_limit)
->  		return GFP_DMA;
->  	if (*phys_limit <= DMA_BIT_MASK(32))
->  		return GFP_DMA32;
-
-It's worth noting that if ZONE_DMA ends up entirely above 32-bit, there
-won't be any ZONE_DMA32. Thinking about it, this could be a potential
-problem. For example, if a device has a 32-bit DMA mask and an offset
-that lifts this into the 32-36G range, the above may fail to set
-GFP_DMA32.
-
-Actually, I think these checks can go wrong even with the current
-implementation, assuming RAM below 4G and no DMA offsets. For example,
-we have two devices, one with a coherent mask of 30 bits, the other 31
-bits. zone_dma_bits would be set to the smaller of the two, so 30 bit
-(as per of_dma_get_max_cpu_address()). For the second device, phys_limit
-would be ((1 << 31) - 1) but that's higher than DMA_BIT_MASK(30) so we
-fail to set GFP_DMA. We do set GFP_DMA32 because of the second test but
-that's not sufficient since that's 32-bit rather than 31-bit as the
-device needs. Similarly if we have some weird device with a 33-bit DMA
-coherent mask but the RAM is addressed by more bits. We'd fail to set
-GFP_DMA32.
-
-Ignoring this patch, I think the checks above in mainline should be
-something like:
-
-	if (*phys_limit < DMA_BIT_MASK(32))
-		return GFP_DMA;
-	if (*phys_limit < memblock_end_of_DRAM())
-		return GFP_DMA32;
-
-IOW, zone_dma_bits is pretty useless for this check IMHO. It gives us
-the minimum hence not sufficient to test for devices that fall between
-ZONE_DMA and ZONE_DMA32 coherent masks.
-
-With your series, the above test wouldn't work since we don't have a
-zone_dma32_limit and zone_dma_limit is above DMA_BIT_MASK(32). We might
-need to introduce zone_dma32_limit and maybe drop zone_dma_limit
-altogether.
-
--- 
-Catalin
