@@ -1,67 +1,67 @@
-Received: from mail-ot1-f52.google.com (mail-ot1-f52.google.com [209.85.210.52])
+Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 140D82263A
-	for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 15:36:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BED1123777
+	for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 15:36:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718724979; cv=none; b=T81lFxNkV2OJj0AL9bTqaGqCCX4+cr4Ki70TfLi5h3RK5rUK5/Mhd0LNkpzlUdcPZkhBVcIZXpXCxgnaSAKVLn/HH+OmzVrezmvu4S9B0ZppTIgHHfI0cYqFFhco8zvDKhQS9fVooe5+jvtD5O06hipSOtHBKQWWoLXq2l24238=
+	t=1718725004; cv=none; b=ZTp9DYc+YjYipJoyxvYIFwHSiLJWDn/aJMXjmFEVUjLwKl9LnJN641gf1C9VffAtrTx0EI11gmtJvOJ2JB6tW4uYtskWHV4Ba7AtzJDrb4ZphqLyLBuSvLZQ8So95lAjdFcxJHPN86QEEu4Ux2SVghq7kRmIBkTFQALKhJa/drs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718724979; c=relaxed/simple;
-	bh=5RGeJPOFaWHdjpCL2phNpFb4SArUUUeonhkd+IsWbC4=;
+	s=arc-20240116; t=1718725004; c=relaxed/simple;
+	bh=MEWdl0tqnkjxn0t/wprGhWa8mDGC5ARyeWTuu4/vhE4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=VApVp92DW72sCo3rocDppWvafTfzb1QRPlJfDnsZuRTQ+3ZQFJsTNEB2zVR7vcGGdE0inIel5RCN5NgmZtnCuSIME6AmkY8g1Q0t/U1FzqFlnDnunQwEcZPdnPr1nbVhN5kwaxFZ701GO86GWFSvWu/629NZo6ROKu9aLjZJALE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ysXS1H4f; arc=none smtp.client-ip=209.85.210.52
+	 To:Cc:Content-Type; b=TmwfGxa4ZAYpaTkgImRi2omVCxF60i9D+BT1LRUXCRiJ7C+S/l/bIpUQsXlp2bcGTDegW0sqSAdaON7UjUFCtCsjBQ29znpqbBHVI722yHxsnKJ67vwscY5NT5B2sSS4B//JLhLtSFyB5wOgsx2mk1+S17Cux8AuHcHvf7eCCmw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=DN/06F1Z; arc=none smtp.client-ip=209.85.219.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ysXS1H4f"
-Received: by mail-ot1-f52.google.com with SMTP id 46e09a7af769-6f9b4d69f53so2989861a34.0
-        for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 08:36:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="DN/06F1Z"
+Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-6b2c6291038so23071046d6.0
+        for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 08:36:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1718724977; x=1719329777; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1718725002; x=1719329802; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5RGeJPOFaWHdjpCL2phNpFb4SArUUUeonhkd+IsWbC4=;
-        b=ysXS1H4fS2mPV03Y4L/m84FKCjlkHSxi4xOu32dnqb6LzOwsyaraZoWoQH+LcpDk1H
-         cFgLindy9f2RhCTqS2qdoZsnPhxjDYvAYZAuddd4mGhwuKseFVr+T63p/7jRFd9y+8Cu
-         iq0nWFCXflnt8DFMsx1/RMCPABIQxCQpdHxEGONq+sFpQwMV16Ue7TY3DTYPNXp/mhaL
-         MO9tdYbrl+a/D/gLdejAg8ugwKJEf4tbZHMNevcmsVyEtI1oi6TnGsm6KCITtEcIjsmo
-         X9j0hF2G1+SGmpdKf/cBeoxvm0rOSp5qNU5/nl/oIjxpF4+GluSqPb5OiFNDRVFGRs8d
-         BLBA==
+        bh=MEWdl0tqnkjxn0t/wprGhWa8mDGC5ARyeWTuu4/vhE4=;
+        b=DN/06F1ZRQ1bHhrwwIStI+m2IKnS/Vzz4wwIfvP5vEwZYcFfG6tCQ3HPk5DitK1BA3
+         8CuFHMJoVg/0etfum5FpZB1ayOCHbVFsyxO5nYd/gSxejmLESAoozZdRoSMIcTUXvFfs
+         PY3QgWSS/20cISybItLx7qBlHfkmOk+kLCjPX4RuFzw4lTy/+rVN2JQgtNEdsp1gt+/T
+         gnrrgLQ8TZ/xyJdgLkcoTp74tZ+6snIaZrBLh+hkGR87tOjQpfICtrJ96g+4vp4Q2Ijq
+         WczIhBw2Isi2kbwk/RL7HeF3l8MF5QOQRU2v2gJT3CtVkVVsPnsVJHhBgDWrOE299OV/
+         YKaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718724977; x=1719329777;
+        d=1e100.net; s=20230601; t=1718725002; x=1719329802;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=5RGeJPOFaWHdjpCL2phNpFb4SArUUUeonhkd+IsWbC4=;
-        b=fig32QOcfqXshAGWqBzgYl228sFrBMBHNHKPOeDHGk0zNvYe409oVZsyoeJCeVLjns
-         VuCC9ZnazCd1fqZp63agsg4ZP9cZoUmOrTV4lEZ1nZsYttC1f8T7fGLVTvHZFwa7kKLL
-         UAYz/dTflu2AqFmB66M5X07qK0hDYZ5fpO+/qKbNaFEdHx6NPlrDdvxUFSgonDrYjN6o
-         cM8M+HyanMShmBle+sVdBxvTFdK70MVCCYjIJ3QNTZH8KKLP6K4EKs4pLbTuukZv3aZP
-         CC6XIAihZ1gCcIk0iOjnbD6PTzooCgbYkeRFzciRagskzHYvHQDMTmF/K4DQr0TXZyL8
-         98PQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWfkTFfBgpStCfZSEcbflyFohY/hgYKYlc0njLpnwNhg0ND1QbvyK/Zhy97q8wYo3cFZoQoeTzmcHjzkcWNzAyrT6+mc5BtzMCtAg==
-X-Gm-Message-State: AOJu0Yyp9Kpa0717Fs9k5Z61seK71JwZfADCIuE+zZdyg0nSjGuRxHUa
-	7C0qjUpb+E7/c6O+P2frrikP14zmERQUw8CtZokDgymhO8fBGJAUGb8wo5swgiPq+dFx6P5MbrK
-	LO+OmgTdEJkK6WYOaZ3jQot4aNC1KAKgHFzqx
-X-Google-Smtp-Source: AGHT+IEspShaRu1ToIazyKYK7a+yojtYmsB71BOjBBtI4HtP9AWTraCEUo7NTIwtb9GkxSM1Qq0A95f/tFWqAqFyrLk=
-X-Received: by 2002:a9d:6510:0:b0:6fd:6240:9dba with SMTP id
- 46e09a7af769-70074ebf134mr77156a34.16.1718724976930; Tue, 18 Jun 2024
- 08:36:16 -0700 (PDT)
+        bh=MEWdl0tqnkjxn0t/wprGhWa8mDGC5ARyeWTuu4/vhE4=;
+        b=Zv5ljkA7xxW41DQzKOUJVIjdODEnGhRE5cCXUjYPH+erTqqHnOAp4JFs4XqaXnYt3k
+         mDpGyPO0mm0HsYjMEafBFO3wNdN6EfAHSLJBXQ8u8BLC6eYaziVJIWTlFlPje0dsg7pm
+         rQef7llBS+Sffmbxu6wC74t4KjOHgJryw/CBFeYeid6sYYaQHum28bACM03gduewO1xK
+         SuKqX8BybdDLbYbNsxIUtwC98dmtFEvdJ3eyu3TzSrfSzM2W3vjvHO90OGXyuxSfE0ZQ
+         xPsleT1+PkMKlq8oOXYa0Zsub0TMy9XS22BcuukzruFw8PGSn3SLPXSrd+DfXaso09Uz
+         el6A==
+X-Forwarded-Encrypted: i=1; AJvYcCX0zp6JNR1/I6ZNWzPbGWI9Sn5PnUNzQzorHhMnl5aZ8jRy574pZi/bI4N9Dj0ThVRn5DRQeBONJ5vMVZGdKYNtyCr1zp4MRpI4gg==
+X-Gm-Message-State: AOJu0YwFwRCg93jVtkvHqczYs9Q5sdw4GozbSOX1sKfXjUXT+lmM6sFF
+	NDbh6/z7pAOXmQSOuurbxNGDwhj7YAWzkm3chP3CDUEvFx/sdw6mM4bwLlD9MjG3DDruv1wDaR7
+	0yIomylPpCDKcBPaGgisT2CacvOYi+8U0HVtJ
+X-Google-Smtp-Source: AGHT+IGgUZAgVNuWZRwjPfHOMbbpIpqWWli3o1vJH/R23c/Tl3JFwmx2EG7BwUQGM8yvFqzdXJsnNlvcCKVIpai5js0=
+X-Received: by 2002:a05:6214:e66:b0:6b0:7d88:c307 with SMTP id
+ 6a1803df08f44-6b2e249503cmr44454876d6.29.1718725001515; Tue, 18 Jun 2024
+ 08:36:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240613153924.961511-1-iii@linux.ibm.com> <20240613153924.961511-10-iii@linux.ibm.com>
-In-Reply-To: <20240613153924.961511-10-iii@linux.ibm.com>
+References: <20240613153924.961511-1-iii@linux.ibm.com> <20240613153924.961511-36-iii@linux.ibm.com>
+In-Reply-To: <20240613153924.961511-36-iii@linux.ibm.com>
 From: Alexander Potapenko <glider@google.com>
-Date: Tue, 18 Jun 2024 17:35:36 +0200
-Message-ID: <CAG_fn=VT5u6fn6eaqzdB4bDZ+aw0kKBta7_Ff2Thn813RG6EVQ@mail.gmail.com>
-Subject: Re: [PATCH v4 09/35] kmsan: Expose kmsan_get_metadata()
+Date: Tue, 18 Jun 2024 17:36:05 +0200
+Message-ID: <CAG_fn=XczonMkhozFo9YT0pJhPPzfjiAMKmHvVBb9QJ6_mcspg@mail.gmail.com>
+Subject: Re: [PATCH v4 35/35] kmsan: Enable on s390
 To: Ilya Leoshkevich <iii@linux.ibm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
 	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
@@ -76,19 +76,11 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-founda
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 13, 2024 at 5:39=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.com=
+On Thu, Jun 13, 2024 at 5:40=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.com=
 > wrote:
 >
-> Each s390 CPU has lowcore pages associated with it. Each CPU sees its
-> own lowcore at virtual address 0 through a hardware mechanism called
-> prefixing. Additionally, all lowcores are mapped to non-0 virtual
-> addresses stored in the lowcore_ptr[] array.
+> Now that everything else is in place, enable KMSAN in Kconfig.
 >
-> When lowcore is accessed through virtual address 0, one needs to
-> resolve metadata for lowcore_ptr[raw_smp_processor_id()].
->
-> Expose kmsan_get_metadata() to make it possible to do this from the
-> arch code.
->
+> Acked-by: Heiko Carstens <hca@linux.ibm.com>
 > Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 Reviewed-by: Alexander Potapenko <glider@google.com>
