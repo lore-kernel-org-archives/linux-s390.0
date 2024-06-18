@@ -1,146 +1,191 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B19C22626
-	for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 17:20:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C67D13C8E5;
+	Tue, 18 Jun 2024 18:04:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718731232; cv=none; b=s8QnQwYT8GLZBDiLpolMMIWgcwV/cWE1YBO0n6/xJVwG4oPcXgFVurewv68UvBjgfnX1QaWZuJaCFrmvq/sj1s/Y1ZSKh4q+qCWCnJelFC885DUoMHv5/YSKzk+2jG9cWRzlVwXrn3uFeIeM6Orvgt2bM3JXjxSfyXLJrWAcntA=
+	t=1718733881; cv=none; b=QhxqY/eDv8EFsanrBmldcD3/rvH0PvfANCVKIygXPZJ/FLRDF12j3k3jfJi935zS7hRJwPI2ysK3+sQGxcO8rpVqJ7B+l8eATPAUcyuv0pkDobkJZaY+dDBwrdjgyjlc/BgeteV+RsoT3Cbf34jF9TTqs+uB4DAm6Z/VQX5bzvs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718731232; c=relaxed/simple;
-	bh=INqmVCBc8HU0+P42MTmf0zgLb2AXGhOwm1WL9RDPipU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ut3hnGBZQrrul74CG55/mIOG9+GaZ3B05Xzu7uV9D9VN75fSU09cHBpYNdCIzNPCS7uN50bfZExPAzLdlEJPoqp9YJmKXcuGpiCP5ES/wreHI8wUGFZjbXXTtp4rExnOPM+OWuOWwkaIj0eZoq0VJ36IpNi0vKcfjQd1092iu9E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UWtnzZAw; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1718733881; c=relaxed/simple;
+	bh=6DtmDRdJJAKZ7z/5L3K6xC8B1EsWEZGDn9BRDODin3A=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Yjh/EyrorsCyOMSamRzfbVd2Hc4KxnkavTFaSDPQV1f13YP1q+47uwdTbXEHjRNvwtW+cKMsR+/kjoUWwzpEGAfO4+09mqCqBVLj+8ja3qCaKCEaHqPHIaCEgmbU3NB7v0lZZFjqMl8VHrvNCEbDVXZcYepNefpGAUmTvu0fSrQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=T/1Nj2pS; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UWtnzZAw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718731228;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fwt23sAZ2WeiBvroMNMzIKHNDpn7DovDgGAmHCl/TIA=;
-	b=UWtnzZAwrsYRDRafxxNHHx9A0oWy9wXU8P9h/gMNyYGcx8EB3zg8UPWqiIRPJ0Zlyx1k9A
-	/bfABimpdbH0lmzx9ShhHfbXqu8Q2fybyf5ucS/hCe8IVKvN5VdjMompB8BZL1wGaTowtl
-	KBrKE0R51GcSTSDXpveouZ1D3rmtdm0=
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
- [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-63-7qyFqUlROz6ClB-_1Nk-Tg-1; Tue, 18 Jun 2024 13:20:23 -0400
-X-MC-Unique: 7qyFqUlROz6ClB-_1Nk-Tg-1
-Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-7e20341b122so658010339f.1
-        for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2024 10:20:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718731223; x=1719336023;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=fwt23sAZ2WeiBvroMNMzIKHNDpn7DovDgGAmHCl/TIA=;
-        b=mB9+FSTywI0uK3ScUGWtSbZLSFpyNZXMIc1pDPjm4FojMHgO3AeR+MF9Hz+b/PBYg/
-         m8cnyG9hnQV32ky//gV9Ywt5ByaURFFb8qIR2glB7FIHMwFofIOuItanjQ+H8zHJoqlQ
-         xFuz2PaOqkvFCEPqmIgq1c3coGgCXCH+HOiLZSwiUoq1VJVZAW6zXi0wnj99buKgS3Vp
-         db6wfYmk/owYiXpm9bz9BMZ61eBhpRkPTZhZR0MpVhNvNADd2JtpnNdjFDKPEGyq0BB4
-         vBV69N3b8ACbwi2z1MtA6rQZs+bBRUIvrkUa6bl2Ao7vZtMPE5AND1EQi7R32mNCHhsH
-         lAig==
-X-Forwarded-Encrypted: i=1; AJvYcCU/kDQIPQUZsC/5QsX12K+drDt+6BByBQBaByInvyidM53dCdvNcsswyjzr3TsjYc5Gox+6AntBGWmPy+bTHS2hxhYweeKGRIXxLQ==
-X-Gm-Message-State: AOJu0YydU2mAjInUX6px70Rf0VMVIKdsZAYHstKy3kID8T69NruxF/tr
-	maZYdwgBW/ndSjxtOoLavmCJmy5HXNf3Uy244tV2LcYJbowyn2kkJt/gelNg/6H289k8AAfpZtQ
-	UV+xmCgmd9ZqwQ3QwhirKZ1ggNymeUJqfZXNyX3IPC1A5wHXrlSnihd5OaO0=
-X-Received: by 2002:a05:6602:6405:b0:7eb:7887:a4a9 with SMTP id ca18e2360f4ac-7f13edb2716mr63374239f.4.1718731223059;
-        Tue, 18 Jun 2024 10:20:23 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGzXJQLdgF3B6icXL7Ah1nqLxdQK0SBjMksmtymW9ngK1rCZftPEsBb6BNRnVSGHJrEDcSKvg==
-X-Received: by 2002:a05:6602:6405:b0:7eb:7887:a4a9 with SMTP id ca18e2360f4ac-7f13edb2716mr63372139f.4.1718731222724;
-        Tue, 18 Jun 2024 10:20:22 -0700 (PDT)
-Received: from redhat.com ([38.15.36.11])
-        by smtp.gmail.com with ESMTPSA id ca18e2360f4ac-7ebdba66726sm277082139f.27.2024.06.18.10.20.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jun 2024 10:20:22 -0700 (PDT)
-Date: Tue, 18 Jun 2024 11:20:20 -0600
-From: Alex Williamson <alex.williamson@redhat.com>
-To: Gerd Bayer <gbayer@linux.ibm.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>, Niklas Schnelle
- <schnelle@linux.ibm.com>, Ramesh Thomas <ramesh.thomas@intel.com>,
- kvm@vger.kernel.org, linux-s390@vger.kernel.org, Ankit Agrawal
- <ankita@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>, Halil Pasic
- <pasic@linux.ibm.com>, Ben Segal <bpsegal@us.ibm.com>, "Tian, Kevin"
- <kevin.tian@intel.com>, Julian Ruess <julianr@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="T/1Nj2pS"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45IHwf29005552;
+	Tue, 18 Jun 2024 18:04:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
+	qMxKKiK4D97uKRPteZPJ9ZrNdcxX0wgRivB63XFzTDc=; b=T/1Nj2pSnH1vKIRD
+	2344/ZyJxb0QjYyQDyD4uxvQP8mHvDYyvoVRgj1QjnJXZHxhAQtKEd2fwwO4hsYB
+	+aHT/9oMRhgfNIPlSmKziJQdP6aMpiL26XZ6zidnrVYaGsq5lLwcxDuMztvgqQWA
+	rl70Ag64krRiuxFcClvXlgCDLU7mvo84TTHoG+5Jcch3p/9dWr02rgemqqFrGQPc
+	qgNT5DOxNcmMIrHRsw5Wqm1lYXtNKwKG+W9AZyA+sD9ylYjMZhm8rdekzEkSd2Zj
+	RO4V2v6ouPq00qEpfCGhiINb7vnfRSSqqrbox/hdvXABNYro169hXfukZ4fhTJoM
+	n3pzQA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yuf3tg0b8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 18 Jun 2024 18:04:34 +0000 (GMT)
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45II4XOv014012;
+	Tue, 18 Jun 2024 18:04:33 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yuf3tg0b5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 18 Jun 2024 18:04:33 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45II0off006226;
+	Tue, 18 Jun 2024 18:04:32 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ysn9unyd8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 18 Jun 2024 18:04:32 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45II4RFM48235006
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 18 Jun 2024 18:04:29 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 02E7220067;
+	Tue, 18 Jun 2024 18:04:27 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6660C20065;
+	Tue, 18 Jun 2024 18:04:26 +0000 (GMT)
+Received: from [9.171.6.168] (unknown [9.171.6.168])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 18 Jun 2024 18:04:26 +0000 (GMT)
+Message-ID: <162e40498e962258e965661b7ad8457e2e97ecdf.camel@linux.ibm.com>
 Subject: Re: [PATCH v5 3/3] vfio/pci: Fix typo in macro to declare accessors
-Message-ID: <20240618112020.3e348767.alex.williamson@redhat.com>
-In-Reply-To: <20240605160112.925957-4-gbayer@linux.ibm.com>
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, Niklas Schnelle
+ <schnelle@linux.ibm.com>,
+        Ramesh Thomas <ramesh.thomas@intel.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Ankit Agrawal
+ <ankita@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>, Halil Pasic
+ <pasic@linux.ibm.com>,
+        Ben Segal <bpsegal@us.ibm.com>, "Tian, Kevin"
+ <kevin.tian@intel.com>,
+        Julian Ruess <julianr@linux.ibm.com>
+Date: Tue, 18 Jun 2024 20:04:26 +0200
+In-Reply-To: <20240618112020.3e348767.alex.williamson@redhat.com>
 References: <20240605160112.925957-1-gbayer@linux.ibm.com>
-	<20240605160112.925957-4-gbayer@linux.ibm.com>
-X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-redhat-linux-gnu)
+	 <20240605160112.925957-4-gbayer@linux.ibm.com>
+	 <20240618112020.3e348767.alex.williamson@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.1 (3.52.1-1.fc40app1) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 816-ZCxtuN947kSqu0VSBLjCBzJMbgUO
+X-Proofpoint-ORIG-GUID: KGu-WaRAEZzW0Bvp22JeF8-GJLtcN5FN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-18_02,2024-06-17_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ clxscore=1011 lowpriorityscore=0 priorityscore=1501 mlxscore=0
+ adultscore=0 suspectscore=0 bulkscore=0 impostorscore=0 mlxlogscore=999
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2405170001 definitions=main-2406180132
 
-On Wed,  5 Jun 2024 18:01:12 +0200
-Gerd Bayer <gbayer@linux.ibm.com> wrote:
+On Tue, 2024-06-18 at 11:20 -0600, Alex Williamson wrote:
+> On Wed,=C2=A0 5 Jun 2024 18:01:12 +0200
+> Gerd Bayer <gbayer@linux.ibm.com> wrote:
+>=20
+> > Correct spelling of DECLA[RA]TION
+>=20
+> But why did we also transfer the semicolon from the body of the macro
+> to the call site?=C2=A0 This doesn't match how we handle macros for
+> VFIO_IOWRITE, VFIO_IOREAD, or the new VFIO_IORDWR added in this
+> series.
+> Thanks,
+>=20
+> Alex
 
-> Correct spelling of DECLA[RA]TION
+Hi Alex,
 
-But why did we also transfer the semicolon from the body of the macro
-to the call site?  This doesn't match how we handle macros for
-VFIO_IOWRITE, VFIO_IOREAD, or the new VFIO_IORDWR added in this series.
-Thanks,
+I wanted to make it visible, already in the contracted form, that
+VFIO_IO{READ|WRITE}_DECLARATION is in fact expanding to a function
+prototype declaration, while the marco defines in
+drivers/vfio/pci/vfio_pci_core.c expand to function implementations.
 
-Alex
+My quick searching for in-tree precedence was pretty inconclusive
+though. So, I can revert that if you want.
 
-> Suggested-by: Ramesh Thomas <ramesh.thomas@intel.com>
-> Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
-> ---
->  include/linux/vfio_pci_core.h | 24 ++++++++++++------------
->  1 file changed, 12 insertions(+), 12 deletions(-)
-> 
-> diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-> index f4cf5fd2350c..fa59d40573f1 100644
-> --- a/include/linux/vfio_pci_core.h
-> +++ b/include/linux/vfio_pci_core.h
-> @@ -139,26 +139,26 @@ bool vfio_pci_core_range_intersect_range(loff_t buf_start, size_t buf_cnt,
->  					 loff_t *buf_offset,
->  					 size_t *intersect_count,
->  					 size_t *register_offset);
-> -#define VFIO_IOWRITE_DECLATION(size) \
-> +#define VFIO_IOWRITE_DECLARATION(size) \
->  int vfio_pci_core_iowrite##size(struct vfio_pci_core_device *vdev,	\
-> -			bool test_mem, u##size val, void __iomem *io);
-> +			bool test_mem, u##size val, void __iomem *io)
->  
-> -VFIO_IOWRITE_DECLATION(8)
-> -VFIO_IOWRITE_DECLATION(16)
-> -VFIO_IOWRITE_DECLATION(32)
-> +VFIO_IOWRITE_DECLARATION(8);
-> +VFIO_IOWRITE_DECLARATION(16);
-> +VFIO_IOWRITE_DECLARATION(32);
->  #ifdef iowrite64
-> -VFIO_IOWRITE_DECLATION(64)
-> +VFIO_IOWRITE_DECLARATION(64);
->  #endif
->  
-> -#define VFIO_IOREAD_DECLATION(size) \
-> +#define VFIO_IOREAD_DECLARATION(size) \
->  int vfio_pci_core_ioread##size(struct vfio_pci_core_device *vdev,	\
-> -			bool test_mem, u##size *val, void __iomem *io);
-> +			bool test_mem, u##size *val, void __iomem *io)
->  
-> -VFIO_IOREAD_DECLATION(8)
-> -VFIO_IOREAD_DECLATION(16)
-> -VFIO_IOREAD_DECLATION(32)
-> +VFIO_IOREAD_DECLARATION(8);
-> +VFIO_IOREAD_DECLARATION(16);
-> +VFIO_IOREAD_DECLARATION(32);
->  #ifdef ioread64
-> -VFIO_IOREAD_DECLATION(64)
-> +VFIO_IOREAD_DECLARATION(64);
->  #endif
->  
->  #endif /* VFIO_PCI_CORE_H */
+Thank you,
+Gerd
+
+
+> > Suggested-by: Ramesh Thomas <ramesh.thomas@intel.com>
+> > Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+> > ---
+> > =C2=A0include/linux/vfio_pci_core.h | 24 ++++++++++++------------
+> > =C2=A01 file changed, 12 insertions(+), 12 deletions(-)
+> >=20
+> > diff --git a/include/linux/vfio_pci_core.h
+> > b/include/linux/vfio_pci_core.h
+> > index f4cf5fd2350c..fa59d40573f1 100644
+> > --- a/include/linux/vfio_pci_core.h
+> > +++ b/include/linux/vfio_pci_core.h
+> > @@ -139,26 +139,26 @@ bool
+> > vfio_pci_core_range_intersect_range(loff_t buf_start, size_t
+> > buf_cnt,
+> > =C2=A0					 loff_t *buf_offset,
+> > =C2=A0					 size_t *intersect_count,
+> > =C2=A0					 size_t *register_offset);
+> > -#define VFIO_IOWRITE_DECLATION(size) \
+> > +#define VFIO_IOWRITE_DECLARATION(size) \
+> > =C2=A0int vfio_pci_core_iowrite##size(struct vfio_pci_core_device
+> > *vdev,	\
+> > -			bool test_mem, u##size val, void __iomem
+> > *io);
+> > +			bool test_mem, u##size val, void __iomem
+> > *io)
+> > =C2=A0
+> > -VFIO_IOWRITE_DECLATION(8)
+> > -VFIO_IOWRITE_DECLATION(16)
+> > -VFIO_IOWRITE_DECLATION(32)
+> > +VFIO_IOWRITE_DECLARATION(8);
+> > +VFIO_IOWRITE_DECLARATION(16);
+> > +VFIO_IOWRITE_DECLARATION(32);
+> > =C2=A0#ifdef iowrite64
+> > -VFIO_IOWRITE_DECLATION(64)
+> > +VFIO_IOWRITE_DECLARATION(64);
+> > =C2=A0#endif
+> > =C2=A0
+> > -#define VFIO_IOREAD_DECLATION(size) \
+> > +#define VFIO_IOREAD_DECLARATION(size) \
+> > =C2=A0int vfio_pci_core_ioread##size(struct vfio_pci_core_device
+> > *vdev,	\
+> > -			bool test_mem, u##size *val, void __iomem
+> > *io);
+> > +			bool test_mem, u##size *val, void __iomem
+> > *io)
+> > =C2=A0
+> > -VFIO_IOREAD_DECLATION(8)
+> > -VFIO_IOREAD_DECLATION(16)
+> > -VFIO_IOREAD_DECLATION(32)
+> > +VFIO_IOREAD_DECLARATION(8);
+> > +VFIO_IOREAD_DECLARATION(16);
+> > +VFIO_IOREAD_DECLARATION(32);
+> > =C2=A0#ifdef ioread64
+> > -VFIO_IOREAD_DECLATION(64)
+> > +VFIO_IOREAD_DECLARATION(64);
+> > =C2=A0#endif
+> > =C2=A0
+> > =C2=A0#endif /* VFIO_PCI_CORE_H */
+>=20
+>=20
 
