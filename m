@@ -1,144 +1,166 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6B34D26A;
-	Wed, 19 Jun 2024 14:00:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26712168C7
+	for <linux-s390@vger.kernel.org>; Wed, 19 Jun 2024 14:18:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718805629; cv=none; b=LT0BP/3giZNOwWvlxHmM1Dlti6eG4qomDkBT4+0znLOuuOHac51Z7F7mXiHN9HY4xEB1Tmy41RSOBkEY+ltVtR1KuPtc54OT9y4uyphuZtK7safOvcJxtSblrx96neWMvWTtJ7ejEIPyJlVFeFa2HWK12yMpPVs1wo+aSFc0UW0=
+	t=1718806726; cv=none; b=iKssjEy42Wudg0Zxt+1KHWY36KpmPtYUpGXXlO3pX04UAgGHZt55Zf8Raurxl5uUOlddWedjOAR9T9bsbKnE6HWjczRsJoBF47sUjSmqPKSw9Hr8lZPyt0XjoX8j7Z/qmIBSFV2l9NTPTBPKoPhhr97DwofEqZgd9aurrfDJULw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718805629; c=relaxed/simple;
-	bh=k3gSboAJc+MvETXcfhdx81BB8B2hrN6M6hXGZXPOdq0=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=EsIuSD4OEoPC8FiRo+11o2Sx2fZwKAB5iyQseSakbCIAk+s+j00tSfFP92vCQ8UUaoEqFOH8LBLRutD6TU19syKAcIruQAMT7gEuSNcuhfiQOE+OPxB3T4dObK2OuxK+0U5HYI0MzNby3MbQn1TNnThMG3NkkJfUiZ3CpnYClIM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=S9Nd1see; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1718806726; c=relaxed/simple;
+	bh=QWK4q+Z6QaRcjKIsA7MnW3f/QFVZHOJVpMu7UnF/4Ms=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=uF8v/owilms/fHcTKvagqzprtRFIWk1XUSMpwT+SKIZhAt6bSpfKfMxnUJ2YxxgST+PrK2NNio3H/hTYqThiHyjzguf6ezKrnlpNVg/7aI2bA0JRSAQdW1Kb8RZ2YgCXJWW792o+Df4wrBtPrrvMYTk+J0PcM80SE36V/A+pKrw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=YYKvsL3V; arc=none smtp.client-ip=209.85.215.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="S9Nd1see"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45JDR102003196;
-	Wed, 19 Jun 2024 14:00:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:subject:from:to:cc:date:in-reply-to:references
-	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
-	k3gSboAJc+MvETXcfhdx81BB8B2hrN6M6hXGZXPOdq0=; b=S9Nd1seeM2taZwhn
-	3Go0MPxv9KF29c3xx+SsDcbtZlLa8/ddvAX1ckUKXEnp7prf8VbtZK3wmMOWAEuK
-	XE4TRDXdtNu/f2aebtfk8NcL1hUsc5wEfrM9KKDk2yoHC0aJdubXBjU4sDZP0sF9
-	zCeHWOwwwzdpQ8VgmdoXmp9JRCS0HvjD6TT94VB1Kclw2Subfjw2MghuuWCxysvr
-	T207gexiGQNz1aoV1iAaOs6EFqNR3OOlLsdtz1wYhfU0VjmZ6pXrUi/YCFgT/W20
-	J/HUD3yWjhw7Nz7C8WY3q6We7IScQAsw+ozQtmDoA0JWozJanbfSQymMB3udcqe0
-	KM0KWg==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yux3fgfma-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Jun 2024 14:00:24 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45JCAgh6023990;
-	Wed, 19 Jun 2024 14:00:22 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ysp9qd1w7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Jun 2024 14:00:22 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45JE0IlJ11666108
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Jun 2024 14:00:20 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 53B0058069;
-	Wed, 19 Jun 2024 14:00:16 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 569F95808E;
-	Wed, 19 Jun 2024 14:00:15 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.159.49])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 19 Jun 2024 14:00:15 +0000 (GMT)
-Message-ID: <8ae9b1bef0e8ef4689873911c8ae5c9a921401a9.camel@linux.ibm.com>
-Subject: Re: [PATCH] s390/cio: add missing MODULE_DESCRIPTION() macros
-From: Eric Farman <farman@linux.ibm.com>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Jeff Johnson
- <quic_jjohnson@quicinc.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Matthew
- Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        kernel-janitors@vger.kernel.org
-Date: Wed, 19 Jun 2024 10:00:14 -0400
-In-Reply-To: <20240619123255.4b1a6c6d.pasic@linux.ibm.com>
-References: 
-	<20240615-md-s390-drivers-s390-cio-v1-1-8fc9584e8595@quicinc.com>
-	 <064eb313-2f38-479d-80bd-14777f7d3d62@linux.ibm.com>
-	 <afdde0842680698276df0856dd8b896dac692b56.camel@linux.ibm.com>
-	 <20240619123255.4b1a6c6d.pasic@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.2 (3.52.2-1.fc40) 
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="YYKvsL3V"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-6e3341c8767so200246a12.0
+        for <linux-s390@vger.kernel.org>; Wed, 19 Jun 2024 07:18:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1718806723; x=1719411523; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=kVFpcyqMw7891fhn8oME2l6O88u8sGFZorCmmUmii2A=;
+        b=YYKvsL3V7pFte5XJ+EgV6Rr/aZQKDUNVDjBzLYhcJOZY9sv3lahrntnmepmQ1N/nsE
+         kMvwP/e87x23xbRXg6l611pPSUDb2onpuOWYkCGXQ7NtaDqq+YOGOFD9XiZ/ZRQO9DOx
+         VeocFfIQ61zRcVGgIKpqe/Ckdbsx8HxTk8Wv/LvgIGUL8Crkdh+orFTuksw6ceLd6pfe
+         TWIAkqwCz7ablOCKmpnwXK+s/k/1CLq7D1GOR3TlJJf2xBv0cqZ6g13XMZC/QjAJb0yp
+         /szfdrT8dBU/XeRzCN7VaBOzWf6+41YxO2boQ0vuoJRNJwD8pEbOK0DUgLebnjyEr3rQ
+         tvrw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718806723; x=1719411523;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kVFpcyqMw7891fhn8oME2l6O88u8sGFZorCmmUmii2A=;
+        b=xHe10mIJpA3oONZjYZgouDB7gTPwHEmAHu2ORMlEC3auiEC8yLD/Q94XO4RVEPaMBH
+         2smaypmm3KVrHtHDHUnCHOjCCx3o1bBlhVb7uoux598xWDREYmuQoxDNN6Rngj0ORqLM
+         MrixQN90gHzC2HZ9XAmPfxZQmWpKjhtThPzyGxuph1FBR9SiDNAXyOChKLbDWwoF+ej7
+         qdfeh9BAjJhgjVznh8Tse5BmaxgqVX1n6RzvInqWxj8fAgv7/TdrNFmikubmRfhh4LE7
+         yohtsJrHCX9vOg7u2XsvFHHacrzd2YUD1Ga557GRCb6oC/V937X9l5WJXwGfKcwIJod2
+         5pgg==
+X-Forwarded-Encrypted: i=1; AJvYcCU9sJjMY/JoQji5MIlBsie7o0Y6eeTaDN63BFjifVY+WP6XftBerCozHYjYnuGby1sbZa1bqCmvPdSG+562bRKAJYfkp1mDft3Ntw==
+X-Gm-Message-State: AOJu0Yyfsp839UkHAZ2lTPyjTbNOnyqGdHrzLtRYx3osMf8243BbTZWF
+	ckxuZQdByFON2Tg79LAdwu5UcVgiOECv+rmaNvl10a1V16ONQJk6alX7pagOU2Y=
+X-Google-Smtp-Source: AGHT+IEWR0naxsjqG6PjL5n5tEp1Ci8rJdxP3J1CbAApgRxLYFkmM+R0aL8qHW5Lv8+tjuuvrYAkhg==
+X-Received: by 2002:a05:6a20:3ca0:b0:1b6:fadd:8862 with SMTP id adf61e73a8af0-1bcbb8ce3e2mr2590711637.6.1718806723107;
+        Wed, 19 Jun 2024 07:18:43 -0700 (PDT)
+Received: from [127.0.0.1] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-705ccb3d2e8sm10689218b3a.107.2024.06.19.07.18.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Jun 2024 07:18:42 -0700 (PDT)
+From: Jens Axboe <axboe@kernel.dk>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, 
+ Richard Weinberger <richard@nod.at>, 
+ Philipp Reisner <philipp.reisner@linbit.com>, 
+ Lars Ellenberg <lars.ellenberg@linbit.com>, 
+ =?utf-8?q?Christoph_B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>, 
+ Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ =?utf-8?q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>, 
+ Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>, 
+ Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>, 
+ Yu Kuai <yukuai3@huawei.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, 
+ "Martin K. Petersen" <martin.petersen@oracle.com>, 
+ linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org, 
+ drbd-dev@lists.linbit.com, nbd@other.debian.org, 
+ linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org, 
+ virtualization@lists.linux.dev, xen-devel@lists.xenproject.org, 
+ linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev, 
+ linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org, 
+ linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev, 
+ linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org, 
+ linux-scsi@vger.kernel.org, linux-block@vger.kernel.org
+In-Reply-To: <20240617060532.127975-1-hch@lst.de>
+References: <20240617060532.127975-1-hch@lst.de>
+Subject: Re: move features flags into queue_limits v2
+Message-Id: <171880672048.115609.5962725096227627176.b4-ty@kernel.dk>
+Date: Wed, 19 Jun 2024 08:18:40 -0600
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3U6wkBpOZZvOXgSq-0KAzS0OtU9mEOAY
-X-Proofpoint-GUID: 3U6wkBpOZZvOXgSq-0KAzS0OtU9mEOAY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-19_02,2024-06-19_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- bulkscore=0 clxscore=1015 phishscore=0 mlxlogscore=943 spamscore=0
- mlxscore=0 malwarescore=0 suspectscore=0 adultscore=0 impostorscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2405170001 definitions=main-2406190104
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.14.0
 
-On Wed, 2024-06-19 at 12:32 +0200, Halil Pasic wrote:
-> On Tue, 18 Jun 2024 16:11:33 -0400
-> Eric Farman <farman@linux.ibm.com> wrote:
->=20
-> > > > +MODULE_DESCRIPTION("VFIO based Physical Subchannel device
-> > > > driver");=C2=A0=20
-> > >=20
-> > > Halil/Mathew/Eric,
-> > > Could you please comment on this ?=C2=A0=20
-> >=20
-> > That's what is in the prologue, and is fine.
->=20
-> Eric can you explain it to me why is the attribute "physical"
-> appropriate
-> here? I did a quick grep for "Physical Subchannel" only turned up
-> hits
-> in vfio-ccw.
 
-One hit, in the prologue comment of this module. "Physical device" adds
-three to the tally, but only one of those is in vfio-ccw so we should
-expand your query regarding "physical" vs "emulated" vs "virtual" in
-the context of, say, tape devices.
+On Mon, 17 Jun 2024 08:04:27 +0200, Christoph Hellwig wrote:
+> this is the third and last major series to convert settings to
+> queue_limits for this merge window.  After a bunch of prep patches to
+> get various drivers in shape, it moves all the queue_flags that specify
+> driver controlled features into the queue limits so that they can be
+> set atomically and are separated from the blk-mq internal flags.
+> 
+> Note that I've only Cc'ed the maintainers for drivers with non-mechanical
+> changes as the Cc list is already huge.
+> 
+> [...]
 
->=20
-> My best guess is that "physical" was somehow intended to mean the
-> opposite of "virtual". But actually it does not matter if our
-> underlying
-> subchannel is emulated or not, at least AFAIU.
+Applied, thanks!
 
-I also believe this was intended to mean "not virtual," regardless of
-whether there's emulation taking place underneath. That point is moot
-since I don't see that information being surfaced, such that the driver
-can only work with "physical" subchannels.
+[01/26] xen-blkfront: don't disable cache flushes when they fail
+        commit: dd9300e9eaeeb212f77ffeb72d1d8756107f1f1f
+[02/26] sd: remove sd_is_zoned
+        commit: be60e7700e6df1e16a2f60f45bece08e6140a46d
+[03/26] sd: move zone limits setup out of sd_read_block_characteristics
+        commit: 308ad58af49d6c4c3b7a36b98972cc9db4d7b36a
+[04/26] loop: stop using loop_reconfigure_limits in __loop_clr_fd
+        commit: c9055b44abe60da69aa4ee4fdcb78ee7fe733335
+[05/26] loop: always update discard settings in loop_reconfigure_limits
+        commit: ae0d40ff49642651f969883ef9fc79d69c1632d7
+[06/26] loop: regularize upgrading the block size for direct I/O
+        commit: a17ece76bcfe7b86327b19cae1652d7c62068a30
+[07/26] loop: also use the default block size from an underlying block device
+        commit: 4ce37fe0938b02b7b947029c40b72d76a22a3882
+[08/26] loop: fold loop_update_rotational into loop_reconfigure_limits
+        commit: 97dd4a43d69b74a114be466d6887e257971adfe9
+[09/26] virtio_blk: remove virtblk_update_cache_mode
+        commit: bbe5c84122b35c37f2706872fe34da66f0854b56
+[10/26] nbd: move setting the cache control flags to __nbd_set_size
+        commit: 6b377787a306253111404325aee98005b361e59a
+[11/26] block: freeze the queue in queue_attr_store
+        commit: af2814149883e2c1851866ea2afcd8eadc040f79
+[12/26] block: remove blk_flush_policy
+        commit: 70905f8706b62113ae32c8df721384ff6ffb6c6a
+[13/26] block: move cache control settings out of queue->flags
+        commit: 1122c0c1cc71f740fa4d5f14f239194e06a1d5e7
+[14/26] block: move the nonrot flag to queue_limits
+        commit: bd4a633b6f7c3c6b6ebc1a07317643270e751a94
+[15/26] block: move the add_random flag to queue_limits
+        commit: 39a9f1c334f9f27b3b3e6d0005c10ed667268346
+[16/26] block: move the io_stat flag setting to queue_limits
+        commit: cdb2497918cc2929691408bac87b58433b45b6d3
+[17/26] block: move the stable_writes flag to queue_limits
+        commit: 1a02f3a73f8c670eddeb44bf52a75ae7f67cfc11
+[18/26] block: move the synchronous flag to queue_limits
+        commit: aadd5c59c910427c0464c217d5ed588ff14e2502
+[19/26] block: move the nowait flag to queue_limits
+        commit: f76af42f8bf13d2620084f305f01691de9238fc7
+[20/26] block: move the dax flag to queue_limits
+        commit: f467fee48da4500786e145489787b37adae317c3
+[21/26] block: move the poll flag to queue_limits
+        commit: 8023e144f9d6e35f8786937e2f0c2fea0aba6dbc
+[22/26] block: move the zoned flag into the features field
+        commit: b1fc937a55f5735b98d9dceae5bb6ba262501f56
+[23/26] block: move the zone_resetall flag to queue_limits
+        commit: a52758a39768f441e468a41da6c15a59d6d6011a
+[24/26] block: move the pci_p2pdma flag to queue_limits
+        commit: 9c1e42e3c876c66796eda23e79836a4d92613a61
+[25/26] block: move the skip_tagset_quiesce flag to queue_limits
+        commit: 8c8f5c85b20d0a7dc0ab9b2a17318130d69ceb5a
+[26/26] block: move the bounce flag into the features field
+        commit: 339d3948c07b4aa2940aeb874294a7d6782cec16
 
-I'm fine with removing it if it bothers you, but I don't see it as an
-issue.
+Best regards,
+-- 
+Jens Axboe
 
-Thanks,
-Eric
 
->=20
-> Regards,
-> Halil
 
