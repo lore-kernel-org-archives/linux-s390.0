@@ -1,64 +1,64 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E11B13212E;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E0D9132101;
 	Wed, 19 Jun 2024 11:59:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718798355; cv=none; b=UR4+OClufTqWpCoxtg3xqrij4lTH2q0PhoDcu1YaMQ4FxkYLhYrwst36m00r93mDP8BjTvQQ5yyFVJvUo4IRKZn68GMPs/lpYf3nsTzmqPswJPFRmlR/+GGTOaBfXzPKBk6hme7nP+10EmADjGaVnE5okY4kk5dRFPKR3t3iewY=
+	t=1718798356; cv=none; b=qBBDWt1zXvXp3iHeiza7BgUp5dqDlQsOPJBsbxJz5H/7STnrqz9DxW14leVjsx6+T81C9aPgCXFo89gKPeQswgmHbLdOxdjV7RjvnSlf5akbM8P/vF93cvgNUcRMkGb6YeWJxpyvff65W8ptbvLq1QdLakz4fezyRWnBwIhjVDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718798355; c=relaxed/simple;
-	bh=Tge6lc+3Uv9nGSmPICO4Y2gKi4AiqtpP5Cab+yPOd08=;
+	s=arc-20240116; t=1718798356; c=relaxed/simple;
+	bh=YyEcWVBeOGi4MYquWyDLAUKLPG8vMzvIS8Ap2qQPLTM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gXWzko0ExD0RDZTs/2y+4poXX1tix0+cogEpaa/IUr5fSK5lHs7zXLo1J/zinZLDnfUlAJulK3nU3OxvRCLtp+7eBGQJVnbyxVOlH5eXnwXWFpFUSfYWfTV78HzKhj9UtJVYGVXY3i9g2q7juu71UXF+Gq0ttjuHhM3caROs0lM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RRTJu2t0; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=HM27NsTTos/EryG0xWCV6jV6aexCKUvTMdWWIsEZXfLOARmYUcerefiOwHP6kL46j/N7XSMTamax0YINv069B/Y5tBrHLBZpgOArl+ERRAonPmkHrpsSxxJwGBMf5332m6TdR3PsGa2obVzWQFQlPy3X8i3vq9QkLztsqYsL80g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=A09O+GRM; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RRTJu2t0"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45JBQalq029498;
-	Wed, 19 Jun 2024 11:59:11 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="A09O+GRM"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45JBxAfV024043;
+	Wed, 19 Jun 2024 11:59:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
 	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=x6P7aXzxoRWeK
-	iEzojjkjPtPXR7eYYbR4fDPbFWD9lM=; b=RRTJu2t0gZRgP3z2fcauFAoglUOeR
-	MzadwYS26I933wObaaq4ET2tVw6GOQwPTnOVOTdyQZMHCbisb3U3yxT5HZ3S+7GW
-	81KeL8NcfJJjF7PaX/+5nYtxeqsg7ZL/pXVTnjL0pKP5Umo0jqTVB5+BN9pwN+9c
-	72kp5oNW4/IGBIHfIhMMmizb9T2l4WwYqRpx17eeTVG/jKak0DVxBCF2fTa00hch
-	r+NG5DTcT9zH8wLkI6IUEMmScxS4o6PsmYNeT4iPMSf7D/SL3pukgJop2+fLzBa0
-	64Bycp1XZvSs5SVcK4AH16oc8nA3hjMkL0OcrZlJ3JaETTOGbyHfqWPTA==
+	:mime-version:content-transfer-encoding; s=pp1; bh=sT04IboydSSml
+	Pnv+7Uj2w68/y1h0FfLRXqjFEVHhTM=; b=A09O+GRMlp9EmdN3lz7Y+Co5jecfA
+	GyojLc+kWzwWlxX5K/hVwe0HdU2Iz/ezxuMKpFooAglLu7BYZBF1iE6PFL0yNnvY
+	/dsztxFenAZh6+W5dYIV7Zcpg9FgkPAOtCi5T5G7+i0x20VOfV97TvWS9uP6jGsW
+	JZNvwmaiu2s0UjTqoZpqE6HiHXIJwBdTju/p78NJFjuDzeVDfzk02NCK/+3VXkCk
+	5xf9OfMNq1IsAZhhtpAS+Ef6ORqNdAyM7GbC3D1SlUVOPKDgEz/tHF+s+CUYqlDN
+	iPxDWdIS7nVkesvLIxbGaCwai94iwonTyrXwkatThsJpAOPZ1nQ8H/1/A==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yuwy0r6jv-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yuxx3801d-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 19 Jun 2024 11:59:10 +0000 (GMT)
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45JBvnl4012054;
-	Wed, 19 Jun 2024 11:59:10 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yuwy0r6jt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Jun 2024 11:59:10 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45JB5OLp013440;
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45JBx9bE024026;
 	Wed, 19 Jun 2024 11:59:09 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ysr03up8d-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yuxx3801a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Jun 2024 11:59:09 +0000
+	Wed, 19 Jun 2024 11:59:09 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45JA3QOm006216;
+	Wed, 19 Jun 2024 11:59:08 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ysn9uvb7x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Jun 2024 11:59:08 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45JBx3W744958046
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45JBx34g52101516
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Wed, 19 Jun 2024 11:59:05 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B04E92004E;
+	by IMSVA (Postfix) with ESMTP id 052AC20040;
 	Wed, 19 Jun 2024 11:59:03 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 64FB22004F;
-	Wed, 19 Jun 2024 11:59:03 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id ACF8C2004F;
+	Wed, 19 Jun 2024 11:59:02 +0000 (GMT)
 Received: from dilbert5.boeblingen.de.ibm.com (unknown [9.152.212.201])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 19 Jun 2024 11:59:03 +0000 (GMT)
+	Wed, 19 Jun 2024 11:59:02 +0000 (GMT)
 From: Gerd Bayer <gbayer@linux.ibm.com>
 To: Alex Williamson <alex.williamson@redhat.com>,
         Jason Gunthorpe <jgg@ziepe.ca>,
@@ -70,9 +70,9 @@ Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         "Tian, Kevin" <kevin.tian@intel.com>,
         Julian Ruess <julianr@linux.ibm.com>,
         Gerd Bayer <gbayer@linux.ibm.com>
-Subject: [PATCH v6 3/3] vfio/pci: Fix typo in macro to declare accessors
-Date: Wed, 19 Jun 2024 13:58:47 +0200
-Message-ID: <20240619115847.1344875-4-gbayer@linux.ibm.com>
+Subject: [PATCH v6 1/3] vfio/pci: Extract duplicated code into macro
+Date: Wed, 19 Jun 2024 13:58:45 +0200
+Message-ID: <20240619115847.1344875-2-gbayer@linux.ibm.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240619115847.1344875-1-gbayer@linux.ibm.com>
 References: <20240619115847.1344875-1-gbayer@linux.ibm.com>
@@ -84,66 +84,155 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: UGH1znYv87LgQ2rhlQOmElIb9-BCeiZm
-X-Proofpoint-ORIG-GUID: EmAmxowTE3nod-QLpwzmlxzg3gOBmVSo
+X-Proofpoint-ORIG-GUID: pkA6DGAbuZZykhK9IbiOIPiH4qliaILH
+X-Proofpoint-GUID: hNCjMwzRPqrDP3AwD3QBa3IpN__ugmEJ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-06-19_02,2024-06-19_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
- mlxlogscore=898 mlxscore=0 malwarescore=0 clxscore=1015 priorityscore=1501
- suspectscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0 phishscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 malwarescore=0
+ clxscore=1015 spamscore=0 priorityscore=1501 impostorscore=0 bulkscore=0
+ phishscore=0 mlxscore=0 mlxlogscore=999 lowpriorityscore=0 adultscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2405170001
  definitions=main-2406190088
 
-Correct spelling of DECLA[RA]TION
+vfio_pci_core_do_io_rw() repeats the same code for multiple access
+widths. Factor this out into a macro
 
-Suggested-by: Ramesh Thomas <ramesh.thomas@intel.com>
+Suggested-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
 ---
- include/linux/vfio_pci_core.h | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/vfio/pci/vfio_pci_rdwr.c | 106 ++++++++++++++-----------------
+ 1 file changed, 46 insertions(+), 60 deletions(-)
 
-diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-index 7b45f70f84c3..fbb472dd99b3 100644
---- a/include/linux/vfio_pci_core.h
-+++ b/include/linux/vfio_pci_core.h
-@@ -137,26 +137,26 @@ bool vfio_pci_core_range_intersect_range(loff_t buf_start, size_t buf_cnt,
- 					 loff_t *buf_offset,
- 					 size_t *intersect_count,
- 					 size_t *register_offset);
--#define VFIO_IOWRITE_DECLATION(size) \
-+#define VFIO_IOWRITE_DECLARATION(size) \
- int vfio_pci_core_iowrite##size(struct vfio_pci_core_device *vdev,	\
- 			bool test_mem, u##size val, void __iomem *io);
+diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
+index 03b8f7ada1ac..d07bfb0ab892 100644
+--- a/drivers/vfio/pci/vfio_pci_rdwr.c
++++ b/drivers/vfio/pci/vfio_pci_rdwr.c
+@@ -90,6 +90,40 @@ VFIO_IOREAD(8)
+ VFIO_IOREAD(16)
+ VFIO_IOREAD(32)
  
--VFIO_IOWRITE_DECLATION(8)
--VFIO_IOWRITE_DECLATION(16)
--VFIO_IOWRITE_DECLATION(32)
-+VFIO_IOWRITE_DECLARATION(8)
-+VFIO_IOWRITE_DECLARATION(16)
-+VFIO_IOWRITE_DECLARATION(32)
- #ifdef iowrite64
--VFIO_IOWRITE_DECLATION(64)
-+VFIO_IOWRITE_DECLARATION(64)
- #endif
++#define VFIO_IORDWR(size)						\
++static int vfio_pci_iordwr##size(struct vfio_pci_core_device *vdev,\
++				bool iswrite, bool test_mem,		\
++				void __iomem *io, char __user *buf,	\
++				loff_t off, size_t *filled)		\
++{									\
++	u##size val;							\
++	int ret;							\
++									\
++	if (iswrite) {							\
++		if (copy_from_user(&val, buf, sizeof(val)))		\
++			return -EFAULT;					\
++									\
++		ret = vfio_pci_core_iowrite##size(vdev, test_mem,	\
++						  val, io + off);	\
++		if (ret)						\
++			return ret;					\
++	} else {							\
++		ret = vfio_pci_core_ioread##size(vdev, test_mem,	\
++						 &val, io + off);	\
++		if (ret)						\
++			return ret;					\
++									\
++		if (copy_to_user(buf, &val, sizeof(val)))		\
++			return -EFAULT;					\
++	}								\
++									\
++	*filled = sizeof(val);						\
++	return 0;							\
++}									\
++
++VFIO_IORDWR(8)
++VFIO_IORDWR(16)
++VFIO_IORDWR(32)
+ /*
+  * Read or write from an __iomem region (MMIO or I/O port) with an excluded
+  * range which is inaccessible.  The excluded range drops writes and fills
+@@ -115,71 +149,23 @@ ssize_t vfio_pci_core_do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
+ 			fillable = 0;
  
--#define VFIO_IOREAD_DECLATION(size) \
-+#define VFIO_IOREAD_DECLARATION(size) \
- int vfio_pci_core_ioread##size(struct vfio_pci_core_device *vdev,	\
- 			bool test_mem, u##size *val, void __iomem *io);
+ 		if (fillable >= 4 && !(off % 4)) {
+-			u32 val;
+-
+-			if (iswrite) {
+-				if (copy_from_user(&val, buf, 4))
+-					return -EFAULT;
+-
+-				ret = vfio_pci_core_iowrite32(vdev, test_mem,
+-							      val, io + off);
+-				if (ret)
+-					return ret;
+-			} else {
+-				ret = vfio_pci_core_ioread32(vdev, test_mem,
+-							     &val, io + off);
+-				if (ret)
+-					return ret;
+-
+-				if (copy_to_user(buf, &val, 4))
+-					return -EFAULT;
+-			}
++			ret = vfio_pci_iordwr32(vdev, iswrite, test_mem,
++						io, buf, off, &filled);
++			if (ret)
++				return ret;
  
--VFIO_IOREAD_DECLATION(8)
--VFIO_IOREAD_DECLATION(16)
--VFIO_IOREAD_DECLATION(32)
-+VFIO_IOREAD_DECLARATION(8)
-+VFIO_IOREAD_DECLARATION(16)
-+VFIO_IOREAD_DECLARATION(32)
- #ifdef ioread64
--VFIO_IOREAD_DECLATION(64)
-+VFIO_IOREAD_DECLARATION(64)
- #endif
+-			filled = 4;
+ 		} else if (fillable >= 2 && !(off % 2)) {
+-			u16 val;
+-
+-			if (iswrite) {
+-				if (copy_from_user(&val, buf, 2))
+-					return -EFAULT;
+-
+-				ret = vfio_pci_core_iowrite16(vdev, test_mem,
+-							      val, io + off);
+-				if (ret)
+-					return ret;
+-			} else {
+-				ret = vfio_pci_core_ioread16(vdev, test_mem,
+-							     &val, io + off);
+-				if (ret)
+-					return ret;
+-
+-				if (copy_to_user(buf, &val, 2))
+-					return -EFAULT;
+-			}
++			ret = vfio_pci_iordwr16(vdev, iswrite, test_mem,
++						io, buf, off, &filled);
++			if (ret)
++				return ret;
  
- #endif /* VFIO_PCI_CORE_H */
+-			filled = 2;
+ 		} else if (fillable) {
+-			u8 val;
+-
+-			if (iswrite) {
+-				if (copy_from_user(&val, buf, 1))
+-					return -EFAULT;
+-
+-				ret = vfio_pci_core_iowrite8(vdev, test_mem,
+-							     val, io + off);
+-				if (ret)
+-					return ret;
+-			} else {
+-				ret = vfio_pci_core_ioread8(vdev, test_mem,
+-							    &val, io + off);
+-				if (ret)
+-					return ret;
+-
+-				if (copy_to_user(buf, &val, 1))
+-					return -EFAULT;
+-			}
++			ret = vfio_pci_iordwr8(vdev, iswrite, test_mem,
++					       io, buf, off, &filled);
++			if (ret)
++				return ret;
+ 
+-			filled = 1;
+ 		} else {
+ 			/* Fill reads with -1, drop writes */
+ 			filled = min(count, (size_t)(x_end - off));
 -- 
 2.45.2
 
