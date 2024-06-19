@@ -1,82 +1,191 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE5B46139;
-	Wed, 19 Jun 2024 07:11:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD017182DB;
+	Wed, 19 Jun 2024 07:58:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718781114; cv=none; b=sSETAqWBYXsZz7apqrZT3OkcdgVP4ttwA2Tj5KiDZe3Yx6CtayML/1wIgKG777TEQOHfRw8h1r7akjuT2AC0vGRPBYaUI9fELfi+1Ax98xKK4bEOIA5gXPlAmsZDj5qooNrRf+V8pOM+2D7FSiUP2NM6P9YgrgXazbsQZMEYCi8=
+	t=1718783901; cv=none; b=EB/XzYSZaemdJXoDEnG2ZeAM422208g/Jo3xyxNzF0pav8px9rjNbTwBtyx3svaWkhGeF/cTnZpKeqwoHOhrFUuYRZajMAeZRFi444R6+NKg7i6nC9aIbBeHYwKzlPgYHqvoKcI6B7WmyuC4aZFY3VOIGflj89clqbvABo7UvaA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718781114; c=relaxed/simple;
-	bh=I6BMr7urVqkHRkOofvwW7G9049g5an3rHmjy9UpkPkA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Gj/ML2GxISDSbNgI9aupawTf0uCs7SkIlLXbmCWi3BcCFNIUDVbHfd5gxGQq4kZwPBTPtfCxbhM0pTnsEFbRfG7xVSNor95Zyg8ScnJCKwHZQtgaXjLSdsB2XwTn/ERG8PHNm/2YQErN/7tHhX80jzUwXf7l08Advsn/pOcRlfo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=VQtpHdXo; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1718783901; c=relaxed/simple;
+	bh=3y04PSzzJCRmY6wcoiM5IRT2MjToAqdIOI9MOjquXOU=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=WXhOLXgJmZLfTKVzlURIxlk5yNOpvmzLMWfWLL6GcAjkDF2XNcemKhghFNaExHS0SoInkY0IIwGDZ2KazOfIgalwXWky0azpGiYNmN6U1k0nWZHilT8MslvLFrtiZfSU+v8uRz09ffg96RBja7MnDsMaLK2M3pBcUPXIf+bbL90=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XtKed89K; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="VQtpHdXo"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=nlvFZMAkvLJTfCK9T+AzrUEhqJZvzchat7YFdkYhZjU=; b=VQtpHdXoL7GZYinBbsHYIYbzDU
-	AINMRCs7yQegfWh++V179ldiyB514epJ6Yu3xhLVriMWd5FGjs+g6yfQcQIOVNj/Lj1lgRHcQPcez
-	8ZXikCaXeIpkP3IxpebzOgKgqEkNkfo4XmqVhwWBb5eHIsN1zsaCE7jpRSRnTGFlvBeAzDJ/lyENB
-	ZJLoUOtPCGcQg+4wLvbHH2bzJOsmHpV32pUqd7ewSBeU7EYvi/00upJ/0nC2RXPx+jvTele1/C0Uy
-	TxPD5ah7MAbBiTNrJr7O4ie00KzdzSD1o6o3RLhG4Z2G9VyllEw+nqdX4dQ2WlJ7jw83Aq67GTRjC
-	Idy9gOZw==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sJpU0-000000009BV-147R;
-	Wed, 19 Jun 2024 07:11:52 +0000
-Date: Wed, 19 Jun 2024 00:11:52 -0700
-From: Christoph Hellwig <hch@infradead.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XtKed89K"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45J5Te2Y026885;
+	Wed, 19 Jun 2024 07:58:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
+	8a/SLO6aVtdJdd976EB8YiIEXy8Hf7q0hZUKLqgzT5E=; b=XtKed89K/9l2pOk/
+	FDqoWgrA71Ukb7KZxykYZ3Q0eiPzBB/4+8ermLoHzflpQkfP1A0piTrtjEnDRz/j
+	91CjbikWyGBUABO5gZGivGXI4/9PLGhBCvJeLW785v/qrSzBoyZVp+pErAnVqm92
+	X757X9C5ue4Q9bTuzQviH0cvW8fIE05jinvQ9sbR3pmh/pOMfyMDGY2kIJrYN3lw
+	+hXF9QBY+OPw/Xb0KrPOuOu1anf5KZ4HDrLSE6hvAJ4EDEfgs7kmtZLDK2cntak7
+	IF4GCCdfQzdctQ2sUPxy9OTT8seuPkdsUqgq/Sur8ovCbrXykak8SGMMPjfI11TC
+	13JiAQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yus7j8cge-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Jun 2024 07:58:15 +0000 (GMT)
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45J7wEtD012344;
+	Wed, 19 Jun 2024 07:58:14 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yus7j8cga-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Jun 2024 07:58:14 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45J6J8ld011355;
+	Wed, 19 Jun 2024 07:58:13 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yspsna6h1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Jun 2024 07:58:13 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45J7w4xj56033668
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 19 Jun 2024 07:58:06 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BAA872006B;
+	Wed, 19 Jun 2024 07:58:04 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0AB792004E;
+	Wed, 19 Jun 2024 07:58:04 +0000 (GMT)
+Received: from [9.171.6.168] (unknown [9.171.6.168])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 19 Jun 2024 07:58:03 +0000 (GMT)
+Message-ID: <3dbae0f8f2011e2e7bf9589e95b3325217045311.camel@linux.ibm.com>
+Subject: Re: [PATCH v5 3/3] vfio/pci: Fix typo in macro to declare accessors
+From: Gerd Bayer <gbayer@linux.ibm.com>
 To: Alex Williamson <alex.williamson@redhat.com>
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Gerd Bayer <gbayer@linux.ibm.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH v3 2/3] vfio/pci: Tolerate oversized BARs by disallowing
- mmap
-Message-ID: <ZnKEuCP7o6KurJvq@infradead.org>
-References: <20240529-vfio_pci_mmap-v3-0-cd217d019218@linux.ibm.com>
- <20240529-vfio_pci_mmap-v3-2-cd217d019218@linux.ibm.com>
- <20240618095134.41478bbf.alex.williamson@redhat.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, Niklas Schnelle
+ <schnelle@linux.ibm.com>,
+        Ramesh Thomas <ramesh.thomas@intel.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Ankit Agrawal
+ <ankita@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>, Halil Pasic
+ <pasic@linux.ibm.com>,
+        Ben Segal <bpsegal@us.ibm.com>, "Tian, Kevin"
+ <kevin.tian@intel.com>,
+        Julian Ruess <julianr@linux.ibm.com>
+Date: Wed, 19 Jun 2024 09:58:03 +0200
+In-Reply-To: <20240618130100.4d7a901f.alex.williamson@redhat.com>
+References: <20240605160112.925957-1-gbayer@linux.ibm.com>
+	 <20240605160112.925957-4-gbayer@linux.ibm.com>
+	 <20240618112020.3e348767.alex.williamson@redhat.com>
+	 <162e40498e962258e965661b7ad8457e2e97ecdf.camel@linux.ibm.com>
+	 <20240618130100.4d7a901f.alex.williamson@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.1 (3.52.1-1.fc40app1) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240618095134.41478bbf.alex.williamson@redhat.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 3VrW87-6HByZ18hz81LBJT7xgtu3gNVp
+X-Proofpoint-ORIG-GUID: jBJCyPW0jVeyAWwKugJabLvUpfNSmWzt
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-19_02,2024-06-17_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 spamscore=0 mlxscore=0 priorityscore=1501 phishscore=0
+ clxscore=1015 malwarescore=0 suspectscore=0 impostorscore=0 adultscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2405170001 definitions=main-2406190053
 
-On Tue, Jun 18, 2024 at 09:51:34AM -0600, Alex Williamson wrote:
-> > -		if (!resource_size(res))
-> > +		if (!resource_size(res) ||
-> > +		    resource_size(res) > (IOREMAP_END + 1 - IOREMAP_START))
-> >  			goto no_mmap;
-> >  
-> >  		if (resource_size(res) >= PAGE_SIZE) {
-> > 
-> 
-> A powerpc build reports:
-> 
-> ERROR: modpost: "__kernel_io_end" [drivers/vfio/pci/vfio-pci-core.ko] undefined!
-> 
-> Looks like only __kernel_io_start is exported.  Thanks,
+On Tue, 2024-06-18 at 13:01 -0600, Alex Williamson wrote:
+> On Tue, 18 Jun 2024 20:04:26 +0200
+> Gerd Bayer <gbayer@linux.ibm.com> wrote:
+>=20
+> > On Tue, 2024-06-18 at 11:20 -0600, Alex Williamson wrote:
+> > > On Wed,=C2=A0 5 Jun 2024 18:01:12 +0200
+> > > Gerd Bayer <gbayer@linux.ibm.com> wrote:
+> > > =C2=A0=20
+> > > > Correct spelling of DECLA[RA]TION=C2=A0=20
+> > >=20
+> > > But why did we also transfer the semicolon from the body of the
+> > > macro
+> > > to the call site?=C2=A0 This doesn't match how we handle macros for
+> > > VFIO_IOWRITE, VFIO_IOREAD, or the new VFIO_IORDWR added in this
+> > > series.
+> > > Thanks,
+> > >=20
+> > > Alex=C2=A0=20
+> >=20
+> > Hi Alex,
+> >=20
+> > I wanted to make it visible, already in the contracted form, that
+> > VFIO_IO{READ|WRITE}_DECLARATION is in fact expanding to a function
+> > prototype declaration, while the marco defines in
+> > drivers/vfio/pci/vfio_pci_core.c expand to function
+> > implementations.
+> >=20
+> > My quick searching for in-tree precedence was pretty inconclusive
+> > though. So, I can revert that if you want.
+>=20
+> Hi Gerd,
 
-And exported code has no business looking at either one.
+Hi Alex,
 
-I think the right thing here is a core PCI quirk to fix the BAR
-size of the ISM device instead of this hack in vfio.
+> I'd tend to keep them as is since both are declaring something, a
+> prototype or a function, rather than a macro intended to be used
+> inline.=C2=A0 Ideally one macro could handle both declarations now that w=
+e
+> sort of have symmetry but we'd currently still need a #ifdef in the
+> macro which doesn't trivially work.=C2=A0 If we were to do something like
+> that though, relocating the semicolon doesn't make sense.
+>=20
+> In any case, this proposal is stated as just a typo fix, but it's
+> more.
+
+I have no hard feelings about the place of the semicolon - I'll be
+sending out a v6 with just the typo fix in patch 3/3.
+
+> Thanks,
+>=20
+> Alex
+
+Thanks,
+Gerd
+
+>=20
+> > > > Suggested-by: Ramesh Thomas <ramesh.thomas@intel.com>
+> > > > Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+> > > > ---
+> > > > =C2=A0include/linux/vfio_pci_core.h | 24 ++++++++++++------------
+> > > > =C2=A01 file changed, 12 insertions(+), 12 deletions(-)
+> > > >=20
+> > > > diff --git a/include/linux/vfio_pci_core.h
+> > > > b/include/linux/vfio_pci_core.h
+> > > > index f4cf5fd2350c..fa59d40573f1 100644
+> > > > --- a/include/linux/vfio_pci_core.h
+> > > > +++ b/include/linux/vfio_pci_core.h
+> > > > @@ -139,26 +139,26 @@ bool
+> > > > vfio_pci_core_range_intersect_range(loff_t buf_start, size_t
+> > > > buf_cnt,
+> > > > =C2=A0					 loff_t *buf_offset,
+> > > > =C2=A0					 size_t
+> > > > *intersect_count,
+> > > > =C2=A0					 size_t
+> > > > *register_offset);
+> > > > -#define VFIO_IOWRITE_DECLATION(size) \
+> > > > +#define VFIO_IOWRITE_DECLARATION(size) \
+> > > > =C2=A0int vfio_pci_core_iowrite##size(struct vfio_pci_core_device
+> > > > *vdev,	\
+> > > > -			bool test_mem, u##size val, void
+> > > > __iomem
+> > > > *io);
+> > > > +			bool test_mem, u##size val, void
+> > > > __iomem
+> > > > *io)
+> > > > =C2=A0
 
