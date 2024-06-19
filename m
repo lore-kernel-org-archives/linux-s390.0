@@ -1,64 +1,64 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EC08153505;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EC5C153517;
 	Wed, 19 Jun 2024 15:46:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718811971; cv=none; b=uqSvlbw/3pTTAKhxr83d9axq4aMOl2QhL8Q4lVBfzMZiIouCgEgUogPZZ5L4TukmWucQbnyFR/XMChMCrNF/fcBeHsdzQbzSrqwaCjGoAdN7LiehFp/6zFb9ZTBr9jSABZ4Hd2vM1fS0xzGroInAr+zAQte6ye+m4zxyX9tWMLI=
+	t=1718811971; cv=none; b=mVMQ5z/l/mtk8+vBBsmH90Hml8htAvx6GcCefoD1TLhmloFAw/Xg4eKfco+BaDxkdSh/3X6tDQ8zaWFiwKH9yD53Ssp2NCiNIqPwPlWeTlM6zqftPQOUBhxCq93LdUueWKHxYUa5qpggTJ3R6DSH9VyENkErBdGOWZUULtzFWPs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1718811971; c=relaxed/simple;
-	bh=jj2ie0mXDZXoykKheI+Ydx9F7sMDJBXe5guY5dRi5RQ=;
+	bh=kAMe8XO8crzt9aMODDlOaKLzge39DAwjWhVuVVi5fDY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Zw6WED/WDhDUS0Tpbr8p3MUzV9FKg6c/pGxpTPhy9w7uU0USc+tk2SR0gGyK2DPurJ+jfV21upoyPeZStTl5yXGkVsnnpybFUPEv191Hf06Qx3fbRSf2+rbehrhgNMwmrII19ywN1JiXGEzidNn/vzYNcmveu1piQYJPZffrRWQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SsKZn0cK; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=aH2ygnO2Od7YT9m1xnu7Q0NpP3WnTZQ8MtqR+idX6k4tYNLAIobuiRbcJX+KXakxoBflWVu23BF0bgTprOVTVfcX0MORnDnxixFGpJ/YoWvCkTzuHcVBfVf+7GcMGvN2rcDdCKiQcxs9gBnWa3Celr1M/rd0gWfZ8cHE5lV2Kmo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=i4na2fet; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SsKZn0cK"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45JBtn0b013583;
-	Wed, 19 Jun 2024 15:45:50 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="i4na2fet"
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45JETBuG000638;
+	Wed, 19 Jun 2024 15:45:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
 	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=K/viBy/PeNICI
-	TSZpD3tBAO/npQA3ucnq3Zo5JONrlk=; b=SsKZn0cKLgdIX3sPQiOmvLkjObQmZ
-	PnefpCpEP4K17+hbawNfB+uz7G1zrOWA3KgrsxMIW95EzSoJdM1ouPPK1xj/N368
-	gMW0uKDSLChKDOk9VLW3whBDzBSJfIDtttQZyQpZddZUWe/dLKmdgO0KDcEQXDVC
-	Y2scRcAOWdi7Dd0rL8fkCvGhFkTCFoQd/PX2SVHSAbV6DNTefZliSH02qszgy6wl
-	jSll7KOjuYUC6/0U0gU0DVIwBTstXllBX8sAljJkyo1I+h1i+rdNAkS/ikkuNcRU
-	m+hEcQFhhVmyzls5xiEj3BekLxEHE61gEa4fay86AXqmvjaj6KZ0YcYPg==
+	:mime-version:content-transfer-encoding; s=pp1; bh=spW5dUefPY3wS
+	aAYI4dxHarPRNP5jY8HpoCg9e2DSew=; b=i4na2fethzFR7wUggwsPea1WtemRd
+	L2MPKlh/7ozBibhHlkEhTX/oNXtprXFwQHf6IOCW4YMGy7UfWawuv7AkA0GexE1s
+	fMSDkRXk98OW9f3ex073FZZjwKtmKkjzjP27IwlDmAB86pTw+BYtWh8DleJini+a
+	+/nZvJpkX2uTA2XxCTYMFDU/poAeGYOcYKu4Y+eg5Yl9dzKk3p/e0c/8F8ejHLg0
+	ZQhqYXZA6NaKWkWzb2KQEFV9F4nrpO2quW3+WEsipD62YLkq9U+XALGT7cAm5QEB
+	D+0tVvnvdYiQK/itc5PyC33i1SPjj4HYF9q4c/SnxSvmWSs1CH3MbD9dA==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yux7j0tcg-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yv14tg8bw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Jun 2024 15:45:49 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45JFjnY1028879;
-	Wed, 19 Jun 2024 15:45:49 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yux7j0tcb-1
+	Wed, 19 Jun 2024 15:45:45 +0000 (GMT)
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45JFjiLb027323;
+	Wed, 19 Jun 2024 15:45:45 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yv14tg8bm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Jun 2024 15:45:49 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45JEK19d011052;
-	Wed, 19 Jun 2024 15:45:48 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yspsndtnk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Jun 2024 15:45:48 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45JFjgNr33948062
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 19 Jun 2024 15:45:44 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45JFVbYI006216;
 	Wed, 19 Jun 2024 15:45:44 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ysn9ux8mf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Jun 2024 15:45:43 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45JFjckL48300392
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 19 Jun 2024 15:45:40 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8C6D92004B;
-	Wed, 19 Jun 2024 15:45:42 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 14CE72004F;
+	Wed, 19 Jun 2024 15:45:38 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3DE1D2006C;
-	Wed, 19 Jun 2024 15:45:42 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B9A852005A;
+	Wed, 19 Jun 2024 15:45:37 +0000 (GMT)
 Received: from black.boeblingen.de.ibm.com (unknown [9.155.200.166])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 19 Jun 2024 15:45:42 +0000 (GMT)
+	Wed, 19 Jun 2024 15:45:37 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -79,9 +79,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v5 25/37] s390/cpacf: Unpoison the results of cpacf_trng()
-Date: Wed, 19 Jun 2024 17:44:00 +0200
-Message-ID: <20240619154530.163232-26-iii@linux.ibm.com>
+Subject: [PATCH v5 12/37] kmsan: Introduce memset_no_sanitize_memory()
+Date: Wed, 19 Jun 2024 17:43:47 +0200
+Message-ID: <20240619154530.163232-13-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.45.1
 In-Reply-To: <20240619154530.163232-1-iii@linux.ibm.com>
 References: <20240619154530.163232-1-iii@linux.ibm.com>
@@ -93,49 +93,56 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: eRJ1Fir0D1OliqMOkMThbCdRt-m01UDf
-X-Proofpoint-ORIG-GUID: sHcrT9dgmrwcrd7AfF1kVUbgkO9GX7zc
+X-Proofpoint-GUID: imMJc4jcGcFzr_XL2Ewxf2h5FVRCtQqX
+X-Proofpoint-ORIG-GUID: QA7Qu_Ntbky2iAOKmSPcLHJxbBUizN7o
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-06-19_02,2024-06-19_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
- malwarescore=0 clxscore=1015 impostorscore=0 adultscore=0 bulkscore=0
- phishscore=0 spamscore=0 priorityscore=1501 lowpriorityscore=0
- mlxlogscore=780 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 malwarescore=0 suspectscore=0 mlxscore=0 clxscore=1015
+ spamscore=0 mlxlogscore=779 impostorscore=0 phishscore=0 adultscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2405170001 definitions=main-2406190115
 
-Prevent KMSAN from complaining about buffers filled by cpacf_trng()
-being uninitialized.
+Add a wrapper for memset() that prevents unpoisoning. This is useful
+for filling memory allocator redzones.
 
-Tested-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- arch/s390/include/asm/cpacf.h | 3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/kmsan.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
-index c786538e397c..dae8843b164f 100644
---- a/arch/s390/include/asm/cpacf.h
-+++ b/arch/s390/include/asm/cpacf.h
-@@ -12,6 +12,7 @@
- #define _ASM_S390_CPACF_H
+diff --git a/include/linux/kmsan.h b/include/linux/kmsan.h
+index 23de1b3d6aee..5f50885f2023 100644
+--- a/include/linux/kmsan.h
++++ b/include/linux/kmsan.h
+@@ -255,6 +255,14 @@ void kmsan_enable_current(void);
+  */
+ void kmsan_disable_current(void);
  
- #include <asm/facility.h>
-+#include <linux/kmsan-checks.h>
++/*
++ * memset_no_sanitize_memory(): memset() without KMSAN instrumentation.
++ */
++static inline void *memset_no_sanitize_memory(void *s, int c, size_t n)
++{
++	return __memset(s, c, n);
++}
++
+ #else
  
- /*
-  * Instruction opcodes for the CPACF instructions
-@@ -542,6 +543,8 @@ static inline void cpacf_trng(u8 *ucbuf, unsigned long ucbuf_len,
- 		: [ucbuf] "+&d" (u.pair), [cbuf] "+&d" (c.pair)
- 		: [fc] "K" (CPACF_PRNO_TRNG), [opc] "i" (CPACF_PRNO)
- 		: "cc", "memory", "0");
-+	kmsan_unpoison_memory(ucbuf, ucbuf_len);
-+	kmsan_unpoison_memory(cbuf, cbuf_len);
+ static inline void kmsan_init_shadow(void)
+@@ -362,6 +370,11 @@ static inline void kmsan_disable_current(void)
+ {
  }
  
- /**
++static inline void *memset_no_sanitize_memory(void *s, int c, size_t n)
++{
++	return memset(s, c, n);
++}
++
+ #endif
+ 
+ #endif /* _LINUX_KMSAN_H */
 -- 
 2.45.1
 
