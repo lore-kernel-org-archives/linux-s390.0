@@ -1,141 +1,141 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F15001CD5DB;
-	Thu, 20 Jun 2024 17:58:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 310CA1BD02D
+	for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2024 18:01:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718906313; cv=none; b=artVaZnoj72LraHMrp77m00V164AejW+fATzN373fYJK9/kUyZ5IEYIlw53vW/N0cqLaIXmbXURGq64AwwzuQGmgWVpp1G1WUcUnqnG1DdMbxY95RZc8M7SZfgr3kiq47XnI2hqLXg0uOuZx+6bDUKXl35t8R2gGISQAE3pA2sE=
+	t=1718906480; cv=none; b=DX/6mcK2DpCGdfpR/svHYbjf3OZP/bH2l8FnuTcDzh0AlRGr9cOD2WVudgyx7/MTqwsC7heDzeiWPeeFO/4xG1LCSrp7iouW1JBMVk9tCPYbLAXmV/ZsbyvsNBQsOTs6eD3f7bIc7nOe2ZgYx7DviJ3of+TIfYzmeC6hoDeCPTc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718906313; c=relaxed/simple;
-	bh=yUj0Y+PW1ytJyi+j5TbtjzOTkmnNG3+T5JTavbIkNlI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=o0VUtlM5vfAWz15a77QYeZntFp1dmrQeK2FsNntMr4JYS3ZSbFOLzQ/Jz3ayTVPfNiqt9vzABkXGpI1QrwFSnSwEPoqgE0TEhRh91sPXTkD1biOUQgk+soeBXPiSFIErLXAe1QH05Z3fQb9JNjoEP0Z8L8Zb9BlHFlYYJnWsN6Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UodKF5VX; arc=none smtp.client-ip=209.85.216.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1718906480; c=relaxed/simple;
+	bh=29OxgEL3l6wtk/wr9HSlAcydEGnms+qvS9bonjZCeq4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=U6bxnrXs+GGmMVCITCIIkJPgArgYw9MHUVnJmLPj+YuhYzbKFEv8EmTUzwitPwZIDjaldrLlLjWcS0PzbE/H5biOx7nGaEKy2UyPTQDJ9iVbCWWXcDH3u8pBX6xdR1gN1kE48tuxeLIn4bC5HeVWtFkZH+wjq3O2YgUeA9MxkQA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=hbBLmrTU; arc=none smtp.client-ip=209.85.208.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UodKF5VX"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-2c80657e4a3so397726a91.0;
-        Thu, 20 Jun 2024 10:58:31 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="hbBLmrTU"
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-57d0699fd02so642220a12.0
+        for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2024 11:01:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1718906311; x=1719511111; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=W4ZNVeHwDlQoCLSBSWGAz09EiaWGr7H7R1MAc+9TBMI=;
-        b=UodKF5VXGDYf+97aUtqqtVv+qRYvkgHw1FgT6MpVk1RmNNj98QJEpBra0u5mkuaMxy
-         WYF9rEo2ARMuTOyLxpzi26OkRT7fL8mV+gfs6RMjzyJ8Rb2q8rFC6V+Yz8xhkeCBeaFr
-         H4jyP9xncoXC9onCxcsmt+3C/X5NAYLG4E8Q//vXIVSMR378V8F/GdwAYKtgPtmv3GuW
-         WkTJ4rgRy88q/AOltw9xpIIuYFa1sjGfMdbm8By8knWXfEP/3XqKApoJHii1Zwsbc6pF
-         2eFtvcStKDT2CN5eUF3QwCiBiEJl0sywVfRCNHpp0HwgMVZ07xVENhzkgT7pOO4ppac6
-         ENkQ==
+        d=linux-foundation.org; s=google; t=1718906476; x=1719511276; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=fuatl8An2r1cXJScFESolD1f90VPFvdc9a3mKIi/oro=;
+        b=hbBLmrTUrpdW0zhFRdPdB116KmBib51iLpI83cu2TGRcZCLJ9y5dHyl7ZmLb+MD6gb
+         yiepW7W/xsNZMVuhCT2o85buCVN1hIq0UchvAT+QYo+QCJ9jxUMdSm4YRtbkJhqjdYI2
+         ldQ0aSg6hsyH/xHCi798DOhGect+T6OjVzdeI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718906311; x=1719511111;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=W4ZNVeHwDlQoCLSBSWGAz09EiaWGr7H7R1MAc+9TBMI=;
-        b=EuYQHgsE2Tn6sW2eWbpC3ZOVYKlNsdNz30PavFXQ9/aIh73X9GwV5Jk4g8MTjPlfN2
-         PwQneYZP345JuoDHVXpyThI1O8GwMDAOGNdM0j/1cZB4zyo+DohZ4BiQYx5ReUYt/NiB
-         asslckQEn+0MIIfU0Trfzv5XJHQxClTciLbmpDrp+xO2315SdLWUFDwYRLOcjUi+o+aC
-         DBc8ApkjOGnBSm3ejydozXzxfxYAVbyn+c9n/aWIZWVL+8sbRR5tIP68LmwSH0/KDSGI
-         3kh3jtX9EMllB0GfrFx59EuAP5fwRYpwcjRzIuIcJa+4118KqQqrLN+qKQal0H4yN1Jt
-         Owcg==
-X-Forwarded-Encrypted: i=1; AJvYcCW5kFNHRYJ96W3ehttdbw4jVbob1HUSXPrnxLA8PUbOkP/DoLlUb9tKQsw0BofkldcXfjqo2psyesvxKWJ4SpJdn+Z3nwNUaX/T5Ni/kTW/fsN+RjhPuQCynBVF1HHplE93hg==
-X-Gm-Message-State: AOJu0YzfTiMcBQujzq4Fw6QLYJ5mxj4DuFdkbgnSQ5hXQrStKihRPES4
-	kqlJxp8CAQNbSCAxs6r1E+dq4A4NZelVTZi66p3P6PCC23TAXQalW9W8OZykUfc=
-X-Google-Smtp-Source: AGHT+IGQvEz1XDyV8hqESSgXyRr9H2vNsDwapE+wi9Cj5ayf2ki62AI5CWw/I1Sfogv5UmABjnUlEw==
-X-Received: by 2002:a17:90b:3688:b0:2c4:e000:f811 with SMTP id 98e67ed59e1d1-2c7b5d98300mr5635707a91.49.1718906311353;
-        Thu, 20 Jun 2024 10:58:31 -0700 (PDT)
-Received: from localhost ([216.228.127.128])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2c7e58d3f93sm1998031a91.45.2024.06.20.10.58.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Jun 2024 10:58:31 -0700 (PDT)
-From: Yury Norov <yury.norov@gmail.com>
-To: linux-kernel@vger.kernel.org,
-	Karsten Graul <kgraul@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org
-Cc: Yury Norov <yury.norov@gmail.com>,
-	Alexey Klimov <alexey.klimov@linaro.org>,
-	Bart Van Assche <bvanassche@acm.org>,
-	Jan Kara <jack@suse.cz>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Matthew Wilcox <willy@infradead.org>,
-	Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	Sergey Shtylyov <s.shtylyov@omp.ru>,
-	Alexandra Winter <wintera@linux.ibm.com>
-Subject: [PATCH v4 29/40] net: smc: optimize smc_wr_tx_get_free_slot_index()
-Date: Thu, 20 Jun 2024 10:56:52 -0700
-Message-ID: <20240620175703.605111-30-yury.norov@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240620175703.605111-1-yury.norov@gmail.com>
-References: <20240620175703.605111-1-yury.norov@gmail.com>
+        d=1e100.net; s=20230601; t=1718906476; x=1719511276;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=fuatl8An2r1cXJScFESolD1f90VPFvdc9a3mKIi/oro=;
+        b=seFpna7XSCbyp4u0jnZKoDS35lQsDskCh5g7hGYnArxXkK+ccVbG6YcyHYFmQ26Jt3
+         Cm6E7wk+NjK6dTWvbT1C5/6PdZt1xHs2XIubRmP1otQLhH8a5+dEBAtsbyws7pCdSLXW
+         nm9BdFjiX715xRJUdTZhf9e5Jlqo9xWTsIr9Oshw6OLh5zYAMDLKxOcliIY9Uyeqzl9r
+         wC+PCDMwltGtjJaQWD1QOClu7ka3pKaBcARIZCnYqqiAK2ZSyrX+9+R2gFdFknNtiQJ7
+         e8mWQzpTdbPrrxL30lajBMKCYQD4mhARldA/Nx2t9Gn0e2QuRQ0cIb0iB03jGjUd5xqc
+         VIoA==
+X-Forwarded-Encrypted: i=1; AJvYcCWwzAgI4FXLl6DskhUn3P2t0n/lbLeZCWiycjEyGS0bfI37SGVdom5XG7h1X9yEFmdtLt0YGB9Kg19uCOS1k6hn6GwEFcDOg6nsFA==
+X-Gm-Message-State: AOJu0YyF2hBAgle+BuU2Xs5Hi9PnLBJE7vADn5c/zORaIFFtgadnfbSl
+	n+R8Zys0reH5Z/UWZ1ENZZBNx+sjkcXiPBKj40kBKDfWKe25XcPticNnm4ZBzpLufOj8K42YBGa
+	Q5ITCVg==
+X-Google-Smtp-Source: AGHT+IHcoZFP8ovFsy1h11S//Z49Nkan7A0nm0lh6GGSmL0gsQQ3vuK5jIqoB/JvTtqmU/wO0i4/eA==
+X-Received: by 2002:a50:aada:0:b0:57c:57b3:8d0e with SMTP id 4fb4d7f45d1cf-57d07e3b939mr4927344a12.11.1718906476620;
+        Thu, 20 Jun 2024 11:01:16 -0700 (PDT)
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com. [209.85.128.54])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-57cd24df611sm6559022a12.16.2024.06.20.11.01.16
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 20 Jun 2024 11:01:16 -0700 (PDT)
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4230366ad7bso13888265e9.1
+        for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2024 11:01:16 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXmSZdM3AAfv2UDN0lFjlQY2dDReAZB/7OS7fAesWeHwhXymAII3t2J+Mb3QQMFQijkDXFS+VEespyZjonNpRpE/NHeGyaDFJ8EDQ==
+X-Received: by 2002:a50:96cf:0:b0:57c:5874:4f5c with SMTP id
+ 4fb4d7f45d1cf-57d07ea857fmr5124279a12.32.1718906455555; Thu, 20 Jun 2024
+ 11:00:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240620175703.605111-1-yury.norov@gmail.com>
+In-Reply-To: <20240620175703.605111-1-yury.norov@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Thu, 20 Jun 2024 11:00:38 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wiUTXC452qbypG3jW6XCZGfc8d-iehSavxn5JkQ=sv0zA@mail.gmail.com>
+Message-ID: <CAHk-=wiUTXC452qbypG3jW6XCZGfc8d-iehSavxn5JkQ=sv0zA@mail.gmail.com>
+Subject: Re: [PATCH v4 00/40] lib/find: add atomic find_bit() primitives
+To: Yury Norov <yury.norov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
+	"H. Peter Anvin" <hpa@zytor.com>, "James E.J. Bottomley" <jejb@linux.ibm.com>, 
+	"K. Y. Srinivasan" <kys@microsoft.com>, "Md. Haris Iqbal" <haris.iqbal@ionos.com>, 
+	Akinobu Mita <akinobu.mita@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	Bjorn Andersson <andersson@kernel.org>, Borislav Petkov <bp@alien8.de>, Chaitanya Kulkarni <kch@nvidia.com>, 
+	Christian Brauner <brauner@kernel.org>, Damien Le Moal <damien.lemoal@opensource.wdc.com>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, David Disseldorp <ddiss@suse.de>, 
+	Edward Cree <ecree.xilinx@gmail.com>, Eric Dumazet <edumazet@google.com>, 
+	Fenghua Yu <fenghua.yu@intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Gregory Greenman <gregory.greenman@intel.com>, 
+	Hans Verkuil <hverkuil@xs4all.nl>, Hans de Goede <hdegoede@redhat.com>, 
+	Hugh Dickins <hughd@google.com>, Ingo Molnar <mingo@redhat.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Jaroslav Kysela <perex@perex.cz>, Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>, 
+	Jiri Pirko <jiri@resnulli.us>, Jiri Slaby <jirislaby@kernel.org>, Kalle Valo <kvalo@kernel.org>, 
+	Karsten Graul <kgraul@linux.ibm.com>, Karsten Keil <isdn@linux-pingi.de>, 
+	Kees Cook <keescook@chromium.org>, Leon Romanovsky <leon@kernel.org>, 
+	Mark Rutland <mark.rutland@arm.com>, Martin Habets <habetsm.xilinx@gmail.com>, 
+	Mauro Carvalho Chehab <mchehab@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, 
+	Nicholas Piggin <npiggin@gmail.com>, Oliver Neukum <oneukum@suse.com>, Paolo Abeni <pabeni@redhat.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Peter Zijlstra <peterz@infradead.org>, 
+	Ping-Ke Shih <pkshih@realtek.com>, Rich Felker <dalias@libc.org>, Rob Herring <robh@kernel.org>, 
+	Robin Murphy <robin.murphy@arm.com>, Sean Christopherson <seanjc@google.com>, 
+	Shuai Xue <xueshuai@linux.alibaba.com>, Stanislaw Gruszka <stf_xl@wp.pl>, 
+	Steven Rostedt <rostedt@goodmis.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Thomas Gleixner <tglx@linutronix.de>, Valentin Schneider <vschneid@redhat.com>, 
+	Vitaly Kuznetsov <vkuznets@redhat.com>, Wenjia Zhang <wenjia@linux.ibm.com>, 
+	Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	GR-QLogic-Storage-Upstream@marvell.com, alsa-devel@alsa-project.org, 
+	ath10k@lists.infradead.org, dmaengine@vger.kernel.org, iommu@lists.linux.dev, 
+	kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-arm-msm@vger.kernel.org, linux-block@vger.kernel.org, 
+	linux-bluetooth@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-media@vger.kernel.org, 
+	linux-mips@vger.kernel.org, linux-net-drivers@amd.com, 
+	linux-pci@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+	linux-serial@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-sound@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	mpi3mr-linuxdrv.pdl@broadcom.com, netdev@vger.kernel.org, 
+	sparclinux@vger.kernel.org, x86@kernel.org, 
+	Alexey Klimov <alexey.klimov@linaro.org>, Bart Van Assche <bvanassche@acm.org>, Jan Kara <jack@suse.cz>, 
+	Matthew Wilcox <willy@infradead.org>, Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>, 
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>, Sergey Shtylyov <s.shtylyov@omp.ru>
+Content-Type: text/plain; charset="UTF-8"
 
-Simplify the function by using find_and_set_bit() and make it a simple
-almost one-liner.
+On Thu, 20 Jun 2024 at 10:57, Yury Norov <yury.norov@gmail.com> wrote:
+>
+>
+> The typical lock-protected bit allocation may look like this:
 
-While here, drop explicit initialization of *idx, because it's already
-initialized by the caller in case of ENOLINK, or set properly with
-->wr_tx_mask, if nothing is found, in case of EBUSY.
+If it looks like this, then nobody cares. Clearly the user in question
+never actually cared about performance, and you SHOULD NOT then say
+"let's optimize this that nobody cares about":.
 
-CC: Tony Lu <tonylu@linux.alibaba.com>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
----
- net/smc/smc_wr.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+Yury, I spend an inordinate amount of time just double-checking your
+patches. I ended up having to basically undo one of them just days
+ago.
 
-diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index 0021065a600a..941c2434a021 100644
---- a/net/smc/smc_wr.c
-+++ b/net/smc/smc_wr.c
-@@ -23,6 +23,7 @@
-  */
- 
- #include <linux/atomic.h>
-+#include <linux/find_atomic.h>
- #include <linux/hashtable.h>
- #include <linux/wait.h>
- #include <rdma/ib_verbs.h>
-@@ -170,15 +171,11 @@ void smc_wr_tx_cq_handler(struct ib_cq *ib_cq, void *cq_context)
- 
- static inline int smc_wr_tx_get_free_slot_index(struct smc_link *link, u32 *idx)
- {
--	*idx = link->wr_tx_cnt;
- 	if (!smc_link_sendable(link))
- 		return -ENOLINK;
--	for_each_clear_bit(*idx, link->wr_tx_mask, link->wr_tx_cnt) {
--		if (!test_and_set_bit(*idx, link->wr_tx_mask))
--			return 0;
--	}
--	*idx = link->wr_tx_cnt;
--	return -EBUSY;
-+
-+	*idx = find_and_set_bit(link->wr_tx_mask, link->wr_tx_cnt);
-+	return *idx < link->wr_tx_cnt ? 0 : -EBUSY;
- }
- 
- /**
--- 
-2.43.0
+New rule: before you send some optimization, you need to have NUMBERS.
 
+Some kind of "look, this code is visible in profiles, so we actually care".
+
+Because without numbers, I'm just not going to pull anything from you.
+These insane inlines for things that don't matter need to stop.
+
+And if they *DO* matter, you need to show that they matter.
+
+               Linus
