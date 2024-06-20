@@ -1,177 +1,280 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA1681E536;
-	Thu, 20 Jun 2024 13:39:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F29EA7C6C9
+	for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2024 13:52:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718890749; cv=none; b=YacckJ14Yjg0dbDh9iOeejXsM0UDyUthx8TgcMQzdVbxfNRwqIS0M/Y6lV5EOKjqQuo6LxM3n7sm19TySnmAlUZFTZCjkBgqS9g1LjpVpEgk7OUaeC/fP87xq7kGBOqGwIASjUuL4eYCn7/ymcXWvuKhTleLJWduMdCxi9eX0l4=
+	t=1718891536; cv=none; b=U3aYO7Aa5cMP9qXaS5uWmxv1hEOkASdGt+DcLde2xAf/B2u3L9H7QyNijyHn6m3yk+LrIwchypTkwSHMY7P4i8ThBgr5mw8l9CcnempTDlFTVdmRmX6g1YTrLmDl9YMEc6flEdto7i0+RZWRkEeOycTseAGD4dmJEJwpXKeWXwY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718890749; c=relaxed/simple;
-	bh=9HGv70JIMn6ZZt2ugfN/5t1vr7E8lqYXwzHG3dM/GPM=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=ujP/fNTHtrT7hYKfn6p8xGo9R/M0ezpCRwX+czTWB8y5K5/UCiEuggBXaZZlChkRUP+cVh6KkOU8uAkad6TvWCxXowHD37JttmnCfEikMu6IPZBiLAkijZZEzyU3qPYQSbzaIN12MbBRBUsgUln0cCjXX14QUMY0V8jO9VxvQo8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DVj2yxKJ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1718891536; c=relaxed/simple;
+	bh=kZFzGdFBvUz4Gg6I42gew9txHyVBgSQU2rWpWdCqIqw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DIC5F97MqJnouqOgWj+MSbYHHF4bWIdm84/h8aJgTvfHORY3KaU6HqE6MU5MTdTjfLq8W79MVhy44Xa6mLjtfgf0pEvqUymV5hprTokXWJhwHB5NrRdQvqaZP112hJ4Hgk1q0Cpj2gNQaSJetpw2vKDQziNkoNyVXl6rL3WUmfI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FHXIc83i; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DVj2yxKJ"
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45KDXb8H018582;
-	Thu, 20 Jun 2024 13:38:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:subject:from:to:cc:date:in-reply-to:references
-	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
-	YUbNUxVRxVzSfRB8DznG+AI9YazUwyusPtVlI9Nb7aM=; b=DVj2yxKJ78KGS2dF
-	DVlRx1erNBA4hS2DHyKvmTK/XX98eIGGOw3sh6PtrVVZbbSx+ZqF4oeOvrg+hCoY
-	f0p03nWs4S6CdU2za/htkSZ7DViH1Uah2d4TCGkSB4HFKMpj48EP9pOfhLkoT4zT
-	O/mIMG/e9uTTkzu5g+8iaIBqBZj3bSgJm+LH47nXN0RLNB4rcm6DASkDil6fwp57
-	y/vgaoW2HzjhGgkd6EB077lTyVeGOdeny1Ok2a4PGxTre5iW3nRvhWgag+ys17Rz
-	y7mxtg+tFERSbixzd5OVdAPgo4BdupnAkjzPkfF+UDO8mriMHaXavYxXFvP2FCka
-	llAoNQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yvndp80aw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Jun 2024 13:38:39 +0000 (GMT)
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45KDYo37020397;
-	Thu, 20 Jun 2024 13:38:39 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yvndp80at-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Jun 2024 13:38:39 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45KCIJjB023874;
-	Thu, 20 Jun 2024 13:38:38 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ysp9qphf2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Jun 2024 13:38:38 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45KDcWRJ18874846
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 20 Jun 2024 13:38:34 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4852320043;
-	Thu, 20 Jun 2024 13:38:32 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EB7A420040;
-	Thu, 20 Jun 2024 13:38:31 +0000 (GMT)
-Received: from [9.155.200.166] (unknown [9.155.200.166])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 20 Jun 2024 13:38:31 +0000 (GMT)
-Message-ID: <f6ab5d6e0aa90ad85e239a2da9252930ca9a70c3.camel@linux.ibm.com>
-Subject: Re: [PATCH v5 36/37] s390/kmsan: Implement the
- architecture-specific functions
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Alexander Potapenko <glider@google.com>,
-        Andrew Morton
- <akpm@linux-foundation.org>,
-        Christoph Lameter <cl@linux.com>,
-        David
- Rientjes <rientjes@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Joonsoo
- Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>,
-        Masami
- Hiramatsu <mhiramat@kernel.org>,
-        Pekka Enberg <penberg@kernel.org>,
-        Steven
- Rostedt <rostedt@goodmis.org>,
-        Vasily Gorbik <gor@linux.ibm.com>, Vlastimil
- Babka <vbabka@suse.cz>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        Mark Rutland <mark.rutland@arm.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Sven Schnelle
- <svens@linux.ibm.com>
-Date: Thu, 20 Jun 2024 15:38:31 +0200
-In-Reply-To: <ZnP1dwNycehZyjkQ@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20240619154530.163232-1-iii@linux.ibm.com>
-	 <20240619154530.163232-37-iii@linux.ibm.com>
-	 <ZnP1dwNycehZyjkQ@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FHXIc83i"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718891534;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CNpcAjabNj7U5Kjrejmg/ilwXEXZseiB+OI7rnWLE5Q=;
+	b=FHXIc83i1IFWAuvZ7bO1DC+WKv5kV+miQ9+UeFzbllGG7IQGwEqhEEpG5b7My3VBZLCRwE
+	vGv4l6uxgC43fjtyqXPlfwu4TFkoZzWg32rmnDSGoY18Ri2n3Vsn6gHGTvibppJ4mU6o4N
+	4Ak8M9xODdGIz2cae0ZdVPJVzUGHUU4=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-623-1pMwuMVqO4KYd5QkDP7EZA-1; Thu, 20 Jun 2024 09:52:12 -0400
+X-MC-Unique: 1pMwuMVqO4KYd5QkDP7EZA-1
+Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-57cad3fa0a1so664343a12.1
+        for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2024 06:52:12 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718891531; x=1719496331;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CNpcAjabNj7U5Kjrejmg/ilwXEXZseiB+OI7rnWLE5Q=;
+        b=ri8lXAmfCr8Vk/v3fCsa4Jlk5U0b4jFhKVL0YlZAqLLnzpLtFULnfxPHjyFTVl4J2G
+         zdi9j1MGkxwKp5ep/Bt0g7TydJ150Wj5ThXdX/4kepqBjfCM7+JUs1LbSaMOEnwi5tVy
+         FRpHud4rOqczPFahnjL+1KenK056HMxiTiYgy8117OrD+nDVHC4jYhEY4jHi9UXTbFg7
+         B3l68Wt/gTceqrkH89ardQS2nzZ84oEdh2YFfaoH3l8yOPrgBEeh62q0YvoLtkdsO00y
+         ex34H08clQw6H3OZE+BI9doCV3jBuhIX/lunenfHJQc1himah3sZGcnyUTYSYx6UuGQ2
+         nBfw==
+X-Forwarded-Encrypted: i=1; AJvYcCXH6PPL6lqqC08HgO5K+j8JtiZg8L5GwUsgP+mZLEl9+c4TwM7MvgNsgoW6dIMJstntcQZQPK9rcognQvpRG4lXsMRh6GjvQD94tg==
+X-Gm-Message-State: AOJu0YwEZDbfkwmq0mPmVb3VZilN6qniCQBGL/CxpIsGGTviGsWLURWq
+	wSX/u1RtHs1ajkqFbG2pMee1Rn192UOgzVufU8I2ggxFmSM9HpTgJrygYxRwB/M/pUQp2GXPmZ5
+	haRBUYV+1P9h5v3GjVUQERDv3J2bgCEh9GzOwXj35edWpsZVgtiwGg+dNp4I=
+X-Received: by 2002:a50:aad7:0:b0:578:3335:6e88 with SMTP id 4fb4d7f45d1cf-57d07c59ce6mr3503149a12.0.1718891531434;
+        Thu, 20 Jun 2024 06:52:11 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF90OFOGv2ZZVHJ5dm1EVg30XUQltEQfgDt90ACAE1nuPoxRvgkNZnMIK5JtmqXjWOLvdB0xw==
+X-Received: by 2002:a50:aad7:0:b0:578:3335:6e88 with SMTP id 4fb4d7f45d1cf-57d07c59ce6mr3503106a12.0.1718891530819;
+        Thu, 20 Jun 2024 06:52:10 -0700 (PDT)
+Received: from redhat.com ([2.52.146.100])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-57cb743b026sm9630648a12.97.2024.06.20.06.52.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Jun 2024 06:52:10 -0700 (PDT)
+Date: Thu, 20 Jun 2024 09:51:58 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Hans de Goede <hdegoede@redhat.com>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	David Hildenbrand <david@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org, Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH vhost v9 2/6] virtio: remove support for names array
+ entries being null.
+Message-ID: <20240620070717-mutt-send-email-mst@kernel.org>
+References: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
+ <20240424091533.86949-3-xuanzhuo@linux.alibaba.com>
+ <20240620035749-mutt-send-email-mst@kernel.org>
+ <1718872778.4831812-1-xuanzhuo@linux.alibaba.com>
+ <20240620044839-mutt-send-email-mst@kernel.org>
+ <1718874293.698573-2-xuanzhuo@linux.alibaba.com>
+ <20240620054548-mutt-send-email-mst@kernel.org>
+ <1718880548.281809-3-xuanzhuo@linux.alibaba.com>
+ <20240620065602-mutt-send-email-mst@kernel.org>
+ <1718881448.8979208-6-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: EoXF46C30_1HJeuiJvzTvJ3K5p2rf5em
-X-Proofpoint-ORIG-GUID: bqmJR33qqTSFJQTMaJPsqaDg4i4nBhCe
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-20_07,2024-06-20_04,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
- bulkscore=0 mlxscore=0 suspectscore=0 malwarescore=0 phishscore=0
- mlxlogscore=720 spamscore=0 adultscore=0 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2405170001 definitions=main-2406200096
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1718881448.8979208-6-xuanzhuo@linux.alibaba.com>
 
-On Thu, 2024-06-20 at 11:25 +0200, Alexander Gordeev wrote:
-> On Wed, Jun 19, 2024 at 05:44:11PM +0200, Ilya Leoshkevich wrote:
->=20
-> Hi Ilya,
->=20
-> > +static inline bool is_lowcore_addr(void *addr)
-> > +{
-> > +	return addr >=3D (void *)&S390_lowcore &&
-> > +	=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 addr < (void *)(&S390_lowcore + =
-1);
-> > +}
-> > +
-> > +static inline void *arch_kmsan_get_meta_or_null(void *addr, bool
-> > is_origin)
-> > +{
-> > +	if (is_lowcore_addr(addr)) {
-> > +		/*
-> > +		 * Different lowcores accessed via S390_lowcore
-> > are described
-> > +		 * by the same struct page. Resolve the prefix
-> > manually in
-> > +		 * order to get a distinct struct page.
-> > +		 */
->=20
-> > +		addr +=3D (void
-> > *)lowcore_ptr[raw_smp_processor_id()] -
-> > +			(void *)&S390_lowcore;
->=20
-> If I am not mistaken neither raw_smp_processor_id() itself, nor
-> lowcore_ptr[raw_smp_processor_id()] are atomic. Should the preemption
-> be disabled while the addr is calculated?
->=20
-> But then the question arises - how meaningful the returned value is?
-> AFAICT kmsan_get_metadata() is called from a preemptable context.
-> So if the CPU is changed - how useful the previous CPU lowcore meta
-> is?
+On Thu, Jun 20, 2024 at 07:04:08PM +0800, Xuan Zhuo wrote:
+> On Thu, 20 Jun 2024 07:02:42 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Thu, Jun 20, 2024 at 06:49:08PM +0800, Xuan Zhuo wrote:
+> > > On Thu, 20 Jun 2024 06:01:54 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > > On Thu, Jun 20, 2024 at 05:04:53PM +0800, Xuan Zhuo wrote:
+> > > > > On Thu, 20 Jun 2024 05:01:08 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > > > > On Thu, Jun 20, 2024 at 04:39:38PM +0800, Xuan Zhuo wrote:
+> > > > > > > On Thu, 20 Jun 2024 04:02:45 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > > > > > > On Wed, Apr 24, 2024 at 05:15:29PM +0800, Xuan Zhuo wrote:
+> > > > > > > > > commit 6457f126c888 ("virtio: support reserved vqs") introduced this
+> > > > > > > > > support. Multiqueue virtio-net use 2N as ctrl vq finally, so the logic
+> > > > > > > > > doesn't apply. And not one uses this.
+> > > > > > > > >
+> > > > > > > > > On the other side, that makes some trouble for us to refactor the
+> > > > > > > > > find_vqs() params.
+> > > > > > > > >
+> > > > > > > > > So I remove this support.
+> > > > > > > > >
+> > > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > > > > > Acked-by: Jason Wang <jasowang@redhat.com>
+> > > > > > > > > Acked-by: Eric Farman <farman@linux.ibm.com> # s390
+> > > > > > > > > Acked-by: Halil Pasic <pasic@linux.ibm.com>
+> > > > > > > >
+> > > > > > > >
+> > > > > > > > I don't mind, but this patchset is too big already.
+> > > > > > > > Why do we need to make this part of this patchset?
+> > > > > > >
+> > > > > > >
+> > > > > > > If some the pointers of the names is NULL, then in the virtio ring,
+> > > > > > > we will have a trouble to index from the arrays(names, callbacks...).
+> > > > > > > Becasue that the idx of the vq is not the index of these arrays.
+> > > > > > >
+> > > > > > > If the names is [NULL, "rx", "tx"], the first vq is the "rx", but index of the
+> > > > > > > vq is zero, but the index of the info of this vq inside the arrays is 1.
+> > > > > >
+> > > > > >
+> > > > > > Ah. So actually, it used to work.
+> > > > > >
+> > > > > > What this should refer to is
+> > > > > >
+> > > > > > commit ddbeac07a39a81d82331a312d0578fab94fccbf1
+> > > > > > Author: Wei Wang <wei.w.wang@intel.com>
+> > > > > > Date:   Fri Dec 28 10:26:25 2018 +0800
+> > > > > >
+> > > > > >     virtio_pci: use queue idx instead of array idx to set up the vq
+> > > > > >
+> > > > > >     When find_vqs, there will be no vq[i] allocation if its corresponding
+> > > > > >     names[i] is NULL. For example, the caller may pass in names[i] (i=4)
+> > > > > >     with names[2] being NULL because the related feature bit is turned off,
+> > > > > >     so technically there are 3 queues on the device, and name[4] should
+> > > > > >     correspond to the 3rd queue on the device.
+> > > > > >
+> > > > > >     So we use queue_idx as the queue index, which is increased only when the
+> > > > > >     queue exists.
+> > > > > >
+> > > > > >     Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> > > > > >     Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > > > >
+> > > > >
+> > > > > That just work for PCI.
+> > > > >
+> > > > > The trouble I described is that we can not index in the virtio ring.
+> > > > >
+> > > > > In virtio ring, we may like to use the vq.index that do not increase
+> > > > > for the NULL.
+> > > > >
+> > > > >
+> > > > > >
+> > > > > > Which made it so setting names NULL actually does not reserve a vq.
+> > > > > >
+> > > > > > But I worry about non pci transports - there's a chance they used
+> > > > > > a different index with the balloon. Did you test some of these?
+> > > > > >
+> > > > >
+> > > > > Balloon is out of spec.
+> > > > >
+> > > > > The vq.index does not increase for the name NULL. So the Balloon use the
+> > > > > continuous id. That is out of spec.
+> > > >
+> > > >
+> > > > I see. And apparently the QEMU implementation is out of spec, too,
+> > > > so they work fine. And STATS is always on in QEMU.
+> > > >
+> > > > That change by Wei broke the theoretical config which has
+> > > > !STATS but does have FREE_PAGE. We never noticed - not many people
+> > > > ever bothered with FREE_PAGE.
+> > > >
+> > > > However QEMU really is broken in a weird way.
+> > > > In particular if it exposes STATS but driver does not
+> > > > configure STATS then QEMU still has the stats vq.
+> > > > Things will break then.
+> > > >
+> > > >
+> > > > In short, it's a mess, and it needs thought.
+> > > > At this point I suggest we keep the ability to set
+> > > > names to NULL in case we want to just revert Wei's patch.
+> > > >
+> > > >
+> > > >
+> > > > > That does not matter for this patchset.
+> > > > > The name NULL is always skipped.
+> > > > >
+> > > > > Thanks.
+> > > >
+> > > >
+> > > > Let's keep this patchset as small as possible.
+> > > > Keep the existing functionality, we'll do cleanups
+> > > > later.
+> > >
+> > >
+> > > I am ok. But we need a idx to index the info of the vq.
+> > >
+> > > How about a new element "cfg_idx" to virtio_vq_config.
+> > >
+> > > struct virtio_vq_config {
+> > > 	unsigned int nvqs;
+> > > ->	unsigned int cfg_idx;
+> > >
+> > > 	struct virtqueue   **vqs;
+> > > 	vq_callback_t      **callbacks;
+> > > 	const char         **names;
+> > > 	const bool          *ctx;
+> > > 	struct irq_affinity *desc;
+> > > };
+> > >
+> > >
+> > > That is setted by transport. The virtio ring can use this to index the info
+> > > of the vq. Then the #1 #2 commits can be dropped.
+> > >
+> > >
+> > > Thanks.
+> > >
+> >
+> > I'm not sure why you need this in the API.
+> >
+> >
+> > Actually now I think about it, the whole struct is weird.
+> > I think nvqs etc should be outside the struct.
+> > All arrays are the same size, why not:
+> >
+> > struct virtio_vq_config {
+> >  	vq_callback_t      callback;
+> >  	const char         *name;
+> >  	const bool          ctx;
+> > };
+> >
+> > And find_vqs should get an array of these.
+> > Leave the rest of params alone.
+> 
+> 
+> YES, this is great.
+> 
+> I thought about this.
+> 
+> The trouble is that all the callers need to be changed.
+> That are too many.
+> 
+> Thanks.
+> 
 
-This code path will only be triggered by instrumented code that
-accesses lowcore. That code is supposed to disable preemption;
-if it didn't, it's a bug in that code and it should be fixed there.
+Not too many.
 
->=20
-> Is it a memory block that needs to be ignored instead?
->=20
-> > +		if (WARN_ON_ONCE(is_lowcore_addr(addr)))
-> > +			return NULL;
->=20
-> lowcore_ptr[] pointing into S390_lowcore is rather a bug.
 
-Right, but AFAIK BUG() calls are discouraged. I guess in a debug tool
-the rules are more relaxed, but we can recover from this condition here
-easily, that's why I still went for WARN_ON_ONCE().
+> >
+> >
+> > >
+> > > >
+> > > >
+> > > > > > --
+> > > > > > MST
+> > > > > >
+> > > >
+> >
 
-> > +		return kmsan_get_metadata(addr, is_origin);
-> > +	}
-> > +	return NULL;
-> > +}
->=20
-> Thanks!
