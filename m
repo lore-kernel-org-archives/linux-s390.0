@@ -1,222 +1,105 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85DA417279E
-	for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2024 08:08:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F1A01741DB
+	for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2024 08:15:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718870910; cv=none; b=lKrbEcrS1RUDWr1r5f95FAh19FlQiMZQipPhlHDrSSspe79RTlgMHKimjJrkefn8ctx5sZCTSw1ROi3lOT0+KkrgvFCs15UVlkjnU37Xomi3lQlztn/AEW561lYWmby7NCimbptKfqatRRzbMHJrTLF2KN+oGsLmPOX91WMbri4=
+	t=1718871311; cv=none; b=Vr9+31Xf3VsHY9UsWJ8qTuT1mkEZF8ADdS7/z6by4DfooDS6Qff8fr65GfTY8bMBtH/peNZj1MS8TYKL7oK3OUUNMjK0fQEBQmRrwI27s/5i8qxBs/8H5rFZya1bFRROqNavKfyVNHXXIIZS4iMFpkrX3C7o9lkOstbB6KfWuac=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718870910; c=relaxed/simple;
-	bh=iZmgo2+TOhUg1x9YUztlK/dbvEtJpfYQSCVEMXHMeyA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jQjVHSSni5yT9fQihSXkkUT9nkDbQRZOMsu0i7PlOgCpo5a+PB7G1t+CuuYI9jS5oSGf3mSK4mDsK1iZyNKrIuBufnpUSrwjhnQa9aVywC5n7JdlZu69Q8klynXcV9kCuUb7k6VQOIZ4tOefVLBWiD2gWyLtBQQeubFqkBYRnkQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bF2P88s4; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1718871311; c=relaxed/simple;
+	bh=ZHRuGJFlUYdLamnB6sF47nsjZQIytquVYyRv7K2ZWxU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CXiOJaa0+EPzLXIqr2OXv/V3YWrJStDKQYNt3darBxIz1ahS0AtDhUBnjvazbj6Z0PPQX4gz+sRBp//+3KasB3mN+Rd8plUaAlWFRFH1SK6dDOG2iBsnwhy+mpGjXAS9q5gIwK2a9vaJ9Scz9FSXnil9ur1vWr48BQL3HCMS0h8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=0q1TTYUR; arc=none smtp.client-ip=209.85.128.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bF2P88s4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718870907;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fYkcvH1qikOhnYAi1RzJNYy38ecUZaxzjAiohS4BdJU=;
-	b=bF2P88s4SX3EaUwaeIwnArorSHARc3SzTla3IYss7j/qpYCU6LkXZBlS0zfg3IEcFxyo/2
-	gtEsz+XWgkR2Ype+hZrBExturpTSxIKm6JHPGWpRP6V3YGCG058JwbtFWkkJELZyChz0Of
-	4ckXhx6+JQ30wt2EWW6f1jtH9j785Sc=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-139-2GiVT0IKMMq3nSo8weDcYA-1; Thu, 20 Jun 2024 04:08:25 -0400
-X-MC-Unique: 2GiVT0IKMMq3nSo8weDcYA-1
-Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-57851ae6090so292520a12.3
-        for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2024 01:08:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718870904; x=1719475704;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="0q1TTYUR"
+Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-6327e303739so5805807b3.2
+        for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2024 01:15:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1718871309; x=1719476109; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=fYkcvH1qikOhnYAi1RzJNYy38ecUZaxzjAiohS4BdJU=;
-        b=wNsck4q+A8i9iAR0zgevA58y6E+GhQ5zeUGu1vUrWHg8/bHQceaFG4Qi/MX47vvUuj
-         DsSH2Eay/6ZjehVkXvhnqcDjsMupHsT476QlaVW8HS/3E2JwT8fdi43KlInDIdxPLkbt
-         2H0Nu7C84kBF2qlMEzuIK+gviXYcpykah7qyYodJjG9unpLjedctiXmknexDoGWvQ/DN
-         GDc6nQDyKlCJgaOIg4VhA0hAQHvfe3esbXc4uOYd3R7aOWGdC6X4iBMuDDrFagwSNfDx
-         61ahxHFVk6T8UH9/eVh/u1yjXmOGelUOLixZ3cyIPqFDByfFivv0fJXSGq8GBB46ctNi
-         Nahw==
-X-Forwarded-Encrypted: i=1; AJvYcCU9LktLSBy3gfZbGYPtEdMMHzoo1SS6oc5E3jEaL5xZEb4UEFpY60FR7H6f2n6f2oe4QVnERKiXHTeL+umj7mWSEITo3ff1c/eDew==
-X-Gm-Message-State: AOJu0YwxbDPTE4/ENut4HvM2kC5OZEyqy48pR2N9OdYU4RjjRK+06Pb2
-	YYjs6Nh9NE5UvK1gpkhWnLNIMtN4xn2+YqRxNg7Fuu6ZRAL5lzO8Zgr87mLOS18nfMeesHiFX60
-	QPyKew7TApNqEsBIg8A+IyEDJCZ87OKoetQQ7YWg1/uwzDGaod7rwr5p5YY8=
-X-Received: by 2002:a50:ab18:0:b0:57d:12c3:eca6 with SMTP id 4fb4d7f45d1cf-57d12c3ed79mr2054068a12.18.1718870903882;
-        Thu, 20 Jun 2024 01:08:23 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IElyy2gCyt3ovTk4v5Gf3L+EBBsQDxCvTGnZmU0yxgu5HjKvNiZ0eDBqsa0yCdr2XWpOKzZ1g==
-X-Received: by 2002:a50:ab18:0:b0:57d:12c3:eca6 with SMTP id 4fb4d7f45d1cf-57d12c3ed79mr2054031a12.18.1718870902978;
-        Thu, 20 Jun 2024 01:08:22 -0700 (PDT)
-Received: from redhat.com ([2.52.146.100])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-57cd24df611sm5962871a12.16.2024.06.20.01.08.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Jun 2024 01:08:22 -0700 (PDT)
-Date: Thu, 20 Jun 2024 04:08:15 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	David Hildenbrand <david@redhat.com>,
-	Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH vhost v9 1/6] virtio_balloon: remove the dependence where
- names[] is null
-Message-ID: <20240620040415-mutt-send-email-mst@kernel.org>
-References: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
- <20240424091533.86949-2-xuanzhuo@linux.alibaba.com>
+        bh=VkDyjmmo2mJ4eSIsOzioTK+npaxfD4Q0PqQ0hVQZ66Q=;
+        b=0q1TTYURnIp+/XFb/EoH4dDbQF63DjNb0U+1GNE+ogoI/17YREMvATQGVlZ+Y6fAfV
+         AUyJLwDnn3FP7lwBsoNp10YgVAwp2QdsHCllE7PW+Y5wiCoHKW9McjfSfQmbAGkeFJym
+         bKwrSSW54DfizLu/IGad6MaLecomhonc0iXvbQ6NaAmX/1LGC4LlnLAzzP/6QR6xkQZT
+         7yUta9lsPaaNfJt2bbaMYrrgLINexvn9ihcRooPYTyFSmrEnZ2DgSD7Ayr7jPfwl1PaD
+         hW6+/vbc6A/NQ5p3IHkWvGy7W6rwj8y3qTN4L3rZMG/H49O8GUbelgrAroLH7vhEQgKS
+         crhg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718871309; x=1719476109;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=VkDyjmmo2mJ4eSIsOzioTK+npaxfD4Q0PqQ0hVQZ66Q=;
+        b=C4su4wOjjO0fcXhdtxHNK9i0Erw2BrGWsj0ZDT8xrUSX7Ta98qPcBqHp4tYdHXfhxv
+         uhe2oiAAxvbs8JqV3edyUc4gLjooAkLzgvdQA9qb0YRhlOPl9ATj7BagjyywWmzExINm
+         joU+KGzyYuPIWSYOTI8IsUqBl2yaqUf/rzsKpXIblqlJD17bV7QdSGILXVCWrWSwe0hQ
+         zhAGs0370XbYUc14sd5ulpw5ur6QhmCc0UF0mIrFAnSqFUiMAm1soHgpgvLxzlmC1iv9
+         Ww3ssD5LGkVekVCc794/WlpFKs1pPqyyBHx7j6gd+PmnKZ+98n2H1Cua+0Db1n0gvame
+         tk1Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXNduRhK4PGN1toQvsEvx/57FMsrTxEc/y9ZWZRvoU3623aiDS/r+fixzGCatu6lKs0ULC2ngt74a//hj44dBJS8XWDZYZz9bxTig==
+X-Gm-Message-State: AOJu0YwEduzvCi+g6xcxd/dfyKzdoOIdPkNqezjimm6/1EygRHYbxX1b
+	xALAJUM9+xIFFHuyN6z5fFoVh3YUu1lQ56Rc+4buc2J5MT4a++lEXizR4B1hnQB3860yCpmcC2n
+	TEY69NKJl05U5Ugfc6DI/q+hQlpsGjr9HMhyX
+X-Google-Smtp-Source: AGHT+IEov8tA6WgC+NocZnlJNfskZn/sCcpgNQNbOkch4CKnuKF2F+01qvPEG14FlebgcmBeM68GwMaerknT5zuvZsM=
+X-Received: by 2002:a0d:f185:0:b0:61b:3345:a349 with SMTP id
+ 00721157ae682-63a8d44ac47mr43240177b3.3.1718871308642; Thu, 20 Jun 2024
+ 01:15:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240424091533.86949-2-xuanzhuo@linux.alibaba.com>
+References: <20240619154530.163232-1-iii@linux.ibm.com> <20240619154530.163232-13-iii@linux.ibm.com>
+In-Reply-To: <20240619154530.163232-13-iii@linux.ibm.com>
+From: Alexander Potapenko <glider@google.com>
+Date: Thu, 20 Jun 2024 10:14:27 +0200
+Message-ID: <CAG_fn=W6L0Yr_GLHEok=LmL0-whk2r+-E7fVHj8pA8GCtgze=Q@mail.gmail.com>
+Subject: Re: [PATCH v5 12/37] kmsan: Introduce memset_no_sanitize_memory()
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
+	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
+	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 24, 2024 at 05:15:28PM +0800, Xuan Zhuo wrote:
-> Currently, the init_vqs function within the virtio_balloon driver relies
-> on the condition that certain names array entries are null in order to
-> skip the initialization of some virtual queues (vqs). This behavior is
-> unique to this part of the codebase. In an upcoming commit, we plan to
-> eliminate this dependency by removing the function entirely. Therefore,
-> with this change, we are ensuring that the virtio_balloon no longer
-> depends on the aforementioned function.
-> 
-> As specification 1.0-1.2, vq indexes should not be contiguous if some
-> vq does not exist. But currently the virtqueue index is contiguous for
-> all existing devices. The Linux kernel does not implement functionality
-> to allow vq indexes to be discontinuous. So the current behavior of the
-> virtio-balloon device is different for the spec. But this commit has no
-> functional changes.
-> 
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Acked-by: David Hildenbrand <david@redhat.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
-
-I can't make heads of tails of this.
-
-David you acked so maybe you can help rewrite the commit log here?
-
-I don't understand what this says.
-What in the balloon driver is out of spec?
-NULL in names *exactly* allows skipping init for some vqs.
-How is that "does not implement"?
-
-And so on.
-
+On Wed, Jun 19, 2024 at 5:45=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.com=
+> wrote:
+>
+> Add a wrapper for memset() that prevents unpoisoning. This is useful
+> for filling memory allocator redzones.
+>
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Alexander Potapenko <glider@google.com>
 
 > ---
->  drivers/virtio/virtio_balloon.c | 48 ++++++++++++++-------------------
->  1 file changed, 20 insertions(+), 28 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index c0a63638f95e..ccda6d08493f 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -548,49 +548,41 @@ static int init_vqs(struct virtio_balloon *vb)
->  	struct virtqueue *vqs[VIRTIO_BALLOON_VQ_MAX];
->  	vq_callback_t *callbacks[VIRTIO_BALLOON_VQ_MAX];
->  	const char *names[VIRTIO_BALLOON_VQ_MAX];
-> -	int err;
-> +	int err, idx = 0;
->  
-> -	/*
-> -	 * Inflateq and deflateq are used unconditionally. The names[]
-> -	 * will be NULL if the related feature is not enabled, which will
-> -	 * cause no allocation for the corresponding virtqueue in find_vqs.
-> -	 */
-> -	callbacks[VIRTIO_BALLOON_VQ_INFLATE] = balloon_ack;
-> -	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
-> -	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
-> -	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
-> -	callbacks[VIRTIO_BALLOON_VQ_STATS] = NULL;
-> -	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
-> -	callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
-> -	names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
-> -	names[VIRTIO_BALLOON_VQ_REPORTING] = NULL;
-> +	callbacks[idx] = balloon_ack;
-> +	names[idx++] = "inflate";
-> +	callbacks[idx] = balloon_ack;
-> +	names[idx++] = "deflate";
->  
->  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-> -		names[VIRTIO_BALLOON_VQ_STATS] = "stats";
-> -		callbacks[VIRTIO_BALLOON_VQ_STATS] = stats_request;
-> +		names[idx] = "stats";
-> +		callbacks[idx++] = stats_request;
->  	}
->  
->  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
-> -		names[VIRTIO_BALLOON_VQ_FREE_PAGE] = "free_page_vq";
-> -		callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
-> +		names[idx] = "free_page_vq";
-> +		callbacks[idx++] = NULL;
->  	}
->  
->  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING)) {
-> -		names[VIRTIO_BALLOON_VQ_REPORTING] = "reporting_vq";
-> -		callbacks[VIRTIO_BALLOON_VQ_REPORTING] = balloon_ack;
-> +		names[idx] = "reporting_vq";
-> +		callbacks[idx++] = balloon_ack;
->  	}
->  
-> -	err = virtio_find_vqs(vb->vdev, VIRTIO_BALLOON_VQ_MAX, vqs,
-> -			      callbacks, names, NULL);
-> +	err = virtio_find_vqs(vb->vdev, idx, vqs, callbacks, names, NULL);
->  	if (err)
->  		return err;
->  
-> -	vb->inflate_vq = vqs[VIRTIO_BALLOON_VQ_INFLATE];
-> -	vb->deflate_vq = vqs[VIRTIO_BALLOON_VQ_DEFLATE];
-> +	idx = 0;
-> +
-> +	vb->inflate_vq = vqs[idx++];
-> +	vb->deflate_vq = vqs[idx++];
-> +
->  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
->  		struct scatterlist sg;
->  		unsigned int num_stats;
-> -		vb->stats_vq = vqs[VIRTIO_BALLOON_VQ_STATS];
-> +		vb->stats_vq = vqs[idx++];
->  
->  		/*
->  		 * Prime this virtqueue with one buffer so the hypervisor can
-> @@ -610,10 +602,10 @@ static int init_vqs(struct virtio_balloon *vb)
->  	}
->  
->  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
-> -		vb->free_page_vq = vqs[VIRTIO_BALLOON_VQ_FREE_PAGE];
-> +		vb->free_page_vq = vqs[idx++];
->  
->  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
-> -		vb->reporting_vq = vqs[VIRTIO_BALLOON_VQ_REPORTING];
-> +		vb->reporting_vq = vqs[idx++];
->  
->  	return 0;
->  }
-> -- 
-> 2.32.0.3.g01195cf9f
-
+>  include/linux/kmsan.h | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+>
+> diff --git a/include/linux/kmsan.h b/include/linux/kmsan.h
+> index 23de1b3d6aee..5f50885f2023 100644
+> --- a/include/linux/kmsan.h
+> +++ b/include/linux/kmsan.h
+> @@ -255,6 +255,14 @@ void kmsan_enable_current(void);
+>   */
+>  void kmsan_disable_current(void);
+>
+> +/*
+> + * memset_no_sanitize_memory(): memset() without KMSAN instrumentation.
+> + */
+Please make this a doc comment, like in the rest of the file.
+(Please also fix kmsan_enable_current/kmsan_disable_current in the
+respective patch)
