@@ -1,353 +1,363 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFEAAEDB
-	for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2024 08:36:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 556C219AD5C;
+	Thu, 20 Jun 2024 08:44:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718872613; cv=none; b=QJXjnRxGmZH2nAGtVQ4ix3xoCEawzCMNww2hU+tXIuJERYi/el96m66jo2pd7sLyEk6CpOnIb4PwvJP+sHV0R4RyzdJk7Qt77vROi/kGrtZDqabY0+gGue0NTtI/PTo10+QkClgQV6ie/1ke7BAXC3wIiT/SbxHHhmbSNh7SE+Q=
+	t=1718873073; cv=none; b=Gn5HA/YTRW8u/IjO2hsPdSpCdKilL2ea3OwGZi3J9UZ301Z/wfl6ysIv8Zr+5G2hSvG+Vw+9q7qZ17z0TVaz1FmEj5KGGgjrlQpmxMCrnlU10nQsobKVPbNl2fNSL4vHqELx6+wgGsFri7LX1LqxqjxgoyDk1SoeMMn9LRW4Oss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718872613; c=relaxed/simple;
-	bh=gThRgA+KYC5GB8/QMnZsGnppNwIjDv7ifk09VTYI/e4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RhZkYDizfPwgHNeKIs6YLIz3PGm9Kfe6IT3gvhhXcFr7bbd48bFGmdhODf9e2/H7zYDybDb7vyXmNCp7yLF6DgyVzgYqGFULLqniI5z8BHMrgXl9n6uhaaR0YMb83WON/cOEm4Hyo2Ly44CLMnEAwiu0Vascg4OD6ZiCw8CdXT4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=mDp2fqA6; arc=none smtp.client-ip=209.85.160.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1718873073; c=relaxed/simple;
+	bh=9ppbWfvN5wQaZwwUws1Lo98Waa7W+SrawaAN4bbtQvA=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=OsLUbRZbo0qhF/VtJ+cFO1bppKvQRoUKVGSjWqwvLcBtNa1uMGfAZ+2VRoGLqpBQInj8AWcO8JUEzTMWEWlC0d5y2n98FgVq2bx2Yn+kVMT/XWN+nijN9CWk8Fl2HKjNkRjUOJZk3Beo/NTnCZKc4fixa1zpHI632Jix+ox7XE8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=jXhPvDcH; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="mDp2fqA6"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-440609dd118so2588251cf.1
-        for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2024 01:36:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1718872611; x=1719477411; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/OUYcIAPu8Sr/lzFQuuddP6LocZmaVvpQ1N05tgsbXo=;
-        b=mDp2fqA67B5SeRvojKMA6ld+w7F4NgXSmoLXY3ykDVCuzWa8IK2xH8blxrJFyNUcIj
-         nQoE4lcEXSN3FyolpQZSxAjCs4Q2STezxFzvF5KgGE07shXk1smCEGNX+FmAkmYS3o6C
-         mgl+kgnLyvywhLHH/TeZWm5VUwAdElHb7UpoCcEteNxIvoviIDuUecf0gYEw3mIx++fO
-         1fIEL6WB3GtcAFcY4rZ34tViPuqM94syz9Necn9np2DNTEhKwZsgFO5PBpfJBwDP2+iA
-         Yi8QYiyuXh4B85vdRgyD6pH5AgbBVJ4NUCh26EAUulYynLcWYFqoar6A7K8jdhiBIn4Z
-         Lk7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718872611; x=1719477411;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/OUYcIAPu8Sr/lzFQuuddP6LocZmaVvpQ1N05tgsbXo=;
-        b=ktu8DDQ2zPBQwC1AQmU2iebfETuJsNLx/oaacNB4Y8oU2PgB22Zrz+9uaJLCZAezxC
-         UY9HC5KS97lmftd7jSrUdEIT4oo3p7BEoNDXgTwcCo1+R6Nas3JS0Hl8xYMYA08EX7+m
-         vwRUfZzi+jd+FbJt3Szj51FLiFURhPIbmU4anIV4t5jlPXCbv43rZLTdfLtj8f3SqlGn
-         rVtSA9oCarwmoh7QsyKbdQJiB4AM7ueYZpO8CAqyQtcGcOlBnLvNbRSy68Ym/cvwqsYA
-         U6jMN1beF+3EgpVQzBi2t9fkgH+SA3Tvr/bUJFORespnDJduLKfa7wDfbpMeE7G/yf8J
-         e+rg==
-X-Forwarded-Encrypted: i=1; AJvYcCUeJ3AOl8kxJcOF+feexanAcEttTZ7HrKS7nmF/37biaQUTsBnQhz2IumfFq5IoQozAbbbCLUJe2swGiWG67z224TwP727kuFDtjw==
-X-Gm-Message-State: AOJu0Yy/DjzvDV1SeHsGR7p+xuDT/XKsY83FefD8W2fcqP2EaRS9zpxt
-	Ljq+XHq5J41ZSTWu0oOv7CABxMSfri1zJmnfuCKUDdXc3jg3H7HjKJY5YPCIdcyE3FgewLq50vY
-	842MDdq/dXdV9Y+xk261jx0rIJqjc7dAUwYkl
-X-Google-Smtp-Source: AGHT+IErmEp1x0YBOZTZJdlWJwFXEfsRyPhDcy8wmEVW3hTA6/SyMHr3il2LMbLMxYtDvHsm6Ik4jSDo32quxqAzw+g=
-X-Received: by 2002:a05:6214:4a42:b0:6b4:f761:f0b8 with SMTP id
- 6a1803df08f44-6b501dff5a9mr45755846d6.8.1718872610557; Thu, 20 Jun 2024
- 01:36:50 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="jXhPvDcH"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1718873062; h=Message-ID:Subject:Date:From:To;
+	bh=uxEOLC+BYL67glPcCyaAEcZAqD6z7DdJedmKkGkTTKU=;
+	b=jXhPvDcHEqoGysuJsfee+bQw0pHw7VCko94UPx3uMUKj0vCrQJrVAM/gU/rekkaz+z5EkSUvpor5Z3sqeD1sI88s+i4a82MbciJFWsP5ykmHcRNtHSffb6hwkJEbVWaaGbxTdPWTjlDqoAuwUt8tfW77oMfkx6F3ArLG8BVbq4o=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=25;SR=0;TI=SMTPD_---0W8qglLH_1718873060;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W8qglLH_1718873060)
+          by smtp.aliyun-inc.com;
+          Thu, 20 Jun 2024 16:44:21 +0800
+Message-ID: <1718872778.4831812-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v9 2/6] virtio: remove support for names array entries being null.
+Date: Thu, 20 Jun 2024 16:39:38 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev,
+ Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Hans de Goede <hdegoede@redhat.com>,
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Vadim Pasternak <vadimp@nvidia.com>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>,
+ Halil Pasic <pasic@linux.ibm.com>,
+ Eric Farman <farman@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ David Hildenbrand <david@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ linux-um@lists.infradead.org,
+ platform-driver-x86@vger.kernel.org,
+ linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org
+References: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
+ <20240424091533.86949-3-xuanzhuo@linux.alibaba.com>
+ <20240620035749-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240620035749-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20240619154530.163232-1-iii@linux.ibm.com> <20240619154530.163232-34-iii@linux.ibm.com>
-In-Reply-To: <20240619154530.163232-34-iii@linux.ibm.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Thu, 20 Jun 2024 10:36:12 +0200
-Message-ID: <CAG_fn=V8Tt28LE9FtoYkos=5XG4zP_tDP1mF1COfEhAMg2ULqQ@mail.gmail.com>
-Subject: Re: [PATCH v5 33/37] s390/uaccess: Add KMSAN support to put_user()
- and get_user()
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
-	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 19, 2024 at 5:45=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.com=
-> wrote:
+On Thu, 20 Jun 2024 04:02:45 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Wed, Apr 24, 2024 at 05:15:29PM +0800, Xuan Zhuo wrote:
+> > commit 6457f126c888 ("virtio: support reserved vqs") introduced this
+> > support. Multiqueue virtio-net use 2N as ctrl vq finally, so the logic
+> > doesn't apply. And not one uses this.
+> >
+> > On the other side, that makes some trouble for us to refactor the
+> > find_vqs() params.
+> >
+> > So I remove this support.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > Acked-by: Jason Wang <jasowang@redhat.com>
+> > Acked-by: Eric Farman <farman@linux.ibm.com> # s390
+> > Acked-by: Halil Pasic <pasic@linux.ibm.com>
 >
-> put_user() uses inline assembly with precise constraints, so Clang is
-> in principle capable of instrumenting it automatically. Unfortunately,
-> one of the constraints contains a dereferenced user pointer, and Clang
-> does not currently distinguish user and kernel pointers. Therefore
-> KMSAN attempts to access shadow for user pointers, which is not a right
-> thing to do.
+>
+> I don't mind, but this patchset is too big already.
+> Why do we need to make this part of this patchset?
 
-By the way, how does this problem manifest?
-I was expecting KMSAN to generate dummy shadow accesses in this case,
-and reading/writing 1-8 bytes from dummy shadow shouldn't be a
-problem.
 
-(On the other hand, not inlining the get_user/put_user functions is
-probably still faster than retrieving the dummy shadow, so I'm fine
-either way)
+If some the pointers of the names is NULL, then in the virtio ring,
+we will have a trouble to index from the arrays(names, callbacks...).
+Becasue that the idx of the vq is not the index of these arrays.
 
->
-> An obvious fix to add __no_sanitize_memory to __put_user_fn() does not
-> work, since it's __always_inline. And __always_inline cannot be removed
-> due to the __put_user_bad() trick.
->
-> A different obvious fix of using the "a" instead of the "+Q" constraint
-> degrades the code quality, which is very important here, since it's a
-> hot path.
->
-> Instead, repurpose the __put_user_asm() macro to define
-> __put_user_{char,short,int,long}_noinstr() functions and mark them with
-> __no_sanitize_memory. For the non-KMSAN builds make them
-> __always_inline in order to keep the generated code quality. Also
-> define __put_user_{char,short,int,long}() functions, which call the
-> aforementioned ones and which *are* instrumented, because they call
-> KMSAN hooks, which may be implemented as macros.
->
-> The same applies to get_user() as well.
->
-> Acked-by: Heiko Carstens <hca@linux.ibm.com>
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-> ---
->  arch/s390/include/asm/uaccess.h | 111 +++++++++++++++++++++++---------
->  1 file changed, 79 insertions(+), 32 deletions(-)
->
-> diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uacc=
-ess.h
-> index 81ae8a98e7ec..70f0edc00c2a 100644
-> --- a/arch/s390/include/asm/uaccess.h
-> +++ b/arch/s390/include/asm/uaccess.h
-> @@ -78,13 +78,24 @@ union oac {
->
->  int __noreturn __put_user_bad(void);
->
-> -#define __put_user_asm(to, from, size)                                 \
-> -({                                                                     \
-> +#ifdef CONFIG_KMSAN
-> +#define get_put_user_noinstr_attributes \
-> +       noinline __maybe_unused __no_sanitize_memory
-> +#else
-> +#define get_put_user_noinstr_attributes __always_inline
-> +#endif
-> +
-> +#define DEFINE_PUT_USER(type)                                          \
-> +static get_put_user_noinstr_attributes int                             \
-> +__put_user_##type##_noinstr(unsigned type __user *to,                  \
-> +                           unsigned type *from,                        \
-> +                           unsigned long size)                         \
-> +{                                                                      \
->         union oac __oac_spec =3D {                                       =
- \
->                 .oac1.as =3D PSW_BITS_AS_SECONDARY,                      =
- \
->                 .oac1.a =3D 1,                                           =
- \
->         };                                                              \
-> -       int __rc;                                                       \
-> +       int rc;                                                         \
->                                                                         \
->         asm volatile(                                                   \
->                 "       lr      0,%[spec]\n"                            \
-> @@ -93,12 +104,28 @@ int __noreturn __put_user_bad(void);
->                 "2:\n"                                                  \
->                 EX_TABLE_UA_STORE(0b, 2b, %[rc])                        \
->                 EX_TABLE_UA_STORE(1b, 2b, %[rc])                        \
-> -               : [rc] "=3D&d" (__rc), [_to] "+Q" (*(to))                =
- \
-> +               : [rc] "=3D&d" (rc), [_to] "+Q" (*(to))                  =
- \
->                 : [_size] "d" (size), [_from] "Q" (*(from)),            \
->                   [spec] "d" (__oac_spec.val)                           \
->                 : "cc", "0");                                           \
-> -       __rc;                                                           \
-> -})
-> +       return rc;                                                      \
-> +}                                                                      \
-> +                                                                       \
-> +static __always_inline int                                             \
-> +__put_user_##type(unsigned type __user *to, unsigned type *from,       \
-> +                 unsigned long size)                                   \
-> +{                                                                      \
-> +       int rc;                                                         \
-> +                                                                       \
-> +       rc =3D __put_user_##type##_noinstr(to, from, size);              =
- \
-> +       instrument_put_user(*from, to, size);                           \
-> +       return rc;                                                      \
-> +}
-> +
-> +DEFINE_PUT_USER(char);
-> +DEFINE_PUT_USER(short);
-> +DEFINE_PUT_USER(int);
-> +DEFINE_PUT_USER(long);
->
->  static __always_inline int __put_user_fn(void *x, void __user *ptr, unsi=
-gned long size)
->  {
-> @@ -106,24 +133,24 @@ static __always_inline int __put_user_fn(void *x, v=
-oid __user *ptr, unsigned lon
->
->         switch (size) {
->         case 1:
-> -               rc =3D __put_user_asm((unsigned char __user *)ptr,
-> -                                   (unsigned char *)x,
-> -                                   size);
-> +               rc =3D __put_user_char((unsigned char __user *)ptr,
-> +                                    (unsigned char *)x,
-> +                                    size);
->                 break;
->         case 2:
-> -               rc =3D __put_user_asm((unsigned short __user *)ptr,
-> -                                   (unsigned short *)x,
-> -                                   size);
-> +               rc =3D __put_user_short((unsigned short __user *)ptr,
-> +                                     (unsigned short *)x,
-> +                                     size);
->                 break;
->         case 4:
-> -               rc =3D __put_user_asm((unsigned int __user *)ptr,
-> +               rc =3D __put_user_int((unsigned int __user *)ptr,
->                                     (unsigned int *)x,
->                                     size);
->                 break;
->         case 8:
-> -               rc =3D __put_user_asm((unsigned long __user *)ptr,
-> -                                   (unsigned long *)x,
-> -                                   size);
-> +               rc =3D __put_user_long((unsigned long __user *)ptr,
-> +                                    (unsigned long *)x,
-> +                                    size);
->                 break;
->         default:
->                 __put_user_bad();
-> @@ -134,13 +161,17 @@ static __always_inline int __put_user_fn(void *x, v=
-oid __user *ptr, unsigned lon
->
->  int __noreturn __get_user_bad(void);
->
-> -#define __get_user_asm(to, from, size)                                 \
-> -({                                                                     \
-> +#define DEFINE_GET_USER(type)                                          \
-> +static get_put_user_noinstr_attributes int                             \
-> +__get_user_##type##_noinstr(unsigned type *to,                         \
-> +                           unsigned type __user *from,                 \
-> +                           unsigned long size)                         \
-> +{                                                                      \
->         union oac __oac_spec =3D {                                       =
- \
->                 .oac2.as =3D PSW_BITS_AS_SECONDARY,                      =
- \
->                 .oac2.a =3D 1,                                           =
- \
->         };                                                              \
-> -       int __rc;                                                       \
-> +       int rc;                                                         \
->                                                                         \
->         asm volatile(                                                   \
->                 "       lr      0,%[spec]\n"                            \
-> @@ -149,13 +180,29 @@ int __noreturn __get_user_bad(void);
->                 "2:\n"                                                  \
->                 EX_TABLE_UA_LOAD_MEM(0b, 2b, %[rc], %[_to], %[_ksize])  \
->                 EX_TABLE_UA_LOAD_MEM(1b, 2b, %[rc], %[_to], %[_ksize])  \
-> -               : [rc] "=3D&d" (__rc), "=3DQ" (*(to))                    =
-   \
-> +               : [rc] "=3D&d" (rc), "=3DQ" (*(to))                      =
-   \
->                 : [_size] "d" (size), [_from] "Q" (*(from)),            \
->                   [spec] "d" (__oac_spec.val), [_to] "a" (to),          \
->                   [_ksize] "K" (size)                                   \
->                 : "cc", "0");                                           \
-> -       __rc;                                                           \
-> -})
-> +       return rc;                                                      \
-> +}                                                                      \
-> +                                                                       \
-> +static __always_inline int                                             \
-> +__get_user_##type(unsigned type *to, unsigned type __user *from,       \
-> +                 unsigned long size)                                   \
-> +{                                                                      \
-> +       int rc;                                                         \
-> +                                                                       \
-> +       rc =3D __get_user_##type##_noinstr(to, from, size);              =
- \
-> +       instrument_get_user(*to);                                       \
-> +       return rc;                                                      \
-> +}
-> +
-> +DEFINE_GET_USER(char);
-> +DEFINE_GET_USER(short);
-> +DEFINE_GET_USER(int);
-> +DEFINE_GET_USER(long);
->
->  static __always_inline int __get_user_fn(void *x, const void __user *ptr=
-, unsigned long size)
->  {
-> @@ -163,24 +210,24 @@ static __always_inline int __get_user_fn(void *x, c=
-onst void __user *ptr, unsign
->
->         switch (size) {
->         case 1:
-> -               rc =3D __get_user_asm((unsigned char *)x,
-> -                                   (unsigned char __user *)ptr,
-> -                                   size);
-> +               rc =3D __get_user_char((unsigned char *)x,
-> +                                    (unsigned char __user *)ptr,
-> +                                    size);
->                 break;
->         case 2:
-> -               rc =3D __get_user_asm((unsigned short *)x,
-> -                                   (unsigned short __user *)ptr,
-> -                                   size);
-> +               rc =3D __get_user_short((unsigned short *)x,
-> +                                     (unsigned short __user *)ptr,
-> +                                     size);
->                 break;
->         case 4:
-> -               rc =3D __get_user_asm((unsigned int *)x,
-> +               rc =3D __get_user_int((unsigned int *)x,
->                                     (unsigned int __user *)ptr,
->                                     size);
->                 break;
->         case 8:
-> -               rc =3D __get_user_asm((unsigned long *)x,
-> -                                   (unsigned long __user *)ptr,
-> -                                   size);
-> +               rc =3D __get_user_long((unsigned long *)x,
-> +                                    (unsigned long __user *)ptr,
-> +                                    size);
->                 break;
->         default:
->                 __get_user_bad();
-> --
-> 2.45.1
->
-> --
-> You received this message because you are subscribed to the Google Groups=
- "kasan-dev" group.
-> To unsubscribe from this group and stop receiving emails from it, send an=
- email to kasan-dev+unsubscribe@googlegroups.com.
-> To view this discussion on the web visit https://groups.google.com/d/msgi=
-d/kasan-dev/20240619154530.163232-34-iii%40linux.ibm.com.
+If the names is [NULL, "rx", "tx"], the first vq is the "rx", but index of the
+vq is zero, but the index of the info of this vq inside the arrays is 1.
+
+So I do this commit.  I will update the commit log in next version.
+
+Thanks.
 
 
 
---=20
-Alexander Potapenko
-Software Engineer
-
-Google Germany GmbH
-Erika-Mann-Stra=C3=9Fe, 33
-80636 M=C3=BCnchen
-
-Gesch=C3=A4ftsf=C3=BChrer: Paul Manicle, Liana Sebastian
-Registergericht und -nummer: Hamburg, HRB 86891
-Sitz der Gesellschaft: Hamburg
+>
+>
+> > ---
+> >  arch/um/drivers/virtio_uml.c           |  8 ++++----
+> >  drivers/remoteproc/remoteproc_virtio.c | 11 ++++-------
+> >  drivers/s390/virtio/virtio_ccw.c       |  8 ++++----
+> >  drivers/virtio/virtio_mmio.c           | 11 ++++-------
+> >  drivers/virtio/virtio_pci_common.c     | 18 +++++++++---------
+> >  drivers/virtio/virtio_vdpa.c           | 11 ++++-------
+> >  include/linux/virtio_config.h          |  2 +-
+> >  7 files changed, 30 insertions(+), 39 deletions(-)
+> >
+> > diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+> > index 8adca2000e51..773f9fc4d582 100644
+> > --- a/arch/um/drivers/virtio_uml.c
+> > +++ b/arch/um/drivers/virtio_uml.c
+> > @@ -1019,8 +1019,8 @@ static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+> >  		       struct irq_affinity *desc)
+> >  {
+> >  	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
+> > -	int i, queue_idx = 0, rc;
+> >  	struct virtqueue *vq;
+> > +	int i, rc;
+> >
+> >  	/* not supported for now */
+> >  	if (WARN_ON(nvqs > 64))
+> > @@ -1032,11 +1032,11 @@ static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+> >
+> >  	for (i = 0; i < nvqs; ++i) {
+> >  		if (!names[i]) {
+> > -			vqs[i] = NULL;
+> > -			continue;
+> > +			rc = -EINVAL;
+> > +			goto error_setup;
+> >  		}
+> >
+> > -		vqs[i] = vu_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
+> > +		vqs[i] = vu_setup_vq(vdev, i, callbacks[i], names[i],
+> >  				     ctx ? ctx[i] : false);
+> >  		if (IS_ERR(vqs[i])) {
+> >  			rc = PTR_ERR(vqs[i]);
+> > diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+> > index 25b66b113b69..7f58634fcc41 100644
+> > --- a/drivers/remoteproc/remoteproc_virtio.c
+> > +++ b/drivers/remoteproc/remoteproc_virtio.c
+> > @@ -119,9 +119,6 @@ static struct virtqueue *rp_find_vq(struct virtio_device *vdev,
+> >  	if (id >= ARRAY_SIZE(rvdev->vring))
+> >  		return ERR_PTR(-EINVAL);
+> >
+> > -	if (!name)
+> > -		return NULL;
+> > -
+> >  	/* Search allocated memory region by name */
+> >  	mem = rproc_find_carveout_by_name(rproc, "vdev%dvring%d", rvdev->index,
+> >  					  id);
+> > @@ -187,15 +184,15 @@ static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+> >  				 const bool * ctx,
+> >  				 struct irq_affinity *desc)
+> >  {
+> > -	int i, ret, queue_idx = 0;
+> > +	int i, ret;
+> >
+> >  	for (i = 0; i < nvqs; ++i) {
+> >  		if (!names[i]) {
+> > -			vqs[i] = NULL;
+> > -			continue;
+> > +			ret = -EINVAL;
+> > +			goto error;
+> >  		}
+> >
+> > -		vqs[i] = rp_find_vq(vdev, queue_idx++, callbacks[i], names[i],
+> > +		vqs[i] = rp_find_vq(vdev, i, callbacks[i], names[i],
+> >  				    ctx ? ctx[i] : false);
+> >  		if (IS_ERR(vqs[i])) {
+> >  			ret = PTR_ERR(vqs[i]);
+> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> > index d7569f395559..6cdd29952bc0 100644
+> > --- a/drivers/s390/virtio/virtio_ccw.c
+> > +++ b/drivers/s390/virtio/virtio_ccw.c
+> > @@ -696,7 +696,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+> >  {
+> >  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+> >  	dma64_t *indicatorp = NULL;
+> > -	int ret, i, queue_idx = 0;
+> > +	int ret, i;
+> >  	struct ccw1 *ccw;
+> >
+> >  	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw), NULL);
+> > @@ -705,11 +705,11 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+> >
+> >  	for (i = 0; i < nvqs; ++i) {
+> >  		if (!names[i]) {
+> > -			vqs[i] = NULL;
+> > -			continue;
+> > +			ret = -EINVAL;
+> > +			goto out;
+> >  		}
+> >
+> > -		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
+> > +		vqs[i] = virtio_ccw_setup_vq(vdev, i, callbacks[i],
+> >  					     names[i], ctx ? ctx[i] : false,
+> >  					     ccw);
+> >  		if (IS_ERR(vqs[i])) {
+> > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> > index 173596589c71..c3c8dd282952 100644
+> > --- a/drivers/virtio/virtio_mmio.c
+> > +++ b/drivers/virtio/virtio_mmio.c
+> > @@ -386,9 +386,6 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+> >  	else
+> >  		notify = vm_notify;
+> >
+> > -	if (!name)
+> > -		return NULL;
+> > -
+> >  	/* Select the queue we're interested in */
+> >  	writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
+> >
+> > @@ -496,7 +493,7 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+> >  {
+> >  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+> >  	int irq = platform_get_irq(vm_dev->pdev, 0);
+> > -	int i, err, queue_idx = 0;
+> > +	int i, err;
+> >
+> >  	if (irq < 0)
+> >  		return irq;
+> > @@ -511,11 +508,11 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+> >
+> >  	for (i = 0; i < nvqs; ++i) {
+> >  		if (!names[i]) {
+> > -			vqs[i] = NULL;
+> > -			continue;
+> > +			vm_del_vqs(vdev);
+> > +			return -EINVAL;
+> >  		}
+> >
+> > -		vqs[i] = vm_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
+> > +		vqs[i] = vm_setup_vq(vdev, i, callbacks[i], names[i],
+> >  				     ctx ? ctx[i] : false);
+> >  		if (IS_ERR(vqs[i])) {
+> >  			vm_del_vqs(vdev);
+> > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> > index b655fccaf773..eda71c6e87ee 100644
+> > --- a/drivers/virtio/virtio_pci_common.c
+> > +++ b/drivers/virtio/virtio_pci_common.c
+> > @@ -292,7 +292,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
+> >  {
+> >  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> >  	u16 msix_vec;
+> > -	int i, err, nvectors, allocated_vectors, queue_idx = 0;
+> > +	int i, err, nvectors, allocated_vectors;
+> >
+> >  	vp_dev->vqs = kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
+> >  	if (!vp_dev->vqs)
+> > @@ -302,7 +302,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
+> >  		/* Best option: one for change interrupt, one per vq. */
+> >  		nvectors = 1;
+> >  		for (i = 0; i < nvqs; ++i)
+> > -			if (names[i] && callbacks[i])
+> > +			if (callbacks[i])
+> >  				++nvectors;
+> >  	} else {
+> >  		/* Second best: one for change, shared for all vqs. */
+> > @@ -318,8 +318,8 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
+> >  	allocated_vectors = vp_dev->msix_used_vectors;
+> >  	for (i = 0; i < nvqs; ++i) {
+> >  		if (!names[i]) {
+> > -			vqs[i] = NULL;
+> > -			continue;
+> > +			err = -EINVAL;
+> > +			goto error_find;
+> >  		}
+> >
+> >  		if (!callbacks[i])
+> > @@ -328,7 +328,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
+> >  			msix_vec = allocated_vectors++;
+> >  		else
+> >  			msix_vec = VP_MSIX_VQ_VECTOR;
+> > -		vqs[i] = vp_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
+> > +		vqs[i] = vp_setup_vq(vdev, i, callbacks[i], names[i],
+> >  				     ctx ? ctx[i] : false,
+> >  				     msix_vec);
+> >  		if (IS_ERR(vqs[i])) {
+> > @@ -363,7 +363,7 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
+> >  		const char * const names[], const bool *ctx)
+> >  {
+> >  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> > -	int i, err, queue_idx = 0;
+> > +	int i, err;
+> >
+> >  	vp_dev->vqs = kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
+> >  	if (!vp_dev->vqs)
+> > @@ -378,10 +378,10 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
+> >  	vp_dev->per_vq_vectors = false;
+> >  	for (i = 0; i < nvqs; ++i) {
+> >  		if (!names[i]) {
+> > -			vqs[i] = NULL;
+> > -			continue;
+> > +			err = -EINVAL;
+> > +			goto out_del_vqs;
+> >  		}
+> > -		vqs[i] = vp_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
+> > +		vqs[i] = vp_setup_vq(vdev, i, callbacks[i], names[i],
+> >  				     ctx ? ctx[i] : false,
+> >  				     VIRTIO_MSI_NO_VECTOR);
+> >  		if (IS_ERR(vqs[i])) {
+> > diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+> > index e803db0da307..e82cca24d6e6 100644
+> > --- a/drivers/virtio/virtio_vdpa.c
+> > +++ b/drivers/virtio/virtio_vdpa.c
+> > @@ -161,9 +161,6 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+> >  	bool may_reduce_num = true;
+> >  	int err;
+> >
+> > -	if (!name)
+> > -		return NULL;
+> > -
+> >  	if (index >= vdpa->nvqs)
+> >  		return ERR_PTR(-ENOENT);
+> >
+> > @@ -370,7 +367,7 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+> >  	struct cpumask *masks;
+> >  	struct vdpa_callback cb;
+> >  	bool has_affinity = desc && ops->set_vq_affinity;
+> > -	int i, err, queue_idx = 0;
+> > +	int i, err;
+> >
+> >  	if (has_affinity) {
+> >  		masks = create_affinity_masks(nvqs, desc ? desc : &default_affd);
+> > @@ -380,11 +377,11 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+> >
+> >  	for (i = 0; i < nvqs; ++i) {
+> >  		if (!names[i]) {
+> > -			vqs[i] = NULL;
+> > -			continue;
+> > +			err = -EINVAL;
+> > +			goto err_setup_vq;
+> >  		}
+> >
+> > -		vqs[i] = virtio_vdpa_setup_vq(vdev, queue_idx++,
+> > +		vqs[i] = virtio_vdpa_setup_vq(vdev, i,
+> >  					      callbacks[i], names[i], ctx ?
+> >  					      ctx[i] : false);
+> >  		if (IS_ERR(vqs[i])) {
+> > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> > index da9b271b54db..1c79cec258f4 100644
+> > --- a/include/linux/virtio_config.h
+> > +++ b/include/linux/virtio_config.h
+> > @@ -56,7 +56,7 @@ typedef void vq_callback_t(struct virtqueue *);
+> >   *	callbacks: array of callbacks, for each virtqueue
+> >   *		include a NULL entry for vqs that do not need a callback
+> >   *	names: array of virtqueue names (mainly for debugging)
+> > - *		include a NULL entry for vqs unused by driver
+> > + *		MUST NOT be NULL
+>
+> Do not shout - just drop "include a NULL entry" text - not being NULL
+> is default assumption for pointers.
+>
+> >   *	Returns 0 on success or error status
+> >   * @del_vqs: free virtqueues found by find_vqs().
+> >   * @synchronize_cbs: synchronize with the virtqueue callbacks (optional)
+> > --
+> > 2.32.0.3.g01195cf9f
+>
