@@ -1,99 +1,89 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F29EA7C6C9
-	for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2024 13:52:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A93B11AD4B2;
+	Thu, 20 Jun 2024 13:59:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718891536; cv=none; b=U3aYO7Aa5cMP9qXaS5uWmxv1hEOkASdGt+DcLde2xAf/B2u3L9H7QyNijyHn6m3yk+LrIwchypTkwSHMY7P4i8ThBgr5mw8l9CcnempTDlFTVdmRmX6g1YTrLmDl9YMEc6flEdto7i0+RZWRkEeOycTseAGD4dmJEJwpXKeWXwY=
+	t=1718891984; cv=none; b=jTZ6U2nLdtOsjalJQo5/6GFmiePnIT4vKiq86zRwjaZDRuzT9L8VA/qMdJZR709ro7p9CToITEcEbtpNWJcs568YYLxQry+R3DGzq5iZXPyT32kaS5e4VxdK3eTSFY+YmeU8iKyJLpVKZ7fT1TW4YAAHlKm3mwBc25sMMBAVc7w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718891536; c=relaxed/simple;
-	bh=kZFzGdFBvUz4Gg6I42gew9txHyVBgSQU2rWpWdCqIqw=;
+	s=arc-20240116; t=1718891984; c=relaxed/simple;
+	bh=+Lcvtd6El2bBqQL+WL4mFMdWQ1gU+MSb0PuigTxLO2U=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DIC5F97MqJnouqOgWj+MSbYHHF4bWIdm84/h8aJgTvfHORY3KaU6HqE6MU5MTdTjfLq8W79MVhy44Xa6mLjtfgf0pEvqUymV5hprTokXWJhwHB5NrRdQvqaZP112hJ4Hgk1q0Cpj2gNQaSJetpw2vKDQziNkoNyVXl6rL3WUmfI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FHXIc83i; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=bArXhLuJ6a9LW6uPEW+b3JUSaYFo1evd/GZEyx56PsxleyIE05ohACWJhQCNCmnw1FJkQN0KanZR+CXba1CnGqUIURw1OkE6G6k3LShsotX4KLl5FSW1f5DtNV9BG9PnVt43Jk2UIdX1Tn8AzQPh98jDt3IVoOIP/NtrSoFE6BQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XOKXz9J4; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FHXIc83i"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1718891534;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=CNpcAjabNj7U5Kjrejmg/ilwXEXZseiB+OI7rnWLE5Q=;
-	b=FHXIc83i1IFWAuvZ7bO1DC+WKv5kV+miQ9+UeFzbllGG7IQGwEqhEEpG5b7My3VBZLCRwE
-	vGv4l6uxgC43fjtyqXPlfwu4TFkoZzWg32rmnDSGoY18Ri2n3Vsn6gHGTvibppJ4mU6o4N
-	4Ak8M9xODdGIz2cae0ZdVPJVzUGHUU4=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-623-1pMwuMVqO4KYd5QkDP7EZA-1; Thu, 20 Jun 2024 09:52:12 -0400
-X-MC-Unique: 1pMwuMVqO4KYd5QkDP7EZA-1
-Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-57cad3fa0a1so664343a12.1
-        for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2024 06:52:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718891531; x=1719496331;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=CNpcAjabNj7U5Kjrejmg/ilwXEXZseiB+OI7rnWLE5Q=;
-        b=ri8lXAmfCr8Vk/v3fCsa4Jlk5U0b4jFhKVL0YlZAqLLnzpLtFULnfxPHjyFTVl4J2G
-         zdi9j1MGkxwKp5ep/Bt0g7TydJ150Wj5ThXdX/4kepqBjfCM7+JUs1LbSaMOEnwi5tVy
-         FRpHud4rOqczPFahnjL+1KenK056HMxiTiYgy8117OrD+nDVHC4jYhEY4jHi9UXTbFg7
-         B3l68Wt/gTceqrkH89ardQS2nzZ84oEdh2YFfaoH3l8yOPrgBEeh62q0YvoLtkdsO00y
-         ex34H08clQw6H3OZE+BI9doCV3jBuhIX/lunenfHJQc1himah3sZGcnyUTYSYx6UuGQ2
-         nBfw==
-X-Forwarded-Encrypted: i=1; AJvYcCXH6PPL6lqqC08HgO5K+j8JtiZg8L5GwUsgP+mZLEl9+c4TwM7MvgNsgoW6dIMJstntcQZQPK9rcognQvpRG4lXsMRh6GjvQD94tg==
-X-Gm-Message-State: AOJu0YwEZDbfkwmq0mPmVb3VZilN6qniCQBGL/CxpIsGGTviGsWLURWq
-	wSX/u1RtHs1ajkqFbG2pMee1Rn192UOgzVufU8I2ggxFmSM9HpTgJrygYxRwB/M/pUQp2GXPmZ5
-	haRBUYV+1P9h5v3GjVUQERDv3J2bgCEh9GzOwXj35edWpsZVgtiwGg+dNp4I=
-X-Received: by 2002:a50:aad7:0:b0:578:3335:6e88 with SMTP id 4fb4d7f45d1cf-57d07c59ce6mr3503149a12.0.1718891531434;
-        Thu, 20 Jun 2024 06:52:11 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF90OFOGv2ZZVHJ5dm1EVg30XUQltEQfgDt90ACAE1nuPoxRvgkNZnMIK5JtmqXjWOLvdB0xw==
-X-Received: by 2002:a50:aad7:0:b0:578:3335:6e88 with SMTP id 4fb4d7f45d1cf-57d07c59ce6mr3503106a12.0.1718891530819;
-        Thu, 20 Jun 2024 06:52:10 -0700 (PDT)
-Received: from redhat.com ([2.52.146.100])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-57cb743b026sm9630648a12.97.2024.06.20.06.52.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Jun 2024 06:52:10 -0700 (PDT)
-Date: Thu, 20 Jun 2024 09:51:58 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	David Hildenbrand <david@redhat.com>,
-	Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org, Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH vhost v9 2/6] virtio: remove support for names array
- entries being null.
-Message-ID: <20240620070717-mutt-send-email-mst@kernel.org>
-References: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
- <20240424091533.86949-3-xuanzhuo@linux.alibaba.com>
- <20240620035749-mutt-send-email-mst@kernel.org>
- <1718872778.4831812-1-xuanzhuo@linux.alibaba.com>
- <20240620044839-mutt-send-email-mst@kernel.org>
- <1718874293.698573-2-xuanzhuo@linux.alibaba.com>
- <20240620054548-mutt-send-email-mst@kernel.org>
- <1718880548.281809-3-xuanzhuo@linux.alibaba.com>
- <20240620065602-mutt-send-email-mst@kernel.org>
- <1718881448.8979208-6-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XOKXz9J4"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45KCcxjq025693;
+	Thu, 20 Jun 2024 13:59:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:mime-version
+	:content-type:in-reply-to; s=pp1; bh=Sx+HfB3BR2YRmT+xxLQT+3Kz6S8
+	G9rp0ct4rpiaXuzk=; b=XOKXz9J4rIm/yG/9AKZGuYV6IdyPRyM/exfwrHPxYXI
+	VxjahveyQKZB9wG1VAQxQNNu2bL/AURKfrzL3hJeJVLKaK7KZZFiS1vZoUFohbB8
+	qCjBhf4+s/e4fTkOywoorMh5Jv85ZrpOTAnsB/vZF2S2HWwQwgT62yKB/btufhHt
+	Og9FG3UpUyPUu7LKZ8AByti/Bz1gg+E4x3eSgD7Rx4brcR/wD4xbWEQzM+OnMHGH
+	IJ6eHnZ3XdmLP62WjQUX3Ye+hSJEe8xrvqbJS1Kounmwjpt6NnQFnq5qjhkiDC4t
+	WcVqVpxvQ99He+KetAOcHQH5Uude19XFB9feagsRgjQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yvmfcr8eg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 20 Jun 2024 13:59:13 +0000 (GMT)
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45KDxCiQ030476;
+	Thu, 20 Jun 2024 13:59:12 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yvmfcr8ed-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 20 Jun 2024 13:59:12 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45KD1dpH009433;
+	Thu, 20 Jun 2024 13:59:11 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ysqgn6b1s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 20 Jun 2024 13:59:11 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45KDx5b110355036
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 20 Jun 2024 13:59:07 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A8FDA2004F;
+	Thu, 20 Jun 2024 13:59:05 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4A2632004E;
+	Thu, 20 Jun 2024 13:59:05 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 20 Jun 2024 13:59:05 +0000 (GMT)
+Date: Thu, 20 Jun 2024 15:59:04 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Alexander Potapenko <glider@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Pekka Enberg <penberg@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Vasily Gorbik <gor@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH v5 36/37] s390/kmsan: Implement the architecture-specific
+ functions
+Message-ID: <ZnQ1qPGClXw/rB4o@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240619154530.163232-1-iii@linux.ibm.com>
+ <20240619154530.163232-37-iii@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -102,179 +92,30 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1718881448.8979208-6-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240619154530.163232-37-iii@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 0sr2wn6JJ7mPm7i81bBoB7ypHtTLDaoS
+X-Proofpoint-ORIG-GUID: mWcN6U0d707TXYiv4F0Sp_RI3phaZYEa
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-20_07,2024-06-20_04,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 malwarescore=0 adultscore=0 bulkscore=0 mlxlogscore=407
+ mlxscore=0 suspectscore=0 spamscore=0 lowpriorityscore=0 impostorscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2405170001 definitions=main-2406200099
 
-On Thu, Jun 20, 2024 at 07:04:08PM +0800, Xuan Zhuo wrote:
-> On Thu, 20 Jun 2024 07:02:42 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Thu, Jun 20, 2024 at 06:49:08PM +0800, Xuan Zhuo wrote:
-> > > On Thu, 20 Jun 2024 06:01:54 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > On Thu, Jun 20, 2024 at 05:04:53PM +0800, Xuan Zhuo wrote:
-> > > > > On Thu, 20 Jun 2024 05:01:08 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > > > On Thu, Jun 20, 2024 at 04:39:38PM +0800, Xuan Zhuo wrote:
-> > > > > > > On Thu, 20 Jun 2024 04:02:45 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > > > > > On Wed, Apr 24, 2024 at 05:15:29PM +0800, Xuan Zhuo wrote:
-> > > > > > > > > commit 6457f126c888 ("virtio: support reserved vqs") introduced this
-> > > > > > > > > support. Multiqueue virtio-net use 2N as ctrl vq finally, so the logic
-> > > > > > > > > doesn't apply. And not one uses this.
-> > > > > > > > >
-> > > > > > > > > On the other side, that makes some trouble for us to refactor the
-> > > > > > > > > find_vqs() params.
-> > > > > > > > >
-> > > > > > > > > So I remove this support.
-> > > > > > > > >
-> > > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > > > > Acked-by: Jason Wang <jasowang@redhat.com>
-> > > > > > > > > Acked-by: Eric Farman <farman@linux.ibm.com> # s390
-> > > > > > > > > Acked-by: Halil Pasic <pasic@linux.ibm.com>
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > I don't mind, but this patchset is too big already.
-> > > > > > > > Why do we need to make this part of this patchset?
-> > > > > > >
-> > > > > > >
-> > > > > > > If some the pointers of the names is NULL, then in the virtio ring,
-> > > > > > > we will have a trouble to index from the arrays(names, callbacks...).
-> > > > > > > Becasue that the idx of the vq is not the index of these arrays.
-> > > > > > >
-> > > > > > > If the names is [NULL, "rx", "tx"], the first vq is the "rx", but index of the
-> > > > > > > vq is zero, but the index of the info of this vq inside the arrays is 1.
-> > > > > >
-> > > > > >
-> > > > > > Ah. So actually, it used to work.
-> > > > > >
-> > > > > > What this should refer to is
-> > > > > >
-> > > > > > commit ddbeac07a39a81d82331a312d0578fab94fccbf1
-> > > > > > Author: Wei Wang <wei.w.wang@intel.com>
-> > > > > > Date:   Fri Dec 28 10:26:25 2018 +0800
-> > > > > >
-> > > > > >     virtio_pci: use queue idx instead of array idx to set up the vq
-> > > > > >
-> > > > > >     When find_vqs, there will be no vq[i] allocation if its corresponding
-> > > > > >     names[i] is NULL. For example, the caller may pass in names[i] (i=4)
-> > > > > >     with names[2] being NULL because the related feature bit is turned off,
-> > > > > >     so technically there are 3 queues on the device, and name[4] should
-> > > > > >     correspond to the 3rd queue on the device.
-> > > > > >
-> > > > > >     So we use queue_idx as the queue index, which is increased only when the
-> > > > > >     queue exists.
-> > > > > >
-> > > > > >     Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> > > > > >     Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > > > >
-> > > > >
-> > > > > That just work for PCI.
-> > > > >
-> > > > > The trouble I described is that we can not index in the virtio ring.
-> > > > >
-> > > > > In virtio ring, we may like to use the vq.index that do not increase
-> > > > > for the NULL.
-> > > > >
-> > > > >
-> > > > > >
-> > > > > > Which made it so setting names NULL actually does not reserve a vq.
-> > > > > >
-> > > > > > But I worry about non pci transports - there's a chance they used
-> > > > > > a different index with the balloon. Did you test some of these?
-> > > > > >
-> > > > >
-> > > > > Balloon is out of spec.
-> > > > >
-> > > > > The vq.index does not increase for the name NULL. So the Balloon use the
-> > > > > continuous id. That is out of spec.
-> > > >
-> > > >
-> > > > I see. And apparently the QEMU implementation is out of spec, too,
-> > > > so they work fine. And STATS is always on in QEMU.
-> > > >
-> > > > That change by Wei broke the theoretical config which has
-> > > > !STATS but does have FREE_PAGE. We never noticed - not many people
-> > > > ever bothered with FREE_PAGE.
-> > > >
-> > > > However QEMU really is broken in a weird way.
-> > > > In particular if it exposes STATS but driver does not
-> > > > configure STATS then QEMU still has the stats vq.
-> > > > Things will break then.
-> > > >
-> > > >
-> > > > In short, it's a mess, and it needs thought.
-> > > > At this point I suggest we keep the ability to set
-> > > > names to NULL in case we want to just revert Wei's patch.
-> > > >
-> > > >
-> > > >
-> > > > > That does not matter for this patchset.
-> > > > > The name NULL is always skipped.
-> > > > >
-> > > > > Thanks.
-> > > >
-> > > >
-> > > > Let's keep this patchset as small as possible.
-> > > > Keep the existing functionality, we'll do cleanups
-> > > > later.
-> > >
-> > >
-> > > I am ok. But we need a idx to index the info of the vq.
-> > >
-> > > How about a new element "cfg_idx" to virtio_vq_config.
-> > >
-> > > struct virtio_vq_config {
-> > > 	unsigned int nvqs;
-> > > ->	unsigned int cfg_idx;
-> > >
-> > > 	struct virtqueue   **vqs;
-> > > 	vq_callback_t      **callbacks;
-> > > 	const char         **names;
-> > > 	const bool          *ctx;
-> > > 	struct irq_affinity *desc;
-> > > };
-> > >
-> > >
-> > > That is setted by transport. The virtio ring can use this to index the info
-> > > of the vq. Then the #1 #2 commits can be dropped.
-> > >
-> > >
-> > > Thanks.
-> > >
-> >
-> > I'm not sure why you need this in the API.
-> >
-> >
-> > Actually now I think about it, the whole struct is weird.
-> > I think nvqs etc should be outside the struct.
-> > All arrays are the same size, why not:
-> >
-> > struct virtio_vq_config {
-> >  	vq_callback_t      callback;
-> >  	const char         *name;
-> >  	const bool          ctx;
-> > };
-> >
-> > And find_vqs should get an array of these.
-> > Leave the rest of params alone.
+On Wed, Jun 19, 2024 at 05:44:11PM +0200, Ilya Leoshkevich wrote:
+> arch_kmsan_get_meta_or_null() finds the lowcore shadow by querying the
+> prefix and calling kmsan_get_metadata() again.
 > 
+> kmsan_virt_addr_valid() delegates to virt_addr_valid().
 > 
-> YES, this is great.
-> 
-> I thought about this.
-> 
-> The trouble is that all the callers need to be changed.
-> That are too many.
-> 
-> Thanks.
-> 
-
-Not too many.
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/kmsan.h | 59 +++++++++++++++++++++++++++++++++++
+>  1 file changed, 59 insertions(+)
+>  create mode 100644 arch/s390/include/asm/kmsan.h
 
 
-> >
-> >
-> > >
-> > > >
-> > > >
-> > > > > > --
-> > > > > > MST
-> > > > > >
-> > > >
-> >
-
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
