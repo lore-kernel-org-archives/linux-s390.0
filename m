@@ -1,112 +1,60 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A67091802E;
-	Thu, 20 Jun 2024 09:35:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id DE01B43AAE;
+	Thu, 20 Jun 2024 10:01:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718876110; cv=none; b=k3pbjT5wEM/6zvkwhLnwnl9lqlCdXWiRdsGZOi6QqYSvBPcwCybJsLjpcbdqtEm69+9QABWYI1+r08RThRNL3V2LAn+wAFwQgCP/x9wKH8Q404Qns7fg0vYSDao/Rgd4JZdyh48hp83Xex9ixSRuOjRXnWy5p7U1hr9oWk8ltP0=
+	t=1718877703; cv=none; b=ATDeQg1XpL/1CrvKQwFWvfK/wVVz9754n4oge+ZupB6rJRkLz2yTgWpMcWBhDIv6vbzajEVhxqSOIaiK59Wex5OGM7fzJdiAGK/EeaNX0Q663eOOUjX7mNnndC2VbqrRgV2+FSld95PxDQPvB0+PlmC6d5sEe7gGf3U8Nkp08rI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718876110; c=relaxed/simple;
-	bh=B/Xras0wqNujWBrS/FfQokJI4n36WjvL+zxvpGpzB9I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=IdQi2GVjAZACPUXdxD5gBC+qlCIP3SedWTamzwW2J9ZvbFa6BtYy3JIGqZ47xUv1pJTLGfFSajrsdVh7JDfIK5tMPwoI4APHr4lbVl0wpn299dx+MqLy4hxfc1BhL4jYUMaffT3nWpuBCxYXek6YIjGjXGTGevNB2f8t7PkYouE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BJiiteA2; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BJiiteA2"
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45K7QMBp028247;
-	Thu, 20 Jun 2024 09:34:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:references:content-type
-	:in-reply-to:mime-version; s=pp1; bh=8yLhV3Q1jPtG9/ip4DkXHhmDylT
-	rROEu81cZ82Q9xuc=; b=BJiiteA2XiDtMQ75ZRjOaiw4f1epm8QxEscalu4qt7T
-	nPNAQeaUgqui/5Ew9u1FE/WbHLvjyhjSQsyO4JE+8nzlMNXNZonzs3iX1UxOdQW/
-	fsUkQ5VknoEIe/1w1gW6RMISzyeQMynp/gr/O+wOwSA09FJUYw77QOEVF22vaEaC
-	KT0RUnK6jB/QAwo1HlMzrIEVxfuJhSfpt13lThGW76AsBUxBSHAmwS6jQWDZX84t
-	heLMI7jLBujWzj2FrEn7qhRjI5lS7tgSubgkEOlxr8WNZEQnjllg0u43tAdQoPUC
-	ef1LTnODRdppx69V2wxNEgig0Z2eTy1AojP26GLef0A==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yvf6prg0y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Jun 2024 09:34:26 +0000 (GMT)
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45K9YPBS031239;
-	Thu, 20 Jun 2024 09:34:25 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yvf6prg0v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Jun 2024 09:34:25 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45K87Grt019567;
-	Thu, 20 Jun 2024 09:34:24 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ysnp1mtfg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Jun 2024 09:34:24 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45K9YIHY50069970
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 20 Jun 2024 09:34:20 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8F7592004B;
-	Thu, 20 Jun 2024 09:34:18 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0CF6620043;
-	Thu, 20 Jun 2024 09:34:18 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 20 Jun 2024 09:34:17 +0000 (GMT)
-Date: Thu, 20 Jun 2024 11:34:16 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
+	s=arc-20240116; t=1718877703; c=relaxed/simple;
+	bh=PDGtyeeusX0nD2GQDIr6CWpuxU3LoCSwsVM4+P0lebk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sSjfvy3Oa9NQ9aBnsvnZJz6fcILbwbnKpAriWA6Ub8GWLITX/tP5TcOMCygtcI/1aEdwkYAB5WRP0K4I2UI8SLxOmg0aB7Q5wvikLg1NqixHv7q/U7KRIm6hG/GZz+nP2F0551t2+/EsdXszRYsP9+x3XLrSnVUVMO4Ew/Uby24=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E6C6EDA7;
+	Thu, 20 Jun 2024 03:02:05 -0700 (PDT)
+Received: from J2N7QTR9R3 (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id BFCF13F73B;
+	Thu, 20 Jun 2024 03:01:36 -0700 (PDT)
+Date: Thu, 20 Jun 2024 11:01:34 +0100
+From: Mark Rutland <mark.rutland@arm.com>
 To: Kees Cook <kees@kernel.org>
 Cc: Arnd Bergmann <arnd@arndb.de>, Yuntao Liu <liuyuntao12@huawei.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
-        Leonardo Bras <leobras@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-hardening@vger.kernel.org, linux-riscv@lists.infradead.org
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Leonardo Bras <leobras@redhat.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	linux-kernel@vger.kernel.org, x86@kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-hardening@vger.kernel.org, linux-riscv@lists.infradead.org
 Subject: Re: [PATCH] randomize_kstack: Remove non-functional per-arch entropy
  filtering
-Message-ID: <20240620093416.8127-A-hca@linux.ibm.com>
+Message-ID: <ZnP9_sDa-oHFepes@J2N7QTR9R3>
 References: <20240619214711.work.953-kees@kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240619214711.work.953-kees@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: nq2142b1zTEnF-2JrlN2ZBXbmbq493Iw
-X-Proofpoint-GUID: Iy1wvgtfcOU06jkae57Q6f-fdZoagx5t
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-20_07,2024-06-19_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxscore=0
- lowpriorityscore=0 adultscore=0 phishscore=0 bulkscore=0 malwarescore=0
- mlxlogscore=780 clxscore=1011 suspectscore=0 priorityscore=1501
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2405170001 definitions=main-2406200066
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240619214711.work.953-kees@kernel.org>
 
 On Wed, Jun 19, 2024 at 02:47:15PM -0700, Kees Cook wrote:
 > An unintended consequence of commit 9c573cd31343 ("randomize_kstack:
@@ -144,4 +92,83 @@ On Wed, Jun 19, 2024 at 02:47:15PM -0700, Kees Cook wrote:
 >  arch/x86/include/asm/entry-common.h  | 15 ++++++---------
 >  3 files changed, 14 insertions(+), 19 deletions(-)
 
-Acked-by: Heiko Carstens <hca@linux.ibm.com> # s390
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+
+Mark.
+
+> 
+> diff --git a/arch/arm64/kernel/syscall.c b/arch/arm64/kernel/syscall.c
+> index ad198262b981..7230f6e20ab8 100644
+> --- a/arch/arm64/kernel/syscall.c
+> +++ b/arch/arm64/kernel/syscall.c
+> @@ -53,17 +53,15 @@ static void invoke_syscall(struct pt_regs *regs, unsigned int scno,
+>  	syscall_set_return_value(current, regs, 0, ret);
+>  
+>  	/*
+> -	 * Ultimately, this value will get limited by KSTACK_OFFSET_MAX(),
+> -	 * but not enough for arm64 stack utilization comfort. To keep
+> -	 * reasonable stack head room, reduce the maximum offset to 9 bits.
+> +	 * This value will get limited by KSTACK_OFFSET_MAX(), which is 10
+> +	 * bits. The actual entropy will be further reduced by the compiler
+> +	 * when applying stack alignment constraints: the AAPCS mandates a
+> +	 * 16-byte aligned SP at function boundaries, which will remove the
+> +	 * 4 low bits from any entropy chosen here.
+>  	 *
+> -	 * The actual entropy will be further reduced by the compiler when
+> -	 * applying stack alignment constraints: the AAPCS mandates a
+> -	 * 16-byte (i.e. 4-bit) aligned SP at function boundaries.
+> -	 *
+> -	 * The resulting 5 bits of entropy is seen in SP[8:4].
+> +	 * The resulting 6 bits of entropy is seen in SP[9:4].
+>  	 */
+> -	choose_random_kstack_offset(get_random_u16() & 0x1FF);
+> +	choose_random_kstack_offset(get_random_u16());
+>  }
+>  
+>  static inline bool has_syscall_work(unsigned long flags)
+> diff --git a/arch/s390/include/asm/entry-common.h b/arch/s390/include/asm/entry-common.h
+> index 7f5004065e8a..35555c944630 100644
+> --- a/arch/s390/include/asm/entry-common.h
+> +++ b/arch/s390/include/asm/entry-common.h
+> @@ -54,7 +54,7 @@ static __always_inline void arch_exit_to_user_mode(void)
+>  static inline void arch_exit_to_user_mode_prepare(struct pt_regs *regs,
+>  						  unsigned long ti_work)
+>  {
+> -	choose_random_kstack_offset(get_tod_clock_fast() & 0xff);
+> +	choose_random_kstack_offset(get_tod_clock_fast());
+>  }
+>  
+>  #define arch_exit_to_user_mode_prepare arch_exit_to_user_mode_prepare
+> diff --git a/arch/x86/include/asm/entry-common.h b/arch/x86/include/asm/entry-common.h
+> index 7e523bb3d2d3..fb2809b20b0a 100644
+> --- a/arch/x86/include/asm/entry-common.h
+> +++ b/arch/x86/include/asm/entry-common.h
+> @@ -73,19 +73,16 @@ static inline void arch_exit_to_user_mode_prepare(struct pt_regs *regs,
+>  #endif
+>  
+>  	/*
+> -	 * Ultimately, this value will get limited by KSTACK_OFFSET_MAX(),
+> -	 * but not enough for x86 stack utilization comfort. To keep
+> -	 * reasonable stack head room, reduce the maximum offset to 8 bits.
+> -	 *
+> -	 * The actual entropy will be further reduced by the compiler when
+> -	 * applying stack alignment constraints (see cc_stack_align4/8 in
+> +	 * This value will get limited by KSTACK_OFFSET_MAX(), which is 10
+> +	 * bits. The actual entropy will be further reduced by the compiler
+> +	 * when applying stack alignment constraints (see cc_stack_align4/8 in
+>  	 * arch/x86/Makefile), which will remove the 3 (x86_64) or 2 (ia32)
+>  	 * low bits from any entropy chosen here.
+>  	 *
+> -	 * Therefore, final stack offset entropy will be 5 (x86_64) or
+> -	 * 6 (ia32) bits.
+> +	 * Therefore, final stack offset entropy will be 7 (x86_64) or
+> +	 * 8 (ia32) bits.
+>  	 */
+> -	choose_random_kstack_offset(rdtsc() & 0xFF);
+> +	choose_random_kstack_offset(rdtsc());
+>  }
+>  #define arch_exit_to_user_mode_prepare arch_exit_to_user_mode_prepare
+>  
+> -- 
+> 2.34.1
+> 
