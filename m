@@ -1,64 +1,64 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAC1F17839C;
-	Fri, 21 Jun 2024 11:37:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9990817966E;
+	Fri, 21 Jun 2024 11:37:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718969867; cv=none; b=oQCd1DUxg1ZALDzBZRJU1xMdwgRiI53rCv3GnbBqQR1Q6W3ejXlt7WTEzLo5v7zU87l0kUp8wiE58no2Oc7zc3HrNTV6ePcXTDtm8o+c2URLqbd0T9JPY4kjP4FMpfxFfNc40P4umaYl+CLsstSkm7PGaYCJB3l64KD3vVMCNjs=
+	t=1718969868; cv=none; b=hijF1xB+OrOSigQSn6AK2d7ujwVreHcWyW+nLrRcdePvDL4YVawoBH8+tIyXkb3s2PPPJ3HBbRI8Mcigzjex29gDU4ChshJNMeDjZJbEpxR7zKEUt9IoW6RRl7TPM9CekSF50CeUQOIfmRnByevfk0kVV24MKwP5MjrG63uBEak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718969867; c=relaxed/simple;
-	bh=IwYvbsC3/AJt7GIOuE2xryJ9uNY9j43v8VuRSbDoZi0=;
+	s=arc-20240116; t=1718969868; c=relaxed/simple;
+	bh=cXejuEluh+BjX1Ar6e5P4JKZqCjqJdrKYUKKBgQTaXk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kbJLfS8mOT7bqoGeMUQEOcFNqWsSKl1WwBm1VLnlxQvwI0UHkH63WfKZ/C8QjLeYKuuimkxNpLR9dJXE/0skVG5vmCWgAhwPK81lk9En/nO/oigAWmq/y1e0rTIf5OGv9e/J70pPwYyuwLWWd1GZSApG4r0xU+fbV80msxBhDU8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fbsMil0j; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=iauMBqf6xh9EMSzNgquFXZAFQuiF7Kzf/b0Q47B+u7fmoaqsBUbnSHq+GhqGESBqWRYE1kiyn0FHn5nAgjtiE0i8zFuvFwmoRgSMNpf6cktno79JnRNYSUUhsP0xod7Nw2DqveSHrs18ihlZUaDCLiwEY24G98spE2mIQOJZF50=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bOj7jzux; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fbsMil0j"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45L8gL1Y029535;
-	Fri, 21 Jun 2024 11:37:26 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bOj7jzux"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45LBQvQs018553;
+	Fri, 21 Jun 2024 11:37:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
 	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=Lus2RQSPSM7il
-	XLn7l1YCQD25SLYNKHC3cJu5hwIwnE=; b=fbsMil0jBMI/y/i9//oigbamPhNLm
-	xTAC38h662OGad4kCC2Jfc7YJfjRNfK6RnhCYK9pbA3MYqqqPtLCiH6br4lE6g+U
-	hiki9rSBfKW5/tuI3QlEk49cuPL9kZJ0/T/r4AojkUaLtHTxoYe5w8X1vnqI9yH7
-	Mw30mz7ggQjMOH9kUvam+I+R6SjCuCANtFMGWwujGWMY2OzkcbmZCwrhjQlxyHAd
-	RcvG+eNyHvi7HVc606Ajr8g1z4WQ0ixQdmlYEaf0LMK66zKYrKpIQzw1y2tD4aW4
-	AxSAFpnG7q7Z3SYxWrlpOwIVzmyfiyjoKNvvDbIxE0OmN5Xji9WxA1+oQ==
+	:mime-version:content-transfer-encoding; s=pp1; bh=ah4xfVCHNViAS
+	Zu9OS8C5bCxAH6NMTO/t1qMSUm0DA8=; b=bOj7jzux7U279hMnoEqJaUVZq2JNG
+	re0IZJ9dE965kXQEKbVQAKYvtnV1xoLxRbH4psNjPE06EJKsvkmzEOHa4wX/1AoX
+	XJ4erfcRtuKTsSpo9mX6gUjb8MnaaU6bAQZk8tE/ImXBtMTEhyw1YZrF2qvwbJxc
+	p6cfH7BPVGS1CN0Mdbv2igrdhE7SQHgc5yi5p9w2tN/BpR8weXgjCWf9yOU6Q3PZ
+	5EZteefbYEQ2xJnXoBEbZD6op0rF/Tqub/lb8vADK2dIWDGA6ht5RgflH0TEWfzZ
+	kvacyfgMgTiiPnk9C/ZJU9wsfKk3TYb8YzhPC5QV66U7IImY3MhQpZl9w==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw5ksrgus-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw6ws09bm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 11:37:26 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45LBbPNI011172;
-	Fri, 21 Jun 2024 11:37:25 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw5ksrgun-1
+	Fri, 21 Jun 2024 11:37:22 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45LBbMEE002078;
+	Fri, 21 Jun 2024 11:37:22 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw6ws09bg-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 11:37:25 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45L9ITHD019974;
-	Fri, 21 Jun 2024 11:37:24 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yvrqupvyy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 11:37:24 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45LBbJ4g48693522
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 21 Jun 2024 11:37:21 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45L963JL025654;
 	Fri, 21 Jun 2024 11:37:21 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yvrqv6vyp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 21 Jun 2024 11:37:20 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45LBbFMY54657406
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 21 Jun 2024 11:37:17 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EC6292004F;
-	Fri, 21 Jun 2024 11:37:18 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 44E842004D;
+	Fri, 21 Jun 2024 11:37:15 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 63F6A2004E;
-	Fri, 21 Jun 2024 11:37:18 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A7D9B2004E;
+	Fri, 21 Jun 2024 11:37:14 +0000 (GMT)
 Received: from black.boeblingen.de.ibm.com (unknown [9.155.200.166])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 21 Jun 2024 11:37:18 +0000 (GMT)
+	Fri, 21 Jun 2024 11:37:14 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -79,9 +79,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v7 16/38] kmsan: Expose KMSAN_WARN_ON()
-Date: Fri, 21 Jun 2024 13:35:00 +0200
-Message-ID: <20240621113706.315500-17-iii@linux.ibm.com>
+Subject: [PATCH v7 10/38] kmsan: Export panic_on_kmsan
+Date: Fri, 21 Jun 2024 13:34:54 +0200
+Message-ID: <20240621113706.315500-11-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.45.1
 In-Reply-To: <20240621113706.315500-1-iii@linux.ibm.com>
 References: <20240621113706.315500-1-iii@linux.ibm.com>
@@ -93,113 +93,43 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: KG3-KuwzimdCy9fz-zfFvPuK-LKymJ_g
-X-Proofpoint-GUID: 72jJRBL-nnrHizPPhKPV3cqq5Hp9wCZ2
+X-Proofpoint-ORIG-GUID: E4FeJ2DPMtQURj23PoX2Hu_rIGqy2sFA
+X-Proofpoint-GUID: C0x7oDri4w4Z6YRQjvyB2pwalipPRrvm
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-06-21_04,2024-06-21_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
- bulkscore=0 adultscore=0 mlxlogscore=999 priorityscore=1501 spamscore=0
- clxscore=1015 mlxscore=0 impostorscore=0 lowpriorityscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2406140001
- definitions=main-2406210084
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ clxscore=1015 suspectscore=0 malwarescore=0 spamscore=0 phishscore=0
+ priorityscore=1501 adultscore=0 mlxlogscore=999 impostorscore=0 mlxscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2406210084
 
-KMSAN_WARN_ON() is required for implementing s390-specific KMSAN
-functions, but right now it's available only to the KMSAN internal
-functions. Expose it to subsystems through <linux/kmsan.h>.
+When building the kmsan test as a module, modpost fails with the
+following error message:
+
+    ERROR: modpost: "panic_on_kmsan" [mm/kmsan/kmsan_test.ko] undefined!
+
+Export panic_on_kmsan in order to improve the KMSAN usability for
+modules.
 
 Reviewed-by: Alexander Potapenko <glider@google.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- include/linux/kmsan.h | 25 +++++++++++++++++++++++++
- mm/kmsan/kmsan.h      | 24 +-----------------------
- 2 files changed, 26 insertions(+), 23 deletions(-)
+ mm/kmsan/report.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/kmsan.h b/include/linux/kmsan.h
-index 7109644f4c19..2b1432cc16d5 100644
---- a/include/linux/kmsan.h
-+++ b/include/linux/kmsan.h
-@@ -268,6 +268,29 @@ static inline void *memset_no_sanitize_memory(void *s, int c, size_t n)
- 	return __memset(s, c, n);
- }
+diff --git a/mm/kmsan/report.c b/mm/kmsan/report.c
+index 02736ec757f2..c79d3b0d2d0d 100644
+--- a/mm/kmsan/report.c
++++ b/mm/kmsan/report.c
+@@ -20,6 +20,7 @@ static DEFINE_RAW_SPINLOCK(kmsan_report_lock);
+ /* Protected by kmsan_report_lock */
+ static char report_local_descr[DESCR_SIZE];
+ int panic_on_kmsan __read_mostly;
++EXPORT_SYMBOL_GPL(panic_on_kmsan);
  
-+extern bool kmsan_enabled;
-+extern int panic_on_kmsan;
-+
-+/*
-+ * KMSAN performs a lot of consistency checks that are currently enabled by
-+ * default. BUG_ON is normally discouraged in the kernel, unless used for
-+ * debugging, but KMSAN itself is a debugging tool, so it makes little sense to
-+ * recover if something goes wrong.
-+ */
-+#define KMSAN_WARN_ON(cond)                                           \
-+	({                                                            \
-+		const bool __cond = WARN_ON(cond);                    \
-+		if (unlikely(__cond)) {                               \
-+			WRITE_ONCE(kmsan_enabled, false);             \
-+			if (panic_on_kmsan) {                         \
-+				/* Can't call panic() here because */ \
-+				/* of uaccess checks. */              \
-+				BUG();                                \
-+			}                                             \
-+		}                                                     \
-+		__cond;                                               \
-+	})
-+
- #else
- 
- static inline void kmsan_init_shadow(void)
-@@ -380,6 +403,8 @@ static inline void *memset_no_sanitize_memory(void *s, int c, size_t n)
- 	return memset(s, c, n);
- }
- 
-+#define KMSAN_WARN_ON WARN_ON
-+
- #endif
- 
- #endif /* _LINUX_KMSAN_H */
-diff --git a/mm/kmsan/kmsan.h b/mm/kmsan/kmsan.h
-index 34b83c301d57..91a360a31e85 100644
---- a/mm/kmsan/kmsan.h
-+++ b/mm/kmsan/kmsan.h
-@@ -11,6 +11,7 @@
- #define __MM_KMSAN_KMSAN_H
- 
- #include <linux/irqflags.h>
-+#include <linux/kmsan.h>
- #include <linux/mm.h>
- #include <linux/nmi.h>
- #include <linux/pgtable.h>
-@@ -34,29 +35,6 @@
- #define KMSAN_META_SHADOW (false)
- #define KMSAN_META_ORIGIN (true)
- 
--extern bool kmsan_enabled;
--extern int panic_on_kmsan;
--
--/*
-- * KMSAN performs a lot of consistency checks that are currently enabled by
-- * default. BUG_ON is normally discouraged in the kernel, unless used for
-- * debugging, but KMSAN itself is a debugging tool, so it makes little sense to
-- * recover if something goes wrong.
-- */
--#define KMSAN_WARN_ON(cond)                                           \
--	({                                                            \
--		const bool __cond = WARN_ON(cond);                    \
--		if (unlikely(__cond)) {                               \
--			WRITE_ONCE(kmsan_enabled, false);             \
--			if (panic_on_kmsan) {                         \
--				/* Can't call panic() here because */ \
--				/* of uaccess checks. */              \
--				BUG();                                \
--			}                                             \
--		}                                                     \
--		__cond;                                               \
--	})
--
- /*
-  * A pair of metadata pointers to be returned by the instrumentation functions.
-  */
+ #ifdef MODULE_PARAM_PREFIX
+ #undef MODULE_PARAM_PREFIX
 -- 
 2.45.1
 
