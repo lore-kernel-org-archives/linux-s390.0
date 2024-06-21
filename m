@@ -1,159 +1,158 @@
-Received: from brightrain.aerifal.cx (brightrain.aerifal.cx [104.156.224.86])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26CEB16D4CD
-	for <linux-s390@vger.kernel.org>; Fri, 21 Jun 2024 20:12:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=104.156.224.86
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C02CB166317
+	for <linux-s390@vger.kernel.org>; Fri, 21 Jun 2024 20:17:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719000736; cv=none; b=eqLtserACuc/7Lyp7DJuivhblujmJQbMInDaRYTHF7NYwPsw9jJvSHzuvGSiu0JU5iS8KOV0sfVlf36/PuURa7Fus1hKCTKUh5upJ72wl7aqQYderUbM16nMz/UVSgk3u8V+Ti9BkmlXu0Sllp2pV673ER6Loh8bQo1w7bYtKWA=
+	t=1719001055; cv=none; b=mQ6KYGnTpwvnTX5ukcRGZEryHD1xr3iYw4x3/FH/IrIYWlsnQ17nTMra2Yt6bOQdQyUAzNv5TkaePEChoGRfzpWStjcQ1RyrwgSs+Rn+NBbDVPT6bpD8EQwMr68ba25HII0fNMQKEgVYQeGk/bifkKXNyPFo5va9Rb9R1sDAO/0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719000736; c=relaxed/simple;
-	bh=vhcmxHuEfXQE4obMPoKgf5UPHRF9VVw2LNmHi4WI0f8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WkJYS0okNIRxnNtqvRsBmzP01LdB3EuH/hxjtn68ebhqRtha9Rivs2UGNV03yKGvPZMDDlni+Dgtd8yPG3ywEyLMIDaKCtkVcLv83S4IcayP4Y7Wmdl5EMnqamebyoyFQeIx7el53Lv7G1JdmNdb8bYGNXhCXmFvA86bdLlSag8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=libc.org; spf=pass smtp.mailfrom=aerifal.cx; arc=none smtp.client-ip=104.156.224.86
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=libc.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aerifal.cx
-Date: Fri, 21 Jun 2024 15:57:23 -0400
-From: Rich Felker <dalias@libc.org>
-To: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Arnd Bergmann <arnd@kernel.org>, linux-arch@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	linux-mips@vger.kernel.org, Helge Deller <deller@gmx.de>,
-	linux-parisc@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>, sparclinux@vger.kernel.org,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-	linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>,
-	linux-hexagon@vger.kernel.org, Guo Ren <guoren@kernel.org>,
-	linux-csky@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>,
-	linux-fsdevel@vger.kernel.org, libc-alpha@sourceware.org,
-	musl@lists.openwall.com, ltp@lists.linux.it, stable@vger.kernel.org
-Subject: Re: [musl] Re: [PATCH 09/15] sh: rework sync_file_range ABI
-Message-ID: <20240621195723.GB10433@brightrain.aerifal.cx>
-References: <20240620162316.3674955-1-arnd@kernel.org>
- <20240620162316.3674955-10-arnd@kernel.org>
- <366548c1a0d9749e42c0d0c993414a353c9b0b02.camel@physik.fu-berlin.de>
+	s=arc-20240116; t=1719001055; c=relaxed/simple;
+	bh=1e30kVLyzFq1PU3An6ylOGV4PAe55sJot7fsu6AUC0k=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=CFtXwLzAEdyRPvzGXHqTuUCaJex1ya17F+lkyR3yoaBWl6UaCEuwmoQX6PHLfLgR6u4r6TJM7WqmA9/h7tH4Cv6Djp5mp7sMI2nByHmpDT727Apw7TI5FvN5byXwYnIlH2D8OtFVvtCiNqCMe+Ey9f6ut2BwET02dEl6QByQ6uc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hVwgbMCw; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hVwgbMCw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1719001052;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Um7T9PGjBIGkvoDVAKpflWXByq5XUAzYLuKCcXhMqaY=;
+	b=hVwgbMCwhkwKuIcOyjkXknplbqMhIKIgMrF50UNzGAShjyxAvZ0eKSe5NRm5QJ/yQx0zwS
+	iJHDsOh97udRRDBgdhy0Nd7ZJ3030jlmb3CR/D7PTGd0Uo2sJXZV/SzlnSwjvZg11kqsiC
+	ZqVICQfaYiMVZzCSiL+7K4vmMoQ5FRY=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-167-F06d1BXMP_yjzkJilrjnqg-1; Fri, 21 Jun 2024 16:17:29 -0400
+X-MC-Unique: F06d1BXMP_yjzkJilrjnqg-1
+Received: by mail-il1-f200.google.com with SMTP id e9e14a558f8ab-374b2adee08so26910415ab.1
+        for <linux-s390@vger.kernel.org>; Fri, 21 Jun 2024 13:17:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1719001048; x=1719605848;
+        h=content-transfer-encoding:mime-version:organization:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Um7T9PGjBIGkvoDVAKpflWXByq5XUAzYLuKCcXhMqaY=;
+        b=SXjJ5KE4SjIlZmwyxukfw8XqxeNY3Qdmrd+8pE6K7HR2Q41/rNxDjOyfFsXExe80K+
+         6Snn1ljqrsncyRokVWeevRs/YqeKc6dJ2MBSCq7FDknaOjg4JT8AF9njKqcZlVQMOK6P
+         8PfN393Ktq4rj45kD+Yv2dS14kKOpda7KvSSOZqSzDbX0JsXHiu8ayw9GwgYaap3avIe
+         zypJ961w3efDUsIyJHqFQhJRBLDIiZFcPf44wFECV9i9BGSmKHfH92oldWIXXSbJ2to/
+         hDD0TwT+GEwmobhSohKsXAvHqjHXxNC4YBeH4O0gQ3BRKPbHoNcpA6iav8V68h3W128y
+         v5eg==
+X-Forwarded-Encrypted: i=1; AJvYcCU7x9y6CAcDeKVRrk59IkxN3uR91i+tnFg5IxK0CdGYskOYChF/wKAMwLeEW5wTGSvLdqRtzz4OADSQWLywG0q2Ev1z4r89cWrkWA==
+X-Gm-Message-State: AOJu0Yy2f7P954b5xad8cKstzDImOLLrbHmaN8XOU4WDQAz/L66jgGLd
+	twe6s/HyQkiSbL1OAiWo4Up+zSEOrn4ERGC8eYrCCOE46pKtf/HOfM4hwbPx4RRIGUYccYXahW4
+	uBtW03o4ZV9nEv2N0QFwOhi7K10s2Iag0/oYSxwk5RkaBAtwEHWSe2oy9AFw=
+X-Received: by 2002:a05:6e02:54d:b0:375:dc04:378d with SMTP id e9e14a558f8ab-3763641c664mr4276195ab.6.1719001048536;
+        Fri, 21 Jun 2024 13:17:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGm8aM6CP7HpAsbVpMIZYwjxc8YU/y9+kdeZyEPluz+E05lG59Fcq21BUDsEiQMbh6Wj2GUsQ==
+X-Received: by 2002:a05:6e02:54d:b0:375:dc04:378d with SMTP id e9e14a558f8ab-3763641c664mr4276115ab.6.1719001048153;
+        Fri, 21 Jun 2024 13:17:28 -0700 (PDT)
+Received: from redhat.com ([38.15.36.11])
+        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3762f3a6a76sm4855055ab.86.2024.06.21.13.17.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Jun 2024 13:17:27 -0700 (PDT)
+Date: Fri, 21 Jun 2024 14:17:24 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Gerd Bayer <gbayer@linux.ibm.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, Niklas Schnelle
+ <schnelle@linux.ibm.com>, Ramesh Thomas <ramesh.thomas@intel.com>,
+ kvm@vger.kernel.org, linux-s390@vger.kernel.org, Ankit Agrawal
+ <ankita@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>, Halil Pasic
+ <pasic@linux.ibm.com>, Ben Segal <bpsegal@us.ibm.com>, "Tian, Kevin"
+ <kevin.tian@intel.com>, Julian Ruess <julianr@linux.ibm.com>
+Subject: Re: [PATCH v6 0/3] vfio/pci: Support 8-byte PCI loads and stores
+Message-ID: <20240621141724.28fe0c5d.alex.williamson@redhat.com>
+In-Reply-To: <20240619115847.1344875-1-gbayer@linux.ibm.com>
+References: <20240619115847.1344875-1-gbayer@linux.ibm.com>
+Organization: Red Hat
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <366548c1a0d9749e42c0d0c993414a353c9b0b02.camel@physik.fu-berlin.de>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jun 21, 2024 at 10:44:39AM +0200, John Paul Adrian Glaubitz wrote:
-> Hi Arnd,
-> 
-> thanks for your patch!
-> 
-> On Thu, 2024-06-20 at 18:23 +0200, Arnd Bergmann wrote:
-> > From: Arnd Bergmann <arnd@arndb.de>
-> > 
-> > The unusual function calling conventions on superh ended up causing
->                                               ^^^^^^
->                                        It's spelled SuperH
-> 
-> > sync_file_range to have the wrong argument order, with the 'flags'
-> > argument getting sorted before 'nbytes' by the compiler.
-> > 
-> > In userspace, I found that musl, glibc, uclibc and strace all expect the
-> > normal calling conventions with 'nbytes' last, so changing the kernel
-> > to match them should make all of those work.
-> > 
-> > In order to be able to also fix libc implementations to work with existing
-> > kernels, they need to be able to tell which ABI is used. An easy way
-> > to do this is to add yet another system call using the sync_file_range2
-> > ABI that works the same on all architectures.
-> > 
-> > Old user binaries can now work on new kernels, and new binaries can
-> > try the new sync_file_range2() to work with new kernels or fall back
-> > to the old sync_file_range() version if that doesn't exist.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Fixes: 75c92acdd5b1 ("sh: Wire up new syscalls.")
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > ---
-> >  arch/sh/kernel/sys_sh32.c           | 11 +++++++++++
-> >  arch/sh/kernel/syscalls/syscall.tbl |  3 ++-
-> >  2 files changed, 13 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/arch/sh/kernel/sys_sh32.c b/arch/sh/kernel/sys_sh32.c
-> > index 9dca568509a5..d5a4f7c697d8 100644
-> > --- a/arch/sh/kernel/sys_sh32.c
-> > +++ b/arch/sh/kernel/sys_sh32.c
-> > @@ -59,3 +59,14 @@ asmlinkage int sys_fadvise64_64_wrapper(int fd, u32 offset0, u32 offset1,
-> >  				 (u64)len0 << 32 | len1, advice);
-> >  #endif
-> >  }
-> > +
-> > +/*
-> > + * swap the arguments the way that libc wants it instead of
-> 
-> I think "swap the arguments to the order that libc wants them" would
-> be easier to understand here.
-> 
-> > + * moving flags ahead of the 64-bit nbytes argument
-> > + */
-> > +SYSCALL_DEFINE6(sh_sync_file_range6, int, fd, SC_ARG64(offset),
-> > +                SC_ARG64(nbytes), unsigned int, flags)
-> > +{
-> > +        return ksys_sync_file_range(fd, SC_VAL64(loff_t, offset),
-> > +                                    SC_VAL64(loff_t, nbytes), flags);
-> > +}
-> > diff --git a/arch/sh/kernel/syscalls/syscall.tbl b/arch/sh/kernel/syscalls/syscall.tbl
-> > index bbf83a2db986..c55fd7696d40 100644
-> > --- a/arch/sh/kernel/syscalls/syscall.tbl
-> > +++ b/arch/sh/kernel/syscalls/syscall.tbl
-> > @@ -321,7 +321,7 @@
-> >  311	common	set_robust_list			sys_set_robust_list
-> >  312	common	get_robust_list			sys_get_robust_list
-> >  313	common	splice				sys_splice
-> > -314	common	sync_file_range			sys_sync_file_range
-> > +314	common	sync_file_range			sys_sh_sync_file_range6
->                                                                  ^^^^^^ Why the suffix 6 here?
-> 
-> >  315	common	tee				sys_tee
-> >  316	common	vmsplice			sys_vmsplice
-> >  317	common	move_pages			sys_move_pages
-> > @@ -395,6 +395,7 @@
-> >  385	common	pkey_alloc			sys_pkey_alloc
-> >  386	common	pkey_free			sys_pkey_free
-> >  387	common	rseq				sys_rseq
-> > +388	common	sync_file_range2		sys_sync_file_range2
-> >  # room for arch specific syscalls
-> >  393	common	semget				sys_semget
-> >  394	common	semctl				sys_semctl
-> 
-> I wonder how you discovered this bug. Did you look up the calling convention on SuperH
-> and compare the argument order for the sys_sync_file_range system call documented there
-> with the order in the kernel?
-> 
-> Did you also check what order libc uses? I would expect libc on SuperH misordering the
-> arguments as well unless I am missing something. Or do we know that the code is actually
-> currently broken?
+On Wed, 19 Jun 2024 13:58:44 +0200
+Gerd Bayer <gbayer@linux.ibm.com> wrote:
 
-No, there's no reason libc would misorder them because syscalls aren't
-function calls, and aren't subject to function call ABI. We have to
-explicitly bind the arguments to registers and make a syscall
-instruction.
+> Hi all,
+> 
+> this all started with a single patch by Ben to enable writing a user-mode
+> driver for a PCI device that requires 64bit register read/writes on s390.
+> A quick grep showed that there are several other drivers for PCI devices
+> in the kernel that use readq/writeq and eventually could use this, too.
+> So we decided to propose this for general inclusion.
+> 
+> A couple of suggestions for refactorizations by Jason Gunthorpe and Alex
+> Williamson later [1], I arrived at this little series that avoids some
+> code duplication in vfio_pci_core_do_io_rw().
+> Also, I've added a small patch to correct the spelling in one of the
+> declaration macros that was suggested by Ramesh Thomas [2]. However,
+> after some discussions about making 8-byte accesses available for x86,
+> Ramesh and I decided to do this in a separate patch [3].
+> 
+> This version was tested with a pass-through PCI device in a KVM guest
+> and with explicit test reads of size 8, 16, 32, and 64 bit on s390.
+> For 32bit architectures this has only been compile tested for the
+> 32bit ARM architecture.
+> 
+> Thank you,
+> Gerd Bayer
+> 
+> 
+> [1] https://lore.kernel.org/all/20240422153508.2355844-1-gbayer@linux.ibm.com/
+> [2] https://lore.kernel.org/kvm/20240425165604.899447-1-gbayer@linux.ibm.com/T/#m1b51fe155c60d04313695fbee11a2ccea856a98c
+> [3] https://lore.kernel.org/all/20240522232125.548643-1-ramesh.thomas@intel.com/
+> 
+> Changes v5 -> v6:
+> - restrict patch 3/3 to just the typo fix - no move of semicolons
 
-The only reason this bug happened on the kernel side is that someone
-thought it would be a smart idea to save maybe 10 instructions by
-treating the register state on entry as directly suitable to jump from
-asm to a C function rather than explicitly marshalling the arguments
-out of the user-kernel syscall ABI positions into actual arguments to
-a C function call.
+Applied to vfio next branch for v6.11.  Thanks,
 
-Rich
+Alex
+
+> 
+> Changes v4 -> v5:
+> - Make 8-byte accessors depend on the definitions of ioread64 and
+>   iowrite64, again. Ramesh agreed to sort these out for x86 separately.
+> 
+> Changes v3 -> v4:
+> - Make 64-bit accessors depend on CONFIG_64BIT (for x86, too).
+> - Drop conversion of if-else if chain to switch-case.
+> - Add patch to fix spelling of declaration macro.
+> 
+> Changes v2 -> v3:
+> - Introduce macro to generate body of different-size accesses in
+>   vfio_pci_core_do_io_rw (courtesy Alex Williamson).
+> - Convert if-else if chain to a switch-case construct to better
+>   accommodate conditional compiles.
+> 
+> Changes v1 -> v2:
+> - On non 64bit architecture use at most 32bit accesses in
+>   vfio_pci_core_do_io_rw and describe that in the commit message.
+> - Drop the run-time error on 32bit architectures.
+> - The #endif splitting the "else if" is not really fortunate, but I'm
+>   open to suggestions.
+> 
+> 
+> Ben Segal (1):
+>   vfio/pci: Support 8-byte PCI loads and stores
+> 
+> Gerd Bayer (2):
+>   vfio/pci: Extract duplicated code into macro
+>   vfio/pci: Fix typo in macro to declare accessors
+> 
+>  drivers/vfio/pci/vfio_pci_rdwr.c | 122 ++++++++++++++++---------------
+>  include/linux/vfio_pci_core.h    |  21 +++---
+>  2 files changed, 74 insertions(+), 69 deletions(-)
+> 
+
