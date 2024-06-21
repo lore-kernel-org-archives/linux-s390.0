@@ -1,67 +1,67 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8489F364AB;
-	Fri, 21 Jun 2024 06:59:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7862612D742;
+	Fri, 21 Jun 2024 07:13:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718953167; cv=none; b=pAvPt0b2wJb9tfZEzLm/kDaBexRof0tjscccVN28UkdO++zMcoAHTds4SBdo6xKaBG7ui+1b3h348SAuHA/9lvcW0BtgUMAodnq3gzJNmIKQNtMdSe5TyCaN41qOSWW0YVHdaCrH504r4GymHDN+NIvPZqyvfQ2uGFGv9eHkCLA=
+	t=1718954006; cv=none; b=ByuOtuoqHC4VW+7fIG+s12R7kPwOhvHXoYOKE9GDjkJmZveiXpxeScBnHcIGllRvG8GfvO8ZEhgWLKiJs08ZtxjtZt9qUNtK1T6UB++y7bAd42ZleBm/ki3iR+a8s1T4rq+ImQmJx4HngJT89EeelrYnmC0KWgJb5W/ctsRMbWM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718953167; c=relaxed/simple;
-	bh=PvgOD3HiVn0+jn+jw0R2wYbsjsPQbJG2Vbjrl4Dj2dc=;
+	s=arc-20240116; t=1718954006; c=relaxed/simple;
+	bh=ANwQ4TDvy94nlZwN1vm4dVVS8siJVAa/QWKnsoz1ShI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ag2zlC0eU53f5Rzi3Nc9TtLLzcjj1RTBU0m+OcGp8xHpxbkvXv+RgULAjaKZ6UlKzn+ZPgr1T6ykTgWrijvplYU6U5cDSce4UsZTsxo+WpHdg8WyxD5+lZAxGeOT1ToncMHHitF1PGqxHTawmhX/Pk25aT+GIEdanOHrEXX/TWI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kBvzIy3e; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=TyJy9BxUZ471gXOYvh05CNGzM/ej7SUSlNl8wPiZdgV8g9ANXLqkyAUp4dUp+sjV3LnfRBzuR7QwbESD727M6p4nlJxCvcM8zbCOJHZertFo5BMbOhZrwdB3repBan2frxn+QA5wqIAaY/vT3aN12N6XkQLqYrT8+gcA1J1b7ZY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Cn0CIIxw; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kBvzIy3e"
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45L4wrbb014460;
-	Fri, 21 Jun 2024 06:59:22 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Cn0CIIxw"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45L6T24N021285;
+	Fri, 21 Jun 2024 07:13:20 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
 	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=2
-	5ONPzD5b7iC3MlevjdX0KbaibUv75lRDtvojw17obw=; b=kBvzIy3erA5kBmERm
-	E2pWxe/KqTsj5H72sRHcBDqW1bWllQTkH7sxcV19r+UuCtDBdnqifkoculsrKF7N
-	V/MEjrYUnKsQkDAd7CK/BuPjPVIfbVzjp2y52FbFSwevlwNCB9oDkx0AyWu+MBxG
-	L8qOvFPAXL0LuQz6QJ3CWKzJAjOR9H1j1PsP2icLItX10urjyM+l+thHJRjkMcop
-	gZ+2gRu/AA3V+jXVDxzMiTtAgs0GIAd7QDpO17LFClKuq7oqg4W6uTwnicN0J+cu
-	0/Nh7E3wQJbFpK+m5tNJqBLA6R+ezxab9WqCZkHCydfOtvRFR9DQSQHoygs3+b13
-	aAoRw==
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=i
+	+DPo6+hcor9Su+QVxT8ZQrWFhELyU2rafvlTUKcROw=; b=Cn0CIIxwjhQMr+sa5
+	Pjv9WKCKaKbIa1aZXCXQ5blgfM1jMtOxzcEMDIEOel8Z21g8pIKk/GZnKlpYIV3B
+	5cHgfGQkznp1Crig8Qtr/xPw8wQ2HqFsxYPIF5nskSIRo/smQi/nDYUQ1xJOe0Y3
+	2aQ8o9Zcfbm62O0rUDh6FtNbZFVa+2+ujimMRAZaORdFlP8ewdFRdZ3nEY2U+dCi
+	tMlzyy92AH7npcc6HxT79AfxYf4Q4SjWdD7is11G4AzpnX7N3RG6aiY+iuc3QCDX
+	QAyAV5fmpBhfYPlZfJl42DDHM42y9BehPVjHSDhSKnNayPkRoClH9e73rGbbVeRD
+	C/dEw==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw2y888ge-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw49k02nv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 06:59:21 +0000 (GMT)
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45L6xLDw029705;
-	Fri, 21 Jun 2024 06:59:21 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw2y888gd-1
+	Fri, 21 Jun 2024 07:13:19 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45L7DJ0v019538;
+	Fri, 21 Jun 2024 07:13:19 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw49k02nu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 06:59:21 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45L5GsLF031884;
-	Fri, 21 Jun 2024 06:59:20 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yvrspn295-1
+	Fri, 21 Jun 2024 07:13:19 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45L5OEWn030916;
+	Fri, 21 Jun 2024 07:13:18 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yvrssw5n0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 06:59:20 +0000
+	Fri, 21 Jun 2024 07:13:18 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45L6xFJQ49021240
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45L7DCIx55574886
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 21 Jun 2024 06:59:17 GMT
+	Fri, 21 Jun 2024 07:13:14 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0E1AA20043;
-	Fri, 21 Jun 2024 06:59:15 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 9E58A2005A;
+	Fri, 21 Jun 2024 07:13:12 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8018E20040;
-	Fri, 21 Jun 2024 06:59:14 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 3301D2004D;
+	Fri, 21 Jun 2024 07:13:12 +0000 (GMT)
 Received: from [9.171.47.222] (unknown [9.171.47.222])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 21 Jun 2024 06:59:14 +0000 (GMT)
-Message-ID: <e4f43732-6439-4eeb-a924-476ee43a8aaa@linux.ibm.com>
-Date: Fri, 21 Jun 2024 08:59:14 +0200
+	Fri, 21 Jun 2024 07:13:12 +0000 (GMT)
+Message-ID: <8f362820-a063-4284-8faa-d67324e4afad@linux.ibm.com>
+Date: Fri, 21 Jun 2024 09:13:12 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,16 +69,18 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v3 3/7] s390x: Add sie_is_pv
+Subject: Re: [kvm-unit-tests PATCH v3 4/7] s390x: Add function for checking
+ diagnose intercepts
 To: Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         =?UTF-8?Q?Nico_B=C3=B6hr?=
- <nrb@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        kvm@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Andrew Jones <andrew.jones@linux.dev>, Thomas Huth <thuth@redhat.com>
+ <nrb@linux.ibm.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>, Thomas Huth <thuth@redhat.com>,
+        Andrew Jones <andrew.jones@linux.dev>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
 References: <20240620141700.4124157-1-nsg@linux.ibm.com>
- <20240620141700.4124157-4-nsg@linux.ibm.com>
+ <20240620141700.4124157-5-nsg@linux.ibm.com>
 Content-Language: en-US
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
@@ -123,25 +125,81 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20240620141700.4124157-4-nsg@linux.ibm.com>
+In-Reply-To: <20240620141700.4124157-5-nsg@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: pKNociA9CBdQsYK0Clu0dcY1WQH2MvXK
-X-Proofpoint-ORIG-GUID: J-RDdNIe1raNHtflzoHsVzSOPWGatXj_
+X-Proofpoint-GUID: FEOJAMaceYYm-3FqArTkE2lTK5ne0oWU
+X-Proofpoint-ORIG-GUID: xus6Q03cpdfeeDBobIYL_78zQ7S2Xz8Q
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-06-21_01,2024-06-20_04,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
- mlxlogscore=801 priorityscore=1501 malwarescore=0 spamscore=0 mlxscore=0
- bulkscore=0 lowpriorityscore=0 phishscore=0 suspectscore=0 clxscore=1015
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2406140001
- definitions=main-2406210050
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ spamscore=0 suspectscore=0 mlxscore=0 mlxlogscore=999 clxscore=1015
+ adultscore=0 phishscore=0 bulkscore=0 lowpriorityscore=0 impostorscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2406210050
 
 On 6/20/24 16:16, Nina Schoetterl-Glausch wrote:
-> Add a function to check if a guest VM is currently running protected.
+> sie_is_diag_icpt() checks if the intercept is due to an expected
+> diagnose call and is valid.
+> It subsumes pv_icptdata_check_diag.
 > 
 > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 > ---
+>   lib/s390x/pv_icptdata.h | 42 --------------------------------
+>   lib/s390x/sie.h         | 12 ++++++++++
+>   lib/s390x/sie.c         | 53 +++++++++++++++++++++++++++++++++++++++++
+>   s390x/pv-diags.c        |  8 +++----
+>   s390x/pv-icptcode.c     | 11 ++++-----
+>   s390x/pv-ipl.c          |  7 +++---
+>   6 files changed, 76 insertions(+), 57 deletions(-)
+>   delete mode 100644 lib/s390x/pv_icptdata.h
+> 
+> diff --git a/lib/s390x/pv_icptdata.h b/lib/s390x/pv_icptdata.h
+> deleted file mode 100644
+> index 4746117e..00000000
+> --- a/lib/s390x/pv_icptdata.h
+> +++ /dev/null
+> @@ -1,42 +0,0 @@
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+There's a reason why I didn't put this in sie.c and I'm still torn on 
+whether this should be in the lib or in s390x. It's not related to 
+actually running snippets and managing them.
+
+> -/* SPDX-License-Identifier: GPL-2.0-only */
+> -/*
+> - * Commonly used checks for PV SIE intercept data
+> - *
+> - * Copyright IBM Corp. 2023
+> - * Author: Janosch Frank <frankja@linux.ibm.com>
+> - */
+[...]
+> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
+> index 53cd767f..6d1a0d6e 100644
+> --- a/lib/s390x/sie.h
+> +++ b/lib/s390x/sie.h
+> @@ -287,6 +287,18 @@ static inline bool sie_is_pv(struct vm *vm)
+>   	return vm->sblk->sdf == 2;
+>   }
+>   
+> +/**
+> + * sie_is_diag_icpt() - Check if intercept is due to diagnose instruction
+> + * @vm: the guest
+> + * @diag: the expected diagnose code
+> + *
+> + * Check that the intercept is due to diagnose @diag and valid.
+> + * For protected virtualisation, check that the intercept data meets additional
+
+virtualization
+
+> + * constraints.
+> + *
+> + * Returns: true if intercept is due to a valid and has matching diagnose code
+> + */
+> +bool sie_is_diag_icpt(struct vm *vm, unsigned int diag);
+>   void sie_guest_sca_create(struct vm *vm);
+>   void sie_guest_create(struct vm *vm, uint64_t guest_mem, uint64_t guest_mem_len);
+>   void sie_guest_destroy(struct vm *vm);
+> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
+
