@@ -1,205 +1,199 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7862612D742;
-	Fri, 21 Jun 2024 07:13:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E47512D742
+	for <linux-s390@vger.kernel.org>; Fri, 21 Jun 2024 07:14:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718954006; cv=none; b=ByuOtuoqHC4VW+7fIG+s12R7kPwOhvHXoYOKE9GDjkJmZveiXpxeScBnHcIGllRvG8GfvO8ZEhgWLKiJs08ZtxjtZt9qUNtK1T6UB++y7bAd42ZleBm/ki3iR+a8s1T4rq+ImQmJx4HngJT89EeelrYnmC0KWgJb5W/ctsRMbWM=
+	t=1718954067; cv=none; b=UiTdKhmTsCDkhGwEO8AWnc9XNP+zXmf+nfuAULYVyQs1IzPZ5oh2ANXPvxsUUv40hot52JrkV3ABpVy3Gu+NKnb0NdP4eViCuXaa3A76O2kTD8f42EzW3Fbi32lkFLI8lPEq/teIFQKpNS/Pbvf3qfYUL0zjKgq6riKoJngAfPU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718954006; c=relaxed/simple;
-	bh=ANwQ4TDvy94nlZwN1vm4dVVS8siJVAa/QWKnsoz1ShI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TyJy9BxUZ471gXOYvh05CNGzM/ej7SUSlNl8wPiZdgV8g9ANXLqkyAUp4dUp+sjV3LnfRBzuR7QwbESD727M6p4nlJxCvcM8zbCOJHZertFo5BMbOhZrwdB3repBan2frxn+QA5wqIAaY/vT3aN12N6XkQLqYrT8+gcA1J1b7ZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Cn0CIIxw; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1718954067; c=relaxed/simple;
+	bh=1219e9zqdNsXoUjglT2wXN0kk5OuA/hPtE/GgPez8uY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=SGkFwptExy3S3vBOsHM7ty+z69nV/b2x3uAF9qRWXjhVAFXYYZwc0pHgttKAJ4uuYIwGbn8/HhKI0amqy6HaUXPJx/EHGuZq1AEdIIhMLabiPiF+U3O84sIASWJKJ8gbhvBkFzD06SM+dSHhmdOgvZdWHDM2dT0JPEJPcaMmHa8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VxWr7dfl; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Cn0CIIxw"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45L6T24N021285;
-	Fri, 21 Jun 2024 07:13:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=i
-	+DPo6+hcor9Su+QVxT8ZQrWFhELyU2rafvlTUKcROw=; b=Cn0CIIxwjhQMr+sa5
-	Pjv9WKCKaKbIa1aZXCXQ5blgfM1jMtOxzcEMDIEOel8Z21g8pIKk/GZnKlpYIV3B
-	5cHgfGQkznp1Crig8Qtr/xPw8wQ2HqFsxYPIF5nskSIRo/smQi/nDYUQ1xJOe0Y3
-	2aQ8o9Zcfbm62O0rUDh6FtNbZFVa+2+ujimMRAZaORdFlP8ewdFRdZ3nEY2U+dCi
-	tMlzyy92AH7npcc6HxT79AfxYf4Q4SjWdD7is11G4AzpnX7N3RG6aiY+iuc3QCDX
-	QAyAV5fmpBhfYPlZfJl42DDHM42y9BehPVjHSDhSKnNayPkRoClH9e73rGbbVeRD
-	C/dEw==
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VxWr7dfl"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45L60Ac9013780;
+	Fri, 21 Jun 2024 07:14:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:content-type
+	:in-reply-to:mime-version; s=pp1; bh=Y6zXADO5CSKbW4b2j1FWrwqssxG
+	SjE0Njd7eQWyOQME=; b=VxWr7dflYXuLeMTwSyJmjfgh3gJteuIoxNCo8BVxzVp
+	jFqaVAe1knNCHbJRed7WMMJeTnucPHPnKVk/auXgrtdFJL44f7fi9zUU1gAOvFKe
+	kE70v9f6KSkkl0IVFb7AUNp3HnqZvekrhEC9kAlI0nmhamRPJJLP45rsvRbsbW7B
+	dNcDDCJbceCMKfF+TIEvTRneISVyJZS2j0izLNFZep0o74HHAOwQhbmJNQB0VsaW
+	m2P6MFFiH18wz/I1yUOcP5w+tW49VJlIpyX8F58LUHUwYaViFMaRA3/chos1tiEi
+	LrbOfXXwcQlvPe7YP0ilnXTCH/A1E9ZDMOxsLkBpZ3A==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw49k02nv-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw3ung5q8-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 07:13:19 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45L7DJ0v019538;
-	Fri, 21 Jun 2024 07:13:19 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw49k02nu-1
+	Fri, 21 Jun 2024 07:14:20 +0000 (GMT)
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45L7EKkT001175;
+	Fri, 21 Jun 2024 07:14:20 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw3ung5q7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 07:13:19 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45L5OEWn030916;
-	Fri, 21 Jun 2024 07:13:18 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yvrssw5n0-1
+	Fri, 21 Jun 2024 07:14:20 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45L5HY5e032346;
+	Fri, 21 Jun 2024 07:14:19 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yvrspn5r3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 07:13:18 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45L7DCIx55574886
+	Fri, 21 Jun 2024 07:14:19 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45L7EE4G16908552
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 21 Jun 2024 07:13:14 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9E58A2005A;
-	Fri, 21 Jun 2024 07:13:12 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3301D2004D;
-	Fri, 21 Jun 2024 07:13:12 +0000 (GMT)
-Received: from [9.171.47.222] (unknown [9.171.47.222])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 21 Jun 2024 07:13:12 +0000 (GMT)
-Message-ID: <8f362820-a063-4284-8faa-d67324e4afad@linux.ibm.com>
-Date: Fri, 21 Jun 2024 09:13:12 +0200
+	Fri, 21 Jun 2024 07:14:16 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3D49D2004D;
+	Fri, 21 Jun 2024 07:14:14 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A70C420063;
+	Fri, 21 Jun 2024 07:14:13 +0000 (GMT)
+Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.171.67.123])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 21 Jun 2024 07:14:13 +0000 (GMT)
+Date: Fri, 21 Jun 2024 09:14:12 +0200
+From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+To: Joe Lawrence <joe.lawrence@redhat.com>
+Cc: linux-s390@vger.kernel.org, hca@linux.ibm.com, jpoimboe@kernel.org,
+        gor@linux.ibm.com, iii@linux.ibm.com, agordeev@linux.ibm.com
+Subject: Re: [PATCH v2 0/4] s390: compile relocatable kernel with/without fPIE
+Message-ID: <ZnUoRESborBG95aJ@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+References: <20240219132734.22881-1-sumanthk@linux.ibm.com>
+ <ZnHv/HmiYHoQRkUU@redhat.com>
+ <ZnMO4DOBZ2qz4Twg@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+ <4610b08d-46a4-b6fc-2ec5-a88abba7022c@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4610b08d-46a4-b6fc-2ec5-a88abba7022c@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 4dccTrttsB1HF1uT341kPhVGUlGvFnzb
+X-Proofpoint-GUID: jTH1XoTC1JwiUDwL_3YHxf7SjX6dQYAk
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v3 4/7] s390x: Add function for checking
- diagnose intercepts
-To: Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        =?UTF-8?Q?Nico_B=C3=B6hr?=
- <nrb@linux.ibm.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>, Thomas Huth <thuth@redhat.com>,
-        Andrew Jones <andrew.jones@linux.dev>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20240620141700.4124157-1-nsg@linux.ibm.com>
- <20240620141700.4124157-5-nsg@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20240620141700.4124157-5-nsg@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: FEOJAMaceYYm-3FqArTkE2lTK5ne0oWU
-X-Proofpoint-ORIG-GUID: xus6Q03cpdfeeDBobIYL_78zQ7S2Xz8Q
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-06-21_01,2024-06-20_04,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 suspectscore=0 mlxscore=0 mlxlogscore=999 clxscore=1015
- adultscore=0 phishscore=0 bulkscore=0 lowpriorityscore=0 impostorscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
+ spamscore=0 impostorscore=0 bulkscore=0 mlxscore=0 lowpriorityscore=0
+ adultscore=0 mlxlogscore=999 clxscore=1015 malwarescore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2406140001 definitions=main-2406210050
 
-On 6/20/24 16:16, Nina Schoetterl-Glausch wrote:
-> sie_is_diag_icpt() checks if the intercept is due to an expected
-> diagnose call and is valid.
-> It subsumes pv_icptdata_check_diag.
+On Wed, Jun 19, 2024 at 02:23:49PM -0400, Joe Lawrence wrote:
+> On 6/19/24 13:01, Sumanth Korikkar wrote:
+> > On Tue, Jun 18, 2024 at 04:37:16PM -0400, Joe Lawrence wrote:
+> >> On Mon, Feb 19, 2024 at 02:27:30PM +0100, Sumanth Korikkar wrote:
+> >>> Hi All,
+> >>>
+> >>> This is a rebased version of Josh's patch series with a few fixups.
+> >>> https://git.kernel.org/pub/scm/linux/kernel/git/jpoimboe/linux.git/log/?h=s390
+> >>>
+> >>> This introduces the capability to compile the s390 relocatable kernel
+> >>> with and without the -fPIE option.
+> >>>
+> >>> When utilizing the kpatch functionality, it is advisable to compile the
+> >>> kernel without the -fPIE option. This is particularly important if the
+> >>> kernel is built with the -ffunction-sections and -fdata-sections flags.
+> >>> The linker imposes a restriction on the number of sections (limited to
+> >>> 64k), necessitating the omission of -fPIE.
+> >>>
+> >>> [1] https://gcc.gnu.org/pipermail/gcc-patches/2023-June/622872.html
+> >>> [2] https://gcc.gnu.org/pipermail/gcc-patches/2023-August/625986.html
+> >>>
+> >>> Gcc recently implemented an optimization [1] for loading symbols without
+> >>> explicit alignment, aligning with the IBM Z ELF ABI. This ABI mandates
+> >>> symbols to reside on a 2-byte boundary, enabling the use of the larl
+> >>> instruction. However, kernel linker scripts may still generate unaligned
+> >>> symbols. To address this, a new -munaligned-symbols option has been
+> >>> introduced [2] in recent gcc versions. This option has to be used with
+> >>> future gcc versions.
+> >>>
+> >>> Older Clang lacks support for handling unaligned symbols generated
+> >>> by kernel linker scripts when the kernel is built without -fPIE. However,
+> >>> future versions of Clang will include support for the -munaligned-symbols
+> >>> option. When the support is unavailable, compile the kernel with -fPIE
+> >>> to maintain the existing behavior.
+> >>>
+> >>> Patch 1 filters out -munaligned-symbol flag for vdso code. This is beneficial
+> >>> when compiling kernel with -fno-PIE and -munaligned-symbols combination.
+> >>>
+> >>> Patch 2 introduces the 'relocs' tool, which reads the vmlinux file and
+> >>> generates a vmlinux.relocs_64 section, containing offsets for all
+> >>> R_390_64 relocations.
+> >>>
+> >>> Patch 3 enables the compilation of a relocatable kernel with or without
+> >>> the -fPIE option. It  allows for building the relocatable kernel without
+> >>> -fPIE.  However, if compiler cannot handle unaligned symbols, the kernel
+> >>> is built with -fPIE.
+> >>>
+> >>> Patch 4 handles orphan .rela sections when kernel is built with
+> >>> -fno-PIE.
+> >>>
+> >>> kpatch tools changes:
+> >>> * -mno-pic-data-is-text-relative prevents relative addressing between
+> >>>   code and data. This is needed to avoid relocation error when klp text
+> >>>   and data are too far apart. kpatch already includes this flag.
+> >>>   However, with these changes, ARCH_KFLAGS+="-fPIC" should be added to
+> >>>   s390 kpatch tools, As -mno-pic-data-is-text-relative can be used only
+> >>>   with -fPIC. The corresponding pull request will be sent to kpatch
+> >>>   tools.
+> >>
+> >> Hi Sumanth,
+> >>
+> >> I noticed interesting compiler differences when adding -fPIC build
+> >> option and not.  The difference in resulting output can confuse
+> >> kpatch-build when it tries to verify that its reference build (with the
+> >> mentioned options, plus --ffunction-sections and -fdata-sections),
+> >> doesn't line up closely enough with the original vmlinux source (sans
+> >> all these options).
+> > 
+> > Hi Joe,
+> > 
+> > kpatch for s390 already uses extra compiler flag -mno-pic-data-is-text-relative
+> > inorder to prevent relative addressing between code and data. Also,
+> > includes -ffunction-sections and -fdata-sections along with it to identify
+> > modified functions and its relocations.
+> > 
+> > Both the source code and modified code are built with the same
+> > options during kpatch-build (-fPIC added to
+> > -mno-pic-data-is-text-relative). kpatch-build was able to identify
+> > modified functions and its associated relocations and include these
+> > changes in the final kpatch module.
+> > 
+> > May be I am missing some info: Does this deviation cause confusion to kpatch?
+> > 
 > 
-> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> ---
->   lib/s390x/pv_icptdata.h | 42 --------------------------------
->   lib/s390x/sie.h         | 12 ++++++++++
->   lib/s390x/sie.c         | 53 +++++++++++++++++++++++++++++++++++++++++
->   s390x/pv-diags.c        |  8 +++----
->   s390x/pv-icptcode.c     | 11 ++++-----
->   s390x/pv-ipl.c          |  7 +++---
->   6 files changed, 76 insertions(+), 57 deletions(-)
->   delete mode 100644 lib/s390x/pv_icptdata.h
+> Hi Sumanth,
 > 
-> diff --git a/lib/s390x/pv_icptdata.h b/lib/s390x/pv_icptdata.h
-> deleted file mode 100644
-> index 4746117e..00000000
-> --- a/lib/s390x/pv_icptdata.h
-> +++ /dev/null
-> @@ -1,42 +0,0 @@
+> Yes, in the example I provided, the __mmput() function is only inlined
+> in kpatch builds, but not the builds that create the target vmlinux.
+> Here is a reproducer tarball that you can try against a local
+> create-diff-object binary:
+> 
+> https://file.rdu.redhat.com/~jolawren/repro-s390x-shadow-newpid.tar.gz
+> 
+> create-diff-object: ERROR: fork.ORIG.o: find_local_syms: 222: couldn't
+> find matching fork.c local symbols in vmlinux symbol table.
 
-There's a reason why I didn't put this in sie.c and I'm still torn on 
-whether this should be in the lib or in s390x. It's not related to 
-actually running snippets and managing them.
+Hi Joe,
 
-> -/* SPDX-License-Identifier: GPL-2.0-only */
-> -/*
-> - * Commonly used checks for PV SIE intercept data
-> - *
-> - * Copyright IBM Corp. 2023
-> - * Author: Janosch Frank <frankja@linux.ibm.com>
-> - */
-[...]
-> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
-> index 53cd767f..6d1a0d6e 100644
-> --- a/lib/s390x/sie.h
-> +++ b/lib/s390x/sie.h
-> @@ -287,6 +287,18 @@ static inline bool sie_is_pv(struct vm *vm)
->   	return vm->sblk->sdf == 2;
->   }
->   
-> +/**
-> + * sie_is_diag_icpt() - Check if intercept is due to diagnose instruction
-> + * @vm: the guest
-> + * @diag: the expected diagnose code
-> + *
-> + * Check that the intercept is due to diagnose @diag and valid.
-> + * For protected virtualisation, check that the intercept data meets additional
+I tried to download the tarball and rhel config. Both are unreachable.
+Failed to resolve 'file.rdu.redhat.com' (Name or service not known)
 
-virtualization
+Could you please provide alternative link to it?
 
-> + * constraints.
-> + *
-> + * Returns: true if intercept is due to a valid and has matching diagnose code
-> + */
-> +bool sie_is_diag_icpt(struct vm *vm, unsigned int diag);
->   void sie_guest_sca_create(struct vm *vm);
->   void sie_guest_create(struct vm *vm, uint64_t guest_mem, uint64_t guest_mem_len);
->   void sie_guest_destroy(struct vm *vm);
-> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
-
+Thank you,
+Sumanth
