@@ -1,126 +1,199 @@
-Received: from fout4-smtp.messagingengine.com (fout4-smtp.messagingengine.com [103.168.172.147])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA79B82D66;
-	Fri, 21 Jun 2024 09:52:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.147
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4974171095;
+	Fri, 21 Jun 2024 10:22:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718963567; cv=none; b=QZ/ROz4RRf8N2W2wtQvFp9YBoBOjC7uP2YD/qZLPsDWp5vYe/21DSHe6akkvTws6p56+jX45blE7cJwKjYoL4QuSaW0DtKtIMys3n1WYtXDQ2V5XPXDDlHzG1Jdv+6bjYFRwHwo3lXbvbw/2QHuhU6vIRgmonFKyrLzPj8nH3dk=
+	t=1718965346; cv=none; b=rR0zrK9Xnvh7+YnuAp/fjTrMM2QcTT6SdmNyZVFD6SNuTWwp+yMqSzew1+51GE48dTVm+jTK6kXsMQChBy3FlZbQ5NvhJdNg3FK0kI/BPRWpIofMvqt4kr0bAShRErEZVAkFr5JQrEM8MP0jmlUqTEiFxaqWznfyFMon1gNEFxQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718963567; c=relaxed/simple;
-	bh=l0lDQgZrcjAUqFhBaSXXDIaBllThVG1SJNZgat8tRkA=;
-	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
-	 Subject:Content-Type; b=GHuNi2TNuZphHN1AvGpkNOWDpH/DPdvgz3HR3e0Q4T/+Qg41NuffODU0q+L8j0BaCa67mlNpBe5AjjfPyzReHt5vBAPzmpW9uL+1kxQBujbIb4Iw0WhbmGSk1lM1HMyVmLn+saL1GsX0DCzsrDPWeaB7tssrRopPQW6F50VHqmE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=MKJcxPLG; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=X7nAgy7B; arc=none smtp.client-ip=103.168.172.147
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1718965346; c=relaxed/simple;
+	bh=TIQPrXwtPrBb2xR+E8JUyrOCQGo5HL53+xppydYYS0o=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=bK/Xt9Axy9jYf+zBkmcyQY5OU/PrMd3fvIkFJYEawBFe4nqRgqVd/G37MG8gdJcuNYEOHb3EVev1gqwZQWlaqZFVJao1ZQ+HRB9dXh7AJiV26poCVoxHNfNkWpzssiqCgsG7Dil94Rhy7SNrCn+Ues87e4Q2ti4vfLqkoANeWe4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kDTT6JVg; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="MKJcxPLG";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="X7nAgy7B"
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-	by mailfout.nyi.internal (Postfix) with ESMTP id B795513801A0;
-	Fri, 21 Jun 2024 05:52:44 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
-  by compute5.internal (MEProxy); Fri, 21 Jun 2024 05:52:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm1; t=1718963564; x=1719049964; bh=WMGDo/weqH
-	B9YDWLlQD6sLBRrGER7ScpjCWRSqIRAJU=; b=MKJcxPLGgvmkBY+j/HTLZjZ8KI
-	pvGXw459FAlanf7Ac5v5b80QkLQF8xlXMpxYpBvx4w9U/JqBjy+WLg42sp2LCoU7
-	Q1b7sVY0U9atF6syLC4XY52fNn0nDOmK/ZAU1NPDw3Ole9FWcIKsJ3WhrUSbjS0O
-	i2l2ZiXzugEyGrEBwdm3cuJRW2BdSaCh9EPr80/iCCtKcq6Na1X7f0bajgjej8Tx
-	FitYQuzmPjk0hPwNzDjYuPI+Yp1cAv/YSHWqMQzL0+ow//AxFir6unBR1Xx43VMt
-	sTtOJWUxx7oJFStml4ol1MIfUqgzo4a50v7aYyXLtepLNGOKd3V6UG9I95kw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm2; t=1718963564; x=1719049964; bh=WMGDo/weqHB9YDWLlQD6sLBRrGER
-	7ScpjCWRSqIRAJU=; b=X7nAgy7BTqyAvR65qflUPcwaq1L6pXZMoo47rxn9ZM3V
-	sKDdHt5wvqDbT5sa14aR9hCMiL0oj6CvWrv8SKMrJq40IWWOWM8MbFp61EphmqmA
-	GCBih7Z83pGEIOJtdrxEY58EcLZTCfr3LtYlO5Bk5HkZc4y2HUPbxdUUvLm78WWR
-	6tuoSmWxlD/uu2pPsgmL8g2dFZKC0Xt/QAcoFkPreb180QnAWGYkaopwGC6yCFEm
-	/Z+Br4e5r/bgM/ZXXRokPJT4v4p+Ba0c7m4Kpk7n6XdiBc6ZZ4ATNt57/k27/Yh7
-	tkRb7e0hgdJYE6Yo5pJL5NM0EiwSlMy6buj3koNHsA==
-X-ME-Sender: <xms:a011ZoRKk0xgtXrnk7B-qG7CoQgSoOMrP6uxlJU8ziJL2FLkCKjJ-g>
-    <xme:a011ZlxuT2HoJobpF--UwiCQxrck0_h0q9Qbx7ELDLXtD-5We7CXp5ouF-xDkVRRJ
-    XeIZNFUDqIuP2U5LAw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrfeefgedgvdduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
-    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:a011Zl39KEhZ-U9AaTAu3qpgNWAWYG4Puo5AAhWDqyHAU63ILvKvOg>
-    <xmx:a011ZsDatAkgsBYef_mlo8HxX4iiDqSBQuQ7pbgM9HyizWRoDF7JfA>
-    <xmx:a011ZhhozQMBHEtX3Ty6cO1Tqt3jE9LlaBWOyo6ySWIoCH-OSDkLxg>
-    <xmx:a011Zop-AXFZkCbuJe_8FCJsMNZLUN5VvVeVPrHUajKBVXxUTW5uxQ>
-    <xmx:bE11ZsMsQ8wP4yZocAMKl9MACO-_6K03a9Qh0f0TNL0WVY97DHdpMQGU>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id D8547B6008D; Fri, 21 Jun 2024 05:52:43 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.11.0-alpha0-522-ga39cca1d5-fm-20240610.002-ga39cca1d
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kDTT6JVg"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45L9SUPd029793;
+	Fri, 21 Jun 2024 10:22:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:mime-version
+	:content-transfer-encoding; s=pp1; bh=qAgKdlvJiaR93zpf9odqulM7vQ
+	NS3bQ6TLmE6TFY8UI=; b=kDTT6JVgKxz2+PD3MkAFRHqyZnXqkUG5l+cj536mh2
+	D3P7LEc/8y+R/mzPkyoI8AFArgeKW0pIHzDf/99iPmHvLA0m9O3vFZo3tv2/mpEj
+	fDoHxpvNY/bX2REdz9kRcJvNOAWs/Mmj3mLceqH300mE1A5rL+6Dc/jtjjXEnJYN
+	2Ha5qcucTO+LgAuLohf9pXKtA+ugT46za0gAeg6VIj/Bmx2fErs77i96f9qfj10F
+	nGJv1DatGT2hh8j5kzI7YGNV2W8GtsD7mDfBB1Q6xiljss4Uu8qwNNRPfC1bU898
+	eMUAGe+hRIDQPOKGA71EPd6lYnKPk0+VvNu2IjKB2wPA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw6wtr4s9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 21 Jun 2024 10:22:22 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45LAMMk4017705;
+	Fri, 21 Jun 2024 10:22:22 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw6wtr4s8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 21 Jun 2024 10:22:22 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45L9FiuX019922;
+	Fri, 21 Jun 2024 10:22:21 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yvrqupm3c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 21 Jun 2024 10:22:21 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45LAMF0n51380504
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 21 Jun 2024 10:22:17 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 80C4320259;
+	Fri, 21 Jun 2024 10:22:15 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 59A2E20258;
+	Fri, 21 Jun 2024 10:22:15 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 21 Jun 2024 10:22:15 +0000 (GMT)
+From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To: Thomas Huth <thuth@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>, Nico Boehr <nrb@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        David Hildenbrand <david@redhat.com>
+Subject: [kvm-unit-tests PATCH v1] s390x: Split and rework cpacf query functions
+Date: Fri, 21 Jun 2024 12:22:12 +0200
+Message-Id: <20240621102212.3311494-1-nsg@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <83613d85-53f9-4644-be68-4f438abe2e52@app.fastmail.com>
-In-Reply-To: 
- <a623c1979ac494d01977abe6dfc22e8381dc6e4f.camel@physik.fu-berlin.de>
-References: <20240620162316.3674955-1-arnd@kernel.org>
- <20240620162316.3674955-8-arnd@kernel.org>
- <e80809ba-ee81-47a5-9b08-54b11f118a78@gmx.de>
- <1537113c4396cd043a08a72bdca80cccfa2d54d9.camel@physik.fu-berlin.de>
- <ba14c4fb-e6a7-46b3-a030-081482264a99@app.fastmail.com>
- <a623c1979ac494d01977abe6dfc22e8381dc6e4f.camel@physik.fu-berlin.de>
-Date: Fri, 21 Jun 2024 11:52:23 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
- "Helge Deller" <deller@gmx.de>, "Arnd Bergmann" <arnd@kernel.org>,
- Linux-Arch <linux-arch@vger.kernel.org>, linux-kernel@vger.kernel.org
-Cc: "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
- linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
- "David S . Miller" <davem@davemloft.net>,
- "Andreas Larsson" <andreas@gaisler.com>, sparclinux@vger.kernel.org,
- "Michael Ellerman" <mpe@ellerman.id.au>,
- "Nicholas Piggin" <npiggin@gmail.com>,
- "Christophe Leroy" <christophe.leroy@csgroup.eu>,
- "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- linuxppc-dev@lists.ozlabs.org, "Brian Cain" <bcain@quicinc.com>,
- linux-hexagon@vger.kernel.org, guoren <guoren@kernel.org>,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
- "Rich Felker" <dalias@libc.org>, linux-sh@vger.kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>,
- "Alexander Viro" <viro@zeniv.linux.org.uk>,
- "Christian Brauner" <brauner@kernel.org>, linux-fsdevel@vger.kernel.org,
- "Xi Ruoyao" <libc-alpha@sourceware.org>,
- "musl@lists.openwall.com" <musl@lists.openwall.com>,
- "LTP List" <ltp@lists.linux.it>,
- "Adhemerval Zanella Netto" <adhemerval.zanella@linaro.org>
-Subject: Re: [PATCH 07/15] parisc: use generic sys_fanotify_mark implementation
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 8PP-rodhGDz1f2NwTFx4yEJuoexzman0
+X-Proofpoint-ORIG-GUID: Esh4FnuQATZ__trmmMY__oj19CZJl2UH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-21_04,2024-06-20_04,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
+ mlxlogscore=999 mlxscore=0 bulkscore=0 clxscore=1015 malwarescore=0
+ suspectscore=0 spamscore=0 adultscore=0 lowpriorityscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2406210073
 
-On Fri, Jun 21, 2024, at 11:03, John Paul Adrian Glaubitz wrote:
-> On Fri, 2024-06-21 at 10:56 +0200, Arnd Bergmann wrote:
->> Feel free to pick up the sh patch directly, I'll just merge whatever
->> is left in the end. I mainly want to ensure we can get all the bugfixes
->> done for v6.10 so I can build my longer cleanup series on top of it
->> for 6.11.
->
-> This series is still for 6.10?
+Cherry-pick 830999bd7e72 ("s390/cpacf: Split and rework cpacf query functions")
+from the kernel:
 
-Yes, these are all the bugfixes that I think we want to backport
-to stable kernels, so it makes sense to merge them as quickly as
-possible. The actual stuff I'm working on will come as soon as
-I have it in a state for public review and won't need to be
-backported.
+    Rework the cpacf query functions to use the correct RRE
+    or RRF instruction formats and set register fields within
+    instructions correctly.
 
-     Arnd
+Fixes: a555dc6b16bf ("s390x: add cpacf.h from Linux")
+Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+---
+ lib/s390x/asm/cpacf.h | 77 +++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 67 insertions(+), 10 deletions(-)
+
+diff --git a/lib/s390x/asm/cpacf.h b/lib/s390x/asm/cpacf.h
+index 378cd5cf..ba53ec31 100644
+--- a/lib/s390x/asm/cpacf.h
++++ b/lib/s390x/asm/cpacf.h
+@@ -137,19 +137,76 @@
+ 
+ typedef struct { unsigned char bytes[16]; } cpacf_mask_t;
+ 
+-static __always_inline void __cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
++static __always_inline void __cpacf_query_rre(u32 opc, u8 r1, u8 r2,
++					      cpacf_mask_t *mask)
+ {
+-	register unsigned long r0 asm("0") = 0;	/* query function */
+-	register unsigned long r1 asm("1") = (unsigned long) mask;
++	asm volatile(
++		"	la	%%r1,%[mask]\n"
++		"	xgr	%%r0,%%r0\n"
++		"	.insn	rre,%[opc] << 16,%[r1],%[r2]\n"
++		: [mask] "=R" (*mask)
++		: [opc] "i" (opc),
++		  [r1] "i" (r1), [r2] "i" (r2)
++		: "cc", "r0", "r1");
++}
+ 
++static __always_inline void __cpacf_query_rrf(u32 opc,
++					      u8 r1, u8 r2, u8 r3, u8 m4,
++					      cpacf_mask_t *mask)
++{
+ 	asm volatile(
+-		"	spm 0\n" /* pckmo doesn't change the cc */
+-		/* Parameter regs are ignored, but must be nonzero and unique */
+-		"0:	.insn	rrf,%[opc] << 16,2,4,6,0\n"
+-		"	brc	1,0b\n"	/* handle partial completion */
+-		: "=m" (*mask)
+-		: [fc] "d" (r0), [pba] "a" (r1), [opc] "i" (opcode)
+-		: "cc");
++		"	la	%%r1,%[mask]\n"
++		"	xgr	%%r0,%%r0\n"
++		"	.insn	rrf,%[opc] << 16,%[r1],%[r2],%[r3],%[m4]\n"
++		: [mask] "=R" (*mask)
++		: [opc] "i" (opc), [r1] "i" (r1), [r2] "i" (r2),
++		  [r3] "i" (r3), [m4] "i" (m4)
++		: "cc", "r0", "r1");
++}
++
++static __always_inline void __cpacf_query(unsigned int opcode,
++					  cpacf_mask_t *mask)
++{
++	switch (opcode) {
++	case CPACF_KIMD:
++		__cpacf_query_rre(CPACF_KIMD, 0, 2, mask);
++		break;
++	case CPACF_KLMD:
++		__cpacf_query_rre(CPACF_KLMD, 0, 2, mask);
++		break;
++	case CPACF_KM:
++		__cpacf_query_rre(CPACF_KM, 2, 4, mask);
++		break;
++	case CPACF_KMA:
++		__cpacf_query_rrf(CPACF_KMA, 2, 4, 6, 0, mask);
++		break;
++	case CPACF_KMAC:
++		__cpacf_query_rre(CPACF_KMAC, 0, 2, mask);
++		break;
++	case CPACF_KMC:
++		__cpacf_query_rre(CPACF_KMC, 2, 4, mask);
++		break;
++	case CPACF_KMCTR:
++		__cpacf_query_rrf(CPACF_KMCTR, 2, 4, 6, 0, mask);
++		break;
++	case CPACF_KMF:
++		__cpacf_query_rre(CPACF_KMF, 2, 4, mask);
++		break;
++	case CPACF_KMO:
++		__cpacf_query_rre(CPACF_KMO, 2, 4, mask);
++		break;
++	case CPACF_PCC:
++		__cpacf_query_rre(CPACF_PCC, 0, 0, mask);
++		break;
++	case CPACF_PCKMO:
++		__cpacf_query_rre(CPACF_PCKMO, 0, 0, mask);
++		break;
++	case CPACF_PRNO:
++		__cpacf_query_rre(CPACF_PRNO, 2, 4, mask);
++		break;
++	default:
++		asm volatile(".error \"bad opcode\"");
++	}
+ }
+ 
+ static inline int __cpacf_check_opcode(unsigned int opcode)
+
+base-commit: 66fdb0333237161fb9644b4a41a200af5b8d20e9
+-- 
+2.44.0
+
