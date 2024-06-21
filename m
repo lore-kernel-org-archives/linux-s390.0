@@ -1,64 +1,64 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40A761741F0;
-	Fri, 21 Jun 2024 11:37:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D229174EC2;
+	Fri, 21 Jun 2024 11:37:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718969875; cv=none; b=aGNNNIcFH44/VKzfN2GI48gmXlxOXLigKao+/juAFGB5nIkRzEKL/ULAsPFrVTw2g0WHtYBMARlkhPpqLvnAIVvZJbwKhjypKXZ83PvckyXAexUWrehp2DwldzuZkIu5l0cd5XXuCpzPyQDiuAVfY9HzKxHcbKMPk+/E7meBImk=
+	t=1718969875; cv=none; b=iQkNiaoLlLb6BpIpo9MrM4/6mg35riVv/qMCI7lSufeKGR7QtPRh9eS+qkPNzAUUHHYiGct6RSsABhlQB6Fik0vGEjE38i13aHwiYmdvTPwzAftvHLzGxrcwnk84Iu1k5YSfdVsUcAx+pKR4i0KitqX66TF/BR7diRAvsHo/8AI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1718969875; c=relaxed/simple;
-	bh=ezUYQLY8WfLA0gBPCkE0myU3xTwdVGh/dPk9mZf5bA8=;
+	bh=wZbdgyfm9mhUX5hJUbxjFVz/i1tPc5SbXvdd1uF8Pj4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=oFMcR6aCeUT9cug7bttfZY46t/GJrv/69hoejb8CsD/GevrtOdEG7KCX+rk7aMF1AhFxrFdf32BQLS8y1aW9f/1vix+d+6AIPAirq+rZB/xd+q0tyZ5qPgjD4xOln2GbnTkEopKo2UbDu0OtOmA7o7HmO4KLyuYsPEdxT7pM8/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aOqigZl6; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=IlMEi8KzrgjRuqQWrtci3G1QgFbjiK1M1ZVLvWY7vXkMb8vvluaJgEx+JnaZ/blRGkoqMjlCtm7R1ptV9rYvOHmeN0OWR0x78dIDKd6CEsl2BX6oYnryjpKOMpOL1F/78CzDnst2Lvsl8jjmh2LtV4Mb0I4a8b1uvDIuAu4TW7k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EVMWG01B; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aOqigZl6"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45LBQxgB001227;
-	Fri, 21 Jun 2024 11:37:37 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EVMWG01B"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45L9wphq019602;
+	Fri, 21 Jun 2024 11:37:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
 	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=8e8PMGe0cxjRc
-	okQIWDPjb5O7pNlgWjHP8CNiuKdZuQ=; b=aOqigZl6uS+j7iv1HPXGk57bczPXB
-	bbaWCvsf8zWZLZKQnBdkszSnd3WSY5+SGhdUoLS3oMZ0ty345ZsaBcrXBOrimJsw
-	sfz+tJ3dnJhENSVpm7ByLIPXl9TCuq4RHKVKVwV4DSqkM9i/foEYb0ACeeT0y9Xk
-	sGz5A8JChCf/p9d2KuO92O33gwIX1Spf1dZtkRCEmdrMSJrgSd+PLDxKeftFZVK8
-	1dcTh/r/hZiYOEx5nARTz6OwA3JBU0TB2hOJI62KegWgFuuHr9ZetoqWOVpqlf/d
-	E8xfDC0fymO7rcq7d5+tGP0fgpk11XqT5SqIrH4QoY1eP8Rjcu/h8LPqA==
+	:mime-version:content-transfer-encoding; s=pp1; bh=o5OLh1G5igJ7w
+	fCkEas83RRSlonR9xfZGMUuvDY/DE0=; b=EVMWG01B2oC74lZBbL2kSPnMQZ5Ey
+	GhloJsCiv+elwBctf7BhxcRrVcSkiv0g2G2V9yGfWYfTQfIaRc2bJdcrcGlvrJW3
+	OWxRPnp1WSA9rr55k6HJbN6/DoWp9IND7o4KAW7MoUK/O2qgZHk/fhTTnx+rCdyh
+	3H1BjfUk2clfA6ZZpiua3Fsjx+c9IS1AyXnw2+TXz1Jbi6G9VvrXnx7uefnK9+tM
+	QL4sB0UUXmCVQ/8CPXpJ5DKAvAYkgmNOLl7pdqQlkSdxDg10GOL18ycxjPAS3Us6
+	89uo2XPPczKg1q1E04eP6VRSF8UKl+5IPEFuQvqd/KkHVkGaAfxQyUxkg==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw5krgf2u-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw7by86pd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 11:37:37 +0000 (GMT)
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45LBbawF017006;
-	Fri, 21 Jun 2024 11:37:36 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw5krgf2r-1
+	Fri, 21 Jun 2024 11:37:28 +0000 (GMT)
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45LBbS0q005032;
+	Fri, 21 Jun 2024 11:37:28 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw7by86p9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 11:37:36 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45L9DkKt025805;
-	Fri, 21 Jun 2024 11:37:35 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yvrqv6w0k-1
+	Fri, 21 Jun 2024 11:37:28 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45L9KGho030990;
+	Fri, 21 Jun 2024 11:37:26 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yvrssxvbh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 11:37:35 +0000
+	Fri, 21 Jun 2024 11:37:26 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45LBbUvk20251122
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45LBbK5U55378330
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 21 Jun 2024 11:37:32 GMT
+	Fri, 21 Jun 2024 11:37:22 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EDD8B2005A;
-	Fri, 21 Jun 2024 11:37:29 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id BF09520043;
+	Fri, 21 Jun 2024 11:37:20 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5A7572004D;
-	Fri, 21 Jun 2024 11:37:29 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 351DF2005A;
+	Fri, 21 Jun 2024 11:37:20 +0000 (GMT)
 Received: from black.boeblingen.de.ibm.com (unknown [9.155.200.166])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 21 Jun 2024 11:37:29 +0000 (GMT)
+	Fri, 21 Jun 2024 11:37:20 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -79,9 +79,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v7 34/38] s390/uaccess: Add KMSAN support to put_user() and get_user()
-Date: Fri, 21 Jun 2024 13:35:18 +0200
-Message-ID: <20240621113706.315500-35-iii@linux.ibm.com>
+Subject: [PATCH v7 19/38] mm: kfence: Disable KMSAN when checking the canary
+Date: Fri, 21 Jun 2024 13:35:03 +0200
+Message-ID: <20240621113706.315500-20-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.45.1
 In-Reply-To: <20240621113706.315500-1-iii@linux.ibm.com>
 References: <20240621113706.315500-1-iii@linux.ibm.com>
@@ -93,237 +93,64 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: jz7JX3bos72ODugP84WEsI6sfjAsgluO
-X-Proofpoint-ORIG-GUID: xYDFEuXR5f0KaQMRo7BBYw5TYc8gW_j-
+X-Proofpoint-GUID: qNNzZXoNK5Jx7e0m-RV4t8XuUyzuBdnJ
+X-Proofpoint-ORIG-GUID: 9nqHha1GsHQHCk2fCPLnLz5EA_SBzbVx
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-06-21_04,2024-06-21_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
- bulkscore=0 spamscore=0 phishscore=0 mlxlogscore=999 priorityscore=1501
- suspectscore=0 adultscore=0 malwarescore=0 mlxscore=0 lowpriorityscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ lowpriorityscore=0 adultscore=0 spamscore=0 suspectscore=0 bulkscore=0
+ mlxlogscore=999 phishscore=0 priorityscore=1501 mlxscore=0 malwarescore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2406140001
  definitions=main-2406210084
 
-put_user() uses inline assembly with precise constraints, so Clang is
-in principle capable of instrumenting it automatically. Unfortunately,
-one of the constraints contains a dereferenced user pointer, and Clang
-does not currently distinguish user and kernel pointers. Therefore
-KMSAN attempts to access shadow for user pointers, which is not a right
-thing to do.
+KMSAN warns about check_canary() accessing the canary.
 
-An obvious fix to add __no_sanitize_memory to __put_user_fn() does not
-work, since it's __always_inline. And __always_inline cannot be removed
-due to the __put_user_bad() trick.
+The reason is that, even though set_canary() is properly instrumented
+and sets shadow, slub explicitly poisons the canary's address range
+afterwards.
 
-A different obvious fix of using the "a" instead of the "+Q" constraint
-degrades the code quality, which is very important here, since it's a
-hot path.
+Unpoisoning the canary is not the right thing to do: only
+check_canary() is supposed to ever touch it. Instead, disable KMSAN
+checks around canary read accesses.
 
-Instead, repurpose the __put_user_asm() macro to define
-__put_user_{char,short,int,long}_noinstr() functions and mark them with
-__no_sanitize_memory. For the non-KMSAN builds make them
-__always_inline in order to keep the generated code quality. Also
-define __put_user_{char,short,int,long}() functions, which call the
-aforementioned ones and which *are* instrumented, because they call
-KMSAN hooks, which may be implemented as macros.
-
-The same applies to get_user() as well.
-
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
 Reviewed-by: Alexander Potapenko <glider@google.com>
+Tested-by: Alexander Potapenko <glider@google.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- arch/s390/include/asm/uaccess.h | 111 +++++++++++++++++++++++---------
- 1 file changed, 79 insertions(+), 32 deletions(-)
+ mm/kfence/core.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
-index 81ae8a98e7ec..70f0edc00c2a 100644
---- a/arch/s390/include/asm/uaccess.h
-+++ b/arch/s390/include/asm/uaccess.h
-@@ -78,13 +78,24 @@ union oac {
+diff --git a/mm/kfence/core.c b/mm/kfence/core.c
+index 964b8482275b..83f8e78827c0 100644
+--- a/mm/kfence/core.c
++++ b/mm/kfence/core.c
+@@ -305,8 +305,14 @@ metadata_update_state(struct kfence_metadata *meta, enum kfence_object_state nex
+ 	WRITE_ONCE(meta->state, next);
+ }
  
- int __noreturn __put_user_bad(void);
- 
--#define __put_user_asm(to, from, size)					\
--({									\
 +#ifdef CONFIG_KMSAN
-+#define get_put_user_noinstr_attributes \
-+	noinline __maybe_unused __no_sanitize_memory
++#define check_canary_attributes noinline __no_kmsan_checks
 +#else
-+#define get_put_user_noinstr_attributes __always_inline
++#define check_canary_attributes inline
 +#endif
 +
-+#define DEFINE_PUT_USER(type)						\
-+static get_put_user_noinstr_attributes int				\
-+__put_user_##type##_noinstr(unsigned type __user *to,			\
-+			    unsigned type *from,			\
-+			    unsigned long size)				\
-+{									\
- 	union oac __oac_spec = {					\
- 		.oac1.as = PSW_BITS_AS_SECONDARY,			\
- 		.oac1.a = 1,						\
- 	};								\
--	int __rc;							\
-+	int rc;								\
- 									\
- 	asm volatile(							\
- 		"	lr	0,%[spec]\n"				\
-@@ -93,12 +104,28 @@ int __noreturn __put_user_bad(void);
- 		"2:\n"							\
- 		EX_TABLE_UA_STORE(0b, 2b, %[rc])			\
- 		EX_TABLE_UA_STORE(1b, 2b, %[rc])			\
--		: [rc] "=&d" (__rc), [_to] "+Q" (*(to))			\
-+		: [rc] "=&d" (rc), [_to] "+Q" (*(to))			\
- 		: [_size] "d" (size), [_from] "Q" (*(from)),		\
- 		  [spec] "d" (__oac_spec.val)				\
- 		: "cc", "0");						\
--	__rc;								\
--})
-+	return rc;							\
-+}									\
-+									\
-+static __always_inline int						\
-+__put_user_##type(unsigned type __user *to, unsigned type *from,	\
-+		  unsigned long size)					\
-+{									\
-+	int rc;								\
-+									\
-+	rc = __put_user_##type##_noinstr(to, from, size);		\
-+	instrument_put_user(*from, to, size);				\
-+	return rc;							\
-+}
-+
-+DEFINE_PUT_USER(char);
-+DEFINE_PUT_USER(short);
-+DEFINE_PUT_USER(int);
-+DEFINE_PUT_USER(long);
- 
- static __always_inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
+ /* Check canary byte at @addr. */
+-static inline bool check_canary_byte(u8 *addr)
++static check_canary_attributes bool check_canary_byte(u8 *addr)
  {
-@@ -106,24 +133,24 @@ static __always_inline int __put_user_fn(void *x, void __user *ptr, unsigned lon
+ 	struct kfence_metadata *meta;
+ 	unsigned long flags;
+@@ -341,7 +347,8 @@ static inline void set_canary(const struct kfence_metadata *meta)
+ 		*((u64 *)addr) = KFENCE_CANARY_PATTERN_U64;
+ }
  
- 	switch (size) {
- 	case 1:
--		rc = __put_user_asm((unsigned char __user *)ptr,
--				    (unsigned char *)x,
--				    size);
-+		rc = __put_user_char((unsigned char __user *)ptr,
-+				     (unsigned char *)x,
-+				     size);
- 		break;
- 	case 2:
--		rc = __put_user_asm((unsigned short __user *)ptr,
--				    (unsigned short *)x,
--				    size);
-+		rc = __put_user_short((unsigned short __user *)ptr,
-+				      (unsigned short *)x,
-+				      size);
- 		break;
- 	case 4:
--		rc = __put_user_asm((unsigned int __user *)ptr,
-+		rc = __put_user_int((unsigned int __user *)ptr,
- 				    (unsigned int *)x,
- 				    size);
- 		break;
- 	case 8:
--		rc = __put_user_asm((unsigned long __user *)ptr,
--				    (unsigned long *)x,
--				    size);
-+		rc = __put_user_long((unsigned long __user *)ptr,
-+				     (unsigned long *)x,
-+				     size);
- 		break;
- 	default:
- 		__put_user_bad();
-@@ -134,13 +161,17 @@ static __always_inline int __put_user_fn(void *x, void __user *ptr, unsigned lon
- 
- int __noreturn __get_user_bad(void);
- 
--#define __get_user_asm(to, from, size)					\
--({									\
-+#define DEFINE_GET_USER(type)						\
-+static get_put_user_noinstr_attributes int				\
-+__get_user_##type##_noinstr(unsigned type *to,				\
-+			    unsigned type __user *from,			\
-+			    unsigned long size)				\
-+{									\
- 	union oac __oac_spec = {					\
- 		.oac2.as = PSW_BITS_AS_SECONDARY,			\
- 		.oac2.a = 1,						\
- 	};								\
--	int __rc;							\
-+	int rc;								\
- 									\
- 	asm volatile(							\
- 		"	lr	0,%[spec]\n"				\
-@@ -149,13 +180,29 @@ int __noreturn __get_user_bad(void);
- 		"2:\n"							\
- 		EX_TABLE_UA_LOAD_MEM(0b, 2b, %[rc], %[_to], %[_ksize])	\
- 		EX_TABLE_UA_LOAD_MEM(1b, 2b, %[rc], %[_to], %[_ksize])	\
--		: [rc] "=&d" (__rc), "=Q" (*(to))			\
-+		: [rc] "=&d" (rc), "=Q" (*(to))				\
- 		: [_size] "d" (size), [_from] "Q" (*(from)),		\
- 		  [spec] "d" (__oac_spec.val), [_to] "a" (to),		\
- 		  [_ksize] "K" (size)					\
- 		: "cc", "0");						\
--	__rc;								\
--})
-+	return rc;							\
-+}									\
-+									\
-+static __always_inline int						\
-+__get_user_##type(unsigned type *to, unsigned type __user *from,	\
-+		  unsigned long size)					\
-+{									\
-+	int rc;								\
-+									\
-+	rc = __get_user_##type##_noinstr(to, from, size);		\
-+	instrument_get_user(*to);					\
-+	return rc;							\
-+}
-+
-+DEFINE_GET_USER(char);
-+DEFINE_GET_USER(short);
-+DEFINE_GET_USER(int);
-+DEFINE_GET_USER(long);
- 
- static __always_inline int __get_user_fn(void *x, const void __user *ptr, unsigned long size)
+-static inline void check_canary(const struct kfence_metadata *meta)
++static check_canary_attributes void
++check_canary(const struct kfence_metadata *meta)
  {
-@@ -163,24 +210,24 @@ static __always_inline int __get_user_fn(void *x, const void __user *ptr, unsign
- 
- 	switch (size) {
- 	case 1:
--		rc = __get_user_asm((unsigned char *)x,
--				    (unsigned char __user *)ptr,
--				    size);
-+		rc = __get_user_char((unsigned char *)x,
-+				     (unsigned char __user *)ptr,
-+				     size);
- 		break;
- 	case 2:
--		rc = __get_user_asm((unsigned short *)x,
--				    (unsigned short __user *)ptr,
--				    size);
-+		rc = __get_user_short((unsigned short *)x,
-+				      (unsigned short __user *)ptr,
-+				      size);
- 		break;
- 	case 4:
--		rc = __get_user_asm((unsigned int *)x,
-+		rc = __get_user_int((unsigned int *)x,
- 				    (unsigned int __user *)ptr,
- 				    size);
- 		break;
- 	case 8:
--		rc = __get_user_asm((unsigned long *)x,
--				    (unsigned long __user *)ptr,
--				    size);
-+		rc = __get_user_long((unsigned long *)x,
-+				     (unsigned long __user *)ptr,
-+				     size);
- 		break;
- 	default:
- 		__get_user_bad();
+ 	const unsigned long pageaddr = ALIGN_DOWN(meta->addr, PAGE_SIZE);
+ 	unsigned long addr = pageaddr;
 -- 
 2.45.1
 
