@@ -1,199 +1,169 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4974171095;
-	Fri, 21 Jun 2024 10:22:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id EDC19495E5;
+	Fri, 21 Jun 2024 11:08:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718965346; cv=none; b=rR0zrK9Xnvh7+YnuAp/fjTrMM2QcTT6SdmNyZVFD6SNuTWwp+yMqSzew1+51GE48dTVm+jTK6kXsMQChBy3FlZbQ5NvhJdNg3FK0kI/BPRWpIofMvqt4kr0bAShRErEZVAkFr5JQrEM8MP0jmlUqTEiFxaqWznfyFMon1gNEFxQ=
+	t=1718968132; cv=none; b=of0F/bUxJ0GzS7Zx3zs5QAzttKYvm053EQ6/sJG1h7sTvuU3Y9NsOjlRxvuVhxZWrWijUAHh+xKxLQosrDY3WZtEIUbmFOMCVpvfQ+RQAij5lzSi7IYLf8xZNNQ8Rddpv0Pt1YXWSaTJuw8pPl7RDWrUP4LdlNRVsf+NDwnT5Yc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718965346; c=relaxed/simple;
-	bh=TIQPrXwtPrBb2xR+E8JUyrOCQGo5HL53+xppydYYS0o=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=bK/Xt9Axy9jYf+zBkmcyQY5OU/PrMd3fvIkFJYEawBFe4nqRgqVd/G37MG8gdJcuNYEOHb3EVev1gqwZQWlaqZFVJao1ZQ+HRB9dXh7AJiV26poCVoxHNfNkWpzssiqCgsG7Dil94Rhy7SNrCn+Ues87e4Q2ti4vfLqkoANeWe4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kDTT6JVg; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kDTT6JVg"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45L9SUPd029793;
-	Fri, 21 Jun 2024 10:22:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding; s=pp1; bh=qAgKdlvJiaR93zpf9odqulM7vQ
-	NS3bQ6TLmE6TFY8UI=; b=kDTT6JVgKxz2+PD3MkAFRHqyZnXqkUG5l+cj536mh2
-	D3P7LEc/8y+R/mzPkyoI8AFArgeKW0pIHzDf/99iPmHvLA0m9O3vFZo3tv2/mpEj
-	fDoHxpvNY/bX2REdz9kRcJvNOAWs/Mmj3mLceqH300mE1A5rL+6Dc/jtjjXEnJYN
-	2Ha5qcucTO+LgAuLohf9pXKtA+ugT46za0gAeg6VIj/Bmx2fErs77i96f9qfj10F
-	nGJv1DatGT2hh8j5kzI7YGNV2W8GtsD7mDfBB1Q6xiljss4Uu8qwNNRPfC1bU898
-	eMUAGe+hRIDQPOKGA71EPd6lYnKPk0+VvNu2IjKB2wPA==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw6wtr4s9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 10:22:22 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45LAMMk4017705;
-	Fri, 21 Jun 2024 10:22:22 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yw6wtr4s8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 10:22:22 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45L9FiuX019922;
-	Fri, 21 Jun 2024 10:22:21 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yvrqupm3c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Jun 2024 10:22:21 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45LAMF0n51380504
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 21 Jun 2024 10:22:17 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 80C4320259;
-	Fri, 21 Jun 2024 10:22:15 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 59A2E20258;
-	Fri, 21 Jun 2024 10:22:15 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 21 Jun 2024 10:22:15 +0000 (GMT)
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To: Thomas Huth <thuth@redhat.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>, Nico Boehr <nrb@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        David Hildenbrand <david@redhat.com>
-Subject: [kvm-unit-tests PATCH v1] s390x: Split and rework cpacf query functions
-Date: Fri, 21 Jun 2024 12:22:12 +0200
-Message-Id: <20240621102212.3311494-1-nsg@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
+	s=arc-20240116; t=1718968132; c=relaxed/simple;
+	bh=e9KZC2wJrvvAHjEOaRFoTQrElwaohbuI1Ox7UdSgKos=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=laFpNEFIi0y31Ixb4DHSHvXKsBA803eKw2TU5UXs0sZGjWm4Q94aWAe2q/aG/kQSkdLIUnxVGuPL6R7Klehrg9TICjgUFxl6h3yNQeOpylc8ZEAjnAUWNO0WgtiejluBqGRs8342+HsBbkXFk7MTMR4/Vwo2V+ZNbD0WPAojzAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 11B64DA7;
+	Fri, 21 Jun 2024 04:09:14 -0700 (PDT)
+Received: from J2N7QTR9R3 (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 73E0B3F6A8;
+	Fri, 21 Jun 2024 04:08:45 -0700 (PDT)
+Date: Fri, 21 Jun 2024 12:08:42 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: Kees Cook <kees@kernel.org>
+Cc: "liuyuntao (F)" <liuyuntao12@huawei.com>, Arnd Bergmann <arnd@arndb.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Leonardo Bras <leobras@redhat.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	linux-kernel@vger.kernel.org, x86@kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-hardening@vger.kernel.org, linux-riscv@lists.infradead.org
+Subject: Re: [PATCH] randomize_kstack: Remove non-functional per-arch entropy
+ filtering
+Message-ID: <ZnVfOnIuFl2kNWkT@J2N7QTR9R3>
+References: <20240619214711.work.953-kees@kernel.org>
+ <98381dbf-f14e-4b6c-8c96-fb6b97ed46e1@huawei.com>
+ <202406201127.17CE526F0@keescook>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 8PP-rodhGDz1f2NwTFx4yEJuoexzman0
-X-Proofpoint-ORIG-GUID: Esh4FnuQATZ__trmmMY__oj19CZJl2UH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-21_04,2024-06-20_04,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
- mlxlogscore=999 mlxscore=0 bulkscore=0 clxscore=1015 malwarescore=0
- suspectscore=0 spamscore=0 adultscore=0 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2406140001 definitions=main-2406210073
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <202406201127.17CE526F0@keescook>
 
-Cherry-pick 830999bd7e72 ("s390/cpacf: Split and rework cpacf query functions")
-from the kernel:
+On Thu, Jun 20, 2024 at 11:34:22AM -0700, Kees Cook wrote:
+> On Thu, Jun 20, 2024 at 11:47:58AM +0800, liuyuntao (F) wrote:
+> > 
+> > 
+> > On 2024/6/20 5:47, Kees Cook wrote:
+> > > An unintended consequence of commit 9c573cd31343 ("randomize_kstack:
+> > > Improve entropy diffusion") was that the per-architecture entropy size
+> > > filtering reduced how many bits were being added to the mix, rather than
+> > > how many bits were being used during the offsetting. All architectures
+> > > fell back to the existing default of 0x3FF (10 bits), which will consume
+> > > at most 1KiB of stack space. It seems that this is working just fine,
+> > > so let's avoid the confusion and update everything to use the default.
+> > > 
+> > 
+> > My original intent was indeed to do this, but I regret that not being more
+> > explicit in the commit log..
+> > 
+> > Additionally, I've tested the stack entropy by applying the following patch,
+> > the result was `Bits of stack entropy: 7` on arm64, too. It does not seem to
+> > affect the entropy value, maybe removing it is OK, or there may be some
+> > nuances of your intentions that I've overlooked.
+> > 
+> > --- a/include/linux/randomize_kstack.h
+> > +++ b/include/linux/randomize_kstack.h
+> > @@ -79,9 +79,7 @@ DECLARE_PER_CPU(u32, kstack_offset);
+> >  #define choose_random_kstack_offset(rand) do {                         \
+> >         if (static_branch_maybe(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT, \
+> >                                 &randomize_kstack_offset)) {            \
+> > -               u32 offset = raw_cpu_read(kstack_offset);               \
+> > -               offset = ror32(offset, 5) ^ (rand);                     \
+> > -               raw_cpu_write(kstack_offset, offset);                   \
+> > +               raw_cpu_write(kstack_offset, rand);                     \
+> >         }                                                               \
+> >  } while (0)
+> >  #else /* CONFIG_RANDOMIZE_KSTACK_OFFSET */
+> 
+> I blame the multiple applications of the word "entropy" in this feature. :)
+> 
+> So, there's both:
+> 
+> - "how many bits CAN be randomized?" (i.e. within what range can all
+>   possible stack offsets be?)
+> 
+> and
+> 
+> - "is the randomization predictable?" (i.e. is the distribution of
+>   selected positions with the above range evenly distributed?)
+> 
+> Commit 9c573cd31343 ("randomize_kstack: Improve entropy diffusion") was
+> trying to improve the latter, but accidentally also grew the former.
+> This patch is just trying to clean all this up now.
+> 
+> Thanks for testing! And I'm curious as to why arm64's stack offset
+> entropy is 7 for you when we're expecting it to be 6. Anyway, that's not
+> a problem I don't think. Just a greater offset range than expected.
 
-    Rework the cpacf query functions to use the correct RRE
-    or RRF instruction formats and set register fields within
-    instructions correctly.
+Hmm....
 
-Fixes: a555dc6b16bf ("s390x: add cpacf.h from Linux")
-Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
----
- lib/s390x/asm/cpacf.h | 77 +++++++++++++++++++++++++++++++++++++------
- 1 file changed, 67 insertions(+), 10 deletions(-)
+I think this is due to the way the compiler aligns the stack in alloca(); it
+rounds up the value of KSTACK_OFFSET_MAX(offset) and ends up spilling over an
+additional bit (e.g. 0x3f1 to 0x3ff round up to 0x400).
 
-diff --git a/lib/s390x/asm/cpacf.h b/lib/s390x/asm/cpacf.h
-index 378cd5cf..ba53ec31 100644
---- a/lib/s390x/asm/cpacf.h
-+++ b/lib/s390x/asm/cpacf.h
-@@ -137,19 +137,76 @@
- 
- typedef struct { unsigned char bytes[16]; } cpacf_mask_t;
- 
--static __always_inline void __cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
-+static __always_inline void __cpacf_query_rre(u32 opc, u8 r1, u8 r2,
-+					      cpacf_mask_t *mask)
- {
--	register unsigned long r0 asm("0") = 0;	/* query function */
--	register unsigned long r1 asm("1") = (unsigned long) mask;
-+	asm volatile(
-+		"	la	%%r1,%[mask]\n"
-+		"	xgr	%%r0,%%r0\n"
-+		"	.insn	rre,%[opc] << 16,%[r1],%[r2]\n"
-+		: [mask] "=R" (*mask)
-+		: [opc] "i" (opc),
-+		  [r1] "i" (r1), [r2] "i" (r2)
-+		: "cc", "r0", "r1");
-+}
- 
-+static __always_inline void __cpacf_query_rrf(u32 opc,
-+					      u8 r1, u8 r2, u8 r3, u8 m4,
-+					      cpacf_mask_t *mask)
-+{
- 	asm volatile(
--		"	spm 0\n" /* pckmo doesn't change the cc */
--		/* Parameter regs are ignored, but must be nonzero and unique */
--		"0:	.insn	rrf,%[opc] << 16,2,4,6,0\n"
--		"	brc	1,0b\n"	/* handle partial completion */
--		: "=m" (*mask)
--		: [fc] "d" (r0), [pba] "a" (r1), [opc] "i" (opcode)
--		: "cc");
-+		"	la	%%r1,%[mask]\n"
-+		"	xgr	%%r0,%%r0\n"
-+		"	.insn	rrf,%[opc] << 16,%[r1],%[r2],%[r3],%[m4]\n"
-+		: [mask] "=R" (*mask)
-+		: [opc] "i" (opc), [r1] "i" (r1), [r2] "i" (r2),
-+		  [r3] "i" (r3), [m4] "i" (m4)
-+		: "cc", "r0", "r1");
-+}
-+
-+static __always_inline void __cpacf_query(unsigned int opcode,
-+					  cpacf_mask_t *mask)
-+{
-+	switch (opcode) {
-+	case CPACF_KIMD:
-+		__cpacf_query_rre(CPACF_KIMD, 0, 2, mask);
-+		break;
-+	case CPACF_KLMD:
-+		__cpacf_query_rre(CPACF_KLMD, 0, 2, mask);
-+		break;
-+	case CPACF_KM:
-+		__cpacf_query_rre(CPACF_KM, 2, 4, mask);
-+		break;
-+	case CPACF_KMA:
-+		__cpacf_query_rrf(CPACF_KMA, 2, 4, 6, 0, mask);
-+		break;
-+	case CPACF_KMAC:
-+		__cpacf_query_rre(CPACF_KMAC, 0, 2, mask);
-+		break;
-+	case CPACF_KMC:
-+		__cpacf_query_rre(CPACF_KMC, 2, 4, mask);
-+		break;
-+	case CPACF_KMCTR:
-+		__cpacf_query_rrf(CPACF_KMCTR, 2, 4, 6, 0, mask);
-+		break;
-+	case CPACF_KMF:
-+		__cpacf_query_rre(CPACF_KMF, 2, 4, mask);
-+		break;
-+	case CPACF_KMO:
-+		__cpacf_query_rre(CPACF_KMO, 2, 4, mask);
-+		break;
-+	case CPACF_PCC:
-+		__cpacf_query_rre(CPACF_PCC, 0, 0, mask);
-+		break;
-+	case CPACF_PCKMO:
-+		__cpacf_query_rre(CPACF_PCKMO, 0, 0, mask);
-+		break;
-+	case CPACF_PRNO:
-+		__cpacf_query_rre(CPACF_PRNO, 2, 4, mask);
-+		break;
-+	default:
-+		asm volatile(".error \"bad opcode\"");
-+	}
- }
- 
- static inline int __cpacf_check_opcode(unsigned int opcode)
+Looking at v6.10-rc4 defconfig + CONFIG_RANDOMIZE_STACKOFFSET=y, the
+disassembly for arm64's invoke_syscall() looks like:
 
-base-commit: 66fdb0333237161fb9644b4a41a200af5b8d20e9
--- 
-2.44.0
+	// offset = raw_cpu_read(kstack_offset)
+	mov     x4, sp
+	adrp    x0, kstack_offset
+	mrs     x5, tpidr_el1
+	add     x0, x0, #:lo12:kstack_offset
+	ldr     w0, [x0, x5]
 
+	// offset = KSTACK_OFFSET_MAX(offset)
+	and     x0, x0, #0x3ff
+
+	// alloca(offset)
+	add     x0, x0, #0xf
+	and     x0, x0, #0x7f0
+	sub     sp, x4, x0
+
+... which in C would be:
+
+	offset = raw_cpu_read(kstack_offset)
+	offset &= 0x3ff;			// [0x0, 0x3ff]
+	offset += 0xf;				// [0xf, 0x40e]
+	offset &= 0x7f0;			// [0x0,
+
+... so when *all* bits [3:0] are 0, they'll have no impact, and when *any* of
+bits [3:0] are 1 they'll trigger a carry into bit 4, which could ripple all the
+way up and spill into bit 10.
+
+I have no idea whether that's important. Kees, does that introduce a bias, and
+if so do we need to care?
+
+If I change the mask to discard the low bits:
+
+	#define KSTACK_OFFSET_MAX(x)   ((x) & 0x3F0)
+
+... then the assembly avoids the rounding:
+
+	mov     x4, sp
+	adrp    x0, 0 <kstack_offset>
+	mrs     x5, tpidr_el1
+	add     x0, x0, #:lo12:kstack_offset
+	ldr     w0, [x0, x5]
+	and     x0, x0, #0x3f0
+	sub     sp, x4, x0
+
+Mark.
