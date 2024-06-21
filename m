@@ -1,172 +1,114 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8A07208C4;
-	Fri, 21 Jun 2024 16:30:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.22
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AE5FDDC4
+	for <linux-s390@vger.kernel.org>; Fri, 21 Jun 2024 16:59:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718987433; cv=none; b=fFaD7wztPvbJWv9Bc3QWSkJl0NZSZ1Ex2/6kK5m5H/HXJcFv7qQ6Hkb2cr7Rgp8XXJCKRkXyppmbqmKNwJGFlrwHZHqLlKfR0rDJHOliuiuXnmRB0Ydyi7Df55+cmlht2+KxawOguZ6TVx4Tod5CNnatjJdituHvLOUG8zFnsyI=
+	t=1718989168; cv=none; b=iAfp3CJQOZ3HfDdJQP2V5t/qeAnLg+X7AoKy63uYECyOeNFZeZkIk9ZXBHP5OdSPYZ8KEoNkDiUQDt0m1qkEhvmPy6No1x48Cpmgb8Jp/NCk9t8jEf+pVYs92bMLWtDYo+Ms57ePkcyFKz3ME/G+8zO8UAoV5RGHdMFXapsI8UE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718987433; c=relaxed/simple;
-	bh=TaVSF8Wo6axT8++84WQ+MyVXhldB4MqulOKt1aiG610=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mVEQZhqgc6AweIvkCDJCFyarbcmms7jWLTsNESDuPc5qlU4BjCNRBcM7gZxnXAy2lXugJE7Xyq4jv9seU1rmqLi+FhSFod+JWyIzK29hnhosaniGNUeOc6DrCeIzgfxTqn9jpHTLuxbRBmdAnFbxCXuMWIRM5YojOxvNbr2Dd7c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=deller@gmx.de header.b=dGyJ89S3; arc=none smtp.client-ip=212.227.17.22
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
+	s=arc-20240116; t=1718989168; c=relaxed/simple;
+	bh=1oDR7k2gFW09En6OAZZAYDxx0OjcZbjUa9RBKFgsr7I=;
+	h=Message-ID:Date:MIME-Version:From:To:Cc:References:Subject:
+	 In-Reply-To:Content-Type; b=Id83p84wyD2FDwlbzFPwu3DxKypM/m1kRWVYsaUAOqp3WuZOSitcCWe5vxkKfDyMKRl5u8ZaiRqeQO+zktUAFyy6/1/di7jH+hhdHvZkAx816ecdxeXJh9zwsTknO1KZ8a4DBM/HbAPu1/U3+44BULKYJkhGB4zniv2fH5/+D+E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jOKmrgRE; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.de header.i=deller@gmx.de header.b="dGyJ89S3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
-	s=s31663417; t=1718987346; x=1719592146; i=deller@gmx.de;
-	bh=TaVSF8Wo6axT8++84WQ+MyVXhldB4MqulOKt1aiG610=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
-	 References:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:cc:content-transfer-encoding:
-	 content-type:date:from:message-id:mime-version:reply-to:subject:
-	 to;
-	b=dGyJ89S3Mtnb3qCeqKQ7dNrV2AX+MBvXvpFOS5qdU5StBNeSfBhj3npOOzwCrL2I
-	 OWu4Iw7nLS7C7FqGCqb9jP0mHnSAWNDp/B7oOpqNyH+7RhIwXCY7R/TwxqQG61hYm
-	 /IvwIpeBjt0GepWOMNkDAIUg6eRs65R2+nmi0nxpCsYyDq2gK2tPySnYyWpVG8S43
-	 ZvQEf501RrASQFyXuehQg5sXe2oBtvJ5uLn25WBdeSp2PKuSAq3KMcugDsB48Eqww
-	 CywDG9/PCKvur0T1ok3M2r3j5b7JRp7HrudYWXhNrBq8o2LuvA8pkp74qNhDfJjtS
-	 rCoZwjkgBr8NtnIQgA==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from [192.168.20.55] ([109.250.63.133]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MfHEJ-1srq1Z2d4N-00ddIK; Fri, 21
- Jun 2024 18:29:06 +0200
-Message-ID: <cd7fdd76-8da0-4d43-9d1c-c93aed4c0f5d@gmx.de>
-Date: Fri, 21 Jun 2024 18:28:58 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jOKmrgRE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1718989165;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6JhyZB49NT62g9nY7mTsG6YKeRp/i2azht6jhc/Szlw=;
+	b=jOKmrgREhzhe+zMH4Ihj4fTmW5clU5ysN0GZgI8mZe6WWpmzE42OfAiQ+gC2o0AZRzVUSE
+	sje36EDoKQKpiINfQSuDmsbaje8qQx+2k09beE1xFqqKn4Bpi/JOUIEovEmtxJfqu+WzKR
+	s4ARCbUcKwIhI919u5FFlee+UzTgpVo=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-677-45yXuiDaN3Gg-cSYTS6rlA-1; Fri, 21 Jun 2024 12:59:23 -0400
+X-MC-Unique: 45yXuiDaN3Gg-cSYTS6rlA-1
+Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-63bca8ce79eso40436977b3.1
+        for <linux-s390@vger.kernel.org>; Fri, 21 Jun 2024 09:59:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718989163; x=1719593963;
+        h=content-transfer-encoding:in-reply-to:subject:references:cc:to:from
+         :content-language:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=6JhyZB49NT62g9nY7mTsG6YKeRp/i2azht6jhc/Szlw=;
+        b=wove3qk399oLjyqV2HkN3XdxDjaazNWBzUkgqkz5PC16l68qQU/H6S9i6kqrU0DVFU
+         MUpfYpYlTZlv7EuY6fJAB3oqBwA0ahXD/UaA3N7Vmj4k1wrb9nMMMtTSaCYUJueTlmlN
+         2vtPQtu/K1eB1V9rg+oOWaKAD7B2MfnOMvg4qWXQCorfN8AtImWVrt+knFWNW15fQJhm
+         OvSOnm0Ubk+09lZmxleS7HJFjzpblwAxOvaIZ9e7b6K2aqFPZZWMunnkLb06mowOARTa
+         yu4SUYOkWMCVDWrRHthMZH04yd/YEEs82C3PYTi4qWxvIg+INUDIW4AUfz2+YHAQV2cZ
+         JATg==
+X-Gm-Message-State: AOJu0Yw5aWxHjUOcbttgrQMPOpGeT2HTgHbV66VcGJq9TeWBb6jkCD0o
+	F/mAlcwkdZqS3DGQoiVmDLnS/RfVNZ0Vduqgx8UV8s/poo0pFUZ23NJq5Rr77cCp8g6DC/oZqja
+	XMBOO7eLo+4QLRRYHaubB3b//0Xf5fRZ8qByJw1WavePUeVS99WOk5dvNfcI=
+X-Received: by 2002:a05:690c:fcf:b0:63b:e711:934c with SMTP id 00721157ae682-63be71194ddmr81046407b3.28.1718989163432;
+        Fri, 21 Jun 2024 09:59:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGA5wGIEPANZeBuBOaJWE6czSuTCvbWtFb0jnVxghM/uBsSXPMCO5blmXU3E4AAhacTogqKNQ==
+X-Received: by 2002:a05:690c:fcf:b0:63b:e711:934c with SMTP id 00721157ae682-63be71194ddmr81046127b3.28.1718989163059;
+        Fri, 21 Jun 2024 09:59:23 -0700 (PDT)
+Received: from [192.168.1.24] (pool-68-160-135-240.bstnma.fios.verizon.net. [68.160.135.240])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b51ef5ef88sm10292786d6.122.2024.06.21.09.59.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 21 Jun 2024 09:59:22 -0700 (PDT)
+Message-ID: <157b32d5-7e68-a77f-6f72-356433e4a942@redhat.com>
+Date: Fri, 21 Jun 2024 12:59:21 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 07/15] parisc: use generic sys_fanotify_mark
- implementation
-To: Arnd Bergmann <arnd@arndb.de>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Arnd Bergmann <arnd@kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>,
- linux-kernel@vger.kernel.org
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
- "David S . Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>, sparclinux@vger.kernel.org,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
- Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org,
- guoren <guoren@kernel.org>,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
- Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org,
- Xi Ruoyao <libc-alpha@sourceware.org>,
- "musl@lists.openwall.com" <musl@lists.openwall.com>,
- LTP List <ltp@lists.linux.it>,
- Adhemerval Zanella Netto <adhemerval.zanella@linaro.org>
-References: <20240620162316.3674955-1-arnd@kernel.org>
- <20240620162316.3674955-8-arnd@kernel.org>
- <e80809ba-ee81-47a5-9b08-54b11f118a78@gmx.de>
- <1537113c4396cd043a08a72bdca80cccfa2d54d9.camel@physik.fu-berlin.de>
- <ba14c4fb-e6a7-46b3-a030-081482264a99@app.fastmail.com>
- <a623c1979ac494d01977abe6dfc22e8381dc6e4f.camel@physik.fu-berlin.de>
- <83613d85-53f9-4644-be68-4f438abe2e52@app.fastmail.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
 Content-Language: en-US
-From: Helge Deller <deller@gmx.de>
-Autocrypt: addr=deller@gmx.de; keydata=
- xsFNBF3Ia3MBEAD3nmWzMgQByYAWnb9cNqspnkb2GLVKzhoH2QD4eRpyDLA/3smlClbeKkWT
- HLnjgkbPFDmcmCz5V0Wv1mKYRClAHPCIBIJgyICqqUZo2qGmKstUx3pFAiztlXBANpRECgwJ
- r+8w6mkccOM9GhoPU0vMaD/UVJcJQzvrxVHO8EHS36aUkjKd6cOpdVbCt3qx8cEhCmaFEO6u
- CL+k5AZQoABbFQEBocZE1/lSYzaHkcHrjn4cQjc3CffXnUVYwlo8EYOtAHgMDC39s9a7S90L
- 69l6G73lYBD/Br5lnDPlG6dKfGFZZpQ1h8/x+Qz366Ojfq9MuuRJg7ZQpe6foiOtqwKym/zV
- dVvSdOOc5sHSpfwu5+BVAAyBd6hw4NddlAQUjHSRs3zJ9OfrEx2d3mIfXZ7+pMhZ7qX0Axlq
- Lq+B5cfLpzkPAgKn11tfXFxP+hcPHIts0bnDz4EEp+HraW+oRCH2m57Y9zhcJTOJaLw4YpTY
- GRUlF076vZ2Hz/xMEvIJddRGId7UXZgH9a32NDf+BUjWEZvFt1wFSW1r7zb7oGCwZMy2LI/G
- aHQv/N0NeFMd28z+deyxd0k1CGefHJuJcOJDVtcE1rGQ43aDhWSpXvXKDj42vFD2We6uIo9D
- 1VNre2+uAxFzqqf026H6cH8hin9Vnx7p3uq3Dka/Y/qmRFnKVQARAQABzRxIZWxnZSBEZWxs
- ZXIgPGRlbGxlckBnbXguZGU+wsGRBBMBCAA7AhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheA
- FiEERUSCKCzZENvvPSX4Pl89BKeiRgMFAl3J1zsCGQEACgkQPl89BKeiRgNK7xAAg6kJTPje
- uBm9PJTUxXaoaLJFXbYdSPfXhqX/BI9Xi2VzhwC2nSmizdFbeobQBTtRIz5LPhjk95t11q0s
- uP5htzNISPpwxiYZGKrNnXfcPlziI2bUtlz4ke34cLK6MIl1kbS0/kJBxhiXyvyTWk2JmkMi
- REjR84lCMAoJd1OM9XGFOg94BT5aLlEKFcld9qj7B4UFpma8RbRUpUWdo0omAEgrnhaKJwV8
- qt0ULaF/kyP5qbI8iA2PAvIjq73dA4LNKdMFPG7Rw8yITQ1Vi0DlDgDT2RLvKxEQC0o3C6O4
- iQq7qamsThLK0JSDRdLDnq6Phv+Yahd7sDMYuk3gIdoyczRkXzncWAYq7XTWl7nZYBVXG1D8
- gkdclsnHzEKpTQIzn/rGyZshsjL4pxVUIpw/vdfx8oNRLKj7iduf11g2kFP71e9v2PP94ik3
- Xi9oszP+fP770J0B8QM8w745BrcQm41SsILjArK+5mMHrYhM4ZFN7aipK3UXDNs3vjN+t0zi
- qErzlrxXtsX4J6nqjs/mF9frVkpv7OTAzj7pjFHv0Bu8pRm4AyW6Y5/H6jOup6nkJdP/AFDu
- 5ImdlA0jhr3iLk9s9WnjBUHyMYu+HD7qR3yhX6uWxg2oB2FWVMRLXbPEt2hRGq09rVQS7DBy
- dbZgPwou7pD8MTfQhGmDJFKm2jvOwU0EXchrcwEQAOsDQjdtPeaRt8EP2pc8tG+g9eiiX9Sh
- rX87SLSeKF6uHpEJ3VbhafIU6A7hy7RcIJnQz0hEUdXjH774B8YD3JKnAtfAyuIU2/rOGa/v
- UN4BY6U6TVIOv9piVQByBthGQh4YHhePSKtPzK9Pv/6rd8H3IWnJK/dXiUDQllkedrENXrZp
- eLUjhyp94ooo9XqRl44YqlsrSUh+BzW7wqwfmu26UjmAzIZYVCPCq5IjD96QrhLf6naY6En3
- ++tqCAWPkqKvWfRdXPOz4GK08uhcBp3jZHTVkcbo5qahVpv8Y8mzOvSIAxnIjb+cklVxjyY9
- dVlrhfKiK5L+zA2fWUreVBqLs1SjfHm5OGuQ2qqzVcMYJGH/uisJn22VXB1c48yYyGv2HUN5
- lC1JHQUV9734I5cczA2Gfo27nTHy3zANj4hy+s/q1adzvn7hMokU7OehwKrNXafFfwWVK3OG
- 1dSjWtgIv5KJi1XZk5TV6JlPZSqj4D8pUwIx3KSp0cD7xTEZATRfc47Yc+cyKcXG034tNEAc
- xZNTR1kMi9njdxc1wzM9T6pspTtA0vuD3ee94Dg+nDrH1As24uwfFLguiILPzpl0kLaPYYgB
- wumlL2nGcB6RVRRFMiAS5uOTEk+sJ/tRiQwO3K8vmaECaNJRfJC7weH+jww1Dzo0f1TP6rUa
- fTBRABEBAAHCwXYEGAEIACAWIQRFRIIoLNkQ2+89Jfg+Xz0Ep6JGAwUCXchrcwIbDAAKCRA+
- Xz0Ep6JGAxtdEAC54NQMBwjUNqBNCMsh6WrwQwbg9tkJw718QHPw43gKFSxFIYzdBzD/YMPH
- l+2fFiefvmI4uNDjlyCITGSM+T6b8cA7YAKvZhzJyJSS7pRzsIKGjhk7zADL1+PJei9p9idy
- RbmFKo0dAL+ac0t/EZULHGPuIiavWLgwYLVoUEBwz86ZtEtVmDmEsj8ryWw75ZIarNDhV74s
- BdM2ffUJk3+vWe25BPcJiaZkTuFt+xt2CdbvpZv3IPrEkp9GAKof2hHdFCRKMtgxBo8Kao6p
- Ws/Vv68FusAi94ySuZT3fp1xGWWf5+1jX4ylC//w0Rj85QihTpA2MylORUNFvH0MRJx4mlFk
- XN6G+5jIIJhG46LUucQ28+VyEDNcGL3tarnkw8ngEhAbnvMJ2RTx8vGh7PssKaGzAUmNNZiG
- MB4mPKqvDZ02j1wp7vthQcOEg08z1+XHXb8ZZKST7yTVa5P89JymGE8CBGdQaAXnqYK3/yWf
- FwRDcGV6nxanxZGKEkSHHOm8jHwvQWvPP73pvuPBEPtKGLzbgd7OOcGZWtq2hNC6cRtsRdDx
- 4TAGMCz4j238m+2mdbdhRh3iBnWT5yPFfnv/2IjFAk+sdix1Mrr+LIDF++kiekeq0yUpDdc4
- ExBy2xf6dd+tuFFBp3/VDN4U0UfG4QJ2fg19zE5Z8dS4jGIbLg==
-In-Reply-To: <83613d85-53f9-4644-be68-4f438abe2e52@app.fastmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:qzcGugqMcbMY+YWYJmVsNMJLSzXL1IFC+qPqRPEqwIjeHu1j8dW
- eKrd9zTKO8WqTBd1atZ9gk73fhgOsLFzmyt55jQz2EE0lv7OLTEi8eH1tERMhO+XealwSx1
- UGgBBAPSpMfKRXJChZsTA9t/N/bEd9WMNnHEwTU1TsTs3cyh1vRWNfUsERYHddYMxe16B2C
- 4cE95QxNZt3dO/ZdT1fcQ==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:qkvA0SU8VBk=;7/QatZvg+BRxv1QkYdIagec8md0
- /gpUIUeNoh2h5Zc2DzrKSZAqUU/Uw+GnsiaAaeHEHI+myLKBBKPB0CZ4PI9GoNYcjlvRwC+Dt
- cj4SKrgECYJdrasgoF20T9r9P8F4BOUJuHY7LfSfBt6aBQXc93SxHPI1b2yssJl0RJaoaYxmY
- oLb2/KG/hDplIAs8CJ6xU8ciG5YfyKU1j1+jkWw1MQPFc3+e4aIxLiTSvFRncW/p38cwcMayq
- jza45P6I18yIb0lDFwYxfYx7JtvcYmz49tEM+mRNWRo0sqZOKrDutFk2bIfcxantsC9mqHxQs
- 5a3j94hFYF0GycjrDV+oesj7qYVBuU6oYunEsd60beMeznHHR3ImzBXx0U+lZ1yg5DwK5B7CI
- QesCueVCEB/qYbWnjOn2wcuR9pB1PIHB4z/V43nmRFpwUH1vi3CFARq2AflaUsICu5nwLy9Xf
- Qkf/FIQ2HAWc3Nz8D7NpxmuEdmmXn1uUlfNkFMEIMvZS08xsLcvFw7HawfxyG3k0NSKzQBLpm
- ja62fYS6SAKuF+UBiwKzX5eFg26Sbjq3sh26tyiYHSDDdClW4X5tok+KvIYORgrjWs4GT9uCM
- 6aaMHjRJ+tik9fPg2gVvQPbCJ7BZasXiujTtGovW47pMTNieoSrWh7Q3faXOlVgg6VgWPvFQn
- dRdHVRBA7/oVEYpoz4lYuxsnHQfksXpjaFITA0DK0Gs+syZDYB8Aqpcri4MPk01+eWrlM5X8c
- 1YVFCGgstmmLXXu2b3Sj6ehNnDt85oZyT/Iy1bR4HWd48jJY/zu80u6vzoZmdVbwkKjEt+2ip
- ExQiXgsj0tPfrUnUe2j3FBUQbV3FxfoNfx2osTCe+13E8=
+From: Joe Lawrence <joe.lawrence@redhat.com>
+To: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, hca@linux.ibm.com, jpoimboe@kernel.org,
+ gor@linux.ibm.com, iii@linux.ibm.com, agordeev@linux.ibm.com
+References: <20240219132734.22881-1-sumanthk@linux.ibm.com>
+ <ZnHv/HmiYHoQRkUU@redhat.com>
+ <ZnMO4DOBZ2qz4Twg@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+ <4610b08d-46a4-b6fc-2ec5-a88abba7022c@redhat.com>
+Subject: Re: [PATCH v2 0/4] s390: compile relocatable kernel with/without fPIE
+In-Reply-To: <4610b08d-46a4-b6fc-2ec5-a88abba7022c@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On 6/21/24 11:52, Arnd Bergmann wrote:
-> On Fri, Jun 21, 2024, at 11:03, John Paul Adrian Glaubitz wrote:
->> On Fri, 2024-06-21 at 10:56 +0200, Arnd Bergmann wrote:
->>> Feel free to pick up the sh patch directly, I'll just merge whatever
->>> is left in the end. I mainly want to ensure we can get all the bugfixe=
-s
->>> done for v6.10 so I can build my longer cleanup series on top of it
->>> for 6.11.
+On 6/19/24 14:23, Joe Lawrence wrote:
+> On 6/19/24 13:01, Sumanth Korikkar wrote:
+>> Other Note:
+>> The latest kernel is built with -fPIC and linked with -no-pie (reference
+>> commit: ca888b17da9b ("s390: Compile kernel with -fPIC and link with
+>> -no-pie")) which also avoids generation of dynamic symbols and helps
+>> kpatch usecases (when num of sections >=64k sections).  Also the build
+>> options would be similar (-fPIC in kernel and -fPIC in kpatch-build)
 >>
->> This series is still for 6.10?
->
-> Yes, these are all the bugfixes that I think we want to backport
-> to stable kernels, so it makes sense to merge them as quickly as
-> possible. The actual stuff I'm working on will come as soon as
-> I have it in a state for public review and won't need to be
-> backported.
+>> For latest kernel, there is no need to add explicit -fPIC again
+>> in kpatch tool.
+>>
+>> But for the intermediate commits, yes, makes sense to add
+>> it in kpatch-build tools and will create one PR.
+>>
+> 
+> Interesting!  With 00cda11d3b2e ("s390: Compile kernel with -fPIC and
+> link with -no-pie") it sounds like the original vmlinux would be built
+> with -fPIC as well, so the optimization decisions re: __mmput() would
+> likely be the same.  I can retry the tests with v6.10-rcX to verify.
+> 
 
-Ah, OK.... in that case would you please keep the two parisc
-patches in your git tree? I didn't plan to send a new pull
-request during v6.10, so it's easier for me if you keep them
-and send them together with your other remaining patches.
-(I'll drop them now from the parisc tree)
+To follow up, all of the kpatch-build integration tests work with
+v6.10.0-rc4 :) as the kernel is built with -fPIC and so are the kpatch
+reference and patched builds.  For pre-v6.10 kernels, I think there may
+be some instances where a patch author may need to account for slight
+build differences to appease kpatch-build expectations as I noticed here.
 
-I tested both patches, so you may add:
-Tested-by: Helge Deller <deller@gmx.de>
-Acked-by: Helge Deller <deller@gmx.de>
+-- 
+Joe
 
-Thank you!
-Helge
