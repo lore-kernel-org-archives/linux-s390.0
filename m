@@ -1,87 +1,91 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D82D216B3B9
-	for <linux-s390@vger.kernel.org>; Fri, 21 Jun 2024 08:22:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+Received: from elvis.franken.de (elvis.franken.de [193.175.24.41])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id B16AD3AC1F;
+	Fri, 21 Jun 2024 08:28:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.175.24.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718958128; cv=none; b=VUp3y9XOKl7Ua3LpioE4OX0sLpuCemJoncV+YQI3EnEoKD+xDlr9/XeVsYfPfmFutAaYclPXSlaicmXjNXXULD203lsqW6MwwTt1/XHD64wyybb9zMrEuWM4yvEv3C/E+XeOiQ00UXVWaLbxtfTUYH1WPKW5LIlKbqpWO3wspM0=
+	t=1718958507; cv=none; b=JnIKjN/t7QEcIsETyA9asE/RVx2suYBo61YhZd3ZVFR+LFrTghMUkXvR0b8l6PUcd+uGmohyFYnm6Mpq9xoCazlEznUGXrM+zxx0V3dwev/1uHWKUedJ1UMRYJFzewDh7qIT+ckvAqp9XnaS3TK93mfK08ioolP2mZMPAJg2oIg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718958128; c=relaxed/simple;
-	bh=GiWp0R3m1O2e8FqlZeCTxBARLk8raP5XQEmY3Orplv4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bFCmkkX/GEIpW4xNe8w82freBt0FUIogU+3ryA8PbBcABhQH3NKcMPpKbkWCSo0vWnz4v1taS51IZYgEtUpEqq8MLqrjM5nLm2QgBoxCmoV1ACK9hz8oZ7qsToG2ABrHmmUa6JgUW9cGuC7Q/pTUSTWgVO3Y04A6sGa5/PH3jEQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=1eG/NfN0; arc=none smtp.client-ip=209.85.222.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="1eG/NfN0"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-7961fb2d1cfso138073585a.0
-        for <linux-s390@vger.kernel.org>; Fri, 21 Jun 2024 01:22:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1718958126; x=1719562926; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GiWp0R3m1O2e8FqlZeCTxBARLk8raP5XQEmY3Orplv4=;
-        b=1eG/NfN0jaGe3ZnPl3fgAgNp62mc8cly+lC3xeN+OUNj6yRKCxL9Ge17+X3kvTHSiT
-         V+hiMSSzmNFvrdv165b2RPjJBuIcp5a+g5q+B9PLCNn5UKoGU7GR+mMZM6uPjPeAcOZ1
-         LOAg1NdKjyjDDoBwxucx+4Rdz/L15A0eajmAWVzsQdxAAHuf6RNOnzlmAJ9TcTOiBxDt
-         NwYGIJXA6dUiMVkALlpy+gbzoEpSlK1UUnPb4IpqmDL/dNov6khWdoR655Apnmb3qjrM
-         rsp/XPaTl6WJ3jRykz4kpvZL5Mhr8WQLX81cEN37Oo34MdE7aMCQVdcYdmniima2ht7N
-         +aGw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718958126; x=1719562926;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=GiWp0R3m1O2e8FqlZeCTxBARLk8raP5XQEmY3Orplv4=;
-        b=saDzUB4sL3O0KDG7dZrx+aeX9kpiHoaEz+Zcf4sS1aQxXMA41ohr/pedV7WTj/NLhI
-         ei1IkU4Op22/kJYH6mNky79PFXkzWza2x2D+HQdcwxZFYvz2DRB34GVhBb5ja61Y99oJ
-         aeI2OJ66g96m4zuntDXyvebdEU2AGk8iFkRrqHpsm93UC7LW/rSpQeQtiVNp3jwRWg6w
-         X5F+MGuQTzHNnf3OA79SkLn7v913Nhk6H/bg+ZgI4j6NjeSgH1AdaltTS+uL1pwS3qCZ
-         dWzLtrghe+ZIkzDb7BQcOcONQWKQD+hpA0JCUMg58QJRMKwf5ST1qfXGwk2UEn/Q4yJj
-         uyVg==
-X-Forwarded-Encrypted: i=1; AJvYcCWbrXS1Lj6U8YPb5jCuSBci131zy82FHn1XTh2hZDy7Wti9qNpFrLa9DEofNhAczRSdWeFI8WZSvq9fckoGKsrWYPVwFsTQdiv8Xg==
-X-Gm-Message-State: AOJu0Yyyr+y7+Ipxx7UZuEySqBC17TyN5ynFvix9Gs/UHGujMI8aw83B
-	I1pThCYFI0iwRa0WPHHM4P9nYO4mIpT9WAbh/dk8iz88geh7qQFh4U67Yd5N8jOPIZpzmdonONH
-	+ksZ1OiK6R5z+1sz36IqGSb6hAe4CND2nU9ev
-X-Google-Smtp-Source: AGHT+IEqLUO3OT9Bhboypnctwqc8Ohld/THbrsKqdROXjqX2LTf1GcH5jlfhi1RSDxSEenbd4gpWPErmzbl81ksieb4=
-X-Received: by 2002:ad4:5842:0:b0:6b4:fe1a:9ea9 with SMTP id
- 6a1803df08f44-6b501df8ce0mr76732636d6.6.1718958125525; Fri, 21 Jun 2024
- 01:22:05 -0700 (PDT)
+	s=arc-20240116; t=1718958507; c=relaxed/simple;
+	bh=qcVbwN+dhj8TYggsWmgVtWaoNotrBJlRv0mGP9WVNwo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VkenvMdvwbf4CWx6uD05BNiWOtNaxguuf+wvm0b1Ux9cszUHMftOdjdcNuLoeFD/5jH0A5R+DZMvQ0CHGKVJRiVwmq/9PXJlbCblFXTBDTY+Aqs/Og4bpt7b+Os4aeb9V0YF4nftCL9wFbGHdfHBRk4ulkfq6re+RHLa/K/+GP8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alpha.franken.de; spf=pass smtp.mailfrom=alpha.franken.de; arc=none smtp.client-ip=193.175.24.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alpha.franken.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alpha.franken.de
+Received: from uucp by elvis.franken.de with local-rmail (Exim 3.36 #1)
+	id 1sKZbl-0001Si-00; Fri, 21 Jun 2024 10:26:57 +0200
+Received: by alpha.franken.de (Postfix, from userid 1000)
+	id 2189CC0120; Fri, 21 Jun 2024 10:25:23 +0200 (CEST)
+Date: Fri, 21 Jun 2024 10:25:23 +0200
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Arnd Bergmann <arnd@arndb.de>, linux-mips@vger.kernel.org,
+	Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>, sparclinux@vger.kernel.org,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>,
+	linux-hexagon@vger.kernel.org, Guo Ren <guoren@kernel.org>,
+	linux-csky@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+	linux-s390@vger.kernel.org, Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	linux-sh@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+	Alexander Viro <viro@zenIV.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>,
+	linux-fsdevel@vger.kernel.org, libc-alpha@sourceware.org,
+	musl@lists.openwall.com, ltp@lists.linux.it
+Subject: Re: [PATCH 03/15] mips: fix compat_sys_lseek syscall
+Message-ID: <ZnU480Ypb3f3nOek@alpha.franken.de>
+References: <20240620162316.3674955-1-arnd@kernel.org>
+ <20240620162316.3674955-4-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240621002616.40684-1-iii@linux.ibm.com> <20240621002616.40684-17-iii@linux.ibm.com>
-In-Reply-To: <20240621002616.40684-17-iii@linux.ibm.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Fri, 21 Jun 2024 10:21:29 +0200
-Message-ID: <CAG_fn=XKAdJ_VR8_fsOFSRqZxqGRB+GsHMMQjuy4gQGEGi9aDQ@mail.gmail.com>
-Subject: Re: [PATCH v6 16/39] kmsan: Expose KMSAN_WARN_ON()
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
-	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240620162316.3674955-4-arnd@kernel.org>
 
-On Fri, Jun 21, 2024 at 2:26=E2=80=AFAM Ilya Leoshkevich <iii@linux.ibm.com=
-> wrote:
->
-> KMSAN_WARN_ON() is required for implementing s390-specific KMSAN
-> functions, but right now it's available only to the KMSAN internal
-> functions. Expose it to subsystems through <linux/kmsan.h>.
->
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
+On Thu, Jun 20, 2024 at 06:23:04PM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> This is almost compatible, but passing a negative offset should result
+> in a EINVAL error, but on mips o32 compat mode would seek to a large
+> 32-bit byte offset.
+> 
+> Use compat_sys_lseek() to correctly sign-extend the argument.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/mips/kernel/syscalls/syscall_o32.tbl | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/mips/kernel/syscalls/syscall_o32.tbl b/arch/mips/kernel/syscalls/syscall_o32.tbl
+> index 85751c9b9cdb..2439a2491cff 100644
+> --- a/arch/mips/kernel/syscalls/syscall_o32.tbl
+> +++ b/arch/mips/kernel/syscalls/syscall_o32.tbl
+> @@ -27,7 +27,7 @@
+>  17	o32	break				sys_ni_syscall
+>  # 18 was sys_stat
+>  18	o32	unused18			sys_ni_syscall
+> -19	o32	lseek				sys_lseek
+> +19	o32	lseek				sys_lseek			compat_sys_lseek
+>  20	o32	getpid				sys_getpid
+>  21	o32	mount				sys_mount
+>  22	o32	umount				sys_oldumount
+> -- 
+> 2.39.2
+
+applied to mips-fixes.
+
+Thomas.
+
+-- 
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
