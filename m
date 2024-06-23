@@ -1,91 +1,129 @@
-Received: from mout.web.de (mout.web.de [212.227.15.3])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB8ACBA49;
-	Sun, 23 Jun 2024 16:01:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9549F183082;
+	Sun, 23 Jun 2024 17:10:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719158510; cv=none; b=o/ZZo4WWrzftRsmxoHMjkISFYxJnRlM9ZwC2zedYXsIrCeYU7MAVTQT+4nGF11yvdZnj4KM9koby//qPgSWvpLJhGjqWhqG0Luf1U79kJIEdp49pM0dD1T0mO+fQPXIj4bkd+ZcB5f8bI/UrHJn1zwMrKBO2TxNgZbhdFmlETK4=
+	t=1719162640; cv=none; b=KJZQqP/BhlVu6ZhCAgMZdmQuoDwd2SfyD2NwEDwfyGqJbOIoFEH3iZ40SRa8XDlTWKX1p0FFYVZhImbiX9lfwoQHQrwbHLEgo5CLP/LOHO/QUddYNWoi/9/AgYVWcCEypQ/jC1ob/bdm4sDKft/OxTrQxp60vols2R3TlWmKBVQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719158510; c=relaxed/simple;
-	bh=bMyyd8/6WKtK4eZVm/TIQdm6R0OLCv0mXNAp2Nh4Sms=;
-	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
-	 In-Reply-To:Content-Type; b=WmPu9EkO7VvyBGlsp/GV7FeAoQ09Jx3HmSXSZW3KkngqfckedpQZN3sJKcjE8GcvuSHEEfZ9rNBYgz+4dvcNzqI4vegNREIen5AWWW0YnS8r+WgW0nZDVzgZJ7OYWyc8E4U0gf33pGFaRuVUmDjWfZWlA8JH/Br2eZR0PPLnD8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=vbyx6FWn; arc=none smtp.client-ip=212.227.15.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	s=arc-20240116; t=1719162640; c=relaxed/simple;
+	bh=aosSO/S+etUamgM4SS3mlQ3heoMUr6FZbeXpiXEovy0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=OtiE5Nt0nFcnQljGlPPSqKqqVt9Ta7s/HUCXkDn/V4bo76YLtVeH6GBdyEVZJqf7Z1z+LNIJhaDnH4Do1ogb1FPxyQ0BjymFDIYH7Sb0oKfTNnGO8Tf5dwGG+I57rGIXar6MKGvALPUhXBRLlaDGp8bc+5gU+L9J+U8pc0kBr2w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SHcWkbRT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="vbyx6FWn"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
-	s=s29768273; t=1719158502; x=1719763302; i=markus.elfring@web.de;
-	bh=dA4jSOK89QRIqbj4xDqcpSs7KkA3ZMVudmX5c8aWXH0=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
-	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
-	 cc:content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=vbyx6FWnYSYsxPLm0680c7XCGdrFARihm/Q2ZhCJtv/A7vnKP7RD5rosdRRq9pbO
-	 NVBTTvUL68wWhMh+1kaBwJ66kfjfmIyB9qIaeBjZc22EG9FE29aLnkaD514Vp2SY1
-	 qs74sx5SC04prGG1PhfMyCsrjI8gHblEKsb68gYnU1nE8R2rKt5hieypKzc5K+wAs
-	 vqbRG3bkK0ts5QxvgIa6M8anXlruZDckEfAHo+noLSu1rqH/1JQKhq9M7gZwzClVs
-	 07QDmE3xC5Nb3IylyxF8L+RAoWAfOoyQWNM4LAY3b0XCFWOlAZCSFc1NEJaZ/Dc/s
-	 rYqjYXeIVX0tLwTz/Q==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.21] ([94.31.85.95]) by smtp.web.de (mrweb006
- [213.165.67.108]) with ESMTPSA (Nemesis) id 1N1LsV-1sSwmb2M2d-00qzbQ; Sun, 23
- Jun 2024 18:01:42 +0200
-Message-ID: <a47a551e-bd20-4efc-a7f0-bc7c8bfe14b4@web.de>
-Date: Sun, 23 Jun 2024 18:01:41 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SHcWkbRT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1215EC4AF19;
+	Sun, 23 Jun 2024 17:10:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1719162640;
+	bh=aosSO/S+etUamgM4SS3mlQ3heoMUr6FZbeXpiXEovy0=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=SHcWkbRTRysffowmKeNtbvp9bhDl+zoDvjEJ2fFDHg7LSDrwqFsJdD9YYXV4Vr+sp
+	 2E8pAnecGBkfcW3fYWlLjSsfPlPKcXnQ8nJbcMvEmYSYZS0YcgH+rt/qDOrTB8Gvu+
+	 agZuIo6AmTpr2D4xK4pBnUswovpS9ueZT7VqTzkz0VoNehsJKjKIbT7Hxbmzrk7px2
+	 nKkeeohgJbLaTj1UD/4bc2iBlfTD7iIkm5ON/CNdK03bV+FGcWIvguDXvdHM+5cgLf
+	 OB8EHfsL2MFz6vrCmyH5CregCIOmWkoz7MbvmFg/cF39yMwxMHUAlyiXqW1imSaGS0
+	 Nv1EJ4Jnnv/6A==
+Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-2eaafda3b5cso38463451fa.3;
+        Sun, 23 Jun 2024 10:10:39 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCUABcrWO+546WA1uq/7iZtUfrtI/F8b3SCqjuQoTkdlv00T6gIbcBPtNW860k9lZCksUyptHLTKTPx5Ry9PlTGpYgXaz8Q6Pc8d4ViFGEGXd00NSe5SY080a7But/HVjU/K/XbEm4TcqPYSyFraOEjoGPQnCETFMgAS8syfAd1KuhZHOKsCiFbYygqoLXuKzE0YDjH0BIZok7JLuYRNtKYh1cDqEbYIg0zMOffnXEuL8oCsRUB5E9Aoo2HxJXIHkOHykqq+OmC0s6JxPGesMrTN0oAr467I+B4OJgef7fy8pVehj7mUnWwR71Jgmti7yYhFuLBR83jIcWn74u8BqTaD9Qr7CrC/Q+W7WixgrxRhm5Oym2OJ533GrvLiArZ7iNUNPgi8XL/4e/YCewaZ1V2EWkcIdpt+F9D7lLyZ6/aZYhBr5cMOLgMJ5d0=
+X-Gm-Message-State: AOJu0YwlgS3fibMxZXsahhE6nqg8Txd2oqTFnvZr/y0iSDTRuMZIOiFl
+	AzkjI2K/klNnQ5tYVDglow4ULt7DWn7CPfw2aHP8VAbsQZFzWYqAIK/Jh76DQE+I6ik18Zmwi9B
+	sWDR9R06h9ucP+I2mFYh3Nt8ApuI=
+X-Google-Smtp-Source: AGHT+IHxMABTsjE/bTBoMOuJE1ctF+u0ZebsEtw1bh3nJ1bb3woGpWj5W/Pz1qQmYslYoKzzGRd0eu1pNlr+yN6Ofzo=
+X-Received: by 2002:a2e:3101:0:b0:2ec:1cf1:b74c with SMTP id
+ 38308e7fff4ca-2ec594cfe8fmr16740431fa.32.1719162638077; Sun, 23 Jun 2024
+ 10:10:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: Yunseong Kim <yskelg@gmail.com>, linux-s390@vger.kernel.org,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- =?UTF-8?Q?Christian_Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>,
- Harald Freudenberger <freude@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, MichelleJin <shjy180909@gmail.com>
-References: <20240623120147.35554-3-yskelg@gmail.com>
-Subject: Re: [PATCH] s390/zcrypt: optimize memory allocation in online_show()
-Content-Language: en-GB
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <20240623120147.35554-3-yskelg@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+References: <20240620162316.3674955-1-arnd@kernel.org> <20240620162316.3674955-11-arnd@kernel.org>
+In-Reply-To: <20240620162316.3674955-11-arnd@kernel.org>
+From: Guo Ren <guoren@kernel.org>
+Date: Mon, 24 Jun 2024 01:10:25 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTS9xKLSbSN2Scs016Boxzr6TdNxVLr2TYEfbJ0KqSgppw@mail.gmail.com>
+Message-ID: <CAJF2gTS9xKLSbSN2Scs016Boxzr6TdNxVLr2TYEfbJ0KqSgppw@mail.gmail.com>
+Subject: Re: [PATCH 10/15] csky, hexagon: fix broken sys_sync_file_range
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Arnd Bergmann <arnd@arndb.de>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-mips@vger.kernel.org, 
+	Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org, 
+	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, sparclinux@vger.kernel.org, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>, 
+	linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>, 
+	linux-hexagon@vger.kernel.org, linux-csky@vger.kernel.org, 
+	Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, linux-sh@vger.kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org, 
+	libc-alpha@sourceware.org, musl@lists.openwall.com, ltp@lists.linux.it, 
+	stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:a5IGdX/3vLykII3eED5ZBYgYIRbdxHWxtqIaE36nMgDLOE4t6lS
- YR60ZbxhO0nc5gnGUR3hTfR1vffzEu172lMFpF0uXgrRYt5tRkr7cw0QGpZFWa/NGk8wnib
- f4XtKVRHor1Q5Q9Ev0EA7I72AS0x37WSiaf+R+O5QkSfgd+HEFHrD0KXFT5GUzgJQRpXAtH
- LxPtq+sTjctgCf2FHM2nA==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:bg1isO76KOs=;DuR7ZQc0zgBJhJhLGmUsRi1yyV8
- ZyTwz4EXa7QgK493OCz5Owm+HxESqhEB5eGxn1idsYIV0bTEEShLU47WTGJpaWg8cLgqFg8Qf
- M7n4gGPeWveVOv3NcwNxsoDVgD0auTNUH94vNJDKzjFOE0+tiBmYNZGUXm9A1eAoWBdaKEK9v
- W28/2HsTVYKCWbsnbsq+Ml+BU0xcS7AGEcfni45kc8R4n10zKmcog6UUxQ4QTfjOW4eIVE6m1
- nAQvjDrBXB/+1fs9cXYNGvE2btATT9GZ4gfSIfHjfFjipQur+tQ1lbaPnBNL4gppM3x/7K3Ho
- YZ4GGTdVSkfBHyaRZgUyYH9pz0ZcON++q+Q1ogJACgoJSjuncN07gxza7hR7t8ZiB0WF2ljtO
- b04tgZWWpGz/mZ5k5QK2gUViRsBW9dX7pVHdfZQ+ulxR9/2CZxwnPW5QiAO1KVjUe0nDywFOX
- JPaDLsMDuP4c1ECRMBYAeWq3IRpZW6y4pk21jN1btql+fx2cI7GjBexqHlgjZhBU0sB8m2Lb2
- 094hHR0nKEvIc9kaaUzJ8KnO77lCS6ob2T3zIc5WTyh5psG29Supp315sjYJGBJss5MmL4DUi
- vREcno8i/dDgVMjQwWTIO8csInV/NDg2UeMXweNR1Pv79UQiiRs4K2pnNd1NEgC/hm+2o/0n+
- 5/cdOD0I2Myg3pKCwKMr5EAv026klv+xNpwaKh2xf1hq6hdxuE7aIXEZYInxXT99zqiXRJkn5
- lXKaNSEx4hVGcbH91k8gbJ4VybyVwPkcl8AT7xPqp9HxHr4/ut7OwOe0K6aPjzfiJ2dBRW/gF
- o1mEsRbwRpur0fGuAcFNgExD1g3nCfNEwEtCyxgjRXS1w=
 
-=E2=80=A6
-> This patch improves efficiency by only allocating memory for the queues
-=E2=80=A6
+On Fri, Jun 21, 2024 at 12:24=E2=80=AFAM Arnd Bergmann <arnd@kernel.org> wr=
+ote:
+>
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> Both of these architectures require u64 function arguments to be
+> passed in even/odd pairs of registers or stack slots, which in case of
+> sync_file_range would result in a seven-argument system call that is
+> not currently possible. The system call is therefore incompatible with
+> all existing binaries.
+>
+> While it would be possible to implement support for seven arguments
+> like on mips, it seems better to use a six-argument version, either
+> with the normal argument order but misaligned as on most architectures
+> or with the reordered sync_file_range2() calling conventions as on
+> arm and powerpc.
+>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/csky/include/uapi/asm/unistd.h    | 1 +
+>  arch/hexagon/include/uapi/asm/unistd.h | 1 +
+>  2 files changed, 2 insertions(+)
+>
+> diff --git a/arch/csky/include/uapi/asm/unistd.h b/arch/csky/include/uapi=
+/asm/unistd.h
+> index 7ff6a2466af1..e0594b6370a6 100644
+> --- a/arch/csky/include/uapi/asm/unistd.h
+> +++ b/arch/csky/include/uapi/asm/unistd.h
+> @@ -6,6 +6,7 @@
+>  #define __ARCH_WANT_SYS_CLONE3
+>  #define __ARCH_WANT_SET_GET_RLIMIT
+>  #define __ARCH_WANT_TIME32_SYSCALLS
+> +#define __ARCH_WANT_SYNC_FILE_RANGE2
+For csky part.
+Acked-by: Guo Ren <guoren@kernel.org>
 
-* Please improve the change description with imperative wordings.
-  https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/=
-Documentation/process/submitting-patches.rst?h=3Dv6.10-rc4#n94
+>  #include <asm-generic/unistd.h>
+>
+>  #define __NR_set_thread_area   (__NR_arch_specific_syscall + 0)
+> diff --git a/arch/hexagon/include/uapi/asm/unistd.h b/arch/hexagon/includ=
+e/uapi/asm/unistd.h
+> index 432c4db1b623..21ae22306b5d 100644
+> --- a/arch/hexagon/include/uapi/asm/unistd.h
+> +++ b/arch/hexagon/include/uapi/asm/unistd.h
+> @@ -36,5 +36,6 @@
+>  #define __ARCH_WANT_SYS_VFORK
+>  #define __ARCH_WANT_SYS_FORK
+>  #define __ARCH_WANT_TIME32_SYSCALLS
+> +#define __ARCH_WANT_SYNC_FILE_RANGE2
+>
+>  #include <asm-generic/unistd.h>
+> --
+> 2.39.2
+>
 
-* Would you like to add any tags (like =E2=80=9CFixes=E2=80=9D or =E2=80=
-=9CCc=E2=80=9D) accordingly?
 
-
-Regards,
-Markus
+--=20
+Best Regards
+ Guo Ren
