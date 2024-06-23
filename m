@@ -1,190 +1,130 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1CFE9470
-	for <linux-s390@vger.kernel.org>; Sun, 23 Jun 2024 10:15:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 679A755C1A;
+	Sun, 23 Jun 2024 12:03:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719137707; cv=none; b=Obnxz8bS2Dywi1P6gBe3AAQAQd501H3u1YQEubzXFYEtinpTYzdwz9wvqGKgEN3qS1E18fn+PSg25rMkLTO88nKyNyhyZUX4hAABnmqppoQoZI5/2FJvQ0W4k7oy7yU++QtcLN5fQBYwTFQdc13MPQGrxkz7I9B5ngUpIuDEVpk=
+	t=1719144225; cv=none; b=OE9hDQ3ou35EtINvZhAtUj/yP1/GkDRypZv4BcTPfYhsIJoSWTFBIS6VWKwJs1uBAgp33sNF9NQfFIQrHKq6bScEoHBLIeZoTT9mIItqwvgcpZ6czgs0HOEIRgYrJ8pVNvYUSF/NOrvraXoCm2uGYD/s2cpCU6z/8Gnun7VwbVg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719137707; c=relaxed/simple;
-	bh=OuR2sYZAr2eBHxaMxpLs26oNyCGBj4JLZvUZ0k+VmS8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LX2oTcJH32qTF2Hg5c2Kwaf9X8zsLZmXkpuRrWxvb11Mj30fZkN5LC/Mr/XlmQGXIMs5p0xgEavVL7PPeu9j8NV7oQwGd55Xmr6RTjqULmILAfiKKxhi4CYwm1vg60sclXq2HYO1uNZx7z+lslxJzJhgIFU6UPnLL1xuJZiYFGw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aZBIjQUe; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1719144225; c=relaxed/simple;
+	bh=1ejHMVfM/x1I9WH/AOfTOYsFcicOOrHVTNcQMO9V9T0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Swqlo3YQ/ugPNXUm8dla/adkQNL6WetRMwyvEtmgLSRJWlgr0eEBxRiQ+woBLyc3jvyQU6BUEMfLN7pqD8Cv+laByqykN198XGY/XCZFF36L4QkQUTGLZusp5VE8MXZUvUguvHJ1plwlZHFb2Njlfg2fWJ+Oy/ZZEqExEl2EhhE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JKNkwzgp; arc=none smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aZBIjQUe"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1719137704;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=sOci2B9Gr4WI6Fbop3cV6xh51JciMNHVROXI0Qgvuqs=;
-	b=aZBIjQUeGKIO1FQp5W1oNjRQpDASA35eq+HF3GawsyzUVDEO3hYoZZED111KafQWNjv/y7
-	DVzLW34wQFtazkjRa9sri9bPFgt6D7zd5Pby/9s3TdSXxwnWUzVf6s644W/pq0D3a3Pf2P
-	qBV3i3vIMUFD36/XdQaMV83GsJhUJJo=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-313-4s02_TLiP8Gtu4VbvRkJrA-1; Sun, 23 Jun 2024 06:15:03 -0400
-X-MC-Unique: 4s02_TLiP8Gtu4VbvRkJrA-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3634a634f8aso1543644f8f.2
-        for <linux-s390@vger.kernel.org>; Sun, 23 Jun 2024 03:15:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JKNkwzgp"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-1f862f7c7edso26336325ad.3;
+        Sun, 23 Jun 2024 05:03:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1719144224; x=1719749024; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=gnQ+CeHuZXlYO167FONNTk6/FjCBP/TpIYsSm5694xc=;
+        b=JKNkwzgpdIdCAaS6JM06lmq811pEaKo5nHU9sQe6HWhOrZXBdlSAOcVqNQk61j3IJo
+         WT0RJlbU6QT7qsq66Sx1/BNUPR6DLRY6nJOO0AFqQEG0ijZpZAfUoDmYUr9gnCqySnwY
+         6FZihtuPa49liYqmaHoeRe3K7LRm1czzEJ2TiyhHKsm0JWLtmTYCTFj64hEPCJ/1qz2U
+         uJNAJMhmUAfCl4sOW83adfUP0U4FElAKbcTejGHDLWrIuMhPXQKcq1Emg0IwbdS7vGo7
+         wnVh5jGG3EOvSbNQoqICgShCm/xd4g3Yqq3oGzWxgQZhY9ewVbMhjFrxmUOuw5Lm547X
+         clrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719137702; x=1719742502;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=sOci2B9Gr4WI6Fbop3cV6xh51JciMNHVROXI0Qgvuqs=;
-        b=CzBRbnQLHI1l4BVZQ1/IwyxUXSOqQZUs1NPTeHmIxxP877ALIwjIGRlrnTfJJ+gQey
-         iiL36D/Zinx84Ye3FIl5+W5Ha5varlZJ3Ro0hrDxsTt9XJ76g8ABe0G34aqQS5wZTKyW
-         9arGiHQMCHQ1R+LwCGjAOlbk3qsevTFU2j1gWGWKzhbPPHiEiuyqFRW0jWIZsJKhvWMy
-         7xpc6/EexmZQsND6wQjziWNGxJsmfU1gwRkf02QvwxXwXeoJ4NTcLtFKNjOFR1V/xAaO
-         iAD/e9tTHGHMmMVXFfHblaT8m6cWNLYc411DvCuXPnql+tp+bMoc5tZB+4vlVhO1ejaq
-         mg2A==
-X-Forwarded-Encrypted: i=1; AJvYcCU78jRw0modRnQrPmFwEB7l0DCI/xxHoERAoPB4dj3GJD6VSxBZYdgrjOzF8mDqUCBdRCJ5qgid2F1ai/BFnXfsElQXVgWCHcpaRA==
-X-Gm-Message-State: AOJu0YwLWpyCOQVGLvjTmFe+qLJYVgf/iuHklDz1X1g9zMMpUcekPU0O
-	+E0BbQPXSm2xOmrb7lNiddOoHO1zWQpTgAhEI5CBbgwyPjuQbs4H5qXQfIvvzIOm9JHjINW49y/
-	g21tF67733826lBt7pek97hms9ehCDBnLS1f10goa8MvFsZ12SDKlM2+Vi6Y=
-X-Received: by 2002:a05:6000:dcd:b0:35f:1c34:adfc with SMTP id ffacd0b85a97d-366e96bf06bmr1002447f8f.67.1719137701828;
-        Sun, 23 Jun 2024 03:15:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFPPDC3HI60pWL+wtMB9iK/gooIH7i9Iz/3lSKlTGUXQzR11017FM83y2VnixVMSw+lIyxO0Q==
-X-Received: by 2002:a05:6000:dcd:b0:35f:1c34:adfc with SMTP id ffacd0b85a97d-366e96bf06bmr1002414f8f.67.1719137701075;
-        Sun, 23 Jun 2024 03:15:01 -0700 (PDT)
-Received: from redhat.com ([2.52.146.100])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-366389b861bsm6874269f8f.29.2024.06.23.03.14.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Jun 2024 03:15:00 -0700 (PDT)
-Date: Sun, 23 Jun 2024 06:14:53 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "Wang, Wei W" <wei.w.wang@intel.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
+        d=1e100.net; s=20230601; t=1719144224; x=1719749024;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=gnQ+CeHuZXlYO167FONNTk6/FjCBP/TpIYsSm5694xc=;
+        b=p4AOJGvBn4hxxzreNgdhYZZ5bfIIequ67ETzSdsXBgIIUZjYlG1ZQ4b+mMi0mFPr3k
+         nadjg2YldvFnBvnJiy4bbpMcOLSywCfgJ1rP6TIqZ4ueF7T6ZecrYXHmKipLlt8trD85
+         IOKeoJoPqyE+ymakBWhMlhaHolR0+5CHsToqEtMwj5Zoo0bhG9YWdFDt7FacC7LLZdXC
+         BtrzesYZU0vb1tG7p+vY9i7GNCBsncCoIlIngcWa0gEwwhKtGvUnB5cFbw8qdpT+VWLH
+         C0P895prUCLSQHFWt2Tl9FlF53vMUXVyznqHJG/AMWk6k++8TMO4i62Ueh2NJL69tdLY
+         0juA==
+X-Forwarded-Encrypted: i=1; AJvYcCUWGi/CQDw1O8LTLeNC7xOtL7qIsWhba033Jta65mkp/N7qPzTANQJr/QOGEpKpP74hlSWPnwb+gIsAiica7e/89njk1uBTXSvme4NVhghXi/npE4/DF7io/q6bZTOdIDhOArDyBOw2ww==
+X-Gm-Message-State: AOJu0YxVUCh1FcfkGeilfUy9zQcKywk5UnI+J8EDh51tj1xGUzMt27Wb
+	aTgsX6CLVA2lSWEBfRs+JKcZiVfU48x0c4zQjgWakrLRz3Cb2ruE6aCgVw==
+X-Google-Smtp-Source: AGHT+IEPb5xME3a9IS+fRFpSAE5BQuoZ6z9qef0vi9HrYc+oM9FrRBDiIFAhlEMXkvjwfyzWbKILkA==
+X-Received: by 2002:a17:902:f693:b0:1f9:a602:5e41 with SMTP id d9443c01a7336-1fa1d3b7218mr27947185ad.1.1719144223417;
+        Sun, 23 Jun 2024 05:03:43 -0700 (PDT)
+Received: from localhost.localdomain ([118.32.98.101])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1f9eb7cf962sm44141545ad.231.2024.06.23.05.03.40
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sun, 23 Jun 2024 05:03:42 -0700 (PDT)
+From: yskelg@gmail.com
+To: Harald Freudenberger <freude@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	David Hildenbrand <david@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
-	"platform-driver-x86@vger.kernel.org" <platform-driver-x86@vger.kernel.org>,
-	"linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Subject: Re: [PATCH vhost v9 2/6] virtio: remove support for names array
- entries being null.
-Message-ID: <20240623061141-mutt-send-email-mst@kernel.org>
-References: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
- <20240424091533.86949-3-xuanzhuo@linux.alibaba.com>
- <20240620035749-mutt-send-email-mst@kernel.org>
- <1718872778.4831812-1-xuanzhuo@linux.alibaba.com>
- <20240620044839-mutt-send-email-mst@kernel.org>
- <DS0PR11MB6373310FBF95058B8FE8CD95DCCA2@DS0PR11MB6373.namprd11.prod.outlook.com>
+	Sven Schnelle <svens@linux.ibm.com>
+Cc: shjy180909@gmail.com,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Yunseong Kim <yskelg@gmail.com>
+Subject: [PATCH] s390/zcrypt: optimize memory allocation in online_show()
+Date: Sun, 23 Jun 2024 21:01:49 +0900
+Message-ID: <20240623120147.35554-3-yskelg@gmail.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DS0PR11MB6373310FBF95058B8FE8CD95DCCA2@DS0PR11MB6373.namprd11.prod.outlook.com>
+Content-Transfer-Encoding: 8bit
 
-On Sat, Jun 22, 2024 at 06:07:35AM +0000, Wang, Wei W wrote:
-> On Thursday, June 20, 2024 5:01 PM, Michael S. Tsirkin wrote:
-> > On Thu, Jun 20, 2024 at 04:39:38PM +0800, Xuan Zhuo wrote:
-> > > On Thu, 20 Jun 2024 04:02:45 -0400, "Michael S. Tsirkin" <mst@redhat.com>
-> > wrote:
-> > > > On Wed, Apr 24, 2024 at 05:15:29PM +0800, Xuan Zhuo wrote:
-> > > > > commit 6457f126c888 ("virtio: support reserved vqs") introduced
-> > > > > this support. Multiqueue virtio-net use 2N as ctrl vq finally, so
-> > > > > the logic doesn't apply. And not one uses this.
-> > > > >
-> > > > > On the other side, that makes some trouble for us to refactor the
-> > > > > find_vqs() params.
-> > > > >
-> > > > > So I remove this support.
-> > > > >
-> > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > Acked-by: Jason Wang <jasowang@redhat.com>
-> > > > > Acked-by: Eric Farman <farman@linux.ibm.com> # s390
-> > > > > Acked-by: Halil Pasic <pasic@linux.ibm.com>
-> > > >
-> > > >
-> > > > I don't mind, but this patchset is too big already.
-> > > > Why do we need to make this part of this patchset?
-> > >
-> > >
-> > > If some the pointers of the names is NULL, then in the virtio ring, we
-> > > will have a trouble to index from the arrays(names, callbacks...).
-> > > Becasue that the idx of the vq is not the index of these arrays.
-> > >
-> > > If the names is [NULL, "rx", "tx"], the first vq is the "rx", but
-> > > index of the vq is zero, but the index of the info of this vq inside the arrays is
-> > 1.
-> > 
-> > 
-> > Ah. So actually, it used to work.
-> > 
-> > What this should refer to is
-> > 
-> > commit ddbeac07a39a81d82331a312d0578fab94fccbf1
-> > Author: Wei Wang <wei.w.wang@intel.com>
-> > Date:   Fri Dec 28 10:26:25 2018 +0800
-> > 
-> >     virtio_pci: use queue idx instead of array idx to set up the vq
-> > 
-> >     When find_vqs, there will be no vq[i] allocation if its corresponding
-> >     names[i] is NULL. For example, the caller may pass in names[i] (i=4)
-> >     with names[2] being NULL because the related feature bit is turned off,
-> >     so technically there are 3 queues on the device, and name[4] should
-> >     correspond to the 3rd queue on the device.
-> > 
-> >     So we use queue_idx as the queue index, which is increased only when the
-> >     queue exists.
-> > 
-> >     Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> >     Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > 
-> 
-> The approach was taken to prevent the creation (by the device) of unnecessary
-> queues that would remain unused when the feature bit is turned off. Otherwise,
-> the device is required to create all conditional queues regardless of their necessity.
-> 
-> > 
-> > Which made it so setting names NULL actually does not reserve a vq.
-> 
-> If there is a need for an explicit queue reservation, it might be feasible to assign
-> a specific name to the queue(e.g. "reserved")?
-> This will require the device to have the reserved queue added.
+From: Yunseong Kim <yskelg@gmail.com>
 
-That's quite a hack, NULL as a special value is much more
-idiomatic.
+Previously, when setting the online state for a card, the code would
+allocate memory to store information about all attached queues,
+regardless of whether their online state actually changed.
+This patch improves efficiency by only allocating memory for the queues
+that are truly affected by the online state change.
 
-Given driver and qemu are both non spec compliant but *in splightly
-different ways* I think we should just fix both the driver and qemu to
-be spec compliant.
+This allows for a more precise memory allocation (based on maxzqs) which
+can reduce memory usage.
 
+Signed-off-by: Yunseong Kim <yskelg@gmail.com>
+---
+ drivers/s390/crypto/zcrypt_card.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-> > 
-> > But I worry about non pci transports - there's a chance they used a different
-> > index with the balloon. Did you test some of these?
-> > 
-> > --
-> > MST
-> > 
+diff --git a/drivers/s390/crypto/zcrypt_card.c b/drivers/s390/crypto/zcrypt_card.c
+index 050462d95222..2c80be3f2a00 100644
+--- a/drivers/s390/crypto/zcrypt_card.c
++++ b/drivers/s390/crypto/zcrypt_card.c
+@@ -88,9 +88,10 @@ static ssize_t online_store(struct device *dev,
+ 	 * the zqueue objects, we make sure they exist after lock release.
+ 	 */
+ 	list_for_each_entry(zq, &zc->zqueues, list)
+-		maxzqs++;
++		if (!!zq->online != !!online)
++			maxzqs++;
+ 	if (maxzqs > 0)
+-		zq_uelist = kcalloc(maxzqs + 1, sizeof(*zq_uelist), GFP_ATOMIC);
++		zq_uelist = kcalloc(maxzqs, sizeof(*zq_uelist), GFP_ATOMIC);
+ 	list_for_each_entry(zq, &zc->zqueues, list)
+ 		if (zcrypt_queue_force_online(zq, online))
+ 			if (zq_uelist) {
+@@ -98,14 +99,11 @@ static ssize_t online_store(struct device *dev,
+ 				zq_uelist[i++] = zq;
+ 			}
+ 	spin_unlock(&zcrypt_list_lock);
+-	if (zq_uelist) {
+-		for (i = 0; zq_uelist[i]; i++) {
+-			zq = zq_uelist[i];
+-			ap_send_online_uevent(&zq->queue->ap_dev, online);
+-			zcrypt_queue_put(zq);
+-		}
+-		kfree(zq_uelist);
++	while (i--) {
++		ap_send_online_uevent(&zq->queue->ap_dev, online);
++		zcrypt_queue_put(zq_uelist[i]);
+ 	}
++	kfree(zq_uelist);
+ 
+ 	return count;
+ }
+-- 
+2.45.2
 
