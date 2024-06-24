@@ -1,170 +1,184 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3B7419CD0B;
-	Mon, 24 Jun 2024 15:33:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DF1519DF7C;
+	Mon, 24 Jun 2024 16:37:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719243216; cv=none; b=nsHwDtf8up+2FiYlUs1wK/Ad5rajkavot+U8HQqZuerKr2ryk/OmyehMgkBWgk39wMr3wnhC/TBkuwXI/E8lPaKGRpo7Cv5kXOyK5J8hrhI/n9C0YYP0ThVJZLeEE5FkWkKK0YHGrPngVUoPPjteZK/Hbk3VTtRHc08Y57g3lrk=
+	t=1719247040; cv=none; b=dee0EMzA9ETXhL2OOX9CJy1LdKeQ1QIXNWMrI3nJSMm9oD3sVYwn6XiusFWriUXtTLY+JsD0oH07jGqQ9T9u4ahnU74ISQcMhI9p/XavdRW2hl4ukHCeZCcPgdCvTN33O3nzAj3Eoa9RotHzbpyGcjzzHwm2p2FW0IOlQk+Er9A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719243216; c=relaxed/simple;
-	bh=5ykkTM3tDcbuQoWGhaZLK27SIENhfMfemlid8CPn4Kg=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=mRD0uA/z20ztWVxIk76eXwuwKxx8AKX5TzIPf+s1YfUTCOc3d1em7MEjChI/EnVb+QlbGVis/1LVM4FcDzW6N0ZYEQYRC+BE+kBswfbzp1AMTNDHSOfKDkNQ+ezaFTDbDvagppo1igPl3i1r4zNyEV1ZduGJ0CZiERL7d51bzm8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pT3MAgxs; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1719247040; c=relaxed/simple;
+	bh=9d9HuVaLbxVvYIk0v7QFxagihDIyuBmHy3l8B29CCxM=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=l68DvojM0Cz7Ls6LGlAgueYCNSMdbGxPHmcBtJiWP9eh7vleiBGhtnA5G2rfy8iWELWZM6Lwiy+YhMxTJL0aacD3EsPTLuXjxv6bnQp7Hg6DSn6FVXUk52vLUKOaFE2lTpipXoMz2x//9+nrOKbvdq6UWyKDeHVnhxM1rZ4RmEE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XAOXiQwJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pT3MAgxs"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45OFWthF023432;
-	Mon, 24 Jun 2024 15:33:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
-	DwKF700X7v7NDl8u9rp3XuBAKSkCRL78vee6uDoYhZs=; b=pT3MAgxsueUWoawV
-	sWNaK4n24wRXLrEhgjGBi5zyCQ4vlV5ljyiV33kfo1X8/rFfHgBy1isr+DkjXgf/
-	69Si6DZxC7kKvRZj4eu97ebTlkqMhfZgHLQhsG/htZyUdwEdkT/IfKmU5rGTONcF
-	XWaFpkRIsgIw/vOKrQ/f5vC5LieQ56AOTe6SdJ7vLoIvIRClGXTuBXERU1FHerRU
-	GaFlMPtDPf8nJ6V2mmLrJTXSoJrx8rC2MZQXYnUPAM0H6r6QnAmKyUDTrzn7IcGB
-	2SRwF+fuzZ0rvIKNK+qCnPs7fMZ6MiuEdoXH3x6/oTmzNOMyGgmX8APw03V8hs95
-	rZW9lg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yybhar044-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Jun 2024 15:33:30 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45OFXTH8025268;
-	Mon, 24 Jun 2024 15:33:29 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yybhar042-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Jun 2024 15:33:29 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45OFJwi9018103;
-	Mon, 24 Jun 2024 15:33:29 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yx8xu1ryy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Jun 2024 15:33:28 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45OFXN0U56033664
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 24 Jun 2024 15:33:25 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F26752004E;
-	Mon, 24 Jun 2024 15:33:22 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C21E02004B;
-	Mon, 24 Jun 2024 15:33:22 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 24 Jun 2024 15:33:22 +0000 (GMT)
-Date: Mon, 24 Jun 2024 17:33:21 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David
- Hildenbrand <david@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
-        linux-doc@vger.kernel.org
-Subject: Re: [PATCH] s390/kvm: Reject memory region operations for ucontrol
- VMs
-Message-ID: <20240624173321.6b27b2a4@p-imbrenda>
-In-Reply-To: <20240624095902.29375-1-schlameuss@linux.ibm.com>
-References: <20240624095902.29375-1-schlameuss@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.42; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XAOXiQwJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE60CC2BBFC;
+	Mon, 24 Jun 2024 16:37:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1719247039;
+	bh=9d9HuVaLbxVvYIk0v7QFxagihDIyuBmHy3l8B29CCxM=;
+	h=From:To:Cc:Subject:Date:From;
+	b=XAOXiQwJP3v0AYOMXFbOl+aKwam/G8B8vHPH86S/9LShi99xORnlW4piK1/QXzERr
+	 xSDLEVIY2XUL2OstfMJIdt0rq3JemXryccEJPkd4ghrh6UDdFQr1tbDgHrMymJ5lkT
+	 LCJAwLpGg/YP4mak7hJUeKjerzj3Sjeuk9mEeI0PO4M8ngXVwYPSEkSZYIjYXv3lsO
+	 IWmu9kkIzBkQryYrYGbzA0waCr299MRkDBhVI15NNGekWiHeTRxr6a39naS5fy6XeX
+	 AT9Pv9joOgDX2Gg6Zy/ej9wfBbyGwtMGKM4NEGi3ynRBEI8qKiLmDIsSwZL2m2icP1
+	 basUBX/zL+P3Q==
+From: Arnd Bergmann <arnd@kernel.org>
+To: linux-arch@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	linux-mips@vger.kernel.org,
+	Helge Deller <deller@gmx.de>,
+	linux-parisc@vger.kernel.org,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	sparclinux@vger.kernel.org,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org,
+	Brian Cain <bcain@quicinc.com>,
+	linux-hexagon@vger.kernel.org,
+	Guo Ren <guoren@kernel.org>,
+	linux-csky@vger.kernel.org,
+	Heiko Carstens <hca@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	linux-sh@vger.kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>,
+	linux-fsdevel@vger.kernel.org,
+	libc-alpha@sourceware.org,
+	musl@lists.openwall.com
+Subject: [PATCH v2 00/13] linux system call fixes
+Date: Mon, 24 Jun 2024 18:36:58 +0200
+Message-Id: <20240624163707.299494-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: erNYpFx8aIUkWEDaftjifnsw6_yIPEi8
-X-Proofpoint-ORIG-GUID: j5cn5q80zcd2a9G4n2SbR4IvPjNl5u8H
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-24_12,2024-06-24_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 bulkscore=0 mlxscore=0 spamscore=0 mlxlogscore=866
- adultscore=0 clxscore=1015 suspectscore=0 malwarescore=0 impostorscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2406140001 definitions=main-2406240123
+Content-Transfer-Encoding: 8bit
 
-On Mon, 24 Jun 2024 11:59:02 +0200
-Christoph Schlameuss <schlameuss@linux.ibm.com> wrote:
+From: Arnd Bergmann <arnd@arndb.de>
 
-> This change rejects the KVM_SET_USER_MEMORY_REGION and
-> KVM_SET_USER_MEMORY_REGION2 ioctls when called on a ucontrol VM.
-> This is neccessary since ucontrol VMs have kvm->arch.gmap set to 0 and
-> would thus result in a null pointer dereference further in.
-> Memory management needs to be performed in userspace and using the
-> ioctls KVM_S390_UCAS_MAP and KVM_S390_UCAS_UNMAP.
-> 
-> Also improve s390 specific documentation for KVM_SET_USER_MEMORY_REGION
-> and KVM_SET_USER_MEMORY_REGION2.
-> 
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+This is a minor update to v1 of this series. If there are no new
+concerns, I would like to send this as a pull request for v6.10-rc6,
+which is a little late, but these are all bug fixes. Changes since
+v1 are:
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+ - collect acks
+ - minor fixes to the changelog text
+ - drop mips patch that was already merged
+ - drop the time32 patch that caused build failures
+ - fix a kernel/sys_ni.c stub bug that was exposed by
+   the compat_sys_io_pgetevents_time64 change
 
-> ---
->  Documentation/virt/kvm/api.rst | 12 ++++++++++++
->  arch/s390/kvm/kvm-s390.c       |  3 +++
->  2 files changed, 15 insertions(+)
-> 
-> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-> index a71d91978d9e..eec8df1dde06 100644
-> --- a/Documentation/virt/kvm/api.rst
-> +++ b/Documentation/virt/kvm/api.rst
-> @@ -1403,6 +1403,12 @@ Instead, an abort (data abort if the cause of the page-table update
->  was a load or a store, instruction abort if it was an instruction
->  fetch) is injected in the guest.
->  
-> +S390:
-> +^^^^^
-> +
-> +Returns -EINVAL if the VM has the KVM_VM_S390_UCONTROL flag set.
-> +Returns -EINVAL if called on a protected VM.
-> +
->  4.36 KVM_SET_TSS_ADDR
->  ---------------------
->  
-> @@ -6273,6 +6279,12 @@ state.  At VM creation time, all memory is shared, i.e. the PRIVATE attribute
->  is '0' for all gfns.  Userspace can control whether memory is shared/private by
->  toggling KVM_MEMORY_ATTRIBUTE_PRIVATE via KVM_SET_MEMORY_ATTRIBUTES as needed.
->  
-> +S390:
-> +^^^^^
-> +
-> +Returns -EINVAL if the VM has the KVM_VM_S390_UCONTROL flag set.
-> +Returns -EINVAL if called on a protected VM.
-> +
->  4.141 KVM_SET_MEMORY_ATTRIBUTES
->  -------------------------------
->  
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 82e9631cd9ef..854d0d1410be 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -5748,6 +5748,9 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
->  {
->  	gpa_t size;
->  
-> +	if (kvm_is_ucontrol(kvm))
-> +		return -EINVAL;
-> +
->  	/* When we are protected, we should not change the memory slots */
->  	if (kvm_s390_pv_get_handle(kvm))
->  		return -EINVAL;
-> 
-> base-commit: f2661062f16b2de5d7b6a5c42a9a5c96326b8454
+     Arnd
+ 
+--- 
+Original series description:
+
+I'm working on cleanup series for Linux system call handling, trying to
+unify some of the architecture specific code there among other things.
+
+In the process, I came across a number of bugs that are ABI relevant,
+so I'm trying to merge these first. I found all of these by inspection,
+not by running the code, so any extra review would help. I assume some
+of the issues were already caught by existing LTP tests, while for others
+we could add a test. Again, I did not check what is already there.
+
+The sync_file_range and fadvise64_64 changes on sh, csky and hexagon
+are likely to also require changes in the libc implementation.
+
+Once the patches are reviewed, I plan to merge my changes as bugfixes
+through the asm-generic tree, but architecture maintainers can also
+pick them up directly to speed up the bugfix.
+
+Cc: linux-arch@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org
+Cc: Helge Deller <deller@gmx.de>
+Cc: linux-parisc@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Andreas Larsson <andreas@gaisler.com>
+Cc: sparclinux@vger.kernel.org
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Naveen N. Rao <naveen.n.rao@linux.ibm.com>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: Brian Cain <bcain@quicinc.com>
+Cc: linux-hexagon@vger.kernel.org
+Cc: Guo Ren <guoren@kernel.org>
+Cc: linux-csky@vger.kernel.org
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Cc: Rich Felker <dalias@libc.org>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: linux-sh@vger.kernel.org
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: libc-alpha@sourceware.org
+Cc: musl@lists.openwall.com
+
+Arnd Bergmann (13):
+  ftruncate: pass a signed offset
+  syscalls: fix compat_sys_io_pgetevents_time64 usage
+  sparc: fix old compat_sys_select()
+  sparc: fix compat recv/recvfrom syscalls
+  parisc: use correct compat recv/recvfrom syscalls
+  parisc: use generic sys_fanotify_mark implementation
+  powerpc: restore some missing spu syscalls
+  sh: rework sync_file_range ABI
+  csky, hexagon: fix broken sys_sync_file_range
+  hexagon: fix fadvise64_64 calling conventions
+  s390: remove native mmap2() syscall
+  syscalls: mmap(): use unsigned offset type consistently
+  linux/syscalls.h: add missing __user annotations
+
+ arch/arm64/include/asm/unistd32.h         |   2 +-
+ arch/csky/include/uapi/asm/unistd.h       |   1 +
+ arch/csky/kernel/syscall.c                |   2 +-
+ arch/hexagon/include/asm/syscalls.h       |   6 +
+ arch/hexagon/include/uapi/asm/unistd.h    |   1 +
+ arch/hexagon/kernel/syscalltab.c          |   7 +
+ arch/loongarch/kernel/syscall.c           |   2 +-
+ arch/microblaze/kernel/sys_microblaze.c   |   2 +-
+ arch/mips/kernel/syscalls/syscall_n32.tbl |   2 +-
+ arch/mips/kernel/syscalls/syscall_o32.tbl |   2 +-
+ arch/parisc/Kconfig                       |   1 +
+ arch/parisc/kernel/sys_parisc32.c         |   9 -
+ arch/parisc/kernel/syscalls/syscall.tbl   |   6 +-
+ arch/powerpc/kernel/syscalls/syscall.tbl  |   6 +-
+ arch/riscv/kernel/sys_riscv.c             |   4 +-
+ arch/s390/kernel/syscall.c                |  27 ---
+ arch/s390/kernel/syscalls/syscall.tbl     |   2 +-
+ arch/sh/kernel/sys_sh32.c                 |  11 ++
+ arch/sh/kernel/syscalls/syscall.tbl       |   3 +-
+ arch/sparc/kernel/sys32.S                 | 221 ----------------------
+ arch/sparc/kernel/syscalls/syscall.tbl    |   8 +-
+ arch/x86/entry/syscalls/syscall_32.tbl    |   2 +-
+ fs/open.c                                 |   4 +-
+ include/asm-generic/syscalls.h            |   2 +-
+ include/linux/compat.h                    |   2 +-
+ include/linux/syscalls.h                  |  20 +-
+ include/uapi/asm-generic/unistd.h         |   2 +-
+ kernel/sys_ni.c                           |   2 +-
+ 28 files changed, 67 insertions(+), 292 deletions(-)
+ create mode 100644 arch/hexagon/include/asm/syscalls.h
+
+-- 
+2.39.2
 
