@@ -1,178 +1,130 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from fhigh7-smtp.messagingengine.com (fhigh7-smtp.messagingengine.com [103.168.172.158])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D43E130A79
-	for <linux-s390@vger.kernel.org>; Mon, 24 Jun 2024 09:59:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E959F1386DA;
+	Mon, 24 Jun 2024 12:37:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.158
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719223197; cv=none; b=aRBlInCcEVpl9wTXNbEKXtP3fBXCVX4F+OcbXECMICDJXdAaKB7G7rBe4LgCRO2j0ocrEBFkNISoidHGqxXG1r850t3ncvnlcQkFYKlaGP2OPnVFx5BeJRXZqeYDa8E/qshFFHaCNEHJ2q2XzHB6lB8R407TqpbzVBhNMf7BB1k=
+	t=1719232631; cv=none; b=u5PKPBsMQh5BdRTxwEXl6ZxRP6b4l3dIEgTLuKi3VEAAUeeWAOEp9KanPjqZH4nLOOmlXWzur+VSf/VFgGNZQaIMb93F9I0tPJU5iaiqsh4NriKvmAueQ+qYBINSvrMelxKwlKip5zoukTXLIwncXVJ82V1yWr6bz8Bke7p4cH4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719223197; c=relaxed/simple;
-	bh=GIYTrL/aSx3Oc2Xjok7A34Zp3U23ftjCT2IaewhidA8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=d+UyylRkVrhN0VoKjpajthA6QFgXYIsX59AvlEBfFusKgra21vH3kB2QNtYaWplPi6dhFdQC73P9GMb7tZ7Ii9ilYZty9XRh/+GeRkZTlvakE2Nus1H9uNrZYF/N/q13cZwaC5QNbTx+/g/ZAZnxxltv8jCooQKJdM56+GouCVI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QRJlTgAt; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1719232631; c=relaxed/simple;
+	bh=TbmH+yoyAgf4fe9CUvwuV5yJgzh5ZHwbkVCsLRZgEQ8=;
+	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
+	 Subject:Content-Type; b=UyEObqEv0W7q47teygKnMYdf+FuJzUPP+2QoJRe/Len2hnAvPYUzi9gww2O4ecbPQBXejxKwAZE+6IhAPorNIXblrp4elQvOYBxt3TyFdFkgbqzlXzvE3Vc0J5OTHS1M2PaDsXvI7syb2fIGp6aJihVJYiJgSQ5mFo9X+J+LYjc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=HKfHHn7u; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=SqE/KFUp; arc=none smtp.client-ip=103.168.172.158
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QRJlTgAt"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45O9x4Ba004693;
-	Mon, 24 Jun 2024 09:59:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:references:mime-version
-	:content-type:in-reply-to; s=pp1; bh=89522qxhsfSinIEqBMQZ7b2jkBe
-	+t6clx6IJSwj6+h4=; b=QRJlTgAtRiPos3TN5EnVoCxWkI4jYwaIqgrz9yllOsZ
-	qeCpIqYqGioQh6tVuRIgRnaDMoyfdE1eZksngm+UlXqPqgOhLqM18yjTPAoFkYHG
-	LyKanib8CWq17uiIZGNTatcspbDrK7J4A6voPl/A6eVcRXCAM2GdXC0WaPE7BWnt
-	S6jGFeTrsnBgdt9XXFjBVRyy7ztVIhR+V3RrHgnrIngkDGsErXtFCoaV003/7d51
-	pggzfKcgu9nCxia8FHbZvSz1MDiX1lbjmv2F+PxxvrkW1nxbAHqMIvZ7gPoJinzW
-	toqHQx/LqG1mGrTqgrVL//8XxdfpeIl65zob64kw6oA==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yy6n4801k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Jun 2024 09:59:51 +0000 (GMT)
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45O9xpoF006863;
-	Mon, 24 Jun 2024 09:59:51 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yy6n4801h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Jun 2024 09:59:51 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45O8dj83019672;
-	Mon, 24 Jun 2024 09:59:50 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yx9xpqrj7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Jun 2024 09:59:50 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45O9xit820775190
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 24 Jun 2024 09:59:46 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8D4AF2004B;
-	Mon, 24 Jun 2024 09:59:44 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 195FE20040;
-	Mon, 24 Jun 2024 09:59:44 +0000 (GMT)
-Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.171.81.125])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 24 Jun 2024 09:59:44 +0000 (GMT)
-Date: Mon, 24 Jun 2024 11:59:42 +0200
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-To: Joe Lawrence <joe.lawrence@redhat.com>
-Cc: linux-s390@vger.kernel.org, hca@linux.ibm.com, jpoimboe@kernel.org,
-        gor@linux.ibm.com, iii@linux.ibm.com, agordeev@linux.ibm.com
-Subject: Re: [PATCH v2 0/4] s390: compile relocatable kernel with/without fPIE
-Message-ID: <ZnlDjmakBRntXQei@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-References: <20240219132734.22881-1-sumanthk@linux.ibm.com>
- <ZnHv/HmiYHoQRkUU@redhat.com>
- <ZnMO4DOBZ2qz4Twg@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
- <4610b08d-46a4-b6fc-2ec5-a88abba7022c@redhat.com>
- <157b32d5-7e68-a77f-6f72-356433e4a942@redhat.com>
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="HKfHHn7u";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="SqE/KFUp"
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+	by mailfhigh.nyi.internal (Postfix) with ESMTP id 07C5B11400E4;
+	Mon, 24 Jun 2024 08:37:08 -0400 (EDT)
+Received: from imap51 ([10.202.2.101])
+  by compute5.internal (MEProxy); Mon, 24 Jun 2024 08:37:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm1; t=1719232628; x=1719319028; bh=lFXvov0ksU
+	8Pc4ucksxO9SvwB7S7ZcSyst60pbeeZH8=; b=HKfHHn7umsdW+0c1ehuSJQ99eI
+	Myjn3JHII41XjBGkBE82U3ZLF1gpqJUHWfu0fD1R2wDTT4O5lDapBn9tPESvQu77
+	8adNnRplVreG2sPNDp0X/rfGleHLut9Gk/BSzkxRKhL04EDXsG1YRKgxv6IL6gBV
+	hiECEd8aKPxpc7cvdwq2YkiIfftlQjXB9+KAYBuvYvOjmxwZ7/F9l3LRlEL5RFo3
+	063MmLg36ab0j12O1asXtLt3D5DVUiK5EvC72HFvCSk3AleE/g7i2STrQpvD5No4
+	i+lJKlbqcQQIUGGQGOvBpwpmcMBptK7y9aRt5R4yzWI1IbKl5+ANpAHr7VSA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm2; t=1719232628; x=1719319028; bh=lFXvov0ksU8Pc4ucksxO9SvwB7S7
+	ZcSyst60pbeeZH8=; b=SqE/KFUphRWeVMJb+kfwzgwN1/Hu23nlRESAJfYgc8ML
+	pUz2mmmI8F5nmEqE+5ox0g/rjJ6d0Zb285uqwFyeJQcQZsscUdL/sXj/UaEluip+
+	Y8hGi2uVUqhxSS2j+Tg9/Mp0Zm2wYNokTin+aYRk4BLKmOWC6+/LDFt4sIkWw2DL
+	h/Je6x5AernFk742JykHMAJAodzv6NFC7WvmD1gw90TOsbHe5Ze1AinDq0CmjjKA
+	Z95MIl9q9aP4NXQ+7dphFhlbY9tl+CfCvo6YBxD12RGqejBt7qQshI8pAPifYgLG
+	pqaC18LuaHL4DH+Btw3GZ5ixeMLofnITMxBNO+thYQ==
+X-ME-Sender: <xms:cWh5ZrLj7Is9v5gIq1mXIwuK3B6Z67FMFXi_sBM56MqeKqAR64n6TQ>
+    <xme:cWh5ZvL6fPST5egK7_VqUyPLzOA0tCn6X6DlKYOektXFx1cgWvkKCjEMrv6PEjXyW
+    4yPi_m7QPeT9rWgx9c>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrfeeguddgheegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
+    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
+    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
+    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
+    hrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:cWh5ZjudJI3oixudlca83stC9GtoJPVF-yfqIooUyooPVxKMkRay5w>
+    <xmx:cWh5ZkZgIV_EAxNKJdd3dn5ts0jsz0iQNgpwAoaYwIkaiwKIL8UoqA>
+    <xmx:cWh5ZiamgC5g2Z463RDvkqIdIU3iA-8c5MxvqJ4odiwM6cjvoG_-fQ>
+    <xmx:cWh5ZoB--wGmM0xyN9laN1DWgxiskyw40gTH9IFx_cFQRyZCDpYBHA>
+    <xmx:c2h5ZhnZnhgadejE1PelPCjBJhfYQ9s6ZgcSotBgFkM80Ux8nV4bq0wf>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+	id 838B9B6008D; Mon, 24 Jun 2024 08:37:05 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.11.0-alpha0-522-ga39cca1d5-fm-20240610.002-ga39cca1d
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <157b32d5-7e68-a77f-6f72-356433e4a942@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: r5bZMKkEDl0xDnnHp2PwNxPHvTPkYsXt
-X-Proofpoint-ORIG-GUID: 0GZ3trceZQYY8JhNwmVT3jXxSnP9hf9S
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-24_09,2024-06-21_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- mlxlogscore=847 malwarescore=0 priorityscore=1501 bulkscore=0
- lowpriorityscore=0 adultscore=0 phishscore=0 clxscore=1015 spamscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2406140001 definitions=main-2406240079
+Message-Id: <eaa0ffaf-e42d-4b86-9eed-534684815cf8@app.fastmail.com>
+In-Reply-To: <20240620162316.3674955-15-arnd@kernel.org>
+References: <20240620162316.3674955-1-arnd@kernel.org>
+ <20240620162316.3674955-15-arnd@kernel.org>
+Date: Mon, 24 Jun 2024 14:36:45 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Arnd Bergmann" <arnd@kernel.org>,
+ Linux-Arch <linux-arch@vger.kernel.org>, linux-kernel@vger.kernel.org
+Cc: "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
+ linux-mips@vger.kernel.org, "Helge Deller" <deller@gmx.de>,
+ linux-parisc@vger.kernel.org, "David S . Miller" <davem@davemloft.net>,
+ "Andreas Larsson" <andreas@gaisler.com>, sparclinux@vger.kernel.org,
+ "Michael Ellerman" <mpe@ellerman.id.au>,
+ "Nicholas Piggin" <npiggin@gmail.com>,
+ "Christophe Leroy" <christophe.leroy@csgroup.eu>,
+ "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+ linuxppc-dev@lists.ozlabs.org, "Brian Cain" <bcain@quicinc.com>,
+ linux-hexagon@vger.kernel.org, guoren <guoren@kernel.org>,
+ "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+ "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
+ "Rich Felker" <dalias@libc.org>,
+ "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
+ linux-sh@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ "Alexander Viro" <viro@zeniv.linux.org.uk>,
+ "Christian Brauner" <brauner@kernel.org>, linux-fsdevel@vger.kernel.org,
+ "Xi Ruoyao" <libc-alpha@sourceware.org>,
+ "musl@lists.openwall.com" <musl@lists.openwall.com>,
+ "LTP List" <ltp@lists.linux.it>, stable@vger.kernel.org
+Subject: Re: [PATCH 14/15] asm-generic: unistd: fix time32 compat syscall handling
+Content-Type: text/plain
 
-On Fri, Jun 21, 2024 at 12:59:21PM -0400, Joe Lawrence wrote:
-> On 6/19/24 14:23, Joe Lawrence wrote:
-> > On 6/19/24 13:01, Sumanth Korikkar wrote:
-> >> Other Note:
-> >> The latest kernel is built with -fPIC and linked with -no-pie (reference
-> >> commit: ca888b17da9b ("s390: Compile kernel with -fPIC and link with
-> >> -no-pie")) which also avoids generation of dynamic symbols and helps
-> >> kpatch usecases (when num of sections >=64k sections).  Also the build
-> >> options would be similar (-fPIC in kernel and -fPIC in kpatch-build)
-> >>
-> >> For latest kernel, there is no need to add explicit -fPIC again
-> >> in kpatch tool.
-> >>
-> >> But for the intermediate commits, yes, makes sense to add
-> >> it in kpatch-build tools and will create one PR.
-> >>
-> > 
-> > Interesting!  With 00cda11d3b2e ("s390: Compile kernel with -fPIC and
-> > link with -no-pie") it sounds like the original vmlinux would be built
-> > with -fPIC as well, so the optimization decisions re: __mmput() would
-> > likely be the same.  I can retry the tests with v6.10-rcX to verify.
-> > 
-> 
-> To follow up, all of the kpatch-build integration tests work with
-> v6.10.0-rc4 :) as the kernel is built with -fPIC and so are the kpatch
-> reference and patched builds.  For pre-v6.10 kernels, I think there may
-> be some instances where a patch author may need to account for slight
-> build differences to appease kpatch-build expectations as I noticed here.
-> 
-> -- 
-> Joe
+On Thu, Jun 20, 2024, at 18:23, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 >
-Hi Joe,
+> arch/riscv/ appears to have accidentally enabled the compat time32
+> syscalls in 64-bit kernels even though the native 32-bit ABI does
+> not expose those.
+>
+> Address this by adding another level of indirection, checking for both
+> the target ABI (32 or 64) and the __ARCH_WANT_TIME32_SYSCALLS macro.
+>
+> The macro arguments are meant to follow the syscall.tbl format, the idea
+> here is that by the end of the series, all other syscalls are changed
+> to the same format to make it possible to move all architectures over
+> to generating the system call table consistently.
+> Only this patch needs to be backported though.
+>
+> Cc: stable@vger.kernel.org # v5.19+
+> Fixes: 7eb6369d7acf ("RISC-V: Add support for rv32 userspace via COMPAT")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-I tried bisecting provided rhel config with defconfig, but didnt
-succeed yet.
+I had pulled this in from my longer series, but as the kernel
+build bot reported, this produced build time regressions, so
+I'll drop it from the v6.10 fixes and will integrated it back
+as part of the cleanup series.
 
-However, I tried using KCFLAGS="-fPIE -mno-pic-data-is-text-relative"
-instead of KCFLAGS="-fPIC -mno-pic-data-is-text-relative" and it
-generated similar output.
-
-* objdump -Dr -j.text --disassemble=mmput kernel/fork.o
-
-Disassembly of section .text:
-
-00000000000011d0 <mmput>:
-    11d0:       c0 04 00 00 00 00       jgnop   11d0 <mmput>
-    11d6:       a7 18 ff ff             lhi     %r1,-1
-    11da:       eb 01 21 3c 00 f8       laa     %r0,%r1,316(%r2)
-    11e0:       07 e0                   bnor    %r0
-    11e2:       ec 08 00 06 01 7e       cije    %r0,1,11ee <mmput+0x1e>
-    11e8:       c0 f4 00 00 00 00       jg      11e8 <mmput+0x18>
-                        11ea: R_390_PC32DBL     __s390_indirect_jump_r14+0x2
-    11ee:       c0 f4 00 00 00 00       jg      11ee <mmput+0x1e>
-                        11f0: R_390_PLT32DBL    __mmput+0x2
-
-* KCFLAGS="-fPIE -mno-pic-data-is-text-relative -fno-section-anchors" \ 
-  make -s -j$(nproc) kernel/fork.o ; 
-  objdump -Dr -j.text --disassemble=mmput kernel/fork.o
-
-kernel/fork.o:     file format elf64-s390
-
-
-Disassembly of section .text:
-
-0000000000001230 <mmput>:
-    1230:       c0 04 00 00 00 00       jgnop   1230 <mmput>
-    1236:       a7 18 ff ff             lhi     %r1,-1
-    123a:       eb 01 21 3c 00 f8       laa     %r0,%r1,316(%r2)
-    1240:       07 e0                   bnor    %r0
-    1242:       ec 08 00 06 01 7e       cije    %r0,1,124e <mmput+0x1e>
-    1248:       c0 f4 00 00 00 00       jg      1248 <mmput+0x18>
-                        124a: R_390_PC32DBL     __s390_indirect_jump_r14+0x2
-    124e:       c0 f4 00 00 00 00       jg      124e <mmput+0x1e>
-                        1250: R_390_PLT32DBL    __mmput+0x2
-
-* For commit 778666df60f0 ("s390: compile relocatable kernel without -fPIE"),
-  "-fPIE -mno-pic-data-is-text-relative" could be used to prevent
-  confusion to the kpatch tool. I will make changes in the kpatch pull request.
-* For latest kernel, both vmlinux and kpatch-build uses -fPIC and
-  hence no changes are necessary in kpatch tool.
-
-Thank you,
-Sumanth
+     Arnd
