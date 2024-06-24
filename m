@@ -1,73 +1,130 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22464179AA;
-	Mon, 24 Jun 2024 17:24:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19831182B2;
+	Mon, 24 Jun 2024 18:00:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719249873; cv=none; b=MonmfCOVaPENEDPYRRpqFcFFc8Q/6f1jOOIgFUHDbJfOTYZ+QWeD8u54EpM/JTqQxw1tX/BEz+4HGdQJKLCZZMEMyeAaldj6JU/VKjrlME1Tl14BvtFzuic64FiKnXUMbK9t+NTFsrgzM8MJQr7/e36ZbNvd/+4QiIjbfQiCuxU=
+	t=1719252054; cv=none; b=di9/Vfpg1YR5XuzA09uXtmDx9xeBD+W17zG59qG6AS8QnqoADhu/CzSU8kFu1n59NneSgY2tBHaTZi1096a2dOukjbwzFtsTazOgcua/WP1rA6Am16+4SSTbq6d/yBFJUx40OM6Qioj8iHYpEd4uPxQQHuZt3zf/2xLHLX7KY+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719249873; c=relaxed/simple;
-	bh=Wvl2MwWd2bNh218wqWUwpSQ56SgdkqJNMfdLUDqfsvw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pk3Dfd44fPeH4d2Oob0dK/g087ZwTfkYqYHbsLSlRy/JuCpqShEJRFQ3fvGkjB7Uy93nzVUPlSixARi7/0WSaZLcTvISs+pW2MOV+X7nvhg9vUe1rybDN7cAo9hiAaRTB+BIPc/WNTXDM0yn23aA/e4GEezhVdf8NPyhjmuG3qk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id C072868CFE; Mon, 24 Jun 2024 19:24:25 +0200 (CEST)
-Date: Mon, 24 Jun 2024 19:24:25 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Keith Busch <kbusch@kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Richard Weinberger <richard@nod.at>,
-	Philipp Reisner <philipp.reisner@linbit.com>,
-	Lars Ellenberg <lars.ellenberg@linbit.com>,
-	Christoph =?iso-8859-1?Q?B=F6hmwalder?= <christoph.boehmwalder@linbit.com>,
-	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Roger Pau =?iso-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>,
-	Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
-	Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
-	Yu Kuai <yukuai3@huawei.com>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
-	drbd-dev@lists.linbit.com, nbd@other.debian.org,
-	linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
-	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
-	linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
-	linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
-	linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
-	linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-block@vger.kernel.org,
-	Damien Le Moal <dlemoal@kernel.org>
-Subject: Re: [PATCH 14/26] block: move the nonrot flag to queue_limits
-Message-ID: <20240624172425.GB22044@lst.de>
-References: <20240617060532.127975-1-hch@lst.de> <20240617060532.127975-15-hch@lst.de> <ZnmoANp0TgpxWuF-@kbusch-mbp.dhcp.thefacebook.com>
+	s=arc-20240116; t=1719252054; c=relaxed/simple;
+	bh=2+rWco3zjx9eoYZtRJyYjuTVifGdlskumaDhQmygHso=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=K28iwvkIUetw0Ddjjh41wEp8KOrV4iCjkX8lF1OCpv9LWZClUDwVB4RXRene2H7RskHX6YSwtRcEjsdohaH5G69lsPkp4DjPdP3aqUEMk9t/2CJb3Mw3bPv+TtAlrRe6c7YCS7S67tSUphYwwDsvI36B+PUTYY/1ly0gkVxymhY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iM8gTWf2; arc=none smtp.client-ip=209.85.210.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iM8gTWf2"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-7066463c841so1625348b3a.1;
+        Mon, 24 Jun 2024 11:00:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1719252052; x=1719856852; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Sya32zh6rlTi+rX0XJSzUKROEQWEvMEkDKstbuTkhuk=;
+        b=iM8gTWf2B6okSNRaLN05K5iMIJujmh++WJfmPfmq4SCUIFx3ET1ICi9TXScm6/tfw9
+         UsLXI+nVmXeF7xGpe/2uBQEirDKkOWjnIIJ6N6yxHMJ39WRVMoYAanUaGmz8JYhA1Que
+         JJlBe9R5aieMQ2U/PuL8sc8fjFv1uT808Tu0rzk3pjja7Eoj2toqZdoJTn7pjQhufAb8
+         9dd/if9WxR7W/nGT1dnKBg8tQ9EB8hU4rvl6U6BSZ3mfR9tEq3GUMEq6z3WXWtf05qCO
+         dHSAwVYUUhJMFjmFSotSYqQBdQXDWv/wFBfEUi/2wsbMUqmCgdf7mAW/qPidGTRgwGHU
+         mJqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1719252052; x=1719856852;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Sya32zh6rlTi+rX0XJSzUKROEQWEvMEkDKstbuTkhuk=;
+        b=ohdQCAUzcfld5OP2oujuSp0K3Zitcisbh7rmxAD+oeFDSTvKz4s/Pl4LwFeG2zJx51
+         G0eiFMKdkNfXqAl22Ao1LbizV15ovfPOxnkVG/FJaxwn7yUonPVzZqNFqQgYeKZSAu6l
+         HN+Gcm7FnYddouNc44kDAGyHp6CXTj8U32vTIwIwfASao5i4kF6xIKidOeYaYGxmgDfW
+         bCRYALGZfa9NXo9JLKjI0a9005ql3ZEa1L/MvAnRZ92CJswTE/zgk2xW06OfmsXc88bq
+         7WvJ1K170AD4Cp29fdDIoo+t7BTki1riaJNVK0Ejk1if2mgR5v+Rncu+XeXOxQJrI74U
+         pPWg==
+X-Forwarded-Encrypted: i=1; AJvYcCVx96Q7IbiEfz+Fa9kTVlE1PVoyZGk5Z1CN1SAxVXL0YeR4nZTs3b3Ib3GGGsllYbQbB7CGdxrfGWn0gQ4r8Fj9ScOAyX0kUE7JU6xl4X6alcxKHojIRKtlUdRj6Wxamy3JBQ==
+X-Gm-Message-State: AOJu0YxTBMBSzqiDf7Hh1rmmXq7DUveFbvhu6w6aVAap7HL5TXnTOic+
+	SRu2SUYkvE4bVOHCqrio+jjlJklH3WrJV7U17rK8T82H69VulOOq
+X-Google-Smtp-Source: AGHT+IE+K1phdY5GT30UHXgU3WZqrmc5gCxbnU2koonmdTNPFJlh5LHz8q1SXDPLzxEatxjM4VVX2g==
+X-Received: by 2002:aa7:908f:0:b0:705:bc32:5357 with SMTP id d2e1a72fcca58-7067459c765mr5040693b3a.1.1719252052132;
+        Mon, 24 Jun 2024 11:00:52 -0700 (PDT)
+Received: from [192.168.50.95] ([118.32.98.101])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-717e1cdf921sm5241071a12.43.2024.06.24.11.00.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 24 Jun 2024 11:00:51 -0700 (PDT)
+Message-ID: <880a70f0-89d6-4094-8a71-a9c331bab1ee@gmail.com>
+Date: Tue, 25 Jun 2024 03:00:47 +0900
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZnmoANp0TgpxWuF-@kbusch-mbp.dhcp.thefacebook.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] s390/netiucv: handle memory allocation failure in
+ conn_action_start()
+To: Markus Elfring <Markus.Elfring@web.de>, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Alexandra Winter <wintera@linux.ibm.com>,
+ =?UTF-8?Q?Christian_Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+ Thorsten Winkler <twinkler@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, MichelleJin <shjy180909@gmail.com>
+References: <20240623131154.36458-2-yskelg@gmail.com>
+ <bb03a384-b2c4-438f-b36b-a4af33a95b60@web.de>
+Content-Language: en-US
+From: Yunseong Kim <yskelg@gmail.com>
+In-Reply-To: <bb03a384-b2c4-438f-b36b-a4af33a95b60@web.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jun 24, 2024 at 11:08:16AM -0600, Keith Busch wrote:
-> On Mon, Jun 17, 2024 at 08:04:41AM +0200, Christoph Hellwig wrote:
-> > -#define blk_queue_nonrot(q)	test_bit(QUEUE_FLAG_NONROT, &(q)->queue_flags)
-> > +#define blk_queue_nonrot(q)	((q)->limits.features & BLK_FEAT_ROTATIONAL)
+Hi Markus,
+
+On 6/23/24 11:27 오후, Markus Elfring wrote:
+>> This patch handle potential null pointer dereference in
+>> iucv_path_connect(), When iucv_path_alloc() fails to allocate memory
+>> for 'rc'.
 > 
-> This is inverted. Should be:
+> 1. Can a wording approach (like the following) be a better change description?
 > 
->  #define blk_queue_nonrot(q)	(!((q)->limits.features & BLK_FEAT_ROTATIONAL))
+>    A null pointer is stored in the data structure member “path” after a call
+>    of the function “iucv_path_alloc” failed. This pointer was passed to
+>    a subsequent call of the function “iucv_path_connect” where an undesirable
+>    dereference will be performed then.
+>    Thus add a corresponding return value check.
 
-Ah yes.  And the sysfs attribute doesn't go through the macro and
-won't show the effect.  I'll send a fixup.
+Thank you very much for your detailed code review. I will thoughtfully
+incorporate your advices into the next patch.
+
+> 2. May the proposed error message be omitted
+>    (because a memory allocation failure might have been reported
+>    by an other function call already)?
+
+I agree.
+
+> 3. Is there a need to adjust the return type of the function “conn_action_start”?
+
+I had the same thoughts while writing the code. Thank you!
+
+> 4. Would you like to add any tags (like “Fixes”) accordingly?
+
+Yes, I will refer to the mailing list and include the fix tag.
+
+> 5. Under which circumstances will development interests grow for increasing
+>    the application of scope-based resource management?
+>    https://elixir.bootlin.com/linux/v6.10-rc4/source/include/linux/cleanup.h#L8
+
+I am considering the environment in which the micro Virtual Machine
+operates and testing the s390 architecture with QEMU on my Mac M2 PC.
+I have been reviewing the code under the assumption of using a lot of
+memory and having many micro Virtual Machines loaded simultaneously.
+
+> Regards,
+> Markus
+
+I really appreciate code review Markus!
 
 
+Best regards,
+
+Yunseong Kim
