@@ -1,253 +1,244 @@
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1164225D9;
-	Mon, 24 Jun 2024 06:14:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.133.4.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 016C8FBEF;
+	Mon, 24 Jun 2024 07:34:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719209688; cv=none; b=BCDSkad1t9VpPpO8fEHnAEQfZj6jru9UokItF4ZPJxVyxMV/d6N6IDAVXlKlPj1GQdpAcGQfnbl3u3TqB77A2/NnV8Igf+SUjeikV10oEy4i6CLyANce57Ok0YwQu6g+T6v3p5r5Or4pt/yOjkoAik3PPAMlfcYZcK6gmCFCfI8=
+	t=1719214482; cv=none; b=sRIhpHJbn59LTcrX2R/HBrY/QKiyINE6z9qIKGNNaotDh/NLo3o3RFDtz9mXAEg5MgjISDX4EzY2AInnXIrIG6ydT0A22qLCXxj3ghTtS9AF7kGWJ+0jEXeEXn3E0WF2iuU65FurQlheYXcR55rThMn+hz/Cp/J8jSavQXDp594=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719209688; c=relaxed/simple;
-	bh=pRGt+YpMPsKjwZfW86V837WN4JGPkKGnorvBXTL/O2g=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=TJsUk8aKDtPzhpBKSkCP/knB9+oPmUw0UxXznm8RQjDRHObd+n9AwdJTEAIA3DEfE2GdBMcAextzEVpMKL2aRAk7eDd7tNxo4B0GAkS3VtnH4HVRh0DBV1zDpPZbrBV/gNlher+gpFdt21luf3gVKT8hgGH/SrSsMc04eArXobA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de; spf=pass smtp.mailfrom=zedat.fu-berlin.de; dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b=dQ9BR6as; arc=none smtp.client-ip=130.133.4.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zedat.fu-berlin.de
+	s=arc-20240116; t=1719214482; c=relaxed/simple;
+	bh=IR9H7UT1JweXlJUcolJZltrVBI2Q1eMGx3A3+6e6XGI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Rj3tmKql1QrpncV1mLmA9hY7f+g873iqX3yx6WWnnGybdDdAB11jM/d0+BmGzWjmX690ft3+KkTn55AuhTgooUawGDQ+kqM3A53s66tpSmHpSiX8Zv93hyyEL6TXgtaSdPutMj+M8WNUE+RtyN1AFvdOg4G9o9V6QonvaoEiAck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=XVaHNUHq; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=Qd2K4LAK; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=DKSLEMpj; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=JlzHUa78; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b="dQ9BR6as"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=fu-berlin.de; s=fub01; h=MIME-Version:Content-Transfer-Encoding:
-	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=ew1xoLiUEpaRO/Rd2+BU3bX5mn9fF1xUB9iaO1b3Vho=; t=1719209684; x=1719814484; 
-	b=dQ9BR6asAKMN2pqrPhzQT4pEo2OWxYr6vtX66xZ8kyycsc/u1IVh2RwUhv6K9mQu2KybYllWwPR
-	PCpBe6uSEwnvDJqPCmaOBYlF/Ztg+NcI09GK2cXDHqG8CNAwK5I67wKXaXP/TrUEg5/LUkGitqz4M
-	FjueDU0/MeYJV45J1ji5bCX8MAinSm/9TYjOFQ0PBLiQkOh+PDyJ8bs5CQNTG5C4I4J6TSLweF2Hg
-	BpfnO/2K3VGc0NJHulI0qn5eGL55Com37tDttEiS+kaSFzLhuxmSkwwwlGJ5WZqthjQbNzk82CNhY
-	nmUkL9vGte34g0uS6eVfqRFHRk58pTg/tcDA==;
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.97)
-          with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1sLcyL-00000003SnY-21KD; Mon, 24 Jun 2024 08:14:37 +0200
-Received: from dynamic-077-191-015-086.77.191.pool.telefonica.de ([77.191.15.86] helo=[192.168.178.20])
-          by inpost2.zedat.fu-berlin.de (Exim 4.97)
-          with esmtpsa (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1sLcyL-00000002KF0-2nE0; Mon, 24 Jun 2024 08:14:37 +0200
-Message-ID: <e0e373fa13636a403322fd0ba96915fd25dbbefa.camel@physik.fu-berlin.de>
-Subject: Re: [PATCH 09/15] sh: rework sync_file_range ABI
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To: Arnd Bergmann <arnd@arndb.de>, Arnd Bergmann <arnd@kernel.org>,
- Linux-Arch <linux-arch@vger.kernel.org>, linux-kernel@vger.kernel.org
-Cc: Rich Felker <dalias@libc.org>, Andreas Larsson <andreas@gaisler.com>, 
- guoren <guoren@kernel.org>, Christophe Leroy <christophe.leroy@csgroup.eu>,
- "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
- linux-s390@vger.kernel.org, Helge Deller <deller@gmx.de>,
- linux-sh@vger.kernel.org, "linux-csky@vger.kernel.org"
- <linux-csky@vger.kernel.org>, "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-  Heiko Carstens <hca@linux.ibm.com>, "musl@lists.openwall.com"
- <musl@lists.openwall.com>, Nicholas Piggin <npiggin@gmail.com>, Alexander
- Viro <viro@zeniv.linux.org.uk>, LTP List <ltp@lists.linux.it>, Brian Cain
- <bcain@quicinc.com>, Christian Brauner <brauner@kernel.org>, Thomas
- Bogendoerfer <tsbogend@alpha.franken.de>, Xi Ruoyao
- <libc-alpha@sourceware.org>, linux-parisc@vger.kernel.org,
- linux-mips@vger.kernel.org,  stable@vger.kernel.org,
- linux-hexagon@vger.kernel.org,  linux-fsdevel@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, "David S . Miller" <davem@davemloft.net>
-Date: Mon, 24 Jun 2024 08:14:36 +0200
-In-Reply-To: <9d4ba5e5-bb7f-432e-9354-47cc84eaa9e1@app.fastmail.com>
-References: <20240620162316.3674955-1-arnd@kernel.org>
-	 <20240620162316.3674955-10-arnd@kernel.org>
-	 <366548c1a0d9749e42c0d0c993414a353c9b0b02.camel@physik.fu-berlin.de>
-	 <9d4ba5e5-bb7f-432e-9354-47cc84eaa9e1@app.fastmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.2 
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="XVaHNUHq";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="Qd2K4LAK";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="DKSLEMpj";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="JlzHUa78"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id E640F1F7C0;
+	Mon, 24 Jun 2024 07:34:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1719214479; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=n9uIGGVbJ8r8fxtPRtb3rTWtvj0CS+kX8qbLDmwrsbk=;
+	b=XVaHNUHq8Q2UDyjmR1Uc8c+pnb+1HlnOHUGI8PNeNyGJFxKSYtHiyRIzW91G5ViJJ/PVrY
+	Nsd8ZCzYSR/iZ1/BtTrXdiHblE37noVzbN1Tby/+PlVw7fOqU6fIKpaeLj1Q7jV/pBp4N6
+	bo6RtIdW41wxUtdIY1LuGZ/73sA+DXQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1719214479;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=n9uIGGVbJ8r8fxtPRtb3rTWtvj0CS+kX8qbLDmwrsbk=;
+	b=Qd2K4LAKLMK1Zg3tpCpF6loLPWVw2azJjp5tZm+NhagFm22xzd8MNaDsMH7p9uuGmGk8Fk
+	ADsxWdZgDjDzxfAQ==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=DKSLEMpj;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=JlzHUa78
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1719214478; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=n9uIGGVbJ8r8fxtPRtb3rTWtvj0CS+kX8qbLDmwrsbk=;
+	b=DKSLEMpjLtGSecYXX2VzYOP616fe91mMVkEWpuR7I86wyHAisOc1EbgJSYmMU02+TT6bl5
+	ynM6/TkjNnCowa7HxOAkxsWT6KRFzhABddxBXHnRwZKkCmomXEtc/X+6LRoPUDjOzEFR3b
+	Imgon5ufBfn74aU59k5LNWhzqoC+O7U=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1719214478;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=n9uIGGVbJ8r8fxtPRtb3rTWtvj0CS+kX8qbLDmwrsbk=;
+	b=JlzHUa78dHwS2tZCLD7XdUV7IlNQ1ON0WFTZUZwngjZ0XZhSDFg2EdDUzvSP6R9JxCnlE8
+	5PhprITz11gEutBg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B26D813ACD;
+	Mon, 24 Jun 2024 07:34:38 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id qB+lKo4heWb8fgAAD6G6ig
+	(envelope-from <vbabka@suse.cz>); Mon, 24 Jun 2024 07:34:38 +0000
+Message-ID: <56e9564d-0b01-484c-a491-acd6d15e0b26@suse.cz>
+Date: Mon, 24 Jun 2024 09:34:38 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-ZEDAT-Hint: PO
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 18/38] mm: slub: Disable KMSAN when checking the
+ padding bytes
+Content-Language: en-US
+To: Ilya Leoshkevich <iii@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Alexander Potapenko <glider@google.com>,
+ Andrew Morton <akpm@linux-foundation.org>, Christoph Lameter <cl@linux.com>,
+ David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>,
+ Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>,
+ Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+ kasan-dev@googlegroups.com, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, linux-s390@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+ Roman Gushchin <roman.gushchin@linux.dev>,
+ Sven Schnelle <svens@linux.ibm.com>
+References: <20240621113706.315500-1-iii@linux.ibm.com>
+ <20240621113706.315500-19-iii@linux.ibm.com>
+From: Vlastimil Babka <vbabka@suse.cz>
+Autocrypt: addr=vbabka@suse.cz; keydata=
+ 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
+ EP+ylKVEKb0Q2A==
+In-Reply-To: <20240621113706.315500-19-iii@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spamd-Result: default: False [-3.00 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	MIME_GOOD(-0.10)[text/plain];
+	XM_UA_NO_VERSION(0.01)[];
+	MX_GOOD(-0.01)[];
+	RCPT_COUNT_TWELVE(0.00)[24];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	FREEMAIL_CC(0.00)[linux.ibm.com,google.com,gmail.com,googlegroups.com,vger.kernel.org,kvack.org,arm.com,linux.dev];
+	RCVD_TLS_ALL(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received,2a07:de40:b281:104:10:150:64:97:from];
+	TAGGED_RCPT(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DKIM_TRACE(0.00)[suse.cz:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.cz:email,suse.cz:dkim]
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: E640F1F7C0
+X-Spam-Flag: NO
+X-Spam-Score: -3.00
+X-Spam-Level: 
 
-Hi Arnd,
+On 6/21/24 1:35 PM, Ilya Leoshkevich wrote:
+> Even though the KMSAN warnings generated by memchr_inv() are suppressed
+> by metadata_access_enable(), its return value may still be poisoned.
+> 
+> The reason is that the last iteration of memchr_inv() returns
+> `*start != value ? start : NULL`, where *start is poisoned. Because of
+> this, somewhat counterintuitively, the shadow value computed by
+> visitSelectInst() is equal to `(uintptr_t)start`.
+> 
+> One possibility to fix this, since the intention behind guarding
+> memchr_inv() behind metadata_access_enable() is to touch poisoned
+> metadata without triggering KMSAN, is to unpoison its return value.
+> However, this approach is too fragile. So simply disable the KMSAN
+> checks in the respective functions.
+> 
+> Reviewed-by: Alexander Potapenko <glider@google.com>
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 
-On Fri, 2024-06-21 at 11:41 +0200, Arnd Bergmann wrote:
-> On Fri, Jun 21, 2024, at 10:44, John Paul Adrian Glaubitz wrote:
-> > On Thu, 2024-06-20 at 18:23 +0200, Arnd Bergmann wrote:
-> > > From: Arnd Bergmann <arnd@arndb.de>
-> > >=20
-> > > The unusual function calling conventions on superh ended up causing
-> >                                               ^^^^^^
-> >                                        It's spelled SuperH
->=20
-> Fixed now.
->=20
-> > > diff --git a/arch/sh/kernel/sys_sh32.c b/arch/sh/kernel/sys_sh32.c
-> > > index 9dca568509a5..d5a4f7c697d8 100644
-> > > --- a/arch/sh/kernel/sys_sh32.c
-> > > +++ b/arch/sh/kernel/sys_sh32.c
-> > > @@ -59,3 +59,14 @@ asmlinkage int sys_fadvise64_64_wrapper(int fd, u3=
-2 offset0, u32 offset1,
-> > >  				 (u64)len0 << 32 | len1, advice);
-> > >  #endif
-> > >  }
-> > > +
-> > > +/*
-> > > + * swap the arguments the way that libc wants it instead of
-> >=20
-> > I think "swap the arguments to the order that libc wants them" would
-> > be easier to understand here.
->=20
-> Done
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
 
-Thanks for the two improvements!
+> ---
+>  mm/slub.c | 16 ++++++++++++----
+>  1 file changed, 12 insertions(+), 4 deletions(-)
+> 
+> diff --git a/mm/slub.c b/mm/slub.c
+> index b050e528112c..fcd68fcea4ab 100644
+> --- a/mm/slub.c
+> +++ b/mm/slub.c
+> @@ -1176,9 +1176,16 @@ static void restore_bytes(struct kmem_cache *s, char *message, u8 data,
+>  	memset(from, data, to - from);
+>  }
+>  
+> -static int check_bytes_and_report(struct kmem_cache *s, struct slab *slab,
+> -			u8 *object, char *what,
+> -			u8 *start, unsigned int value, unsigned int bytes)
+> +#ifdef CONFIG_KMSAN
+> +#define pad_check_attributes noinline __no_kmsan_checks
+> +#else
+> +#define pad_check_attributes
+> +#endif
+> +
+> +static pad_check_attributes int
+> +check_bytes_and_report(struct kmem_cache *s, struct slab *slab,
+> +		       u8 *object, char *what,
+> +		       u8 *start, unsigned int value, unsigned int bytes)
+>  {
+>  	u8 *fault;
+>  	u8 *end;
+> @@ -1270,7 +1277,8 @@ static int check_pad_bytes(struct kmem_cache *s, struct slab *slab, u8 *p)
+>  }
+>  
+>  /* Check the pad bytes at the end of a slab page */
+> -static void slab_pad_check(struct kmem_cache *s, struct slab *slab)
+> +static pad_check_attributes void
+> +slab_pad_check(struct kmem_cache *s, struct slab *slab)
+>  {
+>  	u8 *start;
+>  	u8 *fault;
 
-> > > diff --git a/arch/sh/kernel/syscalls/syscall.tbl b/arch/sh/kernel/sys=
-calls/syscall.tbl
-> > > index bbf83a2db986..c55fd7696d40 100644
-> > > --- a/arch/sh/kernel/syscalls/syscall.tbl
-> > > +++ b/arch/sh/kernel/syscalls/syscall.tbl
-> > > @@ -321,7 +321,7 @@
-> > >  311	common	set_robust_list			sys_set_robust_list
-> > >  312	common	get_robust_list			sys_get_robust_list
-> > >  313	common	splice				sys_splice
-> > > -314	common	sync_file_range			sys_sync_file_range
-> > > +314	common	sync_file_range			sys_sh_sync_file_range6
-> >                                                                  ^^^^^^=
-=20
-> > Why the suffix 6 here?
->=20
-> In a later part of my cleanup, I'm consolidating all the
-> copies of this function (arm64, mips, parisc, powerpc,
-> s390, sh, sparc, x86) and picked the name
-> sys_sync_file_range6() for common implementation.
->=20
-> I end up with four entry points here, so the naming is a bit
-> confusing:
->=20
-> - sys_sync_file_range() is only used on 64-bit architectures,
->   on x32 and on mips-n32. This uses four arguments, including
->   two 64-bit wide ones.
->=20
-> - sys_sync_file_range2() continues to be used on arm, powerpc,
->   xtensa and now on sh, hexagon and csky. I change the
->   implementation to take six 32-bit arguments, but the ABI
->   remains the same as before, with the flags before offset.
->=20
-> - sys_sync_file_range6() is used for most other 32-bit ABIs:
->   arc, m68k, microblaze, nios2, openrisc, parisc, s390, sh, sparc
->   and x86. This also has six 32-bit arguments but in the
->   default order (fd, offset, nbytes, flags).
->=20
-> - sys_sync_file_range7() is exclusive to mips-o32, this one
->   has an unused argument and is otherwise the same as
->   sys_sync_file_range6().
->=20
-> My plan is to then have some infrastructure to ensure
-> userspace tools (libc, strace, qemu, rust, ...) use the
-> same calling conventions as the kernel. I'm doing the
-> same thing for all other syscalls that have architecture
-> specific calling conventions, so far I'm using
->=20
-> fadvise64_64_7
-> fanotify_mark6
-> truncate3
-> truncate4
-> ftruncate3
-> ftruncate4
-> fallocate6
-> pread5
-> pread6
-> pwrite5
-> pwrite6
-> preadv5
-> preadv6
-> pwritev5
-> pwritev6
-> sync_file_range6
-> fadvise64_64_2
-> fadvise64_64_6
-> fadvise64_5
-> fadvise64_6
-> readahead4
-> readahead5
->=20
-> The last number here is usually the number of 32-bit
-> arguments, except for fadvise64_64_2 that uses the
-> same argument reordering trick as sync_file_range2.
->=20
-> I'm not too happy with the naming but couldn't come up with
-> anything clearer either, so let me know if you have any
-> ideas there.
-
-OK, gotcha. I thought the 6 suffix was for SH only. I'm fine
-with the naming scheme.
-
-> > >  315	common	tee				sys_tee
-> > >  316	common	vmsplice			sys_vmsplice
-> > >  317	common	move_pages			sys_move_pages
-> > > @@ -395,6 +395,7 @@
-> > >  385	common	pkey_alloc			sys_pkey_alloc
-> > >  386	common	pkey_free			sys_pkey_free
-> > >  387	common	rseq				sys_rseq
-> > > +388	common	sync_file_range2		sys_sync_file_range2
-> > >  # room for arch specific syscalls
-> > >  393	common	semget				sys_semget
-> > >  394	common	semctl				sys_semctl
-> >=20
-> > I wonder how you discovered this bug. Did you look up the calling=20
-> > convention on SuperH
-> > and compare the argument order for the sys_sync_file_range system call=
-=20
-> > documented there
-> > with the order in the kernel?
->=20
-> I had to categorize all architectures based on their calling
-> conventions to see if 64-bit arguments need aligned pairs or
-> not, so I wrote a set of simple C files that I compiled for
-> all architectures to see in which cases they insert unused
-> arguments or swap the order of the upper and lower halves.
->=20
-> SuperH, parisc and s390 are each slightly different from all the
-> others here, so I ended up reading the ELF psABI docs and/or
-> the compiler sources to be sure.
-> I also a lot of git history.
-
-Great job, thanks for doing the extra work to verify the ABI.
-
-> > Did you also check what order libc uses? I would expect libc on SuperH=
-=20
-> > misordering the
-> > arguments as well unless I am missing something. Or do we know that the=
-=20
-> > code is actually
-> > currently broken?
->=20
-> Yes, I checked glibc, musl and uclibc-ng for all the cases in
-> which the ABI made no sense, as well as to check that my analysis
-> of the kernel sources matches the expectations of the libc.
-
-OK, awesome.
-
-Will you send a v2 so I can ack the updated version of the patch?
-
-I'm also fine with the patch going through your tree, as I would
-like to start with the changes for v6.11 this week.
-
-Thanks,
-Adrian
-
---=20
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
