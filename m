@@ -1,122 +1,76 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55D4D19DF89;
-	Mon, 24 Jun 2024 16:38:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BC301EA87;
+	Mon, 24 Jun 2024 17:08:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719247099; cv=none; b=p8qTO3AHq5nkuyQJn7sr9bGEFSe4mGuYNEmOx5Gpc8ElnyUaEweftzO2dFCJ+1KXDjS/TOYXwOhPOUcCKcDxLhc79E3GGdKBflFcZQ8eOch8DfmRlgXYNUVijvy8RKM9ZsejB+MC9DxRHjJQqtz0SgLnWOCUKz3KA9CyIk1XGaY=
+	t=1719248903; cv=none; b=Ak3u/B+r6+h3FmaclxeeDgT0Prv8sodSjcnPYVj9RxtAkpgHrU5J/SlQqORE8vbwZidDO1L0VGFhvqV4yadQhSpSOt9BnUp+KMNh+3tInSB45ELPupdIhhgzAc1DefO3hipvX/cGJlDDTURyvR9kVaTQRvfbvg2/dH4GjZPImUU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719247099; c=relaxed/simple;
-	bh=YaBYUnqmG+n4LXnma2Z355DDZuqflriGSA+my20kuNc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=NbkwEPAyIP12Dc0iWy6tEfhT+UFm/axKeew/etLlb+MaPo1rqNns8nXvHMK8q2yaKap4Mieta9bOX/sR2LpWSPyYCfOrfTS4bPi4tvXg7NuFpBYhX/VXno5wKIWSe+RZ7zkxQNhIhRqKFr8dK05w5qUUqSR3tUyOhuWUWXfHJls=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hR9kAiRb; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1719248903; c=relaxed/simple;
+	bh=c5IMwi2AkSm61J7nCdd2EBXV6o3vo+7AANeGa2JN45A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=aBJ8TZyaH8WIj2Ts6Q4p6lV2Ty+f6miWRlG1702oDfCCd8MuzgjAxCrcD9E/BqqIYkgMTUjwrncYv+xjFEFBJL/4Q13pgvZRQ3FgyGsc/2HrdI81eMRNZuHojM/0NHXCmYLqGuZq7DE0D7kPuMlWWFTG6l3N7g2zwrg8gEasji0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d8C/s3Ng; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hR9kAiRb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C59C8C32782;
-	Mon, 24 Jun 2024 16:38:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d8C/s3Ng"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 682D2C2BBFC;
+	Mon, 24 Jun 2024 17:08:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1719247099;
-	bh=YaBYUnqmG+n4LXnma2Z355DDZuqflriGSA+my20kuNc=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=hR9kAiRbkPdSRmhr6Eizj3di1WfTP49V/w1YOyPaZim5rmw36OARQQmRPJoJIgcc+
-	 S4v6weKyemGxTeHfB6coHy40+7J8WwAqDr2nZbjBKjkhR9pEXksYh4lK6/uVwva9ag
-	 DxvpQk7ryDzKF8/l6QScCn61hEnSrMxLQrk7/f3P77LzhPLcr9Y0MRsnu/mYbLIeMl
-	 wEA4icKt3bELxbwttXXVIjoQjV4+pH+CiRResb8t2jJV/+LRGOsJqZQCouZxyctCWJ
-	 M/pWQWarPBHgrmvXXw9jiSVKx7MmK8dQ9v5SoJljL0czI9ePB0E2yF+juRGV4cW/Wr
-	 G9znttjNqjk7A==
-From: Arnd Bergmann <arnd@kernel.org>
-To: linux-arch@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	linux-mips@vger.kernel.org,
-	Helge Deller <deller@gmx.de>,
-	linux-parisc@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	sparclinux@vger.kernel.org,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-	linuxppc-dev@lists.ozlabs.org,
-	Brian Cain <bcain@quicinc.com>,
-	linux-hexagon@vger.kernel.org,
-	Guo Ren <guoren@kernel.org>,
-	linux-csky@vger.kernel.org,
-	Heiko Carstens <hca@linux.ibm.com>,
-	linux-s390@vger.kernel.org,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	linux-sh@vger.kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>,
-	linux-fsdevel@vger.kernel.org,
-	libc-alpha@sourceware.org,
-	musl@lists.openwall.com,
-	stable@vger.kernel.org
-Subject: [PATCH v2 09/13] csky, hexagon: fix broken sys_sync_file_range
-Date: Mon, 24 Jun 2024 18:37:07 +0200
-Message-Id: <20240624163707.299494-10-arnd@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240624163707.299494-1-arnd@kernel.org>
-References: <20240624163707.299494-1-arnd@kernel.org>
+	s=k20201202; t=1719248903;
+	bh=c5IMwi2AkSm61J7nCdd2EBXV6o3vo+7AANeGa2JN45A=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=d8C/s3NgDhBmDzX7X6Z3a8NgLG1XRNWm3AVon41eJewAqY4XNmD50+AdQpjukysaA
+	 0+c9peZEcs8AURzleAxgVmV3zaxrAP0+WMQxnkR3oNoVdRegLrw7QTozLmVentUZPE
+	 P0BMSL1dkoExQoFoaBFFudfcpEmdYCHeKJ0irUoLxUFwgxCKTvfHLKHNHL2RN4iLoh
+	 ki4NFa+liGK52kKToNiMhO53pIJVSGFwHndW7Uw+1UTH4eb3kjlEU/UFxvZz4PM4y3
+	 BbdO/dVn76ts+09ZmrGp9NorxeNYJ2cNYzLcTNejNMPSMmam7/bl5ZZAKhBMTTCFIl
+	 W6hH1Idyq3vZQ==
+Date: Mon, 24 Jun 2024 11:08:16 -0600
+From: Keith Busch <kbusch@kernel.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Geert Uytterhoeven <geert@linux-m68k.org>,
+	Richard Weinberger <richard@nod.at>,
+	Philipp Reisner <philipp.reisner@linbit.com>,
+	Lars Ellenberg <lars.ellenberg@linbit.com>,
+	Christoph =?iso-8859-1?Q?B=F6hmwalder?= <christoph.boehmwalder@linbit.com>,
+	Josef Bacik <josef@toxicpanda.com>, Ming Lei <ming.lei@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Roger Pau =?iso-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>,
+	Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
+	Mikulas Patocka <mpatocka@redhat.com>, Song Liu <song@kernel.org>,
+	Yu Kuai <yukuai3@huawei.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	linux-m68k@lists.linux-m68k.org, linux-um@lists.infradead.org,
+	drbd-dev@lists.linbit.com, nbd@other.debian.org,
+	linuxppc-dev@lists.ozlabs.org, ceph-devel@vger.kernel.org,
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+	linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
+	linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
+	linux-mtd@lists.infradead.org, nvdimm@lists.linux.dev,
+	linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-block@vger.kernel.org,
+	Damien Le Moal <dlemoal@kernel.org>
+Subject: Re: [PATCH 14/26] block: move the nonrot flag to queue_limits
+Message-ID: <ZnmoANp0TgpxWuF-@kbusch-mbp.dhcp.thefacebook.com>
+References: <20240617060532.127975-1-hch@lst.de>
+ <20240617060532.127975-15-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240617060532.127975-15-hch@lst.de>
 
-From: Arnd Bergmann <arnd@arndb.de>
+On Mon, Jun 17, 2024 at 08:04:41AM +0200, Christoph Hellwig wrote:
+> -#define blk_queue_nonrot(q)	test_bit(QUEUE_FLAG_NONROT, &(q)->queue_flags)
+> +#define blk_queue_nonrot(q)	((q)->limits.features & BLK_FEAT_ROTATIONAL)
 
-Both of these architectures require u64 function arguments to be
-passed in even/odd pairs of registers or stack slots, which in case of
-sync_file_range would result in a seven-argument system call that is
-not currently possible. The system call is therefore incompatible with
-all existing binaries.
+This is inverted. Should be:
 
-While it would be possible to implement support for seven arguments
-like on mips, it seems better to use a six-argument version, either
-with the normal argument order but misaligned as on most architectures
-or with the reordered sync_file_range2() calling conventions as on
-arm and powerpc.
-
-Cc: stable@vger.kernel.org
-Acked-by: Guo Ren <guoren@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/csky/include/uapi/asm/unistd.h    | 1 +
- arch/hexagon/include/uapi/asm/unistd.h | 1 +
- 2 files changed, 2 insertions(+)
-
-diff --git a/arch/csky/include/uapi/asm/unistd.h b/arch/csky/include/uapi/asm/unistd.h
-index 7ff6a2466af1..e0594b6370a6 100644
---- a/arch/csky/include/uapi/asm/unistd.h
-+++ b/arch/csky/include/uapi/asm/unistd.h
-@@ -6,6 +6,7 @@
- #define __ARCH_WANT_SYS_CLONE3
- #define __ARCH_WANT_SET_GET_RLIMIT
- #define __ARCH_WANT_TIME32_SYSCALLS
-+#define __ARCH_WANT_SYNC_FILE_RANGE2
- #include <asm-generic/unistd.h>
- 
- #define __NR_set_thread_area	(__NR_arch_specific_syscall + 0)
-diff --git a/arch/hexagon/include/uapi/asm/unistd.h b/arch/hexagon/include/uapi/asm/unistd.h
-index 432c4db1b623..21ae22306b5d 100644
---- a/arch/hexagon/include/uapi/asm/unistd.h
-+++ b/arch/hexagon/include/uapi/asm/unistd.h
-@@ -36,5 +36,6 @@
- #define __ARCH_WANT_SYS_VFORK
- #define __ARCH_WANT_SYS_FORK
- #define __ARCH_WANT_TIME32_SYSCALLS
-+#define __ARCH_WANT_SYNC_FILE_RANGE2
- 
- #include <asm-generic/unistd.h>
--- 
-2.39.2
-
+ #define blk_queue_nonrot(q)	(!((q)->limits.features & BLK_FEAT_ROTATIONAL))
