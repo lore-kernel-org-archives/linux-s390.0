@@ -1,135 +1,130 @@
-Received: from mail-oo1-f43.google.com (mail-oo1-f43.google.com [209.85.161.43])
+Received: from mail-oi1-f171.google.com (mail-oi1-f171.google.com [209.85.167.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCDF717727;
-	Tue, 25 Jun 2024 01:34:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34E32210EE;
+	Tue, 25 Jun 2024 01:58:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719279287; cv=none; b=FrickQ+fMpAQ7E4BRLETv1HqkUcuiBm19upwITl8kj8J85/ExcXulK2Q4xQih+zGvLItQ/x/b5uqwZMRJT/ZOMLIgEkH4GfDndhnhMuOZvUIicMospoXSRqE55BrRd4QLLPVAsGJFU7ihUcA0keJgwOZFuuq7fLoxdryT4mNMNA=
+	t=1719280703; cv=none; b=CQWwp8fUaZc6jEYb0PxfY433Fi64RfGRgTluj91Ds0YODEu+M7lfSxv/wS7g7l00U+idPZScl/5SWWqz0AekLx81DI1g44IjzqDcJyA628yIJTD7Pmo5UHnr7eumvORxAlZqd2aMPu50Cb3MQFBm+43phXLZJuijDa2QCSHhnDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719279287; c=relaxed/simple;
-	bh=yYo8k4kUrpGzhRjzls2WGueKu0PGvyYBs46uyLt6T4M=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=In1ZpzjisNdajANvoJG4wk5IEV1J/MRQszzFtcmbrLUh3zA0MxbfXgICtdfywXuqNPbgDGa20ytKDXRkQ/wdbWrrKByjzJj4uH1+qDzbPcV5R7QtjK8gL4ykan9fOXRpc3MjX29RD4vmX/cdeY4M6+CEYzZi8zQPnwFxlNZC7Ag=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RDScxk4y; arc=none smtp.client-ip=209.85.161.43
+	s=arc-20240116; t=1719280703; c=relaxed/simple;
+	bh=KpwFigx0oOWXjMOYZz58HXc0+E7kwucLq2c7X9GenNQ=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=s/Lv3Ll8F2BiI5qsJctryNdCQ3kM12YQwOpvJsfM705foXNXHP0pGKHrJBUXJTv+wen+8PVJgjXcRcdMWVqInP2NPjpXe+jftBTUQLaHqdbyCg+EkDNA6iY+mKDR+bh3gMnlDLoDadj0VdyedSbAtQx+Sup0aeDVFHGvKiuebzM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Gdd0kIx5; arc=none smtp.client-ip=209.85.167.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RDScxk4y"
-Received: by mail-oo1-f43.google.com with SMTP id 006d021491bc7-5c1ef5ac47eso1012730eaf.2;
-        Mon, 24 Jun 2024 18:34:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gdd0kIx5"
+Received: by mail-oi1-f171.google.com with SMTP id 5614622812f47-3d361cf5755so2916914b6e.2;
+        Mon, 24 Jun 2024 18:58:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1719279285; x=1719884085; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=2O2TW7XbF5ae+IR/yu9jsK1asKpGRJzGj2qHQztnGWg=;
-        b=RDScxk4yjblGXPRl8Ttp3M2Gvpo/mnfDCdfjKF/b4lyByhG9weHlZtQqiBrpljiJ3M
-         Z5VD5OQWFqW+nqg20Shp3y6CLPPTO1CXnWemnlBGhprwD3cd8rRF55HQFE4GoxQ6ZxwL
-         xROXZe1RFHpc7g5A5DwOdbxNIdJNimO33mzZ53LSgqo2g0lHBbMKSxjGXyaHfbixFiFM
-         kEew2RoMwoQkceOqnULctsDMGiUrzAu1O4dk9o0jdeyZBOxs4exkjRsIRlm55Xm8p6cA
-         /qNQoeflwifVutk/vCV9wd20ukycA0x0KPY+TpaJCvLVpOMI7LoyOZHZnSVfqXAanyJ+
-         Ebww==
+        d=gmail.com; s=20230601; t=1719280701; x=1719885501; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=39QeQrzDw8rQX3IGT/Rcm1p33OqxFDQDDDG1ZjS6TCw=;
+        b=Gdd0kIx50/QOYtc9ZrzsQXyPd/8GkcC7g33K6iTL25XrVGQcTiCJI3PuvmgEt6YvBj
+         ICNRzGx4AaNq6veL9ITCgZDcqJom5aZ/45zGgH3FULnmJy0h+li92w4hJNmWTN59CT8Q
+         03SOmDR9PkyrEPFz4eMdQ2CCG1b0HTVAjr2gaVBzMKoBXRvmZXEnn1ld+jc1vFn3u9eE
+         d+y0mwrXCEq9evLT1yq7OS3ijcV7oVqc4aIQzIOcigIEN53E9bjBQVi3NxbI9+TRW/m5
+         9yAv7CGalBq6TrbJIbE6W1So7X9/x4HmXlnlytyZOfpYepN+u9DrXRoLj6IUXWns8k/U
+         fzZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719279285; x=1719884085;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=2O2TW7XbF5ae+IR/yu9jsK1asKpGRJzGj2qHQztnGWg=;
-        b=cIcCsNVIt0Si6it15WopbcWsw1W3m61yYqRRPY8lv9NmY58e88dP0MWwKt7dBRiYze
-         EE+3KNn9+EYjeb1GTzmFhp9Ygug40eyPRwz85fJqYoR6MtwVbj8NJqwksK9H30MVXt5T
-         uYOb8vhypqy5zy/S3WrZdZuERJrOHW+b34dnkqKxHg05vAIO4+ADEsi6jXUfbiBPFtLN
-         XZZLPvCpQcMF/MSvZF43OXCCm2ikTIhvLN1uSELnjRS/9fuVXP2NDfVHX9Tq1QFC166d
-         xudbF5g8lw+cJvSt0uCM4tQd0C7aq9yNChlIaBju7uCHF+qA+8ySBUYdKKZkCm1AlvGd
-         adQQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUoSuID6Oqd74iHQqW145gqeZKd6xGk7m7jGWlt4wEnUYCsmdvo6r+0Mb+SkI98RYzkytX0QCL7WfuEL8ymzBzrM0wexiAs8qtQRZZExRl1ssUjWAKbfN+YrhrzQQpIfTOKkmX/ydIkig==
-X-Gm-Message-State: AOJu0YxgXrKHZw1RNgkaicaPCDnn/m7yB+AFLCSeRYxxjjsh45A4QEB6
-	UAnb4jEkGPegJZBv/XniKQtK3wDUiBFDTFYayUaqd4tH+NbHCQOEaj8z9g==
-X-Google-Smtp-Source: AGHT+IGnmlhtAxgHfbyK08Mi8n5iC280q7zCZibuChaVXzMxvwHYN1zHlPlI2uxOgZmF9W/Oj4TFYA==
-X-Received: by 2002:a05:6358:340f:b0:1a2:3a1b:58b with SMTP id e5c5f4694b2df-1a23a1b065cmr694725155d.30.1719279284702;
-        Mon, 24 Jun 2024 18:34:44 -0700 (PDT)
-Received: from localhost.localdomain ([118.32.98.101])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-718d5e33106sm4041921a12.59.2024.06.24.18.34.41
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 24 Jun 2024 18:34:44 -0700 (PDT)
-From: yskelg@gmail.com
-To: Harald Freudenberger <freude@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Markus Elfring <Markus.Elfring@web.de>
-Cc: MichelleJin <shjy180909@gmail.com>,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Yunseong Kim <yskelg@gmail.com>
-Subject: [PATCH v2] s390/raw3270: Handle memory allocation failures in raw3270_setup_console()
-Date: Tue, 25 Jun 2024 10:32:26 +0900
-Message-ID: <20240625013225.17076-2-yskelg@gmail.com>
-X-Mailer: git-send-email 2.45.2
+        d=1e100.net; s=20230601; t=1719280701; x=1719885501;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=39QeQrzDw8rQX3IGT/Rcm1p33OqxFDQDDDG1ZjS6TCw=;
+        b=g89ckGoSmBZ+QSwJGkPeDG6SN7FjqJx8cXNepTrRDS8wqGpFmg0UK+SamO1dJnxExb
+         LsyuqedYR5eTnolBbENPCOw+TvHGcPOjHD9Wh8+UtzZkCMZ932NC3be9y4bt2ycRzJ/2
+         2hBfRs5iDIsx2rrlSH2K9ieWQwdi+ugleEGpq2adSPbXvvlCsIEJtPJUORLrL4IRfsOq
+         Hfi9UyFPJEK6MiG74Ua+l9yzLV4arI0xlY4yCqRMB0Wm8MFy0ZvACFPJiKMDby5Q9Z3M
+         EhxGojDKOg27ljkagddvRXjhUFK5HENprI2noGxn8lrV17/fJCJ5r2B4VidYkJ5DhP5W
+         hIaw==
+X-Forwarded-Encrypted: i=1; AJvYcCU7OVdRlBxeFTNbDzAIjt5w8BcNf1kdDBC7orfsj50LU0KA9J84hLbgHewlYinZMIkRPU3f1yAZBxhPVs4w9TIYb2GN
+X-Gm-Message-State: AOJu0YzF/BGloNDL8MPtTKPurAOlLrJm6qt5TXte8TAGf5I167r259iT
+	SakfN+0/Wfvwqi9ES6hYolgWWihv/HEQsulBaI8wIUKg9U0iIP74
+X-Google-Smtp-Source: AGHT+IFURooh52M5Miq69+BtfwJjqssaGDXJYAr73ilbd6HecPITsbHb9J4P5exIJZCwKKVQ4XRJTA==
+X-Received: by 2002:a05:6808:d52:b0:3d2:2773:581 with SMTP id 5614622812f47-3d545a54d47mr6695166b6e.47.1719280701138;
+        Mon, 24 Jun 2024 18:58:21 -0700 (PDT)
+Received: from localhost (118-211-5-80.tpgi.com.au. [118.211.5.80])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7068d251418sm1910610b3a.194.2024.06.24.18.58.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 24 Jun 2024 18:58:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 25 Jun 2024 11:58:15 +1000
+Message-Id: <D28Q53OCJH1L.YZMTUSA3620Y@gmail.com>
+Cc: <linux-s390@vger.kernel.org>, <kvm@vger.kernel.org>, "David Hildenbrand"
+ <david@redhat.com>, "Andrew Jones" <andrew.jones@linux.dev>, "Thomas Huth"
+ <thuth@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v3 3/7] s390x: Add sie_is_pv
+From: "Nicholas Piggin" <npiggin@gmail.com>
+To: "Nina Schoetterl-Glausch" <nsg@linux.ibm.com>,
+ =?utf-8?q?Nico_B=C3=B6hr?= <nrb@linux.ibm.com>, "Janosch Frank"
+ <frankja@linux.ibm.com>, "Claudio Imbrenda" <imbrenda@linux.ibm.com>
+X-Mailer: aerc 0.17.0
+References: <20240620141700.4124157-1-nsg@linux.ibm.com>
+ <20240620141700.4124157-4-nsg@linux.ibm.com>
+In-Reply-To: <20240620141700.4124157-4-nsg@linux.ibm.com>
 
-From: Yunseong Kim <yskelg@gmail.com>
+On Fri Jun 21, 2024 at 12:16 AM AEST, Nina Schoetterl-Glausch wrote:
+> Add a function to check if a guest VM is currently running protected.
+>
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 
-A null pointer is stored in a local variable after a call of the function
-"kzalloc" failed. This pointer was passed to a subsequent call of the
-function "raw3270_setup_device" where an undesirable dereference will be
-performed then. Thus add corresponding return value checks.
-The allocated each memory areas are immediately overwritten by the called
-function zero-initialisation be omitted by calling the "kmalloc" instead.
-After "ccw_device_enable_console" succeeds, set the bit raw3270 flag to
-RAW3270_FLAGS_CONSOLE.
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
 
-Fixes: 33403dcfcdfd ("[S390] 3270 console: convert from bootmem to slab")
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Yunseong Kim <yskelg@gmail.com>
----
- drivers/s390/char/raw3270.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
-index c57694be9bd3..4f3f98bcbc83 100644
---- a/drivers/s390/char/raw3270.c
-+++ b/drivers/s390/char/raw3270.c
-@@ -811,18 +811,28 @@ struct raw3270 __init *raw3270_setup_console(void)
- 	if (IS_ERR(cdev))
- 		return ERR_CAST(cdev);
- 
--	rp = kzalloc(sizeof(*rp), GFP_KERNEL | GFP_DMA);
--	ascebc = kzalloc(256, GFP_KERNEL);
-+	rp = kmalloc(sizeof(*rp), GFP_KERNEL | GFP_DMA);
-+	if (!rp)
-+		return ERR_PTR(-ENOMEM);
-+	ascebc = kmalloc(256, GFP_KERNEL);
-+	if (!ascebc) {
-+		kfree(rp);
-+		return ERR_PTR(-ENOMEM);
-+	}
- 	rc = raw3270_setup_device(cdev, rp, ascebc);
--	if (rc)
-+	if (rc) {
-+		kfree(ascebc);
-+		kfree(rp);
- 		return ERR_PTR(rc);
--	set_bit(RAW3270_FLAGS_CONSOLE, &rp->flags);
--
-+	}
- 	rc = ccw_device_enable_console(cdev);
- 	if (rc) {
- 		ccw_device_destroy_console(cdev);
-+		kfree(ascebc);
-+		kfree(rp);
- 		return ERR_PTR(rc);
- 	}
-+	set_bit(RAW3270_FLAGS_CONSOLE, &rp->flags);
- 
- 	spin_lock_irqsave(get_ccwdev_lock(rp->cdev), flags);
- 	do {
--- 
-2.45.2
+> ---
+>  lib/s390x/sie.h | 6 ++++++
+>  lib/s390x/sie.c | 4 ++--
+>  2 files changed, 8 insertions(+), 2 deletions(-)
+>
+> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
+> index c1724cf2..53cd767f 100644
+> --- a/lib/s390x/sie.h
+> +++ b/lib/s390x/sie.h
+> @@ -281,6 +281,12 @@ void sie_expect_validity(struct vm *vm);
+>  uint16_t sie_get_validity(struct vm *vm);
+>  void sie_check_validity(struct vm *vm, uint16_t vir_exp);
+>  void sie_handle_validity(struct vm *vm);
+> +
+> +static inline bool sie_is_pv(struct vm *vm)
+> +{
+> +	return vm->sblk->sdf =3D=3D 2;
+> +}
+> +
+>  void sie_guest_sca_create(struct vm *vm);
+>  void sie_guest_create(struct vm *vm, uint64_t guest_mem, uint64_t guest_=
+mem_len);
+>  void sie_guest_destroy(struct vm *vm);
+> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
+> index 40936bd2..0fa915cf 100644
+> --- a/lib/s390x/sie.c
+> +++ b/lib/s390x/sie.c
+> @@ -59,7 +59,7 @@ void sie(struct vm *vm)
+>  	/* When a pgm int code is set, we'll never enter SIE below. */
+>  	assert(!read_pgm_int_code());
+> =20
+> -	if (vm->sblk->sdf =3D=3D 2)
+> +	if (sie_is_pv(vm))
+>  		memcpy(vm->sblk->pv_grregs, vm->save_area.guest.grs,
+>  		       sizeof(vm->save_area.guest.grs));
+> =20
+> @@ -98,7 +98,7 @@ void sie(struct vm *vm)
+>  	/* restore the old CR 13 */
+>  	lctlg(13, old_cr13);
+> =20
+> -	if (vm->sblk->sdf =3D=3D 2)
+> +	if (sie_is_pv(vm))
+>  		memcpy(vm->save_area.guest.grs, vm->sblk->pv_grregs,
+>  		       sizeof(vm->save_area.guest.grs));
+>  }
 
