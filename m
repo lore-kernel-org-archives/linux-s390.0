@@ -1,64 +1,125 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2F8717625C;
-	Tue, 25 Jun 2024 15:08:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D0F14204F;
+	Tue, 25 Jun 2024 17:12:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719328139; cv=none; b=HRgYETYiiJScRAVcnCqDxT1KbItM6MiQDUBGoWAMNv++Oja19qsOCG1dZPUN8AyT7c90pqRYhc0i3RXEIKDIA9KoO5zgIpr6EEmkwQkBIrlbUeZ90DDWgN0T6O9alFB0hbhqxZI/hsGdxWsBtfE5YYEzAJmCHzAe063c3+HhupI=
+	t=1719335535; cv=none; b=KHtHY8jm2yYbAD3vQWDJ6oPK7Yvn5YWZ0SXXA7N06KY45DoRYBnPMA1BTw14FeSa9Av+gAh8Vo7BqUd1IuJtdnhGC0Ky/NcoNKAgGYiiiv7CjPLeV2jZCoCD66SVHWKObIJDJIizt6npTUfIaIIcppigD+6I8hHnydDxBvT9Jcg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719328139; c=relaxed/simple;
-	bh=4BM+dW7bN2QAVhvQz8b/NJBQ+zu2K+L+6llL+5996MI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=kyNOrOgV9FQzsRWrlLIbb7eN3fO3T7YbrlUHr3p/0tioSirVHxn6hWfYC1NJx1z0qwSqQcIlp9gtRAyCVjxB7wA2Wdrb1b9xApJsnGKWw+xMTWCCOICxwUyGPAXE4ROkXDzkx6j8+wyhwHUER+BZkiVckqYogNH1eosGq1se3rE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VC0V27hb; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1719335535; c=relaxed/simple;
+	bh=L9blIzOiyOQMTpDtc0cM0yFaL51Q+QqOq8ROY7HPUZc=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:To:CC; b=Ik/VEb4KRpPYkLO7y9hNiOyS4L82CKM19riRjNIvop3vB/UYJlFJKHRnhX6kq9hLwZVR72Kool6pObEW8Gfs0ZXzg85nT68RfIIMpHASP/CZzRc4s6a1tGKXgYPzWTG1TgDoRJeoDZx5ly0X2Gw8c6uOMu1RE70I4LaEuNvF368=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=b0exYH2Q; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VC0V27hb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1EEEC32782;
-	Tue, 25 Jun 2024 15:08:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1719328139;
-	bh=4BM+dW7bN2QAVhvQz8b/NJBQ+zu2K+L+6llL+5996MI=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=VC0V27hba5xYtjw4FGzUNmoTcOR0ttg+ERozLjBI07fWZmH/j/lTelZCLvk0+8fo1
-	 wjLAoYyQwuXSqy5cfA90p8Wa6qGXT8Wj0TiHd1ToweuOB5FF6dmuvLij3BoTSk0UQj
-	 ERLGQZ9a5LFLj5xScESFzRn/NT4aSXxm6UQ7he/lGwcTm0ZLlVgpT4yPD1cWxoH9ij
-	 FeggCmJMMK0bfszESJvsD5VzBxo72sJaFZmfqzJfiJM8y4qMznAJq2RS7WvHynAdwu
-	 nbheXs6kl/W7fv4RxVigVVLosdIlFvBCIMSEzMBpzNFbn3hgpkQRJ5b2W6K+z6pLcS
-	 mKlBK9rS1wAdw==
-Date: Tue, 25 Jun 2024 08:08:57 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: Yunseong Kim <yskelg@gmail.com>, Markus Elfring <Markus.Elfring@web.de>,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian =?UTF-8?B?Qm9ybnRyw6RnZXI=?=
- <borntraeger@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Sven
- Schnelle <svens@linux.ibm.com>, Thorsten Winkler <twinkler@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
- MichelleJin <shjy180909@gmail.com>
-Subject: Re: [PATCH] s390/netiucv: handle memory allocation failure in
- conn_action_start()
-Message-ID: <20240625080857.46653437@kernel.org>
-In-Reply-To: <6a4b95aa-f3d1-4da1-9017-976420af988b@linux.ibm.com>
-References: <20240623131154.36458-2-yskelg@gmail.com>
-	<bb03a384-b2c4-438f-b36b-a4af33a95b60@web.de>
-	<880a70f0-89d6-4094-8a71-a9c331bab1ee@gmail.com>
-	<6a4b95aa-f3d1-4da1-9017-976420af988b@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="b0exYH2Q"
+Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45P8NwEE010135;
+	Tue, 25 Jun 2024 16:35:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=qcppdkim1; bh=nDLEPQk26/RrYJbffeyNSm
+	MC9qenZ25ho29a+rIJqt4=; b=b0exYH2QlSnReTMx9flEcz1lpe4/Nb/mt/4/C7
+	zzEIn+Fc6rZdMw35az0Kb+0VEVaEEs9zDo4JPOjpNmJC6ombV/VsunKsCCTIUYL1
+	wJxq0OUyKFX3KpBYjkHB+D+n7mBq6JiCTb7MuyyUFsWCQzt9vMJd1KsZil63uS+h
+	cN4AdahkZQ5Vmr9E2zdhv1lI1STekJ5CNxPB6lZnJ/A36BYFSWK10gHMb/gdAqAl
+	6YYIshrrUhp7w83Xygu3RCKoIncudVecu70gPlYGmyQJlycCjqylBJ9WG4T+I5b/
+	a6b1MMN/1OS0YRW1d+sdymf3vjkEI7a8HUfS6sr3+kTVXgXQ==
+Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3ywqcef719-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Jun 2024 16:35:43 +0000 (GMT)
+Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
+	by NALASPPMTA05.qualcomm.com (8.17.1.19/8.17.1.19) with ESMTPS id 45PGZgAV031103
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Jun 2024 16:35:42 GMT
+Received: from [169.254.0.1] (10.49.16.6) by nalasex01a.na.qualcomm.com
+ (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Tue, 25 Jun
+ 2024 09:35:42 -0700
+From: Jeff Johnson <quic_jjohnson@quicinc.com>
+Date: Tue, 25 Jun 2024 09:35:41 -0700
+Subject: [PATCH v2] s390/lcs: add missing MODULE_DESCRIPTION() macro
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-ID: <20240625-md-s390-drivers-s390-net-v2-1-5a8a2b2f2ae3@quicinc.com>
+X-B4-Tracking: v=1; b=H4sIANzxemYC/42OTQ6CMBCFr2K6dkzLP668h2FR2kEmkaJTaDCEu
+ 1vwAi6/5L3vvVV4ZEIvrqdVMAbyNLoIyfkkTK/dA4FsZJHIJJOFymGw4NNagmUKyP4HDicoK13
+ LouqUlJmI9RdjR8uhvjeRW+0RWtbO9LvwSW5eYNB+Qt7jPflp5M9xJKi99MdmUKCgLirTlmnel
+ dLe3jMZcuZixkE027Z9ASE1DjnhAAAA
+To: Alexandra Winter <wintera@linux.ibm.com>,
+        Thorsten Winkler
+	<twinkler@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+	<gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+CC: <linux-s390@vger.kernel.org>, <netdev@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <kernel-janitors@vger.kernel.org>,
+        "Jeff
+ Johnson" <quic_jjohnson@quicinc.com>
+X-Mailer: b4 0.14.0
+X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: _OpMxqKNziW39itj1NFnZOOpArTyIsFz
+X-Proofpoint-ORIG-GUID: _OpMxqKNziW39itj1NFnZOOpArTyIsFz
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-25_11,2024-06-25_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
+ mlxscore=0 lowpriorityscore=0 bulkscore=0 phishscore=0 spamscore=0
+ suspectscore=0 priorityscore=1501 malwarescore=0 mlxlogscore=946
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2406250122
 
-On Tue, 25 Jun 2024 11:08:49 +0200 Alexandra Winter wrote:
-> s390/netiucv is more or less in maintenance mode and we are not aware of any users.
-> The enterprise distros do not provide this module. Other iucv modules are more popular.
-> But afaiu we cannot remove the source code, unless we can prove that nobody is using it.
-> (Community advice is welcome).
+With ARCH=s390, make allmodconfig && make W=1 C=1 reports:
+WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/s390/net/lcs.o
 
-If you have strong reason to believe this driver is unused, and can't
-find any proof otherwise - let's remove it. We can always "revert it
-back in", if needed. We have done it in the past.
+Add the missing invocation of the MODULE_DESCRIPTION() macro.
+
+Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
+---
+Changes in v2:
+- Modified the description (both in the patch and in the file prolog) per
+  feedback from Alexandra
+- Link to v1: https://lore.kernel.org/r/20240615-md-s390-drivers-s390-net-v1-1-968cb735f70d@quicinc.com
+---
+ drivers/s390/net/lcs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+index 25d4e6376591..88db8378325a 100644
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0+
+ /*
+- *  Linux for S/390 Lan Channel Station Network Driver
++ *  Linux for S/390 LAN channel station device driver
+  *
+  *  Copyright IBM Corp. 1999, 2009
+  *  Author(s): Original Code written by
+@@ -2380,5 +2380,6 @@ module_init(lcs_init_module);
+ module_exit(lcs_cleanup_module);
+ 
+ MODULE_AUTHOR("Frank Pavlic <fpavlic@de.ibm.com>");
++MODULE_DESCRIPTION("S/390 LAN channel station device driver");
+ MODULE_LICENSE("GPL");
+ 
+
+---
+base-commit: 83a7eefedc9b56fe7bfeff13b6c7356688ffa670
+change-id: 20240615-md-s390-drivers-s390-net-78a9068f1004
+
