@@ -1,160 +1,159 @@
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7A9C1BC4E;
-	Tue, 25 Jun 2024 03:13:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AAEE1B806;
+	Tue, 25 Jun 2024 06:12:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.133.4.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719285228; cv=none; b=jqShgzbGjenLmMNKRwLVYTL2b+tjYJrHNZxu0DI7AEAIOUX6ejkRWPi5YOW19u0ZaRx9uYdjC4bj726UThsd4lEiGjuW4hP+cOISZlk9m8YRvUwkbZeCN7oqad4oe518t78d2GQ4gUrpBhtiX6KdGj6HKGLs/v5CG6q2yztpChw=
+	t=1719295934; cv=none; b=oony8bf1leb2i0a+rNk6DQBSKtXGz5DNI6IYKC2ur6Z0/jWqci1KKN5JPWas++U85XX9rmVPepcek2j2AmnaHe8cN4yYTlriplgQJwJ8yat6h5Uul+K2Rb+kyl2n954h0/hzHOkvXqCxJGAfqD5TUzISTEMLygF8IyIFn00caSk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719285228; c=relaxed/simple;
-	bh=WDjSjDojkiErU76xJpHFzFNIRPCN3K/4f0JHQxkcQfw=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
-	 References:In-Reply-To; b=P5RdGEXua0bYWYY8QA4rYm4p4MXzagLsZaj+ynK1vtg6291x+mO2NGjUp4XtgAmxOmovO1yOJrbGCwkk0hAdpp0X2T+XlbZP/DNYqumU2umJL33/H2btejDv6gRBp734gwiO8Va7P0zK00P9n55ybTFmdt3fWAVG2XjzI3jG73E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HOIkfbOh; arc=none smtp.client-ip=209.85.210.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1719295934; c=relaxed/simple;
+	bh=A9l5QJ5wVUxN0j1TWgVqhhHFCdASWZMj33PGqLt6VA0=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=b4nabD8O1g8vM98AvMhvOhz9h+88q3ljAqTLSNGcMKUVfZvwrT25sAMFwvZwokWMEEwu5NHB8R3oMFQUWmMg+4WqsLCLCEn3ELvLin/syKK1hX3DLGjwCByhaavGQqf0BCBl/tyofMvFe5XU4qFkW5Z2uOzpZxy5SDfGe8tRDLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de; spf=pass smtp.mailfrom=zedat.fu-berlin.de; dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b=kMKIkUXC; arc=none smtp.client-ip=130.133.4.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zedat.fu-berlin.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HOIkfbOh"
-Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-7066a4a611dso1736706b3a.3;
-        Mon, 24 Jun 2024 20:13:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1719285226; x=1719890026; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YX01MQ0PmkZNuQg/PPzur/EELEalkimrnmfVrm4BEss=;
-        b=HOIkfbOhQxtS2MPxwpr7QAdrhxwL2iP856vrjQoavliwQIfHooQ+KaakY7d9DCshvd
-         4BNm1ldPG9pgjKtftEHUSbXlgOXYPCA/a4nwhmSVYVFIpX4dDbxHULL2NJTrcRCiLQWw
-         AFe+6WREEShKYXJC1lNwHxg8pq05lgd7A3cffDjuxufqonND8wIWvyhHnxw+aRtNaXmN
-         FQnMnBt/KzQ8pC8D2OkyftbNF3uT9XW0NKFqmvqIh+8krtzs6n8yPXnuu9ZUzXd7Cawh
-         inCsvm+KuUptLEUArj4qQznvpoz+JVVnB0ePT34cXlUfhrFNI9reiQ86lcwV1SKa/IIj
-         CbKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719285226; x=1719890026;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
-         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=YX01MQ0PmkZNuQg/PPzur/EELEalkimrnmfVrm4BEss=;
-        b=tR5o75/VJyJ0J2MTf5Vy2zeAmVxcIHQPr8dd8PHCHiycXNsHgiQwgX1P+U7OqeBM71
-         MSG9DPFQAAdV+MMqqcGmbPWEUhAKL4Sc2ZQ4fP/j2ToJSBPXRqGfSPGhSBeKVTiymDZj
-         5Nmc5IGOeFetgr/LZMoweLeK2iFbT6K0/N/c0AbRDWjSIu9Q/cHVauF1dOMOlXp2jOvM
-         ADcjytIDOfEGf2Soc9oygetkVBOJATmOZ25QZALmnsCn3xmwcyUsMvTw5xRS+C3DTNsX
-         DGABuqMxfPGW1UgFvQNWl7fScB8z8SacGniEtcujOOqYweBxhw9aLi/lnNz8xAaxsfmt
-         7s6g==
-X-Forwarded-Encrypted: i=1; AJvYcCXtRgeg6tmInAgBB3gSNuj2M1igL435eYMzkVcIo/c55B7UzKioJHYD8J1YgCIwiE7bQQjjPl6T9dBDaYxa7udKMOCvtFRgdOUc/M3xy63wIk0VNj9VfUfWljIDfILHOg==
-X-Gm-Message-State: AOJu0YwG8isLWk1ti9IkaJOmuxhpYkDa+NX7UpVRsSQLtcZCNOHAZwog
-	z7m3c3kwQdTgtqJT20NrzYKTSTthiGmEIiFBN07KqWI0xTH22sR8JElgaw==
-X-Google-Smtp-Source: AGHT+IE1rC+0h3uwku4PL7ut0uXNEZCH9Tr3mugFaLv7ThMJqOs5VfHJcnMrzExzujNkuiG1oA80Ig==
-X-Received: by 2002:aa7:8584:0:b0:706:936f:469a with SMTP id d2e1a72fcca58-706936f46ebmr1873907b3a.16.1719285225947;
-        Mon, 24 Jun 2024 20:13:45 -0700 (PDT)
-Received: from localhost (118-211-5-80.tpgi.com.au. [118.211.5.80])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-70684eee5ffsm2662744b3a.175.2024.06.24.20.13.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Jun 2024 20:13:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b="kMKIkUXC"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=fu-berlin.de; s=fub01; h=MIME-Version:Content-Transfer-Encoding:
+	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=QR3y2Y/czPDzz8uhrOTX+qZKGKnv9qtlOLRYnVuIPwY=; t=1719295930; x=1719900730; 
+	b=kMKIkUXCpW4k/lh4bfIHLQJ7yXaQaua42W5My0YpiNHiilmaG69pdb5IiE9StEvH36UYTlg2wfF
+	Tdb/CPgfLOpILqYOWYZS7k0EvxHiB4Yz6K+AIaa5OtXhE9YR5RjGJ4STuCmmYTd8HRVm+pACcRawL
+	EVS4LdZZkx88lnlVGO7hwGqOdh0gF+Kg22Ipn2MdidppsNRFw/yqNvlnXtamDkZEYlONN/1b8Vl0s
+	oPBAMYWW7go097qgb9r16qmHKOvCsm2PLjS56KL1M/z+bU8T/eKUNkYZNAKl9ItLFseIrud1TmZ9t
+	Ci3ZLg7RBgLYlLuJny8/YueTY14197NeyvAA==;
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.97)
+          with esmtps (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1sLzPJ-00000002pcY-2WGY; Tue, 25 Jun 2024 08:11:58 +0200
+Received: from p5b13a475.dip0.t-ipconnect.de ([91.19.164.117] helo=[192.168.178.20])
+          by inpost2.zedat.fu-berlin.de (Exim 4.97)
+          with esmtpsa (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1sLzPJ-00000001jTk-3HF5; Tue, 25 Jun 2024 08:11:57 +0200
+Message-ID: <b7e20a2dbf5bad8cae0227644b2f78531dd6ef5a.camel@physik.fu-berlin.de>
+Subject: Re: [PATCH v2 08/13] sh: rework sync_file_range ABI
+From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To: Arnd Bergmann <arnd@kernel.org>, linux-arch@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, Thomas Bogendoerfer
+ <tsbogend@alpha.franken.de>, linux-mips@vger.kernel.org, Helge Deller
+ <deller@gmx.de>, linux-parisc@vger.kernel.org, "David S. Miller"
+ <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
+ sparclinux@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Nicholas
+ Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
+ "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+ linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>,
+ linux-hexagon@vger.kernel.org, Guo Ren <guoren@kernel.org>, 
+ linux-csky@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
+ linux-s390@vger.kernel.org, Rich Felker <dalias@libc.org>, 
+ linux-sh@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Alexander Viro
+ <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, 
+ linux-fsdevel@vger.kernel.org, libc-alpha@sourceware.org, 
+ musl@lists.openwall.com, stable@vger.kernel.org
+Date: Tue, 25 Jun 2024 08:11:56 +0200
+In-Reply-To: <20240624163707.299494-9-arnd@kernel.org>
+References: <20240624163707.299494-1-arnd@kernel.org>
+	 <20240624163707.299494-9-arnd@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.2 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 25 Jun 2024 13:13:39 +1000
-Message-Id: <D28RQU9BO6L1.3OKWB7CR7RC5J@gmail.com>
-From: "Nicholas Piggin" <npiggin@gmail.com>
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, "Nina Schoetterl-Glausch"
- <nsg@linux.ibm.com>
-Cc: "Thomas Huth" <thuth@redhat.com>, =?utf-8?q?Nico_B=C3=B6hr?=
- <nrb@linux.ibm.com>, "Janosch Frank" <frankja@linux.ibm.com>,
- <linux-s390@vger.kernel.org>, "David Hildenbrand" <david@redhat.com>,
- "Andrew Jones" <andrew.jones@linux.dev>, <kvm@vger.kernel.org>
-Subject: Re: [kvm-unit-tests PATCH v3 5/7] s390x: Add library functions for
- exiting from snippet
-X-Mailer: aerc 0.17.0
-References: <20240620141700.4124157-1-nsg@linux.ibm.com>
- <20240620141700.4124157-6-nsg@linux.ibm.com>
- <20240620185544.4f587685@p-imbrenda>
- <c5e1cccdd7619f280d58b2ef00c076d5426e764b.camel@linux.ibm.com>
- <20240620192614.08ff9c65@p-imbrenda>
-In-Reply-To: <20240620192614.08ff9c65@p-imbrenda>
+MIME-Version: 1.0
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-ZEDAT-Hint: PO
 
-On Fri Jun 21, 2024 at 3:26 AM AEST, Claudio Imbrenda wrote:
-> On Thu, 20 Jun 2024 19:16:05 +0200
-> Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
->
-> > On Thu, 2024-06-20 at 18:55 +0200, Claudio Imbrenda wrote:
-> > > On Thu, 20 Jun 2024 16:16:58 +0200
-> > > Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
-> > >  =20
-> > > > It is useful to be able to force an exit to the host from the snipp=
-et,
-> > > > as well as do so while returning a value.
-> > > > Add this functionality, also add helper functions for the host to c=
-heck
-> > > > for an exit and get or check the value.
-> > > > Use diag 0x44 and 0x9c for this.
-> > > > Add a guest specific snippet header file and rename snippet.h to re=
-flect
-> > > > that it is host specific.
-> > > >=20
-> > > > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com> =20
-> > >=20
-> > >=20
-> > > [...]
-> > >=20
-> > >  =20
-> > > > +static inline void diag44(void)
-> > > > +{
-> > > > +	asm volatile("diag	0,0,0x44\n");
-> > > > +}
-> > > > +
-> > > > +static inline void diag9c(uint64_t val)
-> > > > +{
-> > > > +	asm volatile("diag	%[val],0,0x9c\n"
-> > > > +		:
-> > > > +		: [val] "d"(val)
-> > > > +	);
-> > > > +}
-> > > > +
-> > > >  #endif =20
-> > >=20
-> > > [...]
-> > >  =20
-> > > > +static inline void force_exit(void)
-> > > > +{
-> > > > +	diag44();
-> > > > +	mb(); /* allow host to modify guest memory */
-> > > > +}
-> > > > +
-> > > > +static inline void force_exit_value(uint64_t val)
-> > > > +{
-> > > > +	diag9c(val);
-> > > > +	mb(); /* allow host to modify guest memory */
-> > > > +} =20
-> > >=20
-> > > why not adding "memory" to the clobbers of the inline asm? (not a big
-> > > deal, I'm just curious if there is a specific reason for an explicit
-> > > mb()) =20
-> >=20
-> > Mostly a matter of taste I guess.
-> > The diag functions are just convenience wrappers, doing nothing but
-> > executing the diag.
-> > force_exit is a protocol between the host and guest that uses the diags
-> > and adds additional semantics on top.
-> > In theory you could have other use cases where the diags are just a tim=
-eslice yield.
->
-> fair enough
+On Mon, 2024-06-24 at 18:37 +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+>=20
+> The unusual function calling conventions on SuperH ended up causing
+> sync_file_range to have the wrong argument order, with the 'flags'
+> argument getting sorted before 'nbytes' by the compiler.
+>=20
+> In userspace, I found that musl, glibc, uclibc and strace all expect the
+> normal calling conventions with 'nbytes' last, so changing the kernel
+> to match them should make all of those work.
+>=20
+> In order to be able to also fix libc implementations to work with existin=
+g
+> kernels, they need to be able to tell which ABI is used. An easy way
+> to do this is to add yet another system call using the sync_file_range2
+> ABI that works the same on all architectures.
+>=20
+> Old user binaries can now work on new kernels, and new binaries can
+> try the new sync_file_range2() to work with new kernels or fall back
+> to the old sync_file_range() version if that doesn't exist.
+>=20
+> Cc: stable@vger.kernel.org
+> Fixes: 75c92acdd5b1 ("sh: Wire up new syscalls.")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/sh/kernel/sys_sh32.c           | 11 +++++++++++
+>  arch/sh/kernel/syscalls/syscall.tbl |  3 ++-
+>  2 files changed, 13 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/arch/sh/kernel/sys_sh32.c b/arch/sh/kernel/sys_sh32.c
+> index 9dca568509a5..d6f4afcb0e87 100644
+> --- a/arch/sh/kernel/sys_sh32.c
+> +++ b/arch/sh/kernel/sys_sh32.c
+> @@ -59,3 +59,14 @@ asmlinkage int sys_fadvise64_64_wrapper(int fd, u32 of=
+fset0, u32 offset1,
+>  				 (u64)len0 << 32 | len1, advice);
+>  #endif
+>  }
+> +
+> +/*
+> + * swap the arguments the way that libc wants them instead of
+> + * moving flags ahead of the 64-bit nbytes argument
+> + */
+> +SYSCALL_DEFINE6(sh_sync_file_range6, int, fd, SC_ARG64(offset),
+> +                SC_ARG64(nbytes), unsigned int, flags)
+> +{
+> +        return ksys_sync_file_range(fd, SC_VAL64(loff_t, offset),
+> +                                    SC_VAL64(loff_t, nbytes), flags);
+> +}
+> diff --git a/arch/sh/kernel/syscalls/syscall.tbl b/arch/sh/kernel/syscall=
+s/syscall.tbl
+> index bbf83a2db986..c55fd7696d40 100644
+> --- a/arch/sh/kernel/syscalls/syscall.tbl
+> +++ b/arch/sh/kernel/syscalls/syscall.tbl
+> @@ -321,7 +321,7 @@
+>  311	common	set_robust_list			sys_set_robust_list
+>  312	common	get_robust_list			sys_get_robust_list
+>  313	common	splice				sys_splice
+> -314	common	sync_file_range			sys_sync_file_range
+> +314	common	sync_file_range			sys_sh_sync_file_range6
+>  315	common	tee				sys_tee
+>  316	common	vmsplice			sys_vmsplice
+>  317	common	move_pages			sys_move_pages
+> @@ -395,6 +395,7 @@
+>  385	common	pkey_alloc			sys_pkey_alloc
+>  386	common	pkey_free			sys_pkey_free
+>  387	common	rseq				sys_rseq
+> +388	common	sync_file_range2		sys_sync_file_range2
+>  # room for arch specific syscalls
+>  393	common	semget				sys_semget
+>  394	common	semctl				sys_semctl
 
-Sorry I missed these comments. I still had a question about the
-barriers (e.g., one needed before the diag()?)
+Acked-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 
->
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
->
-> > >=20
-> > >=20
-> > > [...] =20
-> >=20
+Adrian
 
+--=20
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer
+`. `'   Physicist
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
