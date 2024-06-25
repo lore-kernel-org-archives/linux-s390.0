@@ -1,112 +1,249 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E83ED45023;
-	Tue, 25 Jun 2024 02:49:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A31A23BB;
+	Tue, 25 Jun 2024 02:57:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719283765; cv=none; b=hE4TVGt8A7GFTeCXnly+tUG34YZUBwFzUyjTAOhzAUeNjALOQyNRNlgHgQUhjSkse0WN4PNgS482+AmVMMwbDeqIGSqwMuBvVjvsqST4pONoOd1S2I1dmN5RSMrmSRQt7TEvd05ZUs9OrACSX+8363VQdCCDuwWLSjDVoewHoHw=
+	t=1719284239; cv=none; b=VySznfnc1bVTQHyvuyHoV3TDLugxU8vzhY09WHlegLMcGnnbJAWk8JYLyG3tbg9WaCwZiAPEviZsQFLSqJioHQdw7lwPeZntUH4EJf+nZPfunw/q88aqYzIrDfT+TxzGP4hjUEsH9x2msU4Lp4ysiLwy0EPkziXNKEnjc9VhnF8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719283765; c=relaxed/simple;
-	bh=509+GNhEQ8YYX6xv0bIGyfDHnSczn/7YDklov7MbtAo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lMUu41mKjIEuo4kPLuV3LoXIhEcXI4A2qG5A0WZ7lUQmKhdX8TjHFoHdn2XMHPetB4A6zPnoVlTgDADwk6NvL7/OQ8xrajz10hPKw/hBhCa+zgGHhpR3T5h485zi1ZHGtI9MRDDu2NhWRLHhwWSLX5q+FyBfKW8wHMv2XkLAT4c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kqSJJ+1J; arc=none smtp.client-ip=209.85.214.176
+	s=arc-20240116; t=1719284239; c=relaxed/simple;
+	bh=LPx4jxFKTBCj2ZOBhinBWv8MZi8vb3XtDVkoSZN+9rY=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=Ii8fogWUvkacOfLchJ5dDYOu2ZeP3w73bsOWBT9gnh9Nc5HMEUadJ8MFBdhpp7xYtfeXCVnvRUDBajssRUCWoWdsQE8/XlU1ZkDUOHDladcv0+3A1IA4+wnOw8MlWabknjiCTwY3Z6rKpuWwGTApARoFW7XIxYfOg6t9IrmC0a4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XEAoZVrg; arc=none smtp.client-ip=209.85.214.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kqSJJ+1J"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-1f9b364faddso40753705ad.3;
-        Mon, 24 Jun 2024 19:49:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XEAoZVrg"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-1f4a5344ec7so33915415ad.1;
+        Mon, 24 Jun 2024 19:57:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1719283763; x=1719888563; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=BAD7ABuZm4GDesGzFzNGFjb/h37/nr5QSGkLHEsIEPM=;
-        b=kqSJJ+1J87zG64WxmzcTdE+x29CREDbCeqyr8MU++D15XDwiiRvpuJxpNzQQPgLrcL
-         YAuidpje8lxRNvkJ4H38Prn1BJn/FZfe53425ZIOB1i10eobEdnZfHwO/3G0Jwb3o6en
-         w/k7Yx7/8N83NmuqVLhE2nvXOrfv/FbpHWHl9bkHtbrXWgZMXTtOVYYPMhH62HFX9wOq
-         wg2ztEbuXF3DmJZZQmg9WYw+FJpuiNbBtvIecCH2b2ojDxomgYdcYs5IkFMO5h9mOJJv
-         4WN4v5g0IKuKwWaGxN01+bkovraWGE3sBArEUjKnb/vdj20dzhpy1b3JmlHh+XdADXcF
-         WqAg==
+        d=gmail.com; s=20230601; t=1719284237; x=1719889037; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wWz+Y0j6PeoTTfbxlnxO9wezH/WywGRu4YJBpaWkC+Y=;
+        b=XEAoZVrg8R9A+VH4pacpMnr3giEj3Xqcq6W3ydfAjGUdqrKRvE3n5r3rZpZm1lINiV
+         tfPrtI45nPzLoDRhG17Cwu2yoLz2p0JeRFng+/Ok2EDsGNSHFO4bqcSOrBKegGbcvhUv
+         i389rKgViJiD9RQW7bVY/ariecxoNtwnuAefY7ED47sjbk4lFxkCBCLFycQX42Uy8Kod
+         sMfljyUujO2/x8QUlEktsdfhKJ5phtIfIBqDprVk6/SHO8InGbIk+t6fjwv8yKfu02aD
+         8DFQ49Sxa7ZCubiBch2ataVw5Dz/RZhj5hBUBDQxGIcgjvJyN38x6+ZMAK3G2y8Xivro
+         15ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719283763; x=1719888563;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=BAD7ABuZm4GDesGzFzNGFjb/h37/nr5QSGkLHEsIEPM=;
-        b=lPFYp3fPdFXEb9Rj5AMGy4XG2eOASZmI+Rg7sDyt1UJoN+E55fwwNkGibfrbYjt9eM
-         YV5nipQ6olgsT98v0+XFMte5l2IJ8sY8ZbkL8Tjexp95dHGKT+yI5nE54ORKay2LfHnI
-         4mIs5yBGN8bJANGgbKSO1b2jIg8QtRdzeqc4Neund50j83lkIPBIBiSIJU0B1ckNWBoe
-         eL6TYsWvv0ki9Q/U5SpltIE1K+BlqQvhgkLTUrYYMxz11OdJqJTY/8+8rMOk7F/wppI1
-         3zrDHaKKQqQVFiIOkAYqk6gfEst1QIPFLrZhxGRj8d5IkcZeIXHdz0Ym2gcSIfSO741q
-         ykDg==
-X-Forwarded-Encrypted: i=1; AJvYcCU/2AeiHju7ZIp+AOJc6NzySXZKrGsXT7/yWfVsBLMWjlf4cFmPsnMuSZXcc8hYx3ke2E3x5XzMUzapUUAaW3ianNQjB9boa6p17Ru/ItHBCCB7D1IgurbWBlgLjOhsyEkLTHH9xoCoYXSSoOANySELjaTBWWNY9RsbTLQ7dBy26w==
-X-Gm-Message-State: AOJu0YzrglC7BSJauvl0cZvim8RcKuJLQZM/SeRgV353FDqwDtJaYjGU
-	ialEB+rRlO2FmWrnF6QJYTkmMUh8w0eAdaAb/U7+qydFuNnvoKYOKiNpRA==
-X-Google-Smtp-Source: AGHT+IGyuUUN36z2RVQBhdHFHsXdwrm9JSIjRNl3p9e5eVYYZ0rAGd/YA/uXkn7bzLsHnfLPF9hanw==
-X-Received: by 2002:a17:902:e5c1:b0:1f9:df83:8ab2 with SMTP id d9443c01a7336-1fa240c518bmr80858935ad.58.1719283763029;
-        Mon, 24 Jun 2024 19:49:23 -0700 (PDT)
-Received: from localhost.localdomain ([118.32.98.101])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1f9f1c27db0sm67393615ad.100.2024.06.24.19.49.19
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 24 Jun 2024 19:49:22 -0700 (PDT)
-From: yskelg@gmail.com
-To: Alexandra Winter <wintera@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Markus Elfring <Markus.Elfring@web.de>
-Cc: MichelleJin <shjy180909@gmail.com>,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Yunseong Kim <yskelg@gmail.com>
-Subject: [PATCH v2] s390/netiucv: handle memory allocation failure in conn_action_start()
-Date: Tue, 25 Jun 2024 11:48:20 +0900
-Message-ID: <20240625024819.26299-2-yskelg@gmail.com>
-X-Mailer: git-send-email 2.45.2
+        d=1e100.net; s=20230601; t=1719284237; x=1719889037;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=wWz+Y0j6PeoTTfbxlnxO9wezH/WywGRu4YJBpaWkC+Y=;
+        b=Ap/AN/WvSAidsPuOcVV5oQH1MHOMjrY8N0uVuiXEShJyX7QJRZFdgqlIYeeQRCI2Yg
+         S36E7pnb4vBYWyLzpqj9Minl7XT4ch4hRBzTAGnLJVlJb8evHJFPL0IKAx8bJ7LZowaj
+         5tdfdkN5+agrwlmY8SjYM9yGvEOlSI/0uxFr0AtxrjHBOS+pEZ78NhqPkq61O05ZAT+J
+         RFjNn7HFNqakxaGrxMMRUMdPbm/QSnosWvZQOQ639jF5rfsYOsQWhxHo7HVqa/pm95mu
+         XbJBaKdCs+N9EmFI/wGRIvy9YA35OieZIvrK+UDZzJgX0ynDQS3gJ3UWlvZcL93l6ZC+
+         Zxgw==
+X-Forwarded-Encrypted: i=1; AJvYcCVOeh2XExJzCUMd366Rv/YIbNCf/KXj3X91ZsfFkd3IDxRMzdxh+NARzGzI1Cr2OwFW6ebAiSjkbhHjAGvy8fl4aSKU
+X-Gm-Message-State: AOJu0YweMBnb8Ks1YTmIooOY1TbMy0O0m18twVKknBVXLd+qsaq4bdpZ
+	QKiIInUsEgKpC+xdRPMGtJT8OFa6qaFzo+OYRlHuitv58Od4FDdvh+3vnQ==
+X-Google-Smtp-Source: AGHT+IFBN9yXXY/XOdILlX38gRlBjmtVhNEfMgW9uKIlr4mJRojx6XeT7T6IihmoIUZ4kAxca4X3sQ==
+X-Received: by 2002:a17:903:2351:b0:1f9:9b6d:e3f9 with SMTP id d9443c01a7336-1fa0fb49831mr89217785ad.29.1719284237448;
+        Mon, 24 Jun 2024 19:57:17 -0700 (PDT)
+Received: from localhost (118-211-5-80.tpgi.com.au. [118.211.5.80])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1f9eb31f669sm70028755ad.63.2024.06.24.19.57.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 24 Jun 2024 19:57:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 25 Jun 2024 12:57:11 +1000
+Message-Id: <D28RE8616U75.1D66ANONJOCI6@gmail.com>
+Cc: <linux-s390@vger.kernel.org>, "David Hildenbrand" <david@redhat.com>,
+ "Andrew Jones" <andrew.jones@linux.dev>, <kvm@vger.kernel.org>
+Subject: Re: [kvm-unit-tests PATCH v3 5/7] s390x: Add library functions for
+ exiting from snippet
+From: "Nicholas Piggin" <npiggin@gmail.com>
+To: "Nina Schoetterl-Glausch" <nsg@linux.ibm.com>, "Thomas Huth"
+ <thuth@redhat.com>, "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
+ =?utf-8?q?Nico_B=C3=B6hr?= <nrb@linux.ibm.com>, "Janosch Frank"
+ <frankja@linux.ibm.com>
+X-Mailer: aerc 0.17.0
+References: <20240620141700.4124157-1-nsg@linux.ibm.com>
+ <20240620141700.4124157-6-nsg@linux.ibm.com>
+In-Reply-To: <20240620141700.4124157-6-nsg@linux.ibm.com>
 
-From: Yunseong Kim <yskelg@gmail.com>
+On Fri Jun 21, 2024 at 12:16 AM AEST, Nina Schoetterl-Glausch wrote:
+> It is useful to be able to force an exit to the host from the snippet,
+> as well as do so while returning a value.
+> Add this functionality, also add helper functions for the host to check
+> for an exit and get or check the value.
+> Use diag 0x44 and 0x9c for this.
+> Add a guest specific snippet header file and rename snippet.h to reflect
+> that it is host specific.
+>
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> ---
+>  s390x/Makefile                          |  1 +
+>  lib/s390x/asm/arch_def.h                | 13 ++++++++
+>  lib/s390x/snippet-guest.h               | 26 +++++++++++++++
+>  lib/s390x/{snippet.h =3D> snippet-host.h} | 10 ++++--
+>  lib/s390x/snippet-host.c                | 42 +++++++++++++++++++++++++
+>  lib/s390x/uv.c                          |  2 +-
+>  s390x/mvpg-sie.c                        |  2 +-
+>  s390x/pv-diags.c                        |  2 +-
+>  s390x/pv-icptcode.c                     |  2 +-
+>  s390x/pv-ipl.c                          |  2 +-
+>  s390x/sie-dat.c                         |  2 +-
+>  s390x/spec_ex-sie.c                     |  2 +-
+>  s390x/uv-host.c                         |  2 +-
+>  13 files changed, 97 insertions(+), 11 deletions(-)
+>  create mode 100644 lib/s390x/snippet-guest.h
+>  rename lib/s390x/{snippet.h =3D> snippet-host.h} (92%)
+>  create mode 100644 lib/s390x/snippet-host.c
+>
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index 23342bd6..12445fb5 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -111,6 +111,7 @@ cflatobjs +=3D lib/s390x/css_lib.o
+>  cflatobjs +=3D lib/s390x/malloc_io.o
+>  cflatobjs +=3D lib/s390x/uv.o
+>  cflatobjs +=3D lib/s390x/sie.o
+> +cflatobjs +=3D lib/s390x/snippet-host.o
+>  cflatobjs +=3D lib/s390x/fault.o
+> =20
+>  OBJDIRS +=3D lib/s390x
+> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+> index 745a3387..db04deca 100644
+> --- a/lib/s390x/asm/arch_def.h
+> +++ b/lib/s390x/asm/arch_def.h
+> @@ -504,4 +504,17 @@ static inline uint32_t get_prefix(void)
+>  	return current_prefix;
+>  }
+> =20
+> +static inline void diag44(void)
+> +{
+> +	asm volatile("diag	0,0,0x44\n");
+> +}
+> +
+> +static inline void diag9c(uint64_t val)
+> +{
+> +	asm volatile("diag	%[val],0,0x9c\n"
+> +		:
+> +		: [val] "d"(val)
+> +	);
+> +}
+> +
+>  #endif
+> diff --git a/lib/s390x/snippet-guest.h b/lib/s390x/snippet-guest.h
+> new file mode 100644
+> index 00000000..3cc098e1
+> --- /dev/null
+> +++ b/lib/s390x/snippet-guest.h
+> @@ -0,0 +1,26 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Snippet functionality for the guest.
+> + *
+> + * Copyright IBM Corp. 2023
+> + */
+> +
+> +#ifndef _S390X_SNIPPET_GUEST_H_
+> +#define _S390X_SNIPPET_GUEST_H_
+> +
+> +#include <asm/arch_def.h>
+> +#include <asm/barrier.h>
+> +
+> +static inline void force_exit(void)
+> +{
+> +	diag44();
+> +	mb(); /* allow host to modify guest memory */
+> +}
+> +
+> +static inline void force_exit_value(uint64_t val)
+> +{
+> +	diag9c(val);
+> +	mb(); /* allow host to modify guest memory */
+> +}
+> +
+> +#endif /* _S390X_SNIPPET_GUEST_H_ */
+> diff --git a/lib/s390x/snippet.h b/lib/s390x/snippet-host.h
+> similarity index 92%
+> rename from lib/s390x/snippet.h
+> rename to lib/s390x/snippet-host.h
+> index 910849aa..230b25b0 100644
+> --- a/lib/s390x/snippet.h
+> +++ b/lib/s390x/snippet-host.h
+> @@ -1,13 +1,13 @@
+>  /* SPDX-License-Identifier: GPL-2.0-only */
+>  /*
+> - * Snippet definitions
+> + * Snippet functionality for the host.
+>   *
+>   * Copyright IBM Corp. 2021
+>   * Author: Janosch Frank <frankja@linux.ibm.com>
+>   */
+> =20
+> -#ifndef _S390X_SNIPPET_H_
+> -#define _S390X_SNIPPET_H_
+> +#ifndef _S390X_SNIPPET_HOST_H_
+> +#define _S390X_SNIPPET_HOST_H_
+> =20
+>  #include <sie.h>
+>  #include <uv.h>
+> @@ -144,4 +144,8 @@ static inline void snippet_setup_guest(struct vm *vm,=
+ bool is_pv)
+>  	}
+>  }
+> =20
+> +bool snippet_is_force_exit(struct vm *vm);
+> +bool snippet_is_force_exit_value(struct vm *vm);
+> +uint64_t snippet_get_force_exit_value(struct vm *vm);
+> +void snippet_check_force_exit_value(struct vm *vm, uint64_t exit_exp);
+>  #endif
+> diff --git a/lib/s390x/snippet-host.c b/lib/s390x/snippet-host.c
+> new file mode 100644
+> index 00000000..44a60bb9
+> --- /dev/null
+> +++ b/lib/s390x/snippet-host.c
+> @@ -0,0 +1,42 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Snippet functionality for the host.
+> + *
+> + * Copyright IBM Corp. 2023
+> + */
+> +
+> +#include <libcflat.h>
+> +#include <snippet-host.h>
+> +#include <sie.h>
+> +
+> +bool snippet_is_force_exit(struct vm *vm)
+> +{
+> +	return sie_is_diag_icpt(vm, 0x44);
+> +}
+> +
+> +bool snippet_is_force_exit_value(struct vm *vm)
+> +{
+> +	return sie_is_diag_icpt(vm, 0x9c);
+> +}
+> +
+> +uint64_t snippet_get_force_exit_value(struct vm *vm)
+> +{
+> +	struct kvm_s390_sie_block *sblk =3D vm->sblk;
+> +
+> +	assert(snippet_is_force_exit_value(vm));
+> +
+> +	return vm->save_area.guest.grs[(sblk->ipa & 0xf0) >> 4];
 
-A null pointer is stored in the data structure member "path" after a call
-of the function "iucv_path_alloc" failed. This pointer was passed to
-a subsequent call of the function "iucv_path_connect" where an undesirable
-dereference will be performed then. Thus add a corresponding return value
-check. This prevent null pointer dereferenced kernel panic when memory
-exhausted situation with the netiucv driver operating as an FSM state
-in "conn_action_start".
+Hmm, you have a nice instr struct that you made earlier and now you're
+back to mask and shift... What about exposing that struct and add a
+function to create it so you could do grs[sblk_to_instr(sblk).r1]
+here... Just a thought.
 
-Fixes: eebce3856737 ("[S390]: Adapt netiucv driver to new IUCV API")
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Yunseong Kim <yskelg@gmail.com>
----
- drivers/s390/net/netiucv.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
-index 039e18d46f76..d3ae78c0240f 100644
---- a/drivers/s390/net/netiucv.c
-+++ b/drivers/s390/net/netiucv.c
-@@ -855,6 +855,9 @@ static void conn_action_start(fsm_instance *fi, int event, void *arg)
- 
- 	fsm_newstate(fi, CONN_STATE_SETUPWAIT);
- 	conn->path = iucv_path_alloc(NETIUCV_QUEUELEN_DEFAULT, 0, GFP_KERNEL);
-+	if (!conn->path)
-+		return;
-+
- 	IUCV_DBF_TEXT_(setup, 2, "%s: connecting to %s ...\n",
- 		netdev->name, netiucv_printuser(conn));
- 
--- 
-2.45.2
-
+Thanks,
+Nick
