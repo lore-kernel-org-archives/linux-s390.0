@@ -1,157 +1,196 @@
-Received: from mout.web.de (mout.web.de [212.227.15.14])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A96DA1474B8;
-	Tue, 25 Jun 2024 08:12:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19EB9148312;
+	Tue, 25 Jun 2024 08:27:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719303177; cv=none; b=Pe/XKc7WE6Dr6C5hthJDn8+Sv/9Tnk/YI6gcU740uWMBJBmatXRZsMOsj/dVXNbxTR5JKv8GkKaOHAm+3fBoegPhkzQLIULubetwGEEfuWmskgXMRpOiehKY4ZaXKwfZ/AwcPnUTFtODkT0TPf9Zx23/ArhkD4BF544BZrfWR0U=
+	t=1719304034; cv=none; b=EDDkx2f721p5Z/oWm0m1m1GcoRKiC+hKggdMFgaajbDGWsCRQX/3qY2TLVxF+env2OBvHJIFiNhi5TwiRgNVWNZOYSKTNe/zBKohMepN78V9JPTZK8MrYTlOZG5fV5bPvLxHR95v7rv8JCoDrHsiPhWOfiPvWeJTajeDeh+u6u4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719303177; c=relaxed/simple;
-	bh=HY90n2rA/wsU3QJAr+EqQ9x58uvEWF+QC5zUmnvnZkU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=E6dNQlDbn+oRKDdmxHkmCs0FfAI3STecH1shydrscGQ1h6H36VVbYyDXrtmJ91AX90bYlnGuW2XZ33vrGrgE2wHCIlai7MHZG518zkQFF8rcK7MLuFB+Umei7faAXa7ZxRZ8xM4mCa1t13uP5CQmh+85Tl0KsH6FMzjuRpasvBQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=nmf1iQAk; arc=none smtp.client-ip=212.227.15.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	s=arc-20240116; t=1719304034; c=relaxed/simple;
+	bh=CI8xjJvXy8hgVQFzdZcF+2OFw2kjrIbBgLTXhA1PMaA=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:Message-ID:
+	 Content-Type:MIME-Version; b=iCQ2sNruw+uNhOz2rxx96lSXza0RWj0tELRzcfPhE3NTABWK1eB7UbQJlffTUHLOmYx227jmx5rtCHD4Mgv2uRfPcO5fHNObS2+nsAM6VX8yYr68t2Vo4VJykyqx8NOsE49zxuDJBo/uM8QytAkZjJTINU1jysIlPgBGPfBmlpI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CAHH7sn6; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="nmf1iQAk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
-	s=s29768273; t=1719303164; x=1719907964; i=markus.elfring@web.de;
-	bh=YNj4CkeeBkR72sAAMLPDwBxJf6xr+bB5YaKr3Nb1xIg=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
-	 References:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:cc:content-transfer-encoding:
-	 content-type:date:from:message-id:mime-version:reply-to:subject:
-	 to;
-	b=nmf1iQAk4wNrIHThdrqOradqCZkqe0cFbythnTtfTIUcw8hnXA9EOaGbaHsxuzpD
-	 XSevyl5+u8A3qP/NfnIIwl9C4jIKbIdf6kdiXL/WULQjBsKUb+h33a/HdzSu3v/7N
-	 FdVRUf4owDcZdeK828J6y5fby9zs+ImWZyx9XD7o0vu2cu5up6BDrEU10lKzaQZyz
-	 Oyta0ppMoppHPNtsvGGo+qiLfTtmy/OKTCNE4ob21Mrd7/CTibtcqLgp47suhBxYD
-	 ymgLZ46H6I9cNkn0L/W4IUsbXwSgGxdFPSmrDm2ya0iX9lolbJTBtjZRbBorWCHFb
-	 jgoGlXB+t2EqAKUxcw==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.21] ([94.31.85.95]) by smtp.web.de (mrweb006
- [213.165.67.108]) with ESMTPSA (Nemesis) id 1N45xt-1sV7uf2Ge1-00tkIk; Tue, 25
- Jun 2024 10:12:44 +0200
-Message-ID: <70139e84-478f-42cf-a94c-61266399b37f@web.de>
-Date: Tue, 25 Jun 2024 10:12:43 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CAHH7sn6"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45P80sbK005626;
+	Tue, 25 Jun 2024 08:27:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:reply-to:in-reply-to:references:message-id
+	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
+	Q1jkVkCjue3ICdr3KThRqn2LIbaga3SmjPLdfxIRJeU=; b=CAHH7sn6tom2iGem
+	H/YBeX/iZQfW+D5Fc5mxzNNuArM+j9vozuU5OytOwNWtVT68LAkrs/+nOaW+8nFa
+	NJskLpS4QxVu09bOkjXltR9MS8YUM2ZvPnbX7hj51VmwsDvxQZaCbtDODlXt38m+
+	ZDHD+5lQtLwQCOgGYNb+pgCJz+Let8z1GKJk8UHyjazMjKOq52OIakzCarJeLH2A
+	HJNsrtiD4FDGuXFSkMOKfqIt7TJ5b5A+8ZPYW1j7aMPdv9XaJcbMLp0jvXGv+gV4
+	sc+xNaP6NsjR3ZPURKZWPGfQJ5hCDT9WglokepDZDq6aQOjopDzgfu8RW/zeuU2m
+	h1En+g==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yyshvg5hc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Jun 2024 08:27:10 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45P8O8ck007095;
+	Tue, 25 Jun 2024 08:27:10 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yyshvg5h9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Jun 2024 08:27:10 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45P6vOq8018132;
+	Tue, 25 Jun 2024 08:27:09 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yx8xu5ktq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Jun 2024 08:27:09 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45P8R5np29229636
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+	Tue, 25 Jun 2024 08:27:08 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ADC875806F;
+	Tue, 25 Jun 2024 08:27:05 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4A42458064;
+	Tue, 25 Jun 2024 08:27:05 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 25 Jun 2024 08:27:05 +0000 (GMT)
+Date: Tue, 25 Jun 2024 10:27:05 +0200
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: yskelg@gmail.com
+Cc: Markus Elfring <Markus.Elfring@web.de>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        MichelleJin <shjy180909@gmail.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Holger Dengler
+ <dengler@linux.ibm.com>
+Subject: Re: [PATCH v2] s390/zcrypt: optimizes memory allocation in
+ online_show()
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <20240624222933.81363-2-yskelg@gmail.com>
+References: <20240624222933.81363-2-yskelg@gmail.com>
+Message-ID: <eefcf6fb6c66979c5b4c0a4572d64df6@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: n3dKMYpfbwhRsdh6ZxEPSGoT6EJyszxE
+X-Proofpoint-GUID: qpruAK0kC173yVf-jKLm5orctywjdfb3
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] s390/raw3270: Handle memory allocation failures in
- raw3270_setup_console()
-To: Yunseong Kim <yskelg@gmail.com>, linux-s390@vger.kernel.org,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- =?UTF-8?Q?Christian_Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>,
- Harald Freudenberger <freude@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, MichelleJin <shjy180909@gmail.com>
-References: <20240625013225.17076-2-yskelg@gmail.com>
-Content-Language: en-GB
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <20240625013225.17076-2-yskelg@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:MuuM+gyeE9zulDfkpPbp8aj1hLSmPkNj2rvDUuiQ63kKVhTWvTW
- 1oDGtTdsWGkrlPA5XljeBJqIvKNs99URQkLg5PpsEO6JtliUYEtbWvcsj6LorqV+98O4oKq
- VIfcCVEbG7ZSClNaUcOQ84ZohKit33AroxSGGkXrITYI46Kep/+zRblZKGtlUuW38SXQfMa
- uymqHfmWxXhxX4/Io8Mww==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:SdUk+5bHDK0=;c6joiXyHBH6BAB+0PIDbZWEIcVp
- tQsYFxg5dO2PA7SrnPQtkwZowDtk+Ed2HkuHLttwWdJAqYF+VitrwH/64pSzuA9rH4F2ObXwu
- J5Lk+Yjou6YOW5Zc9ACSABxGcdUCR9/gUTgNWrQ92v4HOpLZd1kY6twBhSdK+3AIDomM/5yVf
- tjB6+6DuIsgfuevwX0sHbIuspS7x+uTkR1fLzWl027fzxlCKA7Jg/me9gzN3ktoQFkU7JJnG5
- fcU8SCtVNCaLYTPxmmrvVOeBQ+HhhfBXvQlJ/MvLfqvICLDmjmDoJjjfdBpHiF0LDCqgnNZ/L
- 4+QgeSSlwgjzH363xYfAbD/aUu08G+3Se5m4Ey+ztIMXbfz0rXyh/l9EBSK+14VPmm/q1ING7
- j8buo3FO6kO5dYotbFc/BpJ9cXmOTqrr6ccc/raNEl2EavpGQuLkuV9JWFzgUTiZoiKG+nMmX
- AWOi+0JPvpqU51yzZmRfjUauHZETFzztUasJunrREtL/5FMmZz4VCRwpdo4kWJyYSg+sMcJb0
- Q1qYbNA/I/6gliCgg/eyzrQidCOueikceih0cwJ96xsAqknuiyh636Qyzz5QXFTgpOTKhDo3a
- RTKhDYqqIop8E5O1DTnveGGfDH9cUSfE+ug/W21gX2oaRIk/OXJtqbwEvsSCcUaOrJad1+M8A
- SP7VeI5KOPIXIOrTq0zmW86UKb9jW9Q7Ye5t0r9rQ0Y02w23lsYEpQiJJHN2tM+1mqYGnuu+z
- /1bvLYe1r1py1++0bZWemYWmFXn6uDK7m6DSNrpT3Ob+yfgCk9LwmOZVHacoBuViEhdDYmBFf
- w429rpCeM1Ljb7XPigpww06GisuWoujEvvPBp9Z8Hp4SQ=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-25_04,2024-06-24_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
+ priorityscore=1501 bulkscore=0 clxscore=1011 phishscore=0
+ lowpriorityscore=0 adultscore=0 suspectscore=0 impostorscore=0 mlxscore=0
+ mlxlogscore=711 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2406250061
 
->               =E2=80=A6 Thus add corresponding return value checks.
+On 2024-06-25 00:29, yskelg@gmail.com wrote:
+> From: Yunseong Kim <yskelg@gmail.com>
+> 
+> Make memory allocation more precise (based on maxzqs) by allocating
+> memory only for the queues that are truly affected by the online state
+> changes.
+> 
+> Fixes: df6f508c68db ("s390/ap/zcrypt: notify userspace with online,
+> config and mode info")
+> Link:
+> https://lore.kernel.org/linux-s390/your-ad-here.call-01625406648-ext-2488@work.hours/
 
-I suggest to move this sentence into a subsequent text line.
+What is this Link here? It is pointing to a PR for a 5.14 kernel and has 
+no relation to this patch.
 
-
-> The allocated each memory areas are immediately overwritten by the calle=
-d
-> function zero-initialisation be omitted by calling the "kmalloc" instead=
-.
-
-It seems that you stumbled on wording difficulties according to my previou=
-s
-patch review suggestion.
-I find the intended change more appropriate for another update step.
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
-cumentation/process/submitting-patches.rst?h=3Dv6.10-rc5#n168
-
-
-> After "ccw_device_enable_console" succeeds, set the bit raw3270 flag to
-> RAW3270_FLAGS_CONSOLE.
-
-Why do you find such an adjustment relevant here?
-
-
-> Fixes: 33403dcfcdfd ("[S390] 3270 console: convert from bootmem to slab"=
-)
 > Cc: linux-s390@vger.kernel.org
-
-Would you like to specify a =E2=80=9Cstable tag=E2=80=9D?
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
-cumentation/process/stable-kernel-rules.rst?h=3Dv6.10-rc5#n34
-
-
+> Signed-off-by: Yunseong Kim <yskelg@gmail.com>
 > ---
+>  drivers/s390/crypto/zcrypt_card.c | 16 +++++++---------
+>  1 file changed, 7 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/zcrypt_card.c
+> b/drivers/s390/crypto/zcrypt_card.c
+> index 050462d95222..2c80be3f2a00 100644
+> --- a/drivers/s390/crypto/zcrypt_card.c
+> +++ b/drivers/s390/crypto/zcrypt_card.c
+> @@ -88,9 +88,10 @@ static ssize_t online_store(struct device *dev,
+>  	 * the zqueue objects, we make sure they exist after lock release.
+>  	 */
+>  	list_for_each_entry(zq, &zc->zqueues, list)
+> -		maxzqs++;
+> +		if (!!zq->online != !!online)
 
-I would appreciate a version description behind the marker line.
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
-cumentation/process/submitting-patches.rst?h=3Dv6.10-rc5#n713
+I don't like this line. It is code duplication from the zcrypt_queue.c 
+file
+and uses knowledge about the internals of the zqueue which is not 
+appropriate
+here in zcrypt_card.c. Please note also that usually the total number of
+queues attached to a card is in a one digit range. As kcalloc() anyway 
+uses
+the kmalloc pool which is ordered in powers of two it is unlikely to 
+really
+spare some memory by only allocating a pointer space for the online 
+queues.
 
+> +			maxzqs++;
+>  	if (maxzqs > 0)
+> -		zq_uelist = kcalloc(maxzqs + 1, sizeof(*zq_uelist), GFP_ATOMIC);
+> +		zq_uelist = kcalloc(maxzqs, sizeof(*zq_uelist), GFP_ATOMIC);
 
-=E2=80=A6
-> +++ b/drivers/s390/char/raw3270.c
-> @@ -811,18 +811,28 @@ struct raw3270 __init *raw3270_setup_console(void)
->  	if (IS_ERR(cdev))
->  		return ERR_CAST(cdev);
->
-> -	rp =3D kzalloc(sizeof(*rp), GFP_KERNEL | GFP_DMA);
-> -	ascebc =3D kzalloc(256, GFP_KERNEL);
-> +	rp =3D kmalloc(sizeof(*rp), GFP_KERNEL | GFP_DMA);
-> +	if (!rp)
-> +		return ERR_PTR(-ENOMEM);
-> +	ascebc =3D kmalloc(256, GFP_KERNEL);
-> +	if (!ascebc) {
-> +		kfree(rp);
-> +		return ERR_PTR(-ENOMEM);
-> +	}
->  	rc =3D raw3270_setup_device(cdev, rp, ascebc);
-> -	if (rc)
-> +	if (rc) {
-> +		kfree(ascebc);
-> +		kfree(rp);
->  		return ERR_PTR(rc);
-=E2=80=A6
+Your improvement about removal of the +1 and use the i value later 
+instead
+of my implementation which uses a NULL as end of list is valid and makes 
+sense
+to me.
 
-Please take further software design options better into account.
+>  	list_for_each_entry(zq, &zc->zqueues, list)
+>  		if (zcrypt_queue_force_online(zq, online))
+>  			if (zq_uelist) {
+> @@ -98,14 +99,11 @@ static ssize_t online_store(struct device *dev,
+>  				zq_uelist[i++] = zq;
+>  			}
+>  	spin_unlock(&zcrypt_list_lock);
+> -	if (zq_uelist) {
+> -		for (i = 0; zq_uelist[i]; i++) {
+> -			zq = zq_uelist[i];
+> -			ap_send_online_uevent(&zq->queue->ap_dev, online);
+> -			zcrypt_queue_put(zq);
+> -		}
+> -		kfree(zq_uelist);
+> +	while (i--) {
+> +		ap_send_online_uevent(&zq->queue->ap_dev, online);
+> +		zcrypt_queue_put(zq_uelist[i]);
 
-A) goto chain
-   https://wiki.sei.cmu.edu/confluence/display/c/MEM12-C.+Consider+using+a=
-+goto+chain+when+leaving+a+function+on+error+when+using+and+releasing+reso=
-urces
+The content of this while loop is NOT covering the old code. zq is not
+set any more and thus the ap_sen_online_uevent() uses a random zq which
+is a left over from the list_for_each() loop.
 
-B) scope-based resource management
-   https://elixir.bootlin.com/linux/v6.10-rc5/source/include/linux/slab.h#=
-L282
+>  	}
+> +	kfree(zq_uelist);
+> 
+>  	return count;
+>  }
 
+You sent another patch for the online_store() function with exactly the
+same code changes. I would see these changes as one patch and don't want
+to have more or less equal changes spread over two patches.
 
-Regards,
-Markus
+I am sorry, I will not pick this and the online_store() patch.
+
+regards Harald Freudenberger
