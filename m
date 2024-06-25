@@ -1,185 +1,157 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mout.web.de (mout.web.de [212.227.15.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EE981474AF;
-	Tue, 25 Jun 2024 08:11:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A96DA1474B8;
+	Tue, 25 Jun 2024 08:12:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719303089; cv=none; b=NQIshKqizoqKokEHqpx6ms517ddiZAAU7sa857ytnk+ozqbT7GLqUQQUPLPbhaJa7WpQ03myvUrD9qq+1sf2zzyyHkMDSshIh2vGN+luLfQC9/8ZYF0f5iZzEFa+Wre2IaX4fJd84NNNNXq9J0CWC9GAL3N0PtmqYr4xmg4BnZM=
+	t=1719303177; cv=none; b=Pe/XKc7WE6Dr6C5hthJDn8+Sv/9Tnk/YI6gcU740uWMBJBmatXRZsMOsj/dVXNbxTR5JKv8GkKaOHAm+3fBoegPhkzQLIULubetwGEEfuWmskgXMRpOiehKY4ZaXKwfZ/AwcPnUTFtODkT0TPf9Zx23/ArhkD4BF544BZrfWR0U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719303089; c=relaxed/simple;
-	bh=P4QUIiQcI3eVT9M6HjZjSUJwjB5SBq2vK92a3mbXcwU=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=NX8UKYV/r19dm3zO0UzS/iIhScOblTS31mTVoffMlqqyxUN5grVDG2qFkTcYlV7Z8VAJC+Zc8AinHGTMdCDkqYdQdc4VsZnqynpdqg1cPcga8prkqWzJD+NGYX03G0DQfmkyfBw9VkIqjc5LjApRGVATBe5IgMorxTQm7aiFgTU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QGLjFDGI; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1719303177; c=relaxed/simple;
+	bh=HY90n2rA/wsU3QJAr+EqQ9x58uvEWF+QC5zUmnvnZkU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=E6dNQlDbn+oRKDdmxHkmCs0FfAI3STecH1shydrscGQ1h6H36VVbYyDXrtmJ91AX90bYlnGuW2XZ33vrGrgE2wHCIlai7MHZG518zkQFF8rcK7MLuFB+Umei7faAXa7ZxRZ8xM4mCa1t13uP5CQmh+85Tl0KsH6FMzjuRpasvBQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=nmf1iQAk; arc=none smtp.client-ip=212.227.15.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QGLjFDGI"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45P7uRPk017823;
-	Tue, 25 Jun 2024 08:11:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:subject:from:to:cc:date:in-reply-to:references
-	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
-	Wp2FddHtQsTC+choX+hj2LYAdn2RfWxL3mKlZ6jY/Yk=; b=QGLjFDGIsd/Dkf0p
-	ndtsYc3WjXpwZ4bqFxiTtyZWIn1IBfA+/dDrySQP1+hXaGGIeo6lxezFEibQwiDS
-	SeF+yzWRjBz0muf6g54t4hRGzy+VB7VDcgmd6RSf4O2sxMt32F4GFh2G8Jk8cEOr
-	88gB452gZtCN+CRe+SzeyTSLcilJQkivMqqiO9YxH3+e/XYKupzaFW7IDZx2LsDs
-	7bSAnGs/XLEJdRh/38IYwcDi3OgeO95JjrsjiM8whrmdXswTl2mb2b2Xt9PHNzmy
-	AeiiTMMNwoYbo0a/bXw8Sjq2c+E/nOtNNTkG9ZRp7m+OkUnF8yGpXRFk9rGBRiJb
-	Opqrhw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yyre888w4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Jun 2024 08:11:16 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45P87CdN001626;
-	Tue, 25 Jun 2024 08:11:16 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yyre888w2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Jun 2024 08:11:16 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45P70Zmk008183;
-	Tue, 25 Jun 2024 08:11:14 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yx9b0ngck-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Jun 2024 08:11:14 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45P8B9S422741258
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 25 Jun 2024 08:11:11 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1F10C20043;
-	Tue, 25 Jun 2024 08:11:09 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9BF4F2004D;
-	Tue, 25 Jun 2024 08:11:08 +0000 (GMT)
-Received: from li-978a334c-2cba-11b2-a85c-a0743a31b510.ibm.com (unknown [9.171.29.84])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 25 Jun 2024 08:11:08 +0000 (GMT)
-Message-ID: <12c7ba9be7804d31f4aaa4bd804716732add1561.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v3 4/7] s390x: Add function for checking
- diagnose intercepts
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To: Nicholas Piggin <npiggin@gmail.com>,
-        Claudio Imbrenda
- <imbrenda@linux.ibm.com>,
-        Nico =?ISO-8859-1?Q?B=F6hr?= <nrb@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>
-Cc: Thomas Huth <thuth@redhat.com>, Andrew Jones <andrew.jones@linux.dev>,
-        David Hildenbrand
-	 <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Date: Tue, 25 Jun 2024 10:11:08 +0200
-In-Reply-To: <D28QHQGLKAKJ.NZ0V3NUSSFP8@gmail.com>
-References: <20240620141700.4124157-1-nsg@linux.ibm.com>
-	 <20240620141700.4124157-5-nsg@linux.ibm.com>
-	 <D28QHQGLKAKJ.NZ0V3NUSSFP8@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.2 (3.52.2-1.fc40) 
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="nmf1iQAk"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
+	s=s29768273; t=1719303164; x=1719907964; i=markus.elfring@web.de;
+	bh=YNj4CkeeBkR72sAAMLPDwBxJf6xr+bB5YaKr3Nb1xIg=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
+	 References:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:cc:content-transfer-encoding:
+	 content-type:date:from:message-id:mime-version:reply-to:subject:
+	 to;
+	b=nmf1iQAk4wNrIHThdrqOradqCZkqe0cFbythnTtfTIUcw8hnXA9EOaGbaHsxuzpD
+	 XSevyl5+u8A3qP/NfnIIwl9C4jIKbIdf6kdiXL/WULQjBsKUb+h33a/HdzSu3v/7N
+	 FdVRUf4owDcZdeK828J6y5fby9zs+ImWZyx9XD7o0vu2cu5up6BDrEU10lKzaQZyz
+	 Oyta0ppMoppHPNtsvGGo+qiLfTtmy/OKTCNE4ob21Mrd7/CTibtcqLgp47suhBxYD
+	 ymgLZ46H6I9cNkn0L/W4IUsbXwSgGxdFPSmrDm2ya0iX9lolbJTBtjZRbBorWCHFb
+	 jgoGlXB+t2EqAKUxcw==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.21] ([94.31.85.95]) by smtp.web.de (mrweb006
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 1N45xt-1sV7uf2Ge1-00tkIk; Tue, 25
+ Jun 2024 10:12:44 +0200
+Message-ID: <70139e84-478f-42cf-a94c-61266399b37f@web.de>
+Date: Tue, 25 Jun 2024 10:12:43 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: GzoBypElhhwxxr9FvxaKRgNuJyORVvb_
-X-Proofpoint-GUID: nbObyaQjKIWAqTSvQsOAegOdFhLZ8aGP
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-25_04,2024-06-24_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
- malwarescore=0 impostorscore=0 priorityscore=1501 phishscore=0 bulkscore=0
- spamscore=0 clxscore=1015 lowpriorityscore=0 mlxlogscore=999 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2406140001
- definitions=main-2406250058
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] s390/raw3270: Handle memory allocation failures in
+ raw3270_setup_console()
+To: Yunseong Kim <yskelg@gmail.com>, linux-s390@vger.kernel.org,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ =?UTF-8?Q?Christian_Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>,
+ Harald Freudenberger <freude@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, MichelleJin <shjy180909@gmail.com>
+References: <20240625013225.17076-2-yskelg@gmail.com>
+Content-Language: en-GB
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <20240625013225.17076-2-yskelg@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:MuuM+gyeE9zulDfkpPbp8aj1hLSmPkNj2rvDUuiQ63kKVhTWvTW
+ 1oDGtTdsWGkrlPA5XljeBJqIvKNs99URQkLg5PpsEO6JtliUYEtbWvcsj6LorqV+98O4oKq
+ VIfcCVEbG7ZSClNaUcOQ84ZohKit33AroxSGGkXrITYI46Kep/+zRblZKGtlUuW38SXQfMa
+ uymqHfmWxXhxX4/Io8Mww==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:SdUk+5bHDK0=;c6joiXyHBH6BAB+0PIDbZWEIcVp
+ tQsYFxg5dO2PA7SrnPQtkwZowDtk+Ed2HkuHLttwWdJAqYF+VitrwH/64pSzuA9rH4F2ObXwu
+ J5Lk+Yjou6YOW5Zc9ACSABxGcdUCR9/gUTgNWrQ92v4HOpLZd1kY6twBhSdK+3AIDomM/5yVf
+ tjB6+6DuIsgfuevwX0sHbIuspS7x+uTkR1fLzWl027fzxlCKA7Jg/me9gzN3ktoQFkU7JJnG5
+ fcU8SCtVNCaLYTPxmmrvVOeBQ+HhhfBXvQlJ/MvLfqvICLDmjmDoJjjfdBpHiF0LDCqgnNZ/L
+ 4+QgeSSlwgjzH363xYfAbD/aUu08G+3Se5m4Ey+ztIMXbfz0rXyh/l9EBSK+14VPmm/q1ING7
+ j8buo3FO6kO5dYotbFc/BpJ9cXmOTqrr6ccc/raNEl2EavpGQuLkuV9JWFzgUTiZoiKG+nMmX
+ AWOi+0JPvpqU51yzZmRfjUauHZETFzztUasJunrREtL/5FMmZz4VCRwpdo4kWJyYSg+sMcJb0
+ Q1qYbNA/I/6gliCgg/eyzrQidCOueikceih0cwJ96xsAqknuiyh636Qyzz5QXFTgpOTKhDo3a
+ RTKhDYqqIop8E5O1DTnveGGfDH9cUSfE+ug/W21gX2oaRIk/OXJtqbwEvsSCcUaOrJad1+M8A
+ SP7VeI5KOPIXIOrTq0zmW86UKb9jW9Q7Ye5t0r9rQ0Y02w23lsYEpQiJJHN2tM+1mqYGnuu+z
+ /1bvLYe1r1py1++0bZWemYWmFXn6uDK7m6DSNrpT3Ob+yfgCk9LwmOZVHacoBuViEhdDYmBFf
+ w429rpCeM1Ljb7XPigpww06GisuWoujEvvPBp9Z8Hp4SQ=
 
-On Tue, 2024-06-25 at 12:14 +1000, Nicholas Piggin wrote:
-> On Fri Jun 21, 2024 at 12:16 AM AEST, Nina Schoetterl-Glausch wrote:
-> > sie_is_diag_icpt() checks if the intercept is due to an expected
-> > diagnose call and is valid.
-> > It subsumes pv_icptdata_check_diag.
-> >=20
-> > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> > ---
-> >  lib/s390x/pv_icptdata.h | 42 --------------------------------
-> >  lib/s390x/sie.h         | 12 ++++++++++
-> >  lib/s390x/sie.c         | 53 +++++++++++++++++++++++++++++++++++++++++
-> >  s390x/pv-diags.c        |  8 +++----
-> >  s390x/pv-icptcode.c     | 11 ++++-----
-> >  s390x/pv-ipl.c          |  7 +++---
-> >  6 files changed, 76 insertions(+), 57 deletions(-)
-> >  delete mode 100644 lib/s390x/pv_icptdata.h
+>               =E2=80=A6 Thus add corresponding return value checks.
 
-[...]
+I suggest to move this sentence into a subsequent text line.
 
-> > +bool sie_is_diag_icpt(struct vm *vm, unsigned int diag)
-> > +{
-> > +	union {
-> > +		struct {
-> > +			uint64_t     : 16;
-> > +			uint64_t ipa : 16;
-> > +			uint64_t ipb : 32;
-> > +		};
-> > +		struct {
-> > +			uint64_t          : 16;
-> > +			uint64_t opcode   :  8;
-> > +			uint64_t r_1      :  4;
-> > +			uint64_t r_2      :  4;
-> > +			uint64_t r_base   :  4;
-> > +			uint64_t displace : 12;
-> > +			uint64_t zero     : 16;
-> > +		};
-> > +	} instr =3D { .ipa =3D vm->sblk->ipa, .ipb =3D vm->sblk->ipb };
-> > +	uint8_t icptcode;
-> > +	uint64_t code;
-> > +
-> > +	switch (diag) {
-> > +	case 0x44:
-> > +	case 0x9c:
-> > +	case 0x288:
-> > +	case 0x308:
-> > +		icptcode =3D ICPT_PV_NOTIFY;
-> > +		break;
-> > +	case 0x500:
-> > +		icptcode =3D ICPT_PV_INSTR;
-> > +		break;
-> > +	default:
-> > +		/* If a new diag is introduced add it to the cases above! */
-> > +		assert_msg(false, "unknown diag");
-> > +	}
-> > +
-> > +	if (sie_is_pv(vm)) {
-> > +		if (instr.r_1 !=3D 0 || instr.r_2 !=3D 2 || instr.r_base !=3D 5)
-> > +			return false;
-> > +		if (instr.displace)
-> > +			return false;
-> > +	} else {
-> > +		icptcode =3D ICPT_INST;
-> > +	}
-> > +	if (vm->sblk->icptcode !=3D icptcode)
-> > +		return false;
-> > +	if (instr.opcode !=3D 0x83 || instr.zero)
-> > +		return false;
-> > +	code =3D instr.r_base ? vm->save_area.guest.grs[instr.r_base] : 0;
-> > +	code =3D (code + instr.displace) & 0xffff;
-> > +	return code =3D=3D diag;
-> > +}
->=20
-> It looks like this transformation is equivalent for the PV case.
 
-Yes, the PV case just has hardcoded values that we want to check.
+> The allocated each memory areas are immediately overwritten by the calle=
+d
+> function zero-initialisation be omitted by calling the "kmalloc" instead=
+.
 
-> You
-> could put the switch into the sie_is_pv() branch? Otherwise looks okay.
+It seems that you stumbled on wording difficulties according to my previou=
+s
+patch review suggestion.
+I find the intended change more appropriate for another update step.
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
+cumentation/process/submitting-patches.rst?h=3Dv6.10-rc5#n168
 
-I want to validate diag for both PV and non PV.
->=20
-> Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
 
-Thanks!
+> After "ccw_device_enable_console" succeeds, set the bit raw3270 flag to
+> RAW3270_FLAGS_CONSOLE.
+
+Why do you find such an adjustment relevant here?
+
+
+> Fixes: 33403dcfcdfd ("[S390] 3270 console: convert from bootmem to slab"=
+)
+> Cc: linux-s390@vger.kernel.org
+
+Would you like to specify a =E2=80=9Cstable tag=E2=80=9D?
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
+cumentation/process/stable-kernel-rules.rst?h=3Dv6.10-rc5#n34
+
+
+> ---
+
+I would appreciate a version description behind the marker line.
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
+cumentation/process/submitting-patches.rst?h=3Dv6.10-rc5#n713
+
+
+=E2=80=A6
+> +++ b/drivers/s390/char/raw3270.c
+> @@ -811,18 +811,28 @@ struct raw3270 __init *raw3270_setup_console(void)
+>  	if (IS_ERR(cdev))
+>  		return ERR_CAST(cdev);
+>
+> -	rp =3D kzalloc(sizeof(*rp), GFP_KERNEL | GFP_DMA);
+> -	ascebc =3D kzalloc(256, GFP_KERNEL);
+> +	rp =3D kmalloc(sizeof(*rp), GFP_KERNEL | GFP_DMA);
+> +	if (!rp)
+> +		return ERR_PTR(-ENOMEM);
+> +	ascebc =3D kmalloc(256, GFP_KERNEL);
+> +	if (!ascebc) {
+> +		kfree(rp);
+> +		return ERR_PTR(-ENOMEM);
+> +	}
+>  	rc =3D raw3270_setup_device(cdev, rp, ascebc);
+> -	if (rc)
+> +	if (rc) {
+> +		kfree(ascebc);
+> +		kfree(rp);
+>  		return ERR_PTR(rc);
+=E2=80=A6
+
+Please take further software design options better into account.
+
+A) goto chain
+   https://wiki.sei.cmu.edu/confluence/display/c/MEM12-C.+Consider+using+a=
++goto+chain+when+leaving+a+function+on+error+when+using+and+releasing+reso=
+urces
+
+B) scope-based resource management
+   https://elixir.bootlin.com/linux/v6.10-rc5/source/include/linux/slab.h#=
+L282
+
+
+Regards,
+Markus
