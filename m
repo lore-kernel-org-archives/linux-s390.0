@@ -1,212 +1,128 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mout.web.de (mout.web.de [212.227.15.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD0C71822C2;
-	Wed, 26 Jun 2024 14:26:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1302718629B;
+	Wed, 26 Jun 2024 14:52:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719412011; cv=none; b=Smli2vNqTvx1Ysr4D14T54mbYvEwh539lCysUV0OEWv/RBra1IdWzwU12KbuVqWs7GjfD32XK5+m6kM7nuaApqQJaATX5M38hJAcRdr3Y4o4LB6vu7aKr589t+W48vZ7uGOuj/DpE6tdeZ0SyVIUwLIvHh/m0pRWuyP15xtlvEc=
+	t=1719413553; cv=none; b=L+4306ncJR1J60cvdcvYzpFZhQTEJVpj0+4aL6ou9LMMp7Aun7NuzoZgE0mc3FWfurWdKk7s5zUcgIcyoKsqU+87UwtYORW5KZ8znjLgLPXTKKY29ZaufhAcx6Niu2lYMNGSqhtrsJtB4iqxNPFYIs0Y9ZmoCTzuSwUJxh4cdrU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719412011; c=relaxed/simple;
-	bh=vg5cri0PAiOZOwK+95etYDxO3VjAS4xHDI6mf4kbDVw=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=QtrcWOCH2piuF84hj2hqh02u6vlnFLWqmZ4q/+EbpMjmsyOHpR8DEZLJTRZ4tSBzDIDu5/XMdHW6K42+t22b8tdQvIAChARLAL4+wsIWRl3DLJS9NGev2zvvj0+eZXyuMhx5YGo5Ly9Cj0GOyqy/FCajQ4VVOmETJTDlxWPzPh8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XliDJOUH; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1719413553; c=relaxed/simple;
+	bh=F0CnGji1wRDPkT1q0o6oYL7yDo0gD2uyVQ159WDkbWg=;
+	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
+	 In-Reply-To:Content-Type; b=kuhDbWfhF+g+qbSKbqt2hpXEEjwRaUBO9+Gv4zuaUeNYCBubrpTXZ3uxr6MlhATG+0EmtoZioKBEOH/319HJoj9mbDk4usDn1GSgilMWrQJwKtOOZBZh2N52jBPJwCffRNQjib6EUPt6n56oD+3C4lZdPgl8XVAtjCgZ36khbOs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=cZZbmNnS; arc=none smtp.client-ip=212.227.15.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XliDJOUH"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45QDQswG007153;
-	Wed, 26 Jun 2024 14:26:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:subject:from:to:cc:date:in-reply-to:references
-	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
-	NOyl7bvy3xn1R0AC5aOW2qZLf3TfADm+9Y/XroZ4e2k=; b=XliDJOUHJhEvrcDz
-	A1UuMz8RVuvb4Iyxq8FhdIdMOX1FTKU6BeZZ+/snQlVI1oH9OMQCYwMv1i2DZOnG
-	4GwdjsSNtx53VbWEs1Qom25316ammxbwbAj1jZnBSDLz2tIWRpKE3RbkjdcISUrA
-	PnC1kE58OBh0GYgy5DXtWIUuRRauw1YC6P057v6HvdnXMw0z7V0f+7wOfryEvUbz
-	1VubXy3UQsoXGSdXymS72si8sph4q7c58akn97l2s2feFXL5j4tF3ACDTO4k1V3Z
-	xvFScNTn3Fd1KQFFlPNCfvKs2gk04Q46WM71hYFclbYtFdx0HO2U7J4FKxUSkW2o
-	uZqLag==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 400k158b4h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 26 Jun 2024 14:26:43 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45QBm5fY019533;
-	Wed, 26 Jun 2024 14:26:42 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yx9xq4v3y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 26 Jun 2024 14:26:42 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45QEQcDA50331946
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 26 Jun 2024 14:26:41 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BE8F75805D;
-	Wed, 26 Jun 2024 14:26:38 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 54D0758057;
-	Wed, 26 Jun 2024 14:26:36 +0000 (GMT)
-Received: from [9.179.2.26] (unknown [9.179.2.26])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 26 Jun 2024 14:26:36 +0000 (GMT)
-Message-ID: <7493b7a289729ebdf20c50c181676e62780dff63.camel@linux.ibm.com>
-Subject: Re: [PATCH] s390/ism: Add check for dma_set_max_seg_size in
- ism_probe()
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Gerd Bayer <gbayer@linux.ibm.com>, Ma Ke <make24@iscas.ac.cn>,
-        wintera@linux.ibm.com, twinkler@linux.ibm.com,
-        Wenjia Zhang
- <wenjia@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        davem@davemloft.net, Stefan Raspl <raspl@linux.ibm.com>
-Date: Wed, 26 Jun 2024 16:26:35 +0200
-In-Reply-To: <4ab328297c12d1c286c56dbc01d611b77ea2da03.camel@linux.ibm.com>
-References: <20240626081215.2824627-1-make24@iscas.ac.cn>
-	 <4ab328297c12d1c286c56dbc01d611b77ea2da03.camel@linux.ibm.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
- /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
- 3/1pjpNlSaX/qg3ZM8+/EiSGc7uEPklLYu3gRGxcWV/944HdUyLcnjrZwCn2+gg9ncVJjsimS0ro/
- 2wU2RPE4ju6NMBn5Go26sAj1owdYQQv9t0d71CmZS9Bh+2+cLjC7HvyTHKFxVGOznUL+j1a45VrVS
- XQ+nhTVjvgvXR84z10bOvLiwxJZ/00pwNi7uCdSYnZFLQ4S/JGMs4lhOiCGJhJ/9FR7JVw/1t1G9a
- UlqVp23AXwzbcoV2fxyE/CsVpHcyOWGDahGLcH7QeitN6cjltf9ymw2spBzpRnfFn80nVxgSYVG1d
- w75ksBAuQ/3e+oTQk4GAa2ShoNVsvR9GYn7rnsDN5pVILDhdPO3J2PGIXa5ipQnvwb3EHvPXyzakY
- tK50fBUPKk3XnkRwRYEbbPEB7YT+ccF/HioCryqDPWUivXF8qf6Jw5T1mhwukUV1i+QyJzJxGPh19
- /N2/GK7/yS5wrt0Lwxzevc5g+jX8RyjzywOZGHTVu9KIQiG8Pqx33UxZvykjaqTMjo7kaAdGEkrHZ
- dVHqoPZwhCsgQARAQABtChOaWtsYXMgU2NobmVsbGUgPHNjaG5lbGxlQGxpbnV4LmlibS5jb20+iQ
- JXBBMBCABBAhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAhkBFiEEnbAAstJ1IDCl9y3cr+Q/Fej
- CYJAFAmWVooIFCQWP+TMACgkQr+Q/FejCYJCmLg/+OgZD6wTjooE77/ZHmW6Egb5nUH6DU+2nMHMH
- UupkE3dKuLcuzI4aEf/6wGG2xF/LigMRrbb1iKRVk/VG/swyLh/OBOTh8cJnhdmURnj3jhaefzslA
- 1wTHcxeH4wMGJWVRAhOfDUpMMYV2J5XoroiA1+acSuppelmKAK5voVn9/fNtrVr6mgBXT5RUnmW60
- UUq5z6a1zTMOe8lofwHLVvyG9zMgv6Z9IQJc/oVnjR9PWYDUX4jqFL3yO6DDt5iIQCN8WKaodlNP6
- 1lFKAYujV8JY4Ln+IbMIV2h34cGpIJ7f76OYt2XR4RANbOd41+qvlYgpYSvIBDml/fT2vWEjmncm7
- zzpVyPtCZlijV3npsTVerGbh0Ts/xC6ERQrB+rkUqN/fx+dGnTT9I7FLUQFBhK2pIuD+U1K+A+Egw
- UiTyiGtyRMqz12RdWzerRmWFo5Mmi8N1jhZRTs0yAUn3MSCdRHP1Nu3SMk/0oE+pVeni3ysdJ69Sl
- kCAZoaf1TMRdSlF71oT/fNgSnd90wkCHUK9pUJGRTUxgV9NjafZy7sx1Gz11s4QzJE6JBelClBUiF
- 6QD4a+MzFh9TkUcpG0cPNsFfEGyxtGzuoeE86sL1tk3yO6ThJSLZyqFFLrZBIJvYK2UiD+6E7VWRW
- 9y1OmPyyFBPBosOvmrkLlDtAtyfYInO0KU5pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNjaG5lbGxlQ
- GlibS5jb20+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAAstJ1IDCl9y
- 3cr+Q/FejCYJAFAmWVoosFCQWP+TMACgkQr+Q/FejCYJB7oxAAksHYU+myhSZD0YSuYZl3oLDUEFP
- 3fm9m6N9zgtiOg/GGI0jHc+Tt8qiQaLEtVeP/waWKgQnje/emHJOEDZTb0AdeXZk+T5/ydrKRLmYC
- 6rPge3ue1yQUCiA+T72O3WfjZILI2yOstNwd1f0epQ32YaAvM+QbKDloJSmKhGWZlvdVUDXWkS6/m
- aUtUwZpddFY8InXBxsYCbJsqiKF3kPVD515/6keIZmZh1cTIFQ+Kc+UZaz0MxkhiCyWC4cH6HZGKR
- fiXLhPlmmAyW9FiZK9pwDocTLemfgMR6QXOiB0uisdoFnjhXNfp6OHSy7w7LTIHzCsJoHk+vsyvSp
- +fxkjCXgFzGRQaJkoX33QZwQj1mxeWl594QUfR4DIZ2KERRNI0OMYjJVEtB5jQjnD/04qcTrSCpJ5
- ZPtiQ6Umsb1c9tBRIJnL7gIslo/OXBe/4q5yBCtCZOoD6d683XaMPGhi/F6+fnGvzsi6a9qDBgVvt
- arI8ybayhXDuS6/StR8qZKCyzZ/1CUofxGVIdgkseDhts0dZ4AYwRVCUFQULeRtyoT4dKfEot7hPE
- /4wjm9qZf2mDPRvJOqss6jObTNuw1YzGlpe9OvDYtGeEfHgcZqEmHbiMirwfGLaTG2xKDx4g2jd2z
- Ocf83TCERFKJEhvZxB3tRiUQTd3dZ1TIaisv/o+y0K05pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNj
- aG5lbGxlQGdtYWlsLmNvbT6JAlQEEwEIAD4CGwEFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AWIQSds
- ACy0nUgMKX3Ldyv5D8V6MJgkAUCZZWiiwUJBY/5MwAKCRCv5D8V6MJgkNVuEACo12niyoKhnXLQFt
- NaqxNZ+8p/MGA7g2XcVJ1bYMPoZ2Wh8zwX0sKX/dLlXVHIAeqelL5hIv6GoTykNqQGUN2Kqf0h/z7
- b85o3tHiqMAQV0dAB0y6qdIwdiB69SjpPNK5KKS1+AodLzosdIVKb+LiOyqUFKhLnablni1hiKlqY
- yDeD4k5hePeQdpFixf1YZclGZLFbKlF/A/0Q13USOHuAMYoA/iSgJQDMSUWkuC0mNxdhfVt/gVJnu
- Kq+uKUghcHflhK+yodqezlxmmRxg6HrPVqRG4pZ6YNYO7YXuEWy9JiEH7MmFYcjNdgjn+kxx4IoYU
- O0MJ+DjLpVCV1QP1ZvMy8qQxScyEn7pMpQ0aW6zfJBsvoV3EHCR1emwKYO6rJOfvtu1rElGCTe3sn
- sScV9Z1oXlvo8pVNH5a2SlnsuEBQe0RXNXNJ4RAls8VraGdNSHi4MxcsYEgAVHVaAdTLfJcXZNCIU
- cZejkOE+U2talW2n5sMvx+yURAEVsT/50whYcvomt0y81ImvCgUz4xN1axZ3PCjkgyhNiqLe+vzge
- xq7B2Kx2++hxIBDCKLUTn8JUAtQ1iGBZL9RuDrBy2rR7xbHcU2424iSbP0zmnpav5KUg4F1JVYG12
- vDCi5tq5lORCL28rjOQqE0aLHU1M1D2v51kjkmNuc2pgLDFzpvgLQhTmlrbGFzIFNjaG5lbGxlIDx
- uaWtzQGtlcm5lbC5vcmc+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAA
- stJ1IDCl9y3cr+Q/FejCYJAFAmWVoosFCQWP+TMACgkQr+Q/FejCYJAglRAAihbDxiGLOWhJed5cF
- kOwdTZz6MyYgazbr+2sFrfAhX3hxPFoG4ogY/BzsjkN0cevWpSigb2I8Y1sQD7BFWJ2OjpEpVQd0D
- sk5VbJBXEWIVDBQ4VMoACLUKgfrb0xiwMRg9C2h6KlwrPBlfgctfvrWWLBq7+oqx73CgxqTcGpfFy
- tD87R4ovR9W1doZbh7pjsH5Ae9xX5PnQFHruib3y35zC8+tvSgvYWv3Eg/8H4QWlrjLHHy2AfZDVl
- 9F5t5RfGL8NRsiTdVg9VFYg/GDdck9WPEgdO3L/qoq3Iuk0SZccGl+Nj8vtWYPKNlu2UvgYEbB8cl
- UoWhg+SjjYQka7/p6tc+CCPZ8JUpkgkAdt7yXt6370wP1gct2VztS6SEGcmAE1qxtGhi5Kuln4ZJ/
- UO2yxhPHgoW99OuZw3IRHe0+mNR67JbIpSuFWDFNjZ0nckQcU1taSEUi0euWs7i4MEkm0NsOsVhbs
- 4D2vMiC6kO/FqWOPmWZeAjyJw/KRUG4PaJAr5zJUx57nhKWgeTniW712n4DwCUh77D/PHY0nqBTG/
- B+QQCR/FYGpTFkO4DRVfapT8njDrsWyVpP9o64VNZP42S+DuRGWfUKCMAXsM/wPzRiDEVfnZMcUR9
- vwLSHeoV7MiIFC0xIrp5ES9R00t4UFgqtGc36DV71qjR+66Im0=
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.2 (3.52.2-1.fc40) 
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="cZZbmNnS"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
+	s=s29768273; t=1719413531; x=1720018331; i=markus.elfring@web.de;
+	bh=FFE85tnMm6EJuo/UO7THJkkwDz/ISy4hRYIl0uSduj0=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
+	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
+	 cc:content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=cZZbmNnSymc6AFYBLcGQ2pZu19jTUSr3eNwEiX5mGNkRqrg3SxszSoRRkCJbCNZy
+	 4gz5Bdk3Lw4r5ZU8wvtOvyKyfcrVsY5eD3qryMUBd3ETYASajWWcoDstrmqQwTrqf
+	 iYpq2n4iYhg0F0Zb2RPnIpYBmiC5xJSzCW5QWBW3+F0Py5SEsivI9tO8pFu+Nc3uH
+	 iNmD1CEqyQE2wo5zVsA3J0vUJ6qhtaYxebvTznaONmmfVxhnWBxgow3QbLFuUMnm7
+	 2SYHVqPGF37YxFxlVu+oGVQy7jHVLhg9ThQKgTg6Pq7RN7DVy8UWMp0kKh/zCPduL
+	 nR0mrWLYWvYlJT5K2Q==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.21] ([94.31.91.95]) by smtp.web.de (mrweb006
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 1N7QQD-1sO2go0hgb-00x18V; Wed, 26
+ Jun 2024 16:52:11 +0200
+Message-ID: <8a66afe4-5df8-4542-b74f-b050e71263fb@web.de>
+Date: Wed, 26 Jun 2024 16:52:09 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: EscOKJQhdCKtQEIwfM2S2jXCCry1_rMc
-X-Proofpoint-GUID: EscOKJQhdCKtQEIwfM2S2jXCCry1_rMc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-26_07,2024-06-25_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1011 suspectscore=0 spamscore=0 malwarescore=0 priorityscore=1501
- impostorscore=0 phishscore=0 adultscore=0 mlxscore=0 bulkscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2406140001 definitions=main-2406260107
+User-Agent: Mozilla Thunderbird
+To: Ma Ke <make24@iscas.ac.cn>, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Alexandra Winter <wintera@linux.ibm.com>,
+ =?UTF-8?Q?Christian_Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>,
+ "David S. Miller" <davem@davemloft.net>, Gerd Bayer <gbayer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Niklas Schnelle
+ <schnelle@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Thorsten Winkler <twinkler@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <20240626081215.2824627-1-make24@iscas.ac.cn>
+Subject: Re: [PATCH] s390/ism: Add check for dma_set_max_seg_size in
+ ism_probe()
+Content-Language: en-GB
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <20240626081215.2824627-1-make24@iscas.ac.cn>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:HRGw43YV7SkuT0Xt4fwMTX9TEURd7yMQTJtdVH/oHNrhfXeGUZW
+ Jeb5W7VzO23BvEvq0PM6KzNqgZQctsQVgJ5w0xNM9y7KJusJVX8O2Npp4sZZek4VKJvjEHk
+ Srvx1W261wPMz5LjIb8MLitoC4ElHTUPtKPSk5nW8byyTDfckZR0IObqbFu7AiM20u0SS7o
+ XrfEOuMk0Qq5ndiwmHJNw==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:WTlxYGB/qos=;9avwyHEogKHHx/HTwSuuZtAPQQ6
+ Pam58lxvKlZC2/LcIYocQ2qyIzLZZdgdFdFwcfLQT0KV3dOn949EyFxmbljRJIMvD5FAV6fLg
+ lyLNm5ka6fOMWujFeK9FA4gjoD2Qi6AlKHzb03i3+WGyX/+SAKrFWD+YAAzPqTdLQsxM5WYlU
+ t0xiE7GmN7F8/QDRJU1VNVPhBOqdv/o+XMcYPrS0A0dGq4W5va8WczG4w1fg1kanZFsubf407
+ gktOgN1ioS1EofbgWHBSOlfpj8NpQ4y9IvKIYk/pNhiuLZqCkb/saFb/6x7w8P4P9D7sVKJ2J
+ Qb0apf2YZgTUZhKI9XKSBCxMmqsxRQEWZ0EdqKCzLjJcX6rWDhu7YKs4hAwsi+nrJ8v4x+KOi
+ gFD/H04MF3CRQNVY87/wF8+6QIZKEu/3GqTXruUanWkLM3B3+48f6Vir3R6ZLiFp57SkkKjPc
+ /2hLSedfgzLeMsVWxVTDdLNDPMkbzJR3LmLYCrSh0N3jCuWnIY7RCk4afj9ipq0KCW8uzrJx1
+ anQGfGnDi3JrX6IECCG2lCD7eEXX1oaWjL/M3kT6+IYhsePBnKMzG5pRfkg15hq2bECJ6uYaW
+ PD79VMYRG0Rum318AqZ1X09RJR0xz6e6zVmbMUo6+jFgp+XznUTP7Kiagmvv3qh8Q2wAHRoPW
+ ykWUE6rVUVSZXHjsAkESMBUCIXes3hV5IWmXdYfOesBQTySpW8yVqgyWP9UIb9MIo7MGTu+th
+ yChdVfF0YCdHyjoig9i0iMwUXCmHrgab3VqWuC+iP7UopeT9WP/1C+jVIq+vbglvdwOA5x1am
+ CFAMCJ4qjOJ2XfK4sGcHeDn8EEiow/ne7dh0RmatLMznc=
 
-On Wed, 2024-06-26 at 14:48 +0200, Gerd Bayer wrote:
-> Hi Ma Ke,
->=20
-> On Wed, 2024-06-26 at 16:12 +0800, Ma Ke wrote:
-> > As the possible failure of the dma_set_max_seg_size(), we should
-> > better check the return value of the dma_set_max_seg_size().
->=20
-> I think formally you're correct. dma_set_max_seg_size() could return an
-> error if dev->dma_parms was not present.
->=20
-> However, since ISM devices are PCI attached (and will remain PCI
-> attached I believe) we can take the existance of dev->dma_parms for
-> granted since pci_device_add() (in drivers/pci/probe.c) will make that
-> point to the pci_dev's dma_parms for every PCI device.
->=20
-> So I'm not sure how important this fix is.
+> As the possible failure of the dma_set_max_seg_size(), we should better
+> check the return value of the dma_set_max_seg_size().
 
-I agree this doesn't look like an issue we're likely to encounter. That
-said if for some reason dma_set_max_seg_size() or common PCI code is
-changed and it starts failing it's good to have it handled.
-
-This  line has also only been dma_set_max_seg_size() since commit
-b0da3498c587 ("PCI: Remove pci_set_dma_max_seg_size()"). Since this
-patch won't apply for anything older I would prefer to cite that as the
-fixed commit.
-
->=20
-> > Fixes: 684b89bc39ce ("s390/ism: add device driver for internal shared
-> > memory")
-> > Signed-off-by: Ma Ke <make24@iscas.ac.cn>
-> > ---
-> > =C2=A0drivers/s390/net/ism_drv.c | 4 +++-
-> > =C2=A01 file changed, 3 insertions(+), 1 deletion(-)
-> >=20
-> > diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-> > index e36e3ea165d3..9ddd093a0368 100644
-> > --- a/drivers/s390/net/ism_drv.c
-> > +++ b/drivers/s390/net/ism_drv.c
-> > @@ -620,7 +620,9 @@ static int ism_probe(struct pci_dev *pdev, const
-> > struct pci_device_id *id)
-> > =C2=A0		goto err_resource;
-                ^ see here
-
-> > =C2=A0
-> > =C2=A0	dma_set_seg_boundary(&pdev->dev, SZ_1M - 1);
-> > -	dma_set_max_seg_size(&pdev->dev, SZ_1M);
-> > +	ret =3D dma_set_max_seg_size(&pdev->dev, SZ_1M);
-> > +	if (ret)
-> > +		return ret;
-
-Simply returning here would leak the resources. Just like the error
-condition I marked above this would need to be goto err_resource.
-
-> > =C2=A0	pci_set_master(pdev);
-> > =C2=A0
-> > =C2=A0	ret =3D ism_dev_init(ism);
->=20
-> BTW, I've dropped ubraun@linux.ibm.com and sebott@linux.ibm.com as
-> their emails won't work any longer, anyhow. Instead I've added Niklas
-> Schnelle, Wenjia Zhang and Stefan Raspl.
->=20
-> Thanks, Gerd
->=20
+Please avoid the repetition of a function name in such a change descriptio=
+n.
+Can it be improved with corresponding imperative wordings?
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
+cumentation/process/submitting-patches.rst?h=3Dv6.10-rc5#n94
 
 
+=E2=80=A6
+> +++ b/drivers/s390/net/ism_drv.c
+> @@ -620,7 +620,9 @@ static int ism_probe(struct pci_dev *pdev, const str=
+uct pci_device_id *id)
+>  		goto err_resource;
+>
+>  	dma_set_seg_boundary(&pdev->dev, SZ_1M - 1);
+> -	dma_set_max_seg_size(&pdev->dev, SZ_1M);
+> +	ret =3D dma_set_max_seg_size(&pdev->dev, SZ_1M);
+> +	if (ret)
+> +		return ret;
+>  	pci_set_master(pdev);
+=E2=80=A6
+
+1. Will the shown dma_set_seg_boundary() call trigger similar software dev=
+elopment concerns?
+   https://elixir.bootlin.com/linux/v6.10-rc5/source/include/linux/dma-map=
+ping.h#L562
+
+
+2. Would the following statement be more appropriate for the proposed comp=
+letion
+   of the exception handling?
+
++		goto err_resource;
+
+
+3. Under which circumstances would you become interested to increase the a=
+pplication
+   of scope-based resource management here?
+   https://elixir.bootlin.com/linux/v6.10-rc5/source/include/linux/cleanup=
+.h#L8
+
+
+Regards,
+Markus
