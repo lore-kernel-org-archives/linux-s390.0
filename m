@@ -1,90 +1,169 @@
-Received: from cstnet.cn (smtp84.cstnet.cn [159.226.251.84])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2B5F13AA3C;
-	Wed, 26 Jun 2024 08:12:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.84
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62D21148FE3;
+	Wed, 26 Jun 2024 11:16:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719389553; cv=none; b=emKf6so6U8AKKe0SSZ5wngeeDx789oAkHLjXQQXoZnZytSvzTF6UI8tawYdGSnhOiweRI7ExIdK4k5mR2kaovBNHmC7xRAPqOQdcOgzjOAQRDjIDHCL5mH74TTnOISqSvrl93ouBbU0Ac7l0cDFKpNyNcSTvCWpcUWA+jTXIsRE=
+	t=1719400600; cv=none; b=rbnJJperLbp8FUGwgLVqCiCXJfj5lxBWBl8zP03GlNuDY0mTJan4HEJJlWih0nSKtCnObl3Q5DQ/+plYph2zriT+3A0mn/RvY70aWgkaCkpPwYK9GHAJK5JbvngrVrnxbHVkrQ9cMDB9UMZLkNZpY3RlUoHUz8Vy4hLjF7augJE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719389553; c=relaxed/simple;
-	bh=fy3iUdoNHtg+RLT6e+nTyMyJr9ANx2SWP3ueVJDFAI8=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=kNJ4IPWvEwsliSYrDNG47gucMt9KJFlcUHpPnHK+6dCJt//1qo/LJe2vvzF/JUDHBoVmFYPFDRTzIQIRlj1ywk9OPLE3Yu6D+G1x8GqdBeMHtXm1DdoLudsNR0hHQDDmH7yq9iJ0GFm8xxr+NcRfA11D1EZBC6N8Tqmj0/T7WyM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.84
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from icess-ProLiant-DL380-Gen10.. (unknown [183.174.60.14])
-	by APP-05 (Coremail) with SMTP id zQCowAB3fuZhzXtmDb7eEg--.5980S2;
-	Wed, 26 Jun 2024 16:12:24 +0800 (CST)
-From: Ma Ke <make24@iscas.ac.cn>
-To: wintera@linux.ibm.com,
-	twinkler@linux.ibm.com,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	davem@davemloft.net,
-	ubraun@linux.ibm.com,
-	sebott@linux.ibm.com
-Cc: linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Ma Ke <make24@iscas.ac.cn>
-Subject: [PATCH] s390/ism: Add check for dma_set_max_seg_size in ism_probe()
-Date: Wed, 26 Jun 2024 16:12:15 +0800
-Message-Id: <20240626081215.2824627-1-make24@iscas.ac.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1719400600; c=relaxed/simple;
+	bh=kmttkYcl7RaIqBVfs1vIdHpH/R3f9A14cvLyhdB1rck=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=rDp7leBcv49HcQE8esbbCM+IdLD0Fc1vH4KNB2xBJ8gfGIBOnKccxIJSMSrHfjI0OiCsV/wr6mpEolwsy6/8G2CiWTWh80fEpL8VDn7N9AsYCLaBK+T7yLNkrqHZ4Mko6qi8935pUgfhGxNgXcSBcvEWhjocn89q2QdLEhEWK+w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OEKWQBcL; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OEKWQBcL"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45QAQoYD023768;
+	Wed, 26 Jun 2024 11:16:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:date:subject:mime-version:content-type
+	:content-transfer-encoding:message-id:references:in-reply-to:to
+	:cc; s=pp1; bh=LTrthfU6+VvQnNM7AhQqXcpa/YUXxL1CYEpRBlk6l6E=; b=O
+	EKWQBcLNuX0DAcZuh73Q789AmQK9/Ienszwx+omqKbrnEECO8mrCl/51/jFycsGD
+	s4a58w9GtlHdDfWTKPyXBnxz6SOrdy3JDAawEiaFufusWYcdIbRmWdk2n3n+Od0b
+	6/K81e0TTAbLyNT5/GrwjeXHKbjjfN1BOzYxFql/c8qyaRjfDUuyAg4fO90KTNJQ
+	Z/Sgks64qsKWubaxdEWpFEd65s+Edj+oLd/LUNCHcCtkZbfTIKEEdoH403ZLPELt
+	sw2rrejg2kk5vcHmxxaW3YspbzBT9vXnA0bGotB2MtkEx/ncpxdwlfjSbalLogL8
+	SRPqxkNI0UTvO3lKRC6nQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 400gcr8922-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 26 Jun 2024 11:16:32 +0000 (GMT)
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45QBGWKd007055;
+	Wed, 26 Jun 2024 11:16:32 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 400gcr8920-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 26 Jun 2024 11:16:32 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45Q90k98019625;
+	Wed, 26 Jun 2024 11:16:31 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yx9xq4469-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 26 Jun 2024 11:16:31 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45QBGRTM62587380
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 26 Jun 2024 11:16:29 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8EF195805F;
+	Wed, 26 Jun 2024 11:16:27 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D3CE058067;
+	Wed, 26 Jun 2024 11:16:24 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 26 Jun 2024 11:16:24 +0000 (GMT)
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Date: Wed, 26 Jun 2024 13:15:48 +0200
+Subject: [PATCH v4 1/4] s390/pci: Fix s390_mmio_read/write syscall page
+ fault handling
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:zQCowAB3fuZhzXtmDb7eEg--.5980S2
-X-Coremail-Antispam: 1UD129KBjvdXoW7Jw4rZFW8CrW8Wr45KFy5CFg_yoWfAwc_Kw
-	4xCF93JrnrKw4xtw4UKr4avrWq9r10qr18XFn7ta4ft34UGFnrX34DZF4rXr4Uua93AF47
-	Crn7JrZYkwn5ujkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUb3xFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-	6r1F6r1fM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_
-	Cr1l84ACjcxK6I8E87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
-	0DM2vYz4IE04k24VAvwVAKI4IrM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI
-	64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8Jw
-	Am72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAG
-	YxC7M4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4
-	AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE
-	17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMI
-	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4l
-	IxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvf
-	C2KfnxnUUI43ZEXa7VUbHa0DUUUUU==
-X-CM-SenderInfo: ppdnvj2u6l2u1dvotugofq/
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20240626-vfio_pci_mmap-v4-1-7f038870f022@linux.ibm.com>
+References: <20240626-vfio_pci_mmap-v4-0-7f038870f022@linux.ibm.com>
+In-Reply-To: <20240626-vfio_pci_mmap-v4-0-7f038870f022@linux.ibm.com>
+To: Bjorn Helgaas <helgaas@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>
+X-Mailer: b4 0.12.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1957;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=kmttkYcl7RaIqBVfs1vIdHpH/R3f9A14cvLyhdB1rck=;
+ b=owGbwMvMwCH2Wz534YHOJ2GMp9WSGNKqf+TadMicifwhL3B7RYsfo3DcI5mN3DpqCr99jrL5/
+ jHa80q/o5SFQYyDQVZMkWVRl7PfuoIppnuC+jtg5rAygQxh4OIUgIkovmP4X6+ndrP6138JgwsM
+ IX0y56rK9/FesnoR4DJxC+u1Hy4PWhgZ1h6/8LI795GCPtvNm/bXdn74EZ73vqq/36lH7cGtqbK
+ uTAA=
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 7XxvmvvyIO5taVuYVVj84sYjLGeEanp6
+X-Proofpoint-ORIG-GUID: ZNdf76wXQ_Bmd1EXEhx57NrQHmzS9Jl_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-26_04,2024-06-25_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ mlxscore=0 adultscore=0 clxscore=1015 mlxlogscore=953 bulkscore=0
+ lowpriorityscore=0 malwarescore=0 suspectscore=0 impostorscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2406260078
 
-As the possible failure of the dma_set_max_seg_size(), we should better
-check the return value of the dma_set_max_seg_size().
+The s390 MMIO syscalls when using the classic PCI instructions do not
+cause a page fault when follow_pte() fails due to the page not being
+present. Besides being a general deficiency this breaks vfio-pci's mmap()
+handling once VFIO_PCI_MMAP gets enabled as this lazily maps on first
+access. Fix this by following a failed follow_pte() with
+fixup_user_page() and retrying the follow_pte().
 
-Fixes: 684b89bc39ce ("s390/ism: add device driver for internal shared memory")
-Signed-off-by: Ma Ke <make24@iscas.ac.cn>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 ---
- drivers/s390/net/ism_drv.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/pci/pci_mmio.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index e36e3ea165d3..9ddd093a0368 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -620,7 +620,9 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		goto err_resource;
+diff --git a/arch/s390/pci/pci_mmio.c b/arch/s390/pci/pci_mmio.c
+index 5398729bfe1b..80c21b1a101c 100644
+--- a/arch/s390/pci/pci_mmio.c
++++ b/arch/s390/pci/pci_mmio.c
+@@ -170,8 +170,12 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
+ 		goto out_unlock_mmap;
  
- 	dma_set_seg_boundary(&pdev->dev, SZ_1M - 1);
--	dma_set_max_seg_size(&pdev->dev, SZ_1M);
-+	ret = dma_set_max_seg_size(&pdev->dev, SZ_1M);
-+	if (ret)
-+		return ret;
- 	pci_set_master(pdev);
+ 	ret = follow_pte(vma, mmio_addr, &ptep, &ptl);
+-	if (ret)
+-		goto out_unlock_mmap;
++	if (ret) {
++		fixup_user_fault(current->mm, mmio_addr, FAULT_FLAG_WRITE, NULL);
++		ret = follow_pte(vma, mmio_addr, &ptep, &ptl);
++		if (ret)
++			goto out_unlock_mmap;
++	}
  
- 	ret = ism_dev_init(ism);
+ 	io_addr = (void __iomem *)((pte_pfn(*ptep) << PAGE_SHIFT) |
+ 			(mmio_addr & ~PAGE_MASK));
+@@ -305,12 +309,16 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mmio_addr,
+ 	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
+ 		goto out_unlock_mmap;
+ 	ret = -EACCES;
+-	if (!(vma->vm_flags & VM_WRITE))
++	if (!(vma->vm_flags & VM_READ))
+ 		goto out_unlock_mmap;
+ 
+ 	ret = follow_pte(vma, mmio_addr, &ptep, &ptl);
+-	if (ret)
+-		goto out_unlock_mmap;
++	if (ret) {
++		fixup_user_fault(current->mm, mmio_addr, 0, NULL);
++		ret = follow_pte(vma, mmio_addr, &ptep, &ptl);
++		if (ret)
++			goto out_unlock_mmap;
++	}
+ 
+ 	io_addr = (void __iomem *)((pte_pfn(*ptep) << PAGE_SHIFT) |
+ 			(mmio_addr & ~PAGE_MASK));
+
 -- 
-2.25.1
+2.40.1
 
