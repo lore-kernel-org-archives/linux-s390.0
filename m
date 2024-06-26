@@ -1,202 +1,216 @@
-Received: from mail-io1-f79.google.com (mail-io1-f79.google.com [209.85.166.79])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96024149C57
-	for <linux-s390@vger.kernel.org>; Wed, 26 Jun 2024 19:15:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.79
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD1F7161314;
+	Wed, 26 Jun 2024 22:10:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719429328; cv=none; b=kqIKU1Lsyij9oGAtaS/d7FuxJ1Lz+CJYPS6qUegqM2hexCcgiILs9MQZbRT/edWcZ4rf+wTdrxPW+7wCyZTkuW0+HD5BEtTd2CIJLDh9o/QrSqQ/OeFki9mYCtsMgoZ6qMBZI0UXpiggE/S+GIl8oXdUyRkvfjhOGSetJ4zT8i4=
+	t=1719439813; cv=none; b=PVAIeO16zbtXdaHc8/Na4+F4YQysPCtQ6wnNI+nxuYYRTyHUOAGmb9d5zXLklYRcyvwqr9GcC62yoaXYB4h0iA/m3s8fwFkCgHxd1chhUYuuEXSQhQceIKNzT+71bGzWVX6dEH0MeU8cWLrUL+2bgIGVCihq0GJX2Ymbym6LzsQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719429328; c=relaxed/simple;
-	bh=LSm1xCieSMiIpu0qWWa37+RueD6pwC0mznN1HsrfFl0=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Cx0T4jxlk39zOR18P8SGMvNNWRnfPj+LAj1HHXfXniSYZ3lZQ/o0B+V9k0AuwVrIYgULrdIwzl12eol6G7ogFeiBJ0PH3PcPIapHXG2+hi7tsAsSNfeHTqkAHqTOK9gXe5C9joongLMkLzfqrk7uqHC2gLCH+Q8pO3yfwy3oWlc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.79
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-io1-f79.google.com with SMTP id ca18e2360f4ac-7f3d5b154f5so71271539f.2
-        for <linux-s390@vger.kernel.org>; Wed, 26 Jun 2024 12:15:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719429326; x=1720034126;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=7AYGNY2o7m6l6JhY1sXVIqDWW+rOk3/4SHLTa2tENMw=;
-        b=ZcvHmNHMPjPtAm0GqhUtQlxL5ddjsR6q1uPPU5R3H4+xQxmM4F6xdYLgWac5O7jeJK
-         uQXtISU4PLygK7mNOiyLk9f7h92v6Rtru4WSaxfBR9tQm/qEQtkWxYSiwZufzJbwbO0H
-         joS3w/M4Z31q1nqtc+dkzmM4hwagPehsNAjkOdZXXwf+3Ge8Im0o2hv8VmMiX9S6ZD9n
-         mlNNSO+9qTXVbWR2lNMudl436KuVU5/3CvUsCswMCX5e6xxq7ioaCZGUuuql13GBY3TH
-         en1qvMCEQrVRkYga8oEZ0irZry30Ac9vcYrV+RTXtfNMniiqiyrnomdIqod3niJvBJ3k
-         3EgA==
-X-Forwarded-Encrypted: i=1; AJvYcCV56xrG1rcFOduMGNwtiWxMzhp6aW1/UvJ7Vvx69w3/1KwSTDoP15zRu6w8mtrf3Enh2uICkWBzM53aTFXkZZPSMXNh9uK6Fl2pPA==
-X-Gm-Message-State: AOJu0YyySfEZoGrrrCh87/l02Kr0tVtIpZwY4BuqfR6PFXgkd68vEmv2
-	obyAL+Lydayi8BT+o6mRgwBQ87QeA7+hRkLXEB4yhUT009CQIbZrnhgiUweDbvmHd8Z7wz9+1F6
-	FoBEZSiEMogjOcWSB5ktfOnYz47VPs3ODEK9JjNycRAskbY/NhzIbslQ=
-X-Google-Smtp-Source: AGHT+IEy4fFZ3c38YV4ociSNyl0fCnmv7SIi92tjC0Fzsyes+Yn1LT+VsHt0eoZWIIHfDM9Qt1mkTNV28Z5QIIEVjZLRmyjgHf3H
+	s=arc-20240116; t=1719439813; c=relaxed/simple;
+	bh=FoMa2hdhI1oPIQ40kb5ipFDpW8RBfUV8Ix2rN3TmQ1E=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fqTJFGtmY4dV/Vi6DmaeMjXbXMdWrDqUGXZvnlWPNtEV4iQn/MrlUySNYcR7jW13TcrCvv656I+b4R+93ZrrAtr8g0nqJnrCqET2+cUDe34fMI8bQdg9aKKaGfI19uL60EvdGHeKnyFuYNd2wcLGBhXQLKUgFVmfW/ucPa7Q1Qo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aR90lTVg; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aR90lTVg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53F9BC116B1;
+	Wed, 26 Jun 2024 22:10:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1719439813;
+	bh=FoMa2hdhI1oPIQ40kb5ipFDpW8RBfUV8Ix2rN3TmQ1E=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=aR90lTVgPYndoXHzrWf6IcHoE7CXVXu38jggpET05UGSL10FBFk/QMweV08LZKhlM
+	 s4biMs8rWeMfR9jte3XfSgdFtKbX0wj4DAuAsf9bc3UKH8INFKqZPcirIMkYbHsOaG
+	 Y3lUCQJnL5J9xHGC3fDsBCk2E8MrCYFABjV1q+vKyzV6jWS85k6y3LplDIDV64Tcw6
+	 oSi0z4N3LbeMh2AlkhSxE7VBIqus2h6fyEr4IYaaHi8TsaYnvEQ2cVHz0Nr6IMvFzu
+	 hsnsYhMaPLgVafOvDQlsVIVcs2Hd0/c9oIrcFRd+/yo83VjQUkplV0H25JZYmh1Fus
+	 2rmGkTio9J8Cw==
+Date: Wed, 26 Jun 2024 15:10:12 -0700
+From: Kees Cook <kees@kernel.org>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: "liuyuntao (F)" <liuyuntao12@huawei.com>, Arnd Bergmann <arnd@arndb.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Leonardo Bras <leobras@redhat.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	linux-kernel@vger.kernel.org, x86@kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-hardening@vger.kernel.org, linux-riscv@lists.infradead.org
+Subject: Re: [PATCH] randomize_kstack: Remove non-functional per-arch entropy
+ filtering
+Message-ID: <202406261506.1516191F72@keescook>
+References: <20240619214711.work.953-kees@kernel.org>
+ <98381dbf-f14e-4b6c-8c96-fb6b97ed46e1@huawei.com>
+ <202406201127.17CE526F0@keescook>
+ <ZnVfOnIuFl2kNWkT@J2N7QTR9R3>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6638:2710:b0:4b9:7607:f7f8 with SMTP id
- 8926c6da1cb9f-4b9efd7de6fmr244817173.3.1719429325815; Wed, 26 Jun 2024
- 12:15:25 -0700 (PDT)
-Date: Wed, 26 Jun 2024 12:15:25 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <0000000000002e944b061bcfd65f@google.com>
-Subject: [syzbot] [net?] [s390?] possible deadlock in smc_vlan_by_tcpsk
-From: syzbot <syzbot+c75d1de73d3b8b76272f@syzkaller.appspotmail.com>
-To: agordeev@linux.ibm.com, alibuda@linux.alibaba.com, davem@davemloft.net, 
-	edumazet@google.com, guwen@linux.alibaba.com, jaka@linux.ibm.com, 
-	kuba@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	netdev@vger.kernel.org, pabeni@redhat.com, syzkaller-bugs@googlegroups.com, 
-	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZnVfOnIuFl2kNWkT@J2N7QTR9R3>
 
-Hello,
+On Fri, Jun 21, 2024 at 12:08:42PM +0100, Mark Rutland wrote:
+> On Thu, Jun 20, 2024 at 11:34:22AM -0700, Kees Cook wrote:
+> > On Thu, Jun 20, 2024 at 11:47:58AM +0800, liuyuntao (F) wrote:
+> > > 
+> > > 
+> > > On 2024/6/20 5:47, Kees Cook wrote:
+> > > > An unintended consequence of commit 9c573cd31343 ("randomize_kstack:
+> > > > Improve entropy diffusion") was that the per-architecture entropy size
+> > > > filtering reduced how many bits were being added to the mix, rather than
+> > > > how many bits were being used during the offsetting. All architectures
+> > > > fell back to the existing default of 0x3FF (10 bits), which will consume
+> > > > at most 1KiB of stack space. It seems that this is working just fine,
+> > > > so let's avoid the confusion and update everything to use the default.
+> > > > 
+> > > 
+> > > My original intent was indeed to do this, but I regret that not being more
+> > > explicit in the commit log..
+> > > 
+> > > Additionally, I've tested the stack entropy by applying the following patch,
+> > > the result was `Bits of stack entropy: 7` on arm64, too. It does not seem to
+> > > affect the entropy value, maybe removing it is OK, or there may be some
+> > > nuances of your intentions that I've overlooked.
+> > > 
+> > > --- a/include/linux/randomize_kstack.h
+> > > +++ b/include/linux/randomize_kstack.h
+> > > @@ -79,9 +79,7 @@ DECLARE_PER_CPU(u32, kstack_offset);
+> > >  #define choose_random_kstack_offset(rand) do {                         \
+> > >         if (static_branch_maybe(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT, \
+> > >                                 &randomize_kstack_offset)) {            \
+> > > -               u32 offset = raw_cpu_read(kstack_offset);               \
+> > > -               offset = ror32(offset, 5) ^ (rand);                     \
+> > > -               raw_cpu_write(kstack_offset, offset);                   \
+> > > +               raw_cpu_write(kstack_offset, rand);                     \
+> > >         }                                                               \
+> > >  } while (0)
+> > >  #else /* CONFIG_RANDOMIZE_KSTACK_OFFSET */
+> > 
+> > I blame the multiple applications of the word "entropy" in this feature. :)
+> > 
+> > So, there's both:
+> > 
+> > - "how many bits CAN be randomized?" (i.e. within what range can all
+> >   possible stack offsets be?)
+> > 
+> > and
+> > 
+> > - "is the randomization predictable?" (i.e. is the distribution of
+> >   selected positions with the above range evenly distributed?)
+> > 
+> > Commit 9c573cd31343 ("randomize_kstack: Improve entropy diffusion") was
+> > trying to improve the latter, but accidentally also grew the former.
+> > This patch is just trying to clean all this up now.
+> > 
+> > Thanks for testing! And I'm curious as to why arm64's stack offset
+> > entropy is 7 for you when we're expecting it to be 6. Anyway, that's not
+> > a problem I don't think. Just a greater offset range than expected.
+> 
+> Hmm....
+> 
+> I think this is due to the way the compiler aligns the stack in alloca(); it
+> rounds up the value of KSTACK_OFFSET_MAX(offset) and ends up spilling over an
+> additional bit (e.g. 0x3f1 to 0x3ff round up to 0x400).
+> 
+> Looking at v6.10-rc4 defconfig + CONFIG_RANDOMIZE_STACKOFFSET=y, the
+> disassembly for arm64's invoke_syscall() looks like:
+> 
+> 	// offset = raw_cpu_read(kstack_offset)
+> 	mov     x4, sp
+> 	adrp    x0, kstack_offset
+> 	mrs     x5, tpidr_el1
+> 	add     x0, x0, #:lo12:kstack_offset
+> 	ldr     w0, [x0, x5]
+> 
+> 	// offset = KSTACK_OFFSET_MAX(offset)
+> 	and     x0, x0, #0x3ff
+> 
+> 	// alloca(offset)
+> 	add     x0, x0, #0xf
+> 	and     x0, x0, #0x7f0
+> 	sub     sp, x4, x0
+> 
+> ... which in C would be:
+> 
+> 	offset = raw_cpu_read(kstack_offset)
+> 	offset &= 0x3ff;			// [0x0, 0x3ff]
+> 	offset += 0xf;				// [0xf, 0x40e]
+> 	offset &= 0x7f0;			// [0x0,
+> 
+> ... so when *all* bits [3:0] are 0, they'll have no impact, and when *any* of
+> bits [3:0] are 1 they'll trigger a carry into bit 4, which could ripple all the
+> way up and spill into bit 10.
+> 
+> I have no idea whether that's important. Kees, does that introduce a bias, and
+> if so do we need to care?
+> 
+> If I change the mask to discard the low bits:
+> 
+> 	#define KSTACK_OFFSET_MAX(x)   ((x) & 0x3F0)
+> 
+> ... then the assembly avoids the rounding:
+> 
+> 	mov     x4, sp
+> 	adrp    x0, 0 <kstack_offset>
+> 	mrs     x5, tpidr_el1
+> 	add     x0, x0, #:lo12:kstack_offset
+> 	ldr     w0, [x0, x5]
+> 	and     x0, x0, #0x3f0
+> 	sub     sp, x4, x0
 
-syzbot found the following issue on:
-
-HEAD commit:    185d72112b95 net: xilinx: axienet: Enable multicast by def..
-git tree:       net-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=13e0ec8e980000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=e78fc116033e0ab7
-dashboard link: https://syzkaller.appspot.com/bug?extid=c75d1de73d3b8b76272f
-compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/e84f50e44254/disk-185d7211.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/df64b575cc01/vmlinux-185d7211.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/16ad5d1d433b/bzImage-185d7211.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+c75d1de73d3b8b76272f@syzkaller.appspotmail.com
-
-syz-executor.2[7759] is installing a program with bpf_probe_write_user helper that may corrupt user memory!
-syz-executor.2[7759] is installing a program with bpf_probe_write_user helper that may corrupt user memory!
-======================================================
-WARNING: possible circular locking dependency detected
-6.10.0-rc4-syzkaller-00869-g185d72112b95 #0 Not tainted
-------------------------------------------------------
-syz-executor.2/7759 is trying to acquire lock:
-ffffffff8f5e6f48 (rtnl_mutex){+.+.}-{3:3}, at: smc_vlan_by_tcpsk+0x399/0x4e0 net/smc/smc_core.c:1853
-
-but task is already holding lock:
-ffff88801bed0258 (sk_lock-AF_INET6){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1602 [inline]
-ffff88801bed0258 (sk_lock-AF_INET6){+.+.}-{0:0}, at: smc_connect+0xb7/0xde0 net/smc/af_smc.c:1650
-
-which lock already depends on the new lock.
-
-
-the existing dependency chain (in reverse order) is:
-
--> #1 (sk_lock-AF_INET6){+.+.}-{0:0}:
-       lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5754
-       lock_sock_nested+0x48/0x100 net/core/sock.c:3543
-       do_ipv6_setsockopt+0xbf3/0x3630 net/ipv6/ipv6_sockglue.c:567
-       ipv6_setsockopt+0x5c/0x1a0 net/ipv6/ipv6_sockglue.c:993
-       do_sock_setsockopt+0x3af/0x720 net/socket.c:2312
-       __sys_setsockopt+0x1ae/0x250 net/socket.c:2335
-       __do_sys_setsockopt net/socket.c:2344 [inline]
-       __se_sys_setsockopt net/socket.c:2341 [inline]
-       __x64_sys_setsockopt+0xb5/0xd0 net/socket.c:2341
-       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
-       do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
-       entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
--> #0 (rtnl_mutex){+.+.}-{3:3}:
-       check_prev_add kernel/locking/lockdep.c:3134 [inline]
-       check_prevs_add kernel/locking/lockdep.c:3253 [inline]
-       validate_chain+0x18e0/0x5900 kernel/locking/lockdep.c:3869
-       __lock_acquire+0x1346/0x1fd0 kernel/locking/lockdep.c:5137
-       lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5754
-       __mutex_lock_common kernel/locking/mutex.c:608 [inline]
-       __mutex_lock+0x136/0xd70 kernel/locking/mutex.c:752
-       smc_vlan_by_tcpsk+0x399/0x4e0 net/smc/smc_core.c:1853
-       __smc_connect+0x2a4/0x1890 net/smc/af_smc.c:1522
-       smc_connect+0x868/0xde0 net/smc/af_smc.c:1702
-       __sys_connect_file net/socket.c:2049 [inline]
-       __sys_connect+0x2df/0x310 net/socket.c:2066
-       __do_sys_connect net/socket.c:2076 [inline]
-       __se_sys_connect net/socket.c:2073 [inline]
-       __x64_sys_connect+0x7a/0x90 net/socket.c:2073
-       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
-       do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
-       entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-other info that might help us debug this:
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(sk_lock-AF_INET6);
-                               lock(rtnl_mutex);
-                               lock(sk_lock-AF_INET6);
-  lock(rtnl_mutex);
-
- *** DEADLOCK ***
-
-1 lock held by syz-executor.2/7759:
- #0: ffff88801bed0258 (sk_lock-AF_INET6){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1602 [inline]
- #0: ffff88801bed0258 (sk_lock-AF_INET6){+.+.}-{0:0}, at: smc_connect+0xb7/0xde0 net/smc/af_smc.c:1650
-
-stack backtrace:
-CPU: 1 PID: 7759 Comm: syz-executor.2 Not tainted 6.10.0-rc4-syzkaller-00869-g185d72112b95 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 06/07/2024
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x241/0x360 lib/dump_stack.c:114
- check_noncircular+0x36a/0x4a0 kernel/locking/lockdep.c:2187
- check_prev_add kernel/locking/lockdep.c:3134 [inline]
- check_prevs_add kernel/locking/lockdep.c:3253 [inline]
- validate_chain+0x18e0/0x5900 kernel/locking/lockdep.c:3869
- __lock_acquire+0x1346/0x1fd0 kernel/locking/lockdep.c:5137
- lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5754
- __mutex_lock_common kernel/locking/mutex.c:608 [inline]
- __mutex_lock+0x136/0xd70 kernel/locking/mutex.c:752
- smc_vlan_by_tcpsk+0x399/0x4e0 net/smc/smc_core.c:1853
- __smc_connect+0x2a4/0x1890 net/smc/af_smc.c:1522
- smc_connect+0x868/0xde0 net/smc/af_smc.c:1702
- __sys_connect_file net/socket.c:2049 [inline]
- __sys_connect+0x2df/0x310 net/socket.c:2066
- __do_sys_connect net/socket.c:2076 [inline]
- __se_sys_connect net/socket.c:2073 [inline]
- __x64_sys_connect+0x7a/0x90 net/socket.c:2073
- do_syscall_x64 arch/x86/entry/common.c:52 [inline]
- do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f0b3687d0a9
-Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 e1 20 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f0b3764b0c8 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
-RAX: ffffffffffffffda RBX: 00007f0b369b3f80 RCX: 00007f0b3687d0a9
-RDX: 000000000000001c RSI: 00000000200000c0 RDI: 000000000000000a
-RBP: 00007f0b368ec074 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 000000000000000b R14: 00007f0b369b3f80 R15: 00007fff165a7738
- </TASK>
+Ah, interesting! I'd prefer to avoid the bias (or at least, the
+weirdness). How about this as a solution?
 
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+diff --git a/include/linux/randomize_kstack.h b/include/linux/randomize_kstack.h
+index 6d92b68efbf6..1d982dbdd0d0 100644
+--- a/include/linux/randomize_kstack.h
++++ b/include/linux/randomize_kstack.h
+@@ -32,13 +32,19 @@ DECLARE_PER_CPU(u32, kstack_offset);
+ #endif
+ 
+ /*
+- * Use, at most, 10 bits of entropy. We explicitly cap this to keep the
+- * "VLA" from being unbounded (see above). 10 bits leaves enough room for
+- * per-arch offset masks to reduce entropy (by removing higher bits, since
+- * high entropy may overly constrain usable stack space), and for
+- * compiler/arch-specific stack alignment to remove the lower bits.
++ * Use, at most, 6 bits of entropy (on 64-bit; 8 on 32-bit). This cap is
++ * to keep the "VLA" from being unbounded (see above). Additionally clear
++ * the bottom 4 bits (on 64-bit systems, 2 for 32-bit), since stack
++ * alignment will always be at least word size. This makes the compiler
++ * code gen better when it is applying the actual per-arch alignment to
++ * the final offset. The resulting randomness is reasonable without overly
++ * constraining usable stack space.
+  */
+-#define KSTACK_OFFSET_MAX(x)	((x) & 0x3FF)
++#ifdef CONFIG_64BIT
++#define KSTACK_OFFSET_MAX(x)	((x) & 0b1111110000)
++#else
++#define KSTACK_OFFSET_MAX(x)	((x) & 0b1111111100)
++#endif
+ 
+ /**
+  * add_random_kstack_offset - Increase stack utilization by previously
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
+-- 
+Kees Cook
