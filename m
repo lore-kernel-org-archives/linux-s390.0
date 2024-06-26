@@ -1,128 +1,202 @@
-Received: from mout.web.de (mout.web.de [212.227.15.3])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f79.google.com (mail-io1-f79.google.com [209.85.166.79])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1302718629B;
-	Wed, 26 Jun 2024 14:52:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96024149C57
+	for <linux-s390@vger.kernel.org>; Wed, 26 Jun 2024 19:15:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.79
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719413553; cv=none; b=L+4306ncJR1J60cvdcvYzpFZhQTEJVpj0+4aL6ou9LMMp7Aun7NuzoZgE0mc3FWfurWdKk7s5zUcgIcyoKsqU+87UwtYORW5KZ8znjLgLPXTKKY29ZaufhAcx6Niu2lYMNGSqhtrsJtB4iqxNPFYIs0Y9ZmoCTzuSwUJxh4cdrU=
+	t=1719429328; cv=none; b=kqIKU1Lsyij9oGAtaS/d7FuxJ1Lz+CJYPS6qUegqM2hexCcgiILs9MQZbRT/edWcZ4rf+wTdrxPW+7wCyZTkuW0+HD5BEtTd2CIJLDh9o/QrSqQ/OeFki9mYCtsMgoZ6qMBZI0UXpiggE/S+GIl8oXdUyRkvfjhOGSetJ4zT8i4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719413553; c=relaxed/simple;
-	bh=F0CnGji1wRDPkT1q0o6oYL7yDo0gD2uyVQ159WDkbWg=;
-	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
-	 In-Reply-To:Content-Type; b=kuhDbWfhF+g+qbSKbqt2hpXEEjwRaUBO9+Gv4zuaUeNYCBubrpTXZ3uxr6MlhATG+0EmtoZioKBEOH/319HJoj9mbDk4usDn1GSgilMWrQJwKtOOZBZh2N52jBPJwCffRNQjib6EUPt6n56oD+3C4lZdPgl8XVAtjCgZ36khbOs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=cZZbmNnS; arc=none smtp.client-ip=212.227.15.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="cZZbmNnS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
-	s=s29768273; t=1719413531; x=1720018331; i=markus.elfring@web.de;
-	bh=FFE85tnMm6EJuo/UO7THJkkwDz/ISy4hRYIl0uSduj0=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
-	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
-	 cc:content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=cZZbmNnSymc6AFYBLcGQ2pZu19jTUSr3eNwEiX5mGNkRqrg3SxszSoRRkCJbCNZy
-	 4gz5Bdk3Lw4r5ZU8wvtOvyKyfcrVsY5eD3qryMUBd3ETYASajWWcoDstrmqQwTrqf
-	 iYpq2n4iYhg0F0Zb2RPnIpYBmiC5xJSzCW5QWBW3+F0Py5SEsivI9tO8pFu+Nc3uH
-	 iNmD1CEqyQE2wo5zVsA3J0vUJ6qhtaYxebvTznaONmmfVxhnWBxgow3QbLFuUMnm7
-	 2SYHVqPGF37YxFxlVu+oGVQy7jHVLhg9ThQKgTg6Pq7RN7DVy8UWMp0kKh/zCPduL
-	 nR0mrWLYWvYlJT5K2Q==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.21] ([94.31.91.95]) by smtp.web.de (mrweb006
- [213.165.67.108]) with ESMTPSA (Nemesis) id 1N7QQD-1sO2go0hgb-00x18V; Wed, 26
- Jun 2024 16:52:11 +0200
-Message-ID: <8a66afe4-5df8-4542-b74f-b050e71263fb@web.de>
-Date: Wed, 26 Jun 2024 16:52:09 +0200
+	s=arc-20240116; t=1719429328; c=relaxed/simple;
+	bh=LSm1xCieSMiIpu0qWWa37+RueD6pwC0mznN1HsrfFl0=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Cx0T4jxlk39zOR18P8SGMvNNWRnfPj+LAj1HHXfXniSYZ3lZQ/o0B+V9k0AuwVrIYgULrdIwzl12eol6G7ogFeiBJ0PH3PcPIapHXG2+hi7tsAsSNfeHTqkAHqTOK9gXe5C9joongLMkLzfqrk7uqHC2gLCH+Q8pO3yfwy3oWlc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.79
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f79.google.com with SMTP id ca18e2360f4ac-7f3d5b154f5so71271539f.2
+        for <linux-s390@vger.kernel.org>; Wed, 26 Jun 2024 12:15:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1719429326; x=1720034126;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=7AYGNY2o7m6l6JhY1sXVIqDWW+rOk3/4SHLTa2tENMw=;
+        b=ZcvHmNHMPjPtAm0GqhUtQlxL5ddjsR6q1uPPU5R3H4+xQxmM4F6xdYLgWac5O7jeJK
+         uQXtISU4PLygK7mNOiyLk9f7h92v6Rtru4WSaxfBR9tQm/qEQtkWxYSiwZufzJbwbO0H
+         joS3w/M4Z31q1nqtc+dkzmM4hwagPehsNAjkOdZXXwf+3Ge8Im0o2hv8VmMiX9S6ZD9n
+         mlNNSO+9qTXVbWR2lNMudl436KuVU5/3CvUsCswMCX5e6xxq7ioaCZGUuuql13GBY3TH
+         en1qvMCEQrVRkYga8oEZ0irZry30Ac9vcYrV+RTXtfNMniiqiyrnomdIqod3niJvBJ3k
+         3EgA==
+X-Forwarded-Encrypted: i=1; AJvYcCV56xrG1rcFOduMGNwtiWxMzhp6aW1/UvJ7Vvx69w3/1KwSTDoP15zRu6w8mtrf3Enh2uICkWBzM53aTFXkZZPSMXNh9uK6Fl2pPA==
+X-Gm-Message-State: AOJu0YyySfEZoGrrrCh87/l02Kr0tVtIpZwY4BuqfR6PFXgkd68vEmv2
+	obyAL+Lydayi8BT+o6mRgwBQ87QeA7+hRkLXEB4yhUT009CQIbZrnhgiUweDbvmHd8Z7wz9+1F6
+	FoBEZSiEMogjOcWSB5ktfOnYz47VPs3ODEK9JjNycRAskbY/NhzIbslQ=
+X-Google-Smtp-Source: AGHT+IEy4fFZ3c38YV4ociSNyl0fCnmv7SIi92tjC0Fzsyes+Yn1LT+VsHt0eoZWIIHfDM9Qt1mkTNV28Z5QIIEVjZLRmyjgHf3H
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: Ma Ke <make24@iscas.ac.cn>, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
- Alexandra Winter <wintera@linux.ibm.com>,
- =?UTF-8?Q?Christian_Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>,
- "David S. Miller" <davem@davemloft.net>, Gerd Bayer <gbayer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Niklas Schnelle
- <schnelle@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Thorsten Winkler <twinkler@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <20240626081215.2824627-1-make24@iscas.ac.cn>
-Subject: Re: [PATCH] s390/ism: Add check for dma_set_max_seg_size in
- ism_probe()
-Content-Language: en-GB
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <20240626081215.2824627-1-make24@iscas.ac.cn>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:HRGw43YV7SkuT0Xt4fwMTX9TEURd7yMQTJtdVH/oHNrhfXeGUZW
- Jeb5W7VzO23BvEvq0PM6KzNqgZQctsQVgJ5w0xNM9y7KJusJVX8O2Npp4sZZek4VKJvjEHk
- Srvx1W261wPMz5LjIb8MLitoC4ElHTUPtKPSk5nW8byyTDfckZR0IObqbFu7AiM20u0SS7o
- XrfEOuMk0Qq5ndiwmHJNw==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:WTlxYGB/qos=;9avwyHEogKHHx/HTwSuuZtAPQQ6
- Pam58lxvKlZC2/LcIYocQ2qyIzLZZdgdFdFwcfLQT0KV3dOn949EyFxmbljRJIMvD5FAV6fLg
- lyLNm5ka6fOMWujFeK9FA4gjoD2Qi6AlKHzb03i3+WGyX/+SAKrFWD+YAAzPqTdLQsxM5WYlU
- t0xiE7GmN7F8/QDRJU1VNVPhBOqdv/o+XMcYPrS0A0dGq4W5va8WczG4w1fg1kanZFsubf407
- gktOgN1ioS1EofbgWHBSOlfpj8NpQ4y9IvKIYk/pNhiuLZqCkb/saFb/6x7w8P4P9D7sVKJ2J
- Qb0apf2YZgTUZhKI9XKSBCxMmqsxRQEWZ0EdqKCzLjJcX6rWDhu7YKs4hAwsi+nrJ8v4x+KOi
- gFD/H04MF3CRQNVY87/wF8+6QIZKEu/3GqTXruUanWkLM3B3+48f6Vir3R6ZLiFp57SkkKjPc
- /2hLSedfgzLeMsVWxVTDdLNDPMkbzJR3LmLYCrSh0N3jCuWnIY7RCk4afj9ipq0KCW8uzrJx1
- anQGfGnDi3JrX6IECCG2lCD7eEXX1oaWjL/M3kT6+IYhsePBnKMzG5pRfkg15hq2bECJ6uYaW
- PD79VMYRG0Rum318AqZ1X09RJR0xz6e6zVmbMUo6+jFgp+XznUTP7Kiagmvv3qh8Q2wAHRoPW
- ykWUE6rVUVSZXHjsAkESMBUCIXes3hV5IWmXdYfOesBQTySpW8yVqgyWP9UIb9MIo7MGTu+th
- yChdVfF0YCdHyjoig9i0iMwUXCmHrgab3VqWuC+iP7UopeT9WP/1C+jVIq+vbglvdwOA5x1am
- CFAMCJ4qjOJ2XfK4sGcHeDn8EEiow/ne7dh0RmatLMznc=
+X-Received: by 2002:a05:6638:2710:b0:4b9:7607:f7f8 with SMTP id
+ 8926c6da1cb9f-4b9efd7de6fmr244817173.3.1719429325815; Wed, 26 Jun 2024
+ 12:15:25 -0700 (PDT)
+Date: Wed, 26 Jun 2024 12:15:25 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000002e944b061bcfd65f@google.com>
+Subject: [syzbot] [net?] [s390?] possible deadlock in smc_vlan_by_tcpsk
+From: syzbot <syzbot+c75d1de73d3b8b76272f@syzkaller.appspotmail.com>
+To: agordeev@linux.ibm.com, alibuda@linux.alibaba.com, davem@davemloft.net, 
+	edumazet@google.com, guwen@linux.alibaba.com, jaka@linux.ibm.com, 
+	kuba@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	netdev@vger.kernel.org, pabeni@redhat.com, syzkaller-bugs@googlegroups.com, 
+	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 
-> As the possible failure of the dma_set_max_seg_size(), we should better
-> check the return value of the dma_set_max_seg_size().
+Hello,
 
-Please avoid the repetition of a function name in such a change descriptio=
-n.
-Can it be improved with corresponding imperative wordings?
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
-cumentation/process/submitting-patches.rst?h=3Dv6.10-rc5#n94
+syzbot found the following issue on:
 
+HEAD commit:    185d72112b95 net: xilinx: axienet: Enable multicast by def..
+git tree:       net-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=13e0ec8e980000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=e78fc116033e0ab7
+dashboard link: https://syzkaller.appspot.com/bug?extid=c75d1de73d3b8b76272f
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
 
-=E2=80=A6
-> +++ b/drivers/s390/net/ism_drv.c
-> @@ -620,7 +620,9 @@ static int ism_probe(struct pci_dev *pdev, const str=
-uct pci_device_id *id)
->  		goto err_resource;
->
->  	dma_set_seg_boundary(&pdev->dev, SZ_1M - 1);
-> -	dma_set_max_seg_size(&pdev->dev, SZ_1M);
-> +	ret =3D dma_set_max_seg_size(&pdev->dev, SZ_1M);
-> +	if (ret)
-> +		return ret;
->  	pci_set_master(pdev);
-=E2=80=A6
+Unfortunately, I don't have any reproducer for this issue yet.
 
-1. Will the shown dma_set_seg_boundary() call trigger similar software dev=
-elopment concerns?
-   https://elixir.bootlin.com/linux/v6.10-rc5/source/include/linux/dma-map=
-ping.h#L562
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/e84f50e44254/disk-185d7211.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/df64b575cc01/vmlinux-185d7211.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/16ad5d1d433b/bzImage-185d7211.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+c75d1de73d3b8b76272f@syzkaller.appspotmail.com
+
+syz-executor.2[7759] is installing a program with bpf_probe_write_user helper that may corrupt user memory!
+syz-executor.2[7759] is installing a program with bpf_probe_write_user helper that may corrupt user memory!
+======================================================
+WARNING: possible circular locking dependency detected
+6.10.0-rc4-syzkaller-00869-g185d72112b95 #0 Not tainted
+------------------------------------------------------
+syz-executor.2/7759 is trying to acquire lock:
+ffffffff8f5e6f48 (rtnl_mutex){+.+.}-{3:3}, at: smc_vlan_by_tcpsk+0x399/0x4e0 net/smc/smc_core.c:1853
+
+but task is already holding lock:
+ffff88801bed0258 (sk_lock-AF_INET6){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1602 [inline]
+ffff88801bed0258 (sk_lock-AF_INET6){+.+.}-{0:0}, at: smc_connect+0xb7/0xde0 net/smc/af_smc.c:1650
+
+which lock already depends on the new lock.
 
 
-2. Would the following statement be more appropriate for the proposed comp=
-letion
-   of the exception handling?
+the existing dependency chain (in reverse order) is:
 
-+		goto err_resource;
+-> #1 (sk_lock-AF_INET6){+.+.}-{0:0}:
+       lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5754
+       lock_sock_nested+0x48/0x100 net/core/sock.c:3543
+       do_ipv6_setsockopt+0xbf3/0x3630 net/ipv6/ipv6_sockglue.c:567
+       ipv6_setsockopt+0x5c/0x1a0 net/ipv6/ipv6_sockglue.c:993
+       do_sock_setsockopt+0x3af/0x720 net/socket.c:2312
+       __sys_setsockopt+0x1ae/0x250 net/socket.c:2335
+       __do_sys_setsockopt net/socket.c:2344 [inline]
+       __se_sys_setsockopt net/socket.c:2341 [inline]
+       __x64_sys_setsockopt+0xb5/0xd0 net/socket.c:2341
+       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+       do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
+       entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+-> #0 (rtnl_mutex){+.+.}-{3:3}:
+       check_prev_add kernel/locking/lockdep.c:3134 [inline]
+       check_prevs_add kernel/locking/lockdep.c:3253 [inline]
+       validate_chain+0x18e0/0x5900 kernel/locking/lockdep.c:3869
+       __lock_acquire+0x1346/0x1fd0 kernel/locking/lockdep.c:5137
+       lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5754
+       __mutex_lock_common kernel/locking/mutex.c:608 [inline]
+       __mutex_lock+0x136/0xd70 kernel/locking/mutex.c:752
+       smc_vlan_by_tcpsk+0x399/0x4e0 net/smc/smc_core.c:1853
+       __smc_connect+0x2a4/0x1890 net/smc/af_smc.c:1522
+       smc_connect+0x868/0xde0 net/smc/af_smc.c:1702
+       __sys_connect_file net/socket.c:2049 [inline]
+       __sys_connect+0x2df/0x310 net/socket.c:2066
+       __do_sys_connect net/socket.c:2076 [inline]
+       __se_sys_connect net/socket.c:2073 [inline]
+       __x64_sys_connect+0x7a/0x90 net/socket.c:2073
+       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+       do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
+       entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+other info that might help us debug this:
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(sk_lock-AF_INET6);
+                               lock(rtnl_mutex);
+                               lock(sk_lock-AF_INET6);
+  lock(rtnl_mutex);
+
+ *** DEADLOCK ***
+
+1 lock held by syz-executor.2/7759:
+ #0: ffff88801bed0258 (sk_lock-AF_INET6){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1602 [inline]
+ #0: ffff88801bed0258 (sk_lock-AF_INET6){+.+.}-{0:0}, at: smc_connect+0xb7/0xde0 net/smc/af_smc.c:1650
+
+stack backtrace:
+CPU: 1 PID: 7759 Comm: syz-executor.2 Not tainted 6.10.0-rc4-syzkaller-00869-g185d72112b95 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 06/07/2024
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x241/0x360 lib/dump_stack.c:114
+ check_noncircular+0x36a/0x4a0 kernel/locking/lockdep.c:2187
+ check_prev_add kernel/locking/lockdep.c:3134 [inline]
+ check_prevs_add kernel/locking/lockdep.c:3253 [inline]
+ validate_chain+0x18e0/0x5900 kernel/locking/lockdep.c:3869
+ __lock_acquire+0x1346/0x1fd0 kernel/locking/lockdep.c:5137
+ lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5754
+ __mutex_lock_common kernel/locking/mutex.c:608 [inline]
+ __mutex_lock+0x136/0xd70 kernel/locking/mutex.c:752
+ smc_vlan_by_tcpsk+0x399/0x4e0 net/smc/smc_core.c:1853
+ __smc_connect+0x2a4/0x1890 net/smc/af_smc.c:1522
+ smc_connect+0x868/0xde0 net/smc/af_smc.c:1702
+ __sys_connect_file net/socket.c:2049 [inline]
+ __sys_connect+0x2df/0x310 net/socket.c:2066
+ __do_sys_connect net/socket.c:2076 [inline]
+ __se_sys_connect net/socket.c:2073 [inline]
+ __x64_sys_connect+0x7a/0x90 net/socket.c:2073
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f0b3687d0a9
+Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 e1 20 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b0 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f0b3764b0c8 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 00007f0b369b3f80 RCX: 00007f0b3687d0a9
+RDX: 000000000000001c RSI: 00000000200000c0 RDI: 000000000000000a
+RBP: 00007f0b368ec074 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 000000000000000b R14: 00007f0b369b3f80 R15: 00007fff165a7738
+ </TASK>
 
 
-3. Under which circumstances would you become interested to increase the a=
-pplication
-   of scope-based resource management here?
-   https://elixir.bootlin.com/linux/v6.10-rc5/source/include/linux/cleanup=
-.h#L8
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
-Regards,
-Markus
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
