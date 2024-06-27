@@ -1,119 +1,164 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from fout8-smtp.messagingengine.com (fout8-smtp.messagingengine.com [103.168.172.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 622FE198850;
-	Thu, 27 Jun 2024 15:04:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BF9822EF2;
+	Thu, 27 Jun 2024 15:48:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719500669; cv=none; b=T4ik9FaNlt7/sT7PHbnzHx/XxcvOpbGNzIy9P0PYtFYpclj1p4YdgF2HlU7RvNdt15pQZP6cjb++oTQ0ON8UO0O7k1QFCxhn9n9AU4TBdvsKTOEisksL85gT2IW4eK0mtqi9pEpgsDhvvJmzYJ1akEpLJ3WFacHCE6fDqkfJFpw=
+	t=1719503289; cv=none; b=cuhQsLBBgSY+8mtZZp4pDo3LIZEt5qMpEtkr/5NQoF44C3zWLgO8vw86TXzsXDEHWFGLcgGkcbp4tAsUU7p21q9gv3j+ATHY+HQs4QJjDSRTMneNlqxYYgJqBbAksl9r92rIxBB7vJR00CnM+Onho50Cr06MmZJz30FVvmkNXF0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719500669; c=relaxed/simple;
-	bh=AicOfHJ0HpFOEDBTsCGhIDlILJLDclENc+/H5KoJOvc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cztKt2cFZhgKvk70NMlcWv0Bf0ylAt9z8Txmp8FbAh13ZSr8tgDHtk5LR8N6M96xYiOqYbnGb0O/QuUs/RROcwYPwMLE3TzAp+GYQ70OERHC3VQj99cOyoiUaVqWAt4rQglMUvLEaElU2f4nZqDge01Cr3182JIa3kEym4f+SAY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mukJ6/DW; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1719503289; c=relaxed/simple;
+	bh=mgnSZbv9s1UDrPgwquXpFaPaJbetPkHMpZpbhSy4sdQ=;
+	h=MIME-Version:Message-Id:Date:From:To:Cc:Subject:Content-Type; b=oSVNr7q9tDVk9iBtX3D0N+IldT75RZ39XfTjs8KmX0uLtT3g4e04hykEIrqQAod6ZtCFYFGayOQlj+bXymkJw2suUq3xLN7Qus6UjklxrNI/iQO+rRtGVJ7l+9kkFZMWtCJdD8vUCXNHORv+U2XdjTLReK90w3owpeni+HFQovM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=xt9vYmew; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YVOA5dyh; arc=none smtp.client-ip=103.168.172.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mukJ6/DW"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45REwvPQ013361;
-	Thu, 27 Jun 2024 15:04:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding; s=pp1; bh=R1hQdI0W6iMzsBZImznEfEVSTJ
-	dHV28+utS+Y0cv0Vw=; b=mukJ6/DW9tKOuHMHsSC/j+R2LOsYx5x2Z2huQRlB2d
-	+QPJB/YGkvgqRzr+vqN6DRH6YDX4uBom4zLscIWsXBn/PSPLZazRY+VrdJrbMvp8
-	napXYmXlOORHeCqYs0VPXMyRdB3kKwcN/34giukVGtRvH6GxU3ocgP6W4r1unaLa
-	vx6cqAwwm9zDP46Nnj1slZEy/BeayGBivJdP7Y1/iOcgGpb0ZJwvxe8IxRmU3ExI
-	egBz9KYFe7i1cwXFrI0BwcHFNemC35wriaVnXUTj7wLkdi2Va34iIh4HOGR0D/zx
-	A/DvZj/YSSul8aSL02I2p6oHj4y1BCIQlxFSmz4UiwIQ==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 401aagr0jh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Jun 2024 15:04:13 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45RCBZXK019984;
-	Thu, 27 Jun 2024 15:04:13 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yxb5mu1vt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Jun 2024 15:04:12 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45RF47Jf52167062
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 27 Jun 2024 15:04:09 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4935C20043;
-	Thu, 27 Jun 2024 15:04:07 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BD4D820040;
-	Thu, 27 Jun 2024 15:04:06 +0000 (GMT)
-Received: from heavy.ibm.com (unknown [9.171.10.182])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 27 Jun 2024 15:04:06 +0000 (GMT)
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-To: Stephen Rothwell <sfr@canb.auug.org.au>, Mark Brown <broonie@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-next@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org,
-        Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH] s390/kmsan: Fix merge conflict with get_lowcore() introduction
-Date: Thu, 27 Jun 2024 17:03:52 +0200
-Message-ID: <20240627150405.27663-1-iii@linux.ibm.com>
-X-Mailer: git-send-email 2.45.2
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="xt9vYmew";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YVOA5dyh"
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+	by mailfout.nyi.internal (Postfix) with ESMTP id 8F2CE1380123;
+	Thu, 27 Jun 2024 11:48:06 -0400 (EDT)
+Received: from imap51 ([10.202.2.101])
+  by compute5.internal (MEProxy); Thu, 27 Jun 2024 11:48:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:message-id:mime-version:reply-to:subject:subject:to:to; s=fm1;
+	 t=1719503286; x=1719589686; bh=RXNn8CughpYiNE0XVk1z0mrQSBSu7ZpL
+	KF+Sxmfz0CU=; b=xt9vYmewSr+NwSDUc+2CrGcP6bPKEmWaYer2QYQd56mIKAVn
+	OxFCZJS0ycsqOEFNPQ/IJd0A1YqqLqPNSADmscRvFnS53/tbI1+L7CjhBXxGjzhw
+	THk4gKXAoQ1+MymvsO6iCoutR98fl4XllsYzvlGnAd2kmpTjNkH5KnBddCNKDYLY
+	beuiPARE+A588jFxyzb4+qNbNfYhk6j2+nKMReuEtJ40nUMQey3NDC4S2OLPEAl4
+	WzBU1SNqYOC1g82kpTA57vNxR41anVee33qiSh0d/hs1VoLRIm9vVUX1ToHM2jQW
+	rZrZWdtFmzG0g7ydHMv+NuH6BQLUi/JzvT3fQg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:message-id
+	:mime-version:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
+	1719503286; x=1719589686; bh=RXNn8CughpYiNE0XVk1z0mrQSBSu7ZpLKF+
+	Sxmfz0CU=; b=YVOA5dyhSCrVm//0hOmdTknULSD6RPRVKQjm+6txFYH2olLmNrQ
+	6tXpXxGNWg68lwkHmSErIE+OozGSpd4RvqZHJopjUpwSBY2YqKyjzVyNt7O/NsPA
+	sGHnjF1D1ZpV1uDUHH9eTj8TAe4Fv7FpywWM0d27u9r/NNGGbe6cqxvgQc7m+vWD
+	sWuslLsxcjNE5Y5PJFTEsrSH39UDYTWdI/fPqudvZl5fCVV3bBcspNrkKSYShxeZ
+	AHhcffU/uvgjD0FXoM5AZg2ewdVyQ6JQOoqPKC5Rh9+ZdaYEA7UEawnmeOy88hkf
+	Bi1sJGJFlOiB05ThGWpa/L5d7gouyUtxKRQ==
+X-ME-Sender: <xms:tol9ZkqGq6cd9_2Tg1g6LzY7UKwAiLDD28T6qTso1B-IDkhG6bdqzQ>
+    <xme:tol9ZqrF3L4qbsb0Sf7WjgfmS7lyhhG6PiwaYGAs2H-PfMPDL_-lhbNLbuymBqYwZ
+    aZxWgYZ4gzGPCHV4NU>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrtdeggdelgecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefofgggkfffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhnugcu
+    uegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtthgvrh
+    hnpeeffeeuhfekjeevtddvtdelledttddtjeegvdfhtdduvdfhueekudeihfejtefgieen
+    ucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:tol9ZpM9rzkYHDkx1M6X3OfNI_3ikYsicE4trIKleiUJ1khDevYL5A>
+    <xmx:tol9Zr61VoNNWVA0Q5UGt62pVtyCqFjnpQ-H6tAQ1lFEnLnDhFfYHQ>
+    <xmx:tol9Zj7an15US46HuBwzI1smRuKExv4ERCHg3YVtkig_5te4neAc5Q>
+    <xmx:tol9Zrg8Ml5nJeftkhqBNa3d6wpSBuLFa41K5XAyiUvvFchqYx--yg>
+    <xmx:tol9ZtuwREKpO17UDq7Xg-BdX-mcekpDWyqEcU7UnMDTybcRRzXdvZqk>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+	id 385DFB6008D; Thu, 27 Jun 2024 11:48:06 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.11.0-alpha0-538-g1508afaa2-fm-20240616.001-g1508afaa
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: lerAx88qlTHOQtHJWNdo4i73d-4HmdPD
-X-Proofpoint-GUID: lerAx88qlTHOQtHJWNdo4i73d-4HmdPD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-27_11,2024-06-27_03,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=506 spamscore=0
- bulkscore=0 suspectscore=0 mlxscore=0 phishscore=0 clxscore=1011
- priorityscore=1501 lowpriorityscore=0 adultscore=0 malwarescore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2406140001 definitions=main-2406270113
+Message-Id: <cdf46f76-ee89-4c20-afd8-94a629d06e70@app.fastmail.com>
+Date: Thu, 27 Jun 2024 17:47:32 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Linus Torvalds" <torvalds@linux-foundation.org>
+Cc: Linux-Arch <linux-arch@vger.kernel.org>, linux-kernel@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linux-sh@vger.kernel.org,
+ "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+ linux-hexagon@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] asm-generic fixes for 6.10
+Content-Type: text/plain
 
-Resolve linux-next conflict between commit 10ff0f8ec5d2 ("s390/kmsan:
-implement the architecture-specific functions") and commit 39976f1278a9
-("s390: Remove S390_lowcore").
+The following changes since commit f2661062f16b2de5d7b6a5c42a9a5c96326b8454:
 
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
----
- arch/s390/include/asm/kmsan.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+  Linux 6.10-rc5 (2024-06-23 17:08:54 -0400)
 
-diff --git a/arch/s390/include/asm/kmsan.h b/arch/s390/include/asm/kmsan.h
-index 27db65fbf3f6..f73e181d09ae 100644
---- a/arch/s390/include/asm/kmsan.h
-+++ b/arch/s390/include/asm/kmsan.h
-@@ -12,8 +12,8 @@
- 
- static inline bool is_lowcore_addr(void *addr)
- {
--	return addr >= (void *)&S390_lowcore &&
--	       addr < (void *)(&S390_lowcore + 1);
-+	return addr >= (void *)get_lowcore() &&
-+	       addr < (void *)(get_lowcore() + 1);
- }
- 
- static inline void *arch_kmsan_get_meta_or_null(void *addr, bool is_origin)
-@@ -25,7 +25,7 @@ static inline void *arch_kmsan_get_meta_or_null(void *addr, bool is_origin)
- 		 * order to get a distinct struct page.
- 		 */
- 		addr += (void *)lowcore_ptr[raw_smp_processor_id()] -
--			(void *)&S390_lowcore;
-+			(void *)get_lowcore();
- 		if (KMSAN_WARN_ON(is_lowcore_addr(addr)))
- 			return NULL;
- 		return kmsan_get_metadata(addr, is_origin);
--- 
-2.45.2
+are available in the Git repository at:
 
+  https://git.kernel.org/pub/scm/linux/kernel/git/arnd/asm-generic.git tags/asm-generic-fixes-6.10
+
+for you to fetch changes up to 7e1f4eb9a60d40dd17a97d9b76818682a024a127:
+
+  kallsyms: rework symbol lookup return codes (2024-06-27 17:43:40 +0200)
+
+----------------------------------------------------------------
+asm-generic fixes for 6.10
+
+These are some bugfixes for system call ABI issues I found while
+working on a cleanup series. None of these are urgent since these
+bugs have gone unnoticed for many years, but I think we probably
+want to backport them all to stable kernels, so it makes sense
+to have the fixes included as early as possible.
+
+One more fix addresses a compile-time warning in kallsyms that was
+uncovered by a patch I did to enable additional warnings in 6.10. I had
+mistakenly thought that this fix was already merged through the module
+tree, but as Geert pointed out it was still missing.
+
+----------------------------------------------------------------
+Arnd Bergmann (14):
+      ftruncate: pass a signed offset
+      syscalls: fix compat_sys_io_pgetevents_time64 usage
+      sparc: fix old compat_sys_select()
+      sparc: fix compat recv/recvfrom syscalls
+      parisc: use correct compat recv/recvfrom syscalls
+      parisc: use generic sys_fanotify_mark implementation
+      powerpc: restore some missing spu syscalls
+      sh: rework sync_file_range ABI
+      csky, hexagon: fix broken sys_sync_file_range
+      hexagon: fix fadvise64_64 calling conventions
+      s390: remove native mmap2() syscall
+      syscalls: mmap(): use unsigned offset type consistently
+      linux/syscalls.h: add missing __user annotations
+      kallsyms: rework symbol lookup return codes
+
+ arch/arm64/include/asm/unistd32.h         |   2 +-
+ arch/csky/include/uapi/asm/unistd.h       |   1 +
+ arch/csky/kernel/syscall.c                |   2 +-
+ arch/hexagon/include/asm/syscalls.h       |   6 +
+ arch/hexagon/include/uapi/asm/unistd.h    |   1 +
+ arch/hexagon/kernel/syscalltab.c          |   7 +
+ arch/loongarch/kernel/syscall.c           |   2 +-
+ arch/microblaze/kernel/sys_microblaze.c   |   2 +-
+ arch/mips/kernel/syscalls/syscall_n32.tbl |   2 +-
+ arch/mips/kernel/syscalls/syscall_o32.tbl |   2 +-
+ arch/parisc/Kconfig                       |   1 +
+ arch/parisc/kernel/sys_parisc32.c         |   9 --
+ arch/parisc/kernel/syscalls/syscall.tbl   |   6 +-
+ arch/powerpc/kernel/syscalls/syscall.tbl  |   6 +-
+ arch/riscv/kernel/sys_riscv.c             |   4 +-
+ arch/s390/kernel/syscall.c                |  27 ----
+ arch/s390/kernel/syscalls/syscall.tbl     |   2 +-
+ arch/sh/kernel/sys_sh32.c                 |  11 ++
+ arch/sh/kernel/syscalls/syscall.tbl       |   3 +-
+ arch/sparc/kernel/sys32.S                 | 221 ------------------------------
+ arch/sparc/kernel/syscalls/syscall.tbl    |   8 +-
+ arch/x86/entry/syscalls/syscall_32.tbl    |   2 +-
+ fs/open.c                                 |   4 +-
+ include/asm-generic/syscalls.h            |   2 +-
+ include/linux/compat.h                    |   2 +-
+ include/linux/filter.h                    |  14 +-
+ include/linux/ftrace.h                    |   6 +-
+ include/linux/module.h                    |  14 +-
+ include/linux/syscalls.h                  |  20 +--
+ include/uapi/asm-generic/unistd.h         |   2 +-
+ kernel/bpf/core.c                         |   7 +-
+ kernel/kallsyms.c                         |  23 ++--
+ kernel/module/kallsyms.c                  |  25 ++--
+ kernel/sys_ni.c                           |   2 +-
+ kernel/trace/ftrace.c                     |  13 +-
+ 35 files changed, 116 insertions(+), 345 deletions(-)
+ create mode 100644 arch/hexagon/include/asm/syscalls.h
