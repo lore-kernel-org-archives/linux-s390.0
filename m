@@ -1,213 +1,115 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22CFA4206D;
-	Thu, 27 Jun 2024 09:05:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B164D5BD;
+	Thu, 27 Jun 2024 09:21:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719479131; cv=none; b=eSgSRaGGL11JPzP235/16n5eWFQOKA+Demgmk0Ckn6Gwp8zSoVM9AOVdeG+imAg+tNF9Ut/6u5IwRFFmdb/XgXXhUmYf/19pi9VDf0YrOOjbxRmEMLn4O2k236dfyjNGFb3z+gWafWiG0NUoMm4Ntqjis2dqOjxH2CsOvWatCeo=
+	t=1719480101; cv=none; b=cuxTQ66JYEmvz9LslLxkHFKcGOwyCiyyUTrhVL6aIJ4vInpSVXPZNd5zcNMxmSzaRsufBuVHYZebOZ/Pow0ZsOc6p0/8rCAzNXLwXCRIgpngDfn/A9lmIJvcTqmmB35jSCLw+ozpX/WItk0bTuktdyAVOrOVC1j9zfYQmqRPVj4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719479131; c=relaxed/simple;
-	bh=deqiYAvd1iB7EyIWNxXDoyPDnzBKL9T2PVLQ7Y2gUZ8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ArqBAhX4B6hjuxiEPE+5N4B9XN2OGaNcsojfoB5aRNwZ56TxfU2rytiV/0+YJqGNJUt4lDZBzZs/JnwJ2TmSI/QV0MGZnYZBFu3avnOcxd9xFBdGGgPNvrFkVDJ870VITMQUHhpOwD/HSjTg+kKHYWOxTrkZ8vXvRHS21+0BUnY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IwEios3b; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1719480101; c=relaxed/simple;
+	bh=e4BSBwMBe80sVYMeei63Oc2+3XT2V/MQdNKDbH3ZYzk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=N8gVilhVCq+6WFw/P24XMTFwLs1nooRBTFpmgMsqBnd+z7LWeYVN2ifnQo1A5IBjKmw+UKwu2a6Ef0RcBrQ1TJsCN8ewRvPSK6D/otbqIKBU2euMGdykhhTRP35vVclV/uHt7AoJ7V+7GTmBIVPv+je6MEpFFAggcuzRuYTjduI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jnmOmUPu; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IwEios3b"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45R90FxY004042;
-	Thu, 27 Jun 2024 09:05:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding; s=pp1; bh=y6uJ7LyGg0Tg0n5NaKpJJC8aDH
-	UdUYpUhBdgwFVZSs8=; b=IwEios3bRX+8yHznhm++rKiHaud8I6gtAP737s3Ant
-	xzbrDs/N4TBIFuAn/Om8nbhvAj856QRV9LxAWdSF3u+/eBBQPlTLhx1ybH0dcRLt
-	dTk3JWI/QcIUWd6FzZKVa3HZo7NVzY21Ai4pxBTicSUeTa1W7Ebm/k9Vpz5n6voi
-	Jv4B5zwMpJSg5SLOhm6NGewrGEgdFhr0ULBvtzO3Ldm9XfeuRXfPs7DK5pVKMQ9V
-	NsTohfpl2DrQK2WBigCdWymexFsMLXAT8XdZzIFIPt8CcVuXNi+0aE913YsydaWl
-	aUIcwEV3mIUB2b1hNAOBsPcKBdVzRx0WvhsT/Cie+/Kg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4010718pd0-1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jnmOmUPu"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45R7xDn4006312;
+	Thu, 27 Jun 2024 09:21:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=s
+	N01qmPbmwaIQxjxlJmpFdbVlb5CUPO354RDYQ3AJg0=; b=jnmOmUPucKjoVXGHh
+	UqEyBZ5IJ8pipFmJv7nLv0J/W12pOTu0o7taCEjUOWY9WvGUXpMyq5P/K0W7eWoM
+	KXc2S1JYiZaR8pXlteuTTOH6R51kTvOMHSqilCHybI41otYvkkOxuWtvKe1dscfm
+	M8k+2S1DsXbq7VXDZ9gZuEvPYkHj+W9eadxVkSZDg2wYgoqKHx47bwFt6ml0HfEK
+	aIXN9/oMezEcdSyUO4N9/+OlEdskL1vcvZn9yzPzlnGbPJqYpKFOlVAm/mQB300d
+	H7Unl1AY5iL3z5STMWh6xu38gtvVMkBxlxyJwXAQz/FvB1UyFs8Y1VVFy0+9bNZJ
+	vCOHg==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40145v86yx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Jun 2024 09:05:27 +0000 (GMT)
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45R95Rr2013281;
-	Thu, 27 Jun 2024 09:05:27 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4010718pcx-1
+	Thu, 27 Jun 2024 09:21:38 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45R7KAGD018156;
+	Thu, 27 Jun 2024 09:21:37 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yx8xuj6jd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Jun 2024 09:05:27 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45R7dh3t008152;
-	Thu, 27 Jun 2024 09:05:26 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yx9b12287-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Jun 2024 09:05:26 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45R95KeQ47972748
+	Thu, 27 Jun 2024 09:21:37 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45R9LV7J44302824
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 27 Jun 2024 09:05:22 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A44B42004D;
-	Thu, 27 Jun 2024 09:05:20 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 64A692004F;
-	Thu, 27 Jun 2024 09:05:20 +0000 (GMT)
-Received: from b35lp69.lnxne.boe (unknown [9.152.108.100])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 27 Jun 2024 09:05:20 +0000 (GMT)
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-To: KVM <kvm@vger.kernel.org>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Marc Hartmayer <mhartmay@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Subject: [PATCH 1/1] KVM: s390: fix LPSWEY handling
-Date: Thu, 27 Jun 2024 11:05:20 +0200
-Message-ID: <20240627090520.4667-1-borntraeger@linux.ibm.com>
-X-Mailer: git-send-email 2.45.0
+	Thu, 27 Jun 2024 09:21:33 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7E5A92004D;
+	Thu, 27 Jun 2024 09:21:31 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3920920040;
+	Thu, 27 Jun 2024 09:21:31 +0000 (GMT)
+Received: from [9.152.224.141] (unknown [9.152.224.141])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 27 Jun 2024 09:21:31 +0000 (GMT)
+Message-ID: <92a2a06b-817f-4412-ac2b-763c8a727409@linux.ibm.com>
+Date: Thu, 27 Jun 2024 11:21:30 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] s390/lcs: add missing MODULE_DESCRIPTION() macro
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Jeff Johnson <quic_jjohnson@quicinc.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-janitors@vger.kernel.org
+References: <20240625-md-s390-drivers-s390-net-v2-1-5a8a2b2f2ae3@quicinc.com>
+ <cd626321-51e1-4e69-b043-a838d1351de7@linux.ibm.com>
+ <Zn0qu7f2uysUGWTF@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <Zn0qu7f2uysUGWTF@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Nur2WMLn1KOCS4NAMmd7eBHXZIVqL8oK
-X-Proofpoint-GUID: Qc_LIbVqyMI8-o-pCeW6FgjOATrIcLxv
+X-Proofpoint-GUID: WXVUIP9qoOyQYdDtYHrbcKb7aMUTnVaC
+X-Proofpoint-ORIG-GUID: WXVUIP9qoOyQYdDtYHrbcKb7aMUTnVaC
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-06-27_05,2024-06-25_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=935 spamscore=0
- impostorscore=0 bulkscore=0 adultscore=0 suspectscore=0 lowpriorityscore=0
- priorityscore=1501 mlxscore=0 clxscore=1015 malwarescore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2406140001
- definitions=main-2406270067
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ mlxscore=0 adultscore=0 phishscore=0 bulkscore=0 impostorscore=0
+ malwarescore=0 priorityscore=1501 mlxlogscore=913 lowpriorityscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2406270067
 
-in rare cases, e.g. for injecting a machine check we do intercept all
-load PSW instructions via ICTL_LPSW. With facility 193 a new variant
-LPSWEY was added. KVM needs to handle that as well.
 
-Fixes: a3efa8429266 ("KVM: s390: gen_facilities: allow facilities 165, 193, 194 and 196")
-Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |  1 +
- arch/s390/kvm/kvm-s390.c         |  1 +
- arch/s390/kvm/kvm-s390.h         | 16 ++++++++++++++++
- arch/s390/kvm/priv.c             | 32 ++++++++++++++++++++++++++++++++
- 4 files changed, 50 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 95990461888f..9281063636a7 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -427,6 +427,7 @@ struct kvm_vcpu_stat {
- 	u64 instruction_io_other;
- 	u64 instruction_lpsw;
- 	u64 instruction_lpswe;
-+	u64 instruction_lpswey;
- 	u64 instruction_pfmf;
- 	u64 instruction_ptff;
- 	u64 instruction_sck;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 50b77b759042..8e04c7f0c90c 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -132,6 +132,7 @@ const struct _kvm_stats_desc kvm_vcpu_stats_desc[] = {
- 	STATS_DESC_COUNTER(VCPU, instruction_io_other),
- 	STATS_DESC_COUNTER(VCPU, instruction_lpsw),
- 	STATS_DESC_COUNTER(VCPU, instruction_lpswe),
-+	STATS_DESC_COUNTER(VCPU, instruction_lpswey),
- 	STATS_DESC_COUNTER(VCPU, instruction_pfmf),
- 	STATS_DESC_COUNTER(VCPU, instruction_ptff),
- 	STATS_DESC_COUNTER(VCPU, instruction_sck),
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 111eb5c74784..c61966cae121 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -138,6 +138,22 @@ static inline u64 kvm_s390_get_base_disp_s(struct kvm_vcpu *vcpu, u8 *ar)
- 	return (base2 ? vcpu->run->s.regs.gprs[base2] : 0) + disp2;
- }
- 
-+static inline u64 kvm_s390_get_base_disp_siy(struct kvm_vcpu *vcpu, u8 *ar)
-+{
-+	u32 base1 = vcpu->arch.sie_block->ipb >> 28;
-+	u32 disp1 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16) +
-+			((vcpu->arch.sie_block->ipb & 0xff00) << 4);
-+
-+	/* The displacement is a 20bit _SIGNED_ value */
-+	if (disp1 & 0x80000)
-+		disp1+=0xfff00000;
-+
-+	if (ar)
-+		*ar = base1;
-+
-+	return (base1 ? vcpu->run->s.regs.gprs[base1] : 0) + (long)(int)disp1;
-+}
-+
- static inline void kvm_s390_get_base_disp_sse(struct kvm_vcpu *vcpu,
- 					      u64 *address1, u64 *address2,
- 					      u8 *ar_b1, u8 *ar_b2)
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 1be19cc9d73c..1a49b89706f8 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -797,6 +797,36 @@ static int handle_lpswe(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
-+static int handle_lpswey(struct kvm_vcpu *vcpu)
-+{
-+	psw_t new_psw;
-+	u64 addr;
-+	int rc;
-+	u8 ar;
-+
-+	vcpu->stat.instruction_lpswey++;
-+
-+	if (!test_kvm_facility(vcpu->kvm, 193))
-+		return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
-+
-+	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
-+		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-+
-+	addr = kvm_s390_get_base_disp_siy(vcpu, &ar);
-+	if (addr & 7)
-+		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+
-+	rc = read_guest(vcpu, addr, ar, &new_psw, sizeof(new_psw));
-+	if (rc)
-+		return kvm_s390_inject_prog_cond(vcpu, rc);
-+
-+	vcpu->arch.sie_block->gpsw = new_psw;
-+	if (!is_valid_psw(&vcpu->arch.sie_block->gpsw))
-+		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+
-+	return 0;
-+}
-+
- static int handle_stidp(struct kvm_vcpu *vcpu)
- {
- 	u64 stidp_data = vcpu->kvm->arch.model.cpuid;
-@@ -1462,6 +1492,8 @@ int kvm_s390_handle_eb(struct kvm_vcpu *vcpu)
- 	case 0x61:
- 	case 0x62:
- 		return handle_ri(vcpu);
-+	case 0x71:
-+		return handle_lpswey(vcpu);
- 	default:
- 		return -EOPNOTSUPP;
- 	}
--- 
-2.45.0
+On 27.06.24 11:02, Alexander Gordeev wrote:
+> On Wed, Jun 26, 2024 at 01:50:21PM +0200, Alexandra Winter wrote:
+>> Acked-by: Alexandra Winter <wintera@linux.ibm.com>
+> 
+> Hi Alexandra,
+> 
+> I guess, this update go via s390 tree together with all other
+> MODULE_DESCRIPTION ones. It is up to you.
+> 
+> Thanks!
+> 
 
+
+Actually my assumption was that the netdev maintainers will take it via netdev.
+There are no dependencies afaict.
+
+But any way is fine with me.
+
+@Dave, @Jakub, please speak up, if you want Alexander to take it.
