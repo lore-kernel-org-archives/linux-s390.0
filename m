@@ -1,159 +1,185 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E62AC15A85D;
-	Thu, 27 Jun 2024 12:33:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF37B194C72;
+	Thu, 27 Jun 2024 13:51:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719491583; cv=none; b=fuQX0RLOSLCX3C3MJ11DX8AurEIm9gDQh6XmDNxk8xGFa2nVGXp4y5VtqAmA9Uopc/4MIXtB5pUlFiZY+QodVWfWvxSKfKgw4cDtiv7vQ1g2KGZgVA4hf2e2v6QGb/ceL8rd6CR+qJJLMeYB9QtM0mCcRnKKXBU24uPv38DgaYw=
+	t=1719496280; cv=none; b=t2SCKFpDOaJjF74iKZc0c2SX7LjiDxGef1s/v3ZoancgJfIoZk+bAQxHjX0ET9t+fjxvXLBItKFC57h1HYq2TixD142/JeihoK8pUF/Jggdn7dqGgiz0l99qh6PY051UthDIRGn2MIpxWeaIuTkBHvkrcefYn2j+ulJ4WjK4oTo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719491583; c=relaxed/simple;
-	bh=x9T2r+7WplUtpSVJLO9FU1G2C91jcztsP3Fv2uwkp7Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=g625oRoLE7DmLfLcw/6FUZkDFuB8KD4AJAKp9jbDRbBMl1pOYb9USk4Go5MVIZQWUoWsICzaaVJ6MsDOSPW3Hsd+BqncQc2WHFGyv3RfnjAQvhoOy9Q8pfbYGGjReemSxYgozvoPVdxx6W0zILf5c1z/dJkeYE7jL51bEuI3Wv0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Fl6vASMj; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1719496280; c=relaxed/simple;
+	bh=hknuyisLYJ4y23RNqLLfEQAnG18k+vp7THFmxqwkFH4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=N+i1bbf3n6hJhjW3v8/ywDWlCR6sviOQGm+/C4Vml4eFxr3OmRP9aJbxvqCuK3JVs3N3XK/3Y87SdqQd/9VI7vh7XfXIvtfYts3LIRQvpoRVVLi6Le0OxqPMqy8Xro8bP0IAxYz9VtVgtnPtbhApT2Dw1v8XfbdpC9thJoXeiE0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bOHQPqaQ; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Fl6vASMj"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45RBvVC2015969;
-	Thu, 27 Jun 2024 12:33:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=x
-	9T2r+7WplUtpSVJLO9FU1G2C91jcztsP3Fv2uwkp7Y=; b=Fl6vASMjiuaCiidR6
-	aaHso5KU82qQZXXUQfj/Rujf+1L2drEjdTCW8Bt3BuV/RXotLM2LrM3Meu2rfhwE
-	K/tFdB37w3COwWHUe+ynO7roTEqe/YnMQrwfb80ZNEMcZ7KketBZaQt/BNdDsoxc
-	khLLryT8TaynvBlw7arxnY4qa0XHqEBS+AB9To45C/qaqBXGkBeRfbvpW81W9/W1
-	czOsIEpXlVivp94QunOhRWhWqyxgQx3H/uftrfHH+u/8WuVfdeyU6OnOQwJ1Op76
-	/53FpMY0Vg2UC9qgCA9wElGJTiIzEMamhwPeS/d8SVyZDFuAWu6MMcoFt4GHrMfI
-	KDalg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4014ks8jab-1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bOHQPqaQ"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45RDQvOt001734;
+	Thu, 27 Jun 2024 13:51:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:content-type
+	:in-reply-to:mime-version; s=pp1; bh=4bX5NUKIKpBj2dDSMUxA+MFxihY
+	wXOMeW5Gnxmp128k=; b=bOHQPqaQDyWQJiCswm6mehZuDF+aEnFQQusKrDjs+5V
+	Q6/sa8ne58g8O/Bk+Y23PVvnY72Niy18bky0MUdmlECaU4H7pxZzpY7Ql4TvMnHn
+	1FBVnTPTbYzG2FNVQzZ9oxsHWMDjegOBxR+u0fkcoJIbmfFsuzdW8eV+RSWjXDAM
+	wx6WNhA+hD+IlufurBIDTnzymlEu66Xo0T1IXGZTqvaC61U5Ss9BTn4gJTlBHHpd
+	pzLii6SDGVm3t0K4FKT8q+px0mAIIJTZItdcuzcL7B4Y3oa9B05zrbdv9V0LNfwq
+	FbP456Q/VtYFJzlLHLT6JwvraotVOC1lIPIP1zHbGXg==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4012dcs5ax-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Jun 2024 12:32:59 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45RCWxPC006198;
-	Thu, 27 Jun 2024 12:32:59 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4014ks8ja8-1
+	Thu, 27 Jun 2024 13:51:15 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45RCtLJm020024;
+	Thu, 27 Jun 2024 13:51:15 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yxb5mtqfb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Jun 2024 12:32:59 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45RC9RFB000575;
-	Thu, 27 Jun 2024 12:32:57 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yxaenakyq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Jun 2024 12:32:57 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45RCWp9753215530
+	Thu, 27 Jun 2024 13:51:15 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45RDpBUx56558066
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 27 Jun 2024 12:32:54 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D893B2004D;
-	Thu, 27 Jun 2024 12:32:51 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5BB4320040;
-	Thu, 27 Jun 2024 12:32:51 +0000 (GMT)
-Received: from [9.171.15.243] (unknown [9.171.15.243])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 27 Jun 2024 12:32:51 +0000 (GMT)
-Message-ID: <35cb7d12-d93b-4fbb-98fe-10ce2e6358f2@linux.ibm.com>
-Date: Thu, 27 Jun 2024 14:32:51 +0200
+	Thu, 27 Jun 2024 13:51:13 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6AEC52004E;
+	Thu, 27 Jun 2024 13:51:11 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 490BA2004D;
+	Thu, 27 Jun 2024 13:51:11 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 27 Jun 2024 13:51:11 +0000 (GMT)
+Date: Thu, 27 Jun 2024 15:51:09 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Omar Sandoval <osandov@osandov.com>
+Cc: linux-s390@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        linux-debuggers@vger.kernel.org
+Subject: Re: Incorrect vmcoreinfo KERNELOFFSET after "s390/boot: Rework
+ deployment of the kernel image"
+Message-ID: <Zn1uTZdlYNaRFUqK@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <ZnS8dycxhtXBZVky@telecaster.dhcp.thefacebook.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZnS8dycxhtXBZVky@telecaster.dhcp.thefacebook.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: jnpZuO2ZaYWHUlmao-nCzNvtscbpgtoH
+X-Proofpoint-GUID: jnpZuO2ZaYWHUlmao-nCzNvtscbpgtoH
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] s390/kvm: Reject memory region operations for ucontrol
- VMs
-To: Paolo Bonzini <pbonzini@redhat.com>,
-        Christoph Schlameuss <schlameuss@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
-        linux-doc@vger.kernel.org
-References: <20240624095902.29375-1-schlameuss@linux.ibm.com>
- <CABgObfYxZZdwe94u7OvHPUx+u4fDEJLnBEQbk1hdYs_Zy0D2hA@mail.gmail.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <CABgObfYxZZdwe94u7OvHPUx+u4fDEJLnBEQbk1hdYs_Zy0D2hA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: mTn_dzUG9zRzJmu037-Ihe_DndbX9W86
-X-Proofpoint-ORIG-GUID: BGyRQszkQYBqJAbx0pOSe03aKiALIM1c
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-27_06,2024-06-27_03,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- suspectscore=0 phishscore=0 priorityscore=1501 mlxlogscore=646
- clxscore=1015 malwarescore=0 lowpriorityscore=0 bulkscore=0 adultscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2406140001 definitions=main-2406270094
+ definitions=2024-06-27_08,2024-06-27_03,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ malwarescore=0 impostorscore=0 lowpriorityscore=0 spamscore=0 mlxscore=0
+ clxscore=1015 priorityscore=1501 adultscore=0 phishscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2406270101
 
-T24gNi8yNy8yNCAxMzo1MywgUGFvbG8gQm9uemluaSB3cm90ZToNCj4gT24gTW9uLCBKdW4g
-MjQsIDIwMjQgYXQgMTE6NTnigK9BTSBDaHJpc3RvcGggU2NobGFtZXVzcw0KPiA8c2NobGFt
-ZXVzc0BsaW51eC5pYm0uY29tPiB3cm90ZToNCj4+DQo+PiBUaGlzIGNoYW5nZSByZWplY3Rz
-IHRoZSBLVk1fU0VUX1VTRVJfTUVNT1JZX1JFR0lPTiBhbmQNCj4+IEtWTV9TRVRfVVNFUl9N
-RU1PUllfUkVHSU9OMiBpb2N0bHMgd2hlbiBjYWxsZWQgb24gYSB1Y29udHJvbCBWTS4NCj4+
-IFRoaXMgaXMgbmVjY2Vzc2FyeSBzaW5jZSB1Y29udHJvbCBWTXMgaGF2ZSBrdm0tPmFyY2gu
-Z21hcCBzZXQgdG8gMCBhbmQNCj4+IHdvdWxkIHRodXMgcmVzdWx0IGluIGEgbnVsbCBwb2lu
-dGVyIGRlcmVmZXJlbmNlIGZ1cnRoZXIgaW4uDQo+PiBNZW1vcnkgbWFuYWdlbWVudCBuZWVk
-cyB0byBiZSBwZXJmb3JtZWQgaW4gdXNlcnNwYWNlIGFuZCB1c2luZyB0aGUNCj4+IGlvY3Rs
-cyBLVk1fUzM5MF9VQ0FTX01BUCBhbmQgS1ZNX1MzOTBfVUNBU19VTk1BUC4NCj4+DQo+PiBB
-bHNvIGltcHJvdmUgczM5MCBzcGVjaWZpYyBkb2N1bWVudGF0aW9uIGZvciBLVk1fU0VUX1VT
-RVJfTUVNT1JZX1JFR0lPTg0KPj4gYW5kIEtWTV9TRVRfVVNFUl9NRU1PUllfUkVHSU9OMi4N
-Cj4gDQo+IFdvdWxkIGJlIG5pY2UgdG8gaGF2ZSBhIHNlbGZ0ZXN0IGZvciB1Y29udHJvbCBW
-TXMsIHRvby4uLiBqdXN0IHNheWluZyA6KQ0KPiANCj4gUGFvbG8NCj4gDQoNCkFscmVhZHkg
-aW4gdGhlIHdvcmtzLCBoZSBqdXN0IGhhc24ndCBwb3N0ZWQgaXQgeWV0IDopDQpXZSBkaWQg
-ZG8gYSBjb3VwbGUgcm91bmRzIG9mIGludGVybmFsIGZlZWRiYWNrIG9uIHRoZSB0ZXN0cyBm
-aXJzdC4NCg==
+On Thu, Jun 20, 2024 at 04:34:15PM -0700, Omar Sandoval wrote:
+
+Hi Omar,
+
+> Hi, Alexander and Sven,
+> 
+> I just got around to testing drgn on s390x on 6.10-rc4, and it appears
+> to be broken. I bisected it to commit 56b1069c40c7 ("s390/boot: Rework
+> deployment of the kernel image") and narrowed it down to an issue with
+> the KERNELOFFSET value reported in vmcoreinfo.
+> 
+> On my test kernel, the ELF symbol for init_task is 0xc96f00:
+> 
+>   $ eu-readelf -s build/vmtest/s390x/kernel-6.10.0-rc4-vmtest30.1default/build/vmlinux | grep ' init_task$'
+>   72273: 0000000000c96f00   4352 OBJECT  GLOBAL DEFAULT       18 init_task
+> 
+> And the address in the loaded kernel is 0x3ffffeaaf00:
+> 
+>   # grep ' init_task$' /proc/kallsyms
+>   000003ffffeaaf00 D init_task
+> 
+> 0x3ffffeaaf00 - 0xc96f00 is 0x3ffff214000
+> 
+> However, this doesn't match the value of KERNELOFFSET in vmcoreinfo:
+> 
+>   # eu-readelf -n /proc/kcore | grep KERNELOFFSET
+>     KERNELOFFSET=3ffff314000
+> 
+> It's off by 0x100000. This causes drgn to compute the wrong addresses
+> for all global variables.
+> 
+> For context, I'm testing using QEMU emulation on an x86-64 host. Note
+> that it logs "KASLR disabled: CPU has no PRNG" early during boot. My
+> exact setup is:
+> 
+>   $ git clone https://github.com/osandov/drgn.git
+>   $ cd drgn
+>   $ python3 -m vmtest.rootfsbuild -a s390x --build-drgn
+>   $ python3 -m vmtest.vm -k 's390x:6.10.*' bash -i
+>   # python3 -m drgn
+>   >>> prog['init_task'].comm
+>   (char [16])""
+> 
+> That should be printing "swapper/0".
+> 
+> Any ideas what's going on here?
+
+On s390 no kernel symbol exists below 0x100000 offset within the
+vmlinux image and thus this part is never mapped into the kernel
+memory. That way KERNELOFFSET turns out to be off on value of
+0x100000 - and that is what you observe.
+
+That breaks the way drgn finds a kernel symbol, but does not
+exactly contradicts to the existing KERNELOFFSET description
+(Documentation/admin-guide/kdump/vmcoreinfo.rst):
+
+===
+KERNELOFFSET
+------------
+
+The kernel randomization offset. Used to compute the page offset. If
+KASLR is disabled, this value is zero.
+===
+
+I would say to some degree there is also inconsisten with regard
+to /proc/ files existence:
+/proc/kcore    is enabled by CONFIG_PROC_KCORE option, while
+/proc/kallsyms is enabled by CONFIG_KALLSYMS option.
+I assume drgn expects both files exist and does not work otherwise.
+
+Nevertheless, it is still possible to refer to only one file for
+symbol resolution and use an always-present symbol. E.g _stext
+could be leveraged like this:
+
+# grep -w init_task /proc/kallsyms
+000003ffe13e9400 D init_task
+# grep -w _stext /proc/kallsyms
+000003ffe0000000 T _stext
+
+0x3ffe13e9400 - 0x3ffe0000000 == 0x13e9400
+
+# eu-readelf -s vmlinux | grep -w _stext
+178112: 0000000000100000      0 NOTYPE  GLOBAL DEFAULT        1 _stext
+
+0x13e9400 + 0x100000 == 0x14e9400
+
+# eu-readelf -s vmlinux | grep -w init_task
+  498: 0000000000000000      0 FILE    LOCAL  DEFAULT      ABS init_task.c
+182344: 00000000014e9400   8960 OBJECT  GLOBAL DEFAULT       28 init_task
+
+I guess, the above holds true for all architectures.
+If so, I would suggest consider using that approach.
+
+Having said that, we will try to turn KERNELOFFSET from a synthetic
+value "Used to compute the page offset" to what drgn expects it to be.
+
+> Thanks!
+> Omar
+
+Thanks!
