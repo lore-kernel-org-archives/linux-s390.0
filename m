@@ -1,164 +1,133 @@
-Received: from fout8-smtp.messagingengine.com (fout8-smtp.messagingengine.com [103.168.172.151])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BF9822EF2;
-	Thu, 27 Jun 2024 15:48:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7342722EF2;
+	Thu, 27 Jun 2024 15:52:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719503289; cv=none; b=cuhQsLBBgSY+8mtZZp4pDo3LIZEt5qMpEtkr/5NQoF44C3zWLgO8vw86TXzsXDEHWFGLcgGkcbp4tAsUU7p21q9gv3j+ATHY+HQs4QJjDSRTMneNlqxYYgJqBbAksl9r92rIxBB7vJR00CnM+Onho50Cr06MmZJz30FVvmkNXF0=
+	t=1719503581; cv=none; b=UVu2cbDkidAeqqza6lJCFOwSRErmGlff9yqqyz60qIQJtaBl9XvMhkyAfqSyNncAG5DG6j0h6QX0qFBc/QTz0KpBN3eAi9rUV4YEffvtaJnUI672zLr03QO9zwg8IkAHqDuXz5SBu9A+Cg3uLc0JpEgZz9hW9n5T5tWx2wIldm4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719503289; c=relaxed/simple;
-	bh=mgnSZbv9s1UDrPgwquXpFaPaJbetPkHMpZpbhSy4sdQ=;
-	h=MIME-Version:Message-Id:Date:From:To:Cc:Subject:Content-Type; b=oSVNr7q9tDVk9iBtX3D0N+IldT75RZ39XfTjs8KmX0uLtT3g4e04hykEIrqQAod6ZtCFYFGayOQlj+bXymkJw2suUq3xLN7Qus6UjklxrNI/iQO+rRtGVJ7l+9kkFZMWtCJdD8vUCXNHORv+U2XdjTLReK90w3owpeni+HFQovM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=xt9vYmew; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YVOA5dyh; arc=none smtp.client-ip=103.168.172.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1719503581; c=relaxed/simple;
+	bh=3geujrC+ESRectbN0luQVxCYhkd9S6Dv+iHYxRRIFq8=;
+	h=Date:From:To:Cc:Subject:Message-ID:Content-Type:
+	 Content-Disposition:MIME-Version; b=h/cE3r2CB/io9eHpgxgp/zjb76YfEQ8OU2/ISf1US7rVwT1u50HKXJOz4GP6LCNwmjpodS5cQAe7XKWooeuEHAj4IKjH65htqJubNLHLw9RM+Puvsi5ntInCc7UOn640knIDobsfcpRhVrO8WX9fp3A9OVGGdbGgaA0eQtO7woE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aMRbxX2m; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="xt9vYmew";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YVOA5dyh"
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-	by mailfout.nyi.internal (Postfix) with ESMTP id 8F2CE1380123;
-	Thu, 27 Jun 2024 11:48:06 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
-  by compute5.internal (MEProxy); Thu, 27 Jun 2024 11:48:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:message-id:mime-version:reply-to:subject:subject:to:to; s=fm1;
-	 t=1719503286; x=1719589686; bh=RXNn8CughpYiNE0XVk1z0mrQSBSu7ZpL
-	KF+Sxmfz0CU=; b=xt9vYmewSr+NwSDUc+2CrGcP6bPKEmWaYer2QYQd56mIKAVn
-	OxFCZJS0ycsqOEFNPQ/IJd0A1YqqLqPNSADmscRvFnS53/tbI1+L7CjhBXxGjzhw
-	THk4gKXAoQ1+MymvsO6iCoutR98fl4XllsYzvlGnAd2kmpTjNkH5KnBddCNKDYLY
-	beuiPARE+A588jFxyzb4+qNbNfYhk6j2+nKMReuEtJ40nUMQey3NDC4S2OLPEAl4
-	WzBU1SNqYOC1g82kpTA57vNxR41anVee33qiSh0d/hs1VoLRIm9vVUX1ToHM2jQW
-	rZrZWdtFmzG0g7ydHMv+NuH6BQLUi/JzvT3fQg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:message-id
-	:mime-version:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-	1719503286; x=1719589686; bh=RXNn8CughpYiNE0XVk1z0mrQSBSu7ZpLKF+
-	Sxmfz0CU=; b=YVOA5dyhSCrVm//0hOmdTknULSD6RPRVKQjm+6txFYH2olLmNrQ
-	6tXpXxGNWg68lwkHmSErIE+OozGSpd4RvqZHJopjUpwSBY2YqKyjzVyNt7O/NsPA
-	sGHnjF1D1ZpV1uDUHH9eTj8TAe4Fv7FpywWM0d27u9r/NNGGbe6cqxvgQc7m+vWD
-	sWuslLsxcjNE5Y5PJFTEsrSH39UDYTWdI/fPqudvZl5fCVV3bBcspNrkKSYShxeZ
-	AHhcffU/uvgjD0FXoM5AZg2ewdVyQ6JQOoqPKC5Rh9+ZdaYEA7UEawnmeOy88hkf
-	Bi1sJGJFlOiB05ThGWpa/L5d7gouyUtxKRQ==
-X-ME-Sender: <xms:tol9ZkqGq6cd9_2Tg1g6LzY7UKwAiLDD28T6qTso1B-IDkhG6bdqzQ>
-    <xme:tol9ZqrF3L4qbsb0Sf7WjgfmS7lyhhG6PiwaYGAs2H-PfMPDL_-lhbNLbuymBqYwZ
-    aZxWgYZ4gzGPCHV4NU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrtdeggdelgecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefofgggkfffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhnugcu
-    uegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtthgvrh
-    hnpeeffeeuhfekjeevtddvtdelledttddtjeegvdfhtdduvdfhueekudeihfejtefgieen
-    ucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenuc
-    frrghrrghmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:tol9ZpM9rzkYHDkx1M6X3OfNI_3ikYsicE4trIKleiUJ1khDevYL5A>
-    <xmx:tol9Zr61VoNNWVA0Q5UGt62pVtyCqFjnpQ-H6tAQ1lFEnLnDhFfYHQ>
-    <xmx:tol9Zj7an15US46HuBwzI1smRuKExv4ERCHg3YVtkig_5te4neAc5Q>
-    <xmx:tol9Zrg8Ml5nJeftkhqBNa3d6wpSBuLFa41K5XAyiUvvFchqYx--yg>
-    <xmx:tol9ZtuwREKpO17UDq7Xg-BdX-mcekpDWyqEcU7UnMDTybcRRzXdvZqk>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id 385DFB6008D; Thu, 27 Jun 2024 11:48:06 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.11.0-alpha0-538-g1508afaa2-fm-20240616.001-g1508afaa
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aMRbxX2m"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45REp9Nl006588;
+	Thu, 27 Jun 2024 15:52:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:content-type:mime-version; s=pp1;
+	 bh=V/VUW8t4d5EIqHXHXJuVwZYLQiMx7TgtpJhhtXVdvNQ=; b=aMRbxX2m+vAC
+	Tv0K91bPBPkP68GHCHdhdRQ8MqooKxeiQ5IDBIlVGtzQ18YpE8yUxpR+SrU35p/c
+	kD/ZW61DQRtMAOcTig8q2pjk5oESJ3ESqf1qm3AHhJjVEPOzSRkf4fz+GjhcNL+P
+	VyxwayX80sJb5gE/ysCLERNNN7JKpMjNfGSV0C6uJSrWXr4vKZOgn30aTPZhr1I6
+	3+Z96dh+Y3qPiY55PjKsexVYfzu+uMNfRO29AfR3TeW/nMu+e7gkySj1+6dLG74a
+	RcB3qThbAYXz7X44NJeh2+5mBEsYYn7l/Mmv1JOpm3nduy3hvA6pdb+MAgSgMbnx
+	ZCObKbLDbQ==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4013qg97yp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Jun 2024 15:52:57 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45REisQt019591;
+	Thu, 27 Jun 2024 15:52:56 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3yx9xqbht7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Jun 2024 15:52:56 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45RFqoZi31982248
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 27 Jun 2024 15:52:52 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A9B0F20043;
+	Thu, 27 Jun 2024 15:52:50 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8C08120040;
+	Thu, 27 Jun 2024 15:52:50 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 27 Jun 2024 15:52:50 +0000 (GMT)
+Date: Thu, 27 Jun 2024 17:52:49 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] s390 fixes for 6.10-rc6
+Message-ID: <Zn2K0ZLW5gU6rCxf@tuxmaker.boeblingen.de.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: GwQoHdrOiOKap0BmkCL25-3xdrGWuALb
+X-Proofpoint-ORIG-GUID: GwQoHdrOiOKap0BmkCL25-3xdrGWuALb
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <cdf46f76-ee89-4c20-afd8-94a629d06e70@app.fastmail.com>
-Date: Thu, 27 Jun 2024 17:47:32 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Linus Torvalds" <torvalds@linux-foundation.org>
-Cc: Linux-Arch <linux-arch@vger.kernel.org>, linux-kernel@vger.kernel.org,
- linux-alpha@vger.kernel.org, linux-parisc@vger.kernel.org,
- linux-sh@vger.kernel.org,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- linux-hexagon@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] asm-generic fixes for 6.10
-Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-27_12,2024-06-27_03,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ impostorscore=0 mlxlogscore=601 adultscore=0 mlxscore=0 clxscore=1015
+ bulkscore=0 spamscore=0 phishscore=0 priorityscore=1501 lowpriorityscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2406270121
 
-The following changes since commit f2661062f16b2de5d7b6a5c42a9a5c96326b8454:
+Hello Linus,
 
-  Linux 6.10-rc5 (2024-06-23 17:08:54 -0400)
+Please pull s390 changes for 6.10-rc6.
+
+Thank you,
+Alexander
+
+The following changes since commit 693d41f7c938f92d881e6a51525e6c132a186afd:
+
+  s390/mm: Restore mapping of kernel image using large pages (2024-06-11 16:20:40 +0200)
 
 are available in the Git repository at:
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/arnd/asm-generic.git tags/asm-generic-fixes-6.10
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.10-7
 
-for you to fetch changes up to 7e1f4eb9a60d40dd17a97d9b76818682a024a127:
+for you to fetch changes up to cea5589e958f8aef301ce9d004bc73fa5bb3b304:
 
-  kallsyms: rework symbol lookup return codes (2024-06-27 17:43:40 +0200)
-
-----------------------------------------------------------------
-asm-generic fixes for 6.10
-
-These are some bugfixes for system call ABI issues I found while
-working on a cleanup series. None of these are urgent since these
-bugs have gone unnoticed for many years, but I think we probably
-want to backport them all to stable kernels, so it makes sense
-to have the fixes included as early as possible.
-
-One more fix addresses a compile-time warning in kallsyms that was
-uncovered by a patch I did to enable additional warnings in 6.10. I had
-mistakenly thought that this fix was already merged through the module
-tree, but as Geert pointed out it was still missing.
+  s390/boot: Do not adjust GOT entries for undef weak sym (2024-06-25 14:39:42 +0200)
 
 ----------------------------------------------------------------
-Arnd Bergmann (14):
-      ftruncate: pass a signed offset
-      syscalls: fix compat_sys_io_pgetevents_time64 usage
-      sparc: fix old compat_sys_select()
-      sparc: fix compat recv/recvfrom syscalls
-      parisc: use correct compat recv/recvfrom syscalls
-      parisc: use generic sys_fanotify_mark implementation
-      powerpc: restore some missing spu syscalls
-      sh: rework sync_file_range ABI
-      csky, hexagon: fix broken sys_sync_file_range
-      hexagon: fix fadvise64_64 calling conventions
-      s390: remove native mmap2() syscall
-      syscalls: mmap(): use unsigned offset type consistently
-      linux/syscalls.h: add missing __user annotations
-      kallsyms: rework symbol lookup return codes
+s390 updates for 6.10-rc6
 
- arch/arm64/include/asm/unistd32.h         |   2 +-
- arch/csky/include/uapi/asm/unistd.h       |   1 +
- arch/csky/kernel/syscall.c                |   2 +-
- arch/hexagon/include/asm/syscalls.h       |   6 +
- arch/hexagon/include/uapi/asm/unistd.h    |   1 +
- arch/hexagon/kernel/syscalltab.c          |   7 +
- arch/loongarch/kernel/syscall.c           |   2 +-
- arch/microblaze/kernel/sys_microblaze.c   |   2 +-
- arch/mips/kernel/syscalls/syscall_n32.tbl |   2 +-
- arch/mips/kernel/syscalls/syscall_o32.tbl |   2 +-
- arch/parisc/Kconfig                       |   1 +
- arch/parisc/kernel/sys_parisc32.c         |   9 --
- arch/parisc/kernel/syscalls/syscall.tbl   |   6 +-
- arch/powerpc/kernel/syscalls/syscall.tbl  |   6 +-
- arch/riscv/kernel/sys_riscv.c             |   4 +-
- arch/s390/kernel/syscall.c                |  27 ----
- arch/s390/kernel/syscalls/syscall.tbl     |   2 +-
- arch/sh/kernel/sys_sh32.c                 |  11 ++
- arch/sh/kernel/syscalls/syscall.tbl       |   3 +-
- arch/sparc/kernel/sys32.S                 | 221 ------------------------------
- arch/sparc/kernel/syscalls/syscall.tbl    |   8 +-
- arch/x86/entry/syscalls/syscall_32.tbl    |   2 +-
- fs/open.c                                 |   4 +-
- include/asm-generic/syscalls.h            |   2 +-
- include/linux/compat.h                    |   2 +-
- include/linux/filter.h                    |  14 +-
- include/linux/ftrace.h                    |   6 +-
- include/linux/module.h                    |  14 +-
- include/linux/syscalls.h                  |  20 +--
- include/uapi/asm-generic/unistd.h         |   2 +-
- kernel/bpf/core.c                         |   7 +-
- kernel/kallsyms.c                         |  23 ++--
- kernel/module/kallsyms.c                  |  25 ++--
- kernel/sys_ni.c                           |   2 +-
- kernel/trace/ftrace.c                     |  13 +-
- 35 files changed, 116 insertions(+), 345 deletions(-)
- create mode 100644 arch/hexagon/include/asm/syscalls.h
+- Add missing virt_to_phys() conversion for directed interrupt
+  bit vectors
+
+- Fix broken configuration change notifications for virtio-ccw
+
+- Fix sclp_init() cleanup path on failure and as result - fix
+  a list double add warning
+
+- Fix unconditional adjusting of GOT entries containing undefined
+  weak symbols that resolve to zero
+
+----------------------------------------------------------------
+Halil Pasic (1):
+      s390/virtio_ccw: Fix config change notifications
+
+Heiko Carstens (1):
+      s390/sclp: Fix sclp_init() cleanup on failure
+
+Jens Remus (1):
+      s390/boot: Do not adjust GOT entries for undef weak sym
+
+Niklas Schnelle (1):
+      s390/pci: Add missing virt_to_phys() for directed DIBV
+
+ arch/s390/boot/startup.c         | 11 +++++++----
+ arch/s390/pci/pci_irq.c          |  2 +-
+ drivers/s390/char/sclp.c         |  1 +
+ drivers/s390/virtio/virtio_ccw.c |  4 +++-
+ 4 files changed, 12 insertions(+), 6 deletions(-)
