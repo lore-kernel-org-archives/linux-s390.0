@@ -1,69 +1,234 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEBEE224CC;
-	Fri, 28 Jun 2024 05:50:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C2592139D4;
+	Fri, 28 Jun 2024 08:50:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719553857; cv=none; b=LVJ6BHts80LPxNJSe+bbV9VofaTLSiIpxSlNivfVwyQm2+vHAgLcMAURZNV6wxoOsE6cFGmYXoyXbQLRqDYyWecwCkJfmMXcDYfnDI+F/807iaMygB/3xAGhwU8jvF1Wi0ANRb3o7S1tytkej/lFd0NSphVJev0x+qHBMlC8d00=
+	t=1719564607; cv=none; b=KNo1E/ZKMJzhw3+KJDkVXasYW4xZpX5GpEVoJ6BGgCxjr3m3Jj6Urty50W5n6BgFsDi3kiyTH6wPiuX/8uqCJafdMyrtPastbFCefRi/oGVBe66HfaDCZj76rxCd+3Jf4jGRJp5hHGfkq7n0pcKr3HBtvqKVP4xubyvhlOkNNgE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719553857; c=relaxed/simple;
-	bh=+2ls3ugjUjVk0S9jGlw9ITT5uQcjiG6uVmAAY04diqM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QTgxgNFx/Gy2HK+gQl50A04OFoo5/Wap11COJdr3uHGV1i0JSdEi0xJgfQV2aY6nAWQPewxixhOreNss9EN+Ua6MekUyKWvYgBJOSKMU9glSY9kxthSZu/LQV9XSPgzZ1U/Oak4XsKYL8v6479kxI5zaGxFPNFwg0wwoA742TcQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=rdUwTOa6; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1719564607; c=relaxed/simple;
+	bh=XUflaohcWvYShUnMWniTitLP78sYs5dsruzLHvueNWk=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=jVTIq8tmorP8CttbTQGk+aVqS1DEkTPBb6P88/nkP79yDwSuaIFNbA+of/p2qdAh63yEfNYECc3zIcZn5hY0XcqpF1LtGBMHjiALCq4piq9GI6Mmkbfhay4SccLUQUJDBia3gff8dgOqTLvaWOSuXOfiFCx6dhS18T7/+1qWo0k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cB3DcOzg; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="rdUwTOa6"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=VvUsrQOsamYudQc0HKFkKTKBGBKa/qA2+34N2aoqyGE=; b=rdUwTOa67wU9N59zz37rsh/+o1
-	GA75HAY+5cNOjzkV4XQ3Nmvbg0g62+p7fNhBELnC/cfw91duH4rRyA6dxORlyijxHNTw5EN3yossl
-	mfaW0RpOqtsSjAD73v5xwoXGVafAVER/jrTQxNk0rIGWARX8WpNR+rGygBVWDyK8Rgk48pcs1EH3i
-	6yhUPCZFgxnatmhdkCcaAq7mEx5sKfqtfwKO4hwy6SexJAnpJYj1yXU8Lkldvt0ShSViC5g71Pivs
-	tGu9GFnI2IQM2sp1JpWKQcSMjIUx7bM4E2/miGTuFOIrlAj5jRPm262Dsz2GPPLmzuyadiMWStMI5
-	P6Seta7g==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sN4VW-0000000CfVS-3Aeb;
-	Fri, 28 Jun 2024 05:50:50 +0000
-Date: Thu, 27 Jun 2024 22:50:50 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: Gerd Bayer <gbayer@linux.ibm.com>
-Cc: Ma Ke <make24@iscas.ac.cn>, wintera@linux.ibm.com,
-	twinkler@linux.ibm.com, Niklas Schnelle <schnelle@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>, linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com, svens@linux.ibm.com, davem@davemloft.net,
-	Stefan Raspl <raspl@linux.ibm.com>
-Subject: Re: [PATCH] s390/ism: Add check for dma_set_max_seg_size in
- ism_probe()
-Message-ID: <Zn5POphJ8pckZ3hY@infradead.org>
-References: <20240626081215.2824627-1-make24@iscas.ac.cn>
- <4ab328297c12d1c286c56dbc01d611b77ea2da03.camel@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cB3DcOzg"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45S8QsVF005995;
+	Fri, 28 Jun 2024 08:49:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
+	1LiVLh/4t2TyA15F3OgW+0GLmMUkAbdoUNd2a2a2vN0=; b=cB3DcOzg+Rn2BYEs
+	8Jsvqu6pIQ0GA4l1n+2+Xray4mjS4FslAEo6mKlpOZAcreGqNnrGFYSH3n4053zH
+	WP/ET5zvhzoiCiIkIP4BWRjgXEGqhUsaU5eDU5g4ZHupJcppmWfCwF52wNmLv8BN
+	8EONMDXT3FlPM5OzOBmc8NaGAYrJgM2L3atvo7VLuAhVVq7JxskuttyCFEn9kxno
+	PcyBNbn+iGEve1VfIhP2p4TfNCNGGn1N+7fmxJcdjbjH2+rKw/DXLWHLsnIi6ylY
+	6fkRmBVeOPjVgY1m5UJncBERTiBpdc3ElVWunimjJlI8iPVIZHYsF6VIsop2B/te
+	kR3odA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 401pm6rerj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 28 Jun 2024 08:49:48 +0000 (GMT)
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 45S8nmMM009041;
+	Fri, 28 Jun 2024 08:49:48 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 401pm6rerg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 28 Jun 2024 08:49:48 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 45S7mDxJ000402;
+	Fri, 28 Jun 2024 08:49:47 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3yxbn3q2xm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 28 Jun 2024 08:49:47 +0000
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 45S8ni301638992
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 28 Jun 2024 08:49:46 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8BAB65805A;
+	Fri, 28 Jun 2024 08:49:44 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 22A5858051;
+	Fri, 28 Jun 2024 08:49:42 +0000 (GMT)
+Received: from [9.171.12.251] (unknown [9.171.12.251])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 28 Jun 2024 08:49:41 +0000 (GMT)
+Message-ID: <d63e329056954e1e211b8215773c1fb7861dc014.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 3/4] vfio/pci: Disable mmap() non-compliant BARs
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: Bjorn Helgaas <helgaas@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Gerd
+ Bayer <gbayer@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Date: Fri, 28 Jun 2024 10:49:41 +0200
+In-Reply-To: <20240627160547.2879c6b3.alex.williamson@redhat.com>
+References: <20240626-vfio_pci_mmap-v4-0-7f038870f022@linux.ibm.com>
+	 <20240626-vfio_pci_mmap-v4-3-7f038870f022@linux.ibm.com>
+	 <20240627160547.2879c6b3.alex.williamson@redhat.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.2 (3.52.2-1.fc40) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4ab328297c12d1c286c56dbc01d611b77ea2da03.camel@linux.ibm.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Wyw7XCPKsEFmwF33OycVkpQCjW14s_Fx
+X-Proofpoint-GUID: wjfoI3cJNvfIR70fEyirB0vCuv2P-zvA
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-06-28_04,2024-06-28_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 suspectscore=0 spamscore=0 malwarescore=0 clxscore=1015
+ impostorscore=0 mlxlogscore=893 mlxscore=0 adultscore=0 lowpriorityscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2406280061
 
-On Wed, Jun 26, 2024 at 02:48:30PM +0200, Gerd Bayer wrote:
-> 
-> However, since ISM devices are PCI attached (and will remain PCI
-> attached I believe) we can take the existance of dev->dma_parms for
-> granted since pci_device_add() (in drivers/pci/probe.c) will make that
-> point to the pci_dev's dma_parms for every PCI device.
-> 
-> So I'm not sure how important this fix is.
+On Thu, 2024-06-27 at 16:05 -0600, Alex Williamson wrote:
+> On Wed, 26 Jun 2024 13:15:50 +0200
+> Niklas Schnelle <schnelle@linux.ibm.com> wrote:
+>=20
+> > When VFIO_PCI_MMAP is enabled for s390 in a future commit and the ISM
+> > device is passed-through to a KVM guest QEMU attempts to eagerly mmap()
+> > its BAR. This fails because the 256 TiB large BAR does not fit in the
+> > virtual map. Besides this issue mmap() of the ISM device's BAR is not
+> > useful either as even a partial mapping won't be usable from user-space
+> > without a vfio-pci variant driver. A previous commit ensures that pdev-=
+>
+> > non_compliant_bars is set for ISM so use this to disallow mmap() with
+> > the expecation that mmap() of non-compliant BARs is not advisable in th=
+e
+> > general case either.
+> >=20
+> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > ---
+> >  drivers/vfio/pci/vfio_pci_core.c | 5 ++---
+> >  1 file changed, 2 insertions(+), 3 deletions(-)
+> >=20
+> > diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_p=
+ci_core.c
+> > index 987c7921affa..0e9d46575776 100644
+> > --- a/drivers/vfio/pci/vfio_pci_core.c
+> > +++ b/drivers/vfio/pci/vfio_pci_core.c
+> > @@ -128,10 +128,9 @@ static void vfio_pci_probe_mmaps(struct vfio_pci_c=
+ore_device *vdev)
+> > =20
+> >  		/*
+> >  		 * The PCI core shouldn't set up a resource with a
+> > -		 * type but zero size. But there may be bugs that
+> > -		 * cause us to do that.
+> > +		 * type but zero size or non-compliant BARs.
+> >  		 */
+> > -		if (!resource_size(res))
+> > +		if (!resource_size(res) || vdev->pdev->non_compliant_bars)
+> >  			goto no_mmap;
+> > =20
+> >  		if (resource_size(res) >=3D PAGE_SIZE) {
+> >=20
+>=20
+> The non_compliant_bars flag causes pci_read_bases() to exit, shouldn't
+> that mean the resource is not setup and resource_size() is zero and
+> explicitly testing the non_compliant_bars flag is redundant?  Or does
+> s390 do this somewhere else?
+>=20
+> The non_compliant_bars flag is defined as /* Broken BARs; ignore them */
+> so it'd be pretty strange if they had a resource size and we chose to
+> still expose them with read-write access... why wouldn't we just
+> deny-list the device from use with vfio-pci?
+>=20
+> Also probably worth an explicit comment in the commit log why pci-sysfs
+> mmap support doesn't need to be bypassed on s390.  Thanks,
+>=20
+> Alex
+>=20
 
-It's not just important, it is stupid and I told them to stop sending
-these kinds of crap patches.
+Uhh, you're right. With pdev->non_compliant_bars we don't get the
+resources filled in at all due to the check in pci_read_bases(), the
+structs are however still allocated. Consequently IORESOURCE_MEM is
+unset (and resource_size(res) is 0) and the existing IORESOURCE_MEM
+check already ignores the ISM device here. Funnily enough this doesn't
+seem to cause issues for the ISM driver itself because of the way it
+bypasses normal PCI access and doesn't use ioremap() nor the MMIO
+access helpers. Honestlym I think pdev->non_compliant_bars might still
+be the right thing. This BAR is special enough that anything other than
+the ISM driver is probably served best by just ignoring it. We could
+then just drop this patch. I think this would also take care of pci-
+sysfs mmap ignoring ISM if s390x were to set HAVE_PCI_MMAP.
 
+Thanks,
+Niklas
