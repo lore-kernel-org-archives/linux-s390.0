@@ -1,105 +1,119 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99EB317C72;
-	Tue,  2 Jul 2024 06:44:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C014326AE4;
+	Tue,  2 Jul 2024 15:56:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719902670; cv=none; b=GYoQA9+gut7AV3h1V9lB7zOtIevy9Hv2rI4UtpMW6fVRn8rnuh/nXz6I1M/BLFD0wrBvGMvfRXuvXq8fQv9FESgVg7WEF4c6jqLcNGTBhUM/a6DSIn/UVMeN9OQA6A3/Ue3deKxIAYNPhZadjRkEzoPyvX+/MgqAoXx/7ew3a+c=
+	t=1719935779; cv=none; b=Xw7okwRUCsB8FAlVjqShw38UrZx8oVpvhBU5Y5JUoa32sIUdeVUGcMj0lUX07i9XOwCt2ZvaDn+mM+DaX5q6POju3+QaO2o4d3DyfYxJ1zV57xJVH5cFB66WB+npg1p2LLMa92TvvTEEZ6sawN/WDym9x/FgVjJFpdHiWtJ2vUM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719902670; c=relaxed/simple;
-	bh=Vs3moVTrC91eRmtdg0gG5OFDSZri10zE1qO8Xn2GjQI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rJY7/WPmC4++wOd0jliAv0SPcUqxuGicqrpo9mGmIzafdK/4ZBrWA8RDsj+Yu/MePIrhe+oR2/Hmrbim6tAQbsO/wA8bMoU3aFfIcfcydjNZ2rNDOIEHNk+gQyW3zUdBhtpcYh7w3CC7JuGQlD1VteRqbxooETBoNhL6+73vW7E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VxhhmaLn; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1719935779; c=relaxed/simple;
+	bh=1+gzNbPlpcRYJgNGJGSRAyloxA2ydKZJokzw9VBOuMc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sL5iH8t2UmVuimDizsjn0mkAXLjOn711DXM/guPnIxpqCnmJzu2Qjgi1z2pwsA7z5Fi+55KYiMErxOwNjWal+8siDHo2qykiAfdp9WXVjtDoUd41lPD4PTPqr3gBZ6qRi3kywEBOBeMjtd5b2N4bSHUC+fXFT6bE5K/HZsHdnE8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=i43a3zt0; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VxhhmaLn"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4626RZE6012333;
-	Tue, 2 Jul 2024 06:44:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:references:mime-version
-	:content-type:in-reply-to; s=pp1; bh=qbr9oD0mOlGVNIfon4hAHCP/nZC
-	Ow7FZlN7LDjeegVc=; b=VxhhmaLneQJ4/Tj1zYg1h36F/gYasSsh1JDeppmkQIB
-	YBcgaUMZtZWg3hkJMIdZp+VGVQhw2j41G5zPxPgX/+EuMsy9nYW43Y1CTDGicCLE
-	pYyqLH5pYHwrZp4zeGiI9+Lb8ctnDWv+fCinCf7xxLgA5gYMJve/GOaSn+pkMA4J
-	KftkgMIFC8ptXD2tqtvv7PGJOADThleI/jJcI/soVD/p+N6+orCeK1SdCtClEtUm
-	AJ0NlUSs/n4nb2nA2zUpj7UQWmx9M3e6Cbeox/D2/JLLiIOOpEeC16F9bDYE1251
-	alCfj/OWdfJ+q34FH/tW3P4MaQNNJHq1nr06VPhh4mQ==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 404bvc02hg-1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="i43a3zt0"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 462FSOsa020096;
+	Tue, 2 Jul 2024 15:56:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:mime-version
+	:content-transfer-encoding; s=pp1; bh=0MCtPccUAv/HyOA5SIGH355/4W
+	OzGzAz1a93r83mZlE=; b=i43a3zt0wFoSxGEF8NS1wzom4JXP7Lq/BTcNdayNfN
+	fpXRfZ4KEh3xt0r3jonp3RDD6h69ZWFp1my9UAH+8kH1xfPv5KMzX5t9HvzL9UJw
+	Lsf4c6Tm2txz7dUFk8qmpkm7dpvF1HTJbNHFBPVS2LpC8S5MCYTbq2d//pcBMqFp
+	zUPocpRcx2wzC3nBW5y/ma9CUXDolcdvgiVXlXiI8VmWhsN7dfXymtGUb6Magmq2
+	Iae457+YkkrB1lAVDQkbf/uX/UEkxO38ITNgRRv2PPYS6eYpBdtDSjc+gk6fcSLL
+	TRRTIQ+N1u5quPDVGKLkZdaSxaVqXGTrev4Lbk6SQUaw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 404m7j82tu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jul 2024 06:44:25 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46250W5o024071;
-	Tue, 2 Jul 2024 06:44:24 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 402ya3ay8d-1
+	Tue, 02 Jul 2024 15:56:15 +0000 (GMT)
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 462FuFbf032583;
+	Tue, 2 Jul 2024 15:56:15 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 404m7j82tk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jul 2024 06:44:24 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4626iIr951839384
+	Tue, 02 Jul 2024 15:56:15 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 462D8enu005942;
+	Tue, 2 Jul 2024 15:56:14 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 402vku5w0k-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 02 Jul 2024 15:56:14 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 462Fu6K156164852
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 2 Jul 2024 06:44:20 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9C91A2004D;
-	Tue,  2 Jul 2024 06:44:18 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E3A8420043;
-	Tue,  2 Jul 2024 06:44:17 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.44.227])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  2 Jul 2024 06:44:17 +0000 (GMT)
-Date: Tue, 2 Jul 2024 08:44:16 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Eric Farman <farman@linux.ibm.com>
-Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: Re: [PATCH v2] s390/vfio_ccw: Fix target addresses of TIC CCWs
-Message-ID: <ZoOhwC+7vN4qR0NR@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20240628163738.3643513-1-farman@linux.ibm.com>
+	Tue, 2 Jul 2024 15:56:08 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9A5B22004E;
+	Tue,  2 Jul 2024 15:56:06 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6C40920043;
+	Tue,  2 Jul 2024 15:56:06 +0000 (GMT)
+Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  2 Jul 2024 15:56:06 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, borntraeger@de.ibm.com, nrb@linux.ibm.com,
+        nsg@linux.ibm.com, seiden@linux.ibm.com, david@redhat.com
+Subject: [PATCH v1 1/1] KVM: s390: remove useless include
+Date: Tue,  2 Jul 2024 17:56:06 +0200
+Message-ID: <20240702155606.71398-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240628163738.3643513-1-farman@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: m4DxUT7lydZ5rjWvc6ayBKWl25y4tXdO
-X-Proofpoint-ORIG-GUID: m4DxUT7lydZ5rjWvc6ayBKWl25y4tXdO
+X-Proofpoint-GUID: 0hwgbO1KruNFT2MfLeSYV6--RUqPwABr
+X-Proofpoint-ORIG-GUID: CrUXzvGo2326g7e36vx9EoHdMCaJf3V2
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-07-02_02,2024-07-02_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 bulkscore=0
- malwarescore=0 suspectscore=0 priorityscore=1501 phishscore=0 adultscore=0
- mlxscore=0 impostorscore=0 mlxlogscore=837 lowpriorityscore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2406140001
- definitions=main-2407020046
+ definitions=2024-07-02_11,2024-07-02_02,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=1 priorityscore=1501
+ impostorscore=0 phishscore=0 spamscore=1 mlxlogscore=198 adultscore=0
+ suspectscore=0 mlxscore=1 malwarescore=0 clxscore=1015 lowpriorityscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2407020117
 
-On Fri, Jun 28, 2024 at 06:37:38PM +0200, Eric Farman wrote:
-> The processing of a Transfer-In-Channel (TIC) CCW requires locating
-> the target of the CCW in the channel program, and updating the
-> address to reflect what will actually be sent to hardware.
-> 
-> An error exists where the 64-bit virtual address is truncated to
-> 32-bits (variable "cda") when performing this math. Since s390
-> addresses of that size are 31-bits, this leaves that additional
-> bit enabled such that the resulting I/O triggers a channel
-> program check. This shows up occasionally when booting a KVM
-> guest from a passthrough DASD device:
-> 
->   ..snip...
-...
->  drivers/s390/cio/vfio_ccw_cp.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
+arch/s390/include/asm/kvm_host.h includes linux/kvm_host.h, but
+linux/kvm_host.h includes asm/kvm_host.h .
 
-Applied, thanks!
+It turns out that arch/s390/include/asm/kvm_host.h only needs
+linux/kvm_types.h, which it already includes.
+
+Stop including linux/kvm_host.h from arch/s390/include/asm/kvm_host.h .
+
+Due to the #ifdef guards, the code works as it is today, but it's ugly
+and it will get in the way of future patches.
+
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ arch/s390/include/asm/kvm_host.h | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 95990461888f..736cc88f497d 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -15,7 +15,6 @@
+ #include <linux/hrtimer.h>
+ #include <linux/interrupt.h>
+ #include <linux/kvm_types.h>
+-#include <linux/kvm_host.h>
+ #include <linux/kvm.h>
+ #include <linux/seqlock.h>
+ #include <linux/module.h>
+-- 
+2.45.2
+
