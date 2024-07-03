@@ -1,67 +1,67 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 778A113DDA1;
-	Wed,  3 Jul 2024 10:40:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4026117DA03;
+	Wed,  3 Jul 2024 14:59:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720003227; cv=none; b=TcLuXjby+Q4deFHCWPRI3Ecs03v693TfqjzWNvJuX+hh7FLfDYGY/SuLgDeFRle/V/ST+8JZQWUnzLYXb85KdJtZtKE0XalP0txkGkh+5S/hI3SpZDwYL78i6HqwEJoh6vAqkN4mKJpqssb50Rfte0SZoVMWHoGXB3cD29QjeHw=
+	t=1720018790; cv=none; b=cbJmR3swM6Yu4wW4RpaR78LqzMVBX2t50diyEizWN7GI5ya9oYTOXXYxXmOzfSmLduUmExe2qiikWBb/twQ/HEN2o9L1ewsI1uQiscv1v8VOf9zAeqf2sx+I40bPAjDLUFE+KkVef9wlNdB8yNF5+66Prunqmx+h/E04hCfmpi4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720003227; c=relaxed/simple;
-	bh=/BPY/gBBW52wdnFU9VP6pvcSk4pFWW/UFOLtu1o3HRY=;
+	s=arc-20240116; t=1720018790; c=relaxed/simple;
+	bh=2ls00DlAXdOiQycyOLMVa+o98peqwtc4KlJIZid5JMc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YvmuLUxutED90Sai/cfN19aBj8xF1MH0foJnaEMR4IVUmXonQY6IWyzg1nZA1zGEKIMrttOfC3YN6h0hG11esbVnsJrs1Cl06p5FZCf+BopglbV+K14W2uQXQTDeZ6W9eG/gXqmhl962M3/Qm8I5xz22eJXV9yR7kl92bt4EwRQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OMG4Lyy5; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=R/eVZRjcRYlG0M//oZUa8S6ucLiiJz4gPqKxQ9Mtw77WcWFBhZKn2nrG6FE524pJberEl3SUaukDoJt40SXdvhyCT8LH/m9r2M/HfORP16tfAcuHWcwiQZO4ZNCT4wHzHJmgsBrZFWoZE72xhTsyICsF/U5YMzw0IBmzzXXZAWw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CcIAYtns; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OMG4Lyy5"
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 463AShtS002930;
-	Wed, 3 Jul 2024 10:40:23 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CcIAYtns"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 463DwTj8025464;
+	Wed, 3 Jul 2024 14:59:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
 	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=G
-	qFEV7+vv6oJeMs1/U34egvfUl5zB+RdTXx8DalA9j0=; b=OMG4Lyy5qD52qG5ib
-	HJd1qH9X9hl52jRd90hwnUhXOW3r7pHKFjS2gniGzBY17V5N06VlfXb8dmuw/974
-	bgsxj2i5hA0UDSiUX1C9byGEouV9pLU5ru7c6Y18Ca+Lz5pizRNXfgOdc0zmixGr
-	JTUtjarqRqbNLHWIbA+EmmDtS3mN9L/rCbsrlUoUi1oPT8sSttzCKqMequQm8zQ0
-	fY5OQo5DZgg1las6H9qul86c30v/CICTEgEj9uAACq1gJAAzKcR8KBHz/b0KmlR3
-	5WIi7zXIKC75l4/COBOB4eJL91309hxsu30BDXD+2UNY5Iej8irMBsGD9tNEFNQU
-	KNwgA==
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=p
+	12aL7D1A5m6iZrythx3xyCJE1h6qwKaB7sG/N3rpSQ=; b=CcIAYtnsUmmeLC8Xo
+	ItO53TISX7ZOCYK5PoF9CvjSys0aQDpgvlTznN68FY7H8EfCxNL046yJVcfr2sOs
+	S/+UCNJw0oounRBLlqBhinXFFCqKCtnnWC+oFGlQUQhxtX1NYdQTPO6W7HU1Dmug
+	lX1/38T2rzYc9ujnzVOWl/xtJTMr3BuKukeXdTUcMRub8lUSUQC39x9CcbUs3UkB
+	OP9vUrbFXcN+pZrG3J3rYwqSc/oktjq5/bp73JAwlox6PXqAL2593p/j2mNtXHXZ
+	3cAH3OPCKxTtLHU3jtaLD/U+hndzmBVhtArW74pzw1p5wTrlLHU4DipxWff0myRs
+	IYkbA==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4054ww80s0-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4054g1rwbv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Jul 2024 10:40:23 +0000 (GMT)
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 463AeMUD019788;
-	Wed, 3 Jul 2024 10:40:22 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4054ww80rx-1
+	Wed, 03 Jul 2024 14:59:45 +0000 (GMT)
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 463ExiFm026504;
+	Wed, 3 Jul 2024 14:59:44 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4054g1rwbs-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Jul 2024 10:40:22 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4637KE1h005985;
-	Wed, 3 Jul 2024 10:40:21 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 402vkuaaun-1
+	Wed, 03 Jul 2024 14:59:44 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 463CmO4P030030;
+	Wed, 3 Jul 2024 14:59:42 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 402x3n31gh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Jul 2024 10:40:21 +0000
+	Wed, 03 Jul 2024 14:59:42 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 463AeEui27918670
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 463ExbE055116034
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 3 Jul 2024 10:40:16 GMT
+	Wed, 3 Jul 2024 14:59:39 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4057120040;
-	Wed,  3 Jul 2024 10:40:14 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 243E420040;
+	Wed,  3 Jul 2024 14:59:37 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0618B20065;
-	Wed,  3 Jul 2024 10:40:14 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id F03A92004D;
+	Wed,  3 Jul 2024 14:59:36 +0000 (GMT)
 Received: from [9.152.224.76] (unknown [9.152.224.76])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  3 Jul 2024 10:40:13 +0000 (GMT)
-Message-ID: <c63d6520-cf15-4835-8349-20993878d45a@linux.ibm.com>
-Date: Wed, 3 Jul 2024 12:40:13 +0200
+	Wed,  3 Jul 2024 14:59:36 +0000 (GMT)
+Message-ID: <6dd02110-9cff-4a23-b823-a15c4ce1b065@linux.ibm.com>
+Date: Wed, 3 Jul 2024 16:59:36 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,12 +69,20 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/1] KVM: s390: remove useless include
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        borntraeger@de.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com,
-        seiden@linux.ibm.com, david@redhat.com
-References: <20240702155606.71398-1-imbrenda@linux.ibm.com>
+Subject: Re: [PATCH] KVM: s390: vsie: retry SIE instruction on host intercepts
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+References: <20240301204342.3217540-1-farman@linux.ibm.com>
+ <338544a6-4838-4eeb-b1b2-2faa6c11c1be@redhat.com>
+ <1deb0e32-7351-45d2-a342-96a659402be8@linux.ibm.com>
+ <8fbd41c0fb16a5e10401f6c2888d44084e9af86a.camel@linux.ibm.com>
+ <dceeac23-0c58-4c78-850a-d09e7b45d6e8@linux.ibm.com>
 Content-Language: en-US
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
@@ -119,32 +127,74 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20240702155606.71398-1-imbrenda@linux.ibm.com>
+In-Reply-To: <dceeac23-0c58-4c78-850a-d09e7b45d6e8@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QRRz5I5ZOLT8rKTh43USblNx9zsPBnbx
-X-Proofpoint-ORIG-GUID: zpq9-YXwfu2LUYdgtR_M3bWq_CfFJpv6
+X-Proofpoint-ORIG-GUID: jxGEgPZYUe_F3FGPy4bHIWgJYym3cEaI
+X-Proofpoint-GUID: bGscq2jGxlTGgPr9k4vRQrKHJUg1Zke4
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-07-03_06,2024-07-02_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- clxscore=1015 impostorscore=0 spamscore=0 priorityscore=1501
- suspectscore=0 phishscore=0 adultscore=0 lowpriorityscore=0
- mlxlogscore=386 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2406140001 definitions=main-2407030077
+ definitions=2024-07-03_09,2024-07-03_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
+ mlxlogscore=334 mlxscore=0 priorityscore=1501 impostorscore=0
+ malwarescore=0 phishscore=0 spamscore=0 clxscore=1015 lowpriorityscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2407030106
 
-On 7/2/24 17:56, Claudio Imbrenda wrote:
-> arch/s390/include/asm/kvm_host.h includes linux/kvm_host.h, but
-> linux/kvm_host.h includes asm/kvm_host.h .
+On 4/29/24 12:18, Christian Borntraeger wrote:
+> Am 04.03.24 um 16:37 schrieb Eric Farman:
+>> On Mon, 2024-03-04 at 09:44 +0100, Christian Borntraeger wrote:
+>>>
+>>>
+>>> Am 04.03.24 um 09:35 schrieb David Hildenbrand:
+>>>> On 01.03.24 21:43, Eric Farman wrote:
+>>>>> It's possible that SIE exits for work that the host needs to
+>>>>> perform
+>>>>> rather than something that is intended for the guest.
+>>>>>
+>>>>> A Linux guest will ignore this intercept code since there is
+>>>>> nothing
+>>>>> for it to do, but a more robust solution would rewind the PSW
+>>>>> back to
+>>>>> the SIE instruction. This will transparently resume the guest
+>>>>> once
+>>>>> the host completes its work, without the guest needing to process
+>>>>> what is effectively a NOP and re-issue SIE itself.
+>>>>
+>>>> I recall that 0-intercepts are valid by the architecture. Further,
+>>>> I recall that there were some rather tricky corner cases where
+>>>> avoiding 0-intercepts would not be that easy.
+>>
+>> Any chance you recall any details of those corner cases? I can try to
+>> chase some of them down.
+>>
+>>>>
+>>>> Now, it's been a while ago, and maybe I misremember. SoI'm trusting
+>>>> people with access to documentation can review this.
+>>>
+>>> Yes, 0-intercepts are allowed, and this also happens when LPAR has an
+>>> exit.
+>>
+>>   From an offline conversation I'd had some months back:
+>>
+>> """
+>> The arch does allow ICODE=0 to be stored, but it's supposed to happen
+>> only upon a host interruption -- in which case the old PSW is supposed
+>> to point back at the SIE, to resume guest execution if the host should
+>> LPSW oldPSW.
+>> """
 > 
-> It turns out that arch/s390/include/asm/kvm_host.h only needs
-> linux/kvm_types.h, which it already includes.
+> Just re-read the architecture again and I agree, the SIE instruction should
+> be nullified. So we should go forward with this somehow.
 > 
-> Stop including linux/kvm_host.h from arch/s390/include/asm/kvm_host.h .
+> Eric, can you maybe add this to devel for CI coverage so that we see if there
+> are corner cases? Maybe also try to do some performance things (how many IPIs
+> can we get in guest2 when a guest3 is running and how many IPIs are possible
+> in a guest3).
 > 
-> Due to the #ifdef guards, the code works as it is today, but it's ugly
-> and it will get in the way of future patches.
+> 
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-
+This patch has had contact with the CI for quite a while and I'm 
+gathering patches.
+Is this an ack now?
