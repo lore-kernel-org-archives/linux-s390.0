@@ -1,121 +1,130 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E3C41AB8F8;
-	Thu,  4 Jul 2024 09:29:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D6EB1ABCC0;
+	Thu,  4 Jul 2024 11:11:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720085342; cv=none; b=FnfrZpmfyi1KlEQpge34uerKVLL1disN/9AXHD21T7Xy7LTrfg+GpwDGFkayo5qPLk52CD2b/CB2wJr35gQMD7k7fR6RDDOkja3ywEEU28hXsomXNgBpehochojYj/x6OVycv7+sCvoe5kuvleVoNb98Sg4mE98hrxK5eXkWG4s=
+	t=1720091482; cv=none; b=eylKD1niaP1W3FMc0uwiCrQneWoM+/d5rG2JM51pyIzNF0gnU3cM7adUeH2X7Q+E47+ofDkfJwr7sQLmuNh8PVBc1GSdHSKsmJ9IBtnndrY1fWZU9gZWwflSc0vAESmvNsZg/7cC2cWEOF0PFFbPSLW4KPoii6SSSEuNfIy7tIQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720085342; c=relaxed/simple;
-	bh=99QdLiQfWVvNrakKybpaotUBHFtBmS12E1R2ONNXAUo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BunVd6meQKuX2ONp2+Dr5thAcgd+OxzK1EWgfAL2eCgU+IR6EN0vznja/Jz84ye1CPisfei/YK2gLhqOPqGaSzL/8g0a1D0ALWhFcZSCG2x4D9oy2o5bUIlkSNjsq2JEcCmrAse0gzwcdIevmtGYIVyClMMSD3UoUKpFgjxKiDk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=mSQnWx+o; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1720091482; c=relaxed/simple;
+	bh=TwoVc/A5cvcKyYqBk85IeSoXm8WueZBsy4xxLnttTxM=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=tmwlqUlopYjHTOcnxa3V9+3j8EqLLbnYgx82qagPMZLyfpFxuBeT4b/djFcZQayRN9XbAO3OIG9al09zvhY24BWYjfvlsbnk/BATtaNP8UBqgVk4wONiv1uu7h3Ylgvui80xSvJ7coyAtAs0Y1bIDclyRnYsnEG/h0YvJ6WcyxM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DVwMuNkq; arc=none smtp.client-ip=209.85.221.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="mSQnWx+o"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C181C4AF0A;
-	Thu,  4 Jul 2024 09:29:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1720085341;
-	bh=99QdLiQfWVvNrakKybpaotUBHFtBmS12E1R2ONNXAUo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=mSQnWx+oYdMK4tn623s9b61z8DkjTc7HlS1IFjpffqtWuvzMYwDwtfhQN0MZiAcR3
-	 Ntxi6aLTOGvgnuMajtSLx1vRR9xHd9T72eGe/yHcuftprHDv4qS6BqF3Yq15Ycztl3
-	 xTfQzM3HCoc4iMwGh5ZonO9IUqVEiXRZtZkrNJ7U=
-Date: Thu, 4 Jul 2024 11:27:58 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: stable@vger.kernel.org, patches@lists.linux.dev,
-	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-	jonathanh@nvidia.com, f.fainelli@gmail.com,
-	sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
-	conor@kernel.org, allen.lkml@gmail.com, broonie@kernel.org,
-	linux-s390@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/290] 5.10.221-rc1 review
-Message-ID: <2024070447-robbing-devalue-c16d@gregkh>
-References: <20240703102904.170852981@linuxfoundation.org>
- <CA+G9fYu8dpsNyqPk53wyq1ZTKmCJ3gUb6JBjH3OM9p2pqL_E-A@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DVwMuNkq"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-36786081ac8so349222f8f.0;
+        Thu, 04 Jul 2024 04:11:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1720091479; x=1720696279; darn=vger.kernel.org;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qwBmB9TZGFjcG5R2+2N2tz93DvezoEGxh6PsIk8IO/w=;
+        b=DVwMuNkqn+2XTBypJEguND4yU8ZLt/XCn2Rvvwjwn91IWH1oe1bp5nF7YelyIo6Aof
+         PGzrkUJnD/afC5RbxYs0jxQOCW15tG8pCg5zJ+ojuyIOTmkn3P8zdLKbWKqPYYnFNmtJ
+         3ZCTjLm1HcilZKiDwLpk2UPxvNY66g6DH5nYYf8GITmrmNiesvpDlUJVIkG8NEyVVom8
+         kAPftQeFsPA1tCPbALMUCe5WurN0VVxrJVxSSVOvTyPD65adG8ML73VRBjk0VlY6G8Ez
+         tX70faa2b6tdI/78pXvVP8ub7qRieBucgNTvNZ38S4R9NoLgoHTvD+O70rxLUJGHKE6z
+         hAlA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720091479; x=1720696279;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=qwBmB9TZGFjcG5R2+2N2tz93DvezoEGxh6PsIk8IO/w=;
+        b=GOgGX4KiCmxV4F2434WjNsNGyyz3RKdNgB1Pf3Bv6uyGfgGOkM8Pb+yVWffU8IWLSi
+         8E2NSwHBV+1GDQ17f7ukqMI2a7nOJU35e9n6lEqV8eAGdTA3BJ6skutgZIrhmg8HIgKa
+         dQ5bMCO3oqQMaR3lZxHMcQUwbwP9qzYSow5H/jeiCqcBHwR7IGtxz+b5WNTz6WCqE6pK
+         KdxwkyPI3bPwTpAV201Q9UHx7lpf5FSeYavrQabkEOHnEaVZcE1LAWFrLhLR+UfiT8zj
+         SaektvU9KQa5J7yXuEt0SQO5TM0GAakpU9gFAbbMvc8wv49SdRLcQrmhz8KwNRelqBHT
+         67aA==
+X-Forwarded-Encrypted: i=1; AJvYcCUq+56FaN0zIJqcWsJmItbCW58aH2Jh97TYBkd5ZYdzi0qAkwg7X69KwUe/hcwmKhVtsPpob/ttD5MxA2+xKuGXBlsZdbcx3mDZbpV8ihWUaaMhYnI696CL+OUFoRdzMlyLc49PgQs/tVeneEiKYn2B/8oqHlpboQXgB2764v1/DdydYE1F2UvrY+ruLkYXcghX7QmHlbbBH9HSHCRN3ETZ4vY/t+hpK0VUF5GuRym/Vr54VzSwowORbKFpLKLIaYmX+nVm0EG9X5U4iTtRKESQHVHoAPXxn7ApXZaZVQr+Jvlj2lE6/axS2DZma1VlSO8BrF6U
+X-Gm-Message-State: AOJu0YwW4QvKglXPMHCvZZYtBkq0dlKbQXsnkYd9AavBo4Er98F+EmXF
+	2rXxBQI73GGXs85q0pSbBLqf9Wvyzdm87kXqQ9A/4bMWtdskHK7p
+X-Google-Smtp-Source: AGHT+IFEzvL2jC2faLe/uaMvaq/UCJ26KrH1XFm9Ol6h8w0Rebt6hjx4X+gdY7pIVUfbtqQYexMuPw==
+X-Received: by 2002:a5d:5712:0:b0:367:94e7:958a with SMTP id ffacd0b85a97d-3679dd17ec1mr1153338f8f.6.1720091479417;
+        Thu, 04 Jul 2024 04:11:19 -0700 (PDT)
+Received: from [10.14.0.2] ([139.28.176.164])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36787db4d12sm6821051f8f.110.2024.07.04.04.11.17
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 04 Jul 2024 04:11:18 -0700 (PDT)
+Content-Type: text/plain;
+	charset=us-ascii
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYu8dpsNyqPk53wyq1ZTKmCJ3gUb6JBjH3OM9p2pqL_E-A@mail.gmail.com>
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.120.23.2.7\))
+Subject: Re: [PATCH 14/26] block: move the nonrot flag to queue_limits
+From: Simon Fernandez <fernandez.simon@gmail.com>
+In-Reply-To: <ZnmoANp0TgpxWuF-@kbusch-mbp.dhcp.thefacebook.com>
+Date: Thu, 4 Jul 2024 12:11:16 +0100
+Cc: Christoph Hellwig <hch@lst.de>,
+ Jens Axboe <axboe@kernel.dk>,
+ Geert Uytterhoeven <geert@linux-m68k.org>,
+ Richard Weinberger <richard@nod.at>,
+ Philipp Reisner <philipp.reisner@linbit.com>,
+ Lars Ellenberg <lars.ellenberg@linbit.com>,
+ =?utf-8?Q?Christoph_B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
+ Josef Bacik <josef@toxicpanda.com>,
+ Ming Lei <ming.lei@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ =?utf-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>,
+ Alasdair Kergon <agk@redhat.com>,
+ Mike Snitzer <snitzer@kernel.org>,
+ Mikulas Patocka <mpatocka@redhat.com>,
+ Song Liu <song@kernel.org>,
+ Yu Kuai <yukuai3@huawei.com>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ linux-m68k@lists.linux-m68k.org,
+ linux-um@lists.infradead.org,
+ drbd-dev@lists.linbit.com,
+ nbd@other.debian.org,
+ linuxppc-dev@lists.ozlabs.org,
+ ceph-devel@vger.kernel.org,
+ virtualization@lists.linux.dev,
+ xen-devel@lists.xenproject.org,
+ linux-bcache@vger.kernel.org,
+ dm-devel@lists.linux.dev,
+ linux-raid@vger.kernel.org,
+ linux-mmc@vger.kernel.org,
+ linux-mtd@lists.infradead.org,
+ nvdimm@lists.linux.dev,
+ linux-nvme@lists.infradead.org,
+ linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org,
+ linux-block@vger.kernel.org,
+ Damien Le Moal <dlemoal@kernel.org>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <78BDDF6A-1FC7-4DD7-AABF-E0B055772CBF@gmail.com>
+References: <20240617060532.127975-1-hch@lst.de>
+ <20240617060532.127975-15-hch@lst.de>
+ <ZnmoANp0TgpxWuF-@kbusch-mbp.dhcp.thefacebook.com>
+To: Keith Busch <kbusch@kernel.org>
+X-Mailer: Apple Mail (2.3608.120.23.2.7)
 
-On Wed, Jul 03, 2024 at 11:41:54PM +0530, Naresh Kamboju wrote:
-> On Wed, 3 Jul 2024 at 16:29, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.10.221 release.
-> > There are 290 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Fri, 05 Jul 2024 10:28:12 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.221-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> 
-> The s390 builds failed on stable-rc 5.10.221-rc1 due to following build
-> warnings / errors. These errors were also noticed on stable-rc 5.4.279-rc1.
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> Regressions found on s390:
-> 
->   - gcc-12-defconfig
->   - clang-18-defconfig
->   - gcc-8-defconfig-fe40093d
-> 
-> 
-> Build log:
-> ------
-> arch/s390/include/asm/cpacf.h: In function 'cpacf_km':
-> arch/s390/include/asm/cpacf.h:320:29: error: storage size of 'd' isn't known
->   320 |         union register_pair d, s;
->       |                             ^
-> arch/s390/include/asm/cpacf.h:320:32: error: storage size of 's' isn't known
->   320 |         union register_pair d, s;
->       |                                ^
-> arch/s390/include/asm/cpacf.h:320:32: warning: unused variable 's'
-> [-Wunused-variable]
-> arch/s390/include/asm/cpacf.h:320:29: warning: unused variable 'd'
-> [-Wunused-variable]
->   320 |         union register_pair d, s;
->       |                             ^               ^
-> 
-> Build log link,
->  [1] https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.220-291-g4d0fada143ed/testrun/24509787/suite/build/test/gcc-12-defconfig/log
-> 
-> 
-> Build config url:
->   config: https://storage.tuxsuite.com/public/linaro/lkft/builds/2ijXjGemFUwKSWd98LvKtd4i3uF/config
->   download_url:
-> https://storage.tuxsuite.com/public/linaro/lkft/builds/2ijXjGemFUwKSWd98LvKtd4i3uF/
-> 
-> metadata:
->   git_describe: v5.10.220-291-g4d0fada143ed
->   git_repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->   git_short_log: 4d0fada143ed ("Linux 5.10.221-rc1")
->   toolchain: gcc-12
->   arch: s390
-> 
+Hi folks, how can I unsubscribe from this group.?
+Thanks in advance.
+S
 
-Found the issue, will push out -rc2 versions soon, thanks.
+> On 24 Jun 2024, at 18:08, Keith Busch <kbusch@kernel.org> wrote:
+>=20
+> On Mon, Jun 17, 2024 at 08:04:41AM +0200, Christoph Hellwig wrote:
+>> -#define blk_queue_nonrot(q)	test_bit(QUEUE_FLAG_NONROT, =
+&(q)->queue_flags)
+>> +#define blk_queue_nonrot(q)	((q)->limits.features & =
+BLK_FEAT_ROTATIONAL)
+>=20
+> This is inverted. Should be:
+>=20
+> #define blk_queue_nonrot(q)	(!((q)->limits.features & =
+BLK_FEAT_ROTATIONAL))
+>=20
 
-greg k-h
