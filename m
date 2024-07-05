@@ -1,125 +1,274 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D4A713C809
-	for <linux-s390@vger.kernel.org>; Fri,  5 Jul 2024 08:52:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 467FB146A69
+	for <linux-s390@vger.kernel.org>; Fri,  5 Jul 2024 10:09:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720169540; cv=none; b=maSxVm8FOdIEgLm0UZyOzbTip7h9kI4r56w52dz0o80LeiLM3U9I3bTjsBEzyUG05x0UpC8tCarjqBwLXdQGtmZWWWk28xgBnLMwa9PPb9Dp1MN5Uc7lkPgcWhPM/dX/tro7eIr82rCy7JNhqfvoVK02W+LRyHd+c8k6GoZtd4o=
+	t=1720174155; cv=none; b=iXhhe2P4HGXqBxrMIR2MjEPB4y2/Q8jH4hG8x+LzzuxNpauWHXhs9GVq/X6PiKyoEAqm6MQ0s3OpjytgBx0ul/iWPewH/pGFgwKDKTep+/zzZegoTlC3Z/0DrNF7KXjQU4METSVgE3AWTl/o6bGX5DpaB0XJlG0tUd8WpnOZ2WE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720169540; c=relaxed/simple;
-	bh=FD6qzwI5ymn+tMirsDTY4+mmM9+OpdMH8NLnieLT7GQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SXKxIKYrdsDsz+ZOm8XDJdyFwT8pyalOFw0ZwEcjOA0jPyh3Hfvg0kLzkV2DVe+R+BX8Cum9a+QCg3PjeV1v1Q7bZXu36y0bJjyqk4AkZwGjHrRa6lx4xKbocCl09OTO/TLreW7ZzNQLTOfMNNj/EcL6WQnGHsFEMMfQmMteffQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZporI4MG; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1720174155; c=relaxed/simple;
+	bh=hTt1vb2rlKzdwlZrBwUZKYn386WW4/puEcuG/xh7pBc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IwjlZmEgw9DJ7PmAlulraP8T4IKcF5aOKgtOl2t1qb/uptARopPhyGuwKQYkJJfk9CfgShs/ekXcJ+j3hQ5gjCxO3XupV5Ai4MZhnvFkxlzeTK9ua2b3xPC2ZhGev3yZO7+1gNPLYErgd2lCmjbQ9Tfp0IB7U8yg/uNbSMKF2xg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BdDZ5HD0; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZporI4MG"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BdDZ5HD0"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720169537;
+	s=mimecast20190719; t=1720174152;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=RcKIuZ0fBHZD+9IdJ+/GkLctQeGZVxaU7Gh2gVlDniU=;
-	b=ZporI4MG2Wxw2oA17bEb5X1AGqNx8GQHC0nEebqsfPKxQYEIwOGRxWNpDrZAPdeiaT3Rz9
-	JphxrVQV/lbRMie+/p4JopluMp7nWwu8s9Nck/PkSOh+6yjWgNvxuTjucgYliz63nlzUSN
-	M7XAivngVgdKQHfzeTVXOJIJO+j7+9M=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Odn3kI68k2nJO/AKzhT19WX3OnWz2Ozg0VobWfUmy3A=;
+	b=BdDZ5HD0iyApu7/ZuXewiaa6jDPczxjRgUAba/STsMigGySzcIc3ZrxA5GDOz84DlB6ss3
+	CRI72Kbdw34pa7Fpf2IhD0EDg6I0f6jS7cNdD0GnjC60HxZubzjbPLXA9x8ft1rTb6+wqx
+	JZ6WCPFP4t2O/4qyA+TmCPcALAp5E3g=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-627-8ISbTPCrPkmOjvXFkPTtcA-1; Fri, 05 Jul 2024 04:52:15 -0400
-X-MC-Unique: 8ISbTPCrPkmOjvXFkPTtcA-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4258675a4f9so10895095e9.2
-        for <linux-s390@vger.kernel.org>; Fri, 05 Jul 2024 01:52:14 -0700 (PDT)
+ us-mta-688-IeKSfovEMLua-xv10YjkGg-1; Fri, 05 Jul 2024 06:09:11 -0400
+X-MC-Unique: IeKSfovEMLua-xv10YjkGg-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-36795e2ce86so800768f8f.0
+        for <linux-s390@vger.kernel.org>; Fri, 05 Jul 2024 03:09:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720169534; x=1720774334;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=RcKIuZ0fBHZD+9IdJ+/GkLctQeGZVxaU7Gh2gVlDniU=;
-        b=w+Cz/GqSVsukdbG3pMYYNAZw1rN2ia5w0hJy5Jz7pTU3p9fB9o1/LT5w2Qx2OAG/0W
-         qH5rXap0Xz4BSRw88O1z5+ZasExNa039y2b66mvm0iwt4Kj0u6WSKT7iRHT+7bGD/sfd
-         ZVxuALaAyDg528HxwLnyhNrDKjAktRoQ+OUcIvcLGBT6zYmHTi2i6ksAnZvlEPpB+bLj
-         sEJgzL4RCr7GHRoOlsNYU0v9V/37VxWbnKje45h/fJhcgtQoobH8FPAcsHwUdaTtVOJS
-         aQ25XiX3ppFAPFhiHbsrEjN1mrq2Unpk08cwNgsrgl1dAUsazm0vY2MrPY/CiTQGXXwv
-         A3VA==
-X-Forwarded-Encrypted: i=1; AJvYcCUZqiG9MST1me9bqjpx3c8s7kb6JnBA3Nibt79fud7HF+oJLRhC99653GU0RETvQTedeoYtwfulw4UqNOelo9CowngPV/CR/scYCg==
-X-Gm-Message-State: AOJu0YwSZfYHceWsklh7Giev8M8mtqzVmKxdWT/YoPSck0mIR4t852sR
-	A/+sSpTL0UinhHOwHKZM0C8+gqz0m3BDofs30KbpSbJFqYqWmHrVKdK/n6vxWeyhfr8ggTFmmnU
-	prHUkEWQMa/tmDyBVO/okuljNAdaaSVPgUQVpKYop4kh5L9r8KWC0Y52Gm0WiRW0FHzJmd/g8w6
-	iLdK0k8kh8gtt+waEOHHOX5yqlETAvoCiF/w==
-X-Received: by 2002:adf:e686:0:b0:35f:1835:3a76 with SMTP id ffacd0b85a97d-3679dd72184mr2746728f8f.70.1720169533939;
-        Fri, 05 Jul 2024 01:52:13 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFVJ1oHEtb2JrPH4Vyq4C0cj/a2ZkkiNYu6z2olZgdj4gHF3ikNqZrrKWVJHW4dq6UUFdvsLOq0ZnnsgAJ6S3g=
-X-Received: by 2002:adf:e686:0:b0:35f:1835:3a76 with SMTP id
- ffacd0b85a97d-3679dd72184mr2746716f8f.70.1720169533573; Fri, 05 Jul 2024
- 01:52:13 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1720174150; x=1720778950;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Odn3kI68k2nJO/AKzhT19WX3OnWz2Ozg0VobWfUmy3A=;
+        b=iQiRrfKPh2k9G7H85tDI/RLQxlynuVreHNc5zDLNp3GgvJY0hhTLIJsn/CrZ1Hwgqw
+         2otzF48Pu9h4Mr//9WdElKX3VqdRbTFSpTzXPA+f8vHlgiJCtOg1wgC+q/jkKOZSRwR0
+         wcz/V5mWNXqQR+ryu7g/UodMvD4R68WyYtEQ0fsLfUSI8RMy4Xz9Telhu3Gsflqz5sas
+         w6HFdSMVAoUPZvPESLoS5GvH5xFrQRJJi3Hvt2rryU9mjGnrHz6FBArwDQ2OavMfg1qU
+         TEsMvjSQtpiEQ6aHAVxflKrhi/bY9z0/Ip0XILo6a6i8+O3umXmJiCgvfhN3dDt1kFo2
+         w8HA==
+X-Forwarded-Encrypted: i=1; AJvYcCXnhSPJvy4P0FCADG0J7wVCl4Y7qpwzApuHK3rlbtcv+XfE87EVFvrBy0kEmJ0tVCTr8h62ivI8hF65wOvEywTS870K9TUOPSMxBw==
+X-Gm-Message-State: AOJu0Yx4TkfuyghkAxnf81APtUjzytZxWuLTPQAVC6O+V15JZBMQp6u2
+	l6tKPFmi1ib96mt2Xx0sOsbbrfOO9Eid34W6lIobv9a33w0z2igexQdM0yPnETMmPGlZ1XU8BfO
+	/BPimdMRjkvOafJpUV4FBrGVMOkDIobt362uFUzkyLQFqIWAhC0KYHdP6eq4=
+X-Received: by 2002:a05:6000:18d1:b0:366:f001:78d5 with SMTP id ffacd0b85a97d-3679dd15831mr2701317f8f.13.1720174149719;
+        Fri, 05 Jul 2024 03:09:09 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF4wwtYRyztkbCukZKtbADwQgiOS0R3XAJxhjPsgDTBQMKf8FQrtcOZyu+TAhVhA0306KQefg==
+X-Received: by 2002:a05:6000:18d1:b0:366:f001:78d5 with SMTP id ffacd0b85a97d-3679dd15831mr2701283f8f.13.1720174149018;
+        Fri, 05 Jul 2024 03:09:09 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:1f0:a185:2de6:83fc:7632:9788])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3678eb6593bsm7742101f8f.93.2024.07.05.03.09.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Jul 2024 03:09:08 -0700 (PDT)
+Date: Fri, 5 Jul 2024 06:09:01 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	David Hildenbrand <david@redhat.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	linux-um@lists.infradead.org, linux-remoteproc@vger.kernel.org,
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org
+Subject: [PATCH 2/2] virtio: fix vq # when vq skipped
+Message-ID: <1a5d7456542bcd1df8e397c93c48deacd244add5.1720173841.git.mst@redhat.com>
+References: <cover.1720173841.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240704084245.13539-1-borntraeger@linux.ibm.com>
-In-Reply-To: <20240704084245.13539-1-borntraeger@linux.ibm.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Fri, 5 Jul 2024 10:52:00 +0200
-Message-ID: <CABgObfY1R8EVOAGJ9p_F1ovA-gTvTedSyprqDsm3HGfCo-FA1A@mail.gmail.com>
-Subject: Re: [GIT PULL 0/1] KVM: s390: Fix z16 support (for KVM master)
-To: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, David Hildenbrand <david@redhat.com>, 
-	linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Thomas Huth <thuth@redhat.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Marc Hartmayer <mhartmay@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1720173841.git.mst@redhat.com>
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
 
-On Thu, Jul 4, 2024 at 10:43=E2=80=AFAM Christian Borntraeger
-<borntraeger@linux.ibm.com> wrote:
->
-> Paolo,
->
-> please pull the following for 6.10
->
->
-> The following changes since commit dee67a94d4c6cbd05b8f6e1181498e94caa333=
-34:
->
->   Merge tag 'kvm-x86-fixes-6.10-rcN' of https://github.com/kvm-x86/linux =
-into HEAD (2024-06-21 08:03:55 -0400)
->
-> are available in the Git repository at:
->
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kv=
-m-s390-master-6.10-1
->
-> for you to fetch changes up to 4c6abb7f7b349f00c0f7ed5045bf67759c012892:
->
->   KVM: s390: fix LPSWEY handling (2024-07-01 14:31:15 +0200)
+virtio balloon communicates to the core that in some
+configurations vq #s are non-contiguous by setting name
+pointer to NULL.
 
-Pulled, thanks.
+Unfortunately, core then turned around and just made them
+contiguous again. Result is that driver is out of spec.
 
-Paolo
+Implement what the API was supposed to do
+in the 1st place. Compatibility with buggy hypervisors
+is handled inside virtio-balloon, which is the only driver
+making use of this facility, so far.
 
->
-> ----------------------------------------------------------------
-> KVM: s390: Fix z16 support
->
-> The z16 support might fail with the lpswey instruction. Provide a
-> handler.
->
-> ----------------------------------------------------------------
-> Christian Borntraeger (1):
->       KVM: s390: fix LPSWEY handling
->
->  arch/s390/include/asm/kvm_host.h |  1 +
->  arch/s390/kvm/kvm-s390.c         |  1 +
->  arch/s390/kvm/kvm-s390.h         | 15 +++++++++++++++
->  arch/s390/kvm/priv.c             | 32 ++++++++++++++++++++++++++++++++
->  4 files changed, 49 insertions(+)
->
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ arch/um/drivers/virtio_uml.c           | 4 ++--
+ drivers/remoteproc/remoteproc_virtio.c | 4 ++--
+ drivers/s390/virtio/virtio_ccw.c       | 4 ++--
+ drivers/virtio/virtio_mmio.c           | 4 ++--
+ drivers/virtio/virtio_pci_common.c     | 8 ++++----
+ drivers/virtio/virtio_vdpa.c           | 4 ++--
+ 6 files changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+index 77faa2cf3a13..d65346cd340e 100644
+--- a/arch/um/drivers/virtio_uml.c
++++ b/arch/um/drivers/virtio_uml.c
+@@ -1019,7 +1019,7 @@ static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 		       struct irq_affinity *desc)
+ {
+ 	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
+-	int i, queue_idx = 0, rc;
++	int i, rc;
+ 	struct virtqueue *vq;
+ 
+ 	/* not supported for now */
+@@ -1036,7 +1036,7 @@ static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 			continue;
+ 		}
+ 
+-		vqs[i] = vu_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
++		vqs[i] = vu_setup_vq(vdev, i, callbacks[i], names[i],
+ 				     ctx ? ctx[i] : false);
+ 		if (IS_ERR(vqs[i])) {
+ 			rc = PTR_ERR(vqs[i]);
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index 25b66b113b69..2d17135abb66 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -187,7 +187,7 @@ static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 				 const bool * ctx,
+ 				 struct irq_affinity *desc)
+ {
+-	int i, ret, queue_idx = 0;
++	int i, ret;
+ 
+ 	for (i = 0; i < nvqs; ++i) {
+ 		if (!names[i]) {
+@@ -195,7 +195,7 @@ static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 			continue;
+ 		}
+ 
+-		vqs[i] = rp_find_vq(vdev, queue_idx++, callbacks[i], names[i],
++		vqs[i] = rp_find_vq(vdev, i, callbacks[i], names[i],
+ 				    ctx ? ctx[i] : false);
+ 		if (IS_ERR(vqs[i])) {
+ 			ret = PTR_ERR(vqs[i]);
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index d6491fc84e8c..64541b3bb8a2 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -696,7 +696,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ {
+ 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+ 	dma64_t *indicatorp = NULL;
+-	int ret, i, queue_idx = 0;
++	int ret, i;
+ 	struct ccw1 *ccw;
+ 	dma32_t indicatorp_dma = 0;
+ 
+@@ -710,7 +710,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 			continue;
+ 		}
+ 
+-		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
++		vqs[i] = virtio_ccw_setup_vq(vdev, i, callbacks[i],
+ 					     names[i], ctx ? ctx[i] : false,
+ 					     ccw);
+ 		if (IS_ERR(vqs[i])) {
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 173596589c71..a3a66a0b7cb1 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -496,7 +496,7 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ {
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+ 	int irq = platform_get_irq(vm_dev->pdev, 0);
+-	int i, err, queue_idx = 0;
++	int i, err;
+ 
+ 	if (irq < 0)
+ 		return irq;
+@@ -515,7 +515,7 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 			continue;
+ 		}
+ 
+-		vqs[i] = vm_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
++		vqs[i] = vm_setup_vq(vdev, i, callbacks[i], names[i],
+ 				     ctx ? ctx[i] : false);
+ 		if (IS_ERR(vqs[i])) {
+ 			vm_del_vqs(vdev);
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index f6b0b00e4599..eeff060cacec 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -292,7 +292,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	u16 msix_vec;
+-	int i, err, nvectors, allocated_vectors, queue_idx = 0;
++	int i, err, nvectors, allocated_vectors;
+ 
+ 	vp_dev->vqs = kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
+ 	if (!vp_dev->vqs)
+@@ -328,7 +328,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
+ 			msix_vec = allocated_vectors++;
+ 		else
+ 			msix_vec = VP_MSIX_VQ_VECTOR;
+-		vqs[i] = vp_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
++		vqs[i] = vp_setup_vq(vdev, i, callbacks[i], names[i],
+ 				     ctx ? ctx[i] : false,
+ 				     msix_vec);
+ 		if (IS_ERR(vqs[i])) {
+@@ -365,7 +365,7 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
+ 		const char * const names[], const bool *ctx)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+-	int i, err, queue_idx = 0;
++	int i, err;
+ 
+ 	vp_dev->vqs = kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
+ 	if (!vp_dev->vqs)
+@@ -383,7 +383,7 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
+ 			vqs[i] = NULL;
+ 			continue;
+ 		}
+-		vqs[i] = vp_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
++		vqs[i] = vp_setup_vq(vdev, i, callbacks[i], names[i],
+ 				     ctx ? ctx[i] : false,
+ 				     VIRTIO_MSI_NO_VECTOR);
+ 		if (IS_ERR(vqs[i])) {
+diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+index e803db0da307..fe91a5d673dc 100644
+--- a/drivers/virtio/virtio_vdpa.c
++++ b/drivers/virtio/virtio_vdpa.c
+@@ -370,7 +370,7 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 	struct cpumask *masks;
+ 	struct vdpa_callback cb;
+ 	bool has_affinity = desc && ops->set_vq_affinity;
+-	int i, err, queue_idx = 0;
++	int i, err;
+ 
+ 	if (has_affinity) {
+ 		masks = create_affinity_masks(nvqs, desc ? desc : &default_affd);
+@@ -384,7 +384,7 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 			continue;
+ 		}
+ 
+-		vqs[i] = virtio_vdpa_setup_vq(vdev, queue_idx++,
++		vqs[i] = virtio_vdpa_setup_vq(vdev, i,
+ 					      callbacks[i], names[i], ctx ?
+ 					      ctx[i] : false);
+ 		if (IS_ERR(vqs[i])) {
+-- 
+MST
 
