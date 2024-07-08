@@ -1,284 +1,162 @@
-Received: from EUR03-AM7-obe.outbound.protection.outlook.com (mail-am7eur03on2049.outbound.protection.outlook.com [40.107.105.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f43.google.com (mail-ot1-f43.google.com [209.85.210.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9096F13EFF3;
-	Mon,  8 Jul 2024 15:12:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.105.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720451581; cv=fail; b=gJsqz9jVIosC3YAuGVh6US5a4OpojJC2hjBX6OfL9XIgwXP8Gta2DcBZYNZn+hCr4FZOuEuMGDw0zEyKbiNob8vU2sAC+zToJ7po8MEVPmikUNvx7oMm+cZydhLdh1xMMT/VDYnMZYDEtOvW1mLd5ZSEvT0I8lV1YuluNgm4c4E=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720451581; c=relaxed/simple;
-	bh=NSuUj6jTqkTPdRGOnj2CjnNA2tVp2NYOk8z1QcDvI0w=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=MLaB/Vi5PCFCq7+FI2oJQK7/rnrdL7FoqR8lpHF6fJpwSbnv0xA+LKH4lhVsOSnY5VyvQdQPayfgAozQ7T/yCt9XLkPwmfwyVXvc2a1HS/41pdUS/UGBCEkPb8QQJBwB5Tq/98EGA1zzHcksAbwvtFtoq8jWSG+c/r4CkvSjMOA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=cs-soprasteria.com; spf=pass smtp.mailfrom=cs-soprasteria.com; dkim=pass (2048-bit key) header.d=cs-soprasteria.com header.i=@cs-soprasteria.com header.b=zSxyLYf1; arc=fail smtp.client-ip=40.107.105.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=cs-soprasteria.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cs-soprasteria.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F15741442FE
+	for <linux-s390@vger.kernel.org>; Mon,  8 Jul 2024 15:55:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.43
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1720454119; cv=none; b=sgZe2z3NFoJtUS101CjppkEE9BzPhUzIy3O7fgI5NtTfDtiIb7R5mPk6HmcBzJ0yTiufs+5eQQRfHGyItIJc/kHQJnZae91X8Y34ux7SYGz+zyN0F/MCoi140SK4x0QUjJR0bLVQPUiNG7gpGqGJ0T7gwlREENAWHqfDeKjNpXE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1720454119; c=relaxed/simple;
+	bh=cvBWKng3YeJPwbCLrAjHXr8nxo5lDxnqr7GqSHo/A44=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=IQFjEtGt6+Tqft7ZOJNAOM5K8YOdf3b0bCy23Qkro7MORUWpoujeY7/NhwMJudrkwAFpzxMCTpByqcczZ3WkaSlvCq6G/jDlfZ/PA07hNOIzt50VABTwvOKeDUn2UXieqa0+kRN+kGJSLfljzgjOEbhwDgkng4CJm1pD4b7qHk4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=nDxomOkm; arc=none smtp.client-ip=209.85.210.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cs-soprasteria.com header.i=@cs-soprasteria.com header.b="zSxyLYf1"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=KXcXf+F7RHck0xAeosyUm+byyniqMIxBHigBAbFuaTodwSuR2RgfaDY3Rin7qemC05PabOr0/CzZpH6LB86lLHzK/M0qNYAd/3qmvQYm2zgUOi2acugfdkMh8P3qYgR3HWM7ogMmznabDR2G7VkUTul7aAmGyfdof8zFujPJ50g999s6sr0zf8IIqW9RcFa72YiovhnI8wQVV/JhvwFNDMbaKkGLV6gXy/dcFA+VkcHlfwnfQYlEqQbMDZY7bFhEi9UPxMmKD7ernVV0mBVhykcksa9emziJbKTCU+gPEC1FueNGim5I82FCnhN9PI+3xB8DkHzdnq9PFscdMPTDFg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=NSuUj6jTqkTPdRGOnj2CjnNA2tVp2NYOk8z1QcDvI0w=;
- b=GszZnmxte5Zc3dSjv40xas0qVzqa2bPCjrvA15tz7IuN4usnS3SDKd5RyxRvcVaGeqXnK9KdqO4ON3+8Tg/JpVm8mCtS2CWHn5uGQGRCf+eUWF41kyIHhD2yijR3GxYcWbk3HxM6xIQJlDFnTqdPKFZUCslIkMaqA6R8j+SVsBycW2vugJzmPueaYKjjlNsQpLhvtY/2fUifOvasFkBQ0rdtM+Lb6+vX6hQu2OZLDgQvmMlbCiP8s8IlmkNPqQSJQ3aUQfJ4VnePSwmW22sTp350Fpy2toFOSk697Nbx5T9i+IubrpJoCuICXIX+WO8tNGSQOerw7kAdkjjk5sBZlg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=cs-soprasteria.com; dmarc=pass action=none
- header.from=cs-soprasteria.com; dkim=pass header.d=cs-soprasteria.com;
- arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cs-soprasteria.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NSuUj6jTqkTPdRGOnj2CjnNA2tVp2NYOk8z1QcDvI0w=;
- b=zSxyLYf1MEEDX3FQUdTXWDiD60PEyKcKBtkTY7YLwnI/vcfdN/fH0YIg6gOyfOysDKyUhC4MQblMOnrlDi2b/C+bA1HHv04nf/2TJnChRiHJoJTWs2keTker2jggFlqa8Bj1lHgA1508MhX0DfQm09CA+n8wpFHwQIrZlNN0nu0ozIN4ybA65hVkOMus4RDbKE+QwECM+bkBgVE5zC5kZIkkIvovWIMrtOiOMkLFxKJ/AvMBNp2ISunUzvrdqErb1vqbF6JQpTqCZtyNgCsjYYe8dAOrYZRhtpqZK0LsPBiS/ikHYF10cEY2rfB0VoqdbMWAyf1W5bUxyutu+E8bQw==
-Received: from AM0PR07MB4962.eurprd07.prod.outlook.com (2603:10a6:208:f3::19)
- by AM7PR07MB6787.eurprd07.prod.outlook.com (2603:10a6:20b:1bc::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7762.18; Mon, 8 Jul
- 2024 15:12:56 +0000
-Received: from AM0PR07MB4962.eurprd07.prod.outlook.com
- ([fe80::6724:2919:9cbb:2bb2]) by AM0PR07MB4962.eurprd07.prod.outlook.com
- ([fe80::6724:2919:9cbb:2bb2%6]) with mapi id 15.20.7762.016; Mon, 8 Jul 2024
- 15:12:55 +0000
-From: LEROY Christophe <christophe.leroy2@cs-soprasteria.com>
-To: Greg KH <gregkh@linuxfoundation.org>, WangYuli <wangyuli@uniontech.com>
-CC: "stable@vger.kernel.org" <stable@vger.kernel.org>, "sashal@kernel.org"
-	<sashal@kernel.org>, "ast@kernel.org" <ast@kernel.org>,
-	"keescook@chromium.org" <keescook@chromium.org>,
-	"linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>,
-	"catalin.marinas@arm.com" <catalin.marinas@arm.com>, "song@kernel.org"
-	<song@kernel.org>, "puranjay12@gmail.com" <puranjay12@gmail.com>,
-	"daniel@iogearbox.net" <daniel@iogearbox.net>, "andrii@kernel.org"
-	<andrii@kernel.org>, "martin.lau@linux.dev" <martin.lau@linux.dev>,
-	"yonghong.song@linux.dev" <yonghong.song@linux.dev>,
-	"john.fastabend@gmail.com" <john.fastabend@gmail.com>, "kpsingh@kernel.org"
-	<kpsingh@kernel.org>, "sdf@google.com" <sdf@google.com>, "haoluo@google.com"
-	<haoluo@google.com>, "jolsa@kernel.org" <jolsa@kernel.org>,
-	"illusionist.neo@gmail.com" <illusionist.neo@gmail.com>,
-	"linux@armlinux.org.uk" <linux@armlinux.org.uk>, "bpf@vger.kernel.org"
-	<bpf@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "chenhuacai@kernel.org"
-	<chenhuacai@kernel.org>, "kernel@xen0n.name" <kernel@xen0n.name>,
-	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
-	"johan.almbladh@anyfinetworks.com" <johan.almbladh@anyfinetworks.com>,
-	"paulburton@kernel.org" <paulburton@kernel.org>, "tsbogend@alpha.franken.de"
-	<tsbogend@alpha.franken.de>, "linux-mips@vger.kernel.org"
-	<linux-mips@vger.kernel.org>, "deller@gmx.de" <deller@gmx.de>,
-	"linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-	"iii@linux.ibm.com" <iii@linux.ibm.com>, "hca@linux.ibm.com"
-	<hca@linux.ibm.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>,
-	"agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
-	"borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
-	"svens@linux.ibm.com" <svens@linux.ibm.com>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, "davem@davemloft.net" <davem@davemloft.net>,
-	"sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "kuba@kernel.org"
-	<kuba@kernel.org>, "hawk@kernel.org" <hawk@kernel.org>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, "dsahern@kernel.org"
-	<dsahern@kernel.org>, "tglx@linutronix.de" <tglx@linutronix.de>,
-	"mingo@redhat.com" <mingo@redhat.com>, "bp@alien8.de" <bp@alien8.de>,
-	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "x86@kernel.org"
-	<x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>, "guanwentao@uniontech.com"
-	<guanwentao@uniontech.com>, "baimingcong@uniontech.com"
-	<baimingcong@uniontech.com>
-Subject: Re: [PATCH] Revert "bpf: Take return from set_memory_rox() into
- account with bpf_jit_binary_lock_ro()" for linux-6.6.37
-Thread-Topic: [PATCH] Revert "bpf: Take return from set_memory_rox() into
- account with bpf_jit_binary_lock_ro()" for linux-6.6.37
-Thread-Index: AQHaz1JvmhkZvbTHdkOR2W9HlG+2VbHpb4AAgAFx/oCAAebSgIAAK6gA
-Date: Mon, 8 Jul 2024 15:12:55 +0000
-Message-ID: <a1dac525-4e6d-4d28-87ee-63723abbafad@cs-soprasteria.com>
-References: <5A29E00D83AB84E3+20240706031101.637601-1-wangyuli@uniontech.com>
- <2024070631-unrivaled-fever-8548@gregkh>
- <B7E3B29557B78CB1+afadbaa6-987e-4db4-96b5-4e4d5465c37b@uniontech.com>
- <2024070815-udder-charging-7f75@gregkh>
-In-Reply-To: <2024070815-udder-charging-7f75@gregkh>
-Accept-Language: fr-FR, en-US
-Content-Language: fr-FR
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-user-agent: Mozilla Thunderbird
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=cs-soprasteria.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: AM0PR07MB4962:EE_|AM7PR07MB6787:EE_
-x-ms-office365-filtering-correlation-id: e4e9a7c3-5618-490c-73b1-08dc9f60720c
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|376014|1800799024|7416014|366016|38070700018;
-x-microsoft-antispam-message-info:
- =?utf-8?B?QWpDaE01Si9oc2R5TC9mK3orclRlUFhyMEdnL0Y0Z2Q0S3Y1QURkaXJSQ0s0?=
- =?utf-8?B?bTFoMnU3ZzNheEJHdHRhWjZqZ2V4RjlpalJmZFhRU2F0TkhJYmxweUhsWWwz?=
- =?utf-8?B?c3dFK2hrcnpaNy96VUdIa3JURk1zaVpyTDFqWTlMNXNXcjQ4cEVidnlzdk9D?=
- =?utf-8?B?L3ppV09abGZqZVRKai9MSnhuYUlPVUY0aGVlVTFiZHVFMDRhSkxmSkFTWDNN?=
- =?utf-8?B?dnB4ZzJnM0x5Q1dISkR2ektWVTdRVzU2Rjh5V1R0amF2SGZiMFloOUgydUFr?=
- =?utf-8?B?bWl2emdSRU9RZGRNL1REQm9wN2lPSU5jRVFmZGcyK2tPSWFiM1hIVUlSSWll?=
- =?utf-8?B?YU9ocWtHRjRWQWJpdjJyR3dxL0hKUGFhUHllMnh1MXN4clFUSWxoVG9MSHRy?=
- =?utf-8?B?SWFoUTN5NE94UmRKRHFmVWhScW1PSk5WaEl2OTUweldZQ2VOYnpWTGJPZnZw?=
- =?utf-8?B?V1pSZUpKYmFBMHFhaHBUYTI0L0o5dUxwTjFhNDZhT2RBb1lNOEZwSk4xSWVH?=
- =?utf-8?B?TDgzbG00U0xCcHc3S1VlTXBjN3pVMkovY2s0Y0x3dFoxOUE4d1QzM1ZwWFFG?=
- =?utf-8?B?YkEwWmp2WGtDb0ZRYTNKbEJWRUV5ZUhHUnNIZE44eGRSSlM4Mm5zTStqNW5h?=
- =?utf-8?B?VWhtaTd3dTVJTnVXMHJ6TWNCSWwzVDBad3Z4RzR2eFl6bGNWcFpIS0tDQkIr?=
- =?utf-8?B?c0kvUTZPL3JnMUs1Nm5jL2IvdHZVM3JGYVJVb04wengwMkllblZEa0VLc2h0?=
- =?utf-8?B?emg4TUl3K1dGQlYweEtRUW1QTStJdzdRNU1Cd29oVWZUbFpUSVNqSy9YY2JN?=
- =?utf-8?B?VmhVWmNvS214VGxFV2l5U3hZY2szYjJIVkdjaGpCNitRbTNPL09mRU1pRStB?=
- =?utf-8?B?V3hZWkNqWUJGV2V6R2lTUEFaSUFyM0FrdDVCWTc4NW5BQkovK0hYSkpsYjZD?=
- =?utf-8?B?REs1dS9rdHVSbDNlYXI5dFlIdmNWbXl2M3RSQ3pPMkNWVHNnK1JndU14WGtj?=
- =?utf-8?B?SFF2cUkzQThOSVB6WGluQm1STXRiWWUvWVErOE9neW5hcEFNb0lEZzBxZ2w5?=
- =?utf-8?B?Tk9hTHkwQTJoekp0dFhnM25YcGwwOFNmTUJzbFk1RzJHbE1qazg0enB6M1cv?=
- =?utf-8?B?di92YWZ6b0VEbFJWMGhzcmhlaW9BeFpMckxWVUtlU0pIRnk4ejlOa3BHRWsv?=
- =?utf-8?B?c3hPTy8vbUd2eWxRcVdYWExOWm1rNWUyK2tLRGt1Y1V0bWQwRFBjci9hZ3Zj?=
- =?utf-8?B?ZGlVajNhaWY2ZWtiNmdwNE95SndRZjE3c0FKVTduUS9zbnhQU2pSS0RPUkM3?=
- =?utf-8?B?eERsTFlVRmFhRnFnVkJDRUVkTFNZL1U2YVpVczg4RkF4S09sMk5HVDNmRVlB?=
- =?utf-8?B?YlV0Sm51YjJ6UzRCZTlMYUJRY2JHSnJJSVpUaTBXbmtyN2JjSWU5RDB0OXRV?=
- =?utf-8?B?ckNlOHNka05WRzZ3MVowZHpEeVlxbXUweGppQkVsS1hMcElhcUUvL0dyaUhw?=
- =?utf-8?B?N1d5Y3R5dzRYWk9wVldod2Y1T1RLMkZjRkx2d05BempPL3BValV2NVl1NkNO?=
- =?utf-8?B?bmd1NWJQTnVpeWJhdEJMUjQxSzRDbVFPTG1vdUZYZzNoMExISEl4NGVna0ly?=
- =?utf-8?B?OERPMlVpZWxEM3QybVh4dm5wb3YzYmpqck1aSmw0bFRTbUJkbVdZNkE1OGw3?=
- =?utf-8?B?OEs0QUQ5UFVGaURCWWpRNnBnais1Q1dlRXVkakJFYk1nclJYZGw2cXVtVGJJ?=
- =?utf-8?B?S25ndnl2LytQOE5NTUFIcEdiRlpmQ2hWMnllcitvdGJMMTFZTENRNEgvRTls?=
- =?utf-8?Q?cUzdsX7qoa7pYLDoQfBJ1u8htW3BvkjXGR+/8=3D?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR07MB4962.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(7416014)(366016)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?NUdUKzFkcFR5ZmRWSVQvNm5xUWVmSGNzU1ozM1JSQ1U1bU5tRkMvNkdHdnF3?=
- =?utf-8?B?U2MxWS9aTzNBbFFnTGZTMSs2dVMyVzhERXI1d1dKa0hVUy9DZ1lJdFpreU5q?=
- =?utf-8?B?Q3FCS2YvMEphVGJ5eG5qektQeVZxTUpSa2VtcW1UNkhNZHkyTUxhaVozVkIv?=
- =?utf-8?B?d2ZsRzNnWmJhUkVXU28wMmk2RmFOUndwbXZIRzNHNkFleTlSUktvU01hVzRP?=
- =?utf-8?B?ZS8xMWJtS2ZlMS9RUVNpYTdpRVpDQTdZQ3dXRkRscGNBb01QTEVRUm1zSk1J?=
- =?utf-8?B?RmFBdFFOUkdrUnQxcnl4L01meDlTNVRxbHJZU1RYa0xlcnJwOXZyejFvRUky?=
- =?utf-8?B?YktTV09RL3QwUHd5bUdIb2trZUtjOHlqYk9JTkRPcGoyUEFKTGVlTjc5TjRZ?=
- =?utf-8?B?a010WkQ5WWRYUndWL21jdEdQQmlpNGtJM2RTMThOUUdpWjRTWXphb2cwUndx?=
- =?utf-8?B?ZzhrcWdWR1lWOEx5U2NUY1c1NUNuMnVMWXU4SzJraGJkUFpaVkMwQTNWNDBR?=
- =?utf-8?B?UytlSWYrdmI5ZS94SVdQbXRsaDZ5WjdLWWRpZHp5UUhEUmJacnlLblJEZUpp?=
- =?utf-8?B?TGdFTE1KbEZCNDdiU281dHVFU3ZJSWVUSEhmUXEvM2RTZVZJMFlYQVRNSGVk?=
- =?utf-8?B?UkxOMkdtUDBGVzJLam1wakpMNjFpOWN5MU1BNk9CV0NTTEVPc2h4UzdLbWMv?=
- =?utf-8?B?UmU1RHFvdUpGQ0lETFAxU3ZqeEw1eVFsZnZvVlNGbkFleUlCa1huZkF0K1N6?=
- =?utf-8?B?aG1DT1o1VEtnNXI0SGI1dE4vMUVZYjlNTXk1R1Q1UUh5Vk5Za0UwVnVNQ3h0?=
- =?utf-8?B?ejVheXorTWVTVHBMV1BrZ2Y4VzRENHdtUFVvblRoYlRQeHlWVVhjVmliK0ly?=
- =?utf-8?B?M3hwVnUvWkhMSHB2WDdmMHAycC9DdEdkSlJOaG9qYldaMnliYlh0Y3UzZDB1?=
- =?utf-8?B?UFF5TmVvaVdtS0lyeVkzNFRVR01pN2VIOVVRcVNCL2dtbFA2eWY1WEZ1eC9S?=
- =?utf-8?B?Z2RsS3Y4TzJiMmxZOXlJT2NsblA4bzVLNk1oRS9Ta3pwZDM1Si83aHFtL1Ur?=
- =?utf-8?B?aHJIOFJGZUxLd3VpNDdVemRJeGYzL0dKNHBuQk1RSWUvRnZtSy9NSE5zbHl6?=
- =?utf-8?B?dWdVeDZDK0F4Z09aQ1U2czhrZkRvSC9DL0JtZVFZOTdvQmV5NTF3L1p3SDdI?=
- =?utf-8?B?TkdtbHFnaUtobnMxWEVyMWw3elQ0Y0ZWSXA5MWVrc0JzR1p3MmFhYmpYMXBD?=
- =?utf-8?B?T1NEYzFDVVIzUWJ5d2hQZ2ZkVXUyYStXdmtGQzN6VUl0cHBUdEhyb1ZKZ2xD?=
- =?utf-8?B?OXhyZHZjeDNCQmhhdjhucm85RCtpbHd5ViszRlBSYU85eVZXMmphTjhSQ1BR?=
- =?utf-8?B?azJ1dzV0RmtMazBpZ3dQV3VWT0YzYVRZUWdVQlZuVE45eURkMUFlVk5lU2E4?=
- =?utf-8?B?WFI2WmJjMjVSN0txMjd3bEVwWnY3SkpMOHFERXpnaHFrQXhOV1d0K2JvUkRs?=
- =?utf-8?B?cFk1ZUxQVC9UamQrQlNmZFYwUjR2TjZpdC9PZ0V4eWNyZFkvK1QzWVYwOWQy?=
- =?utf-8?B?OFVwaTNnM2Z5MVllWENVbFlKdGNUSzJlVDRDM3lRcEhxeWFUS0ROWE9KdGZv?=
- =?utf-8?B?NC9lV3l2QmdTekJqbGV6R1pkZVRUT2Q0ZWdQMGtHeGxFOSt0OGNDc3EwOGxu?=
- =?utf-8?B?QkFaT0x6YzdvT0w4QjRCRldsdXVKY0RDeE53dmtyazBqRTd5anhyRytmdVE0?=
- =?utf-8?B?RFJjaFU2WDUwVTgxRUFqdDljVnlVTUNiRGRMOGpMODRzcUZoMS9ydVBGdS9V?=
- =?utf-8?B?SHZyMFQzb1doZ3Y5R1YweEt1ODFkT3JFczJxUERUZmdpVFNVMEMwMUxJUTkx?=
- =?utf-8?B?aHhYQkhZVVVhRWIvRDdTRWIzamhzMm03NEExVUR2cVVvTlc3d3BYdnAxY2NE?=
- =?utf-8?B?dTd4cXc5V2RCd0QxUTdNNXNjNUs1anJzMDlPMC9VUVF4SURkUEl0R0dKc3Fh?=
- =?utf-8?B?YzZ5K2RWdHVlSjhKQi9PRWJFR1E3bzNZcUtmcjBRY1dtbVppb0prMGMwajQ1?=
- =?utf-8?B?czJsYVJBdFpDS3ZON2hVZGF5MkhLZWpYWmxOdnZjTS8yUWZnNmV2UngxL1pJ?=
- =?utf-8?B?THBIL3piaGRZYm11d1NKYjBXbkw0OCsrV2hFQng2eGZDd0JvTkJsOVQxdktr?=
- =?utf-8?Q?GRwaUhXe7NnB39d47jgCeu0=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <F86B29AF6958014596DBEBFD9AB2B684@eurprd07.prod.outlook.com>
-Content-Transfer-Encoding: base64
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="nDxomOkm"
+Received: by mail-ot1-f43.google.com with SMTP id 46e09a7af769-7035d9edcd9so1575378a34.1
+        for <linux-s390@vger.kernel.org>; Mon, 08 Jul 2024 08:55:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1720454116; x=1721058916; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=BJuaMngDvL/ozTXoGo0oV92KGi7PV5ovmEPBZpZiQRY=;
+        b=nDxomOkmsy9XVF2XZC9GhRhpHnhv4y/murUcxpTEn3fTfPZgpECpNzuYd39Q/AFh74
+         zfU0Uc3vQ8LoHIO+dLnYMSlN+sqTDlGdLQZkYod/f9u53w+UVBD5kUfwGzF6N72knVIK
+         9gd3WVqzxgn1w1W4euCTF3rzel0M0SdnCoAkYypLn2GU4lc78iosoGnw8msMa65q+JNP
+         d2hztIbRLdfHSdDbxX/rrVqrZhXPkbHFXSddC2BHLfWC1zpfYumniSn+8E3gpqqRCNe+
+         89g4D80RGTnm+LGiYt+k8f4SjXDO23hFKZRNs/HPkk0of0OuR4zw6LW3/uSnsJYbbKyl
+         WPuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720454116; x=1721058916;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=BJuaMngDvL/ozTXoGo0oV92KGi7PV5ovmEPBZpZiQRY=;
+        b=gG/nDoL1tQsJY/g3gzPG564MYuh1fwE7FYU3sXfnloaMyzliX7U1EbXvTcZoZ+O5nm
+         dZX6JI6hFSeicIzYZCtwKL7XZdlFM8/yGopUAun1fgz+0v/id0sE5wG7+i9Pi+VuEWm8
+         SNMsu4LsLp/U6GQCCUnYRkROQcZ9PPpQx/MZGX8nploOOy79jC469EUY58yFMcFdFQO+
+         mLMg4UqE9wldPBEJcAHec2X+2eQR79P18UWtWTphxYFz9bUS27vVnQcpkQPCK++DKhhi
+         H2tPuCT6HSIrHo4+wYbDFE+/Vh4aTUCk7XrQN6S3KapZQjs3laKrcmVlXu0hYpA6wqHC
+         tlZA==
+X-Forwarded-Encrypted: i=1; AJvYcCWfu006R7JnNBt4IaKc+3rOS6N8KDew6T7VMlmL8ZmdjRQNYlPRsGwU/WAZRQZfODAkRXeb7EcXS/kUr8wLUqYQRFeQtr9YucFRsg==
+X-Gm-Message-State: AOJu0YwOnmeXNDKwljZScZ1A+BBrHlul4Oy+FiJVtJqaJs3F61KVOtpw
+	7lXnrVWZtIIFUaTRfrARFwcLy1QwUx/X5eVgylQRIQZtrW+UudnLbH1YrWba8tC7i2D237HId+q
+	k
+X-Google-Smtp-Source: AGHT+IG6B3+NMl1Hiaxxb/+k2s6LmYwoH7OVJEFQUH5dePCXbN3KkTq+YCAQZ0+N/4FRlQumpJ6Ocw==
+X-Received: by 2002:a05:6870:b50b:b0:25d:fab0:b6f3 with SMTP id 586e51a60fabf-25e2bf6358fmr9556896fac.59.1720454115970;
+        Mon, 08 Jul 2024 08:55:15 -0700 (PDT)
+Received: from localhost ([2603:8080:b800:f700:6fc:b7f5:4853:aff3])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-25ea9feb5a5sm45381fac.19.2024.07.08.08.55.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 Jul 2024 08:55:15 -0700 (PDT)
+Date: Mon, 8 Jul 2024 17:55:13 +0200
+From: Dan Carpenter <dan.carpenter@linaro.org>
+To: oe-kbuild@lists.linux.dev, yskelg@gmail.com,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>
+Cc: lkp@intel.com, oe-kbuild-all@lists.linux.dev, shjy180909@gmail.com,
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Yunseong Kim <yskelg@gmail.com>
+Subject: Re: [PATCH] s390/zcrypt: optimize memory allocation in online_show()
+Message-ID: <ebe44c83-19bd-43e9-8999-99e3ccc7b417@suswa.mountain>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: cs-soprasteria.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: AM0PR07MB4962.eurprd07.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e4e9a7c3-5618-490c-73b1-08dc9f60720c
-X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Jul 2024 15:12:55.8346
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 8b87af7d-8647-4dc7-8df4-5f69a2011bb5
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: UlVP8j1X7Ywv5n15awaUTCxNlf4nJxgKsLr5vPkF//qKMNRxq2aV1Q0tLrpzYXKzUue5FjnCP3H8L6Ke7Eh6RD1Ta7Bx7xGece9dXy0vBJtqfjCfXmvyoT+hIefMqAk+
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM7PR07MB6787
-X-MS-Exchange-CrossPremises-AuthAs: Internal
-X-MS-Exchange-CrossPremises-AuthMechanism: 04
-X-MS-Exchange-CrossPremises-AuthSource: AM0PR07MB4962.eurprd07.prod.outlook.com
-X-MS-Exchange-CrossPremises-TransportTrafficType: Email
-X-MS-Exchange-CrossPremises-SCL: 1
-X-MS-Exchange-CrossPremises-messagesource: StoreDriver
-X-MS-Exchange-CrossPremises-BCC:
-X-MS-Exchange-CrossPremises-originalclientipaddress: 88.124.70.171
-X-MS-Exchange-CrossPremises-transporttraffictype: Email
-X-MS-Exchange-CrossPremises-antispam-scancontext: DIR:Originating;SFV:NSPM;SKIP:0;
-X-MS-Exchange-CrossPremises-processed-by-journaling: Journal Agent
-X-OrganizationHeadersPreserved: AM7PR07MB6787.eurprd07.prod.outlook.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240623120147.35554-3-yskelg@gmail.com>
 
-DQoNCkxlIDA4LzA3LzIwMjQgw6AgMTQ6MzYsIEdyZWcgS0ggYSDDqWNyaXQgOg0KPiBPbiBTdW4s
-IEp1bCAwNywgMjAyNCBhdCAwMzozNDoxNVBNICswODAwLCBXYW5nWXVsaSB3cm90ZToNCj4+DQo+
-PiBPbiAyMDI0LzcvNiAxNzozMCwgR3JlZyBLSCB3cm90ZToNCj4+PiBUaGlzIG1ha2VzIGl0IHNv
-dW5kIGxpa2UgeW91IGFyZSByZXZlcnRpbmcgdGhpcyBiZWNhdXNlIG9mIGEgYnVpbGQNCj4+PiBl
-cnJvciwgd2hpY2ggaXMgbm90IHRoZSBjYXNlIGhlcmUsIHJpZ2h0PyAgSXNuJ3QgdGhpcyBiZWNh
-dXNlIG9mIHRoZQ0KPj4+IHBvd2VycGMgaXNzdWUgcmVwb3J0ZWQgaGVyZToNCj4+PiAgICAgaHR0
-cHM6Ly9sb3JlLmtlcm5lbC5vcmcvci8yMDI0MDcwNTIwMzQxMy53YnYybnczNzQ3dmplaWJrQGFs
-dGxpbnV4Lm9yZw0KPj4+ID8NCj4+DQo+PiBObywgaXQgb25seSBvY2N1cnMgb24gQVJNNjQgYXJj
-aGl0ZWN0dXJlLiBUaGUgcmVhc29uIGlzIHRoYXQgYmVmb3JlIGJlaW5nDQo+PiBtb2RpZmllZCwg
-dGhlIGZ1bmN0aW9uDQo+Pg0KPj4gYnBmX2ppdF9iaW5hcnlfbG9ja19ybygpIGluIGFyY2gvYXJt
-NjQvbmV0L2JwZl9qaXRfY29tcC5jICsxNjUxDQo+Pg0KPj4gd2FzIGludHJvZHVjZWQgd2l0aCBf
-X211c3RfY2hlY2ssIHdoaWNoIGlzIGRlZmluZWQgYXMNCj4+IF9fYXR0cmlidXRlX18oKF9fd2Fy
-bl91bnVzZWRfcmVzdWx0X18pKS4NCj4+DQo+Pg0KPj4gSG93ZXZlciwgYXQgdGhpcyBwb2ludCwg
-Y2FsbGluZyBicGZfaml0X2JpbmFyeV9sb2NrX3JvKGhlYWRlcikNCj4+IGNvaW5jaWRlbnRhbGx5
-IHJlc3VsdHMgaW4gYW4gdW51c2VkLXJlc3VsdA0KPj4NCj4+IHdhcm5pbmcuDQo+DQo+IE9rLCB0
-aGFua3MsIGJ1dCB3aHkgaXMgbm8gb25lIGVsc2Ugc2VlaW5nIHRoaXMgaW4gdGhlaXIgdGVzdGlu
-Zz8NCg0KUHJvYmFibHkgdGhlIGNvbmZpZ3MgdXNlZCBieSByb2JvdHMgZG8gbm90IGFjdGl2YXRl
-IEJQRiBKSVQgPw0KDQo+DQo+Pj4gSWYgbm90LCB3aHkgbm90IGp1c3QgYmFja3BvcnQgdGhlIHNp
-bmdsZSBtaXNzaW5nIGFybTY0IGNvbW1pdCwNCj4+DQo+PiBVcHN0cmVhbSBjb21taXQgMWRhZDM5
-MWRhZWYxICgiYnBmLCBhcm02NDogdXNlIGJwZl9wcm9nX3BhY2sgZm9yIG1lbW9yeQ0KPj4gbWFu
-YWdlbWVudCIpIGlzIHBhcnQgb2YNCj4+DQo+PiBhIGxhcmdlciBjaGFuZ2UgdGhhdCBpbnZvbHZl
-cyBtdWx0aXBsZSBjb21taXRzLiBJdCdzIG5vdCBhbiBpc29sYXRlZCBjb21taXQuDQo+Pg0KPj4N
-Cj4+IFdlIGNvdWxkIGNlcnRhaW5seSBiYWNrcG9ydCBhbGwgb2YgdGhlbSB0byBzb2x2ZSB0aGlz
-IHByb2JsZW0sIGJ1dGhhcyBpdCdzIG5vdA0KPj4gdGhlIHNpbXBsZXN0IHNvbHV0aW9uLg0KPg0K
-PiByZXZlcnRpbmcgdGhlIGNoYW5nZSBmZWVscyB3cm9uZyBpbiB0aGF0IHlvdSB3aWxsIHN0aWxs
-IGhhdmUgdGhlIGJ1Zw0KPiBwcmVzZW50IHRoYXQgaXQgd2FzIHRyeWluZyB0byBzb2x2ZSwgcmln
-aHQ/ICBJZiBzbywgY2FuIHlvdSB0aGVuIHByb3ZpZGUNCj4gYSB3b3JraW5nIHZlcnNpb24/DQoN
-CkluZGVlZCwgYnkgcmV2ZXJ0aW5nIHRoZSBjaGFuZ2UgeW91ICJwdW5pc2giIGFsbCBhcmNoaXRl
-Y3R1cmVzIGJlY2F1c2UNCmFybTY0IGhhc24ndCBwcm9wZXJseSBiZWVuIGJhY2twb3J0ZWQsIGlz
-IGl0IGZhaXIgPw0KDQpJbiBmYWN0LCB3aGVuIEkgaW1wbGVtZW50ZWQgY29tbWl0IGU2MGFkZjUx
-MzI3NSAoImJwZjogVGFrZSByZXR1cm4gZnJvbQ0Kc2V0X21lbW9yeV9yb3goKSBpbnRvIGFjY291
-bnQgd2l0aCBicGZfaml0X2JpbmFyeV9sb2NrX3JvKCkiKSwgd2UgaGFkDQp0aGUgZm9sbG93aW5n
-IHVzZXJzIGZvciBmdW5jdGlvbiBicGZfaml0X2JpbmFyeV9sb2NrX3JvKCkgOg0KDQokIGdpdCBn
-cmVwIGJwZl9qaXRfYmluYXJ5X2xvY2tfcm8gZTYwYWRmNTEzMjc1fg0KZTYwYWRmNTEzMjc1fjph
-cmNoL2FybS9uZXQvYnBmX2ppdF8zMi5jOg0KYnBmX2ppdF9iaW5hcnlfbG9ja19ybyhoZWFkZXIp
-Ow0KZTYwYWRmNTEzMjc1fjphcmNoL2xvb25nYXJjaC9uZXQvYnBmX2ppdC5jOg0KYnBmX2ppdF9i
-aW5hcnlfbG9ja19ybyhoZWFkZXIpOw0KZTYwYWRmNTEzMjc1fjphcmNoL21pcHMvbmV0L2JwZl9q
-aXRfY29tcC5jOg0KYnBmX2ppdF9iaW5hcnlfbG9ja19ybyhoZWFkZXIpOw0KZTYwYWRmNTEzMjc1
-fjphcmNoL3BhcmlzYy9uZXQvYnBmX2ppdF9jb3JlLmM6DQpicGZfaml0X2JpbmFyeV9sb2NrX3Jv
-KGppdF9kYXRhLT5oZWFkZXIpOw0KZTYwYWRmNTEzMjc1fjphcmNoL3MzOTAvbmV0L2JwZl9qaXRf
-Y29tcC5jOg0KYnBmX2ppdF9iaW5hcnlfbG9ja19ybyhoZWFkZXIpOw0KZTYwYWRmNTEzMjc1fjph
-cmNoL3NwYXJjL25ldC9icGZfaml0X2NvbXBfNjQuYzoNCmJwZl9qaXRfYmluYXJ5X2xvY2tfcm8o
-aGVhZGVyKTsNCmU2MGFkZjUxMzI3NX46YXJjaC94ODYvbmV0L2JwZl9qaXRfY29tcDMyLmM6DQpi
-cGZfaml0X2JpbmFyeV9sb2NrX3JvKGhlYWRlcik7DQplNjBhZGY1MTMyNzV+OmluY2x1ZGUvbGlu
-dXgvZmlsdGVyLmg6c3RhdGljIGlubGluZSB2b2lkDQpicGZfaml0X2JpbmFyeV9sb2NrX3JvKHN0
-cnVjdCBicGZfYmluYXJ5X2hlYWRlciAqaGRyKQ0KDQpCdXQgd2hlbiBjb21taXQgMDhmNmMwNWZl
-YjFkICgiYnBmOiBUYWtlIHJldHVybiBmcm9tIHNldF9tZW1vcnlfcm94KCkNCmludG8gYWNjb3Vu
-dCB3aXRoIGJwZl9qaXRfYmluYXJ5X2xvY2tfcm8oKSIpIHdhcyBhcHBsaWVkLCB3ZSBoYWQgb25l
-DQptb3JlIHVzZXIgd2hpY2ggaXMgYXJtNjQ6DQoNCiQgZ2l0IGdyZXAgYnBmX2ppdF9iaW5hcnlf
-bG9ja19ybyAwOGY2YzA1ZmViMWR+DQowOGY2YzA1ZmViMWR+OmFyY2gvYXJtL25ldC9icGZfaml0
-XzMyLmM6DQpicGZfaml0X2JpbmFyeV9sb2NrX3JvKGhlYWRlcik7DQowOGY2YzA1ZmViMWR+OmFy
-Y2gvYXJtNjQvbmV0L2JwZl9qaXRfY29tcC5jOg0KYnBmX2ppdF9iaW5hcnlfbG9ja19ybyhoZWFk
-ZXIpOw0KMDhmNmMwNWZlYjFkfjphcmNoL2xvb25nYXJjaC9uZXQvYnBmX2ppdC5jOg0KYnBmX2pp
-dF9iaW5hcnlfbG9ja19ybyhoZWFkZXIpOw0KMDhmNmMwNWZlYjFkfjphcmNoL21pcHMvbmV0L2Jw
-Zl9qaXRfY29tcC5jOg0KYnBmX2ppdF9iaW5hcnlfbG9ja19ybyhoZWFkZXIpOw0KMDhmNmMwNWZl
-YjFkfjphcmNoL3BhcmlzYy9uZXQvYnBmX2ppdF9jb3JlLmM6DQpicGZfaml0X2JpbmFyeV9sb2Nr
-X3JvKGppdF9kYXRhLT5oZWFkZXIpOw0KMDhmNmMwNWZlYjFkfjphcmNoL3MzOTAvbmV0L2JwZl9q
-aXRfY29tcC5jOg0KYnBmX2ppdF9iaW5hcnlfbG9ja19ybyhoZWFkZXIpOw0KMDhmNmMwNWZlYjFk
-fjphcmNoL3NwYXJjL25ldC9icGZfaml0X2NvbXBfNjQuYzoNCmJwZl9qaXRfYmluYXJ5X2xvY2tf
-cm8oaGVhZGVyKTsNCjA4ZjZjMDVmZWIxZH46YXJjaC94ODYvbmV0L2JwZl9qaXRfY29tcDMyLmM6
-DQpicGZfaml0X2JpbmFyeV9sb2NrX3JvKGhlYWRlcik7DQowOGY2YzA1ZmViMWR+OmluY2x1ZGUv
-bGludXgvZmlsdGVyLmg6c3RhdGljIGlubGluZSB2b2lkDQpicGZfaml0X2JpbmFyeV9sb2NrX3Jv
-KHN0cnVjdCBicGZfYmluYXJ5X2hlYWRlciAqaGRyKQ0KDQpUaGVyZWZvcmUsIGNvbW1pdCAwOGY2
-YzA1ZmViMWQgc2hvdWxkIGhhdmUgaW5jbHVkZWQgYSBiYWNrcG9ydCBmb3IgYXJtNjQuDQoNClNv
-IHllcywgSSBhZ3JlZSB3aXRoIEdyZWcsIHRoZSBjb3JyZWN0IGZpeCBzaG91bGQgYmUgdG8gYmFj
-a3BvcnQgdG8NCkFSTTY0IHRoZSBjaGFuZ2VzIGRvbmUgb24gb3RoZXIgYXJjaGl0ZWN0dXJlcyBp
-biBvcmRlciB0byBwcm9wZXJseQ0KaGFuZGxlIHJldHVybiBvZiBzZXRfbWVtb3J5X3JveCgpIGlu
-IGJwZl9qaXRfYmluYXJ5X2xvY2tfcm8oKS4NCg0KQ2hyaXN0b3BoZQ0K
+Hi,
+
+kernel test robot noticed the following build warnings:
+
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/yskelg-gmail-com/s390-zcrypt-optimize-memory-allocation-in-online_show/20240626-071004
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+patch link:    https://lore.kernel.org/r/20240623120147.35554-3-yskelg%40gmail.com
+patch subject: [PATCH] s390/zcrypt: optimize memory allocation in online_show()
+config: s390-randconfig-r081-20240707 (https://download.01.org/0day-ci/archive/20240707/202407071714.4AUEoeUD-lkp@intel.com/config)
+compiler: s390-linux-gcc (GCC) 13.2.0
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
+| Closes: https://lore.kernel.org/r/202407071714.4AUEoeUD-lkp@intel.com/
+
+smatch warnings:
+drivers/s390/crypto/zcrypt_card.c:103 online_store() warn: iterator used outside loop: 'zq'
+
+vim +/zq +103 drivers/s390/crypto/zcrypt_card.c
+
+ac2b96f351d7d2 Harald Freudenberger 2018-08-17   60  static ssize_t online_store(struct device *dev,
+e28d2af43614eb Ingo Tuchscherer     2016-08-25   61  			    struct device_attribute *attr,
+e28d2af43614eb Ingo Tuchscherer     2016-08-25   62  			    const char *buf, size_t count)
+e28d2af43614eb Ingo Tuchscherer     2016-08-25   63  {
+b5adbbf896d837 Julian Wiedmann      2021-06-07   64  	struct zcrypt_card *zc = dev_get_drvdata(dev);
+4f2fcccdb547b0 Harald Freudenberger 2020-07-02   65  	struct ap_card *ac = to_ap_card(dev);
+e28d2af43614eb Ingo Tuchscherer     2016-08-25   66  	struct zcrypt_queue *zq;
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   67  	int online, id, i = 0, maxzqs = 0;
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   68  	struct zcrypt_queue **zq_uelist = NULL;
+e28d2af43614eb Ingo Tuchscherer     2016-08-25   69  
+e28d2af43614eb Ingo Tuchscherer     2016-08-25   70  	if (sscanf(buf, "%d\n", &online) != 1 || online < 0 || online > 1)
+e28d2af43614eb Ingo Tuchscherer     2016-08-25   71  		return -EINVAL;
+e28d2af43614eb Ingo Tuchscherer     2016-08-25   72  
+cfaef6516e9ac6 Ingo Franzki         2023-10-26   73  	if (online && (!ac->config || ac->chkstop))
+4f2fcccdb547b0 Harald Freudenberger 2020-07-02   74  		return -ENODEV;
+4f2fcccdb547b0 Harald Freudenberger 2020-07-02   75  
+e28d2af43614eb Ingo Tuchscherer     2016-08-25   76  	zc->online = online;
+e28d2af43614eb Ingo Tuchscherer     2016-08-25   77  	id = zc->card->id;
+cccd85bfb7bf67 Harald Freudenberger 2016-11-24   78  
+3f74eb5f78198a Harald Freudenberger 2021-10-15   79  	ZCRYPT_DBF_INFO("%s card=%02x online=%d\n", __func__, id, online);
+cccd85bfb7bf67 Harald Freudenberger 2016-11-24   80  
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   81  	ap_send_online_uevent(&ac->ap_dev, online);
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   82  
+e28d2af43614eb Ingo Tuchscherer     2016-08-25   83  	spin_lock(&zcrypt_list_lock);
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   84  	/*
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   85  	 * As we are in atomic context here, directly sending uevents
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   86  	 * does not work. So collect the zqueues in a dynamic array
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   87  	 * and process them after zcrypt_list_lock release. As we get/put
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   88  	 * the zqueue objects, we make sure they exist after lock release.
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   89  	 */
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   90  	list_for_each_entry(zq, &zc->zqueues, list)
+2ff6be56a27c2d Yunseong Kim         2024-06-23   91  		if (!!zq->online != !!online)
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   92  			maxzqs++;
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   93  	if (maxzqs > 0)
+2ff6be56a27c2d Yunseong Kim         2024-06-23   94  		zq_uelist = kcalloc(maxzqs, sizeof(*zq_uelist), GFP_ATOMIC);
+e28d2af43614eb Ingo Tuchscherer     2016-08-25   95  	list_for_each_entry(zq, &zc->zqueues, list)
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   96  		if (zcrypt_queue_force_online(zq, online))
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   97  			if (zq_uelist) {
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   98  				zcrypt_queue_get(zq);
+df6f508c68dbc6 Harald Freudenberger 2021-04-13   99  				zq_uelist[i++] = zq;
+df6f508c68dbc6 Harald Freudenberger 2021-04-13  100  			}
+e28d2af43614eb Ingo Tuchscherer     2016-08-25  101  	spin_unlock(&zcrypt_list_lock);
+2ff6be56a27c2d Yunseong Kim         2024-06-23  102  	while (i--) {
+df6f508c68dbc6 Harald Freudenberger 2021-04-13 @103  		ap_send_online_uevent(&zq->queue->ap_dev, online);
+                                                                                       ^^
+zq is an invalid pointer here.  It's an offset off the list head.
+There used to be a "zq = zq_uelist[i];" before this function call but
+the patch deleted it.
+
+2ff6be56a27c2d Yunseong Kim         2024-06-23  104  		zcrypt_queue_put(zq_uelist[i]);
+df6f508c68dbc6 Harald Freudenberger 2021-04-13  105  	}
+df6f508c68dbc6 Harald Freudenberger 2021-04-13  106  	kfree(zq_uelist);
+df6f508c68dbc6 Harald Freudenberger 2021-04-13  107  
+e28d2af43614eb Ingo Tuchscherer     2016-08-25  108  	return count;
+e28d2af43614eb Ingo Tuchscherer     2016-08-25  109  }
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
+
