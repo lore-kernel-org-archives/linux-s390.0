@@ -1,84 +1,49 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from bee.tesarici.cz (bee.tesarici.cz [37.205.15.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6B9118EA94;
-	Tue,  9 Jul 2024 17:08:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3836D1B86C9;
+	Tue,  9 Jul 2024 19:21:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=37.205.15.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720544882; cv=none; b=Di4dL2AQc7FNda5jj4+90KjmewMGIY9oMjt5qQ+n+wmLpn11GbT3zgWbzQvq73Xxxabvyb0f6YnjTegV4JiyCJ5xi4JMnl2arw+4+lZZNCXXfCZfLAYXswqCRPQw66UaXVp8+rS4XNdbhLuyZWf23FdJYkPlPaDX6HYtptlHK4g=
+	t=1720552906; cv=none; b=F/adwVnX1TJp0U0VHG55GXqiHo1N1X4Ri/7RaUDAjKnS5yoR4H0rtRaG+cgir/iidX7JUDZl57mT3Ix3ZMTKVK1HaN33cLZb+l25/YhfBRFEH9mSMWl8Fbj8T2G6sG46j6Rs1hTz4yj0kRjKdbluac5uHoyTgi+Aa3XYdYRs7Bc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720544882; c=relaxed/simple;
-	bh=mVHS/6XvxZ61MfkteEqw4BZY27jcNj7bWLsiIN94eiQ=;
+	s=arc-20240116; t=1720552906; c=relaxed/simple;
+	bh=xAxthHKUEpQEvyQA9lDwqIGY+oN7H3FxlTghTd6iOec=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=iAhbiNiFtTCqUnci7l025jpa7YB9EE84jft2nbJUsAW4XIs9G/0cQh6ZRIj3MyiCC0uohyFRJYDJMnV6uUnN5uQjbCm7Hnn+DrhsygWWr1/nkz2rse9vD8/XUlyi8aUWuRqmzgUtHCXAiIW9V+J3lCGuvxLsG3bNaoe3G+DQpCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=c+mQv0QI; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 MIME-Version:Content-Type; b=BH8JFyGBwOt8CDBdOKuYwaBm4gVos/F2Q32WYVnK2nqrsyrV1nefzBwM73St9mKmwnVcMVS0TV4AFZGyTmFznu3tuYBKtNQBkT40MugMlbf46x94X7/wuZsaqYvpLjbUmayHi/3i9YEakssWDXD36y5M5sHy4HRP9C7VArWI1WE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tesarici.cz; spf=pass smtp.mailfrom=tesarici.cz; dkim=pass (2048-bit key) header.d=tesarici.cz header.i=@tesarici.cz header.b=Qlp2C0Jk; arc=none smtp.client-ip=37.205.15.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tesarici.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tesarici.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="c+mQv0QI"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 469EwdQu014417;
-	Tue, 9 Jul 2024 17:07:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
-	RdsGP7UACiE9zTAk10DJzqD1XSghPWJsyDhucLEHexI=; b=c+mQv0QIgkZMeu6i
-	8Jz+ot5cFIntuwwat3oDZ5/G/a7Kht1j5TlySpaeysM6eTS2ESu6s+riCdDisd+H
-	GLmtlJh+sJ2/wnnkxntyGKIAcUL3kfPzhxUQASqGlIyljJyoMuQIR5JgVYmLiBB5
-	w60jfXBp0LB5eRlW6+5mmAMeaDKRsN27u7H7BtEVcSxBvakQa4pOWi/Johz9NXYK
-	nekhnxhbrPViuRoG3DRuMouwuyi1LZPRH6zRpba2TGwjQhyKckNCTi4DJKzeTMJ1
-	Lpw1ZXRfulRR7zoQd4xdJvAMRBKl4KrBfhqsqj5DITg9NLXyxkmrs4rPt+TvvO2q
-	fojGnA==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4097efgbfa-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jul 2024 17:07:51 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 469H7pDw018161;
-	Tue, 9 Jul 2024 17:07:51 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4097efgbf8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jul 2024 17:07:51 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 469ExWOg014043;
-	Tue, 9 Jul 2024 17:07:50 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 407gn0nv36-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jul 2024 17:07:50 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 469H7ix728771048
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Jul 2024 17:07:47 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C869120043;
-	Tue,  9 Jul 2024 17:07:44 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9B7F620040;
-	Tue,  9 Jul 2024 17:07:44 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  9 Jul 2024 17:07:44 +0000 (GMT)
-Date: Tue, 9 Jul 2024 19:06:58 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah
- Khan <shuah@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand
- <david@redhat.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Subject: Re: [PATCH v1 8/9] selftests: kvm: s390: Add uc_skey VM test case
-Message-ID: <20240709190658.5cffc1ba@p-imbrenda.boeblingen.de.ibm.com>
-In-Reply-To: <20240709125704.61312-9-schlameuss@linux.ibm.com>
-References: <20240709125704.61312-1-schlameuss@linux.ibm.com>
-	<20240709125704.61312-9-schlameuss@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.42; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=tesarici.cz header.i=@tesarici.cz header.b="Qlp2C0Jk"
+Received: from meshulam.tesarici.cz (dynamic-2a00-1028-83b8-1e7a-4427-cc85-6706-c595.ipv6.o2.cz [IPv6:2a00:1028:83b8:1e7a:4427:cc85:6706:c595])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by bee.tesarici.cz (Postfix) with ESMTPSA id 2D03C1E2760;
+	Tue,  9 Jul 2024 21:21:42 +0200 (CEST)
+Authentication-Results: mail.tesarici.cz; dmarc=fail (p=quarantine dis=none) header.from=tesarici.cz
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tesarici.cz; s=mail;
+	t=1720552902; bh=hA5TZjqsgvNc3HE9SPpNCYB9xR+VakGRPgdr4ptP6KY=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=Qlp2C0JkILOEGEVA4eGxXfG1+4gffl4KfsBdEwEkkLAr/5ovMcv0qB6p9cpMiklI7
+	 mMm3uyJEfSweOhJOqQBpvspdPsdTjSuontbDvjI86sTxbcpAbO15Qvt+I21eQq5Fdh
+	 +Fgu6uzXso/bDwXqEePlESShnyt3A/CSBE9yS6HniDrhrgvfzGsCp9NlBYsrMoeVeP
+	 yxUuRUjmr47HlBMjfzeFxlufke3Kc3wt+fitKQr0h8+HjJBSFI+AFtxbHz0oZRTN2u
+	 lXMuRCFJlNaSfUAIUkI9ZGZEKFZwsR9DFui6MWisQMoMMO9lEahcXATziAu0p6yOeM
+	 ODizR1X/DqU8Q==
+Date: Tue, 9 Jul 2024 21:21:41 +0200
+From: Petr =?UTF-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Omar Sandoval <osandov@osandov.com>, linux-s390@vger.kernel.org, Ilya
+ Leoshkevich <iii@linux.ibm.com>, linux-debuggers@vger.kernel.org
+Subject: Re: Incorrect vmcoreinfo KERNELOFFSET after "s390/boot: Rework
+ deployment of the kernel image"
+Message-ID: <20240709212141.31160508@meshulam.tesarici.cz>
+In-Reply-To: <Zn1uTZdlYNaRFUqK@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <ZnS8dycxhtXBZVky@telecaster.dhcp.thefacebook.com>
+	<Zn1uTZdlYNaRFUqK@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.42; x86_64-suse-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -87,137 +52,110 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rtu21Bldng3Sz-OpeoS2N4C3efs6UlVI
-X-Proofpoint-ORIG-GUID: VmW_xcZphCb_3pnr6ozloTl3ufvpi6qE
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-07-09_06,2024-07-09_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- mlxscore=0 priorityscore=1501 mlxlogscore=966 lowpriorityscore=0
- malwarescore=0 clxscore=1015 spamscore=0 bulkscore=0 suspectscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2406140001 definitions=main-2407090112
 
-On Tue,  9 Jul 2024 14:57:03 +0200
-Christoph Schlameuss <schlameuss@linux.ibm.com> wrote:
+On Thu, 27 Jun 2024 15:51:09 +0200
+Alexander Gordeev <agordeev@linux.ibm.com> wrote:
 
-> Add a test case manipulating s390 storage keys from within the ucontrol
-> VM.
+> On Thu, Jun 20, 2024 at 04:34:15PM -0700, Omar Sandoval wrote:
 > 
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> ---
->  .../selftests/kvm/s390x/ucontrol_test.c       | 83 +++++++++++++++++++
->  1 file changed, 83 insertions(+)
+> Hi Omar,
 > 
-> diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-> index 4438cfc8bf53..64ad31f667e3 100644
-> --- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-> +++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-> @@ -81,6 +81,32 @@ asm("test_mem_pgm:\n"
->  	"	j	0b\n"
->  );
->  
-> +/* Test program manipulating storage keys */
-> +extern char test_skey_pgm[];
-> +asm("test_skey_pgm:\n"
-> +	"xgr	%r0, %r0\n"
-> +
-> +	"0:\n"
-> +	"	ahi	%r0,1\n"
-> +	"	st	%r1,0(%r5,%r6)\n"
-> +
-> +	"	iske	%r1,%r6\n"
-> +	"	ahi	%r0,1\n"
-> +	"	diag	0,0,0x44\n"
-> +
-> +	"	sske	%r1,%r6\n"
-> +	"	iske	%r1,%r6\n"
-> +	"	ahi	%r0,1\n"
-> +	"	diag	0,0,0x44\n"
-> +
-> +	"	rrbe	%r1,%r6\n"
-> +	"	iske	%r1,%r6\n"
-> +	"	ahi	%r0,1\n"
-> +	"	diag	0,0,0x44\n"
-> +
-> +	"	j	0b\n"
-> +);
-> +
->  FIXTURE(uc_kvm)
->  {
->  	struct kvm_s390_sie_block *sie_block;
-> @@ -389,6 +415,63 @@ static void uc_assert_diag44(FIXTURE_DATA(uc_kvm) * self)
->  	TEST_ASSERT_EQ(0x440000, sie_block->ipb);
->  }
->  
-> +TEST_F(uc_kvm, uc_skey)
-> +{
-> +	u64 test_vaddr = self->base_gpa + VM_MEM_SIZE - (SZ_1M / 2);
-> +	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
-> +	struct kvm_s390_sie_block *sie_block = self->sie_block;
-> +	struct kvm_run *run = self->run;
-> +	u8 skeyvalue = 0x34;
-> +
-> +	init_st_pt(self);
-> +
-> +	/* copy test_skey_pgm to code_hva / code_gpa */
-> +	TH_LOG("copy code %p to vm mapped memory %p / %p",
-> +	       &test_skey_pgm, (void *)self->code_hva, (void *)self->code_gpa);
-> +	memcpy((void *)self->code_hva, &test_skey_pgm, PAGE_SIZE);
-> +
-> +	/* set register content for test_skey_pgm to access not mapped memory*/
+> > Hi, Alexander and Sven,
+> > 
+> > I just got around to testing drgn on s390x on 6.10-rc4, and it appears
+> > to be broken. I bisected it to commit 56b1069c40c7 ("s390/boot: Rework
+> > deployment of the kernel image") and narrowed it down to an issue with
+> > the KERNELOFFSET value reported in vmcoreinfo.
+> > 
+> > On my test kernel, the ELF symbol for init_task is 0xc96f00:
+> > 
+> >   $ eu-readelf -s build/vmtest/s390x/kernel-6.10.0-rc4-vmtest30.1default/build/vmlinux | grep ' init_task$'
+> >   72273: 0000000000c96f00   4352 OBJECT  GLOBAL DEFAULT       18 init_task
+> > 
+> > And the address in the loaded kernel is 0x3ffffeaaf00:
+> > 
+> >   # grep ' init_task$' /proc/kallsyms
+> >   000003ffffeaaf00 D init_task
+> > 
+> > 0x3ffffeaaf00 - 0xc96f00 is 0x3ffff214000
+> > 
+> > However, this doesn't match the value of KERNELOFFSET in vmcoreinfo:
+> > 
+> >   # eu-readelf -n /proc/kcore | grep KERNELOFFSET
+> >     KERNELOFFSET=3ffff314000
+> > 
+> > It's off by 0x100000. This causes drgn to compute the wrong addresses
+> > for all global variables.
+> > 
+> > For context, I'm testing using QEMU emulation on an x86-64 host. Note
+> > that it logs "KASLR disabled: CPU has no PRNG" early during boot. My
+> > exact setup is:
+> > 
+> >   $ git clone https://github.com/osandov/drgn.git
+> >   $ cd drgn
+> >   $ python3 -m vmtest.rootfsbuild -a s390x --build-drgn
+> >   $ python3 -m vmtest.vm -k 's390x:6.10.*' bash -i
+> >   # python3 -m drgn  
+> >   >>> prog['init_task'].comm  
+> >   (char [16])""
+> > 
+> > That should be printing "swapper/0".
+> > 
+> > Any ideas what's going on here?  
+> 
+> On s390 no kernel symbol exists below 0x100000 offset within the
+> vmlinux image and thus this part is never mapped into the kernel
+> memory. That way KERNELOFFSET turns out to be off on value of
+> 0x100000 - and that is what you observe.
+> 
+> That breaks the way drgn finds a kernel symbol, but does not
+> exactly contradicts to the existing KERNELOFFSET description
+> (Documentation/admin-guide/kdump/vmcoreinfo.rst):
+> 
+> ===
+> KERNELOFFSET
+> ------------
+> 
+> The kernel randomization offset. Used to compute the page offset. If
+> KASLR is disabled, this value is zero.
+> ===
+> 
+> I would say to some degree there is also inconsisten with regard
+> to /proc/ files existence:
+> /proc/kcore    is enabled by CONFIG_PROC_KCORE option, while
+> /proc/kallsyms is enabled by CONFIG_KALLSYMS option.
+> I assume drgn expects both files exist and does not work otherwise.
+> 
+> Nevertheless, it is still possible to refer to only one file for
+> symbol resolution and use an always-present symbol. E.g _stext
+> could be leveraged like this:
+> 
+> # grep -w init_task /proc/kallsyms
+> 000003ffe13e9400 D init_task
+> # grep -w _stext /proc/kallsyms
+> 000003ffe0000000 T _stext
+> 
+> 0x3ffe13e9400 - 0x3ffe0000000 == 0x13e9400
+> 
+> # eu-readelf -s vmlinux | grep -w _stext
+> 178112: 0000000000100000      0 NOTYPE  GLOBAL DEFAULT        1 _stext
+> 
+> 0x13e9400 + 0x100000 == 0x14e9400
+> 
+> # eu-readelf -s vmlinux | grep -w init_task
+>   498: 0000000000000000      0 FILE    LOCAL  DEFAULT      ABS init_task.c
+> 182344: 00000000014e9400   8960 OBJECT  GLOBAL DEFAULT       28 init_task
+> 
+> I guess, the above holds true for all architectures.
+> If so, I would suggest consider using that approach.
+> 
+> Having said that, we will try to turn KERNELOFFSET from a synthetic
+> value "Used to compute the page offset" to what drgn expects it to be.
 
-missing space before */
+Thinking about it now, I'm not sure it makes life easier. Because then
+we'll have some old kernels with the current (unexpected) definition of
+KERNELOFFSET and some new kernels with a more standard definition of
+it, but if I read vmcoreinfo, how do I know if the value has the old or
+the new meaning?
 
-> +	sync_regs->gprs[1] = skeyvalue;
-> +	sync_regs->gprs[5] = self->base_gpa;
-> +	sync_regs->gprs[6] = test_vaddr;
-> +	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
-> +
-> +	run->kvm_dirty_regs |= KVM_SYNC_CRS;
-> +	TH_LOG("set CR0 to 0x%llx", sync_regs->crs[0]);
-> +
-> +	self->sie_block->ictl |= ICTL_OPEREXC | ICTL_PINT;
-> +	self->sie_block->cpuflags &= ~CPUSTAT_KSS;
-> +	run->psw_mask = 0x0400000180000000ULL;  /* DAT enabled + 64 bit mode */
-> +	run->psw_addr = self->code_gpa;
-> +	ASSERT_EQ(0, uc_run_once(self));
-> +	ASSERT_EQ(true, uc_handle_exit(self));
-> +	ASSERT_EQ(0, sync_regs->gprs[0]);
-> +	ASSERT_EQ(13, run->exit_reason);
-
-can you use macros here instead of magic values?
-
-> +	ASSERT_EQ(40, sie_block->icptcode);
-
-same here
-
-> +
-> +	ASSERT_EQ(0, uc_run_once(self));
-> +	ASSERT_EQ(false, uc_handle_exit(self));
-> +	ASSERT_EQ(2, sync_regs->gprs[0]);
-> +	ASSERT_EQ(0x06, sync_regs->gprs[1]);
-> +	uc_assert_diag44(self);
-> +
-> +	sync_regs->gprs[1] = skeyvalue;
-> +	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
-> +	ASSERT_EQ(0, uc_run_once(self));
-> +	ASSERT_EQ(false, uc_handle_exit(self));
-> +	ASSERT_EQ(3, sync_regs->gprs[0]);
-> +	ASSERT_EQ(skeyvalue, sync_regs->gprs[1]);
-> +	uc_assert_diag44(self);
-> +
-> +	sync_regs->gprs[1] = skeyvalue;
-> +	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
-> +	ASSERT_EQ(0, uc_run_once(self));
-> +	ASSERT_EQ(false, uc_handle_exit(self));
-> +	ASSERT_EQ(4, sync_regs->gprs[0]);
-> +	ASSERT_EQ(skeyvalue & 0xfb, sync_regs->gprs[1]);
-> +	uc_assert_diag44(self);
-> +}
-> +
->  TEST_F(uc_kvm, uc_map_unmap)
->  {
->  	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
-
+Petr T
