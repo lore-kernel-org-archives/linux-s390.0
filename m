@@ -1,106 +1,209 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A482C14F13A;
-	Tue,  9 Jul 2024 08:45:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CED81DA2F;
+	Tue,  9 Jul 2024 09:16:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720514713; cv=none; b=jHWieiMmV8oTmUSxn6MXgXnelpMMpP0SV7v5wfsesro5XOKYhIyoZYM8XmffqTyaoouNA/mjGPaQ/A9KDTIFTJAkK8RIymqiVom67JFZhqmNBpDKAKWgrOc6eaWGMDmDJpzJPdNp8BGLnSuPM8IDCe6ltvUu4iG+n9H8104ge+c=
+	t=1720516560; cv=none; b=o46AuTjU/Oh2+A7B8xHMywvUTEh6lIxPcf6buc8eA1b+UWAgk3i94jb7bL0SvHuviHiq+q4yg2LTkw58Zrf4jOiEjgELNURKxioXlXegFK9Z/24bGlZXv7W3c2qx5YvvtqaFcWr3Qb+OwM5Hf8lCEjW/tfA+wyNSXd0kPEC9KxM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720514713; c=relaxed/simple;
-	bh=KyH5U1pumNojFcQuwTq/G7SisPQVkZOVM9mntQbyaQ8=;
-	h=Content-Type:MIME-Version:In-Reply-To:References:Cc:From:To:
-	 Subject:Message-ID:Date; b=YbbbCINUZ1YjMqSfqeEkvMcCANzEvimH+zn3I4V/ibGGRX4AKG97IEd4FpqyiSsX2OTJjk1Ny0mZTiANvqqA3jk9PS82efBQ/ni8B62b/s5FvF+vep11S6Yv+VpuluFtjEBx3cVME4rsIWPEmPuU1q54F0h/rA+T8sBqSsOtFPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GBGYso/q; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1720516560; c=relaxed/simple;
+	bh=hK2QUQoSLsKZsz2jegmGiISGgACqpgV+13IffX5u+qA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Hpmhwe9C7pKFype5pMQ3KhGNl+0+F0MqfREeyOD+KduE8idQ3v7UnEEBpGkJ/USUsh04/IenZrDxOqkXoPr6jB97EVzTP+1kG/SjO4XwoJMB6AqYUVIFhw/YflpcyOJ1qKZZrUZTlzAFBELz3L0fNJTaiN/L5CyzI8xVS1G/wk0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=b5CS9d8E; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GBGYso/q"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4695TG1R023707;
-	Tue, 9 Jul 2024 08:45:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	content-type:mime-version:content-transfer-encoding:in-reply-to
-	:references:cc:from:to:subject:message-id:date; s=pp1; bh=KyH5U1
-	pumNojFcQuwTq/G7SisPQVkZOVM9mntQbyaQ8=; b=GBGYso/qu4N2A7ys2EcTfj
-	CehZ7UdGkMFAjIuHUfLh7zD42ryCu7YasJW9/fMI0x5/1nH2KifBtV7mgLNudp3J
-	jONBRcjJi488Q1uoO/egg0WQUmlACLhuMsdtfnEkVJ53KNBTaFqMPPCcNBAR4j+/
-	Le06ThBTYMsEd7I8yK0J2VasVvfakJsxhS2PuiYDEDlS+Xrtnafdu1IIAG3uIraG
-	h6nVX+TadmhhGTeuFUC3pF4iAYWqjZDZWShz65SxH+RIXnBEUhvax9OKLV5RMPQB
-	eVztSD32xGNKU3DnAfprr+GJUWbLV0iFsP0I9+m+o+i1alzv8xV6Cz50VJ0rBilw
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 408y380ejv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jul 2024 08:45:09 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4698j97H026968;
-	Tue, 9 Jul 2024 08:45:09 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 408y380ejr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jul 2024 08:45:09 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4697kum9024680;
-	Tue, 9 Jul 2024 08:45:08 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 407g8u3sap-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jul 2024 08:45:08 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4698j24w53805474
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Jul 2024 08:45:05 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D23AA20043;
-	Tue,  9 Jul 2024 08:45:02 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B41322004D;
-	Tue,  9 Jul 2024 08:45:02 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.72.32])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  9 Jul 2024 08:45:02 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="b5CS9d8E"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E023C3277B;
+	Tue,  9 Jul 2024 09:15:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1720516560;
+	bh=hK2QUQoSLsKZsz2jegmGiISGgACqpgV+13IffX5u+qA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=b5CS9d8EmjYuSh4Oeec2RjoRUGGvRd0pLtlX6LmRJt4hCd5HbYeEb7JcMhMOETUiL
+	 nJGOijZI7omuHyu+1Qf35faihpB0P+eHXoiC/u41ezJKQHr3qA2gW9sxBtTIXizM63
+	 z1FgzWNtkl38ekbRw1GjxAc4UY7Jz4/WW8/AIhfs=
+Date: Tue, 9 Jul 2024 11:15:57 +0200
+From: Greg KH <gregkh@linuxfoundation.org>
+To: LEROY Christophe <christophe.leroy2@cs-soprasteria.com>
+Cc: WangYuli <wangyuli@uniontech.com>,
+	"stable@vger.kernel.org" <stable@vger.kernel.org>,
+	"sashal@kernel.org" <sashal@kernel.org>,
+	"ast@kernel.org" <ast@kernel.org>,
+	"keescook@chromium.org" <keescook@chromium.org>,
+	"linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>,
+	"catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+	"song@kernel.org" <song@kernel.org>,
+	"puranjay12@gmail.com" <puranjay12@gmail.com>,
+	"daniel@iogearbox.net" <daniel@iogearbox.net>,
+	"andrii@kernel.org" <andrii@kernel.org>,
+	"martin.lau@linux.dev" <martin.lau@linux.dev>,
+	"yonghong.song@linux.dev" <yonghong.song@linux.dev>,
+	"john.fastabend@gmail.com" <john.fastabend@gmail.com>,
+	"kpsingh@kernel.org" <kpsingh@kernel.org>,
+	"sdf@google.com" <sdf@google.com>,
+	"haoluo@google.com" <haoluo@google.com>,
+	"jolsa@kernel.org" <jolsa@kernel.org>,
+	"illusionist.neo@gmail.com" <illusionist.neo@gmail.com>,
+	"linux@armlinux.org.uk" <linux@armlinux.org.uk>,
+	"bpf@vger.kernel.org" <bpf@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"chenhuacai@kernel.org" <chenhuacai@kernel.org>,
+	"kernel@xen0n.name" <kernel@xen0n.name>,
+	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
+	"johan.almbladh@anyfinetworks.com" <johan.almbladh@anyfinetworks.com>,
+	"paulburton@kernel.org" <paulburton@kernel.org>,
+	"tsbogend@alpha.franken.de" <tsbogend@alpha.franken.de>,
+	"linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+	"deller@gmx.de" <deller@gmx.de>,
+	"linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+	"iii@linux.ibm.com" <iii@linux.ibm.com>,
+	"hca@linux.ibm.com" <hca@linux.ibm.com>,
+	"gor@linux.ibm.com" <gor@linux.ibm.com>,
+	"agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
+	"borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
+	"svens@linux.ibm.com" <svens@linux.ibm.com>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"davem@davemloft.net" <davem@davemloft.net>,
+	"sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+	"kuba@kernel.org" <kuba@kernel.org>,
+	"hawk@kernel.org" <hawk@kernel.org>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"dsahern@kernel.org" <dsahern@kernel.org>,
+	"tglx@linutronix.de" <tglx@linutronix.de>,
+	"mingo@redhat.com" <mingo@redhat.com>,
+	"bp@alien8.de" <bp@alien8.de>,
+	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+	"x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>,
+	"guanwentao@uniontech.com" <guanwentao@uniontech.com>,
+	"baimingcong@uniontech.com" <baimingcong@uniontech.com>
+Subject: Re: [PATCH] Revert "bpf: Take return from set_memory_rox() into
+ account with bpf_jit_binary_lock_ro()" for linux-6.6.37
+Message-ID: <2024070908-glade-granny-1137@gregkh>
+References: <5A29E00D83AB84E3+20240706031101.637601-1-wangyuli@uniontech.com>
+ <2024070631-unrivaled-fever-8548@gregkh>
+ <B7E3B29557B78CB1+afadbaa6-987e-4db4-96b5-4e4d5465c37b@uniontech.com>
+ <2024070815-udder-charging-7f75@gregkh>
+ <a1dac525-4e6d-4d28-87ee-63723abbafad@cs-soprasteria.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20240703155900.103783-3-imbrenda@linux.ibm.com>
-References: <20240703155900.103783-1-imbrenda@linux.ibm.com> <20240703155900.103783-3-imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com,
-        svens@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        nsg@linux.ibm.com, seiden@linux.ibm.com, frankja@linux.ibm.com,
-        borntraeger@de.ibm.com, gerald.schaefer@linux.ibm.com,
-        david@redhat.com
-From: Nico Boehr <nrb@linux.ibm.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 2/2] s390/kvm: Move bitfields for dat tables
-Message-ID: <172051470220.243722.11724961453286234156@t14-nrb>
-User-Agent: alot/0.8.1
-Date: Tue, 09 Jul 2024 10:45:02 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FyT6R0dpv90eMsaW6KTbr7YQu1veB98A
-X-Proofpoint-GUID: E65jeJ3xYUP11FkG8PiCNu9M_C8J6kwr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-07-08_15,2024-07-08_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- spamscore=0 mlxscore=0 bulkscore=0 priorityscore=1501 clxscore=1015
- suspectscore=0 impostorscore=0 lowpriorityscore=0 malwarescore=0
- mlxlogscore=655 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2406140001 definitions=main-2407090055
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <a1dac525-4e6d-4d28-87ee-63723abbafad@cs-soprasteria.com>
 
-Quoting Claudio Imbrenda (2024-07-03 17:59:00)
-> Move and improve the struct definitions for DAT tables from gaccess.c
-> to a new header.
->=20
-> Once in a separate header, the structs become available everywhere. One
-> possible usecase is to merge them in the s390 pte_t and p?d_t
-> definitions, which is left as an exercise for the reader.
->=20
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+On Mon, Jul 08, 2024 at 03:12:55PM +0000, LEROY Christophe wrote:
+> 
+> 
+> Le 08/07/2024 à 14:36, Greg KH a écrit :
+> > On Sun, Jul 07, 2024 at 03:34:15PM +0800, WangYuli wrote:
+> >>
+> >> On 2024/7/6 17:30, Greg KH wrote:
+> >>> This makes it sound like you are reverting this because of a build
+> >>> error, which is not the case here, right?  Isn't this because of the
+> >>> powerpc issue reported here:
+> >>>     https://lore.kernel.org/r/20240705203413.wbv2nw3747vjeibk@altlinux.org
+> >>> ?
+> >>
+> >> No, it only occurs on ARM64 architecture. The reason is that before being
+> >> modified, the function
+> >>
+> >> bpf_jit_binary_lock_ro() in arch/arm64/net/bpf_jit_comp.c +1651
+> >>
+> >> was introduced with __must_check, which is defined as
+> >> __attribute__((__warn_unused_result__)).
+> >>
+> >>
+> >> However, at this point, calling bpf_jit_binary_lock_ro(header)
+> >> coincidentally results in an unused-result
+> >>
+> >> warning.
+> >
+> > Ok, thanks, but why is no one else seeing this in their testing?
+> 
+> Probably the configs used by robots do not activate BPF JIT ?
+> 
+> >
+> >>> If not, why not just backport the single missing arm64 commit,
+> >>
+> >> Upstream commit 1dad391daef1 ("bpf, arm64: use bpf_prog_pack for memory
+> >> management") is part of
+> >>
+> >> a larger change that involves multiple commits. It's not an isolated commit.
+> >>
+> >>
+> >> We could certainly backport all of them to solve this problem, buthas it's not
+> >> the simplest solution.
+> >
+> > reverting the change feels wrong in that you will still have the bug
+> > present that it was trying to solve, right?  If so, can you then provide
+> > a working version?
+> 
+> Indeed, by reverting the change you "punish" all architectures because
+> arm64 hasn't properly been backported, is it fair ?
+> 
+> In fact, when I implemented commit e60adf513275 ("bpf: Take return from
+> set_memory_rox() into account with bpf_jit_binary_lock_ro()"), we had
+> the following users for function bpf_jit_binary_lock_ro() :
+> 
+> $ git grep bpf_jit_binary_lock_ro e60adf513275~
+> e60adf513275~:arch/arm/net/bpf_jit_32.c:
+> bpf_jit_binary_lock_ro(header);
+> e60adf513275~:arch/loongarch/net/bpf_jit.c:
+> bpf_jit_binary_lock_ro(header);
+> e60adf513275~:arch/mips/net/bpf_jit_comp.c:
+> bpf_jit_binary_lock_ro(header);
+> e60adf513275~:arch/parisc/net/bpf_jit_core.c:
+> bpf_jit_binary_lock_ro(jit_data->header);
+> e60adf513275~:arch/s390/net/bpf_jit_comp.c:
+> bpf_jit_binary_lock_ro(header);
+> e60adf513275~:arch/sparc/net/bpf_jit_comp_64.c:
+> bpf_jit_binary_lock_ro(header);
+> e60adf513275~:arch/x86/net/bpf_jit_comp32.c:
+> bpf_jit_binary_lock_ro(header);
+> e60adf513275~:include/linux/filter.h:static inline void
+> bpf_jit_binary_lock_ro(struct bpf_binary_header *hdr)
+> 
+> But when commit 08f6c05feb1d ("bpf: Take return from set_memory_rox()
+> into account with bpf_jit_binary_lock_ro()") was applied, we had one
+> more user which is arm64:
+> 
+> $ git grep bpf_jit_binary_lock_ro 08f6c05feb1d~
+> 08f6c05feb1d~:arch/arm/net/bpf_jit_32.c:
+> bpf_jit_binary_lock_ro(header);
+> 08f6c05feb1d~:arch/arm64/net/bpf_jit_comp.c:
+> bpf_jit_binary_lock_ro(header);
+> 08f6c05feb1d~:arch/loongarch/net/bpf_jit.c:
+> bpf_jit_binary_lock_ro(header);
+> 08f6c05feb1d~:arch/mips/net/bpf_jit_comp.c:
+> bpf_jit_binary_lock_ro(header);
+> 08f6c05feb1d~:arch/parisc/net/bpf_jit_core.c:
+> bpf_jit_binary_lock_ro(jit_data->header);
+> 08f6c05feb1d~:arch/s390/net/bpf_jit_comp.c:
+> bpf_jit_binary_lock_ro(header);
+> 08f6c05feb1d~:arch/sparc/net/bpf_jit_comp_64.c:
+> bpf_jit_binary_lock_ro(header);
+> 08f6c05feb1d~:arch/x86/net/bpf_jit_comp32.c:
+> bpf_jit_binary_lock_ro(header);
+> 08f6c05feb1d~:include/linux/filter.h:static inline void
+> bpf_jit_binary_lock_ro(struct bpf_binary_header *hdr)
+> 
+> Therefore, commit 08f6c05feb1d should have included a backport for arm64.
+> 
+> So yes, I agree with Greg, the correct fix should be to backport to
+> ARM64 the changes done on other architectures in order to properly
+> handle return of set_memory_rox() in bpf_jit_binary_lock_ro().
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+Ok, but it looks like due to this series, the powerpc tree is crashing
+at the first bpf load, so something went wrong.  Let me go revert these
+4 patches for now, and then I will be glad to queue them up if you can
+provide a working series for all arches.
+
+thanks,
+
+greg k-h
