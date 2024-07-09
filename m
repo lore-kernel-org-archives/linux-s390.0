@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB87C1A79EC;
-	Tue,  9 Jul 2024 16:26:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7766A1B23D1;
+	Tue,  9 Jul 2024 16:27:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720542392; cv=none; b=KJJuZtRYyY/3WnWOtRjivmETXsx5UwjxzQ2WUQ+FcIwQlx4lPlPCRrobzykGlqSuBzlpupAjFbaNQjtE2ZNXVR2szkmGPrN/z6yd1Lj5EYvXP80xu03SBKDeynpBW+i7QQekekmAvO3bgYfk+dZdQnkdXEkXAOaxkpnb92uAJLY=
+	t=1720542431; cv=none; b=FhM8hg3k4aejMO5eBciz6UQIEcN8/pQO6XL2CCJSq3xQH/cie04R7ns/4zwxqKFh5k7rEqPs+Xv6CYabHeZXRHhXGdMumExPC1Whp/4vUxZI3yQzGJ0Lc2o9fSF84EESmETups5hQNfNkoLTaWtyRZUPlMod9mIQU59adbFmS1w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720542392; c=relaxed/simple;
+	s=arc-20240116; t=1720542431; c=relaxed/simple;
 	bh=boMMWFkcwwqtOkMNdobw81ZVF1ESrJHnVZYCzQPwPlA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=d3CbbViZW+mlk1SlrIfBQOE5qwIwtwd17FkfjIdWsubpf4a458abP1n0F/qw0lD0jcfcqguGLudoeOIzE0tQW/9qvCJ0m2rMG1U40w5L5G6UB//+UUd6DYm8Vi79qPf+uy3ah3xtfRVbg7LTk/pptIdxF+2t8KtC539zuo6/LO0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YQm6T8lC; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=prJIzKafqZ1IgHdx3l/P3dvHOej9Y2OZfsQoAAeay7mHdeOCFWp8sGQoBFWoyQ/uABziwv1VEC+jAQityc9ycSqVLkNs3a0fjF0mJzTg1pvLFcqZPAESqLmSpflgeUpYDzQVJlsxsPPEfnWSlWXTvDmrK34BDR5vb+RAVarcOIY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OjbM1lCx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YQm6T8lC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BCC8C4AF07;
-	Tue,  9 Jul 2024 16:26:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OjbM1lCx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44F7CC32782;
+	Tue,  9 Jul 2024 16:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1720542392;
+	s=k20201202; t=1720542431;
 	bh=boMMWFkcwwqtOkMNdobw81ZVF1ESrJHnVZYCzQPwPlA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=YQm6T8lCPn5VQEvEjT7clvMSNLnYSlWuNUh4bxRZMXkFGMm0dqx7Yz+8cUCrCubih
-	 dl/miF63eb/vljO3yEj5FyEnPFdluOFtSbZkiuX2MM8bcg2ggvWJkGSvP7wngBYIX7
-	 PBamS7vgJDNKH9Ow7Rtlc5/rlSwaJrHFm7eFxLaDJd1+Pqr1ewlnls4bFyfjDfja7M
-	 I7mLUSq70E5TRr/Q2LgIHhNFEBontNYk8ZwbfgmatCM7uDISnOjCYlWrBh5Ll2e4Hb
-	 iiFxN2WBX+Hlb3tOQpG03cL9omuyMQEGIqOLOYvVfS1Q0KF6rf2RYuJOQ6YzPaMYBR
-	 pweEBFDJPXsSQ==
+	b=OjbM1lCx7lhLO63HNby4YP5k1qH17Z8EnsaPE8QM/2TIxo44KK4jyDN29xd2LJWok
+	 vzMdd0VHrp5B22I0h/VmCfb5IFiz2k0eKOzcHfoPhG8vzbTKA+cQyfcnlRdCRbUwjr
+	 CIO3A5PvueJ6ch9VENG5FjpstBDdstz3rNCeh1HIA0Q65k5361/RfP8nU+hVZHHeL+
+	 GfDnhwztvFNaFTaCFb7CxXE0RbHntMT30t9nCMAGuNrVRScaOYsNH7rBwnLBUCawSH
+	 b6BclabteLdQllpgCMhUu5moKHT5e7TRq9hfFlstrZrNj0CJavfL/XmbCxdV6gOnsU
+	 LsvIUFubdDodg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -37,12 +37,12 @@ Cc: Heiko Carstens <hca@linux.ibm.com>,
 	justinstitt@google.com,
 	kees@kernel.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 08/14] s390/sclp: Fix sclp_init() cleanup on failure
-Date: Tue,  9 Jul 2024 12:25:52 -0400
-Message-ID: <20240709162612.32988-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 07/11] s390/sclp: Fix sclp_init() cleanup on failure
+Date: Tue,  9 Jul 2024 12:26:40 -0400
+Message-ID: <20240709162654.33343-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240709162612.32988-1-sashal@kernel.org>
-References: <20240709162612.32988-1-sashal@kernel.org>
+In-Reply-To: <20240709162654.33343-1-sashal@kernel.org>
+References: <20240709162654.33343-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -51,7 +51,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.10.221
+X-stable-base: Linux 5.4.279
 Content-Transfer-Encoding: 8bit
 
 From: Heiko Carstens <hca@linux.ibm.com>
