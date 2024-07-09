@@ -1,111 +1,231 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1294E19CCE8;
-	Tue,  9 Jul 2024 14:57:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FF904A02;
+	Tue,  9 Jul 2024 16:05:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720537043; cv=none; b=bojNvYchhVIyUACd3A4WuTaLBEFkrn0mvd28LTNZpFo8f8KE4Wzk3PurficYRZj0DnsGZguwXLFXAAwdHASLtWFgAKTyYH9lF0i8byTyCvj//W6Pjpj6gF7FfJ54R/BpYP9Q+sMFU7GhClKNf+VjXdC8H00pKsS+Pv0gecEl6DY=
+	t=1720541160; cv=none; b=hGa+6E2GshQ9ufnaGZ7Y9eyGAMSUUzliXELpjqPfSYXxSWLWklw8WUCzGWkiL4kSPWJdEA8734a4v9uPNlbT0K1NUICFGhGr06QcEeRbmVVukCMbm+1EkFMx0p7h6Y3wI4fhHpdbCHBtPL1jbkL+HkXvqG+KjOFolNB2J9QQgak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720537043; c=relaxed/simple;
-	bh=WdwMKjFPBFNjPxN6MKagA6dZvwLBADCz1idopeZtbzw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CpmnA9cEk7DJd35T961zPU93tkO6nSv403+9OeYmGpGLhioelTzjoQzEIMwNWZwI/m37cYDnKd/to02mUq/f4+a12rZUe+IWwT6DqBDIKglU2/30wuGvSCKEQBSBlo2tSJqjRIVYUt3YMtzg5sO1dnfaMWVuYhpS8MPLX/jc0kI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Iq3ddSGX; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1720541160; c=relaxed/simple;
+	bh=nWTLXY9HN+du1MWjpjzvNyHlVCQplXKA4/1rwWPWQ6Q=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=sFdTSDMMwBGogYW8L7B7+WxhnHCfNTSuwIuwNg2MgfDwx5eGzisHYVZQdgrR/hBuRMICAws+FXHLt2MImgIlet+/clsEmm/pHD+Wv64T5k+cLLg80niVGyVYe0OE4UVDmxv+qrx24W8TtP1Kj4ysUpO5wYHoPH/x/W0ajjALzEs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=dNxL2flB; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Iq3ddSGX"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 469DQk5a024025;
-	Tue, 9 Jul 2024 14:57:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:references:mime-version
-	:content-type:in-reply-to; s=pp1; bh=/lzIJVTCuRvpdWI49uaC1epKPy5
-	0bVXehmHsdWfr5NQ=; b=Iq3ddSGX238VzVknKY3YrZqKeZi/Jbh+eS4+crQhs80
-	Y4z9xJ+z3Vt2ZRUxINB2HIUPrFATinrxDVr7bsKv2EZJtUZSff6DN5gF08p7dStA
-	DvuKbzvYh8pg4POgCCgwIP+P2yglXrjKmkrPC7bcVhsjGn/+MkkoY7t4/9CL/MKY
-	pTnBT3OtLA49i0XwAWAMQ+hVCOyBwkQZM/ykDkCzOjgR/ZTH+kXPoS0HgGDZFbpN
-	R91z38C+7VLbRAegGYLk18CZeO8RXakQ6DUj9etyhc1CPeg1tajvoN57ZkCULFbb
-	cAYXuFQQ0JWr2mlLIevVAL2f+e8bQk/0aUZn4mwdq/A==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4093258u2e-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jul 2024 14:57:20 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 469Eoixa026536;
-	Tue, 9 Jul 2024 14:57:19 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4093258u1y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jul 2024 14:57:19 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 469EPBqE024664;
-	Tue, 9 Jul 2024 14:53:04 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 407g8u5afv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jul 2024 14:53:04 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 469EqxW332506382
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Jul 2024 14:53:01 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1354420071;
-	Tue,  9 Jul 2024 14:52:59 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B3D022006C;
-	Tue,  9 Jul 2024 14:52:58 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  9 Jul 2024 14:52:58 +0000 (GMT)
-Date: Tue, 9 Jul 2024 16:52:57 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com, svens@linux.ibm.com,
-        gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com,
-        seiden@linux.ibm.com, frankja@linux.ibm.com, borntraeger@de.ibm.com,
-        gerald.schaefer@linux.ibm.com, david@redhat.com
-Subject: Re: [PATCH v1 1/2] s390/entry: Pass the asce as parameter to sie64a()
-Message-ID: <Zo1OyZnwzuFUksMa@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20240703155900.103783-1-imbrenda@linux.ibm.com>
- <20240703155900.103783-2-imbrenda@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="dNxL2flB"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1720541153; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=Gef74ZFkoHmeg+9wnPO3M4CLYopK0Jl9u0mSEnTR2IY=;
+	b=dNxL2flBUz1RtKAZCaPQgwzk/6P+bCex9N/gPqcglcC9d/iLFBohF/rAFQ+drw1eokAfZjwGDWicWoxSveu8fdeS6vq60ijCoiL7qv2TibmFbGLn8WSTBwgqWPv8HJ+d4ySwbD+hmIEB9YFRs6BVd1hNA3gBLKQMt7yKXLrVUj4=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0WACV18d_1720541151;
+Received: from 192.168.0.111(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WACV18d_1720541151)
+          by smtp.aliyun-inc.com;
+          Wed, 10 Jul 2024 00:05:53 +0800
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+To: wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com
+Cc: alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net-next] net/smc: introduce autosplit for smc
+Date: Wed, 10 Jul 2024 00:05:51 +0800
+Message-Id: <20240709160551.40595-1-guangguan.wang@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240703155900.103783-2-imbrenda@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MsS9E6B9fUC2K9ztKTN7fCK1monehg9z
-X-Proofpoint-GUID: Xi6sMVGuqcPfnln-HHiB-bNqoiVVYADz
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-07-09_04,2024-07-09_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- mlxscore=0 lowpriorityscore=0 mlxlogscore=759 priorityscore=1501
- malwarescore=0 suspectscore=0 adultscore=0 impostorscore=0 bulkscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2406140001 definitions=main-2407090097
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jul 03, 2024 at 05:58:59PM +0200, Claudio Imbrenda wrote:
-> Pass the guest ASCE explicitly as parameter, instead of having sie64a()
-> take it from lowcore.
-> 
-> This removes hidden state from lowcore, and makes things look cleaner.
-> 
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->  arch/s390/include/asm/kvm_host.h   | 7 ++++---
->  arch/s390/include/asm/stacktrace.h | 1 +
->  arch/s390/kernel/asm-offsets.c     | 1 +
->  arch/s390/kernel/entry.S           | 8 +++-----
->  arch/s390/kvm/kvm-s390.c           | 3 ++-
->  arch/s390/kvm/vsie.c               | 2 +-
->  6 files changed, 12 insertions(+), 10 deletions(-)
+When sending large size data in TCP, the data will be split into
+several segments(packets) to transfer due to MTU config. And in
+the receive side, application can be woken up to recv data every
+packet arrived, the data transmission and data recv copy are
+pipelined.
 
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+But for SMC-R, it will transmit as many data as possible in one
+RDMA WRITE and a CDC msg follows the RDMA WRITE, in the receive
+size, the application only be woken up to recv data when all RDMA
+WRITE data and the followed CDC msg arrived. The data transmission
+and data recv copy are sequential.
+
+This patch introduce autosplit for SMC, which can automatic split
+data into several segments and every segment transmitted by one RDMA
+WRITE when sending large size data in SMC. Because of the split, the
+data transmission and data send copy can be pipelined in the send side,
+and the data transmission and data recv copy can be pipelined in the
+receive side. Thus autosplit helps improving latency performance when
+sending large size data. The autosplit also works for SMC-D.
+
+This patch also introduce a sysctl names autosplit_size for configure
+the max size of the split segment, whose default value is 128KiB
+(128KiB perform best in my environment).
+
+The sockperf benchmark shows 17%-28% latency improvement when msgsize
+>= 256KB for SMC-R, 15%-32% latency improvement when msgsize >= 256KB
+for SMC-D with smc-loopback.
+
+Test command:
+sockperf sr --tcp -m 1048575
+sockperf pp --tcp -i <server ip> -m <msgsize> -t 20
+
+Test config:
+sysctl -w net.smc.wmem=524288
+sysctl -w net.smc.rmem=524288
+
+Test results:
+SMC-R
+msgsize   noautosplit    autosplit
+128KB       55.546 us     55.763 us
+256KB       83.537 us     69.743 us (17% improve)
+512KB      138.306 us    100.313 us (28% improve)
+1MB        273.702 us    197.222 us (28% improve)
+
+SMC-D with smc-loopback
+msgsize   noautosplit    autosplit
+128KB       14.672 us     14.690 us
+256KB       28.277 us     23.958 us (15% improve)
+512KB       63.047 us     45.339 us (28% improve)
+1MB        129.306 us     87.278 us (32% improve)
+
+Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+---
+ Documentation/networking/smc-sysctl.rst | 11 +++++++++++
+ include/net/netns/smc.h                 |  1 +
+ net/smc/smc_sysctl.c                    | 12 ++++++++++++
+ net/smc/smc_tx.c                        | 19 ++++++++++++++++++-
+ 4 files changed, 42 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
+index a874d007f2db..81b5296d79f4 100644
+--- a/Documentation/networking/smc-sysctl.rst
++++ b/Documentation/networking/smc-sysctl.rst
+@@ -71,3 +71,14 @@ smcr_max_conns_per_lgr - INTEGER
+ 	acceptable value ranges from 16 to 255. Only for SMC-R v2.1 and later.
+ 
+ 	Default: 255
++
++autosplit_size - INTEGER
++	Setting SMC autosplit size. Autosplit is used to split sending data into
++	several segments when application sending data and the data size is larger
++	than autosplit size. Autosplit helps performing pipeline sending and pipeline
++	receiving for better latency performance when sending/receiving large size
++	data.
++	Autosplit_size ranges from 32KiB to 512MiB. Set autosplit_size to 512MiB means
++	disable autosplit.
++
++	Default: 128KiB
+diff --git a/include/net/netns/smc.h b/include/net/netns/smc.h
+index fc752a50f91b..26c7edeb71a3 100644
+--- a/include/net/netns/smc.h
++++ b/include/net/netns/smc.h
+@@ -24,5 +24,6 @@ struct netns_smc {
+ 	int				sysctl_rmem;
+ 	int				sysctl_max_links_per_lgr;
+ 	int				sysctl_max_conns_per_lgr;
++	unsigned int			sysctl_autosplit_size;
+ };
+ #endif
+diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+index 13f2bc092db1..2aaf402acc11 100644
+--- a/net/smc/smc_sysctl.c
++++ b/net/smc/smc_sysctl.c
+@@ -29,6 +29,8 @@ static int links_per_lgr_min = SMC_LINKS_ADD_LNK_MIN;
+ static int links_per_lgr_max = SMC_LINKS_ADD_LNK_MAX;
+ static int conns_per_lgr_min = SMC_CONN_PER_LGR_MIN;
+ static int conns_per_lgr_max = SMC_CONN_PER_LGR_MAX;
++static unsigned int autosplit_size_min = SZ_32K;
++static unsigned int autosplit_size_max = SZ_512M; /* max size of snd/recv buffer */
+ 
+ static struct ctl_table smc_table[] = {
+ 	{
+@@ -90,6 +92,15 @@ static struct ctl_table smc_table[] = {
+ 		.extra1		= &conns_per_lgr_min,
+ 		.extra2		= &conns_per_lgr_max,
+ 	},
++	{
++		.procname	= "autosplit_size",
++		.data		= &init_net.smc.sysctl_autosplit_size,
++		.maxlen		= sizeof(unsigned int),
++		.mode		= 0644,
++		.proc_handler	= proc_douintvec_minmax,
++		.extra1		= &autosplit_size_min,
++		.extra2		= &autosplit_size_max,
++	},
+ };
+ 
+ int __net_init smc_sysctl_net_init(struct net *net)
+@@ -121,6 +132,7 @@ int __net_init smc_sysctl_net_init(struct net *net)
+ 	WRITE_ONCE(net->smc.sysctl_rmem, net_smc_rmem_init);
+ 	net->smc.sysctl_max_links_per_lgr = SMC_LINKS_PER_LGR_MAX_PREFER;
+ 	net->smc.sysctl_max_conns_per_lgr = SMC_CONN_PER_LGR_PREFER;
++	net->smc.sysctl_autosplit_size = SZ_128K;
+ 
+ 	return 0;
+ 
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 214ac3cbcf9a..331ce4ff7c6e 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -175,6 +175,21 @@ static bool smc_tx_should_cork(struct smc_sock *smc, struct msghdr *msg)
+ 	return false;
+ }
+ 
++static inline bool smc_tx_should_split(struct smc_sock *smc, size_t *len)
++{
++	size_t split_size = sock_net(&smc->sk)->smc.sysctl_autosplit_size;
++
++	/* only split when len >= sysctl_autosplit_size * 1.3,
++	 * in case of a following tiny size xmit.
++	 */
++	if (*len >= (split_size * 4 / 3)) {
++		*len = split_size;
++		return true;
++	}
++
++	return false;
++}
++
+ /* sndbuf producer: main API called by socket layer.
+  * called under sock lock.
+  */
+@@ -185,6 +200,7 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
+ 	struct smc_connection *conn = &smc->conn;
+ 	union smc_host_cursor prep;
+ 	struct sock *sk = &smc->sk;
++	bool is_split = false;
+ 	char *sndbuf_base;
+ 	int tx_cnt_prep;
+ 	int writespace;
+@@ -235,6 +251,7 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
+ 		writespace = atomic_read(&conn->sndbuf_space);
+ 		/* not more than what user space asked for */
+ 		copylen = min_t(size_t, send_remaining, writespace);
++		is_split = smc_tx_should_split(smc, &copylen);
+ 		/* determine start of sndbuf */
+ 		sndbuf_base = conn->sndbuf_desc->cpu_addr;
+ 		smc_curs_copy(&prep, &conn->tx_curs_prep, conn);
+@@ -281,7 +298,7 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
+ 		/* If we need to cork, do nothing and wait for the next
+ 		 * sendmsg() call or push on tx completion
+ 		 */
+-		if (!smc_tx_should_cork(smc, msg))
++		if (is_split || !smc_tx_should_cork(smc, msg))
+ 			smc_tx_sndbuf_nonempty(conn);
+ 
+ 		trace_smc_tx_sendmsg(smc, copylen);
+-- 
+2.24.3 (Apple Git-128)
+
