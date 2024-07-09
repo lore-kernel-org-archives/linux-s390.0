@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB45918EA66;
-	Tue,  9 Jul 2024 16:25:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB87C1A79EC;
+	Tue,  9 Jul 2024 16:26:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720542339; cv=none; b=afn0ey9DJ+LWLL0IoHDKJcHbi7c2FyA/RyxYE+sSSKiEpBR1K1+FPHbm2hGsgQz14CxpUXm5ScCG/Nidg4LsmDTwtU/2JnISlyncQ76Qq3pBsxHoeobRSdy7g9hFzoUJyOZDymdm/pflBWhH1sY1tsFits2KdMY+VuiyjCh5n+U=
+	t=1720542392; cv=none; b=KJJuZtRYyY/3WnWOtRjivmETXsx5UwjxzQ2WUQ+FcIwQlx4lPlPCRrobzykGlqSuBzlpupAjFbaNQjtE2ZNXVR2szkmGPrN/z6yd1Lj5EYvXP80xu03SBKDeynpBW+i7QQekekmAvO3bgYfk+dZdQnkdXEkXAOaxkpnb92uAJLY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720542339; c=relaxed/simple;
-	bh=Uo8THIP+qahbvQHYwUyy1Reg3pWn4lucxMDpZD44Kvg=;
+	s=arc-20240116; t=1720542392; c=relaxed/simple;
+	bh=boMMWFkcwwqtOkMNdobw81ZVF1ESrJHnVZYCzQPwPlA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BeDJ75dqnpQIP7YkcnGrA0kq/QZ0mxJTWasXShj76g+UUbhP+aUeJW0Iq8Rxj+KKuT0KCod4JbvptYvq3HAIPomC6Ea7j6M7I1B2JkBIQD6JTemLfEtTBWTr+LK2+NcUcHYBPA6YeP/FEVh1di8/hPG9HRBp5YZE0M41E/RZ4tk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ADPLz1bb; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=d3CbbViZW+mlk1SlrIfBQOE5qwIwtwd17FkfjIdWsubpf4a458abP1n0F/qw0lD0jcfcqguGLudoeOIzE0tQW/9qvCJ0m2rMG1U40w5L5G6UB//+UUd6DYm8Vi79qPf+uy3ah3xtfRVbg7LTk/pptIdxF+2t8KtC539zuo6/LO0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YQm6T8lC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ADPLz1bb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E491C4AF07;
-	Tue,  9 Jul 2024 16:25:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YQm6T8lC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BCC8C4AF07;
+	Tue,  9 Jul 2024 16:26:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1720542338;
-	bh=Uo8THIP+qahbvQHYwUyy1Reg3pWn4lucxMDpZD44Kvg=;
+	s=k20201202; t=1720542392;
+	bh=boMMWFkcwwqtOkMNdobw81ZVF1ESrJHnVZYCzQPwPlA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ADPLz1bbx3KHI58GZzH5k07ukegekNdOzYLGrVf61NoEVcTH55LgfrTu+SS1zj4Ll
-	 Jr4gIFYQ1IXepm/0uRuuKN4TzdeeD8MRvv3HJ2OITuR3F/OVMy9ZA94oxxPwbTAf/p
-	 Kjao7aNDctf3LoKN1TWekM8A/nC25+m4hCYqJU2agQuibB7Ch35YCnBtJJZAbCWLaZ
-	 xdoMdiyEvv9D14pMs5rAsvBVGQTcV5iEsILkYvDSKt4Qbl5vfdKSCgBaPSi3vHe2Lz
-	 uaAnL1rA68SCnCZayy1XRdv3kDxJAkG1TL3ao6NQQolWGZI5ihX2tSLH0RMzike/bw
-	 dmwGYM0be+yyw==
+	b=YQm6T8lCPn5VQEvEjT7clvMSNLnYSlWuNUh4bxRZMXkFGMm0dqx7Yz+8cUCrCubih
+	 dl/miF63eb/vljO3yEj5FyEnPFdluOFtSbZkiuX2MM8bcg2ggvWJkGSvP7wngBYIX7
+	 PBamS7vgJDNKH9Ow7Rtlc5/rlSwaJrHFm7eFxLaDJd1+Pqr1ewlnls4bFyfjDfja7M
+	 I7mLUSq70E5TRr/Q2LgIHhNFEBontNYk8ZwbfgmatCM7uDISnOjCYlWrBh5Ll2e4Hb
+	 iiFxN2WBX+Hlb3tOQpG03cL9omuyMQEGIqOLOYvVfS1Q0KF6rf2RYuJOQ6YzPaMYBR
+	 pweEBFDJPXsSQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -35,13 +35,14 @@ Cc: Heiko Carstens <hca@linux.ibm.com>,
 	Sasha Levin <sashal@kernel.org>,
 	gor@linux.ibm.com,
 	justinstitt@google.com,
+	kees@kernel.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 08/17] s390/sclp: Fix sclp_init() cleanup on failure
-Date: Tue,  9 Jul 2024 12:24:52 -0400
-Message-ID: <20240709162517.32584-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 08/14] s390/sclp: Fix sclp_init() cleanup on failure
+Date: Tue,  9 Jul 2024 12:25:52 -0400
+Message-ID: <20240709162612.32988-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240709162517.32584-1-sashal@kernel.org>
-References: <20240709162517.32584-1-sashal@kernel.org>
+In-Reply-To: <20240709162612.32988-1-sashal@kernel.org>
+References: <20240709162612.32988-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,7 +51,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.15.162
+X-stable-base: Linux 5.10.221
 Content-Transfer-Encoding: 8bit
 
 From: Heiko Carstens <hca@linux.ibm.com>
@@ -91,10 +92,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/s390/char/sclp.c b/drivers/s390/char/sclp.c
-index 2cf7fe131ecec..0830ea42e7c80 100644
+index d2ab3f07c008c..8296e6bc229ee 100644
 --- a/drivers/s390/char/sclp.c
 +++ b/drivers/s390/char/sclp.c
-@@ -1292,6 +1292,7 @@ sclp_init(void)
+@@ -1208,6 +1208,7 @@ sclp_init(void)
  fail_unregister_reboot_notifier:
  	unregister_reboot_notifier(&sclp_reboot_notifier);
  fail_init_state_uninitialized:
