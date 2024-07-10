@@ -1,174 +1,133 @@
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85BE419581F
-	for <linux-s390@vger.kernel.org>; Wed, 10 Jul 2024 18:13:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61317194C9A;
+	Wed, 10 Jul 2024 18:39:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720635208; cv=none; b=RJS8TjeAtuwNfYS4kMlSBQ78hOLzkr7nZJ4oIYZ8ce2u+4ONLCGJWjz59rB4mp4v+NKvcuGjYmKHAd0rmtMq2it5SEKJfe2b1dNz8jYzc2n58+tZDms5LruAhqYNaP3IoTweUplIjVWxRtHIc3qL0/9wXpHszLaq+ajWr7dGDF4=
+	t=1720636772; cv=none; b=Yw5KaDb9b9VEmgBubPgxV+/o3TrrCKO2QzyolflUlO2YbQO803tCqUGBh4nmcNyRfier1iArscz7WW6AdcJ1a6skf6sZ067BIS0XPu77KhlRFUb/SXN+rLc1Dd5kx30E0dz5aODjopil+2bnPGosr0D8hr7TfJ57aYd2MM6pdRY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720635208; c=relaxed/simple;
-	bh=MowyvhNf6vGY6QkQdJz3UoNEMj0pRe3OT+CjdYCaGBU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZyJ6TKGjO+cCFptl+ytx4qmTeGq4XOEtFjpbxCz4aIVocQ4h6hUWZjuwH0UDGP/Olq4YR+An2crUT5WMwZrtR0UrTPNvQSIA6c6xfnP0KPAav/hXXRWylwqXOi/yTN+SaI6f/LD/gFwM8c2LKCgQeQME3qny3zLf85DByA4+414=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=FNWDD4pB; arc=none smtp.client-ip=209.85.208.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1720636772; c=relaxed/simple;
+	bh=izlLU66iX1BqXJn7AoTYzA7s3Q7/n/O2q7QEUtsGV7c=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=sHgvAIlrq6K1JK3K5G7DduF47TJ7BkWkBPmtOFjW1DSZXsehjOgQuXsp+jtzclvVQIJKsYChxMNs3GZZ20q+Yu4Ina3CBEu67F3BocIKgFWBI1Czi1tLuNrZo6Jhy2st8SRbbcYNSdqLrEuMLqKaa8A9RUxJXZD9ECGDzsSrxFw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=D4oh6IIA; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="FNWDD4pB"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-57ccd1111b0so14786a12.3
-        for <linux-s390@vger.kernel.org>; Wed, 10 Jul 2024 11:13:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1720635204; x=1721240004; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=F+jxUeQSFPMoGDRB/Tj2AzJBbVNk2aXSQNlmGiXjDjE=;
-        b=FNWDD4pB720QgbJL79wvXbdghkF7X0rdEXc2sZqKbYc/rLz6OTzgliepOiwJC2NJ49
-         jqoinvyuHoAtqENamYjsBmxu+N3KioPQMXIMuxMXlmfeM731tS+vCkLASyehDxtTTnIl
-         ncAIZwRwqcFAVsqyv9OjjAH85vtZSNAUTjBvY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720635204; x=1721240004;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=F+jxUeQSFPMoGDRB/Tj2AzJBbVNk2aXSQNlmGiXjDjE=;
-        b=OYbth4pcQYLQjyjHoImNjROTru83RIaJVrnLnv5aWfzR8aLByAp9VrLoISN8yXGUU8
-         yPSag/jJpXzAG//57VLAcbDijx2TrWiFazNXbOuBA9h/RYQz+3oqGrtf2njZlAbFf+ew
-         hOEKZft76BP6ty/9TTQz3+NZMx8H9CxEUd8WbB76whvje5T9O0hxoGYHPq0N05BrFw2S
-         9Do7bXpXFwPra7aR4mtoyNwHRr6XR+te0s7pn9kuSmaqBpgymAPdH1pgTIng8fWQ61Do
-         KHQLlySjXwAXHO/gY5+SY6UWWDvveb/JhmJ84HGN0BDneDWEbDrn+XzcOUBhwgh2H9F9
-         16yA==
-X-Forwarded-Encrypted: i=1; AJvYcCW5+dxWFCS0QPGZDOetsDQMl8H2shsG3pIRxDPrW9hNTWdNfGgC6AqHvROUTM02TPOfn3TjeTGYwR5jJg6/hIcAWUt6De/IuRYtoA==
-X-Gm-Message-State: AOJu0YwGKreDprGEZNuAhY6mXTHRalghmnA+pQup67KGNyP3WQqor8O/
-	KAl1UXqGWs7GxM7KnExsJ/HdFqzBRXQ7q1y4VqfrkBG9EkvwbvIyKRfi2fLe2QIzKbXS/LYzqOK
-	5JvyUuxM=
-X-Google-Smtp-Source: AGHT+IHYnR5ACPg2a04F1bvHqKtipAyoUtuQQnbKByjmjG3zdrsxaQ2B8y+0XLZPOHm7ojOH2zMjTg==
-X-Received: by 2002:aa7:d0d5:0:b0:58e:2f7c:a9c with SMTP id 4fb4d7f45d1cf-594bc7cab19mr4700066a12.26.1720635204596;
-        Wed, 10 Jul 2024 11:13:24 -0700 (PDT)
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com. [209.85.221.47])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-594b8d6cdffsm2494166a12.0.2024.07.10.11.13.22
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 10 Jul 2024 11:13:23 -0700 (PDT)
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-36798779d75so5764996f8f.3
-        for <linux-s390@vger.kernel.org>; Wed, 10 Jul 2024 11:13:22 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCVgvvr4Q+X19Kc/5Q1cjuqRZILuwkFfdFrgnQAhVnTM9b90aOyjxrc/ntQgj/OK2IExEmJDuTtYo/J1pTDWptNXNnqFfXwpvfxRhA==
-X-Received: by 2002:a05:6512:281d:b0:52c:cd77:fe03 with SMTP id
- 2adb3069b0e04-52eb9991dcfmr5848110e87.14.1720635181335; Wed, 10 Jul 2024
- 11:13:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="D4oh6IIA"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46AIRgNw002303;
+	Wed, 10 Jul 2024 18:39:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
+	bdhuDIEvgIfbkqtTBn515HRfwqJOQtzVzIZW5TuwZ4c=; b=D4oh6IIAvPxwnE3O
+	CduEpGPRe91ly19sMNx5Forw9kWBpPFHLQM9DfI9vx7dpyy5Z0G/rSFL0dcWa2p6
+	CdUWaffwcJuVSomr+jNufCT4UfvoBcM6rAh0yZwDMy6wpkJpdiBYFqjXioDM7d/u
+	Br8zrV4eB09D/ztWBCXmKRaroZMy3mLdf31nC1cS6mvSm6S0+zTFocupFVEnxtoD
+	I/Dv8fGVOHQmTvG9JTVGfY+a39zrjStvN/cGrRGAF9djYmrBm5miygGZOk62RU5J
+	FmEFxh7SfQObvxRHUh/hsATeJYhyzb+QQh7MVhBx1aJAhx94khj2G7dNs6gKQkWH
+	p5SP3A==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 409x9y0757-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 10 Jul 2024 18:39:13 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46AIdC79020724;
+	Wed, 10 Jul 2024 18:39:12 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 409x9y0753-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 10 Jul 2024 18:39:12 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46AFH09X024670;
+	Wed, 10 Jul 2024 18:39:11 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 407g8ud1gu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 10 Jul 2024 18:39:11 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46AId6Cn33882516
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 10 Jul 2024 18:39:08 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 580F52004D;
+	Wed, 10 Jul 2024 18:39:06 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ABBD32004F;
+	Wed, 10 Jul 2024 18:39:05 +0000 (GMT)
+Received: from darkmoore (unknown [9.179.4.238])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Wed, 10 Jul 2024 18:39:05 +0000 (GMT)
+Date: Wed, 10 Jul 2024 20:39:03 +0200
+From: Christoph Schlameuss <schlameuss@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah
+ Khan <shuah@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand
+ <david@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Subject: Re: [PATCH v1 2/9] selftests: kvm: s390: Add kvm_s390_sie_block
+ definition for userspace tests
+Message-ID: <20240710203903.397b9ce6.schlameuss@linux.ibm.com>
+In-Reply-To: <20240709174022.348db1a9@p-imbrenda.boeblingen.de.ibm.com>
+References: <20240709125704.61312-1-schlameuss@linux.ibm.com>
+	<20240709125704.61312-3-schlameuss@linux.ibm.com>
+	<20240709174022.348db1a9@p-imbrenda.boeblingen.de.ibm.com>
+Organization: IBM
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1720611677.git.mst@redhat.com> <3d655be73ce220f176b2c163839d83699f8faf43.1720611677.git.mst@redhat.com>
-In-Reply-To: <3d655be73ce220f176b2c163839d83699f8faf43.1720611677.git.mst@redhat.com>
-From: Daniel Verkamp <dverkamp@chromium.org>
-Date: Wed, 10 Jul 2024 11:12:34 -0700
-X-Gmail-Original-Message-ID: <CABVzXAnjAdQqVNtir_8SYc+2dPC-weFRxXNMBLRcmFsY8NxBhQ@mail.gmail.com>
-Message-ID: <CABVzXAnjAdQqVNtir_8SYc+2dPC-weFRxXNMBLRcmFsY8NxBhQ@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] virtio: fix vq # for balloon
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, 
-	Alexander Duyck <alexander.h.duyck@linux.intel.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, 
-	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-	Johannes Berg <johannes@sipsolutions.net>, Bjorn Andersson <andersson@kernel.org>, 
-	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
-	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Jason Wang <jasowang@redhat.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	linux-um@lists.infradead.org, linux-remoteproc@vger.kernel.org, 
-	linux-s390@vger.kernel.org, virtualization@lists.linux.dev, 
-	kvm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: d7w_VOWo1eMIlDl-SOAELgaQzweabHnh
+X-Proofpoint-GUID: Xgv5iM7FjMlovi5c82-AHC1RHkPmDhJc
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-07-10_13,2024-07-10_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ lowpriorityscore=0 adultscore=0 suspectscore=0 bulkscore=0 mlxlogscore=800
+ impostorscore=0 phishscore=0 clxscore=1015 malwarescore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2406140001
+ definitions=main-2407100129
 
-On Wed, Jul 10, 2024 at 4:43=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> virtio balloon communicates to the core that in some
-> configurations vq #s are non-contiguous by setting name
-> pointer to NULL.
->
-> Unfortunately, core then turned around and just made them
-> contiguous again. Result is that driver is out of spec.
+On Tue, 9 Jul 2024 17:40:22 +0200
+Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
 
-Thanks for fixing this - I think the overall approach of the patch looks go=
-od.
+> On Tue,  9 Jul 2024 14:56:57 +0200
+> Christoph Schlameuss <schlameuss@linux.ibm.com> wrote:
+> 
+> > Subsequent tests do require direct manipulation of the SIE instruction.
+> > This commit introduces the SIE definition for the selftests.
+> > 
+> > There are already definitions of this within the kernel.
+> > This differs in two ways.
+> > * This is the first definition of this in userspace.
+> > * This does not require atomicity for the flags.  
+> 
+> you say this here,
+> 
+> [...]
+> 
+> > +#define PROG_BLOCK_SIE	BIT(0)
+> > +#define PROG_REQUEST	BIT(1)
+> > +	atomic_t prog20;		/* 0x0020 */  
+> 
+> but then you define this as atomic.
+> 
+> Is this a mistake, or is there a good reason?
+> 
+> [...]
 
-> Implement what the API was supposed to do
-> in the 1st place. Compatibility with buggy hypervisors
-> is handled inside virtio-balloon, which is the only driver
-> making use of this facility, so far.
+Yes, this was an oversight. Will correct that to __u32 in the next version.
 
-In addition to virtio-balloon, I believe the same problem also affects
-the virtio-fs device, since queue 1 is only supposed to be present if
-VIRTIO_FS_F_NOTIFICATION is negotiated, and the request queues are
-meant to be queue indexes 2 and up. From a look at the Linux driver
-(virtio_fs.c), it appears like it never acks VIRTIO_FS_F_NOTIFICATION
-and assumes that request queues start at index 1 rather than 2, which
-looks out of spec to me, but the current device implementations (that
-I am aware of, anyway) are also broken in the same way, so it ends up
-working today. Queue numbering in a spec-compliant device and the
-current Linux driver would mismatch; what the driver considers to be
-the first request queue (index 1) would be ignored by the device since
-queue index 1 has no function if F_NOTIFICATION isn't negotiated.
-
-[...]
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_p=
-ci_common.c
-> index 7d82facafd75..fa606e7321ad 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -293,7 +293,7 @@ static int vp_find_vqs_msix(struct virtio_device *vde=
-v, unsigned int nvqs,
->         struct virtio_pci_device *vp_dev =3D to_vp_device(vdev);
->         struct virtqueue_info *vqi;
->         u16 msix_vec;
-> -       int i, err, nvectors, allocated_vectors, queue_idx =3D 0;
-> +       int i, err, nvectors, allocated_vectors;
->
->         vp_dev->vqs =3D kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
->         if (!vp_dev->vqs)
-> @@ -332,7 +332,7 @@ static int vp_find_vqs_msix(struct virtio_device *vde=
-v, unsigned int nvqs,
->                         msix_vec =3D allocated_vectors++;
->                 else
->                         msix_vec =3D VP_MSIX_VQ_VECTOR;
-> -               vqs[i] =3D vp_setup_vq(vdev, queue_idx++, vqi->callback,
-> +               vqs[i] =3D vp_setup_vq(vdev, i, vqi->callback,
->                                      vqi->name, vqi->ctx, msix_vec);
->                 if (IS_ERR(vqs[i])) {
->                         err =3D PTR_ERR(vqs[i]);
-> @@ -368,7 +368,7 @@ static int vp_find_vqs_intx(struct virtio_device *vde=
-v, unsigned int nvqs,
->                             struct virtqueue_info vqs_info[])
->  {
->         struct virtio_pci_device *vp_dev =3D to_vp_device(vdev);
-> -       int i, err, queue_idx =3D 0;
-> +       int i, err;
->
->         vp_dev->vqs =3D kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
->         if (!vp_dev->vqs)
-> @@ -388,8 +388,13 @@ static int vp_find_vqs_intx(struct virtio_device *vd=
-ev, unsigned int nvqs,
->                         vqs[i] =3D NULL;
->                         continue;
->                 }
-> +<<<<<<< HEAD
->                 vqs[i] =3D vp_setup_vq(vdev, queue_idx++, vqi->callback,
->                                      vqi->name, vqi->ctx,
-> +=3D=3D=3D=3D=3D=3D=3D
-> +               vqs[i] =3D vp_setup_vq(vdev, i, callbacks[i], names[i],
-> +                                    ctx ? ctx[i] : false,
-> +>>>>>>> f814759f80b7... virtio: fix vq # for balloon
-
-This still has merge markers in it.
-
-Thanks,
--- Daniel
+Christoph
