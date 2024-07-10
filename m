@@ -1,64 +1,64 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 844D0196C86
-	for <linux-s390@vger.kernel.org>; Wed, 10 Jul 2024 18:39:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19B48196438
+	for <linux-s390@vger.kernel.org>; Wed, 10 Jul 2024 18:40:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720636779; cv=none; b=LBiWjWHf+HFtnn9bZTBTdhATjxpE2pjzaWDSj1Lb68c6Y++iEoxX3MP+z1RbizTcrG2D48W9pCJYb1smfCVukWHV80RN+IahqPzmRzRhB2c3GKrvQFukyBbVl+Yg7uLa7pE1JdH2ZpRRn+GmeMpoEp4sv6fEUFmInRel5lYkDH8=
+	t=1720636835; cv=none; b=cJFgh7sk7m/JQuNSgA+I4zRaEhpqB/TXGoicMIUKVWP7CscNiTjysUmOm8uQKWFwTEuaCvXjpQdaxplZuoN178vIQtnKzM4Yk464Rol8EC0qKYzPYu3wuEEM3sh8XDgIrb890GKiVihqHd6e5rW3Wm5bQ3e4NsScTElZMW7JTc0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720636779; c=relaxed/simple;
-	bh=jl/G74jU3/LJKTndyg9Ir8ZK6ZCpRMd0UXIwTJV5u7k=;
+	s=arc-20240116; t=1720636835; c=relaxed/simple;
+	bh=cpmhhhVhRKvhrC/g+4t7qnyh17qX5WLx6FJHCFwK3Ho=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mJ7zdmv99NQ1bDl7tlkVka9crBQKJRsHqDsNU9BZVX9ykXTvFb4O4c60be9Aj5K0ABdaThVMsxup41TxpvRapu8ad1UdyRF6YohQKOqyWlyJuCzylf5ZJDlI3Y5xPN1R3xt6ORbXwYNwzN25jcUFrnR5esRdB3/84umCie8Wxwo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FlNJV09o; arc=none smtp.client-ip=170.10.129.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=Qmcdk0g/Wtarlk79BFA6WJNxyFsi5khIprpmUuDBcqXBj+fxkKLbHXO612ySFKQ5YfDJDYa/hbmY1O2TwDjvIVfmq5opRcOye7yaiFWclEaYbt6jf1p8bnqXB8J8cMexLyOpktJSLQyDKuhaRfItLvchqZEWaC0rARu3fBpXF1Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S1dqXGcF; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FlNJV09o"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S1dqXGcF"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720636775;
+	s=mimecast20190719; t=1720636833;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=4Wa91XRdvflqoUl4ERsLfqpwV8EWmy2Wo2L5wqHiP4U=;
-	b=FlNJV09o7oEB3u2chwRYHwojVqIaoUy3LhTKPo61VCgLt9tGEMM3HgtwLg2o4jIxQU4YJ7
-	fc+G3JEap7m7KRJ0zW2z68Ms1RTPkGEd7B+m9/giAgERJ7XeBqL7RJaWGN4NP3Y/EnoWFJ
-	9Z64TXYZuSvJDZdfya3Co0cI4wXjy94=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=nOMGW3S5XfF0umS0MhtMBuBfpR4wOzwlUDWp6i5Agkc=;
+	b=S1dqXGcFrNUAc3Loe3JEl4k1Y7vyhY+UPN5ie4FoitohonKgL6YXgnFKwzp6Os94xzzylb
+	HP4+CpXT9uB5jd7RJLTfjsTKmbI7SU6Xjtqi74OhxO3Xb2cmaweJTCF67GrT7QFKmraVNO
+	W2dtrjlb3uqKNFabQsPRJ0o6vBvppM0=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-263-Us5BLqQCOvu4n5NIa6rEfQ-1; Wed, 10 Jul 2024 14:39:34 -0400
-X-MC-Unique: Us5BLqQCOvu4n5NIa6rEfQ-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-426620721c2so438955e9.2
-        for <linux-s390@vger.kernel.org>; Wed, 10 Jul 2024 11:39:33 -0700 (PDT)
+ us-mta-113-CsWcrT0aM4K_fyT5FC5iFg-1; Wed, 10 Jul 2024 14:40:31 -0400
+X-MC-Unique: CsWcrT0aM4K_fyT5FC5iFg-1
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-42674318a4eso657175e9.1
+        for <linux-s390@vger.kernel.org>; Wed, 10 Jul 2024 11:40:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720636773; x=1721241573;
+        d=1e100.net; s=20230601; t=1720636830; x=1721241630;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4Wa91XRdvflqoUl4ERsLfqpwV8EWmy2Wo2L5wqHiP4U=;
-        b=p6YD0F7FfTY2KRQL4fnv0AyqpF2QRUKOu022yQcOsbYV/vE8QjywkuNbkoQ1zheM7X
-         ZUMdzjWqHnPrH7STYd/JMlMvkn4BstWwgJXiCM7v5k0rOfym5dKOEO7YBQDx2YUkSMaF
-         /krYWuSfmyNO928L3jJmyfSScZP1207VtZRt9Kz4g1N6KRwQI/1OuHE8gDBK57COwqqV
-         ox2OZvGtJ4mQUO+z6CTekZOwog5AAxNMcglkF0sQtdoUxyPEGB+cgXoPC2Bf2Oo1JDe7
-         q25+4QOf8ffyxHPf+B006Vo04/kCEJZ+/EjYN2MVnC3Y2AMWXlwuI/w/ve29IEsV/zCA
-         bt8w==
-X-Forwarded-Encrypted: i=1; AJvYcCXmjOfHoWBXomeSqluk20Ih6FDAstUWVldeZFvby9bPfAGrbkEE12g3FWXq6tvFNxaHdlCW0KfxsjA9tT7bhOk7Gl/lE+8+LV1/iw==
-X-Gm-Message-State: AOJu0Yyh31lQKawtBROAdZKQZQghJ43Y/vkIacenB3vG87SEQtVT89Ma
-	QK1jujTwOYwrnhASU7qJfOkV42xj4MFYfRfP9pGGpLRKIvG/DetTNXAg8TOzcZJttsFxDwXnFjb
-	ioFR0zVl+/zrLpqnnY3dvYggbLxW6nFABeBybtcAti1sp/YuAgmqogwtZGSA=
-X-Received: by 2002:a7b:c458:0:b0:426:64f5:b10d with SMTP id 5b1f17b1804b1-426707db59bmr38554235e9.14.1720636773023;
-        Wed, 10 Jul 2024 11:39:33 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG74ZhHPUOEWOdKZQANHlo67lTxvcQgP6YunxBETGdCT6l5hx3iAl/9nDeoE0ZV+lKH4kLIVQ==
-X-Received: by 2002:a7b:c458:0:b0:426:64f5:b10d with SMTP id 5b1f17b1804b1-426707db59bmr38553905e9.14.1720636772416;
-        Wed, 10 Jul 2024 11:39:32 -0700 (PDT)
+        bh=nOMGW3S5XfF0umS0MhtMBuBfpR4wOzwlUDWp6i5Agkc=;
+        b=ZCnBAhV7BPKKVTTSaniAr5QlYTZLc43iwKfNsrjgE5f0ZrXGOQcE5a3X7QFyyB80hM
+         nxx+h0XhcoProLrCqYujj3/eZWi+5wJZPuPXheLXfWAYRUEp0mdBkTAjM7yRUrgk2BcP
+         qwQYhE3fdnasAOiJljRd+OKCd94mrqgPcGuagkLJqHl13wKYjcsgu6qEz4jnhKYyrPFh
+         aS2RJQh5z53ZFcxBCkYNzNKdKTnt+9VSjoALP1EtiqoGr+jBEOXBuqqAfh7tLwsc18Xq
+         CnZU4hO0qqhSfbYQ8eIHqt1WrUtoVfrHpLr1BXO0d5lIroErvsH2exB1lYanjog0YSRP
+         aSDA==
+X-Forwarded-Encrypted: i=1; AJvYcCUS5aj31qFGljciMZDstOWBeXdgqck7XwZEHdYxjqAqQ67Cua9x3iGW2CgXoWy7TBzqJcxrFJJ3EzAEUSGeKPIXQY5THbwpyH2xRQ==
+X-Gm-Message-State: AOJu0YyBqVFO9YrxZd1qMVbZIsvKZPk/Os7jwJcE90ytuqUXZy7LGeU2
+	vrxwqHKsUbnbuQNrGl6LiD/ZAaLV9gpbW0bM3ipBHuTGZlq3h5RaY4vQN0k0onYU32YgzCu3xps
+	+25qJRDrohgeFz3Wgzih8FsHFWRFG26ZwrNN2RnGbwN32zT29ig6HOdqx3h4=
+X-Received: by 2002:a1c:4b0e:0:b0:426:5b76:13bd with SMTP id 5b1f17b1804b1-426708f2127mr51924345e9.38.1720636830434;
+        Wed, 10 Jul 2024 11:40:30 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHW6BXHt7TvysChZRc5l+/HKuwpL6Ky9xwFKNWqpa0ClAMfEvn97X0Cu0s4c3ufKnu0Y+84KA==
+X-Received: by 2002:a1c:4b0e:0:b0:426:5b76:13bd with SMTP id 5b1f17b1804b1-426708f2127mr51924105e9.38.1720636829731;
+        Wed, 10 Jul 2024 11:40:29 -0700 (PDT)
 Received: from redhat.com ([2a02:14f:174:f6ae:a6e3:8cbc:2cbd:b8ff])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-427270238a6sm57772915e9.20.2024.07.10.11.39.28
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-367cde7e039sm5973934f8f.2.2024.07.10.11.40.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jul 2024 11:39:31 -0700 (PDT)
-Date: Wed, 10 Jul 2024 14:39:26 -0400
+        Wed, 10 Jul 2024 11:40:29 -0700 (PDT)
+Date: Wed, 10 Jul 2024 14:40:24 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Daniel Verkamp <dverkamp@chromium.org>
 Cc: linux-kernel@vger.kernel.org,
@@ -85,7 +85,7 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
 	kvm@vger.kernel.org
 Subject: Re: [PATCH v2 2/2] virtio: fix vq # for balloon
-Message-ID: <20240710142239-mutt-send-email-mst@kernel.org>
+Message-ID: <20240710144012-mutt-send-email-mst@kernel.org>
 References: <cover.1720611677.git.mst@redhat.com>
  <3d655be73ce220f176b2c163839d83699f8faf43.1720611677.git.mst@redhat.com>
  <CABVzXAnjAdQqVNtir_8SYc+2dPC-weFRxXNMBLRcmFsY8NxBhQ@mail.gmail.com>
@@ -129,22 +129,7 @@ On Wed, Jul 10, 2024 at 11:12:34AM -0700, Daniel Verkamp wrote:
 > current Linux driver would mismatch; what the driver considers to be
 > the first request queue (index 1) would be ignored by the device since
 > queue index 1 has no function if F_NOTIFICATION isn't negotiated.
-
-
-Oh, thanks a lot for pointing this out!
-
-I see so this patch is no good as is, we need to add a workaround for
-virtio-fs first.
-
-QEMU workaround is simple - just add an extra queue. But I did not
-reasearch how this would interact with vhost-user.
-
-From driver POV, I guess we could just ignore queue # 1 - would that be
-ok or does it have performance implications?
-Or do what I did for balloon here: try with spec compliant #s first,
-if that fails then assume it's the spec issue and shift by 1.
-
-
+> 
 > [...]
 > > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
 > > index 7d82facafd75..fa606e7321ad 100644
@@ -193,4 +178,6 @@ if that fails then assume it's the spec issue and shift by 1.
 > 
 > Thanks,
 > -- Daniel
+
+ouch forgot to commit ;)
 
