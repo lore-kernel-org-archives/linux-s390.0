@@ -1,165 +1,108 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5917128683
-	for <linux-s390@vger.kernel.org>; Wed, 10 Jul 2024 03:11:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8C3317756
+	for <linux-s390@vger.kernel.org>; Wed, 10 Jul 2024 03:25:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720581112; cv=none; b=Bkf2sEjkDAjAgbmmdCLmZVamep01/Is/79ApKfMWIxRS0t3MzU4gytM0vQk7/RabU9/pSjn33U0sMfwEttDGrFb1FG2N9CNuQmRB8We5mOK40Y95GLiovn7Bwcut/Pyfn+444g/33ha04Ani5+ibpdeooaVkshr6C2rb3q/f3zA=
+	t=1720581933; cv=none; b=ZNgBr3zxsi73uL2GQhlaI8vOisSkMNp5W/GJTNHv80DN7/+oeKpcBdLh5gIx1u9Sk8Fm0REI8eUGkjwUfFPSg+CcNK9tOrNFR/Zq5slNcYGq2pBgpchVhkyF10qw9jx9jxtpB2A6jfRtFr2XWJNmO7ZR8ERSDgMGVp9sJG1qZbg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720581112; c=relaxed/simple;
-	bh=3NOnxPeqz46/sAvEE83H7u7j2ktfneTnXDn1vhrcZa8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QdQn3TM/QpwV3YjXplD30UohZuloF5DmtNBiohtaqP2T6Fb39eu+G/gmCSHiaKSPP8+uw43EUuRBPTAjWioQxos/hOaQ4UpOkAuF1/Zhc9sVpFhsDTTl/krSAnbH1c46myNxIUG+hmzZtGtZIoUEfrV6FhEYX8vUJ19UczOwn/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=R8gnV59V; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1720581933; c=relaxed/simple;
+	bh=9sbwGihOLkbKRAKocXOlId4hhNDwPbs0zE0X3aDWblY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=gDxdVd+A44PqbUTFm5uXwId8MO+QGCYPOJOUvKp1SAqy4eUUWY+LuZ81ay3HcPA6q2wYLQL61Q194Vi+6GyYBxRFw/4kdyuSRnLYMS5407Joj81J1fxdw8zplIDQiMaJfU+gnkzsjXgLoTi5hKS/amwRZMHv2IFRyewDhK2oEOk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J9+gW/ky; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R8gnV59V"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J9+gW/ky"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720581110;
+	s=mimecast20190719; t=1720581929;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=vCNOA7gvvgVnC+LVcxVufvda3OPPudA6Qls0CypVWcA=;
-	b=R8gnV59VrEHazHP3d4k9UkBPGbDJY+TzsVz+mcVW8IImu3OPtlYKreOhpNQo6FSnf2bbSM
-	ePOWYZSi5MRZnT1jzdllKxzgSiZr+A8zYuWQjMmxmWm0jqfLiJnP7rZ5cHM9Aor/+d0MuM
-	Z4xRf88K7WAfJzUGVhxun+XO4DE2mF0=
-Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
- [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references;
+	bh=9sbwGihOLkbKRAKocXOlId4hhNDwPbs0zE0X3aDWblY=;
+	b=J9+gW/kyku5xY2J5dOvBApjGnq5sERW/z81ud9o6asJToE1L8TmPbeJ0ioCAj4/oEOdgQF
+	b8M6MKImF1v6S15mJ+SiP1tCeYxwRE9HAdOJsttPSRdCaqbFsQUpXjdTwHDt+vdBe+L4+d
+	/VIKsfoOgvCfTiHB5URXENTNWVaI8/8=
+Received: from mail-il1-f197.google.com (mail-il1-f197.google.com
+ [209.85.166.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-526-nl-MhJlzNTiHyQin1CGAbQ-1; Tue, 09 Jul 2024 23:11:48 -0400
-X-MC-Unique: nl-MhJlzNTiHyQin1CGAbQ-1
-Received: by mail-pf1-f199.google.com with SMTP id d2e1a72fcca58-70afa26ec21so4887638b3a.2
-        for <linux-s390@vger.kernel.org>; Tue, 09 Jul 2024 20:11:48 -0700 (PDT)
+ us-mta-28-tVZ_HR5uONaVXT5WSbNNoQ-1; Tue, 09 Jul 2024 23:25:25 -0400
+X-MC-Unique: tVZ_HR5uONaVXT5WSbNNoQ-1
+Received: by mail-il1-f197.google.com with SMTP id e9e14a558f8ab-3835285561fso66184225ab.2
+        for <linux-s390@vger.kernel.org>; Tue, 09 Jul 2024 20:25:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720581107; x=1721185907;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=vCNOA7gvvgVnC+LVcxVufvda3OPPudA6Qls0CypVWcA=;
-        b=CtmumkeY92QOoxWXX3XQtDkL8Knz6BubfT47eLTdbARs/K2w4xcMEpkJE73AWa8Y3U
-         NDKF17Jv0rnSOVMsRq+c0I3h28kaQPoXS1iWc0Lyb9u7O3E+eUH5+teBxVu+uhHW5NZ9
-         Nyyimjq+rZZVh0FbvroIAauWPwBASlyYbbOH/KKf59nnflXeaEpZwAoclFBey3K25yxA
-         YegnKFxzWdDow6632zhicBgupL9jajC6cBgXNhDSlKktib+ZoTZ8pz6paT4sgtME7mOv
-         4IJBc1UG+eqPvL/JOPzTOcnnI1+XZQ7AS+AQ0+/KOb4XkRw7Avq6y8uaDGADUKM72NtX
-         WZTQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXstCfk85oBO40lWaXZJuQcF+sZetuixjlCVfZjZNGsKDC+lc/mPEB6S4q9nB7VzYSmvZfnr020zxw+rdb2IzGdFUELt/3Yj3sLYQ==
-X-Gm-Message-State: AOJu0Yz+gwq9Fa1v9GrfOyY6+WmWu5IuOtysekB6WXTDzP029SZOiLAz
-	NUtDUwSfH0jrk63z645t4ROJDkWrD7JvAxxgx2FW7OYnpPHrc3Iiqq/G9OQli+imtJPUXSj6ltK
-	Hlx2hA03MMwRjChyGx4Hoq4wSx2qdaEV6XGONs1pKbLf7jcnIdejIup4Olwo=
-X-Received: by 2002:a05:6a00:1949:b0:704:23dc:6473 with SMTP id d2e1a72fcca58-70b436166edmr5499425b3a.30.1720581107123;
-        Tue, 09 Jul 2024 20:11:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF8oI2aN4+ak8c3jDP61GEReq16JAGEtkM86sB98aWAD5Ov3rnJ9XEgn6CuTL8JfIJu3pFWLg==
-X-Received: by 2002:a05:6a00:1949:b0:704:23dc:6473 with SMTP id d2e1a72fcca58-70b436166edmr5499408b3a.30.1720581106688;
-        Tue, 09 Jul 2024 20:11:46 -0700 (PDT)
-Received: from [172.20.2.228] ([4.28.11.157])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-70b439b9afbsm2586937b3a.191.2024.07.09.20.11.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Jul 2024 20:11:46 -0700 (PDT)
-Message-ID: <d5fb2840-aff0-4f7a-a7ac-dcee155ddca2@redhat.com>
-Date: Wed, 10 Jul 2024 05:11:43 +0200
+        d=1e100.net; s=20230601; t=1720581924; x=1721186724;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9sbwGihOLkbKRAKocXOlId4hhNDwPbs0zE0X3aDWblY=;
+        b=uLJoLUru5aigebaE/xP3+oqwB2wBcr5GXODW5jUTxYnUPGgy5/7lBAEgs2syBlpqKp
+         rBuSBKCg5fMWS61GCdBRZXX0OT0WbhxnVRg58YxMCsWNhhVYFtdVwJwKOAxxpMbg+8H1
+         4n6P/O6L0rOzuWGyqITVihbvQERenbr/jTklxnb5JZK1slWoO+3xdeARYxNemqRmPstU
+         TKvCVtmdcdZg5Q7i7K2Dv/jmElS9J6aHtwgbTSfsVkPEVhdvoqs7fLjAi2WfIAAT3JoE
+         3Gf+cjWuewI/yPuRQSK0GBPKNMrW9VNYlat2mepFEIpkTkjehsmeyWPQy5ES1kY05g2D
+         A4WQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXkVTQUCWzQcqENKJSPiJR5ZqCctIwvTEqnRDV5KIAfA/Y9mUh127Cal8b5PrEpNCghrg6Nfn5rGO22/a8v2yjCBk4hZdMbnuB1HQ==
+X-Gm-Message-State: AOJu0Yxi0b+bXyQt0RlvG7fsSeTeDpwqUqlXRJ1M00M6+cB7HA23fY2T
+	23mLPsYDeylnJ2SGnP21AOXFGJWiBO0z5UvGAwBrnmWlryec/uJUVUrmsZDzhKVfylhRjih3ODV
+	1K3I0aRchxFyw1UwpeST6dcfZ2O+ai5jb8NKJYo3UeKT+Mhq5BN/k/fMD+Ka7UgurMzqbbmBvmx
+	Q5ufIUZQKvNsW4sQBNg7Izom40KZqoTMP92w==
+X-Received: by 2002:a05:6e02:170b:b0:382:b436:ecbb with SMTP id e9e14a558f8ab-38a57bcd755mr44254565ab.11.1720581923955;
+        Tue, 09 Jul 2024 20:25:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEW8tp760Eusr7cpOewOOzt8KywljVE5imblpi4EA9nOMhtnhRxpdbKT5KwR6ZV/XXWj53jrT/VMHmkMmslXtc=
+X-Received: by 2002:a05:6e02:170b:b0:382:b436:ecbb with SMTP id
+ e9e14a558f8ab-38a57bcd755mr44254435ab.11.1720581923592; Tue, 09 Jul 2024
+ 20:25:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] virtio: fix vq # when vq skipped
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Jason Wang <jasowang@redhat.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- linux-um@lists.infradead.org, linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
- kvm@vger.kernel.org
-References: <cover.1720173841.git.mst@redhat.com>
- <1a5d7456542bcd1df8e397c93c48deacd244add5.1720173841.git.mst@redhat.com>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
+References: <cover.1720173841.git.mst@redhat.com> <1a5d7456542bcd1df8e397c93c48deacd244add5.1720173841.git.mst@redhat.com>
 In-Reply-To: <1a5d7456542bcd1df8e397c93c48deacd244add5.1720173841.git.mst@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 10 Jul 2024 11:25:10 +0800
+Message-ID: <CACGkMEsg0+vpav1Fo8JF1isq4Ef8t4_CFN1scyztDO8bXzRLBQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] virtio: fix vq # when vq skipped
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, 
+	Alexander Duyck <alexander.h.duyck@linux.intel.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, 
+	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+	Johannes Berg <johannes@sipsolutions.net>, Bjorn Andersson <andersson@kernel.org>, 
+	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
+	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	linux-um@lists.infradead.org, linux-remoteproc@vger.kernel.org, 
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev, 
+	kvm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 05.07.24 12:09, Michael S. Tsirkin wrote:
+On Fri, Jul 5, 2024 at 6:09=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
+wrote:
+>
 > virtio balloon communicates to the core that in some
 > configurations vq #s are non-contiguous by setting name
 > pointer to NULL.
-> 
+>
 > Unfortunately, core then turned around and just made them
 > contiguous again. Result is that driver is out of spec.
-> 
+>
 > Implement what the API was supposed to do
 > in the 1st place. Compatibility with buggy hypervisors
 > is handled inside virtio-balloon, which is the only driver
 > making use of this facility, so far.
-> 
+>
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 
--- 
-Cheers,
-
-David / dhildenb
+Thanks
 
