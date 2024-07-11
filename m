@@ -1,234 +1,205 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4A5977F0B
-	for <linux-s390@vger.kernel.org>; Wed, 10 Jul 2024 23:05:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34AED158DCA;
+	Thu, 11 Jul 2024 10:20:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720652733; cv=none; b=pyGEFws2EamM4iidn/MkwpBCSpYLzZ9UxwmMVT7mivNiAQCIH3d3M2l6/gFP+Q6ZYVV4VffyqJBu+zQfqjMlXVnGOXNTF4POQ2ehXuEsVPCweUGLlc2SfGxOsHY+daq5UTUhfI1o5qQ8d2g5LUfyS4B9Zf4i659JLrOI8Hc8go0=
+	t=1720693238; cv=none; b=dgJQfQG+bmN4Bo9xoYcv00Fch9zvUgEFDWoklgz860F7En1aeg7OK2GYCWkR3dPtdSUnJ2uTWTmMFoM7bM38yeBo+6hMGOuc+XGCFOYfPkTSpIuE5ol/RYA/m8exf6SHsiEJuZ5Q8UqXy9vjWrk7b9eFr4HmaWBO4AY5pNMARU0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720652733; c=relaxed/simple;
-	bh=dHyQFmMz5lxrpJK4rm2aTZY4iDQooBZuodwjk+/rx7A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=J7pERN4dkmL4AOlzBTlm7MrLtN7A+kGmHrcr78fMQ7Zd0C888NG7JMVCFogsQ77YvxADVSA56TilcNxD3dOUVbywkcsdXYH78GhvX3o8XobLkM2iNnwl+mdCWHY/69xOhmOf9iy5qBrFITkAokKQF7UMLVKq96HNfHFkoefKLMA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DwVM0d4b; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1720693238; c=relaxed/simple;
+	bh=F3aR+zAqkDzpqd0PuT4ZrnZAaFGIhSJ4jLLyQ3QU5fk=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=t4fFpY1AIh8Ps5mhuxchVAJb2fILLJo2EmfhV1ZEGIE9PRq8tMF1xsVOVI+/x181RPwmN+EK1i2YWfwIhliTqnzUCg+Y95h7zWZQWoiXLsEScY0IA/KZkeEdLSc/9Ls5kizH1hBjgKfOG+Q9MZo8pn75EMixexNLr2XrkrWXDqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=acXlhVV6; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DwVM0d4b"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720652728;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=pocGWFShxQ+GSWj0tkDTAgxmCbZcO+UfiqU5SyA0Efs=;
-	b=DwVM0d4b6Y12iVLuUEVLL0Atdz5CK7jrTtCR8n+aO0+L9PhX9nL6gDJPYIPWLHuzn/YTzg
-	wQzospDOwRVaSnfsbaoEQwWwi6xRA9LpMoAcsP8Grtc+6w4l/Qth6fhnPvggOSiUEq1Oe2
-	OGGq2XkTc1mIhMdW41lEMroF59V0QB0=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-684-JJll1iHMMLSOI3G67535lw-1; Wed, 10 Jul 2024 19:05:27 -0400
-X-MC-Unique: JJll1iHMMLSOI3G67535lw-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-367960f4673so698698f8f.1
-        for <linux-s390@vger.kernel.org>; Wed, 10 Jul 2024 16:05:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720652726; x=1721257526;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=pocGWFShxQ+GSWj0tkDTAgxmCbZcO+UfiqU5SyA0Efs=;
-        b=PZrinAhrTA3ESjOeDd0t1U0ZHTOg0vKnuoqzdIWaFC7PctWzXkBzEdshRosuQ/JOlt
-         tvVIjEj1I5LKfBWsnUZwevLDwH5hXHRIVG6sh1eQTgGtl3yLvgFV5Z30Zw+dG34v8hHY
-         yfWLHk/cIhNe30qjvf4nUK7RnKwDFmDTEIsiM/Bi2TNEYCgJYm71fzKwm6NhKAXMpmjI
-         zt+J4WN6CPNurh7r/StVaKCqLWkLLIVP4aI3VJ4Z5YuGGj/ussfBt8dsRpZXL6745sxt
-         Qu+S+ucaOaj0tCRLSHToGDOZR4nceE7v81jjkYWQMzy3YOCeKxNrn/UnjM+zYmNMsDDs
-         BX4w==
-X-Forwarded-Encrypted: i=1; AJvYcCWlFgXymIRwPYB7PUNomhSElKjNE+lO82y7xv68cDqcWmFEygaZojwn4uPtFLanpnglISFQBcRo2bu4S+WF7yhWk1OJGN6HnPvpdg==
-X-Gm-Message-State: AOJu0Yyx66UjIUyZLv2fXHBv5RlRXuivCfEdfNQquRFTI10J8K18JLix
-	mZLsqUA+VFHA/jRbs4+HxmBTJBy9dbGul+BwolzthVgATcwdwHeXtmDLFoieRNEyUwyDn335VSU
-	VkZEB0WQkd5PJxlxs9i9HZvGh1VfbP8RLySDyLm/PD6GdbYpaDypy0rLoG6s=
-X-Received: by 2002:a5d:674d:0:b0:366:e9f7:4e73 with SMTP id ffacd0b85a97d-367f04c394fmr848912f8f.5.1720652726247;
-        Wed, 10 Jul 2024 16:05:26 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHfrrspXtlMpDRODV1gtZ6UbNGtoYk75D8SS60rLLEn4NhjjhpRqJHKf/56m95g7RzAi+V6jQ==
-X-Received: by 2002:a5d:674d:0:b0:366:e9f7:4e73 with SMTP id ffacd0b85a97d-367f04c394fmr848885f8f.5.1720652725448;
-        Wed, 10 Jul 2024 16:05:25 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:174:f6ae:a6e3:8cbc:2cbd:b8ff])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-367cde8904csm6208508f8f.49.2024.07.10.16.05.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jul 2024 16:05:24 -0700 (PDT)
-Date: Wed, 10 Jul 2024 19:05:20 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Daniel Verkamp <dverkamp@chromium.org>
-Cc: linux-kernel@vger.kernel.org,
-	Alexander Duyck <alexander.h.duyck@linux.intel.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	David Hildenbrand <david@redhat.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	linux-um@lists.infradead.org, linux-remoteproc@vger.kernel.org,
-	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] virtio: fix vq # for balloon
-Message-ID: <20240710190222-mutt-send-email-mst@kernel.org>
-References: <cover.1720611677.git.mst@redhat.com>
- <3d655be73ce220f176b2c163839d83699f8faf43.1720611677.git.mst@redhat.com>
- <CABVzXAnjAdQqVNtir_8SYc+2dPC-weFRxXNMBLRcmFsY8NxBhQ@mail.gmail.com>
- <20240710142239-mutt-send-email-mst@kernel.org>
- <CABVzXAmp_exefHygEGvznGS4gcPg47awyOpOchLPBsZgkAUznw@mail.gmail.com>
- <20240710162640-mutt-send-email-mst@kernel.org>
- <CABVzXA=W0C6NNNSYnjop67B=B3nA2MwAetkxM1vY3VggbBVsMg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="acXlhVV6"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46B9RZE5032683;
+	Thu, 11 Jul 2024 10:20:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
+	ljsrRvLatKM95w3PYrLldquJa+uyFCjvypOSO4Y79F0=; b=acXlhVV6KoAEHbAg
+	zfRZYtu7B8wR5XaSXUZyYhE5bdnUryVviauVXDRKA05OaasjahNv0a/OwsBxwBnk
+	iee+sB6VvqYHqIw9PwaNf4hCNsD1pY0PB/Al5lbXfM9aR8RCeM1oOhwdDNKm3Etl
+	ZRIwqyurbQB4B4S22U+yy3qlV+3/IIUL+rh/n/OtAZF8JjC/TJgx3KnSqz/5mA4J
+	BeeJOI0YPXlHvFuUqrMnIavtAQqORddnBkWwEsfN0xq0mJRUWYz3kcvTarJ9xDBn
+	nfqWAZf3jX7J0vyzTVhEb2CVkaRsvD4D2PYKWJeg9jLpOkVSTwiB2mYyZ/Qx0g3r
+	Hw4i4w==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40abwm874f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Jul 2024 10:20:22 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46BAKM7N016189;
+	Thu, 11 Jul 2024 10:20:22 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40abwm874a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Jul 2024 10:20:22 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46B72ZsP013920;
+	Thu, 11 Jul 2024 10:20:21 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 407gn10dvw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Jul 2024 10:20:21 +0000
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46BAKHgT48234996
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 11 Jul 2024 10:20:19 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8261A5805D;
+	Thu, 11 Jul 2024 10:20:17 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 15E8658059;
+	Thu, 11 Jul 2024 10:20:15 +0000 (GMT)
+Received: from [9.61.80.103] (unknown [9.61.80.103])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 11 Jul 2024 10:20:14 +0000 (GMT)
+Message-ID: <15f117b4a9e0481aaa6fd5848a58d16900a65679.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 4/4] vfio/pci: Enable PCI resource mmap() on s390 and
+ remove VFIO_PCI_MMAP
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: Bjorn Helgaas <helgaas@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Gerd
+ Bayer <gbayer@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Date: Thu, 11 Jul 2024 12:20:14 +0200
+In-Reply-To: <20240704101634.30b542a2.alex.williamson@redhat.com>
+References: <20240626-vfio_pci_mmap-v4-0-7f038870f022@linux.ibm.com>
+	 <20240626-vfio_pci_mmap-v4-4-7f038870f022@linux.ibm.com>
+	 <20240704101634.30b542a2.alex.williamson@redhat.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.52.3 (3.52.3-1.fc40) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: F6K5K9XJKonzOU57YGDueo5RsrojuhvP
+X-Proofpoint-ORIG-GUID: X4V1Si7hLJSvVjAY9lor1y1Utv51v5Ak
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CABVzXA=W0C6NNNSYnjop67B=B3nA2MwAetkxM1vY3VggbBVsMg@mail.gmail.com>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-07-11_06,2024-07-10_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxlogscore=676
+ lowpriorityscore=0 adultscore=0 malwarescore=0 mlxscore=0
+ priorityscore=1501 phishscore=0 impostorscore=0 clxscore=1011
+ suspectscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2407110069
 
-On Wed, Jul 10, 2024 at 03:54:22PM -0700, Daniel Verkamp wrote:
-> On Wed, Jul 10, 2024 at 1:39 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Wed, Jul 10, 2024 at 12:58:11PM -0700, Daniel Verkamp wrote:
-> > > On Wed, Jul 10, 2024 at 11:39 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >
-> > > > On Wed, Jul 10, 2024 at 11:12:34AM -0700, Daniel Verkamp wrote:
-> > > > > On Wed, Jul 10, 2024 at 4:43 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > >
-> > > > > > virtio balloon communicates to the core that in some
-> > > > > > configurations vq #s are non-contiguous by setting name
-> > > > > > pointer to NULL.
-> > > > > >
-> > > > > > Unfortunately, core then turned around and just made them
-> > > > > > contiguous again. Result is that driver is out of spec.
-> > > > >
-> > > > > Thanks for fixing this - I think the overall approach of the patch looks good.
-> > > > >
-> > > > > > Implement what the API was supposed to do
-> > > > > > in the 1st place. Compatibility with buggy hypervisors
-> > > > > > is handled inside virtio-balloon, which is the only driver
-> > > > > > making use of this facility, so far.
-> > > > >
-> > > > > In addition to virtio-balloon, I believe the same problem also affects
-> > > > > the virtio-fs device, since queue 1 is only supposed to be present if
-> > > > > VIRTIO_FS_F_NOTIFICATION is negotiated, and the request queues are
-> > > > > meant to be queue indexes 2 and up. From a look at the Linux driver
-> > > > > (virtio_fs.c), it appears like it never acks VIRTIO_FS_F_NOTIFICATION
-> > > > > and assumes that request queues start at index 1 rather than 2, which
-> > > > > looks out of spec to me, but the current device implementations (that
-> > > > > I am aware of, anyway) are also broken in the same way, so it ends up
-> > > > > working today. Queue numbering in a spec-compliant device and the
-> > > > > current Linux driver would mismatch; what the driver considers to be
-> > > > > the first request queue (index 1) would be ignored by the device since
-> > > > > queue index 1 has no function if F_NOTIFICATION isn't negotiated.
-> > > >
-> > > >
-> > > > Oh, thanks a lot for pointing this out!
-> > > >
-> > > > I see so this patch is no good as is, we need to add a workaround for
-> > > > virtio-fs first.
-> > > >
-> > > > QEMU workaround is simple - just add an extra queue. But I did not
-> > > > reasearch how this would interact with vhost-user.
-> > > >
-> > > > From driver POV, I guess we could just ignore queue # 1 - would that be
-> > > > ok or does it have performance implications?
-> > >
-> > > As a driver workaround for non-compliant devices, I think ignoring the
-> > > first request queue would be a reasonable approach if the device's
-> > > config advertises num_request_queues > 1. Unfortunately, both
-> > > virtiofsd and crosvm's virtio-fs device have hard-coded
-> > > num_request_queues =1, so this won't help with those existing devices.
-> >
-> > Do they care what the vq # is though?
-> > We could do some magic to translate VQ #s in qemu.
-> >
-> >
-> > > Maybe there are other devices that we would need to consider as well;
-> > > commit 529395d2ae64 ("virtio-fs: add multi-queue support") quotes
-> > > benchmarks that seem to be from a different virtio-fs implementation
-> > > that does support multiple request queues, so the workaround could
-> > > possibly be used there.
-> > >
-> > > > Or do what I did for balloon here: try with spec compliant #s first,
-> > > > if that fails then assume it's the spec issue and shift by 1.
-> > >
-> > > If there is a way to "guess and check" without breaking spec-compliant
-> > > devices, that sounds reasonable too; however, I'm not sure how this
-> > > would work out in practice: an existing non-compliant device may fail
-> > > to start if the driver tries to enable queue index 2 when it only
-> > > supports one request queue,
-> >
-> > You don't try to enable queue - driver starts by checking queue size.
-> > The way my patch works is that it assumes a non existing queue has
-> > size 0 if not available.
-> >
-> > This was actually a documented way to check for PCI and MMIO:
-> >         Read the virtqueue size from queue_size. This controls how big the virtqueue is (see 2.6 Virtqueues).
-> >         If this field is 0, the virtqueue does not exist.
-> > MMIO:
-> >         If the returned value is zero (0x0) the queue is not available.
-> >
-> > unfortunately not for CCW, but I guess CCW implementations outside
-> > of QEMU are uncommon enough that we can assume it's the same?
-> >
-> >
-> > To me the above is also a big hint that drivers are allowed to
-> > query size for queues that do not exist.
-> 
-> Ah, that makes total sense - detecting queue presence by non-zero
-> queue size sounds good to me, and it should work in the normal virtio
-> device case.
-> 
-> I am not sure about vhost-user, since there is no way for the
-> front-end to ask the back-end for a queue's size; the confusingly
-> named VHOST_USER_SET_VRING_NUM allows the front-end to configure the
-> size of a queue, but there's no corresponding GET message.
-
-So for vhost user I would assume it is non spec compliant
-and qemu remaps queue numbers?
-And can add a backend feature for supporting
-VHOST_USER_GET_VRING_NUM and with that, also
-require that backends are spec compliant?
-And again, qemu can remap queue numbers.
-
-
-
-> > > and a spec-compliant device would probably
-> > > balk if the driver tries to enable queue 1 but does not negotiate
-> > > VIRTIO_FS_F_NOTIFICATION. If there's a way to reset and retry the
-> > > whole virtio device initialization process if a device fails like
-> > > this, then maybe it's feasible. (Or can the driver tweak the virtqueue
-> > > configuration and try to set DRIVER_OK repeatedly until it works? It's
-> > > not clear to me if this is allowed by the spec, or what device
-> > > implementations actually do in practice in this scenario.)
-> > >
-> > > Thanks,
-> > > -- Daniel
-> >
-> > My patch starts with a spec compliant behaviour. If that fails,
-> > try non-compliant one as a fallback.
-> 
-> Got it, that sounds reasonable to me given the explanation above.
-> 
+On Thu, 2024-07-04 at 10:16 -0600, Alex Williamson wrote:
+> On Wed, 26 Jun 2024 13:15:51 +0200
+> Niklas Schnelle <schnelle@linux.ibm.com> wrote:
+>=20
+> > With the introduction of memory I/O (MIO) instructions enbaled in commit
+> > 71ba41c9b1d9 ("s390/pci: provide support for MIO instructions") s390
+> > gained support for direct user-space access to mapped PCI resources.
+> > Even without those however user-space can access mapped PCI resources
+> > via the s390 specific MMIO syscalls. Thus mmap() can and should be
+> > supported on all s390 systems with native PCI. Since VFIO_PCI_MMAP
+> > enablement for s390 would make it unconditionally true and thus
+> > pointless just remove it entirely.
+> >=20
+> > Link: https://lore.kernel.org/all/c5ba134a1d4f4465b5956027e6a4ea6f6beff=
+969.camel@linux.ibm.com/
+> > Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+> > Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> > Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > ---
+> >  drivers/vfio/pci/Kconfig         | 4 ----
+> >  drivers/vfio/pci/vfio_pci_core.c | 3 ---
+> >  2 files changed, 7 deletions(-)
+>=20
+> I think you're planning a v5 which drops patch 3/ of this series and
+> finesses the commit log of patch 2/ a bit.  This has become much less a
+> vfio series, so if you want to commit through s390,
+>=20
+> Acked-by: Alex Williamson <alex.williamson@redhat.com>
+>=20
 > Thanks,
-> -- Daniel
+> Alex
+>=20
 
+Thank you! Yes I will send a v5. I actually already pushed a changed
+version to my git.kernel.org branch but we're still discussing
+internally because pdev->non_compliant_bars respectively the resulting
+removal of the resources is interfering with future work on user-space
+vfio-pci use of the ISM device with a vfio-pci-ism variant driver.
+
+Thanks,
+Niklas
