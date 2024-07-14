@@ -1,48 +1,47 @@
 Received: from mail.envs.net (mail.envs.net [5.199.136.28])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BA894D11B;
-	Sun, 14 Jul 2024 08:58:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0E5945000;
+	Sun, 14 Jul 2024 09:06:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.199.136.28
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720947523; cv=none; b=gO/9fGCsGcHsJrVETSROqjrHINe0hxuoXttom8dNEvVQ1Ho5uYiMPyWgjUyybL3DWorROMfyTfLd2zNb0I3FWON1ZOiWtav/QPRM0TQ8KWMip76Jco51akqOn74uaMTbp3TcWjzR/PdOfjXVr/xO3HRy8o87liMH/4VwZ4z1vOk=
+	t=1720947967; cv=none; b=eRqefWMEcOTxbypA/f/FNaweMqIcOEziBVO6sJRZIJDZCXrwREsmg6GK0CAlTB/5FWNfKNfBV7MIfmNp4HNsHV68qrOPvZbxXZPbhyndbzMwNIe+bgj1L4iENvVftUgvJC/soPVjHgOo6BrjBv5T67jg1Qs7qPqNESkkNgnXrBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720947523; c=relaxed/simple;
-	bh=GZiZoI6e3JvsqnLrL5xGsh92gGaBzJaPJ2zt48adfWs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=C3EaWj4b2/pQsqymsV/BQ+tpDSBuAl2DXMua8pZZjR7TQtTyGgA1NXoCr1EJ7MYT6uU5anIJoW7uTTXShkaJAxxXpU25ld84zhY5aw45phVKJ9YeI7SlmKP5o6uGoVNEzAUbI8LykPt5yKwWVphwkwo2qiqCbW4yiHPnJlu4Gg4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=envs.net; spf=pass smtp.mailfrom=envs.net; dkim=pass (4096-bit key) header.d=envs.net header.i=@envs.net header.b=Yxeb2wDg; arc=none smtp.client-ip=5.199.136.28
+	s=arc-20240116; t=1720947967; c=relaxed/simple;
+	bh=JON8F2LhEpKeCfNUzxa5Cw3iz9OiKleIBXDTxpGM5Ds=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=M5RdjVmBlgF+uo1yzrSjIVpF2AfdBXSl019nQJrU/r9vF48TJ+YDSGUgknqXgkLp6YjpAGOABkaTGMKwaukKMGnk9AchFlh2arhGddR92bimGihUfevG53RAH3SIP5JHDcpwhmLXrQqzTk67PbapL39E9p1XSB2uCO29Bf6IhwU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=envs.net; spf=pass smtp.mailfrom=envs.net; dkim=pass (4096-bit key) header.d=envs.net header.i=@envs.net header.b=N9D5n6Gt; arc=none smtp.client-ip=5.199.136.28
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=envs.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=envs.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=envs.net header.i=@envs.net header.b="Yxeb2wDg"
+	dkim=pass (4096-bit key) header.d=envs.net header.i=@envs.net header.b="N9D5n6Gt"
 Received: from localhost (mail.envs.net [127.0.0.1])
-	by mail.envs.net (Postfix) with ESMTP id 5A89638A39A0;
-	Sun, 14 Jul 2024 08:58:38 +0000 (UTC)
+	by mail.envs.net (Postfix) with ESMTP id 58F5638A399D;
+	Sun, 14 Jul 2024 08:58:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=envs.net; s=modoboa;
-	t=1720947518; bh=3RXoGcCjW+CB+wVoqLryQrySRvbelditpYUk0T7yTSY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Yxeb2wDgejzOcVVnBnS/+WSj4hVrhCdfZp86xCr1uxSFHj3oyiRHXJuQZsPOdeFf+
-	 QwsdEM4lYdILp7QQ7+gF4JHJFlZzIkglpVaa9Jth2npuU3GtpUq5C/O8U8PqAK52Xg
-	 oEzKqdmTsD800zMMcQBsuxIcOHgJK67FM9gXEzAQJM3jOBb6rY8BYA9g5+OkIxMGDX
-	 QIv6XcJ6tM0UIt4M1wsqBEgdDPznCePITV6kytVXayXeYGtCChVBzad0OUig9I2LN+
-	 jffwEGwCw61rhGknsDSD4FlbN/fOpM27CaiWF5r0f5GsFGjkDUp7biL9Y44N1fMPoy
-	 3XBEIBpoWSzO4s6XjJDn11MfzinWfrAohQ2m+mplZK0y+MCyeTdCkYUd2rjLn1Z68k
-	 fgp04oFcNAj5XTLrDXxzE222ziQx3tel+Eevr1b2LfjSqZjqzfCutqejV6iG7kQIdv
-	 691slFWz8P/RStIunv7yIp2HQOHn89RZubeDi/LphxRFvKTJvJ29yEcfSsgQKH6vsv
-	 GPgvcZeAE2MByB8W8r0VKw5DJrKcZjAHQoDBUKKd3JVZrW+vMjLB1+y349YKr3jSkt
-	 LdAX4sLLK++K613ZmI/6yp8P+fYm2mLrjNSiIrMcpCKUdQWGevpzh6Iuqpxe87iRws
-	 CP0WcrxYs1ADXePPmP/CoQt8=
+	t=1720947486; bh=B10Vnlot+2ilvHh7OCvlmhyXD6mosKAEgX9C4cq3ecg=;
+	h=From:To:Cc:Subject:Date:From;
+	b=N9D5n6GtwH3qiq3p2Rzh9SVuJAnEifqgMQyqesEqh+rAcGqNpZ6q9N9b0nhJiPNlJ
+	 PEDPoE3u41YojQH+7XAMCQEKnXMRTlqFjGrhy6MJDDh2aIb+VtL1gSthA5kxqmyOyN
+	 3ZoeWdceL9TP/JWEe9pIZBQbUIv00JAlxRpCZNniJHRC6CQDRSr7ufL4DGpth/2sdO
+	 TEKPrwzRH4vqz3fxgS9PMoErT2yNwY5ghdNNkfH+s2/E9Uk/VRgScWp9ABq71z+so2
+	 asZZh8t+lH2mNxDjZjOJgF5i0V2/C8imuDXoi6qWCA5tKfNPRnRKJ7tg78BDgQd8M/
+	 kGYuUOGE1KHimjYZSAJ2kfC4vmYtdT4BCjGSETK1ZNOKD6d0/4t+OXI5E7U5cngxEF
+	 fvDsbR9PyEOBKuB5EcBlKliQEg/mzXJ+g3oKKZ5SdHREM3MBmSi3Tcs0B+iHVyHaxp
+	 YIH+agaGkHtPkDO8eVN50i7feX/ovB73Wfbf5dR347DlCZFkVn10UTktYSoa49yWIt
+	 cVyAS01Y4MLkyxd6ca04e5RNOuVjIWdecu3zBmhqmWWdmQrTb9HaJN6nTqhaw5V9/G
+	 uDtg+M5JyeT/e16lqkqdH0tT55WGB1DA5XlwzgFl7OSD/keHJq/okoE19Fl5pNpdhM
+	 7a75ulRRnKxBl8Q5K22HnnqU=
 X-Virus-Scanned: Debian amavisd-new at mail.envs.net
 Received: from mail.envs.net ([127.0.0.1])
 	by localhost (mail.envs.net [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id xu_dqvWydv6f; Sun, 14 Jul 2024 08:58:28 +0000 (UTC)
+	with ESMTP id fJoepO1z1VH4; Sun, 14 Jul 2024 08:57:55 +0000 (UTC)
 Received: from xtexx.eu.org (unknown [120.230.214.120])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
 	by mail.envs.net (Postfix) with ESMTPSA;
-	Sun, 14 Jul 2024 08:58:28 +0000 (UTC)
+	Sun, 14 Jul 2024 08:57:55 +0000 (UTC)
 From: Zhang Bingwu <xtex@envs.net>
 To: Russell King <linux@armlinux.org.uk>,
 	Catalin Marinas <catalin.marinas@arm.com>,
@@ -79,12 +78,10 @@ Cc: x86@kernel.org,
 	linux-riscv@lists.infradead.org,
 	linux-s390@vger.kernel.org,
 	sparclinux@vger.kernel.org
-Subject: [PATCH 2/2] kbuild: Create INSTALL_PATH directory if it does not exist
-Date: Sun, 14 Jul 2024 16:57:51 +0800
-Message-ID: <20240714085751.176357-3-xtex@envs.net>
+Subject: [RESEND PATCH 0/2] kbuild: Fix install errors when INSTALL_PATH does not exist
+Date: Sun, 14 Jul 2024 16:57:49 +0800
+Message-ID: <20240714085751.176357-1-xtex@envs.net>
 X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20240714085751.176357-1-xtex@envs.net>
-References: <20240714085751.176357-1-xtex@envs.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -95,29 +92,45 @@ Content-Transfer-Encoding: 8bit
 
 From: Zhang Bingwu <xtexchooser@duck.com>
 
-If INSTALL_PATH is not a valid directory, create it, like what
-modules_install and dtbs_install will do in the same situation.
+When running 'make zinstall INSTALL_PATH=somepath'
+ where 'somepath' does not exist, the install
+ scripts (install.sh) print error messages
+ but also return a success status code.
+This will make 'make' regard 'install' (and 'zinstall', etc)
+ succeeded.
+When there are also other targets at the same time,
+ for example, 'make zinstall dtbs_install modules_install',
+ make will keep going on and other outputs will fill stdout,
+ and make the error message hard to find.
 
-Signed-off-by: Zhang Bingwu <xtexchooser@duck.com>
----
- scripts/install.sh | 4 ++++
- 1 file changed, 4 insertions(+)
+dtbs_install and modules_install creates the target directory
+ if it does not exist. install, zinstall and others should
+ have the same behaviour.
 
-diff --git a/scripts/install.sh b/scripts/install.sh
-index 9bb0fb44f04a..02b845e7ab33 100755
---- a/scripts/install.sh
-+++ b/scripts/install.sh
-@@ -20,6 +20,10 @@ do
- 	fi
- done
- 
-+if [ "${INSTALL_PATH}" != "" ] && ! [ -e "${INSTALL_PATH}" ]; then
-+	mkdir -p "${INSTALL_PATH}"
-+fi
-+
- # User/arch may have a custom install script
- for file in "${HOME}/bin/${INSTALLKERNEL}"		\
- 	    "/sbin/${INSTALLKERNEL}"			\
+If INSTALL_PATH is not a valid directory, we should create it.
+If the installation process still fails with errors, for example,
+ insufficient space on disk or permission denied, make should regard
+ the install target failed, stop as soon as possible,
+ and exit with error.
+
+Zhang Bingwu (2):
+  kbuild: Abort make on install failures
+  kbuild: Create INSTALL_PATH directory if it does not exist
+
+ arch/arm/boot/install.sh   | 2 ++
+ arch/arm64/boot/install.sh | 2 ++
+ arch/m68k/install.sh       | 2 ++
+ arch/nios2/boot/install.sh | 2 ++
+ arch/parisc/install.sh     | 2 ++
+ arch/riscv/boot/install.sh | 2 ++
+ arch/s390/boot/install.sh  | 2 ++
+ arch/sparc/boot/install.sh | 2 ++
+ arch/x86/boot/install.sh   | 2 ++
+ scripts/install.sh         | 4 ++++
+ 10 files changed, 22 insertions(+)
+
+
+base-commit: d0f86d080e3d7d5e1e75a56d88daf8e5f56a4146
 -- 
 2.43.0
 
