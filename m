@@ -1,47 +1,69 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D923B10A2A;
-	Mon, 15 Jul 2024 15:58:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34C7846522
+	for <linux-s390@vger.kernel.org>; Mon, 15 Jul 2024 16:58:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721059138; cv=none; b=ECZ62uUv3I5EcE+5JL8OwKMTm1Wqzpjg+Gtm95ow6zJbHrQ5vsHhaIOtRSJcYGeEPfl0pgbX8Z7kXmUpoL+vdgBW6A/4x2bV/F81+AW4H+ZaJFfRUYfx2jVIu3OiVk1dMHkuJgoz+p5w/jaX4RZ9zeEm9XAk+aZYDWhtNYqQidU=
+	t=1721062684; cv=none; b=BQrw6glv/GTAEy+gQnLlxIdVn4HNisEQq73LdlPN0MhgI3K8TFVXAzvVT9z1EbofU5fB9SJ7Ta5NKkUEO1nKVPrnjsN8BbxXoXY041FlAK63ZLTNuxBcYGzVpTxX2o+jm/ovejmOzKA5I30nWyP4JyajVtQNYOVIe+ztZ/PzfCg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721059138; c=relaxed/simple;
-	bh=jIzimQ9VkGd9YQshTfh4/yRykZp77w+qy7nmHrbQ+40=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:To:CC; b=OfIy9sjA2n2D25TP1kRoOZFReJac7CVoTtbsHs7Ur8Gav85waZ3YxyJy2WbcVenSwYypg+UHpwkEZOqI12O+O719motA7wuZhm1kZcBUC0DFo5uu5taXbp7WULVP2p0yIyFIuvJSedUsQIIP/w6Bra30QfA1ch6+t14fgJP8nyg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=Z4fDa/bo; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1721062684; c=relaxed/simple;
+	bh=IxJz1HEy+JpE1vJBiifQpmCm2PJ240J6ITqDKSCG/L8=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=Pd28bGr20/D0bGIMEO7nXSswGDpko/y1IYTtqNd0PZF4nZAVl3iIlnQrTYn23c86zQZKkhgJj788L/hWS0v20/b5fNmEBK31KM7t2R+9u2V75mFcFBA65bK8hNI6R87Fdl/+8plTzhxEDNv8/oZd9ivH0GdncjoWVcUq2fIBVSQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=Zwm6SCo4; arc=none smtp.client-ip=209.85.218.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="Z4fDa/bo"
-Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46FB88vu006720;
-	Mon, 15 Jul 2024 15:58:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=qcppdkim1; bh=2J3ELSP9pFwYLUwfbOsAsr
-	k1niyWM0/vA1IsyYxnrgM=; b=Z4fDa/boVnr0ZDz6sWVfKYy38QYBkUD4q3Yh98
-	AlDtuTZe4wySAHWzOnHNoHCJ/xCtbFjvXDEnbVR/PGMgsGOsKQNhd0AGMsivmOuj
-	AEM+0Y5DgrtUCOe2Ic287hFavTGmECjs4bfDiSpwn9zfw+tyid6L2mmFvOEpHlnX
-	+TUQBaKaGnaOwgOiZO6LAps1creK8SwCbPvqIt2V/IjiI/47U9WA9avpp/5jk5v2
-	OHKi0NigOFAc2ufET2820HgR0aYLbPyubMp69EXruRB2W1QUQm3fpQ2jtpKNKu9+
-	A6tGlkPWBHykTlYH0rMQOlGD9w75I3Zuxf1yvjKxHLHhqALw==
-Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 40bghrmr3v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Jul 2024 15:58:54 +0000 (GMT)
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-	by NALASPPMTA01.qualcomm.com (8.17.1.19/8.17.1.19) with ESMTPS id 46FFwrwZ003551
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Jul 2024 15:58:53 GMT
-Received: from [169.254.0.1] (10.49.16.6) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Mon, 15 Jul
- 2024 08:58:53 -0700
-From: Jeff Johnson <quic_jjohnson@quicinc.com>
-Date: Mon, 15 Jul 2024 08:58:51 -0700
-Subject: [PATCH v2] s390/cio: add missing MODULE_DESCRIPTION() macros
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="Zwm6SCo4"
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-a6266de87cfso35424366b.1
+        for <linux-s390@vger.kernel.org>; Mon, 15 Jul 2024 09:58:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1721062680; x=1721667480; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=4Dp6fCCpQAFiJ7LQFdQvbhCZwILPCOZWlXEg9XyHob0=;
+        b=Zwm6SCo4IORJmyW5XhWW+BGQhOx+9ph2Gl+ysuliRCbfxrX62SDz53gwU5df6XLTvl
+         JTQE8DdCFPAdQGWW+90dxL4rGIk7G6IpsAT2eMydlrPM9uAZpqhpfhWrn93aayoRtQfA
+         nyE/+mvXlR9WS654Yjh7skzZMFvoNSziTVLdTPjEQoCuQorXt0F56mYC4McLgqOtB7lW
+         9wTqbshcASWBAhG9lFJpHVotUKQdsYhoaI0c6bpO7k4Nh5IkbHOyqYhbGnKBJD+q83z2
+         SYm8E8n7hz/7vYvLbQW8cw5aatHU3AqQC+ayDpquPyGTDu6QcBo0+qLIUZN329GinNSD
+         hibQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721062680; x=1721667480;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=4Dp6fCCpQAFiJ7LQFdQvbhCZwILPCOZWlXEg9XyHob0=;
+        b=Zu8jonJCzr9BjD7d3+oX5/es1XUmY+xXLAglQzagD0zkwn1JgDl6nacqOpI2LcX10V
+         +ok3yW2ZPJdnqiYF5kCTeB0JDB2h2bPDLBEPuPi3uK5ZGqS1OCv2m1OCMLuSb8GpLDqA
+         0imdF79r5BLHy3PRIt65oAbInETHDuHFZeqzZp+apqtjgdCuuqAUB7deLXiBAqglSZCS
+         qttrDNyXP3cOuEmgn4oooDoDP8hUYhtozw2SsJxaA3mj/oPyDq0s9hoUKC5DwRqED/CA
+         OM1jUfrpsrCfEorG1MQ3VhDpqqGTrtpmu2sY0T6Hqk1PGEESvbURzcDOK0FBCwIMnaQM
+         IGrw==
+X-Forwarded-Encrypted: i=1; AJvYcCWkNkx+42Rr6NTU25ZJRZCWTtjsQ5Qt3NT4tsKYn3c8e3pjT3cR/fzve3GAoFpU/grqT4V6SFeeoSdQDDTFpMYeujk5UWLfNhUxaA==
+X-Gm-Message-State: AOJu0YzyswIqVenqx7v9GmIeZI5TJokD3ze3cuiThVZUNAeZonl13iuz
+	iPX6kDR5NANiV7fXKiF794BeLl7DzJ5ddcmzQQk2EevXlT0A/Rvm9W7/I3dofTc=
+X-Google-Smtp-Source: AGHT+IFXHNVR4+Mql83LD/nzPrlDHiA9SFqIznByjudVAKR6dxhYzi7ejPm9gDaXQitj7dgXQ0e+oQ==
+X-Received: by 2002:a17:906:7216:b0:a77:cb9c:e806 with SMTP id a640c23a62f3a-a79e6a915e0mr18337566b.3.1721062680449;
+        Mon, 15 Jul 2024 09:58:00 -0700 (PDT)
+Received: from [127.0.0.1] ([80.208.65.166])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a79bc821809sm221453866b.208.2024.07.15.09.57.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Jul 2024 09:57:59 -0700 (PDT)
+From: Jens Axboe <axboe@kernel.dk>
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, 
+ linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
+ Vasily Gorbik <gor@linux.ibm.com>, Jeff Johnson <quic_jjohnson@quicinc.com>, 
+ Carlos Lopez <clopez@suse.de>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20240715112434.2111291-1-sth@linux.ibm.com>
+References: <20240715112434.2111291-1-sth@linux.ibm.com>
+Subject: Re: [PATCH 0/2] s390/dasd: module warning and error check fix
+Message-Id: <172106267901.10201.11169554689467623987.b4-ty@kernel.dk>
+Date: Mon, 15 Jul 2024 10:57:59 -0600
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,93 +71,32 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-ID: <20240715-md-s390-drivers-s390-cio-v2-1-97eaa6971124@quicinc.com>
-X-B4-Tracking: v=1; b=H4sIADpHlWYC/42OSw6CMBRFt0I69pnyqWkduQ/DoJ+HvERabaHBE
- PYu4AYcnuTec+/CEkbCxK7FwiJmShT8BtWpYLbX/oFAbmNW8arhl1LA4CDVioOLlDGmH1gKUAs
- ltTGSV9qxrf6K2NF8qO/txkYnBBO1t/0ufJKfZhh0GjHu8Z7SGOLnOJLLvfTHZi6hBNlZJWSDU
- ihxe09kyduzDQNr13X9AlThMNvhAAAA
-To: Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter
-	<oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
-	<gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        "Christian
- Borntraeger" <borntraeger@linux.ibm.com>,
-        Sven Schnelle
-	<svens@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato
-	<mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-CC: <linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <kvm@vger.kernel.org>, <kernel-janitors@vger.kernel.org>,
-        Jeff Johnson
-	<quic_jjohnson@quicinc.com>
+Content-Transfer-Encoding: 8bit
 X-Mailer: b4 0.14.0
-X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: o30blen9uX1LzdQ9vUgnFAUAHWAyKhti
-X-Proofpoint-ORIG-GUID: o30blen9uX1LzdQ9vUgnFAUAHWAyKhti
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-07-15_10,2024-07-11_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- clxscore=1015 malwarescore=0 spamscore=0 suspectscore=0 priorityscore=1501
- mlxscore=0 lowpriorityscore=0 impostorscore=0 adultscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2406140001
- definitions=main-2407150126
 
-With ARCH=s390, make allmodconfig && make W=1 C=1 reports:
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/s390/cio/ccwgroup.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/s390/cio/vfio_ccw.o
 
-Add the missing invocations of the MODULE_DESCRIPTION() macro.
+On Mon, 15 Jul 2024 13:24:32 +0200, Stefan Haberland wrote:
+> please apply the following two patches for the merge window.
+> They fix module description warnings and an error check in a dasd function.
+> 
+> Carlos López (1):
+>   s390/dasd: fix error checks in dasd_copy_pair_store()
+> 
+> Jeff Johnson (1):
+>   s390/dasd: add missing MODULE_DESCRIPTION() macros
+> 
+> [...]
 
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
----
-I hope this can get into the 6.11 merge window.
-I originally had almost 300 patches to fix these issues treewide, and
-this is one of only 13 left which have not landed in linux-next
----
-Changes in v2:
-- changed CCW Group to ccwgroup in ccwgroup.c description
-- removed "Physical" in vfio_ccw_drv.c description
-- applied Reviewed-by tags from Eric Farman & Vineeth Vijayan since these edits
-  seem to be aligned with their comments
-- Link to v1: https://lore.kernel.org/r/20240615-md-s390-drivers-s390-cio-v1-1-8fc9584e8595@quicinc.com
----
- drivers/s390/cio/ccwgroup.c     | 1 +
- drivers/s390/cio/vfio_ccw_drv.c | 1 +
- 2 files changed, 2 insertions(+)
+Applied, thanks!
 
-diff --git a/drivers/s390/cio/ccwgroup.c b/drivers/s390/cio/ccwgroup.c
-index b72f672a7720..66b1bdc63284 100644
---- a/drivers/s390/cio/ccwgroup.c
-+++ b/drivers/s390/cio/ccwgroup.c
-@@ -550,4 +550,5 @@ void ccwgroup_remove_ccwdev(struct ccw_device *cdev)
- 	put_device(&gdev->dev);
- }
- EXPORT_SYMBOL(ccwgroup_remove_ccwdev);
-+MODULE_DESCRIPTION("ccwgroup bus driver");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 8ad49030a7bf..914dde041675 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -488,4 +488,5 @@ static void __exit vfio_ccw_sch_exit(void)
- module_init(vfio_ccw_sch_init);
- module_exit(vfio_ccw_sch_exit);
- 
-+MODULE_DESCRIPTION("VFIO based Subchannel device driver");
- MODULE_LICENSE("GPL v2");
+[1/2] s390/dasd: add missing MODULE_DESCRIPTION() macros
+      commit: 1f5a33315362cb8ade2b15489c985ada0cc8623b
+[2/2] s390/dasd: fix error checks in dasd_copy_pair_store()
+      commit: 8e64d2356cbc800b4cd0e3e614797f76bcf0cdb8
 
----
-base-commit: 0c3836482481200ead7b416ca80c68a29cfdaabd
-change-id: 20240615-md-s390-drivers-s390-cio-3598abb802ad
+Best regards,
+-- 
+Jens Axboe
+
+
 
