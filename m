@@ -1,102 +1,123 @@
-Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34C7846522
-	for <linux-s390@vger.kernel.org>; Mon, 15 Jul 2024 16:58:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97D303224;
+	Tue, 16 Jul 2024 08:20:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721062684; cv=none; b=BQrw6glv/GTAEy+gQnLlxIdVn4HNisEQq73LdlPN0MhgI3K8TFVXAzvVT9z1EbofU5fB9SJ7Ta5NKkUEO1nKVPrnjsN8BbxXoXY041FlAK63ZLTNuxBcYGzVpTxX2o+jm/ovejmOzKA5I30nWyP4JyajVtQNYOVIe+ztZ/PzfCg=
+	t=1721118034; cv=none; b=ptL+tX6KNZCBRwIzdVBSm6kFojntUFXQ9wuMchHQX+Mnz9QIJMyAKyz5N4HvOK6+CkbJ+KdXl30PG4gf08YtS3dY8BM/0wF0siBvvEhUT5qLwfk4XcB29PqRsq0HEMNzXHpxLo2MWFRDln6RFEpzbBy2+zKbmU8JbrfJ/hF6ZFU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721062684; c=relaxed/simple;
-	bh=IxJz1HEy+JpE1vJBiifQpmCm2PJ240J6ITqDKSCG/L8=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=Pd28bGr20/D0bGIMEO7nXSswGDpko/y1IYTtqNd0PZF4nZAVl3iIlnQrTYn23c86zQZKkhgJj788L/hWS0v20/b5fNmEBK31KM7t2R+9u2V75mFcFBA65bK8hNI6R87Fdl/+8plTzhxEDNv8/oZd9ivH0GdncjoWVcUq2fIBVSQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=Zwm6SCo4; arc=none smtp.client-ip=209.85.218.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1721118034; c=relaxed/simple;
+	bh=RGHFPf9WIT0FeAlOqROa14SHBOw/KaGBaGRH1b2nz/U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TMCGpmVe17ijTovoWnalu3wlH7hgBNesT8PPy0FZqr8GfyEqJwzECdLXRuHvyJsQ+Gw05xFI+iW8BC7t3kMOoe5QHJWxH3ZWYCcC4lH+Dh3YCNM6ScpuNXgoaKTICwiqhC7+0eFYfSXd1egd9kTr2CSM0OmlX3G6JvXhpLS7eKs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WTbb/F4w; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="Zwm6SCo4"
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-a6266de87cfso35424366b.1
-        for <linux-s390@vger.kernel.org>; Mon, 15 Jul 2024 09:58:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1721062680; x=1721667480; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4Dp6fCCpQAFiJ7LQFdQvbhCZwILPCOZWlXEg9XyHob0=;
-        b=Zwm6SCo4IORJmyW5XhWW+BGQhOx+9ph2Gl+ysuliRCbfxrX62SDz53gwU5df6XLTvl
-         JTQE8DdCFPAdQGWW+90dxL4rGIk7G6IpsAT2eMydlrPM9uAZpqhpfhWrn93aayoRtQfA
-         nyE/+mvXlR9WS654Yjh7skzZMFvoNSziTVLdTPjEQoCuQorXt0F56mYC4McLgqOtB7lW
-         9wTqbshcASWBAhG9lFJpHVotUKQdsYhoaI0c6bpO7k4Nh5IkbHOyqYhbGnKBJD+q83z2
-         SYm8E8n7hz/7vYvLbQW8cw5aatHU3AqQC+ayDpquPyGTDu6QcBo0+qLIUZN329GinNSD
-         hibQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721062680; x=1721667480;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4Dp6fCCpQAFiJ7LQFdQvbhCZwILPCOZWlXEg9XyHob0=;
-        b=Zu8jonJCzr9BjD7d3+oX5/es1XUmY+xXLAglQzagD0zkwn1JgDl6nacqOpI2LcX10V
-         +ok3yW2ZPJdnqiYF5kCTeB0JDB2h2bPDLBEPuPi3uK5ZGqS1OCv2m1OCMLuSb8GpLDqA
-         0imdF79r5BLHy3PRIt65oAbInETHDuHFZeqzZp+apqtjgdCuuqAUB7deLXiBAqglSZCS
-         qttrDNyXP3cOuEmgn4oooDoDP8hUYhtozw2SsJxaA3mj/oPyDq0s9hoUKC5DwRqED/CA
-         OM1jUfrpsrCfEorG1MQ3VhDpqqGTrtpmu2sY0T6Hqk1PGEESvbURzcDOK0FBCwIMnaQM
-         IGrw==
-X-Forwarded-Encrypted: i=1; AJvYcCWkNkx+42Rr6NTU25ZJRZCWTtjsQ5Qt3NT4tsKYn3c8e3pjT3cR/fzve3GAoFpU/grqT4V6SFeeoSdQDDTFpMYeujk5UWLfNhUxaA==
-X-Gm-Message-State: AOJu0YzyswIqVenqx7v9GmIeZI5TJokD3ze3cuiThVZUNAeZonl13iuz
-	iPX6kDR5NANiV7fXKiF794BeLl7DzJ5ddcmzQQk2EevXlT0A/Rvm9W7/I3dofTc=
-X-Google-Smtp-Source: AGHT+IFXHNVR4+Mql83LD/nzPrlDHiA9SFqIznByjudVAKR6dxhYzi7ejPm9gDaXQitj7dgXQ0e+oQ==
-X-Received: by 2002:a17:906:7216:b0:a77:cb9c:e806 with SMTP id a640c23a62f3a-a79e6a915e0mr18337566b.3.1721062680449;
-        Mon, 15 Jul 2024 09:58:00 -0700 (PDT)
-Received: from [127.0.0.1] ([80.208.65.166])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a79bc821809sm221453866b.208.2024.07.15.09.57.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jul 2024 09:57:59 -0700 (PDT)
-From: Jens Axboe <axboe@kernel.dk>
-To: Stefan Haberland <sth@linux.ibm.com>
-Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, 
- linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
- Vasily Gorbik <gor@linux.ibm.com>, Jeff Johnson <quic_jjohnson@quicinc.com>, 
- Carlos Lopez <clopez@suse.de>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20240715112434.2111291-1-sth@linux.ibm.com>
-References: <20240715112434.2111291-1-sth@linux.ibm.com>
-Subject: Re: [PATCH 0/2] s390/dasd: module warning and error check fix
-Message-Id: <172106267901.10201.11169554689467623987.b4-ty@kernel.dk>
-Date: Mon, 15 Jul 2024 10:57:59 -0600
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WTbb/F4w"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46G84MER001748;
+	Tue, 16 Jul 2024 08:20:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=a
+	Cr2OURIQq7Sr00CP5aHRAvmfuV4sRpVqwaUFLdGLl0=; b=WTbb/F4ww4ICgAp1S
+	qhiCXvE4aLQvarOxc5dj2VHotM34HFO9bOuLRH+wWs/i5nxPmhrADxBq3TKUu10p
+	gIvpAjbxDMP/4XYqJMQtaHy9qt53zo7Wu7d/ACfqNDg3IN8LTMaovt6IFutcrhnv
+	6Nb2KKQe730p6pWyrTyiY2pPj0zxOJ+D6hNQA39s4iUKXhlTRrOzyDhpUtaonH1m
+	Byfml6XS0YXhwC2ODKACkahicwDC2p9bqzAS7TLaLrOg8WIaDbKooN8Hqpj+A9tY
+	y+5mIIsduTX8uRDXyblzHDIh/IOsh4iknRbxT9R9rHIdWAXtp6Y3ZVVWnVTgjwmU
+	EPJnA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40dk6agbcf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Jul 2024 08:20:27 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46G6KZr9023092;
+	Tue, 16 Jul 2024 08:20:26 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 40c64m2uhh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Jul 2024 08:20:26 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46G8KNX027263548
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 16 Jul 2024 08:20:25 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7F8DE58060;
+	Tue, 16 Jul 2024 08:20:23 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 27ED55805B;
+	Tue, 16 Jul 2024 08:20:21 +0000 (GMT)
+Received: from [9.171.67.160] (unknown [9.171.67.160])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 16 Jul 2024 08:20:20 +0000 (GMT)
+Message-ID: <c12b2289-aca5-4b2d-9599-e9ca8daa2003@linux.ibm.com>
+Date: Tue, 16 Jul 2024 10:20:20 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Mailer: b4 0.14.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] s390/dasd: add missing MODULE_DESCRIPTION() macros
+To: Jeff Johnson <quic_jjohnson@quicinc.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-janitors@vger.kernel.org
+References: <20240615-md-s390-drivers-s390-block-dasd-v1-1-36b200f14344@quicinc.com>
+ <2c2655ad-2a2a-4180-8a31-828a7531af1b@linux.ibm.com>
+ <87bace58-eec4-4b05-981d-5c6f70b7a798@quicinc.com>
+Content-Language: en-US
+From: Stefan Haberland <sth@linux.ibm.com>
+In-Reply-To: <87bace58-eec4-4b05-981d-5c6f70b7a798@quicinc.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: oG9LhWPnZ1C-FiCtr9vVL4YjzqBz2axC
+X-Proofpoint-GUID: oG9LhWPnZ1C-FiCtr9vVL4YjzqBz2axC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-07-15_19,2024-07-11_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 adultscore=0
+ priorityscore=1501 malwarescore=0 impostorscore=0 mlxlogscore=999
+ spamscore=0 clxscore=1011 lowpriorityscore=0 suspectscore=0 phishscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2406140001 definitions=main-2407160058
 
+Am 14.07.24 um 18:58 schrieb Jeff Johnson:
+> On 7/1/24 03:57, Stefan Haberland wrote:
+>> Am 16.06.24 um 04:19 schrieb Jeff Johnson:
+>>> With ARCH=s390, make allmodconfig && make W=1 C=1 reports:
+>>> WARNING: modpost: missing MODULE_DESCRIPTION() in 
+>>> drivers/s390/block/dasd_diag_mod.o
+>>> WARNING: modpost: missing MODULE_DESCRIPTION() in 
+>>> drivers/s390/block/dasd_eckd_mod.o
+>>> WARNING: modpost: missing MODULE_DESCRIPTION() in 
+>>> drivers/s390/block/dasd_fba_mod.o
+>>>
+>>> Add the missing invocations of the MODULE_DESCRIPTION() macro.
+>>>
+>>> Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
+>>> ---
+>>
+>> Applied, thanks.
+>>
+>
+> I still don't see this in linux-next. Does your tree feed into 
+> linux-next, or will it go into Linus' tree during the merge window?
+>
+> Hoping to have these warnings fixed tree-wide in 6.11
 
-On Mon, 15 Jul 2024 13:24:32 +0200, Stefan Haberland wrote:
-> please apply the following two patches for the merge window.
-> They fix module description warnings and an error check in a dasd function.
-> 
-> Carlos López (1):
->   s390/dasd: fix error checks in dasd_copy_pair_store()
-> 
-> Jeff Johnson (1):
->   s390/dasd: add missing MODULE_DESCRIPTION() macros
-> 
-> [...]
+Sorry for the delay.
 
-Applied, thanks!
-
-[1/2] s390/dasd: add missing MODULE_DESCRIPTION() macros
-      commit: 1f5a33315362cb8ade2b15489c985ada0cc8623b
-[2/2] s390/dasd: fix error checks in dasd_copy_pair_store()
-      commit: 8e64d2356cbc800b4cd0e3e614797f76bcf0cdb8
-
-Best regards,
--- 
-Jens Axboe
-
-
+The DASD patches usually go upstream through the linux-block tree. I 
+have sent them yesterday and Jens already applied them.
 
