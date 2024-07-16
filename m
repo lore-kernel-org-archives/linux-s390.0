@@ -1,120 +1,162 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B20219DF45;
-	Tue, 16 Jul 2024 14:33:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 876C83224
+	for <linux-s390@vger.kernel.org>; Tue, 16 Jul 2024 20:48:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721140398; cv=none; b=n06yIxgzElG/XiEO9PXlmzb5rxNFzp7bn1sRWE2e+WPI5luQPL/yatJzlnQk3bNzA/z/ap3fjloKxtc4x/cQi8TLdbv4U4QuqkZ8pL36loWCg//yX2AZeBguJUNBBOBZLrZQA47VvxxB/i6YYQUparT0AbpCh2neGCCZU1+/v+k=
+	t=1721162888; cv=none; b=lL/GudV/brZADdFpxJeepJig8eS4NxDVfS6BTVFF9G2yY5KgYv630ctkIPbYAGv/YcZtSwEQ7BDgEyIFmNQoFV1jpjWwiIREM4sU5B1K/TgkOPHEMLRk4ePJGdhqBYyCP9qutD7k3VCN3pFFQHf8oRkRuWH6lgbBF3ZxWE6O+rY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721140398; c=relaxed/simple;
-	bh=m9NKmdoKsNarqd6m9cXGSCZPLF1ijwhfB/GRQkLKl/8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=TT7QUvECIHlHky/6vo9KPMTMFie00d4GHYi86SMD+nZaywhYFUqXGMgsmIUwB6GEgadug28H904fU/MgebP4TZIWttAgSsq3+VvQ7DDFT5otbPQnZ5jwsxn1SO0f6ajNQW9HlUDYTZ1Md4DYUIE1QCCW4NVPkqCqneTelHEkUjU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=pk00c7DN; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1721162888; c=relaxed/simple;
+	bh=4Ur9xhTL+sC+z2fRn1LeIE7AdwT2fsvHEHXp8cMQVuI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=oJiYiaY4IReOQtTDLKFfCYCRAohxggWnCmTwEq8CHdM5Suwpy6SGkLpRg/hg4RPKAbU6HChZgnDo4ZsUlBZdc/Sf5qR7iLoDtUhwi5qpMeac29MJH3R6/3vM2JqOiv97AFr5+AZYu9Raen7Ao6ofVNuqPqXO1M7gKVb6rRNmvPk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=VeEWI9Ey; arc=none smtp.client-ip=209.85.208.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="pk00c7DN"
-Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46GCfZl3030065;
-	Tue, 16 Jul 2024 14:33:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	kwjQ3NZ7uHYccC/MYMKHsu+Em3bShdpRHOP+3vLllKo=; b=pk00c7DNgSDs23Bi
-	VcA4wnfTdLSSKobuIhNCsp2g2QohzUubtV/DPiLtgLxo190vPlT+YGw/XWP4OdQ6
-	De0EiSGQTIHutr9TWjR1M5aj7yVrvbGZ8pSsTP5dCYWQA0Oyt+Zxb2rgLDnXD+4r
-	2HTsJb6biFkZtt4aEX2l8ogqpZvPcnXTK60vFhdTR3rqFrieiGdwp0ophoKGPFTe
-	TT/MKenJBR5TehluU4Wv7dJqRwos4uoEJLuRqgDEXvN24VjDUhIxFNw/rWb3AHbN
-	NRFNBw5mB7gd+MFKqG2Qk+liUKZ9SKZa53o6TVpHJ4B2ucPJCEG3ok4ly334Xr6V
-	9DryHg==
-Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 40bgwg79vp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jul 2024 14:33:14 +0000 (GMT)
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-	by NALASPPMTA01.qualcomm.com (8.17.1.19/8.17.1.19) with ESMTPS id 46GEXCbf017449
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jul 2024 14:33:12 GMT
-Received: from [10.227.110.203] (10.80.80.8) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Tue, 16 Jul
- 2024 07:33:05 -0700
-Message-ID: <4bc3e19d-99eb-4004-a6ff-9ab9dc015cde@quicinc.com>
-Date: Tue, 16 Jul 2024 07:33:04 -0700
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="VeEWI9Ey"
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-2eeec60a324so30288071fa.2
+        for <linux-s390@vger.kernel.org>; Tue, 16 Jul 2024 13:48:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1721162885; x=1721767685; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=c6GNJjXe4aQne+TSaa8LyLS0Eu5HZLIaZpjqqmJNiR4=;
+        b=VeEWI9EyciqbuLf9Wa6+20MtEkcqAiPa0hUJdiMZRrfK19fu7kvXwJt26/ApcaKTEd
+         3johlFxLkv9XlRej+faKj1CpexjMXPyZyZThJsn475vAOzpLeWRGDSoz0Fp34IC4j4VM
+         fyxkDvlmlW2Xz0pHzCRsLPMFjxKwKwIjAKmUnQzq8e864Xx4vO1OMItomdxA9mL87+1I
+         irU8Hlhy8NbKe9lud//6DUr9DKYueQ23DzmA13k74Tkog+qOoMcKmKChzqqLYG1WihQK
+         ekcxNqYjIn9ubooPSvYwt5+idyhK5cqLcFBbk2Bvi+ePDfNe5rWaGywGCRy7+c8p24xf
+         c0Gw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721162885; x=1721767685;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=c6GNJjXe4aQne+TSaa8LyLS0Eu5HZLIaZpjqqmJNiR4=;
+        b=N7I1NYs8LOBkoT1a4NMACw57OszY47tP08dSZA3dkEVWNVs3mfbiIC5uCP2IOTtO4F
+         PX0lxQEfmXcQAOp52Afqg+KoNRfxnk28YpquZlQTwu2xlM0+As9YBL6/plBu+eltIbJ0
+         zfJe65bzmeOA2EQoqUMVeHvDel6qwpSYTS46oM5dKOvqZilFkEJNtM8HM2muSsov8y1m
+         wJuuxHxjR8lloQHhjdJcfs3Z6bKiRecrlIbGXJFrHm/dEePUUCB5itPJlEHx3l/YY51d
+         Iu72PSVk0u16bld8cQREhlGdFnMGSyUu2oAEdnjDf4JGjHRPF3FsNLWrlefaW1Unqn9O
+         926Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVaS2wdG0daV4nqBRP5Xfhwrx/idcy4MvVo8Qac7SayXO0enax408GXWX1ucs44DiY2kSUN5xeTpqMAxajByX9h4nIB6xXU5azJVA==
+X-Gm-Message-State: AOJu0YwY4Eu6k+M92VgqnbYaTKhAAWlQNmuBdy/MDHYEcxvpS2ukIcod
+	nZUwppdgKavr/ibVs4DSvDr6+p8FvwW7wWHEzqsrBuzIrKZwv8CpoCm1Ui4vywKqaO0a8KPe6z6
+	uwPprqgFYjH4745PxpLjgckoUoav7GruGenpRCA==
+X-Google-Smtp-Source: AGHT+IHWB9+UFZMeujAczzwgAyMeRBak9A7BEJ7/zhXCtvVtyq9dOdepGTchh2FUJeUis1miwAnEDhoODIErtZbpgPQ=
+X-Received: by 2002:a2e:8205:0:b0:2ea:e74c:40a2 with SMTP id
+ 38308e7fff4ca-2eef4173e8emr28566101fa.20.1721162884653; Tue, 16 Jul 2024
+ 13:48:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] s390/dasd: add missing MODULE_DESCRIPTION() macros
-Content-Language: en-US
-To: Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner
-	<hoeppner@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
-	<gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian
- Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-CC: <linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <kernel-janitors@vger.kernel.org>
-References: <20240615-md-s390-drivers-s390-block-dasd-v1-1-36b200f14344@quicinc.com>
- <2c2655ad-2a2a-4180-8a31-828a7531af1b@linux.ibm.com>
- <87bace58-eec4-4b05-981d-5c6f70b7a798@quicinc.com>
- <c12b2289-aca5-4b2d-9599-e9ca8daa2003@linux.ibm.com>
-From: Jeff Johnson <quic_jjohnson@quicinc.com>
-In-Reply-To: <c12b2289-aca5-4b2d-9599-e9ca8daa2003@linux.ibm.com>
+References: <20240716152745.988603303@linuxfoundation.org>
+In-Reply-To: <20240716152745.988603303@linuxfoundation.org>
+From: Naresh Kamboju <naresh.kamboju@linaro.org>
+Date: Wed, 17 Jul 2024 02:17:51 +0530
+Message-ID: <CA+G9fYskex_Z+r0wxv7XDdPVHrk=8jBPWH601mY_Q2mKDj-T=A@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/108] 5.10.222-rc1 review
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org, patches@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, 
+	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org, 
+	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de, 
+	jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, 
+	srw@sladewatkins.net, rwarsow@gmx.de, conor@kernel.org, allen.lkml@gmail.com, 
+	broonie@kernel.org, Arnd Bergmann <arnd@arndb.de>, 
+	Dan Carpenter <dan.carpenter@linaro.org>, linux-s390@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: FrNlOghkI5gpsmzUr50_vpjzYBwBIGdh
-X-Proofpoint-ORIG-GUID: FrNlOghkI5gpsmzUr50_vpjzYBwBIGdh
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-07-15_19,2024-07-16_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
- adultscore=0 spamscore=0 priorityscore=1501 mlxscore=0 suspectscore=0
- mlxlogscore=999 lowpriorityscore=0 clxscore=1015 bulkscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2406140001 definitions=main-2407160108
 
-On 7/16/2024 1:20 AM, Stefan Haberland wrote:
-> Am 14.07.24 um 18:58 schrieb Jeff Johnson:
->> On 7/1/24 03:57, Stefan Haberland wrote:
->>> Am 16.06.24 um 04:19 schrieb Jeff Johnson:
->>>> With ARCH=s390, make allmodconfig && make W=1 C=1 reports:
->>>> WARNING: modpost: missing MODULE_DESCRIPTION() in 
->>>> drivers/s390/block/dasd_diag_mod.o
->>>> WARNING: modpost: missing MODULE_DESCRIPTION() in 
->>>> drivers/s390/block/dasd_eckd_mod.o
->>>> WARNING: modpost: missing MODULE_DESCRIPTION() in 
->>>> drivers/s390/block/dasd_fba_mod.o
->>>>
->>>> Add the missing invocations of the MODULE_DESCRIPTION() macro.
->>>>
->>>> Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
->>>> ---
->>>
->>> Applied, thanks.
->>>
->>
->> I still don't see this in linux-next. Does your tree feed into 
->> linux-next, or will it go into Linus' tree during the merge window?
->>
->> Hoping to have these warnings fixed tree-wide in 6.11
-> 
-> Sorry for the delay.
-> 
-> The DASD patches usually go upstream through the linux-block tree. I 
-> have sent them yesterday and Jens already applied them.
-> 
+On Tue, 16 Jul 2024 at 21:12, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.222 release.
+> There are 108 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 18 Jul 2024 15:27:21 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.222-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-thanks!
+
+The 390 builds failed on stable-rc 5.10.222-rc1 review; it has been
+reported on 6.6, 6.1, 5.15 and now on 5.10.
+
+Started from this round of stable rc on 5.10.222-rc1
+
+  Good:6db6c4ec363b ("Linux 5.10.221-rc2")
+  BAD: 4ec8d630a600 ("Linux 5.10.222-rc1")
+
+* s390, build
+  - clang-18-allnoconfig
+  - clang-18-defconfig
+  - clang-18-tinyconfig
+  - clang-nightly-allnoconfig
+  - clang-nightly-defconfig
+  - clang-nightly-tinyconfig
+  - gcc-12-allnoconfig
+  - gcc-12-defconfig
+  - gcc-12-tinyconfig
+  - gcc-8-allnoconfig
+  - gcc-8-defconfig-fe40093d
+  - gcc-8-tinyconfig
+
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Build log:
+-------
+linux/arch/s390/include/asm/processor.h: In function '__load_psw_mask':
+arch/s390/include/asm/processor.h:255:19: error: expected '=', ',',
+';', 'asm' or '__attribute__' before '__uninitialized'
+  255 |         psw_t psw __uninitialized;
+      |                   ^~~~~~~~~~~~~~~
+arch/s390/include/asm/processor.h:255:19: error: '__uninitialized'
+undeclared (first use in this function)
+arch/s390/include/asm/processor.h:255:19: note: each undeclared
+identifier is reported only once for each function it appears in
+arch/s390/include/asm/processor.h:256:9: warning: ISO C90 forbids
+mixed declarations and code [-Wdeclaration-after-statement]
+  256 |         unsigned long addr;
+      |         ^~~~~~~~
+arch/s390/include/asm/processor.h:258:9: error: 'psw' undeclared
+(first use in this function); did you mean 'psw_t'?
+  258 |         psw.mask = mask;
+      |         ^~~
+      |         psw_t
+
+metadata:
+---------
+  config: https://storage.tuxsuite.com/public/linaro/lkft/builds/2jKrKyHqAZ7eSsKwMSVqDueYpKo/config
+  download_url:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2jKrKyHqAZ7eSsKwMSVqDueYpKo/
+  git_describe: v5.10.221-109-g4ec8d630a600
+  git_repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+  git_sha: 4ec8d630a6005e1aa82671aca9f6716039f5b6e7
+  git_short_log: 4ec8d630a600 ("Linux 5.10.222-rc1")
+  arch: s390
+  toolchain: gcc-12 and clang-18
+
+Steps to reproduce:
+----------
+# tuxmake --runtime podman --target-arch s390 --toolchain gcc-12
+--kconfig tinyconfig
+
+--
+Linaro LKFT
+https://lkft.linaro.org
