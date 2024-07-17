@@ -1,66 +1,66 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62D90180A78
-	for <linux-s390@vger.kernel.org>; Wed, 17 Jul 2024 14:33:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D6F8181304
+	for <linux-s390@vger.kernel.org>; Wed, 17 Jul 2024 14:33:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721226787; cv=none; b=VTYCd3CiIOXQCkmb1/reESZ4Y+oVCXajkYV6QhpAfISSq0vttMd9LJTBSCUmGMQc/iUrEBM7F8eGrFEKcMkq/MrnDxBHMvuHLIDq5bgHGbm22wcyrTrk7N3zTZP4vz7D5xr7enc9wn19uimZdDFa+6kZNeynLaAc3GaUhIP52XQ=
+	t=1721226818; cv=none; b=San1oLzjHfHDH/dRKboJO0A+rHVZqLQUtAPQDBHSy/nW6vBXlwEohjEY80whePBkqfGo562cycuksPgr/Wsmo5j5f4kgYO5LTJBmguBvJhIhnxtR6D3gSt8oEVL/e5B4YSdnAL87O7RcCeEB9eZz0ldzvjwXXo33EU/hDy+0/pE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721226787; c=relaxed/simple;
-	bh=CrDDYOcmyPQoZCPC1i4Y1DcAZ3+d7HcTSETFYRrG8VQ=;
+	s=arc-20240116; t=1721226818; c=relaxed/simple;
+	bh=UKE4C3ChcQCqvqZtO8WYSa+lxSVP5PaklsSxUaTSpEg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DsqQntcD1JdgdVe8NV3W/90MARKg4Mz12I3igByBF/pl+Ke06uXsTOAPkqgofwwaExTXeq4LU+UO15/yf7UI/yqR9hwkBGJXPuc4bsKW/yXsM+qxTxNG8D7x3dRqdPwXdbFWK6hs/4n2eeZVP/I5SG83eRV2K6wUh6PjnhoGmGU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dT97eKJ8; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=LfpI4/uUHU8Kk9M+KoSrfsFRkFeJiRvLl6l6RKUd9PmKvII1HyxdXOSPpcVv//RaNX6pKPAxkt9CzSmnYtwCFVLEpHys7Ok57Sc5D1ZWKNB4x4NCoDMN+nFdgIcmWAX7ugAEojcJjMUzsWrQdDB1T9/4appGneM9Cb1Y7cvd8mw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=P0Y7FKA+; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dT97eKJ8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P0Y7FKA+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721226785;
+	s=mimecast20190719; t=1721226816;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=GICXT0BFVJy0QIZX9VPtiCc3OM2RPQjhgUFSA0WTx1U=;
-	b=dT97eKJ8TzQxT9NkFXYCwXAehUW1rKTroapjgB1z0JGLjQsTie/DGKEGBffBZWfqffkJJh
-	BXMMTluAgs8yIYwrmP+I6wVhmoivworP+62qK8EBZE21ZcETHuAoSZGLKcO6uWMepIsF0k
-	UJUzYCFBJjRPNGjtadsilCYULMmssCg=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=mXBB0qjMEXfzqVaUDcGt6NXANeyKiUeQZZAQu7kGYb4=;
+	b=P0Y7FKA+lyV/G1Bo26ilk4gx7xs5Zqu/cC209/VRd3cDzalUSggtu1dC9Lr+SlvyBSCBSZ
+	Z+TGUiy9xl7RW81CJFON+juaPagQmT5InCE5KypNvAI2lJ9FvTOqssh8FTxSWtSHF8bYMx
+	jigxJa8qUqqyLT+SQn5UoH3NPZNyx5w=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-687-3OnjAdhPNFSEpgjh0dE1Aw-1; Wed, 17 Jul 2024 10:33:04 -0400
-X-MC-Unique: 3OnjAdhPNFSEpgjh0dE1Aw-1
-Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-52ebdb0ef28so8431213e87.0
-        for <linux-s390@vger.kernel.org>; Wed, 17 Jul 2024 07:33:03 -0700 (PDT)
+ us-mta-656-uRi-G9gGOjqFRKdY4FIm9w-1; Wed, 17 Jul 2024 10:33:34 -0400
+X-MC-Unique: uRi-G9gGOjqFRKdY4FIm9w-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-42671a6fb9dso45376025e9.3
+        for <linux-s390@vger.kernel.org>; Wed, 17 Jul 2024 07:33:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721226782; x=1721831582;
+        d=1e100.net; s=20230601; t=1721226813; x=1721831613;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=GICXT0BFVJy0QIZX9VPtiCc3OM2RPQjhgUFSA0WTx1U=;
-        b=Ta8sZwwNP+1/5FYLxkTKJfCysOKbDSvhitqD3MnRdzwrUMG+/sHbhVYYCdKfJGkLNS
-         m/e92d227/X2HsTsTUy4qM8CG43Ry8F+kWI+Ta21WLeTS2bBgcgVieA3N6sakEJApcpk
-         WzPfVaB8TJyW8jAimCFczfGBM/spV+qV2kT+N5NphRqNUXxw3Poh0W63HreEyOntrUM4
-         RxsV0e+6c/eBfoMVkZVjyxGgKso18lhCsHRzEQlZY7gS+h9JofzktvOnwX38OwoEepU/
-         WKuF2PMIUn6W0/ctgDGGmoN69N3IZjdYNrYaAXNw6lAd1vWp0RABpEpCuVUrNOzDj1Kn
-         Zo7Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUdhqieManTcB6KTAumVggAwSIiY7TFNBEkFZK8AZiuufBuIUt6JWehpmAUn1zBRTCzCUWR6nWj0TAWqugn9QOKvSwbbDzJJi2P6Q==
-X-Gm-Message-State: AOJu0YwGPJPhI66oL+eJ1FOI79vpxj99abARlYNdBco/HORTc0ANUCvm
-	lRDfZr8ROEZYOTkRijs5aQKWx2joUI2S4RFTRxWR8GpNdpoOxdCE3/MmLYFZ3I1nVGo2IEI58m4
-	DNA06yXLZARCFFK/se26jkgsk2gcJg5ejzYYm8ejzqirdV4rZ3h0Nv+AxxuM=
-X-Received: by 2002:a05:6512:33c5:b0:52c:ec68:6165 with SMTP id 2adb3069b0e04-52ee53cc00bmr1663749e87.33.1721226782339;
-        Wed, 17 Jul 2024 07:33:02 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGrqpAiEHpfyNE8LzYLpjmIqAoQj/aWWnfve8BOPOkkfeVMrwCw7kn1k4etYvjz09EiWJN/XQ==
-X-Received: by 2002:a05:6512:33c5:b0:52c:ec68:6165 with SMTP id 2adb3069b0e04-52ee53cc00bmr1663731e87.33.1721226781780;
-        Wed, 17 Jul 2024 07:33:01 -0700 (PDT)
+        bh=mXBB0qjMEXfzqVaUDcGt6NXANeyKiUeQZZAQu7kGYb4=;
+        b=nxKMlW6QWkNubJls/0hD06CtyI04gb60RkJMA6xTgEWT0jfP5YodvQn3+eYt6mHcQb
+         N3ML8IDfOsN1i/QTYEpJ1AzJAPLn3C/wROiMsc/pff67Cjif0Ybl/1a3rFUjf+EDGvOL
+         jhcnE/BdAQOfsAXy3yKRBF8FQvq7s2mLpcAVc9Dk9/VTJboHtSfxU7sXG/bF+qTn/8Qn
+         I0hFBz275d3LkjLHrWRyq0JO/s+QfIzTobPa9CF4glXwh8rBgSdqLnQQQOpsmf7PGiRg
+         we3uxc28N6qb+lqf2FbEV5yxzKpDIwS82MxcBYNmk+OHCHyi7TfqgGRQRu/FHreZzeNn
+         U1lQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXnmDLY4fyjHOnbFbnJfr6gmVp3bvrK0Z0pcU1LGL2B4uKeOXCcT/zsrxJmQAilTNA0hroO7ppN+z4TfLiDYHQZto5ckWV6wY273g==
+X-Gm-Message-State: AOJu0YxUUMtEcUdS8HWpDvnTybiFjJ3WadRFFV0Xhw4Ks2raoXWKOT4p
+	TOKZfC+/SaNqxYw+dNNNbhd7o4lBOV2dErHDp/1aQ4xCcDUv/zzX2hRP9Rv4N63X/rxvgqXBa2+
+	Ws2WTNaqcMF/Z4N0hfJfBZfJ7ZEABms6+gf8VWcAkeSpDxy08lOlaVt2SZ/k=
+X-Received: by 2002:a05:600c:3d96:b0:426:6f81:d235 with SMTP id 5b1f17b1804b1-427c303a321mr14977375e9.15.1721226813644;
+        Wed, 17 Jul 2024 07:33:33 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGgu8rq663eT8ufhgNgCFLg21tSPwYTS9ihkX5BMsdTSuq5GcoEgyv7xkCuRjh9w8LzVIxZFg==
+X-Received: by 2002:a05:600c:3d96:b0:426:6f81:d235 with SMTP id 5b1f17b1804b1-427c303a321mr14976865e9.15.1721226813241;
+        Wed, 17 Jul 2024 07:33:33 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c714:c00:b08b:a871:ce99:dfde? (p200300cbc7140c00b08ba871ce99dfde.dip0.t-ipconnect.de. [2003:cb:c714:c00:b08b:a871:ce99:dfde])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-427c77a5804sm92385e9.16.2024.07.17.07.32.59
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-427c77bffa1sm74815e9.18.2024.07.17.07.33.31
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 17 Jul 2024 07:33:01 -0700 (PDT)
-Message-ID: <e57eca18-b66d-4b5d-9e73-8ab22f6bc747@redhat.com>
-Date: Wed, 17 Jul 2024 16:32:59 +0200
+        Wed, 17 Jul 2024 07:33:32 -0700 (PDT)
+Message-ID: <f73022b4-20d4-4358-9b15-949934d52b5e@redhat.com>
+Date: Wed, 17 Jul 2024 16:33:30 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,8 +68,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 02/17] MIPS: sgi-ip27: make NODE_DATA() the same as on all
- other architectures
+Subject: Re: [PATCH 03/17] MIPS: loongson64: rename __node_data to node_data
 To: Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
  Andreas Larsson <andreas@gaisler.com>,
@@ -97,7 +96,7 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
  devicetree@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org,
  x86@kernel.org
 References: <20240716111346.3676969-1-rppt@kernel.org>
- <20240716111346.3676969-3-rppt@kernel.org>
+ <20240716111346.3676969-4-rppt@kernel.org>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -145,75 +144,19 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20240716111346.3676969-3-rppt@kernel.org>
+In-Reply-To: <20240716111346.3676969-4-rppt@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 16.07.24 13:13, Mike Rapoport wrote:
 > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 > 
-> sgi-ip27 is the only system that defines NODE_DATA() differently than
-> the rest of NUMA machines.
-> 
-> Add node_data array of struct pglist pointers that will point to
-> __node_data[node]->pglist and redefine NODE_DATA() to use node_data
-> array.
-> 
-> This will allow pulling declaration of node_data to the generic mm code
-> in the next commit.
+> Make definition of node_data match other architectures.
+> This will allow pulling declaration of node_data to the generic mm code in
+> the following commit.
 > 
 > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 > ---
->   arch/mips/include/asm/mach-ip27/mmzone.h | 5 ++++-
->   arch/mips/sgi-ip27/ip27-memory.c         | 5 ++++-
->   2 files changed, 8 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/mips/include/asm/mach-ip27/mmzone.h b/arch/mips/include/asm/mach-ip27/mmzone.h
-> index 08c36e50a860..629c3f290203 100644
-> --- a/arch/mips/include/asm/mach-ip27/mmzone.h
-> +++ b/arch/mips/include/asm/mach-ip27/mmzone.h
-> @@ -22,7 +22,10 @@ struct node_data {
->   
->   extern struct node_data *__node_data[];
->   
-> -#define NODE_DATA(n)		(&__node_data[(n)]->pglist)
->   #define hub_data(n)		(&__node_data[(n)]->hub)
->   
-> +extern struct pglist_data *node_data[];
-> +
-> +#define NODE_DATA(nid)		(node_data[nid])
-> +
->   #endif /* _ASM_MACH_MMZONE_H */
-> diff --git a/arch/mips/sgi-ip27/ip27-memory.c b/arch/mips/sgi-ip27/ip27-memory.c
-> index b8ca94cfb4fe..c30ef6958b97 100644
-> --- a/arch/mips/sgi-ip27/ip27-memory.c
-> +++ b/arch/mips/sgi-ip27/ip27-memory.c
-> @@ -34,8 +34,10 @@
->   #define SLOT_PFNSHIFT		(SLOT_SHIFT - PAGE_SHIFT)
->   #define PFN_NASIDSHFT		(NASID_SHFT - PAGE_SHIFT)
->   
-> -struct node_data *__node_data[MAX_NUMNODES];
-> +struct pglist_data *node_data[MAX_NUMNODES];
-> +EXPORT_SYMBOL(node_data);
->   
-> +struct node_data *__node_data[MAX_NUMNODES];
->   EXPORT_SYMBOL(__node_data);
->   
->   static u64 gen_region_mask(void)
-> @@ -361,6 +363,7 @@ static void __init node_mem_init(nasid_t node)
->   	 */
->   	__node_data[node] = __va(slot_freepfn << PAGE_SHIFT);
->   	memset(__node_data[node], 0, PAGE_SIZE);
-> +	node_data[node] = &__node_data[node]->pglist;
->   
->   	NODE_DATA(node)->node_start_pfn = start_pfn;
->   	NODE_DATA(node)->node_spanned_pages = end_pfn - start_pfn;
-
-I was assuming we could get rid of __node_data->pglist.
-
-But now I am confused where that is actually set.
-
-Anyhow
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
 
