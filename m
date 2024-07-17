@@ -1,242 +1,353 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C747C181302
-	for <linux-s390@vger.kernel.org>; Wed, 17 Jul 2024 14:42:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 932DA186E2C;
+	Wed, 17 Jul 2024 20:09:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721227378; cv=none; b=p/VS5eBHRUKKwxR11KgiNERYj5AzE5MWo8aXe80ufniOxF2RGxOFK7ziPrWUxD7WTSoh/rI8qzHbN7USa1EWSi3dNLGndjSM6Shpqba9JiUhS78pbT3rrAXZdaMvZ+EPyTNl1zFxex6GB/NnkBpHgrBDTFU8dmuyES7w5Mflyn4=
+	t=1721246990; cv=none; b=KK83gTTgphg+S1DL9emZl67FTNzeWggyyz1K/BGuI9m9ZU7Tq3zO0NXVgRA3Vvt1O68HWsM7Iev4HKsK7OuVGFzU0TyS4i5L7MqGlXhh1CSIRGyoWIiVe8iSbIUZ0DH9EqBhVWs8HhCp3YuuVCfsPw9IS25PKxhbR1DIGXxv4jk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721227378; c=relaxed/simple;
-	bh=zUVIvHCsTCCXlgAEsrezINakY7JgduDyy2tKWsIjEJc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gDoHAsY36H3pAD03AqAPzQDYTRG52ytMByFs57xEZzt6S5dnii1663L5LklETFOey4JZdMbyuyEPgp6BPhqVA48o0DYJi8Rbe7vV5t44BxKvlp8v5wz0+QPAgXYhWMP0fT2y40dP4ennNTe8JQMI6qxMbLilHkAPUE/GUFQxs0E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TEJC5mgE; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1721246990; c=relaxed/simple;
+	bh=r1SCuP6BDc/XMk8VavdRDAynRmnTpz01AY1AmzWiYAY=;
+	h=Date:From:To:Cc:Subject:Message-ID:Content-Type:
+	 Content-Disposition:MIME-Version; b=Ur9//e+xy3EDpYD9Nf/l0Zo1wvnErsSnZi+NRZnwVHgsTx9Hon9wVsHFwUSOEGyk3rIEBUmaQocb3VnvCT+77VLB7Zv0pXUfR3OXS1PO/TT21nDAPYoStgUmmxQon5NlW9VkAm5dn+PEDCmF7z8WSd7IEnhLpwes+OznagH4oqk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JTtUg9Kh; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TEJC5mgE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721227374;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=M2vL8rRc69gotddfUAFMWYk4nVzDmp9tj4adCdBDziU=;
-	b=TEJC5mgEqqLu+j5SkvTipJT3CBFqO6gWUNsYjXWc1qS5Jju1GXl9Kp3enqyRCML9siWLCM
-	3tlfqdFwQONyuuPuC+PT2rcmqBF86/tquI2PeGpCTG61OcSUrcGDaqcRULov4+YKvDkOyp
-	WyCZ5Nw5Rgk180NYLALDBdlgSgQH+S8=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-433-QKxmyp3hNaGhICixf5EhIQ-1; Wed, 17 Jul 2024 10:42:53 -0400
-X-MC-Unique: QKxmyp3hNaGhICixf5EhIQ-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a77f48f2118so133665766b.1
-        for <linux-s390@vger.kernel.org>; Wed, 17 Jul 2024 07:42:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721227372; x=1721832172;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=M2vL8rRc69gotddfUAFMWYk4nVzDmp9tj4adCdBDziU=;
-        b=SCppfdXgZAuykhaNpSJlrxjkqMGjJu3oUYMqJgLzVT+e9tzU0i4BAmwFw+LQn+p/dh
-         +7mGoBsDkBFlay/AG5vIvFoT+JDhRUfTE7YvEwtLKdHTBmV+Yhwb0sZABU56dtiImoVJ
-         rg17yBLAV+drqp3lduZEj8cu6W54Iieqe0eOQAbu5OZQ3NR8XTRrDdfZUhTuuP9M6F8P
-         JgTdrJJ3O3OoQ2dqW0Kvw4Y2Q6mIHg4Bd/eIWtcyR5Tg91l/lFuXxdUNWIdDGE9MLRfO
-         ehjtOLGNqyLhpNOt4730MNXyy0qfAFbYqPKqzgG8X7MISfFC4FzXmo7Gx/e0FM/iMHZB
-         Yiug==
-X-Forwarded-Encrypted: i=1; AJvYcCWapYCHfc2vi6aV1vJcQNOoY9w1sllbmS81qjY+ZaaBg9vIVJIyZ3oZ6jZi8dpq4h8b7epYdSBFjEh39ununHYoCaCTQKQccLtwlQ==
-X-Gm-Message-State: AOJu0YzR3aVlGyekee+pwXLhJ3ZYmfRi7XHuuEheZoV67X5fXwrIHQ2V
-	CUp+1ob31UrZArHaavV0AW/vbsmn+qxXsKDnemRXQ4d5fjIjFJa/JXNqhxirlzcx1bw2X23miuf
-	/mZw4SjZiAp5154/z7eSoOVDKrDtJB3iaf5yURzka9nQ3w9yBFQ8qn6jQy0U=
-X-Received: by 2002:a17:906:1c0f:b0:a6f:46f1:5434 with SMTP id a640c23a62f3a-a79eda04168mr521688266b.6.1721227372357;
-        Wed, 17 Jul 2024 07:42:52 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEi6DrDSqxxObcD+4KvqZEIVIf6XCAhrJ0LWIBdtNZjezxwhMU5bcwwGQ0tRJ1krbBOftaEqw==
-X-Received: by 2002:a17:906:1c0f:b0:a6f:46f1:5434 with SMTP id a640c23a62f3a-a79eda04168mr521682366b.6.1721227371866;
-        Wed, 17 Jul 2024 07:42:51 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c714:c00:b08b:a871:ce99:dfde? (p200300cbc7140c00b08ba871ce99dfde.dip0.t-ipconnect.de. [2003:cb:c714:c00:b08b:a871:ce99:dfde])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a79bc5d2018sm453924466b.85.2024.07.17.07.42.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 17 Jul 2024 07:42:51 -0700 (PDT)
-Message-ID: <220da8ed-337a-4b1e-badf-2bff1d36e6c3@redhat.com>
-Date: Wed, 17 Jul 2024 16:42:48 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JTtUg9Kh"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46HIuo20030111;
+	Wed, 17 Jul 2024 20:09:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:content-type:mime-version; s=pp1;
+	 bh=QQ41U8jnHPCkwR4DJ4KHNgwfTMebv+HYRLpS8QIG1Xw=; b=JTtUg9KhnsKV
+	Pm//RLTexHoL63rIXQ5B/OVNYgO0RsP2UbOG1Fi9UBQOIANuyQWTbR1IGIu+nBDA
+	tLg8z416CQS/hnnNtAYvUUWdat7MthDlk9HT+bBpuhyRtgAJ0MEp0rRSu2aIzLgY
+	KqfhDq92rPav5iDP0d0DYB9FqOCys6RBa8xHSYqsFTzoZXLDtB+EOebSkAYUkuxB
+	gkxrWcUoOM9491N06g48RFjJF4EAqGHkDsJlCe5/y3dU5QjFxzzZ0OGEjwQhwHjC
+	earMAYF23PCfrBq3peTZjvPXC4ZX5AsK5UYHFX8t2MXJKJ2YezdAYD0rQeRxyEbj
+	0YzjwVtRsg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40e6h3j60j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Jul 2024 20:09:44 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46HHK0dT028853;
+	Wed, 17 Jul 2024 20:09:43 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40dwkmx2a3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Jul 2024 20:09:43 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46HK9bXX28770714
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 17 Jul 2024 20:09:39 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C9EAA20043;
+	Wed, 17 Jul 2024 20:09:37 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 45EBF20040;
+	Wed, 17 Jul 2024 20:09:37 +0000 (GMT)
+Received: from localhost (unknown [9.171.52.231])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 17 Jul 2024 20:09:37 +0000 (GMT)
+Date: Wed, 17 Jul 2024 22:09:35 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 patches for the 6.11 merge window
+Message-ID: <your-ad-here.call-01721246975-ext-7833@work.hours>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: FDClh2zFGJ2yuRYszmF1al-kSz6DGezZ
+X-Proofpoint-ORIG-GUID: FDClh2zFGJ2yuRYszmF1al-kSz6DGezZ
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 05/17] arch, mm: pull out allocation of NODE_DATA to
- generic code
-To: Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
- Andreas Larsson <andreas@gaisler.com>,
- Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>,
- Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Dan Williams <dan.j.williams@intel.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- "David S. Miller" <davem@davemloft.net>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Heiko Carstens <hca@linux.ibm.com>, Huacai Chen <chenhuacai@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Jiaxun Yang <jiaxun.yang@flygoat.com>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Jonathan Cameron <jonathan.cameron@huawei.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Palmer Dabbelt <palmer@dabbelt.com>,
- "Rafael J. Wysocki" <rafael@kernel.org>, Rob Herring <robh@kernel.org>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>,
- Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org,
- loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-acpi@vger.kernel.org,
- linux-cxl@vger.kernel.org, nvdimm@lists.linux.dev,
- devicetree@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org,
- x86@kernel.org
-References: <20240716111346.3676969-1-rppt@kernel.org>
- <20240716111346.3676969-6-rppt@kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20240716111346.3676969-6-rppt@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-07-17_15,2024-07-17_02,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 bulkscore=0
+ suspectscore=0 mlxscore=0 impostorscore=0 spamscore=0 phishscore=0
+ adultscore=0 clxscore=1011 lowpriorityscore=0 priorityscore=1501
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2407170151
 
-On 16.07.24 13:13, Mike Rapoport wrote:
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-> 
-> Architectures that support NUMA duplicate the code that allocates
-> NODE_DATA on the node-local memory with slight variations in reporting
-> of the addresses where the memory was allocated.
-> 
-> Use x86 version as the basis for the generic alloc_node_data() function
-> and call this function in architecture specific numa initialization.
-> 
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> ---
+Hello Linus,
 
-[...]
+Please pull s390 changes for 6.11. There is a conflict with the mm tree
+(not yet pulled as of now) which contains the KMSAN implementation for
+s390. Please apply the following fix-up if possible to avoid build breakage:
+https://lore.kernel.org/all/20240627150405.27663-1-iii@linux.ibm.com
+---
+ arch/s390/include/asm/kmsan.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-> diff --git a/arch/mips/loongson64/numa.c b/arch/mips/loongson64/numa.c
-> index 9208eaadf690..909f6cec3a26 100644
-> --- a/arch/mips/loongson64/numa.c
-> +++ b/arch/mips/loongson64/numa.c
-> @@ -81,12 +81,8 @@ static void __init init_topology_matrix(void)
->   
->   static void __init node_mem_init(unsigned int node)
->   {
-> -	struct pglist_data *nd;
->   	unsigned long node_addrspace_offset;
->   	unsigned long start_pfn, end_pfn;
-> -	unsigned long nd_pa;
-> -	int tnid;
-> -	const size_t nd_size = roundup(sizeof(pg_data_t), SMP_CACHE_BYTES);
-
-One interesting change is that we now always round up to full pages on 
-architectures where we previously rounded up to SMP_CACHE_BYTES.
-
-I assume we don't really expect a significant growth in memory 
-consumption that we care about, especially because most systems with 
-many nodes also have  quite some memory around.
-
-
-> -/* Allocate NODE_DATA for a node on the local memory */
-> -static void __init alloc_node_data(int nid)
-> -{
-> -	const size_t nd_size = roundup(sizeof(pg_data_t), PAGE_SIZE);
-> -	u64 nd_pa;
-> -	void *nd;
-> -	int tnid;
-> -
-> -	/*
-> -	 * Allocate node data.  Try node-local memory and then any node.
-> -	 * Never allocate in DMA zone.
-> -	 */
-> -	nd_pa = memblock_phys_alloc_try_nid(nd_size, SMP_CACHE_BYTES, nid);
-> -	if (!nd_pa) {
-> -		pr_err("Cannot find %zu bytes in any node (initial node: %d)\n",
-> -		       nd_size, nid);
-> -		return;
-> -	}
-> -	nd = __va(nd_pa);
-> -
-> -	/* report and initialize */
-> -	printk(KERN_INFO "NODE_DATA(%d) allocated [mem %#010Lx-%#010Lx]\n", nid,
-> -	       nd_pa, nd_pa + nd_size - 1);
-> -	tnid = early_pfn_to_nid(nd_pa >> PAGE_SHIFT);
-> -	if (tnid != nid)
-> -		printk(KERN_INFO "    NODE_DATA(%d) on node %d\n", nid, tnid);
-> -
-> -	node_data[nid] = nd;
-> -	memset(NODE_DATA(nid), 0, sizeof(pg_data_t));
-> -
-> -	node_set_online(nid);
-> -}
-> -
->   /**
->    * numa_cleanup_meminfo - Cleanup a numa_meminfo
->    * @mi: numa_meminfo to clean up
-> @@ -571,6 +538,7 @@ static int __init numa_register_memblks(struct numa_meminfo *mi)
->   			continue;
->   
->   		alloc_node_data(nid);
-> +		node_set_online(nid);
->   	}
-
-I can spot that we only remove a single node_set_online() call from x86.
-
-What about all the other architectures? Will there be any change in 
-behavior for them? Or do we simply set the nodes online later once more?
-
+diff --git a/arch/s390/include/asm/kmsan.h b/arch/s390/include/asm/kmsan.h
+index 27db65fbf3f6..f73e181d09ae 100644
+--- a/arch/s390/include/asm/kmsan.h
++++ b/arch/s390/include/asm/kmsan.h
+@@ -12,8 +12,8 @@
+ 
+ static inline bool is_lowcore_addr(void *addr)
+ {
+-       return addr >= (void *)&S390_lowcore &&
+-              addr < (void *)(&S390_lowcore + 1);
++       return addr >= (void *)get_lowcore() &&
++              addr < (void *)(get_lowcore() + 1);
+ }
+ 
+ static inline void *arch_kmsan_get_meta_or_null(void *addr, bool is_origin)
+@@ -25,7 +25,7 @@ static inline void *arch_kmsan_get_meta_or_null(void *addr, bool is_origin)
+                 * order to get a distinct struct page.
+                 */
+                addr += (void *)lowcore_ptr[raw_smp_processor_id()] -
+-                       (void *)&S390_lowcore;
++                       (void *)get_lowcore();
+                if (KMSAN_WARN_ON(is_lowcore_addr(addr)))
+                        return NULL;
+                return kmsan_get_metadata(addr, is_origin);
 -- 
-Cheers,
 
-David / dhildenb
+Thank you,
+Vasily
 
+The following changes since commit c3f38fa61af77b49866b006939479069cd451173:
+
+  Linux 6.10-rc2 (2024-06-02 15:44:56 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.11-1
+
+for you to fetch changes up to df39038cd89525d465c2c8827eb64116873f141a:
+
+  s390/mm: Fix VM_FAULT_HWPOISON handling in do_exception() (2024-07-17 14:30:30 +0200)
+
+----------------------------------------------------------------
+s390 updates for 6.11 merge window
+
+- Remove restrictions on PAI NNPA and crypto counters, enabling
+  concurrent per-task and system-wide sampling and counting events
+
+- Switch to GENERIC_CPU_DEVICES by setting up the CPU present mask in
+  the architecture code and letting the generic code handle CPU bring-up
+
+- Add support for the diag204 busy indication facility to prevent
+  undesirable blocking during hypervisor logical CPU utilization
+  queries. Implement results caching
+
+- Improve the handling of Store Data SCLP events by suppressing
+  unnecessary warning, preventing buffer release in I/O during failures,
+  and adding timeout handling for Store Data requests to address potential
+  firmware issues
+
+- Provide optimized __arch_hweight*() implementations
+
+- Remove the unnecessary CPU KOBJ_CHANGE uevents generated during topology
+  updates, as they are unused and also not present on other architectures
+
+- Cleanup atomic_ops, optimize __atomic_set() for small values and
+  __atomic_cmpxchg_bool() for compilers supporting flag output constraint
+
+- Couple of cleanups for KVM:
+  - Move and improve KVM struct definitions for DAT tables from gaccess.c
+    to a new header
+  - Pass the asce as parameter to sie64a()
+
+- Make the crdte() and cspg() page table handling wrappers return a
+  boolean to indicate success, like the other existing "compare and swap"
+  wrappers
+
+- Add documentation for HWCAP flags
+
+- Switch to obtaining total RAM pages from memblock instead of
+  totalram_pages() during mm init, to ensure correct calculation of zero
+  page size, when defer_init is enabled
+
+- Refactor lowcore access and switch to using the get_lowcore() function
+  instead of the S390_lowcore macro
+
+- Cleanups for PG_arch_1 and folio handling in UV and hugetlb code
+
+- Add missing MODULE_DESCRIPTION() macros
+
+- Fix VM_FAULT_HWPOISON handling in do_exception()
+
+----------------------------------------------------------------
+Alexander Gordeev (1):
+      s390/sclp: Define commands for storage (un)assignment
+
+Claudio Imbrenda (3):
+      s390/pgtable: Make crdte() and cspg() return a value
+      s390/entry: Pass the asce as parameter to sie64a()
+      s390/kvm: Move bitfields for dat tables
+
+David Hildenbrand (10):
+      s390/uv: Don't call folio_wait_writeback() without a folio reference
+      s390/uv: gmap_make_secure() cleanups for further changes
+      s390/uv: Split large folios in gmap_make_secure()
+      s390/uv: Convert PG_arch_1 users to only work on small folios
+      s390/uv: Update PG_arch_1 comment
+      s390/uv: Make uv_convert_from_secure() a static function
+      s390/uv: Convert uv_destroy_owned_page() to uv_destroy_(folio|pte)()
+      s390/uv: Convert uv_convert_owned_from_secure() to uv_convert_from_secure_(folio|pte)()
+      s390/uv: Implement HAVE_ARCH_MAKE_FOLIO_ACCESSIBLE
+      s390/hugetlb: Convert PG_arch_1 code to work on folio->flags
+
+Gerald Schaefer (1):
+      s390/mm: Fix VM_FAULT_HWPOISON handling in do_exception()
+
+Heiko Carstens (5):
+      s390: Provide optimized __arch_hweight*() implementations
+      s390/hwcaps: Add documentation for HWCAP flags
+      s390/atomic_ops: Use symbolic names
+      s390/atomic_ops: Improve __atomic_set() for small values
+      s390/atomic_ops: Make use of flag output constraint
+
+Jeff Johnson (5):
+      s390/crc32: Add missing MODULE_DESCRIPTION() macro
+      s390/lib: Add missing MODULE_DESCRIPTION() macros
+      s390/mm: Add missing MODULE_DESCRIPTION() macro
+      s390/dcssblk: Add missing MODULE_DESCRIPTION() macro
+      s390/3270: Add missing MODULE_DESCRIPTION() macros
+
+Mete Durlu (8):
+      s390/topology: Remove CPU KOBJ_CHANGE uevents
+      s390/sclp: Diag204 busy indication facility detection
+      s390/diag: Return errno's from diag204
+      s390/diag: Diag204 add busy return errno
+      s390/diag: Add busy-indication-facility requirements
+      s390/hypfs_diag: Diag204 busy loop
+      s390/sthyi: Move diag operations
+      s390/sthyi: Use cached data when diag is busy
+
+Peter Oberparleiter (3):
+      s390/sclp: Suppress unnecessary Store Data warning
+      s390/sclp: Prevent release of buffer in I/O
+      s390/sclp: Add timeout to Store Data requests
+
+Sven Schnelle (11):
+      s390: Add get_lowcore() function
+      s390: Replace S390_lowcore by get_lowcore()
+      s390/drivers: Replace S390_lowcore by get_lowcore()
+      s390/boot: Replace S390_lowcore by get_lowcore()
+      s390/nmi: Remove duplicate get_lowcore() calls
+      s390/smp: Remove duplicate get_lowcore() calls
+      s390/vtime: Remove duplicate get_lowcore() calls
+      s390/idle: Remove duplicate get_lowcore() calls
+      s390/mm: Remove duplicate get_lowcore() calls
+      s390: Remove S390_lowcore
+      s390/smp: Switch to GENERIC_CPU_DEVICES
+
+Thomas Richter (6):
+      s390/pai_crypto: Enable concurrent system-wide counting/sampling event
+      s390/pai_crypto: Enable per-task counting event
+      s390/pai_crypto: Enable per-task and system-wide sampling event
+      s390/pai_ext: Enable concurrent system-wide counting/sampling
+      s390/pai_ext: Enable per-task counting event
+      s390/pai_ext: Enable per-task and system-wide sampling event
+
+Wei Yang (1):
+      s390/mm: Get total ram pages from memblock
+
+ arch/s390/Kconfig                     |   3 +-
+ arch/s390/boot/ipl_parm.c             |   4 +-
+ arch/s390/boot/ipl_report.c           |   2 +-
+ arch/s390/boot/pgm_check_info.c       |  18 +--
+ arch/s390/boot/physmem_info.c         |   8 +-
+ arch/s390/boot/startup.c              |  12 +-
+ arch/s390/boot/vmem.c                 |  12 +-
+ arch/s390/crypto/crc32-vx.c           |   1 +
+ arch/s390/hypfs/hypfs_dbfs.c          |   4 +-
+ arch/s390/hypfs/hypfs_diag.c          |  17 ++-
+ arch/s390/include/asm/arch_hweight.h  |  76 +++++++++++++
+ arch/s390/include/asm/atomic_ops.h    |  84 ++++++++++----
+ arch/s390/include/asm/bitops.h        |   3 +-
+ arch/s390/include/asm/current.h       |   2 +-
+ arch/s390/include/asm/dat-bits.h      | 170 ++++++++++++++++++++++++++++
+ arch/s390/include/asm/diag.h          |   8 ++
+ arch/s390/include/asm/elf.h           |   8 ++
+ arch/s390/include/asm/facility.h      |   4 +-
+ arch/s390/include/asm/hardirq.h       |   6 +-
+ arch/s390/include/asm/kvm_host.h      |   7 +-
+ arch/s390/include/asm/lowcore.h       |   5 +-
+ arch/s390/include/asm/mmu_context.h   |   8 +-
+ arch/s390/include/asm/page.h          |   5 +
+ arch/s390/include/asm/pai.h           |  17 ++-
+ arch/s390/include/asm/percpu.h        |   2 +-
+ arch/s390/include/asm/pgtable.h       |  33 +++++-
+ arch/s390/include/asm/preempt.h       |  30 ++---
+ arch/s390/include/asm/processor.h     |   8 +-
+ arch/s390/include/asm/sclp.h          |   1 +
+ arch/s390/include/asm/setup.h         |  34 +++---
+ arch/s390/include/asm/smp.h           |   4 +-
+ arch/s390/include/asm/softirq_stack.h |   2 +-
+ arch/s390/include/asm/spinlock.h      |   2 +-
+ arch/s390/include/asm/stacktrace.h    |   1 +
+ arch/s390/include/asm/timex.h         |  10 +-
+ arch/s390/include/asm/uv.h            |  12 +-
+ arch/s390/include/asm/vtime.h         |  16 ++-
+ arch/s390/kernel/asm-offsets.c        |   1 +
+ arch/s390/kernel/diag.c               |  12 +-
+ arch/s390/kernel/dumpstack.c          |   8 +-
+ arch/s390/kernel/early.c              |  36 +++---
+ arch/s390/kernel/entry.S              |   8 +-
+ arch/s390/kernel/idle.c               |  11 +-
+ arch/s390/kernel/irq.c                |  18 +--
+ arch/s390/kernel/machine_kexec.c      |   4 +-
+ arch/s390/kernel/nmi.c                |  31 ++---
+ arch/s390/kernel/perf_cpum_sf.c       |   2 +-
+ arch/s390/kernel/perf_pai_crypto.c    | 189 +++++++++++++++++++------------
+ arch/s390/kernel/perf_pai_ext.c       | 146 ++++++++++++++++--------
+ arch/s390/kernel/process.c            |   6 +-
+ arch/s390/kernel/setup.c              |  24 ++--
+ arch/s390/kernel/smp.c                |  88 +++++++--------
+ arch/s390/kernel/sthyi.c              |  95 +++++++++++-----
+ arch/s390/kernel/syscall.c            |   4 +-
+ arch/s390/kernel/time.c               |  22 ++--
+ arch/s390/kernel/topology.c           |   8 +-
+ arch/s390/kernel/traps.c              |  28 ++---
+ arch/s390/kernel/uv.c                 | 207 +++++++++++++++++++++++-----------
+ arch/s390/kernel/vtime.c              |  82 +++++++-------
+ arch/s390/kvm/gaccess.c               | 163 +-------------------------
+ arch/s390/kvm/kvm-s390.c              |   5 +-
+ arch/s390/kvm/vsie.c                  |   2 +-
+ arch/s390/lib/spinlock.c              |   4 +-
+ arch/s390/lib/test_kprobes.c          |   1 +
+ arch/s390/lib/test_modules.c          |   1 +
+ arch/s390/lib/test_unwind.c           |   3 +-
+ arch/s390/lib/uaccess.c               |   4 +-
+ arch/s390/mm/cmm.c                    |   1 +
+ arch/s390/mm/dump_pagetables.c        |   2 +-
+ arch/s390/mm/fault.c                  |  33 +++---
+ arch/s390/mm/gmap.c                   |  16 +--
+ arch/s390/mm/hugetlbpage.c            |   8 +-
+ arch/s390/mm/init.c                   |   3 +-
+ arch/s390/mm/pageattr.c               |   2 +-
+ arch/s390/mm/pgalloc.c                |   4 +-
+ arch/s390/pci/pci.c                   |   2 +-
+ drivers/s390/block/dcssblk.c          |   1 +
+ drivers/s390/char/con3270.c           |   1 +
+ drivers/s390/char/fs3270.c            |   1 +
+ drivers/s390/char/raw3270.c           |   1 +
+ drivers/s390/char/sclp_cmd.c          |   7 +-
+ drivers/s390/char/sclp_config.c       |   2 +-
+ drivers/s390/char/sclp_early.c        |   5 +-
+ drivers/s390/char/sclp_early_core.c   |  12 +-
+ drivers/s390/char/sclp_sd.c           |  26 ++++-
+ drivers/s390/cio/qdio_main.c          |   2 +-
+ drivers/s390/cio/qdio_thinint.c       |   2 +-
+ drivers/s390/cio/trace.h              |   2 +-
+ 88 files changed, 1207 insertions(+), 778 deletions(-)
+ create mode 100644 arch/s390/include/asm/arch_hweight.h
+ create mode 100644 arch/s390/include/asm/dat-bits.h
