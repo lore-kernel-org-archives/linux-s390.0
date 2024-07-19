@@ -1,63 +1,107 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 354A612FB0A;
-	Thu, 18 Jul 2024 23:06:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A678A35;
+	Fri, 19 Jul 2024 05:58:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721343967; cv=none; b=sI80dXGF+5pXhRBgVI+l6dxYp3bA8gIYfic1Rep5w1XWHewri8USr/0alXYrze6IKJRQsTutNTWRl6AvVI08paAoyd0vTUWCfqJBcTI/HU/yvOVqzGlTilyoqPiXf+e9zf7o50cQEztWnnYwaEkaTR4Tltzw+8BKV6DLrVAhlF4=
+	t=1721368713; cv=none; b=XP3ID2nPSH2aLtgUDGiUiaUwOhPe0Jd6W+INdwDqAA4FOBlIs05+6Rl2aXjjhAXN9fgFp3u775emQ9VQWL5Dide918X1FfzW0ZVL5AMFkilCiClxhOVgW7k85u6SJJ9cgHbaOS4ZkO58bzSYqWxo/0OcX8Qs5pLvkxdTnGEcGTw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721343967; c=relaxed/simple;
-	bh=BeSnoBV0D6cUCjOyt+tSSFpNxOsdVXsJHVyeVB2Ncgk=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=VhZkqkyjJG1Cf1jw4nBgkynmDl2jRct+ujEstIVaDCZVvjTLriDvQR1UFa4WDonWfvryjYm9EyIgW0hd0oAHN2EO6efwRz1l+wmRFGYEXNHKiXDFwJBse1/MU9X1thQGyjGFROVVIPtlnDmLs5YtmQjTOCWRkLbQZ1MX+0q+6Z4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZQMeQ5Bm; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1721368713; c=relaxed/simple;
+	bh=UQznUIdoHoSsnmJ9kRgND1mWM0Wr77U9QEYTciDIo28=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GZguJpHnX8fe8y7f/Qsn9brJu52qV8u2yaL50sznIj20S6Yvwl+AtUlL6yj9kgVEg6SoJT1sky3xSw9eq2410xHQaeJPFn7M4gpzEY2uFDb61IjzPKpNRp7mIeuz+sljKXjAka1KP0IneJmvv5NwCqdey6kKs3u+WMVmTpbFqQc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YRFthwaJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZQMeQ5Bm"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id B6A8EC116B1;
-	Thu, 18 Jul 2024 23:06:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YRFthwaJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38BCBC32782;
+	Fri, 19 Jul 2024 05:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1721343966;
-	bh=BeSnoBV0D6cUCjOyt+tSSFpNxOsdVXsJHVyeVB2Ncgk=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=ZQMeQ5BmjbU+aOg7DtpGnxa+OWHQjho6PmwwmHezAmRM3prZltzAc2MExArI1cZvm
-	 84XQMBRKp/yE4NhnUOOMIzGZ+4WKrOAD451iWKDg5XMI83TsFxvfqOD3ZO2tNvzTbK
-	 T9BdCX7ONolOlJO65G71lAMc4zDn5/Yfgwh5H24QVM8TTnBnFj1dZA+/akh83iU/dD
-	 VZfKls2Txy8YEZDs/B9aQ10L0GJPdkbgyWpYG5UuENaFR59wCLRg9xmK38cwGyluMY
-	 fMaNQZ9sLX43OaMw3Qq9ByyYtBWx5AhMkzrtp1E5o6Q8YC6kWnSLtJS5Nk66wIrsIX
-	 uihv7OG3YA10A==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id AC7CFC43443;
-	Thu, 18 Jul 2024 23:06:06 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 patches for the 6.11 merge window
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <your-ad-here.call-01721246975-ext-7833@work.hours>
-References: <your-ad-here.call-01721246975-ext-7833@work.hours>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <your-ad-here.call-01721246975-ext-7833@work.hours>
-X-PR-Tracked-Remote: https://lore.kernel.org/all/20240627150405.27663-1-iii@linux.ibm.com ---
-X-PR-Tracked-Commit-Id: df39038cd89525d465c2c8827eb64116873f141a
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 1c7d0c3af5cc8adafef6477f9416820fc894ca40
-Message-Id: <172134396669.16085.7253506528451652809.pr-tracker-bot@kernel.org>
-Date: Thu, 18 Jul 2024 23:06:06 +0000
-To: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Heiko Carstens <hca@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+	s=k20201202; t=1721368712;
+	bh=UQznUIdoHoSsnmJ9kRgND1mWM0Wr77U9QEYTciDIo28=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=YRFthwaJnqijAayKx7Nr5Wz+cg7XtkKFYmu9Y+J8JOSZNkKtcyO0oPxjnmHQb5MAT
+	 +SzEDWjweXYNk8r/wQxrhgFgyaJzF2zS7ds36V+HfUkLd39/F0Jm+9Xel/QgVHiXrN
+	 u8dtVDBEcxTLfuJ09zphSq9TFj0SodZS5yh/iSTnCqMAmk0l0hgKZ81y9JEQyQLhxw
+	 sglzaaOKdzC/1FVu4YR8/PhMdvuoqPLRhEF6pZyxCI7bcLrHj8JLnnhhcpRX6xDDkZ
+	 xqyY0lHVXYowiKXrRiLwZxIMlHLP+cfRIEOh0c7+hIF8r+/xRAu73hBTRRXaUjI764
+	 7OCKjCrNEM7Gw==
+Date: Fri, 19 Jul 2024 08:55:27 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: Samuel Holland <samuel.holland@sifive.com>
+Cc: linux-kernel@vger.kernel.org,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Hildenbrand <david@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Jiaxun Yang <jiaxun.yang@flygoat.com>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonathan Cameron <jonathan.cameron@huawei.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+	linux-acpi@vger.kernel.org, linux-cxl@vger.kernel.org,
+	nvdimm@lists.linux.dev, devicetree@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org
+Subject: Re: [PATCH 13/17] mm: move numa_distance and related code from x86
+ to numa_memblks
+Message-ID: <Zpn_z_NgzTl_db5t@kernel.org>
+References: <20240716111346.3676969-1-rppt@kernel.org>
+ <20240716111346.3676969-14-rppt@kernel.org>
+ <8b402e92-d874-4b30-9108-f521bd20d36c@sifive.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8b402e92-d874-4b30-9108-f521bd20d36c@sifive.com>
 
-The pull request you sent on Wed, 17 Jul 2024 22:09:35 +0200:
+On Thu, Jul 18, 2024 at 04:46:17PM -0500, Samuel Holland wrote:
+> On 2024-07-16 6:13 AM, Mike Rapoport wrote:
+> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> > 
+> > Move code dealing with numa_distance array from arch/x86 to
+> > mm/numa_memblks.c
+> > 
+> > This code will be later reused by arch_numa.
+> > 
+> > No functional changes.
+> > 
+> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> > ---
+> >  arch/x86/mm/numa.c                   | 101 ---------------------------
+> >  arch/x86/mm/numa_internal.h          |   2 -
+> >  include/linux/numa_memblks.h         |   4 ++
+> >  {arch/x86/mm => mm}/numa_emulation.c |   0
+> >  mm/numa_memblks.c                    | 101 +++++++++++++++++++++++++++
+> >  5 files changed, 105 insertions(+), 103 deletions(-)
+> >  rename {arch/x86/mm => mm}/numa_emulation.c (100%)
+> 
+> The numa_emulation.c rename looks like it should be part of the next commit, not
+> this one.
 
-> https://lore.kernel.org/all/20240627150405.27663-1-iii@linux.ibm.com ---
-
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/1c7d0c3af5cc8adafef6477f9416820fc894ca40
-
-Thank you!
+Right, thanks!
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Sincerely yours,
+Mike.
