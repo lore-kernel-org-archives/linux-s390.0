@@ -1,234 +1,196 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA88D199C2;
-	Mon, 22 Jul 2024 08:11:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00E072CA9
+	for <linux-s390@vger.kernel.org>; Mon, 22 Jul 2024 13:29:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721635881; cv=none; b=ccvud8nYshYxWjrQikDyy23/R3uuY2tsvMhPCp3c1ijWq58JCvFodzKiUYaf7yBY+OhnrqPRBjExd0FcwqfCxIudGw1q6o/GNohQqV3st86PpR2dWWp/89ewQQzp5NPThaeOIZU1CxjK0TOaPmiDWgPOOyLSEELwOymbE6LHu0Y=
+	t=1721654992; cv=none; b=g95dA0SFd0FT5JAWQOhwSh3FLhKVIpvFHN2yAP3XXkqXECn//EnwQC7RIkwy2BdOHLr1zNgVavAmNYMBo/AMUvjMRUVBtQSLhU99DOw5CffhwAVjdBsgjOH9VlTr5WDH5tagNOhN4ZQ8USiF6rKeVWdfnbMkOg/589kSjbVBQZE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721635881; c=relaxed/simple;
-	bh=KbHb2ML+/qNtqrROpXFQuCOgzyU9WkoEjmRDGSn9Buc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lytYPElcsaEAhjoWR/hyoAtzlK0nlvcdMhRARmkGDpXX4RvMrChAfrgBzUo8w1c0WmbZjeSWTSmw4j8XH3KvQab3j9++bt3uQGN/TMAfSlqCAq23GA8/aEPXiEc9LJMBw0+q5Iq3jGxmGGnG5H7bV4zW+VU1YML9u+upzIl8o3Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pmvGwQdU; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1721654992; c=relaxed/simple;
+	bh=shTJrxd4i+mcysedkPUPCsWV1pmIpJo7ixhYECyPaKw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ELUp+TZ7wey7OU3HYTZzbd5F+jx5xFdPXsz2u29LcTyb3CL2rcFU2kQ9JPII5MweFiNKGJxrvSIQwudQrhZtTZHTN7HkJ+fwtJNQGIl0egJODKbneNsaL49cVf4Euolfnpj66ZBXa5gj/pU0vdeL6ltdQvXQozdMy92f6sEVzgA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fLCwrejS; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pmvGwQdU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3697C32782;
-	Mon, 22 Jul 2024 08:11:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1721635881;
-	bh=KbHb2ML+/qNtqrROpXFQuCOgzyU9WkoEjmRDGSn9Buc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=pmvGwQdUNlDOWhEh5LDwssibR/KEz7Zmmpd8mKQJ30oNCDnjOOYBrxm5QxDheiGpM
-	 v2fA6aKX+vgggaKwCAygIbGfh8J+i/6ypRPQfXQm/pPLVwBpHQQ0ePGi/iWCBNnGNs
-	 K6/E4TEMVX41pv99/WxiNTZpZsJ7u7AUQO0/nnACqOE2r61ablwa38hrfn24gKR7af
-	 4ZwCTnQ0nxsiA1qRrmHJI/3vt9VXGn+Doo9wPFkpJ1m8ADDfzpc1fqTbeg7JemtZZV
-	 hWVZyVEHXLgElOCdvOBrZYp1YKgEEly5/oGP5VPwn2hJw/yrNojdPai/kIldbMKfjo
-	 Li75LtSqlZlhA==
-Date: Mon, 22 Jul 2024 11:08:11 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: linux-kernel@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	David Hildenbrand <david@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Jiaxun Yang <jiaxun.yang@flygoat.com>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
-	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-	linux-acpi@vger.kernel.org, linux-cxl@vger.kernel.org,
-	nvdimm@lists.linux.dev, devicetree@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org
-Subject: Re: [PATCH 00/17] mm: introduce numa_memblks
-Message-ID: <Zp4Ta31U6amqIbI1@kernel.org>
-References: <20240716111346.3676969-1-rppt@kernel.org>
- <20240719143347.000077d9@huawei.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fLCwrejS"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1721654989;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=hj0518Q+ag2Y9NZVcsCpncBBpD7wr8EEpXH9Btxb4Io=;
+	b=fLCwrejSGd8EwhkzncuiF35/KqnR0ZoEGsXcooJjWf5WqReaxZInyvko+EUbWp84GIF20a
+	BJKDv073G8lciS/AQBNKxLjcg/Ywc683jBcXpyBuAFr+sq0NzWXMSh3yHtUZkCpPVMPjBg
+	8MxlZGuAokjukKCMmd+zT6bFevsNbDM=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-347-UckfQlwYNJWXWYcMQd-Vgg-1; Mon, 22 Jul 2024 09:29:48 -0400
+X-MC-Unique: UckfQlwYNJWXWYcMQd-Vgg-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-42668796626so32911765e9.0
+        for <linux-s390@vger.kernel.org>; Mon, 22 Jul 2024 06:29:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721654985; x=1722259785;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=hj0518Q+ag2Y9NZVcsCpncBBpD7wr8EEpXH9Btxb4Io=;
+        b=JX0EN76eq4B6ga3nwn6OjQ/w8t1S5tby5+S/KvOajhuXzvbRO7FdEXCMGhRVNUtoc5
+         i4CVE3kq5Zn/F91f3mqc7BHEB34Lg+zZHcxRychIoDhIiR4uNoSxD78WTAGTf9RgV4Ts
+         /MMpS0FjM6lcjjdodWhwje09K0terW/Zoos5tlAaUAbImtTF+GokYGnl5dCgyoq/hJcV
+         nnaJ7pS88XwxZlINKq2e/kveTyi7C64p77WZBUZ0YcLPImbC54K2GmvhsoWreaCQQ1lg
+         0eDJdcdtjcPwWi9hNPswVjHei+p5yRmMonbU+Ovh3manttg4VdQfpSZKeJNP+7+bimSf
+         QuoQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUw1SxzGq1o/wNWGcE4AsaSizq6jchDDs5oL+uE9LSQx2OX1UkKQWQdphWM0NcM7yN4zi9EvDwyvCaV/mguNvxSqUsA4laZq68vmQ==
+X-Gm-Message-State: AOJu0YwR5NW+oP//44sqDPYfhRoSxzeGuSVv8PXpY36ZcMQ4Wbo7u9VO
+	lFopshXgKpdJfHiuEcW/bu3eA6YSpj0Wl6yBwlYz9dQDn4HBJR6HQz5Rh55db4ttG4oJRuXiN5F
+	Vl1B11QD1Vbi7HCACDZ/M0+GFaUmfPsH/BWAJeVHDVwdBHEp/HfotDHXVonA=
+X-Received: by 2002:a05:600c:a4c:b0:426:6389:94c4 with SMTP id 5b1f17b1804b1-427ea1d5a2dmr9070875e9.37.1721654985325;
+        Mon, 22 Jul 2024 06:29:45 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGIyw9dA2YYXh0wR+3Pj025bxjyvTGi6gFSINBbowgn9GBPFQbhi8MNgjqnWB9eXV6rnCmpfg==
+X-Received: by 2002:a05:600c:a4c:b0:426:6389:94c4 with SMTP id 5b1f17b1804b1-427ea1d5a2dmr9070715e9.37.1721654984893;
+        Mon, 22 Jul 2024 06:29:44 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c727:7000:c050:e303:f8a7:6ed9? (p200300cbc7277000c050e303f8a76ed9.dip0.t-ipconnect.de. [2003:cb:c727:7000:c050:e303:f8a7:6ed9])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-427d6900caasm126895385e9.11.2024.07.22.06.29.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 22 Jul 2024 06:29:44 -0700 (PDT)
+Message-ID: <cf36725d-c197-4c07-8998-d34711335fdb@redhat.com>
+Date: Mon, 22 Jul 2024 15:29:43 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240719143347.000077d9@huawei.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC 0/6] mm: THP-agnostic refactor on huge mappings
+To: Peter Xu <peterx@redhat.com>, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org
+Cc: Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>,
+ linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ Matthew Wilcox <willy@infradead.org>, Dan Williams
+ <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>,
+ linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org,
+ Alex Williamson <alex.williamson@redhat.com>,
+ Jason Gunthorpe <jgg@nvidia.com>, x86@kernel.org,
+ Alistair Popple <apopple@nvidia.com>, linuxppc-dev@lists.ozlabs.org,
+ linux-arm-kernel@lists.infradead.org, Ryan Roberts <ryan.roberts@arm.com>,
+ Hugh Dickins <hughd@google.com>, Axel Rasmussen <axelrasmussen@google.com>
+References: <20240717220219.3743374-1-peterx@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20240717220219.3743374-1-peterx@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jul 19, 2024 at 02:33:47PM +0100, Jonathan Cameron wrote:
-> On Tue, 16 Jul 2024 14:13:29 +0300
-> Mike Rapoport <rppt@kernel.org> wrote:
+On 18.07.24 00:02, Peter Xu wrote:
+> This is an RFC series, so not yet for merging.  Please don't be scared by
+> the code changes: most of them are code movements only.
 > 
-> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-> > 
-> > Hi,
-> > 
-> > Following the discussion about handling of CXL fixed memory windows on
-> > arm64 [1] I decided to bite the bullet and move numa_memblks from x86 to
-> > the generic code so they will be available on arm64/riscv and maybe on
-> > loongarch sometime later.
-> > 
-> > While it could be possible to use memblock to describe CXL memory windows,
-> > it currently lacks notion of unpopulated memory ranges and numa_memblks
-> > does implement this.
-> > 
-> > Another reason to make numa_memblks generic is that both arch_numa (arm64
-> > and riscv) and loongarch use trimmed copy of x86 code although there is no
-> > fundamental reason why the same code cannot be used on all these platforms.
-> > Having numa_memblks in mm/ will make it's interaction with ACPI and FDT
-> > more consistent and I believe will reduce maintenance burden.
-> > 
-> > And with generic numa_memblks it is (almost) straightforward to enable NUMA
-> > emulation on arm64 and riscv.
-> > 
-> > The first 5 commits in this series are cleanups that are not strictly
-> > related to numa_memblks.
-> > 
-> > Commits 6-11 slightly reorder code in x86 to allow extracting numa_memblks
-> > and NUMA emulation to the generic code.
-> > 
-> > Commits 12-14 actually move the code from arch/x86/ to mm/ and commit 15
-> > does some aftermath cleanups.
-> > 
-> > Commit 16 switches arch_numa to numa_memblks.
-> > 
-> > Commit 17 enables usage of phys_to_target_node() and
-> > memory_add_physaddr_to_nid() with numa_memblks.
+> This series is based on the dax mprotect fix series here (while that one is
+> based on mm-unstable):
 > 
-> Hi Mike,
+>    [PATCH v3 0/8] mm/mprotect: Fix dax puds
+>    https://lore.kernel.org/r/20240715192142.3241557-1-peterx@redhat.com
 > 
-> I've lightly tested with emulated CXL + Generic Ports and Generic
-> Initiators as well as more normal cpus and memory via qemu on arm64 and it's
-> looking good.
+> Overview
+> ========
 > 
-> From my earlier series, patch 4 is probably still needed to avoid
-> presenting nodes with nothing in them at boot (but not if we hotplug
-> memory then remove it again in which case they disappear)
-> https://lore.kernel.org/all/20240529171236.32002-5-Jonathan.Cameron@huawei.com/
-> However that was broken/inconsistent before your rework so I can send that
-> patch separately. 
+> This series doesn't provide any feature change.  The only goal of this
+> series is to start decoupling two ideas: "THP" and "huge mapping".  We
+> already started with having PGTABLE_HAS_HUGE_LEAVES config option, and this
+> one extends that idea into the code.
+> 
+> The issue is that we have so many functions that only compile with
+> CONFIG_THP=on, even though they're about huge mappings, and huge mapping is
+> a pretty common concept, which can apply to many things besides THPs
+> nowadays.  The major THP file is mm/huge_memory.c as of now.
+> 
+> The first example of such huge mapping users will be hugetlb.  We lived
+> until now with no problem simply because Linux almost duplicated all the
+> logics there in the "THP" files into hugetlb APIs.  If we want to get rid
+> of hugetlb specific APIs and paths, this _might_ be the first thing we want
+> to do, because we want to be able to e.g., zapping a hugetlb pmd entry even
+> if !CONFIG_THP.
+> 
+> Then consider other things like dax / pfnmaps.  Dax can depend on THP, then
+> it'll naturally be able to use pmd/pud helpers, that's okay.  However is it
+> a must?  Do we also want to have every new pmd/pud mappings in the future
+> to depend on THP (like PFNMAP)?  My answer is no, but I'm open to opinions.
+> 
+> If anyone agrees with me that "huge mapping" (aka, PMD/PUD mappings that
+> are larger than PAGE_SIZE) is a more generic concept than THP, then I think
+> at some point we need to move the generic code out of THP code into a
+> common code base.
+> 
+> This is what this series does as a start.
 
-I'd appreciate it :)
- 
-> Thanks for getting this sorted!  I should get time to do more extensive
-> testing and review in next week or so.
+Hi Peter!
 
-Thanks, you may want to wait for v2, I'm planning to send it this week.
- 
-> Jonathan
-> 
-> > 
-> > [1] https://lore.kernel.org/all/20240529171236.32002-1-Jonathan.Cameron@huawei.com/
-> > 
-> > Mike Rapoport (Microsoft) (17):
-> >   mm: move kernel/numa.c to mm/
-> >   MIPS: sgi-ip27: make NODE_DATA() the same as on all other
-> >     architectures
-> >   MIPS: loongson64: rename __node_data to node_data
-> >   arch, mm: move definition of node_data to generic code
-> >   arch, mm: pull out allocation of NODE_DATA to generic code
-> >   x86/numa: simplify numa_distance allocation
-> >   x86/numa: move FAKE_NODE_* defines to numa_emu
-> >   x86/numa_emu: simplify allocation of phys_dist
-> >   x86/numa_emu: split __apicid_to_node update to a helper function
-> >   x86/numa_emu: use a helper function to get MAX_DMA32_PFN
-> >   x86/numa: numa_{add,remove}_cpu: make cpu parameter unsigned
-> >   mm: introduce numa_memblks
-> >   mm: move numa_distance and related code from x86 to numa_memblks
-> >   mm: introduce numa_emulation
-> >   mm: make numa_memblks more self-contained
-> >   arch_numa: switch over to numa_memblks
-> >   mm: make range-to-target_node lookup facility a part of numa_memblks
-> > 
-> >  arch/arm64/include/asm/Kbuild                 |   1 +
-> >  arch/arm64/include/asm/mmzone.h               |  13 -
-> >  arch/arm64/include/asm/topology.h             |   1 +
-> >  arch/loongarch/include/asm/Kbuild             |   1 +
-> >  arch/loongarch/include/asm/mmzone.h           |  16 -
-> >  arch/loongarch/include/asm/topology.h         |   1 +
-> >  arch/loongarch/kernel/numa.c                  |  21 -
-> >  arch/mips/include/asm/mach-ip27/mmzone.h      |   1 -
-> >  .../mips/include/asm/mach-loongson64/mmzone.h |   4 -
-> >  arch/mips/loongson64/numa.c                   |  20 +-
-> >  arch/mips/sgi-ip27/ip27-memory.c              |   2 +-
-> >  arch/powerpc/include/asm/mmzone.h             |   6 -
-> >  arch/powerpc/mm/numa.c                        |  26 +-
-> >  arch/riscv/include/asm/Kbuild                 |   1 +
-> >  arch/riscv/include/asm/mmzone.h               |  13 -
-> >  arch/riscv/include/asm/topology.h             |   4 +
-> >  arch/s390/include/asm/Kbuild                  |   1 +
-> >  arch/s390/include/asm/mmzone.h                |  17 -
-> >  arch/s390/kernel/numa.c                       |   3 -
-> >  arch/sh/include/asm/mmzone.h                  |   3 -
-> >  arch/sh/mm/init.c                             |   7 +-
-> >  arch/sh/mm/numa.c                             |   3 -
-> >  arch/sparc/include/asm/mmzone.h               |   4 -
-> >  arch/sparc/mm/init_64.c                       |  11 +-
-> >  arch/x86/Kconfig                              |   9 +-
-> >  arch/x86/include/asm/Kbuild                   |   1 +
-> >  arch/x86/include/asm/mmzone.h                 |   6 -
-> >  arch/x86/include/asm/mmzone_32.h              |  17 -
-> >  arch/x86/include/asm/mmzone_64.h              |  18 -
-> >  arch/x86/include/asm/numa.h                   |  24 +-
-> >  arch/x86/include/asm/sparsemem.h              |   9 -
-> >  arch/x86/mm/Makefile                          |   1 -
-> >  arch/x86/mm/amdtopology.c                     |   1 +
-> >  arch/x86/mm/numa.c                            | 618 +-----------------
-> >  arch/x86/mm/numa_internal.h                   |  24 -
-> >  drivers/acpi/numa/srat.c                      |   1 +
-> >  drivers/base/Kconfig                          |   1 +
-> >  drivers/base/arch_numa.c                      | 223 ++-----
-> >  drivers/cxl/Kconfig                           |   2 +-
-> >  drivers/dax/Kconfig                           |   2 +-
-> >  drivers/of/of_numa.c                          |   1 +
-> >  include/asm-generic/mmzone.h                  |   5 +
-> >  include/asm-generic/numa.h                    |   6 +-
-> >  include/linux/numa.h                          |   5 +
-> >  include/linux/numa_memblks.h                  |  58 ++
-> >  kernel/Makefile                               |   1 -
-> >  kernel/numa.c                                 |  26 -
-> >  mm/Kconfig                                    |  11 +
-> >  mm/Makefile                                   |   3 +
-> >  mm/numa.c                                     |  57 ++
-> >  {arch/x86/mm => mm}/numa_emulation.c          |  42 +-
-> >  mm/numa_memblks.c                             | 565 ++++++++++++++++
-> >  52 files changed, 847 insertions(+), 1070 deletions(-)
-> >  delete mode 100644 arch/arm64/include/asm/mmzone.h
-> >  delete mode 100644 arch/loongarch/include/asm/mmzone.h
-> >  delete mode 100644 arch/riscv/include/asm/mmzone.h
-> >  delete mode 100644 arch/s390/include/asm/mmzone.h
-> >  delete mode 100644 arch/x86/include/asm/mmzone.h
-> >  delete mode 100644 arch/x86/include/asm/mmzone_32.h
-> >  delete mode 100644 arch/x86/include/asm/mmzone_64.h
-> >  create mode 100644 include/asm-generic/mmzone.h
-> >  create mode 100644 include/linux/numa_memblks.h
-> >  delete mode 100644 kernel/numa.c
-> >  create mode 100644 mm/numa.c
-> >  rename {arch/x86/mm => mm}/numa_emulation.c (94%)
-> >  create mode 100644 mm/numa_memblks.c
-> > 
-> > 
-> > base-commit: 22a40d14b572deb80c0648557f4bd502d7e83826
-> 
+ From a quick glimpse, patch #1-#4 do make sense independent of patch #5.
+
+I am not so sure about all of the code movement in patch #5. If large 
+folios are the future, then likely huge_memory.c should simply be the 
+home for all that logic.
+
+Maybe the goal should better be to compile huge_memory.c not only for 
+THP, but also for other use cases that require that logic, and fence off 
+all THP specific stuff using #ifdef?
+
+Not sure, though. But a lot of this code movements/churn might be avoidable.
 
 -- 
-Sincerely yours,
-Mike.
+Cheers,
+
+David / dhildenb
+
