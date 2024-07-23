@@ -1,64 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E30E414BFB0;
-	Tue, 23 Jul 2024 09:32:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DA0714D6EF;
+	Tue, 23 Jul 2024 09:32:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721727133; cv=none; b=rkctoVSeN+7t9/NfveyCb+S7KcXzLdNAjSTihGG3iPDYT+cSbDvhL6RT/vTEy2KvXGEYxMMSwGtLLNdyoXbzQPZDy5zbvXLShoV8nAhPCd4GTh7vaqfqgNfDKO45Cw3SkoZl/0IJ2CAc0YHyOAmVeioSyqpHBww89ZnMSM5qiu4=
+	t=1721727133; cv=none; b=LlojM0nYX4aoi9PaezHTjQMUlzsndRJxW9SnhszmwuyWrfhhEX1rrLkbY96zLGIVuAGt3CcrVf2PYk6gquJdtaQa1KAnxLcgZF4PBZ26QOjd2+fy9kiNCmAytaJ15WDb/60XWj9Fv90YX32kS81mj+I4feNwkiZc1Plv0MxNe6Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1721727133; c=relaxed/simple;
-	bh=L6kuaDSCKJY2/Enz9YMSDR28tMKWfRSgb87v0uw+lUc=;
+	bh=gJ5l6W/p9GRqE0Hb3h9VAIBaEsiE2s1ZpwmQGAAMkfg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NrA8wk6K8biAZpY3IO6AUuCQrL0wZAP/FidsvXYQj+j9hOq8SprJkLteSlMrsIQezY69eI19Efajv4isUzuwkurFcsgRQRMDHnbHaeBcxYxEJj4Yagd19u1YlExSOWZYQdbcQihNruqZZ8kGUK55A7Orz+pc6+OiQrsjbuSAB94=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ryblezZ8; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=FCpNtdzraL1Yb195VP9+ANHjrg5VPpdz3vV7QyBRpZjohPjshCxrHps1X76wejoQ5sh0/P7/B5w/XjJXuFOn2GynBRsSpm/CGYUQT4v0l+o6wIPFvE8C9WCeC1vi0AhX9mkZtV3v+6P4anB7TtDgELWl4MZIcZto5SwbFhlssik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rSQ0m+os; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ryblezZ8"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46N9Rj6H009211;
-	Tue, 23 Jul 2024 09:32:07 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rSQ0m+os"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46N8T5T3010559;
+	Tue, 23 Jul 2024 09:32:08 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
 	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=Avp+T03GixDJl
-	vcvmIsr584SHRJSEbNnX+u5M98aIBo=; b=ryblezZ8aEKqr4MEJ/hQiGDMrAnx+
-	aEM1Tz5Q/HjkOkmufzmm9UWHBJ9ypX1m0R00zh/sh5F6NFoTe8mQ1qTg6BbzwCVC
-	+2PmZ0vDqDtVwl7t24fH/u4joazy7hwQJpNKSSwzQ+x1wbr+72ksq5+N1hhUByxp
-	fuoiiuqpPGSO96WGN+thryBURQKJdD/WtWSTMLvIAvhhSDQ7mNKeh4hf0TZhY0Rf
-	gdqJxK961BnObu2L9KT0z98DszGRVqe6Fjh28v1JD+tAgMCV+rIPrETJJ/nS1ozY
-	BBh/FizoTfzHiEL1nsZAdtdEcRU7y5xBe2OrdZ3ZYJXQsjPYeG2bs9k7w==
+	:mime-version:content-transfer-encoding; s=pp1; bh=JQi7hKQsiivd5
+	F2j/XGGvD//H+wqZ667rbjVrCtJpgE=; b=rSQ0m+osHXDRCDvlzK4YZoBG4WY+n
+	osSFf5SZ6VNHHExnHxjca1Q+YIRFChe58MmurALGV/ERfBJ3L+mNeUsBfEY7j6ZY
+	56wtkNFaLCTtkeEanTfQuw2XfsWNgoSvxCLMpczdFqxfBZesSO2GgicanqPOt6Ln
+	ugHtxG0yyGhRTkOR0Z9Zh/dVNmQQ25hFWl+yTMhIOJ7XlO28haj+mVjZw2mYWbQm
+	1pJ/Zbd1sNHj5LIysjE/2nwM0q3p8R260MuBre3NOF2F4lCDfht7wG08wNyFQE7p
+	58B40DGWLQ871KDm3VLboxr2MP2/F3l72HgWpEVL6ga4ZzT1lXZ+4zvjA==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40j91m04er-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40j91p045g-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Jul 2024 09:32:06 +0000 (GMT)
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46N9W6oK015119;
+	Tue, 23 Jul 2024 09:32:07 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46N9W7Cc002462;
+	Tue, 23 Jul 2024 09:32:07 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40j91p045e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 23 Jul 2024 09:32:07 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46N8wIdd007861;
 	Tue, 23 Jul 2024 09:32:06 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40j91m04ek-1
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40gxn9srdf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Jul 2024 09:32:06 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46N93Rdn006472;
-	Tue, 23 Jul 2024 09:32:05 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40gxn79qyf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Jul 2024 09:32:05 +0000
+	Tue, 23 Jul 2024 09:32:06 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46N9Vx8x22544698
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46N9W0Pf51511664
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 23 Jul 2024 09:32:01 GMT
+	Tue, 23 Jul 2024 09:32:02 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5FF1C20049;
-	Tue, 23 Jul 2024 09:31:59 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C83102004D;
+	Tue, 23 Jul 2024 09:32:00 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BCC5A20040;
-	Tue, 23 Jul 2024 09:31:58 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 327B520040;
+	Tue, 23 Jul 2024 09:32:00 +0000 (GMT)
 Received: from darkmoore.ibmuc.com (unknown [9.171.28.84])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 23 Jul 2024 09:31:58 +0000 (GMT)
+	Tue, 23 Jul 2024 09:32:00 +0000 (GMT)
 From: Christoph Schlameuss <schlameuss@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
@@ -68,9 +68,9 @@ Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>,
         Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Subject: [PATCH v2 04/10] selftests: kvm: s390: Add test fixture and simple VM setup tests
-Date: Tue, 23 Jul 2024 11:31:20 +0200
-Message-ID: <20240723093126.285319-5-schlameuss@linux.ibm.com>
+Subject: [PATCH v2 06/10] selftests: kvm: s390: Add VM run test case
+Date: Tue, 23 Jul 2024 11:31:22 +0200
+Message-ID: <20240723093126.285319-7-schlameuss@linux.ibm.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240723093126.285319-1-schlameuss@linux.ibm.com>
 References: <20240723093126.285319-1-schlameuss@linux.ibm.com>
@@ -82,184 +82,178 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: N_WMO0T_rj-AY2hf1Nx1cARS1jwbI-zV
-X-Proofpoint-ORIG-GUID: LcRuWaSv684RVTBR8nYj72Sbk27JMqL5
+X-Proofpoint-ORIG-GUID: sVK6LPVf7Jf-qsrHj6NTyI4T6rCHg9Y4
+X-Proofpoint-GUID: eMaZ0ycMUetj1-bPRuqBjjEGTjex4J5o
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-07-22_18,2024-07-23_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=420
- bulkscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
- priorityscore=1501 malwarescore=0 suspectscore=0 impostorscore=0
- mlxscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ mlxlogscore=778 malwarescore=0 mlxscore=0 spamscore=0 phishscore=0
+ priorityscore=1501 adultscore=0 lowpriorityscore=0 suspectscore=0
+ bulkscore=0 clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2407110000 definitions=main-2407230069
 
-Add a uc_kvm fixture to create and destroy a ucontrol VM.
+Add test case running code interacting with registers within a
+ucontrol VM.
 
-* uc_sie_assertions asserts basic settings in the SIE as setup by the
-  kernel.
-* uc_attr_mem_limit asserts the memory limit is max value and cannot be
-  set (not supported).
-* uc_no_dirty_log asserts dirty log is not supported.
+* Add uc_gprs test case
+
+The test uses the same VM setup using the fixture and debug macros
+introduced in earlier patches in this series.
 
 Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- .../selftests/kvm/s390x/ucontrol_test.c       | 129 ++++++++++++++++++
- 1 file changed, 129 insertions(+)
+ .../selftests/kvm/s390x/ucontrol_test.c       | 132 ++++++++++++++++++
+ 1 file changed, 132 insertions(+)
 
 diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-index a706a9f2b9ea..d8a81b407467 100644
+index 527c431a9758..c98d5a3a315b 100644
 --- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
 +++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-@@ -9,12 +9,16 @@
-  */
- #include "kselftest_harness.h"
- #include "kvm_util.h"
-+#include "processor.h"
-+#include "sie.h"
- 
- #include <linux/capability.h>
- #include <linux/sizes.h>
- 
- #define SYS_ADMIN_CAP 0x200000
- 
-+#define VM_MEM_SIZE (4 * SZ_1M)
-+
- /* so directly declare capget to check caps without libcap */
- int capget(cap_user_header_t header, cap_user_data_t data);
- 
-@@ -38,6 +42,131 @@ void require_ucontrol_admin(void)
+@@ -43,6 +43,23 @@ void require_ucontrol_admin(void)
  	TEST_REQUIRE(kvm_has_cap(KVM_CAP_S390_UCONTROL));
  }
  
-+FIXTURE(uc_kvm)
-+{
-+	struct kvm_s390_sie_block *sie_block;
-+	struct kvm_run *run;
-+	uintptr_t base_gpa;
-+	uintptr_t code_gpa;
-+	uintptr_t base_hva;
-+	uintptr_t code_hva;
-+	int kvm_run_size;
-+	void *vm_mem;
-+	int vcpu_fd;
-+	int kvm_fd;
-+	int vm_fd;
-+};
++/* Test program setting some registers and looping */
++extern char test_gprs_pgm[];
++asm("test_gprs_pgm:\n"
++	"xgr	%r0, %r0\n"
++	"lgfi	%r1,1\n"
++	"lgfi	%r2,2\n"
++	"lgfi	%r3,3\n"
++	"lgfi	%r4,4\n"
++	"lgfi	%r5,5\n"
++	"lgfi	%r6,6\n"
++	"lgfi	%r7,7\n"
++	"0:\n"
++	"	diag	0,0,0x44\n"
++	"	ahi	%r0,1\n"
++	"	j	0b\n"
++);
 +
-+/**
-+ * create VM with single vcpu, map kvm_run and SIE control block for easy access
+ FIXTURE(uc_kvm)
+ {
+ 	struct kvm_s390_sie_block *sie_block;
+@@ -205,4 +222,119 @@ TEST(uc_cap_hpage)
+ 	close(kvm_fd);
+ }
+ 
++/* verify SIEIC exit
++ * * reset stop requests
++ * * fail on codes not expected in the test cases
 + */
-+FIXTURE_SETUP(uc_kvm)
++static bool uc_handle_sieic(FIXTURE_DATA(uc_kvm) * self)
 +{
-+	struct kvm_s390_vm_cpu_processor info;
++	struct kvm_s390_sie_block *sie_block = self->sie_block;
++	struct kvm_run *run = self->run;
++
++	/* check SIE interception code */
++	pr_info("sieic: 0x%2x 0x%4x 0x%4x\n",
++		run->s390_sieic.icptcode,
++		run->s390_sieic.ipa,
++		run->s390_sieic.ipb);
++	switch (run->s390_sieic.icptcode) {
++	case ICPT_STOP:
++		/* stopped via sie V P --> ignore */
++		/* reset stop request */
++		sie_block->cpuflags = sie_block->cpuflags & ~CPUSTAT_STOP_INT;
++		pr_info("sie V P - cleared %.4x\n", sie_block->cpuflags);
++		break;
++	case ICPT_INST:
++		/* end execution in caller on intercepted instruction */
++		return false;
++	default:
++		TEST_FAIL("UNEXPECTED SIEIC CODE %d", run->s390_sieic.icptcode);
++	}
++	return true;
++}
++
++/* verify VM state on exit */
++static bool uc_handle_exit(FIXTURE_DATA(uc_kvm) * self)
++{
++	struct kvm_run *run = self->run;
++
++	switch (run->exit_reason) {
++	case KVM_EXIT_S390_SIEIC:
++		return uc_handle_sieic(self);
++	default:
++		pr_info("exit_reason %2d not handled\n", run->exit_reason);
++	}
++	return true;
++}
++
++/* run the VM until interrupted */
++static int uc_run_once(FIXTURE_DATA(uc_kvm) * self)
++{
 +	int rc;
 +
-+	require_ucontrol_admin();
-+
-+	self->kvm_fd = open_kvm_dev_path_or_exit();
-+	self->vm_fd = ioctl(self->kvm_fd, KVM_CREATE_VM, KVM_VM_S390_UCONTROL);
-+	ASSERT_GE(self->vm_fd, 0);
-+
-+	kvm_device_attr_get(self->vm_fd, KVM_S390_VM_CPU_MODEL,
-+			    KVM_S390_VM_CPU_PROCESSOR, &info);
-+	TH_LOG("create VM 0x%llx", info.cpuid);
-+
-+	self->vcpu_fd = ioctl(self->vm_fd, KVM_CREATE_VCPU, 0);
-+	ASSERT_GE(self->vcpu_fd, 0);
-+
-+	self->kvm_run_size = ioctl(self->kvm_fd, KVM_GET_VCPU_MMAP_SIZE, NULL);
-+	ASSERT_GE(self->kvm_run_size, sizeof(struct kvm_run))
-+		  TH_LOG(KVM_IOCTL_ERROR(KVM_GET_VCPU_MMAP_SIZE, self->kvm_run_size));
-+	self->run = (struct kvm_run *)mmap(NULL, self->kvm_run_size,
-+		    PROT_READ | PROT_WRITE, MAP_SHARED, self->vcpu_fd, 0);
-+	ASSERT_NE(self->run, MAP_FAILED);
-+	/**
-+	 * For virtual cpus that have been created with S390 user controlled
-+	 * virtual machines, the resulting vcpu fd can be memory mapped at page
-+	 * offset KVM_S390_SIE_PAGE_OFFSET in order to obtain a memory map of
-+	 * the virtual cpu's hardware control block.
-+	 */
-+	self->sie_block = (struct kvm_s390_sie_block *)mmap(NULL, PAGE_SIZE,
-+			  PROT_READ | PROT_WRITE, MAP_SHARED,
-+			  self->vcpu_fd, KVM_S390_SIE_PAGE_OFFSET << PAGE_SHIFT);
-+	ASSERT_NE(self->sie_block, MAP_FAILED);
-+
-+	TH_LOG("VM created %p %p", self->run, self->sie_block);
-+
-+	self->base_gpa = 0;
-+	self->code_gpa = self->base_gpa + (3 * SZ_1M);
-+
-+	self->vm_mem = aligned_alloc(SZ_1M, VM_MEM_SIZE);
-+	ASSERT_NE(NULL, self->vm_mem) TH_LOG("malloc failed %u", errno);
-+	self->base_hva = (uintptr_t)self->vm_mem + SZ_1M;
-+	self->code_hva = self->base_hva - self->base_gpa + self->code_gpa;
-+	struct kvm_s390_ucas_mapping map = {
-+		.user_addr = self->base_hva,
-+		.vcpu_addr = self->base_gpa,
-+		.length = VM_MEM_SIZE,
-+	};
-+	TH_LOG("ucas map %p %p 0x%llx",
-+	       (void *)map.user_addr, (void *)map.vcpu_addr, map.length);
-+	rc = ioctl(self->vcpu_fd, KVM_S390_UCAS_MAP, &map);
-+	ASSERT_EQ(0, rc) TH_LOG("ucas map result %d not expected, %s",
-+				rc, strerror(errno));
-+
-+	TH_LOG("page in %p", (void *)self->base_gpa);
-+	rc = ioctl(self->vcpu_fd, KVM_S390_VCPU_FAULT, self->base_gpa);
-+	ASSERT_EQ(0, rc) TH_LOG("vcpu fault (%p) result %d not expected, %s",
-+				(void *)self->base_hva, rc, strerror(errno));
++	rc = ioctl(self->vcpu_fd, KVM_RUN, NULL);
++	print_run(self->run, self->sie_block);
++	print_regs(self->run);
++	pr_debug("run %d / %d %s\n", rc, errno, strerror(errno));
++	return rc;
 +}
 +
-+FIXTURE_TEARDOWN(uc_kvm)
++static void uc_assert_diag44(FIXTURE_DATA(uc_kvm) * self)
 +{
-+	munmap(self->sie_block, PAGE_SIZE);
-+	munmap(self->run, self->kvm_run_size);
-+	close(self->vcpu_fd);
-+	close(self->vm_fd);
-+	close(self->kvm_fd);
-+	free(self->vm_mem);
++	struct kvm_s390_sie_block *sie_block = self->sie_block;
++
++	/* assert vm was interrupted by diag 0x0044 */
++	TEST_ASSERT_EQ(KVM_EXIT_S390_SIEIC, self->run->exit_reason);
++	TEST_ASSERT_EQ(ICPT_INST, sie_block->icptcode);
++	TEST_ASSERT_EQ(0x8300, sie_block->ipa);
++	TEST_ASSERT_EQ(0x440000, sie_block->ipb);
 +}
 +
-+TEST_F(uc_kvm, uc_sie_assertions)
++TEST_F(uc_kvm, uc_gprs)
 +{
-+	/* assert interception of Code 08 (Program Interruption) is set */
-+	EXPECT_EQ(0, self->sie_block->ecb & ECB_SPECI);
++	struct kvm_s390_sie_block *sie_block = self->sie_block;
++	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
++	struct kvm_run *run = self->run;
++	struct kvm_regs regs = {};
++
++	/* Set registers to values that are different from the ones that we expect below */
++	for (int i = 0; i < 8; i++)
++		sync_regs->gprs[i] = 8;
++	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
++
++	/* copy test_gprs_pgm to code_hva / code_gpa */
++	TH_LOG("copy code %p to vm mapped memory %p / %p",
++	       &test_gprs_pgm, (void *)self->code_hva, (void *)self->code_gpa);
++	memcpy((void *)self->code_hva, &test_gprs_pgm, PAGE_SIZE);
++
++	run->psw_mask = 0x0000000180000000ULL;  /* DAT disabled + 64 bit mode */
++	run->psw_addr = self->code_gpa;
++
++	/* run VM and expect immediate stop */
++	ASSERT_EQ(0, uc_run_once(self));
++	ASSERT_EQ(true, uc_handle_exit(self));
++	ASSERT_EQ(self->code_gpa, sie_block->psw_addr);
++
++	/* run and expect interception of diag 44 */
++	ASSERT_EQ(0, uc_run_once(self));
++	ASSERT_EQ(false, uc_handle_exit(self));
++	uc_assert_diag44(self);
++
++	/* Retrieve and check guest register values */
++	ASSERT_EQ(0, ioctl(self->vcpu_fd, KVM_GET_REGS, &regs));
++	for (int i = 0; i < 8; i++) {
++		ASSERT_EQ(i, regs.gprs[i]);
++		ASSERT_EQ(i, sync_regs->gprs[i]);
++	}
++
++	/* run and expect interception of diag 44 again */
++	ASSERT_EQ(0, uc_run_once(self));
++	ASSERT_EQ(false, uc_handle_exit(self));
++	uc_assert_diag44(self);
++
++	/* check continued increment of register 0 value */
++	ASSERT_EQ(0, ioctl(self->vcpu_fd, KVM_GET_REGS, &regs));
++	ASSERT_EQ(1, regs.gprs[0]);
++	ASSERT_EQ(1, sync_regs->gprs[0]);
 +}
 +
-+TEST_F(uc_kvm, uc_attr_mem_limit)
-+{
-+	u64 limit;
-+	struct kvm_device_attr attr = {
-+		.group = KVM_S390_VM_MEM_CTRL,
-+		.attr = KVM_S390_VM_MEM_LIMIT_SIZE,
-+		.addr = (unsigned long)&limit,
-+	};
-+	int rc;
-+
-+	rc = ioctl(self->vm_fd, KVM_GET_DEVICE_ATTR, &attr);
-+	EXPECT_EQ(0, rc);
-+	EXPECT_EQ(~0UL, limit);
-+
-+	/* assert set not supported */
-+	rc = ioctl(self->vm_fd, KVM_SET_DEVICE_ATTR, &attr);
-+	EXPECT_EQ(-1, rc);
-+	EXPECT_EQ(EINVAL, errno);
-+}
-+
-+TEST_F(uc_kvm, uc_no_dirty_log)
-+{
-+	struct kvm_dirty_log dlog;
-+	int rc;
-+
-+	rc = ioctl(self->vm_fd, KVM_GET_DIRTY_LOG, &dlog);
-+	EXPECT_EQ(-1, rc);
-+	EXPECT_EQ(EINVAL, errno);
-+}
-+
- /**
-  * Assert HPAGE CAP cannot be enabled on UCONTROL VM
-  */
+ TEST_HARNESS_MAIN
 -- 
 2.45.2
 
