@@ -1,64 +1,64 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DA0714D6EF;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 361A614E2C5;
 	Tue, 23 Jul 2024 09:32:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721727133; cv=none; b=LlojM0nYX4aoi9PaezHTjQMUlzsndRJxW9SnhszmwuyWrfhhEX1rrLkbY96zLGIVuAGt3CcrVf2PYk6gquJdtaQa1KAnxLcgZF4PBZ26QOjd2+fy9kiNCmAytaJ15WDb/60XWj9Fv90YX32kS81mj+I4feNwkiZc1Plv0MxNe6Y=
+	t=1721727133; cv=none; b=Y7sMxH2Idh9nvgcqBRtZlB16Arp/t4PAGGOZe0V0lZv1CAiNKMZvTSj2bJaewu0tbHykh5NERs6jQrquWEIADQkZMpSWBJdDwSetyZHk6Tz/6NGKMFbLWtnXy7ghHlhAx0cKytAeH4lggMxULlLpytaDpCq8Az2GCzrzfBskYsM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1721727133; c=relaxed/simple;
-	bh=gJ5l6W/p9GRqE0Hb3h9VAIBaEsiE2s1ZpwmQGAAMkfg=;
+	bh=4kJKWBN3L99T66lVYnEt5jA+tNaC3VtgAC815EdxSFA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FCpNtdzraL1Yb195VP9+ANHjrg5VPpdz3vV7QyBRpZjohPjshCxrHps1X76wejoQ5sh0/P7/B5w/XjJXuFOn2GynBRsSpm/CGYUQT4v0l+o6wIPFvE8C9WCeC1vi0AhX9mkZtV3v+6P4anB7TtDgELWl4MZIcZto5SwbFhlssik=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rSQ0m+os; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=BcBCDwQq/+MGl6F8qefnjY9PcVcLBDwQgVTaNd2Aw7QwPs8ZqrHrGjcoAToAhJQdVozue+EFNsc4M737c038TDJThtJpHam27ctNKp79qewV2Cp3FMSrXiRhHSwrINz5xzyu92cW/fpXNDvMiZghci/stduaijyACGAE9qG0z6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aofLU6xY; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rSQ0m+os"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46N8T5T3010559;
-	Tue, 23 Jul 2024 09:32:08 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aofLU6xY"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46N9OW7q016614;
+	Tue, 23 Jul 2024 09:32:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
 	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=JQi7hKQsiivd5
-	F2j/XGGvD//H+wqZ667rbjVrCtJpgE=; b=rSQ0m+osHXDRCDvlzK4YZoBG4WY+n
-	osSFf5SZ6VNHHExnHxjca1Q+YIRFChe58MmurALGV/ERfBJ3L+mNeUsBfEY7j6ZY
-	56wtkNFaLCTtkeEanTfQuw2XfsWNgoSvxCLMpczdFqxfBZesSO2GgicanqPOt6Ln
-	ugHtxG0yyGhRTkOR0Z9Zh/dVNmQQ25hFWl+yTMhIOJ7XlO28haj+mVjZw2mYWbQm
-	1pJ/Zbd1sNHj5LIysjE/2nwM0q3p8R260MuBre3NOF2F4lCDfht7wG08wNyFQE7p
-	58B40DGWLQ871KDm3VLboxr2MP2/F3l72HgWpEVL6ga4ZzT1lXZ+4zvjA==
+	:mime-version:content-transfer-encoding; s=pp1; bh=bgfJ/UISkePTZ
+	DaU+xgRQ37IgIq9Plu1gCsPm3KLtig=; b=aofLU6xYhUxHisaHEjyMST8vgWKi4
+	nDbrhwhr80efFJpr6F9VmmlLorfZs51WLGHVkdasv04DNNZIyNqCZXZm+OwGrIDy
+	jf5V8Y2uSkHnG1wF0UJ2DrIOUEpf7CBjqsazp8jaSQmr8TIw2Vw3z1XZC2V1jaTw
+	jz6n+9p3beQtFDkeaAiAvjzfNU70iUU8wqnIZnXEz6iY+IXMsnKq/M96rft+nutL
+	U8j29WtzSS1eVyUVBTxzUOhUOX6i+t0ZyncdyXsVXFPGuyp4wh96TPLpJx8kRtI+
+	O50QmVUHiu52pd6tlNGjuHip2DbqdaT9+Xhb103bHHkCUgjitpnPGI78A==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40j91p045g-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40j3rv0s3f-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Jul 2024 09:32:07 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46N9W7Cc002462;
-	Tue, 23 Jul 2024 09:32:07 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40j91p045e-1
+	Tue, 23 Jul 2024 09:32:09 +0000 (GMT)
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46N9W9Nq028517;
+	Tue, 23 Jul 2024 09:32:09 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40j3rv0s3a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Jul 2024 09:32:07 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46N8wIdd007861;
-	Tue, 23 Jul 2024 09:32:06 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40gxn9srdf-1
+	Tue, 23 Jul 2024 09:32:09 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46N8sThD009083;
+	Tue, 23 Jul 2024 09:32:08 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 40gt93anar-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Jul 2024 09:32:06 +0000
+	Tue, 23 Jul 2024 09:32:08 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46N9W0Pf51511664
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46N9W2fX46661922
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 23 Jul 2024 09:32:02 GMT
+	Tue, 23 Jul 2024 09:32:05 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C83102004D;
-	Tue, 23 Jul 2024 09:32:00 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id DEEA92005A;
+	Tue, 23 Jul 2024 09:32:02 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 327B520040;
-	Tue, 23 Jul 2024 09:32:00 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4E70320040;
+	Tue, 23 Jul 2024 09:32:02 +0000 (GMT)
 Received: from darkmoore.ibmuc.com (unknown [9.171.28.84])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 23 Jul 2024 09:32:00 +0000 (GMT)
+	Tue, 23 Jul 2024 09:32:02 +0000 (GMT)
 From: Christoph Schlameuss <schlameuss@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
@@ -68,9 +68,9 @@ Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>,
         Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Subject: [PATCH v2 06/10] selftests: kvm: s390: Add VM run test case
-Date: Tue, 23 Jul 2024 11:31:22 +0200
-Message-ID: <20240723093126.285319-7-schlameuss@linux.ibm.com>
+Subject: [PATCH v2 09/10] selftests: kvm: s390: Verify reject memory region operations for ucontrol VMs
+Date: Tue, 23 Jul 2024 11:31:25 +0200
+Message-ID: <20240723093126.285319-10-schlameuss@linux.ibm.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240723093126.285319-1-schlameuss@linux.ibm.com>
 References: <20240723093126.285319-1-schlameuss@linux.ibm.com>
@@ -82,175 +82,58 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: sVK6LPVf7Jf-qsrHj6NTyI4T6rCHg9Y4
-X-Proofpoint-GUID: eMaZ0ycMUetj1-bPRuqBjjEGTjex4J5o
+X-Proofpoint-ORIG-GUID: ngTlDIlII4fjERhLSS6BwfKgP036Jh4N
+X-Proofpoint-GUID: _Yr1EtEZnP5BzzOdY-IFOx8Lmc0muz3p
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-07-22_18,2024-07-23_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- mlxlogscore=778 malwarescore=0 mlxscore=0 spamscore=0 phishscore=0
- priorityscore=1501 adultscore=0 lowpriorityscore=0 suspectscore=0
- bulkscore=0 clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 spamscore=0 bulkscore=0 suspectscore=0 mlxscore=0
+ clxscore=1015 mlxlogscore=908 impostorscore=0 phishscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2407110000 definitions=main-2407230069
 
-Add test case running code interacting with registers within a
-ucontrol VM.
+Add a test case verifying KVM_SET_USER_MEMORY_REGION and
+KVM_SET_USER_MEMORY_REGION2 cannot be executed on ucontrol VMs.
 
-* Add uc_gprs test case
-
-The test uses the same VM setup using the fixture and debug macros
-introduced in earlier patches in this series.
+Executing this test case on not patched kernels will cause a null
+pointer dereference in the host kernel.
+This is fixed with commit:
+commit 7816e58967d0 ("kvm: s390: Reject memory region operations for ucontrol VMs")
 
 Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 ---
- .../selftests/kvm/s390x/ucontrol_test.c       | 132 ++++++++++++++++++
- 1 file changed, 132 insertions(+)
+ .../selftests/kvm/s390x/ucontrol_test.c       | 22 +++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
 diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-index 527c431a9758..c98d5a3a315b 100644
+index 79992621c0b5..853d8c6cea5c 100644
 --- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
 +++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-@@ -43,6 +43,23 @@ void require_ucontrol_admin(void)
- 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_S390_UCONTROL));
+@@ -589,4 +589,26 @@ TEST_F(uc_kvm, uc_gprs)
+ 	ASSERT_EQ(1, sync_regs->gprs[0]);
  }
  
-+/* Test program setting some registers and looping */
-+extern char test_gprs_pgm[];
-+asm("test_gprs_pgm:\n"
-+	"xgr	%r0, %r0\n"
-+	"lgfi	%r1,1\n"
-+	"lgfi	%r2,2\n"
-+	"lgfi	%r3,3\n"
-+	"lgfi	%r4,4\n"
-+	"lgfi	%r5,5\n"
-+	"lgfi	%r6,6\n"
-+	"lgfi	%r7,7\n"
-+	"0:\n"
-+	"	diag	0,0,0x44\n"
-+	"	ahi	%r0,1\n"
-+	"	j	0b\n"
-+);
-+
- FIXTURE(uc_kvm)
- {
- 	struct kvm_s390_sie_block *sie_block;
-@@ -205,4 +222,119 @@ TEST(uc_cap_hpage)
- 	close(kvm_fd);
- }
- 
-+/* verify SIEIC exit
-+ * * reset stop requests
-+ * * fail on codes not expected in the test cases
-+ */
-+static bool uc_handle_sieic(FIXTURE_DATA(uc_kvm) * self)
++TEST_F(uc_kvm, uc_no_user_region)
 +{
-+	struct kvm_s390_sie_block *sie_block = self->sie_block;
-+	struct kvm_run *run = self->run;
++	struct kvm_userspace_memory_region region = {
++		.slot = 1,
++		.guest_phys_addr = self->code_gpa,
++		.memory_size = VM_MEM_EXT_SIZE,
++		.userspace_addr = (uintptr_t)self->code_hva,
++	};
++	struct kvm_userspace_memory_region2 region2 = {
++		.slot = 1,
++		.guest_phys_addr = self->code_gpa,
++		.memory_size = VM_MEM_EXT_SIZE,
++		.userspace_addr = (uintptr_t)self->code_hva,
++	};
 +
-+	/* check SIE interception code */
-+	pr_info("sieic: 0x%2x 0x%4x 0x%4x\n",
-+		run->s390_sieic.icptcode,
-+		run->s390_sieic.ipa,
-+		run->s390_sieic.ipb);
-+	switch (run->s390_sieic.icptcode) {
-+	case ICPT_STOP:
-+		/* stopped via sie V P --> ignore */
-+		/* reset stop request */
-+		sie_block->cpuflags = sie_block->cpuflags & ~CPUSTAT_STOP_INT;
-+		pr_info("sie V P - cleared %.4x\n", sie_block->cpuflags);
-+		break;
-+	case ICPT_INST:
-+		/* end execution in caller on intercepted instruction */
-+		return false;
-+	default:
-+		TEST_FAIL("UNEXPECTED SIEIC CODE %d", run->s390_sieic.icptcode);
-+	}
-+	return true;
-+}
++	ASSERT_EQ(-1, ioctl(self->vm_fd, KVM_SET_USER_MEMORY_REGION, &region));
++	ASSERT_EQ(EINVAL, errno);
 +
-+/* verify VM state on exit */
-+static bool uc_handle_exit(FIXTURE_DATA(uc_kvm) * self)
-+{
-+	struct kvm_run *run = self->run;
-+
-+	switch (run->exit_reason) {
-+	case KVM_EXIT_S390_SIEIC:
-+		return uc_handle_sieic(self);
-+	default:
-+		pr_info("exit_reason %2d not handled\n", run->exit_reason);
-+	}
-+	return true;
-+}
-+
-+/* run the VM until interrupted */
-+static int uc_run_once(FIXTURE_DATA(uc_kvm) * self)
-+{
-+	int rc;
-+
-+	rc = ioctl(self->vcpu_fd, KVM_RUN, NULL);
-+	print_run(self->run, self->sie_block);
-+	print_regs(self->run);
-+	pr_debug("run %d / %d %s\n", rc, errno, strerror(errno));
-+	return rc;
-+}
-+
-+static void uc_assert_diag44(FIXTURE_DATA(uc_kvm) * self)
-+{
-+	struct kvm_s390_sie_block *sie_block = self->sie_block;
-+
-+	/* assert vm was interrupted by diag 0x0044 */
-+	TEST_ASSERT_EQ(KVM_EXIT_S390_SIEIC, self->run->exit_reason);
-+	TEST_ASSERT_EQ(ICPT_INST, sie_block->icptcode);
-+	TEST_ASSERT_EQ(0x8300, sie_block->ipa);
-+	TEST_ASSERT_EQ(0x440000, sie_block->ipb);
-+}
-+
-+TEST_F(uc_kvm, uc_gprs)
-+{
-+	struct kvm_s390_sie_block *sie_block = self->sie_block;
-+	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
-+	struct kvm_run *run = self->run;
-+	struct kvm_regs regs = {};
-+
-+	/* Set registers to values that are different from the ones that we expect below */
-+	for (int i = 0; i < 8; i++)
-+		sync_regs->gprs[i] = 8;
-+	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
-+
-+	/* copy test_gprs_pgm to code_hva / code_gpa */
-+	TH_LOG("copy code %p to vm mapped memory %p / %p",
-+	       &test_gprs_pgm, (void *)self->code_hva, (void *)self->code_gpa);
-+	memcpy((void *)self->code_hva, &test_gprs_pgm, PAGE_SIZE);
-+
-+	run->psw_mask = 0x0000000180000000ULL;  /* DAT disabled + 64 bit mode */
-+	run->psw_addr = self->code_gpa;
-+
-+	/* run VM and expect immediate stop */
-+	ASSERT_EQ(0, uc_run_once(self));
-+	ASSERT_EQ(true, uc_handle_exit(self));
-+	ASSERT_EQ(self->code_gpa, sie_block->psw_addr);
-+
-+	/* run and expect interception of diag 44 */
-+	ASSERT_EQ(0, uc_run_once(self));
-+	ASSERT_EQ(false, uc_handle_exit(self));
-+	uc_assert_diag44(self);
-+
-+	/* Retrieve and check guest register values */
-+	ASSERT_EQ(0, ioctl(self->vcpu_fd, KVM_GET_REGS, &regs));
-+	for (int i = 0; i < 8; i++) {
-+		ASSERT_EQ(i, regs.gprs[i]);
-+		ASSERT_EQ(i, sync_regs->gprs[i]);
-+	}
-+
-+	/* run and expect interception of diag 44 again */
-+	ASSERT_EQ(0, uc_run_once(self));
-+	ASSERT_EQ(false, uc_handle_exit(self));
-+	uc_assert_diag44(self);
-+
-+	/* check continued increment of register 0 value */
-+	ASSERT_EQ(0, ioctl(self->vcpu_fd, KVM_GET_REGS, &regs));
-+	ASSERT_EQ(1, regs.gprs[0]);
-+	ASSERT_EQ(1, sync_regs->gprs[0]);
++	ASSERT_EQ(-1, ioctl(self->vm_fd, KVM_SET_USER_MEMORY_REGION2, &region2));
++	ASSERT_EQ(EINVAL, errno);
 +}
 +
  TEST_HARNESS_MAIN
