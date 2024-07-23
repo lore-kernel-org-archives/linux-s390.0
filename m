@@ -1,174 +1,135 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26DF614EC77
-	for <linux-s390@vger.kernel.org>; Tue, 23 Jul 2024 12:44:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAA5113D882;
+	Tue, 23 Jul 2024 12:48:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721738695; cv=none; b=uLm7NLb+RLP1mZsAK01YpsWA6waMNifUZEGf0Y/IP4bfDn587B074tgIxC7G9VzG4EM5FYrjlp6YIQiNFfp0Yvr/bz7Xf3Svx0ldcoK2svESHq0AhjsUtbhrnNTAAYjBKNa6AS90PJzb3XOX6ycnT3/TjyRHVZ5XpltkQ/SQP7U=
+	t=1721738894; cv=none; b=TZY0h4lRvLMoxTYJXb4UZavQ6JYkRT7+ZMg8mZbzjLGoY3WC+XBbvojYGRFtVmxYUVnvOdeKY9gmL95cNvTxixCG1AxCnZXWEqV6FfQwAVt3wn05LuVvAxfTfTSRDYPe5PoxfIj93EmW02HHSBuVmrBEi4dIq8ErdLmwur6uucg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721738695; c=relaxed/simple;
-	bh=um+lPMkN0ZTicV1LbDagqKM/Cg6zjvJkYVVY5HpBVTk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MXdp1cwJkhp0qLcC/D7mDruWlEL+haaZu3/IDl7/cJXuJq4K59+MOyKfVW06owS3AR5DhTu6KJ15MoSUtWDDFCbGi58wuzQbYjkCUes/tZi0XpGOVUMQS35KL6Zwx67neH3eVmqPQFfzRTf71xv6IJwl9YVxMzCzKaKxPHJbaCw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RqOWX4rB; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1721738894; c=relaxed/simple;
+	bh=2WEYYMaTX072flqKEPj1SiAEfPGCpBNDBElimD51FzU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=DB0Exg/gVn4CmHsNT9+32Lq5JXBRnPJ5T+c/AljL4WDMKgQ+MQTViLKzItBPWGCNMaK+Oum0Rg0jO4/kBiYDLEDkvJm3zKC0ZDBg/jgI8OwhBVENMH+2xfg/Z0PA193t+GeqqQqcxsfqBwc7Ny5AV7HppTOdinMEBDN4JoTsJ84=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=shjDPULM; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RqOWX4rB"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46NBvAdf009240
-	for <linux-s390@vger.kernel.org>; Tue, 23 Jul 2024 12:44:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=nqgjnJITuVTG6
-	jX24lxm5m9NnF5Pts8Fet+FlojOha4=; b=RqOWX4rBp6oOlzqyv9/C78dva8inF
-	5ikKWwOMdLaveHd1bSu0ZNDQ/Mq6kNpwZPIoNyoeE2kd3cYcQ2U/tB4w/RkGXswX
-	fBoPok5cdX/GXaIP5qap2tcablGKjBaVmPE8sVMkVODKpX54fLEtjAJDYEvmGhci
-	1xmB0e/xjagWKksV/7lqE5A/VA2QuWJXOHnHDHVpYhrD4wvo9WZsET1D80CK4STP
-	0KPEjge/PZ4+z0kioWFQqFHKbVQFyyWuZuxB2Te6XLzwfMAfngppk43A/VJ3UrqR
-	JPIUPc0bEhQNVbviQYQka5XzJJEnP//CWJwoMHMtsaO1Tz81uOK4QFZrg==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40j3rv165m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 23 Jul 2024 12:44:52 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46N9OYHt006625
-	for <linux-s390@vger.kernel.org>; Tue, 23 Jul 2024 12:44:50 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40gxn7acch-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 23 Jul 2024 12:44:50 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46NCijj232637242
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="shjDPULM"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46NAwS1X008463;
+	Tue, 23 Jul 2024 12:48:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
+	W0TeZu3HucHjAOTxOaIgEd5j79B3LAFx5e7/S1Yx9r4=; b=shjDPULMgoAysJsX
+	JvjnkI+VHsQnnHHzQ8EndXuQ/IHevk0hO9EzGOuwc+lBnpyN5sIdHnhjwxrI1IRO
+	SWB0UPeauDBwNgQDxHx5+QzEG8evDgWxPHwdj2svVX+UIYETO+cnGp3yIjWGvRFu
+	QKuPp4SRsJz0gnGs4ye8TDaOQTqTJBlCwNzprxPuZkk2cub3bbbQhvU6a2A3wImP
+	g6mz5vAp8yUcIYxEbLxCFS93ejyNJ/bZQRZpHNUoDQ0MgPkZn0a3ZdZuXszwTCYD
+	4y8e94yW52DNNdwP/v6MzJ4c7JPRGox5O+FwtQZVJr7nS4piUsoCHLCx0pwO8pIN
+	KFwvOA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40j91m0hcj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 23 Jul 2024 12:48:09 +0000 (GMT)
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46NCm9ZW005972;
+	Tue, 23 Jul 2024 12:48:09 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40j91m0hce-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 23 Jul 2024 12:48:09 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46N8sBAa009111;
+	Tue, 23 Jul 2024 12:48:08 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 40gt93ba5e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 23 Jul 2024 12:48:08 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46NCm2YW21824192
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 23 Jul 2024 12:44:47 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0249B2004B;
-	Tue, 23 Jul 2024 12:44:45 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B9B1620040;
-	Tue, 23 Jul 2024 12:44:44 +0000 (GMT)
-Received: from heavy.ibm.com (unknown [9.179.13.42])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 23 Jul 2024 12:44:44 +0000 (GMT)
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH 2/2] s390/ptdump: Add KMSAN page markers
-Date: Tue, 23 Jul 2024 14:44:12 +0200
-Message-ID: <20240723124441.120044-3-iii@linux.ibm.com>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20240723124441.120044-1-iii@linux.ibm.com>
-References: <20240723124441.120044-1-iii@linux.ibm.com>
+	Tue, 23 Jul 2024 12:48:04 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9CFC62004D;
+	Tue, 23 Jul 2024 12:48:02 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1674E2004F;
+	Tue, 23 Jul 2024 12:48:02 +0000 (GMT)
+Received: from darkmoore (unknown [9.171.64.70])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Tue, 23 Jul 2024 12:48:02 +0000 (GMT)
+Date: Tue, 23 Jul 2024 14:48:00 +0200
+From: Christoph Schlameuss <schlameuss@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah
+ Khan <shuah@kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        Claudio
+ Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Subject: Re: [PATCH v2 10/10] s390: Enable KVM_S390_UCONTROL config in
+ debug_defconfig
+Message-ID: <20240723144800.6c6f48b0.schlameuss@linux.ibm.com>
+In-Reply-To: <9cc8f685-70b2-4c31-9be5-e822ae52797a@linux.ibm.com>
+References: <20240723093126.285319-1-schlameuss@linux.ibm.com>
+	<20240723093126.285319-11-schlameuss@linux.ibm.com>
+	<9cc8f685-70b2-4c31-9be5-e822ae52797a@linux.ibm.com>
+Organization: IBM
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: s6In8HdmHT2uuN9fok9BRcveRVFyDN5b
-X-Proofpoint-GUID: s6In8HdmHT2uuN9fok9BRcveRVFyDN5b
+X-Proofpoint-GUID: 4iFn36iVG9gw1z4IPxj7oDIpGH-e-as5
+X-Proofpoint-ORIG-GUID: iLJQQQCx9BSjuXXjFTUqhu2R_TavfWZw
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-07-23_01,2024-07-23_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 spamscore=0 bulkscore=0 suspectscore=0 mlxscore=0
- clxscore=1015 mlxlogscore=999 impostorscore=0 phishscore=0 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=725
+ bulkscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
+ priorityscore=1501 malwarescore=0 suspectscore=0 impostorscore=0
+ mlxscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2407110000 definitions=main-2407230089
 
-Add KMSAN vmalloc metadata areas to
-/sys/kernel/debug/kernel_page_tables. Example output:
+On Tue, 23 Jul 2024 11:40:35 +0200
+Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
 
-    0x000003a95fff9000-0x000003a960000000        28K PTE I
-    ---[ vmalloc Area End ]---
-    ---[ Kmsan vmalloc Shadow Start ]---
-    0x000003a960000000-0x000003a960010000        64K PTE RW NX
-    [...]
-    0x000003d3dfff9000-0x000003d3e0000000        28K PTE I
-    ---[ Kmsan vmalloc Shadow End ]---
-    ---[ Kmsan vmalloc Origins Start ]---
-    0x000003d3e0000000-0x000003d3e0010000        64K PTE RW NX
-    [...]
-    0x000003fe5fff9000-0x000003fe60000000        28K PTE I
-    ---[ Kmsan vmalloc Origins End ]---
-    ---[ Kmsan Modules Shadow Start ]---
-    0x000003fe60000000-0x000003fe60001000         4K PTE RW NX
-    [...]
-    0x000003fe60100000-0x000003fee0000000      2047M PMD I
-    ---[ Kmsan Modules Shadow End ]---
-    ---[ Kmsan Modules Origins Start ]---
-    0x000003fee0000000-0x000003fee0001000         4K PTE RW NX
-    [...]
-    0x000003fee0100000-0x000003ff60000000      2047M PMD I
-    ---[ Kmsan Modules Origins End ]---
-    ---[ Modules Area Start ]---
-    0x000003ff60000000-0x000003ff60001000         4K PTE RO X
+> Am 23.07.24 um 11:31 schrieb Christoph Schlameuss:
+> > To simplify testing enable UCONTROL KVM by default in debug kernels.
+> > 
+> > Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> > ---
+> >   arch/s390/Kconfig.debug | 3 +++
+> >   1 file changed, 3 insertions(+)
+> > 
+> > diff --git a/arch/s390/Kconfig.debug b/arch/s390/Kconfig.debug
+> > index c4300ea4abf8..4798dded6d76 100644
+> > --- a/arch/s390/Kconfig.debug
+> > +++ b/arch/s390/Kconfig.debug
+> > @@ -20,3 +20,6 @@ config CIO_INJECT
+> >   	  This option provides a debugging facility to inject certain artificial events
+> >   	  and instruction responses to the CIO layer of Linux kernel. The newly created
+> >   	  debugfs user-interfaces will be at /sys/kernel/debug/s390/cio/*
+> > +
+> > +config KVM_S390_UCONTROL
+> > +	def_bool y  
+> 
+> Isnt that enabling ucontrol for all configs? YOu probably wanted to patch
+> arch/s390/configs/debug_defconfig
 
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
----
- arch/s390/mm/dump_pagetables.c | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+Yes, I double checked. You are of cause right.
+I did verify that is generated into the ".config" with "make
+debug_defconfig". But then I missed to check that it does not get added
+with "make defconfig".
 
-diff --git a/arch/s390/mm/dump_pagetables.c b/arch/s390/mm/dump_pagetables.c
-index 45db5f47b22d..98dab3e049de 100644
---- a/arch/s390/mm/dump_pagetables.c
-+++ b/arch/s390/mm/dump_pagetables.c
-@@ -36,6 +36,16 @@ enum address_markers_idx {
- 	VMEMMAP_END_NR,
- 	VMALLOC_NR,
- 	VMALLOC_END_NR,
-+#ifdef CONFIG_KMSAN
-+	KMSAN_VMALLOC_SHADOW_START_NR,
-+	KMSAN_VMALLOC_SHADOW_END_NR,
-+	KMSAN_VMALLOC_ORIGIN_START_NR,
-+	KMSAN_VMALLOC_ORIGIN_END_NR,
-+	KMSAN_MODULES_SHADOW_START_NR,
-+	KMSAN_MODULES_SHADOW_END_NR,
-+	KMSAN_MODULES_ORIGIN_START_NR,
-+	KMSAN_MODULES_ORIGIN_END_NR,
-+#endif
- 	MODULES_NR,
- 	MODULES_END_NR,
- 	ABS_LOWCORE_NR,
-@@ -65,6 +75,16 @@ static struct addr_marker address_markers[] = {
- 	[VMEMMAP_END_NR]	= {0, "vmemmap Area End"},
- 	[VMALLOC_NR]		= {0, "vmalloc Area Start"},
- 	[VMALLOC_END_NR]	= {0, "vmalloc Area End"},
-+#ifdef CONFIG_KMSAN
-+	[KMSAN_VMALLOC_SHADOW_START_NR]	= {0, "Kmsan vmalloc Shadow Start"},
-+	[KMSAN_VMALLOC_SHADOW_END_NR]	= {0, "Kmsan vmalloc Shadow End"},
-+	[KMSAN_VMALLOC_ORIGIN_START_NR]	= {0, "Kmsan vmalloc Origins Start"},
-+	[KMSAN_VMALLOC_ORIGIN_END_NR]	= {0, "Kmsan vmalloc Origins End"},
-+	[KMSAN_MODULES_SHADOW_START_NR]	= {0, "Kmsan Modules Shadow Start"},
-+	[KMSAN_MODULES_SHADOW_END_NR]	= {0, "Kmsan Modules Shadow End"},
-+	[KMSAN_MODULES_ORIGIN_START_NR]	= {0, "Kmsan Modules Origins Start"},
-+	[KMSAN_MODULES_ORIGIN_END_NR]	= {0, "Kmsan Modules Origins End"},
-+#endif
- 	[MODULES_NR]		= {0, "Modules Area Start"},
- 	[MODULES_END_NR]	= {0, "Modules Area End"},
- 	[ABS_LOWCORE_NR]	= {0, "Lowcore Area Start"},
-@@ -306,6 +326,16 @@ static int pt_dump_init(void)
- #ifdef CONFIG_KFENCE
- 	address_markers[KFENCE_START_NR].start_address = kfence_start;
- 	address_markers[KFENCE_END_NR].start_address = kfence_start + KFENCE_POOL_SIZE;
-+#endif
-+#ifdef CONFIG_KMSAN
-+	address_markers[KMSAN_VMALLOC_SHADOW_START_NR].start_address = KMSAN_VMALLOC_SHADOW_START;
-+	address_markers[KMSAN_VMALLOC_SHADOW_END_NR].start_address = KMSAN_VMALLOC_SHADOW_END;
-+	address_markers[KMSAN_VMALLOC_ORIGIN_START_NR].start_address = KMSAN_VMALLOC_ORIGIN_START;
-+	address_markers[KMSAN_VMALLOC_ORIGIN_END_NR].start_address = KMSAN_VMALLOC_ORIGIN_END;
-+	address_markers[KMSAN_MODULES_SHADOW_START_NR].start_address = KMSAN_MODULES_SHADOW_START;
-+	address_markers[KMSAN_MODULES_SHADOW_END_NR].start_address = KMSAN_MODULES_SHADOW_END;
-+	address_markers[KMSAN_MODULES_ORIGIN_START_NR].start_address = KMSAN_MODULES_ORIGIN_START;
-+	address_markers[KMSAN_MODULES_ORIGIN_END_NR].start_address = KMSAN_MODULES_ORIGIN_END;
- #endif
- 	sort_address_markers();
- #ifdef CONFIG_PTDUMP_DEBUGFS
--- 
-2.45.2
+I will correct that in the next version.
 
+Christoph
