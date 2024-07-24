@@ -1,66 +1,67 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84121142E83
-	for <linux-s390@vger.kernel.org>; Tue, 23 Jul 2024 21:22:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85EDB4C6D;
+	Wed, 24 Jul 2024 14:31:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721769732; cv=none; b=L7/fApshkNa3XKvr+GNf4pwr54XcUuuOkFTpOwOnRKwiRHzXeQLzTp/h5IgJg0EouF6T98ThYFJs7ijzo4p+l8Q+LdSbPFpRAiXxGq3ek+liixm6gh1KCX3vLb+qCmdepSYC2TUZNZfE+gap2vftGHlT6mjjJG7zgm/wLUzt1YQ=
+	t=1721831490; cv=none; b=niFgrsfQcNZyNYlT2jhahIoIIqrO3aR1huvrSpWW/9+W1FZnPvcXOHvy47A+S0jTRaIgsBGwKV+76nLyi5EjQOI8L+GwkDkz5mhj4zcC/Ru0d52YicEU6AOcXazmOqGU6kfco3yFxZUARffb13639L5V+fiyGrb+8hiG15UXoQQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721769732; c=relaxed/simple;
-	bh=i3pfAw1KaudTzwEu/10QbazMMjEIIPlHKdgBDzRR5o4=;
+	s=arc-20240116; t=1721831490; c=relaxed/simple;
+	bh=hYOR4rqs7WSDSzXBrnCsM6gq7rm4gZYHWXtXeeKLULk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rtvbSUUJc5UlMJpn5TRX1dy5W2UHWcLfZbwHtTpbS7SNVc9DuzVHFuCGDui0GQ11hCTnQ9rH1WpTThDiP78uUfI9jPWWNr7LRVuW+Q+/wsiEMYjZS2Ob7gmYUnPjbJmwyJQdU7r4m5JIEqYdxKAJocWsgQjIvfTDglY65arzHAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RxEVrInj; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=tQRkFbGVFJsDHlSi0zsdU42rdAtP0LB9vS/tBEA6fwAB41j7PQByNebd8BLxVa5uUCSt9mnnBEPjS9aJ3EWXDmzPiGHAyxjYs5rk4C0fz83/T58o6tsJZwcPp91pxk9YCZvSg5THf1H0xh0tB+cGtOUT2xgHX8PX641DEaevnNU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fPLOfPS/; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RxEVrInj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721769729;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=g2K985F+JisyaO1P/JvvQtZwZa+DhsuE69ZrR+fszhY=;
-	b=RxEVrInjnPlqWKgcb4dl7vCQLBrzFmkQ9XyvtGwUNWc+ipij+8sVg8l2o8VSv+XBb1TG/z
-	jwnkc1m4F0vkTfPY/u3Lp3WZ8XxRSYLAm1JWNNQRIuWX+EVpMiokeBoTswIIrRNUTEebVH
-	yumZNS4HPu4L3x6BSZjfXR0wThLWa0s=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-217-NAKp_57GNYK0e8rahSWV2g-1; Tue, 23 Jul 2024 17:22:06 -0400
-X-MC-Unique: NAKp_57GNYK0e8rahSWV2g-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3683f34d8d9so3412105f8f.3
-        for <linux-s390@vger.kernel.org>; Tue, 23 Jul 2024 14:22:06 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721769725; x=1722374525;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=g2K985F+JisyaO1P/JvvQtZwZa+DhsuE69ZrR+fszhY=;
-        b=HftgFcfnThSMEpk/ox7kQEF2FQVBUuU/b11C3tV1AUqFAwz6OG6zWGQS7a7thfwFly
-         A15JEPHikOV0peSbBdlMB883q8ruo41SRnfyYLi60yONmAUkDYiqBoKXYCS1U45Gr33U
-         VIal48cwUyIsbGTHZ4odPS6MeQ0C6cepZCgUFRRbP36ZT3q2vDqSohVeyflAVZLUzDPg
-         9IPSDon76U2QO0juPjFIccq0+qty89cRwASuBuK6OXfoZoBxjAdS4ReQDlvNTSsc5YEa
-         y573t2Pyrx22FfZDQLcGHpThTzLEzuTFVZHrPO9wfbfWBtoLi2iyrBNZs0g0h4DtV9Ag
-         Qh5A==
-X-Forwarded-Encrypted: i=1; AJvYcCXMX9mdazOUYadcIt/Wdyc84d6xpWAftWJoPbxSgfBKTCdQP76vD88vmzWRpmNW5plBAiINKRsK3wR/P5vr9EiqTf9yjXUnPxAEuQ==
-X-Gm-Message-State: AOJu0YwANHm139tMY8uCMgZmlHbTQnQYKYTgqzKa6drqOec7zEoxPj4A
-	mBpX6vM9oWYZQ6JYEM2r86kSxKkKmgte1pputTTiusM/DyyJZdSP/cha2Z9ByICYRhdOMkHq4Tf
-	jbtRJ4HHvD5W0EKgpQY/81UM3dWjNVw8aDapepOH7GgFJ5XukECVuHSGyIa8=
-X-Received: by 2002:a5d:64a8:0:b0:367:94b8:1df1 with SMTP id ffacd0b85a97d-369bae97e75mr7352130f8f.55.1721769725077;
-        Tue, 23 Jul 2024 14:22:05 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEZpJY61ZWZsVtUXIZgPXhIWFxqPYeKoLxP8USF6rP/yxwg/LgUFS9ATMnvRHeV1H1e/zaoew==
-X-Received: by 2002:a5d:64a8:0:b0:367:94b8:1df1 with SMTP id ffacd0b85a97d-369bae97e75mr7352118f8f.55.1721769724633;
-        Tue, 23 Jul 2024 14:22:04 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c72f:ed00:9dc2:1adb:d133:4434? (p200300cbc72fed009dc21adbd1334434.dip0.t-ipconnect.de. [2003:cb:c72f:ed00:9dc2:1adb:d133:4434])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36878684839sm12529422f8f.22.2024.07.23.14.22.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 23 Jul 2024 14:22:04 -0700 (PDT)
-Message-ID: <263e4414-24c0-4245-9c6d-7799c7bb9f77@redhat.com>
-Date: Tue, 23 Jul 2024 23:22:02 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fPLOfPS/"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46ODvS1E021163;
+	Wed, 24 Jul 2024 14:31:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=e
+	gjEsxTuOR8TX4m0C5pbslVsAhqpijmwabQmVEh7Wnw=; b=fPLOfPS/ZXqnopmwR
+	DjPm4z5a9c9jZ/vFUJmJ6+uaAIrFw90kC9NiRcXXdnulOVfmkATbmg5IvVNlzFcB
+	vUDj314uSFiG4dS/GabRnizQ99tIKPY7FZYiyrEbJgr4TczqrM5Vzp+5oNPuxHQq
+	Dq1VJ6BRJL/ETe1jEU93xnZvZQQ2Mev6JQSvWRTXpfnLg3R52As2boj1mmM/IbdP
+	idktdA0ezP78bLbklBUDvGtzBxz8M0q1kmdtQFZIGNZBgoMt4lnD/MkQj4GwKq2F
+	GveFA7xqwjMNkMZ+BOlMnEiqkHxJSx4FeoVJWogm43Bq5yu7y3zs0cmyYt3jl6Cs
+	LcJIA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40jyvvrhks-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 24 Jul 2024 14:31:17 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46OEVG9g017727;
+	Wed, 24 Jul 2024 14:31:16 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40jyvvrhkk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 24 Jul 2024 14:31:16 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46OENrc0005818;
+	Wed, 24 Jul 2024 14:31:15 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40gy2pfyes-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 24 Jul 2024 14:31:15 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46OEV9aA17498540
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 24 Jul 2024 14:31:11 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AE55C2004B;
+	Wed, 24 Jul 2024 14:31:09 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4DC6F2004E;
+	Wed, 24 Jul 2024 14:31:09 +0000 (GMT)
+Received: from [9.179.14.90] (unknown [9.179.14.90])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 24 Jul 2024 14:31:09 +0000 (GMT)
+Message-ID: <34cbaade-ed71-4f5c-89f1-1c0a645517ea@linux.ibm.com>
+Date: Wed, 24 Jul 2024 16:31:09 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,180 +69,86 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 0/6] mm: THP-agnostic refactor on huge mappings
-To: Peter Xu <peterx@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>,
- linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
- Matthew Wilcox <willy@infradead.org>, Dan Williams
- <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>,
- linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org,
- Alex Williamson <alex.williamson@redhat.com>,
- Jason Gunthorpe <jgg@nvidia.com>, x86@kernel.org,
- Alistair Popple <apopple@nvidia.com>, linuxppc-dev@lists.ozlabs.org,
- linux-arm-kernel@lists.infradead.org, Ryan Roberts <ryan.roberts@arm.com>,
- Hugh Dickins <hughd@google.com>, Axel Rasmussen <axelrasmussen@google.com>
-References: <20240717220219.3743374-1-peterx@redhat.com>
- <cf36725d-c197-4c07-8998-d34711335fdb@redhat.com> <Zp57ZLk2IQoHOI7u@x1n>
- <cfe94481-233a-421c-b607-08517588de6c@redhat.com> <ZqAayNSDf_6cfziw@x1n>
-From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v2 01/10] selftests: kvm: s390: Define page sizes in
+ shared header
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+References: <20240723093126.285319-1-schlameuss@linux.ibm.com>
+ <20240723093126.285319-2-schlameuss@linux.ibm.com>
 Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <ZqAayNSDf_6cfziw@x1n>
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20240723093126.285319-2-schlameuss@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: w5SsdMtSIb6wRaLbbDPoIniazXJ3eDoy
+X-Proofpoint-ORIG-GUID: IMBMEVx9iHxkd-YT330S0KumGqDxrKqT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-07-24_13,2024-07-24_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 malwarescore=0
+ suspectscore=0 phishscore=0 priorityscore=1501 mlxscore=0 adultscore=0
+ spamscore=0 mlxlogscore=729 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2407110000 definitions=main-2407240106
 
-On 23.07.24 23:04, Peter Xu wrote:
-> On Tue, Jul 23, 2024 at 10:18:37AM +0200, David Hildenbrand wrote:
->> On 22.07.24 17:31, Peter Xu wrote:
->>> On Mon, Jul 22, 2024 at 03:29:43PM +0200, David Hildenbrand wrote:
->>>> On 18.07.24 00:02, Peter Xu wrote:
->>>>> This is an RFC series, so not yet for merging.  Please don't be scared by
->>>>> the code changes: most of them are code movements only.
->>>>>
->>>>> This series is based on the dax mprotect fix series here (while that one is
->>>>> based on mm-unstable):
->>>>>
->>>>>      [PATCH v3 0/8] mm/mprotect: Fix dax puds
->>>>>      https://lore.kernel.org/r/20240715192142.3241557-1-peterx@redhat.com
->>>>>
->>>>> Overview
->>>>> ========
->>>>>
->>>>> This series doesn't provide any feature change.  The only goal of this
->>>>> series is to start decoupling two ideas: "THP" and "huge mapping".  We
->>>>> already started with having PGTABLE_HAS_HUGE_LEAVES config option, and this
->>>>> one extends that idea into the code.
->>>>>
->>>>> The issue is that we have so many functions that only compile with
->>>>> CONFIG_THP=on, even though they're about huge mappings, and huge mapping is
->>>>> a pretty common concept, which can apply to many things besides THPs
->>>>> nowadays.  The major THP file is mm/huge_memory.c as of now.
->>>>>
->>>>> The first example of such huge mapping users will be hugetlb.  We lived
->>>>> until now with no problem simply because Linux almost duplicated all the
->>>>> logics there in the "THP" files into hugetlb APIs.  If we want to get rid
->>>>> of hugetlb specific APIs and paths, this _might_ be the first thing we want
->>>>> to do, because we want to be able to e.g., zapping a hugetlb pmd entry even
->>>>> if !CONFIG_THP.
->>>>>
->>>>> Then consider other things like dax / pfnmaps.  Dax can depend on THP, then
->>>>> it'll naturally be able to use pmd/pud helpers, that's okay.  However is it
->>>>> a must?  Do we also want to have every new pmd/pud mappings in the future
->>>>> to depend on THP (like PFNMAP)?  My answer is no, but I'm open to opinions.
->>>>>
->>>>> If anyone agrees with me that "huge mapping" (aka, PMD/PUD mappings that
->>>>> are larger than PAGE_SIZE) is a more generic concept than THP, then I think
->>>>> at some point we need to move the generic code out of THP code into a
->>>>> common code base.
->>>>>
->>>>> This is what this series does as a start.
->>>>
->>>> Hi Peter!
->>>>
->>>>   From a quick glimpse, patch #1-#4 do make sense independent of patch #5.
->>>>
->>>> I am not so sure about all of the code movement in patch #5. If large folios
->>>> are the future, then likely huge_memory.c should simply be the home for all
->>>> that logic.
->>>>
->>>> Maybe the goal should better be to compile huge_memory.c not only for THP,
->>>> but also for other use cases that require that logic, and fence off all THP
->>>> specific stuff using #ifdef?
->>>>
->>>> Not sure, though. But a lot of this code movements/churn might be avoidable.
->>>
->>> I'm fine using ifdefs in the current fine, but IMHO it's a matter of
->>> whether we want to keep huge_memory.c growing into even larger file, and
->>> keep all large folio logics only in that file.  Currently it's ~4000 LOCs.
->>
->> Depends on "how much" for sure. huge_memory.c is currently on place 12 of
->> the biggest files in mm/. So there might not be immediate cause for action
->> ... just yet :) [guess which file is on #2 :) ]
+On 7/23/24 11:31, Christoph Schlameuss wrote:
+> Multiple test cases need page size and shift definitions.
+> By moving the definitions to a single architecture specific header we
+> limit the repetition.
 > 
-> 7821, hugetlb.c
-> 7602, vmscan.c
-> 7275, slub.c
-> 7072, page_alloc.c
-> 6673, memory.c
-> 5402, memcontrol.c
-> 5239, shmem.c
-> 5155, vmalloc.c
-> 4419, filemap.c
-> 4060, mmap.c
-> 3882, huge_memory.c
+> Make use of PAGE_SIZE, PAGE_SHIFT and PAGE_MASK defines in existing
+> code.
 > 
-> IMHO a split is normally better than keeping everything in one file, but
-> yeah I'd confess THP file isn't that bad comparing to others..  And I'm
-> definitely surprised it's even out of top ten.
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-It's always interesting looking at the numbers here. For v6.10 we had:
-
-     8521 mm/memcontrol.c
-     7813 mm/hugetlb.c
-     7550 mm/vmscan.c
-     7266 mm/slub.c
-     7018 mm/page_alloc.c
-     6468 mm/memory.c
-     5154 mm/vmalloc.c
-     5002 mm/shmem.c
-     4419 mm/filemap.c
-     4019 mm/mmap.c
-     3954 mm/ksm.c
-     3740 mm/swapfile.c
-     3730 mm/huge_memory.c
-     3689 mm/gup.c
-     3542 mm/mempolicy.c
-
-I suspect memcontrol.c shrunk because of the v1 split-off, leaving 
-hugetlb.c now at #1 :)
-
--- 
-Cheers,
-
-David / dhildenb
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
