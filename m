@@ -1,210 +1,132 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCF0519D8BB;
-	Thu, 25 Jul 2024 14:40:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 160C619D066;
+	Thu, 25 Jul 2024 15:02:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721918459; cv=none; b=tGLndejLMy/jzwxSmwRj5HpnSPo4PXORhATv6DowsS4xGRSnWmUU06a9k5Ec29SFOtC+jJIypW9/AQDB8isnSnUMSZhn4CkLQQh5zo6/er+pKGWg/1bAVNY3PtZCb9/ntI7DKNGLCbeG8Tqr6+EXocs9GyRn57d/K9RnXG2Z/5I=
+	t=1721919740; cv=none; b=Kk8u7SVD8ooLPg8TPmrsMQYAANRYYIcxZydUutV2dI+STBGqPrlW0TYDFnFKSWyz0O+SJiG9IDLFYgtaLv7I0Gs9q+p0aLI/RYWi+LNgjfqrpD9MvZHa5WHD6haT/oSsfqppNLlG3JiXauZz5h+TVQcjAyy0TenDL0gx//NWJg8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721918459; c=relaxed/simple;
-	bh=Ld96hc7GEbvqoEsA43j0z9b2a9gx4LuclLQOoPlYVPU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=g7/GdaYkvDPEYU5fJRlu8lsQRT2KOvyr6v+S/ss2f3WZuo5+y1uN5D7Gewjtm1KimfkY7PckOTTCSFayj0Cq9H2pZ5ftV3j0oEcCUS3d4cu1raJG09yJ1YsXx9Y5AgSrv4r19N0q3b4Oho1UZloAYpSmoTmhELL9JMvBbeCmuns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lqDMPi9i; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1721919740; c=relaxed/simple;
+	bh=Gt7tT4IS1ETjy/tUYBrc2CiRyA2ObR6lUoBhHn98yiA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=A2TOcrV/EnqeJxU/h/Hnrjm+ab3+05Nzp1Msw79/R+pRqq+Ccl0Kw/v/BihHTu/sitHKNyLyrKNwJ2jboQl7xprzaNr9Xpg3qAZpYXlwCz00LUcYeOzAYXWxQgICP0ddM6jnSxUDL75Mb65q83vDnGYZ11WnKTVX4u6NWJoyE64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=S9t2BiyF; arc=none smtp.client-ip=209.85.216.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lqDMPi9i"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46PCRc20009280;
-	Thu, 25 Jul 2024 14:40:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
-	HOSG4CF9MoAmwkFMrYwXVQtkI3oICDCLJuIfxpoffJU=; b=lqDMPi9iLqxPNnlv
-	ISn7aBT9sgSsQNNxxWny/T3F/OIm4nJnKV6PCsyw+8mXZlNW5k0Rm6cFmHlXp8i6
-	Afkwk+UgNZmQg1adhh3mIUJ4HGuwfZ97z2SY1E0GfI2XtL0TVUhBNd6h/Ev/i4UF
-	i4OfHreZ8/v7PnY89VyG4oJ9cFvLw/501hib1IV4Ge7n4Yn0JJh9AVTn+I1IjuLX
-	qB6AmdX9d3hLPzOkw+Jd4mraGN7bkGdp17it99D2e11BqGE1GBFWhxGLPu0JrbYK
-	HI1dF7ClpyVy3hkR66mbSB0l8sFoRJpxs/0h8DGPG5FCLZFPte5y40SjnCv2FBEE
-	MAZnCw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40kmm0gkv1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jul 2024 14:40:49 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46PEenMX015689;
-	Thu, 25 Jul 2024 14:40:49 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40kmm0gkuy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jul 2024 14:40:49 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46PB0DHH006265;
-	Thu, 25 Jul 2024 14:40:48 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 40gqjuqkuj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jul 2024 14:40:48 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46PEeh9t55116070
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 25 Jul 2024 14:40:45 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1243520065;
-	Thu, 25 Jul 2024 14:40:43 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 933132005A;
-	Thu, 25 Jul 2024 14:40:42 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.179.15.236])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Thu, 25 Jul 2024 14:40:42 +0000 (GMT)
-Date: Thu, 25 Jul 2024 16:35:14 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, nrb@linux.ibm.com,
-        npiggin@gmail.com, nsg@linux.ibm.com, mhartmay@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH 1/4] s390x: Split snippet makefile rules
- into new file
-Message-ID: <20240725163514.7831c3d9@p-imbrenda>
-In-Reply-To: <20240718105104.34154-2-frankja@linux.ibm.com>
-References: <20240718105104.34154-1-frankja@linux.ibm.com>
-	<20240718105104.34154-2-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="S9t2BiyF"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-2cb4b7fef4aso768883a91.0;
+        Thu, 25 Jul 2024 08:02:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1721919738; x=1722524538; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=QoJFajSTaKRkyu/ZodTh2Ah4x6T0R9kHlD7qvYnI/nA=;
+        b=S9t2BiyFoF+4x74KWvO3xSGvxGieIex8jxcM3t/oeOoGE6Aon26ciOeMo1TTY7HTcj
+         MduYPLFKXNIvzHmEwae15uT6sQIwEBVmvjseZN0zD/9Oo9MjsVHz6djlFk1CiPlqifAc
+         zvK0pPArQLMKqv3MpxIU5qSCurnFQEV2NCMQown39tUqMymyt1ouPhpU3U/Y/ngox0hd
+         9Zg/mcxrpTT7setRMJlIvHzkqwYSZxaZH4JbZZfuWkyJeehVdARBu/H1JG8yLaDSbTZ1
+         vnA9twX7r2kHRd9MOvO8Lp99BH1LBRs+t9vuNex0V20b3h7NT7bFVvGHw0ACfdCcc+GH
+         2TnQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721919738; x=1722524538;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=QoJFajSTaKRkyu/ZodTh2Ah4x6T0R9kHlD7qvYnI/nA=;
+        b=aaA9YS2GUztdZSuGVtsOh4n+d6OxMvl+vqz9aKp0Z2nWqs7JN/KfpyFyMoRaSMgDb9
+         K0u6RFOkvCueRGq57p38iMiuBTLEXWnw2K1keQUNkGU1UPqdNnq3SxiEMBcN57dkceqs
+         w1iERbZiVcHOHgpLh1xab3fXHBhW5cvjE5gh0wcOZvMmiBc9OCAFDk6oJvZ1wCIKRtpY
+         lJJ5fG12lOn4oHpp9qYfilxpoN73NOOfpc5Uz3mxB7juF05zzdCcxofMN4JmhiB9Xy2T
+         pqJqJROHa9iFQSj8lI7IF+tysTHEJH02QOID2hFAYIf37fk32QC3ttKPRahc9hQqoo5A
+         FX5w==
+X-Forwarded-Encrypted: i=1; AJvYcCXFfGWF2Wyf7MsK12iJJqw54qenJEApM76sF7z3hHn6Z+B5zw1sg95EOi7H1WqMhkLoz4tYjK3hU/p1vtcGZp5fwXRNVh/Pi/V+ZA==
+X-Gm-Message-State: AOJu0YzD/teuHyyMPr/40uGd0A/AhlX7gdOv/33foJYcFikw2BSrDFQ9
+	vPlv9djOo5JFgxhLdD9j2B6aoJJZxj5qcSfajhuZFFqF4QsjYXsx79fikA==
+X-Google-Smtp-Source: AGHT+IGZGLrpBp65z/osGfTeccjvs2IJt9WMWAD8p4OsAYCJQWqiqH5PFAxAOvhrHhAsh6vo9n5w7Q==
+X-Received: by 2002:a17:90a:ee4b:b0:2c8:1f30:4e04 with SMTP id 98e67ed59e1d1-2cf2ec05516mr2484907a91.36.1721919738250;
+        Thu, 25 Jul 2024 08:02:18 -0700 (PDT)
+Received: from [192.168.50.95] ([118.32.98.101])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2cdb73afe30sm3688841a91.13.2024.07.25.08.02.15
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 25 Jul 2024 08:02:16 -0700 (PDT)
+Message-ID: <83f4efd8-8bab-4113-a845-dbb462201069@gmail.com>
+Date: Fri, 26 Jul 2024 00:02:12 +0900
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: [PATCH] s390/mm: Fix VM_FAULT_HWPOISON handling in do_fault_error()
+To: gregkh@linuxfoundation.org, gerald.schaefer@linux.ibm.com,
+ agordeev@linux.ibm.com, gor@linux.ibm.com
+Cc: stable@vger.kernel.org, linux-s390@vger.kernel.org
+References: <2024072535-synergy-struggle-8ecc@gregkh>
+Content-Language: en-US
+From: Yunseong Kim <yskelg@gmail.com>
+In-Reply-To: <2024072535-synergy-struggle-8ecc@gregkh>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Kbf6-2R-dYzDx8oRPLnf5AZwPjG5eZR5
-X-Proofpoint-GUID: FT55b8vLcjtaEpd_zb9Lwb0gQ5cvVKFd
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-07-25_12,2024-07-25_03,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- bulkscore=0 phishscore=0 spamscore=0 adultscore=0 mlxscore=0
- mlxlogscore=999 lowpriorityscore=0 clxscore=1015 malwarescore=0
- impostorscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2407110000 definitions=main-2407250095
 
-On Thu, 18 Jul 2024 10:50:16 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
+This patch backporting to v6.6.43+ cherry picked from
+commit df39038cd895 ("s390/mm: Fix VM_FAULT_HWPOISON handling in do_exception()")
 
-> It's time to move the snippet related Makefile parts into a new file
-> to make s390x/Makefile less busy.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+There is no support for HWPOISON, MEMORY_FAILURE, or ARCH_HAS_COPY_MC on
+s390. Therefore we do not expect to see VM_FAULT_HWPOISON in
+do_fault_error().
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+However, since commit af19487f00f3 ("mm: make PTE_MARKER_SWAPIN_ERROR more
+general"), it is possible to see VM_FAULT_HWPOISON in combination with
+PTE_MARKER_POISONED, even on architectures that do not support HWPOISON
+otherwise. In this case, we will end up on the BUG() in do_fault_error().
 
-> ---
->  s390x/Makefile          | 34 ++++------------------------------
->  s390x/snippets/Makefile | 30 ++++++++++++++++++++++++++++++
->  2 files changed, 34 insertions(+), 30 deletions(-)
->  create mode 100644 s390x/snippets/Makefile
-> 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index c5c6f92c..2933b452 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -120,9 +120,11 @@ asmlib = $(TEST_DIR)/cstart64.o $(TEST_DIR)/cpu.o
->  
->  FLATLIBS = $(libcflat)
->  
-> +# Snippets
->  SNIPPET_DIR = $(TEST_DIR)/snippets
->  snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o
->  snippet_lib = $(snippet_asmlib) lib/auxinfo.o
-> +include $(SNIPPET_DIR)/Makefile
->  
->  # perquisites (=guests) for the snippet hosts.
->  # $(TEST_DIR)/<snippet-host>.elf: snippets = $(SNIPPET_DIR)/<c/asm>/<snippet>.gbin
-> @@ -148,34 +150,6 @@ else
->  snippet-hdr-obj =
->  endif
->  
-> -# the asm/c snippets %.o have additional generated files as dependencies
-> -$(SNIPPET_DIR)/asm/%.o: $(SNIPPET_DIR)/asm/%.S $(asm-offsets)
-> -	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
-> -
-> -$(SNIPPET_DIR)/c/%.o: $(SNIPPET_DIR)/c/%.c $(asm-offsets)
-> -	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
-> -
-> -$(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o $(SNIPPET_DIR)/asm/flat.lds
-> -	$(CC) $(LDFLAGS) -o $@ -T $(SNIPPET_DIR)/asm/flat.lds $<
-> -	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $@ $@
-> -	truncate -s '%4096' $@
-> -
-> -$(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS) $(SNIPPET_DIR)/c/flat.lds
-> -	$(CC) $(LDFLAGS) -o $@ -T $(SNIPPET_DIR)/c/flat.lds $< $(snippet_lib) $(FLATLIBS)
-> -	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $@ $@
-> -	truncate -s '%4096' $@
-> -
-> -%.hdr: %.gbin $(HOST_KEY_DOCUMENT)
-> -	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
-> -
-> -.SECONDARY:
-> -%.gobj: %.gbin
-> -	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $< $@
-> -
-> -.SECONDARY:
-> -%.hdr.obj: %.hdr
-> -	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $< $@
-> -
->  lds-autodepend-flags = -MMD -MF $(dir $*).$(notdir $*).d -MT $@
->  %.lds: %.lds.S $(asm-offsets)
->  	$(CPP) $(lds-autodepend-flags) $(CPPFLAGS) -P -C -o $@ $<
-> @@ -229,8 +203,8 @@ $(snippet_asmlib): $$(patsubst %.o,%.S,$$@) $(asm-offsets)
->  	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
->  
->  
-> -arch_clean: asm_offsets_clean
-> -	$(RM) $(TEST_DIR)/*.{o,elf,bin,lds} $(SNIPPET_DIR)/*/*.{o,elf,*bin,*obj,hdr,lds} $(SNIPPET_DIR)/asm/.*.d $(TEST_DIR)/.*.d lib/s390x/.*.d $(comm-key)
-> +arch_clean: asm_offsets_clean snippet_clean
-> +	$(RM) $(TEST_DIR)/*.{o,elf,bin,lds} $(TEST_DIR)/.*.d lib/s390x/.*.d $(comm-key)
->  
->  generated-files = $(asm-offsets)
->  $(tests:.elf=.o) $(asmlib) $(cflatobjs): $(generated-files)
-> diff --git a/s390x/snippets/Makefile b/s390x/snippets/Makefile
-> new file mode 100644
-> index 00000000..a1c479f6
-> --- /dev/null
-> +++ b/s390x/snippets/Makefile
-> @@ -0,0 +1,30 @@
-> +# the asm/c snippets %.o have additional generated files as dependencies
-> +$(SNIPPET_DIR)/asm/%.o: $(SNIPPET_DIR)/asm/%.S $(asm-offsets)
-> +	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
-> +
-> +$(SNIPPET_DIR)/c/%.o: $(SNIPPET_DIR)/c/%.c $(asm-offsets)
-> +	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
-> +
-> +$(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o $(SNIPPET_DIR)/asm/flat.lds
-> +	$(CC) $(LDFLAGS) -o $@ -T $(SNIPPET_DIR)/asm/flat.lds $<
-> +	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $@ $@
-> +	truncate -s '%4096' $@
-> +
-> +$(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS) $(SNIPPET_DIR)/c/flat.lds
-> +	$(CC) $(LDFLAGS) -o $@ -T $(SNIPPET_DIR)/c/flat.lds $< $(snippet_lib) $(FLATLIBS)
-> +	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $@ $@
-> +	truncate -s '%4096' $@
-> +
-> +%.hdr: %.gbin $(HOST_KEY_DOCUMENT)
-> +	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
-> +
-> +.SECONDARY:
-> +%.gobj: %.gbin
-> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $< $@
-> +
-> +.SECONDARY:
-> +%.hdr.obj: %.hdr
-> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $< $@
-> +
-> +snippet_clean:
-> +	$(RM) $(SNIPPET_DIR)/*/*.{o,elf,*bin,*obj,hdr,lds} $(SNIPPET_DIR)/asm/.*.d
+Fix this by treating VM_FAULT_HWPOISON the same as VM_FAULT_SIGBUS, similar
+to x86 when MEMORY_FAILURE is not configured. Also print unexpected fault
+flags, for easier debugging.
+
+Note that VM_FAULT_HWPOISON_LARGE is not expected, because s390 cannot
+support swap entries on other levels than PTE level.
+
+Cc: stable@vger.kernel.org # 6.6+
+Fixes: af19487f00f3 ("mm: make PTE_MARKER_SWAPIN_ERROR more general")
+Reported-by: Yunseong Kim <yskelg@gmail.com>
+Tested-by: Yunseong Kim <yskelg@gmail.com>
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Message-ID: <20240715180416.3632453-1-gerald.schaefer@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Yunseong Kim <yskelg@gmail.com>
+---
+ arch/s390/mm/fault.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index b678295931c3..1a231181a413 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -331,14 +331,16 @@ static noinline void do_fault_error(struct pt_regs *regs, vm_fault_t fault)
+ 				do_no_context(regs, fault);
+ 			else
+ 				do_sigsegv(regs, SEGV_MAPERR);
+-		} else if (fault & VM_FAULT_SIGBUS) {
++		} else if (fault & (VM_FAULT_SIGBUS | VM_FAULT_HWPOISON)) {
+ 			/* Kernel mode? Handle exceptions or die */
+ 			if (!user_mode(regs))
+ 				do_no_context(regs, fault);
+ 			else
+ 				do_sigbus(regs);
+-		} else
++		} else {
++			pr_emerg("Unexpected fault flags: %08x\n", fault);
+ 			BUG();
++		}
+ 		break;
+ 	}
+ }
+-- 
+2.45.2
 
