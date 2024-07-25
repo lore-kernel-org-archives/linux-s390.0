@@ -1,83 +1,77 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA93A1103;
-	Thu, 25 Jul 2024 14:07:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13DD41993A3;
+	Thu, 25 Jul 2024 14:27:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721916439; cv=none; b=Ev0qD1m11fAZ0pgUe/bV49RTeI0tz0xJDuRh/jfZfhPNrMg89BV75XlU89wwtxyVs4uiFASJNaShUjy6ihRDf+mima1IfX1wuacnq8czANUtT9f7Y4Oj8S3Ti98W725mrIbj8NKwpf4c6LpuODjMyQ2IN4y6dmABRKuQ6BNixAc=
+	t=1721917633; cv=none; b=twWBA7TpBBLvTU5mnRKEHnWBFl/3z/tBD0Pm0KInF0PqRcSDtV7DfrIKmzvYCV9p2EK/A2ifNnThFRXYAZEO1OX+4AZiIzXchcGXwhL3FBhnSpLL5w/VBvYwNLZZhy71M74iqLa8F56gCn7WosG6XCm46xfJsMB0utTok1mRyFw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721916439; c=relaxed/simple;
-	bh=RrUV0rnY6L0RR7kMOYx7W25Z4hmAlntxRNkHgN+IvFc=;
+	s=arc-20240116; t=1721917633; c=relaxed/simple;
+	bh=QKFnom4Exd/hMf+EV+8KBwN8RHAnQ1lXaOdTuGOv1dI=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Zwi2t5p1pOniU/pJFcc4WR/OXermL4emkM5fqu0pJcvLsuUXFXgukhYAGAK7D46KtLZe3Q8ETGHbUd8vREpMbidWwU2rw47DvR3ycja+foyoUib5tkFJWy4xED9j2F3vhTrvGk2K7FesdqRCooi3Ln48R6EqDSDxzZxXaaXLXyc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=obWMSMoS; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version:Content-Type; b=R0nagoUJtWMI671gRNqknq13HWaScbJgci1Eu6f/6EiS+BUbnhwBkfqo6K2aNgd+Y4dJCdD5+YmAMgGpweyk7+d9Ket8YDzQwZVO71sbiQoAw/pR0TiGDCVQNmIYrtYk0zIuNsiVGzOM8fBUAWPgM1nmiC9XXFouHi1cYT16+Yc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YCFijlhv; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="obWMSMoS"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46PA0CKJ017844;
-	Thu, 25 Jul 2024 14:07:12 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YCFijlhv"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46PE0hao009832;
+	Thu, 25 Jul 2024 14:27:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
 	:from:to:cc:subject:message-id:in-reply-to:references
 	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
-	UjrPEkrro1wdlirrl/2L0PO16h/JF1/s+Kd8J9Umj5g=; b=obWMSMoSmqdmQZBq
-	8Byf4OCgompK8sllYi/I8YVCKr2QyiPalgPglZOZhm8uAnu4TDNzEV7Ry53QKP7z
-	sfGNlhxXBiCeJj8GTenytLVbr/As22aTjONtPLxhSu7xrvR+B5+K+uNOGuBJQjkX
-	+Qm3UEvPiBOrOSJ0vVa5lnB9ZnZwrIrUK4o6UKKpmoH6UDn7Gk5qBtrm9FKMmfYY
-	sqVQLfGbwx8UcsdlQVlHKG/wovvdAOJvUAv20i6OpKAvMcLXUyarj4WyfT95wnLh
-	CiS9TBfj92NLtWK4MNAQ1/WKzSPbGZ8GeHjo5ezbeQOR1qU4kPDz4Ema82pD7aL6
-	ez43XQ==
+	IgrxNDBTzjSL/5F9HKCFHRlL9lbnAdSNjfYKlPBjVwI=; b=YCFijlhvg4sdSD+I
+	ShU0wHFLW3RN+Kea+HRVzn1sofcN6F6nWhaklA2VxON93bsZtiJSucQOe/bthPZa
+	RMq3BikTo7zTx0otUPOBdo/UwlEkhDFmL6MAfTc/IjR/p0IzcxZ6bgpWycw+tDWE
+	TEyuhPIisINnjAfb+BxXc37+4d2PyZntteHwLFAiATLPvc/OY0al+FcGO962/ABY
+	0norBr1DrZUp3iRwatzPR7Kmr/wtySmPhVCOtyj8V1sX3Ix8tpPTdM9m+Gv73+IN
+	n46eIaNVaiYCFlgySPi+0zPmo4woR0ZX28snN5xixShZz6Byp6yJ+znYt+CmXN7I
+	jBJGlg==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40kmj3rhs8-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40kmm0gjpd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jul 2024 14:07:12 +0000 (GMT)
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46PE7Bul018898;
-	Thu, 25 Jul 2024 14:07:11 GMT
+	Thu, 25 Jul 2024 14:27:09 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46PER94A023531;
+	Thu, 25 Jul 2024 14:27:09 GMT
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40kmj3rhs5-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40kmm0gjp7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jul 2024 14:07:11 +0000 (GMT)
+	Thu, 25 Jul 2024 14:27:09 +0000 (GMT)
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46PDtBJX009111;
-	Thu, 25 Jul 2024 14:07:10 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 40gt93pw77-1
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46PATmP2009100;
+	Thu, 25 Jul 2024 14:27:08 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 40gt93pyba-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jul 2024 14:07:10 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46PE74FM55902502
+	Thu, 25 Jul 2024 14:27:08 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46PER3Zh26673486
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 25 Jul 2024 14:07:06 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B9D6D2005A;
-	Thu, 25 Jul 2024 14:07:04 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1C09620040;
-	Thu, 25 Jul 2024 14:07:04 +0000 (GMT)
+	Thu, 25 Jul 2024 14:27:05 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1239C2004F;
+	Thu, 25 Jul 2024 14:27:03 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9481B20040;
+	Thu, 25 Jul 2024 14:27:02 +0000 (GMT)
 Received: from darkmoore (unknown [9.179.29.251])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Thu, 25 Jul 2024 14:07:04 +0000 (GMT)
-Date: Thu, 25 Jul 2024 16:07:01 +0200
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu, 25 Jul 2024 14:27:02 +0000 (GMT)
+Date: Thu, 25 Jul 2024 16:27:00 +0200
 From: Christoph Schlameuss <schlameuss@linux.ibm.com>
 To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah
- Khan <shuah@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand
- <david@redhat.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Subject: Re: [PATCH v2 06/10] selftests: kvm: s390: Add VM run test case
-Message-ID: <20240725160701.569e54c5.schlameuss@linux.ibm.com>
-In-Reply-To: <755de81f-f6ca-48a4-84dc-ecdc93ccf049@linux.ibm.com>
-References: <20240723093126.285319-1-schlameuss@linux.ibm.com>
-	<20240723093126.285319-7-schlameuss@linux.ibm.com>
-	<755de81f-f6ca-48a4-84dc-ecdc93ccf049@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        nrb@linux.ibm.com, npiggin@gmail.com, nsg@linux.ibm.com,
+        mhartmay@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH 1/4] s390x: Split snippet makefile rules
+ into new file
+Message-ID: <20240725162700.57f08e82.schlameuss@linux.ibm.com>
+In-Reply-To: <20240718105104.34154-2-frankja@linux.ibm.com>
+References: <20240718105104.34154-1-frankja@linux.ibm.com>
+	<20240718105104.34154-2-frankja@linux.ibm.com>
 Organization: IBM
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -88,59 +82,32 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: YGVN4Jhde_VQbqpwh-c6YBawPa-m7XH5
-X-Proofpoint-GUID: dUiHWEbepmayXZLqOmvsr13Oq8v6Wpd0
+X-Proofpoint-ORIG-GUID: TA5liSWxUCqkwUzTWwZ3L-qqeFm3H8Yt
+X-Proofpoint-GUID: xIVIwQmrko2gMOL1NhWwyYyaJhiL3Mbv
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-07-25_12,2024-07-25_03,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 malwarescore=0
- lowpriorityscore=0 mlxlogscore=999 impostorscore=0 phishscore=0
- adultscore=0 mlxscore=0 clxscore=1015 priorityscore=1501 bulkscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2407250095
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 phishscore=0 spamscore=0 adultscore=0 mlxscore=0
+ mlxlogscore=999 lowpriorityscore=0 clxscore=1015 malwarescore=0
+ impostorscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2407110000 definitions=main-2407250095
 
-On Thu, 25 Jul 2024 14:03:12 +0200
+On Thu, 18 Jul 2024 10:50:16 +0000
 Janosch Frank <frankja@linux.ibm.com> wrote:
 
-> On 7/23/24 11:31, Christoph Schlameuss wrote:
-> > Add test case running code interacting with registers within a
-> > ucontrol VM.
-> > 
-> > * Add uc_gprs test case
-> > 
-> > The test uses the same VM setup using the fixture and debug macros
-> > introduced in earlier patches in this series.
-> > 
-> > Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> > ---
-> >   .../selftests/kvm/s390x/ucontrol_test.c       | 132 ++++++++++++++++++
-> >   1 file changed, 132 insertions(+)
-> > 
-> > diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-> > index 527c431a9758..c98d5a3a315b 100644
-> > --- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-> > +++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-> > @@ -43,6 +43,23 @@ void require_ucontrol_admin(void)
-> >   	TEST_REQUIRE(kvm_has_cap(KVM_CAP_S390_UCONTROL));
-> >   }
-> >   
-> > +/* Test program setting some registers and looping */
-> > +extern char test_gprs_pgm[];
-> > +asm("test_gprs_pgm:\n"
-> > +	"xgr	%r0, %r0\n"
-> > +	"lgfi	%r1,1\n"  
-> [...]
+> It's time to move the snippet related Makefile parts into a new file
+> to make s390x/Makefile less busy.
 > 
-> Naming something PGM for handling anything else than Program Exceptions 
-> is not recommendable. PGM has been a stable name on s390 for code 
-> related to PGM exceptions
-> 
-> When first reading this I expected to find some kind of exception code.
-> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  s390x/Makefile          | 34 ++++------------------------------
+>  s390x/snippets/Makefile | 30 ++++++++++++++++++++++++++++++
+>  2 files changed, 34 insertions(+), 30 deletions(-)
+>  create mode 100644 s390x/snippets/Makefile
 
-Ok, I get it now. Previously I was thinking only "test_pgm" was the
-hangup. But I do understand now.
-I will rename these here and in the other patches to "test_xxx_asm" to
-hopefully reduce the confusion.
+IMHO the commit message should start with "s390x/Makefile: Split snippet
+makefile rules into new file" for more consistency.
 
-Christoph
+With that fixed:
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
