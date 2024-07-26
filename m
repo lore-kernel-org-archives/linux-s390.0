@@ -1,140 +1,131 @@
-Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 781DB22612;
-	Fri, 26 Jul 2024 04:15:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 422CF433AB;
+	Fri, 26 Jul 2024 08:31:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721967310; cv=none; b=lruKGc37QQ4ouamUnhnVoRr9x2n7vZg74mhS0kxz9EEKJSsaiQ4/4cRa1XRjiZjJwIL0cK7fZJh0m1DPy7hBTfuPEQ+3GZ3tBXRo5bq14pBHNbaFL6W8fB2FlEfffnlOwFK9fX5Jbn30SRS9QSN9HwTBuP5aXc+JTr0oSLHz134=
+	t=1721982714; cv=none; b=DQb1H2K44TOWTY3Ykhs6zNqlum/6m1uuZHzFFZnmTy4tuhelsjc83FvTyHQVCbJ06bkXCmx+WDCa+fw9BNc9r9x1JtMDzIBqNT0avINWCeuIBEoqFaTOguP3XYTSjyBQ5qQAsoi0shrNGcmHA/2RqKVpHMh5U0tIBKkWzwsdw60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721967310; c=relaxed/simple;
-	bh=gIKFqyMJQYAqXJDAdieEmwb8TBBzQrThuJSv7pNtuRM=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
-	 References:In-Reply-To; b=pjSgywLhGShV8YS0sy0kmnsy85qgeT4wkI7e1XJy1wYhiFnni4sUY5Ro7Wv7EVCgyK06+jS0CwTKld4qekdT1MPHfc1K1PzgkSpkG99UZNhkJ7rOXPCZ/ZhpumE3TOHznDmJ8cnqFAeYshIZxTqUCGSccPC7HOJC4FSXJEe1mwk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BFN+DifJ; arc=none smtp.client-ip=209.85.215.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1721982714; c=relaxed/simple;
+	bh=GMnnVONRExBFih6kJMj9Wc3cfqI9J4A6HZ2pDZyWjeE=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=kGpR9ITQd6K2LFYxtIPtZZk21Aptv4QHwb30xEtGis0J3AhuWGG9r3/WxgP+LuLmZustRML3ujQyBjB48JL8nW8o6va9Jqr7uQHpcl+4BZgzTPGmpI207psSQGmIOMu4cnelOn26OfPVBI5jGz/ubi27Wpu+br5Aprj6cuPm7ws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=srhshcfb; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BFN+DifJ"
-Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-75cda3719efso388957a12.3;
-        Thu, 25 Jul 2024 21:15:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1721967309; x=1722572109; darn=vger.kernel.org;
-        h=in-reply-to:references:cc:to:from:subject:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=f3jDQgJjkOPkFdNASGIQMdZJ31Vgc4apYAqzb/U5CKI=;
-        b=BFN+DifJYmsRieRGKBvKfSCDaJDiMANgBD/wnZJqNgt/Fe1WKFg6udwKLg8zMAcVue
-         Beded8Gz5HV9T4l0KorrDoG0VpVXHrbJiVXOa03gxRhvDptj0tD4kCNbBV287ftaxT46
-         P9rs0GdAFuN4h3C2OB+CvUlUXBZyC+Po/LPQVHbm+MjDIDsipV+ULQQVNAHTn0Ng+7zz
-         YieJiZpw5ZDrxEEJHKMOV4JC5PjGzbZ7cSQqSMIlCGioBIC8Dps/Toae73wKKNvb7hoC
-         yk2zD0wDxM+G+EX6Z89K+0B2dPkrlK3HF6PEBUQhEyspfKivWQTbQBYAfR36i+BpVyql
-         gqpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721967309; x=1722572109;
-        h=in-reply-to:references:cc:to:from:subject:message-id:date
-         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=f3jDQgJjkOPkFdNASGIQMdZJ31Vgc4apYAqzb/U5CKI=;
-        b=sMOhFOuJF14GHo0BZJ0C+YcZg3ToGnBir4pJq9Os6QoopFOkfYzl0yPV61hA9gAtNH
-         m7hPFs+vQzXiza91b0YNbYdZNbFB8mC0UNe1bHVHr1I8F0yQn5H7uobpdsZsv9nLbGHP
-         j9CTGKVGfA+sE0DBgR+lDNiwFzC2yDbb6N9dGhJ/3MsJwh1c+B9ocxsCTOtIDlZpiGyf
-         yEAgXWatEd8Y2OBYLmZaNdrhk6sxH0kSnLlSy8H8D/YYs2YkkGFV68Uy7Bc9GWYzWmW8
-         ZCQH/KXE5IIX7N4hLTvdnadDruElDX8xcomopoCZbbR0JJljwmOmhwTb90JHa0i92peI
-         WPAA==
-X-Forwarded-Encrypted: i=1; AJvYcCUAeXOnH0u6SOn779WJp7fCUWHbfJQNUuQVwPW1AulF4e16sz29XbLecFlOaVSt3r12psPuSWg/2j+uCUqZcCifWIKEdAXuHCcA7ZIK7ir47GUHkkRVTfVRCrTHfC+/Hw==
-X-Gm-Message-State: AOJu0Yw5s5lUDWG0s6kCQuAb8StkJUkPrO5SIhk/MgBr3BS35ImeX/f2
-	eeoiaPlqQnyGNyzfkwoXvGwoiJBODucFcxV6lTv59x9AKp6yJr5y
-X-Google-Smtp-Source: AGHT+IFmN17I4J5GSEbfLIh57WYix6Z4DqY06Of+f+JtOC/7oBUIVl0iyJ5AherVGcrUqk8gycWzzw==
-X-Received: by 2002:a17:90b:3e8b:b0:2c8:538d:95b7 with SMTP id 98e67ed59e1d1-2cf238ccb87mr5415523a91.32.1721967308684;
-        Thu, 25 Jul 2024 21:15:08 -0700 (PDT)
-Received: from localhost ([1.146.16.227])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2cf28c9cef7sm2365286a91.29.2024.07.25.21.15.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 25 Jul 2024 21:15:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="srhshcfb"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46Q7SJ2H004905;
+	Fri, 26 Jul 2024 08:31:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:in-reply-to:references:date:message-id
+	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
+	iENWra52OHXAvIK10QZTUvU9+u8TKBkpxMzwlLx8VB0=; b=srhshcfb4izpU9sG
+	ldTwxO1SIaHqXYx1e9fzjk6Y+y84ySPTErSAEWGYk59Yig9KJPzxXBkY88RaSeW5
+	9806naAlZ+VlzRZnF6xUPqzfq09LQQFsksM5fGOsieHryxyjfx/Wn+ShAVgskKg+
+	2YDPyUnU6pbLIPTb3RTYpumzVwn0Ei36yOTNIfSkr2cISmbBo+alUo80hkPcsxyX
+	LPD1e0cPyWkXk8tmz75JPIeQv8duHrYLgWQ9XqLK5tRgaWrdA64JGMRGJ/vvGgcF
+	rXy7NZ6CqXRPbvvMweyCi5+cdqpQMxMeX5qqFjx9bWDEDSbI2Ytt5L5FmnBgz7m7
+	LeG72Q==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40m3x18k50-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 26 Jul 2024 08:31:50 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46Q8Vnvt015918;
+	Fri, 26 Jul 2024 08:31:49 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40m3x18k4v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 26 Jul 2024 08:31:49 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46Q6wss3006625;
+	Fri, 26 Jul 2024 08:31:48 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40gxn7swvk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 26 Jul 2024 08:31:48 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46Q8VgbF26739250
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 26 Jul 2024 08:31:44 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6D82D2004B;
+	Fri, 26 Jul 2024 08:31:42 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F102320040;
+	Fri, 26 Jul 2024 08:31:41 +0000 (GMT)
+Received: from li-1de7cd4c-3205-11b2-a85c-d27f97db1fe1.ibm.com (unknown [9.179.0.55])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 26 Jul 2024 08:31:41 +0000 (GMT)
+From: "Marc Hartmayer" <mhartmay@linux.ibm.com>
+To: linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>,
+        Nicholas
+ Piggin <npiggin@gmail.com>
+Cc: kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
+        Nico Boehr
+ <nrb@linux.ibm.com>, Steffen Eiden <seiden@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v1 0/3] s390x: small Makefile improvements
+In-Reply-To: <20240604115932.86596-1-mhartmay@linux.ibm.com>
+References: <20240604115932.86596-1-mhartmay@linux.ibm.com>
+Date: Fri, 26 Jul 2024 10:31:40 +0200
+Message-ID: <871q3g7dw3.fsf@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 26 Jul 2024 14:15:00 +1000
-Message-Id: <D2Z6GP2VFOJ8.2KU7OB25CUXTC@gmail.com>
-Subject: Re: [kvm-unit-tests PATCH] build: retain intermediate .aux.o
- targets
-From: "Nicholas Piggin" <npiggin@gmail.com>
-To: "Nicholas Piggin" <npiggin@gmail.com>, "Segher Boessenkool"
- <segher@kernel.crashing.org>
-Cc: "Thomas Huth" <thuth@redhat.com>, <kvm@vger.kernel.org>,
- <linux-s390@vger.kernel.org>, "Andrew Jones" <andrew.jones@linux.dev>,
- "Marc Hartmayer" <mhartmay@linux.ibm.com>, <kvm-riscv@lists.infradead.org>,
- <kvmarm@lists.linux.dev>, <linuxppc-dev@lists.ozlabs.org>
-X-Mailer: aerc 0.18.0
-References: <20240612044234.212156-1-npiggin@gmail.com>
- <20240612082847.GG19790@gate.crashing.org>
- <D1ZBO021MLHV.3C7E4V3WOHO8V@gmail.com>
- <20240614010856.GK19790@gate.crashing.org>
- <D1ZLRVNGPWTV.5H76A3E8DJCV@gmail.com>
-In-Reply-To: <D1ZLRVNGPWTV.5H76A3E8DJCV@gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XkaZV6POofjgD772eJtSsTe6zflIN92V
+X-Proofpoint-GUID: jYvbfCPAnTQaR9IWGLOrz78SDfiNEjwP
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-07-26_07,2024-07-25_03,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
+ mlxlogscore=987 clxscore=1011 impostorscore=0 bulkscore=0
+ priorityscore=1501 lowpriorityscore=0 spamscore=0 suspectscore=0
+ mlxscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2407260054
 
-On Fri Jun 14, 2024 at 6:38 PM AEST, Nicholas Piggin wrote:
-> On Fri Jun 14, 2024 at 11:08 AM AEST, Segher Boessenkool wrote:
-> > On Fri, Jun 14, 2024 at 10:43:39AM +1000, Nicholas Piggin wrote:
-> > > On Wed Jun 12, 2024 at 6:28 PM AEST, Segher Boessenkool wrote:
-> > > > On Wed, Jun 12, 2024 at 02:42:32PM +1000, Nicholas Piggin wrote:
-> > > > > arm, powerpc, riscv, build .aux.o targets with implicit pattern r=
-ules
-> > > > > in dependency chains that cause them to be made as intermediate f=
-iles,
-> > > > > which get removed when make finishes. This results in unnecessary
-> > > > > partial rebuilds. If make is run again, this time the .aux.o targ=
-ets
-> > > > > are not intermediate, possibly due to being made via different
-> > > > > dependencies.
-> > > > >=20
-> > > > > Adding .aux.o files to .PRECIOUS prevents them being removed and =
-solves
-> > > > > the rebuild problem.
-> > > > >=20
-> > > > > s390x does not have the problem because .SECONDARY prevents depen=
-dancies
-> > > > > from being built as intermediate. However the same change is made=
- for
-> > > > > s390x, for consistency.
-> > > >
-> > > > This is exactly what .SECONDARY is for, as its documentation says,
-> > > > even.  Wouldn't it be better to just add a .SECONDARY to the other
-> > > > targets as well?
-> > >=20
-> > > Yeah we were debating that and agreed .PRECIOUS may not be the
-> > > cleanest fix but since we already use that it's okay for a
-> > > minimal fix.
-> >
-> > But why add it to s390x then?  It is not a fix there at all!
+On Tue, Jun 04, 2024 at 01:59 PM +0200, Marc Hartmayer <mhartmay@linux.ibm.=
+com> wrote:
+> The first patch is useful anyway, the third could be dropped to be consis=
+tent
+> with the other architectures.
 >
-> Eh, not a big deal. I mentioned that in the changelog it doesn't seem to
-> pracicaly fix something. And I rather the makefiles converge as much as
-> possible rather than diverge more.
+> Marc Hartmayer (2):
+>   s390x/Makefile: snippets: Add separate target for the ELF snippets
+>   s390x/Makefile: snippets: Avoid creation of .eh_frame and
+>     .eh_frame_hdr sections
 >
-> .SECONDARY was added independently and not to fix this problem in
-> s390x. And s390x has .SECONDARY slightly wrong AFAIKS. It mentions
-> .SECONDARY: twice in a way that looks like it was meant to depend on
-> specific targets, it actually gives it no dependencies and the
-> resulting semantics are that all intermediate files in the build are
-> treated as secondary. So somethig there should be cleaned up. If the
-> .SECONDARY was changed to only depend on the .gobj and .hdr.obj then
-> suddenly that would break .aux.o if I don't make the change.
+> Super User (1):
+>   Revert "s390x: Specify program headers with flags to avoid linker
+>     warnings"
 >
-> So I'm meaning to work out what to do with all that, i.e., whether to
-> add blanket .SECONDARY for all and trim or remove the .PRECIOUS files,
-> or remove s390x's secondary, or make it more specific, or something
-> else. But it takes a while for me to do makefile work.
+>  s390x/Makefile              | 16 ++++++++++------
+>  s390x/snippets/c/flat.lds.S | 12 +++---------
+>  2 files changed, 13 insertions(+), 15 deletions(-)
+>
+>
+> base-commit: 31f2cece1db4175869ca3fe4cbe229c0e15fdaf0
+> --=20
+> 2.34.1
+>
+>
 
-Hi Thomas,
+Polite ping.
 
-Ping on this patch?
+--=20
+Kind regards / Beste Gr=C3=BC=C3=9Fe
+   Marc Hartmayer
 
-Thanks,
-Nick
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Wolfgang Wendt
+Gesch=C3=A4ftsf=C3=BChrung: David Faller
+Sitz der Gesellschaft: B=C3=B6blingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
