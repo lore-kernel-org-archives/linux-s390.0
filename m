@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4283015D5B8;
-	Sun, 28 Jul 2024 15:50:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44C1974E09;
+	Sun, 28 Jul 2024 15:50:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722181835; cv=none; b=E8AiiIOFjt0J3io0GUo+yh+eiAlDlHPUxAnzb4ZldRUz8ZlGSXytXQ++YniSeoZU1bZdzoSxhH1aOxDtMpuQmf/JoUQRgxZZqgvmsAGFLiy+wP4yNxuBugvofG3/woGpLeDRGOps5CcOoqMncCDYCBEMGCa8SgOZjfSgqpQV6YI=
+	t=1722181858; cv=none; b=lnr0UbI66UTpmuKRu2Xf3IQwoAgWNc9m9vv3Mb1//zO5LPxkLgguHlB3oav0pbG0nR/9V/pDguB0kuvjCN+wZCQvF3kGqN5nyAoY9wtZLN05xbXa/5GTBMKMQ1H3jeSkZD8ZIjptfgOyp2bJuZmKmUd5Bd+aQmy007fzuQFqKs0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722181835; c=relaxed/simple;
+	s=arc-20240116; t=1722181858; c=relaxed/simple;
 	bh=MCl2thOrMpSD7UbCXdQ7fzx+9mC48PAXCPYzgWxy9SI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NpadNl2dH9OWqY8Luy1J+a/Qn4w6rFnY8wGo4Q5Uc3Lyp3Qb9Y4FJIKnmOb/35PG3wzlJvqe9/pyAH73lsczVd8tfXkCKnxIBz4adsfFf+m+2hzeV9LQ0XlPhidiWtQnnSh4sXlnE2l+hoEuLkJJ3qHilGs6gGR4sLDYPDhDWRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XYDmfZ4n; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=laMGqLslOILIO7Bi7uQxPPsq4yT1ZOUNDmyxYtLogHtC3MNHVkpTEPdBDMoT0Tk2Ibd4UnJQd+wbWskjUpPL3EjpzeVp4+s1NHGWyq6kg/aZghEgd1sBWD2Xs/55Kpvk38nooOVe+rjl6XKIm4EZjOgyrdfsjazBFvEopGIs+3U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FGrH9FiZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XYDmfZ4n"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 164D0C32782;
-	Sun, 28 Jul 2024 15:50:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FGrH9FiZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABA11C116B1;
+	Sun, 28 Jul 2024 15:50:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1722181835;
+	s=k20201202; t=1722181857;
 	bh=MCl2thOrMpSD7UbCXdQ7fzx+9mC48PAXCPYzgWxy9SI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=XYDmfZ4nFeDI7dgvNVJV2dAgdGL1mafLCaRMK2Cvr/luWf/uW03jZ0CymAo+yMrye
-	 Rqdi97b3HbflZLh5M5FHMOkyw0Hkci9bUQUeOP4SSvpVHGZjIBRInT1Ei7MOikcGmF
-	 /lgs6DX0h7nPbDQimlY8TDFWmEfYwFG0I0IcRCwcqhH9GKYPONBKv6cXeCQ/rA8PJ6
-	 5+LJ42Ae98Z718WPNZDO0z+YPAPFlafwW4Vm0PTq3ORDmEintOX1GKY1nbkuNUFiM7
-	 Q3xv4McRd3NAPVs5y8Z/rMqTAgYYaEADuG6kf9S94g4qJtnqdfT3wzz55l2HeQC+rz
-	 hkwRXvnUj1aFw==
+	b=FGrH9FiZo2MTXc9hI0IXSdFF1rfV1bZ3DmBFV4Uq64GgQj/+BHqEgYu7QxBATOcEl
+	 xGyKH1ABv55554BePbzH+YLTSaovZA6n2GOyPy6kLiG5bDSCJY0oTtdUL91QaIsLHV
+	 u9wKZvYNIwBZIIIXYD2k+DJDMhDXbv1v9RlmuJjoCKQj5f1HuxMCvIVXwbFdhlEQ7t
+	 d7Ky/8L6QM5gWl8svzmv1/8KafCcYe55jgFFdBpH8r4p84PKaPcokM9pVb7/o5n8hW
+	 kvmDK5ZW/zCmWsvbrMhBAuykElPpbrKmLrPhWt00acNQ/eSFiScDADxyEonCKYDLpf
+	 YkOMmnbndF/Bg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -35,12 +35,12 @@ Cc: Peter Oberparleiter <oberpar@linux.ibm.com>,
 	Sasha Levin <sashal@kernel.org>,
 	gor@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 6/7] s390/sclp: Prevent release of buffer in I/O
-Date: Sun, 28 Jul 2024 11:50:00 -0400
-Message-ID: <20240728155014.2050414-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 5/6] s390/sclp: Prevent release of buffer in I/O
+Date: Sun, 28 Jul 2024 11:50:37 -0400
+Message-ID: <20240728155045.2050587-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240728155014.2050414-1-sashal@kernel.org>
-References: <20240728155014.2050414-1-sashal@kernel.org>
+In-Reply-To: <20240728155045.2050587-1-sashal@kernel.org>
+References: <20240728155045.2050587-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,7 +49,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.10.223
+X-stable-base: Linux 5.4.281
 Content-Transfer-Encoding: 8bit
 
 From: Peter Oberparleiter <oberpar@linux.ibm.com>
