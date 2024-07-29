@@ -1,143 +1,131 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65D476214D
-	for <linux-s390@vger.kernel.org>; Mon, 29 Jul 2024 07:00:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D994113BAE3;
+	Mon, 29 Jul 2024 07:42:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722236453; cv=none; b=YHto/CwHB/UtIkebm+x5/0Wmx4xnLX0Ze39fOme09H8RAbKbvQmrUNYoHlVrgZTaJDPwKLo+YN/dys/Y2t1FCzEMTy+Dtt5ouDRaXnOnMNz+kRQurxuxno3t/VgVgHdpE8wNawUQGbjVWwxLHotitHYhxXVtMvXr53dwW+AYzqI=
+	t=1722238931; cv=none; b=BDLdp+llbJtmtCxFP9GTw+VdGXq63RJjOumNepwcXNp8MYaEe1pZx15bLjuA0PMuZwnHgHPtQkHV3gRPNVwTxbmAV6JXan1E45IgF+Y5NY3BjMM9Z1nWPfjiZVYRfFNf+r0Dt73IPP20cTEzFBmumSjt/OTiVaeJIOoJQxgDMm8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722236453; c=relaxed/simple;
-	bh=QC2zEFhg/lyU6R8nhPbQFI4czkLYimOe833OUC3aBR4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fXWQ4iR1BoF/hAdbzsbVAvkOAz4idnLOmqyu2QLbH0n7pYN65MwBmOBO4+C3SgtLgdAPooDcLbCRwf78aYmyXH3UOEOwKmqnqWFKBmxaGuMstOSw7hQ3jwKW+jdzHiQlL8atxxeFnKe7K16vYDRkxtRCUXqE/n3sB1Iro2YQPaQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=3SNZx4Ay; arc=none smtp.client-ip=209.85.128.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1722238931; c=relaxed/simple;
+	bh=CFkUsARNX/VdUV/6OrvXxJCl8G2ULrIF/o9MLMWDVgQ=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=YE8he6XW6c1awPiTLq3TZJTY21QHPBRTLT9szxS55zLDbSkMdGuc/nC00Y1dbMgYCTQW+9caX+xctwI998ZvAiy2eHk4j3Ciyp5fg/4wUOCImvdmAHgAHYdKpIfyCsroiB/OpfiIIVsNdyGXmHkZHEnWUSObSlwu2WtB9HoIBiQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=N0vsiRi/; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="3SNZx4Ay"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-427fc9834deso41425e9.0
-        for <linux-s390@vger.kernel.org>; Mon, 29 Jul 2024 00:00:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1722236449; x=1722841249; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JyT10splMgtMw/AFP/gfQzuxNIy03OHVny+AJXPnBKs=;
-        b=3SNZx4AytHU2UXj0sZd1RneFp7fMYKJAbDg0nncFpMhokgCPZxqezQBUC567B5I14T
-         oZb15w1WI1wljq+x3xqxp3tI6CksW4mhPXWSR6OETSZSa7H6LeeUCzx+N5FJC5jH+nHt
-         7Ia8C+EE3A84mFcMzlYJV6ziC9zsPLW0oti17EqsNNWqZRUCuhB5gcD/8CYQla5D4bOn
-         IDE9MyT90ErvuxdDDgS+VxB5W6/IRKgiWPKUC6WLwPsJgfFX2gFSS004lQAikjNBfm3c
-         XXhgWnsv0eCPK0vkBVYqV6C93t+W1MOX2TWSnv0qmijwVWBgAdLqrM0/jIGVJmVj+rdz
-         arOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722236449; x=1722841249;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JyT10splMgtMw/AFP/gfQzuxNIy03OHVny+AJXPnBKs=;
-        b=qIhRTPZCfzrpG8/wRGizkOAUVqFclKQwYKMDVT+fjL0fCXhEXDElVPxNrPb6wR2Op0
-         LW4d9pWvK2cIK+2Oi8P0U96prxUOzxwExeifxL6oKW4MsBCURSjBd0oOISQNrkpTe2QB
-         UXf3QvMsoehchTnvsnQ0S3FAtINdhDzO5W34feFSfnRkj84OuDIMp3BGDUexb+vwaLu1
-         qv6HVGgUsUH3bry4cpthl1B+hg5AMmqFYFBiUGJnD79bHrAE+TWnV2lN8OB6A/sNmiBg
-         0i0lloSSlosbsjCV5CnNPd1MiL7b1bczBP4iwgJ6rB4zLRCxoYVb8cuxofyWLObxSIJt
-         eWCQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWIoYLLQHdgX5pD2Ir7CP6AT9zITALV1jkqcsHNSpuInpV38qWlK+/H7XoAhj01EHDiuYDFjL4dlZhfetfeG2IpaGRMoCd7yRP/0Q==
-X-Gm-Message-State: AOJu0Yydqq1YlGte1sj4Rn4DO/UliuDxDR1QtX8z4rw5hWqiUBWFBS/W
-	rJEcGg+XrKmmftJ4IVq9rvAqwyXIFGcd6OdyHUO+n7bCdJJYHCh6mznGz3cCoOGHlN753b+5UFT
-	ZLKwU9kKcA/OltUdUDaSTudB2mkYesEVvR1A/
-X-Google-Smtp-Source: AGHT+IHvsSzJz9EtBDktbI85ocx6MHTolOoKpJRvV8XQ287h4mh4kZ99zdHYDANoZv/yOMcrJWWuHK8UYNNGMaDsEy8=
-X-Received: by 2002:a05:600c:3542:b0:426:66fd:5fac with SMTP id
- 5b1f17b1804b1-4280b0f0565mr4648255e9.2.1722236448699; Mon, 29 Jul 2024
- 00:00:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="N0vsiRi/"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46T6ukZO008808;
+	Mon, 29 Jul 2024 07:42:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:in-reply-to:references:date:message-id
+	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
+	G6c3m7ROyba/8ZiFLEJb3NUolP5Qm0AiHZz4CD3VWzg=; b=N0vsiRi/960t0/s1
+	goK3W7+7NmgC1Lv7hkRDNRvN15ZFovfSesosTXO9F9gDzIqUwPS5OxarJpZ4Y1si
+	LBxGzRkbJQ7PXRbB8lMaOsM7MMDqfjOfFyWYKpSkPuQAOUAhyVaUkWIosNyzWywh
+	VfftjqSFISs001C2VQhFv/FTUCvzVJxLefJ3+79Ip5QRzszUmW0CvMRrYy5IGxSp
+	auW3+MAAlHssy8DWThiMpT8SRRoFdL1QXXqde242RtKENJkJaKL/1F2LuOn0sRuV
+	Lot8u3Up/ziqKMJPgK7jzEu5HftOOdlBBEoOd/8Sbg1/IrFw4u/M/PXKETrjaoLd
+	ytNfSA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40mputc6ee-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Jul 2024 07:42:06 +0000 (GMT)
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46T7c6cm015501;
+	Mon, 29 Jul 2024 07:42:05 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40mputc6ec-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Jul 2024 07:42:05 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46T6v96a018776;
+	Mon, 29 Jul 2024 07:42:05 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40nc7pdfye-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Jul 2024 07:42:05 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46T7fx6s38535670
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 29 Jul 2024 07:42:01 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6B3842004B;
+	Mon, 29 Jul 2024 07:41:59 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0DC1820043;
+	Mon, 29 Jul 2024 07:41:59 +0000 (GMT)
+Received: from li-1de7cd4c-3205-11b2-a85c-d27f97db1fe1.ibm.com (unknown [9.171.68.163])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 29 Jul 2024 07:41:58 +0000 (GMT)
+From: "Marc Hartmayer" <mhartmay@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Thomas Huth <thuth@redhat.com>, Nicholas Piggin <npiggin@gmail.com>
+Cc: kvm@vger.kernel.org, Nico Boehr <nrb@linux.ibm.com>,
+        Steffen Eiden
+ <seiden@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v1 1/3] s390x/Makefile: snippets: Add
+ separate target for the ELF snippets
+In-Reply-To: <7a7405e6-49fe-4322-a010-1b3af5c50df4@linux.ibm.com>
+References: <20240604115932.86596-1-mhartmay@linux.ibm.com>
+ <20240604115932.86596-2-mhartmay@linux.ibm.com>
+ <7a7405e6-49fe-4322-a010-1b3af5c50df4@linux.ibm.com>
+Date: Mon, 29 Jul 2024 09:41:57 +0200
+Message-ID: <875xsotzju.fsf@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <1722224415-30999-1-git-send-email-alibuda@linux.alibaba.com>
-In-Reply-To: <1722224415-30999-1-git-send-email-alibuda@linux.alibaba.com>
-From: Eric Dumazet <edumazet@google.com>
-Date: Mon, 29 Jul 2024 09:00:37 +0200
-Message-ID: <CANn89iLrazeVmu+vN8o8+kPoY0+Yf032G_J7GcfufUTRhyng2Q@mail.gmail.com>
-Subject: Re: [PATCH net] net/smc: prevent UAF in inet_create()
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com, 
-	wintera@linux.ibm.com, guwen@linux.alibaba.com, kuba@kernel.org, 
-	davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, tonylu@linux.alibaba.com, pabeni@redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: FtxZQZ-CTLstnwD9kfz8_00sm09oAZJa
+X-Proofpoint-GUID: 6GsOsX-3UlHCa10rwLqF9K44-0h1BQr3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-07-29_05,2024-07-26_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 mlxscore=0 adultscore=0 clxscore=1015 phishscore=0
+ lowpriorityscore=0 suspectscore=0 malwarescore=0 bulkscore=0
+ mlxlogscore=999 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2407110000 definitions=main-2407290049
 
-On Mon, Jul 29, 2024 at 5:40=E2=80=AFAM D. Wythe <alibuda@linux.alibaba.com=
-> wrote:
+On Mon, Jul 29, 2024 at 09:00 AM +0200, Janosch Frank <frankja@linux.ibm.co=
+m> wrote:
+> On 6/4/24 1:59 PM, Marc Hartmayer wrote:
+>> It's unusual to create multiple files in one target rule, and it's even =
+more
+>> unusual to create an ELF file with a `.gbin` file extension first, and t=
+hen
+>> overwrite it in the next step. It might even lead to errors as the input=
+ file
+>> path is also used as the output file path - but this depends on the objc=
+opy
+>> implementation. Therefore, create an extra target for the ELF files and =
+list it
+>> as a prerequisite for the *.gbin targets.
+>>=20
+>> Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
 >
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
->
-> Following syzbot repro crashes the kernel:
->
-> socketpair(0x2, 0x1, 0x100, &(0x7f0000000140)) (fail_nth: 13)
->
-> Fix this by not calling sk_common_release() from smc_create_clcsk().
->
-> Stack trace:
-> socket: no more sockets
-> ------------[ cut here ]------------
-> refcount_t: underflow; use-after-free.
->  WARNING: CPU: 1 PID: 5092 at lib/refcount.c:28
-> refcount_warn_saturate+0x15a/0x1d0 lib/refcount.c:28
-> Modules linked in:
-> CPU: 1 PID: 5092 Comm: syz-executor424 Not tainted
-> 6.10.0-syzkaller-04483-g0be9ae5486cd #0
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-> Google 06/27/2024
->  RIP: 0010:refcount_warn_saturate+0x15a/0x1d0 lib/refcount.c:28
-> Code: 80 f3 1f 8c e8 e7 69 a8 fc 90 0f 0b 90 90 eb 99 e8 cb 4f e6 fc c6
-> 05 8a 8d e8 0a 01 90 48 c7 c7 e0 f3 1f 8c e8 c7 69 a8 fc 90 <0f> 0b 90
-> 90 e9 76 ff ff ff e8 a8 4f e6 fc c6 05 64 8d e8 0a 01 90
-> RSP: 0018:ffffc900034cfcf0 EFLAGS: 00010246
-> RAX: 3b9fcde1c862f700 RBX: ffff888022918b80 RCX: ffff88807b39bc00
-> RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-> RBP: 0000000000000003 R08: ffffffff815878a2 R09: fffffbfff1c39d94
-> R10: dffffc0000000000 R11: fffffbfff1c39d94 R12: 00000000ffffffe9
-> R13: 1ffff11004523165 R14: ffff888022918b28 R15: ffff888022918b00
-> FS:  00005555870e7380(0000) GS:ffff8880b9500000(0000)
-> knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 0000000020000140 CR3: 000000007582e000 CR4: 00000000003506f0
-> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> Call Trace:
->  <TASK>
->  inet_create+0xbaf/0xe70
->   __sock_create+0x490/0x920 net/socket.c:1571
->   sock_create net/socket.c:1622 [inline]
->   __sys_socketpair+0x2ca/0x720 net/socket.c:1769
->   __do_sys_socketpair net/socket.c:1822 [inline]
->   __se_sys_socketpair net/socket.c:1819 [inline]
->   __x64_sys_socketpair+0x9b/0xb0 net/socket.c:1819
->   do_syscall_x64 arch/x86/entry/common.c:52 [inline]
->   do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
->  entry_SYSCALL_64_after_hwframe+0x77/0x7f
-> RIP: 0033:0x7fbcb9259669
-> Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 a1 1a 00 00 90 48 89 f8 48 89
-> f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
-> f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-> RSP: 002b:00007fffe931c6d8 EFLAGS: 00000246 ORIG_RAX: 0000000000000035
-> RAX: ffffffffffffffda RBX: 00007fffe931c6f0 RCX: 00007fbcb9259669
-> RDX: 0000000000000100 RSI: 0000000000000001 RDI: 0000000000000002
-> RBP: 0000000000000002 R08: 00007fffe931c476 R09: 00000000000000a0
-> R10: 0000000020000140 R11: 0000000000000246 R12: 00007fffe931c6ec
-> R13: 431bde82d7b634db R14: 0000000000000001 R15: 0000000000000001
->  </TASK>
->
-> Link: https://lore.kernel.org/r/20240723175809.537291-1-edumazet@google.c=
-om/
-> Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
-> Reported-by: syzbot <syzkaller@googlegroups.com>
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> I've picked this one but it's unlikely that I'll pick the other patches=20
+> in the series. Thanks for improving the makefile and fixing my
+> mistakes :)
 
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Thanks for the r-b and fine with me. The other two patches are not as
+useful and would make s390x even more different from other architectures
+with little to no real benefit.
 
-Thanks.
+>
+--=20
+Kind regards / Beste Gr=C3=BC=C3=9Fe
+   Marc Hartmayer
+
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Wolfgang Wendt
+Gesch=C3=A4ftsf=C3=BChrung: David Faller
+Sitz der Gesellschaft: B=C3=B6blingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
