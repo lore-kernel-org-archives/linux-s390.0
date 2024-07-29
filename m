@@ -1,252 +1,162 @@
-Received: from mail.tkos.co.il (mail.tkos.co.il [84.110.109.230])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D702144D34;
-	Mon, 29 Jul 2024 10:52:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.110.109.230
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C17151482F6;
+	Mon, 29 Jul 2024 12:28:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722250325; cv=none; b=vEIQFWC4VL56/qAYHeul7KCfJ8pQ1VEmStZ4mDphxHxbBVs3kw1ZaQmu8o5hZYjmPDCvfR9g2qDXwHnevc+Wmr9iH870TqTXn/DhelWAmTcgDNEU5wgS60D/52NG30QqTAbZJIK1RumCSw0/4eRmtLvVdhQWSzcrjlmoYeI1vqg=
+	t=1722256114; cv=none; b=qfwyJjwTFF6PaFrQcfPXn0/Js9BJvG92WXfT9f0C/Vpdoz6+5fJA2CEBee80R1n+mABl4nEfCSeRQggSw/zGCfFRf6xRhdKDDWdQlp+8mb0jArlj/3U61jj0pnanZnA4cRp9lk3Zf0JAOUdPTl82hzTpZzC5bLizAt/io74FHGw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722250325; c=relaxed/simple;
-	bh=RsVuCrJqd/4oflOyCnW5tYkyh6HR+mMHI8z3aK7dj3A=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RAkmkhuBMlfL/I7qK6plqbp8atfJQ5eCDf4NLMf6jjWkHB0KiEJXwKFK5jG/hPFnonar0lHGMqJxJSHxeX4Q/ViqXPiUglmIrQNUWMjfmuH88yCm1SqZMi674NmK0dWjaFWNo7BxXc/I1uJainOx07djHHZXkV3DWztUl8ziw6g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il; spf=pass smtp.mailfrom=tkos.co.il; dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b=RB5B1Wfd; arc=none smtp.client-ip=84.110.109.230
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tkos.co.il
+	s=arc-20240116; t=1722256114; c=relaxed/simple;
+	bh=lTGJF5ueK5ItT508wCogsfzRhnN++E2Y/UtH4sd9wAE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=COMbLorsSaNwkSWYFbU1ce8F6KY/IR0ZAmZGXNnOrC2pT4ajMV6Wt9o11+xVAPOp8ea0tBctv8HLiMPNWWgZzsy1f6aBNkXFaA+AFxxAIctyg8uSVSSYRE8g9Ugzjg9CZ9l6vr8NhGqdeGiX/J26Nzpk3iRS46/haUGyHCz8YgY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=de.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Bc82reZ4; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b="RB5B1Wfd"
-Received: from tarshish.tkos.co.il (unknown [10.0.8.2])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mail.tkos.co.il (Postfix) with ESMTPS id DBCDA4408CD;
-	Mon, 29 Jul 2024 13:50:32 +0300 (IDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tkos.co.il;
-	s=default; t=1722250233;
-	bh=RsVuCrJqd/4oflOyCnW5tYkyh6HR+mMHI8z3aK7dj3A=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=RB5B1WfdkmWSwn/AKbhsEsooumaaKNPHCyplUVRa5nNrb9Eqky4nFoeWystTLcmGG
-	 z8asTxPicr9dpGq7EHhS9XB1CsLLBYSK7CPLvj+e0CWhl4ayXpnsB/+bMIDCkgnC0J
-	 KXCWi2e9OmnulwAridQazeH9+ovQJ1SctWqCcVDWMX4tSBNOC0MzAjSAMpqHkvlvrr
-	 LwlIyvJBRoJQje2PkY3jZ00hH/ABZjJf4APxnwTY3EevUBEtBNsZnpDUL82XAAJ0sY
-	 tXPUJTpsTQvn7fdQG5S8j+W54rkebWymkCYsTTjUnH1XRIjaixBZdNaAneKHaH6/yp
-	 eFjIv8hxjNjqQ==
-From: Baruch Siach <baruch@tkos.co.il>
-To: Christoph Hellwig <hch@lst.de>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>
-Cc: Baruch Siach <baruch@tkos.co.il>,
-	Robin Murphy <robin.murphy@arm.com>,
-	iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	=?UTF-8?q?Petr=20Tesa=C5=99=C3=ADk?= <petr@tesarici.cz>,
-	Ramon Fried <ramon@neureality.ai>,
-	Elad Nachman <enachman@marvell.com>
-Subject: [PATCH v3 2/3] dma-mapping: replace zone_dma_bits by zone_dma_limit
-Date: Mon, 29 Jul 2024 13:51:25 +0300
-Message-ID: <053fa4806a2c63efcde80caca473a8b670a2701c.1722249878.git.baruch@tkos.co.il>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Bc82reZ4"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46TCSNFq008557;
+	Mon, 29 Jul 2024 12:28:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:content-transfer-encoding
+	:mime-version; s=pp1; bh=clW8iS8GzuUl3bXBZcKoi9MelcyzggKXvvuyVFV
+	ehk4=; b=Bc82reZ47sNh2aD1OfWOtwOfUACx2Z6DS9ZyDlLTS5Rp3oQpIlypxF3
+	0zPYMYNK4+fL6B6/PplWsMBLtFjvpcOKpXjHHnqvDmGJZTP2K4ZB30zQR9pMzcWm
+	s+I+1dfwbfpAjUcE6FKOgz3aFgOIY+YJtx2HkaRZQ26O9cheI5KPsOifF4p6F0gI
+	tJ6fJHwwXsNGPvQbV9oCxHbqIFxcf9lU1SEDXmJDzhN0CYG/5GGmkc20fCp7CyWL
+	KYKtLdLT0mcIo2T0eZd3H5L9Pr45EH+1Anl8i+f281qHsuBxlAHGMvUy9ixbRX1R
+	Mt7k+ygom6c2B8e5DxTyAb6Hhi3voWA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40pb46000h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Jul 2024 12:28:26 +0000 (GMT)
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46TCSPbB008626;
+	Mon, 29 Jul 2024 12:28:26 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40pb46000e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Jul 2024 12:28:25 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46TBUhTm003773;
+	Mon, 29 Jul 2024 12:28:25 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 40ndem6btr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Jul 2024 12:28:24 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46TCSJgi30540198
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 29 Jul 2024 12:28:21 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4D9B220043;
+	Mon, 29 Jul 2024 12:28:19 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3B06420040;
+	Mon, 29 Jul 2024 12:28:19 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 29 Jul 2024 12:28:19 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
+	id B68ECE04DE; Mon, 29 Jul 2024 14:28:18 +0200 (CEST)
+From: Alexandra Winter <wintera@linux.ibm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: [PATCH net] net/iucv: fix use after free in iucv_sock_close()
+Date: Mon, 29 Jul 2024 14:28:16 +0200
+Message-ID: <20240729122818.947756-1-wintera@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <cover.1722249878.git.baruch@tkos.co.il>
-References: <cover.1722249878.git.baruch@tkos.co.il>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: RjE4ke_5k9nvWCxYZJ5JzbJNXBEntWTm
+X-Proofpoint-ORIG-GUID: 522Yh1WYRag8tED8KSzo-DVvqj1jW7BT
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-07-29_10,2024-07-26_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 suspectscore=0
+ clxscore=1011 spamscore=0 mlxscore=0 lowpriorityscore=0 mlxlogscore=763
+ bulkscore=0 priorityscore=1501 impostorscore=0 adultscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2407110000
+ definitions=main-2407290083
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+iucv_sever_path() is called from process context and from bh context.
+iucv->path is used as indicator whether somebody else is taking care of
+severing the path (or it is already removed / never existed).
+This needs to be done with atomic compare and swap, otherwise there is a
+small window where iucv_sock_close() will try to work with a path that has
+already been severed and freed by iucv_callback_connrej() called by
+iucv_tasklet_fn().
 
-Hardware DMA limit might not be power of 2. When RAM range starts above
-0, say 4GB, DMA limit of 30 bits should end at 5GB. A single high bit
-can not encode this limit.
+Example:
+[452744.123844] Call Trace:
+[452744.123845] ([<0000001e87f03880>] 0x1e87f03880)
+[452744.123966]  [<00000000d593001e>] iucv_path_sever+0x96/0x138
+[452744.124330]  [<000003ff801ddbca>] iucv_sever_path+0xc2/0xd0 [af_iucv]
+[452744.124336]  [<000003ff801e01b6>] iucv_sock_close+0xa6/0x310 [af_iucv]
+[452744.124341]  [<000003ff801e08cc>] iucv_sock_release+0x3c/0xd0 [af_iucv]
+[452744.124345]  [<00000000d574794e>] __sock_release+0x5e/0xe8
+[452744.124815]  [<00000000d5747a0c>] sock_close+0x34/0x48
+[452744.124820]  [<00000000d5421642>] __fput+0xba/0x268
+[452744.124826]  [<00000000d51b382c>] task_work_run+0xbc/0xf0
+[452744.124832]  [<00000000d5145710>] do_notify_resume+0x88/0x90
+[452744.124841]  [<00000000d5978096>] system_call+0xe2/0x2c8
+[452744.125319] Last Breaking-Event-Address:
+[452744.125321]  [<00000000d5930018>] iucv_path_sever+0x90/0x138
+[452744.125324]
+[452744.125325] Kernel panic - not syncing: Fatal exception in interrupt
 
-Use direct phys_addr_t limit address for DMA zone limit.
+Note that bh_lock_sock() is not serializing the tasklet context against
+process context, because the check for sock_owned_by_user() and
+corresponding handling is missing.
 
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+Ideas for a future clean-up patch:
+A) Correct usage of bh_lock_sock() in tasklet context, as described in
+Link: https://lore.kernel.org/netdev/1280155406.2899.407.camel@edumazet-laptop/
+Re-enqueue, if needed. This may require adding return values to the
+tasklet functions and thus changes to all users of iucv.
+
+B) Change iucv tasklet into worker and use only lock_sock() in af_iucv.
+
+Fixes: 7d316b945352 ("af_iucv: remove IUCV-pathes completely")
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
 ---
- arch/arm64/mm/init.c       | 34 +++++++++++++---------------------
- arch/powerpc/mm/mem.c      |  9 ++++-----
- arch/s390/mm/init.c        |  2 +-
- include/linux/dma-direct.h |  2 +-
- kernel/dma/direct.c        |  4 ++--
- kernel/dma/pool.c          |  2 +-
- kernel/dma/swiotlb.c       |  4 ++--
- 7 files changed, 24 insertions(+), 33 deletions(-)
+The following inactive mailaddresses were not cc'ed:
+schwidefsky@de.ibm.com, frank.blaschka@de.ibm.com, ursula.braun@de.ibm.com
+---
+ net/iucv/af_iucv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index 9b5ab6818f7f..870fd967c610 100644
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -114,36 +114,28 @@ static void __init arch_reserve_crashkernel(void)
- 				    low_size, high);
- }
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index c3b0b610b0aa..c00323fa9eb6 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -335,8 +335,8 @@ static void iucv_sever_path(struct sock *sk, int with_user_data)
+ 	struct iucv_sock *iucv = iucv_sk(sk);
+ 	struct iucv_path *path = iucv->path;
  
--/*
-- * Return the maximum physical address for a zone accessible by the given bits
-- * limit. If DRAM starts above 32-bit, expand the zone to the maximum
-- * available memory, otherwise cap it at 32-bit.
-- */
--static phys_addr_t __init max_zone_phys(unsigned int zone_bits)
-+static phys_addr_t __init max_zone_phys(phys_addr_t zone_limit)
- {
--	phys_addr_t zone_mask = DMA_BIT_MASK(zone_bits);
--	phys_addr_t phys_start = memblock_start_of_DRAM();
--
--	if (phys_start > U32_MAX)
--		zone_mask = PHYS_ADDR_MAX;
--	else if (phys_start > zone_mask)
--		zone_mask = U32_MAX;
-+	/* We have RAM in low 32-bit area, keep DMA zone there */
-+	if (memblock_start_of_DRAM() < U32_MAX)
-+		zone_limit = min(U32_MAX, zone_limit);
- 
--	return min(zone_mask, memblock_end_of_DRAM() - 1) + 1;
-+	return min(zone_limit, memblock_end_of_DRAM() - 1) + 1;
- }
- 
- static void __init zone_sizes_init(void)
- {
- 	unsigned long max_zone_pfns[MAX_NR_ZONES]  = {0};
--	unsigned int __maybe_unused acpi_zone_dma_bits;
--	unsigned int __maybe_unused dt_zone_dma_bits;
--	phys_addr_t __maybe_unused dma32_phys_limit = max_zone_phys(32);
-+	phys_addr_t __maybe_unused acpi_zone_dma_limit;
-+	phys_addr_t __maybe_unused dt_zone_dma_limit;
-+	phys_addr_t __maybe_unused dma32_phys_limit =
-+		max_zone_phys(DMA_BIT_MASK(32));
- 
- #ifdef CONFIG_ZONE_DMA
--	acpi_zone_dma_bits = fls64(acpi_iort_dma_get_max_cpu_address());
--	dt_zone_dma_bits = fls64(of_dma_get_max_cpu_address(NULL));
--	zone_dma_bits = min3(32U, dt_zone_dma_bits, acpi_zone_dma_bits);
--	arm64_dma_phys_limit = max_zone_phys(zone_dma_bits);
-+	acpi_zone_dma_limit = acpi_iort_dma_get_max_cpu_address();
-+	dt_zone_dma_limit = of_dma_get_max_cpu_address(NULL);
-+	zone_dma_limit = min(dt_zone_dma_limit, acpi_zone_dma_limit);
-+	arm64_dma_phys_limit = max_zone_phys(zone_dma_limit);
- 	max_zone_pfns[ZONE_DMA] = PFN_DOWN(arm64_dma_phys_limit);
- #endif
- #ifdef CONFIG_ZONE_DMA32
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index d325217ab201..342c006cc1b8 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -216,7 +216,7 @@ static int __init mark_nonram_nosave(void)
-  * everything else. GFP_DMA32 page allocations automatically fall back to
-  * ZONE_DMA.
-  *
-- * By using 31-bit unconditionally, we can exploit zone_dma_bits to inform the
-+ * By using 31-bit unconditionally, we can exploit zone_dma_limit to inform the
-  * generic DMA mapping code.  32-bit only devices (if not handled by an IOMMU
-  * anyway) will take a first dip into ZONE_NORMAL and get otherwise served by
-  * ZONE_DMA.
-@@ -252,13 +252,12 @@ void __init paging_init(void)
- 	 * powerbooks.
- 	 */
- 	if (IS_ENABLED(CONFIG_PPC32))
--		zone_dma_bits = 30;
-+		zone_dma_limit = DMA_BIT_MASK(30);
- 	else
--		zone_dma_bits = 31;
-+		zone_dma_limit = DMA_BIT_MASK(31);
- 
- #ifdef CONFIG_ZONE_DMA
--	max_zone_pfns[ZONE_DMA]	= min(max_low_pfn,
--				      1UL << (zone_dma_bits - PAGE_SHIFT));
-+	max_zone_pfns[ZONE_DMA]	= min(max_low_pfn, zone_dma_limit >> PAGE_SHIFT);
- #endif
- 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
- #ifdef CONFIG_HIGHMEM
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index ddcd39ef4346..91fc2b91adfc 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -97,7 +97,7 @@ void __init paging_init(void)
- 
- 	vmem_map_init();
- 	sparse_init();
--	zone_dma_bits = 31;
-+	zone_dma_limit = DMA_BIT_MASK(31);
- 	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
- 	max_zone_pfns[ZONE_DMA] = virt_to_pfn(MAX_DMA_ADDRESS);
- 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
-diff --git a/include/linux/dma-direct.h b/include/linux/dma-direct.h
-index edbe13d00776..98b7d8015043 100644
---- a/include/linux/dma-direct.h
-+++ b/include/linux/dma-direct.h
-@@ -12,7 +12,7 @@
- #include <linux/mem_encrypt.h>
- #include <linux/swiotlb.h>
- 
--extern unsigned int zone_dma_bits;
-+extern phys_addr_t zone_dma_limit;
- 
- /*
-  * Record the mapping of CPU physical to DMA addresses for a given region.
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index 3b4be4ca3b08..3dbc0b89d6fb 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -20,7 +20,7 @@
-  * it for entirely different regions. In that case the arch code needs to
-  * override the variable below for dma-direct to work properly.
-  */
--unsigned int zone_dma_bits __ro_after_init = 24;
-+phys_addr_t zone_dma_limit __ro_after_init = DMA_BIT_MASK(24);
- 
- static inline dma_addr_t phys_to_dma_direct(struct device *dev,
- 		phys_addr_t phys)
-@@ -580,7 +580,7 @@ int dma_direct_supported(struct device *dev, u64 mask)
- 	 * part of the check.
- 	 */
- 	if (IS_ENABLED(CONFIG_ZONE_DMA))
--		min_mask = min_t(u64, min_mask, DMA_BIT_MASK(zone_dma_bits));
-+		min_mask = min_t(u64, min_mask, zone_dma_limit);
- 	return mask >= phys_to_dma_unencrypted(dev, min_mask);
- }
- 
-diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
-index d10613eb0f63..410a7b40e496 100644
---- a/kernel/dma/pool.c
-+++ b/kernel/dma/pool.c
-@@ -70,7 +70,7 @@ static bool cma_in_zone(gfp_t gfp)
- 	/* CMA can't cross zone boundaries, see cma_activate_area() */
- 	end = cma_get_base(cma) + size - 1;
- 	if (IS_ENABLED(CONFIG_ZONE_DMA) && (gfp & GFP_DMA))
--		return end <= DMA_BIT_MASK(zone_dma_bits);
-+		return end <= zone_dma_limit;
- 	if (IS_ENABLED(CONFIG_ZONE_DMA32) && (gfp & GFP_DMA32))
- 		return end <= DMA_BIT_MASK(32);
- 	return true;
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index df68d29740a0..dfd83e5ee0b3 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -450,7 +450,7 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
- 	if (!remap)
- 		io_tlb_default_mem.can_grow = true;
- 	if (IS_ENABLED(CONFIG_ZONE_DMA) && (gfp_mask & __GFP_DMA))
--		io_tlb_default_mem.phys_limit = DMA_BIT_MASK(zone_dma_bits);
-+		io_tlb_default_mem.phys_limit = zone_dma_limit;
- 	else if (IS_ENABLED(CONFIG_ZONE_DMA32) && (gfp_mask & __GFP_DMA32))
- 		io_tlb_default_mem.phys_limit = DMA_BIT_MASK(32);
- 	else
-@@ -629,7 +629,7 @@ static struct page *swiotlb_alloc_tlb(struct device *dev, size_t bytes,
- 	}
- 
- 	gfp &= ~GFP_ZONEMASK;
--	if (phys_limit <= DMA_BIT_MASK(zone_dma_bits))
-+	if (phys_limit <= zone_dma_limit)
- 		gfp |= __GFP_DMA;
- 	else if (phys_limit <= DMA_BIT_MASK(32))
- 		gfp |= __GFP_DMA32;
+-	if (iucv->path) {
+-		iucv->path = NULL;
++	/* Whoever resets the path pointer, must sever and free it. */
++	if (xchg(&iucv->path, NULL)) {
+ 		if (with_user_data) {
+ 			low_nmcpy(user_data, iucv->src_name);
+ 			high_nmcpy(user_data, iucv->dst_name);
 -- 
 2.43.0
 
