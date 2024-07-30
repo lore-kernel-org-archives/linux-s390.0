@@ -1,134 +1,214 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1B5F450EE;
-	Tue, 30 Jul 2024 02:12:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB2F62563;
+	Tue, 30 Jul 2024 06:42:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722305532; cv=none; b=m830IkGJTASmSu6TFVP5EXBcDdoSDsVO2gaRzFhXmf6/eXnutKQ7QxjmbC7zA1z76J314onthBlRb1anSs9qjJ4h5Viol+AITbIdHltFyAi6gMcOk3t6DzPiqWq2I0Ni0D6qXS4aPmer/Ihtp8sv2HL/jGa8ki05VWcEYg0O48A=
+	t=1722321766; cv=none; b=sCmKX56khpAIFVt9kq+6STsLRLyjsoQGPuKNKzsq0IhFsj5Itt/lMM/asCbCN6ZKyYYvC+SjYh3uowA1i+ojnLEWP4zIT04B1pcSycLWftzc+M6EzlNAjgV+VGDW81/6V62DvvDpDxX8aO3WMaJElymCXFvo41xqrOLuYgfKqcs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722305532; c=relaxed/simple;
-	bh=eA77p9u5560PhQ2+Qo/vv+lMkVA7visV3V6tX1tIebU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lQDFQ4wXkGC44Avc0h7jStrQVG1RjR70h3ZGu7TABS2NKwcBKW+pdNVMX2j9n5KIqiQdgc3myCTXDuxHf+75gMn3oGlJI7soeax8QzwaT4ak25OfyaBxyL8sZnmsk7Q5NGxGWEdEGMMCqMRo2KvFF49ShcRfTBxEgqKjA2d/XKs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=r+UNl4+P; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1722321766; c=relaxed/simple;
+	bh=9fMo0SqZ7mOf+MpuDKzR6wBE4n9v1usaMOUOV+GRiz8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dIuB1fdosAG5jpKQbQqNLIO1sLBhaS/dYfiDHW76mu2IHyyeLV1RC/ate5ei5a+VDVNlKmSX5tywcSPeetSAj1ChvrAds+R5kT80qZGydk8yLpSbcK/F9P+iRhIQU9hUIIQ8QZuqsi0AiEzZYxxkcBMs2Zpjuzq5vM8YAgp3Vu0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=odNyHSwO; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r+UNl4+P"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71295C4AF07;
-	Tue, 30 Jul 2024 02:12:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="odNyHSwO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B562C32782;
+	Tue, 30 Jul 2024 06:42:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1722305531;
-	bh=eA77p9u5560PhQ2+Qo/vv+lMkVA7visV3V6tX1tIebU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=r+UNl4+P+aBuEwCi15lh1dI0u61rlCGxvYKiC8Zrfg70eL6OZ14UxHwX5V+nkWD4z
-	 GTFvLQSr4vhQWjMHSOW4qqkck+CW+Ua6QZTZVGlIr74fy8uIKQCAONj0BFE16P3Mjf
-	 PUMPQcm2k6Ctw0LU2whXelX1qpLnAA/Mmc6qofQwdBAQEcKPH0U69fx2wYOV4BGT2f
-	 xaO+O9X8TAf6iJM4cllGx1cbjKuKnW39T/oRbBP/PwPoYidP4yvYQ/xLzsaHaVetrO
-	 M+eNYMDFWibewkBkHuLOaWbXQ0sbtQMeKcV4b+vIzgNfje4gxnYr4f3dhxaboZrIpC
-	 MwD+65uq+A1bA==
-Date: Mon, 29 Jul 2024 19:12:08 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: kernel test robot <lkp@intel.com>
-Cc: Baruch Siach <baruch@tkos.co.il>, Christoph Hellwig <hch@lst.de>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
+	s=k20201202; t=1722321766;
+	bh=9fMo0SqZ7mOf+MpuDKzR6wBE4n9v1usaMOUOV+GRiz8=;
+	h=From:To:Cc:Subject:Date:From;
+	b=odNyHSwOlBtV2oqVtExlin1GDO7kYlIOx8pVUXrIJUKZbGYwA4WqDas0/GxrcEr55
+	 U96WNS8VFoK93eKlrMoYeKy3Hx5hYk7u0MHfPCvnoc4pMqeCyLihL2sOgCRB2BK0LQ
+	 L8992A0T1NOO7inaUSioa2w4g0sAStq/hkXExqTSsAXodpT6mGb0xRWKuDd+nH2N+A
+	 BTsDqxMoTTjSETReBcCKjEeWWC7pCscYpqZJszwilu2vcMmxr/pCQlNwRRubPXHBaB
+	 JADt14YJLrGWRmg/Gsmy3mjRBjVlp6DBpI92v1G7zStat5RwD14Iv/xZapDPo4c7xq
+	 lwWpWj2GOPung==
+From: alexs@kernel.org
+To: Will Deacon <will@kernel.org>,
+	"Aneesh Kumar K . V" <aneesh.kumar@kernel.org>,
+	Nick Piggin <npiggin@gmail.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Russell King <linux@armlinux.org.uk>,
 	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, llvm@lists.linux.dev,
-	oe-kbuild-all@lists.linux.dev, linux-s390@vger.kernel.org,
-	Ramon Fried <ramon@neureality.ai>,
-	Petr =?utf-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>,
-	Robin Murphy <robin.murphy@arm.com>, linux-kernel@vger.kernel.org,
-	iommu@lists.linux.dev, Elad Nachman <enachman@marvell.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v3 2/3] dma-mapping: replace zone_dma_bits by
- zone_dma_limit
-Message-ID: <20240730021208.GA8272@thelio-3990X>
-References: <053fa4806a2c63efcde80caca473a8b670a2701c.1722249878.git.baruch@tkos.co.il>
- <202407300338.oaUo6jtB-lkp@intel.com>
+	Brian Cain <bcain@quicinc.com>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Naveen N Rao <naveen@kernel.org>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H . Peter Anvin" <hpa@zytor.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Bibo Mao <maobibo@loongson.cn>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	linux-arch@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org,
+	linux-openrisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Qi Zheng <zhengqi.arch@bytedance.com>,
+	Vishal Moola <vishal.moola@gmail.com>,
+	"Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Lance Yang <ioworker0@gmail.com>,
+	Peter Xu <peterx@redhat.com>,
+	Barry Song <baohua@kernel.org>,
+	linux-s390@vger.kernel.org
+Cc: Guo Ren <guoren@kernel.org>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	Oscar Salvador <osalvador@suse.de>,
+	Alexandre Ghiti <alexghiti@rivosinc.com>,
+	Jisheng Zhang <jszhang@kernel.org>,
+	Samuel Holland <samuel.holland@sifive.com>,
+	Anup Patel <anup@brainfault.org>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Breno Leitao <leitao@debian.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Hugh Dickins <hughd@google.com>,
+	David Hildenbrand <david@redhat.com>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Alex Shi <alexs@kernel.org>
+Subject: [RFC PATCH 00/18] use struct ptdesc to replace pgtable_t 
+Date: Tue, 30 Jul 2024 14:46:54 +0800
+Message-ID: <20240730064712.3714387-1-alexs@kernel.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202407300338.oaUo6jtB-lkp@intel.com>
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 30, 2024 at 04:20:51AM +0800, kernel test robot wrote:
-> Hi Baruch,
-> 
-> kernel test robot noticed the following build warnings:
-> 
-> [auto build test WARNING on arm64/for-next/core]
-> [also build test WARNING on powerpc/next powerpc/fixes s390/features linus/master v6.11-rc1 next-20240729]
-> [If your patch is applied to the wrong git tree, kindly drop us a note.
-> And when submitting patch, we suggest to use '--base' as documented in
-> https://git-scm.com/docs/git-format-patch#_base_tree_information]
-> 
-> url:    https://github.com/intel-lab-lkp/linux/commits/Baruch-Siach/dma-mapping-improve-DMA-zone-selection/20240729-211018
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git for-next/core
-> patch link:    https://lore.kernel.org/r/053fa4806a2c63efcde80caca473a8b670a2701c.1722249878.git.baruch%40tkos.co.il
-> patch subject: [PATCH v3 2/3] dma-mapping: replace zone_dma_bits by zone_dma_limit
-> config: arm-allnoconfig (https://download.01.org/0day-ci/archive/20240730/202407300338.oaUo6jtB-lkp@intel.com/config)
-> compiler: clang version 20.0.0git (https://github.com/llvm/llvm-project ccae7b461be339e717d02f99ac857cf0bc7d17fc)
-> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240730/202407300338.oaUo6jtB-lkp@intel.com/reproduce)
-> 
-> If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202407300338.oaUo6jtB-lkp@intel.com/
-> 
-> All warnings (new ones prefixed by >>):
-> 
->    In file included from kernel/dma/direct.c:7:
->    In file included from include/linux/memblock.h:12:
->    In file included from include/linux/mm.h:2253:
->    include/linux/vmstat.h:514:36: warning: arithmetic between different enumeration types ('enum node_stat_item' and 'enum lru_list') [-Wenum-enum-conversion]
->      514 |         return node_stat_name(NR_LRU_BASE + lru) + 3; // skip "nr_"
->          |                               ~~~~~~~~~~~ ^ ~~~
-> >> kernel/dma/direct.c:23:46: warning: implicit conversion from 'unsigned long long' to 'phys_addr_t' (aka 'unsigned int') changes value from 18446744073709551615 to 4294967295 [-Wconstant-conversion]
->       23 | phys_addr_t zone_dma_limit __ro_after_init = DMA_BIT_MASK(24);
->          |             ~~~~~~~~~~~~~~                   ^~~~~~~~~~~~~~~~
->    include/linux/dma-mapping.h:77:40: note: expanded from macro 'DMA_BIT_MASK'
->       77 | #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
->          |                                        ^~~~~
->    2 warnings generated.
+From: Alex Shi <alexs@kernel.org>
 
-FWIW, this is likely a false positive due to an issue in Clang with the
-control flow graph for global variables:
+We have struct ptdesc for page table descriptor a year ago, but it
+has no much usages in kernel, while pgtable_t is used widely.
 
-https://github.com/ClangBuiltLinux/linux/issues/92
+The pgtable_t is typedefed as 'pte_t *' in sparc, s390, powerpc and m68k
+except SUN3, others archs are all same as 'struct page *'.
 
-DMA_BIT_MASK() has been the biggest offender :/ If there is any way to
-refactor this code to avoid this, that would be great (as that has been
-one of our longest outstanding issues and getting it fixed in the
-compiler does not seem super easy at this point).
+These blocks the conception and code update for page table descriptor to
+struct ptdesc.
 
-Cheers,
-Nathan
+So, the simple idea to push the ptdesc conception forward is to update
+all pgtable_t by ptdesc or pte_t pointer. But this needs widely
+knowledges for most all of different archs. Common code change is easy
+for include/ and mm/ directory, but it's hard in all archs.
 
-> vim +23 kernel/dma/direct.c
-> 
->    > 7	#include <linux/memblock.h>
->      8	#include <linux/export.h>
->      9	#include <linux/mm.h>
->     10	#include <linux/dma-map-ops.h>
->     11	#include <linux/scatterlist.h>
->     12	#include <linux/pfn.h>
->     13	#include <linux/vmalloc.h>
->     14	#include <linux/set_memory.h>
->     15	#include <linux/slab.h>
->     16	#include "direct.h"
->     17	
->     18	/*
->     19	 * Most architectures use ZONE_DMA for the first 16 Megabytes, but some use
->     20	 * it for entirely different regions. In that case the arch code needs to
->     21	 * override the variable below for dma-direct to work properly.
->     22	 */
->   > 23	phys_addr_t zone_dma_limit __ro_after_init = DMA_BIT_MASK(24);
->     24	
-> 
-> -- 
-> 0-DAY CI Kernel Test Service
-> https://github.com/intel/lkp-tests/wiki
-> 
+Thanks for intel LKP framework, I fixed most all of build issues except
+a bug on powerpc which reports a "struct ptdesc *" incompatible with 
+struct ptdesc *' pointer issue...
+
+Another trouble is pmd_pgtable() conversion in the last patch.
+Maybe some of arch need define theirself own pmd_ptdesc()?
+
+This patchset is immature, even except above 2 issues, I just tested
+virutal machine booting and kselftest mm on x86 and arm64.
+
+Anyway any input are appreciated!
+
+Thanks
+Alex
+
+Alex Shi (18):
+  mm/pgtable: use ptdesc in pte_free_now/pte_free_defer
+  mm/pgtable: convert ptdesc.pmd_huge_pte to ptdesc pointer
+  fs/dax: use ptdesc in dax_pmd_load_hole
+  mm/thp: use ptdesc pointer in __do_huge_pmd_anonymous_page
+  mm/thp: use ptdesc in do_huge_pmd_anonymous_page
+  mm/thp: convert insert_pfn_pmd and its caller to use ptdesc
+  mm/thp: use ptdesc in copy_huge_pmd
+  mm/memory: use ptdesc in __pte_alloc
+  mm/pgtable: fully use ptdesc in pte_alloc_one series functions
+  mm/pgtable: pass ptdesc to pte_free()
+  mm/pgtable: introduce ptdesc_pfn and use ptdesc in free_pte_range()
+  mm/thp: pass ptdesc to set_huge_zero_folio function
+  mm/pgtable: return ptdesc pointer in pgtable_trans_huge_withdraw
+  mm/pgtable: use ptdesc in pgtable_trans_huge_deposit
+  mm/pgtable: pass ptdesc to pmd_populate
+  mm/pgtable: pass ptdesc to pmd_install
+  mm: convert vmf.prealloc_pte to struct ptdesc pointer
+  mm/pgtable: pass ptdesc in pte_free_defer
+
+ arch/alpha/include/asm/pgalloc.h              |   4 +-
+ arch/arc/include/asm/pgalloc.h                |   4 +-
+ arch/arm/include/asm/pgalloc.h                |  13 +--
+ arch/arm/include/asm/tlb.h                    |   4 +-
+ arch/arm/mm/pgd.c                             |   2 +-
+ arch/arm64/include/asm/pgalloc.h              |   4 +-
+ arch/arm64/include/asm/tlb.h                  |   4 +-
+ arch/csky/include/asm/pgalloc.h               |   4 +-
+ arch/hexagon/include/asm/pgalloc.h            |   8 +-
+ arch/loongarch/include/asm/pgalloc.h          |   8 +-
+ arch/m68k/include/asm/motorola_pgalloc.h      |  12 +-
+ arch/m68k/include/asm/sun3_pgalloc.h          |   4 +-
+ arch/microblaze/include/asm/pgalloc.h         |   2 +-
+ arch/mips/include/asm/pgalloc.h               |   4 +-
+ arch/nios2/include/asm/pgalloc.h              |   4 +-
+ arch/openrisc/include/asm/pgalloc.h           |   8 +-
+ arch/parisc/include/asm/pgalloc.h             |   2 +-
+ arch/powerpc/include/asm/book3s/32/pgalloc.h  |   4 +-
+ arch/powerpc/include/asm/book3s/64/hash-4k.h  |   4 +-
+ arch/powerpc/include/asm/book3s/64/hash-64k.h |   4 +-
+ arch/powerpc/include/asm/book3s/64/pgalloc.h  |   4 +-
+ arch/powerpc/include/asm/book3s/64/pgtable.h  |   8 +-
+ arch/powerpc/include/asm/book3s/64/radix.h    |   4 +-
+ arch/powerpc/include/asm/pgalloc.h            |   8 +-
+ arch/powerpc/mm/book3s64/hash_pgtable.c       |  10 +-
+ arch/powerpc/mm/book3s64/radix_pgtable.c      |  10 +-
+ arch/riscv/include/asm/pgalloc.h              |   8 +-
+ arch/s390/include/asm/pgalloc.h               |   4 +-
+ arch/s390/include/asm/pgtable.h               |   4 +-
+ arch/s390/mm/pgalloc.c                        |   2 +-
+ arch/s390/mm/pgtable.c                        |  14 +--
+ arch/sh/include/asm/pgalloc.h                 |   4 +-
+ arch/sparc/include/asm/pgalloc_32.h           |   6 +-
+ arch/sparc/include/asm/pgalloc_64.h           |   2 +-
+ arch/sparc/include/asm/pgtable_64.h           |   4 +-
+ arch/sparc/mm/init_64.c                       |   2 +-
+ arch/sparc/mm/srmmu.c                         |   6 +-
+ arch/sparc/mm/tlb.c                           |  14 +--
+ arch/x86/include/asm/pgalloc.h                |  10 +-
+ arch/x86/mm/pgtable.c                         |   8 +-
+ arch/xtensa/include/asm/pgalloc.h             |  12 +-
+ fs/dax.c                                      |  14 +--
+ include/asm-generic/pgalloc.h                 |  10 +-
+ include/linux/mm.h                            |  16 ++-
+ include/linux/mm_types.h                      |   4 +-
+ include/linux/pgtable.h                       |   6 +-
+ mm/debug_vm_pgtable.c                         |   6 +-
+ mm/huge_memory.c                              | 103 +++++++++---------
+ mm/internal.h                                 |   2 +-
+ mm/khugepaged.c                               |  14 +--
+ mm/memory.c                                   |  15 +--
+ mm/mremap.c                                   |   2 +-
+ mm/pgtable-generic.c                          |  37 +++----
+ 53 files changed, 240 insertions(+), 236 deletions(-)
+
+-- 
+2.43.0
+
