@@ -1,39 +1,74 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E02281BA86A;
-	Tue, 30 Jul 2024 15:52:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A812818C900;
+	Tue, 30 Jul 2024 18:55:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722354743; cv=none; b=AiQeya1VEGK55/pxT4LODLrvzLbg1WOTJm/7l2T0pZ3PJvCVrMZ4eMhZGLvvBAqLUoCWWt9fwr4k+9r9LWjjl69pbD0pDkNoX/4oGsr0qD9OauY+Wqsa5Jm2bOKSFRK9UznMeRFdWdpdsPE3ZWmNLzGY6nc1nkML3yczSyMYN0c=
+	t=1722365706; cv=none; b=QgFXymFOppD7SkOdrdqZagbLbJ3QOIpTreKkUZLVCo1NiJjFCmQN3I6018PTXPmtWrfTWBw79S145QZmEk5m7rgrsxACcZ+2iOxw7u/TaA6Dk2CQdtZbq7eSaxfbDtQH/FSOUZVRow96Ybc9tc/BgidOd05P7iaHBuD4u+8eidM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722354743; c=relaxed/simple;
-	bh=rUvvu/5IiJ35ef2e9tGtmgBISeqqhFMjWRdqmqHbxMo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=vD56anfn6dU1ZT/ST6sg+DTTkcR/6/O5RbWwIdZP6BygBd+u8PqdMS4aZImK5GqwpUqP0cFzPZ31Gz0jTaPW+UsqQkxJVbi2trE2yFliS6U3xYGWiZAMCgrUD9b/4I1+o4kvM82qEh6JP2rXwBBeDCE0v1ynn0nZdYP9XaCex1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8B36C4AF0A;
-	Tue, 30 Jul 2024 15:52:19 +0000 (UTC)
-Date: Tue, 30 Jul 2024 16:52:17 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: Baruch Siach <baruch@tkos.co.il>
-Cc: Christoph Hellwig <hch@lst.de>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Rob Herring <robh@kernel.org>,
-	Saravana Kannan <saravanak@google.com>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	iommu@lists.linux.dev, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Petr =?utf-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>,
-	Ramon Fried <ramon@neureality.ai>,
-	Elad Nachman <enachman@marvell.com>
-Subject: Re: [PATCH RFC v2 2/5] of: get dma area lower limit
-Message-ID: <ZqkMMW_mz4C66I2e@arm.com>
-References: <cover.1712642324.git.baruch@tkos.co.il>
- <230ea13ef8e9f576df849e1b03406184ca890ba8.1712642324.git.baruch@tkos.co.il>
- <ZnH-VU2iz9Q2KLbr@arm.com>
- <87cyn1k7yq.fsf@tarshish>
+	s=arc-20240116; t=1722365706; c=relaxed/simple;
+	bh=gkAsGyAn23ZHk18oY7nwdT/kqQrSIPA5N6C5BvHvup4=;
+	h=Message-ID:Date:From:To:Cc:Subject:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HcXtJGA5J2JWrUBD+xP9DExUopaltAsIDcrK9MVZ77LaoOGJn8JlXfGWXkNFqH3ygJz6eFVO5op4VyqHeBFQJcI198zk1PU//BDAYCh1SgQihc2yA7y3N2DIRcaYm1LlBb7OQDzz3NOXG7VnhOToHv8chVs89fg4KfY9cJRiqQE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hKpi5eBE; arc=none smtp.client-ip=209.85.210.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hKpi5eBE"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-70d1c8d7d95so3063771b3a.2;
+        Tue, 30 Jul 2024 11:55:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1722365704; x=1722970504; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:subject:cc
+         :to:from:date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=gkAsGyAn23ZHk18oY7nwdT/kqQrSIPA5N6C5BvHvup4=;
+        b=hKpi5eBEKauParRoKmXZyXBpXezLjF3CzZFuUDmsV8lbiiDSLeyH4YMYe80FdM9EbH
+         v7QDVn7KZDhOwVOhbP99nBnscC1xp/PZhL7OqhR10pFb+L7fLhhSvXRUSWbC9o15KKSW
+         LpcJNKNB2FOAOT2f8J0BF1CaRgMYbJ1Uj+eI/lCVGLKSzTIXRPxZsPz+EvxX3nvHjrgO
+         fKJPB4RzxvqQLgPNnAQVdDPJN/Kl0KFRVFlrlXK5jcNHVIoXfE9Fp25lIR1V0K6kSIQL
+         eu8nSSSVjSGyv99+Ws6uwOEZAVafKFoH7lPUdylzPw9YIKxXuaWbPkcAWZqJ54Wtf68H
+         E2iw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722365704; x=1722970504;
+        h=in-reply-to:content-disposition:mime-version:references:subject:cc
+         :to:from:date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gkAsGyAn23ZHk18oY7nwdT/kqQrSIPA5N6C5BvHvup4=;
+        b=OCKDDcWSmalWG3Odr2KZZV3E0HKRMKLrs0ZIMBzNJneONeSGknUM7puf387IfMmybP
+         PWi5eeeMDahBAuOf93C5jxv0zkist6FRNCV3a7DvP4/Ki45R3SOXS9gEwCBbFxup24b+
+         tVqsVFAAAc5pUL3g4+Z2FOeCYbP2NqSmfkc4xVXVtP16ec+YlxMoC9oRSPXd4DXzktNf
+         XzsOpfg6wyIZergFoLS4s8BL/4fRv9zxDU+h1HkiE4ZRXUPyZ4JXrIFpvTCtwasPpkX7
+         e2PQlOelPq0qw+7aELZLey+rUbjPLBTP5Qr6sPJZVqGrIRQhVB93K2bj2goFQ9ohJA2K
+         3BhA==
+X-Forwarded-Encrypted: i=1; AJvYcCXm3UNgfV83yAmbiijYNyiwRg5S3AoE9etwvE4OtnlYIVjVuap6aHdqL/Rz/0RUcu80NlTo7Ja8jryCyXYvol9jntNLU2/eEVzth6gdgjo9hn+jSH4Zwek75qBjN4gpGw==
+X-Gm-Message-State: AOJu0Yxj7XpRiIKpbi3oRORC23SP2uQXrowoSjJTsV+HosHWKPUeoaYX
+	ys56rkkQ/iCAsDuNwHWMJMtNGjdXwPxEjvPgyeAiFuglQkJ+KyGC
+X-Google-Smtp-Source: AGHT+IG24Db8snQL11PjMMgEFIueB/WO93zvgt26ms7Bw0B7zKNsl38EnEPihdhP9qRIpA/ZEQ2UgA==
+X-Received: by 2002:a05:6a00:850:b0:70d:2ca0:896a with SMTP id d2e1a72fcca58-70ecea40f66mr11275694b3a.18.1722365703739;
+        Tue, 30 Jul 2024 11:55:03 -0700 (PDT)
+Received: from DESKTOP-DUKSS9G. (c-76-133-131-165.hsd1.ca.comcast.net. [76.133.131.165])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-70ead882b2esm9039627b3a.179.2024.07.30.11.55.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Jul 2024 11:55:03 -0700 (PDT)
+Message-ID: <66a93707.050a0220.5f9eb.7cc0@mx.google.com>
+X-Google-Original-Message-ID: <Zqk3BFd4aGaPGcWe@DESKTOP-DUKSS9G.>
+Date: Tue, 30 Jul 2024 11:55:00 -0700
+From: Vishal Moola <vishal.moola@gmail.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Matthew Wilcox <willy@infradead.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [PATCH v1 0/3] mm: remove arch_make_page_accessible()
+References: <20240729183844.388481-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -42,39 +77,13 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87cyn1k7yq.fsf@tarshish>
+In-Reply-To: <20240729183844.388481-1-david@redhat.com>
 
-On Thu, Jul 25, 2024 at 02:49:01PM +0300, Baruch Siach wrote:
-> Hi Catalin,
-> 
-> On Tue, Jun 18 2024, Catalin Marinas wrote:
-> > On Tue, Apr 09, 2024 at 09:17:55AM +0300, Baruch Siach wrote:
-> >> of_dma_get_max_cpu_address() returns the highest CPU address that
-> >> devices can use for DMA. The implicit assumption is that all CPU
-> >> addresses below that limit are suitable for DMA. However the
-> >> 'dma-ranges' property this code uses also encodes a lower limit for DMA
-> >> that is potentially non zero.
-> >> 
-> >> Rename to of_dma_get_cpu_limits(), and extend to retrieve also the lower
-> >> limit for the same 'dma-ranges' property describing the high limit.
-> >
-> > I don't understand the reason for the lower limit. The way the Linux
-> > zones work is that ZONE_DMA always starts from the start of the RAM. It
-> > doesn't matter whether it's 0 or not, you'd not allocate below the start
-> > of RAM anyway. If you have a device that cannot use the bottom of the
-> > RAM, it is pretty broken and not supported by Linux.
-> 
-> I won't argue with that assertion. My target system RAM happens to start
-> at that the lower end of devices DMA zone, so I'm fine with skipping
-> this patch.
-> 
-> Just curious. What is the inherent limitation that prevents Linux from
-> supporting DMA zone with lower limit above RAM start?
+On Mon, Jul 29, 2024 at 08:38:41PM +0200, David Hildenbrand wrote:
+> Now that s390x implements arch_make_folio_accessible(), let's convert
+> remaining users to use arch_make_folio_accessible() instead so we can
+> remove arch_make_page_accessible().
 
-It's the way the zone allocation fallback mechanism works. Let's say a
-ZONE_DMA32 allocation fails, it falls back to ZONE_DMA and it's supposed
-to be compatible with the GFP_DMA32 request. If you have some other zone
-below ZONE_DMA, it should also be compatible with GFP_DMA allocations.
+For the whole series:
 
--- 
-Catalin
+Reviewed-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
