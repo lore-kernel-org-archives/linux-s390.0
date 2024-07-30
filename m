@@ -1,144 +1,158 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3411719FA86;
-	Tue, 30 Jul 2024 10:40:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10DF418F2FF;
+	Tue, 30 Jul 2024 12:04:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722336013; cv=none; b=LD6FZTXoluaGseu9iMVcDA1GbZzpINrWonOlUu9QDpfV5Uzh5WHmaA9wPM+UON9RxpSDEI1qgQKL51nw9uWopafBlelOIFJJLD82tvrib3j3B8VdXk5pRa0oAGeLQtJY8DAlpVnMJHGryhKOW2WbbCohCFTA56iN6H3NQbMtwPo=
+	t=1722341098; cv=none; b=NqT1Cy51WYI02yYb+VS7ui5jAroegElwy14afb5ka7lWCGFWTm+b4aZT+KHrqE6Twb6omwd7qk5LrUBrC3s9KygirYtSkpHc5TEpxosaDWW3Usl43tQuy/QIAKpmmXzDvKjqYG+HoMdwPAp4AAVbQVb75+SOwBCMZkS39sreK0c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722336013; c=relaxed/simple;
-	bh=l4VpL9x+WgkqxnYD2dAEQ8MULWjm5ogOKxxCT/nRsKE=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=fCWGh/YjwPCJlJAeoi58rTjSc1rpOk99s3eYssG2CuuXbZm61eO73u+SbfLnbQx0Y6HlgJami7I9Iku9U9XSFuIqqu9BD3nbQpRof3mjwzGNvIGGXn425o+1xL2Zb3+E5FKuaMgU9UQcPwfdimb94DlmU/ZUqmjx7zqlIkdrrXw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lv6jdWRV; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1722341098; c=relaxed/simple;
+	bh=OQY9Gp3UwesbsrfgTMnSB1kd6hwhfV96CisesqYv41k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=o/2ZZtQiDkGN73ipByRpXtx8sN0SiucAY98TsO07Ep4Z6CWRQPYJMxzzpHoJjp2I+cZSuAqym0PXr/4KeKidyVgBW5zLxE0PMDAMxKcji05juahKE/7KY327+UKjF0rVtn7lTVJivhJjNS20fOybYiAEO7P5Z8KywIcPfka4klQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=h6+KkeYV; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lv6jdWRV"
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46U9tKjU012030;
-	Tue, 30 Jul 2024 10:39:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
-	DkGdvAdKyg11kiXdiASBE8PWg35HTN6fIm33pARXv0M=; b=lv6jdWRVC7uz0NIW
-	l1NelhuPv8RIbUQotpKu8x6enuyXNRDQO+gIebwvS0VYFVDmi4K7pP2t6FHP4qgH
-	LpSCyYXgBMnj8pUokGna9wxetuUKq27HgJhi35ppf+zmp77VY55N3yW+KTm6xXho
-	d62+eQvjRXutiNE1lnGx3wpSxQ3jUuyL+k2EZoty07wJtX/bbqDLqANrCTJsymn7
-	d+cqPk9qiz5Cli/YgrKec5Hlr3ZYadyi6SV2/staT720h+lxAAi6T5UxcBKksgdr
-	IKN9Rgu3Q6o8/k8UE+AWVlzyhrlli28J9UQB0SBHEWGjRTdv6wyaP71b1IEVErvL
-	T3nrcw==
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="h6+KkeYV"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46UAxEkL018420;
+	Tue, 30 Jul 2024 12:04:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=6
+	eOv6aqryUu/xbmMdzb2Q1SlIusrN4FGTInhK6o806Y=; b=h6+KkeYVk3ej36SZg
+	1S6/QzHUMB3ndcwZw47UiqtqQVqPZivnYSw9MJZ5wqXj3bqnI5Ox0lqkB1IpFVoJ
+	Zq8Yr3yqic/+C1xH4XxuF/anmV6IAlSNTac0Y2p436tiU2BzNwPkoJcAJmIo8X3F
+	uc/Ngv1HkR24VD0kDDp82Bw22+5jYq0LAt8VtzjMlg8IMwsCmp5RERsF75zKKhW/
+	oG9uw6/NJX5HU3DBPwd2wnz6MNkb7M1nJsG+G/3jVt7DtewdHGaY/ZE1XylkDNC0
+	ogIjrbJ5FDBGuqbLzLwM7bWrIdMPAShUnMKNTpXQfRuaXt7aidWwZIFo+YDwqmaP
+	ECB2A==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40pra21bqv-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40pxw0g3y6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Jul 2024 10:39:57 +0000 (GMT)
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46UAdund021238;
-	Tue, 30 Jul 2024 10:39:56 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40pra21bqs-1
+	Tue, 30 Jul 2024 12:04:47 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46UC4knA028018;
+	Tue, 30 Jul 2024 12:04:46 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40pxw0g3y4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Jul 2024 10:39:56 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46U85H98011151;
-	Tue, 30 Jul 2024 10:39:56 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40ncqmm4kd-1
+	Tue, 30 Jul 2024 12:04:46 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46U8AjJK003748;
+	Tue, 30 Jul 2024 12:04:45 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 40ndemc890-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Jul 2024 10:39:56 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46UAdoZB50921962
+	Tue, 30 Jul 2024 12:04:45 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46UC4eN716384454
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 30 Jul 2024 10:39:52 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2C19820043;
-	Tue, 30 Jul 2024 10:39:50 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F1A5820040;
-	Tue, 30 Jul 2024 10:39:49 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 30 Jul 2024 10:39:49 +0000 (GMT)
-Date: Tue, 30 Jul 2024 12:39:48 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        Andrew Morton
- <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Heiko
- Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander
- Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Janosch
- Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH v1 0/3] mm: remove arch_make_page_accessible()
-Message-ID: <20240730123948.6833576c@p-imbrenda.boeblingen.de.ibm.com>
-In-Reply-To: <20240729183844.388481-1-david@redhat.com>
-References: <20240729183844.388481-1-david@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	Tue, 30 Jul 2024 12:04:42 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 21FA42004D;
+	Tue, 30 Jul 2024 12:04:40 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AD6E020040;
+	Tue, 30 Jul 2024 12:04:39 +0000 (GMT)
+Received: from [9.179.12.59] (unknown [9.179.12.59])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 30 Jul 2024 12:04:39 +0000 (GMT)
+Message-ID: <b987be60-288f-4e19-9ede-d5964377b0e7@linux.ibm.com>
+Date: Tue, 30 Jul 2024 14:04:39 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 02/10] selftests: kvm: s390: Add kvm_s390_sie_block
+ definition for userspace tests
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+References: <20240730072413.143556-1-schlameuss@linux.ibm.com>
+ <20240730072413.143556-3-schlameuss@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20240730072413.143556-3-schlameuss@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -D3mUbFgCBPLb-63vf3XcLrcobweWmky
-X-Proofpoint-ORIG-GUID: JCR5ort0nw7-4C2vezlqKFBQVfD1e3XV
+X-Proofpoint-ORIG-GUID: W_2jnhrP_UaA4bJH3Reg6gYIco0zreK4
+X-Proofpoint-GUID: yjRDP9u1xNPiTDV-0QVS7yo91Ohep1gz
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-07-30_11,2024-07-26_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=654
- lowpriorityscore=0 clxscore=1011 adultscore=0 suspectscore=0
- priorityscore=1501 spamscore=0 impostorscore=0 phishscore=0 mlxscore=0
- bulkscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2407300074
+ definitions=2024-07-30_11,2024-07-30_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ priorityscore=1501 phishscore=0 impostorscore=0 adultscore=0 clxscore=1015
+ malwarescore=0 suspectscore=0 spamscore=0 mlxlogscore=765 bulkscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2407300084
 
-Thank you for taking care of this!
-
-
-Whole series:
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-
-On Mon, 29 Jul 2024 20:38:41 +0200
-David Hildenbrand <david@redhat.com> wrote:
-
-> Now that s390x implements arch_make_folio_accessible(), let's convert
-> remaining users to use arch_make_folio_accessible() instead so we can
-> remove arch_make_page_accessible().
+On 7/30/24 9:24 AM, Christoph Schlameuss wrote:
+> Subsequent tests do require direct manipulation of the SIE control
+> block. This commit introduces the SIE control block definition for use
+> within the selftests.
 > 
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Matthew Wilcox <willy@infradead.org>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Janosch Frank <frankja@linux.ibm.com>
-> Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> There are already definitions of this within the kernel.
+> This differs in two ways.
+> * This is the first definition of this in userspace.
+> * In the context of the selftests this does not require atomicity for
+>    the flags.
 > 
-> David Hildenbrand (3):
->   mm: simplify arch_make_folio_accessible()
->   mm/gup: convert to arch_make_folio_accessible()
->   s390/uv: drop arch_make_page_accessible()
+> With the userspace definition of the SIE block layout now being present
+> we can reuse the values in other tests where applicable.
 > 
->  arch/s390/include/asm/page.h |  2 --
->  arch/s390/kernel/uv.c        |  5 -----
->  include/linux/mm.h           | 18 +-----------------
->  mm/gup.c                     |  8 +++++---
->  4 files changed, 6 insertions(+), 27 deletions(-)
-> 
-> 
-> base-commit: 3bb434b9ff9bfeacf7f4aef6ae036146ae3c40cc
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
