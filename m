@@ -1,74 +1,44 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A812818C900;
-	Tue, 30 Jul 2024 18:55:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D5F618CBFB;
+	Tue, 30 Jul 2024 18:55:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722365706; cv=none; b=QgFXymFOppD7SkOdrdqZagbLbJ3QOIpTreKkUZLVCo1NiJjFCmQN3I6018PTXPmtWrfTWBw79S145QZmEk5m7rgrsxACcZ+2iOxw7u/TaA6Dk2CQdtZbq7eSaxfbDtQH/FSOUZVRow96Ybc9tc/BgidOd05P7iaHBuD4u+8eidM=
+	t=1722365756; cv=none; b=H4JuIAwdnSXC1r9mNYdsXwAfvRmzwtbP9/ek4ngtKdtCUqQgzRpvtBIM/auwnQU4PlI56Q5hctOB05b6lUa2gxX2SdfwqchjuLrT3u54G5iJssvatQUrgg7DwnyIlo8sXPM2gdtfiM1Qk6QXe9tr0MoEzbIcBGWQcupyhD5adLM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722365706; c=relaxed/simple;
-	bh=gkAsGyAn23ZHk18oY7nwdT/kqQrSIPA5N6C5BvHvup4=;
-	h=Message-ID:Date:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HcXtJGA5J2JWrUBD+xP9DExUopaltAsIDcrK9MVZ77LaoOGJn8JlXfGWXkNFqH3ygJz6eFVO5op4VyqHeBFQJcI198zk1PU//BDAYCh1SgQihc2yA7y3N2DIRcaYm1LlBb7OQDzz3NOXG7VnhOToHv8chVs89fg4KfY9cJRiqQE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hKpi5eBE; arc=none smtp.client-ip=209.85.210.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1722365756; c=relaxed/simple;
+	bh=iMPC0uOGY/qCEBWGZUG8FOeMmwxGLbSnq8PUmLDtKxE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jfbM4D47BV84Ga9I76vW4FuZuQmCdVEKsty4pxAPB5cpYT4Q1KaUhLTLtLPVe+EKTf7nW81l0C9cKvoaiVyHpUVuHVrITgQUmpLOzZPfAPSm2NuY0pVJfIWIHDVqXb9+hjXP55egvv7c0RZGvodjPbq8vjtxvTcWyN0gugJX4LQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AKj5JSDX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hKpi5eBE"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-70d1c8d7d95so3063771b3a.2;
-        Tue, 30 Jul 2024 11:55:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722365704; x=1722970504; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:subject:cc
-         :to:from:date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=gkAsGyAn23ZHk18oY7nwdT/kqQrSIPA5N6C5BvHvup4=;
-        b=hKpi5eBEKauParRoKmXZyXBpXezLjF3CzZFuUDmsV8lbiiDSLeyH4YMYe80FdM9EbH
-         v7QDVn7KZDhOwVOhbP99nBnscC1xp/PZhL7OqhR10pFb+L7fLhhSvXRUSWbC9o15KKSW
-         LpcJNKNB2FOAOT2f8J0BF1CaRgMYbJ1Uj+eI/lCVGLKSzTIXRPxZsPz+EvxX3nvHjrgO
-         fKJPB4RzxvqQLgPNnAQVdDPJN/Kl0KFRVFlrlXK5jcNHVIoXfE9Fp25lIR1V0K6kSIQL
-         eu8nSSSVjSGyv99+Ws6uwOEZAVafKFoH7lPUdylzPw9YIKxXuaWbPkcAWZqJ54Wtf68H
-         E2iw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722365704; x=1722970504;
-        h=in-reply-to:content-disposition:mime-version:references:subject:cc
-         :to:from:date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gkAsGyAn23ZHk18oY7nwdT/kqQrSIPA5N6C5BvHvup4=;
-        b=OCKDDcWSmalWG3Odr2KZZV3E0HKRMKLrs0ZIMBzNJneONeSGknUM7puf387IfMmybP
-         PWi5eeeMDahBAuOf93C5jxv0zkist6FRNCV3a7DvP4/Ki45R3SOXS9gEwCBbFxup24b+
-         tVqsVFAAAc5pUL3g4+Z2FOeCYbP2NqSmfkc4xVXVtP16ec+YlxMoC9oRSPXd4DXzktNf
-         XzsOpfg6wyIZergFoLS4s8BL/4fRv9zxDU+h1HkiE4ZRXUPyZ4JXrIFpvTCtwasPpkX7
-         e2PQlOelPq0qw+7aELZLey+rUbjPLBTP5Qr6sPJZVqGrIRQhVB93K2bj2goFQ9ohJA2K
-         3BhA==
-X-Forwarded-Encrypted: i=1; AJvYcCXm3UNgfV83yAmbiijYNyiwRg5S3AoE9etwvE4OtnlYIVjVuap6aHdqL/Rz/0RUcu80NlTo7Ja8jryCyXYvol9jntNLU2/eEVzth6gdgjo9hn+jSH4Zwek75qBjN4gpGw==
-X-Gm-Message-State: AOJu0Yxj7XpRiIKpbi3oRORC23SP2uQXrowoSjJTsV+HosHWKPUeoaYX
-	ys56rkkQ/iCAsDuNwHWMJMtNGjdXwPxEjvPgyeAiFuglQkJ+KyGC
-X-Google-Smtp-Source: AGHT+IG24Db8snQL11PjMMgEFIueB/WO93zvgt26ms7Bw0B7zKNsl38EnEPihdhP9qRIpA/ZEQ2UgA==
-X-Received: by 2002:a05:6a00:850:b0:70d:2ca0:896a with SMTP id d2e1a72fcca58-70ecea40f66mr11275694b3a.18.1722365703739;
-        Tue, 30 Jul 2024 11:55:03 -0700 (PDT)
-Received: from DESKTOP-DUKSS9G. (c-76-133-131-165.hsd1.ca.comcast.net. [76.133.131.165])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-70ead882b2esm9039627b3a.179.2024.07.30.11.55.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jul 2024 11:55:03 -0700 (PDT)
-Message-ID: <66a93707.050a0220.5f9eb.7cc0@mx.google.com>
-X-Google-Original-Message-ID: <Zqk3BFd4aGaPGcWe@DESKTOP-DUKSS9G.>
-Date: Tue, 30 Jul 2024 11:55:00 -0700
-From: Vishal Moola <vishal.moola@gmail.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Matthew Wilcox <willy@infradead.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: Re: [PATCH v1 0/3] mm: remove arch_make_page_accessible()
-References: <20240729183844.388481-1-david@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AKj5JSDX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03D6DC32782;
+	Tue, 30 Jul 2024 18:55:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1722365755;
+	bh=iMPC0uOGY/qCEBWGZUG8FOeMmwxGLbSnq8PUmLDtKxE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=AKj5JSDX4j+nJJGmrOorBwhIYn6wrx5pLq0E9PBq5qXHz7+Q4E2D2aeOMOfBqjq9C
+	 2ZxpSABp67D1RyZmruVa5gcz6UvPoMjj0dc5Y4Dk4wtH0G9aIHM5mpnvya8/Gy5+Nu
+	 ge/i2Ydh2dcq3PeG3BDVoZ6eDk81aNsWr31ftTAFvplxCCPk105ZSQ9lvGfxyfPXTh
+	 0hEqwkElYMCQh3Kj+MCcDbAVo7+Xg/rwjBpa8iJAGd6G72C7wsp/BCYRV3m3LB87Fu
+	 XT2GVTbXVn97c9yBwcRdMg+aVuS5qGjRBhT3JMYTU10T3DCxEXthEnoNH9L7E0Cafq
+	 VembjpMyHazMA==
+Date: Tue, 30 Jul 2024 19:55:50 +0100
+From: Simon Horman <horms@kernel.org>
+To: Zhengchao Shao <shaozhengchao@huawei.com>
+Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org, davem@davemloft.net,
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+	wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+	weiyongjun1@huawei.com, yuehaibing@huawei.com
+Subject: Re: [PATCH net-next 1/4] net/smc: remove unreferenced header in
+ smc_loopback.h file
+Message-ID: <20240730185550.GG1967603@kernel.org>
+References: <20240730012506.3317978-1-shaozhengchao@huawei.com>
+ <20240730012506.3317978-2-shaozhengchao@huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -77,13 +47,15 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240729183844.388481-1-david@redhat.com>
+In-Reply-To: <20240730012506.3317978-2-shaozhengchao@huawei.com>
 
-On Mon, Jul 29, 2024 at 08:38:41PM +0200, David Hildenbrand wrote:
-> Now that s390x implements arch_make_folio_accessible(), let's convert
-> remaining users to use arch_make_folio_accessible() instead so we can
-> remove arch_make_page_accessible().
+On Tue, Jul 30, 2024 at 09:25:03AM +0800, Zhengchao Shao wrote:
+> Because linux/err.h is unreferenced in smc_loopback.h file, so
+> remove it.
+> 
+> Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
 
-For the whole series:
+Thanks, I agree that noting provided by err.h appears
+to be used either by smc_loopback.h or files that include it.
 
-Reviewed-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+Reviewed-by: Simon Horman <horms@kernel.org>
