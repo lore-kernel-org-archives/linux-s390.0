@@ -1,29 +1,29 @@
-Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF9D8FC1D;
-	Tue, 30 Jul 2024 01:26:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 687D28821;
+	Tue, 30 Jul 2024 01:26:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722302814; cv=none; b=sCY+zaD9Fo/X4Ri5vsuTve7Jk2CkalxWPDl134uNx3tKnEg5fqfaC0qf+Nr+Ngh6RvEKNggyUTDzkub4VNXsqYXon8SWctr9TUsgOfPy/yAoFYDkSLFYEGPM3/NoVctNy9J9EiQfMm368LIiMoOeJOQhN/DGPoHv47HGakK8CUA=
+	t=1722302814; cv=none; b=E6TyiYz4zSOreSLlKcHP9dVa4OFbyWDcaLooIDsA9uVKcdH/yr/kIkizbvt2s7jhS+H8ODwoJfj7nszQrI/zqhYId9/LGlZFbdnLuxCa5pu3GEzGm+qFVWJg5OnjT3U+faxlTNgdWioRUB7UPqW9RBndcQ8RBGGjyhpEFP572s0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1722302814; c=relaxed/simple;
-	bh=iWGSzo43KxDdANSxUzF0CpLwSuh5p6IxhlTs6EuXPY0=;
+	bh=a+FhVQfrxbo7swIPC/6+TQEKmI4o6icFBkchvBs8GiE=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PS9m5x3oxUKXg6teEw7TFSz/Ej/HFkxe5Jzojs/inNChhelSimQWGTY5AylyAn4I0ewCC9BhRpbCauLW0CyCyOXwxhiq9hK5dpR3sk9z9TNOrXYf3MUcXbG+UAZ7eAr8Hn8tgRCG1b/r3uJu7cbjasi4xg9MeEdCm3vyAwb7v6o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
+	 MIME-Version:Content-Type; b=dPs6UWC/PvCmYsCBRtaFyxmNW1LMnbx/7oVvwFLBNB/Q9YdwzQb+IrWPNGYaPOr1jUvUzs/DkVMmTRYZT4N0Gq4yZIOz58/DkAQWU1YIABvFR7tvsMCJTgJbmZDc0cE9FDFTo2BedwwgWEexbPc5FaU9eGduqFbeBR3xnZVO39I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.17])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4WXyDf0yW7z1HFLb;
-	Tue, 30 Jul 2024 09:24:02 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.163.48])
+	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4WXyGm64d5znbXn;
+	Tue, 30 Jul 2024 09:25:52 +0800 (CST)
 Received: from dggpeml500026.china.huawei.com (unknown [7.185.36.106])
-	by mail.maildlp.com (Postfix) with ESMTPS id 883A61A0188;
-	Tue, 30 Jul 2024 09:26:49 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 325A11800A1;
+	Tue, 30 Jul 2024 09:26:50 +0800 (CST)
 Received: from huawei.com (10.175.101.6) by dggpeml500026.china.huawei.com
  (7.185.36.106) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.39; Tue, 30 Jul
- 2024 09:26:48 +0800
+ 2024 09:26:49 +0800
 From: Zhengchao Shao <shaozhengchao@huawei.com>
 To: <linux-s390@vger.kernel.org>, <netdev@vger.kernel.org>,
 	<davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
@@ -31,9 +31,9 @@ To: <linux-s390@vger.kernel.org>, <netdev@vger.kernel.org>,
 CC: <wenjia@linux.ibm.com>, <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
 	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>,
 	<weiyongjun1@huawei.com>, <yuehaibing@huawei.com>, <shaozhengchao@huawei.com>
-Subject: [PATCH net-next 3/4] net/smc: remove redundant code in smc_connect_check_aclc
-Date: Tue, 30 Jul 2024 09:25:05 +0800
-Message-ID: <20240730012506.3317978-4-shaozhengchao@huawei.com>
+Subject: [PATCH net-next 4/4] net/smc: remove unused input parameters in smcr_new_buf_create
+Date: Tue, 30 Jul 2024 09:25:06 +0800
+Message-ID: <20240730012506.3317978-5-shaozhengchao@huawei.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240730012506.3317978-1-shaozhengchao@huawei.com>
 References: <20240730012506.3317978-1-shaozhengchao@huawei.com>
@@ -48,37 +48,36 @@ Content-Type: text/plain
 X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
  dggpeml500026.china.huawei.com (7.185.36.106)
 
-When the SMC client perform CLC handshake, it will check whether
-the clc header type is correct in receiving SMC_CLC_ACCEPT packet.
-The specific invoking path is as follows:
-__smc_connect
-  smc_connect_clc
-    smc_clc_wait_msg
-      smc_clc_msg_hdr_valid
-        smc_clc_msg_acc_conf_valid
-Therefore, the smc_connect_check_aclc interface invoked by
-__smc_connect does not need to check type again.
+The input parameter "is_rmb" of the smcr_new_buf_create function
+has never been used, remove it.
 
 Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
 ---
- net/smc/af_smc.c | 4 ----
- 1 file changed, 4 deletions(-)
+ net/smc/smc_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 83f5a1849971..6f82e4d8fda4 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1466,10 +1466,6 @@ static int smc_connect_ism(struct smc_sock *smc,
- static int smc_connect_check_aclc(struct smc_init_info *ini,
- 				  struct smc_clc_msg_accept_confirm *aclc)
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 3b95828d9976..71fb334d8234 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -2250,7 +2250,7 @@ int smcr_buf_reg_lgr(struct smc_link *lnk)
+ }
+ 
+ static struct smc_buf_desc *smcr_new_buf_create(struct smc_link_group *lgr,
+-						bool is_rmb, int bufsize)
++						int bufsize)
  {
--	if (aclc->hdr.typev1 != SMC_TYPE_R &&
--	    aclc->hdr.typev1 != SMC_TYPE_D)
--		return SMC_CLC_DECL_MODEUNSUPP;
--
- 	if (aclc->hdr.version >= SMC_V2) {
- 		if ((aclc->hdr.typev1 == SMC_TYPE_R &&
- 		     !smcr_indicated(ini->smc_type_v2)) ||
+ 	struct smc_buf_desc *buf_desc;
+ 
+@@ -2398,7 +2398,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
+ 		if (is_smcd)
+ 			buf_desc = smcd_new_buf_create(lgr, is_rmb, bufsize);
+ 		else
+-			buf_desc = smcr_new_buf_create(lgr, is_rmb, bufsize);
++			buf_desc = smcr_new_buf_create(lgr, bufsize);
+ 
+ 		if (PTR_ERR(buf_desc) == -ENOMEM)
+ 			break;
 -- 
 2.34.1
 
