@@ -1,161 +1,152 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DED611993BD;
-	Tue, 30 Jul 2024 13:14:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 340B5D529;
+	Tue, 30 Jul 2024 14:26:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722345260; cv=none; b=cHf7ga4OGBvEtH69XW2cT5+rAK17k8sWQ4JNb8WV0Q92x5AKXKoZjUlnFUdk8GSchP9ZrDZDdfAdnLivvQOf9f9lnC7UoxyZphWWxq3DLznj7MzcYez9KpMDN+PTFcAoI6zhKB3eUIULu/g+/LmZr1iVdh1gBpqF/rUKYYiRQFs=
+	t=1722349576; cv=none; b=fRblRz4vHaT+uDA2UserXmbw5AUcQRF9IHcywiGDgpHaKT/OXUx5YqsRuD5nhnK/RcGXEqqvxpwKtXky/70COuckNcsGpETJMD6/5Q1CeskDbKVEMhY5VM+EFcYylzwRe1JbTkGdLvpCYj5ucTeiivMTRB78wQ+Qfs8whDgmUgU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722345260; c=relaxed/simple;
-	bh=SqgHxMUzx1gyNkNBXigqNgk6zgMYzXbiHv0Jb9/xhnU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SJYhOzBb0nSfOe+eZocp9r4hVYrRclC7x/EW+r84WTgSSj7z6qM5o4mAZW7Nan66/21g8gfDDaosFgdLiGkRCrWdusksNbCgUYcVhZBF1B0lv9inR65NFiF2o8P+M8veukZ9J/xgXnoolJP9dPIENxg2DlNWHkFgf9ElIXeToVU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=q/2OYhyi; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1722349576; c=relaxed/simple;
+	bh=B5LjsGmjUnGgC+3S3K4vgufSp6MgbbSVrQQVJKjPAqQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=b7XZIA39J+0tbcozRls7L0byAma8PQhv2+6jVjCdSs+p/XlFlTG/EqsYy0fOBR6qI9ZaLd7Te83dOGs6XB6vQdMrh2agsSJvdTxZExdcNIyDYf3R/h+aywlU9aTgfv0VdBEdzi4DLw7d9iRVoN0eo68az4JgaU2xlFshgOOfb3Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rAmsmHIA; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="q/2OYhyi"
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46UBSmn2027063;
-	Tue, 30 Jul 2024 13:14:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=/
-	l6WOPb/2aqZ/8rml8BE+zvzP/hvDFFh7F9Od1Qj+yU=; b=q/2OYhyi8tG0Owlmv
-	evonHilwGFQScLHNFdnC6cCVphc8j7TswE+cAg4YpNsMTFBFuo3DFoB5XLE7nMpg
-	ZZPnRfZEFTiKIRGVMiS/5zbemLhwoOfrgJXCCFHJLKBi7iVKVIBJqCSS4/vOdsMJ
-	ruGdjKBgUjSRLduCkn7IgC0Cu4yHQiAdyb8xsAVcwPAccdG6czuYaJYhnTVi/6c8
-	DL4zpsrMuqfJ60UTRogrF0gcYpenE3tX5a2aFUFErNZKLyQWEqNTA9iK1IyNZaxt
-	WqR1m1zKAr4mmZOYnGJkzu+KZMxZij1liY5oXcUvcYmzmzfbDficRGsYn6LkB6LI
-	ha84w==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40pyb90807-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Jul 2024 13:14:14 +0000 (GMT)
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46UDEDfq019071;
-	Tue, 30 Jul 2024 13:14:14 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rAmsmHIA"
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46UEK2bv031219;
+	Tue, 30 Jul 2024 14:26:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:content-transfer-encoding
+	:mime-version; s=pp1; bh=45CkuGD/86iKKCzErMLWJiA5f4Ert2ueHMCgSAN
+	L0nQ=; b=rAmsmHIA+EYoBIUkiBdUauQZdgnimEoHxxJgY/H/4leFgGafhd2G5Wx
+	TiWWZleguSlGfOUlV7fZSTAd5ltZ7sHTdVXNGaEnhkSOwlhDuAoSmoa+rG90pS5/
+	lW6KNk2vyVvWycrfvtOZIJr/zmf14eLVMBw4KJXDLiz/ZonZbm53CphwNRe96o3u
+	9ozlS0mlE9EF8S64DPlViFe+YBktPNqbUDZW20psQD5Rx1cHR5Mf+x0EHuxayZ9D
+	gCesn0hsEvyqIQw2j/45m6iBTKkvWzuLXntHW0nJlILmQgDLGblT5c++K0+x4gpW
+	3Oy844h47xAzxPNzgd4S4U8a/v7wtQw==
 Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40pyb90804-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40pys48b1n-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Jul 2024 13:14:13 +0000 (GMT)
+	Tue, 30 Jul 2024 14:26:11 +0000 (GMT)
 Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46UCWoZ7003745;
-	Tue, 30 Jul 2024 13:14:12 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 40ndemch4x-1
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46UC9Isc003857;
+	Tue, 30 Jul 2024 14:26:11 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 40ndemctjh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Jul 2024 13:14:12 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46UDE7Va29360768
+	Tue, 30 Jul 2024 14:26:11 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46UEQ57M48693532
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 30 Jul 2024 13:14:09 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5A2E820049;
-	Tue, 30 Jul 2024 13:14:07 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9119120040;
-	Tue, 30 Jul 2024 13:14:06 +0000 (GMT)
-Received: from [9.179.12.59] (unknown [9.179.12.59])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 30 Jul 2024 13:14:06 +0000 (GMT)
-Message-ID: <24add950-ebe3-4f9a-964a-605806f9e06d@linux.ibm.com>
-Date: Tue, 30 Jul 2024 15:14:06 +0200
+	Tue, 30 Jul 2024 14:26:07 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 932882005A;
+	Tue, 30 Jul 2024 14:26:05 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 737FC20040;
+	Tue, 30 Jul 2024 14:26:05 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 30 Jul 2024 14:26:05 +0000 (GMT)
+From: Michael Mueller <mimu@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Cc: borntraeger@linux.ibm.com, frankja@linux.ibm.com, nrb@linux.ibm.com,
+        mimu@linux.ibm.com, stable@vger.kernel.org
+Subject: [PATCH] KVM: s390: fix validity interception issue when gisa is switched off
+Date: Tue, 30 Jul 2024 16:25:40 +0200
+Message-ID: <20240730142540.1064136-1-mimu@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: RPQgVhFh-ASmFYDQLBHi2AYhxRnpnGms
+X-Proofpoint-ORIG-GUID: RPQgVhFh-ASmFYDQLBHi2AYhxRnpnGms
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 03/10] selftests: kvm: s390: Add s390x ucontrol test
- suite with hpage test
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-References: <20240730072413.143556-1-schlameuss@linux.ibm.com>
- <20240730072413.143556-4-schlameuss@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20240730072413.143556-4-schlameuss@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 44ewccDOFwRzanRHp7D1FZaPjiUDCCVA
-X-Proofpoint-GUID: Y1EPKgfcAsuLNB1alYG54-n4wgx9JiXx
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-07-30_11,2024-07-30_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 adultscore=0
- phishscore=0 mlxlogscore=956 mlxscore=0 priorityscore=1501
- lowpriorityscore=0 clxscore=1015 impostorscore=0 bulkscore=0
- malwarescore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2407300089
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 phishscore=0
+ impostorscore=0 lowpriorityscore=0 spamscore=0 mlxlogscore=999 bulkscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1011 mlxscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2407110000
+ definitions=main-2407300098
 
-On 7/30/24 9:24 AM, Christoph Schlameuss wrote:
-> Add test suite to validate the s390x architecture specific ucontrol KVM
-> interface.
-> 
-> Make use of the selftest test harness.
-> 
-> * uc_cap_hpage testcase verifies that a ucontrol VM cannot be run with
->    hugepages.
-> 
-> To allow testing of the ucontrol interface the kernel needs a
-> non-default config containing CONFIG_KVM_S390_UCONTROL.
-> This config needs to be set to built-in (y) as this cannot be built as
-> module.
-> 
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+The following validity interception occures when the gisa usage has been
+switched off either by using kernel parameter "kvm.use_gisa=0" or by
+setting the related sysfs attribute to N (echo N >/sys/module/kvm/
+parameters/use_gisa).
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+The issue surfaces in the host kernel with the following kernel message as
+soon a new kvm guest start has been attemted.
 
+kvm: unhandled validity intercept 0x1011
+WARNING: CPU: 0 PID: 781237 at arch/s390/kvm/intercept.c:101 kvm_handle_sie_intercept+0x42e/0x4d0 [kvm]
+Modules linked in: vhost_net tap tun xt_CHECKSUM xt_MASQUERADE xt_conntrack ipt_REJECT xt_tcpudp nft_compat x_tables nf_nat_tftp nf_conntrack_tftp vfio_pci_core irqbypass vhost_vsock vmw_vsock_virtio_transport_common vsock vhost vhost_iotlb kvm nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables sunrpc mlx5_ib ib_uverbs ib_core mlx5_core uvdevice s390_trng eadm_sch vfio_ccw zcrypt_cex4 mdev vfio_iommu_type1 vfio sch_fq_codel drm i2c_core loop drm_panel_orientation_quirks configfs nfnetlink lcs ctcm fsm dm_service_time ghash_s390 prng chacha_s390 libchacha aes_s390 des_s390 libdes sha3_512_s390 sha3_256_s390 sha512_s390 sha256_s390 sha1_s390 sha_common dm_mirror dm_region_hash dm_log zfcp scsi_transport_fc scsi_dh_rdac scsi_dh_emc scsi_dh_alua pkey zcrypt dm_multipath rng_core autofs4 [last unloaded: vfio_pci]
+CPU: 0 PID: 781237 Comm: CPU 0/KVM Not tainted 6.10.0-08682-gcad9f11498ea #6
+Hardware name: IBM 3931 A01 701 (LPAR)
+Krnl PSW : 0704c00180000000 000003d93deb0122 (kvm_handle_sie_intercept+0x432/0x4d0 [kvm])
+           R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
+Krnl GPRS: 000003d900000027 000003d900000023 0000000000000028 000002cd00000000
+           000002d063a00900 00000359c6daf708 00000000000bebb5 0000000000001eff
+           000002cfd82e9000 000002cfd80bc000 0000000000001011 000003d93deda412
+           000003ff8962df98 000003d93de77ce0 000003d93deb011e 00000359c6daf960
+Krnl Code: 000003d93deb0112: c020fffe7259	larl	%r2,000003d93de7e5c4
+           000003d93deb0118: c0e53fa8beac	brasl	%r14,000003d9bd3c7e70
+          #000003d93deb011e: af000000		mc	0,0
+          >000003d93deb0122: a728ffea		lhi	%r2,-22
+           000003d93deb0126: a7f4fe24		brc	15,000003d93deafd6e
+           000003d93deb012a: 9101f0b0		tm	176(%r15),1
+           000003d93deb012e: a774fe48		brc	7,000003d93deafdbe
+           000003d93deb0132: 40a0f0ae		sth	%r10,174(%r15)
+Call Trace:
+ [<000003d93deb0122>] kvm_handle_sie_intercept+0x432/0x4d0 [kvm]
+([<000003d93deb011e>] kvm_handle_sie_intercept+0x42e/0x4d0 [kvm])
+ [<000003d93deacc10>] vcpu_post_run+0x1d0/0x3b0 [kvm]
+ [<000003d93deaceda>] __vcpu_run+0xea/0x2d0 [kvm]
+ [<000003d93dead9da>] kvm_arch_vcpu_ioctl_run+0x16a/0x430 [kvm]
+ [<000003d93de93ee0>] kvm_vcpu_ioctl+0x190/0x7c0 [kvm]
+ [<000003d9bd728b4e>] vfs_ioctl+0x2e/0x70
+ [<000003d9bd72a092>] __s390x_sys_ioctl+0xc2/0xd0
+ [<000003d9be0e9222>] __do_syscall+0x1f2/0x2e0
+ [<000003d9be0f9a90>] system_call+0x70/0x98
+Last Breaking-Event-Address:
+ [<000003d9bd3c7f58>] __warn_printk+0xe8/0xf0
 
+Cc: stable@vger.kernel.org
+Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Closes: https://ibm-systems-z.slack.com/archives/C04BWBXSKEY/p1722280755665409
+Fixes: fe0ef0030463 ("KVM: s390: sort out physical vs virtual pointers usage")
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index bf8534218af3..e680c6bf0c9d 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -267,7 +267,12 @@ static inline unsigned long kvm_s390_get_gfn_end(struct kvm_memslots *slots)
+ 
+ static inline u32 kvm_s390_get_gisa_desc(struct kvm *kvm)
+ {
+-	u32 gd = virt_to_phys(kvm->arch.gisa_int.origin);
++	u32 gd;
++
++	if (!kvm->arch.gisa_int.origin)
++		return 0;
++
++	gd = virt_to_phys(kvm->arch.gisa_int.origin);
+ 
+ 	if (gd && sclp.has_gisaf)
+ 		gd |= GISA_FORMAT1;
+-- 
+2.43.0
 
