@@ -1,105 +1,79 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A0D1186289;
-	Tue, 30 Jul 2024 07:24:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB8FF18FDA3;
+	Tue, 30 Jul 2024 07:24:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722324253; cv=none; b=QRG19+t+ahaZh1RA54Q1R5KW5sp/N6tqbtNrLKwnzv9xDTdHbUMogahZGJY5nY3XHMcquZgL/7Zlb0+nQoCCLGIl1o1t7ncQ1vPvW0Io+vT4B5Tybr0FTWmSPbIVhpMatJbPLrhkFUaOnIDCVADOOk8w0uMaBX/ysEjw8EtO8Oc=
+	t=1722324277; cv=none; b=GKLfnUuvKtoXY/YgmjnW05ySk8X8YdfssBw/Mq0ZbptoS2yDKXjADoHFQAOMMrh72FpwlAkn252U6CI/+y4Dy2TMHvpKwi1020AkehpYuEAmbzLcHA2iQU7Y/ZQ2sTnUKNe8I5VkN4ytXChUzZSmgiuGLUnF5C5QrkXpUw7/ayg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722324253; c=relaxed/simple;
-	bh=8w3GasCTOtDHhV15ERLHRdppxCj5vRL742PIV75jwC0=;
+	s=arc-20240116; t=1722324277; c=relaxed/simple;
+	bh=b3pS9UEtGIqjwfQZL8M+R8tSAm1aoaRBY9iqbJsAK6s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PjgG5S3OaoBQeCg5c1RqjuTJDg8VNtpBj05KhZpZjP2r1mMiZMz1NAut8mhEf+Z7M1zkkrpymLXzMO2Y9c7r7/pgMnPvAAAGwFeXcvInHkOm8MV3vZD7mUgWM8mr4OcWtkegFJ94OVqyS92Dwg3zdhEnNe8ndA5ha07J1RogvYE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BNah1I2e; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=NtGsqokorJCYnKILlx5szZGdpZapEW5ubROuIu2Vx138akWj3jGefWaPhznh9CQa4E1RhVchauGk0w2W4FRbhmcZJXiAqggDAg1bLWIZwKgUvSBuMZNyT3/GZuDjhmikQS6btndIIP2lXRpx0yE0AE3qvAagRbRIJNCEJWYQILI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=b39cs0oH; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BNah1I2e"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DD3FC32782;
-	Tue, 30 Jul 2024 07:23:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1722324253;
-	bh=8w3GasCTOtDHhV15ERLHRdppxCj5vRL742PIV75jwC0=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=BNah1I2e6F1QoAnt7xUUiWCMNufC/iZmg+WwLGUeKSjh/ezvW81r2QzGBGhopUnZw
-	 T833FXdR7zygKEdg2G+quC5GtOt4OQTzugQai+O+6TupWTHCwZY5BlwYKwXw56TSdq
-	 vY34shLfDNHoPzuLCy400CbGOeFlukSJvU0eGFABH99AvKOdaFwdjgHm29H1euM8gA
-	 WlrNy3SLd5dfkQ/+cLJx9pG7QYiKRwVC5MJSSW/9dJiRv1LpUoJHsX2N7UJqj6fgKK
-	 IO9qGAvc0jLl3AJAX7InSokEu+On5T61pO/8BtUoFF4W/zuaN+246bWmc18jRq3Ct9
-	 h3HFRijs52IOw==
-From: alexs@kernel.org
-To: Will Deacon <will@kernel.org>,
-	"Aneesh Kumar K . V" <aneesh.kumar@kernel.org>,
-	Nick Piggin <npiggin@gmail.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Brian Cain <bcain@quicinc.com>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Stafford Horne <shorne@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Naveen N Rao <naveen@kernel.org>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	x86@kernel.org,
-	"H . Peter Anvin" <hpa@zytor.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Bibo Mao <maobibo@loongson.cn>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	linux-arch@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org,
-	linux-openrisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Qi Zheng <zhengqi.arch@bytedance.com>,
-	Vishal Moola <vishal.moola@gmail.com>,
-	"Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Lance Yang <ioworker0@gmail.com>,
-	Peter Xu <peterx@redhat.com>,
-	Barry Song <baohua@kernel.org>,
-	linux-s390@vger.kernel.org
-Cc: Guo Ren <guoren@kernel.org>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Mike Rapoport <rppt@kernel.org>,
-	Oscar Salvador <osalvador@suse.de>,
-	Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Jisheng Zhang <jszhang@kernel.org>,
-	Samuel Holland <samuel.holland@sifive.com>,
-	Anup Patel <anup@brainfault.org>,
-	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Breno Leitao <leitao@debian.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Hugh Dickins <hughd@google.com>,
-	David Hildenbrand <david@redhat.com>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Matthew Wilcox <willy@infradead.org>,
-	Alex Shi <alexs@kernel.org>,
-	"Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
-Subject: [RFC PATCH 18/18] mm/pgtable: pass ptdesc in pte_free_defer
-Date: Tue, 30 Jul 2024 15:27:19 +0800
-Message-ID: <20240730072719.3715016-8-alexs@kernel.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240730072719.3715016-1-alexs@kernel.org>
-References: <20240730064712.3714387-1-alexs@kernel.org>
- <20240730072719.3715016-1-alexs@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="b39cs0oH"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46U6xHaB012669;
+	Tue, 30 Jul 2024 07:24:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding; s=pp1; bh=qY03rms/4qTZ6
+	DMxB28Bf2yiLcm04XDarA7BW1VxDAE=; b=b39cs0oH5SbOB43N2mG1ERAXKeDws
+	r/jmO7yDevKO11J3U/mkvnZKd6MB0JTXJCyDs1JB5n/wJKtjUcfbKsie4qz7T4hH
+	MolQuud5RcF0TvPiphTEHd/r1XFokBPl6qGyy0MoKPUS3yE2mQkV8fcXF6zsJiyy
+	+Ue9zn6u2XGmcD2mOw2xIVlYWFablJHoWUDftCax3eOevM/30Swj6g0+Lg0NGr9/
+	/vJNhAET5lErXzyRVGDX9ho/c8IYLZYZaIqaZexp+n8ZeH3+Zzc0Gkj9O6iccqsb
+	r+kG3FrZr+sTNf96IKf63SgfLkZxoQRq0tBKkJDWoHpQ26N/W5SA3DrAw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40pucug29b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 30 Jul 2024 07:24:30 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46U7OUwg026176;
+	Tue, 30 Jul 2024 07:24:30 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40pucug296-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 30 Jul 2024 07:24:30 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46U6iVmI007467;
+	Tue, 30 Jul 2024 07:24:29 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 40nb7u3nq4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 30 Jul 2024 07:24:29 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46U7OOg650332144
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 30 Jul 2024 07:24:26 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1261C2004D;
+	Tue, 30 Jul 2024 07:24:24 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7CED620040;
+	Tue, 30 Jul 2024 07:24:23 +0000 (GMT)
+Received: from darkmoore.ibmuc.com (unknown [9.171.13.169])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 30 Jul 2024 07:24:23 +0000 (GMT)
+From: Christoph Schlameuss <schlameuss@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Subject: [PATCH v3 05/10] selftests: kvm: s390: Add debug print functions
+Date: Tue, 30 Jul 2024 09:24:08 +0200
+Message-ID: <20240730072413.143556-6-schlameuss@linux.ibm.com>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20240730072413.143556-1-schlameuss@linux.ibm.com>
+References: <20240730072413.143556-1-schlameuss@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -107,167 +81,129 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ARcxVyj1fn9eqKd6K2zP2TfC3MwuF9zF
+X-Proofpoint-ORIG-GUID: aKSh5DTZY_w6WPSmLJ7K52EUWj1AyXIH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-07-30_07,2024-07-26_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 adultscore=0 mlxscore=0 lowpriorityscore=0 impostorscore=0
+ mlxlogscore=999 phishscore=0 spamscore=0 clxscore=1015 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2407300054
 
-From: Alex Shi <alexs@kernel.org>
+Add functions to simply print some basic state information in selftests.
 
-pass ptdesc in pte_free_defer() and use ptdesc in collapse_huge_page().
+The output can be enabled by setting:
 
-This patch is immature, there is a issue from pmd_pgtable() conversion
-in few archs. The problem need a fix.
+    #define TH_LOG_ENABLED 1
+    #define DEBUG 1
 
-Signed-off-by: Alex Shi <alexs@kernel.org>
-Cc: linux-mm@kvack.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: Mike Rapoport  <rppt@kernel.org>
-Cc: Barry Song <baohua@kernel.org>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Lance Yang <ioworker0@gmail.com>
-Cc: Kemeng Shi <shikemeng@huaweicloud.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Qi Zheng <zhengqi.arch@bytedance.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Naveen N Rao <naveen@kernel.org>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Matthew Wilcox  <willy@infradead.org>
-Cc: Ryan Roberts <ryan.roberts@arm.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Vishal Moola  <vishal.moola@gmail.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+* print_psw: current SIE state description and VM run state
+* print_hex_bytes: print memory with some counting markers
+* print_hex: PRINT_HEX with 512 bytes
+* print_run: use print_psw and print_hex to print contents of VM run
+  state and SIE state description
+* print_regs: print content of general and control registers
+
+All prints use pr_debug for the output and can be configured using
+DEBUG.
+
+Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 ---
- arch/powerpc/include/asm/pgalloc.h |  2 +-
- arch/s390/include/asm/pgalloc.h    |  2 +-
- arch/s390/mm/pgalloc.c             |  2 +-
- include/linux/pgtable.h            |  2 +-
- mm/khugepaged.c                    | 10 +++++-----
- mm/pgtable-generic.c               |  4 +---
- 6 files changed, 10 insertions(+), 12 deletions(-)
+ .../selftests/kvm/include/s390x/debug_print.h | 69 +++++++++++++++++++
+ .../selftests/kvm/s390x/ucontrol_test.c       |  1 +
+ 2 files changed, 70 insertions(+)
+ create mode 100644 tools/testing/selftests/kvm/include/s390x/debug_print.h
 
-diff --git a/arch/powerpc/include/asm/pgalloc.h b/arch/powerpc/include/asm/pgalloc.h
-index 12520521163e..ca21b67c593f 100644
---- a/arch/powerpc/include/asm/pgalloc.h
-+++ b/arch/powerpc/include/asm/pgalloc.h
-@@ -47,7 +47,7 @@ static inline void pte_free(struct mm_struct *mm, struct ptdesc *ptepage)
- 
- /* arch use pte_free_defer() implementation in arch/powerpc/mm/pgtable-frag.c */
- #define pte_free_defer pte_free_defer
--void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable);
-+void pte_free_defer(struct mm_struct *mm, struct ptdesc *pgtable);
- 
- /*
-  * Functions that deal with pagetables that could be at any level of
-diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
-index 771494526f6e..a229cee11bbd 100644
---- a/arch/s390/include/asm/pgalloc.h
-+++ b/arch/s390/include/asm/pgalloc.h
-@@ -144,7 +144,7 @@ static inline void pmd_populate(struct mm_struct *mm,
- 
- /* arch use pte_free_defer() implementation in arch/s390/mm/pgalloc.c */
- #define pte_free_defer pte_free_defer
--void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable);
-+void pte_free_defer(struct mm_struct *mm, struct ptdesc *pgtable);
- 
- void vmem_map_init(void);
- void *vmem_crst_alloc(unsigned long val);
-diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-index f691e0fb66a2..c7bb38d85d81 100644
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -214,7 +214,7 @@ static void pte_free_now(struct rcu_head *head)
- 	pagetable_pte_dtor_free(ptdesc);
- }
- 
--void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
-+void pte_free_defer(struct mm_struct *mm, struct ptdesc *pgtable)
- {
- 	struct ptdesc *ptdesc = virt_to_ptdesc(pgtable);
- 
-diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index 9d256c548f5e..e7b018de1d0f 100644
---- a/include/linux/pgtable.h
-+++ b/include/linux/pgtable.h
-@@ -116,7 +116,7 @@ static inline void pte_unmap(pte_t *pte)
- }
- #endif
- 
--void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable);
-+void pte_free_defer(struct mm_struct *mm, struct ptdesc *ptdesc);
- 
- /* Find an entry in the second-level page table.. */
- #ifndef pmd_offset
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 5b466a1c2136..30cf61d02c1c 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1094,7 +1094,7 @@ static int collapse_huge_page(struct mm_struct *mm, unsigned long address,
- 	LIST_HEAD(compound_pagelist);
- 	pmd_t *pmd, _pmd;
- 	pte_t *pte;
--	pgtable_t pgtable;
-+	struct ptdesc *ptdesc;
- 	struct folio *folio;
- 	spinlock_t *pmd_ptl, *pte_ptl;
- 	int result = SCAN_FAIL;
-@@ -1223,7 +1223,7 @@ static int collapse_huge_page(struct mm_struct *mm, unsigned long address,
- 	 * write.
- 	 */
- 	__folio_mark_uptodate(folio);
--	pgtable = pmd_pgtable(_pmd);
-+	ptdesc = pmd_ptdesc(&_pmd);
- 
- 	_pmd = mk_huge_pmd(&folio->page, vma->vm_page_prot);
- 	_pmd = maybe_pmd_mkwrite(pmd_mkdirty(_pmd), vma);
-@@ -1232,7 +1232,7 @@ static int collapse_huge_page(struct mm_struct *mm, unsigned long address,
- 	BUG_ON(!pmd_none(*pmd));
- 	folio_add_new_anon_rmap(folio, vma, address, RMAP_EXCLUSIVE);
- 	folio_add_lru_vma(folio, vma);
--	pgtable_trans_huge_deposit(mm, pmd, page_ptdesc(pgtable));
-+	pgtable_trans_huge_deposit(mm, pmd, ptdesc);
- 	set_pmd_at(mm, address, pmd, _pmd);
- 	update_mmu_cache_pmd(vma, address, pmd);
- 	spin_unlock(pmd_ptl);
-@@ -1664,7 +1664,7 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
- 
- 	mm_dec_nr_ptes(mm);
- 	page_table_check_pte_clear_range(mm, haddr, pgt_pmd);
--	pte_free_defer(mm, pmd_pgtable(pgt_pmd));
-+	pte_free_defer(mm, pmd_ptdesc(&pgt_pmd));
- 
- maybe_install_pmd:
- 	/* step 5: install pmd entry */
-@@ -1777,7 +1777,7 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
- 		if (retracted) {
- 			mm_dec_nr_ptes(mm);
- 			page_table_check_pte_clear_range(mm, addr, pgt_pmd);
--			pte_free_defer(mm, pmd_pgtable(pgt_pmd));
-+			pte_free_defer(mm, pmd_ptdesc(&pgt_pmd));
- 		}
- 	}
- 	i_mmap_unlock_read(mapping);
-diff --git a/mm/pgtable-generic.c b/mm/pgtable-generic.c
-index 5e763682941d..f3bc2b17893a 100644
---- a/mm/pgtable-generic.c
-+++ b/mm/pgtable-generic.c
-@@ -244,10 +244,8 @@ static void pte_free_now(struct rcu_head *head)
- 	pte_free(NULL /* mm not passed and not used */, ptdesc);
- }
- 
--void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
-+void pte_free_defer(struct mm_struct *mm, struct ptdesc *ptdesc)
- {
--	struct ptdesc *ptdesc = page_ptdesc(pgtable);
--
- 	call_rcu(&ptdesc->pt_rcu_head, pte_free_now);
- }
- #endif /* pte_free_defer */
+diff --git a/tools/testing/selftests/kvm/include/s390x/debug_print.h b/tools/testing/selftests/kvm/include/s390x/debug_print.h
+new file mode 100644
+index 000000000000..1bf275631cc6
+--- /dev/null
++++ b/tools/testing/selftests/kvm/include/s390x/debug_print.h
+@@ -0,0 +1,69 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Definition for kernel virtual machines on s390x
++ *
++ * Copyright IBM Corp. 2024
++ *
++ * Authors:
++ *  Christoph Schlameuss <schlameuss@linux.ibm.com>
++ */
++
++#ifndef SELFTEST_KVM_DEBUG_PRINT_H
++#define SELFTEST_KVM_DEBUG_PRINT_H
++
++#include "asm/ptrace.h"
++#include "kvm_util.h"
++#include "sie.h"
++
++static inline void print_hex_bytes(const char *name, u64 addr, size_t len)
++{
++	u64 pos;
++
++	pr_debug("%s (%p)\n", name, (void *)addr);
++	pr_debug("            0/0x00---------|");
++	if (len > 8)
++		pr_debug(" 8/0x08---------|");
++	if (len > 16)
++		pr_debug(" 16/0x10--------|");
++	if (len > 24)
++		pr_debug(" 24/0x18--------|");
++	for (pos = 0; pos < len; pos += 8) {
++		if ((pos % 32) == 0)
++			pr_debug("\n %3lu 0x%.3lx ", pos, pos);
++		pr_debug(" %16lx", *((u64 *)(addr + pos)));
++	}
++	pr_debug("\n");
++}
++
++static inline void print_hex(const char *name, u64 addr)
++{
++	print_hex_bytes(name, addr, 512);
++}
++
++static inline void print_psw(struct kvm_run *run, struct kvm_s390_sie_block *sie_block)
++{
++	pr_debug("flags:0x%x psw:0x%.16llx:0x%.16llx exit:%u %s\n",
++		 run->flags,
++		 run->psw_mask, run->psw_addr,
++		 run->exit_reason, exit_reason_str(run->exit_reason));
++	pr_debug("sie_block psw:0x%.16llx:0x%.16llx\n",
++		 sie_block->psw_mask, sie_block->psw_addr);
++}
++
++static inline void print_run(struct kvm_run *run, struct kvm_s390_sie_block *sie_block)
++{
++	print_hex_bytes("run", (u64)run, 0x150);
++	print_hex("sie_block", (u64)sie_block);
++	print_psw(run, sie_block);
++}
++
++static inline void print_regs(struct kvm_run *run)
++{
++	struct kvm_sync_regs *sync_regs = &run->s.regs;
++
++	print_hex_bytes("GPRS", (u64)sync_regs->gprs, 8 * NUM_GPRS);
++	print_hex_bytes("ACRS", (u64)sync_regs->acrs, 4 * NUM_ACRS);
++	print_hex_bytes("CRS", (u64)sync_regs->crs, 8 * NUM_CRS);
++}
++
++#endif /* SELFTEST_KVM_DEBUG_PRINT_H */
+diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+index d103a92e7495..029233374465 100644
+--- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
++++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+@@ -7,6 +7,7 @@
+  * Authors:
+  *  Christoph Schlameuss <schlameuss@linux.ibm.com>
+  */
++#include "debug_print.h"
+ #include "kselftest_harness.h"
+ #include "kvm_util.h"
+ #include "processor.h"
 -- 
-2.43.0
+2.45.2
 
