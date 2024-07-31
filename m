@@ -1,134 +1,197 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B7151BBBF3;
-	Wed, 31 Jul 2024 15:16:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EC951B140E;
+	Wed, 31 Jul 2024 17:26:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722438968; cv=none; b=jNPgU7v/iNlHpNatx5WsTRBDtD37JHr96Jpll0Od0ojopqDeVrj+edW1eakWZbDEzLpbECZvXF6VYSIaTHndQ6DByP1G5vlc6fqs+NHJvPcxkOKbHeelg0CsXTTs8MBFZFhxqfYV1ZHuLKlMvt/FJ6RuO0DFfHj1rAytelJAzGQ=
+	t=1722446786; cv=none; b=lyzzxP5zzt70Yzq2Ad0/2hTDKc/Pcj92xk1mBsSlZXlgtliBvMqGiIpmqGv/VcliEvslDGab5kBgy5AFI/HDzUfMQ2a5broUGWZMu0ByDVZh09MoYUBRIP00Hw9yL5ho2xg39oDQYhExBvgN/C1zoLTf36SRuAVINqYjNRRnj1U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722438968; c=relaxed/simple;
-	bh=jolx9BGDYLP9A+4+aqGoLnq4/sxcncVL02wpEp+6Tqw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OLYkmT1rVehWXwicP9DMzqq4DlQJWNedFDKr657zZUqb4c0qySftdBY2tWa5/gwCEVt2gP7H5MCuCDbBJnXbtwyS43Zg8bsOlcvUkxgQM+ef8uyYUd3xDQiq9zN5Rv6fN7/FaUGmj205LAPf8NE6Mq9oxkGVjGqFH6TwrsYCKFY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Tfo3HSHp; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Tfo3HSHp"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 46VCwGiE030529;
-	Wed, 31 Jul 2024 15:15:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=s
-	hciHTYQxY4vJQpKHVCVTxCvhqqvg3jNSW5K02Yr4kI=; b=Tfo3HSHpsEeo5PMX8
-	7Zguna/2XsnAKWiBv8P4EqPX3D63EKSNfbPONHfdFhJ69MsqKMpqT/ry5xseGrUU
-	7S1aQzN6AojB88n6F7Sa3gOXL2JJ/Df8TeO6fFNurdFV5fikXUKAT0DSPvAyOToH
-	PzMj+bVADXZoI2AJ04AQTlsPf4DHD4H6FDjm/4Dd2eyXTvovNzqQEXJNYkYzZJwP
-	zV+B28kclb9MC1u0nsMLU73SUsF/ZobUJtSdCgZN6zsu6r8pvYNh84DHz4wgyku+
-	0eAXztWD19/Q43gpVSUMm4J28WyK9XlANw4HmHGGzsflkhhJREu9X7MRYAP6Elzc
-	k/kUw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40qnr7rfqh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jul 2024 15:15:54 +0000 (GMT)
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 46VFFril021992;
-	Wed, 31 Jul 2024 15:15:53 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40qnr7rfqb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jul 2024 15:15:53 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 46VF0wIZ018811;
-	Wed, 31 Jul 2024 15:15:51 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40nc7pvacv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jul 2024 15:15:51 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 46VFFnPk16253560
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 31 Jul 2024 15:15:51 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 47A5858063;
-	Wed, 31 Jul 2024 15:15:49 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5EF635806A;
-	Wed, 31 Jul 2024 15:15:47 +0000 (GMT)
-Received: from [9.171.16.65] (unknown [9.171.16.65])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 31 Jul 2024 15:15:47 +0000 (GMT)
-Message-ID: <4232f3fb-4088-41e0-91f7-7813d3bb99e5@linux.ibm.com>
-Date: Wed, 31 Jul 2024 17:15:46 +0200
+	s=arc-20240116; t=1722446786; c=relaxed/simple;
+	bh=6uBjQmqhYb7s274FfB+JfWmH8yUQJacTabtId67xZUU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qQsHVA1bkLNjzIJZZ4oLdow9XDJqgKLRCFJ/LwoantZt4i4Th/rViO12hdLcnbx3cVsw6HCYKqE2OMTwPKlFKZZ/5lC9CnVbtxwkgzjmT3H66IHkI6zzjpyt76gXQNh+4dwMbgmCvq3IGp3LApF9q4V3iipyEogMmITTaIVIpqU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 718B9C116B1;
+	Wed, 31 Jul 2024 17:26:22 +0000 (UTC)
+Date: Wed, 31 Jul 2024 18:26:20 +0100
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: Baruch Siach <baruch@tkos.co.il>
+Cc: Christoph Hellwig <hch@lst.de>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Petr =?utf-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>,
+	Ramon Fried <ramon@neureality.ai>,
+	Elad Nachman <enachman@marvell.com>
+Subject: Re: [PATCH v3 2/3] dma-mapping: replace zone_dma_bits by
+ zone_dma_limit
+Message-ID: <ZqpzvHXBHXMt9IAZ@arm.com>
+References: <cover.1722249878.git.baruch@tkos.co.il>
+ <053fa4806a2c63efcde80caca473a8b670a2701c.1722249878.git.baruch@tkos.co.il>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 2/4] net/smc: remove the fallback in
- __smc_connect
-To: Zhengchao Shao <shaozhengchao@huawei.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com
-Cc: jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, weiyongjun1@huawei.com, yuehaibing@huawei.com
-References: <20240730012506.3317978-1-shaozhengchao@huawei.com>
- <20240730012506.3317978-3-shaozhengchao@huawei.com>
-Content-Language: en-US
-From: Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <20240730012506.3317978-3-shaozhengchao@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: e7BE8TNEEYsWgHAGCr98P5zusW4xsdds
-X-Proofpoint-GUID: 15y9bYQaYffqyTMYumONZmytPYgPDG7c
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-07-31_09,2024-07-31_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- spamscore=0 impostorscore=0 clxscore=1011 priorityscore=1501
- malwarescore=0 mlxscore=0 mlxlogscore=958 bulkscore=0 suspectscore=0
- phishscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2407310105
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <053fa4806a2c63efcde80caca473a8b670a2701c.1722249878.git.baruch@tkos.co.il>
 
-
-
-On 30.07.24 03:25, Zhengchao Shao wrote:
-> When the SMC client begins to connect to server, smcd_version is set
-> to SMC_V1 + SMC_V2. If fail to get VLAN ID, only SMC_V2 information
-> is left in smcd_version. And smcd_version will not be changed to 0.
-> Therefore, remove the fallback caused by the failure to get VLAN ID.
+On Mon, Jul 29, 2024 at 01:51:25PM +0300, Baruch Siach wrote:
+> From: Catalin Marinas <catalin.marinas@arm.com>
 > 
-> Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-> ---
->   net/smc/af_smc.c | 4 ----
->   1 file changed, 4 deletions(-)
+> Hardware DMA limit might not be power of 2. When RAM range starts above
+> 0, say 4GB, DMA limit of 30 bits should end at 5GB. A single high bit
+> can not encode this limit.
 > 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 73a875573e7a..83f5a1849971 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -1523,10 +1523,6 @@ static int __smc_connect(struct smc_sock *smc)
->   		ini->smcd_version &= ~SMC_V1;
->   		ini->smcr_version = 0;
->   		ini->smc_type_v1 = SMC_TYPE_N;
-> -		if (!ini->smcd_version) {
-> -			rc = SMC_CLC_DECL_GETVLANERR;
-> -			goto fallback;
-> -		}
->   	}
->   
->   	rc = smc_find_proposal_devices(smc, ini);
+> Use direct phys_addr_t limit address for DMA zone limit.
+> 
+> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> Signed-off-by: Baruch Siach <baruch@tkos.co.il>
 
-Though you're right that here smcd_version never gets 0, it actually is 
-a bug from ("42042dbbc2eb net/smc: prepare for SMC-Rv2 connection"). The 
-purpose of the check here was to fallback at a early phase before 
-calling smc_find_proposal_devices(). However, this change is not wrong, 
-just I personally like adding a check for smc_ism_is_v2_capable() more.
+You should add your Co-developed-by line, the patch evolved a bit from
+initial my partial diff.
 
-Thanks,
-Wenjia
+> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+> index 9b5ab6818f7f..870fd967c610 100644
+> --- a/arch/arm64/mm/init.c
+> +++ b/arch/arm64/mm/init.c
+> @@ -114,36 +114,28 @@ static void __init arch_reserve_crashkernel(void)
+>  				    low_size, high);
+>  }
+>  
+> -/*
+> - * Return the maximum physical address for a zone accessible by the given bits
+> - * limit. If DRAM starts above 32-bit, expand the zone to the maximum
+> - * available memory, otherwise cap it at 32-bit.
+> - */
+> -static phys_addr_t __init max_zone_phys(unsigned int zone_bits)
+> +static phys_addr_t __init max_zone_phys(phys_addr_t zone_limit)
+>  {
+> -	phys_addr_t zone_mask = DMA_BIT_MASK(zone_bits);
+> -	phys_addr_t phys_start = memblock_start_of_DRAM();
+> -
+> -	if (phys_start > U32_MAX)
+> -		zone_mask = PHYS_ADDR_MAX;
+> -	else if (phys_start > zone_mask)
+> -		zone_mask = U32_MAX;
+> +	/* We have RAM in low 32-bit area, keep DMA zone there */
+> +	if (memblock_start_of_DRAM() < U32_MAX)
+> +		zone_limit = min(U32_MAX, zone_limit);
+
+Does this matter anymore? Or is it to keep ZONE_DMA below (or equal to)
+the ZONE_DMA32 limit?
+
+Anyway, since this patch is about replacing zone_dma_bits with
+zone_dma_limit, we should not introduce functional changes. AFAICT, we
+need zone_limit to be set to memblock_end_of_DRAM() when phys_start is
+above U32_MAX. You can do the functional change in a subsequent patch
+once all the other refactoring has been handled.
+
+>  
+> -	return min(zone_mask, memblock_end_of_DRAM() - 1) + 1;
+> +	return min(zone_limit, memblock_end_of_DRAM() - 1) + 1;
+>  }
+[...]
+> diff --git a/include/linux/dma-direct.h b/include/linux/dma-direct.h
+> index edbe13d00776..98b7d8015043 100644
+> --- a/include/linux/dma-direct.h
+> +++ b/include/linux/dma-direct.h
+> @@ -12,7 +12,7 @@
+>  #include <linux/mem_encrypt.h>
+>  #include <linux/swiotlb.h>
+>  
+> -extern unsigned int zone_dma_bits;
+> +extern phys_addr_t zone_dma_limit;
+>  
+>  /*
+>   * Record the mapping of CPU physical to DMA addresses for a given region.
+> diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+> index 3b4be4ca3b08..3dbc0b89d6fb 100644
+> --- a/kernel/dma/direct.c
+> +++ b/kernel/dma/direct.c
+> @@ -20,7 +20,7 @@
+>   * it for entirely different regions. In that case the arch code needs to
+>   * override the variable below for dma-direct to work properly.
+>   */
+> -unsigned int zone_dma_bits __ro_after_init = 24;
+> +phys_addr_t zone_dma_limit __ro_after_init = DMA_BIT_MASK(24);
+>  
+>  static inline dma_addr_t phys_to_dma_direct(struct device *dev,
+>  		phys_addr_t phys)
+> @@ -580,7 +580,7 @@ int dma_direct_supported(struct device *dev, u64 mask)
+>  	 * part of the check.
+>  	 */
+>  	if (IS_ENABLED(CONFIG_ZONE_DMA))
+> -		min_mask = min_t(u64, min_mask, DMA_BIT_MASK(zone_dma_bits));
+> +		min_mask = min_t(u64, min_mask, zone_dma_limit);
+>  	return mask >= phys_to_dma_unencrypted(dev, min_mask);
+>  }
+>  
+> diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
+> index d10613eb0f63..410a7b40e496 100644
+> --- a/kernel/dma/pool.c
+> +++ b/kernel/dma/pool.c
+> @@ -70,7 +70,7 @@ static bool cma_in_zone(gfp_t gfp)
+>  	/* CMA can't cross zone boundaries, see cma_activate_area() */
+>  	end = cma_get_base(cma) + size - 1;
+>  	if (IS_ENABLED(CONFIG_ZONE_DMA) && (gfp & GFP_DMA))
+> -		return end <= DMA_BIT_MASK(zone_dma_bits);
+> +		return end <= zone_dma_limit;
+>  	if (IS_ENABLED(CONFIG_ZONE_DMA32) && (gfp & GFP_DMA32))
+>  		return end <= DMA_BIT_MASK(32);
+>  	return true;
+
+I haven't got to the third patch yet but with this series we can have
+zone_dma_limit above DMA_BIT_MASK(32). The above function could return
+false for GFP_DMA32 when 'end' is perfectly valid within ZONE_DMA (which
+implies safe for GFP_DMA32).
+
+> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+> index df68d29740a0..dfd83e5ee0b3 100644
+> --- a/kernel/dma/swiotlb.c
+> +++ b/kernel/dma/swiotlb.c
+> @@ -450,7 +450,7 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
+>  	if (!remap)
+>  		io_tlb_default_mem.can_grow = true;
+>  	if (IS_ENABLED(CONFIG_ZONE_DMA) && (gfp_mask & __GFP_DMA))
+> -		io_tlb_default_mem.phys_limit = DMA_BIT_MASK(zone_dma_bits);
+> +		io_tlb_default_mem.phys_limit = zone_dma_limit;
+>  	else if (IS_ENABLED(CONFIG_ZONE_DMA32) && (gfp_mask & __GFP_DMA32))
+>  		io_tlb_default_mem.phys_limit = DMA_BIT_MASK(32);
+>  	else
+> @@ -629,7 +629,7 @@ static struct page *swiotlb_alloc_tlb(struct device *dev, size_t bytes,
+>  	}
+>  
+>  	gfp &= ~GFP_ZONEMASK;
+> -	if (phys_limit <= DMA_BIT_MASK(zone_dma_bits))
+> +	if (phys_limit <= zone_dma_limit)
+>  		gfp |= __GFP_DMA;
+>  	else if (phys_limit <= DMA_BIT_MASK(32))
+>  		gfp |= __GFP_DMA32;
+
+I think this has the same issue as dma_direct_optimal_gfp_mask(). If
+the requested limit is strictly smaller than DMA_BIT_MASK(32) (but
+potentially bigger than zone_dma_limit), we should go for __GFP_DMA
+rather than __GFP_DMA32. You should probably fix this in the first patch
+as well.
+
+As above, with this series we can end up with zone_dma_limit above
+DMA_BIT_MASK(32) and all these checks become confusing. Even the
+swiotlb_init_late() above if called with GFP_DMA32 will set a phys_limit
+that may not be accessible at all if the DRAM starts above 4GB.
+Similarly, cma_in_zone() could return false with GFP_DMA32 in similar
+hardware configurations.
+
+So we either introduce a zone_dma32_limit variable and allow a 32-bit
+range above the start of DRAM or sanitise these sites to make sure
+passing GFP_DMA32 is safe - i.e. assume we only have ZONE_DMA if
+zone_dma_limit is above 32-bit. I prefer the latter without introducing
+a zone_dma32_limit.
+
+-- 
+Catalin
