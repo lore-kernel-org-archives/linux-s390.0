@@ -1,125 +1,101 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 167FF183CC8;
-	Thu,  1 Aug 2024 11:25:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BE5B18DF7E;
+	Thu,  1 Aug 2024 11:35:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722511560; cv=none; b=FCrWjIc5manFIMqWnnOaHss8uQHgygt0M24QMxomhdw7LC+7YxdOb8dV1M51D/iwot9fAFM6LTm/F89UPNtfdANNBdlP/aFlicKpaVDOvtSFfShVKj9KJD/rSBtCSxFUa/RgIGUHC/QDxnlygGjg3w/s3gkULJ6Du2Lsnx5tieI=
+	t=1722512118; cv=none; b=AEHKyaY1SZc27hSDAJis9bkH40OQiuaywDTPTVXfNpKwpDZWM15/XtZqDzvRaOSPbyCueSHxBWm1ZYczRFszjxMexQFNk6nO//3QYjLpnKKAPDJuGz1JHJkOyckWZxPmsTZGEb9HVGnIarPlABBRgXnSn+x282rx08dm4uNpeDU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722511560; c=relaxed/simple;
-	bh=JNchXePlzqkPMmlcRfiSZulgcHMk/yG4yFYtv683y6k=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=J5+FZxmzLRZoayhl98DfwsSD1w3G7WawpUeLFlv/LHEautiDhui3m142VV2jtbKotztGdUfdrKZypcx+TqIbtaxo/Ux0/uGXymcvbJ7768O3DIrotO8CfgjdypqVNVk3F4LrcwbsH8v5/VJtnErat68u2fKqh49zEOWEZK1ramw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JXEciysd; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JXEciysd"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 471BKpOn004202;
-	Thu, 1 Aug 2024 11:25:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding; s=pp1; bh=rvAyAM97Q57EqiEOuf3wItRHsx
-	XsuyfgLDiE1HeJZhQ=; b=JXEciysdWClSkg07BVo2xi3Or78AcAqVMpaQDhSvt8
-	cLH6WFC3Dq5GEoorb3uRqYg4zR2xgAQ1VgUEcOaFCc+xcs1ObLaAoPozZM0TZvUD
-	bk0+1H3+G1Sd31OXmUFQ0soOxgecm5+crRwnenXbU3STjtmuniIlMGGQwikArjcq
-	QkqTKE99bd9EDN2rsLcUwwsu1VTS9Q2sNnLOdvo+33bZyegE9ooJVaXvyYMOj8i+
-	SCEadRAdLkM8FQeTLQLASAydWUiz9CYKzykcZS1kxvaeWJ1cn+tC5XgdsDtlUV3S
-	HB5sBd91kqrjjpVBNIIgSf9JjdN2jY7y9dUy+m5cEadA==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40r3tprtwm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 01 Aug 2024 11:25:55 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 47192MIi003776;
-	Thu, 1 Aug 2024 11:25:54 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 40ndems5fj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 01 Aug 2024 11:25:54 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 471BPna835259010
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 1 Aug 2024 11:25:51 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 44DD320049;
-	Thu,  1 Aug 2024 11:25:49 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 18FFE20040;
-	Thu,  1 Aug 2024 11:25:49 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  1 Aug 2024 11:25:49 +0000 (GMT)
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com,
-        agordeev@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com,
-        svens@linux.ibm.com, frankja@linux.ibm.com, seiden@linux.ibm.com,
-        nsg@linux.ibm.com, nrb@linux.ibm.com
-Subject: [PATCH v1 1/1] s390/uv: Panic if the security of the system cannot be guaranteed.
-Date: Thu,  1 Aug 2024 13:25:48 +0200
-Message-ID: <20240801112548.85303-1-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.45.2
+	s=arc-20240116; t=1722512118; c=relaxed/simple;
+	bh=hucJDtaYaEwbsPLVJ5F1bWH/gwStpaxJ9e2wLvvtZtY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=Hs98TvXWqChUgq8vztqMxsCutH3LzQpj8tUposRDnJKwWaaK3LS/NrHlxPKJsYk+ji//z0xfClym0qEJUwUyFrxfwSGonfr0ts8lpHwRKc2KWRLSizOtHG+I1aoNuU0pWxKP5dURTJoaxV3Ug7hJv7xD3kBsDpFVIMi5F+dnWmQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.48])
+	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4WZRfp6c0PzfZGl;
+	Thu,  1 Aug 2024 19:33:22 +0800 (CST)
+Received: from dggpeml500026.china.huawei.com (unknown [7.185.36.106])
+	by mail.maildlp.com (Postfix) with ESMTPS id E5BE318005F;
+	Thu,  1 Aug 2024 19:35:13 +0800 (CST)
+Received: from [10.174.178.66] (10.174.178.66) by
+ dggpeml500026.china.huawei.com (7.185.36.106) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.39; Thu, 1 Aug 2024 19:35:13 +0800
+Message-ID: <7a8a4774-a973-dd03-ea2f-8817f15e8c58@huawei.com>
+Date: Thu, 1 Aug 2024 19:35:12 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.0.2
+Subject: Re: [PATCH net-next 2/4] net/smc: remove the fallback in
+ __smc_connect
+To: Wenjia Zhang <wenjia@linux.ibm.com>, <linux-s390@vger.kernel.org>,
+	<netdev@vger.kernel.org>, <davem@davemloft.net>, <edumazet@google.com>,
+	<kuba@kernel.org>, <pabeni@redhat.com>
+CC: <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
+	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>,
+	<weiyongjun1@huawei.com>, <yuehaibing@huawei.com>
+References: <20240730012506.3317978-1-shaozhengchao@huawei.com>
+ <20240730012506.3317978-3-shaozhengchao@huawei.com>
+ <4232f3fb-4088-41e0-91f7-7813d3bb99e5@linux.ibm.com>
+ <70dea024-dfbe-1679-854f-8477e65bc0f8@huawei.com>
+ <89b65343-2345-4b4f-ad3f-5410c5436e8b@linux.ibm.com>
+From: shaozhengchao <shaozhengchao@huawei.com>
+In-Reply-To: <89b65343-2345-4b4f-ad3f-5410c5436e8b@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 2f1zp06cB4bi18ff_exhR03wOVvk5xmr
-X-Proofpoint-ORIG-GUID: 2f1zp06cB4bi18ff_exhR03wOVvk5xmr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-01_08,2024-07-31_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
- mlxlogscore=303 malwarescore=0 adultscore=0 spamscore=0 priorityscore=1501
- bulkscore=0 clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2407110000
- definitions=main-2408010072
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpeml500026.china.huawei.com (7.185.36.106)
 
-The return value uv_set_shared() and uv_remove_shared() (which are
-wrappers around the share() function) is not always checked. The system
-integrity of a protected guest depends on the Share and Unshare UVCs
-being successful. This means that any caller that fails to check the
-return value will compromise the security of the protected guest.
 
-No code path that would lead to such violation of the security
-guarantees is currently exercised, since all the areas that are shared
-never get unshared during the lifetime of the system. This might
-change and become an issue in the future.
 
-The Share and Unshare UVCs can only fail in case of hypervisor
-misbehaviour (either a bug or malicious behaviour). In such cases there
-is no reasonable way forward, and the system needs to panic.
+On 2024/8/1 15:23, Wenjia Zhang wrote:
+> 
+> 
+> On 01.08.24 03:22, shaozhengchao wrote:
+>> Hi Wenjia Zhang:
+>>     Looks like the logic you're saying is okay. Do I need another patch
+>> to perfect it? As below:
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> index 73a875573e7a..b23d15506afc 100644
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -1523,7 +1523,7 @@ static int __smc_connect(struct smc_sock *smc)
+>>                  ini->smcd_version &= ~SMC_V1;
+>>                  ini->smcr_version = 0;
+>>                  ini->smc_type_v1 = SMC_TYPE_N;
+>> -               if (!ini->smcd_version) {
+>> +               if (!smc_ism_is_v2_capable()) {
+>>                          rc = SMC_CLC_DECL_GETVLANERR;
+>>                          goto fallback;
+>>                  }
+>>
+>>
+>> Thank you
+>>
+>> Zhengchao Shao
+>>
+>
+Hi Wenjia:
+    I am currently testing the SMC-R/D, also interested in the SMC
+module. I will continue to review SMC code. :)
 
-This patch replaces the return at the end of the share() function with
-a panic, to guarantee system integrity.
+Thank you
 
-Fixes: 5abb9351dfd9 ("s390/uv: introduce guest side ultravisor code")
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- arch/s390/include/asm/uv.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+Zhengchao Shao
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 0b5f8f3e84f1..153d93468b77 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -441,7 +441,10 @@ static inline int share(unsigned long addr, u16 cmd)
- 
- 	if (!uv_call(0, (u64)&uvcb))
- 		return 0;
--	return -EINVAL;
-+	pr_err("%s UVC failed (rc: 0x%x, rrc: 0x%x), possible hypervisor bug.\n",
-+	       uvcb.header.cmd == UVC_CMD_SET_SHARED_ACCESS ? "Share" : "Unshare",
-+	       uvcb.header.rc, uvcb.header.rrc);
-+	panic("System security cannot be guaranteed unless the system panics now.\n");
- }
- 
- /*
--- 
-2.45.2
-
+> Hi Zhengchao,
+> 
+> I see your patches series were already applied yesterday. So It's okay 
+> to let it be now. As I said, your changes are not wrong, just not clean 
+> enough IMO. Anyway, thanks for your contribution to our code!
+> 
+> Thanks,
+> Wenjia
