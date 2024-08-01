@@ -1,53 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 572EB1B142B;
-	Thu,  1 Aug 2024 15:22:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A65D1B4C5D;
+	Thu,  1 Aug 2024 17:00:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722525776; cv=none; b=fMHvfeMbWUqKZWPOSp9bAwWgQnxhopG42yG5na8mrpwQQ7MlJ7M0otQX0G+qpWKZo3cdlb+O9PYcR8A0cVuD7u2sI31C+b+VfSIvzUJ++Y1/BEwxoiZeLI1mEpqclxks6zjgl0SsVxZYYY/2YzBn7r+OnGfbU5fpPwRde4RlYTU=
+	t=1722531602; cv=none; b=PHugBsWE81zPiLaAXbDqVA+L67Ug9/iWnDMfMNhim6hxvbHf6V391E17S9rU5MgjerkDVlMEJf91bSSmR1ARL64XHKRpQXTDUON9bJgBDrs0iPC3p9lDFfyCTaemTY8tKPUAAzXQgFc+h7VU7Rvgw2XkeYGezv5TeRvbU1IT9pI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722525776; c=relaxed/simple;
-	bh=MCfSDdIjcHZQ9l663dFR3qY6umGQeR97WyGmOHY9GQc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=t2ARvRB8W5dPC2GeYLbCa8gVZnyrkEF01ukx8XFYLlAPL5juwv6j87D7aQgOIUx9WCXRAthunC626oMxkhOJbhebB+8Rrea4vsBNY0mRVT6k3RXRBTKXv7RadICBRsVrWdvVhgukBDWNeqD6siLbiblRMBJwPjCOGn0rRcugbXQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Knkt0BM+; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1722531602; c=relaxed/simple;
+	bh=A/7RObg8Tzl1vD90LuvoQOcriMT+2Jss1+r/SM4KW0Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=tGIzfrj0CXPCYcQNTyf5dDB5rHoFpy7OiZ0cDZSl1jrEkYXScFPZ9JWsU9q6CAoHdG6aripeZCI5L/98+V6Wv24ZROgeyziE9+vwiZ9KZp1YUSAjDGDESLrB/DjIXsaDyJ/3+8+Nuxuzv80oXbQjXnMv8P9MHB30+1AFCjEKuew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xe+u7jtr; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Knkt0BM+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E072FC32786;
-	Thu,  1 Aug 2024 15:22:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xe+u7jtr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53023C32786;
+	Thu,  1 Aug 2024 17:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1722525775;
-	bh=MCfSDdIjcHZQ9l663dFR3qY6umGQeR97WyGmOHY9GQc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Knkt0BM+MQksHfY/hnZ5m9c3nrY9foJmh8e9BoyHVve6RRLlCuddPDzrCGNCt/ftL
-	 mJF1PBOEm4zuxZ3M4vi/Iql7r+0kclcoSgV9S9lPeNHT6ZcMEgXBv/31FWDFXpO9Qb
-	 LgXolyyLaYGMKNhDuoXGyMRYwXifC+krPUjWBUsvb83wmz1H14Vz5okPqc/h8Ia081
-	 +3ol8UNGML6OUyf9IM8ssrnducmo4Qp4OTOssdyBMF37pqAa9Wv7R9XPFa7QB9+a9l
-	 4HzHa7PCR4h177R7pzQ5I1b5muNgo5WbJxJ4fv7jpaXCsxPzGrcizXKCx38obDNCND
-	 nUpMq3yjdLwOw==
-Date: Thu, 1 Aug 2024 08:22:53 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: kernel test robot <lkp@intel.com>, Baruch Siach <baruch@tkos.co.il>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, llvm@lists.linux.dev,
-	oe-kbuild-all@lists.linux.dev, linux-s390@vger.kernel.org,
-	Ramon Fried <ramon@neureality.ai>,
-	Petr =?utf-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>,
-	Robin Murphy <robin.murphy@arm.com>, linux-kernel@vger.kernel.org,
-	iommu@lists.linux.dev, Elad Nachman <enachman@marvell.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v3 2/3] dma-mapping: replace zone_dma_bits by
- zone_dma_limit
-Message-ID: <20240801152253.GA122261@thelio-3990X>
-References: <053fa4806a2c63efcde80caca473a8b670a2701c.1722249878.git.baruch@tkos.co.il>
- <202407300338.oaUo6jtB-lkp@intel.com>
- <20240730021208.GA8272@thelio-3990X>
- <20240730153450.GA30021@lst.de>
- <20240801012424.GA1640480@thelio-3990X>
- <20240801134454.GB2245@lst.de>
+	s=k20201202; t=1722531601;
+	bh=A/7RObg8Tzl1vD90LuvoQOcriMT+2Jss1+r/SM4KW0Y=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=Xe+u7jtrOH5CGdYNy2kTw9DpuDLkwzzEi5EoDbbYjhQAmwGUvgkhctGYRLFQq3n1a
+	 CKml7FNT0Z1wEvu1CbY49ZfYjvC6ruVi79mfuhk9pobGvJJtyFNqpOZbnptU/hVHbF
+	 YSqBHCKqs6P9O2cBEGAX0nbJd9M/1nJSSAADfSMJpQf//WZiPyftLXWipsyK5BFcq6
+	 68uxzeyZYYjn6+tnhkC7j2owaEh7uQ8lynHBq5dCIIVB9cG12OI0OMwkE3d8lRpkdG
+	 N9pEIAw9PaUIB73n0jPrtI0tJgmyxh+tVymu3sT50X9f0qElnLelskrA3bk7yySKF2
+	 c16XipuV6gfYg==
+Date: Thu, 1 Aug 2024 11:59:59 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Gerd Bayer <gbayer@linux.ibm.com>, linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
+Subject: Re: [PATCH] PCI: s390: Handle ARI on bus without associated struct
+ pci_dev
+Message-ID: <20240801165959.GA83976@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -56,40 +49,100 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240801134454.GB2245@lst.de>
+In-Reply-To: <b06e8e396d64d7202f9a8aae91e0c556b344cc5b.camel@linux.ibm.com>
 
-On Thu, Aug 01, 2024 at 03:44:54PM +0200, Christoph Hellwig wrote:
-> On Wed, Jul 31, 2024 at 06:24:24PM -0700, Nathan Chancellor wrote:
-> > Unfortunately, I am not sure either... I do not see anything obviously,
-> > so perhaps it could just be avoided with the __diag() infrastructure?
+On Tue, Jul 30, 2024 at 09:59:13PM +0200, Niklas Schnelle wrote:
+> On Tue, 2024-07-30 at 21:36 +0200, Niklas Schnelle wrote:
+> > On s390 PCI busses are virtualized and the downstream ports are
+> > invisible to the OS and struct pci_bus::self is NULL. This associated
+> > struct pci_dev is however relied upon in pci_ari_enabled() to check
+> > whether ARI is enabled for the bus. ARI is therefor always detected as
+> > disabled.
 > > 
-> > diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-> > index 3dbc0b89d6fb..b58e7eb9c8f1 100644
-> > --- a/kernel/dma/direct.c
-> > +++ b/kernel/dma/direct.c
-> > @@ -20,7 +20,12 @@
-> >   * it for entirely different regions. In that case the arch code needs to
-> >   * override the variable below for dma-direct to work properly.
-> >   */
-> > +__diag_push();
-> > +__diag_ignore(clang, 13, "-Wconstant-conversion",
-> > +	      "Clang incorrectly thinks the n == 64 case in DMA_BIT_MASK() can happen here,"
-> > +	      "which would truncate with a 32-bit phys_addr_t");
-> >  phys_addr_t zone_dma_limit __ro_after_init = DMA_BIT_MASK(24);
+> > At the same time firmware on s390 always enables and relies upon ARI
+> > thus causing a mismatch. Moreover with per-PCI function pass-through
+> > there may exist busses with no function with devfn 0. For example
+> > a SR-IOV capable device with two PFs may have separate function
+> > dependency link chains for each of the PFs and their child VFs. In this
+> > case the OS may only see the second PF and its child VFs on a bus
+> > without a devfn 0 function. A situation which is also not supported by
+> > the common pci_configure_ari() code.
+> > 
+> > Dispite simply being a mismatch this causes problems as some PCI devices
+> > present a different SR-IOV topology depending on PCI_SRIOV_CTRL_ARI.
+> > 
+> > A similar mismatch may occur with SR-IOV when virtfn_add_bus() creates new
+> > busses with no associated struct pci_dev. Here too pci_ari_enabled()
+> > on these busses would return false even if ARI is actually used.
+> > 
+> > Prevent both mismatches by moving the ari_enabled flag from struct
+> > pci_dev to struct pci_bus making it independent from struct pci_bus::
+> > self. Let the bus inherit the ari_enabled state from its parent bus when
+> > there is no bridge device such that busses added by virtfn_add_bus()
+> > match their parent. For s390 set ari_enabled when the device supports
+> > ARI in the awareness that all PCIe ports on s390 systems are ARI
+> > capable.
+> > 
+> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > ---
+> >  arch/s390/pci/pci_bus.c | 12 ++++++++++++
+> >  drivers/pci/pci.c       |  4 ++--
+> >  drivers/pci/probe.c     |  1 +
+> >  include/linux/pci.h     |  4 ++--
+> >  4 files changed, 17 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
+> > index daa5d7450c7d..021319438dad 100644
+> > --- a/arch/s390/pci/pci_bus.c
+> > +++ b/arch/s390/pci/pci_bus.c
+> > @@ -278,6 +278,18 @@ void pcibios_bus_add_device(struct pci_dev *pdev)
+> >  {
+> >  	struct zpci_dev *zdev = to_zpci(pdev);
+> >  
+> > +	/*
+> > +	 * On s390 PCI busses are virtualized and the bridge
+> > +	 * devices are invisible to the OS. Furthermore busses
+> > +	 * may exist without a devfn 0 function. Thus the normal
+> > +	 * ARI detection does not work. At the same time fw/hw
+> > +	 * has always enabled ARI when possible. Reflect the actual
+> > +	 * state by setting ari_enabled whenever a device on the bus
+> > +	 * supports it.
+> > +	 */
+> > +	if (pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_ARI))
+> > +		zdev->zbus->bus->ari_enabled = 1;
+> > +
 > 
-> So..  The code above is clearly wrong, as DMA_BIT_MASK always returns a
-> u64, and phys_addr_t can be smaller than that.  So at least in this case
-> the warning seems perfectly valid and the code has issues because it is
-> mixing different concepts.
+> @Bjorn unstead of adding the above code to s390 specific code an
+> alternative I considered would be to modify pci_configure_ari() like
+> below. I tested this as well but wasn't sure if it is too much churn
+> especially the handling of the dev->devfn != 0 case. Then again it
+> might be nice to have this in common code.
+> 
+> @@ -3523,12 +3524,18 @@ void pci_configure_ari(struct pci_dev *dev)
+>         u32 cap;
+>         struct pci_dev *bridge;
+> 
+> -       if (pcie_ari_disabled || !pci_is_pcie(dev) || dev->devfn)
+> +       if (pcie_ari_disabled || !pci_is_pcie(dev))
+> +               return;
+> +
+> +       if (dev->devfn && !hypervisor_isolated_pci_functions())
+>                 return;
+> 
+>         bridge = dev->bus->self;
+> -       if (!bridge)
+> +       if (!bridge) {
+> +               if (pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ARI))
+> +                       dev->bus->ari_enabled = 1;
 
-Sure, that seems like a reasonable way to look at things even if the
-warning itself is a false positive.
+In the generic case here, how do we know whether the invisible bridge
+leading here has ARI enabled?  If that's known to always be the case
+for s390, I understand that, but I don't understand the other cases
+(jailhouse, passthrough, etc).
 
-> Where do you see warnings like this upstream?
-
-I don't see this upstream, this is from patch 2 of this series:
-
-https://lore.kernel.org/053fa4806a2c63efcde80caca473a8b670a2701c.1722249878.git.baruch@tkos.co.il/
-
-Cheers,
-Nathan
+>                 return;
+> +       }
+> 
+>         pcie_capability_read_dword(bridge, PCI_EXP_DEVCAP2, &cap);
+>         if (!(cap & PCI_EXP_DEVCAP2_ARI))
+> 
