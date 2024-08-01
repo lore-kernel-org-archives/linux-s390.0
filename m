@@ -1,119 +1,158 @@
-Received: from mail.tkos.co.il (golan.tkos.co.il [84.110.109.230])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A72C216C85D;
-	Thu,  1 Aug 2024 08:25:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.110.109.230
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C236716EBFF;
+	Thu,  1 Aug 2024 08:44:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722500737; cv=none; b=uD+tJS/hoMdXQxk7tPy6LGjo8sOveDfnOFDRyzYg1Fb5pvMnZC91Duv9ROCYMAF63OsCg3lv2E0wJPi+L4jzBTnQC+rAO6iKlEC2YUPnI9wdnOXwUkvrKhSRzduWb/MKaiyEaSsSpYpJH4PZbESgob7g01ciOajEnFoKEA1rmUE=
+	t=1722501858; cv=none; b=htWDtKoDTxEzieSW6aXIGm5SG8HLQ9yC2OgLEHbV5Q6tI0PpeMjSZCzPFhF0sloPz3mZgI6UkJ9BvNWIaDrbfKs/xY513rlIoFkc3Kg337I688XU/451vm3jXPC1TsBXkMLQs3fq5lBxrG/DR+A40auGyjVxaemode8OG7jZ8zw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722500737; c=relaxed/simple;
-	bh=Yaa82cqvK/7ZFcSlM9y57cf/s6CJpTcrZlbQ2R51MpE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nrDTaKKmS9LpwyaZpBVa+yPoAJzHi9oIgAIRMeiJaKpMmiW4uNqK9/k1OqZaOTEIQwUpzBMI22UC9CCRWK8wpy+lh957VnPSLDK7ba5tQB7+lmmRGUx54alAo4rPCb1AGhsiHkWKRqWue/COheHZNBnpiA1QJCHNm1sJ4wHkJTE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il; spf=pass smtp.mailfrom=tkos.co.il; dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b=HFyQUvTl; arc=none smtp.client-ip=84.110.109.230
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tkos.co.il
+	s=arc-20240116; t=1722501858; c=relaxed/simple;
+	bh=slfWe62xhHdipKA+jVyi+Mb/k8SGjLROPmMgowJgvKk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=SmxH4LheGfsUXDgqu8HSXOYDuXVQ2mjBkuIP/F51fQLxVIVCBiYZPhglunta3pTBgTOiSjNKa0Q4nhUisoPCEkI2DPCr7S8bGI6nP3hYyQUm8UJzmuMORBDBTfrFye0AmyRswC3GzZLEKU5uc31gE7dhiGf9RRv7taBDxqNA6wE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hZmfDDZO; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b="HFyQUvTl"
-Received: from tarshish.tkos.co.il (unknown [10.0.8.2])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mail.tkos.co.il (Postfix) with ESMTPS id 864ED440932;
-	Thu,  1 Aug 2024 11:24:07 +0300 (IDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tkos.co.il;
-	s=default; t=1722500648;
-	bh=Yaa82cqvK/7ZFcSlM9y57cf/s6CJpTcrZlbQ2R51MpE=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=HFyQUvTlTTY/eVqJOchHKkcdrdrGmNohf9og26uXHRe5MRgamACVy6P1EEO1MVAh1
-	 II0T6z3ntd4j4LJPyPrQjkGF+KVwjbHDj6f1p31XD7ZDg4siEAAlAqy90hAE3AOKEQ
-	 kfDZc6BxfUE3DB1Ze04ejUdK82dx8Wuu01nPg3VFnD2z6gBadmBRwLLlR4AEFA8JPV
-	 FRAiKSo0+y6o3FQTn67gC63CII16EWCV7sAwsaCZfaXA6F0NrmAOJc7xQLK8POsxo0
-	 aoykzw5fl8o8QJh5LduEATALVyA6vathNBxOzfVlGDILkvJmQOO8u8pCpXR56wm8Tt
-	 VHJdGhIcLRSPQ==
-From: Baruch Siach <baruch@tkos.co.il>
-To: Christoph Hellwig <hch@lst.de>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>
-Cc: Baruch Siach <baruch@tkos.co.il>,
-	Robin Murphy <robin.murphy@arm.com>,
-	iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	=?UTF-8?q?Petr=20Tesa=C5=99=C3=ADk?= <petr@tesarici.cz>,
-	Ramon Fried <ramon@neureality.ai>,
-	Elad Nachman <enachman@marvell.com>
-Subject: [PATCH v4 1/2] dma: improve DMA zone selection
-Date: Thu,  1 Aug 2024 11:25:06 +0300
-Message-ID: <f8f4da7ea3ead153ca21e628ca90e24fd0e7206e.1722499975.git.baruch@tkos.co.il>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <cover.1722499975.git.baruch@tkos.co.il>
-References: <cover.1722499975.git.baruch@tkos.co.il>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hZmfDDZO"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4716x6Oj020234;
+	Thu, 1 Aug 2024 08:44:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=u
+	zu7WKJ/qtNJ40pIunxyhy8ISssdrhXhEhGfcGQ6gM4=; b=hZmfDDZO/Y+MN2vxM
+	oE3sAOMEcX/pSSEqcZ0bS/EY9l6eweB+KGhw8v1ZuPzSfvsdKZnwAc18iWKFfK4M
+	XB2hFvQI55mjF5bgcUiHIF9Gbbh81i7xjlZKFdYR5pLdyBEn5zCBWxRRHIe6kzpK
+	Zp8Rpib4qfZNaC32vvEiHGxWccVf4xpMJwMlp4K6H3LyfAbGA3KxbR/KEJAVJ7HI
+	JOri8NcaQja5KPA1yVJmgqEWbeF1rrbAgyDz84wnijTUObR0TI7SydYR54v72CjE
+	IrdguemUk1+vDrVhtssaZ8FrJjBxcGwM7++1T4zHEcAP+4ag3OgZPH+WyXPCHWxV
+	kzpnA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40r5jsg7uw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 01 Aug 2024 08:44:12 +0000 (GMT)
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4718iCBr012345;
+	Thu, 1 Aug 2024 08:44:12 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40r5jsg7ut-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 01 Aug 2024 08:44:11 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4717KTW2007479;
+	Thu, 1 Aug 2024 08:44:11 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 40nb7uh0t3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 01 Aug 2024 08:44:11 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4718i5Ph44302742
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 1 Aug 2024 08:44:07 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6018020043;
+	Thu,  1 Aug 2024 08:44:05 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 327BF20040;
+	Thu,  1 Aug 2024 08:44:05 +0000 (GMT)
+Received: from [9.152.224.253] (unknown [9.152.224.253])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  1 Aug 2024 08:44:05 +0000 (GMT)
+Message-ID: <56690b92-67a7-48eb-b5df-ad176097ca13@linux.ibm.com>
+Date: Thu, 1 Aug 2024 10:44:05 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 05/10] selftests: kvm: s390: Add debug print functions
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+References: <20240730072413.143556-1-schlameuss@linux.ibm.com>
+ <20240730072413.143556-6-schlameuss@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20240730072413.143556-6-schlameuss@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 4I4z5ylnmcXUpr62jz3tTjDKehfUrsmA
+X-Proofpoint-GUID: vH7OBISx1YCFwifaydDJfyyewOb5TBP0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-01_05,2024-07-31_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ phishscore=0 mlxscore=0 mlxlogscore=889 suspectscore=0 priorityscore=1501
+ malwarescore=0 clxscore=1015 impostorscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2408010050
 
-When device DMA limit does not fit in DMA32 zone it should use DMA zone,
-even when DMA zone is stricter than needed.
+On 7/30/24 9:24 AM, Christoph Schlameuss wrote:
+[...]
 
-Same goes for devices that can't allocate from the entire normal zone.
-Limit to DMA32 in that case.
+> +#endif /* SELFTEST_KVM_DEBUG_PRINT_H */
+> diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> index d103a92e7495..029233374465 100644
+> --- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> +++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> @@ -7,6 +7,7 @@
+>    * Authors:
+>    *  Christoph Schlameuss <schlameuss@linux.ibm.com>
+>    */
+> +#include "debug_print.h"
+>   #include "kselftest_harness.h"
+>   #include "kvm_util.h"
+>   #include "processor.h"
 
-Reported-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
----
- kernel/dma/direct.c  | 6 +++---
- kernel/dma/swiotlb.c | 4 ++--
- 2 files changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index 4480a3cd92e0..3b4be4ca3b08 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -4,7 +4,7 @@
-  *
-  * DMA operations that map physical memory directly without using an IOMMU.
-  */
--#include <linux/memblock.h> /* for max_pfn */
-+#include <linux/memblock.h>
- #include <linux/export.h>
- #include <linux/mm.h>
- #include <linux/dma-map-ops.h>
-@@ -59,9 +59,9 @@ static gfp_t dma_direct_optimal_gfp_mask(struct device *dev, u64 *phys_limit)
- 	 * zones.
- 	 */
- 	*phys_limit = dma_to_phys(dev, dma_limit);
--	if (*phys_limit <= DMA_BIT_MASK(zone_dma_bits))
-+	if (*phys_limit < DMA_BIT_MASK(32))
- 		return GFP_DMA;
--	if (*phys_limit <= DMA_BIT_MASK(32))
-+	if (*phys_limit < memblock_end_of_DRAM())
- 		return GFP_DMA32;
- 	return 0;
- }
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index df68d29740a0..043b0ecd3e8d 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -629,9 +629,9 @@ static struct page *swiotlb_alloc_tlb(struct device *dev, size_t bytes,
- 	}
- 
- 	gfp &= ~GFP_ZONEMASK;
--	if (phys_limit <= DMA_BIT_MASK(zone_dma_bits))
-+	if (phys_limit < DMA_BIT_MASK(32))
- 		gfp |= __GFP_DMA;
--	else if (phys_limit <= DMA_BIT_MASK(32))
-+	else if (phys_limit < memblock_end_of_DRAM())
- 		gfp |= __GFP_DMA32;
- 
- 	while (IS_ERR(page = alloc_dma_pages(gfp, bytes, phys_limit))) {
--- 
-2.43.0
-
+Acked if you move that to the next patch
