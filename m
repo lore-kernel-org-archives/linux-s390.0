@@ -1,113 +1,99 @@
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AF0F14A4D2;
-	Thu,  1 Aug 2024 01:22:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.255
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F56613AA2D;
+	Thu,  1 Aug 2024 01:24:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722475359; cv=none; b=jqjac3ovyrRwX4vhpNmwfEYPPsHVxTfHZTtwTDDh3GCwOwQr1epykDASHDh19+ZMvu4bcr1ahb7LzPP5fIFkeqdxg0fSpRgxcANl28w1AquLlUS9bSj9VfH9WY8Uku0J6RkKEDdx/i7uehuAKgzSPCPnxNS2bRGWPzZknHAFX1c=
+	t=1722475467; cv=none; b=FfxZGOYU5XiWZn0GvJKDCCvppu2SUZu9eG+Eu4AwEOJzaIaXCo7QJ98qJlOt8HeSpcK6o6B4o6d0PHX/C1/Tduj134Hkx7kQcnzxwyLL7pupUFI2NTRuRJpBijr6B4ztngbvPxIkX3az5xvVEGbmqiqT8ycpG/4687f2+Nwp6Bs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722475359; c=relaxed/simple;
-	bh=+DMds7fVaPDjKCj7lGJ2/9hrgLIkk0Z5eLRcjA5ikBc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=E7Oqr87QqNcAfFVt8vvMsPxkfYkjzMjjd70Y/l3nbgs7l58/rAIpqmSacbxSZE+rGTwIujTJWyy3OfDTeju8syYxaqIx4XoFQ29+wCyATbmFkvVASQU0ovR54AELgGAMa2xKHt8QhqG4Um5ULvmWzk640R+kt4B4kG2fQrrg9j8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.255
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.252])
-	by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4WZB5m2crtz1L9KR;
-	Thu,  1 Aug 2024 09:22:20 +0800 (CST)
-Received: from dggpeml500026.china.huawei.com (unknown [7.185.36.106])
-	by mail.maildlp.com (Postfix) with ESMTPS id 6E54A180AE6;
-	Thu,  1 Aug 2024 09:22:32 +0800 (CST)
-Received: from [10.174.178.66] (10.174.178.66) by
- dggpeml500026.china.huawei.com (7.185.36.106) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.39; Thu, 1 Aug 2024 09:22:31 +0800
-Message-ID: <70dea024-dfbe-1679-854f-8477e65bc0f8@huawei.com>
-Date: Thu, 1 Aug 2024 09:22:31 +0800
+	s=arc-20240116; t=1722475467; c=relaxed/simple;
+	bh=Pgpqo4RtxVJ1ue8DwjL2l0l2UL9ejI31ZTKHWsBrk4Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Dq2OwA7S1jIfir6der6dsrP8L1KAJlTfq6QP4CQ/ucCAkIGdyNRjQFrdDL11ze8csPvFx8GhHGKRDRIwHr0RnNlbohryOEbwvvmLrvEwZbdDB+sICMRjrReigMyUDo7cIfG08PjtbB5JcRzBl9SiDs3cuJE3DuVZ8qjNYtSVJO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XVZIR7ZC; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XVZIR7ZC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FD22C116B1;
+	Thu,  1 Aug 2024 01:24:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1722475467;
+	bh=Pgpqo4RtxVJ1ue8DwjL2l0l2UL9ejI31ZTKHWsBrk4Q=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=XVZIR7ZCGTG0w41hQSmLUNL6cZMuc0xp588STEletZW6rGg2Zw5ATIgyJNDcnVReb
+	 B3EfWzjWskItTFqdGEFqKaNkyGttT9TLBlQWyu/w8Tuxs0k3bHkwZd0cu+hd+HJiBM
+	 TLWeLNnPzjvU1idP/yzgeefl8ZzJqv2fdNIoFW2QL9yRXpPiUWdGcYIxH9/tq99yFQ
+	 xlNDkZrz9RPWiLvSDiSFXG1SG7k6RBe2KkK8hixvDn+6BA8ozx+ajPaXfsgWLA8nel
+	 7BEThuYora+MdjBceQZNxXOF5muIGxkG3oYUZNn0HCWNcoz+pncWSlk+9RsOGJ4U29
+	 oEus3plyggpmg==
+Date: Wed, 31 Jul 2024 18:24:24 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: kernel test robot <lkp@intel.com>, Baruch Siach <baruch@tkos.co.il>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, llvm@lists.linux.dev,
+	oe-kbuild-all@lists.linux.dev, linux-s390@vger.kernel.org,
+	Ramon Fried <ramon@neureality.ai>,
+	Petr =?utf-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>,
+	Robin Murphy <robin.murphy@arm.com>, linux-kernel@vger.kernel.org,
+	iommu@lists.linux.dev, Elad Nachman <enachman@marvell.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v3 2/3] dma-mapping: replace zone_dma_bits by
+ zone_dma_limit
+Message-ID: <20240801012424.GA1640480@thelio-3990X>
+References: <053fa4806a2c63efcde80caca473a8b670a2701c.1722249878.git.baruch@tkos.co.il>
+ <202407300338.oaUo6jtB-lkp@intel.com>
+ <20240730021208.GA8272@thelio-3990X>
+ <20240730153450.GA30021@lst.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.0.2
-Subject: Re: [PATCH net-next 2/4] net/smc: remove the fallback in
- __smc_connect
-To: Wenjia Zhang <wenjia@linux.ibm.com>, <linux-s390@vger.kernel.org>,
-	<netdev@vger.kernel.org>, <davem@davemloft.net>, <edumazet@google.com>,
-	<kuba@kernel.org>, <pabeni@redhat.com>
-CC: <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
-	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>,
-	<weiyongjun1@huawei.com>, <yuehaibing@huawei.com>
-References: <20240730012506.3317978-1-shaozhengchao@huawei.com>
- <20240730012506.3317978-3-shaozhengchao@huawei.com>
- <4232f3fb-4088-41e0-91f7-7813d3bb99e5@linux.ibm.com>
-From: shaozhengchao <shaozhengchao@huawei.com>
-In-Reply-To: <4232f3fb-4088-41e0-91f7-7813d3bb99e5@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpeml500026.china.huawei.com (7.185.36.106)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240730153450.GA30021@lst.de>
 
-Hi Wenjia Zhang:
-    Looks like the logic you're saying is okay. Do I need another patch
-to perfect it? As below:
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 73a875573e7a..b23d15506afc 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1523,7 +1523,7 @@ static int __smc_connect(struct smc_sock *smc)
-                 ini->smcd_version &= ~SMC_V1;
-                 ini->smcr_version = 0;
-                 ini->smc_type_v1 = SMC_TYPE_N;
--               if (!ini->smcd_version) {
-+               if (!smc_ism_is_v2_capable()) {
-                         rc = SMC_CLC_DECL_GETVLANERR;
-                         goto fallback;
-                 }
-
-
-Thank you
-
-Zhengchao Shao
-
-On 2024/7/31 23:15, Wenjia Zhang wrote:
+On Tue, Jul 30, 2024 at 05:34:50PM +0200, Christoph Hellwig wrote:
+> On Mon, Jul 29, 2024 at 07:12:08PM -0700, Nathan Chancellor wrote:
+> > >          |             ~~~~~~~~~~~~~~                   ^~~~~~~~~~~~~~~~
+> > >    include/linux/dma-mapping.h:77:40: note: expanded from macro 'DMA_BIT_MASK'
+> > >       77 | #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
+> > >          |                                        ^~~~~
+> > >    2 warnings generated.
+> > 
+> > FWIW, this is likely a false positive due to an issue in Clang with the
+> > control flow graph for global variables:
+> > 
+> > https://github.com/ClangBuiltLinux/linux/issues/92
+> > 
+> > DMA_BIT_MASK() has been the biggest offender :/ If there is any way to
+> > refactor this code to avoid this, that would be great (as that has been
+> > one of our longest outstanding issues and getting it fixed in the
+> > compiler does not seem super easy at this point).
 > 
-> 
-> On 30.07.24 03:25, Zhengchao Shao wrote:
->> When the SMC client begins to connect to server, smcd_version is set
->> to SMC_V1 + SMC_V2. If fail to get VLAN ID, only SMC_V2 information
->> is left in smcd_version. And smcd_version will not be changed to 0.
->> Therefore, remove the fallback caused by the failure to get VLAN ID.
->>
->> Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
->> ---
->>   net/smc/af_smc.c | 4 ----
->>   1 file changed, 4 deletions(-)
->>
->> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->> index 73a875573e7a..83f5a1849971 100644
->> --- a/net/smc/af_smc.c
->> +++ b/net/smc/af_smc.c
->> @@ -1523,10 +1523,6 @@ static int __smc_connect(struct smc_sock *smc)
->>           ini->smcd_version &= ~SMC_V1;
->>           ini->smcr_version = 0;
->>           ini->smc_type_v1 = SMC_TYPE_N;
->> -        if (!ini->smcd_version) {
->> -            rc = SMC_CLC_DECL_GETVLANERR;
->> -            goto fallback;
->> -        }
->>       }
->>       rc = smc_find_proposal_devices(smc, ini);
-> 
-> Though you're right that here smcd_version never gets 0, it actually is 
-> a bug from ("42042dbbc2eb net/smc: prepare for SMC-Rv2 connection"). The 
-> purpose of the check here was to fallback at a early phase before 
-> calling smc_find_proposal_devices(). However, this change is not wrong, 
-> just I personally like adding a check for smc_ism_is_v2_capable() more.
-> 
-> Thanks,
-> Wenjia
+> I have no idea what you'd want changed here, but I'll happily take
+> patches.
+
+Unfortunately, I am not sure either... I do not see anything obviously,
+so perhaps it could just be avoided with the __diag() infrastructure?
+
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index 3dbc0b89d6fb..b58e7eb9c8f1 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -20,7 +20,12 @@
+  * it for entirely different regions. In that case the arch code needs to
+  * override the variable below for dma-direct to work properly.
+  */
++__diag_push();
++__diag_ignore(clang, 13, "-Wconstant-conversion",
++	      "Clang incorrectly thinks the n == 64 case in DMA_BIT_MASK() can happen here,"
++	      "which would truncate with a 32-bit phys_addr_t");
+ phys_addr_t zone_dma_limit __ro_after_init = DMA_BIT_MASK(24);
++__diag_pop();
+ 
+ static inline dma_addr_t phys_to_dma_direct(struct device *dev,
+ 		phys_addr_t phys)
