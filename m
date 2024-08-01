@@ -1,20 +1,20 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C0EF1607A5;
-	Thu,  1 Aug 2024 10:09:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6303446A1;
+	Thu,  1 Aug 2024 10:30:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722506952; cv=none; b=J9Ez2IHvBFDo4NdEwv4OTdV8UrHW5CBgtQI8DPN7NrXrKzCA5JBRokBwJjDhkW/gYotcryayMlfG6FTS5NJ4ewIPE9uodPy4nCwYvdNzRdeFhENjOjqM6/XYGe20r/6ziRJmdK3x5JYawrn2iM+DtRdDN4GM1pDXT9hSafVJ1gg=
+	t=1722508251; cv=none; b=PiN732Q2/mpPnK8nU7p2GQ0N+gv5MOQqJhRB5qZ4r8RXTD3igifJ8d7K7qP4E19T8Lqq5ePhl4XfT/LnmM1eQVSaBuVVPy86J7ci+Izf7AfnzEgIPESUAsQLKch8FOPOMXdnQyJvdzgRK0M2befPcXCwqwutUwFNn80KoKDl/ts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722506952; c=relaxed/simple;
-	bh=lEGW+kdJEkCoozNDdKuFRerDnO0MoGrNtEtUI3sBXhg=;
+	s=arc-20240116; t=1722508251; c=relaxed/simple;
+	bh=840boNeP0FMtLMePk2Z6i4zIPxM/EiNSN0Vbo1zyxEo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NBIjTqMHMissCPBxZPBDmWGgCTP792VTWyvoNzh83sEbHvbXRNSo8iVm3IvVcZOUOU3PgPpXqpw8wbtzoQPZzpp4iggDjhIoQKY638eXvKq7s3DxdBsHpoGX7aI2Xd7ycibVvQYgXwszvGIu0G5WnH5oeMutDsnbcByPfYzZvlA=
+	 Content-Type:Content-Disposition:In-Reply-To; b=uGg2l4s41BayT0CZc65TK3SgF4U/nz5UId7uipqrsiSHsloV+gbE2zOZxDW9W5l9ApgLpnTVI6E3CHfCvRdzsTzP1cIELl59K+yfWEamQrZ3M3bNhtBcNzQRAD7J8QLAqBIUOkfcDju8qq4FD0Yd0f2JPb1sDCObZHCbwoB0U24=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AF65C32786;
-	Thu,  1 Aug 2024 10:09:09 +0000 (UTC)
-Date: Thu, 1 Aug 2024 11:09:07 +0100
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 030D1C32786;
+	Thu,  1 Aug 2024 10:30:48 +0000 (UTC)
+Date: Thu, 1 Aug 2024 11:30:46 +0100
 From: Catalin Marinas <catalin.marinas@arm.com>
 To: Baruch Siach <baruch@tkos.co.il>
 Cc: Christoph Hellwig <hch@lst.de>,
@@ -27,7 +27,7 @@ Cc: Christoph Hellwig <hch@lst.de>,
 	Ramon Fried <ramon@neureality.ai>,
 	Elad Nachman <enachman@marvell.com>
 Subject: Re: [PATCH v4 2/2] dma: replace zone_dma_bits by zone_dma_limit
-Message-ID: <Zqtew0ra4opFgl9l@arm.com>
+Message-ID: <Zqtj1iCyRJqh_xeL@arm.com>
 References: <cover.1722499975.git.baruch@tkos.co.il>
  <f05178048096908a13379a61ca56f0035a5cdb2d.1722499975.git.baruch@tkos.co.il>
 Precedence: bulk
@@ -41,42 +41,38 @@ Content-Disposition: inline
 In-Reply-To: <f05178048096908a13379a61ca56f0035a5cdb2d.1722499975.git.baruch@tkos.co.il>
 
 On Thu, Aug 01, 2024 at 11:25:07AM +0300, Baruch Siach wrote:
-> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-> index 9b5ab6818f7f..c45e2152ca9e 100644
-> --- a/arch/arm64/mm/init.c
-> +++ b/arch/arm64/mm/init.c
-> @@ -115,35 +115,35 @@ static void __init arch_reserve_crashkernel(void)
+> diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
+> index d10613eb0f63..a6e15db9d1e7 100644
+> --- a/kernel/dma/pool.c
+> +++ b/kernel/dma/pool.c
+> @@ -70,9 +70,10 @@ static bool cma_in_zone(gfp_t gfp)
+>  	/* CMA can't cross zone boundaries, see cma_activate_area() */
+>  	end = cma_get_base(cma) + size - 1;
+>  	if (IS_ENABLED(CONFIG_ZONE_DMA) && (gfp & GFP_DMA))
+> -		return end <= DMA_BIT_MASK(zone_dma_bits);
+> +		return end <= zone_dma_limit;
+> +	/* Account for possible zone_dma_limit > DMA_BIT_MASK(32) */
+>  	if (IS_ENABLED(CONFIG_ZONE_DMA32) && (gfp & GFP_DMA32))
+> -		return end <= DMA_BIT_MASK(32);
+> +		return end <= DMA_BIT_MASK(32) || end <= zone_dma_limit;
+>  	return true;
 >  }
 >  
->  /*
-> - * Return the maximum physical address for a zone accessible by the given bits
-> - * limit. If DRAM starts above 32-bit, expand the zone to the maximum
-> + * Return the maximum physical address for a zone given its limit.
-> + * If DRAM starts above 32-bit, expand the zone to the maximum
->   * available memory, otherwise cap it at 32-bit.
->   */
-> -static phys_addr_t __init max_zone_phys(unsigned int zone_bits)
-> +static phys_addr_t __init max_zone_phys(phys_addr_t zone_limit)
->  {
-> -	phys_addr_t zone_mask = DMA_BIT_MASK(zone_bits);
->  	phys_addr_t phys_start = memblock_start_of_DRAM();
->  
->  	if (phys_start > U32_MAX)
-> -		zone_mask = PHYS_ADDR_MAX;
-> -	else if (phys_start > zone_mask)
-> -		zone_mask = U32_MAX;
-> +		zone_limit = PHYS_ADDR_MAX;
-> +	else if (phys_start > zone_limit)
-> +		zone_limit = U32_MAX;
->  
-> -	return min(zone_mask, memblock_end_of_DRAM() - 1) + 1;
-> +	return min(zone_limit, memblock_end_of_DRAM() - 1) + 1;
->  }
+> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+> index 043b0ecd3e8d..53595eb41922 100644
+> --- a/kernel/dma/swiotlb.c
+> +++ b/kernel/dma/swiotlb.c
+> @@ -450,7 +450,7 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
+>  	if (!remap)
+>  		io_tlb_default_mem.can_grow = true;
+>  	if (IS_ENABLED(CONFIG_ZONE_DMA) && (gfp_mask & __GFP_DMA))
+> -		io_tlb_default_mem.phys_limit = DMA_BIT_MASK(zone_dma_bits);
+> +		io_tlb_default_mem.phys_limit = zone_dma_limit;
+>  	else if (IS_ENABLED(CONFIG_ZONE_DMA32) && (gfp_mask & __GFP_DMA32))
+>  		io_tlb_default_mem.phys_limit = DMA_BIT_MASK(32);
 
-OK, so no functional change here which is good. But isn't this series
-missing some additional patches to limit ZONE_DMA? For you platform, the
-above function expands ZONE_DMA to the whole RAM which IIUC it's not
-what you want eventually.
+I think this needs some adjustment as the cma_in_zone() case. Maybe just
+use max(DMA_BIT_MASK(32), zone_dma_limit) in both cases for consistency.
 
 -- 
 Catalin
