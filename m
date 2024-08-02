@@ -1,93 +1,99 @@
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 922605258;
-	Fri,  2 Aug 2024 14:01:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B2B81EEF9;
+	Fri,  2 Aug 2024 14:06:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722607308; cv=none; b=IfJmRtiCcDL31t9Ae8KmMcLncU2QXlBGzh88yAv4Bx8G1bJxfi0CKfdJWKGAOHXx8MCZfQCyuCLn+r4YwJrlJviNHTADMaKCnaN7IBdTBVpiBS5xk7/ILjNbFRfsOXDVkumTeazCm2KDoTzPQ+gvhXz72pjXlIN/ZHDRcgs8NSI=
+	t=1722607570; cv=none; b=FoXlIGXaLC2NXwRYavKPFSr1Djxq7QxIrZ9AFiXDL65lPHMGgbY1qtqWT4n9kCb3OdFCijc4qC2eUWOYwv8J+wkUPEJnX7OaUqSKA2fEzj1l3blAPsZiODTLUoPu/vsCWYT9Gvgr1SxnJuTmJ9PvdH2UN0TlF8hWt4PIuniZyIE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722607308; c=relaxed/simple;
-	bh=u3ZMg2xsS0PphcV5AO/Z+wTJuTNi8Zl3B3cTy1JUA/o=;
-	h=Date:From:To:CC:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=h6TWylVm1/V6t2fLyvEmTUCuLGjw2XqyMlK+0eH98mxe2kDQK2lKKJbo98d76jiav99ggA4LthF6+0jKWwQ9Hesmy0ztiiF/c1gdeEb5MDFxTWWWyQWq//AKUSOb2fotq/sMVbAAYjdK1Pp1q9EcLc1/QP9bv1lRj/F3bsFzkYw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=Huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=185.176.79.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=Huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.18.186.216])
-	by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4Wb6rS3QPSz6K6ln;
-	Fri,  2 Aug 2024 21:59:04 +0800 (CST)
-Received: from lhrpeml500005.china.huawei.com (unknown [7.191.163.240])
-	by mail.maildlp.com (Postfix) with ESMTPS id 429D2140A86;
-	Fri,  2 Aug 2024 22:01:43 +0800 (CST)
-Received: from localhost (10.203.177.66) by lhrpeml500005.china.huawei.com
- (7.191.163.240) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.39; Fri, 2 Aug
- 2024 15:01:42 +0100
-Date: Fri, 2 Aug 2024 15:01:41 +0100
-From: Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-To: Mike Rapoport <rppt@kernel.org>
-CC: <linux-kernel@vger.kernel.org>, Alexander Gordeev
-	<agordeev@linux.ibm.com>, Andreas Larsson <andreas@gaisler.com>, "Andrew
- Morton" <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, "Borislav
- Petkov" <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christophe
- Leroy <christophe.leroy@csgroup.eu>, Dan Williams <dan.j.williams@intel.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand
-	<david@redhat.com>, "David S. Miller" <davem@davemloft.net>, Davidlohr Bueso
-	<dave@stgolabs.net>, "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>, Heiko
- Carstens <hca@linux.ibm.com>, Huacai Chen <chenhuacai@kernel.org>, Ingo
- Molnar <mingo@redhat.com>, Jiaxun Yang <jiaxun.yang@flygoat.com>, "John Paul
- Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>, Jonathan Corbet
-	<corbet@lwn.net>, Michael Ellerman <mpe@ellerman.id.au>, Palmer Dabbelt
-	<palmer@dabbelt.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Rob Herring
-	<robh@kernel.org>, Samuel Holland <samuel.holland@sifive.com>, Thomas
- Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner
-	<tglx@linutronix.de>, "Vasily Gorbik" <gor@linux.ibm.com>, Will Deacon
-	<will@kernel.org>, Zi Yan <ziy@nvidia.com>, <devicetree@vger.kernel.org>,
-	<linux-acpi@vger.kernel.org>, <linux-arch@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-cxl@vger.kernel.org>,
-	<linux-doc@vger.kernel.org>, <linux-mips@vger.kernel.org>,
-	<linux-mm@kvack.org>, <linux-riscv@lists.infradead.org>,
-	<linux-s390@vger.kernel.org>, <linux-sh@vger.kernel.org>,
-	<linuxppc-dev@lists.ozlabs.org>, <loongarch@lists.linux.dev>,
-	<nvdimm@lists.linux.dev>, <sparclinux@vger.kernel.org>, <x86@kernel.org>
-Subject: Re: [PATCH v3 23/26] of, numa: return -EINVAL when no numa-node-id
- is found
-Message-ID: <20240802150141.00002143@Huawei.com>
-In-Reply-To: <20240801060826.559858-24-rppt@kernel.org>
-References: <20240801060826.559858-1-rppt@kernel.org>
-	<20240801060826.559858-24-rppt@kernel.org>
-Organization: Huawei Technologies Research and Development (UK) Ltd.
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-w64-mingw32)
+	s=arc-20240116; t=1722607570; c=relaxed/simple;
+	bh=8zF24GN2W5KBBWa63gtA37RA2md7NaZA0+s4mCi4yqI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZO2bfyCpAFF96dw4rgCO8VRnbA5zM8mVwNd31nJbRvVgWSYGupGTW5sUVSIRHrx0wJ4fA3OHJ0qTjeA36YDdjkVtaSVgkLxXkKdlhccngIpP3uWrc1SYuRJYgH0U2KIkJDDe0pVvv7RvwIkUZlgNSWO5kpo9+aHtnly95WAJJ1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=IGim6D6D; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="IGim6D6D"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1722607559; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=v+0fUo/IafSdIF9EhnGJlHTdcHZLiaYxtFmsr78Hdmc=;
+	b=IGim6D6DVFOsEjBl0Fx0A37tTBTmD6jnD6l3dnqItxGGCWOB8DQdViEwoCCb/lxqUlWGCJiLAVYMtQzVdSjjoqPxhuhiLx25C4emeVk5f3AkDxKGqjTXHkbA+YSjL6FRISpQ69RUooJyDlTvqcynH0PhcrBIAcWfszZHpLOOtH0=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0WBxlBR3_1722607557;
+Received: from 30.120.147.143(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WBxlBR3_1722607557)
+          by smtp.aliyun-inc.com;
+          Fri, 02 Aug 2024 22:05:58 +0800
+Message-ID: <439a499a-13ae-47e7-af54-3d9f064766af@linux.alibaba.com>
+Date: Fri, 2 Aug 2024 22:05:57 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: lhrpeml500004.china.huawei.com (7.191.163.9) To
- lhrpeml500005.china.huawei.com (7.191.163.240)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next] net/smc: add the max value of fallback reason
+ count
+To: Wenjia Zhang <wenjia@linux.ibm.com>, "D. Wythe"
+ <alibuda@linux.alibaba.com>, Zhengchao Shao <shaozhengchao@huawei.com>,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc: jaka@linux.ibm.com, tonylu@linux.alibaba.com, weiyongjun1@huawei.com,
+ yuehaibing@huawei.com
+References: <20240801113549.98301-1-shaozhengchao@huawei.com>
+ <a69bfb91-3cfa-4e98-b655-e8f0d462c55d@linux.alibaba.com>
+ <4213b756-a92f-4be9-951d-893f4a6590b4@linux.ibm.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <4213b756-a92f-4be9-951d-893f4a6590b4@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Thu,  1 Aug 2024 09:08:23 +0300
-Mike Rapoport <rppt@kernel.org> wrote:
 
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+
+On 2024/8/2 19:17, Wenjia Zhang wrote:
 > 
-> Currently of_numa_parse_memory_nodes() returns 0 if no "memory" node in
-> device tree contains "numa-node-id" property. This makes of_numa_init()
-> to return "success" despite no NUMA nodes were actually parsed and set
-> up.
 > 
-> arch_numa workarounds this by returning an error if numa_nodes_parsed is
-> empty.
+> On 02.08.24 04:38, D. Wythe wrote:
+>>
+>>
+>> On 8/1/24 7:35 PM, Zhengchao Shao wrote:
+>>> The number of fallback reasons defined in the smc_clc.h file has reached
+>>> 36. For historical reasons, some are no longer quoted, and there's 33
+>>> actually in use. So, add the max value of fallback reason count to 50.
+>>>
+>>> Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+>>> ---
+>>>   net/smc/smc_stats.h | 2 +-
+>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/net/smc/smc_stats.h b/net/smc/smc_stats.h
+>>> index 9d32058db2b5..ab5aafc6f44c 100644
+>>> --- a/net/smc/smc_stats.h
+>>> +++ b/net/smc/smc_stats.h
+>>> @@ -19,7 +19,7 @@
+>>>   #include "smc_clc.h"
+>>> -#define SMC_MAX_FBACK_RSN_CNT 30
+>>> +#define SMC_MAX_FBACK_RSN_CNT 50
+>> It feels more like a fix ？
+>>
+>>>   enum {
+>>>       SMC_BUF_8K,
+>>
 > 
-> numa_memblks however would WARN() in such case and since it will be used
-> by arch_numa shortly, such warning is not desirable.
+> Hi Zhengchao,
 > 
-> Make sure of_numa_init() returns -EINVAL when no NUMA node information
-> was found in the device tree.
+> IMO It should be 36 instead of 50 because of unnecessary smc_stats_fback element and  unnecessary scanning e.g. in smc_stat_inc_fback_rsn_cnt(). If there is any new reason code coming later, the one who are introducing the new reason code should update the the value correspondingly.
+
+I wonder if it is really necessary to expand to 50, since generally
+the reasons for fallback in a machine will be concentrated into a few,
+normally less than 10, so there is almost no case of using up all 30
+reason slots.
+
+Thanks!
+
+> Btw, I also it is a bug fix other than feature.
 > 
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> Thanks,
+> Wenjia
