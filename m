@@ -1,142 +1,116 @@
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4237C1B4C2A;
-	Thu,  1 Aug 2024 17:47:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CFFD2572;
+	Fri,  2 Aug 2024 01:55:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722534465; cv=none; b=C1Tb0JJRaxIYOiFVkvxB6csO/NtZSuTd8XAnmG1bEI6fj6ADVORkotV9P3uvR6PsqGFy1i479uXmHnp/yknVQ8pKTdtA/Y405GTn3ffQ2UDKYfGaF4ChcXsfSvKPY+h3qwS4mKnGD+/yF1ytraynxSiQvkye9HtixZxmzx37b+4=
+	t=1722563722; cv=none; b=LBHcGEOw0rM1TuWMkpsl6p4LY51foNsMLCIDlJUqPw7HP/cxLOlu1xIpRUKvT9EL8tDXWOjYRVerrT+wl8g+ARhxMd2/iIlGS4ITvH/zNKMhLzJAJ1juNI2rSJ4LloG1vd3iHISfpQMjPcvdMEuByj780GZbqg/jEEwDhQFlJ+c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722534465; c=relaxed/simple;
-	bh=QjDENAGyYUfkxISJ55CXGA0nu5yApMiihtQuD/xC0eQ=;
-	h=Date:From:To:CC:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=FhjFoqAfZXPTbMOq4AS355s959Eev0/lJruJ5XRJdTf60fdkUB72y8NMTHgyyO5n4bPmYOJzKal2z7aJyBOxCfjAbyUxadG0jRboNtytrZzBy665q+KAW+intcaSDqjAH6Ym9SNDtIHh/tlkctTPNWTVslVEDYW35VrBGqoei1o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=Huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=185.176.79.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=Huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.18.186.231])
-	by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4WZbvg4GP6z6K91N;
-	Fri,  2 Aug 2024 01:45:03 +0800 (CST)
-Received: from lhrpeml500005.china.huawei.com (unknown [7.191.163.240])
-	by mail.maildlp.com (Postfix) with ESMTPS id DD56C140B55;
-	Fri,  2 Aug 2024 01:47:39 +0800 (CST)
-Received: from localhost (10.203.177.66) by lhrpeml500005.china.huawei.com
- (7.191.163.240) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.39; Thu, 1 Aug
- 2024 18:47:38 +0100
-Date: Thu, 1 Aug 2024 18:47:38 +0100
-From: Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-To: Mike Rapoport <rppt@kernel.org>
-CC: <linux-kernel@vger.kernel.org>, Alexander Gordeev
-	<agordeev@linux.ibm.com>, Andreas Larsson <andreas@gaisler.com>, "Andrew
- Morton" <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, "Borislav
- Petkov" <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christophe
- Leroy <christophe.leroy@csgroup.eu>, Dan Williams <dan.j.williams@intel.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand
-	<david@redhat.com>, "David S. Miller" <davem@davemloft.net>, Davidlohr Bueso
-	<dave@stgolabs.net>, "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>, Heiko
- Carstens <hca@linux.ibm.com>, Huacai Chen <chenhuacai@kernel.org>, Ingo
- Molnar <mingo@redhat.com>, Jiaxun Yang <jiaxun.yang@flygoat.com>, "John Paul
- Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>, Jonathan Corbet
-	<corbet@lwn.net>, Michael Ellerman <mpe@ellerman.id.au>, Palmer Dabbelt
-	<palmer@dabbelt.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Rob Herring
-	<robh@kernel.org>, Samuel Holland <samuel.holland@sifive.com>, Thomas
- Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner
-	<tglx@linutronix.de>, "Vasily Gorbik" <gor@linux.ibm.com>, Will Deacon
-	<will@kernel.org>, Zi Yan <ziy@nvidia.com>, <devicetree@vger.kernel.org>,
-	<linux-acpi@vger.kernel.org>, <linux-arch@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-cxl@vger.kernel.org>,
-	<linux-doc@vger.kernel.org>, <linux-mips@vger.kernel.org>,
-	<linux-mm@kvack.org>, <linux-riscv@lists.infradead.org>,
-	<linux-s390@vger.kernel.org>, <linux-sh@vger.kernel.org>,
-	<linuxppc-dev@lists.ozlabs.org>, <loongarch@lists.linux.dev>,
-	<nvdimm@lists.linux.dev>, <sparclinux@vger.kernel.org>, <x86@kernel.org>
-Subject: Re: [PATCH v3 06/26] MIPS: loongson64: drop
- HAVE_ARCH_NODEDATA_EXTENSION
-Message-ID: <20240801184738.00003e6e@Huawei.com>
-In-Reply-To: <20240801060826.559858-7-rppt@kernel.org>
-References: <20240801060826.559858-1-rppt@kernel.org>
-	<20240801060826.559858-7-rppt@kernel.org>
-Organization: Huawei Technologies Research and Development (UK) Ltd.
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-w64-mingw32)
+	s=arc-20240116; t=1722563722; c=relaxed/simple;
+	bh=ZCvScViQqCucMKDq2Ql0ZIV1r1VqUzOfJvh/3tJyy94=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fJwtZi/fE4mVpTEVKDDEo5rffi44ayf1gUudugFVC6qVlqN/p2N2w6tspngdISdYvNtPI+dmbGN0+SiOCUAHqXFmZVh1xm5iEJLnY6Pt5h8rRh8aERZqmEObGosTcL/W+f8m82A806Pl4yJgzSZnVgGO0J8HGluLEvrKQuA2Fpo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=IZVHZ0B2; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="IZVHZ0B2"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1722563717; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=zsJ8qpiUqdp+eWJmsE2CmpJqsddXO5xbkozRYvCTCxs=;
+	b=IZVHZ0B2peq3F01RawE9f6QpjnlKL6IGzhvtbogomUFEt01R7ycDcdEcgtwB7+E+Qcydf9oCsxyzm4Io22EzDw/bz0JssW8hLzRVRcDsm17EtUHgLH2vw8u3Uvhen8yQlqD13CG1HUfi+V7Oru1WIiyxQTN1jKGBs98ssLK6wTw=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0WBvTFOd_1722563707;
+Received: from 30.221.130.78(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WBvTFOd_1722563707)
+          by smtp.aliyun-inc.com;
+          Fri, 02 Aug 2024 09:55:16 +0800
+Message-ID: <dedb6046-83a6-4bda-bf1d-ae77a8cda972@linux.alibaba.com>
+Date: Fri, 2 Aug 2024 09:55:06 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: lhrpeml500001.china.huawei.com (7.191.163.213) To
- lhrpeml500005.china.huawei.com (7.191.163.240)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: delete buf_desc from buffer list under lock
+ protection
+To: shaozhengchao <shaozhengchao@huawei.com>, wenjia@linux.ibm.com,
+ jaka@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com
+Cc: alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20240731093102.130154-1-guwen@linux.alibaba.com>
+ <ef374ef8-a19e-7b9b-67a1-5b89fb505545@huawei.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <ef374ef8-a19e-7b9b-67a1-5b89fb505545@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Thu,  1 Aug 2024 09:08:06 +0300
-Mike Rapoport <rppt@kernel.org> wrote:
 
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+
+On 2024/7/31 18:32, shaozhengchao wrote:
+> Hi Wen Gu:
+>    "The operations to link group buffer list should be protected by
+> sndbufs_lock or rmbs_lock" It seems that the logic is smooth. But will
+> this really happen? Because no process is in use with the link group,
+> does this mean that there is no concurrent scenario?
 > 
-> Commit f8f9f21c7848 ("MIPS: Fix build error for loongson64 and
-> sgi-ip27") added HAVE_ARCH_NODEDATA_EXTENSION to loongson64 to silence a
-> compilation error that happened because loongson64 didn't define array
-> of pg_data_t as node_data like most other architectures did.
+
+Hi Zhengchao,
+
+Yes, I am also very conflicted about whether to add lock protection.
+ From the code, it appears that when __smc_lgr_free_bufs is called, the
+link group has already been removed from the lgr_list, so theoretically
+there should be no contention (e.g. add to buf_list). However, in order
+to maintain consistency with other lgr buf_list operations and to guard
+against unforeseen or future changes, I have added lock protection here
+as well.
+
+Thanks!
+
+> Thank you
 > 
-> After rename of __node_data to node_data arch_alloc_nodedata() and
-> HAVE_ARCH_NODEDATA_EXTENSION can be dropped from loongson64.
+> Zhengchao Shao
 > 
-> Since it was the only user of HAVE_ARCH_NODEDATA_EXTENSION config option
-> also remove this option from arch/mips/Kconfig.
-> 
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-
-These are as you say now identical to the generic form, so
-don't need a special version for any reason I can see.
-
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-
-
-> ---
->  arch/mips/Kconfig           |  4 ----
->  arch/mips/loongson64/numa.c | 10 ----------
->  2 files changed, 14 deletions(-)
-> 
-> diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-> index ea5f3c3c31f6..43da6d596e2b 100644
-> --- a/arch/mips/Kconfig
-> +++ b/arch/mips/Kconfig
-> @@ -502,7 +502,6 @@ config MACH_LOONGSON64
->  	select USE_OF
->  	select BUILTIN_DTB
->  	select PCI_HOST_GENERIC
-> -	select HAVE_ARCH_NODEDATA_EXTENSION if NUMA
->  	help
->  	  This enables the support of Loongson-2/3 family of machines.
->  
-> @@ -2612,9 +2611,6 @@ config NUMA
->  config SYS_SUPPORTS_NUMA
->  	bool
->  
-> -config HAVE_ARCH_NODEDATA_EXTENSION
-> -	bool
-> -
->  config RELOCATABLE
->  	bool "Relocatable kernel"
->  	depends on SYS_SUPPORTS_RELOCATABLE
-> diff --git a/arch/mips/loongson64/numa.c b/arch/mips/loongson64/numa.c
-> index b50ce28d2741..64fcfaa885b6 100644
-> --- a/arch/mips/loongson64/numa.c
-> +++ b/arch/mips/loongson64/numa.c
-> @@ -198,13 +198,3 @@ void __init prom_init_numa_memory(void)
->  	pr_info("CP0_PageGrain: CP0 5.1 (0x%x)\n", read_c0_pagegrain());
->  	prom_meminit();
->  }
-> -
-> -pg_data_t * __init arch_alloc_nodedata(int nid)
-> -{
-> -	return memblock_alloc(sizeof(pg_data_t), SMP_CACHE_BYTES);
-> -}
-> -
-> -void arch_refresh_nodedata(int nid, pg_data_t *pgdat)
-> -{
-> -	node_data[nid] = pgdat;
-> -}
-
+> On 2024/7/31 17:31, Wen Gu wrote:
+>> The operations to link group buffer list should be protected by
+>> sndbufs_lock or rmbs_lock. So fix it.
+>>
+>> Fixes: 3e034725c0d8 ("net/smc: common functions for RMBs and send buffers")
+>> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+>> ---
+>>   net/smc/smc_core.c | 10 ++++++++--
+>>   1 file changed, 8 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+>> index 3b95828d9976..ecfea8c38da9 100644
+>> --- a/net/smc/smc_core.c
+>> +++ b/net/smc/smc_core.c
+>> @@ -1368,18 +1368,24 @@ static void __smc_lgr_free_bufs(struct smc_link_group *lgr, bool is_rmb)
+>>   {
+>>       struct smc_buf_desc *buf_desc, *bf_desc;
+>>       struct list_head *buf_list;
+>> +    struct rw_semaphore *lock;
+>>       int i;
+>>       for (i = 0; i < SMC_RMBE_SIZES; i++) {
+>> -        if (is_rmb)
+>> +        if (is_rmb) {
+>>               buf_list = &lgr->rmbs[i];
+>> -        else
+>> +            lock = &lgr->rmbs_lock;
+>> +        } else {
+>>               buf_list = &lgr->sndbufs[i];
+>> +            lock = &lgr->sndbufs_lock;
+>> +        }
+>> +        down_write(lock);
+>>           list_for_each_entry_safe(buf_desc, bf_desc, buf_list,
+>>                        list) {
+>>               list_del(&buf_desc->list);
+>>               smc_buf_free(lgr, is_rmb, buf_desc);
+>>           }
+>> +        up_write(lock);
+>>       }
+>>   }
