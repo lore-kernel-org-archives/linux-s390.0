@@ -1,90 +1,133 @@
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9E2A1DF66B;
-	Fri,  2 Aug 2024 11:20:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 244561E3CA8;
+	Fri,  2 Aug 2024 12:40:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722597611; cv=none; b=rqJB8JPYJgybQpRtc/lVMuFEm8s/x4sZ1LH5sEN1RfnldyF4j+bd6lIvOKuZLVFWR6e1ALgx7ZOT+nS+FCf0xa3w52BW/4vAiNOuuFeT19qfOQcGsV2HMgHnOr4sblatS1lwtWRxZPHXPZ2mkyp2WKpxxhyCQXllhKzKfXnqPt8=
+	t=1722602428; cv=none; b=d3WqMmbta5+BdUmL7VtfvcSAa1RDtUhZ/gAmwLZKhxAqWs8cgXeG8SdCwreH9VYJVfc/WP6RZ9D0E+VAgakJ2QOAWx3CKqxKGWmxnr0B0hPyavR0CSPV7l2UBoeHa06l8SUw4kP9NJkewuouU1q1d3vY8S+DNnLnRniVtFXex4E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722597611; c=relaxed/simple;
-	bh=4xShjOftd4+pZBV2l+SeEhAEEaYdoitSomtoKS3Umuk=;
-	h=Date:From:To:CC:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=a/J/9r5J+geqS9SXUaJnXGxC9yy1Ot9uvOF92HypWHNh2kDBk4B5DocvsPc4EaHvd5E2ywqG0qKbJFz/uiA2l5HKrB/fmf1+dG3rzXpq9XBX/55cjmZgjnP5z78RVYsOr9OSSmxN7Mk5dUO+vJYsYSC5WZfsXHBXvzDa+cU7HtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=Huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=185.176.79.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=Huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.18.186.31])
-	by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4Wb3Ft71Q0z6K6GR;
-	Fri,  2 Aug 2024 19:17:22 +0800 (CST)
-Received: from lhrpeml500005.china.huawei.com (unknown [7.191.163.240])
-	by mail.maildlp.com (Postfix) with ESMTPS id 653A91400D9;
-	Fri,  2 Aug 2024 19:20:01 +0800 (CST)
-Received: from localhost (10.203.177.66) by lhrpeml500005.china.huawei.com
- (7.191.163.240) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.39; Fri, 2 Aug
- 2024 12:20:00 +0100
-Date: Fri, 2 Aug 2024 12:19:59 +0100
-From: Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-To: Mike Rapoport <rppt@kernel.org>
-CC: <linux-kernel@vger.kernel.org>, Alexander Gordeev
-	<agordeev@linux.ibm.com>, Andreas Larsson <andreas@gaisler.com>, "Andrew
- Morton" <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, "Borislav
- Petkov" <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christophe
- Leroy <christophe.leroy@csgroup.eu>, Dan Williams <dan.j.williams@intel.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand
-	<david@redhat.com>, "David S. Miller" <davem@davemloft.net>, Davidlohr Bueso
-	<dave@stgolabs.net>, "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>, Heiko
- Carstens <hca@linux.ibm.com>, Huacai Chen <chenhuacai@kernel.org>, Ingo
- Molnar <mingo@redhat.com>, Jiaxun Yang <jiaxun.yang@flygoat.com>, "John Paul
- Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>, Jonathan Corbet
-	<corbet@lwn.net>, Michael Ellerman <mpe@ellerman.id.au>, Palmer Dabbelt
-	<palmer@dabbelt.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Rob Herring
-	<robh@kernel.org>, Samuel Holland <samuel.holland@sifive.com>, Thomas
- Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner
-	<tglx@linutronix.de>, "Vasily Gorbik" <gor@linux.ibm.com>, Will Deacon
-	<will@kernel.org>, Zi Yan <ziy@nvidia.com>, <devicetree@vger.kernel.org>,
-	<linux-acpi@vger.kernel.org>, <linux-arch@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-cxl@vger.kernel.org>,
-	<linux-doc@vger.kernel.org>, <linux-mips@vger.kernel.org>,
-	<linux-mm@kvack.org>, <linux-riscv@lists.infradead.org>,
-	<linux-s390@vger.kernel.org>, <linux-sh@vger.kernel.org>,
-	<linuxppc-dev@lists.ozlabs.org>, <loongarch@lists.linux.dev>,
-	<nvdimm@lists.linux.dev>, <sparclinux@vger.kernel.org>, <x86@kernel.org>
-Subject: Re: [PATCH v3 19/26] mm: introduce numa_emulation
-Message-ID: <20240802121959.00003c18@Huawei.com>
-In-Reply-To: <20240801060826.559858-20-rppt@kernel.org>
-References: <20240801060826.559858-1-rppt@kernel.org>
-	<20240801060826.559858-20-rppt@kernel.org>
-Organization: Huawei Technologies Research and Development (UK) Ltd.
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-w64-mingw32)
+	s=arc-20240116; t=1722602428; c=relaxed/simple;
+	bh=U8MMlzk89Z3SW73G9T94CJ47z505jMvWq8xQMCAPf74=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PdgfLzREnAsji3ZnJibFN1z9e544A0yaqPZEOR/3q4/6J8+PiL+X3iEs6hBjDzJJP+m3dPsbBZ4pq6mT/oUdkV4fMO/jaHtpprFIbUFbY45ELt12Diie8H6dCosPfIlPhfGuOXfD5HHQScEb9vQXNKJgmR/JI92Lb2glafEIdpE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fk1du2fL; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fk1du2fL"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 472ASgnQ012379;
+	Fri, 2 Aug 2024 12:40:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=T
+	avorW6hh6S+jBvUAKi6eOdaXlh3TmdakA8/GiObTws=; b=fk1du2fLS4vIMIAGm
+	bEmMAEfbRlkGOnmdX/4zFqQE0wGjVG8q5BWE8I5VhHqYfwSpPxjl3ufdJDVPCv84
+	LA7SpJJ73HMjLxayhmhw2DfTsYjSmwCJrNcBEvwsP8Z7gdImrmQUm539gMfrx2Ir
+	t+8VxXYQ3JLNr53E5WPwIOY14ywvpTctCPCc0qU3GzLHxVjOoZCqwuJb99Q/Q9eS
+	EDHJ7q1km3QTsh6cGZu7aH+/5JZdTWOQYkhL7HFkHjXQl/iR0l8udqnp9+/HOqKI
+	YQjy7ZVlnBtqF2RL6fS+LGo33WWfk0rMj+Akdku/BZXbik5uNL0WW2PpDGlN8XBA
+	Ef3hA==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40rwqw88m3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 02 Aug 2024 12:40:25 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 472A02NZ007682;
+	Fri, 2 Aug 2024 12:40:24 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 40nb7uqfpk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 02 Aug 2024 12:40:24 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 472CeKs946530898
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 2 Aug 2024 12:40:22 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D509758059;
+	Fri,  2 Aug 2024 12:40:20 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B80FD58043;
+	Fri,  2 Aug 2024 12:40:18 +0000 (GMT)
+Received: from [9.179.14.7] (unknown [9.179.14.7])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  2 Aug 2024 12:40:18 +0000 (GMT)
+Message-ID: <4d5d5368-88c1-4eff-b0fa-8b0e47957b89@linux.ibm.com>
+Date: Fri, 2 Aug 2024 14:40:17 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/1] s390/uv: Panic if the security of the system
+ cannot be guaranteed.
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com,
+        agordeev@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com,
+        svens@linux.ibm.com, frankja@linux.ibm.com, nsg@linux.ibm.com,
+        nrb@linux.ibm.com
+References: <20240801112548.85303-1-imbrenda@linux.ibm.com>
+Content-Language: en-US
+From: Steffen Eiden <seiden@linux.ibm.com>
+In-Reply-To: <20240801112548.85303-1-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: lhrpeml500003.china.huawei.com (7.191.162.67) To
- lhrpeml500005.china.huawei.com (7.191.163.240)
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 7mQCUslHwYU6ZCxA-yA4MLQMPYoXnLbl
+X-Proofpoint-ORIG-GUID: 7mQCUslHwYU6ZCxA-yA4MLQMPYoXnLbl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-02_08,2024-08-02_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 lowpriorityscore=0
+ mlxscore=0 clxscore=1011 priorityscore=1501 malwarescore=0 impostorscore=0
+ bulkscore=0 adultscore=0 mlxlogscore=580 phishscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2407110000
+ definitions=main-2408020084
 
-On Thu,  1 Aug 2024 09:08:19 +0300
-Mike Rapoport <rppt@kernel.org> wrote:
 
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-> 
-> Move numa_emulation codfrom arch/x86 to mm/numa_emulation.c
-> 
-> This code will be later reused by arch_numa.
-> 
-> No functional changes.
-> 
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> Tested-by: Zi Yan <ziy@nvidia.com> # for x86_64 and arm64
-I ran some basic tests on ARM with this. Seems to do the job.
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Tested-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-Works on both ACPI and dsdt boots.
-
+On 8/1/24 1:25 PM, Claudio Imbrenda wrote:
+> The return value uv_set_shared() and uv_remove_shared() (which are
+> wrappers around the share() function) is not always checked. The system
+> integrity of a protected guest depends on the Share and Unshare UVCs
+> being successful. This means that any caller that fails to check the
+> return value will compromise the security of the protected guest.
+> 
+> No code path that would lead to such violation of the security
+> guarantees is currently exercised, since all the areas that are shared
+> never get unshared during the lifetime of the system. This might
+> change and become an issue in the future.
+> 
+> The Share and Unshare UVCs can only fail in case of hypervisor
+> misbehaviour (either a bug or malicious behaviour). In such cases there
+> is no reasonable way forward, and the system needs to panic.
+> 
+> This patch replaces the return at the end of the share() function with
+> a panic, to guarantee system integrity.
+> 
+> Fixes: 5abb9351dfd9 ("s390/uv: introduce guest side ultravisor code")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/uv.h | 5 ++++-
+>   1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+> index 0b5f8f3e84f1..153d93468b77 100644
+> --- a/arch/s390/include/asm/uv.h
+> +++ b/arch/s390/include/asm/uv.h
+> @@ -441,7 +441,10 @@ static inline int share(unsigned long addr, u16 cmd)
+>   
+>   	if (!uv_call(0, (u64)&uvcb))
+>   		return 0;
+> -	return -EINVAL;
+> +	pr_err("%s UVC failed (rc: 0x%x, rrc: 0x%x), possible hypervisor bug.\n",
+> +	       uvcb.header.cmd == UVC_CMD_SET_SHARED_ACCESS ? "Share" : "Unshare",
+> +	       uvcb.header.rc, uvcb.header.rrc);
+> +	panic("System security cannot be guaranteed unless the system panics now.\n");
+>   }
+>   
+>   /*
