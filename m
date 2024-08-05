@@ -1,132 +1,233 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FB4314F12C;
-	Mon,  5 Aug 2024 10:46:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A21013B2AC;
+	Mon,  5 Aug 2024 14:42:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722854774; cv=none; b=e96/i5VRBawkhng82kXjNPJp7f/dWVa6NM/YNObEVxNql5CdzZLm/iuzulQOyXMICz2zYxxvFNedS0Q6QFlXgQeQC6uo6v6iSWxXTygd/lOjVGCgjbpORxRFI6bLtZHNjrTbHaEBWdzOyQrrCLDi7DW4MfwvdkOXrTA7Ji3ba2c=
+	t=1722868922; cv=none; b=Y9Hx8eMeKvW8DzIKFOJTpwOVXSKFXDPKMQ/aTksRKVULFaPvit0u/j2ecguhHj8G0MZbc+CkOjJDu5c2EqDa7gaJnOF16XxGYZzta+MyGYYY4pB/91H2DCwSYOk8L0ftd7uWk2bDY021/GkgUOV28p/z7KFwYrmWuC9qt5QX2SU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722854774; c=relaxed/simple;
-	bh=Yj1B6B/t40PR9MCrSV9RtkXcdWdq9UFD8Ze00CWVBp8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ga0m7ofvQ2LHnGxZ1seQHxPpl4E63L1Xn9Dz1x97pW6Xq/+UYB+gue7GQlT7NGMcZEA3nuTtReuUs8C8fSdj13WjvW7/HDVOZCLaFhmYJY4AdvvyBFLX+FvL/1MpkiS1KTjiLDWOck+LQzko+8V660ne7U5SmQsLk2MFT/FGbqg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RCZbc22I; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1722868922; c=relaxed/simple;
+	bh=KAAzyiSgI5VUznoplq6rpjnO/fNKSFt30uf+NxUGEms=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ukgz8u41uaXi621pagvIzDmkDZmkWHv0MtOm5SZ8EpS1folz/kbAOjr2B4mf1/X201HVAVoN4fzTIvmZBPUyIvuWMYkn5Jv5eBdSV3pt+aGR2gP2ytRqCPS1K7MYPusfQzyp+QAKIdxNqyZgGrmyh9gK4w7PTBBUzmTbxtErWAY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QeZVbyPB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RCZbc22I"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4757RqtX020383;
-	Mon, 5 Aug 2024 10:46:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
-	uoZMEPu3Cd0okgFE1TIGb+9g8tI2TbWzAMulmz8v3iw=; b=RCZbc22I/O2yY3gx
-	9ToRhc0KN90U0mFV3/j5Qtn/T3iXGWPLHwZhBGu+8N0SCLs3cPxqqLgBoKN1bwNa
-	P9hNI/jVSyU5fr4xuDCKfjSwdtTv+Fh1yJjQoqz9nNmLuccuR3JNJ311WoqEg8yO
-	ojwSuHWXOtlbXdrOlSJ48197s0uAmSYp46XKw4JNdmu4eCXwkge3XHx5OBirq5yX
-	6y6WEoA69eGp2ZmBu4XSxkxo7WD37I+ooa6ND/YMNPSB2MHmGkaHy5+uu9WBuSFH
-	eVfVTLI5FuBYhfhr1Ei6kT0XU14bcni70MSlN+AReCs2R+M5zMzctCTOw+QFG3dN
-	kl/Gew==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40tqr6rphx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 05 Aug 2024 10:46:09 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 475AaMr1018626;
-	Mon, 5 Aug 2024 10:46:08 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 40sxvtx6kd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 05 Aug 2024 10:46:08 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 475Ak3BB16974272
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 5 Aug 2024 10:46:05 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 42CB120040;
-	Mon,  5 Aug 2024 10:46:03 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 023D02004B;
-	Mon,  5 Aug 2024 10:46:03 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  5 Aug 2024 10:46:02 +0000 (GMT)
-Date: Mon, 5 Aug 2024 12:46:01 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com, agordeev@linux.ibm.com,
-        gor@linux.ibm.com, borntraeger@de.ibm.com, svens@linux.ibm.com,
-        seiden@linux.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com
-Subject: Re: [PATCH v1 1/1] s390/uv: Panic if the security of the system
- cannot be guaranteed.
-Message-ID: <20240805124601.331660f2@p-imbrenda.boeblingen.de.ibm.com>
-In-Reply-To: <7f98cb85-de83-41ea-aaab-d76a22647ccb@linux.ibm.com>
-References: <20240801112548.85303-1-imbrenda@linux.ibm.com>
-	<7f98cb85-de83-41ea-aaab-d76a22647ccb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QeZVbyPB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F5ADC4AF0C;
+	Mon,  5 Aug 2024 14:41:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1722868921;
+	bh=KAAzyiSgI5VUznoplq6rpjnO/fNKSFt30uf+NxUGEms=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=QeZVbyPBXcN5TPefvaZdSJjjdX4y6Cq/DxczfJ+Znju3yHvNTlO4aXvamUiVWCNfm
+	 dJFw3BUgSadYOQ78s/G2NFZdYqOSMyUBf2zL4pLaMFZ2EewzmNmJ9Rhn37EaPRg84N
+	 9/e8uP7RFruygWPGM1gHiLdkGIBlGPcbSW51E1iNan8BRdokqw6NeOBGxu0KFh/Qks
+	 mRAvGlnoK48IZtmY+61J7iNsk0pg1002E708O3v+oVXriGyhI/7ytWZoPV2JtIBVsT
+	 FjMUFjm01xX837WqtfHRuVUblGy21ffay5yDOackY6gR8nnfP4nTbw6GxA72f9QZSb
+	 FucTO3UZRmE+A==
+Date: Mon, 5 Aug 2024 17:39:41 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Hildenbrand <david@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Davidlohr Bueso <dave@stgolabs.net>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Jiaxun Yang <jiaxun.yang@flygoat.com>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Samuel Holland <samuel.holland@sifive.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
+	Zi Yan <ziy@nvidia.com>, devicetree@vger.kernel.org,
+	linux-acpi@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-cxl@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-mips@vger.kernel.org,
+	linux-mm@kvack.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	nvdimm@lists.linux.dev, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v3 07/26] mm: drop CONFIG_HAVE_ARCH_NODEDATA_EXTENSION
+Message-ID: <ZrDkLeLxQAVvZcBn@kernel.org>
+References: <20240801060826.559858-1-rppt@kernel.org>
+ <20240801060826.559858-8-rppt@kernel.org>
+ <20240802104922.000051a0@Huawei.com>
+ <20240803115813.809f808f1afbe9f9feaae129@linux-foundation.org>
+ <Zq8sn5iD1iOmYrss@kernel.org>
+ <20240804161119.00003a02@Huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: JD9s8dAVLS681ZOXmXq61mQBhPEVfTLK
-X-Proofpoint-ORIG-GUID: JD9s8dAVLS681ZOXmXq61mQBhPEVfTLK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-04_14,2024-08-02_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- spamscore=0 impostorscore=0 lowpriorityscore=0 adultscore=0 clxscore=1015
- suspectscore=0 phishscore=0 priorityscore=1501 mlxlogscore=897
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2408050074
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240804161119.00003a02@Huawei.com>
 
-On Thu, 1 Aug 2024 15:20:30 +0200
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> On 8/1/24 1:25 PM, Claudio Imbrenda wrote:
-> > The return value uv_set_shared() and uv_remove_shared() (which are
-> > wrappers around the share() function) is not always checked. The system
-> > integrity of a protected guest depends on the Share and Unshare UVCs
-> > being successful. This means that any caller that fails to check the
-> > return value will compromise the security of the protected guest.
+On Sun, Aug 04, 2024 at 04:11:19PM +0100, Jonathan Cameron wrote:
+> On Sun, 4 Aug 2024 10:24:15 +0300
+> Mike Rapoport <rppt@kernel.org> wrote:
+> 
+> > On Sat, Aug 03, 2024 at 11:58:13AM -0700, Andrew Morton wrote:
+> > > On Fri, 2 Aug 2024 10:49:22 +0100 Jonathan Cameron <Jonathan.Cameron@Huawei.com> wrote:
+> > >   
+> > > > > --- a/mm/mm_init.c
+> > > > > +++ b/mm/mm_init.c
+> > > > > @@ -1838,11 +1838,10 @@ void __init free_area_init(unsigned long *max_zone_pfn)
+> > > > >  
+> > > > >  		if (!node_online(nid)) {
+> > > > >  			/* Allocator not initialized yet */
+> > > > > -			pgdat = arch_alloc_nodedata(nid);
+> > > > > +			pgdat = memblock_alloc(sizeof(*pgdat), SMP_CACHE_BYTES);
+> > > > >  			if (!pgdat)
+> > > > >  				panic("Cannot allocate %zuB for node %d.\n",
+> > > > >  				       sizeof(*pgdat), nid);
+> > > > > -			arch_refresh_nodedata(nid, pgdat);  
+> > > > 
+> > > > This allocates pgdat but never sets node_data[nid] to it
+> > > > and promptly leaks it on the line below. 
+> > > > 
+> > > > Just to sanity check this I spun up a qemu machine with no memory
+> > > > initially present on some nodes and it went boom as you'd expect.
+> > > > 
+> > > > I tested with addition of
+> > > > 			NODE_DATA(nid) = pgdat;
+> > > > and it all seems to work as expected.  
+> > > 
+> > > Thanks, I added that.  It blew up on x86_64 allnoconfig because
+> > > node_data[] (and hence NODE_DATA()) isn't an lvalue when CONFIG_NUMA=n.
+> > > 
+> > > I'll put some #ifdef CONFIG_NUMAs in there for now but
+> > > 
+> > > a) NODE_DATA() is upper-case. Implies "constant".  Shouldn't be assigned to.
+> > > 
+> > > b) NODE_DATA() should be non-lvalue when CONFIG_NUMA=y also.  But no,
+> > >    we insist on implementing things in cpp instead of in C.  
 > > 
-> > No code path that would lead to such violation of the security
-> > guarantees is currently exercised, since all the areas that are shared
-> > never get unshared during the lifetime of the system. This might
-> > change and become an issue in the future.  
-> 
-> For people wondering what the effects might be, this is the important 
-> paragraph to read. Fortunately we're currently not unsharing anything.
-> 
-> Claudio already stated that there's no way out of this but I want to 
-> reiterate on this. The hypervisor has to mess up quite badly to force a 
-> rc > 0 for the guest. Likewise the guest has to mess up memory 
-> management to achieve a rc > 0.
-> 
-> The only time where the cause of the rc can be fixed is when the 
-> hypervisor is malicious and tracks its changes. In all other cases we 
-> won't know why we ended up with a rc and it makes sense to stop the VM 
-> before something worse happens.
-> 
-> 
-> @Claudio:
-> The patch subject is a bit non-specific.
-> How about:
-> "s390/uv: Panic for set and remove shared access UVC errors"
+> > This looks like a candidate for a separate tree-wide cleanup.
+> >  
+> > > c) In fact assigning to anything which ends in "()" is nuts.  Please
+> > >    clean up my tempfix.
+> > > 
+> > > c) Mike, generally I'm wondering if there's a bunch of code here
+> > >    which isn't needed on CONFIG_NUMA=n.  Please check all of this for
+> > >    unneeded bloatiness.  
+> > 
+> > I believe the patch addresses your concerns, just with this the commit log
+> > needs update. Instead of 
+> > 
+> >     Replace the call to arch_alloc_nodedata() in free_area_init() with
+> >     memblock_alloc(), remove arch_refresh_nodedata() and cleanup
+> >     include/linux/memory_hotplug.h from the associated ifdefery.
+> > 
+> > it should be
+> > 
+> >     Replace the call to arch_alloc_nodedata() in free_area_init() with a
+> >     new helper alloc_offline_node_data(), remove arch_refresh_nodedata()
+> >     and cleanup include/linux/memory_hotplug.h from the associated
+> >     ifdefery.
+> > 
+> > I can send an updated patch if you prefer.
+> This solution looks good to me - except for a Freudian typo that means it won't
+> compile :)
 
-feel free to fix the subject when picking (unless you really want me to
-send a v2)
+Right :)
 
+I'll post v4 after kbuild confirms it compiles :)
+ 
+> Jonathan
 > 
-> With that fixed:
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> > 
+> > diff --git a/include/linux/numa.h b/include/linux/numa.h
+> > index 3b12d8ca0afd..5a749fd67f39 100644
+> > --- a/include/linux/numa.h
+> > +++ b/include/linux/numa.h
+> > @@ -34,6 +34,7 @@ extern struct pglist_data *node_data[];
+> >  #define NODE_DATA(nid)	(node_data[nid])
+> >  
+> >  void __init alloc_node_data(int nid);
+> > +void __init alloc_offline_node_data(int nit);
+> >  
+> >  /* Generic implementation available */
+> >  int numa_nearest_node(int node, unsigned int state);
+> > @@ -62,6 +63,8 @@ static inline int phys_to_target_node(u64 start)
+> >  {
+> >  	return 0;
+> >  }
+> > +
+> > +static inline void alloc_offline_node_data(int nit) {}
+> nid
+> >  #endif
+> >  
+> >  #define numa_map_to_online_node(node) numa_nearest_node(node, N_ONLINE)
+> > diff --git a/mm/mm_init.c b/mm/mm_init.c
+> > index bcc2f2dd8021..2785be04e7bb 100644
+> > --- a/mm/mm_init.c
+> > +++ b/mm/mm_init.c
+> > @@ -1836,13 +1836,8 @@ void __init free_area_init(unsigned long *max_zone_pfn)
+> >  	for_each_node(nid) {
+> >  		pg_data_t *pgdat;
+> >  
+> > -		if (!node_online(nid)) {
+> > -			/* Allocator not initialized yet */
+> > -			pgdat = memblock_alloc(sizeof(*pgdat), SMP_CACHE_BYTES);
+> > -			if (!pgdat)
+> > -				panic("Cannot allocate %zuB for node %d.\n",
+> > -				       sizeof(*pgdat), nid);
+> > -		}
+> > +		if (!node_online(nid))
+> > +			alloc_offline_node_data(nid);
+> >  
+> >  		pgdat = NODE_DATA(nid);
+> >  		free_area_init_node(nid);
+> > diff --git a/mm/numa.c b/mm/numa.c
+> > index da27eb151dc5..07e486a977c7 100644
+> > --- a/mm/numa.c
+> > +++ b/mm/numa.c
+> > @@ -34,6 +34,18 @@ void __init alloc_node_data(int nid)
+> >  	memset(NODE_DATA(nid), 0, sizeof(pg_data_t));
+> >  }
+> >  
+> > +void __init alloc_offline_node_data(int nit)
+> 
+> nid
+> 
+> > +{
+> > +	pg_data_t *pgdat;
+> > +
+> > +	pgdat = memblock_alloc(sizeof(*pgdat), SMP_CACHE_BYTES);
+> > +	if (!pgdat)
+> > +		panic("Cannot allocate %zuB for node %d.\n",
+> > +		      sizeof(*pgdat), nid);
+> > +
+> > +	node_data[nid] = pgdat;
+> > +}
+> > +
+> >  /* Stub functions: */
+> >  
+> >  #ifndef memory_add_physaddr_to_nid
+> > 
+> >  
+> > 
+> 
 > 
 
+-- 
+Sincerely yours,
+Mike.
