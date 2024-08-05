@@ -1,177 +1,137 @@
-Received: from bmailout1.hostsharing.net (bmailout1.hostsharing.net [83.223.95.100])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB36715B57C;
-	Mon,  5 Aug 2024 15:24:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=83.223.95.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FD9D2C684;
+	Mon,  5 Aug 2024 17:17:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722871467; cv=none; b=lRrI0tsWqu7KxU63V20dHNZexxfe0HasU1yNnkZCL6bmunG2VM7L0PB7a7lQ6w0YDOccGnT1g3BnbSfGh95vpdZCTsksgYrXCk9A2NdNlRfBYEAvXm/2Z19Vh6UMK+8y7/LmFR3F5CcsbyLaYQbcL6kbxx7eufg1/gIy/BHn2VQ=
+	t=1722878260; cv=none; b=I5czU5lgfJeItm1sdUPEHk75g5NILwgvGeBs60LyJCZLdAADTti/MwXJ6+fWAAv3MT9gM3NfJ8i+p0ydzC4FNuQi45dZeoIFtSipbsXmFg5PVW75IW7QVywsUYJR5g7z7rhsoehrg6HrXaj7tM3gwEnipYWCz6OK5iYkhd3V2RM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722871467; c=relaxed/simple;
-	bh=zO6iSk8R1JCdLWyy4O6A3cfcFyMwQqDks2Y7cB7hlsk=;
-	h=Message-Id:From:Date:Subject:To:Cc; b=OxPE3vNUGueLhsRZbhFLQaFMFSR//OxuUYf7blIa3kNpUBNVx00wh8FLMv1Tx6rF2t8WmeeevPXpos3MZY0e+ZmWvr16PdxwwBAWq0ouLffgDddHnyYAtRTU9UQQkf8e4AnuLCUN2jVlR/ZC9btLvr1hWJzI0FKpefvv8JtRE1g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de; spf=pass smtp.mailfrom=wunner.de; arc=none smtp.client-ip=83.223.95.100
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wunner.de
-Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256
-	 client-signature RSA-PSS (4096 bits) client-digest SHA256)
-	(Client CN "*.hostsharing.net", Issuer "RapidSSL TLS RSA CA G1" (verified OK))
-	by bmailout1.hostsharing.net (Postfix) with ESMTPS id E3C36300002AF;
-	Mon,  5 Aug 2024 17:24:14 +0200 (CEST)
-Received: by h08.hostsharing.net (Postfix, from userid 100393)
-	id CD9F8E4BC; Mon,  5 Aug 2024 17:24:14 +0200 (CEST)
-Message-Id: <7b970f7923e373d1b23784721208f93418720485.1722870934.git.lukas@wunner.de>
-From: Lukas Wunner <lukas@wunner.de>
-Date: Mon, 5 Aug 2024 17:24:05 +0200
-Subject: [PATCH] s390/pci: Stop usurping pdev->dev.groups
-To: Niklas Schnelle <schnelle@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Bjorn Helgaas <helgaas@kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-pci@vger.kernel.org, Alistair Francis <alistair23@gmail.com>, Jonathan.Cameron@huawei.com, alex.williamson@redhat.com, christian.koenig@amd.com, kch@nvidia.com, gregkh@linuxfoundation.org, logang@deltatee.com, chaitanyak@nvidia.com, rdunlap@infradead.org, Alistair Francis <alistair.francis@wdc.com>, Sebastian Ott <sebott@redhat.com>
+	s=arc-20240116; t=1722878260; c=relaxed/simple;
+	bh=xUiHKiiFB+eGRf4/0vdH6U+v/YkOQHoLKaT521lWFxI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=D6fonsPxPoEW1w3NbypP1JGml4NY44fBfEzA9w4WOi9HJwnHAx6jpjf1iA/8hXIiLeH7vDZv0y3LkVBAJqYIuCNFQQs9dxVfYEWfrpLJHCg0D1svymfbkT1DgVSsGqMwI8lSqP64kU4tcMbR3TZAe0+PNtJenJzLXSF3sEQT53A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z7q/lW63; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z7q/lW63"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A951C32782;
+	Mon,  5 Aug 2024 17:17:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1722878259;
+	bh=xUiHKiiFB+eGRf4/0vdH6U+v/YkOQHoLKaT521lWFxI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Z7q/lW639aowtINXwVebTG+OLoxrXof+zBNSeR/8WY86B+624ZIuqcPJ12uz6WAq3
+	 TOktvjQuFO3Psh/zSZk6bupzno8UjNgzGdjWYsGzuDHPa53tI5UwJrFUIiEWAMkla2
+	 aZhopzXWwqHlnm+KETHsoZ8cxcOCV/ES/RMeaNClV0U/lI74zaSa7QLz8oGGmPM5b+
+	 WVRXAQQqToAOAcGGygHFeY2KPxgU/pB39IDAe0i7d4FyqehFfReXcy3JQ8TWWNvwl/
+	 YnEvZ6i15oUR+XxxozKV+u9zlrKVedpz+W1ReJtnBjYdPuNzzekfqSWqwV+cKpPHX5
+	 XzWc8YkjVKQSQ==
+Date: Mon, 5 Aug 2024 20:15:22 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: linux-kernel@vger.kernel.org,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Hildenbrand <david@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Davidlohr Bueso <dave@stgolabs.net>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Jiaxun Yang <jiaxun.yang@flygoat.com>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Samuel Holland <samuel.holland@sifive.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
+	Zi Yan <ziy@nvidia.com>, devicetree@vger.kernel.org,
+	linux-acpi@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-cxl@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-mips@vger.kernel.org,
+	linux-mm@kvack.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	nvdimm@lists.linux.dev, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v3 09/26] arch, mm: pull out allocation of NODE_DATA to
+ generic code
+Message-ID: <ZrEIqogZ4UJJY0c2@kernel.org>
+References: <20240801060826.559858-1-rppt@kernel.org>
+ <20240801060826.559858-10-rppt@kernel.org>
+ <20240802105527.00005240@Huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240802105527.00005240@Huawei.com>
 
-Bjorn suggests using pdev->dev.groups for attribute_groups constructed
-on PCI device enumeration:
+On Fri, Aug 02, 2024 at 10:55:27AM +0100, Jonathan Cameron wrote:
+> On Thu,  1 Aug 2024 09:08:09 +0300
+> Mike Rapoport <rppt@kernel.org> wrote:
+> 
+> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> > 
+> > Architectures that support NUMA duplicate the code that allocates
+> > NODE_DATA on the node-local memory with slight variations in reporting
+> > of the addresses where the memory was allocated.
+> > 
+> > Use x86 version as the basis for the generic alloc_node_data() function
+> > and call this function in architecture specific numa initialization.
+> > 
+> > Round up node data size to SMP_CACHE_BYTES rather than to PAGE_SIZE like
+> > x86 used to do since the bootmem era when allocation granularity was
+> > PAGE_SIZE anyway.
+> > 
+> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> > Acked-by: David Hildenbrand <david@redhat.com>
+> > Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> > Tested-by: Zi Yan <ziy@nvidia.com> # for x86_64 and arm64
+> 
+> One comment unrelated to this patch set as such, just made
+> more obvious by it.
+> 
+> > diff --git a/arch/powerpc/mm/numa.c b/arch/powerpc/mm/numa.c
+> > index 0744a9a2944b..3c1da08304d0 100644
+> > --- a/arch/powerpc/mm/numa.c
+> > +++ b/arch/powerpc/mm/numa.c
+> > @@ -1093,27 +1093,9 @@ void __init dump_numa_cpu_topology(void)
+> >  static void __init setup_node_data(int nid, u64 start_pfn, u64 end_pfn)
+> >  {
+> >  	u64 spanned_pages = end_pfn - start_pfn;
+> 
+> Trivial, but might as well squash this local variable into the
+> single place it's used.
+ 
 
-   "Is it feasible to build an attribute group in pci_doe_init() and
-    add it to dev->groups so device_add() will automatically add them?"
-    https://msgid.link/20231019165829.GA1381099@bhelgaas
+> > -	const size_t nd_size = roundup(sizeof(pg_data_t), SMP_CACHE_BYTES);
 
-Unfortunately on s390, pcibios_device_add() usurps pdev->dev.groups for
-arch-specific attribute_groups, preventing its use for anything else.
+...
 
-Introduce an ARCH_PCI_DEV_GROUPS macro which arches can define in
-<asm/pci.h>.  The macro is visible in drivers/pci/pci-sysfs.c through
-the inclusion of <linux/pci.h>, which in turn includes <asm/pci.h>.
+> > +
+> > +	alloc_node_data(nid);
+> > +
+> >  	NODE_DATA(nid)->node_id = nid;
+> >  	NODE_DATA(nid)->node_start_pfn = start_pfn;
+> >  	NODE_DATA(nid)->node_spanned_pages = spanned_pages;
 
-On s390, define the macro to the three attribute_groups previously
-assigned to pdev->dev.groups.  Thereby pdev->dev.groups is made
-available for use by the PCI core.
+These are actually overridden later in free_area_init(), it would make
+sense to audit all arch-specific node setup functions and clean them up a
+bit.
 
-As a side effect, arch/s390/pci/pci_sysfs.c no longer needs to be
-compiled into the kernel if CONFIG_SYSFS=n.
-
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
----
- arch/s390/include/asm/pci.h |  9 ++++++++-
- arch/s390/pci/Makefile      |  3 ++-
- arch/s390/pci/pci.c         |  1 -
- arch/s390/pci/pci_sysfs.c   | 14 ++++----------
- drivers/pci/pci-sysfs.c     |  5 +++++
- 5 files changed, 19 insertions(+), 13 deletions(-)
-
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 30820a6..9d920ce 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -191,7 +191,14 @@ static inline bool zdev_enabled(struct zpci_dev *zdev)
- 	return (zdev->fh & (1UL << 31)) ? true : false;
- }
- 
--extern const struct attribute_group *zpci_attr_groups[];
-+extern const struct attribute_group zpci_attr_group;
-+extern const struct attribute_group pfip_attr_group;
-+extern const struct attribute_group zpci_ident_attr_group;
-+
-+#define ARCH_PCI_DEV_GROUPS &zpci_attr_group,		 \
-+			    &pfip_attr_group,		 \
-+			    &zpci_ident_attr_group,
-+
- extern unsigned int s390_pci_force_floating __initdata;
- extern unsigned int s390_pci_no_rid;
- 
-diff --git a/arch/s390/pci/Makefile b/arch/s390/pci/Makefile
-index 0547a10..2c21f03 100644
---- a/arch/s390/pci/Makefile
-+++ b/arch/s390/pci/Makefile
-@@ -3,7 +3,8 @@
- # Makefile for the s390 PCI subsystem.
- #
- 
--obj-$(CONFIG_PCI)	+= pci.o pci_irq.o pci_clp.o pci_sysfs.o \
-+obj-$(CONFIG_PCI)	+= pci.o pci_irq.o pci_clp.o \
- 			   pci_event.o pci_debug.o pci_insn.o pci_mmio.o \
- 			   pci_bus.o pci_kvm_hook.o
- obj-$(CONFIG_PCI_IOV)	+= pci_iov.o
-+obj-$(CONFIG_SYSFS)	+= pci_sysfs.o
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index cff4838..bd9624c 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -587,7 +587,6 @@ int pcibios_device_add(struct pci_dev *pdev)
- 	if (pdev->is_physfn)
- 		pdev->no_vf_scan = 1;
- 
--	pdev->dev.groups = zpci_attr_groups;
- 	zpci_map_resources(pdev);
- 
- 	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
-index 0f4f1e8..1f81f6f 100644
---- a/arch/s390/pci/pci_sysfs.c
-+++ b/arch/s390/pci/pci_sysfs.c
-@@ -197,7 +197,7 @@ static umode_t zpci_index_is_visible(struct kobject *kobj,
- 	NULL,
- };
- 
--static struct attribute_group zpci_ident_attr_group = {
-+const struct attribute_group zpci_ident_attr_group = {
- 	.attrs = zpci_ident_attrs,
- 	.is_visible = zpci_index_is_visible,
- };
-@@ -223,7 +223,7 @@ static umode_t zpci_index_is_visible(struct kobject *kobj,
- 	NULL,
- };
- 
--static struct attribute_group zpci_attr_group = {
-+const struct attribute_group zpci_attr_group = {
- 	.attrs = zpci_dev_attrs,
- 	.bin_attrs = zpci_bin_attrs,
- };
-@@ -235,14 +235,8 @@ static umode_t zpci_index_is_visible(struct kobject *kobj,
- 	&dev_attr_segment3.attr,
- 	NULL,
- };
--static struct attribute_group pfip_attr_group = {
-+
-+const struct attribute_group pfip_attr_group = {
- 	.name = "pfip",
- 	.attrs = pfip_attrs,
- };
--
--const struct attribute_group *zpci_attr_groups[] = {
--	&zpci_attr_group,
--	&pfip_attr_group,
--	&zpci_ident_attr_group,
--	NULL,
--};
-diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
-index 40cfa71..5d0f4db 100644
---- a/drivers/pci/pci-sysfs.c
-+++ b/drivers/pci/pci-sysfs.c
-@@ -31,6 +31,10 @@
- #include <linux/aperture.h>
- #include "pci.h"
- 
-+#ifndef ARCH_PCI_DEV_GROUPS
-+#define ARCH_PCI_DEV_GROUPS
-+#endif
-+
- static int sysfs_initialized;	/* = 0 */
- 
- /* show configuration fields */
-@@ -1624,6 +1628,7 @@ static umode_t pcie_dev_attrs_are_visible(struct kobject *kobj,
- 	&pci_dev_acpi_attr_group,
- #endif
- 	&pci_dev_resource_resize_group,
-+	ARCH_PCI_DEV_GROUPS
- 	NULL,
- };
- 
 -- 
-2.43.0
-
+Sincerely yours,
+Mike.
