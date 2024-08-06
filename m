@@ -1,32 +1,67 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C6461D52B;
-	Tue,  6 Aug 2024 12:23:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AE371C3F3A;
+	Tue,  6 Aug 2024 13:02:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722947005; cv=none; b=WLJOfA3j8fNoOPuNuS21cj+Zm7kgHD4FTuMFr3He2p6bags+FPzFn/cRNzyxRlZ2QSRCQL4+J9buPn3zj3jWt3cR+11xQOVa+PcuYmhfuQD8phLCoUya1mxW1i0/5ANjK4PBhjbVjpSoob3gwKPGUnCx5Mxw6lXor7ErkoQjUN4=
+	t=1722949342; cv=none; b=XA8/DZl6kFkuykGcnKyVcWz7DnfNY1JxXInyFegZ0UMoiqFE3sxFKa3YOnxp1la21LagJsVneQok7hAnKw2Yi42j368UfuF29yh0vTRHPBxo3CV6r9zYOT8w86esT64Dczhb+3Jpq2KoWQWeugKH/ar2sCXK97Jekms2uVRwipw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722947005; c=relaxed/simple;
-	bh=iE3v+w7X+H3QuCcpXjbNjpyhJCKEIZz/vtYpJzTQTHY=;
+	s=arc-20240116; t=1722949342; c=relaxed/simple;
+	bh=v/u2+Ot5HPWyKFfLnpjfw3T437vdEj+uG86syAQjjCY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RU/jqZhF+5CdWVpIk3WlJCbnmIz1TIKRU0u0PTBS8ROWGtilUQg2sZ8WcSTlvDydnuNAkhEdjPF8wLhIFa8RGuLwTpbkIRDwTNqdVR8o3oza9V0495nJ6ouJEbMu+YMIsI8k+Xw+0+HX7TtvA3s9Q1BmoCaTFcE6bRlkjGkRAKM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=MJE+gEWQ; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 In-Reply-To:Content-Type; b=AxDtobIMG0qHrN/2sq3V1f5RiOHTnEBFhT0uraLret7+ENdmgMskBZihWz2GnMQRsK1cMavM85ZDJQ6ifszRDdaBRUaZANEh0468XdGFKIe1UNjT7FBeVgIh7hjpFLKLwx9n5BW+vfLwvWwo0kGH2HpEk0kRt5ebqRvsjXuY0xw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OQa/XMP6; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="MJE+gEWQ"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1722946993; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=PbvzMj1t65Zcd3dfiP3XdKCisD7bYocW3FUMZdTjJfM=;
-	b=MJE+gEWQzIqGgyVes3GZ4qZyhozZ/BMlFZzWzNnaUkzG/YKZp7XwP8twxdDzvIcYBP/upGAd0Y7U5VHSfZt/s9NG3AeZNY5f/oYVJo+cSHS87s0/vG2QVOgNugp4pjTAOXtgaC5Ca77DZBsGrXIHYGo6maq6/qOqUOdz4LcqdZk=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0WCFQHBI_1722946992;
-Received: from 30.221.130.83(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WCFQHBI_1722946992)
-          by smtp.aliyun-inc.com;
-          Tue, 06 Aug 2024 20:23:13 +0800
-Message-ID: <b655fdb9-1d3f-4547-98f3-178ae4027bb3@linux.alibaba.com>
-Date: Tue, 6 Aug 2024 20:23:11 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OQa/XMP6"
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 476CxJDp002607;
+	Tue, 6 Aug 2024 13:02:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=z
+	9Xt0NeVuoV+TMUihP/55csyAvhwKI49eGWDlmUB2CM=; b=OQa/XMP6XxlP1twwP
+	0VI+qI7wUM0p1Dz+B6FIaiKtEFYQjC5JwHUCC+VBasXHvjxiNV/i6EavKnU7U/xT
+	hyZQO50KHgIXaDntngDobPz9/b1+8CrEVHb4Sa5WwDNaxsFa2Lp0ni8oHGDtmdqG
+	M8TCNlGon1B3rwhSxEUxkRkqqTQrPM9n1cae/aVysdKTjjOAWmR0+S1xifK0jGaE
+	sGYCfwLiKPO0wMRYbdD1BrakOu4RdlRl/K+Q/s+Pgs9mExRLat7j1CR8o0LKmZEs
+	MNEfGArHi/DKb/Z6T9vtjk9hMZlkvlrLHNmrqxeurun9rZ4NreH6RweLfCpOqLDg
+	+yUlQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40uma800ap-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 06 Aug 2024 13:02:15 +0000 (GMT)
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 476D2EwB006907;
+	Tue, 6 Aug 2024 13:02:14 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40uma800ak-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 06 Aug 2024 13:02:14 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 476B6grl018818;
+	Tue, 6 Aug 2024 13:02:13 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 40sxvu3y1n-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 06 Aug 2024 13:02:13 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 476D28xH21889390
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 6 Aug 2024 13:02:10 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5E34020049;
+	Tue,  6 Aug 2024 13:02:08 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E50DE20040;
+	Tue,  6 Aug 2024 13:02:07 +0000 (GMT)
+Received: from [9.171.47.164] (unknown [9.171.47.164])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  6 Aug 2024 13:02:07 +0000 (GMT)
+Message-ID: <9d45d403-6441-40da-8886-eb3e115dfe31@linux.ibm.com>
+Date: Tue, 6 Aug 2024 15:02:07 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -34,118 +69,85 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 1/2] net/smc: introduce statistics for allocated
- ringbufs of link group
-To: Simon Horman <horms@kernel.org>
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org
-References: <20240805090551.80786-1-guwen@linux.alibaba.com>
- <20240805090551.80786-2-guwen@linux.alibaba.com>
- <20240806104925.GS2636630@kernel.org>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <20240806104925.GS2636630@kernel.org>
+Subject: Re: [PATCH v4 06/10] selftests: kvm: s390: Add VM run test case
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+References: <20240802155913.261891-1-schlameuss@linux.ibm.com>
+ <20240802155913.261891-7-schlameuss@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ xsFNBFubpD4BEADX0uhkRhkj2AVn7kI4IuPY3A8xKat0ihuPDXbynUC77mNox7yvK3X5QBO6
+ qLqYr+qrG3buymJJRD9xkp4mqgasHdB5WR9MhXWKH08EvtvAMkEJLnqxgbqf8td3pCQ2cEpv
+ 15mH49iKSmlTcJ+PvJpGZcq/jE42u9/0YFHhozm8GfQdb9SOI/wBSsOqcXcLTUeAvbdqSBZe
+ zuMRBivJQQI1esD9HuADmxdE7c4AeMlap9MvxvUtWk4ZJ/1Z3swMVCGzZb2Xg/9jZpLsyQzb
+ lDbbTlEeyBACeED7DYLZI3d0SFKeJZ1SUyMmSOcr9zeSh4S4h4w8xgDDGmeDVygBQZa1HaoL
+ Esb8Y4avOYIgYDhgkCh0nol7XQ5i/yKLtnNThubAcxNyryw1xSstnKlxPRoxtqTsxMAiSekk
+ 0m3WJwvwd1s878HrQNK0orWd8BzzlSswzjNfQYLF466JOjHPWFOok9pzRs+ucrs6MUwDJj0S
+ cITWU9Rxb04XyigY4XmZ8dywaxwi2ZVTEg+MD+sPmRrTw+5F+sU83cUstuymF3w1GmyofgsU
+ Z+/ldjToHnq21MNa1wx0lCEipCCyE/8K9B9bg9pUwy5lfx7yORP3JuAUfCYb8DVSHWBPHKNj
+ HTOLb2g2UT65AjZEQE95U2AY9iYm5usMqaWD39pAHfhC09/7NQARAQABzSVKYW5vc2NoIEZy
+ YW5rIDxmcmFua2phQGxpbnV4LmlibS5jb20+wsF3BBMBCAAhBQJbm6Q+AhsjBQsJCAcCBhUI
+ CQoLAgQWAgMBAh4BAheAAAoJEONU5rjiOLn4p9gQALjkdj5euJVI2nNT3/IAxAhQSmRhPEt0
+ AmnCYnuTcHRWPujNr5kqgtyER9+EMQ0ZkX44JU2q7OWxTdSNSAN/5Z7qmOR9JySvDOf4d3mS
+ bMB5zxL9d8SbnSs1uW96H9ZBTlTQnmLfsiM9TetAjSrR8nUmjGhe2YUhJLR1v1LguME+YseT
+ eXnLzIzqqpu311/eYiiIGcmaOjPCE+vFjcXL5oLnGUE73qSYiujwhfPCCUK0850o1fUAYq5p
+ CNBCoKT4OddZR+0itKc/cT6NwEDwdokeg0+rAhxb4Rv5oFO70lziBplEjOxu3dqgIKbHbjza
+ EXTb+mr7VI9O4tTdqrwJo2q9zLqqOfDBi7NDvZFLzaCewhbdEpDYVu6/WxprAY94hY3F4trT
+ rQMHJKQENtF6ZTQc9fcT5I3gAmP+OEvDE5hcTALpWm6Z6SzxO7gEYCnF+qGXqp8sJVrweMub
+ UscyLqHoqdZC2UG4LQ1OJ97nzDpIRe0g6oJ9ZIYHKmfw5jjwH6rASTld5MFWajWdNsqK15k/
+ RZnHAGICKVIBOBsq26m4EsBlfCdt3b/6emuBjUXR1pyjHMz2awWzCq6/6OWs5eANZ0sdosNq
+ dq2v0ULYTazJz2rlCXV89qRa7ukkNwdBSZNEwsD4eEMicj1LSrqWDZMAALw50L4jxaMD7lPL
+ jJbazsFNBFubpD4BEADAcUTRqXF/aY53OSH7IwIK9lFKxIm0IoFkOEh7LMfp7FGzaP7ANrZd
+ cIzhZi38xyOkcaFY+npGEWvko7rlIAn0JpBO4x3hfhmhBD/WSY8LQIFQNNjEm3vzrMo7b9Jb
+ JAqQxfbURY3Dql3GUzeWTG9uaJ00u+EEPlY8zcVShDltIl5PLih20e8xgTnNzx5c110lQSu0
+ iZv2lAE6DM+2bJQTsMSYiwKlwTuv9LI9Chnoo6+tsN55NqyMxYqJgElk3VzlTXSr3+rtSCwf
+ tq2cinETbzxc1XuhIX6pu/aCGnNfuEkM34b7G1D6CPzDMqokNFbyoO6DQ1+fW6c5gctXg/lZ
+ 602iEl4C4rgcr3+EpfoPUWzKeM8JXv5Kpq4YDxhvbitr8Dm8gr38+UKFZKlWLlwhQ56r/zAU
+ v6LIsm11GmFs2/cmgD1bqBTNHHcTWwWtRTLgmnqJbVisMJuYJt4KNPqphTWsPY8SEtbufIlY
+ HXOJ2lqUzOReTrie2u0qcSvGAbSfec9apTFl2Xko/ddqPcZMpKhBiXmY8tJzSPk3+G4tqur4
+ 6TYAm5ouitJsgAR61Cu7s+PNuq/pTLDhK+6/Njmc94NGBcRA4qTuysEGE79vYWP2oIAU4Fv6
+ gqaWHZ4MEI2XTqH8wiwzPdCQPYsSE0fXWiYu7ObeErT6iLSTZGx4rQARAQABwsFfBBgBCAAJ
+ BQJbm6Q+AhsMAAoJEONU5rjiOLn4DDEP/RuyckW65SZcPG4cMfNgWxZF8rVjeVl/9PBfy01K
+ 8R0hajU40bWtXSMiby7j0/dMjz99jN6L+AJHJvrLz4qYRzn2Ys843W+RfXj62Zde4YNBE5SL
+ jJweRCbMWKaJLj6499fctxTyeb9+AMLQS4yRSwHuAZLmAb5AyCW1gBcTWZb8ON5BmWnRqeGm
+ IgC1EvCnHy++aBnHTn0m+zV89BhTLTUal35tcjUFwluBY39R2ux/HNlBO1GY3Z+WYXhBvq7q
+ katThLjaQSmnOrMhzqYmdShP1leFTVbzXUUIYv/GbynO/YrL2gaQpaP1bEUEi8lUAfXJbEWG
+ dnHFkciryi092E8/9j89DJg4mmZqOau7TtUxjRMlBcIliXkzSLUk+QvD4LK1kWievJse4mte
+ FBdkWHfP4BH/+8DxapRcG1UAheSnSRQ5LiO50annOB7oXF+vgKIaie2TBfZxQNGAs3RQ+bga
+ DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
+ Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
+ phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
+In-Reply-To: <20240802155913.261891-7-schlameuss@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: mZ8YOX-H7K-IVXloHXP97C6PB-IhTCX0
+X-Proofpoint-GUID: t3Jzs7uv_W_qKyCTzaogAYsDGlAc_zks
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-06_10,2024-08-06_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
+ lowpriorityscore=0 priorityscore=1501 phishscore=0 bulkscore=0
+ mlxlogscore=747 adultscore=0 suspectscore=0 mlxscore=0 malwarescore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2408060090
 
+On 8/2/24 5:59 PM, Christoph Schlameuss wrote:
+> Add test case running code interacting with registers within a
+> ucontrol VM.
+> 
+> * Add uc_gprs test case
+> 
+> The test uses the same VM setup using the fixture and debug macros
+> introduced in earlier patches in this series.
+> 
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-On 2024/8/6 18:49, Simon Horman wrote:
-> On Mon, Aug 05, 2024 at 05:05:50PM +0800, Wen Gu wrote:
->> Currently we have the statistics on sndbuf/RMB sizes of all connections
->> that have ever been on the link group, namely smc_stats_memsize. However
->> these statistics are incremental and since the ringbufs of link group
->> are allowed to be reused, we cannot know the actual allocated buffers
->> through these. So here introduces the statistic on actual allocated
->> ringbufs of the link group, it will be incremented when a new ringbuf is
->> added into buf_list and decremented when it is deleted from buf_list.
->>
->> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
->> ---
->>   include/uapi/linux/smc.h |  4 ++++
->>   net/smc/smc_core.c       | 52 ++++++++++++++++++++++++++++++++++++----
->>   net/smc/smc_core.h       |  2 ++
->>   3 files changed, 54 insertions(+), 4 deletions(-)
->>
->> diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
->> index b531e3ef011a..d27b8dc50f90 100644
->> --- a/include/uapi/linux/smc.h
->> +++ b/include/uapi/linux/smc.h
->> @@ -127,6 +127,8 @@ enum {
->>   	SMC_NLA_LGR_R_NET_COOKIE,	/* u64 */
->>   	SMC_NLA_LGR_R_PAD,		/* flag */
->>   	SMC_NLA_LGR_R_BUF_TYPE,		/* u8 */
->> +	SMC_NLA_LGR_R_SNDBUF_ALLOC,	/* u64 */
->> +	SMC_NLA_LGR_R_RMB_ALLOC,	/* u64 */
->>   	__SMC_NLA_LGR_R_MAX,
->>   	SMC_NLA_LGR_R_MAX = __SMC_NLA_LGR_R_MAX - 1
->>   };
->> @@ -162,6 +164,8 @@ enum {
->>   	SMC_NLA_LGR_D_V2_COMMON,	/* nest */
->>   	SMC_NLA_LGR_D_EXT_GID,		/* u64 */
->>   	SMC_NLA_LGR_D_PEER_EXT_GID,	/* u64 */
->> +	SMC_NLA_LGR_D_SNDBUF_ALLOC,	/* u64 */
->> +	SMC_NLA_LGR_D_DMB_ALLOC,	/* u64 */
->>   	__SMC_NLA_LGR_D_MAX,
->>   	SMC_NLA_LGR_D_MAX = __SMC_NLA_LGR_D_MAX - 1
->>   };
->> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
->> index 71fb334d8234..73c7999fc74f 100644
->> --- a/net/smc/smc_core.c
->> +++ b/net/smc/smc_core.c
->> @@ -221,6 +221,37 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
->>   	write_unlock_bh(&lgr->conns_lock);
->>   }
->>   
->> +/* must be called under lgr->{sndbufs|rmbs} lock */
->> +static inline void smc_lgr_buf_list_add(struct smc_link_group *lgr,
->> +					bool is_rmb,
->> +					struct list_head *buf_list,
->> +					struct smc_buf_desc *buf_desc)
-> 
-> Please do not use the inline keyword in .c files unless there is a
-> demonstrable reason to do so, e.g. performance. Rather, please allow
-> the compiler to inline functions as it sees fit.
-> 
-> The inline keyword in .h files is, of course, fine.
-> 
-
-Yes.. I forgot to remove 'inline' when I moved these two helpers
-from .h file to .c file. I will fix this in next version.
-
-Thank you!
-
->> +{
->> +	list_add(&buf_desc->list, buf_list);
->> +	if (is_rmb) {
->> +		lgr->alloc_rmbs += buf_desc->len;
->> +		lgr->alloc_rmbs +=
->> +			lgr->is_smcd ? sizeof(struct smcd_cdc_msg) : 0;
->> +	} else {
->> +		lgr->alloc_sndbufs += buf_desc->len;
->> +	}
->> +}
->> +
->> +/* must be called under lgr->{sndbufs|rmbs} lock */
->> +static inline void smc_lgr_buf_list_del(struct smc_link_group *lgr,
->> +					bool is_rmb,
->> +					struct smc_buf_desc *buf_desc)
-> 
-> Ditto.
-> 
->> +{
->> +	list_del(&buf_desc->list);
->> +	if (is_rmb) {
->> +		lgr->alloc_rmbs -= buf_desc->len;
->> +		lgr->alloc_rmbs -=
->> +			lgr->is_smcd ? sizeof(struct smcd_cdc_msg) : 0;
->> +	} else {
->> +		lgr->alloc_sndbufs -= buf_desc->len;
->> +	}
->> +}
->> +
-> 
-> ...
-> 
