@@ -1,201 +1,266 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8619B1D2F76;
-	Tue,  6 Aug 2024 13:43:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B939B1C3F28;
+	Tue,  6 Aug 2024 13:45:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722951792; cv=none; b=juzTc9NlnkqwIdqj5ctjmyW7dSiGM4bo0zNpskL74gbxzfbH3q/FrEtmvMhnuOpyBI4U+M3apa/3Qw0yH1QE6evGB6h74Lo/w+kY3eQh0C4Tn1nyTS6eUAoWPXQHTfnTEeXLFnID+VqGiDXTltAJ+jNZdUD+6v2mbK/WFCZhQG4=
+	t=1722951944; cv=none; b=gYnHa/5RFykHyqnYMrdpXALgH7LwSjn7SmBRJCuKZzgP6jlneqci3e5zGjPdQu9goOHkZuUJMyXXrU+rn9oq8XUT9EFRA7OeEuZcqpHVydzH0De8zLbxLnn6CHFkw5lcZ/S1OgNrqsljA2lF/iJBaBeSQlX875JtuscJBjCMBYY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722951792; c=relaxed/simple;
-	bh=lA082ip22lLVe8x0ZBmmSfhhxufL60K2q987v+em9hQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jHek6JvqRtDh6mHdkJ0v3//96YymNBOYY2031GCL/v2+UfkHMrcdwtRR7hyR/wl6LzpT/KtxQ/YZGNpQB+MOh1Ywg7Mici1e0Y3Rkur+V3qfNWPABiXHkY3RblTvOJpm1Imz29Bm9NXYzWfiTwi2ulxcmnYC7iQDY5r0dtR6l8k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DEW6QBmm; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1722951944; c=relaxed/simple;
+	bh=/O6gOazGAAxZLA8J+7h5p+EN9RuzNwHNrZWDPz0D6VM=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Zi8QOPjk6KWmYzk1BzVtCc7Of80uN1ddjtcHF2RUCPiqEbsALFjuOVXqI0Oe1FH/EwF3psNV4bexmmbcmeSW8NdcllTXrX0V8qeerowsiDG8Jq/odRzn/1qRHeaXvATDxufC/nYBYUCXqeGO0Fo9L8ETPszrwTDo/t5+537h4JY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kQ0Ya4OQ; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DEW6QBmm"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 476DRoHH018110;
-	Tue, 6 Aug 2024 13:42:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
-	ViIYKO1MfeiBQ75UOWsEMrvjkCQ9oS8o3NQEk+YD2SY=; b=DEW6QBmmpr1DTyaq
-	t/tb2eW3cW39ts4r8GQiQCZIdtWv59eyB12PC5kT0hSvwojxns5giEi8eyo3IlCS
-	xujOA+kCrZy+/MXCCVvE+Pt29SptJH418l6+GtfXbvJpeIS2M2Go/9MKM2vHdRVU
-	ZDIySbCU+HNsCet0n0Q0k5xG1S49u0qU9C8mNaBeEN7Se/6cEIb5mTgCpggTRNJB
-	CyvJeHOz5YkJJnaJPwwSMvHPzed7r0oQcxyL7gzq9GTdEuvCd+phB8daoKXUAzrb
-	EobOHbX80GNAr05M1hWI+o3X/Tt7wV0gvPPNxbxCmyjaAJwkxkud9j7urQUZmJdK
-	cRU/Vw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40umqw0153-1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kQ0Ya4OQ"
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 476DLeEQ009143;
+	Tue, 6 Aug 2024 13:45:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:date:subject:mime-version:content-type
+	:content-transfer-encoding:message-id:to:cc; s=pp1; bh=frDMpRJa9
+	nFQdr0/6cy9hz3L1rHXcvTkwMFBF+bYqrw=; b=kQ0Ya4OQ5PipQ7Y4hBRS8z2bv
+	Mmq5xuzCTHNOAzqR0Sq1GqFfc0uq2wNMzdRoH1RbBWTGkv7MLXmi96T6x3iNgob7
+	DeukS2EhCv/52wkXHIHr4FHeBmyQwzxUq6Y+ycjZuy33kzQav2vy7opyXhmgH0L4
+	G/qEEOaE/qw9XmK5mN7aNv+qWbO43QxEjgZm9wOmLMNGc5eH21HaZT2jL7OtUAgT
+	cotzZcSQctlNiJc53H+WWpA7eKydm+nOmXZcM0r7Jd3j3H+ol8ex3pZjuZaGCkxi
+	MS999/B/csguwWZzBeq45rMl/PQSwPrSU0hVdRKj20Axp3M4QLpPkE0McArvg==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40uma803r4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Aug 2024 13:42:59 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 476DgwUb013419;
-	Tue, 6 Aug 2024 13:42:58 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40umqw0151-1
+	Tue, 06 Aug 2024 13:45:31 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 476BABj1024334;
+	Tue, 6 Aug 2024 13:45:30 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40sy90m1k3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Aug 2024 13:42:58 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 476D07E5006490;
-	Tue, 6 Aug 2024 13:42:57 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 40t13mbjpt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Aug 2024 13:42:57 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 476DgpSx18809256
+	Tue, 06 Aug 2024 13:45:30 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 476DjRF025625286
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 6 Aug 2024 13:42:53 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9E1242004E;
-	Tue,  6 Aug 2024 13:42:51 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5C71E20043;
-	Tue,  6 Aug 2024 13:42:51 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  6 Aug 2024 13:42:51 +0000 (GMT)
-Date: Tue, 6 Aug 2024 15:42:49 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Jonathan Corbet
- <corbet@lwn.net>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Gerald
- Schaefer <gerald.schaefer@linux.ibm.com>
-Subject: Re: [PATCH v1 00/11] mm: replace follow_page() by folio_walk
-Message-ID: <20240806154249.7dbfe37e@p-imbrenda.boeblingen.de.ibm.com>
-In-Reply-To: <20240802155524.517137-1-david@redhat.com>
-References: <20240802155524.517137-1-david@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	Tue, 6 Aug 2024 13:45:29 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8D8E458059;
+	Tue,  6 Aug 2024 13:45:27 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F32935806A;
+	Tue,  6 Aug 2024 13:45:24 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  6 Aug 2024 13:45:24 +0000 (GMT)
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Date: Tue, 06 Aug 2024 15:45:15 +0200
+Subject: [PATCH] iommu/s390: Implement blocking domain
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20240806-blocking_domain-v1-1-8abc18e37e52@linux.ibm.com>
+X-B4-Tracking: v=1; b=H4sIAOoosmYC/x3MQQqAIBBA0avErBNsKImuEhFqkw2VhkIE4d2Tl
+ m/x/wuJIlOCoXoh0s2Jgy9o6grspr0jwUsxoMRW9lIJcwS7s3fzEk7NXmBnlMXVKq0QSnVFWvn
+ 5j+OU8weYHwdHYQAAAA==
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Gerd Bayer <gbayer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Joerg Roedel <jroedel@suse.de>,
+        iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6030;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=/O6gOazGAAxZLA8J+7h5p+EN9RuzNwHNrZWDPz0D6VM=;
+ b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGNI2abyTPb79wKe0bYnifz7c7ngbPbGD5e3+3XpK4Wfsv
+ c9bM7BxdZSyMIhxMciKKbIs6nL2W1cwxXRPUH8HzBxWJpAhDFycAjARLlNGhpuTXxy9VZk28/Jv
+ j3tHa7f2Oygf423Y/Cyr85d25ZZ13SsZ/ies7rHtUlT+nhliKX8lf2Znd8QqDXHH7/5LFz79oWW
+ QzgcA
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: UghynHGbhXTN53HNCkKi-DtAS3l2Q8wb
-X-Proofpoint-ORIG-GUID: _M5No_THOE1ACOCJ7EhjKWEJXSyhoXHM
+X-Proofpoint-ORIG-GUID: PqdCjSsG9b9gNfEAzym0p3kSxVVMWTtx
+X-Proofpoint-GUID: PqdCjSsG9b9gNfEAzym0p3kSxVVMWTtx
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-08-06_11,2024-08-06_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- malwarescore=0 bulkscore=0 suspectscore=0 mlxscore=0 adultscore=0
- clxscore=1011 lowpriorityscore=0 priorityscore=1501 mlxlogscore=371
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 spamscore=0
+ lowpriorityscore=0 priorityscore=1501 phishscore=0 bulkscore=0
+ mlxlogscore=554 adultscore=0 suspectscore=0 mlxscore=0 malwarescore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2407110000 definitions=main-2408060093
 
-On Fri,  2 Aug 2024 17:55:13 +0200
-David Hildenbrand <david@redhat.com> wrote:
+This fixes a crash when surprise hot-unplugging a PCI device. This crash
+happens because during hot-unplug __iommu_group_set_domain_nofail()
+attaching the default domain fails when the platform no longer
+recognizes the device as it has already been removed and we end up with
+a NULL domain pointer and UAF. This is exactly the case referred to in
+the second comment in __iommu_device_set_domain() and just as stated
+there if we can instead attach the blocking domain the UAF is prevented
+as this can handle the already removed device. Implement the blocking
+domain to use this handling. This would still leave us with a warning
+for a failed attach. As failing to attach when the device is no longer
+present is expected behavior turn this into an explicit -ENODEV error
+and don't warn for it. Also change the error return for a NULL zdev to
+-EIO as we don't want to ignore this case that would be a serious bug.
 
-> Looking into a way of moving the last folio_likely_mapped_shared() call
-> in add_folio_for_migration() under the PTL, I found myself removing
-> follow_page(). This paves the way for cleaning up all the FOLL_, follow_*
-> terminology to just be called "GUP" nowadays.
-> 
-> The new page table walker will lookup a mapped folio and return to the
-> caller with the PTL held, such that the folio cannot get unmapped
-> concurrently. Callers can then conditionally decide whether they really
-> want to take a short-term folio reference or whether the can simply
-> unlock the PTL and be done with it.
-> 
-> folio_walk is similar to page_vma_mapped_walk(), except that we don't know
-> the folio we want to walk to and that we are only walking to exactly one
-> PTE/PMD/PUD.
-> 
-> folio_walk provides access to the pte/pmd/pud (and the referenced folio
-> page because things like KSM need that), however, as part of this series
-> no page table modifications are performed by users.
-> 
-> We might be able to convert some other walk_page_range() users that really
-> only walk to one address, such as DAMON with
-> damon_mkold_ops/damon_young_ops. It might make sense to extend folio_walk
-> in the future to optionally fault in a folio (if applicable), such that we
-> can replace some get_user_pages() users that really only want to lookup
-> a single page/folio under PTL without unconditionally grabbing a folio
-> reference.
-> 
-> I have plans to extend the approach to a range walker that will try
-> batching various page table entries (not just folio pages) to be a better
-> replace for walk_page_range() -- and users will be able to opt in which
-> type of page table entries they want to process -- but that will require
-> more work and more thoughts.
-> 
-> KSM seems to work just fine (ksm_functional_tests selftests) and
-> move_pages seems to work (migration selftest). I tested the leaf
-> implementation excessively using various hugetlb sizes (64K, 2M, 32M, 1G)
-> on arm64 using move_pages and did some more testing on x86-64. Cross
-> compiled on a bunch of architectures.
-> 
-> I am not able to test the s390x Secure Execution changes, unfortunately.
+Fixes: c76c067e488c ("s390/pci: Use dma-iommu layer")
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+Note: I somewhat suspect this to be related to the following discussion
+or at least we have seen the same backtraces in reports that we suspect
+to be caused by the issue fixed with this patch. In the case I was able
+to reproduce with vfio-pci pass-through to a KVM guest I got a different
+trace though.
 
-the series looks good; we will do some tests and report back if
-everything is ok
+Organizational note: I'll be on vacation starting Thursday. Matt will
+then take over and sent new revisions as necessary.
+---
+ drivers/iommu/iommu.c      |  7 ++++--
+ drivers/iommu/s390-iommu.c | 55 ++++++++++++++++++++++++++++++++++++++--------
+ 2 files changed, 51 insertions(+), 11 deletions(-)
 
-> 
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-> Cc: Jonathan Corbet <corbet@lwn.net>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Janosch Frank <frankja@linux.ibm.com>
-> Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> 
-> David Hildenbrand (11):
->   mm: provide vm_normal_(page|folio)_pmd() with
->     CONFIG_PGTABLE_HAS_HUGE_LEAVES
->   mm/pagewalk: introduce folio_walk_start() + folio_walk_end()
->   mm/migrate: convert do_pages_stat_array() from follow_page() to
->     folio_walk
->   mm/migrate: convert add_page_for_migration() from follow_page() to
->     folio_walk
->   mm/ksm: convert get_mergeable_page() from follow_page() to folio_walk
->   mm/ksm: convert scan_get_next_rmap_item() from follow_page() to
->     folio_walk
->   mm/huge_memory: convert split_huge_pages_pid() from follow_page() to
->     folio_walk
->   s390/uv: convert gmap_destroy_page() from follow_page() to folio_walk
->   s390/mm/fault: convert do_secure_storage_access() from follow_page()
->     to folio_walk
->   mm: remove follow_page()
->   mm/ksm: convert break_ksm() from walk_page_range_vma() to folio_walk
-> 
->  Documentation/mm/transhuge.rst |   6 +-
->  arch/s390/kernel/uv.c          |  18 ++-
->  arch/s390/mm/fault.c           |  16 ++-
->  include/linux/mm.h             |   3 -
->  include/linux/pagewalk.h       |  58 ++++++++++
->  mm/filemap.c                   |   2 +-
->  mm/gup.c                       |  24 +---
->  mm/huge_memory.c               |  18 +--
->  mm/ksm.c                       | 127 +++++++++------------
->  mm/memory.c                    |   2 +-
->  mm/migrate.c                   | 131 ++++++++++-----------
->  mm/nommu.c                     |   6 -
->  mm/pagewalk.c                  | 202 +++++++++++++++++++++++++++++++++
->  13 files changed, 413 insertions(+), 200 deletions(-)
-> 
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index ed6c5cb60c5a..91b3b23bf55c 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -119,8 +119,11 @@ static int __iommu_group_set_domain(struct iommu_group *group,
+ static void __iommu_group_set_domain_nofail(struct iommu_group *group,
+ 					    struct iommu_domain *new_domain)
+ {
+-	WARN_ON(__iommu_group_set_domain_internal(
+-		group, new_domain, IOMMU_SET_DOMAIN_MUST_SUCCEED));
++	int ret = __iommu_group_set_domain_internal(
++		group, new_domain, IOMMU_SET_DOMAIN_MUST_SUCCEED);
++
++	/* Allow attach to fail when the device is gone */
++	WARN_ON(ret && ret != -ENODEV);
+ }
+ 
+ static int iommu_setup_default_domain(struct iommu_group *group,
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+index d8eaa7ea380b..3d8b5fe9a555 100644
+--- a/drivers/iommu/s390-iommu.c
++++ b/drivers/iommu/s390-iommu.c
+@@ -33,6 +33,8 @@ struct s390_domain {
+ 	struct rcu_head		rcu;
+ };
+ 
++static struct s390_domain s390_blocking_domain;
++
+ static inline unsigned int calc_rtx(dma_addr_t ptr)
+ {
+ 	return ((unsigned long)ptr >> ZPCI_RT_SHIFT) & ZPCI_INDEX_MASK;
+@@ -376,12 +378,21 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
+ 	struct zpci_dev *zdev = to_zpci_dev(dev);
+ 	unsigned long flags;
+ 
++	/*
++	 * The static blocking domain doesn't need to track devices nor
++	 * does it have an IOAT registered. As there is no harm
++	 * in keeping zdev->s390_domain set to blocking until
++	 * it is overwritten detach is a no-op.
++	 */
++	if (s390_domain->domain.type == IOMMU_DOMAIN_BLOCKED)
++		return;
++
+ 	spin_lock_irqsave(&s390_domain->list_lock, flags);
+ 	list_del_rcu(&zdev->iommu_list);
+ 	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+ 
+ 	zpci_unregister_ioat(zdev, 0);
+-	zdev->s390_domain = NULL;
++	zdev->s390_domain = &s390_blocking_domain;
+ 	zdev->dma_table = NULL;
+ }
+ 
+@@ -395,7 +406,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+ 	int cc;
+ 
+ 	if (!zdev)
+-		return -ENODEV;
++		return -EIO;
+ 
+ 	if (WARN_ON(domain->geometry.aperture_start > zdev->end_dma ||
+ 		domain->geometry.aperture_end < zdev->start_dma))
+@@ -403,16 +414,16 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+ 
+ 	if (zdev->s390_domain)
+ 		s390_iommu_detach_device(&zdev->s390_domain->domain, dev);
+-
++	/*
++	 * Detach set the blocking domain. If we fail now DMA remains blocked
++	 * and the blocking domain attached.
++	 */
+ 	cc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
+ 				virt_to_phys(s390_domain->dma_table), &status);
+-	/*
+-	 * If the device is undergoing error recovery the reset code
+-	 * will re-establish the new domain.
+-	 */
+-	if (cc && status != ZPCI_PCI_ST_FUNC_NOT_AVAIL)
++	if (cc == 3 || status == ZPCI_PCI_ST_FUNC_NOT_AVAIL)
++		return -ENODEV;
++	else if (cc)
+ 		return -EIO;
+-
+ 	zdev->dma_table = s390_domain->dma_table;
+ 	zdev->s390_domain = s390_domain;
+ 
+@@ -702,6 +713,30 @@ struct zpci_iommu_ctrs *zpci_get_iommu_ctrs(struct zpci_dev *zdev)
+ 	return &zdev->s390_domain->ctrs;
+ }
+ 
++static int blocking_domain_attach_device(struct iommu_domain *domain,
++					 struct device *dev)
++{
++	struct s390_domain *s390_domain = to_s390_domain(domain);
++	struct zpci_dev *zdev = to_zpci_dev(dev);
++	unsigned long flags;
++
++	if (!zdev)
++		return 0;
++
++	/* Detach sets the blocking domain */
++	if (zdev->s390_domain)
++		s390_iommu_detach_device(&zdev->s390_domain->domain, dev);
++	return 0;
++}
++
++static struct s390_domain s390_blocking_domain = {
++	.domain = {
++		.type = IOMMU_DOMAIN_BLOCKED,
++		.ops = &(const struct iommu_domain_ops) {
++			.attach_dev	= blocking_domain_attach_device,
++	}}
++};
++
+ int zpci_init_iommu(struct zpci_dev *zdev)
+ {
+ 	u64 aperture_size;
+@@ -777,6 +812,8 @@ static int __init s390_iommu_init(void)
+ subsys_initcall(s390_iommu_init);
+ 
+ static const struct iommu_ops s390_iommu_ops = {
++	.blocked_domain		= &s390_blocking_domain.domain,
++	.release_domain		= &s390_blocking_domain.domain,
+ 	.capable = s390_iommu_capable,
+ 	.domain_alloc_paging = s390_domain_alloc_paging,
+ 	.probe_device = s390_iommu_probe_device,
+
+---
+base-commit: de9c2c66ad8e787abec7c9d7eff4f8c3cdd28aed
+change-id: 20240806-blocking_domain-25b6c2fc6a62
+
+Best regards,
+-- 
+Niklas Schnelle
 
