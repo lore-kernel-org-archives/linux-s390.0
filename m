@@ -1,218 +1,182 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23BB816A943;
-	Tue,  6 Aug 2024 09:01:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2DAE41BDA86;
+	Tue,  6 Aug 2024 09:46:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722934912; cv=none; b=ZIf3TerxbJlqZJbPTJesK12OW5u+TYXID0BgiPte0Y61lJpLKBjlWB4Xb9dp01CQFay7W7EHuXatcud1usHddykxco73LyGvq3NF7pONwYUiYlEckJyfpWohB5aRJqpkeJM6ksRbhJgvsqsnjyz77Ap+RSoC1XAuHo5PbjPJ6qg=
+	t=1722937568; cv=none; b=ZmpOMKUlhukL4YJxbQ3pY9MvQN71RnF0a6wCMvTvDISqBVxZGeEuHi/Qqfi0B0UPkm3P8MX6pT/LY17zj2q85KK7xwepJGOqTBMl8lFNT25/Mc3efNIfYk+Kz26hZ2ESGdY/8ZZnkhebf1GivztUaM0EAzp9vaBM5kh7Lle9kdg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722934912; c=relaxed/simple;
-	bh=US8jOZ2ug3dp+YSK5BHHRKWLhK+Wrqsce2Z6pO+p5Lk=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ZTQ6SXPE0WMnQ7NvMiL5X7cq25IuIOGCAwBwzsLD6AjZFdZ8v1e0u9NwIVxvrgbsmbdbLDl7GPYgkCN94jMvC2ui0c4zmwt08bLEIcPlInoPIVU0uyx4uU+mAZNVfgebhdHtNh3wRKFtJfkv/VteXm64V+E2HPpKNTO6F+mavng=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qwR8BWfm; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qwR8BWfm"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4763K5CL015352;
-	Tue, 6 Aug 2024 09:01:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
-	OSfPYWS9kGnmMIU0TFS0w0cJb3t6riWdUGB65bASUmI=; b=qwR8BWfmz8pKMtDa
-	T/6tKTmpaIx2AdUIUYeXEfoMBcDiTkh6jAMIo6q8PGD3dIWngWeVLJX7F0w/q6Yr
-	cs8orPDm+Dh4KQIejDipk9xKClMTdi1ua//umjup6b87Wl32aXOYvjjM/N4TvHne
-	KaOJp3qPYCwdnZwz11xHdL8T4HLSgCpyzni+Q7/5zmqBlVrxYAyRNAINBj84qOiu
-	r89UyQApSW/tqeoOKAmLVaNW0ASWeryjmxEC/+xl3/1SzAJ0VsxWn+iPyAw7TYdC
-	TqOXFled0CCH2bBhmPjOQ5dLeE6Zz9uqbv3MY3SLwXHUaf4+A94dIH2UN32DLHTj
-	D8nw/g==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40ub2x0pb4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Aug 2024 09:01:49 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 47691ncS000509;
-	Tue, 6 Aug 2024 09:01:49 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40ub2x0pb2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Aug 2024 09:01:49 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 47689ToG024117;
-	Tue, 6 Aug 2024 09:01:48 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40syvpau56-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Aug 2024 09:01:48 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47691gvp50856414
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 6 Aug 2024 09:01:44 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 044332004F;
-	Tue,  6 Aug 2024 09:01:42 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6EF0A2004B;
-	Tue,  6 Aug 2024 09:01:41 +0000 (GMT)
-Received: from darkmoore (unknown [9.179.5.91])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Tue,  6 Aug 2024 09:01:41 +0000 (GMT)
-Date: Tue, 6 Aug 2024 11:01:39 +0200
-From: Christoph Schlameuss <schlameuss@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        nrb@linux.ibm.com, nsg@linux.ibm.com, npiggin@gmail.com,
-        mhartmay@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH v2 1/4] s390x/Makefile: Split snippet
- makefile rules into new file
-Message-ID: <20240806110139.2f9c080a.schlameuss@linux.ibm.com>
-In-Reply-To: <20240806084409.169039-2-frankja@linux.ibm.com>
-References: <20240806084409.169039-1-frankja@linux.ibm.com>
-	<20240806084409.169039-2-frankja@linux.ibm.com>
-Organization: IBM
+	s=arc-20240116; t=1722937568; c=relaxed/simple;
+	bh=wKTlcGiWBThyUbRzi9ybAMp65v0DAlZ2p6BQtxLqgA4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=XQy3asSAVH/3m6I3dVRY2q2g9HL6GacWR9p3NoZ93utrxdz/ObmGJbGEw2lekXBHOBw1EImNx0LBCYpGG8Xra8JRD+1IJGtRTpQw3hVlda13uDpThfLm1uAtEaVCfI+I1f9JedVnv11l6z/t5qGGcmYie23fm+gayoixj1y/V+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 205221063;
+	Tue,  6 Aug 2024 02:46:31 -0700 (PDT)
+Received: from [10.57.81.200] (unknown [10.57.81.200])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7451C3F6A8;
+	Tue,  6 Aug 2024 02:46:02 -0700 (PDT)
+Message-ID: <e1d44e36-06e4-4d1c-8daf-315d149ea1b3@arm.com>
+Date: Tue, 6 Aug 2024 10:46:00 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 07/11] mm/huge_memory: convert split_huge_pages_pid()
+ from follow_page() to folio_walk
+Content-Language: en-GB
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ Jonathan Corbet <corbet@lwn.net>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Mark Brown <broonie@kernel.org>
+References: <20240802155524.517137-1-david@redhat.com>
+ <20240802155524.517137-8-david@redhat.com>
+From: Ryan Roberts <ryan.roberts@arm.com>
+In-Reply-To: <20240802155524.517137-8-david@redhat.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: LeSL4bsBd7tokxNJAN7zYMcZ62ob_l93
-X-Proofpoint-ORIG-GUID: rTAfSKD_Fwokf_N68eA0xoGnR9DinV2A
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-06_06,2024-08-02_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=994
- malwarescore=0 spamscore=0 mlxscore=0 impostorscore=0 suspectscore=0
- phishscore=0 priorityscore=1501 bulkscore=0 lowpriorityscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2408060064
 
-On Tue,  6 Aug 2024 08:42:27 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
+On 02/08/2024 16:55, David Hildenbrand wrote:
+> Let's remove yet another follow_page() user. Note that we have to do the
+> split without holding the PTL, after folio_walk_end(). We don't care
+> about losing the secretmem check in follow_page().
 
-> It's time to move the snippet related Makefile parts into a new file
-> to make s390x/Makefile less busy.
+Hi David,
+
+Our (arm64) CI is showing a regression in split_huge_page_test from mm selftests from next-20240805 onwards. Navigating around a couple of other lurking bugs, I was able to bisect to this change (which smells about right).
+
+Newly failing test:
+
+# # ------------------------------
+# # running ./split_huge_page_test
+# # ------------------------------
+# # TAP version 13
+# # 1..12
+# # Bail out! Still AnonHugePages not split
+# # # Planned tests != run tests (12 != 0)
+# # # Totals: pass:0 fail:0 xfail:0 xpass:0 skip:0 error:0
+# # [FAIL]
+# not ok 52 split_huge_page_test # exit=1
+
+It's trying to split some pmd-mapped THPs then checking and finding that they are not split. The split is requested via /sys/kernel/debug/split_huge_pages, which I believe ends up in this function you are modifying here. Although I'll admit that looking at the change, there is nothing obviously wrong! Any ideas?
+
+bisect log:
+
+# bad: [1e391b34f6aa043c7afa40a2103163a0ef06d179] Add linux-next specific files for 20240806
+git bisect bad 1e391b34f6aa043c7afa40a2103163a0ef06d179
+# good: [de9c2c66ad8e787abec7c9d7eff4f8c3cdd28aed] Linux 6.11-rc2
+git bisect good de9c2c66ad8e787abec7c9d7eff4f8c3cdd28aed
+# bad: [01c2d56f2c52e8af01dfd91af1fe9affc76c4c9e] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git
+git bisect bad 01c2d56f2c52e8af01dfd91af1fe9affc76c4c9e
+# bad: [01c2d56f2c52e8af01dfd91af1fe9affc76c4c9e] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git
+git bisect bad 01c2d56f2c52e8af01dfd91af1fe9affc76c4c9e
+# bad: [3610638e967f32f02c56c7cc8f7d6a815972f8c2] Merge branch 'for-linux-next' of git://git.kernel.org/pub/scm/linux/kernel/git/sudeep.holla/linux.git
+git bisect bad 3610638e967f32f02c56c7cc8f7d6a815972f8c2
+# bad: [3610638e967f32f02c56c7cc8f7d6a815972f8c2] Merge branch 'for-linux-next' of git://git.kernel.org/pub/scm/linux/kernel/git/sudeep.holla/linux.git
+git bisect bad 3610638e967f32f02c56c7cc8f7d6a815972f8c2
+# bad: [d35ef6c9d106eedff36908c21699e1b7f3e55584] Merge branch 'clang-format' of https://github.com/ojeda/linux.git
+git bisect bad d35ef6c9d106eedff36908c21699e1b7f3e55584
+# good: [e1a15959d75c9ba4b45e07e37bcf843c85750010] Merge branch 'for-linux-next-fixes' of https://gitlab.freedesktop.org/drm/misc/kernel.git
+git bisect good e1a15959d75c9ba4b45e07e37bcf843c85750010
+# good: [6d66cb9bdeceb769ce62591f56580ebe80f6267a] mm: swap: add a adaptive full cluster cache reclaim
+git bisect good 6d66cb9bdeceb769ce62591f56580ebe80f6267a
+# bad: [2b820b576dfc4aa9b65f18b68f468cb5b38ece84] mm: optimization on page allocation when CMA enabled
+git bisect bad 2b820b576dfc4aa9b65f18b68f468cb5b38ece84
+# bad: [ab70279848c8623027791799492a3f6e7c38a9b2] MIPS: sgi-ip27: drop HAVE_ARCH_NODEDATA_EXTENSION
+git bisect bad ab70279848c8623027791799492a3f6e7c38a9b2
+# bad: [539bc09ff00b29eb60f3dc8ed2d82ad2050a582d] mm/huge_memory: convert split_huge_pages_pid() from follow_page() to folio_walk
+git bisect bad 539bc09ff00b29eb60f3dc8ed2d82ad2050a582d
+# good: [1a37544d0e35340ce740d377d7d6c746a84e2aae] include/linux/mmzone.h: clean up watermark accessors
+git bisect good 1a37544d0e35340ce740d377d7d6c746a84e2aae
+# good: [22adafb60d6e1a607a3d99da90927ddd7df928ad] mm/migrate: convert do_pages_stat_array() from follow_page() to folio_walk
+git bisect good 22adafb60d6e1a607a3d99da90927ddd7df928ad
+# good: [57e1ccf54dba4dda6d6f0264b76e2b86eec3d401] mm/ksm: convert get_mergeable_page() from follow_page() to folio_walk
+git bisect good 57e1ccf54dba4dda6d6f0264b76e2b86eec3d401
+# good: [285aa1a963f310530351b0e4a2e64bc4b806e518] mm/ksm: convert scan_get_next_rmap_item() from follow_page() to folio_walk
+git bisect good 285aa1a963f310530351b0e4a2e64bc4b806e518
+# first bad commit: [539bc09ff00b29eb60f3dc8ed2d82ad2050a582d] mm/huge_memory: convert split_huge_pages_pid() from follow_page() to folio_walk
+
+Thanks,
+Ryan
+
+
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-
-Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 > ---
->  s390x/Makefile          | 38 ++++----------------------------------
->  s390x/snippets/Makefile | 34 ++++++++++++++++++++++++++++++++++
->  2 files changed, 38 insertions(+), 34 deletions(-)
->  create mode 100644 s390x/snippets/Makefile
+>  mm/huge_memory.c | 18 +++++++++++-------
+>  1 file changed, 11 insertions(+), 7 deletions(-)
 > 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index 784818b2..aa55b470 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -119,9 +119,11 @@ asmlib = $(TEST_DIR)/cstart64.o $(TEST_DIR)/cpu.o
+> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+> index 0167dc27e365..697fcf89f975 100644
+> --- a/mm/huge_memory.c
+> +++ b/mm/huge_memory.c
+> @@ -40,6 +40,7 @@
+>  #include <linux/memory-tiers.h>
+>  #include <linux/compat.h>
+>  #include <linux/pgalloc_tag.h>
+> +#include <linux/pagewalk.h>
 >  
->  FLATLIBS = $(libcflat)
+>  #include <asm/tlb.h>
+>  #include <asm/pgalloc.h>
+> @@ -3507,7 +3508,7 @@ static int split_huge_pages_pid(int pid, unsigned long vaddr_start,
+>  	 */
+>  	for (addr = vaddr_start; addr < vaddr_end; addr += PAGE_SIZE) {
+>  		struct vm_area_struct *vma = vma_lookup(mm, addr);
+> -		struct page *page;
+> +		struct folio_walk fw;
+>  		struct folio *folio;
 >  
-> +# Snippets
->  SNIPPET_DIR = $(TEST_DIR)/snippets
->  snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o
->  snippet_lib = $(snippet_asmlib) lib/auxinfo.o
-> +include $(SNIPPET_DIR)/Makefile
+>  		if (!vma)
+> @@ -3519,13 +3520,10 @@ static int split_huge_pages_pid(int pid, unsigned long vaddr_start,
+>  			continue;
+>  		}
 >  
->  # perquisites (=guests) for the snippet hosts.
->  # $(TEST_DIR)/<snippet-host>.elf: snippets = $(SNIPPET_DIR)/<c/asm>/<snippet>.gbin
-> @@ -146,38 +148,6 @@ else
->  snippet-hdr-obj =
->  endif
+> -		/* FOLL_DUMP to ignore special (like zero) pages */
+> -		page = follow_page(vma, addr, FOLL_GET | FOLL_DUMP);
+> -
+> -		if (IS_ERR_OR_NULL(page))
+> +		folio = folio_walk_start(&fw, vma, addr, 0);
+> +		if (!folio)
+>  			continue;
 >  
-> -# the asm/c snippets %.o have additional generated files as dependencies
-> -$(SNIPPET_DIR)/asm/%.o: $(SNIPPET_DIR)/asm/%.S $(asm-offsets)
-> -	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
-> -
-> -$(SNIPPET_DIR)/c/%.o: $(SNIPPET_DIR)/c/%.c $(asm-offsets)
-> -	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
-> -
-> -$(SNIPPET_DIR)/asm/%.elf: $(SNIPPET_DIR)/asm/%.o $(SNIPPET_DIR)/asm/flat.lds
-> -	$(CC) $(LDFLAGS) -o $@ -T $(SNIPPET_DIR)/asm/flat.lds $<
-> -
-> -$(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.elf
-> -	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $< $@
-> -	truncate -s '%4096' $@
-> -
-> -$(SNIPPET_DIR)/c/%.elf: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS) $(SNIPPET_DIR)/c/flat.lds
-> -	$(CC) $(LDFLAGS) -o $@ -T $(SNIPPET_DIR)/c/flat.lds $< $(snippet_lib) $(FLATLIBS)
-> -
-> -$(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.elf
-> -	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $< $@
-> -	truncate -s '%4096' $@
-> -
-> -%.hdr: %.gbin $(HOST_KEY_DOCUMENT)
-> -	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
-> -
-> -.SECONDARY:
-> -%.gobj: %.gbin
-> -	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $< $@
-> -
-> -.SECONDARY:
-> -%.hdr.obj: %.hdr
-> -	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $< $@
-> -
->  lds-autodepend-flags = -MMD -MF $(dir $*).$(notdir $*).d -MT $@
->  %.lds: %.lds.S $(asm-offsets)
->  	$(CPP) $(lds-autodepend-flags) $(CPPFLAGS) -P -C -o $@ $<
-> @@ -231,8 +201,8 @@ $(snippet_asmlib): $$(patsubst %.o,%.S,$$@) $(asm-offsets)
->  	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
+> -		folio = page_folio(page);
+>  		if (!is_transparent_hugepage(folio))
+>  			goto next;
 >  
+> @@ -3544,13 +3542,19 @@ static int split_huge_pages_pid(int pid, unsigned long vaddr_start,
 >  
-> -arch_clean: asm_offsets_clean
-> -	$(RM) $(TEST_DIR)/*.{o,elf,bin,lds} $(SNIPPET_DIR)/*/*.{o,elf,*bin,*obj,hdr,lds} $(SNIPPET_DIR)/asm/.*.d $(TEST_DIR)/.*.d lib/s390x/.*.d $(comm-key)
-> +arch_clean: asm_offsets_clean snippet_clean
-> +	$(RM) $(TEST_DIR)/*.{o,elf,bin,lds} $(TEST_DIR)/.*.d lib/s390x/.*.d $(comm-key)
+>  		if (!folio_trylock(folio))
+>  			goto next;
+> +		folio_get(folio);
+> +		folio_walk_end(&fw, vma);
 >  
->  generated-files = $(asm-offsets)
->  $(tests:.elf=.o) $(asmlib) $(cflatobjs): $(generated-files)
-> diff --git a/s390x/snippets/Makefile b/s390x/snippets/Makefile
-> new file mode 100644
-> index 00000000..8d79165e
-> --- /dev/null
-> +++ b/s390x/snippets/Makefile
-> @@ -0,0 +1,34 @@
-> +# the asm/c snippets %.o have additional generated files as dependencies
-> +$(SNIPPET_DIR)/asm/%.o: $(SNIPPET_DIR)/asm/%.S $(asm-offsets)
-> +	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
+>  		if (!split_folio_to_order(folio, new_order))
+>  			split++;
+>  
+>  		folio_unlock(folio);
+> -next:
+>  		folio_put(folio);
 > +
-> +$(SNIPPET_DIR)/c/%.o: $(SNIPPET_DIR)/c/%.c $(asm-offsets)
-> +	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
-> +
-> +$(SNIPPET_DIR)/asm/%.elf: $(SNIPPET_DIR)/asm/%.o $(SNIPPET_DIR)/asm/flat.lds
-> +	$(CC) $(LDFLAGS) -o $@ -T $(SNIPPET_DIR)/asm/flat.lds $<
-> +
-> +$(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.elf
-> +	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $< $@
-> +	truncate -s '%4096' $@
-> +
-> +$(SNIPPET_DIR)/c/%.elf: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS) $(SNIPPET_DIR)/c/flat.lds
-> +	$(CC) $(LDFLAGS) -o $@ -T $(SNIPPET_DIR)/c/flat.lds $< $(snippet_lib) $(FLATLIBS)
-> +
-> +$(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.elf
-> +	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $< $@
-> +	truncate -s '%4096' $@
-> +
-> +%.hdr: %.gbin $(HOST_KEY_DOCUMENT)
-> +	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
-> +
-> +.SECONDARY:
-> +%.gobj: %.gbin
-> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $< $@
-> +
-> +.SECONDARY:
-> +%.hdr.obj: %.hdr
-> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $< $@
-> +
-> +snippet_clean:
-> +	$(RM) $(SNIPPET_DIR)/*/*.{o,elf,*bin,*obj,hdr,lds} $(SNIPPET_DIR)/asm/.*.d
+> +		cond_resched();
+> +		continue;
+> +next:
+> +		folio_walk_end(&fw, vma);
+>  		cond_resched();
+>  	}
+>  	mmap_read_unlock(mm);
 
