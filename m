@@ -1,133 +1,112 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A79C149C60;
-	Mon,  5 Aug 2024 20:37:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8909F4ED;
+	Tue,  6 Aug 2024 03:53:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722890261; cv=none; b=VyMGhhVCt9F5N+8ZsowL3bmWZaNNs1IUQN1p07TKxi0IEsOkPDp85rT2Eun7TSzwTN5Iiv8fa1LeveyEqJkpX56REfaQiQtIDeL3RJUP4FAsF0XVeQBH47jVcUFftc8XSa3h96K59jg0rE3ECNHbAnPM1f44obhjrpqp6AKVUvQ=
+	t=1722916387; cv=none; b=EIqokeeiboeQFmyBZi2BTxAm7YaZo88bB0pREuPAidw0NeA28hHFi7DPOmA8dbnlm+g7EzJTGb4NFZTnJO5fUcXKGDC+b4KomVf0uJZChYpJzGpR9IqzfqhQbT10R2+KFvnv1eccKOe4oYAnraNTsKD/D6KY3YH8+iOYVwg6YY4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722890261; c=relaxed/simple;
-	bh=qdRuOti9XNlLltkR78ltAp8iub7ZiaEGkve5ZQKgRXs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Pc04VQjcCngW/HvjKCfRW2IYnMJQ0cmyqcTO1Wc44W+q4zd6W4B5OpnnYGmJpPnKFBmt8AvgBHa3lViJHzJOv2zndQgO9ogdHuZZ+lQ7RlTeOsR50ukTmMnOcU/FaAre5qJFobpaKML6hxJIt09pAoq3F/WxWdgnWzu1zydv5t0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bF0xgt41; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bF0xgt41"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 087EBC4AF0E;
-	Mon,  5 Aug 2024 20:37:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1722890261;
-	bh=qdRuOti9XNlLltkR78ltAp8iub7ZiaEGkve5ZQKgRXs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=bF0xgt419GbxyCGFRj0fNjByi1OtMInAxUy0fO7kuEExoo6r6jeZMXGjN5ikPGLYH
-	 /M1nzHizackmgautp/VnDSLRxQXCurMyrYVEwg5Yf+PdgGkwhSt7ZiA1a6tEsPe3+w
-	 oJPfE55fHB91q50vVv1vV9hAXYemhAyhr6OpNgWOOvXUx9/9Vw4S7evidbf87YcNj+
-	 pEPIiDW05PYUn8lRlujrJ1DKbY3WIHytjXuNelSTWpy7nXBiYR1lO2v9ZQh4g3aHrR
-	 PgFXkbijAdUJ0BywpuS1YJGB4AvPiLFgG1t0OrXdtLJEh5IFQJb88z75ZKH8cfv8oU
-	 ALk7ATW/rOneA==
-Date: Mon, 5 Aug 2024 23:35:22 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-kernel@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	David Hildenbrand <david@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Davidlohr Bueso <dave@stgolabs.net>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Jiaxun Yang <jiaxun.yang@flygoat.com>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Jonathan Cameron <jonathan.cameron@huawei.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Samuel Holland <samuel.holland@sifive.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-	Zi Yan <ziy@nvidia.com>, devicetree@vger.kernel.org,
-	linux-acpi@vger.kernel.org, linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-cxl@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-mips@vger.kernel.org,
-	linux-mm@kvack.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	nvdimm@lists.linux.dev, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v3 11/26] x86/numa: use get_pfn_range_for_nid to verify
- that node spans memory
-Message-ID: <ZrE3ijXA3efepKcH@kernel.org>
-References: <20240801060826.559858-1-rppt@kernel.org>
- <20240801060826.559858-12-rppt@kernel.org>
- <66b1302ce5fd3_c1448294d3@dwillia2-xfh.jf.intel.com.notmuch>
+	s=arc-20240116; t=1722916387; c=relaxed/simple;
+	bh=iBIAgpNfjFOWcanfd3pJH3vtDVP3lWkqexHsDtuvqXc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=eMZqlS19AJeIpihlTcW9KSoKU5/3zrQcUV0HgnTNawsvPa++qkYHLUtgnLRtErOP6K02k3f1UROcx6uUkvl2gmGlkdqPPQ6EJ70SIqvFXdC6XAH/WIH7enMOeoNfjQm8j4mvI34892rb3mBy3c9P1kKbTyOaBeRjiw6wZQH79/I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.162.254])
+	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4WdK926cRRzfZ3g;
+	Tue,  6 Aug 2024 11:51:02 +0800 (CST)
+Received: from dggpeml500026.china.huawei.com (unknown [7.185.36.106])
+	by mail.maildlp.com (Postfix) with ESMTPS id 2C062180102;
+	Tue,  6 Aug 2024 11:52:56 +0800 (CST)
+Received: from [10.174.178.66] (10.174.178.66) by
+ dggpeml500026.china.huawei.com (7.185.36.106) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.39; Tue, 6 Aug 2024 11:52:55 +0800
+Message-ID: <7f2decb7-3f32-1501-91db-c6b0da6baf37@huawei.com>
+Date: Tue, 6 Aug 2024 11:52:55 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <66b1302ce5fd3_c1448294d3@dwillia2-xfh.jf.intel.com.notmuch>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.0.2
+Subject: Re: [PATCH net-next 0/2] net/smc: introduce ringbufs usage statistics
+To: Wen Gu <guwen@linux.alibaba.com>, <wenjia@linux.ibm.com>,
+	<jaka@linux.ibm.com>, <davem@davemloft.net>, <edumazet@google.com>,
+	<kuba@kernel.org>, <pabeni@redhat.com>
+CC: <alibuda@linux.alibaba.com>, <tonylu@linux.alibaba.com>,
+	<linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+	<netdev@vger.kernel.org>
+References: <20240805090551.80786-1-guwen@linux.alibaba.com>
+From: shaozhengchao <shaozhengchao@huawei.com>
+In-Reply-To: <20240805090551.80786-1-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpeml500026.china.huawei.com (7.185.36.106)
 
-On Mon, Aug 05, 2024 at 01:03:56PM -0700, Dan Williams wrote:
-> Mike Rapoport wrote:
-> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-> > 
-> > Instead of looping over numa_meminfo array to detect node's start and
-> > end addresses use get_pfn_range_for_init().
-> > 
-> > This is shorter and make it easier to lift numa_memblks to generic code.
-> > 
-> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> > Tested-by: Zi Yan <ziy@nvidia.com> # for x86_64 and arm64
-> > ---
-> >  arch/x86/mm/numa.c | 13 +++----------
-> >  1 file changed, 3 insertions(+), 10 deletions(-)
-> > 
-> > diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
-> > index edfc38803779..cfe7e5477cf8 100644
-> > --- a/arch/x86/mm/numa.c
-> > +++ b/arch/x86/mm/numa.c
-> > @@ -521,17 +521,10 @@ static int __init numa_register_memblks(struct numa_meminfo *mi)
-> >  
-> >  	/* Finally register nodes. */
-> >  	for_each_node_mask(nid, node_possible_map) {
-> > -		u64 start = PFN_PHYS(max_pfn);
-> > -		u64 end = 0;
-> > +		unsigned long start_pfn, end_pfn;
-> >  
-> > -		for (i = 0; i < mi->nr_blks; i++) {
-> > -			if (nid != mi->blk[i].nid)
-> > -				continue;
-> > -			start = min(mi->blk[i].start, start);
-> > -			end = max(mi->blk[i].end, end);
-> > -		}
-> > -
-> > -		if (start >= end)
-> > +		get_pfn_range_for_nid(nid, &start_pfn, &end_pfn);
-> > +		if (start_pfn >= end_pfn)
-> 
-> Assuming I understand why this works, would it be worth a comment like:
-> 
-> "Note, get_pfn_range_for_nid() depends on memblock_set_node() having
->  already happened"
+Hi Wen Gu:
+    Your patchset looks fine. However, the current smc-tools tool is not
+supported, so will you update the smc-tools tool?
 
-Will add a comment, sure.
- 
-> ...at least that context was not part of the diff so took me second to
-> figure out how this works.
-> 
+Thank you
 
--- 
-Sincerely yours,
-Mike.
+Zhengchao Shao
+
+On 2024/8/5 17:05, Wen Gu wrote:
+> Currently, we have histograms that show the sizes of ringbufs that ever
+> used by SMC connections. However, they are always incremental and since
+> SMC allows the reuse of ringbufs, we cannot know the actual amount of
+> ringbufs being allocated or actively used.
+> 
+> So this patch set introduces statistics for the amount of ringbufs that
+> actually allocated by link group and actively used by connections of a
+> certain net namespace, so that we can react based on these memory usage
+> information, e.g. active fallback to TCP.
+> 
+> With appropriate adaptations of smc-tools, we can obtain these ringbufs
+> usage information:
+> 
+> $ smcr -d linkgroup
+> LG-ID    : 00000500
+> LG-Role  : SERV
+> LG-Type  : ASYML
+> VLAN     : 0
+> PNET-ID  :
+> Version  : 1
+> Conns    : 0
+> Sndbuf   : 12910592 B    <-
+> RMB      : 12910592 B    <-
+> 
+> or
+> 
+> $ smcr -d stats
+> [...]
+> RX Stats
+>    Data transmitted (Bytes)      869225943 (869.2M)
+>    Total requests                 18494479
+>    Buffer usage  (Bytes)          12910592 (12.31M)  <-
+>    [...]
+> 
+> TX Stats
+>    Data transmitted (Bytes)    12760884405 (12.76G)
+>    Total requests                 36988338
+>    Buffer usage  (Bytes)          12910592 (12.31M)  <-
+>    [...]
+> [...]
+> 
+> Wen Gu (2):
+>    net/smc: introduce statistics for allocated ringbufs of link group
+>    net/smc: introduce statistics for ringbufs usage of net namespace
+> 
+>   include/uapi/linux/smc.h |  6 ++++
+>   net/smc/smc_core.c       | 74 ++++++++++++++++++++++++++++++++++------
+>   net/smc/smc_core.h       |  2 ++
+>   net/smc/smc_stats.c      |  8 +++++
+>   net/smc/smc_stats.h      | 27 ++++++++++-----
+>   5 files changed, 97 insertions(+), 20 deletions(-)
+> 
