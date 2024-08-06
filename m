@@ -1,66 +1,66 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4128CF4FA
-	for <linux-s390@vger.kernel.org>; Tue,  6 Aug 2024 09:56:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6D441BE24A
+	for <linux-s390@vger.kernel.org>; Tue,  6 Aug 2024 10:03:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722938187; cv=none; b=p0v1a1S1RRclUuAtY1ffJWbMwQFEC5tdZpE+uJ0Vy+T/+dBDebC8Cw9kvZ910s2yive7vYbBEZEKMc9p/D0H+fxHYs5gIpE0B7PVAzhTOqrvm+uxerPJV3bcjwAuIHSpaXip+UtaqXNbwvJsO3r05qQZw3DnSvQSTkhMOGsJRMU=
+	t=1722938616; cv=none; b=jV5Xt6PUcxj2GJO59MMWQdrMOiRiBnEA1JNqK0vZOmJqTsLBcSZnJG/T4xNMTGequWN/+K7n9AxlHPjUWLNJIguVeZFOAz/auYLRlQi/RAHSqjrTI1arDyag/klbczYIwIFu8p8Y2hdXxccghmuDsJHxH1U9sdwr3GnV5DIOIeA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722938187; c=relaxed/simple;
-	bh=Ti7LxTdMM/GAdTYAF9fxDmku8ji0u+DIP+EbRV6ON8E=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FEC560gskid2Vq0nNrJl3AR0gUMpjlp24LzlDPPEGpBsMaz9DpzL4I5OfWUHZjpWxlgAfHHaJGVSuczrpRl7bMA+Je90QjVgdbXBl0XdcJBHF15e/h1A75jN4pOjixZy2qDDDR3ivuZoBM45tFqjsUjqaTVjfFDHU3VOzRjw974=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ad9qQIof; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1722938616; c=relaxed/simple;
+	bh=6VDJg2q0Pms9imKEOgl9hv5CvalODEseeH7ts3QHROM=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=iz8IETD5uL8BxXs0HILiT2ICCjhWuYr8644RWmjvKZiK6QLigtfkud3FqOqdePHCzF0S6MEkg9elchFY7nKJuIqdAWyDgbaHbUYKHPa1kDtvjgPQ+KFKQgQpRA6xtU1u9dzlAWTzOIlgcUp5/2NH33Q3ZFI8JTzAsfd+f9s6qyo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NywMrZOA; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ad9qQIof"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NywMrZOA"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722938184;
+	s=mimecast20190719; t=1722938613;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=vBQbeHUtRbShTjPALCR2c7k0HkoMBZRNLSHpsLdcSmo=;
-	b=Ad9qQIofW2pyjT7v8NfDmLYj3GmsAZVALw8qEh9QVskolRfs8JoHRA21Moe68/+oSyG65v
-	Ii1Y0wmiMM4tYr3RV5xsap+razHgseSGOGPYsC8NiOOql0DVzn4xMQFJkY3YE6m59GJCzJ
-	hNluA7qjHiojGUb3Ex8XaOzqczwmc1g=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=bgKUr6jif0ys53qB1n+utj32ZaC+P0IMdQH7NvSw5o4=;
+	b=NywMrZOA8d/Jw2qDTMPqFPt31aj0wV0ZiyHyacEnn890w9Y+wJXCsfX1r2FhVxHkrCKioB
+	ekV1NxEIx5rrHoBX7N4dEzU4Be0zGQXLNTITxXG2bXWd9j8IlJpq1wGFKvwOHJBRwkzCrY
+	GbJHNTACcGWr6ySOkoOp7kATNybteU4=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-353-46pu0uelOFux7Cah44SSJw-1; Tue, 06 Aug 2024 05:56:22 -0400
-X-MC-Unique: 46pu0uelOFux7Cah44SSJw-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-428ea5b1479so3687205e9.0
-        for <linux-s390@vger.kernel.org>; Tue, 06 Aug 2024 02:56:22 -0700 (PDT)
+ us-mta-630-uWoh6Yo_PEadlO-uOGwlfQ-1; Tue, 06 Aug 2024 06:03:29 -0400
+X-MC-Unique: uWoh6Yo_PEadlO-uOGwlfQ-1
+Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2ef311ad4bcso4761931fa.0
+        for <linux-s390@vger.kernel.org>; Tue, 06 Aug 2024 03:03:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722938181; x=1723542981;
+        d=1e100.net; s=20230601; t=1722938608; x=1723543408;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
+         :content-language:references:cc:to:from:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=vBQbeHUtRbShTjPALCR2c7k0HkoMBZRNLSHpsLdcSmo=;
-        b=sUDFYGfUcF3oxrUV7uaWYKF4sSihanEQF7krl1xz2Cltc+T8XQrfkH2FFNoMqDa8ic
-         bfV9PIjz+X9I1PS2v3INtx4sTh8tJdbRh2mx6UrR61FlnDWZqVAbEUExrJmirNyHip6s
-         cLsGrXLu5nT9Un1HJY9uVbIF/E8DQ1Q78lDHRnIzoBBgR8W8pVxHSM6c5muwDa/0nKcm
-         kd5S/bV+BLkJ6p4Ry+hBGGiV+MgfzZFGcSuZoxxSbtdCrP/JXu35cGAjC6YVrNQlznWB
-         CWEM4WQfb15G5vPT4rgaMSO8wv138T57vUp2MjCFJmt//MfTctZPPYAq8wAYL/dUMHur
-         2jXA==
-X-Forwarded-Encrypted: i=1; AJvYcCX0eXwFwQ5bhSVGRDGz4bT+5j056YYxMJVOihPOl/m3hOjCgVIV1wR14QyKOLoELzVxIoqciUhgHS005qT7YWXovfQKBa+og+CPZw==
-X-Gm-Message-State: AOJu0YxQQcIF20UpUkBuyr6VgwJh0nzzEiuC38TOT9ON0749GtV0VvLR
-	tOR/ZKgqkkNBNFZUxiLOnScUUWdB4tFywxl4lN2YRgx3YWJIFrPG0wv51BUdQ5CY/xr6/ysb2PJ
-	168zJd1nC2s5Tj0S3uzxkjwUpuQQevS6ShBlTKJZQa86LbelV7ytT3eYT4pA=
-X-Received: by 2002:a05:600c:4451:b0:426:616e:db8d with SMTP id 5b1f17b1804b1-428e6b090eamr97972235e9.15.1722938181426;
-        Tue, 06 Aug 2024 02:56:21 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGfP5KCXnsTh/UB7wgpJpEYZk3HSm4U8XqukDLtT1XwMJtEIW1gpaFv2fU6boTUbNdjaKb94w==
-X-Received: by 2002:a05:600c:4451:b0:426:616e:db8d with SMTP id 5b1f17b1804b1-428e6b090eamr97971975e9.15.1722938180840;
-        Tue, 06 Aug 2024 02:56:20 -0700 (PDT)
+        bh=bgKUr6jif0ys53qB1n+utj32ZaC+P0IMdQH7NvSw5o4=;
+        b=BXxzRU/WZkaOn3f+BLxq6avv24X7SDo5FfXDZcAQH78iiVqYbjKQ/QYU6+yCF1fPiH
+         FjBy+jXm4nsWhtFT4XmatN+QH4/0VCTPnYAIx/ZibSnBSHCYuxx2Ty9dZK9kQS9PiNdP
+         8K6b7OxGJ8ubFevYSub4w4zJLsmIpqLeKCuE2w+oaNrWBFcLGfTPoWjHsWGnnNUSOFYB
+         wBYIMApqoDB1oDUaLVYcV+ttlL5YYadEKyHAtUM1eSloDGvNqju1oowYi1tENcVMiN43
+         ACGww3v0XWCE9IdGRFkSOYfVpTJG36krdGE3GBitQYzay4oFZT9UqqLuQo/CfyvCdipC
+         jSWg==
+X-Forwarded-Encrypted: i=1; AJvYcCVHEICzWqHzHSQ66WVfrW2GwAjF9tCZ5XhbvWBUoSd/bPlefsBQD/Xhcrp5gt7HkXUivnv+mdM8NNq2KBuA+kubMuEaB3M8dq5m0w==
+X-Gm-Message-State: AOJu0YwbO/527RGACr+6zIjeKm8amnZeWBzvkfOEe37WyqEF7r7j7e12
+	W7Ss5JppzyfhNutIlb9bMwj6FsT+oUK4s4H/QccAof4HKL7PgigzWA8tlpb5xCT2Iegrk/nEeIm
+	GORNHpjzoEdQLqw43R669ZER1ttwAwA5DJz0yrBgowqHa127gc2FdY76NNEs=
+X-Received: by 2002:a2e:914b:0:b0:2ef:17ee:62b0 with SMTP id 38308e7fff4ca-2f15aa8368bmr102971061fa.2.1722938607751;
+        Tue, 06 Aug 2024 03:03:27 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEDWpK1rNaFPNuP9VBsXJMe+hBHNj54PFw4G+1WArEqaTVBZhlXcvM1Mh3AkfAZC1X5AtJ0zQ==
+X-Received: by 2002:a2e:914b:0:b0:2ef:17ee:62b0 with SMTP id 38308e7fff4ca-2f15aa8368bmr102970681fa.2.1722938607189;
+        Tue, 06 Aug 2024 03:03:27 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c73f:8500:f83c:3602:5300:88af? (p200300cbc73f8500f83c3602530088af.dip0.t-ipconnect.de. [2003:cb:c73f:8500:f83c:3602:5300:88af])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36bbcf0ccc5sm12576894f8f.23.2024.08.06.02.56.19
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4282b8ad9ddsm234729945e9.17.2024.08.06.03.03.25
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 06 Aug 2024 02:56:20 -0700 (PDT)
-Message-ID: <ac97ccdc-ee1e-4f07-8902-6360de80c2a0@redhat.com>
-Date: Tue, 6 Aug 2024 11:56:18 +0200
+        Tue, 06 Aug 2024 03:03:26 -0700 (PDT)
+Message-ID: <a5f059a0-32d6-453e-9d18-1f3bfec3a762@redhat.com>
+Date: Tue, 6 Aug 2024 12:03:25 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -70,6 +70,7 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v1 07/11] mm/huge_memory: convert split_huge_pages_pid()
  from follow_page() to folio_walk
+From: David Hildenbrand <david@redhat.com>
 To: Ryan Roberts <ryan.roberts@arm.com>, linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org, linux-doc@vger.kernel.org, kvm@vger.kernel.org,
  linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
@@ -87,7 +88,7 @@ Cc: linux-mm@kvack.org, linux-doc@vger.kernel.org, kvm@vger.kernel.org,
 References: <20240802155524.517137-1-david@redhat.com>
  <20240802155524.517137-8-david@redhat.com>
  <e1d44e36-06e4-4d1c-8daf-315d149ea1b3@arm.com>
-From: David Hildenbrand <david@redhat.com>
+ <ac97ccdc-ee1e-4f07-8902-6360de80c2a0@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -134,36 +135,40 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <e1d44e36-06e4-4d1c-8daf-315d149ea1b3@arm.com>
+In-Reply-To: <ac97ccdc-ee1e-4f07-8902-6360de80c2a0@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 06.08.24 11:46, Ryan Roberts wrote:
-> On 02/08/2024 16:55, David Hildenbrand wrote:
->> Let's remove yet another follow_page() user. Note that we have to do the
->> split without holding the PTL, after folio_walk_end(). We don't care
->> about losing the secretmem check in follow_page().
+On 06.08.24 11:56, David Hildenbrand wrote:
+> On 06.08.24 11:46, Ryan Roberts wrote:
+>> On 02/08/2024 16:55, David Hildenbrand wrote:
+>>> Let's remove yet another follow_page() user. Note that we have to do the
+>>> split without holding the PTL, after folio_walk_end(). We don't care
+>>> about losing the secretmem check in follow_page().
+>>
+>> Hi David,
+>>
+>> Our (arm64) CI is showing a regression in split_huge_page_test from mm selftests from next-20240805 onwards. Navigating around a couple of other lurking bugs, I was able to bisect to this change (which smells about right).
+>>
+>> Newly failing test:
+>>
+>> # # ------------------------------
+>> # # running ./split_huge_page_test
+>> # # ------------------------------
+>> # # TAP version 13
+>> # # 1..12
+>> # # Bail out! Still AnonHugePages not split
+>> # # # Planned tests != run tests (12 != 0)
+>> # # # Totals: pass:0 fail:0 xfail:0 xpass:0 skip:0 error:0
+>> # # [FAIL]
+>> # not ok 52 split_huge_page_test # exit=1
+>>
+>> It's trying to split some pmd-mapped THPs then checking and finding that they are not split. The split is requested via /sys/kernel/debug/split_huge_pages, which I believe ends up in this function you are modifying here. Although I'll admit that looking at the change, there is nothing obviously wrong! Any ideas?
 > 
-> Hi David,
-> 
-> Our (arm64) CI is showing a regression in split_huge_page_test from mm selftests from next-20240805 onwards. Navigating around a couple of other lurking bugs, I was able to bisect to this change (which smells about right).
-> 
-> Newly failing test:
-> 
-> # # ------------------------------
-> # # running ./split_huge_page_test
-> # # ------------------------------
-> # # TAP version 13
-> # # 1..12
-> # # Bail out! Still AnonHugePages not split
-> # # # Planned tests != run tests (12 != 0)
-> # # # Totals: pass:0 fail:0 xfail:0 xpass:0 skip:0 error:0
-> # # [FAIL]
-> # not ok 52 split_huge_page_test # exit=1
-> 
-> It's trying to split some pmd-mapped THPs then checking and finding that they are not split. The split is requested via /sys/kernel/debug/split_huge_pages, which I believe ends up in this function you are modifying here. Although I'll admit that looking at the change, there is nothing obviously wrong! Any ideas?
+> Nothing jumps at me as well. Let me fire up the debugger :)
 
-Nothing jumps at me as well. Let me fire up the debugger :)
+Ah, very likely the can_split_folio() check expects a raised refcount 
+already.
 
 -- 
 Cheers,
