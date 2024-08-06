@@ -1,66 +1,66 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6D441BE24A
-	for <linux-s390@vger.kernel.org>; Tue,  6 Aug 2024 10:03:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF5891BE23A
+	for <linux-s390@vger.kernel.org>; Tue,  6 Aug 2024 10:24:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722938616; cv=none; b=jV5Xt6PUcxj2GJO59MMWQdrMOiRiBnEA1JNqK0vZOmJqTsLBcSZnJG/T4xNMTGequWN/+K7n9AxlHPjUWLNJIguVeZFOAz/auYLRlQi/RAHSqjrTI1arDyag/klbczYIwIFu8p8Y2hdXxccghmuDsJHxH1U9sdwr3GnV5DIOIeA=
+	t=1722939891; cv=none; b=G9Fp937hzMbXUwzOVouo4mTAyHMDPVMruN1/ViFz7w++QgFExLC2MuRF5mFzeBusHgmSxfhiY1YNTEkyO/NNTbYgOuwtT/N3LDWfbIJIzvUVbmy+F42mvAaVv8Awx8WFdD36LFD7iyyLrvXxjrN6MilrWIuwIq5DGR3gwP9EmDA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722938616; c=relaxed/simple;
-	bh=6VDJg2q0Pms9imKEOgl9hv5CvalODEseeH7ts3QHROM=;
+	s=arc-20240116; t=1722939891; c=relaxed/simple;
+	bh=HuWX+vrC1Cp3pDD3J+tpe61DVfReUbkB6foFuxdjH+A=;
 	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=iz8IETD5uL8BxXs0HILiT2ICCjhWuYr8644RWmjvKZiK6QLigtfkud3FqOqdePHCzF0S6MEkg9elchFY7nKJuIqdAWyDgbaHbUYKHPa1kDtvjgPQ+KFKQgQpRA6xtU1u9dzlAWTzOIlgcUp5/2NH33Q3ZFI8JTzAsfd+f9s6qyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NywMrZOA; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=NnzMn35AF6nZ1cM7DR+4XaM6qNpczezT359Hz7dpYvueBbkZQkbGNvuNgd/T3Ck2POiGP5MMzoKiRTjxhwcTgarGo9/6OAQllwxajPIOb+pbap2dDJUyQjXFnFutxgqgJJi/sycKVejQC/O1Hm1Rg4jqRY4oQvLckE418hWPGlE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Y6ljSiyJ; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NywMrZOA"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y6ljSiyJ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722938613;
+	s=mimecast20190719; t=1722939888;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=bgKUr6jif0ys53qB1n+utj32ZaC+P0IMdQH7NvSw5o4=;
-	b=NywMrZOA8d/Jw2qDTMPqFPt31aj0wV0ZiyHyacEnn890w9Y+wJXCsfX1r2FhVxHkrCKioB
-	ekV1NxEIx5rrHoBX7N4dEzU4Be0zGQXLNTITxXG2bXWd9j8IlJpq1wGFKvwOHJBRwkzCrY
-	GbJHNTACcGWr6ySOkoOp7kATNybteU4=
+	bh=DoZ2AeUPUcckuQeDBJI84lvVHjk0eASPXLtUIbrijoY=;
+	b=Y6ljSiyJ4ZRwyCPVg9Nmr3E36Dm6yfzIZPcSvcGazdtRYRm8qh2/DSP0vl5lEyQdwThqka
+	2QKL6WEhRAItlyPT70sWFYhnVyRMub2Q98oB5LIH4CbcPNmmhIyrsCpVXqClH0BS7ZUSX7
+	DYPv7NxnBxUx8e2CNkCUrnB4sagKul4=
 Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
  [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-630-uWoh6Yo_PEadlO-uOGwlfQ-1; Tue, 06 Aug 2024 06:03:29 -0400
-X-MC-Unique: uWoh6Yo_PEadlO-uOGwlfQ-1
-Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2ef311ad4bcso4761931fa.0
-        for <linux-s390@vger.kernel.org>; Tue, 06 Aug 2024 03:03:29 -0700 (PDT)
+ us-mta-600-RjWXq9e3Pm6xG2-Lqz8sIA-1; Tue, 06 Aug 2024 06:24:47 -0400
+X-MC-Unique: RjWXq9e3Pm6xG2-Lqz8sIA-1
+Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2ef286cf0e8so6382481fa.0
+        for <linux-s390@vger.kernel.org>; Tue, 06 Aug 2024 03:24:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722938608; x=1723543408;
+        d=1e100.net; s=20230601; t=1722939886; x=1723544686;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:references:cc:to:from:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=bgKUr6jif0ys53qB1n+utj32ZaC+P0IMdQH7NvSw5o4=;
-        b=BXxzRU/WZkaOn3f+BLxq6avv24X7SDo5FfXDZcAQH78iiVqYbjKQ/QYU6+yCF1fPiH
-         FjBy+jXm4nsWhtFT4XmatN+QH4/0VCTPnYAIx/ZibSnBSHCYuxx2Ty9dZK9kQS9PiNdP
-         8K6b7OxGJ8ubFevYSub4w4zJLsmIpqLeKCuE2w+oaNrWBFcLGfTPoWjHsWGnnNUSOFYB
-         wBYIMApqoDB1oDUaLVYcV+ttlL5YYadEKyHAtUM1eSloDGvNqju1oowYi1tENcVMiN43
-         ACGww3v0XWCE9IdGRFkSOYfVpTJG36krdGE3GBitQYzay4oFZT9UqqLuQo/CfyvCdipC
-         jSWg==
-X-Forwarded-Encrypted: i=1; AJvYcCVHEICzWqHzHSQ66WVfrW2GwAjF9tCZ5XhbvWBUoSd/bPlefsBQD/Xhcrp5gt7HkXUivnv+mdM8NNq2KBuA+kubMuEaB3M8dq5m0w==
-X-Gm-Message-State: AOJu0YwbO/527RGACr+6zIjeKm8amnZeWBzvkfOEe37WyqEF7r7j7e12
-	W7Ss5JppzyfhNutIlb9bMwj6FsT+oUK4s4H/QccAof4HKL7PgigzWA8tlpb5xCT2Iegrk/nEeIm
-	GORNHpjzoEdQLqw43R669ZER1ttwAwA5DJz0yrBgowqHa127gc2FdY76NNEs=
-X-Received: by 2002:a2e:914b:0:b0:2ef:17ee:62b0 with SMTP id 38308e7fff4ca-2f15aa8368bmr102971061fa.2.1722938607751;
-        Tue, 06 Aug 2024 03:03:27 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEDWpK1rNaFPNuP9VBsXJMe+hBHNj54PFw4G+1WArEqaTVBZhlXcvM1Mh3AkfAZC1X5AtJ0zQ==
-X-Received: by 2002:a2e:914b:0:b0:2ef:17ee:62b0 with SMTP id 38308e7fff4ca-2f15aa8368bmr102970681fa.2.1722938607189;
-        Tue, 06 Aug 2024 03:03:27 -0700 (PDT)
+        bh=DoZ2AeUPUcckuQeDBJI84lvVHjk0eASPXLtUIbrijoY=;
+        b=SAjOVJvQt7jOSPq20BjrBKMkAXLXVnG686b2EULRy3zE+cvgPcrrx4gbcuDHdViCQ8
+         Ux6Y2vd+UhTzbW1PJkSjE0n68nVjypVJ4tmVt17rnRceep9Z90iHDtxA4/JpY20+1aHF
+         sSf8WKwTuSibJ5pP+5loEuPtucnLILzkKOg6pt87dE0l//cZHPLaDUv6GsJBN2LR+62P
+         sHcI0O4+zhzbE/iYtRqti81sxRgqKUY6PozEVOcR/bme6dJ9Itieow+b5E7SXjrNJlMz
+         YihuhkFkQ0ivhJ/+s39YMSfVndHdqZyoFHF/ndxBVbrt3tLe62kSVYnQNZk1NXBKHCA2
+         s59w==
+X-Forwarded-Encrypted: i=1; AJvYcCXyV1CGNV7yhBwxQMlIPl9TsBEf/YSM9gwk0EFnswbNR40EJOGNDMPCdCg05b3wHhVOfWNyFi8h3RhzlrrghBwEawpWMp1sJywVUQ==
+X-Gm-Message-State: AOJu0YwmtLf/DeqfRHnyNl6hKRKsngR9FBEeT03rx1ZaKtyIXw5FEPsG
+	0eHqbyJ/Rgkd9+bTZsaVJVq+KtU04+h5cEAIyK68NjWq2Fha+Ytk46BxldP+lnrm2yR2br4TIul
+	8HHKxey7kLi+l6XESE6j4OTwi3JK7osNajUiSvcC7oZKc2CpamCDiUcrtTdQ=
+X-Received: by 2002:a2e:6a19:0:b0:2ef:18b7:440a with SMTP id 38308e7fff4ca-2f15aabcb81mr95034541fa.22.1722939886125;
+        Tue, 06 Aug 2024 03:24:46 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG8itjc3h8PngLh6sckeQFWJdV4aDIkdExLfu67u6p2gXb+5+zksdac7hw0FLiIq9dg6z+/MQ==
+X-Received: by 2002:a2e:6a19:0:b0:2ef:18b7:440a with SMTP id 38308e7fff4ca-2f15aabcb81mr95034221fa.22.1722939885539;
+        Tue, 06 Aug 2024 03:24:45 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c73f:8500:f83c:3602:5300:88af? (p200300cbc73f8500f83c3602530088af.dip0.t-ipconnect.de. [2003:cb:c73f:8500:f83c:3602:5300:88af])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4282b8ad9ddsm234729945e9.17.2024.08.06.03.03.25
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-428e6e7cc3asm174941185e9.34.2024.08.06.03.24.44
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 06 Aug 2024 03:03:26 -0700 (PDT)
-Message-ID: <a5f059a0-32d6-453e-9d18-1f3bfec3a762@redhat.com>
-Date: Tue, 6 Aug 2024 12:03:25 +0200
+        Tue, 06 Aug 2024 03:24:45 -0700 (PDT)
+Message-ID: <c75d1c6c-8ea6-424f-853c-1ccda6c77ba2@redhat.com>
+Date: Tue, 6 Aug 2024 12:24:43 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -89,6 +89,7 @@ References: <20240802155524.517137-1-david@redhat.com>
  <20240802155524.517137-8-david@redhat.com>
  <e1d44e36-06e4-4d1c-8daf-315d149ea1b3@arm.com>
  <ac97ccdc-ee1e-4f07-8902-6360de80c2a0@redhat.com>
+ <a5f059a0-32d6-453e-9d18-1f3bfec3a762@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -135,40 +136,153 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <ac97ccdc-ee1e-4f07-8902-6360de80c2a0@redhat.com>
+In-Reply-To: <a5f059a0-32d6-453e-9d18-1f3bfec3a762@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 06.08.24 11:56, David Hildenbrand wrote:
-> On 06.08.24 11:46, Ryan Roberts wrote:
->> On 02/08/2024 16:55, David Hildenbrand wrote:
->>> Let's remove yet another follow_page() user. Note that we have to do the
->>> split without holding the PTL, after folio_walk_end(). We don't care
->>> about losing the secretmem check in follow_page().
+On 06.08.24 12:03, David Hildenbrand wrote:
+> On 06.08.24 11:56, David Hildenbrand wrote:
+>> On 06.08.24 11:46, Ryan Roberts wrote:
+>>> On 02/08/2024 16:55, David Hildenbrand wrote:
+>>>> Let's remove yet another follow_page() user. Note that we have to do the
+>>>> split without holding the PTL, after folio_walk_end(). We don't care
+>>>> about losing the secretmem check in follow_page().
+>>>
+>>> Hi David,
+>>>
+>>> Our (arm64) CI is showing a regression in split_huge_page_test from mm selftests from next-20240805 onwards. Navigating around a couple of other lurking bugs, I was able to bisect to this change (which smells about right).
+>>>
+>>> Newly failing test:
+>>>
+>>> # # ------------------------------
+>>> # # running ./split_huge_page_test
+>>> # # ------------------------------
+>>> # # TAP version 13
+>>> # # 1..12
+>>> # # Bail out! Still AnonHugePages not split
+>>> # # # Planned tests != run tests (12 != 0)
+>>> # # # Totals: pass:0 fail:0 xfail:0 xpass:0 skip:0 error:0
+>>> # # [FAIL]
+>>> # not ok 52 split_huge_page_test # exit=1
+>>>
+>>> It's trying to split some pmd-mapped THPs then checking and finding that they are not split. The split is requested via /sys/kernel/debug/split_huge_pages, which I believe ends up in this function you are modifying here. Although I'll admit that looking at the change, there is nothing obviously wrong! Any ideas?
 >>
->> Hi David,
->>
->> Our (arm64) CI is showing a regression in split_huge_page_test from mm selftests from next-20240805 onwards. Navigating around a couple of other lurking bugs, I was able to bisect to this change (which smells about right).
->>
->> Newly failing test:
->>
->> # # ------------------------------
->> # # running ./split_huge_page_test
->> # # ------------------------------
->> # # TAP version 13
->> # # 1..12
->> # # Bail out! Still AnonHugePages not split
->> # # # Planned tests != run tests (12 != 0)
->> # # # Totals: pass:0 fail:0 xfail:0 xpass:0 skip:0 error:0
->> # # [FAIL]
->> # not ok 52 split_huge_page_test # exit=1
->>
->> It's trying to split some pmd-mapped THPs then checking and finding that they are not split. The split is requested via /sys/kernel/debug/split_huge_pages, which I believe ends up in this function you are modifying here. Although I'll admit that looking at the change, there is nothing obviously wrong! Any ideas?
+>> Nothing jumps at me as well. Let me fire up the debugger :)
 > 
-> Nothing jumps at me as well. Let me fire up the debugger :)
+> Ah, very likely the can_split_folio() check expects a raised refcount
+> already.
 
-Ah, very likely the can_split_folio() check expects a raised refcount 
-already.
+Indeed, the following does the trick! Thanks Ryan, I could have sworn
+I ran that selftest as well.
+
+TAP version 13
+1..12
+ok 1 Split huge pages successful
+ok 2 Split PTE-mapped huge pages successful
+# Please enable pr_debug in split_huge_pages_in_file() for more info.
+# Please check dmesg for more information
+ok 3 File-backed THP split test done
+
+...
+
+
+@Andrew, can you squash the following?
+
+
+ From e5ea585de3e089ea89bf43d8447ff9fc9b371286 Mon Sep 17 00:00:00 2001
+From: David Hildenbrand <david@redhat.com>
+Date: Tue, 6 Aug 2024 12:08:17 +0200
+Subject: [PATCH] fixup: mm/huge_memory: convert split_huge_pages_pid() from
+  follow_page() to folio_walk
+
+We have to teach can_split_folio() that we are not holding an additional
+reference.
+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+  include/linux/huge_mm.h | 4 ++--
+  mm/huge_memory.c        | 8 ++++----
+  mm/vmscan.c             | 2 +-
+  3 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
+index e25d9ebfdf89..ce44caa40eed 100644
+--- a/include/linux/huge_mm.h
++++ b/include/linux/huge_mm.h
+@@ -314,7 +314,7 @@ unsigned long thp_get_unmapped_area_vmflags(struct file *filp, unsigned long add
+  		unsigned long len, unsigned long pgoff, unsigned long flags,
+  		vm_flags_t vm_flags);
+  
+-bool can_split_folio(struct folio *folio, int *pextra_pins);
++bool can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins);
+  int split_huge_page_to_list_to_order(struct page *page, struct list_head *list,
+  		unsigned int new_order);
+  static inline int split_huge_page(struct page *page)
+@@ -470,7 +470,7 @@ thp_get_unmapped_area_vmflags(struct file *filp, unsigned long addr,
+  }
+  
+  static inline bool
+-can_split_folio(struct folio *folio, int *pextra_pins)
++can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins)
+  {
+  	return false;
+  }
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 697fcf89f975..c40b0dcc205b 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -3021,7 +3021,7 @@ static void __split_huge_page(struct page *page, struct list_head *list,
+  }
+  
+  /* Racy check whether the huge page can be split */
+-bool can_split_folio(struct folio *folio, int *pextra_pins)
++bool can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins)
+  {
+  	int extra_pins;
+  
+@@ -3033,7 +3033,7 @@ bool can_split_folio(struct folio *folio, int *pextra_pins)
+  		extra_pins = folio_nr_pages(folio);
+  	if (pextra_pins)
+  		*pextra_pins = extra_pins;
+-	return folio_mapcount(folio) == folio_ref_count(folio) - extra_pins - 1;
++	return folio_mapcount(folio) == folio_ref_count(folio) - extra_pins - caller_pins;
+  }
+  
+  /*
+@@ -3201,7 +3201,7 @@ int split_huge_page_to_list_to_order(struct page *page, struct list_head *list,
+  	 * Racy check if we can split the page, before unmap_folio() will
+  	 * split PMDs
+  	 */
+-	if (!can_split_folio(folio, &extra_pins)) {
++	if (!can_split_folio(folio, 1, &extra_pins)) {
+  		ret = -EAGAIN;
+  		goto out_unlock;
+  	}
+@@ -3537,7 +3537,7 @@ static int split_huge_pages_pid(int pid, unsigned long vaddr_start,
+  		 * can be split or not. So skip the check here.
+  		 */
+  		if (!folio_test_private(folio) &&
+-		    !can_split_folio(folio, NULL))
++		    !can_split_folio(folio, 0, NULL))
+  			goto next;
+  
+  		if (!folio_trylock(folio))
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 31d13462571e..a332cb80e928 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -1227,7 +1227,7 @@ static unsigned int shrink_folio_list(struct list_head *folio_list,
+  					goto keep_locked;
+  				if (folio_test_large(folio)) {
+  					/* cannot split folio, skip it */
+-					if (!can_split_folio(folio, NULL))
++					if (!can_split_folio(folio, 1, NULL))
+  						goto activate_locked;
+  					/*
+  					 * Split partially mapped folios right away.
+-- 
+2.45.2
+
 
 -- 
 Cheers,
