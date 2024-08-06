@@ -1,79 +1,78 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D35D6165EE2;
-	Tue,  6 Aug 2024 08:57:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23BB816A943;
+	Tue,  6 Aug 2024 09:01:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722934637; cv=none; b=T72ovylRUKt5hL2IqxOVjiZE2pyFX6aNcNjnF/wAKlsPk0OsYHRj/39GAM9dJakIX7f6/GvpH6agebbmYKHxmr1bXYGHQwPEoeEIXkjcOEOh4dQ6yytoecVwtKzy3bKxQI7jB/pLwJsaM6uAw92tm9qAIaF2TgokCm7mYScoyPs=
+	t=1722934912; cv=none; b=ZIf3TerxbJlqZJbPTJesK12OW5u+TYXID0BgiPte0Y61lJpLKBjlWB4Xb9dp01CQFay7W7EHuXatcud1usHddykxco73LyGvq3NF7pONwYUiYlEckJyfpWohB5aRJqpkeJM6ksRbhJgvsqsnjyz77Ap+RSoC1XAuHo5PbjPJ6qg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722934637; c=relaxed/simple;
-	bh=/nAk6nrW6N85SpY9gajWN90wwiX/22WBIPnsDfEXuBc=;
+	s=arc-20240116; t=1722934912; c=relaxed/simple;
+	bh=US8jOZ2ug3dp+YSK5BHHRKWLhK+Wrqsce2Z6pO+p5Lk=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=lR5T60aLGS2acYVv26encXsNZbvR9hNMT0DDpISNJXMNaZ+1e9vr4ynElVQ0JL7YJnnbUoKGCmRUzx/dPKA/QAKEFOhhYmVXsG7SnMwc+/kqLxdiwzflAYxCcWqJApEH6xvtOv23xsIRyUrIz40zKLXi98cctqK1hNdpiJeN0Io=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KGZDgRvt; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version:Content-Type; b=ZTQ6SXPE0WMnQ7NvMiL5X7cq25IuIOGCAwBwzsLD6AjZFdZ8v1e0u9NwIVxvrgbsmbdbLDl7GPYgkCN94jMvC2ui0c4zmwt08bLEIcPlInoPIVU0uyx4uU+mAZNVfgebhdHtNh3wRKFtJfkv/VteXm64V+E2HPpKNTO6F+mavng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qwR8BWfm; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KGZDgRvt"
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4765wR1T004885;
-	Tue, 6 Aug 2024 08:57:14 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qwR8BWfm"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4763K5CL015352;
+	Tue, 6 Aug 2024 09:01:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
 	:from:to:cc:subject:message-id:in-reply-to:references
 	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
-	cH/CIPSh0p6guJ4qwrzvsiomKgWx5H0o3NguGU+9aO8=; b=KGZDgRvt2CQpt93p
-	7XvoTGuGRUyq3CfHdwIDKpf64+m851QoiToAf3vp/5MEmn5E6QKI1Z68TZp1usjE
-	5XFyQzIl400KIDWg41n85ba+7Vw5mF2Vugc2Mc53pHQiz5f5rjDuZ1axhd+fz7BT
-	3bapT4wUJtnaASPSCsjn/O7fxhG92B5I1pDekcYLnFgO0sxI97d1aUOV3xo0lHeT
-	5BR85qFUg/ZuMrJnLknDiXh8YVWKSyC/O49W4YkgW7PL2v6rYDScvHrmlxgxotHb
-	TY72X9l4afOKYkft/7yMXdp9P4RCoAZ5N46M8eX7Q1EF770MApALrbHMRfZ2aDu4
-	/UYREg==
+	OSfPYWS9kGnmMIU0TFS0w0cJb3t6riWdUGB65bASUmI=; b=qwR8BWfmz8pKMtDa
+	T/6tKTmpaIx2AdUIUYeXEfoMBcDiTkh6jAMIo6q8PGD3dIWngWeVLJX7F0w/q6Yr
+	cs8orPDm+Dh4KQIejDipk9xKClMTdi1ua//umjup6b87Wl32aXOYvjjM/N4TvHne
+	KaOJp3qPYCwdnZwz11xHdL8T4HLSgCpyzni+Q7/5zmqBlVrxYAyRNAINBj84qOiu
+	r89UyQApSW/tqeoOKAmLVaNW0ASWeryjmxEC/+xl3/1SzAJ0VsxWn+iPyAw7TYdC
+	TqOXFled0CCH2bBhmPjOQ5dLeE6Zz9uqbv3MY3SLwXHUaf4+A94dIH2UN32DLHTj
+	D8nw/g==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40ue5brbgc-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40ub2x0pb4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Aug 2024 08:57:14 +0000 (GMT)
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4768vEin014814;
-	Tue, 6 Aug 2024 08:57:14 GMT
+	Tue, 06 Aug 2024 09:01:49 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 47691ncS000509;
+	Tue, 6 Aug 2024 09:01:49 GMT
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40ue5brbga-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40ub2x0pb2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Aug 2024 08:57:14 +0000 (GMT)
+	Tue, 06 Aug 2024 09:01:49 +0000 (GMT)
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4767s7b5024136;
-	Tue, 6 Aug 2024 08:52:31 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40syvpat10-1
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 47689ToG024117;
+	Tue, 6 Aug 2024 09:01:48 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40syvpau56-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Aug 2024 08:52:31 +0000
+	Tue, 06 Aug 2024 09:01:48 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4768qPfH41877822
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47691gvp50856414
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 6 Aug 2024 08:52:27 GMT
+	Tue, 6 Aug 2024 09:01:44 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7ED0F2004F;
-	Tue,  6 Aug 2024 08:52:25 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 044332004F;
+	Tue,  6 Aug 2024 09:01:42 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4C22E20040;
-	Tue,  6 Aug 2024 08:52:25 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  6 Aug 2024 08:52:25 +0000 (GMT)
-Date: Tue, 6 Aug 2024 10:52:24 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+	by IMSVA (Postfix) with ESMTP id 6EF0A2004B;
+	Tue,  6 Aug 2024 09:01:41 +0000 (GMT)
+Received: from darkmoore (unknown [9.179.5.91])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Tue,  6 Aug 2024 09:01:41 +0000 (GMT)
+Date: Tue, 6 Aug 2024 11:01:39 +0200
+From: Christoph Schlameuss <schlameuss@linux.ibm.com>
 To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, nrb@linux.ibm.com,
-        schlameuss@linux.ibm.com, nsg@linux.ibm.com, npiggin@gmail.com,
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        nrb@linux.ibm.com, nsg@linux.ibm.com, npiggin@gmail.com,
         mhartmay@linux.ibm.com
 Subject: Re: [kvm-unit-tests PATCH v2 1/4] s390x/Makefile: Split snippet
  makefile rules into new file
-Message-ID: <20240806105224.20ac5d7d@p-imbrenda.boeblingen.de.ibm.com>
+Message-ID: <20240806110139.2f9c080a.schlameuss@linux.ibm.com>
 In-Reply-To: <20240806084409.169039-2-frankja@linux.ibm.com>
 References: <20240806084409.169039-1-frankja@linux.ibm.com>
 	<20240806084409.169039-2-frankja@linux.ibm.com>
 Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -83,15 +82,15 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: qXUESEtLs4Qy5RadU9YT_3y7QGdR81bL
-X-Proofpoint-ORIG-GUID: WFcTC6fgvgDHL8m_MxmHWihlU63-SUSw
+X-Proofpoint-GUID: LeSL4bsBd7tokxNJAN7zYMcZ62ob_l93
+X-Proofpoint-ORIG-GUID: rTAfSKD_Fwokf_N68eA0xoGnR9DinV2A
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-08-06_06,2024-08-02_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- impostorscore=0 bulkscore=0 clxscore=1015 adultscore=0 mlxlogscore=999
- mlxscore=0 spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=994
+ malwarescore=0 spamscore=0 mlxscore=0 impostorscore=0 suspectscore=0
+ phishscore=0 priorityscore=1501 bulkscore=0 lowpriorityscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2407110000 definitions=main-2408060064
 
 On Tue,  6 Aug 2024 08:42:27 +0000
@@ -102,7 +101,7 @@ Janosch Frank <frankja@linux.ibm.com> wrote:
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
 > ---
 >  s390x/Makefile          | 38 ++++----------------------------------
