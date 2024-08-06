@@ -1,291 +1,143 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF5891BE23A
-	for <linux-s390@vger.kernel.org>; Tue,  6 Aug 2024 10:24:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 263251C0DC4;
+	Tue,  6 Aug 2024 10:49:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722939891; cv=none; b=G9Fp937hzMbXUwzOVouo4mTAyHMDPVMruN1/ViFz7w++QgFExLC2MuRF5mFzeBusHgmSxfhiY1YNTEkyO/NNTbYgOuwtT/N3LDWfbIJIzvUVbmy+F42mvAaVv8Awx8WFdD36LFD7iyyLrvXxjrN6MilrWIuwIq5DGR3gwP9EmDA=
+	t=1722941370; cv=none; b=DWYnNGGOfPItKnMN7hJofsswR6nZLWNSTkOIGNS7YI5zOEoBrj//vDxwQKCVL8IVp6hpxUb+60PGr6XJZc7d16d0uXJhN01P65zdDKYdHe0Jf87xI/2pArCJ/3FN6PfQ1PBG+I2z8rBzraAZXPIgj95lmu6sJ9hYAjXd37+SIXE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722939891; c=relaxed/simple;
-	bh=HuWX+vrC1Cp3pDD3J+tpe61DVfReUbkB6foFuxdjH+A=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=NnzMn35AF6nZ1cM7DR+4XaM6qNpczezT359Hz7dpYvueBbkZQkbGNvuNgd/T3Ck2POiGP5MMzoKiRTjxhwcTgarGo9/6OAQllwxajPIOb+pbap2dDJUyQjXFnFutxgqgJJi/sycKVejQC/O1Hm1Rg4jqRY4oQvLckE418hWPGlE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Y6ljSiyJ; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1722941370; c=relaxed/simple;
+	bh=eeflND3p0sty9SnVOq0BHiPjiXkx3ZzDdI3gZhlpwWQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jGlM7IsKLs0c0YfeGpSFytISjlBBFbzz4APnKet+E5rREq5qgmFxkYo3H7Pc1edcs790vyw8mKsl0fKx1rMfTdSzZCxwNLy5CCrXeC/MAknFeOMXh8NPyFgqRNKyTdEQi/n8+deuAglCjkoW+evs3AhAqC+0jVsehHvhMnalEHg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y18ktaza; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y6ljSiyJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722939888;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=DoZ2AeUPUcckuQeDBJI84lvVHjk0eASPXLtUIbrijoY=;
-	b=Y6ljSiyJ4ZRwyCPVg9Nmr3E36Dm6yfzIZPcSvcGazdtRYRm8qh2/DSP0vl5lEyQdwThqka
-	2QKL6WEhRAItlyPT70sWFYhnVyRMub2Q98oB5LIH4CbcPNmmhIyrsCpVXqClH0BS7ZUSX7
-	DYPv7NxnBxUx8e2CNkCUrnB4sagKul4=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-600-RjWXq9e3Pm6xG2-Lqz8sIA-1; Tue, 06 Aug 2024 06:24:47 -0400
-X-MC-Unique: RjWXq9e3Pm6xG2-Lqz8sIA-1
-Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2ef286cf0e8so6382481fa.0
-        for <linux-s390@vger.kernel.org>; Tue, 06 Aug 2024 03:24:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722939886; x=1723544686;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:references:cc:to:from:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=DoZ2AeUPUcckuQeDBJI84lvVHjk0eASPXLtUIbrijoY=;
-        b=SAjOVJvQt7jOSPq20BjrBKMkAXLXVnG686b2EULRy3zE+cvgPcrrx4gbcuDHdViCQ8
-         Ux6Y2vd+UhTzbW1PJkSjE0n68nVjypVJ4tmVt17rnRceep9Z90iHDtxA4/JpY20+1aHF
-         sSf8WKwTuSibJ5pP+5loEuPtucnLILzkKOg6pt87dE0l//cZHPLaDUv6GsJBN2LR+62P
-         sHcI0O4+zhzbE/iYtRqti81sxRgqKUY6PozEVOcR/bme6dJ9Itieow+b5E7SXjrNJlMz
-         YihuhkFkQ0ivhJ/+s39YMSfVndHdqZyoFHF/ndxBVbrt3tLe62kSVYnQNZk1NXBKHCA2
-         s59w==
-X-Forwarded-Encrypted: i=1; AJvYcCXyV1CGNV7yhBwxQMlIPl9TsBEf/YSM9gwk0EFnswbNR40EJOGNDMPCdCg05b3wHhVOfWNyFi8h3RhzlrrghBwEawpWMp1sJywVUQ==
-X-Gm-Message-State: AOJu0YwmtLf/DeqfRHnyNl6hKRKsngR9FBEeT03rx1ZaKtyIXw5FEPsG
-	0eHqbyJ/Rgkd9+bTZsaVJVq+KtU04+h5cEAIyK68NjWq2Fha+Ytk46BxldP+lnrm2yR2br4TIul
-	8HHKxey7kLi+l6XESE6j4OTwi3JK7osNajUiSvcC7oZKc2CpamCDiUcrtTdQ=
-X-Received: by 2002:a2e:6a19:0:b0:2ef:18b7:440a with SMTP id 38308e7fff4ca-2f15aabcb81mr95034541fa.22.1722939886125;
-        Tue, 06 Aug 2024 03:24:46 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG8itjc3h8PngLh6sckeQFWJdV4aDIkdExLfu67u6p2gXb+5+zksdac7hw0FLiIq9dg6z+/MQ==
-X-Received: by 2002:a2e:6a19:0:b0:2ef:18b7:440a with SMTP id 38308e7fff4ca-2f15aabcb81mr95034221fa.22.1722939885539;
-        Tue, 06 Aug 2024 03:24:45 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c73f:8500:f83c:3602:5300:88af? (p200300cbc73f8500f83c3602530088af.dip0.t-ipconnect.de. [2003:cb:c73f:8500:f83c:3602:5300:88af])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-428e6e7cc3asm174941185e9.34.2024.08.06.03.24.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 06 Aug 2024 03:24:45 -0700 (PDT)
-Message-ID: <c75d1c6c-8ea6-424f-853c-1ccda6c77ba2@redhat.com>
-Date: Tue, 6 Aug 2024 12:24:43 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y18ktaza"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E634C32786;
+	Tue,  6 Aug 2024 10:49:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1722941369;
+	bh=eeflND3p0sty9SnVOq0BHiPjiXkx3ZzDdI3gZhlpwWQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Y18ktaza8IQu0paXRuZ2pzyUh8AnVzt21QQ3IecXBfS+pJs4uaziftuEVrQSwQWTo
+	 YmADrqQyONg7LDsd0KPGUp6+fAJYNLNkN7M5mAK+W4TYEk7nxtYnINbYHmMd3jynI5
+	 Dy9BV9yYAdKoOjXCieipmwoMRasdyhOK8q5hXV3KQMkTCSd/FA2bBmg8ivkUmOKUW/
+	 NDk5V3/vmCIkyzom8o8FNxatjJgWnC+Bgdug9dRdkQaaXJnL3Bnn+eFmIISY3ibvvl
+	 NAFZeZ2mF2GLti+CAGmv+7297umrrGxxa8Q850AuTb39frSmCyioupBRnErWw/u3l2
+	 zS0xOiDDXgW7Q==
+Date: Tue, 6 Aug 2024 11:49:25 +0100
+From: Simon Horman <horms@kernel.org>
+To: Wen Gu <guwen@linux.alibaba.com>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+	alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH net-next 1/2] net/smc: introduce statistics for allocated
+ ringbufs of link group
+Message-ID: <20240806104925.GS2636630@kernel.org>
+References: <20240805090551.80786-1-guwen@linux.alibaba.com>
+ <20240805090551.80786-2-guwen@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 07/11] mm/huge_memory: convert split_huge_pages_pid()
- from follow_page() to folio_walk
-From: David Hildenbrand <david@redhat.com>
-To: Ryan Roberts <ryan.roberts@arm.com>, linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, linux-doc@vger.kernel.org, kvm@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- Jonathan Corbet <corbet@lwn.net>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Mark Brown <broonie@kernel.org>
-References: <20240802155524.517137-1-david@redhat.com>
- <20240802155524.517137-8-david@redhat.com>
- <e1d44e36-06e4-4d1c-8daf-315d149ea1b3@arm.com>
- <ac97ccdc-ee1e-4f07-8902-6360de80c2a0@redhat.com>
- <a5f059a0-32d6-453e-9d18-1f3bfec3a762@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
- ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZgEEwEIAEICGwMGCwkIBwMCBhUIAgkKCwQW
- AgMBAh4BAheAAhkBFiEEG9nKrXNcTDpGDfzKTd4Q9wD/g1oFAl8Ox4kFCRKpKXgACgkQTd4Q
- 9wD/g1oHcA//a6Tj7SBNjFNM1iNhWUo1lxAja0lpSodSnB2g4FCZ4R61SBR4l/psBL73xktp
- rDHrx4aSpwkRP6Epu6mLvhlfjmkRG4OynJ5HG1gfv7RJJfnUdUM1z5kdS8JBrOhMJS2c/gPf
- wv1TGRq2XdMPnfY2o0CxRqpcLkx4vBODvJGl2mQyJF/gPepdDfcT8/PY9BJ7FL6Hrq1gnAo4
- 3Iv9qV0JiT2wmZciNyYQhmA1V6dyTRiQ4YAc31zOo2IM+xisPzeSHgw3ONY/XhYvfZ9r7W1l
- pNQdc2G+o4Di9NPFHQQhDw3YTRR1opJaTlRDzxYxzU6ZnUUBghxt9cwUWTpfCktkMZiPSDGd
- KgQBjnweV2jw9UOTxjb4LXqDjmSNkjDdQUOU69jGMUXgihvo4zhYcMX8F5gWdRtMR7DzW/YE
- BgVcyxNkMIXoY1aYj6npHYiNQesQlqjU6azjbH70/SXKM5tNRplgW8TNprMDuntdvV9wNkFs
- 9TyM02V5aWxFfI42+aivc4KEw69SE9KXwC7FSf5wXzuTot97N9Phj/Z3+jx443jo2NR34XgF
- 89cct7wJMjOF7bBefo0fPPZQuIma0Zym71cP61OP/i11ahNye6HGKfxGCOcs5wW9kRQEk8P9
- M/k2wt3mt/fCQnuP/mWutNPt95w9wSsUyATLmtNrwccz63XOwU0EVcufkQEQAOfX3n0g0fZz
- Bgm/S2zF/kxQKCEKP8ID+Vz8sy2GpDvveBq4H2Y34XWsT1zLJdvqPI4af4ZSMxuerWjXbVWb
- T6d4odQIG0fKx4F8NccDqbgHeZRNajXeeJ3R7gAzvWvQNLz4piHrO/B4tf8svmRBL0ZB5P5A
- 2uhdwLU3NZuK22zpNn4is87BPWF8HhY0L5fafgDMOqnf4guJVJPYNPhUFzXUbPqOKOkL8ojk
- CXxkOFHAbjstSK5Ca3fKquY3rdX3DNo+EL7FvAiw1mUtS+5GeYE+RMnDCsVFm/C7kY8c2d0G
- NWkB9pJM5+mnIoFNxy7YBcldYATVeOHoY4LyaUWNnAvFYWp08dHWfZo9WCiJMuTfgtH9tc75
- 7QanMVdPt6fDK8UUXIBLQ2TWr/sQKE9xtFuEmoQGlE1l6bGaDnnMLcYu+Asp3kDT0w4zYGsx
- 5r6XQVRH4+5N6eHZiaeYtFOujp5n+pjBaQK7wUUjDilPQ5QMzIuCL4YjVoylWiBNknvQWBXS
- lQCWmavOT9sttGQXdPCC5ynI+1ymZC1ORZKANLnRAb0NH/UCzcsstw2TAkFnMEbo9Zu9w7Kv
- AxBQXWeXhJI9XQssfrf4Gusdqx8nPEpfOqCtbbwJMATbHyqLt7/oz/5deGuwxgb65pWIzufa
- N7eop7uh+6bezi+rugUI+w6DABEBAAHCwXwEGAEIACYCGwwWIQQb2cqtc1xMOkYN/MpN3hD3
- AP+DWgUCXw7HsgUJEqkpoQAKCRBN3hD3AP+DWrrpD/4qS3dyVRxDcDHIlmguXjC1Q5tZTwNB
- boaBTPHSy/Nksu0eY7x6HfQJ3xajVH32Ms6t1trDQmPx2iP5+7iDsb7OKAb5eOS8h+BEBDeq
- 3ecsQDv0fFJOA9ag5O3LLNk+3x3q7e0uo06XMaY7UHS341ozXUUI7wC7iKfoUTv03iO9El5f
- XpNMx/YrIMduZ2+nd9Di7o5+KIwlb2mAB9sTNHdMrXesX8eBL6T9b+MZJk+mZuPxKNVfEQMQ
- a5SxUEADIPQTPNvBewdeI80yeOCrN+Zzwy/Mrx9EPeu59Y5vSJOx/z6OUImD/GhX7Xvkt3kq
- Er5KTrJz3++B6SH9pum9PuoE/k+nntJkNMmQpR4MCBaV/J9gIOPGodDKnjdng+mXliF3Ptu6
- 3oxc2RCyGzTlxyMwuc2U5Q7KtUNTdDe8T0uE+9b8BLMVQDDfJjqY0VVqSUwImzTDLX9S4g/8
- kC4HRcclk8hpyhY2jKGluZO0awwTIMgVEzmTyBphDg/Gx7dZU1Xf8HFuE+UZ5UDHDTnwgv7E
- th6RC9+WrhDNspZ9fJjKWRbveQgUFCpe1sa77LAw+XFrKmBHXp9ZVIe90RMe2tRL06BGiRZr
- jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <a5f059a0-32d6-453e-9d18-1f3bfec3a762@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240805090551.80786-2-guwen@linux.alibaba.com>
 
-On 06.08.24 12:03, David Hildenbrand wrote:
-> On 06.08.24 11:56, David Hildenbrand wrote:
->> On 06.08.24 11:46, Ryan Roberts wrote:
->>> On 02/08/2024 16:55, David Hildenbrand wrote:
->>>> Let's remove yet another follow_page() user. Note that we have to do the
->>>> split without holding the PTL, after folio_walk_end(). We don't care
->>>> about losing the secretmem check in follow_page().
->>>
->>> Hi David,
->>>
->>> Our (arm64) CI is showing a regression in split_huge_page_test from mm selftests from next-20240805 onwards. Navigating around a couple of other lurking bugs, I was able to bisect to this change (which smells about right).
->>>
->>> Newly failing test:
->>>
->>> # # ------------------------------
->>> # # running ./split_huge_page_test
->>> # # ------------------------------
->>> # # TAP version 13
->>> # # 1..12
->>> # # Bail out! Still AnonHugePages not split
->>> # # # Planned tests != run tests (12 != 0)
->>> # # # Totals: pass:0 fail:0 xfail:0 xpass:0 skip:0 error:0
->>> # # [FAIL]
->>> # not ok 52 split_huge_page_test # exit=1
->>>
->>> It's trying to split some pmd-mapped THPs then checking and finding that they are not split. The split is requested via /sys/kernel/debug/split_huge_pages, which I believe ends up in this function you are modifying here. Although I'll admit that looking at the change, there is nothing obviously wrong! Any ideas?
->>
->> Nothing jumps at me as well. Let me fire up the debugger :)
+On Mon, Aug 05, 2024 at 05:05:50PM +0800, Wen Gu wrote:
+> Currently we have the statistics on sndbuf/RMB sizes of all connections
+> that have ever been on the link group, namely smc_stats_memsize. However
+> these statistics are incremental and since the ringbufs of link group
+> are allowed to be reused, we cannot know the actual allocated buffers
+> through these. So here introduces the statistic on actual allocated
+> ringbufs of the link group, it will be incremented when a new ringbuf is
+> added into buf_list and decremented when it is deleted from buf_list.
 > 
-> Ah, very likely the can_split_folio() check expects a raised refcount
-> already.
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
+>  include/uapi/linux/smc.h |  4 ++++
+>  net/smc/smc_core.c       | 52 ++++++++++++++++++++++++++++++++++++----
+>  net/smc/smc_core.h       |  2 ++
+>  3 files changed, 54 insertions(+), 4 deletions(-)
+> 
+> diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
+> index b531e3ef011a..d27b8dc50f90 100644
+> --- a/include/uapi/linux/smc.h
+> +++ b/include/uapi/linux/smc.h
+> @@ -127,6 +127,8 @@ enum {
+>  	SMC_NLA_LGR_R_NET_COOKIE,	/* u64 */
+>  	SMC_NLA_LGR_R_PAD,		/* flag */
+>  	SMC_NLA_LGR_R_BUF_TYPE,		/* u8 */
+> +	SMC_NLA_LGR_R_SNDBUF_ALLOC,	/* u64 */
+> +	SMC_NLA_LGR_R_RMB_ALLOC,	/* u64 */
+>  	__SMC_NLA_LGR_R_MAX,
+>  	SMC_NLA_LGR_R_MAX = __SMC_NLA_LGR_R_MAX - 1
+>  };
+> @@ -162,6 +164,8 @@ enum {
+>  	SMC_NLA_LGR_D_V2_COMMON,	/* nest */
+>  	SMC_NLA_LGR_D_EXT_GID,		/* u64 */
+>  	SMC_NLA_LGR_D_PEER_EXT_GID,	/* u64 */
+> +	SMC_NLA_LGR_D_SNDBUF_ALLOC,	/* u64 */
+> +	SMC_NLA_LGR_D_DMB_ALLOC,	/* u64 */
+>  	__SMC_NLA_LGR_D_MAX,
+>  	SMC_NLA_LGR_D_MAX = __SMC_NLA_LGR_D_MAX - 1
+>  };
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index 71fb334d8234..73c7999fc74f 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -221,6 +221,37 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
+>  	write_unlock_bh(&lgr->conns_lock);
+>  }
+>  
+> +/* must be called under lgr->{sndbufs|rmbs} lock */
+> +static inline void smc_lgr_buf_list_add(struct smc_link_group *lgr,
+> +					bool is_rmb,
+> +					struct list_head *buf_list,
+> +					struct smc_buf_desc *buf_desc)
 
-Indeed, the following does the trick! Thanks Ryan, I could have sworn
-I ran that selftest as well.
+Please do not use the inline keyword in .c files unless there is a
+demonstrable reason to do so, e.g. performance. Rather, please allow
+the compiler to inline functions as it sees fit.
 
-TAP version 13
-1..12
-ok 1 Split huge pages successful
-ok 2 Split PTE-mapped huge pages successful
-# Please enable pr_debug in split_huge_pages_in_file() for more info.
-# Please check dmesg for more information
-ok 3 File-backed THP split test done
+The inline keyword in .h files is, of course, fine.
+
+> +{
+> +	list_add(&buf_desc->list, buf_list);
+> +	if (is_rmb) {
+> +		lgr->alloc_rmbs += buf_desc->len;
+> +		lgr->alloc_rmbs +=
+> +			lgr->is_smcd ? sizeof(struct smcd_cdc_msg) : 0;
+> +	} else {
+> +		lgr->alloc_sndbufs += buf_desc->len;
+> +	}
+> +}
+> +
+> +/* must be called under lgr->{sndbufs|rmbs} lock */
+> +static inline void smc_lgr_buf_list_del(struct smc_link_group *lgr,
+> +					bool is_rmb,
+> +					struct smc_buf_desc *buf_desc)
+
+Ditto.
+
+> +{
+> +	list_del(&buf_desc->list);
+> +	if (is_rmb) {
+> +		lgr->alloc_rmbs -= buf_desc->len;
+> +		lgr->alloc_rmbs -=
+> +			lgr->is_smcd ? sizeof(struct smcd_cdc_msg) : 0;
+> +	} else {
+> +		lgr->alloc_sndbufs -= buf_desc->len;
+> +	}
+> +}
+> +
 
 ...
 
-
-@Andrew, can you squash the following?
-
-
- From e5ea585de3e089ea89bf43d8447ff9fc9b371286 Mon Sep 17 00:00:00 2001
-From: David Hildenbrand <david@redhat.com>
-Date: Tue, 6 Aug 2024 12:08:17 +0200
-Subject: [PATCH] fixup: mm/huge_memory: convert split_huge_pages_pid() from
-  follow_page() to folio_walk
-
-We have to teach can_split_folio() that we are not holding an additional
-reference.
-
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
-  include/linux/huge_mm.h | 4 ++--
-  mm/huge_memory.c        | 8 ++++----
-  mm/vmscan.c             | 2 +-
-  3 files changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
-index e25d9ebfdf89..ce44caa40eed 100644
---- a/include/linux/huge_mm.h
-+++ b/include/linux/huge_mm.h
-@@ -314,7 +314,7 @@ unsigned long thp_get_unmapped_area_vmflags(struct file *filp, unsigned long add
-  		unsigned long len, unsigned long pgoff, unsigned long flags,
-  		vm_flags_t vm_flags);
-  
--bool can_split_folio(struct folio *folio, int *pextra_pins);
-+bool can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins);
-  int split_huge_page_to_list_to_order(struct page *page, struct list_head *list,
-  		unsigned int new_order);
-  static inline int split_huge_page(struct page *page)
-@@ -470,7 +470,7 @@ thp_get_unmapped_area_vmflags(struct file *filp, unsigned long addr,
-  }
-  
-  static inline bool
--can_split_folio(struct folio *folio, int *pextra_pins)
-+can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins)
-  {
-  	return false;
-  }
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 697fcf89f975..c40b0dcc205b 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -3021,7 +3021,7 @@ static void __split_huge_page(struct page *page, struct list_head *list,
-  }
-  
-  /* Racy check whether the huge page can be split */
--bool can_split_folio(struct folio *folio, int *pextra_pins)
-+bool can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins)
-  {
-  	int extra_pins;
-  
-@@ -3033,7 +3033,7 @@ bool can_split_folio(struct folio *folio, int *pextra_pins)
-  		extra_pins = folio_nr_pages(folio);
-  	if (pextra_pins)
-  		*pextra_pins = extra_pins;
--	return folio_mapcount(folio) == folio_ref_count(folio) - extra_pins - 1;
-+	return folio_mapcount(folio) == folio_ref_count(folio) - extra_pins - caller_pins;
-  }
-  
-  /*
-@@ -3201,7 +3201,7 @@ int split_huge_page_to_list_to_order(struct page *page, struct list_head *list,
-  	 * Racy check if we can split the page, before unmap_folio() will
-  	 * split PMDs
-  	 */
--	if (!can_split_folio(folio, &extra_pins)) {
-+	if (!can_split_folio(folio, 1, &extra_pins)) {
-  		ret = -EAGAIN;
-  		goto out_unlock;
-  	}
-@@ -3537,7 +3537,7 @@ static int split_huge_pages_pid(int pid, unsigned long vaddr_start,
-  		 * can be split or not. So skip the check here.
-  		 */
-  		if (!folio_test_private(folio) &&
--		    !can_split_folio(folio, NULL))
-+		    !can_split_folio(folio, 0, NULL))
-  			goto next;
-  
-  		if (!folio_trylock(folio))
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index 31d13462571e..a332cb80e928 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -1227,7 +1227,7 @@ static unsigned int shrink_folio_list(struct list_head *folio_list,
-  					goto keep_locked;
-  				if (folio_test_large(folio)) {
-  					/* cannot split folio, skip it */
--					if (!can_split_folio(folio, NULL))
-+					if (!can_split_folio(folio, 1, NULL))
-  						goto activate_locked;
-  					/*
-  					 * Split partially mapped folios right away.
 -- 
-2.45.2
-
-
--- 
-Cheers,
-
-David / dhildenb
-
+pw-bot: changes-requested
