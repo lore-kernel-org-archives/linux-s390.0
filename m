@@ -1,25 +1,32 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 82F4D1BCA04;
-	Tue,  6 Aug 2024 11:17:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3E7C1C3F0A;
+	Tue,  6 Aug 2024 11:54:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722943074; cv=none; b=kT2fwEUTJjMBG7G4GGTlSxPb1d3kPWjhzYSkVuNpuGmVvh28WucOwiE5+ijJkIlob3LnNVbSPo/lnkge+3ulRcdTm7VwWMzOzWancksnO4ltXjOqzJzncxn2k2dCm8N067i2FsPUxsfoNRS0yr8oxBIS719g9oU8JBtOsdq+SdA=
+	t=1722945284; cv=none; b=rLcxy7bvvMpSz04t3cc3HKIIpcWuIXQBfS5Qddb0wBEM1RYSGI2/8Iqt0FsBlJSjK71wiPTQvXQT7qphlje2fvi+Enskp4bJp9hFHN9Nu3DB9Q0J5FLQdFBVfoJpfx66NSSVmbnVT+ugCzDg1N/JiVqIUPNGZQ49IDk2DSlpWuM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722943074; c=relaxed/simple;
-	bh=/NA0QSHaLm4VQwkETTIB9yAdEGKXOx+9QzY4eD4/fKA=;
+	s=arc-20240116; t=1722945284; c=relaxed/simple;
+	bh=dquRSj8dAi0AZNSeqY2lTiBuPiyyqF1+OZZfO1v8Y0c=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sxA8lvwYjIsZPaHD0eYH5Soqqbt+K0w3sZfvfMbOYjGNhKVqCN3G3TgJ6GVVetxF1JVx7h3TLLEZ/SmHYZgzN4NdQeD7ZyXh2tyqbRw/jDP5TJOQWMRP8aNa/sxG7ayuQUNQAeGIVuIyZtE4IF8Vl5oXbu8adQDuIlPqC5110Y0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 65557367;
-	Tue,  6 Aug 2024 04:18:17 -0700 (PDT)
-Received: from [10.1.31.182] (unknown [10.1.31.182])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id ED8603F766;
-	Tue,  6 Aug 2024 04:17:48 -0700 (PDT)
-Message-ID: <74536df6-98c7-43ac-9ae6-8106eea123ec@arm.com>
-Date: Tue, 6 Aug 2024 12:17:47 +0100
+	 In-Reply-To:Content-Type; b=Y2dr9CG6Yrf3Gyup/5Mu+jzJ+cUVsOhpo4FwAPHtR0fQw2KCZ4/+uXWnNbKB67qy2JN8movw0KeNPMJEGC+TWmfU6KqLgq0NvlSJZZMG7RAZbXWM9fkv4JVkMn3U3keT/oTTymBP4Q+BZNgzJwCCfRGf58MgB7NatW8UYiTj68g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Z64vy3w5; arc=none smtp.client-ip=115.124.30.113
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Z64vy3w5"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1722945272; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=mb7gDxmMrOdd2M6qXCPPv/5QA47O1I0MfjtzHviLEmU=;
+	b=Z64vy3w52ZmiH6/CPmk3pR2lhxfx5qTMGmnnoBiGnnKX5iEooSWocZGFFRCYeTtUQQe4++YobwRqjH8i+0CHiwM6HEoqvmRWwXhKH1QX11Hrmo6nBoHW9b3vQZL7J2dL9qqrUP3E/lF4IrPT41RTf0yCFXgO6UoBXkWbkdR9CKQ=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R881e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067113;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0WCFQqrm_1722945271;
+Received: from 30.221.130.83(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WCFQqrm_1722945271)
+          by smtp.aliyun-inc.com;
+          Tue, 06 Aug 2024 19:54:32 +0800
+Message-ID: <d1650ea2-da51-41bd-8032-491d03a8df3d@linux.alibaba.com>
+Date: Tue, 6 Aug 2024 19:54:30 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -27,47 +34,89 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 07/11] mm/huge_memory: convert split_huge_pages_pid()
- from follow_page() to folio_walk
-Content-Language: en-GB
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, linux-doc@vger.kernel.org, kvm@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- Jonathan Corbet <corbet@lwn.net>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Mark Brown <broonie@kernel.org>
-References: <20240802155524.517137-1-david@redhat.com>
- <20240802155524.517137-8-david@redhat.com>
- <e1d44e36-06e4-4d1c-8daf-315d149ea1b3@arm.com>
- <ac97ccdc-ee1e-4f07-8902-6360de80c2a0@redhat.com>
- <a5f059a0-32d6-453e-9d18-1f3bfec3a762@redhat.com>
- <c75d1c6c-8ea6-424f-853c-1ccda6c77ba2@redhat.com>
-From: Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <c75d1c6c-8ea6-424f-853c-1ccda6c77ba2@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH net-next 0/2] net/smc: introduce ringbufs usage statistics
+To: shaozhengchao <shaozhengchao@huawei.com>, wenjia@linux.ibm.com,
+ jaka@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com
+Cc: alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org
+References: <20240805090551.80786-1-guwen@linux.alibaba.com>
+ <7f2decb7-3f32-1501-91db-c6b0da6baf37@huawei.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <7f2decb7-3f32-1501-91db-c6b0da6baf37@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
->>>> It's trying to split some pmd-mapped THPs then checking and finding that
->>>> they are not split. The split is requested via
->>>> /sys/kernel/debug/split_huge_pages, which I believe ends up in this function
->>>> you are modifying here. Although I'll admit that looking at the change,
->>>> there is nothing obviously wrong! Any ideas?
->>>
->>> Nothing jumps at me as well. Let me fire up the debugger :)
->>
->> Ah, very likely the can_split_folio() check expects a raised refcount
->> already.
+
+
+On 2024/8/6 11:52, shaozhengchao wrote:
+> Hi Wen Gu:
+>     Your patchset looks fine. However, the current smc-tools tool is not
+> supported, so will you update the smc-tools tool?
 > 
-> Indeed, the following does the trick! Thanks Ryan, I could have sworn
-> I ran that selftest as well.
+> Thank you
+> 
+> Zhengchao Shao
+> 
 
-Ahha! Thanks for sorting so quickly!
+Hi, Zhengchao.
 
+Yes, after these kernel patches are merged, I will submit the corresponding
+modification to smc-tools.
+
+Thanks!
+
+> On 2024/8/5 17:05, Wen Gu wrote:
+>> Currently, we have histograms that show the sizes of ringbufs that ever
+>> used by SMC connections. However, they are always incremental and since
+>> SMC allows the reuse of ringbufs, we cannot know the actual amount of
+>> ringbufs being allocated or actively used.
+>>
+>> So this patch set introduces statistics for the amount of ringbufs that
+>> actually allocated by link group and actively used by connections of a
+>> certain net namespace, so that we can react based on these memory usage
+>> information, e.g. active fallback to TCP.
+>>
+>> With appropriate adaptations of smc-tools, we can obtain these ringbufs
+>> usage information:
+>>
+>> $ smcr -d linkgroup
+>> LG-ID    : 00000500
+>> LG-Role  : SERV
+>> LG-Type  : ASYML
+>> VLAN     : 0
+>> PNET-ID  :
+>> Version  : 1
+>> Conns    : 0
+>> Sndbuf   : 12910592 B    <-
+>> RMB      : 12910592 B    <-
+>>
+>> or
+>>
+>> $ smcr -d stats
+>> [...]
+>> RX Stats
+>>    Data transmitted (Bytes)      869225943 (869.2M)
+>>    Total requests                 18494479
+>>    Buffer usage  (Bytes)          12910592 (12.31M)  <-
+>>    [...]
+>>
+>> TX Stats
+>>    Data transmitted (Bytes)    12760884405 (12.76G)
+>>    Total requests                 36988338
+>>    Buffer usage  (Bytes)          12910592 (12.31M)  <-
+>>    [...]
+>> [...]
+>>
+>> Wen Gu (2):
+>>    net/smc: introduce statistics for allocated ringbufs of link group
+>>    net/smc: introduce statistics for ringbufs usage of net namespace
+>>
+>>   include/uapi/linux/smc.h |  6 ++++
+>>   net/smc/smc_core.c       | 74 ++++++++++++++++++++++++++++++++++------
+>>   net/smc/smc_core.h       |  2 ++
+>>   net/smc/smc_stats.c      |  8 +++++
+>>   net/smc/smc_stats.h      | 27 ++++++++++-----
+>>   5 files changed, 97 insertions(+), 20 deletions(-)
+>>
