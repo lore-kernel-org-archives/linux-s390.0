@@ -1,141 +1,73 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF08B1C0DC9;
-	Tue,  6 Aug 2024 10:49:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 82F4D1BCA04;
+	Tue,  6 Aug 2024 11:17:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722941386; cv=none; b=B2Nnn4z81ZVtMH1IqWC0985xJuJTZEOUuD+Gl8HsHImLN2wigVRhr85837woVInzv7h90yk16kZwvarQa7rjTrnTur1aCRcl2SNfngqUOeY9ivXcmwNLZr17HeCB7Udw+/JZLfuF0gjA5aBQAOs5ly6WynrDaib6O8cKNLKzSjY=
+	t=1722943074; cv=none; b=kT2fwEUTJjMBG7G4GGTlSxPb1d3kPWjhzYSkVuNpuGmVvh28WucOwiE5+ijJkIlob3LnNVbSPo/lnkge+3ulRcdTm7VwWMzOzWancksnO4ltXjOqzJzncxn2k2dCm8N067i2FsPUxsfoNRS0yr8oxBIS719g9oU8JBtOsdq+SdA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722941386; c=relaxed/simple;
-	bh=PbsfPVn4g/JoIo4ioWUql/ZrNIkCK1TZ+msVS9B+B24=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FoJlMYbtrVSQWj9FAU9CWg49mT50n3DeeLymOJiQmiejoTIJOE1ugtubwHR6FCYN7a8mUUw2pIGLetMww8izQtgw5EpvfTcnPdX+WqRz/nvM9ZdTM1uAnHWQIwTFBZns2xalc5M847Ourao//cYLyfP572k5bG+jjaSU2FInfSI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HrVHiATj; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HrVHiATj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC738C32786;
-	Tue,  6 Aug 2024 10:49:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1722941386;
-	bh=PbsfPVn4g/JoIo4ioWUql/ZrNIkCK1TZ+msVS9B+B24=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=HrVHiATjtOMHhnPshKkk8Jvkecu6E1LUnEvIaiQpT1i6q2BYquCpDsDKXrcqFUgg4
-	 +l16ynRMYJV6iRaQkcyedOQ+dDTeduCS0MSY9DujQOiAWpNOULtLKBjcKimrRYd7n9
-	 eSEHgW7pDXeQcGltzUmeuxqQGSlTfcqNh2d9rj6ZTXchUZFU2hxJHHnZXHXo2QMorD
-	 q74Mnowh0qJP/eMicRQ9aRyh/L86VFoplaEu3wDRXgUaeRDWbook0FhdVAUNQPhw8m
-	 /LOkGiKW9jfRzWQjCI1SR/qg2HdHl0Wbf0i1XUnw2tLeuuSuiSmto6TmCIO566ZVUm
-	 6VW7u7rmtxKNQ==
-Date: Tue, 6 Aug 2024 11:49:41 +0100
-From: Simon Horman <horms@kernel.org>
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org
-Subject: Re: [PATCH net-next 2/2] net/smc: introduce statistics for ringbufs
- usage of net namespace
-Message-ID: <20240806104941.GT2636630@kernel.org>
-References: <20240805090551.80786-1-guwen@linux.alibaba.com>
- <20240805090551.80786-3-guwen@linux.alibaba.com>
+	s=arc-20240116; t=1722943074; c=relaxed/simple;
+	bh=/NA0QSHaLm4VQwkETTIB9yAdEGKXOx+9QzY4eD4/fKA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sxA8lvwYjIsZPaHD0eYH5Soqqbt+K0w3sZfvfMbOYjGNhKVqCN3G3TgJ6GVVetxF1JVx7h3TLLEZ/SmHYZgzN4NdQeD7ZyXh2tyqbRw/jDP5TJOQWMRP8aNa/sxG7ayuQUNQAeGIVuIyZtE4IF8Vl5oXbu8adQDuIlPqC5110Y0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 65557367;
+	Tue,  6 Aug 2024 04:18:17 -0700 (PDT)
+Received: from [10.1.31.182] (unknown [10.1.31.182])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id ED8603F766;
+	Tue,  6 Aug 2024 04:17:48 -0700 (PDT)
+Message-ID: <74536df6-98c7-43ac-9ae6-8106eea123ec@arm.com>
+Date: Tue, 6 Aug 2024 12:17:47 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240805090551.80786-3-guwen@linux.alibaba.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 07/11] mm/huge_memory: convert split_huge_pages_pid()
+ from follow_page() to folio_walk
+Content-Language: en-GB
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ Jonathan Corbet <corbet@lwn.net>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Mark Brown <broonie@kernel.org>
+References: <20240802155524.517137-1-david@redhat.com>
+ <20240802155524.517137-8-david@redhat.com>
+ <e1d44e36-06e4-4d1c-8daf-315d149ea1b3@arm.com>
+ <ac97ccdc-ee1e-4f07-8902-6360de80c2a0@redhat.com>
+ <a5f059a0-32d6-453e-9d18-1f3bfec3a762@redhat.com>
+ <c75d1c6c-8ea6-424f-853c-1ccda6c77ba2@redhat.com>
+From: Ryan Roberts <ryan.roberts@arm.com>
+In-Reply-To: <c75d1c6c-8ea6-424f-853c-1ccda6c77ba2@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Aug 05, 2024 at 05:05:51PM +0800, Wen Gu wrote:
-> The buffer size histograms in smc_stats, namely rx/tx_rmbsize, record
-> the sizes of ringbufs for all connections that have ever appeared in
-> the net namespace. They are incremental and we cannot know the actual
-> ringbufs usage from these. So here introduces statistics for current
-> ringbufs usage of existing smc connections in the net namespace into
-> smc_stats, it will be incremented when new connection uses a ringbuf
-> and decremented when the ringbuf is unused.
+>>>> It's trying to split some pmd-mapped THPs then checking and finding that
+>>>> they are not split. The split is requested via
+>>>> /sys/kernel/debug/split_huge_pages, which I believe ends up in this function
+>>>> you are modifying here. Although I'll admit that looking at the change,
+>>>> there is nothing obviously wrong! Any ideas?
+>>>
+>>> Nothing jumps at me as well. Let me fire up the debugger :)
+>>
+>> Ah, very likely the can_split_folio() check expects a raised refcount
+>> already.
 > 
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> Indeed, the following does the trick! Thanks Ryan, I could have sworn
+> I ran that selftest as well.
 
-...
+Ahha! Thanks for sorting so quickly!
 
-> diff --git a/net/smc/smc_stats.h b/net/smc/smc_stats.h
-
-...
-
-> @@ -135,38 +137,45 @@ do { \
->  } \
->  while (0)
->  
-> -#define SMC_STAT_RMB_SIZE_SUB(_smc_stats, _tech, k, _len) \
-> +#define SMC_STAT_RMB_SIZE_SUB(_smc_stats, _tech, k, _is_add, _len) \
->  do { \
-> +	typeof(_is_add) is_a = (_is_add); \
->  	typeof(_len) _l = (_len); \
->  	typeof(_tech) t = (_tech); \
->  	int _pos; \
->  	int m = SMC_BUF_MAX - 1; \
->  	if (_l <= 0) \
->  		break; \
-> -	_pos = fls((_l - 1) >> 13); \
-> -	_pos = (_pos <= m) ? _pos : m; \
-> -	this_cpu_inc((*(_smc_stats)).smc[t].k ## _rmbsize.buf[_pos]); \
-> +	if (is_a) { \
-> +		_pos = fls((_l - 1) >> 13); \
-> +		_pos = (_pos <= m) ? _pos : m; \
-> +		this_cpu_inc((*(_smc_stats)).smc[t].k ## _rmbsize.buf[_pos]); \
-> +		this_cpu_add((*(_smc_stats)).smc[t].k ## _rmbuse, _l); \
-
-Nit:
-
-I see that due to the construction of the caller, SMC_STAT_RMB_SIZE(),
-it will not occur. But checkpatch warns of possible side effects
-from reuse of _smc_stats.
-
-As great care seems to have been taken in these macros to avoid such
-problems, even if theoretical, perhaps it is worth doing so here too.
-
-f.e. A macro-local variable could store (*(_smc_stats)).smc[t] which
-     I think would both resolve the problem mentioned, and make some
-     lines shorter (and maybe easier to read).
-
-> +	} else { \
-> +		this_cpu_sub((*(_smc_stats)).smc[t].k ## _rmbuse, _l); \
-> +	} \
->  } \
->  while (0)
->  
->  #define SMC_STAT_RMB_SUB(_smc_stats, type, t, key) \
->  	this_cpu_inc((*(_smc_stats)).smc[t].rmb ## _ ## key.type ## _cnt)
->  
-> -#define SMC_STAT_RMB_SIZE(_smc, _is_smcd, _is_rx, _len) \
-> +#define SMC_STAT_RMB_SIZE(_smc, _is_smcd, _is_rx, _is_add, _len) \
->  do { \
->  	struct net *_net = sock_net(&(_smc)->sk); \
->  	struct smc_stats __percpu *_smc_stats = _net->smc.smc_stats; \
-> +	typeof(_is_add) is_add = (_is_add); \
->  	typeof(_is_smcd) is_d = (_is_smcd); \
->  	typeof(_is_rx) is_r = (_is_rx); \
->  	typeof(_len) l = (_len); \
->  	if ((is_d) && (is_r)) \
-> -		SMC_STAT_RMB_SIZE_SUB(_smc_stats, SMC_TYPE_D, rx, l); \
-> +		SMC_STAT_RMB_SIZE_SUB(_smc_stats, SMC_TYPE_D, rx, is_add, l); \
->  	if ((is_d) && !(is_r)) \
-> -		SMC_STAT_RMB_SIZE_SUB(_smc_stats, SMC_TYPE_D, tx, l); \
-> +		SMC_STAT_RMB_SIZE_SUB(_smc_stats, SMC_TYPE_D, tx, is_add, l); \
->  	if (!(is_d) && (is_r)) \
-> -		SMC_STAT_RMB_SIZE_SUB(_smc_stats, SMC_TYPE_R, rx, l); \
-> +		SMC_STAT_RMB_SIZE_SUB(_smc_stats, SMC_TYPE_R, rx, is_add, l); \
->  	if (!(is_d) && !(is_r)) \
-> -		SMC_STAT_RMB_SIZE_SUB(_smc_stats, SMC_TYPE_R, tx, l); \
-> +		SMC_STAT_RMB_SIZE_SUB(_smc_stats, SMC_TYPE_R, tx, is_add, l); \
->  } \
->  while (0)
->  
-> -- 
-> 2.32.0.3.g01195cf9f
-> 
-> 
