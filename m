@@ -1,209 +1,316 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF7B379949
-	for <linux-s390@vger.kernel.org>; Wed,  7 Aug 2024 15:23:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BFD912FF72;
+	Wed,  7 Aug 2024 15:45:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723044237; cv=none; b=cfgnrZDuRzXGD0pRFFub+L26WY9O14FSavWdAya10+EtSnxRD/X+Ucanj/Ysce3gOjukVFyWxqwfiV/HFcSxB4f+7yzHda0VVe0VViDXPUB9DlZ1H9QxL3upKFbsx3c+nimZa+xG6t4Fll4dMjaHUlG3/huNbgpkLtHmB48nM+E=
+	t=1723045510; cv=none; b=jb4tKKmgVu1N4gNzoFLEyHbnNNKXxQlYTM7AQafQwOOAX3R95cljEambjxEvMkJvORhwWkuPOGQuVnFB/ax1xsqzMEyR6T+KDO/YISFv/WLV8s+phPhUH/6xJDeTHB2I5pM5riwi7+3Xi/mCBg1WjAICeHkpz67+vECymNLqDnU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723044237; c=relaxed/simple;
-	bh=N3TqnWDEW9ST+nOuxREQVCu2Ne8ray+kVdB5BRj3zMA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XUffUJMBsAeuSCpMzTtAzFiqjQdsURMXDOsqaOB+nZTn5h4YTv1MLZgaiz8tJfvQWTQ2PS1imK8FCkgjhPzcjA3LW8Nz2PBI6dk8/TMMSRnt9QCgQRwUJ9yID+bLCvUCkm+FUh91odTOmlED4Idr063tkJR86mxdi99ZyuQLVb0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FqSCu5oo; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1723045510; c=relaxed/simple;
+	bh=bpvMt9LIzciZE04JdWRFLqfFnEpZKjKgZ9aZ7GnKAmY=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=FjIEWXqPEQzU3c17TYJGrLxbJsnEEAGIKRZ/UGzcHkix2dhxmIdORqG9CPEzE/lmZ+iGVTPHH13obYG0IFpSJ5BhL1Ef2RpUVvl/hpcrRIwknk0yW+x52r2dE9BgAjKBg91hpjIr0Sm1zKwj4lahhhAVEgVFMcBz1kbqpJDFeHk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ka56J3Tm; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FqSCu5oo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1723044235;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=aAgxFInvvWwKV0z4+0KCeJqRg0kMvcuUocrtSkGNRkQ=;
-	b=FqSCu5oo/WGW48ky7tsrWZP7mNDVgevkW3zRuqkDJqOnH9DK3q/WdaqkZlWzd6efmcmJ+l
-	VS76ennw1zgQu9/MtB0gXVVj7aLQ1pvyNX2WhHNUQkHo6sxy2ztIAjGOU6unw6QFjDLnHY
-	dZ4oeo6XB+RORrvBuTEFDnj2y1Q5v+0=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-410-LL1mYoIvO7ui8DrRElOHlQ-1; Wed, 07 Aug 2024 11:23:54 -0400
-X-MC-Unique: LL1mYoIvO7ui8DrRElOHlQ-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4281310bf7aso13386305e9.1
-        for <linux-s390@vger.kernel.org>; Wed, 07 Aug 2024 08:23:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723044232; x=1723649032;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=aAgxFInvvWwKV0z4+0KCeJqRg0kMvcuUocrtSkGNRkQ=;
-        b=TEuVdjeicxavNHg4X55Cfx1qXOE6njTlEUMND1j5R9C8vlErF88iB7xCJxuXcFFq6k
-         /rYzKg/jjFW3dTPk6GL7aUybC8jZYxcSaQYX+l2oN/gEreXtEOftBB7YDjtLzN1p7n/u
-         Jgl+eFXpkYoSDZE8B5BxmY4iI4V+nxUnSnPgC2d+EHVQRSgXRpSW/KLqBRnY+jz9/VQY
-         bfipnV2M8/O4IJz4spjiygQPyfk9htUwVLjAWkc1ax4IJhTn4IyEwbk25L4XN/tjLPdI
-         6QPTbCnzJOXzg2SmOo3h7qSOEdGsfpj7brZUCXTav93fkJFKymBUHu2sI2cfiyU2rUhU
-         pPUA==
-X-Forwarded-Encrypted: i=1; AJvYcCUQyuadYKzlz/oVrrWSuytYmZNu8WxSLdp+LEC+fqQTeoDDQfDXK3iqRY5mCMTYONYROAMDAnx4N2ks3MwvrBQZDcpEsXR4TZ2qiQ==
-X-Gm-Message-State: AOJu0YyJ413nAggfWI+A51fxlpQyQALu+Yi4hc/AjGwsJtASHoC8SGjH
-	rkGHhB3luh+dOPcbPPT1W5BWM9lnjLgJTcBiDWZDdPWAge9KUliuzDRuHSibUq7+oIt9Cj40RJR
-	TxW3dpjxyEEMW5aIL0SGGxXauT6oqfB0ndASeCigGDYg8+yLdUeIxOhkGe6M=
-X-Received: by 2002:a05:600c:4fc9:b0:426:6f27:379a with SMTP id 5b1f17b1804b1-428e6b08fc5mr123410895e9.13.1723044231708;
-        Wed, 07 Aug 2024 08:23:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEa1u7xsFpjJO/UW4dKCxZ81wLwqoTylnMlnIcAzev3Z83n1ZIinArOgcYN+yAGW9Rj8jfltw==
-X-Received: by 2002:a05:600c:4fc9:b0:426:6f27:379a with SMTP id 5b1f17b1804b1-428e6b08fc5mr123410535e9.13.1723044231149;
-        Wed, 07 Aug 2024 08:23:51 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c708:1a00:df86:93fe:6505:d096? (p200300cbc7081a00df8693fe6505d096.dip0.t-ipconnect.de. [2003:cb:c708:1a00:df86:93fe:6505:d096])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42905971ad7sm35137405e9.17.2024.08.07.08.23.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 07 Aug 2024 08:23:50 -0700 (PDT)
-Message-ID: <936f8adf-a8a5-45eb-b5a3-297773918f7c@redhat.com>
-Date: Wed, 7 Aug 2024 17:23:48 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ka56J3Tm"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47730R6m004548;
+	Wed, 7 Aug 2024 15:44:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
+	19hE5IYkQM6sXsKXv8sX+JHZtrFY8OS8d+daPlHYI7I=; b=ka56J3TmM+5TEJQp
+	yqMgNfC3i+fiFmYsx8dnrGi9pQTGC6Xdl9aJaWJDXUNjesaxPQNwgpsARZHwz77R
+	PJ4Q+dZxI8JPL9xmTogwPy8ewHjraYygQXDY96NW798do9KtUshoU+PeLw/fn8pA
+	jtOqMh0Hg97G5wm66erG03iWXXSthECtE/sivEAR2OM9kuKkKBXVv3YT27FrW/0y
+	VERIF/9aWNtCijfpKEPZEP+p+XaXi30NMFAl8ElQq5Yi6ELVATRTnnJAawSsshxa
+	Ur48SZL0Cco2GvirUo2xzC9ZR/HDzZfCs7Wo6AiAkdo+QjfFJzbX1dU/eLisGQZg
+	nrCT9w==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40uk02b7u9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Aug 2024 15:44:35 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 477FiYjM002328;
+	Wed, 7 Aug 2024 15:44:34 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40uk02b7u6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Aug 2024 15:44:34 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 477EIK2d018615;
+	Wed, 7 Aug 2024 15:44:33 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 40sxvu9yd0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Aug 2024 15:44:33 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 477FiUKd6947452
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 7 Aug 2024 15:44:33 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A67625805D;
+	Wed,  7 Aug 2024 15:44:30 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A830C58054;
+	Wed,  7 Aug 2024 15:44:26 +0000 (GMT)
+Received: from [9.171.22.131] (unknown [9.171.22.131])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  7 Aug 2024 15:44:26 +0000 (GMT)
+Message-ID: <ff738a270fc5ad18310e10d4624955430c86e7a2.camel@linux.ibm.com>
+Subject: Re: [PATCH] s390/pci: Stop usurping pdev->dev.groups
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Lukas Wunner <lukas@wunner.de>,
+        Gerald Schaefer
+ <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>,
+        Bjorn Helgaas <helgaas@kernel.org>
+Cc: linux-s390@vger.kernel.org, linux-pci@vger.kernel.org,
+        Alistair Francis
+ <alistair23@gmail.com>, Jonathan.Cameron@huawei.com,
+        alex.williamson@redhat.com, christian.koenig@amd.com, kch@nvidia.com,
+        gregkh@linuxfoundation.org, logang@deltatee.com, chaitanyak@nvidia.com,
+        rdunlap@infradead.org, Alistair Francis <alistair.francis@wdc.com>,
+        Sebastian Ott <sebott@redhat.com>
+Date: Wed, 07 Aug 2024 17:44:25 +0200
+In-Reply-To: <7b970f7923e373d1b23784721208f93418720485.1722870934.git.lukas@wunner.de>
+References: 
+	<7b970f7923e373d1b23784721208f93418720485.1722870934.git.lukas@wunner.de>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.52.3 (3.52.3-1.fc40) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: s6heuq5bCSsOuiaSrCe7JIOD6W5Z0h4E
+X-Proofpoint-GUID: H_TGPsjfV4z2OoNKSKYNG3kqyNsPEVJV
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] mm: keep nid around during hot-remove
-To: Pasha Tatashin <pasha.tatashin@soleen.com>
-Cc: agordeev@linux.ibm.com, akpm@linux-foundation.org,
- alexghiti@rivosinc.com, aou@eecs.berkeley.edu, ardb@kernel.org,
- arnd@arndb.de, bhe@redhat.com, bjorn@rivosinc.com,
- borntraeger@linux.ibm.com, bp@alien8.de, catalin.marinas@arm.com,
- chenhuacai@kernel.org, chenjiahao16@huawei.com, christophe.leroy@csgroup.eu,
- dave.hansen@linux.intel.com, dawei.li@shingroup.cn,
- gerald.schaefer@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
- hpa@zytor.com, kent.overstreet@linux.dev, kernel@xen0n.name,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- loongarch@lists.linux.dev, luto@kernel.org, maobibo@loongson.cn,
- mark.rutland@arm.com, mcgrof@kernel.org, mingo@redhat.com,
- mpe@ellerman.id.au, muchun.song@linux.dev, namcao@linutronix.de,
- naveen@kernel.org, npiggin@gmail.com, osalvador@suse.de, palmer@dabbelt.com,
- paul.walmsley@sifive.com, peterz@infradead.org, philmd@linaro.org,
- rdunlap@infradead.org, rientjes@google.com, rppt@kernel.org,
- ryan.roberts@arm.com, souravpanda@google.com, svens@linux.ibm.com,
- tglx@linutronix.de, tzimmermann@suse.de, will@kernel.org, x86@kernel.org
-References: <20240806221454.1971755-1-pasha.tatashin@soleen.com>
- <20240806221454.1971755-2-pasha.tatashin@soleen.com>
- <345ba221-e094-47e8-9481-562faf4acd85@redhat.com>
- <e780e9af-e23d-44ff-ae0f-a8f4ee098a1c@redhat.com>
- <CA+CK2bBuDu-3XeeAsy4zggOrxTrp84bcZp9p6mQipzc3NqpcSg@mail.gmail.com>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <CA+CK2bBuDu-3XeeAsy4zggOrxTrp84bcZp9p6mQipzc3NqpcSg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-07_11,2024-08-07_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=999
+ priorityscore=1501 mlxscore=0 suspectscore=0 adultscore=0
+ lowpriorityscore=0 malwarescore=0 clxscore=1011 bulkscore=0 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2408070107
 
-On 07.08.24 16:40, Pasha Tatashin wrote:
-> On Wed, Aug 7, 2024 at 7:50 AM David Hildenbrand <david@redhat.com> wrote:
->>
->> On 07.08.24 13:32, David Hildenbrand wrote:
->>> On 07.08.24 00:14, Pasha Tatashin wrote:
->>>> nid is needed during memory hot-remove in order to account the
->>>> information about the memmap overhead that is being removed.
->>>>
->>>> In addition, we cannot use page_pgdat(pfn_to_page(pfn)) during
->>>> hotremove after remove_pfn_range_from_zone().
->>>>
->>>> We also cannot determine nid from walking through memblocks after
->>>> remove_memory_block_devices() is called.
->>>>
->>>> Therefore, pass nid down from the beginning of hotremove to where
->>>> it is used for the accounting purposes.
->>>
->>> I was happy to finally remove that nid parameter for good in:
->>>
->>> commit 65a2aa5f482ed0c1b5afb9e6b0b9e0b16bb8b616
->>> Author: David Hildenbrand <david@redhat.com>
->>> Date:   Tue Sep 7 19:55:04 2021 -0700
->>>
->>>        mm/memory_hotplug: remove nid parameter from arch_remove_memory()
->>>
->>> To ask the real question: Do we really need this counter per-nid at all?
->>>
->>> Seems to over-complicate things.
->>
->> Case in point: I think the handling is wrong?
->>
->> Just because some memory belongs to a nid doesn't mean that the vmemmap
->> was allocated from that nid?
-> 
-> I believe when we hot-add we use nid for the memory that is being
-> added to account vmemmap, and when we do hot-remove we also use nid of
-> the memory that is being removed. But, you are correct, this does not
-> guarantee that the actual vmemmap memory is being allocated or removed
-> from the given nid.
+On Mon, 2024-08-05 at 17:24 +0200, Lukas Wunner wrote:
+> Bjorn suggests using pdev->dev.groups for attribute_groups constructed
+> on PCI device enumeration:
+>=20
+>    "Is it feasible to build an attribute group in pci_doe_init() and
+>     add it to dev->groups so device_add() will automatically add them?"
+>     https://msgid.link/20231019165829.GA1381099@bhelgaas
+>=20
+> Unfortunately on s390, pcibios_device_add() usurps pdev->dev.groups for
+> arch-specific attribute_groups, preventing its use for anything else.
+>=20
+> Introduce an ARCH_PCI_DEV_GROUPS macro which arches can define in
+> <asm/pci.h>.  The macro is visible in drivers/pci/pci-sysfs.c through
+> the inclusion of <linux/pci.h>, which in turn includes <asm/pci.h>.
+>=20
+> On s390, define the macro to the three attribute_groups previously
+> assigned to pdev->dev.groups.  Thereby pdev->dev.groups is made
+> available for use by the PCI core.
+>=20
+> As a side effect, arch/s390/pci/pci_sysfs.c no longer needs to be
+> compiled into the kernel if CONFIG_SYSFS=3Dn.
+>=20
+> Signed-off-by: Lukas Wunner <lukas@wunner.de>
+> ---
+>  arch/s390/include/asm/pci.h |  9 ++++++++-
+>  arch/s390/pci/Makefile      |  3 ++-
+>  arch/s390/pci/pci.c         |  1 -
+>  arch/s390/pci/pci_sysfs.c   | 14 ++++----------
+>  drivers/pci/pci-sysfs.c     |  5 +++++
+>  5 files changed, 19 insertions(+), 13 deletions(-)
+>=20
+> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+> index 30820a6..9d920ce 100644
+> --- a/arch/s390/include/asm/pci.h
+> +++ b/arch/s390/include/asm/pci.h
+> @@ -191,7 +191,14 @@ static inline bool zdev_enabled(struct zpci_dev *zde=
+v)
+>  	return (zdev->fh & (1UL << 31)) ? true : false;
+>  }
+> =20
+> -extern const struct attribute_group *zpci_attr_groups[];
+> +extern const struct attribute_group zpci_attr_group;
+> +extern const struct attribute_group pfip_attr_group;
+> +extern const struct attribute_group zpci_ident_attr_group;
+> +
+> +#define ARCH_PCI_DEV_GROUPS &zpci_attr_group,		 \
+> +			    &pfip_attr_group,		 \
+> +			    &zpci_ident_attr_group,
+> +
+>  extern unsigned int s390_pci_force_floating __initdata;
+>  extern unsigned int s390_pci_no_rid;
+> =20
+> diff --git a/arch/s390/pci/Makefile b/arch/s390/pci/Makefile
+> index 0547a10..2c21f03 100644
+> --- a/arch/s390/pci/Makefile
+> +++ b/arch/s390/pci/Makefile
+> @@ -3,7 +3,8 @@
+>  # Makefile for the s390 PCI subsystem.
+>  #
+> =20
+> -obj-$(CONFIG_PCI)	+=3D pci.o pci_irq.o pci_clp.o pci_sysfs.o \
+> +obj-$(CONFIG_PCI)	+=3D pci.o pci_irq.o pci_clp.o \
+>  			   pci_event.o pci_debug.o pci_insn.o pci_mmio.o \
+>  			   pci_bus.o pci_kvm_hook.o
+>  obj-$(CONFIG_PCI_IOV)	+=3D pci_iov.o
+> +obj-$(CONFIG_SYSFS)	+=3D pci_sysfs.o
+> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> index cff4838..bd9624c 100644
+> --- a/arch/s390/pci/pci.c
+> +++ b/arch/s390/pci/pci.c
+> @@ -587,7 +587,6 @@ int pcibios_device_add(struct pci_dev *pdev)
+>  	if (pdev->is_physfn)
+>  		pdev->no_vf_scan =3D 1;
+> =20
+> -	pdev->dev.groups =3D zpci_attr_groups;
+>  	zpci_map_resources(pdev);
+> =20
+>  	for (i =3D 0; i < PCI_STD_NUM_BARS; i++) {
+> diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
+> index 0f4f1e8..1f81f6f 100644
+> --- a/arch/s390/pci/pci_sysfs.c
+> +++ b/arch/s390/pci/pci_sysfs.c
+> @@ -197,7 +197,7 @@ static umode_t zpci_index_is_visible(struct kobject *=
+kobj,
+>  	NULL,
+>  };
+> =20
+> -static struct attribute_group zpci_ident_attr_group =3D {
+> +const struct attribute_group zpci_ident_attr_group =3D {
+>  	.attrs =3D zpci_ident_attrs,
+>  	.is_visible =3D zpci_index_is_visible,
+>  };
+> @@ -223,7 +223,7 @@ static umode_t zpci_index_is_visible(struct kobject *=
+kobj,
+>  	NULL,
+>  };
+> =20
+> -static struct attribute_group zpci_attr_group =3D {
+> +const struct attribute_group zpci_attr_group =3D {
+>  	.attrs =3D zpci_dev_attrs,
+>  	.bin_attrs =3D zpci_bin_attrs,
+>  };
+> @@ -235,14 +235,8 @@ static umode_t zpci_index_is_visible(struct kobject =
+*kobj,
+>  	&dev_attr_segment3.attr,
+>  	NULL,
+>  };
+> -static struct attribute_group pfip_attr_group =3D {
+> +
+> +const struct attribute_group pfip_attr_group =3D {
+>  	.name =3D "pfip",
+>  	.attrs =3D pfip_attrs,
+>  };
+> -
+> -const struct attribute_group *zpci_attr_groups[] =3D {
+> -	&zpci_attr_group,
+> -	&pfip_attr_group,
+> -	&zpci_ident_attr_group,
+> -	NULL,
+> -};
+> diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+> index 40cfa71..5d0f4db 100644
+> --- a/drivers/pci/pci-sysfs.c
+> +++ b/drivers/pci/pci-sysfs.c
+> @@ -31,6 +31,10 @@
+>  #include <linux/aperture.h>
+>  #include "pci.h"
+> =20
+> +#ifndef ARCH_PCI_DEV_GROUPS
+> +#define ARCH_PCI_DEV_GROUPS
+> +#endif
+> +
+>  static int sysfs_initialized;	/* =3D 0 */
+> =20
+>  /* show configuration fields */
+> @@ -1624,6 +1628,7 @@ static umode_t pcie_dev_attrs_are_visible(struct ko=
+bject *kobj,
+>  	&pci_dev_acpi_attr_group,
+>  #endif
+>  	&pci_dev_resource_resize_group,
+> +	ARCH_PCI_DEV_GROUPS
+>  	NULL,
+>  };
+> =20
 
-Right. For boot memory that we might want to unplug later it might be 
-different. I recall that with "movable_node", we might end up allocating 
-the vmemmap from remote nodes, such that all memory of a node stays 
-movable. That's why __earlyonly_bootmem_alloc() ends up calling 
-memblock_alloc_try_nid_raw(), to fallback to other nodes if required.
+Thanks for the patch and sorry for the delay I'll be on vacation
+starting tomorrow and it's a bit busy. This makes sense to me and I
+agree with Bjorn that this can go via the PCI tree, especially if it is
+already useful there. I also gave this a compile and boot test on and
+checked that the s390 specific PCI device attributes are still there.
 
-> 
->> Wouldn't we want to look at the actual nid the vmemmap page belongs to
->> that we are removing?
-> 
-> I am now looking into converting this counter to be system wide, i.e.
-> vm_event, it is all done under hotplug lock, so there is no
-> contention.
-
-That would be easiest, assuming per-node information is not strictly 
-required for now.
-
--- 
-Cheers,
-
-David / dhildenb
+Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
