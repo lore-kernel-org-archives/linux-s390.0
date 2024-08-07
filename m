@@ -1,175 +1,157 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 818911B9B43;
-	Wed,  7 Aug 2024 11:02:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3967813F45F
+	for <linux-s390@vger.kernel.org>; Wed,  7 Aug 2024 11:25:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723028563; cv=none; b=RNR8+cXI7Ougc3qLFtMcD467U0okZ0k8vqHnPPcNSlOgIk7BicOaiJULGCy8pF9eT7vZ86nKaff4fn3AVA8jMrj/n7J/0QbLgqrE2xwehrBrXSvugJt6a6w18ZQna9wtU+Y/UsnPfNMojz+QHhIT0HbaHPdk3zqMomitqbzt+zs=
+	t=1723029906; cv=none; b=LubJyeau5x8rwrTJmRArycY7c6MnWX6XwGwQlZ+aBzasdf3uLfzxl+g95R5jXNtVV/Nt8MYWyX0uGFZOTlWZjQZCxYzJtCSlns7wOdcFttphm1iWypnZWo61K1tzV2U8cq5jqAUteUdkoFanuSXe+PSghlOkUTVYLp+wtbBuTDs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723028563; c=relaxed/simple;
-	bh=6jIjO/YzCC0JAUWX6XQ3qSYdTAbSolktYYq1hpL6PiU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Tfx8+O3G3J97s2fvSlgQt2gDv8+lfUGtbnQDlNoaA65h5/LFSQ5Hy4XifW1ZoHZdgCmiFXDtaWKMrc69Z6ADMtNDod4Jrj2AeGj8al2YeN8OaKM35bEa4uTMrf/MkOMocENqSDT/h/0VwB/AiXUgpbP8nfdDoaeuZxGKdRSRG0A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rtgQWOCZ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1723029906; c=relaxed/simple;
+	bh=cjKe5aqjltaMy5lpigAbb0QJGUmcGvoVQob3xsuhGDY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=rDYuhv8Ex0k45HWVetVaVTHAb4rN7uWSUEF29SRXhG3GR6ZzAaRYturLfWUdgnYs+fKCw5WDeFA4RIgoT52Rvxn21XbXyKo5DWlKKZg2av4QF3yrkDFLfXQO3kXfeYAUbUKj2445gLAcBfNmjaC4fXQ43PfEG3vTVRa0uNyQY98=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AozdfuwD; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rtgQWOCZ"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4772Mb22012366;
-	Wed, 7 Aug 2024 11:02:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
-	K8SJ5DfZZqNnSsupVRItmzj3t1W0RVs7ge3xrM7xGX4=; b=rtgQWOCZEnq1xWnx
-	sm8Cn97Sb0+tZrJNJxFsPBBOY7ReRM2D18BNqYUJNzHKkXLrVrf0Ysv5rLeqjzrL
-	2yBPhar3VSOwr80L6hkSIexKcIdkgs+IPwYrLfq8fNUCFZdH2E9ovLVxrZU3tvRV
-	E81XGuYZQZeAiky4Yoc4bN0IjH03RQg3kyd0CQFyCJkY/wmopkAOsCDvdVWnJV2p
-	WmUJsMa3Yy1t4DKzwTbjhl2nfTcnZwQNwX/twyX0p+MrusW+5tlhLFMzvq7YoHzL
-	XlHy3KVwU09ko20cWJL8oylA2pFSABjN/URFA96zte84RgeEq1HXpmUT2XSm4dbW
-	OPiDRQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40u5t3vaxb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Aug 2024 11:02:36 +0000 (GMT)
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 477AwR2p017334;
-	Wed, 7 Aug 2024 11:02:36 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40u5t3vax9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Aug 2024 11:02:36 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4779KKZb030487;
-	Wed, 7 Aug 2024 11:02:35 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 40t1k38ac2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Aug 2024 11:02:35 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 477B2Tmq57803250
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 7 Aug 2024 11:02:31 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E8F2320040;
-	Wed,  7 Aug 2024 11:02:28 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A97702004D;
-	Wed,  7 Aug 2024 11:02:28 +0000 (GMT)
-Received: from darkmoore.boeblingen.de.ibm.com (unknown [9.155.210.150])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  7 Aug 2024 11:02:28 +0000 (GMT)
-Date: Wed, 7 Aug 2024 13:02:26 +0200
-From: Christoph Schlameuss <schlameuss@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah
- Khan <shuah@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand
- <david@redhat.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Subject: Re: [PATCH v4 08/10] selftests: kvm: s390: Add uc_skey VM test case
-Message-ID: <20240807130226.00b9d1ca.schlameuss@linux.ibm.com>
-In-Reply-To: <4b4f9459-4b4a-48b8-8935-25e51ffa51c8@linux.ibm.com>
-References: <20240802155913.261891-1-schlameuss@linux.ibm.com>
-	<20240802155913.261891-9-schlameuss@linux.ibm.com>
-	<4b4f9459-4b4a-48b8-8935-25e51ffa51c8@linux.ibm.com>
-Organization: IBM
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AozdfuwD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1723029904;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=kUmg6m+rX0ZdRF47MclkDhoxeaVkz+iC7VCa9/iV6Vw=;
+	b=AozdfuwDf3+x/z+D5lfpe/CeLWfH6PPBVvZIiIGvnd709b0A3rDel5RDbnX6UX/+8mBB8P
+	1zFnCIukhqyx5cppoAhVQOoOsRZSbg/nnBXr8Z1ZvhAoUNPrTBfvbsI1VwxMZVCcDwywOj
+	gAs6l+kXdvv5fsYuZK9dM6Pn6qQnc80=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-574-oByAyI9QPWylN-3uIY5NiQ-1; Wed, 07 Aug 2024 07:25:03 -0400
+X-MC-Unique: oByAyI9QPWylN-3uIY5NiQ-1
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-428c2fbf95eso12271875e9.1
+        for <linux-s390@vger.kernel.org>; Wed, 07 Aug 2024 04:25:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723029902; x=1723634702;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=kUmg6m+rX0ZdRF47MclkDhoxeaVkz+iC7VCa9/iV6Vw=;
+        b=vcDaimT4qeJECnomvZRM/XimC2+MtCEVpJQ+8YekKfUjDeJYVZvYEx8qjzvA2UL1YM
+         +riC/5fFYd9EIeD/CWmmke8M+IST+4P6ynkqk8S98nKk0xMzHyGRD+WXaX89vb9A78kb
+         CuQC6/6Ne0LcxZ/YEgushTu3bsb9DFGEnTlr8XquQqElOA3urvTEeskNzjtB5rfi4fyl
+         KDlk4Cja9FYwsjHFQ31xHYev/tHPMAoV8B07f9Q4B7C926nycrH/XsPLKKyTPm+bjOQB
+         KCBehK9ekzWKdEMClgpbekpLHs+CnTnQLD494ZcF1fHrw+WeU/BN7SGDbmWT09E3lKs5
+         yo5w==
+X-Forwarded-Encrypted: i=1; AJvYcCUdfiCjPXuyIfj6JJEY5SMzK7aG4Ok6w9psA6rTF+5pSsQmjMbIPMsMkIxQt0MUaM+FyshF0WftCXApb8Dw2DUNGafpXDjrMkwD2g==
+X-Gm-Message-State: AOJu0YzgnUnx6s2zbSsQdlBn3XDcFinMO8kVn/grflO2nRmG1bKmBwB+
+	JZZcCrN08DEFDhODQ15i/CV+vfQLR4a6Rd4HihGaz19Q7tOQHZ/Dp/9z0dFpw33laQLyQFIxtfy
+	LOqAPjvfz1W3llmUlWuO7KFBVf15X/9cRIvk3Mt5rEI9m4jdNVxgEq9qhDdw=
+X-Received: by 2002:a05:6000:2a6:b0:368:31c7:19d9 with SMTP id ffacd0b85a97d-36bbc0c54eamr16661121f8f.12.1723029901528;
+        Wed, 07 Aug 2024 04:25:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHSeCKCmaFkgVQy7NTVGMO35DBiIizaJ1GZqRtDIurBEJSTZSCwcCs/VepdNDXoauGMk9Tgsg==
+X-Received: by 2002:a05:6000:2a6:b0:368:31c7:19d9 with SMTP id ffacd0b85a97d-36bbc0c54eamr16661039f8f.12.1723029900802;
+        Wed, 07 Aug 2024 04:25:00 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c708:1a00:df86:93fe:6505:d096? (p200300cbc7081a00df8693fe6505d096.dip0.t-ipconnect.de. [2003:cb:c708:1a00:df86:93fe:6505:d096])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36bbd059e44sm15739210f8f.70.2024.08.07.04.24.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 07 Aug 2024 04:25:00 -0700 (PDT)
+Message-ID: <8da4b0dc-6522-40ff-ba61-ea41fb3437b0@redhat.com>
+Date: Wed, 7 Aug 2024 13:24:57 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] mm: update the memmap stat before page is freed
+To: Pasha Tatashin <pasha.tatashin@soleen.com>, agordeev@linux.ibm.com,
+ akpm@linux-foundation.org, alexghiti@rivosinc.com, aou@eecs.berkeley.edu,
+ ardb@kernel.org, arnd@arndb.de, bhe@redhat.com, bjorn@rivosinc.com,
+ borntraeger@linux.ibm.com, bp@alien8.de, catalin.marinas@arm.com,
+ chenhuacai@kernel.org, chenjiahao16@huawei.com, christophe.leroy@csgroup.eu,
+ dave.hansen@linux.intel.com, dawei.li@shingroup.cn,
+ gerald.schaefer@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
+ hpa@zytor.com, kent.overstreet@linux.dev, kernel@xen0n.name,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ loongarch@lists.linux.dev, luto@kernel.org, maobibo@loongson.cn,
+ mark.rutland@arm.com, mcgrof@kernel.org, mingo@redhat.com,
+ mpe@ellerman.id.au, muchun.song@linux.dev, namcao@linutronix.de,
+ naveen@kernel.org, npiggin@gmail.com, osalvador@suse.de, palmer@dabbelt.com,
+ paul.walmsley@sifive.com, peterz@infradead.org, philmd@linaro.org,
+ rdunlap@infradead.org, rientjes@google.com, rppt@kernel.org,
+ ryan.roberts@arm.com, souravpanda@google.com, svens@linux.ibm.com,
+ tglx@linutronix.de, tzimmermann@suse.de, will@kernel.org, x86@kernel.org
+References: <20240806221454.1971755-1-pasha.tatashin@soleen.com>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20240806221454.1971755-1-pasha.tatashin@soleen.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 6iefWQHKb383ipd2xCz1eM-VTEfsxb5Z
-X-Proofpoint-ORIG-GUID: R0iBQ2xWlJfZLAlHp1u8dFjfreNTG5KN
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-07_08,2024-08-06_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- lowpriorityscore=0 mlxscore=0 suspectscore=0 mlxlogscore=884
- impostorscore=0 clxscore=1015 adultscore=0 malwarescore=0 phishscore=0
- bulkscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2408070076
 
-On Tue, 6 Aug 2024 15:39:44 +0200
-Janosch Frank <frankja@linux.ibm.com> wrote:
+On 07.08.24 00:14, Pasha Tatashin wrote:
+> It is more logical to update the stat before the page is freed, to avoid
+> use after free scenarios.
+> 
+> Fixes: 15995a352474 ("mm: report per-page metadata information")
+> Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
+> ---
 
-> On 8/2/24 5:59 PM, Christoph Schlameuss wrote:
-> > Add a test case manipulating s390 storage keys from within the ucontrol
-> > VM.
-> > 
-> > Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> > ---
-> >   .../selftests/kvm/s390x/ucontrol_test.c       | 78 +++++++++++++++++++
-> >   1 file changed, 78 insertions(+)
-> >   
-> 
-> [...]
-> 
-> > +TEST_F(uc_kvm, uc_skey)
-> > +{
-> > +	u64 test_vaddr = self->base_gpa + VM_MEM_SIZE - (SZ_1M / 2);
-> > +	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
-> > +	struct kvm_run *run = self->run;
-> > +	u8 skeyvalue = 0x34;
-> > +
-> > +	init_st_pt(self);
-> > +
-> > +	/* copy test_skey_asm to code_hva / code_gpa */
-> > +	TH_LOG("copy code %p to vm mapped memory %p / %p",
-> > +	       &test_skey_asm, (void *)self->code_hva, (void *)self->code_gpa);
-> > +	memcpy((void *)self->code_hva, &test_skey_asm, PAGE_SIZE);
-> > +
-> > +	/* set register content for test_skey_asm to access not mapped memory */
-> > +	sync_regs->gprs[1] = skeyvalue;
-> > +	sync_regs->gprs[5] = self->base_gpa;
-> > +	sync_regs->gprs[6] = test_vaddr;
-> > +	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
-> > +
-> > +	run->kvm_dirty_regs |= KVM_SYNC_CRS;
-> > +	TH_LOG("set CR0 to 0x%llx", sync_regs->crs[0]);  
-> 
-> You haven't touched any CRs here or am I missing something?
-> 
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-No I am not. Removing that.
+-- 
+Cheers,
 
-> > +
-> > +	self->sie_block->ictl |= ICTL_OPEREXC | ICTL_PINT;
-> > +	self->sie_block->cpuflags &= ~CPUSTAT_KSS;
-> > +	/* DAT enabled + 64 bit mode */
-> > +	run->psw_mask = 0x0400000180000000ULL;
-> > +	run->psw_addr = self->code_gpa;
-> > +
-> > +	ASSERT_EQ(0, uc_run_once(self));
-> > +	ASSERT_EQ(false, uc_handle_exit(self));
-> > +	ASSERT_EQ(2, sync_regs->gprs[0]);
-> > +	ASSERT_EQ(0x06, sync_regs->gprs[1]);  
-> 
-> /* ACC = 0, F & R = 1 */
-> 
-
-I will sprinkle in some comments here to make it more clear what is
-tested in the different blocks.
-
-> > +	uc_assert_diag44(self);
-> > +
-> > +	sync_regs->gprs[1] = skeyvalue;
-> > +	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
-> > +	ASSERT_EQ(0, uc_run_once(self));
-> > +	ASSERT_EQ(false, uc_handle_exit(self));
-> > +	ASSERT_EQ(3, sync_regs->gprs[0]);
-> > +	ASSERT_EQ(skeyvalue, sync_regs->gprs[1]);
-> > +	uc_assert_diag44(self);  
-> 
-> Rest LGTM
-> 
+David / dhildenb
 
