@@ -1,369 +1,175 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DD931D0DC8
-	for <linux-s390@vger.kernel.org>; Wed,  7 Aug 2024 09:57:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 818911B9B43;
+	Wed,  7 Aug 2024 11:02:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723024647; cv=none; b=mry8JQtbklRj0RbkPz8Got/TvhDAcloYEHgLmft++rj0aRHkP7Rb3kU3bTwiBosdgXpdDPZNke2NK7xj72kPSp1b2zFlFIs8P7aHVCO+aOlTepDeBq2O3eZ5etpp6L3scF//yNaiGS0kmJgSosNpiVVceshnSSirsNmSM+uPtCU=
+	t=1723028563; cv=none; b=RNR8+cXI7Ougc3qLFtMcD467U0okZ0k8vqHnPPcNSlOgIk7BicOaiJULGCy8pF9eT7vZ86nKaff4fn3AVA8jMrj/n7J/0QbLgqrE2xwehrBrXSvugJt6a6w18ZQna9wtU+Y/UsnPfNMojz+QHhIT0HbaHPdk3zqMomitqbzt+zs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723024647; c=relaxed/simple;
-	bh=/g/ZZBUWUCDmIebaIcxyRJ/+V1joRJfSKEwLEKzaum4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QGlMPSmEwFvyIAPiCb6lrdKbZvVNer6dHauKLmDFFLikR3MBS4XS72R+7XQJmPW34gBgqU8J8tn1zKioZpztoCorYlT/BdfRR2bZi+qSjKbqKzk5iJdCr1QvcQzjWcGieCUDAT7WvR5Moxiv9Ho91zIYLcDg7/oN2Sg+CFR/NNA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Xs1YFxl5; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1723028563; c=relaxed/simple;
+	bh=6jIjO/YzCC0JAUWX6XQ3qSYdTAbSolktYYq1hpL6PiU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Tfx8+O3G3J97s2fvSlgQt2gDv8+lfUGtbnQDlNoaA65h5/LFSQ5Hy4XifW1ZoHZdgCmiFXDtaWKMrc69Z6ADMtNDod4Jrj2AeGj8al2YeN8OaKM35bEa4uTMrf/MkOMocENqSDT/h/0VwB/AiXUgpbP8nfdDoaeuZxGKdRSRG0A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rtgQWOCZ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xs1YFxl5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1723024645;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=QhYDHmXmJQi46+6UhfMma7vbUjGkXIsu5WZQ+uaDpWE=;
-	b=Xs1YFxl5f/zeh1iMmhYu1qkR9z6QADFDPLeBGjChc79VLfbP719qM2s9aeY0OrbWSmExDn
-	zt5XM2TbbnJNkHTkJjDt0+8ddYJWv5Yc1Ry00kVmOnA3zLVF5FwIsV66MyaOaGcGXrfetL
-	+PnOkgh+Zmp3Sy9p5Xtk8gvG2pQuxt8=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-280-9vp3jw0uP9OJhsS82d6yFA-1; Wed, 07 Aug 2024 05:57:23 -0400
-X-MC-Unique: 9vp3jw0uP9OJhsS82d6yFA-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4280c0b3017so11596045e9.1
-        for <linux-s390@vger.kernel.org>; Wed, 07 Aug 2024 02:57:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723024642; x=1723629442;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=QhYDHmXmJQi46+6UhfMma7vbUjGkXIsu5WZQ+uaDpWE=;
-        b=NAZqcfIuSq6tpVCXYW88YN/U0zBYBaCPEYLkNJd8vmh8U80y7DW6GuCAd9gIpTxKC+
-         qZ2HGuJCDl4ICyddpKF/k5gzyG2dbbJRh5PUSyNyd8ibh2Bdje8KnS97dQDelwlClF9C
-         4mya4DEbLKhT2zi3r+Ou21RkoJWexTYwXnF6GyYpImCEA1Azisxuxk9iX4r6JX6V2h87
-         mi1c4HlYKo6rECJQx5RFLBxyUaZEQIIPb2Q7WLzikIBo+ZKAO5+4lMqeee9/8gNNhe4t
-         bfi60b9g0SzUYD866PN7gyUmhDr8U3lArJrmiRYaY3a8llNhapZfTbHpmnAVougE5f8j
-         0UPQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXtdqWZMDCpKGMwGgxlW8y0dbfN/Sm48EREC+mzHRSVPo0SdzkvqsDKAiOmn6tahKiSWmphj2gK2p7kN2VL3tyv6brDaioTT3dZng==
-X-Gm-Message-State: AOJu0Yx5P323SlnVberhI4mComqCYxclxjB2/3EXG5wDcv9XebxdKb9q
-	966B0wa4uOH5KeqWR+C1mxlkJZrPDHgnLEUaAHwgYTZM9XTIcOJwGcxK4tGCAP9Uxv7ug7q9fNY
-	XZWtic9FXjscJJVFrT0XrSvkvuB8XOtYhPMAMFixtEf0MjFNPTBU9YahqBmhrvd7G4yQ=
-X-Received: by 2002:a5d:47ae:0:b0:366:e31a:500e with SMTP id ffacd0b85a97d-36bbc1d7791mr11661190f8f.63.1723024642084;
-        Wed, 07 Aug 2024 02:57:22 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEKIx+UH5dY/dVRyBapAk0Th6PLBq9S/ArQBuC3qjkAHZvhs3V3G3ABB3G0VEJbKGtXsfMI5w==
-X-Received: by 2002:a5d:47ae:0:b0:366:e31a:500e with SMTP id ffacd0b85a97d-36bbc1d7791mr11661166f8f.63.1723024641470;
-        Wed, 07 Aug 2024 02:57:21 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c708:1a00:df86:93fe:6505:d096? (p200300cbc7081a00df8693fe6505d096.dip0.t-ipconnect.de. [2003:cb:c708:1a00:df86:93fe:6505:d096])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36bbd0597ddsm15632741f8f.77.2024.08.07.02.57.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 07 Aug 2024 02:57:20 -0700 (PDT)
-Message-ID: <a612c83f-071e-437f-99e1-d1fb157b62d7@redhat.com>
-Date: Wed, 7 Aug 2024 11:57:19 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rtgQWOCZ"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4772Mb22012366;
+	Wed, 7 Aug 2024 11:02:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
+	K8SJ5DfZZqNnSsupVRItmzj3t1W0RVs7ge3xrM7xGX4=; b=rtgQWOCZEnq1xWnx
+	sm8Cn97Sb0+tZrJNJxFsPBBOY7ReRM2D18BNqYUJNzHKkXLrVrf0Ysv5rLeqjzrL
+	2yBPhar3VSOwr80L6hkSIexKcIdkgs+IPwYrLfq8fNUCFZdH2E9ovLVxrZU3tvRV
+	E81XGuYZQZeAiky4Yoc4bN0IjH03RQg3kyd0CQFyCJkY/wmopkAOsCDvdVWnJV2p
+	WmUJsMa3Yy1t4DKzwTbjhl2nfTcnZwQNwX/twyX0p+MrusW+5tlhLFMzvq7YoHzL
+	XlHy3KVwU09ko20cWJL8oylA2pFSABjN/URFA96zte84RgeEq1HXpmUT2XSm4dbW
+	OPiDRQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40u5t3vaxb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Aug 2024 11:02:36 +0000 (GMT)
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 477AwR2p017334;
+	Wed, 7 Aug 2024 11:02:36 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40u5t3vax9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Aug 2024 11:02:36 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4779KKZb030487;
+	Wed, 7 Aug 2024 11:02:35 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 40t1k38ac2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Aug 2024 11:02:35 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 477B2Tmq57803250
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 7 Aug 2024 11:02:31 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E8F2320040;
+	Wed,  7 Aug 2024 11:02:28 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A97702004D;
+	Wed,  7 Aug 2024 11:02:28 +0000 (GMT)
+Received: from darkmoore.boeblingen.de.ibm.com (unknown [9.155.210.150])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  7 Aug 2024 11:02:28 +0000 (GMT)
+Date: Wed, 7 Aug 2024 13:02:26 +0200
+From: Christoph Schlameuss <schlameuss@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah
+ Khan <shuah@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand
+ <david@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Subject: Re: [PATCH v4 08/10] selftests: kvm: s390: Add uc_skey VM test case
+Message-ID: <20240807130226.00b9d1ca.schlameuss@linux.ibm.com>
+In-Reply-To: <4b4f9459-4b4a-48b8-8935-25e51ffa51c8@linux.ibm.com>
+References: <20240802155913.261891-1-schlameuss@linux.ibm.com>
+	<20240802155913.261891-9-schlameuss@linux.ibm.com>
+	<4b4f9459-4b4a-48b8-8935-25e51ffa51c8@linux.ibm.com>
+Organization: IBM
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 07/11] mm/huge_memory: convert split_huge_pages_pid()
- from follow_page() to folio_walk
-To: Zi Yan <ziy@nvidia.com>
-Cc: Ryan Roberts <ryan.roberts@arm.com>, linux-kernel@vger.kernel.org,
- linux-mm@kvack.org, linux-doc@vger.kernel.org, kvm@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- Jonathan Corbet <corbet@lwn.net>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Mark Brown <broonie@kernel.org>
-References: <20240802155524.517137-1-david@redhat.com>
- <20240802155524.517137-8-david@redhat.com>
- <e1d44e36-06e4-4d1c-8daf-315d149ea1b3@arm.com>
- <ac97ccdc-ee1e-4f07-8902-6360de80c2a0@redhat.com>
- <a5f059a0-32d6-453e-9d18-1f3bfec3a762@redhat.com>
- <c75d1c6c-8ea6-424f-853c-1ccda6c77ba2@redhat.com>
- <5BEF38E0-359C-4927-98EF-A0EE7DC81251@nvidia.com>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <5BEF38E0-359C-4927-98EF-A0EE7DC81251@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 6iefWQHKb383ipd2xCz1eM-VTEfsxb5Z
+X-Proofpoint-ORIG-GUID: R0iBQ2xWlJfZLAlHp1u8dFjfreNTG5KN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-07_08,2024-08-06_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 mlxscore=0 suspectscore=0 mlxlogscore=884
+ impostorscore=0 clxscore=1015 adultscore=0 malwarescore=0 phishscore=0
+ bulkscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2408070076
 
-On 06.08.24 17:36, Zi Yan wrote:
-> On 6 Aug 2024, at 6:24, David Hildenbrand wrote:
+On Tue, 6 Aug 2024 15:39:44 +0200
+Janosch Frank <frankja@linux.ibm.com> wrote:
+
+> On 8/2/24 5:59 PM, Christoph Schlameuss wrote:
+> > Add a test case manipulating s390 storage keys from within the ucontrol
+> > VM.
+> > 
+> > Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> > ---
+> >   .../selftests/kvm/s390x/ucontrol_test.c       | 78 +++++++++++++++++++
+> >   1 file changed, 78 insertions(+)
+> >   
 > 
->> On 06.08.24 12:03, David Hildenbrand wrote:
->>> On 06.08.24 11:56, David Hildenbrand wrote:
->>>> On 06.08.24 11:46, Ryan Roberts wrote:
->>>>> On 02/08/2024 16:55, David Hildenbrand wrote:
->>>>>> Let's remove yet another follow_page() user. Note that we have to do the
->>>>>> split without holding the PTL, after folio_walk_end(). We don't care
->>>>>> about losing the secretmem check in follow_page().
->>>>>
->>>>> Hi David,
->>>>>
->>>>> Our (arm64) CI is showing a regression in split_huge_page_test from mm selftests from next-20240805 onwards. Navigating around a couple of other lurking bugs, I was able to bisect to this change (which smells about right).
->>>>>
->>>>> Newly failing test:
->>>>>
->>>>> # # ------------------------------
->>>>> # # running ./split_huge_page_test
->>>>> # # ------------------------------
->>>>> # # TAP version 13
->>>>> # # 1..12
->>>>> # # Bail out! Still AnonHugePages not split
->>>>> # # # Planned tests != run tests (12 != 0)
->>>>> # # # Totals: pass:0 fail:0 xfail:0 xpass:0 skip:0 error:0
->>>>> # # [FAIL]
->>>>> # not ok 52 split_huge_page_test # exit=1
->>>>>
->>>>> It's trying to split some pmd-mapped THPs then checking and finding that they are not split. The split is requested via /sys/kernel/debug/split_huge_pages, which I believe ends up in this function you are modifying here. Although I'll admit that looking at the change, there is nothing obviously wrong! Any ideas?
->>>>
->>>> Nothing jumps at me as well. Let me fire up the debugger :)
->>>
->>> Ah, very likely the can_split_folio() check expects a raised refcount
->>> already.
->>
->> Indeed, the following does the trick! Thanks Ryan, I could have sworn
->> I ran that selftest as well.
->>
->> TAP version 13
->> 1..12
->> ok 1 Split huge pages successful
->> ok 2 Split PTE-mapped huge pages successful
->> # Please enable pr_debug in split_huge_pages_in_file() for more info.
->> # Please check dmesg for more information
->> ok 3 File-backed THP split test done
->>
->> ...
->>
->>
->> @Andrew, can you squash the following?
->>
->>
->>  From e5ea585de3e089ea89bf43d8447ff9fc9b371286 Mon Sep 17 00:00:00 2001
->> From: David Hildenbrand <david@redhat.com>
->> Date: Tue, 6 Aug 2024 12:08:17 +0200
->> Subject: [PATCH] fixup: mm/huge_memory: convert split_huge_pages_pid() from
->>   follow_page() to folio_walk
->>
->> We have to teach can_split_folio() that we are not holding an additional
->> reference.
->>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> ---
->>   include/linux/huge_mm.h | 4 ++--
->>   mm/huge_memory.c        | 8 ++++----
->>   mm/vmscan.c             | 2 +-
->>   3 files changed, 7 insertions(+), 7 deletions(-)
->>
->> diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
->> index e25d9ebfdf89..ce44caa40eed 100644
->> --- a/include/linux/huge_mm.h
->> +++ b/include/linux/huge_mm.h
->> @@ -314,7 +314,7 @@ unsigned long thp_get_unmapped_area_vmflags(struct file *filp, unsigned long add
->>   		unsigned long len, unsigned long pgoff, unsigned long flags,
->>   		vm_flags_t vm_flags);
->>   -bool can_split_folio(struct folio *folio, int *pextra_pins);
->> +bool can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins);
->>   int split_huge_page_to_list_to_order(struct page *page, struct list_head *list,
->>   		unsigned int new_order);
->>   static inline int split_huge_page(struct page *page)
->> @@ -470,7 +470,7 @@ thp_get_unmapped_area_vmflags(struct file *filp, unsigned long addr,
->>   }
->>    static inline bool
->> -can_split_folio(struct folio *folio, int *pextra_pins)
->> +can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins)
->>   {
->>   	return false;
->>   }
->> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
->> index 697fcf89f975..c40b0dcc205b 100644
->> --- a/mm/huge_memory.c
->> +++ b/mm/huge_memory.c
->> @@ -3021,7 +3021,7 @@ static void __split_huge_page(struct page *page, struct list_head *list,
->>   }
->>    /* Racy check whether the huge page can be split */
->> -bool can_split_folio(struct folio *folio, int *pextra_pins)
->> +bool can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins)
->>   {
->>   	int extra_pins;
->>   @@ -3033,7 +3033,7 @@ bool can_split_folio(struct folio *folio, int *pextra_pins)
->>   		extra_pins = folio_nr_pages(folio);
->>   	if (pextra_pins)
->>   		*pextra_pins = extra_pins;
->> -	return folio_mapcount(folio) == folio_ref_count(folio) - extra_pins - 1;
->> +	return folio_mapcount(folio) == folio_ref_count(folio) - extra_pins - caller_pins;
->>   }
->>    /*
->> @@ -3201,7 +3201,7 @@ int split_huge_page_to_list_to_order(struct page *page, struct list_head *list,
->>   	 * Racy check if we can split the page, before unmap_folio() will
->>   	 * split PMDs
->>   	 */
->> -	if (!can_split_folio(folio, &extra_pins)) {
->> +	if (!can_split_folio(folio, 1, &extra_pins)) {
->>   		ret = -EAGAIN;
->>   		goto out_unlock;
->>   	}
->> @@ -3537,7 +3537,7 @@ static int split_huge_pages_pid(int pid, unsigned long vaddr_start,
->>   		 * can be split or not. So skip the check here.
->>   		 */
->>   		if (!folio_test_private(folio) &&
->> -		    !can_split_folio(folio, NULL))
->> +		    !can_split_folio(folio, 0, NULL))
->>   			goto next;
->>    		if (!folio_trylock(folio))
+> [...]
 > 
-> The diff below can skip a folio with private and extra pin(s) early instead
-> of trying to lock and split it then failing at can_split_folio() inside
-> split_huge_page_to_list_to_order().
+> > +TEST_F(uc_kvm, uc_skey)
+> > +{
+> > +	u64 test_vaddr = self->base_gpa + VM_MEM_SIZE - (SZ_1M / 2);
+> > +	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
+> > +	struct kvm_run *run = self->run;
+> > +	u8 skeyvalue = 0x34;
+> > +
+> > +	init_st_pt(self);
+> > +
+> > +	/* copy test_skey_asm to code_hva / code_gpa */
+> > +	TH_LOG("copy code %p to vm mapped memory %p / %p",
+> > +	       &test_skey_asm, (void *)self->code_hva, (void *)self->code_gpa);
+> > +	memcpy((void *)self->code_hva, &test_skey_asm, PAGE_SIZE);
+> > +
+> > +	/* set register content for test_skey_asm to access not mapped memory */
+> > +	sync_regs->gprs[1] = skeyvalue;
+> > +	sync_regs->gprs[5] = self->base_gpa;
+> > +	sync_regs->gprs[6] = test_vaddr;
+> > +	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
+> > +
+> > +	run->kvm_dirty_regs |= KVM_SYNC_CRS;
+> > +	TH_LOG("set CR0 to 0x%llx", sync_regs->crs[0]);  
 > 
-> Maybe worth applying on top of yours?
+> You haven't touched any CRs here or am I missing something?
 > 
+
+No I am not. Removing that.
+
+> > +
+> > +	self->sie_block->ictl |= ICTL_OPEREXC | ICTL_PINT;
+> > +	self->sie_block->cpuflags &= ~CPUSTAT_KSS;
+> > +	/* DAT enabled + 64 bit mode */
+> > +	run->psw_mask = 0x0400000180000000ULL;
+> > +	run->psw_addr = self->code_gpa;
+> > +
+> > +	ASSERT_EQ(0, uc_run_once(self));
+> > +	ASSERT_EQ(false, uc_handle_exit(self));
+> > +	ASSERT_EQ(2, sync_regs->gprs[0]);
+> > +	ASSERT_EQ(0x06, sync_regs->gprs[1]);  
 > 
-> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-> index a218320a9233..ce992d54f1da 100644
-> --- a/mm/huge_memory.c
-> +++ b/mm/huge_memory.c
-> @@ -3532,13 +3532,10 @@ static int split_huge_pages_pid(int pid, unsigned long vaddr_start,
->                          goto next;
+> /* ACC = 0, F & R = 1 */
 > 
->                  total++;
-> -               /*
-> -                * For folios with private, split_huge_page_to_list_to_order()
-> -                * will try to drop it before split and then check if the folio
-> -                * can be split or not. So skip the check here.
-> -                */
-> -               if (!folio_test_private(folio) &&
-> -                   !can_split_folio(folio, 0, NULL))
-> +
-> +               if (!can_split_folio(folio,
-> +                                    folio_test_private(folio) ? 1 : 0,
-> +                                    NULL))
 
-Hmm, it does look a bit odd. It's not something from the caller (caller_pins), but a
-folio property. Likely should be handled differently.
+I will sprinkle in some comments here to make it more clear what is
+tested in the different blocks.
 
-In vmscan code, we only call can_split_folio() on anon folios where
-folio_test_private() does not apply.
-
-But indeed, in split_huge_page_to_list_to_order() we'd have to fail if
-folio_test_private() still applies after
-
-Not sure if that is really better:
-
-
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index c40b0dcc205b..7cb743047566 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -3026,11 +3026,14 @@ bool can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins)
-         int extra_pins;
-  
-         /* Additional pins from page cache */
--       if (folio_test_anon(folio))
-+       if (folio_test_anon(folio)) {
-                 extra_pins = folio_test_swapcache(folio) ?
-                                 folio_nr_pages(folio) : 0;
--       else
-+       } else {
-                 extra_pins = folio_nr_pages(folio);
-+               if (unlikely(folio_test_private(folio)))
-+                       extra_pins++;
-+       }
-         if (pextra_pins)
-                 *pextra_pins = extra_pins;
-         return folio_mapcount(folio) == folio_ref_count(folio) - extra_pins - caller_pins;
-@@ -3199,9 +3202,11 @@ int split_huge_page_to_list_to_order(struct page *page, struct list_head *list,
-  
-         /*
-          * Racy check if we can split the page, before unmap_folio() will
--        * split PMDs
-+        * split PMDs. filemap_release_folio() will try to free buffer; if that
-+        * fails, filemap_release_folio() fails.
-          */
--       if (!can_split_folio(folio, 1, &extra_pins)) {
-+       if (WARN_ON_ONCE(folio_test_private(folio)) ||
-+           !can_split_folio(folio, 1, &extra_pins)) {
-                 ret = -EAGAIN;
-                 goto out_unlock;
-         }
-@@ -3531,13 +3536,7 @@ static int split_huge_pages_pid(int pid, unsigned long vaddr_start,
-                         goto next;
-  
-                 total++;
--               /*
--                * For folios with private, split_huge_page_to_list_to_order()
--                * will try to drop it before split and then check if the folio
--                * can be split or not. So skip the check here.
--                */
--               if (!folio_test_private(folio) &&
--                   !can_split_folio(folio, 0, NULL))
-+               if (!can_split_folio(folio, 0, NULL))
-                         goto next;
-  
-                 if (!folio_trylock(folio))
-
-
-It assumes that folio_set_private() is impossible after filemap_release_folio() succeeded
-and we're still holding the folio lock. Then we could even get rid of the WARN_ON_ONCE().
-
--- 
-Cheers,
-
-David / dhildenb
+> > +	uc_assert_diag44(self);
+> > +
+> > +	sync_regs->gprs[1] = skeyvalue;
+> > +	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
+> > +	ASSERT_EQ(0, uc_run_once(self));
+> > +	ASSERT_EQ(false, uc_handle_exit(self));
+> > +	ASSERT_EQ(3, sync_regs->gprs[0]);
+> > +	ASSERT_EQ(skeyvalue, sync_regs->gprs[1]);
+> > +	uc_assert_diag44(self);  
+> 
+> Rest LGTM
+> 
 
