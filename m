@@ -1,106 +1,118 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D8BE1E287F;
-	Wed,  7 Aug 2024 12:04:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2C88C1E674F;
+	Wed,  7 Aug 2024 13:13:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723032285; cv=none; b=QruYn/TdwulgOTEYEgblILhd0e5jfGaL378GtN3ZbETF/ybqUeZw/8lx0QXGruLnKnvX/JdfCA4J979Jw1rrfEQ8OThM8CSuCak9qDpvxvCDT0nUHlXCSXG5R4ddCv69XZsLRSlbHgsgxEjGzt6BJJDGMNZUqFsGniWXkxUut7k=
+	t=1723036392; cv=none; b=b7uWh2g4GroGIGcBLGMMmPygxn4St7yYEdVx2TlhBRXkmbQ86HkuOpKDg9jQ49TolULPHBUcLYr6K+jxFcnwx7XFrMRqVNWddfSdptea0YGQxbhAXnWwBwnspH8iK0ODSd0g8qEMVlo6TF4On7zQniTZ4olrfSdY44v6DjvA8UI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723032285; c=relaxed/simple;
-	bh=GLRNF2HuoLjUQ6w4jpeRIInoZ8CgfoqNgjV1++re138=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lAQ+xVtPLrGI9SSDmWRhVJEFVRhrrpwqLTYUm+Ctv5I/oUnw0XkcP4XlUzlBEnNJ7SNYZV463v1T0mD/UQHI/aWESsgDlXhxOUZWMHGiGZwIwuFoOGbzc4Onp5B9q1tq8g/6N1oRndi8Rq1A6gp718TDVJ5ImBAbxYHh6G8Mz+0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=aMC5hu6k; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="aMC5hu6k"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1723032282; x=1754568282;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=GLRNF2HuoLjUQ6w4jpeRIInoZ8CgfoqNgjV1++re138=;
-  b=aMC5hu6kArj+1mIr5DPcuBwE9wICSfVekUgAHOxBVihgdLnNme5H6t7h
-   NBO9u7ajz4Gr8sg482NWbBNK3Mu+evH88Gi9//72Dr6kgfp5e+VrQqHj1
-   483m2bQIxzKwratTqUJa+Jr64QtRWmr08z9Qhy0EOYqZaRHYHjvse50EH
-   F/LRHMTT9n5giFb7NPf2QXwaARrmN60S1Ynwh/l5Cotu/E2pZ0eK69Qlo
-   DiyM4IZ19V4YPBwuzqRWr3TC9KNEdTRcPdeZnDcDrNrkBYD6EBt+FJ/Ls
-   i7jr1qc9+KLjDckHP4uJxPqVt5iI6ecyWRQ/eisHphXMmqP7OtPAwMKiI
-   g==;
-X-CSE-ConnectionGUID: XoJR10mQQfOb9uuaZuilCg==
-X-CSE-MsgGUID: Yirz4XL0T+ekW8tCp8oY5Q==
-X-IronPort-AV: E=McAfee;i="6700,10204,11157"; a="46501028"
-X-IronPort-AV: E=Sophos;i="6.09,269,1716274800"; 
-   d="scan'208";a="46501028"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Aug 2024 05:04:41 -0700
-X-CSE-ConnectionGUID: C1Hv3b0wQkGnZhuTvKV2xg==
-X-CSE-MsgGUID: WCCbT51kQy6D3mvYnNd/Dg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,269,1716274800"; 
-   d="scan'208";a="60956213"
-Received: from unknown (HELO b6bf6c95bbab) ([10.239.97.151])
-  by fmviesa003.fm.intel.com with ESMTP; 07 Aug 2024 05:04:39 -0700
-Received: from kbuild by b6bf6c95bbab with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1sbfOm-0005Lo-1T;
-	Wed, 07 Aug 2024 12:04:18 +0000
-Date: Wed, 7 Aug 2024 20:04:12 +0800
-From: kernel test robot <lkp@intel.com>
-To: Baruch Siach <baruch@tkos.co.il>, Christoph Hellwig <hch@lst.de>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>
-Cc: oe-kbuild-all@lists.linux.dev, Baruch Siach <baruch@tkos.co.il>,
-	Robin Murphy <robin.murphy@arm.com>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Petr =?utf-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>,
-	Ramon Fried <ramon@neureality.ai>,
-	Elad Nachman <enachman@marvell.com>
-Subject: Re: [PATCH v5 1/3] dma: improve DMA zone selection
-Message-ID: <202408071931.W1GA8Ee2-lkp@intel.com>
-References: <5200f289af1a9b80dfd329b6ed3d54e1d4a02876.1722578375.git.baruch@tkos.co.il>
+	s=arc-20240116; t=1723036392; c=relaxed/simple;
+	bh=BoXscPyzBzbdrvYWn9imZDwwSoLJ7n9LTaWuvNOYrWM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GyJnf77liY+Ts80YV7+UoGRsEwW83Z5rk86J/kfRarhhFVr5WNx/gHGIRPGmOXC06h5j0LIDPN9lXXfroWcRplAMWzQum9gt/3Qkvobe/1dKhSDZ3Taq2Jn4CLZkBM3NXYOiDMpdP6WBdbljeJmHlGeIhgU52oMDeivbbl9gj7w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 69630FEC;
+	Wed,  7 Aug 2024 06:13:36 -0700 (PDT)
+Received: from [10.57.48.153] (unknown [10.57.48.153])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id BCDBE3F5A1;
+	Wed,  7 Aug 2024 06:13:08 -0700 (PDT)
+Message-ID: <8230985e-1581-411f-895c-b49065234520@arm.com>
+Date: Wed, 7 Aug 2024 14:13:06 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 1/3] dma: improve DMA zone selection
+To: Baruch Siach <baruch@tkos.co.il>, Christoph Hellwig <hch@lst.de>,
+ Marek Szyprowski <m.szyprowski@samsung.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, =?UTF-8?B?UGV0ciBUZXNhxZnDrWs=?=
+ <petr@tesarici.cz>, Ramon Fried <ramon@neureality.ai>,
+ Elad Nachman <enachman@marvell.com>
+References: <cover.1722578375.git.baruch@tkos.co.il>
+ <5200f289af1a9b80dfd329b6ed3d54e1d4a02876.1722578375.git.baruch@tkos.co.il>
+From: Robin Murphy <robin.murphy@arm.com>
+Content-Language: en-GB
 In-Reply-To: <5200f289af1a9b80dfd329b6ed3d54e1d4a02876.1722578375.git.baruch@tkos.co.il>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Baruch,
+On 2024-08-02 7:03 am, Baruch Siach wrote:
+> When device DMA limit does not fit in DMA32 zone it should use DMA zone,
+> even when DMA zone is stricter than needed.
+> 
+> Same goes for devices that can't allocate from the entire normal zone.
+> Limit to DMA32 in that case.
 
-kernel test robot noticed the following build warnings:
+Per the bot report this only works for CONFIG_ARCH_KEEP_MEMBLOCK, 
+however the whole concept looks wrong anyway. The logic here is that 
+we're only forcing a particular zone if there's *no* chance of the 
+higher zone being usable. For example, ignoring offsets for simplicity, 
+if we have a 40-bit DMA mask then we *do* want to initially try 
+allocating from ZONE_NORMAL even if max_pfn is above 40 bits, since we 
+still might get a usable allocation from between 32 and 40 bits, and if 
+we don't, then we'll fall back to retrying from the DMA zone(s) anyway.
 
-[auto build test WARNING on 8400291e289ee6b2bf9779ff1c83a291501f017b]
+I'm not sure if the rest of the series functionally depends on this 
+change, but I think it would be too needlessly restrictive in the 
+general case to be justified.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Baruch-Siach/dma-improve-DMA-zone-selection/20240803-074651
-base:   8400291e289ee6b2bf9779ff1c83a291501f017b
-patch link:    https://lore.kernel.org/r/5200f289af1a9b80dfd329b6ed3d54e1d4a02876.1722578375.git.baruch%40tkos.co.il
-patch subject: [PATCH v5 1/3] dma: improve DMA zone selection
-config: i386-randconfig-063-20240807 (https://download.01.org/0day-ci/archive/20240807/202408071931.W1GA8Ee2-lkp@intel.com/config)
-compiler: clang version 18.1.5 (https://github.com/llvm/llvm-project 617a15a9eac96088ae5e9134248d8236e34b91b1)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240807/202408071931.W1GA8Ee2-lkp@intel.com/reproduce)
+Thanks,
+Robin.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202408071931.W1GA8Ee2-lkp@intel.com/
-
-All warnings (new ones prefixed by >>, old ones prefixed by <<):
-
->> WARNING: modpost: vmlinux: section mismatch in reference: __dma_direct_alloc_pages+0xcc (section: .text.__dma_direct_alloc_pages) -> memblock (section: .init.data)
-WARNING: modpost: vmlinux: section mismatch in reference: __dma_direct_alloc_pages+0xd2 (section: .text.__dma_direct_alloc_pages) -> memblock (section: .init.data)
-WARNING: modpost: vmlinux: section mismatch in reference: swiotlb_alloc_pool+0xa0 (section: .text.swiotlb_alloc_pool) -> memblock (section: .init.data)
-WARNING: modpost: vmlinux: section mismatch in reference: swiotlb_alloc_pool+0xa6 (section: .text.swiotlb_alloc_pool) -> memblock (section: .init.data)
-WARNING: modpost: missing MODULE_DESCRIPTION() in kernel/bpf/preload/bpf_preload.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/devfreq/governor_userspace.o
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+> Reported-by: Catalin Marinas <catalin.marinas@arm.com>
+> Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+> Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+> ---
+>   kernel/dma/direct.c  | 6 +++---
+>   kernel/dma/swiotlb.c | 4 ++--
+>   2 files changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+> index 4480a3cd92e0..3b4be4ca3b08 100644
+> --- a/kernel/dma/direct.c
+> +++ b/kernel/dma/direct.c
+> @@ -4,7 +4,7 @@
+>    *
+>    * DMA operations that map physical memory directly without using an IOMMU.
+>    */
+> -#include <linux/memblock.h> /* for max_pfn */
+> +#include <linux/memblock.h>
+>   #include <linux/export.h>
+>   #include <linux/mm.h>
+>   #include <linux/dma-map-ops.h>
+> @@ -59,9 +59,9 @@ static gfp_t dma_direct_optimal_gfp_mask(struct device *dev, u64 *phys_limit)
+>   	 * zones.
+>   	 */
+>   	*phys_limit = dma_to_phys(dev, dma_limit);
+> -	if (*phys_limit <= DMA_BIT_MASK(zone_dma_bits))
+> +	if (*phys_limit < DMA_BIT_MASK(32))
+>   		return GFP_DMA;
+> -	if (*phys_limit <= DMA_BIT_MASK(32))
+> +	if (*phys_limit < memblock_end_of_DRAM())
+>   		return GFP_DMA32;
+>   	return 0;
+>   }
+> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+> index df68d29740a0..043b0ecd3e8d 100644
+> --- a/kernel/dma/swiotlb.c
+> +++ b/kernel/dma/swiotlb.c
+> @@ -629,9 +629,9 @@ static struct page *swiotlb_alloc_tlb(struct device *dev, size_t bytes,
+>   	}
+>   
+>   	gfp &= ~GFP_ZONEMASK;
+> -	if (phys_limit <= DMA_BIT_MASK(zone_dma_bits))
+> +	if (phys_limit < DMA_BIT_MASK(32))
+>   		gfp |= __GFP_DMA;
+> -	else if (phys_limit <= DMA_BIT_MASK(32))
+> +	else if (phys_limit < memblock_end_of_DRAM())
+>   		gfp |= __GFP_DMA32;
+>   
+>   	while (IS_ERR(page = alloc_dma_pages(gfp, bytes, phys_limit))) {
