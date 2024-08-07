@@ -1,140 +1,153 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3907740C03;
-	Wed,  7 Aug 2024 18:15:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A9C5762DF;
+	Wed,  7 Aug 2024 18:20:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723054503; cv=none; b=hW9L6NFVarkEE98lhtYKvY7j/8y6GVx8lI5AjjOuDyR3bWPIDWrUIetPBmmzNu3gC3O1T56CeGzRuqklAPAWlmaSMnMP7aMszaKTqrRhD8h5+1pD3zB36sTFkjlf+8FbLp/BYhbDCXe4PEjSMLDHxlt19YVJl3Zuvzyen+V9984=
+	t=1723054849; cv=none; b=UzexHyj+6+DG7Cw+bCAieqBXowPBKTUN3YqiCgcA+K7qS874GrFGccgp0Exc5VvwMbhStHR/zEPbPxwLVku0fRIaM6p8F7GfUix39ehMXHF6RpL7gT4+cCzOSkVUaUfzU96tT2Dfn3dmT8GQyccA3gWSVZDHXLb5yWqgZSATBfg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723054503; c=relaxed/simple;
-	bh=S9+3aXk/90xN7zHpUlBdinuML+LWZSnp6QRU/eb+WW8=;
+	s=arc-20240116; t=1723054849; c=relaxed/simple;
+	bh=iPtiZxg9mYFfVaMP/wI1h2AEAZxcZhi354BsRK7OzkQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=El5Oc1FyapJ+qen6wnyklUMRdfYdyLbdoNlkz+k8cvI2nooNcvcUWxlx3VD8c+Aw/bU9m05I4CKF/n8kq9lj8Yii4rvshde23HKShbMfKrlBA1RrHNOhELdQPas2AdpFaKVguFujg34NbgQJHo1pIcHTw4NKZDPUb8k24IfclL4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C87EC32781;
-	Wed,  7 Aug 2024 18:15:00 +0000 (UTC)
-Date: Wed, 7 Aug 2024 19:14:58 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: Petr =?utf-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>
-Cc: Baruch Siach <baruch@tkos.co.il>, Christoph Hellwig <hch@lst.de>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, Ramon Fried <ramon@neureality.ai>,
-	Elad Nachman <enachman@marvell.com>
-Subject: Re: [PATCH v5 2/3] dma: replace zone_dma_bits by zone_dma_limit
-Message-ID: <ZrO5okGUljTc9E7N@arm.com>
-References: <cover.1722578375.git.baruch@tkos.co.il>
- <5821a1b2eb82847ccbac0945da040518d6f6f16b.1722578375.git.baruch@tkos.co.il>
- <Zqyo4qjPRHUeUfS5@arm.com>
- <20240807161938.5729b656@mordecai.tesarici.cz>
+	 Content-Type:Content-Disposition:In-Reply-To; b=aSiA9tLcvFL6wUaIhRVs5gEyH9nQ+1kiyb0Ae51o3bIv00t3YqhBcz4yr2IxdcgQUAtBnnTC0Nftc7OEqP6dexE6jsuWtJbtoQL3dlffGr5KYgSyFQfFhSfuNFdryzx2lNafJFvXxzv2cnrCwOisbgjU2UbskOMlUzi/ogevkzg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fs+rYBQU; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fs+rYBQU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF468C32781;
+	Wed,  7 Aug 2024 18:20:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1723054848;
+	bh=iPtiZxg9mYFfVaMP/wI1h2AEAZxcZhi354BsRK7OzkQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=fs+rYBQUVp7T/qbPiJP5M3yDB/6MQZbtGhaQKvRjA1Mevvpi2N6URXoVm6Iu+rs/H
+	 5E96EIlDL0oiovI1UalP4pGMxvee6uDYhAHWeNICYCTEurK07w5XNnYjIp7hBBtH+o
+	 BuYSL8/k1GjAORViJw9J27QcUbojhI3Ae/34xWNzZpQoCHqR1I22VHBnMk5CVvZxw6
+	 SS54CnDP9bArj1yivpeOI0pLAxkinjxlqbL5z/NWC2FfzasiBT9xJGfZMh2KPtgniu
+	 UwqU0smfhLaXdoDIRZ0Xs8jOb5KYUUdKDjJmyRdFpd/cLCPX7dVpAIbbnapWdyqlxn
+	 +oDN4u6kRqxgA==
+Date: Wed, 7 Aug 2024 21:18:24 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Borislav Petkov <bp@alien8.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Hildenbrand <david@redhat.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	Davidlohr Bueso <dave@stgolabs.net>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Jiaxun Yang <jiaxun.yang@flygoat.com>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonathan Cameron <jonathan.cameron@huawei.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	"Rafael J . Wysocki" <rafael@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Samuel Holland <samuel.holland@sifive.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
+	Zi Yan <ziy@nvidia.com>, devicetree@vger.kernel.org,
+	linux-acpi@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
+	linux-arm-kernel@lists.infradead.org, linux-cxl@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-mips@vger.kernel.org,
+	linux-mm@kvack.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	nvdimm@lists.linux.dev, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v4 24/26] arch_numa: switch over to numa_memblks
+Message-ID: <ZrO6cExVz1He_yPn@kernel.org>
+References: <20240807064110.1003856-1-rppt@kernel.org>
+ <20240807064110.1003856-25-rppt@kernel.org>
+ <1befc540-8904-4c23-b0e6-e2c556fe22b9@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240807161938.5729b656@mordecai.tesarici.cz>
+In-Reply-To: <1befc540-8904-4c23-b0e6-e2c556fe22b9@app.fastmail.com>
 
-On Wed, Aug 07, 2024 at 04:19:38PM +0200, Petr Tesařík wrote:
-> On Fri, 2 Aug 2024 10:37:38 +0100
-> Catalin Marinas <catalin.marinas@arm.com> wrote:
-> > On Fri, Aug 02, 2024 at 09:03:47AM +0300, Baruch Siach wrote:
-> > > diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-> > > index 3b4be4ca3b08..62b36fda44c9 100644
-> > > --- a/kernel/dma/direct.c
-> > > +++ b/kernel/dma/direct.c
-> > > @@ -20,7 +20,7 @@
-> > >   * it for entirely different regions. In that case the arch code needs to
-> > >   * override the variable below for dma-direct to work properly.
-> > >   */
-> > > -unsigned int zone_dma_bits __ro_after_init = 24;
-> > > +u64 zone_dma_limit __ro_after_init = DMA_BIT_MASK(24);  
+On Wed, Aug 07, 2024 at 08:58:37AM +0200, Arnd Bergmann wrote:
+> On Wed, Aug 7, 2024, at 08:41, Mike Rapoport wrote:
+> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> >
+> > Until now arch_numa was directly translating firmware NUMA information
+> > to memblock.
+> 
+> I get a link time warning from this:
+> 
+>     WARNING: modpost: vmlinux: section mismatch in reference: numa_set_cpumask+0x24 (section: .text.unlikely) -> early_cpu_to_node (section: .init.text)
+
+I didn't see this neither in my build tests nor in kbuild reports :/
+ 
+> > @@ -142,7 +144,7 @@ void __init early_map_cpu_to_node(unsigned int cpu, int nid)
+> >  unsigned long __per_cpu_offset[NR_CPUS] __read_mostly;
+> >  EXPORT_SYMBOL(__per_cpu_offset);
 > > 
-> > u64 here makes sense even if it may be larger than phys_addr_t. It
-> > matches the phys_limit type in the swiotlb code. The compilers should no
-> > longer complain.
+> > -int __init early_cpu_to_node(int cpu)
+> > +int early_cpu_to_node(int cpu)
+> >  {
+> >  	return cpu_to_node_map[cpu];
+> >  }
 > 
-> FTR I have never quite understood why phys_limit is u64, but u64 was
-> already used all around the place when I first looked into swiotlb.
+> early_cpu_to_node() can no longer be __init here
 > 
-> > > diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
-> > > index d10613eb0f63..7b04f7575796 100644
-> > > --- a/kernel/dma/pool.c
-> > > +++ b/kernel/dma/pool.c
-> > > @@ -70,9 +70,9 @@ static bool cma_in_zone(gfp_t gfp)
-> > >  	/* CMA can't cross zone boundaries, see cma_activate_area() */
-> > >  	end = cma_get_base(cma) + size - 1;
-> > >  	if (IS_ENABLED(CONFIG_ZONE_DMA) && (gfp & GFP_DMA))
-> > > -		return end <= DMA_BIT_MASK(zone_dma_bits);
-> > > +		return end <= zone_dma_limit;
-> > >  	if (IS_ENABLED(CONFIG_ZONE_DMA32) && (gfp & GFP_DMA32))
-> > > -		return end <= DMA_BIT_MASK(32);
-> > > +		return end <= max(DMA_BIT_MASK(32), zone_dma_limit);
-> > >  	return true;
-> > >  }
-> > >  
-> > > diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-> > > index 043b0ecd3e8d..bb51bd5335ad 100644
-> > > --- a/kernel/dma/swiotlb.c
-> > > +++ b/kernel/dma/swiotlb.c
-> > > @@ -450,9 +450,9 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
-> > >  	if (!remap)
-> > >  		io_tlb_default_mem.can_grow = true;
-> > >  	if (IS_ENABLED(CONFIG_ZONE_DMA) && (gfp_mask & __GFP_DMA))
-> > > -		io_tlb_default_mem.phys_limit = DMA_BIT_MASK(zone_dma_bits);
-> > > +		io_tlb_default_mem.phys_limit = zone_dma_limit;
-> > >  	else if (IS_ENABLED(CONFIG_ZONE_DMA32) && (gfp_mask & __GFP_DMA32))
-> > > -		io_tlb_default_mem.phys_limit = DMA_BIT_MASK(32);
-> > > +		io_tlb_default_mem.phys_limit = max(DMA_BIT_MASK(32), zone_dma_limit);
-> > >  	else
-> > >  		io_tlb_default_mem.phys_limit = virt_to_phys(high_memory - 1);
-> > >  #endif  
+> > +#endif /* CONFIG_NUMA_EMU */
+> > diff --git a/include/asm-generic/numa.h b/include/asm-generic/numa.h
+> > index c32e0cf23c90..c2b046d1fd82 100644
+> > --- a/include/asm-generic/numa.h
+> > +++ b/include/asm-generic/numa.h
+> > @@ -32,8 +32,6 @@ static inline const struct cpumask *cpumask_of_node(int node)
 > > 
-> > These two look correct to me now and it's the least intrusive (the
-> > alternative would have been a zone_dma32_limit). The arch code, however,
-> > needs to ensure that zone_dma_limit can always support 32-bit devices
-> > even if it is above 4GB (with the relevant dma offsets in place for such
-> > devices).
+> >  void __init arch_numa_init(void);
+> >  int __init numa_add_memblk(int nodeid, u64 start, u64 end);
+> > -void __init numa_set_distance(int from, int to, int distance);
+> > -void __init numa_free_distance(void);
+> >  void __init early_map_cpu_to_node(unsigned int cpu, int nid);
+> >  int __init early_cpu_to_node(int cpu);
+> >  void numa_store_cpu_info(unsigned int cpu);
 > 
-> Just to make sure, the DMA zone (if present) must map to at most 32-bit
-> bus address space (possibly behind a bridge). Is that what you're
-> saying?
+> but is still declared as __init in the header, so it is
+> still put in that section and discarded after boot.
 
-No exactly. What I'm trying to say is that on arm64 zone_dma_limit can
-go beyond DMA_BIT_MASK(32) when the latter is treated as a CPU address.
-In such cases, ZONE_DMA32 is empty.
+I believe this should fix it
 
-TBH, this code is confusing and not entirely suitable for a system where
-the CPU address offsets are not 0. The device::dma_coherent_mask is
-about the bus address range and phys_limit is calculated correctly in
-functions like dma_direct_optimal_gfp_mask(). But that's about it w.r.t.
-DMA bit masks because zone_dma_bits and DMA_BIT_MASK(32) are assumed to
-be about the CPU address ranges in some cases (in other cases
-DMA_BIT_MASK() is used to initialise dma_coherent_mask, so more of a bus
-address).
+diff --git a/include/asm-generic/numa.h b/include/asm-generic/numa.h
+index c2b046d1fd82..e063d6487f66 100644
+--- a/include/asm-generic/numa.h
++++ b/include/asm-generic/numa.h
+@@ -33,7 +33,7 @@ static inline const struct cpumask *cpumask_of_node(int node)
+ void __init arch_numa_init(void);
+ int __init numa_add_memblk(int nodeid, u64 start, u64 end);
+ void __init early_map_cpu_to_node(unsigned int cpu, int nid);
+-int __init early_cpu_to_node(int cpu);
++int early_cpu_to_node(int cpu);
+ void numa_store_cpu_info(unsigned int cpu);
+ void numa_add_cpu(unsigned int cpu);
+ void numa_remove_cpu(unsigned int cpu);
+ 
+> I was confused by this at first, since the 'early' name
+> seems to imply that you shouldn't call it once the system
+> is up, but now you do.
 
-On the platform Baruch is trying to fix, RAM starts at 32GB and ZONE_DMA
-should end at 33GB. That's 30-bit mask in bus address terms but
-something not a power of two for the CPU address, hence the
-zone_dma_limit introduced here.
-
-With ZONE_DMA32, since all the DMA code assumes that ZONE_DMA32 ends at
-4GB CPU address, it doesn't really work for such platforms. If there are
-32-bit devices with a corresponding CPU address offset, ZONE_DMA32
-should end at 36GB on Baruch's platform. But to simplify things, we just
-ignore this on arm64 and make ZONE_DMA32 empty.
-
-In some cases where we have the device structure we could instead do a
-dma_to_phys(DMA_BIT_MASK(32)) but not in the two cases above. I guess if
-we really want to address this properly, we'd need to introduce a
-zone_dma32_limit that's initialised by the arch code. For arm64, I'm
-happy with just having an empty ZONE_DMA32 on such platforms.
+I agree that this is confusing, but that's what x86 does and numa_emulation
+uses.
+ 
+>      Arnd
+> 
 
 -- 
-Catalin
+Sincerely yours,
+Mike.
