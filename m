@@ -1,54 +1,52 @@
 Received: from bee.tesarici.cz (bee.tesarici.cz [37.205.15.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E268E7E58D;
-	Wed,  7 Aug 2024 14:13:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D3EF2209B;
+	Wed,  7 Aug 2024 14:19:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=37.205.15.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723039985; cv=none; b=tzfObsosqbnghzGdGGohDcVYT0jwsKjPMODzAu7ogYoGJpNV9VYz8/2HamNYkEgRsLjuarMLbPWmJbZmBADfkVN2ssEOcDoT2AtByYuJmgfeUSk4b/n2F4hvzLI9utUhwTdNIl7VU9FyWzZg9Z9EywvjbF+pE/3gbuUHvFcY2nM=
+	t=1723040387; cv=none; b=Hy4mW9abWpV4YYBV+MdvOypqFCrApDRUg7hWzsuSJNDpdv3DpMlWPeFzitru9+fX8DtkaPiEG26IxgqA3f8gdaRMtZ6a9BPPQH8HnFIkdBEaxtsl5hgGHtW19AYsO0ydcAWvVXsuC4CLnmMDylYgSCmp8BewZ7sG0nB8wmdOkaw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723039985; c=relaxed/simple;
-	bh=yHTo7ae4Y2KUSWICl1rsVbC17Jj0VNMnmBcR54CKcSg=;
+	s=arc-20240116; t=1723040387; c=relaxed/simple;
+	bh=V2XcldorF5mZxWgoV6rXHIZvLXFu/Cfe7abbKfSvCBI=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Iflviq5KDXzf+URo5MqnBwioWWsKDNH/hj+B9wuIp5fHRXBTjsZrMvthqAbFrTk8Ae6hz4InM7TLS4riNlUesA6E3zQfPomdn2EhKaFUOVE6adKCCmkcUuKKQlQqZiWV2m9HeEmkFLF39OxK2fxCiZA/uAKaaGJYiIJAeGuWHQk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tesarici.cz; spf=pass smtp.mailfrom=tesarici.cz; dkim=pass (2048-bit key) header.d=tesarici.cz header.i=@tesarici.cz header.b=EhwlHvbT; arc=none smtp.client-ip=37.205.15.56
+	 MIME-Version:Content-Type; b=HG8QYkRj297y+xocV1sJ8WKfknz/mgHzekLDdk3gkIQ5ir3QUK1hLkn9mzD0l1J0bwKSU4sry1gaCl+AU8VMKTXtuH4RO5kNJh4SottUCfFKjz/0G8N5W4H1iEsH5L7vSGr6UTq06DeEDy7gq6AJdLR6iymNQPfUDtU8rAfgMdA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tesarici.cz; spf=pass smtp.mailfrom=tesarici.cz; dkim=pass (2048-bit key) header.d=tesarici.cz header.i=@tesarici.cz header.b=i65GwrEa; arc=none smtp.client-ip=37.205.15.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tesarici.cz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tesarici.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=tesarici.cz header.i=@tesarici.cz header.b="EhwlHvbT"
+	dkim=pass (2048-bit key) header.d=tesarici.cz header.i=@tesarici.cz header.b="i65GwrEa"
 Received: from mordecai.tesarici.cz (dynamic-2a00-1028-83b8-1e7a-3010-3bd6-8521-caf1.ipv6.o2.cz [IPv6:2a00:1028:83b8:1e7a:3010:3bd6:8521:caf1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by bee.tesarici.cz (Postfix) with ESMTPSA id 1BDDE1D28CB;
-	Wed,  7 Aug 2024 16:12:54 +0200 (CEST)
+	by bee.tesarici.cz (Postfix) with ESMTPSA id 581DA1D4827;
+	Wed,  7 Aug 2024 16:19:43 +0200 (CEST)
 Authentication-Results: mail.tesarici.cz; dmarc=fail (p=quarantine dis=none) header.from=tesarici.cz
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tesarici.cz; s=mail;
-	t=1723039974; bh=2S1kScCclltNXckE/Lkx2qPVy9xVi/sU3tCNDVWrwmg=;
+	t=1723040383; bh=XLWRMbtGcTsuduq8sYIgOj2Fv5+dhfpUSVkhtNTwEKs=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=EhwlHvbTz35VhAI2Qpj0xb9g7XfyNlUdLT2PhofPUJObSVEfk1Rz+kAynf4vRyIUu
-	 ZSmLQQDu+kYFQY76651Xk1pzwK49hhn0qV9lrrdrvfzk44MTygPvccjXpYKlYgqZ6P
-	 fKSG+xtWjx1PGAmqW+Ru9Jxrm8kTocZVHIf7Ct5F5dwAfJVorHfTti2Yn2AG1RZl+T
-	 QfwOcSNtu+xhAwEW6hotsHWoZOw4ky06J8J7F0GfieIZRu2xjf2bq8Qg8MdyK+vrq0
-	 HFqN+Nk021WWKDV+ToPaSKGAIAOKhQgKGN14gbNUSk1Zi/5ISVMtunOHWaVwbBfnX8
-	 tCEJa3xWKB5yg==
-Date: Wed, 7 Aug 2024 16:12:48 +0200
+	b=i65GwrEaWJJSMm99frEtR7SuRGEX3gN1vzFXh2M8PBIgW+RsOaMIeqQVp9+tWaGD8
+	 /YNoeYcOzMnMmVYXGfa4/im2fp+jFdGFBjLaB6/wg4YlBgNs87dbzwtqDoB3iboUMQ
+	 uknhZZbif8Mx36WsiJPi/ciX025KxDJDtfHQvCaScDK7UjvtnQ+wcvWLFasyNPbiXx
+	 4nf7jgzre9eFkJWXAo3rcRvI2k6Pdic8/+K6elXZgoJ8rXB6Zykhp5b9yMcQvENf/9
+	 rr/4NtWBGu7ADNh76DtVGevak4OOLyst1aitj0NfgEMtoYlN8XmKbm7/MrBkRa1vW4
+	 1fOsAT735pwMQ==
+Date: Wed, 7 Aug 2024 16:19:38 +0200
 From: Petr =?UTF-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>
 To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Robin Murphy <robin.murphy@arm.com>, Baruch Siach <baruch@tkos.co.il>,
- Christoph Hellwig <hch@lst.de>, Marek Szyprowski
- <m.szyprowski@samsung.com>, Will Deacon <will@kernel.org>,
- iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, Ramon Fried <ramon@neureality.ai>, Elad Nachman
- <enachman@marvell.com>
-Subject: Re: [PATCH v5 1/3] dma: improve DMA zone selection
-Message-ID: <20240807161248.37a618f2@mordecai.tesarici.cz>
-In-Reply-To: <ZrN9mRoQj2lTo6L5@arm.com>
+Cc: Baruch Siach <baruch@tkos.co.il>, Christoph Hellwig <hch@lst.de>, Marek
+ Szyprowski <m.szyprowski@samsung.com>, Will Deacon <will@kernel.org>, Robin
+ Murphy <robin.murphy@arm.com>, iommu@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Ramon Fried
+ <ramon@neureality.ai>, Elad Nachman <enachman@marvell.com>
+Subject: Re: [PATCH v5 2/3] dma: replace zone_dma_bits by zone_dma_limit
+Message-ID: <20240807161938.5729b656@mordecai.tesarici.cz>
+In-Reply-To: <Zqyo4qjPRHUeUfS5@arm.com>
 References: <cover.1722578375.git.baruch@tkos.co.il>
-	<5200f289af1a9b80dfd329b6ed3d54e1d4a02876.1722578375.git.baruch@tkos.co.il>
-	<8230985e-1581-411f-895c-b49065234520@arm.com>
-	<ZrN9mRoQj2lTo6L5@arm.com>
+	<5821a1b2eb82847ccbac0945da040518d6f6f16b.1722578375.git.baruch@tkos.co.il>
+	<Zqyo4qjPRHUeUfS5@arm.com>
 X-Mailer: Claws Mail 4.3.0 (GTK 3.24.42; x86_64-suse-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -59,48 +57,69 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Wed, 7 Aug 2024 14:58:49 +0100
+On Fri, 2 Aug 2024 10:37:38 +0100
 Catalin Marinas <catalin.marinas@arm.com> wrote:
 
-> Thanks Robin for having a look.
+> On Fri, Aug 02, 2024 at 09:03:47AM +0300, Baruch Siach wrote:
+> > diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+> > index 3b4be4ca3b08..62b36fda44c9 100644
+> > --- a/kernel/dma/direct.c
+> > +++ b/kernel/dma/direct.c
+> > @@ -20,7 +20,7 @@
+> >   * it for entirely different regions. In that case the arch code needs to
+> >   * override the variable below for dma-direct to work properly.
+> >   */
+> > -unsigned int zone_dma_bits __ro_after_init = 24;
+> > +u64 zone_dma_limit __ro_after_init = DMA_BIT_MASK(24);  
 > 
-> On Wed, Aug 07, 2024 at 02:13:06PM +0100, Robin Murphy wrote:
-> > On 2024-08-02 7:03 am, Baruch Siach wrote:  
-> > > When device DMA limit does not fit in DMA32 zone it should use DMA zone,
-> > > even when DMA zone is stricter than needed.
-> > > 
-> > > Same goes for devices that can't allocate from the entire normal zone.
-> > > Limit to DMA32 in that case.  
-> > 
-> > Per the bot report this only works for CONFIG_ARCH_KEEP_MEMBLOCK,  
+> u64 here makes sense even if it may be larger than phys_addr_t. It
+> matches the phys_limit type in the swiotlb code. The compilers should no
+> longer complain.
+
+FTR I have never quite understood why phys_limit is u64, but u64 was
+already used all around the place when I first looked into swiotlb.
+
+> > diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
+> > index d10613eb0f63..7b04f7575796 100644
+> > --- a/kernel/dma/pool.c
+> > +++ b/kernel/dma/pool.c
+> > @@ -70,9 +70,9 @@ static bool cma_in_zone(gfp_t gfp)
+> >  	/* CMA can't cross zone boundaries, see cma_activate_area() */
+> >  	end = cma_get_base(cma) + size - 1;
+> >  	if (IS_ENABLED(CONFIG_ZONE_DMA) && (gfp & GFP_DMA))
+> > -		return end <= DMA_BIT_MASK(zone_dma_bits);
+> > +		return end <= zone_dma_limit;
+> >  	if (IS_ENABLED(CONFIG_ZONE_DMA32) && (gfp & GFP_DMA32))
+> > -		return end <= DMA_BIT_MASK(32);
+> > +		return end <= max(DMA_BIT_MASK(32), zone_dma_limit);
+> >  	return true;
+> >  }
+> >  
+> > diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+> > index 043b0ecd3e8d..bb51bd5335ad 100644
+> > --- a/kernel/dma/swiotlb.c
+> > +++ b/kernel/dma/swiotlb.c
+> > @@ -450,9 +450,9 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
+> >  	if (!remap)
+> >  		io_tlb_default_mem.can_grow = true;
+> >  	if (IS_ENABLED(CONFIG_ZONE_DMA) && (gfp_mask & __GFP_DMA))
+> > -		io_tlb_default_mem.phys_limit = DMA_BIT_MASK(zone_dma_bits);
+> > +		io_tlb_default_mem.phys_limit = zone_dma_limit;
+> >  	else if (IS_ENABLED(CONFIG_ZONE_DMA32) && (gfp_mask & __GFP_DMA32))
+> > -		io_tlb_default_mem.phys_limit = DMA_BIT_MASK(32);
+> > +		io_tlb_default_mem.phys_limit = max(DMA_BIT_MASK(32), zone_dma_limit);
+> >  	else
+> >  		io_tlb_default_mem.phys_limit = virt_to_phys(high_memory - 1);
+> >  #endif  
 > 
-> Yeah, I just noticed.
-> 
-> > however
-> > the whole concept looks wrong anyway. The logic here is that we're only
-> > forcing a particular zone if there's *no* chance of the higher zone being
-> > usable. For example, ignoring offsets for simplicity, if we have a 40-bit
-> > DMA mask then we *do* want to initially try allocating from ZONE_NORMAL even
-> > if max_pfn is above 40 bits, since we still might get a usable allocation
-> > from between 32 and 40 bits, and if we don't, then we'll fall back to
-> > retrying from the DMA zone(s) anyway.  
-> 
-> Ah, I did not read the code further down in __dma_direct_alloc_pages(),
-> it does fall back to a GFP_DMA allocation if !dma_coherent_ok().
-> Similarly with swiotlb_alloc_tlb(), it keeps retrying until the
-> allocation fails.
+> These two look correct to me now and it's the least intrusive (the
+> alternative would have been a zone_dma32_limit). The arch code, however,
+> needs to ensure that zone_dma_limit can always support 32-bit devices
+> even if it is above 4GB (with the relevant dma offsets in place for such
+> devices).
 
-Er, you certainly mean it keeps retrying as long as the allocation
-fails.
-
-Yes, that's true. The initial GFP zone flags are a best-effort guess,
-and a stricter zone can be chosen in the end. This whole logic tries to
-select the highest zone that satisfies the limit, because allocating
-some pages and freeing them immediately is wasteful, especially for
-high-order allocations.
-
-> So yes, this patch can be dropped.
-
-+1
+Just to make sure, the DMA zone (if present) must map to at most 32-bit
+bus address space (possibly behind a bridge). Is that what you're
+saying?
 
 Petr T
