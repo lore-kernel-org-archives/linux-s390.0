@@ -1,146 +1,255 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B02CA190464;
-	Wed,  7 Aug 2024 03:09:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.8
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C951E1B582B;
+	Wed,  7 Aug 2024 06:41:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723000189; cv=none; b=gLqNFCNfdgrDNGVtWrr/SoDqpJ12XiZyV8SJYoO/IEah5SMG90fzDveegb7kUOmYxDECeW2GJ1d5Nu8raUv6ljsOkOoLQ7nTtOVIgBpu00PGMjlJyXlIj1owMFNRHNfWw5Cwq00ffonoDlMq1RwzA5yoIuB+Qgy4uqW9P/8/f3I=
+	t=1723012893; cv=none; b=BJo4TpI17SYFqpfayRdevw0RYetMPTQHV04FgpNbleBVi232AuvhJ7nlAD0JSsja2HqZoisJZ8rpdbA6y4Z8LrOy9ltTbNHimxmxks85UuYgEWSn/o75FRQafp8OshGMYEYRhSERuZjcWU3uvBU6c7cu5f/pscY3e9hCQa9uSuM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723000189; c=relaxed/simple;
-	bh=tcCwEw94oJRiTgSV9/wM7rVN49zNEGbd3/OMrNi6krI=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=ss1Xeu6ZCZeyCTttoeO51aQR89d+iKcxzpZy60EQLLral0ZnuF95AzGeutD9hHfOsJMRRyvGkMFGdyXeGot1M0v2jyRSKxF/tYNq5tVCSy6tT1/sV69drwd877yMw9gbgwcq0oOsbCyxZt2jyabgqSNQrPX8htn0Rtr347ubJsI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hGMQHYzd; arc=none smtp.client-ip=192.198.163.8
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1723012893; c=relaxed/simple;
+	bh=ekzPfVl6JUXBDUwMJIaEPIWAIu+cM3hN3EuU2UBIi6o=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tEO62hp9lrQgoHBTixRhhPLg/07/HSAEQkR39bZJptMFB6RyQIdIwBdqIsq/P0Dcdn0NP33mDkSlXKdHSmrOQpqMAVr3umBCIHOCCZgvZDdLFwgUwYDo/Pbe8tTjevidshe2ol9nNu99ZsilTr4ims1oBjIc3oQFb8ohcoHiPis=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i5xaR0Xj; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hGMQHYzd"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1723000188; x=1754536188;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=tcCwEw94oJRiTgSV9/wM7rVN49zNEGbd3/OMrNi6krI=;
-  b=hGMQHYzdxQw9nrvRio7NT6CKkEnvHOResq4A4/R16TPCjDoNyP+Vw7XF
-   uN6C5+cYn/rv0hq0vb4aDs0tjp+u2gBZdCh8Zbx64ImXzO5B6m3iWtR2r
-   KYtExswuUrnXoYsM4hjjZ9FjvYlFX0TgFmuTFr23QFLn22+eWZ7onotxi
-   KXr5uxOyRG5iRx396/hNeNr4KozOUKXqtoskZwGNfvtLhHNtQ4Nh7jjqY
-   Y3t6GQGMjt7YBruHEDE+84pQmENZ4AmbgMqudIGHKUxOXAJhE08QeOHF0
-   aBJxGDHClVUiGK7ziIQyo1bZT7XnGfhuybropB8P2G0ljFURewQmuOC3e
-   A==;
-X-CSE-ConnectionGUID: pbjScJNPRxOCT8Qq0gdeig==
-X-CSE-MsgGUID: aJKLYnLwS36+UeA665fQPg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11156"; a="38559649"
-X-IronPort-AV: E=Sophos;i="6.09,268,1716274800"; 
-   d="scan'208";a="38559649"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Aug 2024 20:09:47 -0700
-X-CSE-ConnectionGUID: TUvPvJvuQqeS1aDt7zgrnw==
-X-CSE-MsgGUID: uX1GjfU/SrSzttTxOf/JXw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,268,1716274800"; 
-   d="scan'208";a="56677655"
-Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.125.248.220]) ([10.125.248.220])
-  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Aug 2024 20:09:43 -0700
-Message-ID: <05381ccb-bdbb-4342-8a2f-11ee72454eda@linux.intel.com>
-Date: Wed, 7 Aug 2024 11:09:41 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i5xaR0Xj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 193B0C4AF0D;
+	Wed,  7 Aug 2024 06:41:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1723012892;
+	bh=ekzPfVl6JUXBDUwMJIaEPIWAIu+cM3hN3EuU2UBIi6o=;
+	h=From:To:Cc:Subject:Date:From;
+	b=i5xaR0Xjor2iyXJoWhbLsEHW4Ku6O7Dd6qrMQxxgAcH1SccxyADo98ywIyKYJR8k9
+	 20+CT+TDOLQkIBIRljAxLodviCKZwl+Tjenp8Hg3FsjwqIBASEEyw95p/MQ+Kwa2hD
+	 K/AQ7X1PAebJFnM4ZxDy9NsAx0F2ogCshfQPPvnX/Fa4KCd61KHduvt9p379YSuu0a
+	 mYVg94mMcw+cqkcJni+PXcYFeG3q4+/s0VzEK4gVBPePuOr+f4dfNyCaZ1tLCZcMXj
+	 uAlKNXTwtIRegTPBFSA5vbMNarA8L2sX9d1Ll8e+UtX5cfDeF1FrCKLLF2u6OpbL9/
+	 hbcfDeDq7zjIw==
+From: Mike Rapoport <rppt@kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Borislav Petkov <bp@alien8.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Hildenbrand <david@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Davidlohr Bueso <dave@stgolabs.net>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Jiaxun Yang <jiaxun.yang@flygoat.com>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonathan Cameron <jonathan.cameron@huawei.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Mike Rapoport <rppt@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Samuel Holland <samuel.holland@sifive.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Will Deacon <will@kernel.org>,
+	Zi Yan <ziy@nvidia.com>,
+	devicetree@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-cxl@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-mips@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	loongarch@lists.linux.dev,
+	nvdimm@lists.linux.dev,
+	sparclinux@vger.kernel.org,
+	x86@kernel.org
+Subject: [PATCH v4 00/26] mm: introduce numa_memblks
+Date: Wed,  7 Aug 2024 09:40:44 +0300
+Message-ID: <20240807064110.1003856-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com, Gerd Bayer <gbayer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Joerg Roedel <jroedel@suse.de>,
- iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org
-Subject: Re: [PATCH] iommu/s390: Implement blocking domain
-To: Niklas Schnelle <schnelle@linux.ibm.com>, Joerg Roedel <joro@8bytes.org>,
- Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
- Matthew Rosato <mjrosato@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-References: <20240806-blocking_domain-v1-1-8abc18e37e52@linux.ibm.com>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <20240806-blocking_domain-v1-1-8abc18e37e52@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 2024/8/6 21:45, Niklas Schnelle wrote:
-> This fixes a crash when surprise hot-unplugging a PCI device. This crash
-> happens because during hot-unplug __iommu_group_set_domain_nofail()
-> attaching the default domain fails when the platform no longer
-> recognizes the device as it has already been removed and we end up with
-> a NULL domain pointer and UAF. This is exactly the case referred to in
-> the second comment in __iommu_device_set_domain() and just as stated
-> there if we can instead attach the blocking domain the UAF is prevented
-> as this can handle the already removed device. Implement the blocking
-> domain to use this handling. This would still leave us with a warning
-> for a failed attach. As failing to attach when the device is no longer
-> present is expected behavior turn this into an explicit -ENODEV error
-> and don't warn for it. Also change the error return for a NULL zdev to
-> -EIO as we don't want to ignore this case that would be a serious bug.
-> 
-> Fixes: c76c067e488c ("s390/pci: Use dma-iommu layer")
-> Signed-off-by: Niklas Schnelle<schnelle@linux.ibm.com>
-> ---
-> Note: I somewhat suspect this to be related to the following discussion
-> or at least we have seen the same backtraces in reports that we suspect
-> to be caused by the issue fixed with this patch. In the case I was able
-> to reproduce with vfio-pci pass-through to a KVM guest I got a different
-> trace though.
-> 
-> Organizational note: I'll be on vacation starting Thursday. Matt will
-> then take over and sent new revisions as necessary.
-> ---
->   drivers/iommu/iommu.c      |  7 ++++--
->   drivers/iommu/s390-iommu.c | 55 ++++++++++++++++++++++++++++++++++++++--------
->   2 files changed, 51 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-> index ed6c5cb60c5a..91b3b23bf55c 100644
-> --- a/drivers/iommu/iommu.c
-> +++ b/drivers/iommu/iommu.c
-> @@ -119,8 +119,11 @@ static int __iommu_group_set_domain(struct iommu_group *group,
->   static void __iommu_group_set_domain_nofail(struct iommu_group *group,
->   					    struct iommu_domain *new_domain)
->   {
-> -	WARN_ON(__iommu_group_set_domain_internal(
-> -		group, new_domain, IOMMU_SET_DOMAIN_MUST_SUCCEED));
-> +	int ret = __iommu_group_set_domain_internal(
-> +		group, new_domain, IOMMU_SET_DOMAIN_MUST_SUCCEED);
-> +
-> +	/* Allow attach to fail when the device is gone */
-> +	WARN_ON(ret && ret != -ENODEV);
+From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 
-The return values of attach_dev have been documented in include/linux
-/iommu.h:
+Hi,
 
-/**
-  * struct iommu_domain_ops - domain specific operations
-  * @attach_dev: attach an iommu domain to a device
-  *  Return:
-  * * 0          - success
-  * * EINVAL     - can indicate that device and domain are incompatible 
-due to
-  *                some previous configuration of the domain, in which 
-case the
-  *                driver shouldn't log an error, since it is legitimate 
-for a
-  *                caller to test reuse of existing domains. Otherwise, 
-it may
-  *                still represent some other fundamental problem
-  * * ENOMEM     - out of memory
-  * * ENOSPC     - non-ENOMEM type of resource allocation failures
-  * * EBUSY      - device is attached to a domain and cannot be changed
-  * * ENODEV     - device specific errors, not able to be attached
-  * * <others>   - treated as ENODEV by the caller. Use is discouraged
+Following the discussion about handling of CXL fixed memory windows on
+arm64 [1] I decided to bite the bullet and move numa_memblks from x86 to
+the generic code so they will be available on arm64/riscv and maybe on
+loongarch sometime later.
 
-ENODEV is obviously not suitable for the case of 'device is gone'.
+While it could be possible to use memblock to describe CXL memory windows,
+it currently lacks notion of unpopulated memory ranges and numa_memblks
+does implement this.
 
-Thanks,
-baolu
+Another reason to make numa_memblks generic is that both arch_numa (arm64
+and riscv) and loongarch use trimmed copy of x86 code although there is no
+fundamental reason why the same code cannot be used on all these platforms.
+Having numa_memblks in mm/ will make it's interaction with ACPI and FDT
+more consistent and I believe will reduce maintenance burden.
+
+And with generic numa_memblks it is (almost) straightforward to enable NUMA
+emulation on arm64 and riscv.
+
+The first 9 commits in this series are cleanups that are not strictly
+related to numa_memblks.
+Commits 10-16 slightly reorder code in x86 to allow extracting numa_memblks
+and NUMA emulation to the generic code.
+Commits 17-19 actually move the code from arch/x86/ to mm/ and commits 20-22
+does some aftermath cleanups.
+Commit 23 updates of_numa_init() to return error of no NUMA nodes were
+found in the device tree.
+Commit 24 switches arch_numa to numa_memblks.
+Commit 25 enables usage of phys_to_target_node() and
+memory_add_physaddr_to_nid() with numa_memblks.
+Commit 26 moves the description for numa=fake from x86 to admin-guide.
+
+[1] https://lore.kernel.org/all/20240529171236.32002-1-Jonathan.Cameron@huawei.com/
+
+v3: https://lore.kernel.org/all/20240801060826.559858-1-rppt@kernel.org
+* update allocation of offline node, thanks Jonathan
+* add comment about dependency of get_pfn_range_for_nid on
+  memblock_set_node(), per Dan
+* fix build errros with 32-bit phys_address_t reported by kbuild
+* add Acked- and Reviewed-by, thanks Dan and David
+
+v2: https://lore.kernel.org/all/20240723064156.4009477-1-rppt@kernel.org
+* rebase on v6.11-rc1
+* fix dummy_numa_init() in arch_numa, thanks Zi Yan
+* update of_numa_init() to return error of no NUMA nodes were
+* add Tested-by, thanks Zi Yan
+
+v1: https://lore.kernel.org/all/20240716111346.3676969-1-rppt@kernel.org
+* add cleanup for arch_alloc_nodedata and HAVE_ARCH_NODEDATA_EXTENSION
+* add patch that moves description of numa=fake kernel parameter from
+  x86 to admin-guide
+* reduce rounding up of node_data allocations from PAGE_SIZE to
+  SMP_CACHE_BYTES
+* restore single allocation attempt of numa_distance
+* fix several comments
+* added review tags
+
+Mike Rapoport (Microsoft) (26):
+  mm: move kernel/numa.c to mm/
+  MIPS: sgi-ip27: make NODE_DATA() the same as on all other architectures
+  MIPS: sgi-ip27: ensure node_possible_map only contains valid nodes
+  MIPS: sgi-ip27: drop HAVE_ARCH_NODEDATA_EXTENSION
+  MIPS: loongson64: rename __node_data to node_data
+  MIPS: loongson64: drop HAVE_ARCH_NODEDATA_EXTENSION
+  arch, mm: move definition of node_data to generic code
+  mm: drop CONFIG_HAVE_ARCH_NODEDATA_EXTENSION
+  arch, mm: pull out allocation of NODE_DATA to generic code
+  x86/numa: simplify numa_distance allocation
+  x86/numa: use get_pfn_range_for_nid to verify that node spans memory
+  x86/numa: move FAKE_NODE_* defines to numa_emu
+  x86/numa_emu: simplify allocation of phys_dist
+  x86/numa_emu: split __apicid_to_node update to a helper function
+  x86/numa_emu: use a helper function to get MAX_DMA32_PFN
+  x86/numa: numa_{add,remove}_cpu: make cpu parameter unsigned
+  mm: introduce numa_memblks
+  mm: move numa_distance and related code from x86 to numa_memblks
+  mm: introduce numa_emulation
+  mm: numa_memblks: introduce numa_memblks_init
+  mm: numa_memblks: make several functions and variables static
+  mm: numa_memblks: use memblock_{start,end}_of_DRAM() when sanitizing
+    meminfo
+  of, numa: return -EINVAL when no numa-node-id is found
+  arch_numa: switch over to numa_memblks
+  mm: make range-to-target_node lookup facility a part of numa_memblks
+  docs: move numa=fake description to kernel-parameters.txt
+
+ .../admin-guide/kernel-parameters.txt         |  15 +
+ .../arch/x86/x86_64/boot-options.rst          |  12 -
+ arch/arm64/include/asm/Kbuild                 |   1 +
+ arch/arm64/include/asm/mmzone.h               |  13 -
+ arch/arm64/include/asm/topology.h             |   1 +
+ arch/loongarch/include/asm/Kbuild             |   1 +
+ arch/loongarch/include/asm/mmzone.h           |  16 -
+ arch/loongarch/include/asm/topology.h         |   1 +
+ arch/loongarch/kernel/numa.c                  |  21 -
+ arch/mips/Kconfig                             |   5 -
+ arch/mips/include/asm/mach-ip27/mmzone.h      |   1 -
+ .../mips/include/asm/mach-loongson64/mmzone.h |   4 -
+ arch/mips/loongson64/numa.c                   |  28 +-
+ arch/mips/sgi-ip27/ip27-memory.c              |  12 +-
+ arch/mips/sgi-ip27/ip27-smp.c                 |   2 +
+ arch/powerpc/include/asm/mmzone.h             |   6 -
+ arch/powerpc/mm/numa.c                        |  26 +-
+ arch/riscv/include/asm/Kbuild                 |   1 +
+ arch/riscv/include/asm/mmzone.h               |  13 -
+ arch/riscv/include/asm/topology.h             |   4 +
+ arch/s390/include/asm/Kbuild                  |   1 +
+ arch/s390/include/asm/mmzone.h                |  17 -
+ arch/s390/kernel/numa.c                       |   3 -
+ arch/sh/include/asm/mmzone.h                  |   3 -
+ arch/sh/mm/init.c                             |   7 +-
+ arch/sh/mm/numa.c                             |   3 -
+ arch/sparc/include/asm/mmzone.h               |   4 -
+ arch/sparc/mm/init_64.c                       |  11 +-
+ arch/x86/Kconfig                              |   9 +-
+ arch/x86/include/asm/Kbuild                   |   1 +
+ arch/x86/include/asm/mmzone.h                 |   6 -
+ arch/x86/include/asm/mmzone_32.h              |  17 -
+ arch/x86/include/asm/mmzone_64.h              |  18 -
+ arch/x86/include/asm/numa.h                   |  26 +-
+ arch/x86/include/asm/sparsemem.h              |   9 -
+ arch/x86/mm/Makefile                          |   1 -
+ arch/x86/mm/amdtopology.c                     |   1 +
+ arch/x86/mm/numa.c                            | 622 +-----------------
+ arch/x86/mm/numa_internal.h                   |  24 -
+ drivers/acpi/numa/srat.c                      |   1 +
+ drivers/base/Kconfig                          |   1 +
+ drivers/base/arch_numa.c                      | 224 ++-----
+ drivers/cxl/Kconfig                           |   2 +-
+ drivers/dax/Kconfig                           |   2 +-
+ drivers/of/of_numa.c                          |   5 +-
+ include/asm-generic/mmzone.h                  |   5 +
+ include/asm-generic/numa.h                    |   6 +-
+ include/linux/memory_hotplug.h                |  48 --
+ include/linux/numa.h                          |   8 +
+ include/linux/numa_memblks.h                  |  58 ++
+ kernel/Makefile                               |   1 -
+ kernel/numa.c                                 |  26 -
+ mm/Kconfig                                    |  11 +
+ mm/Makefile                                   |   3 +
+ mm/mm_init.c                                  |  10 +-
+ mm/numa.c                                     |  69 ++
+ {arch/x86/mm => mm}/numa_emulation.c          |  42 +-
+ mm/numa_memblks.c                             | 571 ++++++++++++++++
+ 58 files changed, 893 insertions(+), 1166 deletions(-)
+ delete mode 100644 arch/arm64/include/asm/mmzone.h
+ delete mode 100644 arch/loongarch/include/asm/mmzone.h
+ delete mode 100644 arch/riscv/include/asm/mmzone.h
+ delete mode 100644 arch/s390/include/asm/mmzone.h
+ delete mode 100644 arch/x86/include/asm/mmzone.h
+ delete mode 100644 arch/x86/include/asm/mmzone_32.h
+ delete mode 100644 arch/x86/include/asm/mmzone_64.h
+ create mode 100644 include/asm-generic/mmzone.h
+ create mode 100644 include/linux/numa_memblks.h
+ delete mode 100644 kernel/numa.c
+ create mode 100644 mm/numa.c
+ rename {arch/x86/mm => mm}/numa_emulation.c (94%)
+ create mode 100644 mm/numa_memblks.c
+
+
+base-commit: 8400291e289ee6b2bf9779ff1c83a291501f017b
+-- 
+2.43.0
+
