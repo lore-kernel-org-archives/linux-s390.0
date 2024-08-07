@@ -1,66 +1,66 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D84ED1D0DEE
-	for <linux-s390@vger.kernel.org>; Wed,  7 Aug 2024 09:33:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DD931D0DC8
+	for <linux-s390@vger.kernel.org>; Wed,  7 Aug 2024 09:57:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723023206; cv=none; b=dKpz6jNsnHW4CKgl3RXE3hnuFqCn9rvZzLZwBLeY3xkxiMJSJgtu/OytLxiJbwaFoVFiwsMyuS9nQVgvXNYPDbcytDgt+5SgjqM0DIpYMlFHDmv/AzDhheOVXuWuPBmKyoeDfmqoJzu5YfmrbLbzeWHBfGAXcUu5ieU9WWNChOM=
+	t=1723024647; cv=none; b=mry8JQtbklRj0RbkPz8Got/TvhDAcloYEHgLmft++rj0aRHkP7Rb3kU3bTwiBosdgXpdDPZNke2NK7xj72kPSp1b2zFlFIs8P7aHVCO+aOlTepDeBq2O3eZ5etpp6L3scF//yNaiGS0kmJgSosNpiVVceshnSSirsNmSM+uPtCU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723023206; c=relaxed/simple;
-	bh=VXzHaQm7XQbvOf5JyZxW17M3OZXWaTO3C/rchFehAvk=;
+	s=arc-20240116; t=1723024647; c=relaxed/simple;
+	bh=/g/ZZBUWUCDmIebaIcxyRJ/+V1joRJfSKEwLEKzaum4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=f/Z0IyXJK3Vz+0i9eveN5YSwGOb/CCd8CWIdvGSrSWC5800DoyOf3iHsZ7KFs03cAydfNrEQhk7IOyUwI7IFHUbAVnJnAoWkz3Fj7O15Yp0po76dlS0RY8VenMV2saiFosWVAcv7v0b0DVQQSlvCjUoExc5/SWOzp/nqhqkpv9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hQ5OgiRf; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=QGlMPSmEwFvyIAPiCb6lrdKbZvVNer6dHauKLmDFFLikR3MBS4XS72R+7XQJmPW34gBgqU8J8tn1zKioZpztoCorYlT/BdfRR2bZi+qSjKbqKzk5iJdCr1QvcQzjWcGieCUDAT7WvR5Moxiv9Ho91zIYLcDg7/oN2Sg+CFR/NNA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Xs1YFxl5; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hQ5OgiRf"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xs1YFxl5"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1723023203;
+	s=mimecast20190719; t=1723024645;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=r1ao3oI2bC/T6YUDOi/z140Hom9Lwuz/axm2MilPj98=;
-	b=hQ5OgiRf/M4n7Aa7MKJzAZg7QCYvxhF34QLmdEJAbc3/CoTjBSwn6+jXdbY6tJBj9thUjj
-	YTnWQtTmqZJ3g/DU3CGyyRCyuw6+l6vTw78lkJluwpJXm9+pZSiuLEH3UqS4SKEYIDr0IR
-	WHYvd85S/SZgTTvHY0jsZj7wN87g0ww=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=QhYDHmXmJQi46+6UhfMma7vbUjGkXIsu5WZQ+uaDpWE=;
+	b=Xs1YFxl5f/zeh1iMmhYu1qkR9z6QADFDPLeBGjChc79VLfbP719qM2s9aeY0OrbWSmExDn
+	zt5XM2TbbnJNkHTkJjDt0+8ddYJWv5Yc1Ry00kVmOnA3zLVF5FwIsV66MyaOaGcGXrfetL
+	+PnOkgh+Zmp3Sy9p5Xtk8gvG2pQuxt8=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-122-xNV0KF7IPSWeIaYMlap9Mw-1; Wed, 07 Aug 2024 05:33:22 -0400
-X-MC-Unique: xNV0KF7IPSWeIaYMlap9Mw-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-427b7a2052bso17482055e9.2
-        for <linux-s390@vger.kernel.org>; Wed, 07 Aug 2024 02:33:21 -0700 (PDT)
+ us-mta-280-9vp3jw0uP9OJhsS82d6yFA-1; Wed, 07 Aug 2024 05:57:23 -0400
+X-MC-Unique: 9vp3jw0uP9OJhsS82d6yFA-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4280c0b3017so11596045e9.1
+        for <linux-s390@vger.kernel.org>; Wed, 07 Aug 2024 02:57:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723023201; x=1723628001;
+        d=1e100.net; s=20230601; t=1723024642; x=1723629442;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=r1ao3oI2bC/T6YUDOi/z140Hom9Lwuz/axm2MilPj98=;
-        b=i1xoy7aB0fltQHXGr4DWnPchAV/dV371BbyAfj7cZG1QuqV95cf6qinkKLCwKYTsBY
-         Pi3XL89Fc0YOyGqRVbZ2PY8VSMiX+XEUMIB90tSBvWoO0mfyYOGgUEOOvBscUmeK58pU
-         kxRc6YcBlTqg7TMGVvi5/FDO07uiU+HAvm21UwNJyW4Yj7T2+LA5QEPa8MmLNve3M/lK
-         pIQiCtFLkIf4sFjAPvgj8rWf9Iiw87VsmFnJfGVRih6e9UJ5NbNtqwJniprfoLMJtqxa
-         6yfZyizq/kgVwdhkoATVQGT/px9dnsblD2S8TeKoaW9Z2K9AVirJ5ICN2JSwHy/k8EKo
-         LApQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVVvoG+N/JiTu2iyYYy2xBumj3LIzQd1oPuSap7EvvOoqPJstMxN9yIuEuFDatO8FRdw79YghQg/aZbJMJLfHNQ4oiyaKu4GvzhIg==
-X-Gm-Message-State: AOJu0YzP3SOgVFh16nWSRpcr66ZWBuybsfs7AbFWfhCaTqdpzMQrRPuF
-	1oWZcKvWAefeN2RPgYFyR1cbCybd2UF/wsHdMPldnBv5tEekryzT4kXkvP81rhh+0ZwCLV5oU24
-	JQ5PsrCftAXSxgTri8hdAD9VgEFBt1zkcMm1FN1jeKyIgOV8LWRrDB2tLQNo=
-X-Received: by 2002:a05:600c:1c25:b0:426:5520:b835 with SMTP id 5b1f17b1804b1-428e6af241dmr135922265e9.5.1723023200870;
-        Wed, 07 Aug 2024 02:33:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGZ1EiCG7QsRTDVlK5w+6p4nKm5oU+kZSr1yFuVMrc+A2gerQdJIOXN4JQj6G7CIHOFRMSO6g==
-X-Received: by 2002:a05:600c:1c25:b0:426:5520:b835 with SMTP id 5b1f17b1804b1-428e6af241dmr135921805e9.5.1723023200220;
-        Wed, 07 Aug 2024 02:33:20 -0700 (PDT)
+        bh=QhYDHmXmJQi46+6UhfMma7vbUjGkXIsu5WZQ+uaDpWE=;
+        b=NAZqcfIuSq6tpVCXYW88YN/U0zBYBaCPEYLkNJd8vmh8U80y7DW6GuCAd9gIpTxKC+
+         qZ2HGuJCDl4ICyddpKF/k5gzyG2dbbJRh5PUSyNyd8ibh2Bdje8KnS97dQDelwlClF9C
+         4mya4DEbLKhT2zi3r+Ou21RkoJWexTYwXnF6GyYpImCEA1Azisxuxk9iX4r6JX6V2h87
+         mi1c4HlYKo6rECJQx5RFLBxyUaZEQIIPb2Q7WLzikIBo+ZKAO5+4lMqeee9/8gNNhe4t
+         bfi60b9g0SzUYD866PN7gyUmhDr8U3lArJrmiRYaY3a8llNhapZfTbHpmnAVougE5f8j
+         0UPQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXtdqWZMDCpKGMwGgxlW8y0dbfN/Sm48EREC+mzHRSVPo0SdzkvqsDKAiOmn6tahKiSWmphj2gK2p7kN2VL3tyv6brDaioTT3dZng==
+X-Gm-Message-State: AOJu0Yx5P323SlnVberhI4mComqCYxclxjB2/3EXG5wDcv9XebxdKb9q
+	966B0wa4uOH5KeqWR+C1mxlkJZrPDHgnLEUaAHwgYTZM9XTIcOJwGcxK4tGCAP9Uxv7ug7q9fNY
+	XZWtic9FXjscJJVFrT0XrSvkvuB8XOtYhPMAMFixtEf0MjFNPTBU9YahqBmhrvd7G4yQ=
+X-Received: by 2002:a5d:47ae:0:b0:366:e31a:500e with SMTP id ffacd0b85a97d-36bbc1d7791mr11661190f8f.63.1723024642084;
+        Wed, 07 Aug 2024 02:57:22 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEKIx+UH5dY/dVRyBapAk0Th6PLBq9S/ArQBuC3qjkAHZvhs3V3G3ABB3G0VEJbKGtXsfMI5w==
+X-Received: by 2002:a5d:47ae:0:b0:366:e31a:500e with SMTP id ffacd0b85a97d-36bbc1d7791mr11661166f8f.63.1723024641470;
+        Wed, 07 Aug 2024 02:57:21 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c708:1a00:df86:93fe:6505:d096? (p200300cbc7081a00df8693fe6505d096.dip0.t-ipconnect.de. [2003:cb:c708:1a00:df86:93fe:6505:d096])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-429059719ebsm19899155e9.18.2024.08.07.02.33.19
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36bbd0597ddsm15632741f8f.77.2024.08.07.02.57.19
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 07 Aug 2024 02:33:19 -0700 (PDT)
-Message-ID: <aa577d5c-a992-4f82-aecf-266cb940d5a7@redhat.com>
-Date: Wed, 7 Aug 2024 11:33:18 +0200
+        Wed, 07 Aug 2024 02:57:20 -0700 (PDT)
+Message-ID: <a612c83f-071e-437f-99e1-d1fb157b62d7@redhat.com>
+Date: Wed, 7 Aug 2024 11:57:19 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,20 +68,30 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 00/11] mm: replace follow_page() by folio_walk
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-doc@vger.kernel.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+Subject: Re: [PATCH v1 07/11] mm/huge_memory: convert split_huge_pages_pid()
+ from follow_page() to folio_walk
+To: Zi Yan <ziy@nvidia.com>
+Cc: Ryan Roberts <ryan.roberts@arm.com>, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>,
  "Matthew Wilcox (Oracle)" <willy@infradead.org>,
  Jonathan Corbet <corbet@lwn.net>,
  Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Mark Brown <broonie@kernel.org>
 References: <20240802155524.517137-1-david@redhat.com>
- <20240807111534.4e79d7fd@p-imbrenda.boeblingen.de.ibm.com>
+ <20240802155524.517137-8-david@redhat.com>
+ <e1d44e36-06e4-4d1c-8daf-315d149ea1b3@arm.com>
+ <ac97ccdc-ee1e-4f07-8902-6360de80c2a0@redhat.com>
+ <a5f059a0-32d6-453e-9d18-1f3bfec3a762@redhat.com>
+ <c75d1c6c-8ea6-424f-853c-1ccda6c77ba2@redhat.com>
+ <5BEF38E0-359C-4927-98EF-A0EE7DC81251@nvidia.com>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -129,65 +139,228 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20240807111534.4e79d7fd@p-imbrenda.boeblingen.de.ibm.com>
+In-Reply-To: <5BEF38E0-359C-4927-98EF-A0EE7DC81251@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 07.08.24 11:15, Claudio Imbrenda wrote:
-> On Fri,  2 Aug 2024 17:55:13 +0200
-> David Hildenbrand <david@redhat.com> wrote:
+On 06.08.24 17:36, Zi Yan wrote:
+> On 6 Aug 2024, at 6:24, David Hildenbrand wrote:
 > 
->> Looking into a way of moving the last folio_likely_mapped_shared() call
->> in add_folio_for_migration() under the PTL, I found myself removing
->> follow_page(). This paves the way for cleaning up all the FOLL_, follow_*
->> terminology to just be called "GUP" nowadays.
+>> On 06.08.24 12:03, David Hildenbrand wrote:
+>>> On 06.08.24 11:56, David Hildenbrand wrote:
+>>>> On 06.08.24 11:46, Ryan Roberts wrote:
+>>>>> On 02/08/2024 16:55, David Hildenbrand wrote:
+>>>>>> Let's remove yet another follow_page() user. Note that we have to do the
+>>>>>> split without holding the PTL, after folio_walk_end(). We don't care
+>>>>>> about losing the secretmem check in follow_page().
+>>>>>
+>>>>> Hi David,
+>>>>>
+>>>>> Our (arm64) CI is showing a regression in split_huge_page_test from mm selftests from next-20240805 onwards. Navigating around a couple of other lurking bugs, I was able to bisect to this change (which smells about right).
+>>>>>
+>>>>> Newly failing test:
+>>>>>
+>>>>> # # ------------------------------
+>>>>> # # running ./split_huge_page_test
+>>>>> # # ------------------------------
+>>>>> # # TAP version 13
+>>>>> # # 1..12
+>>>>> # # Bail out! Still AnonHugePages not split
+>>>>> # # # Planned tests != run tests (12 != 0)
+>>>>> # # # Totals: pass:0 fail:0 xfail:0 xpass:0 skip:0 error:0
+>>>>> # # [FAIL]
+>>>>> # not ok 52 split_huge_page_test # exit=1
+>>>>>
+>>>>> It's trying to split some pmd-mapped THPs then checking and finding that they are not split. The split is requested via /sys/kernel/debug/split_huge_pages, which I believe ends up in this function you are modifying here. Although I'll admit that looking at the change, there is nothing obviously wrong! Any ideas?
+>>>>
+>>>> Nothing jumps at me as well. Let me fire up the debugger :)
+>>>
+>>> Ah, very likely the can_split_folio() check expects a raised refcount
+>>> already.
 >>
->> The new page table walker will lookup a mapped folio and return to the
->> caller with the PTL held, such that the folio cannot get unmapped
->> concurrently. Callers can then conditionally decide whether they really
->> want to take a short-term folio reference or whether the can simply
->> unlock the PTL and be done with it.
+>> Indeed, the following does the trick! Thanks Ryan, I could have sworn
+>> I ran that selftest as well.
 >>
->> folio_walk is similar to page_vma_mapped_walk(), except that we don't know
->> the folio we want to walk to and that we are only walking to exactly one
->> PTE/PMD/PUD.
+>> TAP version 13
+>> 1..12
+>> ok 1 Split huge pages successful
+>> ok 2 Split PTE-mapped huge pages successful
+>> # Please enable pr_debug in split_huge_pages_in_file() for more info.
+>> # Please check dmesg for more information
+>> ok 3 File-backed THP split test done
 >>
->> folio_walk provides access to the pte/pmd/pud (and the referenced folio
->> page because things like KSM need that), however, as part of this series
->> no page table modifications are performed by users.
+>> ...
 >>
->> We might be able to convert some other walk_page_range() users that really
->> only walk to one address, such as DAMON with
->> damon_mkold_ops/damon_young_ops. It might make sense to extend folio_walk
->> in the future to optionally fault in a folio (if applicable), such that we
->> can replace some get_user_pages() users that really only want to lookup
->> a single page/folio under PTL without unconditionally grabbing a folio
+>>
+>> @Andrew, can you squash the following?
+>>
+>>
+>>  From e5ea585de3e089ea89bf43d8447ff9fc9b371286 Mon Sep 17 00:00:00 2001
+>> From: David Hildenbrand <david@redhat.com>
+>> Date: Tue, 6 Aug 2024 12:08:17 +0200
+>> Subject: [PATCH] fixup: mm/huge_memory: convert split_huge_pages_pid() from
+>>   follow_page() to folio_walk
+>>
+>> We have to teach can_split_folio() that we are not holding an additional
 >> reference.
 >>
->> I have plans to extend the approach to a range walker that will try
->> batching various page table entries (not just folio pages) to be a better
->> replace for walk_page_range() -- and users will be able to opt in which
->> type of page table entries they want to process -- but that will require
->> more work and more thoughts.
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>   include/linux/huge_mm.h | 4 ++--
+>>   mm/huge_memory.c        | 8 ++++----
+>>   mm/vmscan.c             | 2 +-
+>>   3 files changed, 7 insertions(+), 7 deletions(-)
 >>
->> KSM seems to work just fine (ksm_functional_tests selftests) and
->> move_pages seems to work (migration selftest). I tested the leaf
->> implementation excessively using various hugetlb sizes (64K, 2M, 32M, 1G)
->> on arm64 using move_pages and did some more testing on x86-64. Cross
->> compiled on a bunch of architectures.
->>
->> I am not able to test the s390x Secure Execution changes, unfortunately.
+>> diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
+>> index e25d9ebfdf89..ce44caa40eed 100644
+>> --- a/include/linux/huge_mm.h
+>> +++ b/include/linux/huge_mm.h
+>> @@ -314,7 +314,7 @@ unsigned long thp_get_unmapped_area_vmflags(struct file *filp, unsigned long add
+>>   		unsigned long len, unsigned long pgoff, unsigned long flags,
+>>   		vm_flags_t vm_flags);
+>>   -bool can_split_folio(struct folio *folio, int *pextra_pins);
+>> +bool can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins);
+>>   int split_huge_page_to_list_to_order(struct page *page, struct list_head *list,
+>>   		unsigned int new_order);
+>>   static inline int split_huge_page(struct page *page)
+>> @@ -470,7 +470,7 @@ thp_get_unmapped_area_vmflags(struct file *filp, unsigned long addr,
+>>   }
+>>    static inline bool
+>> -can_split_folio(struct folio *folio, int *pextra_pins)
+>> +can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins)
+>>   {
+>>   	return false;
+>>   }
+>> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+>> index 697fcf89f975..c40b0dcc205b 100644
+>> --- a/mm/huge_memory.c
+>> +++ b/mm/huge_memory.c
+>> @@ -3021,7 +3021,7 @@ static void __split_huge_page(struct page *page, struct list_head *list,
+>>   }
+>>    /* Racy check whether the huge page can be split */
+>> -bool can_split_folio(struct folio *folio, int *pextra_pins)
+>> +bool can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins)
+>>   {
+>>   	int extra_pins;
+>>   @@ -3033,7 +3033,7 @@ bool can_split_folio(struct folio *folio, int *pextra_pins)
+>>   		extra_pins = folio_nr_pages(folio);
+>>   	if (pextra_pins)
+>>   		*pextra_pins = extra_pins;
+>> -	return folio_mapcount(folio) == folio_ref_count(folio) - extra_pins - 1;
+>> +	return folio_mapcount(folio) == folio_ref_count(folio) - extra_pins - caller_pins;
+>>   }
+>>    /*
+>> @@ -3201,7 +3201,7 @@ int split_huge_page_to_list_to_order(struct page *page, struct list_head *list,
+>>   	 * Racy check if we can split the page, before unmap_folio() will
+>>   	 * split PMDs
+>>   	 */
+>> -	if (!can_split_folio(folio, &extra_pins)) {
+>> +	if (!can_split_folio(folio, 1, &extra_pins)) {
+>>   		ret = -EAGAIN;
+>>   		goto out_unlock;
+>>   	}
+>> @@ -3537,7 +3537,7 @@ static int split_huge_pages_pid(int pid, unsigned long vaddr_start,
+>>   		 * can be split or not. So skip the check here.
+>>   		 */
+>>   		if (!folio_test_private(folio) &&
+>> -		    !can_split_folio(folio, NULL))
+>> +		    !can_split_folio(folio, 0, NULL))
+>>   			goto next;
+>>    		if (!folio_trylock(folio))
 > 
-> The whole series looks good to me, but I do not feel confident enough
-> about all the folio details to actually r-b any of the non-s390
-> patches. (I do have a few questions, though)
+> The diff below can skip a folio with private and extra pin(s) early instead
+> of trying to lock and split it then failing at can_split_folio() inside
+> split_huge_page_to_list_to_order().
 > 
-> As for the s390 patches: they look fine. I have tested the series on
-> s390 and nothing caught fire.
+> Maybe worth applying on top of yours?
 > 
-> We will be able to get more CI coverage once this lands in -next.
+> 
+> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+> index a218320a9233..ce992d54f1da 100644
+> --- a/mm/huge_memory.c
+> +++ b/mm/huge_memory.c
+> @@ -3532,13 +3532,10 @@ static int split_huge_pages_pid(int pid, unsigned long vaddr_start,
+>                          goto next;
+> 
+>                  total++;
+> -               /*
+> -                * For folios with private, split_huge_page_to_list_to_order()
+> -                * will try to drop it before split and then check if the folio
+> -                * can be split or not. So skip the check here.
+> -                */
+> -               if (!folio_test_private(folio) &&
+> -                   !can_split_folio(folio, 0, NULL))
+> +
+> +               if (!can_split_folio(folio,
+> +                                    folio_test_private(folio) ? 1 : 0,
+> +                                    NULL))
 
-Thanks for the review! Note that it's already in -next.
+Hmm, it does look a bit odd. It's not something from the caller (caller_pins), but a
+folio property. Likely should be handled differently.
+
+In vmscan code, we only call can_split_folio() on anon folios where
+folio_test_private() does not apply.
+
+But indeed, in split_huge_page_to_list_to_order() we'd have to fail if
+folio_test_private() still applies after
+
+Not sure if that is really better:
+
+
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index c40b0dcc205b..7cb743047566 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -3026,11 +3026,14 @@ bool can_split_folio(struct folio *folio, int caller_pins, int *pextra_pins)
+         int extra_pins;
+  
+         /* Additional pins from page cache */
+-       if (folio_test_anon(folio))
++       if (folio_test_anon(folio)) {
+                 extra_pins = folio_test_swapcache(folio) ?
+                                 folio_nr_pages(folio) : 0;
+-       else
++       } else {
+                 extra_pins = folio_nr_pages(folio);
++               if (unlikely(folio_test_private(folio)))
++                       extra_pins++;
++       }
+         if (pextra_pins)
+                 *pextra_pins = extra_pins;
+         return folio_mapcount(folio) == folio_ref_count(folio) - extra_pins - caller_pins;
+@@ -3199,9 +3202,11 @@ int split_huge_page_to_list_to_order(struct page *page, struct list_head *list,
+  
+         /*
+          * Racy check if we can split the page, before unmap_folio() will
+-        * split PMDs
++        * split PMDs. filemap_release_folio() will try to free buffer; if that
++        * fails, filemap_release_folio() fails.
+          */
+-       if (!can_split_folio(folio, 1, &extra_pins)) {
++       if (WARN_ON_ONCE(folio_test_private(folio)) ||
++           !can_split_folio(folio, 1, &extra_pins)) {
+                 ret = -EAGAIN;
+                 goto out_unlock;
+         }
+@@ -3531,13 +3536,7 @@ static int split_huge_pages_pid(int pid, unsigned long vaddr_start,
+                         goto next;
+  
+                 total++;
+-               /*
+-                * For folios with private, split_huge_page_to_list_to_order()
+-                * will try to drop it before split and then check if the folio
+-                * can be split or not. So skip the check here.
+-                */
+-               if (!folio_test_private(folio) &&
+-                   !can_split_folio(folio, 0, NULL))
++               if (!can_split_folio(folio, 0, NULL))
+                         goto next;
+  
+                 if (!folio_trylock(folio))
+
+
+It assumes that folio_set_private() is impossible after filemap_release_folio() succeeded
+and we're still holding the folio lock. Then we could even get rid of the WARN_ON_ONCE().
 
 -- 
 Cheers,
