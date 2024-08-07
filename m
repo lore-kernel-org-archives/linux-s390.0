@@ -1,64 +1,64 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3500F136664;
-	Wed,  7 Aug 2024 15:45:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 587311386A7;
+	Wed,  7 Aug 2024 15:45:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723045555; cv=none; b=gvUUcdfXxnTQ2QbF7XJjv6Tca2ew8cI3k66pcM7VM24WAxNn57b5AAIjyaEhmJcs2wewZFej82ECToiPUvLFh28q96ECV8ZWZ+Io3IVME6xQAe8jR4AdFPuxousJ1L2Wtzl32prneywgMhKyoQggoKn3RE/Vhluz9l1DkK91ZV0=
+	t=1723045556; cv=none; b=lG1aoE585YR43dJapMHvhOjDha07xakQ4Aybcpu0svv99Do/K5ZlAnNLEWUd1NSjVNP+kH3KmXt0rMdSaln1vZuBjOEApzRsKlnUwVIj+NoxDUD0CScl1DOdagdAzqnGOOV75KOrpSToUFGdi13wIK9EAiTffZt4zHpVD3tZyaQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723045555; c=relaxed/simple;
-	bh=zF9Ax6J2pD0ZDQvgYG0AF30ZJ1Btq3zA+3UPU7Sn4mQ=;
+	s=arc-20240116; t=1723045556; c=relaxed/simple;
+	bh=fENxGfvFpRhzuUZc/uBOuKKiqWxvPASTWBhWTKjPYEY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fXSmdEVJocqsjQs1Ts75NbvoTfh5TUYFvUyzV6+aEybBkSVmTmi0f1LUqRgMHWuJ4wM4Lb247YBGNQ+utWffIbFyCoTNaBHj9SeFC+/Me2Is0wtdGb5sQyz+4dxnPM5yBKheGadAKxVi8jmcVWDruuDZooWD8z1EQ5a2Os0mAw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GveSNWMY; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=epA6J9zUHi4uM2Uq3NpiyAmS3cSsC8PD7tPWB1j7FFXBaYFmWk/kMtl0wYouYp4nsqwNibamYmdogTXK2l2H4DIgruIlnn0QGOk6Gbnb4KGPdYKEx7U7/65gQXkt05n8DqBE05jIOOTqevj2tqba86FD8bugwbjo3ZorlKtaaMg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ubbi3RUf; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GveSNWMY"
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4772POuF000814;
-	Wed, 7 Aug 2024 15:45:43 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ubbi3RUf"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4773blnv020201;
+	Wed, 7 Aug 2024 15:45:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
 	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=5zXee325HnKhf
-	TJHb2YBUoMhvsdztLd+e4qRNc6Yz6Q=; b=GveSNWMYA5YoWCA4jpObxNvI8g4FI
-	1X9GcllcG15BWwOODYg7eJ3chIJmGNUQso0hd0u30uE5m7K3GKkIgciVJXRcA2y5
-	24buUCGwO8rE/uLDLuo/E61AkpFyeLn4cgcVh0bIjDtXhVXM5fqa9TABeWM0XGle
-	Eui2KLaI281IowukQGyQd0PqtP0mBOtUuu+O6OTL7dU0ZFEy44u4dtgjqSnwgVYa
-	nC1miZ/TWcEM/OBODHQExqBqo9cxK3EGX3ckRLvqPGu2iKmhsAnWlgiebPJsAErk
-	qUrLKgouyX3LrUJM36k47aGf1Ci7oM0cpsbUYp9k9+4nO2ps45fBaFwWw==
+	:mime-version:content-transfer-encoding; s=pp1; bh=TEZE+FZOvczqR
+	n6RuHoAS4NWxLRNd/BcEHNEP3a5vO8=; b=Ubbi3RUfqmkbGAGB8HuxifNq4o8Ku
+	CwdT03J67Ju7sLkol93ZBD2NJirbDKBha7vme442x4XjwE+dGSL5cxyPS8etHSJ8
+	wkuRh12gq0DZdVBxZpDfA/1Lb5mRcO/IfR0kNLNRGxS7nFyxI/Cy55oFYLI4sTLx
+	BWfxcVSrZOGLvBr8WbiztdrGHHAZZFgbwWKsdyO2fzGwiNPn7DKkR2hNLWqqpL7i
+	EZuMhYYrwSd8FJ04XcDCObonboBXG1HIXaTyvzxE0btjGsyQt4vBjL7t8WFYjYUd
+	MdoYgYZ2aHbPaRBmRcf7pNssDWrSLBIm8cIeZPkKxurnlBQBCcj9PAFjQ==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40upxjtr8w-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40ucd248yj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Aug 2024 15:45:43 +0000 (GMT)
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 477Fjhd6019460;
+	Wed, 07 Aug 2024 15:45:44 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 477FjiNP002774;
+	Wed, 7 Aug 2024 15:45:44 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40ucd248yd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Aug 2024 15:45:44 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 477FDgY7018016;
 	Wed, 7 Aug 2024 15:45:43 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40upxjtr8t-1
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40t0cmskjt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Aug 2024 15:45:42 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 477FZ0PN024136;
-	Wed, 7 Aug 2024 15:45:41 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40syvphqmn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Aug 2024 15:45:41 +0000
+	Wed, 07 Aug 2024 15:45:43 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 477FjZAG42598882
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 477FjbWm44237186
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 7 Aug 2024 15:45:37 GMT
+	Wed, 7 Aug 2024 15:45:39 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B949320040;
-	Wed,  7 Aug 2024 15:45:35 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 58A592004F;
+	Wed,  7 Aug 2024 15:45:37 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 57FBA2004D;
-	Wed,  7 Aug 2024 15:45:35 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1684920065;
+	Wed,  7 Aug 2024 15:45:37 +0000 (GMT)
 Received: from darkmoore.boeblingen.de.ibm.com (unknown [9.155.210.150])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  7 Aug 2024 15:45:35 +0000 (GMT)
+	Wed,  7 Aug 2024 15:45:37 +0000 (GMT)
 From: Christoph Schlameuss <schlameuss@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
@@ -68,9 +68,9 @@ Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>,
         Nina Schoetterl-Glausch <nsg@linux.ibm.com>, schlameuss@linux.ibm.com
-Subject: [PATCH v5 01/10] selftests: kvm: s390: Define page sizes in shared header
-Date: Wed,  7 Aug 2024 17:45:03 +0200
-Message-ID: <20240807154512.316936-2-schlameuss@linux.ibm.com>
+Subject: [PATCH v5 06/10] selftests: kvm: s390: Add VM run test case
+Date: Wed,  7 Aug 2024 17:45:08 +0200
+Message-ID: <20240807154512.316936-7-schlameuss@linux.ibm.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240807154512.316936-1-schlameuss@linux.ibm.com>
 References: <20240807154512.316936-1-schlameuss@linux.ibm.com>
@@ -82,179 +82,180 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: yllwfEb6Z49xB8hKr2U91jCWajJJrHYD
-X-Proofpoint-GUID: QN1wdiO1SxIRl9osIEtmx5Rk33B90e3T
+X-Proofpoint-GUID: IqMLOyLFgHLRVH9FEe7lVZeemws4eNi-
+X-Proofpoint-ORIG-GUID: VOf_tkIs_2lkT3XxjKRIAkDkxjAzkJS4
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-08-07_11,2024-08-07_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 clxscore=1015
- phishscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0 mlxlogscore=779
- mlxscore=0 bulkscore=0 impostorscore=0 suspectscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2407110000
- definitions=main-2408070107
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ lowpriorityscore=0 suspectscore=0 priorityscore=1501 mlxlogscore=793
+ bulkscore=0 phishscore=0 spamscore=0 mlxscore=0 impostorscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2408070105
 
-Multiple test cases need page size and shift definitions.
-By moving the definitions to a single architecture specific header we
-limit the repetition.
+Add test case running code interacting with registers within a
+ucontrol VM.
 
-Make use of PAGE_SIZE, PAGE_SHIFT and PAGE_MASK defines in existing
-code.
+* Add uc_gprs test case
+
+The test uses the same VM setup using the fixture and debug macros
+introduced in earlier patches in this series.
 
 Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- tools/testing/selftests/kvm/include/s390x/processor.h |  5 +++++
- tools/testing/selftests/kvm/lib/s390x/processor.c     | 10 +++++-----
- tools/testing/selftests/kvm/s390x/cmma_test.c         |  7 ++++---
- tools/testing/selftests/kvm/s390x/memop.c             |  4 +---
- tools/testing/selftests/kvm/s390x/tprot.c             |  5 ++---
- 5 files changed, 17 insertions(+), 14 deletions(-)
+ .../selftests/kvm/s390x/ucontrol_test.c       | 126 ++++++++++++++++++
+ 1 file changed, 126 insertions(+)
 
-diff --git a/tools/testing/selftests/kvm/include/s390x/processor.h b/tools/testing/selftests/kvm/include/s390x/processor.h
-index 255c9b990f4c..481bd2fd6a32 100644
---- a/tools/testing/selftests/kvm/include/s390x/processor.h
-+++ b/tools/testing/selftests/kvm/include/s390x/processor.h
-@@ -21,6 +21,11 @@
- #define PAGE_PROTECT	0x200		/* HW read-only bit  */
- #define PAGE_NOEXEC	0x100		/* HW no-execute bit */
+diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+index d103a92e7495..030c59010fe1 100644
+--- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
++++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+@@ -7,6 +7,7 @@
+  * Authors:
+  *  Christoph Schlameuss <schlameuss@linux.ibm.com>
+  */
++#include "debug_print.h"
+ #include "kselftest_harness.h"
+ #include "kvm_util.h"
+ #include "processor.h"
+@@ -40,6 +41,23 @@ void require_ucontrol_admin(void)
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_S390_UCONTROL));
+ }
  
-+/* Page size definitions */
-+#define PAGE_SHIFT 12
-+#define PAGE_SIZE BIT_ULL(PAGE_SHIFT)
-+#define PAGE_MASK (~(PAGE_SIZE - 1))
++/* Test program setting some registers and looping */
++extern char test_gprs_asm[];
++asm("test_gprs_asm:\n"
++	"xgr	%r0, %r0\n"
++	"lgfi	%r1,1\n"
++	"lgfi	%r2,2\n"
++	"lgfi	%r3,3\n"
++	"lgfi	%r4,4\n"
++	"lgfi	%r5,5\n"
++	"lgfi	%r6,6\n"
++	"lgfi	%r7,7\n"
++	"0:\n"
++	"	diag	0,0,0x44\n"
++	"	ahi	%r0,1\n"
++	"	j	0b\n"
++);
 +
- /* Is there a portable way to do this? */
- static inline void cpu_relax(void)
+ FIXTURE(uc_kvm)
  {
-diff --git a/tools/testing/selftests/kvm/lib/s390x/processor.c b/tools/testing/selftests/kvm/lib/s390x/processor.c
-index 4ad4492eea1d..20cfe970e3e3 100644
---- a/tools/testing/selftests/kvm/lib/s390x/processor.c
-+++ b/tools/testing/selftests/kvm/lib/s390x/processor.c
-@@ -14,7 +14,7 @@ void virt_arch_pgd_alloc(struct kvm_vm *vm)
- {
- 	vm_paddr_t paddr;
+ 	struct kvm_s390_sie_block *sie_block;
+@@ -204,4 +222,112 @@ TEST(uc_cap_hpage)
+ 	close(kvm_fd);
+ }
  
--	TEST_ASSERT(vm->page_size == 4096, "Unsupported page size: 0x%x",
-+	TEST_ASSERT(vm->page_size == PAGE_SIZE, "Unsupported page size: 0x%x",
- 		    vm->page_size);
- 
- 	if (vm->pgd_created)
-@@ -79,7 +79,7 @@ void virt_arch_pg_map(struct kvm_vm *vm, uint64_t gva, uint64_t gpa)
- 	}
- 
- 	/* Fill in page table entry */
--	idx = (gva >> 12) & 0x0ffu;		/* page index */
-+	idx = (gva >> PAGE_SHIFT) & 0x0ffu;		/* page index */
- 	if (!(entry[idx] & PAGE_INVALID))
- 		fprintf(stderr,
- 			"WARNING: PTE for gpa=0x%"PRIx64" already set!\n", gpa);
-@@ -91,7 +91,7 @@ vm_paddr_t addr_arch_gva2gpa(struct kvm_vm *vm, vm_vaddr_t gva)
- 	int ri, idx;
- 	uint64_t *entry;
- 
--	TEST_ASSERT(vm->page_size == 4096, "Unsupported page size: 0x%x",
-+	TEST_ASSERT(vm->page_size == PAGE_SIZE, "Unsupported page size: 0x%x",
- 		    vm->page_size);
- 
- 	entry = addr_gpa2hva(vm, vm->pgd);
-@@ -103,7 +103,7 @@ vm_paddr_t addr_arch_gva2gpa(struct kvm_vm *vm, vm_vaddr_t gva)
- 		entry = addr_gpa2hva(vm, entry[idx] & REGION_ENTRY_ORIGIN);
- 	}
- 
--	idx = (gva >> 12) & 0x0ffu;		/* page index */
-+	idx = (gva >> PAGE_SHIFT) & 0x0ffu;		/* page index */
- 
- 	TEST_ASSERT(!(entry[idx] & PAGE_INVALID),
- 		    "No page mapping for vm virtual address 0x%lx", gva);
-@@ -168,7 +168,7 @@ struct kvm_vcpu *vm_arch_vcpu_add(struct kvm_vm *vm, uint32_t vcpu_id)
- 	struct kvm_sregs sregs;
- 	struct kvm_vcpu *vcpu;
- 
--	TEST_ASSERT(vm->page_size == 4096, "Unsupported page size: 0x%x",
-+	TEST_ASSERT(vm->page_size == PAGE_SIZE, "Unsupported page size: 0x%x",
- 		    vm->page_size);
- 
- 	stack_vaddr = __vm_vaddr_alloc(vm, stack_size,
-diff --git a/tools/testing/selftests/kvm/s390x/cmma_test.c b/tools/testing/selftests/kvm/s390x/cmma_test.c
-index b39033844756..e32dd59703a0 100644
---- a/tools/testing/selftests/kvm/s390x/cmma_test.c
-+++ b/tools/testing/selftests/kvm/s390x/cmma_test.c
-@@ -17,16 +17,17 @@
- #include "kvm_util.h"
- #include "kselftest.h"
- #include "ucall_common.h"
-+#include "processor.h"
- 
- #define MAIN_PAGE_COUNT 512
- 
- #define TEST_DATA_PAGE_COUNT 512
- #define TEST_DATA_MEMSLOT 1
--#define TEST_DATA_START_GFN 4096
-+#define TEST_DATA_START_GFN PAGE_SIZE
- 
- #define TEST_DATA_TWO_PAGE_COUNT 256
- #define TEST_DATA_TWO_MEMSLOT 2
--#define TEST_DATA_TWO_START_GFN 8192
-+#define TEST_DATA_TWO_START_GFN (2 * PAGE_SIZE)
- 
- static char cmma_value_buf[MAIN_PAGE_COUNT + TEST_DATA_PAGE_COUNT];
- 
-@@ -66,7 +67,7 @@ static void guest_dirty_test_data(void)
- 		"	lghi 5,%[page_count]\n"
- 		/* r5 += r1 */
- 		"2:	agfr 5,1\n"
--		/* r2 = r1 << 12 */
-+		/* r2 = r1 << PAGE_SHIFT */
- 		"1:	sllg 2,1,12(0)\n"
- 		/* essa(r4, r2, SET_STABLE) */
- 		"	.insn rrf,0xb9ab0000,4,2,1,0\n"
-diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
-index f2df7416be84..4374b4cd2a80 100644
---- a/tools/testing/selftests/kvm/s390x/memop.c
-+++ b/tools/testing/selftests/kvm/s390x/memop.c
-@@ -16,6 +16,7 @@
- #include "kvm_util.h"
- #include "kselftest.h"
- #include "ucall_common.h"
-+#include "processor.h"
- 
- enum mop_target {
- 	LOGICAL,
-@@ -226,9 +227,6 @@ static void memop_ioctl(struct test_info info, struct kvm_s390_mem_op *ksmo,
- 
- #define CHECK_N_DO(f, ...) ({ f(__VA_ARGS__, CHECK_ONLY); f(__VA_ARGS__); })
- 
--#define PAGE_SHIFT 12
--#define PAGE_SIZE (1ULL << PAGE_SHIFT)
--#define PAGE_MASK (~(PAGE_SIZE - 1))
- #define CR0_FETCH_PROTECTION_OVERRIDE	(1UL << (63 - 38))
- #define CR0_STORAGE_PROTECTION_OVERRIDE	(1UL << (63 - 39))
- 
-diff --git a/tools/testing/selftests/kvm/s390x/tprot.c b/tools/testing/selftests/kvm/s390x/tprot.c
-index 7a742a673b7c..12d5e1cb62e3 100644
---- a/tools/testing/selftests/kvm/s390x/tprot.c
-+++ b/tools/testing/selftests/kvm/s390x/tprot.c
-@@ -9,9 +9,8 @@
- #include "kvm_util.h"
- #include "kselftest.h"
- #include "ucall_common.h"
-+#include "processor.h"
- 
--#define PAGE_SHIFT 12
--#define PAGE_SIZE (1 << PAGE_SHIFT)
- #define CR0_FETCH_PROTECTION_OVERRIDE	(1UL << (63 - 38))
- #define CR0_STORAGE_PROTECTION_OVERRIDE	(1UL << (63 - 39))
- 
-@@ -151,7 +150,7 @@ static enum stage perform_next_stage(int *i, bool mapped_0)
- 		 * instead.
- 		 * In order to skip these tests we detect this inside the guest
- 		 */
--		skip = tests[*i].addr < (void *)4096 &&
-+		skip = tests[*i].addr < (void *)PAGE_SIZE &&
- 		       tests[*i].expected != TRANSL_UNAVAIL &&
- 		       !mapped_0;
- 		if (!skip) {
++/* verify SIEIC exit
++ * * reset stop requests
++ * * fail on codes not expected in the test cases
++ */
++static bool uc_handle_sieic(FIXTURE_DATA(uc_kvm) * self)
++{
++	struct kvm_s390_sie_block *sie_block = self->sie_block;
++	struct kvm_run *run = self->run;
++
++	/* check SIE interception code */
++	pr_info("sieic: 0x%.2x 0x%.4x 0x%.4x\n",
++		run->s390_sieic.icptcode,
++		run->s390_sieic.ipa,
++		run->s390_sieic.ipb);
++	switch (run->s390_sieic.icptcode) {
++	case ICPT_INST:
++		/* end execution in caller on intercepted instruction */
++		pr_info("sie instruction interception\n");
++		return false;
++	case ICPT_OPEREXC:
++		/* operation exception */
++		TEST_FAIL("sie exception on %.4x%.8x", sie_block->ipa, sie_block->ipb);
++	default:
++		TEST_FAIL("UNEXPECTED SIEIC CODE %d", run->s390_sieic.icptcode);
++	}
++	return true;
++}
++
++/* verify VM state on exit */
++static bool uc_handle_exit(FIXTURE_DATA(uc_kvm) * self)
++{
++	struct kvm_run *run = self->run;
++
++	switch (run->exit_reason) {
++	case KVM_EXIT_S390_SIEIC:
++		return uc_handle_sieic(self);
++	default:
++		pr_info("exit_reason %2d not handled\n", run->exit_reason);
++	}
++	return true;
++}
++
++/* run the VM until interrupted */
++static int uc_run_once(FIXTURE_DATA(uc_kvm) * self)
++{
++	int rc;
++
++	rc = ioctl(self->vcpu_fd, KVM_RUN, NULL);
++	print_run(self->run, self->sie_block);
++	print_regs(self->run);
++	pr_debug("run %d / %d %s\n", rc, errno, strerror(errno));
++	return rc;
++}
++
++static void uc_assert_diag44(FIXTURE_DATA(uc_kvm) * self)
++{
++	struct kvm_s390_sie_block *sie_block = self->sie_block;
++
++	/* assert vm was interrupted by diag 0x0044 */
++	TEST_ASSERT_EQ(KVM_EXIT_S390_SIEIC, self->run->exit_reason);
++	TEST_ASSERT_EQ(ICPT_INST, sie_block->icptcode);
++	TEST_ASSERT_EQ(0x8300, sie_block->ipa);
++	TEST_ASSERT_EQ(0x440000, sie_block->ipb);
++}
++
++TEST_F(uc_kvm, uc_gprs)
++{
++	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
++	struct kvm_run *run = self->run;
++	struct kvm_regs regs = {};
++
++	/* Set registers to values that are different from the ones that we expect below */
++	for (int i = 0; i < 8; i++)
++		sync_regs->gprs[i] = 8;
++	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
++
++	/* copy test_gprs_asm to code_hva / code_gpa */
++	TH_LOG("copy code %p to vm mapped memory %p / %p",
++	       &test_gprs_asm, (void *)self->code_hva, (void *)self->code_gpa);
++	memcpy((void *)self->code_hva, &test_gprs_asm, PAGE_SIZE);
++
++	/* DAT disabled + 64 bit mode */
++	run->psw_mask = 0x0000000180000000ULL;
++	run->psw_addr = self->code_gpa;
++
++	/* run and expect interception of diag 44 */
++	ASSERT_EQ(0, uc_run_once(self));
++	ASSERT_EQ(false, uc_handle_exit(self));
++	uc_assert_diag44(self);
++
++	/* Retrieve and check guest register values */
++	ASSERT_EQ(0, ioctl(self->vcpu_fd, KVM_GET_REGS, &regs));
++	for (int i = 0; i < 8; i++) {
++		ASSERT_EQ(i, regs.gprs[i]);
++		ASSERT_EQ(i, sync_regs->gprs[i]);
++	}
++
++	/* run and expect interception of diag 44 again */
++	ASSERT_EQ(0, uc_run_once(self));
++	ASSERT_EQ(false, uc_handle_exit(self));
++	uc_assert_diag44(self);
++
++	/* check continued increment of register 0 value */
++	ASSERT_EQ(0, ioctl(self->vcpu_fd, KVM_GET_REGS, &regs));
++	ASSERT_EQ(1, regs.gprs[0]);
++	ASSERT_EQ(1, sync_regs->gprs[0]);
++}
++
+ TEST_HARNESS_MAIN
 -- 
 2.45.2
 
