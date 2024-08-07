@@ -1,64 +1,64 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA66484DE4;
-	Wed,  7 Aug 2024 15:45:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D68C112FF7B;
+	Wed,  7 Aug 2024 15:45:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723045552; cv=none; b=cXhkgVJ7jCLCKws7AMbiG3RglJPxHBM55Vkb7p10lFdwxxGKrDv5O3YqVIi2eB2ouP/zpg9+TK12Qxn3hq356LzumtHVhh2hIBPwHFedpaeqX0VScdQzIRgEFxM0XxfOoijZPNhE8dIM1m7AyReThZpDStA6au4wjAgiqeJ4xn0=
+	t=1723045553; cv=none; b=SH4Wut2rASdBvCPfpBXNQshDaTIBQpZhww2wiYfMVkqVeYnLzBAi8AINJClHjys4RnZG8STR8YII00MOfrBNhEBMT5GhtjEDEiRinRXdcIyEWXshC6ixRl89ZnrJqJYm9HFaD9LoWxy3SdlyIRfyYvZ0O1qhYZ159U4FP7vphf0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723045552; c=relaxed/simple;
-	bh=+mkHmIf30k2/pBq5eBe+nbSwl+zjVJK4lMY2jSgC+Fk=;
+	s=arc-20240116; t=1723045553; c=relaxed/simple;
+	bh=eG+A140w1ErjpAl43ia349biQcK0RFCc7KDSrco8ZHY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XFT51LXVOPk6kd4jf1upvkp5BEpU1Qg1SxEyjI4bC5aFNbJnBWX8x7yy7GzKCqFjofABq3B1720beZb1mUuM5bH7PjE33wrhYfOzLd/dcz0Ah21PTazL3uF5RXaBxrDcQ6Hu8phLctc1EP5wLJXSPCm26Kf1Wwxmkjh8nb2WoV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sm3waRV4; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=F7cRjQ03osIgOTZrqYmfWKx5AxN4vo1yOWGwz+6wt9Zu4HCDY52uE5hcCrulu07sHhgTFw7k5T+W2wAK3xkmKwJC8yE68WWxu5LmfdJgPhN4H0sPykYasZ6Uk3MiN8wXOiXJVkVLVQj1IPxRhB+TQTJXkwShxajttO5X6pvGfcE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BDx33307; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sm3waRV4"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4772N8o4018168;
-	Wed, 7 Aug 2024 15:45:45 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BDx33307"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4772PD5r023300;
+	Wed, 7 Aug 2024 15:45:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
 	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=CQVE+7lZFt67L
-	k1a6Weg4umdrl8LYQgh9ieQEGFFGP8=; b=sm3waRV4wf73Ge2JJ2t1cwDFvA8b3
-	Uh6hcGy2sU3eDFiwbg9qwzV95EJY29niVYCLvQTZq+gx1uen3srkj5qhZTJHb0XI
-	22zIdDNyGI7qkbP7nJNIj5SHBsmJT6msAfV06V3Nh4AZxGTZ1Xgw8Sp+SmHW83WO
-	BekvpTM+82wRQSHNQjYaMjS18Dyb5w4Mzyg/Hg0cDwCIwCAMBbiCxtJ1wROJoT6x
-	0Ox9FwaJncZ9B9mF4gXBjgkML13lFCBevjF/1Bq/KlHbyW8WkTmY39bD5Kuoryc0
-	u/8BYOXzo6Fbfyu43lntaE1rTWsOm8hMDJW4jQ+5RqPkZhWRZmZaN3W+Q==
+	:mime-version:content-transfer-encoding; s=pp1; bh=edMEqYZVTsEke
+	kITfsvIm45swzrHWr6uyad1ZetMG5Y=; b=BDx333074OT9HntnI0BXHdOfbPV3c
+	IBo0+z0BpDuhkj7oFQxHNsJijrmvYSneRpojD2ktbH3XtVukJNJj9hYiR8vyFT/J
+	j9gP6QTvtBFPYhYFZb6PLiBTlnIo41cxOU9B5HmKLr4QQCEUecp/LwV8ymRVaspR
+	udipKiJZHhWlVEZNKELIslWzNPd07ySdaOCMN562JAZb2TUmT1MhhrTTFwcruQ34
+	ExLfbl+OoVkiAt7GdnSPj4gZJSmUIu90hoE9r3ge+Qi7DZzMaTwCnI/jFnQRjIE4
+	hUAcjR6t3uMUQcthauPsm3wMfza+L8EG6gSnB84qyW14Ur/G/FG2EBS7g==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40urpuacem-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40umqvu49b-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Aug 2024 15:45:44 +0000 (GMT)
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 477Fji6L009393;
-	Wed, 7 Aug 2024 15:45:44 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40urpuaceh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Aug 2024 15:45:44 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 477DFCjU030487;
+	Wed, 07 Aug 2024 15:45:43 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 477FjgCr018843;
 	Wed, 7 Aug 2024 15:45:43 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 40t1k39b3g-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40umqvu496-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Aug 2024 15:45:43 +0000
+	Wed, 07 Aug 2024 15:45:42 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 477EiqcW018818;
+	Wed, 7 Aug 2024 15:45:42 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 40sxvu9ygs-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Aug 2024 15:45:41 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 477Fjchm55181626
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 477Fjag634865688
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 7 Aug 2024 15:45:40 GMT
+	Wed, 7 Aug 2024 15:45:38 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 03A7920040;
-	Wed,  7 Aug 2024 15:45:38 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 6776320043;
+	Wed,  7 Aug 2024 15:45:36 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B56F52006A;
-	Wed,  7 Aug 2024 15:45:37 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 23EC02004E;
+	Wed,  7 Aug 2024 15:45:36 +0000 (GMT)
 Received: from darkmoore.boeblingen.de.ibm.com (unknown [9.155.210.150])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  7 Aug 2024 15:45:37 +0000 (GMT)
+	Wed,  7 Aug 2024 15:45:36 +0000 (GMT)
 From: Christoph Schlameuss <schlameuss@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
@@ -68,9 +68,9 @@ Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>,
         Nina Schoetterl-Glausch <nsg@linux.ibm.com>, schlameuss@linux.ibm.com
-Subject: [PATCH v5 08/10] selftests: kvm: s390: Add uc_skey VM test case
-Date: Wed,  7 Aug 2024 17:45:10 +0200
-Message-ID: <20240807154512.316936-9-schlameuss@linux.ibm.com>
+Subject: [PATCH v5 03/10] selftests: kvm: s390: Add s390x ucontrol test suite with hpage test
+Date: Wed,  7 Aug 2024 17:45:05 +0200
+Message-ID: <20240807154512.316936-4-schlameuss@linux.ibm.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240807154512.316936-1-schlameuss@linux.ibm.com>
 References: <20240807154512.316936-1-schlameuss@linux.ibm.com>
@@ -82,121 +82,152 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 9_k6yNsyyx2RxWX3doIr-5SvcrfyxeRG
-X-Proofpoint-GUID: vZO6m4WxpM9_UBEBti9Ojv53-VLI8g3m
+X-Proofpoint-ORIG-GUID: _EJSGYvvi3YLyQ1tQCQQ-x0tV9Xi3tXy
+X-Proofpoint-GUID: 9vezKDni563M658EWi3qPAgWTXmNA772
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-08-07_11,2024-08-07_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
- lowpriorityscore=0 mlxlogscore=999 malwarescore=0 priorityscore=1501
- suspectscore=0 clxscore=1015 phishscore=0 bulkscore=0 spamscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2408070107
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
+ mlxlogscore=999 spamscore=0 mlxscore=0 suspectscore=0 priorityscore=1501
+ lowpriorityscore=0 malwarescore=0 phishscore=0 adultscore=0 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2407110000
+ definitions=main-2408070107
 
-Add a test case manipulating s390 storage keys from within the ucontrol
-VM.
+Add test suite to validate the s390x architecture specific ucontrol KVM
+interface.
+
+Make use of the selftest test harness.
+
+* uc_cap_hpage testcase verifies that a ucontrol VM cannot be run with
+  hugepages.
+
+To allow testing of the ucontrol interface the kernel needs a
+non-default config containing CONFIG_KVM_S390_UCONTROL.
+This config needs to be set to built-in (y) as this cannot be built as
+module.
 
 Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- .../selftests/kvm/s390x/ucontrol_test.c       | 78 +++++++++++++++++++
- 1 file changed, 78 insertions(+)
+ tools/testing/selftests/kvm/.gitignore        |  1 +
+ tools/testing/selftests/kvm/Makefile          |  1 +
+ tools/testing/selftests/kvm/s390x/config      |  2 +
+ .../selftests/kvm/s390x/ucontrol_test.c       | 76 +++++++++++++++++++
+ 4 files changed, 80 insertions(+)
+ create mode 100644 tools/testing/selftests/kvm/s390x/config
+ create mode 100644 tools/testing/selftests/kvm/s390x/ucontrol_test.c
 
+diff --git a/tools/testing/selftests/kvm/.gitignore b/tools/testing/selftests/kvm/.gitignore
+index 6d9381d60172..f2a30a58cd71 100644
+--- a/tools/testing/selftests/kvm/.gitignore
++++ b/tools/testing/selftests/kvm/.gitignore
+@@ -5,3 +5,4 @@
+ !*.h
+ !*.S
+ !*.sh
++!config
+diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+index 48d32c5aa3eb..b3dc0a5bf0d4 100644
+--- a/tools/testing/selftests/kvm/Makefile
++++ b/tools/testing/selftests/kvm/Makefile
+@@ -186,6 +186,7 @@ TEST_GEN_PROGS_s390x += s390x/tprot
+ TEST_GEN_PROGS_s390x += s390x/cmma_test
+ TEST_GEN_PROGS_s390x += s390x/debug_test
+ TEST_GEN_PROGS_s390x += s390x/shared_zeropage_test
++TEST_GEN_PROGS_s390x += s390x/ucontrol_test
+ TEST_GEN_PROGS_s390x += demand_paging_test
+ TEST_GEN_PROGS_s390x += dirty_log_test
+ TEST_GEN_PROGS_s390x += guest_print_test
+diff --git a/tools/testing/selftests/kvm/s390x/config b/tools/testing/selftests/kvm/s390x/config
+new file mode 100644
+index 000000000000..23270f2d679f
+--- /dev/null
++++ b/tools/testing/selftests/kvm/s390x/config
+@@ -0,0 +1,2 @@
++CONFIG_KVM=y
++CONFIG_KVM_S390_UCONTROL=y
 diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-index 8b978064e753..8194cc215dad 100644
---- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+new file mode 100644
+index 000000000000..cd68e7e37d35
+--- /dev/null
 +++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-@@ -80,6 +80,32 @@ asm("test_mem_asm:\n"
- 	"	j	0b\n"
- );
- 
-+/* Test program manipulating storage keys */
-+extern char test_skey_asm[];
-+asm("test_skey_asm:\n"
-+	"xgr	%r0, %r0\n"
+@@ -0,0 +1,76 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Test code for the s390x kvm ucontrol interface
++ *
++ * Copyright IBM Corp. 2024
++ *
++ * Authors:
++ *  Christoph Schlameuss <schlameuss@linux.ibm.com>
++ */
++#include "kselftest_harness.h"
++#include "kvm_util.h"
 +
-+	"0:\n"
-+	"	ahi	%r0,1\n"
-+	"	st	%r1,0(%r5,%r6)\n"
++#include <linux/capability.h>
++#include <linux/sizes.h>
 +
-+	"	iske	%r1,%r6\n"
-+	"	ahi	%r0,1\n"
-+	"	diag	0,0,0x44\n"
++/* so directly declare capget to check caps without libcap */
++int capget(cap_user_header_t header, cap_user_data_t data);
 +
-+	"	sske	%r1,%r6\n"
-+	"	iske	%r1,%r6\n"
-+	"	ahi	%r0,1\n"
-+	"	diag	0,0,0x44\n"
-+
-+	"	rrbe	%r1,%r6\n"
-+	"	iske	%r1,%r6\n"
-+	"	ahi	%r0,1\n"
-+	"	diag	0,0,0x44\n"
-+
-+	"	j	0b\n"
-+);
-+
- FIXTURE(uc_kvm)
- {
- 	struct kvm_s390_sie_block *sie_block;
-@@ -390,6 +416,58 @@ static void uc_assert_diag44(FIXTURE_DATA(uc_kvm) * self)
- 	TEST_ASSERT_EQ(0x440000, sie_block->ipb);
- }
- 
-+TEST_F(uc_kvm, uc_skey)
++/**
++ * In order to create user controlled virtual machines on S390,
++ * check KVM_CAP_S390_UCONTROL and use the flag KVM_VM_S390_UCONTROL
++ * as privileged user (SYS_ADMIN).
++ */
++void require_ucontrol_admin(void)
 +{
-+	u64 test_vaddr = self->base_gpa + VM_MEM_SIZE - (SZ_1M / 2);
-+	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
-+	struct kvm_run *run = self->run;
-+	u8 skeyvalue = 0x34;
++	struct __user_cap_data_struct data[_LINUX_CAPABILITY_U32S_3];
++	struct __user_cap_header_struct hdr = {
++		.version = _LINUX_CAPABILITY_VERSION_3,
++	};
++	int rc;
 +
-+	init_st_pt(self);
++	rc = capget(&hdr, data);
++	TEST_ASSERT_EQ(0, rc);
++	TEST_REQUIRE((data->effective & CAP_TO_MASK(CAP_SYS_ADMIN)) > 0);
 +
-+	/* copy test_skey_asm to code_hva / code_gpa */
-+	TH_LOG("copy code %p to vm mapped memory %p / %p",
-+	       &test_skey_asm, (void *)self->code_hva, (void *)self->code_gpa);
-+	memcpy((void *)self->code_hva, &test_skey_asm, PAGE_SIZE);
-+
-+	/* set register content for test_skey_asm to access not mapped memory */
-+	sync_regs->gprs[1] = skeyvalue;
-+	sync_regs->gprs[5] = self->base_gpa;
-+	sync_regs->gprs[6] = test_vaddr;
-+	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
-+
-+	self->sie_block->ictl |= ICTL_OPEREXC | ICTL_PINT;
-+	self->sie_block->cpuflags &= ~CPUSTAT_KSS;
-+	/* DAT enabled + 64 bit mode */
-+	run->psw_mask = 0x0400000180000000ULL;
-+	run->psw_addr = self->code_gpa;
-+
-+	ASSERT_EQ(0, uc_run_once(self));
-+	ASSERT_EQ(false, uc_handle_exit(self));
-+	ASSERT_EQ(2, sync_regs->gprs[0]);
-+	/* assert initial skey (ACC = 0, R & C = 1) */
-+	ASSERT_EQ(0x06, sync_regs->gprs[1]);
-+	uc_assert_diag44(self);
-+
-+	sync_regs->gprs[1] = skeyvalue;
-+	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
-+	ASSERT_EQ(0, uc_run_once(self));
-+	ASSERT_EQ(false, uc_handle_exit(self));
-+	ASSERT_EQ(3, sync_regs->gprs[0]);
-+	ASSERT_EQ(skeyvalue, sync_regs->gprs[1]);
-+	uc_assert_diag44(self);
-+
-+	sync_regs->gprs[1] = skeyvalue;
-+	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
-+	ASSERT_EQ(0, uc_run_once(self));
-+	ASSERT_EQ(false, uc_handle_exit(self));
-+	ASSERT_EQ(4, sync_regs->gprs[0]);
-+	/* assert R reset but rest of skey unchanged*/
-+	ASSERT_EQ(skeyvalue & 0xfa, sync_regs->gprs[1]);
-+	ASSERT_EQ(0x00, sync_regs->gprs[1] & 0x04);
-+	uc_assert_diag44(self);
++	TEST_REQUIRE(kvm_has_cap(KVM_CAP_S390_UCONTROL));
 +}
 +
- TEST_F(uc_kvm, uc_map_unmap)
- {
- 	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
++/**
++ * Assert HPAGE CAP cannot be enabled on UCONTROL VM
++ */
++TEST(uc_cap_hpage)
++{
++	int rc, kvm_fd, vm_fd, vcpu_fd;
++	struct kvm_enable_cap cap = {
++		.cap = KVM_CAP_S390_HPAGE_1M,
++	};
++
++	require_ucontrol_admin();
++
++	kvm_fd = open_kvm_dev_path_or_exit();
++	vm_fd = ioctl(kvm_fd, KVM_CREATE_VM, KVM_VM_S390_UCONTROL);
++	ASSERT_GE(vm_fd, 0);
++
++	/* assert hpages are not supported on ucontrol vm */
++	rc = ioctl(vm_fd, KVM_CHECK_EXTENSION, KVM_CAP_S390_HPAGE_1M);
++	EXPECT_EQ(0, rc);
++
++	/* Test that KVM_CAP_S390_HPAGE_1M can't be enabled for a ucontrol vm */
++	rc = ioctl(vm_fd, KVM_ENABLE_CAP, cap);
++	EXPECT_EQ(-1, rc);
++	EXPECT_EQ(EINVAL, errno);
++
++	/* assert HPAGE CAP is rejected after vCPU creation */
++	vcpu_fd = ioctl(vm_fd, KVM_CREATE_VCPU, 0);
++	ASSERT_GE(vcpu_fd, 0);
++	rc = ioctl(vm_fd, KVM_ENABLE_CAP, cap);
++	EXPECT_EQ(-1, rc);
++	EXPECT_EQ(EBUSY, errno);
++
++	close(vcpu_fd);
++	close(vm_fd);
++	close(kvm_fd);
++}
++
++TEST_HARNESS_MAIN
 -- 
 2.45.2
 
