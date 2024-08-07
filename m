@@ -1,66 +1,66 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3967813F45F
-	for <linux-s390@vger.kernel.org>; Wed,  7 Aug 2024 11:25:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3166172BDF
+	for <linux-s390@vger.kernel.org>; Wed,  7 Aug 2024 11:32:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723029906; cv=none; b=LubJyeau5x8rwrTJmRArycY7c6MnWX6XwGwQlZ+aBzasdf3uLfzxl+g95R5jXNtVV/Nt8MYWyX0uGFZOTlWZjQZCxYzJtCSlns7wOdcFttphm1iWypnZWo61K1tzV2U8cq5jqAUteUdkoFanuSXe+PSghlOkUTVYLp+wtbBuTDs=
+	t=1723030341; cv=none; b=l7UQgR/QSlx9L6OXVdmqaBzguC3by9l7LOACGvGjp/aaebRdj9LlEqRZ1eU7OKh/zTTdGTyGXdkoFheC0n9Ot/StQLwV8w3CUB9q3EisbuYUfTYPh3xS8Fa/bcwI/bALlVksJcAIPcVCYQkvBXwGXiKMzMrJCE0p+dWACFO+AbY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723029906; c=relaxed/simple;
-	bh=cjKe5aqjltaMy5lpigAbb0QJGUmcGvoVQob3xsuhGDY=;
+	s=arc-20240116; t=1723030341; c=relaxed/simple;
+	bh=tUmJmHJfGCOZSPopAzCvXxsGt6LsKnZZB06XwiPijws=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=rDYuhv8Ex0k45HWVetVaVTHAb4rN7uWSUEF29SRXhG3GR6ZzAaRYturLfWUdgnYs+fKCw5WDeFA4RIgoT52Rvxn21XbXyKo5DWlKKZg2av4QF3yrkDFLfXQO3kXfeYAUbUKj2445gLAcBfNmjaC4fXQ43PfEG3vTVRa0uNyQY98=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AozdfuwD; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=UpPRG2lKWJkeZ79xHA7T18tt76VqvqJnLCjmTLdwt4OPdFt6YR4wgujbmSx8lajXsv8AfCZq8TuSFT32401Jf/1Z20eanT0R8yTQK40EehIvgOLMo/6o1oo9ufgaViIO8aa/KReVOXDz2f7kRJMIIKFmTe64sWn6A9W2GMpeIW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OolMpwk8; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AozdfuwD"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OolMpwk8"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1723029904;
+	s=mimecast20190719; t=1723030338;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=kUmg6m+rX0ZdRF47MclkDhoxeaVkz+iC7VCa9/iV6Vw=;
-	b=AozdfuwDf3+x/z+D5lfpe/CeLWfH6PPBVvZIiIGvnd709b0A3rDel5RDbnX6UX/+8mBB8P
-	1zFnCIukhqyx5cppoAhVQOoOsRZSbg/nnBXr8Z1ZvhAoUNPrTBfvbsI1VwxMZVCcDwywOj
-	gAs6l+kXdvv5fsYuZK9dM6Pn6qQnc80=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=jDtjVWRsh7/n0SIJeFNSj2lV4WndfzmDA4DXhXY2n/Q=;
+	b=OolMpwk8qF4EEyVf9iWUaRRE2Of9bihiggorO2FTfWG+AmxK5Tf/PWAx0zhBvyrtbT6/Vr
+	+D2g9YxXe5P36Quhv0mYq5d3PwIKZ1O538ArFOdrk275L/PLhYx9HwB5V3y0zTO9x7ItPP
+	dnoqNnAIuPsCDaGHGtQviQDvv0jOkg4=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-574-oByAyI9QPWylN-3uIY5NiQ-1; Wed, 07 Aug 2024 07:25:03 -0400
-X-MC-Unique: oByAyI9QPWylN-3uIY5NiQ-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-428c2fbf95eso12271875e9.1
-        for <linux-s390@vger.kernel.org>; Wed, 07 Aug 2024 04:25:02 -0700 (PDT)
+ us-mta-631-GvcrA1yxNWaSxEIXobDKnQ-1; Wed, 07 Aug 2024 07:32:17 -0400
+X-MC-Unique: GvcrA1yxNWaSxEIXobDKnQ-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-36873a449dfso418172f8f.0
+        for <linux-s390@vger.kernel.org>; Wed, 07 Aug 2024 04:32:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723029902; x=1723634702;
+        d=1e100.net; s=20230601; t=1723030336; x=1723635136;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:to:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=kUmg6m+rX0ZdRF47MclkDhoxeaVkz+iC7VCa9/iV6Vw=;
-        b=vcDaimT4qeJECnomvZRM/XimC2+MtCEVpJQ+8YekKfUjDeJYVZvYEx8qjzvA2UL1YM
-         +riC/5fFYd9EIeD/CWmmke8M+IST+4P6ynkqk8S98nKk0xMzHyGRD+WXaX89vb9A78kb
-         CuQC6/6Ne0LcxZ/YEgushTu3bsb9DFGEnTlr8XquQqElOA3urvTEeskNzjtB5rfi4fyl
-         KDlk4Cja9FYwsjHFQ31xHYev/tHPMAoV8B07f9Q4B7C926nycrH/XsPLKKyTPm+bjOQB
-         KCBehK9ekzWKdEMClgpbekpLHs+CnTnQLD494ZcF1fHrw+WeU/BN7SGDbmWT09E3lKs5
-         yo5w==
-X-Forwarded-Encrypted: i=1; AJvYcCUdfiCjPXuyIfj6JJEY5SMzK7aG4Ok6w9psA6rTF+5pSsQmjMbIPMsMkIxQt0MUaM+FyshF0WftCXApb8Dw2DUNGafpXDjrMkwD2g==
-X-Gm-Message-State: AOJu0YzgnUnx6s2zbSsQdlBn3XDcFinMO8kVn/grflO2nRmG1bKmBwB+
-	JZZcCrN08DEFDhODQ15i/CV+vfQLR4a6Rd4HihGaz19Q7tOQHZ/Dp/9z0dFpw33laQLyQFIxtfy
-	LOqAPjvfz1W3llmUlWuO7KFBVf15X/9cRIvk3Mt5rEI9m4jdNVxgEq9qhDdw=
-X-Received: by 2002:a05:6000:2a6:b0:368:31c7:19d9 with SMTP id ffacd0b85a97d-36bbc0c54eamr16661121f8f.12.1723029901528;
-        Wed, 07 Aug 2024 04:25:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHSeCKCmaFkgVQy7NTVGMO35DBiIizaJ1GZqRtDIurBEJSTZSCwcCs/VepdNDXoauGMk9Tgsg==
-X-Received: by 2002:a05:6000:2a6:b0:368:31c7:19d9 with SMTP id ffacd0b85a97d-36bbc0c54eamr16661039f8f.12.1723029900802;
-        Wed, 07 Aug 2024 04:25:00 -0700 (PDT)
+        bh=jDtjVWRsh7/n0SIJeFNSj2lV4WndfzmDA4DXhXY2n/Q=;
+        b=SR1QzBkyuLJ1yyua6FsTyAGPRpbjwzLOP5nPiAi/Jg07I6FKBNUazSU6y2rp48Q7/0
+         sRujfsp+4C0u8Nnma0m681CzwNtxrX6EaJfgfj0t+au6sSPRT9kxfng2PfJGAMjCI90j
+         5Dbi6k2vlsF/IgqGIZpt0Ic69ix4zJujedzwbT59ay1b8BnX3ozFMtYEUstQ/q0Au3R8
+         f/zFbh0rWPq/lYpXc16zx13NwKr8Yhqr1Cxf78GjCvIayXpgO9ETrmed4xgeO/aEESi2
+         bBUkUUaCqedpGmfWAVk6uZNXGoDj7ahMUz/wBbVmJahT0MAGCHpRXHmKzrlWEKUtBkGj
+         G06A==
+X-Forwarded-Encrypted: i=1; AJvYcCU2PS6L8XnumJbEMoGy8cBffPTdPTJkJVl1ORaK+Yh9Sj86yDs0Hf/75e+Ozrolpdx0ruU6QL/lTbmIctweYrxT0rYpa9W+0bhicQ==
+X-Gm-Message-State: AOJu0YwuUeKTWVFbD4VUAMaINjuDffPD89rWWbrAND9rVUr0YipAnOHB
+	7z/pd41kVENZsO6D6tG8xEqpJod/R2uQfE2qVaxg99ZmPWNbBFXKru/LC/PTCtAEV3vj75ubNNL
+	d+ppmkMDLf51yx5Nrkq9VUjMavpjQbthqECtrnAKo1QNlbJVUxkV7FcMkRCs=
+X-Received: by 2002:a5d:6c6c:0:b0:36b:ea2d:fd5a with SMTP id ffacd0b85a97d-36bf0f556c1mr1639214f8f.22.1723030336467;
+        Wed, 07 Aug 2024 04:32:16 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHAM7A125QeMf5DZrBLbfuWdjAeEucgoOQKBiW/KsSfhuG/JzdmAgebuhBwXtPb+AJVEph3Aw==
+X-Received: by 2002:a5d:6c6c:0:b0:36b:ea2d:fd5a with SMTP id ffacd0b85a97d-36bf0f556c1mr1639175f8f.22.1723030335857;
+        Wed, 07 Aug 2024 04:32:15 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c708:1a00:df86:93fe:6505:d096? (p200300cbc7081a00df8693fe6505d096.dip0.t-ipconnect.de. [2003:cb:c708:1a00:df86:93fe:6505:d096])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36bbd059e44sm15739210f8f.70.2024.08.07.04.24.58
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36bbd06e0f5sm15647077f8f.104.2024.08.07.04.32.13
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 07 Aug 2024 04:25:00 -0700 (PDT)
-Message-ID: <8da4b0dc-6522-40ff-ba61-ea41fb3437b0@redhat.com>
-Date: Wed, 7 Aug 2024 13:24:57 +0200
+        Wed, 07 Aug 2024 04:32:15 -0700 (PDT)
+Message-ID: <345ba221-e094-47e8-9481-562faf4acd85@redhat.com>
+Date: Wed, 7 Aug 2024 13:32:12 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,7 +68,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] mm: update the memmap stat before page is freed
+Subject: Re: [PATCH 2/2] mm: keep nid around during hot-remove
 To: Pasha Tatashin <pasha.tatashin@soleen.com>, agordeev@linux.ibm.com,
  akpm@linux-foundation.org, alexghiti@rivosinc.com, aou@eecs.berkeley.edu,
  ardb@kernel.org, arnd@arndb.de, bhe@redhat.com, bjorn@rivosinc.com,
@@ -89,6 +89,7 @@ To: Pasha Tatashin <pasha.tatashin@soleen.com>, agordeev@linux.ibm.com,
  ryan.roberts@arm.com, souravpanda@google.com, svens@linux.ibm.com,
  tglx@linutronix.de, tzimmermann@suse.de, will@kernel.org, x86@kernel.org
 References: <20240806221454.1971755-1-pasha.tatashin@soleen.com>
+ <20240806221454.1971755-2-pasha.tatashin@soleen.com>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -136,19 +137,34 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20240806221454.1971755-1-pasha.tatashin@soleen.com>
+In-Reply-To: <20240806221454.1971755-2-pasha.tatashin@soleen.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 07.08.24 00:14, Pasha Tatashin wrote:
-> It is more logical to update the stat before the page is freed, to avoid
-> use after free scenarios.
+> nid is needed during memory hot-remove in order to account the
+> information about the memmap overhead that is being removed.
 > 
-> Fixes: 15995a352474 ("mm: report per-page metadata information")
-> Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
-> ---
+> In addition, we cannot use page_pgdat(pfn_to_page(pfn)) during
+> hotremove after remove_pfn_range_from_zone().
+> 
+> We also cannot determine nid from walking through memblocks after
+> remove_memory_block_devices() is called.
+> 
+> Therefore, pass nid down from the beginning of hotremove to where
+> it is used for the accounting purposes.
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+I was happy to finally remove that nid parameter for good in:
+
+commit 65a2aa5f482ed0c1b5afb9e6b0b9e0b16bb8b616
+Author: David Hildenbrand <david@redhat.com>
+Date:   Tue Sep 7 19:55:04 2021 -0700
+
+     mm/memory_hotplug: remove nid parameter from arch_remove_memory()
+
+To ask the real question: Do we really need this counter per-nid at all?
+
+Seems to over-complicate things.
 
 -- 
 Cheers,
