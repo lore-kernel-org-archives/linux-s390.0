@@ -1,316 +1,392 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BFD912FF72;
-	Wed,  7 Aug 2024 15:45:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5BF8328B6;
+	Wed,  7 Aug 2024 15:45:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723045510; cv=none; b=jb4tKKmgVu1N4gNzoFLEyHbnNNKXxQlYTM7AQafQwOOAX3R95cljEambjxEvMkJvORhwWkuPOGQuVnFB/ax1xsqzMEyR6T+KDO/YISFv/WLV8s+phPhUH/6xJDeTHB2I5pM5riwi7+3Xi/mCBg1WjAICeHkpz67+vECymNLqDnU=
+	t=1723045550; cv=none; b=iRlQSpKnx0kL8Rh3Ssd8LCLvFmCO5cd5rBlSq893lyRCqXGBNTE0L9iOubLBA6GsDRo4hCQx0rBu9C7Es+bIXqq2eah9gEi+OaLx+zLziOU//6nBVs2MQT3Dxn6EJ8N5n6bZpIkjSw2ZFd16nXayAfD5MYplztzpO49JFYOBDKw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723045510; c=relaxed/simple;
-	bh=bpvMt9LIzciZE04JdWRFLqfFnEpZKjKgZ9aZ7GnKAmY=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=FjIEWXqPEQzU3c17TYJGrLxbJsnEEAGIKRZ/UGzcHkix2dhxmIdORqG9CPEzE/lmZ+iGVTPHH13obYG0IFpSJ5BhL1Ef2RpUVvl/hpcrRIwknk0yW+x52r2dE9BgAjKBg91hpjIr0Sm1zKwj4lahhhAVEgVFMcBz1kbqpJDFeHk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ka56J3Tm; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1723045550; c=relaxed/simple;
+	bh=y/JzCUda4DtJPqdR2/gQ5yERtW0wAsbPRKqdRKwR5Cc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=DLqQfVuRoZsXQn/f1ntk9yZ2cnT+BKhmBpmgbzmeLPsi0yWtjYNvqGJ4zOt0LkdWhPDL1Fwlve4RKGxGYWpWR1kMUfBCXhn/MICgsVW6rOYTJeRP7PoVS7UDkji2wu6Uso9J2AnilZVFLOGzVQeFPmKTgB+lI+6euWfbqxkWkiM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FrvvGn1a; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ka56J3Tm"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47730R6m004548;
-	Wed, 7 Aug 2024 15:44:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:subject:from:to:cc:date:in-reply-to:references
-	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
-	19hE5IYkQM6sXsKXv8sX+JHZtrFY8OS8d+daPlHYI7I=; b=ka56J3TmM+5TEJQp
-	yqMgNfC3i+fiFmYsx8dnrGi9pQTGC6Xdl9aJaWJDXUNjesaxPQNwgpsARZHwz77R
-	PJ4Q+dZxI8JPL9xmTogwPy8ewHjraYygQXDY96NW798do9KtUshoU+PeLw/fn8pA
-	jtOqMh0Hg97G5wm66erG03iWXXSthECtE/sivEAR2OM9kuKkKBXVv3YT27FrW/0y
-	VERIF/9aWNtCijfpKEPZEP+p+XaXi30NMFAl8ElQq5Yi6ELVATRTnnJAawSsshxa
-	Ur48SZL0Cco2GvirUo2xzC9ZR/HDzZfCs7Wo6AiAkdo+QjfFJzbX1dU/eLisGQZg
-	nrCT9w==
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FrvvGn1a"
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 477B8VPA016057;
+	Wed, 7 Aug 2024 15:45:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding; s=pp1; bh=+1heCUZtyXlyZ
+	89nXpUhCjDcgKDSxyctfCki/NBpvuE=; b=FrvvGn1aXn4XGljXYEwCmHmeLm4IH
+	hqulfKvN1rvcNudh+j4kL0b+AnTd17/g+ZQbF/7PJBTukcI4AQRKHwQh1I7J2Svk
+	3tUqmq5APkL7duzwYtTQwP2XD8LUrY+7p4mibO4gam5LfVRge+PxRKcmlFvwYCyf
+	gT3LqqWFjB9govniHXMtEKHT0naeHIGq/oahWkXSXUdMzP/bpaR/f5nO3FEFblh5
+	wqBu7wBwtOi2j6/k7y6Ds92Djr+gc+Ky8aPofdSn2IbaoTYXWF2IhOCzGfIyOedB
+	eG+DnvvcI4lWZRXSzDJuzOePQKJxQBLTSOV3gSzr+sy2cadG2JuxS5zmQ==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40uk02b7u9-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40urpuacef-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Aug 2024 15:44:35 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 477FiYjM002328;
-	Wed, 7 Aug 2024 15:44:34 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40uk02b7u6-1
+	Wed, 07 Aug 2024 15:45:43 +0000 (GMT)
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 477FjgUw009366;
+	Wed, 7 Aug 2024 15:45:42 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40urpuaced-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Aug 2024 15:44:34 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 477EIK2d018615;
-	Wed, 7 Aug 2024 15:44:33 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 40sxvu9yd0-1
+	Wed, 07 Aug 2024 15:45:42 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 477FJDfb024101;
+	Wed, 7 Aug 2024 15:45:42 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40syvphqmp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Aug 2024 15:44:33 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 477FiUKd6947452
+	Wed, 07 Aug 2024 15:45:41 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 477FjaFv33686108
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 7 Aug 2024 15:44:33 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A67625805D;
-	Wed,  7 Aug 2024 15:44:30 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A830C58054;
-	Wed,  7 Aug 2024 15:44:26 +0000 (GMT)
-Received: from [9.171.22.131] (unknown [9.171.22.131])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  7 Aug 2024 15:44:26 +0000 (GMT)
-Message-ID: <ff738a270fc5ad18310e10d4624955430c86e7a2.camel@linux.ibm.com>
-Subject: Re: [PATCH] s390/pci: Stop usurping pdev->dev.groups
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Lukas Wunner <lukas@wunner.de>,
-        Gerald Schaefer
- <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily
- Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+	Wed, 7 Aug 2024 15:45:38 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1951B2004D;
+	Wed,  7 Aug 2024 15:45:36 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C3DB720043;
+	Wed,  7 Aug 2024 15:45:35 +0000 (GMT)
+Received: from darkmoore.boeblingen.de.ibm.com (unknown [9.155.210.150])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  7 Aug 2024 15:45:35 +0000 (GMT)
+From: Christoph Schlameuss <schlameuss@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>,
-        Bjorn Helgaas <helgaas@kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-pci@vger.kernel.org,
-        Alistair Francis
- <alistair23@gmail.com>, Jonathan.Cameron@huawei.com,
-        alex.williamson@redhat.com, christian.koenig@amd.com, kch@nvidia.com,
-        gregkh@linuxfoundation.org, logang@deltatee.com, chaitanyak@nvidia.com,
-        rdunlap@infradead.org, Alistair Francis <alistair.francis@wdc.com>,
-        Sebastian Ott <sebott@redhat.com>
-Date: Wed, 07 Aug 2024 17:44:25 +0200
-In-Reply-To: <7b970f7923e373d1b23784721208f93418720485.1722870934.git.lukas@wunner.de>
-References: 
-	<7b970f7923e373d1b23784721208f93418720485.1722870934.git.lukas@wunner.de>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.52.3 (3.52.3-1.fc40) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: s6heuq5bCSsOuiaSrCe7JIOD6W5Z0h4E
-X-Proofpoint-GUID: H_TGPsjfV4z2OoNKSKYNG3kqyNsPEVJV
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>, schlameuss@linux.ibm.com
+Subject: [PATCH v5 02/10] selftests: kvm: s390: Add kvm_s390_sie_block definition for userspace tests
+Date: Wed,  7 Aug 2024 17:45:04 +0200
+Message-ID: <20240807154512.316936-3-schlameuss@linux.ibm.com>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20240807154512.316936-1-schlameuss@linux.ibm.com>
+References: <20240807154512.316936-1-schlameuss@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: mNfqfuGbTMTJSXVGaLAa_H--b1fG8pz5
+X-Proofpoint-GUID: HCKd2hGBgPnkaVYpJ-HOQ3aJAGIfjKUb
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-08-07_11,2024-08-07_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=999
- priorityscore=1501 mlxscore=0 suspectscore=0 adultscore=0
- lowpriorityscore=0 malwarescore=0 clxscore=1011 bulkscore=0 spamscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
+ lowpriorityscore=0 mlxlogscore=999 malwarescore=0 priorityscore=1501
+ suspectscore=0 clxscore=1015 phishscore=0 bulkscore=0 spamscore=0
  impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2407110000 definitions=main-2408070107
 
-On Mon, 2024-08-05 at 17:24 +0200, Lukas Wunner wrote:
-> Bjorn suggests using pdev->dev.groups for attribute_groups constructed
-> on PCI device enumeration:
->=20
->    "Is it feasible to build an attribute group in pci_doe_init() and
->     add it to dev->groups so device_add() will automatically add them?"
->     https://msgid.link/20231019165829.GA1381099@bhelgaas
->=20
-> Unfortunately on s390, pcibios_device_add() usurps pdev->dev.groups for
-> arch-specific attribute_groups, preventing its use for anything else.
->=20
-> Introduce an ARCH_PCI_DEV_GROUPS macro which arches can define in
-> <asm/pci.h>.  The macro is visible in drivers/pci/pci-sysfs.c through
-> the inclusion of <linux/pci.h>, which in turn includes <asm/pci.h>.
->=20
-> On s390, define the macro to the three attribute_groups previously
-> assigned to pdev->dev.groups.  Thereby pdev->dev.groups is made
-> available for use by the PCI core.
->=20
-> As a side effect, arch/s390/pci/pci_sysfs.c no longer needs to be
-> compiled into the kernel if CONFIG_SYSFS=3Dn.
->=20
-> Signed-off-by: Lukas Wunner <lukas@wunner.de>
-> ---
->  arch/s390/include/asm/pci.h |  9 ++++++++-
->  arch/s390/pci/Makefile      |  3 ++-
->  arch/s390/pci/pci.c         |  1 -
->  arch/s390/pci/pci_sysfs.c   | 14 ++++----------
->  drivers/pci/pci-sysfs.c     |  5 +++++
->  5 files changed, 19 insertions(+), 13 deletions(-)
->=20
-> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-> index 30820a6..9d920ce 100644
-> --- a/arch/s390/include/asm/pci.h
-> +++ b/arch/s390/include/asm/pci.h
-> @@ -191,7 +191,14 @@ static inline bool zdev_enabled(struct zpci_dev *zde=
-v)
->  	return (zdev->fh & (1UL << 31)) ? true : false;
->  }
-> =20
-> -extern const struct attribute_group *zpci_attr_groups[];
-> +extern const struct attribute_group zpci_attr_group;
-> +extern const struct attribute_group pfip_attr_group;
-> +extern const struct attribute_group zpci_ident_attr_group;
-> +
-> +#define ARCH_PCI_DEV_GROUPS &zpci_attr_group,		 \
-> +			    &pfip_attr_group,		 \
-> +			    &zpci_ident_attr_group,
-> +
->  extern unsigned int s390_pci_force_floating __initdata;
->  extern unsigned int s390_pci_no_rid;
-> =20
-> diff --git a/arch/s390/pci/Makefile b/arch/s390/pci/Makefile
-> index 0547a10..2c21f03 100644
-> --- a/arch/s390/pci/Makefile
-> +++ b/arch/s390/pci/Makefile
-> @@ -3,7 +3,8 @@
->  # Makefile for the s390 PCI subsystem.
->  #
-> =20
-> -obj-$(CONFIG_PCI)	+=3D pci.o pci_irq.o pci_clp.o pci_sysfs.o \
-> +obj-$(CONFIG_PCI)	+=3D pci.o pci_irq.o pci_clp.o \
->  			   pci_event.o pci_debug.o pci_insn.o pci_mmio.o \
->  			   pci_bus.o pci_kvm_hook.o
->  obj-$(CONFIG_PCI_IOV)	+=3D pci_iov.o
-> +obj-$(CONFIG_SYSFS)	+=3D pci_sysfs.o
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index cff4838..bd9624c 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-> @@ -587,7 +587,6 @@ int pcibios_device_add(struct pci_dev *pdev)
->  	if (pdev->is_physfn)
->  		pdev->no_vf_scan =3D 1;
-> =20
-> -	pdev->dev.groups =3D zpci_attr_groups;
->  	zpci_map_resources(pdev);
-> =20
->  	for (i =3D 0; i < PCI_STD_NUM_BARS; i++) {
-> diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
-> index 0f4f1e8..1f81f6f 100644
-> --- a/arch/s390/pci/pci_sysfs.c
-> +++ b/arch/s390/pci/pci_sysfs.c
-> @@ -197,7 +197,7 @@ static umode_t zpci_index_is_visible(struct kobject *=
-kobj,
->  	NULL,
->  };
-> =20
-> -static struct attribute_group zpci_ident_attr_group =3D {
-> +const struct attribute_group zpci_ident_attr_group =3D {
->  	.attrs =3D zpci_ident_attrs,
->  	.is_visible =3D zpci_index_is_visible,
->  };
-> @@ -223,7 +223,7 @@ static umode_t zpci_index_is_visible(struct kobject *=
-kobj,
->  	NULL,
->  };
-> =20
-> -static struct attribute_group zpci_attr_group =3D {
-> +const struct attribute_group zpci_attr_group =3D {
->  	.attrs =3D zpci_dev_attrs,
->  	.bin_attrs =3D zpci_bin_attrs,
->  };
-> @@ -235,14 +235,8 @@ static umode_t zpci_index_is_visible(struct kobject =
-*kobj,
->  	&dev_attr_segment3.attr,
->  	NULL,
->  };
-> -static struct attribute_group pfip_attr_group =3D {
-> +
-> +const struct attribute_group pfip_attr_group =3D {
->  	.name =3D "pfip",
->  	.attrs =3D pfip_attrs,
->  };
-> -
-> -const struct attribute_group *zpci_attr_groups[] =3D {
-> -	&zpci_attr_group,
-> -	&pfip_attr_group,
-> -	&zpci_ident_attr_group,
-> -	NULL,
-> -};
-> diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
-> index 40cfa71..5d0f4db 100644
-> --- a/drivers/pci/pci-sysfs.c
-> +++ b/drivers/pci/pci-sysfs.c
-> @@ -31,6 +31,10 @@
->  #include <linux/aperture.h>
->  #include "pci.h"
-> =20
-> +#ifndef ARCH_PCI_DEV_GROUPS
-> +#define ARCH_PCI_DEV_GROUPS
-> +#endif
-> +
->  static int sysfs_initialized;	/* =3D 0 */
-> =20
->  /* show configuration fields */
-> @@ -1624,6 +1628,7 @@ static umode_t pcie_dev_attrs_are_visible(struct ko=
-bject *kobj,
->  	&pci_dev_acpi_attr_group,
->  #endif
->  	&pci_dev_resource_resize_group,
-> +	ARCH_PCI_DEV_GROUPS
->  	NULL,
->  };
-> =20
+Subsequent tests do require direct manipulation of the SIE control
+block. This commit introduces the SIE control block definition for use
+within the selftests.
 
-Thanks for the patch and sorry for the delay I'll be on vacation
-starting tomorrow and it's a bit busy. This makes sense to me and I
-agree with Bjorn that this can go via the PCI tree, especially if it is
-already useful there. I also gave this a compile and boot test on and
-checked that the s390 specific PCI device attributes are still there.
+There are already definitions of this within the kernel.
+This differs in two ways.
+* This is the first definition of this in userspace.
+* In the context of the selftests this does not require atomicity for
+  the flags.
 
-Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
+With the userspace definition of the SIE block layout now being present
+we can reuse the values in other tests where applicable.
+
+Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ .../testing/selftests/kvm/include/s390x/sie.h | 240 ++++++++++++++++++
+ .../testing/selftests/kvm/s390x/debug_test.c  |   4 +-
+ 2 files changed, 242 insertions(+), 2 deletions(-)
+ create mode 100644 tools/testing/selftests/kvm/include/s390x/sie.h
+
+diff --git a/tools/testing/selftests/kvm/include/s390x/sie.h b/tools/testing/selftests/kvm/include/s390x/sie.h
+new file mode 100644
+index 000000000000..160acd4a1db9
+--- /dev/null
++++ b/tools/testing/selftests/kvm/include/s390x/sie.h
+@@ -0,0 +1,240 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Definition for kernel virtual machines on s390.
++ *
++ * Adapted copy of struct definition kvm_s390_sie_block from
++ * arch/s390/include/asm/kvm_host.h for use in userspace selftest programs.
++ *
++ * Copyright IBM Corp. 2008, 2024
++ *
++ * Authors:
++ *  Christoph Schlameuss <schlameuss@linux.ibm.com>
++ *  Carsten Otte <cotte@de.ibm.com>
++ */
++
++#ifndef SELFTEST_KVM_SIE_H
++#define SELFTEST_KVM_SIE_H
++
++#include <linux/types.h>
++
++struct kvm_s390_sie_block {
++#define CPUSTAT_STOPPED    0x80000000
++#define CPUSTAT_WAIT       0x10000000
++#define CPUSTAT_ECALL_PEND 0x08000000
++#define CPUSTAT_STOP_INT   0x04000000
++#define CPUSTAT_IO_INT     0x02000000
++#define CPUSTAT_EXT_INT    0x01000000
++#define CPUSTAT_RUNNING    0x00800000
++#define CPUSTAT_RETAINED   0x00400000
++#define CPUSTAT_TIMING_SUB 0x00020000
++#define CPUSTAT_SIE_SUB    0x00010000
++#define CPUSTAT_RRF        0x00008000
++#define CPUSTAT_SLSV       0x00004000
++#define CPUSTAT_SLSR       0x00002000
++#define CPUSTAT_ZARCH      0x00000800
++#define CPUSTAT_MCDS       0x00000100
++#define CPUSTAT_KSS        0x00000200
++#define CPUSTAT_SM         0x00000080
++#define CPUSTAT_IBS        0x00000040
++#define CPUSTAT_GED2       0x00000010
++#define CPUSTAT_G          0x00000008
++#define CPUSTAT_GED        0x00000004
++#define CPUSTAT_J          0x00000002
++#define CPUSTAT_P          0x00000001
++	__u32 cpuflags;			/* 0x0000 */
++	__u32: 1;			/* 0x0004 */
++	__u32 prefix : 18;
++	__u32: 1;
++	__u32 ibc : 12;
++	__u8	reserved08[4];		/* 0x0008 */
++#define PROG_IN_SIE BIT(0)
++	__u32	prog0c;			/* 0x000c */
++	union {
++		__u8	reserved10[16];	/* 0x0010 */
++		struct {
++			__u64	pv_handle_cpu;
++			__u64	pv_handle_config;
++		};
++	};
++#define PROG_BLOCK_SIE	BIT(0)
++#define PROG_REQUEST	BIT(1)
++	__u32	prog20;			/* 0x0020 */
++	__u8	reserved24[4];		/* 0x0024 */
++	__u64	cputm;			/* 0x0028 */
++	__u64	ckc;			/* 0x0030 */
++	__u64	epoch;			/* 0x0038 */
++	__u32	svcc;			/* 0x0040 */
++#define LCTL_CR0	0x8000
++#define LCTL_CR6	0x0200
++#define LCTL_CR9	0x0040
++#define LCTL_CR10	0x0020
++#define LCTL_CR11	0x0010
++#define LCTL_CR14	0x0002
++	__u16   lctl;			/* 0x0044 */
++	__s16	icpua;			/* 0x0046 */
++#define ICTL_OPEREXC	0x80000000
++#define ICTL_PINT	0x20000000
++#define ICTL_LPSW	0x00400000
++#define ICTL_STCTL	0x00040000
++#define ICTL_ISKE	0x00004000
++#define ICTL_SSKE	0x00002000
++#define ICTL_RRBE	0x00001000
++#define ICTL_TPROT	0x00000200
++	__u32	ictl;			/* 0x0048 */
++#define ECA_CEI		0x80000000
++#define ECA_IB		0x40000000
++#define ECA_SIGPI	0x10000000
++#define ECA_MVPGI	0x01000000
++#define ECA_AIV		0x00200000
++#define ECA_VX		0x00020000
++#define ECA_PROTEXCI	0x00002000
++#define ECA_APIE	0x00000008
++#define ECA_SII		0x00000001
++	__u32	eca;			/* 0x004c */
++#define ICPT_INST	0x04
++#define ICPT_PROGI	0x08
++#define ICPT_INSTPROGI	0x0C
++#define ICPT_EXTREQ	0x10
++#define ICPT_EXTINT	0x14
++#define ICPT_IOREQ	0x18
++#define ICPT_WAIT	0x1c
++#define ICPT_VALIDITY	0x20
++#define ICPT_STOP	0x28
++#define ICPT_OPEREXC	0x2C
++#define ICPT_PARTEXEC	0x38
++#define ICPT_IOINST	0x40
++#define ICPT_KSS	0x5c
++#define ICPT_MCHKREQ	0x60
++#define ICPT_INT_ENABLE	0x64
++#define ICPT_PV_INSTR	0x68
++#define ICPT_PV_NOTIFY	0x6c
++#define ICPT_PV_PREF	0x70
++	__u8	icptcode;		/* 0x0050 */
++	__u8	icptstatus;		/* 0x0051 */
++	__u16	ihcpu;			/* 0x0052 */
++	__u8	reserved54;		/* 0x0054 */
++#define IICTL_CODE_NONE		 0x00
++#define IICTL_CODE_MCHK		 0x01
++#define IICTL_CODE_EXT		 0x02
++#define IICTL_CODE_IO		 0x03
++#define IICTL_CODE_RESTART	 0x04
++#define IICTL_CODE_SPECIFICATION 0x10
++#define IICTL_CODE_OPERAND	 0x11
++	__u8	iictl;			/* 0x0055 */
++	__u16	ipa;			/* 0x0056 */
++	__u32	ipb;			/* 0x0058 */
++	__u32	scaoh;			/* 0x005c */
++#define FPF_BPBC	0x20
++	__u8	fpf;			/* 0x0060 */
++#define ECB_GS		0x40
++#define ECB_TE		0x10
++#define ECB_SPECI	0x08
++#define ECB_SRSI	0x04
++#define ECB_HOSTPROTINT	0x02
++#define ECB_PTF		0x01
++	__u8	ecb;			/* 0x0061 */
++#define ECB2_CMMA	0x80
++#define ECB2_IEP	0x20
++#define ECB2_PFMFI	0x08
++#define ECB2_ESCA	0x04
++#define ECB2_ZPCI_LSI	0x02
++	__u8	ecb2;			/* 0x0062 */
++#define ECB3_AISI	0x20
++#define ECB3_AISII	0x10
++#define ECB3_DEA	0x08
++#define ECB3_AES	0x04
++#define ECB3_RI		0x01
++	__u8	ecb3;			/* 0x0063 */
++#define ESCA_SCAOL_MASK ~0x3fU
++	__u32	scaol;			/* 0x0064 */
++	__u8	sdf;			/* 0x0068 */
++	__u8	epdx;			/* 0x0069 */
++	__u8	cpnc;			/* 0x006a */
++	__u8	reserved6b;		/* 0x006b */
++	__u32	todpr;			/* 0x006c */
++#define GISA_FORMAT1 0x00000001
++	__u32	gd;			/* 0x0070 */
++	__u8	reserved74[12];		/* 0x0074 */
++	__u64	mso;			/* 0x0080 */
++	__u64	msl;			/* 0x0088 */
++	__u64	psw_mask;		/* 0x0090 */
++	__u64	psw_addr;		/* 0x0098 */
++	__u64	gg14;			/* 0x00a0 */
++	__u64	gg15;			/* 0x00a8 */
++	__u8	reservedb0[8];		/* 0x00b0 */
++#define HPID_KVM	0x4
++#define HPID_VSIE	0x5
++	__u8	hpid;			/* 0x00b8 */
++	__u8	reservedb9[7];		/* 0x00b9 */
++	union {
++		struct {
++			__u32	eiparams;	/* 0x00c0 */
++			__u16	extcpuaddr;	/* 0x00c4 */
++			__u16	eic;		/* 0x00c6 */
++		};
++		__u64	mcic;			/* 0x00c0 */
++	} __packed;
++	__u32	reservedc8;		/* 0x00c8 */
++	union {
++		struct {
++			__u16	pgmilc;		/* 0x00cc */
++			__u16	iprcc;		/* 0x00ce */
++		};
++		__u32	edc;			/* 0x00cc */
++	} __packed;
++	union {
++		struct {
++			__u32	dxc;		/* 0x00d0 */
++			__u16	mcn;		/* 0x00d4 */
++			__u8	perc;		/* 0x00d6 */
++			__u8	peratmid;	/* 0x00d7 */
++		};
++		__u64	faddr;			/* 0x00d0 */
++	} __packed;
++	__u64	peraddr;		/* 0x00d8 */
++	__u8	eai;			/* 0x00e0 */
++	__u8	peraid;			/* 0x00e1 */
++	__u8	oai;			/* 0x00e2 */
++	__u8	armid;			/* 0x00e3 */
++	__u8	reservede4[4];		/* 0x00e4 */
++	union {
++		__u64	tecmc;		/* 0x00e8 */
++		struct {
++			__u16	subchannel_id;	/* 0x00e8 */
++			__u16	subchannel_nr;	/* 0x00ea */
++			__u32	io_int_parm;	/* 0x00ec */
++			__u32	io_int_word;	/* 0x00f0 */
++		};
++	} __packed;
++	__u8	reservedf4[8];		/* 0x00f4 */
++#define CRYCB_FORMAT_MASK	0x00000003
++#define CRYCB_FORMAT0		0x00000000
++#define CRYCB_FORMAT1		0x00000001
++#define CRYCB_FORMAT2		0x00000003
++	__u32	crycbd;			/* 0x00fc */
++	__u64	gcr[16];		/* 0x0100 */
++	union {
++		__u64	gbea;		/* 0x0180 */
++		__u64	sidad;
++	};
++	__u8    reserved188[8];		/* 0x0188 */
++	__u64   sdnxo;			/* 0x0190 */
++	__u8    reserved198[8];		/* 0x0198 */
++	__u32	fac;			/* 0x01a0 */
++	__u8	reserved1a4[20];	/* 0x01a4 */
++	__u64	cbrlo;			/* 0x01b8 */
++	__u8	reserved1c0[8];		/* 0x01c0 */
++#define ECD_HOSTREGMGMT	0x20000000
++#define ECD_MEF		0x08000000
++#define ECD_ETOKENF	0x02000000
++#define ECD_ECC		0x00200000
++	__u32	ecd;			/* 0x01c8 */
++	__u8	reserved1cc[18];	/* 0x01cc */
++	__u64	pp;			/* 0x01de */
++	__u8	reserved1e6[2];		/* 0x01e6 */
++	__u64	itdba;			/* 0x01e8 */
++	__u64   riccbd;			/* 0x01f0 */
++	__u64	gvrd;			/* 0x01f8 */
++} __packed __aligned(512);
++
++#endif /* SELFTEST_KVM_SIE_H */
+diff --git a/tools/testing/selftests/kvm/s390x/debug_test.c b/tools/testing/selftests/kvm/s390x/debug_test.c
+index 84313fb27529..ad8095968601 100644
+--- a/tools/testing/selftests/kvm/s390x/debug_test.c
++++ b/tools/testing/selftests/kvm/s390x/debug_test.c
+@@ -2,12 +2,12 @@
+ /* Test KVM debugging features. */
+ #include "kvm_util.h"
+ #include "test_util.h"
++#include "sie.h"
+ 
+ #include <linux/kvm.h>
+ 
+ #define __LC_SVC_NEW_PSW 0x1c0
+ #define __LC_PGM_NEW_PSW 0x1d0
+-#define ICPT_INSTRUCTION 0x04
+ #define IPA0_DIAG 0x8300
+ #define PGM_SPECIFICATION 0x06
+ 
+@@ -85,7 +85,7 @@ static void test_step_pgm_diag(void)
+ 	vm = test_step_int_1(&vcpu, test_step_pgm_diag_guest_code,
+ 			     __LC_PGM_NEW_PSW, new_psw);
+ 	TEST_ASSERT_KVM_EXIT_REASON(vcpu, KVM_EXIT_S390_SIEIC);
+-	TEST_ASSERT_EQ(vcpu->run->s390_sieic.icptcode, ICPT_INSTRUCTION);
++	TEST_ASSERT_EQ(vcpu->run->s390_sieic.icptcode, ICPT_INST);
+ 	TEST_ASSERT_EQ(vcpu->run->s390_sieic.ipa & 0xff00, IPA0_DIAG);
+ 	vcpu_ioctl(vcpu, KVM_S390_IRQ, &irq);
+ 	vcpu_run(vcpu);
+-- 
+2.45.2
 
