@@ -1,177 +1,115 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 46B9881751;
-	Thu,  8 Aug 2024 10:01:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4853A1482E9;
+	Thu,  8 Aug 2024 10:06:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723111317; cv=none; b=K5GKVc5Gh1hKDY4QGgXTiAuQiOA/9obLzdQnQNztt5SWiy0IScxsCIdo4+k53Kh4qgYRgpAma4ZGBg7lgWcvQHOnb0da/hzcHmv5g9MZ57n+mRVDkM8AnOEKQj/u540vLnw+/5NaNFXOq38ngTcIW9KFEfmPfHXz4h0hp1Pko88=
+	t=1723111611; cv=none; b=toGCai4yeilgibImvYD8fBwkURcAEhtl8t58+NfdQSSPv5lIDToKE546cr5f4OWns8sjwRRvhp5jl+fo7F9P4EJTBRhCs3hv2e3lI3fV5eW8pemsiPmZEgbzio6sV//H3SSSblaX/5Z8PrldSgazmXhWUEuAEil9XeCHmdcTh1M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723111317; c=relaxed/simple;
-	bh=u0V4rojaf1olpTRsylY1jFpw8o8H0mjn/ZzL2wkLuHo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=k/3AWicFGLERiaF/9jxbWCB/MFWUsb+2lKFOpXMuXi26Xm53e46Qg9aIrv8x/bJ7KGyutMFE/ceq4Lz7H9ptr8ykLAO+oBmger48MTwy3eU1153gVUrLpAAXagBNtWjdu2k2TetoJjRDrDWJbfp9KfkgglWZdi/hriU0mT/HQgk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8944F139F;
-	Thu,  8 Aug 2024 03:02:20 -0700 (PDT)
-Received: from [10.57.48.153] (unknown [10.57.48.153])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 340AF3F6A8;
-	Thu,  8 Aug 2024 03:01:50 -0700 (PDT)
-Message-ID: <18166885-127d-492d-8b9f-cc70a7ad2562@arm.com>
-Date: Thu, 8 Aug 2024 11:01:45 +0100
+	s=arc-20240116; t=1723111611; c=relaxed/simple;
+	bh=uKQ3e+rRipbc52EZ9/3ubN4gDzaoIHsFcfDD6xQ/S1I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eAJh5lm9SwAU3Hzjdu5QxQjv9nFpUg/pyOI5zu5vfZYe4sbSGRhdbWBatYTgwjLCxahA1TR5wEVYf1Mh+nqQYJ5qc2kX7QNbsy8zGqgq9CBIULRevqsJGxyuy7djaLwwsT6h3LTehvECOaCsEsZwZoASznLqh1K3CV4GF4omux8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CZm4wM8v; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CZm4wM8v"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4782fNrJ016194;
+	Thu, 8 Aug 2024 10:06:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:mime-version
+	:content-type:in-reply-to; s=pp1; bh=y1zPW2qtS6K8ZiAt0cYh2AtCXW5
+	MiQGck8fcLF0AWPA=; b=CZm4wM8vF+vLu4UtHmjXu6YNx85wgWZEKd4uT49Ml2n
+	SEuEXU6P12/t76ra+zQxaf6Nn8XPStg1Lx9dlYZPba2o0YbnsjXHg4dCdvdemPuL
+	zCLZ8xO0UbIUPqhYvytuaM1x3q8ybitpGTbs2hISicAjpPLqHau1AFyGBNY62jj4
+	WQKEG2NVcG2EHb+PfuYT9t1FIpm6c3T3QLoFtaoOcS2f9KcLtuS98IVHLDi/iUF9
+	FuDr7A3k3wfFkepqzULb+yCemqYeNV11i7LEXJc++OoOpjmw23BiB+TuxJt+4cAI
+	qldimK8ki5k4cocyMiptyFpd6F9viZrrbIdebnmXWhg==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40uqcmvrta-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 08 Aug 2024 10:06:47 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 478A6kWL017511;
+	Thu, 8 Aug 2024 10:06:46 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40uqcmvrt8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 08 Aug 2024 10:06:46 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4789IVg3030238;
+	Thu, 8 Aug 2024 10:06:45 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 40t1k3d9sf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 08 Aug 2024 10:06:45 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 478A6flS51904982
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 8 Aug 2024 10:06:44 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DD28520074;
+	Thu,  8 Aug 2024 10:06:41 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A90A520067;
+	Thu,  8 Aug 2024 10:06:40 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.56.231])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu,  8 Aug 2024 10:06:40 +0000 (GMT)
+Date: Thu, 8 Aug 2024 12:06:38 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Wei Yang <richard.weiyang@gmail.com>
+Cc: gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, rppt@kernel.org,
+        akpm@linux-foundation.org, brauner@kernel.org, oleg@redhat.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v6 1/3] mm/memblock: introduce a new helper
+ memblock_estimated_nr_free_pages()
+Message-ID: <ZrSYruB/Aa8+oBoZ@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240808001415.6298-1-richard.weiyang@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 2/3] dma: replace zone_dma_bits by zone_dma_limit
-To: =?UTF-8?B?UGV0ciBUZXNhxZnDrWs=?= <petr@tesarici.cz>,
- Catalin Marinas <catalin.marinas@arm.com>
-Cc: Baruch Siach <baruch@tkos.co.il>, Christoph Hellwig <hch@lst.de>,
- Marek Szyprowski <m.szyprowski@samsung.com>, Will Deacon <will@kernel.org>,
- iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, Ramon Fried <ramon@neureality.ai>,
- Elad Nachman <enachman@marvell.com>
-References: <cover.1722578375.git.baruch@tkos.co.il>
- <5821a1b2eb82847ccbac0945da040518d6f6f16b.1722578375.git.baruch@tkos.co.il>
- <Zqyo4qjPRHUeUfS5@arm.com> <20240807161938.5729b656@mordecai.tesarici.cz>
- <ZrO5okGUljTc9E7N@arm.com> <20240808113501.4fde4cb0@mordecai.tesarici.cz>
-From: Robin Murphy <robin.murphy@arm.com>
-Content-Language: en-GB
-In-Reply-To: <20240808113501.4fde4cb0@mordecai.tesarici.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240808001415.6298-1-richard.weiyang@gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: QoRIWgoznaqXPJrGrCf_ad_2IXqdjEgp
+X-Proofpoint-ORIG-GUID: D-c-bENEGnZt3vXfddoTRXf4D97jZCS0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-08_10,2024-08-07_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
+ priorityscore=1501 impostorscore=0 mlxscore=0 malwarescore=0 spamscore=0
+ suspectscore=0 mlxlogscore=910 bulkscore=0 adultscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2407110000
+ definitions=main-2408080072
 
-On 2024-08-08 10:35 am, Petr Tesařík wrote:
-> On Wed, 7 Aug 2024 19:14:58 +0100
-> Catalin Marinas <catalin.marinas@arm.com> wrote:
-> 
->> On Wed, Aug 07, 2024 at 04:19:38PM +0200, Petr Tesařík wrote:
->>> On Fri, 2 Aug 2024 10:37:38 +0100
->>> Catalin Marinas <catalin.marinas@arm.com> wrote:
->>>> On Fri, Aug 02, 2024 at 09:03:47AM +0300, Baruch Siach wrote:
->>>>> diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
->>>>> index 3b4be4ca3b08..62b36fda44c9 100644
->>>>> --- a/kernel/dma/direct.c
->>>>> +++ b/kernel/dma/direct.c
->>>>> @@ -20,7 +20,7 @@
->>>>>    * it for entirely different regions. In that case the arch code needs to
->>>>>    * override the variable below for dma-direct to work properly.
->>>>>    */
->>>>> -unsigned int zone_dma_bits __ro_after_init = 24;
->>>>> +u64 zone_dma_limit __ro_after_init = DMA_BIT_MASK(24);
->>>>
->>>> u64 here makes sense even if it may be larger than phys_addr_t. It
->>>> matches the phys_limit type in the swiotlb code. The compilers should no
->>>> longer complain.
->>>
->>> FTR I have never quite understood why phys_limit is u64, but u64 was
->>> already used all around the place when I first looked into swiotlb.
->>>    
->>>>> diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
->>>>> index d10613eb0f63..7b04f7575796 100644
->>>>> --- a/kernel/dma/pool.c
->>>>> +++ b/kernel/dma/pool.c
->>>>> @@ -70,9 +70,9 @@ static bool cma_in_zone(gfp_t gfp)
->>>>>   	/* CMA can't cross zone boundaries, see cma_activate_area() */
->>>>>   	end = cma_get_base(cma) + size - 1;
->>>>>   	if (IS_ENABLED(CONFIG_ZONE_DMA) && (gfp & GFP_DMA))
->>>>> -		return end <= DMA_BIT_MASK(zone_dma_bits);
->>>>> +		return end <= zone_dma_limit;
->>>>>   	if (IS_ENABLED(CONFIG_ZONE_DMA32) && (gfp & GFP_DMA32))
->>>>> -		return end <= DMA_BIT_MASK(32);
->>>>> +		return end <= max(DMA_BIT_MASK(32), zone_dma_limit);
->>>>>   	return true;
->>>>>   }
->>>>>   
->>>>> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
->>>>> index 043b0ecd3e8d..bb51bd5335ad 100644
->>>>> --- a/kernel/dma/swiotlb.c
->>>>> +++ b/kernel/dma/swiotlb.c
->>>>> @@ -450,9 +450,9 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
->>>>>   	if (!remap)
->>>>>   		io_tlb_default_mem.can_grow = true;
->>>>>   	if (IS_ENABLED(CONFIG_ZONE_DMA) && (gfp_mhttps://lpc.events/event/18/contributions/1776/ask & __GFP_DMA))
->>>>> -		io_tlb_default_mem.phys_limit = DMA_BIT_MASK(zone_dma_bits);
->>>>> +		io_tlb_default_mem.phys_limit = zone_dma_limit;
->>>>>   	else if (IS_ENABLED(CONFIG_ZONE_DMA32) && (gfp_mask & __GFP_DMA32))
->>>>> -		io_tlb_default_mem.phys_limit = DMA_BIT_MASK(32);
->>>>> +		io_tlb_default_mem.phys_limit = max(DMA_BIT_MASK(32), zone_dma_limit);
->>>>>   	else
->>>>>   		io_tlb_default_mem.phys_limit = virt_to_phys(high_memory - 1);
->>>>>   #endif
->>>>
->>>> These two look correct to me now and it's the least intrusive (the
->>>> alternative would have been a zone_dma32_limit). The arch code, however,
->>>> needs to ensure that zone_dma_limit can always support 32-bit devices
->>>> even if it is above 4GB (with the relevant dma offsets in place for such
->>>> devices).
->>>
->>> Just to make sure, the DMA zone (if present) must map to at most 32-bit
->>> bus address space (possibly behind a bridge). Is that what you're
->>> saying?
->>
->> No exactly. What I'm trying to say is that on arm64 zone_dma_limit can
->> go beyond DMA_BIT_MASK(32) when the latter is treated as a CPU address.
->> In such cases, ZONE_DMA32 is empty.
->>
->> TBH, this code is confusing and not entirely suitable for a system where
->> the CPU address offsets are not 0. The device::dma_coherent_mask is
->> about the bus address range and phys_limit is calculated correctly in
->> functions like dma_direct_optimal_gfp_mask(). But that's about it w.r.t.
->> DMA bit masks because zone_dma_bits and DMA_BIT_MASK(32) are assumed to
->> be about the CPU address ranges in some cases (in other cases
->> DMA_BIT_MASK() is used to initialise dma_coherent_mask, so more of a bus
->> address).
-> 
-> Yes, I know.
-> 
->> On the platform Baruch is trying to fix, RAM starts at 32GB and ZONE_DMA
->> should end at 33GB. That's 30-bit mask in bus address terms but
->> something not a power of two for the CPU address, hence the
->> zone_dma_limit introduced here.
-> 
-> Yes, I was watching the discussion.
-> 
->> With ZONE_DMA32, since all the DMA code assumes that ZONE_DMA32 ends at
->> 4GB CPU address, it doesn't really work for such platforms. If there are
->> 32-bit devices with a corresponding CPU address offset, ZONE_DMA32
->> should end at 36GB on Baruch's platform. But to simplify things, we just
->> ignore this on arm64 and make ZONE_DMA32 empty.
-> 
-> Ah. That makes sense. It also seems to support my theory that Linux
-> memory zones are an obsolete concept and should be replaced by a
-> different mechanism.
-> 
->> In some cases where we have the device structure we could instead do a
->> dma_to_phys(DMA_BIT_MASK(32)) but not in the two cases above. I guess if
->> we really want to address this properly, we'd need to introduce a
->> zone_dma32_limit that's initialised by the arch code. For arm64, I'm
->> happy with just having an empty ZONE_DMA32 on such platforms.
-> 
-> The obvious caveat is that zone boundaries are system-wide, but the
-> mapping between bus addresses and CPU addresses depends on the device
-> structure. After all, that's why dma_to_phys takes the device as a
-> parameter... In fact, a system may have multiple busses behind
-> different bridges with a different offset applied by each.
+On Thu, Aug 08, 2024 at 12:14:13AM +0000, Wei Yang wrote:
 
-Right, that's why the *_dma_get_max_cpu_address() functions already walk 
-all known bus translations backwards to find the lowest common 
-denominator in the CPU address space. In principle we could also 
-calculate the lowest translated 32-bit DMA address from every >32-bit 
-range in the same way, however that represents enough extra complexity 
-that it doesn't seem worth trying to implement unless and until someone 
-actually has a clear need for it.
+Hi Wei,
 
-Thanks,
-Robin.
+...
+> + * Return:
+> + * An estimated number of free pages from memblock point of view.
+> + */
+> +unsigned long __init memblock_estimated_nr_free_pages(void)
+> +{
+> +	return PHYS_PFN(memblock_phys_mem_size() - memblock_reserved_size());
+> +}
 
-> 
-> FYI I want to make more people aware of these issues at this year's
-> Plumbers, see https://lpc.events/event/18/contributions/1776/
-> 
-> Petr T
+This could possibly be short on up to two pages due to lack of alignment.
+The current uses are okay, but since you make it generic it probably matters.
+
+Also, the returned value is not an estimation. Meaning the function name
+is rather unfortunate AFAICT.
+
+> +#define PHYS_PFN(x)	((unsigned long)((x) >> PAGE_SHIFT))
+
+Thanks!
