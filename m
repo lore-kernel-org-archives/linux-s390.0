@@ -1,178 +1,133 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E833718C34D;
-	Thu,  8 Aug 2024 15:01:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3959584A36;
+	Thu,  8 Aug 2024 16:10:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723129308; cv=none; b=swuGRM9StEJybs8sxIYhN7tTOZBWJiLfcEhlGN7pVXQeswfI4Or8iP/Q9YlQWX20/fFB1WjQzsYQWU/HnkBpFdFY0B59C05hI8x3w2RHONNHK4TCU1axgKmJ2GPKwUDBhb/Wk8v2PUANnt6xaOCS7oWGRHafopywr7hpAoLwbK8=
+	t=1723133451; cv=none; b=gtujtyHUrskVPKZ32ceAKIh7KYmS2Eza7G5Nhp7caLzVk2vN+9js5InLP27iDgKgUZhj9jP5XvJGXDuMAackWGeQ8R4CDBxbX8JFIZgKwquG54zFDLS4cTwN+RzsYlDL4o9jRWGwbi/WImuAfOXkrCbyMTnxvHFS0Xj4BUycuvw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723129308; c=relaxed/simple;
-	bh=hoxf+hbC6Y+IbeALTMHxTLaJo9rT0u0vBQPCcgvhkow=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WuDw8VIIjnDV1BBCrUTLn1S25AV5rxW784UGfux1o9mTuRvlbbPezxuEBbgPAebpcqhrhWkY1dJumLs8zJ/JBz09KyA2JioZ5mx3xTQxt/EyNDeU9jriKtf6obk8QA8gsUfcwHQjtaBZXpbozc9kH1jZgIyrjuGHobhqIHrIZZQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gMTg9kBG; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1723133451; c=relaxed/simple;
+	bh=t3Eh3P81p7u2J1jD19hGT51qcAJhVxSMOMR3RVzxMmU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=n4JW0oK5Raqk66vSs8X5KoJnngb+2OFNmVK4RkObCcOLnkj6aV0XNg+kcDMtbNZJQJ3UbrWOkUCGN2ueVR67iw6xUedZA+Kx5TTFPCfuL2W0upPG7GZAlmguQgDWGIaAZKmrS0aMWCLptEXUbiR8R2y69x4E87puEcdJCZcQxzs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AaZ8lDqW; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gMTg9kBG"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 478CaLRX007445;
-	Thu, 8 Aug 2024 15:01:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:in-reply-to:references
-	:content-transfer-encoding:mime-version; s=pp1; bh=VKS1xVMi4UZzv
-	lDQJcqZovxfenfUy5skxwwQ8TNkLUg=; b=gMTg9kBG/fQoXL0Pwk7QDXnvo33TO
-	AB4DXG+OqeE11CY+un63ul/emTetSFifVhkr+3O2cghirfjA/ne3/a9TFovffCmF
-	PGXMC1smoPXCeoHBhdHRsAT3Gaa8zsfQVnI8xaMEIUE1CVTbahYApDTk1Pr2HGTT
-	LH3LvzfXUkNa+Xg3x/u+ZtiQuxtD/tm3eXs5eBNRgDwOlxPvtWzGzftDlLy39Zw9
-	9/q5kOb9nd1Y8ZpHiBPQvOuU7cMOMmSuxgcDZAdLip6WXa/dwplQ5Oyudr2bAbzs
-	MyO1OFKtUq2LPRPGWE6O6nJPcetsNc1dFLzVmM5SobhrJJYXdpNs5Fg8g==
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AaZ8lDqW"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 478CaIS9024933;
+	Thu, 8 Aug 2024 16:10:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:mime-version
+	:content-type:in-reply-to; s=pp1; bh=zIwRR2ClsX9LOSQZIlPTXaUS9gt
+	aMzoDoSdw+VJqN/s=; b=AaZ8lDqWuPeVYa6azYSmbUt5+KRlb4WhBdVixNZlws+
+	dbTNwPqKVCy3OsMqreBMGhIdL8hAl5PQPX9oSZHsirKcNk5okVxTGJAsK66j6/1G
+	SpcOWYNq8adxKwfclQmzxXQ8qvjUkEJWxRktwaYanndZDEw8zLyw/p0RpAzbQC2j
+	vAomBwfWkGCSxO35HD1P2wMFHXMWudSnpPFSB03NBd3Qb275mEyfygrON14hvxsS
+	JEscr/ydOSS95X8ZKWeyxIm7uapKPCrfgkI31IZKLzEX9ZlNs1kM+dGTKQNXcSWB
+	v7DkZZJsCxhmV0dz54cdbPU3gU/i+sPDBxckpYj7yKw==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40vwkbrdne-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40vwkbrm4f-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Aug 2024 15:01:37 +0000 (GMT)
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 478F1anl031575;
-	Thu, 8 Aug 2024 15:01:36 GMT
+	Thu, 08 Aug 2024 16:10:34 +0000 (GMT)
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 478GAXLX012271;
+	Thu, 8 Aug 2024 16:10:33 GMT
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40vwkbrdnb-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40vwkbrm4b-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Aug 2024 15:01:36 +0000 (GMT)
+	Thu, 08 Aug 2024 16:10:33 +0000 (GMT)
 Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 478EMPBv024386;
-	Thu, 8 Aug 2024 15:01:36 GMT
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 478EQlMp024322;
+	Thu, 8 Aug 2024 16:10:32 GMT
 Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40sy90y0pq-1
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40sy90yaab-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Aug 2024 15:01:35 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 478F1Uq857016766
+	Thu, 08 Aug 2024 16:10:32 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 478GAQrx40829282
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 8 Aug 2024 15:01:32 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1F92C20049;
-	Thu,  8 Aug 2024 15:01:30 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7AE622004B;
-	Thu,  8 Aug 2024 15:01:29 +0000 (GMT)
-Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.38.33])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  8 Aug 2024 15:01:29 +0000 (GMT)
-From: Janosch Frank <frankja@linux.ibm.com>
-To: pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
-        borntraeger@linux.ibm.com, cohuck@redhat.com,
-        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        Michael Mueller <mimu@linux.ibm.com>, stable@vger.kernel.org
-Subject: [GIT PULL 1/2] KVM: s390: fix validity interception issue when gisa is switched off
-Date: Thu,  8 Aug 2024 16:52:12 +0200
-Message-ID: <20240808150026.11404-2-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.46.0
-In-Reply-To: <20240808150026.11404-1-frankja@linux.ibm.com>
-References: <20240808150026.11404-1-frankja@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 6wPf03SuAUuF3qzHvT6B9hHoISlJChZK
-X-Proofpoint-ORIG-GUID: 9bfIHlp_rMLea-dBLMJ49V3hHCIqmD_v
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	Thu, 8 Aug 2024 16:10:28 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4942F20040;
+	Thu,  8 Aug 2024 16:10:26 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 07EF920067;
+	Thu,  8 Aug 2024 16:10:26 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu,  8 Aug 2024 16:10:25 +0000 (GMT)
+Date: Thu, 8 Aug 2024 18:10:24 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Wei Yang <richard.weiyang@gmail.com>
+Cc: gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, rppt@kernel.org,
+        akpm@linux-foundation.org, brauner@kernel.org, oleg@redhat.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v6 1/3] mm/memblock: introduce a new helper
+ memblock_estimated_nr_free_pages()
+Message-ID: <ZrTt8NLqaPpKBZKr@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240808001415.6298-1-richard.weiyang@gmail.com>
+ <ZrSYruB/Aa8+oBoZ@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <20240808142405.ttlcfkximywtde6i@master>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240808142405.ttlcfkximywtde6i@master>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: I88Rgv0M3bv42Qfs8v2efCUYJ-hx4yuQ
+X-Proofpoint-ORIG-GUID: lyNApa4Ov3JeXE1Hu1WbH0xjvn8aptV0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-08_15,2024-08-07_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 phishscore=0 spamscore=0 mlxscore=0 clxscore=1011
- adultscore=0 malwarescore=0 bulkscore=0 mlxlogscore=999 impostorscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2408080103
+ definitions=2024-08-08_16,2024-08-07_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
+ priorityscore=1501 bulkscore=0 lowpriorityscore=0 malwarescore=0
+ suspectscore=0 mlxlogscore=862 spamscore=0 clxscore=1015 impostorscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2408080114
 
-From: Michael Mueller <mimu@linux.ibm.com>
+On Thu, Aug 08, 2024 at 02:24:05PM +0000, Wei Yang wrote:
+> >> + * An estimated number of free pages from memblock point of view.
+> >> + */
+> >> +unsigned long __init memblock_estimated_nr_free_pages(void)
+> >> +{
+> >> +	return PHYS_PFN(memblock_phys_mem_size() - memblock_reserved_size());
+> >> +}
+> >
+> >This could possibly be short on up to two pages due to lack of alignment.
+> >The current uses are okay, but since you make it generic it probably matters.
+> >
+> 
+> I don't follow, would you mind giving more detail?
 
-We might run into a SIE validity if gisa has been disabled either via using
-kernel parameter "kvm.use_gisa=0" or by setting the related sysfs
-attribute to N (echo N >/sys/module/kvm/parameters/use_gisa).
+memblock_estimated_nr_free_pages() returns number of pages, not bytes.
+Yet, both memblock_phys_mem_size() and memblock_reserved_size() return
+a value which is not aligned on PAGE_SIZE. Therefore, the result of
+PHYS_PFN() applied to the difference between the two functions might
+be short on one (two?) page(s).
 
-The validity is caused by an invalid value in the SIE control block's
-gisa designation. That happens because we pass the uninitialized gisa
-origin to virt_to_phys() before writing it to the gisa designation.
+> >Also, the returned value is not an estimation. Meaning the function name
+> >is rather unfortunate AFAICT.
+> 
+> From my point of view, this is an estimation for two reasons:
+> 
+> * value from memblock_xxx is not page size aligned
+> * reserved memory maybe released during boot stage
+> 
+> It is not that easy to get the exact number of free pages here. Do I miss
+> something?
 
-To fix this we return 0 in kvm_s390_get_gisa_desc() if the origin is 0.
-kvm_s390_get_gisa_desc() is used to determine which gisa designation to
-set in the SIE control block. A value of 0 in the gisa designation disables
-gisa usage.
+No, with this reasoning it makes sense to me.
 
-The issue surfaces in the host kernel with the following kernel message as
-soon a new kvm guest start is attemted.
+> -- 
+> Wei Yang
+> Help you, Help me
 
-kvm: unhandled validity intercept 0x1011
-WARNING: CPU: 0 PID: 781237 at arch/s390/kvm/intercept.c:101 kvm_handle_sie_intercept+0x42e/0x4d0 [kvm]
-Modules linked in: vhost_net tap tun xt_CHECKSUM xt_MASQUERADE xt_conntrack ipt_REJECT xt_tcpudp nft_compat x_tables nf_nat_tftp nf_conntrack_tftp vfio_pci_core irqbypass vhost_vsock vmw_vsock_virtio_transport_common vsock vhost vhost_iotlb kvm nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables sunrpc mlx5_ib ib_uverbs ib_core mlx5_core uvdevice s390_trng eadm_sch vfio_ccw zcrypt_cex4 mdev vfio_iommu_type1 vfio sch_fq_codel drm i2c_core loop drm_panel_orientation_quirks configfs nfnetlink lcs ctcm fsm dm_service_time ghash_s390 prng chacha_s390 libchacha aes_s390 des_s390 libdes sha3_512_s390 sha3_256_s390 sha512_s390 sha256_s390 sha1_s390 sha_common dm_mirror dm_region_hash dm_log zfcp scsi_transport_fc scsi_dh_rdac scsi_dh_emc scsi_dh_alua pkey zcrypt dm_multipath rng_core autofs4 [last unloaded: vfio_pci]
-CPU: 0 PID: 781237 Comm: CPU 0/KVM Not tainted 6.10.0-08682-gcad9f11498ea #6
-Hardware name: IBM 3931 A01 701 (LPAR)
-Krnl PSW : 0704c00180000000 000003d93deb0122 (kvm_handle_sie_intercept+0x432/0x4d0 [kvm])
-           R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
-Krnl GPRS: 000003d900000027 000003d900000023 0000000000000028 000002cd00000000
-           000002d063a00900 00000359c6daf708 00000000000bebb5 0000000000001eff
-           000002cfd82e9000 000002cfd80bc000 0000000000001011 000003d93deda412
-           000003ff8962df98 000003d93de77ce0 000003d93deb011e 00000359c6daf960
-Krnl Code: 000003d93deb0112: c020fffe7259	larl	%r2,000003d93de7e5c4
-           000003d93deb0118: c0e53fa8beac	brasl	%r14,000003d9bd3c7e70
-          #000003d93deb011e: af000000		mc	0,0
-          >000003d93deb0122: a728ffea		lhi	%r2,-22
-           000003d93deb0126: a7f4fe24		brc	15,000003d93deafd6e
-           000003d93deb012a: 9101f0b0		tm	176(%r15),1
-           000003d93deb012e: a774fe48		brc	7,000003d93deafdbe
-           000003d93deb0132: 40a0f0ae		sth	%r10,174(%r15)
-Call Trace:
- [<000003d93deb0122>] kvm_handle_sie_intercept+0x432/0x4d0 [kvm]
-([<000003d93deb011e>] kvm_handle_sie_intercept+0x42e/0x4d0 [kvm])
- [<000003d93deacc10>] vcpu_post_run+0x1d0/0x3b0 [kvm]
- [<000003d93deaceda>] __vcpu_run+0xea/0x2d0 [kvm]
- [<000003d93dead9da>] kvm_arch_vcpu_ioctl_run+0x16a/0x430 [kvm]
- [<000003d93de93ee0>] kvm_vcpu_ioctl+0x190/0x7c0 [kvm]
- [<000003d9bd728b4e>] vfs_ioctl+0x2e/0x70
- [<000003d9bd72a092>] __s390x_sys_ioctl+0xc2/0xd0
- [<000003d9be0e9222>] __do_syscall+0x1f2/0x2e0
- [<000003d9be0f9a90>] system_call+0x70/0x98
-Last Breaking-Event-Address:
- [<000003d9bd3c7f58>] __warn_printk+0xe8/0xf0
-
-Cc: stable@vger.kernel.org
-Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Fixes: fe0ef0030463 ("KVM: s390: sort out physical vs virtual pointers usage")
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/r/20240801123109.2782155-1-mimu@linux.ibm.com
-Message-ID: <20240801123109.2782155-1-mimu@linux.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- arch/s390/kvm/kvm-s390.h | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index bf8534218af3..e680c6bf0c9d 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -267,7 +267,12 @@ static inline unsigned long kvm_s390_get_gfn_end(struct kvm_memslots *slots)
- 
- static inline u32 kvm_s390_get_gisa_desc(struct kvm *kvm)
- {
--	u32 gd = virt_to_phys(kvm->arch.gisa_int.origin);
-+	u32 gd;
-+
-+	if (!kvm->arch.gisa_int.origin)
-+		return 0;
-+
-+	gd = virt_to_phys(kvm->arch.gisa_int.origin);
- 
- 	if (gd && sclp.has_gisaf)
- 		gd |= GISA_FORMAT1;
--- 
-2.46.0
-
+Thank you for the clarification!
