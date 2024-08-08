@@ -1,143 +1,151 @@
-Received: from flow7-smtp.messagingengine.com (flow7-smtp.messagingengine.com [103.168.172.142])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C224113D61D;
-	Wed,  7 Aug 2024 18:53:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.142
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A6BF3D66;
+	Thu,  8 Aug 2024 00:14:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723056809; cv=none; b=FAO6fv0IPE57hxrufn3OI3Le+HJcjRUPkZVcfc/JI8pChZ86NI4Xck8A9OTYxwhDv9av5177SPJPwN5GuV6iGS6c0S6jLugvpZddGh5inWieJi/ETVC5UYx2tF2LRwUZGABwImEp0cYW92cFS4++XcupEk/jSAf08J2TQawWkCc=
+	t=1723076073; cv=none; b=Qo0vYdD6a2GMVUKxPxEJGjU9tj5TAvuHmou36EvaO64gaZZA849GKtpv1KSF/07ubGyX8rfz+qeMSMO6DimJLd0gQ3e3EIYSnTFFrB6C29s0gFt9RAbXBobKYJFW7awa0eJ9ON7GuaLJKlHqabftN4DAF6Btj0zv64yoWDpd3oE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723056809; c=relaxed/simple;
-	bh=Ae/yFOnscB0LM68KscBwrE7D7vNdMDnnAeb+RIaDy6M=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=O7YNGngTs98rc4ibxaV3sKGFYUo3oqXix71OvHenG7ylTIXx0BYb8BiAy8RzsZ5nt4f8sHXB3xxtbayOBGdhCmd29mIpaqNlEf9GPJcvn37z8/8egsMM3wQzhWOkk+4US3MkrDndwKQWs19btoqT4rMIwhasK/HwdTMhULPIiQQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=M+AgFKcn; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Cbd0u4JX; arc=none smtp.client-ip=103.168.172.142
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1723076073; c=relaxed/simple;
+	bh=0wSU1bafZB97QK2b7Ea/j7tsbaen9+hz1Ts3shuE31w=;
+	h=From:To:Cc:Subject:Date:Message-Id; b=ggj940VjyqvK5mgovhe88rIZmDKXTjOLUZzwOvhR5qE3Q2mdTKdLN2QOh2XhT/IDByYPHpyLwvgMkIVUUEt1puVI7c2qCRGbyd0soaZ4YI4cOkP/epJC3EHu2YykZFq9D8XaNN3omuGtpz2SvzFHPC0rSZecwnilApZUhP3O5D4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MVOMm0MQ; arc=none smtp.client-ip=209.85.218.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="M+AgFKcn";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Cbd0u4JX"
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-	by mailflow.nyi.internal (Postfix) with ESMTP id B9FE8200F9C;
-	Wed,  7 Aug 2024 14:53:26 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
-  by compute4.internal (MEProxy); Wed, 07 Aug 2024 14:53:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1723056806;
-	 x=1723064006; bh=dN92Yy3XFjXTxBQ/NKAZMCYVQAegkihc+8DVkcaUGXw=; b=
-	M+AgFKcnD/Nuugw9QWMdK0TNIorx7c9kz4u4kWeEtoBkeDVxq1i8AfEINi28F8pD
-	mqxXrgNc0hd7DLIVn8ZdgKKw1WixvvvthvoPlB32dikpdRyZeayfzxol4TWH5zV/
-	sctoPTqK+Gpjs6mQSC5g5LuM5+hqde8Awr3BiE9VBetstqH9G+Y73dGI251beJG0
-	KD/S9aRYjMWru5ducc9JFCJqHqrV4tG/Fb2biX0pP/55/wPz4yqBj2Cwo3Jic+yq
-	Ts4ZD1s3I/J9I7pooC8Z3JaExlDJaha/uLa/IoywBt1Fj2dxnikSyGwL/537oKvz
-	3Ga11kSBaDC1us7TovA9WQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1723056806; x=
-	1723064006; bh=dN92Yy3XFjXTxBQ/NKAZMCYVQAegkihc+8DVkcaUGXw=; b=C
-	bd0u4JXHiwM85jQmCceR5thBnLlVROGCSHq6uqUQH7EES4yd9w+rGDAsQiWGz/KE
-	Tx9ieCb+syV32NMwTs+deNuAAbSSJe2g2WC6Q1eWWQa6JXLDL+jX7+woQX4AVmls
-	7LKrhVy6yJsezqFhMNl/XzM0DJIJdjB2cO6q+5fT/oDBlh0O4crlMEUa9nDaj5+w
-	8Li1kDK8ZNJzdI09O84Vv3hC186LsTWkCUiEZ2/yFGg3ilPlXUGqR2TZ+rh7pN7b
-	zrQN9qvczGLLR6LFQdfP+t0gWYdb1IFiN8QXdil4RtN7+rEubC/YANNF+1Cs12kw
-	Bcw5FrUO4Qwt7abMjpS7w==
-X-ME-Sender: <xms:pcKzZnopk042s10_adxzzpGQqjjj1zN1aqGfzwY9vdXxA-HcaMU7yw>
-    <xme:pcKzZhphWvwWMwSmYbDYPH1KAUK7_qukQL58dPLkKZwJ6qZO-PD0mTILf37wC-VkJ
-    yuGeXAZyjmZouRsKac>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrledtgddufedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhephfdthfdvtdefhedukeetgefggffhjeeggeetfefggfevudegudevledvkefh
-    vdeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrnhgusegrrhhnuggsrdguvgdpnhgspghrtghpthhtoheptd
-X-ME-Proxy: <xmx:pcKzZkMMEa1QCyx9DYya--xGnOf_SSr3_VdEDtu9hV8xSe9yXZqVCw>
-    <xmx:pcKzZq7W7a2W3QiuibYT4n87PxFgIhVytpph5nF0kYnO4gUYERaGxQ>
-    <xmx:pcKzZm6A0MWzdmDLhHIywLO77HSPGI_SIwlTXUWpWoknLUo6ctrjwg>
-    <xmx:pcKzZigfeNcP1X2tQ3rm8J0r0mNkRKSh21gYx64IauzFFFTIOJUQRw>
-    <xmx:psKzZuEqNacnXDRDYO1s0FZVTS1ct0wiplIuRye5vQU_o20dyn1ygN6I>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id ED628B6008D; Wed,  7 Aug 2024 14:53:24 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MVOMm0MQ"
+Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-a7d89bb07e7so47894966b.3;
+        Wed, 07 Aug 2024 17:14:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1723076070; x=1723680870; darn=vger.kernel.org;
+        h=message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=g1quz4+XXJaWh3wMTjkQHoxnVA0f2NXUhht29C+e6hY=;
+        b=MVOMm0MQBRmlWuK6RWuVbsGYYjJ/q4IlwnVm8k7Ijgy4SyWSqwSqsv38Rck5Gn5VYM
+         Q9Ip4nOMvnAG+95M9km9P0D+OtyMlGaiRlp228X5Bo49+wc09b0FrhwAVkppJZEi+PAg
+         13AB4cNXbTUeNRVHYo0S3oiyQBmvOytIiOnT4pkbMoyOmebgkZoobDqW8FhuS1mFqEev
+         b2FAjpDsPwjJu8t3sKx5kPIBsZMPuu6PZ4VhCXmUxBaYkmJttIrpEgqBs62Yd9s/X/Zw
+         gpWH3+V5SZhOY2zNCDePHvg3hd9Mspwwu+swhjls10H+V2I5G2eumtJU6D3/yZN4hUM4
+         FBEg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723076070; x=1723680870;
+        h=message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=g1quz4+XXJaWh3wMTjkQHoxnVA0f2NXUhht29C+e6hY=;
+        b=tFfnw/vNWfIZoyU6YoLmbIQAO+hnMrhHiRPcfjiBLyxcZAw2hqTIY6I5p0Y4WTdhjI
+         eTAzEmIBFnPhvGVws5dUxIr0oRr1T3UbX49PsCPy1t4fXrbGnSdftDkMjgPJWSXqSODk
+         TEEbuL4zxisX3hle7YZ8srxdDV7G4CsOybtkafDU3UbIu8zJrMUR5B8dcKufNEza/iEr
+         8gGciDHDs3cOkP1GQh5m4DzWuB20mZLBKLqchVn+IqHvM0IVM7N1lz+C4ickraXl5y//
+         qBwcEdZbeaoqNGzc8hUVVlLenfEiiidGEsx0WEJxQJGfJBVCWh4ufxRpvHb+Tywnm6/6
+         oeMA==
+X-Forwarded-Encrypted: i=1; AJvYcCWiTvoPY5kireA+UcNsJOsOAXHYEYFlwgiLJ0eRxYnEdgJa/QEu8MLHwtNsfcZERHvbdKBvnbXEatE+n0JlBNBTG5W9r+EmLXa4y/cZ
+X-Gm-Message-State: AOJu0YxzBtESWKOe1HRW0tvmDJ8W3/j4kugax2VOSWE4aA/tMlG2jDuL
+	bmkGH7IpK/ichQRYEhQwfu1yV2gIA92DtZlHMiVs+aGIq9i6Cidy
+X-Google-Smtp-Source: AGHT+IEe1yNGN5PUCQJfhsmlB50nSXvNQ25O0Lop6u6OHJWSvcy1isrWBOSiRn+Uxt9f6VekPZLh8A==
+X-Received: by 2002:a17:907:809:b0:a77:cacf:58b5 with SMTP id a640c23a62f3a-a8090c25770mr10159966b.1.1723076069042;
+        Wed, 07 Aug 2024 17:14:29 -0700 (PDT)
+Received: from localhost ([185.92.221.13])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a7dc9e7eee0sm694579966b.149.2024.08.07.17.14.28
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 07 Aug 2024 17:14:28 -0700 (PDT)
+From: Wei Yang <richard.weiyang@gmail.com>
+To: agordeev@linux.ibm.com,
+	gerald.schaefer@linux.ibm.com,
+	hca@linux.ibm.com,
+	rppt@kernel.org,
+	akpm@linux-foundation.org,
+	brauner@kernel.org,
+	oleg@redhat.com
+Cc: linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
+	Wei Yang <richard.weiyang@gmail.com>,
+	David Hildenbrand <david@redhat.com>
+Subject: [PATCH v6 1/3] mm/memblock: introduce a new helper memblock_estimated_nr_free_pages()
+Date: Thu,  8 Aug 2024 00:14:13 +0000
+Message-Id: <20240808001415.6298-1-richard.weiyang@gmail.com>
+X-Mailer: git-send-email 2.11.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Date: Wed, 07 Aug 2024 20:53:04 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Mike Rapoport" <rppt@kernel.org>
-Cc: linux-kernel@vger.kernel.org,
- "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Andreas Larsson" <andreas@gaisler.com>,
- "Andrew Morton" <akpm@linux-foundation.org>,
- "Borislav Petkov" <bp@alien8.de>,
- "Catalin Marinas" <catalin.marinas@arm.com>,
- "Christophe Leroy" <christophe.leroy@csgroup.eu>,
- "Dan Williams" <dan.j.williams@intel.com>,
- "Dave Hansen" <dave.hansen@linux.intel.com>,
- "David Hildenbrand" <david@redhat.com>,
- "David S . Miller" <davem@davemloft.net>,
- "Davidlohr Bueso" <dave@stgolabs.net>,
- "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
- "Heiko Carstens" <hca@linux.ibm.com>,
- "Huacai Chen" <chenhuacai@kernel.org>, "Ingo Molnar" <mingo@redhat.com>,
- "Jiaxun Yang" <jiaxun.yang@flygoat.com>,
- "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
- "Jonathan Cameron" <jonathan.cameron@huawei.com>,
- "Jonathan Corbet" <corbet@lwn.net>,
- "Michael Ellerman" <mpe@ellerman.id.au>,
- "Palmer Dabbelt" <palmer@dabbelt.com>,
- "Rafael J . Wysocki" <rafael@kernel.org>,
- "Rob Herring" <robh@kernel.org>,
- "Samuel Holland" <samuel.holland@sifive.com>,
- "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
- "Thomas Gleixner" <tglx@linutronix.de>,
- "Vasily Gorbik" <gor@linux.ibm.com>, "Will Deacon" <will@kernel.org>,
- "Zi Yan" <ziy@nvidia.com>, devicetree@vger.kernel.org,
- linux-acpi@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-cxl@vger.kernel.org,
- linux-doc@vger.kernel.org, linux-mips@vger.kernel.org,
- linux-mm@kvack.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
- nvdimm@lists.linux.dev, sparclinux@vger.kernel.org, x86@kernel.org
-Message-Id: <19f7ccec-db2a-4176-b6d9-12abe0586d07@app.fastmail.com>
-In-Reply-To: <ZrO6cExVz1He_yPn@kernel.org>
-References: <20240807064110.1003856-1-rppt@kernel.org>
- <20240807064110.1003856-25-rppt@kernel.org>
- <1befc540-8904-4c23-b0e6-e2c556fe22b9@app.fastmail.com>
- <ZrO6cExVz1He_yPn@kernel.org>
-Subject: Re: [PATCH v4 24/26] arch_numa: switch over to numa_memblks
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 
-On Wed, Aug 7, 2024, at 20:18, Mike Rapoport wrote:
-> On Wed, Aug 07, 2024 at 08:58:37AM +0200, Arnd Bergmann wrote:
->> On Wed, Aug 7, 2024, at 08:41, Mike Rapoport wrote:
->> > 
->> >  void __init arch_numa_init(void);
->> >  int __init numa_add_memblk(int nodeid, u64 start, u64 end);
->> > -void __init numa_set_distance(int from, int to, int distance);
->> > -void __init numa_free_distance(void);
->> >  void __init early_map_cpu_to_node(unsigned int cpu, int nid);
->> >  int __init early_cpu_to_node(int cpu);
->> >  void numa_store_cpu_info(unsigned int cpu);
->> 
->> but is still declared as __init in the header, so it is
->> still put in that section and discarded after boot.
->
-> I believe this should fix it
+During bootup, system may need the number of free pages in the whole system
+to do some calculation before all pages are freed to buddy system. Usually
+this number is get from totalram_pages(). Since we plan to move the free
+pages accounting in __free_pages_core(), this value may not represent
+total free pages at the early stage, especially when
+CONFIG_DEFERRED_STRUCT_PAGE_INIT is enabled.
 
-Yes, sorry I should have posted the patch as well, this is
-what I tested with locally.
+Instead of using raw memblock api, let's introduce a new helper for user
+to get the estimated number of free pages from memblock point of view.
 
-     Arnd
+Signed-off-by: Wei Yang <richard.weiyang@gmail.com>
+CC: David Hildenbrand <david@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+---
+v6: fix memblock test
+v5: cleanup the stale name
+v4: adjust comment per david's suggestion
+---
+ include/linux/memblock.h  |  1 +
+ mm/memblock.c             | 17 +++++++++++++++++
+ tools/include/linux/pfn.h |  1 +
+ 3 files changed, 19 insertions(+)
+
+diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+index fc4d75c6cec3..673d5cae7c81 100644
+--- a/include/linux/memblock.h
++++ b/include/linux/memblock.h
+@@ -467,6 +467,7 @@ static inline __init_memblock bool memblock_bottom_up(void)
+ 
+ phys_addr_t memblock_phys_mem_size(void);
+ phys_addr_t memblock_reserved_size(void);
++unsigned long memblock_estimated_nr_free_pages(void);
+ phys_addr_t memblock_start_of_DRAM(void);
+ phys_addr_t memblock_end_of_DRAM(void);
+ void memblock_enforce_memory_limit(phys_addr_t memory_limit);
+diff --git a/mm/memblock.c b/mm/memblock.c
+index 3b9dc2d89b8a..213057603b65 100644
+--- a/mm/memblock.c
++++ b/mm/memblock.c
+@@ -1731,6 +1731,23 @@ phys_addr_t __init_memblock memblock_reserved_size(void)
+ 	return memblock.reserved.total_size;
+ }
+ 
++/**
++ * memblock_estimated_nr_free_pages - return estimated number of free pages
++ * from memblock point of view
++ *
++ * During bootup, subsystems might need a rough estimate of the number of free
++ * pages in the whole system, before precise numbers are available from the
++ * buddy. Especially with CONFIG_DEFERRED_STRUCT_PAGE_INIT, the numbers
++ * obtained from the buddy might be very imprecise during bootup.
++ *
++ * Return:
++ * An estimated number of free pages from memblock point of view.
++ */
++unsigned long __init memblock_estimated_nr_free_pages(void)
++{
++	return PHYS_PFN(memblock_phys_mem_size() - memblock_reserved_size());
++}
++
+ /* lowest address */
+ phys_addr_t __init_memblock memblock_start_of_DRAM(void)
+ {
+diff --git a/tools/include/linux/pfn.h b/tools/include/linux/pfn.h
+index 7512a58189eb..f77a30d70152 100644
+--- a/tools/include/linux/pfn.h
++++ b/tools/include/linux/pfn.h
+@@ -7,4 +7,5 @@
+ #define PFN_UP(x)	(((x) + PAGE_SIZE - 1) >> PAGE_SHIFT)
+ #define PFN_DOWN(x)	((x) >> PAGE_SHIFT)
+ #define PFN_PHYS(x)	((phys_addr_t)(x) << PAGE_SHIFT)
++#define PHYS_PFN(x)	((unsigned long)((x) >> PAGE_SHIFT))
+ #endif
+-- 
+2.34.1
+
