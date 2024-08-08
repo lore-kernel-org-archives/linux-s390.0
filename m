@@ -1,144 +1,183 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E283084A2F;
-	Thu,  8 Aug 2024 06:27:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F068E5228;
+	Thu,  8 Aug 2024 06:45:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723098428; cv=none; b=puZFpzN9S0X+iNCk/e9Q+o2C0BGfNrfJTL0NtxdZf9q9aMrTDJKRqwfD/xw2fbG+eLpTYqB9Zxkg70gOQbdztnvOFUXov2GstN7ftezhCwsck/7cS6q8ftA8EA1QFU4CEyNurcsPZguKGVvL274LVQNs8ahpq5kxbQFgFQzBT5E=
+	t=1723099510; cv=none; b=Wn5JuTRVm900Ydtx/XZHiVChROHr8v6YHHE6g1WdI4GQr4SSRpU3+hGZlXFDWXh7AOn930iZpF+E2fclJrCa+t73PSwE+8pfQr/jWSHQ0ti+FnyBY919dNwG/VEFdpLs2DEnWd5hgzpNxpMVDU0CQuK5+FjeD+6Idb+IDv6wEqE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723098428; c=relaxed/simple;
-	bh=/5ghKYAnuD2f/ZRj+gO+eDL9wrwWwC/i4Jgoorzf1oc=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=Z4QOCsMmkH3YNe+676SDENwKgrP+Kf9Iha2sOyigq8k6kSWcVWoDu+DXZrxMnmZ+anpWskY+5xJK4BN+LwFZVETyaddyCzKbyaz+zc+RcoYpmx+N5x2SPEUgbrUZtm83k59t7vmdDSD3Fwp4yqq6/mH1goiBGctxyxudNw0oDVs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Xv574nwx; arc=none smtp.client-ip=115.124.30.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1723099510; c=relaxed/simple;
+	bh=9f6hQpfsYWEx7XOtkE5bZ+rq2R72IjDOqr3b7kLC7P0=;
+	h=Content-Type:Subject:From:In-Reply-To:Date:Cc:Message-Id:
+	 References:To:MIME-Version; b=Y1vfqL2SxlHMgCHwAY4XUqBl/A4pD+ZzDLUwrxm9mBO3QicHhi/295UDR0K1eJc0b2vBuVGqiKdVNpN/bGls1VA/XB1iWjZ0Mu3gbDM4HeYA4umJxVQIrbLD1yVOUOxl28tnW7xiG2c2vfDPBPgSJIs+QCt0tOSQKcowu57JqrM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.vnet.ibm.com; spf=none smtp.mailfrom=linux.vnet.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qtmsmih4; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.vnet.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.vnet.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Xv574nwx"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1723098422; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type;
-	bh=/fo9cpeIWOQ19EM19iwanG0Lm/+5B2ETYCALn5KNnDc=;
-	b=Xv574nwxbK/zQyV4aurgj2eTW9thpc+gcdGTHfH6MX2G8EzZjTI0dN2WudvHZQj1QqPOnJcKhboq67pmlVKNQVnIOzgKSrido85Zo3sFET+bolXemEWOsn4XeyOwlmxn6rsd5lXnUe9U15LuTBg4f3H/JIcsnQTEmwjDRPiHLi4=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0WCLS.DF_1723098420;
-Received: from 30.221.101.115(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WCLS.DF_1723098420)
-          by smtp.aliyun-inc.com;
-          Thu, 08 Aug 2024 14:27:01 +0800
-Message-ID: <faad0886-9ece-4a1c-a659-461b060ba70b@linux.alibaba.com>
-Date: Thu, 8 Aug 2024 14:26:59 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qtmsmih4"
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4783raWW005829;
+	Thu, 8 Aug 2024 06:44:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	content-type:subject:from:in-reply-to:date:cc:message-id
+	:references:to:content-transfer-encoding:mime-version; s=pp1;
+	 bh=LEg29M2yqo1wvbO42uopFKk9Gjuc//TOv0IVcWZHbGs=; b=qtmsmih4vFCJ
+	/ybdMAs6kxwQyUQloCJHt72JMN7XatXBrUwkpN5O0KO4XLMPlT5hvKJQEPFXtWCR
+	9ELo5jnjuTv9F4zDvMNTlm1uEiUKJKw/jCSCsLROciagbP250ZIgIGSuMpMIaAuM
+	tIAOmQW3SbygHUa7YBaXwIk+CW79IoVaSxuIBOFejFOvv0klBYjB/HB1/gbAzLCy
+	W2fpo0g6GttEI0nxXZkHKifB7Cpn5P4mDpdftglpEybVTy2vS6NirTM0+oNDxuI4
+	+LHL/468xJiL71hM1WVjb7Pm079uGCMgKvD8VUpVDEGpd/i5SJCnlGzKf4StMtvf
+	NNZA54IjMw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40urpuby7p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 08 Aug 2024 06:44:43 +0000 (GMT)
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4786igWp030241;
+	Thu, 8 Aug 2024 06:44:42 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40urpuby7m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 08 Aug 2024 06:44:42 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4783xS2T018004;
+	Thu, 8 Aug 2024 06:44:41 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40t0cmvtkq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 08 Aug 2024 06:44:41 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4786iZHZ57737710
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 8 Aug 2024 06:44:38 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DCDE620043;
+	Thu,  8 Aug 2024 06:44:35 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EC93920040;
+	Thu,  8 Aug 2024 06:44:26 +0000 (GMT)
+Received: from smtpclient.apple (unknown [9.61.113.139])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu,  8 Aug 2024 06:44:26 +0000 (GMT)
+Content-Type: text/plain;
+	charset=utf-8
+Subject: Re: [PATCHSET 00/10] perf tools: Sync tools and kernel headers for
+ v6.11
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+In-Reply-To: <ZrO5HR9x2xyPKttx@google.com>
+Date: Thu, 8 Aug 2024 12:14:12 +0530
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>, Leo Yan <leo.yan@arm.com>,
+        James Clark <james.clark@linaro.org>, Kajol Jain <kjain@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-perf-users <linux-perf-users@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390@vger.kernel.org
+Message-Id: <F3C6DE61-8E10-4814-A6C0-C7569B3FD613@linux.vnet.ibm.com>
+References: <20240806225013.126130-1-namhyung@kernel.org>
+ <ZrO5HR9x2xyPKttx@google.com>
+To: Namhyung Kim <namhyung@kernel.org>
+X-Mailer: Apple Mail (2.3774.600.62)
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: L2gBmFoGup1EK_PG9EwlwP3G5Ww1ljlb
+X-Proofpoint-GUID: tvb4B9ZyOUHFlc5FqnowrES5Pbrzd0es
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next] net/smc: introduce autosplit for smc
-From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-To: Wenjia Zhang <wenjia@linux.ibm.com>, jaka@linux.ibm.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc: alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20240709160551.40595-1-guangguan.wang@linux.alibaba.com>
- <cf07ec76-9d48-4bff-99f6-0842b5127c81@linux.ibm.com>
- <63862dcc-33fd-4757-8daf-e0a018a1c7a3@linux.alibaba.com>
-Content-Language: en-US
-In-Reply-To: <63862dcc-33fd-4757-8daf-e0a018a1c7a3@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-08_06,2024-08-07_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
+ lowpriorityscore=0 mlxlogscore=999 malwarescore=0 priorityscore=1501
+ suspectscore=0 clxscore=1011 phishscore=0 bulkscore=0 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2408080046
 
-On 2024/7/15 10:53, Guangguan Wang wrote:
-> 
-> 
-> On 2024/7/11 23:57, Wenjia Zhang wrote:
->>
->>
->> On 09.07.24 18:05, Guangguan Wang wrote:
->>> When sending large size data in TCP, the data will be split into
->>> several segments(packets) to transfer due to MTU config. And in
->>> the receive side, application can be woken up to recv data every
->>> packet arrived, the data transmission and data recv copy are
->>> pipelined.
->>>
->>> But for SMC-R, it will transmit as many data as possible in one
->>> RDMA WRITE and a CDC msg follows the RDMA WRITE, in the receive
->>> size, the application only be woken up to recv data when all RDMA
->>> WRITE data and the followed CDC msg arrived. The data transmission
->>> and data recv copy are sequential.
->>>
->>> This patch introduce autosplit for SMC, which can automatic split
->>> data into several segments and every segment transmitted by one RDMA
->>> WRITE when sending large size data in SMC. Because of the split, the
->>> data transmission and data send copy can be pipelined in the send side,
->>> and the data transmission and data recv copy can be pipelined in the
->>> receive side. Thus autosplit helps improving latency performance when
->>> sending large size data. The autosplit also works for SMC-D.
->>>
->>> This patch also introduce a sysctl names autosplit_size for configure
->>> the max size of the split segment, whose default value is 128KiB
->>> (128KiB perform best in my environment).
->>>
->>> The sockperf benchmark shows 17%-28% latency improvement when msgsize
->>>> = 256KB for SMC-R, 15%-32% latency improvement when msgsize >= 256KB
->>> for SMC-D with smc-loopback.
->>>
->>> Test command:
->>> sockperf sr --tcp -m 1048575
->>> sockperf pp --tcp -i <server ip> -m <msgsize> -t 20
->>>
->>> Test config:
->>> sysctl -w net.smc.wmem=524288
->>> sysctl -w net.smc.rmem=524288
->>>
->>> Test results:
->>> SMC-R
->>> msgsize   noautosplit    autosplit
->>> 128KB       55.546 us     55.763 us
->>> 256KB       83.537 us     69.743 us (17% improve)
->>> 512KB      138.306 us    100.313 us (28% improve)
->>> 1MB        273.702 us    197.222 us (28% improve)
->>>
->>> SMC-D with smc-loopback
->>> msgsize   noautosplit    autosplit
->>> 128KB       14.672 us     14.690 us
->>> 256KB       28.277 us     23.958 us (15% improve)
->>> 512KB       63.047 us     45.339 us (28% improve)
->>> 1MB        129.306 us     87.278 us (32% improve)
->>>
->>> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
->>> ---
->>>   Documentation/networking/smc-sysctl.rst | 11 +++++++++++
->>>   include/net/netns/smc.h                 |  1 +
->>>   net/smc/smc_sysctl.c                    | 12 ++++++++++++
->>>   net/smc/smc_tx.c                        | 19 ++++++++++++++++++-
->>>   4 files changed, 42 insertions(+), 1 deletion(-)
->>>
->>
->> Hi Guangguan,
->>
->> If I remember correctly, the intention to use one RDMA-write for a possible large data is to reduce possible many partial stores. Since many year has gone, I'm not that sure if it would still be an issue. I need some time to check on it.
->>
-> 
-> Did you mean too many partial stores will result in some issue? What's the issue?
-> 
-> 
->> BTW, I don't really like the idea to use sysctl to set the autosplit_size in any value at will. That makes no sense to improve the performance.
-> 
-> Although 128KB autosplit_size have a good performance in most scenario, I still found some better autosplit_size for some specific network configurations.
-> For example, 128KB autosplit_size have a good performance whether the MTU is 1500 or 8500, but for 8500 MTU, 64KB autosplit_size performs better.
-> 
-> Maybe the sysctl is not the best way, but I think it should have a way to set the value of autosplit_size for possible performance tuning.
-> 
+
+
+> On 7 Aug 2024, at 11:42=E2=80=AFPM, Namhyung Kim <namhyung@kernel.org> wr=
+ote:
+>=20
+> Hello folks,
+>=20
+> On Tue, Aug 06, 2024 at 03:50:03PM -0700, Namhyung Kim wrote:
+>> Hello,
+>>=20
+>> This is the usual sync up in header files we keep in tools directory.
+>> I put a file to give the reason of this work and not to repeat it in
+>> every commit message.  The changes will be carried in the perf-tools
+>> tree.
+>=20
+> Could you please double check what's in the tmp.perf-tools branch at the
+> perf-tools tree so I don't break build and perf trace for arm64, powerpc
+> and s390?  It has this patchset + arm64 unistd header revert (according
+> to the discussion on patch 6/10) on top of v6.11-rc2.
+>=20
 > Thanks,
-> Guangguan Wang
-> 
+> Namhyung
+Hi Namhyung,
 
-Hi Wenjia,
+Can you please point to the tree. I checked in https://git.kernel.org/pub/s=
+cm/linux/kernel/git/acme/linux.git as well as https://git.kernel.org/pub/sc=
+m/linux/kernel/git/perf/perf-tools-next.git , but didn=E2=80=99t find the c=
+hanges. May be I am missing something. I am trying to check the build in po=
+werpc.
 
-Is there any update comment or information about this patch?
+Thanks
+Athira
 
->>
->> Thanks,
->> Wenjia
+
+>=20
+>>=20
+>> Namhyung Kim (10):
+>>  perf tools: Add tools/include/uapi/README
+>>  tools/include: Sync uapi/drm/i915_drm.h with the kernel sources
+>>  tools/include: Sync uapi/linux/kvm.h with the kernel sources
+>>  tools/include: Sync uapi/linux/perf.h with the kernel sources
+>>  tools/include: Sync uapi/sound/asound.h with the kernel sources
+>>  tools/include: Sync uapi/asm-generic/unistd.h with the kernel sources
+>>  tools/include: Sync network socket headers with the kernel sources
+>>  tools/include: Sync filesystem headers with the kernel sources
+>>  tools/include: Sync x86 headers with the kernel sources
+>>  tools/include: Sync arm64 headers with the kernel sources
+>>=20
+>> tools/arch/arm64/include/asm/cputype.h        |  10 +
+>> tools/arch/arm64/include/uapi/asm/unistd.h    |  24 +-
+>> tools/arch/powerpc/include/uapi/asm/kvm.h     |   3 +
+>> tools/arch/x86/include/asm/cpufeatures.h      | 803 +++++++++---------
+>> tools/arch/x86/include/asm/msr-index.h        |  11 +
+>> tools/arch/x86/include/uapi/asm/kvm.h         |  49 ++
+>> tools/arch/x86/include/uapi/asm/svm.h         |   1 +
+>> tools/include/uapi/README                     |  73 ++
+>> tools/include/uapi/asm-generic/unistd.h       |   2 +-
+>> tools/include/uapi/drm/i915_drm.h             |  27 +
+>> tools/include/uapi/linux/in.h                 |   2 +
+>> tools/include/uapi/linux/kvm.h                |  17 +-
+>> tools/include/uapi/linux/perf_event.h         |   6 +-
+>> tools/include/uapi/linux/stat.h               |  12 +-
+>> .../arch/powerpc/entry/syscalls/syscall.tbl   |   6 +-
+>> .../perf/arch/s390/entry/syscalls/syscall.tbl |   2 +-
+>> .../arch/x86/entry/syscalls/syscall_64.tbl    |   8 +-
+>> .../perf/trace/beauty/include/linux/socket.h  |   5 +-
+>> .../perf/trace/beauty/include/uapi/linux/fs.h | 163 +++-
+>> .../trace/beauty/include/uapi/linux/mount.h   |  10 +-
+>> .../trace/beauty/include/uapi/linux/stat.h    |  12 +-
+>> .../trace/beauty/include/uapi/sound/asound.h  |   9 +-
+>> 22 files changed, 810 insertions(+), 445 deletions(-)
+>> create mode 100644 tools/include/uapi/README
+>>=20
+>> --=20
+>> 2.46.0.rc2.264.g509ed76dc8-goog
+>>=20
+
