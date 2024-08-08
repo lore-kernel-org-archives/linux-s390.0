@@ -1,54 +1,54 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AB613D6B;
-	Thu,  8 Aug 2024 00:14:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7B1F645;
+	Thu,  8 Aug 2024 00:14:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723076073; cv=none; b=Bjbz30d8HAM1U4d6qotuU5RqeHhQbdGLaq/Tl0WWFS+RnsHv9Tfr4hduPUmiZ1zVcn4i8agbn85rTEAJg7Um3Rw/uNffe+HqKxRIvOCz0WAsiqK631dVESsA0WWqJevyZnLGvF+rAwxz47gUDPEQtEGCfwDX+CwMYXKRH2m7dXI=
+	t=1723076075; cv=none; b=ne/KpHmzZJtfT1qkPc0d9Mjri6/EhJDZFAdI7fQuZ1ICNh+SP6kFZ2HyrvJI87Zneg9+VVlLCR/5CN4r0Jlo2TjRFzD1quBldyDaOXuhMMSRNONQiHPd4knT7tTRof1ncF5tWDgXLs5DeN/6XTSC/mCmJMomKh/eCkiiwMy4P1w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723076073; c=relaxed/simple;
-	bh=/tlZkyZ2Brl7h61xyezG9SMHX3SrPQ+LqMEBs5KVJT8=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=VeMv8eaHVqrzASXtwhU6w9jiIEG/UopBbL0RcBZhqnxY+W5xcT3RIComXtuC2zVf4NowDX+fJwEUHJPSsFBY82r6YvSlH/44lO0vQ2euevNLCss1t0AA6Qsj7zTPcQOU3PX8gDstw1q1w6bbAlZawF0TFKJM6Gv8MVFL7GQQTQ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FOpdlC9q; arc=none smtp.client-ip=209.85.218.45
+	s=arc-20240116; t=1723076075; c=relaxed/simple;
+	bh=249cw00l9Ns40bKTUck0mIASntYgstdD1Gu0PZ0t240=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=godC6S2SkkVi9Fra1Ose949dYeID6FHRv4VrVqrBRLGq6AprJY/CjoaXPXaZ3kiGVPC5c2OyWiE/dwL/YT19hBC4+rSxNwUVGpeJbZ4dREyjxZW+lOmPPT1R/GRRcDoL0xTXVBTh9zNvdpiP7S3cXwnzpr5i7OjSKAd5q31ihEo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OsIWgOv7; arc=none smtp.client-ip=209.85.208.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FOpdlC9q"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-a7ab63a388bso14802166b.1;
-        Wed, 07 Aug 2024 17:14:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OsIWgOv7"
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-5b8c2a6135eso610585a12.0;
+        Wed, 07 Aug 2024 17:14:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1723076070; x=1723680870; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1723076072; x=1723680872; darn=vger.kernel.org;
         h=references:in-reply-to:message-id:date:subject:cc:to:from:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=NryPogQUlVepSvzhnijJxf4XWkE+rRPYtCWNysxNB9U=;
-        b=FOpdlC9qVD1KGi1bS43TV3WlZZ8zwE9si6+N4MMmOMjIQuJhNLa6KpouV0H2Dg6Hdd
-         5r+rQT/qW4FSK8/1ExuKKClBQdc3jooGaHYNeuCAB5SJflKCNW4mVmbKvGsqoZH1qqHE
-         Ab/9x348HBx8ZAij78hpGVTYqTUd0O7w2aaa88RyusKFZL/sGsaI8Gnvc3fKXV7wOMWp
-         uUqmsAQUfDGIV0VzviVezmO0E3O1hsGdcbUCGsSoCPE6+A/+p5lUIJbCGQOr1Eh8E5Ya
-         OJQFUmTF5WrFDmK5knK4MvoNcmyzkK6ogbTZ5s7wN8cnMv475s+Rb5QmSzes5jCU0KlY
-         WPyw==
+        bh=JwriE0w3Q2CMimHs9GxN93UOCfhw1F7KFNtEIY74zZU=;
+        b=OsIWgOv7auNRInC2XE8UoL508H1YdzcUFFwmestzqmrpqkIRAzLa+/FPWiPOdFZcpp
+         xEsr1bUWhoTyDpBrVYxn2nQsuH6zTcZM24toG+we2psVI8NVTda1aIo4R+1UHHv7iCtz
+         nWgRUvRksVfObkPgDAdX6VhCjlwrQEgAevqv8TD/mmLjGSimSWEJ4ajAvBkwjOgsjtB/
+         DhKcvydAXzeLL2oWgNWwgEFmZfWx4LAJPxz1iBtDZumRhhDJbLGC3BiUT+IIek/8/n5o
+         5N7860YJWNNQ0yDxvThzppJgRbLHG0Vjkp6SvbiayNEFLgdTWxL1rtCIbT2DGf6EyBtd
+         0JXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723076070; x=1723680870;
+        d=1e100.net; s=20230601; t=1723076072; x=1723680872;
         h=references:in-reply-to:message-id:date:subject:cc:to:from
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=NryPogQUlVepSvzhnijJxf4XWkE+rRPYtCWNysxNB9U=;
-        b=vgPRN7TtMOIP4e6qzIuMSwlgMKSg26Zq3tJu9a9NFB/QBEUaw54vIWCq59hpfYO/PE
-         G1/hrjFIoJWwglQhhkONKuavgdmOOoVh9gMiLY1Hh6zSQmqKmACDt2vMlpNfPEIZOydZ
-         6PB3nZyBYEEi52dNomZW6xlS1fU93IFPa1OjYVRtcTF5QpMJ0ihj7i+tssCBwHr9zFGr
-         FTZWn0nn/GuJeloYR+MRD4vQ4FKeEByIKOxJSbzQGbQYraop8hivxpKyHNlJVuKEpD6N
-         5udXW4yqDoK618zXLjcHYTDAtcbszS0HGe6MT9Y5F6H7AUrjFvYPOI8bRPjp5sSekpaF
-         r6gw==
-X-Forwarded-Encrypted: i=1; AJvYcCViShrCD8qu+ihZFA8PUbZh21I6+kalXuFxcM3TKc7JB8Emg5aPlgVEp4FRRhOaSb0uIfbyzyEsRn/hboU5DhlxrEofkInBojE/6Iiy
-X-Gm-Message-State: AOJu0YwCUTQL2YruGD9v3XszdcC3w81dD12Yg2ylf/RxPitFEDsTXLls
-	ZXBAhs18l3pggaqa5PIYBYnaF9y9hP8T3QPFSurjCBM0/+Xgm1im
-X-Google-Smtp-Source: AGHT+IFBBcwaC/rSWy+Q2eZrAPcUvhwc7fifS6ckd1H+3H+mA5lXgCRuCrbOXxsinlZwpdykBxOBrg==
-X-Received: by 2002:a05:6402:2682:b0:5a1:b6d8:b561 with SMTP id 4fb4d7f45d1cf-5bbb23449e2mr257540a12.9.1723076070287;
-        Wed, 07 Aug 2024 17:14:30 -0700 (PDT)
+        bh=JwriE0w3Q2CMimHs9GxN93UOCfhw1F7KFNtEIY74zZU=;
+        b=gJcIqlkZRpncTYN607zciIQCKXD0fmWmr0WyGOOlhAJ7Ir4NiKH5rGBlIwCQY+bQ1b
+         KAyqVxEYu0ItFCSPMbc+5IZLpwNI0ugTmokGquCdQrcaLdpFrBD4FXh1+1ivrWM+CebX
+         STSfa6wVyveYn6KN+oJshtxV13uFqB8sv4zw0IEf9oyWM3SBNJFCFOPlUHiJVIGPf9pq
+         uH5BD0itzEPA3pnZgxBeSpINguS5+jsNnjHKmYxXc6K+pWVWftHYAfTWC5zY+o7Yl/4i
+         4QpImOat7SAA2Sui7PxI8CbHaimpQhbrq5ihbPG1Ao96gsclVY8SWxuyonMAVqEIYCQu
+         K2Bw==
+X-Forwarded-Encrypted: i=1; AJvYcCUjXW7rSs8kF2aRklP+G0uV6xkYXPCchmUQnJb0bdPCobaVYpNsJtNR3uvGN7ufk5Wc+UOzHCnOHwA3lzNfodQ/DcUIe3wZp5YjJgix
+X-Gm-Message-State: AOJu0Yw/Ul+Vdx36R0U/yYtkC2y7YYrVqg8Q9lKXMLJ0qk60LUmHeOkn
+	8eep4nx1mP2O/nL8GvNjAIod5V4yaAfIqMBE75+ykNWQCLIYmqGV
+X-Google-Smtp-Source: AGHT+IHHSd7MK3R9lwIRETYeziGgrVTOh68t3ND+FhwsOqNWTKT9KtExmw1QL6h0P9EkYIlYDLqdXQ==
+X-Received: by 2002:a05:6402:40d3:b0:5b8:eb1d:7fec with SMTP id 4fb4d7f45d1cf-5bbb3c05b1dmr35995a12.6.1723076071903;
+        Wed, 07 Aug 2024 17:14:31 -0700 (PDT)
 Received: from localhost ([185.92.221.13])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5bbb2e5c8edsm70477a12.81.2024.08.07.17.14.29
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5bbb2c1f6c4sm73150a12.29.2024.08.07.17.14.30
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 07 Aug 2024 17:14:29 -0700 (PDT)
+        Wed, 07 Aug 2024 17:14:30 -0700 (PDT)
 From: Wei Yang <richard.weiyang@gmail.com>
 To: agordeev@linux.ibm.com,
 	gerald.schaefer@linux.ibm.com,
@@ -62,9 +62,9 @@ Cc: linux-s390@vger.kernel.org,
 	linux-mm@kvack.org,
 	Wei Yang <richard.weiyang@gmail.com>,
 	David Hildenbrand <david@redhat.com>
-Subject: [PATCH v6 2/3] kernel/fork.c: get estimated free pages by memblock api
-Date: Thu,  8 Aug 2024 00:14:14 +0000
-Message-Id: <20240808001415.6298-2-richard.weiyang@gmail.com>
+Subject: [PATCH v6 3/3] s390/mm: get estimated free pages by memblock api
+Date: Thu,  8 Aug 2024 00:14:15 +0000
+Message-Id: <20240808001415.6298-3-richard.weiyang@gmail.com>
 X-Mailer: git-send-email 2.11.0
 In-Reply-To: <20240808001415.6298-1-richard.weiyang@gmail.com>
 References: <20240808001415.6298-1-richard.weiyang@gmail.com>
@@ -83,24 +83,23 @@ Just replace it with new API, no functional change.
 Signed-off-by: Wei Yang <richard.weiyang@gmail.com>
 CC: Mike Rapoport (IBM) <rppt@kernel.org>
 CC: David Hildenbrand <david@redhat.com>
-CC: Oleg Nesterov <oleg@redhat.com>
 ---
- kernel/fork.c | 2 +-
+ arch/s390/mm/init.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/fork.c b/kernel/fork.c
-index cc760491f201..d99f148d818b 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -997,7 +997,7 @@ void __init __weak arch_task_cache_init(void) { }
- static void __init set_max_threads(unsigned int max_threads_suggested)
- {
- 	u64 threads;
--	unsigned long nr_pages = PHYS_PFN(memblock_phys_mem_size() - memblock_reserved_size());
-+	unsigned long nr_pages = memblock_estimated_nr_free_pages();
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index e3d258f9e726..651344206294 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -62,7 +62,7 @@ EXPORT_SYMBOL(zero_page_mask);
  
- 	/*
- 	 * The number of threads shall be limited such that the thread
+ static void __init setup_zero_pages(void)
+ {
+-	unsigned long total_pages = PHYS_PFN(memblock_phys_mem_size() - memblock_reserved_size());
++	unsigned long total_pages = memblock_estimated_nr_free_pages();
+ 	unsigned int order;
+ 	struct page *page;
+ 	int i;
 -- 
 2.34.1
 
