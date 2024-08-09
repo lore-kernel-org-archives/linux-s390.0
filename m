@@ -1,92 +1,68 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 451C0146588;
-	Thu,  8 Aug 2024 22:07:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86B8D1741C8;
+	Fri,  9 Aug 2024 08:34:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723154878; cv=none; b=nWDUjn/0xW9IiJ8YwjvBuMq5UVgIlpx4XSmAPIADZQLHRgjdK/cS1WvZfe6zODYBQHOQjSMrDsKrH0TTPtWQuf1Ywvlnsip6ENLnPf7u9G1S6oKNcUJfxHfVVnHgpK4hbKlTWs1K9YQfNFQOLUCkSW5+b2XRhQvdnUxrOTuUOAA=
+	t=1723192444; cv=none; b=KRu21+T1IlgHOAJN7+3knA4RNk+ds/sMufVNYEXV39T7y+6blQzrxtikfuihWzGS6NJc5CqNtrovFxPglb70Yg4tRJ/vDSanqpmO5cZ0iR1ibgooD/9c2FA/WMTKZ4t36sE5cdZhF6MgeoWyHWTGLq+UZhEcAevmg0sT9wXf8ns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723154878; c=relaxed/simple;
-	bh=ds56W2QCa96KdbDtVwJvSmZJnvmlqJ2m1jHbaFzN/RM=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=Cp6y6q85RhI/4jgsa1UyCombmNSblS43zMlSyOAPh8RYnlbsL/R2w8CuZqeLtwMBlxDGbZNQgPR1B6s5hgozn/NMqOy88Syhii7MZ71iI8TQ6aQs3jyNSxhNNcP9Fyn3PmDW8qQ7wsUOHt1hWjdFsEJ949WFm7lRckX5yof7X/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uTjUp6AH; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uTjUp6AH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3689C4AF09;
-	Thu,  8 Aug 2024 22:07:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1723154878;
-	bh=ds56W2QCa96KdbDtVwJvSmZJnvmlqJ2m1jHbaFzN/RM=;
-	h=Date:From:To:Cc:Subject:From;
-	b=uTjUp6AH6vxBVIvod3TyBPzqjFIlgJyoqWA17WXB79ZV5CpCRHoSxy9py4p6hlvj9
-	 as7VhUD2wf2v0RhmDtYewFGNGf5kTvc+XNieNZKjc1MIdNyz8PE4ap4/rf6TlfO++b
-	 P2bYlq3kX8c0QG5T22Qy81R6Uf/nAt/oQ6OjYNRZYi2sglMZlPDrFxIWJ6ja3jC6TF
-	 c1rZN9Tu9imLHrNukqKuk+K0tSm4Sz/IHXA/LPkS14O6FDX4kID/EPJDH5N0rc9u/c
-	 cuU+ODse3shIXEX5Yn3/Frdb3SR1BHudLzUHlIcsyFSq3KL8Ha3fKSLH7tW44vAslI
-	 9SCWPh9bqqyEQ==
-Date: Thu, 8 Aug 2024 16:07:54 -0600
-From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-To: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	linux-hardening@vger.kernel.org
-Subject: [PATCH][next] net/smc: Use static_assert() to check struct sizes
-Message-ID: <ZrVBuiqFHAORpFxE@cute>
+	s=arc-20240116; t=1723192444; c=relaxed/simple;
+	bh=4UjZgx83/dHQRwrIYs7m4JPiwrLPoLPNz0Ac1MN4lHo=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=o3rVr0PuzeIi1qa3YMpeLdGjsZYLtivMGbMeD+7ciLk/HjM/ZaE5E4IX0CyciKXcbKo/Ya6pnvES1QGBbmJH9/h5d1D8910jwM+700hhVPKYTfeZlY4uzaZO1XRh8/UiF4w4yQQA/xxeZeJKWQzKLC8ZkkWbq6aw1+9KvfGmKuk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.194])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4WgHHg2zSCzyNtm;
+	Fri,  9 Aug 2024 16:33:35 +0800 (CST)
+Received: from kwepemg200003.china.huawei.com (unknown [7.202.181.30])
+	by mail.maildlp.com (Postfix) with ESMTPS id B615014022D;
+	Fri,  9 Aug 2024 16:33:58 +0800 (CST)
+Received: from huawei.com (10.175.101.6) by kwepemg200003.china.huawei.com
+ (7.202.181.30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Fri, 9 Aug
+ 2024 16:33:57 +0800
+From: Liu Jian <liujian56@huawei.com>
+To: <linux-rdma@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+	<netdev@vger.kernel.org>
+CC: <jgg@ziepe.ca>, <leon@kernel.org>, <zyjzyj2000@gmail.com>,
+	<wenjia@linux.ibm.com>, <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
+	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>, <davem@davemloft.net>,
+	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<liujian56@huawei.com>
+Subject: [PATCH net-next 0/4] Make SMC-R can work with rxe devices
+Date: Fri, 9 Aug 2024 16:31:44 +0800
+Message-ID: <20240809083148.1989912-1-liujian56@huawei.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ kwepemg200003.china.huawei.com (7.202.181.30)
 
-Commit 9748dbc9f265 ("net/smc: Avoid -Wflex-array-member-not-at-end
-warnings") introduced tagged `struct smc_clc_v2_extension_fixed` and
-`struct smc_clc_smcd_v2_extension_fixed`. We want to ensure that when
-new members need to be added to the flexible structures, they are
-always included within these tagged structs.
+Make SMC-R can work with rxe devices. This allows us to easily test and
+learn the SMC-R protocol without relying on a physical RoCE NIC.
 
-So, we use `static_assert()` to ensure that the memory layout for
-both the flexible structure and the tagged struct is the same after
-any changes.
+Liu Jian (4):
+  rdma/device: export ib_device_get_netdev()
+  net/smc: use ib_device_get_netdev() helper to get netdev info
+  net/smc: fix one NULL pointer dereference in smc_ib_is_sg_need_sync()
+  RDMA/rxe: Set queue pair cur_qp_state when being queried
 
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
----
- net/smc/smc_clc.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/infiniband/core/core_priv.h   |  3 ---
+ drivers/infiniband/core/device.c      |  1 +
+ drivers/infiniband/sw/rxe/rxe_verbs.c |  2 ++
+ include/rdma/ib_verbs.h               |  2 ++
+ net/smc/smc_ib.c                      | 10 +++++-----
+ net/smc/smc_pnet.c                    |  6 +-----
+ 6 files changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index 467effb50cd6..5625fda2960b 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -145,6 +145,8 @@ struct smc_clc_v2_extension {
- 	);
- 	u8 user_eids[][SMC_MAX_EID_LEN];
- };
-+static_assert(offsetof(struct smc_clc_v2_extension, user_eids) == sizeof(struct smc_clc_v2_extension_fixed),
-+	      "struct member likely outside of struct_group_tagged()");
- 
- struct smc_clc_msg_proposal_prefix {	/* prefix part of clc proposal message*/
- 	__be32 outgoing_subnet;	/* subnet mask */
-@@ -169,6 +171,8 @@ struct smc_clc_smcd_v2_extension {
- 	);
- 	struct smc_clc_smcd_gid_chid gidchid[];
- };
-+static_assert(offsetof(struct smc_clc_smcd_v2_extension, gidchid) == sizeof(struct smc_clc_smcd_v2_extension_fixed),
-+	      "struct member likely outside of struct_group_tagged()");
- 
- struct smc_clc_msg_proposal {	/* clc proposal message sent by Linux */
- 	struct smc_clc_msg_hdr hdr;
 -- 
 2.34.1
 
