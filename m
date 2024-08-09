@@ -1,123 +1,202 @@
-Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE7A4155CBD;
-	Fri,  9 Aug 2024 19:46:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1ED126AD4;
+	Fri,  9 Aug 2024 20:02:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723232785; cv=none; b=tWXg8p54sKBToMZKOYhEZTeGwrj4PDkWwI/oSrP4PbITjhyR0+79VlKt3SO6z8fWXJD4smlMrQlUlBihzNiGxVkO3n2wPenyT77RrRkmV0QNZJv3+2U8HFb5mc4XQupyZVsumvyYACvI1gjwuVKEpmV0F5+fI04I+K7LhJSYcuo=
+	t=1723233727; cv=none; b=pALxQowM/FCrnB+QB4kB60YGqoeZWz1TABKIvuhJMgNMlQt77xATPpXiq8vu7EIUANcOSAVXKROsD0GXQnug8LTc/tXTpIaPhA6ytlPfvkXBsb/U5gVH6hSa25sCvX3IVwBpe1yUibJjJRrxO1dU0gzFDYl0X3AALBL7IllTCe8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723232785; c=relaxed/simple;
-	bh=Wa6+LVZK7GjpVSYimnip9I24ZVbOUyjzWEg/k0NIWGI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UFUZm/E5hZUmQ25uRKPRwng+HcUGkdMPJzsOVkNywcVkOFLWxej5AN00r7MgPG3AxxB3REmGcEyFo9YZ/JzDpmpMpzdiOXri1qHSiS+RJvNKvwM/bHvmlwaEWbgyzCQ/85xrPtQnP9Xa0iU00Ylkh6v8q/d5FQFm6qroemFG04A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.215.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-7163489149eso1689348a12.1;
-        Fri, 09 Aug 2024 12:46:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723232783; x=1723837583;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=zqbAJAIrn+pMqAdKgl2l3QmF9/bwlYdotJYVuqNwgjc=;
-        b=YxKlZpXi8NTt5vLbqx+6MUlXB1X1OtQikDtXT7xbagzTnAvhUrvsa2LtEF9mgi8pwD
-         8Z0OXA/b/P4SNTcTnW369fmxz5Dpqmn3xRozB9saKwStRxToZODJG8i69LWPGRXifGD4
-         V5MFh0S+2HHBoA51xTvqnfiEicaa/RBGFrTKNLwYP9rR9CSK9xBXrvEaFyHYv65ROQ07
-         NrkXEuQvfc9AlgPpNCKwBjGltkbWeTXei55HqqzWdMlX2EnfPVQxjXpO1P4hnnCgllxq
-         2CL8M4jzZYhvBhWsyGaXD+n/EHz3Uo5X7rovUcwS833xxb/cyq3/0KKYKWmXlWeZaZUi
-         8RQg==
-X-Forwarded-Encrypted: i=1; AJvYcCXj+NxZw0bQGjaAZdxLXoRrBxla5l7eC00Fr4OUghy4mQHUJZ86eElhJ3yuw3Fw3nwIop24CISFWLm3YZd8Knl+VVUxjNd3F2YCvsNuBy+weJnBFRWhmayoWNs0g9aHPhCGkonTXd1tcQRn9Jq4mhntEltEgWVNgXbtwIWnjo3wxrQ2JXmUNdLwiF0=
-X-Gm-Message-State: AOJu0YxhBjDwScn2hVOngRkpuKvurLDwL3TrX91elCF95jGUmMB+KYa4
-	22Dlvo2mXVAHYJChA+KWuwhgFUJ8Eu3TH/K46LLftMRVF4+vod1Oe6pY2m1tVnXkbresOi03Rab
-	iOmVl/oqO4d7qL+hqAGRV+5IR3NE=
-X-Google-Smtp-Source: AGHT+IGt8uePCJBxT0xWwJtwoNYeffh75W4vVoECy88I+CFcKDV41N3GU4beyjUcCmxO+1WYu5Rw/yh0rvC5AJP3gCY=
-X-Received: by 2002:a17:90b:2390:b0:2ca:d1dc:47e2 with SMTP id
- 98e67ed59e1d1-2d1e804a8famr2857954a91.33.1723232782867; Fri, 09 Aug 2024
- 12:46:22 -0700 (PDT)
+	s=arc-20240116; t=1723233727; c=relaxed/simple;
+	bh=aV5MT+chLmmO/yfLIXBie+rc9GKsrR27EwydQ6MxIk0=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=Q5Sk1oakdzv1gndFkNeG3KkYMyHV1bNOjlhpKqy9aE0rMfnZt8QLacZWZSE4Rdi0Lar0QTohjuPeiDz8LGxAIKqJ7XX1Wnmw3zsphOR1huybnZQM5Irl8rGCxHeLMWI2mTY1QcOl1BE1qngiZajr/qy4KYsd7vXP5da+ipoVwL0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eJ60u4Gw; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eJ60u4Gw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07ED0C32782;
+	Fri,  9 Aug 2024 20:02:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1723233727;
+	bh=aV5MT+chLmmO/yfLIXBie+rc9GKsrR27EwydQ6MxIk0=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=eJ60u4Gw6utirW/v97vb3jPe9DIs1l3F/PLMXIg8Jl/Y5FNYRLpUNzCg7Y2XudtVN
+	 9TtCt+4c/sAe8JJltLc3pfUxZ0kcOIj1SPTXqbSAhj5DEhoB8+Q8leNsFDuCM0FvZr
+	 nW+BQQiwTSDKW0JiID4h2qeDEUEJP7VKm10CvapvyTrPVhoSCYl7r33stukFPvBbei
+	 KtKEyg5KuYJpclrvB5+mLl9APmjR9YbqTMUY0bRUJ767FuUmtnI30wMUT5iAf4Kj4N
+	 XnMSlUyf0Ju0oIWLQIYF+m1cJoD2MIi+mr6v79U3oexi2/T5csY0T/h+TUesGLbPpl
+	 385LU9scnxaIw==
+Date: Fri, 9 Aug 2024 15:02:05 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Lukas Wunner <lukas@wunner.de>
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+	linux-pci@vger.kernel.org, Alistair Francis <alistair23@gmail.com>,
+	Jonathan.Cameron@huawei.com, alex.williamson@redhat.com,
+	christian.koenig@amd.com, kch@nvidia.com,
+	gregkh@linuxfoundation.org, logang@deltatee.com,
+	chaitanyak@nvidia.com, rdunlap@infradead.org,
+	Alistair Francis <alistair.francis@wdc.com>,
+	Sebastian Ott <sebott@redhat.com>
+Subject: Re: [PATCH] s390/pci: Stop usurping pdev->dev.groups
+Message-ID: <20240809200205.GA210335@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240806225013.126130-1-namhyung@kernel.org> <ZrO5HR9x2xyPKttx@google.com>
- <F3C6DE61-8E10-4814-A6C0-C7569B3FD613@linux.vnet.ibm.com> <ZrUSCFLWDg9iJ_23@google.com>
- <56008678-7B06-4E54-8447-1C0DCBC15521@linux.vnet.ibm.com>
-In-Reply-To: <56008678-7B06-4E54-8447-1C0DCBC15521@linux.vnet.ibm.com>
-From: Namhyung Kim <namhyung@kernel.org>
-Date: Fri, 9 Aug 2024 12:46:11 -0700
-Message-ID: <CAM9d7ch5U1SvgEKiDB4djR70eps_zhaBSWa2guW9NJj6T4ehog@mail.gmail.com>
-Subject: Re: [PATCHSET 00/10] perf tools: Sync tools and kernel headers for v6.11
-To: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>, Leo Yan <leo.yan@arm.com>, 
-	James Clark <james.clark@linaro.org>, Kajol Jain <kjain@linux.ibm.com>, 
-	Thomas Richter <tmricht@linux.ibm.com>, Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Adrian Hunter <adrian.hunter@intel.com>, Peter Zijlstra <peterz@infradead.org>, 
-	Ingo Molnar <mingo@kernel.org>, LKML <linux-kernel@vger.kernel.org>, 
-	linux-perf-users <linux-perf-users@vger.kernel.org>, 
-	Linus Torvalds <torvalds@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, 
-	linux-arm-kernel@lists.infradead.org, 
-	linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7b970f7923e373d1b23784721208f93418720485.1722870934.git.lukas@wunner.de>
 
-On Fri, Aug 9, 2024 at 8:39=E2=80=AFAM Athira Rajeev
-<atrajeev@linux.vnet.ibm.com> wrote:
->
->
->
-> > On 9 Aug 2024, at 12:14=E2=80=AFAM, Namhyung Kim <namhyung@kernel.org> =
-wrote:
-> >
-> > Hello,
-> >
-> > On Thu, Aug 08, 2024 at 12:14:12PM +0530, Athira Rajeev wrote:
-> >>
-> >>
-> >>> On 7 Aug 2024, at 11:42=E2=80=AFPM, Namhyung Kim <namhyung@kernel.org=
-> wrote:
-> >>>
-> >>> Hello folks,
-> >>>
-> >>> On Tue, Aug 06, 2024 at 03:50:03PM -0700, Namhyung Kim wrote:
-> >>>> Hello,
-> >>>>
-> >>>> This is the usual sync up in header files we keep in tools directory=
-.
-> >>>> I put a file to give the reason of this work and not to repeat it in
-> >>>> every commit message.  The changes will be carried in the perf-tools
-> >>>> tree.
-> >>>
-> >>> Could you please double check what's in the tmp.perf-tools branch at =
-the
-> >>> perf-tools tree so I don't break build and perf trace for arm64, powe=
-rpc
-> >>> and s390?  It has this patchset + arm64 unistd header revert (accordi=
-ng
-> >>> to the discussion on patch 6/10) on top of v6.11-rc2.
-> >>>
-> >>> Thanks,
-> >>> Namhyung
-> >> Hi Namhyung,
-> >>
-> >> Can you please point to the tree. I checked in https://git.kernel.org/=
-pub/scm/linux/kernel/git/acme/linux.git as well as https://git.kernel.org/p=
-ub/scm/linux/kernel/git/perf/perf-tools-next.git , but didn=E2=80=99t find =
-the changes. May be I am missing something. I am trying to check the build =
-in powerpc.
-> >
-> > Oh, sorry about that.  It's in:
-> > https://git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools.git
-> >
-> > (no -next at the end)
->
-> Hi,
->
-> I did compile test on powerpc and results are good.
->
-> Tested-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+On Mon, Aug 05, 2024 at 05:24:05PM +0200, Lukas Wunner wrote:
+> Bjorn suggests using pdev->dev.groups for attribute_groups constructed
+> on PCI device enumeration:
+> 
+>    "Is it feasible to build an attribute group in pci_doe_init() and
+>     add it to dev->groups so device_add() will automatically add them?"
+>     https://msgid.link/20231019165829.GA1381099@bhelgaas
+> 
+> Unfortunately on s390, pcibios_device_add() usurps pdev->dev.groups for
+> arch-specific attribute_groups, preventing its use for anything else.
+> 
+> Introduce an ARCH_PCI_DEV_GROUPS macro which arches can define in
+> <asm/pci.h>.  The macro is visible in drivers/pci/pci-sysfs.c through
+> the inclusion of <linux/pci.h>, which in turn includes <asm/pci.h>.
+> 
+> On s390, define the macro to the three attribute_groups previously
+> assigned to pdev->dev.groups.  Thereby pdev->dev.groups is made
+> available for use by the PCI core.
+> 
+> As a side effect, arch/s390/pci/pci_sysfs.c no longer needs to be
+> compiled into the kernel if CONFIG_SYSFS=n.
+> 
+> Signed-off-by: Lukas Wunner <lukas@wunner.de>
 
-Thanks for doing this!
-Namhyung
+Applied with Niklas' ack to pci/sysfs for v6.12, thanks!
+
+> ---
+>  arch/s390/include/asm/pci.h |  9 ++++++++-
+>  arch/s390/pci/Makefile      |  3 ++-
+>  arch/s390/pci/pci.c         |  1 -
+>  arch/s390/pci/pci_sysfs.c   | 14 ++++----------
+>  drivers/pci/pci-sysfs.c     |  5 +++++
+>  5 files changed, 19 insertions(+), 13 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+> index 30820a6..9d920ce 100644
+> --- a/arch/s390/include/asm/pci.h
+> +++ b/arch/s390/include/asm/pci.h
+> @@ -191,7 +191,14 @@ static inline bool zdev_enabled(struct zpci_dev *zdev)
+>  	return (zdev->fh & (1UL << 31)) ? true : false;
+>  }
+>  
+> -extern const struct attribute_group *zpci_attr_groups[];
+> +extern const struct attribute_group zpci_attr_group;
+> +extern const struct attribute_group pfip_attr_group;
+> +extern const struct attribute_group zpci_ident_attr_group;
+> +
+> +#define ARCH_PCI_DEV_GROUPS &zpci_attr_group,		 \
+> +			    &pfip_attr_group,		 \
+> +			    &zpci_ident_attr_group,
+> +
+>  extern unsigned int s390_pci_force_floating __initdata;
+>  extern unsigned int s390_pci_no_rid;
+>  
+> diff --git a/arch/s390/pci/Makefile b/arch/s390/pci/Makefile
+> index 0547a10..2c21f03 100644
+> --- a/arch/s390/pci/Makefile
+> +++ b/arch/s390/pci/Makefile
+> @@ -3,7 +3,8 @@
+>  # Makefile for the s390 PCI subsystem.
+>  #
+>  
+> -obj-$(CONFIG_PCI)	+= pci.o pci_irq.o pci_clp.o pci_sysfs.o \
+> +obj-$(CONFIG_PCI)	+= pci.o pci_irq.o pci_clp.o \
+>  			   pci_event.o pci_debug.o pci_insn.o pci_mmio.o \
+>  			   pci_bus.o pci_kvm_hook.o
+>  obj-$(CONFIG_PCI_IOV)	+= pci_iov.o
+> +obj-$(CONFIG_SYSFS)	+= pci_sysfs.o
+> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> index cff4838..bd9624c 100644
+> --- a/arch/s390/pci/pci.c
+> +++ b/arch/s390/pci/pci.c
+> @@ -587,7 +587,6 @@ int pcibios_device_add(struct pci_dev *pdev)
+>  	if (pdev->is_physfn)
+>  		pdev->no_vf_scan = 1;
+>  
+> -	pdev->dev.groups = zpci_attr_groups;
+>  	zpci_map_resources(pdev);
+>  
+>  	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+> diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
+> index 0f4f1e8..1f81f6f 100644
+> --- a/arch/s390/pci/pci_sysfs.c
+> +++ b/arch/s390/pci/pci_sysfs.c
+> @@ -197,7 +197,7 @@ static umode_t zpci_index_is_visible(struct kobject *kobj,
+>  	NULL,
+>  };
+>  
+> -static struct attribute_group zpci_ident_attr_group = {
+> +const struct attribute_group zpci_ident_attr_group = {
+>  	.attrs = zpci_ident_attrs,
+>  	.is_visible = zpci_index_is_visible,
+>  };
+> @@ -223,7 +223,7 @@ static umode_t zpci_index_is_visible(struct kobject *kobj,
+>  	NULL,
+>  };
+>  
+> -static struct attribute_group zpci_attr_group = {
+> +const struct attribute_group zpci_attr_group = {
+>  	.attrs = zpci_dev_attrs,
+>  	.bin_attrs = zpci_bin_attrs,
+>  };
+> @@ -235,14 +235,8 @@ static umode_t zpci_index_is_visible(struct kobject *kobj,
+>  	&dev_attr_segment3.attr,
+>  	NULL,
+>  };
+> -static struct attribute_group pfip_attr_group = {
+> +
+> +const struct attribute_group pfip_attr_group = {
+>  	.name = "pfip",
+>  	.attrs = pfip_attrs,
+>  };
+> -
+> -const struct attribute_group *zpci_attr_groups[] = {
+> -	&zpci_attr_group,
+> -	&pfip_attr_group,
+> -	&zpci_ident_attr_group,
+> -	NULL,
+> -};
+> diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+> index 40cfa71..5d0f4db 100644
+> --- a/drivers/pci/pci-sysfs.c
+> +++ b/drivers/pci/pci-sysfs.c
+> @@ -31,6 +31,10 @@
+>  #include <linux/aperture.h>
+>  #include "pci.h"
+>  
+> +#ifndef ARCH_PCI_DEV_GROUPS
+> +#define ARCH_PCI_DEV_GROUPS
+> +#endif
+> +
+>  static int sysfs_initialized;	/* = 0 */
+>  
+>  /* show configuration fields */
+> @@ -1624,6 +1628,7 @@ static umode_t pcie_dev_attrs_are_visible(struct kobject *kobj,
+>  	&pci_dev_acpi_attr_group,
+>  #endif
+>  	&pci_dev_resource_resize_group,
+> +	ARCH_PCI_DEV_GROUPS
+>  	NULL,
+>  };
+>  
+> -- 
+> 2.43.0
+> 
