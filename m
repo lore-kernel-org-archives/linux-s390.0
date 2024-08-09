@@ -1,77 +1,104 @@
-Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E337161314;
-	Fri,  9 Aug 2024 08:34:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EF9116D307;
+	Fri,  9 Aug 2024 10:02:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723192448; cv=none; b=OXSH+HGzQ9M/sVVSFnHyHzHHWEPW82BnCKtv3SgHpO7ntX7Bk3dZmtXSSAbDaEqgkAezjRZpDcjNnHMYLV3yuAKUmhx57GwQe7E0YZazSAd5ywcrjq5WMZZFxCot9V2q/lFNzKQBUSD7AItPcXTL9fax3kX7us/yegWbx1OlC2U=
+	t=1723197728; cv=none; b=tHKksowGJINnbqnddx3KqW4t/D7ryBaC4uYpTE1spAuumjn0Y7/GdT/V/8IFHpd9IibwcgwmsHecZJseOWlmxbi9uVMi17+mf5cOSZvdX6OeuIyI/Hjj1kyzIJdY6ljjTFMShFFnn4mjDjFb91/41fPmdUxCrVgCetzLw1AnqJE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723192448; c=relaxed/simple;
-	bh=EdHOUkQapbsYvW7Pa+mxJXDUYf7diS/nM8cKhTfa670=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=G1JI/1UllCJFNKAevlZC8UTl5hexklUbcmiqzOILax4gKykwmAOvfN4dYda1HhcQOkfwITi4TYUGg9+Frlbtf23E9EGVRoDxMDW9LjNyqdOU/y9QESiPc78x65lFo8krjAA/hIAlXFsgyCKC+9Cu6zu2yygtgI7pIOnlrhvoH74=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.17])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4WgHBj6Yrcz1j6Nb;
-	Fri,  9 Aug 2024 16:29:17 +0800 (CST)
-Received: from kwepemg200003.china.huawei.com (unknown [7.202.181.30])
-	by mail.maildlp.com (Postfix) with ESMTPS id 2DBFC1A0188;
-	Fri,  9 Aug 2024 16:34:03 +0800 (CST)
-Received: from huawei.com (10.175.101.6) by kwepemg200003.china.huawei.com
- (7.202.181.30) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Fri, 9 Aug
- 2024 16:34:01 +0800
-From: Liu Jian <liujian56@huawei.com>
-To: <linux-rdma@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<netdev@vger.kernel.org>
-CC: <jgg@ziepe.ca>, <leon@kernel.org>, <zyjzyj2000@gmail.com>,
-	<wenjia@linux.ibm.com>, <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
-	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>, <davem@davemloft.net>,
-	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<liujian56@huawei.com>
-Subject: [PATCH net-next 4/4] RDMA/rxe: Set queue pair cur_qp_state when being queried
-Date: Fri, 9 Aug 2024 16:31:48 +0800
-Message-ID: <20240809083148.1989912-5-liujian56@huawei.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240809083148.1989912-1-liujian56@huawei.com>
-References: <20240809083148.1989912-1-liujian56@huawei.com>
+	s=arc-20240116; t=1723197728; c=relaxed/simple;
+	bh=Kbxtk/rTG8xh8pLqLXt5XVBapXThRW3mletxNrIST94=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FKyJMwbpIt8N1iPQCTYUi4Un5i5fRyCrBN7bBMYG1delEpHccev0FxmjTPbrG8NtxSvofwgsOwyFqbwTK6o8uY8XNaikeXRCO6/IDhb3Y9vwZx3kvajJg9qRpSPKZ5FUvzVhFZl4cOYaBuTZV236XGWXCdsSssu5nLni4byyKUg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=qeY0k0eh; arc=none smtp.client-ip=115.124.30.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="qeY0k0eh"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1723197717; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=BdKgcvydGioWnK8L6t2a5AjgNvCBYWhkiDknLVnvalI=;
+	b=qeY0k0eh/QJvQI8LB++hPZM2yiapQpnzss3PovAxoNwFAWe+KoXnUNCXBW91bxyExx7B8baqZXRt3Ay1LancFjH5wrU7uWvjQ4oO8GFYXt8bOJrqyNXJug4IMkX3AXB/3y+Dx3HVFvGReS5WseTtH7f1J1l8x5pfIfKcTCG7lBY=
+Received: from 30.221.129.232(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WCPmSH9_1723197714)
+          by smtp.aliyun-inc.com;
+          Fri, 09 Aug 2024 18:01:56 +0800
+Message-ID: <c0a1aade-a6ee-482a-bc6e-da07a4c69cff@linux.alibaba.com>
+Date: Fri, 9 Aug 2024 18:01:54 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- kwepemg200003.china.huawei.com (7.202.181.30)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 3/4] net/smc: fix one NULL pointer dereference in
+ smc_ib_is_sg_need_sync()
+To: Liu Jian <liujian56@huawei.com>, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Cc: jgg@ziepe.ca, leon@kernel.org, zyjzyj2000@gmail.com,
+ wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+ tonylu@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com
+References: <20240809083148.1989912-1-liujian56@huawei.com>
+ <20240809083148.1989912-4-liujian56@huawei.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <20240809083148.1989912-4-liujian56@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Same with commit e375b9c92985 ("RDMA/cxgb4: Set queue pair state when
- being queried"). The API for ib_query_qp requires the driver to set
-cur_qp_state on return, add the missing set.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Signed-off-by: Liu Jian <liujian56@huawei.com>
----
- drivers/infiniband/sw/rxe/rxe_verbs.c | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_verbs.c b/drivers/infiniband/sw/rxe/rxe_verbs.c
-index 5c18f7e342f2..699b4b315336 100644
---- a/drivers/infiniband/sw/rxe/rxe_verbs.c
-+++ b/drivers/infiniband/sw/rxe/rxe_verbs.c
-@@ -634,6 +634,8 @@ static int rxe_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
- 	rxe_qp_to_init(qp, init);
- 	rxe_qp_to_attr(qp, attr, mask);
- 
-+	attr->cur_qp_state = qp->attr.qp_state;
-+
- 	return 0;
- }
- 
--- 
-2.34.1
+On 2024/8/9 16:31, Liu Jian wrote:
+> BUG: kernel NULL pointer dereference, address: 0000000000000238
+> PGD 0 P4D 0
+> Oops: 0000 [#1] PREEMPT SMP PTI
+> CPU: 3 PID: 289 Comm: kworker/3:1 Kdump: loaded Tainted: G           OE
+> Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
+> Workqueue: smc_hs_wq smc_listen_work [smc]
+> RIP: 0010:dma_need_sync+0x5/0x60
+> ...
+> Call Trace:
+>   <TASK>
+>   ? dma_need_sync+0x5/0x60
+>   ? smc_ib_is_sg_need_sync+0x61/0xf0 [smc]
+>   smcr_buf_map_link+0x24a/0x380 [smc]
+>   __smc_buf_create+0x483/0xb10 [smc]
+>   smc_buf_create+0x21/0xe0 [smc]
+>   smc_listen_work+0xf11/0x14f0 [smc]
+>   ? smc_tcp_listen_work+0x364/0x520 [smc]
+>   process_one_work+0x18d/0x3f0
+>   worker_thread+0x304/0x440
+>   kthread+0xe4/0x110
+>   ret_from_fork+0x47/0x70
+>   ret_from_fork_asm+0x1a/0x30
+>   </TASK>
+> 
+> If the software RoCE device is used, ibdev->dma_device is a null pointer.
+> As a result, the problem occurs. Null pointer detection is added to
+> prevent problems.
+> 
+> Signed-off-by: Liu Jian <liujian56@huawei.com>
+> ---
+>   net/smc/smc_ib.c | 2 ++
+>   1 file changed, 2 insertions(+)
+> 
+> diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+> index 382351ac9434..059822cc3fde 100644
+> --- a/net/smc/smc_ib.c
+> +++ b/net/smc/smc_ib.c
+> @@ -748,6 +748,8 @@ bool smc_ib_is_sg_need_sync(struct smc_link *lnk,
+>   		    buf_slot->sgt[lnk->link_idx].nents, i) {
+>   		if (!sg_dma_len(sg))
+>   			break;
+> +		if (!lnk->smcibdev->ibdev->dma_device)
+> +			break;
 
+LGTM.
+
+Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+
+>   		if (dma_need_sync(lnk->smcibdev->ibdev->dma_device,
+>   				  sg_dma_address(sg))) {
+>   			ret = true;
