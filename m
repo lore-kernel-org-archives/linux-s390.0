@@ -1,41 +1,41 @@
 Received: from mail.tkos.co.il (guitar.tkos.co.il [84.110.109.230])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2052B1C6A1;
-	Sun, 11 Aug 2024 06:32:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A06EE1C2BD;
+	Sun, 11 Aug 2024 07:09:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.110.109.230
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723357973; cv=none; b=DnKz6RILMt4IrhZraOTK9Ut3cOM8JprbKV83V74vSyDPx6hBm266yvsmwSSGRmlkaKiCWhzYsDuitlAnbWzQ1YlV8gLbPiLsA8gTmeDO7QPUZfHJRbe5lPiBVK6I5KJJuLtx8xFfk0RuJyHyK5Y8fdriDPXiO16iWLhUVzzf8WA=
+	t=1723360189; cv=none; b=l4/hWvugydpQR7667+cHkm/H5Rm1YG2q32qWL25D62sPrH8vJ8jgSmZwPw6C3SSoCdGetvP30PObWWMAKhWnwqDsIrelZlX6jsxJfUQog8yL9YuA+8KT+RdRCPxn7ZS7P54+I3JMuXCZRBSHefmk3op3v9WG/d8EnkN7CVel1R4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723357973; c=relaxed/simple;
-	bh=pBuS/H7+odet/nPa5tfwLx8uhXkgW9g6Vrhua5wFMuU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=th+g8xD141Ic/k+XFeGXyOu8OuU5SlQczUidFkeW3rjkN3bK5tRTrI3Dcyxqs9+ZZrPInkQCnmhVCkagFl1ywcN3w7VsGgBrCFSzJ8WnXuRvjdE+mStdLmu633rahveo95RWERKjdTnMGvR1IC/27qBaw6Vnz2beAbRcSJ+lizc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il; spf=pass smtp.mailfrom=tkos.co.il; dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b=PfNbj/sX; arc=none smtp.client-ip=84.110.109.230
+	s=arc-20240116; t=1723360189; c=relaxed/simple;
+	bh=nf/MkqeBwiD3TKhf52jrg5yDi7MiKiiAJynae1NoHxY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rkRDuh1wr/VAH+KbZPmxW6CEVcHEwgOD15shynazGoL0K5cS5HvuttgXva7HbTsk9CSw2kQQelFfqXd76k5EsINCDWwRCTFbYnEXSdYuEV6HYcgCNh/AJpRgp7a+/1QEnmEgQUY0WCicr0TDzS587hLOZXKGt5gHXyOa1ZOPJfc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il; spf=pass smtp.mailfrom=tkos.co.il; dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b=u9t9D4D4; arc=none smtp.client-ip=84.110.109.230
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tkos.co.il
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b="PfNbj/sX"
+	dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b="u9t9D4D4"
 Received: from tarshish.tkos.co.il (unknown [10.0.8.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.tkos.co.il (Postfix) with ESMTPS id B2F3D440F36;
-	Sun, 11 Aug 2024 09:24:16 +0300 (IDT)
+	by mail.tkos.co.il (Postfix) with ESMTPS id AC632440F36;
+	Sun, 11 Aug 2024 10:08:13 +0300 (IDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tkos.co.il;
-	s=default; t=1723357456;
-	bh=pBuS/H7+odet/nPa5tfwLx8uhXkgW9g6Vrhua5wFMuU=;
+	s=default; t=1723360094;
+	bh=nf/MkqeBwiD3TKhf52jrg5yDi7MiKiiAJynae1NoHxY=;
 	h=From:To:Cc:Subject:Date:From;
-	b=PfNbj/sXq8c5ebZNSC3HNka6aYpupsv8+Df6xqGEC2T97lXp6QlHy6zMjudvbbxFW
-	 yR1gSASK6c3Pune5qpUoYJxmkpKQ7KQ4/GKI+I8nbnx0rdb4G0F3TUe2qhm1C7LSI6
-	 yMt9e2AbgrFTmO/xw9zXTnOAGuf7Ihhk0xF9DAK4cWr95mlI71tpEOYelZ+rxMJz62
-	 4RkPYc8dhQQqDkoKVo5BvZVaImmyxC+KwLxT49oBpQvsvhzu3rIb/i+NlsWiuMJRWt
-	 tLYihkWv9oNS6uRlhXqbqOzmupn3UBF61fBTeFdUK1BOn0NPiPXqX8Bdi6YdTM3H4o
-	 Cz0yrvSxxGC1Q==
+	b=u9t9D4D4GOVGPdIf3j4rCxiYr4On/te/G7ibLcCPJd1L3xwINzoEOnQObJFuTX579
+	 Jps5mdQfaS1pDDDpDr4we09WWJ3Z1c3mXIL2KgjqyBT/MRAVg8BaESBpfO3hauuxSb
+	 tBftApeC1T5mj/hC7zPK/ux9AG/Nbrbw3aFtxfvhXiNVb3XbkluI8U2J2fvdPPDxP3
+	 vEc757+0bvOeip9isMvhTi3zHGt5vqSN2WT/AzeRR4S+xyu0bWhWcM1cR9WGVsoZJm
+	 6yjlgw27UOu2t7BolltOtgvs1Ws4PsybaMjcirEk+nQCCR+dHv1Cc3jSHx9pcdaph6
+	 fQDCCPoFH0q/g==
 From: Baruch Siach <baruch@tkos.co.il>
 To: Christoph Hellwig <hch@lst.de>,
 	Marek Szyprowski <m.szyprowski@samsung.com>,
 	Catalin Marinas <catalin.marinas@arm.com>,
 	Will Deacon <will@kernel.org>
-Cc: Baruch Siach <baruchs-c@neureality.ai>,
+Cc: Baruch Siach <baruch@tkos.co.il>,
 	Robin Murphy <robin.murphy@arm.com>,
 	iommu@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org,
@@ -45,9 +45,9 @@ Cc: Baruch Siach <baruchs-c@neureality.ai>,
 	=?UTF-8?q?Petr=20Tesa=C5=99=C3=ADk?= <petr@tesarici.cz>,
 	Ramon Fried <ramon@neureality.ai>,
 	Elad Nachman <enachman@marvell.com>
-Subject: [PATCH v6 0/2] dma: support DMA zone starting above 4GB
-Date: Sun, 11 Aug 2024 09:25:38 +0300
-Message-ID: <cover.1723357023.git.baruchs-c@neureality.ai>
+Subject: [PATCH v6 RESED 0/2] dma: support DMA zone starting above 4GB
+Date: Sun, 11 Aug 2024 10:09:34 +0300
+Message-ID: <cover.1723359916.git.baruch@tkos.co.il>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -57,7 +57,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Baruch Siach <baruchs-c@neureality.ai>
+[ Resend series with correct Cc list. Sorry for the spam. ]
 
 DMA zones code assumes that DMA lower limit is zero. When there is no RAM 
 below 4GB, arm64 platform code sets DMA/DMA32 zone limits to cover the entire 
