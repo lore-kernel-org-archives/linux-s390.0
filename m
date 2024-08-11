@@ -1,125 +1,76 @@
-Received: from mail.tkos.co.il (guitar.tkos.co.il [84.110.109.230])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57DFF1C6B4;
-	Sun, 11 Aug 2024 07:09:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.110.109.230
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A304A22EE8;
+	Sun, 11 Aug 2024 08:31:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723360190; cv=none; b=YKzm+E7upzsEp7QlvvkDLotbldP96Hx1r0zR4jkLl4dvEDgvo1AXMVdoZmpjMFMUUvTRaglxHxCLZu/toZD9E8WOoZAFWfctfXDwdPxXlW8agsW8mM28y+b0vHSxIvftv2ttWwnYMtQ+OBPb6Ol3OEtbgPzyYH3pEOvQBxU4hss=
+	t=1723365098; cv=none; b=Za/ZWDfjcHJ6OMBrXtFSXdR1COuhXtQFqzf/acRsUyzcDFONnQ4q3dVKgp6HvDa0GDlbOgwgDWfLPtrFIHt2MYDIVJZv4aGYH/Ls46NgY5Um+IfktejwJAk0Y8m3pn3u6NLdaccrlIg4I/7nXxlKb9cM9194k0Voc9V00KHzY4U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723360190; c=relaxed/simple;
-	bh=pqfXeuMc5R7Cx8Hid5iZqoJG0UKfN0CUSBnJMj912kU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=droufbe5/wtkEvjWuJXTEFn6pEZm6bG6MIEGjh7+YGMD2ey8gdVujXYA+cvT0ThBFC7l85rstUbyAU8uJUJqucUMZhom/51pmhvdAzQnNV0DJqgWy57nldoEkjPkb3dHZ8WcPGRl//P4QAl9gTgkUE0oeE1ZJMllF4dwDMJ2+8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il; spf=pass smtp.mailfrom=tkos.co.il; dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b=pBEfRS8x; arc=none smtp.client-ip=84.110.109.230
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tkos.co.il
+	s=arc-20240116; t=1723365098; c=relaxed/simple;
+	bh=kzajr3Hjnuc15lf2t6XaLhgE+cZOuYOk7G1o9maXKSI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=itBvyHYU3rs1UmXz6hGNIBzmwnSQ8QcGmQHiu2ec4SB7DtjjhBsTgdPFV7I1ALmKPhcDE72LYUeA/Bc4WemmzsOEls+1OrMadmeoxHl4ys4PA3SpyOw+rVwZqlK6KeTLifsx8Xkafa+BLHosa9+vUac79c0fekr0saDRNMubvEA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DQ8Ywb2i; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b="pBEfRS8x"
-Received: from tarshish.tkos.co.il (unknown [10.0.8.3])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mail.tkos.co.il (Postfix) with ESMTPS id 6A446440F3B;
-	Sun, 11 Aug 2024 10:08:14 +0300 (IDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tkos.co.il;
-	s=default; t=1723360094;
-	bh=pqfXeuMc5R7Cx8Hid5iZqoJG0UKfN0CUSBnJMj912kU=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=pBEfRS8xozYVHxDal+gom0LyLB920TA7DI9cqTsHU5ILxbyt7u+dY4RfcEY+4/wyF
-	 7LwF366blZnFauh86x/n2HR0tjQXkXbk9qevQKPEw1caWQU1UjaMMd5gCnZPXTM8Z9
-	 WO95iZM1puJh1BcslCTIUO8hQBhxLfHG3RShfPqIBSMCByHsfYdY9W4KLkqYNTOV9I
-	 da2LavlA/IfDoVBclyGoAd2u/hHA4hL78QJ2P5v/eyzStSkarZ0El3yT7gI9wmeu8L
-	 Fs2fGP8eyR0NwvmNEGA5c/GPKb+GBC6LWa1tFFyv0Ui0w3q8PHxJ4SY1RF9P4IBJwT
-	 UFNNHeOE/rw/g==
-From: Baruch Siach <baruch@tkos.co.il>
-To: Christoph Hellwig <hch@lst.de>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>
-Cc: Baruch Siach <baruch@tkos.co.il>,
-	Robin Murphy <robin.murphy@arm.com>,
-	iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	=?UTF-8?q?Petr=20Tesa=C5=99=C3=ADk?= <petr@tesarici.cz>,
-	Ramon Fried <ramon@neureality.ai>,
-	Elad Nachman <enachman@marvell.com>
-Subject: [PATCH v6 RESED 2/2] arm64: support DMA zone above 4GB
-Date: Sun, 11 Aug 2024 10:09:36 +0300
-Message-ID: <70d2c447b6dbf472b8e7fec5804deddc12692aab.1723359916.git.baruch@tkos.co.il>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <cover.1723359916.git.baruch@tkos.co.il>
-References: <cover.1723359916.git.baruch@tkos.co.il>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DQ8Ywb2i"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59000C4AF0C;
+	Sun, 11 Aug 2024 08:31:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1723365098;
+	bh=kzajr3Hjnuc15lf2t6XaLhgE+cZOuYOk7G1o9maXKSI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=DQ8Ywb2iYilEVn1XF3RZRLwtNBhN8pXek14ssYNNWdbjK+RYnbfhTn9uFHG0nB1La
+	 ix1nw61dETixYmC7r0RRMb9oOvQZMFnoG0j3N8eiSdbeUKZpr1qHJm9PbpTxC6POo4
+	 FHvF1Bcx9UbK6qvQ269SEtoBNRynRfo5j/7LRFD39uOhLiOPJx3j4LATYpyrASNhnm
+	 HDc9278UKI3UqqwhMmQw6D+rWHMDuvkggRXmmWW+tmAYz8EhcllNKDrM10aCjg20R5
+	 pzssrl5MTaRQ0WRraph49wI+lbZ3qwKRvMWOAk6dubbZgDkBe5gun42IMDqZBR8AS/
+	 /FtZZ60VQ7CqA==
+Date: Sun, 11 Aug 2024 11:31:33 +0300
+From: Leon Romanovsky <leon@kernel.org>
+To: Zhu Yanjun <yanjun.zhu@linux.dev>
+Cc: Liu Jian <liujian56@huawei.com>, linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org, jgg@ziepe.ca,
+	zyjzyj2000@gmail.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+	alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com
+Subject: Re: [PATCH net-next 4/4] RDMA/rxe: Set queue pair cur_qp_state when
+ being queried
+Message-ID: <20240811083133.GA5925@unreal>
+References: <20240809083148.1989912-1-liujian56@huawei.com>
+ <20240809083148.1989912-5-liujian56@huawei.com>
+ <72029ea9-f550-470e-9e5d-42e95ca4592e@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <72029ea9-f550-470e-9e5d-42e95ca4592e@linux.dev>
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+On Fri, Aug 09, 2024 at 07:06:34PM +0800, Zhu Yanjun wrote:
+> 在 2024/8/9 16:31, Liu Jian 写道:
+> > Same with commit e375b9c92985 ("RDMA/cxgb4: Set queue pair state when
+> >   being queried"). The API for ib_query_qp requires the driver to set
+> > cur_qp_state on return, add the missing set.
+> > 
+> 
+> Add the following?
+> Cc: stable@vger.kernel.org
 
-Commit 791ab8b2e3db ("arm64: Ignore any DMA offsets in the
-max_zone_phys() calculation") made arm64 DMA/DMA32 zones span the entire
-RAM when RAM starts above 32-bits. This breaks hardware with DMA area
-that start above 32-bits. But the commit log says that "we haven't
-noticed any such hardware". It turns out that such hardware does exist.
+There is no need to add stable tag for RXE driver. Distros are not
+supporting this driver, which is used for development and not for
+production.
 
-One such platform has RAM starting at 32GB with an internal bus that has
-the following DMA limits:
+Thanks
 
-  #address-cells = <2>;
-  #size-cells = <2>;
-  dma-ranges = <0x00 0xc0000000 0x08 0x00000000 0x00 0x40000000>;
-
-That is, devices under this bus see 1GB of DMA range between 3GB-4GB in
-their address space. This range is mapped to CPU memory at 32GB-33GB.
-With current code DMA allocations for devices under this bus are not
-limited to DMA area, leading to run-time allocation failure.
-
-This commit reinstates DMA zone at the bottom of RAM. The result is DMA
-zone that properly reflects the hardware constraints as follows:
-
-[    0.000000] Zone ranges:
-[    0.000000]   DMA      [mem 0x0000000800000000-0x000000083fffffff]
-[    0.000000]   DMA32    empty
-[    0.000000]   Normal   [mem 0x0000000840000000-0x0000000bffffffff]
-
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-[baruch: split off the original patch]
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
----
- arch/arm64/mm/init.c | 12 ------------
- 1 file changed, 12 deletions(-)
-
-diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index c45e2152ca9e..bfb10969cbf0 100644
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -114,20 +114,8 @@ static void __init arch_reserve_crashkernel(void)
- 				    low_size, high);
- }
- 
--/*
-- * Return the maximum physical address for a zone given its limit.
-- * If DRAM starts above 32-bit, expand the zone to the maximum
-- * available memory, otherwise cap it at 32-bit.
-- */
- static phys_addr_t __init max_zone_phys(phys_addr_t zone_limit)
- {
--	phys_addr_t phys_start = memblock_start_of_DRAM();
--
--	if (phys_start > U32_MAX)
--		zone_limit = PHYS_ADDR_MAX;
--	else if (phys_start > zone_limit)
--		zone_limit = U32_MAX;
--
- 	return min(zone_limit, memblock_end_of_DRAM() - 1) + 1;
- }
- 
--- 
-2.43.0
-
+> 
+> > Fixes: 8700e3e7c485 ("Soft RoCE driver")
+> > Signed-off-by: Liu Jian <liujian56@huawei.com>
+> > ---
+> >   drivers/infiniband/sw/rxe/rxe_verbs.c | 2 ++
+> >   1 file changed, 2 insertions(+)
