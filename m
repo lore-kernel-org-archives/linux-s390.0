@@ -1,76 +1,114 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-182.mta0.migadu.com (out-182.mta0.migadu.com [91.218.175.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A304A22EE8;
-	Sun, 11 Aug 2024 08:31:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 288BD482FF
+	for <linux-s390@vger.kernel.org>; Sun, 11 Aug 2024 10:24:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723365098; cv=none; b=Za/ZWDfjcHJ6OMBrXtFSXdR1COuhXtQFqzf/acRsUyzcDFONnQ4q3dVKgp6HvDa0GDlbOgwgDWfLPtrFIHt2MYDIVJZv4aGYH/Ls46NgY5Um+IfktejwJAk0Y8m3pn3u6NLdaccrlIg4I/7nXxlKb9cM9194k0Voc9V00KHzY4U=
+	t=1723371899; cv=none; b=ZZDD9KLjwiti3n3SyjPo4+wo+S45/xgj58uvt9IaMTNWmI7LRWu0aXL6u7bA0mEQ0xOTe5kVudXo0Y2DqzzesxbHEYIzZ0ls5qXo6fhpSr26ZVY1/HCj7Dvs8U6GNtv8G2F/TXhbrEcG4RB9XQqYuCFyYHvk0CVSghNhpAE2qaU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723365098; c=relaxed/simple;
-	bh=kzajr3Hjnuc15lf2t6XaLhgE+cZOuYOk7G1o9maXKSI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=itBvyHYU3rs1UmXz6hGNIBzmwnSQ8QcGmQHiu2ec4SB7DtjjhBsTgdPFV7I1ALmKPhcDE72LYUeA/Bc4WemmzsOEls+1OrMadmeoxHl4ys4PA3SpyOw+rVwZqlK6KeTLifsx8Xkafa+BLHosa9+vUac79c0fekr0saDRNMubvEA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DQ8Ywb2i; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1723371899; c=relaxed/simple;
+	bh=ylSIxJZQmnA3l5sPWJq1gVuf83mOLw/7NuHyIi+LBYU=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=hUMEVGMfl8eSSWX6qamDhsXoHLahvHW6aAqNtNu5s9PvXSICUDv0wC1vsS81HHUe8Xf8Y8B/S2WrXTnhgtbfAAJSD3ATLveigkZw5YRZ806agP6aqOFBzSwMc4ScUQzyuiNcigDutBe41HcfszQtX4rZReRO2ei7o99STEh9j1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=W5GJyHJq; arc=none smtp.client-ip=91.218.175.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DQ8Ywb2i"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59000C4AF0C;
-	Sun, 11 Aug 2024 08:31:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1723365098;
-	bh=kzajr3Hjnuc15lf2t6XaLhgE+cZOuYOk7G1o9maXKSI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=DQ8Ywb2iYilEVn1XF3RZRLwtNBhN8pXek14ssYNNWdbjK+RYnbfhTn9uFHG0nB1La
-	 ix1nw61dETixYmC7r0RRMb9oOvQZMFnoG0j3N8eiSdbeUKZpr1qHJm9PbpTxC6POo4
-	 FHvF1Bcx9UbK6qvQ269SEtoBNRynRfo5j/7LRFD39uOhLiOPJx3j4LATYpyrASNhnm
-	 HDc9278UKI3UqqwhMmQw6D+rWHMDuvkggRXmmWW+tmAYz8EhcllNKDrM10aCjg20R5
-	 pzssrl5MTaRQ0WRraph49wI+lbZ3qwKRvMWOAk6dubbZgDkBe5gun42IMDqZBR8AS/
-	 /FtZZ60VQ7CqA==
-Date: Sun, 11 Aug 2024 11:31:33 +0300
-From: Leon Romanovsky <leon@kernel.org>
-To: Zhu Yanjun <yanjun.zhu@linux.dev>
-Cc: Liu Jian <liujian56@huawei.com>, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org, jgg@ziepe.ca,
-	zyjzyj2000@gmail.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-	alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com
-Subject: Re: [PATCH net-next 4/4] RDMA/rxe: Set queue pair cur_qp_state when
- being queried
-Message-ID: <20240811083133.GA5925@unreal>
-References: <20240809083148.1989912-1-liujian56@huawei.com>
- <20240809083148.1989912-5-liujian56@huawei.com>
- <72029ea9-f550-470e-9e5d-42e95ca4592e@linux.dev>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="W5GJyHJq"
+Message-ID: <60557472-62b2-4323-b952-cf81e5560c16@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1723371895;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Hc+SO9yvYqxLbr+jOZbu3cqsJuIGSGpCQ0uk1+NIK7E=;
+	b=W5GJyHJqlkt55kQW8Jx/oj1L/auz359xgrNJlaRbBQJQ9iJ6sNg/e4ahGX4lSWhYYevtPu
+	ZPYqtVge+Qssrp2jK9syv8IbwvLihTd06d+ZpfEw55HIfSlt9BSyrd+UUytHvkNhgrd2rM
+	CJZR1dbjK/+vNwh2mR19YWWtrRh4kDg=
+Date: Sun, 11 Aug 2024 18:24:46 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Subject: Re: [PATCH net-next 4/4] RDMA/rxe: Set queue pair cur_qp_state when
+ being queried
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Liu Jian <liujian56@huawei.com>, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org, jgg@ziepe.ca,
+ zyjzyj2000@gmail.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com
+References: <20240809083148.1989912-1-liujian56@huawei.com>
+ <20240809083148.1989912-5-liujian56@huawei.com>
+ <72029ea9-f550-470e-9e5d-42e95ca4592e@linux.dev>
+ <20240811083133.GA5925@unreal>
+ <bb0a5de8-f2d3-4276-ada4-f788f574b798@linux.dev>
+In-Reply-To: <bb0a5de8-f2d3-4276-ada4-f788f574b798@linux.dev>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <72029ea9-f550-470e-9e5d-42e95ca4592e@linux.dev>
+X-Migadu-Flow: FLOW_OUT
 
-On Fri, Aug 09, 2024 at 07:06:34PM +0800, Zhu Yanjun wrote:
-> 在 2024/8/9 16:31, Liu Jian 写道:
-> > Same with commit e375b9c92985 ("RDMA/cxgb4: Set queue pair state when
-> >   being queried"). The API for ib_query_qp requires the driver to set
-> > cur_qp_state on return, add the missing set.
-> > 
-> 
-> Add the following?
-> Cc: stable@vger.kernel.org
 
-There is no need to add stable tag for RXE driver. Distros are not
-supporting this driver, which is used for development and not for
-production.
+在 2024/8/11 18:22, Zhu Yanjun 写道:
+>
+>
+> 在 2024/8/11 16:31, Leon Romanovsky 写道:
+>> On Fri, Aug 09, 2024 at 07:06:34PM +0800, Zhu Yanjun wrote:
+>>> 在 2024/8/9 16:31, Liu Jian 写道:
+>>>> Same with commit e375b9c92985 ("RDMA/cxgb4: Set queue pair state when
+>>>>    being queried"). The API for ib_query_qp requires the driver to set
+>>>> cur_qp_state on return, add the missing set.
+>>>>
+>>> Add the following?
+>>> Cc:stable@vger.kernel.org
+>> There is no need to add stable tag for RXE driver. Distros are not
+>> supporting this driver, which is used for development and not for
+>> production.
+>
+> I do not mean that this driver is supported in Distros.
+>
+> I mean that QP cur_qp_state is not set when being queried in rxe. In 
+> other rdma drivers, this is set.
+>
+> This should be a problem in RXE. So I suggest to add "CC: 
+> stable@vger.kernel.org".
+>
+> As such, the stable branch will backport this commit to fix this 
+> problem in RXE.
+>
 
-Thanks
+Sorry. My mistakes.
 
-> 
-> > Fixes: 8700e3e7c485 ("Soft RoCE driver")
-> > Signed-off-by: Liu Jian <liujian56@huawei.com>
-> > ---
-> >   drivers/infiniband/sw/rxe/rxe_verbs.c | 2 ++
-> >   1 file changed, 2 insertions(+)
+No need to add this "CC: stable@vger.kernel.org"
+
+Zhu Yanjun
+
+
+> Anyway, thanks a lot for your reporting and fixing this problem in RXE.
+>
+> Best Regards,
+>
+> Zhu Yanjun
+>
+>> Thanks
+>>
+>>>> Fixes: 8700e3e7c485 ("Soft RoCE driver")
+>>>> Signed-off-by: Liu Jian<liujian56@huawei.com>
+>>>> ---
+>>>>    drivers/infiniband/sw/rxe/rxe_verbs.c | 2 ++
+>>>>    1 file changed, 2 insertions(+)
+> -- 
+> Best Regards,
+> Yanjun.Zhu
+
+-- 
+Best Regards,
+Yanjun.Zhu
+
