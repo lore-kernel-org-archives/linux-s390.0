@@ -1,114 +1,84 @@
-Received: from out-182.mta0.migadu.com (out-182.mta0.migadu.com [91.218.175.182])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 288BD482FF
-	for <linux-s390@vger.kernel.org>; Sun, 11 Aug 2024 10:24:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB18014A4F1;
+	Sun, 11 Aug 2024 16:38:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723371899; cv=none; b=ZZDD9KLjwiti3n3SyjPo4+wo+S45/xgj58uvt9IaMTNWmI7LRWu0aXL6u7bA0mEQ0xOTe5kVudXo0Y2DqzzesxbHEYIzZ0ls5qXo6fhpSr26ZVY1/HCj7Dvs8U6GNtv8G2F/TXhbrEcG4RB9XQqYuCFyYHvk0CVSghNhpAE2qaU=
+	t=1723394327; cv=none; b=MhKlZr0r/kt5s10ae34TuTTdum7p/B2D5Vi5tjad3ehgUZuwdqbGjTxNpQqZrlr32nPGAcL2qhKfzc2OuZchIuJYryRD3H5cld7MT6w2WJGCY8QeWaC4fet39DnrokP3jij2bBRtzHHEnQ1yds1xkoWgHRLIDIkPb6PFRYc0kqY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723371899; c=relaxed/simple;
-	bh=ylSIxJZQmnA3l5sPWJq1gVuf83mOLw/7NuHyIi+LBYU=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=hUMEVGMfl8eSSWX6qamDhsXoHLahvHW6aAqNtNu5s9PvXSICUDv0wC1vsS81HHUe8Xf8Y8B/S2WrXTnhgtbfAAJSD3ATLveigkZw5YRZ806agP6aqOFBzSwMc4ScUQzyuiNcigDutBe41HcfszQtX4rZReRO2ei7o99STEh9j1I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=W5GJyHJq; arc=none smtp.client-ip=91.218.175.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1723394327; c=relaxed/simple;
+	bh=evOBG5xxFap9DEmPDfAZO40tsVzPvbnvJU9nM+60lno=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Eah4ubwfZLcMk7Y0GpS89im9FKwY+KPMslc/G+P6GRAw4NbFQoqqi2NH/1rpSFRQEH6WYj2IrTnU0ZO/VWxYv6xJjMACq/0HogQeEeUYUBX4SxWGPtYumUM8ZtVsNR/3nmVW3F8T+PoeQs4BifmqoFmkQJLHne4aX9L89L52dBs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oSrj0YTO; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="W5GJyHJq"
-Message-ID: <60557472-62b2-4323-b952-cf81e5560c16@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1723371895;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Hc+SO9yvYqxLbr+jOZbu3cqsJuIGSGpCQ0uk1+NIK7E=;
-	b=W5GJyHJqlkt55kQW8Jx/oj1L/auz359xgrNJlaRbBQJQ9iJ6sNg/e4ahGX4lSWhYYevtPu
-	ZPYqtVge+Qssrp2jK9syv8IbwvLihTd06d+ZpfEw55HIfSlt9BSyrd+UUytHvkNhgrd2rM
-	CJZR1dbjK/+vNwh2mR19YWWtrRh4kDg=
-Date: Sun, 11 Aug 2024 18:24:46 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oSrj0YTO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 237EBC32786;
+	Sun, 11 Aug 2024 16:38:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1723394326;
+	bh=evOBG5xxFap9DEmPDfAZO40tsVzPvbnvJU9nM+60lno=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=oSrj0YTOF7TixMhBQC5em1jgDg7wJbRvWmm0aMFYxFCFwMJoqFAxxbBNHLk76T0/9
+	 I8Uxw1keZO90WiSyvZAzN7cISSyRI/TkM2ZJs2F+VUV4G3+60HCynmdODo+a5hir+F
+	 NH/tW35YDefDUZKvr6mQeqKqssc5cRgcqwW8TYMiB3N72AlzF6rN5FBrnXTz8cz5Vk
+	 pkJ+PxAU2LQxgU4TYdRXtHLtorZ1BwtwyrdBXwVZkIyhI/vT4swWfepBnZg3qSZ65o
+	 R8exXW3ntUFdcBCVezD/o3qcz9f0UKwVD19SvBeZWphy0md68eXL4uQJvZsObAadNd
+	 +D61bZfCUS56Q==
+From: Mike Rapoport <rppt@kernel.org>
+To: agordeev@linux.ibm.com,
+	gerald.schaefer@linux.ibm.com,
+	hca@linux.ibm.com,
+	akpm@linux-foundation.org,
+	brauner@kernel.org,
+	oleg@redhat.com,
+	Wei Yang <richard.weiyang@gmail.com>
+Cc: Mike Rapoport <rppt@kernel.org>,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
+	David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v6 1/3] mm/memblock: introduce a new helper memblock_estimated_nr_free_pages()
+Date: Sun, 11 Aug 2024 19:38:31 +0300
+Message-ID: <172339430546.1161596.15408670748567422629.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240808001415.6298-1-richard.weiyang@gmail.com>
+References: <20240808001415.6298-1-richard.weiyang@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH net-next 4/4] RDMA/rxe: Set queue pair cur_qp_state when
- being queried
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Liu Jian <liujian56@huawei.com>, linux-rdma@vger.kernel.org,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org, jgg@ziepe.ca,
- zyjzyj2000@gmail.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com
-References: <20240809083148.1989912-1-liujian56@huawei.com>
- <20240809083148.1989912-5-liujian56@huawei.com>
- <72029ea9-f550-470e-9e5d-42e95ca4592e@linux.dev>
- <20240811083133.GA5925@unreal>
- <bb0a5de8-f2d3-4276-ada4-f788f574b798@linux.dev>
-In-Reply-To: <bb0a5de8-f2d3-4276-ada4-f788f574b798@linux.dev>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
+From: Mike Rapoport (Microsoft) <rppt@kernel.org>
 
-在 2024/8/11 18:22, Zhu Yanjun 写道:
->
->
-> 在 2024/8/11 16:31, Leon Romanovsky 写道:
->> On Fri, Aug 09, 2024 at 07:06:34PM +0800, Zhu Yanjun wrote:
->>> 在 2024/8/9 16:31, Liu Jian 写道:
->>>> Same with commit e375b9c92985 ("RDMA/cxgb4: Set queue pair state when
->>>>    being queried"). The API for ib_query_qp requires the driver to set
->>>> cur_qp_state on return, add the missing set.
->>>>
->>> Add the following?
->>> Cc:stable@vger.kernel.org
->> There is no need to add stable tag for RXE driver. Distros are not
->> supporting this driver, which is used for development and not for
->> production.
->
-> I do not mean that this driver is supported in Distros.
->
-> I mean that QP cur_qp_state is not set when being queried in rxe. In 
-> other rdma drivers, this is set.
->
-> This should be a problem in RXE. So I suggest to add "CC: 
-> stable@vger.kernel.org".
->
-> As such, the stable branch will backport this commit to fix this 
-> problem in RXE.
->
+On Thu, 08 Aug 2024 00:14:13 +0000, Wei Yang wrote:
+> During bootup, system may need the number of free pages in the whole system
+> to do some calculation before all pages are freed to buddy system. Usually
+> this number is get from totalram_pages(). Since we plan to move the free
+> pages accounting in __free_pages_core(), this value may not represent
+> total free pages at the early stage, especially when
+> CONFIG_DEFERRED_STRUCT_PAGE_INIT is enabled.
+> 
+> [...]
 
-Sorry. My mistakes.
+Applied to for-next branch of memblock.git tree, thanks!
 
-No need to add this "CC: stable@vger.kernel.org"
+[1/3] mm/memblock: introduce a new helper memblock_estimated_nr_free_pages()
+      commit: d0f8a8973f265f6a276f99d091af99edfb2b87de
+[2/3] kernel/fork.c: get estimated free pages by memblock api
+      commit: 0910bf0ef85c5404aac94394cb31e076e4eb03f1
+[3/3] s390/mm: get estimated free pages by memblock api
+      commit: cb088e38aab4c7e9ce711c18c66e851c8f4227bb
 
-Zhu Yanjun
+tree: https://git.kernel.org/pub/scm/linux/kernel/git/rppt/memblock
+branch: for-next
 
-
-> Anyway, thanks a lot for your reporting and fixing this problem in RXE.
->
-> Best Regards,
->
-> Zhu Yanjun
->
->> Thanks
->>
->>>> Fixes: 8700e3e7c485 ("Soft RoCE driver")
->>>> Signed-off-by: Liu Jian<liujian56@huawei.com>
->>>> ---
->>>>    drivers/infiniband/sw/rxe/rxe_verbs.c | 2 ++
->>>>    1 file changed, 2 insertions(+)
-> -- 
-> Best Regards,
-> Yanjun.Zhu
-
--- 
-Best Regards,
-Yanjun.Zhu
+--
+Sincerely yours,
+Mike.
 
