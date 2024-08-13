@@ -1,84 +1,44 @@
-Received: from fhigh1-smtp.messagingengine.com (fhigh1-smtp.messagingengine.com [103.168.172.152])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC98C19E831;
-	Tue, 13 Aug 2024 15:13:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0026E19EEB4;
+	Tue, 13 Aug 2024 15:29:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723562036; cv=none; b=a4Eg7zlnMTjWshNBbSULp9S+vCjEPdp6quni1GH48l+9MP8vQTmL6vJ38UzFqaRyNvvLC2bR6WOhbHrgbjcsWWZT87z8FJVjZnne49WEglOXc/DkvQp4VMACKUvL2lQFhG+FeZ4TKT6fbDPkVOBn0JfAxM6kmUd3pptk6qeoZYc=
+	t=1723562995; cv=none; b=EFAM7gpIYa1EHMfKcUe+I0pqX71ONQ6oNMsts72aKXfgTCVv5ncqcr2oHOlqw+4HXsh/EHxsP+FJz+MDNS3Nb+XjloLmIn7E7yguKTS6pBXUMwlbF6b8e0nv45pIqsHAiTt3NIGf7Lg2ZfC7pqUXxIY2a1i6rjLWLB+It4szPno=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723562036; c=relaxed/simple;
-	bh=V40vtNjwzGLNCCt68Yz73rtKAj1di36sAeB6peUqnPw=;
+	s=arc-20240116; t=1723562995; c=relaxed/simple;
+	bh=MNcxMgKtj9ULiS/BCsWkbHfiecDY5rHuA94v/y5yRIM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gQWtMyeFUnYbvnyEtieEjbhg01WSyAJDWjdfMfRbIFmtqu9AB+zf3l3vFfWs3yPCZ1YSdaPj5zAuGkjAwF2nCKB/uEpm8AEZM/S80kHbd9RIDU7MyCoxh6B1n6+LlAYKcuMzVe9nKy+Bnbg+2v959koXIpnI+CSI1pjkONh/6HU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=idosch.org; spf=none smtp.mailfrom=idosch.org; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=DB9IDQ1A; arc=none smtp.client-ip=103.168.172.152
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=idosch.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=idosch.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=K8PuCa0RMlmaScS3R2F1kQPKhqnfcEXUbwl/EAOi+gjKVZhrekUqCfBKfg9krN40rrCjZc3eONNZeuig3sEHPhE72qZhsAMbzpNre19s9VunkH8VNJFe76sBfM8tXnixbPtvA+BXHQ9QMfdwhP7/VGk6x9epe/8rZ046gVjBCWM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=v5/aX8cr; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="DB9IDQ1A"
-Received: from phl-compute-03.internal (phl-compute-03.nyi.internal [10.202.2.43])
-	by mailfhigh.nyi.internal (Postfix) with ESMTP id 828951151ADA;
-	Tue, 13 Aug 2024 11:13:53 -0400 (EDT)
-Received: from phl-mailfrontend-01 ([10.202.2.162])
-  by phl-compute-03.internal (MEProxy); Tue, 13 Aug 2024 11:13:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm3; t=1723562033; x=1723648433; bh=TTJo0dwlhYuw65a/8dXX89xJMsBi
-	5E/g7VpWhakXTAw=; b=DB9IDQ1AKHuSDtrMc338xQnd5fiRIQe8PSgxMMWfFGKA
-	m/ur+iYp8iPTvWmSt6mAWU2t9maLpz71gRDhZjVuRTiXWScqSnjcxlbgkVwEtQ3h
-	hjp7vD6WH9oAfale31o1EMYf+QU15cm3LPYz1YRLdccxSnZIQ8XYXnNEA84jqQka
-	8igIc3pi/JJJkxD5NiqyrVlV3VlMq2uPB+omTt2v6Brcvg9SW69dyGWO1Oom4jU3
-	0s/jZ5EZS0HLbhd+5o8WHrnAuZnVjgzgX+tsIN+lDq/kW9B64uaPlGcpTcVgRcJI
-	UtNEpUuRo3eiAmAR502itrGXjm5LzqQn5C1chK83Fw==
-X-ME-Sender: <xms:MHi7ZiAJKirRQQM4cKUO85dFkmnuX8hlgcHZiFry2vsOt7IZUKjUGQ>
-    <xme:MHi7Zsi-jilgvn-IDdpN-AaCKJsL8ckca9X_4Zsom6kKUR0Xvm87fAsw4YAAwsFLv
-    HWxlKTUxK_ZPCc>
-X-ME-Received: <xmr:MHi7ZllD7zi45hwJd9ExcxNa0xeJ-IQvqdncvWCNLD6nIAiw7Z8Ne3O0_RKVafwK8COPWvucID3JDwRz_9BJ7oH4ofsGiA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddruddtvddgkeehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
-    rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
-    htshculddquddttddmnecujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvden
-    ucfhrhhomhepkfguohcuufgthhhimhhmvghluceoihguohhstghhsehiughoshgthhdroh
-    hrgheqnecuggftrfgrthhtvghrnhepffetvddtieduteduleffveelgfehkeetudevveev
-    leehheekkedtjeeifeeuffeunecuffhomhgrihhnpehnvghtfhhilhhtvghrrdhorhhgne
-    cuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepihguohhs
-    tghhsehiughoshgthhdrohhrghdpnhgspghrtghpthhtohepudefpdhmohguvgepshhmth
-    hpohhuthdprhgtphhtthhopehkuhgsrgeskhgvrhhnvghlrdhorhhgpdhrtghpthhtohep
-    ghhufigvnheslhhinhhugidrrghlihgsrggsrgdrtghomhdprhgtphhtthhopeifvghnjh
-    hirgeslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehjrghkrgeslhhinhhugidr
-    ihgsmhdrtghomhdprhgtphhtthhopegurghvvghmsegurghvvghmlhhofhhtrdhnvghtpd
-    hrtghpthhtohepvgguuhhmrgiivghtsehgohhoghhlvgdrtghomhdprhgtphhtthhopehp
-    rggsvghnihesrhgvughhrghtrdgtohhmpdhrtghpthhtoheprghlihgsuhgurgeslhhinh
-    hugidrrghlihgsrggsrgdrtghomhdprhgtphhtthhopehtohhnhihluheslhhinhhugidr
-    rghlihgsrggsrgdrtghomh
-X-ME-Proxy: <xmx:MHi7ZgwPUb3rJCDNg3bB1De9qNdZRXzrx6bmXqpJOmZ37WqRLyzpEA>
-    <xmx:MHi7ZnT0W_IKseXJ9vRUBfmk9KuCGtJilEiqQ8OzYMdBNw72n1UwQQ>
-    <xmx:MHi7ZrbpnUK7Z10vVFDDEi6usa683qdfLYMlFszHzI9GOjKR2O5sNw>
-    <xmx:MHi7ZgSYm_fb1bgzv6i9lIwky86TtKYkiaw0o1KVxhHTLcCM6sKE6w>
-    <xmx:MXi7ZmKhLR4sSGm_0gP343jLYhkXzLtntEW3l1RTiFvn_3ifPwjPWTFD>
-Feedback-ID: i494840e7:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 13 Aug 2024 11:13:51 -0400 (EDT)
-Date: Tue, 13 Aug 2024 18:13:48 +0300
-From: Ido Schimmel <idosch@idosch.org>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Wen Gu <guwen@linux.alibaba.com>, wenjia@linux.ibm.com,
-	jaka@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-	pabeni@redhat.com, alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	danieller@nvidia.com
-Subject: Re: [PATCH net-next v2 1/2] net/smc: introduce statistics for
- allocated ringbufs of link group
-Message-ID: <Zrt4LGFh7kMwGczb@shredder.mtl.com>
-References: <20240807075939.57882-1-guwen@linux.alibaba.com>
- <20240807075939.57882-2-guwen@linux.alibaba.com>
- <20240812174144.1a6c2c7a@kernel.org>
- <b3e8c9b9-f708-4906-b010-b76d38db1fb1@linux.alibaba.com>
- <20240813074042.14e20842@kernel.org>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="v5/aX8cr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 631DAC4AF0B;
+	Tue, 13 Aug 2024 15:29:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1723562994;
+	bh=MNcxMgKtj9ULiS/BCsWkbHfiecDY5rHuA94v/y5yRIM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=v5/aX8crUazrJfAKWLoHmHyoyfP8cc/NWNInxayRXTkYICg9VSnxWLbvEbxf46Q6H
+	 sv/33VfnCu1xgpqQv7XYuPW7iV8O9Moi9ip3KyNvRD1lbNsr8tNsx4c4kFKJK5SMCB
+	 CSSZE/K2bjiUdfZecKxcaP0GcN8/JPPeAs/ip2z4=
+Date: Tue, 13 Aug 2024 17:29:52 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH 2/2] s390/iucv: Fix vargs handling in iucv_alloc_device()
+Message-ID: <2024081332-unblock-absinthe-1c26@gregkh>
+References: <cover.thread-d8267b.your-ad-here.call-01723545029-ext-2515@work.hours>
+ <patch-2.thread-d8267b.git-d8267bded9e9.your-ad-here.call-01723545029-ext-2515@work.hours>
+ <2024081331-bonnet-fiftieth-9a14@gregkh>
+ <your-ad-here.call-01723549827-ext-8444@work.hours>
+ <2024081319-patriarch-brutishly-653f@gregkh>
+ <221ba279-e48b-4002-9530-c6186e3e8042@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -87,29 +47,50 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240813074042.14e20842@kernel.org>
+In-Reply-To: <221ba279-e48b-4002-9530-c6186e3e8042@linux.ibm.com>
 
-On Tue, Aug 13, 2024 at 07:40:42AM -0700, Jakub Kicinski wrote:
-> On Tue, 13 Aug 2024 17:55:17 +0800 Wen Gu wrote:
-> > On 2024/8/13 08:41, Jakub Kicinski wrote:
-> > > On Wed,  7 Aug 2024 15:59:38 +0800 Wen Gu wrote:  
-> > >> +	if (nla_put_u64_64bit(skb, SMC_NLA_LGR_R_SNDBUF_ALLOC,
-> > >> +			      lgr->alloc_sndbufs, SMC_NLA_LGR_R_PAD))  
-> > > 
-> > > nla_put_uint()  
-> > 
-> > Hi, Jakub. Thank you for reminder.
-> > 
-> > I read the commit log and learned the advantages of this helper.
-> > But it seems that the support for corresponding user-space helpers
-> > hasn't kept up yet, e.g. can't find a helper like nla_get_uint in
-> > latest libnl.
+On Tue, Aug 13, 2024 at 03:35:48PM +0200, Alexandra Winter wrote:
 > 
-> Add it, then.
+> 
+> On 13.08.24 14:43, Greg Kroah-Hartman wrote:
+> >>> I don't understand, why can't dev_set_name() be called here?
+> >>>
+> [...]
+> > 
+> > But step back, why is this needed at all anyway?  No other subsystem or
+> > driver needs/wants this, what makes this api so special?  Why not figure
+> > out your name beforehand?
+> > 
+> > thanks,
+> 
+> 
+> Vasily, the following update to Heiko's patch does not touch lib/kobject.c
+> According to a quick test it still solves the original issue and does compile
+> with W=1 and iucv as a module.
+> 
+> diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
+> index 64102a31b569..6a819ba4ccab 100644
+> --- a/net/iucv/iucv.c
+> +++ b/net/iucv/iucv.c
+> @@ -86,13 +86,17 @@ struct device *iucv_alloc_device(const struct attribute_group **attrs,
+>  {
+>         struct device *dev;
+>         va_list vargs;
+> +       char buf[20];
+>         int rc;
+> 
+>         dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+>         if (!dev)
+>                 goto out_error;
+>         va_start(vargs, fmt);
+> -       rc = kobject_set_name_vargs(&dev->kobj, fmt, vargs);
+> +       rc = vsnprintf(buf, 20, fmt, vargs);
+> +       if (!rc)
+> +               rc = dev_set_name(dev, buf);
 
-Danielle added one to libmnl:
+This looks best, let's not create a core function that no one has ever
+needed yet just for one user :)
 
-https://git.netfilter.org/libmnl/commit/?id=102942be401a99943b2c68981b238dadfa788f2d
+thanks,
 
-Intention is to use it in ethtool once it appears in a released version
-of libmnl.
+greg k-h
