@@ -1,169 +1,162 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA00419412F;
-	Tue, 13 Aug 2024 10:59:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56CC560EC4;
+	Tue, 13 Aug 2024 11:11:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723546750; cv=none; b=qcXMnpNYNakwCaeazEfFRnS8PTALC437mFATdFmJRzJ0BLyEHrGlFAXzjh0rWJmo10pHJ84l+hroZUdG3ueaZHb69euOWUgTvANEOeVVN+VyCMHV6jPgvS5uw9DDk4AQzdkeNEdv6oLMlRZtQMsM1YV/CeJvbgkOSKEAUEBY9ZI=
+	t=1723547493; cv=none; b=POfDvRE5C67T8vAwYE405Ugwt+ARYeWFakOqgzuzIPyBd+0K2xgMQB7uScKYQuPupyDqe6rlYcqywIloObCEzjSMkfgMCE1DKkrQ6vJD/48r1BTBprBixKvAQe/hcjylT9eePtrIcy8m4uiWF2NsO7DCo8PVCobWZeOFwnBBtQ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723546750; c=relaxed/simple;
-	bh=3Hg1d0q3PaFfnCAN8/nimKc+SRolk1WgNo4zb7AOCnA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gWLB7MtetFG1IMLwPwA+WpyZJurYHx5XKG+B6Avki2ACDwNxp1/kSZPhlJ31/QTmsX48LZkni6FPHUgt5VfBZuJZT0ZbkrI9uvRANYpzkx8cxkIaxM69S9/eHJdEkZmWgIJvIk7LmVEWOGt4WIqIlNbCR/fCTmb/5xx791+XwAY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UA0we/aN; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1723547493; c=relaxed/simple;
+	bh=7gkIW6rHAJWw9DpF49uh+XSuxqYO3AKEiidveWjhkbU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=dmbmHqpswKTzk0X23wz3HrsW2iEQhil2KpwO4VIMGB5v4qEHeh78epT/5jPi7mkMqk+6xQ68n+v9LKCipF54wDC583mLexnr7aHrxIncAS1ubNdKKEC3JsbB2IfPAu05t/+xrcgTNh8zjj2aJD/bRyotppacL+BJo7LWpgNGj/8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=D1PwmyK4; arc=none smtp.client-ip=115.124.30.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UA0we/aN"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47D17DCx023368;
-	Tue, 13 Aug 2024 10:59:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:references:mime-version
-	:content-type:in-reply-to; s=pp1; bh=EMHSqVSaNDDVL+/5VuZ9DPquIo0
-	UnfhZK5n6GmCJef8=; b=UA0we/aN7OZ9D0IVaQkNkCotjuE59KtuBH9+slJkss/
-	vhtXL4UBuLpdGQIQE+uc+gS2tYu3Lh859OY3BxqWO6WIlv11C9cS/XuhV3E6eHWP
-	PHvFWeDsYofdiuENZjyLQWSMF+7OtPzO3/Ec0UjmshRKICW34dN4F/nAFJdl+vho
-	H5eRJk/2D8ZARsWNqWaiAf1HnF+82/4FnfM/wDhIm35ZpCmcw+GEsTXmrIw/MZLK
-	cZHCDz04nmAV+Yy4W+LJFZDV2HfULpLQUW5rTi+Da1NAkV/k2osC08V01PlDDBZz
-	oRZbY1aZ7TWX5tYKEQ18vG+pnALyTNtdXy4qGh3FdgQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40wyuxqatt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 13 Aug 2024 10:59:04 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 47DAwNsJ008760;
-	Tue, 13 Aug 2024 10:59:04 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40wyuxqatr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 13 Aug 2024 10:59:03 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 47D7YRYL010068;
-	Tue, 13 Aug 2024 10:59:03 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40xjx0kaga-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 13 Aug 2024 10:59:02 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47DAwvin57737570
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 13 Aug 2024 10:58:59 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0E1E420043;
-	Tue, 13 Aug 2024 10:58:57 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 92FB720040;
-	Tue, 13 Aug 2024 10:58:56 +0000 (GMT)
-Received: from darkmoore (unknown [9.171.80.42])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 13 Aug 2024 10:58:56 +0000 (GMT)
-Date: Tue, 13 Aug 2024 12:57:53 +0200
-From: Christoph Schlameuss <schlameuss@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Subject: Re: [PATCH v5 07/10] selftests: kvm: s390: Add uc_map_unmap VM test
- case
-Message-ID: <20240813123526.256667.schlameuss@linux.ibm.com>
-References: <20240807154512.316936-1-schlameuss@linux.ibm.com>
- <20240807154512.316936-8-schlameuss@linux.ibm.com>
- <c1af035e-2bc3-4d61-a318-11f2490cb0d5@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="D1PwmyK4"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1723547482; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=i6gj0Em+nl5LJC0kbGdv/6kK5TQfE9f5EDGnM/l48K0=;
+	b=D1PwmyK4Ys1lZszEBXExWhUr5Lw6ZIJwnuvX+EKrzzhHo5b86BGUmT84zd7AninjRfo+kforhB6qOSNHME2FA1a0SOUVZYx8NvT5feg7gVNfdvSRzdPE030rdQcD3xkwkdrsEtV+JsJ6n5+HhvGYLJ+LESYClDc3XQuuTfJS+T8=
+Received: from 30.221.149.156(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WCovVTY_1723547480)
+          by smtp.aliyun-inc.com;
+          Tue, 13 Aug 2024 19:11:21 +0800
+Message-ID: <a34b3973-1121-4c55-ad99-f74a755644d3@linux.alibaba.com>
+Date: Tue, 13 Aug 2024 19:11:20 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c1af035e-2bc3-4d61-a318-11f2490cb0d5@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: XFG0IvWz7n4nirEgXfAwIrFEh2Wk8G6z
-X-Proofpoint-ORIG-GUID: RpSJJQzcW7JmePmFh9JlzNNr4fPwZtUP
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-13_02,2024-08-13_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1015 phishscore=0 priorityscore=1501 adultscore=0 spamscore=0
- impostorscore=0 malwarescore=0 mlxlogscore=999 bulkscore=0 suspectscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2408130075
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net,v3] net/smc: prevent NULL pointer dereference in
+ txopt_get
+To: Jeongjun Park <aha310510@gmail.com>, wenjia@linux.ibm.com,
+ jaka@linux.ibm.com, gbayer@linux.ibm.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com
+Cc: davem@davemloft.net, dust.li@linux.alibaba.com, edumazet@google.com,
+ pabeni@redhat.com, kuba@kernel.org, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ syzbot+f69bfae0a4eb29976e44@syzkaller.appspotmail.com
+References: <20240813100722.181250-1-aha310510@gmail.com>
+Content-Language: en-US
+From: "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <20240813100722.181250-1-aha310510@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue, Aug 13, 2024 at 09:21:12AM +0200, Janosch Frank wrote:
-> On 8/7/24 5:45 PM, Christoph Schlameuss wrote:
-> > Add a test case verifying basic running and interaction of ucontrol VMs.
-> > Fill the segment and page tables for allocated memory and map memory on
-> > first access.
-> > 
-> > * uc_map_unmap
-> >    Store and load data to mapped and unmapped memory and use pic segment
-> >    translation handling to map memory on access.
-> > 
-> > Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> > ---
-> >   .../selftests/kvm/s390x/ucontrol_test.c       | 167 +++++++++++++++++-
-> >   1 file changed, 166 insertions(+), 1 deletion(-)
-> > 
-> 
-> [...]
-> 
-> > +static void init_st_pt(FIXTURE_DATA(uc_kvm) * self)
-> > +{
-> > +	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
-> > +	u64 first_pt_addr, ste, s_addr, pte;
-> > +	struct kvm_run *run = self->run;
-> > +	void *se_addr;
-> > +	int si, pi;
-> > +	u64 *phd;
-> > +
-> > +	/* set PASCE addr */
-> > +	self->pgd = self->base_gpa + SZ_1M;
-> > +	phd = gpa2hva(self, self->pgd);
-> > +	memset(phd, 0xff, VM_MEM_TABLE_SIZE);
-> > +
-> > +	first_pt_addr = self->pgd + (VM_MEM_TABLE_SIZE * VM_MEM_MAX_M);
-> > +	/* for each segment in the VM */
-> > +	for (si = 0; si < VM_MEM_MAX_M; si++) {
-> > +		/* build segment table entry (ste) */
-> > +		ste = (first_pt_addr + (VM_MEM_TABLE_SIZE * si)) & ~0x7fful;
-> > +		/* store ste in st */
-> > +		phd[si] = ste;
-> > +
-> > +		se_addr = gpa2hva(self, phd[si]);
-> > +		s_addr = self->base_gpa + (si * SZ_1M);
-> > +		memset(se_addr, 0xff, VM_MEM_TABLE_SIZE);
-> > +		/* for each page in the segment (VM) */
-> > +		for (pi = 0; pi < (SZ_1M / PAGE_SIZE); pi++) {
-> > +			/* build page table entry (pte) */
-> > +			pte = (s_addr + (pi * PAGE_SIZE)) & ~0xffful;
-> > +			/* store pte in pt */
-> > +			((u64 *)se_addr)[pi] = pte;
-> > +		}
-> > +	}
-> > +	pr_debug("segment table entry %p (0x%lx) --> %p\n",
-> > +		 phd, phd[0], gpa2hva(self, (phd[0] & ~0x7fful)));
-> > +	print_hex_bytes("st", (u64)phd, 64);
-> > +	print_hex_bytes("pt", (u64)gpa2hva(self, phd[0]), 128);
-> > +
-> > +	/* PASCE TT=00 for segment table */
-> > +	sync_regs->crs[1] = self->pgd | 0x3;
-> > +	run->kvm_dirty_regs |= KVM_SYNC_CRS;
-> > +}
-> 
-> Having a closer look at this I don't understand why we need to setup DAT in
-> the guest. Also, the guest's memory easily fits in a couple of segment
-> entries so you could set the table length TL in the ASCE to one page instead
-> of 4.
-> 
 
-I did only create the tables to be able to switch the DAT on and with that use a
-PSW that is a bit more normal.
-Switching the DAT off will work fine for the tests here without loosing any
-coverage in KVM. So I will remove it here and in the skey test.
+
+On 8/13/24 6:07 PM, Jeongjun Park wrote:
+> Since smc_inet6_prot does not initialize ipv6_pinfo_offset, inet6_create()
+> copies an incorrect address value, sk + 0 (offset), to inet_sk(sk)->pinet6.
+>
+> In addition, since inet_sk(sk)->pinet6 and smc_sk(sk)->clcsock practically
+> point to the same address, when smc_create_clcsk() stores the newly
+> created clcsock in smc_sk(sk)->clcsock, inet_sk(sk)->pinet6 is corrupted
+> into clcsock. This causes NULL pointer dereference and various other
+> memory corruptions.
+>
+> To solve this, we need to add a smc6_sock structure for ipv6_pinfo_offset
+> initialization and modify the smc_sock structure.
+>
+> Reported-by: syzbot+f69bfae0a4eb29976e44@syzkaller.appspotmail.com
+> Tested-by: syzbot+f69bfae0a4eb29976e44@syzkaller.appspotmail.com
+> Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
+> Signed-off-by: Jeongjun Park <aha310510@gmail.com>
+> ---
+>   net/smc/smc.h      | 19 ++++++++++---------
+>   net/smc/smc_inet.c | 24 +++++++++++++++---------
+>   2 files changed, 25 insertions(+), 18 deletions(-)
+>
+> diff --git a/net/smc/smc.h b/net/smc/smc.h
+> index 34b781e463c4..f4d9338b5ed5 100644
+> --- a/net/smc/smc.h
+> +++ b/net/smc/smc.h
+> @@ -284,15 +284,6 @@ struct smc_connection {
+>   
+>   struct smc_sock {				/* smc sock container */
+>   	struct sock		sk;
+> -	struct socket		*clcsock;	/* internal tcp socket */
+> -	void			(*clcsk_state_change)(struct sock *sk);
+> -						/* original stat_change fct. */
+> -	void			(*clcsk_data_ready)(struct sock *sk);
+> -						/* original data_ready fct. */
+> -	void			(*clcsk_write_space)(struct sock *sk);
+> -						/* original write_space fct. */
+> -	void			(*clcsk_error_report)(struct sock *sk);
+> -						/* original error_report fct. */
+>   	struct smc_connection	conn;		/* smc connection */
+>   	struct smc_sock		*listen_smc;	/* listen parent */
+>   	struct work_struct	connect_work;	/* handle non-blocking connect*/
+> @@ -325,6 +316,16 @@ struct smc_sock {				/* smc sock container */
+>   						/* protects clcsock of a listen
+>   						 * socket
+>   						 * */
+> +	struct socket		*clcsock;	/* internal tcp socket */
+> +	void			(*clcsk_state_change)(struct sock *sk);
+> +						/* original stat_change fct. */
+> +	void			(*clcsk_data_ready)(struct sock *sk);
+> +						/* original data_ready fct. */
+> +	void			(*clcsk_write_space)(struct sock *sk);
+> +						/* original write_space fct. */
+> +	void			(*clcsk_error_report)(struct sock *sk);
+> +						/* original error_report fct. */
+> +
+>   };
+
+Please don't send patches so frequently 🙁.
+
+And it seems like you haven't made any changes? Those modifies still 
+there? Perhaps before you issue the patch,
+you should carefully check what you have written.
+
+
+BTW:  Please don't send any new versions of this for at least 24 hours, 
+You need to give yourself and the reviewer
+some time.
+
+>   
+>   #define smc_sk(ptr) container_of_const(ptr, struct smc_sock, sk)
+> diff --git a/net/smc/smc_inet.c b/net/smc/smc_inet.c
+> index bece346dd8e9..25f34fd65e8d 100644
+> --- a/net/smc/smc_inet.c
+> +++ b/net/smc/smc_inet.c
+> @@ -60,16 +60,22 @@ static struct inet_protosw smc_inet_protosw = {
+>   };
+>   
+>   #if IS_ENABLED(CONFIG_IPV6)
+> +struct smc6_sock {
+> +	struct smc_sock smc;
+> +	struct ipv6_pinfo np;
+> +};
+> +
+>   static struct proto smc_inet6_prot = {
+> -	.name		= "INET6_SMC",
+> -	.owner		= THIS_MODULE,
+> -	.init		= smc_inet_init_sock,
+> -	.hash		= smc_hash_sk,
+> -	.unhash		= smc_unhash_sk,
+> -	.release_cb	= smc_release_cb,
+> -	.obj_size	= sizeof(struct smc_sock),
+> -	.h.smc_hash	= &smc_v6_hashinfo,
+> -	.slab_flags	= SLAB_TYPESAFE_BY_RCU,
+> +	.name				= "INET6_SMC",
+> +	.owner				= THIS_MODULE,
+> +	.init				= smc_inet_init_sock,
+> +	.hash				= smc_hash_sk,
+> +	.unhash				= smc_unhash_sk,
+> +	.release_cb			= smc_release_cb,
+> +	.obj_size			= sizeof(struct smc6_sock),
+> +	.h.smc_hash			= &smc_v6_hashinfo,
+> +	.slab_flags			= SLAB_TYPESAFE_BY_RCU,
+> +	.ipv6_pinfo_offset		= offsetof(struct smc6_sock, np),
+>   };
+>   
+>   static const struct proto_ops smc_inet6_stream_ops = {
+> --
+
