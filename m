@@ -1,165 +1,103 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C08741C20;
-	Tue, 13 Aug 2024 11:54:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBECE19939D;
+	Tue, 13 Aug 2024 12:43:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723550088; cv=none; b=pnmdSmpSrF9J4OKlUO5/XdbfamZIzSYHi+Bm/ct/phEMg1Dbu6Eu4H45yTkwkaA3EQ5dSAGjZvyRk6Q5CMKys4Ek/ZuyM412i3PTaRAZkiJjUw83c5JU4KFMfwVJULMU0RlQJH7d6D4tNSLqOwB8BdvltyVH2lvEinKjKk7+s4E=
+	t=1723553018; cv=none; b=pYApqFzwLmfy3/pEq5hSfXSum7OxwfyCSkkp+MUj3C1vbWtxfiK0J80YObIeDgRlfhq2a9HVIh6Byz28WKldko8U5VjOhsZWvYDWs4L+edpvCG+34qoHfXNusvshyDPcrQOgIKqLpbqVpn/jEAVRvzkAJrK7K2L4pspoFnx48oo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723550088; c=relaxed/simple;
-	bh=P250ogZl8pPnSGarwerTjP7fagZ70XlCh6y5bl6SftE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kvGhfUP++TUkO/mKX6OTZM1PaklQ8frbgWE5qSW5QAkEN55R0O4ElSOcdhC7Uy57IsnvsPcUam37b9FCJEELFu1TeDdKaGGQ7MAqr42PVcz6O+nD2N2IYrFL9sVeouitMOQQoIEtX+4/OEtuwh+0TcH0A+M3Id8fwNvFyT10M9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=g/NOBFpt; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1723553018; c=relaxed/simple;
+	bh=8SpAdCfcOGfPx/9MIc11is1FDD4tSCNpH/3NtkY6SEw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lWeEiHZ2J7Tr8kH7HZDQYR2o8i7cbdsGQAySvXVO5sfcHeXIa7Z/vQwJrQAjmMcVXenmSBoEMPAh5kYLXMitMhoBIwdrnH+3w4Jpe8KT3Y3cPddAeI8+91fZg9RdXBesE4cJTd20EwlmV5UXrsvhCzoRTvfi8VzNH+0C3+0jb9s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=HOsphgAY; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="g/NOBFpt"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47D0b1cb008906;
-	Tue, 13 Aug 2024 11:54:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=N
-	8+X65TOwucMKJeMv4nUPf9uwXpurJHAIF+fzQ2SEAw=; b=g/NOBFptVXTOLIef/
-	AXM05kbGaEb5CSg1i4YaWYCw4z3tmlKuu5tsj364PzZJfxO7JGhAWEcbXC16ypsE
-	YWpEEAo6nPMVS8yXBfb5hqepwO7LdvgKHmJ1nk17boaTovPw6tLKAUeC24Rmlb9B
-	qZniTvGCp9jW2FQPTD3YaAqDHMM9sK7DGY5pE4kcxW59Lb0/UnA1FYmIHcMzzcRY
-	bEYB73Gau6xN8cxwM7mtXjK8Int706FuZrT+XYsr/8b9CpBV1Q3cme7KA6fqoHOd
-	gnp59z5Ni1lEiwuGNmLFCIViEWyG7Xn895b5vw9JCn7MY8brzSkIwcVDJxYS59XA
-	sdZDw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40wyq8qveg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 13 Aug 2024 11:54:43 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 47DBsQ3s000734;
-	Tue, 13 Aug 2024 11:54:43 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 40wyq8qvea-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 13 Aug 2024 11:54:43 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 47DBHLFR010055;
-	Tue, 13 Aug 2024 11:54:41 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40xjx0khhd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 13 Aug 2024 11:54:41 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47DBsZX521692830
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 13 Aug 2024 11:54:37 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A894A20040;
-	Tue, 13 Aug 2024 11:54:35 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 478202004B;
-	Tue, 13 Aug 2024 11:54:35 +0000 (GMT)
-Received: from [9.179.17.163] (unknown [9.179.17.163])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 13 Aug 2024 11:54:35 +0000 (GMT)
-Message-ID: <d97f4dec-31c3-45c0-ac33-90e665eb6e99@linux.ibm.com>
-Date: Tue, 13 Aug 2024 13:54:35 +0200
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="HOsphgAY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9843BC4AF09;
+	Tue, 13 Aug 2024 12:43:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1723553017;
+	bh=8SpAdCfcOGfPx/9MIc11is1FDD4tSCNpH/3NtkY6SEw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=HOsphgAYSpeQ0o1oTt4xHEkcLPU5W8kW1vKYs6l7Kb/ugYmo6QCOCIQhF0q2Kb5Lp
+	 pjaUurUjJw+lE1ccQRo3dcOQBgZy6oLXp0hu1FEeHmyCuiF6g5Xd6r8X4z2aYq02BM
+	 pId3ctnXJ1w+Wdnp458rXbQwy9J+r9sAA2upZIUc=
+Date: Tue, 13 Aug 2024 14:43:33 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Vasily Gorbik <gor@linux.ibm.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	linux-kernel@vger.kernel.org,
+	Alexandra Winter <wintera@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 2/2] s390/iucv: Fix vargs handling in iucv_alloc_device()
+Message-ID: <2024081319-patriarch-brutishly-653f@gregkh>
+References: <cover.thread-d8267b.your-ad-here.call-01723545029-ext-2515@work.hours>
+ <patch-2.thread-d8267b.git-d8267bded9e9.your-ad-here.call-01723545029-ext-2515@work.hours>
+ <2024081331-bonnet-fiftieth-9a14@gregkh>
+ <your-ad-here.call-01723549827-ext-8444@work.hours>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 00/10] selftests: kvm: s390: Add s390x ucontrol
- selftests
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-References: <20240807154512.316936-1-schlameuss@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20240807154512.316936-1-schlameuss@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: qXS5Pgm6HHr9_yG5uXThOrG0WbmdPA37
-X-Proofpoint-ORIG-GUID: EvYWpQjwpMaIsQWiP8k_s-0kmQvdSarp
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-13_03,2024-08-13_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
- suspectscore=0 mlxlogscore=700 priorityscore=1501 impostorscore=0
- lowpriorityscore=0 mlxscore=0 malwarescore=0 clxscore=1011 phishscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2408130083
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <your-ad-here.call-01723549827-ext-8444@work.hours>
 
-On 8/7/24 5:45 PM, Christoph Schlameuss wrote:
-> This patch series adds a selftest suite to validate the s390x
-> architecture specific ucontrol KVM interface.
+On Tue, Aug 13, 2024 at 01:50:27PM +0200, Vasily Gorbik wrote:
+> On Tue, Aug 13, 2024 at 12:52:19PM +0200, Greg Kroah-Hartman wrote:
+> > On Tue, Aug 13, 2024 at 12:42:37PM +0200, Vasily Gorbik wrote:
+> > > From: Heiko Carstens <hca@linux.ibm.com>
+> > > 
+> > > iucv_alloc_device() gets a format string and a varying number of
+> > > arguments. This is incorrectly forwarded by calling dev_set_name() with
+> > > the format string and a va_list, while dev_set_name() expects also a
+> > > varying number of arguments.
+> > > 
+> > > Fix this and call kobject_set_name_vargs() instead which expects a
+> > > va_list parameter.
+> > 
+> > I don't understand, why can't dev_set_name() be called here?
+> > 
+> > Calling "raw" kobject functions is almost never the correct thing to be
+> > doing, ESPECIALLY as you have a struct device here.
 > 
-> When creating a VM on s390x it is possible to create it as userspace
-> controlled VM or in short ucontrol VM.
-> These VMs delegates the management of the VM to userspace instead
-> of handling most events within the kernel. Consequently the userspace
-> has to manage interrupts, memory allocation etc.
+> struct device *iucv_alloc_device(const struct attribute_group **attrs,
+>                                  void *priv, const char *fmt, ...);
 > 
-> Before this patch set this functionality lacks any public test cases.
-> It is desirable to add test cases for this interface to be able to
-> reduce the risk of breaking changes in the future.
+> va_start(vargs, fmt); initializes vargs to point to the first argument after fmt.
 > 
-> In order to provision a ucontrol VM the kernel needs to be compiled with
-> the CONFIG_KVM_S390_UCONTROL enabled. The users with sys_admin capability
-> can then create a new ucontrol VM providing the KVM_VM_S390_UCONTROL
-> parameter to the KVM_CREATE_VM ioctl.
+> __printf(2, 0) int kobject_set_name_vargs(struct kobject *kobj, const char *fmt, va_list vargs);
 > 
-> The kernels existing selftest helper functions can only be partially be
-> reused for these tests.
+> __printf(2, 3) int dev_set_name(struct device *dev, const char *name, ...);
+> 
+> dev_set_name is expecting to receive individual variable arguments
+> directly (...), not a va_list.
+> 
+> The (...) in dev_set_name is meant to be expanded into individual
+> arguments, but when you pass a va_list to it, this expansion doesn't
+> happen. Instead, the va_list is just treated as a pointer or a single
+> argument, leading to undefined or incorrect behavior.
+> 
+> So, would it be okay to reuse kobject_set_name_vargs() here, or would you propose
+> introducing another helper just for this case? e.g.
+> 
+> int dev_set_name_vargs(struct device *dev, const char *fmt, va_list vargs)
+> {
+> ჻·······return kobject_set_name_vargs(&dev->kobj, fmt, vargs);
+> }
+> EXPORT_SYMBOL_GPL(dev_set_name_vargs)
 
-I've picked up patches #1-6 and 10 to get some testing in and make the 
-series smaller.
+This function makes more sense if you really want to do this.
 
+But step back, why is this needed at all anyway?  No other subsystem or
+driver needs/wants this, what makes this api so special?  Why not figure
+out your name beforehand?
+
+thanks,
+
+greg k-h
