@@ -1,114 +1,70 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF40C1AC43B;
-	Wed, 14 Aug 2024 13:22:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AC0F1EF1D;
+	Wed, 14 Aug 2024 14:48:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723641738; cv=none; b=aKGKEUlm1JrK29NMMqVm8CI1o0y6g3vSQ3JpbzYfWjvmDNX4ViPErVFPEpaf6JKMipI3k6jZRE+odTLEZaMM/d2gdAvs31sgnYUIMON0L9/L1nJ9EiLucUxwW9EOWA8+z6wx6/jj5UDCuQuBA7JB4d4kfKZvS6cGN07uy7cTbcM=
+	t=1723646908; cv=none; b=YWx+pdCoW99D5JJZbZZPjcuPZHyierpeJQoNBy2XKiXDjOFNy/CY28BVGYTf5qU+1V/+59Qt6CHSdPvLwE/FvnnfL4a0vdJwmxx2OEWVRreKwYDC97XHH3Wme4nqTBIIwRxFSyX+vtgzKUqByFXPlyGwOS/vjLTRGjf3kGFDpjI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723641738; c=relaxed/simple;
-	bh=52woe/DhP6yxVtoJ7+/JjkpqgmOTnHaYBvNtOBgqJ9Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ltFInKF7oCOAVMTWyOeXUDxSv04AJ4muL4nq1ktQpDu7vq94Pb0Ls/jqx8p46v8X/g5uG19qXWSb6m+kNcX3KdxlhIwVMos6XbN8A4wxJgnIboGo7Uv9G/eIZOn8CN5+OpnwavAa+6HvxDdFvLXUlJhiMgJU2Y921tYoGdLkeaw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LeermY8z; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1723646908; c=relaxed/simple;
+	bh=Giw0IEnl5GXiD5BZ5wCG5vcSvTKJkiZtA5K98l8WfXc=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Hvw9A2KnzTeUfjH2eGncVf5UVbFKMpg+Wey9lFkjAYn06PvvdNHNeU42Admn+v5TGzuuyIGlBHPeGoi8CNlZ55SOpwOEayMMPjhn2J0KuT4d2cHy08uIc5HFyWse3UsB90vmeLZoF6KChzpqd2WBcEcGlnFI8kHQXJLMJbTrz+M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=imE5GaRh; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LeermY8z"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47EBnJoU032754;
-	Wed, 14 Aug 2024 13:22:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=5
-	2woe/DhP6yxVtoJ7+/JjkpqgmOTnHaYBvNtOBgqJ9Y=; b=LeermY8zHzSZhQJ2s
-	rRYUW2uDhXMXxrOV6Ie/s6OW2Euuqd6PG6eENANPgn6Sa5gc3XqJM++JBt9M+/Sf
-	vez1J/ndQ37EcsBGnERJdDSHW/zLy9Riugf2CFSlh28maRbIMgtyffFqMDQMpmlU
-	GRb6WiCPHzZClygtnmMAcPLtZKCkn32L0eIE1xAbU/Iv80F7/j6luIt1eNF58fhs
-	RmazMSCJFCweF3rWDL2CkH83KtLbw7NukREKSgVJlzepORtMzyzOu0D4Kq0UQr3K
-	rXvfybw5HPbau7DRjwYQiFgAcgW0ucTrRekMKIILBgJMzxZFLysWAxveRrvprEoy
-	tyx0Q==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 410v1vrcta-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 14 Aug 2024 13:22:06 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 47EDM5bo024245;
-	Wed, 14 Aug 2024 13:22:06 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 410v1vrct3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 14 Aug 2024 13:22:05 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 47ECnG69011511;
-	Wed, 14 Aug 2024 13:22:04 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 40xjhu9puu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 14 Aug 2024 13:22:04 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47EDLxks51380600
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 14 Aug 2024 13:22:01 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3DA312004F;
-	Wed, 14 Aug 2024 13:21:59 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0984E2004D;
-	Wed, 14 Aug 2024 13:21:59 +0000 (GMT)
-Received: from [9.152.224.208] (unknown [9.152.224.208])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 14 Aug 2024 13:21:58 +0000 (GMT)
-Message-ID: <64c2d755-eb4b-42fa-befb-c4afd7e95f03@linux.ibm.com>
-Date: Wed, 14 Aug 2024 15:21:58 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="imE5GaRh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 658E7C116B1;
+	Wed, 14 Aug 2024 14:48:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1723646907;
+	bh=Giw0IEnl5GXiD5BZ5wCG5vcSvTKJkiZtA5K98l8WfXc=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=imE5GaRh7KGIBv2yIlSn1BHzQEdTMJq7MLtr3kmGFUnByzBIsFBuJyj6cqe4El+ZO
+	 stwanMBsv1Ian6d6yPxJfKGMaOqCMSgEgp5hVI4sS783gSEBIJm54KlFvd5vZXXvj7
+	 zfnNaZ1QnRVPxGClICZlomA4Gi+zEIhE20NjMBHuhqE0BTeu2UIkaS7zm0JIkViK0B
+	 4sVNj4TvIqcdsBN0yuKdd/MRqM82fxOPWqU1oPeZCdURRXB+IgxvTo5SOdMusHaMbQ
+	 hUKK94QBQUpQp9POQbLpE+LUYrk6Aq5WjKFjIyELhKfPA5xrjYXLNmFJj4Elghz9Xi
+	 9FfvDUwqPdSNw==
+Date: Wed, 14 Aug 2024 07:48:26 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Wen Gu <guwen@linux.alibaba.com>
+Cc: Ido Schimmel <idosch@idosch.org>, wenjia@linux.ibm.com,
+ jaka@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+ pabeni@redhat.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, danieller@nvidia.com
+Subject: Re: [PATCH net-next v2 1/2] net/smc: introduce statistics for
+ allocated ringbufs of link group
+Message-ID: <20240814074826.38f211e9@kernel.org>
+In-Reply-To: <586beba2-a632-4fe3-9fb5-e118af384204@linux.alibaba.com>
+References: <20240807075939.57882-1-guwen@linux.alibaba.com>
+	<20240807075939.57882-2-guwen@linux.alibaba.com>
+	<20240812174144.1a6c2c7a@kernel.org>
+	<b3e8c9b9-f708-4906-b010-b76d38db1fb1@linux.alibaba.com>
+	<20240813074042.14e20842@kernel.org>
+	<Zrt4LGFh7kMwGczb@shredder.mtl.com>
+	<586beba2-a632-4fe3-9fb5-e118af384204@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net,v4] net/smc: prevent NULL pointer dereference in
- txopt_get
-To: "D. Wythe" <alibuda@linux.alibaba.com>,
-        Jeongjun Park <aha310510@gmail.com>, wenjia@linux.ibm.com,
-        jaka@linux.ibm.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-        gbayer@linux.ibm.com
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, dust.li@linux.alibaba.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20240814104910.243859-1-aha310510@gmail.com>
- <e2d56814-0664-4c3a-9d5f-3f32dc15ccd4@linux.alibaba.com>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <e2d56814-0664-4c3a-9d5f-3f32dc15ccd4@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0y2k-9VOra7wgj4QZyRJI0DyzkO0nLHd
-X-Proofpoint-GUID: OfSvat6veq4dpmJSbr2dUiDsrpezpumY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-14_09,2024-08-13_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
- malwarescore=0 lowpriorityscore=0 spamscore=0 bulkscore=0 impostorscore=0
- priorityscore=1501 mlxlogscore=748 clxscore=1015 adultscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2408140092
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
+On Wed, 14 Aug 2024 11:12:41 +0800 Wen Gu wrote:
+> > Danielle added one to libmnl:
+> > 
+> > https://git.netfilter.org/libmnl/commit/?id=102942be401a99943b2c68981b238dadfa788f2d
+> > 
+> > Intention is to use it in ethtool once it appears in a released version
+> > of libmnl.  
+> 
+> Thanks, that is a good example.
 
-
-On 14.08.24 15:11, D. Wythe wrote:
->     struct smc_sock {                /* smc sock container */
-> -    struct sock        sk;
-> +    union {
-> +        struct sock        sk;
-> +        struct inet_sock    inet;
-> +    };
-
-
-I don't see a path where this breaks, but it looks risky to me.
-Is an smc_sock always an inet_sock as well? Then can't you go with smc_sock->inet_sock->sk ?
-Or only in the IPPROTO SMC case, and in the AF_SMC case it is not an inet_sock?
+FWIW - technically the kernel version of a uint / sint are only either
+32b or 64b, because smaller types get padded to 4bytes in netlink
+messages, anyway. But doesn't hurt for the get. For the put make sure
+you don't narrow down too much.
