@@ -1,122 +1,122 @@
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BA151BC075
-	for <linux-s390@vger.kernel.org>; Wed, 14 Aug 2024 17:35:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0625566A;
+	Wed, 14 Aug 2024 17:53:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723656919; cv=none; b=IYGTiqqxt8YxTwClytExpsiFMLY+OGZ3VVkLNW0wBNLDND1kvqSsyb+twspXZsSpuAE4U3Gf7hwdl8eV/1MZZP8c9y/HRGRLQ2OvwM6zCd2YEJDaNbEzDEICCkGHun2WHZjvG9tgzi33BXw2YW8UPEqXy6VJDVbCqK7IWTQYEhs=
+	t=1723658019; cv=none; b=clL83cz+9jDltnQzNdJuVaX0HwJsiC2BCS9YLE7yANxWvEfkYDxdxpUnUezQH6eeVBWKNo7l0YinFpLTJ0wqRdoprXlyj4yfH4pm6FYG38lfxoxvBWkpeTwTvVtvxxCv666AGfLiVA0vBYER+L3mig9dPjx1dm4pUKxt6+UNGao=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723656919; c=relaxed/simple;
-	bh=xWbitBG4Vy57q6SFKYvH/+aIN3UK4pDJiwGhdEeSOtA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HPBdrN46JJbLUVJvuLN3I+qjkZo81S4b30h7zMjBmMvcY9vDXX2RovxE7PWAi7RGnSXIZZgZ1hguLUfhkSql0i1UVaq9j/gSpWkE5B49rmpFSu/wlwWJFG0/aw8NGKBryJ7xeeCENkSS7PAw3DhIr1074hAvNhYcSsJzwZD+Q6g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=H/tNz8Ht; arc=none smtp.client-ip=209.85.167.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1723658019; c=relaxed/simple;
+	bh=2ybLVtCV1/kO2hv/JMHjvOYI0ECqeYuEkrijvApHlr0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=do9sC7u5xzi4AiYkjydNHPNS+2FBqITq5WMy0PGvxJ+M5pxDEP4ylk4FyD0/hbCRFrMkNo0T1SBXtlYdoOJOjfYlbQKeJJH6A73Ee5hh8j0tXDWAG04ZrLKm9vu2gqWq8fjFYvNxpn1Vt5qiA3kxZ5qbgllV+4Tsq6Quw2Ch+gs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=o67juqC5; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="H/tNz8Ht"
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-52efd08e6d9so125037e87.1
-        for <linux-s390@vger.kernel.org>; Wed, 14 Aug 2024 10:35:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1723656915; x=1724261715; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xWbitBG4Vy57q6SFKYvH/+aIN3UK4pDJiwGhdEeSOtA=;
-        b=H/tNz8HtkGiGMKcPN+qSt5RnpqVA9WH2BkwImL0krz6Fua4FH9X/Ppt1QilJ9B4Ql7
-         M4b5j91OMzPo9u/ZJdJgBY9XQBnQr5PhsHYl1z29hVnt/hvSGsfiXUxW8uWwIpmeJUb8
-         rImxKi1pjrV7IxFX4WW6zW+Sn6XyNFTUitj6U=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723656915; x=1724261715;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=xWbitBG4Vy57q6SFKYvH/+aIN3UK4pDJiwGhdEeSOtA=;
-        b=os1SLYdMVbUCk4QIiJPOhWJJIj3HMP0Zii+GeYtXVTwQQMW9WI8217mMwh56BVwsI/
-         TYAdhNur550lsYNmNXxf/HtoWdjQI9yZbiQD7KiQDc3SW8Z4lBhOf3h8sYF5CDbaTn7S
-         zWYuYi3ft7IpUs5jGdD2VfEgGtODXec88wWfXcRpSJl/f04IPPsO5GEnLFvLQHVE5Vt4
-         SGPlTQ59iTr2nab9xB+erx2RJoG9bjiHWG+0WG7TXcXJY7sqylLg60kUg4OaNj6EQ2DP
-         S/veyS9GNKSnWpBzVdM9dddzBkZDdHzpCei9DCwwoDDwQmDNxYhW1ZSmSu/VN9XkXGgW
-         IMuQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXB5DMTRqNpg1Iht7SIPQkSfnpm46hEdoHmIppbnhtfjoQ1Gpp+qQf9Tvi0weRCy9Bf0mkJBiT8cMJaRqlSpfp0HT/obToBgUzwrA==
-X-Gm-Message-State: AOJu0Yw8wWo+X2cUZzgq1HIvg/rn3oZJotiW0IqsWkSs4OZmMaUcB13K
-	cuLLoGGduuaAmPsgIWxZBuBTjgw85BjWdApuPT63uPWtIXulMF6+ke0A3ukuXt8gr6/0D1RzFrI
-	=
-X-Google-Smtp-Source: AGHT+IGyUDCdIDEmDo2LAs2XNCWOQfyb4+VL4QbJ4NwiD7KoMLqPswbyBakFvws4KK0ULDnJQEvJqA==
-X-Received: by 2002:a05:6512:350f:b0:532:f4b0:3822 with SMTP id 2adb3069b0e04-532f4b08886mr1939726e87.25.1723656914806;
-        Wed, 14 Aug 2024 10:35:14 -0700 (PDT)
-Received: from mail-lf1-f52.google.com (mail-lf1-f52.google.com. [209.85.167.52])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-53200f1b36asm1332470e87.208.2024.08.14.10.35.14
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Aug 2024 10:35:14 -0700 (PDT)
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-52efd08e6d9so124995e87.1
-        for <linux-s390@vger.kernel.org>; Wed, 14 Aug 2024 10:35:14 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUF3Z9z/BWV5QP1hCp47IV30wQWk5SxxrBgOt4275lHCw8t1SZOeu/UKO2uxgvnx8pc8w6N+3HXNJJw1Z03ypOmbj55CXeSm8lqXw==
-X-Received: by 2002:a05:6512:10c6:b0:52c:dc6f:75a3 with SMTP id
- 2adb3069b0e04-532edba89e2mr2666679e87.40.1723656913739; Wed, 14 Aug 2024
- 10:35:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="o67juqC5"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47ECdsgF012235;
+	Wed, 14 Aug 2024 17:53:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:content-type
+	:in-reply-to:mime-version; s=pp1; bh=VJGhFyFauLQ99Y9vG/DkccTFoaI
+	OYdrDqdQSPndjCaA=; b=o67juqC5Wu81t+NGqniYuG4sklS/1Ut/zOwAcIRSMjl
+	mmC6ghVcTY813t/+7ZF5nZ7RBE3qI03efZgvX+NE7YCWZ59ymCriQy8F2t3KX7p5
+	oiYKwfxkfGPPSkxmHH9XT4zYcDrXcZ1H1JeDUgMjMFATIvUJHSgNv9AVXca1apYF
+	kubvdWCNzBFghLXvYjCwKB23To5+iaDjWtQnfg4UrCkqvVqWN4y4np7Ud2+M8nRu
+	4xGr7gcJzbFN0+HOEUe+b6Rx5X8aqhRRVC+Ne/+c0J61qjKr/nd/SeIQ6EQPcPCW
+	MX7lXGfb+Ecw6I9EbHj1CpOcfj7HnnyFmNRwj/BItcg==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 410vs9herw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 14 Aug 2024 17:53:24 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 47EHrOOq008854;
+	Wed, 14 Aug 2024 17:53:24 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 410vs9heru-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 14 Aug 2024 17:53:24 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 47EGCj2G011537;
+	Wed, 14 Aug 2024 17:53:23 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 40xjhuav1v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 14 Aug 2024 17:53:23 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47EHrJoC39977282
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 14 Aug 2024 17:53:21 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A18C420040;
+	Wed, 14 Aug 2024 17:53:19 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 236262004D;
+	Wed, 14 Aug 2024 17:53:19 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.11.33])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 14 Aug 2024 17:53:19 +0000 (GMT)
+Date: Wed, 14 Aug 2024 19:53:17 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Brian Norris <briannorris@chromium.org>,
+        Thorsten Leemhuis <linux@leemhuis.info>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org,
+        bpf@vger.kernel.org, Thorsten Leemhuis <linux@leemhuis.info>
+Subject: Re: [PATCH] tools build: Provide consistent build options for fixdep
+Message-ID: <ZrzvDb+gitYx3KLL@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240814173021.3726785-1-agordeev@linux.ibm.com>
+ <CA+ASDXMafY_w5Cm5EWS+dUn59kL3d_h4ZBW9w_Hn=7OZ=5n8kQ@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+ASDXMafY_w5Cm5EWS+dUn59kL3d_h4ZBW9w_Hn=7OZ=5n8kQ@mail.gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: M5hUmiOR8tV2v40q9ra5WstkLcjCDFSU
+X-Proofpoint-GUID: jwIB9OdDaO_KFx0sJnzaoCfWG6JKfIjY
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240814173021.3726785-1-agordeev@linux.ibm.com>
-In-Reply-To: <20240814173021.3726785-1-agordeev@linux.ibm.com>
-From: Brian Norris <briannorris@chromium.org>
-Date: Wed, 14 Aug 2024 10:35:00 -0700
-X-Gmail-Original-Message-ID: <CA+ASDXMafY_w5Cm5EWS+dUn59kL3d_h4ZBW9w_Hn=7OZ=5n8kQ@mail.gmail.com>
-Message-ID: <CA+ASDXMafY_w5Cm5EWS+dUn59kL3d_h4ZBW9w_Hn=7OZ=5n8kQ@mail.gmail.com>
-Subject: Re: [PATCH] tools build: Provide consistent build options for fixdep
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>, linux-s390@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org, 
-	bpf@vger.kernel.org, Thorsten Leemhuis <linux@leemhuis.info>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-14_13,2024-08-13_02,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 clxscore=1011 lowpriorityscore=0 phishscore=0
+ mlxlogscore=278 priorityscore=1501 adultscore=0 spamscore=0 mlxscore=0
+ malwarescore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2408140120
 
-Hi,
+On Wed, Aug 14, 2024 at 10:35:00AM -0700, Brian Norris wrote:
 
-On Wed, Aug 14, 2024 at 10:30=E2=80=AFAM Alexander Gordeev
-<agordeev@linux.ibm.com> wrote:
->
-> The fixdep binary is being compiled and linked in one step since commit
-> ea974028a049 ("tools build: Avoid circular .fixdep-in.o.cmd issues").
-> While the host linker flags are passed to the compiler the host compiler
-> flags are missed.
->
-> That might lead to failures as result of the compiler vs linker flags
-> inconsistency. For example, during RPM package build redhat-hardened-ld
-> script is provided to gcc, while redhat-hardened-cc1 script is missed.
-> That leads to an error on s390:
->
-> /usr/bin/ld: /tmp/ccUT8Rdm.o: `stderr@@GLIBC_2.2' non-PLT reloc for
-> symbol defined in shared library and accessed from executable (rebuild
-> file with -fPIC ?)
->
-> Provide both KBUILD_HOSTCFLAGS and KBUILD_HOSTLDFLAGS to avoid that.
->
-> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Hi Brian,
 
-FWIW, I already fielded some reports about this, and proposed a very
-similar (but not identical) fix:
+> FWIW, I already fielded some reports about this, and proposed a very
+> similar (but not identical) fix:
+> 
+> https://lore.kernel.org/lkml/20240814030436.2022155-1-briannorris@chromium.org/
+> 
+> Frankly, I wasn't sure about HOSTxxFLAGS vs KBUILD_HOSTxxFLAGS -- and
+> that's the difference between yours and mine. If yours works, that
+> looks like the cleaner solution. So:
+> 
+> Reviewed-by: Brian Norris <briannorris@chromium.org>
+> 
+> Either way, it might be good to also include some of these tags if
+> this is committed:
+> 
+> Closes: https://lore.kernel.org/lkml/99ae0d34-ed76-4ca0-a9fd-c337da33c9f9@leemhuis.info/
+> Fixes: ea974028a049 ("tools build: Avoid circular .fixdep-in.o.cmd issues")
 
-https://lore.kernel.org/lkml/20240814030436.2022155-1-briannorris@chromium.=
-org/
+Ah, I missed the issue was reported already - I would include these tags otherwise.
 
-Frankly, I wasn't sure about HOSTxxFLAGS vs KBUILD_HOSTxxFLAGS -- and
-that's the difference between yours and mine. If yours works, that
-looks like the cleaner solution. So:
+@Thorsten, would it be possible to test this fix?
 
-Reviewed-by: Brian Norris <briannorris@chromium.org>
+Thanks!
 
-Either way, it might be good to also include some of these tags if
-this is committed:
-
-Closes: https://lore.kernel.org/lkml/99ae0d34-ed76-4ca0-a9fd-c337da33c9f9@l=
-eemhuis.info/
-Fixes: ea974028a049 ("tools build: Avoid circular .fixdep-in.o.cmd issues")
-
-Brian
+> Brian
