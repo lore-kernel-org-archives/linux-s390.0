@@ -1,79 +1,47 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 730FE1B3F25;
-	Wed, 14 Aug 2024 15:06:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0247C1B5830;
+	Wed, 14 Aug 2024 15:44:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723647967; cv=none; b=mZ95FJWjKh14HUYG4v0ImcJ4vPSKpfqD63rcvNtWPA/GLB+Fc3Ps9nS0+/sL6l7pMKsS3R204y5PCS/n2izDFd1KmBHXqq/2lICOhBxb6t96iQmTFuIH75k/40W4fwdW2pm/5RAYogxn9diwGKJmZ3ASiKl+SCRcMAllFbo5iAk=
+	t=1723650277; cv=none; b=ujeC6DTsNe5f16aDaXTDBHWHPXvnmL5Q3O7A4PP4mSrXVzmSNm6oMYSUfYjKi5RxaQj22LdwyX32AtyW47wMjk9GxsRIu10KZUAS7E+a+PYyNcGr2534v/ZbSgQgoRI8ixPck1s3E0LSJfK+GKXQHd0LMNnl60doMYft22Uts3U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723647967; c=relaxed/simple;
-	bh=8cK0GvF5QFceshCvw1XcYlJrjfm3NLa//F8dGczr9ko=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Pq4UKPT5HuQQBAr+FkaoKUsFyKWKvJfeQIeCVMFA3inN9VmheMnzJjrFndMTPP2zksXAmkdwBK4AOgKWn7iDI0z1gST91/4xQaUZjME23rTs1PMmiA3W8VtgvYMxy0Qp9mwZffV791KqGoHszRTTkjR2jtOS9CeaF2E1Vg8I9Jc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lo8Pr/Gg; arc=none smtp.client-ip=209.85.210.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1723650277; c=relaxed/simple;
+	bh=tdadX9fO7MJt/rojFQaWHf4gVWAH38mayzTo//zSQD0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=hC9Xg6lAvQjnPrMKqfGfYvHXuZTqMrVomA4sEENMogVnVS432rR3rALySSVYh+Kzhb1e5vW5tuuN7sm7mcycZqsG/7L2BSMLeZvWU+jEFMQN987vkUu8lnuwoFXSBt0gwfHtj4k3WzEu0kYkla3GH944Ie02X7X2tkv0xE9vvio=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=vm4v2bc1; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lo8Pr/Gg"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-71275436546so147935b3a.1;
-        Wed, 14 Aug 2024 08:06:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1723647965; x=1724252765; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vBNNXqbtdbYFsD6uUrAH/OBdUYwLKiBcMh/OK4+Ox7A=;
-        b=lo8Pr/GgxyuPfLeUK/umgoYFUZK5tUXYSdZYuNggW//zHX68On+LkmORQelEWYAUX8
-         eY72aUYnLLprhuK+AN2q9uQT37mLstTQ5JJBWa+voy3Sn0/NYnKpqg6bpaP3q53Tpzlz
-         4QgDmpixBL1Y6s4jxW+08B/FHLmSOBGSgb7Uk3RDyJNvQGp+lggBCk/q6gVcV8kYNNPd
-         yQc4HQrMt9ArL9XTZPC/GnHjYKclWK13fkey93cxUxll8VOv3j5JhYPn/Bu5RGww0JWi
-         sYokc8/Kma5lCm0XtGuIuhpflc0LOpuL8RRihjHnSeFLfY500YV6VjZZ1VQX6KGx1HZ5
-         F9tg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723647965; x=1724252765;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vBNNXqbtdbYFsD6uUrAH/OBdUYwLKiBcMh/OK4+Ox7A=;
-        b=bpJXwmckvOL7WlPtHrlXxT4z7zFUkGG1gZXMeChP8OoFnFdBj2tgQLxJze9tf99WCv
-         3RmBmY9ouPkU+JjaCFflSgqkZu70kJymvYQO3mlcoDTp39Jr4fIMq9v51sM2bzttZ3j0
-         MyGBwttDdMCJXpqvnowO6kPOkfLTLglaGj1R0CKqyqzuh1p+SpJsdRgDCmGIA/+i13nJ
-         YhKfoH7L4CBcTX449f3omewQ66oUgNmKxZLP6I/eQt0FvZT62qSqccVoCGZQlWQGmTAq
-         ReKNdyfx3rg6bGnegjBAH4pxaDGLdn3e1JRNF23WlD6M7RkgotWhWn4Bl7fY8x9ciMwp
-         155A==
-X-Forwarded-Encrypted: i=1; AJvYcCUzI9LgZOwLxLQFK8dDNqC0buQlBDfOBoC4ciRSlqn+COKxQd302qGR71L1ubxaRiVrCOBV3nR1QKxK2vfWvi/ubntTMP0kWiG21V7IIHv9O70MwePOyp+xYvKFkOKa6gttH6e9eweMf6uNiTPD7reyt2ok3eDte/jPMaRYlvs6Iw==
-X-Gm-Message-State: AOJu0Yw7ZS6wpPL1BPNSjxBYtbp0jGLsjetvbe9jFtOODzfU7tvjTWsv
-	8mZb2sIOAN3RzJOkLWasWr5/LP/ayBvpK7cF6HV+5mQh/OUtY1T4
-X-Google-Smtp-Source: AGHT+IG6NXju3u9uZ1M2mdalYsZOqTUXuZluM3xmOKU+R9fWBY3JxN9QRZVLpL2g6H83xxWtFjtB2Q==
-X-Received: by 2002:a05:6a20:d486:b0:1c4:ba7c:741c with SMTP id adf61e73a8af0-1c8eae811a1mr4098557637.21.1723647964422;
-        Wed, 14 Aug 2024 08:06:04 -0700 (PDT)
-Received: from kernelexploit-virtual-machine.localdomain ([121.185.186.233])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7126ad714a6sm1236278b3a.186.2024.08.14.08.06.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Aug 2024 08:06:04 -0700 (PDT)
-From: Jeongjun Park <aha310510@gmail.com>
-To: wintera@linux.ibm.com,
-	alibuda@linux.alibaba.com,
-	gbayer@linux.ibm.com,
-	guwen@linux.alibaba.com,
-	jaka@linux.ibm.com,
-	tonylu@linux.alibaba.com,
-	wenjia@linux.ibm.com
-Cc: davem@davemloft.net,
-	dust.li@linux.alibaba.com,
-	edumazet@google.com,
-	kuba@kernel.org,
-	linux-kernel@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="vm4v2bc1"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
+	Content-Type:Content-ID:Content-Description;
+	bh=ImVhDDZvGKdMvHRXKWtBY7b1k/mxkNbLUAPdKjzQZA4=; b=vm4v2bc1RJWujLJZeuHTO2tTsQ
+	r9TLvhRGZHshO+cnttcm3iLy974IWx6T811ohmQwtnkXjc3sCZkSRvrTVT/gR9nkri6yeC707ghwJ
+	Bh1bmjfmYR0tTcecAL4mF+rr6iy3ahkAozOJf1TqTanDkuXZmQXqfPxMOfu2lC3wBDD1Bl2AxnxTi
+	tLvueUBRhx2Yljo6YI2vWB60Ha40L4FgOjsz7Ly3zHPmvRBwfRbjAJgWdFcwILeE/J2+nWDSyaOxr
+	WowQrt9wNTEQv7Go8sxdc2Qep7gI0w3W6K+x60EZuFdRON7IxbDs6/aVGC1P2klBWA8+azfqVgUVj
+	SOSl8zGQ==;
+Received: from willy by casper.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1seGAs-00000000gHd-25s5;
+	Wed, 14 Aug 2024 15:44:34 +0000
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+To: linux-mm@kvack.org,
+	linux-arch@vger.kernel.org
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>,
 	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	pabeni@redhat.com
-Subject: Re: [PATCH net,v4] net/smc: prevent NULL pointer dereference in txopt_get
-Date: Thu, 15 Aug 2024 00:05:58 +0900
-Message-Id: <20240814150558.46178-1-aha310510@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <64c2d755-eb4b-42fa-befb-c4afd7e95f03@linux.ibm.com>
-References: <64c2d755-eb4b-42fa-befb-c4afd7e95f03@linux.ibm.com>
+	linux-um@lists.infradead.org,
+	x86@kernel.org
+Subject: [PATCH 5/5] mm: Make mk_pte() definition unconditional
+Date: Wed, 14 Aug 2024 16:44:25 +0100
+Message-ID: <20240814154427.162475-6-willy@infradead.org>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20240814154427.162475-1-willy@infradead.org>
+References: <20240814154427.162475-1-willy@infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -82,53 +50,31 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Alexandra Winter wrote:
-> 
-> On 14.08.24 15:11, D. Wythe wrote:
-> >     struct smc_sock {                /* smc sock container */
-> > -    struct sock        sk;
-> > +    union {
-> > +        struct sock        sk;
-> > +        struct inet_sock    inet;
-> > +    };
-> 
-> 
-> I don't see a path where this breaks, but it looks risky to me.
-> Is an smc_sock always an inet_sock as well? Then can't you go with smc_sock->inet_sock->sk ?
-> Or only in the IPPROTO SMC case, and in the AF_SMC case it is not an inet_sock?
+All architectures now use the common mk_pte() definition, so we
+can remove the condition.
 
-hmm... then how about changing it to something like this?
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+---
+ include/linux/pgtable.h | 2 --
+ 1 file changed, 2 deletions(-)
 
-@@ -283,7 +283,7 @@ struct smc_connection {
- };
+diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+index 8204ffd87d74..1d46422b79cc 100644
+--- a/include/linux/pgtable.h
++++ b/include/linux/pgtable.h
+@@ -41,12 +41,10 @@
+ #define FIRST_USER_ADDRESS	0UL
+ #endif
  
- struct smc_sock {				/* smc sock container */
--	struct sock		sk;
-+	struct inet_sock	inet;
- 	struct socket		*clcsock;	/* internal tcp socket */
- 	void			(*clcsk_state_change)(struct sock *sk);
- 						/* original stat_change fct. */
-@@ -327,7 +327,7 @@ struct smc_sock {				/* smc sock container */
- 						 * */
- };
- 
--#define smc_sk(ptr) container_of_const(ptr, struct smc_sock, sk)
-+#define smc_sk(ptr) container_of_const(ptr, struct smc_sock, inet.sk)
- 
- static inline void smc_init_saved_callbacks(struct smc_sock *smc)
+-#ifndef mk_pte
+ static inline pte_t mk_pte(struct page *page, pgprot_t pgprot)
  {
+ 	return pfn_pte(page_to_pfn(page), pgprot);
+ }
+-#endif
+ 
+ /*
+  * This defines the generic helper for accessing PMD page
+-- 
+2.43.0
 
-It is definitely not normal to make the first member of smc_sock as sock. 
-
-Therefore, I think it would be appropriate to modify it to use inet_sock 
-as the first member like other protocols (sctp, dccp) and access sk in a 
-way like &smc->inet.sk.
-
-Although this fix would require more code changes, we tested the bug and 
-confirmed that it was not triggered and the functionality was working 
-normally.
-
-What do you think?
-
-Regards,
-Jeongjun Park
