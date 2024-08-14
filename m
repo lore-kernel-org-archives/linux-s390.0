@@ -1,33 +1,33 @@
 Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0247C1B5830;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E76BD1B5801;
 	Wed, 14 Aug 2024 15:44:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723650277; cv=none; b=ujeC6DTsNe5f16aDaXTDBHWHPXvnmL5Q3O7A4PP4mSrXVzmSNm6oMYSUfYjKi5RxaQj22LdwyX32AtyW47wMjk9GxsRIu10KZUAS7E+a+PYyNcGr2534v/ZbSgQgoRI8ixPck1s3E0LSJfK+GKXQHd0LMNnl60doMYft22Uts3U=
+	t=1723650278; cv=none; b=oNImJjd8rzuyeM1l4eEGUcnCPlIRMB4EPT+pvUGkTEZUe3BENtwCAyEzGhn3ymKwsyayFWvIIDvzhORqR/ihQf/zjccpGb3KQE8CyopGv+e7m7BsNUP7HNYhNCVYrRoUg6NPXJ7umJ5cT04I5TjxMgyJLNfuA96z+u3UXrH2WS0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723650277; c=relaxed/simple;
-	bh=tdadX9fO7MJt/rojFQaWHf4gVWAH38mayzTo//zSQD0=;
+	s=arc-20240116; t=1723650278; c=relaxed/simple;
+	bh=dxXJQBqbwhkPx8MZ/FHCIGrpxbGyS9S19pPxBnwr5to=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hC9Xg6lAvQjnPrMKqfGfYvHXuZTqMrVomA4sEENMogVnVS432rR3rALySSVYh+Kzhb1e5vW5tuuN7sm7mcycZqsG/7L2BSMLeZvWU+jEFMQN987vkUu8lnuwoFXSBt0gwfHtj4k3WzEu0kYkla3GH944Ie02X7X2tkv0xE9vvio=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=vm4v2bc1; arc=none smtp.client-ip=90.155.50.34
+	 MIME-Version; b=DGUMjqz4G6iD7+FRidEOpwv57xl0dxzv8eOIzgdFehxTNFKZPMzVaWerB/KJ/u2LfLBjQe1ZyCsMgp4AN5Rl6PGUl/yf3Uy4ySd27R7c80asntvBJ6T+OHDZa68oM6AydD7UNKtkp41z7hd0Ft6Q66oXk6/8YOFc041ZegPEsuI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=dIsNq+CQ; arc=none smtp.client-ip=90.155.50.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="vm4v2bc1"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="dIsNq+CQ"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
 	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
 	Content-Type:Content-ID:Content-Description;
-	bh=ImVhDDZvGKdMvHRXKWtBY7b1k/mxkNbLUAPdKjzQZA4=; b=vm4v2bc1RJWujLJZeuHTO2tTsQ
-	r9TLvhRGZHshO+cnttcm3iLy974IWx6T811ohmQwtnkXjc3sCZkSRvrTVT/gR9nkri6yeC707ghwJ
-	Bh1bmjfmYR0tTcecAL4mF+rr6iy3ahkAozOJf1TqTanDkuXZmQXqfPxMOfu2lC3wBDD1Bl2AxnxTi
-	tLvueUBRhx2Yljo6YI2vWB60Ha40L4FgOjsz7Ly3zHPmvRBwfRbjAJgWdFcwILeE/J2+nWDSyaOxr
-	WowQrt9wNTEQv7Go8sxdc2Qep7gI0w3W6K+x60EZuFdRON7IxbDs6/aVGC1P2klBWA8+azfqVgUVj
-	SOSl8zGQ==;
+	bh=33UCl0Co8i3PNxF7TNO2g0opNXJUnYgo70pV3HV1tcI=; b=dIsNq+CQflIlXtOXmQTqb8pXRY
+	oZqzwxIWI5YvxpP4/j2cyaUs/F+SRrHagsggKoL0vGKsexxHrjHORIlOlRnWyWreUtLEU384QLk7G
+	9xy/Kq44WGvy3tBpQggevSL4bfHSCSHK+R+SUs/YM7Nq45lxf5DNRTk/qNcXE+6Z4ZtOpYtr7rcUD
+	/NZqx1otFZnfV8ukq8ni6hn+tG1lztLatVpBF+aeWCIRciarfr/XjIMiMWU7tm+LCY2pCLlsCstZF
+	6gTHeQMb7xlQmbogxzWyxViBZBTk2F5stHLfKgnMSLhKKvWud5/XOuKxAevKTe+B0jdBaHDVIDD/c
+	JGh0gQFA==;
 Received: from willy by casper.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1seGAs-00000000gHd-25s5;
+	id 1seGAs-00000000gHM-11f1;
 	Wed, 14 Aug 2024 15:44:34 +0000
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 To: linux-mm@kvack.org,
@@ -36,9 +36,9 @@ Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>,
 	linux-s390@vger.kernel.org,
 	linux-um@lists.infradead.org,
 	x86@kernel.org
-Subject: [PATCH 5/5] mm: Make mk_pte() definition unconditional
-Date: Wed, 14 Aug 2024 16:44:25 +0100
-Message-ID: <20240814154427.162475-6-willy@infradead.org>
+Subject: [PATCH 3/5] um: Remove custom definition of mk_pte()
+Date: Wed, 14 Aug 2024 16:44:23 +0100
+Message-ID: <20240814154427.162475-4-willy@infradead.org>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240814154427.162475-1-willy@infradead.org>
 References: <20240814154427.162475-1-willy@infradead.org>
@@ -50,31 +50,78 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-All architectures now use the common mk_pte() definition, so we
-can remove the condition.
+Move the pfn_pte() definitions from the 2level and 3level files to
+the generic pgtable.h, move the setting of newprot and newpage bits
+into pfn_pte() and delete the custom definition of mk_pte() so that
+we use the central definition.
 
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 ---
- include/linux/pgtable.h | 2 --
- 1 file changed, 2 deletions(-)
+ arch/um/include/asm/pgtable-2level.h |  1 -
+ arch/um/include/asm/pgtable-3level.h |  9 ---------
+ arch/um/include/asm/pgtable.h        | 17 ++++++++++-------
+ 3 files changed, 10 insertions(+), 17 deletions(-)
 
-diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index 8204ffd87d74..1d46422b79cc 100644
---- a/include/linux/pgtable.h
-+++ b/include/linux/pgtable.h
-@@ -41,12 +41,10 @@
- #define FIRST_USER_ADDRESS	0UL
+diff --git a/arch/um/include/asm/pgtable-2level.h b/arch/um/include/asm/pgtable-2level.h
+index 8256ecc5b919..2be7ba470abb 100644
+--- a/arch/um/include/asm/pgtable-2level.h
++++ b/arch/um/include/asm/pgtable-2level.h
+@@ -37,7 +37,6 @@ static inline void pgd_mkuptodate(pgd_t pgd)	{ }
+ #define set_pmd(pmdptr, pmdval) (*(pmdptr) = (pmdval))
+ 
+ #define pte_pfn(x) phys_to_pfn(pte_val(x))
+-#define pfn_pte(pfn, prot) __pte(pfn_to_phys(pfn) | pgprot_val(prot))
+ #define pfn_pmd(pfn, prot) __pmd(pfn_to_phys(pfn) | pgprot_val(prot))
+ 
  #endif
- 
--#ifndef mk_pte
- static inline pte_t mk_pte(struct page *page, pgprot_t pgprot)
- {
- 	return pfn_pte(page_to_pfn(page), pgprot);
+diff --git a/arch/um/include/asm/pgtable-3level.h b/arch/um/include/asm/pgtable-3level.h
+index 8a5032ec231f..20870be83cfa 100644
+--- a/arch/um/include/asm/pgtable-3level.h
++++ b/arch/um/include/asm/pgtable-3level.h
+@@ -82,15 +82,6 @@ static inline unsigned long pte_pfn(pte_t pte)
+ 	return phys_to_pfn(pte_val(pte));
  }
--#endif
  
- /*
-  * This defines the generic helper for accessing PMD page
+-static inline pte_t pfn_pte(unsigned long page_nr, pgprot_t pgprot)
+-{
+-	pte_t pte;
+-	phys_t phys = pfn_to_phys(page_nr);
+-
+-	pte_set_val(pte, phys, pgprot);
+-	return pte;
+-}
+-
+ static inline pmd_t pfn_pmd(unsigned long page_nr, pgprot_t pgprot)
+ {
+ 	return __pmd((page_nr << PAGE_SHIFT) | pgprot_val(pgprot));
+diff --git a/arch/um/include/asm/pgtable.h b/arch/um/include/asm/pgtable.h
+index 5bb397b65efb..6ecc4c4ffeab 100644
+--- a/arch/um/include/asm/pgtable.h
++++ b/arch/um/include/asm/pgtable.h
+@@ -292,13 +292,16 @@ static inline int pte_same(pte_t pte_a, pte_t pte_b)
+ #define page_to_phys(page) pfn_to_phys(page_to_pfn(page))
+ #define virt_to_page(addr) __virt_to_page((const unsigned long) addr)
+ 
+-#define mk_pte(page, pgprot) \
+-	({ pte_t pte;					\
+-							\
+-	pte_set_val(pte, page_to_phys(page), (pgprot));	\
+-	if (pte_present(pte))				\
+-		pte_mknewprot(pte_mknewpage(pte));	\
+-	pte;})
++static inline pte_t pfn_pte(unsigned long pfn, pgprot_t pgprot)
++{
++	pte_t pte;
++
++	pte_set_val(pte, pfn * PAGE_SIZE, pgprot);
++	if (pte_present(pte))
++		pte_mknewprot(pte_mknewpage(pte));
++
++	return pte;
++}
+ 
+ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
+ {
 -- 
 2.43.0
 
