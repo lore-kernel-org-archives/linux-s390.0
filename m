@@ -1,68 +1,70 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39E371AC88A;
-	Thu, 15 Aug 2024 11:06:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E631217BEAC;
+	Thu, 15 Aug 2024 12:12:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723720021; cv=none; b=ihMiUm/owvEQlQpj1X8a99n//LBGmYIuO2CKgOIn2gxpxYhkRaAISItZsbS+y7eDa5wYjDSdTTPds0OyKAVhUC2mJCp+aXgccarsuVgYGBn8cgITHOllBXzyDWAZGO3W2bpkd+M2XTkkT9mR7kavlYECwrLEktdJh35cMOpMxRc=
+	t=1723723982; cv=none; b=UTOFfzHNs6N/B9jKHlarB+7mixQF3MqUG/m5URV1CEnwZBVGcBVyDG1dMAdF3Tm73ShDmq1zU/eDLPNLm9rU7x/y/niNaEDbYQasHUxvAYOdDtTd58w7xuS62uLztDmvR8Y4k3rNo7xEqYygsB3U51UVKPHbCE4WzI1EnX7w4UU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723720021; c=relaxed/simple;
-	bh=r6PB6I38xeWW8hCOA19KppGramBrnQ3/g/0ihZ2cNbo=;
-	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gfP2SZyNT2NTCLIZ5ycQyrAwUG+Z/k9guDSRRVRlyF1PzVfwwR3a2LGcs7ZTv3BoBLV1CVGUARKuB02Oft+YLJSOyAqlOyRiMVBCv0o8v7ktSr5UAHzw5DXFoJzfg2s50mSk0GCbouNDVdfBjOTp2SUtcQg0Ez7Ptn2vCSLDPwo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q99CkcxJ; arc=none smtp.client-ip=209.85.218.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1723723982; c=relaxed/simple;
+	bh=zQsjIyYQOlQ3I1bqwiuky5sjALysFrzzi+2fbwM0C/U=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ag+kMLC6qQY/RNlw2CEB+v7ahTDb3UTmQIFaHzqUeiCbw+k3Db+DOdQ3zglpOoTKO94LI8iAiIGQdB1aWukMMbtQaA6xhLy8Gi2qrS9ttyWMvxRlf8Ayb/yQdjTrPS/25St1ZX9yV0oHmCA9DVPJLvd77fJNgpjAaDPBuBRSVGg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aEtNSewI; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q99CkcxJ"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-a7aa212c1c9so106206266b.2;
-        Thu, 15 Aug 2024 04:06:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1723720018; x=1724324818; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=HHlp/18Y3b/YapSL10tamc6Em3A7d2FKqPF4wvOXYOE=;
-        b=Q99CkcxJHUW6MdbjgSJMN6qtzkaHA670pGVBLWUPbjkmz1ifdu6Nzdrf+xh8bK11kM
-         Myb7BPv/4rPQEiq7A7ez29gPQKEVPbVRacSd1HxKfEj0+W+rmrznZOmANmxK6aw4/tyQ
-         HFN2gm0MD+L4fOyy9oQdVSLfcq3+tJUs2S1rvtMRdJrELC6jGaBS+RlVxIgdEr0M4/X+
-         QRUgBNkZOvqwOcO1qBmj4pU6m/QDR85QxZgy/YLwJPBD1ronV9UfcAZZNn+6VhDoeYti
-         6dceBSVH578cOBVrguUflycdk+hxcT07j5/LQ4cgHlp71YF8R5Mrg5raSBIu/8XSuHn0
-         4RLA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723720018; x=1724324818;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HHlp/18Y3b/YapSL10tamc6Em3A7d2FKqPF4wvOXYOE=;
-        b=vwv4AyPSo/gy2aL+Nxlx2EcpKzl5Ka5mi4H+opXnZNjUDKyMZdyQFjFTM3Xy/K+kGp
-         EzQGecSpvH4fubkxa3Lb6NFcgs35GcdwJksJl4FhSagoX6pe6YAaNOQ54hCjxdfrgsH7
-         W+DJV9xH8S6zrYQw0elq/iXsLDDIrMSAPa0JIK/Ll9rBOV54A69A6YIaF959CFbeywgJ
-         aRtSaXGg8mYSZKGPI1GNzJbklQ9IL+Gqzy02s7oc4/IEk3GaibW3FXwb8ElscBr/q1Xl
-         wfggmjPb/MQ60egq9EoFBuzLp71HPMOxmW6i48Lqd6UZr00FwZI091uzJPjZmfkdM+Qq
-         VECA==
-X-Forwarded-Encrypted: i=1; AJvYcCV779gm7gc67d1i3Nv9dP2Vv1xFCgfm9cgY8jVCdmwqffamPHYwsD7MmHiORWXTEzV9leg=@vger.kernel.org, AJvYcCXNsvB/8qr3UZ3dNphCWT4DPIWoR/If6Nlyy44umUAHe9hk+oSyn+0lWJvixnJCNK3/gKxrFSEy5fyJBRXX@vger.kernel.org, AJvYcCXUgNRaJW0QAhS/PvZCJhNH/qbJocKRZED9A14vOIZJR/hfFCOx4/xRzPHwyp4anz4+z3XCDQjpeVRSbAeM@vger.kernel.org, AJvYcCXiw5WWG5Av+BvCK6aZzMO10DOy62WAvtU6O5HDQgsZxoZq0a9yscPbOrrGGt0ZbCXwmVIKX5oSi55VwQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwB6ZuR7CuSJUViDJ6JWiOALifcY9E0Ie7YsyMWpQMBxgBw2kzq
-	DswAZTdX0gwYjUT2GC8dgEBucOM7GuK5bnIoyeiHWV02pkS5vTm1
-X-Google-Smtp-Source: AGHT+IHOG0gNdStkLsQq+UBGK8V2OMDdI8MHvWloqQADjVOGn+qiAw5yzUkXqSEVhu3WG6sMKfD6iA==
-X-Received: by 2002:a17:907:3f0e:b0:a77:cdaa:88a7 with SMTP id a640c23a62f3a-a836705975bmr424955166b.48.1723720017977;
-        Thu, 15 Aug 2024 04:06:57 -0700 (PDT)
-Received: from krava (ip-94-113-247-30.net.vodafone.cz. [94.113.247.30])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a83838cfa18sm85334566b.73.2024.08.15.04.06.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Aug 2024 04:06:57 -0700 (PDT)
-From: Jiri Olsa <olsajiri@gmail.com>
-X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
-Date: Thu, 15 Aug 2024 13:06:55 +0200
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Brian Norris <briannorris@chromium.org>,
-	Arnaldo Carvalho de Melo <acme@redhat.com>,
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-kbuild@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH v2] tools build: Provide consistent build options for
- fixdep
-Message-ID: <Zr3hTzZqsISEqSeh@krava>
-References: <20240815072046.1002837-1-agordeev@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aEtNSewI"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47FBKP9r026593;
+	Thu, 15 Aug 2024 12:12:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:mime-version
+	:content-type:in-reply-to; s=pp1; bh=Xd64frNEOeLFKhWfmvTBNHEnJQb
+	uJhSqIR8O1N+8JAw=; b=aEtNSewIsOxiFfdSDm5P7ULut5AJ6szYIqS4Xh1ulKA
+	Jhj/jexK11owQT1/zINKb6NBI5WwhuhjEIEHXjYwv7cr/xys7VPKHfMLL8Ue7IHy
+	yqG1XOFjiei1f49LYzVJQZsrtjLRI0v5ZPxrsNaaTLh36Zsd7welFEZlVNrElhhL
+	6JsH2ooZH5VFVwsL/zHd/FOxtwgkAdNC0nHBjE0uDIw0dFC4frv3vlLdc95YTK3G
+	QlygyzeTjErADWAJFIzSqCu5K/vUueCZeuGjNKBre5MyvfCcLcp0I3qRlN1GJvFH
+	/x3WFQ8aY7gy4DDZSBdV08KlsK/Br6MYz5t7RpSVmfA==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4111d6keaw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 Aug 2024 12:12:42 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 47F8dU2n010055;
+	Thu, 15 Aug 2024 12:12:42 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 40xjx0xtgb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 Aug 2024 12:12:42 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47FCCaGf34341270
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 15 Aug 2024 12:12:38 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3F38B2004B;
+	Thu, 15 Aug 2024 12:12:36 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5770220040;
+	Thu, 15 Aug 2024 12:12:35 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.11.33])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 15 Aug 2024 12:12:35 +0000 (GMT)
+Date: Thu, 15 Aug 2024 14:12:33 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-um@lists.infradead.org, x86@kernel.org
+Subject: Re: [PATCH 4/5] s390: Remove custom definition of mk_pte()
+Message-ID: <Zr3wsRHO+hcwv5Y0@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240814154427.162475-1-willy@infradead.org>
+ <20240814154427.162475-5-willy@infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -71,53 +73,37 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240815072046.1002837-1-agordeev@linux.ibm.com>
+In-Reply-To: <20240814154427.162475-5-willy@infradead.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 35RWKvcTfZLS9yX681VV333VTIEl95d-
+X-Proofpoint-ORIG-GUID: 35RWKvcTfZLS9yX681VV333VTIEl95d-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-15_03,2024-08-15_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=306
+ spamscore=0 mlxscore=0 malwarescore=0 bulkscore=0 priorityscore=1501
+ adultscore=0 impostorscore=0 clxscore=1011 lowpriorityscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2408150087
 
-On Thu, Aug 15, 2024 at 09:20:46AM +0200, Alexander Gordeev wrote:
-> The fixdep binary is being compiled and linked in one step. While
-> the host linker flags are passed to the compiler the host compiler
-> flags are missed.
-> 
-> That leads to build errors at least on x86_64, arm64 and s390 as
-> result of the compiler vs linker flags inconsistency. For example,
-> during RPM package build redhat-hardened-ld script is provided to
-> gcc, while redhat-hardened-cc1 script is missed.
-> 
-> Provide both KBUILD_HOSTCFLAGS and KBUILD_HOSTLDFLAGS to avoid that.
-> 
-> Closes: https://lore.kernel.org/lkml/99ae0d34-ed76-4ca0-a9fd-c337da33c9f9@leemhuis.info/
-> Fixes: ea974028a049 ("tools build: Avoid circular .fixdep-in.o.cmd issues")
-> Tested-by: Thorsten Leemhuis <linux@leemhuis.info>
-> Reviewed-by: Brian Norris <briannorris@chromium.org>
-> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+On Wed, Aug 14, 2024 at 04:44:24PM +0100, Matthew Wilcox (Oracle) wrote:
 
-Acked-by: Jiri Olsa <jolsa@kernel.org>
+Hi Matthew,
 
-jirka
+> I believe the test for PageDirty() is no longer needed.  The
+> commit adding it was abf09bed3cce with the rationale that this
+> avoided faults for tmpfs and shmem pages.  shmem does not mark
+> newly allocated folios as dirty since 2016 (commit 75edd345e8ed)
+> so this test has been ineffective since then.
 
+We will investigate if that is really safe thing to do.
+Some people on vacation, so we might be not too quick
+with the response.
+
+> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 > ---
-> 
-> This patch is against kernel-next next-20240815 tag
-> 
-> v2:
-> - missing tags added
-> - commit message adjusted
-> 
-> ---
->  tools/build/Makefile | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/tools/build/Makefile b/tools/build/Makefile
-> index fea3cf647f5b..18ad131f6ea7 100644
-> --- a/tools/build/Makefile
-> +++ b/tools/build/Makefile
-> @@ -44,4 +44,4 @@ ifneq ($(wildcard $(TMP_O)),)
->  endif
->  
->  $(OUTPUT)fixdep: $(srctree)/tools/build/fixdep.c
-> -	$(QUIET_CC)$(HOSTCC) $(KBUILD_HOSTLDFLAGS) -o $@ $<
-> +	$(QUIET_CC)$(HOSTCC) $(KBUILD_HOSTCFLAGS) $(KBUILD_HOSTLDFLAGS) -o $@ $<
-> -- 
-> 2.43.0
-> 
-> 
+>  arch/s390/include/asm/pgtable.h | 11 -----------
+>  1 file changed, 11 deletions(-)
+...
+
+Thanks!
