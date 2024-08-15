@@ -1,67 +1,37 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1553215572E;
-	Thu, 15 Aug 2024 07:03:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B109B41AAC;
+	Thu, 15 Aug 2024 07:04:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.237.130.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723705416; cv=none; b=COQhJbyB/uIlH6tTWBmyhXU0rjblrHbcKA4QpTI0WU1wOCYqw7WDKAeqlmiIDY0co1IFiDveDSzRLC4M7p2sDiQoeA16F7QFtrYXH+tVZq0Ck2N8Qw0Mo9uzwiZBMYqHXbK/lgDv8onT52qg+X9TQiaLsI4caqi/aQGsdm265b4=
+	t=1723705442; cv=none; b=efC3Z/CBKFu7SJZgm8yYcFsX6RS/MDCuliDam4MCCDC/wzz6WN2c7oxsLRKdU9z4DCTl4uKlCokfYde+6zV7ARl5Oh+b8PgLs0Jv7I3UzgZHCg3Mr+36ktJl6D9Lvra0rweIerOKW9rcYtKCwaBvqNa0vJ9oYyh/nMO7Jal9/vU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723705416; c=relaxed/simple;
-	bh=BEfDmDLiFad+5GzVwyb3AAz0mwzIqaWk0/6y5E/Ryy0=;
+	s=arc-20240116; t=1723705442; c=relaxed/simple;
+	bh=LG+LfjDMhXv5xMIAKad/w7bwzT7au/YUjzY/gjRaG10=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KisQFH0iOLgigKKFyxt4VybO8DF/AgtSXY/6CyN7OB5IzGNwSc1r3u7C4h2e0AD8SXKtF0tmzaBGwlDQLRPlxYxIUnbFdT5GDSCh+RBBkxy+Ko4p37y9Ka/PuSW3o7a4dN66GsPS59zuCgh+GZDZfKFmhEfy1+RZPJYnzq8qoqY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FN6ZGRz9; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=EFeMddoOR54ac2BgSwFcq3nqr6EpdNP02OvXRnJM8hwJBvtyObDbIst0xt84x5KNnwNfWJzKwuJrNjh1pdHi/dGvJxz+zNdOI4U5SpjyZz4e9jFN6wdunjU1NI8Z3juKCbYNVgnrxLd8YssYO981WQacG4uxXgCERQDMXRyYbBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=WI0zZwso; arc=none smtp.client-ip=80.237.130.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FN6ZGRz9"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47EHsaPD025265;
-	Thu, 15 Aug 2024 07:03:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=M
-	6fGN17QXNey//B4JZT3qXU3ULMgMp5zqQzwbf/Z44k=; b=FN6ZGRz9HpIZgE1bm
-	37x4J3ZNDUDX1++wuvHvsm7FIfXq9m3RpdzzMKiRO07G0997pmPZXwihbuQ1UHc/
-	qBkd9mff1YR6qIFoE3faOExzFWXvTDSrC+B9WdpTu0mobI0/fzPSfJj3c/KyVkvD
-	b/4bcXWqRtxmHFlgkAPyebRf0rnF79NIvoP9bBPaFgtLvKTFU8Lgx8CO05j2I4P2
-	U1ASgNbYTIsTD9B725Pr0PRCe1UNqWyOQRnTEfc8RjA6dX4tTZQZ2cAwjzshpSuM
-	sLB/Ekc/jW3kJdurGtrMvg6C7jdbx3P/adsqUbGB+Ij4rwbdKOvIek9TYRlcBg/S
-	KCUqw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4111d6jcu1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 Aug 2024 07:03:16 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 47F73G4B015275;
-	Thu, 15 Aug 2024 07:03:16 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4111d6jctv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 Aug 2024 07:03:16 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 47F6pghY020901;
-	Thu, 15 Aug 2024 07:03:15 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 40xn83d495-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 Aug 2024 07:03:15 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47F739ku42139976
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 Aug 2024 07:03:12 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BE7EF2004D;
-	Thu, 15 Aug 2024 07:03:09 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6F3C32004B;
-	Thu, 15 Aug 2024 07:03:09 +0000 (GMT)
-Received: from [9.152.224.208] (unknown [9.152.224.208])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 15 Aug 2024 07:03:09 +0000 (GMT)
-Message-ID: <c9c35759-33e7-4103-a4f0-af1d5fdefcdf@linux.ibm.com>
-Date: Thu, 15 Aug 2024 09:03:09 +0200
+	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="WI0zZwso"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=leemhuis.info; s=he214686; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:From:
+	Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
+	Content-Transfer-Encoding:Content-ID:Content-Description:In-Reply-To:
+	References; bh=Vv8x5Qfs8UwmWAQ3/4Ko96KI/lkvLAsKYITZ6HtVJsw=; t=1723705440;
+	x=1724137440; b=WI0zZwsofig9gbnChfzJTRJ/2pO0tfFA40mNySApDQvVTP20bIzfLa/9lCtPd
+	b1V5EmeZEuOx7+anTVdH7OwpKXeCkcs2UFmECD7lhxipoOMYzN3ybenGu3x6bk15PaZ7+pjdI2MXk
+	Ohmx2glx7TpWivb9Lsxj1ZciHHA53ixVvYymp1zFwu5VSReEeSA8F6Vi7mEr6I3RENVI6vkAiibKn
+	hgqZsI8qF00XBTlBhWELsnAdXwd/SkLnuHki3t/P+o1EfU6EFbD0hiNot50Aldt/K4dMvXhCPtlVU
+	uBeJBhEo+aC8BKP7hzKH5CS/fuGEPU0PX3mhFxplwwPAumtRaw==;
+Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
+	by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+	id 1seUWc-0001VL-Ng; Thu, 15 Aug 2024 09:03:58 +0200
+Message-ID: <88a67613-9597-4770-b777-51975e163513@leemhuis.info>
+Date: Thu, 15 Aug 2024 09:03:58 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,157 +39,92 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net,v4] net/smc: prevent NULL pointer dereference in
- txopt_get
-To: "D. Wythe" <alibuda@linux.alibaba.com>,
-        Jeongjun Park <aha310510@gmail.com>
-Cc: gbayer@linux.ibm.com, guwen@linux.alibaba.com, jaka@linux.ibm.com,
-        tonylu@linux.alibaba.com, wenjia@linux.ibm.com, davem@davemloft.net,
-        dust.li@linux.alibaba.com, edumazet@google.com, kuba@kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, pabeni@redhat.com
-References: <64c2d755-eb4b-42fa-befb-c4afd7e95f03@linux.ibm.com>
- <20240814150558.46178-1-aha310510@gmail.com>
- <9db86945-c889-4c0f-adcf-119a9cbeb0cc@linux.alibaba.com>
- <CAO9qdTGFGxgD_8RYQKTx9NJbwa0fiFziFyx2FJpnYk3ZvFbUmw@mail.gmail.com>
- <6bcd6097-13dd-44fd-aa67-39a3bcc69af2@linux.alibaba.com>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <6bcd6097-13dd-44fd-aa67-39a3bcc69af2@linux.alibaba.com>
+Subject: Re: [PATCH] tools build: Provide consistent build options for fixdep
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+ Brian Norris <briannorris@chromium.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org,
+ bpf@vger.kernel.org
+References: <20240814173021.3726785-1-agordeev@linux.ibm.com>
+ <CA+ASDXMafY_w5Cm5EWS+dUn59kL3d_h4ZBW9w_Hn=7OZ=5n8kQ@mail.gmail.com>
+ <ZrzvDb+gitYx3KLL@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+From: Thorsten Leemhuis <linux@leemhuis.info>
+Content-Language: en-US, de-DE
+Autocrypt: addr=linux@leemhuis.info; keydata=
+ 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 n7RI
+In-Reply-To: <ZrzvDb+gitYx3KLL@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: EGurLq0YklRQv9tWU13end9SdZk8U2QN
-X-Proofpoint-ORIG-GUID: lVMeSkxC0gWET55WUyUgRCNYIhoOziXq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-14_22,2024-08-13_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=999
- spamscore=0 mlxscore=0 malwarescore=0 bulkscore=0 priorityscore=1501
- adultscore=0 impostorscore=0 clxscore=1015 lowpriorityscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2408150049
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;linux@leemhuis.info;1723705440;0e52cead;
+X-HE-SMSGID: 1seUWc-0001VL-Ng
 
-
-
-On 15.08.24 08:43, D. Wythe wrote:
-> 
-> 
-> On 8/15/24 11:15 AM, Jeongjun Park wrote:
->> 2024년 8월 15일 (목) 오전 11:51, D. Wythe <alibuda@linux.alibaba.com>님이 작성:
->>>
->>>
->>> On 8/14/24 11:05 PM, Jeongjun Park wrote:
->>>> Alexandra Winter wrote:
->>>>> On 14.08.24 15:11, D. Wythe wrote:
->>>>>>       struct smc_sock {                /* smc sock container */
->>>>>> -    struct sock        sk;
->>>>>> +    union {
->>>>>> +        struct sock        sk;
->>>>>> +        struct inet_sock    inet;
->>>>>> +    };
->>>>> I don't see a path where this breaks, but it looks risky to me.
->>>>> Is an smc_sock always an inet_sock as well? Then can't you go with smc_sock->inet_sock->sk ?
->>>>> Or only in the IPPROTO SMC case, and in the AF_SMC case it is not an inet_sock?
->>>
->>> There is no smc_sock->inet_sock->sk before. And this part here was to
->>> make smc_sock also
->>> be an inet_sock.
->>>
->>> For IPPROTO_SMC, smc_sock should be an inet_sock, but it is not before.
->>> So, the initialization of certain fields
->>> in smc_sock(for example, clcsk) will overwrite modifications made to the
->>> inet_sock part in inet(6)_create.
->>>
->>> For AF_SMC,  the only problem is that  some space will be wasted. Since
->>> AF_SMC don't care the inet_sock part.
->>> However, make the use of sock by AF_SMC and IPPROTO_SMC separately for
->>> the sake of avoid wasting some space
->>> is a little bit extreme.
->>>
-
-
-Thank you for the explanation D. Wythe. That was my impression also. 
-I think it is not very clean and risky to use the same structure (smc_sock)
-as inet_sock for IPPROTO_SMC and as smc_sock type for AF_SMC.
-I am not concerned about wasting space, mroe about maintainability.
-
-
-
->> Okay. I think using inet_sock instead of sock is also a good idea, but I
->> understand for now.
+On 14.08.24 19:53, Alexander Gordeev wrote:
+> On Wed, Aug 14, 2024 at 10:35:00AM -0700, Brian Norris wrote:
+>
+>> FWIW, I already fielded some reports about this, and proposed a very
+>> similar (but not identical) fix:
 >>
->> However, for some reason this patch status has become Changes Requested
-
-
-Afaiu, changes requested in this case means that there is discussion ongoing.
-
-
->> , so we will split the patch into two and resend the v5 patch.
+>> https://lore.kernel.org/lkml/20240814030436.2022155-1-briannorris@chromium.org/
 >>
->> Regards,
->> Jeongjun Park
+>> Frankly, I wasn't sure about HOSTxxFLAGS vs KBUILD_HOSTxxFLAGS -- and
+>> that's the difference between yours and mine. If yours works, that
+>> looks like the cleaner solution. So:
+>>
+>> Reviewed-by: Brian Norris <briannorris@chromium.org>
+>>
+>> Either way, it might be good to also include some of these tags if
+>> this is committed:
+>>
+>> Closes: https://lore.kernel.org/lkml/99ae0d34-ed76-4ca0-a9fd-c337da33c9f9@leemhuis.info/
+>> Fixes: ea974028a049 ("tools build: Avoid circular .fixdep-in.o.cmd issues")
 > 
-> Why so hurry ? Are you rushing for some tasks ? Please be patient.
+> Ah, I missed the issue was reported already - I would include these tags otherwise.
 > 
-> The discussion is still ongoing, and you need to wait for everyone's opinions,
-> at least you can wait a few days to see if there are any other opinions, even if you think
-> your patch is correct.
-> 
-[...]
-> 
-> Best wishes,
-> D. Wythe
+> @Thorsten, would it be possible to test this fix?
 
+Yeah, np. This one works as well, so feel free to add:
 
-I understand that we have a real problem and need a fix. But I agree with D. Wythe,
-please give people a chance for discussion before sending new versions.
-Also a version history would be helpful (what changed and why)
+Tested-by: Thorsten Leemhuis <linux@leemhuis.info>
 
-
->>>> hmm... then how about changing it to something like this?
->>>>
->>>> @@ -283,7 +283,7 @@ struct smc_connection {
->>>>    };
->>>>
->>>>    struct smc_sock {                           /* smc sock container */
->>>> -     struct sock             sk;
->>>> +     struct inet_sock        inet;
->>>>        struct socket           *clcsock;       /* internal tcp socket */
->>>>        void                    (*clcsk_state_change)(struct sock *sk);
->>>
->>> Don't.
->>>
->>>>                                                /* original stat_change fct. */
->>>> @@ -327,7 +327,7 @@ struct smc_sock {                         /* smc sock container */
->>>>                                                 * */
->>>>    };
->>>>
->>>> -#define smc_sk(ptr) container_of_const(ptr, struct smc_sock, sk)
->>>> +#define smc_sk(ptr) container_of_const(ptr, struct smc_sock, inet.sk)
->>>>
->>>>    static inline void smc_init_saved_callbacks(struct smc_sock *smc)
->>>>    {
->>>>
->>>> It is definitely not normal to make the first member of smc_sock as sock.
->>>>
->>>> Therefore, I think it would be appropriate to modify it to use inet_sock
->>>> as the first member like other protocols (sctp, dccp) and access sk in a
->>>> way like &smc->inet.sk.
->>>>
->>>> Although this fix would require more code changes, we tested the bug and
->>>> confirmed that it was not triggered and the functionality was working
->>>> normally.
->>>>
->>>> What do you think?
-
-
-Yes, that looks like what I had in mind. 
-I am not familiar enough with the details of the SMC code to judge all implications.
-
-
->>>>
->>>> Regards,
->>>> Jeongjun Park
-> 
-> 
+Ciao, Thorsten
