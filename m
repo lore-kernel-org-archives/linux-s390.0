@@ -1,161 +1,92 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC7A12209D;
-	Thu, 15 Aug 2024 04:08:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89F1BEC4;
+	Thu, 15 Aug 2024 04:37:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723694940; cv=none; b=tLGga1NuPqWOFYLTp2JwG7Hr4KLNU+weUOuRIWZdZPS/MkCmeDfeEtFzVGKYt+hMzrypcXGX1B9NsDu3b5pg4+7UhyHQfHMmN/0U8qEJvBfv7wqLISirDlrw4HSuxGp49JwV4xXvY6INsrx/7Rod2x1XvCvOPxJ7KlfFQmxG8Uw=
+	t=1723696642; cv=none; b=PGFdARJjwfjQJoswgmLjSjVdo5TEHgpw/1+zBMzoNCRQzV5NyGuaapPhZAsaekOOyiDvxLCjNExNPgEOhQYU/2t642taqFRl2F1u6nZpmaDOWu7EyBKX1Vb3wZI1mNx33+E6YHs22KxC2WfvF6JVuBQIkFT2r00fg3ez/6/fmtQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723694940; c=relaxed/simple;
-	bh=9z4AfTVcoGr13kMqfy68br6N15Zt4R0Ze/WP37ZrMSw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lYjTS53bQG2/1nFLuLJQy75Nwab9hA7+oRsFLh2MYsNP+hwoV4O6n9U5++yP59q3yHD3JENp/0/jQ6JNdYTa6KaIIaJJmKwRzjTvC78MdBZOZI4sexxHE5oC1GAxuu2nIi5zrvF3X+rT7RBLiTl9DAPNusrHYsgKZcgW1hW3N28=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZIJE00PY; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1723696642; c=relaxed/simple;
+	bh=y9J5zSN5z0sua8E2eLCGRkvQ6EfUE41XgG3IlsTHUxo=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=CzsTYXAG4oCcsnHwW25pvQuTqILoofdZ4oyzbera7Y/ymtIM+JQc2B1c4dR7z2rvfkwZDPCzVmZmcGxqRqIxb0PpyFB/he/0zJkLc5/zU4liEvKiLm5ShndwRZOrys97D48XE3WrtM13CeqihmvqxnHsqubeCtbDY+EXvtIWDkU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=njV3gTok; arc=none smtp.client-ip=209.85.214.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZIJE00PY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1723694938; x=1755230938;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=9z4AfTVcoGr13kMqfy68br6N15Zt4R0Ze/WP37ZrMSw=;
-  b=ZIJE00PYAU76QT5I+K9vflTMqj761wDFYJ61jJD2F0PeSYpb3EkZ7yjK
-   YvQGIBAQ0mnK9MELqbzLiIieVrdoIhC3LtCGC1V/+7/rzpLn+nFABMP33
-   VQatvcrRNLqcMBdc60cW7STDdN75BkjcZKDHZNGyESjZJfGMdeTpjK8tJ
-   k+tAlyUYz24LZQIsWUUgx4YlwimJwANKl0pQ0iQ2A8DzBvA0pEDYPObpT
-   Aayme+3npEtShy09dcrUOQirZ+e6nHbaVmD/V1pWCEpgyp7S87MHn+VdI
-   96BtHWzyO41NQYbwJNvuB/g4+zqo5MqhfL3TVbOFIYUoTvdFQlZdUajcw
-   A==;
-X-CSE-ConnectionGUID: hkmzUXusRtOqJH+xynAN8w==
-X-CSE-MsgGUID: xrZZ8B3ZTSOcAgJUMF5ZLA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11164"; a="47344023"
-X-IronPort-AV: E=Sophos;i="6.10,147,1719903600"; 
-   d="scan'208";a="47344023"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Aug 2024 21:08:57 -0700
-X-CSE-ConnectionGUID: GN/Tr+wuRC2pLnQX3oZfVQ==
-X-CSE-MsgGUID: PeZUkHPzRwGOa+UQ1jnVog==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.10,147,1719903600"; 
-   d="scan'208";a="96751066"
-Received: from lkp-server01.sh.intel.com (HELO 9a732dc145d3) ([10.239.97.150])
-  by orviesa001.jf.intel.com with ESMTP; 14 Aug 2024 21:08:55 -0700
-Received: from kbuild by 9a732dc145d3 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1seRnA-0003Ak-17;
-	Thu, 15 Aug 2024 04:08:52 +0000
-Date: Thu, 15 Aug 2024 12:08:51 +0800
-From: kernel test robot <lkp@intel.com>
-To: "Matthew Wilcox (Oracle)" <willy@infradead.org>, linux-mm@kvack.org,
-	linux-arch@vger.kernel.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>,
-	linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
-	x86@kernel.org
-Subject: Re: [PATCH 2/5] x86: Remove custom definition of mk_pte()
-Message-ID: <202408151133.BaOdxDkR-lkp@intel.com>
-References: <20240814154427.162475-3-willy@infradead.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="njV3gTok"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-1fd9e70b592so5519315ad.3;
+        Wed, 14 Aug 2024 21:37:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1723696641; x=1724301441; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=2Delqls4XZvd+0CZ7c4mLJoMdC6GpSpAW8Lh/tFw2bE=;
+        b=njV3gToka/9md5KdKFADr0+blDLom1oILO1T8TJM6OQyKaiauU0lIVbUj8bNGBzpp5
+         Mioaz/SV/qmp4jQfTaitAIPub7SnOIWqWxMi3642NgjVOF9BNUSicLShKViEj2SNDSdU
+         EUFbeJKe3mcXxIKKBQttreFiHgwh06ju6gia17qLFlbo+jbOJ2nsIKmtKNZInGcHxf2o
+         gv0gi9gMLmySOj6RTpoI+qq9qCGdTfIYxVjHj3j9Ltn+JoyU+wvdiSKbAJBDRjV3UT+h
+         ViOC9q1V4vyNDEJvp+oW62ptEOEqmr6Y5gORI1w4hyMRNb1qyK/6zs3lNASTG2bgsDM2
+         mC3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723696641; x=1724301441;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=2Delqls4XZvd+0CZ7c4mLJoMdC6GpSpAW8Lh/tFw2bE=;
+        b=qno8ko2iRuY8CN1NUnHR6wuiBRezF70JWLW+LgLq0cz9XDXH/TJnCMuzp4Co3hssrH
+         HS0tCmukcGHwz9qeuhs/sdQNVSzSco9vBc18HO+Z9Z0/izFcMcP0obsEUgb7PG73EM8+
+         Bvbm0Ub79E1ejNkRq1inFrS2LNFcpYL2efSCar+wFNakt7uoUck1CEXAh2t97nU7NpSp
+         ZkKFHwMLNtQQLE5wq6kYf+sPvu9G0jnNPo8e5yEqBcyNw5BBvRsFrcCz92/1eaCEOeCF
+         jokisjGTL5u4ialTq96qSTakEmzPym8QBd5+t2dA8AtW4nBJFagsBCTUHY3X30Vy9xs8
+         1huA==
+X-Forwarded-Encrypted: i=1; AJvYcCXw2KK+jPcA/eHvymjqMpeaXfmMhWmgRYE1eLfKuOKsautHeEAsOwYPvkIZtMoS1yvfElaRdls6UzCyGi1kCWGFubtFtFgLtebsINpr1GVUAj3zd0ot32AQ+QHALKTeCJaNDbJuvDmGBowKjVqYgVCRrgkZcziLTtPL8smGx4UKGw==
+X-Gm-Message-State: AOJu0Ywm3cyM2yonXJ8zhKusT06FsKp2zClaED+E4R4EM07mXBa7ero8
+	yGZoWI/5WHaCWUkgANIqjOj7nCxM+isBPXfIGm4DGGubZnN/Haqa
+X-Google-Smtp-Source: AGHT+IFsl94gUcWu8Q1A/r/Mbwxmnvec4Jrd6LKqDJcfReBU+3PcMfb8gJ5kP77tYZZMvSZ8030bAg==
+X-Received: by 2002:a17:90a:db86:b0:2d3:c862:aa81 with SMTP id 98e67ed59e1d1-2d3c862c27fmr1345303a91.32.1723696640735;
+        Wed, 14 Aug 2024 21:37:20 -0700 (PDT)
+Received: from kernelexploit-virtual-machine.localdomain ([121.185.186.233])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2d3c8840a1bsm493157a91.45.2024.08.14.21.37.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Aug 2024 21:37:20 -0700 (PDT)
+From: Jeongjun Park <aha310510@gmail.com>
+To: wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com
+Cc: davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	dust.li@linux.alibaba.com,
+	ubraun@linux.vnet.ibm.com,
+	utz.bacher@de.ibm.com,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net,v5,0/2] net/smc: prevent NULL pointer dereference in txopt_get
+Date: Thu, 15 Aug 2024 13:37:14 +0900
+Message-Id: <20240815043714.38772-1-aha310510@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240814154427.162475-3-willy@infradead.org>
+Content-Transfer-Encoding: 8bit
 
-Hi Matthew,
+This patch is to resolve vulnerabilities that occur in the process of 
+creating an IPv6 socket with IPPROTO_SMC.
 
-kernel test robot noticed the following build errors:
+Jeongjun Park (2):
+  net/smc: initialize ipv6_pinfo_offset in smc_inet6_prot and add smc6_sock structure
+  net/smc: modify smc_sock structure
 
-[auto build test ERROR on geert-m68k/for-next]
-[also build test ERROR on geert-m68k/for-linus uml/next linus/master v6.11-rc3 next-20240814]
-[cannot apply to uml/fixes]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+ net/smc/smc.h 		| 5 ++++-
+ net/smc/smc_inet.c | 8 +++++++-
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Matthew-Wilcox-Oracle/mm-Introduce-a-common-definition-of-mk_pte/20240815-001852
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/geert/linux-m68k.git for-next
-patch link:    https://lore.kernel.org/r/20240814154427.162475-3-willy%40infradead.org
-patch subject: [PATCH 2/5] x86: Remove custom definition of mk_pte()
-config: x86_64-buildonly-randconfig-003-20240815 (https://download.01.org/0day-ci/archive/20240815/202408151133.BaOdxDkR-lkp@intel.com/config)
-compiler: clang version 18.1.5 (https://github.com/llvm/llvm-project 617a15a9eac96088ae5e9134248d8236e34b91b1)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240815/202408151133.BaOdxDkR-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202408151133.BaOdxDkR-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   In file included from arch/x86/kernel/asm-offsets.c:14:
-   In file included from include/linux/suspend.h:5:
-   In file included from include/linux/swap.h:9:
-   In file included from include/linux/memcontrol.h:21:
-   In file included from include/linux/mm.h:30:
->> include/linux/pgtable.h:47:17: error: call to undeclared function 'page_to_section'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-      47 |         return pfn_pte(page_to_pfn(page), pgprot);
-         |                        ^
-   include/asm-generic/memory_model.h:64:21: note: expanded from macro 'page_to_pfn'
-      64 | #define page_to_pfn __page_to_pfn
-         |                     ^
-   include/asm-generic/memory_model.h:47:14: note: expanded from macro '__page_to_pfn'
-      47 |         int __sec = page_to_section(__pg);                      \
-         |                     ^
-   include/linux/pgtable.h:47:17: note: did you mean '__nr_to_section'?
-   include/asm-generic/memory_model.h:64:21: note: expanded from macro 'page_to_pfn'
-      64 | #define page_to_pfn __page_to_pfn
-         |                     ^
-   include/asm-generic/memory_model.h:47:14: note: expanded from macro '__page_to_pfn'
-      47 |         int __sec = page_to_section(__pg);                      \
-         |                     ^
-   include/linux/mmzone.h:1853:35: note: '__nr_to_section' declared here
-    1853 | static inline struct mem_section *__nr_to_section(unsigned long nr)
-         |                                   ^
-   In file included from arch/x86/kernel/asm-offsets.c:14:
-   In file included from include/linux/suspend.h:5:
-   In file included from include/linux/swap.h:9:
-   In file included from include/linux/memcontrol.h:21:
->> include/linux/mm.h:1904:29: error: static declaration of 'page_to_section' follows non-static declaration
-    1904 | static inline unsigned long page_to_section(const struct page *page)
-         |                             ^
-   include/linux/pgtable.h:47:17: note: previous implicit declaration is here
-      47 |         return pfn_pte(page_to_pfn(page), pgprot);
-         |                        ^
-   include/asm-generic/memory_model.h:64:21: note: expanded from macro 'page_to_pfn'
-      64 | #define page_to_pfn __page_to_pfn
-         |                     ^
-   include/asm-generic/memory_model.h:47:14: note: expanded from macro '__page_to_pfn'
-      47 |         int __sec = page_to_section(__pg);                      \
-         |                     ^
-   2 errors generated.
-   make[3]: *** [scripts/Makefile.build:117: arch/x86/kernel/asm-offsets.s] Error 1 shuffle=262036656
-   make[3]: Target 'prepare' not remade because of errors.
-   make[2]: *** [Makefile:1208: prepare0] Error 2 shuffle=262036656
-   make[2]: Target 'prepare' not remade because of errors.
-   make[1]: *** [Makefile:240: __sub-make] Error 2 shuffle=262036656
-   make[1]: Target 'prepare' not remade because of errors.
-   make: *** [Makefile:240: __sub-make] Error 2 shuffle=262036656
-   make: Target 'prepare' not remade because of errors.
-
-
-vim +/page_to_section +47 include/linux/pgtable.h
-
-1c2f7d14d84f767 Anshuman Khandual       2021-06-30  43  
-9353c36cfa235ae Matthew Wilcox (Oracle  2024-08-14  44) #ifndef mk_pte
-9353c36cfa235ae Matthew Wilcox (Oracle  2024-08-14  45) static inline pte_t mk_pte(struct page *page, pgprot_t pgprot)
-9353c36cfa235ae Matthew Wilcox (Oracle  2024-08-14  46) {
-9353c36cfa235ae Matthew Wilcox (Oracle  2024-08-14 @47) 	return pfn_pte(page_to_pfn(page), pgprot);
-9353c36cfa235ae Matthew Wilcox (Oracle  2024-08-14  48) }
-9353c36cfa235ae Matthew Wilcox (Oracle  2024-08-14  49) #endif
-9353c36cfa235ae Matthew Wilcox (Oracle  2024-08-14  50) 
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+--
