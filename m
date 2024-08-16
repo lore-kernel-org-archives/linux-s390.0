@@ -1,44 +1,52 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D23271304AB;
-	Fri, 16 Aug 2024 09:52:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D205113C689;
+	Fri, 16 Aug 2024 10:41:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723801939; cv=none; b=pMofvIkCYGTr2Qh13Ixp1tuSn/LeGFuBJmUveCKl7UP01fIKOEfk6DO8yvr1AQd6agUMv7PfE8I+QZ9olhXes/NtMdBSMxPNYBgcWRAQyWDjrDa9x2kfBu2vFdu/VTvFaKSKVp1FuwiGEhbAHyGI5RHQTeWQLH9/dH0LyLv1UXg=
+	t=1723804899; cv=none; b=YGheySBNoKXFoWPZwhKTRTe0cuPAhyymwCF5zinv/KWQWBP91kFELMQ9h0AWAL4PYS+IZCIFdEU6TZVK6dErnqXsGYWieVWwA+yZye84T6usriiD8/mBJpmJ/ei8r5TDMwcDEMXSGjP4IbQ4KKhwA5a5ANSbxg5/1zbIVk6ruI8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723801939; c=relaxed/simple;
-	bh=0abDR47X1F5bNCDpDVpI73U3sF42dfY1UVk0OkpRzPw=;
+	s=arc-20240116; t=1723804899; c=relaxed/simple;
+	bh=m7F3trX3Iy+tmgN/SeUmcnfUZs8twzxG5ul00EHwQYw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MfDgJH58AHB+P6SywI5idoPmWgL+1+djmkstvYGgsmqdL3XhIf/I6oglI63A7HOgfQMM6ZdiVVheWHb/XVOA+mDkmiDoKgRChgK4T6Bb5EwfMsw3JZXqOrMGULwn6lrEWszq8ZyEHvCT3Y9tPQpM1pwSLuTQxM+/++J+2KHb+Xw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=fPaundfR; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=WnQVtuG+b7j8c6APvoJKfQPlbDmeIdmhe2RnGudr4ED4SG4Y69bI1WozYMDLM6YT+HrEZ+ehQh1TqnGdsqPzIgvXgyjQUwK8CMUM0Xq5pn5irbqkmcKifvpL1QPEgtpcZEXa4CRq11uId7qELklUaC6k8bTWZiTtV1pOZ5nToqw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tjmJMktD; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="fPaundfR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8E2FC32782;
-	Fri, 16 Aug 2024 09:52:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1723801938;
-	bh=0abDR47X1F5bNCDpDVpI73U3sF42dfY1UVk0OkpRzPw=;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tjmJMktD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13D42C32782;
+	Fri, 16 Aug 2024 10:41:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1723804899;
+	bh=m7F3trX3Iy+tmgN/SeUmcnfUZs8twzxG5ul00EHwQYw=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=fPaundfR/qdz87rS9TIhOwfUCKNS2Z4g61uIBI+m2I7E/OiplXQSJSzLlvJ/0BE1O
-	 GZ/tDcL5XiQqouD9u6BCTxB52ZRMLSJEEHTnSvC8hisaG33DrNk5+MKVGkRMTBxyRD
-	 PDjZ65kvvjAPp4tzk7QJpMHSxTY+cTUi2+9iJm1c=
-Date: Fri, 16 Aug 2024 11:52:15 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Anders Roxell <anders.roxell@linaro.org>
-Cc: stable@vger.kernel.org, patches@lists.linux.dev,
-	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-	jonathanh@nvidia.com, f.fainelli@gmail.com,
-	sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
-	conor@kernel.org, allen.lkml@gmail.com, broonie@kernel.org,
+	b=tjmJMktDJqlIRAxYHz/45AlfkAdYqkYdbnZFKKXlDkqoKq8yf7tWz4evzWfdQGcHs
+	 hPuC+KR+aBPbtV3Y14+QBxUZku7WWqXMe8TJp+dF5x1ynT6Q51hQ38lUygJmQUyRTd
+	 ARv9EWWlCAK+7hQRfMBefdkeaLZTsYXbUstIHJGLhkHUokQbycHp1UJAXutMgKMrUF
+	 y2khSdAxejyNtaUvirNnHIQgRzpEoOOXy3Bpl8sgX4pmxO/n2+IwJv7Bb0WV3efkGj
+	 A2FyaIw7OnjR8glxZ5xpGABLUx6eYI5LwJUg26MXasHYKZj/eH/1O3wPVchvItcxHS
+	 pHvcTraoy5+mA==
+Date: Fri, 16 Aug 2024 11:41:32 +0100
+From: Will Deacon <will@kernel.org>
+To: Jann Horn <jannh@google.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: Re: [PATCH 5.4 000/259] 5.4.282-rc1 review
-Message-ID: <2024081602-absence-preheated-eb57@gregkh>
-References: <20240815131902.779125794@linuxfoundation.org>
- <CADYN=9+zo=R7jFdHGps0YedBqGzhjm7xeOZLsaR_E7-b0Y_CMQ@mail.gmail.com>
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH] runtime constants: move list of constants to
+ vmlinux.lds.h
+Message-ID: <20240816104132.GB23304@willie-the-truck>
+References: <20240730-runtime-constants-refactor-v1-1-90c2c884c3f8@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -47,72 +55,45 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CADYN=9+zo=R7jFdHGps0YedBqGzhjm7xeOZLsaR_E7-b0Y_CMQ@mail.gmail.com>
+In-Reply-To: <20240730-runtime-constants-refactor-v1-1-90c2c884c3f8@google.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 
-On Fri, Aug 16, 2024 at 11:01:53AM +0200, Anders Roxell wrote:
-> On Thu, 15 Aug 2024 at 16:12, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.4.282 release.
-> > There are 259 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Sat, 17 Aug 2024 13:18:17 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.282-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
+On Tue, Jul 30, 2024 at 10:15:16PM +0200, Jann Horn wrote:
+> Refactor the list of constant variables into a macro.
+> This should make it easier to add more constants in the future.
 > 
-> The following S390 build failed on stable-rc 5.4.y with gcc-12 due
-> to following warnings and errors [1].
+> Signed-off-by: Jann Horn <jannh@google.com>
+> ---
+> I'm not sure whose tree this has to go through - I guess Arnd's?
+> ---
+>  arch/arm64/kernel/vmlinux.lds.S   | 3 +--
+>  arch/s390/kernel/vmlinux.lds.S    | 3 +--
+>  arch/x86/kernel/vmlinux.lds.S     | 3 +--
+>  include/asm-generic/vmlinux.lds.h | 4 ++++
+>  4 files changed, 7 insertions(+), 6 deletions(-)
 > 
-> s390:
->   build:
->     * gcc-8-defconfig-fe40093d
->     * gcc-12-defconfig
-> 
-> Bisect point to deb23146ba03 ("s390/pci: fix CPU address in MSI for
-> directed IRQ")
-> as the problematic commit [ Upstream commit
-> a2bd4097b3ec242f4de4924db463a9c94530e03a ].
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> Build log:
-> ------
-> /builds/linux/arch/s390/pci/pci_irq.c: In function 'zpci_set_irq_affinity':
-> /builds/linux/arch/s390/pci/pci_irq.c:106:17: error: implicit
-> declaration of function 'smp_cpu_get_cpu_address'; did you mean
-> 'device_get_mac_address'? [-Werror=implicit-function-declaration]
->   int cpu_addr = smp_cpu_get_cpu_address(cpumask_first(dest));
->                  ^~~~~~~~~~~~~~~~~~~~~~~
->                  device_get_mac_address
-> /builds/linux/arch/s390/pci/pci_irq.c: In function 'arch_setup_msi_irqs':
-> /builds/linux/arch/s390/pci/pci_irq.c:298:2: error: implicit
-> declaration of function 'msi_for_each_desc'; did you mean
-> 'bus_for_each_dev'? [-Werror=implicit-function-declaration]
->   msi_for_each_desc(msi, &pdev->dev, MSI_DESC_NOTASSOCIATED) {
->   ^~~~~~~~~~~~~~~~~
->   bus_for_each_dev
-> /builds/linux/arch/s390/pci/pci_irq.c:298:37: error:
-> 'MSI_DESC_NOTASSOCIATED' undeclared (first use in this function)
->   msi_for_each_desc(msi, &pdev->dev, MSI_DESC_NOTASSOCIATED) {
->                                      ^~~~~~~~~~~~~~~~~~~~~~
-> /builds/linux/arch/s390/pci/pci_irq.c:298:37: note: each undeclared
-> identifier is reported only once for each function it appears in
-> /builds/linux/arch/s390/pci/pci_irq.c:298:60: error: expected ';'
-> before '{' token
->   msi_for_each_desc(msi, &pdev->dev, MSI_DESC_NOTASSOCIATED) {
->                                                             ^~
+> diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
+> index 55a8e310ea12..58d89d997d05 100644
+> --- a/arch/arm64/kernel/vmlinux.lds.S
+> +++ b/arch/arm64/kernel/vmlinux.lds.S
+> @@ -261,14 +261,13 @@ SECTIONS
+>  		*(.init.altinstructions .init.bss)	/* from the EFI stub */
+>  	}
+>  	.exit.data : {
+>  		EXIT_DATA
+>  	}
+>  
+> -	RUNTIME_CONST(shift, d_hash_shift)
+> -	RUNTIME_CONST(ptr, dentry_hashtable)
+> +	RUNTIME_CONST_VARIABLES
+>  
+>  	PERCPU_SECTION(L1_CACHE_BYTES)
+>  	HYPERVISOR_PERCPU_SECTION
+>  
+>  	HYPERVISOR_RELOC_SECTION
 
-Thanks, will go drop the offending commits and push out a -rc2
+Acked-by: Will Deacon <will@kernel.org>
 
-greg k-h
+I'm assuming Arnd will pick this up.
+
+Will
