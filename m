@@ -1,55 +1,57 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 934B918F2C8;
-	Tue, 20 Aug 2024 12:13:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEFD218FC72;
+	Tue, 20 Aug 2024 12:15:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724156001; cv=none; b=PMgpf2yDvTzLJT0UAdWdpRoPzQxa+BS6dFODzpsnqLhixN1rmzo30ydlr58MXBgSK4fddKvoi9uP3/RK3dXd6riueaTnU8MSRSotIfzulc4k78o6/SzEy9oJS1Q0AYYsmzbuZppCErAxE+VHOvQgdq2tnJk/DHGlztZ63Ebvk+Y=
+	t=1724156135; cv=none; b=QT+TZcjvu60Rc8Pu8nGkmB/+fuXgsSEiUyjDJIkB66AxfMqCZNIS1X6NmOyv4yg0hlYc6BZD0eLusc2KLXb4QZcoEBWYePW8AwmWTfPnVAjabZkENl6iOHXqW5d+iVT4u/NwLvcLnvdi8cMC6yju5QJo48t37v2mtAGUnpHCNCg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724156001; c=relaxed/simple;
-	bh=sjoksWZ8Am0KeIIGjVG0E4j+q+NHl4a2vZP83KMzPa4=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=br9CZmM17XRwh2VAfAeMVOQC9UKaJFNouAy7hMt0wkQTYUZrntNVJX1z0dMEWRkgx/70RJnCDPrR4qU+TjCn8tSTlG3tcRQe/kGberDTyg4oG0qujQTFiFPtpM9WKaNOMxW7fO1cRHjZk35c2Pno/Ucfy4XxybYbLbICW4tnAPQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lZ1Q9DGo; arc=none smtp.client-ip=209.85.214.169
+	s=arc-20240116; t=1724156135; c=relaxed/simple;
+	bh=3Rsxurh3oebSOC9CSdQymFF5A6WyB1+tnn6Om+aTABk=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=eS26qke8/uBdbqMkKQ9PNGCMiGfbcUC1OxsXD3fOJulD+CmslqbXW8coj2y5ahjmvNgP1p/tX8tQTHY1Airjk3Zi8DqXAvNSjEJZLb+rIBUPFFdO58HOszcpWL27/f28bVds6OxMBz5czgZjCPvg4GNNy0qd734jTo11nwv9j/8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iwEPLKBC; arc=none smtp.client-ip=209.85.210.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lZ1Q9DGo"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-201fbd0d7c2so33942825ad.0;
-        Tue, 20 Aug 2024 05:13:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iwEPLKBC"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-70cec4aa1e4so3601234b3a.1;
+        Tue, 20 Aug 2024 05:15:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724155999; x=1724760799; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=hoL2v+PkNQmrjvvc83i9ktW//U4xDXc8wzaEFkS8wz8=;
-        b=lZ1Q9DGo/+kXXf/rczq7zB7HbbK3DjxFpvkFLgg3x6WvS59vkyJ41ezPu2qQbQKWCw
-         cjy3G93+uZoRuAFDC6LG97nhDcMR0mk7wKA11CEMAyTFK8ZknSNjcmPdgxm+kQ7A/SyD
-         7MoDH0MOmLHDsWoz6Lh3CX5Rd9aI4G8jFmjyso6qdcVsLhDqwt9yksZ5LRwMd7GS30h4
-         M0peuU7cbwGdDBaTcJCR3DYGTVpe+hoQrjODH7hfjzdhoPYb0Tmh5z3NxZBrsNqyB0JT
-         HcqZTa5cfm/z0GT6hgJd/dPH8XKIkh1pPtlrlABoi7nhYu70hyMGfGoiC4HbqPXlRjLJ
-         4H5g==
+        d=gmail.com; s=20230601; t=1724156133; x=1724760933; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=jnzctouXAZ5Z924Ba3lV0yqN0741CnCOlYB+XyAgYVQ=;
+        b=iwEPLKBCljTNTXxie/jcLMf8Zs+1eViOz5ru8RGsbCR9dqzoDx32pylbXQ7H6ces8E
+         sOxA3BM1PwhQH1+pnx5DDI9WSM9GNZseFJWyIRNFac/14kaoJi76vsaMalyg1PN1tSsH
+         GyFj+oA25Lh9aMttDcDtxP1VtxWO2mP0Aa6KnbkE6TWE81NbabB8WGG0h1UESdR5JBTU
+         tSN8cUTgXOR2GAhU/kkPonKMOHRc71k3TJrh5J5ji+mhSivzTjBCYx1332hNYxyE+4nL
+         JA3OBMnHWDMmiK+3AExe3MirnAOY+wOqtslkWMA4qYSijMVPxHMk8yACNL8Tcxsv8JSF
+         n3cA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724155999; x=1724760799;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=hoL2v+PkNQmrjvvc83i9ktW//U4xDXc8wzaEFkS8wz8=;
-        b=VsmvWd+jyEnlSuP4fvCJ7d+fAJVcgehlhMQdwLXJ6qr+RArSIaqbu9V+JVF/qEItG9
-         wNRrrGqM59RMlCq6fymOA5LZstgRN1ckr7i1hIkXPgCtoZg/+MzDCI87p+xMSIpbIXfG
-         a9iSa3pRDFuMrFpCnjesghd57A63VdmtNr8SckkYvLyncIty2lgbgPJbSdbmkQRjvZSl
-         sypsz+SKUXSLvWvcjLBI/PFYL24IVMzH262bktuMUfRwKJyhNajeD2IZRwgmlbCxmfKH
-         MncNOuLN4oblEPrVLNx7xm8W+0Khl6lRmtNLQd3SxSHlUF0UKBOqDpH9TmoTKkVDeEKl
-         cyZQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU9cs1kVI4dFloZWpAuYQBAlB1xRmNJR7rC5ljhlEUePM8W0F7PaLiL2mI1klwd+9vUkvxNrEPT@vger.kernel.org, AJvYcCVTsJHBIU1TcU8zxl82IJxIBkrYNwPOolZcqFAM8AlqIOIPUaXSNFr+lCRnLbCYVLG+FA9caaFYiYZhBw==@vger.kernel.org, AJvYcCWD1Xom4qJ9Ytx8frTc+jxqT95Lbe2D+g+LPHLzDcryzTrOJdC0E7WRHhw2x8of2bbjxjbebtoNmSQ9Q5c=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwIBS+1+uQ6aYBhdmdq9F2R2Mysk/EmaTpLrEwtcMs6/RxU4BFI
-	BrV8pdZzi3tQ64JHuXC5XRXbz+OwQu5QED2mJzKPLGbnbmOKQ/WsUUNt7UyPz7U=
-X-Google-Smtp-Source: AGHT+IE5m+P2JgvEeVsaTU0x5+8ycE2UTgoPNVpJRCgV6O/FXWgCaEmhjgXc4RredOg+4KFqmfqBhw==
-X-Received: by 2002:a17:902:ea0a:b0:202:32cf:5dbe with SMTP id d9443c01a7336-20232cf5e3emr67545435ad.58.1724155998752;
-        Tue, 20 Aug 2024 05:13:18 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1724156133; x=1724760933;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jnzctouXAZ5Z924Ba3lV0yqN0741CnCOlYB+XyAgYVQ=;
+        b=W9DGDoX+wMNlesM/2iV7gdXKJgdN/gjqZy4jr10JwFKMjBgaJNy6ocLKsMeN574K2k
+         +U3rQRIgAX5rho5xjgpypz7OzkmlF0I6D+btbkgCTb9Oltu/KiuJ+Zk49Z9UA/gV4y10
+         UHCVjrxcH2j8FdQb5ZfL1iu3xmrIm0/H7oBu4jMpHRPJwk95wlWTbLQqajauoxSjxIib
+         XlAzRa8jw+Jbti9P/EjvSyxA9NC8ucmSEyQ/xg7ZXRbehoVKNpNfwKWUBmoXtW5M3dct
+         B2BfSBl/Slz7iaVyAUH8goj4t2DsUCI5kSnx+zQPpYTn6GuGDjHggCWLfxGOID37Ehbr
+         EvFw==
+X-Forwarded-Encrypted: i=1; AJvYcCVSeHzJrd38nkOtsjOpWYvz6F7Xp8TW94gmLykhdaxuDjUz6HEPcu8I+omP9XCc+9oTMZNLv03GJT0QcFKX/MQyZVXVMV4OgkAFaF+acnJjAbnMwx0/jeWDy62WDJeJ6aP+fe+F01fP0txCeYuH5HI7P5ruCedCvf+xe4vN4S9USA==
+X-Gm-Message-State: AOJu0YxA3CV2FygeoDfojN/rSMX1NGXRbEEBVeV469xx+O0zmsNl+P9y
+	ZBRbgck1hT5Rafx+tpsPSUAPKf9xlK41dT+p9RgRY9GokZjcUFqg
+X-Google-Smtp-Source: AGHT+IE5LBNad2gqtiOKBmKFO3vibqCB1+pQr1HohVNt326OKWBqpfpCdRt+RrkUoAH8cqj5zWgsHg==
+X-Received: by 2002:aa7:8886:0:b0:70b:cf1:8dc9 with SMTP id d2e1a72fcca58-713c525114amr18450202b3a.25.1724156133015;
+        Tue, 20 Aug 2024 05:15:33 -0700 (PDT)
 Received: from kernelexploit-virtual-machine.localdomain ([121.185.186.233])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-201f038df95sm76339535ad.227.2024.08.20.05.13.15
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7127add72a1sm8068518b3a.27.2024.08.20.05.15.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Aug 2024 05:13:18 -0700 (PDT)
+        Tue, 20 Aug 2024 05:15:32 -0700 (PDT)
 From: Jeongjun Park <aha310510@gmail.com>
 To: wenjia@linux.ibm.com,
 	jaka@linux.ibm.com,
@@ -64,11 +66,15 @@ Cc: davem@davemloft.net,
 	dust.li@linux.alibaba.com,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net,v6,0/2] net/smc: prevent NULL pointer dereference in txopt_get
-Date: Tue, 20 Aug 2024 21:13:12 +0900
-Message-Id: <20240820121312.380126-1-aha310510@gmail.com>
+	linux-kernel@vger.kernel.org,
+	syzkaller <syzkaller@googlegroups.com>,
+	Jeongjun Park <aha310510@gmail.com>
+Subject: [PATCH net,v6,1/2] net/smc: modify smc_sock structure
+Date: Tue, 20 Aug 2024 21:15:26 +0900
+Message-Id: <20240820121526.380245-1-aha310510@gmail.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240820121312.380126-1-aha310510@gmail.com>
+References: <20240820121312.380126-1-aha310510@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -77,13 +83,35 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch is to resolve vulnerabilities that occur in the process of
-creating an IPv6 socket with IPPROTO_SMC.
+Since inet_sk(sk)->pinet6 and smc_sk(sk)->clcsock practically
+point to the same address, when smc_create_clcsk() stores the newly
+created clcsock in smc_sk(sk)->clcsock, inet_sk(sk)->pinet6 is corrupted
+into clcsock. This causes NULL pointer dereference and various other
+memory corruptions.
 
-Jeongjun Park (2):
-  net/smc: modify smc_sock structure
-  net/smc: initialize ipv6_pinfo_offset in smc_inet6_prot and add smc6_sock structure
+To solve this, we need to modify the smc_sock structure.
 
- net/smc/smc.h 		| 5 ++++-
- net/smc/smc_inet.c	| 8 +++++++-
- 2 file changed, 11 insertions(+), 2 deletion(-)
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Fixes: ac7138746e14 ("smc: establish new socket family")
+Signed-off-by: Jeongjun Park <aha310510@gmail.com>
+---
+ net/smc/smc.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 34b781e463c4..f23f76e94a66 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -283,7 +283,10 @@ struct smc_connection {
+ };
+ 
+ struct smc_sock {				/* smc sock container */
+-	struct sock		sk;
++	union {
++		struct sock		sk;	/* for AF_SMC */
++		struct inet_sock	inet;	/* for IPPROTO_SMC */
++	};
+ 	struct socket		*clcsock;	/* internal tcp socket */
+ 	void			(*clcsk_state_change)(struct sock *sk);
+ 						/* original stat_change fct. */
+--
