@@ -1,93 +1,127 @@
-Received: from mail-io1-f45.google.com (mail-io1-f45.google.com [209.85.166.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCBFCBA45;
-	Thu, 22 Aug 2024 14:01:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BA661C9ECF;
+	Thu, 22 Aug 2024 14:07:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724335294; cv=none; b=fVU91q1q88OGNwZWCEGsJ2g5R5NcDwX28Xfzo6sEWeLB5I1TY40kQKqZefiovL6XXpjIbvkabmDVLQjxVBrWvsviiTgZu8WakCXZdbpqpP8UlLbWIl9zrS3Q8B86j6rgpW0Jcgw7p/vc/f/OF6nM5lJ78GSW7ZS8bpqFQppPmnI=
+	t=1724335678; cv=none; b=ZNB6/GX//J6seX67EQ+mnyTVJN2Rc9EYei/d0Prxl3Q0N4XmST2pdHdIM6QOe1GvneVOqdOkOw7HdMJ9+PJEyKc6vCL44yPV+LjX+UUO0CB0/ro25/XDYCFuZb94SdAL91H79lE6U8T/3K1rooP9rLbItuGlvow2ZaQ8wTL7cls=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724335294; c=relaxed/simple;
-	bh=x2qPjNuHHPHXUNMZMYf04oPAZSdWZ5gAf5sgm7QhZcQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kRLHx5hO/LZ+NtNZ9wzW3uOH+Xwg40eki2CMv2tDbqpxVkPq3UjrN+WZMZZivDyPzDF5r9mDEVPwn6vvy0mJbZRjzAZ3I4GSf6F5uXLY8MMuVDP5cF73qPOmrERCzEv0YG0OmuEjLCzFf35UzlDg6quQNjvc5OQvmn2SzLjryps=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f197/uua; arc=none smtp.client-ip=209.85.166.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1724335678; c=relaxed/simple;
+	bh=QByrmwhUg4P8JjcbA4eO6Y4AzmowyvnxUj7zxC3xOL8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qC86nir7nw4BRwuZQSciwDx4wZ+CiA+XXzFdsj+LcMoBIZhFVWpKcyd3I7436WECitxULptG9lDDzedynPFXrQbEv6o8b3tyByspTaD5zd+SY6EAjVFZifVmw3S1o8z5c4/aQyr9RMLmIHe+4MrrB4avYx79WTd6Ib4K/PHzbJU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lu8L21yG; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f197/uua"
-Received: by mail-io1-f45.google.com with SMTP id ca18e2360f4ac-81fad534a04so38928339f.1;
-        Thu, 22 Aug 2024 07:01:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724335292; x=1724940092; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=x2qPjNuHHPHXUNMZMYf04oPAZSdWZ5gAf5sgm7QhZcQ=;
-        b=f197/uuaethLqv0GXyMYaug/grkrhEMQI0xknzKcPTsXWAXC6bXVbFJ/Tjqczztkzb
-         eIQUitiq2yoSt9I8O6vL0/SnU9q3s4Qoy7sxkyrryh+MgFViyGa5RadlIJpCMxAXbDzv
-         ftXJUDGfq1LMLczPNmcdJIKcXnT2Rbadxguscn/uFcXcKl7+Y6gsdoavoxE2OymIC14A
-         lmgukWk9/rh8EVi+oCIrLp8A/3icfKcz0s8v2yFbDzbw5sdv41YAfImxYMTI5s7xEUHM
-         1NrfbEqH6KTznJ/wh4LP7eseauTt9LNOUuc+Li9e5s7mz2aKnV4L4+jFF+thoR5lotUc
-         URng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724335292; x=1724940092;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=x2qPjNuHHPHXUNMZMYf04oPAZSdWZ5gAf5sgm7QhZcQ=;
-        b=ny0q3erbxmjVV0qOcIiqjyxOQdSw3OvPLhXZOdRh5fQYbwIwjH9ncBj88fNF6S5WXN
-         YkkRetNmI2smImZT0peGM+/yvwdbC37fX1TKiKL7jbcBtSJjhxOjxTpp/kwid5vubHYX
-         Wx4XryvIQ14vx5sAnL0Xfhq9r/UZ592BiCgBGJX0poSxzzZ+sWbs5AI6Ov4mg1NjiUmv
-         nGhXgdVtWdvtsdO9h/jONXlTz+XRl/o2zFgLkDqoX7aNJkBE0JEE+0u+brhE5UrwxkqL
-         9wIh3/Te2gKiztY+M1ImEJ7QJjn0qMjS70o5+zrlCjZlWP5DDXcEW3HEjnHK/Hdx3b6G
-         kqXQ==
-X-Forwarded-Encrypted: i=1; AJvYcCURCPsDqluYGOsMlZ7/lKLMDC6bAkc+uAWx7RTONfAsOADI3mc7nuNgKJMrfOKpTznhFLsZ6v/K@vger.kernel.org, AJvYcCUVMYVrGoaUyRSpjPYLAyclrjmtXWv90F9rIj5hUxObQQ+ea1wZgcODP/JKt4uLoDkPw8BAiS+MMoCazQ==@vger.kernel.org, AJvYcCWeUCs7Ij4D7SbDgvpA/JeuZLXeuln1S0M/mvl0F5ZGLg6GV1g0IAl/Ot48IvBNyg24bdqaDdy2yQiIuL4L1ziZ4YXMIoQa@vger.kernel.org, AJvYcCWpVUOKnQ9EFW04rbllluYkLWE63jKPQdp/nSGgRPlFjYGtQmYsLFWUJIQFS2IF1Q3mMVr6s3NkeYX9@vger.kernel.org, AJvYcCWtLS+cn+GbL28uNHGq/hjo3oFm333jKUhiVgoDDxfl5qYe4XbWwGi6D7gY3qNkjtS3jTwOkgUk+rC0@vger.kernel.org
-X-Gm-Message-State: AOJu0YyHZHWOFAnAsHiHyqbHStbqwfmLtj5M8S6+Fw7Cxh0u2oOHbLZz
-	PWxW3Mxth6M7VXt6q7OWNHzo6dw4kqKVuQBvE5FVAzxYGYpV62KGb+oD8ZQ7p0MApuJPs4qkcPj
-	NZCWZzqHageKjhX5NlOxc2lmt88g=
-X-Google-Smtp-Source: AGHT+IGoHywXfPXWcVCIRs0vbWihS/W/2AVQ9lldOJCBmzFoN+5fr5OfJyfCyckDoTnNZBhPyryQ5p4FlgYMVc8NME8=
-X-Received: by 2002:a05:6e02:1807:b0:39d:2ced:e3ee with SMTP id
- e9e14a558f8ab-39d6c378e0emr76394475ab.8.1724335291420; Thu, 22 Aug 2024
- 07:01:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lu8L21yG"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47M578Q1027428;
+	Thu, 22 Aug 2024 14:07:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:mime-version
+	:content-type:in-reply-to; s=pp1; bh=012mDUm2fCWZDcYIJ2hFYZSZaAj
+	p60g7PcWojz+2NIk=; b=lu8L21yGqnD+aEH/XD4Frt5dOHPwym/cMrn1uj3GVa4
+	kzuO1DKexUdezI3Lef1EROsNR0YJHwQ+cuoVaJlf9cJi1Tbga4uqgXuWbGE6Fmi0
+	UyFcLtbb+vfxAU9jq0xiHCPPxFfSSEq74r8E6OH3h1tTvu16J5LgXVWzoWUpMySt
+	tAEU8oFkFXuJWypIdR9T8o28/Ataz5dxpWlr5GJi4t7iHP3djTrVp/arawkT39Wg
+	JYtfqueMjZdj7SFCZfXa0UKh1s/hxbFRXw3/CrBYFdntLsM5EPyegxcQ1XstMtsl
+	PDly7cy4minOakIdflJ8HE3Wjg09J6vaTyHLbaWCfhQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4141y20ptv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 22 Aug 2024 14:07:03 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 47MC1itj017651;
+	Thu, 22 Aug 2024 14:07:02 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4138w3cr2b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 22 Aug 2024 14:07:02 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47ME6wj655837100
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 22 Aug 2024 14:07:00 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 60A5820043;
+	Thu, 22 Aug 2024 14:06:58 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2F6C320040;
+	Thu, 22 Aug 2024 14:06:58 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 22 Aug 2024 14:06:58 +0000 (GMT)
+Date: Thu, 22 Aug 2024 16:06:56 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-um@lists.infradead.org, x86@kernel.org
+Subject: Re: [PATCH 4/5] s390: Remove custom definition of mk_pte()
+Message-ID: <ZsdGAHP5rwG5yLr8@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240814154427.162475-1-willy@infradead.org>
+ <20240814154427.162475-5-willy@infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240822-net-spell-v1-0-3a98971ce2d2@kernel.org> <20240822-net-spell-v1-10-3a98971ce2d2@kernel.org>
-In-Reply-To: <20240822-net-spell-v1-10-3a98971ce2d2@kernel.org>
-From: Xin Long <lucien.xin@gmail.com>
-Date: Thu, 22 Aug 2024 10:01:20 -0400
-Message-ID: <CADvbK_f4YQ8gg=w9LygxF-di693HXHhGyH-92e7ofdRPRZDpBg@mail.gmail.com>
-Subject: Re: [PATCH net-next 10/13] sctp: Correct spelling in headers
-To: Simon Horman <horms@kernel.org>
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Alexandra Winter <wintera@linux.ibm.com>, Thorsten Winkler <twinkler@linux.ibm.com>, 
-	David Ahern <dsahern@kernel.org>, Jay Vosburgh <jv@jvosburgh.net>, 
-	Andy Gospodarek <andy@greyhouse.net>, 
-	Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com>, Sean Tranchetti <quic_stranche@quicinc.com>, 
-	Paul Moore <paul@paul-moore.com>, Krzysztof Kozlowski <krzk@kernel.org>, 
-	Jamal Hadi Salim <jhs@mojatatu.com>, Cong Wang <xiyou.wangcong@gmail.com>, 
-	Jiri Pirko <jiri@resnulli.us>, Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
-	Martin Schiller <ms@dev.tdt.de>, netdev@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-sctp@vger.kernel.org, 
-	linux-x25@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240814154427.162475-5-willy@infradead.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: K53dTj0IefNPmG9sfYv2aFJl57u7cE44
+X-Proofpoint-ORIG-GUID: K53dTj0IefNPmG9sfYv2aFJl57u7cE44
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-22_07,2024-08-22_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
+ suspectscore=0 spamscore=0 mlxlogscore=312 bulkscore=0 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 phishscore=0 clxscore=1015
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2408220105
 
-On Thu, Aug 22, 2024 at 8:58=E2=80=AFAM Simon Horman <horms@kernel.org> wro=
-te:
->
-> Correct spelling in sctp.h and structs.h.
-> As reported by codespell.
->
-> Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-> Cc: Xin Long <lucien.xin@gmail.com>
-> Cc: linux-sctp@vger.kernel.org
-> Signed-off-by: Simon Horman <horms@kernel.org>
+On Wed, Aug 14, 2024 at 04:44:24PM +0100, Matthew Wilcox (Oracle) wrote:
 
-Acked-by: Xin Long <lucien.xin@gmail.com>
+Hi Matthew,
+
+> I believe the test for PageDirty() is no longer needed.  The
+> commit adding it was abf09bed3cce with the rationale that this
+> avoided faults for tmpfs and shmem pages.  shmem does not mark
+> newly allocated folios as dirty since 2016 (commit 75edd345e8ed)
+> so this test has been ineffective since then.
+
+The PageDirty() test you suggest to remove is still entered.
+I initially thought that test could also be useful for other
+architectures as an optimization, but at least one path we
+take for shmem mapping is raising eyebrow, because it is a
+read accesss:
+
+handle_pte_fault() -> do_pte_missing() -> do_fault() ->
+do_read_fault() -> finish_fault() -> set_pte_range() -> mk_pte()
+
+A read fault causing the PTE dirtifying is something strange
+and your patch alone could be a nice cleanup.
+
+As other architectures do not do such a trick suggests that
+mk_pte() + pte_mkdirty() is called from the same handler
+or pte_mkdirty() is expected to be called from a follow-up
+write handler.
+
+I could not identify locations where that would not be the case,
+but may be you know?
+
+...
+> -static inline pte_t mk_pte(struct page *page, pgprot_t pgprot)
+> -{
+> -	unsigned long physpage = page_to_phys(page);
+> -	pte_t __pte = mk_pte_phys(physpage, pgprot);
+> -
+> -	if (pte_write(__pte) && PageDirty(page))
+> -		__pte = pte_mkdirty(__pte);
+> -	return __pte;
+> -}
+> -#define mk_pte mk_pte
+
+Thanks!
