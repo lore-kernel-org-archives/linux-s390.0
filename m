@@ -1,258 +1,261 @@
-Received: from EUR02-DB5-obe.outbound.protection.outlook.com (mail-db5eur02on2057.outbound.protection.outlook.com [40.107.249.57])
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F167B4A08;
-	Fri, 23 Aug 2024 06:19:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.249.57
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724394000; cv=fail; b=OTMxoiUUw0XhpRattLYbcGPNA3HmVC9tssVsZkFBOrOvC9w9t9SosnULOhTVFiNsOtSNV/17gXnBcpqRFPKYwy37dg9tR6ic7Ghn0nhpk4ARQtRO4+4SHPz3jc896EWcCoskAOgy5trArLzRTZQMOWr1tS6XV2G/4S/NL0toHHY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724394000; c=relaxed/simple;
-	bh=lsQ8BfPIqOyZWyy6LLTLH0yEG+6xVUj4BIUd94h18rc=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=he9co5bDx0rdAXdMy3z6nvnlVXu7SdwlY88WsyR+r2olPzAI5rv+ffdhKgO99kc+BpXBSiyuTAQofQOOv8SU5DJ0iUxXImwducn48YGqWPceNvmi9iMQvih1culH0gfa8TVb5laMVy0Z94MenN/W1evcOYjXdEQ2gx3OznOWDdc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=cs-soprasteria.com; spf=pass smtp.mailfrom=cs-soprasteria.com; dkim=pass (2048-bit key) header.d=cs-soprasteria.com header.i=@cs-soprasteria.com header.b=M5d+bJ7b; arc=fail smtp.client-ip=40.107.249.57
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=cs-soprasteria.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cs-soprasteria.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 039AB6E2AE;
+	Fri, 23 Aug 2024 07:16:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.133.4.66
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1724397391; cv=none; b=RZZVV49Z7hz+I2vjUqm7GXE2+9KKNVd9Z4Sq1rNPGw0govg5XIv20PgpKqwN9MOGVLrSWwFiIvNZbcvS7GwC60NcHcWZdezOVGyPfMKSTiFknv+6qoXv2s9LXgfSgyNtoEonpOcJybmzZ+ag2IPWC3puM0WWYAhrs8DMo2LbB/M=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1724397391; c=relaxed/simple;
+	bh=l4qRphXzx3k4dAvC2xAgBVCblSVt7e1tB7WBcYH6I2A=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=ErVlkI2a88Bt3IvvdXBaSLasaAKf9irUXNmelmkA0OsL7/xzjfdeebcmI9HO1buBNSHms0cb5htUalKe1UINUD/7BsR0OQO4gOrZdMo1dNtpGIu7Ug5SxdfLlJJpJiRS9A9cTWtFtHSJaq7D+6Z3qwtNfsbHKz+0RWNCeIVTvkg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de; spf=pass smtp.mailfrom=zedat.fu-berlin.de; dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b=EJ6dHGqr; arc=none smtp.client-ip=130.133.4.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zedat.fu-berlin.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cs-soprasteria.com header.i=@cs-soprasteria.com header.b="M5d+bJ7b"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=acTYA+7bVDDlsWs0oGVtlf/iirY6AhWPQPU4unBc92fbrV6J7H0/LVmSihh+lyEH+f148mkN7oYP7IMZLsz1CY6GJYCllOcHTiw82KJkzkFr4CnvpD6xpPvoEO6jJWAi4Uvqn50WVaMYtOgDxcGCOpTyjJKx+Qfdy6ihjN+68C9p4/UPmlvSLTMg6mpGZ/3J5FW/IRBYB/38d41sg8VAE9675Y0Q8MBvbGoG9Ru0v/yc6FGj6QpMeUMYTQjB24XnZ7LgbqocLPEgtQHrWROdLPqSUYQ3rvSG70Znd/y4gS4dDEtfmGRRXDWkpyg5x3iYz1Obzu9rMsNkmLRRwCkmGQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=lsQ8BfPIqOyZWyy6LLTLH0yEG+6xVUj4BIUd94h18rc=;
- b=raWWGgqNxeJL0pMM23jMD1Rw7XpWSEmnxonzxQli4zjQ3lYdV+YyBgD2tPGILJ0hoAWAZtv38+75vSjSPF1Y1rsULxSm8xakhyuq0jYFbJxXPONE9nAKJzNzrPVjdL8z3GvHJvAnQu1DpFbD6ZjeWAWUDGLKyyx4+pCANzfMliGAW/d7kAlVmJ/YYi5iZjwhSdcrA4WdQ+gYFo+VnAmJODyYHrYo//HV46FmiZ6CNpuTNZBn4ZwexzJZYsi9IAjfYR2XluQ+GSL6qktOTuXx1z1rQmBj7LPkz+ZlsAPgAty0Omq0tyPoG9XtDjl48QYCl//l2TIUKwpx2H6VMIsZHw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=cs-soprasteria.com; dmarc=pass action=none
- header.from=cs-soprasteria.com; dkim=pass header.d=cs-soprasteria.com;
- arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cs-soprasteria.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=lsQ8BfPIqOyZWyy6LLTLH0yEG+6xVUj4BIUd94h18rc=;
- b=M5d+bJ7bSml1jnuYcdpSQNrqEnuD2ePPrx/hIGGg93MYOFqGYi2j+LvTvFWNrkTvu8fRr69StZdfpAa8Frm6+kuewsuahhBgAHwV7/XZ9CL0ucjSd8jTGvHm1IlnXcO1FJ9QUUQPcITcBb/lHVJsoEhUJb2QNR0EXtkozM1192JKUQ2O6dCxjlAueqid4bbeFWztya96voljnIEO7QpjyNw8R8U7EoPOZXx/oGS0GzVtpwbAwYoDC9o/pYqfcswSYaEoUSDMECq168/8RrwQ3tfTKAcrzFSqchNkevdwy9apw+EcFjg22uFdWyvqB0izWClUizO1pNv4YE+3jyuS7A==
-Received: from AM0PR07MB4962.eurprd07.prod.outlook.com (2603:10a6:208:f3::19)
- by PAXPR07MB8556.eurprd07.prod.outlook.com (2603:10a6:102:24e::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7875.21; Fri, 23 Aug
- 2024 06:19:54 +0000
-Received: from AM0PR07MB4962.eurprd07.prod.outlook.com
- ([fe80::6724:2919:9cbb:2bb2]) by AM0PR07MB4962.eurprd07.prod.outlook.com
- ([fe80::6724:2919:9cbb:2bb2%4]) with mapi id 15.20.7875.023; Fri, 23 Aug 2024
- 06:19:52 +0000
-From: LEROY Christophe <christophe.leroy2@cs-soprasteria.com>
-To: Peter Xu <peterx@redhat.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-mm@kvack.org" <linux-mm@kvack.org>, Vlastimil Babka <vbabka@suse.cz>,
-	David Hildenbrand <david@redhat.com>, Oscar Salvador <osalvador@suse.de>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Andrew Morton
-	<akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, Dan
- Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>,
-	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-	"sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, Alex Williamson
-	<alex.williamson@redhat.com>, Jason Gunthorpe <jgg@nvidia.com>,
-	"x86@kernel.org" <x86@kernel.org>, Alistair Popple <apopple@nvidia.com>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, Ryan Roberts <ryan.roberts@arm.com>,
-	Hugh Dickins <hughd@google.com>, Axel Rasmussen <axelrasmussen@google.com>
-Subject: Re: [PATCH RFC 2/6] mm: PGTABLE_HAS_P[MU]D_LEAVES config options
-Thread-Topic: [PATCH RFC 2/6] mm: PGTABLE_HAS_P[MU]D_LEAVES config options
-Thread-Index: AQHa2JUJlWxXufeiak2xn74HyFoRpLIzvnGAgAAgGICAALk5gA==
-Date: Fri, 23 Aug 2024 06:19:52 +0000
-Message-ID: <d3e4256f-253a-4a61-a83b-93f50ebabed8@cs-soprasteria.com>
-References: <20240717220219.3743374-1-peterx@redhat.com>
- <20240717220219.3743374-3-peterx@redhat.com>
- <dcdde9fc-7e7c-45a8-8dc7-7f7ed13b81ec@cs-soprasteria.com>
- <ZseOp7M9AmZtW4jw@x1n>
-In-Reply-To: <ZseOp7M9AmZtW4jw@x1n>
-Accept-Language: fr-FR, en-US
-Content-Language: fr-FR
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-user-agent: Mozilla Thunderbird
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=cs-soprasteria.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: AM0PR07MB4962:EE_|PAXPR07MB8556:EE_
-x-ms-office365-filtering-correlation-id: 74db3cc2-5d1a-4a79-7024-08dcc33b999b
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|1800799024|7416014|376014|366016|38070700018;
-x-microsoft-antispam-message-info:
- =?utf-8?B?TkJGRjN6MnAzMVd0R2ZWdFZTdFJ0bk5uaWROQ25SdkFwRmFueFRYRW1rVFdE?=
- =?utf-8?B?WkR4Vmd0QVJuSTFEVXpuUjBDODYrWnNuNmVUeDJBMVAxOUhEQmRYK0VacVJn?=
- =?utf-8?B?YnZzMHBydWUySHVEa1oxcUtzb3Z5d08yd3J3Nm83TGZFRnhwTWFjUFBtN3Iw?=
- =?utf-8?B?VTRhS0ZVbG93djlQVm50YlovVUo2aUNjWU5DeUNENmlWbW5UTkhONUM2TnI1?=
- =?utf-8?B?UTFLY3d5Z292aVhsYzJPZk0vS2JBSVdPWGMweHh3Qk54RDVhMkVmbytLZ2pF?=
- =?utf-8?B?NE8vcitFTWZhdkg4WGltZllIckhlenlTZ1NRNWJkbnlkZkhYTkxHbGJqbUt3?=
- =?utf-8?B?VTd0WHp2cUZyTnZabVl6WG5iK3JLZ1RGQUV5NGhkSnF0bWpBdGFtQ05Ld0Z5?=
- =?utf-8?B?Tk5UeXBMcGQyQkcvdXhFMTlmeHpRb3loM2FpcWFObVJMY0IxNlVxR04rR0Mv?=
- =?utf-8?B?Y2JlUkVVUEkzL0FaZEJnL3o1S1pySXo1azYvNlJnVkhHNEFGc0F1MG05QmdP?=
- =?utf-8?B?RWM4U1lxRUVhRXVuSzBHcFlxVnZCb0tEMTZhK0kwK25ZWFBuV0duclB3Vmw0?=
- =?utf-8?B?dDBhN0FLSjAxaU9Bbm9jbFBzbkhmQkdRcTA0R3diZEwvZ21NYlJlN2lOTHFq?=
- =?utf-8?B?QVJJNDQ1K20vVTliTXVjdlFHL3BiT0M0V3BPRFVmcXUzVGxOR3F3aHpVN2pr?=
- =?utf-8?B?ZE9KS0E5dnRLa1gxTzh3eEV0UlVQRTJheGpLYkMydXN6ZlZUS2MyYjVadkl4?=
- =?utf-8?B?R1hkVG5mU0FvYm1NYi9GU1B2YVVRU0NIWmprRXJHS3J0QXhYaXlTYXhrMS9y?=
- =?utf-8?B?RnhKVFFNK20xejh6Wm44RVNObUtEOGxBOEhubEVRdDZXZUZTRVlKL0g5aEpL?=
- =?utf-8?B?Z3VsWU9VcUp1ZkgweE9tdklBRnMxcXN1dFV2SDZYM0Q3VUJhSHEzdEhuaWtB?=
- =?utf-8?B?aDZhdDZGc1BVeEVQZVh3QlBVb3o3aFNSOVlodG1wM0Q1WlpmVktFS1pyYkN2?=
- =?utf-8?B?UlppZm1GckVid0Jvd0R3dlFhd2dOcUMxRk5FckJGVWtCMG1renVNSFVYdkQv?=
- =?utf-8?B?WlNSbDQ3Tk9nNUhqVkdKeEV2QmxpN2p4aXlqVWpDMFQxUVAvOG1sMmorcitR?=
- =?utf-8?B?ZC9uQ2tBalJhbjBSVTdsaGVodDc2S3JoVFgxUjVyOVlhdnRGRkN4Y2xGazhq?=
- =?utf-8?B?cW51czdpV0ZHMTMwZ2Y3QlhDVFJCaElKRmdQNC9GakdKMnNkeDY3b2pub2dV?=
- =?utf-8?B?Qy9KeDRxeGtDM2NZK0lQOHlYVDM2L0g2Q0JWdEkrYmZUZFpzT2lpZ09wTWIr?=
- =?utf-8?B?Z2V0Q1ZlN2k1VnNGbzdVUkpZSlQwekdmWUdhdkRGSUQyN0JWQWZZRzdMNnVZ?=
- =?utf-8?B?d1VkQU1ETEYyTVI2U3dUYzFDYmJ0ZmxHQUg2K3B3TVpMUG50MlFUWGI5Yzlv?=
- =?utf-8?B?RXY1T0tjODM1R0tRajdta2FoTTZzeGZ6M010emFodmlMZFl1R0tPQU10NldR?=
- =?utf-8?B?L1c1TWJ2OHdpM0E1N3hVOGtRbDZnalRqcHgzMXV5NFBWbjU0RC9HMExBcDlK?=
- =?utf-8?B?ZU00U0NaUXNRcnA2ZE43Nnh6eHJqY3JaejM3bUNDZitqMGMvV3BJSkxXRklF?=
- =?utf-8?B?N0lPc0xpbDg3UzlHb1lCamYrY3dRQmF5UDRtbmY4U2RIOGtsU01kOU1KRk5F?=
- =?utf-8?B?WTdSRlJPLzZaK1dvbWcwK01NY2Z1SEE0VWlEangzajQ1QmRQNXE3TW9yMWRO?=
- =?utf-8?B?amZDRFZIdEMvZ3pnaERzTHNjRHdkdW45eFl5RC82akIzUHJBdmwrcG83TGtw?=
- =?utf-8?B?OFRoMTFmNDNHM3BNSGNab1A3OW13SWpWYWVOTmQyUWpEN1h4SGU0ODY1ajFa?=
- =?utf-8?B?OExIRFdQQnoxMU9KNHlES041K1M2TyszbjdhN0xRMVFwQlE9PQ==?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR07MB4962.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(366016)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?Ui9qRkRSeVlEU3lrU2ZJMHkrQ2UrcGJNM2xHUDEyeFhlUzZFU1VWK1ZBOXpW?=
- =?utf-8?B?ZSt6dG12YmFpUGovQW83a3cxdEVuRzNacy9lazBIRjdGSWJ0VytVb1lyREsr?=
- =?utf-8?B?QWpTa2lRdWVINElXYkJ3M3pGNEZ1RmJCa0x3SFZZL1gvKytxaE1BVnZsUlhC?=
- =?utf-8?B?eFR1QmcvREYwWXoxdmtPRTBMSEkwc29Gc0wrTGhxd0JzWjh0RE1DRVF2b3Fq?=
- =?utf-8?B?S3l0dmlFcGxNaEpQVlNyZUpTaDVsSGJ0bTNpM1dlakNaS1BGTlU1ZkI5VUFl?=
- =?utf-8?B?SVM1U3czRitUUU1FcWcxUWhYUHZvVy8yN3lsZHV2ZFg5MUJIUTZHdHRZNXph?=
- =?utf-8?B?eW0yRmdKRC9TazFYR0hBcUtDWlQvcERaVlE1RjErUmE4MEpXRHhxUlQwb2tW?=
- =?utf-8?B?TEZ6RTJyYjFLejExbUFGdlV3b25uR0UxL3k1L0pjNlhZUVk1cUxjWHhxQ2pB?=
- =?utf-8?B?MmVIeDcvZjU0aFpCZFJ4MGxlQ3BRSmVhWmV4NkJWcUxCQm42WFU3Z0dXQVI5?=
- =?utf-8?B?aHc4MEtmbnBCRU1LRjNlelRPZXNtYVdoWVZCc3dSSllKelpIci93Wk90MlJm?=
- =?utf-8?B?NkVDa1h5ZUkzVXpvNkhtZnMrN2h6S0t1TjAwWTBSQUdqQjgxSzh4NkZHVXE3?=
- =?utf-8?B?SnNia3FjR0dRakt6amVTQWtZTHVldDFpQjgxTWJURkoxZ2htZC9EZ2RIV3Zn?=
- =?utf-8?B?eW1IMzUxbXVEY3lrN0xUcnBaWGJJQ3FoTlBqMk1FdUFKZWVya2RNY3MzRUZl?=
- =?utf-8?B?WWZteHFxZkRZOXVYdHU5bUVKL3lINWR1RjM5eFlJcFZtTlBFRDhUV3ZmbnBM?=
- =?utf-8?B?ZXlTSjVySENqM2lsSFJ2STA4RHR3dWVDRCtBZzBjVzJtSkFkNDl3dGt6b0ZO?=
- =?utf-8?B?TnNlTWFpNGs1aTFyN2ZSY3Zjdk9vQzFiaUQwZ3UrYnNjTU9IcTJJYTQ4Tldm?=
- =?utf-8?B?V083alBob2QwblViSDgvNERvUHpRbnpaMncvcC9WV2ZkNmhJWFJ6azJRSlJq?=
- =?utf-8?B?QllpdFdhMEdZQTd2ZEFzb2FFTFZSRm85UWJnVUFWL1RaOTFEamt6bWk2RG1Q?=
- =?utf-8?B?ZElBb2NpbGt5TGVWM0s3cG4ydGs2M0hhbnpZZlZxWG9PaU1PMHIvWjRUSTNO?=
- =?utf-8?B?emVHZmlTeXMxTVhaU1RUb01tcVc4Zmp3M1ZSY3NSYVhBSGQvSzhhcWhvM0U3?=
- =?utf-8?B?SzBwVGJVWXd3cXNDZDMzNHVLd1hhNzdEWjNwMEx0RlFHeFBWQkp3aXplVDRP?=
- =?utf-8?B?VkFETWQ0SHhFTzlrT0Vrc3V5ajJsc0QwaDJCamc3ZkgwWk5TSk1PeE4wV0JC?=
- =?utf-8?B?OE94aHk3ditLL1Z6cGtYMzFpdVNMMExHWGRoY2JBTWZOV1ZNZkZTaTRFTTNK?=
- =?utf-8?B?c3NPVStMeHV4UWdvazV6dFhCM3cvM2E3TVVXNWJFZWdFWkF5eHpLOFkwOVc2?=
- =?utf-8?B?bWZ5V3BHRlI5eHd0VFlDSitLNDRGd1VZMTNnU25hU2s3ZWhONG5vWU1CamhO?=
- =?utf-8?B?SGJ5aFEvcTU0MGFSMnJlMnZwUVBZYVJDajUvakZLb2pZdmY2L0svYXNRZVNS?=
- =?utf-8?B?NW85eHJVSVFFTmtGM2xScXZiY0lpZ1dGWlc0eDB2U1VTWlYvb1BQTURFVlVX?=
- =?utf-8?B?UjBWZEVyYmdINWNQZXB2aXlCYlVFNC9TOE1rUWFTT1M3ZFYwcXE4S3lFNVph?=
- =?utf-8?B?dTFMdkRkTWdpcDJxQi9COUY1V01VWkphL2xVQ283RHNwQzlPY0ZxcmczMUNS?=
- =?utf-8?B?UDFsb3ZONmwyOGg4V1VlVTN0YUE0eXM3b0ZsSUt2UUYxRjBMckwwd1MwVFd2?=
- =?utf-8?B?QUlsZUsxU0thU1FWTGNpWUxIQURwMGQwZGU2anN0QVNHK25ka0tTald0Vysr?=
- =?utf-8?B?Wk9tbllJUnhXK3h1R1puRXkzWHJpeG9iUGNCUmVlRDZuS0RQU0VaM2xjcW5R?=
- =?utf-8?B?TzBWSElKeWI3L3NadFlyMDBKZ3dZcFhZSUVFOWU0dEFuZ2luTGZtT1hiTGRV?=
- =?utf-8?B?SmtVM1hNL0h3cTNXK2tnVk44b2pjTjVWOXF1MFh0OTFTdHNWYjZvRTF6YXRW?=
- =?utf-8?B?dGhGdWVhcy9manVxRGV0WWkrRkdwclg2dmJLNXByaStGSXhXbHAvZTc4bGQz?=
- =?utf-8?B?Y2JYbDJna3F1R1I5aC95RVFRd3pJQ1d4blBsOFl0aHhGQUxGOHBNaENtamRV?=
- =?utf-8?B?cjhvdk12U0FLRVEzdjlMM2xNbW5hNWZFN0N5elBqcG1EYVhiMzVKa3J2aUY1?=
- =?utf-8?Q?dbeL/vAcnZqAZzkkCj9/NSyR9UI80C9FJuj/+f+OxY=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <AC1CDEA391A3724BA2AB148767A20F88@eurprd07.prod.outlook.com>
-Content-Transfer-Encoding: base64
+	dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b="EJ6dHGqr"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=fu-berlin.de; s=fub01; h=MIME-Version:Content-Transfer-Encoding:
+	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=l7IPZ3AaL3TYIUYzSS0Hq6JrLJlHTIOmiTWkTNBFYJI=; t=1724397387; x=1725002187; 
+	b=EJ6dHGqrf9Da1agdqiVRpH68TQG3a5C/uNnYiTSzXk1fNL/YzZXD1BRIlptJuTOJfRMArWJ2gzh
+	2VR8rimisQ0aBNkMcgzK8djYmZNkk/yAc0pNdZ3zYJ323cEjPGKgX1GQhw//aDk8fTS41BwfAITQC
+	/mOwBps+c+rloxATmTQj31eF5UF2pb59p0oqe/BFGLD/SWRCx/9sxjP+1w3JBBsGO0WrDBO+99ylA
+	OMc3QQnovTltlthcrwNaXvTEs9ZS2E6AOagwLdsGhD9HCaixXulus6MiFP1OARtccbC5BvM2GN3JK
+	yLTxOL1dRRliM/ImJq/XOY0WG+YvMrDZAM3w==;
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.98)
+          with esmtps (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1shOWy-00000002p5y-3SYy; Fri, 23 Aug 2024 09:16:20 +0200
+Received: from p5b13a2bf.dip0.t-ipconnect.de ([91.19.162.191] helo=[192.168.178.20])
+          by inpost2.zedat.fu-berlin.de (Exim 4.98)
+          with esmtpsa (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1shOWy-0000000256e-2Oml; Fri, 23 Aug 2024 09:16:20 +0200
+Message-ID: <c74e24213fd98b252a2a1ff02a107005e50f4f7b.camel@physik.fu-berlin.de>
+Subject: Re: [PATCH linux-next v3 05/14] crash: clean up kdump related
+ config items
+From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To: Dave Vasilevsky <dave@vasilevsky.ca>, Baoquan He <bhe@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, 
+ kexec@lists.infradead.org, debian-powerpc@lists.debian.org, x86@kernel.org,
+  linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-mips@vger.kernel.org,  linux-riscv@lists.infradead.org,
+ loongarch@lists.linux.dev,  akpm@linux-foundation.org,
+ ebiederm@xmission.com, hbathini@linux.ibm.com,  piliu@redhat.com,
+ viro@zeniv.linux.org.uk, Sam James <sam@gentoo.org>
+Date: Fri, 23 Aug 2024 09:16:19 +0200
+In-Reply-To: <768dfe3e-c437-40cc-96a5-6c5b34b2d19d@vasilevsky.ca>
+References: <20240124051254.67105-1-bhe@redhat.com>
+	 <20240124051254.67105-6-bhe@redhat.com>
+	 <a9d9ecd1ed8d62eae47ec26257093495e6cbd44a.camel@physik.fu-berlin.de>
+	 <ZscCMLfNbj2MDiaB@MiWiFi-R3L-srv>
+	 <c5e9996e4d2ba2a0849d65f68e3dce94fffc5828.camel@physik.fu-berlin.de>
+	 <ZsfR9rdMt8yn1+Bz@MiWiFi-R3L-srv>
+	 <768dfe3e-c437-40cc-96a5-6c5b34b2d19d@vasilevsky.ca>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.4 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: cs-soprasteria.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: AM0PR07MB4962.eurprd07.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 74db3cc2-5d1a-4a79-7024-08dcc33b999b
-X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Aug 2024 06:19:52.7010
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 8b87af7d-8647-4dc7-8df4-5f69a2011bb5
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Vs7ct+32sAcFIJ/RbHjZ6mO559rQtUW2EWULk5pwOT7pjrqvuS8WoyjZC3jrvm8d655Avum3xMUo3DgAXVb933F34curyI0b1UnWx9kduoMtjVZF41SH41n1WYq7m4d/
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAXPR07MB8556
-X-MS-Exchange-CrossPremises-AuthAs: Internal
-X-MS-Exchange-CrossPremises-AuthMechanism: 04
-X-MS-Exchange-CrossPremises-AuthSource: AM0PR07MB4962.eurprd07.prod.outlook.com
-X-MS-Exchange-CrossPremises-TransportTrafficType: Email
-X-MS-Exchange-CrossPremises-SCL: 1
-X-MS-Exchange-CrossPremises-messagesource: StoreDriver
-X-MS-Exchange-CrossPremises-BCC:
-X-MS-Exchange-CrossPremises-originalclientipaddress: 2a01:e0a:511:aad0:9f10:86ad:5cd0:9703
-X-MS-Exchange-CrossPremises-transporttraffictype: Email
-X-MS-Exchange-CrossPremises-antispam-scancontext: DIR:Originating;SFV:NSPM;SKIP:0;
-X-MS-Exchange-CrossPremises-processed-by-journaling: Journal Agent
-X-OrganizationHeadersPreserved: PAXPR07MB8556.eurprd07.prod.outlook.com
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-ZEDAT-Hint: PO
 
-DQoNCkxlIDIyLzA4LzIwMjQgw6AgMjE6MTYsIFBldGVyIFh1IGEgw6ljcml0wqA6DQo+IE9uIFRo
-dSwgQXVnIDIyLCAyMDI0IGF0IDA1OjIyOjAzUE0gKzAwMDAsIExFUk9ZIENocmlzdG9waGUgd3Jv
-dGU6DQo+Pg0KPj4NCj4+IExlIDE4LzA3LzIwMjQgw6AgMDA6MDIsIFBldGVyIFh1IGEgw6ljcml0
-wqA6DQo+Pj4gSW50cm9kdWNlIHR3byBtb3JlIHN1Yi1vcHRpb25zIGZvciBQR1RBQkxFX0hBU19I
-VUdFX0xFQVZFUzoNCj4+Pg0KPj4+ICAgICAtIFBHVEFCTEVfSEFTX1BNRF9MRUFWRVM6IHNldCB3
-aGVuIHRoZXJlIGNhbiBiZSBQTUQgbWFwcGluZ3MNCj4+PiAgICAgLSBQR1RBQkxFX0hBU19QVURf
-TEVBVkVTOiBzZXQgd2hlbiB0aGVyZSBjYW4gYmUgUFVEIG1hcHBpbmdzDQo+Pj4NCj4+PiBJdCB3
-aWxsIGhlbHAgdG8gaWRlbnRpZnkgd2hldGhlciB0aGUgY3VycmVudCBidWlsZCBtYXkgb25seSB3
-YW50IFBNRA0KPj4+IGhlbHBlcnMgYnV0IG5vdCBQVUQgb25lcywgYXMgdGhlc2Ugc3ViLW9wdGlv
-bnMgd2lsbCBhbHNvIGNoZWNrIGFnYWluc3QgdGhlDQo+Pj4gYXJjaCBzdXBwb3J0IG92ZXIgSEFW
-RV9BUkNIX1RSQU5TUEFSRU5UX0hVR0VQQUdFW19QVURdLg0KPj4+DQo+Pj4gTm90ZSB0aGF0IGhh
-dmluZyB0aGVtIGRlcGVuZCBvbiBIQVZFX0FSQ0hfVFJBTlNQQVJFTlRfSFVHRVBBR0VbX1BVRF0g
-aXMNCj4+PiBzdGlsbCBzb21lIGludGVybWVkaWF0ZSBzdGVwLiAgVGhlIGJlc3Qgd2F5IGlzIHRv
-IGhhdmUgYW4gb3B0aW9uIHNheQ0KPj4+ICJ3aGV0aGVyIGFyY2ggWFhYIHN1cHBvcnRzIFBNRC9Q
-VUQgbWFwcGluZ3MiIGFuZCBzbyBvbi4gIEhvd2V2ZXIgbGV0J3MNCj4+PiBsZWF2ZSB0aGF0IGZv
-ciBsYXRlciBhcyB0aGF0J3MgdGhlIGVhc3kgcGFydC4gIFNvIGZhciwgd2UgdXNlIHRoZXNlIG9w
-dGlvbnMNCj4+PiB0byBzdGFibHkgZGV0ZWN0IHBlci1hcmNoIGh1Z2UgbWFwcGluZyBzdXBwb3J0
-Lg0KPj4+DQo+Pj4gU2lnbmVkLW9mZi1ieTogUGV0ZXIgWHUgPHBldGVyeEByZWRoYXQuY29tPg0K
-Pj4+IC0tLQ0KPj4+ICAgIGluY2x1ZGUvbGludXgvaHVnZV9tbS5oIHwgMTAgKysrKysrKy0tLQ0K
-Pj4+ICAgIG1tL0tjb25maWcgICAgICAgICAgICAgIHwgIDYgKysrKysrDQo+Pj4gICAgMiBmaWxl
-cyBjaGFuZ2VkLCAxMyBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQ0KPj4+DQo+Pj4gZGlm
-ZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvaHVnZV9tbS5oIGIvaW5jbHVkZS9saW51eC9odWdlX21t
-LmgNCj4+PiBpbmRleCA3MTE2MzJkZjdlZGYuLjM3NDgyYzg0NDVkMSAxMDA2NDQNCj4+PiAtLS0g
-YS9pbmNsdWRlL2xpbnV4L2h1Z2VfbW0uaA0KPj4+ICsrKyBiL2luY2x1ZGUvbGludXgvaHVnZV9t
-bS5oDQo+Pj4gQEAgLTk2LDE0ICs5NiwxOCBAQCBleHRlcm4gc3RydWN0IGtvYmpfYXR0cmlidXRl
-IHRocHNpemVfc2htZW1fZW5hYmxlZF9hdHRyOw0KPj4+ICAgICNkZWZpbmUgdGhwX3ZtYV9hbGxv
-d2FibGVfb3JkZXIodm1hLCB2bV9mbGFncywgdHZhX2ZsYWdzLCBvcmRlcikgXA0KPj4+ICAgIAko
-ISF0aHBfdm1hX2FsbG93YWJsZV9vcmRlcnModm1hLCB2bV9mbGFncywgdHZhX2ZsYWdzLCBCSVQo
-b3JkZXIpKSkNCj4+PiAgICANCj4+PiAtI2lmZGVmIENPTkZJR19QR1RBQkxFX0hBU19IVUdFX0xF
-QVZFUw0KPj4+IC0jZGVmaW5lIEhQQUdFX1BNRF9TSElGVCBQTURfU0hJRlQNCj4+PiArI2lmZGVm
-IENPTkZJR19QR1RBQkxFX0hBU19QVURfTEVBVkVTDQo+Pj4gICAgI2RlZmluZSBIUEFHRV9QVURf
-U0hJRlQgUFVEX1NISUZUDQo+Pj4gICAgI2Vsc2UNCj4+PiAtI2RlZmluZSBIUEFHRV9QTURfU0hJ
-RlQgKHsgQlVJTERfQlVHKCk7IDA7IH0pDQo+Pj4gICAgI2RlZmluZSBIUEFHRV9QVURfU0hJRlQg
-KHsgQlVJTERfQlVHKCk7IDA7IH0pDQo+Pj4gICAgI2VuZGlmDQo+Pj4gICAgDQo+Pj4gKyNpZmRl
-ZiBDT05GSUdfUEdUQUJMRV9IQVNfUE1EX0xFQVZFUw0KPj4+ICsjZGVmaW5lIEhQQUdFX1BNRF9T
-SElGVCBQTURfU0hJRlQNCj4+PiArI2Vsc2UNCj4+PiArI2RlZmluZSBIUEFHRV9QTURfU0hJRlQg
-KHsgQlVJTERfQlVHKCk7IDA7IH0pDQo+Pj4gKyNlbmRpZg0KPj4+ICsNCj4+PiAgICAjZGVmaW5l
-IEhQQUdFX1BNRF9PUkRFUiAoSFBBR0VfUE1EX1NISUZULVBBR0VfU0hJRlQpDQo+Pj4gICAgI2Rl
-ZmluZSBIUEFHRV9QTURfTlIgKDE8PEhQQUdFX1BNRF9PUkRFUikNCj4+PiAgICAjZGVmaW5lIEhQ
-QUdFX1BNRF9NQVNLCSh+KEhQQUdFX1BNRF9TSVpFIC0gMSkpDQo+Pj4gZGlmZiAtLWdpdCBhL21t
-L0tjb25maWcgYi9tbS9LY29uZmlnDQo+Pj4gaW5kZXggNjA3OTY0MDI4NTBlLi4yZGJkYzA4OGRl
-ZTggMTAwNjQ0DQo+Pj4gLS0tIGEvbW0vS2NvbmZpZw0KPj4+ICsrKyBiL21tL0tjb25maWcNCj4+
-PiBAQCAtODYwLDYgKzg2MCwxMiBAQCBlbmRpZiAjIFRSQU5TUEFSRU5UX0hVR0VQQUdFDQo+Pj4g
-ICAgY29uZmlnIFBHVEFCTEVfSEFTX0hVR0VfTEVBVkVTDQo+Pj4gICAgCWRlZl9ib29sIFRSQU5T
-UEFSRU5UX0hVR0VQQUdFIHx8IEhVR0VUTEJfUEFHRQ0KPj4+ICAgIA0KPj4+ICtjb25maWcgUEdU
-QUJMRV9IQVNfUE1EX0xFQVZFUw0KPj4+ICsJZGVmX2Jvb2wgSEFWRV9BUkNIX1RSQU5TUEFSRU5U
-X0hVR0VQQUdFICYmIFBHVEFCTEVfSEFTX0hVR0VfTEVBVkVTDQo+Pj4gKw0KPj4+ICtjb25maWcg
-UEdUQUJMRV9IQVNfUFVEX0xFQVZFUw0KPj4+ICsJZGVmX2Jvb2wgSEFWRV9BUkNIX1RSQU5TUEFS
-RU5UX0hVR0VQQUdFX1BVRCAmJiBQR1RBQkxFX0hBU19IVUdFX0xFQVZFUw0KPj4+ICsNCj4+DQo+
-PiBXaGF0IGlmIGFuIGFyY2hpdGVjdHVyZSBoYXMgaHVnZXBhZ2VzIGF0IFBNRCBhbmQvb3IgUFVE
-IGxldmVsIGFuZA0KPj4gZG9lc24ndCBzdXBwb3J0IFRIUCA/DQo+IA0KPiBXaGF0J3MgdGhlIGFy
-Y2ggdG8gYmUgZGlzY3Vzc2VkIGhlcmU/DQoNCkl0IGlzIExPT05HQVJDSCBhbmQgTUlQUywgdGhl
-eSBwcm92aWRlIHB1ZF9sZWFmKCkgdGhhdCBjYW4gcmV0dXJuIHRydWUgDQpldmVuIHdoZW4gdGhl
-eSBoYXZlIG5vIFBVRC4NCg0KPiANCj4gVGhlIHdob2xlIHB1cnBvc2Ugb2YgdGhpcyBzZXJpZXMg
-c28gZmFyIGlzIHRyeWluZyB0byBtYWtlIHNvbWUgcG1kL3B1ZA0KPiBoZWxwZXJzIHRoYXQgb25s
-eSBkZWZpbmVkIHdpdGggQ09ORklHX1RIUD1vbiB0byBiZSBhdmFpbGFibGUgZXZlbiBpZiBub3Qu
-DQo+IEl0IG1lYW5zIHRoaXMgc2VyaWVzIGFsb25lIChvciBhbnkgZnV0dXJlIHBsYW4pIHNob3Vs
-ZG4ndCBhZmZlY3QgYW55IGFyY2gNCj4gdGhhdCBoYXMgQ09ORklHX1RIUD1vZmYgYWx3YXlzLg0K
-PiANCj4gQnV0IGxvZ2ljYWxseSBJIHRoaW5rIHdlIHNob3VsZCBuZWVkIHNvbWUgY29uZmlnIG9w
-dGlvbiBqdXN0IHRvIHNheSAidGhpcw0KPiBhcmNoIHN1cHBvcnRzIHBtZCBtYXBwaW5ncyIgaW5k
-ZWVkLCBldmVuIGlmIENPTkZJR19USFA9b2ZmLiAgV2hlbiB0aGF0J3MNCj4gdGhlcmUsIHdlIHNo
-b3VsZCBwZXJoYXBzIGFkZCB0aGF0IG9wdGlvbiBpbnRvIHRoaXMgZXF1YXRpb24gc28NCj4gUEdU
-QUJMRV9IQVNfKl9MRUFWRVMgd2lsbCBhbHNvIGJlIHNlbGVjdGVkIGluIHRoYXQgY2FzZS4NCj4g
-DQoNCldoeSBpcyBhbiBvcHRpb24gbmVlZGVkIGZvciB0aGF0ID8gSWYgcG1kX2xlYWYoKSByZXR1
-cm5zIGFsd2F5cyBmYWxzZSwgDQppdCBtZWFucyB0aGUgYXJjaCBkb2Vzbid0IHN1cHBvcnQgcG1k
-IG1hcHBpbmdzIGFuZCBpZiBwcm9wZXJseSB1c2VkIGFsbCANCnJlbGF0ZWQgY29kZSBzaG91bGQg
-Zm9sZCBhd2F5IHdpdGhvdXQgYSBjb25maWcgb3B0aW9uLCBzaG91bGRuJ3QgaXQgPw0K
+On Thu, 2024-08-22 at 20:41 -0400, Dave Vasilevsky wrote:
+> From d6e5fe3a45f46f1aa01914648c443291d956de9e Mon Sep 17 00:00:00 2001
+> From: Dave Vasilevsky <dave@vasilevsky.ca>
+> Date: Thu, 22 Aug 2024 20:13:46 -0400
+> Subject: [PATCH] powerpc: Default to CRASH_DUMP=3Dn when Open Firmware bo=
+ot is
+>  likely
+> MIME-Version: 1.0
+> Content-Type: text/plain; charset=3DUTF-8
+> Content-Transfer-Encoding: 8bit
+>=20
+> Open Firmware is unable to boot a kernel where PHYSICAL_START is
+> non-zero, which occurs when CRASH_DUMP is on.
+>=20
+> On PPC_BOOK3S_32, the most common way of booting is Open Firmware, so
+> most users probably don't want CRASH_DUMP. Users booting via some
+> other mechanism can turn it on explicitly.
+>=20
+> Signed-off-by: Dave Vasilevsky <dave@vasilevsky.ca>
+> Reported-by: Reimar D=C3=B6ffinger <Reimar.Doeffinger@gmx.de>
+> Fixes: 75bc255a7444
+> ---
+>  arch/arm/Kconfig       | 3 +++
+>  arch/arm64/Kconfig     | 3 +++
+>  arch/loongarch/Kconfig | 3 +++
+>  arch/mips/Kconfig      | 3 +++
+>  arch/powerpc/Kconfig   | 4 ++++
+>  arch/riscv/Kconfig     | 3 +++
+>  arch/s390/Kconfig      | 3 +++
+>  arch/sh/Kconfig        | 3 +++
+>  arch/x86/Kconfig       | 3 +++
+>  kernel/Kconfig.kexec   | 2 +-
+>  10 files changed, 29 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+> index 54b2bb817a7f..200995052690 100644
+> --- a/arch/arm/Kconfig
+> +++ b/arch/arm/Kconfig
+> @@ -1597,6 +1597,9 @@ config ATAGS_PROC
+>  config ARCH_SUPPORTS_CRASH_DUMP
+>  	def_bool y
+> =20
+> +config ARCH_DEFAULT_CRASH_DUMP
+> +	def_bool y
+> +
+>  config AUTO_ZRELADDR
+>  	bool "Auto calculation of the decompressed kernel image address" if !AR=
+CH_MULTIPLATFORM
+>  	default !(ARCH_FOOTBRIDGE || ARCH_RPC || ARCH_SA1100)
+> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+> index a2f8ff354ca6..43e08cc8204f 100644
+> --- a/arch/arm64/Kconfig
+> +++ b/arch/arm64/Kconfig
+> @@ -1558,6 +1558,9 @@ config ARCH_DEFAULT_KEXEC_IMAGE_VERIFY_SIG
+>  config ARCH_SUPPORTS_CRASH_DUMP
+>  	def_bool y
+> =20
+> +config ARCH_DEFAULT_CRASH_DUMP
+> +	def_bool y
+> +
+>  config ARCH_HAS_GENERIC_CRASHKERNEL_RESERVATION
+>  	def_bool CRASH_RESERVE
+> =20
+> diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
+> index 70f169210b52..ce232ddcd27d 100644
+> --- a/arch/loongarch/Kconfig
+> +++ b/arch/loongarch/Kconfig
+> @@ -599,6 +599,9 @@ config ARCH_SUPPORTS_KEXEC
+>  config ARCH_SUPPORTS_CRASH_DUMP
+>  	def_bool y
+> =20
+> +config ARCH_DEFAULT_CRASH_DUMP
+> +	def_bool y
+> +
+>  config ARCH_SELECTS_CRASH_DUMP
+>  	def_bool y
+>  	depends on CRASH_DUMP
+> diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+> index 60077e576935..b547f4304d0c 100644
+> --- a/arch/mips/Kconfig
+> +++ b/arch/mips/Kconfig
+> @@ -2881,6 +2881,9 @@ config ARCH_SUPPORTS_KEXEC
+>  config ARCH_SUPPORTS_CRASH_DUMP
+>  	def_bool y
+> =20
+> +config ARCH_DEFAULT_CRASH_DUMP
+> +	def_bool y
+> +
+>  config PHYSICAL_START
+>  	hex "Physical address where the kernel is loaded"
+>  	default "0xffffffff84000000"
+> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+> index d7b09b064a8a..0f3c1f958eac 100644
+> --- a/arch/powerpc/Kconfig
+> +++ b/arch/powerpc/Kconfig
+> @@ -682,6 +682,10 @@ config RELOCATABLE_TEST
+>  config ARCH_SUPPORTS_CRASH_DUMP
+>  	def_bool PPC64 || PPC_BOOK3S_32 || PPC_85xx || (44x && !SMP)
+> =20
+> +config ARCH_DEFAULT_CRASH_DUMP
+> +	bool
+> +	default y if !PPC_BOOK3S_32
+> +
+>  config ARCH_SELECTS_CRASH_DUMP
+>  	def_bool y
+>  	depends on CRASH_DUMP
+> diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+> index 0f3cd7c3a436..eb247b5ee569 100644
+> --- a/arch/riscv/Kconfig
+> +++ b/arch/riscv/Kconfig
+> @@ -880,6 +880,9 @@ config ARCH_SUPPORTS_KEXEC_PURGATORY
+>  config ARCH_SUPPORTS_CRASH_DUMP
+>  	def_bool y
+> =20
+> +config ARCH_DEFAULT_CRASH_DUMP
+> +	def_bool y
+> +
+>  config ARCH_HAS_GENERIC_CRASHKERNEL_RESERVATION
+>  	def_bool CRASH_RESERVE
+> =20
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index a822f952f64a..05a1fb408471 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -275,6 +275,9 @@ config ARCH_SUPPORTS_CRASH_DUMP
+>  	  This option also enables s390 zfcpdump.
+>  	  See also <file:Documentation/arch/s390/zfcpdump.rst>
+> =20
+> +config ARCH_DEFAULT_CRASH_DUMP
+> +	def_bool y
+> +
+>  menu "Processor type and features"
+> =20
+>  config HAVE_MARCH_Z10_FEATURES
+> diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
+> index 1aa3c4a0c5b2..3a6338962636 100644
+> --- a/arch/sh/Kconfig
+> +++ b/arch/sh/Kconfig
+> @@ -549,6 +549,9 @@ config ARCH_SUPPORTS_KEXEC
+>  config ARCH_SUPPORTS_CRASH_DUMP
+>  	def_bool BROKEN_ON_SMP
+> =20
+> +config ARCH_DEFAULT_CRASH_DUMP
+> +	def_bool y
+> +
+>  config ARCH_SUPPORTS_KEXEC_JUMP
+>  	def_bool y
+> =20
+> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+> index 007bab9f2a0e..aa4666bb9e9c 100644
+> --- a/arch/x86/Kconfig
+> +++ b/arch/x86/Kconfig
+> @@ -2087,6 +2087,9 @@ config ARCH_SUPPORTS_KEXEC_JUMP
+>  config ARCH_SUPPORTS_CRASH_DUMP
+>  	def_bool X86_64 || (X86_32 && HIGHMEM)
+> =20
+> +config ARCH_DEFAULT_CRASH_DUMP
+> +	def_bool y
+> +
+>  config ARCH_SUPPORTS_CRASH_HOTPLUG
+>  	def_bool y
+> =20
+> diff --git a/kernel/Kconfig.kexec b/kernel/Kconfig.kexec
+> index 6c34e63c88ff..4d111f871951 100644
+> --- a/kernel/Kconfig.kexec
+> +++ b/kernel/Kconfig.kexec
+> @@ -97,7 +97,7 @@ config KEXEC_JUMP
+> =20
+>  config CRASH_DUMP
+>  	bool "kernel crash dumps"
+> -	default y
+> +	default ARCH_DEFAULT_CRASH_DUMP
+>  	depends on ARCH_SUPPORTS_CRASH_DUMP
+>  	depends on KEXEC_CORE
+>  	select VMCORE_INFO
+
+It should be disabled on m68k and sh by default as well.
+
+Adrian
+
+--=20
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer
+`. `'   Physicist
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
