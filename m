@@ -1,85 +1,105 @@
-Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5631E184552;
-	Fri, 23 Aug 2024 12:05:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8161C566A;
+	Fri, 23 Aug 2024 12:42:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724414758; cv=none; b=CMXMVdS/1raL14/nnxte4RffLslsDJk5vXO/mbUZcnCyG7IjiQwyBlhg11uo0YoWqVmVsD3SO2CEYD7RfFrF+IcVJSj5u/F9UbdYykN9c6kH/l8FZXzTL/nzW0HNJiaE2VnoxsR/42ApG1Ehs0GKVPh/YfHfxyWZZ5GLlshz55I=
+	t=1724416930; cv=none; b=Y7RLj7OfUaPzWQXC5a/Jxml/qIJmWflXW52aBqr5G/htaZiKth7B1ULhimfIIgqCRll+ZgkVC4uJiUlIy0X8QoZFFcyRvqNxOzKTvtiVFOnpIOF46R2UNnVKRFOf11XIcoe7GeZRFdPFLsOGk9290nl0xgdFVXD+cOTPu8K9QPI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724414758; c=relaxed/simple;
-	bh=DR7bqGR51LfqIMAQgP/pa0BHPRZM7nHCDVY2zJ8WToM=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=VIyUOKCXDBg2o0up+Ek3VtOIhl6iZmupPqvMYJD17IaqYXKJOot0hIQJLJ3x2J1Ttu1mW0XA4zp80jRY7yGFNH0ljrRc2OgmKpaivatfOz2MoysPFD3vS8bwh5Ih/OhH6BtorYU4HS0N5LeAJyaPN7ZAftEXM2fVIQRTL/AICsA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=vasilevsky.ca; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.160.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=vasilevsky.ca
+	s=arc-20240116; t=1724416930; c=relaxed/simple;
+	bh=HfIU2mD/YlJUBd0kQxBBtiisaJ8aGjmalu4uRIe6ojI=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 Mime-Version:Content-Type; b=SNGjL5Z8ZOy+Hb4FbjV8qN+GR5XN9FBUZYXb124cJiLXjSTySKesOBKS+uQBg0v+pbaqU0Tck4MNY0Bu+6/YqphLMmuTtoixQU6M8/FOZuF/eNQLJWabGCsRC7k2PbKdsiqwrgR8sHjmLnTNfP8c8sYPtrcuIUu+sQ5xD4aWgBY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OH0yIWpN; arc=none smtp.client-ip=209.85.219.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-454b12cc82cso9463351cf.1;
-        Fri, 23 Aug 2024 05:05:57 -0700 (PDT)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OH0yIWpN"
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-6bf7658f4aaso9261156d6.0;
+        Fri, 23 Aug 2024 05:42:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724416928; x=1725021728; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fYG7eomrfsT/3+ZKJ0euNwIh5HffV5LSzIoWPqaYnjE=;
+        b=OH0yIWpNQUISSShMBJm5Dx1BXVc477VgYSglKvD4Xmhxy658ElTEwNEUhc54gOxWJw
+         jQPEDm6pYymgBTW4v52vtinTqBInLQH482Ava7daIwJb49g/gglvO1VlFjYFuIVHpYm4
+         fMgZHALi/Ew5bAkMc5IPybTNa4AO+hOC56ZWjLcdo5BvB/LvCws5j6UBxh1PRJGIBJ3R
+         xuo3mNKgOHKrM5tKkGEcEz1i1cBIEQiLbnLAjWKDaH4cCCjWKK6/kFR2U5+XLlFaAK76
+         XuJfkNVf/m6YvMwNE77Bgm1g8xamO+r7qCwJ+vhky93ZjsxptDjy77CFzHco86qEZF3S
+         gJPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724414756; x=1725019556;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=NGZF0AvlZej7rqgff9jJof3mfOBatM8jwICNkXKrrqk=;
-        b=dOK1dnzo3i8dd1mX9cSovapqR/SGucbBybKpwshUtFXtjLPaW+Ityu3wv/jpnAAf+N
-         KvFtlpE+sSQLzNoqDNftJ0q5/zXtpj7c/s8HCFJUooXE/azZIZeVi6ZZPP/JD9NQe7xm
-         DUgu5HN7YnexKv6GebBtCZQ8bVlwv+jT0N2AVGE48KhmnJ5SkGcokvfH5WS8ht2gZ7q3
-         +uYz/thaK722fHH44uiEaxoPULtJsn08/pITWNAz8iHzPBNhxgat9qelG7e8v3qCH3hv
-         VBZtb9LeeJXeU6f3XasGBNl5OIHUx5/1LTqOZj2ZfTDHZdwMC4ZpISDKTz+GpcyUkq8J
-         LWBQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWF+QZwcdCwdgU5I2FvdKBWXmrhPQ1Zt+0jJmhU2pjMXP1pThHgmb0KudS2dA+gddajbdi2G9IFZ0QK@vger.kernel.org, AJvYcCWoRZcVl43wqeetmle3VyFDjk8dVKv7HPAmwvcNRj13hkNu9WZeZlCr4d99Jla6aWBWy/ZxoAWfaHs=@vger.kernel.org, AJvYcCX+oRdBMj79vR5MSrHXAMpjfVxaPXO4F+/50dwjYT6J1XodbdXWORWYG8tpmcnRJlgl/r5q16HTEMcQtQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxYtRk5smUnt5ZJqkWsdvVyx5BJ1K9DsZTYOsItttvBZYnMY51h
-	6G5ApEfhrqXZJ3QrkfoSdlJYVakReEBUUEgcgbIUMALkRzpgThPTVAETYjWJ+WY=
-X-Google-Smtp-Source: AGHT+IHUiEQ2UHjFnBpHefvI6CBVfER5s973r4J8f4wJcBtlNN4Eyl+cyb4eanEq6/83M/3CpkPpMA==
-X-Received: by 2002:a05:622a:1f06:b0:447:f41a:aac5 with SMTP id d75a77b69052e-4550964738amr23293121cf.25.1724414756229;
-        Fri, 23 Aug 2024 05:05:56 -0700 (PDT)
-Received: from [192.168.2.219] ([65.93.184.127])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-454fe196d10sm16584871cf.71.2024.08.23.05.05.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 23 Aug 2024 05:05:54 -0700 (PDT)
-Message-ID: <e7629e1e-ab41-4400-85c4-e3b39cf5be2f@vasilevsky.ca>
-Date: Fri, 23 Aug 2024 08:05:43 -0400
+        d=1e100.net; s=20230601; t=1724416928; x=1725021728;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=fYG7eomrfsT/3+ZKJ0euNwIh5HffV5LSzIoWPqaYnjE=;
+        b=EzknfoEn2WzYRyrvhNCvHCeWWJd1dcDe9JmmDd74ZIXkWInVeE4GFWZkHabYW7Cnrw
+         SSaIr+ho9Zxxn3QOf7B+bPnPl+bV2LTSFqUY8RsdTRgswI1Rz1t5N6N8182wklYfpk0Y
+         2vEx2wb6eAHPwFItTiaeXg/H3OSsu1UJ053oRooNbSVTfSc0r4kRzQwIaRhWu1zmv2eI
+         xKFvtKTJmMy1evL0JdXJU0nfYgGMKh4PTRPBwwWaAGCuRDW01HfpFB+wQsmYUS5wXXl+
+         W1C+HbKlFDNHA8NMpOD6+bpccyvs5N0mErUaPYz8lyJ9nhHke2PaxJQd/H6VflVXLGkm
+         3DmA==
+X-Forwarded-Encrypted: i=1; AJvYcCVMUxARb9AJ46QD9I5II6G+ujf6t/wt+dWbSzB6zGtUH7oOtKJvnQPi/ggPFc0aAFT2AdRRDK1Iy7U5@vger.kernel.org, AJvYcCVkKJO5zVsDU7hB3aO571FddYbH4GfxZwtWC2VROQnK6Pa8f0gDWFHnXrA9TCQ/PpUWSZms1XSlp786hQOaMxMRC1So1eGQ@vger.kernel.org, AJvYcCWZzCP6HIKpR07aYmXY2i7MO08zfqNToaw67IJBuwdDh33GpIUTxIPwP3HameWmO6L/n2a5YU9m7po/jg==@vger.kernel.org, AJvYcCXJEzL0Le0U+IR4CfX8aKN5y11xJRXuMWG4bA8TrurwPFiIwqnrlWu7mRo1OWBASrFnNUWPr4TOOieT@vger.kernel.org
+X-Gm-Message-State: AOJu0YzVJtoNnwkBcU48r5/Hhfy7VZQIgdpA8pa4lppn26LiHioWfyRv
+	gyb4brT9SNIExf4c6vEAh4jlvXBxuMJy03uupDKqARWEQXYp+P8c
+X-Google-Smtp-Source: AGHT+IGaHEMkn+iihmrv+AHr1c6bVbL+QMVs8gR3y5k+FHx18Oj9W65iRD/oh1Xl96U/qDlOeuL31Q==
+X-Received: by 2002:a05:6214:46a0:b0:6b5:58e8:8f0c with SMTP id 6a1803df08f44-6c16dc278a7mr25397836d6.7.1724416928172;
+        Fri, 23 Aug 2024 05:42:08 -0700 (PDT)
+Received: from localhost (193.132.150.34.bc.googleusercontent.com. [34.150.132.193])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6c162dccdccsm17887586d6.108.2024.08.23.05.42.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 23 Aug 2024 05:42:07 -0700 (PDT)
+Date: Fri, 23 Aug 2024 08:42:06 -0400
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Simon Horman <horms@kernel.org>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ Alexandra Winter <wintera@linux.ibm.com>, 
+ Thorsten Winkler <twinkler@linux.ibm.com>, 
+ David Ahern <dsahern@kernel.org>, 
+ Jay Vosburgh <jv@jvosburgh.net>, 
+ Andy Gospodarek <andy@greyhouse.net>, 
+ Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com>, 
+ Sean Tranchetti <quic_stranche@quicinc.com>, 
+ Paul Moore <paul@paul-moore.com>, 
+ Krzysztof Kozlowski <krzk@kernel.org>, 
+ Jamal Hadi Salim <jhs@mojatatu.com>, 
+ Cong Wang <xiyou.wangcong@gmail.com>, 
+ Jiri Pirko <jiri@resnulli.us>, 
+ Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
+ Xin Long <lucien.xin@gmail.com>, 
+ Martin Schiller <ms@dev.tdt.de>
+Cc: netdev@vger.kernel.org, 
+ linux-s390@vger.kernel.org, 
+ linux-security-module@vger.kernel.org, 
+ linux-sctp@vger.kernel.org, 
+ linux-x25@vger.kernel.org
+Message-ID: <66c8839ee9267_19c4cc294e@willemb.c.googlers.com.notmuch>
+In-Reply-To: <20240822-net-spell-v1-1-3a98971ce2d2@kernel.org>
+References: <20240822-net-spell-v1-0-3a98971ce2d2@kernel.org>
+ <20240822-net-spell-v1-1-3a98971ce2d2@kernel.org>
+Subject: Re: [PATCH net-next 01/13] packet: Correct spelling in if_packet.h
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH linux-next v3 05/14] crash: clean up kdump related config
- items
-From: Dave Vasilevsky <dave@vasilevsky.ca>
-To: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Baoquan He <bhe@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
- kexec@lists.infradead.org, debian-powerpc@lists.debian.org, x86@kernel.org,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-riscv@lists.infradead.org,
- loongarch@lists.linux.dev, akpm@linux-foundation.org, ebiederm@xmission.com,
- hbathini@linux.ibm.com, piliu@redhat.com, viro@zeniv.linux.org.uk,
- Sam James <sam@gentoo.org>
-References: <20240124051254.67105-1-bhe@redhat.com>
- <20240124051254.67105-6-bhe@redhat.com>
- <a9d9ecd1ed8d62eae47ec26257093495e6cbd44a.camel@physik.fu-berlin.de>
- <ZscCMLfNbj2MDiaB@MiWiFi-R3L-srv>
- <c5e9996e4d2ba2a0849d65f68e3dce94fffc5828.camel@physik.fu-berlin.de>
- <ZsfR9rdMt8yn1+Bz@MiWiFi-R3L-srv>
- <768dfe3e-c437-40cc-96a5-6c5b34b2d19d@vasilevsky.ca>
- <c74e24213fd98b252a2a1ff02a107005e50f4f7b.camel@physik.fu-berlin.de>
- <dc4a1941-6671-4e89-90c2-3a1c19fd3e1c@vasilevsky.ca>
-Content-Language: en-US
-In-Reply-To: <dc4a1941-6671-4e89-90c2-3a1c19fd3e1c@vasilevsky.ca>
-Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
 Content-Transfer-Encoding: 7bit
 
-On 2024-08-23 07:58, Dave Vasilevsky wrote:
-> On 2024-08-23 03:16, John Paul Adrian Glaubitz wrote:
->> It should be disabled on m68k and sh by default as well.
+Simon Horman wrote:
+> Correct spelling in if_packet.h
+> As reported by codespell.
 > 
-> Sure, I can change that. What's the reasoning, so I can explain in my commit message?
+> Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+> Signed-off-by: Simon Horman <horms@kernel.org>
 
-Oh I don't think m68k even has ARCH_SUPPORTS_CRASH_DUMP, so it will always be off. My question still stands for sh though.
-
--Dave 
+Acked-by: Willem de Bruijn <willemb@google.com>
