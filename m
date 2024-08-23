@@ -1,67 +1,59 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FC20185945;
-	Fri, 23 Aug 2024 13:20:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 868D3186601;
+	Fri, 23 Aug 2024 13:29:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724419245; cv=none; b=MudPU/cMR0N2bC+bQYEtCcmHjv8E4h2vo6CJiXkj/dqGPLLXoqFesYWvHWUGuRuqWe5sIK6VdtkYa0eaWCZ/nbMDpP/BtHauk4/I35XJ0xmT0mezrCh+LXeK+QKmJcO+AT3nF8X97FLJ6Q63kr72LRVh0574pBWDiLKM4C5Zfk0=
+	t=1724419751; cv=none; b=HBD6mrANQfIKPylJ7uJHy2FXTCM3KlR2g2M3SXdBQsgVWPgcy+iIiwJ06LL+CZpYrTBaQcKzPgXQrIAeIrP/2jjK1IdFvCbnb9HRfphTOa0UZkGFiyVVyaVl8WgIF89lBtcgFVDz7IhC2igwEguJzu8y60FzWoO2VzDCVtllM2c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724419245; c=relaxed/simple;
-	bh=3VauhDsh4XHQhJBiAkgeROTT9W588QEqgHYy8WvWYlY=;
+	s=arc-20240116; t=1724419751; c=relaxed/simple;
+	bh=upfjRbQi5d/9KGxy7xIOWRr855B07eT2IifI7j40eNw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LET37ITPalzglArHJm8Py1Ru88wzQYcYce9oU9WOwdzUnWm1ogyIbpJjzN1HXWO7GvB2PXNLycT0jsVViJjmQ+DlkyorsNG4C6vnHzECSw/S+PAU+gvhs/KHIOmt0Wa9kOLvm5bsmpoKrTU12Hm6JmhQLSDfEoW6mNrshrs+Z/M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FPDZEO4z; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=sLTFIJoDpj9R7aN4ffLHlCSn+vOG3/E+TkThLYAEtKofvxWg4l5iYgJehlcJJMK9npmt7GieoTzlkFPL5BJ4SaKccsRjnXJT9A7y+vo5MAO4DWdjBZmzUz7tmgW/7cGzEyPqyOa2psWrKlywLzeurZQsV3ZyXXjcYkjUaiGdlY8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h+q2XWOe; arc=none smtp.client-ip=209.85.214.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FPDZEO4z"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47N6eO1C005418;
-	Fri, 23 Aug 2024 13:20:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=U
-	CLsM/o/d6jmGjZ/QsB8h3P8oiP1jBioMzrtO6vOG0w=; b=FPDZEO4zBwhivRG4R
-	5BXm4sOkwPboztgSwN4g1dB2VcfZd/JRw7v9Ob8yGp2DKxySuV5O/oUxUUPc+iTW
-	Ok0bqkLU+ccZ4Odpj3PaiPopkN/YgLbTKi6Gkr53R0/ZtgpLF4H4S7ufdzrvUKwA
-	tNor4JiMi9LpRXNLDXwsg6fpcuSTqrp452jbB5AfcXzXyFIwgcMHxhV5oTFxStWl
-	7YniVhljLSc2xn5NNzFXFCDEzAsT9HAjgvr73sD9C6baYyCg4yghkOj8amdbvl1W
-	2YIqBjVXAK8f9izibVkw91ue8RMY1zCUndzalJZurvKpnBmM1wvNqEoKFaDj5B8Y
-	y/x5A==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 412mb651s0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 23 Aug 2024 13:20:40 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 47NDKdo4006183;
-	Fri, 23 Aug 2024 13:20:39 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 412mb651rx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 23 Aug 2024 13:20:39 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 47ND4oj4017649;
-	Fri, 23 Aug 2024 13:20:38 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4138w3hn5e-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 23 Aug 2024 13:20:38 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47NDKXFf21037428
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 23 Aug 2024 13:20:35 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3BC4120043;
-	Fri, 23 Aug 2024 13:20:33 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D07CD20040;
-	Fri, 23 Aug 2024 13:20:32 +0000 (GMT)
-Received: from [9.179.27.211] (unknown [9.179.27.211])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 23 Aug 2024 13:20:32 +0000 (GMT)
-Message-ID: <b9528312-4c0d-4a40-940f-82e9af4cca48@linux.ibm.com>
-Date: Fri, 23 Aug 2024 15:20:32 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h+q2XWOe"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-20223b5c1c0so18479355ad.2;
+        Fri, 23 Aug 2024 06:29:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724419749; x=1725024549; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ryf/2ckFdrYuXbTIE9dYAxnCDBL+jejuPnXrTzRMY+c=;
+        b=h+q2XWOegHhjzNYr4JRi0OFyThcMocaM5vLAYhPjBJ+pb2RpkjSf1gEfOxqgmGWbap
+         l7KC9IAIfhfwB7DNsIEbRQKENONyqfBegelNj4gMt921QEr4X3qxibfZfRZf/A3vv/IP
+         LHNNUU78+XAQsI7Po0kwaaIi2+k2nPk0CxKc2w/jEXbMidKrhT+lOXoGNAjTn1ew3jyB
+         NtMav2UP2kDwXWybZ5TeZwHrULekgcbocimu0Jl+VxWOBmZpREZWtTmP3ZRT8KWjQzO6
+         IiaxeuYLSzUAPyeQPuhvTgFKDrMU0YhlQjmoYcU0fo6dh8AmvjaxdnDfQJ0VfWCRrXpK
+         vLUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724419749; x=1725024549;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ryf/2ckFdrYuXbTIE9dYAxnCDBL+jejuPnXrTzRMY+c=;
+        b=Cq9vSjOGANadzSYStpQbi0vbTeSiyoXheMLQpEpjaEpObhQX6fVZHMH3vL+zWz8JuZ
+         k2CAa7GzJt+Getk3CCsYdZUp0tITq01zigYbTIAv9RlyyfHarMOvtOg/8krBv2bDWh+5
+         UwUTyllmIq/DmLooZO+HAH6GprJ3VhbokzY+WB3tpJmz5x8rvu2DpNk31wPooX/BrYq0
+         ejyHlTKSWNMLeUSwDWkMvr/AzV0LC7pAjI+uaaO6wxkqmjSgQyp0qil6MGOl9E76OESz
+         sQuhGELTxJ8XEDwl/pXbwrF4fbQb4VbDbOy82QjPowfjkqr/TIzmYWgfHVCY1puwnFa/
+         OUMA==
+X-Forwarded-Encrypted: i=1; AJvYcCUBy/howGaCLihMNmi30F2lP+CLArJqWlboNbmxMhVefbfZLWaXPSyLTLvsWXfaeFnbOWj1SOAch5ta@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzbi9SnudDybpWEE/Crg0puTXpa3N33N3XnySbQ/pFvEoGdTuYR
+	xfghGSioSWeWiHg+pIfq3IiiAKwCOd1E0AI4Ba7clna19pBtKdk03F3B4Q==
+X-Google-Smtp-Source: AGHT+IERjkHPQy4k2IRLHuU2KxaoQgej00BYeiiSX/I0LCFS7aCBGT0lVu54ZCPsUGyc5cgJ0UtpDA==
+X-Received: by 2002:a17:902:fa0f:b0:202:19a0:fcb6 with SMTP id d9443c01a7336-2039e6b455dmr20008115ad.60.1724419748641;
+        Fri, 23 Aug 2024 06:29:08 -0700 (PDT)
+Received: from [192.168.1.76] (bb219-74-23-111.singnet.com.sg. [219.74.23.111])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-203855809d4sm28356265ad.95.2024.08.23.06.29.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 23 Aug 2024 06:29:08 -0700 (PDT)
+Message-ID: <b010c646-007c-47e3-b547-414e66567ccf@gmail.com>
+Date: Fri, 23 Aug 2024 21:29:03 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,142 +61,128 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] selftests: kvm: s390: Add uc_map_unmap VM test case
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-References: <20240815154529.628087-1-schlameuss@linux.ibm.com>
- <20240815154529.628087-2-schlameuss@linux.ibm.com>
- <4c049b39-af28-488c-9e19-f22691b43585@linux.ibm.com>
- <ZsNs0sN7rWqaviZE@darkmoore>
- <884367dd-fba0-4acd-a614-f657768b662a@linux.ibm.com>
- <D3NB8GXIKS75.2AR1GNELFUIBE@linux.ibm.com>
+Subject: Re: Problem testing with S390x under QEMU on x86_64
+To: Ilya Leoshkevich <iii@linux.ibm.com>,
+ Tony Ambardar <tony.ambardar@gmail.com>
+Cc: bpf@vger.kernel.org, linux-s390@vger.kernel.org,
+ Alexei Starovoitov <ast@kernel.org>
+References: <ZsEcsaa3juxxQBUf@kodidev-ubuntu>
+ <180f4c27ebfb954d6b0fd2303c9fb7d5f21dae04.camel@linux.ibm.com>
+ <ZsU3GdK5t6KEOr0g@kodidev-ubuntu>
+ <aa8fe2731224ffdb6d64a014e3e02740c50010cd.camel@linux.ibm.com>
 Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <D3NB8GXIKS75.2AR1GNELFUIBE@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: qxRicSOkm5F4FoV1Y70QOlnJSFGshPlZ
-X-Proofpoint-GUID: fW7BP9w46iw7GQ0BFyPKNypPFJQ8TjvX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-23_10,2024-08-22_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- priorityscore=1501 adultscore=0 bulkscore=0 impostorscore=0 malwarescore=0
- mlxlogscore=920 phishscore=0 mlxscore=0 lowpriorityscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2407110000
- definitions=main-2408230095
+From: Leon Hwang <hffilwlqm@gmail.com>
+In-Reply-To: <aa8fe2731224ffdb6d64a014e3e02740c50010cd.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On 8/23/24 3:03 PM, Christoph Schlameuss wrote:
-> On Fri Aug 23, 2024 at 10:02 AM CEST, Janosch Frank wrote:
->> On 8/19/24 6:03 PM, Christoph Schlameuss wrote:
->>> On Fri Aug 16, 2024 at 4:29 PM CEST, Janosch Frank wrote:
->>>> On 8/15/24 5:45 PM, Christoph Schlameuss wrote:
->>>>> Add a test case verifying basic running and interaction of ucontrol VMs.
->>>>> Fill the segment and page tables for allocated memory and map memory on
->>>>> first access.
->>>>>
->>>>> * uc_map_unmap
->>>>>      Store and load data to mapped and unmapped memory and use pic segment
->>>>>      translation handling to map memory on access.
->>>>>
->>>>> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
->>>>> ---
->>>>>     .../selftests/kvm/s390x/ucontrol_test.c       | 120 +++++++++++++++++-
->>>>>     1 file changed, 119 insertions(+), 1 deletion(-)
->>>>>
->>>>
->>>>> +static void uc_handle_exit_ucontrol(FIXTURE_DATA(uc_kvm) * self)
->>>>> +{
->>>>> +	struct kvm_run *run = self->run;
->>>>> +
->>>>> +	TEST_ASSERT_EQ(KVM_EXIT_S390_UCONTROL, run->exit_reason);
->>>>> +	switch (run->s390_ucontrol.pgm_code) {
->>>>> +	case PGM_SEGMENT_TRANSLATION:
->>>>> +		pr_info("ucontrol pic segment translation 0x%llx\n",
->>>>> +			run->s390_ucontrol.trans_exc_code);
->>>>> +		/* map / make additional memory available */
->>>>> +		struct kvm_s390_ucas_mapping map2 = {
->>>>> +			.user_addr = (u64)gpa2hva(self, run->s390_ucontrol.trans_exc_code),
->>>>> +			.vcpu_addr = run->s390_ucontrol.trans_exc_code,
->>>>> +			.length = VM_MEM_EXT_SIZE,
->>>>> +		};
->>>>> +		pr_info("ucas map %p %p 0x%llx\n",
->>>>> +			(void *)map2.user_addr, (void *)map2.vcpu_addr, map2.length);
->>>>> +		TEST_ASSERT_EQ(0, ioctl(self->vcpu_fd, KVM_S390_UCAS_MAP, &map2));
->>>>> +		break;
->>>>
->>>> Why is this necessary if you fix up the mapping in the test?
->>>>
->>>
->>> This is also used within the uc_skey test to make sure the remap does
->>> work after the unmap.
+
+
+On 2024/8/22 01:28, Ilya Leoshkevich wrote:
+> On Tue, 2024-08-20 at 17:38 -0700, Tony Ambardar wrote:
+> 
+> 
+> [...]
+> 
+>> I used the command line:
+>>     ./test_progs -d
+>> get_stack_raw_tp,stacktrace_build_id,verifier_iterating_callbacks,tai
+>> lcalls
 >>
->> Maybe I'm blind because I'm still recovering but where exactly?
+>> which includes the current DENYLIST.s390x as well as 'tailcalls',
+>> which
+>> is also excluded by the kernel-patches/bpf s390x CI. I note the CI
+>> excludes several more tests that seem to work. Any idea why that is?
+>>
+>> For reference, the issue with 'tailcalls/tailcall_hierarchy_count' is
+>> an
+>> RCU stall and kernel hang:
+>>
+>> root@(none):/usr/libexec/kselftests-bpf# ./test_progs -v --debug -n
+>> 332/19
+>> bpf_testmod.ko is already unloaded.
+>> Loading bpf_testmod.ko...
+>> Successfully loaded bpf_testmod.ko.
+>> test_tailcall_hierarchy_count:PASS:load obj 0 nsec
+>> test_tailcall_hierarchy_count:PASS:find entry prog 0 nsec
+>> test_tailcall_hierarchy_count:PASS:prog_fd 0 nsec
+>> test_tailcall_hierarchy_count:PASS:find jmp_table 0 nsec
+>> test_tailcall_hierarchy_count:PASS:map_fd 0 nsec
+>> test_tailcall_hierarchy_count:PASS:update jmp_table 0 nsec
+>> test_tailcall_hierarchy_count:PASS:find data_map 0 nsec
+>> test_tailcall_hierarchy_count:PASS:open fentry_obj file 0 nsec
+>> test_tailcall_hierarchy_count:PASS:find fentry prog 0 nsec
+>> test_tailcall_hierarchy_count:PASS:set_attach_target subprog_tail 0
+>> nsec
+>> test_tailcall_hierarchy_count:PASS:load fentry_obj 0 nsec
+>> test_tailcall_hierarchy_count:PASS:attach_trace 0 nsec
+>> rcu: INFO: rcu_sched self-detected stall on CPU
+>> rcu:    0-....: (1 GPs behind) idle=4eb4/1/0x4000000000000000
+>> softirq=527/528 fqs=1050
+>> rcu:    (t=2100 jiffies g=-379 q=20 ncpus=2)
+>> CPU: 0 UID: 0 PID: 84 Comm: test_progs Tainted: G           O      
+>> 6.10.0-12706-g853081e84612-dirty #111
+>> Tainted: [O]=OOT_MODULE
+>> Hardware name: QEMU 8561 QEMU (KVM/Linux)
+>> Krnl PSW : 0704f00180000000 000003ffe00f8fca
+>> (lock_release+0xf2/0x190)
+>>            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:3 PM:0 RI:0
+>> EA:3
+>> Krnl GPRS: 00000000b298dd12 0000000000000000 000002f23fd767c8
+>> 000003ffe1848800
+>>            0000000000000001 0000037fe034edbc 0000037fe034fd74
+>> 0000000000000001
+>>            0700037fe034edc8 000003ffe0249e48 000003ffe1848800
+>> 000003ffe19ba7c8
+>>            000003ff9f7a7f90 0000037fe034ef00 000003ffe00f8f96
+>> 0000037fe034ed78
+>> Krnl Code: 000003ffe00f8fbe: a7820300           tmhh    %r8,768
+>>            000003ffe00f8fc2: a7840004           brc    
+>> 8,000003ffe00f8fca
+>>           #000003ffe00f8fc6: ad03f0a0           stosm   160(%r15),3
+>>           >000003ffe00f8fca: eb8ff0a80004       lmg    
+>> %r8,%r15,168(%r15)
+>>            000003ffe00f8fd0: 07fe               bcr     15,%r14
+>>            000003ffe00f8fd2: c0e500011057       brasl  
+>> %r14,000003ffe011b080
+>>            000003ffe00f8fd8: ec26ffa6007e       cij    
+>> %r2,0,6,000003ffe00f8f24
+>>            000003ffe00f8fde: c01000b78b96       larl   
+>> %r1,000003ffe17ea70a
+>> Call Trace:
+>>  [<000003ffe00f8fca>] lock_release+0xf2/0x190
+>> ([<000003ffe00f8f96>] lock_release+0xbe/0x190)
+>>  [<000003ffe0249ea4>] __bpf_prog_exit_recur+0x5c/0x68
+>>  [<000003ff6001e0b0>] bpf_trampoline_73014444060+0xb0/0xd2
+>>  [<000003ff60024d14>] bpf_prog_eb7edc599e93dcc8_entry+0x5c/0xc8
+>>  [<000003ff60024d14>] bpf_prog_eb7edc599e93dcc8_entry+0x5c/0xc8
+>>  [<000003ff60024d14>] bpf_prog_eb7edc599e93dcc8_entry+0x5c/0xc8
+>>  [<000003ff60024d2a>] bpf_prog_eb7edc599e93dcc8_entry+0x72/0xc8
+>>  [<000003ff60024d2a>] bpf_prog_eb7edc599e93dcc8_entry+0x72/0xc8
+>>  [<000003ff60024d14>] bpf_prog_eb7edc599e93dcc8_entry+0x5c/0xc8
+>>  [<000003ff60024d14>] bpf_prog_eb7edc599e93dcc8_entry+0x5c/0xc8
+>>  [<000003ff60024d14>] bpf_prog_eb7edc599e93dcc8_entry+0x5c/0xc8
+>>  [<000003ffe084ecee>] bpf_test_run+0x216/0x3a8
+>>  [<000003ffe084f9cc>] bpf_prog_test_run_skb+0x21c/0x630
+>>  [<000003ffe0202ad2>] __sys_bpf+0x7ea/0xbb0
+>>  [<000003ffe0203114>] __s390x_sys_bpf+0x44/0
 > 
-> It is literally used in the last line of the test case. Calling uc_handle_exit()
-> again re-maps previously unmapped memory.
+> Thanks for the detailed analysis! I will need to port
 > 
-> I can try to make that a little bit more obvious.
+> commit 116e04ba1459fc08f80cf27b8c9f9f188be0fcb2
+> Author: Leon Hwang <hffilwlqm@gmail.com>
+> Date:   Sun Jul 14 20:39:00 2024 +0800
 > 
-> +	/* unmap and run loop again */
-> +	TH_LOG("ucas unmap %p %p 0x%llx",
-> +	       (void *)map2.user_addr, (void *)map2.vcpu_addr, map2.length);
-> +	rc = ioctl(self->vcpu_fd, KVM_S390_UCAS_UNMAP, &map2);
-> +	ASSERT_EQ(0, rc)
-> +		TH_LOG("ucas map result %d not expected, %s", rc, strerror(errno));
-> +	ASSERT_EQ(0, uc_run_once(self));
-> +	ASSERT_EQ(3, sync_regs->gprs[0]);
-> +	ASSERT_EQ(KVM_EXIT_S390_UCONTROL, run->exit_reason);
-> +	ASSERT_EQ(true, uc_handle_exit(self));  // <--- HERE
-> +}
+>     bpf, x64: Fix tailcall hierarchy
 > 
+> to s390x to fix this.
 > 
-Seems like I'm blind then :)
+
+Hi Ilya,
+
+I think you should wait for a while, as I'll fix another tailcall issue
+in near future. After fixing the issue, you can port them both in one shot.
+
+Thanks,
+Leon
+
