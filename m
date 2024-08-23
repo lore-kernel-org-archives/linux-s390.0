@@ -1,105 +1,174 @@
-Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8161C566A;
-	Fri, 23 Aug 2024 12:42:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC75E1448E3;
+	Fri, 23 Aug 2024 13:03:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724416930; cv=none; b=Y7RLj7OfUaPzWQXC5a/Jxml/qIJmWflXW52aBqr5G/htaZiKth7B1ULhimfIIgqCRll+ZgkVC4uJiUlIy0X8QoZFFcyRvqNxOzKTvtiVFOnpIOF46R2UNnVKRFOf11XIcoe7GeZRFdPFLsOGk9290nl0xgdFVXD+cOTPu8K9QPI=
+	t=1724418219; cv=none; b=rrXKva/DS1vUBxmA6ZnTa2e3s02140Jpz64uccBDGtUb3oNhUzRlABv7k7FxCZAUuprivO2YHfoycqYjThICXnw5SujSCYmOkvStJiUz+I6pI11G45yVWuAAYz4lK3r0DvD6yg+EPd+32BcVmGD7/78Mm8qZn0RIlU6NqcBqFmE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724416930; c=relaxed/simple;
-	bh=HfIU2mD/YlJUBd0kQxBBtiisaJ8aGjmalu4uRIe6ojI=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=SNGjL5Z8ZOy+Hb4FbjV8qN+GR5XN9FBUZYXb124cJiLXjSTySKesOBKS+uQBg0v+pbaqU0Tck4MNY0Bu+6/YqphLMmuTtoixQU6M8/FOZuF/eNQLJWabGCsRC7k2PbKdsiqwrgR8sHjmLnTNfP8c8sYPtrcuIUu+sQ5xD4aWgBY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OH0yIWpN; arc=none smtp.client-ip=209.85.219.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1724418219; c=relaxed/simple;
+	bh=FJtvPrnrnepURGaxInYmsEE+3DmtM/ijCioKxsX05us=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
+	 References:In-Reply-To; b=Iysj7wo9ksZqLovRelQ08HKgbC7iLYruMHWfI69hPZyOVGVuwZAKmuQXVLaq7S4mmh6sKl6q+ciYwnJ3uJlDF+Xnk3JwX7HdU81ESZbYYQ9Asl6rt5V0nhlGjEsCeqUxy2P7EnKjmVImnkjoJ6scbIgqjXOmmyuUsBlBd3Aau8Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OG1zedAI; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OH0yIWpN"
-Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-6bf7658f4aaso9261156d6.0;
-        Fri, 23 Aug 2024 05:42:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724416928; x=1725021728; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fYG7eomrfsT/3+ZKJ0euNwIh5HffV5LSzIoWPqaYnjE=;
-        b=OH0yIWpNQUISSShMBJm5Dx1BXVc477VgYSglKvD4Xmhxy658ElTEwNEUhc54gOxWJw
-         jQPEDm6pYymgBTW4v52vtinTqBInLQH482Ava7daIwJb49g/gglvO1VlFjYFuIVHpYm4
-         fMgZHALi/Ew5bAkMc5IPybTNa4AO+hOC56ZWjLcdo5BvB/LvCws5j6UBxh1PRJGIBJ3R
-         xuo3mNKgOHKrM5tKkGEcEz1i1cBIEQiLbnLAjWKDaH4cCCjWKK6/kFR2U5+XLlFaAK76
-         XuJfkNVf/m6YvMwNE77Bgm1g8xamO+r7qCwJ+vhky93ZjsxptDjy77CFzHco86qEZF3S
-         gJPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724416928; x=1725021728;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=fYG7eomrfsT/3+ZKJ0euNwIh5HffV5LSzIoWPqaYnjE=;
-        b=EzknfoEn2WzYRyrvhNCvHCeWWJd1dcDe9JmmDd74ZIXkWInVeE4GFWZkHabYW7Cnrw
-         SSaIr+ho9Zxxn3QOf7B+bPnPl+bV2LTSFqUY8RsdTRgswI1Rz1t5N6N8182wklYfpk0Y
-         2vEx2wb6eAHPwFItTiaeXg/H3OSsu1UJ053oRooNbSVTfSc0r4kRzQwIaRhWu1zmv2eI
-         xKFvtKTJmMy1evL0JdXJU0nfYgGMKh4PTRPBwwWaAGCuRDW01HfpFB+wQsmYUS5wXXl+
-         W1C+HbKlFDNHA8NMpOD6+bpccyvs5N0mErUaPYz8lyJ9nhHke2PaxJQd/H6VflVXLGkm
-         3DmA==
-X-Forwarded-Encrypted: i=1; AJvYcCVMUxARb9AJ46QD9I5II6G+ujf6t/wt+dWbSzB6zGtUH7oOtKJvnQPi/ggPFc0aAFT2AdRRDK1Iy7U5@vger.kernel.org, AJvYcCVkKJO5zVsDU7hB3aO571FddYbH4GfxZwtWC2VROQnK6Pa8f0gDWFHnXrA9TCQ/PpUWSZms1XSlp786hQOaMxMRC1So1eGQ@vger.kernel.org, AJvYcCWZzCP6HIKpR07aYmXY2i7MO08zfqNToaw67IJBuwdDh33GpIUTxIPwP3HameWmO6L/n2a5YU9m7po/jg==@vger.kernel.org, AJvYcCXJEzL0Le0U+IR4CfX8aKN5y11xJRXuMWG4bA8TrurwPFiIwqnrlWu7mRo1OWBASrFnNUWPr4TOOieT@vger.kernel.org
-X-Gm-Message-State: AOJu0YzVJtoNnwkBcU48r5/Hhfy7VZQIgdpA8pa4lppn26LiHioWfyRv
-	gyb4brT9SNIExf4c6vEAh4jlvXBxuMJy03uupDKqARWEQXYp+P8c
-X-Google-Smtp-Source: AGHT+IGaHEMkn+iihmrv+AHr1c6bVbL+QMVs8gR3y5k+FHx18Oj9W65iRD/oh1Xl96U/qDlOeuL31Q==
-X-Received: by 2002:a05:6214:46a0:b0:6b5:58e8:8f0c with SMTP id 6a1803df08f44-6c16dc278a7mr25397836d6.7.1724416928172;
-        Fri, 23 Aug 2024 05:42:08 -0700 (PDT)
-Received: from localhost (193.132.150.34.bc.googleusercontent.com. [34.150.132.193])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6c162dccdccsm17887586d6.108.2024.08.23.05.42.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Aug 2024 05:42:07 -0700 (PDT)
-Date: Fri, 23 Aug 2024 08:42:06 -0400
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Simon Horman <horms@kernel.org>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, 
- Alexandra Winter <wintera@linux.ibm.com>, 
- Thorsten Winkler <twinkler@linux.ibm.com>, 
- David Ahern <dsahern@kernel.org>, 
- Jay Vosburgh <jv@jvosburgh.net>, 
- Andy Gospodarek <andy@greyhouse.net>, 
- Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com>, 
- Sean Tranchetti <quic_stranche@quicinc.com>, 
- Paul Moore <paul@paul-moore.com>, 
- Krzysztof Kozlowski <krzk@kernel.org>, 
- Jamal Hadi Salim <jhs@mojatatu.com>, 
- Cong Wang <xiyou.wangcong@gmail.com>, 
- Jiri Pirko <jiri@resnulli.us>, 
- Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
- Xin Long <lucien.xin@gmail.com>, 
- Martin Schiller <ms@dev.tdt.de>
-Cc: netdev@vger.kernel.org, 
- linux-s390@vger.kernel.org, 
- linux-security-module@vger.kernel.org, 
- linux-sctp@vger.kernel.org, 
- linux-x25@vger.kernel.org
-Message-ID: <66c8839ee9267_19c4cc294e@willemb.c.googlers.com.notmuch>
-In-Reply-To: <20240822-net-spell-v1-1-3a98971ce2d2@kernel.org>
-References: <20240822-net-spell-v1-0-3a98971ce2d2@kernel.org>
- <20240822-net-spell-v1-1-3a98971ce2d2@kernel.org>
-Subject: Re: [PATCH net-next 01/13] packet: Correct spelling in if_packet.h
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OG1zedAI"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47N6jDbs027508;
+	Fri, 23 Aug 2024 13:03:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	mime-version:content-transfer-encoding:content-type:date
+	:message-id:from:cc:to:subject:references:in-reply-to; s=pp1;
+	 bh=t5sHaqw+Qm7GG+J7BCxqCavP5aKQbQDGA6C1iK8gS1M=; b=OG1zedAIolbj
+	UHf3Hv1hyKk2vA2WJNVBAEjlrHPPpWL50896C7hemQ3HvalNA3HWjWqdPP2vohv8
+	wzDqCXeelUMfYTR2XALrsBq2unrLCTI9LExH87t4Vi1TL92xHDov5snSgYyYmaBE
+	uSEfiKCPLSnVtR0hDnznBtekaug3c+525uQJ3Fcgwxi5eb/6+M4ERCE8JCLUlZ4W
+	qrHSUTTQrpmi9pE+yCbuwKXpH7o6BVamJD9t+bwc7pbwtjRYhq7cKTF4p/IXE9Y0
+	2WR71qEgq5LOeFjMIJUCMdiakMgPdvCK0NkFSLmy9I1AiH7Ugxtp4xTLKTBdoVkY
+	lvIvdSldyA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4141y25dq2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 23 Aug 2024 13:03:32 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 47ND3WZV016693;
+	Fri, 23 Aug 2024 13:03:32 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4141y25dpx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 23 Aug 2024 13:03:32 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 47NCAtae029710;
+	Fri, 23 Aug 2024 13:03:31 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4138dmspu8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 23 Aug 2024 13:03:31 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47ND3PFE55312844
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 23 Aug 2024 13:03:27 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C4B992004B;
+	Fri, 23 Aug 2024 13:03:25 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9297D20040;
+	Fri, 23 Aug 2024 13:03:25 +0000 (GMT)
+Received: from darkmoore (unknown [9.171.45.196])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 23 Aug 2024 13:03:25 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 23 Aug 2024 15:03:20 +0200
+Message-Id: <D3NB8GXIKS75.2AR1GNELFUIBE@linux.ibm.com>
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <linux-s390@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
+        "Paolo
+ Bonzini" <pbonzini@redhat.com>,
+        "Shuah Khan" <shuah@kernel.org>,
+        "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>,
+        "Claudio Imbrenda"
+ <imbrenda@linux.ibm.com>,
+        "David Hildenbrand" <david@redhat.com>,
+        "Nina
+ Schoetterl-Glausch" <nsg@linux.ibm.com>
+To: "Janosch Frank" <frankja@linux.ibm.com>, <kvm@vger.kernel.org>
+Subject: Re: [PATCH 1/3] selftests: kvm: s390: Add uc_map_unmap VM test case
+X-Mailer: aerc 0.17.0
+References: <20240815154529.628087-1-schlameuss@linux.ibm.com>
+ <20240815154529.628087-2-schlameuss@linux.ibm.com>
+ <4c049b39-af28-488c-9e19-f22691b43585@linux.ibm.com>
+ <ZsNs0sN7rWqaviZE@darkmoore>
+ <884367dd-fba0-4acd-a614-f657768b662a@linux.ibm.com>
+In-Reply-To: <884367dd-fba0-4acd-a614-f657768b662a@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: xSbd3g6ktdC65JTg1bz6FI_bVm1lvIcq
+X-Proofpoint-ORIG-GUID: Xg8nTaFVtTxu5p9zZ8rj6cPHeI9KG5e-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-23_10,2024-08-22_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
+ suspectscore=0 spamscore=0 mlxlogscore=721 bulkscore=0 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 phishscore=0 clxscore=1015
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2408230095
 
-Simon Horman wrote:
-> Correct spelling in if_packet.h
-> As reported by codespell.
-> 
-> Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-> Signed-off-by: Simon Horman <horms@kernel.org>
+On Fri Aug 23, 2024 at 10:02 AM CEST, Janosch Frank wrote:
+> On 8/19/24 6:03 PM, Christoph Schlameuss wrote:
+> > On Fri Aug 16, 2024 at 4:29 PM CEST, Janosch Frank wrote:
+> >> On 8/15/24 5:45 PM, Christoph Schlameuss wrote:
+> >>> Add a test case verifying basic running and interaction of ucontrol V=
+Ms.
+> >>> Fill the segment and page tables for allocated memory and map memory =
+on
+> >>> first access.
+> >>>
+> >>> * uc_map_unmap
+> >>>     Store and load data to mapped and unmapped memory and use pic seg=
+ment
+> >>>     translation handling to map memory on access.
+> >>>
+> >>> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> >>> ---
+> >>>    .../selftests/kvm/s390x/ucontrol_test.c       | 120 ++++++++++++++=
++++-
+> >>>    1 file changed, 119 insertions(+), 1 deletion(-)
+> >>>
+> >>
+> >>> +static void uc_handle_exit_ucontrol(FIXTURE_DATA(uc_kvm) * self)
+> >>> +{
+> >>> +	struct kvm_run *run =3D self->run;
+> >>> +
+> >>> +	TEST_ASSERT_EQ(KVM_EXIT_S390_UCONTROL, run->exit_reason);
+> >>> +	switch (run->s390_ucontrol.pgm_code) {
+> >>> +	case PGM_SEGMENT_TRANSLATION:
+> >>> +		pr_info("ucontrol pic segment translation 0x%llx\n",
+> >>> +			run->s390_ucontrol.trans_exc_code);
+> >>> +		/* map / make additional memory available */
+> >>> +		struct kvm_s390_ucas_mapping map2 =3D {
+> >>> +			.user_addr =3D (u64)gpa2hva(self, run->s390_ucontrol.trans_exc_co=
+de),
+> >>> +			.vcpu_addr =3D run->s390_ucontrol.trans_exc_code,
+> >>> +			.length =3D VM_MEM_EXT_SIZE,
+> >>> +		};
+> >>> +		pr_info("ucas map %p %p 0x%llx\n",
+> >>> +			(void *)map2.user_addr, (void *)map2.vcpu_addr, map2.length);
+> >>> +		TEST_ASSERT_EQ(0, ioctl(self->vcpu_fd, KVM_S390_UCAS_MAP, &map2));
+> >>> +		break;
+> >>
+> >> Why is this necessary if you fix up the mapping in the test?
+> >>
+> >=20
+> > This is also used within the uc_skey test to make sure the remap does
+> > work after the unmap.
+>
+> Maybe I'm blind because I'm still recovering but where exactly?
 
-Acked-by: Willem de Bruijn <willemb@google.com>
+It is literally used in the last line of the test case. Calling uc_handle_e=
+xit()
+again re-maps previously unmapped memory.
+
+I can try to make that a little bit more obvious.
+
++	/* unmap and run loop again */
++	TH_LOG("ucas unmap %p %p 0x%llx",
++	       (void *)map2.user_addr, (void *)map2.vcpu_addr, map2.length);
++	rc =3D ioctl(self->vcpu_fd, KVM_S390_UCAS_UNMAP, &map2);
++	ASSERT_EQ(0, rc)
++		TH_LOG("ucas map result %d not expected, %s", rc, strerror(errno));
++	ASSERT_EQ(0, uc_run_once(self));
++	ASSERT_EQ(3, sync_regs->gprs[0]);
++	ASSERT_EQ(KVM_EXIT_S390_UCONTROL, run->exit_reason);
++	ASSERT_EQ(true, uc_handle_exit(self));  // <--- HERE
++}
+
