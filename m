@@ -1,96 +1,119 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B12E154BFC;
-	Sat, 24 Aug 2024 07:58:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1604414F136;
+	Sat, 24 Aug 2024 10:04:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724486299; cv=none; b=aPHdWO+5ppoUPOWFYcnJfb14X2ZNg/TmlnO1/qGX1NkNl6y3Tjs/URXKVWufVpi4Q5citdu1giIDdNYUmYQgbpMfHbeZ/HAogPx54mcjpEq1Vw8bEwyoaJEuOrDd3cYJaAd/dGMOERLHR5s0eeyvQGbcJpVIkrPNxkR2Ee8JeF8=
+	t=1724493856; cv=none; b=TS8LDVdBSXGsM8IyOBSZQKvTt1Pz0QTe7dKbQA2tQjJHoC5rOJK/mcsxOiFtjTWZUe3luNnyS6041wTJHq9Z9rp4LnnwMPZ5i1HO/A3/AsW+kW1detyKuLjraSKGAWpO3rkll4Qewn9HsUnsYynj3+EkttRo066FyTbjh1vK1mk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724486299; c=relaxed/simple;
-	bh=+MuJabAXZNXC3PzKmb+ctuTHQcVD5uw07JOm0cukiHM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GWySvhytFi2+aDwpTVnYgDYPKOCxc+f/qtu6Oi3l3B2485PhAEfytvZyCAfWeqKLOw+XPhgbQs1o5rZxIlVnMYPatwOdtZ/o3bc+GIkwKvuypocesqojWEiKObFJ71IJNVjb+qBS/qUpbhh0qX7rxNNTsslrd0m+QwYaoItzw1I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=H132KVz3; arc=none smtp.client-ip=198.175.65.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="H132KVz3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1724486297; x=1756022297;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=+MuJabAXZNXC3PzKmb+ctuTHQcVD5uw07JOm0cukiHM=;
-  b=H132KVz304XJPf6ReChbID2w1YHRPvxytq0WbDqu4uhidZZSlva4Y4LE
-   pZHl3AGTuAOiweWSGhZDA8IwlbzEoHnXnbMCKukZ/q+5k+rMv9h4gy7Gg
-   lrqNpj8eCrMpC8dgLkyHv94gHXIDAlxwso32cgk3S50h615I0K86g9G+X
-   XmZ+8gxO+63cIdmweFZi0vKY6B783NQbpEeCRiefFnAOryPtfqs9e+VOq
-   tOFi5hsQh2mndrvZc3hgde+agJNmsp977DN6vvWI/rA4Ptt1uBBfTnLlN
-   s4+sWi9vLViQhAOyXzNqIWOYRX9YsZ/Oa0iCAQG3P43fJn22Am1fVQk6v
-   A==;
-X-CSE-ConnectionGUID: vT64KyRhQaW9P0Xy6FbYoQ==
-X-CSE-MsgGUID: atC8vKnuQf2trx1B+MFIWg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11173"; a="23126429"
-X-IronPort-AV: E=Sophos;i="6.10,172,1719903600"; 
-   d="scan'208";a="23126429"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2024 00:58:17 -0700
-X-CSE-ConnectionGUID: xNO1WY6SQfimIDbJMyQklA==
-X-CSE-MsgGUID: Re7yuOLNQLu2fGkmVM310w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.10,172,1719903600"; 
-   d="scan'208";a="99531438"
-Received: from turnipsi.fi.intel.com (HELO kekkonen.fi.intel.com) ([10.237.72.44])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2024 00:58:12 -0700
-Received: from kekkonen.localdomain (localhost [127.0.0.1])
-	by kekkonen.fi.intel.com (Postfix) with SMTP id AF4D411F95D;
-	Sat, 24 Aug 2024 10:58:07 +0300 (EEST)
-Date: Sat, 24 Aug 2024 07:58:07 +0000
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: iommu@lists.linux.dev, Marek Szyprowski <m.szyprowski@samsung.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Bingbu Cao <bingbu.cao@intel.com>,
-	"Michael S . Tsirkin " <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-media@vger.kernel.org,
-	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org
-Subject: Re: [PATCH] dma-mapping: clear mark DMA ops as an architecture
- feature
-Message-ID: <ZsmSj6ZBZqBtjALU@kekkonen.localdomain>
-References: <20240824035817.1163502-1-hch@lst.de>
- <20240824035817.1163502-2-hch@lst.de>
+	s=arc-20240116; t=1724493856; c=relaxed/simple;
+	bh=njeP+h34U6W3JE+KF+0905EF3iYY9Fomt6Loi15uMYM=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:CC:References:
+	 In-Reply-To:Content-Type; b=Wd8EeCuXompJdibEN1w83mMbhJAEJCnnPDNDcjYsF2v6SrmuhH5M/cg/ttnoE0iF+bIqvpkiLRUOTSFx2sU9+RBG6C9lnwsnqNYu7j0QcdlNKB6xySJNg73QcztK6565I6H9ZVDyBqDyQiEvMKA5470+CfLbQQZowQug7FZmQv0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.162.254])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4WrXZS2P0VzpVkN;
+	Sat, 24 Aug 2024 18:03:28 +0800 (CST)
+Received: from kwepemg200003.china.huawei.com (unknown [7.202.181.30])
+	by mail.maildlp.com (Postfix) with ESMTPS id 75B711800F2;
+	Sat, 24 Aug 2024 18:04:11 +0800 (CST)
+Received: from [10.174.176.93] (10.174.176.93) by
+ kwepemg200003.china.huawei.com (7.202.181.30) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Sat, 24 Aug 2024 18:04:10 +0800
+Message-ID: <ab89629e-75ec-4750-a4e1-58ad287ce1bd@huawei.com>
+Date: Sat, 24 Aug 2024 18:04:09 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240824035817.1163502-2-hch@lst.de>
+User-Agent: Mozilla Thunderbird
+From: "liujian (CE)" <liujian56@huawei.com>
+Subject: Re: [PATCH net-next 0/4] Make SMC-R can work with rxe devices
+To: <dust.li@linux.alibaba.com>, Jan Karcher <jaka@linux.ibm.com>,
+	<linux-rdma@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+	<netdev@vger.kernel.org>
+CC: <jgg@ziepe.ca>, <leon@kernel.org>, <zyjzyj2000@gmail.com>,
+	<wenjia@linux.ibm.com>, <alibuda@linux.alibaba.com>,
+	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>, <davem@davemloft.net>,
+	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>
+References: <20240809083148.1989912-1-liujian56@huawei.com>
+ <0d5e2cec-dd0b-4920-99ff-9299e4df604f@linux.ibm.com>
+ <20240821010324.GK103152@linux.alibaba.com>
+In-Reply-To: <20240821010324.GK103152@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ kwepemg200003.china.huawei.com (7.202.181.30)
 
-Hi Christoph,
 
-On Sat, Aug 24, 2024 at 05:57:58AM +0200, Christoph Hellwig wrote:
-> DMA ops are a helper for architectures and not for drivers to override
-> the DMA implementation.  Unfortunately driver authors keep ignoring
-> this.  Make this more clear by renaming the symbol to ARCH_DMA_OPS,
-> have the three drivers overriding it depend on that.  They should
-> probably also be marked broken, but we can give them a bit of a grace
-> period for that.
+
+在 2024/8/21 9:03, Dust Li 写道:
+> On 2024-08-20 15:16:57, Jan Karcher wrote:
+>>
+>>
+>> On 09/08/2024 10:31, Liu Jian wrote:
+>>> Make SMC-R can work with rxe devices. This allows us to easily test and
+>>> learn the SMC-R protocol without relying on a physical RoCE NIC.
+>>
+>> Hi Liu,
+>>
+>> sorry for taking quite some time to answer.
+>>
+>> Looking into this i cannot accept this series at the given point of time.
+>>
+>> FWIU, RXE is mainly for testing and development and i agree that it would be
+>> a nice thing to have for SMC-R.
+>> The problem is that there is no clean layer for different RoCE devices
+>> currently. Adding RXE to it works but isn't clean.
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Hi jan,
+> 
+>> Also we have no way to do a "test" build which would have such a device
+>> supported and a "prod" build which would not support it.
+>  > I don't quite understand what you mean here, Maybe I missed something ?
+> IIUC, we can control whether to use RXE by simpling insmod or rmmod rdma_rxe.ko
+> 
+Yes, in the "prod" environment, we can completely turn off CONFIG_RDMA_RXE.
 
-Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com> # for IPU6
-
-We'll address this for IPU6 but I can't give a timeline for that right now.
-
--- 
-Kind regards,
-
-Sakari Ailus
+> I believe having RXE support is beneficial for testing, especially in
+> simple physical networking setups where many corner cases are unlikely
+> to occur. By using RXE, we can easily configure unusual scenarios with
+> the existing iptables/netfilter infrastructure to simulate real-world
+> situations, such as packet dropping or network retransmission. This
+> approach can be advantageous for finding hidden bugs.
+> 
+Yes, one of my main original intentions was to make testing smc-r 
+easier. This change is relatively simple, mainly patch2 and patch4, and 
+there are no logical changes.
+> Best regards,
+> Dust
+> 
+> 
+>>
+>> Please give us time to investigate how to solve this in a neat way without
+>> building up to much technical debt.
+>>
+>> Thanks for your contribution and making us aware of this area of improvment.
+>> - Jan
+>>
+>>>
+>>> Liu Jian (4):
+>>>     rdma/device: export ib_device_get_netdev()
+>>>     net/smc: use ib_device_get_netdev() helper to get netdev info
+>>>     net/smc: fix one NULL pointer dereference in smc_ib_is_sg_need_sync()
+>>>     RDMA/rxe: Set queue pair cur_qp_state when being queried
+>>>
+>>>    drivers/infiniband/core/core_priv.h   |  3 ---
+>>>    drivers/infiniband/core/device.c      |  1 +
+>>>    drivers/infiniband/sw/rxe/rxe_verbs.c |  2 ++
+>>>    include/rdma/ib_verbs.h               |  2 ++
+>>>    net/smc/smc_ib.c                      | 10 +++++-----
+>>>    net/smc/smc_pnet.c                    |  6 +-----
+>>>    6 files changed, 11 insertions(+), 13 deletions(-)
+>>>
