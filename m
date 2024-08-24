@@ -1,119 +1,140 @@
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1604414F136;
-	Sat, 24 Aug 2024 10:04:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 451EF28DB3;
+	Sat, 24 Aug 2024 10:57:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724493856; cv=none; b=TS8LDVdBSXGsM8IyOBSZQKvTt1Pz0QTe7dKbQA2tQjJHoC5rOJK/mcsxOiFtjTWZUe3luNnyS6041wTJHq9Z9rp4LnnwMPZ5i1HO/A3/AsW+kW1detyKuLjraSKGAWpO3rkll4Qewn9HsUnsYynj3+EkttRo066FyTbjh1vK1mk=
+	t=1724497073; cv=none; b=LZR7vNWDzEm6J+nQaTo4QRKiXnjQBSqrKXz2G6YyaHslDwjHJcsjPA11Jl47GjQ3jGcOY7HYtqSVmqi3FyicdEXRq5QlMceT8fG7mk6gl+MJ3/f+Q9e9HOZw4OaWx0lNz07+WZO3Vj6LybxQa1Zit+RCjOGTveOiwqMdg88abGY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724493856; c=relaxed/simple;
-	bh=njeP+h34U6W3JE+KF+0905EF3iYY9Fomt6Loi15uMYM=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:CC:References:
-	 In-Reply-To:Content-Type; b=Wd8EeCuXompJdibEN1w83mMbhJAEJCnnPDNDcjYsF2v6SrmuhH5M/cg/ttnoE0iF+bIqvpkiLRUOTSFx2sU9+RBG6C9lnwsnqNYu7j0QcdlNKB6xySJNg73QcztK6565I6H9ZVDyBqDyQiEvMKA5470+CfLbQQZowQug7FZmQv0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.162.254])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4WrXZS2P0VzpVkN;
-	Sat, 24 Aug 2024 18:03:28 +0800 (CST)
-Received: from kwepemg200003.china.huawei.com (unknown [7.202.181.30])
-	by mail.maildlp.com (Postfix) with ESMTPS id 75B711800F2;
-	Sat, 24 Aug 2024 18:04:11 +0800 (CST)
-Received: from [10.174.176.93] (10.174.176.93) by
- kwepemg200003.china.huawei.com (7.202.181.30) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Sat, 24 Aug 2024 18:04:10 +0800
-Message-ID: <ab89629e-75ec-4750-a4e1-58ad287ce1bd@huawei.com>
-Date: Sat, 24 Aug 2024 18:04:09 +0800
+	s=arc-20240116; t=1724497073; c=relaxed/simple;
+	bh=GvyeIaqlCViPSu4G7Yjb6DEBoW8e9jkV+vxyRNx7q9Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:Content-Type:
+	 Content-Disposition:MIME-Version; b=shGeAvlapDPMvPvIjimjXJd5k5/hsF6hj9EYOR6Alr/HyzcMPMwMfRgvc/AJPRxw/H7HFso0wKU2zxi282smrQ1hXpM0+AUiE2h7ZTgfqFx2ByxJzPrRxZaorACIDnXeFqtN5XmyWhAuOOHpVhZZp8yyvo1NRFchancxNyWEeC8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=X09lHOmy; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="X09lHOmy"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47OAQQJI019628;
+	Sat, 24 Aug 2024 10:57:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:content-type:mime-version; s=pp1;
+	 bh=NydodP8b0MtlSEiJ6OeLyqrfE2YhmL+n+eZvOzbzOp4=; b=X09lHOmyeqCQ
+	2ohzErOSflrz/fBn3cTZ2yrlomSKeie25NH+1M4rf4zv2Us5p0RglUn1vmHtELcV
+	MBV+xRCrBZu/NasBAyGKL8FFSrVSGKsnxqSDwliFcD5fVqnmatQR/+i6nIL9IZGN
+	RUCW3upOjiunW4o7Scr2n/KpJbZhbX2PmwwGR1DWKk//Vl1PJwimsaUgWA2EYZK0
+	v/mzKik9GRz/1izMa4R9xaf7XLzL/6DGviMju4VQzNdSTS9eKGanD3xMQ4Q9OnbZ
+	jQPuLKvO1Y7/i/nHr4emmkywPxAOBmmlHluZLzZAF1RVNZJdL88B1+xdboJyfoMz
+	7knv9naQqw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 417drjg1nv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 24 Aug 2024 10:57:48 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 47O6jdT9030060;
+	Sat, 24 Aug 2024 10:57:47 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4138dmwxn7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 24 Aug 2024 10:57:47 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47OAvfEj55378256
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 24 Aug 2024 10:57:43 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 81A1220049;
+	Sat, 24 Aug 2024 10:57:41 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2FB6320040;
+	Sat, 24 Aug 2024 10:57:41 +0000 (GMT)
+Received: from localhost (unknown [9.171.53.155])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Sat, 24 Aug 2024 10:57:41 +0000 (GMT)
+Date: Sat, 24 Aug 2024 12:57:39 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 6.11-rc5
+Message-ID: <your-ad-here.call-01724497059-ext-7858@work.hours>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: nmh-8M7ptsOtYHv5aMnHDLDkQDmpseJx
+X-Proofpoint-GUID: nmh-8M7ptsOtYHv5aMnHDLDkQDmpseJx
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: "liujian (CE)" <liujian56@huawei.com>
-Subject: Re: [PATCH net-next 0/4] Make SMC-R can work with rxe devices
-To: <dust.li@linux.alibaba.com>, Jan Karcher <jaka@linux.ibm.com>,
-	<linux-rdma@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<netdev@vger.kernel.org>
-CC: <jgg@ziepe.ca>, <leon@kernel.org>, <zyjzyj2000@gmail.com>,
-	<wenjia@linux.ibm.com>, <alibuda@linux.alibaba.com>,
-	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>, <davem@davemloft.net>,
-	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>
-References: <20240809083148.1989912-1-liujian56@huawei.com>
- <0d5e2cec-dd0b-4920-99ff-9299e4df604f@linux.ibm.com>
- <20240821010324.GK103152@linux.alibaba.com>
-In-Reply-To: <20240821010324.GK103152@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- kwepemg200003.china.huawei.com (7.202.181.30)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-24_09,2024-08-23_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
+ clxscore=1011 priorityscore=1501 bulkscore=0 impostorscore=0
+ suspectscore=0 spamscore=0 mlxscore=0 adultscore=0 lowpriorityscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2408240062
 
+Hello Linus,
 
+please pull s390 fixes for 6.11-rc5.
 
-在 2024/8/21 9:03, Dust Li 写道:
-> On 2024-08-20 15:16:57, Jan Karcher wrote:
->>
->>
->> On 09/08/2024 10:31, Liu Jian wrote:
->>> Make SMC-R can work with rxe devices. This allows us to easily test and
->>> learn the SMC-R protocol without relying on a physical RoCE NIC.
->>
->> Hi Liu,
->>
->> sorry for taking quite some time to answer.
->>
->> Looking into this i cannot accept this series at the given point of time.
->>
->> FWIU, RXE is mainly for testing and development and i agree that it would be
->> a nice thing to have for SMC-R.
->> The problem is that there is no clean layer for different RoCE devices
->> currently. Adding RXE to it works but isn't clean.
-> 
-> Hi jan,
-> 
->> Also we have no way to do a "test" build which would have such a device
->> supported and a "prod" build which would not support it.
->  > I don't quite understand what you mean here, Maybe I missed something ?
-> IIUC, we can control whether to use RXE by simpling insmod or rmmod rdma_rxe.ko
-> 
-Yes, in the "prod" environment, we can completely turn off CONFIG_RDMA_RXE.
+Thank you,
+Vasily
 
-> I believe having RXE support is beneficial for testing, especially in
-> simple physical networking setups where many corner cases are unlikely
-> to occur. By using RXE, we can easily configure unusual scenarios with
-> the existing iptables/netfilter infrastructure to simulate real-world
-> situations, such as packet dropping or network retransmission. This
-> approach can be advantageous for finding hidden bugs.
-> 
-Yes, one of my main original intentions was to make testing smc-r 
-easier. This change is relatively simple, mainly patch2 and patch4, and 
-there are no logical changes.
-> Best regards,
-> Dust
-> 
-> 
->>
->> Please give us time to investigate how to solve this in a neat way without
->> building up to much technical debt.
->>
->> Thanks for your contribution and making us aware of this area of improvment.
->> - Jan
->>
->>>
->>> Liu Jian (4):
->>>     rdma/device: export ib_device_get_netdev()
->>>     net/smc: use ib_device_get_netdev() helper to get netdev info
->>>     net/smc: fix one NULL pointer dereference in smc_ib_is_sg_need_sync()
->>>     RDMA/rxe: Set queue pair cur_qp_state when being queried
->>>
->>>    drivers/infiniband/core/core_priv.h   |  3 ---
->>>    drivers/infiniband/core/device.c      |  1 +
->>>    drivers/infiniband/sw/rxe/rxe_verbs.c |  2 ++
->>>    include/rdma/ib_verbs.h               |  2 ++
->>>    net/smc/smc_ib.c                      | 10 +++++-----
->>>    net/smc/smc_pnet.c                    |  6 +-----
->>>    6 files changed, 11 insertions(+), 13 deletions(-)
->>>
+The following changes since commit de9c2c66ad8e787abec7c9d7eff4f8c3cdd28aed:
+
+  Linux 6.11-rc2 (2024-08-04 13:50:53 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.11-4
+
+for you to fetch changes up to 1642285e511c2a40b14e87a41aa8feace6123036:
+
+  s390/boot: Fix KASLR base offset off by __START_KERNEL bytes (2024-08-22 19:24:13 +0200)
+
+----------------------------------------------------------------
+s390 updates for 6.11-rc5
+
+- Fix KASLR base offset to account for symbol offsets in the vmlinux
+  ELF file, preventing tool breakages like the drgn debugger
+
+- Fix potential memory corruption of physmem_info during kernel physical
+  address randomization
+
+- Fix potential memory corruption due to overlap between the relocated
+  lowcore and identity mapping by correctly reserving lowcore memory
+
+- Fix performance regression and avoid randomizing identity mapping base
+  by default
+
+- Fix unnecessary delay of AP bus binding complete uevent to prevent
+  startup lag in KVM guests using AP
+
+----------------------------------------------------------------
+Alexander Gordeev (4):
+      s390/mm: Prevent lowcore vs identity mapping overlap
+      s390/mm: Pin identity mapping base to zero
+      s390/boot: Avoid possible physmem_info segment corruption
+      s390/boot: Fix KASLR base offset off by __START_KERNEL bytes
+
+Harald Freudenberger (1):
+      s390/ap: Refine AP bus bindings complete processing
+
+ arch/s390/Kconfig              | 13 ++++++++++
+ arch/s390/boot/startup.c       | 58 +++++++++++++++++++++++-------------------
+ arch/s390/boot/vmem.c          | 14 ++++++++--
+ arch/s390/boot/vmlinux.lds.S   |  7 ++++-
+ arch/s390/include/asm/page.h   |  3 ++-
+ arch/s390/kernel/setup.c       | 19 +++++++++++++-
+ arch/s390/kernel/vmlinux.lds.S |  2 +-
+ arch/s390/tools/relocs.c       |  2 +-
+ drivers/s390/crypto/ap_bus.c   |  7 ++++-
+ 9 files changed, 91 insertions(+), 34 deletions(-)
