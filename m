@@ -1,45 +1,69 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95C79155C93;
-	Sat, 24 Aug 2024 05:18:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B12E154BFC;
+	Sat, 24 Aug 2024 07:58:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724476703; cv=none; b=nYiFJlVmdw19dTcYGhds7L+oHr7YvUo4yaqzN03IG0m/B82vXrUfXZ4J75qQs5/RzhLM+9m3pGj0XemGyc+Pc+MgJtijNP30KlcfDGTMO59IuIOKfbvOFxQ50dGTuMRWXeeTRgILHkOCrcbxWmYBbw16XncAdRczfv1ArtUReZs=
+	t=1724486299; cv=none; b=aPHdWO+5ppoUPOWFYcnJfb14X2ZNg/TmlnO1/qGX1NkNl6y3Tjs/URXKVWufVpi4Q5citdu1giIDdNYUmYQgbpMfHbeZ/HAogPx54mcjpEq1Vw8bEwyoaJEuOrDd3cYJaAd/dGMOERLHR5s0eeyvQGbcJpVIkrPNxkR2Ee8JeF8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724476703; c=relaxed/simple;
-	bh=kgyBdXsye1a/6QCni1L67UlqcPRlRzcDozumv00gwHQ=;
+	s=arc-20240116; t=1724486299; c=relaxed/simple;
+	bh=+MuJabAXZNXC3PzKmb+ctuTHQcVD5uw07JOm0cukiHM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LbCPflAPXvB0T569XfEc8lfQhDxdLSY9EAW0qxzCqM5J3i1FaIKebVfWPhr/Js65PH6gr5NYsWUO6GcrdPiZ5yonbFi2v+Eu46Wedu8hSRRHeWHSTJg5l6IlX9BheCzph6oDRqKAXv7YU7GUKPTazPV0+dBmZn11SxkqPDZkct0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=l0BqcMWG; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=GWySvhytFi2+aDwpTVnYgDYPKOCxc+f/qtu6Oi3l3B2485PhAEfytvZyCAfWeqKLOw+XPhgbQs1o5rZxIlVnMYPatwOdtZ/o3bc+GIkwKvuypocesqojWEiKObFJ71IJNVjb+qBS/qUpbhh0qX7rxNNTsslrd0m+QwYaoItzw1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=H132KVz3; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="l0BqcMWG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2BC4C4AF10;
-	Sat, 24 Aug 2024 05:18:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1724476703;
-	bh=kgyBdXsye1a/6QCni1L67UlqcPRlRzcDozumv00gwHQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=l0BqcMWGSsjpM+EUOhZSbc4ukSXDFYJUwVf3CfRY1TfJi7OQIYlSyfSS4qYRQ2SUL
-	 Sy5OPcGcqJJ5naU87u+pEv6lWsqsYxUX2qu4Sx2g+Z7jkgGuXngi+0yxIXFn8M9w4g
-	 adelqVwbS08L8XjkLtAw7rYO/4kPNiem7QqBqpbw=
-Date: Sat, 24 Aug 2024 11:12:15 +0800
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
-	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH net v2] s390/iucv: Fix vargs handling in
- iucv_alloc_device()
-Message-ID: <2024082405-dislocate-snowbound-3232@gregkh>
-References: <20240820084528.2396537-1-wintera@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="H132KVz3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1724486297; x=1756022297;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=+MuJabAXZNXC3PzKmb+ctuTHQcVD5uw07JOm0cukiHM=;
+  b=H132KVz304XJPf6ReChbID2w1YHRPvxytq0WbDqu4uhidZZSlva4Y4LE
+   pZHl3AGTuAOiweWSGhZDA8IwlbzEoHnXnbMCKukZ/q+5k+rMv9h4gy7Gg
+   lrqNpj8eCrMpC8dgLkyHv94gHXIDAlxwso32cgk3S50h615I0K86g9G+X
+   XmZ+8gxO+63cIdmweFZi0vKY6B783NQbpEeCRiefFnAOryPtfqs9e+VOq
+   tOFi5hsQh2mndrvZc3hgde+agJNmsp977DN6vvWI/rA4Ptt1uBBfTnLlN
+   s4+sWi9vLViQhAOyXzNqIWOYRX9YsZ/Oa0iCAQG3P43fJn22Am1fVQk6v
+   A==;
+X-CSE-ConnectionGUID: vT64KyRhQaW9P0Xy6FbYoQ==
+X-CSE-MsgGUID: atC8vKnuQf2trx1B+MFIWg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11173"; a="23126429"
+X-IronPort-AV: E=Sophos;i="6.10,172,1719903600"; 
+   d="scan'208";a="23126429"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2024 00:58:17 -0700
+X-CSE-ConnectionGUID: xNO1WY6SQfimIDbJMyQklA==
+X-CSE-MsgGUID: Re7yuOLNQLu2fGkmVM310w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,172,1719903600"; 
+   d="scan'208";a="99531438"
+Received: from turnipsi.fi.intel.com (HELO kekkonen.fi.intel.com) ([10.237.72.44])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2024 00:58:12 -0700
+Received: from kekkonen.localdomain (localhost [127.0.0.1])
+	by kekkonen.fi.intel.com (Postfix) with SMTP id AF4D411F95D;
+	Sat, 24 Aug 2024 10:58:07 +0300 (EEST)
+Date: Sat, 24 Aug 2024 07:58:07 +0000
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: iommu@lists.linux.dev, Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Bingbu Cao <bingbu.cao@intel.com>,
+	"Michael S . Tsirkin " <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
+	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-media@vger.kernel.org,
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org
+Subject: Re: [PATCH] dma-mapping: clear mark DMA ops as an architecture
+ feature
+Message-ID: <ZsmSj6ZBZqBtjALU@kekkonen.localdomain>
+References: <20240824035817.1163502-1-hch@lst.de>
+ <20240824035817.1163502-2-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,50 +72,25 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240820084528.2396537-1-wintera@linux.ibm.com>
+In-Reply-To: <20240824035817.1163502-2-hch@lst.de>
 
-On Tue, Aug 20, 2024 at 10:45:28AM +0200, Alexandra Winter wrote:
-> iucv_alloc_device() gets a format string and a varying number of
-> arguments. This is incorrectly forwarded by calling dev_set_name() with
-> the format string and a va_list, while dev_set_name() expects also a
-> varying number of arguments.
+Hi Christoph,
+
+On Sat, Aug 24, 2024 at 05:57:58AM +0200, Christoph Hellwig wrote:
+> DMA ops are a helper for architectures and not for drivers to override
+> the DMA implementation.  Unfortunately driver authors keep ignoring
+> this.  Make this more clear by renaming the symbol to ARCH_DMA_OPS,
+> have the three drivers overriding it depend on that.  They should
+> probably also be marked broken, but we can give them a bit of a grace
+> period for that.
 > 
-> Symptoms:
-> Corrupted iucv device names, which can result in log messages like:
-> sysfs: cannot create duplicate filename '/devices/iucv/hvc_iucv1827699952'
-> 
-> Fixes: 4452e8ef8c36 ("s390/iucv: Provide iucv_alloc_device() / iucv_release_device()")
-> Link: https://bugzilla.suse.com/show_bug.cgi?id=1228425
-> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-> Reviewed-by: Thorsten Winkler <twinkler@linux.ibm.com>
-> ---
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Hi,
+Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com> # for IPU6
 
-This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
-a patch that has triggered this response.  He used to manually respond
-to these common problems, but in order to save his sanity (he kept
-writing the same thing over and over, yet to different people), I was
-created.  Hopefully you will not take offence and will fix the problem
-in your patch and resubmit it so that it can be accepted into the Linux
-kernel tree.
+We'll address this for IPU6 but I can't give a timeline for that right now.
 
-You are receiving this message because of the following common error(s)
-as indicated below:
+-- 
+Kind regards,
 
-- You have marked a patch with a "Fixes:" tag for a commit that is in an
-  older released kernel, yet you do not have a cc: stable line in the
-  signed-off-by area at all, which means that the patch will not be
-  applied to any older kernel releases.  To properly fix this, please
-  follow the documented rules in the
-  Documentation/process/stable-kernel-rules.rst file for how to resolve
-  this.
-
-If you wish to discuss this problem further, or you have questions about
-how to resolve this issue, please feel free to respond to this email and
-Greg will reply once he has dug out from the pending patches received
-from other developers.
-
-thanks,
-
-greg k-h's patch email bot
+Sakari Ailus
