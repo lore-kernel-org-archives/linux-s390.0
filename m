@@ -1,91 +1,76 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86D983C24;
-	Sun, 25 Aug 2024 08:54:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6D421D69E;
+	Sun, 25 Aug 2024 11:33:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724576074; cv=none; b=ZCKGQxTGByZwvCmgtxG93xNRMSsMsEYZG0JXn3xwdKRP389eCayNy0ik9AMVJA7yK/b4U1g7YdrLZ3l/yvcfBvvzrre+YXn8+Li89buIGCb3SGAq2jZGqUi/qas5ePb/7R5gehczAYgqTJ0lMObi2f5nuixFFbkKJSrixGJz8Y0=
+	t=1724585598; cv=none; b=IKxKAmVgOkfYVL8Gv3/ayqnWZnTXeEoXKn2+bKM+cUan4UqngTM8R6jmyi837P0/SRtdKWFa2etI7I1cAko+KQkbxVJ0i7rG8X9yHsMqyaQjVyOHsLPe29m2vn3vUhe1EH+EKiG0y4k2fqHNITnwzNAq6FwvpMGGszlz3jn2nYE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724576074; c=relaxed/simple;
-	bh=WScW3blxv8xyRqcV5XEZlySOdaveuOpeuadU2hXSBvw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IQqi4A7s/GjuiRZJDjbKwRQWfsRdgQ7RnL/NZ7P2jtLGC3m/rlhFYv2lp6VTyEqH0n+/nKv3TizlYGuRbiwr/OuOJ5zzcvJvyEwZsgnuR0iax9t7XRonq9BflVkJJTTbQBL8XdfzFHkwwkCjdyi4ZRuDHAi+jqL/k+6qzP2VRc0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O2QtrOMi; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1724585598; c=relaxed/simple;
+	bh=6XMbpzg/JuSwUOH7P7AO5R4Ugnca4dCXUcfcSqerxdM=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=Jq0hluLOzzU9Q5lXg+q2fUOkUzq8Dxg4+1U/0Twnc/Jp16y7VdnKFHOGBHNM26r9LjHouxVBU2xZyIUKB3ffwuVy7vuaIqGxqB9ERogH9WodZXnQU/p8IGRCXFp3e2xchOUSzDbFi0oPyCp8HlvUDKjlfY43qda7Q+Sd3KvOIhU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=qn2bhicO; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=362fE7OT; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O2QtrOMi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36FBCC32782;
-	Sun, 25 Aug 2024 08:54:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1724576074;
-	bh=WScW3blxv8xyRqcV5XEZlySOdaveuOpeuadU2hXSBvw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=O2QtrOMixcNogYC16XRCkHms8dao2z57r7oaHS1QHdCDymrywWL692s3g+LT05KL2
-	 gSLquHvbi2Ohj1nQsVeUKvoX60Fc7MfImlevitZ0RxFZLRWw4YwkwE1NNioagMZti2
-	 LdwC9/WKO/FVatTsjtWu3G9h+lDNMPyF93XyNoINYsl5t6jrYBvEGzjiRRuOCfh9Bc
-	 sw7xpleWrHQh3xj+PtfsPdQQmgel4BHWPbRL/hEagDddjaHsPw/o4J0cUBN65ujzM8
-	 lksaKio008oG5AxbmqeRS3/4v866RYSVV7bnU2yq1kuVfFB0tmpmeopCIvk6TzqveW
-	 amJjGfL17C15Q==
-Date: Sun, 25 Aug 2024 09:54:26 +0100
-From: Simon Horman <horms@kernel.org>
-To: Philipp Stanner <stanner@posteo.de>
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	David Ahern <dsahern@kernel.org>, Jay Vosburgh <jv@jvosburgh.net>,
-	Andy Gospodarek <andy@greyhouse.net>,
-	Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com>,
-	Sean Tranchetti <quic_stranche@quicinc.com>,
-	Paul Moore <paul@paul-moore.com>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Jamal Hadi Salim <jhs@mojatatu.com>,
-	Cong Wang <xiyou.wangcong@gmail.com>, Jiri Pirko <jiri@resnulli.us>,
-	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-	Xin Long <lucien.xin@gmail.com>, Martin Schiller <ms@dev.tdt.de>,
-	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-security-module@vger.kernel.org, linux-sctp@vger.kernel.org,
-	linux-x25@vger.kernel.org
-Subject: Re: [PATCH net-next 00/13] net: header and core spelling corrections
-Message-ID: <20240825085426.GY2164@kernel.org>
-References: <20240822-net-spell-v1-0-3a98971ce2d2@kernel.org>
- <d15e45f17dcb9c98664590711ac874302a7e6689.camel@posteo.de>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="qn2bhicO";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="362fE7OT"
+From: Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1724585594;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=traTpRXPEY3SvX85V4UNHLV9avrLQDajKAbi9KW9Mas=;
+	b=qn2bhicOfVHkdU7ck2v9tQF6W6WaJTXtqZEiWMHDfSL0Ev8o4KvGgHaALZgsyIAuFmttgs
+	z5VnO+/6JY/fpXdhsiJya6hJDEm92zNzekboN60EFMExyIDu4ptFxzhH4F3Ic/cIAkD5Z3
+	eTpykbtlXrP26a2G14buyr1ILLvcF3Fwjw+fU4Ds0yx9zmYL070XfvOjMbFbx0+G7GP/qN
+	QWk0cMlQW6lVQzcayW3GOUwF4N5MKvBs+rCVlIVgoMHKGRHCRYdZj9qmfE8WafyxZ6YmSX
+	+njM55adqgFTMeTO5hcBsEL9u4XGST4sctn9iwM/3LHcUT2tKJnm1xD+iixu3g==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1724585594;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=traTpRXPEY3SvX85V4UNHLV9avrLQDajKAbi9KW9Mas=;
+	b=362fE7OT8P33AoXzNCnYkmiiNxEZ9GS9ZEvhn7ufxaWm1AsSruiz/SNKSgf7TwmCNyijB9
+	4r4ytqAeRlb3O+Cg==
+To: Christoph Hellwig <hch@lst.de>, iommu@lists.linux.dev
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy
+ <robin.murphy@arm.com>, Sakari Ailus <sakari.ailus@linux.intel.com>,
+ Bingbu Cao <bingbu.cao@intel.com>, "Michael S . Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-media@vger.kernel.org,
+ virtualization@lists.linux.dev, xen-devel@lists.xenproject.org
+Subject: Re: [PATCH] dma-mapping: clear mark DMA ops as an architecture feature
+In-Reply-To: <20240824035817.1163502-2-hch@lst.de>
+References: <20240824035817.1163502-1-hch@lst.de>
+ <20240824035817.1163502-2-hch@lst.de>
+Date: Sun, 25 Aug 2024 13:33:13 +0200
+Message-ID: <87ed6cg7ly.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d15e45f17dcb9c98664590711ac874302a7e6689.camel@posteo.de>
+Content-Type: text/plain
 
-On Sun, Aug 25, 2024 at 07:52:45AM +0000, Philipp Stanner wrote:
-> Am Donnerstag, dem 22.08.2024 um 13:57 +0100 schrieb Simon Horman:
-> > This patchset addresses a number of spelling errors in comments in
-> > Networking files under include/, and files in net/core/. Spelling
-> > problems are as flagged by codespell.
-> > 
-> > It aims to provide patches that can be accepted directly into net-
-> > next.
-> > And splits patches up based on maintainer boundaries: many things
-> > feed directly into net-next. This is a complex process and I
-> > apologise
-> > for any errors.
-> 
-> Are you aware that this lessens git blame's ability to provide the
-> latest relevant change and associated commit message?
-> 
-> Many software projects suffer from whitespace and spelling fixes
-> preventing git blame from figuring out years later what original code
-> was intended to do.
-> 
-> I'd consider that improving spelling might not win that cost-benefit-
-> ratio.
+On Sat, Aug 24 2024 at 05:57, Christoph Hellwig wrote:
+> DMA ops are a helper for architectures and not for drivers to override
+> the DMA implementation.  Unfortunately driver authors keep ignoring
+> this.  Make this more clear by renaming the symbol to ARCH_DMA_OPS,
+> have the three drivers overriding it depend on that.  They should
+> probably also be marked broken, but we can give them a bit of a grace
+> period for that.
 
-Sure, that is a judgment call that can be made.  I think that it is pretty
-common for spelling corrections to be accepted, and I do think there is a
-value in having things spelt correctly.  But if the consensus is otherwise,
-then fine.
+One week :)
+
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
