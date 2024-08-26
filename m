@@ -1,74 +1,74 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEE6F13B792;
-	Mon, 26 Aug 2024 08:22:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06E0417623F;
+	Mon, 26 Aug 2024 10:50:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724660566; cv=none; b=XlX+k44D6pDKOkBrzKoNRsGGjI+FDvGlF3sWdXbcxjAj9mdoCI4Q0pKPmlxOHOldX5N+3Ng6wot7kx+mavajDDdFKIEDKpY2jlkESk2grD9TXdXyLR3iEIXxOfx+bjzZWao/yVEqxBJ6xJvvt5uIwU4J2wbxe1ZHYKWv7h1SAOw=
+	t=1724669433; cv=none; b=TLRansH4KHx37Oh62OFvd5XgS8eaGx5KOK/RJr3T8A4pM195eOUODmJAPvkhEUWQTGla71QdtjVDAvcO38top2nilXxiBD6Ia2sC739uOnvnw3Gr2adrGsJuUQu3S6OHX1za1mBCygL/XaAR6vRjD+EqMdGqVsweMoQ2EQBH15A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724660566; c=relaxed/simple;
-	bh=GTioHhyTFfM2CxlWtvPjVN4dSZKtrlzENP2NT8kYuAY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uFnmpJvxzOWfPTh9u8gfouNvLD8tBa24/nlzGSUSaof8CnVTL3yG0XGsewiuA7CC0pQxPPNaesXLe339ehU9OWwluFqqXg32seydPQi1fEgvDq5h70WaVaL2/OuJ9k+0FhffylkIecW4ZmOGMFxDkKwGHvI+39U+rFTNEBLrS4c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZkOhw5hn; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1724669433; c=relaxed/simple;
+	bh=uAJWrnhKAr+TitU4/QOtd7gy/ZzpWQKw7fRDPeKcgIE=;
+	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=l1I1QX2RVFGdevzH61DupNEXmLglv5weiBQaO/azNjoCSTOSqoSgNtbd2rsHEjcqyBuReYYgzJQod/wVhFlWAsrhoozF29vZwFrPfT8B9J6kEy2P6LTSvfmTxzZ5OHX3+DAO+InsfFr6ZT36fDfbxWdTEd1OXvCZW1/I3fu69DU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YMW2zspv; arc=none smtp.client-ip=209.85.210.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZkOhw5hn"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47PMYvi6030119;
-	Mon, 26 Aug 2024 08:22:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:references:mime-version
-	:content-type:in-reply-to; s=pp1; bh=GTioHhyTFfM2CxlWtvPjVN4dSZK
-	trlzENP2NT8kYuAY=; b=ZkOhw5hnFMuQzwAxSxMnG84Qbhwu2HEtHbq4GY74/vv
-	AaKnbHAplGJ5FdVq/wWsM9+mpVRN9huIW5jUfX3K7WBvafZC3UDHXcTbOqU1Cyp5
-	PJUiertQouJ34RF8gsdgdEfmxgCHrsLlYQVF9+3hzIE/bTFwWfVtoabcS1od+KIi
-	7byvicFFJzC+0XVBdkPeP8O1tJI/M6LLlPX0JwomoEZsbl+n7eyNZ1/3MjSsplw8
-	X3z9pV8CxEElhD6y1gCpOXNdzaHVqeDOHhJd8tRsdXX6LD8HavDw8yD/ryyNBml3
-	bZWq+tp/Mf8/PXrLsQZTVkOv5wD0OQZzXNPnm2sz2Kg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 417gr35t36-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 Aug 2024 08:22:37 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 47Q4jfEC027998;
-	Mon, 26 Aug 2024 08:22:35 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 417ubmw2ky-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 Aug 2024 08:22:35 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47Q8MVHk26936044
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 26 Aug 2024 08:22:34 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D4B1420049;
-	Mon, 26 Aug 2024 08:22:31 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7937120040;
-	Mon, 26 Aug 2024 08:22:31 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.84.118])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 26 Aug 2024 08:22:31 +0000 (GMT)
-Date: Mon, 26 Aug 2024 10:22:29 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Omar Sandoval <osandov@osandov.com>
-Cc: Petr =?utf-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>,
-        linux-s390@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        linux-debuggers@vger.kernel.org
-Subject: Re: Incorrect vmcoreinfo KERNELOFFSET after "s390/boot: Rework
- deployment of the kernel image"
-Message-ID: <Zsw7RU6gYHFkw9YI@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <ZnS8dycxhtXBZVky@telecaster.dhcp.thefacebook.com>
- <Zn1uTZdlYNaRFUqK@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <20240709212141.31160508@meshulam.tesarici.cz>
- <Zo5L9xZtIs4dCf0E@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <ZpBrDvUpn4SzaqND@telecaster>
- <ZpEyucQA1rctAts6@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <ZpE7AsR-nD2tNuTn@telecaster>
- <ZpT0loUJ4KdabiCF@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YMW2zspv"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-7141feed424so3372418b3a.2;
+        Mon, 26 Aug 2024 03:50:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724669431; x=1725274231; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=kz4Xwf3jhGksglONaJ7p+UE/pw0jxJqIllk99bmumcY=;
+        b=YMW2zspvMVCS1eloegvXqWe0jz85aZczh2RB4A9otvGRypuQpTU0sO7qJUUeeI6xBH
+         5dbz8CRYiDTRDMukdAfdjlSTke2RtxnrckKGiYNDNWKs4TCvI6J7Be0ramngHqFc5hb6
+         j4qKMIgkf44eD3HySYpatId9o28nK62OiuJoS9ZYt062pzEHLyTcTiqVbhjrtecxc5AD
+         1dI8+pxR9VmGW8sKVSrzKx39fBmQpEbEjX+i7Z8BASIfDBEgBHKboqNjcmiO0yBnLlRM
+         OQR/wrMN5Xk5Vz0fAWG1QH3qu7DWnUjrs+krlZ7xmNMggUrrbZeekYa4o1IJ7LMXeoVJ
+         itZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724669431; x=1725274231;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=kz4Xwf3jhGksglONaJ7p+UE/pw0jxJqIllk99bmumcY=;
+        b=gb+pC1wsgURoBkHBIv2sLHYajhKFawqFPhwD5dGgmVIWO0oS8YtpA5U/b7LltyPQNV
+         A57eWHC7/5dRLqdeEEZSDu/UzEVbg3hcIpijI9pjD7pRe/IH11PeFukJwz6n2oMDY+Oj
+         DINER3clfkypVPOxMWPaBIJWL4LrILYBaSUHvd5QOmXPfF8EO6t7WUM68eI6eVBv3ioy
+         KWJKy/JHOJqWXlQLavdFutoF3UFVJIoWuFqTu68RxwMSQfh47M9EyJ7FF3cG3FnkiIyh
+         oqmHzKmIoZNjgnJwf2o2Fws39zvCcW4Vz2BFiHTy43S7EULYy2FcbgYWNuNj6W7QfJVC
+         dJFQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUk0t9ALwHX4mxgIDN05WxkfmOMiio4U6y6TK7iHBkVeMKTmzeQtMiU+r+9Ol0NSrARDwo=@vger.kernel.org, AJvYcCXf4SVUAbwVOgFtKIeMyPeqrjLHzKqMLZExD3dFixx7O+fEpAYPucJqPMWs5NSZrkNfUnEhPipheg/B3g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyFaFY4to3r86RncEU3UN+5IV9Wiu7Wq2S4TBtON8jCx31gq6Pc
+	FsNLBsI1ixG5OnGdrOY7OCbU1nROpUBFQp+eeF8tVb4E3shRI/QXExAUGQ==
+X-Google-Smtp-Source: AGHT+IE+B6Dhu7mYsvVdA80XUfKbYNh6db4h8UlzbeNdJYdKTPQRqiwqqQhSfx+8JfTMMsGLlYcsaw==
+X-Received: by 2002:a05:6a20:4311:b0:1c4:87b9:7ef9 with SMTP id adf61e73a8af0-1cc8b59171emr11036512637.42.1724669431035;
+        Mon, 26 Aug 2024 03:50:31 -0700 (PDT)
+Received: from kodidev-ubuntu (69-172-146-21.cable.teksavvy.com. [69.172.146.21])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2038557f59bsm65602475ad.97.2024.08.26.03.50.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Aug 2024 03:50:30 -0700 (PDT)
+From: Tony Ambardar <tony.ambardar@gmail.com>
+X-Google-Original-From: Tony Ambardar <Tony.Ambardar@gmail.com>
+Date: Mon, 26 Aug 2024 03:50:28 -0700
+To: Yonghong Song <yonghong.song@linux.dev>
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>, bpf@vger.kernel.org,
+	linux-s390@vger.kernel.org, llvm@lists.linux.dev,
+	Alexei Starovoitov <ast@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <ndesaulniers@google.com>,
+	Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>
+Subject: Re: Problem testing with S390x under QEMU on x86_64
+Message-ID: <Zsxd9HskofXttp+p@kodidev-ubuntu>
+References: <ZsEcsaa3juxxQBUf@kodidev-ubuntu>
+ <180f4c27ebfb954d6b0fd2303c9fb7d5f21dae04.camel@linux.ibm.com>
+ <ZsU3GdK5t6KEOr0g@kodidev-ubuntu>
+ <Zspq+db1KOhhh2Yf@kodidev-ubuntu>
+ <c8c590b2-40b2-4cc0-9eb7-410dbd080a49@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -77,25 +77,44 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZpT0loUJ4KdabiCF@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Qv3syx9gwuLa4h-UlJnLPjpsTPcBusD_
-X-Proofpoint-ORIG-GUID: Qv3syx9gwuLa4h-UlJnLPjpsTPcBusD_
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-26_05,2024-08-23_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 adultscore=0
- bulkscore=0 mlxscore=0 malwarescore=0 phishscore=0 lowpriorityscore=0
- impostorscore=0 priorityscore=1501 mlxlogscore=576 spamscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2408260064
+In-Reply-To: <c8c590b2-40b2-4cc0-9eb7-410dbd080a49@linux.dev>
 
-> On Fri, Jul 12, 2024 at 07:17:38AM -0700, Omar Sandoval wrote:
-Hi Omar,
-..
-> We have different approaches in how to get it done, which are
-> being investigated.
+On Sun, Aug 25, 2024 at 01:23:51PM -0700, Yonghong Song wrote:
+> 
+> On 8/24/24 4:21 PM, Tony Ambardar wrote:
 
-Could you please check whether the recent kernel solves the issue.
+[snip]
 
-Thanks!
+> > 
+> > Test '#525 verif_scale_pyperf600:FAIL' was caused by clang miscompilation
+> > exposed by my use of clang-19 and clang-20. The test passes when built
+> > with clang-17 (used by BPF CI) or clang-18 which I switched to use.
+> 
+> x86 has the same issue where clang19 generated code will cause verification
+> failure. Eduard is working on this.
+> 
+> > 
+> > One symptom of the problem is easily seen by manually compiling:
+> > 
+> > $ clang-18  -g -Wall -Werror -D__TARGET_ARCH_s390 -mbig-endian -Itools/testing/selftests/bpf/tools/include -Itools/testing/selftests/bpf -Itools/include/uapi -Itools/testing/selftests/usr/include -Wno-compare-distinct-pointer-types -idirafter /usr/lib/llvm-18/lib/clang/18/include -idirafter /usr/local/include -idirafter /usr/lib/gcc-cross/s390x-linux-gnu/11/../../../../s390x-linux-gnu/include -idirafter /usr/include/s390x-linux-gnu -idirafter /usr/include -DENABLE_ATOMICS_TESTS -O2 --target=bpfeb -c tools/testing/selftests/bpf/progs/pyperf600.c -mcpu=v3 -o pyperf600.clang18.bpf.o
+> > 
+> > $ clang-19  -g -Wall -Werror -D__TARGET_ARCH_s390 -mbig-endian -Itools/testing/selftests/bpf/tools/include -Itools/testing/selftests/bpf -Itools/include/uapi -Itools/testing/selftests/usr/include -Wno-compare-distinct-pointer-types -idirafter /usr/lib/llvm-19/lib/clang/19/include -idirafter /usr/local/include -idirafter /usr/lib/gcc-cross/s390x-linux-gnu/11/../../../../s390x-linux-gnu/include -idirafter /usr/include/s390x-linux-gnu -idirafter /usr/include -DENABLE_ATOMICS_TESTS -O2 --target=bpfeb -c tools/testing/selftests/bpf/progs/pyperf600.c -mcpu=v3 -o pyperf600.clang19.bpf.o
+> > 
+> > $ llvm-readelf-18 -S pyperf600.clang{18,19}.bpf.o |grep .symtab
+> >    [27] .symtab           SYMTAB          0000000000000000 1739d0 01ad60 18      1 4572  8
+> >    [27] .symtab           SYMTAB          0000000000000000 14f048 0001e0 18      1  12  8
+> > 
+> > Notice that the .symtab has shrunk by ~200X for example going to clang-19!
+> > (CCing llvm maintainers)
+> 
+> This is a known issue. In llvm18, all labels (to identify basic blocks) are in symbol table.
+> Those labels are removed from symbol table in llvm19.
+
+Glad to hear this a known issue being looked at now. A quick search on my part found nothing, so sorry for the noise and thanks for clarifying.
+
+> 
+> > 
+> > 
+> > Kind regards,
+> > Tony
+> > 
