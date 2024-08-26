@@ -1,152 +1,108 @@
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE8613B782;
-	Mon, 26 Aug 2024 03:02:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4AD382490
+	for <linux-s390@vger.kernel.org>; Mon, 26 Aug 2024 06:16:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724641350; cv=none; b=NbxwFQouETs3nXQrf9MdPZQCretjfYG49okq+fobh4FACIKdYMponCHhgYiALp6DdSFqOsmhkwJsQuMvedQdww1z/pSg4Uz4j+SVnBpT++VX8L7/LJJZyiPjPP+ZIkDgXtXco6We0bCVMPP1BgoNajhW/M6yXX4ShDNCRx9qG1c=
+	t=1724653014; cv=none; b=M2ZXXBzyNjd0Dl7MACpM7ONy8mWKHzm/MdZssX9Dp2BvGOkAVWhAoZEsio3PH1/sj3SVcjrKgMNJQsgm3JZe9KPt3EA/nmBn1P+dUD9JXBhkcKXVS/pLOVdT1mQrLxuolqCTL4ADaxtCN/aKS/O64pMCaXE2+2MGYTqXXPC8igQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724641350; c=relaxed/simple;
-	bh=VjIlopdqZuw8VP4Qh1X2Kuud4Tkp4qC5l9XYPYuJ5Sk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=E+ARZ+4+R2ilggKwzI7fthtULCMkWsQXQubNQhrlt/2JBomIzmPUF21KIouDYPhPX22MZ+Qx45jPjXR4BuwH0lMrzp8wyfNmt5A8GjPZ+0QL96wlfEC63HVeUK4T+ak3hZbmn+sYNCCFfUsRuy2uFBlc6XPz7Rr1T6KszAi0ynM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=FyP5Niyr; arc=none smtp.client-ip=115.124.30.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1724653014; c=relaxed/simple;
+	bh=OxH7DwkvlaSlLEvipNmqgwxmyasajvhgDEfCExvjRjQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Eypk+RsPl1x+olYzTcq8ZQZxMlTWdY4gDYJKcNZkveiKZoYT8/Ulj7/2llc5aLonZNsY4BxqaFNNaZDi4219nZotSX1EOk6N00e+NZ+hHQSEUqrD8I0fAMwNMZRqfVjv+i1pyWz2ZuJZQCjVJOJP88gLxUxhOE8u+lMVlUpXAZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MY/sKCaT; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="FyP5Niyr"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1724641337; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=CvvxHfpS85d5aDu+fNL+oDEoJsL4m5S3j6OjkVmrjtI=;
-	b=FyP5NiyrUheHoiCDX9KZ+U7t5S4XVO9dv7BDi6+pXsvQ2TI8fjJcRM+GPXa1sOjSYzAOxwcdYR9oZRix8IhOCAWEXK8M79cVLCc88uJCCk/MWCvG96EWIBqumtjblldo3DkJOvLNl6L7hUs0OTZ9LDIcSRW0qPxdUu4lxpZ3iHA=
-Received: from 30.13.156.235(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WDaEZ5R_1724641335)
-          by smtp.aliyun-inc.com;
-          Mon, 26 Aug 2024 11:02:16 +0800
-Message-ID: <905874a4-c000-4845-8fac-3fc4b79f43fd@linux.alibaba.com>
-Date: Mon, 26 Aug 2024 11:02:14 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MY/sKCaT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724653011;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=dB1NfwLF4sboQ9oAiJsmEAd6cRRc4sOW3f5DA5Z/91g=;
+	b=MY/sKCaTjrBl8RIwTRt5lROwGlvJy1hjkLtRdC5LcqW5orl0kRGm4pr+30eActr3c3HICe
+	lg1aiRhcPkqwke68sdAUGmpOh7T/a0peC4r0OiIxo8y5PkhY/tEgQzlRhlBZHoPV98QYHj
+	B01PVTjOfiPp4IdnVg1iAJ6GommMvEE=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-36-AfYlCH5YN5WcH5tygz9YbQ-1; Mon, 26 Aug 2024 02:16:50 -0400
+X-MC-Unique: AfYlCH5YN5WcH5tygz9YbQ-1
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2d69603a62aso1416031a91.2
+        for <linux-s390@vger.kernel.org>; Sun, 25 Aug 2024 23:16:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724653009; x=1725257809;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=dB1NfwLF4sboQ9oAiJsmEAd6cRRc4sOW3f5DA5Z/91g=;
+        b=Vy/lrh3pdXKGVKr6fuTMwDThMTiEAQpy71BJMZyIWHh8QGSMFu8vSHJphgjjulPPsu
+         xYqtliktM3AyCQPFMSPM8Z1titmxuleJi/7KtYI9M1L+LaUHsNEEwyFJytMWPfxMvlZ6
+         pP34mAuo4qTU77dktTJIMXR4Zm9OSusX2eKAX15SnaNOVKx/B1mVQvTStDPiWNQiPHPL
+         H9Dgn/covC7+zUchWPpIKm2DRGT2RQzGlLWw1UaPEOS2nKqumts/dp/hA10GyJlSneDc
+         JWrtnXbuWjgyR7UxR9zh8OvVKF/DgTi+jdK0HY7jTonTShyVzFchG7ByHLLc20W8F2iU
+         jX1g==
+X-Forwarded-Encrypted: i=1; AJvYcCXpmBQEOaV9xHba17CUj2URWln6bpKtyTldtYrLc8pO29AJuJkGD8avXlPsSMX6iq9Zz1d8Y7V7+BMV@vger.kernel.org
+X-Gm-Message-State: AOJu0YzYVrzgqPeX4uSLq25wwa/WVXERufvsmHsN7Xt6y6SJo/NzZ2CK
+	jHYT4KvyAs7B1JDI7PXyP6AlgZg5AwckIkLfODcN1x46SUgOdwNqnDHrh8xhus+BmyjN9uvS5Qa
+	8WVXs7mt3PYYqufDllZ3ovq+fZEblGhIqLxuQ4rhsF3ygvxVrbfHGGz7zyCkpFXHkz5AWupGw0E
+	WsrwUzj00pB093uawuUppkJLPqQSLa9A7vsx8GC/8fFA==
+X-Received: by 2002:a17:90a:6287:b0:2d3:cd27:c480 with SMTP id 98e67ed59e1d1-2d646d247f9mr9809268a91.33.1724653008869;
+        Sun, 25 Aug 2024 23:16:48 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE0WjIzDYmdUX7OY9EeJBLH76SMB2mi2zdVZl4NauXJ/eBoNO23zRck1BCKv7ZS6PzenwJTH61bASpm1vxRFd8=
+X-Received: by 2002:a17:90a:6287:b0:2d3:cd27:c480 with SMTP id
+ 98e67ed59e1d1-2d646d247f9mr9809253a91.33.1724653008351; Sun, 25 Aug 2024
+ 23:16:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2] net/smc: add sysctl for smc_limit_hs
-To: Jan Karcher <jaka@linux.ibm.com>, kgraul@linux.ibm.com,
- wenjia@linux.ibm.com, wintera@linux.ibm.com, guwen@linux.alibaba.com
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
- tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
-References: <1724207797-79030-1-git-send-email-alibuda@linux.alibaba.com>
- <abd79f44-aed2-4e01-a7f8-7d806f5bc755@linux.ibm.com>
-Content-Language: en-US
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <abd79f44-aed2-4e01-a7f8-7d806f5bc755@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20240824035817.1163502-1-hch@lst.de>
+In-Reply-To: <20240824035817.1163502-1-hch@lst.de>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 26 Aug 2024 14:16:36 +0800
+Message-ID: <CACGkMEsK8k=yX2ZytMJQhdZi4PS9-7KLUYmf2oGLu-UvNEYzug@mail.gmail.com>
+Subject: Re: clearly mark DMA_OPS support as an architecture feasture
+To: Christoph Hellwig <hch@lst.de>
+Cc: iommu@lists.linux.dev, Marek Szyprowski <m.szyprowski@samsung.com>, 
+	Robin Murphy <robin.murphy@arm.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, 
+	Bingbu Cao <bingbu.cao@intel.com>, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, 
+	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-media@vger.kernel.org, 
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-
-On 8/21/24 4:03 PM, Jan Karcher wrote:
+On Sat, Aug 24, 2024 at 11:58=E2=80=AFAM Christoph Hellwig <hch@lst.de> wro=
+te:
 >
+> Hi all,
 >
-> On 21/08/2024 04:36, D. Wythe wrote:
->> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>
->> In commit 48b6190a0042 ("net/smc: Limit SMC visits when handshake 
->> workqueue congested"),
->> we introduce a mechanism to put constraint on SMC connections visit
->> according to the pressure of SMC handshake process.
->>
->> At that time, we believed that controlling the feature through netlink
->> was sufficient. However, most people have realized now that netlink is
->> not convenient in container scenarios, and sysctl is a more suitable
->> approach.
+> we've had a long standing problems where drivers try to hook into the
+> DMA_OPS mechanisms to override them for something that is not DMA, or
+> to introduce additional dispatching.
 >
-> Hi D.
+> Now that we are not using DMA_OPS support for dma-iommu and can build
+> kernels without DMA_OPS support on many common setups this becomes even
+> more problematic.
 >
-> thanks for your contribution.
-> What i wonder is should we prefer the use of netlink > sysctl or not?
-> To the upstream maintainers: Is there a prefernce for the net tree?
->
-> My impression from past discussions is that netlink should be chosen 
-> over sysctl.
-> If so, why is it inconvenient to use netlink in containers?
-> Can this be changed?
->
-> Other then the general discussion the changhes look good to me.
->
-> Reviewed-by: Jan Karcher <jaka@linux.ibm.com>
+> This series renames the option to ARCH_DMA_OPS and adds very explicit
+> comment to not use it in drivers.  The ipu6 and vdpa_sim/user drivers
+> that abuse the mechanism are made to depend on the option instead of
+> selecting it with a big comment, but I expect this to be fixed rather
+> sooner than later (I know the ipu6 maintainers are on it based on a
+> previous discussion).
 >
 
-Hi Jan,
+I will try to fix the simulator considering virtio has already had
+mapping ops now.
 
-I noticed that there have been relevant discussions before, perhaps this 
-will be helpful to you.
-
-Link: https://lore.kernel.org/netdev/20220224020253.GF5443@linux.alibaba.com
-
-
-Best wishes,
-D. Wythe
-
-
->
->>
->> In addition, since commit 462791bbfa35 ("net/smc: add sysctl 
->> interface for SMC")
->> had introcuded smc_sysctl_net_init(), it is reasonable for us to
->> initialize limit_smc_hs in it instead of initializing it in
->> smc_pnet_net_int().
->>
->> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
->> ---
->> v1 -> v2:
->>
->> Modified the description in the commit and removed the incorrect
->> spelling.
->>
->>   net/smc/smc_pnet.c   |  3 ---
->>   net/smc/smc_sysctl.c | 11 +++++++++++
->>   2 files changed, 11 insertions(+), 3 deletions(-)
->>
->> diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
->> index 2adb92b..1dd3623 100644
->> --- a/net/smc/smc_pnet.c
->> +++ b/net/smc/smc_pnet.c
->> @@ -887,9 +887,6 @@ int smc_pnet_net_init(struct net *net)
->>         smc_pnet_create_pnetids_list(net);
->>   -    /* disable handshake limitation by default */
->> -    net->smc.limit_smc_hs = 0;
->> -
->>       return 0;
->>   }
->>   diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
->> index 13f2bc0..2fab645 100644
->> --- a/net/smc/smc_sysctl.c
->> +++ b/net/smc/smc_sysctl.c
->> @@ -90,6 +90,15 @@
->>           .extra1        = &conns_per_lgr_min,
->>           .extra2        = &conns_per_lgr_max,
->>       },
->> +    {
->> +        .procname    = "limit_smc_hs",
->> +        .data        = &init_net.smc.limit_smc_hs,
->> +        .maxlen        = sizeof(int),
->> +        .mode        = 0644,
->> +        .proc_handler    = proc_dointvec_minmax,
->> +        .extra1        = SYSCTL_ZERO,
->> +        .extra2        = SYSCTL_ONE,
->> +    },
->>   };
->>     int __net_init smc_sysctl_net_init(struct net *net)
->> @@ -121,6 +130,8 @@ int __net_init smc_sysctl_net_init(struct net *net)
->>       WRITE_ONCE(net->smc.sysctl_rmem, net_smc_rmem_init);
->>       net->smc.sysctl_max_links_per_lgr = SMC_LINKS_PER_LGR_MAX_PREFER;
->>       net->smc.sysctl_max_conns_per_lgr = SMC_CONN_PER_LGR_PREFER;
->> +    /* disable handshake limitation by default */
->> +    net->smc.limit_smc_hs = 0;
->>         return 0;
+Thanks
 
