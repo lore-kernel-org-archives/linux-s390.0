@@ -1,108 +1,172 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1038D19644B;
-	Tue, 27 Aug 2024 08:40:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58188158DD0;
+	Tue, 27 Aug 2024 08:55:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724748021; cv=none; b=SH9vIDO+eK7ths/VnD9nWbpSJRuWpmNtoMrf2BuN5PNORMSeVP0BzB8eL/4V85M3QgSwkhQ3YThYJSkUh2VLDH4wrLAR0eE184EkGp27PAoQBIanZ7YPQC8S65v5S2FTSdsF6eeO42DTMDjiNmqGJTfIv7P4y4sXprW6gOA44nM=
+	t=1724748945; cv=none; b=bLyEsNYT8WeLcukQ5W+0k58/kim9tIPhGIssieGFgBjDgndmcdCVx+ZBvjqA2+dosRdy8ryr1CoFfr3Qb3xKHtab7WuLBYb5dgto36HhoxjfgYTAhFkXjcRKuLGnU3wrLcS1RzSy1RVxoKfUC0LtlEak2epeUdHnzCC3T84a5oY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724748021; c=relaxed/simple;
-	bh=I/G91AzYyxJ/Qw/KczvEnmEbcxysBhEMePXpiCprlA8=;
-	h=Content-Type:MIME-Version:In-Reply-To:References:Subject:From:Cc:
-	 To:Date:Message-ID; b=U/b5qurw2wrV/ThUYiHBLXxTBlq2NcAnBrcE1xlRs0bcOtZPzUSdr8k5aNo2Vtqqg+5hAseoJwEHFoNd/mDjZotihkmu9zx9ZsjAfSRpOqltm6BJzgxsMxRFXAPc6vixnvnvqzK2vuCBg+iE+4HQXCozx3FL9UYmRjgdQRPU6mU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=q/ax28mg; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1724748945; c=relaxed/simple;
+	bh=WLyDwKrTLwxUKO9wLuHMkEx2eqbtMQG2RDk7GrJYDXs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oW+yXMNYQLA8jsdJv8q+4imlY13EYHDB43Pi/YHEqiPG0tfwost9HmHi9gToLX3rOliQ49yvvdc1sLeVJnek25rOgrvDA3/hH5iYjH1dJ+jRDb4w9I2hLG/S6S47Z+71FPe/IJmHo0mt47b7lYNGEiVVzOXnRRgo84P4UjHV6aw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DusVZnZ7; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="q/ax28mg"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47R1tLeT032160;
-	Tue, 27 Aug 2024 08:40:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	content-type:mime-version:content-transfer-encoding:in-reply-to
-	:references:subject:from:cc:to:date:message-id; s=pp1; bh=8ejJR8
-	KeyUEAz4M7HJQ3mnqPHzFbb/T1UuXcIom9Fi8=; b=q/ax28mgDJTEnQ14m+/x38
-	5LW6xlc+MUTWOmKWWDwSGC/PFWeCT6l2zWPxm1uB7iksfkxYZLONk7r61KAIKY/N
-	lTvtydF3e4HV9Fe4FFktgkL6W0xh/st8M/F8AwvIEIsFCzCyrdXeLWiesVKJS+hb
-	bOXIyCsxnuTffbY6kz3EDqJR2LBqx2vgUAvxPAvCO96SpT84nBe9MAo7QfYHJ2fS
-	ieL28oPl/TzOHXAqWz/padfX/gB3HHS+sDlx9+lUWHVVx8vBsbrFx5j6fwsrK0me
-	vWOqAoLFjCd3k4tCmH3nVsjps75n+G5I5WpAUBg7o5eLTFDWMLYJAoltYSMTgUlg
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 417gedaenm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 27 Aug 2024 08:40:16 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 47R8eGC8027464;
-	Tue, 27 Aug 2024 08:40:16 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 417gedaenh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 27 Aug 2024 08:40:16 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 47R8GNID008228;
-	Tue, 27 Aug 2024 08:40:15 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 417v2mhs89-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 27 Aug 2024 08:40:15 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47R8eBN338338816
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 27 Aug 2024 08:40:12 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B5BA52004D;
-	Tue, 27 Aug 2024 08:40:11 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9826520043;
-	Tue, 27 Aug 2024 08:40:11 +0000 (GMT)
-Received: from t14-nrb (unknown [9.179.19.253])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 27 Aug 2024 08:40:11 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DusVZnZ7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E362BC8B7A5;
+	Tue, 27 Aug 2024 08:55:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1724748944;
+	bh=WLyDwKrTLwxUKO9wLuHMkEx2eqbtMQG2RDk7GrJYDXs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=DusVZnZ7wV2iULh/1avLL75JPrhMhQlBqoECiJtic0bUtwgwuIxQeD5hzgO3OPkyS
+	 dpl+eK1bBgzJJ35WOwwwbfdgq1YQrY2eHAEWUAKnv8OixY+PRJYPtQH9Uh4KDOOHgD
+	 2/VI5iJPwBhdC5LsFDFX73FW+2wIcx/umVi6Bv43EvELDrk40xPn4mIuDGkezsnKRA
+	 xbs+ZNNQqQDTYUIePAvIqd1K0l/VrmBAarQw0NUQwiKK+jAlMR+ifUUyK+I6EB0ATl
+	 0IqZzSdRMeIajz+pVDlkeyPLq3GoGX7ttE4pCEa3ZuqwGkXktl0F6ooJc0ev3A8Yxa
+	 2+SfAAZCXhU+Q==
+Date: Tue, 27 Aug 2024 11:52:55 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: Bruno Faccini <bfaccini@nvidia.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Hildenbrand <david@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Davidlohr Bueso <dave@stgolabs.net>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Jiaxun Yang <jiaxun.yang@flygoat.com>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonathan Cameron <jonathan.cameron@huawei.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Samuel Holland <samuel.holland@sifive.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
+	"linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-cxl@vger.kernel.org" <linux-cxl@vger.kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+	"linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+	"linux-mm@kvack.org" <linux-mm@kvack.org>,
+	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
+	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
+	"nvdimm@lists.linux.dev" <nvdimm@lists.linux.dev>,
+	"sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+	"x86@kernel.org" <x86@kernel.org>, Zi Yan <ziy@nvidia.com>
+Subject: Re: [PATCH v4 24/26] arch_numa: switch over to numa_memblks
+Message-ID: <Zs2T5wkSYO9MGcab@kernel.org>
+References: <MW4PR12MB72616723E1A090E315681FF6A38B2@MW4PR12MB7261.namprd12.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20240621102212.3311494-1-nsg@linux.ibm.com>
-References: <20240621102212.3311494-1-nsg@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v1] s390x: Split and rework cpacf query functions
-From: Nico Boehr <nrb@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        David Hildenbrand <david@redhat.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Date: Tue, 27 Aug 2024 10:40:10 +0200
-Message-ID: <172474801046.31767.8212475479414171264@t14-nrb.local>
-User-Agent: alot/0.10
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: jOQXOBWgKVzwFIKWJawT8A0AUeQCfIL-
-X-Proofpoint-GUID: 9OQWNbNgE3jc1Psd89KKD0XhibNmn-h7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-27_05,2024-08-26_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=943
- priorityscore=1501 phishscore=0 mlxscore=0 clxscore=1011 impostorscore=0
- spamscore=0 adultscore=0 malwarescore=0 lowpriorityscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2407110000
- definitions=main-2408270063
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MW4PR12MB72616723E1A090E315681FF6A38B2@MW4PR12MB7261.namprd12.prod.outlook.com>
 
-Quoting Nina Schoetterl-Glausch (2024-06-21 12:22:12)
-> Cherry-pick 830999bd7e72 ("s390/cpacf: Split and rework cpacf query funct=
-ions")
-> from the kernel:
->=20
->     Rework the cpacf query functions to use the correct RRE
->     or RRF instruction formats and set register fields within
->     instructions correctly.
->=20
-> Fixes: a555dc6b16bf ("s390x: add cpacf.h from Linux")
-> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Hi,
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+On Mon, Aug 26, 2024 at 06:17:22PM +0000, Bruno Faccini wrote:
+> > On 7 Aug 2024, at 2:41, Mike Rapoport wrote:
+> > 
+> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> > 
+> > Until now arch_numa was directly translating firmware NUMA information
+> > to memblock.
+> > 
+> > Using numa_memblks as an intermediate step has a few advantages:
+> > * alignment with more battle tested x86 implementation
+> > * availability of NUMA emulation
+> > * maintaining node information for not yet populated memory
+> > 
+> > Adjust a few places in numa_memblks to compile with 32-bit phys_addr_t
+> > and replace current functionality related to numa_add_memblk() and
+> > __node_distance() in arch_numa with the implementation based on
+> > numa_memblks and add functions required by numa_emulation.
+> > 
+> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> > Tested-by: Zi Yan <ziy@nvidia.com> # for x86_64 and arm64
+> > Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> > Tested-by: Jonathan Cameron <Jonathan.Cameron@huawei.com> [arm64 + CXL via
+> > QEMU]
+> > Acked-by: Dan Williams <dan.j.williams@intel.com>
+> > Acked-by: David Hildenbrand <david@redhat.com>
+> > ---
+> >   drivers/base/Kconfig       |   1 +
+> >   drivers/base/arch_numa.c   | 201 +++++++++++--------------------------
+> >   include/asm-generic/numa.h |   6 +-
+> >   mm/numa_memblks.c          |  17 ++--
+> >   4 files changed, 75 insertions(+), 150 deletions(-)
+> >  
+> > <snip>
+> > 
+> > +
+> > +u64 __init numa_emu_dma_end(void)
+> > +{
+> > +             return PFN_PHYS(memblock_start_of_DRAM() + SZ_4G);
+> > +}
+> > +
+> 
+> PFN_PHYS() translation is unnecessary here, as
+> memblock_start_of_DRAM() + SZ_4G is already a
+> memory size.
+> 
+> This should fix it:
+>  
+> diff --git a/drivers/base/arch_numa.c b/drivers/base/arch_numa.c
+> index 8d49893c0e94..e18701676426 100644
+> --- a/drivers/base/arch_numa.c
+> +++ b/drivers/base/arch_numa.c
+> @@ -346,7 +346,7 @@ void __init numa_emu_update_cpu_to_node(int
+> *emu_nid_to_phys,
+> 
+> u64 __init numa_emu_dma_end(void)
+> {
+> -              return PFN_PHYS(memblock_start_of_DRAM() + SZ_4G);
+> +             return memblock_start_of_DRAM() + SZ_4G;
+> }
+> 
+> void debug_cpumask_set_cpu(unsigned int cpu, int node, bool enable)
+
+Right, I've missed that. Thanks for the fix!
+
+Andrew, can you please apply this (with fixed formatting)
+
+diff --git a/drivers/base/arch_numa.c b/drivers/base/arch_numa.c
+index 8d49893c0e94..e18701676426 100644
+--- a/drivers/base/arch_numa.c
++++ b/drivers/base/arch_numa.c
+@@ -346,7 +346,7 @@ void __init numa_emu_update_cpu_to_node(int *emu_nid_to_phys,
+ 
+ u64 __init numa_emu_dma_end(void)
+ {
+-	return PFN_PHYS(memblock_start_of_DRAM() + SZ_4G);
++	return memblock_start_of_DRAM() + SZ_4G;
+ }
+ 
+ void debug_cpumask_set_cpu(unsigned int cpu, int node, bool enable)
+
+-- 
+Sincerely yours,
+Mike.
