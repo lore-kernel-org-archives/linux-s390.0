@@ -1,243 +1,235 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f171.google.com (mail-il1-f171.google.com [209.85.166.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 680AD1754B;
-	Tue, 27 Aug 2024 02:54:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E62918AE4;
+	Tue, 27 Aug 2024 03:50:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724727290; cv=none; b=pMN+angQ1RNzpr0fVA4EjAo7amRbARc5LnKtgRL0+pnu6qCLw7OKU5DxWlTq1o8u0g12NGgr9mz88nXJm9Z57NCcuxpCv8AF+ZjrtdTKuhJ3Z+EvMw3A1YJnCNVIOaGPl+cVnmYgih1aqDEcGtzz5kjG1GLzq2eN4VgwiDzM6b8=
+	t=1724730617; cv=none; b=WsbAgKX6aTUYWWytdfrRHYvM7HNY4gY3y/FZBw0CXm1yABAbGnq5ujiOxdzyOmNekok6U1bx3xOnLLQiIlAhFS+TsAQGPurzNoWhxLVJ8Yz6+xpouGCk7z0yuBbjK6J3Wt1mpdyPpulmEQVHOzs2dIjJvUjzp+KxmZeyor+ZVuM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724727290; c=relaxed/simple;
-	bh=rN/h/kIfM1rJjuoXzuWT45K5gm3d2kWicXFFCsPee7Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=T0vjY+T97hmljfr5qh8xEE6SL5LQK4dDYVrneuQx1GLbcn/N8TNawNOQM+bJChpeYolrD4gnXrP5/1EfxqYtg3iOW9GOdUcvLpK6ZNI2YCU5Y7tibkwRLPJrfno4HB6vZvspt09e4pZRWzvv2qcd9aEcAQn+fdOGW2cOndKZpw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Gy4nyYpV; arc=none smtp.client-ip=198.175.65.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1724730617; c=relaxed/simple;
+	bh=ct237ptWjdB4jDzLrNttZ6cueJsfldCuq2oozNM2LgA=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Rgp11eHm4IYEXJFAYxs/7rMikNoZoB4eC9pjFax7g/XEgSiGbHg8Hb5A9ziMK3+PysUyh4wSIdnB8Fc1yexRs2fA2YAzlGtFP6L7fibPAB15OQLLL3J+Mb6ZPS64AFW48SVkQb8ZUO8eZBaidg2AD9wZQk+MQAzyiJ4LEYVm7YA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=g0eiuPho; arc=none smtp.client-ip=209.85.166.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Gy4nyYpV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1724727288; x=1756263288;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=rN/h/kIfM1rJjuoXzuWT45K5gm3d2kWicXFFCsPee7Y=;
-  b=Gy4nyYpV7EWN/bVBzYFvVLPZ/+O49tfNB0WQcrpiLNJlIuuk+57T7E8L
-   qg2nnfTH0kqD451vuk39QceyT9Fn3G3Qm7c8Huenz6zjGWjAhjXtgkMQu
-   y8uIvUSuUbrCi3HPIN8uQw9WJ8BWwZASAVxCnT1xdYw6qFXtcFKuvqOt8
-   SUvesQ76yxA95kx1LMNmL/VMBD/6LO9ISxO6xMuEOkSh3m4oVSug7tR93
-   1xmwVpvGNBGfk8DpeAOMDjpeAiSIAkATiXlg2j4rivzR6RGKIewXRVbpe
-   xVMSIfKsJ3263nrO3URsMpMOTl8hHNTwBdgKd64lokKKI3sAB+ps5/2L1
-   g==;
-X-CSE-ConnectionGUID: oFhbm6QzR/SIzuZ41K94lA==
-X-CSE-MsgGUID: vyJIRHbzSLWCAiESo1YBkw==
-X-IronPort-AV: E=McAfee;i="6700,10204,11176"; a="34558666"
-X-IronPort-AV: E=Sophos;i="6.10,179,1719903600"; 
-   d="scan'208";a="34558666"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Aug 2024 19:54:47 -0700
-X-CSE-ConnectionGUID: cTcBETDLSUSL/e9BUHoeLQ==
-X-CSE-MsgGUID: 2653ryGeSqWpa68aqcDMbA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.10,179,1719903600"; 
-   d="scan'208";a="62688226"
-Received: from lkp-server01.sh.intel.com (HELO 9a732dc145d3) ([10.239.97.150])
-  by fmviesa008.fm.intel.com with ESMTP; 26 Aug 2024 19:54:43 -0700
-Received: from kbuild by 9a732dc145d3 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1simLx-000How-0T;
-	Tue, 27 Aug 2024 02:54:41 +0000
-Date: Tue, 27 Aug 2024 10:54:11 +0800
-From: kernel test robot <lkp@intel.com>
-To: Matthew Rosato <mjrosato@linux.ibm.com>, joro@8bytes.org,
-	will@kernel.org, robin.murphy@arm.com,
-	gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev, jgg@ziepe.ca,
-	baolu.lu@linux.intel.com, hca@linux.ibm.com, gor@linux.ibm.com,
-	agordeev@linux.ibm.com, svens@linux.ibm.com, jroedel@suse.de,
-	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3] iommu/s390: Implement blocking domain
-Message-ID: <202408271011.SsRB0mow-lkp@intel.com>
-References: <20240823203108.304054-1-mjrosato@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g0eiuPho"
+Received: by mail-il1-f171.google.com with SMTP id e9e14a558f8ab-39b0826298cso17982545ab.2;
+        Mon, 26 Aug 2024 20:50:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724730614; x=1725335414; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yAXUgwXZ/Qq7vVTFEv6JHc8ifGQco39iwYhxaM2uIf4=;
+        b=g0eiuPhoCUBKA2CV/4B02U3XxQdO5BBKoYojfxdv6hL/mptd+LKLXk09EbEJBoVNV2
+         +QqHNXs2DsBOezYaUx+mjWsANoZFTwPZk+RKpw2ZTAy8VO0MoGRxntANPHQQh1RgaJR/
+         SZLwCkkzV+ybGzB9ylRuxS+90B9Ct+JJygbpNbNTbnToX+cjWVe4lToyOyx+nOw43KQz
+         zvG/bZA4OERsjl/XaZL88Fns3x/FQiJkoNXbqsdKJXWCurDGh+W3nE3pOdW2f6TTXdrP
+         iB2Is/QgR3+HTV7YmyifgXw5x29/dURs/ZoAIP+IhcbJH3Uy+C2xHURRvrZsS4d9tzdD
+         dwxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724730614; x=1725335414;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yAXUgwXZ/Qq7vVTFEv6JHc8ifGQco39iwYhxaM2uIf4=;
+        b=fK+LFLBpiGI+brz1PzNzhQPsihmGpot98L+zsd60pDh7f4SVu4cERljH+CRgZbGU+H
+         6YBrMzHO//S7inQv3m4fnV1G4JpwZ8imTiuMBwZ/PN8DlQun9RPVSMp5jLWFtGlT7rwm
+         E3Fdd/LmLZyV4I7ss9P3y0z/bqSTqvrT6WVK5hBaAoegmKkjcFT4mW5kh0hRP0WEo2Bl
+         z1l9uZl80G6w9VNN4jxYussZ3lgnnbaArPS8FexZ4uxJuSbbtYzxSNTZ+KahiU0u0IcP
+         6pmTGYl5QRB6d0CZ+FeK5tN+tELKL0PoARI3aErVbQNn0Jsl4jpjebMN+YggxOQ4NsZT
+         i8Uw==
+X-Forwarded-Encrypted: i=1; AJvYcCWLocHjzvzuYjDJgPcyDTDrFeuTNl5znjRA5HHSIiEfU+s+B1PENs/QEB0cDSpt6Ux8of9L3V+J@vger.kernel.org, AJvYcCXRJo4/Dut0eLxzumQRgDli7kbeb08rzwkp+eFl6I9HdaIOGYAkcvmT6eFBPM0ADO6yyGngJw6ALOOQsw==@vger.kernel.org, AJvYcCXpC+jFVvEr9HyryypNaD970kDRlvQEL0LzUSpbnZ16KAHUXaZZAvnFK/2ZrfFUd1ATRNOmpaOXIViPDDc=@vger.kernel.org
+X-Gm-Message-State: AOJu0YybsbsW+TjS7XUr1L5KGg/LBMMtdYiDlshzZ1eESqrWC9l+2+up
+	htjO1rJDkf2XY89AhshZBsqyTgioiZ97b1KrV2c7kBW0eKLw/jJF
+X-Google-Smtp-Source: AGHT+IFWnGZMFhalb255sfHb5fPwt66w1/5HjEqmfHapuEVndVH1nQsCjqVYY/Edle6+Rr8adv3wsA==
+X-Received: by 2002:a05:6e02:1c09:b0:39d:46f6:b92e with SMTP id e9e14a558f8ab-39e3c982e21mr127514795ab.11.1724730614369;
+        Mon, 26 Aug 2024 20:50:14 -0700 (PDT)
+Received: from kernelexploit-virtual-machine.localdomain ([121.185.186.233])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7143422eab8sm7670247b3a.41.2024.08.26.20.50.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Aug 2024 20:50:13 -0700 (PDT)
+From: Jeongjun Park <aha310510@gmail.com>
+To: jaka@linux.ibm.com
+Cc: aha310510@gmail.com,
+	alibuda@linux.alibaba.com,
+	davem@davemloft.net,
+	dust.li@linux.alibaba.com,
+	edumazet@google.com,
+	guwen@linux.alibaba.com,
+	kuba@kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	pabeni@redhat.com,
+	tonylu@linux.alibaba.com,
+	ubraun@linux.vnet.ibm.com,
+	utz.bacher@de.ibm.com,
+	wenjia@linux.ibm.com
+Subject: Re: [PATCH net,v5,2/2] net/smc: modify smc_sock structure
+Date: Tue, 27 Aug 2024 12:50:05 +0900
+Message-Id: <20240827035005.159504-1-aha310510@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <edfc4840-48ef-4d91-b1f8-b65b3aa4e633@linux.ibm.com>
+References: <edfc4840-48ef-4d91-b1f8-b65b3aa4e633@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240823203108.304054-1-mjrosato@linux.ibm.com>
+Content-Type: text/plain; charset=y
+Content-Transfer-Encoding: 8bit
 
-Hi Matthew,
+Jan Karcher wrote:
+>
+>
+> On 26/08/2024 04:56, D. Wythe wrote:
+> >
+> >
+> > On 8/22/24 3:19 PM, Jan Karcher wrote:
+> >>
+> >>
+> >> On 21/08/2024 13:06, Jeongjun Park wrote:
+> >>> Jan Karcher wrote:
+> >>>>
+> >>>>
+> >>
+> >> [...]
+> >>
+> >>>>
+> >>>> If so would you mind adding a helper for this check as Paolo suggested
+> >>>> and send it?
+> >>>> This way we see which change is better for the future.
+> >>>
+> >>> This is the patch I tested. Except for smc.h and smc_inet.c, the rest is
+> >>> just a patch that changes smc->sk to smc->inet.sk. When I tested using
+> >>> this patch and c repro, the vulnerability was not triggered.
+> >>>
+> >>> Regards,
+> >>> Jeongjun Park
+> >>
+> >> Thank you for providing your changes. TBH, I do like only having the
+> >> inet socket in our structure.
+> >> I did not review it completley since there are, obviously, a lot of
+> >> changes.
+> >> Testing looks good so far but needs some more time.
+> >>
+> >> @D. Wythe are there any concerns from your side regarding this solution?
+> >>
+> >> Thanks,
+> >> Jan
+> >>
+> >
+> > Well, I really don't think this is a good idea. As we've mentioned, for
+> > AF_SMC, smc_sock should not be treated as inet_sock.
+> > While in terms of actual running logic, this approach yields the same
+> > result as using a union, but the use of a union clearly indicates
+> > that it includes two distinct types of socks.
+>
+> Fair. I understand both sides here and i do not have a strong opinion.
+> One is kinda implicit, the other defines fields we do not use...
+> Of course there would be a compromise to define another struct something
+> like this:
+>
+> struct smc_sock_types {
+>         struct sock             sk;
+>         #if IS_ENABLED(CONFIG_IPV6)
+>                 struct ipv6_pinfo       *pinet6;
+>         #endif
+> };
+>
+> struct smc_sock {                               /* smc sock container */
+>         struct smc_sock_types   socks;
+> [...]
 
-kernel test robot noticed the following build errors:
+If absolutely must use the sock structure in smc_sock, I think it would 
+be okay to modify it like the patch below to avoid a lot of code m
+odifications.
 
-[auto build test ERROR on s390/features]
-[also build test ERROR on linus/master v6.11-rc5 next-20240826]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+---
+ net/smc/smc.h      | 3 +++
+ net/smc/smc_inet.c | 8 +++++++-
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Matthew-Rosato/iommu-s390-Implement-blocking-domain/20240826-163744
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-patch link:    https://lore.kernel.org/r/20240823203108.304054-1-mjrosato%40linux.ibm.com
-patch subject: [PATCH v3] iommu/s390: Implement blocking domain
-config: s390-allmodconfig (https://download.01.org/0day-ci/archive/20240827/202408271011.SsRB0mow-lkp@intel.com/config)
-compiler: clang version 20.0.0git (https://github.com/llvm/llvm-project 08e5a1de8227512d4774a534b91cb2353cef6284)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240827/202408271011.SsRB0mow-lkp@intel.com/reproduce)
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 34b781e463c4..ad77d6b6b8d3 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -284,6 +284,9 @@ struct smc_connection {
+ 
+ struct smc_sock {				/* smc sock container */
+ 	struct sock		sk;
++#if IS_ENABLED(CONFIG_IPV6)
++	struct ipv6_pinfo	*pinet6;
++#endif
+ 	struct socket		*clcsock;	/* internal tcp socket */
+ 	void			(*clcsk_state_change)(struct sock *sk);
+ 						/* original stat_change fct. */
+diff --git a/net/smc/smc_inet.c b/net/smc/smc_inet.c
+index bece346dd8e9..a5b2041600f9 100644
+--- a/net/smc/smc_inet.c
++++ b/net/smc/smc_inet.c
+@@ -60,6 +60,11 @@ static struct inet_protosw smc_inet_protosw = {
+ };
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
++struct smc6_sock {
++	struct smc_sock		smc;
++	struct ipv6_pinfo	inet6;
++};
++
+ static struct proto smc_inet6_prot = {
+ 	.name		= "INET6_SMC",
+ 	.owner		= THIS_MODULE,
+@@ -67,9 +72,10 @@ static struct proto smc_inet6_prot = {
+ 	.hash		= smc_hash_sk,
+ 	.unhash		= smc_unhash_sk,
+ 	.release_cb	= smc_release_cb,
+-	.obj_size	= sizeof(struct smc_sock),
++	.obj_size	= sizeof(struct smc6_sock),
+ 	.h.smc_hash	= &smc_v6_hashinfo,
+ 	.slab_flags	= SLAB_TYPESAFE_BY_RCU,
++	.ipv6_pinfo_offset	= offsetof(struct smc6_sock, inet6),
+ };
+ 
+ static const struct proto_ops smc_inet6_stream_ops = {
+--
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202408271011.SsRB0mow-lkp@intel.com/
+Regards,
+Jeongjun Park
 
-All errors (new ones prefixed by >>):
-
-   In file included from drivers/iommu/s390-iommu.c:9:
-   In file included from include/linux/pci.h:37:
-   In file included from include/linux/device.h:32:
-   In file included from include/linux/device/driver.h:21:
-   In file included from include/linux/module.h:19:
-   In file included from include/linux/elf.h:6:
-   In file included from arch/s390/include/asm/elf.h:181:
-   In file included from arch/s390/include/asm/mmu_context.h:11:
-   In file included from arch/s390/include/asm/pgalloc.h:18:
-   In file included from include/linux/mm.h:2228:
-   include/linux/vmstat.h:500:43: warning: arithmetic between different enumeration types ('enum zone_stat_item' and 'enum numa_stat_item') [-Wenum-enum-conversion]
-     500 |         return vmstat_text[NR_VM_ZONE_STAT_ITEMS +
-         |                            ~~~~~~~~~~~~~~~~~~~~~ ^
-     501 |                            item];
-         |                            ~~~~
-   include/linux/vmstat.h:507:43: warning: arithmetic between different enumeration types ('enum zone_stat_item' and 'enum numa_stat_item') [-Wenum-enum-conversion]
-     507 |         return vmstat_text[NR_VM_ZONE_STAT_ITEMS +
-         |                            ~~~~~~~~~~~~~~~~~~~~~ ^
-     508 |                            NR_VM_NUMA_EVENT_ITEMS +
-         |                            ~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/vmstat.h:514:36: warning: arithmetic between different enumeration types ('enum node_stat_item' and 'enum lru_list') [-Wenum-enum-conversion]
-     514 |         return node_stat_name(NR_LRU_BASE + lru) + 3; // skip "nr_"
-         |                               ~~~~~~~~~~~ ^ ~~~
-   include/linux/vmstat.h:519:43: warning: arithmetic between different enumeration types ('enum zone_stat_item' and 'enum numa_stat_item') [-Wenum-enum-conversion]
-     519 |         return vmstat_text[NR_VM_ZONE_STAT_ITEMS +
-         |                            ~~~~~~~~~~~~~~~~~~~~~ ^
-     520 |                            NR_VM_NUMA_EVENT_ITEMS +
-         |                            ~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/vmstat.h:528:43: warning: arithmetic between different enumeration types ('enum zone_stat_item' and 'enum numa_stat_item') [-Wenum-enum-conversion]
-     528 |         return vmstat_text[NR_VM_ZONE_STAT_ITEMS +
-         |                            ~~~~~~~~~~~~~~~~~~~~~ ^
-     529 |                            NR_VM_NUMA_EVENT_ITEMS +
-         |                            ~~~~~~~~~~~~~~~~~~~~~~
-   In file included from drivers/iommu/s390-iommu.c:9:
-   In file included from include/linux/pci.h:39:
-   In file included from include/linux/io.h:14:
-   In file included from arch/s390/include/asm/io.h:93:
-   include/asm-generic/io.h:548:31: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     548 |         val = __raw_readb(PCI_IOBASE + addr);
-         |                           ~~~~~~~~~~ ^
-   include/asm-generic/io.h:561:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     561 |         val = __le16_to_cpu((__le16 __force)__raw_readw(PCI_IOBASE + addr));
-         |                                                         ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:37:59: note: expanded from macro '__le16_to_cpu'
-      37 | #define __le16_to_cpu(x) __swab16((__force __u16)(__le16)(x))
-         |                                                           ^
-   include/uapi/linux/swab.h:102:54: note: expanded from macro '__swab16'
-     102 | #define __swab16(x) (__u16)__builtin_bswap16((__u16)(x))
-         |                                                      ^
-   In file included from drivers/iommu/s390-iommu.c:9:
-   In file included from include/linux/pci.h:39:
-   In file included from include/linux/io.h:14:
-   In file included from arch/s390/include/asm/io.h:93:
-   include/asm-generic/io.h:574:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     574 |         val = __le32_to_cpu((__le32 __force)__raw_readl(PCI_IOBASE + addr));
-         |                                                         ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:35:59: note: expanded from macro '__le32_to_cpu'
-      35 | #define __le32_to_cpu(x) __swab32((__force __u32)(__le32)(x))
-         |                                                           ^
-   include/uapi/linux/swab.h:115:54: note: expanded from macro '__swab32'
-     115 | #define __swab32(x) (__u32)__builtin_bswap32((__u32)(x))
-         |                                                      ^
-   In file included from drivers/iommu/s390-iommu.c:9:
-   In file included from include/linux/pci.h:39:
-   In file included from include/linux/io.h:14:
-   In file included from arch/s390/include/asm/io.h:93:
-   include/asm-generic/io.h:585:33: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     585 |         __raw_writeb(value, PCI_IOBASE + addr);
-         |                             ~~~~~~~~~~ ^
-   include/asm-generic/io.h:595:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     595 |         __raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
-         |                                                       ~~~~~~~~~~ ^
-   include/asm-generic/io.h:605:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     605 |         __raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
-         |                                                       ~~~~~~~~~~ ^
-   include/asm-generic/io.h:693:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     693 |         readsb(PCI_IOBASE + addr, buffer, count);
-         |                ~~~~~~~~~~ ^
-   include/asm-generic/io.h:701:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     701 |         readsw(PCI_IOBASE + addr, buffer, count);
-         |                ~~~~~~~~~~ ^
-   include/asm-generic/io.h:709:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     709 |         readsl(PCI_IOBASE + addr, buffer, count);
-         |                ~~~~~~~~~~ ^
-   include/asm-generic/io.h:718:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     718 |         writesb(PCI_IOBASE + addr, buffer, count);
-         |                 ~~~~~~~~~~ ^
-   include/asm-generic/io.h:727:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     727 |         writesw(PCI_IOBASE + addr, buffer, count);
-         |                 ~~~~~~~~~~ ^
-   include/asm-generic/io.h:736:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     736 |         writesl(PCI_IOBASE + addr, buffer, count);
-         |                 ~~~~~~~~~~ ^
->> drivers/iommu/s390-iommu.c:707:2: error: member reference type 'spinlock_t' (aka 'struct spinlock') is not a pointer; did you mean to use '.'?
-     707 |         lockdep_assert_held(zdev->dom_lock);
-         |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/lockdep.h:285:17: note: expanded from macro 'lockdep_assert_held'
-     285 |         lockdep_assert(lockdep_is_held(l) != LOCK_STATE_NOT_HELD)
-         |         ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/lockdep.h:252:52: note: expanded from macro 'lockdep_is_held'
-     252 | #define lockdep_is_held(lock)           lock_is_held(&(lock)->dep_map)
-         |                                                             ^
-   include/linux/lockdep.h:279:32: note: expanded from macro 'lockdep_assert'
-     279 |         do { WARN_ON(debug_locks && !(cond)); } while (0)
-         |              ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
-   arch/s390/include/asm/bug.h:54:25: note: expanded from macro 'WARN_ON'
-      54 |         int __ret_warn_on = !!(x);                      \
-         |                                ^
->> drivers/iommu/s390-iommu.c:707:2: error: cannot take the address of an rvalue of type 'struct lockdep_map'
-     707 |         lockdep_assert_held(zdev->dom_lock);
-         |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/lockdep.h:285:17: note: expanded from macro 'lockdep_assert_held'
-     285 |         lockdep_assert(lockdep_is_held(l) != LOCK_STATE_NOT_HELD)
-         |         ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/lockdep.h:252:45: note: expanded from macro 'lockdep_is_held'
-     252 | #define lockdep_is_held(lock)           lock_is_held(&(lock)->dep_map)
-         |                                                      ^
-   include/linux/lockdep.h:279:32: note: expanded from macro 'lockdep_assert'
-     279 |         do { WARN_ON(debug_locks && !(cond)); } while (0)
-         |              ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
-   arch/s390/include/asm/bug.h:54:25: note: expanded from macro 'WARN_ON'
-      54 |         int __ret_warn_on = !!(x);                      \
-         |                                ^
-   17 warnings and 2 errors generated.
-
-
-vim +707 drivers/iommu/s390-iommu.c
-
-   702	
-   703	struct zpci_iommu_ctrs *zpci_get_iommu_ctrs(struct zpci_dev *zdev)
-   704	{
-   705		struct s390_domain *s390_domain;
-   706	
- > 707		lockdep_assert_held(zdev->dom_lock);
-   708	
-   709		if (zdev->s390_domain->type == IOMMU_DOMAIN_BLOCKED)
-   710			return NULL;
-   711	
-   712		s390_domain = to_s390_domain(zdev->s390_domain);
-   713		return &s390_domain->ctrs;
-   714	}
-   715	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+>
+> That said, don't know if i like this either.
+>
+> Thanks
+> - Jan
+>
+> >
+> > Also, if you have to make this change, perhaps you can give it a try
+> >
+> > #define smc->sk smc->inet.sk
+> >
+> > This will save lots of modifications.
+> >
+> > Thanks,
+> > D. Wythe
+> >
+> >>>
+> >>>>
+> >>>> The statement that SMC would be more aligned with other AFs is
+> >>>> already a
+> >>>>    big win in my book.
+> >>>>
+> >>>> Thanks
+> >>>> - Jan
+> >>>>
+> >>>>>
+> >>>>> Thanks,
+> >>>>>
+> >>>>> Paolo
+> >>>>>
+> >>>
