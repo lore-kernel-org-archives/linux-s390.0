@@ -1,160 +1,190 @@
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC45E15B122;
-	Wed, 28 Aug 2024 10:29:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.255
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 157521A76BB
+	for <linux-s390@vger.kernel.org>; Wed, 28 Aug 2024 17:30:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724840996; cv=none; b=P/yZ3B5h4NXrE8WMoH6QePT2BXyn/mxOZYZGq1KmL5+w0k6zQ4+P2XXdSUDz7zY7zxQCrUWh8xliViRrZHpEtRjochWz7GgOlF9USULJF8lHOECJAcqnlu69oag1YBe1q7JmwZ7NoN5n3Yq+lxWBxECUjaJexP2x0hK36Yf1loc=
+	t=1724866205; cv=none; b=uiQO8jYti9oUtkSKsvb4sRcE1AgBbWaSJB1mN9MaOlZK658YJc2jYBqIPCQ6DVThnydpKUHubTTEIbIOtlcMGwpm8N3N3oSOu/NU2QcBexwETI6+V40h6aEb5GeHc+lak2QN3MU3gRa8EsNikbgyib3hxblfX1paWvL91LC/cTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724840996; c=relaxed/simple;
-	bh=O4MXgpCagL+uFlh51r7eztf0GwKPpdu1twc3rJq1/Lw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=Tm7+3pxqnczZJgluT2eQfaYbwPrKLwo4NHvB8jtdVIpsS4RWOj3x+QEV+Vjha3CkXKSV9q3+OEoSYL2/qEfdi3ICA/uHIF9wOGYk3ngNerRKNcVs6vmUP4L2aEpDTTGUW9QU3X9nXCXFkEUB4pOZnwzQHRcCE22W+PGARKlKLxg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.255
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.162.254])
-	by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4Wv0y564mjz16PXv;
-	Wed, 28 Aug 2024 18:29:01 +0800 (CST)
-Received: from kwepemg200003.china.huawei.com (unknown [7.202.181.30])
-	by mail.maildlp.com (Postfix) with ESMTPS id 02D6B180106;
-	Wed, 28 Aug 2024 18:29:50 +0800 (CST)
-Received: from [10.174.176.93] (10.174.176.93) by
- kwepemg200003.china.huawei.com (7.202.181.30) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Wed, 28 Aug 2024 18:29:48 +0800
-Message-ID: <1bb22ebe-3e54-465f-b076-229e999476a7@huawei.com>
-Date: Wed, 28 Aug 2024 18:29:48 +0800
+	s=arc-20240116; t=1724866205; c=relaxed/simple;
+	bh=OmO27VpmrhU31qsKclIqtL8TYK6eYIyOBD8Nc1b6/sY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gArZmXZ6f2AZp58ZnpNAtIzwSIOksjfcN0IIEB7kLeXLWLRIBAQWC2t8Qb3PTJkA7Ws2Hi7S/ywJf8l58b8dcNDT4QSLd9qRo9r2cKQXqNAd55U7ykF0VIT8esgzM1/83jQbmpGZOJSF+SX0YsIDsR/Sc0//XZ9HM7yHwgtMyaw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=TpjlmABV; arc=none smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="TpjlmABV"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-714187df604so591378b3a.1
+        for <linux-s390@vger.kernel.org>; Wed, 28 Aug 2024 10:30:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1724866201; x=1725471001; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=izEx2iGerEnX7WB/2Mpvv+y1MVG/tbs1FdX9CKEIcSg=;
+        b=TpjlmABVarE4pTP8IIaQW8r5WIQYE/q3k9AeSj0TQiS4s0FQFCY1jMUcUe0LRUfGFC
+         jPnXTIofU2ZBnLJmLBckW74bTp12Br6sNHp0gkyPrrwI4S61o3Ne15rtg6ZuFYDl2Uk5
+         6k3gPBu8aWLCcsgsVCmn79ZYsuAPuMa2RIRLfnIIV1vh1oWSTQA7Rsz+76jPoT1uIJoq
+         e0+vcl0p569SySs5UL5JHZVcWOX7iYAEc8V+KSYx+FbCIqS/gTcI4W6FleCgt85tNWEu
+         yvvd5LNLTtPOmPM8n8yH9nAENwfZSYvPp3p3mRAZcMK8Ggusd2479ddcaB2HMt330v/p
+         6Xgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724866201; x=1725471001;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=izEx2iGerEnX7WB/2Mpvv+y1MVG/tbs1FdX9CKEIcSg=;
+        b=nS9q7i63619Tzi8r0cRaBiTMyiDipAekPNJxYnTA+5rBQlj8rCmUSXVnUPqeYtKA/X
+         3HPsElU06UTOxi60CK5sBLPqKvTDpWuqoAHowCo/p9HKLVw7QNBBdiQUky7ZZhW7RN6t
+         Ttn6xwtsB1xJQdcpUTrLF+I9QD6GP2iQ7UjiMQKChfa35tPs6wLmZ07zWtOTBhcGJqLk
+         HgPxhP7swCTRiZjCWzb6kGAiv4ylrgQI4dl/Ae2s9O9SRmft7UPw/xn1wmEIZYMBuNXG
+         UjwHUkAfggLhhPfOwnVK9hfk8M2lavNu8ImY6GLD2k20djEAxncTYYLQPrUzhU6Ta4aJ
+         uOkA==
+X-Forwarded-Encrypted: i=1; AJvYcCWCdCPTs3gDABBzBHaR1dQHv6xx33QIrIuYJn447NFmLpD1uGpd4C7O7MznEmywjWhbee3O68uv7Rhw@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy1UnB/fh4bsnCHtGduOyl2ZDUTPhQtkIOH82/lSv/Uhi1XdlL4
+	gGrraylD2M4UIR0DyUcaajPMGtmVPJ3kXjKzpaiA06Z2tOYCQwt1mHo1tVElsa8=
+X-Google-Smtp-Source: AGHT+IHMsuvXLfTW+bLvG1ZAGccaibo4i2N0hBI/JcHNn1qd40DIOjpRRFBts/vAK3nn3l/ntjAfHA==
+X-Received: by 2002:a17:903:1210:b0:1fb:2ebc:d16b with SMTP id d9443c01a7336-204f9bb4194mr38041435ad.7.1724866201061;
+        Wed, 28 Aug 2024 10:30:01 -0700 (PDT)
+Received: from ghost ([50.145.13.30])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-20385581393sm101427625ad.102.2024.08.28.10.29.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Aug 2024 10:30:00 -0700 (PDT)
+Date: Wed, 28 Aug 2024 10:29:55 -0700
+From: Charlie Jenkins <charlie@rivosinc.com>
+To: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Arnd Bergmann <arnd@arndb.de>, Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Naveen N Rao <naveen@kernel.org>,
+	Muchun Song <muchun.song@linux.dev>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Russell King <linux@armlinux.org.uk>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Shuah Khan <shuah@kernel.org>,
+	Alexandre Ghiti <alexghiti@rivosinc.com>,
+	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Palmer Dabbelt <palmer@rivosinc.com>,
+	linux-riscv@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+	linux-mm@kvack.org, loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH 07/16] powerpc: mm: Support MAP_BELOW_HINT
+Message-ID: <Zs9ek1Cr1SaQzSqg@ghost>
+References: <20240827-patches-below_hint_mmap-v1-0-46ff2eb9022d@rivosinc.com>
+ <20240827-patches-below_hint_mmap-v1-7-46ff2eb9022d@rivosinc.com>
+ <a43c52c6-c1ac-4ef3-b511-08f0459bddad@csgroup.eu>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 0/4] Make SMC-R can work with rxe devices
-To: Jan Karcher <jaka@linux.ibm.com>, <dust.li@linux.alibaba.com>,
-	<linux-rdma@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<netdev@vger.kernel.org>
-CC: <jgg@ziepe.ca>, <leon@kernel.org>, <zyjzyj2000@gmail.com>,
-	<wenjia@linux.ibm.com>, <alibuda@linux.alibaba.com>,
-	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>, <davem@davemloft.net>,
-	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>
-References: <20240809083148.1989912-1-liujian56@huawei.com>
- <0d5e2cec-dd0b-4920-99ff-9299e4df604f@linux.ibm.com>
- <20240821010324.GK103152@linux.alibaba.com>
- <ab89629e-75ec-4750-a4e1-58ad287ce1bd@huawei.com>
- <c841a647-6f5e-4bc2-b637-ef08b9a851a6@linux.ibm.com>
-From: "liujian (CE)" <liujian56@huawei.com>
-In-Reply-To: <c841a647-6f5e-4bc2-b637-ef08b9a851a6@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- kwepemg200003.china.huawei.com (7.202.181.30)
+In-Reply-To: <a43c52c6-c1ac-4ef3-b511-08f0459bddad@csgroup.eu>
 
+On Wed, Aug 28, 2024 at 08:34:49AM +0200, Christophe Leroy wrote:
+> Hi Charlie,
+> 
+> Le 28/08/2024 � 07:49, Charlie Jenkins a �crit�:
+> > Add support for MAP_BELOW_HINT to arch_get_mmap_base() and
+> > arch_get_mmap_end().
+> > 
+> > Signed-off-by: Charlie Jenkins <charlie@rivosinc.com>
+> > ---
+> >   arch/powerpc/include/asm/task_size_64.h | 36 +++++++++++++++++++++++++++------
+> >   1 file changed, 30 insertions(+), 6 deletions(-)
+> > 
+> > diff --git a/arch/powerpc/include/asm/task_size_64.h b/arch/powerpc/include/asm/task_size_64.h
+> > index 239b363841aa..a37a5a81365d 100644
+> > --- a/arch/powerpc/include/asm/task_size_64.h
+> > +++ b/arch/powerpc/include/asm/task_size_64.h
+> > @@ -72,12 +72,36 @@
+> >   #define STACK_TOP_MAX TASK_SIZE_USER64
+> >   #define STACK_TOP (is_32bit_task() ? STACK_TOP_USER32 : STACK_TOP_USER64)
+> > -#define arch_get_mmap_base(addr, len, base, flags) \
+> > -	(((addr) > DEFAULT_MAP_WINDOW) ? (base) + TASK_SIZE - DEFAULT_MAP_WINDOW : (base))
+> > +#define arch_get_mmap_base(addr, len, base, flags)					\
+> 
+> This macro looks quite big for a macro, can it be a static inline function
+> instead ? Same for the other macro below.
+> 
 
+I had overlooked that possibility, I think that's a great solution, I
+will change that.
 
-在 2024/8/27 3:04, Jan Karcher 写道:
+> > +({											\
+> > +	unsigned long mmap_base;							\
+> > +	typeof(flags) _flags = (flags);							\
+> > +	typeof(addr) _addr = (addr);							\
+> > +	typeof(base) _base = (base);							\
+> > +	typeof(len) _len = (len);							\
+> > +	unsigned long rnd_gap = DEFAULT_MAP_WINDOW - (_base);				\
+> > +	if (_flags & MAP_BELOW_HINT && _addr != 0 && ((_addr + _len) > BIT(VA_BITS - 1)))\
+> > +		mmap_base = (_addr + _len) - rnd_gap;					\
+> > +	else										\
+> > +		mmap_end = ((_addr > DEFAULT_MAP_WINDOW) ?				\
+> > +				_base + TASK_SIZE - DEFAULT_MAP_WINDOW :		\
+> > +				_base);							\
+> > +	mmap_end;									\
 > 
+> mmap_end doesn't exist, did you mean mmap_base ?
+
+Oh whoops, thank you!
+
+- Charlie
+
 > 
-> On 24/08/2024 12:04, liujian (CE) wrote:
->>
->>
->> 在 2024/8/21 9:03, Dust Li 写道:
->>> On 2024-08-20 15:16:57, Jan Karcher wrote:
->>>>
->>>>
->>>> On 09/08/2024 10:31, Liu Jian wrote:
->>>>> Make SMC-R can work with rxe devices. This allows us to easily test 
->>>>> and
->>>>> learn the SMC-R protocol without relying on a physical RoCE NIC.
->>>>
->>>> Hi Liu,
->>>>
->>>> sorry for taking quite some time to answer.
->>>>
->>>> Looking into this i cannot accept this series at the given point of 
->>>> time.
->>>>
->>>> FWIU, RXE is mainly for testing and development and i agree that it 
->>>> would be
->>>> a nice thing to have for SMC-R.
->>>> The problem is that there is no clean layer for different RoCE devices
->>>> currently. Adding RXE to it works but isn't clean.
->>>
->>> Hi jan,
->>>
->>>> Also we have no way to do a "test" build which would have such a device
->>>> supported and a "prod" build which would not support it.
->>>  > I don't quite understand what you mean here, Maybe I missed 
->>> something ?
->>> IIUC, we can control whether to use RXE by simpling insmod or rmmod 
->>> rdma_rxe.ko
-> 
-> Hi,
-> 
-> Yes that enables RXE in general, but not the use of RXE in SMC.
-> >>>
->> Yes, in the "prod" environment, we can completely turn off 
->> CONFIG_RDMA_RXE.
-> 
-> Same as above + this is a compile time switch that is enabled for 
-> distros like rh. Simply disabling it won't work here.
-> 
-Got it, I misunderstood what you meant above. Thank you.
->>
->>> I believe having RXE support is beneficial for testing, especially in
->>> simple physical networking setups where many corner cases are unlikely
->>> to occur. By using RXE, we can easily configure unusual scenarios with
->>> the existing iptables/netfilter infrastructure to simulate real-world
->>> situations, such as packet dropping or network retransmission. This
->>> approach can be advantageous for finding hidden bugs.
->>>
->> Yes, one of my main original intentions was to make testing smc-r 
->> easier. This change is relatively simple, mainly patch2 and patch4, 
->> and there are no logical changes.
-> 
-> I agree with you. It would be beneficial for testing.
-> This is not a never, this is a not right now.
-> 
-> If you want to push this forward as something you need now, feel free to 
-> encapsulate it and introduce a vendor specific experimental option as 
-> defined in the v2.1 protocol version [1] for it. This would be 
-> compromise for me at the current time.
-> 
-Got it, thanks.
-> Thanks
-> - Jan
-> 
-> [1] 
-> https://www.ibm.com/support/pages/system/files/inline-files/IBM%20Shared%20Memory%20Communications%20Version%202.1%20Emulated-ISM_0.pdf
-> >>> Best regards,
->>> Dust
->>>
->>>
->>>>
->>>> Please give us time to investigate how to solve this in a neat way 
->>>> without
->>>> building up to much technical debt.
->>>>
->>>> Thanks for your contribution and making us aware of this area of 
->>>> improvment.
->>>> - Jan
->>>>
->>>>>
->>>>> Liu Jian (4):
->>>>>     rdma/device: export ib_device_get_netdev()
->>>>>     net/smc: use ib_device_get_netdev() helper to get netdev info
->>>>>     net/smc: fix one NULL pointer dereference in 
->>>>> smc_ib_is_sg_need_sync()
->>>>>     RDMA/rxe: Set queue pair cur_qp_state when being queried
->>>>>
->>>>>    drivers/infiniband/core/core_priv.h   |  3 ---
->>>>>    drivers/infiniband/core/device.c      |  1 +
->>>>>    drivers/infiniband/sw/rxe/rxe_verbs.c |  2 ++
->>>>>    include/rdma/ib_verbs.h               |  2 ++
->>>>>    net/smc/smc_ib.c                      | 10 +++++-----
->>>>>    net/smc/smc_pnet.c                    |  6 +-----
->>>>>    6 files changed, 11 insertions(+), 13 deletions(-)
->>>>>
+> > +})
+> > -#define arch_get_mmap_end(addr, len, flags) \
+> > -	(((addr) > DEFAULT_MAP_WINDOW) || \
+> > -	 (((flags) & MAP_FIXED) && ((addr) + (len) > DEFAULT_MAP_WINDOW)) ? TASK_SIZE : \
+> > -									    DEFAULT_MAP_WINDOW)
+> > +#define arch_get_mmap_end(addr, len, flags)							\
+> > +({												\
+> > +	unsigned long mmap_end;									\
+> > +	typeof(flags) _flags = (flags);								\
+> > +	typeof(addr) _addr = (addr);								\
+> > +	typeof(len) _len = (len);								\
+> > +	if (_flags & MAP_BELOW_HINT && _addr != 0 && ((_addr + _len) > BIT(VA_BITS - 1)))	\
+> > +		mmap_end = (_addr + _len);							\
+> > +	else											\
+> > +		mmap_end = (((_addr) > DEFAULT_MAP_WINDOW) ||					\
+> > +				(((_flags) & MAP_FIXED) && ((_addr) + (_len) > DEFAULT_MAP_WINDOW))\
+> > +				? TASK_SIZE : DEFAULT_MAP_WINDOW)				\
+> > +	mmap_end;										\
+> > +})
+> >   #endif /* _ASM_POWERPC_TASK_SIZE_64_H */
+> > 
