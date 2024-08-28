@@ -1,41 +1,31 @@
-Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17B9D13210D;
-	Wed, 28 Aug 2024 06:34:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC45E15B122;
+	Wed, 28 Aug 2024 10:29:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.255
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724826899; cv=none; b=GxShJE0DlYwNLtwmFodxP4HSxE+3RTibgg2l2NtlFaHuNI7TX76LRk1OLQsxeOuyEQQ/Tq+NBXa7yNzOJQEOe14QXeXrZBkPKxnxHYlnvGS91IS/aL2w/29A7629Lq0zx2G+NWWPiu3vqgzBZntz2azuY8c8FoiFc4rn7swH08E=
+	t=1724840996; cv=none; b=P/yZ3B5h4NXrE8WMoH6QePT2BXyn/mxOZYZGq1KmL5+w0k6zQ4+P2XXdSUDz7zY7zxQCrUWh8xliViRrZHpEtRjochWz7GgOlF9USULJF8lHOECJAcqnlu69oag1YBe1q7JmwZ7NoN5n3Yq+lxWBxECUjaJexP2x0hK36Yf1loc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724826899; c=relaxed/simple;
-	bh=aWGAxpMZHWrJ/BUyhvBfXZeExfTSMuVVk0d9vk2wP/M=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ADFHgNZFK9yvNiLr7CqHjh65k0u00I7bX5+0MLQ3kgYXkjGu8CNr86RXS3B69R+ECbcEf9yoAn79JzJhvExL70RjRIZbqF6BEnLvBLdKQ5pcpQ+2wNbvGpXUe57S+YDz5Q7fR3bI1Bf5x1Zzyt8FQ+N/2JByum13B1D86c+UCt0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
-Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-	by localhost (Postfix) with ESMTP id 4Wtvlv5gSRz9sRs;
-	Wed, 28 Aug 2024 08:34:51 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6jPb3ZkzpTtP; Wed, 28 Aug 2024 08:34:51 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-	by pegase2.c-s.fr (Postfix) with ESMTP id 4Wtvlt44Xsz9sRy;
-	Wed, 28 Aug 2024 08:34:50 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 72A688B77E;
-	Wed, 28 Aug 2024 08:34:50 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-	with ESMTP id vzIG7P3XR8ze; Wed, 28 Aug 2024 08:34:50 +0200 (CEST)
-Received: from [172.25.230.108] (unknown [172.25.230.108])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id C02CD8B764;
-	Wed, 28 Aug 2024 08:34:49 +0200 (CEST)
-Message-ID: <a43c52c6-c1ac-4ef3-b511-08f0459bddad@csgroup.eu>
-Date: Wed, 28 Aug 2024 08:34:49 +0200
+	s=arc-20240116; t=1724840996; c=relaxed/simple;
+	bh=O4MXgpCagL+uFlh51r7eztf0GwKPpdu1twc3rJq1/Lw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=Tm7+3pxqnczZJgluT2eQfaYbwPrKLwo4NHvB8jtdVIpsS4RWOj3x+QEV+Vjha3CkXKSV9q3+OEoSYL2/qEfdi3ICA/uHIF9wOGYk3ngNerRKNcVs6vmUP4L2aEpDTTGUW9QU3X9nXCXFkEUB4pOZnwzQHRcCE22W+PGARKlKLxg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.255
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.162.254])
+	by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4Wv0y564mjz16PXv;
+	Wed, 28 Aug 2024 18:29:01 +0800 (CST)
+Received: from kwepemg200003.china.huawei.com (unknown [7.202.181.30])
+	by mail.maildlp.com (Postfix) with ESMTPS id 02D6B180106;
+	Wed, 28 Aug 2024 18:29:50 +0800 (CST)
+Received: from [10.174.176.93] (10.174.176.93) by
+ kwepemg200003.china.huawei.com (7.202.181.30) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Wed, 28 Aug 2024 18:29:48 +0800
+Message-ID: <1bb22ebe-3e54-465f-b076-229e999476a7@huawei.com>
+Date: Wed, 28 Aug 2024 18:29:48 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -43,111 +33,128 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 07/16] powerpc: mm: Support MAP_BELOW_HINT
-To: Charlie Jenkins <charlie@rivosinc.com>, Arnd Bergmann <arnd@arndb.de>,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Naveen N Rao <naveen@kernel.org>, Muchun Song <muchun.song@linux.dev>,
- Andrew Morton <akpm@linux-foundation.org>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
- <vbabka@suse.cz>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Russell King <linux@armlinux.org.uk>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- Helge Deller <deller@gmx.de>, Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- "David S. Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>, Shuah Khan <shuah@kernel.org>,
- Alexandre Ghiti <alexghiti@rivosinc.com>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
- Palmer Dabbelt <palmer@rivosinc.com>, linux-riscv@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- linux-mm@kvack.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
- linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-kselftest@vger.kernel.org
-References: <20240827-patches-below_hint_mmap-v1-0-46ff2eb9022d@rivosinc.com>
- <20240827-patches-below_hint_mmap-v1-7-46ff2eb9022d@rivosinc.com>
-Content-Language: fr-FR
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-In-Reply-To: <20240827-patches-below_hint_mmap-v1-7-46ff2eb9022d@rivosinc.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: [PATCH net-next 0/4] Make SMC-R can work with rxe devices
+To: Jan Karcher <jaka@linux.ibm.com>, <dust.li@linux.alibaba.com>,
+	<linux-rdma@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+	<netdev@vger.kernel.org>
+CC: <jgg@ziepe.ca>, <leon@kernel.org>, <zyjzyj2000@gmail.com>,
+	<wenjia@linux.ibm.com>, <alibuda@linux.alibaba.com>,
+	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>, <davem@davemloft.net>,
+	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>
+References: <20240809083148.1989912-1-liujian56@huawei.com>
+ <0d5e2cec-dd0b-4920-99ff-9299e4df604f@linux.ibm.com>
+ <20240821010324.GK103152@linux.alibaba.com>
+ <ab89629e-75ec-4750-a4e1-58ad287ce1bd@huawei.com>
+ <c841a647-6f5e-4bc2-b637-ef08b9a851a6@linux.ibm.com>
+From: "liujian (CE)" <liujian56@huawei.com>
+In-Reply-To: <c841a647-6f5e-4bc2-b637-ef08b9a851a6@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ kwepemg200003.china.huawei.com (7.202.181.30)
 
-Hi Charlie,
 
-Le 28/08/2024 à 07:49, Charlie Jenkins a écrit :
-> Add support for MAP_BELOW_HINT to arch_get_mmap_base() and
-> arch_get_mmap_end().
+
+在 2024/8/27 3:04, Jan Karcher 写道:
 > 
-> Signed-off-by: Charlie Jenkins <charlie@rivosinc.com>
-> ---
->   arch/powerpc/include/asm/task_size_64.h | 36 +++++++++++++++++++++++++++------
->   1 file changed, 30 insertions(+), 6 deletions(-)
 > 
-> diff --git a/arch/powerpc/include/asm/task_size_64.h b/arch/powerpc/include/asm/task_size_64.h
-> index 239b363841aa..a37a5a81365d 100644
-> --- a/arch/powerpc/include/asm/task_size_64.h
-> +++ b/arch/powerpc/include/asm/task_size_64.h
-> @@ -72,12 +72,36 @@
->   #define STACK_TOP_MAX TASK_SIZE_USER64
->   #define STACK_TOP (is_32bit_task() ? STACK_TOP_USER32 : STACK_TOP_USER64)
->   
-> -#define arch_get_mmap_base(addr, len, base, flags) \
-> -	(((addr) > DEFAULT_MAP_WINDOW) ? (base) + TASK_SIZE - DEFAULT_MAP_WINDOW : (base))
-> +#define arch_get_mmap_base(addr, len, base, flags)					\
-
-This macro looks quite big for a macro, can it be a static inline 
-function instead ? Same for the other macro below.
-
-> +({											\
-> +	unsigned long mmap_base;							\
-> +	typeof(flags) _flags = (flags);							\
-> +	typeof(addr) _addr = (addr);							\
-> +	typeof(base) _base = (base);							\
-> +	typeof(len) _len = (len);							\
-> +	unsigned long rnd_gap = DEFAULT_MAP_WINDOW - (_base);				\
-> +	if (_flags & MAP_BELOW_HINT && _addr != 0 && ((_addr + _len) > BIT(VA_BITS - 1)))\
-> +		mmap_base = (_addr + _len) - rnd_gap;					\
-> +	else										\
-> +		mmap_end = ((_addr > DEFAULT_MAP_WINDOW) ?				\
-> +				_base + TASK_SIZE - DEFAULT_MAP_WINDOW :		\
-> +				_base);							\
-> +	mmap_end;									\
-
-mmap_end doesn't exist, did you mean mmap_base ?
-
-> +})
->   
-> -#define arch_get_mmap_end(addr, len, flags) \
-> -	(((addr) > DEFAULT_MAP_WINDOW) || \
-> -	 (((flags) & MAP_FIXED) && ((addr) + (len) > DEFAULT_MAP_WINDOW)) ? TASK_SIZE : \
-> -									    DEFAULT_MAP_WINDOW)
-> +#define arch_get_mmap_end(addr, len, flags)							\
-> +({												\
-> +	unsigned long mmap_end;									\
-> +	typeof(flags) _flags = (flags);								\
-> +	typeof(addr) _addr = (addr);								\
-> +	typeof(len) _len = (len);								\
-> +	if (_flags & MAP_BELOW_HINT && _addr != 0 && ((_addr + _len) > BIT(VA_BITS - 1)))	\
-> +		mmap_end = (_addr + _len);							\
-> +	else											\
-> +		mmap_end = (((_addr) > DEFAULT_MAP_WINDOW) ||					\
-> +				(((_flags) & MAP_FIXED) && ((_addr) + (_len) > DEFAULT_MAP_WINDOW))\
-> +				? TASK_SIZE : DEFAULT_MAP_WINDOW)				\
-> +	mmap_end;										\
-> +})
->   
->   #endif /* _ASM_POWERPC_TASK_SIZE_64_H */
+> On 24/08/2024 12:04, liujian (CE) wrote:
+>>
+>>
+>> 在 2024/8/21 9:03, Dust Li 写道:
+>>> On 2024-08-20 15:16:57, Jan Karcher wrote:
+>>>>
+>>>>
+>>>> On 09/08/2024 10:31, Liu Jian wrote:
+>>>>> Make SMC-R can work with rxe devices. This allows us to easily test 
+>>>>> and
+>>>>> learn the SMC-R protocol without relying on a physical RoCE NIC.
+>>>>
+>>>> Hi Liu,
+>>>>
+>>>> sorry for taking quite some time to answer.
+>>>>
+>>>> Looking into this i cannot accept this series at the given point of 
+>>>> time.
+>>>>
+>>>> FWIU, RXE is mainly for testing and development and i agree that it 
+>>>> would be
+>>>> a nice thing to have for SMC-R.
+>>>> The problem is that there is no clean layer for different RoCE devices
+>>>> currently. Adding RXE to it works but isn't clean.
+>>>
+>>> Hi jan,
+>>>
+>>>> Also we have no way to do a "test" build which would have such a device
+>>>> supported and a "prod" build which would not support it.
+>>>  > I don't quite understand what you mean here, Maybe I missed 
+>>> something ?
+>>> IIUC, we can control whether to use RXE by simpling insmod or rmmod 
+>>> rdma_rxe.ko
 > 
+> Hi,
+> 
+> Yes that enables RXE in general, but not the use of RXE in SMC.
+> >>>
+>> Yes, in the "prod" environment, we can completely turn off 
+>> CONFIG_RDMA_RXE.
+> 
+> Same as above + this is a compile time switch that is enabled for 
+> distros like rh. Simply disabling it won't work here.
+> 
+Got it, I misunderstood what you meant above. Thank you.
+>>
+>>> I believe having RXE support is beneficial for testing, especially in
+>>> simple physical networking setups where many corner cases are unlikely
+>>> to occur. By using RXE, we can easily configure unusual scenarios with
+>>> the existing iptables/netfilter infrastructure to simulate real-world
+>>> situations, such as packet dropping or network retransmission. This
+>>> approach can be advantageous for finding hidden bugs.
+>>>
+>> Yes, one of my main original intentions was to make testing smc-r 
+>> easier. This change is relatively simple, mainly patch2 and patch4, 
+>> and there are no logical changes.
+> 
+> I agree with you. It would be beneficial for testing.
+> This is not a never, this is a not right now.
+> 
+> If you want to push this forward as something you need now, feel free to 
+> encapsulate it and introduce a vendor specific experimental option as 
+> defined in the v2.1 protocol version [1] for it. This would be 
+> compromise for me at the current time.
+> 
+Got it, thanks.
+> Thanks
+> - Jan
+> 
+> [1] 
+> https://www.ibm.com/support/pages/system/files/inline-files/IBM%20Shared%20Memory%20Communications%20Version%202.1%20Emulated-ISM_0.pdf
+> >>> Best regards,
+>>> Dust
+>>>
+>>>
+>>>>
+>>>> Please give us time to investigate how to solve this in a neat way 
+>>>> without
+>>>> building up to much technical debt.
+>>>>
+>>>> Thanks for your contribution and making us aware of this area of 
+>>>> improvment.
+>>>> - Jan
+>>>>
+>>>>>
+>>>>> Liu Jian (4):
+>>>>>     rdma/device: export ib_device_get_netdev()
+>>>>>     net/smc: use ib_device_get_netdev() helper to get netdev info
+>>>>>     net/smc: fix one NULL pointer dereference in 
+>>>>> smc_ib_is_sg_need_sync()
+>>>>>     RDMA/rxe: Set queue pair cur_qp_state when being queried
+>>>>>
+>>>>>    drivers/infiniband/core/core_priv.h   |  3 ---
+>>>>>    drivers/infiniband/core/device.c      |  1 +
+>>>>>    drivers/infiniband/sw/rxe/rxe_verbs.c |  2 ++
+>>>>>    include/rdma/ib_verbs.h               |  2 ++
+>>>>>    net/smc/smc_ib.c                      | 10 +++++-----
+>>>>>    net/smc/smc_pnet.c                    |  6 +-----
+>>>>>    6 files changed, 11 insertions(+), 13 deletions(-)
+>>>>>
