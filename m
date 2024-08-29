@@ -1,331 +1,191 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23DB7156875;
-	Thu, 29 Aug 2024 09:56:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724925419; cv=fail; b=rF+FkYU/9vwb+mBaPaGitPQ6B9jzFj+cHndE59xZGK21lU7ui5QXyXLr1qid7jZd5yuMuroHbzX7CkqfaoqkvGNGFuBLaQ+uqkcuK7fIoTcrttgWsEhzYFqZ9YDMTUYkIf0FNsqCiuQEc6ldPC6mDHtGUyStydSZdo315mlsBFU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724925419; c=relaxed/simple;
-	bh=srVzhpRAUZ/5Io1hU05nqRwDmBCBB/NVG6S2mqj49KI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=Y0NeBe5mnf5KfBHnzqXFiv97enDDNnCLM4J7xFFvPUcSBKulzytmExFf/MDUXgO0j/TI7OLC2EXIVv61IS6iEZnJomx6bRNXlHHcIIm+KkhOrbZO1lkAuZ/5xVCwoLThCd7S3ROtMFyi2ro6u3YzhOXv4aTnnrj5pjCkXk2SJic=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=h5OhFZLd; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=VHyhVsPu; arc=fail smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 928027E59A;
+	Thu, 29 Aug 2024 10:52:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1724928744; cv=none; b=dH2nbO9Nl6aNLx3k2ZuqPvGQLR0i45MLRnoPnBK8LpIxTC8MjjfhCGmFDIFxnzh3iWSfdn16pR9HgPlIH05YJ20yTFOyOjjvC52rq1o+W/kpcyBtzDjN1nzL+Qwh5OQcBqCPkMqOm4dqW9FbYleBeAmRvow9ewWbeekRRK33HKM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1724928744; c=relaxed/simple;
+	bh=zpPVtYuB9DrL9/jh8DS8DKJOq8AJxMegCXbtHWAlVxc=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 Content-Type:MIME-Version; b=jNefc97OmA669N7CrBjKnvyMalzTIM6ZgnMSSGLFr/Fagco7V/JtyBRYKn3ShB6KXq0Yh39PcpOnvP/nhWkbFsGqL72oT7HAujFMjdeBkTVg6zNJwF1BUc9CQr5pCFh/EeA61vbL1qdr0tkXzaE6j//xw9iOaguXqSz7ST1MtR8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mc7Hr06e; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="h5OhFZLd";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="VHyhVsPu"
-Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47T9oQkk005930;
-	Thu, 29 Aug 2024 09:54:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=
-	date:from:to:cc:subject:message-id:references:content-type
-	:in-reply-to:mime-version; s=corp-2023-11-20; bh=eSFFryLSvxZIOwd
-	fAhhiZ/tUenNluUoPv3LuzdRVDkk=; b=h5OhFZLdARF+gCQXT3pzmKu4R7vzw8g
-	HaDgm+VgMJQ6Q4t+GI7wqCVdnkcm+ojQhEp0R2XXzyEla6F5OVoDDo02W77Y/4BU
-	jqJIxRUvJrTvJQssekiTKRifM4Lyqu5hh/eIAdz7voOmaNHxUvc3DWiSmv+5R0Xa
-	e9tg5fcEereuEf8U42IyRWktx97BY0U3Qj1pJFD93KZgD0dB64MXJ0jOS/U2uUh0
-	lBNQywEBMXMjLpfyScwG859bBMBjX4aMXyzJF2+MAPRLfiamVlxKYGIjy1mLWD5z
-	iIyU1/K7jcbhw2bgQC/bWtBzRZB9iKW6Z49VAFuaKnG00LihSVCfZeQ==
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 41ap12r2y7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 29 Aug 2024 09:54:33 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 47T8cjAT034855;
-	Thu, 29 Aug 2024 09:54:33 GMT
-Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2176.outbound.protection.outlook.com [104.47.55.176])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 4189svrhe6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 29 Aug 2024 09:54:32 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=VbIz264LwWoejAlg/zFN1IP+HUhvz7/EHb54B+b6SG3HYufFDC7oTSInR8gFyuctPwjWownYEsSi2f/pdHzPENcGgsIejpB3bm5JdHnsgc7nr3LMGr9emAOvTZV44ekaKpQiM3/iZBtDcwyfskx9GXB47Zzt3HJV1RKJjuYiR86JbQkmsy/kn+YtuvT3vMnwNr8eLcwgeyE6sPNX7LGduCcWTxI2Fshxin5/wsw5l0M7/toboKlZLMWIaCdsWhBrgst5JmDIijofqTtR7adyvHPztANW+tTunmsgd0BL3Pzia43Lf6IsADKxklKIeD8zRZmSnyS92j/jDFdpMcg/9w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=eSFFryLSvxZIOwdfAhhiZ/tUenNluUoPv3LuzdRVDkk=;
- b=Pp4yBvnF0Jfi1pvxU0QgAGJyCuSEF4Au+hAnB+i8cm+ELVVI5f4CzaAjpl6snoZx4WnsnlYKZ/8YPCzP2mpufMZPHwPY7dP9f/P45KGQPLskKpR9xKPdoiuXPJ6Cnl8kp+L9JwnKYvPgsOOoQNy6mZTjDC+plrw2pYuCIVsShUM8lujo9jMw4/ywlF3yEAb9vO5AVzKQq0mGOWtzcU9CGX3FEtlmX4IUYQjdcJNhveJkJ86bmCALI23wi6Na4WjIgafwhV+Ar5Os91yZAjBP2ow5L+UelumeSbkGqiz6iWR9TN5tVWoTCb9rb7uTneoTss4KUWjLaUE6A2O6Lhoaeg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=eSFFryLSvxZIOwdfAhhiZ/tUenNluUoPv3LuzdRVDkk=;
- b=VHyhVsPuRcjFzt307tEycO/0TSkxwo2ASUEKmLx66Kg4BUlTtqiFDlgfc7mqiHtHpN0zfyQXY5O5Fze8xLnr4DMThtIYQbzDaUSqg5kpyHPT3QbM3E2PSeLbgH7q4ibj+4SkrSjf5TZn/NHFtaTPkbQEsLoOkH7GeXlAFwOUdqk=
-Received: from SJ0PR10MB5613.namprd10.prod.outlook.com (2603:10b6:a03:3d0::5)
- by DS7PR10MB7348.namprd10.prod.outlook.com (2603:10b6:8:eb::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7918.17; Thu, 29 Aug
- 2024 09:54:29 +0000
-Received: from SJ0PR10MB5613.namprd10.prod.outlook.com
- ([fe80::4239:cf6f:9caa:940e]) by SJ0PR10MB5613.namprd10.prod.outlook.com
- ([fe80::4239:cf6f:9caa:940e%5]) with mapi id 15.20.7918.017; Thu, 29 Aug 2024
- 09:54:29 +0000
-Date: Thu, 29 Aug 2024 10:54:25 +0100
-From: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-To: Charlie Jenkins <charlie@rivosinc.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>, Guo Ren <guoren@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Naveen N Rao <naveen@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Muchun Song <muchun.song@linux.dev>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Shuah Khan <shuah@kernel.org>,
-        linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-mm@kvack.org,
-        linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH RFC v2 0/4] mm: Introduce MAP_BELOW_HINT
-Message-ID: <4e1e9f49-8da4-4832-972b-2024d623a7bb@lucifer.local>
-References: <20240829-patches-below_hint_mmap-v2-0-638a28d9eae0@rivosinc.com>
- <ab90ff3b-67dc-4195-89a7-54e394da1aa0@lucifer.local>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ab90ff3b-67dc-4195-89a7-54e394da1aa0@lucifer.local>
-X-ClientProxiedBy: LO4P123CA0132.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:600:193::11) To SJ0PR10MB5613.namprd10.prod.outlook.com
- (2603:10b6:a03:3d0::5)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mc7Hr06e"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47SN9IxN011867;
+	Thu, 29 Aug 2024 10:51:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:in-reply-to:references:date:message-id
+	:content-type:mime-version; s=pp1; bh=tZ2m6cGbssb2eQQxLLr4pHVO8a
+	FtJWY9zGD9aFKJ+40=; b=mc7Hr06et4TSHDvOJVR5+HxC8tqhAWgLD2WVAH4+YH
+	PQa7gjRHCcb+rRJt8aIZCGvDd1AHxzzjCIW66Oshl6+1rD+t17vQgXXZR8PFtLH/
+	tCns0c6NxBzX4CPNIGXd5QCBXh68NESDALPB6YTKmS7yOWBBUc9xYKXjRkVBVugx
+	85nhxky6Megy/evWNdkh5mCdj/hdx+DHgGUbEcWrfbHEHTM1FYbkiAdPOqMNT3Up
+	QW5askDzs303YoBHvtdN+pgBaklYrIffm+G1RNYAcJkf0aAcqF00GmOejcqh8o1y
+	2pdJrGw/4QXeSFwImYE0CbcxvBJBYLNXcA7O9KJY+auQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 419q8nys9b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 29 Aug 2024 10:51:30 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 47TApTYp022391;
+	Thu, 29 Aug 2024 10:51:29 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 419q8nys98-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 29 Aug 2024 10:51:29 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 47T7dKkm024604;
+	Thu, 29 Aug 2024 10:51:28 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 417vj3kyk1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 29 Aug 2024 10:51:28 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47TApQsh57344330
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 29 Aug 2024 10:51:26 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A6EF22004B;
+	Thu, 29 Aug 2024 10:51:26 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2133C20043;
+	Thu, 29 Aug 2024 10:51:26 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 29 Aug 2024 10:51:26 +0000 (GMT)
+From: Sven Schnelle <svens@linux.ibm.com>
+To: "Pankaj Raghav (Samsung)" <kernel@pankajraghav.com>
+Cc: brauner@kernel.org, akpm@linux-foundation.org, chandan.babu@oracle.com,
+        linux-fsdevel@vger.kernel.org, djwong@kernel.org, hare@suse.de,
+        gost.dev@samsung.com, linux-xfs@vger.kernel.org, hch@lst.de,
+        david@fromorbit.com, Zi Yan
+ <ziy@nvidia.com>,
+        yang@os.amperecomputing.com, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, willy@infradead.org, john.g.garry@oracle.com,
+        cl@os.amperecomputing.com, p.raghav@samsung.com, mcgrof@kernel.org,
+        ryan.roberts@arm.com, David
+ Howells <dhowells@redhat.com>,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v13 04/10] mm: split a folio in minimum folio order chunks
+In-Reply-To: <20240822135018.1931258-5-kernel@pankajraghav.com> (Pankaj
+	Raghav's message of "Thu, 22 Aug 2024 15:50:12 +0200")
+References: <20240822135018.1931258-1-kernel@pankajraghav.com>
+	<20240822135018.1931258-5-kernel@pankajraghav.com>
+Date: Thu, 29 Aug 2024 12:51:25 +0200
+Message-ID: <yt9dttf3r49e.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13)
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ehVx0YOFUOxlgx-cd_uCO2KSV4ZsDkMy
+X-Proofpoint-ORIG-GUID: s5_o5-fSOlfuvzo-R9J6nU0ZVke-kGcX
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ0PR10MB5613:EE_|DS7PR10MB7348:EE_
-X-MS-Office365-Filtering-Correlation-Id: 614732e6-3ddc-4de8-8ce5-08dcc8109302
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|7416014|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?3HMAIuZghDxCJ9p+0C72nUJqTn04TWZ2mfcJGeZ/eR23npr0uVxi3zzcCc42?=
- =?us-ascii?Q?EbSB3U25Pc6SasfoW8i092ljGDK5lXpusTYLOrUiIR2MmKpMsWI6aKp2M2Pc?=
- =?us-ascii?Q?4XwzOXRbfULeFeHCT4yBZKylqIDW0mGa5UOvQCb4l1eRf+KFcDS+de4V4FoT?=
- =?us-ascii?Q?1MwDtnnqoyKys8ASCMBTqpcnCf+Vp5JHHBVLHJwDRT27eL/8mmuRFe25EzVS?=
- =?us-ascii?Q?3biNBxTYick0qfRBHVowOX12NktG2NCensYH3m6HzD412NX2z3Qro2S2MoAU?=
- =?us-ascii?Q?U1dHDVCnlWnHUkH4x3O1zl4bn1TPzyhSukOh8abEHRnbj1Sst2btLQ7Yjavb?=
- =?us-ascii?Q?UCZE+3zOHHLa394xyBPcK2xvdJNRmKsp39qOHgzJviP4q9VCVeVedCtlGSCV?=
- =?us-ascii?Q?Czx/r9tPgTxVicVxyLHpgymViRuKGSTrP7OHGDSYztU+Q4EjiVDYyJiLnE4B?=
- =?us-ascii?Q?NohejWed81SNxw3c+Gubk0DIeI6U2gViJu8Erf8/nEhMjXAhlOC2K9uAFSpM?=
- =?us-ascii?Q?MN9bKoDNvU/w9wOk8xYu95GoMr6jwncIk28H/a3GOJ22ENXDzhQC5XByfg6U?=
- =?us-ascii?Q?mDymSn62iUcufo1wFph7H7wErrGdDZvBKxkF5c2lhohlAVwvmeChsgx7x9jQ?=
- =?us-ascii?Q?nf14ywQ6daL5rhfmg6hfbtUWCmjRSQmstHmXp8KnbjopdlsTlWuqPIbfarqq?=
- =?us-ascii?Q?/Z2/SxH/BcAoE3riEXAV4sMOE40xUKQ/Pby0YRuM5uLFcqcHcevm1cN9iGAF?=
- =?us-ascii?Q?v9QBmaFuD4JpwSXH1U2CBVlvcAF2PA/albs8JV0NMpRQw2Fo2XbLNBrEzJYy?=
- =?us-ascii?Q?vlVjWU2laR2X8yxJ2UwbSQ2Hv8SttZ1ppQT1CI33Okz/AXvVqr2adchV+OyH?=
- =?us-ascii?Q?0YvADtU7wBOi4Eh3MRaTLaPK2yWj6mgrsNSZf3XpTw4O6WBlNLSgVkAx2kU/?=
- =?us-ascii?Q?6rwnzCrL6Loq6RF+t3IyJyn9yKCdHrd/qsrw+HsIbY5VD/HGlfOeuzgVuS3q?=
- =?us-ascii?Q?MSmporeJXXDr3qkKKpmOkJbkIDXrI7E4p8oNRKPZy28sattIj6x1HH874Y9n?=
- =?us-ascii?Q?r0n1GBKX+TU0411IOW3WlpzDnnhNa2U5DRWq6a3P8Pz4oF5i2DucApE47a+b?=
- =?us-ascii?Q?lqVldU5W6IX74k+miawrpF7NGZIJOnMf9HO7UfByg5gn+h3tfRGTMULil4sL?=
- =?us-ascii?Q?JaQC+tmcEOJAMxsepl26PvZQdn1YH67mx5TUKkbYT3ysGFqS+YYBXL3NjowD?=
- =?us-ascii?Q?IZonAuNcggqwISRt1zz9L8np/5kqG+tjE7yTrbXAuleIMVXZNqkKPlip0Z0b?=
- =?us-ascii?Q?aO5ZB8Y+2q8k3jxewA+wpbA2dlgcEitL9Bm+/RSn+0VPrQ=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR10MB5613.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?YCS8brIso8nqkzWNn1eYEy13rW06EajJFaP+bHhxyTqxILpKpQVUXQYW/zdz?=
- =?us-ascii?Q?3SHJ08kp5TzlZAB2ACljoE86pbbwQq1GSK9CERpAYtPXoNpb0fz92henm/Fr?=
- =?us-ascii?Q?IOQf4nYm5QhrWmaxtNgptOWLViVEqTBLjYW+BNk7PAaX5beyOmy7CF3tGRgy?=
- =?us-ascii?Q?jnl15x/oMo+n5g92dkGKuQRHCIrDoO4t8M3F3al/uswq7Qt6b1bMIKmztSsY?=
- =?us-ascii?Q?1b2Hue8zcVANFRR+gGlsweajugHdfRrCIivBPlxk1M1Co4o1gzKu3rR7jIjp?=
- =?us-ascii?Q?9XWln7ZrzsAP4XcudeMxEWL3mh+CAn2tTo013Q4MQkJ161hZ6UT9nSdOrLhR?=
- =?us-ascii?Q?WJD81tPFZPW7hOuFODs3BdVPcHGVO84R4YVxFtysRGb3f3x5h9N+U1lWk1J2?=
- =?us-ascii?Q?wwvLid1XCJywefKTJ4ogFAjb6wbYoPg0IOpEF2RTgIUeeUvGRfQ0mQga6rB5?=
- =?us-ascii?Q?sqGt9sWNfK8hH11HD+ByHg3+uow6kEwCmHiw77dtz+/Gra1FIGX/ql1s3YdO?=
- =?us-ascii?Q?PEDhu/QfiRBKcQk7ET/5nsM2bYuOdw3B2yB+QrUrApLlhID6l8aNHbUgZ+N9?=
- =?us-ascii?Q?6wwUYDPDQvmwuX+lmrPLsWG4olOIkLcL3BparsuKuEf7z8IEYqutXmcjA7IS?=
- =?us-ascii?Q?mPDoqtXqORgQtt0NQlJ/JSbXAkUAtYzUVXh/b+TeFlnHQ53/hFruwUf4IByg?=
- =?us-ascii?Q?b9yvo3+ntoLZ+tgBda0vN2gdZgBQxR9QokjaY4KqWW+O5Y5EJLGONM0VZzqt?=
- =?us-ascii?Q?AjW+sHRx+XPjVwPtBhih/+b5sPYJ7Ft+lp95rIDBVCrMLMXAhBmRog2Cg4p0?=
- =?us-ascii?Q?oB3GWVbZHMSEaXa9KuvVnNq/fW4GX7u3jKgiHugs/tkks4bEhmJ1pOvs2xl1?=
- =?us-ascii?Q?BnqoBPd5Ej/q6TJoKq8utOY0DXu7TSICzHXtzdpL1Se5FkkBuSaPeDRRDIV/?=
- =?us-ascii?Q?aKenUKW9KMs1SM55Sge1RX4tWKT+LVu4U3gYiIpxzjlMuq3LArWTvPgvxnuQ?=
- =?us-ascii?Q?DKbzX4MhCcCbCHpdu815QGzdlGpzLSQ11ZkapLUFJJh1d/aNGTHtuDw37n2R?=
- =?us-ascii?Q?eccn7/B/ALuPMrUXixA32VDuNw604osrOn4xJSIQ5jgBQL/akHNjdEyOfPGf?=
- =?us-ascii?Q?RZRsiTLJtdSog4WHiUFqTrPEWBMhCc8AklMsDay/gmv5u7WJDt+MZlKBfCue?=
- =?us-ascii?Q?98tfe8kEemOCk4KRA3YYGjCj7IvExzharLgTtCwyUikBlvoFxaFu7PyL3Lst?=
- =?us-ascii?Q?aKkpnqrB0s9DdIVVRo0c8oBiTIWzMlgJyN6dddDUXGqmP3FtTpvQMMqVdAVI?=
- =?us-ascii?Q?1AviZ03wQmdsNUzLfJ4QvbDTuy8HVOcEOeFzyhQ7BB+Oy1fTGeMervC/YlJL?=
- =?us-ascii?Q?qMPwrXmvobhPhBkPoHZSfDteJh4Fqf3QPpQmoAvA94TetxtxXNuExJIhBPt0?=
- =?us-ascii?Q?UYvNgJUVtJdlQfw1pkBhCBgq+oVEvTOd1y9LneG/v2wvgMx0ziwpowyQWcH2?=
- =?us-ascii?Q?yDNNr4bVN8I/2CNn97NknnUeTHQtt/FCRF+JayQGNlr1oxqQR/kSuqeb8b0F?=
- =?us-ascii?Q?ZQqHApetopeGBrwgmFIIjOJ6+byP/6l4dsWIhfBeRlbznl7PBAa0+lgFF6ST?=
- =?us-ascii?Q?UQ=3D=3D?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	eqPHPZLSXkBiE5/d00w1heI/SVyAloUH0te3LYa08RMbI9KN9ODEGrefbtRpiXRmCf+UVN7JsornI2PTBpynqcdbmv8JZh0vg+B1GD0VErPd3PjiOoI1DgkKcBS/35uqgmhOgpIrzfoLo8OvcwuIAdzNykpI+4mbiey9wTV1hjNKcRKQw+1vAKibnKWUgknKP4g+LZedyPQzsAktHZmOiZXiv5htJWGNffmAYuzidHrghOE+l5q6PWVuEm+gvtlIJSyC326+82jgOGWkcjWs3Akji9LdcYvasvpKF4MP8LpNDn9Ob7QlKRGXu6+wnIvwdJlKjr9FaiSHSatLr6r3XPJsVmVi9vOvJMK3sV3kOM/9sNdZb89CnQbC//Gz7NHgXNTtVVbE9BSO4YhoiixIFZY5nHManAAIVZQT7Q+R637gjWF8VjTcpXAq469XLtFM92prAGkaAqv6Tu5YUcQO5DiSD4aLFQpv6Ga+NJ5P3Unn4hqluox3ZSVM/Bne2DvW1EGQ2Q7QR8cVkGBiHGSz6H0SVxMCWcOWVuvKT9JJ3gOEyZHPIzrLwNxCR8vaQh00ij4Iwt1g23iHIZLmaBFfAYUn5nOJiyTW9fd9LOAi5FI=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 614732e6-3ddc-4de8-8ce5-08dcc8109302
-X-MS-Exchange-CrossTenant-AuthSource: SJ0PR10MB5613.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Aug 2024 09:54:29.3789
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: esU6Xvcy/7BPWwjNDVfXQ01u+yFzOzDH+zY8BdobzuNIAg+7XPI9HsQMR4f0AcO8HIwFi2jd+Qw/PPc8lt0exCv6bAnxIHp5zeZFSSe9ams=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR10MB7348
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-08-29_02,2024-08-29_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 spamscore=0 suspectscore=0
- mlxlogscore=852 malwarescore=0 bulkscore=0 phishscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2407110000
- definitions=main-2408290073
-X-Proofpoint-GUID: Qt3RPLBpw86mbKT8mwyMiIsXqcR3bVSO
-X-Proofpoint-ORIG-GUID: Qt3RPLBpw86mbKT8mwyMiIsXqcR3bVSO
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ priorityscore=1501 adultscore=0 lowpriorityscore=0 clxscore=1011
+ spamscore=0 impostorscore=0 phishscore=0 suspectscore=0 mlxlogscore=954
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2408290076
 
-On Thu, Aug 29, 2024 at 09:42:22AM GMT, Lorenzo Stoakes wrote:
-> On Thu, Aug 29, 2024 at 12:15:57AM GMT, Charlie Jenkins wrote:
-> > Some applications rely on placing data in free bits addresses allocated
-> > by mmap. Various architectures (eg. x86, arm64, powerpc) restrict the
-> > address returned by mmap to be less than the 48-bit address space,
-> > unless the hint address uses more than 47 bits (the 48th bit is reserved
-> > for the kernel address space).
->
-> I'm still confused as to why, if an mmap flag is desired, and thus programs
-> are having to be heavily modified and controlled to be able to do this, why
-> you can't just do an mmap() with PROT_NONE early, around a hinted address
-> that, sits below the required limit, and then mprotect() or mmap() over it?
->
-> Your feature is a major adjustment to mmap(), it needs to be pretty
-> significantly justified, especially if taking up a new flag.
->
-> >
-> > The riscv architecture needs a way to similarly restrict the virtual
-> > address space. On the riscv port of OpenJDK an error is thrown if
-> > attempted to run on the 57-bit address space, called sv57 [1].  golang
-> > has a comment that sv57 support is not complete, but there are some
-> > workarounds to get it to mostly work [2].
-> >
-> > These applications work on x86 because x86 does an implicit 47-bit
-> > restriction of mmap() address that contain a hint address that is less
-> > than 48 bits.
->
-> You mean x86 _has_ to limit to physically available bits in a canonical
-> format :) this will not be the case for 5-page table levels though...
->
-> >
-> > Instead of implicitly restricting the address space on riscv (or any
-> > current/future architecture), a flag would allow users to opt-in to this
-> > behavior rather than opt-out as is done on other architectures. This is
-> > desirable because it is a small class of applications that do pointer
-> > masking.
->
-> I raised this last time and you didn't seem to address it so to be more
-> blunt:
->
-> I don't understand why this needs to be an mmap() flag. From this it seems
-> the whole process needs allocations to be below a certain limit.
->
-> That _could_ be achieved through a 'personality' or similar (though a
-> personality is on/off, rather than allowing configuration so maybe
-> something else would be needed).
->
-> From what you're saying 57-bit is all you really need right? So maybe
-> ADDR_LIMIT_57BIT?
->
-> I don't see how you're going to actually enforce this in a process either
-> via an mmap flag, as a library might decide not to use it, so you'd need to
-> control the allocator, the thread library implementation, and everything
-> that might allocate.
->
-> Liam also raised various points about VMA particulars that I'm not sure are
-> addressed either.
->
-> I just find it hard to believe that everything will fit together.
->
-> I'd _really_ need to be convinced that this MAP_ flag is justified, and I"m
-> just not.
->
-> >
-> > This flag will also allow seemless compatibility between all
-> > architectures, so applications like Go and OpenJDK that use bits in a
-> > virtual address can request the exact number of bits they need in a
-> > generic way. The flag can be checked inside of vm_unmapped_area() so
-> > that this flag does not have to be handled individually by each
-> > architecture.
->
-> I'm still very unconvinced and feel the bar needs to be high for making
-> changes like this that carry maintainership burden.
->
-> So for me, it's a no really as an overall concept.
->
-> Happy to be convinced otherwise, however... (I may be missing details or
-> context that provide more justification).
->
+Hi,
 
-Some more thoughts:
+"Pankaj Raghav (Samsung)" <kernel@pankajraghav.com> writes:
 
-* If you absolutely must keep allocations below a certain limit, you'd
-  probably need to actually associate this information with the VMA so the
-  memory can't be mremap()'d somewhere invalid (you might not control all
-  code so you can't guarantee this won't happen).
-* Keeping a map limit associated with a VMA would be horrid and keeping
-  VMAs as small as possible is a key aim, so that'd be a no go. VMA flags
-  are in limited supply also.
-* If we did implement a per-process thing, but it were arbitrary, we'd then
-  have to handle all kinds of corner cases forever (this is UAPI, can't
-  break it etc.) with crazy-low values, or determine a minimum that might
-  vary by arch...
-* If we did this we'd absolutely have to implement a check in the brk()
-  implementation, which is a very very sensitive bit of code. And of
-  course, in mmap() and mremap()... and any arch-specific code that might
-  interface with this stuff (these functions are hooked).
-* A fixed address limit would make more sense, but it seems difficult to
-  know what would work for everybody, and again we'd have to deal with edge
-  cases and having a permanent maintenance burden.
-* If you did have a map flag what about merging between VMAs above the
-  limit and below it? To avoid that you'd need to implement some kind of a
-  'VMA flag that has an arbitrary characteristic' or a 'limit' field,
-  adjust all the 'can VMA merge' functions and write extensive testing and
-  none of that is frankly acceptable.
-* We have some 'weird' arches that might have problem with certain virtual
-  address ranges or require arbitrary mappings at a certain address range
-  that a limit might not be able to account for.
+> From: Luis Chamberlain <mcgrof@kernel.org>
+>
+> split_folio() and split_folio_to_list() assume order 0, to support
+> minorder for non-anonymous folios, we must expand these to check the
+> folio mapping order and use that.
+>
+> Set new_order to be at least minimum folio order if it is set in
+> split_huge_page_to_list() so that we can maintain minimum folio order
+> requirement in the page cache.
+>
+> Update the debugfs write files used for testing to ensure the order
+> is respected as well. We simply enforce the min order when a file
+> mapping is used.
+>
+> Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+> Signed-off-by: Pankaj Raghav <p.raghav@samsung.com>
+> Reviewed-by: Hannes Reinecke <hare@suse.de>
+> Reviewed-by: Zi Yan <ziy@nvidia.com>
+> Tested-by: David Howells <dhowells@redhat.com>
 
-I'm absolutely opposed to a new MAP_ flag for this, but even if you
-implemented that, it implies a lot of complexity.
+This causes the following warning on s390 with linux-next starting from
+next-20240827:
 
-It implies even more complexity if you implement something per-process
-except if it were a fixed limit.
+[  112.690518] BUG: Bad page map in process ksm01  pte:a5801317 pmd:99054000
+[  112.690531] page: refcount:0 mapcount:-1 mapping:0000000000000000 index:0x3ff86102 pfn:0xa5801
+[  112.690536] flags: 0x3ffff00000000004(referenced|node=0|zone=1|lastcpupid=0x1ffff)
+[  112.690543] raw: 3ffff00000000004 0000001d47439e30 0000001d47439e30 0000000000000000
+[  112.690546] raw: 000000003ff86102 0000000000000000 fffffffe00000000 0000000000000000
+[  112.690548] page dumped because: bad pte
+[  112.690549] addr:000003ff86102000 vm_flags:88100073 anon_vma:000000008c8e46e8 mapping:0000000000000000 index:3ff86102
+[  112.690553] file:(null) fault:0x0 mmap:0x0 read_folio:0x0
+[  112.690561] CPU: 1 UID: 0 PID: 604 Comm: ksm01 Not tainted 6.11.0-rc5-next-20240827-dirty #1441
+[  112.690565] Hardware name: IBM 3931 A01 704 (z/VM 7.3.0)
+[  112.690568] Call Trace:
+[  112.690571]  [<000003ffe0eb77fe>] dump_stack_lvl+0x76/0xa0
+[  112.690579]  [<000003ffe03f4a90>] print_bad_pte+0x280/0x2d0
+[  112.690584]  [<000003ffe03f7654>] zap_present_ptes.isra.0+0x5c4/0x870
+[  112.690598]  [<000003ffe03f7a46>] zap_pte_range+0x146/0x3d0
+[  112.690601]  [<000003ffe03f7f1c>] zap_p4d_range+0x24c/0x4b0
+[  112.690603]  [<000003ffe03f84ea>] unmap_page_range+0xea/0x2c0
+[  112.690605]  [<000003ffe03f8754>] unmap_single_vma.isra.0+0x94/0xf0
+[  112.690607]  [<000003ffe03f8866>] unmap_vmas+0xb6/0x1a0
+[  112.690609]  [<000003ffe0405724>] exit_mmap+0xc4/0x3e0
+[  112.690613]  [<000003ffe0154aa2>] mmput+0x72/0x170
+[  112.690616]  [<000003ffe015e2c6>] exit_mm+0xd6/0x150
+[  112.690618]  [<000003ffe015e52c>] do_exit+0x1ec/0x490
+[  112.690620]  [<000003ffe015e9a4>] do_group_exit+0x44/0xc0
+[  112.690621]  [<000003ffe016f000>] get_signal+0x7f0/0x800
+[  112.690624]  [<000003ffe0108614>] arch_do_signal_or_restart+0x74/0x320
+[  112.690628]  [<000003ffe020c876>] syscall_exit_to_user_mode_work+0xe6/0x170
+[  112.690632]  [<000003ffe0eb7c04>] __do_syscall+0xd4/0x1c0
+[  112.690634]  [<000003ffe0ec303c>] system_call+0x74/0x98
+[  112.690638] Disabling lock debugging due to kernel taint
 
-And if you implement a fixed limit, it's hard to see that it'll be
-acceptable to everybody, and I suspect we'd still run into some possible
-weirdness.
+To reproduce, running the ksm01 testsuite from ltp seems to be
+enough. The splat is always triggered immediately. The output from ksm01
+is:
 
-So again, I'm struggling to see how this concept can be justified in any
-form.
+tst_kconfig.c:88: TINFO: Parsing kernel config '/proc/config.gz'
+tst_test.c:1809: TINFO: LTP version: 20240524-208-g6c3293c6f
+tst_test.c:1813: TINFO: Tested kernel: 6.11.0-rc5-next-20240827 #1440 SMP Thu Aug 29 12:13:28 CEST 2024 s390x
+tst_test.c:1652: TINFO: Timeout per run is 0h 00m 30s
+mem.c:422: TINFO: wait for all children to stop.
+mem.c:388: TINFO: child 0 stops.
+mem.c:388: TINFO: child 1 stops.
+mem.c:388: TINFO: child 2 stops.
+mem.c:495: TINFO: KSM merging...
+mem.c:434: TINFO: resume all children.
+mem.c:422: TINFO: wait for all children to stop.
+mem.c:344: TINFO: child 0 continues...
+mem.c:347: TINFO: child 0 allocates 128 MB filled with 'c'
+mem.c:344: TINFO: child 1 continues...
+mem.c:347: TINFO: child 1 allocates 128 MB filled with 'a'
+mem.c:344: TINFO: child 2 continues...
+mem.c:347: TINFO: child 2 allocates 128 MB filled with 'a'
+mem.c:400: TINFO: child 1 stops.
+mem.c:400: TINFO: child 2 stops.
+mem.c:400: TINFO: child 0 stops.
+Test timeouted, sending SIGKILL!
+tst_test.c:1700: TINFO: Killed the leftover descendant processes
+tst_test.c:1706: TINFO: If you are running on slow machine, try exporting LTP_TIMEOUT_MUL > 1
+tst_test.c:1708: TBROK: Test killed! (timeout?)
+
+Thanks
+Sven
