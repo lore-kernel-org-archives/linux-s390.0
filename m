@@ -1,95 +1,123 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 148B31AE848
-	for <linux-s390@vger.kernel.org>; Thu, 29 Aug 2024 14:27:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4EA881B143B;
+	Thu, 29 Aug 2024 14:39:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724941651; cv=none; b=qWFPZfn+VAWnG/5+V9lTifid1vNKch3+L3ZhEJsyflGk+8q6am1z9cAKQDXonixkJyhWo9/TcNvsPR9OLxJX1zEf7LY0XRQP5dUW+xW6baRHi7IEpx030R/+dgufu+OdKdEEc9Vjr1P0BJW5iBxdNtnx/h74wA7CFGSgWr6J/pI=
+	t=1724942393; cv=none; b=OUXXaEcchNlB6RPjB/09NR+56RWIu8UwwP8HpSProgdFbBv4BJuG2uJDKXCqn4xNco4u8xgfxNH5B0xgpl2MvexXuPZ5PpiMXovQIgX9PC7hh5amMvBjdbHFquHP24h/CnFenp9Pk9y8By1tSfCodluPt9FtlGgAL33niIjrH4E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724941651; c=relaxed/simple;
-	bh=7MzheYwtjt3orb6QkrkWnKhEAyRK20ZRytH79G30orU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=m4faqEPiOvJkprszr1mHJIoYkT+UPNDTnhi20C1E4V6OU5OhTiQ20xmDcMQwTmOFF+RU22JCMDfKb6uDoHckFso6nJjgtFDosaJI/EoW98y3uZinA8cdNpxTxjNPyU0aNuv9g1Hudqfx/7nGeBsJmO1kzEij9kluUIPPaVB+oTQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NshUaHbk; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NshUaHbk"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47TCfTEE032550;
-	Thu, 29 Aug 2024 14:27:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:references:mime-version
-	:content-type:in-reply-to; s=pp1; bh=HBEyYqv2w6qMHv5aFr+NtnXPd3D
-	lMws0xWOQ6Gc3yxA=; b=NshUaHbkr/0RO93rWmoE2IFdRYajdPFU/GzdjvKXlua
-	iwNmyDOY6BPCdHNa+04vP/EPx3FGljgV2sKgC2b+mvViK4/uixsB8b70Kc1lImzu
-	/ckswl8XOfzIJ7kEzTyTSJxCw5oJzR93I5mPCG5wNVWqhaVZUqJGRWU4AlpJavDx
-	tRK6iWWkEY/JI4stNv/Dx2xN/fntzhBZegY/36bkGkO0Bz2KzCgZTbNU8AAQZ4SZ
-	hHxHTyxmAogzUUMGxYSy2kCyprit/OIOiXhtzmpSrs0HrxHJ5SaRJ80wQZa5wC6o
-	WP1sDR3LPs1ciksRg0MK/ncS5G5roI7MFm7giXfJVdQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 419q8u8d1a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 29 Aug 2024 14:27:20 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 47TBA8D1027941;
-	Thu, 29 Aug 2024 14:27:20 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 417ubncy1b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 29 Aug 2024 14:27:20 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 47TERG3c54788594
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 29 Aug 2024 14:27:16 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 74D002004F;
-	Thu, 29 Aug 2024 14:27:16 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 296F220043;
-	Thu, 29 Aug 2024 14:27:16 +0000 (GMT)
-Received: from localhost (unknown [9.171.26.89])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 29 Aug 2024 14:27:16 +0000 (GMT)
-Date: Thu, 29 Aug 2024 16:27:14 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Gaosheng Cui <cuigaosheng1@huawei.com>
-Cc: hca@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: Re: [PATCH -next] s390/hypfs: Remove obsoleted declaration for
- hypfs_dbfs_exit
-Message-ID: <your-ad-here.call-01724941634-ext-8240@work.hours>
-References: <20240824120749.2519368-1-cuigaosheng1@huawei.com>
+	s=arc-20240116; t=1724942393; c=relaxed/simple;
+	bh=HBjPQ7htFePlvgPXIVgV4omFwKv/gvrtPNO0yF79XDs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TyDb7VF9tlOmMncNfkW1Iz6jkIky5gO9/t2/OkkMiwTfY8lm/juI39wJT4L2SmfXWLJ4XHEHwnY9oL3GmEENMs94dAmBX9U8utxSH2WSCpjhC+vjVpXHp51KmwKAwpcH4DzzuX+Ha5ve23LGqtLe/kxPiPuNxnBF05sWNMU76a4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C1F9BDA7;
+	Thu, 29 Aug 2024 07:40:16 -0700 (PDT)
+Received: from [10.57.16.245] (unknown [10.57.16.245])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A801D3F66E;
+	Thu, 29 Aug 2024 07:39:13 -0700 (PDT)
+Message-ID: <1a7ab0db-646d-4975-9974-7b911990055a@arm.com>
+Date: Thu, 29 Aug 2024 15:38:50 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20240824120749.2519368-1-cuigaosheng1@huawei.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _g6jN-OZ4juoVLFzJCs7zI1iXxiCkN3T
-X-Proofpoint-ORIG-GUID: _g6jN-OZ4juoVLFzJCs7zI1iXxiCkN3T
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-08-29_02,2024-08-29_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 clxscore=1011 bulkscore=0 phishscore=0 mlxscore=0
- malwarescore=0 mlxlogscore=525 spamscore=0 priorityscore=1501 adultscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2408290097
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 RESED 1/2] dma: replace zone_dma_bits by zone_dma_limit
+To: neil.armstrong@linaro.org, Baruch Siach <baruch@tkos.co.il>,
+ Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, =?UTF-8?B?UGV0ciBUZXNhxZnDrWs=?=
+ <petr@tesarici.cz>, Ramon Fried <ramon@neureality.ai>,
+ Elad Nachman <enachman@marvell.com>,
+ linux-arm-msm <linux-arm-msm@vger.kernel.org>
+References: <cover.1723359916.git.baruch@tkos.co.il>
+ <17c067618b93e5d71f19c37826d54db4299621a3.1723359916.git.baruch@tkos.co.il>
+ <1a0c7282-63e0-4add-8e38-3abe3e0a8e2f@linaro.org>
+From: Robin Murphy <robin.murphy@arm.com>
+Content-Language: en-GB
+In-Reply-To: <1a0c7282-63e0-4add-8e38-3abe3e0a8e2f@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Sat, Aug 24, 2024 at 08:07:49PM +0800, Gaosheng Cui wrote:
-> The hypfs_dbfs_exit() have been removed since
-> commit 3325b4d85799 ("s390/hypfs: factor out filesystem code"),
-> and now it is useless, so remove it.
+On 2024-08-29 2:42 pm, Neil Armstrong wrote:
+> Hi,
 > 
-> Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-> ---
->  arch/s390/hypfs/hypfs.h | 1 -
->  1 file changed, 1 deletion(-)
+> On 11/08/2024 09:09, Baruch Siach wrote:
+>> From: Catalin Marinas <catalin.marinas@arm.com>
+>>
+>> Hardware DMA limit might not be power of 2. When RAM range starts above
+>> 0, say 4GB, DMA limit of 30 bits should end at 5GB. A single high bit
+>> can not encode this limit.
+>>
+>> Use plain address for DMA zone limit.
+>>
+>> Since DMA zone can now potentially span beyond 4GB physical limit of
+>> DMA32, make sure to use DMA zone for GFP_DMA32 allocations in that case.
+>>
+>> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+>> Co-developed-by: Baruch Siach <baruch@tkos.co.il>
+>> Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+>> ---
+>>   arch/arm64/mm/init.c       | 30 +++++++++++++++---------------
+>>   arch/powerpc/mm/mem.c      |  5 ++++-
+>>   arch/s390/mm/init.c        |  2 +-
+>>   include/linux/dma-direct.h |  2 +-
+>>   kernel/dma/direct.c        |  6 +++---
+>>   kernel/dma/pool.c          |  4 ++--
+>>   kernel/dma/swiotlb.c       |  6 +++---
+>>   7 files changed, 29 insertions(+), 26 deletions(-)
+>>
 > 
-Applied, thank you!
+> <snip>
+> 
+> This change breaks the Qualcomm SM8550-HDK boot since next-20240826.
+> It doesn't affect SM8550-QRD or other similar SoCs like SM8650 or SM8450.
+> The last CI run on next-20240828 can be found at:
+> https://git.codelinaro.org/linaro/qcomlt/ci/staging/cdba-tester/-/pipelines/100936
+> 
+> SM8550-HDK boot log:
+> https://git.codelinaro.org/linaro/qcomlt/ci/staging/cdba-tester/-/jobs/165617
+> 
+[...]
+
+Yeah, a 35-bit ZONE_DMA is sure to make stuff go wrong:
+
+> [    0.000000] Zone ranges:
+> [    0.000000]   DMA      [mem 0x0000000080000000-0x0000000affffffff]
+> [    0.000000]   DMA32    empty
+> [    0.000000]   Normal   empty
+
+Compared to before:
+
+[    0.000000]   DMA      [mem 0x0000000080000000-0x00000000ffffffff]
+[    0.000000]   DMA32    empty
+[    0.000000]   Normal   [mem 0x0000000100000000-0x0000000affffffff]
+
+This'll be because the SoC DT is describing a general non-restrictive range:
+		dma-ranges = <0 0 0 0 0x10 0>;
+
+Which proves we need more information than 
+{acpi,of}_dma_get_max_cpu_address() are currently able to give us, 
+because what zone_dma_limit actually wants to be is the *minimum* of the 
+lowest highest CPU address of any DMA range, and the lowest CPU address 
+of any DMA range + 2^32. I was thinking it had all ended up looking a 
+bit too easy... :)
+
+I think v1 of the fix[1] might actually work out for this, albeit still 
+for the wrong reasons - if so, I concede that maybe at this point it 
+might be safest to go back to that one as a quick short-term fix (with a 
+big fat comment to say so) rather than try to rush the proper solution 
+or revert everything.
+
+Thanks,
+Robin.
+
+[1] 
+https://lore.kernel.org/linux-arm-kernel/731d204f5f556ad61bbaf004b1d984f83c90b4f5.1724748249.git.baruch@tkos.co.il/
