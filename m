@@ -1,315 +1,205 @@
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 804EA1BAEFE
-	for <linux-s390@vger.kernel.org>; Thu, 29 Aug 2024 22:17:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11F59187843;
+	Thu, 29 Aug 2024 23:41:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724969826; cv=none; b=AaDTYqW7xavoemdYP/jxZjoyTYioIQ+KFAlMaK5D56nlFC88FhejSij/bKC1T8sunDITO6i3etfojRx9Lh8Qwi0xM0H9rradQonQtqLl6+9Xtx5NuYUKh948HEO0Su0ymxIPTCmaMlHquQqx1DRNTU/675PdW6RMz6eR75p0QZI=
+	t=1724974918; cv=none; b=puAGi6bqNSWWJv0AjImKnLark2yA+Yn8avnWUA0FvACs5ZV+34iG+pWnrJk1uQBZfkJc77V5gTM4d1WhQMxzM8xysN00jW9sgtouYkCftyS8Mitp+Op7rLtoOfwesV98z3BcZMJRwgqrOHPFSX26EiSjFyq6yAcevkOht+cgyLM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724969826; c=relaxed/simple;
-	bh=S3Y5v+4JXY8rGBGuZcXLnLhZBs+40lbnirdI/7xGkfw=;
+	s=arc-20240116; t=1724974918; c=relaxed/simple;
+	bh=J3YOD9SmiXvPuVJha+NIKySYKVlWlu10qdB6t3EKd7Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=g9GDfyY2Jy6vw4w+jCyl6HlIh7T5KGy0aoG1jmpvjEZ+mK+vhjnqWm2rJeWc4v+G0EeYTfeRmnxZBjuNihk8I8OsrI87nEF0hPfx3K6hx39j6PRui096Rbc4PyimwIo7tH9FJY+b+7RQ3Zr3FKMxs6QggIVlo5mplEc3ZHinPts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=AI627J2O; arc=none smtp.client-ip=209.85.210.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=T2n77OPpATYFx5gmTZ3BiX93CDi19tXNdzwNbgnIqGnDDMfofARNud5Q+obKtqlQ2xsXYljbhJgM0oPJe+jIRZ2oTjfqOr8hG2JiA+dLywpiKxtoP8zxpibVHhMDWM3c/BXJLw8xr02zhwXmpOsA5SG5fJx5qYuhkCv1LiRHg30=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Gr8cjZsD; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="AI627J2O"
-Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-715cc93694fso1062822b3a.2
-        for <linux-s390@vger.kernel.org>; Thu, 29 Aug 2024 15:17:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1724969824; x=1725574624; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=8HRU/HuL9VMJOh5LMUQaHyrA0RHNWNSx8V73gtED6wE=;
-        b=AI627J2OJltHoBM/oqV+aS8dWKqVLeSwpZGJo85SPGQhD5b6xrgB/437niTR8JXzsU
-         dR8J2vRtyqZhchv1/NBFkiDUeQlv7/rZGyEw2way/jMuJ+8Eq8b0lzoXNBc44wrnqv2n
-         g6xVRgR26yD04McSbD4y3e952Mykx573+pEbNIWeozUYyJVFNQD96b8PeEffJt7iR9+S
-         03oKWcn3Gi93YqoEmeKYqJWxtUaCvYdiXAZQsGAeTgf4dYcu0Ro37edUDRJ1DFuXb2Lh
-         kXBs6kJt4uwpxUXUKBiV0bvGn7m8xp5qKMiiv533deWpg+2Me8ZxTMgcfmZL5sQmw69A
-         2ISg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724969824; x=1725574624;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8HRU/HuL9VMJOh5LMUQaHyrA0RHNWNSx8V73gtED6wE=;
-        b=pdkBN/1uJSIEfuK6v5L7ua73ykBb20N1ItS14okwcHB5Aw8qTaD0czro+OBx4gzN+O
-         v3zAuYuAqhlqTcsqaUX+wcHbEyRS8uHfX85LnRy0ytPLCU2sYEsDwV5S8w3ANwZmhlYU
-         p8L9CjhRx5LqWk4EqbEUh3JTIbfVdaUdRV9UjFCtxJZ4PyxLJNfHpVekhKw2mwpXycaR
-         vI+G+GFasgDyw2e7SGTa1AFhB8Dfv5SUD9ozYc8g+2RXC9FlngX20vFiVKaC4AFxAEdf
-         I5dsFFOlRGPg3vPeV3FTUN330aOV9HCNiAe5YGvCRisTjQFaIwsU1wjWrc0PL6yH4TfA
-         umGw==
-X-Forwarded-Encrypted: i=1; AJvYcCUDR60F0hzRRDrtJDbuzhatRF1Aw+OLSsICX7LWiuoJkclLskJFsWRJtFPJOCoq+ICCKZipZqvx/W7h@vger.kernel.org
-X-Gm-Message-State: AOJu0YxXyrl3NCPwVPtFz1rQAeCMg/xbirorYMWR28SdNjki3QyzFSeQ
-	fev/TuKQq2bGgwQ8Y9xTgW5Td4HiTSJ340JSPvqx2vHcKamNnlJ8znDSMPqmhHg=
-X-Google-Smtp-Source: AGHT+IHZWh2lrRdTfsFvpo/hEhoIVlXgetb87CMqVZNsK2T/td7vE55JQIoBH8+ZybjcSDXzxTcolg==
-X-Received: by 2002:a05:6a21:38c:b0:1c2:8b95:de15 with SMTP id adf61e73a8af0-1cce111b331mr4094496637.53.1724969818957;
-        Thu, 29 Aug 2024 15:16:58 -0700 (PDT)
-Received: from ghost ([50.145.13.30])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-715e55a4ecasm1612655b3a.71.2024.08.29.15.16.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Aug 2024 15:16:58 -0700 (PDT)
-Date: Thu, 29 Aug 2024 15:16:53 -0700
-From: Charlie Jenkins <charlie@rivosinc.com>
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>, Guo Ren <guoren@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Gr8cjZsD"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:
+	Content-Transfer-Encoding:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description;
+	bh=ybJSaS8XOS7QsdfbQRICGW0IbfDKuXL+/iCoPAdx+KY=; b=Gr8cjZsDERIV8FeBImsAYONIfE
+	Ik/7Ze1hHVdNPBXXLv1TvWeGIsiBY8jb6g9XsyHEPq3qXcBbP5rtGFjMhM3ZSALp3ErHqE5ATFH6b
+	Y4QXmq0oioCRmpW+BnqhpSLuM2NoAy31dhv2n3U2qf2MnL9Ntc4bI+5SEFcuCKkVP8SlG3QWadWqc
+	xVvDL467Sq/1Q0XioN6DrbmFpDWo131QwtfPG0Qlwxkiqm18oQx2Fu+h/yVPjpCR2mX6bxNE5LfkF
+	TgZA9go07M6fgmvh0rQuOwJfoCSxgkbDbbCyJJza3RHBIMvnqaaFQXeJBjdspOLhejlRp/tW0o75q
+	GcK9Qdqg==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sjolw-000000043rD-23DS;
+	Thu, 29 Aug 2024 23:41:48 +0000
+Date: Thu, 29 Aug 2024 16:41:48 -0700
+From: Luis Chamberlain <mcgrof@kernel.org>
+To: Zi Yan <ziy@nvidia.com>
+Cc: Matthew Wilcox <willy@infradead.org>,
 	Sven Schnelle <svens@linux.ibm.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Muchun Song <muchun.song@linux.dev>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Vlastimil Babka <vbabka@suse.cz>, Shuah Khan <shuah@kernel.org>,
-	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-mm@kvack.org,
-	linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH RFC v2 0/4] mm: Introduce MAP_BELOW_HINT
-Message-ID: <ZtDzVZLrcbiKRium@ghost>
-References: <20240829-patches-below_hint_mmap-v2-0-638a28d9eae0@rivosinc.com>
- <ab90ff3b-67dc-4195-89a7-54e394da1aa0@lucifer.local>
- <4e1e9f49-8da4-4832-972b-2024d623a7bb@lucifer.local>
+	"Pankaj Raghav (Samsung)" <kernel@pankajraghav.com>,
+	brauner@kernel.org, akpm@linux-foundation.org,
+	chandan.babu@oracle.com, linux-fsdevel@vger.kernel.org,
+	djwong@kernel.org, hare@suse.de, gost.dev@samsung.com,
+	linux-xfs@vger.kernel.org, hch@lst.de, david@fromorbit.com,
+	yang@os.amperecomputing.com, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, john.g.garry@oracle.com,
+	cl@os.amperecomputing.com, p.raghav@samsung.com,
+	ryan.roberts@arm.com, David Howells <dhowells@redhat.com>,
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH v13 04/10] mm: split a folio in minimum folio order chunks
+Message-ID: <ZtEHPAsIHKxUHBZX@bombadil.infradead.org>
+References: <20240822135018.1931258-1-kernel@pankajraghav.com>
+ <20240822135018.1931258-5-kernel@pankajraghav.com>
+ <yt9dttf3r49e.fsf@linux.ibm.com>
+ <ZtDCErRjh8bC5Y1r@bombadil.infradead.org>
+ <ZtDSJuI2hYniMAzv@casper.infradead.org>
+ <221FAE59-097C-4D31-A500-B09EDB07C285@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <4e1e9f49-8da4-4832-972b-2024d623a7bb@lucifer.local>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <221FAE59-097C-4D31-A500-B09EDB07C285@nvidia.com>
+Sender: Luis Chamberlain <mcgrof@infradead.org>
 
-On Thu, Aug 29, 2024 at 10:54:25AM +0100, Lorenzo Stoakes wrote:
-> On Thu, Aug 29, 2024 at 09:42:22AM GMT, Lorenzo Stoakes wrote:
-> > On Thu, Aug 29, 2024 at 12:15:57AM GMT, Charlie Jenkins wrote:
-> > > Some applications rely on placing data in free bits addresses allocated
-> > > by mmap. Various architectures (eg. x86, arm64, powerpc) restrict the
-> > > address returned by mmap to be less than the 48-bit address space,
-> > > unless the hint address uses more than 47 bits (the 48th bit is reserved
-> > > for the kernel address space).
-> >
-> > I'm still confused as to why, if an mmap flag is desired, and thus programs
-> > are having to be heavily modified and controlled to be able to do this, why
-> > you can't just do an mmap() with PROT_NONE early, around a hinted address
-> > that, sits below the required limit, and then mprotect() or mmap() over it?
-> >
-> > Your feature is a major adjustment to mmap(), it needs to be pretty
-> > significantly justified, especially if taking up a new flag.
-> >
-> > >
-> > > The riscv architecture needs a way to similarly restrict the virtual
-> > > address space. On the riscv port of OpenJDK an error is thrown if
-> > > attempted to run on the 57-bit address space, called sv57 [1].  golang
-> > > has a comment that sv57 support is not complete, but there are some
-> > > workarounds to get it to mostly work [2].
-> > >
-> > > These applications work on x86 because x86 does an implicit 47-bit
-> > > restriction of mmap() address that contain a hint address that is less
-> > > than 48 bits.
-> >
-> > You mean x86 _has_ to limit to physically available bits in a canonical
-> > format :) this will not be the case for 5-page table levels though...
+On Thu, Aug 29, 2024 at 06:12:26PM -0400, Zi Yan wrote:
+> The issue is that the change to split_huge_page() makes split_huge_page_t=
+o_list_to_order()
+> unlocks the wrong subpage. split_huge_page() used to pass the =E2=80=9Cpa=
+ge=E2=80=9D pointer
+> to split_huge_page_to_list_to_order(), which keeps that =E2=80=9Cpage=E2=
+=80=9D still locked.
+> But this patch changes the =E2=80=9Cpage=E2=80=9D passed into split_huge_=
+page_to_list_to_order()
+> always to the head page.
+>=20
+> This fixes the crash on my x86 VM, but it can be improved:
+>=20
+> diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
+> index 7c50aeed0522..eff5d2fb5d4e 100644
+> --- a/include/linux/huge_mm.h
+> +++ b/include/linux/huge_mm.h
+> @@ -320,10 +320,7 @@ bool can_split_folio(struct folio *folio, int *pextr=
+a_pins);
+>  int split_huge_page_to_list_to_order(struct page *page, struct list_head=
+ *list,
+>                 unsigned int new_order);
+>  int split_folio_to_list(struct folio *folio, struct list_head *list);
+> -static inline int split_huge_page(struct page *page)
+> -{
+> -       return split_folio(page_folio(page));
+> -}
+> +int split_huge_page(struct page *page);
+>  void deferred_split_folio(struct folio *folio);
+>=20
+>  void __split_huge_pmd(struct vm_area_struct *vma, pmd_t *pmd,
+> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+> index c29af9451d92..4d723dab4336 100644
+> --- a/mm/huge_memory.c
+> +++ b/mm/huge_memory.c
+> @@ -3297,6 +3297,25 @@ int split_huge_page_to_list_to_order(struct page *=
+page, struct list_head *list,
+>         return ret;
+>  }
+>=20
+> +int split_huge_page(struct page *page)
+> +{
+> +       unsigned int min_order =3D 0;
+> +       struct folio *folio =3D page_folio(page);
+> +
+> +       if (folio_test_anon(folio))
+> +               goto out;
+> +
+> +       if (!folio->mapping) {
+> +               if (folio_test_pmd_mappable(folio))
+> +                       count_vm_event(THP_SPLIT_PAGE_FAILED);
+> +               return -EBUSY;
+> +       }
+> +
+> +       min_order =3D mapping_min_folio_order(folio->mapping);
+> +out:
+> +       return split_huge_page_to_list_to_order(page, NULL, min_order);
+> +}
+> +
+>  int split_folio_to_list(struct folio *folio, struct list_head *list)
+>  {
+>         unsigned int min_order =3D 0;
 
-I might be misunderstanding but I am not talking about pointer masking
-or canonical addresses here. I am referring to the pattern of:
 
-1. Getting an address from mmap()
-2. Writing data into bits assumed to be unused in the address
-3. Using the data stored in the address
-4. Clearing the data from the address and sign extending
-5. Dereferencing the now sign-extended address to conform to canonical
-   addresses
+Confirmed, and also although you suggest it can be improved, I thought
+that we could do that by sharing more code and putting things in the
+headers, the below also fixes this but tries to share more code, but
+I think it is perhaps less easier to understand than your patch.
 
-I am just talking about step 1 and 2 here -- getting an address from
-mmap() that only uses bits that will allow your application to not
-break. How canonicalization happens is a a separate conversation, that
-can be handled by LAM for x86, TBI for arm64, or Ssnpm for riscv.
-While LAM for x86 is only capable of masking addresses to 48 or 57 bits,
-Ssnpm for riscv allow an arbitrary number of bits to be masked out.
-A design goal here is to be able to support all of the pointer masking
-flavors, and not just x86.
+So I think your patch is cleaner and easier as a fix.
 
-> >
-> > >
-> > > Instead of implicitly restricting the address space on riscv (or any
-> > > current/future architecture), a flag would allow users to opt-in to this
-> > > behavior rather than opt-out as is done on other architectures. This is
-> > > desirable because it is a small class of applications that do pointer
-> > > masking.
-> >
-> > I raised this last time and you didn't seem to address it so to be more
-> > blunt:
-> >
-> > I don't understand why this needs to be an mmap() flag. From this it seems
-> > the whole process needs allocations to be below a certain limit.
-
-Yeah making it per-process does seem logical, as it would help with
-pointer masking.
-
-> >
-> > That _could_ be achieved through a 'personality' or similar (though a
-> > personality is on/off, rather than allowing configuration so maybe
-> > something else would be needed).
-> >
-> > From what you're saying 57-bit is all you really need right? So maybe
-> > ADDR_LIMIT_57BIT?
-
-Addresses will always be limited to 57 bits on riscv and x86 (but not
-necessarily on other architectures). A flag like that would have no
-impact, I do not understand what you are suggesting. This patch is to
-have a configurable number of bits be restricted.
-
-If anything, a personality that was ADDR_LIMIT_48BIT would be the
-closest to what I am trying to achieve. Since the issue is that
-applications fail to work when the address space is greater than 48
-bits.
-
-> >
-> > I don't see how you're going to actually enforce this in a process either
-> > via an mmap flag, as a library might decide not to use it, so you'd need to
-> > control the allocator, the thread library implementation, and everything
-> > that might allocate.
-
-It is reasonable to change the implementation to be per-process but that
-is not the current proposal.
-
-This flag was designed for applications which already directly manage
-all of their addresses like OpenJDK and Go.
-
-This flag implementation was an attempt to make this feature as least
-invasive as possible to reduce maintainence burden and implementation
-complexity.
-
-> >
-> > Liam also raised various points about VMA particulars that I'm not sure are
-> > addressed either.
-> >
-> > I just find it hard to believe that everything will fit together.
-> >
-> > I'd _really_ need to be convinced that this MAP_ flag is justified, and I"m
-> > just not.
-> >
-> > >
-> > > This flag will also allow seemless compatibility between all
-> > > architectures, so applications like Go and OpenJDK that use bits in a
-> > > virtual address can request the exact number of bits they need in a
-> > > generic way. The flag can be checked inside of vm_unmapped_area() so
-> > > that this flag does not have to be handled individually by each
-> > > architecture.
-> >
-> > I'm still very unconvinced and feel the bar needs to be high for making
-> > changes like this that carry maintainership burden.
-> >
-
-I may be naive but what is the burden here? It's two lines of code to
-check MAP_BELOW_HINT and restrict the address. There are the additional
-flags for hint and mmap_addr but those are also trivial to implement.
-
-> > So for me, it's a no really as an overall concept.
-> >
-> > Happy to be convinced otherwise, however... (I may be missing details or
-> > context that provide more justification).
-> >
-> 
-> Some more thoughts:
-> 
-> * If you absolutely must keep allocations below a certain limit, you'd
->   probably need to actually associate this information with the VMA so the
->   memory can't be mremap()'d somewhere invalid (you might not control all
->   code so you can't guarantee this won't happen).
-> * Keeping a map limit associated with a VMA would be horrid and keeping
->   VMAs as small as possible is a key aim, so that'd be a no go. VMA flags
->   are in limited supply also.
-
-Yes that does seem like it would be challenging.
-
-> * If we did implement a per-process thing, but it were arbitrary, we'd then
->   have to handle all kinds of corner cases forever (this is UAPI, can't
->   break it etc.) with crazy-low values, or determine a minimum that might
->   vary by arch...
-
-Throwing an error if the value is determined to be "too low" seems
-reasonable.
-
-> * If we did this we'd absolutely have to implement a check in the brk()
->   implementation, which is a very very sensitive bit of code. And of
->   course, in mmap() and mremap()... and any arch-specific code that might
->   interface with this stuff (these functions are hooked).
-> * A fixed address limit would make more sense, but it seems difficult to
->   know what would work for everybody, and again we'd have to deal with edge
->   cases and having a permanent maintenance burden.
-
-A fixed value is not ideal, since a single size probably would not be
-suffiecient for every application. However if necessary we could fix it
-to 48-bits since arm64 and x86 already do that, and that would still
-allow a generic way of defining this behavior.
-
-> * If you did have a map flag what about merging between VMAs above the
->   limit and below it? To avoid that you'd need to implement some kind of a
->   'VMA flag that has an arbitrary characteristic' or a 'limit' field,
->   adjust all the 'can VMA merge' functions and write extensive testing and
->   none of that is frankly acceptable.
-> * We have some 'weird' arches that might have problem with certain virtual
->   address ranges or require arbitrary mappings at a certain address range
->   that a limit might not be able to account for.
-> 
-> I'm absolutely opposed to a new MAP_ flag for this, but even if you
-> implemented that, it implies a lot of complexity.
-> 
-> It implies even more complexity if you implement something per-process
-> except if it were a fixed limit.
-> 
-> And if you implement a fixed limit, it's hard to see that it'll be
-> acceptable to everybody, and I suspect we'd still run into some possible
-> weirdness.
-> 
-> So again, I'm struggling to see how this concept can be justified in any
-> form.
-
-The piece I am missing here is that this idea is already being used by
-x86 and arm64. They implicitly force all allocations to be below the
-47-bit boundary if the hint address is below 47 bits. This flag is much
-less invasive because it is opt-in and will not impact any existing
-code. I am not familiar enough with all of the interactions spread
-throughout mm to know how these architectures have managed to ensure
-that this 48-bit limit is enforced across things like mremap() as well.
-
-Are you against the idea that there should be a standard way for
-applications to consistently obtain address that have free bits, or are
-you just against this implementation? From your statement I assume you
-mean that every architecture should continue to have varying behavior
-and separate implementations for supporting larger address spaces.
-
-- Charlie
-
+diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
+index c275aa9cc105..99cd9c7bf55b 100644
+--- a/include/linux/huge_mm.h
++++ b/include/linux/huge_mm.h
+@@ -97,6 +97,7 @@ extern struct kobj_attribute thpsize_shmem_enabled_attr;
+ 	(!!thp_vma_allowable_orders(vma, vm_flags, tva_flags, BIT(order)))
+=20
+ #define split_folio(f) split_folio_to_list(f, NULL)
++#define split_folio_to_list(f, list) split_page_folio_to_list(&f->page, f,=
+ list)
+=20
+ #ifdef CONFIG_PGTABLE_HAS_HUGE_LEAVES
+ #define HPAGE_PMD_SHIFT PMD_SHIFT
+@@ -331,10 +332,11 @@ unsigned long thp_get_unmapped_area_vmflags(struct fi=
+le *filp, unsigned long add
+ bool can_split_folio(struct folio *folio, int caller_pins, int *pextra_pin=
+s);
+ int split_huge_page_to_list_to_order(struct page *page, struct list_head *=
+list,
+ 		unsigned int new_order);
+-int split_folio_to_list(struct folio *folio, struct list_head *list);
++int split_page_folio_to_list(struct page *page, struct folio *folio,
++			     struct list_head *list);
+ static inline int split_huge_page(struct page *page)
+ {
+-	return split_folio(page_folio(page));
++	return split_page_folio_to_list(page, page_folio(page), NULL);
+ }
+ void deferred_split_folio(struct folio *folio);
+=20
+@@ -511,7 +513,9 @@ static inline int split_huge_page(struct page *page)
+ 	return 0;
+ }
+=20
+-static inline int split_folio_to_list(struct folio *folio, struct list_hea=
+d *list)
++static inline int split_page_folio_to_list(struct page *page,
++					   struct folio *folio,
++					   struct list_head *list)
+ {
+ 	return 0;
+ }
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 169f1a71c95d..b115bfe63b52 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -3529,7 +3529,8 @@ int split_huge_page_to_list_to_order(struct page *pag=
+e, struct list_head *list,
+ 	return ret;
+ }
+=20
+-int split_folio_to_list(struct folio *folio, struct list_head *list)
++int split_page_folio_to_list(struct page *page, struct folio *folio,
++			     struct list_head *list)
+ {
+ 	unsigned int min_order =3D 0;
+=20
+@@ -3544,8 +3545,7 @@ int split_folio_to_list(struct folio *folio, struct l=
+ist_head *list)
+=20
+ 	min_order =3D mapping_min_folio_order(folio->mapping);
+ out:
+-	return split_huge_page_to_list_to_order(&folio->page, list,
+-							min_order);
++	return split_huge_page_to_list_to_order(page, list, min_order);
+ }
+=20
+ void __folio_undo_large_rmappable(struct folio *folio)
