@@ -1,145 +1,187 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 747F91D6C73;
-	Mon,  2 Sep 2024 11:50:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCAF819F139;
+	Mon,  2 Sep 2024 14:25:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725277835; cv=none; b=o5K4FiGo1Hx2FEm9FHyhrPRExWiLuriDRcNsLVtdGIzuE9u4Bu7KRoa8hFYyNEBl5OLyIwCZl49TIArn9484mTQQg9IdNmTFlgGRkjgQVkV3BVEJVdg+/Cm+6w1q7lQv8KsfldiVp1o4sF4TPVozoGPOrRwkuiShXLnMunthVHE=
+	t=1725287112; cv=none; b=dYTh7/aAbjiEAZOppJcktwyx9EPlVUHwEppi6P1hIujndO4J8q0dgIoDgOy1m9Tx/HcGvWaLEx5eZ68bKT9p6+R3VVOxy2p2Xy6NcZRVPC74bwTdhG1M5r3RRhhl/3bWGICvNX6uHZxmpHY6lqVOem53Vc/8EtT0TbSNBRlZz2M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725277835; c=relaxed/simple;
-	bh=Lc7pUz4AG1LQUWDppC5hG1iXppxDzuNCF9T3re4hPlc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FG8XReXYOR6EiSotQIggWDAHZkI4mwp527Ltk36wRNV40GFzTJBOBWYKiL/H0spUPq3QKgX9RjkDBR3o4/0ZiwQNkxvTc3H7HR4F5lxkxd4AvIfMgOfou2KtS05T2EC1S/ZLiYJ0h7bnJHdjjSRDjgSyFpUfzicGCMXsU9potdk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Vwlza/YH; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1725287112; c=relaxed/simple;
+	bh=DrDOjdxcgadql5m2DXZISZ1sfTqZQxqNNVSF+ORG/Sk=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=R12sljIkxV+fLNePDO59lJTHTvacLXoQekTDfa8OFo2wW4n2qdu8o9r0Lh/hWzvK2g6XCLxKSCDi9ef1wLc1UEtEL3qxtKo7Vp8eU2yg7tl0Jhilb9YgpdCJ3+i4Oa3MXiaGSVVFZqm3KAIjHzCFO53BZAvK3ZDW97CSkWZxAOE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kWYb477T; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Vwlza/YH"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4827l8rc017559;
-	Mon, 2 Sep 2024 11:50:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=8pphi/Hl98Bjy
-	Kfvc49PQxXzj4xrcBobwMiEiX409tM=; b=Vwlza/YHSpcJkEgaDSMmMPmM0jieH
-	Q+ozrNTXLsOeA1BWp72msP+VdhHDoj4Ht8D+Uoq5AVgJjEP5Hw2lasu4lxK88vuR
-	zJAc1BDQ+DBFpC63UgW4BAHFh4wY08tjqjfchfbOk6bP8hwarrIXqZxe3d8oWnAU
-	DfAHX7PCGX+1OUEovnHrTZiurJUVQqWbyhI2ngHuMCgAzI+LlA3Rn79dWrC+uLKs
-	oXYSlFL/XasSHKV8L/ysT35Dy3Q0amEl6sIWzu+slseI7+Q2qX4i1KJX1qFh9wYt
-	4BB9OJWA/AJpKZwOUzMvUxh/F+uze7IRhNgQpLDqmL38Y8KL9Ig1DelcQ==
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kWYb477T"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4827N5fg006465;
+	Mon, 2 Sep 2024 14:25:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
+	5ZtPBO5+7XJ5Szcv5XnJYOqDDn3orzLxqKc2gvbhS+A=; b=kWYb477TeUy4cUnY
+	8/3WgBY6BGJJk7yIqRRqmKQwdYObW4YmewCYkoaOipFzQzzlMxJJakIz1xqdJjHz
+	pMtV5tB/6AlEHp6CiPbiDbKLPUv4ZSe/d4xPJbtnOlssvTPcR5fFnWg6GNIf3uaY
+	uJvPRYj730ZrA42G+IUvxAmD59IlzySc4UftdjYFQNoTKKdTJAK8Mf+c+BwuP3gv
+	D5XWDoNwYfvduUx4opVt06cAWwu1b34PeeTzdWd+UFRlRgplXew+vZOowqvyxSJ3
+	IWf7wRtQRdzQDihwUjRMgzVBE+1GsZzF9zpOnufSIHjhXSRCtA9sPNSt6wC38zjW
+	8lA70w==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41brkqh1td-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41btp99c0k-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Sep 2024 11:50:21 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 482BoL17032601;
-	Mon, 2 Sep 2024 11:50:21 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41brkqh1t6-1
+	Mon, 02 Sep 2024 14:24:59 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 482EOxIg005545;
+	Mon, 2 Sep 2024 14:24:59 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41btp99c0h-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Sep 2024 11:50:21 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4827bEOm018448;
-	Mon, 2 Sep 2024 11:50:20 GMT
+	Mon, 02 Sep 2024 14:24:59 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 482BcPXf000438;
+	Mon, 2 Sep 2024 14:24:58 GMT
 Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41cdw0x4pn-1
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 41cdguercm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Sep 2024 11:50:20 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 482BoG9F51839440
+	Mon, 02 Sep 2024 14:24:58 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 482EOsl739059966
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 2 Sep 2024 11:50:16 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3F34120040;
-	Mon,  2 Sep 2024 11:50:16 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B63BE2004D;
-	Mon,  2 Sep 2024 11:50:15 +0000 (GMT)
-Received: from darkmoore.ibmuc.com (unknown [9.171.60.16])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  2 Sep 2024 11:50:15 +0000 (GMT)
-From: Christoph Schlameuss <schlameuss@linux.ibm.com>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>, schlameuss@linux.ibm.com
-Subject: [PATCH v2 3/3] selftests: kvm: s390: Verify reject memory region operations for ucontrol VMs
-Date: Mon,  2 Sep 2024 13:50:02 +0200
-Message-ID: <20240902115002.199331-4-schlameuss@linux.ibm.com>
-X-Mailer: git-send-email 2.46.0
-In-Reply-To: <20240902115002.199331-1-schlameuss@linux.ibm.com>
-References: <20240902115002.199331-1-schlameuss@linux.ibm.com>
+	Mon, 2 Sep 2024 14:24:54 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AD22220043;
+	Mon,  2 Sep 2024 14:24:54 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 03DAC20040;
+	Mon,  2 Sep 2024 14:24:54 +0000 (GMT)
+Received: from li-978a334c-2cba-11b2-a85c-a0743a31b510.ibm.com (unknown [9.171.31.79])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  2 Sep 2024 14:24:53 +0000 (GMT)
+Message-ID: <0d1fb151a09701588f98547cdb9f74bc743cb615.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 7/7] s390x: Add test for STFLE
+ interpretive execution (format-0)
+From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To: Nico Boehr <nrb@linux.ibm.com>, Claudio Imbrenda
+ <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>
+Cc: Andrew Jones <andrew.jones@linux.dev>, Thomas Huth <thuth@redhat.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Date: Mon, 02 Sep 2024 16:24:53 +0200
+In-Reply-To: <172476771096.31767.10959866977543273401@t14-nrb.local>
+References: <20240620141700.4124157-1-nsg@linux.ibm.com>
+	 <20240620141700.4124157-8-nsg@linux.ibm.com>
+	 <172476771096.31767.10959866977543273401@t14-nrb.local>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.3 (3.52.3-1.fc40) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 0QG0fnDf9hoSvSqlcfAC5YTol1pkf8eB
-X-Proofpoint-ORIG-GUID: mCU2SuZaMNhwynznCY6ZH43LRB-dxKj5
+X-Proofpoint-GUID: iVg7jQp_OdXqhaUZZ0OQtFqaXqz7UjiD
+X-Proofpoint-ORIG-GUID: l07LXFF9gnNGv11tLqBEOqsGnOpIERgk
 X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-09-02_02,2024-09-02_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1011 mlxscore=0 impostorscore=0 malwarescore=0 suspectscore=0
- priorityscore=1501 adultscore=0 mlxlogscore=999 bulkscore=0 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2409020094
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-02_04,2024-09-02_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 lowpriorityscore=0 phishscore=0 impostorscore=0 spamscore=0
+ malwarescore=0 mlxlogscore=999 adultscore=0 mlxscore=0 suspectscore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2409020112
 
-Add a test case verifying KVM_SET_USER_MEMORY_REGION and
-KVM_SET_USER_MEMORY_REGION2 cannot be executed on ucontrol VMs.
+On Tue, 2024-08-27 at 16:08 +0200, Nico Boehr wrote:
+> Quoting Nina Schoetterl-Glausch (2024-06-20 16:17:00)
+> [...]
+> > diff --git a/lib/s390x/asm/facility.h b/lib/s390x/asm/facility.h
+> > index a66fe56a..2bad05c5 100644
+> > --- a/lib/s390x/asm/facility.h
+> > +++ b/lib/s390x/asm/facility.h
+> > @@ -27,12 +27,20 @@ static inline void stfl(void)
+> >         asm volatile("  stfl    0(0)\n" : : : "memory");
+> >  }
+> > =20
+> > -static inline void stfle(uint64_t *fac, unsigned int nb_doublewords)
+> > +static inline unsigned int stfle(uint64_t *fac, unsigned int nb_double=
+words)
+>=20
+> Why unsigned int?
 
-Executing this test case on not patched kernels will cause a null
-pointer dereference in the host kernel.
-This is fixed with commit:
-commit 7816e58967d0 ("kvm: s390: Reject memory region operations for ucontrol VMs")
+The return value is 1-256, the size of the type is a bit arbitrary I suppos=
+e.
 
-Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
----
- .../selftests/kvm/s390x/ucontrol_test.c       | 22 +++++++++++++++++++
- 1 file changed, 22 insertions(+)
+>=20
+> [...]
+> > diff --git a/s390x/snippets/c/stfle.c b/s390x/snippets/c/stfle.c
+> > new file mode 100644
+> > index 00000000..eb024a6a
+> > --- /dev/null
+> > +++ b/s390x/snippets/c/stfle.c
+> [...]
+> > +int main(void)
+> > +{
+> > +       const unsigned int max_fac_len =3D 8;
+> > +       uint64_t res[max_fac_len + 1];
+> > +
+> > +       res[0] =3D max_fac_len - 1;
+> > +       asm volatile ( "lg      0,%[len]\n"
+> > +               "       stfle   %[fac]\n"
+> > +               "       stg     0,%[len]\n"
+> > +               : [fac] "=3DQS"(*(uint64_t(*)[max_fac_len])&res[1]),
+>=20
+> Out of curiosity:
+>=20
+> Q =3D Memory reference without index register and with short displacement
+> S =3D Memory reference without index register but with long displacement
+>=20
+> Which one is it?
 
-diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-index 331a4109b953..7eb103fc8eac 100644
---- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-+++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-@@ -377,6 +377,28 @@ static void uc_assert_diag44(FIXTURE_DATA(uc_kvm) * self)
- 	TEST_ASSERT_EQ(0x440000, sie_block->ipb);
- }
- 
-+TEST_F(uc_kvm, uc_no_user_region)
-+{
-+	struct kvm_userspace_memory_region region = {
-+		.slot = 1,
-+		.guest_phys_addr = self->code_gpa,
-+		.memory_size = VM_MEM_EXT_SIZE,
-+		.userspace_addr = (uintptr_t)self->code_hva,
-+	};
-+	struct kvm_userspace_memory_region2 region2 = {
-+		.slot = 1,
-+		.guest_phys_addr = self->code_gpa,
-+		.memory_size = VM_MEM_EXT_SIZE,
-+		.userspace_addr = (uintptr_t)self->code_hva,
-+	};
-+
-+	ASSERT_EQ(-1, ioctl(self->vm_fd, KVM_SET_USER_MEMORY_REGION, &region));
-+	ASSERT_EQ(EINVAL, errno);
-+
-+	ASSERT_EQ(-1, ioctl(self->vm_fd, KVM_SET_USER_MEMORY_REGION2, &region2));
-+	ASSERT_EQ(EINVAL, errno);
-+}
-+
- TEST_F(uc_kvm, uc_map_unmap)
- {
- 	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
--- 
-2.46.0
+Ups, just short displacement actually.
+
+>=20
+> And: is long displacement even appropriate here?
+>=20
+> The cast also is hard to understand. Since this is not super high
+> performance code, do we just want to clobber memory so this gets a bit
+> easier to understand?
+>=20
+> > +                 [len] "+RT"(res[0])
+>=20
+> Same question about RT as above.
+
+Long, but providing a short displacement should be fine too.
+Not sure if there is any benefit to letting the compiler choose.
+
+>=20
+> [...]
+> > diff --git a/s390x/stfle-sie.c b/s390x/stfle-sie.c
+> > new file mode 100644
+> > index 00000000..a3e7f1c9
+> > --- /dev/null
+> > +++ b/s390x/stfle-sie.c
+> [...]
+> > +static struct guest_stfle_res run_guest(void)
+> > +{
+> > +       struct guest_stfle_res res;
+> > +       uint64_t guest_stfle_addr;
+> > +
+> > +       sie(&vm);
+> > +       assert(snippet_is_force_exit_value(&vm));
+> > +       guest_stfle_addr =3D snippet_get_force_exit_value(&vm);
+> > +       res.mem =3D &vm.guest_mem[guest_stfle_addr];
+> > +       memcpy(&res.reg, res.mem, sizeof(res.reg));
+> > +       res.len =3D (res.reg & 0xff) + 1;
+>=20
+> If I'm not mistaken, you subtracted 1 in the guest. Here you add it again=
+.
+> Is there a particular reason why?
+
+No, it's the direct result of STFLE on register 0.
 
