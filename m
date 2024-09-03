@@ -1,30 +1,32 @@
-Received: from out-177.mta0.migadu.com (out-177.mta0.migadu.com [91.218.175.177])
+Received: from out-176.mta0.migadu.com (out-176.mta0.migadu.com [91.218.175.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39B7E18BBBD
-	for <linux-s390@vger.kernel.org>; Tue,  3 Sep 2024 16:30:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DD1D18BC29
+	for <linux-s390@vger.kernel.org>; Tue,  3 Sep 2024 16:30:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725381058; cv=none; b=toOaqhn9xFnJQH+ZeMQQLAO5mnl7Gz4ErCvMOTu++WKyDe55SvhSD5KziDU7mZqryBuIKCQLA1rRynpWHPwr/6neBov7w2sYsjJ7aoWY9AwrrMamsyYsFvZNsoj6mcKGJLHeEYn+PdZigOXZUidNFNDq0yOO+nRIfWZygMqfgl4=
+	t=1725381060; cv=none; b=pGKqDqZ5S/TkFSKk5db4+rnSYmIw3yMCihTBafz2SALGHrrqn30CmDlkwoX1+eF6Il/syuz6TJsUnKR8OncZJX4iCeEe5zhCL48lUp5LDZ6gRrEVavRZy/wkVZTJaomf/FpekFccDWBP/lqtyWc+BM48CxLH53UKtLReHx/8nN0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725381058; c=relaxed/simple;
-	bh=DVNaHrhGdeeNDyxAyeSdLv3wZlzpfgoOzo7WchAjbq8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jjg22ekV234c6T+iAK6ZdrPzrNI0gfzZPTr93yMMirxv2/APEBftm/r3LoiYUOxt5kZdKFgftM19Vqdyu7o646DfXhKlW9BalNb5KpNZLKGAiM6cIoRLecJhV+YMqiWGzOIua2dt6ZQ72JzSBsH/GVLmwP4w/LDxHJQUwpJC5yo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=wCxhUgXy; arc=none smtp.client-ip=91.218.175.177
+	s=arc-20240116; t=1725381060; c=relaxed/simple;
+	bh=dC1akU4IyAlJTp7JJHPQ3wE3CKtyM0HaBL/1deTZtUo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ZbF4Rxk7SJbUxnnl4xQJeYa6yqRmyKD8w9F2X5Ys6AjlXCnQS9uc58W/X7NxoY4tK0yLNns5x3tdyfrt/kLJYJhDt8s9x6qPO6LR39pG22xtqVOh2tKQ5lCe9Ij7J5LTh6dRKaDXQD5pnDCUVv4SOQ0nXy7dJpuzVduIoZQrP8k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=t/f9dess; arc=none smtp.client-ip=91.218.175.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="wCxhUgXy"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="t/f9dess"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1725381053;
+	t=1725381056;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=ItTT1ofl67Qx6qoM/paB6gC9h88l9uMn+lTF4xll28I=;
-	b=wCxhUgXywgh+iCSp5MYg6y1jvSHm2x6diiCwreF2/QMspOI24IUZvviIXnFNZ11wawMDci
-	3Nz4MnXUCSaklvWm8V8TqnIff8oAwwCmd2J9Q1zJGal5hQB0Dr6SHRgUOONajgn4bpxXSB
-	+z8T3JToDc0X+uzmbf5/QTNUkjfaPYU=
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3UxheV3LaB96UvBMKdu1CVVmJDUPIpuIrbtZKkMPtcQ=;
+	b=t/f9dessP1gbOkieG//YAQXRph3gSAkFIlqtbV8X+u4B2ZB8CqL6HKtaQ+2yg5v5b5qHAB
+	Kvg6v4fCSYhDvH7/nPjBz1jJ402Uf6c6zAuQ4LJGCGLSZ6gxoVX9xKhmsDG1KHgaxk8h7z
+	DbGiBbDKjeGY9q7gQ/Bf3UfmzsNm+CQ=
 From: Andrew Jones <andrew.jones@linux.dev>
 To: kvm@vger.kernel.org,
 	kvm-riscv@lists.infradead.org,
@@ -40,9 +42,11 @@ Cc: pbonzini@redhat.com,
 	atishp@rivosinc.com,
 	cade.richard@berkeley.edu,
 	jamestiotio@gmail.com
-Subject: [kvm-unit-tests PATCH 0/3] Support cross compiling with clang
-Date: Tue,  3 Sep 2024 18:30:47 +0200
-Message-ID: <20240903163046.869262-5-andrew.jones@linux.dev>
+Subject: [kvm-unit-tests PATCH 1/3] riscv: Drop mstrict-align
+Date: Tue,  3 Sep 2024 18:30:48 +0200
+Message-ID: <20240903163046.869262-6-andrew.jones@linux.dev>
+In-Reply-To: <20240903163046.869262-5-andrew.jones@linux.dev>
+References: <20240903163046.869262-5-andrew.jones@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -52,23 +56,28 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-Modify configure to allow --cc=clang and a cross-prefix to be specified
-together (as well as --cflags). This allows compiling with clang, but
-using cross binutils for everything else, including the linker. So far
-tested on riscv 32- and 64-bit and aarch64 (with some hacks to the code
-to get it to compile - which is why there's no gitlab-ci patch for aarch64
-in this series). I suspect it should work for other architectures too.
+The spec says unaligned accesses are supported, so this isn't required
+and clang doesn't support it. A platform might have slow unaligned
+accesses, but kvm-unit-tests isn't about speed anyway.
 
-Andrew Jones (3):
-  riscv: Drop mstrict-align
-  configure: Support cross compiling with clang
-  riscv: gitlab-ci: Add clang build tests
+Signed-off-by: Andrew Jones <andrew.jones@linux.dev>
+---
+ riscv/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- .gitlab-ci.yml | 28 ++++++++++++++++++++++++++++
- configure      | 11 ++++++++---
- riscv/Makefile |  2 +-
- 3 files changed, 37 insertions(+), 4 deletions(-)
-
+diff --git a/riscv/Makefile b/riscv/Makefile
+index 179a373dbacf..2ee7c5bb5ad8 100644
+--- a/riscv/Makefile
++++ b/riscv/Makefile
+@@ -76,7 +76,7 @@ LDFLAGS += -melf32lriscv
+ endif
+ CFLAGS += -DCONFIG_RELOC
+ CFLAGS += -mcmodel=medany
+-CFLAGS += -mstrict-align
++#CFLAGS += -mstrict-align
+ CFLAGS += -std=gnu99
+ CFLAGS += -ffreestanding
+ CFLAGS += -O2
 -- 
 2.46.0
 
