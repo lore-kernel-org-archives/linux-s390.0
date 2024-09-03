@@ -1,109 +1,164 @@
-Received: from out-175.mta1.migadu.com (out-175.mta1.migadu.com [95.215.58.175])
+Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDE3018C330
-	for <linux-s390@vger.kernel.org>; Tue,  3 Sep 2024 16:31:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D252F3C092;
+	Tue,  3 Sep 2024 17:18:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725381067; cv=none; b=DitOPR5RUHX8nDVoUke2hRsf4b8ip9lxHa8fwXwSpQGcmTe4t8sPDd0wAEp96lXbEZ1ffi5S0IvU5qIV7v5Y8uzyxjOzuzUG86PRDbq+b78jD/Zo/6jMLjLzYwvxLjSIeTct9GHcfNeka14rC5e5vajcMDyhhXwlusS3H1B20IM=
+	t=1725383913; cv=none; b=jnKldOXS7YQM9IDNUQ4a7Y/eIqrxC2xR+scejKFhfq4OSsh6xXWKtosWcvOgtYqw+W25vpV0mHXaTdZBXfX1niUWpRs7Budz2QaMZdETDWdZPhuuWKIx24CYTEoX5kw3cKN+zXAzbdLNamZWcwZrDzGyUGtPQhOSQe6VV8oxMO8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725381067; c=relaxed/simple;
-	bh=1e2PJ9C4cSjp3/AMqt3JlJ1Cx1fmp2V4q5C273sWOSk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UwlTDM4i0WexxL6Xn4qRGEE5+xQE/btuvsjCkKmaKyWIKmWjgWU6xSiBZGsKsLZsX0uQyUjWPmHRFIjgpYBEguG9NQOMVx/teudhNGlJxVmH7fA3MakqRuI2JffpmD0B0BSvzST3IpHh+gUFP72fw2461TarYL/yH148kUHMtEs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=fnHXhWjW; arc=none smtp.client-ip=95.215.58.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="fnHXhWjW"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1725381063;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=3BZJkoNgFN6URY+7lN/rD+PAMiteNcprRb2IpocXJAk=;
-	b=fnHXhWjWeEn3rcGrQ/Z+7smSSzd/z9fh1Rnug/H9guDSc4s33GknopNiQVzNKy5PuQFyIs
-	lUoEGLn1k6hs+3yDmWrR2nEIJHY1TctbeZQLU/9yK8DdjZ8Q7W4H6vDdr228KqSUmG7Lmz
-	ed4VefAucFdC2jsCKGcgx0TDyicuR/4=
-From: Andrew Jones <andrew.jones@linux.dev>
-To: kvm@vger.kernel.org,
-	kvm-riscv@lists.infradead.org,
-	kvmarm@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org
-Cc: pbonzini@redhat.com,
-	thuth@redhat.com,
-	lvivier@redhat.com,
-	frankja@linux.ibm.com,
-	imbrenda@linux.ibm.com,
-	nrb@linux.ibm.com,
-	atishp@rivosinc.com,
-	cade.richard@berkeley.edu,
-	jamestiotio@gmail.com
-Subject: [kvm-unit-tests PATCH 3/3] riscv: gitlab-ci: Add clang build tests
-Date: Tue,  3 Sep 2024 18:30:50 +0200
-Message-ID: <20240903163046.869262-8-andrew.jones@linux.dev>
-In-Reply-To: <20240903163046.869262-5-andrew.jones@linux.dev>
-References: <20240903163046.869262-5-andrew.jones@linux.dev>
+	s=arc-20240116; t=1725383913; c=relaxed/simple;
+	bh=rAT/16lEXiR/FQGCf8mH61WrxLJvKpfnUCw3JXbOKlk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=avqldA+j2/KSk3b5d6kJVRCAJLdAaZGo8rcdSP33W6Kgusq6CW5wSXQjS9RaemA5+49C3z0IerOGdrTeypCfyWU0rhUYYekbpz/oRIcHoRHopgtuf9uVfX0CMIqqIQsCjfj2b8iZOiDEHuq3t02UCR6QuGtHp0yCkkmdbiz5yLY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+	by localhost (Postfix) with ESMTP id 4Wysln5hp8z9sSK;
+	Tue,  3 Sep 2024 19:18:29 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Es6jtyXV_O1v; Tue,  3 Sep 2024 19:18:29 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+	by pegase2.c-s.fr (Postfix) with ESMTP id 4Wysln4Pwgz9sSC;
+	Tue,  3 Sep 2024 19:18:29 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id 7B7CC8B778;
+	Tue,  3 Sep 2024 19:18:29 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+	with ESMTP id roQ3ugp6WN-D; Tue,  3 Sep 2024 19:18:29 +0200 (CEST)
+Received: from [192.168.234.228] (unknown [192.168.234.228])
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id 3CEB98B774;
+	Tue,  3 Sep 2024 19:18:27 +0200 (CEST)
+Message-ID: <6b07c48d-656f-4e42-bfa7-0ecead72a7b8@csgroup.eu>
+Date: Tue, 3 Sep 2024 19:18:26 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC v2 2/4] mm: Add hint and mmap_flags to struct
+ vm_unmapped_area_info
+To: Charlie Jenkins <charlie@rivosinc.com>, Arnd Bergmann <arnd@arndb.de>,
+ Richard Henderson <richard.henderson@linaro.org>,
+ Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner
+ <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
+ Russell King <linux@armlinux.org.uk>, Guo Ren <guoren@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>, Naveen N Rao <naveen@kernel.org>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ "David S. Miller" <davem@davemloft.net>,
+ Andreas Larsson <andreas@gaisler.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, Muchun Song <muchun.song@linux.dev>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
+ <vbabka@suse.cz>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ Shuah Khan <shuah@kernel.org>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-mm@kvack.org,
+ linux-kselftest@vger.kernel.org
+References: <20240829-patches-below_hint_mmap-v2-0-638a28d9eae0@rivosinc.com>
+ <20240829-patches-below_hint_mmap-v2-2-638a28d9eae0@rivosinc.com>
+Content-Language: fr-FR
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+In-Reply-To: <20240829-patches-below_hint_mmap-v2-2-638a28d9eae0@rivosinc.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
-Test building 32 and 64-bit with clang. Throw a test of in- and out-
-of-tree building in too by swapping which is done to which (32-bit
-vs. 64-bit) with respect to the gcc build tests.
+Hi Charlie,
 
-Signed-off-by: Andrew Jones <andrew.jones@linux.dev>
----
- .gitlab-ci.yml | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+Le 29/08/2024 à 09:15, Charlie Jenkins a écrit :
+> The hint address and mmap_flags are necessary to determine if
+> MAP_BELOW_HINT requirements are satisfied.
+> 
+> Signed-off-by: Charlie Jenkins <charlie@rivosinc.com>
+> ---
+>   arch/alpha/kernel/osf_sys.c      | 2 ++
+>   arch/arc/mm/mmap.c               | 3 +++
+>   arch/arm/mm/mmap.c               | 7 +++++++
+>   arch/csky/abiv1/mmap.c           | 3 +++
+>   arch/loongarch/mm/mmap.c         | 3 +++
+>   arch/mips/mm/mmap.c              | 3 +++
+>   arch/parisc/kernel/sys_parisc.c  | 3 +++
+>   arch/powerpc/mm/book3s64/slice.c | 7 +++++++
+>   arch/s390/mm/hugetlbpage.c       | 4 ++++
+>   arch/s390/mm/mmap.c              | 6 ++++++
+>   arch/sh/mm/mmap.c                | 6 ++++++
+>   arch/sparc/kernel/sys_sparc_32.c | 3 +++
+>   arch/sparc/kernel/sys_sparc_64.c | 6 ++++++
+>   arch/sparc/mm/hugetlbpage.c      | 4 ++++
+>   arch/x86/kernel/sys_x86_64.c     | 6 ++++++
+>   arch/x86/mm/hugetlbpage.c        | 4 ++++
+>   fs/hugetlbfs/inode.c             | 4 ++++
+>   include/linux/mm.h               | 2 ++
+>   mm/mmap.c                        | 6 ++++++
+>   19 files changed, 82 insertions(+)
+> 
 
-diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
-index 67a9a15733f1..033ed65aec26 100644
---- a/.gitlab-ci.yml
-+++ b/.gitlab-ci.yml
-@@ -176,6 +176,34 @@ build-riscv64-efi:
-       | tee results.txt
-  - grep -q PASS results.txt && ! grep -q FAIL results.txt
- 
-+build-riscv64-clang:
-+ extends: .outoftree_template
-+ script:
-+ - dnf install -y qemu-system-riscv gcc-riscv64-linux-gnu clang
-+ - mkdir build
-+ - cd build
-+ - ../configure --arch=riscv64 --cc=clang --cflags='--target=riscv64' --cross-prefix=riscv64-linux-gnu-
-+ - make -j2
-+ - printf "FOO=foo\nBAR=bar\nBAZ=baz\nMVENDORID=0\nMARCHID=0\nMIMPID=0\n" >test-env
-+ - ACCEL=tcg KVM_UNIT_TESTS_ENV=test-env ./run_tests.sh
-+      selftest
-+      sbi
-+      | tee results.txt
-+ - grep -q PASS results.txt && ! grep -q FAIL results.txt
-+
-+build-riscv32-clang:
-+ extends: .intree_template
-+ script:
-+ - dnf install -y qemu-system-riscv gcc-riscv64-linux-gnu clang
-+ - ./configure --arch=riscv32 --cc=clang --cflags='--target=riscv32' --cross-prefix=riscv64-linux-gnu-
-+ - make -j2
-+ - printf "FOO=foo\nBAR=bar\nBAZ=baz\nMVENDORID=0\nMARCHID=0\nMIMPID=0\n" >test-env
-+ - ACCEL=tcg KVM_UNIT_TESTS_ENV=test-env ./run_tests.sh
-+      selftest
-+      sbi
-+      | tee results.txt
-+ - grep -q PASS results.txt && ! grep -q FAIL results.txt
-+
- build-s390x:
-  extends: .outoftree_template
-  script:
--- 
-2.46.0
+>   
+> diff --git a/arch/powerpc/mm/book3s64/slice.c b/arch/powerpc/mm/book3s64/slice.c
+> index ef3ce37f1bb3..f0e2550af6d0 100644
+> --- a/arch/powerpc/mm/book3s64/slice.c
+> +++ b/arch/powerpc/mm/book3s64/slice.c
+> @@ -286,6 +286,10 @@ static unsigned long slice_find_area_bottomup(struct mm_struct *mm,
+>   		.length = len,
+>   		.align_mask = PAGE_MASK & ((1ul << pshift) - 1),
+>   	};
+> +
+> +	info.hint = addr;
+> +	info.mmap_flags = flags;
+> +
+>   	/*
+>   	 * Check till the allow max value for this mmap request
+>   	 */
+> @@ -331,6 +335,9 @@ static unsigned long slice_find_area_topdown(struct mm_struct *mm,
+>   	};
+>   	unsigned long min_addr = max(PAGE_SIZE, mmap_min_addr);
+>   
+> +	info.hint = addr;
+> +	info.mmap_flags = flags;
+> +
+>   	/*
+>   	 * If we are trying to allocate above DEFAULT_MAP_WINDOW
+>   	 * Add the different to the mmap_base.
 
+ppc64_defconfig:
+
+   CC      arch/powerpc/mm/book3s64/slice.o
+arch/powerpc/mm/book3s64/slice.c: In function 'slice_find_area_bottomup':
+arch/powerpc/mm/book3s64/slice.c:291:27: error: 'flags' undeclared 
+(first use in this function)
+   291 |         info.mmap_flags = flags;
+       |                           ^~~~~
+arch/powerpc/mm/book3s64/slice.c:291:27: note: each undeclared 
+identifier is reported only once for each function it appears in
+arch/powerpc/mm/book3s64/slice.c: In function 'slice_find_area_topdown':
+arch/powerpc/mm/book3s64/slice.c:339:27: error: 'flags' undeclared 
+(first use in this function)
+   339 |         info.mmap_flags = flags;
+       |                           ^~~~~
+make[5]: *** [scripts/Makefile.build:244: 
+arch/powerpc/mm/book3s64/slice.o] Error 1
