@@ -1,32 +1,32 @@
-Received: from out-176.mta0.migadu.com (out-176.mta0.migadu.com [91.218.175.176])
+Received: from out-170.mta1.migadu.com (out-170.mta1.migadu.com [95.215.58.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DD1D18BC29
-	for <linux-s390@vger.kernel.org>; Tue,  3 Sep 2024 16:30:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18D7118C01C
+	for <linux-s390@vger.kernel.org>; Tue,  3 Sep 2024 16:31:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725381060; cv=none; b=pGKqDqZ5S/TkFSKk5db4+rnSYmIw3yMCihTBafz2SALGHrrqn30CmDlkwoX1+eF6Il/syuz6TJsUnKR8OncZJX4iCeEe5zhCL48lUp5LDZ6gRrEVavRZy/wkVZTJaomf/FpekFccDWBP/lqtyWc+BM48CxLH53UKtLReHx/8nN0=
+	t=1725381065; cv=none; b=MQSZWhNyHHtiA61HmctdcnvS7u+3LqqiFPjSYedyviIvuTZ1szbMJvbTyI9FDepFsJRs0s2GdT/x03IIZAo4K6m6HyEBshzIAgw7o++5QsJ2pyYNtfYHiqJSkzUydCqD4gokhonLo9l2vRazqTnpehjH1rzn4mSB/9HqiqUTwPM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725381060; c=relaxed/simple;
-	bh=dC1akU4IyAlJTp7JJHPQ3wE3CKtyM0HaBL/1deTZtUo=;
+	s=arc-20240116; t=1725381065; c=relaxed/simple;
+	bh=JoVGmAznTB8rAuBFZfUmjldvgv18ZdbJysSiPzN86lM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZbF4Rxk7SJbUxnnl4xQJeYa6yqRmyKD8w9F2X5Ys6AjlXCnQS9uc58W/X7NxoY4tK0yLNns5x3tdyfrt/kLJYJhDt8s9x6qPO6LR39pG22xtqVOh2tKQ5lCe9Ij7J5LTh6dRKaDXQD5pnDCUVv4SOQ0nXy7dJpuzVduIoZQrP8k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=t/f9dess; arc=none smtp.client-ip=91.218.175.176
+	 MIME-Version; b=JKHWuMmxl2KQj5hrfyJm2jXf+c2nXXrYSBaYqXdY7PR7wUHFRf5OB4O7tghRJp4nYQFFtpstDYv/3dYr3MvbrEsniLqi94lsJ2T5uphTkjkNYl9q9xLYdLPEAy3+rGVPVvCFNSkrYd0IunNcClpn5M4jQky/DpvvXspefnBKyJM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=QZSx9FlW; arc=none smtp.client-ip=95.215.58.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="t/f9dess"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="QZSx9FlW"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1725381056;
+	t=1725381059;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=3UxheV3LaB96UvBMKdu1CVVmJDUPIpuIrbtZKkMPtcQ=;
-	b=t/f9dessP1gbOkieG//YAQXRph3gSAkFIlqtbV8X+u4B2ZB8CqL6HKtaQ+2yg5v5b5qHAB
-	Kvg6v4fCSYhDvH7/nPjBz1jJ402Uf6c6zAuQ4LJGCGLSZ6gxoVX9xKhmsDG1KHgaxk8h7z
-	DbGiBbDKjeGY9q7gQ/Bf3UfmzsNm+CQ=
+	bh=9YGHRkZZZq6gSBTbmL0m4A7pOzURwmJyYm0zSj6RQgA=;
+	b=QZSx9FlW5q/PKHaiVhKUcE209XR2Jv2S4PWXyQ+C2agSThKJDI3G35n7oWlu97ZlgiXY50
+	NWkXNF5Pfg/x/RNjS/zCybHxNXq9ELm9dkqtnVKppPm1dm+hrrQOx7Ubqnb3lIfPcgqtJx
+	psaZB3pKvx15c+peLES4B+uoKed0yPY=
 From: Andrew Jones <andrew.jones@linux.dev>
 To: kvm@vger.kernel.org,
 	kvm-riscv@lists.infradead.org,
@@ -42,9 +42,9 @@ Cc: pbonzini@redhat.com,
 	atishp@rivosinc.com,
 	cade.richard@berkeley.edu,
 	jamestiotio@gmail.com
-Subject: [kvm-unit-tests PATCH 1/3] riscv: Drop mstrict-align
-Date: Tue,  3 Sep 2024 18:30:48 +0200
-Message-ID: <20240903163046.869262-6-andrew.jones@linux.dev>
+Subject: [kvm-unit-tests PATCH 2/3] configure: Support cross compiling with clang
+Date: Tue,  3 Sep 2024 18:30:49 +0200
+Message-ID: <20240903163046.869262-7-andrew.jones@linux.dev>
 In-Reply-To: <20240903163046.869262-5-andrew.jones@linux.dev>
 References: <20240903163046.869262-5-andrew.jones@linux.dev>
 Precedence: bulk
@@ -56,28 +56,78 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-The spec says unaligned accesses are supported, so this isn't required
-and clang doesn't support it. A platform might have slow unaligned
-accesses, but kvm-unit-tests isn't about speed anyway.
+When a user specifies the compiler with --cc assume it's already
+fully named, even if the user also specifies a cross-prefix. This
+allows clang to be selected for the compiler, which doesn't use
+prefixes, but also still provide a cross prefix for binutils. If
+a user needs a prefix on the compiler that they specify with --cc,
+then they'll just have to specify it with the prefix prepended.
+
+Also ensure user provided cflags are used when testing the compiler,
+since the flags may drastically change behavior, such as the --target
+flag for clang.
+
+With these changes it's possible to cross compile for riscv with
+clang after configuring with
+
+ ./configure --arch=riscv64 --cc=clang --cflags='--target=riscv64' \
+             --cross-prefix=riscv64-linux-gnu-
 
 Signed-off-by: Andrew Jones <andrew.jones@linux.dev>
 ---
- riscv/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ configure | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/riscv/Makefile b/riscv/Makefile
-index 179a373dbacf..2ee7c5bb5ad8 100644
---- a/riscv/Makefile
-+++ b/riscv/Makefile
-@@ -76,7 +76,7 @@ LDFLAGS += -melf32lriscv
- endif
- CFLAGS += -DCONFIG_RELOC
- CFLAGS += -mcmodel=medany
--CFLAGS += -mstrict-align
-+#CFLAGS += -mstrict-align
- CFLAGS += -std=gnu99
- CFLAGS += -ffreestanding
- CFLAGS += -O2
+diff --git a/configure b/configure
+index 27ae9cc89657..337af07374df 100755
+--- a/configure
++++ b/configure
+@@ -130,6 +130,7 @@ while [[ "$1" = -* ]]; do
+ 	    ;;
+ 	--cc)
+ 	    cc="$arg"
++	    cc_selected=yes
+ 	    ;;
+ 	--cflags)
+ 	    cflags="$arg"
+@@ -200,6 +201,10 @@ while [[ "$1" = -* ]]; do
+     esac
+ done
+ 
++if [ -z "$cc_selected" ] && [ "$cross_prefix" ]; then
++    cc="$cross_prefix$cc"
++fi
++
+ if [ -z "$efi" ] || [ "$efi" = "n" ]; then
+     [ "$efi_direct" = "y" ] && efi_direct=
+ fi
+@@ -370,7 +375,7 @@ fi
+ cat << EOF > lib-test.c
+ __UINT32_TYPE__
+ EOF
+-u32_long=$("$cross_prefix$cc" -E lib-test.c | grep -v '^#' | grep -q long && echo yes)
++u32_long=$("$cc" $cflags -E lib-test.c | grep -v '^#' | grep -q long && echo yes)
+ rm -f lib-test.c
+ 
+ # check if slash can be used for division
+@@ -379,7 +384,7 @@ if [ "$arch" = "i386" ] || [ "$arch" = "x86_64" ]; then
+ foo:
+     movl (8 / 2), %eax
+ EOF
+-  wa_divide=$("$cross_prefix$cc" -c lib-test.S >/dev/null 2>&1 || echo yes)
++  wa_divide=$("$cc" $cflags -c lib-test.S >/dev/null 2>&1 || echo yes)
+   rm -f lib-test.{o,S}
+ fi
+ 
+@@ -442,7 +447,7 @@ ARCH=$arch
+ ARCH_NAME=$arch_name
+ ARCH_LIBDIR=$arch_libdir
+ PROCESSOR=$processor
+-CC=$cross_prefix$cc
++CC=$cc
+ CFLAGS=$cflags
+ LD=$cross_prefix$ld
+ OBJCOPY=$cross_prefix$objcopy
 -- 
 2.46.0
 
