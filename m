@@ -1,93 +1,122 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72F0519CC3F
-	for <linux-s390@vger.kernel.org>; Tue,  3 Sep 2024 09:39:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51DE01C62A6;
+	Tue,  3 Sep 2024 10:46:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725356391; cv=none; b=U0lHnR/cd58EDCeDJ5WlLSBSlFe4PDTMHMQhAbD0vSWNA3qzQp8O+F6LuKxPHGl+00DD1h1wA/5HJvRU3SyOXjet9LkFrug6LO4IFCWvgqfVlAT3dWf+sjbPnJA8EopQcuMmVQ9Sao2yQQYYfCl8xwc6k6beOMLpwqrNH9P9fw8=
+	t=1725360393; cv=none; b=SByY/i+vr02NC/9dc79ZtKIxxjrLY9Ae52dhGLJ8l8JXZF/04XvlUkXjPAzb9Iz49UJRnlH3NWPLp9DILhPcunMWKiKl4TwlLzSfJc+bnzW5yzjsCmHW74IkVucpha2BR43+VE1DUN1D4Tb/lDjjh64rEpY+6WAXRrBFN60OEYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725356391; c=relaxed/simple;
-	bh=pE3Mr0PnS9xl+CUiCEH2hxI4fWM92/vwv+iNfIiq4l8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SDS8IgomyiDPCQ5suMHmLnIM3GuGztJhLoDI3S1D/xgn62DHmuTBkoxS4f34lcXE0+qT1TdRpRoEFS0o9syvDtTPXdxUNctHJGtlU++2Rcd52n0Gcifx8Lw8d5rT0xUhFidCGdTLptCX4wjufbYg+hMjK7AbUb2g3eGEuAU97EE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fmisxTY5; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1725360393; c=relaxed/simple;
+	bh=o2b8c0Bj9mGYJ2AYqfrkFbiLNg7TbfSyPnNo4eWzeAQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=rEHxoOAvme3XLqoR8s7LKOLNeGuWBHJJ6K8GkiA/+O/+Tknk7bFTrvoYRjv4ud7+Z05jTCKwTRbUpMfeqFwwOP0oUoe9T+fJdGE4wFQBvaVBq+GEex47X4CxvlvPQboP++xDrTNVr7PKq64HiRh6SMDMzk2xDFscemHyLchEaMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rc7OPU5f; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fmisxTY5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725356389;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=cIxA/7+yR2jXA4ieeKPuD5EUL5lArHR8csGiCMl6eW4=;
-	b=fmisxTY53Y4E/VGqtgvHNMeW0Q3vvFvQ393P3rrr30xxTzISWya8NIcYx+PSEmTsr1yJXi
-	FNnyvq1D5helKoIah8wIzx9HO+adBJRjZY7qFcRzHSZey/OllkVwi8ZdedULqp7mFGeCMx
-	c9hun3MkAikIXEGP+bkhrlrTZ0eY9FU=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-551-xqYjH8LEOPOyP0ft67KTLQ-1; Tue, 03 Sep 2024 05:39:46 -0400
-X-MC-Unique: xqYjH8LEOPOyP0ft67KTLQ-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-42bb8610792so45160675e9.3
-        for <linux-s390@vger.kernel.org>; Tue, 03 Sep 2024 02:39:46 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725356385; x=1725961185;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cIxA/7+yR2jXA4ieeKPuD5EUL5lArHR8csGiCMl6eW4=;
-        b=qZXT0oR8zCHimdopHRgcU/puWxa/DPlJrJeXdzdS1tup3XEM4zsnYXFnmNbPann783
-         PgM4P7nYsxSqF4cCQfn+vfreWgTcLvEFKMXAh0M0uafvtRZV+/RDFm08vCImrnd9H8tb
-         u5SNMzjhZDKTmnA0KakXcwmIAHKfoIhw3f4RDrA1KCfVaS497ewX6zIPxYHIHYrDYQfr
-         Whfwzfa7JPAGe2KndT8l7kTHrsltF1+sE5mEQdxwsSr0nhdEHrLEX68zxVlX/rET8mKf
-         p2uMD3mfNgiiSt4UGkJ+LGykPV+AqWy4G7kIXZByIwK11xZLBpVrU46dAK0N+Tya8pD6
-         JhkA==
-X-Forwarded-Encrypted: i=1; AJvYcCXwRY7qzh9KApoh4zfTA+elBBhd7bOl9VsDXi4RJxJ0qnk2wfy9wPKxnGHUaQbakh9Z/ezmgkg/06t8@vger.kernel.org
-X-Gm-Message-State: AOJu0YyvxwWFA4OiCzcfq8YrZgayh6rwnp0irt9bcN2RbaW5CJ0PBZoq
-	5sDhxniMT3T4GfHuqqK9JWK1IJ/xkglQyZ8KU2qFNSqi90dEiCcvpnwDnDJZf/0lHP1TM4pByNj
-	5YMGTLdtgkweHATNa6NsEeXW2YfezV+65IuSK3gqsQK752VeTj09wVS3TL1U=
-X-Received: by 2002:a05:600c:1f90:b0:429:dc88:7e65 with SMTP id 5b1f17b1804b1-42bb02ecb7emr124596375e9.12.1725356385058;
-        Tue, 03 Sep 2024 02:39:45 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEx9ZT+cp/JOzMdJ0eMMwlRMn2QkU5Mi38V0c6sZIqJTMhc/MD50iSbcQF046e0ymvaKlJlng==
-X-Received: by 2002:a05:600c:1f90:b0:429:dc88:7e65 with SMTP id 5b1f17b1804b1-42bb02ecb7emr124595995e9.12.1725356384137;
-        Tue, 03 Sep 2024 02:39:44 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc7:441:95c6:9977:c577:f3d1:99e1])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42bb6df0f41sm164222235e9.19.2024.09.03.02.39.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Sep 2024 02:39:43 -0700 (PDT)
-Date: Tue, 3 Sep 2024 05:39:39 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: iommu@lists.linux.dev, Marek Szyprowski <m.szyprowski@samsung.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Bingbu Cao <bingbu.cao@intel.com>, Jason Wang <jasowang@redhat.com>,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
-	linux-media@vger.kernel.org, virtualization@lists.linux.dev,
-	xen-devel@lists.xenproject.org
-Subject: Re: clearly mark DMA_OPS support as an architecture feature v2
-Message-ID: <20240903053917-mutt-send-email-mst@kernel.org>
-References: <20240828061104.1925127-1-hch@lst.de>
- <20240903072744.GA2082@lst.de>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rc7OPU5f"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 483AhtGG009059;
+	Tue, 3 Sep 2024 10:46:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:content-type
+	:in-reply-to:mime-version; s=pp1; bh=LF2nPU0WECcKjBshktK/8eKhGHS
+	63EdWoNHlS3x2fEM=; b=rc7OPU5fYa/M0xHjfWJRNiK1yORZcqWmEPgdrdKdoLB
+	Y/Z6d5thv7FE4jLjiSpyRxQtPnN8N8UiqDbN4pIoJRo7ckJM+pd+tWw1nlIeDYGg
+	x8i1MZCmhCa5TeTvYQCb+SEzaf5caRGyymP+BxMz6s4l8e8thXWlDzqPvfDpvkfY
+	BMSWsOr30naT1+FxITbTZ7IvEPvGNZqhaQh4vwv1E3mIwsWEyeFwL7zN0DCSFuYS
+	QzoDXG5fSRIiG7J33A2CSrl/KiXzAuib/IDj1tbjmx+AAj4iCv7nzATfLFbTfAFP
+	q7jpzbuWv8OhVk1FolfFQx1EJK4fv7K4JNG3SGZDdKw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41bskkwe2q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 03 Sep 2024 10:46:27 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 483AkQJt013282;
+	Tue, 3 Sep 2024 10:46:26 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41bskkwe2m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 03 Sep 2024 10:46:26 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4838r8Jm009226;
+	Tue, 3 Sep 2024 10:46:26 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 41cg73j0ns-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 03 Sep 2024 10:46:26 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 483AkMdv55902706
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 3 Sep 2024 10:46:22 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 35FDA20040;
+	Tue,  3 Sep 2024 10:46:22 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E129320043;
+	Tue,  3 Sep 2024 10:46:21 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue,  3 Sep 2024 10:46:21 +0000 (GMT)
+Date: Tue, 3 Sep 2024 12:46:20 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Cc: Nico Boehr <nrb@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Andrew Jones <andrew.jones@linux.dev>, Thomas Huth <thuth@redhat.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v3 7/7] s390x: Add test for STFLE
+ interpretive execution (format-0)
+Message-ID: <20240903104620.8020-B-hca@linux.ibm.com>
+References: <20240620141700.4124157-1-nsg@linux.ibm.com>
+ <20240620141700.4124157-8-nsg@linux.ibm.com>
+ <172476771096.31767.10959866977543273401@t14-nrb.local>
+ <0d1fb151a09701588f98547cdb9f74bc743cb615.camel@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0d1fb151a09701588f98547cdb9f74bc743cb615.camel@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: YipagRHv1OMrmAj4hqPwCO8b1FulxjTe
+X-Proofpoint-ORIG-GUID: QlEL6-c359IfK7AOlDSRMVcheUXAhR6V
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240903072744.GA2082@lst.de>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-02_06,2024-09-03_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ mlxlogscore=707 clxscore=1011 phishscore=0 spamscore=0 bulkscore=0
+ impostorscore=0 malwarescore=0 lowpriorityscore=0 adultscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2409030085
 
-On Tue, Sep 03, 2024 at 09:27:44AM +0200, Christoph Hellwig wrote:
-> I've pulled this into the dma-mapping for-next tree, although I'd
-> love to see one of the vdpa maintainers look over patch 1.  I'm
-> pretty sure it's correct, but a confirmation would be good.
+On Mon, Sep 02, 2024 at 04:24:53PM +0200, Nina Schoetterl-Glausch wrote:
+> On Tue, 2024-08-27 at 16:08 +0200, Nico Boehr wrote:
+> > Quoting Nina Schoetterl-Glausch (2024-06-20 16:17:00)
+> > 
+> > And: is long displacement even appropriate here?
+> > 
+> > The cast also is hard to understand. Since this is not super high
+> > performance code, do we just want to clobber memory so this gets a bit
+> > easier to understand?
+> > 
+> > > +                 [len] "+RT"(res[0])
+> > 
+> > Same question about RT as above.
+> 
+> Long, but providing a short displacement should be fine too.
+> Not sure if there is any benefit to letting the compiler choose.
 
-Missed patch 1, I was wondering why I'm CC'd. Looks good, thanks.
+There are some older gcc compilers around which fail to compile if you
+specify T for long displacement, but the compiler sees that a short
+displacement would work. So please specify RT to avoid such compile
+bugs.
 
+See https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=3e4be43f69da
