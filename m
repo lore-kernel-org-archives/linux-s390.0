@@ -1,124 +1,183 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CF8A1DC72A;
-	Tue,  3 Sep 2024 19:57:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A00BB3D6B;
+	Wed,  4 Sep 2024 04:13:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=150.107.74.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725393453; cv=none; b=Y1eprk6gJuR8I2zWEkKC0yqlKocHiSAPNTZ5XfEZg+WeX9ebwEcDdgVZ4KbzXSZSdnW2GM9TMC18Qs6chbiJuzT2jQxk3WdwGuGd1eK3te9OnN2hRLPKK0e1gskFAUkJEuDxZZNDqr/BmyRkVyf/s/YRakOAkTYm77Oq1FxEpbM=
+	t=1725423242; cv=none; b=VzxKpdsBIbZOJUnyC9kHqM38CBKHeLm1jAis/mZEKb67iU8jYglnxoOnK+QqWFKD+67gfrnE/kSHgpVRaTMPxQ4xtvOqzvl82f20YmueQArOdO80ZQXYkhusGYHG/81NogTmHpdqt3d8Oq+l0CL2mxRbx/ogrOGOsZvMhfa/mr0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725393453; c=relaxed/simple;
-	bh=NTkAihUq8wJ3QQyD2jsoOFW0fG+0732f5lSDZtBgAPI=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=V3KsK8kljEB6KtexukcRBwe38u8xBeFcxAYf48eeki06+7POEHLqHs6uxC3ccIU5uq8MaUaF5+osYf0Aw+qIrfvOp1YHQtkWcaAyDRaYnr+iX653Bu7eJTNRu/v5lB43GsMsqlirIfmLBckCMoQYj+UutS6vyWXCpk3RGYm8FBs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ibTzt+Zg; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1725423242; c=relaxed/simple;
+	bh=BLJDIM+UhFjsEpA2gm+jsKfoSlgXOmwgzm0WXa5YV/w=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=itL54jqwsB48te3WRGyqZSmCgt131o370ekvM8IRESaRIShNtkfkX9nUNy2+ZoJzmJ4msoEfeWFxKrkFSH3AK11Xm/y2oku/jxDBmOpOMU2AoZTzeuFjKRu5mM/2c4ARQFO6jhFLqbXd2yeReW5Y7jiyXblNwaHe0hvFbzq6aQU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au; spf=pass smtp.mailfrom=ellerman.id.au; dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b=Atgw5p+o; arc=none smtp.client-ip=150.107.74.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ellerman.id.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ibTzt+Zg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45C7EC4CEC4;
-	Tue,  3 Sep 2024 19:57:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1725393453;
-	bh=NTkAihUq8wJ3QQyD2jsoOFW0fG+0732f5lSDZtBgAPI=;
-	h=Date:From:To:Subject:References:In-Reply-To:From;
-	b=ibTzt+ZgEdTELo0NowH5uGIH2Wtx8O6oChkl1Q28nqiyWxDTqR8tphBxYgCay32pV
-	 1hPna6pOCaS45hl+sLTuFw+Pl79mj27SkX+HpLxKECYJlYBG0h7SaAkMmPwDx6njIE
-	 2rYYbxd/PvXGm8b5i0aeQaggLGjHy5i+JmHGE7xq/T4LZ5poYfToPT4ar4DwnZ6LFz
-	 xUVGuklq6NgdHhkMPsoZgMeus69wEVzDTS4x9rtvNNbP5iGQfDm+My7uvbaZprUrQJ
-	 oMpGYNsaV408haO9OPNGCb7dBVZJWkElUMT/UHks93JFjH0pu162EUYzIc/cTsD9Sg
-	 qFv2tPt1j4P1g==
-Date: Tue, 3 Sep 2024 20:57:20 +0100
-From: Mark Brown <broonie@kernel.org>
-To: "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>, Guo Ren <guoren@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-	Max Filippov <jcmvbkbc@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Deepak Gupta <debug@rivosinc.com>,
-	linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-	linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-mm@kvack.org,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>
-Subject: Re: [PATCH 3/3] mm: Care about shadow stack guard gap when getting
- an unmapped area
-Message-ID: <dbaf5653-df46-4e17-bce1-aec7fb168197@sirena.org.uk>
+	dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b="Atgw5p+o"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+	s=201909; t=1725423237;
+	bh=eMgOBDwTX8trwBbhMUy1qHUpMDhdRlVDIssPJb8Gsmo=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=Atgw5p+ous8ponaujRBR9zeHm87YGXlWFJw/APeKvwTJfN+vDA+MA/XCf729+PnVA
+	 yIoWrvR8Tg01Q4kTrqjbf+6l9UmkC2+E2eKeM0lpnBzHzQLZr6WfUF+RwlGDv9na7Y
+	 VJ6SDLZrN5hF4Pw9qE+168Zj3QWww8gocoC1nJ966vxltqaxwrFOfSbul6kyFfi2d0
+	 JlXz4kSSwijD4hHUrXsf8IlpvudZE3CIHAEjc3DtzlAKa/tvrIdpfiNxgF0xas/YL4
+	 mHLB2qUie8SKPjqF5MpzhdViqlVcFcXog5f66aL4m0C5o/rSTOnJ5fJzWnRTdDtt9J
+	 XaxynAPBdZR7w==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by mail.ozlabs.org (Postfix) with ESMTPSA id 4Wz8Hv4YYPz4wb7;
+	Wed,  4 Sep 2024 14:13:47 +1000 (AEST)
+From: Michael Ellerman <mpe@ellerman.id.au>
+To: Mark Brown <broonie@kernel.org>, Richard Henderson
+ <richard.henderson@linaro.org>, Ivan Kokshaysky
+ <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta
+ <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Guo Ren
+ <guoren@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
+ <kernel@xen0n.name>, "James E.J. Bottomley"
+ <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>,
+ Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy
+ <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, Alexander
+ Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer
+ <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker
+ <dalias@libc.org>, John Paul Adrian Glaubitz
+ <glaubitz@physik.fu-berlin.de>, "David S. Miller" <davem@davemloft.net>,
+ Andreas Larsson <andreas@gaisler.com>, Thomas Gleixner
+ <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
+ <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max
+ Filippov <jcmvbkbc@gmail.com>, Andrew Morton <akpm@linux-foundation.org>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
+ <vbabka@suse.cz>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon
+ <will@kernel.org>, Deepak Gupta <debug@rivosinc.com>,
+ linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org,
+ Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 2/3] mm: Pass vm_flags to generic_get_unmapped_area()
+In-Reply-To: <20240902-mm-generic-shadow-stack-guard-v1-2-9acda38b3dd3@kernel.org>
 References: <20240902-mm-generic-shadow-stack-guard-v1-0-9acda38b3dd3@kernel.org>
- <20240902-mm-generic-shadow-stack-guard-v1-3-9acda38b3dd3@kernel.org>
- <is6ewj3bhtqy3zadj6lbdv6maupx4kmduvhny66ntifkji6hoj@xmhcf5jt4o66>
+ <20240902-mm-generic-shadow-stack-guard-v1-2-9acda38b3dd3@kernel.org>
+Date: Wed, 04 Sep 2024 14:13:47 +1000
+Message-ID: <87plpk5a4k.fsf@mail.lhotse>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="IPVQox5bvuHO+FID"
-Content-Disposition: inline
-In-Reply-To: <is6ewj3bhtqy3zadj6lbdv6maupx4kmduvhny66ntifkji6hoj@xmhcf5jt4o66>
-X-Cookie: Words must be weighed, not counted.
+Content-Type: text/plain
 
+Mark Brown <broonie@kernel.org> writes:
+> In preparation for using vm_flags to ensure guard pages for shadow stacks
+> supply them as an argument to generic_get_unmapped_area(). The only user
+> outside of the core code is the PowerPC book3s64 implementation which is
+> trivially wrapping the generic implementation in the radix_enabled() case.
+>
+> Signed-off-by: Mark Brown <broonie@kernel.org>
+> ---
+>  arch/powerpc/mm/book3s64/slice.c |  4 ++--
+>  include/linux/sched/mm.h         |  4 ++--
+>  mm/mmap.c                        | 10 ++++++----
+>  3 files changed, 10 insertions(+), 8 deletions(-)
 
---IPVQox5bvuHO+FID
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
 
-On Tue, Sep 03, 2024 at 03:41:49PM -0400, Liam R. Howlett wrote:
-> * Mark Brown <broonie@kernel.org> [240902 15:09]:
+cheers
 
-> > +static inline unsigned long stack_guard_placement(vm_flags_t vm_flags)
-> > +{
-> > +	if (vm_flags & VM_SHADOW_STACK)
-> > +		return PAGE_SIZE;
-
-> Is PAGE_SIZE is enough?
-
-It's what x86 currently uses so it'll be no worse off if it gets moved
-to the generic code (there's a comment in the arch code explaing what's
-needed there) and it's enough for arm64, we only do single record
-pushes/pops or (optionally) writes to unconstrained addresses.
-
---IPVQox5bvuHO+FID
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmbXah8ACgkQJNaLcl1U
-h9C2Awf/e7PKpZHkmToVtr07IL4qcZTgpwJkRcA4S8aF/OKy2aVmo+pW2nNnK5sc
-/MpaZW0Ms2eiZxaG4R3y3oBshdiHLdMS1qimFTuewZWtDAJ9lE9Zubq1rr+onqIw
-z7QLTklFTJhwJLiv4r822HjfHqW872zY7tA8OQKs18OmYzyGFWnMuKcdZwQWf/Wl
-S0krgEkvPgYV5FyIP9SeyBVfAnRbH3u2q0dDWORZ7e3pVwZ+0huL1DYzlgP/Nx4a
-EUb0rRhFG8tHp5EwazuvDfdaQyfqtytNRDe6NTrqVdsrqXi7QzkjglFsx44oMBFK
-rSdl35QkF7WXDFsXE2sd4O+m2ZbJFQ==
-=a8UG
------END PGP SIGNATURE-----
-
---IPVQox5bvuHO+FID--
+> diff --git a/arch/powerpc/mm/book3s64/slice.c b/arch/powerpc/mm/book3s64/slice.c
+> index ada6bf896ef8..87307d0fc3b8 100644
+> --- a/arch/powerpc/mm/book3s64/slice.c
+> +++ b/arch/powerpc/mm/book3s64/slice.c
+> @@ -641,7 +641,7 @@ unsigned long arch_get_unmapped_area(struct file *filp,
+>  				     vm_flags_t vm_flags)
+>  {
+>  	if (radix_enabled())
+> -		return generic_get_unmapped_area(filp, addr, len, pgoff, flags);
+> +		return generic_get_unmapped_area(filp, addr, len, pgoff, flags, vm_flags);
+>  
+>  	return slice_get_unmapped_area(addr, len, flags,
+>  				       mm_ctx_user_psize(&current->mm->context), 0);
+> @@ -655,7 +655,7 @@ unsigned long arch_get_unmapped_area_topdown(struct file *filp,
+>  					     vm_flags_t vm_flags)
+>  {
+>  	if (radix_enabled())
+> -		return generic_get_unmapped_area_topdown(filp, addr0, len, pgoff, flags);
+> +		return generic_get_unmapped_area_topdown(filp, addr0, len, pgoff, flags, vm_flags);
+>  
+>  	return slice_get_unmapped_area(addr0, len, flags,
+>  				       mm_ctx_user_psize(&current->mm->context), 1);
+> diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+> index c4d34abc45d4..07bb8d4181d7 100644
+> --- a/include/linux/sched/mm.h
+> +++ b/include/linux/sched/mm.h
+> @@ -204,11 +204,11 @@ unsigned long mm_get_unmapped_area_vmflags(struct mm_struct *mm,
+>  unsigned long
+>  generic_get_unmapped_area(struct file *filp, unsigned long addr,
+>  			  unsigned long len, unsigned long pgoff,
+> -			  unsigned long flags);
+> +			  unsigned long flags, vm_flags_t vm_flags);
+>  unsigned long
+>  generic_get_unmapped_area_topdown(struct file *filp, unsigned long addr,
+>  				  unsigned long len, unsigned long pgoff,
+> -				  unsigned long flags);
+> +				  unsigned long flags, vm_flags_t vm_flags);
+>  #else
+>  static inline void arch_pick_mmap_layout(struct mm_struct *mm,
+>  					 struct rlimit *rlim_stack) {}
+> diff --git a/mm/mmap.c b/mm/mmap.c
+> index 7528146f886f..b06ba847c96e 100644
+> --- a/mm/mmap.c
+> +++ b/mm/mmap.c
+> @@ -1789,7 +1789,7 @@ unsigned long vm_unmapped_area(struct vm_unmapped_area_info *info)
+>  unsigned long
+>  generic_get_unmapped_area(struct file *filp, unsigned long addr,
+>  			  unsigned long len, unsigned long pgoff,
+> -			  unsigned long flags)
+> +			  unsigned long flags, vm_flags_t vm_flags)
+>  {
+>  	struct mm_struct *mm = current->mm;
+>  	struct vm_area_struct *vma, *prev;
+> @@ -1823,7 +1823,8 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
+>  		       unsigned long len, unsigned long pgoff,
+>  		       unsigned long flags, vm_flags_t vm_flags)
+>  {
+> -	return generic_get_unmapped_area(filp, addr, len, pgoff, flags);
+> +	return generic_get_unmapped_area(filp, addr, len, pgoff, flags,
+> +					 vm_flags);
+>  }
+>  #endif
+>  
+> @@ -1834,7 +1835,7 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
+>  unsigned long
+>  generic_get_unmapped_area_topdown(struct file *filp, unsigned long addr,
+>  				  unsigned long len, unsigned long pgoff,
+> -				  unsigned long flags)
+> +				  unsigned long flags, vm_flags_t vm_flags)
+>  {
+>  	struct vm_area_struct *vma, *prev;
+>  	struct mm_struct *mm = current->mm;
+> @@ -1887,7 +1888,8 @@ arch_get_unmapped_area_topdown(struct file *filp, unsigned long addr,
+>  			       unsigned long len, unsigned long pgoff,
+>  			       unsigned long flags, vm_flags_t vm_flags)
+>  {
+> -	return generic_get_unmapped_area_topdown(filp, addr, len, pgoff, flags);
+> +	return generic_get_unmapped_area_topdown(filp, addr, len, pgoff, flags,
+> +						 vm_flags);
+>  }
+>  #endif
+>  
+>
+> -- 
+> 2.39.2
