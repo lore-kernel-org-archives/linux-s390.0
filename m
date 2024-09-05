@@ -1,106 +1,73 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8358C189B8A;
-	Thu,  5 Sep 2024 10:55:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D6C4199E80;
+	Thu,  5 Sep 2024 11:39:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725533722; cv=none; b=ERiNW9mDHv9K85IFpoJST9UXRFicSXNVRjit7JUgsx+AqUZxHUJ1p4v/YP2530m4kGKGWypBixvedC7EkV46Hx2KXHAmRGjTLMD2mydpbaSB9xpL5CkhK80FiTmE/WmUeLhIhOnt7ErlJVO0WEwEpLijkSBIjU7dDcRC7cTv3CI=
+	t=1725536366; cv=none; b=auKz9P7DhGbl0P5KxnoNoy/dazpi2QcjbLMt1HOzaXp985aXj+JaYZOdY/oeYWgWF4M5SutemCqxGwi19oTwHbHQUlgJkpR8vh/HPEnvRCkP4P5FZ9ELDy9D1SXKXK+n4eU3K8cOWAv05M7mGNBChb1sfMloJfngPCfz0iZrTVM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725533722; c=relaxed/simple;
-	bh=oDZCwErTgRWAiDFjE4QiZZNsuetXlBrjri5V2rXOTzw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eYmUzgQX4Pp6peSpWBTuixXyw+h0CuGnKPtbrThxLv0e/TOpcQOivWJpqJj3+BuzXq99LKSQOX5iYfe1ksnSV9OfYwOtnthW/Re6ln9aaF6PEYpUz9rIrL0sq7axEXQ8z/QGYtlVjGkKJsZ6vNSPxFeXolpf35VG+o/bM3kwImw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 53A49FEC;
-	Thu,  5 Sep 2024 03:55:46 -0700 (PDT)
-Received: from J2N7QTR9R3 (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0C85F3F66E;
-	Thu,  5 Sep 2024 03:55:14 -0700 (PDT)
-Date: Thu, 5 Sep 2024 11:55:12 +0100
-From: Mark Rutland <mark.rutland@arm.com>
-To: Colton Lewis <coltonlewis@google.com>
-Cc: kvm@vger.kernel.org, Oliver Upton <oliver.upton@linux.dev>,
-	Sean Christopherson <seanjc@google.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Namhyung Kim <namhyung@kernel.org>,
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Kan Liang <kan.liang@linux.intel.com>,
-	Will Deacon <will@kernel.org>, Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H . Peter Anvin" <hpa@zytor.com>, linux-perf-users@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 5/5] perf: Correct perf sampling with guest VMs
-Message-ID: <ZtmOENs5qveMH920@J2N7QTR9R3>
-References: <20240904204133.1442132-1-coltonlewis@google.com>
- <20240904204133.1442132-6-coltonlewis@google.com>
+	s=arc-20240116; t=1725536366; c=relaxed/simple;
+	bh=NaZHXiNtSs2ZlpSQWGN+YxPdz+YASnDe7DLJQj8SC7s=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=YHxWXtwWx3fqzsm+hk/XwEMleqRFbJMAL9L17pRgeHN6ZiNDoPz5WPQiFP2WB9kVvxn453M6CCVlZVJS/RweS/14moAeRGLTJ1Ub2sW0l0QBvZw6Iojidyihj0Fr2Awz3AJ3a+Cs5cwqmZLsxFAPsJm8kdEJvlaXiVaFMcTSSpg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=aMuExzC2; arc=none smtp.client-ip=115.124.30.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="aMuExzC2"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1725536360; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type;
+	bh=/hhEMKtprsVbArv+yauOmIjjQBRgsz4rpXSeuzHNeQ0=;
+	b=aMuExzC2CtUPOAeBwGr+vrLB0te5yT4S/RtLmO8b6PDfdgaN+505fnroLKPR9kQY6CsGbZ2hzclm/jRB+E8HgKSPuSb/X/AGSTNZFwXJFmRZnAW8v1qVJE6pEO/I/tNnYca+0+UXsfc0FuOo4ZfNnRei+vQlcJi9W6fjDNR/tw8=
+Received: from 30.221.149.174(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WELXxjm_1725536358)
+          by smtp.aliyun-inc.com;
+          Thu, 05 Sep 2024 19:39:19 +0800
+Message-ID: <0ccd6ef0-f642-45c3-a914-a54b50e11544@linux.alibaba.com>
+Date: Thu, 5 Sep 2024 19:39:17 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240904204133.1442132-6-coltonlewis@google.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2] net/smc: add sysctl for smc_limit_hs
+From: "D. Wythe" <alibuda@linux.alibaba.com>
+To: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+ wintera@linux.ibm.com, guwen@linux.alibaba.com
+Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+ tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
+References: <1724207797-79030-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Language: en-US
+In-Reply-To: <1724207797-79030-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, Sep 04, 2024 at 08:41:33PM +0000, Colton Lewis wrote:
-> Previously any PMU overflow interrupt that fired while a VCPU was
-> loaded was recorded as a guest event whether it truly was or not. This
-> resulted in nonsense perf recordings that did not honor
-> perf_event_attr.exclude_guest and recorded guest IPs where it should
-> have recorded host IPs.
-> 
-> Reorganize that plumbing to record perf events correctly even when
-> VCPUs are loaded.
 
-It'd be good if we could make that last bit a little more explicit,
-e.g.
 
-  Rework the sampling logic to only record guest samples for events with
-  exclude_guest clear. This way any host-only events with exclude_guest
-  set will never see unexpected guest samples. The behaviour of events
-  with exclude_guest clear is unchanged.
 
-[...]
+On 8/21/24 10:36 AM, D. Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>
+> In commit 48b6190a0042 ("net/smc: Limit SMC visits when handshake workqueue congested"),
+> we introduce a mechanism to put constraint on SMC connections visit
+> according to the pressure of SMC handshake process.
+>
+> At that time, we believed that controlling the feature through netlink
+> was sufficient. However, most people have realized now that netlink is
+> not convenient in container scenarios, and sysctl is a more suitable
+> approach.
+>
 
-> diff --git a/kernel/events/core.c b/kernel/events/core.c
-> index 4384f6c49930..e1a66c9c3773 100644
-> --- a/kernel/events/core.c
-> +++ b/kernel/events/core.c
-> @@ -6915,13 +6915,26 @@ void perf_unregister_guest_info_callbacks(struct perf_guest_info_callbacks *cbs)
->  EXPORT_SYMBOL_GPL(perf_unregister_guest_info_callbacks);
->  #endif
->  
-> -unsigned long perf_misc_flags(unsigned long pt_regs *regs)
-> +static bool is_guest_event(struct perf_event *event)
->  {
-> +	return !event->attr.exclude_guest && perf_guest_state();
-> +}
+Hi everyone,
 
-Could we name this something like "should_sample_guest()"? Calling this
-"is_guest_event()" makes it should like it's checking a static property
-of the event (and not other conditions like perf_guest_state()).
+Just a quick reminder regarding the patch that seems to have been 
+overlooked, possibly dues to its status was
+mistakenly updated to change request ? It seems that no further 
+modifications are needed.
 
-Otherwise this all looks reasonable to me, modulo Ingo's comments. I'll
-happily test a v2 once those have been addressed.
-
-Mark.
+Best wishes,
+D. Wythe
