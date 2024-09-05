@@ -1,171 +1,175 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from flow4-smtp.messagingengine.com (flow4-smtp.messagingengine.com [103.168.172.139])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04937145B26;
-	Thu,  5 Sep 2024 03:10:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45BD21922C7;
+	Thu,  5 Sep 2024 06:48:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725505830; cv=none; b=Jtu+cw49ZJ58aDCeDNw3asGmqep3FpUP5h9Ug1BJFJDnsBY2CanskKbYnhR4i2wfK3IhB30+FXqsLfM2KB1vE63BG8cqT/NSXlGMaEGZyAusWy8xK/RD9fHbNC/mXilTuJ4ZpalpTSk5SRogRsiLD80xU/IE/k47fApM0YbZ/+o=
+	t=1725518896; cv=none; b=q1OsBcaLeQ4kkPvIUuDeIJbw9aBByZXeU6u3RykqSx/ddxPOCMdvYViEmpgtj/OQqKs5P1Ln7A0zYejx8PVBNrMamdU9p7pH+qK6R0/J4RHpwZbI76VEhjpkfKFh9zltL2AU/1bidT9GxIBEzqt5/gk7gULKaWTp/TqQcdpA5QQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725505830; c=relaxed/simple;
-	bh=hCFzTizAoGoDsVUGq3EAWMcM65X29QRH/OHHwFMG7sA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bQh5UsDsg38x9alMY4FUz+Pu+J22DglTAfrvHOseUTchOCleC9LQ64hkML6JpkDjfiCTChPm9jLh+NVIRaS48tTMJPDjbo1KyfA+ABNoQ8RhV+1n0D8DGDurwDnaC/nRrTt8HmzatYHmZII/6165XaN5tap20TBv08tAH9Xdcw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=u8ys7Ws8; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1725518896; c=relaxed/simple;
+	bh=xKGgHTaV5Qj/7OwfJTbkb+FrlLm6jv9l6WZEWAUNA5Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lAtt0A/cUyZoM4Ep5YpYYKv2JlGdV35DxA3oitjM7yiNCmyUgCRrlYZLek+l2V7MydwCCTivc6KZbPwPcqc/6jlyUrFf28jGVGfPh+ceHF0y2PGv/VRAE6vxtqqvPC/VJtmt0OTcHeMPS9qeRXVD7+1vsVlkyxEcFcfp64C1pks=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=shutemov.name; spf=pass smtp.mailfrom=shutemov.name; dkim=pass (2048-bit key) header.d=shutemov.name header.i=@shutemov.name header.b=Q8crL5EL; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=OU81mlQL; arc=none smtp.client-ip=103.168.172.139
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=shutemov.name
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shutemov.name
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="u8ys7Ws8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0105AC4CEC2;
-	Thu,  5 Sep 2024 03:10:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1725505829;
-	bh=hCFzTizAoGoDsVUGq3EAWMcM65X29QRH/OHHwFMG7sA=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=u8ys7Ws8jELO5HmNyglvZvTDDEciClaaVAuGb3ChDbtCt0wlBHxoeNJA0zE8W+BWR
-	 g/TDXNMEIqwELQBILJ30xJ7TfCIzeZV3mW7JCj73LGczxQxOcz5L+hdXd7DswIUPp3
-	 dJnQrzHOh/oRvKMamVsERZwbQwG3Sh7Nrz8IRSRmttD151vj1ntjArnCtlijOcGZSt
-	 FBKcy0pDCFdTIsEvpeNUE+88AZTzBUVLbvusiqTAieIu7MPUtGFn0N0L7c51mziyD5
-	 UrLRtc8XpcKowRc02PjGIWf110u5F9k1xu3lJpgHcvSqU+dawQlhOrolnLFW3WiFZG
-	 20bWWx97cSMbA==
-From: Namhyung Kim <namhyung@kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>,
-	Ingo Molnar <mingo@kernel.org>
-Cc: Kan Liang <kan.liang@linux.intel.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Stephane Eranian <eranian@google.com>,
-	Ravi Bangoria <ravi.bangoria@amd.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Richter <tmricht@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: [PATCH 2/5] perf/core: Export perf_exclude_event()
-Date: Wed,  4 Sep 2024 20:10:24 -0700
-Message-ID: <20240905031027.2567913-3-namhyung@kernel.org>
-X-Mailer: git-send-email 2.46.0.469.g59c65b2a67-goog
-In-Reply-To: <20240905031027.2567913-1-namhyung@kernel.org>
-References: <20240905031027.2567913-1-namhyung@kernel.org>
+	dkim=pass (2048-bit key) header.d=shutemov.name header.i=@shutemov.name header.b="Q8crL5EL";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="OU81mlQL"
+Received: from phl-compute-07.internal (phl-compute-07.phl.internal [10.202.2.47])
+	by mailflow.phl.internal (Postfix) with ESMTP id 2A50C200312;
+	Thu,  5 Sep 2024 02:48:13 -0400 (EDT)
+Received: from phl-mailfrontend-02 ([10.202.2.163])
+  by phl-compute-07.internal (MEProxy); Thu, 05 Sep 2024 02:48:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shutemov.name;
+	 h=cc:cc:content-type:content-type:date:date:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to; s=fm2; t=1725518893; x=
+	1725526093; bh=Mf2wLWEzbgEDGO9xDiUM7qVc6lrNS1Frm04RYEBk1sI=; b=Q
+	8crL5ELpizMZj53aZEPPP8KupjNzGuUtN+S5Eql/8fjeevh2FEI8C/KRzBgjisY8
+	ios3Pgjc7SkHZNFrwTBdbN9vLV0hQOPZ0eGAbRLWcSFDhE/k/dFK/6686hm06Qc7
+	j+d1+irVVZvEWixrzNwCK0W0NFAOLfexqwJSuWjLycECHToeCwRE/1nGc1l53s4y
+	bTxHKlADHmHXtzGUzzaiGYjtQhWPUZPI1/USh3xl6u1Sv+0nc2TPrbw6UIkv/TH5
+	o0fe/l4uJKU0W7HYU3dmXPK5TN/niHwvbSVEfHyU6/SyMLvAiqJybTS8Vdvh4PKb
+	H+eYihXIcEOzrl4xD0b/g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm1; t=1725518893; x=1725526093; bh=Mf2wLWEzbgEDGO9xDiUM7qVc6lrN
+	S1Frm04RYEBk1sI=; b=OU81mlQLPJz3hQL5seRxaoll2jedmTxaU/rc98Aelm4E
+	LAxjKKoyXT3sGMCDk5gVUo9sxMNF10KBdu8zNR469iNU+zb+tCPxEiRvZRViIIGY
+	4fRFF6UlbxvVpD5zNmimnvrmkdHBLjbsEEMeFENIAWyU688aW4sL4S7nK33Ed+/W
+	TyoXbq/qhCQqfRaAUgcJL4Qlr9Fj3Kdw1fErx8TN92mDg+L0IfsQjqkdjZyqKyoX
+	xxZY1zHYiN3d8+EpCTErHeTz8LagFsN6v0fROg/TqD03KtfFlVXL4OQSdmSkjWEs
+	7+FNGRNxSZmK+xVN+gK5oYOL0OpwypHDNQIa583pLA==
+X-ME-Sender: <xms:KVTZZtmPE-thdTnuY_8p_VYbScCFsLPUpHQE1sSDWOUGpPhis5okIQ>
+    <xme:KVTZZo1Rk7zksy2dploGdpr-AyeT9WYUGP1TsK2AxLpGyZ512Gxr45tn13iRPanwo
+    jUygEc69YU63tyiwpI>
+X-ME-Received: <xmr:KVTZZjq_WhH3u82jxZ84wXaPI17hSYcHUbnROaZ7wU0ggfeJ3nMXkfr_MNvXqfbD0Tby-A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrudehkedguddugecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdp
+    uffrtefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivg
+    hnthhsucdlqddutddtmdenucfjughrpeffhffvvefukfhfgggtuggjsehttdfstddttddv
+    necuhfhrohhmpedfmfhirhhilhhlucetrdcuufhhuhhtvghmohhvfdcuoehkihhrihhllh
+    esshhhuhhtvghmohhvrdhnrghmvgeqnecuggftrfgrthhtvghrnhepffdvveeuteduhffh
+    ffevlefhteefveevkeelveejudduvedvuddvleetudevhfeknecuvehluhhsthgvrhfuih
+    iivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepkhhirhhilhhlsehshhhuthgvmhho
+    vhdrnhgrmhgvpdhnsggprhgtphhtthhopeehjedpmhhouggvpehsmhhtphhouhhtpdhrtg
+    hpthhtoheptghhrghrlhhivgesrhhivhhoshhinhgtrdgtohhmpdhrtghpthhtoheprghr
+    nhgusegrrhhnuggsrdguvgdprhgtphhtthhopehrihgthhgrrhgurdhhvghnuggvrhhsoh
+    hnsehlihhnrghrohdrohhrghdprhgtphhtthhopehinhhksehjuhhrrghsshhitgdrphgr
+    rhhkrdhmshhurdhruhdprhgtphhtthhopehmrghtthhsthekkeesghhmrghilhdrtghomh
+    dprhgtphhtthhopehvghhuphhtrgeskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhi
+    nhhugiesrghrmhhlihhnuhigrdhorhhgrdhukhdprhgtphhtthhopehguhhorhgvnheskh
+    gvrhhnvghlrdhorhhgpdhrtghpthhtoheptghhvghnhhhurggtrghisehkvghrnhgvlhdr
+    ohhrgh
+X-ME-Proxy: <xmx:KVTZZtnzzMVFQMQuTZtC752mZiRRbs6t6YcMoPbuWvOsshNuIpN2ZA>
+    <xmx:KVTZZr2NqJHS-K1m6CZXX9gA76bE8gj6MA6NfpzKnkdoePcXVRrFGA>
+    <xmx:KVTZZsvDPoUpWv-9vcqAuPt1ffOgwMCdy7jO9etPU_H5-IK1rvsyPg>
+    <xmx:KVTZZvVQYxvPemikvBptMQf8FFNrgJR1-TyZmjrtc_-NhbXBtGvm-w>
+    <xmx:LVTZZrXmQ5mCcW2zvtjGPHJiDs11N1_ZXK9wQrKvm9JMfjCFohmINZ7A>
+Feedback-ID: ie3994620:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 5 Sep 2024 02:47:52 -0400 (EDT)
+Date: Thu, 5 Sep 2024 09:47:47 +0300
+From: "Kirill A. Shutemov" <kirill@shutemov.name>
+To: Charlie Jenkins <charlie@rivosinc.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+ 	Richard Henderson <richard.henderson@linaro.org>,
+ Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+ 	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
+ 	Russell King <linux@armlinux.org.uk>, Guo Ren <guoren@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>, 	WANG Xuerui <kernel@xen0n.name>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ 	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+ Helge Deller <deller@gmx.de>, 	Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>,
+ 	Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Naveen N Rao <naveen@kernel.org>,
+ 	Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ 	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ 	Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ 	Yoshinori Sato <ysato@users.sourceforge.jp>,
+ Rich Felker <dalias@libc.org>,
+ 	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ "David S. Miller" <davem@davemloft.net>,
+ 	Andreas Larsson <andreas@gaisler.com>,
+ Thomas Gleixner <tglx@linutronix.de>, 	Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>,
+ 	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, 	Andy Lutomirski <luto@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>,
+ 	Muchun Song <muchun.song@linux.dev>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ 	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Vlastimil Babka <vbabka@suse.cz>,
+ 	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ Shuah Khan <shuah@kernel.org>, linux-arch@vger.kernel.org,
+ 	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org,
+ 	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ loongarch@lists.linux.dev, 	linux-mips@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ 	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ sparclinux@vger.kernel.org, 	linux-mm@kvack.org,
+ linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH RFC v2 0/4] mm: Introduce MAP_BELOW_HINT
+Message-ID: <yu7um2tcxg2apoz372rmzpkrfgbb42ndvabvrsp4usb2e3bkrf@huaucjsp5vlj>
+References: <20240829-patches-below_hint_mmap-v2-0-638a28d9eae0@rivosinc.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240829-patches-below_hint_mmap-v2-0-638a28d9eae0@rivosinc.com>
 
-And increase the dropped_sample count when it returns 1.  Now it can
-track how many samples are dropped due to the privilege filters in
-software events.
+On Thu, Aug 29, 2024 at 12:15:57AM -0700, Charlie Jenkins wrote:
+> Some applications rely on placing data in free bits addresses allocated
+> by mmap. Various architectures (eg. x86, arm64, powerpc) restrict the
+> address returned by mmap to be less than the 48-bit address space,
+> unless the hint address uses more than 47 bits (the 48th bit is reserved
+> for the kernel address space).
+> 
+> The riscv architecture needs a way to similarly restrict the virtual
+> address space. On the riscv port of OpenJDK an error is thrown if
+> attempted to run on the 57-bit address space, called sv57 [1].  golang
+> has a comment that sv57 support is not complete, but there are some
+> workarounds to get it to mostly work [2].
+> 
+> These applications work on x86 because x86 does an implicit 47-bit
+> restriction of mmap() address that contain a hint address that is less
+> than 48 bits.
+> 
+> Instead of implicitly restricting the address space on riscv (or any
+> current/future architecture), a flag would allow users to opt-in to this
+> behavior rather than opt-out as is done on other architectures. This is
+> desirable because it is a small class of applications that do pointer
+> masking.
 
-While at it, rename the same function in s390 cpum_sf PMU and also count
-the dropped samples.
+This argument looks broken to me.
 
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
----
- arch/s390/kernel/perf_cpum_sf.c |  8 +++++---
- include/linux/perf_event.h      |  6 ++++++
- kernel/events/core.c            | 11 +++++++----
- 3 files changed, 18 insertions(+), 7 deletions(-)
+The "small class of applications" is going to be broken unless they got
+patched to use your new mmap() flag. You are asking for bugs.
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 736c1d9632dd554f..f663530ae1f6ba5d 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1074,7 +1074,7 @@ static void cpumsf_pmu_disable(struct pmu *pmu)
- 	cpuhw->flags &= ~PMU_F_ENABLED;
- }
- 
--/* perf_exclude_event() - Filter event
-+/* perf_event_exclude() - Filter event
-  * @event:	The perf event
-  * @regs:	pt_regs structure
-  * @sde_regs:	Sample-data-entry (sde) regs structure
-@@ -1083,7 +1083,7 @@ static void cpumsf_pmu_disable(struct pmu *pmu)
-  *
-  * Return non-zero if the event shall be excluded.
-  */
--static int perf_exclude_event(struct perf_event *event, struct pt_regs *regs,
-+static int perf_event_exclude(struct perf_event *event, struct pt_regs *regs,
- 			      struct perf_sf_sde_regs *sde_regs)
- {
- 	if (event->attr.exclude_user && user_mode(regs))
-@@ -1166,8 +1166,10 @@ static int perf_push_sample(struct perf_event *event,
- 	data.tid_entry.pid = basic->hpp & LPP_PID_MASK;
- 
- 	overflow = 0;
--	if (perf_exclude_event(event, &regs, sde_regs))
-+	if (perf_event_exclude(event, &regs, sde_regs)) {
-+		atomic64_inc(&event->dropped_samples);
- 		goto out;
-+	}
- 	if (perf_event_overflow(event, &data, &regs)) {
- 		overflow = 1;
- 		event->pmu->stop(event, 0);
-diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-index 955d39543398afb0..aaa4bc582d2f1d4e 100644
---- a/include/linux/perf_event.h
-+++ b/include/linux/perf_event.h
-@@ -1634,6 +1634,8 @@ static inline int perf_allow_tracepoint(struct perf_event_attr *attr)
- 	return security_perf_event_open(attr, PERF_SECURITY_TRACEPOINT);
- }
- 
-+extern int perf_exclude_event(struct perf_event *event, struct pt_regs *regs);
-+
- extern void perf_event_init(void);
- extern void perf_tp_event(u16 event_type, u64 count, void *record,
- 			  int entry_size, struct pt_regs *regs,
-@@ -1817,6 +1819,10 @@ static inline u64 perf_event_pause(struct perf_event *event, bool reset)
- {
- 	return 0;
- }
-+static inline int perf_exclude_event(struct perf_event *event, struct pt_regs *regs)
-+{
-+	return 0;
-+}
- #endif
- 
- #if defined(CONFIG_PERF_EVENTS) && defined(CONFIG_CPU_SUP_INTEL)
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 4d72538628ee62f4..8250e76f63358689 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -9978,18 +9978,21 @@ static void perf_swevent_event(struct perf_event *event, u64 nr,
- 	perf_swevent_overflow(event, 0, data, regs);
- }
- 
--static int perf_exclude_event(struct perf_event *event,
--			      struct pt_regs *regs)
-+int perf_exclude_event(struct perf_event *event, struct pt_regs *regs)
- {
- 	if (event->hw.state & PERF_HES_STOPPED)
- 		return 1;
- 
- 	if (regs) {
--		if (event->attr.exclude_user && user_mode(regs))
-+		if (event->attr.exclude_user && user_mode(regs)) {
-+			atomic64_inc(&event->dropped_samples);
- 			return 1;
-+		}
- 
--		if (event->attr.exclude_kernel && !user_mode(regs))
-+		if (event->attr.exclude_kernel && !user_mode(regs)) {
-+			atomic64_inc(&event->dropped_samples);
- 			return 1;
-+		}
- 	}
- 
- 	return 0;
+Consider the case when you write, compile and validate a piece of software
+on machine that has <=47bit VA. The binary got shipped to customers.
+Later, customer gets a new shiny machine that supports larger address
+space and your previously working software is broken. Such binaries might
+exist today.
+
+It is bad idea to use >47bit VA by default. Most of software got tested on
+x86 with 47bit VA.
+
+We can consider more options to opt-in into wider address space like
+personality or prctl() handle. But opt-out is no-go from what I see.
+
 -- 
-2.46.0.469.g59c65b2a67-goog
-
+  Kiryl Shutsemau / Kirill A. Shutemov
