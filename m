@@ -1,59 +1,59 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF9B7192B94;
-	Thu,  5 Sep 2024 09:22:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB87A1991D6;
+	Thu,  5 Sep 2024 09:46:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725528148; cv=none; b=fhGVL8t/XVu/oBVeoYxHe3ia3WAMdOuWZNQWYfXhm79yS/qPViV3Gv9MeB2gGWwoZ70j7M6ZIan+JQkAbB14mi7E+c0dy0IqWqwtWjpoFlzkozrR8SGK/sJH94ECc+2IW0zmpfpc/YvhMtvuGRYEXqV+lLRqULVsbWkF41bAXeA=
+	t=1725529610; cv=none; b=RBffo0l8pVyLfyvkWoJGyJ7VbnH0i60rwq1B0UU/tsbJ1XHmnR6I4bTruMVGp0GIJ/ERdr3bI8rdRkR7hw/NVOoXZPlf4qf4QAxjxR1L2DE2PnmSZ5gLOMxtt3vdxl9ulpmaMu+qe0eqorYo5xiVl9yuVkQeGeYicZftx7PraLI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725528148; c=relaxed/simple;
-	bh=1Vz6IzeJ7CeYav9C4VmbTfWx/w8/kafVYBgh4fUe+qQ=;
+	s=arc-20240116; t=1725529610; c=relaxed/simple;
+	bh=ooTxRmy9CNhI0QBGKGov1IP8Ny/IFn2b7BpJAt+pUGY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MvoHs/ZVFlMvTeOwQcutjsOLAehqJ4v6HMVriqurBJaxynZQIesDyv9JEF/LUvexVfitw4v2gMtLGqLX6JriBfIzKYN5E1wijlQbEv6Zu8gaa/LkqxdG6IE73oBrSJApHZamgZv5AkQEg7L1Mx2AZpxKmFiYJ3r+ptMeILuqiqk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NGTOpYDa; arc=none smtp.client-ip=209.85.128.42
+	 Content-Type:Content-Disposition:In-Reply-To; b=dEM0Hp0PY7etwJDHiW6mrMp7ueJv4R5fHcNyRK3mlfEpa592qa7Wd7oww4n0pVWCo0MGDRQNCwWaKTQdALZbAWJF+Y3BTTePehAPc7+Z9oRyy+hDLXCfScMQB+OhHsdqvaEOYp7ti6elwvfyvr4U+lb8wnTw34FhiSL2eQroZBU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R2mWxN5f; arc=none smtp.client-ip=209.85.221.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NGTOpYDa"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-4280ca0791bso3898375e9.1;
-        Thu, 05 Sep 2024 02:22:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R2mWxN5f"
+Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-3780c8d689aso313753f8f.0;
+        Thu, 05 Sep 2024 02:46:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1725528145; x=1726132945; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1725529607; x=1726134407; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=8LgmwilwZTv00oKOBkFrZ/42OcenxN7DIQ4qoy+ip1I=;
-        b=NGTOpYDaZhCjv3H/pa0YFGWpapjogOf5E6c3qV0d1iQl/Ys0oyrx9XEI0MZOdXvATh
-         wlzGPW1viTFwE8Pvc5VNEYqadVIsRgcLPGe2r+2sS43/WYIYj+zCrRnMzPkHDazcs2OY
-         qOBKiGzGLkxuyoVhGXfgdVUbR4fkE6XTUE+0eIio70ePvOS19iR8duoVcAHpNtftxWIc
-         UG/nPV3iZhlU81p+e/nInyTAmRvTanHJnUuAfIp8PzU5pPiiFtbwkBzBcY0mHlfRNw3y
-         wHM/Q+PDvpFUjzNJTHGHVJwuCiO0SttJjgxWgzEstORDO4NCtPD7hcBDhXw0g7GNqewd
-         ZM4w==
+        bh=a3A+0OEpset36zqQ8dSnuPMDIA8aciodye1/vukDHAs=;
+        b=R2mWxN5fjYaJm2yNUzLJXoHE924sOE1VUSro0LKCnvz2Ik+75SdTlPFDxzRNFjvME0
+         C3UZu2s88Bnr/gVo9mkH5l1DHarPD4NXMIIuo59SAiVTw+JqRRFnbP5Jn9LZBGkHiVw5
+         4dQ0mFHEf1+0U9P1adjDD5Gwfx15q3seAWKvbZ67P2etyT/xs/6J1gCC3yN6hmZp4/P6
+         BQklv1cUXsVgcqrPm93Z+5Qc7FqbxwHgG+FFtgA7BqlhiY5TZ1DW8q8W1pc12tN4GmlZ
+         5osWYmaCHx6xKiyQxN6/KOQ1RtmbnX/nKvezhlZ3sqQajSNxPxYcu+aJHpvW8YBwpaSG
+         C10g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725528145; x=1726132945;
+        d=1e100.net; s=20230601; t=1725529607; x=1726134407;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=8LgmwilwZTv00oKOBkFrZ/42OcenxN7DIQ4qoy+ip1I=;
-        b=ut3rl8tYBa/aKF0iHNPKRcdBwiIu5K1UXHiD1Caava0sXJgKcwvHnxWsYRWMnaWAux
-         eAx36WZMpSs92evYwVWSTt2OEdd4eaaH7QC6PhAcNQsm/ZQhknA8vWhE7XTUtb43HJ6d
-         SyCSiIP7LkxUIxQ+C3pCk9s1+FJxd1zvdIDYW75eqFglyeoMOZ2ccbb68U/Qhwx5TOJs
-         fx7n1aCQRYsHr8cyDPhICL2VsYTh+c51SRkuK4957eTMUQX9fhNJx8UeVI9mp7I33a2F
-         KjxEIEGjiEET/2scRUfnkZr1j4zIP85pxIenrrH0z/KGlGrBmTvU1VZCw51v+VfseOR5
-         fQnw==
-X-Forwarded-Encrypted: i=1; AJvYcCUswI9efc+Quy5GWJlwq9WhUJBXv3zLyjlCBsK+MacVaq3B1nMk2br/MWGxorQczBIB5rV11yHsOhyPIg==@vger.kernel.org, AJvYcCWRPhcUILh8Ya3yFYVj4nQtWYslUuD6oVp/KLiqp4laN0ozZKHu+9se9j4K5AeZXbg0tn+gL1c61yENpgs=@vger.kernel.org, AJvYcCXgj5CE+pEpgTtScajAr4i7vShRaYuDUMnZM5cOdzobHiYdmFGV1Y+Cg32s9uI9//tMeKrpKJecdYBsk2U7WmfOSQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxTmGUhoseBX7fcpcYvhyoHZYPbhP/gz2tLJGakHmSC8Uxpsg6f
-	4Giisxu9dQ8XYfoS/oqAWnIYg6FVWhEwgks+B43y3Ch4mIchRdi5
-X-Google-Smtp-Source: AGHT+IFUdfGNW49G4+DfGHtef+3iH+rTqtv4vp7wb8eaC9NCVgAim+dCJf5aeZgCMrKkgfBOdEZuqg==
-X-Received: by 2002:a05:600c:19d2:b0:427:fa39:b0db with SMTP id 5b1f17b1804b1-42c8de9ddb6mr49602095e9.27.1725528144107;
-        Thu, 05 Sep 2024 02:22:24 -0700 (PDT)
-Received: from gmail.com (1F2EF525.unconfigured.pool.telekom.hu. [31.46.245.37])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42ba6425a77sm266553755e9.45.2024.09.05.02.22.22
+        bh=a3A+0OEpset36zqQ8dSnuPMDIA8aciodye1/vukDHAs=;
+        b=U3Ix0QOyEAwi0c13MD2bVok++PsFIHcHnoWKKyHLp0khYhw3dtw/+rvDUFnnV5/XEb
+         WaslydGFtk5l6MAU3NsHOF4aB+VcA1sLEB1NqePwA0iVPz8Q+N3NPHAHNM32KJgWavQi
+         OvFpiIe7O3j4l+f0JIp6j96GdXBdHaJ36ehGcDyiEpB0eyewuUhmjGPUWQuKRq1pjEZN
+         eOVrSM/YEHWzsk9qoIDhTNQNJD+0ZS3ZD5L6/ekUuBtbHgikqR44SurpOYcjtZ2beEow
+         we8pzIrfwsI6xUvMV7vYrLCzWjJ2SojILTspL6hl65qTp0wc7b0MDy64k+wVvBUpTOxQ
+         G5Yg==
+X-Forwarded-Encrypted: i=1; AJvYcCU7a/tO0oOyg56ndYbkbH/F76WR9zWMIEwD/vun3dYazbTORYRalRbqjzyzpiAD3DToJYzXCxqLfFsXii4=@vger.kernel.org, AJvYcCVsstE8OTxLCN1eqbh73sZmGaRJFRvzGXHmzv0bzHd8MKQbX2b3fLlSH3t3VXDP0HBePL8O03NjnlmD/Q==@vger.kernel.org, AJvYcCXYo67GQdOQSSmnCjdD/0BGT0j84y13CnkCvg32FxDa0cvLyt7ybJrfvfqhuc/JPk8Ci9/ZaI8J7clwZkNo2e1JmQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzRDPTcuHR8C1qZMh9egyYtS+EpAaN7npKdbR8kouPWyS/W0vSf
+	Xv/G3QiWrHlEWEdOWgR+MFKCkKdLsWOffq0yO8W97G8f6MKqY8uZ
+X-Google-Smtp-Source: AGHT+IGwAx2QSUfLDZ+tfaLzM6jDxYn1gijqzhfBCWl8wJV2u0GTNpP6gbYbb2bM1aZJ2WyRNkSboA==
+X-Received: by 2002:a05:6000:1f8d:b0:374:c29f:8ddc with SMTP id ffacd0b85a97d-376dea47192mr5800262f8f.40.1725529606275;
+        Thu, 05 Sep 2024 02:46:46 -0700 (PDT)
+Received: from gmail.com (1F2EF525.nat.pool.telekom.hu. [31.46.245.37])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-374c1de81b2sm13382624f8f.30.2024.09.05.02.46.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Sep 2024 02:22:23 -0700 (PDT)
+        Thu, 05 Sep 2024 02:46:45 -0700 (PDT)
 Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
-Date: Thu, 5 Sep 2024 11:22:20 +0200
+Date: Thu, 5 Sep 2024 11:46:42 +0200
 From: Ingo Molnar <mingo@kernel.org>
 To: Colton Lewis <coltonlewis@google.com>
 Cc: kvm@vger.kernel.org, Oliver Upton <oliver.upton@linux.dev>,
@@ -84,10 +84,11 @@ Cc: kvm@vger.kernel.org, Oliver Upton <oliver.upton@linux.dev>,
 	"H . Peter Anvin" <hpa@zytor.com>, linux-perf-users@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 4/5] x86: perf: Refactor misc flag assignments
-Message-ID: <Ztl4TDI98tnCkH0X@gmail.com>
+Subject: Re: [PATCH 2/5] perf: Hoist perf_instruction_pointer() and
+ perf_misc_flags()
+Message-ID: <Ztl-AjEEbIbX4lnm@gmail.com>
 References: <20240904204133.1442132-1-coltonlewis@google.com>
- <20240904204133.1442132-5-coltonlewis@google.com>
+ <20240904204133.1442132-3-coltonlewis@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -96,56 +97,28 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240904204133.1442132-5-coltonlewis@google.com>
+In-Reply-To: <20240904204133.1442132-3-coltonlewis@google.com>
 
 
 * Colton Lewis <coltonlewis@google.com> wrote:
 
-> Break the assignment logic for misc flags into their own respective
-> functions to reduce the complexity of the nested logic.
-> 
-> Signed-off-by: Colton Lewis <coltonlewis@google.com>
-> ---
->  arch/x86/events/core.c            | 31 +++++++++++++++++++++++--------
->  arch/x86/include/asm/perf_event.h |  2 ++
->  2 files changed, 25 insertions(+), 8 deletions(-)
-> 
-> diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
-> index 760ad067527c..87457e5d7f65 100644
-> --- a/arch/x86/events/core.c
-> +++ b/arch/x86/events/core.c
-> @@ -2948,16 +2948,34 @@ unsigned long perf_arch_instruction_pointer(struct pt_regs *regs)
->  	return regs->ip + code_segment_base(regs);
->  }
+> --- a/kernel/events/core.c
+> +++ b/kernel/events/core.c
+> @@ -6915,6 +6915,16 @@ void perf_unregister_guest_info_callbacks(struct perf_guest_info_callbacks *cbs)
+>  EXPORT_SYMBOL_GPL(perf_unregister_guest_info_callbacks);
+>  #endif
 >  
-> +static unsigned long common_misc_flags(struct pt_regs *regs)
+> +unsigned long perf_misc_flags(unsigned long pt_regs *regs)
 > +{
-> +	if (regs->flags & PERF_EFLAGS_EXACT)
-> +		return PERF_RECORD_MISC_EXACT_IP;
-> +
-> +	return 0;
+> +	return perf_arch_misc_flags(regs);
 > +}
 > +
-> +unsigned long perf_arch_guest_misc_flags(struct pt_regs *regs)
+> +unsigned long perf_instruction_pointer(unsigned long pt_regs *regs)
 > +{
-> +	unsigned long guest_state = perf_guest_state();
-> +	unsigned long flags = common_misc_flags();
-> +
-> +	if (guest_state & PERF_GUEST_USER)
-> +		flags |= PERF_RECORD_MISC_GUEST_USER;
-> +	else if (guest_state & PERF_GUEST_ACTIVE)
-> +		flags |= PERF_RECORD_MISC_GUEST_KERNEL;
-> +
-> +	return flags;
+> +	return perf_arch_instruction_pointer(regs);
 > +}
-> +
->  unsigned long perf_arch_misc_flags(struct pt_regs *regs)
->  {
->  	unsigned int guest_state = perf_guest_state();
-> -	int misc = 0;
-> +	unsigned long misc = common_misc_flags();
 
-So I'm quite sure this won't even build at this point ...
+What's an 'unsigned long pt_regs' ??
 
 Thanks,
 
