@@ -1,202 +1,96 @@
-Received: from fout8-smtp.messagingengine.com (fout8-smtp.messagingengine.com [103.168.172.151])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 758A413CFB6;
-	Fri,  6 Sep 2024 09:56:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FA8181745;
+	Fri,  6 Sep 2024 10:45:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725616566; cv=none; b=adBUzLjbZZeW4/TorWldShE0AjYxHXER0lBCG9NYYgmass1qVzJ+Rb/2pos9U0ALG8Bdxfx5F8cki6lk62KWugaz1cW6HWVm+4LJuY79dth/lsKut/0sCqPAGExsh7mfocgpl1w6RVPvjsPb6QpubEwVQ13CyaUSV6MqWszjOd0=
+	t=1725619552; cv=none; b=uIPBgQk+HUfrbfo4s+DGLgrdTmKKqMqGpPL2whEt23eF8PxnKxuDQ/JcpLMigy+cQoMnWeQSObU5lrvzwfieu2h5cOoqAxnwWVDW9JLv0Pczqis27nsKTK9JIqjTW6uFtpEMWfTzprtOL6XXycyhFIKmA4cs3+8w2Nri1BBJlqY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725616566; c=relaxed/simple;
-	bh=gUUvPOjWWjObJ8l/tpxlAMuAowT/tNkWWi/REiyptbc=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=g0RveAz/cGOgC8/UW8yjyFAgo8Efh462/9MSCcVwKExO2O+Z1p2NG98PVi9JD5GQ0tAhzSYmKf8kGbW4Y++ON3tnvFMiJXrfdoKA4AI0ASWoaclM1c8vwzOFD18jKzyAlOsZhuGGXx2y7O5uZ8JGjgyb3DH3zSYOUYv3tutxCL4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=JRZJEoBD; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YbuZKsYy; arc=none smtp.client-ip=103.168.172.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1725619552; c=relaxed/simple;
+	bh=J5IbnXsl3zAcetvo/WgRtJuA9QV8d8317nSQFOr+alA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pDC8Yeur6KgO3cl6UXFIfNXPyKbqXtcMvoLSqiyHtTPnMmXkaUyXNB6CIIH/XVsLhY8/IpduZoKGnAFyM4/rrwDTUxw0My3gIuBAgnQLw9Ok4TNFgnpA2Wur9vjq0M/7CFZvP7PbRBnjtWhftrt8qNQGdGE3pa2194eWOBH1sXQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rmJ81Heu; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="JRZJEoBD";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YbuZKsYy"
-Received: from phl-compute-10.internal (phl-compute-10.phl.internal [10.202.2.50])
-	by mailfout.phl.internal (Postfix) with ESMTP id 8D7481380406;
-	Fri,  6 Sep 2024 05:56:03 -0400 (EDT)
-Received: from phl-imap-11 ([10.202.2.101])
-  by phl-compute-10.internal (MEProxy); Fri, 06 Sep 2024 05:56:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1725616563;
-	 x=1725702963; bh=spCdL3tE0yzwRJuzWoP/dh86M1NxHAaaOfguj/M3bzI=; b=
-	JRZJEoBD7E03AtrbWnWmR/E4Bky06zQyVOaqEDrYtzVCYUtVqqML6vpNkpePZvmu
-	LkDh6ZKUYFxJIhFekagPIpis+EvEHIBr/7jMAKJCx4Mp0eFXfjOxw4omuLvqxgqq
-	yopa3r5GTd6Dz3crswRx7hsJ7t/FqRvEwoY6w6ScKbyAV1eQttm8AKxhpPqlNYjU
-	9JD/6Z9/Sox2d8GPcqjQb3jreF0sJhqOjKP6b8Q9pi23HKr0G3Q2i9oKPk62DsQi
-	bnERniHGyUEeY9laCvDrkugc4NYwfP/OCnL8b9dt+urZV20UCu5ikrb+SDJqWKSB
-	6zYPX7cpruqXL/kbX7r6Sg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1725616563; x=
-	1725702963; bh=spCdL3tE0yzwRJuzWoP/dh86M1NxHAaaOfguj/M3bzI=; b=Y
-	buZKsYyDBXnvApXrykY/L9TZDdHeKiS5BvrOg1KjB4lbLjI+Pz1jBrWfjCBGz7b6
-	QXoSEn7Sp5lgP8KIwTf+hpIAuN6xMt+Dud9rMLf9h9nNfQXz+kLEj1T1fYuiKkDn
-	xo2M7cYQuagF0gPBh4D2qe1Wm8EMnc4zc2xpnH+h3RJCYoBoNbhpLVM7n2DrBQve
-	nOJIj1atr+y+akqlq99cnqMu0Y1Z41cYcQ6TazzWs/WDPHXiYWR3Qw9WjMENBVX2
-	iUJ0akO/5txv9gEcf9lT9E+LbAUOH02gMaeLaylnY6s67cj7xFzlL+qqk6Ct/Ig/
-	6GGTCcVbscbDGcLe6hjUA==
-X-ME-Sender: <xms:s9HaZg6T99twwNpEAUrg5EMam6_B2aHEhP2d_0uPbtGSUObGn3qT3Q>
-    <xme:s9HaZh5NZhMxeB34qIKrdxYW9sIdBeQtetUXCpcOF3KjfuOVbQCtzH8LOB7VyjGqv
-    BZtDrk_Wx610_rXHfA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrudeiuddgvddvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
-    rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
-    htshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdej
-    necuhfhrohhmpedftehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrd
-    guvgeqnecuggftrfgrthhtvghrnhepvdfhvdekueduveffffetgfdvveefvdelhedvvdeg
-    jedvfeehtdeggeevheefleejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepuddu
-    pdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehlihhnuhigqdgrrhgthhesvhhgvg
-    hrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdgtshhkhiesvhhgvghr
-    rdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvg
-    hrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkshgvlhhfthgvshht
-    sehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqmhhiphhsse
-    hvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqphgrrhhishgt
-    sehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqshefledtse
-    hvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqshhhsehvghgv
-    rhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepshhprghrtghlihhnuhigsehvghgvrh
-    drkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:s9HaZvch4D5vjjeEUW8mCIns9gzXdDSCUK38eMYIOGz553WMOPB-_A>
-    <xmx:s9HaZlLMieryUgKfA90cp4bUrWxNAVkU-wPsVZ-4KCgHhrZXR664VQ>
-    <xmx:s9HaZkJvGV5rxrgidiv5v1AmF2Mr8SvDBii6qhVDEiQ_2ikC_UI0NQ>
-    <xmx:s9HaZmxHiDjy7TaPbAFN7scjDMfoVG7YWIlY3lLlwksDsPAwcRm4GA>
-    <xmx:s9HaZhBWotF2O5UX0Guk6WHI5NDPU9Edg2euSCzo2MFXf-Zyq83idrXt>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id E5FF5222006F; Fri,  6 Sep 2024 05:56:02 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rmJ81Heu"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48675RAi029038;
+	Fri, 6 Sep 2024 10:45:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:mime-version
+	:content-type:in-reply-to; s=pp1; bh=pWBWjrkysi2l5BVPBSJcfU9xbay
+	JrDCXg9/bSvW3Fqg=; b=rmJ81HeuuCjLa4Lm/99nWSossjDtWCb7djCZM6Mttv6
+	N3XwaLHmK9hYu3ZDnI6xgYu6zo/w3XfZXxvod/T/5h2u6F+OEd3pbjCJTi7xhGct
+	d1Y1PNryEOkhayuc5ahrTG+7xy/C+MWNdTTTjQgzMvHUFSYDO38cxrCTWxMSwu8G
+	GGubZR2MEbLUvpL6Y+JVZvadK7sYv99B2uZNKCQLA2VTghm8sPm7KKnrSwnOgaZo
+	Q/y4+87PemmUfEr6+sOLj+9UjMLyu37B8QkBC2eW5hKfMtHXJIAAgpG/YE/+0b/D
+	sGQTvkDCIxU7R5ZVeaG3bHES2n4AJz/htAaE8pVkIIw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41fj1m3m18-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 06 Sep 2024 10:45:47 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 486AfCZ3014216;
+	Fri, 6 Sep 2024 10:45:46 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41fmf2tp4u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 06 Sep 2024 10:45:46 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 486Ajg4a47120694
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 6 Sep 2024 10:45:42 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B07AA2004D;
+	Fri,  6 Sep 2024 10:45:42 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4B76A20040;
+	Fri,  6 Sep 2024 10:45:42 +0000 (GMT)
+Received: from osiris (unknown [9.171.9.1])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri,  6 Sep 2024 10:45:42 +0000 (GMT)
+Date: Fri, 6 Sep 2024 12:45:40 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: "Jason J. Herne" <jjherne@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        akrowiak@linux.ibm.com, borntraeger@de.ibm.com, agordeev@linux.ibm.com,
+        gor@linux.ibm.com
+Subject: Re: [PATCH] s390/vfio-ap: Driver feature advertisement
+Message-ID: <20240906104540.9510-F-hca@linux.ibm.com>
+References: <20240905124351.14594-1-jjherne@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Fri, 06 Sep 2024 09:55:42 +0000
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: guoren <guoren@kernel.org>
-Cc: "Charlie Jenkins" <charlie@rivosinc.com>,
- "Richard Henderson" <richard.henderson@linaro.org>,
- "Ivan Kokshaysky" <ink@jurassic.park.msu.ru>,
- "Matt Turner" <mattst88@gmail.com>, "Vineet Gupta" <vgupta@kernel.org>,
- "Russell King" <linux@armlinux.org.uk>,
- "Huacai Chen" <chenhuacai@kernel.org>, "WANG Xuerui" <kernel@xen0n.name>,
- "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
- "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
- "Helge Deller" <deller@gmx.de>, "Michael Ellerman" <mpe@ellerman.id.au>,
- "Nicholas Piggin" <npiggin@gmail.com>,
- "Christophe Leroy" <christophe.leroy@csgroup.eu>,
- "Naveen N Rao" <naveen@kernel.org>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Gerald Schaefer" <gerald.schaefer@linux.ibm.com>,
- "Heiko Carstens" <hca@linux.ibm.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>,
- "Sven Schnelle" <svens@linux.ibm.com>,
- "Yoshinori Sato" <ysato@users.sourceforge.jp>,
- "Rich Felker" <dalias@libc.org>,
- "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
- "David S . Miller" <davem@davemloft.net>,
- "Andreas Larsson" <andreas@gaisler.com>,
- "Thomas Gleixner" <tglx@linutronix.de>, "Ingo Molnar" <mingo@redhat.com>,
- "Borislav Petkov" <bp@alien8.de>,
- "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, "Andy Lutomirski" <luto@kernel.org>,
- "Peter Zijlstra" <peterz@infradead.org>,
- "Muchun Song" <muchun.song@linux.dev>,
- "Andrew Morton" <akpm@linux-foundation.org>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- "Vlastimil Babka" <vbabka@suse.cz>,
- "Lorenzo Stoakes" <lorenzo.stoakes@oracle.com>, shuah <shuah@kernel.org>,
- "Christoph Hellwig" <hch@infradead.org>,
- "Michal Hocko" <mhocko@suse.com>,
- "Kirill A. Shutemov" <kirill@shutemov.name>,
- "Chris Torek" <chris.torek@gmail.com>,
- Linux-Arch <linux-arch@vger.kernel.org>, linux-kernel@vger.kernel.org,
- linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-mm@kvack.org,
- linux-kselftest@vger.kernel.org, linux-abi-devel@lists.sourceforge.net
-Message-Id: <f23b18c6-1856-4b59-9ba3-59809b425c81@app.fastmail.com>
-In-Reply-To: 
- <CAJF2gTTVX9CFM3oRZZP3hGExwVwA_=n1Lrq_0DQKWA+-ZbOekg@mail.gmail.com>
-References: <20240905-patches-below_hint_mmap-v3-0-3cd5564efbbb@rivosinc.com>
- <20240905-patches-below_hint_mmap-v3-1-3cd5564efbbb@rivosinc.com>
- <9fc4746b-8e9d-4a75-b966-e0906187e6b7@app.fastmail.com>
- <CAJF2gTTVX9CFM3oRZZP3hGExwVwA_=n1Lrq_0DQKWA+-ZbOekg@mail.gmail.com>
-Subject: Re: [PATCH RFC v3 1/2] mm: Add personality flag to limit address to 47 bits
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240905124351.14594-1-jjherne@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 8eqfousuizJUbXnuSjbdpQ7phTPQmhi6
+X-Proofpoint-ORIG-GUID: 8eqfousuizJUbXnuSjbdpQ7phTPQmhi6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-05_17,2024-09-05_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=588
+ priorityscore=1501 clxscore=1011 phishscore=0 mlxscore=0 suspectscore=0
+ spamscore=0 impostorscore=0 malwarescore=0 adultscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
+ definitions=main-2409060076
 
-On Fri, Sep 6, 2024, at 09:14, Guo Ren wrote:
-> On Fri, Sep 6, 2024 at 3:18=E2=80=AFPM Arnd Bergmann <arnd@arndb.de> w=
-rote:
->>
->> It's also unclear to me how we want this flag to interact with
->> the existing logic in arch_get_mmap_end(), which attempts to
->> limit the default mapping to a 47-bit address space already.
->
-> To optimize RISC-V progress, I recommend:
->
-> Step 1: Approve the patch.
-> Step 2: Update Go and OpenJDK's RISC-V backend to utilize it.
-> Step 3: Wait approximately several iterations for Go & OpenJDK
-> Step 4: Remove the 47-bit constraint in arch_get_mmap_end()
+On Thu, Sep 05, 2024 at 08:43:51AM -0400, Jason J. Herne wrote:
+> Advertise features of the driver for the benefit of automated tooling
+> like Libvirt and mdevctl.
+> 
+> Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
+> Reviewed-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>  Documentation/arch/s390/vfio-ap.rst | 34 +++++++++++++++++++++++++++++
+>  drivers/s390/crypto/vfio_ap_drv.c   | 13 +++++++++++
+>  2 files changed, 47 insertions(+)
 
-I really want to first see a plausible explanation about why
-RISC-V can't just implement this using a 47-bit DEFAULT_MAP_WINDOW
-like all the other major architectures (x86, arm64, powerpc64),
-e.g. something like the patch below (untested, probably slightly
-wrong but show illustrate my point).
-
-     Arnd
-
-diff --git a/arch/riscv/include/asm/processor.h b/arch/riscv/include/asm=
-/processor.h
-index 8702b8721a27..de9863be1efd 100644
---- a/arch/riscv/include/asm/processor.h
-+++ b/arch/riscv/include/asm/processor.h
-@@ -20,17 +20,8 @@
-  * mmap_end < addr, being mmap_end the top of that address space.
-  * See Documentation/arch/riscv/vm-layout.rst for more details.
-  */
--#define arch_get_mmap_end(addr, len, flags)			\
--({								\
--	unsigned long mmap_end;					\
--	typeof(addr) _addr =3D (addr);				\
--	if ((_addr) =3D=3D 0 || is_compat_task() ||			\
--	    ((_addr + len) > BIT(VA_BITS - 1)))			\
--		mmap_end =3D STACK_TOP_MAX;			\
--	else							\
--		mmap_end =3D (_addr + len);			\
--	mmap_end;						\
--})
-+#define arch_get_mmap_end(addr, len, flags) \
-+		(((addr) > DEFAULT_MAP_WINDOW) ? TASK_SIZE : DEFAULT_MAP_WINDOW)
-=20
- #define arch_get_mmap_base(addr, base)				\
- ({								\
-@@ -47,7 +38,7 @@
- })
-=20
- #ifdef CONFIG_64BIT
--#define DEFAULT_MAP_WINDOW     (UL(1) << (MMAP_VA_BITS - 1))
-+#define DEFAULT_MAP_WINDOW     (is_compat_task() ? (UL(1) << (MMAP_VA_B=
-ITS - 1)) : TASK_SIZE_32)
- #define STACK_TOP_MAX          TASK_SIZE_64
- #else
- #define DEFAULT_MAP_WINDOW     TASK_SIZE
+Via which tree should this go upstream?
