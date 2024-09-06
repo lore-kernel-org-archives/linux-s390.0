@@ -1,96 +1,119 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FA8181745;
-	Fri,  6 Sep 2024 10:45:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70A041CB33E;
+	Fri,  6 Sep 2024 11:43:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725619552; cv=none; b=uIPBgQk+HUfrbfo4s+DGLgrdTmKKqMqGpPL2whEt23eF8PxnKxuDQ/JcpLMigy+cQoMnWeQSObU5lrvzwfieu2h5cOoqAxnwWVDW9JLv0Pczqis27nsKTK9JIqjTW6uFtpEMWfTzprtOL6XXycyhFIKmA4cs3+8w2Nri1BBJlqY=
+	t=1725623036; cv=none; b=BIV2S24x1CoKvzaDJ0Oi4QynN0eCgLgo5sqLBMB4lKol4rWM95bnwBI4IxUlKQQWrzUOg9r46CUerC/ZNoDgBXkXUBeIqB4SZhLj8Pmt9KVJOPagr5z5AFbEHt0Cq85cwEdePNwj0OtfxG+7m9Z8xMrUimIy/SK8gvgzSLN+fgg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725619552; c=relaxed/simple;
-	bh=J5IbnXsl3zAcetvo/WgRtJuA9QV8d8317nSQFOr+alA=;
+	s=arc-20240116; t=1725623036; c=relaxed/simple;
+	bh=i5Vj6pTtqAFcekgqdft2a7YaCzfD36iQZL5KAInZPtA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pDC8Yeur6KgO3cl6UXFIfNXPyKbqXtcMvoLSqiyHtTPnMmXkaUyXNB6CIIH/XVsLhY8/IpduZoKGnAFyM4/rrwDTUxw0My3gIuBAgnQLw9Ok4TNFgnpA2Wur9vjq0M/7CFZvP7PbRBnjtWhftrt8qNQGdGE3pa2194eWOBH1sXQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rmJ81Heu; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rmJ81Heu"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48675RAi029038;
-	Fri, 6 Sep 2024 10:45:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:references:mime-version
-	:content-type:in-reply-to; s=pp1; bh=pWBWjrkysi2l5BVPBSJcfU9xbay
-	JrDCXg9/bSvW3Fqg=; b=rmJ81HeuuCjLa4Lm/99nWSossjDtWCb7djCZM6Mttv6
-	N3XwaLHmK9hYu3ZDnI6xgYu6zo/w3XfZXxvod/T/5h2u6F+OEd3pbjCJTi7xhGct
-	d1Y1PNryEOkhayuc5ahrTG+7xy/C+MWNdTTTjQgzMvHUFSYDO38cxrCTWxMSwu8G
-	GGubZR2MEbLUvpL6Y+JVZvadK7sYv99B2uZNKCQLA2VTghm8sPm7KKnrSwnOgaZo
-	Q/y4+87PemmUfEr6+sOLj+9UjMLyu37B8QkBC2eW5hKfMtHXJIAAgpG/YE/+0b/D
-	sGQTvkDCIxU7R5ZVeaG3bHES2n4AJz/htAaE8pVkIIw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41fj1m3m18-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Sep 2024 10:45:47 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 486AfCZ3014216;
-	Fri, 6 Sep 2024 10:45:46 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41fmf2tp4u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Sep 2024 10:45:46 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 486Ajg4a47120694
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 6 Sep 2024 10:45:42 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B07AA2004D;
-	Fri,  6 Sep 2024 10:45:42 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4B76A20040;
-	Fri,  6 Sep 2024 10:45:42 +0000 (GMT)
-Received: from osiris (unknown [9.171.9.1])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  6 Sep 2024 10:45:42 +0000 (GMT)
-Date: Fri, 6 Sep 2024 12:45:40 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: "Jason J. Herne" <jjherne@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        akrowiak@linux.ibm.com, borntraeger@de.ibm.com, agordeev@linux.ibm.com,
-        gor@linux.ibm.com
-Subject: Re: [PATCH] s390/vfio-ap: Driver feature advertisement
-Message-ID: <20240906104540.9510-F-hca@linux.ibm.com>
-References: <20240905124351.14594-1-jjherne@linux.ibm.com>
+	 Content-Type:Content-Disposition:In-Reply-To; b=e+CLoLxfdcUJacooRDfKkXx+HC3//KklOx+ovesDoCFmHXW9CnLcPHN5+n6fgzChtDbfaGKIUcEiR77IlVgKhsAw2iw5VFP5f63qyOyh8IVaf8lyQalQPUP4Rj51A1IaRTr3I9YTzZrQKF7eA+zvgJjHSHjGjVXWL9EM94P9bPY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFE75C4CEC4;
+	Fri,  6 Sep 2024 11:43:46 +0000 (UTC)
+Date: Fri, 6 Sep 2024 12:43:44 +0100
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: guoren <guoren@kernel.org>, Charlie Jenkins <charlie@rivosinc.com>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S . Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Muchun Song <muchun.song@linux.dev>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	shuah <shuah@kernel.org>, Christoph Hellwig <hch@infradead.org>,
+	Michal Hocko <mhocko@suse.com>,
+	"Kirill A. Shutemov" <kirill@shutemov.name>,
+	Chris Torek <chris.torek@gmail.com>,
+	Linux-Arch <linux-arch@vger.kernel.org>,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-mm@kvack.org,
+	linux-kselftest@vger.kernel.org,
+	linux-abi-devel@lists.sourceforge.net
+Subject: Re: [PATCH RFC v3 1/2] mm: Add personality flag to limit address to
+ 47 bits
+Message-ID: <Ztrq8PBLJ3QuFJz7@arm.com>
+References: <20240905-patches-below_hint_mmap-v3-0-3cd5564efbbb@rivosinc.com>
+ <20240905-patches-below_hint_mmap-v3-1-3cd5564efbbb@rivosinc.com>
+ <9fc4746b-8e9d-4a75-b966-e0906187e6b7@app.fastmail.com>
+ <CAJF2gTTVX9CFM3oRZZP3hGExwVwA_=n1Lrq_0DQKWA+-ZbOekg@mail.gmail.com>
+ <f23b18c6-1856-4b59-9ba3-59809b425c81@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20240905124351.14594-1-jjherne@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 8eqfousuizJUbXnuSjbdpQ7phTPQmhi6
-X-Proofpoint-ORIG-GUID: 8eqfousuizJUbXnuSjbdpQ7phTPQmhi6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-05_17,2024-09-05_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=588
- priorityscore=1501 clxscore=1011 phishscore=0 mlxscore=0 suspectscore=0
- spamscore=0 impostorscore=0 malwarescore=0 adultscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
- definitions=main-2409060076
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <f23b18c6-1856-4b59-9ba3-59809b425c81@app.fastmail.com>
 
-On Thu, Sep 05, 2024 at 08:43:51AM -0400, Jason J. Herne wrote:
-> Advertise features of the driver for the benefit of automated tooling
-> like Libvirt and mdevctl.
+On Fri, Sep 06, 2024 at 09:55:42AM +0000, Arnd Bergmann wrote:
+> On Fri, Sep 6, 2024, at 09:14, Guo Ren wrote:
+> > On Fri, Sep 6, 2024 at 3:18 PM Arnd Bergmann <arnd@arndb.de> wrote:
+> >> It's also unclear to me how we want this flag to interact with
+> >> the existing logic in arch_get_mmap_end(), which attempts to
+> >> limit the default mapping to a 47-bit address space already.
+> >
+> > To optimize RISC-V progress, I recommend:
+> >
+> > Step 1: Approve the patch.
+> > Step 2: Update Go and OpenJDK's RISC-V backend to utilize it.
+> > Step 3: Wait approximately several iterations for Go & OpenJDK
+> > Step 4: Remove the 47-bit constraint in arch_get_mmap_end()
 > 
-> Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
-> Reviewed-by: Anthony Krowiak <akrowiak@linux.ibm.com>
-> ---
->  Documentation/arch/s390/vfio-ap.rst | 34 +++++++++++++++++++++++++++++
->  drivers/s390/crypto/vfio_ap_drv.c   | 13 +++++++++++
->  2 files changed, 47 insertions(+)
+> I really want to first see a plausible explanation about why
+> RISC-V can't just implement this using a 47-bit DEFAULT_MAP_WINDOW
+> like all the other major architectures (x86, arm64, powerpc64),
 
-Via which tree should this go upstream?
+FWIW arm64 actually limits DEFAULT_MAP_WINDOW to 48-bit in the default
+configuration. We end up with a 47-bit with 16K pages but for a
+different reason that has to do with LPA2 support (I doubt we need this
+for the user mapping but we need to untangle some of the macros there;
+that's for a separate discussion).
+
+That said, we haven't encountered any user space problems with a 48-bit
+DEFAULT_MAP_WINDOW. So I also think RISC-V should follow a similar
+approach (47 or 48 bit default limit). Better to have some ABI
+consistency between architectures. One can still ask for addresses above
+this default limit via mmap().
+
+-- 
+Catalin
