@@ -1,65 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CE1D1684AE;
-	Tue, 10 Sep 2024 11:34:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E01117BB08;
+	Tue, 10 Sep 2024 11:34:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725968087; cv=none; b=iW+Ise0DMo1lZhJrfVUKktbQBbuG+b1cnn0NzkHJpno49Zn24QrQKvCAcbkfx58D4IJnPKw3MXLMJpurlSRprVh+1jdpL5R+4BOY1qhdsXDfpJgyQxHbK9AmKN69MO6DgM/ta7G3byT0B9Rqs6F9SQwcUvZi6UmcB3InExVNjS0=
+	t=1725968088; cv=none; b=pdYV9mYC0//7EIxEz5iAykdwgmCWYBwEenbUpBwGBzIlRkqxzzofgVXmVtExlfp+cN6R3HaS5P/DDhxQeVdUKuTZshZLIQjflJKtqknoLJAdA/W0//X14Z/b8JaWKawHh5+O5lgewWjE/uUWjNey2lplt3xzQXiKeki8IBqtc1k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725968087; c=relaxed/simple;
+	s=arc-20240116; t=1725968088; c=relaxed/simple;
 	bh=ERbXx5RE7KlaJmidB1eLisLhUg5Fqi/VT3Ka6Cft4/s=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lbcEUZvkerZ4ehuec/F8WrW9kVulHmpUjIZmAAWALUiNqd3B8CDnAKda3D44NzGkpJPVTqUwJVILRmYfOslnYDN4yVY8h/0HzJNoQGs4tf/duuPBn/krJCTmNVRzpJgqR4EeisRmDy3ZMaxhqFQhfR0GhAwZIwgPAIwzJZ8KCTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nM3s/XzG; arc=none smtp.client-ip=148.163.156.1
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YCMAVYWF/R+yO1VoLUVVtSHwtMhtidlWXgbXzItmks+XNLT1LDgi0Vs9bv3HxzfX4JaYN3+TSuxtLz8eY3T70gl4cAWJDo83quViiYhZ/hM2KdMDFD4q2PgQPX+r/+Epb/3gGI7x7PeWUGQGjYixYw2acrpr0f02q45evtBOEU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Jtgfdaod; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nM3s/XzG"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48A2XW1h014847;
-	Tue, 10 Sep 2024 11:34:43 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Jtgfdaod"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48A0Dndr015345;
+	Tue, 10 Sep 2024 11:34:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
 	:to:cc:subject:date:message-id:mime-version
 	:content-transfer-encoding; s=pp1; bh=ozd2VjT3Z9e2d1FwRYWjU0FvXx
-	kv2UHK8MoAOAsjsqw=; b=nM3s/XzGE1TalzBzF0oPSO6oo7z4MMAF54SY8aIU0p
-	ZDuo4U5PCdS087TuBa7Je/wIIZZwvLD0FLKlKUAkXDKOFZbpPRHDJfHbOQy5dmFt
-	LkQtgjaopCznhsSGBJOjZ0DV2jMa2NkMRoQPSrI9iflnN/TfclkkDkeFHlNWbYVV
-	CrVSLtL9bJEc71A1NBX7sN9sA/GNpT5hV6MRwgr/Xq810tJaNAKcY5+BYQz99FHD
-	ZWPjPIfFqJy88nhdrExOJBKap8RWHnAt5l9ASbwhBkbTlK34I0NdxM1LtAxvFhVa
-	oWgom0yQ7QZS7YwpLQUKtymsgjipW8oI3BTxNWmtutgg==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41geba77ku-1
+	kv2UHK8MoAOAsjsqw=; b=JtgfdaodQYbrMH8eaCp6chU+4VNoEaJdbvV4vBtN1V
+	1oGGH6FGBuPLWOL8sQ0FR/Wz8GWb0FFRSMEdGOCx/SH9hqbvcpyUBeheu0b9biAN
+	yW913xanH1/BmbnjcZ2oN71z/ORWsd/Wx4kLlamnD3/Wd9KezuCUbIG1R6pl+Lih
+	9dqFQI9g9E7K2WfJorod0gtcqpWfPasEJ7rZvyu0u6dLYRSlYEI8ZpYytfznVcdY
+	yAVDFtYYWVCGLXZDDTGHVVHVdclAmRCnoVX0laIVGTzJD4TxXvhqI7JqhxQIjAjs
+	Uh3AcbwSgSgcBIjIezf+nUtvppvaX+Hg5feNeBn013nA==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41gefyf28x-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Sep 2024 11:34:42 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48AA0E62027308;
-	Tue, 10 Sep 2024 11:34:41 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 41h3v32w8f-1
+	Tue, 10 Sep 2024 11:34:44 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48A7q6AL032504;
+	Tue, 10 Sep 2024 11:34:43 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41h1j0kbyr-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Sep 2024 11:34:41 +0000
+	Tue, 10 Sep 2024 11:34:43 +0000
 Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48ABYeEe25101046
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48ABYgqZ22217246
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 10 Sep 2024 11:34:40 GMT
+	Tue, 10 Sep 2024 11:34:42 GMT
 Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6AE2A58053;
-	Tue, 10 Sep 2024 11:34:40 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0CA3458053;
+	Tue, 10 Sep 2024 11:34:42 +0000 (GMT)
 Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7413158043;
-	Tue, 10 Sep 2024 11:34:39 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 07A2D58043;
+	Tue, 10 Sep 2024 11:34:41 +0000 (GMT)
 Received: from jason-laptop.home.arpa (unknown [9.61.6.233])
 	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 10 Sep 2024 11:34:39 +0000 (GMT)
+	Tue, 10 Sep 2024 11:34:40 +0000 (GMT)
 From: "Jason J. Herne" <jjherne@linux.ibm.com>
 To: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, akrowiak@linux.ibm.com,
+Cc: linux-kernel@vger.kernel.org, fiuczy@linux.ibm.com, akrowiak@linux.ibm.com,
         borntraeger@de.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        hca@linux.ibm.com, "Jason J. Herne" <jjherne@linux.ibm.com>,
-        Boris Fiuczynski <fiuczy@linux.ibm.com>
+        hca@linux.ibm.com, "Jason J. Herne" <jjherne@linux.ibm.com>
 Subject: [PATCH v2] s390/vfio-ap: Driver feature advertisement
-Date: Tue, 10 Sep 2024 07:34:38 -0400
-Message-ID: <20240910113438.8097-1-jjherne@linux.ibm.com>
+Date: Tue, 10 Sep 2024 07:34:40 -0400
+Message-ID: <20240910113440.8107-1-jjherne@linux.ibm.com>
 X-Mailer: git-send-email 2.46.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -69,16 +68,16 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: qJ2qISR67SHdoDr68JQ7smRNJAIZuAHx
-X-Proofpoint-GUID: qJ2qISR67SHdoDr68JQ7smRNJAIZuAHx
+X-Proofpoint-GUID: zx5hysJqgOt-weBxhkNFyEdwnIPAWjQH
+X-Proofpoint-ORIG-GUID: zx5hysJqgOt-weBxhkNFyEdwnIPAWjQH
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
  definitions=2024-09-10_04,2024-09-09_02,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- priorityscore=1501 bulkscore=0 spamscore=0 phishscore=0 lowpriorityscore=0
- mlxscore=0 mlxlogscore=602 impostorscore=0 clxscore=1015 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
- definitions=main-2409100086
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ lowpriorityscore=0 suspectscore=0 mlxlogscore=602 priorityscore=1501
+ adultscore=0 clxscore=1015 spamscore=0 bulkscore=0 phishscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2409100086
 
 Advertise features of the driver for the benefit of automated tooling
 like Libvirt and mdevctl.
