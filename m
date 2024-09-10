@@ -1,171 +1,143 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f52.google.com (mail-io1-f52.google.com [209.85.166.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E01117BB08;
-	Tue, 10 Sep 2024 11:34:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF3501957F9;
+	Tue, 10 Sep 2024 12:51:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725968088; cv=none; b=pdYV9mYC0//7EIxEz5iAykdwgmCWYBwEenbUpBwGBzIlRkqxzzofgVXmVtExlfp+cN6R3HaS5P/DDhxQeVdUKuTZshZLIQjflJKtqknoLJAdA/W0//X14Z/b8JaWKawHh5+O5lgewWjE/uUWjNey2lplt3xzQXiKeki8IBqtc1k=
+	t=1725972697; cv=none; b=MHFj8gumLIX83uRgeUtBJk2ryfYPXHsGZoxYUu5kZR8Hg4jye7wKE0L03DYH3uD5SsGchvDmstXSD8hrSjyUTZv6q8OemIgn9BX8aa2crr9kZl2MapA+ub6MmL8y0TL/yJP9mXO0KTKzFHGxOE1nmxldRnmy6p859bUys65TMUg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725968088; c=relaxed/simple;
-	bh=ERbXx5RE7KlaJmidB1eLisLhUg5Fqi/VT3Ka6Cft4/s=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YCMAVYWF/R+yO1VoLUVVtSHwtMhtidlWXgbXzItmks+XNLT1LDgi0Vs9bv3HxzfX4JaYN3+TSuxtLz8eY3T70gl4cAWJDo83quViiYhZ/hM2KdMDFD4q2PgQPX+r/+Epb/3gGI7x7PeWUGQGjYixYw2acrpr0f02q45evtBOEU8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Jtgfdaod; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Jtgfdaod"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48A0Dndr015345;
-	Tue, 10 Sep 2024 11:34:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding; s=pp1; bh=ozd2VjT3Z9e2d1FwRYWjU0FvXx
-	kv2UHK8MoAOAsjsqw=; b=JtgfdaodQYbrMH8eaCp6chU+4VNoEaJdbvV4vBtN1V
-	1oGGH6FGBuPLWOL8sQ0FR/Wz8GWb0FFRSMEdGOCx/SH9hqbvcpyUBeheu0b9biAN
-	yW913xanH1/BmbnjcZ2oN71z/ORWsd/Wx4kLlamnD3/Wd9KezuCUbIG1R6pl+Lih
-	9dqFQI9g9E7K2WfJorod0gtcqpWfPasEJ7rZvyu0u6dLYRSlYEI8ZpYytfznVcdY
-	yAVDFtYYWVCGLXZDDTGHVVHVdclAmRCnoVX0laIVGTzJD4TxXvhqI7JqhxQIjAjs
-	Uh3AcbwSgSgcBIjIezf+nUtvppvaX+Hg5feNeBn013nA==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41gefyf28x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Sep 2024 11:34:44 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48A7q6AL032504;
-	Tue, 10 Sep 2024 11:34:43 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41h1j0kbyr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Sep 2024 11:34:43 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48ABYgqZ22217246
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 10 Sep 2024 11:34:42 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0CA3458053;
-	Tue, 10 Sep 2024 11:34:42 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 07A2D58043;
-	Tue, 10 Sep 2024 11:34:41 +0000 (GMT)
-Received: from jason-laptop.home.arpa (unknown [9.61.6.233])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 10 Sep 2024 11:34:40 +0000 (GMT)
-From: "Jason J. Herne" <jjherne@linux.ibm.com>
-To: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, fiuczy@linux.ibm.com, akrowiak@linux.ibm.com,
-        borntraeger@de.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        hca@linux.ibm.com, "Jason J. Herne" <jjherne@linux.ibm.com>
-Subject: [PATCH v2] s390/vfio-ap: Driver feature advertisement
-Date: Tue, 10 Sep 2024 07:34:40 -0400
-Message-ID: <20240910113440.8107-1-jjherne@linux.ibm.com>
-X-Mailer: git-send-email 2.46.0
+	s=arc-20240116; t=1725972697; c=relaxed/simple;
+	bh=682Lk6RmpRTw8VZ2wPqGG287wKzSgc/4y6RyyUphVWg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dHH1gbg0ztyKvOWohzPIE0BWDUaUQmPc7JcvZDnvBbFs/KIpIFWGXyX5ae9aTt453tw+ETrBvQLZQRjUK0OQysAANjOsaC2sUIpOtpzuIYeL9BiW73bPr4zxL8UsQx3/xYN37cWgBj01xltSg22bOJjuLSGopCLW/Eky6Ydca1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.166.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-io1-f52.google.com with SMTP id ca18e2360f4ac-82d07f32eeaso11392539f.2;
+        Tue, 10 Sep 2024 05:51:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1725972694; x=1726577494;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FY/G3MXaavbXgZQIcVqEM6/ihxl9V6XepDsCDLrUSCE=;
+        b=kg+SCqQM4YeOxVzjTW5KKE2inr0rsq4q07i1/k1Wvei6bcciDdLyJg1OVDeBWnuSKx
+         IeK5giC0FzsmjPV8+NIFQAxWKxKeuA1Bzv7YdroJD8XVc7FY0Mx9o37G67A9cCN00db7
+         5ywI/cE3hmw/tNKAL/ltHfklGnDAmWturIh5lQSpaAa1KVF4frclZoULAp2mo6CxREdp
+         qhHQG7uhmBDKLPsYQu2dN/7F/NiFF/MKl8DDeXGLAxDiXP/EiuZCXaBQFATpsSHs0+68
+         FJOffMnjUQkuqtfAEwvTtvb6Yh+1f0zhFeBb1H8QLdxt61FuYcDSNNpe9YKGhtYKvIxM
+         G6AA==
+X-Forwarded-Encrypted: i=1; AJvYcCUSkKu+h622fnIhx1VfxsLJuCxqynEfEIYG46kSMs/tB7kcWG/Y7iD1MYu3GkZQ4OVvaxPKxE1YPCbmZw==@vger.kernel.org, AJvYcCUlWczKsrScamFa+uOHfAQTiuc+dbStjDHs9lRrLGFkRmCPREWGDL77vSEQgUI+e/KS0BNl6h2vCZwvzuOj@vger.kernel.org, AJvYcCUuzBpsv5xnyten2rAu4+/5CjhGIg3eRjnkNY2FDB+7uKRnEvoxHCtbCD18Uijy/mw9mUibMIs5a2ZNOQ==@vger.kernel.org, AJvYcCW7AHmJc1VWZbRujHHIiSdt3kocLOp6z3Cpp/F/gpQA5htSkoZJemTpQfgA6p45POCvL44gW4SH8EjB5Q==@vger.kernel.org, AJvYcCWDeN/wmBTQUGKqn0c19BXAbZhBK1GlazjIIZSqZU+pnOEg+L7i+PN3NTe2EQySBHvq2JcXWll5KtA=@vger.kernel.org, AJvYcCWW9OGlZ3f6K+YgIzTIlewL6LKmzO18wucNG075gAfI5+/h9YO7rRUhuB+CrRz/CwRDfr8ilHisWpcVlA==@vger.kernel.org, AJvYcCWsqRmznrywK97ayH63/a6henv2VAyxfjf0wdrR0Ap1+50DgByH8MsnD2j9En7aBCnr/lNWEuYx0AYXMre/@vger.kernel.org, AJvYcCX7QfhbhBEXs85/V22u/UsYcG/tUyvIwTctcovtMH1lJcyLTSY/isqQml4G0mn2Cavo2UfbMD84UdH1IA==@vger.kernel.org, AJvYcCXp5yBUxnNgCo7ukjUPQ9Xjx8Gp1ORz7cMtdRYwVkfrBBcGWY85w+beqp9TcsGBZe9nOkL+IuxTbo3Cl0UZtAqp@vger.kernel.org, AJvYcCXveTBSvYJrXi4urWqBAmu10J2YiMzHMkxotNHDFfktQ8V1sTqhnUdHr+Daw9hfQQ3wk/DRG5Xq9Hccqg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwQX6Kh6QGqJCgvfycN0AD82jJnJs82d8Q/rVTXxyZufc/V1Ybg
+	mYLPL9AHHeIvXAJHh7qe8HoRLzv3lgKnDQyi6Iy/+OPPu97tyh9NsdyE0b2Q
+X-Google-Smtp-Source: AGHT+IH2m7C+y8mbmhWtKaiuWKSKlNp6LcOLT4T/R+tq56k2FPXatF/EUshcX4yqiSD8LexgGxF89Q==
+X-Received: by 2002:a05:6e02:19cb:b0:3a0:4a91:2263 with SMTP id e9e14a558f8ab-3a04f08baefmr156980465ab.13.1725972694494;
+        Tue, 10 Sep 2024 05:51:34 -0700 (PDT)
+Received: from mail-il1-f177.google.com (mail-il1-f177.google.com. [209.85.166.177])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4d09464b532sm1605735173.151.2024.09.10.05.51.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 10 Sep 2024 05:51:34 -0700 (PDT)
+Received: by mail-il1-f177.google.com with SMTP id e9e14a558f8ab-39fd6a9acb6so19822875ab.0;
+        Tue, 10 Sep 2024 05:51:34 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCUJ44nGf1LFt2ipcuybnlHD1k/ja60qTYfi0Eu42cTSbJT7HEebU5JiPOm5RnDOjJFGccTvmHyiELTtiA==@vger.kernel.org,
+ AJvYcCUPGUDNvH/DM1Cj0uvmlQxWc2V9pMEVDje7IaG8mhMk1fb73JrzSlopR+KXgWVrOAseSeUButseAGgUaw==@vger.kernel.org,
+ AJvYcCUT0NuuE47oFZm3jdxZEH/tbh2PSNjJ8sTeccXRF3ha4ImE5qhIAxIFt4ZTx2Iq6v4MoNFcFjMZxZvo+w==@vger.kernel.org,
+ AJvYcCUYMfYcDV5enph9fqY4IXNuOvaUflW+EkhJ2j4OVvdiX0+UOa1HgxJS9H0w7JuSZ5pYNAl+v44KhTAgtB2/@vger.kernel.org,
+ AJvYcCV4kvpVG8lLIUeQw8b8GxSl9WxrPyaoRU2C23N849mWiyq59RackkxPnF9FUKNG762C4wKEH7T3a0oCAw==@vger.kernel.org,
+ AJvYcCVaPDv7mZsPBVfzfPItCvDUdnMS2KBUFv8ZQpo75wej3gEK2GwuDxnSWS3If0mrCQD2tA6OzM3twKQ=@vger.kernel.org,
+ AJvYcCVwAwFVIMwFZepKRJmKko16M+I3K2IzSKoi29SCzdm1oRvGd6x69Pz1SCRNI3YCUo2tkNCmicpb2uE82g==@vger.kernel.org,
+ AJvYcCW7k9cf4tmPw8y6o6PYhneDFdbWD+lthvQZbeBgU2P8a+4XH2pEvZl96yKFKSnLRov42SE1D0pv1nmyYUc9cix/@vger.kernel.org,
+ AJvYcCWL2IFAukKKn8Iflv2n8Gda7wrOkJP0yZ/L2hkq+wCItLn49nbHW6y/Xy0HuhT9Oaa9aqKtqjMR8r0P2Uj4@vger.kernel.org,
+ AJvYcCWiTqDQDVdQUPxCag5YKfnySzmsBTlhZ9cwwG5N9/d3cGuOsu6rOgyDLyDHMw8NOo0jI3JYsRinZ7hb2A==@vger.kernel.org
+X-Received: by 2002:a05:690c:39d:b0:6c8:1e30:513f with SMTP id
+ 00721157ae682-6db44f37140mr169442817b3.23.1725972199364; Tue, 10 Sep 2024
+ 05:43:19 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: zx5hysJqgOt-weBxhkNFyEdwnIPAWjQH
-X-Proofpoint-ORIG-GUID: zx5hysJqgOt-weBxhkNFyEdwnIPAWjQH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-10_04,2024-09-09_02,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- lowpriorityscore=0 suspectscore=0 mlxlogscore=602 priorityscore=1501
- adultscore=0 clxscore=1015 spamscore=0 bulkscore=0 phishscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2408220000 definitions=main-2409100086
+References: <20240905-patches-below_hint_mmap-v3-0-3cd5564efbbb@rivosinc.com>
+ <20240905-patches-below_hint_mmap-v3-1-3cd5564efbbb@rivosinc.com>
+ <87zfol468z.fsf@mail.lhotse> <Zt9HboH/PmPlRPmH@ghost> <1aca8e4c-1c12-4624-a689-147ff60b75d6@csgroup.eu>
+In-Reply-To: <1aca8e4c-1c12-4624-a689-147ff60b75d6@csgroup.eu>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Tue, 10 Sep 2024 14:43:06 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdURgy6NPthHhfOv_h=C_gw2hEpnGQ7iBGoDE=ZazUPRHA@mail.gmail.com>
+Message-ID: <CAMuHMdURgy6NPthHhfOv_h=C_gw2hEpnGQ7iBGoDE=ZazUPRHA@mail.gmail.com>
+Subject: Re: [PATCH RFC v3 1/2] mm: Add personality flag to limit address to
+ 47 bits
+To: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Charlie Jenkins <charlie@rivosinc.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Arnd Bergmann <arnd@arndb.de>, Richard Henderson <richard.henderson@linaro.org>, 
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, 
+	Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Guo Ren <guoren@kernel.org>, 
+	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
+	Nicholas Piggin <npiggin@gmail.com>, Naveen N Rao <naveen@kernel.org>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
+	Muchun Song <muchun.song@linux.dev>, Andrew Morton <akpm@linux-foundation.org>, 
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, 
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Shuah Khan <shuah@kernel.org>, 
+	Christoph Hellwig <hch@infradead.org>, Michal Hocko <mhocko@suse.com>, 
+	"Kirill A. Shutemov" <kirill@shutemov.name>, Chris Torek <chris.torek@gmail.com>, linux-arch@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-csky@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, 
+	linux-kselftest@vger.kernel.org, linux-abi-devel@lists.sourceforge.net
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Advertise features of the driver for the benefit of automated tooling
-like Libvirt and mdevctl.
+Hi Christophe,
 
-Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
-Reviewed-by: Anthony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
----
- Documentation/arch/s390/vfio-ap.rst | 34 +++++++++++++++++++++++++++++
- drivers/s390/crypto/vfio_ap_drv.c   | 13 +++++++++++
- 2 files changed, 47 insertions(+)
+On Tue, Sep 10, 2024 at 11:21=E2=80=AFAM Christophe Leroy
+<christophe.leroy@csgroup.eu> wrote:
+> >>> diff --git a/include/uapi/linux/personality.h b/include/uapi/linux/pe=
+rsonality.h
+> >>> index 49796b7756af..cd3b8c154d9b 100644
+> >>> --- a/include/uapi/linux/personality.h
+> >>> +++ b/include/uapi/linux/personality.h
+> >>> @@ -22,6 +22,7 @@ enum {
+> >>>     WHOLE_SECONDS =3D         0x2000000,
+> >>>     STICKY_TIMEOUTS =3D       0x4000000,
+> >>>     ADDR_LIMIT_3GB =3D        0x8000000,
+> >>> +   ADDR_LIMIT_47BIT =3D      0x10000000,
+> >>>   };
+> >>
+> >> I wonder if ADDR_LIMIT_128T would be clearer?
+> >>
+> >
+> > I don't follow, what does 128T represent?
+>
+> 128T is 128 Terabytes, that's the maximum size achievable with a 47BIT
+> address, that naming would be more consistant with the ADDR_LIMIT_3GB
+> just above that means a 3 Gigabytes limit.
 
-diff --git a/Documentation/arch/s390/vfio-ap.rst b/Documentation/arch/s390/vfio-ap.rst
-index ea744cbc8687..22f1965af500 100644
---- a/Documentation/arch/s390/vfio-ap.rst
-+++ b/Documentation/arch/s390/vfio-ap.rst
-@@ -999,6 +999,40 @@ the vfio_ap mediated device to which it is assigned as long as each new APQN
- resulting from plugging it in references a queue device bound to the vfio_ap
- device driver.
- 
-+Driver Features
-+===============
-+The vfio_ap driver exposes a sysfs file containing supported features.
-+This exists so third party tools (like Libvirt and mdevctl) can query the
-+availability of specific features.
-+
-+The features list can be found here: /sys/bus/matrix/devices/matrix/features
-+
-+Entries are \n delimited. Each entry contains a key value pair. The key is made
-+up of a combination of alphanumeric and underscore characters. The separator
-+consists of a space, a colon and then another space. The value consists of
-+alphanumeric, space, and underscore characters.
-+
-+Example:
-+cat /sys/bus/matrix/devices/matrix/features
-+flags : guest_matrix dyn ap_config
-+
-+Presently only a single field named flags is defined. It is meant to advertise a
-+list of features the driver provides. The flags fields advertises the following
-+features:
-+
-+---------------+---------------------------------------------------------------+
-+| Flag         | Description                                                   |
-++==============+===============================================================+
-+| guest_matrix | guest_matrix attribute exists. It reports the matrix of       |
-+|              | adapters and domains that are or will be passed through to a  |
-+|              | guest when the mdev is attached to it.                        |
-++--------------+---------------------------------------------------------------+
-+| hotplug      | Indicates hot plug/unplug of AP adapters, domains and control |
-+|              | domains for a guest to which the mdev is attached.            |
-++------------+-----------------------------------------------------------------+
-+| ap_config    | ap_config interface for one-shot modifications to mdev config |
-++--------------+---------------------------------------------------------------+
-+
- Limitations
- ===========
- Live guest migration is not supported for guests using AP devices without
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 4aeb3e1213c7..e3fc444ff404 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -26,6 +26,18 @@ MODULE_LICENSE("GPL v2");
- struct ap_matrix_dev *matrix_dev;
- debug_info_t *vfio_ap_dbf_info;
- 
-+static ssize_t features_show(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "flags : guest_matrix hotplug ap_config\n");
-+}
-+static DEVICE_ATTR_RO(features);
-+
-+static struct attribute *matrix_dev_attrs[] = {
-+	&dev_attr_features.attr,
-+	NULL,
-+};
-+ATTRIBUTE_GROUPS(matrix_dev);
-+
- /* Only type 10 adapters (CEX4 and later) are supported
-  * by the AP matrix device driver
-  */
-@@ -68,6 +80,7 @@ static struct device_driver matrix_driver = {
- 	.name = "vfio_ap",
- 	.bus = &matrix_bus,
- 	.suppress_bind_attrs = true,
-+	.dev_groups = matrix_dev_groups,
- };
- 
- static int vfio_ap_matrix_dev_create(void)
--- 
-2.46.0
+Hence ADDR_LIMIT_128TB?
 
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--=20
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
