@@ -1,171 +1,340 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1118225A8
-	for <linux-s390@vger.kernel.org>; Tue, 10 Sep 2024 20:19:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C91F176FCF;
+	Tue, 10 Sep 2024 21:15:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725999573; cv=none; b=UTcbFZJ5+BF0r7IMCCpIYqLS0uBHxM9SDNe6yLUQT6ccByLwcrXojysa+6CfxXuIyZdg0aQp54z1SF5WSfxS4S6Gnnt3rcqqjncUM7oE/UlDEByjLj/u65lWIatLnRwbe34IRBPkUgcNgkNs8oOi1I/cZo2VArc6pyQ7ISAM/D0=
+	t=1726002941; cv=none; b=On3gUVb5vq6wkAQiq6I7LE19EB5L23JZMq6fm8CBuUi8eHIAiPpWRYYjsDEv3T/tihv8MBQ+z6pj+BKXsODtRlRZiImjGxxjWhpIRfJUyIGWIoJPFbVxKjLbyV3JhTqeXaQym4pPjJw5l2UB3WMz0LAg7JBdDNn63dgw84XtOXA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725999573; c=relaxed/simple;
-	bh=8CCuLYWdWTSFpLwKxbqHrDLHqq2DH1fE8m6jNkhdCNY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RNFEPux26n3YbUMLOWh0DHFAoBTW4thOluBEx7cjdrSf/3tj6h8wY7jHmFVUUaSWWTbiK4nET8NQPPTJAFmbR6TzjfQMnfC59zyOFOz0dJNt2qtpa6Oynr56jjYH4zDAsqktpfY/EYsQl71YfIPW7s5WQO1tEtDYsM9CByr3G7o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fAnOMtGg; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1726002941; c=relaxed/simple;
+	bh=Fh0U+pSTwGimFfvklPVKJACUpUFnD0QxSyZiD5dwI+s=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=okC3ZGdAgOZubBqWD2veRiTaBx7ANZru8ueqRaRXdbGqmxMK5VIXLlX/0ZGcEpuqwm0mB+/qngbE3CReWEgP+VEjlUxds3mM0G7KP3Jm96eUdhQ5ZF2WGWlby3l/btaUJo5PiXStEA5wbS/SoYr9KsK2yeeKx4Ok54nGadWwW8k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OIfpKAzH; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fAnOMtGg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725999570;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=W/Ek58qaXc13SAy2fWa0xfKNbuHUlKabbBtKkvuJifU=;
-	b=fAnOMtGg/vKj8V5YBuo9kuAU+OPPZ4RGrSp+3DRy823hdp3gigiPWOHQJ4GCj4JhdL6N+8
-	NHRAq46f1DZ3+1Nx8gbkziZpZoGMHn03mI0Al2ySBUoTNp7+2kqZCFXY4mZLYO5+ho5jh+
-	b0fcqrn9xQNTxuTwrZSwQIiUnQwp1mY=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-280-jqTMQVsjO2W-vBIJKzbEiA-1; Tue, 10 Sep 2024 16:19:29 -0400
-X-MC-Unique: jqTMQVsjO2W-vBIJKzbEiA-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a8d2ecdf414so198714766b.2
-        for <linux-s390@vger.kernel.org>; Tue, 10 Sep 2024 13:19:29 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725999568; x=1726604368;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=W/Ek58qaXc13SAy2fWa0xfKNbuHUlKabbBtKkvuJifU=;
-        b=noejWdyOv3OMMhe/QHNRSqKV8ZbQYFMBKbqjBvQIdHm/W1zb7zF62kutVFsbzZY3Lu
-         qev5M3d8A9kuSpEWJmtC+FR62xTgOoRk5wz4vSm42ZVB/AkBcDHuT11PvnOyV32LJiYK
-         7OuKeTgo8eufxzEq4QRdm3bnYTPWwhJToi9guYJce6dEuhqbneP/TGRm3Dr7Zxg6SP2V
-         rDZPv3MAbuHYmyDfopHk1Qnb9GazUQAnS1CTyWfGAzPyjCcKAJgQuaxQ/120+m7u7QBw
-         +oeBtWUTTP3M+1QvQKX2xJ7tHCU37dZSE1pR+zMmQUhVc+SSYeqL/Dc5KA9M9CdeBdfE
-         g86w==
-X-Forwarded-Encrypted: i=1; AJvYcCU7J1WaSvEXPhXz3+i3lqsi1YDctorKrqgqknCT2edn/JnrlxzcsZlmNHIcTEjNr3pCvDGpY+BeCIyS@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz0B/X/Kf2UhXEGMog6wKIsTf/VfpynPOmxVaxmV2b6nFeAiCC2
-	DxK4zdY/4NQ/PFIoYxXxX/asdeUN3iI/bjwSWlgr26R4bbQC9qjueCcFGvgEO6D9AxN2KXeJEyP
-	ykyQgSYsza/QPO6VArH/wkZv3CEOB1BUzvtBjI8JIj2HAwYrQLAhiLougpa4=
-X-Received: by 2002:a17:907:9812:b0:a88:b90b:bd5e with SMTP id a640c23a62f3a-a8ffaaacfa1mr185691166b.3.1725999568235;
-        Tue, 10 Sep 2024 13:19:28 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHIpn+zlExuTE3yAX+xjiMRNjjie27yYDse9XLe2ciVUQSSxwhcmURZ5WywfpEvPrJPhC6Cgg==
-X-Received: by 2002:a17:907:9812:b0:a88:b90b:bd5e with SMTP id a640c23a62f3a-a8ffaaacfa1mr185687666b.3.1725999567396;
-        Tue, 10 Sep 2024 13:19:27 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:176:f5ce:2d9:5bfa:9916:aa0a])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a8d25c62485sm519926966b.104.2024.09.10.13.19.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Sep 2024 13:19:26 -0700 (PDT)
-Date: Tue, 10 Sep 2024 16:19:19 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH v1 0/5] virtio-mem: s390x support
-Message-ID: <20240910161847-mutt-send-email-mst@kernel.org>
-References: <20240910191541.2179655-1-david@redhat.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OIfpKAzH"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48ADACaA002900;
+	Tue, 10 Sep 2024 21:15:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:mime-version
+	:content-transfer-encoding; s=pp1; bh=YboOhgCfgBs89KiTnDPVxVE2Yz
+	sIU18gVzvQuu26dDI=; b=OIfpKAzH09u0RZZcfWxtKu9H1IORUrDPd5/9HpAGHS
+	5OjKlQZNh6PyBw9wZ+OIC4COtIwz2PqrEJ9g5hTFsQdeVUEQH32UNqUZaVYqkZYc
+	1QzSw5je+WrAo7jUGBFlogNL5rb9MdW6kHlG82oYZqa4a8X/13Qu4GFZTxCPODgl
+	QZyjpM0ng40tDsCbdkqW759snyAhOEUR7i7ye0I/BEV5kcI7QN4jtdgTqa5TqcTz
+	Uwbeur8/mkba09Qpb+6e+mtlIQXU8pvADlstt9fUxnWR3Sfpie95sCuTylf10pLw
+	lIYcPOK2cvuHX7W+e4U0I3oPcSPYzsiPvSLb2x8Nw2YA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41gefyhsnw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Sep 2024 21:15:22 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48AK5OJa013468;
+	Tue, 10 Sep 2024 21:15:21 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 41h3cm5bk6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Sep 2024 21:15:21 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48ALFJE527525844
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 10 Sep 2024 21:15:19 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 76A3058055;
+	Tue, 10 Sep 2024 21:15:19 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B50865804B;
+	Tue, 10 Sep 2024 21:15:17 +0000 (GMT)
+Received: from li-2311da4c-2e09-11b2-a85c-c003041e9174.ibm.com.com (unknown [9.61.185.100])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 10 Sep 2024 21:15:17 +0000 (GMT)
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+To: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
+        gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com
+Cc: jgg@ziepe.ca, baolu.lu@linux.intel.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
+        jroedel@suse.de, iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH v4] iommu/s390: Implement blocking domain
+Date: Tue, 10 Sep 2024 17:15:16 -0400
+Message-ID: <20240910211516.137933-1-mjrosato@linux.ibm.com>
+X-Mailer: git-send-email 2.46.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240910191541.2179655-1-david@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: otH8z5dxvysCfInhUp3PcQkQaE2iK6F_
+X-Proofpoint-ORIG-GUID: otH8z5dxvysCfInhUp3PcQkQaE2iK6F_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-10_08,2024-09-09_02,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ lowpriorityscore=0 suspectscore=0 mlxlogscore=779 priorityscore=1501
+ adultscore=0 clxscore=1015 spamscore=0 bulkscore=0 phishscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2409100157
 
-On Tue, Sep 10, 2024 at 09:15:34PM +0200, David Hildenbrand wrote:
-> Let's finally add s390x support for virtio-mem; my last RFC was sent
-> 4 years ago, and a lot changed in the meantime.
-> 
-> This is based on mm/stable.
-> 
-> I sent out the QEMU part earlier today [1], that contains some more details
-> and a usage example on s390x (last patch).
-> 
-> There is not too much in here: The biggest part is querying a new diag(500)
-> STORAGE_LIMIT hypercall to obtain the proper "max_physmem_end". Once this
-> and the QEMU part will go upstream, it will get documented in [2]
-> 
-> The last two patches are not strictly required but certainly nice-to-have.
-> 
-> Note that -- in contrast to standby memory -- virtio-mem memory must be
-> configured to be automatically onlined as soon as hotplugged. The easiest
-> approach is using the "memhp_default_state=" kernel parameter or by using
-> proper udev rules. More details can be found at [3].
-> 
-> I have reviving+upstreaming a systemd service to handle configuring
-> that on my todo list, but for some reason I keep getting distracted ...
-> 
-> I tested various things, including:
->  * Various memory hotplug/hotunplug combinations
->  * Device hotplug/hotunplug
->  * /proc/iomem output
->  * reboot
->  * kexec
->  * kdump: make sure we don't hotplug memory
-> 
-> One remaining work item is kdump support for virtio-mem memory. I
-> am working on a prototype that will be fairly straight forward,
-> because the virtio-mem driver already supports a special kdump mode and
-> dracut will already include it in the initrd as default. With
-> holiday and conferences coming up I rather sent this out now.
-> 
-> [1] https://lkml.kernel.org/r/20240910175809.2135596-1-david@redhat.com
-> [2] https://gitlab.com/davidhildenbrand/s390x-os-virt-spec
-> [3] https://virtio-mem.gitlab.io/user-guide/user-guide-linux.html
-> 
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Thomas Huth <thuth@redhat.com>
-> Cc: Cornelia Huck <cohuck@redhat.com>
-> Cc: Janosch Frank <frankja@linux.ibm.com>
-> Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Cc: "Eugenio Pérez" <eperezma@redhat.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
+This fixes a crash when surprise hot-unplugging a PCI device. This crash
+happens because during hot-unplug __iommu_group_set_domain_nofail()
+attaching the default domain fails when the platform no longer
+recognizes the device as it has already been removed and we end up with
+a NULL domain pointer and UAF. This is exactly the case referred to in
+the second comment in __iommu_device_set_domain() and just as stated
+there if we can instead attach the blocking domain the UAF is prevented
+as this can handle the already removed device. Implement the blocking
+domain to use this handling.  With this change, the crash is fixed but
+we still hit a warning attempting to change DMA ownership on a blocked
+device.
 
+Fixes: c76c067e488c ("s390/pci: Use dma-iommu layer")
+Co-developed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+---
+Changes for v4:
+- fix lockdep assert
+Changes for v3:
+- make blocking_domain type iommu_domain
+- change zdev->s390_domain to type iommu_domain and remove most uses
+- remove s390_iommu_detach_device, use blocking domain attach
+- add spinlock to serialize zdev->s390_domain change / access to counters
+---
+ arch/s390/include/asm/pci.h |  4 +-
+ arch/s390/pci/pci.c         |  3 ++
+ arch/s390/pci/pci_debug.c   | 10 ++++-
+ drivers/iommu/s390-iommu.c  | 73 +++++++++++++++++++++++--------------
+ 4 files changed, 59 insertions(+), 31 deletions(-)
 
-It's mostly s390 changes, so should be merged through that tree.
-I acked the only virtio specific patch.
-
-> David Hildenbrand (5):
->   s390/kdump: implement is_kdump_kernel()
->   s390/physmem_info: query diag500(STORAGE_LIMIT) to support QEMU/KVM
->     memory devices
->   virtio-mem: s390x support
->   lib/Kconfig.debug: default STRICT_DEVMEM to "y" on s390x
->   s390/sparsemem: reduce section size to 128 MiB
-> 
->  arch/s390/boot/physmem_info.c        | 46 ++++++++++++++++++++++++++--
->  arch/s390/include/asm/kexec.h        |  4 +++
->  arch/s390/include/asm/physmem_info.h |  3 ++
->  arch/s390/include/asm/sparsemem.h    |  2 +-
->  arch/s390/kernel/crash_dump.c        |  6 ++++
->  drivers/virtio/Kconfig               | 12 ++++----
->  lib/Kconfig.debug                    |  2 +-
->  7 files changed, 64 insertions(+), 11 deletions(-)
-> 
-> -- 
-> 2.46.0
+diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+index 30820a649e6e..a60a291fbd58 100644
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -96,7 +96,6 @@ struct zpci_bar_struct {
+ 	u8		size;		/* order 2 exponent */
+ };
+ 
+-struct s390_domain;
+ struct kvm_zdev;
+ 
+ #define ZPCI_FUNCTIONS_PER_BUS 256
+@@ -181,9 +180,10 @@ struct zpci_dev {
+ 	struct dentry	*debugfs_dev;
+ 
+ 	/* IOMMU and passthrough */
+-	struct s390_domain *s390_domain; /* s390 IOMMU domain data */
++	struct iommu_domain *s390_domain; /* attached IOMMU domain */
+ 	struct kvm_zdev *kzdev;
+ 	struct mutex kzdev_lock;
++	spinlock_t dom_lock;		/* protect s390_domain change */
+ };
+ 
+ static inline bool zdev_enabled(struct zpci_dev *zdev)
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index cff4838fad21..759983d0e63e 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -160,6 +160,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
+ 	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
+ 	struct zpci_iommu_ctrs *ctrs;
+ 	struct zpci_fib fib = {0};
++	unsigned long flags;
+ 	u8 cc, status;
+ 
+ 	if (zdev->fmb || sizeof(*zdev->fmb) < zdev->fmb_length)
+@@ -171,6 +172,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
+ 	WARN_ON((u64) zdev->fmb & 0xf);
+ 
+ 	/* reset software counters */
++	spin_lock_irqsave(&zdev->dom_lock, flags);
+ 	ctrs = zpci_get_iommu_ctrs(zdev);
+ 	if (ctrs) {
+ 		atomic64_set(&ctrs->mapped_pages, 0);
+@@ -179,6 +181,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
+ 		atomic64_set(&ctrs->sync_map_rpcits, 0);
+ 		atomic64_set(&ctrs->sync_rpcits, 0);
+ 	}
++	spin_unlock_irqrestore(&zdev->dom_lock, flags);
+ 
+ 
+ 	fib.fmb_addr = virt_to_phys(zdev->fmb);
+diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
+index 2cb5043a997d..38014206c16b 100644
+--- a/arch/s390/pci/pci_debug.c
++++ b/arch/s390/pci/pci_debug.c
+@@ -71,17 +71,23 @@ static void pci_fmb_show(struct seq_file *m, char *name[], int length,
+ 
+ static void pci_sw_counter_show(struct seq_file *m)
+ {
+-	struct zpci_iommu_ctrs  *ctrs = zpci_get_iommu_ctrs(m->private);
++	struct zpci_dev *zdev = m->private;
++	struct zpci_iommu_ctrs *ctrs;
+ 	atomic64_t *counter;
++	unsigned long flags;
+ 	int i;
+ 
++	spin_lock_irqsave(&zdev->dom_lock, flags);
++	ctrs = zpci_get_iommu_ctrs(m->private);
+ 	if (!ctrs)
+-		return;
++		goto unlock;
+ 
+ 	counter = &ctrs->mapped_pages;
+ 	for (i = 0; i < ARRAY_SIZE(pci_sw_names); i++, counter++)
+ 		seq_printf(m, "%26s:\t%llu\n", pci_sw_names[i],
+ 			   atomic64_read(counter));
++unlock:
++	spin_unlock_irqrestore(&zdev->dom_lock, flags);
+ }
+ 
+ static int pci_perf_show(struct seq_file *m, void *v)
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+index d8eaa7ea380b..fbdeded3d48b 100644
+--- a/drivers/iommu/s390-iommu.c
++++ b/drivers/iommu/s390-iommu.c
+@@ -33,6 +33,8 @@ struct s390_domain {
+ 	struct rcu_head		rcu;
+ };
+ 
++static struct iommu_domain blocking_domain;
++
+ static inline unsigned int calc_rtx(dma_addr_t ptr)
+ {
+ 	return ((unsigned long)ptr >> ZPCI_RT_SHIFT) & ZPCI_INDEX_MASK;
+@@ -369,20 +371,36 @@ static void s390_domain_free(struct iommu_domain *domain)
+ 	call_rcu(&s390_domain->rcu, s390_iommu_rcu_free_domain);
+ }
+ 
+-static void s390_iommu_detach_device(struct iommu_domain *domain,
+-				     struct device *dev)
++static void zdev_s390_domain_update(struct zpci_dev *zdev,
++				    struct iommu_domain *domain)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&zdev->dom_lock, flags);
++	zdev->s390_domain = domain;
++	spin_unlock_irqrestore(&zdev->dom_lock, flags);
++}
++
++static int blocking_domain_attach_device(struct iommu_domain *domain,
++					 struct device *dev)
+ {
+-	struct s390_domain *s390_domain = to_s390_domain(domain);
+ 	struct zpci_dev *zdev = to_zpci_dev(dev);
++	struct s390_domain *s390_domain;
+ 	unsigned long flags;
+ 
++	if (zdev->s390_domain->type == IOMMU_DOMAIN_BLOCKED)
++		return 0;
++
++	s390_domain = to_s390_domain(zdev->s390_domain);
+ 	spin_lock_irqsave(&s390_domain->list_lock, flags);
+ 	list_del_rcu(&zdev->iommu_list);
+ 	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+ 
+ 	zpci_unregister_ioat(zdev, 0);
+-	zdev->s390_domain = NULL;
+ 	zdev->dma_table = NULL;
++	zdev_s390_domain_update(zdev, domain);
++
++	return 0;
+ }
+ 
+ static int s390_iommu_attach_device(struct iommu_domain *domain,
+@@ -401,20 +419,15 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+ 		domain->geometry.aperture_end < zdev->start_dma))
+ 		return -EINVAL;
+ 
+-	if (zdev->s390_domain)
+-		s390_iommu_detach_device(&zdev->s390_domain->domain, dev);
++	blocking_domain_attach_device(&blocking_domain, dev);
+ 
++	/* If we fail now DMA remains blocked via blocking domain */
+ 	cc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
+ 				virt_to_phys(s390_domain->dma_table), &status);
+-	/*
+-	 * If the device is undergoing error recovery the reset code
+-	 * will re-establish the new domain.
+-	 */
+ 	if (cc && status != ZPCI_PCI_ST_FUNC_NOT_AVAIL)
+ 		return -EIO;
+-
+ 	zdev->dma_table = s390_domain->dma_table;
+-	zdev->s390_domain = s390_domain;
++	zdev_s390_domain_update(zdev, domain);
+ 
+ 	spin_lock_irqsave(&s390_domain->list_lock, flags);
+ 	list_add_rcu(&zdev->iommu_list, &s390_domain->devices);
+@@ -466,19 +479,11 @@ static struct iommu_device *s390_iommu_probe_device(struct device *dev)
+ 	if (zdev->tlb_refresh)
+ 		dev->iommu->shadow_on_flush = 1;
+ 
+-	return &zdev->iommu_dev;
+-}
++	/* Start with DMA blocked */
++	spin_lock_init(&zdev->dom_lock);
++	zdev_s390_domain_update(zdev, &blocking_domain);
+ 
+-static void s390_iommu_release_device(struct device *dev)
+-{
+-	struct zpci_dev *zdev = to_zpci_dev(dev);
+-
+-	/*
+-	 * release_device is expected to detach any domain currently attached
+-	 * to the device, but keep it attached to other devices in the group.
+-	 */
+-	if (zdev)
+-		s390_iommu_detach_device(&zdev->s390_domain->domain, dev);
++	return &zdev->iommu_dev;
+ }
+ 
+ static int zpci_refresh_all(struct zpci_dev *zdev)
+@@ -697,9 +702,15 @@ static size_t s390_iommu_unmap_pages(struct iommu_domain *domain,
+ 
+ struct zpci_iommu_ctrs *zpci_get_iommu_ctrs(struct zpci_dev *zdev)
+ {
+-	if (!zdev || !zdev->s390_domain)
++	struct s390_domain *s390_domain;
++
++	lockdep_assert_held(&zdev->dom_lock);
++
++	if (zdev->s390_domain->type == IOMMU_DOMAIN_BLOCKED)
+ 		return NULL;
+-	return &zdev->s390_domain->ctrs;
++
++	s390_domain = to_s390_domain(zdev->s390_domain);
++	return &s390_domain->ctrs;
+ }
+ 
+ int zpci_init_iommu(struct zpci_dev *zdev)
+@@ -776,11 +787,19 @@ static int __init s390_iommu_init(void)
+ }
+ subsys_initcall(s390_iommu_init);
+ 
++static struct iommu_domain blocking_domain = {
++	.type = IOMMU_DOMAIN_BLOCKED,
++	.ops = &(const struct iommu_domain_ops) {
++		.attach_dev	= blocking_domain_attach_device,
++	}
++};
++
+ static const struct iommu_ops s390_iommu_ops = {
++	.blocked_domain		= &blocking_domain,
++	.release_domain		= &blocking_domain,
+ 	.capable = s390_iommu_capable,
+ 	.domain_alloc_paging = s390_domain_alloc_paging,
+ 	.probe_device = s390_iommu_probe_device,
+-	.release_device = s390_iommu_release_device,
+ 	.device_group = generic_device_group,
+ 	.pgsize_bitmap = SZ_4K,
+ 	.get_resv_regions = s390_iommu_get_resv_regions,
+-- 
+2.46.0
 
