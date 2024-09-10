@@ -1,340 +1,221 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C91F176FCF;
-	Tue, 10 Sep 2024 21:15:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A378C1AC8A1
+	for <linux-s390@vger.kernel.org>; Tue, 10 Sep 2024 23:29:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726002941; cv=none; b=On3gUVb5vq6wkAQiq6I7LE19EB5L23JZMq6fm8CBuUi8eHIAiPpWRYYjsDEv3T/tihv8MBQ+z6pj+BKXsODtRlRZiImjGxxjWhpIRfJUyIGWIoJPFbVxKjLbyV3JhTqeXaQym4pPjJw5l2UB3WMz0LAg7JBdDNn63dgw84XtOXA=
+	t=1726010959; cv=none; b=ZfnYHKu9wcKSQSlwqeXtm95B3HZJGpsd6irSyD/uyvaX5cnXiuOsD4oudD+zlU21tih5uMZFOgjQsPwu7rQJZoKHv+q8XDHyARZjgksv11QvWMbM4kdA2Q2MrY2glz6JgCA1ZwZc0XT4e6CKT8oY00dBOnv7/GkJZfalEp80uqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726002941; c=relaxed/simple;
-	bh=Fh0U+pSTwGimFfvklPVKJACUpUFnD0QxSyZiD5dwI+s=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=okC3ZGdAgOZubBqWD2veRiTaBx7ANZru8ueqRaRXdbGqmxMK5VIXLlX/0ZGcEpuqwm0mB+/qngbE3CReWEgP+VEjlUxds3mM0G7KP3Jm96eUdhQ5ZF2WGWlby3l/btaUJo5PiXStEA5wbS/SoYr9KsK2yeeKx4Ok54nGadWwW8k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OIfpKAzH; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1726010959; c=relaxed/simple;
+	bh=EaQYpDu4fd+dR1oVIB+uyEjjvPPcoakUS8tLH3tLHH4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KZ03jrpyHS1Cj34oBI7083X2x7fdiDmhb+Tl8cA97E3zkVLpfb/HI/x+It4WxLYsfoGXSpL3h1DxWwjgRptbgLrXVrPNxoAOvVRwh9T48LyFwpidaNMffVZY2Hedojg0IZSlmtXAOCeYa81m75h+i1nMznBJ2px3IgJru3hZatw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=ZFCdnhyn; arc=none smtp.client-ip=209.85.210.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OIfpKAzH"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48ADACaA002900;
-	Tue, 10 Sep 2024 21:15:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding; s=pp1; bh=YboOhgCfgBs89KiTnDPVxVE2Yz
-	sIU18gVzvQuu26dDI=; b=OIfpKAzH09u0RZZcfWxtKu9H1IORUrDPd5/9HpAGHS
-	5OjKlQZNh6PyBw9wZ+OIC4COtIwz2PqrEJ9g5hTFsQdeVUEQH32UNqUZaVYqkZYc
-	1QzSw5je+WrAo7jUGBFlogNL5rb9MdW6kHlG82oYZqa4a8X/13Qu4GFZTxCPODgl
-	QZyjpM0ng40tDsCbdkqW759snyAhOEUR7i7ye0I/BEV5kcI7QN4jtdgTqa5TqcTz
-	Uwbeur8/mkba09Qpb+6e+mtlIQXU8pvADlstt9fUxnWR3Sfpie95sCuTylf10pLw
-	lIYcPOK2cvuHX7W+e4U0I3oPcSPYzsiPvSLb2x8Nw2YA==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41gefyhsnw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Sep 2024 21:15:22 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48AK5OJa013468;
-	Tue, 10 Sep 2024 21:15:21 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 41h3cm5bk6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Sep 2024 21:15:21 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48ALFJE527525844
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 10 Sep 2024 21:15:19 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 76A3058055;
-	Tue, 10 Sep 2024 21:15:19 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B50865804B;
-	Tue, 10 Sep 2024 21:15:17 +0000 (GMT)
-Received: from li-2311da4c-2e09-11b2-a85c-c003041e9174.ibm.com.com (unknown [9.61.185.100])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 10 Sep 2024 21:15:17 +0000 (GMT)
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-To: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
-        gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com
-Cc: jgg@ziepe.ca, baolu.lu@linux.intel.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
-        jroedel@suse.de, iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH v4] iommu/s390: Implement blocking domain
-Date: Tue, 10 Sep 2024 17:15:16 -0400
-Message-ID: <20240910211516.137933-1-mjrosato@linux.ibm.com>
-X-Mailer: git-send-email 2.46.0
+	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="ZFCdnhyn"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-7179802b91fso3876923b3a.3
+        for <linux-s390@vger.kernel.org>; Tue, 10 Sep 2024 16:29:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1726010957; x=1726615757; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=CYrCbXlvqV0+h/8xybyAavYRRnIQ4hnNCNmZGJwr9QU=;
+        b=ZFCdnhynOTrA0VNAj+06D67XGpi+QeyXqLiL/hiUAXv67amrykjDWYLm3rdZ/DfLF+
+         i2W8eOgzHMQLu6twHwprTjL011qP+c2fEaq1Qk1tOLrspv80Vs5ZrR/st4toqDZ7lQn9
+         h92KVaI72TZSRmNV5pCW70nXO0ahHpFV2Ps0fQONeveAnWo1A0skKjU4ANtN/wh8l3PP
+         uFRBhpgv/rn7MtpbjsJqQhWmDXJLyPRTiluzGA7Fw2ZWv16B+G46U8oim3yGuOUvuclP
+         3SHrZsRdGkTG0F5xgo46lxFvUChIwP8qMrMkutm/1MT0zsdhmjYq8qFA3VHead8ZZEwm
+         e31w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1726010957; x=1726615757;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CYrCbXlvqV0+h/8xybyAavYRRnIQ4hnNCNmZGJwr9QU=;
+        b=enTr8Dw2xq8+Xf/whMUZ4rcKxyTcQKdv+WSneVUYXdiokbeftcgBwjJGXmc1CBlsUb
+         NVPeL/eCxMw7qJPTfmJNmyRFg37o5OW++FvoZNDGxMqnebjrgPol41T9YfsHTafyiqKH
+         6x5Khu5hHwMeoduPNzIM02cmGg+a4lCnh536zCDAu/8rTfJGzwDUVkVpnNRAWVpVj1XS
+         HkeR8FpB4HMAGbvObtC+wvZNahiGoO6FcOJ0CF3IBwkbWnok8Uc+yIkccBW+Kt2a7yOR
+         sQ5KbqsPKOv9Bns/OssY7z5ZG63aTGBMFkw8b5MCDNGmBCbISNewd4jSs1P8mSfzc103
+         BqIw==
+X-Forwarded-Encrypted: i=1; AJvYcCXJPnETzQ6baUn/AS8Br9KlnwUIOP3BWvsCqYgOjxayCrudLXWutjVzjVU0mq7M1Zscg+QnWTQPFC4U@vger.kernel.org
+X-Gm-Message-State: AOJu0YzRoZf5U7a7PN8sJ+HnQRmR5I39fNjk6ou2YN4kawEqrXjCK+ue
+	aA9jIZadkxq118T29K8NiOc4PfYiwnKiLQi0ue2sED1RRuAsa8j/o4RDKY8+n4Q=
+X-Google-Smtp-Source: AGHT+IFu2ts9QR3o7HId+sTbARvp/Mp4cS7y9d4XxkhhKVfZnTlnktrEfIJSlLrlAVGi3hD8KRDoUg==
+X-Received: by 2002:a05:6a21:3318:b0:1cc:e4a9:9138 with SMTP id adf61e73a8af0-1cf5e10ea44mr2924283637.29.1726010956374;
+        Tue, 10 Sep 2024 16:29:16 -0700 (PDT)
+Received: from ghost ([50.145.13.30])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-71908fe2641sm1873651b3a.59.2024.09.10.16.29.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Sep 2024 16:29:15 -0700 (PDT)
+Date: Tue, 10 Sep 2024 16:29:10 -0700
+From: Charlie Jenkins <charlie@rivosinc.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>, guoren <guoren@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S . Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Muchun Song <muchun.song@linux.dev>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@suse.cz>, shuah <shuah@kernel.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	Michal Hocko <mhocko@suse.com>,
+	"Kirill A. Shutemov" <kirill@shutemov.name>,
+	Chris Torek <chris.torek@gmail.com>,
+	Linux-Arch <linux-arch@vger.kernel.org>,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-mm@kvack.org,
+	linux-kselftest@vger.kernel.org,
+	linux-abi-devel@lists.sourceforge.net
+Subject: Re: [PATCH RFC v3 1/2] mm: Add personality flag to limit address to
+ 47 bits
+Message-ID: <ZuDWRq+9b1o864vY@ghost>
+References: <20240905-patches-below_hint_mmap-v3-0-3cd5564efbbb@rivosinc.com>
+ <20240905-patches-below_hint_mmap-v3-1-3cd5564efbbb@rivosinc.com>
+ <9fc4746b-8e9d-4a75-b966-e0906187e6b7@app.fastmail.com>
+ <58f39d58-579e-4dd3-8084-baebf86f1ae0@lucifer.local>
+ <7be08ea9-f343-42da-805f-e5f0d61bde26@app.fastmail.com>
+ <016c7857-9ea8-4333-96e6-3ae3870f375f@lucifer.local>
+ <Zt+DGHZrHFxfq7xo@ghost>
+ <89d21669-8daa-4225-b6d2-33d439ebd746@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: otH8z5dxvysCfInhUp3PcQkQaE2iK6F_
-X-Proofpoint-ORIG-GUID: otH8z5dxvysCfInhUp3PcQkQaE2iK6F_
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-10_08,2024-09-09_02,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- lowpriorityscore=0 suspectscore=0 mlxlogscore=779 priorityscore=1501
- adultscore=0 clxscore=1015 spamscore=0 bulkscore=0 phishscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2408220000 definitions=main-2409100157
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <89d21669-8daa-4225-b6d2-33d439ebd746@app.fastmail.com>
 
-This fixes a crash when surprise hot-unplugging a PCI device. This crash
-happens because during hot-unplug __iommu_group_set_domain_nofail()
-attaching the default domain fails when the platform no longer
-recognizes the device as it has already been removed and we end up with
-a NULL domain pointer and UAF. This is exactly the case referred to in
-the second comment in __iommu_device_set_domain() and just as stated
-there if we can instead attach the blocking domain the UAF is prevented
-as this can handle the already removed device. Implement the blocking
-domain to use this handling.  With this change, the crash is fixed but
-we still hit a warning attempting to change DMA ownership on a blocked
-device.
+On Tue, Sep 10, 2024 at 09:13:33AM +0000, Arnd Bergmann wrote:
+> On Mon, Sep 9, 2024, at 23:22, Charlie Jenkins wrote:
+> > On Fri, Sep 06, 2024 at 10:52:34AM +0100, Lorenzo Stoakes wrote:
+> >> On Fri, Sep 06, 2024 at 09:14:08AM GMT, Arnd Bergmann wrote:
+> >> The intent is to optionally be able to run a process that keeps higher bits
+> >> free for tagging and to be sure no memory mapping in the process will
+> >> clobber these (correct me if I'm wrong Charlie! :)
+> >> 
+> >> So you really wouldn't want this if you are using tagged pointers, you'd
+> >> want to be sure literally nothing touches the higher bits.
+> 
+> My understanding was that the purpose of the existing design
+> is to allow applications to ask for a high address without having
+> to resort to the complexity of MAP_FIXED.
+> 
+> In particular, I'm sure there is precedent for applications that
+> want both tagged pointers (for most mappings) and untagged pointers
+> (for large mappings). With a per-mm_struct or per-task_struct
+> setting you can't do that.
+> 
+> > Various architectures handle the hint address differently, but it
+> > appears that the only case across any architecture where an address
+> > above 47 bits will be returned is if the application had a hint address
+> > with a value greater than 47 bits and was using the MAP_FIXED flag.
+> > MAP_FIXED bypasses all other checks so I was assuming that it would be
+> > logical for MAP_FIXED to bypass this as well. If MAP_FIXED is not set,
+> > then the intent is for no hint address to cause a value greater than 47
+> > bits to be returned.
+> 
+> I don't think the MAP_FIXED case is that interesting here because
+> it has to work in both fixed and non-fixed mappings.
+> 
+> >> This would be more consistent vs. other arches.
+> >
+> > Yes riscv is an outlier here. The reason I am pushing for something like
+> > a flag to restrict the address space rather than setting it to be the
+> > default is it seems like if applications are relying on upper bits to be
+> > free, then they should be explicitly asking the kernel to keep them free
+> > rather than assuming them to be free.
+> 
+> Let's see what the other architectures do and then come up with
+> a way that fixes the pointer tagging case first on those that are
+> broken. We can see if there needs to be an extra flag after that.
+> Here is what I found:
+> 
+> - x86_64 uses DEFAULT_MAP_WINDOW of BIT(47), uses a 57 bit
+>   address space when an addr hint is passed.
+> - arm64 uses DEFAULT_MAP_WINDOW of BIT(47) or BIT(48), returns
+>   higher 52-bit addresses when either a hint is passed or
+>   CONFIG_EXPERT and CONFIG_ARM64_FORCE_52BIT is set (this
+>   is a debugging option)
+> - ppc64 uses a DEFAULT_MAP_WINDOW of BIT(47) or BIT(48),
+>   returns 52 bit address when an addr hint is passed
+> - riscv uses a DEFAULT_MAP_WINDOW of BIT(47) but only uses
+>   it for allocating the stack below, ignoring it for normal
+>   mappings
+> - s390 has no DEFAULT_MAP_WINDOW but tried to allocate in
+>   the current number of pgtable levels and only upgrades to
+>   the next level (31, 42, 53, 64 bits) if a hint is passed or
+>   the current level is exhausted.
+> - loongarch64 has no DEFAULT_MAP_WINDOW, and a default VA
+>   space of 47 bits (16K pages, 3 levels), but can support
+>   a 55 bit space (64K pages, 3 levels).
+> - sparc has no DEFAULT_MAP_WINDOW and up to 52 bit VA space.
+>   It may allocate both positive and negative addresses in
+>   there. (?)
+> - mips64, parisc64 and alpha have no DEFAULT_MAP_WINDOW and
+>   at most 48, 41 or 39 address bits, respectively.
+> 
+> I would suggest these changes:
+> 
+> - make riscv enforce DEFAULT_MAP_WINDOW like x86_64, arm64
+>    and ppc64, leave it at 47
+> 
+> - add DEFAULT_MAP_WINDOW on loongarch64 (47/48 bits
+>   based on page size), sparc (48 bits) and s390 (unsure if
+>   42, 53, 47 or 48 bits)
+> 
+> - leave the rest unchanged.
+> 
+>        Arnd
 
-Fixes: c76c067e488c ("s390/pci: Use dma-iommu layer")
-Co-developed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
-Changes for v4:
-- fix lockdep assert
-Changes for v3:
-- make blocking_domain type iommu_domain
-- change zdev->s390_domain to type iommu_domain and remove most uses
-- remove s390_iommu_detach_device, use blocking domain attach
-- add spinlock to serialize zdev->s390_domain change / access to counters
----
- arch/s390/include/asm/pci.h |  4 +-
- arch/s390/pci/pci.c         |  3 ++
- arch/s390/pci/pci_debug.c   | 10 ++++-
- drivers/iommu/s390-iommu.c  | 73 +++++++++++++++++++++++--------------
- 4 files changed, 59 insertions(+), 31 deletions(-)
+Changing all architectures to have a standardized DEFAULT_MAP_WINDOW
+mostly solves the problem. However, I am concerned that it is fragile
+for applications to rely on a default like this. Having the personality
+bit flag is supposed to provide an intuitive ABI for users that
+guarantees that they will not accidentally request for memory outside of
+the boundary that they specified.
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 30820a649e6e..a60a291fbd58 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -96,7 +96,6 @@ struct zpci_bar_struct {
- 	u8		size;		/* order 2 exponent */
- };
- 
--struct s390_domain;
- struct kvm_zdev;
- 
- #define ZPCI_FUNCTIONS_PER_BUS 256
-@@ -181,9 +180,10 @@ struct zpci_dev {
- 	struct dentry	*debugfs_dev;
- 
- 	/* IOMMU and passthrough */
--	struct s390_domain *s390_domain; /* s390 IOMMU domain data */
-+	struct iommu_domain *s390_domain; /* attached IOMMU domain */
- 	struct kvm_zdev *kzdev;
- 	struct mutex kzdev_lock;
-+	spinlock_t dom_lock;		/* protect s390_domain change */
- };
- 
- static inline bool zdev_enabled(struct zpci_dev *zdev)
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index cff4838fad21..759983d0e63e 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -160,6 +160,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
- 	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
- 	struct zpci_iommu_ctrs *ctrs;
- 	struct zpci_fib fib = {0};
-+	unsigned long flags;
- 	u8 cc, status;
- 
- 	if (zdev->fmb || sizeof(*zdev->fmb) < zdev->fmb_length)
-@@ -171,6 +172,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
- 	WARN_ON((u64) zdev->fmb & 0xf);
- 
- 	/* reset software counters */
-+	spin_lock_irqsave(&zdev->dom_lock, flags);
- 	ctrs = zpci_get_iommu_ctrs(zdev);
- 	if (ctrs) {
- 		atomic64_set(&ctrs->mapped_pages, 0);
-@@ -179,6 +181,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
- 		atomic64_set(&ctrs->sync_map_rpcits, 0);
- 		atomic64_set(&ctrs->sync_rpcits, 0);
- 	}
-+	spin_unlock_irqrestore(&zdev->dom_lock, flags);
- 
- 
- 	fib.fmb_addr = virt_to_phys(zdev->fmb);
-diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
-index 2cb5043a997d..38014206c16b 100644
---- a/arch/s390/pci/pci_debug.c
-+++ b/arch/s390/pci/pci_debug.c
-@@ -71,17 +71,23 @@ static void pci_fmb_show(struct seq_file *m, char *name[], int length,
- 
- static void pci_sw_counter_show(struct seq_file *m)
- {
--	struct zpci_iommu_ctrs  *ctrs = zpci_get_iommu_ctrs(m->private);
-+	struct zpci_dev *zdev = m->private;
-+	struct zpci_iommu_ctrs *ctrs;
- 	atomic64_t *counter;
-+	unsigned long flags;
- 	int i;
- 
-+	spin_lock_irqsave(&zdev->dom_lock, flags);
-+	ctrs = zpci_get_iommu_ctrs(m->private);
- 	if (!ctrs)
--		return;
-+		goto unlock;
- 
- 	counter = &ctrs->mapped_pages;
- 	for (i = 0; i < ARRAY_SIZE(pci_sw_names); i++, counter++)
- 		seq_printf(m, "%26s:\t%llu\n", pci_sw_names[i],
- 			   atomic64_read(counter));
-+unlock:
-+	spin_unlock_irqrestore(&zdev->dom_lock, flags);
- }
- 
- static int pci_perf_show(struct seq_file *m, void *v)
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index d8eaa7ea380b..fbdeded3d48b 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -33,6 +33,8 @@ struct s390_domain {
- 	struct rcu_head		rcu;
- };
- 
-+static struct iommu_domain blocking_domain;
-+
- static inline unsigned int calc_rtx(dma_addr_t ptr)
- {
- 	return ((unsigned long)ptr >> ZPCI_RT_SHIFT) & ZPCI_INDEX_MASK;
-@@ -369,20 +371,36 @@ static void s390_domain_free(struct iommu_domain *domain)
- 	call_rcu(&s390_domain->rcu, s390_iommu_rcu_free_domain);
- }
- 
--static void s390_iommu_detach_device(struct iommu_domain *domain,
--				     struct device *dev)
-+static void zdev_s390_domain_update(struct zpci_dev *zdev,
-+				    struct iommu_domain *domain)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&zdev->dom_lock, flags);
-+	zdev->s390_domain = domain;
-+	spin_unlock_irqrestore(&zdev->dom_lock, flags);
-+}
-+
-+static int blocking_domain_attach_device(struct iommu_domain *domain,
-+					 struct device *dev)
- {
--	struct s390_domain *s390_domain = to_s390_domain(domain);
- 	struct zpci_dev *zdev = to_zpci_dev(dev);
-+	struct s390_domain *s390_domain;
- 	unsigned long flags;
- 
-+	if (zdev->s390_domain->type == IOMMU_DOMAIN_BLOCKED)
-+		return 0;
-+
-+	s390_domain = to_s390_domain(zdev->s390_domain);
- 	spin_lock_irqsave(&s390_domain->list_lock, flags);
- 	list_del_rcu(&zdev->iommu_list);
- 	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
- 
- 	zpci_unregister_ioat(zdev, 0);
--	zdev->s390_domain = NULL;
- 	zdev->dma_table = NULL;
-+	zdev_s390_domain_update(zdev, domain);
-+
-+	return 0;
- }
- 
- static int s390_iommu_attach_device(struct iommu_domain *domain,
-@@ -401,20 +419,15 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
- 		domain->geometry.aperture_end < zdev->start_dma))
- 		return -EINVAL;
- 
--	if (zdev->s390_domain)
--		s390_iommu_detach_device(&zdev->s390_domain->domain, dev);
-+	blocking_domain_attach_device(&blocking_domain, dev);
- 
-+	/* If we fail now DMA remains blocked via blocking domain */
- 	cc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
- 				virt_to_phys(s390_domain->dma_table), &status);
--	/*
--	 * If the device is undergoing error recovery the reset code
--	 * will re-establish the new domain.
--	 */
- 	if (cc && status != ZPCI_PCI_ST_FUNC_NOT_AVAIL)
- 		return -EIO;
--
- 	zdev->dma_table = s390_domain->dma_table;
--	zdev->s390_domain = s390_domain;
-+	zdev_s390_domain_update(zdev, domain);
- 
- 	spin_lock_irqsave(&s390_domain->list_lock, flags);
- 	list_add_rcu(&zdev->iommu_list, &s390_domain->devices);
-@@ -466,19 +479,11 @@ static struct iommu_device *s390_iommu_probe_device(struct device *dev)
- 	if (zdev->tlb_refresh)
- 		dev->iommu->shadow_on_flush = 1;
- 
--	return &zdev->iommu_dev;
--}
-+	/* Start with DMA blocked */
-+	spin_lock_init(&zdev->dom_lock);
-+	zdev_s390_domain_update(zdev, &blocking_domain);
- 
--static void s390_iommu_release_device(struct device *dev)
--{
--	struct zpci_dev *zdev = to_zpci_dev(dev);
--
--	/*
--	 * release_device is expected to detach any domain currently attached
--	 * to the device, but keep it attached to other devices in the group.
--	 */
--	if (zdev)
--		s390_iommu_detach_device(&zdev->s390_domain->domain, dev);
-+	return &zdev->iommu_dev;
- }
- 
- static int zpci_refresh_all(struct zpci_dev *zdev)
-@@ -697,9 +702,15 @@ static size_t s390_iommu_unmap_pages(struct iommu_domain *domain,
- 
- struct zpci_iommu_ctrs *zpci_get_iommu_ctrs(struct zpci_dev *zdev)
- {
--	if (!zdev || !zdev->s390_domain)
-+	struct s390_domain *s390_domain;
-+
-+	lockdep_assert_held(&zdev->dom_lock);
-+
-+	if (zdev->s390_domain->type == IOMMU_DOMAIN_BLOCKED)
- 		return NULL;
--	return &zdev->s390_domain->ctrs;
-+
-+	s390_domain = to_s390_domain(zdev->s390_domain);
-+	return &s390_domain->ctrs;
- }
- 
- int zpci_init_iommu(struct zpci_dev *zdev)
-@@ -776,11 +787,19 @@ static int __init s390_iommu_init(void)
- }
- subsys_initcall(s390_iommu_init);
- 
-+static struct iommu_domain blocking_domain = {
-+	.type = IOMMU_DOMAIN_BLOCKED,
-+	.ops = &(const struct iommu_domain_ops) {
-+		.attach_dev	= blocking_domain_attach_device,
-+	}
-+};
-+
- static const struct iommu_ops s390_iommu_ops = {
-+	.blocked_domain		= &blocking_domain,
-+	.release_domain		= &blocking_domain,
- 	.capable = s390_iommu_capable,
- 	.domain_alloc_paging = s390_domain_alloc_paging,
- 	.probe_device = s390_iommu_probe_device,
--	.release_device = s390_iommu_release_device,
- 	.device_group = generic_device_group,
- 	.pgsize_bitmap = SZ_4K,
- 	.get_resv_regions = s390_iommu_get_resv_regions,
--- 
-2.46.0
+Also you bring up that the DEFAULT_MAP_WINDOW would not be able to be
+standardized across architectures, so we still have the problem that
+this default behavior will be different across architectures which I am
+trying to solve.
+
+- Charlie
 
