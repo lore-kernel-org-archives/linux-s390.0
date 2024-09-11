@@ -1,66 +1,69 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 163AD14A60E;
-	Wed, 11 Sep 2024 08:50:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA5BB153BE8;
+	Wed, 11 Sep 2024 08:50:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726044626; cv=none; b=LLcNAJ5NFICxZsrRL20ryhoi9VGos9XWWyss4ioQ1ZzaUmVHzBI1hYfRKeRZpwXaaIk/pzIZ4LhG8YBMQJ5/y64wVTmWC2XEGurHv9YizA+enS9KyAyQbEg5gJ0otLOIh4VLnbEl7OYSCQzzl3BSRg4gU0LyATo3pF8Bnxsb9OY=
+	t=1726044627; cv=none; b=C5JwVb7tcpwKvDIzQPIETJrw+TWJAbtqHmHUvh87iaDsH1onOJ9obyWq4T+x0o5fEgKcf75qM/drhib2i0aBhGWHFhaN+sflaFcgArOiZo/pUfzog3gHIv0dMnCFeiwBRbmjEhAlfG42ubHZr6ZIBkUoIHFWH99x0TPJCPpscuY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726044626; c=relaxed/simple;
-	bh=cYK3zsplXixZE4tQdoQ+vO3XwLj4lj+3tojQaOs9ghI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KDWtFXwnDktuZmTIbqvsXVawtfizDupi8ja+Pk2wq56hvEblMH4x0dR106l34cXPqNNmnuYNsQg0XWkGnoJkjdbOYSWKsNHcRtbZdeJU+z5AMraJ+zi0N8kEl0wBYmtzJ4mPHWB7Ws8DS1u/dxv7DIL8iL0B3Iqxik5/Fmd/sak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hd4zTXZv; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1726044627; c=relaxed/simple;
+	bh=me5e7I5tQPw8veUZJwu13VUQhEb78fKv3wggn7e87LM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=tm5mpfmIYHyt2/TvsQLKtnky9D/QLp4QL9Rhwu16ySFM0gLGyhwMuITiK685D1XcsBNIjItWEpItSV7yZlr0Mh4ErmDt1+X8ZPXpeBOnRtQ1KnRF2BInRcvXYjZHNmAISIsoGv5jEJt1MN5KK64vfEsnOP/QjL7bmZ4+315vc0s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rhsSsMhw; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hd4zTXZv"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48B8EulX026104;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rhsSsMhw"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48AMIUOK004560;
 	Wed, 11 Sep 2024 08:50:21 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding; s=pp1; bh=c+mglZUFoLpQvuUjGX5VPJdarz
-	CP8EYqnri0Iu0vBVc=; b=hd4zTXZv1Ok9nm3N80hKSSx4zYjaVVNTv/fX18s9Qx
-	MV8pfrTxq8kzA51NBcqBI8nouihWuk1zDIFIl4+M5HgRxW9mUWSdyEg+T89dcaBo
-	hMGpg4gHsdhRu8UOB0SmBUYB0BZpE0pOHmA4QB+qAe9BNGzIGg+r6SHYf4MBfKno
-	IDgsqe/J3Y/66P0lCR1MThErGH4HJar4VrHIDIr5VRTECgce+60u+VayaaaC0Pcz
-	+6UimrqWE1/wHo2PFIsnP2UzoKS4lOBuroCk8U1qiAI5oXQlFxNDL7Legtyl6+AU
-	9Q24UgKqFNpqh7aShtZVlFzArXI7xQKhCxKvTKPYmGQA==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41gebachgw-1
+	:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding; s=pp1; bh=gAZkRRJoVvFwd
+	vmSptJKmbdeOFyVBUaFLcjNIa6pCuE=; b=rhsSsMhwqVPEa8wx7qgQ1yvuoq+nK
+	nPtAg8OeBtqf6PYVtAaYcZyTaq26nRqfaQXKhJimFzuJ6UmZdSeZ5C8x3y3KBoNa
+	/hnhuis4xh8nygdEnicf1LQseflgb13t7DRHz5ZKkbC00gqO3GLyxXtLFAZcCG/1
+	l/n+03AwFf/tOLWgi9KBGk6+QfH4RgQo3MA8ZTzmIsVpQhMvFbZm5iNNLs9n7YJx
+	Ye9mrp7wFC3ftX3GROQrkk8jYmEQRRrcgu+IwQyaxvp8tuQM5KocpIDcOMzu89Sh
+	BtZlqtDNvndX1vX3qUmPpsVEpB7Q4aJmQSccObufA2RzcJHjrKNby3Vag==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41gegwvhqk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Sep 2024 08:50:20 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48B8Ebpx027308;
-	Wed, 11 Sep 2024 08:50:19 GMT
+	Wed, 11 Sep 2024 08:50:21 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48B6QNbx003123;
+	Wed, 11 Sep 2024 08:50:20 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 41h3v37yv0-1
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 41h15u0fns-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Sep 2024 08:50:19 +0000
+	Wed, 11 Sep 2024 08:50:20 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48B8oGIQ48955848
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48B8oGeW55378188
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 11 Sep 2024 08:50:16 GMT
+	Wed, 11 Sep 2024 08:50:17 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4093620043;
+	by IMSVA (Postfix) with ESMTP id D583D2004E;
 	Wed, 11 Sep 2024 08:50:16 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EE06A20040;
-	Wed, 11 Sep 2024 08:50:15 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 90FC820043;
+	Wed, 11 Sep 2024 08:50:16 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 11 Sep 2024 08:50:15 +0000 (GMT)
+	Wed, 11 Sep 2024 08:50:16 +0000 (GMT)
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Shuah Khan <shuah@kernel.org>, "Jason A . Donenfeld" <Jason@zx2c4.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>,
         linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [PATCH 0/2] selftests: vDSO: s390 fixes
-Date: Wed, 11 Sep 2024 10:50:13 +0200
-Message-ID: <20240911085015.3581722-1-hca@linux.ibm.com>
+Subject: [PATCH 2/2] selftests: vDSO: fix vdso_config for s390
+Date: Wed, 11 Sep 2024 10:50:15 +0200
+Message-ID: <20240911085015.3581722-3-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240911085015.3581722-1-hca@linux.ibm.com>
+References: <20240911085015.3581722-1-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,37 +72,53 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: A26qG9j2RjmpDXHys2TbdKfEPejS4C2z
-X-Proofpoint-GUID: A26qG9j2RjmpDXHys2TbdKfEPejS4C2z
+X-Proofpoint-GUID: -8vW4LDJFun_ZYAYg8cmREy-UJNXcKz5
+X-Proofpoint-ORIG-GUID: -8vW4LDJFun_ZYAYg8cmREy-UJNXcKz5
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
  definitions=2024-09-10_12,2024-09-09_02,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- priorityscore=1501 bulkscore=0 spamscore=0 phishscore=0 lowpriorityscore=0
- mlxscore=0 mlxlogscore=802 impostorscore=0 clxscore=1011 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
- definitions=main-2409110064
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=606
+ lowpriorityscore=0 suspectscore=0 priorityscore=1501 bulkscore=0
+ adultscore=0 impostorscore=0 clxscore=1015 malwarescore=0 mlxscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2409110064
 
-Two s390 fixes to make vdso selftests running on s390.
+Running vdso_test_correctness on s390x (aka s390 64 bit) emits a warning:
 
-Jason, given that you carry already a lot of changes for vdso
-selftests I guess these should be routed via the random tree.
+Warning: failed to find clock_gettime64 in vDSO
 
-Patches apply on top of current random.git master branch.
+This is caused by the "#elif defined (__s390__)" check in vdso_config.h
+which the defines VDSO_32BIT.
 
-Thanks,
-Heiko
+If __s390x__ is defined also __s390__ is defined. Therefore the correct
+check must make sure that only __s390__ is defined.
 
-Heiko Carstens (1):
-  selftests: vDSO: fix vdso_config for s390
+Therefore add the missing !defined(__s390x__). Also use common
+__s390x__ define instead of __s390X__.
 
-Jens Remus (1):
-  selftests: vDSO: fix ELF hash table entry size for s390x
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ tools/testing/selftests/vDSO/vdso_config.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
- tools/testing/selftests/vDSO/parse_vdso.c  | 14 ++++++++++----
- tools/testing/selftests/vDSO/vdso_config.h |  4 ++--
- 2 files changed, 12 insertions(+), 6 deletions(-)
-
+diff --git a/tools/testing/selftests/vDSO/vdso_config.h b/tools/testing/selftests/vDSO/vdso_config.h
+index 740ce8c98d2e..722260f97561 100644
+--- a/tools/testing/selftests/vDSO/vdso_config.h
++++ b/tools/testing/selftests/vDSO/vdso_config.h
+@@ -25,11 +25,11 @@
+ #define VDSO_VERSION		1
+ #define VDSO_NAMES		0
+ #define VDSO_32BIT		1
+-#elif defined (__s390__)
++#elif defined (__s390__) && !defined(__s390x__)
+ #define VDSO_VERSION		2
+ #define VDSO_NAMES		0
+ #define VDSO_32BIT		1
+-#elif defined (__s390X__)
++#elif defined (__s390x__)
+ #define VDSO_VERSION		2
+ #define VDSO_NAMES		0
+ #elif defined(__mips__)
 -- 
 2.43.0
 
