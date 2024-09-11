@@ -1,32 +1,32 @@
-Received: from out-184.mta0.migadu.com (out-184.mta0.migadu.com [91.218.175.184])
+Received: from out-181.mta1.migadu.com (out-181.mta1.migadu.com [95.215.58.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 582E0183CBC
-	for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 09:14:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.184
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FAC015FA92
+	for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 09:14:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726046062; cv=none; b=uwfLVi4IZj0v2l2ONB5CUkImZWckmwNR9yle2uWWV3UlKvAIC8GjSpLFVCr9+H7CbEWUi3M8aHXHeEXE3wUXPfgI4H/9XaIlwOLSLAvxJV1g3faYWnCtzVdpR33fO821ZdpCtVFPL3ESPmglFqfqgbucLw3m/p2+RA3ZuGLbASg=
+	t=1726046067; cv=none; b=ZiZIxFyxZG5GB0n+aqEvm2lMrz20cSwaX2IIPNosSMO2zxt2nTgDtPAKxyW3HMscITWBU/5P8aRX86tLId+k/twDRc6+5zcsbJJ1SqL8ZX/ZpuzFuC65UKB4ribPkk3PzCMmDKRn7VFIqKL+rW+R5cbzvVj2O1bpI7+HFX1NLVE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726046062; c=relaxed/simple;
-	bh=fxWazOowneATN/NMms7JegZApQ3fmiARD6aivGAAY18=;
+	s=arc-20240116; t=1726046067; c=relaxed/simple;
+	bh=ciezj6suK8ae2LMf3k1SJHPNAeqNjKPjkp60vGmAGcA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ayNAxqvQZpLXHOuz6KI2AShOeYAlORT2oD+SiFQG8sjS25f/aKOKxgFk6M5tondX2FTMzGeDTIEfFV4kj287/9e5mdPeKx5z8mB4ECCa88zQ1OjlS0k/LLPbBbmSe7xiUD52W57rVqtQtE3cCGQLd3sM063OyJ/4rUUH24o0cRM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=ukkq+j7D; arc=none smtp.client-ip=91.218.175.184
+	 MIME-Version; b=pNM22geuri4O5YISLJlJSLEqF6+QFZ5oJM1aRNkWKBmgBZCEwX44pV8GpUW8VebJnM6EGCl5MfYBMHXt8K3Ss0guB7JA38PWIvNrbwcelOe05Owt/TYOMwXkwQ+CGS42aBLSGJADoowPV5CFNixGN67c+GruEOxBB20fKptFniI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Euz6oyDc; arc=none smtp.client-ip=95.215.58.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="ukkq+j7D"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Euz6oyDc"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1726046058;
+	t=1726046062;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=PG2DAax+JlcWtQamyINUSDmt+za3swHNY4VA8lUVONc=;
-	b=ukkq+j7DSgzu99+s4/Sj7crBGzDfShHZKTFs2u72WegAsbbYuORO7jgNfgze3vogvP3D6k
-	3vpzTR+AZ1TXwx5pqiziUb+WHgS55/sAqA3h9+fYA90AAidxkqm/fOe0VJ64UegmgY/FWJ
-	+I4h4bD34o4s0knIOFV/gn/cq7bPnfs=
+	bh=MjH3y5GFZG4iHF0CwOafpGZ1X8c3+7VTVQzIHYqdBQI=;
+	b=Euz6oyDcYjtOpteyceqjb20WH4aWa8y1bSxbcm2wTTp8P+Bg8DY4V2Uu36HzRSnssfq8xJ
+	Fqk4vTcyLs8THPrsw8ErJkMKfRzbgxfN2qAvc3U9npGnGrsXuGEbz5vrCRyFnHrOEocuYk
+	S9sibAFjqJUI65I0k8/wmhqsIDpM0ks=
 From: Andrew Jones <andrew.jones@linux.dev>
 To: kvm@vger.kernel.org,
 	kvm-riscv@lists.infradead.org,
@@ -41,10 +41,11 @@ Cc: pbonzini@redhat.com,
 	nrb@linux.ibm.com,
 	atishp@rivosinc.com,
 	cade.richard@berkeley.edu,
-	jamestiotio@gmail.com
-Subject: [kvm-unit-tests PATCH v3 1/5] riscv: Drop mstrict-align
-Date: Wed, 11 Sep 2024 11:14:08 +0200
-Message-ID: <20240911091406.134240-8-andrew.jones@linux.dev>
+	jamestiotio@gmail.com,
+	Nicholas Piggin <npiggin@gmail.com>
+Subject: [kvm-unit-tests PATCH v3 2/5] Makefile: Prepare for clang EFI builds
+Date: Wed, 11 Sep 2024 11:14:09 +0200
+Message-ID: <20240911091406.134240-9-andrew.jones@linux.dev>
 In-Reply-To: <20240911091406.134240-7-andrew.jones@linux.dev>
 References: <20240911091406.134240-7-andrew.jones@linux.dev>
 Precedence: bulk
@@ -56,31 +57,33 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-The spec says unaligned accesses are supported, so this isn't required
-and clang doesn't support it. A platform might have slow unaligned
-accesses, but kvm-unit-tests isn't about speed anyway.
+clang complains about GNU extensions such as variable sized types not
+being at the end of structs unless -Wno-gnu is used. We may
+eventually want -Wno-gnu, but for now let's just handle the warnings
+as they come. Add -Wno-gnu-variable-sized-type-not-at-end to avoid
+the warning issued for the initrd_dev_path struct. (Eliminating the
+warning is preferred to reworking the struct, because the
+implementation is imported verbatim from Linux.)
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Andrew Jones <andrew.jones@linux.dev>
 ---
- riscv/Makefile | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/riscv/Makefile b/riscv/Makefile
-index 179a373dbacf..22fd273acac3 100644
---- a/riscv/Makefile
-+++ b/riscv/Makefile
-@@ -76,7 +76,9 @@ LDFLAGS += -melf32lriscv
+diff --git a/Makefile b/Makefile
+index 3d51cb726120..7471f7285b78 100644
+--- a/Makefile
++++ b/Makefile
+@@ -50,6 +50,8 @@ EFI_CFLAGS += -fshort-wchar
+ # EFI applications use PIC as they are loaded to dynamic addresses, not a fixed
+ # starting address
+ EFI_CFLAGS += -fPIC
++# Avoid error with the initrd_dev_path struct
++EFI_CFLAGS += -Wno-gnu-variable-sized-type-not-at-end
+ # Create shared library
+ EFI_LDFLAGS := -Bsymbolic -shared -nostdlib
  endif
- CFLAGS += -DCONFIG_RELOC
- CFLAGS += -mcmodel=medany
--CFLAGS += -mstrict-align
-+# Unaligned accesses are allowed, but may be emulated by M-mode.
-+# Enable -mstrict-align if that's troublesome (only supported by gcc).
-+#CFLAGS += -mstrict-align
- CFLAGS += -std=gnu99
- CFLAGS += -ffreestanding
- CFLAGS += -O2
 -- 
 2.46.0
 
