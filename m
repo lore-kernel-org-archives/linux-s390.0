@@ -1,65 +1,65 @@
-Received: from mail-yb1-f201.google.com (mail-yb1-f201.google.com [209.85.219.201])
+Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DDD81B1414
-	for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 17:24:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AC321B29B9
+	for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 17:42:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726075462; cv=none; b=XuEgZxx5Ql5E4bvB+ON5QIVss+kJvOPnTGnEAEZWQlcjcrpLIct8eMNzCqyytpo9g/2ryC58fAINRO+26PGd5xMKkEEOsBsWaNBVIVu4ZhswUwc0VjSVHfAsB/hMyVNtGjtB6/zPbOk1bR2I4pNdh5Ut3jD6+4Jrr2BqOj1axOM=
+	t=1726076531; cv=none; b=FJVORurxTVh2iKUUvWXuJbSmj8ezP5ZwXFyOn9AEBfpG0XhM/N2+X04nFoLb2r77q58Kt+3iNb3OhhKlrOiyt11PMGGW2R49ep65ZhV8dj1ma0bZNZalTxrptl+copOeJrrPfO8yFaAGXlmpflVTHIBgO1p9alRSC/PMtXNJg9c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726075462; c=relaxed/simple;
-	bh=XFs0Nh/hOrp5kuukoiTsZ1BajDbH+w0gqLETXRYqyHo=;
+	s=arc-20240116; t=1726076531; c=relaxed/simple;
+	bh=dn939sn++fwvDrb1mRwiAH6VwkMwvdG2HxDigWI+AlQ=;
 	h=Date:In-Reply-To:Mime-Version:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=hqKqoICdAhN0v2pdlQ79MtOoF8FwGsIVyYtozctzejKKJC5oBUkOPJT+0oM7MYNyJr68o2X0wmTnQg/IqmN0/ffa67zTNq3DILc8zj6ja2Jw7NgqsMDwD9mgJQv1AuV0ZLWPuuEguvYBJp+vBxjLx02XP6SHSZTf3cyXp4o5IGg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Jpfr9b8O; arc=none smtp.client-ip=209.85.219.201
+	 Content-Type; b=OVm+8WYrBREwIC+kjMtnF0j9f1w+r1LN5s/ViiS0WEGm23SSkGJSMYeVEGEftDSX+vlq+qt3rhGzlyjDiKAZUzxLcLX1d5XwegN4ntHfUk0sOp3EJxyTnWWLuHBt4YGTU6186vXlvK9rlcFHXUe7uERr7M4TbN7/f4a+NzRbF5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=aJOeYiO3; arc=none smtp.client-ip=209.85.128.202
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Jpfr9b8O"
-Received: by mail-yb1-f201.google.com with SMTP id 3f1490d57ef6-e1ceef1b984so305299276.2
-        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 10:24:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="aJOeYiO3"
+Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-6b8d96aa5ebso3839477b3.1
+        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 10:42:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1726075458; x=1726680258; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1726076529; x=1726681329; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:mime-version:in-reply-to:date:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=SaSesydasxzfbVhVncU6hEY4UY7i9QKYOocGcFq6lVw=;
-        b=Jpfr9b8O7aI/k+j93LNwHynWn6CaJe3d9RqwHdfQaVrNvLtB2TQEmL9GPRFSHY3YHv
-         wWqIWyspltFStFntlCG5UrOIclxAXXuBtSfmlsxGrucb9KSuXarCO6fUd3gDodlkR8j0
-         Rp28ReoTZ5F7lgJ+KkT5xXU01zxR0INIZQn5ZmIABMnlCkJhsaM35VuymCxwS0c8tL07
-         QtKSyVhpBeiUUoNMWvs8e963C+3H8wxfGLdYql70FK8yTWsqcyJ0V7PGsBPk8tHl3Wbj
-         14NHeTZFBnOa/nMysLOEO7+aUJp3JFQ5uyMCGpEkolLozilOYUfArgwm80M/2ocAJhZd
-         iEYg==
+        bh=706YIr0bgBd+SdWWT5lCJ2ip0tLuVrI+pXTkacc4ei0=;
+        b=aJOeYiO3GcI0JykcTKTC3C/OML1+gF9uFFooNCGF9VRphwK6eTGjQz1b4QxQq0wXWS
+         2d7Cup/I5gv0QJcTWXJljtB2ccYrrwlOYJyz6dh+bNgm36fj+/iBfp3oVIDMES2nLfxO
+         87kmbSlG+Yb74xaHd/pUfSUvcgSJF/90K+U+Bvt6DJNSB4Ia9YmUuX7YKhZ8RoOLWX/3
+         336+GDiNncXmTJyjMU1nNUrZbwDmgt3z4/PoIoIrEW+5XAp0DYgxbdUn5D3SqW6Hk3SF
+         MPH0WsEQbD5TwbuTs/MCSbuxAYuDG4OBIIEbevLox7jw7pSSKfhOPg6/+85WbHYGn1a8
+         hw9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726075458; x=1726680258;
+        d=1e100.net; s=20230601; t=1726076529; x=1726681329;
         h=cc:to:from:subject:message-id:mime-version:in-reply-to:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=SaSesydasxzfbVhVncU6hEY4UY7i9QKYOocGcFq6lVw=;
-        b=JyhqzRPO5xC5mw6pTegjJw0+vCTkmRTfkQK78EzP94MhgnVY75MKoy21e4rZ6ZSxOu
-         aNNVWKHPmFPCHP3c2MrIP1PRQ2Flcez2uu2bqCwMDP0GfOxxOiX9geMCZaDDL0SQG1jo
-         EXgfdEAuhmc56L//fZpzV7JQi9+G27gqqPRwBqpYyotz6a8m1/ayiYtq5V2XQO8+NLpo
-         uQjclUlYM4Lh3P/Gc+qjieJoQ2sNuJQIa+L8p3S8mnf61F8YYKveBOYvqw3qK2znGEJC
-         LbTW5YLFFGWY5WMR/774oEF3ebQOwejQ4pDxBIGVwWac/Otk4rZXJLDiOxuUqIOZuXhO
-         Xv4Q==
-X-Forwarded-Encrypted: i=1; AJvYcCV6DD+arUNOLpkdtm9Q6ErLr/07m+LqXJWPg0FZeE2jIidggRqSKFmd+sEyEsvDHeQgTv05ixK0He1L@vger.kernel.org
-X-Gm-Message-State: AOJu0YwmaZkaeIXn7s1SAFiYSEU0N3HGVTb+pxyms8+ZraN/KaoW2RC4
-	xfwAxQq+FISMTbe+/C4xYfIJ2C9J7DlpfCEYtM/YJrbqHrmO2yytvlhJhdWkzk4o257GId4sQ9L
-	gzKC7NpJQLRWLjO0x6QSihw==
-X-Google-Smtp-Source: AGHT+IF0bUdUbcCOClt0/WYli3uuDRUJs0keADgBT2fi3kki6SRriwc15ZsmXxjB7diodiG4JkONa9BVdzmH2TzP6g==
+        bh=706YIr0bgBd+SdWWT5lCJ2ip0tLuVrI+pXTkacc4ei0=;
+        b=uNnA6TY1GeXkAXRQzQyg7bhvWm5X/d4aQvGNFu6TFRcsg8LJOXnwOPFLrQiuE8GiTd
+         4fj78bBcliwvT6Hdz5CU699pqEuIMp/Kn2m/uefsJKqR/sZpOgOnu/P3tFFCZ+uQ/mNs
+         DbhBe6QB2WGvPjDRoO6FjEyUk+GbRDj2efeQDkdmPjIY6PzHePHx2AqhpJPgKqGyuuSx
+         elBPVvhEDgxPKXHqI/F4Wtg5zY59d/qW33ykdnCHDElblgpYJW776ZMZPGmW0iqs9HqX
+         eBHtItNfSjeucKrEEBeDVHKnhilk6YWqlGImErT380ossw91VZjLR6bWCfZH3ok2Et/Y
+         SJyw==
+X-Forwarded-Encrypted: i=1; AJvYcCUB76fiEL/Rn+zEQRc8HCHbegc5J+VdSrw0mns7IjZqr1HhljfjhYtlT//imtNfxebTn2gBP+XV41Rn@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyb2vCei810LF5FhKrtoEodhwleo7hknxfnoq4H9QlMGwp+MXNF
+	BURnkizUZgL6xFxt1/Rb+jTPu+z84XJAIxDVlQZGaP4QG05TZ/DOn4nC8O9EsMJkA4eC31bx5Hh
+	tGdG80rbz7scClWbwE+5hNg==
+X-Google-Smtp-Source: AGHT+IFvlmwQkSjQLxVucUW7uRZBOX25a6vFDWduRsiEd3MV5YuAAx1lfuAly70GDxykiYb30OJnJ7h7mzdG3bMQWg==
 X-Received: from coltonlewis-kvm.c.googlers.com ([fda3:e722:ac3:cc00:11b:3898:ac11:fa18])
- (user=coltonlewis job=sendgmr) by 2002:a05:6902:529:b0:e1d:96a7:c9b1 with
- SMTP id 3f1490d57ef6-e1d9dc2cfd7mr203276.6.1726075457958; Wed, 11 Sep 2024
- 10:24:17 -0700 (PDT)
-Date: Wed, 11 Sep 2024 17:24:17 +0000
-In-Reply-To: <ZtmHBuggqUr3ncw6@J2N7QTR9R3> (message from Mark Rutland on Thu,
- 5 Sep 2024 11:25:10 +0100)
+ (user=coltonlewis job=sendgmr) by 2002:a05:690c:fd0:b0:6d6:bf07:d510 with
+ SMTP id 00721157ae682-6dbb6b9d655mr6437b3.6.1726076528473; Wed, 11 Sep 2024
+ 10:42:08 -0700 (PDT)
+Date: Wed, 11 Sep 2024 17:42:07 +0000
+In-Reply-To: <ZtmOENs5qveMH920@J2N7QTR9R3> (message from Mark Rutland on Thu,
+ 5 Sep 2024 11:55:12 +0100)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
-Message-ID: <gsnty13ycddq.fsf@coltonlewis-kvm.c.googlers.com>
-Subject: Re: [PATCH 1/5] arm: perf: Drop unused functions
+Message-ID: <gsntv7z2cck0.fsf@coltonlewis-kvm.c.googlers.com>
+Subject: Re: [PATCH 5/5] perf: Correct perf sampling with guest VMs
 From: Colton Lewis <coltonlewis@google.com>
 To: Mark Rutland <mark.rutland@arm.com>
 Cc: kvm@vger.kernel.org, oliver.upton@linux.dev, seanjc@google.com, 
@@ -78,77 +78,50 @@ Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 
 Mark Rutland <mark.rutland@arm.com> writes:
 
-> On Wed, Sep 04, 2024 at 08:41:29PM +0000, Colton Lewis wrote:
->> perf_instruction_pointer() and perf_misc_flags() aren't used anywhere
->> in this particular perf implementation. Drop them.
+> On Wed, Sep 04, 2024 at 08:41:33PM +0000, Colton Lewis wrote:
+>> Previously any PMU overflow interrupt that fired while a VCPU was
+>> loaded was recorded as a guest event whether it truly was or not. This
+>> resulted in nonsense perf recordings that did not honor
+>> perf_event_attr.exclude_guest and recorded guest IPs where it should
+>> have recorded host IPs.
 
-> I think it'd be better to say that arch/arm's implementation of these is
-> equivalent to the generic versions in include/linux/perf_event.h, and so
-> arch/arm doesn't need to provide its own versions. It doesn't matter if
-> arch/arm uses them itself since they're being provided for the core perf
-> code.
+>> Reorganize that plumbing to record perf events correctly even when
+>> VCPUs are loaded.
 
-> With words to that effect:
+> It'd be good if we could make that last bit a little more explicit,
+> e.g.
+
+>    Rework the sampling logic to only record guest samples for events with
+>    exclude_guest clear. This way any host-only events with exclude_guest
+>    set will never see unexpected guest samples. The behaviour of events
+>    with exclude_guest clear is unchanged.
+
+> [...]
 
 Done
 
-> Acked-by: Mark Rutland <mark.rutland@arm.com>
+>> diff --git a/kernel/events/core.c b/kernel/events/core.c
+>> index 4384f6c49930..e1a66c9c3773 100644
+>> --- a/kernel/events/core.c
+>> +++ b/kernel/events/core.c
+>> @@ -6915,13 +6915,26 @@ void perf_unregister_guest_info_callbacks(struct  
+>> perf_guest_info_callbacks *cbs)
+>>   EXPORT_SYMBOL_GPL(perf_unregister_guest_info_callbacks);
+>>   #endif
+
+>> -unsigned long perf_misc_flags(unsigned long pt_regs *regs)
+>> +static bool is_guest_event(struct perf_event *event)
+>>   {
+>> +	return !event->attr.exclude_guest && perf_guest_state();
+>> +}
+
+> Could we name this something like "should_sample_guest()"? Calling this
+> "is_guest_event()" makes it should like it's checking a static property
+> of the event (and not other conditions like perf_guest_state()).
+
+> Otherwise this all looks reasonable to me, modulo Ingo's comments. I'll
+> happily test a v2 once those have been addressed.
+
+Done
 
 > Mark.
-
-
->> Signed-off-by: Colton Lewis <coltonlewis@google.com>
->> ---
->>   arch/arm/include/asm/perf_event.h |  7 -------
->>   arch/arm/kernel/perf_callchain.c  | 17 -----------------
->>   2 files changed, 24 deletions(-)
-
->> diff --git a/arch/arm/include/asm/perf_event.h  
->> b/arch/arm/include/asm/perf_event.h
->> index bdbc1e590891..c08f16f2e243 100644
->> --- a/arch/arm/include/asm/perf_event.h
->> +++ b/arch/arm/include/asm/perf_event.h
->> @@ -8,13 +8,6 @@
->>   #ifndef __ARM_PERF_EVENT_H__
->>   #define __ARM_PERF_EVENT_H__
-
->> -#ifdef CONFIG_PERF_EVENTS
->> -struct pt_regs;
->> -extern unsigned long perf_instruction_pointer(struct pt_regs *regs);
->> -extern unsigned long perf_misc_flags(struct pt_regs *regs);
->> -#define perf_misc_flags(regs)	perf_misc_flags(regs)
->> -#endif
->> -
->>   #define perf_arch_fetch_caller_regs(regs, __ip) { \
->>   	(regs)->ARM_pc = (__ip); \
->>   	frame_pointer((regs)) = (unsigned long) __builtin_frame_address(0); \
->> diff --git a/arch/arm/kernel/perf_callchain.c  
->> b/arch/arm/kernel/perf_callchain.c
->> index 1d230ac9d0eb..a2601b1ef318 100644
->> --- a/arch/arm/kernel/perf_callchain.c
->> +++ b/arch/arm/kernel/perf_callchain.c
->> @@ -96,20 +96,3 @@ perf_callchain_kernel(struct perf_callchain_entry_ctx  
->> *entry, struct pt_regs *re
->>   	arm_get_current_stackframe(regs, &fr);
->>   	walk_stackframe(&fr, callchain_trace, entry);
->>   }
->> -
->> -unsigned long perf_instruction_pointer(struct pt_regs *regs)
->> -{
->> -	return instruction_pointer(regs);
->> -}
->> -
->> -unsigned long perf_misc_flags(struct pt_regs *regs)
->> -{
->> -	int misc = 0;
->> -
->> -	if (user_mode(regs))
->> -		misc |= PERF_RECORD_MISC_USER;
->> -	else
->> -		misc |= PERF_RECORD_MISC_KERNEL;
->> -
->> -	return misc;
->> -}
->> --
->> 2.46.0.469.g59c65b2a67-goog
-
