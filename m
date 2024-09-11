@@ -1,120 +1,154 @@
-Received: from mail.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f201.google.com (mail-yb1-f201.google.com [209.85.219.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F20A019C563;
-	Wed, 11 Sep 2024 13:50:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=150.107.74.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DDD81B1414
+	for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 17:24:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726062613; cv=none; b=uX14mTqLDF79qFU3SK8PlNr8IVfTmHTGbhORtarw0S6rbmxXqipBFb1KDxTFuXwFVFNizbWKrCoy+FEzni8MVfKIN7VtnE+WKHS2XnAgPWmH723dyyNkJI6e2/aNW/2MjWAn6cecadMIqcnprACPYlOdvjMeEDhuz1JLnzHkGzM=
+	t=1726075462; cv=none; b=XuEgZxx5Ql5E4bvB+ON5QIVss+kJvOPnTGnEAEZWQlcjcrpLIct8eMNzCqyytpo9g/2ryC58fAINRO+26PGd5xMKkEEOsBsWaNBVIVu4ZhswUwc0VjSVHfAsB/hMyVNtGjtB6/zPbOk1bR2I4pNdh5Ut3jD6+4Jrr2BqOj1axOM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726062613; c=relaxed/simple;
-	bh=PrFjse7wa9r7BLbYlfJSIri5+7sSsF6OSOZIIGlgpL0=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=il02RxYHdtQw38fKeurReB7ft2prSarjmtvpLfPI7cXnUnURCZ6/vONv4YN2QKKtNvXEegjlT+b6IlPCZLIun0GvmnkAsH4EW72o87Coj0cz2W3GlnpIQ+DZWTQSMYh/LKzctbjHwPKxdmktZSLfYa2rgmUctwjdHo68arD9z74=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au; spf=pass smtp.mailfrom=ellerman.id.au; dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b=b6rCWOCp; arc=none smtp.client-ip=150.107.74.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ellerman.id.au
+	s=arc-20240116; t=1726075462; c=relaxed/simple;
+	bh=XFs0Nh/hOrp5kuukoiTsZ1BajDbH+w0gqLETXRYqyHo=;
+	h=Date:In-Reply-To:Mime-Version:Message-ID:Subject:From:To:Cc:
+	 Content-Type; b=hqKqoICdAhN0v2pdlQ79MtOoF8FwGsIVyYtozctzejKKJC5oBUkOPJT+0oM7MYNyJr68o2X0wmTnQg/IqmN0/ffa67zTNq3DILc8zj6ja2Jw7NgqsMDwD9mgJQv1AuV0ZLWPuuEguvYBJp+vBxjLx02XP6SHSZTf3cyXp4o5IGg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Jpfr9b8O; arc=none smtp.client-ip=209.85.219.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b="b6rCWOCp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-	s=201909; t=1726062608;
-	bh=lpBzbgWttHYkkQ41sscZ0OOoe2UyQs048+I1EnGEnbs=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=b6rCWOCpsR6QTZU68icEH6ah28jcqnXyKEGoUH0ohvJRhp/Mm3QMMNf7cz1PRZVJk
-	 qZnhrbEZQSdtE52b5m7L8yLtR87aHqZ9Y3U05UdXnLFYWT6W/Gva4cteQod4+pDscF
-	 iq9WFey+WYHFyzKGuoKHndEZ0KUL/iVZ82dFsXKNk1jKIZA3FOkaV87mvcYAUlbhmC
-	 QSm0f+2sovoKzmv6FOXBVgqAL9iWpzg6XychwCtrVghD79R/XByY5tXAMuIaTpHV5g
-	 0oMsPLM4pI21UqirAlt8h43LH7OPXzxNCN5RDMbPbQlnnQRUFay141JPyB1XvhsCzO
-	 l8YWjW9+O5+hg==
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(Client did not present a certificate)
-	by mail.ozlabs.org (Postfix) with ESMTPSA id 4X3hlf1JyWz4x8D;
-	Wed, 11 Sep 2024 23:50:06 +1000 (AEST)
-From: Michael Ellerman <mpe@ellerman.id.au>
-To: Arnd Bergmann <arnd@arndb.de>, Charlie Jenkins <charlie@rivosinc.com>,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: Richard Henderson <richard.henderson@linaro.org>, Ivan Kokshaysky
- <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta
- <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, guoren
- <guoren@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
- <kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>, Helge
- Deller <deller@gmx.de>, Nicholas Piggin <npiggin@gmail.com>, Christophe
- Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer
- <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker
- <dalias@libc.org>, John Paul Adrian Glaubitz
- <glaubitz@physik.fu-berlin.de>, "David S . Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>, Thomas Gleixner
- <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
- <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Peter
- Zijlstra <peterz@infradead.org>, Muchun Song <muchun.song@linux.dev>,
- Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett"
- <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, shuah
- <shuah@kernel.org>, Christoph Hellwig <hch@infradead.org>, Michal Hocko
- <mhocko@suse.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Chris
- Torek <chris.torek@gmail.com>, Linux-Arch <linux-arch@vger.kernel.org>,
- linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-mm@kvack.org,
- linux-kselftest@vger.kernel.org, linux-abi-devel@lists.sourceforge.net
-Subject: Re: [PATCH RFC v3 1/2] mm: Add personality flag to limit address to
- 47 bits
-In-Reply-To: <89d21669-8daa-4225-b6d2-33d439ebd746@app.fastmail.com>
-References: <20240905-patches-below_hint_mmap-v3-0-3cd5564efbbb@rivosinc.com>
- <20240905-patches-below_hint_mmap-v3-1-3cd5564efbbb@rivosinc.com>
- <9fc4746b-8e9d-4a75-b966-e0906187e6b7@app.fastmail.com>
- <58f39d58-579e-4dd3-8084-baebf86f1ae0@lucifer.local>
- <7be08ea9-f343-42da-805f-e5f0d61bde26@app.fastmail.com>
- <016c7857-9ea8-4333-96e6-3ae3870f375f@lucifer.local>
- <Zt+DGHZrHFxfq7xo@ghost>
- <89d21669-8daa-4225-b6d2-33d439ebd746@app.fastmail.com>
-Date: Wed, 11 Sep 2024 23:50:05 +1000
-Message-ID: <87zfoeqoz6.fsf@mail.lhotse>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Jpfr9b8O"
+Received: by mail-yb1-f201.google.com with SMTP id 3f1490d57ef6-e1ceef1b984so305299276.2
+        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 10:24:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1726075458; x=1726680258; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:in-reply-to:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=SaSesydasxzfbVhVncU6hEY4UY7i9QKYOocGcFq6lVw=;
+        b=Jpfr9b8O7aI/k+j93LNwHynWn6CaJe3d9RqwHdfQaVrNvLtB2TQEmL9GPRFSHY3YHv
+         wWqIWyspltFStFntlCG5UrOIclxAXXuBtSfmlsxGrucb9KSuXarCO6fUd3gDodlkR8j0
+         Rp28ReoTZ5F7lgJ+KkT5xXU01zxR0INIZQn5ZmIABMnlCkJhsaM35VuymCxwS0c8tL07
+         QtKSyVhpBeiUUoNMWvs8e963C+3H8wxfGLdYql70FK8yTWsqcyJ0V7PGsBPk8tHl3Wbj
+         14NHeTZFBnOa/nMysLOEO7+aUJp3JFQ5uyMCGpEkolLozilOYUfArgwm80M/2ocAJhZd
+         iEYg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1726075458; x=1726680258;
+        h=cc:to:from:subject:message-id:mime-version:in-reply-to:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=SaSesydasxzfbVhVncU6hEY4UY7i9QKYOocGcFq6lVw=;
+        b=JyhqzRPO5xC5mw6pTegjJw0+vCTkmRTfkQK78EzP94MhgnVY75MKoy21e4rZ6ZSxOu
+         aNNVWKHPmFPCHP3c2MrIP1PRQ2Flcez2uu2bqCwMDP0GfOxxOiX9geMCZaDDL0SQG1jo
+         EXgfdEAuhmc56L//fZpzV7JQi9+G27gqqPRwBqpYyotz6a8m1/ayiYtq5V2XQO8+NLpo
+         uQjclUlYM4Lh3P/Gc+qjieJoQ2sNuJQIa+L8p3S8mnf61F8YYKveBOYvqw3qK2znGEJC
+         LbTW5YLFFGWY5WMR/774oEF3ebQOwejQ4pDxBIGVwWac/Otk4rZXJLDiOxuUqIOZuXhO
+         Xv4Q==
+X-Forwarded-Encrypted: i=1; AJvYcCV6DD+arUNOLpkdtm9Q6ErLr/07m+LqXJWPg0FZeE2jIidggRqSKFmd+sEyEsvDHeQgTv05ixK0He1L@vger.kernel.org
+X-Gm-Message-State: AOJu0YwmaZkaeIXn7s1SAFiYSEU0N3HGVTb+pxyms8+ZraN/KaoW2RC4
+	xfwAxQq+FISMTbe+/C4xYfIJ2C9J7DlpfCEYtM/YJrbqHrmO2yytvlhJhdWkzk4o257GId4sQ9L
+	gzKC7NpJQLRWLjO0x6QSihw==
+X-Google-Smtp-Source: AGHT+IF0bUdUbcCOClt0/WYli3uuDRUJs0keADgBT2fi3kki6SRriwc15ZsmXxjB7diodiG4JkONa9BVdzmH2TzP6g==
+X-Received: from coltonlewis-kvm.c.googlers.com ([fda3:e722:ac3:cc00:11b:3898:ac11:fa18])
+ (user=coltonlewis job=sendgmr) by 2002:a05:6902:529:b0:e1d:96a7:c9b1 with
+ SMTP id 3f1490d57ef6-e1d9dc2cfd7mr203276.6.1726075457958; Wed, 11 Sep 2024
+ 10:24:17 -0700 (PDT)
+Date: Wed, 11 Sep 2024 17:24:17 +0000
+In-Reply-To: <ZtmHBuggqUr3ncw6@J2N7QTR9R3> (message from Mark Rutland on Thu,
+ 5 Sep 2024 11:25:10 +0100)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
+Mime-Version: 1.0
+Message-ID: <gsnty13ycddq.fsf@coltonlewis-kvm.c.googlers.com>
+Subject: Re: [PATCH 1/5] arm: perf: Drop unused functions
+From: Colton Lewis <coltonlewis@google.com>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: kvm@vger.kernel.org, oliver.upton@linux.dev, seanjc@google.com, 
+	peterz@infradead.org, mingo@redhat.com, acme@kernel.org, namhyung@kernel.org, 
+	alexander.shishkin@linux.intel.com, jolsa@kernel.org, irogers@google.com, 
+	adrian.hunter@intel.com, kan.liang@linux.intel.com, will@kernel.org, 
+	linux@armlinux.org.uk, catalin.marinas@arm.com, mpe@ellerman.id.au, 
+	npiggin@gmail.com, christophe.leroy@csgroup.eu, naveen@kernel.org, 
+	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
+	borntraeger@linux.ibm.com, svens@linux.ibm.com, tglx@linutronix.de, 
+	bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, 
+	linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 
-"Arnd Bergmann" <arnd@arndb.de> writes:
-> On Mon, Sep 9, 2024, at 23:22, Charlie Jenkins wrote:
->> On Fri, Sep 06, 2024 at 10:52:34AM +0100, Lorenzo Stoakes wrote:
->>> On Fri, Sep 06, 2024 at 09:14:08AM GMT, Arnd Bergmann wrote:
->>> The intent is to optionally be able to run a process that keeps higher bits
->>> free for tagging and to be sure no memory mapping in the process will
->>> clobber these (correct me if I'm wrong Charlie! :)
-...
-> Let's see what the other architectures do and then come up with
-> a way that fixes the pointer tagging case first on those that are
-> broken. We can see if there needs to be an extra flag after that.
-> Here is what I found:
->
-> - x86_64 uses DEFAULT_MAP_WINDOW of BIT(47), uses a 57 bit
->   address space when an addr hint is passed.
-> - arm64 uses DEFAULT_MAP_WINDOW of BIT(47) or BIT(48), returns
->   higher 52-bit addresses when either a hint is passed or
->   CONFIG_EXPERT and CONFIG_ARM64_FORCE_52BIT is set (this
->   is a debugging option)
-> - ppc64 uses a DEFAULT_MAP_WINDOW of BIT(47) or BIT(48),
->   returns 52 bit address when an addr hint is passed
-   
-It's 46 or 47 depending on PAGE_SIZE (4K or 64K):
+Mark Rutland <mark.rutland@arm.com> writes:
 
-  $ git grep "define DEFAULT_MAP_WINDOW_USER64" arch/powerpc/include/asm/task_size_64.h
-  arch/powerpc/include/asm/task_size_64.h:#define DEFAULT_MAP_WINDOW_USER64        TASK_SIZE_128TB
-  arch/powerpc/include/asm/task_size_64.h:#define DEFAULT_MAP_WINDOW_USER64        TASK_SIZE_64TB
+> On Wed, Sep 04, 2024 at 08:41:29PM +0000, Colton Lewis wrote:
+>> perf_instruction_pointer() and perf_misc_flags() aren't used anywhere
+>> in this particular perf implementation. Drop them.
 
-cheers
+> I think it'd be better to say that arch/arm's implementation of these is
+> equivalent to the generic versions in include/linux/perf_event.h, and so
+> arch/arm doesn't need to provide its own versions. It doesn't matter if
+> arch/arm uses them itself since they're being provided for the core perf
+> code.
+
+> With words to that effect:
+
+Done
+
+> Acked-by: Mark Rutland <mark.rutland@arm.com>
+
+> Mark.
+
+
+>> Signed-off-by: Colton Lewis <coltonlewis@google.com>
+>> ---
+>>   arch/arm/include/asm/perf_event.h |  7 -------
+>>   arch/arm/kernel/perf_callchain.c  | 17 -----------------
+>>   2 files changed, 24 deletions(-)
+
+>> diff --git a/arch/arm/include/asm/perf_event.h  
+>> b/arch/arm/include/asm/perf_event.h
+>> index bdbc1e590891..c08f16f2e243 100644
+>> --- a/arch/arm/include/asm/perf_event.h
+>> +++ b/arch/arm/include/asm/perf_event.h
+>> @@ -8,13 +8,6 @@
+>>   #ifndef __ARM_PERF_EVENT_H__
+>>   #define __ARM_PERF_EVENT_H__
+
+>> -#ifdef CONFIG_PERF_EVENTS
+>> -struct pt_regs;
+>> -extern unsigned long perf_instruction_pointer(struct pt_regs *regs);
+>> -extern unsigned long perf_misc_flags(struct pt_regs *regs);
+>> -#define perf_misc_flags(regs)	perf_misc_flags(regs)
+>> -#endif
+>> -
+>>   #define perf_arch_fetch_caller_regs(regs, __ip) { \
+>>   	(regs)->ARM_pc = (__ip); \
+>>   	frame_pointer((regs)) = (unsigned long) __builtin_frame_address(0); \
+>> diff --git a/arch/arm/kernel/perf_callchain.c  
+>> b/arch/arm/kernel/perf_callchain.c
+>> index 1d230ac9d0eb..a2601b1ef318 100644
+>> --- a/arch/arm/kernel/perf_callchain.c
+>> +++ b/arch/arm/kernel/perf_callchain.c
+>> @@ -96,20 +96,3 @@ perf_callchain_kernel(struct perf_callchain_entry_ctx  
+>> *entry, struct pt_regs *re
+>>   	arm_get_current_stackframe(regs, &fr);
+>>   	walk_stackframe(&fr, callchain_trace, entry);
+>>   }
+>> -
+>> -unsigned long perf_instruction_pointer(struct pt_regs *regs)
+>> -{
+>> -	return instruction_pointer(regs);
+>> -}
+>> -
+>> -unsigned long perf_misc_flags(struct pt_regs *regs)
+>> -{
+>> -	int misc = 0;
+>> -
+>> -	if (user_mode(regs))
+>> -		misc |= PERF_RECORD_MISC_USER;
+>> -	else
+>> -		misc |= PERF_RECORD_MISC_KERNEL;
+>> -
+>> -	return misc;
+>> -}
+>> --
+>> 2.46.0.469.g59c65b2a67-goog
+
