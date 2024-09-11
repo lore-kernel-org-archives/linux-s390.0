@@ -1,127 +1,150 @@
-Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AC321B29B9
-	for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 17:42:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AEFE19EEC8;
+	Wed, 11 Sep 2024 18:21:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726076531; cv=none; b=FJVORurxTVh2iKUUvWXuJbSmj8ezP5ZwXFyOn9AEBfpG0XhM/N2+X04nFoLb2r77q58Kt+3iNb3OhhKlrOiyt11PMGGW2R49ep65ZhV8dj1ma0bZNZalTxrptl+copOeJrrPfO8yFaAGXlmpflVTHIBgO1p9alRSC/PMtXNJg9c=
+	t=1726078900; cv=none; b=ADxxuzWT9kup5+yhfqr9bgy7WdBQdJg57MMADQ11vdPc8Sst1N2lMRHpBJcsn0+JQq55oD6sKqHCdtig5ePBU92NQwMjHv4Lpg9STS+e0grMY25piFwuZCXZYAnJ6ITAmRPKbwOtzguP6lI/QWpqNj1B42kYks1MTlPX61hc/TU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726076531; c=relaxed/simple;
-	bh=dn939sn++fwvDrb1mRwiAH6VwkMwvdG2HxDigWI+AlQ=;
-	h=Date:In-Reply-To:Mime-Version:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=OVm+8WYrBREwIC+kjMtnF0j9f1w+r1LN5s/ViiS0WEGm23SSkGJSMYeVEGEftDSX+vlq+qt3rhGzlyjDiKAZUzxLcLX1d5XwegN4ntHfUk0sOp3EJxyTnWWLuHBt4YGTU6186vXlvK9rlcFHXUe7uERr7M4TbN7/f4a+NzRbF5Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=aJOeYiO3; arc=none smtp.client-ip=209.85.128.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="aJOeYiO3"
-Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-6b8d96aa5ebso3839477b3.1
-        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 10:42:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1726076529; x=1726681329; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:mime-version:in-reply-to:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=706YIr0bgBd+SdWWT5lCJ2ip0tLuVrI+pXTkacc4ei0=;
-        b=aJOeYiO3GcI0JykcTKTC3C/OML1+gF9uFFooNCGF9VRphwK6eTGjQz1b4QxQq0wXWS
-         2d7Cup/I5gv0QJcTWXJljtB2ccYrrwlOYJyz6dh+bNgm36fj+/iBfp3oVIDMES2nLfxO
-         87kmbSlG+Yb74xaHd/pUfSUvcgSJF/90K+U+Bvt6DJNSB4Ia9YmUuX7YKhZ8RoOLWX/3
-         336+GDiNncXmTJyjMU1nNUrZbwDmgt3z4/PoIoIrEW+5XAp0DYgxbdUn5D3SqW6Hk3SF
-         MPH0WsEQbD5TwbuTs/MCSbuxAYuDG4OBIIEbevLox7jw7pSSKfhOPg6/+85WbHYGn1a8
-         hw9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726076529; x=1726681329;
-        h=cc:to:from:subject:message-id:mime-version:in-reply-to:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=706YIr0bgBd+SdWWT5lCJ2ip0tLuVrI+pXTkacc4ei0=;
-        b=uNnA6TY1GeXkAXRQzQyg7bhvWm5X/d4aQvGNFu6TFRcsg8LJOXnwOPFLrQiuE8GiTd
-         4fj78bBcliwvT6Hdz5CU699pqEuIMp/Kn2m/uefsJKqR/sZpOgOnu/P3tFFCZ+uQ/mNs
-         DbhBe6QB2WGvPjDRoO6FjEyUk+GbRDj2efeQDkdmPjIY6PzHePHx2AqhpJPgKqGyuuSx
-         elBPVvhEDgxPKXHqI/F4Wtg5zY59d/qW33ykdnCHDElblgpYJW776ZMZPGmW0iqs9HqX
-         eBHtItNfSjeucKrEEBeDVHKnhilk6YWqlGImErT380ossw91VZjLR6bWCfZH3ok2Et/Y
-         SJyw==
-X-Forwarded-Encrypted: i=1; AJvYcCUB76fiEL/Rn+zEQRc8HCHbegc5J+VdSrw0mns7IjZqr1HhljfjhYtlT//imtNfxebTn2gBP+XV41Rn@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyb2vCei810LF5FhKrtoEodhwleo7hknxfnoq4H9QlMGwp+MXNF
-	BURnkizUZgL6xFxt1/Rb+jTPu+z84XJAIxDVlQZGaP4QG05TZ/DOn4nC8O9EsMJkA4eC31bx5Hh
-	tGdG80rbz7scClWbwE+5hNg==
-X-Google-Smtp-Source: AGHT+IFvlmwQkSjQLxVucUW7uRZBOX25a6vFDWduRsiEd3MV5YuAAx1lfuAly70GDxykiYb30OJnJ7h7mzdG3bMQWg==
-X-Received: from coltonlewis-kvm.c.googlers.com ([fda3:e722:ac3:cc00:11b:3898:ac11:fa18])
- (user=coltonlewis job=sendgmr) by 2002:a05:690c:fd0:b0:6d6:bf07:d510 with
- SMTP id 00721157ae682-6dbb6b9d655mr6437b3.6.1726076528473; Wed, 11 Sep 2024
- 10:42:08 -0700 (PDT)
-Date: Wed, 11 Sep 2024 17:42:07 +0000
-In-Reply-To: <ZtmOENs5qveMH920@J2N7QTR9R3> (message from Mark Rutland on Thu,
- 5 Sep 2024 11:55:12 +0100)
+	s=arc-20240116; t=1726078900; c=relaxed/simple;
+	bh=2cZas4SimbOELK54ILhf2k9/V2LxmAALpH5ubeNMXEs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kP/hclgiLFbxRWj91GNSHxe6sYCCLMux96HnYWTDvZ9NcocJKq5MrCWckIlfIN0+rhF6hZS2dNmpTyqSvL0GYdB/cUnozR6jSj1UIKg5oqxS3nCZlLjqPEGY6+EDB0qqzgw+lUkRDPPDYV6pzJKLGTkQBD/HD3VtyscqUWQhlGI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AB7BC4CEC0;
+	Wed, 11 Sep 2024 18:21:30 +0000 (UTC)
+Date: Wed, 11 Sep 2024 19:21:27 +0100
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: Charlie Jenkins <charlie@rivosinc.com>
+Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Arnd Bergmann <arnd@arndb.de>, guoren <guoren@kernel.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S . Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Muchun Song <muchun.song@linux.dev>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	shuah <shuah@kernel.org>, Christoph Hellwig <hch@infradead.org>,
+	Michal Hocko <mhocko@suse.com>,
+	"Kirill A. Shutemov" <kirill@shutemov.name>,
+	Chris Torek <chris.torek@gmail.com>,
+	Linux-Arch <linux-arch@vger.kernel.org>,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-mm@kvack.org,
+	linux-kselftest@vger.kernel.org,
+	linux-abi-devel@lists.sourceforge.net
+Subject: Re: [PATCH RFC v3 1/2] mm: Add personality flag to limit address to
+ 47 bits
+Message-ID: <ZuHfp0_tAQhaymdy@arm.com>
+References: <20240905-patches-below_hint_mmap-v3-0-3cd5564efbbb@rivosinc.com>
+ <20240905-patches-below_hint_mmap-v3-1-3cd5564efbbb@rivosinc.com>
+ <9fc4746b-8e9d-4a75-b966-e0906187e6b7@app.fastmail.com>
+ <CAJF2gTTVX9CFM3oRZZP3hGExwVwA_=n1Lrq_0DQKWA+-ZbOekg@mail.gmail.com>
+ <f23b18c6-1856-4b59-9ba3-59809b425c81@app.fastmail.com>
+ <Ztrq8PBLJ3QuFJz7@arm.com>
+ <oshwto46wbbgneiayj63umllyozm3c4267rvpszqzaopwnt2l7@6mxl5vydtons>
+ <ZuDoExckq21fePoe@ghost>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Message-ID: <gsntv7z2cck0.fsf@coltonlewis-kvm.c.googlers.com>
-Subject: Re: [PATCH 5/5] perf: Correct perf sampling with guest VMs
-From: Colton Lewis <coltonlewis@google.com>
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: kvm@vger.kernel.org, oliver.upton@linux.dev, seanjc@google.com, 
-	peterz@infradead.org, mingo@redhat.com, acme@kernel.org, namhyung@kernel.org, 
-	alexander.shishkin@linux.intel.com, jolsa@kernel.org, irogers@google.com, 
-	adrian.hunter@intel.com, kan.liang@linux.intel.com, will@kernel.org, 
-	linux@armlinux.org.uk, catalin.marinas@arm.com, mpe@ellerman.id.au, 
-	npiggin@gmail.com, christophe.leroy@csgroup.eu, naveen@kernel.org, 
-	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
-	borntraeger@linux.ibm.com, svens@linux.ibm.com, tglx@linutronix.de, 
-	bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, 
-	linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ZuDoExckq21fePoe@ghost>
 
-Mark Rutland <mark.rutland@arm.com> writes:
+On Tue, Sep 10, 2024 at 05:45:07PM -0700, Charlie Jenkins wrote:
+> On Tue, Sep 10, 2024 at 03:08:14PM -0400, Liam R. Howlett wrote:
+> > * Catalin Marinas <catalin.marinas@arm.com> [240906 07:44]:
+> > > On Fri, Sep 06, 2024 at 09:55:42AM +0000, Arnd Bergmann wrote:
+> > > > On Fri, Sep 6, 2024, at 09:14, Guo Ren wrote:
+> > > > > On Fri, Sep 6, 2024 at 3:18 PM Arnd Bergmann <arnd@arndb.de> wrote:
+> > > > >> It's also unclear to me how we want this flag to interact with
+> > > > >> the existing logic in arch_get_mmap_end(), which attempts to
+> > > > >> limit the default mapping to a 47-bit address space already.
+> > > > >
+> > > > > To optimize RISC-V progress, I recommend:
+> > > > >
+> > > > > Step 1: Approve the patch.
+> > > > > Step 2: Update Go and OpenJDK's RISC-V backend to utilize it.
+> > > > > Step 3: Wait approximately several iterations for Go & OpenJDK
+> > > > > Step 4: Remove the 47-bit constraint in arch_get_mmap_end()
 
-> On Wed, Sep 04, 2024 at 08:41:33PM +0000, Colton Lewis wrote:
->> Previously any PMU overflow interrupt that fired while a VCPU was
->> loaded was recorded as a guest event whether it truly was or not. This
->> resulted in nonsense perf recordings that did not honor
->> perf_event_attr.exclude_guest and recorded guest IPs where it should
->> have recorded host IPs.
+Point 4 is an ABI change. What guarantees that there isn't still
+software out there that relies on the old behaviour?
 
->> Reorganize that plumbing to record perf events correctly even when
->> VCPUs are loaded.
+> > > > I really want to first see a plausible explanation about why
+> > > > RISC-V can't just implement this using a 47-bit DEFAULT_MAP_WINDOW
+> > > > like all the other major architectures (x86, arm64, powerpc64),
+> > > 
+> > > FWIW arm64 actually limits DEFAULT_MAP_WINDOW to 48-bit in the default
+> > > configuration. We end up with a 47-bit with 16K pages but for a
+> > > different reason that has to do with LPA2 support (I doubt we need this
+> > > for the user mapping but we need to untangle some of the macros there;
+> > > that's for a separate discussion).
+> > > 
+> > > That said, we haven't encountered any user space problems with a 48-bit
+> > > DEFAULT_MAP_WINDOW. So I also think RISC-V should follow a similar
+> > > approach (47 or 48 bit default limit). Better to have some ABI
+> > > consistency between architectures. One can still ask for addresses above
+> > > this default limit via mmap().
+> > 
+> > I think that is best as well.
+> > 
+> > Can we please just do what x86 and arm64 does?
+> 
+> I responded to Arnd in the other thread, but I am still not convinced
+> that the solution that x86 and arm64 have selected is the best solution.
+> The solution of defaulting to 47 bits does allow applications the
+> ability to get addresses that are below 47 bits. However, due to
+> differences across architectures it doesn't seem possible to have all
+> architectures default to the same value. Additionally, this flag will be
+> able to help users avoid potential bugs where a hint address is passed
+> that causes upper bits of a VA to be used.
 
-> It'd be good if we could make that last bit a little more explicit,
-> e.g.
+The reason we added this limit on arm64 is that we noticed programs
+using the top 8 bits of a 64-bit pointer for additional information.
+IIRC, it wasn't even openJDK but some JavaScript JIT. We could have
+taught those programs of a new flag but since we couldn't tell how many
+are out there, it was the safest to default to a smaller limit and opt
+in to the higher one. Such opt-in is via mmap() but if you prefer a
+prctl() flag, that's fine by me as well (though I think this should be
+opt-in to higher addresses rather than opt-out of the higher addresses).
 
->    Rework the sampling logic to only record guest samples for events with
->    exclude_guest clear. This way any host-only events with exclude_guest
->    set will never see unexpected guest samples. The behaviour of events
->    with exclude_guest clear is unchanged.
-
-> [...]
-
-Done
-
->> diff --git a/kernel/events/core.c b/kernel/events/core.c
->> index 4384f6c49930..e1a66c9c3773 100644
->> --- a/kernel/events/core.c
->> +++ b/kernel/events/core.c
->> @@ -6915,13 +6915,26 @@ void perf_unregister_guest_info_callbacks(struct  
->> perf_guest_info_callbacks *cbs)
->>   EXPORT_SYMBOL_GPL(perf_unregister_guest_info_callbacks);
->>   #endif
-
->> -unsigned long perf_misc_flags(unsigned long pt_regs *regs)
->> +static bool is_guest_event(struct perf_event *event)
->>   {
->> +	return !event->attr.exclude_guest && perf_guest_state();
->> +}
-
-> Could we name this something like "should_sample_guest()"? Calling this
-> "is_guest_event()" makes it should like it's checking a static property
-> of the event (and not other conditions like perf_guest_state()).
-
-> Otherwise this all looks reasonable to me, modulo Ingo's comments. I'll
-> happily test a v2 once those have been addressed.
-
-Done
-
-> Mark.
+-- 
+Catalin
