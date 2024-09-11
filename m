@@ -1,65 +1,65 @@
-Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
+Received: from mail-yb1-f201.google.com (mail-yb1-f201.google.com [209.85.219.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4F2814D702
-	for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 22:01:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEB52155A26
+	for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 22:05:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726092102; cv=none; b=qdsSXoFfVqtC3IDLeRaZux4YDLxAX+HdcbtAoQICF8FErhX2HR0B9h+0z2sOHlHM8ulnC2DuL4G25JQ0qhK6HapUFR2BA0rVblyOZameZIX5Wmzh96pA33KBxhruIlygErcz5XuBeeUdWMkXWmSdmW5bz+XjFH+s2ycc3R4VSs4=
+	t=1726092340; cv=none; b=uR+xt0WGomj/JlCm8oL5wcsdpq4x0gO11L9o/9aksTvA/eN7lZYsd5rioc7CfpMNY4H/itCs7qaRfULjMcixXB+0rLxhlhPBXnH/SzKI03yOJ1AvtmL4GMBr1NMrqUYZutL1R8ScvofWvolvWOBRtU19taBImlW2K7C3V/LoFyw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726092102; c=relaxed/simple;
-	bh=Agciipw5hWkC4EpzVmCjBUgtbk1AQ5kWWqM/SSA0exk=;
+	s=arc-20240116; t=1726092340; c=relaxed/simple;
+	bh=bUuvrWFSv3BmUrrwJf5eHrL8j4woZvMxGXVhs85lWkk=;
 	h=Date:In-Reply-To:Mime-Version:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=J7s2jnWH+nwH1K4Zb/GszXfanqjODVo+zTY/zBBO7drhmnGfrsvZvHhfHpF3o7w/8TedtRCSYHCxvreDGR9mZxFdnntGAmlTYa+H19XWHlQp2rgk/hnLIU2qqQ2TEeIYkFWhgqvxQmfkl8JI7d4afWpmPnJ8nTibKKCMeuBbWeA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=tE2eLl+H; arc=none smtp.client-ip=209.85.128.202
+	 Content-Type; b=Iz9ivdvpnFSCU6SHgSMJXQAVl5PSMRoYMVRjD14lU41lolTdmpaEnett6d//FViybZlK3lkqTdfc3HWzhioL7OH9cSit/Vql+N8tQNGaEFWJgr5UJBvuW0tJ6tZajQ1m0ZhXVMd6ZZEaHv1riz8z7dcfxXBy9NaAQ/BkH4jH4LI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Hu0hVXWS; arc=none smtp.client-ip=209.85.219.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="tE2eLl+H"
-Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-6d54ab222fcso13804747b3.1
-        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 15:01:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Hu0hVXWS"
+Received: by mail-yb1-f201.google.com with SMTP id 3f1490d57ef6-e1a8de19f5fso790422276.3
+        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 15:05:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1726092100; x=1726696900; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1726092337; x=1726697137; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:mime-version:in-reply-to:date:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=q13JQ4aJstpTY70GjrenWYuGyd1pnSkxKkLl8Jd4LLI=;
-        b=tE2eLl+HXo3H6oZbJnL998LFc8kJQ8Iyhs6fxaXP7Wy4z+bq87DM7WD21u/O3arYql
-         yGM1u+QACFLyRzgEZ3UvSCe650KX7q1PEh4JwSkUWwiaAWt72e6hZgfbSJvyNwp40QST
-         dp9wXVmyUmd7SdJviNN0orJKif009zsbl1ka2OzDyGXU7ZaL2dgvV8MFg2Y2p5mC2kLo
-         1WZIDYHGPD2gMxfzUNy1+jmnnoKPS0olJx9KBDqONpNxqELCabNXseHlH/tA3ALywS8y
-         tqydpkhwSkWgSpsH3SwZZPZ4hPr6FI/D0LghwRnBRPBmf5IrGYyOH55LkfHGxwMq+nX+
-         zWFw==
+        bh=uSnPM7Z73BdDwIKjWD3zfTeRtaq8wKDl6kU6LBNgXKw=;
+        b=Hu0hVXWSRNSYV6Z+7qhxnmpnKymV3LpBErD5gWvTSM+VftMZzkGPmGSghCVco5Bq5o
+         JdfLbwjO46vMjsLz8/veyQHxKvN2aBG1M65WRtB6AxtLsQCYcMlEGlx55H6mjln0e7Az
+         gGwOSuoYiJP4zjQjF+tS00FY4vcSuEr4fLUI8DZNwsFdgGBxx0KOr9jliVbm9wUl/zDa
+         4wvMLf+j/+pyJkSdK7WndmWq2NT9JokbLM2UjXQfQokGMGG2mjafO2AMrLQetXWsVGGh
+         avMPO54x0TaC+Oiw1uh6EmCE8ilJcLx9Vncz7t/xv6XfighNmF/ErqjKUv9VKQwEBYWA
+         D73A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726092100; x=1726696900;
+        d=1e100.net; s=20230601; t=1726092337; x=1726697137;
         h=cc:to:from:subject:message-id:mime-version:in-reply-to:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=q13JQ4aJstpTY70GjrenWYuGyd1pnSkxKkLl8Jd4LLI=;
-        b=TmV8bYSjbN72ksAzU3H44lVP7IFMXs+v745gUq3KH63mMlLKPtRiCBSihgKf7OLhkh
-         4P+lcdzVymGojXoaD7D3cicg2TRq7xt0yg99NFjk2NKPCCCfw/z/vAserdz5q9qKnXa3
-         26No7IxUHvxUKZUzgQf9T+vwUv6AJqBY9Srw/rNsU4uhao4bjCEIRi3uSQpnsLJfRgWX
-         LmzyWmiTWF1iYPT7yDVTeAwmGSIXujuoaNgCfHps20psyrracDwybUi2eyV1XOj4Lrw3
-         BhGpcGvQNG12IKcTt6MLz3i+JQCNMFHz4jLA7rsvIYksyD2VoyJm2X16FkOI6r3nftRs
-         8rDQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXLJwe68AMa4D4X3gHNdeWU270cZpleqI26hbiS8QMJytPvT0bsSSV1xpMbNYLU87kYkoDH82KggMcq@vger.kernel.org
-X-Gm-Message-State: AOJu0YxHEuJ2CQGm+AE9OvSf760EIWwC/beBwvoELMZ5i/l0vgiciHfl
-	C6ud4jQXO85xQaK8Pdv7YNdzQQNmHvVeSspfFNVaTxBWZMJRy4yjFLXeEjv1poKlIfAGOyU2aNY
-	MdfpB8HiqSNHQyhX6cN53+g==
-X-Google-Smtp-Source: AGHT+IEh6F4b46/1LwAS/WUGX/NAwM3UP2BxZSsRe7RROOaYU54OCz40zI1kT+hftf0HBDiAU78eGBwhCC/X5Gc0CA==
+        bh=uSnPM7Z73BdDwIKjWD3zfTeRtaq8wKDl6kU6LBNgXKw=;
+        b=N+RMqaN7BNnWg/bb8OorLx3Dbia4ZwQX46Xy3NfOlvBDv+A4eXR5v7prvj0y2hVogX
+         HV45enw2j4C3/XVAZdaPFyQZjWpF2FEyPyxmq6jjKuVWcGksiK89ygYPyHHKxFwGgF7F
+         8yMEOg0QUy1spM4mEQkg8mDsN83peE5Jzs5IwHE6TftumsDyCbh4bvCG3ocU7n31KVju
+         eQ3yegnao8M56w87FnEqra3/yzaJj8eqw/34KEmoj7O70oT5i3Ma8YmCyaBkuDfDlYck
+         j4B2/rwi3yo7IRyUgwCFeV5CIDMxvJPanJDNJHUMxKLl5PXsKF2t+vDdNq/jW+3qXqK2
+         ptKg==
+X-Forwarded-Encrypted: i=1; AJvYcCUaCibI+2OnaYV6ztwjxcjsqoUnWK2TwVxZtbECNn/1SaLAg+Kzl2DmpNPG6t1/BK71AT5tSEbxSS6F@vger.kernel.org
+X-Gm-Message-State: AOJu0YyuyGKOGiaNKnDPnNWQQQoycCBCg77kGCZ8lBRTTMc9/ser5Ooa
+	rOtd6n+lwco4Z2bhr4cVtgyq/Ff/LCkGFo066xqa1hGw9rrIETDPoVp+QCgnQLSW0o2MOodj++e
+	eH2cRd+PFCrdqzMq9xfc23Q==
+X-Google-Smtp-Source: AGHT+IF9AOcID1tAjXrc0JMac0EDJz+dHtqrQkj3EUSn3vqGuyTbyD2exFl+z4P0Z9sNallPuFjPTF0m9Vi898GeuQ==
 X-Received: from coltonlewis-kvm.c.googlers.com ([fda3:e722:ac3:cc00:11b:3898:ac11:fa18])
- (user=coltonlewis job=sendgmr) by 2002:a05:6902:1743:b0:e03:3cfa:1aa7 with
- SMTP id 3f1490d57ef6-e1d9db9e1b8mr1014276.1.1726092099527; Wed, 11 Sep 2024
- 15:01:39 -0700 (PDT)
-Date: Wed, 11 Sep 2024 22:01:38 +0000
-In-Reply-To: <Ztl-AjEEbIbX4lnm@gmail.com> (message from Ingo Molnar on Thu, 5
- Sep 2024 11:46:42 +0200)
+ (user=coltonlewis job=sendgmr) by 2002:a25:aa87:0:b0:e0b:fe07:1e22 with SMTP
+ id 3f1490d57ef6-e1d9db996f3mr4706276.1.1726092336807; Wed, 11 Sep 2024
+ 15:05:36 -0700 (PDT)
+Date: Wed, 11 Sep 2024 22:05:35 +0000
+In-Reply-To: <Ztl4TDI98tnCkH0X@gmail.com> (message from Ingo Molnar on Thu, 5
+ Sep 2024 11:22:20 +0200)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
-Message-ID: <gsntr09pdf3x.fsf@coltonlewis-kvm.c.googlers.com>
-Subject: Re: [PATCH 2/5] perf: Hoist perf_instruction_pointer() and perf_misc_flags()
+Message-ID: <gsnto74tdexc.fsf@coltonlewis-kvm.c.googlers.com>
+Subject: Re: [PATCH 4/5] x86: perf: Refactor misc flag assignments
 From: Colton Lewis <coltonlewis@google.com>
 To: Ingo Molnar <mingo@kernel.org>
 Cc: kvm@vger.kernel.org, oliver.upton@linux.dev, seanjc@google.com, 
@@ -80,26 +80,57 @@ Ingo Molnar <mingo@kernel.org> writes:
 
 > * Colton Lewis <coltonlewis@google.com> wrote:
 
->> --- a/kernel/events/core.c
->> +++ b/kernel/events/core.c
->> @@ -6915,6 +6915,16 @@ void perf_unregister_guest_info_callbacks(struct  
->> perf_guest_info_callbacks *cbs)
->>   EXPORT_SYMBOL_GPL(perf_unregister_guest_info_callbacks);
->>   #endif
+>> Break the assignment logic for misc flags into their own respective
+>> functions to reduce the complexity of the nested logic.
 
->> +unsigned long perf_misc_flags(unsigned long pt_regs *regs)
+>> Signed-off-by: Colton Lewis <coltonlewis@google.com>
+>> ---
+>>   arch/x86/events/core.c            | 31 +++++++++++++++++++++++--------
+>>   arch/x86/include/asm/perf_event.h |  2 ++
+>>   2 files changed, 25 insertions(+), 8 deletions(-)
+
+>> diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
+>> index 760ad067527c..87457e5d7f65 100644
+>> --- a/arch/x86/events/core.c
+>> +++ b/arch/x86/events/core.c
+>> @@ -2948,16 +2948,34 @@ unsigned long  
+>> perf_arch_instruction_pointer(struct pt_regs *regs)
+>>   	return regs->ip + code_segment_base(regs);
+>>   }
+
+>> +static unsigned long common_misc_flags(struct pt_regs *regs)
 >> +{
->> +	return perf_arch_misc_flags(regs);
+>> +	if (regs->flags & PERF_EFLAGS_EXACT)
+>> +		return PERF_RECORD_MISC_EXACT_IP;
+>> +
+>> +	return 0;
 >> +}
 >> +
->> +unsigned long perf_instruction_pointer(unsigned long pt_regs *regs)
+>> +unsigned long perf_arch_guest_misc_flags(struct pt_regs *regs)
 >> +{
->> +	return perf_arch_instruction_pointer(regs);
+>> +	unsigned long guest_state = perf_guest_state();
+>> +	unsigned long flags = common_misc_flags();
+>> +
+>> +	if (guest_state & PERF_GUEST_USER)
+>> +		flags |= PERF_RECORD_MISC_GUEST_USER;
+>> +	else if (guest_state & PERF_GUEST_ACTIVE)
+>> +		flags |= PERF_RECORD_MISC_GUEST_KERNEL;
+>> +
+>> +	return flags;
 >> +}
+>> +
+>>   unsigned long perf_arch_misc_flags(struct pt_regs *regs)
+>>   {
+>>   	unsigned int guest_state = perf_guest_state();
+>> -	int misc = 0;
+>> +	unsigned long misc = common_misc_flags();
 
-> What's an 'unsigned long pt_regs' ??
+> So I'm quite sure this won't even build at this point ...
 
-That is fixed in a later commit. I will correct this one also.
+Must have been a wrongly resolved conflict after rebase. I had thought I
+rebuilt before sending but something slipped.
+
+It's fixed
 
 > Thanks,
 
