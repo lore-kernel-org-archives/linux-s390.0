@@ -1,62 +1,62 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+Received: from mail-oi1-f180.google.com (mail-oi1-f180.google.com [209.85.167.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B77318BB80
-	for <linux-s390@vger.kernel.org>; Thu, 12 Sep 2024 06:06:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E5A218BBAF
+	for <linux-s390@vger.kernel.org>; Thu, 12 Sep 2024 06:18:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726121215; cv=none; b=SbmIyjw43qhDqqmLFondDU7Y08EgXcvPP9n0JVsiaraLpyRHN1LRP7zsjIit/VhP+3M2R3Zes0fwR6T11AWgIWJ4/hJsiaOBNcoGT4x5/an4nt0E2tszG0Ofs8eC/Ts1QB7+2Jq1lvvaqYkxkpfpYHCgolGdBVcC8MdgI1SS8IA=
+	t=1726121902; cv=none; b=Qukba0ksd+RZ718mwuaaI+SQxWxr7XxKjhynBstvQ5R8za5zWvyuKXYORARvY/8y0QmV7NtmKWacRRN2Lj6uCqb4L2PEu1sPvWE9v6aXWlSA+alIhbw++p+FfM5mqxmoZxesJ8KPPGrTj2rn6ZhRUXNnkFwR+7itsaOsdol2H/o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726121215; c=relaxed/simple;
-	bh=8VMhfxsEEjCM7EFz4nzoCAQ/THTIdB3CL+j9lCXOfzo=;
+	s=arc-20240116; t=1726121902; c=relaxed/simple;
+	bh=JXQ5stJy2yGFyhQM8tYpvYIBlea3Ge+wa2GDoDqdiSo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Hc4CNdG9tYoVB9aLW/VsxSwdlKrvX4BGWTcz4bsFzz3z+XuQmhgQfEOJnEsidx15OdqnxKlZ886GXLl7NVQ3WKa9qaKSP6FcvI3gDNzhLcBOjmIUpD8sXnh34t43ikY8PRAYnzuCzylNVC2yguKNe79yEC6IBhvhsknsNDcd4UA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=sHsSO+rK; arc=none smtp.client-ip=209.85.214.176
+	 Content-Type:Content-Disposition:In-Reply-To; b=hy6rSr8XjnUclicF0t/3Qv1xHo7JLyCU5hek/aWpazmE5hvWQXIuqYs/Jb94fanju8i89THWXd0hGoZ8EA1/Ik3orrTlxbHIqbla768S6kQKOSWurDwI0LtIXQp3rAw5gycCmg7bVohR8wXNlJvmOfa2ErZFLlth+i3ojkU+R/I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=IBwzBVm+; arc=none smtp.client-ip=209.85.167.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="sHsSO+rK"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-201d5af11a4so7202425ad.3
-        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 23:06:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="IBwzBVm+"
+Received: by mail-oi1-f180.google.com with SMTP id 5614622812f47-3e039889ca0so351302b6e.3
+        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 23:18:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1726121213; x=1726726013; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=UDJaA5Y9npfkWPEOnJeHdGlQ/o0X1HQ/Q2gtdhbnZuk=;
-        b=sHsSO+rK7CTiNGyLTpsJZ39HJF79f/aHJJY9TFeKQaIer2XQuta/PiHqq58T+rt3Jd
-         PqCrT7qQ6QT9I1BL5oTM2QD/le3wRhD6eh8fhsORmer2nTrR3TA+ollYTPqY6Ywmm1iy
-         QoxaayWksxyI8fzzi2PCtgKWfsWqUf8DmJC0EZ4AOsQJkAC00mzAiD61s7IjA2UEjPit
-         GQ6WqXF/KPmM+AcBcWOBNv5lAZq1gX4K0SxuWudQrjeYu5hVoomTBSq7NOwHRVlLYNmo
-         QjX7Vl6fcshxwc4DTahTqtQuQtXNzVB1NvRH0jX8qZPe8+0/4QFrZB3HQ0EAM8ZS/TZA
-         3HCg==
+        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1726121898; x=1726726698; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=MAcwRzdYBVGpQvvsotib//4T0Ptv25mGEFNsz8/kzr4=;
+        b=IBwzBVm+Dy9DemXiT+1joiWwNQ4MpJ6HiprnZBhfp+qlwYCm1SZOS8UFwa0Ob/wPCW
+         vdT0GLddrfPUul+3HWiREsrr1BVDND1R7IS3vT802MVi0qC8GIU4yHQ7GO4xm81KEdx9
+         TjHA9HiBsqv3ofAFpygNDj+gVBPINMdydaIlxa7xXengpnJtRkikrnl6a/Eeb/ABae/w
+         ks3IT3BnNHYp4r19IbvLouGn3n1x1WKFgjdl3Thz3Yk4xPuVmDxPGtMs1TmPEX/TLFcE
+         VGAPF+76PBRlColfrY2Ua355B6uk/L1vuIEzKCB0wC54ruMA9wW79peGN+bPCNqw8pEJ
+         omLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726121213; x=1726726013;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UDJaA5Y9npfkWPEOnJeHdGlQ/o0X1HQ/Q2gtdhbnZuk=;
-        b=eRSEgZUgtB0MN3NGe9Nwg0sTDEbEh8a8VSEbYjfiASPMAX1e2nXDUQZ1O/+dWZRHcd
-         Wf0nWPNVZcexvCgNydSPdAsf170vUKiWL2ncwkX/T3ANrEijf/EQNM3ZBWEe9JPqC1kD
-         U3TZ8sC7gP1qXrqqSUooYptexUCHPvJPvd4cQV8ph7dhtweW5DwXMDPuSHDRYM9dth/H
-         Nhw6bR731+JYDWplQ+NoIsNrNNj947JtVTmcibEnlgIUYzJtuGSZpfIlTBsjxil+bFxf
-         6DyvxRg+i6ipTVzHmQKtCn2ppmk8f+pmTZZ+EkzZ6XVG18OoA0ZBcxZ6eyC7M7z1N59t
-         n8zQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUQZGy8l2xuKUoOFTHsOzR1zgFOPdM34BC8PBC1tKY/naYZ3PK2t9ozHw6OCTxUosJZiCQX+O7Xp/gt@vger.kernel.org
-X-Gm-Message-State: AOJu0YzstFDrhHDiHwU5eUtCK6hH+E49UrscvHZKrAkgx0mVgbZc2BnR
-	VtpkzV+FAJQQpRGedQ7IfGHHDbjlNBRhffpXRZlfBElUrmWFeBVPQ+y0juPuOUo=
-X-Google-Smtp-Source: AGHT+IGKXy/6JapHeAVjChHUI6qH3tbjA0GPIxSDVxSa+LImRNXpcKvZ6AKB4gkH/Tg4GRKQ5PFIHQ==
-X-Received: by 2002:a17:902:d2ca:b0:206:c2f4:afb7 with SMTP id d9443c01a7336-2076e36db8cmr23914475ad.26.1726121212752;
-        Wed, 11 Sep 2024 23:06:52 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1726121898; x=1726726698;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=MAcwRzdYBVGpQvvsotib//4T0Ptv25mGEFNsz8/kzr4=;
+        b=oVe/KOUu7TfYCIq0OKGzN0faBosBBojyN2vRJk1Q9ry/qaLEcd77dMIDnyUo2YgNfu
+         rQ1uiAHKgZgVPAtPe5G5+z4tg+qeWIeH4LdINVG3rtxlnNLr2x5CuezT/1dtXJYkCPQ2
+         2ruHcq5QdXLRmbcO8Ny3n2pbs27uzVgcseurnJBENX7JjxTQhgcslwZh36bU/D8AnpZa
+         ckPGeIYT6Alzv8KS8O4HIT3UBstQHESC0E0nVkq6WyHDFNPYRNG+XcZdMrD9tbZoA/45
+         Sf+zJEQ3WIJy3vsR/aiOCPEx8gOaVp0p8IR9ypOlUpv0L6MluoDpBOiCUQJsTQ4nsIPG
+         L1nA==
+X-Forwarded-Encrypted: i=1; AJvYcCU8NPG9SfrHrBp3PlUHRKjZFGN8a3Gu4uZPyfxTDRX6UTTSlikvix3Vx9SRBpE0B/jjcMRXwyjFVGMZ@vger.kernel.org
+X-Gm-Message-State: AOJu0YzqVOj/Wfd8cLgM9himEHZLghUG73Ed0ktTcxfvNwNPMfNngEPY
+	nHY6WZlxQHy0gny4zSQWCLoQmb0UEodOgvJCNpxUVHMYCUu6U0xXvTjeytYnpxE=
+X-Google-Smtp-Source: AGHT+IH1u/BITj52DSA2KLJ5czFa7HaODYxdqRl9mmjp1F3evKXCtYQOfdJUyouLtu9doLCVCxJHIA==
+X-Received: by 2002:a05:6870:910f:b0:277:eb68:2878 with SMTP id 586e51a60fabf-27c3f6a6e6emr1295326fac.44.1726121898162;
+        Wed, 11 Sep 2024 23:18:18 -0700 (PDT)
 Received: from ghost ([2601:647:6700:64d0:7acc:9910:2c1d:4e65])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2076b01a39esm8052185ad.287.2024.09.11.23.06.48
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7190f888a78sm3692711b3a.140.2024.09.11.23.18.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Sep 2024 23:06:52 -0700 (PDT)
-Date: Wed, 11 Sep 2024 23:06:46 -0700
+        Wed, 11 Sep 2024 23:18:17 -0700 (PDT)
+Date: Wed, 11 Sep 2024 23:18:12 -0700
 From: Charlie Jenkins <charlie@rivosinc.com>
-To: Arnd Bergmann <arnd@arndb.de>
+To: Catalin Marinas <catalin.marinas@arm.com>
 Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	guoren <guoren@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>, guoren <guoren@kernel.org>,
 	Richard Henderson <richard.henderson@linaro.org>,
 	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
 	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
@@ -106,7 +106,7 @@ Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>,
 	linux-abi-devel@lists.sourceforge.net
 Subject: Re: [PATCH RFC v3 1/2] mm: Add personality flag to limit address to
  47 bits
-Message-ID: <ZuKE9nnNGR/5fHh/@ghost>
+Message-ID: <ZuKHpFB+uWuJe2xm@ghost>
 References: <20240905-patches-below_hint_mmap-v3-0-3cd5564efbbb@rivosinc.com>
  <20240905-patches-below_hint_mmap-v3-1-3cd5564efbbb@rivosinc.com>
  <9fc4746b-8e9d-4a75-b966-e0906187e6b7@app.fastmail.com>
@@ -115,21 +115,63 @@ References: <20240905-patches-below_hint_mmap-v3-0-3cd5564efbbb@rivosinc.com>
  <Ztrq8PBLJ3QuFJz7@arm.com>
  <oshwto46wbbgneiayj63umllyozm3c4267rvpszqzaopwnt2l7@6mxl5vydtons>
  <ZuDoExckq21fePoe@ghost>
- <8130e50c-01e2-45c3-a516-45f5499311f2@app.fastmail.com>
+ <ZuHfp0_tAQhaymdy@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <8130e50c-01e2-45c3-a516-45f5499311f2@app.fastmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ZuHfp0_tAQhaymdy@arm.com>
 
-On Wed, Sep 11, 2024 at 07:25:08AM +0000, Arnd Bergmann wrote:
-> On Wed, Sep 11, 2024, at 00:45, Charlie Jenkins wrote:
+On Wed, Sep 11, 2024 at 07:21:27PM +0100, Catalin Marinas wrote:
+> On Tue, Sep 10, 2024 at 05:45:07PM -0700, Charlie Jenkins wrote:
 > > On Tue, Sep 10, 2024 at 03:08:14PM -0400, Liam R. Howlett wrote:
-> >
+> > > * Catalin Marinas <catalin.marinas@arm.com> [240906 07:44]:
+> > > > On Fri, Sep 06, 2024 at 09:55:42AM +0000, Arnd Bergmann wrote:
+> > > > > On Fri, Sep 6, 2024, at 09:14, Guo Ren wrote:
+> > > > > > On Fri, Sep 6, 2024 at 3:18 PM Arnd Bergmann <arnd@arndb.de> wrote:
+> > > > > >> It's also unclear to me how we want this flag to interact with
+> > > > > >> the existing logic in arch_get_mmap_end(), which attempts to
+> > > > > >> limit the default mapping to a 47-bit address space already.
+> > > > > >
+> > > > > > To optimize RISC-V progress, I recommend:
+> > > > > >
+> > > > > > Step 1: Approve the patch.
+> > > > > > Step 2: Update Go and OpenJDK's RISC-V backend to utilize it.
+> > > > > > Step 3: Wait approximately several iterations for Go & OpenJDK
+> > > > > > Step 4: Remove the 47-bit constraint in arch_get_mmap_end()
+> 
+> Point 4 is an ABI change. What guarantees that there isn't still
+> software out there that relies on the old behaviour?
+
+Yeah I don't think it would be desirable to remove the 47 bit
+constraint in architectures that already have it.
+
+> 
+> > > > > I really want to first see a plausible explanation about why
+> > > > > RISC-V can't just implement this using a 47-bit DEFAULT_MAP_WINDOW
+> > > > > like all the other major architectures (x86, arm64, powerpc64),
+> > > > 
+> > > > FWIW arm64 actually limits DEFAULT_MAP_WINDOW to 48-bit in the default
+> > > > configuration. We end up with a 47-bit with 16K pages but for a
+> > > > different reason that has to do with LPA2 support (I doubt we need this
+> > > > for the user mapping but we need to untangle some of the macros there;
+> > > > that's for a separate discussion).
+> > > > 
+> > > > That said, we haven't encountered any user space problems with a 48-bit
+> > > > DEFAULT_MAP_WINDOW. So I also think RISC-V should follow a similar
+> > > > approach (47 or 48 bit default limit). Better to have some ABI
+> > > > consistency between architectures. One can still ask for addresses above
+> > > > this default limit via mmap().
+> > > 
+> > > I think that is best as well.
+> > > 
+> > > Can we please just do what x86 and arm64 does?
+> > 
 > > I responded to Arnd in the other thread, but I am still not convinced
 > > that the solution that x86 and arm64 have selected is the best solution.
 > > The solution of defaulting to 47 bits does allow applications the
@@ -138,33 +180,35 @@ On Wed, Sep 11, 2024 at 07:25:08AM +0000, Arnd Bergmann wrote:
 > > architectures default to the same value. Additionally, this flag will be
 > > able to help users avoid potential bugs where a hint address is passed
 > > that causes upper bits of a VA to be used.
-> >
-> > The other issue I have with this is that if there is not a hint address
-> > specified to be greater than 47 bits on x86, then mmap() may return an
-> > address that is greater than 47-bits. The documentation in
-> > Documentation/arch/x86/x86_64/5level-paging.rst says:
-> >
-> > "If hint address set above 47-bit, but MAP_FIXED is not specified, we try
-> > to look for unmapped area by specified address. If it's already
-> > occupied, we look for unmapped area in *full* address space, rather than
-> > from 47-bit window."
 > 
-> This is also in the commit message of b569bab78d8d ("x86/mm: Prepare
-> to expose larger address space to userspace"), which introduced it.
-> However, I don't actually see the fallback to the full address space,
-> instead the actual behavior seems to be the same as arm64.
-> 
-> Am I missing something in the x86 implementation, or do we just
-> need to update the documentation?
-> 
->       Arnd
+> The reason we added this limit on arm64 is that we noticed programs
+> using the top 8 bits of a 64-bit pointer for additional information.
+> IIRC, it wasn't even openJDK but some JavaScript JIT. We could have
+> taught those programs of a new flag but since we couldn't tell how many
+> are out there, it was the safest to default to a smaller limit and opt
+> in to the higher one. Such opt-in is via mmap() but if you prefer a
+> prctl() flag, that's fine by me as well (though I think this should be
+> opt-in to higher addresses rather than opt-out of the higher addresses).
 
-Yeah I guess it is incorrect documentation then? It seems more
-reasonable to me to have a hint address fall back onto the larger
-address space because otherwise the "hint" address can cause allocations
-to fail even if there is space above the 47-bit limit. This is another
-reason I wanted to avoid having this default behavior on riscv, to not
-have this abuse of the hint address.
+The mmap() flag was used in previous versions but was decided against
+because this feature is more useful if it is process-wide. A
+personality() flag was chosen instead of a prctl() flag because there
+existed other flags in personality() that were similar. I am tempted to
+use prctl() however because then we could have an additional arg to
+select the exact number of bits that should be reserved (rather than
+being fixed at 47 bits).
+
+Opting-in to the higher address space is reasonable. However, it is not
+my preference, because the purpose of this flag is to ensure that
+allocations do not exceed 47-bits, so it is a clearer ABI to have the
+applications that want this guarantee to be the ones setting the flag,
+rather than the applications that want the higher bits setting the flag.
 
 - Charlie
+
+> 
+> -- 
+> Catalin
+
+
 
