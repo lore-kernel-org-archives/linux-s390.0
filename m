@@ -1,108 +1,170 @@
-Received: from mail-yb1-f202.google.com (mail-yb1-f202.google.com [209.85.219.202])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A00E21BF322
-	for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 22:56:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B77318BB80
+	for <linux-s390@vger.kernel.org>; Thu, 12 Sep 2024 06:06:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726095383; cv=none; b=KFLSTKtcOqKoPsYiMj163CiHbdyBUkx1fYlHEWijEcH47l8DhrctyrZJttcZZU1si8/YrS3bEHmn5E1JE1ef7v+y6do2oCzBAmd5yd44DMuIi/+CUZN923zeIMtZQGciLPvatG8oR2gI20RshfG4Z0PbiJR2TSf2dKwogYVjrOU=
+	t=1726121215; cv=none; b=SbmIyjw43qhDqqmLFondDU7Y08EgXcvPP9n0JVsiaraLpyRHN1LRP7zsjIit/VhP+3M2R3Zes0fwR6T11AWgIWJ4/hJsiaOBNcoGT4x5/an4nt0E2tszG0Ofs8eC/Ts1QB7+2Jq1lvvaqYkxkpfpYHCgolGdBVcC8MdgI1SS8IA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726095383; c=relaxed/simple;
-	bh=ipxZRueJPfM2kml61M9W8yJZ32U+VLyyM0JqXDqlqBc=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=k4uirgKJOEvaoZEu0kDmMwBSVNqwp1lbJ/CUuOhcIKaWheUibKidKVL2ST9VxNv2b3I+yoQ3xji6SWsGn8yJq4Hhv1j3yzyx5trbe5MofiH4HNdu4H1lKuconZ3QkI21VC3TPeTWQ/neeZYZjNDk0OS6QOWQWwkxxmItnh4+IyE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=IcHEw9JU; arc=none smtp.client-ip=209.85.219.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1726121215; c=relaxed/simple;
+	bh=8VMhfxsEEjCM7EFz4nzoCAQ/THTIdB3CL+j9lCXOfzo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Hc4CNdG9tYoVB9aLW/VsxSwdlKrvX4BGWTcz4bsFzz3z+XuQmhgQfEOJnEsidx15OdqnxKlZ886GXLl7NVQ3WKa9qaKSP6FcvI3gDNzhLcBOjmIUpD8sXnh34t43ikY8PRAYnzuCzylNVC2yguKNe79yEC6IBhvhsknsNDcd4UA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=sHsSO+rK; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="IcHEw9JU"
-Received: by mail-yb1-f202.google.com with SMTP id 3f1490d57ef6-e1ce191f74fso822325276.2
-        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 15:56:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="sHsSO+rK"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-201d5af11a4so7202425ad.3
+        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 23:06:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1726095381; x=1726700181; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=mBS3D2KdJA6HsOBF2WNnyBQbckZXPd9OPRyAx0Hk9Is=;
-        b=IcHEw9JUhC0FwVkiG9HCZEMnNg+R8OBzt9NCj2Yn961V2AbK7m2xy5tuzPpUPDAQcL
-         xHeLT5XTZHJCItV206li6cgDf7Y9K77jo4pjmaj7g61lmUR/sr4egSG7BUCvzWKG20wn
-         RMDds6WjQpalefCM0SrHvY+x1aU7VXPoQrFgiHabE0/RjwSypjA3Geukf6It4u0mOftx
-         KB2DU5wt6YISZjw1AN9iSkVfiaUH/EgArtJM9qdJft1I3jGS+cEgoVDpBRhLIXRx7k/b
-         MgU74wBI1hwfxrziGqIexIhC10fZBXUi2KOXbacgni2f419VEVbPc+DlL6lnbgt0b48V
-         O4Wg==
+        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1726121213; x=1726726013; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=UDJaA5Y9npfkWPEOnJeHdGlQ/o0X1HQ/Q2gtdhbnZuk=;
+        b=sHsSO+rK7CTiNGyLTpsJZ39HJF79f/aHJJY9TFeKQaIer2XQuta/PiHqq58T+rt3Jd
+         PqCrT7qQ6QT9I1BL5oTM2QD/le3wRhD6eh8fhsORmer2nTrR3TA+ollYTPqY6Ywmm1iy
+         QoxaayWksxyI8fzzi2PCtgKWfsWqUf8DmJC0EZ4AOsQJkAC00mzAiD61s7IjA2UEjPit
+         GQ6WqXF/KPmM+AcBcWOBNv5lAZq1gX4K0SxuWudQrjeYu5hVoomTBSq7NOwHRVlLYNmo
+         QjX7Vl6fcshxwc4DTahTqtQuQtXNzVB1NvRH0jX8qZPe8+0/4QFrZB3HQ0EAM8ZS/TZA
+         3HCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726095381; x=1726700181;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=mBS3D2KdJA6HsOBF2WNnyBQbckZXPd9OPRyAx0Hk9Is=;
-        b=iu9qJm4ecS0jY7PSCw2hsuC7XTMSlWNtjQ5P+weJWOGRcG+DneNLi9ae/hsad9SO0p
-         dq0TTJOR+6R6f8nP7MpVbIsuocGc1ELUrgUr5tvBYDqtcHZXse43hdAEksj853EZkCPL
-         ZK2r9HQRwLTwQgO36B1/JATJJlYQ36641G89fL6vTEroIJP8J1kuV5ve1xnv9lElmqSK
-         wlqKdjzhrNGk81CfSXk1QvbwaWKXEzDoJ9ogI3pTjdaNWRVsDZX8ZaaJF0tK2MAizH1L
-         uQUOW6/VJgpWKLsUXjc9r9zcN3UDHrqDiE29YDAVw5LM40D2UD1iH/9nz5oXtLUDEIEj
-         QWWQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWOo9giMwsY1RFi8nuyVSRRuRZThjSL5/kK6bhdopwXHo1QpoNh8VThWBw+5s/YZo1IminebUcnXtGu@vger.kernel.org
-X-Gm-Message-State: AOJu0YxTtf8uoDEizpR49+PPu5ShbHUfq2UjUWho4oqCqLEwYXs3uHCK
-	NJHvGWbbX97TpKtewTgGxCam4zmrhjuxcYTWQrLuURTqFFpMGF1f7zif9pePVkw4UXEepm/0ZI9
-	WcQ==
-X-Google-Smtp-Source: AGHT+IEoqmUAJ1tvpPAJVzioyGi+fn8A8xKnd0a1Zk3H0MPaPxV6IznaYWnB2Res1beHC7Hgla2hvlhylw8=
-X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a25:2946:0:b0:e13:e775:5a3c with SMTP id
- 3f1490d57ef6-e1d9db9e484mr1092276.2.1726095380603; Wed, 11 Sep 2024 15:56:20
- -0700 (PDT)
-Date: Wed, 11 Sep 2024 15:56:19 -0700
-In-Reply-To: <20240911222433.3415301-6-coltonlewis@google.com>
+        d=1e100.net; s=20230601; t=1726121213; x=1726726013;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UDJaA5Y9npfkWPEOnJeHdGlQ/o0X1HQ/Q2gtdhbnZuk=;
+        b=eRSEgZUgtB0MN3NGe9Nwg0sTDEbEh8a8VSEbYjfiASPMAX1e2nXDUQZ1O/+dWZRHcd
+         Wf0nWPNVZcexvCgNydSPdAsf170vUKiWL2ncwkX/T3ANrEijf/EQNM3ZBWEe9JPqC1kD
+         U3TZ8sC7gP1qXrqqSUooYptexUCHPvJPvd4cQV8ph7dhtweW5DwXMDPuSHDRYM9dth/H
+         Nhw6bR731+JYDWplQ+NoIsNrNNj947JtVTmcibEnlgIUYzJtuGSZpfIlTBsjxil+bFxf
+         6DyvxRg+i6ipTVzHmQKtCn2ppmk8f+pmTZZ+EkzZ6XVG18OoA0ZBcxZ6eyC7M7z1N59t
+         n8zQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUQZGy8l2xuKUoOFTHsOzR1zgFOPdM34BC8PBC1tKY/naYZ3PK2t9ozHw6OCTxUosJZiCQX+O7Xp/gt@vger.kernel.org
+X-Gm-Message-State: AOJu0YzstFDrhHDiHwU5eUtCK6hH+E49UrscvHZKrAkgx0mVgbZc2BnR
+	VtpkzV+FAJQQpRGedQ7IfGHHDbjlNBRhffpXRZlfBElUrmWFeBVPQ+y0juPuOUo=
+X-Google-Smtp-Source: AGHT+IGKXy/6JapHeAVjChHUI6qH3tbjA0GPIxSDVxSa+LImRNXpcKvZ6AKB4gkH/Tg4GRKQ5PFIHQ==
+X-Received: by 2002:a17:902:d2ca:b0:206:c2f4:afb7 with SMTP id d9443c01a7336-2076e36db8cmr23914475ad.26.1726121212752;
+        Wed, 11 Sep 2024 23:06:52 -0700 (PDT)
+Received: from ghost ([2601:647:6700:64d0:7acc:9910:2c1d:4e65])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2076b01a39esm8052185ad.287.2024.09.11.23.06.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Sep 2024 23:06:52 -0700 (PDT)
+Date: Wed, 11 Sep 2024 23:06:46 -0700
+From: Charlie Jenkins <charlie@rivosinc.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	guoren <guoren@kernel.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S . Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Muchun Song <muchun.song@linux.dev>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	shuah <shuah@kernel.org>, Christoph Hellwig <hch@infradead.org>,
+	Michal Hocko <mhocko@suse.com>,
+	"Kirill A. Shutemov" <kirill@shutemov.name>,
+	Chris Torek <chris.torek@gmail.com>,
+	Linux-Arch <linux-arch@vger.kernel.org>,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-mm@kvack.org,
+	linux-kselftest@vger.kernel.org,
+	linux-abi-devel@lists.sourceforge.net
+Subject: Re: [PATCH RFC v3 1/2] mm: Add personality flag to limit address to
+ 47 bits
+Message-ID: <ZuKE9nnNGR/5fHh/@ghost>
+References: <20240905-patches-below_hint_mmap-v3-0-3cd5564efbbb@rivosinc.com>
+ <20240905-patches-below_hint_mmap-v3-1-3cd5564efbbb@rivosinc.com>
+ <9fc4746b-8e9d-4a75-b966-e0906187e6b7@app.fastmail.com>
+ <CAJF2gTTVX9CFM3oRZZP3hGExwVwA_=n1Lrq_0DQKWA+-ZbOekg@mail.gmail.com>
+ <f23b18c6-1856-4b59-9ba3-59809b425c81@app.fastmail.com>
+ <Ztrq8PBLJ3QuFJz7@arm.com>
+ <oshwto46wbbgneiayj63umllyozm3c4267rvpszqzaopwnt2l7@6mxl5vydtons>
+ <ZuDoExckq21fePoe@ghost>
+ <8130e50c-01e2-45c3-a516-45f5499311f2@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20240911222433.3415301-1-coltonlewis@google.com> <20240911222433.3415301-6-coltonlewis@google.com>
-Message-ID: <ZuIgE2-GElzSGztH@google.com>
-Subject: Re: [PATCH v2 5/5] perf: Correct perf sampling with guest VMs
-From: Sean Christopherson <seanjc@google.com>
-To: Colton Lewis <coltonlewis@google.com>
-Cc: kvm@vger.kernel.org, Oliver Upton <oliver.upton@linux.dev>, 
-	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
-	Kan Liang <kan.liang@linux.intel.com>, Will Deacon <will@kernel.org>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H . Peter Anvin" <hpa@zytor.com>, linux-perf-users@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8130e50c-01e2-45c3-a516-45f5499311f2@app.fastmail.com>
 
-On Wed, Sep 11, 2024, Colton Lewis wrote:
-> Previously any PMU overflow interrupt that fired while a VCPU was
-> loaded was recorded as a guest event whether it truly was or not. This
-> resulted in nonsense perf recordings that did not honor
-> perf_event_attr.exclude_guest and recorded guest IPs where it should
-> have recorded host IPs.
+On Wed, Sep 11, 2024 at 07:25:08AM +0000, Arnd Bergmann wrote:
+> On Wed, Sep 11, 2024, at 00:45, Charlie Jenkins wrote:
+> > On Tue, Sep 10, 2024 at 03:08:14PM -0400, Liam R. Howlett wrote:
+> >
+> > I responded to Arnd in the other thread, but I am still not convinced
+> > that the solution that x86 and arm64 have selected is the best solution.
+> > The solution of defaulting to 47 bits does allow applications the
+> > ability to get addresses that are below 47 bits. However, due to
+> > differences across architectures it doesn't seem possible to have all
+> > architectures default to the same value. Additionally, this flag will be
+> > able to help users avoid potential bugs where a hint address is passed
+> > that causes upper bits of a VA to be used.
+> >
+> > The other issue I have with this is that if there is not a hint address
+> > specified to be greater than 47 bits on x86, then mmap() may return an
+> > address that is greater than 47-bits. The documentation in
+> > Documentation/arch/x86/x86_64/5level-paging.rst says:
+> >
+> > "If hint address set above 47-bit, but MAP_FIXED is not specified, we try
+> > to look for unmapped area by specified address. If it's already
+> > occupied, we look for unmapped area in *full* address space, rather than
+> > from 47-bit window."
 > 
-> Rework the sampling logic to only record guest samples for events with
-> exclude_guest clear. This way any host-only events with exclude_guest
-> set will never see unexpected guest samples. The behaviour of events
-> with exclude_guest clear is unchanged.
+> This is also in the commit message of b569bab78d8d ("x86/mm: Prepare
+> to expose larger address space to userspace"), which introduced it.
+> However, I don't actually see the fallback to the full address space,
+> instead the actual behavior seems to be the same as arm64.
+> 
+> Am I missing something in the x86 implementation, or do we just
+> need to update the documentation?
+> 
+>       Arnd
 
-Nit, "with exclude_guest clear" is easy to misread as simply "with exclude_guest"
-(I did so at least three times).  Maybe 
+Yeah I guess it is incorrect documentation then? It seems more
+reasonable to me to have a hint address fall back onto the larger
+address space because otherwise the "hint" address can cause allocations
+to fail even if there is space above the 47-bit limit. This is another
+reason I wanted to avoid having this default behavior on riscv, to not
+have this abuse of the hint address.
 
-  The behavior of exclude_guest=0 events is unchanged.
+- Charlie
 
-or
-
-  The behavior of events without exclude_guest is unchanged.
-
-I think it's also worth explicitly calling out that events that are configured
-to sample both host and guest may still be prone to misattributing a PMI that
-arrived in the host as a guest event, depending on the KVM arch and/or vendor
-behavior.
