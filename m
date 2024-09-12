@@ -1,166 +1,307 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 468EA188918
-	for <linux-s390@vger.kernel.org>; Thu, 12 Sep 2024 06:20:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2AB117BA1;
+	Thu, 12 Sep 2024 08:16:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726122044; cv=none; b=VAszSBvsOAqGPE+GPSIP0FZ2286/gZEZbTWvUHJJuxx9Zevrhx9rTj+Hoicrxi4blyOv4dZQGuKp/nz9Cl3ZQCu3Z06b+3Bo4+gCQG54BZbvFrknH3k6TlEUPSLNXP/e262Gkg+ZCvQ6wcU18kBx4UkAsboeFdAl0dFhxd1dDIw=
+	t=1726128997; cv=none; b=dwgkgifPzsmDsCQAMtDBoNGsiJgWYKzYxUv0wFD6Q8zVn8vaK5UD1loKg2rHj8abB2tfEHRQP6Ze6LrJ8kvAsK/rt2PVamd+aHBMFdq+EjyrsKAXQqI8j8Jk95F4xcBRB/6QtXijcmTfYUwDA/iABFJnloIoVJY4UxHlBA0sy4k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726122044; c=relaxed/simple;
-	bh=2F6IKkpv/Qwlr7Q/6xNHbyfy5PQ3xNesTPaXOFDb4UY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LwjFN3Ipgz2M2eQGI37XJvijCD4hEVfXwYcBqZm01Lzj3xZfjPwHdK2qNBrXPb888yC/JAHcMRtPeCf2M+Wr6CWu2oD4S+kft9fGcWQ5pu/WyUNaAPceozTdiVhUcLE0CLuCV1T8urJxRGBGzGhNacvu+fuxyrcXXn3Lw96O22I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=f7ImMjz5; arc=none smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
+	s=arc-20240116; t=1726128997; c=relaxed/simple;
+	bh=SBfSrAHKe9JwBnDq6qTmF1f5rdYhudlhMtTHjKAhbEY=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=PMEooerur8j/knirqAauGtpUvm1eae6Z2rip2s+NH49fmlE3Pq6Cw2YKIbnwZV8I06Zu7XNwrn3ksWo4k+3yrCEXm8T0eoKke+VfGNN+0Ux9S08trxm9OZ4kfUneZ93dRzii2Ml2vzNHGyH5WWOwEchpf1tPLOXoq8GiCk1e2E0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WKxlfTZF; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="f7ImMjz5"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-206bd1c6ccdso6153015ad.3
-        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2024 23:20:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1726122042; x=1726726842; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=4MH+VWCTNjiA22bJ+vIa1h0/NxuAZxX6cpAlaipl1hg=;
-        b=f7ImMjz5nD3GVetxCwMWoMX0kbIS4lvT7rEllYmLdT1KxiOENjPfwGS0uGx1s49aoE
-         e+S6xHj/IwKOfMTOWQabXZVX65tJFPq0fLcBDOfXfsFJhwEvgMvrUr9UlGXPbcb7Lay4
-         Gi/IQ6rnGZ8UYdmka+oBZwvNaR+WwIpIymqItrNmjNailKIQdWCBeH89j2wDY3mlS/wx
-         FvHk8yCVj+VYIQSt+IwVrm0VnCz09SHus+F7QpDCtn0bPIzDT+K5kwUg6cnCIkY1VOMH
-         97dX+cVLAMHx/6gRUewjaflWeYX++hO2+QEGMn2rXsKqWiltX77adLjzFL/QhUylIYvo
-         MahA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726122042; x=1726726842;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4MH+VWCTNjiA22bJ+vIa1h0/NxuAZxX6cpAlaipl1hg=;
-        b=tsrCPp8Z1O2xR2CGR/EZwXi6n8ZI6BUXkQu6upGJWR0NATP4qB2QCfgiBfyvVmnxm/
-         jzm0njqrYiGaYtHfS4LbQk0KnvUWnOe9GMNihSd9ooTVFhrijrDM34rpS4GWIj3lM/2y
-         HVFGIRrvpHDhAdTdn23NYw3VK/wYlXRdwN4zHcliZTCnvj2koVz67jnwFiYEyU+mZE+M
-         xv31Al1bApBkHmi5qxak2cziK9PLoY4xMYTQr56jqnqI7tmOd92XSh8GtoGUBssBirmg
-         LYxWFxO5WzS8MFxjbLDWPt1cLe/25z+U6t2z2+uzrdxm9tKZLtBWo6ATsh0ynNr1+6lx
-         Qdgw==
-X-Forwarded-Encrypted: i=1; AJvYcCUF3q8sm6qMCv8N+kXTRtvVBAXOVr8IIWbJrRnef4kxicpU3QknfaSM1xptB59O1F9BtZvjHlAa2b1H@vger.kernel.org
-X-Gm-Message-State: AOJu0YwucnFry2DEg++JInEJuWV+/57SDik9bmCVj1MKD4r9Rh+lDyPG
-	9u3IszTOfykluvd9bUKiN2rXNjQafTORvYcDGwMOaKuVm7tRch815BdUEVW1+Ig=
-X-Google-Smtp-Source: AGHT+IEU0tdlu4WO+IdyYZyQDbQui3iM6ZAtkm5A4CWh7CFo7CMKirqsrpvUAjbSGnQEOy1Vcb5RUw==
-X-Received: by 2002:a17:903:191:b0:206:aa2e:6d1f with SMTP id d9443c01a7336-2076e423272mr22083755ad.46.1726122041553;
-        Wed, 11 Sep 2024 23:20:41 -0700 (PDT)
-Received: from ghost ([2601:647:6700:64d0:7acc:9910:2c1d:4e65])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2076afdd82asm8286105ad.129.2024.09.11.23.20.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Sep 2024 23:20:40 -0700 (PDT)
-Date: Wed, 11 Sep 2024 23:20:35 -0700
-From: Charlie Jenkins <charlie@rivosinc.com>
-To: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>, Guo Ren <guoren@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>, Nicholas Piggin <npiggin@gmail.com>,
-	Naveen N Rao <naveen@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Muchun Song <muchun.song@linux.dev>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	Shuah Khan <shuah@kernel.org>,
-	Christoph Hellwig <hch@infradead.org>,
-	Michal Hocko <mhocko@suse.com>,
-	"Kirill A. Shutemov" <kirill@shutemov.name>,
-	Chris Torek <chris.torek@gmail.com>, linux-arch@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-mm@kvack.org,
-	linux-kselftest@vger.kernel.org,
-	linux-abi-devel@lists.sourceforge.net
-Subject: Re: [PATCH RFC v3 1/2] mm: Add personality flag to limit address to
- 47 bits
-Message-ID: <ZuKIMz7U8rDrq8jA@ghost>
-References: <20240905-patches-below_hint_mmap-v3-0-3cd5564efbbb@rivosinc.com>
- <20240905-patches-below_hint_mmap-v3-1-3cd5564efbbb@rivosinc.com>
- <87zfol468z.fsf@mail.lhotse>
- <Zt9HboH/PmPlRPmH@ghost>
- <1aca8e4c-1c12-4624-a689-147ff60b75d6@csgroup.eu>
- <CAMuHMdURgy6NPthHhfOv_h=C_gw2hEpnGQ7iBGoDE=ZazUPRHA@mail.gmail.com>
- <8734m6s428.fsf@mail.lhotse>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WKxlfTZF"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48BKIjsn021192;
+	Thu, 12 Sep 2024 08:16:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
+	uTeVi2xWw5uitBigQiGA3v/ZlRN8rtJ0JUynUhhPpgw=; b=WKxlfTZFmaH4Ef7q
+	V2DQv7mDmSlTiSkT+p1GvcQcFUuzq15fCH7hh6E0Ew7e5C8DfNY9ClowFxO3x4Uq
+	e/ifTQbo7yf4Omcxzw0h723pD8Y534pT/7hsVNSfHs75FKDacV1wvlAhZBeIaBJJ
+	Ikaw8qT3kbnFCouDCE4A4jVPnorhd2nPdJPQxkNnuntNDjqvRyfXJrVzBU3kzejX
+	1gVNGoHtFsY6NVh5mOTMM4LGUekw/P4hVW/sh23OBIOieCZ40db09ov1XlNFUeip
+	2mDHD1Tb7ziBnPo7FGFUJn71izi47PA2b5QQ1I3f9rPNrG4Gjrh6hGqG9CfK1yt6
+	Tr1peA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41gefyt2wq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 12 Sep 2024 08:16:30 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 48C8GTck019667;
+	Thu, 12 Sep 2024 08:16:29 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41gefyt2wn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 12 Sep 2024 08:16:29 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48C6xmD4032088;
+	Thu, 12 Sep 2024 08:16:29 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41h2nmxj7f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 12 Sep 2024 08:16:29 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48C8GPvh54985044
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 12 Sep 2024 08:16:25 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0DA8520040;
+	Thu, 12 Sep 2024 08:16:25 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5546B2004B;
+	Thu, 12 Sep 2024 08:16:24 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.171.8.247])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu, 12 Sep 2024 08:16:24 +0000 (GMT)
+Date: Thu, 12 Sep 2024 10:14:34 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah
+ Khan <shuah@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand
+ <david@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Subject: Re: [PATCH v2 1/3] selftests: kvm: s390: Add uc_map_unmap VM test
+ case
+Message-ID: <20240912101434.14aafd7a@p-imbrenda>
+In-Reply-To: <20240902115002.199331-2-schlameuss@linux.ibm.com>
+References: <20240902115002.199331-1-schlameuss@linux.ibm.com>
+	<20240902115002.199331-2-schlameuss@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <8734m6s428.fsf@mail.lhotse>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: i9p_7-D9dCo3AIvNqlbeUPyrPyN1DfWt
+X-Proofpoint-ORIG-GUID: 7G3b-K7AfpI6phlifM1-We5Db_NZYDaj
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-11_02,2024-09-09_02,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ lowpriorityscore=0 suspectscore=0 mlxlogscore=866 priorityscore=1501
+ adultscore=0 clxscore=1015 spamscore=0 bulkscore=0 phishscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2409120055
 
-On Wed, Sep 11, 2024 at 11:38:55PM +1000, Michael Ellerman wrote:
-> Geert Uytterhoeven <geert@linux-m68k.org> writes:
-> > Hi Christophe,
-> >
-> > On Tue, Sep 10, 2024 at 11:21 AM Christophe Leroy
-> > <christophe.leroy@csgroup.eu> wrote:
-> >> >>> diff --git a/include/uapi/linux/personality.h b/include/uapi/linux/personality.h
-> >> >>> index 49796b7756af..cd3b8c154d9b 100644
-> >> >>> --- a/include/uapi/linux/personality.h
-> >> >>> +++ b/include/uapi/linux/personality.h
-> >> >>> @@ -22,6 +22,7 @@ enum {
-> >> >>>     WHOLE_SECONDS =         0x2000000,
-> >> >>>     STICKY_TIMEOUTS =       0x4000000,
-> >> >>>     ADDR_LIMIT_3GB =        0x8000000,
-> >> >>> +   ADDR_LIMIT_47BIT =      0x10000000,
-> >> >>>   };
-> >> >>
-> >> >> I wonder if ADDR_LIMIT_128T would be clearer?
-> >> >>
-> >> >
-> >> > I don't follow, what does 128T represent?
-> >>
-> >> 128T is 128 Terabytes, that's the maximum size achievable with a 47BIT
-> >> address, that naming would be more consistant with the ADDR_LIMIT_3GB
-> >> just above that means a 3 Gigabytes limit.
-> >
-> > Hence ADDR_LIMIT_128TB?
+On Mon,  2 Sep 2024 13:50:00 +0200
+Christoph Schlameuss <schlameuss@linux.ibm.com> wrote:
+
+> Add a test case verifying basic running and interaction of ucontrol VMs.
+> Fill the segment and page tables for allocated memory and map memory on
+> first access.
 > 
-> Yes it should be 128TB. Typo by me.
+> * uc_map_unmap
+>   Store and load data to mapped and unmapped memory and use pic segment
+>   translation handling to map memory on access.
 > 
-> cheers
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> ---
+>  .../selftests/kvm/s390x/ucontrol_test.c       | 121 +++++++++++++++++-
+>  1 file changed, 120 insertions(+), 1 deletion(-)
+> 
+> diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> index 030c59010fe1..04a0d55af617 100644
+> --- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> +++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> @@ -16,7 +16,11 @@
+>  #include <linux/capability.h>
+>  #include <linux/sizes.h>
+>  
+> +#define PGM_SEGMENT_TRANSLATION 0x10
+> +
+>  #define VM_MEM_SIZE (4 * SZ_1M)
+> +#define VM_MEM_EXT_SIZE (2 * SZ_1M)
+> +#define VM_MEM_MAX_M ((VM_MEM_SIZE + VM_MEM_EXT_SIZE) / SZ_1M)
+>  
+>  /* so directly declare capget to check caps without libcap */
+>  int capget(cap_user_header_t header, cap_user_data_t data);
+> @@ -58,6 +62,23 @@ asm("test_gprs_asm:\n"
+>  	"	j	0b\n"
+>  );
+>  
+> +/* Test program manipulating memory */
+> +extern char test_mem_asm[];
+> +asm("test_mem_asm:\n"
+> +	"xgr	%r0, %r0\n"
+> +
+> +	"0:\n"
+> +	"	ahi	%r0,1\n"
+> +	"	st	%r1,0(%r5,%r6)\n"
+> +
+> +	"	xgr	%r1,%r1\n"
+> +	"	l	%r1,0(%r5,%r6)\n"
+> +	"	ahi	%r0,1\n"
+> +	"	diag	0,0,0x44\n"
+> +
+> +	"	j	0b\n"
+> +);
+> +
+>  FIXTURE(uc_kvm)
+>  {
+>  	struct kvm_s390_sie_block *sie_block;
+> @@ -67,6 +88,7 @@ FIXTURE(uc_kvm)
+>  	uintptr_t base_hva;
+>  	uintptr_t code_hva;
+>  	int kvm_run_size;
+> +	vm_paddr_t pgd;
+>  	void *vm_mem;
+>  	int vcpu_fd;
+>  	int kvm_fd;
+> @@ -116,7 +138,7 @@ FIXTURE_SETUP(uc_kvm)
+>  	self->base_gpa = 0;
+>  	self->code_gpa = self->base_gpa + (3 * SZ_1M);
+>  
+> -	self->vm_mem = aligned_alloc(SZ_1M, VM_MEM_SIZE);
+> +	self->vm_mem = aligned_alloc(SZ_1M, VM_MEM_MAX_M * SZ_1M);
+>  	ASSERT_NE(NULL, self->vm_mem) TH_LOG("malloc failed %u", errno);
+>  	self->base_hva = (uintptr_t)self->vm_mem;
+>  	self->code_hva = self->base_hva - self->base_gpa + self->code_gpa;
+> @@ -222,6 +244,36 @@ TEST(uc_cap_hpage)
+>  	close(kvm_fd);
+>  }
+>  
+> +/* calculate host virtual addr from guest physical addr */
+> +static void *gpa2hva(FIXTURE_DATA(uc_kvm) * self, u64 gpa)
+> +{
+> +	return (void *)(self->base_hva - self->base_gpa + gpa);
+> +}
+> +
+> +static void uc_handle_exit_ucontrol(FIXTURE_DATA(uc_kvm) * self)
+> +{
+> +	struct kvm_run *run = self->run;
+> +
+> +	TEST_ASSERT_EQ(KVM_EXIT_S390_UCONTROL, run->exit_reason);
+> +	switch (run->s390_ucontrol.pgm_code) {
+> +	case PGM_SEGMENT_TRANSLATION:
+> +		pr_info("ucontrol pic segment translation 0x%llx\n",
+> +			run->s390_ucontrol.trans_exc_code);
+> +		/* map / make additional memory available */
+> +		struct kvm_s390_ucas_mapping map2 = {
+> +			.user_addr = (u64)gpa2hva(self, run->s390_ucontrol.trans_exc_code),
+> +			.vcpu_addr = run->s390_ucontrol.trans_exc_code,
+> +			.length = VM_MEM_EXT_SIZE,
+> +		};
 
-47BIT was selected because the usecase for this flag is for applications
-that want to store data in the upper bits of a virtual address space. In
-this case, how large the virtual address space is irrelevant, and only
-the number of bits that are being used, and hence the number of bits
-that are free.
+you could use the wrapper here too (see below)
 
-- Charlie
+> +		pr_info("ucas map %p %p 0x%llx\n",
+> +			(void *)map2.user_addr, (void *)map2.vcpu_addr, map2.length);
+> +		TEST_ASSERT_EQ(0, ioctl(self->vcpu_fd, KVM_S390_UCAS_MAP, &map2));
+> +		break;
+
+so this will always return true
+
+> +	default:
+> +		TEST_FAIL("UNEXPECTED PGM CODE %d", run->s390_ucontrol.pgm_code);
+> +	}
+> +}
+> +
+>  /* verify SIEIC exit
+>   * * reset stop requests
+>   * * fail on codes not expected in the test cases
+> @@ -256,6 +308,12 @@ static bool uc_handle_exit(FIXTURE_DATA(uc_kvm) * self)
+>  	struct kvm_run *run = self->run;
+>  
+>  	switch (run->exit_reason) {
+> +	case KVM_EXIT_S390_UCONTROL:
+> +		/** check program interruption code
+> +		 * handle page fault --> ucas map
+> +		 */
+> +		uc_handle_exit_ucontrol(self);
+> +		break;
+>  	case KVM_EXIT_S390_SIEIC:
+>  		return uc_handle_sieic(self);
+>  	default:
+> @@ -287,6 +345,67 @@ static void uc_assert_diag44(FIXTURE_DATA(uc_kvm) * self)
+>  	TEST_ASSERT_EQ(0x440000, sie_block->ipb);
+>  }
+>  
+> +TEST_F(uc_kvm, uc_map_unmap)
+> +{
+> +	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
+> +	struct kvm_run *run = self->run;
+> +	int rc;
+> +
+> +	/* copy test_mem_asm to code_hva / code_gpa */
+> +	TH_LOG("copy code %p to vm mapped memory %p / %p",
+> +	       &test_mem_asm, (void *)self->code_hva, (void *)self->code_gpa);
+> +	memcpy((void *)self->code_hva, &test_mem_asm, PAGE_SIZE);
+> +
+> +	/* DAT disabled + 64 bit mode */
+> +	run->psw_mask = 0x0000000180000000ULL;
+> +	run->psw_addr = self->code_gpa;
+> +
+> +	/* set register content for test_mem_asm to access not mapped memory*/
+> +	sync_regs->gprs[1] = 0x55;
+> +	sync_regs->gprs[5] = self->base_gpa;
+> +	sync_regs->gprs[6] = VM_MEM_SIZE;
+> +	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
+> +
+> +	/* run and expect to fail with ucontrol pic segment translation */
+> +	ASSERT_EQ(0, uc_run_once(self));
+> +	ASSERT_EQ(1, sync_regs->gprs[0]);
+> +	ASSERT_EQ(KVM_EXIT_S390_UCONTROL, run->exit_reason);
+> +
+> +	ASSERT_EQ(PGM_SEGMENT_TRANSLATION, run->s390_ucontrol.pgm_code);
+> +	ASSERT_EQ(self->base_gpa + VM_MEM_SIZE, run->s390_ucontrol.trans_exc_code);
+> +	/* map / make additional memory available */
+> +	struct kvm_s390_ucas_mapping map2 = {
+> +		.user_addr = (u64)gpa2hva(self, self->base_gpa + VM_MEM_SIZE),
+> +		.vcpu_addr = self->base_gpa + VM_MEM_SIZE,
+> +		.length = VM_MEM_EXT_SIZE,
+> +	};
+> +	TH_LOG("ucas map %p %p 0x%llx",
+> +	       (void *)map2.user_addr, (void *)map2.vcpu_addr,
+> map2.length);
+> +	rc = ioctl(self->vcpu_fd, KVM_S390_UCAS_MAP, &map2);
+
+maybe you can put the map/unmap IOCTLs in a wrapper, so that this
+becomes more readable? 
+
+rc = uc_map_ext(self->base_gpa + VM_MEM_SIZE, self->base_gpa +VM_MEM_SIZE);
+
+> +	ASSERT_EQ(0, rc)
+> +		TH_LOG("ucas map result %d not expected, %s", rc, strerror(errno));
+> +	ASSERT_EQ(0, uc_run_once(self));
+> +	ASSERT_EQ(false, uc_handle_exit(self));
+> +	uc_assert_diag44(self);
+> +
+> +	/* assert registers and memory are in expected state */
+> +	ASSERT_EQ(2, sync_regs->gprs[0]);
+> +	ASSERT_EQ(0x55, sync_regs->gprs[1]);
+> +	ASSERT_EQ(0x55, *(u32 *)gpa2hva(self, self->base_gpa + VM_MEM_SIZE));
+> +
+> +	/* unmap and run loop again */
+> +	TH_LOG("ucas unmap %p %p 0x%llx",
+> +	       (void *)map2.user_addr, (void *)map2.vcpu_addr, map2.length);
+> +	rc = ioctl(self->vcpu_fd, KVM_S390_UCAS_UNMAP, &map2);
+> +	ASSERT_EQ(0, rc)
+> +		TH_LOG("ucas unmap result %d not expected, %s", rc, strerror(errno));
+> +	ASSERT_EQ(0, uc_run_once(self));
+> +	ASSERT_EQ(3, sync_regs->gprs[0]);
+> +	ASSERT_EQ(KVM_EXIT_S390_UCONTROL, run->exit_reason);
+> +	ASSERT_EQ(PGM_SEGMENT_TRANSLATION, run->s390_ucontrol.pgm_code);
+> +	ASSERT_EQ(true, uc_handle_exit(self));
+> +}
+> +
+>  TEST_F(uc_kvm, uc_gprs)
+>  {
+>  	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
 
