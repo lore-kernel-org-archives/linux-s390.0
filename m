@@ -1,116 +1,138 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D46B15D5D9;
-	Thu, 12 Sep 2024 10:54:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8627C1A3AAC;
+	Thu, 12 Sep 2024 12:24:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726138442; cv=none; b=S2AXU3xekDNTgJ/BrDkAo+uZwJ5LZ+0jeVpvsgHhI73Tyvln+CgrBp2slKwxImvsPb61KRDzG0MNWxkrqEKPUjyqZVJ96FyjrjtiiPSfgZa6hynNEDkC79hO5KbOADsxJXeStm9FZM6lMnxwnSkCzltJEzByucH+RRNv7z078+o=
+	t=1726143864; cv=none; b=nv8f0DH19yS6+I9hJ+4jped2qLJzztNSHgJgwwl3J9hp3FZQeWeiKYuu5RiE98N8KIKp3GqqP3rVGUMnGxjWY6WZBYzANHMvptwrYGFcIBmD7G6K/ENZO2HZlac5gjQDXn+IoiwNz2un6ynZYp7cDJAM//S0NpBR/ml8qVFy1zU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726138442; c=relaxed/simple;
-	bh=p/e83P9WYk3m3KBV4mYnrlxzhIZufzNwL5TA3046OjE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Wssc+QCGsELjR6I2FLEUchW//FNHbrg/AU+wImdq2RhB/Y7DUROKxzIcinZwCwAqr4le9yxZ0RqT+1/fOHiIxnNHte3idUnLIHernjr3pTsMMBmxI9/KKDjD9XnJqxzyadY0epHx+kTxr/Dl94A0WgwQcPZaZ6Dl0zuhaHWHeZQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67C3EC4CEC3;
-	Thu, 12 Sep 2024 10:53:51 +0000 (UTC)
-Date: Thu, 12 Sep 2024 11:53:49 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: Charlie Jenkins <charlie@rivosinc.com>
-Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Arnd Bergmann <arnd@arndb.de>, guoren <guoren@kernel.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"David S . Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Muchun Song <muchun.song@linux.dev>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	shuah <shuah@kernel.org>, Christoph Hellwig <hch@infradead.org>,
-	Michal Hocko <mhocko@suse.com>,
-	"Kirill A. Shutemov" <kirill@shutemov.name>,
-	Chris Torek <chris.torek@gmail.com>,
-	Linux-Arch <linux-arch@vger.kernel.org>,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-mm@kvack.org,
-	linux-kselftest@vger.kernel.org,
-	linux-abi-devel@lists.sourceforge.net
-Subject: Re: [PATCH RFC v3 1/2] mm: Add personality flag to limit address to
- 47 bits
-Message-ID: <ZuLIPZId9aHcAY2j@arm.com>
-References: <20240905-patches-below_hint_mmap-v3-0-3cd5564efbbb@rivosinc.com>
- <20240905-patches-below_hint_mmap-v3-1-3cd5564efbbb@rivosinc.com>
- <9fc4746b-8e9d-4a75-b966-e0906187e6b7@app.fastmail.com>
- <CAJF2gTTVX9CFM3oRZZP3hGExwVwA_=n1Lrq_0DQKWA+-ZbOekg@mail.gmail.com>
- <f23b18c6-1856-4b59-9ba3-59809b425c81@app.fastmail.com>
- <Ztrq8PBLJ3QuFJz7@arm.com>
- <oshwto46wbbgneiayj63umllyozm3c4267rvpszqzaopwnt2l7@6mxl5vydtons>
- <ZuDoExckq21fePoe@ghost>
- <ZuHfp0_tAQhaymdy@arm.com>
- <ZuKHpFB+uWuJe2xm@ghost>
+	s=arc-20240116; t=1726143864; c=relaxed/simple;
+	bh=OMLRZ7YEJfGJbX09wnonE+6AczbiVs8iR0ifsQxzo2Y=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VTn6cqal1qy1/cChMn4VO6fcvCfYVAoDN8vpaRe3Mecijho5F3dooAJjGUiDNzCM7lb0HIn5lsrx4OPGLlI1bsJH8rWBqwkMrA1I1ilMIMkdV6Vcn3IZy61fJhj+aGuropmL6SmdlyuwD42xpdgpKxV91x1hgLI6/ACpT8yhGpU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VQkZqGtU; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VQkZqGtU"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48C6BqN1023433;
+	Thu, 12 Sep 2024 12:24:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=q
+	Pn84AyEsKhFwcsz+kjj2QVJY38ioB9PY+1DpfF0zGo=; b=VQkZqGtUnde3wJHQ3
+	NsWn35jx/pAAJcAxLktrxolvYsoSnWqDmTTgfr62W32r5M1FFIjx/dNmbkDmvHJY
+	5kpxyhSJPvsL9y7WG4goBHsFNjT5+CY+A9d/imKvqCFjAt1glRpKgttuJqU2CfrQ
+	qQuAUtQf/tMDD2uCbjEgYw2Wp9IQSvCQCzXsIFRrsYAP+E8sE6Vo3BKw5b3Ze9sP
+	OEK6YK0e9TK7h3XoMeeRHZU+lgdh7cbulcGN5K8GISyzO+owqY6e6qYFr+n0AQEE
+	W9Bmk3zf2snDoDqPs1vLvwxjCEybY/sIDWGVVtEdZIA/9FCRVCXK1kmHDiowZMa8
+	r2j/Q==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41gejauk55-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 12 Sep 2024 12:24:19 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48CCHJr2010787;
+	Thu, 12 Sep 2024 12:24:18 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41kmb6ugkt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 12 Sep 2024 12:24:18 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48CCOHc326477200
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 12 Sep 2024 12:24:17 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0407558056;
+	Thu, 12 Sep 2024 12:24:17 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 16C0658052;
+	Thu, 12 Sep 2024 12:24:16 +0000 (GMT)
+Received: from [9.61.43.80] (unknown [9.61.43.80])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 12 Sep 2024 12:24:16 +0000 (GMT)
+Message-ID: <218686c3-56bd-479f-b805-dd0c77a89cf7@linux.ibm.com>
+Date: Thu, 12 Sep 2024 08:24:15 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZuKHpFB+uWuJe2xm@ghost>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] s390/vfio-ap: Driver feature advertisement
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        fiuczy@linux.ibm.com, akrowiak@linux.ibm.com, borntraeger@de.ibm.com,
+        agordeev@linux.ibm.com, gor@linux.ibm.com
+References: <20240910113440.8107-1-jjherne@linux.ibm.com>
+ <20240911065707.6563-A-hca@linux.ibm.com>
+Content-Language: en-US
+From: "Jason J. Herne" <jjherne@linux.ibm.com>
+In-Reply-To: <20240911065707.6563-A-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: MKt-66314HlRVKOgQ0-2rKklLQWeSNWq
+X-Proofpoint-GUID: MKt-66314HlRVKOgQ0-2rKklLQWeSNWq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-12_02,2024-09-12_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ phishscore=0 mlxlogscore=790 spamscore=0 impostorscore=0 adultscore=0
+ bulkscore=0 suspectscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
+ definitions=main-2409120086
 
-On Wed, Sep 11, 2024 at 11:18:12PM -0700, Charlie Jenkins wrote:
-> Opting-in to the higher address space is reasonable. However, it is not
-> my preference, because the purpose of this flag is to ensure that
-> allocations do not exceed 47-bits, so it is a clearer ABI to have the
-> applications that want this guarantee to be the ones setting the flag,
-> rather than the applications that want the higher bits setting the flag.
+On 9/11/24 2:57 AM, Heiko Carstens wrote:
+> On Tue, Sep 10, 2024 at 07:34:40AM -0400, Jason J. Herne wrote:
+>> Advertise features of the driver for the benefit of automated tooling
+>> like Libvirt and mdevctl.
+>>
+>> Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
+>> Reviewed-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+>> Reviewed-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
+>> ---
+>>   Documentation/arch/s390/vfio-ap.rst | 34 +++++++++++++++++++++++++++++
+>>   drivers/s390/crypto/vfio_ap_drv.c   | 13 +++++++++++
+>>   2 files changed, 47 insertions(+)
+> 
+> ...
+> 
+>> +Driver Features
+>> +===============
+>> +The vfio_ap driver exposes a sysfs file containing supported features.
+>> +This exists so third party tools (like Libvirt and mdevctl) can query the
+>> +availability of specific features.
+>> +
+>> +The features list can be found here: /sys/bus/matrix/devices/matrix/features
+>> +
+>> +Entries are \n delimited. Each entry contains a key value pair. The key is made
+>> +up of a combination of alphanumeric and underscore characters. The separator
+>> +consists of a space, a colon and then another space. The value consists of
+>> +alphanumeric, space, and underscore characters.
+>> +
+>> +Example:
+>> +cat /sys/bus/matrix/devices/matrix/features
+>> +flags : guest_matrix dyn ap_config
+>> +
+>> +Presently only a single field named flags is defined. It is meant to advertise a
+>> +list of features the driver provides. The flags fields advertises the following
+>> +features:
+> 
+> I stumbled across this only now: sysfs files are not supposed to have
+> several key value pairs. Actually the file(name) itself is supposed to
+> be the key and its contents are the value. So I would expect:
+> 
+> cat /sys/bus/matrix/devices/matrix/flags
+> guest_matrix dyn ap_config
+> 
+> Which is also easier to parse. Is there a good reason why this does
+> not follow the general approach for sysfs files?
 
-Yes, this would be ideal. Unfortunately those applications don't know
-they need to set a flag in order to work.
 
-A slightly better option is to leave the default 47-bit at the kernel
-ABI level and have the libc/dynamic loader issue the prctl(). You can
-control the default with environment variables if needed.
-
-We do something similar in glibc for arm64 MTE. When MTE is enabled, the
-top byte of an allocated pointer contains the tag that must not be
-corrupted. We left the decision to the C library via the
-glibc.mem.tagging tunable (Android has something similar via the app
-manifest). An app can change the default if it wants but if you run with
-old glibc or no environment variable to say otherwise, the default would
-be safe. Distros can set the environment to be the maximum range by
-default if they know the apps included have been upgraded and tested.
-
--- 
-Catalin
+We talked about a few designs for this feature. This patch represents 
+where we landed. I'm happy to make the change to the way you suggest but 
+I'll give some time for Boris or Tony to speak up if they disagree.
