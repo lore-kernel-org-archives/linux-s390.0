@@ -1,20 +1,20 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 729851BD00C;
-	Fri, 13 Sep 2024 10:08:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EED231272A6;
+	Fri, 13 Sep 2024 10:21:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726222115; cv=none; b=E/gdBG5UzfH8wkkXOHcAhhJMd6IoepOQnAmLXxB/4YsEp9ATQZlRt15snXJ93U8YrNs6bCePBLtpYoT/L0tP3dmFmyoG5WWGFAaarrud7MgmLVSNIQTeP21ruduXeYeaoDao/KUP6v3uqOFBCrnMXtM2HhCOsyh7tnFr3DXjfH0=
+	t=1726222879; cv=none; b=PPCsOLG0bGf3SmJzeHGl0EHFKFBP1l0LaIms/MiBCsbwPYRIed7EX0yEcczzyuSPvRAMPQ1nwctIKnvXDSHXQjEJG1QVd9JXz/i/3CMx/ac61dU4SKx1RcgeQc6vP8I/Gso11iVoQQooqXDZQNY8BLM0jP9JWcan+7YnROghbKk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726222115; c=relaxed/simple;
-	bh=e/DBTJD8mKVYtqmc31ZP4xQcSa8VjrlsLeu/n3O5RJQ=;
+	s=arc-20240116; t=1726222879; c=relaxed/simple;
+	bh=1FyR0o40y1aNgEI0i4ySUV9pFjo0kEOqPL5Kw87FMt0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bfTwwDiyI81cbRe/EF28CuNN3PvxmszUi6fvqAFXSexhdkxOtK1ZmUa4qOIAhC5sYgAWxtH/zR1rVJ710B6QMb/0K1S/DzuEEEh48BQ0fCpD6tWdsHMar1TV9X3dDzr9nbY3HKuYCfrck1jtboLEpLkZRy0exzXnlByDSDbwka8=
+	 Content-Type:Content-Disposition:In-Reply-To; b=O3AjOOQj5/CUE9922HsNlj+oJJo+n+HCIuSipDYG4QN8nzNFTl9bNTeTMj6JXlmZU5WfNXUjR4Jrnn8mbhCfPt0XbwHERZEvXglYQWhtEhQ1K/qX+HTSthInPhomLXXB+o9Vsf7/y7fVd/dH+XQxSUODV1o6tc2gklwzKAy6AIM=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6077CC4CEC0;
-	Fri, 13 Sep 2024 10:08:25 +0000 (UTC)
-Date: Fri, 13 Sep 2024 11:08:23 +0100
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFE3CC4CEC0;
+	Fri, 13 Sep 2024 10:21:08 +0000 (UTC)
+Date: Fri, 13 Sep 2024 11:21:06 +0100
 From: Catalin Marinas <catalin.marinas@arm.com>
 To: Charlie Jenkins <charlie@rivosinc.com>
 Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>,
@@ -68,9 +68,8 @@ Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>,
 	linux-abi-devel@lists.sourceforge.net
 Subject: Re: [PATCH RFC v3 1/2] mm: Add personality flag to limit address to
  47 bits
-Message-ID: <ZuQPF7Gbcqzq0U6N@arm.com>
-References: <9fc4746b-8e9d-4a75-b966-e0906187e6b7@app.fastmail.com>
- <CAJF2gTTVX9CFM3oRZZP3hGExwVwA_=n1Lrq_0DQKWA+-ZbOekg@mail.gmail.com>
+Message-ID: <ZuQSEn3rFVnIrbRH@arm.com>
+References: <CAJF2gTTVX9CFM3oRZZP3hGExwVwA_=n1Lrq_0DQKWA+-ZbOekg@mail.gmail.com>
  <f23b18c6-1856-4b59-9ba3-59809b425c81@app.fastmail.com>
  <Ztrq8PBLJ3QuFJz7@arm.com>
  <oshwto46wbbgneiayj63umllyozm3c4267rvpszqzaopwnt2l7@6mxl5vydtons>
@@ -79,6 +78,7 @@ References: <9fc4746b-8e9d-4a75-b966-e0906187e6b7@app.fastmail.com>
  <ZuKHpFB+uWuJe2xm@ghost>
  <ZuLIPZId9aHcAY2j@arm.com>
  <ZuNaD+zAXiAulc0n@ghost>
+ <ZuQPF7Gbcqzq0U6N@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -87,40 +87,26 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZuNaD+zAXiAulc0n@ghost>
+In-Reply-To: <ZuQPF7Gbcqzq0U6N@arm.com>
 
-On Thu, Sep 12, 2024 at 02:15:59PM -0700, Charlie Jenkins wrote:
-> On Thu, Sep 12, 2024 at 11:53:49AM +0100, Catalin Marinas wrote:
-> > On Wed, Sep 11, 2024 at 11:18:12PM -0700, Charlie Jenkins wrote:
-> > > Opting-in to the higher address space is reasonable. However, it is not
-> > > my preference, because the purpose of this flag is to ensure that
-> > > allocations do not exceed 47-bits, so it is a clearer ABI to have the
-> > > applications that want this guarantee to be the ones setting the flag,
-> > > rather than the applications that want the higher bits setting the flag.
-> > 
-> > Yes, this would be ideal. Unfortunately those applications don't know
-> > they need to set a flag in order to work.
-> 
-> It's not a regression, the applications never worked (on platforms that
-> do not have this default). The 47-bit default would allow applications
-> that didn't work to start working at the cost of a non-ideal ABI. That
-> doesn't seem like a reasonable tradeoff to me.  If applications want to
-> run on new hardware that has different requirements, shouldn't they be
-> required to update rather than expect the kernel will solve their
-> problems for them?
+On Fri, Sep 13, 2024 at 11:08:23AM +0100, Catalin Marinas wrote:
+> On Thu, Sep 12, 2024 at 02:15:59PM -0700, Charlie Jenkins wrote:
+> > On Thu, Sep 12, 2024 at 11:53:49AM +0100, Catalin Marinas wrote:
+> > > On Wed, Sep 11, 2024 at 11:18:12PM -0700, Charlie Jenkins wrote:
+> > > > Opting-in to the higher address space is reasonable. However, it is not
+> > > > my preference, because the purpose of this flag is to ensure that
+> > > > allocations do not exceed 47-bits, so it is a clearer ABI to have the
+> > > > applications that want this guarantee to be the ones setting the flag,
+> > > > rather than the applications that want the higher bits setting the flag.
+[...]
+> Anyway, the prctl() can go both ways, either expanding or limiting the
+> default address space. So I'd be fine with such interface.
 
-That's a valid point but it depends on the application and how much you
-want to spend updating user-space. OpenJDK is fine, if you need a JIT
-you'll have to add support for that architecture anyway. But others are
-arch-agnostic, you just recompile to your target. It's not an ABI
-problem, more of an API one.
-
-The x86 case (and powerpc/arm64) was different, the 47-bit worked for a
-long time before expanding it. So it made a lot of sense to keep the
-same default.
-
-Anyway, the prctl() can go both ways, either expanding or limiting the
-default address space. So I'd be fine with such interface.
+Ah, I just realised (while reading Lorenzo's reply) that we can't really
+restrict the space via a prctl() as we have the main thread stack
+already allocated by the kernel before the user code starts. You may
+need to limit this stack as well, not just the later heap allocations
+(anonymous mmap()).
 
 -- 
 Catalin
