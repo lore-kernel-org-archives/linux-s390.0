@@ -1,83 +1,87 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3317143144;
-	Fri, 13 Sep 2024 13:53:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E930F1DB947;
+	Fri, 13 Sep 2024 13:53:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726235628; cv=none; b=cJf74ZAXtL4NGiJFpZVw8w3SxAggUNQLfrG1pIyPQW93F4EEHLuA5499OlC7m5gT6+44nioMJVmTguIXrzIdD48DdqoE9lxdFUjNcv4A9EF17HHeNvwOHvSPYZ5MhztWa8ShxWHzxlnvUHvHT2mrO3Qdzemsej/MUcJCiHrVrAs=
+	t=1726235643; cv=none; b=O+36niOuFA+ZH8kuP/GNWZm70w4JS9Y/byzLECxldsY+slrc31ZiDl/w81J/oD8/q9nAtfbh3UmBRhiO5nc6xmZZ8B23oPC5zlI9PaCJM+WviRKWqU+sBUe1K1mdk3k3UNb4rJ5mYBduSavUdDM97sbMccjjPAkywWWdeW+TjB4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726235628; c=relaxed/simple;
-	bh=juI5630aqctV+NqY5uamwwA3WxN+ZI+u/KMYEKTGY2c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TzgTKgMrculX8XxOPA9mYtWnsctrFZNPM3jP8ALyR1DUSgdZyP14CLMLqHcfP1FV2Cs3WhY8SVAQj+h8ypGjK4LdK63nuwOmyJaNnYxgxkOHAlpyYRpptx54RTTJI8pIXonOn9hX82pWogvdrUtfrSOl1N8z8HS5AO4P+JvCo6k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b=a/HBLjJx; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1726235643; c=relaxed/simple;
+	bh=V9acdEU0Ob1i3pFcOEzI1pdIcCi/3pS+0lrJF7b/Jmw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cCr4yoFx+KlMC6N3satOhAjhFiUM4pnC7OkTZ71jE0RAA/ORlq2rsLOHL9U7Xma6nNitrQyJRdReiM2ffNwzVeYkZHmyhWPt8qxKzE9KdKgwmC0dPxRIW1enwr8zUF7UqotAmgZIWSwFWKq99vHpW3pBhIVb2Iv78OR1qq7Q538=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=p9FUmAkm; arc=none smtp.client-ip=117.135.210.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="a/HBLjJx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 145F8C4CEC5;
-	Fri, 13 Sep 2024 13:53:47 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="a/HBLjJx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-	t=1726235625;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=HCNDLSiKXcPuEEF+DIXaBydnj4KDUjibgOzKdFWgOSg=;
-	b=a/HBLjJx6dXjO84R2gV0hbY5LDsulbVOvFUyQT2hPXqpvjSP7cFNEdGHCSzeIVyvnAD4eB
-	auNZdbRHipGuiSfbxfsopIi73549XeUZ8RCSRHEILEp164ULbwr2NlN0CJhSNqa1D5Gy7W
-	pJmUqpkcmibFXbyNUdBMPUTusXVOKIk=
-Received: 
-	by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 5e565c20 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-	Fri, 13 Sep 2024 13:53:45 +0000 (UTC)
-Date: Fri, 13 Sep 2024 15:53:43 +0200
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Stefan Liebler <stli@linux.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 7/7] s390/vdso: Wire up getrandom() vdso implementation
-Message-ID: <ZuRD58DrEzzcXKZg@zx2c4.com>
-References: <20240913130544.2398678-1-hca@linux.ibm.com>
- <20240913130544.2398678-8-hca@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="p9FUmAkm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Message-ID:Date:MIME-Version:Subject:From:
+	Content-Type; bh=V9acdEU0Ob1i3pFcOEzI1pdIcCi/3pS+0lrJF7b/Jmw=;
+	b=p9FUmAkmzt8ZYE+8qoaOU1vut0WawO/CrYDtmOpIHq6YIr6XZGLqaXhuOY5KlD
+	NRdmqbdnRCZeOCM9TaT2fdTAWTc9wtRjpMEKfWTqHoH4i7E++2K43VfepeuJm1WR
+	Bst3k0nM3rSU/hxDJiDhy3OXMfvAQNIXGWEyL+6zkkRY4=
+Received: from [192.168.0.104] (unknown [117.147.35.135])
+	by gzga-smtp-mta-g2-3 (Coremail) with SMTP id _____wAX3xrSQ+RmVhhSAw--.31928S2;
+	Fri, 13 Sep 2024 21:53:23 +0800 (CST)
+Message-ID: <160ab123-8bad-7c38-c5b1-08a2d4d6eb20@163.com>
+Date: Fri, 13 Sep 2024 21:53:23 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20240913130544.2398678-8-hca@linux.ibm.com>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.13.1
+Subject: Re: [PATCH net-next] net/smc: remove useless macros in smc_close.h
+To: "D. Wythe" <alibuda@linux.alibaba.com>, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com
+References: <20240912144240.8635-1-shaozhengchao@163.com>
+ <e13f417e-278a-4273-a5a6-f7a1197094cb@linux.alibaba.com>
+From: shaozhengchao <shaozhengchao@163.com>
+In-Reply-To: <e13f417e-278a-4273-a5a6-f7a1197094cb@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wAX3xrSQ+RmVhhSAw--.31928S2
+X-Coremail-Antispam: 1Uf129KBjvdXoWrKF15Kw1UKrWxKF45ArWxXrb_yoWfAFb_Cr
+	yxur1xC3WUXrn7KFZ5Jw4qvw1vyrn5Jr18Z3Z0yry3J395tr4UXFs5Kr9ay3sI9rs3XFZx
+	XF45XrWDCa47ZjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IUUJ73PUUUUU==
+X-CM-SenderInfo: pvkd065khqwuxkdrqiywtou0bp/1tbivhRZvGV4LDTTdwAAsu
 
-On Fri, Sep 13, 2024 at 03:05:43PM +0200, Heiko Carstens wrote:
-> Provide the s390 specific vdso getrandom() architecture backend.
-> 
-> _vdso_rng_data required data is placed within the _vdso_data vvar page, by
-> using a hardcoded offset larger than vdso_data.
-> 
-> As required the chacha20 implementation does not write to the stack.
-> 
-> The implementation follows more or less the arm64 implementations and
-> makes use of vector instructions. It has a fallback to the getrandom()
-> system call for machines where the vector facility is not
-> installed.
-> The check if the vector facility is installed, as well as an
-> optimization for machines with the vector-enhancements facility 2,
-> is implemented with alternatives, avoiding runtime checks.
-> 
-> Note that __kernel_getrandom() is implemented without the vdso user wrapper
-> which would setup a stack frame for odd cases (aka very old glibc variants)
-> where the caller has not done that. All callers of __kernel_getrandom() are
-> required to setup a stack frame, like the C ABI requires it.
-> 
-> The vdso testcases vdso_test_getrandom and vdso_test_chacha pass.
 
-I'd be curious to see the results of ./vdso_test_getrandom bench-single
-and such.
+On 2024/9/13 15:43, D. Wythe wrote:
+>
+>
+> On 9/12/24 10:42 PM, Zhengchao Shao wrote:
+>> After commit 51f1de79ad8e("net/smc: replace sock_put worker by
+>> socket refcounting") is merged, SMC-COSES_SOCK_PUT_DELAY is no
+>> longer used. So, remove it.
+>
+> SMC_CLOSE_SOCK_PUT_DELAY
 
-Jason
+My mistake. Thank you for your review.
+
+Zhengchao Shao
+
+>
+>>
+>> Signed-off-by: Zhengchao Shao <shaozhengchao@163.com>
+>> ---
+>>   net/smc/smc_close.h | 1 -
+>>   1 file changed, 1 deletion(-)
+>>
+>> diff --git a/net/smc/smc_close.h b/net/smc/smc_close.h
+>> index 634fea2b7c95..9baee2eafc3b 100644
+>> --- a/net/smc/smc_close.h
+>> +++ b/net/smc/smc_close.h
+>> @@ -17,7 +17,6 @@
+>>   #include "smc.h"
+>>     #define SMC_MAX_STREAM_WAIT_TIMEOUT        (2 * HZ)
+>> -#define SMC_CLOSE_SOCK_PUT_DELAY        HZ
+>>     void smc_close_wake_tx_prepared(struct smc_sock *smc);
+>>   int smc_close_active(struct smc_sock *smc);
+
