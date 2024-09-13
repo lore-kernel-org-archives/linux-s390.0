@@ -1,90 +1,144 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B18ADF60;
-	Fri, 13 Sep 2024 15:24:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9009252F62;
+	Fri, 13 Sep 2024 16:24:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726241061; cv=none; b=uqlHgrgCV1uowwFilPhhdg3sfg4IevKLpFSZpsLJKk2JzgBO4K9xBYhruS9GqGcRiHATocNQyySRkel8oYWY1+KI6SdpeA/4CTN68VrYJtRU/49pVlvbY6phPTcq3OqUwVDqyjFhPTxLxN3QdAAnREYLOTNRJ7jFXtWC6XGVTME=
+	t=1726244671; cv=none; b=KYA/Pt28h4pS3hBURnr2TIWHqehv0bi95c01QeLqomM6doQzkr2liNhFopKiFA0xoI2sN7FAlCquK/3r2Vzri/wwkUFAm+182CeNocoFyLyxZYmqYDFaiBYMjah/iX829jyh+FR5RfgThOQwZUDbwYGnBp5kX84a9Pl4NnMKikM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726241061; c=relaxed/simple;
-	bh=TMNMs4HtYJvT6NaxwWsmzpLmeJxFJfj5zW4IvRl5s9E=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=f027HhCi2CRdQ0NDzER4XqRyYxtFlQ9kQbm/wyElzKj+Dn0ubmfseZgNZiDbJLV8cfgzE6AAlRwvSPYIpTguiNP8e+B87LaC3xPpzJ31uyP4ZMgLyiYH7uRVxE7hy9tKTJngBgKbLsN+W+19KvwnGoCF+dYVqiMPpsRNUrY5vnA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b=kcj+StYk; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1726244671; c=relaxed/simple;
+	bh=NdlpI2lfrJdlHUiowIjiCgNjd6opv3x/ygUeGqaQ7nY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ELNdpE03UGWB63sABW8t9b/xP0DU184V1y0tFPXTtyowcV3zgvtgILB7Oc2nSkZQCy3tibbDBPGIXaJlQMI0rhGSrjBjfIs67ZyCBVy8YOUZeIIvfhOkrl5G/dBqNAW0xHuLcXadH/CG43HEZ8Mf5otA0qFkxAvJKXV3RJCC5bw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VwJ65O2U; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="kcj+StYk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AB2BC4CEC5;
-	Fri, 13 Sep 2024 15:24:19 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="kcj+StYk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-	t=1726241058;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6kImf0YUfHWU4wjUSEueON/4b/Zh/8CSocVTzKpWd90=;
-	b=kcj+StYkkcTMCbpR8WtjaAX0JckGaUOvQ+4jkXuz8aU4z+bCwCM9mWtQcgBqxRaCoptbHt
-	kcJlLxMkXx2AaDRQE6wuFOnGIk6yzfjE9/YTHxCEcK1F8zjKAi5Re30iEbB+5gCjMpTG26
-	JQD+grpCggNPIMbZYrLOgqHq/x8TJuw=
-Received: 
-	by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id e581d9a2 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-	Fri, 13 Sep 2024 15:24:18 +0000 (UTC)
-Date: Fri, 13 Sep 2024 17:24:16 +0200
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Stefan Liebler <stli@linux.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 7/7] s390/vdso: Wire up getrandom() vdso implementation
-Message-ID: <ZuRZIPNBO1BMznUL@zx2c4.com>
-References: <20240913130544.2398678-1-hca@linux.ibm.com>
- <20240913130544.2398678-8-hca@linux.ibm.com>
- <ZuRWmJTWqmD92D8d@zx2c4.com>
- <ZuRYoVIrg28kBKqb@zx2c4.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VwJ65O2U"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48DGBZ0j003723;
+	Fri, 13 Sep 2024 16:24:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=H
+	YF5FpI54H7Ps7tpK+vSjMcqh1QBU19xCspJZIBi5PA=; b=VwJ65O2U6s6IR0ux/
+	MiUGIEU/iEMcEAQSig3FCYJ9Ijv/MWqiAu1MvfhpKS5ovvLZhjVv1zhO1eRqy8fu
+	xzAZROf8zGrGOdY1H3vKJ9KqJRdjb4j5yrvVm8uTlLUW+fwWXeDxlu5Y0B2zsNyj
+	oRqRdgTCVFn2U2VPXZ2fTwD9BlbrNQwYZ8MVv7ySQ++4e4cXtM5k7CgXolupc/cN
+	ZxZezeM1kf4rncC8ILeFV8shFQDu97UQQCZ8CcyeeommX4ZNcg0gGYkOZ775odKZ
+	YfRTvjMg0XjhicNRyQ7XVrYB4ALJX0fdyul8lzMhEt+2gm8Ahn5LizVaUFMbGfot
+	B+s/g==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41gejb3arp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 13 Sep 2024 16:24:27 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48DFh8ke013566;
+	Fri, 13 Sep 2024 16:24:26 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 41h3cmq3vr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 13 Sep 2024 16:24:26 +0000
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48DGOQOB19268274
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 13 Sep 2024 16:24:26 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 07CA058057;
+	Fri, 13 Sep 2024 16:24:26 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6519258059;
+	Fri, 13 Sep 2024 16:24:25 +0000 (GMT)
+Received: from [9.61.88.111] (unknown [9.61.88.111])
+	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 13 Sep 2024 16:24:25 +0000 (GMT)
+Message-ID: <e9a74fbb-4367-4595-9af7-47e3786b2cb1@linux.ibm.com>
+Date: Fri, 13 Sep 2024 12:24:24 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <ZuRYoVIrg28kBKqb@zx2c4.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] s390/vfio-ap: Driver feature advertisement
+To: Heiko Carstens <hca@linux.ibm.com>,
+        "Jason J. Herne"
+ <jjherne@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        fiuczy@linux.ibm.com, borntraeger@de.ibm.com, agordeev@linux.ibm.com,
+        gor@linux.ibm.com
+References: <20240910113440.8107-1-jjherne@linux.ibm.com>
+ <20240911065707.6563-A-hca@linux.ibm.com>
+Content-Language: en-US
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <20240911065707.6563-A-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: trO5wOEovL71kpqrW_duYzdbAlXaaAyJ
+X-Proofpoint-GUID: trO5wOEovL71kpqrW_duYzdbAlXaaAyJ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-13_11,2024-09-13_02,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ phishscore=0 mlxlogscore=766 spamscore=0 impostorscore=0 adultscore=0
+ bulkscore=0 suspectscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1011
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
+ definitions=main-2409130113
 
-On Fri, Sep 13, 2024 at 05:22:09PM +0200, Jason A. Donenfeld wrote:
-> On Fri, Sep 13, 2024 at 05:13:28PM +0200, Jason A. Donenfeld wrote:
-> > On Fri, Sep 13, 2024 at 03:05:43PM +0200, Heiko Carstens wrote:
-> > > The vdso testcases vdso_test_getrandom and vdso_test_chacha pass.
-> > 
-> > I'm trying to cross compile this but I'm getting:
-> > 
-> >   CC       vdso_test_chacha
-> > /home/zx2c4/Projects/random-linux/tools/testing/selftests/../../../tools/arch/s390/vdso/vgetrandom-chacha.S: Assembler messages:
-> > /home/zx2c4/Projects/random-linux/tools/testing/selftests/../../../tools/arch/s390/vdso/vgetrandom-chacha.S:147: Error: Unrecognized opcode: `alsih'
-> > 
-> > Any idea what's up?
-> 
-> Looks like I needed `-march=arch9`. I can potentially rebuild my
-> toolchains to do this by default, though, if that's a normal thing to
-> have and this is just my toolchain being crappy. Or, if it's not a
-> normal thing to have, do we need to add it to the selftests Makefile?
 
-I can squash this into the commit, for example:
 
-diff --git a/tools/testing/selftests/vDSO/Makefile b/tools/testing/selftests/vDSO/Makefile
-index af9cedbf5357..66a825278b36 100644
---- a/tools/testing/selftests/vDSO/Makefile
-+++ b/tools/testing/selftests/vDSO/Makefile
-@@ -43,3 +43,6 @@ $(OUTPUT)/vdso_test_chacha: CFLAGS += -idirafter $(top_srcdir)/tools/include \
-                                       -idirafter $(top_srcdir)/arch/$(SRCARCH)/include \
-                                       -idirafter $(top_srcdir)/include \
-                                       -D__ASSEMBLY__ -Wa,--noexecstack
-+ifeq ($(ARCH),s390)
-+$(OUTPUT)/vdso_test_chacha: CFLAGS += -march=arch9
-+endif
+On 9/11/24 2:57 AM, Heiko Carstens wrote:
+> On Tue, Sep 10, 2024 at 07:34:40AM -0400, Jason J. Herne wrote:
+>> Advertise features of the driver for the benefit of automated tooling
+>> like Libvirt and mdevctl.
+>>
+>> Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
+>> Reviewed-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+>> Reviewed-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
+>> ---
+>>   Documentation/arch/s390/vfio-ap.rst | 34 +++++++++++++++++++++++++++++
+>>   drivers/s390/crypto/vfio_ap_drv.c   | 13 +++++++++++
+>>   2 files changed, 47 insertions(+)
+> ...
+>
+>> +Driver Features
+>> +===============
+>> +The vfio_ap driver exposes a sysfs file containing supported features.
+>> +This exists so third party tools (like Libvirt and mdevctl) can query the
+>> +availability of specific features.
+>> +
+>> +The features list can be found here: /sys/bus/matrix/devices/matrix/features
+>> +
+>> +Entries are \n delimited. Each entry contains a key value pair. The key is made
+>> +up of a combination of alphanumeric and underscore characters. The separator
+>> +consists of a space, a colon and then another space. The value consists of
+>> +alphanumeric, space, and underscore characters.
+>> +
+>> +Example:
+>> +cat /sys/bus/matrix/devices/matrix/features
+>> +flags : guest_matrix dyn ap_config
+>> +
+>> +Presently only a single field named flags is defined. It is meant to advertise a
+>> +list of features the driver provides. The flags fields advertises the following
+>> +features:
+> I stumbled across this only now: sysfs files are not supposed to have
+> several key value pairs. Actually the file(name) itself is supposed to
+> be the key and its contents are the value. So I would expect:
+>
+> cat /sys/bus/matrix/devices/matrix/flags
+> guest_matrix dyn ap_config
+>
+> Which is also easier to parse. Is there a good reason why this does
+> not follow the general approach for sysfs files?
+
+I am okay with this, but I would keep the sysfs filename  'features'.
+
+cat /sys/bus/matrix/devices/matrix/features
+guest_matrix dyn ap_config
+
+
+
 
