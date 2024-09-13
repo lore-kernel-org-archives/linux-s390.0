@@ -1,113 +1,93 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52C7C1C14;
-	Fri, 13 Sep 2024 17:37:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 766731487DD;
+	Fri, 13 Sep 2024 19:23:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726249077; cv=none; b=IWtmPMzWKlvk4Gt2ofKoxNa3pCg56R7tOC1pGFb/yI9S6O9l1vSGP+4E/ZssUMxbCzj0cSdoVUWTUtbnZ8jOstPlRQJICrVoxWyekzTohIf8dCx0ez/Pr7NVo+kx26ywZSWr+I+YFs8Q+XaEnxSE0p1/KlOpj9KFC3TCavaWkZU=
+	t=1726255406; cv=none; b=XiWLj7N+LNw3KwgfyjGket7g6g7qzf1epCwrqFvimJxcWcC2HHF2d44bEPOC3VQ19wFoq9ebtnS2h2IukWkAlFkHV3m3f3Go2kyivk/0jJJPnsiJXmDyzKQe0Hp6h7wdcS0ShwxFrJ6zRb6X0UqrzYDScDMUmgC868G7fGULQA4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726249077; c=relaxed/simple;
-	bh=vibNHNRRH+3vWgI3ynOIkAiw/SlNeRRCDGEqnJuShtQ=;
+	s=arc-20240116; t=1726255406; c=relaxed/simple;
+	bh=g+we6zXlRF0K6r7vmZ6GDKa/NiVEm5StyEJsa3ai1Q0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jXqr+MQdMjqRBL6OZjqv2JaqUy/mCc/c0wI2F+kYVqNhXN7ahdpJ0m487yGSbEWl1W/aHl7S7oTOjbg2OHFfg8YyzfEd7xe7B9EC9DFWH+ze6u3cH1X1brAZFlTvBSlQGM/1tnzLFLmJB9zMQuIsasqn8qWOU45WuS9gK8bd4HY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qhLa5RT+; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=uYg9a+889aUkGZ3I/GX7sJqn1yLGhlyspmt8HjoapXRLfUGwFVXwmQDJxlThyvRiLw6Q9Fcae+Ra+MaLd+5OifQNVXXYn4MFAShUXui9o79GNQ+aNnEUnqXaaSKSfn+OVRg8Bu398D3qieTMzsRQWnv7Ip/ny7I4LMfcZQuv5+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b=iqVaYpSF; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qhLa5RT+"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48DHLqtG019201;
-	Fri, 13 Sep 2024 17:37:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:references:mime-version
-	:content-type:in-reply-to; s=pp1; bh=d7S/wbjkH88BU2FIx1D3gL3jHpT
-	+UBoRhUinazWDT44=; b=qhLa5RT+JiHRkcgwCBVaVj1VsSg5tk89+GinbM2DqIp
-	VQPGJGnfS8WX4z+CW7oZvqlTMqJwNrFJ5jNArq1Vel48Vjdl7BwEFpmrENyvWziq
-	VEToeweuDl+0nnthebTPjvDSw0vZG9kGLmlMKt0CNnTBh94FImMyqkQ0YXNXIUVn
-	48ot8ngcdp+BSYurlaNs9qIKY/CZJubLfop6eCEjF09Hm+TMzEWc364qC2D2yC7r
-	TLsnI3NknASobis7Bl7wvuiBMrwdHcqKJVdJhei8yLw+f5N8zGJLSibw7pBYqJWP
-	18GiGnsmCzsMhmCULfMNNG3VlGFA2aCSuog4XomfwQA==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41gd8m3cwv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Sep 2024 17:37:53 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48DExNDD010808;
-	Fri, 13 Sep 2024 17:37:52 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41kmb73a16-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Sep 2024 17:37:52 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48DHbmi654460692
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 13 Sep 2024 17:37:48 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7D4BF20043;
-	Fri, 13 Sep 2024 17:37:48 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DBDD920040;
-	Fri, 13 Sep 2024 17:37:47 +0000 (GMT)
-Received: from osiris (unknown [9.171.6.86])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 13 Sep 2024 17:37:47 +0000 (GMT)
-Date: Fri, 13 Sep 2024 19:37:46 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: "Jason A. Donenfeld" <Jason@zx2c4.com>
+	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="iqVaYpSF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8FF2C4CEC0;
+	Fri, 13 Sep 2024 19:23:24 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="iqVaYpSF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+	t=1726255403;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gRexsgTMh+myIiZRscYFbD1nR7aA5ysUH5XGp1Tlp7Y=;
+	b=iqVaYpSFmuqJS/EdM5oDqxY2LQzVTZFAYQulKseyvnZmHLVK/DE49vWb0PUK1vNuOI/a51
+	d6ZKtvRqOhSwajEr79L3BzwYkbTqqzx9h2HX+OcRVWHVcDbYGwYRM1VMRLtk7CUyZv2Xka
+	Nm9OEG0/yDyTZQCq/C3JhJMnu09M5Jo=
+Received: 
+	by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 745eb482 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+	Fri, 13 Sep 2024 19:23:22 +0000 (UTC)
+Date: Fri, 13 Sep 2024 21:23:20 +0200
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+To: Heiko Carstens <hca@linux.ibm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Stefan Liebler <stli@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Stefan Liebler <stli@linux.ibm.com>, linux-kernel@vger.kernel.org,
+	linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
 Subject: Re: [PATCH 7/7] s390/vdso: Wire up getrandom() vdso implementation
-Message-ID: <20240913173746.30385-D-hca@linux.ibm.com>
+Message-ID: <ZuSRKLFdYI1gCHh9@zx2c4.com>
 References: <20240913130544.2398678-1-hca@linux.ibm.com>
  <20240913130544.2398678-8-hca@linux.ibm.com>
- <ZuRD58DrEzzcXKZg@zx2c4.com>
- <20240913141651.30385-A-hca@linux.ibm.com>
- <ZuRS0sz_9_mkHsnl@zx2c4.com>
+ <ZuRWmJTWqmD92D8d@zx2c4.com>
+ <ZuRYoVIrg28kBKqb@zx2c4.com>
+ <20240913173206.30385-C-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <ZuRS0sz_9_mkHsnl@zx2c4.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bFATFXXoS8TIMWBzc_yMd9eoDzmSksXR
-X-Proofpoint-ORIG-GUID: bFATFXXoS8TIMWBzc_yMd9eoDzmSksXR
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-13_11,2024-09-13_02,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 suspectscore=0 clxscore=1015 phishscore=0 spamscore=0
- lowpriorityscore=0 adultscore=0 mlxscore=0 mlxlogscore=679 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2408220000 definitions=main-2409130125
+In-Reply-To: <20240913173206.30385-C-hca@linux.ibm.com>
 
-On Fri, Sep 13, 2024 at 04:57:22PM +0200, Jason A. Donenfeld wrote:
-> On Fri, Sep 13, 2024 at 04:16:51PM +0200, Heiko Carstens wrote:
-> > On Fri, Sep 13, 2024 at 03:53:43PM +0200, Jason A. Donenfeld wrote:
+On Fri, Sep 13, 2024 at 07:32:06PM +0200, Heiko Carstens wrote:
+> On Fri, Sep 13, 2024 at 05:22:09PM +0200, Jason A. Donenfeld wrote:
+> > On Fri, Sep 13, 2024 at 05:13:28PM +0200, Jason A. Donenfeld wrote:
 > > > On Fri, Sep 13, 2024 at 03:05:43PM +0200, Heiko Carstens wrote:
 > > > > The vdso testcases vdso_test_getrandom and vdso_test_chacha pass.
 > > > 
-> > > I'd be curious to see the results of ./vdso_test_getrandom bench-single
-> > > and such.
+> > > I'm trying to cross compile this but I'm getting:
+> > > 
+> > >   CC       vdso_test_chacha
+> > > /home/zx2c4/Projects/random-linux/tools/testing/selftests/../../../tools/arch/s390/vdso/vgetrandom-chacha.S: Assembler messages:
+> > > /home/zx2c4/Projects/random-linux/tools/testing/selftests/../../../tools/arch/s390/vdso/vgetrandom-chacha.S:147: Error: Unrecognized opcode: `alsih'
+> > > 
+> > > Any idea what's up?
 > > 
-> > It looks like this with two layers of hypervisors in between, but that
-> > shouldn't matter too much for this type of workload:
-> > 
-> > $ ./vdso_test_getrandom bench-single
-> >    vdso: 25000000 times in 0.493703559 seconds
-> >    libc: 25000000 times in 6.371764073 seconds
-> > syscall: 25000000 times in 6.584025337 seconds
+> > Looks like I needed `-march=arch9`. I can potentially rebuild my
+> > toolchains to do this by default, though, if that's a normal thing to
+> > have and this is just my toolchain being crappy. Or, if it's not a
+> > normal thing to have, do we need to add it to the selftests Makefile?
 > 
-> Cool. I'll amend that to the commit message, perhaps, so we have some
-> historical snapshot of what it does. What cpu generation/model is this?
+> That needs to be fixed differently, since the kernel build would also
+> fail when building for z10. Could you squash the below fix into this
+> patch, please?
 
-That was on a z16 machine.
+Done.
+
+> So for the kernel itself including the vdso code, everything is
+> correct now. But similar checks are missing within vdso_test_chacha.c.
+> I'll provide something for that, so that the test case will be skipped
+> if the required instructions are missing, but not today.
+
+Okay. I would assume no rush there, because it's unlikely there are
+those machines part of kselftest fleets anyway?
+
+Jason
