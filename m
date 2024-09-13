@@ -1,143 +1,126 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEF311714CD;
-	Fri, 13 Sep 2024 08:57:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 729851BD00C;
+	Fri, 13 Sep 2024 10:08:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726217838; cv=none; b=eAcWNsabXHpmInYoEivz+BPQPvmAjkyJ1FA5kANU6MMYOpt4vWQBRI6SZ0GVJpNd01ldMg1jxSQl8eD7PEdgWaAQChj91asDolNpCzuQnAVCKqQGIDT+aW0myWUn7WuYTrBRpdAUvcprakxcd9y8ia6yY+n4bEa/YKw30AZr4/c=
+	t=1726222115; cv=none; b=E/gdBG5UzfH8wkkXOHcAhhJMd6IoepOQnAmLXxB/4YsEp9ATQZlRt15snXJ93U8YrNs6bCePBLtpYoT/L0tP3dmFmyoG5WWGFAaarrud7MgmLVSNIQTeP21ruduXeYeaoDao/KUP6v3uqOFBCrnMXtM2HhCOsyh7tnFr3DXjfH0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726217838; c=relaxed/simple;
-	bh=zcFdpQbzJKsIubxtpyJsT/HdE90nXvhgnbaRRvOMwCg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=l6FXditRy8xuZ/GkPbnhAiD3h0PqzeXgwoKWLUNTR2QGpr6d6x4UK9UuBxWcYiOErHMDRCMe7M4qwzgpkcbjD+wu9pgS/2dprJZNU+SP+1hazpZhIvyLB3gQKP2ogp4mP2DvhyPQkGJKTmurW4VH44zGPv7n/9NcDt2qIwzzzFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=I9ZkFCeF; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="I9ZkFCeF"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48D89FSw018461;
-	Fri, 13 Sep 2024 08:57:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding; s=pp1; bh=axo/DjJIaLKhBTChwIp2zOOGBs
-	niBf0FSboJpyh9Tss=; b=I9ZkFCeFu5e/63xEokS6kRZtQGsipliEKzhxjWxpn9
-	fjaaevBv55wi3cwha7g1L396vFJ74RrK6mK9Ljh0Nvb2/CJ4B0OVOdHw6JJ13dND
-	9BZKofhH4WFXgIru4jU8+nDRbIFU59uFEzYbG4cF8C7FfBVe70vO7Otq2OECaGoF
-	kJJEp1pxB6jGD5CBJHxCFh7Z6HAtcRx7wzOa9q5ey88h8kjEjM9zaRZTOvOBEa6w
-	4YJbT4jwiqKixrSAydq5aCe/0WV7ck++vUzxIjOnY9aBAOTKthJZrTHYCyCouKmY
-	aNRRwSTcysAcQovIsQ9LKEIF7kWrKTJLPyrPySTCAumg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41gc8qs2ry-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Sep 2024 08:57:14 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 48D8vDSR001286;
-	Fri, 13 Sep 2024 08:57:13 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41gc8qs2ru-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Sep 2024 08:57:13 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48D6lCZv027389;
-	Fri, 13 Sep 2024 08:57:13 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 41h3v3mss2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Sep 2024 08:57:13 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48D8v9JM57999722
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 13 Sep 2024 08:57:09 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 879F02004B;
-	Fri, 13 Sep 2024 08:57:09 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6B29B20040;
-	Fri, 13 Sep 2024 08:57:09 +0000 (GMT)
-Received: from a46lp57.lnxne.boe (unknown [9.152.108.100])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 13 Sep 2024 08:57:09 +0000 (GMT)
-From: Nico Boehr <nrb@linux.ibm.com>
-To: frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v1] configure: process arguments not starting with dash
-Date: Fri, 13 Sep 2024 10:56:44 +0200
-Message-ID: <20240913085709.122017-1-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.46.0
+	s=arc-20240116; t=1726222115; c=relaxed/simple;
+	bh=e/DBTJD8mKVYtqmc31ZP4xQcSa8VjrlsLeu/n3O5RJQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bfTwwDiyI81cbRe/EF28CuNN3PvxmszUi6fvqAFXSexhdkxOtK1ZmUa4qOIAhC5sYgAWxtH/zR1rVJ710B6QMb/0K1S/DzuEEEh48BQ0fCpD6tWdsHMar1TV9X3dDzr9nbY3HKuYCfrck1jtboLEpLkZRy0exzXnlByDSDbwka8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6077CC4CEC0;
+	Fri, 13 Sep 2024 10:08:25 +0000 (UTC)
+Date: Fri, 13 Sep 2024 11:08:23 +0100
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: Charlie Jenkins <charlie@rivosinc.com>
+Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Arnd Bergmann <arnd@arndb.de>, guoren <guoren@kernel.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S . Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Muchun Song <muchun.song@linux.dev>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	shuah <shuah@kernel.org>, Christoph Hellwig <hch@infradead.org>,
+	Michal Hocko <mhocko@suse.com>,
+	"Kirill A. Shutemov" <kirill@shutemov.name>,
+	Chris Torek <chris.torek@gmail.com>,
+	Linux-Arch <linux-arch@vger.kernel.org>,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-mm@kvack.org,
+	linux-kselftest@vger.kernel.org,
+	linux-abi-devel@lists.sourceforge.net
+Subject: Re: [PATCH RFC v3 1/2] mm: Add personality flag to limit address to
+ 47 bits
+Message-ID: <ZuQPF7Gbcqzq0U6N@arm.com>
+References: <9fc4746b-8e9d-4a75-b966-e0906187e6b7@app.fastmail.com>
+ <CAJF2gTTVX9CFM3oRZZP3hGExwVwA_=n1Lrq_0DQKWA+-ZbOekg@mail.gmail.com>
+ <f23b18c6-1856-4b59-9ba3-59809b425c81@app.fastmail.com>
+ <Ztrq8PBLJ3QuFJz7@arm.com>
+ <oshwto46wbbgneiayj63umllyozm3c4267rvpszqzaopwnt2l7@6mxl5vydtons>
+ <ZuDoExckq21fePoe@ghost>
+ <ZuHfp0_tAQhaymdy@arm.com>
+ <ZuKHpFB+uWuJe2xm@ghost>
+ <ZuLIPZId9aHcAY2j@arm.com>
+ <ZuNaD+zAXiAulc0n@ghost>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 1zGdLyAl2thhIfuxtTpNuXgrBErww-Qk
-X-Proofpoint-ORIG-GUID: yEmJrmuTNImfRBLQbETJmZSmrKMnr0Oz
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-13_04,2024-09-13_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- mlxscore=0 lowpriorityscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 adultscore=0 clxscore=1011 mlxlogscore=999 suspectscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2408220000 definitions=main-2409130058
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZuNaD+zAXiAulc0n@ghost>
 
-We have arguments in the configure script which take an additional
-parameter, like --host-key-document. The syntax is as follows:
+On Thu, Sep 12, 2024 at 02:15:59PM -0700, Charlie Jenkins wrote:
+> On Thu, Sep 12, 2024 at 11:53:49AM +0100, Catalin Marinas wrote:
+> > On Wed, Sep 11, 2024 at 11:18:12PM -0700, Charlie Jenkins wrote:
+> > > Opting-in to the higher address space is reasonable. However, it is not
+> > > my preference, because the purpose of this flag is to ensure that
+> > > allocations do not exceed 47-bits, so it is a clearer ABI to have the
+> > > applications that want this guarantee to be the ones setting the flag,
+> > > rather than the applications that want the higher bits setting the flag.
+> > 
+> > Yes, this would be ideal. Unfortunately those applications don't know
+> > they need to set a flag in order to work.
+> 
+> It's not a regression, the applications never worked (on platforms that
+> do not have this default). The 47-bit default would allow applications
+> that didn't work to start working at the cost of a non-ideal ABI. That
+> doesn't seem like a reasonable tradeoff to me.  If applications want to
+> run on new hardware that has different requirements, shouldn't they be
+> required to update rather than expect the kernel will solve their
+> problems for them?
 
-  --host-key-document=PARAMETER
+That's a valid point but it depends on the application and how much you
+want to spend updating user-space. OpenJDK is fine, if you need a JIT
+you'll have to add support for that architecture anyway. But others are
+arch-agnostic, you just recompile to your target. It's not an ABI
+problem, more of an API one.
 
-We always expect an equals sign (=) after the argument name and the
-parameter.
+The x86 case (and powerpc/arm64) was different, the 47-bit worked for a
+long time before expanding it. So it made a lot of sense to keep the
+same default.
 
-If the user omits '=' between the argument name and parameter, both
-words will be interpreted as parameter-less arguments.
+Anyway, the prctl() can go both ways, either expanding or limiting the
+default address space. So I'd be fine with such interface.
 
-This on its own is not a problem, since the parameter would normally not
-be a valid argument name and should hence lead to an error message.
-However, this doesn't work currently.
-
-The configure script stops parsing arguments when an argument starting
-with something other than a dash is encountered. This means that
-specifying arguments such as:
-
-  --host-key-document /tmp/test --gen-se-header=/usr/bin/gen-se-header
-
-Will actually lead to --gen-se-header being ignored. Note the space
-instead of equals sign after --host-hey-document.
-
-In addition, --host-key-document only verifies its parameter when it is
-not empty so we will just continue as if no arguments were specified in
-the case above.
-
-This can be highly confusing, hence consume _all_ specified arguments,
-even if they don't start with a dash. This will lead to an error in the
-case above.
-
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
----
- configure | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/configure b/configure
-index 27ae9cc89657..85a2358ca20b 100755
---- a/configure
-+++ b/configure
-@@ -102,8 +102,11 @@ EOF
-     exit 1
- }
- 
--while [[ "$1" = -* ]]; do
-+optno=1
-+argc=$#
-+while [[ $optno -le $argc ]]; do
-     opt="$1"; shift
-+    optno=$(( $optno + 1 ))
-     arg=
-     if [[ "$opt" = *=* ]]; then
- 	arg="${opt#*=}"
 -- 
-2.46.0
-
+Catalin
