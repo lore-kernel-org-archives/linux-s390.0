@@ -1,263 +1,210 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 312B41527A7
-	for <linux-s390@vger.kernel.org>; Fri, 13 Sep 2024 21:04:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E35D1D0492;
+	Sat, 14 Sep 2024 17:42:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726261455; cv=none; b=M28NgO7cPbs0dPn9sS1AOQXZNVYCs71ffXEvBFs1zD79hbly7zEa1vGG4WMgd4i9eiuJUfGAOtnyloZMMAAdECDjaF5eO9RMuWC2+rMac4M1K0FiKJ34lTeu5kBOYsrLgXhfdcxRsKtrnua4U2BXsBnxc0Y1NnOWW2GvU2yjPwA=
+	t=1726335777; cv=none; b=oqyH7lyHzBmw64Ei+7hdD5U5Vbad11wDxuJVoeU5goOkIwpAHAP+0vi6mj19nztlfS3yBRe3zzbq+t04rpSEJUyq0Ilu8IPF7Hon4L16JZjtRXNTV7hMgswyonIUQDK1DTuk0PhgDf0TDvNzUbvaN1yGuSeriqZAyKRu9pSBkvg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726261455; c=relaxed/simple;
-	bh=UTbmMbiOdPh2p8MAam907C+8IKVqjc0gQ8Sb2U1VqF0=;
+	s=arc-20240116; t=1726335777; c=relaxed/simple;
+	bh=uQstSLTVghrRz3Hp0SSvpuHfpaluhuyPOLKq+qY5whU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Mn2n54pDHm9ObPSS8yE5RYCRhYhoCOe1DLBMSo9/jn+BcJVoXfXrrLPas5TD/SgQZEl7UVedKEwZx5at4y4nqeS6BxDhnRd+adPgdYgZK/xfIAgjPjW6LN2kyqpA33SzmMZ7OsZJsdeYJNKUcoryh9tu9T9OQ5swKhzi/aK8e78=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=mGJQhVia; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=TCbg4ETSZs7xkxQgunbkp1egLKfl4XR7NcdCOBE6MSABexXImz5W5r1Riy57iE/mG/xtU5VgCwpntTtOYz5TlCU3DDV8a14gI8+nsJkn2FcIdppygECOlilTjBous2APX3tvHDtyWIhDy+wvyaTBVXm4lxg1okqOSMqE9bkJM1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=L1htHe4x; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="mGJQhVia"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-206aee40676so12118395ad.0
-        for <linux-s390@vger.kernel.org>; Fri, 13 Sep 2024 14:04:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1726261452; x=1726866252; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=pGN098PfFZ1p39RZKtno/bb1iGOxyKkQDSILC8HyAbs=;
-        b=mGJQhViaeBP8boO4Z3ZlrGQg2Ou1nzmYaw9yb7rukospMvx2utfJB3ZJC/iHXR1zY5
-         OHHUQ7APm78lvjgaMAUf8nqLxbwPfkCE6Z5e7ZNILJdFYZ+iil46N6YJi7qrukHgrCj/
-         52MTbKyKy529xeaqzrRTzLPQwJPpgli/uI+0fNxnWN+NS2DfW/BXySToSEAivdhd/b1E
-         0bhUlMQ9VwSyt4VT3AbPh30kaAP0/NOhpzlX6MgqnmsEjeE/PQpON963yaauaSMSSEog
-         9Z7w+mZFQjHElQBLBsbH+wO7gdp/BUvodGBjrviEku9NhDQC1RpY/imscbGB4lWvqiQI
-         Jydg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726261452; x=1726866252;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=pGN098PfFZ1p39RZKtno/bb1iGOxyKkQDSILC8HyAbs=;
-        b=FT/pMfkDS5YtZaqGjEKA/fAhxkdogIi3N2y/gLaANSjXyTnWRK8wLG5fXv9v6xvGu7
-         9otl2L3RKfQrzgfe6NBnqC73B3PRhIQH+JbQdcnFeTHU2w2UJitowvf+4C/oPTivpd2K
-         OA9UWeQePol1AidQUhO0TJIH1hJWmBJF9ZndbndeHpFI4SJcTlFO6hpt9EEVaWo6hMoT
-         nhb/pcHtIiBuQRx3fRJDAvvxYWpQ3RyYDls3F7nNLyyuvsAqIGP+JirZ0qIbt72srVgV
-         FwwBmjljeveL8lpmr7fGZpZMPSE+q/QF+h4HR3rCxUj6i3t/YXMOfhrarPxEz17bz+eh
-         ZHsw==
-X-Forwarded-Encrypted: i=1; AJvYcCX06EcA429H7xVY7gVhkCGUpNi8qJKZbB9+BX1+6ageTM/pcvm7L2/wm93Lk9pbJ98c+XY/fpqUe7tD@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy11RMf1fVnvK+XVK1wK0lf/IK92WLSA464g87PuCCA0a+Qb4lo
-	mLB9gP0IJobAgn9fTxP6qXfndvAak58naWuUWHL/Uf7kkPMaMmqsMRnz59jF6AA=
-X-Google-Smtp-Source: AGHT+IHQy68+7/4em5wfAX0phJQ7a7VsNC8xlp5lvUp2N1zpKPOlth6aUECbhTSHxYBYBN7icOc/wA==
-X-Received: by 2002:a17:902:f54f:b0:207:457f:b8a6 with SMTP id d9443c01a7336-2078262ccc1mr54571405ad.12.1726261452005;
-        Fri, 13 Sep 2024 14:04:12 -0700 (PDT)
-Received: from ghost ([50.145.13.30])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-207945da8c9sm608475ad.17.2024.09.13.14.04.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Sep 2024 14:04:11 -0700 (PDT)
-Date: Fri, 13 Sep 2024 14:04:06 -0700
-From: Charlie Jenkins <charlie@rivosinc.com>
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Arnd Bergmann <arnd@arndb.de>, guoren <guoren@kernel.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"David S . Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Muchun Song <muchun.song@linux.dev>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Vlastimil Babka <vbabka@suse.cz>, shuah <shuah@kernel.org>,
-	Christoph Hellwig <hch@infradead.org>,
-	Michal Hocko <mhocko@suse.com>,
-	"Kirill A. Shutemov" <kirill@shutemov.name>,
-	Chris Torek <chris.torek@gmail.com>,
-	Linux-Arch <linux-arch@vger.kernel.org>,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-mm@kvack.org,
-	linux-kselftest@vger.kernel.org,
-	linux-abi-devel@lists.sourceforge.net
-Subject: Re: [PATCH RFC v3 1/2] mm: Add personality flag to limit address to
- 47 bits
-Message-ID: <ZuSoxh5U3Kj1XgGq@ghost>
-References: <20240905-patches-below_hint_mmap-v3-1-3cd5564efbbb@rivosinc.com>
- <9fc4746b-8e9d-4a75-b966-e0906187e6b7@app.fastmail.com>
- <CAJF2gTTVX9CFM3oRZZP3hGExwVwA_=n1Lrq_0DQKWA+-ZbOekg@mail.gmail.com>
- <f23b18c6-1856-4b59-9ba3-59809b425c81@app.fastmail.com>
- <Ztrq8PBLJ3QuFJz7@arm.com>
- <oshwto46wbbgneiayj63umllyozm3c4267rvpszqzaopwnt2l7@6mxl5vydtons>
- <ZuDoExckq21fePoe@ghost>
- <ZuHfp0_tAQhaymdy@arm.com>
- <ZuKHpFB+uWuJe2xm@ghost>
- <d873a994-4efa-4d3a-bdae-5d9a3eff29f2@lucifer.local>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="L1htHe4x"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48EDRC3a018796;
+	Sat, 14 Sep 2024 17:42:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:mime-version
+	:content-type:in-reply-to; s=pp1; bh=U76+Y92+6cnP9XFTsniXm+oVV04
+	feYHa4KALmWM53C8=; b=L1htHe4xiPjUW2QZHub0vijPUTnrqeZqme3ThfN96qC
+	hmOtDR0KY/wNdKFT/0kv7ziDSxvgvQpMtDWZk7MN71eQtcT9OMslArhlG6sFkRKC
+	0EzwEJG45UH6En6Us7aC1UBR5xLZexVy7qMKiq/Z/EQVriG7VAh44w6fcrwncDqo
+	8xIG3EnlLsA2bcr/7NeV13on5GNqhYhaH23Dhvkku1KdkDJoX2D9wnPiaXgALchH
+	KDGU55tXLoPZR8SDTbmDlr6wGB6flAR12WbWKVKzR4RgS0GcG1Z/wxCUEe/Q2hbN
+	Sj3CeGl68TJlXOqKh7wWojsj+MTFdJfrM5c/RKx8zdA==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3vna827-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 14 Sep 2024 17:42:52 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48EGsulT032355;
+	Sat, 14 Sep 2024 17:42:52 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41n3xqaseu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 14 Sep 2024 17:42:51 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48EHgmn947448518
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 14 Sep 2024 17:42:48 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2F4FC20043;
+	Sat, 14 Sep 2024 17:42:48 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A023820040;
+	Sat, 14 Sep 2024 17:42:47 +0000 (GMT)
+Received: from osiris (unknown [9.179.13.161])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Sat, 14 Sep 2024 17:42:47 +0000 (GMT)
+Date: Sat, 14 Sep 2024 19:42:46 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Stefan Liebler <stli@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 7/7] s390/vdso: Wire up getrandom() vdso implementation
+Message-ID: <20240914174246.8394-A-hca@linux.ibm.com>
+References: <20240913130544.2398678-1-hca@linux.ibm.com>
+ <20240913130544.2398678-8-hca@linux.ibm.com>
+ <ZuRWmJTWqmD92D8d@zx2c4.com>
+ <ZuRYoVIrg28kBKqb@zx2c4.com>
+ <20240913173206.30385-C-hca@linux.ibm.com>
+ <ZuSRKLFdYI1gCHh9@zx2c4.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <d873a994-4efa-4d3a-bdae-5d9a3eff29f2@lucifer.local>
+In-Reply-To: <ZuSRKLFdYI1gCHh9@zx2c4.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: B2CQxQX1rtAf2iSdA3GJe8w-ZW1zjE1L
+X-Proofpoint-GUID: B2CQxQX1rtAf2iSdA3GJe8w-ZW1zjE1L
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-14_09,2024-09-13_02,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
+ priorityscore=1501 phishscore=0 clxscore=1015 malwarescore=0 bulkscore=0
+ impostorscore=0 spamscore=0 suspectscore=0 mlxscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
+ definitions=main-2409140123
 
-On Fri, Sep 13, 2024 at 08:41:34AM +0100, Lorenzo Stoakes wrote:
-> On Wed, Sep 11, 2024 at 11:18:12PM GMT, Charlie Jenkins wrote:
-> > On Wed, Sep 11, 2024 at 07:21:27PM +0100, Catalin Marinas wrote:
-> > > On Tue, Sep 10, 2024 at 05:45:07PM -0700, Charlie Jenkins wrote:
-> > > > On Tue, Sep 10, 2024 at 03:08:14PM -0400, Liam R. Howlett wrote:
-> > > > > * Catalin Marinas <catalin.marinas@arm.com> [240906 07:44]:
-> > > > > > On Fri, Sep 06, 2024 at 09:55:42AM +0000, Arnd Bergmann wrote:
-> > > > > > > On Fri, Sep 6, 2024, at 09:14, Guo Ren wrote:
-> > > > > > > > On Fri, Sep 6, 2024 at 3:18 PM Arnd Bergmann <arnd@arndb.de> wrote:
-> > > > > > > >> It's also unclear to me how we want this flag to interact with
-> > > > > > > >> the existing logic in arch_get_mmap_end(), which attempts to
-> > > > > > > >> limit the default mapping to a 47-bit address space already.
-> > > > > > > >
-> > > > > > > > To optimize RISC-V progress, I recommend:
-> > > > > > > >
-> > > > > > > > Step 1: Approve the patch.
-> > > > > > > > Step 2: Update Go and OpenJDK's RISC-V backend to utilize it.
-> > > > > > > > Step 3: Wait approximately several iterations for Go & OpenJDK
-> > > > > > > > Step 4: Remove the 47-bit constraint in arch_get_mmap_end()
-> > >
-> > > Point 4 is an ABI change. What guarantees that there isn't still
-> > > software out there that relies on the old behaviour?
-> >
-> > Yeah I don't think it would be desirable to remove the 47 bit
-> > constraint in architectures that already have it.
-> >
-> > >
-> > > > > > > I really want to first see a plausible explanation about why
-> > > > > > > RISC-V can't just implement this using a 47-bit DEFAULT_MAP_WINDOW
-> > > > > > > like all the other major architectures (x86, arm64, powerpc64),
-> > > > > >
-> > > > > > FWIW arm64 actually limits DEFAULT_MAP_WINDOW to 48-bit in the default
-> > > > > > configuration. We end up with a 47-bit with 16K pages but for a
-> > > > > > different reason that has to do with LPA2 support (I doubt we need this
-> > > > > > for the user mapping but we need to untangle some of the macros there;
-> > > > > > that's for a separate discussion).
-> > > > > >
-> > > > > > That said, we haven't encountered any user space problems with a 48-bit
-> > > > > > DEFAULT_MAP_WINDOW. So I also think RISC-V should follow a similar
-> > > > > > approach (47 or 48 bit default limit). Better to have some ABI
-> > > > > > consistency between architectures. One can still ask for addresses above
-> > > > > > this default limit via mmap().
-> > > > >
-> > > > > I think that is best as well.
-> > > > >
-> > > > > Can we please just do what x86 and arm64 does?
-> > > >
-> > > > I responded to Arnd in the other thread, but I am still not convinced
-> > > > that the solution that x86 and arm64 have selected is the best solution.
-> > > > The solution of defaulting to 47 bits does allow applications the
-> > > > ability to get addresses that are below 47 bits. However, due to
-> > > > differences across architectures it doesn't seem possible to have all
-> > > > architectures default to the same value. Additionally, this flag will be
-> > > > able to help users avoid potential bugs where a hint address is passed
-> > > > that causes upper bits of a VA to be used.
-> > >
-> > > The reason we added this limit on arm64 is that we noticed programs
-> > > using the top 8 bits of a 64-bit pointer for additional information.
-> > > IIRC, it wasn't even openJDK but some JavaScript JIT. We could have
-> > > taught those programs of a new flag but since we couldn't tell how many
-> > > are out there, it was the safest to default to a smaller limit and opt
-> > > in to the higher one. Such opt-in is via mmap() but if you prefer a
-> > > prctl() flag, that's fine by me as well (though I think this should be
-> > > opt-in to higher addresses rather than opt-out of the higher addresses).
-> >
-> > The mmap() flag was used in previous versions but was decided against
-> > because this feature is more useful if it is process-wide. A
-> > personality() flag was chosen instead of a prctl() flag because there
-> > existed other flags in personality() that were similar. I am tempted to
-> > use prctl() however because then we could have an additional arg to
-> > select the exact number of bits that should be reserved (rather than
-> > being fixed at 47 bits).
+On Fri, Sep 13, 2024 at 09:23:20PM +0200, Jason A. Donenfeld wrote:
+> > > >   CC       vdso_test_chacha
+> > > > /home/zx2c4/Projects/random-linux/tools/testing/selftests/../../../tools/arch/s390/vdso/vgetrandom-chacha.S: Assembler messages:
+> > > > /home/zx2c4/Projects/random-linux/tools/testing/selftests/../../../tools/arch/s390/vdso/vgetrandom-chacha.S:147: Error: Unrecognized opcode: `alsih'
+> > > > 
+> > > > Any idea what's up?
+> > > 
+> > > Looks like I needed `-march=arch9`. I can potentially rebuild my
+> > > toolchains to do this by default, though, if that's a normal thing to
+> > > have and this is just my toolchain being crappy. Or, if it's not a
+> > > normal thing to have, do we need to add it to the selftests Makefile?
+> > 
+> > That needs to be fixed differently, since the kernel build would also
+> > fail when building for z10. Could you squash the below fix into this
+> > patch, please?
 > 
-> I am very much not in favour of a prctl(), it would require us to add state
-> limiting the address space and the timing of it becomes critical. Then we
-> have the same issue we do with the other proposals as to - what happens if
-> this is too low?
+> Done.
 > 
-> What is 'too low' varies by architecture, and for 32-bit architectures
-> could get quite... problematic.
+> > So for the kernel itself including the vdso code, everything is
+> > correct now. But similar checks are missing within vdso_test_chacha.c.
+> > I'll provide something for that, so that the test case will be skipped
+> > if the required instructions are missing, but not today.
 > 
-> And again, wha is the RoI here - we introducing maintenance burden and edge
-> cases vs. the x86 solution in order to... accommodate things that need more
-> than 128 TiB of address space? A problem that does not appear to exist in
-> reality?
-> 
-> I suggested the personality approach as the least impactful compromise way
-> of this series working, but I think after what Arnd has said (and please
-> forgive me if I've missed further discussion have been dipping in and out
-> of this!) - adapting risc v to the approach we take elsewhere seems the
-> most sensible solution to me.
->
-> This remains something we can revisit in future if this turns out to be
-> egregious.
->
+> Okay. I would assume no rush there, because it's unlikely there are
+> those machines part of kselftest fleets anyway?
 
-I appreciate Arnd's comments, but I do not think that making 47-bit the
-default is the best solution for riscv. On riscv, support for 48-bit
-address spaces was merged in 5.17 and support for 57-bit address spaces
-was merged in 5.18 without changing the default addresses provided by
-mmap(). It could be argued that this was a mistake, however since at the
-time there didn't exist hardware with larger address spaces it wasn't an
-issue. The applications that existed at the time that relied on the
-smaller address spaces have not been able to move to larger address
-spaces. Making a 47-bit user-space address space default solves the
-problem, but that is not arch agnostic, and can't be since of the
-varying differences in page table sizes across architectures, which is
-the other part of the problem I am trying to solve.
+There was another surprise waiting for me: the ALTERNATIVE macro
+within the tools header file is defined in a way that it omits
+everything. So I was just lucky that the s390 chacha assembler code
+worked, since even without the alternatives the code is working, but
+executes code for newer CPU generations, which it shouldn't.
 
-> >
-> > Opting-in to the higher address space is reasonable. However, it is not
-> > my preference, because the purpose of this flag is to ensure that
-> > allocations do not exceed 47-bits, so it is a clearer ABI to have the
-> > applications that want this guarantee to be the ones setting the flag,
-> > rather than the applications that want the higher bits setting the flag.
-> 
-> Perfect is the enemy of the good :) and an idealised solution may not end
-> up being something everybody can agree on.
+So below is a diff which fixes both:
 
-Yes you are totally right! Although this is not my ideal solution, it
-sufficiently accomplishes the goal so I think it is reasonable to
-implement this as a personality flag.
+- Add an s390 specific ALTERNATIVE macro that emits code that is
+  supposed to work on older CPU generations, instead of no code
 
-> 
-> >
-> > - Charlie
-> >
-> > >
-> > > --
-> > > Catalin
-> >
-> >
-> >
+- Add a hwcap check to make sure that all CPU capabilities required to
+  run the assembler code are present
+
+It probably makes sense to squash this also into
+"s390/vdso: Wire up getrandom() vdso implementation".
+
+Please feel free to change the code in whatever way you like.
+If you prefer separate patches, I will provide them.
+
+diff --git a/tools/include/asm/alternative.h b/tools/include/asm/alternative.h
+index 7ce02a223732..68dc894c0892 100644
+--- a/tools/include/asm/alternative.h
++++ b/tools/include/asm/alternative.h
+@@ -2,8 +2,18 @@
+ #ifndef _TOOLS_ASM_ALTERNATIVE_ASM_H
+ #define _TOOLS_ASM_ALTERNATIVE_ASM_H
+ 
++#if defined(__s390x__)
++#ifdef __ASSEMBLY__
++.macro ALTERNATIVE oldinstr, newinstr, feature
++	\oldinstr
++.endm
++#endif
++#else
++	
+ /* Just disable it so we can build arch/x86/lib/memcpy_64.S for perf bench: */
+ 
+ #define ALTERNATIVE #
+ 
+ #endif
++
++#endif
+diff --git a/tools/testing/selftests/vDSO/vdso_test_chacha.c b/tools/testing/selftests/vDSO/vdso_test_chacha.c
+index e81d72c9882e..f1eace68a63b 100644
+--- a/tools/testing/selftests/vDSO/vdso_test_chacha.c
++++ b/tools/testing/selftests/vDSO/vdso_test_chacha.c
+@@ -5,11 +5,34 @@
+ 
+ #include <tools/le_byteshift.h>
+ #include <sys/random.h>
++#include <sys/auxv.h>
+ #include <string.h>
+ #include <stdint.h>
+ #include <stdbool.h>
+ #include "../kselftest.h"
+ 
++#if defined(__s390x__)
++
++#ifndef HWCAP_S390_VX
++#define HWCAP_S390_VX 2048
++#endif
++
++static bool cpu_has_capabilities(void)
++{
++	if (getauxval(AT_HWCAP) & HWCAP_S390_VX)
++		return true;
++	return false;
++}
++
++#else
++
++static bool cpu_has_capabilities(void)
++{
++	return true;
++}
++
++#endif
++
+ static uint32_t rol32(uint32_t word, unsigned int shift)
+ {
+ 	return (word << (shift & 31)) | (word >> ((-shift) & 31));
+@@ -67,6 +90,8 @@ int main(int argc, char *argv[])
+ 	uint8_t output1[BLOCK_SIZE * BLOCKS], output2[BLOCK_SIZE * BLOCKS];
+ 
+ 	ksft_print_header();
++	if (!cpu_has_capabilities())
++		ksft_exit_skip("Required CPU capabilities missing\n");
+ 	ksft_set_plan(1);
+ 
+ 	for (unsigned int trial = 0; trial < TRIALS; ++trial) {
