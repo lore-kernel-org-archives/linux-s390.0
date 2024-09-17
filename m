@@ -1,59 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6E05180021;
-	Tue, 17 Sep 2024 15:19:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 086A41CFEC9;
+	Tue, 17 Sep 2024 15:19:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726586386; cv=none; b=XPX1AFsVnja/chdWSMyWtWQk5sSvUCvfJ4Ssaa/wud+n7Gj7iP7+UoISQfMZ0z7oqOzW2WuCVacpFfDYOvYVCd2ePKGpoIh+QmLJVkkck5bAuK5u/wIP0TrvXqN0VxD/j+83YoVzYE7P5qqSVD+QTSTI3YjxBdiAP1uHMlOr4RE=
+	t=1726586388; cv=none; b=PHVesvrnu8OtyZz52raeaazf+p0+Jle5eTpynfYxEwMzcf9RiCOEgC6I55fpHDfSb6xTt1MTfQb5XqK8h5pQlOAvUm8zODovKaWYeGz87mU3I4SJ6rn+Q3sxhTsylHCTmANoOnwAN/ERBja09cuWAbRA6MUGr/nXKanoyP2Vj0E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726586386; c=relaxed/simple;
-	bh=mgd/1m1MmL2fqWXTJYOZMNfoG1HKf9XzfrUFm3JR8oc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=EDAekXTNep/p0/4D80oiHj11fOT35+3aRhulcfoYzeS/HYwwRS1A4RvwbTr7RfSGL+soj5dC99Xs4oXP5aNLQAKLYm10Ums47ftvw6xonLW7UlMvvzY/PCMWqWj/SivWRU9XNnApu2NbxvndpTP8CT5lu8lPQDXC0XJWTwV3R1s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ApmThZpw; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1726586388; c=relaxed/simple;
+	bh=XglR8Jj25g7WqNVPZWl4EytyEohMfkDbwq7O4fpsoh4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=kdTWfCzoVKXctUwhJqBa1ASHmMuLW1qFh/xCpn2hUiwqJgJKF/FUyMf3xSQ3nHIH9PlSQTSpmLz/d0eg9ofz2jMthWaYHHV2QXOAoFxreP3Xg1UdCVBZIUizdSTTzZPpXBuwj+wBwZkzYJuE9wRGk98lHvNIH6eWp4PPLwt+nC8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=f00yqua0; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ApmThZpw"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48H9MQwQ007518;
-	Tue, 17 Sep 2024 15:19:43 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="f00yqua0"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48HAaA5e031795;
+	Tue, 17 Sep 2024 15:19:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding; s=pp1; bh=MLtQDoqNuqmpDSg5NRbeVo8NUP
-	H8pIjEuF9tm0KjhWc=; b=ApmThZpwo8uDCG5fNJ1XHLierzbN1PC54vRpSMAPga
-	YWoLV+e5kxpn2sPCad8cz1ECxSeHqn0niBBzRuo6mV2qWsIo+h7ZO0detDptx+sq
-	g8gigMs7CPB4POC1J7UGXPIy2UvuGkhWSSlNCYvZsk00SOx2mOhAlapCA+EZCkdb
-	oEU1K0qUpj6tCvO0xUA4iedUIPExlLcj3A6bsLMlwA3D8j6atMlp9TjajS/9G8Od
-	+Dwz0buois0PZ9iSxFGnWNcrYxPcszRY+872yi1PN6DRqHm0m18eXWtq77wgQGZY
-	JBx6hJGD5POUiw6rXKmEJaN0gC2HTF7i4lC4LZ8vM+nw==
+	:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding; s=pp1; bh=QdGAHQRQcxyBD
+	q/+zROf4S4BQcsx0DZB6CZL3mv4ZmY=; b=f00yqua0mI1HcJfRWThIi4gqREHIW
+	1UkmbOpLHgZckh8O1CGzW23yYD8dicfonhOxLyPWlSDj4HlVcCemElrxAX0xISin
+	XoF8giL0rZACxjU6VXnW+pAFEO59oJGm7258Bv5nF0flmcWa7wNJPiPI+wO1J1vU
+	jBrs6uFCH1Y48eHbo4r3HKif6SCznUsMSykpVoBZpfGIKpQjhQmhfSTWY70mtCR8
+	PA05VW/M4xPvyDHgBXjUA7Zt1U4/nif+O+/n+EWHActAqPbbErARmHnDfxRHWB8y
+	+PtToRelUkzdbbmMtocePKxYbcvC2sZoYTYF8LTdnyZezdfi1rxpYQiaQ==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3vdh0wq-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3uj8y9q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Sep 2024 15:19:43 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 48HFGj9G025703;
-	Tue, 17 Sep 2024 15:19:42 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3vdh0u9-1
+	Tue, 17 Sep 2024 15:19:44 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 48HFJCtc012684;
+	Tue, 17 Sep 2024 15:19:12 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3uj8y9f-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Sep 2024 15:19:42 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48HEwQpb000628;
+	Tue, 17 Sep 2024 15:19:12 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48HCiP3q000762;
 	Tue, 17 Sep 2024 15:19:08 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41nn7163se-1
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41nntq5wra-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 17 Sep 2024 15:19:08 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48HFJ4QM57409842
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48HFJ5fR53412228
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Sep 2024 15:19:04 GMT
+	Tue, 17 Sep 2024 15:19:05 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7A86620040;
-	Tue, 17 Sep 2024 15:19:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0886A20040;
+	Tue, 17 Sep 2024 15:19:05 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3906C2004B;
+	by IMSVA (Postfix) with ESMTP id C589B2004B;
 	Tue, 17 Sep 2024 15:19:04 +0000 (GMT)
 Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -62,10 +63,12 @@ From: Nico Boehr <nrb@linux.ibm.com>
 To: borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
         david@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH v1 0/2] KVM: s390: fix diag258 virtual-physical confusion
-Date: Tue, 17 Sep 2024 17:18:32 +0200
-Message-ID: <20240917151904.74314-1-nrb@linux.ibm.com>
+Subject: [PATCH v1 2/2] KVM: s390: Change virtual to physical address access in diag 0x258 handler
+Date: Tue, 17 Sep 2024 17:18:34 +0200
+Message-ID: <20240917151904.74314-3-nrb@linux.ibm.com>
 X-Mailer: git-send-email 2.46.0
+In-Reply-To: <20240917151904.74314-1-nrb@linux.ibm.com>
+References: <20240917151904.74314-1-nrb@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,37 +77,49 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: AjRm98rRzPHAuDQMYyod4n9wySe_SOPj
-X-Proofpoint-GUID: hgDVYWlymsFfh_1USVoL5HHLFgIRrLal
+X-Proofpoint-ORIG-GUID: 12MJQtnaKlaU1pzZl5cuSEI1ro1xaY3V
+X-Proofpoint-GUID: U4-AoNhs7LmEMus61cmlvUD--MAh4Y54
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.60.29
  definitions=2024-09-17_07,2024-09-16_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- lowpriorityscore=0 suspectscore=0 bulkscore=0 clxscore=1015 mlxscore=0
- malwarescore=0 mlxlogscore=475 priorityscore=1501 phishscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=826 adultscore=0 phishscore=0 spamscore=0 lowpriorityscore=0
+ clxscore=1015 bulkscore=0 suspectscore=0 mlxscore=0 impostorscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2408220000 definitions=main-2409170110
+
+From: Michael Mueller <mimu@linux.ibm.com>
 
 The parameters for the diag 0x258 are real addresses, not virtual, but
 KVM was using them as virtual addresses. This only happened to work, since
 the Linux kernel as a guest used to have a 1:1 mapping for physical vs
 virtual addresses.
 
-In addition, add handling for guest addresses outside memslots in
-access_guest_page() for architectural compliance and testability.
+Fix KVM so that it correctly uses the addresses as real addresses.
 
-Michael Mueller (1):
-  KVM: s390: Change virtual to physical address access in diag 0x258
-    handler
+Cc: stable@vger.kernel.org
+Fixes: 8ae04b8f500b ("KVM: s390: Guest's memory access functions get access registers")
+Suggested-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+[ nrb: drop tested-by tags ]
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ arch/s390/kvm/diag.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Nico Boehr (1):
-  KVM: s390: gaccess: check if guest address is in memslot
-
- arch/s390/kvm/diag.c    |  2 +-
- arch/s390/kvm/gaccess.c |  7 +++++++
- arch/s390/kvm/gaccess.h | 14 ++++++++------
- 3 files changed, 16 insertions(+), 7 deletions(-)
-
+diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+index 2a32438e09ce..74f73141f9b9 100644
+--- a/arch/s390/kvm/diag.c
++++ b/arch/s390/kvm/diag.c
+@@ -77,7 +77,7 @@ static int __diag_page_ref_service(struct kvm_vcpu *vcpu)
+ 	vcpu->stat.instruction_diagnose_258++;
+ 	if (vcpu->run->s.regs.gprs[rx] & 7)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+-	rc = read_guest(vcpu, vcpu->run->s.regs.gprs[rx], rx, &parm, sizeof(parm));
++	rc = read_guest_real(vcpu, vcpu->run->s.regs.gprs[rx], &parm, sizeof(parm));
+ 	if (rc)
+ 		return kvm_s390_inject_prog_cond(vcpu, rc);
+ 	if (parm.parm_version != 2 || parm.parm_len < 5 || parm.code != 0x258)
 -- 
 2.46.0
 
