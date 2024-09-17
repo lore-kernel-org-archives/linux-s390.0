@@ -1,203 +1,204 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C29817C233;
-	Tue, 17 Sep 2024 14:20:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6E1C17BEB6;
+	Tue, 17 Sep 2024 15:19:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726582829; cv=none; b=FfAQmvZmPkbZTr4NvwUC+HBX8Rc7zyDJHsun199q9GRCmpPr5mas6Ke0NG/MDeblGXp/NfFm3ErFerA/PUOwOm42P9VLZeh6krcZczzbJFv4J50UbJaXD6wZqoN7ei42vvKX1Bw0R0YjcoVzgIzCdyvbOYCLY+phYhjvl0rs/EQ=
+	t=1726586355; cv=none; b=QNYIskZJSErtJ3WbeN8Rvy+UcDPtph8eCkZFMj5KJCqbXfYRX6Az/WeAmjb0WT9g0nRiydQQKp4PKf6mb9r/BaTUSsgUdfGtKOMAgk8+l+5UOIvJfDtqmEa0wguT/H6/yPElzBbGTrFj2zlJybBDZ5FgwM169fUBewtUxfyGDtM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726582829; c=relaxed/simple;
-	bh=KbQr9/EWgoTXSqlJOhGuoTANkhizNH7aMzpMqgkylu4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QnR4Wo+nkBhFPX5eMVZsBbhpx77R2llukBXxeKgB4qFg8upgT7wOW2eWZjt2el4Isyl12ClvoK8qVXbh0T5aG4/JnDU5BzxmibbrbL0abPnWKzoAg1DuVpgd1NlV/nOwfQxuEF6gHrnquW70nycQegNzVr557p+dQojoKXfWNwA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LL7Zhjje; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1726586355; c=relaxed/simple;
+	bh=6w1XlotVjAFKWT0ly8+Nou7XKvGWo9miRd+On/CERkE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ieatPOheCPa1pQFZm6Ff3C+zdzzS4//6LBaAuhpkLpukPuimL5FDfQPnWQJYi/5vq+EWqK/LwqwWnrUKupkq3wRVFGeIAY2VHflaLz/sWP6Gf5JQm89gerABSkG1toKWMcEB4Vj2/HIHijRf6FTPydBr9FVYefWqZNtDrGcBjec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tbMBrZj0; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LL7Zhjje"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48HBEpAX031399;
-	Tue, 17 Sep 2024 14:20:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=5
-	lc5qdCB4QqG+we7Yq4WSc1YALG7j2gghN4dJXLeJz4=; b=LL7Zhjjeyf7WOy59B
-	oVqxprkD8B3OhH5vktkWrcPPyiymsnxP8pmyVcuzFNhkHZBuVrmHY68d4ZL2RjDI
-	EG4HHbByvuvvy3DGJtyEJQmh/saVWVhvGuCKmXIQwuGozpBtfd1fVUD40IiFgkBN
-	MgJAD4RhdvwFJAhjb2oz3uEyn5hJrgM0zfcFwP3Hd9EjCDMKaMvzbnbSgUid77+K
-	jGx4uAJlCacE/ZAd9THyDO2McnqXkBXlOJ1t13u40QBgc0BUoP746yrtWdIV19pv
-	AtMPGNqCFk13urVPaOpquTT6YWruD9Qo6PP30R888Q6G7Ns8TuyAY8k5otOiXWSR
-	ocbLA==
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tbMBrZj0"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48H9A9vc007778;
+	Tue, 17 Sep 2024 15:19:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding; s=pp1; bh=t8bbSO4otQokK
+	mpFFezLpLMmoDOKwe6qQKsenSSJL4w=; b=tbMBrZj0DCBRH0pgPbMIANg//5fsc
+	I34yDjtuXLo/WY97ci8XzuMMKgdTdmMl62hjOrJ2gUY5T+gHcPYmHxPjkHW5aBmN
+	ux316oVjyRwPmozz+v5CNT83YS/yOzkuUYFTO3l7KgOAXpvVXQvrEcVCotRJAzXA
+	q+IX4XhZws2tk5ya7rzVwXfpvWOEoKoErf1XoSznfHHqyhn7kmKPgcN3QJIT8YBn
+	Rbef9ENEH/mFadqd6PlNiVzPUz/eFj0NPwlQDVFRx0Fn/JnLxBxbiC9Wgw7VT0+I
+	B8DCqkM6HIbX6klvRDwarmLpi6y2xrI0McDiuM2jIq1F2pdvKiN5DhnUQ==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3vnr3r3-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3vdh0uf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Sep 2024 14:20:20 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 48HEKKGB029469;
-	Tue, 17 Sep 2024 14:20:20 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3vnr3qy-1
+	Tue, 17 Sep 2024 15:19:10 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 48HFJA2X031224;
+	Tue, 17 Sep 2024 15:19:10 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3vdh0u5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Sep 2024 14:20:20 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48HBsatf002338;
-	Tue, 17 Sep 2024 14:20:19 GMT
+	Tue, 17 Sep 2024 15:19:09 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48HDGQwK031049;
+	Tue, 17 Sep 2024 15:19:08 GMT
 Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 41nmtunwgv-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41npan5ts6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Sep 2024 14:20:19 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48HEKFnq34734436
+	Tue, 17 Sep 2024 15:19:08 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48HFJ4q850331966
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Sep 2024 14:20:16 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D215C2004B;
-	Tue, 17 Sep 2024 14:20:15 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 52F4320043;
-	Tue, 17 Sep 2024 14:20:15 +0000 (GMT)
-Received: from [9.179.13.46] (unknown [9.179.13.46])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 17 Sep 2024 14:20:15 +0000 (GMT)
-Message-ID: <42c32ade-e0b2-4960-90ec-6c4a3ee07ede@linux.ibm.com>
-Date: Tue, 17 Sep 2024 16:20:15 +0200
+	Tue, 17 Sep 2024 15:19:04 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BB84520040;
+	Tue, 17 Sep 2024 15:19:04 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8464E20043;
+	Tue, 17 Sep 2024 15:19:04 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 17 Sep 2024 15:19:04 +0000 (GMT)
+From: Nico Boehr <nrb@linux.ibm.com>
+To: borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
+        david@redhat.com
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH v1 1/2] KVM: s390: gaccess: check if guest address is in memslot
+Date: Tue, 17 Sep 2024 17:18:33 +0200
+Message-ID: <20240917151904.74314-2-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.46.0
+In-Reply-To: <20240917151904.74314-1-nrb@linux.ibm.com>
+References: <20240917151904.74314-1-nrb@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 4/4] fixup! selftests: kvm: s390: Add VM run test case
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-References: <20240917064456.210839-1-schlameuss@linux.ibm.com>
- <20240917064456.210839-5-schlameuss@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20240917064456.210839-5-schlameuss@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: gDNOyiWB8N_nJI5mEBsRDyuo5rF2YnY6
-X-Proofpoint-GUID: dKZpNgPr4-ge0H5cg8WyAkrYJg7XdVNe
+X-Proofpoint-ORIG-GUID: 7rIgN4WxD03lvi8gIXoLrw2AvS6Rq1xd
+X-Proofpoint-GUID: YrMBMvBDWffoi8P8uj61eswKsfnVZ1qO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-17_06,2024-09-16_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
- priorityscore=1501 phishscore=0 clxscore=1015 malwarescore=0 bulkscore=0
- impostorscore=0 spamscore=0 suspectscore=0 mlxscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
- definitions=main-2409170100
+ definitions=2024-09-17_07,2024-09-16_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
+ lowpriorityscore=0 suspectscore=0 bulkscore=0 clxscore=1015 mlxscore=0
+ malwarescore=0 mlxlogscore=999 priorityscore=1501 phishscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2409170108
 
-On 9/17/24 8:44 AM, Christoph Schlameuss wrote:
-> Fix pointer function arguments whitespaces.
-> 
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Previously, access_guest_page() did not check whether the given guest
+address is inside of a memslot. This is not a problem, since
+kvm_write_guest_page/kvm_read_guest_page return -EFAULT in this case.
 
-Generally we don't use the fixup prefix in upstream development AFAIK.
+However, -EFAULT is also returned when copy_to/from_user fails.
 
+When emulating a guest instruction, the address being outside a memslot
+usually means that an addressing exception should be injected into the
+guest.
 
-selftests: kvm: s390: Fix whitespace confusion in ucontrol test
+Failure in copy_to/from_user however indicates that something is wrong
+in userspace and hence should be handled there.
 
-Checkpatch thinks that we're doing a multiplication but we're obviously 
-not. Fix 4 instances where we adhered to wrong checkpatch advice.
+To be able to distinguish these two cases, return PGM_ADDRESSING in
+access_guest_page() when the guest address is outside guest memory. In
+access_guest_real(), populate vcpu->arch.pgm.code such that
+kvm_s390_inject_prog_cond() can be used in the caller for injecting into
+the guest (if applicable).
 
+Since this adds a new return value to access_guest_page(), we need to make
+sure that other callers are not confused by the new positive return value.
 
+There are the following users of access_guest_page():
+- access_guest_with_key() does the checking itself (in
+  guest_range_to_gpas()), so this case should never happen. Even if, the
+  handling is set up properly.
+- access_guest_real() just passes the return code to its callers, which
+  are:
+    - read_guest_real() - see below
+    - write_guest_real() - see below
 
-Let's wait and see if the first set of patches is being pulled, if not 
-we can still fix it up in the earlier patches making this patch obsolete.
+There are the following users of read_guest_real():
+- ar_translation() in gaccess.c which already returns PGM_*
+- setup_apcb10(), setup_apcb00(), setup_apcb11() in vsie.c which always
+  return -EFAULT on read_guest_read() nonzero return - no change
+- shadow_crycb(), handle_stfle() always present this as validity, this
+  could be handled better but doesn't change current behaviour - no change
 
-> ---
->   tools/testing/selftests/kvm/s390x/ucontrol_test.c | 8 ++++----
->   1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-> index 1f1c58f5ec2f..83061db79c83 100644
-> --- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-> +++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-> @@ -330,7 +330,7 @@ static void uc_handle_exit_ucontrol(FIXTURE_DATA(uc_kvm) *self)
->    * * fail on codes not expected in the test cases
->    * Returns if interception is handled / execution can be continued
->    */
-> -static bool uc_handle_sieic(FIXTURE_DATA(uc_kvm) * self)
-> +static bool uc_handle_sieic(FIXTURE_DATA(uc_kvm) *self)
->   {
->   	struct kvm_s390_sie_block *sie_block = self->sie_block;
->   	struct kvm_run *run = self->run;
-> @@ -359,7 +359,7 @@ static bool uc_handle_sieic(FIXTURE_DATA(uc_kvm) * self)
->   }
->   
->   /* verify VM state on exit */
-> -static bool uc_handle_exit(FIXTURE_DATA(uc_kvm) * self)
-> +static bool uc_handle_exit(FIXTURE_DATA(uc_kvm) *self)
->   {
->   	struct kvm_run *run = self->run;
->   
-> @@ -379,7 +379,7 @@ static bool uc_handle_exit(FIXTURE_DATA(uc_kvm) * self)
->   }
->   
->   /* run the VM until interrupted */
-> -static int uc_run_once(FIXTURE_DATA(uc_kvm) * self)
-> +static int uc_run_once(FIXTURE_DATA(uc_kvm) *self)
->   {
->   	int rc;
->   
-> @@ -390,7 +390,7 @@ static int uc_run_once(FIXTURE_DATA(uc_kvm) * self)
->   	return rc;
->   }
->   
-> -static void uc_assert_diag44(FIXTURE_DATA(uc_kvm) * self)
-> +static void uc_assert_diag44(FIXTURE_DATA(uc_kvm) *self)
->   {
->   	struct kvm_s390_sie_block *sie_block = self->sie_block;
->   
+There are the following users of write_guest_real():
+- kvm_s390_store_status_unloaded() always returns -EFAULT on
+  write_guest_real() failure.
+
+Fixes: 2293897805c2 ("KVM: s390: add architecture compliant guest access functions")
+Cc: stable@vger.kernel.org
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ arch/s390/kvm/gaccess.c |  7 +++++++
+ arch/s390/kvm/gaccess.h | 14 ++++++++------
+ 2 files changed, 15 insertions(+), 6 deletions(-)
+
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index e65f597e3044..004047578729 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -828,6 +828,9 @@ static int access_guest_page(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
+ 	const gfn_t gfn = gpa_to_gfn(gpa);
+ 	int rc;
+ 
++	if (!gfn_to_memslot(kvm, gfn))
++		return PGM_ADDRESSING;
++
+ 	if (mode == GACC_STORE)
+ 		rc = kvm_write_guest_page(kvm, gfn, data, offset, len);
+ 	else
+@@ -985,6 +988,10 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
+ 		gra += fragment_len;
+ 		data += fragment_len;
+ 	}
++
++	if (rc > 0)
++		vcpu->arch.pgm.code = rc;
++
+ 	return rc;
+ }
+ 
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index b320d12aa049..3fde45a151f2 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -405,11 +405,12 @@ int read_guest_abs(struct kvm_vcpu *vcpu, unsigned long gpa, void *data,
+  * @len: number of bytes to copy
+  *
+  * Copy @len bytes from @data (kernel space) to @gra (guest real address).
+- * It is up to the caller to ensure that the entire guest memory range is
+- * valid memory before calling this function.
+  * Guest low address and key protection are not checked.
+  *
+- * Returns zero on success or -EFAULT on error.
++ * Returns zero on success, -EFAULT when copying from @data failed, or
++ * PGM_ADRESSING in case @gra is outside a memslot. In this case, pgm check info
++ * is also stored to allow injecting into the guest (if applicable) using
++ * kvm_s390_inject_prog_cond().
+  *
+  * If an error occurs data may have been copied partially to guest memory.
+  */
+@@ -428,11 +429,12 @@ int write_guest_real(struct kvm_vcpu *vcpu, unsigned long gra, void *data,
+  * @len: number of bytes to copy
+  *
+  * Copy @len bytes from @gra (guest real address) to @data (kernel space).
+- * It is up to the caller to ensure that the entire guest memory range is
+- * valid memory before calling this function.
+  * Guest key protection is not checked.
+  *
+- * Returns zero on success or -EFAULT on error.
++ * Returns zero on success, -EFAULT when copying to @data failed, or
++ * PGM_ADRESSING in case @gra is outside a memslot. In this case, pgm check info
++ * is also stored to allow injecting into the guest (if applicable) using
++ * kvm_s390_inject_prog_cond().
+  *
+  * If an error occurs data may have been copied partially to kernel space.
+  */
+-- 
+2.46.0
 
