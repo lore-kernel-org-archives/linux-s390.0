@@ -1,389 +1,310 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB685364BE;
-	Tue, 17 Sep 2024 05:38:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D70F14A4D6;
+	Tue, 17 Sep 2024 06:45:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726551503; cv=none; b=BE/83sctJ3dwzj2S0oaarLOjwk9c7c5I/BBZbQRY4Exk2gPM1QeKdCNeQ6RjiZNKU5UtAeJ7O4H3z7yS6XlGfpgJcveewCDM/Br/K+ZR/MCyDEuuaSgtxI7Kvt5LUOHzn8Q2YdmXa5sgO+Lf9UxdUWbP3zFTPFZ2ft21v6DGvpc=
+	t=1726555516; cv=none; b=jf9P1N7qp1Fgvo0ebfAozFc4JiErlHcKbTXzfStTWfGa7FmNLw77yd7FbWWLZnX8/i9q7UM8SUOXBDSnf28DoSIk7cbbhs+W8cNSxA3qxvWp/gMjc28fg0dVz4XJHrRR7B0ujlSX0u6daIJLtrY4qWuWlb7NHnZa+sCNBNa+/XI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726551503; c=relaxed/simple;
-	bh=92/sm0x9b8bTZYjWstigCGTYf/nD/vd4R8j9jsSv6kE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iGdDJnWampwbpF/jeZpQKBqSlUvjgCF7IZjcw6p5bMRqY4f5kFtCG2mpaeCgUD54hPOvXw/YpOV0tYawHSIdMBgU8x/7Ljk5bKFooxAi1X3Bi8EpyC1XMwrEVPgYoTXg/WZwXPlkYDVY71m/aUjHE8c2uTQ/NKFmGznD3h2GE5A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nVCQHbxT; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1726555516; c=relaxed/simple;
+	bh=G2y2Iz7QoYWocusenPpW9dVgmpuipFaPgMPaH+ftfDE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=XNEvejWNISr0X/+tYAEDWQj0vRdV+h96I26yGXAO6Y2hkCoT2MeQZNVBlWZznMK6esipTLQAVx1N4jRaSXuDpwt3c98q8QTeFRM94g3wDiWhzu3LYymp13PLJAEpy66QC/8by23oDAjlreEO/egQOPAyBFTqPotSU2B6Otcc/S4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=S3Wy6DOd; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nVCQHbxT"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48GIV0Gh031215;
-	Tue, 17 Sep 2024 05:37:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=m
-	n49dey97attnTx40sSCX8lZEHnYddM5AExwpYsB+xg=; b=nVCQHbxTPJXg6BtHF
-	6hsmoqKbgKVh7zN3DeJRs9NRVi+kmCrK4CteQtEhjtU4fuYEAkCRicKxxmf5CAV0
-	1qf5x2heZ8yuvjtzN7CySK1G3ER+Yqozi7+y+21mL5ocFGpbaWTaJpO66J46cQXn
-	8g8FTGErWamgiOukU/npMn4Wx4fySIt6nJBnAKSQEGd23+7D4Nii9WzwCUCZEL0N
-	eDy7ffJ5CF+Dx8kptffv1+XeeUMyEM1y55EwDgr/NYRjiuhzIaDzgf1UP03fQE5H
-	K09FZppUQ3l6JoPxW0jMBXl/S13oo5xXr6EGIkH+7f0O/CbAuzsU1OQ87e52Ap86
-	OKGew==
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="S3Wy6DOd"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48GIUwGs030191;
+	Tue, 17 Sep 2024 06:45:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding; s=pp1; bh=F3Xgknc+0ib/c
+	ZcHC25GGs4lJUnzsehhe/IT8XNiSe8=; b=S3Wy6DOdKtDiTtvvhz2lE2X+Jv1Sp
+	cGQP8wHprpBe5uWNz6PEzs56PkawW94323mhRJVwMBlKTF/Ilz2lx+LysunEzAvY
+	ap8nSk0nTXfXjF9WEoXr+5EjA1U6tjhFCFbAVrVg9plrey5kjBm8yXlh117geups
+	UYJSx/+5GQk2XaqWnB4tNXxahaY7ROf/Q0M7wX0t5LjmZFVbLMZuL0raiDx96rq1
+	iXiV9e5kbIWx46jdb6kazS/LIIZPHKKba2ozBkl7NjhGm5I4VBVL+8Y1b0wXbJyy
+	GjpdmsWcUibxB537ZJgiRJVChxZ2nFIEp2xE4ZiDoTsaNqPmZ/PqAY31w==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3vnnjj7-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41pht8da48-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Sep 2024 05:37:14 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 48H5bDsU004868;
-	Tue, 17 Sep 2024 05:37:13 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3vnnjj3-1
+	Tue, 17 Sep 2024 06:45:08 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 48H6j84U022395;
+	Tue, 17 Sep 2024 06:45:08 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41pht8da44-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Sep 2024 05:37:13 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48H4ge8U001960;
-	Tue, 17 Sep 2024 05:37:12 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 41nmtukhj9-1
+	Tue, 17 Sep 2024 06:45:08 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48H3svZK001821;
+	Tue, 17 Sep 2024 06:45:07 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 41nqh3k5vs-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Sep 2024 05:37:12 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48H5bBoK25166476
+	Tue, 17 Sep 2024 06:45:07 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48H6j4l452691230
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Sep 2024 05:37:11 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0369858050;
-	Tue, 17 Sep 2024 05:37:11 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5CB2058052;
-	Tue, 17 Sep 2024 05:36:57 +0000 (GMT)
-Received: from [9.43.81.97] (unknown [9.43.81.97])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 17 Sep 2024 05:36:57 +0000 (GMT)
-Message-ID: <64fbdf0b-02b9-43cd-a0ba-89e37f2615f8@linux.ibm.com>
-Date: Tue, 17 Sep 2024 11:06:54 +0530
+	Tue, 17 Sep 2024 06:45:04 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3420620043;
+	Tue, 17 Sep 2024 06:45:04 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 936C820040;
+	Tue, 17 Sep 2024 06:45:03 +0000 (GMT)
+Received: from darkmoore.ibmuc.com (unknown [9.179.17.198])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 17 Sep 2024 06:45:03 +0000 (GMT)
+From: Christoph Schlameuss <schlameuss@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>, schlameuss@linux.ibm.com
+Subject: [PATCH v4 1/4] selftests: kvm: s390: Add uc_map_unmap VM test case
+Date: Tue, 17 Sep 2024 08:44:53 +0200
+Message-ID: <20240917064456.210839-2-schlameuss@linux.ibm.com>
+X-Mailer: git-send-email 2.46.0
+In-Reply-To: <20240917064456.210839-1-schlameuss@linux.ibm.com>
+References: <20240917064456.210839-1-schlameuss@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/5] perf: Hoist perf_instruction_pointer() and
- perf_misc_flags()
-To: Colton Lewis <coltonlewis@google.com>, kvm@vger.kernel.org
-Cc: Oliver Upton <oliver.upton@linux.dev>,
-        Sean Christopherson <seanjc@google.com>,
-        Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>, Will Deacon <will@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H . Peter Anvin" <hpa@zytor.com>, linux-perf-users@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-References: <20240912205133.4171576-1-coltonlewis@google.com>
- <20240912205133.4171576-3-coltonlewis@google.com>
-Content-Language: en-US
-From: Madhavan Srinivasan <maddy@linux.ibm.com>
-In-Reply-To: <20240912205133.4171576-3-coltonlewis@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: gCr9z-Ag2yvf1oDEJ19gugT8Q6t_NwFY
-X-Proofpoint-GUID: QTSYotEEB_qIeDnpl69YaMBZY4DirbZx
+X-Proofpoint-GUID: S7d_8dbZmGzBcGJx95284_Rfx-5GOqeV
+X-Proofpoint-ORIG-GUID: OUFwiYOKcJ3AFBfQ3wFaTNQ1OC6PNgua
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-17_01,2024-09-16_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
- priorityscore=1501 phishscore=0 clxscore=1011 malwarescore=0 bulkscore=0
- impostorscore=0 spamscore=0 suspectscore=0 mlxscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
- definitions=main-2409170040
+ definitions=2024-09-17_02,2024-09-16_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ phishscore=0 bulkscore=0 suspectscore=0 priorityscore=1501 adultscore=0
+ mlxlogscore=859 mlxscore=0 clxscore=1015 malwarescore=0 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2409170049
 
+Add a test case verifying basic running and interaction of ucontrol VMs.
+Fill the segment and page tables for allocated memory and map memory on
+first access.
 
-On 9/13/24 2:21 AM, Colton Lewis wrote:
-> For clarity, rename the arch-specific definitions of these functions
-> to perf_arch_* to denote they are arch-specifc. Define the
-> generic-named functions in one place where they can call the
-> arch-specific ones as needed.
->
-> Signed-off-by: Colton Lewis <coltonlewis@google.com>
-> ---
->   arch/arm64/include/asm/perf_event.h          |  6 +++---
->   arch/arm64/kernel/perf_callchain.c           |  4 ++--
->   arch/powerpc/include/asm/perf_event_server.h |  6 +++---
->   arch/powerpc/perf/core-book3s.c              |  4 ++--
->   arch/s390/include/asm/perf_event.h           |  6 +++---
->   arch/s390/kernel/perf_event.c                |  4 ++--
->   arch/x86/events/core.c                       |  4 ++--
->   arch/x86/include/asm/perf_event.h            | 10 +++++-----
->   include/linux/perf_event.h                   |  9 ++++++---
->   kernel/events/core.c                         | 10 ++++++++++
->   10 files changed, 38 insertions(+), 25 deletions(-)
->
-> diff --git a/arch/arm64/include/asm/perf_event.h b/arch/arm64/include/asm/perf_event.h
-> index eb7071c9eb34..31a5584ed423 100644
-> --- a/arch/arm64/include/asm/perf_event.h
-> +++ b/arch/arm64/include/asm/perf_event.h
-> @@ -11,9 +11,9 @@
->   
->   #ifdef CONFIG_PERF_EVENTS
->   struct pt_regs;
-> -extern unsigned long perf_instruction_pointer(struct pt_regs *regs);
-> -extern unsigned long perf_misc_flags(struct pt_regs *regs);
-> -#define perf_misc_flags(regs)	perf_misc_flags(regs)
-> +extern unsigned long perf_arch_instruction_pointer(struct pt_regs *regs);
-> +extern unsigned long perf_arch_misc_flags(struct pt_regs *regs);
-> +#define perf_arch_misc_flags(regs)	perf_misc_flags(regs)
->   #define perf_arch_bpf_user_pt_regs(regs) &regs->user_regs
->   #endif
->   
-> diff --git a/arch/arm64/kernel/perf_callchain.c b/arch/arm64/kernel/perf_callchain.c
-> index e8ed5673f481..01a9d08fc009 100644
-> --- a/arch/arm64/kernel/perf_callchain.c
-> +++ b/arch/arm64/kernel/perf_callchain.c
-> @@ -39,7 +39,7 @@ void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
->   	arch_stack_walk(callchain_trace, entry, current, regs);
->   }
->   
-> -unsigned long perf_instruction_pointer(struct pt_regs *regs)
-> +unsigned long perf_arch_instruction_pointer(struct pt_regs *regs)
->   {
->   	if (perf_guest_state())
->   		return perf_guest_get_ip();
-> @@ -47,7 +47,7 @@ unsigned long perf_instruction_pointer(struct pt_regs *regs)
->   	return instruction_pointer(regs);
->   }
->   
-> -unsigned long perf_misc_flags(struct pt_regs *regs)
-> +unsigned long perf_arch_misc_flags(struct pt_regs *regs)
->   {
->   	unsigned int guest_state = perf_guest_state();
->   	int misc = 0;
-> diff --git a/arch/powerpc/include/asm/perf_event_server.h b/arch/powerpc/include/asm/perf_event_server.h
-> index 5995614e9062..41587d3f8446 100644
-> --- a/arch/powerpc/include/asm/perf_event_server.h
-> +++ b/arch/powerpc/include/asm/perf_event_server.h
-> @@ -102,8 +102,8 @@ struct power_pmu {
->   int __init register_power_pmu(struct power_pmu *pmu);
->   
->   struct pt_regs;
-> -extern unsigned long perf_misc_flags(struct pt_regs *regs);
-> -extern unsigned long perf_instruction_pointer(struct pt_regs *regs);
-> +extern unsigned long perf_arch_misc_flags(struct pt_regs *regs);
-> +extern unsigned long perf_arch_instruction_pointer(struct pt_regs *regs);
->   extern unsigned long int read_bhrb(int n);
->   
->   /*
-> @@ -111,7 +111,7 @@ extern unsigned long int read_bhrb(int n);
->    * if we have hardware PMU support.
->    */
->   #ifdef CONFIG_PPC_PERF_CTRS
-> -#define perf_misc_flags(regs)	perf_misc_flags(regs)
-> +#define perf_arch_misc_flags(regs)	perf_misc_flags(regs)
->   #endif
->   
-Compilation fails with
+* uc_map_unmap
+  Store and load data to mapped and unmapped memory and use pic segment
+  translation handling to map memory on access.
 
-In file included from /linux/arch/powerpc/include/asm/perf_event.h:14,
-                  from /linux/include/linux/perf_event.h:25,
-                  from /linux/arch/powerpc/perf/core-book3s.c:10:
-/linux/arch/powerpc/include/asm/perf_event_server.h:114:41: error: 
-conflicting types for 'perf_misc_flags'; have 'long unsigned int(struct 
-pt_regs *)'
-   114 | #define perf_arch_misc_flags(regs)      perf_misc_flags(regs)
-|                                         ^~~~~~~~~~~~~~~
-/linux/arch/powerpc/perf/core-book3s.c:2335:15: note: in expansion of 
-macro 'perf_arch_misc_flags'
-  2335 | unsigned long perf_arch_misc_flags(struct pt_regs *regs)
-       |               ^~~~~~~~~~~~~~~~~~~~
-/linux/include/linux/perf_event.h:1630:22: note: previous declaration of 
-'perf_misc_flags' with type 'long unsigned int(struct perf_event *, 
-struct pt_regs *)'
-  1630 | extern unsigned long perf_misc_flags(struct perf_event *event, 
-struct pt_regs *regs);
-       |                      ^~~~~~~~~~~~~~~
+Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+---
+ .../selftests/kvm/s390x/ucontrol_test.c       | 145 +++++++++++++++++-
+ 1 file changed, 144 insertions(+), 1 deletion(-)
 
+diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+index 030c59010fe1..fc0d6f9e3a50 100644
+--- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
++++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+@@ -16,7 +16,11 @@
+ #include <linux/capability.h>
+ #include <linux/sizes.h>
+ 
++#define PGM_SEGMENT_TRANSLATION 0x10
++
+ #define VM_MEM_SIZE (4 * SZ_1M)
++#define VM_MEM_EXT_SIZE (2 * SZ_1M)
++#define VM_MEM_MAX_M ((VM_MEM_SIZE + VM_MEM_EXT_SIZE) / SZ_1M)
+ 
+ /* so directly declare capget to check caps without libcap */
+ int capget(cap_user_header_t header, cap_user_data_t data);
+@@ -58,6 +62,23 @@ asm("test_gprs_asm:\n"
+ 	"	j	0b\n"
+ );
+ 
++/* Test program manipulating memory */
++extern char test_mem_asm[];
++asm("test_mem_asm:\n"
++	"xgr	%r0, %r0\n"
++
++	"0:\n"
++	"	ahi	%r0,1\n"
++	"	st	%r1,0(%r5,%r6)\n"
++
++	"	xgr	%r1,%r1\n"
++	"	l	%r1,0(%r5,%r6)\n"
++	"	ahi	%r0,1\n"
++	"	diag	0,0,0x44\n"
++
++	"	j	0b\n"
++);
++
+ FIXTURE(uc_kvm)
+ {
+ 	struct kvm_s390_sie_block *sie_block;
+@@ -67,6 +88,7 @@ FIXTURE(uc_kvm)
+ 	uintptr_t base_hva;
+ 	uintptr_t code_hva;
+ 	int kvm_run_size;
++	vm_paddr_t pgd;
+ 	void *vm_mem;
+ 	int vcpu_fd;
+ 	int kvm_fd;
+@@ -116,7 +138,7 @@ FIXTURE_SETUP(uc_kvm)
+ 	self->base_gpa = 0;
+ 	self->code_gpa = self->base_gpa + (3 * SZ_1M);
+ 
+-	self->vm_mem = aligned_alloc(SZ_1M, VM_MEM_SIZE);
++	self->vm_mem = aligned_alloc(SZ_1M, VM_MEM_MAX_M * SZ_1M);
+ 	ASSERT_NE(NULL, self->vm_mem) TH_LOG("malloc failed %u", errno);
+ 	self->base_hva = (uintptr_t)self->vm_mem;
+ 	self->code_hva = self->base_hva - self->base_gpa + self->code_gpa;
+@@ -222,6 +244,60 @@ TEST(uc_cap_hpage)
+ 	close(kvm_fd);
+ }
+ 
++/* calculate host virtual addr from guest physical addr */
++static void *gpa2hva(FIXTURE_DATA(uc_kvm) *self, u64 gpa)
++{
++	return (void *)(self->base_hva - self->base_gpa + gpa);
++}
++
++/* map / make additional memory available */
++static int uc_map_ext(FIXTURE_DATA(uc_kvm) *self, u64 vcpu_addr, u64 length)
++{
++	struct kvm_s390_ucas_mapping map = {
++		.user_addr = (u64)gpa2hva(self, vcpu_addr),
++		.vcpu_addr = vcpu_addr,
++		.length = length,
++	};
++	pr_info("ucas map %p %p 0x%llx",
++		(void *)map.user_addr, (void *)map.vcpu_addr, map.length);
++	return ioctl(self->vcpu_fd, KVM_S390_UCAS_MAP, &map);
++}
++
++/* unmap previously mapped memory */
++static int uc_unmap_ext(FIXTURE_DATA(uc_kvm) *self, u64 vcpu_addr, u64 length)
++{
++	struct kvm_s390_ucas_mapping map = {
++		.user_addr = (u64)gpa2hva(self, vcpu_addr),
++		.vcpu_addr = vcpu_addr,
++		.length = length,
++	};
++	pr_info("ucas unmap %p %p 0x%llx",
++		(void *)map.user_addr, (void *)map.vcpu_addr, map.length);
++	return ioctl(self->vcpu_fd, KVM_S390_UCAS_UNMAP, &map);
++}
++
++/* handle ucontrol exit by mapping the accessed segment */
++static void uc_handle_exit_ucontrol(FIXTURE_DATA(uc_kvm) *self)
++{
++	struct kvm_run *run = self->run;
++	u64 seg_addr;
++	int rc;
++
++	TEST_ASSERT_EQ(KVM_EXIT_S390_UCONTROL, run->exit_reason);
++	switch (run->s390_ucontrol.pgm_code) {
++	case PGM_SEGMENT_TRANSLATION:
++		seg_addr = run->s390_ucontrol.trans_exc_code & ~(SZ_1M - 1);
++		pr_info("ucontrol pic segment translation 0x%llx, mapping segment 0x%lx\n",
++			run->s390_ucontrol.trans_exc_code, seg_addr);
++		/* map / make additional memory available */
++		rc = uc_map_ext(self, seg_addr, SZ_1M);
++		TEST_ASSERT_EQ(0, rc);
++		break;
++	default:
++		TEST_FAIL("UNEXPECTED PGM CODE %d", run->s390_ucontrol.pgm_code);
++	}
++}
++
+ /* verify SIEIC exit
+  * * reset stop requests
+  * * fail on codes not expected in the test cases
+@@ -256,6 +332,12 @@ static bool uc_handle_exit(FIXTURE_DATA(uc_kvm) * self)
+ 	struct kvm_run *run = self->run;
+ 
+ 	switch (run->exit_reason) {
++	case KVM_EXIT_S390_UCONTROL:
++		/** check program interruption code
++		 * handle page fault --> ucas map
++		 */
++		uc_handle_exit_ucontrol(self);
++		break;
+ 	case KVM_EXIT_S390_SIEIC:
+ 		return uc_handle_sieic(self);
+ 	default:
+@@ -287,6 +369,67 @@ static void uc_assert_diag44(FIXTURE_DATA(uc_kvm) * self)
+ 	TEST_ASSERT_EQ(0x440000, sie_block->ipb);
+ }
+ 
++TEST_F(uc_kvm, uc_map_unmap)
++{
++	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
++	struct kvm_run *run = self->run;
++	const u64 disp = 1;
++	int rc;
++
++	/* copy test_mem_asm to code_hva / code_gpa */
++	TH_LOG("copy code %p to vm mapped memory %p / %p",
++	       &test_mem_asm, (void *)self->code_hva, (void *)self->code_gpa);
++	memcpy((void *)self->code_hva, &test_mem_asm, PAGE_SIZE);
++
++	/* DAT disabled + 64 bit mode */
++	run->psw_mask = 0x0000000180000000ULL;
++	run->psw_addr = self->code_gpa;
++
++	/* set register content for test_mem_asm to access not mapped memory*/
++	sync_regs->gprs[1] = 0x55;
++	sync_regs->gprs[5] = self->base_gpa;
++	sync_regs->gprs[6] = VM_MEM_SIZE + disp;
++	run->kvm_dirty_regs |= KVM_SYNC_GPRS;
++
++	/* run and expect to fail with ucontrol pic segment translation */
++	ASSERT_EQ(0, uc_run_once(self));
++	ASSERT_EQ(1, sync_regs->gprs[0]);
++	ASSERT_EQ(KVM_EXIT_S390_UCONTROL, run->exit_reason);
++
++	ASSERT_EQ(PGM_SEGMENT_TRANSLATION, run->s390_ucontrol.pgm_code);
++	ASSERT_EQ(self->base_gpa + VM_MEM_SIZE, run->s390_ucontrol.trans_exc_code);
++
++	/* fail to map memory with not segment aligned address */
++	rc = uc_map_ext(self, self->base_gpa + VM_MEM_SIZE + disp, VM_MEM_EXT_SIZE);
++	ASSERT_GT(0, rc)
++		TH_LOG("ucas map for non segment address should fail but didn't; "
++		       "result %d not expected, %s", rc, strerror(errno));
++
++	/* map / make additional memory available */
++	rc = uc_map_ext(self, self->base_gpa + VM_MEM_SIZE, VM_MEM_EXT_SIZE);
++	ASSERT_EQ(0, rc)
++		TH_LOG("ucas map result %d not expected, %s", rc, strerror(errno));
++	ASSERT_EQ(0, uc_run_once(self));
++	ASSERT_EQ(false, uc_handle_exit(self));
++	uc_assert_diag44(self);
++
++	/* assert registers and memory are in expected state */
++	ASSERT_EQ(2, sync_regs->gprs[0]);
++	ASSERT_EQ(0x55, sync_regs->gprs[1]);
++	ASSERT_EQ(0x55, *(u32 *)gpa2hva(self, self->base_gpa + VM_MEM_SIZE + disp));
++
++	/* unmap and run loop again */
++	rc = uc_unmap_ext(self, self->base_gpa + VM_MEM_SIZE, VM_MEM_EXT_SIZE);
++	ASSERT_EQ(0, rc)
++		TH_LOG("ucas unmap result %d not expected, %s", rc, strerror(errno));
++	ASSERT_EQ(0, uc_run_once(self));
++	ASSERT_EQ(3, sync_regs->gprs[0]);
++	ASSERT_EQ(KVM_EXIT_S390_UCONTROL, run->exit_reason);
++	ASSERT_EQ(PGM_SEGMENT_TRANSLATION, run->s390_ucontrol.pgm_code);
++	/* handle ucontrol exit and remap memory after previous map and unmap */
++	ASSERT_EQ(true, uc_handle_exit(self));
++}
++
+ TEST_F(uc_kvm, uc_gprs)
+ {
+ 	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
+-- 
+2.46.0
 
-This fixes the fail
-
---- a/arch/powerpc/include/asm/perf_event_server.h
-+++ b/arch/powerpc/include/asm/perf_event_server.h
-@@ -111,7 +111,7 @@ extern unsigned long int read_bhrb(int n);
-   * if we have hardware PMU support.
-   */
-  #ifdef CONFIG_PPC_PERF_CTRS
--#define perf_arch_misc_flags(regs) perf_misc_flags(regs)
-+#define perf_arch_misc_flags(regs) perf_arch_misc_flags(regs)
-  #endif
-
-  /*
-
->   /*
-> diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-> index 42867469752d..dc01aa604cc1 100644
-> --- a/arch/powerpc/perf/core-book3s.c
-> +++ b/arch/powerpc/perf/core-book3s.c
-> @@ -2332,7 +2332,7 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
->    * Called from generic code to get the misc flags (i.e. processor mode)
->    * for an event_id.
->    */
-> -unsigned long perf_misc_flags(struct pt_regs *regs)
-> +unsigned long perf_arch_misc_flags(struct pt_regs *regs)
->   {
->   	u32 flags = perf_get_misc_flags(regs);
->   
-> @@ -2346,7 +2346,7 @@ unsigned long perf_misc_flags(struct pt_regs *regs)
->    * Called from generic code to get the instruction pointer
->    * for an event_id.
->    */
-> -unsigned long perf_instruction_pointer(struct pt_regs *regs)
-> +unsigned long perf_arch_instruction_pointer(struct pt_regs *regs)
->   {
->   	unsigned long siar = mfspr(SPRN_SIAR);
->   
-> diff --git a/arch/s390/include/asm/perf_event.h b/arch/s390/include/asm/perf_event.h
-> index 9917e2717b2b..f2d83289ec7a 100644
-> --- a/arch/s390/include/asm/perf_event.h
-> +++ b/arch/s390/include/asm/perf_event.h
-> @@ -37,9 +37,9 @@ extern ssize_t cpumf_events_sysfs_show(struct device *dev,
->   
->   /* Perf callbacks */
->   struct pt_regs;
-> -extern unsigned long perf_instruction_pointer(struct pt_regs *regs);
-> -extern unsigned long perf_misc_flags(struct pt_regs *regs);
-> -#define perf_misc_flags(regs) perf_misc_flags(regs)
-> +extern unsigned long perf_arch_instruction_pointer(struct pt_regs *regs);
-> +extern unsigned long perf_arch_misc_flags(struct pt_regs *regs);
-> +#define perf_arch_misc_flags(regs) perf_misc_flags(regs)
->   #define perf_arch_bpf_user_pt_regs(regs) &regs->user_regs
->   
->   /* Perf pt_regs extension for sample-data-entry indicators */
-> diff --git a/arch/s390/kernel/perf_event.c b/arch/s390/kernel/perf_event.c
-> index 5fff629b1a89..f9000ab49f4a 100644
-> --- a/arch/s390/kernel/perf_event.c
-> +++ b/arch/s390/kernel/perf_event.c
-> @@ -57,7 +57,7 @@ static unsigned long instruction_pointer_guest(struct pt_regs *regs)
->   	return sie_block(regs)->gpsw.addr;
->   }
->   
-> -unsigned long perf_instruction_pointer(struct pt_regs *regs)
-> +unsigned long perf_arch_instruction_pointer(struct pt_regs *regs)
->   {
->   	return is_in_guest(regs) ? instruction_pointer_guest(regs)
->   				 : instruction_pointer(regs);
-> @@ -84,7 +84,7 @@ static unsigned long perf_misc_flags_sf(struct pt_regs *regs)
->   	return flags;
->   }
->   
-> -unsigned long perf_misc_flags(struct pt_regs *regs)
-> +unsigned long perf_arch_misc_flags(struct pt_regs *regs)
->   {
->   	/* Check if the cpum_sf PMU has created the pt_regs structure.
->   	 * In this case, perf misc flags can be easily extracted.  Otherwise,
-> diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
-> index be01823b1bb4..760ad067527c 100644
-> --- a/arch/x86/events/core.c
-> +++ b/arch/x86/events/core.c
-> @@ -2940,7 +2940,7 @@ static unsigned long code_segment_base(struct pt_regs *regs)
->   	return 0;
->   }
->   
-> -unsigned long perf_instruction_pointer(struct pt_regs *regs)
-> +unsigned long perf_arch_instruction_pointer(struct pt_regs *regs)
->   {
->   	if (perf_guest_state())
->   		return perf_guest_get_ip();
-> @@ -2948,7 +2948,7 @@ unsigned long perf_instruction_pointer(struct pt_regs *regs)
->   	return regs->ip + code_segment_base(regs);
->   }
->   
-> -unsigned long perf_misc_flags(struct pt_regs *regs)
-> +unsigned long perf_arch_misc_flags(struct pt_regs *regs)
->   {
->   	unsigned int guest_state = perf_guest_state();
->   	int misc = 0;
-> diff --git a/arch/x86/include/asm/perf_event.h b/arch/x86/include/asm/perf_event.h
-> index 91b73571412f..feb87bf3d2e9 100644
-> --- a/arch/x86/include/asm/perf_event.h
-> +++ b/arch/x86/include/asm/perf_event.h
-> @@ -536,15 +536,15 @@ struct x86_perf_regs {
->   	u64		*xmm_regs;
->   };
->   
-> -extern unsigned long perf_instruction_pointer(struct pt_regs *regs);
-> -extern unsigned long perf_misc_flags(struct pt_regs *regs);
-> -#define perf_misc_flags(regs)	perf_misc_flags(regs)
-> +extern unsigned long perf_arch_instruction_pointer(struct pt_regs *regs);
-> +extern unsigned long perf_arch_misc_flags(struct pt_regs *regs);
-> +#define perf_arch_misc_flags(regs)	perf_arch_misc_flags(regs)
->   
->   #include <asm/stacktrace.h>
->   
->   /*
-> - * We abuse bit 3 from flags to pass exact information, see perf_misc_flags
-> - * and the comment with PERF_EFLAGS_EXACT.
-> + * We abuse bit 3 from flags to pass exact information, see
-> + * perf_arch_misc_flags() and the comment with PERF_EFLAGS_EXACT.
->    */
->   #define perf_arch_fetch_caller_regs(regs, __ip)		{	\
->   	(regs)->ip = (__ip);					\
-> diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-> index 1a8942277dda..d061e327ad54 100644
-> --- a/include/linux/perf_event.h
-> +++ b/include/linux/perf_event.h
-> @@ -1633,10 +1633,13 @@ extern void perf_tp_event(u16 event_type, u64 count, void *record,
->   			  struct task_struct *task);
->   extern void perf_bp_event(struct perf_event *event, void *data);
->   
-> -#ifndef perf_misc_flags
-> -# define perf_misc_flags(regs) \
-> +extern unsigned long perf_misc_flags(struct pt_regs *regs);
-> +extern unsigned long perf_instruction_pointer(struct pt_regs *regs);
-> +
-> +#ifndef perf_arch_misc_flags
-> +# define perf_arch_misc_flags(regs) \
->   		(user_mode(regs) ? PERF_RECORD_MISC_USER : PERF_RECORD_MISC_KERNEL)
-> -# define perf_instruction_pointer(regs)	instruction_pointer(regs)
-> +# define perf_arch_instruction_pointer(regs)	instruction_pointer(regs)
->   #endif
->   #ifndef perf_arch_bpf_user_pt_regs
->   # define perf_arch_bpf_user_pt_regs(regs) regs
-> diff --git a/kernel/events/core.c b/kernel/events/core.c
-> index 8a6c6bbcd658..eeabbf791a8c 100644
-> --- a/kernel/events/core.c
-> +++ b/kernel/events/core.c
-> @@ -6921,6 +6921,16 @@ void perf_unregister_guest_info_callbacks(struct perf_guest_info_callbacks *cbs)
->   EXPORT_SYMBOL_GPL(perf_unregister_guest_info_callbacks);
->   #endif
->   
-> +unsigned long perf_misc_flags(struct pt_regs *regs)
-> +{
-> +	return perf_arch_misc_flags(regs);
-> +}
-> +
-> +unsigned long perf_instruction_pointer(struct pt_regs *regs)
-> +{
-> +	return perf_arch_instruction_pointer(regs);
-> +}
-> +
->   static void
->   perf_output_sample_regs(struct perf_output_handle *handle,
->   			struct pt_regs *regs, u64 mask)
