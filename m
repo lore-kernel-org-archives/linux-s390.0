@@ -1,73 +1,250 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 467E8176AD4;
-	Wed, 18 Sep 2024 08:20:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C46A9139D09;
+	Wed, 18 Sep 2024 09:04:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726647658; cv=none; b=e5YmYM69CjhXEaIKKqAintH/ct0e2Q/PkolKkC9pztvKr7m7SiBNpfok3juXmMX13bY2Q5/UmGXHRqZRwuYf3ncx6Htdntzt5FGf3+62e0twlLAgDRdVEaYGZx5pznm5wORCg79f+lwKrlLzeABnaT+j8F4pkURAuy8Vv8x3GvQ=
+	t=1726650274; cv=none; b=EbfLTXr/8b+O0tZYFZxCYZEy4O5i+1CRbkGcYfjwgvacF85EPJI7HhnKITOTLTcFZuOUM2Z3bIdd9DSkGDz5msSSzXQp3R8ZTiUcxsYb0l2HrP7CVJjcFuFz99zN8kJ125Cq+raUd4/nglcK3h46VEdNKNTVP3gTV3k69fB8I7Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726647658; c=relaxed/simple;
-	bh=zOzFdIqmKGH4EfL83QSxIgZy7bFTceIaGLQrK9tn7w4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cXUexVXEN+EqBywIIAQm9Im1e5iimER+0yNDnbkYWXLx8uA9aFgBcB/hRQjWy0HnNDB2LrQeZyQRWHBVoVrlx+GNNcd9xuA0mBdt5iimVuHDmNrrvy62pZlOergx5kYja206BCp59xpVqsYSqwgQ4b/4qiNxZINuulC4wMriHr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=GsynOEt6; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1726650274; c=relaxed/simple;
+	bh=CmFZzQI3YutkouFh6JjtCjCs7WLLz/CgKJDtUz9T2nQ=;
+	h=From:Date:Subject:Content-Type:Message-Id:To:Cc:MIME-Version; b=CNF/rBXXfLUmd88nDhdHa5JPbM7V7SlgMuue5/g6QyPXG3QfEp6JGYs8eV/HtMeKO/UiwnjHlPvi2li72rRvZB/HEXI84h7aJ8TUW23GmVAWSpCV3DCrOFC0paun/oUyUWTXNb83L/zbOPIRT3WqzLYqhjZUbhhXLjcocphG6Eo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IWwIr0ng; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="GsynOEt6"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=qIaOOW59Q8Ci8YktXi6m8UMkAKM+uan776/TphhokNo=; b=GsynOEt6p6C8TONJfWoTb+mK7p
-	no+VEJ9v0W+wVAX2t/lDZQvI+xA07HWwgRvCa/R7aImRfRrTsjGjpQpzI0Hbiy0RD75edGQ7l1zxm
-	8V4XNmIIwaUjfw5lSJ/IhL9L9zvgMr4pvM0lxUokMAFFOd8BYW7LJOePz4+jsFiOZdF4JBPZJlvDL
-	CR6nkVK6Zo1bX70zIIgX2A1oqG2ei298FFJdSgkrHlqTL/Uy+P3XBvg7LUcanQOH4Tn6KxlLRQviQ
-	+5+CmSRWvd4D2VJoFtw2D8usngizCYW/ClWwJVrHfuWDW6IGUiMMNv4BfmZLm22C2MZRwYIi4hFDh
-	NfqoK1lg==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1sqpld-003AK8-2y;
-	Wed, 18 Sep 2024 16:20:44 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Wed, 18 Sep 2024 16:20:43 +0800
-Date: Wed, 18 Sep 2024 16:20:43 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Ingo Franzki <ifranzki@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>
-Subject: Re: [PATCH] crypto: s390/paes - Fix module aliases
-Message-ID: <ZuqNW78cj5Gs0Fl_@gondor.apana.org.au>
-References: <6399cdf3-3bf4-4623-8be6-cd8978d11770@linux.ibm.com>
- <ZulMEyvIWNtbZJHD@gondor.apana.org.au>
- <4b694c31-5d5c-40b8-8f2e-da858c3001d9@linux.ibm.com>
- <ZupQq2os75c_BFRz@gondor.apana.org.au>
- <4c413338-808f-430c-bc03-624ac789cfff@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IWwIr0ng"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48I7VhI6030209;
+	Wed, 18 Sep 2024 09:04:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:date:subject:content-type:message-id:to:cc
+	:content-transfer-encoding:mime-version; s=pp1; bh=uIZEulEggDzH1
+	/wp03fYzxvgOu8tl7wxppWtrY9bPII=; b=IWwIr0ng1wBn7pWRQxUrlZ5eyUAai
+	CNnaGlxe9WedaK+d90nBhaAfXs55pKpMIs0l8wRIq+LkCkCYkz3Y6LIpQWZmjg5l
+	yQQGhjNRztr5BZx7/GMTMtLbxl32l1K224ZeOmMFvHK9i9mI7yDk5959xgcTCs7A
+	52GMxkQMPerKbnBJQsPPC5XxltSm25SkWzD1CE66ylZekRNftJPjVQeSbK7+HAE+
+	eC7h+lkuveppsGPym6nNdU+FM9Hgvqhcih3NiObdXd3HV8/J7FmytV0TLEpooaju
+	O5HtAPR8eUtTxOOfiv5BMVdNsGFoUEvSYowwaVGpE1qWmrxHReHviyDtw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41pht8kym4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Sep 2024 09:04:29 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 48I8vN1N014187;
+	Wed, 18 Sep 2024 09:04:28 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41pht8kym1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Sep 2024 09:04:28 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48I7YhmS031056;
+	Wed, 18 Sep 2024 09:04:28 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41npana02g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Sep 2024 09:04:28 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48I94QBZ25035278
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 18 Sep 2024 09:04:26 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C779E58055;
+	Wed, 18 Sep 2024 09:04:26 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B03655804E;
+	Wed, 18 Sep 2024 09:04:24 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 18 Sep 2024 09:04:24 +0000 (GMT)
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Date: Wed, 18 Sep 2024 11:04:22 +0200
+Subject: [PATCH v2] PCI: s390: Handle ARI on bus without associated struct
+ pci_dev
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20240918-ari_no_bus_dev-v2-1-83cfa991082f@linux.ibm.com>
+X-B4-Tracking: v=1; b=H4sIAJWX6mYC/13MywqDMBCF4VeRWTdiRpvQrvoeRcTLpA7URJIaL
+ OK7N5WuuvwPnG+DQJ4pwDXbwFPkwM6mwFMG/djaBwkeUgMWWBUaK9F6bqxruiU0A0Vxxg5b1Ka
+ slIJ0mj0ZXg/wXqceObycfx9+lN/1R5XFPxWlkEIPJLXSylwM3Z5slzXnbsp7N0G97/sHsiyM6
+ bAAAAA=
+To: Bjorn Helgaas <bhelgaas@google.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5602;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=CmFZzQI3YutkouFh6JjtCjCs7WLLz/CgKJDtUz9T2nQ=;
+ b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGNJeTZ+hHbGw8NDkj28/3PTccjzi2wWZtXM3f7Zkvc0et
+ b93mVXPno5SFgYxLgZZMUWWRV3OfusKppjuCervgJnDygQyhIGLUwAmkiLHyLDub+nxkiojveqL
+ f5b8qe9v32QyW53Z7GBh3IVXPRuLLE8w/LNNZLIXmWuo62/07VC3QeaRJj9hWcvW2woZJjMtz7D
+ 1sQEA
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: YIhaOUbJKQ8HvUARi3VhisEOVSSuJrkS
+X-Proofpoint-ORIG-GUID: b-p4DsvQp9N17SfN841MghWEGaB7FGvA
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4c413338-808f-430c-bc03-624ac789cfff@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-18_07,2024-09-16_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ phishscore=0 bulkscore=0 suspectscore=0 priorityscore=1501 adultscore=0
+ mlxlogscore=985 mlxscore=0 clxscore=1011 malwarescore=0 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2409180054
 
-On Wed, Sep 18, 2024 at 08:50:29AM +0200, Ingo Franzki wrote:
->
-> Trough which tree should we carry this patch forward? 
-> Through the crypto tree or the s390 tree? 
-> @Heiko @Harald @Herbert opinions?
+On s390 PCI busses are virtualized and the downstream ports are
+invisible to the OS and struct pci_bus::self is NULL. This associated
+struct pci_dev is however relied upon in pci_ari_enabled() to check
+whether ARI is enabled for the bus. ARI is therefor always detected as
+disabled.
 
-I can take this and then push it to Linus.
+At the same time firmware on s390 always enables and relies upon ARI
+thus causing a mismatch. Moreover with per-PCI function pass-through
+there may exist busses with no function with devfn 0. For example
+a SR-IOV capable device with two PFs may have separate function
+dependency link chains for each of the PFs and their child VFs. In this
+case the OS may only see the second PF and its child VFs on a bus
+without a devfn 0 function. A situation which is also not supported by
+the common pci_configure_ari() code.
 
-Thanks,
+Dispite simply being a mismatch this causes problems as some PCI devices
+present a different SR-IOV topology depending on PCI_SRIOV_CTRL_ARI.
+
+A similar mismatch may occur with SR-IOV when virtfn_add_bus() creates new
+busses with no associated struct pci_dev. Here too pci_ari_enabled()
+on these busses would return false even if ARI is actually used.
+
+Prevent both mismatches by moving the ari_enabled flag from struct
+pci_dev to struct pci_bus making it independent from struct pci_bus::
+self. Let the bus inherit the ari_enabled state from its parent bus when
+there is no bridge device such that busses added by virtfn_add_bus()
+match their parent. For s390 set ari_enabled when the device supports
+ARI in the awareness that all PCIe ports on s390 systems are ARI
+capable.
+
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+Note: In a comment of the v1 thread I discussed an alternative idea for
+a generic solution that would include the Jailhouse hypervisor via
+hypervisor_isolated_pci_functions(). As Bjorn correctly pointed out this
+more generic solution however lacks a way to indicate that ARI is really
+enabled in the hardware. So instead for now I propose to stick with this
+patch which only enables this unconditionally on s390x and SR-IOV
+virtual busses where the ARI is inherited.
+---
+Changes in v2:
+- Rebased on v6.11
+- Link to v1: https://lore.kernel.org/r/20240730-ari_no_bus_dev-v1-1-7de17676f9fe@linux.ibm.com
+---
+ arch/s390/pci/pci_bus.c | 12 ++++++++++++
+ drivers/pci/pci.c       |  4 ++--
+ drivers/pci/probe.c     |  1 +
+ include/linux/pci.h     |  4 ++--
+ 4 files changed, 17 insertions(+), 4 deletions(-)
+
+diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
+index daa5d7450c7d..021319438dad 100644
+--- a/arch/s390/pci/pci_bus.c
++++ b/arch/s390/pci/pci_bus.c
+@@ -278,6 +278,18 @@ void pcibios_bus_add_device(struct pci_dev *pdev)
+ {
+ 	struct zpci_dev *zdev = to_zpci(pdev);
+ 
++	/*
++	 * On s390 PCI busses are virtualized and the bridge
++	 * devices are invisible to the OS. Furthermore busses
++	 * may exist without a devfn 0 function. Thus the normal
++	 * ARI detection does not work. At the same time fw/hw
++	 * has always enabled ARI when possible. Reflect the actual
++	 * state by setting ari_enabled whenever a device on the bus
++	 * supports it.
++	 */
++	if (pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_ARI))
++		zdev->zbus->bus->ari_enabled = 1;
++
+ 	/*
+ 	 * With pdev->no_vf_scan the common PCI probing code does not
+ 	 * perform PF/VF linking.
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index ffaaca0978cb..f94a96a6cb30 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -3537,11 +3537,11 @@ void pci_configure_ari(struct pci_dev *dev)
+ 	if (pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ARI)) {
+ 		pcie_capability_set_word(bridge, PCI_EXP_DEVCTL2,
+ 					 PCI_EXP_DEVCTL2_ARI);
+-		bridge->ari_enabled = 1;
++		dev->bus->ari_enabled = 1;
+ 	} else {
+ 		pcie_capability_clear_word(bridge, PCI_EXP_DEVCTL2,
+ 					   PCI_EXP_DEVCTL2_ARI);
+-		bridge->ari_enabled = 0;
++		dev->bus->ari_enabled = 0;
+ 	}
+ }
+ 
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index b14b9876c030..c318929438c1 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -1143,6 +1143,7 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
+ 
+ 	if (!bridge) {
+ 		child->dev.parent = parent->bridge;
++		child->ari_enabled = parent->ari_enabled;
+ 		goto add_dev;
+ 	}
+ 
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 4cf89a4b4cbc..3d1f4a392dd6 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -429,7 +429,6 @@ struct pci_dev {
+ 	unsigned int	irq_reroute_variant:2;	/* Needs IRQ rerouting variant */
+ 	unsigned int	msi_enabled:1;
+ 	unsigned int	msix_enabled:1;
+-	unsigned int	ari_enabled:1;		/* ARI forwarding */
+ 	unsigned int	ats_enabled:1;		/* Address Translation Svc */
+ 	unsigned int	pasid_enabled:1;	/* Process Address Space ID */
+ 	unsigned int	pri_enabled:1;		/* Page Request Interface */
+@@ -679,6 +678,7 @@ struct pci_bus {
+ 	struct bin_attribute	*legacy_mem;	/* Legacy mem */
+ 	unsigned int		is_added:1;
+ 	unsigned int		unsafe_warn:1;	/* warned about RW1C config write */
++	unsigned int		ari_enabled:1;	/* ARI forwarding enabled */
+ };
+ 
+ #define to_pci_bus(n)	container_of(n, struct pci_bus, dev)
+@@ -2637,7 +2637,7 @@ static inline bool pci_is_dev_assigned(struct pci_dev *pdev)
+  */
+ static inline bool pci_ari_enabled(struct pci_bus *bus)
+ {
+-	return bus->self && bus->self->ari_enabled;
++	return bus->ari_enabled;
+ }
+ 
+ /**
+
+---
+base-commit: 98f7e32f20d28ec452afb208f9cffc08448a2652
+change-id: 20240724-ari_no_bus_dev-52b2a27f3466
+
+Best regards,
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Niklas Schnelle
+
