@@ -1,250 +1,230 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C46A9139D09;
-	Wed, 18 Sep 2024 09:04:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90BD5EACD;
+	Wed, 18 Sep 2024 10:10:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726650274; cv=none; b=EbfLTXr/8b+O0tZYFZxCYZEy4O5i+1CRbkGcYfjwgvacF85EPJI7HhnKITOTLTcFZuOUM2Z3bIdd9DSkGDz5msSSzXQp3R8ZTiUcxsYb0l2HrP7CVJjcFuFz99zN8kJ125Cq+raUd4/nglcK3h46VEdNKNTVP3gTV3k69fB8I7Y=
+	t=1726654215; cv=none; b=S5g3CH5uGWLhcHxaSiUKgBsjrq9bailW+YN55ccAtLbrC3Ktm1jt2OAaeFjU2WLyJ2Oo0eMu1kwyF8252ij0MruKUWhUvW/fq4BR4g2NFmIG93zXy0CAM9gRPXIKEwozKGITCJB6HlawIutAWD+hqOIg7njQG9q9Ln0q9MKkshk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726650274; c=relaxed/simple;
-	bh=CmFZzQI3YutkouFh6JjtCjCs7WLLz/CgKJDtUz9T2nQ=;
-	h=From:Date:Subject:Content-Type:Message-Id:To:Cc:MIME-Version; b=CNF/rBXXfLUmd88nDhdHa5JPbM7V7SlgMuue5/g6QyPXG3QfEp6JGYs8eV/HtMeKO/UiwnjHlPvi2li72rRvZB/HEXI84h7aJ8TUW23GmVAWSpCV3DCrOFC0paun/oUyUWTXNb83L/zbOPIRT3WqzLYqhjZUbhhXLjcocphG6Eo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IWwIr0ng; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1726654215; c=relaxed/simple;
+	bh=j3uHUw8hZJe9e65FGbFo4XsUUmBgZynKAOmtydmKK64=;
+	h=From:To:Cc:Subject:Date:Message-Id; b=AIawzdMLy8+MtLs5kHw2DRVvpAOAiHNQOXSUdQdLDbT8OG9gCv59/XjgcY3SBjob28putybzLaPa7Wvg/KaV7Y4FU8RALgYJw+Ajpj/JeFFVXuPAo6OIJ693ixrQ2SB7nfdttTf/8AWUqYqGApzpV9HY3f5opMMoi6NyGRwDIgA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ghp2YblM; arc=none smtp.client-ip=115.124.30.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IWwIr0ng"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48I7VhI6030209;
-	Wed, 18 Sep 2024 09:04:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:date:subject:content-type:message-id:to:cc
-	:content-transfer-encoding:mime-version; s=pp1; bh=uIZEulEggDzH1
-	/wp03fYzxvgOu8tl7wxppWtrY9bPII=; b=IWwIr0ng1wBn7pWRQxUrlZ5eyUAai
-	CNnaGlxe9WedaK+d90nBhaAfXs55pKpMIs0l8wRIq+LkCkCYkz3Y6LIpQWZmjg5l
-	yQQGhjNRztr5BZx7/GMTMtLbxl32l1K224ZeOmMFvHK9i9mI7yDk5959xgcTCs7A
-	52GMxkQMPerKbnBJQsPPC5XxltSm25SkWzD1CE66ylZekRNftJPjVQeSbK7+HAE+
-	eC7h+lkuveppsGPym6nNdU+FM9Hgvqhcih3NiObdXd3HV8/J7FmytV0TLEpooaju
-	O5HtAPR8eUtTxOOfiv5BMVdNsGFoUEvSYowwaVGpE1qWmrxHReHviyDtw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41pht8kym4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Sep 2024 09:04:29 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 48I8vN1N014187;
-	Wed, 18 Sep 2024 09:04:28 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41pht8kym1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Sep 2024 09:04:28 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48I7YhmS031056;
-	Wed, 18 Sep 2024 09:04:28 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41npana02g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Sep 2024 09:04:28 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48I94QBZ25035278
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 18 Sep 2024 09:04:26 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C779E58055;
-	Wed, 18 Sep 2024 09:04:26 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B03655804E;
-	Wed, 18 Sep 2024 09:04:24 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 18 Sep 2024 09:04:24 +0000 (GMT)
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-Date: Wed, 18 Sep 2024 11:04:22 +0200
-Subject: [PATCH v2] PCI: s390: Handle ARI on bus without associated struct
- pci_dev
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20240918-ari_no_bus_dev-v2-1-83cfa991082f@linux.ibm.com>
-X-B4-Tracking: v=1; b=H4sIAJWX6mYC/13MywqDMBCF4VeRWTdiRpvQrvoeRcTLpA7URJIaL
- OK7N5WuuvwPnG+DQJ4pwDXbwFPkwM6mwFMG/djaBwkeUgMWWBUaK9F6bqxruiU0A0Vxxg5b1Ka
- slIJ0mj0ZXg/wXqceObycfx9+lN/1R5XFPxWlkEIPJLXSylwM3Z5slzXnbsp7N0G97/sHsiyM6
- bAAAAA=
-To: Bjorn Helgaas <bhelgaas@google.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=5602;
- i=schnelle@linux.ibm.com; h=from:subject:message-id;
- bh=CmFZzQI3YutkouFh6JjtCjCs7WLLz/CgKJDtUz9T2nQ=;
- b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGNJeTZ+hHbGw8NDkj28/3PTccjzi2wWZtXM3f7Zkvc0et
- b93mVXPno5SFgYxLgZZMUWWRV3OfusKppjuCervgJnDygQyhIGLUwAmkiLHyLDub+nxkiojveqL
- f5b8qe9v32QyW53Z7GBh3IVXPRuLLE8w/LNNZLIXmWuo62/07VC3QeaRJj9hWcvW2woZJjMtz7D
- 1sQEA
-X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
- fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: YIhaOUbJKQ8HvUARi3VhisEOVSSuJrkS
-X-Proofpoint-ORIG-GUID: b-p4DsvQp9N17SfN841MghWEGaB7FGvA
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ghp2YblM"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1726654208; h=From:To:Subject:Date:Message-Id;
+	bh=OIaeQekPFzr0Twj4nwSV1xS3+7dgPbM9J97vdUwshuQ=;
+	b=ghp2YblMswD01z0zeMK+J/AOdYkF7dgd/rHePImRxGMLWb2Rv3J96qajSye53hLjIUdrrTPRphHD2anpo83vDHDuPKpeF3BpEOW520xs+XQpie1FxsWOnwSGRSE5gSz2yjh1zgqnG7AvPJmX5GfIRVsNCyU0Zw7Jy5kZPzX3hww=
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WFDs-zd_1726654204)
+          by smtp.aliyun-inc.com;
+          Wed, 18 Sep 2024 18:10:08 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com>
+To: kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	wintera@linux.ibm.com,
+	guwen@linux.alibaba.com
+Cc: kuba@kernel.org,
+	davem@davemloft.net,
+	netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	tonylu@linux.alibaba.com,
+	pabeni@redhat.com,
+	edumazet@google.com,
+	bpf@vger.kernel.org
+Subject: [RFC PATCH net-next] net/smc: Introduce a hook to modify syn_smc at runtime
+Date: Wed, 18 Sep 2024 18:10:04 +0800
+Message-Id: <1726654204-61655-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-18_07,2024-09-16_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 bulkscore=0 suspectscore=0 priorityscore=1501 adultscore=0
- mlxlogscore=985 mlxscore=0 clxscore=1011 malwarescore=0 spamscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2408220000 definitions=main-2409180054
 
-On s390 PCI busses are virtualized and the downstream ports are
-invisible to the OS and struct pci_bus::self is NULL. This associated
-struct pci_dev is however relied upon in pci_ari_enabled() to check
-whether ARI is enabled for the bus. ARI is therefor always detected as
-disabled.
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-At the same time firmware on s390 always enables and relies upon ARI
-thus causing a mismatch. Moreover with per-PCI function pass-through
-there may exist busses with no function with devfn 0. For example
-a SR-IOV capable device with two PFs may have separate function
-dependency link chains for each of the PFs and their child VFs. In this
-case the OS may only see the second PF and its child VFs on a bus
-without a devfn 0 function. A situation which is also not supported by
-the common pci_configure_ari() code.
+The introduction of IPPROTO_SMC enables eBPF programs to determine
+whether to use SMC based on the context of socket creation, such as
+network namespaces, PID and comm name, etc.
 
-Dispite simply being a mismatch this causes problems as some PCI devices
-present a different SR-IOV topology depending on PCI_SRIOV_CTRL_ARI.
+As a subsequent enhancement, this patch introduces a new hook for eBPF
+programs that allows decisions on whether to use SMC or not at runtime,
+including but not limited to local/remote IP address or ports. In
+simpler words, this feature allows modifications to syn_smc through eBPF
+programs before the TCP three-way handshake got established.
 
-A similar mismatch may occur with SR-IOV when virtfn_add_bus() creates new
-busses with no associated struct pci_dev. Here too pci_ari_enabled()
-on these busses would return false even if ARI is actually used.
+Thanks to kfunc for making it easier for us to implement this feature in
+SMC.
 
-Prevent both mismatches by moving the ari_enabled flag from struct
-pci_dev to struct pci_bus making it independent from struct pci_bus::
-self. Let the bus inherit the ari_enabled state from its parent bus when
-there is no bridge device such that busses added by virtfn_add_bus()
-match their parent. For s390 set ari_enabled when the device supports
-ARI in the awareness that all PCIe ports on s390 systems are ARI
-capable.
-
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 ---
-Note: In a comment of the v1 thread I discussed an alternative idea for
-a generic solution that would include the Jailhouse hypervisor via
-hypervisor_isolated_pci_functions(). As Bjorn correctly pointed out this
-more generic solution however lacks a way to indicate that ARI is really
-enabled in the hardware. So instead for now I propose to stick with this
-patch which only enables this unconditionally on s390x and SR-IOV
-virtual busses where the ARI is inherited.
----
-Changes in v2:
-- Rebased on v6.11
-- Link to v1: https://lore.kernel.org/r/20240730-ari_no_bus_dev-v1-1-7de17676f9fe@linux.ibm.com
----
- arch/s390/pci/pci_bus.c | 12 ++++++++++++
- drivers/pci/pci.c       |  4 ++--
- drivers/pci/probe.c     |  1 +
- include/linux/pci.h     |  4 ++--
- 4 files changed, 17 insertions(+), 4 deletions(-)
+ include/linux/tcp.h  |  4 ++-
+ net/ipv4/tcp_input.c |  4 +--
+ net/smc/af_smc.c     | 69 ++++++++++++++++++++++++++++++++++++++++++++++------
+ 3 files changed, 66 insertions(+), 11 deletions(-)
 
-diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-index daa5d7450c7d..021319438dad 100644
---- a/arch/s390/pci/pci_bus.c
-+++ b/arch/s390/pci/pci_bus.c
-@@ -278,6 +278,18 @@ void pcibios_bus_add_device(struct pci_dev *pdev)
- {
- 	struct zpci_dev *zdev = to_zpci(pdev);
+diff --git a/include/linux/tcp.h b/include/linux/tcp.h
+index 6a5e08b..d028d76 100644
+--- a/include/linux/tcp.h
++++ b/include/linux/tcp.h
+@@ -478,7 +478,9 @@ struct tcp_sock {
+ #endif
+ #if IS_ENABLED(CONFIG_SMC)
+ 	bool	syn_smc;	/* SYN includes SMC */
+-	bool	(*smc_hs_congested)(const struct sock *sk);
++	void	(*smc_openreq_init)(struct request_sock *req,
++			     const struct tcp_options_received *rx_opt,
++			     struct sk_buff *skb, const struct sock *sk);
+ #endif
  
-+	/*
-+	 * On s390 PCI busses are virtualized and the bridge
-+	 * devices are invisible to the OS. Furthermore busses
-+	 * may exist without a devfn 0 function. Thus the normal
-+	 * ARI detection does not work. At the same time fw/hw
-+	 * has always enabled ARI when possible. Reflect the actual
-+	 * state by setting ari_enabled whenever a device on the bus
-+	 * supports it.
-+	 */
-+	if (pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_ARI))
-+		zdev->zbus->bus->ari_enabled = 1;
-+
- 	/*
- 	 * With pdev->no_vf_scan the common PCI probing code does not
- 	 * perform PF/VF linking.
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index ffaaca0978cb..f94a96a6cb30 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -3537,11 +3537,11 @@ void pci_configure_ari(struct pci_dev *dev)
- 	if (pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ARI)) {
- 		pcie_capability_set_word(bridge, PCI_EXP_DEVCTL2,
- 					 PCI_EXP_DEVCTL2_ARI);
--		bridge->ari_enabled = 1;
-+		dev->bus->ari_enabled = 1;
- 	} else {
- 		pcie_capability_clear_word(bridge, PCI_EXP_DEVCTL2,
- 					   PCI_EXP_DEVCTL2_ARI);
--		bridge->ari_enabled = 0;
-+		dev->bus->ari_enabled = 0;
- 	}
+ #if defined(CONFIG_TCP_MD5SIG) || defined(CONFIG_TCP_AO)
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index e37488d..e33e2a0 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -7029,8 +7029,8 @@ static void tcp_openreq_init(struct request_sock *req,
+ 	ireq->ir_num = ntohs(tcp_hdr(skb)->dest);
+ 	ireq->ir_mark = inet_request_mark(sk, skb);
+ #if IS_ENABLED(CONFIG_SMC)
+-	ireq->smc_ok = rx_opt->smc_ok && !(tcp_sk(sk)->smc_hs_congested &&
+-			tcp_sk(sk)->smc_hs_congested(sk));
++	if (ireq->smc_ok && tcp_sk(sk)->smc_openreq_init)
++		tcp_sk(sk)->smc_openreq_init(req, rx_opt, skb, sk);
+ #endif
  }
  
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index b14b9876c030..c318929438c1 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -1143,6 +1143,7 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 0316217..003b2ac 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -70,6 +70,15 @@
+ static void smc_tcp_listen_work(struct work_struct *);
+ static void smc_connect_work(struct work_struct *);
  
- 	if (!bridge) {
- 		child->dev.parent = parent->bridge;
-+		child->ari_enabled = parent->ari_enabled;
- 		goto add_dev;
++__bpf_hook_start();
++
++__weak noinline int select_syn_smc(const struct sock *sk, struct sockaddr *peer)
++{
++	return 1;
++}
++
++__bpf_hook_end();
++
+ int smc_nl_dump_hs_limitation(struct sk_buff *skb, struct netlink_callback *cb)
+ {
+ 	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
+@@ -156,19 +165,41 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+ 	return NULL;
+ }
+ 
+-static bool smc_hs_congested(const struct sock *sk)
++static void smc_openreq_init(struct request_sock *req,
++			     const struct tcp_options_received *rx_opt,
++			     struct sk_buff *skb, const struct sock *sk)
+ {
++	struct inet_request_sock *ireq = inet_rsk(req);
++	struct sockaddr_storage rmt_sockaddr = {0};
+ 	const struct smc_sock *smc;
+ 
+ 	smc = smc_clcsock_user_data(sk);
+ 
+ 	if (!smc)
+-		return true;
++		return;
+ 
+-	if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
+-		return true;
++	if (smc->limit_smc_hs && workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
++		goto out_no_smc;
+ 
+-	return false;
++	rmt_sockaddr.ss_family = sk->sk_family;
++
++	if (rmt_sockaddr.ss_family == AF_INET) {
++		struct sockaddr_in *rmt4_sockaddr =  (struct sockaddr_in *)&rmt_sockaddr;
++
++		rmt4_sockaddr->sin_addr.s_addr = ireq->ir_rmt_addr;
++		rmt4_sockaddr->sin_port	= ireq->ir_rmt_port;
++	} else {
++		struct sockaddr_in6 *rmt6_sockaddr =  (struct sockaddr_in6 *)&rmt_sockaddr;
++
++		rmt6_sockaddr->sin6_addr = ireq->ir_v6_rmt_addr;
++		rmt6_sockaddr->sin6_port = ireq->ir_rmt_port;
++	}
++
++	ireq->smc_ok = select_syn_smc(sk, (struct sockaddr *)&rmt_sockaddr);
++	return;
++out_no_smc:
++	ireq->smc_ok = 0;
++	return;
+ }
+ 
+ struct smc_hashinfo smc_v4_hashinfo = {
+@@ -1671,7 +1702,7 @@ int smc_connect(struct socket *sock, struct sockaddr *addr,
  	}
  
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 4cf89a4b4cbc..3d1f4a392dd6 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -429,7 +429,6 @@ struct pci_dev {
- 	unsigned int	irq_reroute_variant:2;	/* Needs IRQ rerouting variant */
- 	unsigned int	msi_enabled:1;
- 	unsigned int	msix_enabled:1;
--	unsigned int	ari_enabled:1;		/* ARI forwarding */
- 	unsigned int	ats_enabled:1;		/* Address Translation Svc */
- 	unsigned int	pasid_enabled:1;	/* Process Address Space ID */
- 	unsigned int	pri_enabled:1;		/* Page Request Interface */
-@@ -679,6 +678,7 @@ struct pci_bus {
- 	struct bin_attribute	*legacy_mem;	/* Legacy mem */
- 	unsigned int		is_added:1;
- 	unsigned int		unsafe_warn:1;	/* warned about RW1C config write */
-+	unsigned int		ari_enabled:1;	/* ARI forwarding enabled */
+ 	smc_copy_sock_settings_to_clc(smc);
+-	tcp_sk(smc->clcsock->sk)->syn_smc = 1;
++	tcp_sk(smc->clcsock->sk)->syn_smc = select_syn_smc(sk, addr);
+ 	if (smc->connect_nonblock) {
+ 		rc = -EALREADY;
+ 		goto out;
+@@ -2650,8 +2681,7 @@ int smc_listen(struct socket *sock, int backlog)
+ 
+ 	inet_csk(smc->clcsock->sk)->icsk_af_ops = &smc->af_ops;
+ 
+-	if (smc->limit_smc_hs)
+-		tcp_sk(smc->clcsock->sk)->smc_hs_congested = smc_hs_congested;
++	tcp_sk(smc->clcsock->sk)->smc_openreq_init = smc_openreq_init;
+ 
+ 	rc = kernel_listen(smc->clcsock, backlog);
+ 	if (rc) {
+@@ -3475,6 +3505,20 @@ static void __net_exit smc_net_stat_exit(struct net *net)
+ 	.exit = smc_net_stat_exit,
  };
  
- #define to_pci_bus(n)	container_of(n, struct pci_bus, dev)
-@@ -2637,7 +2637,7 @@ static inline bool pci_is_dev_assigned(struct pci_dev *pdev)
-  */
- static inline bool pci_ari_enabled(struct pci_bus *bus)
++BTF_SET8_START(bpf_smc_fmodret_ids)
++BTF_ID_FLAGS(func, select_syn_smc)
++BTF_SET8_END(bpf_smc_fmodret_ids)
++
++static const struct btf_kfunc_id_set bpf_smc_fmodret_set = {
++	.owner = THIS_MODULE,
++	.set   = &bpf_smc_fmodret_ids,
++};
++
++static int __init bpf_smc_kfunc_init(void)
++{
++	return register_btf_fmodret_id_set(&bpf_smc_fmodret_set);
++}
++
+ static int __init smc_init(void)
  {
--	return bus->self && bus->self->ari_enabled;
-+	return bus->ari_enabled;
- }
- 
- /**
-
----
-base-commit: 98f7e32f20d28ec452afb208f9cffc08448a2652
-change-id: 20240724-ari_no_bus_dev-52b2a27f3466
-
-Best regards,
+ 	int rc;
+@@ -3574,8 +3618,17 @@ static int __init smc_init(void)
+ 		pr_err("%s: smc_inet_init fails with %d\n", __func__, rc);
+ 		goto out_ulp;
+ 	}
++
++	rc = bpf_smc_kfunc_init();
++	if (rc) {
++		pr_err("%s: bpf_smc_kfunc_init fails with %d\n", __func__, rc);
++		goto out_inet;
++	}
++
+ 	static_branch_enable(&tcp_have_smc);
+ 	return 0;
++out_inet:
++	smc_inet_exit();
+ out_ulp:
+ 	tcp_unregister_ulp(&smc_ulp_ops);
+ out_lo:
 -- 
-Niklas Schnelle
+1.8.3.1
 
