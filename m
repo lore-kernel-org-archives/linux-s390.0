@@ -1,230 +1,132 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90BD5EACD;
-	Wed, 18 Sep 2024 10:10:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 072DF381D5;
+	Wed, 18 Sep 2024 10:46:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726654215; cv=none; b=S5g3CH5uGWLhcHxaSiUKgBsjrq9bailW+YN55ccAtLbrC3Ktm1jt2OAaeFjU2WLyJ2Oo0eMu1kwyF8252ij0MruKUWhUvW/fq4BR4g2NFmIG93zXy0CAM9gRPXIKEwozKGITCJB6HlawIutAWD+hqOIg7njQG9q9Ln0q9MKkshk=
+	t=1726656370; cv=none; b=QwobJo4nv0PGE6ZIIlswqXc0WRvWKgDHz/oy+nIg3p4kIR90rCwGwg/wwMg5Lf723vAsz9N0rLAvrLU6FO4hjvkq9WkERu8SoimWSpBEyc/wFLNU6IEXlOpx+cjpF5Qg6owdvHk1LtM7kRsSeKb/8+PF2iQR6YXvu6Jtoi3xKyg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726654215; c=relaxed/simple;
-	bh=j3uHUw8hZJe9e65FGbFo4XsUUmBgZynKAOmtydmKK64=;
-	h=From:To:Cc:Subject:Date:Message-Id; b=AIawzdMLy8+MtLs5kHw2DRVvpAOAiHNQOXSUdQdLDbT8OG9gCv59/XjgcY3SBjob28putybzLaPa7Wvg/KaV7Y4FU8RALgYJw+Ajpj/JeFFVXuPAo6OIJ693ixrQ2SB7nfdttTf/8AWUqYqGApzpV9HY3f5opMMoi6NyGRwDIgA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ghp2YblM; arc=none smtp.client-ip=115.124.30.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1726656370; c=relaxed/simple;
+	bh=YfHHtQTEI9uJjv1+oEusc6SIb8XwsYQTZBH7mfgjLhQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FN6jUqwIT3QVMWwojFYI0zD8mlRKAFR6anU+PPKr85C6Do1HB0Tv+zfaF3Ps+B+YItMDNM6taKRfZh/Yjt6Q7fUbNdHgwtdFIJaBwg80PgvTWs9H0Ef1myQrt2I/Q7Gyqr1sJVGxj0yCpLYMLM8E8uT1+cowzRQByQztJRFL2uQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rq0qfeYZ; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ghp2YblM"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1726654208; h=From:To:Subject:Date:Message-Id;
-	bh=OIaeQekPFzr0Twj4nwSV1xS3+7dgPbM9J97vdUwshuQ=;
-	b=ghp2YblMswD01z0zeMK+J/AOdYkF7dgd/rHePImRxGMLWb2Rv3J96qajSye53hLjIUdrrTPRphHD2anpo83vDHDuPKpeF3BpEOW520xs+XQpie1FxsWOnwSGRSE5gSz2yjh1zgqnG7AvPJmX5GfIRVsNCyU0Zw7Jy5kZPzX3hww=
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WFDs-zd_1726654204)
-          by smtp.aliyun-inc.com;
-          Wed, 18 Sep 2024 18:10:08 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-To: kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	wintera@linux.ibm.com,
-	guwen@linux.alibaba.com
-Cc: kuba@kernel.org,
-	davem@davemloft.net,
-	netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	tonylu@linux.alibaba.com,
-	pabeni@redhat.com,
-	edumazet@google.com,
-	bpf@vger.kernel.org
-Subject: [RFC PATCH net-next] net/smc: Introduce a hook to modify syn_smc at runtime
-Date: Wed, 18 Sep 2024 18:10:04 +0800
-Message-Id: <1726654204-61655-1-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rq0qfeYZ"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48IAC46M006120;
+	Wed, 18 Sep 2024 10:46:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=/
+	OHSy56H5jWT5Ig+CtsMXnV9oYynZfYkASG43hgWfXs=; b=rq0qfeYZm1+EVqRM5
+	f3oV8Kn+K9L3S1U7xTNkAYWbmRjtwLzU3frONSk0iGe2lLuUbg/5T1PdOi75Cssr
+	FnXqPl5h0M23T4aYEHXkhFjTWJ1iZ3mL51+oxN6zxpDriQI2ZXj6xXbGXQO7PrY5
+	FtQgGo3k0QB6x73oGk3GOa+d2SpRS88TxB4BWplQfu329Bqw5xWxpHiF8eSYCg1R
+	IPZuhXQ0hmtb0mhupiqGGtoQlA7V2lJPC74EC6ASyecwVtuAFOXngOOY3Yy3UFv+
+	fvqBR7vg4/3iG6lDr883W0jzzVLhhxc77atbbn5rR6sF51GRf5bKHr+dz/D8G0T7
+	McW5Q==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n41amwxs-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Sep 2024 10:46:05 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 48IAk5cV003991;
+	Wed, 18 Sep 2024 10:46:05 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n41amwxr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Sep 2024 10:46:05 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48IA4Xha000642;
+	Wed, 18 Sep 2024 10:46:04 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41nn71apvf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Sep 2024 10:46:04 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48IAk09v51118538
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 18 Sep 2024 10:46:00 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CABA620043;
+	Wed, 18 Sep 2024 10:46:00 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 995C620040;
+	Wed, 18 Sep 2024 10:46:00 +0000 (GMT)
+Received: from [9.152.224.192] (unknown [9.152.224.192])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 18 Sep 2024 10:46:00 +0000 (GMT)
+Message-ID: <314ca299-b390-41f6-b528-c0524b67f14b@linux.ibm.com>
+Date: Wed, 18 Sep 2024 12:46:00 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 2/2] KVM: s390: Change virtual to physical address
+ access in diag 0x258 handler
+To: Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20240917151904.74314-1-nrb@linux.ibm.com>
+ <20240917151904.74314-3-nrb@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20240917151904.74314-3-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Quq2FWtSvo6vFpIkNnkMGowny-zrCcs3
+X-Proofpoint-ORIG-GUID: cYeQKmOjqkCaCuct6rdDUAL2goY5vJGY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-18_08,2024-09-16_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ lowpriorityscore=0 suspectscore=0 mlxscore=0 mlxlogscore=989 bulkscore=0
+ impostorscore=0 phishscore=0 priorityscore=1501 spamscore=0 clxscore=1011
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2409180063
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-The introduction of IPPROTO_SMC enables eBPF programs to determine
-whether to use SMC based on the context of socket creation, such as
-network namespaces, PID and comm name, etc.
 
-As a subsequent enhancement, this patch introduces a new hook for eBPF
-programs that allows decisions on whether to use SMC or not at runtime,
-including but not limited to local/remote IP address or ports. In
-simpler words, this feature allows modifications to syn_smc through eBPF
-programs before the TCP three-way handshake got established.
+Am 17.09.24 um 17:18 schrieb Nico Boehr:
+> From: Michael Mueller <mimu@linux.ibm.com>
+> 
+> The parameters for the diag 0x258 are real addresses, not virtual, but
+> KVM was using them as virtual addresses. This only happened to work, since
+> the Linux kernel as a guest used to have a 1:1 mapping for physical vs
+> virtual addresses.
+> 
+> Fix KVM so that it correctly uses the addresses as real addresses.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 8ae04b8f500b ("KVM: s390: Guest's memory access functions get access registers")
+> Suggested-by: Vasily Gorbik <gor@linux.ibm.com>
+> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+> [ nrb: drop tested-by tags ]
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-Thanks to kfunc for making it easier for us to implement this feature in
-SMC.
-
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- include/linux/tcp.h  |  4 ++-
- net/ipv4/tcp_input.c |  4 +--
- net/smc/af_smc.c     | 69 ++++++++++++++++++++++++++++++++++++++++++++++------
- 3 files changed, 66 insertions(+), 11 deletions(-)
-
-diff --git a/include/linux/tcp.h b/include/linux/tcp.h
-index 6a5e08b..d028d76 100644
---- a/include/linux/tcp.h
-+++ b/include/linux/tcp.h
-@@ -478,7 +478,9 @@ struct tcp_sock {
- #endif
- #if IS_ENABLED(CONFIG_SMC)
- 	bool	syn_smc;	/* SYN includes SMC */
--	bool	(*smc_hs_congested)(const struct sock *sk);
-+	void	(*smc_openreq_init)(struct request_sock *req,
-+			     const struct tcp_options_received *rx_opt,
-+			     struct sk_buff *skb, const struct sock *sk);
- #endif
- 
- #if defined(CONFIG_TCP_MD5SIG) || defined(CONFIG_TCP_AO)
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index e37488d..e33e2a0 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -7029,8 +7029,8 @@ static void tcp_openreq_init(struct request_sock *req,
- 	ireq->ir_num = ntohs(tcp_hdr(skb)->dest);
- 	ireq->ir_mark = inet_request_mark(sk, skb);
- #if IS_ENABLED(CONFIG_SMC)
--	ireq->smc_ok = rx_opt->smc_ok && !(tcp_sk(sk)->smc_hs_congested &&
--			tcp_sk(sk)->smc_hs_congested(sk));
-+	if (ireq->smc_ok && tcp_sk(sk)->smc_openreq_init)
-+		tcp_sk(sk)->smc_openreq_init(req, rx_opt, skb, sk);
- #endif
- }
- 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 0316217..003b2ac 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -70,6 +70,15 @@
- static void smc_tcp_listen_work(struct work_struct *);
- static void smc_connect_work(struct work_struct *);
- 
-+__bpf_hook_start();
-+
-+__weak noinline int select_syn_smc(const struct sock *sk, struct sockaddr *peer)
-+{
-+	return 1;
-+}
-+
-+__bpf_hook_end();
-+
- int smc_nl_dump_hs_limitation(struct sk_buff *skb, struct netlink_callback *cb)
- {
- 	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
-@@ -156,19 +165,41 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
- 	return NULL;
- }
- 
--static bool smc_hs_congested(const struct sock *sk)
-+static void smc_openreq_init(struct request_sock *req,
-+			     const struct tcp_options_received *rx_opt,
-+			     struct sk_buff *skb, const struct sock *sk)
- {
-+	struct inet_request_sock *ireq = inet_rsk(req);
-+	struct sockaddr_storage rmt_sockaddr = {0};
- 	const struct smc_sock *smc;
- 
- 	smc = smc_clcsock_user_data(sk);
- 
- 	if (!smc)
--		return true;
-+		return;
- 
--	if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
--		return true;
-+	if (smc->limit_smc_hs && workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
-+		goto out_no_smc;
- 
--	return false;
-+	rmt_sockaddr.ss_family = sk->sk_family;
-+
-+	if (rmt_sockaddr.ss_family == AF_INET) {
-+		struct sockaddr_in *rmt4_sockaddr =  (struct sockaddr_in *)&rmt_sockaddr;
-+
-+		rmt4_sockaddr->sin_addr.s_addr = ireq->ir_rmt_addr;
-+		rmt4_sockaddr->sin_port	= ireq->ir_rmt_port;
-+	} else {
-+		struct sockaddr_in6 *rmt6_sockaddr =  (struct sockaddr_in6 *)&rmt_sockaddr;
-+
-+		rmt6_sockaddr->sin6_addr = ireq->ir_v6_rmt_addr;
-+		rmt6_sockaddr->sin6_port = ireq->ir_rmt_port;
-+	}
-+
-+	ireq->smc_ok = select_syn_smc(sk, (struct sockaddr *)&rmt_sockaddr);
-+	return;
-+out_no_smc:
-+	ireq->smc_ok = 0;
-+	return;
- }
- 
- struct smc_hashinfo smc_v4_hashinfo = {
-@@ -1671,7 +1702,7 @@ int smc_connect(struct socket *sock, struct sockaddr *addr,
- 	}
- 
- 	smc_copy_sock_settings_to_clc(smc);
--	tcp_sk(smc->clcsock->sk)->syn_smc = 1;
-+	tcp_sk(smc->clcsock->sk)->syn_smc = select_syn_smc(sk, addr);
- 	if (smc->connect_nonblock) {
- 		rc = -EALREADY;
- 		goto out;
-@@ -2650,8 +2681,7 @@ int smc_listen(struct socket *sock, int backlog)
- 
- 	inet_csk(smc->clcsock->sk)->icsk_af_ops = &smc->af_ops;
- 
--	if (smc->limit_smc_hs)
--		tcp_sk(smc->clcsock->sk)->smc_hs_congested = smc_hs_congested;
-+	tcp_sk(smc->clcsock->sk)->smc_openreq_init = smc_openreq_init;
- 
- 	rc = kernel_listen(smc->clcsock, backlog);
- 	if (rc) {
-@@ -3475,6 +3505,20 @@ static void __net_exit smc_net_stat_exit(struct net *net)
- 	.exit = smc_net_stat_exit,
- };
- 
-+BTF_SET8_START(bpf_smc_fmodret_ids)
-+BTF_ID_FLAGS(func, select_syn_smc)
-+BTF_SET8_END(bpf_smc_fmodret_ids)
-+
-+static const struct btf_kfunc_id_set bpf_smc_fmodret_set = {
-+	.owner = THIS_MODULE,
-+	.set   = &bpf_smc_fmodret_ids,
-+};
-+
-+static int __init bpf_smc_kfunc_init(void)
-+{
-+	return register_btf_fmodret_id_set(&bpf_smc_fmodret_set);
-+}
-+
- static int __init smc_init(void)
- {
- 	int rc;
-@@ -3574,8 +3618,17 @@ static int __init smc_init(void)
- 		pr_err("%s: smc_inet_init fails with %d\n", __func__, rc);
- 		goto out_ulp;
- 	}
-+
-+	rc = bpf_smc_kfunc_init();
-+	if (rc) {
-+		pr_err("%s: bpf_smc_kfunc_init fails with %d\n", __func__, rc);
-+		goto out_inet;
-+	}
-+
- 	static_branch_enable(&tcp_have_smc);
- 	return 0;
-+out_inet:
-+	smc_inet_exit();
- out_ulp:
- 	tcp_unregister_ulp(&smc_ulp_ops);
- out_lo:
--- 
-1.8.3.1
-
+> ---
+>   arch/s390/kvm/diag.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+> index 2a32438e09ce..74f73141f9b9 100644
+> --- a/arch/s390/kvm/diag.c
+> +++ b/arch/s390/kvm/diag.c
+> @@ -77,7 +77,7 @@ static int __diag_page_ref_service(struct kvm_vcpu *vcpu)
+>   	vcpu->stat.instruction_diagnose_258++;
+>   	if (vcpu->run->s.regs.gprs[rx] & 7)
+>   		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+> -	rc = read_guest(vcpu, vcpu->run->s.regs.gprs[rx], rx, &parm, sizeof(parm));
+> +	rc = read_guest_real(vcpu, vcpu->run->s.regs.gprs[rx], &parm, sizeof(parm));
+>   	if (rc)
+>   		return kvm_s390_inject_prog_cond(vcpu, rc);
+>   	if (parm.parm_version != 2 || parm.parm_len < 5 || parm.code != 0x258)
