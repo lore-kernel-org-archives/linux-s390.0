@@ -1,109 +1,98 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out-185.mta0.migadu.com (out-185.mta0.migadu.com [91.218.175.185])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64316291E;
-	Wed, 18 Sep 2024 11:04:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 263B133D8
+	for <linux-s390@vger.kernel.org>; Thu, 19 Sep 2024 10:17:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.185
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726657534; cv=none; b=N3fP9xr3AFojQt9cfDJ8LquZKYsKntmf0dLFvtkKorg8/3t+yGLWu0bw37SveqYxqr9xjYmSa6I44TJNDApBedlgnMuNgbHfqHYfvavwnw8d4N3xGqENzqxGPh8wpkfsWR7c8tY2kJ4S9ZCh7oCZ6unnbS9M5PRxIkIFri9i/sA=
+	t=1726741069; cv=none; b=rd2EaFThhb3rJo+oiyNytdR/Tje+XHCFSyd54JrywnITbp98N+54D5TDiuQcktXzt50u5Pmu3dVJwcZpwk4SzgrqW5i+Unx2SEK1PHG9tfT8P1M4M6n2prapGRiL7nz4mGvh5t0sJwgd49IybgUgY4JLYvXXarL+2MpcolK6bWE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726657534; c=relaxed/simple;
-	bh=9t3OAceTohJNR3rbaNRKDmZtKLb4HHsoUHivTw8xleE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KUuMnAYatp+mfbbhmT9gCfdPYev52xIKX4oUQC6dra/abiQ9U7fngUFB0AYnZQtv5YIw2W3OMEFriHteAlRl44cNmI4zkcYpB7FZg2p4sB5Z2yewYU1eUrqj9ELMlvykPdOi8++DTFokEWbB3m4Zetym8X8B2wBt9+eagfuqgDc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CF3rwbbR; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1726741069; c=relaxed/simple;
+	bh=JRE51gP5UxLcgAGuT2g5r97Z6STrbAowK6q6kqli0ZU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=L+BJQphTHu4fhFahF9xjV9pTCpVHuPfI3vEra0/LjVRnboiQXFtAaDbX6QAGRGRm/qM2vlCnZAFyYE4hEdtSauVGykalZ04RFkmbqln6GHL2yzL1xIgW2g1Fv9E06zIJ/vI6rhVrtqzB6hW83wLgYbccY37cnVYQOHQ34KYzYEk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=D6x6BKht; arc=none smtp.client-ip=91.218.175.185
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CF3rwbbR"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48IATTu7022492;
-	Wed, 18 Sep 2024 11:03:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=N
-	9feMmW4qdwDHDayFvLhM8+dbQJ8kqMay3PbdRyLpk4=; b=CF3rwbbRYLlRV1MMM
-	QjFjza/n84lcpckYgJNOfV8vkHW6tHRnV4TW37F11fmsnox1KIfbJmlINZ5VNm34
-	r2SHNaIfbh1SlO3h2r+kIwj0eIxW5I7adJ5uenKQTBkAbeEG5e4rdFWSxTa7oLEu
-	m9KCjFwIbRW/izErOMSm/QhjtAEURax551wHHVJy0gxOUt3mGD1ybSRvCEWScVKv
-	oAMjIt9E0rV+irassYb6o0O7XQU/JvCF1Zm+a22plvg8qdso6EJjweJ2qv23+1dy
-	vnR/AMNrI3AFqzrPGzf0glkjO2Sd60Mjjm+qpK56EgyreGXRZ+UGCuxIGo9mLIwe
-	MPhXg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3uddcsp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Sep 2024 11:03:15 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 48IB3E1a028476;
-	Wed, 18 Sep 2024 11:03:14 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3uddcsn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Sep 2024 11:03:14 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48I7qequ025033;
-	Wed, 18 Sep 2024 11:03:13 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 41nq1n2c6x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Sep 2024 11:03:13 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48IB376r51773752
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 18 Sep 2024 11:03:07 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 358722004E;
-	Wed, 18 Sep 2024 11:03:07 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 192152004B;
-	Wed, 18 Sep 2024 11:03:07 +0000 (GMT)
-Received: from [9.152.224.192] (unknown [9.152.224.192])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 18 Sep 2024 11:03:07 +0000 (GMT)
-Message-ID: <1583718b-43fd-4285-8392-936bb0ac89f2@linux.ibm.com>
-Date: Wed, 18 Sep 2024 13:03:06 +0200
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="D6x6BKht"
+Date: Thu, 19 Sep 2024 03:17:38 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1726741064;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=I1mckTS2FV38bbZ879rd+/BowKPTlDKekDspILq4S7U=;
+	b=D6x6BKhtU1AsDKi/4KqvcONlUrTfddheLB6mjS/liWOZikXBBbl320OPz8mgGIKM4WllXD
+	+wY9aYHdLlkmHh4egDXFCzDa+mmurZ3C2W/5Yn9b7oeoiOBTG25PlxVj4C73Kx3idnOFp+
+	Vxq68Xs1nMkSJWGZkP3uhgfHcFJ6DPg=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Oliver Upton <oliver.upton@linux.dev>
+To: Colton Lewis <coltonlewis@google.com>
+Cc: kvm@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+	Adrian Hunter <adrian.hunter@intel.com>,
+	Kan Liang <kan.liang@linux.intel.com>,
+	Will Deacon <will@kernel.org>, Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H . Peter Anvin" <hpa@zytor.com>, linux-perf-users@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 0/5] Correct perf sampling with Guest VMs
+Message-ID: <Zuv6QveQAHZ9H0HP@linux.dev>
+References: <20240912205133.4171576-1-coltonlewis@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/2] KVM: s390: gaccess: check if guest address is in
- memslot
-To: Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20240917151904.74314-1-nrb@linux.ibm.com>
- <20240917151904.74314-2-nrb@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20240917151904.74314-2-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: E6T3wFwg2t9eSYMsUJ0XZ57laoNfodjU
-X-Proofpoint-ORIG-GUID: xnXcJ9l5hM75A7ihwQU7OIGqDCjpJiVk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-18_09,2024-09-16_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- phishscore=0 impostorscore=0 spamscore=0 priorityscore=1501 suspectscore=0
- adultscore=0 mlxscore=0 lowpriorityscore=0 malwarescore=0 mlxlogscore=877
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
- definitions=main-2409180069
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240912205133.4171576-1-coltonlewis@google.com>
+X-Migadu-Flow: FLOW_OUT
 
+On Thu, Sep 12, 2024 at 08:51:28PM +0000, Colton Lewis wrote:
+> v3:
+>   * Clarify final commit message further
+>   * Remove an unused variable in perf_arch_misc_flags()
+> 
+> v2:
+> https://lore.kernel.org/kvm/20240911222433.3415301-1-coltonlewis@google.com/
+> 
+> v1:
+> https://lore.kernel.org/kvm/20240904204133.1442132-1-coltonlewis@google.com/
+> 
+> This series cleans up perf recording around guest events and improves
+> the accuracy of the resulting perf reports.
 
+Please fix the intermediate build issue, and also test that each patch
+in the series compiles. With that corrected, for the series:
 
-Am 17.09.24 um 17:18 schrieb Nico Boehr:
-> @@ -985,6 +988,10 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
->   		gra += fragment_len;
->   		data += fragment_len;
->   	}
-> +
-> +	if (rc > 0)
-> +		vcpu->arch.pgm.code = rc;
+Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
 
+A nice follow-up on the arm64 side would be to further constrain
+kvm_arch_pmi_in_guest() to return true iff we exited the guest due to an
+IRQ.
 
-This will work but using trans_exc might be more future proof I guess?
-Otherwise this looks good with the nits fixed.
+-- 
+Thanks,
+Oliver
