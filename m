@@ -1,298 +1,423 @@
-Received: from mail-yb1-f202.google.com (mail-yb1-f202.google.com [209.85.219.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17BB6200AF
-	for <linux-s390@vger.kernel.org>; Thu, 19 Sep 2024 18:44:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2451DF6C;
+	Thu, 19 Sep 2024 19:03:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726771476; cv=none; b=gXW4dQQf6oXp8IxSOXH1aJ7xOkmiSk2/T8CgUxXmvoQOauSJIOKTjy57MLj/YRwRlizl+ll4n4jN8WnW2QnoadXvMO1n3GXIGA/nGxgPmT56pRXHo5vV64pbjoyDCECLW7veaIy5deUhQbwXjRzeIKYwws5oOzYjvQJc/HSShq8=
+	t=1726772631; cv=none; b=VpTfMb/J7+KMISILFWjHlDEVMnmrAzYqLVJLWOuM2h25nyYyS9EZelaWmix2z9MdFUCS6TPiETZoATKxQpT90Sg+0toflXJmBneVpqtm641S8sQB4/Vml5HefI1+5aH6Ja7785zCGJLK1J+KYXUXzyW9VoDh9frd8THm7015Bz8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726771476; c=relaxed/simple;
-	bh=01jyuewcGPVdgaxAy3O3+eEYaKoqJKXKhITf88t3jUw=;
-	h=Date:In-Reply-To:Mime-Version:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=tmkmu5Ru3tyN7ghXvGSLY/ApIi8cah9F6cxaoc8ryY/HbjSvDFE+2pFQnhoTVBMeMRQ+kWY7qhaHABQ/2rOhYRgI3CvXWhHf1ThpAPGDeys7DjEmKxS7ECLlBgH3rmFUyZc3CJzrFrtlKJfj0pAX9x+EL6V4uw/LnJ8rd6E5L24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=fIIuPEhF; arc=none smtp.client-ip=209.85.219.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com
+	s=arc-20240116; t=1726772631; c=relaxed/simple;
+	bh=bM/svC/iQ9FSUuZsSXmjATJF5zh/+PN2M11vlVf8R/M=;
+	h=Date:From:To:Cc:Subject:Message-ID:Content-Type:
+	 Content-Disposition:MIME-Version; b=DIgpTqZpCtCtxIy6hIdVzkSGFkjThQR7XV0uQ0o5Ta0qrqofDVt/nBPWcMipBhLbYIAUHgtnpBXd1fdBrEPzWRx9RPdNfQjKGcWeYZTMFzpbe3H/lr5//WLBmFjLpyVdnxVzRD9ghz/7ohR+6YN3bovBYUZl8aa/h6P/txNrvVg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dOiZnXCD; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fIIuPEhF"
-Received: by mail-yb1-f202.google.com with SMTP id 3f1490d57ef6-dc691f1f83aso665163276.1
-        for <linux-s390@vger.kernel.org>; Thu, 19 Sep 2024 11:44:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1726771473; x=1727376273; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=01jyuewcGPVdgaxAy3O3+eEYaKoqJKXKhITf88t3jUw=;
-        b=fIIuPEhF52jz9b1AP6xfiqzV2FD82O2nO2WWLTtE2TCEZdQJMjOxVY9iMFCzJQEGuG
-         Xlzebm43sbx87oMf+zEMrgAVrXm4JK6wAKyNZYkPfro9qV+bxC8PzFH4qqGg0YEa5kfZ
-         FBjwvlJPHnbvSslAE91HDHTngh1u7pUJQrjVpCEWZsp55WqvcvKHpFX6eaOagCY36Ptc
-         GULvc+HXNG19RELCwo5+QCZn1QCFZr1dAp3HRk2LBGLOS3d/ShsqkVyAy8uRfFnRVw6j
-         7cgqznUNBB2sSpG1ZYHAWKaNgnKRE/WPYA20xGuxeD2lifkEutbd7cJQ3YG1LNyiZQ0V
-         v62Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726771473; x=1727376273;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=01jyuewcGPVdgaxAy3O3+eEYaKoqJKXKhITf88t3jUw=;
-        b=QxUQKRPQ4wVazWmHMwYWiMgzArPrXe1FiWnaX0TtdHXvmVhM1z0b5XdaU4rqUBC7iT
-         w5kFQ9iaCsuraCOaDUmxmgm2rjj/pGkveVDGqbJcd4pgtghMiHfRxZwkTZTPh6ywtFQk
-         Q4QczQUZu6kBZ/i0YXlhIQ01LHXtsuAadVESVBuCTHG6ViytAR8jXPj/kOCJ6JYu+qtP
-         GOgF9YEBaxgN7HMmgCHovRRs/+EV4TuSBZU+9NB8yZESVZ8nUBBLyJBf8AB8y5nNys83
-         3jffa+xzYU9cw3CpXfXtoX6e+qHZ+mhxTKXnBV1D+H/1kUlCMSTL+WxFPbiz+89T/OLY
-         0+kw==
-X-Forwarded-Encrypted: i=1; AJvYcCU/ChpNGFbF/bn//5VIhKmAiwzoOlFyHAMEDKSeqxMn6IUtqXbFYiCX2Owp48BJLR8Rd556LpdPPUlT@vger.kernel.org
-X-Gm-Message-State: AOJu0YziCPdrxf+htDdB9tuIe7COoRTm7zhceOd98seIFtOBW/j4Db7+
-	S15bXxXqa4Jao3Nrl1ocUjd5sASGywvIQQ36Y0SCE7OPmWzkbYvBmZXd2h1bO9VXPKRsTbbrXpY
-	hIGA3Q7E4wdcx6ABRdaLDPg==
-X-Google-Smtp-Source: AGHT+IFNC3HVOBf94qVbktn3xaQ1XxoZtiBu35ekLRa54eGtVfwl1ixhLr5WJ0azngs4GxmR/MfxZt/JCpRNBHWnfQ==
-X-Received: from coltonlewis-kvm.c.googlers.com ([fda3:e722:ac3:cc00:11b:3898:ac11:fa18])
- (user=coltonlewis job=sendgmr) by 2002:a25:84c9:0:b0:e20:20a5:b40a with SMTP
- id 3f1490d57ef6-e20276ee0dfmr35303276.5.1726771472515; Thu, 19 Sep 2024
- 11:44:32 -0700 (PDT)
-Date: Thu, 19 Sep 2024 18:44:31 +0000
-In-Reply-To: <64fbdf0b-02b9-43cd-a0ba-89e37f2615f8@linux.ibm.com> (message
- from Madhavan Srinivasan on Tue, 17 Sep 2024 11:06:54 +0530)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dOiZnXCD"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48JIxb9k018250;
+	Thu, 19 Sep 2024 19:03:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:content-type:mime-version; s=pp1;
+	 bh=g5tt/D/6bcy2LR5fr8tc/g7HLwDfD5wyl/gZ/Ru3PbY=; b=dOiZnXCDwdWC
+	MQtOI2yvW/3XNlWUdOnTvu34JvCFe6HbWitoJzGKiUzjG7Mnktqakre5n17gvn9+
+	LyiaG4ZgKE1c5ltVfTl3UTIhc+el/bccxWoq4Du+XVaV423sJKceVSx1Ecrth6AW
+	9G3/9TGKdU9AEqxh+d4M806cXdQkZq1cCSNPxDg65g6URm+ohambFBGHPqYiYC28
+	xj+4qvrjjIWldhsrBCGTrcHIRnWuVswvJ/evzwzpiUsxe1ejEyRrTvPJ53OxZIMJ
+	uHTuuX2zM2qUyoHUsfqwHS4VwJdSXgR8AiJoSmL1/ph/EyYpE4IC9KzPiwnA51De
+	dA5eHX1CcQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3vp6syd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 19 Sep 2024 19:03:45 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48JIvanw000641;
+	Thu, 19 Sep 2024 19:03:44 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41nn71k98g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 19 Sep 2024 19:03:44 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48JJ3eAM57606456
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 19 Sep 2024 19:03:40 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 913BA20043;
+	Thu, 19 Sep 2024 19:03:40 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 170AE20040;
+	Thu, 19 Sep 2024 19:03:40 +0000 (GMT)
+Received: from localhost (unknown [9.171.81.188])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 19 Sep 2024 19:03:40 +0000 (GMT)
+Date: Thu, 19 Sep 2024 21:03:36 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 patches for the 6.12 merge window
+Message-ID: <Zux1iMM-bKAyyCUi@localhost>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: nEY1-FtEcfBhDKtY_cGmyt9mFn9jAR_4
+X-Proofpoint-GUID: nEY1-FtEcfBhDKtY_cGmyt9mFn9jAR_4
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Message-ID: <gsntikurcwkw.fsf@coltonlewis-kvm.c.googlers.com>
-Subject: Re: [PATCH v3 2/5] perf: Hoist perf_instruction_pointer() and perf_misc_flags()
-From: Colton Lewis <coltonlewis@google.com>
-To: Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: kvm@vger.kernel.org, oliver.upton@linux.dev, seanjc@google.com, 
-	peterz@infradead.org, mingo@redhat.com, acme@kernel.org, namhyung@kernel.org, 
-	mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@kernel.org, 
-	irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com, 
-	will@kernel.org, linux@armlinux.org.uk, catalin.marinas@arm.com, 
-	mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu, 
-	naveen@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com, 
-	agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com, 
-	tglx@linutronix.de, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org, 
-	hpa@zytor.com, linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-19_18,2024-09-19_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
+ priorityscore=1501 phishscore=0 clxscore=1011 malwarescore=0 bulkscore=0
+ impostorscore=0 spamscore=0 suspectscore=0 mlxscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
+ definitions=main-2409190127
 
-TWFkaGF2YW4gU3Jpbml2YXNhbiA8bWFkZHlAbGludXguaWJtLmNvbT4gd3JpdGVzOg0KDQo+IE9u
-IDkvMTMvMjQgMjoyMSBBTSwgQ29sdG9uIExld2lzIHdyb3RlOg0KPj4gRm9yIGNsYXJpdHksIHJl
-bmFtZSB0aGUgYXJjaC1zcGVjaWZpYyBkZWZpbml0aW9ucyBvZiB0aGVzZSBmdW5jdGlvbnMNCj4+
-IHRvIHBlcmZfYXJjaF8qIHRvIGRlbm90ZSB0aGV5IGFyZSBhcmNoLXNwZWNpZmMuIERlZmluZSB0
-aGUNCj4+IGdlbmVyaWMtbmFtZWQgZnVuY3Rpb25zIGluIG9uZSBwbGFjZSB3aGVyZSB0aGV5IGNh
-biBjYWxsIHRoZQ0KPj4gYXJjaC1zcGVjaWZpYyBvbmVzIGFzIG5lZWRlZC4NCg0KPj4gU2lnbmVk
-LW9mZi1ieTogQ29sdG9uIExld2lzIDxjb2x0b25sZXdpc0Bnb29nbGUuY29tPg0KPj4gLS0tDQo+
-PiAgICBhcmNoL2FybTY0L2luY2x1ZGUvYXNtL3BlcmZfZXZlbnQuaCAgICAgICAgICB8ICA2ICsr
-Ky0tLQ0KPj4gICAgYXJjaC9hcm02NC9rZXJuZWwvcGVyZl9jYWxsY2hhaW4uYyAgICAgICAgICAg
-fCAgNCArKy0tDQo+PiAgICBhcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vcGVyZl9ldmVudF9zZXJ2
-ZXIuaCB8ICA2ICsrKy0tLQ0KPj4gICAgYXJjaC9wb3dlcnBjL3BlcmYvY29yZS1ib29rM3MuYyAg
-ICAgICAgICAgICAgfCAgNCArKy0tDQo+PiAgICBhcmNoL3MzOTAvaW5jbHVkZS9hc20vcGVyZl9l
-dmVudC5oICAgICAgICAgICB8ICA2ICsrKy0tLQ0KPj4gICAgYXJjaC9zMzkwL2tlcm5lbC9wZXJm
-X2V2ZW50LmMgICAgICAgICAgICAgICAgfCAgNCArKy0tDQo+PiAgICBhcmNoL3g4Ni9ldmVudHMv
-Y29yZS5jICAgICAgICAgICAgICAgICAgICAgICB8ICA0ICsrLS0NCj4+ICAgIGFyY2gveDg2L2lu
-Y2x1ZGUvYXNtL3BlcmZfZXZlbnQuaCAgICAgICAgICAgIHwgMTAgKysrKystLS0tLQ0KPj4gICAg
-aW5jbHVkZS9saW51eC9wZXJmX2V2ZW50LmggICAgICAgICAgICAgICAgICAgfCAgOSArKysrKyst
-LS0NCj4+ICAgIGtlcm5lbC9ldmVudHMvY29yZS5jICAgICAgICAgICAgICAgICAgICAgICAgIHwg
-MTAgKysrKysrKysrKw0KPj4gICAgMTAgZmlsZXMgY2hhbmdlZCwgMzggaW5zZXJ0aW9ucygrKSwg
-MjUgZGVsZXRpb25zKC0pDQoNCj4+IGRpZmYgLS1naXQgYS9hcmNoL2FybTY0L2luY2x1ZGUvYXNt
-L3BlcmZfZXZlbnQuaCAgDQo+PiBiL2FyY2gvYXJtNjQvaW5jbHVkZS9hc20vcGVyZl9ldmVudC5o
-DQo+PiBpbmRleCBlYjcwNzFjOWViMzQuLjMxYTU1ODRlZDQyMyAxMDA2NDQNCj4+IC0tLSBhL2Fy
-Y2gvYXJtNjQvaW5jbHVkZS9hc20vcGVyZl9ldmVudC5oDQo+PiArKysgYi9hcmNoL2FybTY0L2lu
-Y2x1ZGUvYXNtL3BlcmZfZXZlbnQuaA0KPj4gQEAgLTExLDkgKzExLDkgQEANCg0KPj4gICAgI2lm
-ZGVmIENPTkZJR19QRVJGX0VWRU5UUw0KPj4gICAgc3RydWN0IHB0X3JlZ3M7DQo+PiAtZXh0ZXJu
-IHVuc2lnbmVkIGxvbmcgcGVyZl9pbnN0cnVjdGlvbl9wb2ludGVyKHN0cnVjdCBwdF9yZWdzICpy
-ZWdzKTsNCj4+IC1leHRlcm4gdW5zaWduZWQgbG9uZyBwZXJmX21pc2NfZmxhZ3Moc3RydWN0IHB0
-X3JlZ3MgKnJlZ3MpOw0KPj4gLSNkZWZpbmUgcGVyZl9taXNjX2ZsYWdzKHJlZ3MpCXBlcmZfbWlz
-Y19mbGFncyhyZWdzKQ0KPj4gK2V4dGVybiB1bnNpZ25lZCBsb25nIHBlcmZfYXJjaF9pbnN0cnVj
-dGlvbl9wb2ludGVyKHN0cnVjdCBwdF9yZWdzICANCj4+ICpyZWdzKTsNCj4+ICtleHRlcm4gdW5z
-aWduZWQgbG9uZyBwZXJmX2FyY2hfbWlzY19mbGFncyhzdHJ1Y3QgcHRfcmVncyAqcmVncyk7DQo+
-PiArI2RlZmluZSBwZXJmX2FyY2hfbWlzY19mbGFncyhyZWdzKQlwZXJmX21pc2NfZmxhZ3MocmVn
-cykNCj4+ICAgICNkZWZpbmUgcGVyZl9hcmNoX2JwZl91c2VyX3B0X3JlZ3MocmVncykgJnJlZ3Mt
-PnVzZXJfcmVncw0KPj4gICAgI2VuZGlmDQoNCj4+IGRpZmYgLS1naXQgYS9hcmNoL2FybTY0L2tl
-cm5lbC9wZXJmX2NhbGxjaGFpbi5jICANCj4+IGIvYXJjaC9hcm02NC9rZXJuZWwvcGVyZl9jYWxs
-Y2hhaW4uYw0KPj4gaW5kZXggZThlZDU2NzNmNDgxLi4wMWE5ZDA4ZmMwMDkgMTAwNjQ0DQo+PiAt
-LS0gYS9hcmNoL2FybTY0L2tlcm5lbC9wZXJmX2NhbGxjaGFpbi5jDQo+PiArKysgYi9hcmNoL2Fy
-bTY0L2tlcm5lbC9wZXJmX2NhbGxjaGFpbi5jDQo+PiBAQCAtMzksNyArMzksNyBAQCB2b2lkIHBl
-cmZfY2FsbGNoYWluX2tlcm5lbChzdHJ1Y3QgIA0KPj4gcGVyZl9jYWxsY2hhaW5fZW50cnlfY3R4
-ICplbnRyeSwNCj4+ICAgIAlhcmNoX3N0YWNrX3dhbGsoY2FsbGNoYWluX3RyYWNlLCBlbnRyeSwg
-Y3VycmVudCwgcmVncyk7DQo+PiAgICB9DQoNCj4+IC11bnNpZ25lZCBsb25nIHBlcmZfaW5zdHJ1
-Y3Rpb25fcG9pbnRlcihzdHJ1Y3QgcHRfcmVncyAqcmVncykNCj4+ICt1bnNpZ25lZCBsb25nIHBl
-cmZfYXJjaF9pbnN0cnVjdGlvbl9wb2ludGVyKHN0cnVjdCBwdF9yZWdzICpyZWdzKQ0KPj4gICAg
-ew0KPj4gICAgCWlmIChwZXJmX2d1ZXN0X3N0YXRlKCkpDQo+PiAgICAJCXJldHVybiBwZXJmX2d1
-ZXN0X2dldF9pcCgpOw0KPj4gQEAgLTQ3LDcgKzQ3LDcgQEAgdW5zaWduZWQgbG9uZyBwZXJmX2lu
-c3RydWN0aW9uX3BvaW50ZXIoc3RydWN0IHB0X3JlZ3MgIA0KPj4gKnJlZ3MpDQo+PiAgICAJcmV0
-dXJuIGluc3RydWN0aW9uX3BvaW50ZXIocmVncyk7DQo+PiAgICB9DQoNCj4+IC11bnNpZ25lZCBs
-b25nIHBlcmZfbWlzY19mbGFncyhzdHJ1Y3QgcHRfcmVncyAqcmVncykNCj4+ICt1bnNpZ25lZCBs
-b25nIHBlcmZfYXJjaF9taXNjX2ZsYWdzKHN0cnVjdCBwdF9yZWdzICpyZWdzKQ0KPj4gICAgew0K
-Pj4gICAgCXVuc2lnbmVkIGludCBndWVzdF9zdGF0ZSA9IHBlcmZfZ3Vlc3Rfc3RhdGUoKTsNCj4+
-ICAgIAlpbnQgbWlzYyA9IDA7DQo+PiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2luY2x1ZGUv
-YXNtL3BlcmZfZXZlbnRfc2VydmVyLmggIA0KPj4gYi9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20v
-cGVyZl9ldmVudF9zZXJ2ZXIuaA0KPj4gaW5kZXggNTk5NTYxNGU5MDYyLi40MTU4N2QzZjg0NDYg
-MTAwNjQ0DQo+PiAtLS0gYS9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vcGVyZl9ldmVudF9zZXJ2
-ZXIuaA0KPj4gKysrIGIvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3BlcmZfZXZlbnRfc2VydmVy
-LmgNCj4+IEBAIC0xMDIsOCArMTAyLDggQEAgc3RydWN0IHBvd2VyX3BtdSB7DQo+PiAgICBpbnQg
-X19pbml0IHJlZ2lzdGVyX3Bvd2VyX3BtdShzdHJ1Y3QgcG93ZXJfcG11ICpwbXUpOw0KDQo+PiAg
-ICBzdHJ1Y3QgcHRfcmVnczsNCj4+IC1leHRlcm4gdW5zaWduZWQgbG9uZyBwZXJmX21pc2NfZmxh
-Z3Moc3RydWN0IHB0X3JlZ3MgKnJlZ3MpOw0KPj4gLWV4dGVybiB1bnNpZ25lZCBsb25nIHBlcmZf
-aW5zdHJ1Y3Rpb25fcG9pbnRlcihzdHJ1Y3QgcHRfcmVncyAqcmVncyk7DQo+PiArZXh0ZXJuIHVu
-c2lnbmVkIGxvbmcgcGVyZl9hcmNoX21pc2NfZmxhZ3Moc3RydWN0IHB0X3JlZ3MgKnJlZ3MpOw0K
-Pj4gK2V4dGVybiB1bnNpZ25lZCBsb25nIHBlcmZfYXJjaF9pbnN0cnVjdGlvbl9wb2ludGVyKHN0
-cnVjdCBwdF9yZWdzICANCj4+ICpyZWdzKTsNCj4+ICAgIGV4dGVybiB1bnNpZ25lZCBsb25nIGlu
-dCByZWFkX2JocmIoaW50IG4pOw0KDQo+PiAgICAvKg0KPj4gQEAgLTExMSw3ICsxMTEsNyBAQCBl
-eHRlcm4gdW5zaWduZWQgbG9uZyBpbnQgcmVhZF9iaHJiKGludCBuKTsNCj4+ICAgICAqIGlmIHdl
-IGhhdmUgaGFyZHdhcmUgUE1VIHN1cHBvcnQuDQo+PiAgICAgKi8NCj4+ICAgICNpZmRlZiBDT05G
-SUdfUFBDX1BFUkZfQ1RSUw0KPj4gLSNkZWZpbmUgcGVyZl9taXNjX2ZsYWdzKHJlZ3MpCXBlcmZf
-bWlzY19mbGFncyhyZWdzKQ0KPj4gKyNkZWZpbmUgcGVyZl9hcmNoX21pc2NfZmxhZ3MocmVncykJ
-cGVyZl9taXNjX2ZsYWdzKHJlZ3MpDQo+PiAgICAjZW5kaWYNCg0KPiBDb21waWxhdGlvbiBmYWls
-cyB3aXRoDQoNCj4gSW4gZmlsZSBpbmNsdWRlZCBmcm9tIC9saW51eC9hcmNoL3Bvd2VycGMvaW5j
-bHVkZS9hc20vcGVyZl9ldmVudC5oOjE0LA0KPiAgIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgIGZyb20gL2xpbnV4L2luY2x1ZGUvbGludXgvcGVyZl9ldmVudC5oOjI1LA0KPiAgIMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGZyb20gL2xpbnV4L2FyY2gvcG93ZXJwYy9w
-ZXJmL2NvcmUtYm9vazNzLmM6MTA6DQo+IC9saW51eC9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20v
-cGVyZl9ldmVudF9zZXJ2ZXIuaDoxMTQ6NDE6IGVycm9yOg0KPiBjb25mbGljdGluZyB0eXBlcyBm
-b3IgJ3BlcmZfbWlzY19mbGFncyc7IGhhdmUgJ2xvbmcgdW5zaWduZWQgaW50KHN0cnVjdA0KPiBw
-dF9yZWdzICopJw0KPiAgIMKgIDExNCB8ICNkZWZpbmUgcGVyZl9hcmNoX21pc2NfZmxhZ3MocmVn
-cynCoMKgwqDCoMKgIHBlcmZfbWlzY19mbGFncyhyZWdzKQ0KPiB8wqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqAgXn5+fn5+fn5+fn5+fn5+DQo+IC9saW51eC9hcmNoL3Bvd2VycGMvcGVyZi9jb3JlLWJv
-b2szcy5jOjIzMzU6MTU6IG5vdGU6IGluIGV4cGFuc2lvbiBvZg0KPiBtYWNybyAncGVyZl9hcmNo
-X21pc2NfZmxhZ3MnDQo+ICAgwqAyMzM1IHwgdW5zaWduZWQgbG9uZyBwZXJmX2FyY2hfbWlzY19m
-bGFncyhzdHJ1Y3QgcHRfcmVncyAqcmVncykNCj4gICDCoMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgIF5+fn5+fn5+fn5+fn5+fn5+fn5+DQo+IC9saW51eC9pbmNsdWRlL2xp
-bnV4L3BlcmZfZXZlbnQuaDoxNjMwOjIyOiBub3RlOiBwcmV2aW91cyBkZWNsYXJhdGlvbiBvZg0K
-PiAncGVyZl9taXNjX2ZsYWdzJyB3aXRoIHR5cGUgJ2xvbmcgdW5zaWduZWQgaW50KHN0cnVjdCBw
-ZXJmX2V2ZW50ICosDQo+IHN0cnVjdCBwdF9yZWdzICopJw0KPiAgIMKgMTYzMCB8IGV4dGVybiB1
-bnNpZ25lZCBsb25nIHBlcmZfbWlzY19mbGFncyhzdHJ1Y3QgcGVyZl9ldmVudCAqZXZlbnQsDQo+
-IHN0cnVjdCBwdF9yZWdzICpyZWdzKTsNCj4gICDCoMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgXn5+fn5+fn5+fn5+fn5+DQoNCg0KPiBUaGlzIGZp
-eGVzIHRoZSBmYWlsDQoNCj4gLS0tIGEvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3BlcmZfZXZl
-bnRfc2VydmVyLmgNCj4gKysrIGIvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3BlcmZfZXZlbnRf
-c2VydmVyLmgNCj4gQEAgLTExMSw3ICsxMTEsNyBAQCBleHRlcm4gdW5zaWduZWQgbG9uZyBpbnQg
-cmVhZF9iaHJiKGludCBuKTsNCj4gICDCoCAqIGlmIHdlIGhhdmUgaGFyZHdhcmUgUE1VIHN1cHBv
-cnQuDQo+ICAgwqAgKi8NCj4gICDCoCNpZmRlZiBDT05GSUdfUFBDX1BFUkZfQ1RSUw0KPiAtI2Rl
-ZmluZSBwZXJmX2FyY2hfbWlzY19mbGFncyhyZWdzKSBwZXJmX21pc2NfZmxhZ3MocmVncykNCj4g
-KyNkZWZpbmUgcGVyZl9hcmNoX21pc2NfZmxhZ3MocmVncykgcGVyZl9hcmNoX21pc2NfZmxhZ3Mo
-cmVncykNCj4gICDCoCNlbmRpZg0KDQo+ICAgwqAvKg0KDQpUaGFua3MuIERvbmUNCg0KPj4gICAg
-LyoNCj4+IGRpZmYgLS1naXQgYS9hcmNoL3Bvd2VycGMvcGVyZi9jb3JlLWJvb2szcy5jICANCj4+
-IGIvYXJjaC9wb3dlcnBjL3BlcmYvY29yZS1ib29rM3MuYw0KPj4gaW5kZXggNDI4Njc0Njk3NTJk
-Li5kYzAxYWE2MDRjYzEgMTAwNjQ0DQo+PiAtLS0gYS9hcmNoL3Bvd2VycGMvcGVyZi9jb3JlLWJv
-b2szcy5jDQo+PiArKysgYi9hcmNoL3Bvd2VycGMvcGVyZi9jb3JlLWJvb2szcy5jDQo+PiBAQCAt
-MjMzMiw3ICsyMzMyLDcgQEAgc3RhdGljIHZvaWQgcmVjb3JkX2FuZF9yZXN0YXJ0KHN0cnVjdCBw
-ZXJmX2V2ZW50ICANCj4+ICpldmVudCwgdW5zaWduZWQgbG9uZyB2YWwsDQo+PiAgICAgKiBDYWxs
-ZWQgZnJvbSBnZW5lcmljIGNvZGUgdG8gZ2V0IHRoZSBtaXNjIGZsYWdzIChpLmUuIHByb2Nlc3Nv
-ciBtb2RlKQ0KPj4gICAgICogZm9yIGFuIGV2ZW50X2lkLg0KPj4gICAgICovDQo+PiAtdW5zaWdu
-ZWQgbG9uZyBwZXJmX21pc2NfZmxhZ3Moc3RydWN0IHB0X3JlZ3MgKnJlZ3MpDQo+PiArdW5zaWdu
-ZWQgbG9uZyBwZXJmX2FyY2hfbWlzY19mbGFncyhzdHJ1Y3QgcHRfcmVncyAqcmVncykNCj4+ICAg
-IHsNCj4+ICAgIAl1MzIgZmxhZ3MgPSBwZXJmX2dldF9taXNjX2ZsYWdzKHJlZ3MpOw0KDQo+PiBA
-QCAtMjM0Niw3ICsyMzQ2LDcgQEAgdW5zaWduZWQgbG9uZyBwZXJmX21pc2NfZmxhZ3Moc3RydWN0
-IHB0X3JlZ3MgKnJlZ3MpDQo+PiAgICAgKiBDYWxsZWQgZnJvbSBnZW5lcmljIGNvZGUgdG8gZ2V0
-IHRoZSBpbnN0cnVjdGlvbiBwb2ludGVyDQo+PiAgICAgKiBmb3IgYW4gZXZlbnRfaWQuDQo+PiAg
-ICAgKi8NCj4+IC11bnNpZ25lZCBsb25nIHBlcmZfaW5zdHJ1Y3Rpb25fcG9pbnRlcihzdHJ1Y3Qg
-cHRfcmVncyAqcmVncykNCj4+ICt1bnNpZ25lZCBsb25nIHBlcmZfYXJjaF9pbnN0cnVjdGlvbl9w
-b2ludGVyKHN0cnVjdCBwdF9yZWdzICpyZWdzKQ0KPj4gICAgew0KPj4gICAgCXVuc2lnbmVkIGxv
-bmcgc2lhciA9IG1mc3ByKFNQUk5fU0lBUik7DQoNCj4+IGRpZmYgLS1naXQgYS9hcmNoL3MzOTAv
-aW5jbHVkZS9hc20vcGVyZl9ldmVudC5oICANCj4+IGIvYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3Bl
-cmZfZXZlbnQuaA0KPj4gaW5kZXggOTkxN2UyNzE3YjJiLi5mMmQ4MzI4OWVjN2EgMTAwNjQ0DQo+
-PiAtLS0gYS9hcmNoL3MzOTAvaW5jbHVkZS9hc20vcGVyZl9ldmVudC5oDQo+PiArKysgYi9hcmNo
-L3MzOTAvaW5jbHVkZS9hc20vcGVyZl9ldmVudC5oDQo+PiBAQCAtMzcsOSArMzcsOSBAQCBleHRl
-cm4gc3NpemVfdCBjcHVtZl9ldmVudHNfc3lzZnNfc2hvdyhzdHJ1Y3QgZGV2aWNlICANCj4+ICpk
-ZXYsDQoNCj4+ICAgIC8qIFBlcmYgY2FsbGJhY2tzICovDQo+PiAgICBzdHJ1Y3QgcHRfcmVnczsN
-Cj4+IC1leHRlcm4gdW5zaWduZWQgbG9uZyBwZXJmX2luc3RydWN0aW9uX3BvaW50ZXIoc3RydWN0
-IHB0X3JlZ3MgKnJlZ3MpOw0KPj4gLWV4dGVybiB1bnNpZ25lZCBsb25nIHBlcmZfbWlzY19mbGFn
-cyhzdHJ1Y3QgcHRfcmVncyAqcmVncyk7DQo+PiAtI2RlZmluZSBwZXJmX21pc2NfZmxhZ3MocmVn
-cykgcGVyZl9taXNjX2ZsYWdzKHJlZ3MpDQo+PiArZXh0ZXJuIHVuc2lnbmVkIGxvbmcgcGVyZl9h
-cmNoX2luc3RydWN0aW9uX3BvaW50ZXIoc3RydWN0IHB0X3JlZ3MgIA0KPj4gKnJlZ3MpOw0KPj4g
-K2V4dGVybiB1bnNpZ25lZCBsb25nIHBlcmZfYXJjaF9taXNjX2ZsYWdzKHN0cnVjdCBwdF9yZWdz
-ICpyZWdzKTsNCj4+ICsjZGVmaW5lIHBlcmZfYXJjaF9taXNjX2ZsYWdzKHJlZ3MpIHBlcmZfbWlz
-Y19mbGFncyhyZWdzKQ0KPj4gICAgI2RlZmluZSBwZXJmX2FyY2hfYnBmX3VzZXJfcHRfcmVncyhy
-ZWdzKSAmcmVncy0+dXNlcl9yZWdzDQoNCj4+ICAgIC8qIFBlcmYgcHRfcmVncyBleHRlbnNpb24g
-Zm9yIHNhbXBsZS1kYXRhLWVudHJ5IGluZGljYXRvcnMgKi8NCj4+IGRpZmYgLS1naXQgYS9hcmNo
-L3MzOTAva2VybmVsL3BlcmZfZXZlbnQuYyAgDQo+PiBiL2FyY2gvczM5MC9rZXJuZWwvcGVyZl9l
-dmVudC5jDQo+PiBpbmRleCA1ZmZmNjI5YjFhODkuLmY5MDAwYWI0OWY0YSAxMDA2NDQNCj4+IC0t
-LSBhL2FyY2gvczM5MC9rZXJuZWwvcGVyZl9ldmVudC5jDQo+PiArKysgYi9hcmNoL3MzOTAva2Vy
-bmVsL3BlcmZfZXZlbnQuYw0KPj4gQEAgLTU3LDcgKzU3LDcgQEAgc3RhdGljIHVuc2lnbmVkIGxv
-bmcgaW5zdHJ1Y3Rpb25fcG9pbnRlcl9ndWVzdChzdHJ1Y3QgIA0KPj4gcHRfcmVncyAqcmVncykN
-Cj4+ICAgIAlyZXR1cm4gc2llX2Jsb2NrKHJlZ3MpLT5ncHN3LmFkZHI7DQo+PiAgICB9DQoNCj4+
-IC11bnNpZ25lZCBsb25nIHBlcmZfaW5zdHJ1Y3Rpb25fcG9pbnRlcihzdHJ1Y3QgcHRfcmVncyAq
-cmVncykNCj4+ICt1bnNpZ25lZCBsb25nIHBlcmZfYXJjaF9pbnN0cnVjdGlvbl9wb2ludGVyKHN0
-cnVjdCBwdF9yZWdzICpyZWdzKQ0KPj4gICAgew0KPj4gICAgCXJldHVybiBpc19pbl9ndWVzdChy
-ZWdzKSA/IGluc3RydWN0aW9uX3BvaW50ZXJfZ3Vlc3QocmVncykNCj4+ICAgIAkJCQkgOiBpbnN0
-cnVjdGlvbl9wb2ludGVyKHJlZ3MpOw0KPj4gQEAgLTg0LDcgKzg0LDcgQEAgc3RhdGljIHVuc2ln
-bmVkIGxvbmcgcGVyZl9taXNjX2ZsYWdzX3NmKHN0cnVjdCBwdF9yZWdzICANCj4+ICpyZWdzKQ0K
-Pj4gICAgCXJldHVybiBmbGFnczsNCj4+ICAgIH0NCg0KPj4gLXVuc2lnbmVkIGxvbmcgcGVyZl9t
-aXNjX2ZsYWdzKHN0cnVjdCBwdF9yZWdzICpyZWdzKQ0KPj4gK3Vuc2lnbmVkIGxvbmcgcGVyZl9h
-cmNoX21pc2NfZmxhZ3Moc3RydWN0IHB0X3JlZ3MgKnJlZ3MpDQo+PiAgICB7DQo+PiAgICAJLyog
-Q2hlY2sgaWYgdGhlIGNwdW1fc2YgUE1VIGhhcyBjcmVhdGVkIHRoZSBwdF9yZWdzIHN0cnVjdHVy
-ZS4NCj4+ICAgIAkgKiBJbiB0aGlzIGNhc2UsIHBlcmYgbWlzYyBmbGFncyBjYW4gYmUgZWFzaWx5
-IGV4dHJhY3RlZC4gIE90aGVyd2lzZSwNCj4+IGRpZmYgLS1naXQgYS9hcmNoL3g4Ni9ldmVudHMv
-Y29yZS5jIGIvYXJjaC94ODYvZXZlbnRzL2NvcmUuYw0KPj4gaW5kZXggYmUwMTgyM2IxYmI0Li43
-NjBhZDA2NzUyN2MgMTAwNjQ0DQo+PiAtLS0gYS9hcmNoL3g4Ni9ldmVudHMvY29yZS5jDQo+PiAr
-KysgYi9hcmNoL3g4Ni9ldmVudHMvY29yZS5jDQo+PiBAQCAtMjk0MCw3ICsyOTQwLDcgQEAgc3Rh
-dGljIHVuc2lnbmVkIGxvbmcgY29kZV9zZWdtZW50X2Jhc2Uoc3RydWN0ICANCj4+IHB0X3JlZ3Mg
-KnJlZ3MpDQo+PiAgICAJcmV0dXJuIDA7DQo+PiAgICB9DQoNCj4+IC11bnNpZ25lZCBsb25nIHBl
-cmZfaW5zdHJ1Y3Rpb25fcG9pbnRlcihzdHJ1Y3QgcHRfcmVncyAqcmVncykNCj4+ICt1bnNpZ25l
-ZCBsb25nIHBlcmZfYXJjaF9pbnN0cnVjdGlvbl9wb2ludGVyKHN0cnVjdCBwdF9yZWdzICpyZWdz
-KQ0KPj4gICAgew0KPj4gICAgCWlmIChwZXJmX2d1ZXN0X3N0YXRlKCkpDQo+PiAgICAJCXJldHVy
-biBwZXJmX2d1ZXN0X2dldF9pcCgpOw0KPj4gQEAgLTI5NDgsNyArMjk0OCw3IEBAIHVuc2lnbmVk
-IGxvbmcgcGVyZl9pbnN0cnVjdGlvbl9wb2ludGVyKHN0cnVjdCAgDQo+PiBwdF9yZWdzICpyZWdz
-KQ0KPj4gICAgCXJldHVybiByZWdzLT5pcCArIGNvZGVfc2VnbWVudF9iYXNlKHJlZ3MpOw0KPj4g
-ICAgfQ0KDQo+PiAtdW5zaWduZWQgbG9uZyBwZXJmX21pc2NfZmxhZ3Moc3RydWN0IHB0X3JlZ3Mg
-KnJlZ3MpDQo+PiArdW5zaWduZWQgbG9uZyBwZXJmX2FyY2hfbWlzY19mbGFncyhzdHJ1Y3QgcHRf
-cmVncyAqcmVncykNCj4+ICAgIHsNCj4+ICAgIAl1bnNpZ25lZCBpbnQgZ3Vlc3Rfc3RhdGUgPSBw
-ZXJmX2d1ZXN0X3N0YXRlKCk7DQo+PiAgICAJaW50IG1pc2MgPSAwOw0KPj4gZGlmZiAtLWdpdCBh
-L2FyY2gveDg2L2luY2x1ZGUvYXNtL3BlcmZfZXZlbnQuaCAgDQo+PiBiL2FyY2gveDg2L2luY2x1
-ZGUvYXNtL3BlcmZfZXZlbnQuaA0KPj4gaW5kZXggOTFiNzM1NzE0MTJmLi5mZWI4N2JmM2QyZTkg
-MTAwNjQ0DQo+PiAtLS0gYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9wZXJmX2V2ZW50LmgNCj4+ICsr
-KyBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL3BlcmZfZXZlbnQuaA0KPj4gQEAgLTUzNiwxNSArNTM2
-LDE1IEBAIHN0cnVjdCB4ODZfcGVyZl9yZWdzIHsNCj4+ICAgIAl1NjQJCSp4bW1fcmVnczsNCj4+
-ICAgIH07DQoNCj4+IC1leHRlcm4gdW5zaWduZWQgbG9uZyBwZXJmX2luc3RydWN0aW9uX3BvaW50
-ZXIoc3RydWN0IHB0X3JlZ3MgKnJlZ3MpOw0KPj4gLWV4dGVybiB1bnNpZ25lZCBsb25nIHBlcmZf
-bWlzY19mbGFncyhzdHJ1Y3QgcHRfcmVncyAqcmVncyk7DQo+PiAtI2RlZmluZSBwZXJmX21pc2Nf
-ZmxhZ3MocmVncykJcGVyZl9taXNjX2ZsYWdzKHJlZ3MpDQo+PiArZXh0ZXJuIHVuc2lnbmVkIGxv
-bmcgcGVyZl9hcmNoX2luc3RydWN0aW9uX3BvaW50ZXIoc3RydWN0IHB0X3JlZ3MgIA0KPj4gKnJl
-Z3MpOw0KPj4gK2V4dGVybiB1bnNpZ25lZCBsb25nIHBlcmZfYXJjaF9taXNjX2ZsYWdzKHN0cnVj
-dCBwdF9yZWdzICpyZWdzKTsNCj4+ICsjZGVmaW5lIHBlcmZfYXJjaF9taXNjX2ZsYWdzKHJlZ3Mp
-CXBlcmZfYXJjaF9taXNjX2ZsYWdzKHJlZ3MpDQoNCj4+ICAgICNpbmNsdWRlIDxhc20vc3RhY2t0
-cmFjZS5oPg0KDQo+PiAgICAvKg0KPj4gLSAqIFdlIGFidXNlIGJpdCAzIGZyb20gZmxhZ3MgdG8g
-cGFzcyBleGFjdCBpbmZvcm1hdGlvbiwgc2VlICANCj4+IHBlcmZfbWlzY19mbGFncw0KPj4gLSAq
-IGFuZCB0aGUgY29tbWVudCB3aXRoIFBFUkZfRUZMQUdTX0VYQUNULg0KPj4gKyAqIFdlIGFidXNl
-IGJpdCAzIGZyb20gZmxhZ3MgdG8gcGFzcyBleGFjdCBpbmZvcm1hdGlvbiwgc2VlDQo+PiArICog
-cGVyZl9hcmNoX21pc2NfZmxhZ3MoKSBhbmQgdGhlIGNvbW1lbnQgd2l0aCBQRVJGX0VGTEFHU19F
-WEFDVC4NCj4+ICAgICAqLw0KPj4gICAgI2RlZmluZSBwZXJmX2FyY2hfZmV0Y2hfY2FsbGVyX3Jl
-Z3MocmVncywgX19pcCkJCXsJXA0KPj4gICAgCShyZWdzKS0+aXAgPSAoX19pcCk7CQkJCQlcDQo+
-PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9wZXJmX2V2ZW50LmggYi9pbmNsdWRlL2xpbnV4
-L3BlcmZfZXZlbnQuaA0KPj4gaW5kZXggMWE4OTQyMjc3ZGRhLi5kMDYxZTMyN2FkNTQgMTAwNjQ0
-DQo+PiAtLS0gYS9pbmNsdWRlL2xpbnV4L3BlcmZfZXZlbnQuaA0KPj4gKysrIGIvaW5jbHVkZS9s
-aW51eC9wZXJmX2V2ZW50LmgNCj4+IEBAIC0xNjMzLDEwICsxNjMzLDEzIEBAIGV4dGVybiB2b2lk
-IHBlcmZfdHBfZXZlbnQodTE2IGV2ZW50X3R5cGUsIHU2NCAgDQo+PiBjb3VudCwgdm9pZCAqcmVj
-b3JkLA0KPj4gICAgCQkJICBzdHJ1Y3QgdGFza19zdHJ1Y3QgKnRhc2spOw0KPj4gICAgZXh0ZXJu
-IHZvaWQgcGVyZl9icF9ldmVudChzdHJ1Y3QgcGVyZl9ldmVudCAqZXZlbnQsIHZvaWQgKmRhdGEp
-Ow0KDQo+PiAtI2lmbmRlZiBwZXJmX21pc2NfZmxhZ3MNCj4+IC0jIGRlZmluZSBwZXJmX21pc2Nf
-ZmxhZ3MocmVncykgXA0KPj4gK2V4dGVybiB1bnNpZ25lZCBsb25nIHBlcmZfbWlzY19mbGFncyhz
-dHJ1Y3QgcHRfcmVncyAqcmVncyk7DQo+PiArZXh0ZXJuIHVuc2lnbmVkIGxvbmcgcGVyZl9pbnN0
-cnVjdGlvbl9wb2ludGVyKHN0cnVjdCBwdF9yZWdzICpyZWdzKTsNCj4+ICsNCj4+ICsjaWZuZGVm
-IHBlcmZfYXJjaF9taXNjX2ZsYWdzDQo+PiArIyBkZWZpbmUgcGVyZl9hcmNoX21pc2NfZmxhZ3Mo
-cmVncykgXA0KPj4gICAgCQkodXNlcl9tb2RlKHJlZ3MpID8gUEVSRl9SRUNPUkRfTUlTQ19VU0VS
-IDogUEVSRl9SRUNPUkRfTUlTQ19LRVJORUwpDQo+PiAtIyBkZWZpbmUgcGVyZl9pbnN0cnVjdGlv
-bl9wb2ludGVyKHJlZ3MpCWluc3RydWN0aW9uX3BvaW50ZXIocmVncykNCj4+ICsjIGRlZmluZSBw
-ZXJmX2FyY2hfaW5zdHJ1Y3Rpb25fcG9pbnRlcihyZWdzKQlpbnN0cnVjdGlvbl9wb2ludGVyKHJl
-Z3MpDQo+PiAgICAjZW5kaWYNCj4+ICAgICNpZm5kZWYgcGVyZl9hcmNoX2JwZl91c2VyX3B0X3Jl
-Z3MNCj4+ICAgICMgZGVmaW5lIHBlcmZfYXJjaF9icGZfdXNlcl9wdF9yZWdzKHJlZ3MpIHJlZ3MN
-Cj4+IGRpZmYgLS1naXQgYS9rZXJuZWwvZXZlbnRzL2NvcmUuYyBiL2tlcm5lbC9ldmVudHMvY29y
-ZS5jDQo+PiBpbmRleCA4YTZjNmJiY2Q2NTguLmVlYWJiZjc5MWE4YyAxMDA2NDQNCj4+IC0tLSBh
-L2tlcm5lbC9ldmVudHMvY29yZS5jDQo+PiArKysgYi9rZXJuZWwvZXZlbnRzL2NvcmUuYw0KPj4g
-QEAgLTY5MjEsNiArNjkyMSwxNiBAQCB2b2lkIHBlcmZfdW5yZWdpc3Rlcl9ndWVzdF9pbmZvX2Nh
-bGxiYWNrcyhzdHJ1Y3QgIA0KPj4gcGVyZl9ndWVzdF9pbmZvX2NhbGxiYWNrcyAqY2JzKQ0KPj4g
-ICAgRVhQT1JUX1NZTUJPTF9HUEwocGVyZl91bnJlZ2lzdGVyX2d1ZXN0X2luZm9fY2FsbGJhY2tz
-KTsNCj4+ICAgICNlbmRpZg0KDQo+PiArdW5zaWduZWQgbG9uZyBwZXJmX21pc2NfZmxhZ3Moc3Ry
-dWN0IHB0X3JlZ3MgKnJlZ3MpDQo+PiArew0KPj4gKwlyZXR1cm4gcGVyZl9hcmNoX21pc2NfZmxh
-Z3MocmVncyk7DQo+PiArfQ0KPj4gKw0KPj4gK3Vuc2lnbmVkIGxvbmcgcGVyZl9pbnN0cnVjdGlv
-bl9wb2ludGVyKHN0cnVjdCBwdF9yZWdzICpyZWdzKQ0KPj4gK3sNCj4+ICsJcmV0dXJuIHBlcmZf
-YXJjaF9pbnN0cnVjdGlvbl9wb2ludGVyKHJlZ3MpOw0KPj4gK30NCj4+ICsNCj4+ICAgIHN0YXRp
-YyB2b2lkDQo+PiAgICBwZXJmX291dHB1dF9zYW1wbGVfcmVncyhzdHJ1Y3QgcGVyZl9vdXRwdXRf
-aGFuZGxlICpoYW5kbGUsDQo+PiAgICAJCQlzdHJ1Y3QgcHRfcmVncyAqcmVncywgdTY0IG1hc2sp
-DQo=
+Hello Linus,
+
+Please pull s390 changes for 6.12. There are 2 conflicts:
+1. Conflict in arch/s390/include/asm/facility.h:
+   The random number generator tree (already pulled) contains the s390
+   vDSO getrandom implementation, which is based on and includes the same
+   commit, 26d4959681e3 ("s390/facility: Disable compile-time optimization
+   for decompressor code"), as was previously included in the s390 tree,
+   hence the conflict. For details, please see:
+   https://lore.kernel.org/all/20240913130544.2398678-1-hca@linux.ibm.com/
+   The s390 tree doesn't have any other changes to
+   arch/s390/include/asm/facility.h, so please just stick to what's
+   already in your branch.
+
+2. The mm tree (not yet pulled as of now) contains commit 590b9d576cae
+   ("mm: kvmalloc: align kvrealloc() with krealloc()"), which, when
+   pulled, would result in s390 build failure. Please apply the
+   following fix-up, if possible, to avoid build breakage.
+   Reported by linux-next maintainer:
+   https://lore.kernel.org/all/20240808135836.740effac@canb.auug.org.au/
+---
+diff --git a/arch/s390/mm/dump_pagetables.c b/arch/s390/mm/dump_pagetables.c
+index 9e2dc42143b3..fa54f3bc0c8d 100644
+--- a/arch/s390/mm/dump_pagetables.c
++++ b/arch/s390/mm/dump_pagetables.c
+@@ -256,7 +256,7 @@ static int add_marker(unsigned long start, unsigned long end, const char *name)
+        if (!oldsize)
+                markers = kvmalloc(newsize, GFP_KERNEL);
+        else
+-               markers = kvrealloc(markers, oldsize, newsize, GFP_KERNEL);
++               markers = kvrealloc(markers, newsize, GFP_KERNEL);
+        if (!markers)
+                goto error;
+        markers[markers_cnt].is_start = 1;
+-- 
+
+Thank you,
+Vasily
+
+The following changes since commit de9c2c66ad8e787abec7c9d7eff4f8c3cdd28aed:
+
+  Linux 6.11-rc2 (2024-08-04 13:50:53 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.12-1
+
+for you to fetch changes up to 9fed8d7c46f37151037334ef5e8b30b945baaceb:
+
+  s390/crypto: Display Query and Query Authentication Information in sysfs (2024-09-12 14:13:27 +0200)
+
+----------------------------------------------------------------
+s390 updates for 6.12 merge window
+
+- Optimize ftrace and kprobes code patching and avoid stop machine for
+  kprobes if sequential instruction fetching facility is available
+
+- Add hiperdispatch feature to dynamically adjust CPU capacity in
+  vertical polarization to improve scheduling efficiency and overall
+  performance. Also add infrastructure for handling warning track
+  interrupts (WTI), allowing for graceful CPU preemption
+
+- Rework crypto code pkey module and split it into separate, independent
+  modules for sysfs, PCKMO, CCA, and EP11, allowing modules to load only
+  when the relevant hardware is available
+
+- Add hardware acceleration for HMAC modes and the full AES-XTS cipher,
+  utilizing message-security assist extensions (MSA) 10 and 11. It
+  introduces new shash implementations for HMAC-SHA224/256/384/512 and
+  registers the hardware-accelerated AES-XTS cipher as the preferred
+  option. Also add clear key token support
+
+- Add MSA 10 and 11 processor activity instrumentation counters to perf
+  and update PAI Extension 1 NNPA counters
+
+- Cleanup cpu sampling facility code and rework debug/WARN_ON_ONCE
+  statements
+
+- Add support for SHA3 performance enhancements introduced with MSA 12
+
+- Add support for the query authentication information feature of
+  MSA 13 and introduce the KDSA CPACF instruction. Provide query and query
+  authentication information in sysfs, enabling tools like cpacfinfo to
+  present this data in a human-readable form
+
+- Update kernel disassembler instructions
+
+- Always enable EXPOLINE_EXTERN if supported by the compiler to ensure
+  kpatch compatibility
+
+- Add missing warning handling and relocated lowcore support to the
+  early program check handler
+
+- Optimize ftrace_return_address() and avoid calling unwinder
+
+- Make modules use kernel ftrace trampolines
+
+- Strip relocs from the final vmlinux ELF file to make it roughly 2
+  times smaller
+
+- Dump register contents and call trace for early crashes to the console
+
+- Generate ptdump address marker array dynamically
+
+- Fix rcu_sched stalls that might occur when adding or removing large
+  amounts of pages at once to or from the CMM balloon
+
+- Fix deadlock caused by recursive lock of the AP bus scan mutex
+
+- Unify sync and async register save areas in entry code
+
+- Cleanup debug prints in crypto code
+
+- Various cleanup and sanitizing patches for the decompressor
+
+- Various small ftrace cleanups
+
+----------------------------------------------------------------
+Finn Callies (4):
+      s390/crypto: Add KDSA CPACF Instruction
+      s390/crypto: Rework RRE and RRF CPACF inline functions
+      s390/crypto: Add Support for Query Authentication Information
+      s390/crypto: Display Query and Query Authentication Information in sysfs
+
+Gaosheng Cui (1):
+      s390/hypfs: Remove obsoleted declaration for hypfs_dbfs_exit
+
+Gerald Schaefer (1):
+      s390/mm: Add cond_resched() to cmm_alloc/free_pages()
+
+Harald Freudenberger (9):
+      s390/pkey: Split pkey_unlocked_ioctl function
+      s390/pkey: Rework and split PKEY kernel module code
+      s390/pkey: Unify pkey cca, ep11 and pckmo functions signatures
+      s390/pkey: Introduce pkey base with handler registry and handler modules
+      s390/pkey: Add slowpath function to CCA and EP11 handler
+      s390/pkey: Add function to enforce pkey handler modules load
+      s390/ap: Fix deadlock caused by recursive lock of the AP bus scan mutex
+      s390/cpacf: Add MSA 10 and 11 new PCKMO functions
+      s390/pkey: Add AES xts and HMAC clear key token support
+
+Heiko Carstens (16):
+      s390/mm/ptdump: Generate address marker array dynamically
+      s390/entry: Move early program check handler to entry.S
+      s390/entry: Make early program check handler relocated lowcore aware
+      s390/traps: Handle early warnings gracefully
+      s390/entry: Move early_pgm_check_handler() to init text section
+      s390/early: Add __init to __do_early_pgm_check()
+      s390/early: Dump register contents and call trace for early crashes
+      s390/als: Remove obsolete comment
+      s390/boot: Increase minimum architecture to z10
+      s390/facility: Disable compile time optimization for decompressor code
+      s390: Provide MARCH_HAS_*_FEATURES defines
+      s390: Use MARCH_HAS_*_FEATURES defines
+      s390/boot: Compile all files with the same march flag
+      s390/boot: Rename decompressor_printk() to boot_printk()
+      s390/boot: Use boot_printk() instead of sclp_early_printk()
+      s390/boot: Move boot_printk() code to own file
+
+Holger Dengler (7):
+      s390/ap_bus: Cleanup debug code
+      s390/ap_queue: Cleanup debug code
+      s390/zcrypt_api: Cleanup debug code
+      s390/zcrypt_msgtype50: Cleanup debug code
+      s390/zcrypt_msgtype6: Cleanup debug code
+      s390/crypto: Add hardware acceleration for full AES-XTS mode
+      s390/crypto: Add hardware acceleration for HMAC modes
+
+Ingo Franzki (1):
+      s390/sha3: Fix SHA3 selftests failures
+
+Jens Remus (4):
+      s390/build: Avoid relocation information in final vmlinux
+      s390/disassembler: Use proper format specifiers for operand values
+      s390/disassembler: Update instruction mnemonics to latest spec
+      s390/disassembler: Remove duplicate instruction format RSY_RDRU
+
+Joerg Schmidbauer (1):
+      s390/sha3: Support sha3 performance enhancements
+
+Mete Durlu (8):
+      s390/hypfs_diag: Remove unused dentry variable
+      s390/smp: Add cpu capacities
+      s390/hiperdispatch: Introduce hiperdispatch
+      s390/hiperdispatch: Add steal time averaging
+      s390/hiperdispatch: Add trace events
+      s390/hiperdispatch: Add hiperdispatch sysctl interface
+      s390/hiperdispatch: Add hiperdispatch debug attributes
+      s390/hiperdispatch: Add hiperdispatch debug counters
+
+Sven Schnelle (1):
+      s390/entry: Unify save_area_sync and save_area_async
+
+Thomas Richter (15):
+      s390/cpum_sf: Use refcount_t instead of atomic_t
+      s390/cpum_sf: Remove unused define PERF_CPUM_SF_MODE_MASK
+      s390/cpum_sf: Remove unused defines REG_NONE and REG_OVERFLOW
+      s390/cpum_sf: Rename macro to consistent prefix
+      s390/cpum_sf: Move defines from header file to source file
+      s390/cpum_cf: Move defines from header file to source file
+      s390/cpum_sf: Use hwc as variable consistently
+      s390/cpum_sf: Define and initialize variable
+      s390/cpum_sf: Use variable name cpuhw consistently
+      s390/cpum_sf: Ignore lsctl() return code in sf_disable()
+      s390/cpum_sf: Ignore qsi() return code
+      s390/cpum_sf: Rework debug_sprintf_event() messages
+      s390/cpum_sf: Remove WARN_ON_ONCE statements
+      s390/pai_crypto: Add support for MSA 10 and 11 pai counters
+      s390/pai_ext: Update PAI extension 1 counters
+
+Tobias Huschle (6):
+      s390/wti: Introduce infrastructure for warning track interrupt
+      s390/wti: Prepare graceful CPU pre-emption on wti reception
+      s390/wti: Add wti accounting for missed grace periods
+      s390/wti: Add debugfs file to display missed grace periods per cpu
+      s390/topology: Add sysctl handler for polarization
+      s390/topology: Add config option to switch to vertical during boot
+
+Vasily Gorbik (10):
+      s390/ftrace: Remove unused ftrace_plt_template*
+      s390/ftrace: Use kernel ftrace trampoline for modules
+      s390/ftrace: Avoid calling unwinder in ftrace_return_address()
+      s390: Always enable EXPOLINE_EXTERN if supported
+      s390/disassembler: Add instructions
+      s390/setup: Recognize sequential instruction fetching facility
+      s390/kprobes: Avoid stop machine if possible
+      s390/ftrace: Avoid trampolines if possible
+      s390/ftrace: Use get/copy_from_kernel_nofault consistently
+      s390/ftrace: Avoid extra serialization for graph caller patching
+
+ arch/s390/Kconfig                           |   36 +-
+ arch/s390/Makefile.postlink                 |   38 +
+ arch/s390/boot/Makefile                     |   34 +-
+ arch/s390/boot/als.c                        |   49 +-
+ arch/s390/boot/boot.h                       |    2 +-
+ arch/s390/boot/head.S                       |    4 +-
+ arch/s390/boot/ipl_parm.c                   |    2 +-
+ arch/s390/boot/kaslr.c                      |    2 +-
+ arch/s390/boot/pgm_check_info.c             |  160 +-
+ arch/s390/boot/physmem_info.c               |   26 +-
+ arch/s390/boot/printk.c                     |  124 ++
+ arch/s390/boot/startup.c                    |    7 +-
+ arch/s390/configs/debug_defconfig           |    4 +
+ arch/s390/configs/defconfig                 |    4 +
+ arch/s390/crypto/Kconfig                    |   10 +
+ arch/s390/crypto/Makefile                   |    1 +
+ arch/s390/crypto/aes_s390.c                 |  120 +-
+ arch/s390/crypto/hmac_s390.c                |  359 ++++
+ arch/s390/crypto/paes_s390.c                |    4 +-
+ arch/s390/crypto/sha.h                      |    1 +
+ arch/s390/crypto/sha3_256_s390.c            |   11 +-
+ arch/s390/crypto/sha3_512_s390.c            |   11 +-
+ arch/s390/crypto/sha_common.c               |   20 +-
+ arch/s390/hypfs/hypfs.h                     |    1 -
+ arch/s390/hypfs/hypfs_diag.c                |    7 +-
+ arch/s390/include/asm/arch_hweight.h        |   15 +-
+ arch/s390/include/asm/atomic_ops.h          |    7 +-
+ arch/s390/include/asm/barrier.h             |    4 +-
+ arch/s390/include/asm/cpacf.h               |  281 ++-
+ arch/s390/include/asm/ctlreg.h              |    5 +-
+ arch/s390/include/asm/diag.h                |    9 +
+ arch/s390/include/asm/facility.h            |    6 +-
+ arch/s390/include/asm/ftrace.h              |   17 +-
+ arch/s390/include/asm/hiperdispatch.h       |   14 +
+ arch/s390/include/asm/irq.h                 |    2 +
+ arch/s390/include/asm/lowcore.h             |    4 +-
+ arch/s390/include/asm/march.h               |   38 +
+ arch/s390/include/asm/percpu.h              |    7 +-
+ arch/s390/include/asm/perf_event.h          |   24 -
+ arch/s390/include/asm/pkey.h                |    4 +-
+ arch/s390/include/asm/preempt.h             |    7 +-
+ arch/s390/include/asm/processor.h           |    1 +
+ arch/s390/include/asm/sclp.h                |    1 +
+ arch/s390/include/asm/setup.h               |    4 +
+ arch/s390/include/asm/smp.h                 |    4 +
+ arch/s390/include/asm/topology.h            |    3 +
+ arch/s390/include/asm/trace/hiperdispatch.h |   58 +
+ arch/s390/include/uapi/asm/pkey.h           |    5 +
+ arch/s390/kernel/Makefile                   |    7 +-
+ arch/s390/kernel/asm-offsets.c              |    3 +-
+ arch/s390/kernel/cpacf.c                    |  119 ++
+ arch/s390/kernel/diag.c                     |   17 +
+ arch/s390/kernel/dis.c                      |   20 +-
+ arch/s390/kernel/early.c                    |   38 +-
+ arch/s390/kernel/early_printk.c             |   16 +-
+ arch/s390/kernel/earlypgm.S                 |   23 -
+ arch/s390/kernel/entry.S                    |   36 +-
+ arch/s390/kernel/ftrace.c                   |  106 +-
+ arch/s390/kernel/ftrace.h                   |    2 -
+ arch/s390/kernel/hiperdispatch.c            |  430 ++++
+ arch/s390/kernel/irq.c                      |    1 +
+ arch/s390/kernel/kprobes.c                  |   15 +-
+ arch/s390/kernel/mcount.S                   |    5 +-
+ arch/s390/kernel/perf_cpum_cf.c             |    4 +
+ arch/s390/kernel/perf_cpum_sf.c             |  309 +--
+ arch/s390/kernel/perf_pai_crypto.c          |   16 +
+ arch/s390/kernel/perf_pai_ext.c             |    9 +
+ arch/s390/kernel/smp.c                      |   21 +
+ arch/s390/kernel/stacktrace.c               |   19 -
+ arch/s390/kernel/topology.c                 |   76 +-
+ arch/s390/kernel/wti.c                      |  215 ++
+ arch/s390/mm/cmm.c                          |   18 +-
+ arch/s390/mm/dump_pagetables.c              |  191 +-
+ arch/s390/tools/opcodes.txt                 |   52 +-
+ drivers/crypto/Kconfig                      |   77 +-
+ drivers/s390/char/sclp_early.c              |    1 +
+ drivers/s390/crypto/Makefile                |   16 +-
+ drivers/s390/crypto/ap_bus.c                |   59 +-
+ drivers/s390/crypto/ap_queue.c              |   20 +-
+ drivers/s390/crypto/pkey_api.c              | 2907 +++++++--------------------
+ drivers/s390/crypto/pkey_base.c             |  362 ++++
+ drivers/s390/crypto/pkey_base.h             |  195 ++
+ drivers/s390/crypto/pkey_cca.c              |  629 ++++++
+ drivers/s390/crypto/pkey_ep11.c             |  578 ++++++
+ drivers/s390/crypto/pkey_pckmo.c            |  557 +++++
+ drivers/s390/crypto/pkey_sysfs.c            |  648 ++++++
+ drivers/s390/crypto/zcrypt_api.c            |   29 +-
+ drivers/s390/crypto/zcrypt_ccamisc.c        |    8 +-
+ drivers/s390/crypto/zcrypt_ccamisc.h        |    6 +-
+ drivers/s390/crypto/zcrypt_ep11misc.c       |   28 +-
+ drivers/s390/crypto/zcrypt_ep11misc.h       |   14 +-
+ drivers/s390/crypto/zcrypt_msgtype50.c      |   10 +-
+ drivers/s390/crypto/zcrypt_msgtype6.c       |   37 +-
+ 93 files changed, 6273 insertions(+), 3233 deletions(-)
+ create mode 100644 arch/s390/Makefile.postlink
+ create mode 100644 arch/s390/boot/printk.c
+ create mode 100644 arch/s390/crypto/hmac_s390.c
+ create mode 100644 arch/s390/include/asm/hiperdispatch.h
+ create mode 100644 arch/s390/include/asm/march.h
+ create mode 100644 arch/s390/include/asm/trace/hiperdispatch.h
+ create mode 100644 arch/s390/kernel/cpacf.c
+ delete mode 100644 arch/s390/kernel/earlypgm.S
+ create mode 100644 arch/s390/kernel/hiperdispatch.c
+ create mode 100644 arch/s390/kernel/wti.c
+ create mode 100644 drivers/s390/crypto/pkey_base.c
+ create mode 100644 drivers/s390/crypto/pkey_base.h
+ create mode 100644 drivers/s390/crypto/pkey_cca.c
+ create mode 100644 drivers/s390/crypto/pkey_ep11.c
+ create mode 100644 drivers/s390/crypto/pkey_pckmo.c
+ create mode 100644 drivers/s390/crypto/pkey_sysfs.c
