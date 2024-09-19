@@ -1,423 +1,176 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2451DF6C;
-	Thu, 19 Sep 2024 19:03:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7734321345
+	for <linux-s390@vger.kernel.org>; Thu, 19 Sep 2024 19:08:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726772631; cv=none; b=VpTfMb/J7+KMISILFWjHlDEVMnmrAzYqLVJLWOuM2h25nyYyS9EZelaWmix2z9MdFUCS6TPiETZoATKxQpT90Sg+0toflXJmBneVpqtm641S8sQB4/Vml5HefI1+5aH6Ja7785zCGJLK1J+KYXUXzyW9VoDh9frd8THm7015Bz8=
+	t=1726772886; cv=none; b=lfs8kVKspgoaAOMkkvSNHSejAnT4M6Fa8IvBzL7oDGMjRPMDcNbGSGOY5r/+KYhV1kVZHL1AdB5c2LfIgenjTYFXdEzYX7gSpuOqodcBdPYz/cQGMSiRk6aEI8FH6/wshHQGtZ0JiAhTba1PN9uluElI2OGMdbOlxB+SUlmlWlM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726772631; c=relaxed/simple;
-	bh=bM/svC/iQ9FSUuZsSXmjATJF5zh/+PN2M11vlVf8R/M=;
-	h=Date:From:To:Cc:Subject:Message-ID:Content-Type:
-	 Content-Disposition:MIME-Version; b=DIgpTqZpCtCtxIy6hIdVzkSGFkjThQR7XV0uQ0o5Ta0qrqofDVt/nBPWcMipBhLbYIAUHgtnpBXd1fdBrEPzWRx9RPdNfQjKGcWeYZTMFzpbe3H/lr5//WLBmFjLpyVdnxVzRD9ghz/7ohR+6YN3bovBYUZl8aa/h6P/txNrvVg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dOiZnXCD; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1726772886; c=relaxed/simple;
+	bh=3Rx3a2k/EssHWCTTTC9UTxTxuIElR5WiC+arTB/qchw=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=ud87dVdRC76R7lSiFUMVl1puTjbP0+r1M8TIywQ8iKnsiB9fB2KedzvhN7M3Emb3ByxqLeqjnU5t+lykCBBffsgtLPrVCf1PvOhthOPbv1ZAyxAa6r7DcWH5C2Kl9InYJUSlD/PI4Z7WiVLCF0VXqBGgK2QpXlcLUbFLHRzQE0Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=D3UHsABz; arc=none smtp.client-ip=209.85.128.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dOiZnXCD"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48JIxb9k018250;
-	Thu, 19 Sep 2024 19:03:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:content-type:mime-version; s=pp1;
-	 bh=g5tt/D/6bcy2LR5fr8tc/g7HLwDfD5wyl/gZ/Ru3PbY=; b=dOiZnXCDwdWC
-	MQtOI2yvW/3XNlWUdOnTvu34JvCFe6HbWitoJzGKiUzjG7Mnktqakre5n17gvn9+
-	LyiaG4ZgKE1c5ltVfTl3UTIhc+el/bccxWoq4Du+XVaV423sJKceVSx1Ecrth6AW
-	9G3/9TGKdU9AEqxh+d4M806cXdQkZq1cCSNPxDg65g6URm+ohambFBGHPqYiYC28
-	xj+4qvrjjIWldhsrBCGTrcHIRnWuVswvJ/evzwzpiUsxe1ejEyRrTvPJ53OxZIMJ
-	uHTuuX2zM2qUyoHUsfqwHS4VwJdSXgR8AiJoSmL1/ph/EyYpE4IC9KzPiwnA51De
-	dA5eHX1CcQ==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41n3vp6syd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 19 Sep 2024 19:03:45 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48JIvanw000641;
-	Thu, 19 Sep 2024 19:03:44 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41nn71k98g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 19 Sep 2024 19:03:44 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48JJ3eAM57606456
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 19 Sep 2024 19:03:40 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 913BA20043;
-	Thu, 19 Sep 2024 19:03:40 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 170AE20040;
-	Thu, 19 Sep 2024 19:03:40 +0000 (GMT)
-Received: from localhost (unknown [9.171.81.188])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 19 Sep 2024 19:03:40 +0000 (GMT)
-Date: Thu, 19 Sep 2024 21:03:36 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 patches for the 6.12 merge window
-Message-ID: <Zux1iMM-bKAyyCUi@localhost>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: nEY1-FtEcfBhDKtY_cGmyt9mFn9jAR_4
-X-Proofpoint-GUID: nEY1-FtEcfBhDKtY_cGmyt9mFn9jAR_4
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="D3UHsABz"
+Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-6dbffbae597so22754227b3.2
+        for <linux-s390@vger.kernel.org>; Thu, 19 Sep 2024 12:08:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1726772883; x=1727377683; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=eJHMpeXBqBHo2jYjVm7Wr4Ni+pZLeT1f/0a8PrV52GI=;
+        b=D3UHsABzWCnknpn+LzOhF/B43FM4tEKfPWpNsltmRelSZv2EzjEArOW3HNaz6nBdpa
+         aE+Wh6Vt+cC72WX004UG0GoofWJrz+dvG/mPks9ehINiWwv5m0El0C7/TT6RfnBuMRng
+         yMepZD2qfSoBZlq2bCvP2FK6k4YUTQwkdkdXRbxyc3aXiko7hVatfC+sfG3f7Jriqbwf
+         wuJPGvU6igQSO176LPnst7N6qCVKX8UkSZrWaCIj1adhrCLVJcpcuNNGKqlBtl9ND7cQ
+         cxvN35bUE2x2boU0jd09HHKjymSMH6WX5eeNjcAmbHsh1QGwU1g16GhuB2DLSSj9raV7
+         3VlQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1726772883; x=1727377683;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=eJHMpeXBqBHo2jYjVm7Wr4Ni+pZLeT1f/0a8PrV52GI=;
+        b=mV8JtrzMI36/whloFKrlAbbGpLwon/oERQR0mQ7nGZFLNjrJJ/TOOmwNKgd8JXp5fM
+         /mQkf27jNojZLGZJhnoS3ERGZrxUtYdTo91apSzpsLTvegsrXcmDH898JH7Id/P+ltu8
+         HBodyeAz/o7vxV9k7k98YIVacPRFmF4io4b2FeQ7dZuuIA0nGDbOm7g1JHUsxlbMsEkG
+         1xTH+3lHZS2QDl94dtU4o7JUiN1xq9DWbKu0xwN7+rKKAZZrCm2wsCCr/jqsMRkNqWdL
+         eZAmaVQwajprR1m8hMarByIfxyzIGZl4gGT2Hr/vtvTPtLrN1zGIPsEYzcs/MmgDxf38
+         3pDg==
+X-Forwarded-Encrypted: i=1; AJvYcCX97LXtllYaX3ChOGsCQuI5dj7MHYJHmh+5rLuysm8Dyxoc18ZdE1qVBev8aUzQ0QZ+dOfjd6w2w/As@vger.kernel.org
+X-Gm-Message-State: AOJu0YwOre2pqvbSkhDPY87UQ59/6o9aZ1z0QfXgKF0wglR2la+X0o9d
+	NsX3voHranlpJNlaS5j2Tf+rtzgEq0LG23cokA0GWwF2CI+ec77RP9iYsMEQVgYjxGg2XUfcXDB
+	1atFAOq90lJ4GhBUOCqS6fg==
+X-Google-Smtp-Source: AGHT+IESgNg1xrjDzw5/X4AiZaC1nvZhQJSik+/rMadiupYuHwBrYqVfj2Vx3ImG/bKO/SiM3evLKhQtwAQgJ9v/bw==
+X-Received: from coltonlewis-kvm.c.googlers.com ([fda3:e722:ac3:cc00:11b:3898:ac11:fa18])
+ (user=coltonlewis job=sendgmr) by 2002:a05:690c:2910:b0:6dc:835c:9821 with
+ SMTP id 00721157ae682-6dfef02138amr20507b3.5.1726772883478; Thu, 19 Sep 2024
+ 12:08:03 -0700 (PDT)
+Date: Thu, 19 Sep 2024 19:07:45 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-19_18,2024-09-19_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
- priorityscore=1501 phishscore=0 clxscore=1011 malwarescore=0 bulkscore=0
- impostorscore=0 spamscore=0 suspectscore=0 mlxscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
- definitions=main-2409190127
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.46.0.792.g87dc391469-goog
+Message-ID: <20240919190750.4163977-1-coltonlewis@google.com>
+Subject: [PATCH v4 0/5] Correct perf sampling with Guest VMs
+From: Colton Lewis <coltonlewis@google.com>
+To: kvm@vger.kernel.org
+Cc: Oliver Upton <oliver.upton@linux.dev>, Sean Christopherson <seanjc@google.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
+	Mark Rutland <mark.rutland@arm.com>, 
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
+	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
+	Kan Liang <kan.liang@linux.intel.com>, Will Deacon <will@kernel.org>, 
+	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H . Peter Anvin" <hpa@zytor.com>, linux-perf-users@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	Colton Lewis <coltonlewis@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Hello Linus,
+v4:
+* Correct compilation failure on PowerPC
 
-Please pull s390 changes for 6.12. There are 2 conflicts:
-1. Conflict in arch/s390/include/asm/facility.h:
-   The random number generator tree (already pulled) contains the s390
-   vDSO getrandom implementation, which is based on and includes the same
-   commit, 26d4959681e3 ("s390/facility: Disable compile-time optimization
-   for decompressor code"), as was previously included in the s390 tree,
-   hence the conflict. For details, please see:
-   https://lore.kernel.org/all/20240913130544.2398678-1-hca@linux.ibm.com/
-   The s390 tree doesn't have any other changes to
-   arch/s390/include/asm/facility.h, so please just stick to what's
-   already in your branch.
+v3:
+https://lore.kernel.org/kvm/20240912205133.4171576-1-coltonlewis@google.com/
 
-2. The mm tree (not yet pulled as of now) contains commit 590b9d576cae
-   ("mm: kvmalloc: align kvrealloc() with krealloc()"), which, when
-   pulled, would result in s390 build failure. Please apply the
-   following fix-up, if possible, to avoid build breakage.
-   Reported by linux-next maintainer:
-   https://lore.kernel.org/all/20240808135836.740effac@canb.auug.org.au/
----
-diff --git a/arch/s390/mm/dump_pagetables.c b/arch/s390/mm/dump_pagetables.c
-index 9e2dc42143b3..fa54f3bc0c8d 100644
---- a/arch/s390/mm/dump_pagetables.c
-+++ b/arch/s390/mm/dump_pagetables.c
-@@ -256,7 +256,7 @@ static int add_marker(unsigned long start, unsigned long end, const char *name)
-        if (!oldsize)
-                markers = kvmalloc(newsize, GFP_KERNEL);
-        else
--               markers = kvrealloc(markers, oldsize, newsize, GFP_KERNEL);
-+               markers = kvrealloc(markers, newsize, GFP_KERNEL);
-        if (!markers)
-                goto error;
-        markers[markers_cnt].is_start = 1;
--- 
+v2:
+https://lore.kernel.org/kvm/20240911222433.3415301-1-coltonlewis@google.com/
 
-Thank you,
-Vasily
+v1:
+https://lore.kernel.org/kvm/20240904204133.1442132-1-coltonlewis@google.com/
 
-The following changes since commit de9c2c66ad8e787abec7c9d7eff4f8c3cdd28aed:
+This series cleans up perf recording around guest events and improves
+the accuracy of the resulting perf reports.
 
-  Linux 6.11-rc2 (2024-08-04 13:50:53 -0700)
+Perf was incorrectly counting any PMU overflow interrupt that occurred
+while a VCPU was loaded as a guest event even when the events were not
+truely guest events. This lead to much less accurate and useful perf
+recordings.
 
-are available in the Git repository at:
+See as an example the below reports of `perf record
+dirty_log_perf_test -m 2 -v 4` before and after the series on ARM64.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.12-1
+Without series:
 
-for you to fetch changes up to 9fed8d7c46f37151037334ef5e8b30b945baaceb:
+Samples: 15K of event 'instructions', Event count (approx.): 31830580924
+Overhead  Command          Shared Object        Symbol
+  54.54%  dirty_log_perf_  dirty_log_perf_test  [.] run_test
+   5.39%  dirty_log_perf_  dirty_log_perf_test  [.] vcpu_worker
+   0.89%  dirty_log_perf_  [kernel.vmlinux]     [k] release_pages
+   0.70%  dirty_log_perf_  [kernel.vmlinux]     [k] free_pcppages_bulk
+   0.62%  dirty_log_perf_  dirty_log_perf_test  [.] userspace_mem_region_find
+   0.49%  dirty_log_perf_  dirty_log_perf_test  [.] sparsebit_is_set
+   0.46%  dirty_log_perf_  dirty_log_perf_test  [.] _virt_pg_map
+   0.46%  dirty_log_perf_  dirty_log_perf_test  [.] node_add
+   0.37%  dirty_log_perf_  dirty_log_perf_test  [.] node_reduce
+   0.35%  dirty_log_perf_  [kernel.vmlinux]     [k] free_unref_page_commit
+   0.33%  dirty_log_perf_  [kernel.vmlinux]     [k] __kvm_pgtable_walk
+   0.31%  dirty_log_perf_  [kernel.vmlinux]     [k] stage2_attr_walker
+   0.29%  dirty_log_perf_  [kernel.vmlinux]     [k] unmap_page_range
+   0.29%  dirty_log_perf_  dirty_log_perf_test  [.] test_assert
+   0.26%  dirty_log_perf_  [kernel.vmlinux]     [k] __mod_memcg_lruvec_state
+   0.24%  dirty_log_perf_  [kernel.vmlinux]     [k] kvm_s2_put_page
 
-  s390/crypto: Display Query and Query Authentication Information in sysfs (2024-09-12 14:13:27 +0200)
+With series:
 
-----------------------------------------------------------------
-s390 updates for 6.12 merge window
+Samples: 15K of event 'instructions', Event count (approx.): 31830580924
+Samples: 15K of event 'instructions', Event count (approx.): 30898031385
+Overhead  Command          Shared Object        Symbol
+  54.05%  dirty_log_perf_  dirty_log_perf_test  [.] run_test
+   5.48%  dirty_log_perf_  [kernel.kallsyms]    [k] kvm_arch_vcpu_ioctl_run
+   4.70%  dirty_log_perf_  dirty_log_perf_test  [.] vcpu_worker
+   3.11%  dirty_log_perf_  [kernel.kallsyms]    [k] kvm_handle_guest_abort
+   2.24%  dirty_log_perf_  [kernel.kallsyms]    [k] up_read
+   1.98%  dirty_log_perf_  [kernel.kallsyms]    [k] __kvm_tlb_flush_vmid_ipa_nsh
+   1.97%  dirty_log_perf_  [kernel.kallsyms]    [k] __pi_clear_page
+   1.30%  dirty_log_perf_  [kernel.kallsyms]    [k] down_read
+   1.13%  dirty_log_perf_  [kernel.kallsyms]    [k] release_pages
+   1.12%  dirty_log_perf_  [kernel.kallsyms]    [k] __kvm_pgtable_walk
+   1.08%  dirty_log_perf_  [kernel.kallsyms]    [k] folio_batch_move_lru
+   1.06%  dirty_log_perf_  [kernel.kallsyms]    [k] __srcu_read_lock
+   1.03%  dirty_log_perf_  [kernel.kallsyms]    [k] get_page_from_freelist
+   1.01%  dirty_log_perf_  [kernel.kallsyms]    [k] __pte_offset_map_lock
+   0.82%  dirty_log_perf_  [kernel.kallsyms]    [k] handle_mm_fault
+   0.74%  dirty_log_perf_  [kernel.kallsyms]    [k] mas_state_walk
 
-- Optimize ftrace and kprobes code patching and avoid stop machine for
-  kprobes if sequential instruction fetching facility is available
+Colton Lewis (5):
+  arm: perf: Drop unused functions
+  perf: Hoist perf_instruction_pointer() and perf_misc_flags()
+  powerpc: perf: Use perf_arch_instruction_pointer()
+  x86: perf: Refactor misc flag assignments
+  perf: Correct perf sampling with guest VMs
 
-- Add hiperdispatch feature to dynamically adjust CPU capacity in
-  vertical polarization to improve scheduling efficiency and overall
-  performance. Also add infrastructure for handling warning track
-  interrupts (WTI), allowing for graceful CPU preemption
+ arch/arm/include/asm/perf_event.h            |  7 ---
+ arch/arm/kernel/perf_callchain.c             | 17 -------
+ arch/arm64/include/asm/perf_event.h          |  4 --
+ arch/arm64/kernel/perf_callchain.c           | 28 ------------
+ arch/powerpc/include/asm/perf_event_server.h |  6 +--
+ arch/powerpc/perf/callchain.c                |  2 +-
+ arch/powerpc/perf/callchain_32.c             |  2 +-
+ arch/powerpc/perf/callchain_64.c             |  2 +-
+ arch/powerpc/perf/core-book3s.c              |  4 +-
+ arch/s390/include/asm/perf_event.h           |  6 +--
+ arch/s390/kernel/perf_event.c                |  4 +-
+ arch/x86/events/core.c                       | 47 +++++++++++---------
+ arch/x86/include/asm/perf_event.h            | 12 ++---
+ include/linux/perf_event.h                   | 26 +++++++++--
+ kernel/events/core.c                         | 27 ++++++++++-
+ 15 files changed, 95 insertions(+), 99 deletions(-)
 
-- Rework crypto code pkey module and split it into separate, independent
-  modules for sysfs, PCKMO, CCA, and EP11, allowing modules to load only
-  when the relevant hardware is available
 
-- Add hardware acceleration for HMAC modes and the full AES-XTS cipher,
-  utilizing message-security assist extensions (MSA) 10 and 11. It
-  introduces new shash implementations for HMAC-SHA224/256/384/512 and
-  registers the hardware-accelerated AES-XTS cipher as the preferred
-  option. Also add clear key token support
-
-- Add MSA 10 and 11 processor activity instrumentation counters to perf
-  and update PAI Extension 1 NNPA counters
-
-- Cleanup cpu sampling facility code and rework debug/WARN_ON_ONCE
-  statements
-
-- Add support for SHA3 performance enhancements introduced with MSA 12
-
-- Add support for the query authentication information feature of
-  MSA 13 and introduce the KDSA CPACF instruction. Provide query and query
-  authentication information in sysfs, enabling tools like cpacfinfo to
-  present this data in a human-readable form
-
-- Update kernel disassembler instructions
-
-- Always enable EXPOLINE_EXTERN if supported by the compiler to ensure
-  kpatch compatibility
-
-- Add missing warning handling and relocated lowcore support to the
-  early program check handler
-
-- Optimize ftrace_return_address() and avoid calling unwinder
-
-- Make modules use kernel ftrace trampolines
-
-- Strip relocs from the final vmlinux ELF file to make it roughly 2
-  times smaller
-
-- Dump register contents and call trace for early crashes to the console
-
-- Generate ptdump address marker array dynamically
-
-- Fix rcu_sched stalls that might occur when adding or removing large
-  amounts of pages at once to or from the CMM balloon
-
-- Fix deadlock caused by recursive lock of the AP bus scan mutex
-
-- Unify sync and async register save areas in entry code
-
-- Cleanup debug prints in crypto code
-
-- Various cleanup and sanitizing patches for the decompressor
-
-- Various small ftrace cleanups
-
-----------------------------------------------------------------
-Finn Callies (4):
-      s390/crypto: Add KDSA CPACF Instruction
-      s390/crypto: Rework RRE and RRF CPACF inline functions
-      s390/crypto: Add Support for Query Authentication Information
-      s390/crypto: Display Query and Query Authentication Information in sysfs
-
-Gaosheng Cui (1):
-      s390/hypfs: Remove obsoleted declaration for hypfs_dbfs_exit
-
-Gerald Schaefer (1):
-      s390/mm: Add cond_resched() to cmm_alloc/free_pages()
-
-Harald Freudenberger (9):
-      s390/pkey: Split pkey_unlocked_ioctl function
-      s390/pkey: Rework and split PKEY kernel module code
-      s390/pkey: Unify pkey cca, ep11 and pckmo functions signatures
-      s390/pkey: Introduce pkey base with handler registry and handler modules
-      s390/pkey: Add slowpath function to CCA and EP11 handler
-      s390/pkey: Add function to enforce pkey handler modules load
-      s390/ap: Fix deadlock caused by recursive lock of the AP bus scan mutex
-      s390/cpacf: Add MSA 10 and 11 new PCKMO functions
-      s390/pkey: Add AES xts and HMAC clear key token support
-
-Heiko Carstens (16):
-      s390/mm/ptdump: Generate address marker array dynamically
-      s390/entry: Move early program check handler to entry.S
-      s390/entry: Make early program check handler relocated lowcore aware
-      s390/traps: Handle early warnings gracefully
-      s390/entry: Move early_pgm_check_handler() to init text section
-      s390/early: Add __init to __do_early_pgm_check()
-      s390/early: Dump register contents and call trace for early crashes
-      s390/als: Remove obsolete comment
-      s390/boot: Increase minimum architecture to z10
-      s390/facility: Disable compile time optimization for decompressor code
-      s390: Provide MARCH_HAS_*_FEATURES defines
-      s390: Use MARCH_HAS_*_FEATURES defines
-      s390/boot: Compile all files with the same march flag
-      s390/boot: Rename decompressor_printk() to boot_printk()
-      s390/boot: Use boot_printk() instead of sclp_early_printk()
-      s390/boot: Move boot_printk() code to own file
-
-Holger Dengler (7):
-      s390/ap_bus: Cleanup debug code
-      s390/ap_queue: Cleanup debug code
-      s390/zcrypt_api: Cleanup debug code
-      s390/zcrypt_msgtype50: Cleanup debug code
-      s390/zcrypt_msgtype6: Cleanup debug code
-      s390/crypto: Add hardware acceleration for full AES-XTS mode
-      s390/crypto: Add hardware acceleration for HMAC modes
-
-Ingo Franzki (1):
-      s390/sha3: Fix SHA3 selftests failures
-
-Jens Remus (4):
-      s390/build: Avoid relocation information in final vmlinux
-      s390/disassembler: Use proper format specifiers for operand values
-      s390/disassembler: Update instruction mnemonics to latest spec
-      s390/disassembler: Remove duplicate instruction format RSY_RDRU
-
-Joerg Schmidbauer (1):
-      s390/sha3: Support sha3 performance enhancements
-
-Mete Durlu (8):
-      s390/hypfs_diag: Remove unused dentry variable
-      s390/smp: Add cpu capacities
-      s390/hiperdispatch: Introduce hiperdispatch
-      s390/hiperdispatch: Add steal time averaging
-      s390/hiperdispatch: Add trace events
-      s390/hiperdispatch: Add hiperdispatch sysctl interface
-      s390/hiperdispatch: Add hiperdispatch debug attributes
-      s390/hiperdispatch: Add hiperdispatch debug counters
-
-Sven Schnelle (1):
-      s390/entry: Unify save_area_sync and save_area_async
-
-Thomas Richter (15):
-      s390/cpum_sf: Use refcount_t instead of atomic_t
-      s390/cpum_sf: Remove unused define PERF_CPUM_SF_MODE_MASK
-      s390/cpum_sf: Remove unused defines REG_NONE and REG_OVERFLOW
-      s390/cpum_sf: Rename macro to consistent prefix
-      s390/cpum_sf: Move defines from header file to source file
-      s390/cpum_cf: Move defines from header file to source file
-      s390/cpum_sf: Use hwc as variable consistently
-      s390/cpum_sf: Define and initialize variable
-      s390/cpum_sf: Use variable name cpuhw consistently
-      s390/cpum_sf: Ignore lsctl() return code in sf_disable()
-      s390/cpum_sf: Ignore qsi() return code
-      s390/cpum_sf: Rework debug_sprintf_event() messages
-      s390/cpum_sf: Remove WARN_ON_ONCE statements
-      s390/pai_crypto: Add support for MSA 10 and 11 pai counters
-      s390/pai_ext: Update PAI extension 1 counters
-
-Tobias Huschle (6):
-      s390/wti: Introduce infrastructure for warning track interrupt
-      s390/wti: Prepare graceful CPU pre-emption on wti reception
-      s390/wti: Add wti accounting for missed grace periods
-      s390/wti: Add debugfs file to display missed grace periods per cpu
-      s390/topology: Add sysctl handler for polarization
-      s390/topology: Add config option to switch to vertical during boot
-
-Vasily Gorbik (10):
-      s390/ftrace: Remove unused ftrace_plt_template*
-      s390/ftrace: Use kernel ftrace trampoline for modules
-      s390/ftrace: Avoid calling unwinder in ftrace_return_address()
-      s390: Always enable EXPOLINE_EXTERN if supported
-      s390/disassembler: Add instructions
-      s390/setup: Recognize sequential instruction fetching facility
-      s390/kprobes: Avoid stop machine if possible
-      s390/ftrace: Avoid trampolines if possible
-      s390/ftrace: Use get/copy_from_kernel_nofault consistently
-      s390/ftrace: Avoid extra serialization for graph caller patching
-
- arch/s390/Kconfig                           |   36 +-
- arch/s390/Makefile.postlink                 |   38 +
- arch/s390/boot/Makefile                     |   34 +-
- arch/s390/boot/als.c                        |   49 +-
- arch/s390/boot/boot.h                       |    2 +-
- arch/s390/boot/head.S                       |    4 +-
- arch/s390/boot/ipl_parm.c                   |    2 +-
- arch/s390/boot/kaslr.c                      |    2 +-
- arch/s390/boot/pgm_check_info.c             |  160 +-
- arch/s390/boot/physmem_info.c               |   26 +-
- arch/s390/boot/printk.c                     |  124 ++
- arch/s390/boot/startup.c                    |    7 +-
- arch/s390/configs/debug_defconfig           |    4 +
- arch/s390/configs/defconfig                 |    4 +
- arch/s390/crypto/Kconfig                    |   10 +
- arch/s390/crypto/Makefile                   |    1 +
- arch/s390/crypto/aes_s390.c                 |  120 +-
- arch/s390/crypto/hmac_s390.c                |  359 ++++
- arch/s390/crypto/paes_s390.c                |    4 +-
- arch/s390/crypto/sha.h                      |    1 +
- arch/s390/crypto/sha3_256_s390.c            |   11 +-
- arch/s390/crypto/sha3_512_s390.c            |   11 +-
- arch/s390/crypto/sha_common.c               |   20 +-
- arch/s390/hypfs/hypfs.h                     |    1 -
- arch/s390/hypfs/hypfs_diag.c                |    7 +-
- arch/s390/include/asm/arch_hweight.h        |   15 +-
- arch/s390/include/asm/atomic_ops.h          |    7 +-
- arch/s390/include/asm/barrier.h             |    4 +-
- arch/s390/include/asm/cpacf.h               |  281 ++-
- arch/s390/include/asm/ctlreg.h              |    5 +-
- arch/s390/include/asm/diag.h                |    9 +
- arch/s390/include/asm/facility.h            |    6 +-
- arch/s390/include/asm/ftrace.h              |   17 +-
- arch/s390/include/asm/hiperdispatch.h       |   14 +
- arch/s390/include/asm/irq.h                 |    2 +
- arch/s390/include/asm/lowcore.h             |    4 +-
- arch/s390/include/asm/march.h               |   38 +
- arch/s390/include/asm/percpu.h              |    7 +-
- arch/s390/include/asm/perf_event.h          |   24 -
- arch/s390/include/asm/pkey.h                |    4 +-
- arch/s390/include/asm/preempt.h             |    7 +-
- arch/s390/include/asm/processor.h           |    1 +
- arch/s390/include/asm/sclp.h                |    1 +
- arch/s390/include/asm/setup.h               |    4 +
- arch/s390/include/asm/smp.h                 |    4 +
- arch/s390/include/asm/topology.h            |    3 +
- arch/s390/include/asm/trace/hiperdispatch.h |   58 +
- arch/s390/include/uapi/asm/pkey.h           |    5 +
- arch/s390/kernel/Makefile                   |    7 +-
- arch/s390/kernel/asm-offsets.c              |    3 +-
- arch/s390/kernel/cpacf.c                    |  119 ++
- arch/s390/kernel/diag.c                     |   17 +
- arch/s390/kernel/dis.c                      |   20 +-
- arch/s390/kernel/early.c                    |   38 +-
- arch/s390/kernel/early_printk.c             |   16 +-
- arch/s390/kernel/earlypgm.S                 |   23 -
- arch/s390/kernel/entry.S                    |   36 +-
- arch/s390/kernel/ftrace.c                   |  106 +-
- arch/s390/kernel/ftrace.h                   |    2 -
- arch/s390/kernel/hiperdispatch.c            |  430 ++++
- arch/s390/kernel/irq.c                      |    1 +
- arch/s390/kernel/kprobes.c                  |   15 +-
- arch/s390/kernel/mcount.S                   |    5 +-
- arch/s390/kernel/perf_cpum_cf.c             |    4 +
- arch/s390/kernel/perf_cpum_sf.c             |  309 +--
- arch/s390/kernel/perf_pai_crypto.c          |   16 +
- arch/s390/kernel/perf_pai_ext.c             |    9 +
- arch/s390/kernel/smp.c                      |   21 +
- arch/s390/kernel/stacktrace.c               |   19 -
- arch/s390/kernel/topology.c                 |   76 +-
- arch/s390/kernel/wti.c                      |  215 ++
- arch/s390/mm/cmm.c                          |   18 +-
- arch/s390/mm/dump_pagetables.c              |  191 +-
- arch/s390/tools/opcodes.txt                 |   52 +-
- drivers/crypto/Kconfig                      |   77 +-
- drivers/s390/char/sclp_early.c              |    1 +
- drivers/s390/crypto/Makefile                |   16 +-
- drivers/s390/crypto/ap_bus.c                |   59 +-
- drivers/s390/crypto/ap_queue.c              |   20 +-
- drivers/s390/crypto/pkey_api.c              | 2907 +++++++--------------------
- drivers/s390/crypto/pkey_base.c             |  362 ++++
- drivers/s390/crypto/pkey_base.h             |  195 ++
- drivers/s390/crypto/pkey_cca.c              |  629 ++++++
- drivers/s390/crypto/pkey_ep11.c             |  578 ++++++
- drivers/s390/crypto/pkey_pckmo.c            |  557 +++++
- drivers/s390/crypto/pkey_sysfs.c            |  648 ++++++
- drivers/s390/crypto/zcrypt_api.c            |   29 +-
- drivers/s390/crypto/zcrypt_ccamisc.c        |    8 +-
- drivers/s390/crypto/zcrypt_ccamisc.h        |    6 +-
- drivers/s390/crypto/zcrypt_ep11misc.c       |   28 +-
- drivers/s390/crypto/zcrypt_ep11misc.h       |   14 +-
- drivers/s390/crypto/zcrypt_msgtype50.c      |   10 +-
- drivers/s390/crypto/zcrypt_msgtype6.c       |   37 +-
- 93 files changed, 6273 insertions(+), 3233 deletions(-)
- create mode 100644 arch/s390/Makefile.postlink
- create mode 100644 arch/s390/boot/printk.c
- create mode 100644 arch/s390/crypto/hmac_s390.c
- create mode 100644 arch/s390/include/asm/hiperdispatch.h
- create mode 100644 arch/s390/include/asm/march.h
- create mode 100644 arch/s390/include/asm/trace/hiperdispatch.h
- create mode 100644 arch/s390/kernel/cpacf.c
- delete mode 100644 arch/s390/kernel/earlypgm.S
- create mode 100644 arch/s390/kernel/hiperdispatch.c
- create mode 100644 arch/s390/kernel/wti.c
- create mode 100644 drivers/s390/crypto/pkey_base.c
- create mode 100644 drivers/s390/crypto/pkey_base.h
- create mode 100644 drivers/s390/crypto/pkey_cca.c
- create mode 100644 drivers/s390/crypto/pkey_ep11.c
- create mode 100644 drivers/s390/crypto/pkey_pckmo.c
- create mode 100644 drivers/s390/crypto/pkey_sysfs.c
+base-commit: da3ea35007d0af457a0afc87e84fddaebc4e0b63
+--
+2.46.0.792.g87dc391469-goog
