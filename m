@@ -1,73 +1,51 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B80C91862F;
-	Mon, 23 Sep 2024 06:31:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E98F112E5B;
+	Mon, 23 Sep 2024 06:37:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727073069; cv=none; b=n61g429lPMf8u+6dgXPotJHq7HClyu1UaOjzn3GND1FxMrJNZKZSp2y6ohdNZIJGeFTUBHSklq9RhGoFx9+qZTw1qPY5yVm20FL76hv6/gVfF9Qfz+6+1Q/RJc3lA79P4+mxqiQEpTinul57tB7VjcLwwfhiGldirx1Jl4Wx2oQ=
+	t=1727073453; cv=none; b=aPLKXGSMcLkIsL5gkA8LTclI89/sJCmnNR3RtSQCvSjeizk0uG/VLhax5LSY8NekQcN+AurtxhpGoWgIRovJw8N73N4EfgPfqBjjpcm9qc6PlLKjDSR6IUKxmk5CnDsLuM1OAwq0O4ICAC1OTPX0TwCl2zDoreJG2KPYfG72mLc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727073069; c=relaxed/simple;
-	bh=rxW//vZuGAtRNEViNAKLqp7B9+PIct2Ye3bIRW3KtBs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GUzc4B+YpJ5E1luwPHHX77zg3SE+wdcWMLccii+0A6W1EREGZLugiUFIIFoH4j/jBDJkR2QPtPpnehrEzGVtk7NKps58gMBg0CgxD0vsCUNW2LTaL3iUR3Cdz8S4gwsZ9Bu+H8h+EXL1HKXb3dO76SvU6MVncqbkodOaG8p2tI4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EW/MwPgG; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1727073453; c=relaxed/simple;
+	bh=YU5IHHmdIwhRVsCe/Ns40p8QPGMWO6o0pZ2uibjaigM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Q/DSl2TTvaIVwDLJb3AkP3UzOqtAC5okA276b84SzpNSCfHBPbX/qKRcmAjhOVw6wnqIR5apy2grVg3sRVv08aXzY93vkvutT40GGfRHgK//JiOArsx7gF3h7MMM0OlQVY3AhHIPjdpHPGBmoSyrUahbaqaYLawzGGjYsffqjdo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ihmIBQ+z; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EW/MwPgG"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48N1eFHM012818;
-	Mon, 23 Sep 2024 06:30:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=yImlsXhEsP3lG
-	TJl5ARInyjsvaodNKhdiL6Cf81Ht/c=; b=EW/MwPgGdwTO0x+cn0NgbNEpeUSHg
-	ii/kM6050eGdB4Ur/yGkbCk6EVjqcGkS3reavYe8pbMgjogD80TvyPR6Dq5fQCbw
-	i3lezfoS8gmVfVR2tBsV4Sh8/SzkeagqXwO/+gmg0cXZHz3szVFz/1Fu+wJyK/me
-	xTMGy15gFdTbBlNlogC0qORpih+VqASJ0l+bNuA+jRLqGQLoUq1ryi6+tMBJ0ivf
-	QR98OP1sacv2g4wTHLHfOBPpEvVSGmYC3jtPqyDaZ6/C7sVI25eiA9uyYXRqBgC3
-	fsVZ5pBoQqGVorIVEj42V9FxoCbgs0VdHrwpaxe2ZEP+tLFAp2sfbdoLw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41snna1xqe-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 23 Sep 2024 06:30:34 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 48N6UXPY002120;
-	Mon, 23 Sep 2024 06:30:33 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41snna1xay-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 23 Sep 2024 06:30:33 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48N2Ud73008728;
-	Mon, 23 Sep 2024 06:28:25 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41t8v0w1c7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 23 Sep 2024 06:28:25 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48N6SLmw31589070
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 23 Sep 2024 06:28:22 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D86D720043;
-	Mon, 23 Sep 2024 06:28:21 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9BF062004F;
-	Mon, 23 Sep 2024 06:28:21 +0000 (GMT)
-Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 23 Sep 2024 06:28:21 +0000 (GMT)
-From: Nico Boehr <nrb@linux.ibm.com>
-To: frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v2 2/2] s390x: edat: move LC_SIZE to arch_def.h
-Date: Mon, 23 Sep 2024 08:26:04 +0200
-Message-ID: <20240923062820.319308-3-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.46.0
-In-Reply-To: <20240923062820.319308-1-nrb@linux.ibm.com>
-References: <20240923062820.319308-1-nrb@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ihmIBQ+z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 874E1C4CEC4;
+	Mon, 23 Sep 2024 06:37:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1727073451;
+	bh=YU5IHHmdIwhRVsCe/Ns40p8QPGMWO6o0pZ2uibjaigM=;
+	h=From:To:Cc:Subject:Date:From;
+	b=ihmIBQ+zGDDXAyKxoZWjS7S63fCG7SqoU0IcFRn7pV3iCPR6CScg4eMUtrGrstZKu
+	 54no9xbdAL4wzBtbf9pDq6wB5nWIjuuLQcTlr3DMWCNDqS78Z1LJ3m0lTqEKk5Hi6x
+	 c8htul2IhYQOltrFn85mNzcrRG68GC/HUUf4+fzySgIPBUyHdi6X2kXc5mEyPtnzm+
+	 QMmhdhLqPvtpaCMrlhDgPO/YcMzqNtH4mgz4hZ7ZafJqyBfhoRrkXSgjfoA4X07q2B
+	 sxkKbSQDlUaaDYCBRYKiCYGj01K+MpkyJLWom4Brw6ITnhpBaJPZi5X2aGrOnUL9qL
+	 FDo0V3YvzpouQ==
+From: Mike Rapoport <rppt@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mike Rapoport <rppt@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christian Brauner <brauner@kernel.org>,
+	David Hildenbrand <david@redhat.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Oleg Nesterov <oleg@redhat.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Wei Yang <richard.weiyang@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-s390@vger.kernel.org
+Subject: memblock: updates for 6.12-rc1
+Date: Mon, 23 Sep 2024 09:37:07 +0300
+Message-ID: <20240923063707.40017-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,51 +53,59 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: MnXRp4UTkREjj8lLkYSgLwjDvJM-x_Ww
-X-Proofpoint-ORIG-GUID: -B8ridWI6Cld5rdsDJOOWPOaOccbH6Or
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-23_03,2024-09-19_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
- mlxscore=0 mlxlogscore=999 spamscore=0 impostorscore=0 priorityscore=1501
- phishscore=0 bulkscore=0 clxscore=1015 lowpriorityscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
- definitions=main-2409230043
 
-struct lowcore is defined in arch_def.h and LC_SIZE is useful to other
-tests as well, therefore move it to arch_def.h.
+Hi Linus,
 
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
----
- lib/s390x/asm/arch_def.h | 1 +
- s390x/edat.c             | 1 -
- 2 files changed, 1 insertion(+), 1 deletion(-)
+The following changes since commit de9c2c66ad8e787abec7c9d7eff4f8c3cdd28aed:
 
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 745a33878de5..5574a45156a9 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -119,6 +119,7 @@ enum address_space {
- 
- #define CTL2_GUARDED_STORAGE		(63 - 59)
- 
-+#define LC_SIZE	(2 * PAGE_SIZE)
- struct lowcore {
- 	uint8_t		pad_0x0000[0x0080 - 0x0000];	/* 0x0000 */
- 	uint32_t	ext_int_param;			/* 0x0080 */
-diff --git a/s390x/edat.c b/s390x/edat.c
-index 16138397017c..e664b09d9633 100644
---- a/s390x/edat.c
-+++ b/s390x/edat.c
-@@ -17,7 +17,6 @@
- 
- #define PGD_PAGE_SHIFT (REGION1_SHIFT - PAGE_SHIFT)
- 
--#define LC_SIZE	(2 * PAGE_SIZE)
- #define VIRT(x)	((void *)((unsigned long)(x) + (unsigned long)mem))
- 
- static uint8_t prefix_buf[LC_SIZE] __attribute__((aligned(LC_SIZE)));
--- 
-2.46.0
+  Linux 6.11-rc2 (2024-08-04 13:50:53 -0700)
 
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/rppt/memblock tags/memblock-v6.12-rc1
+
+for you to fetch changes up to cb088e38aab4c7e9ce711c18c66e851c8f4227bb:
+
+  s390/mm: get estimated free pages by memblock api (2024-08-11 19:19:07 +0300)
+
+----------------------------------------------------------------
+memblock: updates for 6.12-rc1
+
+* new memblock_estimated_nr_free_pages() helper to replace totalram_pages()
+  which is less accurate when CONFIG_DEFERRED_STRUCT_PAGE_INIT is set
+* fixes for memblock tests
+
+----------------------------------------------------------------
+Wei Yang (11):
+      memblock tests: include memory_hotplug.h in mmzone.h as kernel dose
+      memblock tests: include export.h in linkage.h as kernel dose
+      tools/testing: abstract two init.h into common include directory
+      memblock test: fix implicit declaration of function 'virt_to_phys'
+      memblock test: add the definition of __setup()
+      memblock test: fix implicit declaration of function 'memparse'
+      memblock test: fix implicit declaration of function 'isspace'
+      memblock test: fix implicit declaration of function 'strscpy'
+      mm/memblock: introduce a new helper memblock_estimated_nr_free_pages()
+      kernel/fork.c: get estimated free pages by memblock api
+      s390/mm: get estimated free pages by memblock api
+
+ arch/s390/mm/init.c                              |  2 +-
+ include/linux/memblock.h                         |  1 +
+ kernel/fork.c                                    |  2 +-
+ mm/memblock.c                                    | 17 ++++++++
+ tools/include/linux/compiler.h                   |  4 --
+ tools/{testing/memblock => include}/linux/init.h | 19 ++++++---
+ tools/include/linux/linkage.h                    |  2 +
+ tools/include/linux/mm.h                         |  6 +++
+ tools/include/linux/pfn.h                        |  1 +
+ tools/include/linux/string.h                     |  3 ++
+ tools/lib/cmdline.c                              | 53 ++++++++++++++++++++++++
+ tools/testing/memblock/Makefile                  |  2 +-
+ tools/testing/memblock/linux/kernel.h            |  2 +
+ tools/testing/memblock/linux/mmzone.h            |  1 +
+ tools/testing/radix-tree/linux/init.h            |  2 -
+ tools/testing/radix-tree/maple.c                 |  2 +-
+ 16 files changed, 104 insertions(+), 15 deletions(-)
+ rename tools/{testing/memblock => include}/linux/init.h (76%)
+ create mode 100644 tools/lib/cmdline.c
+ delete mode 100644 tools/testing/radix-tree/linux/init.h
