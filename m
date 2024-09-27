@@ -1,171 +1,312 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6DE2136352
-	for <linux-s390@vger.kernel.org>; Fri, 27 Sep 2024 12:32:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E9D61BFE1A
+	for <linux-s390@vger.kernel.org>; Fri, 27 Sep 2024 14:57:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727440324; cv=none; b=cY8UiRNDGDP7MOdCjYIicotzm49FmhjfyzyarJE9wSBh3ngYqza/Ap8e3TbQRkuCU6rtrrHRFZLGGsz0PaZ0FtBOCzDzA3kG6R0ipwd5VXfHh6CsRm32XFXwJHfK4Xmfu1yNTJATacp0BMC+sVXecizMnzYX6FuGiUeR6ZHGkAE=
+	t=1727449028; cv=none; b=JdvrEa4ZJwWde4xqvMSnOn8Fy5/BzTPyjEm3lk3DtvT0lfIJ6VJePtprPt1rswsHR7VX0dx7L0H4L7cc/pZwGV7+NkbhuxIPuRA66SCPN9GIJqsQmTwBWdUyFppexGlQ1pjB2v2q5XgMQjTVtpL3d34/ftmfPpl7f1wPz5z6ess=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727440324; c=relaxed/simple;
-	bh=UxGFMmoodHYFh3x+RXaDfvpykCNvMRihH3+3CLw0XEE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=s98DpAlPJ14O/xU0aD50D69GdzuGX5Kv2teGUXN1Y2Ifk8ecro3tY3xrxdhUqhh/0ARwE5qGzl1IRkqms0MF6vGqluCAWDSvCurpyRHDQc2vwA9it8y160u/CIi32BFTrvmJzSQDW/UR7XX4zpl1D54bJvVDI1nFd7bVGZEADyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Kjnrp6Vg; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1727449028; c=relaxed/simple;
+	bh=KpFQjUYNoqorgSZR3P1u7MaHQxHtQSx0hYrOTa71UnQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=QSpqkD7xa5JgFxnaFhHXplsZ2cflKA4dQTLPu+hsFLtpnvHzjr+fjmv2VGB9sj6VSqACfbEV5bb9dNVILWgeXSNTEhVioIIbVkVckdbdJuxVCON6/4xKnOhSx2SQVToyuhdYhDHFwX93hJkdzYxE7BtOB2YefDeH1GjkPF0goU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=qBxWuXFT; arc=none smtp.client-ip=209.85.167.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Kjnrp6Vg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727440321;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=nghQlGVXIvvnLt/JiqYj6QczxOiCCBXyk/YGSHq/I1Q=;
-	b=Kjnrp6VgDrbiN8fMGz2YOVRRrln8hd0wI0/IIRGS+HYtQ/XDrZGSwh6RC3BEfkHDtTgVyj
-	zy+Ct/mXKnq6v9vR5TCYvSswH4wmb30Lp5qiWHjVI/LG8ARdGCt+JHgXhLrcapxRBICyUT
-	tYGGJ03nGUOrKFix8orozgf+8BFsnng=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-528-IPzp6aPpOfGiJMGZs1tL7A-1; Fri, 27 Sep 2024 08:31:56 -0400
-X-MC-Unique: IPzp6aPpOfGiJMGZs1tL7A-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-42cb236ad4aso12073145e9.3
-        for <linux-s390@vger.kernel.org>; Fri, 27 Sep 2024 05:31:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="qBxWuXFT"
+Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-535dc4ec181so2424536e87.3
+        for <linux-s390@vger.kernel.org>; Fri, 27 Sep 2024 07:57:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1727449024; x=1728053824; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/18GyfMUmFmiPlGch6tCsiK6n05dByaKqzKUBTX5A9A=;
+        b=qBxWuXFTyNYy6D2xy5AbSYJNSWBDvFC08SrDvq+vJiLtqZIeKbBFhgHsKdZeWWdzIz
+         7NWXpeiSrfacXvRUO3OElk/+G7KzGmNGxbwcrl0De/T1pqkCnmXtqVmeipL7HX8/hy30
+         2KmwflU9OTI6OUbMzYo+oG54gVZDDbYECRggNDb2Rb104P5cnV+1QyQp+5EId+RHwrP0
+         5QUXO6M/oiYDrRKM5MD1XsTj8/z0MGOFQoJTcp7apDPh6Ds/5rQ7kH09JwadqPNEXzBn
+         RjYnYgdFA6h4mfyLXYmpzQ0QlawmrAuQ5rVBf1KBDPAM6VF3b6ioGicUVgFSBPVUhHBJ
+         h+AQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727440315; x=1728045115;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=nghQlGVXIvvnLt/JiqYj6QczxOiCCBXyk/YGSHq/I1Q=;
-        b=AkMDYAuZlZDUlB+/Tz7fQZb342cHD8ONGKWCytk//WrQrHV/PyOtfdfLzDLsGEdAWW
-         CMW3w4GhXHuVtPjXIrYuE2Fdmw2oclZl0rRxa1k/xNnp06b/dOhJ8trrjRPlGtWNoMwE
-         OzwNx7SmMa0mubrIkAY+7A2Bzvsyq+vywJoR2rsRXCLMFnwJthgI5S4U01y67Qf9krQV
-         KJ8Co9YUgoEpwl9XpTaWOQQnsyY1JFgCPe8gwsu/q6N6w6NBIrppXNko0PqUwkhb9BH/
-         CuT6QcUt4CRRshDa9ieAG6vv24tWdnXvw6rZEuhdLFSobVZLAnezABMFMtr6T6YzTqDp
-         FoPw==
-X-Forwarded-Encrypted: i=1; AJvYcCVkXAKVRng3GjKIoXKM2yoz9nH1O/NYGYidDrAwg9Fo1D34+NNJ+S51bX/pXeAs7rrb8wLWBceRfEY7@vger.kernel.org
-X-Gm-Message-State: AOJu0YxJYT7UYHpiGpuJbTpjDbVaq6zA7kLwUkMMbo5fxOH5Ta9RmRve
-	2260YYDcuLTscKxJY760vX9gr9oJMl+wL1uQKasW1jbGqLo48cT2xM6o40MbxLq861R+DahYXRw
-	5/mpAB/yZn15y2p4lMHhQkg/InI62vUZncevJ+/QKnUI39x5NGzqwWCdsMv4=
-X-Received: by 2002:a05:600c:1551:b0:426:554a:e0bf with SMTP id 5b1f17b1804b1-42f5844baf3mr25127965e9.16.1727440314881;
-        Fri, 27 Sep 2024 05:31:54 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHSxQuZVTjNGEswklOGtpwrowZZmdwmK+D7kC/KtO7F+lQj94trZK7vGwZdIOQ+D8N9X/RvuA==
-X-Received: by 2002:a05:600c:1551:b0:426:554a:e0bf with SMTP id 5b1f17b1804b1-42f5844baf3mr25127655e9.16.1727440314423;
-        Fri, 27 Sep 2024 05:31:54 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c709:8000:b502:8c1c:3624:99d4? (p200300cbc7098000b5028c1c362499d4.dip0.t-ipconnect.de. [2003:cb:c709:8000:b502:8c1c:3624:99d4])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37cd57423afsm2356049f8f.90.2024.09.27.05.31.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 27 Sep 2024 05:31:53 -0700 (PDT)
-Message-ID: <1d734979-0ea1-4943-857c-3d458e33af5a@redhat.com>
-Date: Fri, 27 Sep 2024 14:31:52 +0200
+        d=1e100.net; s=20230601; t=1727449024; x=1728053824;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=/18GyfMUmFmiPlGch6tCsiK6n05dByaKqzKUBTX5A9A=;
+        b=voVl285EhCeXDJ5GFlSF/Tye7dzQ2OsF2Sn+77sfj0clFuWtNdRhahRMgWuWFK73rB
+         RceOPq6O6pPzNCi3F83yEfTOQnfjWvmAbtnpLeEHrtJ/z1KRDfqk1iwPJbAdrkCVW4oa
+         fJXmzX1BX6JX6yS6yyyyVpCg3la9DojWdpRgbD5eC7URWAKzpzIEVCoYt4EEfHl67q6y
+         aMYgcxr79vlcdnmDJ5cGES0wC0amy5m9F2UG+PWf3Pt22L+v7LACL47uT8kOCdsYRh1i
+         LbD+gNDUXR7h/DWGefZPfobjQwkHmRXWnIwSujK1ExdfrU6a8mS+fcOhDymAh4Kek9Cw
+         bj8Q==
+X-Forwarded-Encrypted: i=1; AJvYcCW2icILw6YR3L0mKfLJjEd3C8gJr9r4bOkI462xNrBJk8GPAeXDVSyD52wMNLeYWb9t1nPGt0R1AVB8@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyo9R9gor0brTfKVviylpx5qaGrJzd3iCLJLxCg1tuCn18lrlkL
+	hhfnQVJE3QnhEk2R4/NbW1nFRjAjgdCsdn6xFhgLyGPXM+p19L90wVxrJit0QRtBdJlcuH7f776
+	c2hoc+6BQh/mFXNxc9XplMv7RIEoLjbv9+FLv
+X-Google-Smtp-Source: AGHT+IFRKkE0mGNhaH8ET6VLDg6TqeqTkqG/VObziBwEk4Ht7UIK/LQVwwPoMAoSz6jIyTC8gnOtwPvtsKVzIeRIZEg=
+X-Received: by 2002:a05:6512:b0b:b0:52c:e11e:d493 with SMTP id
+ 2adb3069b0e04-5389fc46d3dmr2530689e87.26.1727449023277; Fri, 27 Sep 2024
+ 07:57:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] dcssblk: Mark DAX broken
-To: Dan Williams <dan.j.williams@intel.com>, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Jan Kara <jack@suse.cz>,
- Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@lst.de>,
- Alistair Popple <apopple@nvidia.com>, linux-s390@vger.kernel.org,
- linux-mm@kvack.org
-References: <172721874675.497781.3277495908107141898.stgit@dwillia2-xfh.jf.intel.com>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <172721874675.497781.3277495908107141898.stgit@dwillia2-xfh.jf.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <1718301630-63692-1-git-send-email-alibuda@linux.alibaba.com> <1718301630-63692-4-git-send-email-alibuda@linux.alibaba.com>
+In-Reply-To: <1718301630-63692-4-git-send-email-alibuda@linux.alibaba.com>
+From: Eric Dumazet <edumazet@google.com>
+Date: Fri, 27 Sep 2024 16:56:52 +0200
+Message-ID: <CANn89i+cKR+hBpXuKxO=dRX448qA3tzEkiOvC4PshWH0OVAD0w@mail.gmail.com>
+Subject: Re: [PATCH net-next v8 3/3] net/smc: Introduce IPPROTO_SMC
+To: "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com, 
+	wintera@linux.ibm.com, guwen@linux.alibaba.com, kuba@kernel.org, 
+	davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, tonylu@linux.alibaba.com, pabeni@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 25.09.24 00:59, Dan Williams wrote:
-> The dcssblk driver has long needed special case supoprt to enable
-> limited dax operation, so called CONFIG_FS_DAX_LIMITED. This mode
-> works around the incomplete support for ZONE_DEVICE on s390 by forgoing
-> the ability of dax-mapped pages to support GUP.
-> 
-> Now, pending cleanups to fsdax that fix its reference counting [1] depend on
-> the ability of all dax drivers to supply ZONE_DEVICE pages.
-> 
-> To allow that work to move forward, dax support needs to be paused for
-> dcssblk until ZONE_DEVICE support arrives. That work has been known for
-> a few years [2], and the removal of "pte_devmap" requirements [3] makes the
-> conversion easier.
-> 
-> For now, place the support behind CONFIG_BROKEN, and remove PFN_SPECIAL
-> (dcssblk was the only user).
-> 
-> Link: http://lore.kernel.org/cover.9f0e45d52f5cff58807831b6b867084d0b14b61c.1725941415.git-series.apopple@nvidia.com [1]
-> Link: http://lore.kernel.org/20210820210318.187742e8@thinkpad/ [2]
-> Link: http://lore.kernel.org/4511465a4f8429f45e2ac70d2e65dc5e1df1eb47.1725941415.git-series.apopple@nvidia.com [3]
-> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Jan Kara <jack@suse.cz>
-> Cc: Matthew Wilcox <willy@infradead.org>
-> Cc: Christoph Hellwig <hch@lst.de>
-> Cc: Alistair Popple <apopple@nvidia.com>
-> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+On Thu, Jun 13, 2024 at 8:00=E2=80=AFPM D. Wythe <alibuda@linux.alibaba.com=
+> wrote:
+>
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>
+> This patch allows to create smc socket via AF_INET,
+> similar to the following code,
+>
+> /* create v4 smc sock */
+> v4 =3D socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
+>
+> /* create v6 smc sock */
+> v6 =3D socket(AF_INET6, SOCK_STREAM, IPPROTO_SMC);
+>
+> There are several reasons why we believe it is appropriate here:
+>
+> 1. For smc sockets, it actually use IPv4 (AF-INET) or IPv6 (AF-INET6)
+> address. There is no AF_SMC address at all.
+>
+> 2. Create smc socket in the AF_INET(6) path, which allows us to reuse
+> the infrastructure of AF_INET(6) path, such as common ebpf hooks.
+> Otherwise, smc have to implement it again in AF_SMC path.
+>
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+> Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+> Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Tested-by: Wenjia Zhang <wenjia@linux.ibm.com>
 > ---
+>  include/uapi/linux/in.h |   2 +
+>  net/smc/Makefile        |   2 +-
+>  net/smc/af_smc.c        |  16 ++++-
+>  net/smc/smc_inet.c      | 159 ++++++++++++++++++++++++++++++++++++++++++=
+++++++
+>  net/smc/smc_inet.h      |  22 +++++++
+>  5 files changed, 198 insertions(+), 3 deletions(-)
+>  create mode 100644 net/smc/smc_inet.c
+>  create mode 100644 net/smc/smc_inet.h
+>
+> diff --git a/include/uapi/linux/in.h b/include/uapi/linux/in.h
+> index e682ab6..d358add 100644
+> --- a/include/uapi/linux/in.h
+> +++ b/include/uapi/linux/in.h
+> @@ -81,6 +81,8 @@ enum {
+>  #define IPPROTO_ETHERNET       IPPROTO_ETHERNET
+>    IPPROTO_RAW =3D 255,           /* Raw IP packets                      =
+ */
+>  #define IPPROTO_RAW            IPPROTO_RAW
+> +  IPPROTO_SMC =3D 256,           /* Shared Memory Communications        =
+ */
+> +#define IPPROTO_SMC            IPPROTO_SMC
+>    IPPROTO_MPTCP =3D 262,         /* Multipath TCP connection            =
+ */
+>  #define IPPROTO_MPTCP          IPPROTO_MPTCP
+>    IPPROTO_MAX
+> diff --git a/net/smc/Makefile b/net/smc/Makefile
+> index 2c510d54..60f1c87 100644
+> --- a/net/smc/Makefile
+> +++ b/net/smc/Makefile
+> @@ -4,6 +4,6 @@ obj-$(CONFIG_SMC)       +=3D smc.o
+>  obj-$(CONFIG_SMC_DIAG) +=3D smc_diag.o
+>  smc-y :=3D af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o sm=
+c_llc.o
+>  smc-y +=3D smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o smc_netlink=
+.o smc_stats.o
+> -smc-y +=3D smc_tracepoint.o
+> +smc-y +=3D smc_tracepoint.o smc_inet.o
+>  smc-$(CONFIG_SYSCTL) +=3D smc_sysctl.o
+>  smc-$(CONFIG_SMC_LO) +=3D smc_loopback.o
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 8e3ce76..435f38b 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -54,6 +54,7 @@
+>  #include "smc_tracepoint.h"
+>  #include "smc_sysctl.h"
+>  #include "smc_loopback.h"
+> +#include "smc_inet.h"
+>
+>  static DEFINE_MUTEX(smc_server_lgr_pending);   /* serialize link group
+>                                                  * creation on server
+> @@ -3593,10 +3594,15 @@ static int __init smc_init(void)
+>                 pr_err("%s: tcp_ulp_register fails with %d\n", __func__, =
+rc);
+>                 goto out_lo;
+>         }
+> -
+> +       rc =3D smc_inet_init();
+> +       if (rc) {
+> +               pr_err("%s: smc_inet_init fails with %d\n", __func__, rc)=
+;
+> +               goto out_ulp;
+> +       }
+>         static_branch_enable(&tcp_have_smc);
+>         return 0;
+> -
+> +out_ulp:
+> +       tcp_unregister_ulp(&smc_ulp_ops);
+>  out_lo:
+>         smc_loopback_exit();
+>  out_ib:
+> @@ -3633,6 +3639,7 @@ static int __init smc_init(void)
+>  static void __exit smc_exit(void)
+>  {
+>         static_branch_disable(&tcp_have_smc);
+> +       smc_inet_exit();
+>         tcp_unregister_ulp(&smc_ulp_ops);
+>         sock_unregister(PF_SMC);
+>         smc_core_exit();
+> @@ -3660,4 +3667,9 @@ static void __exit smc_exit(void)
+>  MODULE_LICENSE("GPL");
+>  MODULE_ALIAS_NETPROTO(PF_SMC);
+>  MODULE_ALIAS_TCP_ULP("smc");
+> +/* 256 for IPPROTO_SMC and 1 for SOCK_STREAM */
+> +MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_INET, 256, 1);
+> +#if IS_ENABLED(CONFIG_IPV6)
+> +MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_INET6, 256, 1);
+> +#endif /* CONFIG_IPV6 */
+>  MODULE_ALIAS_GENL_FAMILY(SMC_GENL_FAMILY_NAME);
+> diff --git a/net/smc/smc_inet.c b/net/smc/smc_inet.c
+> new file mode 100644
+> index 00000000..bece346
+> --- /dev/null
+> +++ b/net/smc/smc_inet.c
+> @@ -0,0 +1,159 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + *  Shared Memory Communications over RDMA (SMC-R) and RoCE
+> + *
+> + *  Definitions for the IPPROTO_SMC (socket related)
+> + *
+> + *  Copyright IBM Corp. 2016, 2018
+> + *  Copyright (c) 2024, Alibaba Inc.
+> + *
+> + *  Author: D. Wythe <alibuda@linux.alibaba.com>
+> + */
+> +
+> +#include <net/protocol.h>
+> +#include <net/sock.h>
+> +
+> +#include "smc_inet.h"
+> +#include "smc.h"
+> +
+> +static int smc_inet_init_sock(struct sock *sk);
+> +
+> +static struct proto smc_inet_prot =3D {
+> +       .name           =3D "INET_SMC",
+> +       .owner          =3D THIS_MODULE,
+> +       .init           =3D smc_inet_init_sock,
+> +       .hash           =3D smc_hash_sk,
+> +       .unhash         =3D smc_unhash_sk,
+> +       .release_cb     =3D smc_release_cb,
+> +       .obj_size       =3D sizeof(struct smc_sock),
+> +       .h.smc_hash     =3D &smc_v4_hashinfo,
+> +       .slab_flags     =3D SLAB_TYPESAFE_BY_RCU,
+> +};
+> +
+> +static const struct proto_ops smc_inet_stream_ops =3D {
+> +       .family         =3D PF_INET,
+> +       .owner          =3D THIS_MODULE,
+> +       .release        =3D smc_release,
+> +       .bind           =3D smc_bind,
+> +       .connect        =3D smc_connect,
+> +       .socketpair     =3D sock_no_socketpair,
+> +       .accept         =3D smc_accept,
+> +       .getname        =3D smc_getname,
+> +       .poll           =3D smc_poll,
+> +       .ioctl          =3D smc_ioctl,
+> +       .listen         =3D smc_listen,
+> +       .shutdown       =3D smc_shutdown,
+> +       .setsockopt     =3D smc_setsockopt,
+> +       .getsockopt     =3D smc_getsockopt,
+> +       .sendmsg        =3D smc_sendmsg,
+> +       .recvmsg        =3D smc_recvmsg,
+> +       .mmap           =3D sock_no_mmap,
+> +       .splice_read    =3D smc_splice_read,
+> +};
+> +
+> +static struct inet_protosw smc_inet_protosw =3D {
+> +       .type           =3D SOCK_STREAM,
+> +       .protocol       =3D IPPROTO_SMC,
+> +       .prot           =3D &smc_inet_prot,
+> +       .ops            =3D &smc_inet_stream_ops,
+> +       .flags          =3D INET_PROTOSW_ICSK,
 
-Acked-by: David Hildenbrand <david@redhat.com>
+When this flag is set, icsk->icsk_sync_mss must be set.
 
--- 
-Cheers,
-
-David / dhildenb
-
+Unable to handle kernel NULL pointer dereference at virtual address
+0000000000000000
+Mem abort info:
+ESR =3D 0x0000000086000005
+EC =3D 0x21: IABT (current EL), IL =3D 32 bits
+SET =3D 0, FnV =3D 0
+EA =3D 0, S1PTW =3D 0
+FSC =3D 0x05: level 1 translation fault
+user pgtable: 4k pages, 48-bit VAs, pgdp=3D00000001195d1000
+[0000000000000000] pgd=3D0800000109c46003, p4d=3D0800000109c46003,
+pud=3D0000000000000000
+Internal error: Oops: 0000000086000005 [#1] PREEMPT SMP
+Modules linked in:
+CPU: 1 UID: 0 PID: 8037 Comm: syz.3.265 Not tainted
+6.11.0-rc7-syzkaller-g5f5673607153 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine,
+BIOS Google 08/06/2024
+pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=3D--)
+pc : 0x0
+lr : cipso_v4_sock_setattr+0x2a8/0x3c0 net/ipv4/cipso_ipv4.c:1910
+sp : ffff80009b887a90
+x29: ffff80009b887aa0 x28: ffff80008db94050 x27: 0000000000000000
+x26: 1fffe0001aa6f5b3 x25: dfff800000000000 x24: ffff0000db75da00
+x23: 0000000000000000 x22: ffff0000d8b78518 x21: 0000000000000000
+x20: ffff0000d537ad80 x19: ffff0000d8b78000 x18: 1fffe000366d79ee
+x17: ffff8000800614a8 x16: ffff800080569b84 x15: 0000000000000001
+x14: 000000008b336894 x13: 00000000cd96feaa x12: 0000000000000003
+x11: 0000000000040000 x10: 00000000000020a3 x9 : 1fffe0001b16f0f1
+x8 : 0000000000000000 x7 : 0000000000000000 x6 : 000000000000003f
+x5 : 0000000000000040 x4 : 0000000000000001 x3 : 0000000000000000
+x2 : 0000000000000002 x1 : 0000000000000000 x0 : ffff0000d8b78000
+Call trace:
+0x0
+netlbl_sock_setattr+0x2e4/0x338 net/netlabel/netlabel_kapi.c:1000
+smack_netlbl_add+0xa4/0x154 security/smack/smack_lsm.c:2593
+smack_socket_post_create+0xa8/0x14c security/smack/smack_lsm.c:2973
+security_socket_post_create+0x94/0xd4 security/security.c:4425
+__sock_create+0x4c8/0x884 net/socket.c:1587
+sock_create net/socket.c:1622 [inline]
+__sys_socket_create net/socket.c:1659 [inline]
+__sys_socket+0x134/0x340 net/socket.c:1706
+__do_sys_socket net/socket.c:1720 [inline]
+__se_sys_socket net/socket.c:1718 [inline]
+__arm64_sys_socket+0x7c/0x94 net/socket.c:1718
+__invoke_syscall arch/arm64/kernel/syscall.c:35 [inline]
+invoke_syscall+0x98/0x2b8 arch/arm64/kernel/syscall.c:49
+el0_svc_common+0x130/0x23c arch/arm64/kernel/syscall.c:132
+do_el0_svc+0x48/0x58 arch/arm64/kernel/syscall.c:151
+el0_svc+0x54/0x168 arch/arm64/kernel/entry-common.c:712
+el0t_64_sync_handler+0x84/0xfc arch/arm64/kernel/entry-common.c:730
+el0t_64_sync+0x190/0x194 arch/arm64/kernel/entry.S:598
+Code: ???????? ???????? ???????? ???????? (????????)
+---[ end trace 0000000000000000 ]---
