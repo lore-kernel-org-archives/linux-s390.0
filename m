@@ -1,115 +1,242 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00742170A12
-	for <linux-s390@vger.kernel.org>; Thu, 26 Sep 2024 18:43:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 980B94690;
+	Fri, 27 Sep 2024 03:42:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727376217; cv=none; b=mvqKp/35k59u34TEPWpE6YxFCmT6HalHE9cFiqDKxeO1Xm3xEqXZMFCA+tBXTfAAvkg96LHUwIhSO8vKFtPQmDaaJxOcG45flRQcvCy+ODLRL5yS9i1Aw1/dNZY6sltz6JGkf0G/kTOuXGY7U+4Np4tVNcMqPsa1i/RQZK1+neM=
+	t=1727408567; cv=none; b=N/cF4Tl2HSbHyKQSg/cZ5/K3pqOFY2uw50fNc9N5hb9cscAIjMXY3+KZWr4tGB+tCf7feQJsljnWn5EOFmZ+jRwDc3wu6YuxmOWSJZF+ba544b//MhINkc2TuR44mgaJtfxHxCZyOyPmOcg1luD1DTRYZQibeXhyo+HFCjiHJmk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727376217; c=relaxed/simple;
-	bh=a/5m2zK58zkx4nM/V+xJ6JyzxFdkSfEPu9cHhxirWfc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ciRWPK5x7GJOxnbs7ATPAKS7YK/VHAhJGxct6I/XmcF5OFdjjt8QzBjYEYPGpSy7XlZO8gDFmc5/yn+QG2jCtHHnLv2TgMi1LHf+HzdRpJc26Qepv0AAA15dmTOg/Kshw1AKyw1obTOPTKPceXgehDdujXnBBL2JwcNqJYc/7wo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=CrMCQFrj; arc=none smtp.client-ip=209.85.222.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1727408567; c=relaxed/simple;
+	bh=+rq/57LVDrunt6xHzwvsK3DLj4lxyeZkeBq5OgbqtU4=;
+	h=From:To:Cc:Subject:Date:Message-Id; b=g3RsAQ0Rqi4F3oAMg5RKSs6evJRMMDpZSYTwmOzdZmyi4oHFR9tN11sOx+AKFYHDrzKd1zfk0vBXJA+94ft0LSulShOCc9MODvHUulOZM008VyvvJ3EmQeVc4e0CYoH7zXO3Yt8GeApeIE1pUYzwhDmaMa4MusCeCfb8NKfIrk8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=goTZ20WM; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="CrMCQFrj"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-7a9a7bea3cfso98574285a.1
-        for <linux-s390@vger.kernel.org>; Thu, 26 Sep 2024 11:43:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1727376215; x=1727981015; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=KvJvu5IaRTnr9xdXUsqatTaQ8tmdeCfcwtrsxrBZQ1g=;
-        b=CrMCQFrjp3k8NQEJJANc/66ALMaYqp0s3IjxWAaegdxslX0Pol8Ulrn2TNv12Sk6o0
-         /EdRPk52EyZoX536taouv1lVyzj87icX4m7t1JXVDGpO/6kzZ3aFpcBPs1PfEebiZ/cw
-         xvcGdj/DasxCs1qwMZpmDFeJi2SQEb39H9aRLzMDrExT2pHqO8cHVBo0JdkJ/9zWmbff
-         I8hxYl7z0yg2G7lVn7If5NmxoxHiLJRMfK2yZt8jUoLPICGqFOvDp+LAQsVs82inG6JA
-         X+xZIehXGgQyUffAXFZ7drpoljIUiJ/Y+OGVZTQtbxVfeOAH4joc8IPhU8MnXkEsghFm
-         wVhA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727376215; x=1727981015;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=KvJvu5IaRTnr9xdXUsqatTaQ8tmdeCfcwtrsxrBZQ1g=;
-        b=RrhvPrgwaXHPZpX1+/4CgrRRtA6SQTlpNY7cqTr4bFDWu3NeWW2DhWe8OG1rDwV4Hr
-         DZXXRi4FzGIqDLEYKI6Hnx8TQwuBKGRkZbT9Es37K3vpPYUJymQoc5O5YMPWqedD7boP
-         +4SiqNoGk3gQznb36jUzug0hyz8k3Vq+ey3IuYtg2JaQYGdchTmYYC2mfGFrhc18/MqW
-         gkHwyjCJ3KloxwcEnzEkTUpzmuEg26nbn4Z/sg+Nf7EC5/DDm3VS86WYlF4uBppcI2EO
-         mnY6fK0kWgPF/2ab039J2eq3CTeObZSLcPX+qHGmeS0ELtzItloSe05LxsXvP0BdM6ol
-         Ro5w==
-X-Forwarded-Encrypted: i=1; AJvYcCW/OJVsraW3eQJ3QHoAx9H8+sF/CvXsQVuIJUKf5GbBcNtaOi5evuYYUAL2m3Z/nEpiStao29OoNZ15@vger.kernel.org
-X-Gm-Message-State: AOJu0YxMNh5xXLLDasJbRDoO5IEpaJPUJtGqGvr9PawNzFCIy0NGrJth
-	6mN9RKncOzW1XOEwfjXbIjW1Vk+bsq0sGHDHlcgjJaOsL9GyMxf3HrsooXEAW32bSbeZaaJWjgo
-	M
-X-Google-Smtp-Source: AGHT+IHahoaHFJtuu1gsK0aQtYJow2bdyMNiogW2IcChPTuHJqaCLBrGWEI30mWx2ZRm25asoXWR5w==
-X-Received: by 2002:a05:620a:44c2:b0:7a9:b425:6 with SMTP id af79cd13be357-7ae37838380mr75987185a.24.1727376214700;
-        Thu, 26 Sep 2024 11:43:34 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-128-5.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.128.5])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7ae3782a221sm15168385a.73.2024.09.26.11.43.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Sep 2024 11:43:33 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1sttSf-000qCj-2k;
-	Thu, 26 Sep 2024 15:43:33 -0300
-Date: Thu, 26 Sep 2024 15:43:33 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Matthew Rosato <mjrosato@linux.ibm.com>
-Cc: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
-	gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com,
-	baolu.lu@linux.intel.com, hca@linux.ibm.com, gor@linux.ibm.com,
-	agordeev@linux.ibm.com, svens@linux.ibm.com, jroedel@suse.de,
-	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org
-Subject: Re: [PATCH v4] iommu/s390: Implement blocking domain
-Message-ID: <20240926184333.GD9634@ziepe.ca>
-References: <20240910211516.137933-1-mjrosato@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="goTZ20WM"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1727408554; h=From:To:Subject:Date:Message-Id;
+	bh=OnJD+ij/8yrRC3fqRebt885INetiaIWT9sV8E+wPrGo=;
+	b=goTZ20WMoQHpX5wd0BVKHp/plXUqJF9ZtX1IWBwBKbE1hSbDYsuEzu35ql3t5qjMBwLkSUQGmzYi3IuyA7CZ78vBGHkaz1ohPXWNvAOx8WpQV33O5bZm/7zv7IYmgMOTC+J7NzI23ZJ5A370llEx1bkqULU8lCinKE6QDbcuXoY=
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WFp1DhC_1727408550)
+          by smtp.aliyun-inc.com;
+          Fri, 27 Sep 2024 11:42:34 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com>
+To: kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	wintera@linux.ibm.com,
+	guwen@linux.alibaba.com
+Cc: kuba@kernel.org,
+	davem@davemloft.net,
+	netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	tonylu@linux.alibaba.com,
+	pabeni@redhat.com,
+	edumazet@google.com,
+	bpf@vger.kernel.org
+Subject: [RFC PATCH net-next v2] net/smc: Introduce a hook to modify syn_smc at runtime
+Date: Fri, 27 Sep 2024 11:42:29 +0800
+Message-Id: <1727408549-106551-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240910211516.137933-1-mjrosato@linux.ibm.com>
 
-On Tue, Sep 10, 2024 at 05:15:16PM -0400, Matthew Rosato wrote:
-> This fixes a crash when surprise hot-unplugging a PCI device. This crash
-> happens because during hot-unplug __iommu_group_set_domain_nofail()
-> attaching the default domain fails when the platform no longer
-> recognizes the device as it has already been removed and we end up with
-> a NULL domain pointer and UAF. This is exactly the case referred to in
-> the second comment in __iommu_device_set_domain() and just as stated
-> there if we can instead attach the blocking domain the UAF is prevented
-> as this can handle the already removed device. Implement the blocking
-> domain to use this handling.  With this change, the crash is fixed but
-> we still hit a warning attempting to change DMA ownership on a blocked
-> device.
-> 
-> Fixes: c76c067e488c ("s390/pci: Use dma-iommu layer")
-> Co-developed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
-> Changes for v4:
-> - fix lockdep assert
-> Changes for v3:
-> - make blocking_domain type iommu_domain
-> - change zdev->s390_domain to type iommu_domain and remove most uses
-> - remove s390_iommu_detach_device, use blocking domain attach
-> - add spinlock to serialize zdev->s390_domain change / access to counters
-> ---
->  arch/s390/include/asm/pci.h |  4 +-
->  arch/s390/pci/pci.c         |  3 ++
->  arch/s390/pci/pci_debug.c   | 10 ++++-
->  drivers/iommu/s390-iommu.c  | 73 +++++++++++++++++++++++--------------
->  4 files changed, 59 insertions(+), 31 deletions(-)
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+The introduction of IPPROTO_SMC enables eBPF programs to determine
+whether to use SMC based on the context of socket creation, such as
+network namespaces, PID and comm name, etc.
 
-Jason
+As a subsequent enhancement, this patch introduces a new hook for eBPF
+programs that allows decisions on whether to use SMC or not at runtime,
+including but not limited to local/remote IP address or ports. In
+simpler words, this feature allows modifications to syn_smc through eBPF
+programs before the TCP three-way handshake got established.
+
+Thanks to kfunc for making it easier for us to implement this feature in
+SMC.
+
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+
+---
+v1 -> v2:
+1. Fix wrong use of ireq->smc_ok, should be rx_opt->smc_ok.
+2. Fix compile error when CONFIG_IPV6 or CONFIG_BPF_SYSCALL was not set.
+
+---
+ include/linux/tcp.h  |  4 ++-
+ net/ipv4/tcp_input.c |  4 +--
+ net/smc/af_smc.c     | 75 ++++++++++++++++++++++++++++++++++++++++++++++------
+ 3 files changed, 72 insertions(+), 11 deletions(-)
+
+diff --git a/include/linux/tcp.h b/include/linux/tcp.h
+index 6a5e08b..d028d76 100644
+--- a/include/linux/tcp.h
++++ b/include/linux/tcp.h
+@@ -478,7 +478,9 @@ struct tcp_sock {
+ #endif
+ #if IS_ENABLED(CONFIG_SMC)
+ 	bool	syn_smc;	/* SYN includes SMC */
+-	bool	(*smc_hs_congested)(const struct sock *sk);
++	void	(*smc_openreq_init)(struct request_sock *req,
++			     const struct tcp_options_received *rx_opt,
++			     struct sk_buff *skb, const struct sock *sk);
+ #endif
+ 
+ #if defined(CONFIG_TCP_MD5SIG) || defined(CONFIG_TCP_AO)
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 9f314df..99f34f5 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -7036,8 +7036,8 @@ static void tcp_openreq_init(struct request_sock *req,
+ 	ireq->ir_num = ntohs(tcp_hdr(skb)->dest);
+ 	ireq->ir_mark = inet_request_mark(sk, skb);
+ #if IS_ENABLED(CONFIG_SMC)
+-	ireq->smc_ok = rx_opt->smc_ok && !(tcp_sk(sk)->smc_hs_congested &&
+-			tcp_sk(sk)->smc_hs_congested(sk));
++	if (rx_opt->smc_ok && tcp_sk(sk)->smc_openreq_init)
++		tcp_sk(sk)->smc_openreq_init(req, rx_opt, skb, sk);
+ #endif
+ }
+ 
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 0316217..fdac7e2b 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -70,6 +70,15 @@
+ static void smc_tcp_listen_work(struct work_struct *);
+ static void smc_connect_work(struct work_struct *);
+ 
++__bpf_hook_start();
++
++__weak noinline int select_syn_smc(const struct sock *sk, struct sockaddr *peer)
++{
++	return 1;
++}
++
++__bpf_hook_end();
++
+ int smc_nl_dump_hs_limitation(struct sk_buff *skb, struct netlink_callback *cb)
+ {
+ 	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
+@@ -156,19 +165,43 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+ 	return NULL;
+ }
+ 
+-static bool smc_hs_congested(const struct sock *sk)
++static void smc_openreq_init(struct request_sock *req,
++			     const struct tcp_options_received *rx_opt,
++			     struct sk_buff *skb, const struct sock *sk)
+ {
++	struct inet_request_sock *ireq = inet_rsk(req);
++	struct sockaddr_storage rmt_sockaddr = {0};
+ 	const struct smc_sock *smc;
+ 
+ 	smc = smc_clcsock_user_data(sk);
+ 
+ 	if (!smc)
+-		return true;
++		return;
+ 
+-	if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
+-		return true;
++	if (smc->limit_smc_hs && workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
++		goto out_no_smc;
+ 
+-	return false;
++	rmt_sockaddr.ss_family = sk->sk_family;
++
++	if (rmt_sockaddr.ss_family == AF_INET) {
++		struct sockaddr_in *rmt4_sockaddr =  (struct sockaddr_in *)&rmt_sockaddr;
++
++		rmt4_sockaddr->sin_addr.s_addr = ireq->ir_rmt_addr;
++		rmt4_sockaddr->sin_port	= ireq->ir_rmt_port;
++#if IS_ENABLED(CONFIG_IPV6)
++	} else {
++		struct sockaddr_in6 *rmt6_sockaddr =  (struct sockaddr_in6 *)&rmt_sockaddr;
++
++		rmt6_sockaddr->sin6_addr = ireq->ir_v6_rmt_addr;
++		rmt6_sockaddr->sin6_port = ireq->ir_rmt_port;
++#endif /* CONFIG_IPV6 */
++	}
++
++	ireq->smc_ok = select_syn_smc(sk, (struct sockaddr *)&rmt_sockaddr);
++	return;
++out_no_smc:
++	ireq->smc_ok = 0;
++	return;
+ }
+ 
+ struct smc_hashinfo smc_v4_hashinfo = {
+@@ -1671,7 +1704,7 @@ int smc_connect(struct socket *sock, struct sockaddr *addr,
+ 	}
+ 
+ 	smc_copy_sock_settings_to_clc(smc);
+-	tcp_sk(smc->clcsock->sk)->syn_smc = 1;
++	tcp_sk(smc->clcsock->sk)->syn_smc = select_syn_smc(sk, addr);
+ 	if (smc->connect_nonblock) {
+ 		rc = -EALREADY;
+ 		goto out;
+@@ -2650,8 +2683,7 @@ int smc_listen(struct socket *sock, int backlog)
+ 
+ 	inet_csk(smc->clcsock->sk)->icsk_af_ops = &smc->af_ops;
+ 
+-	if (smc->limit_smc_hs)
+-		tcp_sk(smc->clcsock->sk)->smc_hs_congested = smc_hs_congested;
++	tcp_sk(smc->clcsock->sk)->smc_openreq_init = smc_openreq_init;
+ 
+ 	rc = kernel_listen(smc->clcsock, backlog);
+ 	if (rc) {
+@@ -3475,6 +3507,24 @@ static void __net_exit smc_net_stat_exit(struct net *net)
+ 	.exit = smc_net_stat_exit,
+ };
+ 
++#if IS_ENABLED(CONFIG_BPF_SYSCALL)
++BTF_SET8_START(bpf_smc_fmodret_ids)
++BTF_ID_FLAGS(func, select_syn_smc)
++BTF_SET8_END(bpf_smc_fmodret_ids)
++
++static const struct btf_kfunc_id_set bpf_smc_fmodret_set = {
++	.owner = THIS_MODULE,
++	.set   = &bpf_smc_fmodret_ids,
++};
++
++static int bpf_smc_kfunc_init(void)
++{
++	return register_btf_fmodret_id_set(&bpf_smc_fmodret_set);
++}
++#else
++static inline int bpf_smc_kfunc_init(void) { return 0; }
++#endif /* CONFIG_BPF_SYSCALL */
++
+ static int __init smc_init(void)
+ {
+ 	int rc;
+@@ -3574,8 +3624,17 @@ static int __init smc_init(void)
+ 		pr_err("%s: smc_inet_init fails with %d\n", __func__, rc);
+ 		goto out_ulp;
+ 	}
++
++	rc = bpf_smc_kfunc_init();
++	if (rc) {
++		pr_err("%s: bpf_smc_kfunc_init fails with %d\n", __func__, rc);
++		goto out_inet;
++	}
++
+ 	static_branch_enable(&tcp_have_smc);
+ 	return 0;
++out_inet:
++	smc_inet_exit();
+ out_ulp:
+ 	tcp_unregister_ulp(&smc_ulp_ops);
+ out_lo:
+-- 
+1.8.3.1
+
