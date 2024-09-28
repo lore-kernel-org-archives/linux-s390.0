@@ -1,312 +1,132 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E9D61BFE1A
-	for <linux-s390@vger.kernel.org>; Fri, 27 Sep 2024 14:57:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A05631DFF7;
+	Sat, 28 Sep 2024 12:51:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727449028; cv=none; b=JdvrEa4ZJwWde4xqvMSnOn8Fy5/BzTPyjEm3lk3DtvT0lfIJ6VJePtprPt1rswsHR7VX0dx7L0H4L7cc/pZwGV7+NkbhuxIPuRA66SCPN9GIJqsQmTwBWdUyFppexGlQ1pjB2v2q5XgMQjTVtpL3d34/ftmfPpl7f1wPz5z6ess=
+	t=1727527864; cv=none; b=leT+SHQPUDOgT2nyj0Wr/Ek2fIyEZcrHtP/bwpmblMJ44eYg7oq8HfCHezyfzkcP4lg5hC3Q8xg8NfkG5JBjOlZmtZavn+ZjjhUmvA/OmVG5yvyPiDHuXQK0pt7dTqlXpLyuodF3Of3UayvoMDq4zLqsLtKptsqqki7gmNqK41E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727449028; c=relaxed/simple;
-	bh=KpFQjUYNoqorgSZR3P1u7MaHQxHtQSx0hYrOTa71UnQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QSpqkD7xa5JgFxnaFhHXplsZ2cflKA4dQTLPu+hsFLtpnvHzjr+fjmv2VGB9sj6VSqACfbEV5bb9dNVILWgeXSNTEhVioIIbVkVckdbdJuxVCON6/4xKnOhSx2SQVToyuhdYhDHFwX93hJkdzYxE7BtOB2YefDeH1GjkPF0goU8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=qBxWuXFT; arc=none smtp.client-ip=209.85.167.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1727527864; c=relaxed/simple;
+	bh=PRkDeDVL/zAoAyxR11/ZS4jjYRTj8u2zgcEH/K6juF4=;
+	h=Date:From:To:Cc:Subject:Message-ID:Content-Type:
+	 Content-Disposition:MIME-Version; b=GR7IpaJ6E4bZtdAcfRrvVqHCuRK2O+0aFX0V5fRP7x8QSYrOV5kDjsIh1tQq2xCjmkx1V2hNs1Vm8Dv/WGE5q/7nzQiThdbaK6tJ6LjZJfR8NF/uNCJeGK8LD6/AYdCKNjG/H627wMe0uYSvYwDVDERI8nA3/vtHwc2USdla67M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QD4Dyz/q; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="qBxWuXFT"
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-535dc4ec181so2424536e87.3
-        for <linux-s390@vger.kernel.org>; Fri, 27 Sep 2024 07:57:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1727449024; x=1728053824; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/18GyfMUmFmiPlGch6tCsiK6n05dByaKqzKUBTX5A9A=;
-        b=qBxWuXFTyNYy6D2xy5AbSYJNSWBDvFC08SrDvq+vJiLtqZIeKbBFhgHsKdZeWWdzIz
-         7NWXpeiSrfacXvRUO3OElk/+G7KzGmNGxbwcrl0De/T1pqkCnmXtqVmeipL7HX8/hy30
-         2KmwflU9OTI6OUbMzYo+oG54gVZDDbYECRggNDb2Rb104P5cnV+1QyQp+5EId+RHwrP0
-         5QUXO6M/oiYDrRKM5MD1XsTj8/z0MGOFQoJTcp7apDPh6Ds/5rQ7kH09JwadqPNEXzBn
-         RjYnYgdFA6h4mfyLXYmpzQ0QlawmrAuQ5rVBf1KBDPAM6VF3b6ioGicUVgFSBPVUhHBJ
-         h+AQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727449024; x=1728053824;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/18GyfMUmFmiPlGch6tCsiK6n05dByaKqzKUBTX5A9A=;
-        b=voVl285EhCeXDJ5GFlSF/Tye7dzQ2OsF2Sn+77sfj0clFuWtNdRhahRMgWuWFK73rB
-         RceOPq6O6pPzNCi3F83yEfTOQnfjWvmAbtnpLeEHrtJ/z1KRDfqk1iwPJbAdrkCVW4oa
-         fJXmzX1BX6JX6yS6yyyyVpCg3la9DojWdpRgbD5eC7URWAKzpzIEVCoYt4EEfHl67q6y
-         aMYgcxr79vlcdnmDJ5cGES0wC0amy5m9F2UG+PWf3Pt22L+v7LACL47uT8kOCdsYRh1i
-         LbD+gNDUXR7h/DWGefZPfobjQwkHmRXWnIwSujK1ExdfrU6a8mS+fcOhDymAh4Kek9Cw
-         bj8Q==
-X-Forwarded-Encrypted: i=1; AJvYcCW2icILw6YR3L0mKfLJjEd3C8gJr9r4bOkI462xNrBJk8GPAeXDVSyD52wMNLeYWb9t1nPGt0R1AVB8@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyo9R9gor0brTfKVviylpx5qaGrJzd3iCLJLxCg1tuCn18lrlkL
-	hhfnQVJE3QnhEk2R4/NbW1nFRjAjgdCsdn6xFhgLyGPXM+p19L90wVxrJit0QRtBdJlcuH7f776
-	c2hoc+6BQh/mFXNxc9XplMv7RIEoLjbv9+FLv
-X-Google-Smtp-Source: AGHT+IFRKkE0mGNhaH8ET6VLDg6TqeqTkqG/VObziBwEk4Ht7UIK/LQVwwPoMAoSz6jIyTC8gnOtwPvtsKVzIeRIZEg=
-X-Received: by 2002:a05:6512:b0b:b0:52c:e11e:d493 with SMTP id
- 2adb3069b0e04-5389fc46d3dmr2530689e87.26.1727449023277; Fri, 27 Sep 2024
- 07:57:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QD4Dyz/q"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48SCTKcH007498;
+	Sat, 28 Sep 2024 12:50:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:content-type:mime-version; s=pp1;
+	 bh=s9THryNP4zd8kM7BjJX1ngfnX0gczJ7mSSFjWVRwowA=; b=QD4Dyz/qh4CU
+	wi9ztJ8RVeiSvycXzQmrAQT2uxp/iu7/JAo9rVFzrqswlOTLnwXaT+9zTmSNHpkJ
+	D2ZRdZcRLADrG4JnhSQXNCnLGXwh2hU7sI20qThWV76jqoAWKLn3Szlc+ElonpXt
+	VAzH7pJKVi3THzSe6DqNG4zrCfRi8omNIJ+x7rp8Iwms4Ier2jRXqFUALOOKx3LP
+	LshVGpNV/cm9Z8pgFsYtDFsaxgNj3vZUmeuXC0hYEZxsHXrofq4Zjl3LQmd2PR96
+	WAlZ7BXJ07gF7j5qKHFsoaSePrkMegJZ/GA5lbkseSGjP2nssPyExsQS9Tx9DSLY
+	4CUZIBY36w==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41x9ap1npg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 28 Sep 2024 12:50:59 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48SAxeAr014068;
+	Sat, 28 Sep 2024 12:50:58 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41t9ynhx39-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 28 Sep 2024 12:50:58 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48SCosSV57868622
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 28 Sep 2024 12:50:54 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8B2232004B;
+	Sat, 28 Sep 2024 12:50:54 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1C49C20040;
+	Sat, 28 Sep 2024 12:50:54 +0000 (GMT)
+Received: from localhost (unknown [9.171.40.215])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Sat, 28 Sep 2024 12:50:54 +0000 (GMT)
+Date: Sat, 28 Sep 2024 14:50:52 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] more s390 updates for 6.12 merge window
+Message-ID: <Zvf7rJHDO45f7kuQ@localhost>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Ai_UGDZ1ipOqskIwBMl6OEERw5HnDJyF
+X-Proofpoint-GUID: Ai_UGDZ1ipOqskIwBMl6OEERw5HnDJyF
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <1718301630-63692-1-git-send-email-alibuda@linux.alibaba.com> <1718301630-63692-4-git-send-email-alibuda@linux.alibaba.com>
-In-Reply-To: <1718301630-63692-4-git-send-email-alibuda@linux.alibaba.com>
-From: Eric Dumazet <edumazet@google.com>
-Date: Fri, 27 Sep 2024 16:56:52 +0200
-Message-ID: <CANn89i+cKR+hBpXuKxO=dRX448qA3tzEkiOvC4PshWH0OVAD0w@mail.gmail.com>
-Subject: Re: [PATCH net-next v8 3/3] net/smc: Introduce IPPROTO_SMC
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com, 
-	wintera@linux.ibm.com, guwen@linux.alibaba.com, kuba@kernel.org, 
-	davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, tonylu@linux.alibaba.com, pabeni@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-28_07,2024-09-27_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
+ lowpriorityscore=0 mlxlogscore=436 malwarescore=0 priorityscore=1501
+ phishscore=0 mlxscore=0 suspectscore=0 adultscore=0 clxscore=1015
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2409280096
 
-On Thu, Jun 13, 2024 at 8:00=E2=80=AFPM D. Wythe <alibuda@linux.alibaba.com=
-> wrote:
->
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
->
-> This patch allows to create smc socket via AF_INET,
-> similar to the following code,
->
-> /* create v4 smc sock */
-> v4 =3D socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
->
-> /* create v6 smc sock */
-> v6 =3D socket(AF_INET6, SOCK_STREAM, IPPROTO_SMC);
->
-> There are several reasons why we believe it is appropriate here:
->
-> 1. For smc sockets, it actually use IPv4 (AF-INET) or IPv6 (AF-INET6)
-> address. There is no AF_SMC address at all.
->
-> 2. Create smc socket in the AF_INET(6) path, which allows us to reuse
-> the infrastructure of AF_INET(6) path, such as common ebpf hooks.
-> Otherwise, smc have to implement it again in AF_SMC path.
->
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-> Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-> Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Tested-by: Wenjia Zhang <wenjia@linux.ibm.com>
-> ---
->  include/uapi/linux/in.h |   2 +
->  net/smc/Makefile        |   2 +-
->  net/smc/af_smc.c        |  16 ++++-
->  net/smc/smc_inet.c      | 159 ++++++++++++++++++++++++++++++++++++++++++=
-++++++
->  net/smc/smc_inet.h      |  22 +++++++
->  5 files changed, 198 insertions(+), 3 deletions(-)
->  create mode 100644 net/smc/smc_inet.c
->  create mode 100644 net/smc/smc_inet.h
->
-> diff --git a/include/uapi/linux/in.h b/include/uapi/linux/in.h
-> index e682ab6..d358add 100644
-> --- a/include/uapi/linux/in.h
-> +++ b/include/uapi/linux/in.h
-> @@ -81,6 +81,8 @@ enum {
->  #define IPPROTO_ETHERNET       IPPROTO_ETHERNET
->    IPPROTO_RAW =3D 255,           /* Raw IP packets                      =
- */
->  #define IPPROTO_RAW            IPPROTO_RAW
-> +  IPPROTO_SMC =3D 256,           /* Shared Memory Communications        =
- */
-> +#define IPPROTO_SMC            IPPROTO_SMC
->    IPPROTO_MPTCP =3D 262,         /* Multipath TCP connection            =
- */
->  #define IPPROTO_MPTCP          IPPROTO_MPTCP
->    IPPROTO_MAX
-> diff --git a/net/smc/Makefile b/net/smc/Makefile
-> index 2c510d54..60f1c87 100644
-> --- a/net/smc/Makefile
-> +++ b/net/smc/Makefile
-> @@ -4,6 +4,6 @@ obj-$(CONFIG_SMC)       +=3D smc.o
->  obj-$(CONFIG_SMC_DIAG) +=3D smc_diag.o
->  smc-y :=3D af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o sm=
-c_llc.o
->  smc-y +=3D smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o smc_netlink=
-.o smc_stats.o
-> -smc-y +=3D smc_tracepoint.o
-> +smc-y +=3D smc_tracepoint.o smc_inet.o
->  smc-$(CONFIG_SYSCTL) +=3D smc_sysctl.o
->  smc-$(CONFIG_SMC_LO) +=3D smc_loopback.o
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 8e3ce76..435f38b 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -54,6 +54,7 @@
->  #include "smc_tracepoint.h"
->  #include "smc_sysctl.h"
->  #include "smc_loopback.h"
-> +#include "smc_inet.h"
->
->  static DEFINE_MUTEX(smc_server_lgr_pending);   /* serialize link group
->                                                  * creation on server
-> @@ -3593,10 +3594,15 @@ static int __init smc_init(void)
->                 pr_err("%s: tcp_ulp_register fails with %d\n", __func__, =
-rc);
->                 goto out_lo;
->         }
-> -
-> +       rc =3D smc_inet_init();
-> +       if (rc) {
-> +               pr_err("%s: smc_inet_init fails with %d\n", __func__, rc)=
-;
-> +               goto out_ulp;
-> +       }
->         static_branch_enable(&tcp_have_smc);
->         return 0;
-> -
-> +out_ulp:
-> +       tcp_unregister_ulp(&smc_ulp_ops);
->  out_lo:
->         smc_loopback_exit();
->  out_ib:
-> @@ -3633,6 +3639,7 @@ static int __init smc_init(void)
->  static void __exit smc_exit(void)
->  {
->         static_branch_disable(&tcp_have_smc);
-> +       smc_inet_exit();
->         tcp_unregister_ulp(&smc_ulp_ops);
->         sock_unregister(PF_SMC);
->         smc_core_exit();
-> @@ -3660,4 +3667,9 @@ static void __exit smc_exit(void)
->  MODULE_LICENSE("GPL");
->  MODULE_ALIAS_NETPROTO(PF_SMC);
->  MODULE_ALIAS_TCP_ULP("smc");
-> +/* 256 for IPPROTO_SMC and 1 for SOCK_STREAM */
-> +MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_INET, 256, 1);
-> +#if IS_ENABLED(CONFIG_IPV6)
-> +MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_INET6, 256, 1);
-> +#endif /* CONFIG_IPV6 */
->  MODULE_ALIAS_GENL_FAMILY(SMC_GENL_FAMILY_NAME);
-> diff --git a/net/smc/smc_inet.c b/net/smc/smc_inet.c
-> new file mode 100644
-> index 00000000..bece346
-> --- /dev/null
-> +++ b/net/smc/smc_inet.c
-> @@ -0,0 +1,159 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + *  Shared Memory Communications over RDMA (SMC-R) and RoCE
-> + *
-> + *  Definitions for the IPPROTO_SMC (socket related)
-> + *
-> + *  Copyright IBM Corp. 2016, 2018
-> + *  Copyright (c) 2024, Alibaba Inc.
-> + *
-> + *  Author: D. Wythe <alibuda@linux.alibaba.com>
-> + */
-> +
-> +#include <net/protocol.h>
-> +#include <net/sock.h>
-> +
-> +#include "smc_inet.h"
-> +#include "smc.h"
-> +
-> +static int smc_inet_init_sock(struct sock *sk);
-> +
-> +static struct proto smc_inet_prot =3D {
-> +       .name           =3D "INET_SMC",
-> +       .owner          =3D THIS_MODULE,
-> +       .init           =3D smc_inet_init_sock,
-> +       .hash           =3D smc_hash_sk,
-> +       .unhash         =3D smc_unhash_sk,
-> +       .release_cb     =3D smc_release_cb,
-> +       .obj_size       =3D sizeof(struct smc_sock),
-> +       .h.smc_hash     =3D &smc_v4_hashinfo,
-> +       .slab_flags     =3D SLAB_TYPESAFE_BY_RCU,
-> +};
-> +
-> +static const struct proto_ops smc_inet_stream_ops =3D {
-> +       .family         =3D PF_INET,
-> +       .owner          =3D THIS_MODULE,
-> +       .release        =3D smc_release,
-> +       .bind           =3D smc_bind,
-> +       .connect        =3D smc_connect,
-> +       .socketpair     =3D sock_no_socketpair,
-> +       .accept         =3D smc_accept,
-> +       .getname        =3D smc_getname,
-> +       .poll           =3D smc_poll,
-> +       .ioctl          =3D smc_ioctl,
-> +       .listen         =3D smc_listen,
-> +       .shutdown       =3D smc_shutdown,
-> +       .setsockopt     =3D smc_setsockopt,
-> +       .getsockopt     =3D smc_getsockopt,
-> +       .sendmsg        =3D smc_sendmsg,
-> +       .recvmsg        =3D smc_recvmsg,
-> +       .mmap           =3D sock_no_mmap,
-> +       .splice_read    =3D smc_splice_read,
-> +};
-> +
-> +static struct inet_protosw smc_inet_protosw =3D {
-> +       .type           =3D SOCK_STREAM,
-> +       .protocol       =3D IPPROTO_SMC,
-> +       .prot           =3D &smc_inet_prot,
-> +       .ops            =3D &smc_inet_stream_ops,
-> +       .flags          =3D INET_PROTOSW_ICSK,
+Hello Linus,
 
-When this flag is set, icsk->icsk_sync_mss must be set.
+please pull a couple more s390 updates for the 6.12 merge window.
 
-Unable to handle kernel NULL pointer dereference at virtual address
-0000000000000000
-Mem abort info:
-ESR =3D 0x0000000086000005
-EC =3D 0x21: IABT (current EL), IL =3D 32 bits
-SET =3D 0, FnV =3D 0
-EA =3D 0, S1PTW =3D 0
-FSC =3D 0x05: level 1 translation fault
-user pgtable: 4k pages, 48-bit VAs, pgdp=3D00000001195d1000
-[0000000000000000] pgd=3D0800000109c46003, p4d=3D0800000109c46003,
-pud=3D0000000000000000
-Internal error: Oops: 0000000086000005 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 1 UID: 0 PID: 8037 Comm: syz.3.265 Not tainted
-6.11.0-rc7-syzkaller-g5f5673607153 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine,
-BIOS Google 08/06/2024
-pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=3D--)
-pc : 0x0
-lr : cipso_v4_sock_setattr+0x2a8/0x3c0 net/ipv4/cipso_ipv4.c:1910
-sp : ffff80009b887a90
-x29: ffff80009b887aa0 x28: ffff80008db94050 x27: 0000000000000000
-x26: 1fffe0001aa6f5b3 x25: dfff800000000000 x24: ffff0000db75da00
-x23: 0000000000000000 x22: ffff0000d8b78518 x21: 0000000000000000
-x20: ffff0000d537ad80 x19: ffff0000d8b78000 x18: 1fffe000366d79ee
-x17: ffff8000800614a8 x16: ffff800080569b84 x15: 0000000000000001
-x14: 000000008b336894 x13: 00000000cd96feaa x12: 0000000000000003
-x11: 0000000000040000 x10: 00000000000020a3 x9 : 1fffe0001b16f0f1
-x8 : 0000000000000000 x7 : 0000000000000000 x6 : 000000000000003f
-x5 : 0000000000000040 x4 : 0000000000000001 x3 : 0000000000000000
-x2 : 0000000000000002 x1 : 0000000000000000 x0 : ffff0000d8b78000
-Call trace:
-0x0
-netlbl_sock_setattr+0x2e4/0x338 net/netlabel/netlabel_kapi.c:1000
-smack_netlbl_add+0xa4/0x154 security/smack/smack_lsm.c:2593
-smack_socket_post_create+0xa8/0x14c security/smack/smack_lsm.c:2973
-security_socket_post_create+0x94/0xd4 security/security.c:4425
-__sock_create+0x4c8/0x884 net/socket.c:1587
-sock_create net/socket.c:1622 [inline]
-__sys_socket_create net/socket.c:1659 [inline]
-__sys_socket+0x134/0x340 net/socket.c:1706
-__do_sys_socket net/socket.c:1720 [inline]
-__se_sys_socket net/socket.c:1718 [inline]
-__arm64_sys_socket+0x7c/0x94 net/socket.c:1718
-__invoke_syscall arch/arm64/kernel/syscall.c:35 [inline]
-invoke_syscall+0x98/0x2b8 arch/arm64/kernel/syscall.c:49
-el0_svc_common+0x130/0x23c arch/arm64/kernel/syscall.c:132
-do_el0_svc+0x48/0x58 arch/arm64/kernel/syscall.c:151
-el0_svc+0x54/0x168 arch/arm64/kernel/entry-common.c:712
-el0t_64_sync_handler+0x84/0xfc arch/arm64/kernel/entry-common.c:730
-el0t_64_sync+0x190/0x194 arch/arm64/kernel/entry.S:598
-Code: ???????? ???????? ???????? ???????? (????????)
----[ end trace 0000000000000000 ]---
+Thank you,
+Vasily
+
+The following changes since commit 1ec6d097897a35dfb55c4c31fc8633cf5be46497:
+
+  Merge tag 's390-6.12-1' of git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux (2024-09-21 09:02:54 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.12-2
+
+for you to fetch changes up to 2d8721364ce83956d0a184a64052928589ef15df:
+
+  s390/vfio-ap: Driver feature advertisement (2024-09-23 17:57:04 +0200)
+
+----------------------------------------------------------------
+more s390 updates for 6.12 merge window
+
+- Clean up and improve vdso code: use SYM_* macros for function and
+  data annotations, add CFI annotations to fix GDB unwinding, optimize
+  the chacha20 implementation
+
+- Add vfio-ap driver feature advertisement for use by libvirt and mdevctl
+
+----------------------------------------------------------------
+Heiko Carstens (5):
+      s390/vdso: Get rid of permutation constants
+      s390/vdso: Fix comment within __arch_chacha20_blocks_nostack()
+      tools: Add additional SYM_*() stubs to linkage.h
+      s390/vdso: Use SYM_DATA_START_LOCAL()/SYM_DATA_END() for data objects
+      s390/vdso: Use one large alternative instead of an alternative branch
+
+Jason J. Herne (1):
+      s390/vfio-ap: Driver feature advertisement
+
+Jens Remus (2):
+      s390/vdso: Add CFI annotations to __arch_chacha20_blocks_nostack()
+      s390/vdso: Use macros for annotation of asm functions
+
+ Documentation/arch/s390/vfio-ap.rst         | 30 ++++++++++++
+ arch/s390/kernel/vdso64/vdso_user_wrapper.S | 14 ++----
+ arch/s390/kernel/vdso64/vgetrandom-chacha.S | 76 ++++++++++++++---------------
+ drivers/s390/crypto/vfio_ap_drv.c           | 13 +++++
+ tools/include/linux/linkage.h               |  4 +-
+ 5 files changed, 86 insertions(+), 51 deletions(-)
