@@ -1,220 +1,255 @@
-Received: from APC01-PSA-obe.outbound.protection.outlook.com (mail-psaapc01on2089.outbound.protection.outlook.com [40.107.255.89])
+Received: from out-185.mta0.migadu.com (out-185.mta0.migadu.com [91.218.175.185])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E94617580;
-	Sun, 29 Sep 2024 08:04:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.255.89
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727597048; cv=fail; b=T5w5shuVR3YswroxD+UHa0ksgMO4kgr8gU7RsnYqXYx1UZl94Lslbb6nEGvJQrF7S1nQS92A/g9U7oE44Dfbo0mdPqf4rByniaS333QZLFeLsd9li4MVeXPKJW70o79Y6jjm6evosgPQ0dZkzxjQ94mBGMeBQoi6Wqv7x0rYchY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727597048; c=relaxed/simple;
-	bh=KfbAC8oppMh1FHC0/FhDwgHGul6uXkjrmYnIgG0LiXE=;
-	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=MVltf2WR88p2b1p7cCgyQ1cdX6PyPTi1XkpjviUHqUOwu+7513JtUm7+A472ds4I9hPxf/kYB0xCOH5H3Mg7redJBYK+BTFEsYaqckyagkL/DHDpgKQbPs6hvnff8yMa1eNuGiCjm+PlUpjL1/ng7IlCyPviz232Rfk40DIySkY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com; spf=pass smtp.mailfrom=vivo.com; dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b=q6pB8Ey9; arc=fail smtp.client-ip=40.107.255.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vivo.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA8573D96D
+	for <linux-s390@vger.kernel.org>; Sun, 29 Sep 2024 11:56:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.185
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1727611017; cv=none; b=Pu0dmD0WAdHzbvaqVmCj6sXX2nttGxu2MV6ODJjNchxAD8CpO8cRszCK/UPcHfJFGyh8JZiZjyKskhXJ7Tfbuul/VHkTNnY3qqp3YZZzsTWsi5i5lmy2UwyboBeoA5HZN1Q1Ejl+p/QGVgu1t/ipUqJ00PK3BITZ1qCl4he6TEo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1727611017; c=relaxed/simple;
+	bh=kRdlNh2IHMBzOlcxstBQXWNI19MwftyElilV8HkvdK4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ddYLiv5epJCvZXjk1cBsr4PKHWCa5mUibKQKjUM5vf/cmq7S+jdAxqIhdZ1nPr+EfQdFhk8cc0X54dSexJWtzLOWJNRMVYlxTTCtAz49IBFpbAbqdUhat0TtjymB05B8vdgus8qrTW/Shkcah0eYs+VtNt4KvMviEMWxdbzJZS8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=c16J43vL; arc=none smtp.client-ip=91.218.175.185
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b="q6pB8Ey9"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=gHbg7lFEy9Siwhx8koQpOtwYHmkWjwXZBkuHa8p3HSvFNIv5zq2hanUpJ0tmLXy7FOrALyPB0E01Pa6C7ehSUyljVMePRuyc+9IXnEHuY9b+LhFicIjcuT3KAcoTtqKpJMilEogJs1p5+QoEMDCErVG+v0GunVl3/NZ/5tZp3II13oJzKtNT5WL1YReirCwI8rVH+UWgSfBru3QGKQnWKRdlZyHTPHHvGc8Oje0Naw3eag8Eet9m0kFw8NheOvm7xvsHoNHO4uw6cksTgtgOePzaWdJW20wLYIVkba4TET5Sv21GUH939sS8i2ypiQaQeIKJpH+S9WfOx6HlQ0N6Cw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=G3p/JZxTUjsQ6LnWju1zBjsQQE8jovd4ezEI8rkaN4E=;
- b=IVmOCL1+fGo6R2rl52922Am2NRF7hdu/39npKjzD0ej38skkI0gYaMeH2dPLAAnu+SzZ5plmsZpFCjC9bNku4Boh4ShkDgBiJJEZHpk9/LWgmIp9n/ocR8Jjo9lBSuVBZri+uzuXP0AWVHKtDlm5yhzaAx6ORmPGp7TqgspXdWrBA5Hu0LdnTKpQXcP3wPCJq3mevrMpYxQOHvpT6L8tWVbLbiVD7NfK80DEBpU+paFK6k7lmuII3j3XyQB1fjxJSbejTpzVfmFgj/yz+Ith3l4sVWCfKqVgjornvNE0hVdRZV1iUzrjKskpAHlR0NeaOoBOvQHGnKgHwnSTWQyCYQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vivo.com; dmarc=pass action=none header.from=vivo.com;
- dkim=pass header.d=vivo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivo.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=G3p/JZxTUjsQ6LnWju1zBjsQQE8jovd4ezEI8rkaN4E=;
- b=q6pB8Ey9BZeCBAmYT3ZbbW57OssJ5ZRxfOzGiw11KaRUcvz2oXlf38ak4P5iIw8s2mcjQmNl4TnvvY0CUOOF2TznGipM9P99JzX0XtZCCFIYn12427IWm415eb85WulP/9qXmMaS+/A0r+e7fcIgIDGbQmhWfV/mEPPDJxZve93W0Z3DeGosracAkhfDxgB+q4TLtHcIvhKvodsV0SnGZ+6tqNl5STSeGsjkfA62+bG6VidJRNpZknjM3MhpBPI6ssm4hUtixjfwH/7Gft9X/jR47mK3W7Op7lAI2bA9RORzsDeuiF2IBgiijGjO2kKaON+59cSgaFG17P/ITz/vdw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=vivo.com;
-Received: from SEZPR06MB5899.apcprd06.prod.outlook.com (2603:1096:101:e3::16)
- by SEZPR06MB5764.apcprd06.prod.outlook.com (2603:1096:101:aa::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8005.25; Sun, 29 Sep
- 2024 08:04:04 +0000
-Received: from SEZPR06MB5899.apcprd06.prod.outlook.com
- ([fe80::8bfc:f1ee:8923:77ce]) by SEZPR06MB5899.apcprd06.prod.outlook.com
- ([fe80::8bfc:f1ee:8923:77ce%6]) with mapi id 15.20.8005.020; Sun, 29 Sep 2024
- 08:04:04 +0000
-From: Shen Lichuan <shenlichuan@vivo.com>
-To: vneethv@linux.ibm.com,
-	oberpar@linux.ibm.com,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com
-Cc: borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	opensource.kernel@vivo.com,
-	Shen Lichuan <shenlichuan@vivo.com>
-Subject: [PATCH v1] s390/cio: Correct some typos in comments
-Date: Sun, 29 Sep 2024 16:03:53 +0800
-Message-Id: <20240929080353.11690-1-shenlichuan@vivo.com>
-X-Mailer: git-send-email 2.17.1
-Content-Type: text/plain
-X-ClientProxiedBy: TY2PR02CA0013.apcprd02.prod.outlook.com
- (2603:1096:404:56::25) To SEZPR06MB5899.apcprd06.prod.outlook.com
- (2603:1096:101:e3::16)
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="c16J43vL"
+Message-ID: <f60061bb-109a-4fa8-b419-07585cbb79e3@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1727611011;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=hAC//q1Q0snEPQ/btU6qHTHCF/zamSYZtJr8ip76b+8=;
+	b=c16J43vLB2hZPHz6tqz1HC9iB1xmdlprrXdGrQVKOfjC40iLWd8pDmUjeHHwgem1CKxzGL
+	Ng5nZZUJo8UqQRfBFImIqFuZFgu2gq6gdbZEYpu50omzXoS8Kf7yg0al9ZZIr83bb6Am1r
+	Z2sy3Fygp6gN4K2Tke2melQjUDtFCXU=
+Date: Sun, 29 Sep 2024 19:56:17 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SEZPR06MB5899:EE_|SEZPR06MB5764:EE_
-X-MS-Office365-Filtering-Correlation-Id: d0a01c94-b1a3-4765-f5d7-08dce05d491c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|52116014|366016|1800799024|38350700014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?k2jqiAnKSFIwJ8R7ddm60wvOJ0J7Ul+PziaR59YaByE1b4J4my1Bb2uZSCEI?=
- =?us-ascii?Q?bpn42eGx0ACsfwBIvLCWxFDLKlgKuEWldy06KZMTFY5Ht2KYEhIeJ7DSJ3XU?=
- =?us-ascii?Q?eU+54eeCPdvfzkLnIgn/ud4J9qXYmw7oDcjTHYLtMI2EOUjfxRrjU8VhK6xL?=
- =?us-ascii?Q?Ze33xhzm2j+qXVmYj07fBHDmqGt8Pt0dNo8d127wCxpAWufQFqfMhiLJ2WtA?=
- =?us-ascii?Q?+GWQOKynKphX0uDvGDB+gaxoDVeU6ZcBaa1IXsVwxCBYCJSFiD01k+askSHM?=
- =?us-ascii?Q?VFo0Dj0Y17zJliObfxSXF3g8x55WAIwMqFukAIU+FxpgUxM5cJYlsLT/MLfI?=
- =?us-ascii?Q?H4oPDRHkJPu5TXGXf49zbIOxelIEKpIRIw/rnxmUmHj1u0kkuUlN7Qqt2I+0?=
- =?us-ascii?Q?9Yo03fuDplZqdDUrYwv/84LM3VA6zsvqgqMlb0Yk41jMnQcxqbkvJOiE76sz?=
- =?us-ascii?Q?/S4vWU9N3KkVtncmGcq/AFekdyUo/103Wl/zuLIAlddoik/wGRo6yU6wvb2+?=
- =?us-ascii?Q?kXwHyvEnZlqIj99dE6wWiKokKYtz1qFDjTuwvInmkejuAUO2tAoXCRUTC1Hr?=
- =?us-ascii?Q?AgaiK7zdMQAXvfE78YxpWLLiB3ksQwuerZnOFAV2lKZ3WzYROKjSkG63hgJo?=
- =?us-ascii?Q?FTFMb1W+mpeBCqCRxvKnb2lX9KnRegQdqW46BkwhROHiFPOgpz4uDhz09g68?=
- =?us-ascii?Q?w0MRGk8OqSJDf1x4+hyWomexSYgOVShgkjy12gQ7clGM2T4DK5G4A3MRTJDN?=
- =?us-ascii?Q?EU8AsoJ+mlUsiLbf1IGYO8CcoI742X/4mU9Da5Oy6PPvhY8/7JiIe8d4jpF7?=
- =?us-ascii?Q?sBOm2ZQNjmFpQiN75gyv4zMO2MDlhCrP19PzFo3YIf79EylsuSLM97WkXaYb?=
- =?us-ascii?Q?rzhL6ot0oX0HPOAhlpVdrZweCj2ab6dd/wxPyFIGT0CGM/G7BmmVsjSDtjro?=
- =?us-ascii?Q?74Kt6cQuEH5Soz6qZnRMaaZTTXxsuXghJY5+4Rhwj8MWTg+6OHsFacqMxUJK?=
- =?us-ascii?Q?jmd/UUjJLy1b+nIK+PXoMSgMx+3xJipbDYxiJVHHljyWPLm+fk555wKRNC7O?=
- =?us-ascii?Q?3mknX6rLTrk5PQrX0kTo7ygsE+GSVDBBgLfzrIUOpxsZcwAxLpQRKIBtNHuH?=
- =?us-ascii?Q?wYQL7drix5Gg7YW9n0mhIaTHU26KDlyAO9zqrl8fq98ZsStkiNOzY2s8ixny?=
- =?us-ascii?Q?A23omcvGq7d4W0Os2MtefZENcwYklXxMLlr0NPDHovBkLhcJ6ea29vTKWx1z?=
- =?us-ascii?Q?iO+Y9SDNmV6lN7CnGhEh/oUP3A4B2DUFyeS+Bqm9b1qureae7uusufssqOUT?=
- =?us-ascii?Q?1vewLcqfywAUKHblLgpHaRu6ykkmJf0wd7BdldryFdvtJkT/PbYfjMhxx6CO?=
- =?us-ascii?Q?2S4m2R2egr3yO9X2LR3IdjMDLlN+6ARyMEO93DuY9hptdrGBgg=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEZPR06MB5899.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(52116014)(366016)(1800799024)(38350700014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?W09T36vs1Bfzq/VFtbpL37RJgCQP6da3R7VhBhAUdN+dGO9dDA5T6MsPwWA8?=
- =?us-ascii?Q?vG1ZQTOqgxXqaghnnEdslsxa65jd94YnLAy1NNJIvSyB9dSKwbb58zjcCWvi?=
- =?us-ascii?Q?aG5vMoXUgy8G3fB+sWoWVbXdlFQbn4+/ceqpWPmk9QE0KoAMN+dS4VOmiTgp?=
- =?us-ascii?Q?Gar86ArXwQdNX7qXbFQOk4xRg/5/pMYugcp39D9Dd+V4S7yRIeAkhwdxYpNi?=
- =?us-ascii?Q?iXa9wK80DxV6k9F/EAgR54xIuNFsHxkSZmTbHBk5TE0bghShhOs2TGw2KZTD?=
- =?us-ascii?Q?YAoI4LEczvcy2X9t0VgUZFbHkaJeZemTNTt7XpwE+ZtYcm41tcz8VcdFxT7b?=
- =?us-ascii?Q?+Xl4FNc1SAvbCS5w/HJ/rADz26MrVy1IFfUUSIG4tX8VvGulk3CwtvBWWUB5?=
- =?us-ascii?Q?82Sm54mMY/8RxFNgVDZf+BeWiQDdkc9TXhKGDcltFfgnBPWiBda6pg70+53Z?=
- =?us-ascii?Q?ldLpKwoB3TE9nvIBC2ZPTTg6KGh4FCqAPpLvE0/RlRS14PdIceqKxphO0Lna?=
- =?us-ascii?Q?aRsr2s0xPFvpdCGJLSVSISDbd1P0G4o1rOZIinN/JgMsACPYCkWvZ9nfTAtn?=
- =?us-ascii?Q?IDKVTi9lARduOs5UUUUQ9Fwj5I2TLFcd/LC1K+6kLPEj0UsjfO1tJsmr6kp9?=
- =?us-ascii?Q?lXOFDePKWj1Qdyc4oXldNWEuWgnp8hveWOewJOCHsokVP2Wb+IAKxgXaz697?=
- =?us-ascii?Q?Bz9lh6hshttQ6aM+GmQqXIg60mAKeFOtkodLdVv4xU6pdB9eyhNQA4/ixChC?=
- =?us-ascii?Q?rP96KOSrQAHvAoeKDZmmpIB9DbI/PW8Gb47ylc7u9DPtlDGp2k8bcQyprESc?=
- =?us-ascii?Q?FkeHD2nu63Uv8lwV5qkhLVaWEsYkMXGQh6uR9IPKCiSUd7xclaTTtOIUzG7P?=
- =?us-ascii?Q?AyXLztHpl07/oiSbtzDxIeYtajeVz0jFgQWxTAl0VIHxY/ttAJQguD8Sjz8D?=
- =?us-ascii?Q?SgjqPBWpteLNn8OnrUCiylysyjft+N+NPfasDs+JPI9HjtrggtD1gwiXe0EX?=
- =?us-ascii?Q?259juELItb+lBCYfbNi9KIZXsPry/yPSqy2/DvQQpNSai4ZGTHueoYfj2kUO?=
- =?us-ascii?Q?LyD6GCCwOqPwLFVKOqBrO05QkhSTHqHr0WUE7Daq+kweNRSM1P0Mo2z1NSxQ?=
- =?us-ascii?Q?tSqPz8gYUAJXUpLCF7J0bGYpD89ArKJ7OJuWaVZWeLVxvaxzGGF9bJOrzbh8?=
- =?us-ascii?Q?dIjH7RrxVItyTEcfuDU0INYgdQCfkEeg5+FORKNxzpfbcjqTo6kk4uTOxnFp?=
- =?us-ascii?Q?HBh7XTiN/CrSk4aZnvwDCo8GMgNunB65jGxUDUiMmNpgP04KpCLcu+JZ0BwH?=
- =?us-ascii?Q?ztBxS/HGHZ+RjHq7d1OgYvN/qrJPHpidOC/6OzUzBS/8rZ8NY5gWQ6sdOZ9u?=
- =?us-ascii?Q?rkSXJvCvdfx9FVgzmH/jmrIlDIJ/5ZYikHNJWe3rNQdpqx1tbpBwK4gli0qb?=
- =?us-ascii?Q?9RCM46ZoTqeDO8sBQJchpEDeRZ5BwKekrvqr9UVT4D8KttYDT9t7sifHnpwN?=
- =?us-ascii?Q?vL2lFQfbcudHA5J7MduQpw82oVK79Ps+s9+FXJhrJOgUVgN+ghdlBg7TFyVv?=
- =?us-ascii?Q?O42kv47MjW9IE+RGkxods1liNaYb6jJ4C9FZmLAq?=
-X-OriginatorOrg: vivo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d0a01c94-b1a3-4765-f5d7-08dce05d491c
-X-MS-Exchange-CrossTenant-AuthSource: SEZPR06MB5899.apcprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Sep 2024 08:04:04.4979
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: P+sMQHZHZt2HlWOQs96brUqevcUp0Uu+OZ1+kqL1EPZtJM3dvxK6daOuQt6KWmuVHbxRq2QkjQR9ovlTYj3O7g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SEZPR06MB5764
+Subject: Re: [RFC PATCH net-next v2] net/smc: Introduce a hook to modify
+ syn_smc at runtime
+To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+ wenjia@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com,
+ guwen@linux.alibaba.com
+Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+ tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com,
+ bpf@vger.kernel.org
+References: <1727408549-106551-1-git-send-email-alibuda@linux.alibaba.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
+In-Reply-To: <1727408549-106551-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-Fixed some confusing typos that were currently identified with codespell,
-the details are as follows:
+在 2024/9/27 11:42, D. Wythe 写道:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
+> 
+> The introduction of IPPROTO_SMC enables eBPF programs to determine
+> whether to use SMC based on the context of socket creation, such as
+> network namespaces, PID and comm name, etc.
+> 
+> As a subsequent enhancement, this patch introduces a new hook for eBPF
+> programs that allows decisions on whether to use SMC or not at runtime,
+> including but not limited to local/remote IP address or ports. In
+> simpler words, this feature allows modifications to syn_smc through eBPF
+> programs before the TCP three-way handshake got established.
+> 
+> Thanks to kfunc for making it easier for us to implement this feature in
+> SMC.
+> 
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> 
+> ---
+> v1 -> v2:
+> 1. Fix wrong use of ireq->smc_ok, should be rx_opt->smc_ok.
+> 2. Fix compile error when CONFIG_IPV6 or CONFIG_BPF_SYSCALL was not set.
+> 
+> ---
+>   include/linux/tcp.h  |  4 ++-
+>   net/ipv4/tcp_input.c |  4 +--
+>   net/smc/af_smc.c     | 75 ++++++++++++++++++++++++++++++++++++++++++++++------
+>   3 files changed, 72 insertions(+), 11 deletions(-)
+> 
+> diff --git a/include/linux/tcp.h b/include/linux/tcp.h
+> index 6a5e08b..d028d76 100644
+> --- a/include/linux/tcp.h
+> +++ b/include/linux/tcp.h
+> @@ -478,7 +478,9 @@ struct tcp_sock {
+>   #endif
+>   #if IS_ENABLED(CONFIG_SMC)
+>   	bool	syn_smc;	/* SYN includes SMC */
+> -	bool	(*smc_hs_congested)(const struct sock *sk);
+> +	void	(*smc_openreq_init)(struct request_sock *req,
+> +			     const struct tcp_options_received *rx_opt,
+> +			     struct sk_buff *skb, const struct sock *sk);
+>   #endif
+>   
+>   #if defined(CONFIG_TCP_MD5SIG) || defined(CONFIG_TCP_AO)
+> diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+> index 9f314df..99f34f5 100644
+> --- a/net/ipv4/tcp_input.c
+> +++ b/net/ipv4/tcp_input.c
+> @@ -7036,8 +7036,8 @@ static void tcp_openreq_init(struct request_sock *req,
+>   	ireq->ir_num = ntohs(tcp_hdr(skb)->dest);
+>   	ireq->ir_mark = inet_request_mark(sk, skb);
+>   #if IS_ENABLED(CONFIG_SMC)
+> -	ireq->smc_ok = rx_opt->smc_ok && !(tcp_sk(sk)->smc_hs_congested &&
+> -			tcp_sk(sk)->smc_hs_congested(sk));
+> +	if (rx_opt->smc_ok && tcp_sk(sk)->smc_openreq_init)
+> +		tcp_sk(sk)->smc_openreq_init(req, rx_opt, skb, sk);
+>   #endif
+>   }
+>   
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 0316217..fdac7e2b 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -70,6 +70,15 @@
+>   static void smc_tcp_listen_work(struct work_struct *);
+>   static void smc_connect_work(struct work_struct *);
+>   
+> +__bpf_hook_start();
+> +
+> +__weak noinline int select_syn_smc(const struct sock *sk, struct sockaddr *peer)
+> +{
+> +	return 1;
+> +}
+> +
+> +__bpf_hook_end();
+> +
+>   int smc_nl_dump_hs_limitation(struct sk_buff *skb, struct netlink_callback *cb)
+>   {
+>   	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
+> @@ -156,19 +165,43 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+>   	return NULL;
+>   }
+>   
+> -static bool smc_hs_congested(const struct sock *sk)
+> +static void smc_openreq_init(struct request_sock *req,
+> +			     const struct tcp_options_received *rx_opt,
+> +			     struct sk_buff *skb, const struct sock *sk)
+>   {
+> +	struct inet_request_sock *ireq = inet_rsk(req);
+> +	struct sockaddr_storage rmt_sockaddr = {0};
 
--in the code comments:
-drivers/s390/cio/chsc.c:379: EBCIDC ==> EBCDIC
-drivers/s390/cio/cio.h:22: sublass ==> subclass
-drivers/s390/cio/cmf.c:49: exended ==> extended
-drivers/s390/cio/cmf.c:138: sinlge ==> single
-drivers/s390/cio/cmf.c:1230: Reenable ==> Re-enable
+A trivial problem.
 
-Signed-off-by: Shen Lichuan <shenlichuan@vivo.com>
----
- drivers/s390/cio/chsc.c | 2 +-
- drivers/s390/cio/cio.h  | 2 +-
- drivers/s390/cio/cmf.c  | 6 +++---
- 3 files changed, 5 insertions(+), 5 deletions(-)
+The following should be better?
 
-diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
-index dcc1e1c34ca2..a86b05d14005 100644
---- a/drivers/s390/cio/chsc.c
-+++ b/drivers/s390/cio/chsc.c
-@@ -376,7 +376,7 @@ struct lir {
- #define PARAMS_LEN	10	/* PARAMS=xx,xxxxxx */
- #define NODEID_LEN	35	/* NODEID=tttttt/mdl,mmm.ppssssssssssss,xxxx */
- 
--/* Copy EBCIDC text, convert to ASCII and optionally add delimiter. */
-+/* Copy EBCDIC text, convert to ASCII and optionally add delimiter. */
- static char *store_ebcdic(char *dest, const char *src, unsigned long len,
- 			  char delim)
- {
-diff --git a/drivers/s390/cio/cio.h b/drivers/s390/cio/cio.h
-index a9057a5b670a..08a5e9380e75 100644
---- a/drivers/s390/cio/cio.h
-+++ b/drivers/s390/cio/cio.h
-@@ -19,7 +19,7 @@ struct pmcw {
- 	u32 intparm;		/* interruption parameter */
- 	u32 qf	 : 1;		/* qdio facility */
- 	u32 w	 : 1;
--	u32 isc  : 3;		/* interruption sublass */
-+	u32 isc  : 3;		/* interruption subclass */
- 	u32 res5 : 3;		/* reserved zeros */
- 	u32 ena  : 1;		/* enabled */
- 	u32 lm	 : 2;		/* limit mode */
-diff --git a/drivers/s390/cio/cmf.c b/drivers/s390/cio/cmf.c
-index f80dc18e2a76..314d53d365d1 100644
---- a/drivers/s390/cio/cmf.c
-+++ b/drivers/s390/cio/cmf.c
-@@ -46,7 +46,7 @@
- /* indices for READCMB */
- enum cmb_index {
- 	avg_utilization = -1,
-- /* basic and exended format: */
-+ /* basic and extended format: */
- 	cmb_ssch_rsch_count = 0,
- 	cmb_sample_count,
- 	cmb_device_connect_time,
-@@ -135,7 +135,7 @@ static inline u64 time_to_nsec(u32 value)
-  * Users are usually interested in average times,
-  * not accumulated time.
-  * This also helps us with atomicity problems
-- * when reading sinlge values.
-+ * when reading single values.
-  */
- static inline u64 time_to_avg_nsec(u32 value, u32 count)
- {
-@@ -1227,7 +1227,7 @@ int cmf_readall(struct ccw_device *cdev, struct cmbdata *data)
- 	return cmbops->readall(cdev, data);
- }
- 
--/* Reenable cmf when a disconnected device becomes available again. */
-+/* Re-enable cmf when a disconnected device becomes available again. */
- int cmf_reenable(struct ccw_device *cdev)
- {
- 	cmbops->reset(cdev);
--- 
-2.17.1
+struct sockaddr_storage rmt_sockaddr = {};
+
+I think, we have discussed this problem in RDMA maillist for several times.
+
+Zhu Yanjun
+
+>   	const struct smc_sock *smc;
+>   
+>   	smc = smc_clcsock_user_data(sk);
+>   
+>   	if (!smc)
+> -		return true;
+> +		return;
+>   
+> -	if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
+> -		return true;
+> +	if (smc->limit_smc_hs && workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
+> +		goto out_no_smc;
+>   
+> -	return false;
+> +	rmt_sockaddr.ss_family = sk->sk_family;
+> +
+> +	if (rmt_sockaddr.ss_family == AF_INET) {
+> +		struct sockaddr_in *rmt4_sockaddr =  (struct sockaddr_in *)&rmt_sockaddr;
+> +
+> +		rmt4_sockaddr->sin_addr.s_addr = ireq->ir_rmt_addr;
+> +		rmt4_sockaddr->sin_port	= ireq->ir_rmt_port;
+> +#if IS_ENABLED(CONFIG_IPV6)
+> +	} else {
+> +		struct sockaddr_in6 *rmt6_sockaddr =  (struct sockaddr_in6 *)&rmt_sockaddr;
+> +
+> +		rmt6_sockaddr->sin6_addr = ireq->ir_v6_rmt_addr;
+> +		rmt6_sockaddr->sin6_port = ireq->ir_rmt_port;
+> +#endif /* CONFIG_IPV6 */
+> +	}
+> +
+> +	ireq->smc_ok = select_syn_smc(sk, (struct sockaddr *)&rmt_sockaddr);
+> +	return;
+> +out_no_smc:
+> +	ireq->smc_ok = 0;
+> +	return;
+>   }
+>   
+>   struct smc_hashinfo smc_v4_hashinfo = {
+> @@ -1671,7 +1704,7 @@ int smc_connect(struct socket *sock, struct sockaddr *addr,
+>   	}
+>   
+>   	smc_copy_sock_settings_to_clc(smc);
+> -	tcp_sk(smc->clcsock->sk)->syn_smc = 1;
+> +	tcp_sk(smc->clcsock->sk)->syn_smc = select_syn_smc(sk, addr);
+>   	if (smc->connect_nonblock) {
+>   		rc = -EALREADY;
+>   		goto out;
+> @@ -2650,8 +2683,7 @@ int smc_listen(struct socket *sock, int backlog)
+>   
+>   	inet_csk(smc->clcsock->sk)->icsk_af_ops = &smc->af_ops;
+>   
+> -	if (smc->limit_smc_hs)
+> -		tcp_sk(smc->clcsock->sk)->smc_hs_congested = smc_hs_congested;
+> +	tcp_sk(smc->clcsock->sk)->smc_openreq_init = smc_openreq_init;
+>   
+>   	rc = kernel_listen(smc->clcsock, backlog);
+>   	if (rc) {
+> @@ -3475,6 +3507,24 @@ static void __net_exit smc_net_stat_exit(struct net *net)
+>   	.exit = smc_net_stat_exit,
+>   };
+>   
+> +#if IS_ENABLED(CONFIG_BPF_SYSCALL)
+> +BTF_SET8_START(bpf_smc_fmodret_ids)
+> +BTF_ID_FLAGS(func, select_syn_smc)
+> +BTF_SET8_END(bpf_smc_fmodret_ids)
+> +
+> +static const struct btf_kfunc_id_set bpf_smc_fmodret_set = {
+> +	.owner = THIS_MODULE,
+> +	.set   = &bpf_smc_fmodret_ids,
+> +};
+> +
+> +static int bpf_smc_kfunc_init(void)
+> +{
+> +	return register_btf_fmodret_id_set(&bpf_smc_fmodret_set);
+> +}
+> +#else
+> +static inline int bpf_smc_kfunc_init(void) { return 0; }
+> +#endif /* CONFIG_BPF_SYSCALL */
+> +
+>   static int __init smc_init(void)
+>   {
+>   	int rc;
+> @@ -3574,8 +3624,17 @@ static int __init smc_init(void)
+>   		pr_err("%s: smc_inet_init fails with %d\n", __func__, rc);
+>   		goto out_ulp;
+>   	}
+> +
+> +	rc = bpf_smc_kfunc_init();
+> +	if (rc) {
+> +		pr_err("%s: bpf_smc_kfunc_init fails with %d\n", __func__, rc);
+> +		goto out_inet;
+> +	}
+> +
+>   	static_branch_enable(&tcp_have_smc);
+>   	return 0;
+> +out_inet:
+> +	smc_inet_exit();
+>   out_ulp:
+>   	tcp_unregister_ulp(&smc_ulp_ops);
+>   out_lo:
 
