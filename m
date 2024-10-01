@@ -1,139 +1,158 @@
-Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com [209.85.208.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F8CA18734F
-	for <linux-s390@vger.kernel.org>; Tue,  1 Oct 2024 07:46:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2A8A3209
+	for <linux-s390@vger.kernel.org>; Tue,  1 Oct 2024 10:29:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727768783; cv=none; b=CDTdyDEkewwIA9EQykP4iEm5FHbyizBZePZ5+tCLMxLp1UyIIuIhFDrnDbWDBdUj5J+FQlTsrKyMOutFR6ml8QJf/9Lw2Lp2jn/Ti0MHHv3/XXq/V3gnl2VHRqhU29auOzLfNeIpCDsTEb8C0mvRsv8Ia83N8Mm1aUGzfYUKd7Q=
+	t=1727778592; cv=none; b=BrayYrRpwCpIt47IywCzCavAz3aEm/jIZvKOu3puWQNTNB5Ekp20d1Ef+XtkxQzJ5e8At3pj0DY59Fpk0mPvDt/7WXos8B4aiQ/P/te+uOzqmjRBGAcbJw6BYGmA0v3+4CSBFS0Lbftb3GZcTxkLia3YWWA2PUg/EBb/GISvA3w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727768783; c=relaxed/simple;
-	bh=75GbCvsDPfTfWT52QVH4Vr8BxS8wf8WVGn2GuLMi+gU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=H/WO8q+UaQ8+srwsVqr6N2MR+8dV8IcVP373sl4NHtc02hC51t9vnEL2CZ8sXdXqqBzlvFpcVLtW6314UhjPReQB1CHu6Nd4+G/pC8bL4jAhZlSX8nKIOlxFi1xB75EcO/er/X5kpXfSu5rbVqURMlQ9KQl9bOGf6Erasj/u3nk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=SMLpjOZo; arc=none smtp.client-ip=209.85.208.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1727778592; c=relaxed/simple;
+	bh=pe4Zj15kJgX2ARZLwJTKlT1nuioo+TiEEsNHTX8/T1w=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=m0Mrersqoj4kYU+30YAA5yMFF1yf+FPGgI4oZY4WImss5fPcKNb8iM7yiclGblc8lui68npesk1reqJGJHFVINYSQYS2Ic+8diztdkkObCOZctmQWeWKePjlZ7TIuLxmlwScPdgyxxjQ9u/lzv1KsyJ9PKKMzB1lIQXcMZjPV9M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=odvpEnER; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="SMLpjOZo"
-Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-2fabe5c8c26so29464061fa.2
-        for <linux-s390@vger.kernel.org>; Tue, 01 Oct 2024 00:46:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1727768779; x=1728373579; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ynnBOQu5jKcdwW9PqPnVpG86Xh9a0SR19wYZwjvIMCc=;
-        b=SMLpjOZoEVPijk96Sz3d9Xn5QqPXowDrHx7SwUEPJQlf36FHVT2brPX1aMJlLLD7SN
-         4Bgres+UbUqbWCLsTKmEMHZ31oGLqdjgYudaHcZ0R+OYxsmk2ybjIhwJ0sOTmVTqGIPg
-         qwniviVe13sE0VI+YBIvKrxdNpwW11V3kxpSSvZwZKgJiMw+OpVYNKC4Agv/COtiFI2Q
-         4a9RpqoHSma0sG6IfhWOgJ5QlOz/IGNJWeMrzuKBTepMT5Tu5zN58yxeRt3vzlI/6ycE
-         5jLrFhwRLg0HffnntafwM8nw2uiADJjnkjQhuicvz0oYKJhpiMwn7W+LZreO4fdpfdHD
-         t/Pg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727768779; x=1728373579;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ynnBOQu5jKcdwW9PqPnVpG86Xh9a0SR19wYZwjvIMCc=;
-        b=s5EaN2TSwNhr5ByT/z8UwHgV5Aoybf4r74x9kHPdHmZVwBFcvfEfbF6jMUxKNab1h7
-         JQ1bPaI42e32et4tpCw7MAtAJC8CD0WXmiaHpQWLmf8+oA7283kf1u6vh3XXC6eK3qK/
-         ut3sMny/u+BEt/4747T0MeiydrKZUYHdM4I3QIluU3yN+6s/2Ka3X3HqXcw5+vtdbwRH
-         Txn4+pUTatBt30steqMpEbTI0R3ueWx2oV0VnD5p2T/cSgBLEWeQf5KB/1p260K+Keoz
-         9ViMDmBOdJ4GpF2nyJ0IVtDSt6kTJxnk4aXgZ04Sw1UPW2IuB3No4NbW277NUD3tX0rW
-         WWRw==
-X-Forwarded-Encrypted: i=1; AJvYcCUoKVWbTe3A17FGr2aublGFo6dRfLvcNfa3bd5P/Y17PA3riJvgmcLzOp3T4mJ5KqA/aZXYAzc+8j0f@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywi79oMr6dLkIaRAXoj/b0z8TND7F7HZiFVrhfDCVZb7dXnj5vu
-	odSU7pRXSivIYRWOqevh/i+r10rl9w7V5YQ70O8JaecVz+flD0+F1T3jqCjIpSiDrsu7OvDvRvS
-	AzUXSe4Wav5jaBeZIcZCdy1VN1cSxZPj2JdTc
-X-Google-Smtp-Source: AGHT+IG717hKYQkWLEUJ9n/QVTFoCBkUqv7RsNeb0V8VYrRgY9IO85RxZxs/Ul3475IlMynefAxO1iDD/72W/ERXM1M=
-X-Received: by 2002:a05:651c:221b:b0:2fa:cb44:7bde with SMTP id
- 38308e7fff4ca-2facb448132mr36476601fa.4.1727768779014; Tue, 01 Oct 2024
- 00:46:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="odvpEnER"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4916LVWF011804;
+	Tue, 1 Oct 2024 10:29:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:in-reply-to:references
+	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
+	VG3OfmvRm7AEmTWv1uILD0B/40IGpSJhbrITCHAcZ5Q=; b=odvpEnERntXHrHVk
+	Yp1GAH3YkMbbayIY4Jb4p3dKxcTUAiEhoycBGIvzSQFOqtOAbnH4YFjma9TVTi6O
+	zxPUmfmV64Sy5bhISku6Sp8hajV2WbUaC+8tnC1f+QcWQgrBxdLVwXQSZKAZilh7
+	h/c/tWvvx6B+COIIjNLraGi9JhlbzZEzKjoMJWJi5AeTwyTtAjg201sQgSdcuQde
+	D91YmEU6lXSLbPhcUtSt2ahjR1kD62MS62clq8N1qN6mPJXwgAMTH0/sIZtAM/82
+	GrpLY9lH1jp2Wi7PSkr8eP7sqX9Ek8Uo45MlvTIhLIB6iHZdfXFeo3Pqo5AwUp/q
+	FlXE/Q==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 420bqs166g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 01 Oct 2024 10:29:32 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 491AKLcN013047;
+	Tue, 1 Oct 2024 10:29:31 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 41xxbjbffg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 01 Oct 2024 10:29:31 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 491ATSSH56295798
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 1 Oct 2024 10:29:28 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4C7B420043;
+	Tue,  1 Oct 2024 10:29:28 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4507E20040;
+	Tue,  1 Oct 2024 10:29:27 +0000 (GMT)
+Received: from thinkpad-T15 (unknown [9.171.59.94])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Tue,  1 Oct 2024 10:29:27 +0000 (GMT)
+Date: Tue, 1 Oct 2024 12:29:25 +0200
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To: Dan Williams <dan.j.williams@intel.com>
+Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        Christian
+ Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>, Jan Kara <jack@suse.cz>,
+        Matthew Wilcox
+ <willy@infradead.org>, Christoph Hellwig <hch@lst.de>,
+        Alistair Popple
+ <apopple@nvidia.com>, linux-s390@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] dcssblk: Mark DAX broken
+Message-ID: <20241001122925.52558c08@thinkpad-T15>
+In-Reply-To: <172721874675.497781.3277495908107141898.stgit@dwillia2-xfh.jf.intel.com>
+References: <172721874675.497781.3277495908107141898.stgit@dwillia2-xfh.jf.intel.com>
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=US-ASCII
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ruMcx1VKO3ZyLX4ztnq2rFmxFuw6PeE0
+X-Proofpoint-ORIG-GUID: ruMcx1VKO3ZyLX4ztnq2rFmxFuw6PeE0
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241001015555.144669-1-danielyangkang@gmail.com>
- <20241001030349.97635-1-kuniyu@amazon.com> <CAGiJo8Rmr2JJ0cCuGDGUeM-fNXdF1L1==bBqJdcCxBkJUTHzuw@mail.gmail.com>
-In-Reply-To: <CAGiJo8Rmr2JJ0cCuGDGUeM-fNXdF1L1==bBqJdcCxBkJUTHzuw@mail.gmail.com>
-From: Eric Dumazet <edumazet@google.com>
-Date: Tue, 1 Oct 2024 09:46:04 +0200
-Message-ID: <CANn89iLcxMi=AnhyFTgAoiCznFPCoKdjKVZbHMZMQ9dgK6xXnw@mail.gmail.com>
-Subject: Re: [PATCH] fixed rtnl deadlock from gtp
-To: Daniel Yang <danielyangkang@gmail.com>
-Cc: Kuniyuki Iwashima <kuniyu@amazon.com>, alibuda@linux.alibaba.com, davem@davemloft.net, 
-	guwen@linux.alibaba.com, jaka@linux.ibm.com, kuba@kernel.org, 
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	netdev@vger.kernel.org, pabeni@redhat.com, 
-	syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com, 
-	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-01_07,2024-09-30_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
+ clxscore=1011 lowpriorityscore=0 suspectscore=0 mlxlogscore=999
+ bulkscore=0 phishscore=0 spamscore=0 adultscore=0 impostorscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2410010066
 
-On Tue, Oct 1, 2024 at 6:54=E2=80=AFAM Daniel Yang <danielyangkang@gmail.co=
-m> wrote:
->
-> Ok I see the issue. Yes it does seem to be a false positive. Then do we a=
-lready have lockdep classes and subclasses set up for lock_sock() to preven=
-t other false positives like this one? If not, should I add one then to res=
-olve this?
->
+On Tue, 24 Sep 2024 15:59:08 -0700
+Dan Williams <dan.j.williams@intel.com> wrote:
 
-Please  do not top post on linux mailing lists
+> The dcssblk driver has long needed special case supoprt to enable
+> limited dax operation, so called CONFIG_FS_DAX_LIMITED. This mode
+> works around the incomplete support for ZONE_DEVICE on s390 by forgoing
+> the ability of dax-mapped pages to support GUP.
+> 
+> Now, pending cleanups to fsdax that fix its reference counting [1] depend on
+> the ability of all dax drivers to supply ZONE_DEVICE pages.
+> 
+> To allow that work to move forward, dax support needs to be paused for
+> dcssblk until ZONE_DEVICE support arrives. That work has been known for
+> a few years [2], and the removal of "pte_devmap" requirements [3] makes the
+> conversion easier.
 
-About your question :
-https://lore.kernel.org/netdev/CANn89iKcWmufo83xy-SwSrXYt6UpL2Pb+5pWuzyYjMv=
-a5F8bBQ@mail.gmail.com/
+Thanks, that's great news! Without requiring the extra PTE bit, it should
+now finally be possible to add struct pages and ZONE_DEVICE support for
+dcssblk.
 
+In the meantime, it is OK to pause the DAX support for dcssblk as you
+suggested, and finally remove that ugly CONFIG_FS_DAX_LIMITED. Thanks
+for bearing with us for so long!
 
-> On Mon, Sep 30, 2024 at 8:04=E2=80=AFPM Kuniyuki Iwashima <kuniyu@amazon.=
-com> wrote:
->>
->> From: Daniel Yang <danielyangkang@gmail.com>
->> Date: Mon, 30 Sep 2024 18:55:54 -0700
->> > Fixes deadlock described in this bug:
->> > https://syzkaller.appspot.com/bug?extid=3De953a8f3071f5c0a28fd.
->> > Specific crash report here:
->> > https://syzkaller.appspot.com/text?tag=3DCrashReport&x=3D14670e0798000=
-0.
->> >
->> > DESCRIPTION OF ISSUE
->> > Deadlock: sk_lock-AF_INET --> &smc->clcsock_release_lock --> rtnl_mute=
-x
->> >
->> > rtnl_mutex->sk_lock-AF_INET
->> > rtnetlink_rcv_msg() acquires rtnl_lock() and calls rtnl_newlink(), whi=
-ch
->> > eventually calls gtp_newlink() which calls lock_sock() to attempt to
->> > acquire sk_lock.
->>
->> Is the deadlock real ?
->>
->> From the lockdep splat, the gtp's sk_protocol is verified to be
->> IPPROTO_UDP before holding lock_sock(), so it seems just a labeling
->> issue.
->> https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/tree=
-/drivers/net/gtp.c?id=3D9410645520e9b820069761f3450ef6661418e279#n1674
->>
->>
->> >
->> > sk_lock-AF_INET->&smc->clcsock_release_lock
->> > smc_sendmsg() calls lock_sock() to acquire sk_lock, then calls
->> > smc_switch_to_fallback() which attempts to acquire mutex_lock(&smc->..=
-.).
->> >
->> > &smc->clcsock_release_lock->rtnl_mutex
->> > smc_setsockopt() calls mutex_lock(&smc->...). smc->...->setsockopt() i=
-s
->> > called, which calls nf_setsockopt() which attempts to acquire
->> > rtnl_lock() in some nested call in start_sync_thread() in ip_vs_sync.c=
-.
->> >
->> > FIX:
->> > In smc_switch_to_fallback(), separate the logic into inline function
->> > __smc_switch_to_fallback(). In smc_sendmsg(), lock ordering can be
->> > modified and the functionality of smc_switch_to_fallback() is
->> > encapsulated in the __smc_switch_to_fallback() function.
+> 
+> For now, place the support behind CONFIG_BROKEN, and remove PFN_SPECIAL
+> (dcssblk was the only user).
+
+Ok, I guess that PFN_SPECIAL was there because we had no struct pages for
+the DCSS memory. When we come back, with proper ZONE_DEVICE and struct
+pages, it should not be needed any more.
+
+And yes, the chance to completely remove pfn_t, after Alistair's series,
+is quite impressive and even more motivation than CONFIG_FS_DAX_LIMITED.
+
+> 
+> Link: http://lore.kernel.org/cover.9f0e45d52f5cff58807831b6b867084d0b14b61c.1725941415.git-series.apopple@nvidia.com [1]
+> Link: http://lore.kernel.org/20210820210318.187742e8@thinkpad/ [2]
+> Link: http://lore.kernel.org/4511465a4f8429f45e2ac70d2e65dc5e1df1eb47.1725941415.git-series.apopple@nvidia.com [3]
+> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: Jan Kara <jack@suse.cz>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Cc: Christoph Hellwig <hch@lst.de>
+> Cc: Alistair Popple <apopple@nvidia.com>
+> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+> ---
+>  drivers/s390/block/Kconfig   |   12 ++++++++++--
+>  drivers/s390/block/dcssblk.c |   26 +++++++++++++++++---------
+>  fs/Kconfig                   |    9 +--------
+>  fs/dax.c                     |   12 ------------
+>  include/linux/pfn_t.h        |   15 ---------------
+>  mm/memory.c                  |    2 --
+>  mm/memremap.c                |    4 ----
+>  7 files changed, 28 insertions(+), 52 deletions(-)
+
+When you also remove the now unused dax_dev definition at the top of
+dcssblk_add_store(), as noticed by kernel test robot:
+
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
