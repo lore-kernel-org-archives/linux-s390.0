@@ -1,148 +1,139 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 557091A0729;
-	Tue,  1 Oct 2024 10:44:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87CF719DF53;
+	Tue,  1 Oct 2024 11:36:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727779461; cv=none; b=HQ6t3UPdGAvtO6KZq8JNYUZjH18qt2Ql93Kn6aHP5RSDs/JlSZoNgPdwqnQpC+mjwtHbW7+p49NwLqv+5+ivjDuPpajS6FF9rf1OW7jMildSZrCTg2FxxtMqdcXKGydM3EKv950cPcvlcGBQAbfvYXeqHu9k28BMojCfGgmBskI=
+	t=1727782612; cv=none; b=M5BgqQPWukFFSs0UbaZa+HO3NEv+73areiMnjuKkelr+YVvdTVwbbfuviBPQu6qT6VlQxnrWpsgenQCVZeSTvaXqW3OCcc0zacXILyvKBpG8v+6gDxoiuQl5v+yDey3wCAsFhonXqT1LZUDPMNzhsmeOk+C84kyJWO18tmIXw1c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727779461; c=relaxed/simple;
-	bh=R4W9StWya2ct3GHl8Bmf6USziiauPBQvJXVwXG/ZQr4=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=SXvcRhPrajleP3SgNv3aERraFeaAYvr64mCZ65YP51HIR0ETcq7nAQEneUcQCSx7oZ2Tvo34rjicFjbPm5CeXyugVJl8W/9eyTW3vSvHmAQxNCRSheamXmBEUAdStVrTRRUEsj5HLIF7kfu53voF/OCdFXOEg7c59scNSuBTxmY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pBxk9Pfm; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1727782612; c=relaxed/simple;
+	bh=KtnwUbDlnTWrZb+5TISHm6XStVpESDiZeL6CpOZPMWY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HKnUhBLFoz8uTWn8LkRDf0dSopyax+oMUK8QpLj74S1aYjZBIm0F9LtoS44sFHCMBljbSx2mXwe5xMyR4QvGlWz/bn/zQvFahJi6MpBs7x1/TxH0WyKvYbSdNyTAvd/FIw4FANg+TTGZRsbAcNRQBaWWoBtJK/KBThzOQK4ZKUc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eyMa8FEM; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pBxk9Pfm"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4918rlWA024393;
-	Tue, 1 Oct 2024 10:43:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:in-reply-to:references
-	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
-	EbBiI8fSH5VnllJ71ly5Ye4ZTPDlUiVslkZDSkOv6TM=; b=pBxk9Pfm6EsDfF8Q
-	iqUeM1FnmtgX53pJ0O39C77AAcD1MIdHs8EzC5/ri4wCzexHaBfbeu3XYa1MNuhr
-	eJrsmHuxPqK6cm0vGct98JM4U0+BUpFDBIcM75UI2ScI5N02e5xkS/ZCRMd7H282
-	0Azl1ZgHYpCgJ3MZcAcj0rOj98AnwTvyYi5mze3SorxyYhOkaYp2FtXLOXNJcI52
-	vEg06YOiEqDQ16vL/o7a57SNphNSGtYUIFyzUt0oHvIjsnMTnIidLPO3Lj1/hyEz
-	LsPSeSPcRqZNO/wijZXbh9gF2+zp3bNZDbNFs7t3r9v9lstbldRgfcOJYDlRXbAa
-	2FQ1xA==
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eyMa8FEM"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4918lgCw014805;
+	Tue, 1 Oct 2024 11:36:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:mime-version
+	:content-transfer-encoding; s=pp1; bh=+Bqk3DtHBhctA+KxcnFd10SbPo
+	t620EatMuw5YL3J1Y=; b=eyMa8FEMrugqZlNJs/fbYSKpP7RNR/NcOWjd9AOe2t
+	Qy94rWjpTmNAT7+pVU/bgGbOOJqI7yKMbPbGIXHDJG6dq6Ot2IffHnnnA5IhUmlL
+	x9dJfbmPQC84m7H4BA68PUAX4TzL++1BNpjUwxZyc6JaCgoBrvP37ZBoblj+rBwU
+	3+ia4y8CkPuGn4Qy5FpwkNz/JhWn2MfZZyykiJUZLzYaztunbKc72u0dTv2VHhoj
+	wvIpHXAqQ2tILBYegEWrapkXDfy/XKO1qVeFXE5lrvqVTOmgtAp9dUmb+Hd7ATo9
+	hmMj5ELHxb7APfVrkpRrI7lPXooQ6vfDZXJBW5uByZcg==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 420ckngyg5-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 420c5b9dcv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Oct 2024 10:43:19 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 491Adrbv020483;
-	Tue, 1 Oct 2024 10:43:18 GMT
+	Tue, 01 Oct 2024 11:36:48 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 491BamSA004550;
+	Tue, 1 Oct 2024 11:36:48 GMT
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 420ckngyfy-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 420c5b9dct-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Oct 2024 10:43:18 +0000 (GMT)
+	Tue, 01 Oct 2024 11:36:48 +0000 (GMT)
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 491AViee002356;
-	Tue, 1 Oct 2024 10:43:17 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 41xxu13f3a-1
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 491AZgbL002840;
+	Tue, 1 Oct 2024 11:36:47 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 41xxu13pv9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Oct 2024 10:43:17 +0000
+	Tue, 01 Oct 2024 11:36:47 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 491AhD4A18284834
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 491Bafh739059952
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 1 Oct 2024 10:43:13 GMT
+	Tue, 1 Oct 2024 11:36:41 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6B84420049;
-	Tue,  1 Oct 2024 10:43:13 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 59D6E20049;
+	Tue,  1 Oct 2024 11:36:41 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8521C20040;
-	Tue,  1 Oct 2024 10:43:11 +0000 (GMT)
-Received: from thinkpad-T15 (unknown [9.171.59.94])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Tue,  1 Oct 2024 10:43:11 +0000 (GMT)
-Date: Tue, 1 Oct 2024 12:43:09 +0200
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To: Dan Williams <dan.j.williams@intel.com>
-Cc: Alistair Popple <apopple@nvidia.com>, <linux-mm@kvack.org>,
-        <vishal.l.verma@intel.com>, <dave.jiang@intel.com>,
-        <logang@deltatee.com>, <bhelgaas@google.com>, <jack@suse.cz>,
-        <jgg@ziepe.ca>, <catalin.marinas@arm.com>, <will@kernel.org>,
-        <mpe@ellerman.id.au>, <npiggin@gmail.com>,
-        <dave.hansen@linux.intel.com>, <ira.weiny@intel.com>,
-        <willy@infradead.org>, <djwong@kernel.org>, <tytso@mit.edu>,
-        <linmiaohe@huawei.com>, <david@redhat.com>, <peterx@redhat.com>,
-        <linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linuxppc-dev@lists.ozlabs.org>, <nvdimm@lists.linux.dev>,
-        <linux-cxl@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
-        <linux-ext4@vger.kernel.org>, <linux-xfs@vger.kernel.org>,
-        <jhubbard@nvidia.com>, <hch@lst.de>, <david@fromorbit.com>,
-        <hca@linux.ibm.com>, <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
-        <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH 05/12] mm/memory: Add dax_insert_pfn
-Message-ID: <20241001124309.782004b8@thinkpad-T15>
-In-Reply-To: <66ef75e59c7ea_109b5294d1@dwillia2-mobl3.amr.corp.intel.com.notmuch>
-References: <cover.9f0e45d52f5cff58807831b6b867084d0b14b61c.1725941415.git-series.apopple@nvidia.com>
-	<110d5b177d793ab17ea5d1210606cb7dd0f82493.1725941415.git-series.apopple@nvidia.com>
-	<66ef75e59c7ea_109b5294d1@dwillia2-mobl3.amr.corp.intel.com.notmuch>
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
-Content-Type: text/plain; charset=US-ASCII
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: mLp8W3ZTWJaathMCFPKloMnlrxlln_bF
-X-Proofpoint-ORIG-GUID: 5FfpjjtfUKsGqxfrBWkGoY0YounV3Quc
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	by IMSVA (Postfix) with ESMTP id 2238F20040;
+	Tue,  1 Oct 2024 11:36:41 +0000 (GMT)
+Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  1 Oct 2024 11:36:41 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: nrb@linux.ibm.com, frankja@linux.ibm.com, borntraeger@de.ibm.com,
+        david@redhat.com, thuth@redhat.com, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v1 1/1] s390x: edat: test 2G large page spanning end of memory
+Date: Tue,  1 Oct 2024 13:36:40 +0200
+Message-ID: <20241001113640.55210-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.46.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: fQUXkazznd97-_rjQnY_I1q8WQtSbxjI
+X-Proofpoint-ORIG-GUID: 27tUoZKWg7jmwGwfoC2jGRMCrNTSUzBv
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-01_07,2024-09-30_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=928
- mlxscore=0 priorityscore=1501 clxscore=1011 spamscore=0 lowpriorityscore=0
- adultscore=0 impostorscore=0 phishscore=0 suspectscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
- definitions=main-2410010066
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 priorityscore=1501 clxscore=1015 adultscore=0 mlxscore=0
+ mlxlogscore=955 impostorscore=0 malwarescore=0 spamscore=0 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2410010075
 
-On Sun, 22 Sep 2024 03:41:57 +0200
-Dan Williams <dan.j.williams@intel.com> wrote:
+Create a region 3 table with fc=1 (i.e. a 2G large page) mapping across the
+end of memory.
 
-> [ add s390 folks to comment on CONFIG_FS_DAX_LIMITED ]
+Check that the part of the large page before the end of memory is accessible,
+and the part that is after the end of memory is not.
 
-[...]
+Also fix a typo in the existing edat2 test.
 
-> > @@ -2516,6 +2545,44 @@ static vm_fault_t __vm_insert_mixed(struct vm_area_struct *vma,
-> >  	return VM_FAULT_NOPAGE;
-> >  }
-> >  
-> > +vm_fault_t dax_insert_pfn(struct vm_fault *vmf, pfn_t pfn_t, bool write)
-> > +{
-> > +	struct vm_area_struct *vma = vmf->vma;
-> > +	pgprot_t pgprot = vma->vm_page_prot;
-> > +	unsigned long pfn = pfn_t_to_pfn(pfn_t);
-> > +	struct page *page = pfn_to_page(pfn);  
-> 
-> The problem here is that we stubbornly have __dcssblk_direct_access() to
-> worry about. That is the only dax driver that does not return
-> pfn_valid() pfns.
-> 
-> In fact, it looks like __dcssblk_direct_access() is the only thing
-> standing in the way of the removal of pfn_t.
-> 
-> It turns out it has been 3 years since the last time the question of
-> bringing s390 fully into the ZONE_DEVICE regime was raised:
-> 
-> https://lore.kernel.org/all/20210820210318.187742e8@thinkpad/
-> 
-> Given that this series removes PTE_DEVMAP which was a stumbling block,
-> would it be feasible to remove CONFIG_FS_DAX_LIMITED for a few kernel
-> cycles until someone from the s390 side can circle back to add full
-> ZONE_DEVICE support?
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ s390x/edat.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-Yes, see also my reply to your "dcssblk: Mark DAX broken" patch.
-Thanks Alistair for your effort, making ZONE_DEVICE usable w/o extra
-PTE bit!
+diff --git a/s390x/edat.c b/s390x/edat.c
+index 16138397..1f582efc 100644
+--- a/s390x/edat.c
++++ b/s390x/edat.c
+@@ -196,6 +196,8 @@ static void test_edat1(void)
+ 
+ static void test_edat2(void)
+ {
++	uint64_t mem_end, i;
++
+ 	report_prefix_push("edat2");
+ 	p[0] = 42;
+ 
+@@ -206,7 +208,21 @@ static void test_edat2(void)
+ 	/* Prefixing should not work with huge pages, just like large pages */
+ 	report(!memcmp(0, VIRT(prefix_buf), LC_SIZE) &&
+ 		!memcmp(prefix_buf, VIRT(0), LC_SIZE),
+-		"pmd, large, prefixing");
++		"pud, large, prefixing");
++
++	mem_end = get_ram_size();
++	if (mem_end >= BIT_ULL(REGION3_SHIFT)) {
++		report_skip("pud spanning end of memory");
++	} else {
++		for (i = 0; i < mem_end; i += PAGE_SIZE)
++			READ_ONCE(*(uint64_t *)VIRT(i));
++		for (i = mem_end; i < BIT_ULL(REGION3_SHIFT); i += PAGE_SIZE) {
++			expect_pgm_int();
++			READ_ONCE(*(uint64_t *)VIRT(i));
++			assert(clear_pgm_int() == PGM_INT_CODE_ADDRESSING);
++		}
++		report_pass("pud spanning end of memory");
++	}
+ 
+ 	report_prefix_pop();
+ }
+-- 
+2.46.2
+
