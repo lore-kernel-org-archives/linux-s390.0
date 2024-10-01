@@ -1,80 +1,96 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2A8A3209
-	for <linux-s390@vger.kernel.org>; Tue,  1 Oct 2024 10:29:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 557091A0729;
+	Tue,  1 Oct 2024 10:44:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727778592; cv=none; b=BrayYrRpwCpIt47IywCzCavAz3aEm/jIZvKOu3puWQNTNB5Ekp20d1Ef+XtkxQzJ5e8At3pj0DY59Fpk0mPvDt/7WXos8B4aiQ/P/te+uOzqmjRBGAcbJw6BYGmA0v3+4CSBFS0Lbftb3GZcTxkLia3YWWA2PUg/EBb/GISvA3w=
+	t=1727779461; cv=none; b=HQ6t3UPdGAvtO6KZq8JNYUZjH18qt2Ql93Kn6aHP5RSDs/JlSZoNgPdwqnQpC+mjwtHbW7+p49NwLqv+5+ivjDuPpajS6FF9rf1OW7jMildSZrCTg2FxxtMqdcXKGydM3EKv950cPcvlcGBQAbfvYXeqHu9k28BMojCfGgmBskI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727778592; c=relaxed/simple;
-	bh=pe4Zj15kJgX2ARZLwJTKlT1nuioo+TiEEsNHTX8/T1w=;
+	s=arc-20240116; t=1727779461; c=relaxed/simple;
+	bh=R4W9StWya2ct3GHl8Bmf6USziiauPBQvJXVwXG/ZQr4=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=m0Mrersqoj4kYU+30YAA5yMFF1yf+FPGgI4oZY4WImss5fPcKNb8iM7yiclGblc8lui68npesk1reqJGJHFVINYSQYS2Ic+8diztdkkObCOZctmQWeWKePjlZ7TIuLxmlwScPdgyxxjQ9u/lzv1KsyJ9PKKMzB1lIQXcMZjPV9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=odvpEnER; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:MIME-Version; b=SXvcRhPrajleP3SgNv3aERraFeaAYvr64mCZ65YP51HIR0ETcq7nAQEneUcQCSx7oZ2Tvo34rjicFjbPm5CeXyugVJl8W/9eyTW3vSvHmAQxNCRSheamXmBEUAdStVrTRRUEsj5HLIF7kfu53voF/OCdFXOEg7c59scNSuBTxmY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pBxk9Pfm; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="odvpEnER"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4916LVWF011804;
-	Tue, 1 Oct 2024 10:29:32 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pBxk9Pfm"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4918rlWA024393;
+	Tue, 1 Oct 2024 10:43:19 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
 	:from:to:cc:subject:message-id:in-reply-to:references
 	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
-	VG3OfmvRm7AEmTWv1uILD0B/40IGpSJhbrITCHAcZ5Q=; b=odvpEnERntXHrHVk
-	Yp1GAH3YkMbbayIY4Jb4p3dKxcTUAiEhoycBGIvzSQFOqtOAbnH4YFjma9TVTi6O
-	zxPUmfmV64Sy5bhISku6Sp8hajV2WbUaC+8tnC1f+QcWQgrBxdLVwXQSZKAZilh7
-	h/c/tWvvx6B+COIIjNLraGi9JhlbzZEzKjoMJWJi5AeTwyTtAjg201sQgSdcuQde
-	D91YmEU6lXSLbPhcUtSt2ahjR1kD62MS62clq8N1qN6mPJXwgAMTH0/sIZtAM/82
-	GrpLY9lH1jp2Wi7PSkr8eP7sqX9Ek8Uo45MlvTIhLIB6iHZdfXFeo3Pqo5AwUp/q
-	FlXE/Q==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 420bqs166g-1
+	EbBiI8fSH5VnllJ71ly5Ye4ZTPDlUiVslkZDSkOv6TM=; b=pBxk9Pfm6EsDfF8Q
+	iqUeM1FnmtgX53pJ0O39C77AAcD1MIdHs8EzC5/ri4wCzexHaBfbeu3XYa1MNuhr
+	eJrsmHuxPqK6cm0vGct98JM4U0+BUpFDBIcM75UI2ScI5N02e5xkS/ZCRMd7H282
+	0Azl1ZgHYpCgJ3MZcAcj0rOj98AnwTvyYi5mze3SorxyYhOkaYp2FtXLOXNJcI52
+	vEg06YOiEqDQ16vL/o7a57SNphNSGtYUIFyzUt0oHvIjsnMTnIidLPO3Lj1/hyEz
+	LsPSeSPcRqZNO/wijZXbh9gF2+zp3bNZDbNFs7t3r9v9lstbldRgfcOJYDlRXbAa
+	2FQ1xA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 420ckngyg5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Oct 2024 10:29:32 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 491AKLcN013047;
-	Tue, 1 Oct 2024 10:29:31 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 41xxbjbffg-1
+	Tue, 01 Oct 2024 10:43:19 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 491Adrbv020483;
+	Tue, 1 Oct 2024 10:43:18 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 420ckngyfy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Oct 2024 10:29:31 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 491ATSSH56295798
+	Tue, 01 Oct 2024 10:43:18 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 491AViee002356;
+	Tue, 1 Oct 2024 10:43:17 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 41xxu13f3a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 01 Oct 2024 10:43:17 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 491AhD4A18284834
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 1 Oct 2024 10:29:28 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4C7B420043;
-	Tue,  1 Oct 2024 10:29:28 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4507E20040;
-	Tue,  1 Oct 2024 10:29:27 +0000 (GMT)
+	Tue, 1 Oct 2024 10:43:13 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6B84420049;
+	Tue,  1 Oct 2024 10:43:13 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8521C20040;
+	Tue,  1 Oct 2024 10:43:11 +0000 (GMT)
 Received: from thinkpad-T15 (unknown [9.171.59.94])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Tue,  1 Oct 2024 10:29:27 +0000 (GMT)
-Date: Tue, 1 Oct 2024 12:29:25 +0200
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Tue,  1 Oct 2024 10:43:11 +0000 (GMT)
+Date: Tue, 1 Oct 2024 12:43:09 +0200
 From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 To: Dan Williams <dan.j.williams@intel.com>
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        Christian
- Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>, Jan Kara <jack@suse.cz>,
-        Matthew Wilcox
- <willy@infradead.org>, Christoph Hellwig <hch@lst.de>,
-        Alistair Popple
- <apopple@nvidia.com>, linux-s390@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [PATCH] dcssblk: Mark DAX broken
-Message-ID: <20241001122925.52558c08@thinkpad-T15>
-In-Reply-To: <172721874675.497781.3277495908107141898.stgit@dwillia2-xfh.jf.intel.com>
-References: <172721874675.497781.3277495908107141898.stgit@dwillia2-xfh.jf.intel.com>
+Cc: Alistair Popple <apopple@nvidia.com>, <linux-mm@kvack.org>,
+        <vishal.l.verma@intel.com>, <dave.jiang@intel.com>,
+        <logang@deltatee.com>, <bhelgaas@google.com>, <jack@suse.cz>,
+        <jgg@ziepe.ca>, <catalin.marinas@arm.com>, <will@kernel.org>,
+        <mpe@ellerman.id.au>, <npiggin@gmail.com>,
+        <dave.hansen@linux.intel.com>, <ira.weiny@intel.com>,
+        <willy@infradead.org>, <djwong@kernel.org>, <tytso@mit.edu>,
+        <linmiaohe@huawei.com>, <david@redhat.com>, <peterx@redhat.com>,
+        <linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linuxppc-dev@lists.ozlabs.org>, <nvdimm@lists.linux.dev>,
+        <linux-cxl@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+        <linux-ext4@vger.kernel.org>, <linux-xfs@vger.kernel.org>,
+        <jhubbard@nvidia.com>, <hch@lst.de>, <david@fromorbit.com>,
+        <hca@linux.ibm.com>, <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
+        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
+        <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH 05/12] mm/memory: Add dax_insert_pfn
+Message-ID: <20241001124309.782004b8@thinkpad-T15>
+In-Reply-To: <66ef75e59c7ea_109b5294d1@dwillia2-mobl3.amr.corp.intel.com.notmuch>
+References: <cover.9f0e45d52f5cff58807831b6b867084d0b14b61c.1725941415.git-series.apopple@nvidia.com>
+	<110d5b177d793ab17ea5d1210606cb7dd0f82493.1725941415.git-series.apopple@nvidia.com>
+	<66ef75e59c7ea_109b5294d1@dwillia2-mobl3.amr.corp.intel.com.notmuch>
 X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Content-Type: text/plain; charset=US-ASCII
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ruMcx1VKO3ZyLX4ztnq2rFmxFuw6PeE0
-X-Proofpoint-ORIG-GUID: ruMcx1VKO3ZyLX4ztnq2rFmxFuw6PeE0
+X-Proofpoint-GUID: mLp8W3ZTWJaathMCFPKloMnlrxlln_bF
+X-Proofpoint-ORIG-GUID: 5FfpjjtfUKsGqxfrBWkGoY0YounV3Quc
 Content-Transfer-Encoding: 7bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
@@ -86,73 +102,47 @@ MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-01_07,2024-09-30_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
- clxscore=1011 lowpriorityscore=0 suspectscore=0 mlxlogscore=999
- bulkscore=0 phishscore=0 spamscore=0 adultscore=0 impostorscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2408220000 definitions=main-2410010066
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=928
+ mlxscore=0 priorityscore=1501 clxscore=1011 spamscore=0 lowpriorityscore=0
+ adultscore=0 impostorscore=0 phishscore=0 suspectscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
+ definitions=main-2410010066
 
-On Tue, 24 Sep 2024 15:59:08 -0700
+On Sun, 22 Sep 2024 03:41:57 +0200
 Dan Williams <dan.j.williams@intel.com> wrote:
 
-> The dcssblk driver has long needed special case supoprt to enable
-> limited dax operation, so called CONFIG_FS_DAX_LIMITED. This mode
-> works around the incomplete support for ZONE_DEVICE on s390 by forgoing
-> the ability of dax-mapped pages to support GUP.
+> [ add s390 folks to comment on CONFIG_FS_DAX_LIMITED ]
+
+[...]
+
+> > @@ -2516,6 +2545,44 @@ static vm_fault_t __vm_insert_mixed(struct vm_area_struct *vma,
+> >  	return VM_FAULT_NOPAGE;
+> >  }
+> >  
+> > +vm_fault_t dax_insert_pfn(struct vm_fault *vmf, pfn_t pfn_t, bool write)
+> > +{
+> > +	struct vm_area_struct *vma = vmf->vma;
+> > +	pgprot_t pgprot = vma->vm_page_prot;
+> > +	unsigned long pfn = pfn_t_to_pfn(pfn_t);
+> > +	struct page *page = pfn_to_page(pfn);  
 > 
-> Now, pending cleanups to fsdax that fix its reference counting [1] depend on
-> the ability of all dax drivers to supply ZONE_DEVICE pages.
+> The problem here is that we stubbornly have __dcssblk_direct_access() to
+> worry about. That is the only dax driver that does not return
+> pfn_valid() pfns.
 > 
-> To allow that work to move forward, dax support needs to be paused for
-> dcssblk until ZONE_DEVICE support arrives. That work has been known for
-> a few years [2], and the removal of "pte_devmap" requirements [3] makes the
-> conversion easier.
-
-Thanks, that's great news! Without requiring the extra PTE bit, it should
-now finally be possible to add struct pages and ZONE_DEVICE support for
-dcssblk.
-
-In the meantime, it is OK to pause the DAX support for dcssblk as you
-suggested, and finally remove that ugly CONFIG_FS_DAX_LIMITED. Thanks
-for bearing with us for so long!
-
+> In fact, it looks like __dcssblk_direct_access() is the only thing
+> standing in the way of the removal of pfn_t.
 > 
-> For now, place the support behind CONFIG_BROKEN, and remove PFN_SPECIAL
-> (dcssblk was the only user).
-
-Ok, I guess that PFN_SPECIAL was there because we had no struct pages for
-the DCSS memory. When we come back, with proper ZONE_DEVICE and struct
-pages, it should not be needed any more.
-
-And yes, the chance to completely remove pfn_t, after Alistair's series,
-is quite impressive and even more motivation than CONFIG_FS_DAX_LIMITED.
-
+> It turns out it has been 3 years since the last time the question of
+> bringing s390 fully into the ZONE_DEVICE regime was raised:
 > 
-> Link: http://lore.kernel.org/cover.9f0e45d52f5cff58807831b6b867084d0b14b61c.1725941415.git-series.apopple@nvidia.com [1]
-> Link: http://lore.kernel.org/20210820210318.187742e8@thinkpad/ [2]
-> Link: http://lore.kernel.org/4511465a4f8429f45e2ac70d2e65dc5e1df1eb47.1725941415.git-series.apopple@nvidia.com [3]
-> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Jan Kara <jack@suse.cz>
-> Cc: Matthew Wilcox <willy@infradead.org>
-> Cc: Christoph Hellwig <hch@lst.de>
-> Cc: Alistair Popple <apopple@nvidia.com>
-> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-> ---
->  drivers/s390/block/Kconfig   |   12 ++++++++++--
->  drivers/s390/block/dcssblk.c |   26 +++++++++++++++++---------
->  fs/Kconfig                   |    9 +--------
->  fs/dax.c                     |   12 ------------
->  include/linux/pfn_t.h        |   15 ---------------
->  mm/memory.c                  |    2 --
->  mm/memremap.c                |    4 ----
->  7 files changed, 28 insertions(+), 52 deletions(-)
+> https://lore.kernel.org/all/20210820210318.187742e8@thinkpad/
+> 
+> Given that this series removes PTE_DEVMAP which was a stumbling block,
+> would it be feasible to remove CONFIG_FS_DAX_LIMITED for a few kernel
+> cycles until someone from the s390 side can circle back to add full
+> ZONE_DEVICE support?
 
-When you also remove the now unused dax_dev definition at the top of
-dcssblk_add_store(), as noticed by kernel test robot:
-
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Yes, see also my reply to your "dcssblk: Mark DAX broken" patch.
+Thanks Alistair for your effort, making ZONE_DEVICE usable w/o extra
+PTE bit!
