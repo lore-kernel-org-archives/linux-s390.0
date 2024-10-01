@@ -1,60 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9969C19AD48;
-	Tue,  1 Oct 2024 11:42:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A5F31BF804;
+	Tue,  1 Oct 2024 11:44:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727782926; cv=none; b=a9uVZodtVLSFFzOGzlSRgv6WEm2psPyzxbYY5N+6+Ep5ZTJ8s+cCTIMHBX/vBty8fd0qUxRrlPcDNrzKfKBK9VKeCLEk+tNtusmv/BjqreriLncKCHSfAiLXu9tS0m7ORuyqevwQMTl9ULT0kv9+7Eo6KlZXsHeLrS2Okxbzxq0=
+	t=1727783047; cv=none; b=SPra4r0mg4J445wb2wpeFwQ87XyqCIrxb/vU7J+C2QeFp4RcEacIN2soJma1yCEeTebkea5Bt6scxaJzqzCm2TXKQTFPOH0gUreit3nAOBRjbiuy9adpUNiuYVF3SYEtReLaxJaOW6N1OR3dKT2cd1SqUwEsoTIwOXYQVMkXX00=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727782926; c=relaxed/simple;
-	bh=Ux2SzW/jQn0Bzn5R53YOjyR8iBe1jmYDlyqkumWxsoU=;
+	s=arc-20240116; t=1727783047; c=relaxed/simple;
+	bh=PwSHgvI0MsZksfpoKeIXbBxZcNs0ma4uHHPcr0C8eaA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jU6F/K0ZKOd/5+81P54OBq5uYUFgoF03Y6J78sHc6NUnMBus/TkMryq1fgwLnj5d9sTEsvlCIzs56TTRW9jtUQC0thznH4fExElQTNvqWauk2+eL+cIHzxiKDMYGVnWNJ1MD7300nXFyf/FS4C0bauZrZ9wCXhR2njp9+XsA7HM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nF3vu4aM; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=UYM3KGMwMv1hm8Gq9tMjXQHpU8SqwP/HkuPlqHeNNVs07Tq9exLahulvegaP4yHijVvFG8Ioi2jZ5oTMedLnw9VYYDUK9oTRjlvUmVemMV8aWnIzKc1w20MLo6GwdhhPF+OFlicM1UCFFyKWyCB4SZxXsR7Mil0MTa2t1aLHiOY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jVdxEPPV; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nF3vu4aM"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 491AMktF018051;
-	Tue, 1 Oct 2024 11:42:04 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jVdxEPPV"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4917KBZW007654;
+	Tue, 1 Oct 2024 11:44:05 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
 	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=m
-	ZNDUMKJkR1zjZlo4YSLBwFYMfwd8lhLM1eVfp3IqYo=; b=nF3vu4aMrP0+06RoQ
-	sEaCe+9KTdMgrmvCUweJHp92eRf9kFfaxD4GE0fMK3lxasOA2WS3ZKOsg0zwlY0u
-	E0a1Lsap2pghEYB5UE3taN1tE4phok8Oape6/5JHrx3snX9febkA43D3Wgfff8p+
-	Oeseaur3oE1WM55mF7pu4RLlvg3Tpb47ZJ8uxehAMxMba2BRYEfCUtRzv3r+Xr5C
-	WFQ7+6fy4PMra3HC35tfRN/N6wNFE/XBl1IcjWyBpS4LMduu4pIAHim1bTCEOdSI
-	eVniHWO9iAW8aBeFrwVrpRvqU+fgjX6PxbX9fQV9qrVjaaOr8lbt95osYLMat+VT
-	YevsQ==
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=0
+	nbQfVQTQm/cCLWC4AIRbz9oJwHIv9ib36Gv7R5B3j8=; b=jVdxEPPVFSoAU7yN8
+	1FgRR1EcYlgVbWoEGbLaHQnlI6ghh4AOt3dLyYxW9sM4dBr3um6Dynfom8ezEBDK
+	qwjnuS80cnUk2bV7ZQSwGZEcnINU+jyowku9WpGEWEypEZGCZktAfw3LQHyC4fxa
+	vUELAbwTHgZtSOLyqiIa1dE4CTOb0pCbdr8AwoPjf6HZNbv4FuamlYa6xF5w2kg5
+	Tqc0adALu+TSdfVVn9p89N4C4an6W8yuRNGXcyCEevAE+UQmm4ApU6yhp8Oq+stJ
+	G0fI4RtMi3LW+wPMg7cM5gyg+KXU7w4lks+sYl40K9OvSdmFNwHg138YbtefaPP3
+	Xi/7w==
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 420f90rcgf-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 420ckj99sp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Oct 2024 11:42:03 +0000 (GMT)
+	Tue, 01 Oct 2024 11:44:05 +0000 (GMT)
 Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4918plJJ007947;
-	Tue, 1 Oct 2024 11:42:02 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41xvgxv6j2-1
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4918anTB007923;
+	Tue, 1 Oct 2024 11:44:04 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41xvgxv6q2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Oct 2024 11:42:02 +0000
+	Tue, 01 Oct 2024 11:44:04 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 491Bfwl312517642
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 491Bi0bE32833938
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 1 Oct 2024 11:41:58 GMT
+	Tue, 1 Oct 2024 11:44:00 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A4ECE20040;
-	Tue,  1 Oct 2024 11:41:58 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 828032004B;
+	Tue,  1 Oct 2024 11:44:00 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 55F4C2004B;
-	Tue,  1 Oct 2024 11:41:58 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2151020043;
+	Tue,  1 Oct 2024 11:44:00 +0000 (GMT)
 Received: from [9.179.3.12] (unknown [9.179.3.12])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  1 Oct 2024 11:41:58 +0000 (GMT)
-Message-ID: <344b4019-0c7c-4e08-ab50-f03b1d51277c@linux.ibm.com>
-Date: Tue, 1 Oct 2024 13:41:58 +0200
+	Tue,  1 Oct 2024 11:44:00 +0000 (GMT)
+Message-ID: <9c1edf9c-589c-4998-8211-adc0e766438c@linux.ibm.com>
+Date: Tue, 1 Oct 2024 13:43:59 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,7 +62,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 2/2] s390/uv: Provide host-key hashes in sysfs
+Subject: Re: [PATCH v1 1/2] s390/uv: Refactor uv-sysfs creation
 To: Steffen Eiden <seiden@linux.ibm.com>, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org
 Cc: Ingo Franzki <ifranzki@linux.ibm.com>,
@@ -70,7 +70,7 @@ Cc: Ingo Franzki <ifranzki@linux.ibm.com>,
         Christoph Schlameuss <schlameuss@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>
 References: <20240930132042.2081982-1-seiden@linux.ibm.com>
- <20240930132042.2081982-3-seiden@linux.ibm.com>
+ <20240930132042.2081982-2-seiden@linux.ibm.com>
 Content-Language: en-US
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
@@ -115,77 +115,61 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20240930132042.2081982-3-seiden@linux.ibm.com>
+In-Reply-To: <20240930132042.2081982-2-seiden@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FXWzjHzGbMT8e4q5TfUnL4yzK71bD1dU
-X-Proofpoint-GUID: FXWzjHzGbMT8e4q5TfUnL4yzK71bD1dU
+X-Proofpoint-ORIG-GUID: IVk8KNxczUmip8mF-Wpq1kxDPPFTryvb
+X-Proofpoint-GUID: IVk8KNxczUmip8mF-Wpq1kxDPPFTryvb
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-01_07,2024-09-30_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- lowpriorityscore=0 adultscore=0 malwarescore=0 impostorscore=0
- clxscore=1011 priorityscore=1501 phishscore=0 suspectscore=0 bulkscore=0
- spamscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2408220000 definitions=main-2410010075
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ phishscore=0 adultscore=0 mlxlogscore=729 suspectscore=0 malwarescore=0
+ priorityscore=1501 lowpriorityscore=0 bulkscore=0 mlxscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
+ definitions=main-2410010075
 
 On 9/30/24 3:20 PM, Steffen Eiden wrote:
-> Utilize the new Query Ultravisor Keys to give user space the information
-> which host-keys are installed on the system.
-> 
-> Create a new sysfs directory 'firmware/uv/keys' that contains the hash
-> of the host-key and the backup host-key of that system. Additionally,
-> the file 'all' contains the response from the UVC possibly containing
-> more key-hashes than currently known.
+> Streamline the sysfs generation to make it more extensible.
+> Add a function to create a sysfs entry in the uv-sysfs dir.
+> Use this function for the query directory.
 > 
 > Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->   arch/s390/include/asm/uv.h | 16 ++++++++
->   arch/s390/kernel/uv.c      | 75 ++++++++++++++++++++++++++++++++++++++
->   2 files changed, 91 insertions(+)
-> 
-> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-> index 153d93468b77..7eda73073cdd 100644
-> --- a/arch/s390/include/asm/uv.h
-> +++ b/arch/s390/include/asm/uv.h
-> @@ -31,6 +31,7 @@
->   #define UVC_RC_NEED_DESTROY	0x8000
->   
->   #define UVC_CMD_QUI			0x0001
-> +#define UVC_CMD_QUK			0x0002
 
-Should've used the long form here as well.
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
->   #define UVC_CMD_INIT_UV			0x000f
->   #define UVC_CMD_CREATE_SEC_CONF		0x0100
->   #define UVC_CMD_DESTROY_SEC_CONF	0x0101
-> @@ -94,6 +95,7 @@ enum uv_cmds_inst {
->   	BIT_UVC_CMD_ADD_SECRET = 29,
->   	BIT_UVC_CMD_LIST_SECRETS = 30,
->   	BIT_UVC_CMD_LOCK_SECRETS = 31,
-> +	BIT_UVC_CMD_QUERY_KEYS = 34,
->   };
->   
 
-[...]
-
->   static int __init uv_sysfs_dir_init(const struct attribute_group *grp,
-> @@ -789,6 +859,11 @@ static int __init uv_sysfs_init(void)
->   	rc = uv_sysfs_dir_init(&uv_query_attr_group, &uv_query_kset, "query");
+> @@ -767,17 +786,11 @@ static int __init uv_info_init(void)
 >   	if (rc)
->   		goto out_ind_files;
-> +
-> +	// Get installed key hashes if available, ignore any errors
-
-Please use:
-/* */
-
-> +	if (test_bit_inv(BIT_UVC_CMD_QUERY_KEYS, uv_info.inst_calls_list))
-> +		uv_sysfs_dir_init(&uv_keys_attr_group, &uv_keys_kset, "keys");
-> +
->   	return 0;
+>   		goto out_kobj;
 >   
+> -	uv_query_kset = kset_create_and_add("query", NULL, uv_kobj);
+> -	if (!uv_query_kset) {
+> -		rc = -ENOMEM;
+> +	rc = uv_sysfs_dir_init(&uv_query_attr_group, &uv_query_kset, "query");
+> +	if (rc)
+>   		goto out_ind_files;
+> -	}
+> -
+> -	rc = sysfs_create_group(&uv_query_kset->kobj, &uv_query_attr_group);
+> -	if (!rc)
+> -		return 0;
+> +	return 0;
+
+Could've left a \n before the return so it doesn't look weird if only 
+this patch is applied. But that's not important.
+
+>   
+> -	kset_unregister(uv_query_kset);
 >   out_ind_files:
+>   	sysfs_remove_files(uv_kobj, uv_prot_virt_attrs);
+>   out_kobj:
+> @@ -785,4 +798,4 @@ static int __init uv_info_init(void)
+>   	kobject_put(uv_kobj);
+>   	return rc;
+>   }
+> -device_initcall(uv_info_init);
+> +device_initcall(uv_sysfs_init);
 
