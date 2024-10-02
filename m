@@ -1,401 +1,117 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B67A01D0E3D;
-	Wed,  2 Oct 2024 14:16:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D56111CEEAF;
+	Wed,  2 Oct 2024 14:25:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727878587; cv=none; b=bhe1sheZ8MWMZmEC6WPfM/Za/4W8qLBGtjDgB8/7SPcSHA56xZ3+4oqukCZ8+rDXNQAMkV5OeMwOE16kkXVh+dy44t2q8CzYvE0dcrP+PTxZHPGsf1feR6XWkx8MhOfCQmQB4ikYGMT9QdpRrO4wNo0MKXR44dfrI8QOQJt8G4I=
+	t=1727879150; cv=none; b=t0BZ/HyVFf6LJ1l51vYIjJcEZaGMlmXbdmFKvOQUhLYhD+VmsrpiCUpnkypJW1Bth2/xkZLqwFCiObBoAbfgfQaPjW5aRlCq71xtfHj33iSPG2QQ41BzELsD0hvHmP9tLS5ZVBB9V0/CP9gu2b8kb/DkE3OJUixfR4toiSQCzII=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727878587; c=relaxed/simple;
-	bh=0TVLWxheztXuVLC7uknwWEFzP1220+vfbbLQfcZVvzY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ajyuDT85BrlGvnoBD1Dj0qk4ZZSP4ljLEzCQVdbhQTt7d9xR6hnA5js5DWsV97XZT0s+ym7OXvuZ7Wza5YWw5JjNBbvZbOrGeuKPCUgMFB1hOeVoEqi6Z/Y+ENOCO5GKu04hUOUHXIOhtc4lEQQGB7vDATFeoZRT07aYQg/7Kuo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YRmGHkrg; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1727879150; c=relaxed/simple;
+	bh=R3rceRteG8fgjwgLlNJi7VzP837GAstprFERWFU60QM=;
+	h=Content-Type:MIME-Version:In-Reply-To:References:Subject:From:Cc:
+	 To:Date:Message-ID; b=q6qTwrWAlUhJ5Jqdti7KaEbzM8S4eBk0/lkxC82pLYUdRJ7f3fwaZBvUKcxUmP6awS3W5GK2Z7cjL83ae/ChuObA4hGBgHnE+pNDJ4LZIjc2LV495rPt8hs1YSsiRY33OF4zhu1UkCOIqDa0mNDCxeWdcl9m8gr1MJglZxTkcDA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MvhZ5WPP; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YRmGHkrg"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MvhZ5WPP"
 Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 492DP7g5026559;
-	Wed, 2 Oct 2024 14:16:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=BSPxsg6Se/DCN
-	CLohr6euOKPFKc5GT6JC1gAdofE55Q=; b=YRmGHkrgt99fHYLFtAxwzN/VPjtE6
-	J7HW5FNV3PjHjIbJFQx33Gv1I+2/5LwG1DamQHj7GnA79RIJEohAs6zx9X6eI7ua
-	ecxpVIEeeub76NKMQb2xkbIkpxTsldee+JZvt+ejoobSehfWh2zxrGmOAQ3J5kqt
-	xuIT8gEJbwig15N0UJE94MmjnAcO2b5nlosOHYVa6zexGT4pI7P5kGMEQBrYh1kS
-	NNt7r8ts2YXj71qrItTZkXZYteveXRMGt9coEZWy7bqZxEN+irXX18kVS0gFxqiQ
-	DAJEs3d65iLj/eE+ow5W3F4MbwGuhJBcbFigAkQK1PmpSQ/U5xe2NE1Xg==
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 492EP66l026779;
+	Wed, 2 Oct 2024 14:25:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	content-type:mime-version:content-transfer-encoding:in-reply-to
+	:references:subject:from:cc:to:date:message-id; s=pp1; bh=mPziYV
+	JIuUL9desjvVrYcKa8x1g6tYrEAgthMPitYLI=; b=MvhZ5WPPuAOrl3IGF1tRRz
+	eHf4Ot9osTPoMJFY9HnayOKzE7TiWyLh8GnwvOZyzw4IMcYNgWGtL2XK5f8dyYib
+	NC59t3nAjZge0YyfzYIF6sFmK9VBv826XnToGhIExFtO0IlHn2IzBhIJCQoaUspy
+	+lIsGPT94RYo3ct9HoctytQUClUJuzvMfUveHflg5So1ifxV8+vLKAtvNMB1VVqP
+	DqqP5WJr+olchutdf5+30okljwGzpSvPrXR47kvfrNN5okws+GbnPK+kZwl+0la+
+	G6UA+oiyLAmDVzZ3YMn3pw8H/vesd3eUVJdNnb374g+ruz7e8HFMnU+KUBa3jxLw
+	==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42171t08jh-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4217wx0036-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 02 Oct 2024 14:16:23 +0000 (GMT)
+	Wed, 02 Oct 2024 14:25:47 +0000 (GMT)
 Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 492EGNji024650;
-	Wed, 2 Oct 2024 14:16:23 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42171t08jb-1
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 492EPlJ7027679;
+	Wed, 2 Oct 2024 14:25:47 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4217wx0035-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 02 Oct 2024 14:16:23 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 492CU8iX020410;
-	Wed, 2 Oct 2024 14:16:22 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 41xv4saxvr-1
+	Wed, 02 Oct 2024 14:25:47 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 492DCThD018356;
+	Wed, 2 Oct 2024 14:25:46 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41xw4n2t0k-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 02 Oct 2024 14:16:22 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 492EGHte55837116
+	Wed, 02 Oct 2024 14:25:46 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 492EPeIE54460918
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 2 Oct 2024 14:16:17 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 269F320040;
-	Wed,  2 Oct 2024 14:16:17 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E28C02004E;
-	Wed,  2 Oct 2024 14:16:16 +0000 (GMT)
-Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  2 Oct 2024 14:16:16 +0000 (GMT)
-From: Nico Boehr <nrb@linux.ibm.com>
-To: frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v3 2/2] s390x: add test for diag258
-Date: Wed,  2 Oct 2024 16:15:55 +0200
-Message-ID: <20241002141616.357618-3-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.46.2
-In-Reply-To: <20241002141616.357618-1-nrb@linux.ibm.com>
-References: <20241002141616.357618-1-nrb@linux.ibm.com>
+	Wed, 2 Oct 2024 14:25:40 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 73E5120043;
+	Wed,  2 Oct 2024 14:25:40 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 55C1B20040;
+	Wed,  2 Oct 2024 14:25:40 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.74.111])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  2 Oct 2024 14:25:40 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20241001113640.55210-1-imbrenda@linux.ibm.com>
+References: <20241001113640.55210-1-imbrenda@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v1 1/1] s390x: edat: test 2G large page spanning end of memory
+From: Nico Boehr <nrb@linux.ibm.com>
+Cc: frankja@linux.ibm.com, borntraeger@de.ibm.com, david@redhat.com,
+        thuth@redhat.com, linux-s390@vger.kernel.org
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Date: Wed, 02 Oct 2024 16:25:39 +0200
+Message-ID: <172787913947.65827.12438423086547383920@t14-nrb.local>
+User-Agent: alot/0.10
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2lChwdicbgB0IRLF_361Hiq2dvvEaHfN
-X-Proofpoint-GUID: L_dM-_scyL5qj_4xCeh_MISyky0OxhKF
+X-Proofpoint-ORIG-GUID: jTioX4bkMEe3tFVAGx2gDV1fo_hj38zg
+X-Proofpoint-GUID: RzGXxmKH_JrxImIXbhKQhjkLkZXR2TsJ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-02_14,2024-09-30_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
- bulkscore=0 spamscore=0 adultscore=0 clxscore=1015 lowpriorityscore=0
- mlxlogscore=999 phishscore=0 malwarescore=0 impostorscore=0 suspectscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 adultscore=0
+ priorityscore=1501 bulkscore=0 mlxscore=0 clxscore=1015 impostorscore=0
+ spamscore=0 suspectscore=0 phishscore=0 malwarescore=0 lowpriorityscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
  definitions=main-2410020103
 
-This adds a test for diag258 (page ref service/async page fault).
+Quoting Claudio Imbrenda (2024-10-01 13:36:40)
+[...]
+> diff --git a/s390x/edat.c b/s390x/edat.c
+> index 16138397..1f582efc 100644
+> --- a/s390x/edat.c
+> +++ b/s390x/edat.c
+> @@ -196,6 +196,8 @@ static void test_edat1(void)
+> =20
+>  static void test_edat2(void)
+>  {
+[...]
+> @@ -206,7 +208,21 @@ static void test_edat2(void)
+>         /* Prefixing should not work with huge pages, just like large pag=
+es */
+>         report(!memcmp(0, VIRT(prefix_buf), LC_SIZE) &&
+>                 !memcmp(prefix_buf, VIRT(0), LC_SIZE),
+> -               "pmd, large, prefixing");
+> +               "pud, large, prefixing");
+> +
+> +       mem_end =3D get_ram_size();
+> +       if (mem_end >=3D BIT_ULL(REGION3_SHIFT)) {
+> +               report_skip("pud spanning end of memory");
 
-There recently was a virtual-real address confusion bug, so we should
-test:
-- diag258 parameter Rx is a real adress
-- crossing the end of RAM with the parameter list yields an addressing
-  exception
-- invalid diagcode in the parameter block yields an specification
-  exception
-- diag258 correctly applies prefixing.
-
-Note that we're just testing error cases as of now.
-
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
----
- s390x/Makefile      |   1 +
- s390x/diag258.c     | 259 ++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |   3 +
- 3 files changed, 263 insertions(+)
- create mode 100644 s390x/diag258.c
-
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 23342bd64f44..66d71351caab 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -44,6 +44,7 @@ tests += $(TEST_DIR)/exittime.elf
- tests += $(TEST_DIR)/ex.elf
- tests += $(TEST_DIR)/topology.elf
- tests += $(TEST_DIR)/sie-dat.elf
-+tests += $(TEST_DIR)/diag258.elf
- 
- pv-tests += $(TEST_DIR)/pv-diags.elf
- pv-tests += $(TEST_DIR)/pv-icptcode.elf
-diff --git a/s390x/diag258.c b/s390x/diag258.c
-new file mode 100644
-index 000000000000..1342b39a04fc
---- /dev/null
-+++ b/s390x/diag258.c
-@@ -0,0 +1,259 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Diag 258: Async Page Fault Handler
-+ *
-+ * Copyright (c) 2024 IBM Corp
-+ *
-+ * Authors:
-+ *  Nico Boehr <nrb@linux.ibm.com>
-+ */
-+
-+#include <libcflat.h>
-+#include <asm-generic/barrier.h>
-+#include <asm/asm-offsets.h>
-+#include <asm/interrupt.h>
-+#include <asm/mem.h>
-+#include <asm/pgtable.h>
-+#include <mmu.h>
-+#include <sclp.h>
-+#include <vmalloc.h>
-+
-+static uint8_t prefix_buf[LC_SIZE] __attribute__((aligned(LC_SIZE)));
-+
-+#define __PF_RES_FIELD 0x8000000000000000UL
-+
-+/* copied from Linux arch/s390/mm/pfault.c */
-+struct pfault_refbk {
-+	u16 refdiagc;
-+	u16 reffcode;
-+	u16 refdwlen;
-+	u16 refversn;
-+	u64 refgaddr;
-+	u64 refselmk;
-+	u64 refcmpmk;
-+	u64 reserved;
-+};
-+
-+uint64_t pfault_token = 0x0123fadec0fe3210UL;
-+
-+static struct pfault_refbk pfault_init_refbk __attribute__((aligned(8))) = {
-+	.refdiagc = 0x258,
-+	.reffcode = 0, /* TOKEN */
-+	.refdwlen = sizeof(struct pfault_refbk) / sizeof(uint64_t),
-+	.refversn = 2,
-+	.refgaddr = (u64)&pfault_token,
-+	.refselmk = 1UL << 48,
-+	.refcmpmk = 1UL << 48,
-+	.reserved = __PF_RES_FIELD
-+};
-+
-+static struct pfault_refbk pfault_cancel_refbk __attribute((aligned(8))) = {
-+	.refdiagc = 0x258,
-+	.reffcode = 1, /* CANCEL */
-+	.refdwlen = sizeof(struct pfault_refbk) / sizeof(uint64_t),
-+	.refversn = 2,
-+	.refgaddr = 0,
-+	.refselmk = 0,
-+	.refcmpmk = 0,
-+	.reserved = 0
-+};
-+
-+static inline int diag258(struct pfault_refbk *refbk)
-+{
-+	int rc = -1;
-+
-+	asm volatile(
-+		"	diag	%[refbk],%[rc],0x258\n"
-+		: [rc] "+d" (rc)
-+		: [refbk] "a" (refbk), "m" (*(refbk))
-+		: "cc");
-+	return rc;
-+}
-+
-+static void test_priv(void)
-+{
-+	report_prefix_push("privileged");
-+	expect_pgm_int();
-+	enter_pstate();
-+	diag258(&pfault_init_refbk);
-+	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-+	report_prefix_pop();
-+}
-+
-+static void* page_map_outside_real_space(phys_addr_t page_real)
-+{
-+	pgd_t *root = (pgd_t *)(stctg(1) & PAGE_MASK);
-+	void* vaddr = alloc_vpage();
-+
-+	install_page(root, page_real, vaddr);
-+
-+	return vaddr;
-+}
-+
-+/*
-+ * Verify that the refbk pointer is a real address and not a virtual
-+ * address. This is tested by enabling DAT and establishing a mapping
-+ * for the refbk that is outside of the bounds of our (guest-)physical
-+ * address space.
-+ */
-+static void test_refbk_real(void)
-+{
-+	struct pfault_refbk *refbk;
-+	void *refbk_page;
-+	pgd_t *root;
-+
-+	report_prefix_push("refbk is real");
-+
-+	/* Set up virtual memory and allocate a physical page for storing the refbk */
-+	setup_vm();
-+	refbk_page = alloc_page();
-+
-+	/* Map refblk page outside of physical memory identity mapping */
-+	root = (pgd_t *)(stctg(1) & PAGE_MASK);
-+	refbk = page_map_outside_real_space(virt_to_pte_phys(root, refbk_page));
-+
-+	/* Assert the mapping really is outside identity mapping */
-+	report_info("refbk is at 0x%lx", (u64)refbk);
-+	report_info("ram size is 0x%lx", get_ram_size());
-+	assert((u64)refbk > get_ram_size());
-+
-+	/* Copy the init refbk to the page */
-+	memcpy(refbk, &pfault_init_refbk, sizeof(struct pfault_refbk));
-+
-+	/* Protect the virtual mapping to avoid diag258 actually doing something */
-+	protect_page(refbk, PAGE_ENTRY_I);
-+
-+	expect_pgm_int();
-+	diag258(refbk);
-+	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
-+	report_prefix_pop();
-+
-+	free_page(refbk_page);
-+	disable_dat();
-+	irq_set_dat_mode(false, 0);
-+}
-+
-+/*
-+ * Verify diag258 correctly applies prefixing.
-+ */
-+static void test_refbk_prefixing(void)
-+{
-+	const size_t lowcore_offset_for_refbk = offsetof(struct lowcore, pad_0x03a0);
-+	struct pfault_refbk *refbk_in_prefix, *refbk_in_reverse_prefix;
-+	uint32_t old_prefix;
-+	uint64_t ry;
-+
-+	report_prefix_push("refbk prefixing");
-+
-+	report_info("refbk at lowcore offset 0x%lx", lowcore_offset_for_refbk);
-+
-+	assert((unsigned long)&prefix_buf < SZ_2G);
-+
-+	memcpy(prefix_buf, 0, LC_SIZE);
-+
-+	/*
-+	 * After the call to set_prefix() below, this will refer to absolute
-+	 * address lowcore_offset_for_refbk (reverse prefixing).
-+	 */
-+	refbk_in_reverse_prefix = (struct pfault_refbk *)(&prefix_buf[0] + lowcore_offset_for_refbk);
-+
-+	/*
-+	 * After the call to set_prefix() below, this will refer to absolute
-+	 * address &prefix_buf[0] + lowcore_offset_for_refbk (forward prefixing).
-+	 */
-+	refbk_in_prefix = (struct pfault_refbk *)OPAQUE_PTR(lowcore_offset_for_refbk);
-+
-+	old_prefix = get_prefix();
-+	set_prefix((uint32_t)(uintptr_t)prefix_buf);
-+
-+	/*
-+	 * If diag258 would not be applying prefixing on access to
-+	 * refbk_in_reverse_prefix correctly, it would access absolute address
-+	 * refbk_in_reverse_prefix (which to us is accessible at real address
-+	 * refbk_in_prefix).
-+	 * Make sure it really fails by putting invalid function code
-+	 * at refbk_in_prefix.
-+	 */
-+	refbk_in_prefix->refdiagc = 0xc0fe;
-+
-+	/*
-+	 * Put a valid refbk at refbk_in_reverse_prefix.
-+	 */
-+	memcpy(refbk_in_reverse_prefix, &pfault_init_refbk, sizeof(pfault_init_refbk));
-+
-+	ry = diag258(refbk_in_reverse_prefix);
-+	report(!ry, "real address refbk accessed");
-+
-+	/*
-+	 * Activating should have worked. Cancel the activation and expect
-+	 * return 0. If activation would not have worked, this should return with
-+	 * 4 (pfault handshaking not active).
-+	 */
-+	ry = diag258(&pfault_cancel_refbk);
-+	report(!ry, "handshaking canceled");
-+
-+	set_prefix(old_prefix);
-+
-+	report_prefix_pop();
-+}
-+
-+/*
-+ * Verify that a refbk exceeding physical memory is not accepted, even
-+ * when crossing a frame boundary.
-+ */
-+static void test_refbk_crossing(void)
-+{
-+	const size_t bytes_in_last_page = 8;
-+	struct pfault_refbk *refbk = (struct pfault_refbk *)(get_ram_size() - bytes_in_last_page);
-+
-+	report_prefix_push("refbk crossing");
-+
-+	report_info("refbk is at 0x%lx", (u64)refbk);
-+	report_info("ram size is 0x%lx", get_ram_size());
-+	assert(sizeof(struct pfault_refbk) > bytes_in_last_page);
-+
-+	/* Copy bytes_in_last_page bytes of the init refbk to the page */
-+	memcpy(refbk, &pfault_init_refbk, bytes_in_last_page);
-+
-+	expect_pgm_int();
-+	diag258(refbk);
-+	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
-+	report_prefix_pop();
-+}
-+
-+/*
-+ * Verify that a refbk with an invalid refdiagc is not accepted.
-+ */
-+static void test_refbk_invalid_diagcode(void)
-+{
-+	struct pfault_refbk refbk = pfault_init_refbk;
-+
-+	report_prefix_push("invalid refdiagc");
-+	refbk.refdiagc = 0xc0fe;
-+
-+	expect_pgm_int();
-+	diag258(&refbk);
-+	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-+	report_prefix_pop();
-+}
-+
-+int main(void)
-+{
-+	report_prefix_push("diag258");
-+
-+	expect_pgm_int();
-+	diag258((struct pfault_refbk *)0xfffffffffffffff0);
-+	if (clear_pgm_int() == PGM_INT_CODE_SPECIFICATION) {
-+		report_skip("diag258 not supported");
-+	} else {
-+		test_priv();
-+		/* Other tests rely on invalid diagcodes doing nothing */
-+		test_refbk_invalid_diagcode();
-+		test_refbk_real();
-+		test_refbk_prefixing();
-+		test_refbk_crossing();
-+	}
-+
-+	report_prefix_pop();
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index 3a9decc932f2..8131ba105d3f 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -392,3 +392,6 @@ file = sie-dat.elf
- 
- [pv-attest]
- file = pv-attest.elf
-+
-+[diag258]
-+file = diag258.elf
--- 
-2.46.2
-
+Does it make sense to explicitly add a mem parameter in unittests.cfg so
+this will never be the case?
