@@ -1,128 +1,134 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from albert.telenet-ops.be (albert.telenet-ops.be [195.130.137.90])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A53919475;
-	Wed,  2 Oct 2024 14:51:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22F6E79D0
+	for <linux-s390@vger.kernel.org>; Wed,  2 Oct 2024 15:04:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.130.137.90
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727880720; cv=none; b=kdVXyn6zGMqX2l1RhvripBGZP5W0Ra88LtA/8zRSzkudlzNjsfwfQA2QEfndY37MGVn0Hn7B53m1xPltLU1ejFe0v2g11MPbpLSpJW3p/t7/nPHU/o9mjS+XbBD3uFaC+9FEriXAif3fyoVBXk+QabQzEPiSvbyBWYCltpoayEA=
+	t=1727881445; cv=none; b=kkaPi4hOZaB/VVjF/CFLzY8NjDit4Nv4xrgBB2CSFKhQpv8cVe/HkX1KRTqx/Lv6sDCTghqie9JJEvw5tfTrpVUalw2AlqbW9zd/smzpS+epIGhEF76UfMohGqw8qxMWfTcVwSwZvd8/9jXG/2M5dM6ZQzqKYn+yeLJb470AtL8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727880720; c=relaxed/simple;
-	bh=+Kbkj3EgLxDp0VAIKoa/kYQBRLMmKIQu1pFpRfZ81UQ=;
-	h=Content-Type:MIME-Version:In-Reply-To:References:Subject:From:Cc:
-	 To:Date:Message-ID; b=qE/rqUDq+rRjCDmLrlh81KwA8vLFLIrZYkQqGvlsGtkHPlE89IIhRMrOYKY3GEDhDDi0JAFqjQT3ZcP2mvpTtoXVPiOQH5Qtwp8B8NhqM18LacY55lF/P3T+3aBepTgNZWHyFcXgSjAFYRpdQcyKXSeLXaQgk3DFWp9utvHXX1E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QeIeQC8g; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QeIeQC8g"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 492EngtI006725;
-	Wed, 2 Oct 2024 14:51:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	content-type:mime-version:content-transfer-encoding:in-reply-to
-	:references:subject:from:cc:to:date:message-id; s=pp1; bh=W7X51P
-	WINK4iz6r2QM6CiApUFhMAvy84DJEX+/rdD50=; b=QeIeQC8gHIPI/BOGDJT427
-	tupdXcYfPz/eLwK4Uo6ECTXbOppfPAqepUn6biFjwBA7TNs19SqWAbWPxObPO0dt
-	hlrSosHoWq5cI9OfvfJvaPJkFKZIPCSv1HSXpKO//PXZu7Oxlmk9i2CdgOHI569a
-	+wpALNr2PXqJ6lJJA/K0CFrKq/i2bqbnCb9yAhSFyD6HqS3ZZwfbT4ehxvvRoya+
-	WrJ+tlqj4cqgMH+OM8tJsmJbOqAfj2+xmQ3/tZE0kwThBs9ibskiymlL4KDjiIp1
-	BDoNYJFzaG21G8xYtUx/GW3pGiCkjwDr4TAypcK0HVAlgEy60+G6OXS/yWyF9a0A
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42189800c9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 02 Oct 2024 14:51:56 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 492EpufZ012736;
-	Wed, 2 Oct 2024 14:51:56 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42189800c5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 02 Oct 2024 14:51:56 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 492DODk0017899;
-	Wed, 2 Oct 2024 14:51:55 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41xw4n2wjm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 02 Oct 2024 14:51:55 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 492Epn7q25625284
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 2 Oct 2024 14:51:49 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 10B6E20043;
-	Wed,  2 Oct 2024 14:51:49 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D94D120040;
-	Wed,  2 Oct 2024 14:51:48 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.74.111])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  2 Oct 2024 14:51:48 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+	s=arc-20240116; t=1727881445; c=relaxed/simple;
+	bh=lEgBy/6Tl2+mIg/szUca7enHsJ6t1zZRiLyTNp98rXw=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=DxurnQD0BkmOY2e5hS+rQgErExj1+mj5eX0OkvhbBg2TgbfrMcL+G5KHn5tH/QOYud9VmKNaVwHY/AI9cZK/qum/xOPnyirITL94iygAeQYEkGiDXjzFVKunZocRG2Qe4gOeVcypFJxOUsee4SzgLVcspa5+/Qk3XTtn7tVCcxM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=glider.be; spf=none smtp.mailfrom=linux-m68k.org; arc=none smtp.client-ip=195.130.137.90
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=glider.be
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux-m68k.org
+Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed80:80d:3d68:c8fe:1932])
+	by albert.telenet-ops.be with cmsmtp
+	id KT3z2D00V4Qoffy06T3zu0; Wed, 02 Oct 2024 17:04:01 +0200
+Received: from rox.of.borg ([192.168.97.57])
+	by ramsan.of.borg with esmtp (Exim 4.95)
+	(envelope-from <geert@linux-m68k.org>)
+	id 1sw0tL-00180F-9h;
+	Wed, 02 Oct 2024 17:03:59 +0200
+Received: from geert by rox.of.borg with local (Exim 4.95)
+	(envelope-from <geert@linux-m68k.org>)
+	id 1sw0tT-005oa1-H8;
+	Wed, 02 Oct 2024 17:03:59 +0200
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+To: Peter Zijlstra <peterz@infradead.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Will Deacon <will@kernel.org>,
+	Waiman Long <longman@redhat.com>,
+	Boqun Feng <boqun.feng@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH v2 resend2] locking/spinlocks: Make __raw_* lock ops static
+Date: Wed,  2 Oct 2024 17:03:55 +0200
+Message-Id: <7201d7fb408375c6c4df541270d787b1b4a32354.1727879348.git.geert+renesas@glider.be>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20241002163133.3ade7537@p-imbrenda.boeblingen.de.ibm.com>
-References: <20241001113640.55210-1-imbrenda@linux.ibm.com> <172787913947.65827.12438423086547383920@t14-nrb.local> <20241002163133.3ade7537@p-imbrenda.boeblingen.de.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v1 1/1] s390x: edat: test 2G large page spanning end of memory
-From: Nico Boehr <nrb@linux.ibm.com>
-Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, borntraeger@de.ibm.com,
-        david@redhat.com, thuth@redhat.com, linux-s390@vger.kernel.org
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Date: Wed, 02 Oct 2024 16:51:47 +0200
-Message-ID: <172788070709.65827.11642696032248854756@t14-nrb.local>
-User-Agent: alot/0.10
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: r9Pr0d-NaCy4A0PxqK1sNxRlvdWwP7X4
-X-Proofpoint-ORIG-GUID: _ZDqO8t-ZU8IoWTO_rUB_Gy2GdcUOpCX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-02_14,2024-09-30_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
- adultscore=0 mlxscore=0 suspectscore=0 mlxlogscore=999 impostorscore=0
- phishscore=0 spamscore=0 priorityscore=1501 lowpriorityscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2408220000 definitions=main-2410020106
+Content-Transfer-Encoding: 8bit
 
-Quoting Claudio Imbrenda (2024-10-02 16:31:33)
-> On Wed, 02 Oct 2024 16:25:39 +0200
-> Nico Boehr <nrb@linux.ibm.com> wrote:
->=20
-> > Quoting Claudio Imbrenda (2024-10-01 13:36:40)
-> > [...]
-> > > diff --git a/s390x/edat.c b/s390x/edat.c
-> > > index 16138397..1f582efc 100644
-> > > --- a/s390x/edat.c
-> > > +++ b/s390x/edat.c
-> > > @@ -196,6 +196,8 @@ static void test_edat1(void)
-> > > =20
-> > >  static void test_edat2(void)
-> > >  { =20
-> > [...]
-> > > @@ -206,7 +208,21 @@ static void test_edat2(void)
-> > >         /* Prefixing should not work with huge pages, just like large=
- pages */
-> > >         report(!memcmp(0, VIRT(prefix_buf), LC_SIZE) &&
-> > >                 !memcmp(prefix_buf, VIRT(0), LC_SIZE),
-> > > -               "pmd, large, prefixing");
-> > > +               "pud, large, prefixing");
-> > > +
-> > > +       mem_end =3D get_ram_size();
-> > > +       if (mem_end >=3D BIT_ULL(REGION3_SHIFT)) {
-> > > +               report_skip("pud spanning end of memory"); =20
-> >=20
-> > Does it make sense to explicitly add a mem parameter in unittests.cfg so
-> > this will never be the case?
->=20
-> hmmm, I did not consider this case; I kinda assumed we would never
-> increase the default guest size
->=20
-> I do not have any strong opinions
+If CONFIG_GENERIC_LOCKBREAK=y and CONFIG_DEBUG_LOCK_ALLOC=n
+(e.g. sh/sdk7786_defconfig):
 
-As long as the default mem size is OK, I think it's fine to leave as-is.
+    kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__raw_spin_lock' [-Wmissing-prototypes]
+    kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__raw_spin_lock_irqsave' [-Wmissing-prototypes]
+    kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__raw_spin_lock_irq' [-Wmissing-prototypes]
+    kernel/locking/spinlock.c:103:17: warning: no previous prototype for '__raw_spin_lock_bh' [-Wmissing-prototypes]
+    kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__raw_read_lock' [-Wmissing-prototypes]
+    kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__raw_read_lock_irqsave' [-Wmissing-prototypes]
+    kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__raw_read_lock_irq' [-Wmissing-prototypes]
+    kernel/locking/spinlock.c:103:17: warning: no previous prototype for '__raw_read_lock_bh' [-Wmissing-prototypes]
+    kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__raw_write_lock' [-Wmissing-prototypes]
+    kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__raw_write_lock_irqsave' [-Wmissing-prototypes]
+    kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__raw_write_lock_irq' [-Wmissing-prototypes]
+    kernel/locking/spinlock.c:103:17: warning: no previous prototype for '__raw_write_lock_bh' [-Wmissing-prototypes]
+
+All __raw_* lock ops are internal functions without external callers.
+Hence fix this by making them static.
+
+Note that if CONFIG_GENERIC_LOCKBREAK=y, no lock ops are inlined, as all
+of CONFIG_INLINE_*_LOCK* depend on !GENERIC_LOCKBREAK.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Waiman Long <longman@redhat.com>
+---
+Compile-tested on all defconfigs that have CONFIG_GENERIC_LOCKBREAK=y:
+  - sh/sdk7786_defconfig,
+  - sh/shx3_defconfig,
+  - s390/debug_defconfig,
+and also on s390/debug_defconfig after changing:
+    CONFIG_DEBUG_LOCK_ALLOC=n
+    CONFIG_DEBUG_WW_MUTEX_SLOWPATH=n
+    CONFIG_LOCK_STAT=n
+    CONFIG_PROVE_LOCKING=n
+
+v2:
+  - Add Acked-by,
+  - Drop RFC,
+  - Improve patch description.
+---
+ kernel/locking/spinlock.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/kernel/locking/spinlock.c b/kernel/locking/spinlock.c
+index 438c6086d540ecc4..7685defd7c5262e4 100644
+--- a/kernel/locking/spinlock.c
++++ b/kernel/locking/spinlock.c
+@@ -65,7 +65,7 @@ EXPORT_PER_CPU_SYMBOL(__mmiowb_state);
+  * towards that other CPU that it should break the lock ASAP.
+  */
+ #define BUILD_LOCK_OPS(op, locktype)					\
+-void __lockfunc __raw_##op##_lock(locktype##_t *lock)			\
++static void __lockfunc __raw_##op##_lock(locktype##_t *lock)		\
+ {									\
+ 	for (;;) {							\
+ 		preempt_disable();					\
+@@ -77,7 +77,7 @@ void __lockfunc __raw_##op##_lock(locktype##_t *lock)			\
+ 	}								\
+ }									\
+ 									\
+-unsigned long __lockfunc __raw_##op##_lock_irqsave(locktype##_t *lock)	\
++static unsigned long __lockfunc __raw_##op##_lock_irqsave(locktype##_t *lock) \
+ {									\
+ 	unsigned long flags;						\
+ 									\
+@@ -95,12 +95,12 @@ unsigned long __lockfunc __raw_##op##_lock_irqsave(locktype##_t *lock)	\
+ 	return flags;							\
+ }									\
+ 									\
+-void __lockfunc __raw_##op##_lock_irq(locktype##_t *lock)		\
++static void __lockfunc __raw_##op##_lock_irq(locktype##_t *lock)	\
+ {									\
+ 	_raw_##op##_lock_irqsave(lock);					\
+ }									\
+ 									\
+-void __lockfunc __raw_##op##_lock_bh(locktype##_t *lock)		\
++static void __lockfunc __raw_##op##_lock_bh(locktype##_t *lock)		\
+ {									\
+ 	unsigned long flags;						\
+ 									\
+-- 
+2.34.1
+
