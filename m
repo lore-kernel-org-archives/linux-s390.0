@@ -1,135 +1,109 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 676D51D0BAE;
-	Wed,  2 Oct 2024 15:57:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 024FA1D0E08;
+	Wed,  2 Oct 2024 16:04:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727884664; cv=none; b=N0aUGPrWV4OLhu1UptceEU5O/4j3K8j08XribYfY+svoDpmjx6aGH8nMSyyy47cCoC1xPqiyTNocjRYdgfUDeE68xpgtccC9dmyhDMh9UNNh/g+2a2g9RNPVsToq2rJjGO7utA01InE6q562XtB9+VEPIx8LqUYw86YGto6G6vQ=
+	t=1727885066; cv=none; b=dXtJy3+ZxHYX3lyymip0BtN5s4rpFJrxaXO1xT11XcJ1X1beMPFI4dqHcnv2/BHkAyGMovh2ISF4P872M2FI4H2XPYXZtc9PoAOg1aqm0MwzUlVCzeopuwDrnfPrANWainLwEu5UAzdMw9Kx6SYhoIicct/paY/3/HqZ8yMbnmM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727884664; c=relaxed/simple;
-	bh=HFyoN1KB22kjcksERl9V5QekGNZ3SHOYyFOCdgKSE6I=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=LWT/jokUHYs1TaIT4nc4MfWx44x4wLahrnf6/eTTP5QyJiuc/NtOGx23/VoWdsVI7WIW+Fv+VSxMpMv7pZn4EbxAb/Ogi+yx3XNbDPTv04yhX6BYYGDI8EHoipp48kkku6sX/KlobthI4RIT96WQPD7vtSxA7HPLFNOfqAGcO+M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=V/JUgAhr; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1727885066; c=relaxed/simple;
+	bh=goCeIwE/K6fvry7QHqVlNK4qO0s3mpegDJuob/o0llc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=B7ydLJ9+wgUF/Hur1pTcnAqbklEg1zFRbxVm8iAHnbr7uXUwio2HphrcUrqf7biJ0AeKPPILGdsBgxxVcu7COLkNi9mFGM3yMQLO5/pPlCKcjMdmbVqwRRjoPz7T1vuyynkAuBRX/i1zN07eVsdKENnKSfYWpEEp1PSPw7cq5eI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HJWUaIb3; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="V/JUgAhr"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 492FsKij007576;
-	Wed, 2 Oct 2024 15:57:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
-	IvUgEAPXlN8mmSnwURHqLu1CXZH/xygxVenqyXJdm3M=; b=V/JUgAhrOvaxmRA2
-	OVh32PWpBdOqcxgr+/xixKSrEjp4OD6IyR1BPwv6Q6tYumRmdK7l4Pyn5l4mf9Z+
-	QXCTf7eeQ+Smr/p5ElSZxzFe+StQB4bI5Gm16kU4sr9z42IVrNazozibx0Fg1kR4
-	+qi+8Y4We2S6aBCc2MQde4COHCb0XMvDGq6zMFT7rOs/Yg8x+BWNBpqtgoycdPVo
-	rF3xIQiU0pJOGmXRr8DdUu9cP3aF75rysWt4eJUQLMzTXN9gJ0Yq6sFOJl/1Artj
-	PCgA8p3WS5Y+6dRGUrLGyOIqhH0MNrIJVjqwgxST556qHKCo6lgfPoyBjFpY7mjC
-	0oflTQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42197t80p9-1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HJWUaIb3"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 492FlsMF029034;
+	Wed, 2 Oct 2024 16:04:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:mime-version
+	:content-transfer-encoding; s=pp1; bh=/zxPmFu793D67n31PimDYS6Nw9
+	Bt7up1i0oSVuEZuqk=; b=HJWUaIb3QgOngUSyKl5WLnOzysLRvEgM5NCly/nXiG
+	kLCYv4YKR5bKq/o7xbpRmsJvjg7UfTfovGAgQkcXtno5LJlu+yHDoic9btJVBMf1
+	rwN+2UQbwjTCTGkpgUQjpqnG4c1hmlhyUri3C8/Kh7XvOew8KTyAt/hGyrCFhpgF
+	MHI/5RPxhdiLa58PjVkefRS39Wu6LjJVDMuwa+/6VS5eqhdp5Ua+GIlbN92rSmPs
+	rCQbmRjr3+2otPsePcQOHY2lt9087KRR2+G3I7Pw/Z6EZNTmjHdPzptLlueMjIW+
+	K+I2H3ncBAj8yiHrHhg8raSY+qTf4YCU7mEloz4uDCiA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42194n82wh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 02 Oct 2024 15:57:40 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 492FudPf013835;
-	Wed, 2 Oct 2024 15:57:40 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42197t80p2-1
+	Wed, 02 Oct 2024 16:04:23 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 492D1tqZ017866;
+	Wed, 2 Oct 2024 16:04:23 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41xw4n37ne-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 02 Oct 2024 15:57:40 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 492FnwZQ007923;
-	Wed, 2 Oct 2024 15:57:38 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41xvgy3ah4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 02 Oct 2024 15:57:38 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 492FvZDI56689128
+	Wed, 02 Oct 2024 16:04:23 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 492G4JMw57016628
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 2 Oct 2024 15:57:35 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2D3D92004B;
-	Wed,  2 Oct 2024 15:57:35 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EF01420043;
-	Wed,  2 Oct 2024 15:57:34 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  2 Oct 2024 15:57:34 +0000 (GMT)
-Date: Wed, 2 Oct 2024 16:52:34 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Nico Boehr <nrb@linux.ibm.com>
-Cc: frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v3 1/2] s390x: edat: move LC_SIZE to
- arch_def.h
-Message-ID: <20241002165234.3cb737fd@p-imbrenda.boeblingen.de.ibm.com>
-In-Reply-To: <20241002141616.357618-2-nrb@linux.ibm.com>
-References: <20241002141616.357618-1-nrb@linux.ibm.com>
-	<20241002141616.357618-2-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	Wed, 2 Oct 2024 16:04:19 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3700B20049;
+	Wed,  2 Oct 2024 16:04:19 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E076520040;
+	Wed,  2 Oct 2024 16:04:18 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  2 Oct 2024 16:04:18 +0000 (GMT)
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Ingo Franzki <ifranzki@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Christoph Schlameuss <schlameuss@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [PATCH v2 0/2] s390/uv: Provide host-key hashes in sysfs
+Date: Wed,  2 Oct 2024 18:04:16 +0200
+Message-ID: <20241002160418.2424889-1-seiden@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: jMkIUYrOyTewguZZpKCxgOfNWyIBbdn6
-X-Proofpoint-GUID: 8XwiG88QYJmW0hShBz-SiyODPub01BsG
+X-Proofpoint-ORIG-GUID: _RjeZUIgioQZdofT9ZdWNM8SJHKV4HPe
+X-Proofpoint-GUID: _RjeZUIgioQZdofT9ZdWNM8SJHKV4HPe
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-02_15,2024-09-30_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
- adultscore=0 priorityscore=1501 mlxscore=0 bulkscore=0 suspectscore=0
- malwarescore=0 lowpriorityscore=0 impostorscore=0 spamscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2408220000 definitions=main-2410020114
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
+ impostorscore=0 mlxlogscore=643 priorityscore=1501 mlxscore=0 phishscore=0
+ adultscore=0 suspectscore=0 lowpriorityscore=0 malwarescore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
+ definitions=main-2410020114
 
-On Wed,  2 Oct 2024 16:15:54 +0200
-Nico Boehr <nrb@linux.ibm.com> wrote:
+List the installed host-keys in the sysfs if the machine supports the
+Query Ultravisor Keys UVC.
 
-> struct lowcore is defined in arch_def.h and LC_SIZE is useful to other
-> tests as well, therefore move it to arch_def.h.
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+As of now, two types of host-keys are available:
+The used/primary host key, and the backup host-key both hastes are
+available in a sysfs file.
+For forwards compatibility an `all` file is also available that displays
+the whole payload (15*32 bytes) and therefore future key hashes.
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Since v1:
+	* added r-b's from Janoch & Christoph
+	* fixed minor issues (Janosch)
+	* removed an unnecessary UVC availability-check in uv_query_keys
+		-> removed Christoph's r-b from patch 2
 
-> ---
->  lib/s390x/asm/arch_def.h | 1 +
->  s390x/edat.c             | 1 -
->  2 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index 745a33878de5..5574a45156a9 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -119,6 +119,7 @@ enum address_space {
->  
->  #define CTL2_GUARDED_STORAGE		(63 - 59)
->  
-> +#define LC_SIZE	(2 * PAGE_SIZE)
->  struct lowcore {
->  	uint8_t		pad_0x0000[0x0080 - 0x0000];	/* 0x0000 */
->  	uint32_t	ext_int_param;			/* 0x0080 */
-> diff --git a/s390x/edat.c b/s390x/edat.c
-> index 16138397017c..e664b09d9633 100644
-> --- a/s390x/edat.c
-> +++ b/s390x/edat.c
-> @@ -17,7 +17,6 @@
->  
->  #define PGD_PAGE_SHIFT (REGION1_SHIFT - PAGE_SHIFT)
->  
-> -#define LC_SIZE	(2 * PAGE_SIZE)
->  #define VIRT(x)	((void *)((unsigned long)(x) + (unsigned long)mem))
->  
->  static uint8_t prefix_buf[LC_SIZE] __attribute__((aligned(LC_SIZE)));
+Steffen Eiden (2):
+  s390/uv: Refactor uv-sysfs creation
+  s390/uv: Provide host-key hashes in sysfs
+
+ arch/s390/include/asm/uv.h |  16 ++++++
+ arch/s390/kernel/uv.c      | 105 +++++++++++++++++++++++++++++++++----
+ 2 files changed, 111 insertions(+), 10 deletions(-)
+
+-- 
+2.43.0
 
