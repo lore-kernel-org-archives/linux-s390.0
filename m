@@ -1,135 +1,164 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E95C1CBE96;
-	Tue,  1 Oct 2024 17:42:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E41EF13FD84;
+	Wed,  2 Oct 2024 07:51:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727804545; cv=none; b=tk9Z6f4FdFX4Orht93XOsIgCZivWVUqBX9XPRpfs/ZL0ip83+5ABBMN/NbnL/o1ypTFs10BtCFxOgtMXFz4se6d9k+AFPyoy/BBge4LapUiJpAv+NKEg/zErVtxrX+HWamOJGk3Oa5lKUgitY1IsDoOuSvDimtEnhNarSs6Fxxc=
+	t=1727855496; cv=none; b=cwSrbFVdHRAEnfTlx+WlKaXc5N7fQODLBiyexL0V1HzkWsbfUNT4Na8+VsRitn5joPqNgfYl5Du21p+2nbC3FYg1q6EdoJgxFuDjyNk6PObH2xwzU/If1uFIldpdFHTy7MrSQwNQQP/2Xo5pVHBzJs22nrswZrNdpufp9vhcXXM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727804545; c=relaxed/simple;
-	bh=vctXxkLS+HH34UW9EYNVyXpSA8qwioVlPTmyir0WYdw=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
-	 References:In-Reply-To; b=SBdx28d7ivc0THoPDSYn+F6Ak72YyWHR6jGcO5L2/oD7/por+if0NRJA5l3zGSLtTWjrcGAR2rLvDIgVDKG0RIgqp68JQe+ajscX9T6lWPq8CFmIn3NujUpGFCnLFVnC5NdVEX3ykIm+IwEYDI9ewtbMRyc8RFGF6xu2cVKvrE0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JZA+yKiH; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1727855496; c=relaxed/simple;
+	bh=a4id0Kw954+Vu37UqokIHbCqRSYJtQD9qUocBD+9EVY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sCMkCFeO1reLkwgJaAes3vEfvuBeEEyfb8RG2pYfpcWAHcxnySJziPm9BnIklwuplN7B8wV06CPvCOfIUIsJ4qOUWCv+uW2g6gMxnmvha2DjTdSAnAPJjPAa39q8axAPBS64uDp8sfvKxMCuuLx+OSDS9PeUGwgUVCzplC9zuv4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=se+lrI0E; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JZA+yKiH"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 491GJd3u010581;
-	Tue, 1 Oct 2024 17:42:21 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="se+lrI0E"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4927iol0004507;
+	Wed, 2 Oct 2024 07:51:32 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	mime-version:content-transfer-encoding:content-type:date
-	:message-id:from:cc:to:subject:references:in-reply-to; s=pp1;
-	 bh=I7snKSV/pU1SnO1lQrZr0Df8fLkbV4uiwmbqJUqCKH8=; b=JZA+yKiHo2zo
-	4VLc2BMMFhpfCYPkUWWs6/7R8eo0NJaQtxknyfWKXII0SQGA7NArAaK7i3qL+D3E
-	RAt9i6g9dZ9fIjNE3opdKP5j6jzEHtoC2tUTUq+3iPQQyaSvwoLtkATzFeXFhY8B
-	bmrAYPCTlIGH6W7fqtb57vjMOaEYtc8+F54rO90/sDci44yvcK1AIoVbTBX16XYB
-	AsDpiwNclX4ERSXsBMf16OMYrcGtTblr9NGi9F48C/7L4hrZYoKNsOCTvkTmVPdn
-	86vP8x/R+zlmSzh8gBlpO1Fs73/WaB6cT6dNw6FFcHPm4tFXtcv9LGvbk4MJ18Ik
-	POl4UkZ66w==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 420m3brgkd-1
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=A
+	/ZN4gicxEB+uAbd5SqCw/ECn1Td7FoCod85zsw/nbE=; b=se+lrI0Ezj9SHquDi
+	ZnQ4fTrVyeUbtP3zvcz/dqEf2ylEbYLqDHZyAFvhB5D3JjyR/kri8Q5nGOGYVS7/
+	UXkL/SwetDLUNQMpjFnTeqfD930NZsuE24lvFq6/PZSHppZKbdZaKMJ69VYVPYJw
+	PHqu4mDbjyH/HPXrdrON5UkhZKzAsKe2JGPd0qoTQxYiZ9qHCPASPkjiLGaogya1
+	rH6aCGH8ZvObUGNtaCTUdrgiDaBHbGgnzPjhhhtWHhc09BIVO8Gk0SOSDFPDUVvF
+	PjjTeZyRcXWKCWX4lso6V0n+XtuGXY0neCey16kZqYGvbvjBPJeQBIK9Lx0yDyvr
+	c2IMQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42122681e8-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Oct 2024 17:42:21 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 491GbY80002767;
-	Tue, 1 Oct 2024 17:42:20 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 41xxu15g4n-1
+	Wed, 02 Oct 2024 07:51:32 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4926fZnP007947;
+	Wed, 2 Oct 2024 07:51:32 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41xvgy12nm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Oct 2024 17:42:20 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 491HgGaH15204840
+	Wed, 02 Oct 2024 07:51:31 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4927pS8B56754664
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 1 Oct 2024 17:42:17 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DA33620043;
-	Tue,  1 Oct 2024 17:42:16 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A93B920040;
-	Tue,  1 Oct 2024 17:42:16 +0000 (GMT)
-Received: from darkmoore (unknown [9.171.30.50])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  1 Oct 2024 17:42:16 +0000 (GMT)
+	Wed, 2 Oct 2024 07:51:28 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 500E420040;
+	Wed,  2 Oct 2024 07:51:28 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E5CD820043;
+	Wed,  2 Oct 2024 07:51:27 +0000 (GMT)
+Received: from [9.171.92.28] (unknown [9.171.92.28])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  2 Oct 2024 07:51:27 +0000 (GMT)
+Message-ID: <5179c537-8b0d-4839-8a5a-7bf4a4f50632@linux.ibm.com>
+Date: Wed, 2 Oct 2024 09:51:27 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 01 Oct 2024 19:42:11 +0200
-Message-Id: <D4KNL7YPNFYD.2FD1QX5DFT8H8@linux.ibm.com>
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: "Ingo Franzki" <ifranzki@linux.ibm.com>,
-        "Harald Freudenberger"
- <freude@linux.ibm.com>,
-        "Janosch Frank" <frankja@linux.ibm.com>,
-        "Claudio
- Imbrenda" <imbrenda@linux.ibm.com>
-To: "Steffen Eiden" <seiden@linux.ibm.com>, <linux-kernel@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH v1 6/6] s390/uv: Retrieve UV secrets sysfs support
-X-Mailer: aerc 0.18.2
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 2/6] s390/uv: Retrieve UV secrets support
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>,
+        Steffen Eiden <seiden@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc: Ingo Franzki <ifranzki@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
 References: <20240930131909.2079965-1-seiden@linux.ibm.com>
- <20240930131909.2079965-7-seiden@linux.ibm.com>
-In-Reply-To: <20240930131909.2079965-7-seiden@linux.ibm.com>
+ <20240930131909.2079965-3-seiden@linux.ibm.com>
+ <D4KLK3E4C9HH.3W2N6GXGMR4OY@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <D4KLK3E4C9HH.3W2N6GXGMR4OY@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: oQPISa71GeXMbjm-H9Fw8l2Lb1RfjNS1
-X-Proofpoint-ORIG-GUID: oQPISa71GeXMbjm-H9Fw8l2Lb1RfjNS1
+X-Proofpoint-GUID: RWeLU99TBAwn3zO3kSjbKMcb3ZIPSd6h
+X-Proofpoint-ORIG-GUID: RWeLU99TBAwn3zO3kSjbKMcb3ZIPSd6h
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-01_13,2024-09-30_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 malwarescore=0 mlxscore=0 bulkscore=0 clxscore=1015
- phishscore=0 adultscore=0 mlxlogscore=705 lowpriorityscore=0 spamscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2408220000 definitions=main-2410010113
+ definitions=2024-10-02_07,2024-09-30_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=670
+ mlxscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015
+ priorityscore=1501 impostorscore=0 adultscore=0 spamscore=0 suspectscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2410020055
 
-On Mon Sep 30, 2024 at 3:19 PM CEST, Steffen Eiden wrote:
-> Reflect the updated content in the query information UVC to the sysfs at
-> /sys/firmware/query
->
-> * new UV-query sysfs entry for the maximum number of retrievable
->   secrets the UV can store for one secure guest.
-> * new UV-query sysfs entry for the maximum number of association
->   secrets the UV can store for one secure guest.
-> * max_secrets contains the sum of max association and max retrievable
->   secrets.
->
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+On 10/1/24 6:06 PM, Christoph Schlameuss wrote:
+> On Mon Sep 30, 2024 at 3:19 PM CEST, Steffen Eiden wrote:
+>> Provide a kernel API to retrieve secrets from the UV secret store.
+>> Add two new functions:
+>> * `uv_get_secret_metadata` - get metadata for a given secret identifier
+>> * `uv_retrieve_secret` - get the secret value for the secret index
+>>
+>> With those two functions one can extract the secret for a given secret
+>> id, if the secret is retrievable.
+>>
+>> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+>> ---
+>>   arch/s390/include/asm/uv.h | 131 ++++++++++++++++++++++++++++++++++++-
+>>   arch/s390/kernel/uv.c      | 124 +++++++++++++++++++++++++++++++++++
+>>   2 files changed, 254 insertions(+), 1 deletion(-)
+> 
+> [...]
+> 
+>>   /* Bits in installed uv calls */
+>>   enum uv_cmds_inst {
+>> @@ -95,6 +96,7 @@ enum uv_cmds_inst {
+>>   	BIT_UVC_CMD_ADD_SECRET = 29,
+>>   	BIT_UVC_CMD_LIST_SECRETS = 30,
+>>   	BIT_UVC_CMD_LOCK_SECRETS = 31,
+> 
+> Is 32 skipped intentionally? Should there be a comment here that it is reserved?
 
-Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Yes, we usually only add the things that are needed for a patch series.
+32 is used for some other UVC which will be added in another series.
 
-> ---
->  arch/s390/boot/uv.c        |  3 ++-
->  arch/s390/include/asm/uv.h |  8 +++++---
->  arch/s390/kernel/uv.c      | 24 +++++++++++++++++++++++-
->  3 files changed, 30 insertions(+), 5 deletions(-)
-
-[...]
-
-> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-> index 6838aa23e4e5..91631bea22d8 100644
-> --- a/arch/s390/include/asm/uv.h
-> +++ b/arch/s390/include/asm/uv.h
-> @@ -144,8 +144,9 @@ struct uv_cb_qui {
->  	u64 supp_add_secret_req_ver;		/* 0x00f8 */
->  	u64 supp_add_secret_pcf;		/* 0x0100 */
->  	u64 supp_secret_types;			/* 0x0180 */
-
-This is not part of your patch, but maybe you can correct this with this
-adjacent edit.
-supp_secret_types is located at 0x0108.
-
-> -	u16 max_secrets;			/* 0x0110 */
-> -	u8 reserved112[0x120 - 0x112];		/* 0x0112 */
-> +	u16 max_assoc_secrets;			/* 0x0110 */
-> +	u16 max_retr_secrets;			/* 0x0112 */
-> +	u8 reserved114[0x120 - 0x114];		/* 0x0114 */
->  } __packed __aligned(8);
-
-[...]
+Also those bits are defined by architecture, not by KVM.
