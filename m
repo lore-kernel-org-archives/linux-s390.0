@@ -1,164 +1,190 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E41EF13FD84;
-	Wed,  2 Oct 2024 07:51:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 005511D096B;
+	Wed,  2 Oct 2024 14:13:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727855496; cv=none; b=cwSrbFVdHRAEnfTlx+WlKaXc5N7fQODLBiyexL0V1HzkWsbfUNT4Na8+VsRitn5joPqNgfYl5Du21p+2nbC3FYg1q6EdoJgxFuDjyNk6PObH2xwzU/If1uFIldpdFHTy7MrSQwNQQP/2Xo5pVHBzJs22nrswZrNdpufp9vhcXXM=
+	t=1727878442; cv=none; b=ev7uPjF376dGb9nRPBYLEuMJ/2QIaMbypAugG0vLG8JMV1nBRWVEo4mNrflK/+7GAwSn9/4TR5PpIO1m48fKzDlp3SY2NPpT/3FLcX6WxZNiLeQYoNpN3D0IbEEZanZzhDUdshAmEHnAxXjyopxhC/XvM3ObIODac8RGBANaomo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727855496; c=relaxed/simple;
-	bh=a4id0Kw954+Vu37UqokIHbCqRSYJtQD9qUocBD+9EVY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sCMkCFeO1reLkwgJaAes3vEfvuBeEEyfb8RG2pYfpcWAHcxnySJziPm9BnIklwuplN7B8wV06CPvCOfIUIsJ4qOUWCv+uW2g6gMxnmvha2DjTdSAnAPJjPAa39q8axAPBS64uDp8sfvKxMCuuLx+OSDS9PeUGwgUVCzplC9zuv4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=se+lrI0E; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1727878442; c=relaxed/simple;
+	bh=HeLUMcK6ucRDD+bOVXMOjuWIL4G56EVlC+OV+sIclUg=;
+	h=Content-Type:MIME-Version:In-Reply-To:References:Subject:From:Cc:
+	 To:Date:Message-ID; b=pL+PaauiUy8tA1Y3KxIyNKI0dCzP22TkayyqUdeHQESx1Fu7fTj70wo/6Ox4RwRzN3GCbe60DNmGug8/FKI8YluzcRqnQ2XcoGbtZ94SX9Qg3KnjU2MSnyA5cOThaSfRJS1gpBZ7nen26W+53+IDQIu5ncLSjISutkEsRggYoU4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HrAar6Yx; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="se+lrI0E"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4927iol0004507;
-	Wed, 2 Oct 2024 07:51:32 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HrAar6Yx"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 492DnlFV005645;
+	Wed, 2 Oct 2024 14:13:58 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=A
-	/ZN4gicxEB+uAbd5SqCw/ECn1Td7FoCod85zsw/nbE=; b=se+lrI0Ezj9SHquDi
-	ZnQ4fTrVyeUbtP3zvcz/dqEf2ylEbYLqDHZyAFvhB5D3JjyR/kri8Q5nGOGYVS7/
-	UXkL/SwetDLUNQMpjFnTeqfD930NZsuE24lvFq6/PZSHppZKbdZaKMJ69VYVPYJw
-	PHqu4mDbjyH/HPXrdrON5UkhZKzAsKe2JGPd0qoTQxYiZ9qHCPASPkjiLGaogya1
-	rH6aCGH8ZvObUGNtaCTUdrgiDaBHbGgnzPjhhhtWHhc09BIVO8Gk0SOSDFPDUVvF
-	PjjTeZyRcXWKCWX4lso6V0n+XtuGXY0neCey16kZqYGvbvjBPJeQBIK9Lx0yDyvr
-	c2IMQ==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42122681e8-1
+	content-type:mime-version:content-transfer-encoding:in-reply-to
+	:references:subject:from:cc:to:date:message-id; s=pp1; bh=fVxoa1
+	aGNg+itz5ljXsjN5RrI6YIQhC/5tTEkpqoknQ=; b=HrAar6YxD09KxUNFPOQS83
+	2LktopovooicmdYslJNRcrrkhdCaK/bbhyalr2pSX6b7DVtGlakkradsrp3FGjIH
+	8ZrwfZPETrHlUInuU2zw349Fai96oerGxq8GUL8MZd44QKlGXJrXcZWUEIucg+w6
+	+znhsh6fKkD5z+GWo49gzGkkPdGOJIcAhPHfQ4bodQPe2eQ8X1nD4g39QvPo0rBy
+	HdkU65YSxvkRS0OnDj6PvamuZdCBWdUl1HZUBZdowDP+UeiWsdTisdGZl18xeX1a
+	aVKd1TakIeIo4Tk/TB5j0sqRW+C/9EkDKrq4FCZc+fIFpNqPYhF0xTrqiBa0mMsQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4217da04re-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 02 Oct 2024 07:51:32 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4926fZnP007947;
-	Wed, 2 Oct 2024 07:51:32 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41xvgy12nm-1
+	Wed, 02 Oct 2024 14:13:58 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 492EDwVr017674;
+	Wed, 2 Oct 2024 14:13:58 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4217da04r8-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 02 Oct 2024 07:51:31 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4927pS8B56754664
+	Wed, 02 Oct 2024 14:13:58 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 492E37WZ014616;
+	Wed, 2 Oct 2024 14:13:57 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41xwmkakpe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 02 Oct 2024 14:13:57 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 492EDrie48628114
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 2 Oct 2024 07:51:28 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 500E420040;
-	Wed,  2 Oct 2024 07:51:28 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E5CD820043;
-	Wed,  2 Oct 2024 07:51:27 +0000 (GMT)
-Received: from [9.171.92.28] (unknown [9.171.92.28])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  2 Oct 2024 07:51:27 +0000 (GMT)
-Message-ID: <5179c537-8b0d-4839-8a5a-7bf4a4f50632@linux.ibm.com>
-Date: Wed, 2 Oct 2024 09:51:27 +0200
+	Wed, 2 Oct 2024 14:13:53 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C5E0E2004B;
+	Wed,  2 Oct 2024 14:13:53 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9D69B20043;
+	Wed,  2 Oct 2024 14:13:53 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.74.111])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  2 Oct 2024 14:13:53 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 2/6] s390/uv: Retrieve UV secrets support
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>,
-        Steffen Eiden <seiden@linux.ibm.com>, linux-kernel@vger.kernel.org,
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20240925173452.5781864f@p-imbrenda.boeblingen.de.ibm.com>
+References: <20240923062820.319308-1-nrb@linux.ibm.com> <20240923062820.319308-2-nrb@linux.ibm.com> <20240925173452.5781864f@p-imbrenda.boeblingen.de.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v2 1/2] s390x: add test for diag258
+From: Nico Boehr <nrb@linux.ibm.com>
+Cc: frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
-Cc: Ingo Franzki <ifranzki@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-References: <20240930131909.2079965-1-seiden@linux.ibm.com>
- <20240930131909.2079965-3-seiden@linux.ibm.com>
- <D4KLK3E4C9HH.3W2N6GXGMR4OY@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <D4KLK3E4C9HH.3W2N6GXGMR4OY@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Date: Wed, 02 Oct 2024 16:13:52 +0200
+Message-ID: <172787843272.65827.14205730120913539885@t14-nrb.local>
+User-Agent: alot/0.10
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: RWeLU99TBAwn3zO3kSjbKMcb3ZIPSd6h
-X-Proofpoint-ORIG-GUID: RWeLU99TBAwn3zO3kSjbKMcb3ZIPSd6h
+X-Proofpoint-GUID: VCMbz4wbsGf54TTbWbDlrMG5fEN55H0B
+X-Proofpoint-ORIG-GUID: fYVDh79Me7Ix7riI0NlF7XSv9L4psTtD
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-02_07,2024-09-30_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=670
- mlxscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015
- priorityscore=1501 impostorscore=0 adultscore=0 spamscore=0 suspectscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2408220000 definitions=main-2410020055
+ definitions=2024-10-02_14,2024-09-30_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ lowpriorityscore=0 bulkscore=0 suspectscore=0 impostorscore=0 phishscore=0
+ adultscore=0 priorityscore=1501 spamscore=0 malwarescore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
+ definitions=main-2410020103
 
-On 10/1/24 6:06 PM, Christoph Schlameuss wrote:
-> On Mon Sep 30, 2024 at 3:19 PM CEST, Steffen Eiden wrote:
->> Provide a kernel API to retrieve secrets from the UV secret store.
->> Add two new functions:
->> * `uv_get_secret_metadata` - get metadata for a given secret identifier
->> * `uv_retrieve_secret` - get the secret value for the secret index
->>
->> With those two functions one can extract the secret for a given secret
->> id, if the secret is retrievable.
->>
->> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
->> ---
->>   arch/s390/include/asm/uv.h | 131 ++++++++++++++++++++++++++++++++++++-
->>   arch/s390/kernel/uv.c      | 124 +++++++++++++++++++++++++++++++++++
->>   2 files changed, 254 insertions(+), 1 deletion(-)
-> 
-> [...]
-> 
->>   /* Bits in installed uv calls */
->>   enum uv_cmds_inst {
->> @@ -95,6 +96,7 @@ enum uv_cmds_inst {
->>   	BIT_UVC_CMD_ADD_SECRET = 29,
->>   	BIT_UVC_CMD_LIST_SECRETS = 30,
->>   	BIT_UVC_CMD_LOCK_SECRETS = 31,
-> 
-> Is 32 skipped intentionally? Should there be a comment here that it is reserved?
+Quoting Claudio Imbrenda (2024-09-25 17:34:52)
+> > +static uint8_t prefix_buf[LC_SIZE] __attribute__((aligned(LC_SIZE)));
+>=20
+> wait, you are using LC_SIZE in this file... even though it's only
+> defined in the next patch.
+>=20
+> I think you should swap patch 1 and 2
 
-Yes, we usually only add the things that are needed for a patch series.
-32 is used for some other UVC which will be added in another series.
+will do
 
-Also those bits are defined by architecture, not by KVM.
+[...]
+> > +/*
+> > + * Verify that the refbk pointer is a real address and not a virtual
+> > + * address. This is tested by enabling DAT and establishing a mapping
+> > + * for the refbk that is outside of the bounds of our (guest-)physical
+>=20
+> s/physical/real/ (or absolute)
+
+Huh? Why? Talking about the size here, so absolute, real and physical are
+all equivalent here.
+
+[...]
+> > +     /*
+> > +      * Put a valid refbk at refbk_in_reverse_prefix.
+> > +      */
+> > +     memcpy(refbk_in_reverse_prefix, &pfault_init_refbk, sizeof(pfault=
+_init_refbk));
+> > +
+> > +     ry =3D diag258(refbk_in_reverse_prefix);
+> > +     report(!ry, "real address refbk accessed");
+> > +
+> > +     /*
+> > +      * Activating should have worked. Cancel the activation and expect
+> > +      * return 0. If activation would not have worked, this should ret=
+urn with
+> > +      * 4 (pfault handshaking not active).
+> > +      */
+> > +     ry =3D diag258(&pfault_cancel_refbk);
+> > +     report(!ry, "handshaking canceled");
+> > +
+> > +     set_prefix(old_prefix);
+> > +
+> > +     report_prefix_pop();
+> > +}
+>=20
+> it seems like you are only testing the first page of lowcore; can you
+> expand the test to also test the second page?
+
+Would you mind leaving this for a future extension?
+
+> > +
+> > +/*
+> > + * Verify that a refbk exceeding physical memory is not accepted, even
+> > + * when crossing a frame boundary.
+> > + */
+> > +static void test_refbk_crossing(void)
+> > +{
+> > +     const size_t bytes_in_last_page =3D 8;
+>=20
+> are there any alignment requirements for the buffer?
+> if so, that should also be tested (either that a fault is triggered or
+> that the lowest bytes are ignored, depending on how it is defined to
+> work)
+
+There are alignment requirements. Would it be OK to do this in a future
+extension?
+
+> > +/*
+> > + * Verify that a refbk with an invalid refdiagc is not accepted.
+> > + */
+> > +static void test_refbk_invalid_diagcode(void)
+> > +{
+> > +     struct pfault_refbk refbk =3D pfault_init_refbk;
+> > +
+> > +     report_prefix_push("invalid refdiagc");
+> > +     refbk.refdiagc =3D 0xc0fe;
+>=20
+> other testcases in this file depend on invalid codes failing; maybe
+> move this test up?
+
+Yes, thanks, done.
+
+> > +int main(void)
+> > +{
+> > +     report_prefix_push("diag258");
+> > +
+> > +     expect_pgm_int();
+> > +     diag258(&pfault_init_refbk);
+> > +     if (clear_pgm_int() =3D=3D PGM_INT_CODE_SPECIFICATION) {
+> > +             report_skip("diag258 not supported");
+> > +     } else {
+> > +             test_priv();
+> > +             test_refbk_real();
+>=20
+> should probably go here....
+
+test_refbk_real() relies on the invalid diagcode doing nothing, so it
+should go *before* that one.
