@@ -1,45 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DD4A1DD867;
-	Fri,  4 Oct 2024 18:18:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E8511DD873;
+	Fri,  4 Oct 2024 18:19:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728065939; cv=none; b=J65W0gVnmAwGosKnV9hcdmEr71PHqgcw16HLW/DzlnpmLyXW9hPxn96VKL+EkNlr9lNfM/ucSc1+lbSRKuAjX12FkA9U8TW7HcOgPV+vDQMpITVcPT6ZkLJa8PDSFElfSsBS4nRmMkC/s6GiecS65+BCKBb72Ob7aKk/OiKLTh4=
+	t=1728065943; cv=none; b=jmMIBV+yaM1YS6ZaGeC+nj2IfJV+K7RDrk2EI2RnxX7N3b7p8PsYoVluLbLFQzvbmXFQYYMr9q0R8Hub2fuTYMFJJxWahf+3dETpGeAnWZ2g1gOVASQGCD8p1zBrtqXydVvdGswjjsgLkvdDWM7ChUcb7AJa8pTB2+VNphZRo1A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728065939; c=relaxed/simple;
-	bh=OPg7FRb0kBq7ivezil0fQ06/cg//Z3nwebfuiYFWQvw=;
+	s=arc-20240116; t=1728065943; c=relaxed/simple;
+	bh=J/CJ1wHjeMBBZix/ZJOLlFTggi6BPobk8g6fjsbu52A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=S/KLVbuwlpUvLg8SkbfY5f8BNaSKyyozZL6ZB9+sxcBAWM87kT6rcQJ7TubHw5A8PsBKFfU2oem5uDpk85pzI7E+Wn8crCp2yEBFhZatOj6R2BOh0ShuAcZkrLU5bGaIPlH4Zbq6TX9tz5H0/0SQPmWI1YOpTi7MCw2BSOR7z4M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tVEWhAff; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=SLKk0NfSiVpnuVOJ/BH+2oXsPyIGgCevC17kzjezpjmRFzEVHGdwE04AMpilCo9pIzEBfy8ksNUXsEygtYSAotVdtG2F5MxWMFnUBaYqg0tH1K/yU2Vxz929Gx5urixeFI7yg0ueWQdf+XXQUKzerZsdTo08Y/nTvwxvm0Kw20Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pfqqXA4m; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tVEWhAff"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CACDC4CECE;
-	Fri,  4 Oct 2024 18:18:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pfqqXA4m"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE53DC4CEC6;
+	Fri,  4 Oct 2024 18:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1728065939;
-	bh=OPg7FRb0kBq7ivezil0fQ06/cg//Z3nwebfuiYFWQvw=;
+	s=k20201202; t=1728065942;
+	bh=J/CJ1wHjeMBBZix/ZJOLlFTggi6BPobk8g6fjsbu52A=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=tVEWhAff2WTAHa7Csze1fmmKk3KvRxVW+yq8xlfrJwi8g2UXbKnODjM3VkX1/BQ4v
-	 3kcEuPP0BzjbcAN8kjsDzSJt+rKNxnsO9k1mEdJxH42w7pbaO1LV3/ttVaA2VcLqgn
-	 yzZFUP5KkJ3uRmGS5UN9aSdeMHevuFSAHEIqTci8fULbSbyOXnPlFUgTwkDYv6Abso
-	 wgFhzsQH58RHg8JaQTkbVf/EkhvHDOEiHsIfLE09Lj6+RAJsKJiOVHLGuHpWg6tdxL
-	 S+uQwxO3wV1883MVAu8MZtZq8pn9HN7pO8Z2yYxNElqMlFhc3ei6S3RK0lQ0wcu05p
-	 YZTsXhEvF9TvA==
+	b=pfqqXA4m71EjTyUxopqvlAEIiX0ADRIYrW6svsy8aE6vSyItU9LdCrUxyCt4J7eL/
+	 ZwylOouMI/yiQ0VZ0Eaf5SapOGZICmlRsESf7daEUK5MfbBkWNsZY0LwSX/rX9fDTx
+	 2gBBNJqN0AjWo4fonNG1BMqHMBY1ZJ3GUofTvlttoffoKKOEs2Fe0dTit0T12emtG4
+	 iv+96adf40EGbjjLMZSDLnGuZoPIJ7a5MbtwtK2mc8Wse9La6sdswQLqnApPLBsaMp
+	 MdIwgw6hBJXhqbOTas3iz8zECchi421m0zfpkCm4IAqwtr/DL+D4kPvTsDTRWlKtid
+	 5kGrfb57SXfeg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>,
-	Sumanth Korikkar <sumanthk@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Sasha Levin <sashal@kernel.org>,
-	svens@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	brueckner@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.11 17/76] s390/cpum_sf: Remove WARN_ON_ONCE statements
-Date: Fri,  4 Oct 2024 14:16:34 -0400
-Message-ID: <20241004181828.3669209-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.11 19/76] s390/traps: Handle early warnings gracefully
+Date: Fri,  4 Oct 2024 14:16:36 -0400
+Message-ID: <20241004181828.3669209-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20241004181828.3669209-1-sashal@kernel.org>
 References: <20241004181828.3669209-1-sashal@kernel.org>
@@ -54,69 +53,54 @@ X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.11.2
 Content-Transfer-Encoding: 8bit
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit b495e710157606889f2d8bdc62aebf2aa02f67a7 ]
+[ Upstream commit 3c4d0ae0671827f4b536cc2d26f8b9c54584ccc5 ]
 
-Remove WARN_ON_ONCE statements. These have not triggered in the
-past.
+Add missing warning handling to the early program check handler. This
+way a warning is printed to the console as soon as the early console
+is setup, and the kernel continues to boot.
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Before this change a disabled wait psw was loaded instead and the
+machine was silently stopped without giving an idea about what
+happened.
+
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ arch/s390/kernel/early.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 736c1d9632dd5..48fa9471660a8 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1463,7 +1463,7 @@ static int aux_output_begin(struct perf_output_handle *handle,
- 	unsigned long range, i, range_scan, idx, head, base, offset;
- 	struct hws_trailer_entry *te;
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index 14d324865e33f..ecae246e8d5d4 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -177,8 +177,21 @@ static __init void setup_topology(void)
  
--	if (WARN_ON_ONCE(handle->head & ~PAGE_MASK))
-+	if (handle->head & ~PAGE_MASK)
- 		return -EINVAL;
- 
- 	aux->head = handle->head >> PAGE_SHIFT;
-@@ -1642,7 +1642,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
- 	unsigned long num_sdb;
- 
- 	aux = perf_get_aux(handle);
--	if (WARN_ON_ONCE(!aux))
-+	if (!aux)
- 		return;
- 
- 	/* Inform user space new data arrived */
-@@ -1661,7 +1661,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
- 				num_sdb);
- 			break;
- 		}
--		if (WARN_ON_ONCE(!aux))
-+		if (!aux)
- 			return;
- 
- 		/* Update head and alert_mark to new position */
-@@ -1896,12 +1896,8 @@ static void cpumsf_pmu_start(struct perf_event *event, int flags)
+ void __do_early_pgm_check(struct pt_regs *regs)
  {
- 	struct cpu_hw_sf *cpuhw = this_cpu_ptr(&cpu_hw_sf);
+-	if (!fixup_exception(regs))
+-		disabled_wait();
++	struct lowcore *lc = get_lowcore();
++	unsigned long ip;
++
++	regs->int_code = lc->pgm_int_code;
++	regs->int_parm_long = lc->trans_exc_code;
++	ip = __rewind_psw(regs->psw, regs->int_code >> 16);
++
++	/* Monitor Event? Might be a warning */
++	if ((regs->int_code & PGM_INT_CODE_MASK) == 0x40) {
++		if (report_bug(ip, regs) == BUG_TRAP_TYPE_WARN)
++			return;
++	}
++	if (fixup_exception(regs))
++		return;
++	disabled_wait();
+ }
  
--	if (WARN_ON_ONCE(!(event->hw.state & PERF_HES_STOPPED)))
-+	if (!(event->hw.state & PERF_HES_STOPPED))
- 		return;
--
--	if (flags & PERF_EF_RELOAD)
--		WARN_ON_ONCE(!(event->hw.state & PERF_HES_UPTODATE));
--
- 	perf_pmu_disable(event->pmu);
- 	event->hw.state = 0;
- 	cpuhw->lsctl.cs = 1;
+ static noinline __init void setup_lowcore_early(void)
 -- 
 2.43.0
 
