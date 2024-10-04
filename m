@@ -1,45 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4BF21DF73D;
-	Fri,  4 Oct 2024 18:30:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34BA01DF756;
+	Fri,  4 Oct 2024 18:30:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728066613; cv=none; b=jSj6HO9zf+B3zPCAvIsfNOvOrn3b2aWgQPegSdg4ofAyDMOM+AV95dtzh+i/qWtnWdpD1UD8b5PLhAfXr4Sh3VZiyW7OTF87J5odazAingpmO4iWXxkccG7qLlAH1oAACNsgvKyy5Da9MXkKQkt2vxLJHMD8bBbJsJnQbbe5A9M=
+	t=1728066615; cv=none; b=iEPBYvCemKfMYChZR5VPj1ZV0dnJxzD3/JNg7r/Y+zMlfR4Zy/jyNn3/gq0uU8AKMOYpBSiXftnjrIYcDSSHN+R450hbaVG3zoT1HnWwEswmpzzOeZZgIhiJo+Ju9N3mGIWDPWove66SudQjGOSrvbuZce/QwY7eLgDzikZwZPg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728066613; c=relaxed/simple;
-	bh=PASC1cDVLfI7W5kc2UXauk071LyN/QUixRh+XkYnRDw=;
+	s=arc-20240116; t=1728066615; c=relaxed/simple;
+	bh=otjOsiDz4bTanHKzYuDkhYA9yxCY++MDYjkxVF0KTtc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dJxrRPfUrqjCNNpkvDeywbdgWZqO9FRtF+OcCtNIAs+hactpm2SCW2fmsJrnJzMkQxshAPEVF7YGW9urMdDhquvNb68Xm1UqPuDB/Ms7OQfFvsB7p1F085JZJ+gtJVDeTNr+zqA9gDiFPM6kJiUiD2+1yw9NRz2MfjatyWRlIVw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Mcv1N5bL; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=bgL7WkE4nDpQzR/nJgHJszLtU6keKKJopq5PWADhHE47EseGmkK0q3rlOuTMw2OKrEZH0274XzgNhXxVupE0sTRhQd3N8ZlDMKBDFI58qPvCw/xGNtJPyqWudbfO+0/PkjObbrylNYy3RYG+KgfbzCrikKwKL3k6b1RnNx6fLrc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=us3ioA/Z; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Mcv1N5bL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52E40C4CECC;
-	Fri,  4 Oct 2024 18:30:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="us3ioA/Z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1C38C4CECD;
+	Fri,  4 Oct 2024 18:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1728066613;
-	bh=PASC1cDVLfI7W5kc2UXauk071LyN/QUixRh+XkYnRDw=;
+	s=k20201202; t=1728066614;
+	bh=otjOsiDz4bTanHKzYuDkhYA9yxCY++MDYjkxVF0KTtc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Mcv1N5bL2zeVe5FSUMSQWRYvDIgq1uc6jN89FRdMf0PNzd2LlzIwvOI7Z7C8QSlAJ
-	 jkqJ4EogaIIMex2kwCZF509q+uA4iIekLfkD4j3epK5cuPwgm2Wf6m6pkNaLPpk2z4
-	 1YTTGtfu/65UOEI2p1Anok9Br/BA3u90LdahI+RHQp0OV2hyWcR+3iz6rHCbMTQfc4
-	 TLPEON7TuLp04Z/dEpDhT6ZrkPMn+Nveg7Q5IJ73e18TqIRHMbN1oDWwDe7l3zAaXZ
-	 DWikcLqSxurdr9tq2iiW5jy4a1JID4nfilOXFFD+gDASnn9Sy8mFg0JqOaRkhm1ib2
-	 lgPddsYtQJZAQ==
+	b=us3ioA/ZODlJmzE1d27yXKqhFTWqprECohtwR0pNxKgHNuaU90WRzPq90bu6tX/YP
+	 i0it+MyYKQ/5x20EYbR0K8arQ/vwI91IeIDO4FV2xblfv25Uw9EAlq3WN4xC0Jz3Qc
+	 MOgxJVALYYyfhE/Rj2veOuVwch7pZgam0LOwK6d+J/L0X65xMlKQ1EmBtjOorshpg7
+	 TTQq3k4rbDI9xVzYzbX4nUg6wa1fR7Chgclz8FhkGaWvqLRIxQOTiB0X2h+szu5n91
+	 70MoEcwxqZid1FkO1WltY4iTG6/CW2OtiMMfax5wO2tqRXglUJ80qH9E9kOlQtzieA
+	 RtKid3MO3AS7g==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
 	Sasha Levin <sashal@kernel.org>,
-	gor@linux.ibm.com,
 	agordeev@linux.ibm.com,
-	frankja@linux.ibm.com,
-	nsg@linux.ibm.com,
+	gor@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 03/26] s390/facility: Disable compile time optimization for decompressor code
-Date: Fri,  4 Oct 2024 14:29:29 -0400
-Message-ID: <20241004183005.3675332-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 04/26] s390/mm: Add cond_resched() to cmm_alloc/free_pages()
+Date: Fri,  4 Oct 2024 14:29:30 -0400
+Message-ID: <20241004183005.3675332-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20241004183005.3675332-1-sashal@kernel.org>
 References: <20241004183005.3675332-1-sashal@kernel.org>
@@ -54,42 +52,67 @@ X-Patchwork-Hint: Ignore
 X-stable-base: Linux 5.10.226
 Content-Transfer-Encoding: 8bit
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-[ Upstream commit 0147addc4fb72a39448b8873d8acdf3a0f29aa65 ]
+[ Upstream commit 131b8db78558120f58c5dc745ea9655f6b854162 ]
 
-Disable compile time optimizations of test_facility() for the
-decompressor. The decompressor should not contain any optimized code
-depending on the architecture level set the kernel image is compiled
-for to avoid unexpected operation exceptions.
+Adding/removing large amount of pages at once to/from the CMM balloon
+can result in rcu_sched stalls or workqueue lockups, because of busy
+looping w/o cond_resched().
 
-Add a __DECOMPRESSOR check to test_facility() to enforce that
-facilities are always checked during runtime for the decompressor.
+Prevent this by adding a cond_resched(). cmm_free_pages() holds a
+spin_lock while looping, so it cannot be added directly to the existing
+loop. Instead, introduce a wrapper function that operates on maximum 256
+pages at once, and add it there.
 
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/facility.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/s390/mm/cmm.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/facility.h b/arch/s390/include/asm/facility.h
-index 68c476b20b57e..c7031d9ada293 100644
---- a/arch/s390/include/asm/facility.h
-+++ b/arch/s390/include/asm/facility.h
-@@ -53,8 +53,10 @@ static inline int test_facility(unsigned long nr)
- 	unsigned long facilities_als[] = { FACILITIES_ALS };
- 
- 	if (__builtin_constant_p(nr) && nr < sizeof(facilities_als) * 8) {
--		if (__test_facility(nr, &facilities_als))
--			return 1;
-+		if (__test_facility(nr, &facilities_als)) {
-+			if (!__is_defined(__DECOMPRESSOR))
-+				return 1;
-+		}
+diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
+index 1141c8d5c0d03..9b4304fa37bfc 100644
+--- a/arch/s390/mm/cmm.c
++++ b/arch/s390/mm/cmm.c
+@@ -95,11 +95,12 @@ static long cmm_alloc_pages(long nr, long *counter,
+ 		(*counter)++;
+ 		spin_unlock(&cmm_lock);
+ 		nr--;
++		cond_resched();
  	}
- 	return __test_facility(nr, &S390_lowcore.stfle_fac_list);
+ 	return nr;
  }
+ 
+-static long cmm_free_pages(long nr, long *counter, struct cmm_page_array **list)
++static long __cmm_free_pages(long nr, long *counter, struct cmm_page_array **list)
+ {
+ 	struct cmm_page_array *pa;
+ 	unsigned long addr;
+@@ -123,6 +124,21 @@ static long cmm_free_pages(long nr, long *counter, struct cmm_page_array **list)
+ 	return nr;
+ }
+ 
++static long cmm_free_pages(long nr, long *counter, struct cmm_page_array **list)
++{
++	long inc = 0;
++
++	while (nr) {
++		inc = min(256L, nr);
++		nr -= inc;
++		inc = __cmm_free_pages(inc, counter, list);
++		if (inc)
++			break;
++		cond_resched();
++	}
++	return nr + inc;
++}
++
+ static int cmm_oom_notify(struct notifier_block *self,
+ 			  unsigned long dummy, void *parm)
+ {
 -- 
 2.43.0
 
