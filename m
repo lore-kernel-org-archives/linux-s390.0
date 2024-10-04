@@ -1,48 +1,51 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B51D2269DB;
-	Fri,  4 Oct 2024 18:30:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B49A522AD2A;
+	Fri,  4 Oct 2024 18:31:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728066623; cv=none; b=g7cGlVgn4vQpUuWoMYxeLet/p/FhckiWxzZxJGI6cen5UfrdIWKM/rQQLhh5TjBIcLx1+yh9KcGqJT+pob+zZ7qY+bkKHqfbdk+zu8Uj+LdmGGtuqiGGG39Qu98R7bQXUfbyao6QppREkaElHafxiNIRXJ8BUw8Oi1y07jK1S2Y=
+	t=1728066670; cv=none; b=Ya/RnaC4GRHsGG+Fa34vQoNqsJZxFhEyzpfg82dzIwdF9HXmOvaz66SJuDFZd2ohqqHixOWnZdcUMjSMK3gBti/klvwIlA+RQbC/FXhyls2YG47rSMGXa17g9JSJH64eneAZ56NF066APLTwD/LheRapuGVBF5pjMaDD9zMN0cE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728066623; c=relaxed/simple;
-	bh=NbAZc4XqAhYoepvIRrPOZBK0dUQRKugFczYyr2FgpP4=;
+	s=arc-20240116; t=1728066670; c=relaxed/simple;
+	bh=R85LbV8H9lilogl/LLZ8T2Bj37ho9J71VV48hHczD64=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YeJYdjebvhXp9vnsfezz/EJi0MGDGmWfEQfsLN0bIkrI4RjDm4qboQp/e616kB/K/iGby8O7TmPD7S/JKpJvidnIK50wpvkOT5EY3IX9XPHnAFcApq5eIgYaAyTpc2RR533CP3AzkzkzjMzxewXgWBxnaQXZ4cz9MavJ0ccoV1c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WD74c9jT; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=qMMgMzzR2Dfq6EZtVmpnz3LobpvFPcoJkTw/L3ssKwHXu2OVe0e/KG+p3NG+tnwAOFLWRuHN1EXNd1TKtwv+LThLqFj37HsN97I4nAkIHiiXcnVHmK/m8nl94FhPqiY+hLeLjijZdiJc8t6v2jphg1paWb7yQEvxVjhbNcrxVrg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WPxF/qbM; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WD74c9jT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91934C4CECE;
-	Fri,  4 Oct 2024 18:30:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WPxF/qbM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6C7BC4CECD;
+	Fri,  4 Oct 2024 18:31:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1728066622;
-	bh=NbAZc4XqAhYoepvIRrPOZBK0dUQRKugFczYyr2FgpP4=;
+	s=k20201202; t=1728066670;
+	bh=R85LbV8H9lilogl/LLZ8T2Bj37ho9J71VV48hHczD64=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=WD74c9jTFtpRHuPWNrp1g4DxKJchoR3hZTGPJNHYIED0In1xMhPzjK0KXf7AodtAr
-	 zIC//k6awwpKN9Y89yoNt1ppQpz8nYi77aHlgP1bfy2E2p/K5cCy8IQXhfIglMpg88
-	 T84MWLUhNExXk4Sz9Ez+2NHbkviI+16SSWDJYktXWDmJlccLtxbL1DSv0hg9ifvSu3
-	 Msvi7exJqedKk1oM8EdkkbbCwiAHf/T8q/jKF5YOC/1MRuozGdOqVBQrF+q3l4ufOd
-	 XxuHymcGhzEQnQUSVfK/xTT4qHOGhWn5zNk5mUtrdWziE1CjlKCnBjNNbVqUObi3Pp
-	 VIUmWQXmz4lJw==
+	b=WPxF/qbMqInsBIT8KYZEFtoJqeAm4RNEK8lMhlZkpuuS616m9zpBJ5RDt0W7ZxdW5
+	 kFoow3qJisc/5XTci3jT86yALZd4Qqp0nfsA/sYauLt2SFLTlnHZ5jFxViTvDmk8wQ
+	 j+sOKAoKcQTjG74Lr9EWfBxUOj8O8Vv7U++EOhUfqyHl7yoHFTp2mWJybJL/qx6r9/
+	 owxVKndvkPPmqKi6iMMn0EjGulswYw2idRbMuSnz83Gvrn1ewZ4dleg+sWW6+Oikv+
+	 V3o/lXnlzfagxmow0k/Pwhhq+ZjLfzgS6SkkQ8GZFzMqRp+G1yQ+MC2uDg9XFJwBDo
+	 X/1+bCzYtJI4A==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>,
-	Sumanth Korikkar <sumanthk@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
 	Sasha Levin <sashal@kernel.org>,
-	svens@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	nathan@kernel.org,
+	sumanthk@linux.ibm.com,
+	iii@linux.ibm.com,
+	frankja@linux.ibm.com,
+	jpoimboe@kernel.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 09/26] s390/cpum_sf: Remove WARN_ON_ONCE statements
-Date: Fri,  4 Oct 2024 14:29:35 -0400
-Message-ID: <20241004183005.3675332-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 02/21] s390/boot: Compile all files with the same march flag
+Date: Fri,  4 Oct 2024 14:30:37 -0400
+Message-ID: <20241004183105.3675901-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20241004183005.3675332-1-sashal@kernel.org>
-References: <20241004183005.3675332-1-sashal@kernel.org>
+In-Reply-To: <20241004183105.3675901-1-sashal@kernel.org>
+References: <20241004183105.3675901-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -51,72 +54,67 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.10.226
+X-stable-base: Linux 5.4.284
 Content-Transfer-Encoding: 8bit
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit b495e710157606889f2d8bdc62aebf2aa02f67a7 ]
+[ Upstream commit fccb175bc89a0d37e3ff513bb6bf1f73b3a48950 ]
 
-Remove WARN_ON_ONCE statements. These have not triggered in the
-past.
+Only a couple of files of the decompressor are compiled with the
+minimum architecture level. This is problematic for potential function
+calls between compile units, especially if a target function is within
+a compile until compiled for a higher architecture level, since that
+may lead to an unexpected operation exception.
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Therefore compile all files of the decompressor for the same (minimum)
+architecture level.
+
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ arch/s390/boot/Makefile | 19 +++++--------------
+ 1 file changed, 5 insertions(+), 14 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index bcd31e0b4edb3..a9e05f4d0a483 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1432,7 +1432,7 @@ static int aux_output_begin(struct perf_output_handle *handle,
- 	unsigned long head, base, offset;
- 	struct hws_trailer_entry *te;
+diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+index 0ff9261c915e3..cba2705c62353 100644
+--- a/arch/s390/boot/Makefile
++++ b/arch/s390/boot/Makefile
+@@ -8,11 +8,8 @@ GCOV_PROFILE := n
+ UBSAN_SANITIZE := n
+ KASAN_SANITIZE := n
  
--	if (WARN_ON_ONCE(handle->head & ~PAGE_MASK))
-+	if (handle->head & ~PAGE_MASK)
- 		return -EINVAL;
- 
- 	aux->head = handle->head >> PAGE_SHIFT;
-@@ -1613,7 +1613,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
- 	unsigned long num_sdb;
- 
- 	aux = perf_get_aux(handle);
--	if (WARN_ON_ONCE(!aux))
-+	if (!aux)
- 		return;
- 
- 	/* Inform user space new data arrived */
-@@ -1635,7 +1635,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
- 					    __func__);
- 			break;
- 		}
--		if (WARN_ON_ONCE(!aux))
-+		if (!aux)
- 			return;
- 
- 		/* Update head and alert_mark to new position */
-@@ -1870,12 +1870,8 @@ static void cpumsf_pmu_start(struct perf_event *event, int flags)
- {
- 	struct cpu_hw_sf *cpuhw = this_cpu_ptr(&cpu_hw_sf);
- 
--	if (WARN_ON_ONCE(!(event->hw.state & PERF_HES_STOPPED)))
-+	if (!(event->hw.state & PERF_HES_STOPPED))
- 		return;
+-KBUILD_AFLAGS := $(KBUILD_AFLAGS_DECOMPRESSOR)
+-KBUILD_CFLAGS := $(KBUILD_CFLAGS_DECOMPRESSOR)
 -
--	if (flags & PERF_EF_RELOAD)
--		WARN_ON_ONCE(!(event->hw.state & PERF_HES_UPTODATE));
--
- 	perf_pmu_disable(event->pmu);
- 	event->hw.state = 0;
- 	cpuhw->lsctl.cs = 1;
+ #
+-# Use minimum architecture for als.c to be able to print an error
++# Use minimum architecture level so it is possible to print an error
+ # message if the kernel is started on a machine which is too old
+ #
+ ifndef CONFIG_CC_IS_CLANG
+@@ -21,16 +18,10 @@ else
+ CC_FLAGS_MARCH_MINIMUM := -march=z10
+ endif
+ 
+-ifneq ($(CC_FLAGS_MARCH),$(CC_FLAGS_MARCH_MINIMUM))
+-AFLAGS_REMOVE_head.o		+= $(CC_FLAGS_MARCH)
+-AFLAGS_head.o			+= $(CC_FLAGS_MARCH_MINIMUM)
+-AFLAGS_REMOVE_mem.o		+= $(CC_FLAGS_MARCH)
+-AFLAGS_mem.o			+= $(CC_FLAGS_MARCH_MINIMUM)
+-CFLAGS_REMOVE_als.o		+= $(CC_FLAGS_MARCH)
+-CFLAGS_als.o			+= $(CC_FLAGS_MARCH_MINIMUM)
+-CFLAGS_REMOVE_sclp_early_core.o	+= $(CC_FLAGS_MARCH)
+-CFLAGS_sclp_early_core.o	+= $(CC_FLAGS_MARCH_MINIMUM)
+-endif
++KBUILD_AFLAGS := $(filter-out $(CC_FLAGS_MARCH),$(KBUILD_AFLAGS_DECOMPRESSOR))
++KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_MARCH),$(KBUILD_CFLAGS_DECOMPRESSOR))
++KBUILD_AFLAGS += $(CC_FLAGS_MARCH_MINIMUM)
++KBUILD_CFLAGS += $(CC_FLAGS_MARCH_MINIMUM)
+ 
+ CFLAGS_sclp_early_core.o += -I$(srctree)/drivers/s390/char
+ 
 -- 
 2.43.0
 
