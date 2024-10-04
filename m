@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B53C2009A2;
-	Fri,  4 Oct 2024 18:25:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D2462009C4;
+	Fri,  4 Oct 2024 18:25:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728066313; cv=none; b=B+/futPQcL64hxCoL8+Z83qSVZBEHKaMa6awnK/4Q2oIi+ZQNepYw5JQE566d00fxgCQaVov8zaxthjQmQWBoePL9+Og8xzBra1kZ4lFpTiLtNKO+BSeirPc6GDE9fZfcShhcaczI+iOg/RBkbiogKY1M/BepSZyN20vW6LI7PU=
+	t=1728066316; cv=none; b=B0hTtow5hS+Kv8DPtVOpKqS4c1wwcu1728Mryh4SDJAjHFrs5IojC2RWrRwbidXn0+7A49YuOF3b6y3zX9iVGAH0UBd+jRJ+DNMjHzEAkEcpPGAajek4diIXLsKmcHsphsBuGe7PjaLsIxWHAVvosSe60ZPBGx8CIXaxYXWceyY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728066313; c=relaxed/simple;
-	bh=/xEHbD1S9fJifTO2lK5CNHKP/Ub5l6y09bgLXiTTMk0=;
+	s=arc-20240116; t=1728066316; c=relaxed/simple;
+	bh=wX8N+tx3kFBBYYzq801n8SW2ZPgDnMul93kbozxOElA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Y/+rzHOwVLNCRo1jEbY8jR0395KMIObMpWC1xO0ywm/ThKGxLIYE5+spV7qsu3YDxaqhlKqtXlY3y2ZD91CioxclLjQf5DEFhnCQhVrGcxlj3/TKCK1Jo8NkK3ZWv1hWC8kSFypzBToXv747V0O8f0GzMqUi1nmfS1/GAk6tw+8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=abG/5t4p; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=M5nXrwcb9toHu70fBIGPRyXCycDgs0HDKqmUJja07tIUSRu+DXVe/qtQuDhMJPcK+Gh2cYdsRTQLW2cNLF3OCxj7xQWGI30yZiDsilwbfkMi/B3B5R3mK6tdRYT83Kbtoh+QbGSVzKS/1CVnNT5jyp9BMN9eOmUtaubeGNSRTNY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WjCrEyiE; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="abG/5t4p"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D98F7C4CECE;
-	Fri,  4 Oct 2024 18:25:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WjCrEyiE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96389C4CECC;
+	Fri,  4 Oct 2024 18:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1728066313;
-	bh=/xEHbD1S9fJifTO2lK5CNHKP/Ub5l6y09bgLXiTTMk0=;
+	s=k20201202; t=1728066315;
+	bh=wX8N+tx3kFBBYYzq801n8SW2ZPgDnMul93kbozxOElA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=abG/5t4pKbTkt74KteSLZsxVxDbeLA7WsrsTr3L6o6ni6yl8o4NUONjpltFzc88Xb
-	 X2+y4f+HtdhR3qpjC4NGI1Sy9hynvWit8b63a+9VkduoIDy1GcU1cboO8WTDoHRA7k
-	 AqWUfoJiRTP8QYQOcGV6dg2/wY8VT+Tt2BeLGCKH2G+sd0q2S2vjVSWPupCd7rJECE
-	 XCUxMGTWrqXumXI/96ozcB7ihVWC3V/ITbOYjtFdq/Foxj0ktVcDWI+MqRmAPyIHXv
-	 ofJqjXHZyqvUAkJvOhMLgZEor+xLIRDLkOWRNOdiBKaLKQirlkz0gMVMSRhoeYf3tM
-	 iO2rHmVi7IFmg==
+	b=WjCrEyiEe6w8VTQAxUtmMTbzeGlfe1B6LGZgxlkuG7UWF52GhyMTE4EE7tnyJzz96
+	 oA+JNYt6pBZbRacTetJz2w1oggty2gk1PjAbd91BmkE12ll1/Iy/xrIC00zx2jPviQ
+	 hQiWs8T2vTJGX4hGYuxQnIDR5b8W6Ae6HjK3TxaeZXtdudtC3+WHegK3zFBGPoxVAk
+	 N/XNVWvQhCAh7KBp1b3P2LPglZw+Ls0BbJNqe7a2v8k6F47/ui2esrkFCpIihQruK9
+	 pqIeepNw2uORne6P5+Z43JQTYNH++p+3zCKOUNiZXHHxUbvuEp7S/rtcb0tOgSSUFk
+	 Z5dPcFod11w7g==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -34,16 +34,13 @@ Cc: Heiko Carstens <hca@linux.ibm.com>,
 	Sasha Levin <sashal@kernel.org>,
 	gor@linux.ibm.com,
 	agordeev@linux.ibm.com,
-	nathan@kernel.org,
-	akpm@linux-foundation.org,
-	iii@linux.ibm.com,
 	frankja@linux.ibm.com,
-	sumanthk@linux.ibm.com,
-	jpoimboe@kernel.org,
+	nsg@linux.ibm.com,
+	imbrenda@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.6 05/58] s390/boot: Compile all files with the same march flag
-Date: Fri,  4 Oct 2024 14:23:38 -0400
-Message-ID: <20241004182503.3672477-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.6 06/58] s390/facility: Disable compile time optimization for decompressor code
+Date: Fri,  4 Oct 2024 14:23:39 -0400
+Message-ID: <20241004182503.3672477-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20241004182503.3672477-1-sashal@kernel.org>
 References: <20241004182503.3672477-1-sashal@kernel.org>
@@ -60,62 +57,40 @@ Content-Transfer-Encoding: 8bit
 
 From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit fccb175bc89a0d37e3ff513bb6bf1f73b3a48950 ]
+[ Upstream commit 0147addc4fb72a39448b8873d8acdf3a0f29aa65 ]
 
-Only a couple of files of the decompressor are compiled with the
-minimum architecture level. This is problematic for potential function
-calls between compile units, especially if a target function is within
-a compile until compiled for a higher architecture level, since that
-may lead to an unexpected operation exception.
+Disable compile time optimizations of test_facility() for the
+decompressor. The decompressor should not contain any optimized code
+depending on the architecture level set the kernel image is compiled
+for to avoid unexpected operation exceptions.
 
-Therefore compile all files of the decompressor for the same (minimum)
-architecture level.
+Add a __DECOMPRESSOR check to test_facility() to enforce that
+facilities are always checked during runtime for the decompressor.
 
 Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/boot/Makefile | 19 +++++--------------
- 1 file changed, 5 insertions(+), 14 deletions(-)
+ arch/s390/include/asm/facility.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
-index c7c81e5f92189..e4def3a6c6cca 100644
---- a/arch/s390/boot/Makefile
-+++ b/arch/s390/boot/Makefile
-@@ -9,11 +9,8 @@ UBSAN_SANITIZE := n
- KASAN_SANITIZE := n
- KCSAN_SANITIZE := n
+diff --git a/arch/s390/include/asm/facility.h b/arch/s390/include/asm/facility.h
+index 94b6919026dfb..953d42205ea83 100644
+--- a/arch/s390/include/asm/facility.h
++++ b/arch/s390/include/asm/facility.h
+@@ -60,8 +60,10 @@ static inline int test_facility(unsigned long nr)
+ 	unsigned long facilities_als[] = { FACILITIES_ALS };
  
--KBUILD_AFLAGS := $(KBUILD_AFLAGS_DECOMPRESSOR)
--KBUILD_CFLAGS := $(KBUILD_CFLAGS_DECOMPRESSOR)
--
- #
--# Use minimum architecture for als.c to be able to print an error
-+# Use minimum architecture level so it is possible to print an error
- # message if the kernel is started on a machine which is too old
- #
- ifndef CONFIG_CC_IS_CLANG
-@@ -22,16 +19,10 @@ else
- CC_FLAGS_MARCH_MINIMUM := -march=z10
- endif
- 
--ifneq ($(CC_FLAGS_MARCH),$(CC_FLAGS_MARCH_MINIMUM))
--AFLAGS_REMOVE_head.o		+= $(CC_FLAGS_MARCH)
--AFLAGS_head.o			+= $(CC_FLAGS_MARCH_MINIMUM)
--AFLAGS_REMOVE_mem.o		+= $(CC_FLAGS_MARCH)
--AFLAGS_mem.o			+= $(CC_FLAGS_MARCH_MINIMUM)
--CFLAGS_REMOVE_als.o		+= $(CC_FLAGS_MARCH)
--CFLAGS_als.o			+= $(CC_FLAGS_MARCH_MINIMUM)
--CFLAGS_REMOVE_sclp_early_core.o	+= $(CC_FLAGS_MARCH)
--CFLAGS_sclp_early_core.o	+= $(CC_FLAGS_MARCH_MINIMUM)
--endif
-+KBUILD_AFLAGS := $(filter-out $(CC_FLAGS_MARCH),$(KBUILD_AFLAGS_DECOMPRESSOR))
-+KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_MARCH),$(KBUILD_CFLAGS_DECOMPRESSOR))
-+KBUILD_AFLAGS += $(CC_FLAGS_MARCH_MINIMUM)
-+KBUILD_CFLAGS += $(CC_FLAGS_MARCH_MINIMUM)
- 
- CFLAGS_sclp_early_core.o += -I$(srctree)/drivers/s390/char
- 
+ 	if (__builtin_constant_p(nr) && nr < sizeof(facilities_als) * 8) {
+-		if (__test_facility(nr, &facilities_als))
+-			return 1;
++		if (__test_facility(nr, &facilities_als)) {
++			if (!__is_defined(__DECOMPRESSOR))
++				return 1;
++		}
+ 	}
+ 	return __test_facility(nr, &stfle_fac_list);
+ }
 -- 
 2.43.0
 
