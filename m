@@ -1,43 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88A0C2009D6;
-	Fri,  4 Oct 2024 18:25:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DEF1201DDE;
+	Fri,  4 Oct 2024 18:25:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728066317; cv=none; b=unQhogdtXzvzS4hYqY7NVAkXtw2o4Rz3LLMWRJl4GPp4DIXnGQ49rng3dk+d12cnJlsDbXiCd/3Av5Em9Bx/mE52NkhVZRb8Zu70SXrOyabXNw9mXV/p2aeGUBW8lk2XMtaut38JgurcPAu3232Dj8fL0LgJLstAoyAj1hOlF7A=
+	t=1728066330; cv=none; b=S1v4OA3akrnByeYiMgGFfAq2qhuRrPxyhu82LVxpBqhVHtiBY/f6mLFmsFyAJJgrOEsCSBNGdx9IpNE/VRgd/ie/P1F3RYHfTNzsXxEsIn4MaO/619xCi/zHOUhzHm7opUNDauxF/1bcNp6DUJR2ulfW8roJGhYtWQcPeXAOb2g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728066317; c=relaxed/simple;
-	bh=Vi/hAEYFq7ePieRuHfB5bHqTlziodram3DiEVl1OKTw=;
+	s=arc-20240116; t=1728066330; c=relaxed/simple;
+	bh=9CJPsSFqQDwx8SIT94dFtp9RENCJgvhVDximLmdWC2A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=quGaLFj4s2ceBW6Q7BdO0skFCwI1X506Q3tPDbHXCOcdWKfEbG1bPr0tvNWuc4RuN9pdTR7uo6jlnE5lEuI28uXKzaq/v6yAYUcgFHfF+NObewaKuu+KeQERMKvYMKSp0AKcUkdqSR2eJttJLEooyf+0WYiRYv3nUn0Y/6KJ/Yo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DrVILWpS; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=D81qwfamDsHZMDfMd2HnWOj1h8wR56QFGhtIEw+GdJ7YmFTL0m4r20w9lY4el399fXwMnrzZ/ymLKbZBNGNWRLtoJQOuH81jKMNLI+wzOyYO17OL7cnI+vFECyf20qEDAL0JR+neXNn8xQ4bKm3p7X8o8i6Cdhx9lv32+o/WmQc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gJINxAY0; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DrVILWpS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4046AC4CEC6;
-	Fri,  4 Oct 2024 18:25:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gJINxAY0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DB9FC4CECC;
+	Fri,  4 Oct 2024 18:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1728066317;
-	bh=Vi/hAEYFq7ePieRuHfB5bHqTlziodram3DiEVl1OKTw=;
+	s=k20201202; t=1728066330;
+	bh=9CJPsSFqQDwx8SIT94dFtp9RENCJgvhVDximLmdWC2A=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=DrVILWpSdW6gRrMduIp/RAyhVpvlE64d/YkbsYUtsaho9T9MHVhPQLa/Idp0SqDg7
-	 8TMFpiItHLk/SblXuQGsb40YEFdt3FYpLxuHLsewmaNq4dH0Pcsi6i+JRvzj4LTZKv
-	 itoQZrS/Ckh25XF6zZZ/wRtSmn/RYp4C95CAjYPvbONJKw1deZqj6X47DuzfAcd+Vd
-	 HI41W3fqnN0hqdV7IbGMdwGNU8m3fJOKyslgolGO1NIeuLicV8+xelGOXYrm1sn9mi
-	 uaPkb7rFb6U5hDomUV4nf/fd3hAZdGMhrG+NBR/ESmM20b7p4scyBDiQuLafNvKcQ6
-	 /tcAWrHOum0xA==
+	b=gJINxAY0YPU+E9nAV56O/n6U22B86NfsJT7aQDFsPz9e5Qp2iEC6b05w+F9VbdSOr
+	 qgTlNUIPx0sllx1p4EAfZClvIJ4074IkSkp49z1u2YdHsrSEpZc+3400mxJEE8H1Wg
+	 B3tBs65FPoxw+Dsu/6yRCAlcoPQWa7T78fn2BOwRjYue2IPwhENTZROEQTq5a0jblP
+	 XEoPP7hljtyZ1tvROAJBP/P6N1NWcOZkK4u+QMf5FzZfXsoDDJ3F3nIt7PG6CzEKL0
+	 iAXWAqta8lgKPR95V+TgIdDUr3FIYsoKr27hZKVQIIM+XTuQCgAT8ujUwcJdw3fg1r
+	 of7Hm3hcgdXRA==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+Cc: Thomas Richter <tmricht@linux.ibm.com>,
+	Sumanth Korikkar <sumanthk@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Sasha Levin <sashal@kernel.org>,
-	agordeev@linux.ibm.com,
-	gor@linux.ibm.com,
+	svens@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.6 07/58] s390/mm: Add cond_resched() to cmm_alloc/free_pages()
-Date: Fri,  4 Oct 2024 14:23:40 -0400
-Message-ID: <20241004182503.3672477-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.6 15/58] s390/cpum_sf: Remove WARN_ON_ONCE statements
+Date: Fri,  4 Oct 2024 14:23:48 -0400
+Message-ID: <20241004182503.3672477-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20241004182503.3672477-1-sashal@kernel.org>
 References: <20241004182503.3672477-1-sashal@kernel.org>
@@ -52,67 +54,69 @@ X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.6.54
 Content-Transfer-Encoding: 8bit
 
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 131b8db78558120f58c5dc745ea9655f6b854162 ]
+[ Upstream commit b495e710157606889f2d8bdc62aebf2aa02f67a7 ]
 
-Adding/removing large amount of pages at once to/from the CMM balloon
-can result in rcu_sched stalls or workqueue lockups, because of busy
-looping w/o cond_resched().
+Remove WARN_ON_ONCE statements. These have not triggered in the
+past.
 
-Prevent this by adding a cond_resched(). cmm_free_pages() holds a
-spin_lock while looping, so it cannot be added directly to the existing
-loop. Instead, introduce a wrapper function that operates on maximum 256
-pages at once, and add it there.
-
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/cmm.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ arch/s390/kernel/perf_cpum_sf.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
-index f47515313226c..9af4d82964944 100644
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -95,11 +95,12 @@ static long cmm_alloc_pages(long nr, long *counter,
- 		(*counter)++;
- 		spin_unlock(&cmm_lock);
- 		nr--;
-+		cond_resched();
- 	}
- 	return nr;
- }
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 06efad5b4f931..a3169193775f7 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1463,7 +1463,7 @@ static int aux_output_begin(struct perf_output_handle *handle,
+ 	unsigned long range, i, range_scan, idx, head, base, offset;
+ 	struct hws_trailer_entry *te;
  
--static long cmm_free_pages(long nr, long *counter, struct cmm_page_array **list)
-+static long __cmm_free_pages(long nr, long *counter, struct cmm_page_array **list)
- {
- 	struct cmm_page_array *pa;
- 	unsigned long addr;
-@@ -123,6 +124,21 @@ static long cmm_free_pages(long nr, long *counter, struct cmm_page_array **list)
- 	return nr;
- }
+-	if (WARN_ON_ONCE(handle->head & ~PAGE_MASK))
++	if (handle->head & ~PAGE_MASK)
+ 		return -EINVAL;
  
-+static long cmm_free_pages(long nr, long *counter, struct cmm_page_array **list)
-+{
-+	long inc = 0;
-+
-+	while (nr) {
-+		inc = min(256L, nr);
-+		nr -= inc;
-+		inc = __cmm_free_pages(inc, counter, list);
-+		if (inc)
-+			break;
-+		cond_resched();
-+	}
-+	return nr + inc;
-+}
-+
- static int cmm_oom_notify(struct notifier_block *self,
- 			  unsigned long dummy, void *parm)
+ 	aux->head = handle->head >> PAGE_SHIFT;
+@@ -1642,7 +1642,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
+ 	unsigned long num_sdb;
+ 
+ 	aux = perf_get_aux(handle);
+-	if (WARN_ON_ONCE(!aux))
++	if (!aux)
+ 		return;
+ 
+ 	/* Inform user space new data arrived */
+@@ -1661,7 +1661,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
+ 				num_sdb);
+ 			break;
+ 		}
+-		if (WARN_ON_ONCE(!aux))
++		if (!aux)
+ 			return;
+ 
+ 		/* Update head and alert_mark to new position */
+@@ -1896,12 +1896,8 @@ static void cpumsf_pmu_start(struct perf_event *event, int flags)
  {
+ 	struct cpu_hw_sf *cpuhw = this_cpu_ptr(&cpu_hw_sf);
+ 
+-	if (WARN_ON_ONCE(!(event->hw.state & PERF_HES_STOPPED)))
++	if (!(event->hw.state & PERF_HES_STOPPED))
+ 		return;
+-
+-	if (flags & PERF_EF_RELOAD)
+-		WARN_ON_ONCE(!(event->hw.state & PERF_HES_UPTODATE));
+-
+ 	perf_pmu_disable(event->pmu);
+ 	event->hw.state = 0;
+ 	cpuhw->lsctl.cs = 1;
 -- 
 2.43.0
 
