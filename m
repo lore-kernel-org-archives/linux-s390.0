@@ -1,47 +1,52 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9121F1F37FB;
-	Fri,  4 Oct 2024 18:22:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B53C2009A2;
+	Fri,  4 Oct 2024 18:25:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728066154; cv=none; b=n/ucibU6O94UW+UOxCT5Dd2pj07cgVAHjjBv6qMp6yYE9jUD24r3+/V8jOvYcxTtzK7Rdvo0TMSeLRRJO+FuQKv4G2TelY0g1am/Xt55XdM3SWeIOwTXLLZDVp7jIzdqaKxu0GMYdBZjfZ1wFeU8/MtPOGnQjEz8JZRPT9IpPvA=
+	t=1728066313; cv=none; b=B+/futPQcL64hxCoL8+Z83qSVZBEHKaMa6awnK/4Q2oIi+ZQNepYw5JQE566d00fxgCQaVov8zaxthjQmQWBoePL9+Og8xzBra1kZ4lFpTiLtNKO+BSeirPc6GDE9fZfcShhcaczI+iOg/RBkbiogKY1M/BepSZyN20vW6LI7PU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728066154; c=relaxed/simple;
-	bh=JpNjf2MSBYucpxgL9lA98UJxvh8wQgF14j7ccqK8ZlU=;
+	s=arc-20240116; t=1728066313; c=relaxed/simple;
+	bh=/xEHbD1S9fJifTO2lK5CNHKP/Ub5l6y09bgLXiTTMk0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sSscc/PKCvt7vx44Gp9oPv1StRyfpqW7nnDPK6U5Lo+m2NYVot9vjAn8U4vxqW3HjLyyMVES5G8TRdqmhHxvWe5G2QlyWlBhG2UWmv42QQ3Y4xtxtP5m44956/Ah9DEWvuiPm8hBVgqwQlvI4Vy3/paN/6ybatZQZDJaxsZsnUA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=t3CQpuHR; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=Y/+rzHOwVLNCRo1jEbY8jR0395KMIObMpWC1xO0ywm/ThKGxLIYE5+spV7qsu3YDxaqhlKqtXlY3y2ZD91CioxclLjQf5DEFhnCQhVrGcxlj3/TKCK1Jo8NkK3ZWv1hWC8kSFypzBToXv747V0O8f0GzMqUi1nmfS1/GAk6tw+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=abG/5t4p; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="t3CQpuHR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24956C4CECD;
-	Fri,  4 Oct 2024 18:22:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="abG/5t4p"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D98F7C4CECE;
+	Fri,  4 Oct 2024 18:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1728066154;
-	bh=JpNjf2MSBYucpxgL9lA98UJxvh8wQgF14j7ccqK8ZlU=;
+	s=k20201202; t=1728066313;
+	bh=/xEHbD1S9fJifTO2lK5CNHKP/Ub5l6y09bgLXiTTMk0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=t3CQpuHRlPgViq/OtjolJg6889tdm8nWXcy9K7IwBGc8wJbSH/u1YwdeColdKVq4s
-	 mOIlzdjNWIi7rEITzttD/6diDCMrTbucwvazbz2NWy1hBf7oxxu4AaAul3zJXKw3QC
-	 3d2IaPD85gm+uZ2V5ZlQ8E4JRkMPEeGEz+UgUGEtuLQeVb4xgw+tOfEyEcjBWiktE7
-	 jVKJiY2OShVu1uqQiW1Md75BCpgK6d+BQqhSVZdszboAYUIAPxY7X5yyoS5Q+gFglo
-	 Mcx1ekATtPsD4ug6EjppZXBGOZVCwW/dzMRaxqmLIVJcmHu5qJfYOi7V1NK15u00Me
-	 HBYVz1oMwKrEg==
+	b=abG/5t4pKbTkt74KteSLZsxVxDbeLA7WsrsTr3L6o6ni6yl8o4NUONjpltFzc88Xb
+	 X2+y4f+HtdhR3qpjC4NGI1Sy9hynvWit8b63a+9VkduoIDy1GcU1cboO8WTDoHRA7k
+	 AqWUfoJiRTP8QYQOcGV6dg2/wY8VT+Tt2BeLGCKH2G+sd0q2S2vjVSWPupCd7rJECE
+	 XCUxMGTWrqXumXI/96ozcB7ihVWC3V/ITbOYjtFdq/Foxj0ktVcDWI+MqRmAPyIHXv
+	 ofJqjXHZyqvUAkJvOhMLgZEor+xLIRDLkOWRNOdiBKaLKQirlkz0gMVMSRhoeYf3tM
+	 iO2rHmVi7IFmg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
 Cc: Heiko Carstens <hca@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
 	Sasha Levin <sashal@kernel.org>,
+	gor@linux.ibm.com,
 	agordeev@linux.ibm.com,
-	brueckner@linux.ibm.com,
+	nathan@kernel.org,
+	akpm@linux-foundation.org,
+	iii@linux.ibm.com,
+	frankja@linux.ibm.com,
+	sumanthk@linux.ibm.com,
+	jpoimboe@kernel.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.10 18/70] s390/traps: Handle early warnings gracefully
-Date: Fri,  4 Oct 2024 14:20:16 -0400
-Message-ID: <20241004182200.3670903-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.6 05/58] s390/boot: Compile all files with the same march flag
+Date: Fri,  4 Oct 2024 14:23:38 -0400
+Message-ID: <20241004182503.3672477-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20241004182200.3670903-1-sashal@kernel.org>
-References: <20241004182200.3670903-1-sashal@kernel.org>
+In-Reply-To: <20241004182503.3672477-1-sashal@kernel.org>
+References: <20241004182503.3672477-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,57 +55,67 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.10.13
+X-stable-base: Linux 6.6.54
 Content-Transfer-Encoding: 8bit
 
 From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 3c4d0ae0671827f4b536cc2d26f8b9c54584ccc5 ]
+[ Upstream commit fccb175bc89a0d37e3ff513bb6bf1f73b3a48950 ]
 
-Add missing warning handling to the early program check handler. This
-way a warning is printed to the console as soon as the early console
-is setup, and the kernel continues to boot.
+Only a couple of files of the decompressor are compiled with the
+minimum architecture level. This is problematic for potential function
+calls between compile units, especially if a target function is within
+a compile until compiled for a higher architecture level, since that
+may lead to an unexpected operation exception.
 
-Before this change a disabled wait psw was loaded instead and the
-machine was silently stopped without giving an idea about what
-happened.
+Therefore compile all files of the decompressor for the same (minimum)
+architecture level.
 
 Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/early.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ arch/s390/boot/Makefile | 19 +++++--------------
+ 1 file changed, 5 insertions(+), 14 deletions(-)
 
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index c666271433fb0..2c0729e34f6a3 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -176,8 +176,21 @@ static __init void setup_topology(void)
+diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+index c7c81e5f92189..e4def3a6c6cca 100644
+--- a/arch/s390/boot/Makefile
++++ b/arch/s390/boot/Makefile
+@@ -9,11 +9,8 @@ UBSAN_SANITIZE := n
+ KASAN_SANITIZE := n
+ KCSAN_SANITIZE := n
  
- void __do_early_pgm_check(struct pt_regs *regs)
- {
--	if (!fixup_exception(regs))
--		disabled_wait();
-+	struct lowcore *lc = get_lowcore();
-+	unsigned long ip;
-+
-+	regs->int_code = lc->pgm_int_code;
-+	regs->int_parm_long = lc->trans_exc_code;
-+	ip = __rewind_psw(regs->psw, regs->int_code >> 16);
-+
-+	/* Monitor Event? Might be a warning */
-+	if ((regs->int_code & PGM_INT_CODE_MASK) == 0x40) {
-+		if (report_bug(ip, regs) == BUG_TRAP_TYPE_WARN)
-+			return;
-+	}
-+	if (fixup_exception(regs))
-+		return;
-+	disabled_wait();
- }
+-KBUILD_AFLAGS := $(KBUILD_AFLAGS_DECOMPRESSOR)
+-KBUILD_CFLAGS := $(KBUILD_CFLAGS_DECOMPRESSOR)
+-
+ #
+-# Use minimum architecture for als.c to be able to print an error
++# Use minimum architecture level so it is possible to print an error
+ # message if the kernel is started on a machine which is too old
+ #
+ ifndef CONFIG_CC_IS_CLANG
+@@ -22,16 +19,10 @@ else
+ CC_FLAGS_MARCH_MINIMUM := -march=z10
+ endif
  
- static noinline __init void setup_lowcore_early(void)
+-ifneq ($(CC_FLAGS_MARCH),$(CC_FLAGS_MARCH_MINIMUM))
+-AFLAGS_REMOVE_head.o		+= $(CC_FLAGS_MARCH)
+-AFLAGS_head.o			+= $(CC_FLAGS_MARCH_MINIMUM)
+-AFLAGS_REMOVE_mem.o		+= $(CC_FLAGS_MARCH)
+-AFLAGS_mem.o			+= $(CC_FLAGS_MARCH_MINIMUM)
+-CFLAGS_REMOVE_als.o		+= $(CC_FLAGS_MARCH)
+-CFLAGS_als.o			+= $(CC_FLAGS_MARCH_MINIMUM)
+-CFLAGS_REMOVE_sclp_early_core.o	+= $(CC_FLAGS_MARCH)
+-CFLAGS_sclp_early_core.o	+= $(CC_FLAGS_MARCH_MINIMUM)
+-endif
++KBUILD_AFLAGS := $(filter-out $(CC_FLAGS_MARCH),$(KBUILD_AFLAGS_DECOMPRESSOR))
++KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_MARCH),$(KBUILD_CFLAGS_DECOMPRESSOR))
++KBUILD_AFLAGS += $(CC_FLAGS_MARCH_MINIMUM)
++KBUILD_CFLAGS += $(CC_FLAGS_MARCH_MINIMUM)
+ 
+ CFLAGS_sclp_early_core.o += -I$(srctree)/drivers/s390/char
+ 
 -- 
 2.43.0
 
