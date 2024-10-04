@@ -1,48 +1,48 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C1B21DF998;
-	Fri,  4 Oct 2024 18:31:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 131F11CACDC;
+	Fri,  4 Oct 2024 18:31:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728066681; cv=none; b=k3KDJLlKoGeK897egR5qAGRdJHAzEkwUegoUlzkLPwfMW6FVI4aaI38/J4EoUDnQfNMXZBGeg4Gz0+ffhz9fVg8RI4BmvMOV4XUSp8EpsbiTDhz613lU2FFhlYgjXBDAgIchLtEVRsiXnX7KAAquAurFHk/AXssGTmwuhOHk4bc=
+	t=1728066715; cv=none; b=YQoJX4Bb8AQGm+wJ5ZybOj46uyE4babtcpKa88rNV59oKZM1eg9OCwFdoXquxpL51pzWfARFpfZ6/0m6rFpggi4NFzfq0nI4TaXaRx7OQfiywyxeJJZXt323fgrZxtpwT+NeE2UPlLwyZj62uGOoL9ZDSnR5nfx2m7yPgoLLue8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728066681; c=relaxed/simple;
-	bh=GvV8EjsUE3NmqWV0FhBsVmHWAgx3XoLYYo1Fs/CrTfg=;
+	s=arc-20240116; t=1728066715; c=relaxed/simple;
+	bh=vlC5VDndKAsjh9jydmkAYyAPtlYjObhApJQ6yxn6qUA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iHnXPNvzWkDVQhs+aM8yWIL3rwEpPAL2QXuZ3oJeT4LkXlGmhiC2+k0q0gcFGcgUW62eYSrMPOmwLz/5lGPHerQI6Mm78dvu9Gb8tN4h48bhsW+oj+MSWS+cTAosxIIJLAT/9n4vKs5tzVsR1iVx0P+0aqIrzdWO6xtlfg9dQoA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=apgg51ci; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=HVN1juUwolt5RMaQa/Nz5Hii9cDUJS5VkmSLtBzj6CLGXScAphINy9mU4QwO9QEoX3qIz05bsouZ3ecg1uIJ7yGtcGw3FoNa5tjmdeN6TrGq2wgX+HclJs2XcZkTYhFC5NLYeN0K2RECb9vQ/AtbjdROf69rt8rvrWn/T4OzhWs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LCZ1GE37; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="apgg51ci"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0D69C4CEC6;
-	Fri,  4 Oct 2024 18:31:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LCZ1GE37"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9B62C4CED4;
+	Fri,  4 Oct 2024 18:31:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1728066681;
-	bh=GvV8EjsUE3NmqWV0FhBsVmHWAgx3XoLYYo1Fs/CrTfg=;
+	s=k20201202; t=1728066714;
+	bh=vlC5VDndKAsjh9jydmkAYyAPtlYjObhApJQ6yxn6qUA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=apgg51ciGaPAyj3aDdaaSXuIP2xZU9xyk3fLjTmzSC2NLewWPMdLgG+HQVyXmpK1m
-	 peuwVqjLLEOVaYlhB9GTpk+FaGalOpPPK86mg22CUrw0HFRFZ8JDctex8JJBGu5zlv
-	 fwyW84g1zB8itutLcQH43gcgojv3zObJBAo0BFKyP6t3lcVArF3tx188WYgMYzsuB2
-	 8YdowsDuuTgwEKqXiSNB+1NC8yfEu8OLKrYnFrtQyvQDII1+cAm/e7OPJPUYHlkbD3
-	 al+JYt4knVCe0nElLS3dPGUvkIsDaFBFzySd0aRxywJ+M+FGqEH4vCuNY6kBpM0V/G
-	 QNARdUY6/4BoA==
+	b=LCZ1GE37o6qXbuP+0QdGrUws7CZADNNC7uBH8hGuxdYhQv0i6j2NKLeI5PoAs+Rd1
+	 B/uPKetde/GnWalV904QJVsyUDiu/SAlsUnqFGwG2QGCp/WIMlk45h90gMBaQrl1Re
+	 UM5e3wWBUNbXiGn6m1GRC6zRHqQbOiJSTtnOzNYMJvf06gtCtKj7pXu6Rr/GDZum01
+	 r/frY57snXXImPjRSXUBZcBeJBL/jwIHV8/FOUTrlHTNXLCnw8zNuLaPUz5mlG0RdP
+	 KqT8LeRTAF9Guv0eH0KsXjONjcKU2JcLPvK8BeFvgNCsSVa+Wsw0W4SRvt2Kvbv6ML
+	 FJjl1cHBphAyQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>,
-	Sumanth Korikkar <sumanthk@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
 	Sasha Levin <sashal@kernel.org>,
-	svens@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	frankja@linux.ibm.com,
+	nsg@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 08/21] s390/cpum_sf: Remove WARN_ON_ONCE statements
-Date: Fri,  4 Oct 2024 14:30:43 -0400
-Message-ID: <20241004183105.3675901-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 02/16] s390/facility: Disable compile time optimization for decompressor code
+Date: Fri,  4 Oct 2024 14:31:29 -0400
+Message-ID: <20241004183150.3676355-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20241004183105.3675901-1-sashal@kernel.org>
-References: <20241004183105.3675901-1-sashal@kernel.org>
+In-Reply-To: <20241004183150.3676355-1-sashal@kernel.org>
+References: <20241004183150.3676355-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -51,72 +51,45 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.4.284
+X-stable-base: Linux 4.19.322
 Content-Transfer-Encoding: 8bit
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit b495e710157606889f2d8bdc62aebf2aa02f67a7 ]
+[ Upstream commit 0147addc4fb72a39448b8873d8acdf3a0f29aa65 ]
 
-Remove WARN_ON_ONCE statements. These have not triggered in the
-past.
+Disable compile time optimizations of test_facility() for the
+decompressor. The decompressor should not contain any optimized code
+depending on the architecture level set the kernel image is compiled
+for to avoid unexpected operation exceptions.
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Add a __DECOMPRESSOR check to test_facility() to enforce that
+facilities are always checked during runtime for the decompressor.
+
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ arch/s390/include/asm/facility.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index b83bddf35e068..4f251cd624d7e 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1412,7 +1412,7 @@ static int aux_output_begin(struct perf_output_handle *handle,
- 	unsigned long head, base, offset;
- 	struct hws_trailer_entry *te;
+diff --git a/arch/s390/include/asm/facility.h b/arch/s390/include/asm/facility.h
+index 7ffbc5d7ccf38..79730031e17f3 100644
+--- a/arch/s390/include/asm/facility.h
++++ b/arch/s390/include/asm/facility.h
+@@ -53,8 +53,10 @@ static inline int test_facility(unsigned long nr)
+ 	unsigned long facilities_als[] = { FACILITIES_ALS };
  
--	if (WARN_ON_ONCE(handle->head & ~PAGE_MASK))
-+	if (handle->head & ~PAGE_MASK)
- 		return -EINVAL;
- 
- 	aux->head = handle->head >> PAGE_SHIFT;
-@@ -1580,7 +1580,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
- 	unsigned long num_sdb;
- 
- 	aux = perf_get_aux(handle);
--	if (WARN_ON_ONCE(!aux))
-+	if (!aux)
- 		return;
- 
- 	/* Inform user space new data arrived */
-@@ -1599,7 +1599,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
- 			debug_sprintf_event(sfdbg, 1, "AUX buffer used up\n");
- 			break;
- 		}
--		if (WARN_ON_ONCE(!aux))
-+		if (!aux)
- 			return;
- 
- 		/* Update head and alert_mark to new position */
-@@ -1836,12 +1836,8 @@ static void cpumsf_pmu_start(struct perf_event *event, int flags)
- {
- 	struct cpu_hw_sf *cpuhw = this_cpu_ptr(&cpu_hw_sf);
- 
--	if (WARN_ON_ONCE(!(event->hw.state & PERF_HES_STOPPED)))
-+	if (!(event->hw.state & PERF_HES_STOPPED))
- 		return;
--
--	if (flags & PERF_EF_RELOAD)
--		WARN_ON_ONCE(!(event->hw.state & PERF_HES_UPTODATE));
--
- 	perf_pmu_disable(event->pmu);
- 	event->hw.state = 0;
- 	cpuhw->lsctl.cs = 1;
+ 	if (__builtin_constant_p(nr) && nr < sizeof(facilities_als) * 8) {
+-		if (__test_facility(nr, &facilities_als))
+-			return 1;
++		if (__test_facility(nr, &facilities_als)) {
++			if (!__is_defined(__DECOMPRESSOR))
++				return 1;
++		}
+ 	}
+ 	return __test_facility(nr, &S390_lowcore.stfle_fac_list);
+ }
 -- 
 2.43.0
 
