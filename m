@@ -1,50 +1,57 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A34C146A72;
-	Fri,  4 Oct 2024 10:08:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0B33E1741DC;
+	Fri,  4 Oct 2024 15:14:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728036525; cv=none; b=Pjc7PvgS/XRP6czD1+2V/hX8oWXJCo3oaKypN0olG+tCw4hFv+wJ0ON724aCiO3WlbhVFeU4lm5NDtGvxCKb8HtObZGDnsd4FMv0ir1qPAnaMoZrHgBmxcT9k8eUyhITs/jYpa+DdICPkHXy2cLCLn4qDXJ6Z2WvN48M9AfiuIY=
+	t=1728054900; cv=none; b=FQe0B+xQZsECc+p2urxAxOLndHg3x2sq5axglqUigDwa7FBd34CG63JyBpOG1AgNEUahyzfgBfzYfvaDGTAt2/+IxIsV1ev4E8cfHdwFSu3Gh5kl1mbU7aEnHlhPyQw3yA9rB4KVIuF/e2xQ9nNzrWpuzQ9AdYVnKoxqS2euKHU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728036525; c=relaxed/simple;
-	bh=GMIxrpyZ7lWGEEHcirtrn9Tag+b3HbRGsmWpQIAcR8c=;
+	s=arc-20240116; t=1728054900; c=relaxed/simple;
+	bh=XuU41cUY651vrvEuIIokCiSfp8fKXEBCuJCdw/qwKDE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tP7NByUFl68yhb6fwdEbZSyXjIrBEVgMnexDgGTrGxUqrC8LvS7hMZMZSJSqqK9LvkoyKMwnSM/bgQB3PdWQDL0dCD8eeVw43spd8UibTbUi8Wd8sbwhuf68SqRc8Al04NemtTx5NUfMKX9zN2usQePTW9NU1haJ9A270HvGSI8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=NdHNdaFc; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="NdHNdaFc"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=xaIy+tdNmAOIqcYnnJ2OzNqLnsHQb5n/Nh5bV5Dh8k8=; b=NdHNdaFcsueRNxvgLKJtfa0YDt
-	nuJhx0CS9W4YnLjcOqKeTTCLN+wIlSKYr21+6l3iQV1KnccgEwwyBtsJgBqv3PyqtYfcF40fhQoMo
-	fB9+GLPYxxKmQOWUQUkEFNHmdRXutxI/jZDxTPtYqhEaLfbSlvk9/uTiGVszM7ulpTmlXaBtQRKj7
-	4S2jLAG3Rx3dgOUsjP3v3H1JtClOE9GdC6CPrJDy8tBtLVjN2VrqM8142/DMEBAuYCWeXpq96uvWg
-	cokpvIxZ1m+XQUcQcZjVxNeBTW9wkMcokLH3Pko0GWUGNcJvYKFt/matGeUd6RQFOYwPO0KwbW4uk
-	ummA1yMQ==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-	by casper.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
-	id 1swfEi-0000000A91d-3iFx;
-	Fri, 04 Oct 2024 10:08:38 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 87FBB30083E; Fri,  4 Oct 2024 12:08:36 +0200 (CEST)
-Date: Fri, 4 Oct 2024 12:08:36 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-	Waiman Long <longman@redhat.com>, Boqun Feng <boqun.feng@gmail.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2 resend2] locking/spinlocks: Make __raw_* lock ops
- static
-Message-ID: <20241004100836.GP18071@noisy.programming.kicks-ass.net>
-References: <7201d7fb408375c6c4df541270d787b1b4a32354.1727879348.git.geert+renesas@glider.be>
+	 Content-Type:Content-Disposition:In-Reply-To; b=UH9XORg7JuVMWxuORrn2q8/8py6DWxLBvPbmDz9bxloSrkI7Mst9Yd8JzsiBFhVLVMgH+WiEOAWWE8CmTWmXOlnYzlnN0Y3h7MvPIXhZJApsklA4j6zd0IDYW9xr5Kd5Q+JECh/OLRoSPkr6vro+75GF+FscBCQRrNvoR0DZ420=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C3131339;
+	Fri,  4 Oct 2024 08:15:26 -0700 (PDT)
+Received: from J2N7QTR9R3.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 493D13F640;
+	Fri,  4 Oct 2024 08:14:52 -0700 (PDT)
+Date: Fri, 4 Oct 2024 16:14:47 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: Colton Lewis <coltonlewis@google.com>
+Cc: kvm@vger.kernel.org, Oliver Upton <oliver.upton@linux.dev>,
+	Sean Christopherson <seanjc@google.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+	Adrian Hunter <adrian.hunter@intel.com>,
+	Kan Liang <kan.liang@linux.intel.com>,
+	Will Deacon <will@kernel.org>, Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H . Peter Anvin" <hpa@zytor.com>, linux-perf-users@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v5 1/5] arm: perf: Drop unused functions
+Message-ID: <ZwAGZ5YB-eYemlYR@J2N7QTR9R3.cambridge.arm.com>
+References: <20240920174740.781614-1-coltonlewis@google.com>
+ <20240920174740.781614-2-coltonlewis@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -53,32 +60,68 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7201d7fb408375c6c4df541270d787b1b4a32354.1727879348.git.geert+renesas@glider.be>
+In-Reply-To: <20240920174740.781614-2-coltonlewis@google.com>
 
-On Wed, Oct 02, 2024 at 05:03:55PM +0200, Geert Uytterhoeven wrote:
-> If CONFIG_GENERIC_LOCKBREAK=y and CONFIG_DEBUG_LOCK_ALLOC=n
-> (e.g. sh/sdk7786_defconfig):
+On Fri, Sep 20, 2024 at 05:47:36PM +0000, Colton Lewis wrote:
+> For arm's implementation, perf_instruction_pointer() and
+> perf_misc_flags() are equivalent to the generic versions in
+> include/linux/perf_event.h so arch/arm doesn't need to provide its
+> own versions. Drop them here.
 > 
->     kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__raw_spin_lock' [-Wmissing-prototypes]
->     kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__raw_spin_lock_irqsave' [-Wmissing-prototypes]
->     kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__raw_spin_lock_irq' [-Wmissing-prototypes]
->     kernel/locking/spinlock.c:103:17: warning: no previous prototype for '__raw_spin_lock_bh' [-Wmissing-prototypes]
->     kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__raw_read_lock' [-Wmissing-prototypes]
->     kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__raw_read_lock_irqsave' [-Wmissing-prototypes]
->     kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__raw_read_lock_irq' [-Wmissing-prototypes]
->     kernel/locking/spinlock.c:103:17: warning: no previous prototype for '__raw_read_lock_bh' [-Wmissing-prototypes]
->     kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__raw_write_lock' [-Wmissing-prototypes]
->     kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__raw_write_lock_irqsave' [-Wmissing-prototypes]
->     kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__raw_write_lock_irq' [-Wmissing-prototypes]
->     kernel/locking/spinlock.c:103:17: warning: no previous prototype for '__raw_write_lock_bh' [-Wmissing-prototypes]
-> 
-> All __raw_* lock ops are internal functions without external callers.
-> Hence fix this by making them static.
-> 
-> Note that if CONFIG_GENERIC_LOCKBREAK=y, no lock ops are inlined, as all
-> of CONFIG_INLINE_*_LOCK* depend on !GENERIC_LOCKBREAK.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Acked-by: Waiman Long <longman@redhat.com>
+> Signed-off-by: Colton Lewis <coltonlewis@google.com>
 
-Thanks!
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+
+Mark.
+
+> ---
+>  arch/arm/include/asm/perf_event.h |  7 -------
+>  arch/arm/kernel/perf_callchain.c  | 17 -----------------
+>  2 files changed, 24 deletions(-)
+> 
+> diff --git a/arch/arm/include/asm/perf_event.h b/arch/arm/include/asm/perf_event.h
+> index bdbc1e590891..c08f16f2e243 100644
+> --- a/arch/arm/include/asm/perf_event.h
+> +++ b/arch/arm/include/asm/perf_event.h
+> @@ -8,13 +8,6 @@
+>  #ifndef __ARM_PERF_EVENT_H__
+>  #define __ARM_PERF_EVENT_H__
+>  
+> -#ifdef CONFIG_PERF_EVENTS
+> -struct pt_regs;
+> -extern unsigned long perf_instruction_pointer(struct pt_regs *regs);
+> -extern unsigned long perf_misc_flags(struct pt_regs *regs);
+> -#define perf_misc_flags(regs)	perf_misc_flags(regs)
+> -#endif
+> -
+>  #define perf_arch_fetch_caller_regs(regs, __ip) { \
+>  	(regs)->ARM_pc = (__ip); \
+>  	frame_pointer((regs)) = (unsigned long) __builtin_frame_address(0); \
+> diff --git a/arch/arm/kernel/perf_callchain.c b/arch/arm/kernel/perf_callchain.c
+> index 1d230ac9d0eb..a2601b1ef318 100644
+> --- a/arch/arm/kernel/perf_callchain.c
+> +++ b/arch/arm/kernel/perf_callchain.c
+> @@ -96,20 +96,3 @@ perf_callchain_kernel(struct perf_callchain_entry_ctx *entry, struct pt_regs *re
+>  	arm_get_current_stackframe(regs, &fr);
+>  	walk_stackframe(&fr, callchain_trace, entry);
+>  }
+> -
+> -unsigned long perf_instruction_pointer(struct pt_regs *regs)
+> -{
+> -	return instruction_pointer(regs);
+> -}
+> -
+> -unsigned long perf_misc_flags(struct pt_regs *regs)
+> -{
+> -	int misc = 0;
+> -
+> -	if (user_mode(regs))
+> -		misc |= PERF_RECORD_MISC_USER;
+> -	else
+> -		misc |= PERF_RECORD_MISC_KERNEL;
+> -
+> -	return misc;
+> -}
+> -- 
+> 2.46.0.792.g87dc391469-goog
+> 
