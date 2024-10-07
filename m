@@ -1,119 +1,157 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C3AC1BB6B8;
-	Mon,  7 Oct 2024 12:48:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EED4E1DE4C8;
+	Mon,  7 Oct 2024 20:11:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728305335; cv=none; b=m/8fD/To49r9ClfzA1O9c7eB3zNTINL25qdisd+4tw2LAetdLTZNLD8ZxVgi8NwovKCShQz3pNfkyxf8KuWf1RvCYxc15v7zocLJCLg9ncyXmDG58UleUPLODklWF+gQY+OnOF+OTBuHP6DkUmmaffSe0l15EwUdqraES+Ag8TA=
+	t=1728331873; cv=none; b=KlKCAJbTmCxRvaZ2dEeTn7joND72DYM02sO1b34w9JNAZOWZTPl7QDE3tS9KD/aHHsRHODRtUVODT55isVv9G0v5cP+IKTtI1ExU0KZiGPH9fWHx5dbmeePS6EHCj4ul5ff6Uli+9onJSZkVk8QTxIICPVfwUzX/ryTkQyri+Co=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728305335; c=relaxed/simple;
-	bh=XWgabam3fhc3PvpjHHnnru1mmimtxFrWT467mkfuww0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rqDr3G8mAdijQibrGSab4TuiN4ezcvtV8RAgR5WXAaO7i6milAHYNpizfLFbccGtggcvoO70BLxLeg4KUfLGpDGFzGch2DAyBxeFPwx40cjQQsUWc5e2L86c7YFDFXSuwO4fCd01Ld3tBgEWsWOWL0OeeNZlG7qn7hHjbSXwGMg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XS3xWXlD; arc=none smtp.client-ip=198.175.65.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1728331873; c=relaxed/simple;
+	bh=QJO05AK52bflF8/V1g5BH0IykS494yd3QvteXY7yw9A=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=D4icUpNq6Epb7WORnMyZg/1LWqQ2IeYkeguzd1TNIdoHP/5nOwLBOeiTfLaKZXtJyFcbQgRm1xi4SNVjjiXh+vsKNCFPr2iRoRBknbwCERNy7kFuDkuiDcNRUZhLGcG29awz2lJkY/YSozzT6veJv8AYx4qegNri0RQYhRf/3vw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HGt0c+eE; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XS3xWXlD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1728305335; x=1759841335;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=XWgabam3fhc3PvpjHHnnru1mmimtxFrWT467mkfuww0=;
-  b=XS3xWXlDE9ZlxLVMeGD7SEIq+Kqd1lIUIZXM0S995f4n9RxjZRiSLFdp
-   MGxtkUo/qX1yqTOacf2lSD8uaQ/buL15eWzzBrnxt8VbeBRMIMchIpW7k
-   /3rSYQ5LzGsbAp+kh79d4XVwOO3HhqBeaMu3fKPxHAE7M5tFFWnBeT2EH
-   GPu75DMSHpoF0UQWsJTmHGfgZKkACsSF75C6tBe6CN3agjheZCzmmvKmM
-   pg0KV1PTW/RqcdcvH9ZsAfg0kjEljAqP8hPL4gjLFNB4r3Bw0x83cVWT3
-   ULkL2SrYAzY+KiMUzw4ty7lUNFKhbeXyyM7hlcTSW453iOSDUBV/SfyFl
-   w==;
-X-CSE-ConnectionGUID: rnGGckzESDWIRRiffUPziQ==
-X-CSE-MsgGUID: E6/UXZ0LTMujkUF3fMLS5w==
-X-IronPort-AV: E=McAfee;i="6700,10204,11218"; a="31152294"
-X-IronPort-AV: E=Sophos;i="6.11,184,1725346800"; 
-   d="scan'208";a="31152294"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2024 05:48:54 -0700
-X-CSE-ConnectionGUID: bP6fMKj0RnyrWoAmPTX4GQ==
-X-CSE-MsgGUID: rdegqp39TlWWvVoSaAoULg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.11,184,1725346800"; 
-   d="scan'208";a="80055132"
-Received: from lkp-server01.sh.intel.com (HELO a48cf1aa22e8) ([10.239.97.150])
-  by fmviesa004.fm.intel.com with ESMTP; 07 Oct 2024 05:48:50 -0700
-Received: from kbuild by a48cf1aa22e8 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1sxnAO-0004z2-0K;
-	Mon, 07 Oct 2024 12:48:48 +0000
-Date: Mon, 7 Oct 2024 20:48:42 +0800
-From: kernel test robot <lkp@intel.com>
-To: Daniel Yang <danielyangkang@gmail.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	netdev@vger.kernel.org, danielyangkang@gmail.com,
-	syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
-Subject: Re: [PATCH v2] resolve gtp possible deadlock warning
-Message-ID: <202410072002.hT2D7135-lkp@intel.com>
-References: <20241005045411.118720-1-danielyangkang@gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HGt0c+eE"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 497HpHro031826;
+	Mon, 7 Oct 2024 20:11:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:content-transfer-encoding
+	:mime-version; s=pp1; bh=oxqfT3NuqEu2jpdJC8oFJ+DpIWF2KlKWnjOO3Px
+	L9H0=; b=HGt0c+eEL2LbTjOMECVTfLu0LOTHSE86Xi8sacO2uITyoVJXhd4wcat
+	8MwfzV853yfbZnkMF6+hziZspilMWogfe3qtlKm0XOw0CsmlAC1oEpNcPmSSvaLx
+	Uo5tBy3tDotlBep9Mr7itoKsRkhimUVAmBUTeBb28FzCX0GcSoMeJY3iGiUMWA/s
+	0JSIKS0vTq5G9SRLFOPYIUc/LpP9r0Hq/NQWONAvnQSVFCJ3k/XO/V9rU789uoh9
+	7OxC73+gY3zQxtxH3os1Jo2gEeYt7COY0v5HQy3lo7jrKP3C/5Y5EQBLlDoiU7Sz
+	8MENt7TVpOiDfHjL/MoaJKLbAdtRGmQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 424mcxgj6s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Oct 2024 20:11:04 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 497KB4NQ004144;
+	Mon, 7 Oct 2024 20:11:04 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 424mcxgj6m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Oct 2024 20:11:04 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 497Idti0022861;
+	Mon, 7 Oct 2024 20:11:03 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 423jg0r8ux-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Oct 2024 20:11:03 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 497KAxVp52167000
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 7 Oct 2024 20:11:00 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C82C52004B;
+	Mon,  7 Oct 2024 20:10:59 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 62F1F20040;
+	Mon,  7 Oct 2024 20:10:59 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  7 Oct 2024 20:10:59 +0000 (GMT)
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>, linux-s390@vger.kernel.org,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc: "Marc Hartmayer" <mhartmay@linux.ibm.com>
+Subject: [PATCH 1/1] s390/virtio_ccw: fix dma_parm pointer not set up
+Date: Mon,  7 Oct 2024 22:10:30 +0200
+Message-ID: <20241007201030.204028-1-pasic@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: qv7T0kh2xhGfvtXQ8TvVTdZI5RNEPcHS
+X-Proofpoint-GUID: -QWAYHiU3V6nlYydhEqMnNyXDTqvrqQz
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241005045411.118720-1-danielyangkang@gmail.com>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-07_13,2024-10-07_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
+ mlxlogscore=999 priorityscore=1501 bulkscore=0 clxscore=1011
+ lowpriorityscore=0 malwarescore=0 adultscore=0 phishscore=0 mlxscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410070137
 
-Hi Daniel,
+At least since commit 334304ac2bac ("dma-mapping: don't return errors
+from dma_set_max_seg_size") setting up device.dma_parms is basically
+mandated by the DMA API. As of now Channel (CCW) I/O in general does not
+utilize the DMA API, except for virtio. For virtio-ccw however the
+common virtio DMA infrastructure is such that most of the DMA stuff
+hinges on the virtio parent device, which is a CCW device.
 
-kernel test robot noticed the following build warnings:
+So lets set up the dma_parms pointer for the CCW parent device and hope
+for the best!
 
-[auto build test WARNING on linus/master]
-[also build test WARNING on v6.12-rc2 next-20241004]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Fixes: 334304ac2bac ("dma-mapping: don't return errors from dma_set_max_seg_size")
+Reported-by: "Marc Hartmayer" <mhartmay@linux.ibm.com>
+Closes: https://bugzilla.linux.ibm.com/show_bug.cgi?id=209131
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+---
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Daniel-Yang/resolve-gtp-possible-deadlock-warning/20241005-125510
-base:   linus/master
-patch link:    https://lore.kernel.org/r/20241005045411.118720-1-danielyangkang%40gmail.com
-patch subject: [PATCH v2] resolve gtp possible deadlock warning
-config: x86_64-buildonly-randconfig-005-20241007 (https://download.01.org/0day-ci/archive/20241007/202410072002.hT2D7135-lkp@intel.com/config)
-compiler: clang version 18.1.8 (https://github.com/llvm/llvm-project 3b5b5c1ec4a3095ab096dd780e84d7ab81f3d7ff)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20241007/202410072002.hT2D7135-lkp@intel.com/reproduce)
+In the long run it may make sense to move dma_parms into struct
+ccw_device, since layering-wise it is much cleaner. I decided
+to put it in virtio_ccw_device because currently it is only used for
+virtio.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202410072002.hT2D7135-lkp@intel.com/
+---
+ drivers/s390/virtio/virtio_ccw.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-All warnings (new ones prefixed by >>):
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 62eca9419ad7..21fa7ac849e5 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -58,6 +58,8 @@ struct virtio_ccw_device {
+ 	struct virtio_device vdev;
+ 	__u8 config[VIRTIO_CCW_CONFIG_SIZE];
+ 	struct ccw_device *cdev;
++	/* we make cdev->dev.dma_parms point to this */
++	struct device_dma_parameters dma_parms;
+ 	__u32 curr_io;
+ 	int err;
+ 	unsigned int revision; /* Transport revision */
+@@ -1303,6 +1305,7 @@ static int virtio_ccw_offline(struct ccw_device *cdev)
+ 	unregister_virtio_device(&vcdev->vdev);
+ 	spin_lock_irqsave(get_ccwdev_lock(cdev), flags);
+ 	dev_set_drvdata(&cdev->dev, NULL);
++	cdev->dev.dma_parms = NULL;
+ 	spin_unlock_irqrestore(get_ccwdev_lock(cdev), flags);
+ 	return 0;
+ }
+@@ -1366,6 +1369,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+ 	}
+ 	vcdev->vdev.dev.parent = &cdev->dev;
+ 	vcdev->cdev = cdev;
++	cdev->dev.dma_parms = &vcdev->dma_parms;
+ 	vcdev->dma_area = ccw_device_dma_zalloc(vcdev->cdev,
+ 						sizeof(*vcdev->dma_area),
+ 						&vcdev->dma_area_addr);
 
->> net/smc/af_smc.c:22:9: warning: 'pr_fmt' macro redefined [-Wmacro-redefined]
-      22 | #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
-         |         ^
-   include/linux/printk.h:380:9: note: previous definition is here
-     380 | #define pr_fmt(fmt) fmt
-         |         ^
-   1 warning generated.
-
-
-vim +/pr_fmt +22 net/smc/af_smc.c
-
-ac7138746e1413 Ursula Braun 2017-01-09 @22  #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
-ac7138746e1413 Ursula Braun 2017-01-09  23  
-
+base-commit: 87d6aab2389e5ce0197d8257d5f8ee965a67c4cd
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.43.0
+
