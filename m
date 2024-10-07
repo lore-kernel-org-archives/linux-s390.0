@@ -1,107 +1,177 @@
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D51313665B;
-	Sun,  6 Oct 2024 14:59:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 528CF15B130;
+	Mon,  7 Oct 2024 06:55:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728226751; cv=none; b=CAOwwh6gb30/XCz20wY6THnt+XsX3rWA4UTewhgl9S2ONFITJwwh4TQ6ae9IFKyfLv13HG00kBxk3JKVO3fyU+j9BkDXKt9iu8E8T/nMg9FqPu1Kco0+NKnhQ+0s1OT0lg1Q35RHA+G8JKhMPXEbBn4CPPVUfGAAlUWwWnxP4OQ=
+	t=1728284121; cv=none; b=GErHW6GzcSKa5wzwXVFwPROLuoUvJKtzoa1FohZBxP++yTWTPHhMYoCVe4rH5OaaBq/GCJ42qq0CLz3WO0MWaM3t30yj63wbcppXMraSiP1i+3QV1LyiJ9oDQn6cAx0vPaanIBGsyxePiTvE1qMZ6G03fxBell210QP5Gj0Rvk8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728226751; c=relaxed/simple;
-	bh=aZIyK0YX9RB1Yi01JNjPLgy28xsvKkXz8fEnxnLlZXg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nTe3evuaU83hpFrcByrBYXIagFW8KLVCgCnfYmoSThpYCbCr4VdHJxFxxENj/sLaXqTM1Gqr1i6EL9CgY9coLqptFahPp1dcIdZqwaRC243olr36SZvpXfeyXmWAbMnUUBX3OBKMD0Sw2k+dfwFImAEnJn/UqGnUCH/nxoEikow=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=Ym5kQUjt; arc=none smtp.client-ip=62.89.141.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
+	s=arc-20240116; t=1728284121; c=relaxed/simple;
+	bh=moY5HBUo3POj2kBdWLD11Oypzd+D8rfoKAY8UfMYQ40=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=VQKUpQe1Q7mXv3FkqwXBciPeppHkJqLhzI6K/MLVWHLZtHnLZ66UPmh3qU20GqF32HfsxAjYWqhBVIQ5yDEWKrxfBYPT+3xTpSgbKokE5X3SUA5RGwVA2aQFwNpG8YRNwKMfk86nVP01DBo0N76dqEA51jOOSFwI+V/PxmV/5EE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LnvY/PK7; arc=none smtp.client-ip=209.85.128.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="Ym5kQUjt"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=QjaM5k9qqJvchGVL0bXBB8KvEd+WrkzXBDa2YMdrjdE=; b=Ym5kQUjtP6Dd9OwFUXGvXnWioY
-	wZDDdxmGBO5Nh6hBKstzXXUHYdcnxEuktG17KW4lqXwW2x5sqvFM7mFPaNJPWOFyxIz+rbVF9HNs5
-	sTl+zw6W+PsAb83XpQOTAgQaZFbLwWTz5Ne0oSzir8MLlnz1+bijsRoiBOGoSSyv908vaVW3H3Mtc
-	dnd09+IPd5K6u683QoytSS3TepbbHEzHzcYWNO3tMcVIXt/bmeK6F6o+DoP4sVS3lmun60RRoABep
-	5azAeIBPC110DvZjWc43lgMUVLlpFwZAKrqbKELDkwbyv27ERTUmyioMtaoYcIdEXgGOo3Stavnop
-	RNNpg/bw==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.98 #2 (Red Hat Linux))
-	id 1sxSiu-00000001MPd-0X0j;
-	Sun, 06 Oct 2024 14:59:04 +0000
-Date: Sun, 6 Oct 2024 15:59:04 +0100
-From: Al Viro <viro@zeniv.linux.org.uk>
-To: kernel test robot <oliver.sang@intel.com>
-Cc: Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
-	oe-lkp@lists.linux.dev, lkp@intel.com,
-	linux-fsdevel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-	Christian Brauner <brauner@kernel.org>, linux-alpha@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org,
-	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-	audit@vger.kernel.org, linux-api@vger.kernel.org,
-	linux-arch@vger.kernel.org
-Subject: Re: [viro-vfs:work.xattr2] [fs/xattr]  64d47e878a:
- xfstests.xfs.046.fail
-Message-ID: <20241006145904.GE4017910@ZenIV>
-References: <202410062250.ee92fca7-oliver.sang@intel.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LnvY/PK7"
+Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-6e129c01b04so32020087b3.1;
+        Sun, 06 Oct 2024 23:55:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1728284119; x=1728888919; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=k8kmOX/v2lhcdpVmDjQej7c2sv/mbznwBbLYPHOJcEU=;
+        b=LnvY/PK7mJeAblYGjTtTv+0+CvnVofKXASPbags1Swk1FH7si2r4Zngtn8qFML7CPv
+         FFzT3J0niFx7TN8Rge1yeFqs4u4sHp8X35WIsKSLt8WR1SwrIxZ9nZ68fzLTflgG1utv
+         3nPcs5o0MJPM/fSEXkhS8seFkDkpjs/NGYbgCvWllDc2m9zcvxYdXdLjUvzzryxgV3gx
+         aqX1GRL777/GOfFa9aTWiRu33Tk7mcnaE40yO/qNbarpRvTUEWFHNntiRQ/ly6CcH3eg
+         YeaBBABxQiMp/SZP6Wyr8EGDnoXc3CIxrUqRj2x7olHYVfjg4B+3hVQ55c+Zw8oBR8MR
+         rkqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1728284119; x=1728888919;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=k8kmOX/v2lhcdpVmDjQej7c2sv/mbznwBbLYPHOJcEU=;
+        b=HqpBiH+xmzHZa1T5ZP/r9tUFaQVvNXNLpkJBd+CqTsIDI7z1VzDd3Qh2Ny0Z1GWET1
+         tAaBcqrS7Dj20QylhwKVZ4pYXMDE7TFvjgNvkQEY6ylreghqS9RrglZpuUo0W/XGFIqi
+         nm4uOiKSZXCWBl+gKQUIp4LSXv0+yPP76iaTz8ClWwuihF/SmGN+ZFvQWBN/uTPoJU/L
+         anDHvfqeL7BQS62FYG5SNwjkatFDmrnvcArN1eavriicXUEY+CVWBN25DpPvn8Cp06Dd
+         X8olZ/HfBFtmcy8IEdDi08cS/q1RlwP/uRjH9GgdfHgcFS0PycSEqWko57NLEC+5EcAE
+         JOFQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWLboBdRzWYStREUthFjlI3b4nfmsE12e7PZVUMRoqFEzMGdAAZdb+LT1HijqHUcf66PGZ/IErKrQO9Mw==@vger.kernel.org, AJvYcCX4WaniLlp5gKKiHCrwHjS+E7DtHPJFr2FrZyN2dBcd4OIgMhU6UG/burunzm3tnXY0P3y4DOTf@vger.kernel.org, AJvYcCXLGpPnIVtruiplJ68uYwK844pQvnPiDAELQAQKJD7/vOiUFkLGNJ0s4BiMEro/L/zJUIFReW0aBdpQMRw=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy1ASu9IKhVWAj08t9kMybuc/etR412NJFMo686qIsGLhGhBJWE
+	cbQ89XFT7H21A7SwmEJO/0So3owECaLdqZsEyK2pFNEtY0BVawqOm/ajhTVrlhYTabjt/hR7xkg
+	QNDZedfl7M4NkNF9bs4aizetvBdw=
+X-Google-Smtp-Source: AGHT+IEhUJZakcAb3Hn5TBmpX3W+QxvSOISc+LdAroBp99Wpi5KbVzTtnxsFCso2WAKUsEPZsRFlWTEB7oLAxNgw3VQ=
+X-Received: by 2002:a05:690c:d84:b0:6e2:1742:590d with SMTP id
+ 00721157ae682-6e2c6ff1453mr79031707b3.3.1728284119226; Sun, 06 Oct 2024
+ 23:55:19 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202410062250.ee92fca7-oliver.sang@intel.com>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+References: <20241005045411.118720-1-danielyangkang@gmail.com> <CANn89iKk8TOvzD4cAanACtD0-x2pciEoSJbk9mF97wxNzxmUCg@mail.gmail.com>
+In-Reply-To: <CANn89iKk8TOvzD4cAanACtD0-x2pciEoSJbk9mF97wxNzxmUCg@mail.gmail.com>
+From: Daniel Yang <danielyangkang@gmail.com>
+Date: Sun, 6 Oct 2024 23:54:43 -0700
+Message-ID: <CAGiJo8RCXp8MqTPcPY4vyQAJCMhOStSApZzA5RcTq5BJgzXoeQ@mail.gmail.com>
+Subject: Re: [PATCH v2] resolve gtp possible deadlock warning
+To: Eric Dumazet <edumazet@google.com>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>, 
+	"D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, 
+	Wen Gu <guwen@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, Oct 06, 2024 at 10:20:57PM +0800, kernel test robot wrote:
+On Sat, Oct 5, 2024 at 12:25=E2=80=AFAM Eric Dumazet <edumazet@google.com> =
+wrote:
+>
+> On Sat, Oct 5, 2024 at 6:54=E2=80=AFAM Daniel Yang <danielyangkang@gmail.=
+com> wrote:
+> >
+> > Fixes deadlock described in this bug:
+> > https://syzkaller.appspot.com/bug?extid=3De953a8f3071f5c0a28fd.
+> > Specific crash report here:
+> > https://syzkaller.appspot.com/text?tag=3DCrashReport&x=3D14670e07980000=
+.
+> >
+> > This bug is a false positive lockdep warning since gtp and smc use
+> > completely different socket protocols.
+> >
+> > Lockdep thinks that lock_sock() in smc will deadlock with gtp's
+> > lock_sock() acquisition. Adding a function that initializes lockdep
+> > labels for smc socks resolved the false positives in lockdep upon
+> > testing. Since smc uses AF_SMC and SOCKSTREAM, two labels are created t=
+o
+> > distinguish between proper smc socks and non smc socks incorrectly
+> > input into the function.
+> >
+> > Signed-off-by: Daniel Yang <danielyangkang@gmail.com>
+> > Reported-by: syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
+> > ---
+> > v1->v2: Add lockdep annotations instead of changing locking order
+> >  net/smc/af_smc.c | 21 +++++++++++++++++++++
+> >  1 file changed, 21 insertions(+)
+> >
+> > diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> > index 0316217b7..4de70bfd5 100644
+> > --- a/net/smc/af_smc.c
+> > +++ b/net/smc/af_smc.c
+> > @@ -16,6 +16,8 @@
+> >   *              based on prototype from Frank Blaschka
+> >   */
+> >
+> > +#include "linux/lockdep_types.h"
+> > +#include "linux/socket.h"
+> >  #define KMSG_COMPONENT "smc"
+> >  #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+> >
+> > @@ -2755,6 +2757,24 @@ int smc_getname(struct socket *sock, struct sock=
+addr *addr,
+> >         return smc->clcsock->ops->getname(smc->clcsock, addr, peer);
+> >  }
+> >
+> > +static struct lock_class_key smc_slock_key[2];
+> > +static struct lock_class_key smc_key[2];
+> > +
+> > +static inline void smc_sock_lock_init(struct sock *sk)
+> > +{
+> > +       bool is_smc =3D (sk->sk_family =3D=3D AF_SMC) && sk_is_tcp(sk);
+> > +
+> > +       sock_lock_init_class_and_name(sk,
+> > +                                     is_smc ?
+> > +                                     "smc_lock-AF_SMC_SOCKSTREAM" :
+> > +                                     "smc_lock-INVALID",
+> > +                                     &smc_slock_key[is_smc],
+> > +                                     is_smc ?
+> > +                                     "smc_sk_lock-AF_SMC_SOCKSTREAM" :
+> > +                                     "smc_sk_lock-INVALID",
+> > +                                     &smc_key[is_smc]);
+> > +}
+> > +
+> >  int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+> >  {
+> >         struct sock *sk =3D sock->sk;
+> > @@ -2762,6 +2782,7 @@ int smc_sendmsg(struct socket *sock, struct msghd=
+r *msg, size_t len)
+> >         int rc;
+> >
+> >         smc =3D smc_sk(sk);
+> > +       smc_sock_lock_init(sk);
+> >         lock_sock(sk);
+> >
+> >         /* SMC does not support connect with fastopen */
+> > --
+> > 2.39.2
+> >
+>
+> sock_lock_init_class_and_name() is not meant to be repeatedly called,
+> from sendmsg()
+>
+> Find a way to do this once, perhaps in smc_create_clcsk(), but I will
+> let SMC experts chime in.
 
-> xfs/046       - output mismatch (see /lkp/benchmarks/xfstests/results//xfs/046.out.bad)
->     --- tests/xfs/046.out	2024-09-30 21:13:44.000000000 +0000
->     +++ /lkp/benchmarks/xfstests/results//xfs/046.out.bad	2024-10-06 05:31:50.379495110 +0000
->     @@ -34,4 +34,8 @@
->      xfsrestore: restore complete: SECS seconds elapsed
->      xfsrestore: Restore Status: SUCCESS
->      Comparing listing of dump directory with restore directory
->     +ls: /fs/scratch/dumpdir/sub/a-link: No such file or directory
->     +ls: /fs/scratch/dumpdir/sub/b-link: No such file or directory
->     +ls: /fs/scratch/restoredir/dumpdir/sub/a-link: No such file or directory
->     +ls: /fs/scratch/restoredir/dumpdir/sub/b-link: No such file or directory
->     ...
->     (Run 'diff -u /lkp/benchmarks/xfstests/tests/xfs/046.out /lkp/benchmarks/xfstests/results//xfs/046.out.bad'  to see the entire diff)
-> Ran: xfs/046
-> Failures: xfs/046
-> Failed 1 of 1 tests
+So I tried putting the lockdep annotations in smc_create_clcsk() as
+well as smc_sock_alloc() and they both fail to remove the false
+positive but putting the annotations in smc_sendmsg() gets rid of
+them. I put some print statements in the functions to see the
+addresses of the socks.
 
-*stares*
+[   78.121827][ T8326] smc: smc_create_clcsk clcsk_addr: ffffc90007f0fd20
+[   78.122436][ T8326] smc: sendmsg sk_addr: ffffc90007f0fa88
+[   78.126907][ T8326] smc: __smc_create input_param clcsock: 0000000000000=
+000
+[   78.134395][ T8326] smc: smc_sock_alloc sk_addr: ffffc90007f0fd70
+[   78.136679][ T8326] smc: smc_create_clcsk clcsk_clcsk: ffffc90007f0fd70
 
-D'oh...  Inverted sense for AT_SYMLINK_NOFOLLOW => LOOKUP_FLAGS...
-
-Try this:
-
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 0b506b6565b7..b96cca3f4bf8 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -721,7 +721,7 @@ static int path_setxattrat(int dfd, const char __user *pathname,
- 	if ((at_flags & ~(AT_SYMLINK_NOFOLLOW | AT_EMPTY_PATH)) != 0)
- 		return -EINVAL;
- 
--	if (at_flags & AT_SYMLINK_NOFOLLOW)
-+	if (!(at_flags & AT_SYMLINK_NOFOLLOW))
- 		lookup_flags = LOOKUP_FOLLOW;
- 
- 	error = setxattr_copy(name, &ctx);
-@@ -880,7 +880,7 @@ static ssize_t path_getxattrat(int dfd, const char __user *pathname,
- 		return file_getxattr(fd_file(f), &ctx);
- 	} else {
- 		int lookup_flags = 0;
--		if (at_flags & AT_SYMLINK_NOFOLLOW)
-+		if (!(at_flags & AT_SYMLINK_NOFOLLOW))
- 			lookup_flags = LOOKUP_FOLLOW;
- 		return filename_getxattr(dfd, filename, lookup_flags, &ctx);
- 	}
+It appears that none of the smc allocation methods are called, so
+where else exactly could the sock used in sendmsg be created?
