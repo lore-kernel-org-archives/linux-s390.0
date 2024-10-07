@@ -1,205 +1,119 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FF851D26EA;
-	Mon,  7 Oct 2024 12:31:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C3AC1BB6B8;
+	Mon,  7 Oct 2024 12:48:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728304273; cv=none; b=cEnu55mVaTdpdC0lstmz3qj2o5n9RfcLwfYT0Uzcvgt15kzAqmvckjcZbV7GbvsNntk4gRB4GRwueeXIsMpgUyeAmhKahYdpJ/cpUBHhck9f8uRdgxuWN3ND2Gqr6TS+eBHPMuPJyx/RuhyG4CkdMhzWEKyC1ZULR+rR/2WN/IM=
+	t=1728305335; cv=none; b=m/8fD/To49r9ClfzA1O9c7eB3zNTINL25qdisd+4tw2LAetdLTZNLD8ZxVgi8NwovKCShQz3pNfkyxf8KuWf1RvCYxc15v7zocLJCLg9ncyXmDG58UleUPLODklWF+gQY+OnOF+OTBuHP6DkUmmaffSe0l15EwUdqraES+Ag8TA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728304273; c=relaxed/simple;
-	bh=9wUq96qhcak3cnlXGxWHkWFMn4bFGMVYKm3z2MTn2i8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pbA+gsvVuRv67t+eqK1J5acqomZcudr7ZSTr0G89Ro4Vf+dmqZDfhVKKAy0Bi+yThocdWPBtVNIK+csyFODLbnKmRD8Jfw2T0/+V6PEPAxmJfrb+arMdp6YIvb5YUpG64koV97V182snTFUbpe1slP7wrR/oFh5ER1jPt6blY50=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qbRijNsg; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1728305335; c=relaxed/simple;
+	bh=XWgabam3fhc3PvpjHHnnru1mmimtxFrWT467mkfuww0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rqDr3G8mAdijQibrGSab4TuiN4ezcvtV8RAgR5WXAaO7i6milAHYNpizfLFbccGtggcvoO70BLxLeg4KUfLGpDGFzGch2DAyBxeFPwx40cjQQsUWc5e2L86c7YFDFXSuwO4fCd01Ld3tBgEWsWOWL0OeeNZlG7qn7hHjbSXwGMg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XS3xWXlD; arc=none smtp.client-ip=198.175.65.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qbRijNsg"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 497CLN6H030926;
-	Mon, 7 Oct 2024 12:31:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=W
-	8utTWx7HwhTGjJZNK1jzsOoxc3Yj1Dzr6V2+83kobU=; b=qbRijNsgZc2ecJ0FR
-	zS3lb/F363SHCKNWJShq76VzqHaAH7GR4/FK0oIxEIpNCAS42A9/N6vrXgwl/m4d
-	V9zLbGKRIY3SbnXRCXN+dXa5Rds4Vkzr00qyIZy8Hmem0cTa2E6mjfBbPS1/DBXM
-	UyyUTjynjkLkzO2Ab6KBMvSQYSpXR93jD2Xk4yrXmfK/yRE4ZxyN60ETKDIhCm6c
-	xI/LOciVNsoMac9hdDWmGBeAuAlm3aKLvc8nnGrv0kijZZEYO2Jv2pcgH33dq04s
-	6bPwn+eA7ovQzOe4JggeJbaIHwP0w1hgotWS4zyHK76Yzz/05i0KePmFLr/rnQCU
-	t9ZEg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 424fjsr1d9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 07 Oct 2024 12:31:10 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 497AXLgT013838;
-	Mon, 7 Oct 2024 12:31:09 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 423fsrxry7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 07 Oct 2024 12:31:09 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 497CV6A857409920
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 7 Oct 2024 12:31:06 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5D18A2004B;
-	Mon,  7 Oct 2024 12:31:06 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EF9B420040;
-	Mon,  7 Oct 2024 12:31:05 +0000 (GMT)
-Received: from [9.171.93.242] (unknown [9.171.93.242])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  7 Oct 2024 12:31:05 +0000 (GMT)
-Message-ID: <6ea3cfb4-47ab-478e-b5f0-0a02ec28b37d@linux.ibm.com>
-Date: Mon, 7 Oct 2024 14:31:05 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XS3xWXlD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1728305335; x=1759841335;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=XWgabam3fhc3PvpjHHnnru1mmimtxFrWT467mkfuww0=;
+  b=XS3xWXlDE9ZlxLVMeGD7SEIq+Kqd1lIUIZXM0S995f4n9RxjZRiSLFdp
+   MGxtkUo/qX1yqTOacf2lSD8uaQ/buL15eWzzBrnxt8VbeBRMIMchIpW7k
+   /3rSYQ5LzGsbAp+kh79d4XVwOO3HhqBeaMu3fKPxHAE7M5tFFWnBeT2EH
+   GPu75DMSHpoF0UQWsJTmHGfgZKkACsSF75C6tBe6CN3agjheZCzmmvKmM
+   pg0KV1PTW/RqcdcvH9ZsAfg0kjEljAqP8hPL4gjLFNB4r3Bw0x83cVWT3
+   ULkL2SrYAzY+KiMUzw4ty7lUNFKhbeXyyM7hlcTSW453iOSDUBV/SfyFl
+   w==;
+X-CSE-ConnectionGUID: rnGGckzESDWIRRiffUPziQ==
+X-CSE-MsgGUID: E6/UXZ0LTMujkUF3fMLS5w==
+X-IronPort-AV: E=McAfee;i="6700,10204,11218"; a="31152294"
+X-IronPort-AV: E=Sophos;i="6.11,184,1725346800"; 
+   d="scan'208";a="31152294"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2024 05:48:54 -0700
+X-CSE-ConnectionGUID: bP6fMKj0RnyrWoAmPTX4GQ==
+X-CSE-MsgGUID: rdegqp39TlWWvVoSaAoULg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.11,184,1725346800"; 
+   d="scan'208";a="80055132"
+Received: from lkp-server01.sh.intel.com (HELO a48cf1aa22e8) ([10.239.97.150])
+  by fmviesa004.fm.intel.com with ESMTP; 07 Oct 2024 05:48:50 -0700
+Received: from kbuild by a48cf1aa22e8 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1sxnAO-0004z2-0K;
+	Mon, 07 Oct 2024 12:48:48 +0000
+Date: Mon, 7 Oct 2024 20:48:42 +0800
+From: kernel test robot <lkp@intel.com>
+To: Daniel Yang <danielyangkang@gmail.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Jan Karcher <jaka@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	netdev@vger.kernel.org, danielyangkang@gmail.com,
+	syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
+Subject: Re: [PATCH v2] resolve gtp possible deadlock warning
+Message-ID: <202410072002.hT2D7135-lkp@intel.com>
+References: <20241005045411.118720-1-danielyangkang@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/6] s390/uv: Retrieve UV secrets support
-To: Steffen Eiden <seiden@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc: Ingo Franzki <ifranzki@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Christoph Schlameuss <schlameuss@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-References: <20241002160532.2425734-1-seiden@linux.ibm.com>
- <20241002160532.2425734-3-seiden@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20241002160532.2425734-3-seiden@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: wgZ84dG3sJNVx4Hnr2_eVwbd6OnixVzk
-X-Proofpoint-GUID: wgZ84dG3sJNVx4Hnr2_eVwbd6OnixVzk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-07_03,2024-10-07_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- mlxscore=0 spamscore=0 mlxlogscore=693 malwarescore=0 priorityscore=1501
- clxscore=1015 impostorscore=0 suspectscore=0 lowpriorityscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410070088
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241005045411.118720-1-danielyangkang@gmail.com>
 
-On 10/2/24 6:05 PM, Steffen Eiden wrote:
-> Provide a kernel API to retrieve secrets from the UV secret store.
-> Add two new functions:
-> * `uv_get_secret_metadata` - get metadata for a given secret identifier
-> * `uv_retrieve_secret` - get the secret value for the secret index
-> 
-> With those two functions one can extract the secret for a given secret
-> id, if the secret is retrievable.
-> 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->   arch/s390/include/asm/uv.h | 131 ++++++++++++++++++++++++++++++++++++-
->   arch/s390/kernel/uv.c      | 127 ++++++++++++++++++++++++++++++++++-
->   2 files changed, 256 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-> index 94ff58336e8e..aef333aaaef4 100644
-> --- a/arch/s390/include/asm/uv.h
-> +++ b/arch/s390/include/asm/uv.h
-> @@ -62,6 +62,7 @@
->   #define UVC_CMD_ADD_SECRET		0x1031
->   #define UVC_CMD_LIST_SECRETS		0x1033
->   #define UVC_CMD_LOCK_SECRETS		0x1034
-> +#define UVC_CMD_RETR_SECRET		0x1035
->   
->   /* Bits in installed uv calls */
->   enum uv_cmds_inst {
-> @@ -95,6 +96,7 @@ enum uv_cmds_inst {
->   	BIT_UVC_CMD_ADD_SECRET = 29,
->   	BIT_UVC_CMD_LIST_SECRETS = 30,
->   	BIT_UVC_CMD_LOCK_SECRETS = 31,
-> +	BIT_UVC_CMD_RETR_SECRETS = 33,
+Hi Daniel,
 
-One is SECRET and the other is SECRET_S_.
-I know that you coded this according to spec, but sometimes we need to 
-fix the spec. I've contacted the spec authors to fix it on their end if 
-possible.
+kernel test robot noticed the following build warnings:
 
-[...]
+[auto build test WARNING on linus/master]
+[also build test WARNING on v6.12-rc2 next-20241004]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-> + * Do the actual search for `uv_get_secret_metadata`
-> + *
-> + * Context: might sleep
-> + */
-> +static int find_secret(const u8 secret_id[UV_SECRET_ID_LEN],
-> +		       struct uv_secret_list *list,
-> +		       struct uv_secret_list_item_hdr *secret)
-> +{
-> +	u16 start_idx = 0;
-> +	u16 list_rc;
-> +	int ret;
-> +
-> +	do {
-> +		uv_list_secrets((u8 *)list, start_idx, &list_rc, NULL);
-> +		if (!(list_rc == UVC_RC_EXECUTED || list_rc == UVC_RC_MORE_DATA)) {
+url:    https://github.com/intel-lab-lkp/linux/commits/Daniel-Yang/resolve-gtp-possible-deadlock-warning/20241005-125510
+base:   linus/master
+patch link:    https://lore.kernel.org/r/20241005045411.118720-1-danielyangkang%40gmail.com
+patch subject: [PATCH v2] resolve gtp possible deadlock warning
+config: x86_64-buildonly-randconfig-005-20241007 (https://download.01.org/0day-ci/archive/20241007/202410072002.hT2D7135-lkp@intel.com/config)
+compiler: clang version 18.1.8 (https://github.com/llvm/llvm-project 3b5b5c1ec4a3095ab096dd780e84d7ab81f3d7ff)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20241007/202410072002.hT2D7135-lkp@intel.com/reproduce)
 
-Inverting this conditional would get rid of 3 characters.
-Did you chose to implement it like this on purpose?
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202410072002.hT2D7135-lkp@intel.com/
 
-> +			if (list_rc == UVC_RC_INV_CMD)
-> +				return -ENODEV;
-> +			else
-> +				return -EIO;
-> +		}
-> +		ret = find_secret_in_page(secret_id, list, secret);
-> +		if (ret == 0)
-> +			return ret;
-> +		start_idx = list->next_secret_idx;
-> +	} while (list_rc == UVC_RC_MORE_DATA && start_idx < list->next_secret_idx);
-> +
-> +	return -ENOENT;
+All warnings (new ones prefixed by >>):
+
+>> net/smc/af_smc.c:22:9: warning: 'pr_fmt' macro redefined [-Wmacro-redefined]
+      22 | #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+         |         ^
+   include/linux/printk.h:380:9: note: previous definition is here
+     380 | #define pr_fmt(fmt) fmt
+         |         ^
+   1 warning generated.
 
 
+vim +/pr_fmt +22 net/smc/af_smc.c
+
+ac7138746e1413 Ursula Braun 2017-01-09 @22  #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ac7138746e1413 Ursula Braun 2017-01-09  23  
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
