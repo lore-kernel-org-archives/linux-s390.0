@@ -1,147 +1,150 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from fhigh-a8-smtp.messagingengine.com (fhigh-a8-smtp.messagingengine.com [103.168.172.159])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CFAD1E485;
-	Tue,  8 Oct 2024 12:15:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA9B51DE8A9;
+	Tue,  8 Oct 2024 12:29:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.159
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728389737; cv=none; b=HyPYDfvJtlLkFdvT2yScobxH0YaSxJCuXVYBfUCS0lnZlNBwg6/WPtxM9X0d16bQhVn8jpS0baBC/sWGF4/LU5Sut7BFXykJODW/ARnFpvf0CuMaMqBeetvGRbZ7cZdqGBDqyw8vV+76z39fHHrDaNVzrhNCatVu1ALElppRIjU=
+	t=1728390597; cv=none; b=uVcALpihlwzYty4mYzdBZFYDlgi4vDuFsDrilUuSTrZo/qKjaz5J3HQQ45UAFkd4FoQlMZ7VjfS8mC7KT4JaIDtA4gRCZSUZwtoqeD1QYZN3CCS8tqNeAgP2caOzQsl7Ck3LaplsXKgtd3E8DZRcdiu2xM8fRq6RnF/y7/+aHlE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728389737; c=relaxed/simple;
-	bh=rfLeZv8FubnCAd0PFU+nY8XTBaYUV7FJ4UPjvxW79k8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Sd/FbHWGUbrOxoEEY7lm4vkfVRiFc44OMMxm+8x5LrK0KDwKMX8A0M4UT3fT4t1UMaXAYQQ5+f9PL6ueEZo07GuQlghisaNk89j0c2/0laV3vdY+RpgI0ocn1XrOGtqkekqyTluSwnSzh/jNOV0D9qxSoAEvnU1jf64t123tdbg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ru0k7M/H; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1728390597; c=relaxed/simple;
+	bh=SwiKyk1qXPVibzNAdevq0KXsDs6bwkBWLmS/QmHNEeU=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=jwITej01oADPRZRloTNjPbc+gtqTwqt00aUIMi/aZv2NBuVH7UgmHNc7lpoRHNHAK1TFvj7bCC/Ya8ebFvRHFX8ydmQ8qlIWWdma71LDsZ1f5FwXnOVVer5R2Lq5mpAvLgjnDdK8agDLM30xSZHCUL+otlK1+MxZ1r+TkPUISWs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=fF+G7/sZ; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=gm/tz02j; arc=none smtp.client-ip=103.168.172.159
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ru0k7M/H"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 498AJjrg000354;
-	Tue, 8 Oct 2024 12:15:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=D
-	/Yih5U/uDSx89i9n8GFG//aFMjKF2HQpQcU9YGqz3g=; b=Ru0k7M/H4dq7Ia0pg
-	kWz17N3JvAveoYuKGehmt4Q4RuE4X5ImrhhFlsngFiX9cN1ZKRtGzeFTPY0ePGUe
-	wlVqKCSitcnXR4U1A4vMxi0U8l9bEbNrjjvCAyLTUKp76ek7l6yvMlw+Qz5T9u6E
-	uhPbW64AgLtmZADr3msUtfqbCFwWqBhk/Jma6G2Xv31L206WAJnqOwxd0i9SZGCL
-	1TcUcqRhvf8RSujofMu41/YxJrAVCTgoYvSTbWlGBoUvILFiiS4KMs31fkTfjJ++
-	fTPfeyABoG8wXbPgiE61oO92zJDGX/LY+5YVvcO7yIBESqV8OygxNF6DHfzcz0xC
-	w6VRw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4252vpghq6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Oct 2024 12:15:32 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 498CFWKG016521;
-	Tue, 8 Oct 2024 12:15:32 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4252vpghq3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Oct 2024 12:15:32 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 498AVNMS022867;
-	Tue, 8 Oct 2024 12:15:31 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 423jg0usr9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Oct 2024 12:15:31 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 498CFRfu18743674
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 8 Oct 2024 12:15:27 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A17BC2004B;
-	Tue,  8 Oct 2024 12:15:27 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 318EF20043;
-	Tue,  8 Oct 2024 12:15:27 +0000 (GMT)
-Received: from [9.171.9.6] (unknown [9.171.9.6])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  8 Oct 2024 12:15:27 +0000 (GMT)
-Message-ID: <fb005423-3bc4-48fe-85eb-f4fadbabeef4@linux.ibm.com>
-Date: Tue, 8 Oct 2024 14:15:26 +0200
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="fF+G7/sZ";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="gm/tz02j"
+Received: from phl-compute-10.internal (phl-compute-10.phl.internal [10.202.2.50])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id CAF4F1140242;
+	Tue,  8 Oct 2024 08:29:53 -0400 (EDT)
+Received: from phl-imap-11 ([10.202.2.101])
+  by phl-compute-10.internal (MEProxy); Tue, 08 Oct 2024 08:29:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1728390593;
+	 x=1728476993; bh=UAD8NfSy5gmGeQl+E5iRkYF97RER4uEtGdtfvJHOxzw=; b=
+	fF+G7/sZcZVBkjEtE3YDHju+SzZwr5W7qDi+1uy5ibQTo6Q/22u+lpmTERwpLpS/
+	gM26A4LNudYtQO8fgP62a8EeudRT8I3GsjmfB4mJlx9877F9dVd8rzWfZ2l24fAC
+	ISKBrRYmor8mtczIhF2xZ+dIpd98BKiPv+CS06ZtVMyUHLCdbqCBj+xdoTNBJyEF
+	IxnYrtLFwa+VoPjqYTlQBUGgbXcppFkeq9b3lh//q9mTkMz3MMZKIE36i2WdNPJ+
+	o9d//8MIo8PlZyBnzBM3U/ik64vPhXzmUic9mUe35+jsqbDMt5JV/5zqUFV1lHis
+	KmJICWCSpGPizCYQ7ayN6g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1728390593; x=
+	1728476993; bh=UAD8NfSy5gmGeQl+E5iRkYF97RER4uEtGdtfvJHOxzw=; b=g
+	m/tz02joYJumjvkLzGwR9YDJV/kNuhChrInezhJLft8ruV/rp0jL0BSfVG9LIO9K
+	UVwjDSnnNW1fP0lKW5SaNvPG+GNo943eZScGuRvgeTK2BTAXXEAEunZbELT+jO+k
+	IJa/tL77Y5wqjkOELQToA2gY1447zJCUA/mnyoFOFdOhRYaHd35ie3JOaqRNjGG4
+	3FuKRMcees2ti/q2rqrR2wgr0XGhaIerML2HXNFtYpqcMwWHCI7q4KBJOExki2wa
+	Bq0I5ZymdsQnG9hpwbbed19kelGcdesJZknuuHVKfEf02/HkH1+v51cmyE36sIgy
+	LukEjFjiGQYdp0Hz/VwAA==
+X-ME-Sender: <xms:wCUFZ5W9KUAZHxz092rDJfAFDgciQGITdEh60sb3s0AjfK_rKE-Gdg>
+    <xme:wCUFZ5myaxX1fsEJUll3ERo9TTHcFwkRpJnTJo7HVNVnSaCqeyq9l2otZ5c2ygbYN
+    sUEW6JYPRnvLVCu9xE>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrvdefuddghedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
+    rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
+    htshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddt
+    necuhfhrohhmpedftehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrd
+    guvgeqnecuggftrfgrthhtvghrnhephfdthfdvtdefhedukeetgefggffhjeeggeetfefg
+    gfevudegudevledvkefhvdeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepgedp
+    mhhouggvpehsmhhtphhouhhtpdhrtghpthhtoheplhhinhhugidqshefledtsehvghgvrh
+    drkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqshhhsehvghgvrhdrkhgv
+    rhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqshhouhhnugesvhhgvghrrdhkvg
+    hrnhgvlhdrohhrghdprhgtphhtthhopehkvghrnhgvlhesgigvnhdtnhdrnhgrmhgv
+X-ME-Proxy: <xmx:wCUFZ1bZvCs7KfTBPM6DUJ3PVG0smdFNNiUbk3DjtNzrKYHLH5K9Fw>
+    <xmx:wCUFZ8U5136AoThXc7VWd0g7CrnPBb5Ak-1OdDTkBhc-GJ7Zhkl30w>
+    <xmx:wCUFZzlbarMfk_Iho0-WG5OL2VvvoMVKFW-lW08VKL4C8SE1qBzHCg>
+    <xmx:wCUFZ5epsPnGQWmBgGbsiAV2bAo5MGKgMPLmtHvPs__hmbSH4NPBag>
+    <xmx:wSUFZxgLlhp1BigvFG0qp-yQrfn6_NA4pwA4aMNAo029wW2gb0rRKNJY>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id C4FC22220071; Tue,  8 Oct 2024 08:29:52 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 4/4] selftests: kvm: s390: Fix whitespace confusion in
- ucontrol test
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-References: <20241008074253.370481-1-schlameuss@linux.ibm.com>
- <20241008074253.370481-5-schlameuss@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20241008074253.370481-5-schlameuss@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Date: Tue, 08 Oct 2024 12:29:32 +0000
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Christoph Hellwig" <hch@infradead.org>,
+ "Julian Vetter" <jvetter@kalrayinc.com>
+Cc: "Russell King" <linux@armlinux.org.uk>,
+ "Catalin Marinas" <catalin.marinas@arm.com>,
+ "Will Deacon" <will@kernel.org>, guoren <guoren@kernel.org>,
+ "Huacai Chen" <chenhuacai@kernel.org>, "WANG Xuerui" <kernel@xen0n.name>,
+ "Andrew Morton" <akpm@linux-foundation.org>,
+ "Geert Uytterhoeven" <geert@linux-m68k.org>,
+ "Richard Henderson" <richard.henderson@linaro.org>,
+ "Ivan Kokshaysky" <ink@jurassic.park.msu.ru>,
+ "Matt Turner" <mattst88@gmail.com>,
+ "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+ "Helge Deller" <deller@gmx.de>,
+ "Yoshinori Sato" <ysato@users.sourceforge.jp>,
+ "Rich Felker" <dalias@libc.org>,
+ "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
+ "Richard Weinberger" <richard@nod.at>,
+ "Anton Ivanov" <anton.ivanov@cambridgegreys.com>,
+ "Johannes Berg" <johannes@sipsolutions.net>,
+ "Michael Ellerman" <mpe@ellerman.id.au>,
+ "Nicholas Piggin" <npiggin@gmail.com>,
+ "Christophe Leroy" <christophe.leroy@csgroup.eu>,
+ "Naveen N Rao" <naveen@kernel.org>,
+ "Madhavan Srinivasan" <maddy@linux.ibm.com>,
+ "Heiko Carstens" <hca@linux.ibm.com>,
+ "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Sven Schnelle" <svens@linux.ibm.com>,
+ "Niklas Schnelle" <schnelle@linux.ibm.com>,
+ "Manivannan Sadhasivam" <manivannan.sadhasivam@linaro.org>,
+ "Miquel Raynal" <miquel.raynal@bootlin.com>,
+ "Vignesh Raghavendra" <vigneshr@ti.com>,
+ "Jaroslav Kysela" <perex@perex.cz>, "Takashi Iwai" <tiwai@suse.com>,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+ loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+ linux-alpha@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
+ Linux-Arch <linux-arch@vger.kernel.org>, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, mhi@lists.linux.dev,
+ linux-arm-msm@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-sound@vger.kernel.org, "Yann Sionneau" <ysionneau@kalrayinc.com>
+Message-Id: <b54a6f76-fcfd-40bd-b478-ca0a7e1af128@app.fastmail.com>
+In-Reply-To: <ZwUbsviaqFUtjKEQ@infradead.org>
+References: <20241008075023.3052370-1-jvetter@kalrayinc.com>
+ <20241008075023.3052370-2-jvetter@kalrayinc.com>
+ <ZwUbsviaqFUtjKEQ@infradead.org>
+Subject: Re: [PATCH v8 01/14] Consolidate IO memcpy/memset into iomap_copy.c
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: U9P8WDRKT1HDuhxFnTQcg9waUxViHMiy
-X-Proofpoint-GUID: LV3Mf7rAJt9HYO5RcowrghVB_JHX_w5A
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-08_10,2024-10-08_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- lowpriorityscore=0 priorityscore=1501 impostorscore=0 mlxscore=0
- bulkscore=0 adultscore=0 mlxlogscore=802 suspectscore=0 clxscore=1015
- malwarescore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2409260000 definitions=main-2410080075
 
-On 10/8/24 9:42 AM, Christoph Schlameuss wrote:
-> Checkpatch thinks that we're doing a multiplication but we're obviously
-> not. Fix 4 instances where we adhered to wrong checkpatch advice.
-> 
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+On Tue, Oct 8, 2024, at 11:46, Christoph Hellwig wrote:
+> On Tue, Oct 08, 2024 at 09:50:09AM +0200, Julian Vetter wrote:
+>>  lib/iomap_copy.c         | 127 +++++++++++++++++++++++++++++++++++++++
+>
+> On top of the previous comments:  this really should be iomem_copy.c
+> instead.
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Right, I suggested adding it to the existing file since the
+functions are logically related, but the naming of that file
+identifiers in it is unfortunate:
+
+__iowrite32_copy/__iowrite64_copy/__ioread32_copy sound like
+they are meant to work on both IORESOURCE_MEM and IORESOURCE_IO
+mappings the same way that iowrite64/ioread64/ioread32 do,
+but actually using them on x86 port I/O (from pci_iomap or
+ioport_map) would lead to a NULL pointer dereference.
+
+      Arnd
