@@ -1,90 +1,136 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 101AC19067C;
-	Tue,  8 Oct 2024 10:04:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B18E81C9B77;
+	Tue,  8 Oct 2024 10:59:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728381846; cv=none; b=NeW5s6V8TT1wRPtudApoi05Qh50OP7ilvYcB//253JkwD+XsY2v6ehkCKEP3CRHHuzU07A/UXeGJydcaoMWQJH532asr2dQkjhyk6f5aX7zmdKi57pSmfGYHxJDDuyGhu+/ujbuib+8z3ZYU0/ePfIIOcsd87uYUksl56OmZAoc=
+	t=1728385187; cv=none; b=FrrUNS6+UbVTmJVbc1aVhq6+9ao+kMe0At8mKWoHGgHYqoSaw+ck7M7UTPCfydJKhm8r7fxX2CXRzwOHXEgxP8YESLOPfAtncDktDPLfMsSSmu6l32+wZu2zwvdLDbfFsf1X7HVDpQ81rKqdJips5QNQ7Zw5jInQ0/XoJrpHz5I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728381846; c=relaxed/simple;
-	bh=SU8Tx39SBVHlL1bRNkXM2zIDtQra3W9DOH4t5+MKZBY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NU8yFGtGTbEElCcnHXnaceGJIyv/qvefbr1M7CryijC/WOEpd4HC18Z9sVam0++fveAAfvkaRfGxmPONCEcBvXVJXHLnZeLjzAKW6ms0p1QldPNVi/MnkL0XMWUrOF4Ntqq/oV8teyf4UDZUZ2fw6YWqmxALfCIyn7WQz9DzYAw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49794C4CEC7;
-	Tue,  8 Oct 2024 10:04:00 +0000 (UTC)
-Date: Tue, 8 Oct 2024 11:03:57 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>,
-	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	"linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-	"x86@kernel.org" <x86@kernel.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Mark Rutland <mark.rutland@arm.com>, Will Deacon <will@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>
-Subject: Re: [PATCH] ftrace: Make ftrace_regs abstract from direct use
-Message-ID: <ZwUDjbrYZNC7HLZS@arm.com>
-References: <20241007204743.41314f1d@gandalf.local.home>
+	s=arc-20240116; t=1728385187; c=relaxed/simple;
+	bh=zeUqvI7SPlfEDQRc680LktQNkR1koKFBn87cj8I1z5E=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=QLmIgnSPDNZuCHXK5+ySxTS8MBo/+hYxeUJkqI6ohreUzbw2HJLdKS4l9QwQ5dJhuHi0Fzj2zRM5wIZUCU5eYro3QE50OUPx59CPU3Qrb2cdAkPcNDAmywuXHwmqe6h+8z85ec8b4XXTNCByVPd5J3S9WWk5xE4JC0IgDl3KUKk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iGCQ6NPv; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iGCQ6NPv"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4989Juau020507;
+	Tue, 8 Oct 2024 10:59:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:in-reply-to:references
+	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
+	4A8DJyWg8LQ+N4AyllITtSSlkQcxiPJBfcJryBouwNw=; b=iGCQ6NPvXDS1rNyW
+	E6O4S/UM3bGpjThxzuzn/CT/+jJ5uwSI3upOn+Bb8jK2LW5jWYz2kFkUvN02mBrh
+	uX1QuXrwtxrStlfiBwxMRs72vBeVtNcyeIWBuJYzaM89/nxj9ZtIEJuTJjdJ28Hp
+	y/InN8D+QBpDvKjuA2Nk/3UI0IlGPVgBhY4pTJY4WlPASG5UMwLiZnR841fzs6Yt
+	j07YJRa2I1S0N5VVNmG3jqW2bfq1liE2o0QN+1Biie09Io4NTJXXir6ii9N1y/vf
+	LNLPRV+rPMj/OOFEwgZvozygUwyn/O4aVF/7Se+L+RlJF3SemQg871GrZpK6Seac
+	FmZkuA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42520hggw6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 08 Oct 2024 10:59:38 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 498Awb8d021450;
+	Tue, 8 Oct 2024 10:59:37 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42520hggw4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 08 Oct 2024 10:59:37 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4989FaVT011516;
+	Tue, 8 Oct 2024 10:59:37 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 423g5xkx7c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 08 Oct 2024 10:59:37 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 498AxXN542271164
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 8 Oct 2024 10:59:33 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2B5BE2004D;
+	Tue,  8 Oct 2024 10:59:33 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 57AEC20043;
+	Tue,  8 Oct 2024 10:59:32 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.179.3.110])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Tue,  8 Oct 2024 10:59:32 +0000 (GMT)
+Date: Tue, 8 Oct 2024 12:59:30 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: "Marc Hartmayer" <mhartmay@linux.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "Martin
+ K. Petersen" <martin.petersen@oracle.com>,
+        Robin Murphy
+ <robin.murphy@arm.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>, linux-s390@vger.kernel.org,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Halil Pasic
+ <pasic@linux.ibm.com>
+Subject: Re: [PATCH 1/1] s390/virtio_ccw: fix dma_parm pointer not set up
+Message-ID: <20241008125930.33578456.pasic@linux.ibm.com>
+In-Reply-To: <875xq3yo97.fsf@linux.ibm.com>
+References: <20241007201030.204028-1-pasic@linux.ibm.com>
+	<875xq3yo97.fsf@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 0olIk7itJFa692_e9qiWOsWSRvlhRHRt
+X-Proofpoint-ORIG-GUID: ZOgQRSixwEq07pQDdsufZ9psI2fkElxs
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241007204743.41314f1d@gandalf.local.home>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-08_09,2024-10-08_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 adultscore=0 mlxscore=0 lowpriorityscore=0 bulkscore=0
+ mlxlogscore=647 malwarescore=0 clxscore=1015 spamscore=0 suspectscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410080066
 
-On Mon, Oct 07, 2024 at 08:47:43PM -0400, Steven Rostedt wrote:
-> From: Steven Rostedt <rostedt@goodmis.org>
-> 
-> ftrace_regs was created to hold registers that store information to save
-> function parameters, return value and stack. Since it is a subset of
-> pt_regs, it should only be used by its accessor functions. But because
-> pt_regs can easily be taken from ftrace_regs (on most archs), it is
-> tempting to use it directly. But when running on other architectures, it
-> may fail to build or worse, build but crash the kernel!
-> 
-> Instead, make struct ftrace_regs an empty structure and have the
-> architectures define __arch_ftrace_regs and all the accessor functions
-> will typecast to it to get to the actual fields. This will help avoid
-> usage of ftrace_regs directly.
-> 
-> Link: https://lore.kernel.org/all/20241007171027.629bdafd@gandalf.local.home/
-> 
-> Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-> ---
-> Note, I tried to cros-compile the affected architectures,
-> but my builds failed for 32 bit powerpc and s390 (without this patch).
-> It mostly compiled, and the affected files seemed to build.
-> 
->  arch/arm64/include/asm/ftrace.h          | 20 +++++++++--------
->  arch/arm64/kernel/asm-offsets.c          | 22 +++++++++----------
->  arch/arm64/kernel/ftrace.c               | 10 ++++-----
+On Tue, 08 Oct 2024 10:47:48 +0200
+"Marc Hartmayer" <mhartmay@linux.ibm.com> wrote:
 
-For arm64:
+> > Closes: https://bugzilla.linux.ibm.com/show_bug.cgi?id=209131  
+> 
+> I guess, this line can be removed as it’s internal only.
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+checkpatch.pl complains about the Reported-by if I do. 
+
+It does not complain about
+Closes: N/A
+but if I read the process documentation correctly if the report
+is not available on the web Closes should be omitted:
+"""
+Using Reported-by:, Tested-by:, Reviewed-by:, Suggested-by: and Fixes:
+----------------------------------------------------------------------
+
+The Reported-by tag gives credit to people who find bugs and report them and it
+hopefully inspires them to help us again in the future. The tag is intended for
+bugs; please do not use it to credit feature requests. The tag should be
+followed by a Closes: tag pointing to the report, unless the report is not
+available on the web.
+"""
+
+So I guess I have to make peace with getting checkpatch warnings when I
+give credits to the reporter for reports not available on the web.
+
+Regards,
+Halil
