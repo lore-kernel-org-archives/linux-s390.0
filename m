@@ -1,170 +1,147 @@
-Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37B461E1C0E;
-	Tue,  8 Oct 2024 08:33:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BE0823A6;
+	Tue,  8 Oct 2024 08:48:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728376397; cv=none; b=Uuz/0ooDn94DhqmDGhN3mzjaYjrpxBHF4FmHos2OjBlb2M5k06thQtVOA2FABjH1YBw8L337TPeV3Veqm8kqkuII3uUWG2/UUxIP3RseW6SsQgG6UZQ4V7eMkDpjSjkor+00g/S3JoD5pXhP0B54Y0uFb44x3rhuvorlZFc0uO4=
+	t=1728377293; cv=none; b=jRK359xumk/9yec8ueVA/+jWTX/7X3HD8Iyi3y4+92mj/CFC3B5zSYaToPctAlh/GqrJamC3q0eLS/hc4+wIMIRb2ygKTBLTG6yrqjQ4NoJ74Ap0T+WXDI+8kfStTxUwC5gWbbpyN0AcDkOrl3XrVCkPJwi43Un2F8wTPoApQpk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728376397; c=relaxed/simple;
-	bh=Wi/Ne+shDHOFqw+Lugm22uvGCgtt/bIev0jwFPOvR2k=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=pB4iQjfLwnZchu1HSsUzTUDJeoAitMFfihNSJ8iMcr6kLuybhmT4ISUBdymi7GvOX/mYo4Hn7F6JEJyzOsFHvMlmJ9UjHVnUMnybWIq4UVFx4OWwBMZ9s59IGyuIM3AqeY7SM2NDhafT80vnC2xPLq1uXuqCWJ+IAG7/bM8+3IM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=POSKCKOp; arc=none smtp.client-ip=217.70.183.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1728377293; c=relaxed/simple;
+	bh=P5IJuUy+T74DhW4ApCo/oZ/vVvE3y/nqd0OTnW1YJq8=;
+	h=From:To:Subject:In-Reply-To:References:Date:Message-ID:
+	 Content-Type:MIME-Version; b=oswHVXzOUIQE3Fls97bUEg0W77+ZDXAm7nbQSZ7HTgTXETc85xILYpz/vsHWKW3uwhdvwghyfN1UyeeYMSARyFAa1cAufpA0dX4XeWCprYZO7qxuurgfoZ17Y+bsJNSc91zJAaMOgLllZiTfvie7wXG5gLX255lWkX2PM4iuN+c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Uy16n8FC; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="POSKCKOp"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 9EFBD1C000A;
-	Tue,  8 Oct 2024 08:33:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1728376392;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=TmLP/WI1VtrRBkIucS2941CxDdB37ieasR6WFFSWafs=;
-	b=POSKCKOpM0S5Rro9I7JX/yFDGVQEbxnQfOlbhvDuVflBTc9b0oQzIQp7fKtzf6mJwdOQ+0
-	Ea9yaFhepRPa3MqaYNcDO/VEW6QLHJqANEHtweXO5D876vZq8tICxDlfjrmrbTDnklWsBz
-	0pAYroBCDAgXQON2fmL69ED1dgdlzDy5jho/yQO5tqH0EdwHwUBc86MuNxTZZ0aBcTJr+T
-	UHYVDWD5LAAELveRyE4v2cHZeoPtNyyU8w7VYOZiIGEcGGrpmUancBz/ZYPglMSFDCCVy6
-	Izc1kwXhCGbPtsztfFaqEyh0UYZq966m3DrL4DrW+CqDmsEUQlcF0xSAXpcASQ==
-Date: Tue, 8 Oct 2024 10:33:06 +0200
-From: Miquel Raynal <miquel.raynal@bootlin.com>
-To: Julian Vetter <jvetter@kalrayinc.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Guo Ren <guoren@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG
- Xuerui <kernel@xen0n.name>, Andrew Morton <akpm@linux-foundation.org>,
- Geert Uytterhoeven <geert@linux-m68k.org>, Richard Henderson
- <richard.henderson@linaro.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
- Matt Turner <mattst88@gmail.com>, "James E . J . Bottomley"
- <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Richard
- Weinberger <richard@nod.at>, Anton Ivanov
- <anton.ivanov@cambridgegreys.com>, Johannes Berg
- <johannes@sipsolutions.net>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy
- <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, Madhavan
- Srinivasan <maddy@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Niklas
- Schnelle <schnelle@linux.ibm.com>, Manivannan Sadhasivam
- <manivannan.sadhasivam@linaro.org>, Vignesh Raghavendra <vigneshr@ti.com>,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
- linux-m68k@lists.linux-m68k.org, linux-alpha@vger.kernel.org,
- linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-um@lists.infradead.org, linux-arch@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
- mhi@lists.linux.dev, linux-arm-msm@vger.kernel.org,
- linux-mtd@lists.infradead.org, linux-sound@vger.kernel.org, Yann Sionneau
- <ysionneau@kalrayinc.com>
-Subject: Re: [PATCH v8 13/14] mtd: Add HAS_IOMEM || INDIRECT_IOMEM
- dependency
-Message-ID: <20241008103306.44123824@xps-13>
-In-Reply-To: <20241008075023.3052370-14-jvetter@kalrayinc.com>
-References: <20241008075023.3052370-1-jvetter@kalrayinc.com>
-	<20241008075023.3052370-14-jvetter@kalrayinc.com>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Uy16n8FC"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4988NU54025972;
+	Tue, 8 Oct 2024 08:47:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:subject:in-reply-to:references:date:message-id:content-type
+	:content-transfer-encoding:mime-version; s=pp1; bh=7MP11VUlfXKwc
+	pm96rLnvLT5SEO86aFkUlgq9ArC7xw=; b=Uy16n8FC6csKR+UeqXTVERRc6GQKK
+	anpypxPvUC9hrahxjnQQXcYusKfEu+f7cgbfij1D/AnD7Kn5dylE8Nr3Z6cpisvw
+	9ByKKgEykA7NE+ipO/C/jWsLN5LMnuX61x/PXQrI+iQBoqr1kRl9M5goQ0/81J7g
+	WzN6BPKltUAU84EHUKSW2oyRFiTGdEItVii4WChHeYlwVQ6F2jEmURFPQqLhoMq/
+	4quwa9IRLmudpI5jHgKqpo0W/mZ4I+ws5rPwHn6gIbZnaDNzawn6kBbHMv4NIv8q
+	m8DAqpWfUkUsBlG9ppfcldq7/OyL0YMyewjNv/2h3K8RatusEARTHoQow==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 425168047k-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 08 Oct 2024 08:47:56 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4988lu97023436;
+	Tue, 8 Oct 2024 08:47:56 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 425168047a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 08 Oct 2024 08:47:56 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4986n1O6022856;
+	Tue, 8 Oct 2024 08:47:54 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 423h9ju3cy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 08 Oct 2024 08:47:54 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4988loZu52232558
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 8 Oct 2024 08:47:50 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 81E8020040;
+	Tue,  8 Oct 2024 08:47:50 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9F8CF20049;
+	Tue,  8 Oct 2024 08:47:49 +0000 (GMT)
+Received: from li-1de7cd4c-3205-11b2-a85c-d27f97db1fe1.ibm.com (unknown [9.171.60.219])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue,  8 Oct 2024 08:47:49 +0000 (GMT)
+From: "Marc Hartmayer" <mhartmay@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "Martin
+ K. Petersen" <martin.petersen@oracle.com>,
+        Robin Murphy
+ <robin.murphy@arm.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>, linux-s390@vger.kernel.org,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] s390/virtio_ccw: fix dma_parm pointer not set up
+In-Reply-To: <20241007201030.204028-1-pasic@linux.ibm.com>
+References: <20241007201030.204028-1-pasic@linux.ibm.com>
+Date: Tue, 08 Oct 2024 10:47:48 +0200
+Message-ID: <875xq3yo97.fsf@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: T7Va_BBmWNw-LhTa-SzgYLXU2lafAMMM
+X-Proofpoint-ORIG-GUID: yESAaKcR7NlJ8V719IsRdztHZgQzCCjk
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-GND-Sasl: miquel.raynal@bootlin.com
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-08_06,2024-10-08_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 phishscore=0 priorityscore=1501 adultscore=0
+ clxscore=1011 spamscore=0 impostorscore=0 bulkscore=0 mlxlogscore=999
+ mlxscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410080056
 
-Hi Julian,
+On Mon, Oct 07, 2024 at 10:10 PM +0200, Halil Pasic <pasic@linux.ibm.com> w=
+rote:
+> At least since commit 334304ac2bac ("dma-mapping: don't return errors
+> from dma_set_max_seg_size") setting up device.dma_parms is basically
+> mandated by the DMA API. As of now Channel (CCW) I/O in general does not
+> utilize the DMA API, except for virtio. For virtio-ccw however the
+> common virtio DMA infrastructure is such that most of the DMA stuff
+> hinges on the virtio parent device, which is a CCW device.
+>
+> So lets set up the dma_parms pointer for the CCW parent device and hope
+> for the best!
+>
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Fixes: 334304ac2bac ("dma-mapping: don't return errors from dma_set_max_s=
+eg_size")
+> Reported-by: "Marc Hartmayer" <mhartmay@linux.ibm.com>
+> Closes: https://bugzilla.linux.ibm.com/show_bug.cgi?id=3D209131
 
-jvetter@kalrayinc.com wrote on Tue,  8 Oct 2024 09:50:21 +0200:
+I guess, this line can be removed as it=E2=80=99s internal only.
 
-> The UM arch doesn't have HAS_IOMEM=3Dy, so the build fails because the
-> functions memcpy_fromio and memcpy_toio are not defined anymore. These
-> functions are only build for targets which have HAS_IOMEM=3Dy or
-> INDIRECT_IOMEM=3Dy. So, depend on either of the two.
-
-There are many mtd drivers using memcpy_fromio and memcpy_toio, I'm not
-sure I get why only this subset of drivers would be impacted?
-
-Also, from a general standpoint, I don't see with a good eye the
-proliferation of the use of || INDIRECT_IOMEM just for the um
-architecture:
-
-$ git grep HAS_IOMEM | wc -l
-611
-$ git grep INDIRECT_IOMEM | wc -l
-15
-
-I believe the Kconfig symbol should adapt to reflect the fact that IO
-operations are fine, regardless of their type ("direct" or "indirect")
-rather than move the load on the individual drivers.
-
-> Reviewed-by: Yann Sionneau <ysionneau@kalrayinc.com>
-> Signed-off-by: Julian Vetter <jvetter@kalrayinc.com>
+> Reviewed-by: Eric Farman <farman@linux.ibm.com>
 > ---
-> Changes for v8:
-> - New patch
+>
+> In the long run it may make sense to move dma_parms into struct
+> ccw_device, since layering-wise it is much cleaner. I decided
+> to put it in virtio_ccw_device because currently it is only used for
+> virtio.
+>
 > ---
->  drivers/mtd/chips/Kconfig | 4 ++++
->  drivers/mtd/lpddr/Kconfig | 1 +
->  2 files changed, 5 insertions(+)
->=20
-> diff --git a/drivers/mtd/chips/Kconfig b/drivers/mtd/chips/Kconfig
-> index 19726ebd973d..78afe7ccf005 100644
-> --- a/drivers/mtd/chips/Kconfig
-> +++ b/drivers/mtd/chips/Kconfig
-> @@ -4,6 +4,7 @@ menu "RAM/ROM/Flash chip drivers"
-> =20
->  config MTD_CFI
->  	tristate "Detect flash chips by Common Flash Interface (CFI) probe"
-> +	depends on HAS_IOMEM || INDIRECT_IOMEM
->  	select MTD_GEN_PROBE
->  	select MTD_CFI_UTIL
->  	help
-> @@ -16,6 +17,7 @@ config MTD_CFI
-> =20
->  config MTD_JEDECPROBE
->  	tristate "Detect non-CFI AMD/JEDEC-compatible flash chips"
-> +	depends on HAS_IOMEM || INDIRECT_IOMEM
->  	select MTD_GEN_PROBE
->  	select MTD_CFI_UTIL
->  	help
-> @@ -211,12 +213,14 @@ config MTD_CFI_UTIL
-> =20
->  config MTD_RAM
->  	tristate "Support for RAM chips in bus mapping"
-> +	depends on HAS_IOMEM || INDIRECT_IOMEM
->  	help
->  	  This option enables basic support for RAM chips accessed through
->  	  a bus mapping driver.
-> =20
->  config MTD_ROM
->  	tristate "Support for ROM chips in bus mapping"
-> +	depends on HAS_IOMEM || INDIRECT_IOMEM
->  	help
->  	  This option enables basic support for ROM chips accessed through
->  	  a bus mapping driver.
-> diff --git a/drivers/mtd/lpddr/Kconfig b/drivers/mtd/lpddr/Kconfig
-> index 0395aa6b68f1..f35dd8052abc 100644
-> --- a/drivers/mtd/lpddr/Kconfig
-> +++ b/drivers/mtd/lpddr/Kconfig
-> @@ -4,6 +4,7 @@ menu "LPDDR & LPDDR2 PCM memory drivers"
-> =20
->  config MTD_LPDDR
->  	tristate "Support for LPDDR flash chips"
-> +	depends on HAS_IOMEM || INDIRECT_IOMEM
->  	select MTD_QINFO_PROBE
->  	help
->  	  This option enables support of LPDDR (Low power double data rate)
 
+[=E2=80=A6snip=E2=80=A6]
 
-Thanks,
-Miqu=C3=A8l
+Thanks for fixing this!
+
+Tested-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+
+--=20
+Kind regards / Beste Gr=C3=BC=C3=9Fe
+   Marc Hartmayer
+
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Wolfgang Wendt
+Gesch=C3=A4ftsf=C3=BChrung: David Faller
+Sitz der Gesellschaft: B=C3=B6blingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
