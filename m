@@ -1,63 +1,63 @@
-Received: from smtpout143.security-mail.net (smtpout143.security-mail.net [85.31.212.143])
+Received: from smtpout45.security-mail.net (smtpout45.security-mail.net [85.31.212.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC7D01E1039
-	for <linux-s390@vger.kernel.org>; Tue,  8 Oct 2024 07:51:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=85.31.212.143
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C86861E0DE0
+	for <linux-s390@vger.kernel.org>; Tue,  8 Oct 2024 07:51:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=85.31.212.45
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728373893; cv=fail; b=lTP9NEEbNiYagf0DbXp2Zc1UVrbbLtfbsZsRrZzxjAeqZwLeHEuuM/BfZe0ucEsQqiZI2Zz7AWjzr8bujQU1DKb+0sUJ9JgXTbDC+WcK/ZbBjPZ1WKeLYOPAqfvYbRUtFICL9goKR0cBHCfPMwApMwXtwyIJkhA97i2lm4ZbtzU=
+	t=1728373896; cv=fail; b=YYr79fEsxInIiAF6HZMcfSuXecdJtL1zu3Yevt6uwIEp53SuvFSAeCmgaoHmOgxoTpjBN8kEWy1MuUqFcJFDyg0H079yehpVtESM+BjSUk2mXLsBeKZpXKeSy8aAx3fzv3nuGn22KGtw8napj3CzANg8Ov5nxSUzoAs1gSEVVKk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728373893; c=relaxed/simple;
-	bh=Wj0k0HE6mNzHb2zn4kh2iBXEfuN3+ij3lenZMtItV7Q=;
+	s=arc-20240116; t=1728373896; c=relaxed/simple;
+	bh=LWuikBYwlpf0wv/2tAfgWPpF+Jc7W32ZNWnx4iLq8eQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Hh8W4CLaP6Q0J4W6m6o5z1RTXxSwb+KVtMkC0k8565kmEROsz8Z+pno3AYSv3RD0131MxfZ5on4TEETOygfqcRC1jB08/D/G9Kx7cIK+oiQjWHKe8pqKvzw7hDqg2ahuxmSHW56gmN7CZo2cQiEqk1BNkVgUdj7jY0U6B0bGgMk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=kalrayinc.com; spf=pass smtp.mailfrom=kalrayinc.com; dkim=pass (1024-bit key) header.d=kalrayinc.com header.i=@kalrayinc.com header.b=aSh35P2s; dkim=fail (2048-bit key) header.d=kalrayinc.com header.i=@kalrayinc.com header.b=GiJ7w6ZD reason="signature verification failed"; arc=fail smtp.client-ip=85.31.212.143
+	 MIME-Version:Content-Type; b=qPN5HGmc5TtlYI+nVO4PGLJ3Ek0P3vYtddjNbQ6L4mJHVUZjxIwFpfWjS0uc4rWMvlIlJMqNhtZiQr+V3avOY7GZxFweuZWIi+whGspUoadg1m+FlF26+3kcyRn1hWQemGQb1Zhs/e7imbIbrRglMI4y7UCOElr3u7gliNmzhp8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=kalrayinc.com; spf=pass smtp.mailfrom=kalrayinc.com; dkim=pass (1024-bit key) header.d=kalrayinc.com header.i=@kalrayinc.com header.b=NW7TG0F6; dkim=fail (2048-bit key) header.d=kalrayinc.com header.i=@kalrayinc.com header.b=Z7tJZAYr reason="signature verification failed"; arc=fail smtp.client-ip=85.31.212.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=kalrayinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kalrayinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=kalrayinc.com header.i=@kalrayinc.com header.b="aSh35P2s";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kalrayinc.com header.i=@kalrayinc.com header.b="GiJ7w6ZD"
+	dkim=pass (1024-bit key) header.d=kalrayinc.com header.i=@kalrayinc.com header.b="NW7TG0F6";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kalrayinc.com header.i=@kalrayinc.com header.b="Z7tJZAYr"
 Received: from localhost (localhost [127.0.0.1])
-	by fx403.security-mail.net (Postfix) with ESMTP id 11AF68A32E0
-	for <linux-s390@vger.kernel.org>; Tue, 08 Oct 2024 09:51:30 +0200 (CEST)
+	by fx301.security-mail.net (Postfix) with ESMTP id D754345E109
+	for <linux-s390@vger.kernel.org>; Tue, 08 Oct 2024 09:51:26 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kalrayinc.com;
-	s=sec-sig-email; t=1728373890;
-	bh=Wj0k0HE6mNzHb2zn4kh2iBXEfuN3+ij3lenZMtItV7Q=;
+	s=sec-sig-email; t=1728373886;
+	bh=LWuikBYwlpf0wv/2tAfgWPpF+Jc7W32ZNWnx4iLq8eQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=aSh35P2sR5EsnwnBThk8/mE0SS42VLvhk1sPLXbMWFkA3S5o9nDUw7DnC/KEzB0bO
-	 qTYurSi2DkZZqRBKnq2561pyH21OqQsnuFYWx2X3SjtO3+THmrQGpzI5ICstiV/SWs
-	 jPfJXXnzWS0bXhEb9fEXJsWg7mwBMAlchbOFLYBA=
-Received: from fx403 (localhost [127.0.0.1]) by fx403.security-mail.net
- (Postfix) with ESMTP id 647918A3049; Tue, 08 Oct 2024 09:51:29 +0200 (CEST)
-Received: from PAUP264CU001.outbound.protection.outlook.com
- (mail-francecentralazlp17011026.outbound.protection.outlook.com
- [40.93.76.26]) by fx403.security-mail.net (Postfix) with ESMTPS id
- 3881B8A3241; Tue, 08 Oct 2024 09:51:28 +0200 (CEST)
+	b=NW7TG0F6i1NR+FBG3TsrEJJG5xzGk9Rzb2TNwD1DZ0v/Oorscf4cgip2TzZ4k2qea
+	 W00uIozZgzQU94z+66jaAqnVpk/vkNRiCOMJ6LWATI1SMlFCbqSsHWlKUXorkj5sMO
+	 vCVqkL6TPN/Na6PQ0HJok5MWylRuGiAWu9OHDENY=
+Received: from fx301 (localhost [127.0.0.1]) by fx301.security-mail.net
+ (Postfix) with ESMTP id 0530045DCB0; Tue, 08 Oct 2024 09:51:26 +0200 (CEST)
+Received: from PR0P264CU014.outbound.protection.outlook.com
+ (mail-francecentralazlp17012049.outbound.protection.outlook.com
+ [40.93.76.49]) by fx301.security-mail.net (Postfix) with ESMTPS id
+ 8A72345DF1D; Tue, 08 Oct 2024 09:51:24 +0200 (CEST)
 Received: from PAYP264MB3766.FRAP264.PROD.OUTLOOK.COM (2603:10a6:102:118::6)
  by PR1P264MB3357.FRAP264.PROD.OUTLOOK.COM (2603:10a6:102:1a::13) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8026.24; Tue, 8 Oct
- 2024 07:51:27 +0000
+ 2024 07:51:23 +0000
 Received: from PAYP264MB3766.FRAP264.PROD.OUTLOOK.COM
  ([fe80::6fc2:2c8c:edc1:f626]) by PAYP264MB3766.FRAP264.PROD.OUTLOOK.COM
  ([fe80::6fc2:2c8c:edc1:f626%4]) with mapi id 15.20.8026.020; Tue, 8 Oct 2024
- 07:51:27 +0000
-X-Secumail-id: <8aaf.6704e480.375e0.0>
+ 07:51:23 +0000
+X-Secumail-id: <3233.6704e47c.88ae9.0>
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=EEP836nzTVp406bt12bm5o4tEaL4T/F+51msHvgG4HP7mko9t8Ldpat6BfFfePvw3KM6xlkalvIYRVLA/AqelMZJA25W1uS9zyONWyDiogvCo5XAeI+ZJweNULVOS8GylTvYQ3G9j3TOYK5fHCsqOMygUw8a52DKFcm6A/rk5MkVDD+/lezMILnfS2SqvTKWNb4VaGX6BplkLIt/zkEa7x0DMfIeciNmHf93z12P6KAKDpEvJ/CeQhxMSoAnJi+2PEhGWUYHD5w4ZUX4N8GjNqPiKe94yKBVcQsgYBH6ucHAxn6JJq+eKb8F32yxEbfczDhTHP7g/e86TGhIekRrBQ==
+ b=urcsvCoODdu7d545FjgnId394A2ydXPewzbxrPfBkElf6iBEcXz4nITEbyRYlLrG+RdpM/8Q3yar77PMRQQ2Iq3Ij0fQHsVJSgvffd3Tr+jZ5Ulr+QOTEKsXWQCEL5pcqAaIqp6M7iTmSMEpP62ao4bV/fltHjCflUC3KhljKySnyTlFOJlCM9HkubcWxLFaQL8McDQVkm0qkzAOZShlL2qbBnr2TGfhSKY2yjMBQki4Gk446V3Ca4uf1Yk7D0xby/9+kLYqByqI4Ze2NpNi184bSrOnBwjiQP4PWQFOkiC6d7vnfIgXCG4+rmIGvfGCkD8GNckILuUmU0y8J7DMDg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed;
  d=microsoft.com; s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=cSfEOYSJlceA0SFxEGdFb627GjEARw+Rg9XGXMt9lpk=;
- b=qkapIAzDf8c1C9ChQZ+G5pISO0Ee8dJwEjTUmiD1Ei2mbn/SHuqCFs9BAjqXnBQF3qoJJxrDmnZD4S+wXTR06jeWtJJahzMw2LdT+YAbLIuUAyBDGEIKwhYPEQpJPiZSjw0qSx2UvDk2fPDG9y0hVamY8S5qxmHeulXblrm2b4TTUGckEsyfSnfaUuNvkt5BJ9KK4bTZW6JMS423sNAFCbiiuEUXdFt6LlVbY5z0GWtx4hAJ6VMDxrMX91c4P8NNcMErte7S72S0wYkVYm6H00RVMA/VrbRxxS7ULaVPP3wZTZlL4/OoAxn1KC5+u/+J5ZlIkFHaqNVVGexmDVqTtA==
+ bh=dWfCrWnkWmCC9HxsKfLPlnLuJdeuyxSIkifOPutqCyI=;
+ b=qZTmpQvyD3cr0MnYOmpS7sIQgHtoanb2tr36dRwIEUjBkvWHrCkJqvu4D/6tEqE/O+8bMVm0LMN6gwE05T034UhcGiu9FqnqyrB/jQo4s40ITBKvotZ6SW5xJmhufKIEGiq0td9B2wEu3V2tteZGVi4yJggv2dDIDFuDg1hXhdfk8fGUxh9iND+0mChusl8KmmwEjPouVAsh5Bpkw0L+XE6pwiHasJzTgY1E/MLUids2nY962uPrT0mZyGxyTauYeHuHcAiS6G+mh+7fPd0dmG4DrA2W7hI4+QCM0T/NLXBM0fQ3y1L6hYLoCvm9noGLUAepr7ccLfzi5Pca/LAiRg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=kalrayinc.com; dmarc=pass action=none
  header.from=kalrayinc.com; dkim=pass header.d=kalrayinc.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kalrayinc.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=cSfEOYSJlceA0SFxEGdFb627GjEARw+Rg9XGXMt9lpk=;
- b=GiJ7w6ZDcCknfWb/23q0YZEcfLFcGpdl8iOslbf76+00IfxJjMeilucq9DmWVBLefv2bIKZtQJu3YxypNO9spAeNpZi7IZfk3LtEU/JlpLNyMaUKqd5zJitCyA8iw5A2t9SHCAQ/XEYMrJDwOyt/rOkep0XlEaMS4+/R52wz1Rnry5/eErDaOjOim7f2kIK8WrVXsSVBduNTNL7gs3BJzHIU0oUUOB7qKq8SPjF4tQtLl5WcsRB0rbWsqLJWGQzPuVFfiL3E0pLHLqa/ZeWj1nguxLiJF4jTBGu+H+Hyr0XcPK54s93HdlP9LeoI9JOY1o3yEIeDr0krqP8HMBkhhg==
+ bh=dWfCrWnkWmCC9HxsKfLPlnLuJdeuyxSIkifOPutqCyI=;
+ b=Z7tJZAYreJ2D8LahOk5nxpy2n7HZOhyt+bq46ZAJ5a2cEI3OXfEpAcPsS7d5GZ84nykZag4UEk42NYhJvWTEjDgjMA0n3RLJRyRga5fb7R2htTOOvDxK0htrnPYetNDiy1UmY4HQR/FjhMgxKQZatozJ5zTxPm2M1UF2xOGaWyQP5FWJncc7nqK8TRCxAvuY1wtP8ZmcanKHuPjTFZNQ4jvozNSfBUz2BR+GjUAC03hnJkzoNTTAo2EFadqt9+moQYZF39S8t3LtohZ8tIHQlP6J+PfZxx/17qDcx6xbTvooaWaHKVtVAMNKZYhmHtmaackhuv8oOjrJfmO3OHtqUw==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=kalrayinc.com;
 From: Julian Vetter <jvetter@kalrayinc.com>
@@ -91,10 +91,10 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  mhi@lists.linux.dev, linux-arm-msm@vger.kernel.org,
  linux-mtd@lists.infradead.org, linux-sound@vger.kernel.org, Yann Sionneau
  <ysionneau@kalrayinc.com>, Julian Vetter <jvetter@kalrayinc.com>
-Subject: [PATCH v8 14/14] sound: Make CONFIG_SND depend on INDIRECT_IOMEM
- instead of UML
-Date: Tue,  8 Oct 2024 09:50:22 +0200
-Message-ID: <20241008075023.3052370-15-jvetter@kalrayinc.com>
+Subject: [PATCH v8 12/14] bus: mhi: ep: Add HAS_IOMEM || INDIRECT_IOMEM
+ dependency
+Date: Tue,  8 Oct 2024 09:50:20 +0200
+Message-ID: <20241008075023.3052370-13-jvetter@kalrayinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20241008075023.3052370-1-jvetter@kalrayinc.com>
 References: <20241008075023.3052370-1-jvetter@kalrayinc.com>
@@ -110,34 +110,34 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: PAYP264MB3766:EE_|PR1P264MB3357:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2d24f36b-fb64-43dd-ead8-08dce76e0372
+X-MS-Office365-Filtering-Correlation-Id: 62b1fc99-df2e-41ab-276f-08dce76e0136
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;ARA:13230040|52116014|7416014|376014|1800799024|366016|921020|38350700014;
-X-Microsoft-Antispam-Message-Info: TTCXJe3OiQagvF/xpSPrayZy9T5eEXvUe5EW7f0LKyDaWDKjtxkq8/kPrOI+ZAqKTuYch785IwdaXE/2UviYEE4XR72bMhSUTUxq2VVehA6pj4zuw/QXUFA6yD42eZ7KhZIlGTbkyOqXoHdyGJ1rQ3jn6sqKbejCUITr+heTK5Ooz+B4nbrKwoeJxkjsKLII0EjQkx1o6mxRnKvsJERK2BElKxIn+qJmNaKlGd2nBUfFk63JnWQi7vuC9N/rHHVF6dSJ7zPiIFIbK2nEJ5MkZfnhmau0NxqGHgSp6bgAt/RzZi5lS+5CBljBF+LMrptKaVn0xOrhAILhRAvM2o2Xhbd9EUhAC6NkvdPBoGSgGbwT5/cxTgmZ58ePW9lOf4U9IHhq6ryl7/n/DikaGhDG2rLlGta3OgHYsfPUAmJFOVnfnuIxSHCnva5EOPfKD4x0Zcny1/J+Cm19AYS15FPSRBhWj+EQLtKUIbpDt/VpRkh+bMKjlZwwOk8cXtj8ItkzVrZH50ugzjJmSQoQhWYaKbKqQ3IrXApXCDKgyklsjmCyswirDt7xGe62knBSieww68LfQ3S6XrGmHE1J+QSPAGAxaZ7dO136Wx+S6H6KZbiz6mHDp4brlxMnjdL2LZ6zMoSlB72b5DHhl5Fjm0in3hu9ZSDvu/Sl8R8wH5ZTDZAKzx0QZYjoD9TK9l0PCscimEYb+Kg1fTh8TfrClwP+uZVpk7xODJCWMYIyI5kTzzZeT+CUWBOQTHfp2TeFUhfV0ZU4z1QSG2xWjwwuc2Efx788BGaC7oVIQUXJZLhWCBlbLz6QxM82dvGvSCHuAEzXZ0L9jA0+aVQqnGaGxseEeky5fz5PueM84WkYR22TtdEampK+mmRVt3aqzEB6hPJnw6F8Z0GN+oI/HZmRzXVEnnrb9G6GxKLhHc8zU4MscK41AlPToJaFO7nY5jhQ21xPwl5
- f/uVINGyvtbd76K7Tmq53pwiIAxxEjfHimE/ez/+/THO++sqhv8pjGiHXy14ZRgGs63YQxLZCDsLcFRL3AnU6AsK5LKWliZvNJV3bDlF1dhzWpgjWbnfRTUNzeMzgn9VD48wpdcge+s5tX2UmivKbk+FlrLVtsDMpQrOPTCGHYrcG3HFUwtGdNno2ZJZR6E/gpwuBvfH89o1cAOOYOvHRsP4E+O3SpIrJXgrS07g0phxZ8RBRg83HV4CdT2SDtRPBoanqVYkYjiktabjrm3q+n25JF8Ut1OBHebn90yIqR3KJWCWbgSffriMkGbhlrF8aSBA41d1Cbh9ukZqfGift0XKZ+U5+K2c5JWS4DKfyqG9sWLpU6hnQKRsB+udmdvYzrvfXtraFZiQtAVcagaYbHPHUKR2CPwtriDymkrs=
+X-Microsoft-Antispam-Message-Info: kuYiD5v5IrOeWxtoleTFtOwnYos6Q9UbrrGlyMAbqP3+tK/KNc37kwimxPf+cdUlFIEgwrJGmkUKWZlMfQz5vZDI7u6MQ0Ep+Z8t6HU5UnzrhVrC1g0jXQyp9G76zDd1QkUQk3Rvy+5TbQOb8TFiH8IsUSD7g9yvNONti8EugLbMLL4RZdmOzSLRIlBgIkrl93L/K9qHHoeaMhnvnBoNSbMxDMGJJllSGbT5eoGr/HXNJExsJgdLR2xXtL/ohTnByww+faAzr5qt++nb4jZUiV90RWI2GUxxVGFO+XWwtPAphTXWqQ0fZtMmp8XIN77ZjZSF03rOitxuoTRU7Icay2oxnF4m5I+CS1in3ssxqCxS+KkYReDU7wYRx9nzFU//Mo9929PP3pK3iD0QcP3AJuQI9uEsrpj8ZuYrc5vXaYb+RdMWSsYK6mi6rTcbKDL2+vG2qZRC/fnb/AQtdJdHsJEehcGtf/W+tmViZuYQeXfly7gyufanEo3JNdk04/dQnlNDih0Nj/d/J3OROfqP3YVTnmYLbHfzllQ3VOxd/D5G04dCnlc7ZINXy3qUeBc2n5NTpZk3sqTVgnQUulW1BGuVsnbO4ypbTh0P+jrkPInZ/MjyiQNvNPo1hLn8mWo3dY4mNbB6F9UWTXHTZkzWB7GCbAQru98NrM4hw17tLtdLO93d8OLxrr5icOlljLLpHgaRnVstWutLw66NsM2EOfseP5byN9t8oRfUPQcr5Fn8b9gd5iIDcvhwaH5mMLs2dQdhjnOckF9/eKxcvMEW2oVts+9ZD9m0YtMeLu4lO3SO6X6xTy3Gc2Wh3HrIexGcnBh15ujAj6xir/P5bzRpN8FSDFWQCpnIbKHqYFdpcUvzwObJx8pTlOCCmIZdrvqUR7cWc2SG6D1oac/cJxn4wVHe23gfT+/E0uM7zhD+udKHi+IUYfdTcvXnTzugDCXwulW
+ mAU/hCNxEfG9mUiOr25jVNsmJ+0BdYIrcXOSYiJljMga9B2o04KAoRxmFSVcmBOjGTrpHlXSWWPVgeU9wJUQUGf+f/nuMOsxPfQXjcbAvtrkKVzdCHLPUFx00HbOnBuB7iyY1FYb4zeq774QqbjozSp6u6oR94rmV1Z2vJqAgZErQjMrwDYgA1PUNw/rV+LFe/OPkOaZdAICdZTeZP0RBX/o5sLkbTHWt8qTtMfA7ciGWexLqcoO+tx1siT4f7jfglhxiAVFLAedeDk2jlLRvJ5CJbPYvU41MMqHLyk+ZDzNQwETYbQ2Q46aH6vXF6ulyxHLSnfpOOF0CPYzIt2P6ZzZeh0GW0r/0SHW8wixcoAEjmJwxyksX/GKWSenapa7sPWdHy4NtwRiksCQBWptk9mUlDBZEZC5S4BKy1cA=
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PAYP264MB3766.FRAP264.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(52116014)(7416014)(376014)(1800799024)(366016)(921020)(38350700014);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: JdJ2rb6vB8ZGY2TtE0VvyR78971KLEChghRrv8uU0vnnhURsFD5JFs9fj/o2DF8eC4KqXhAGGQ+Aqw0o8BE8sh9BfIYkRgvIjGuRKgXyw9oKTvZ9gnn1+Vu1BlIb19qLX8Jz00FuTVMeL0yMNa9RvQ9AcXKZeDsTST5nI3dO0BrbG1Ci/Gzz2KpRK9vhevw+zD7lfDSk4TlqczxOyb5Isdmc6KACYXk4GkpVewqj/rpxpRmNgGzRFxkww1YS/L6QDCzPUWTTX5Sdciwd/BZZR/m5/pESC49zs2iu5H0L2i5QKhu7XC3mwRKJcLlmJMNha8TWIrN0MhoO1xzof5rPqdNpFrbc3A1Ew0VSmlSItwv000DWUmw/fTCdFWi+5jIfHuOF9BTMtTf7w/onnx1lr18lWkT7v5lAMPWhrp9aw1KLKYIdrxQI4tA7kuLwnc76eyCmIzYU0Usr4gsaiPJBAsqbUtK1+8RKqh/vXkWFMzRuezM99/Qsid24m/nIsYOWOYbNpsRgmHO2ezUikCsAXwX+9oP9V3kCJWXu/yjpsgBBkRTx642sWga93LQZwMBCm489/CrHrBuHMjhdmNIl4rzQAB01nqcSMnYz6cf0TLZNRl3jWhZge4MUScFuT1XsCFJshAd+boZ5AGIjd68HQfdZEL4V0SM+w1NIVm4Hsz8ngpUPBptKd47CrFyn4fDIfDDjL1vcyMuqgLQD03DUURaCPxQsm6HenF/m5JKXb1qMDQx28sJbXkzHnLFKgKeC4q7qcOJJJxXSA1P79kFjIflpDOrWOqh0zNM+MP7UkYNTqLAJiaW9ZLnbzm619Jf76O+Cg5mBaUrY47jVGz18Fz0rQAmolF0dJhS4VeMfgR2rx2qmzi/oesf8z50/nfbNgXpD4yeTalevL/RrN0dXZYAepVtJJMrmUsjcnd4G61o25eEueF93hpC3UwYwdCK/
- M0T8jV9HtFX7mq8Iweu6iQcm0se1MY/ok3dOHk5tdERb+YCb6TYgVd5zqsR3x17xcjmcTFccfglFakcvBo+3gJpx61xh1id37Nj3ALM4NGKTzwqAw547Aw29y8QK4JG6ChyDpGFTcROoljCQfq1KTNYisEEhZC61t1zqEhmVn4tUM8gHvKYkNdlqByZxwkRnNHxiroTOatdQw4oAEc7L53fxvrLKzF2RfFehneCUOf9rb5gVARfOsyGWM5sLmtwWEntBTv/LAuDVdCl7pGuWMje5rJoutyT6FF2M14fgPqoalKe7/hhg87okQ+IOe/vXrCTRAEoJYYWY6Y+d4ew7FLgqGM5TT8YfsGJewTpLNTyU+MbZ8QKbGEb8mGdwfP08DP63S3I9KoTfsGK6KO0VU1AwIrwkiHXTpOm/BkFn74p1X1FxMEIoYIg+2Tovletzi5sjQpyTDb5MPFrqPn2JxFs671Bz68/YST0UPXzkMKVYTy8VJ5R8DhXPKvJwmtuMBnJOMtKQQzwS4Go65C/WV8c5YDtueba/XyKaXHGAW79LZ7J8Xm2RXrvVO//b6WRU4H02PEpmr1CeGud66Gt/qvynaaY4y24cxLFfX4OET2bQIrazJUM4KzGWLKk/KFWL
+X-MS-Exchange-AntiSpam-MessageData-0: 4jhPljjqx6yvADYnDm3t6bq27VFEhmq9pZBjWoYrhjoI2MidCXhwEodSTttTqgh/ax5dWpU7JVvSMeeMQOZ7U3070rgNFX3O62/0y7xAvaR1suwRH3t0CteNltYpDV2tuG7xLfULMlWbk7MSl9UaHhNgz9tB6GbPszUM1LQKcihkTxjIH7+7N5vJO1uVe03l8xiiTFH4bD2JMeMAbdycCSWCuM1ACOaiA/H1EzD4owRDubtzAxxcVaZxGPO9bjrh7/CUg5ttGAnxYT5xaIdfnvaCN6briumd8IdpLAAc4vfuDo09Kw2Jd8oqO4EG8cxHdp3KfJhpH6fVY42P773X8LKiV/DCW7CDFFB5SbrtBWjKj+f8dE5t4L/99aappxf/GBEz3czUE6cbd61TFgX1LAXI8Rsdq1xACC2IIMvkZLENMswM527haxdr/URaNR6bPQLfO1Ick9YPG6DhfhclF/mgnoQqFopqj1TWg8uf3RUNZE+T4HbHF+gKEX2zVe4NAyf5fysuRMbyt659zZ0d1+CebYavU/EutmgP16rioWMgHpk1Ehr6GPiC3HeTvswkyMKqY4W5NqdZm2QAuXqEwtjAY4yg7zOJ9gMYay9RLIBxeImEkbvywWlQC/LC42rTiWy56tOUDgIsiGJK1Odbyv2t8B9APjsPJPnRKApfdGVLobUI85aaBlz7jraXXzsAHtaVtDoIEgHjduf+6GVrODJOtZfmtjLjHHQxfGbbuVIutx193okeqYwELHsavWdecHslSFCErTbsvDwmiR1FZ7HkzWThwzRar38G5qVy73Yj4Bwo+MMGg45wCEJ40l+JR3uS5No+oDJDS/nsCB3ttvFeZHpVlrz+hTMeJsYjwn2xHHLjwYqkXM1crlXo0OIoXPw7LTeV+cI/KVAsQgvDVcz3CEs1u8VeiSz3Il2m30Rbb0bnlX7VqtcLyL8v6vlg
+ 86Mn70dGpgDmgt3dAf8u9NWEAVqdjbAwRobUgZmuEq1c+m84vDe46TsLQulwroCc1YlRYM531+QjB0RTr4slp0nNGwVxWaCEJzmB2UOXXaj73YIBdudtu99cGcuwKmQlf53MyeYNclIguiOO97Jtuz9CpCZc18jJcyZWXeBDZQ2Fa1dUidkNsau87XeUKeatFIfqRA8Z8JwDCOkHt5d5yTZxKROsOpVtrkyYDDaDzDu15EXr8srGSW8lto2Dtg76O7qJnunRCRlS+xLoOITtqC0F5Hcjq5ghsB3TAPKMOuCMkjL5KPxjrDQRWGGmh8ZPzYmNIubQwflPKKD3tvBSc20dDG2nNtqUrkL05sldSxh6UOUXFnZdb0o/z4Ehed/3gJYoW9CLRAvBredlhk0T/1rs32NEUGHC+I/Ezu/ZTyrMj4RuACq1I9E2Fy05sIFmuzRXQ+Fiu3yXlSyoOhQte3RgZGUBkDvYtCuL6xsr2pkJRYF/Cm2RZszKqCtYI140275SMdqFxMOx/chrzhv+hG1lS3rY4/G+MLWFbj9ExkTOmWEh6ortFIZ76gAdvnItOyjix3eWbeIKIs8xGeajjfUM/wY7hh689gVsLA3k/EgRNUTAnj8Tbryi1mm/ScAI
 X-OriginatorOrg: kalrayinc.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2d24f36b-fb64-43dd-ead8-08dce76e0372
+X-MS-Exchange-CrossTenant-Network-Message-Id: 62b1fc99-df2e-41ab-276f-08dce76e0136
 X-MS-Exchange-CrossTenant-AuthSource: PAYP264MB3766.FRAP264.PROD.OUTLOOK.COM
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Oct 2024 07:51:27.1450
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Oct 2024 07:51:23.3899
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8931925d-7620-4a64-b7fe-20afd86363d3
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: bvCoB2WxIoI2yyvUCyqZNwQ93i99ATmajEv1VESZTxqvWvDCEMs1H8U1+9/byRKJTpxsOI1PhO04Ia6/MMWhjg==
+X-MS-Exchange-CrossTenant-UserPrincipalName: GL4xEnxwRuQDkb71TbKqlFm/Ry3S9yPApeAw0k4Bt8dutumm+qdVYoqYl0+2qxm/FtoYC+Cv/rSYlXztuo6t6w==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: PR1P264MB3357
 Content-Type: text/plain; charset=utf-8
 X-ALTERMIMEV2_out: done
 
-When building for the UM arch and neither INDIRECT_IOMEM=y, nor
-HAS_IOMEM=y is selected, the build fails because the memcpy_fromio and
-memcpy_toio functions are not defined. Fix it here by depending on
-HAS_IOMEM or INDIRECT_IOMEM.
+The symbol MHI_BUS_EP neither depends on HAS_IOMEM, nor on
+INDIRECT_IOMEM. But, the function mhi_ep_ring_num_elems in
+drivers/bus/mhi/ep/ring.c is using a IO memcpy operation. So, when
+building for UM which doesn't have CONFIG_HAS_IOMEM=y, the build fails.
 
 Reviewed-by: Yann Sionneau <ysionneau@kalrayinc.com>
 Signed-off-by: Julian Vetter <jvetter@kalrayinc.com>
@@ -145,22 +145,20 @@ Signed-off-by: Julian Vetter <jvetter@kalrayinc.com>
 Changes for v8:
 - New patch
 ---
- sound/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bus/mhi/ep/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/Kconfig b/sound/Kconfig
-index 4c036a9a420a..8b40205394fe 100644
---- a/sound/Kconfig
-+++ b/sound/Kconfig
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0-only
- menuconfig SOUND
- 	tristate "Sound card support"
--	depends on HAS_IOMEM || UML
+diff --git a/drivers/bus/mhi/ep/Kconfig b/drivers/bus/mhi/ep/Kconfig
+index 90ab3b040672..dba95fb95eeb 100644
+--- a/drivers/bus/mhi/ep/Kconfig
++++ b/drivers/bus/mhi/ep/Kconfig
+@@ -1,5 +1,6 @@
+ config MHI_BUS_EP
+ 	tristate "Modem Host Interface (MHI) bus Endpoint implementation"
 +	depends on HAS_IOMEM || INDIRECT_IOMEM
  	help
- 	  If you have a sound card in your computer, i.e. if it can say more
- 	  than an occasional beep, say Y.
+ 	  Bus driver for MHI protocol. Modem Host Interface (MHI) is a
+ 	  communication protocol used by a host processor to control
 -- 
 2.34.1
 
