@@ -1,157 +1,187 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EED4E1DE4C8;
-	Mon,  7 Oct 2024 20:11:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728331873; cv=none; b=KlKCAJbTmCxRvaZ2dEeTn7joND72DYM02sO1b34w9JNAZOWZTPl7QDE3tS9KD/aHHsRHODRtUVODT55isVv9G0v5cP+IKTtI1ExU0KZiGPH9fWHx5dbmeePS6EHCj4ul5ff6Uli+9onJSZkVk8QTxIICPVfwUzX/ryTkQyri+Co=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728331873; c=relaxed/simple;
-	bh=QJO05AK52bflF8/V1g5BH0IykS494yd3QvteXY7yw9A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=D4icUpNq6Epb7WORnMyZg/1LWqQ2IeYkeguzd1TNIdoHP/5nOwLBOeiTfLaKZXtJyFcbQgRm1xi4SNVjjiXh+vsKNCFPr2iRoRBknbwCERNy7kFuDkuiDcNRUZhLGcG29awz2lJkY/YSozzT6veJv8AYx4qegNri0RQYhRf/3vw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HGt0c+eE; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EB428F6C
+	for <linux-s390@vger.kernel.org>; Tue,  8 Oct 2024 00:29:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.18
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1728347348; cv=fail; b=Vsoc3kCZ/UxcfUEEERW4+YNOzz9q6aI0rJYiMaODoDRzf+WbiDtkx2X1GF9woL9J+C7hE3p9X82fQd+65vM0YUkznISvnDryY6+5j33Is+x8iSLycJ+uqMc+KvjtP3s4tW1XJQb9fdS8CuXSLmuYue9kxxECKE2UlG9b+Yv9pYg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1728347348; c=relaxed/simple;
+	bh=tmnuRvBdfMEz04X9PkZzhhyYOKbTy57nboqV7L8z8hU=;
+	h=Date:From:To:CC:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=fl18c8TamDfEy4DCIx06FABqNUz+uoaOJpyXjuRx9Aifjw06nIRWRBjhFVZ/swqwt7occYN22Qxjc53YqRfZ145M9Kr7u2Cj55imKNJGMwFcy0yodXmJBdZp6KlQu0Q04yNGpJy6Tpt8jmgE9B3aw60gS2OT/xga+6Tzo3+W6Gg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LrMvBxm4; arc=fail smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HGt0c+eE"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 497HpHro031826;
-	Mon, 7 Oct 2024 20:11:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:content-transfer-encoding
-	:mime-version; s=pp1; bh=oxqfT3NuqEu2jpdJC8oFJ+DpIWF2KlKWnjOO3Px
-	L9H0=; b=HGt0c+eEL2LbTjOMECVTfLu0LOTHSE86Xi8sacO2uITyoVJXhd4wcat
-	8MwfzV853yfbZnkMF6+hziZspilMWogfe3qtlKm0XOw0CsmlAC1oEpNcPmSSvaLx
-	Uo5tBy3tDotlBep9Mr7itoKsRkhimUVAmBUTeBb28FzCX0GcSoMeJY3iGiUMWA/s
-	0JSIKS0vTq5G9SRLFOPYIUc/LpP9r0Hq/NQWONAvnQSVFCJ3k/XO/V9rU789uoh9
-	7OxC73+gY3zQxtxH3os1Jo2gEeYt7COY0v5HQy3lo7jrKP3C/5Y5EQBLlDoiU7Sz
-	8MENt7TVpOiDfHjL/MoaJKLbAdtRGmQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 424mcxgj6s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 07 Oct 2024 20:11:04 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 497KB4NQ004144;
-	Mon, 7 Oct 2024 20:11:04 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 424mcxgj6m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 07 Oct 2024 20:11:04 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 497Idti0022861;
-	Mon, 7 Oct 2024 20:11:03 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 423jg0r8ux-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 07 Oct 2024 20:11:03 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 497KAxVp52167000
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 7 Oct 2024 20:11:00 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C82C52004B;
-	Mon,  7 Oct 2024 20:10:59 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 62F1F20040;
-	Mon,  7 Oct 2024 20:10:59 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  7 Oct 2024 20:10:59 +0000 (GMT)
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>, linux-s390@vger.kernel.org,
-        virtualization@lists.linux.dev, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc: "Marc Hartmayer" <mhartmay@linux.ibm.com>
-Subject: [PATCH 1/1] s390/virtio_ccw: fix dma_parm pointer not set up
-Date: Mon,  7 Oct 2024 22:10:30 +0200
-Message-ID: <20241007201030.204028-1-pasic@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: qv7T0kh2xhGfvtXQ8TvVTdZI5RNEPcHS
-X-Proofpoint-GUID: -QWAYHiU3V6nlYydhEqMnNyXDTqvrqQz
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LrMvBxm4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1728347346; x=1759883346;
+  h=date:from:to:cc:subject:message-id:references:
+   in-reply-to:mime-version;
+  bh=tmnuRvBdfMEz04X9PkZzhhyYOKbTy57nboqV7L8z8hU=;
+  b=LrMvBxm4OgRjRaVfTWxhrx9EIO5s9kZgzigZoY9h4N8AKzmZogQL+OVb
+   sx17hqJlmuS8xCiljnZ1kvPLt5C5575qlz90/6HDUhRssPmsltbLf8mDc
+   3AtHTRTo1cxTeRhlz2/BPa//q291PccO60azu4xcWoCIY6rqsZa8g2bMF
+   AI83N8GgaVah1bMYZj0FENWBBD+GM2wh336n1lDsl+uMQtLHloLB1tgYO
+   T5R7z3zmU1GG5YXePnQCYEOvI2gkS3NkgYJwJeyj2LsyW0xilW54fjzOE
+   N1C3EyyYWySiyNfruIDbpvkCE4RqpzvaahEd2cAMkrxTwhFh/sWSw5/Wi
+   A==;
+X-CSE-ConnectionGUID: h6f0UlUUTWOP5jBDs+N8gA==
+X-CSE-MsgGUID: jQBg4B8vSDCgWi7HdO5NYg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11218"; a="27651705"
+X-IronPort-AV: E=Sophos;i="6.11,185,1725346800"; 
+   d="scan'208";a="27651705"
+Received: from fmviesa001.fm.intel.com ([10.60.135.141])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2024 17:29:06 -0700
+X-CSE-ConnectionGUID: BfAr7Oa5TE2OGUHaF7DCOw==
+X-CSE-MsgGUID: mwJjT2+vTtSx2cTFF1o/Xw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.11,185,1725346800"; 
+   d="scan'208";a="106401690"
+Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
+  by fmviesa001.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 07 Oct 2024 17:29:05 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Mon, 7 Oct 2024 17:29:05 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Mon, 7 Oct 2024 17:29:04 -0700
+Received: from ORSEDG602.ED.cps.intel.com (10.7.248.7) by
+ orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39 via Frontend Transport; Mon, 7 Oct 2024 17:29:04 -0700
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (104.47.58.172)
+ by edgegateway.intel.com (134.134.137.103) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.39; Mon, 7 Oct 2024 17:29:03 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=bFe7kCWHBS+r1CESHqNdfINfUuKh8c1pTrXs2q83Ftgk23GXpYJFFBuJewEtgY7JS1XROuDhQaSyrlypA/019Xa3imYGU8OiOmo0iSf0/rei3lSAXyjfQrY9ISuHS+SXIIKZii8ldaBMyXRcFHPnSC+lqndZ0DKBOw382RYylI5jLzJ/JjSUB9MXv0u+URRZVVD+/a59uFADOMfLTboP5zgtFQ5yu71D4x+cDxD98flscM7qZosk4zVB7oGxO9HUWXbbVtcT1zmB24/73Fk6djkaeBEWGxlWYJQ2bqMUKk4Rf1YTCyrvQeK7zVwkx++zD2I+0UZQFZtRZJ/GJ5i4Zg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=tmnuRvBdfMEz04X9PkZzhhyYOKbTy57nboqV7L8z8hU=;
+ b=pht77CE/hqwPfGjoxLwcD2Tsj9LMdjpTQ9iDVAjSc7zRdgR7vdnjtELxNJwkiC9kzVC6GjjJDcWIGL45IQeuVsFMI1vK5fIfKFEEUqWqEUzvRYOvfQOn5UYLWjTC+sfjD/1TASZ68qPGE8H04lFRXQGJWS6jvD/F6zUyfcLPnD1W+T9X5++r0W6uLVqCdNMmxtg8JeKqh0CKHMTEqIm0Wu+98TWDwXshxmevGxKritPsd8uSabkcw/SrUrjJndMjMdURtd50JoTvbUXdnqRvXyQh1gb/4ZDjGibxi7h6lvTxvGeBWmPCdrbarGFEa9W92EwyaUdbTNQNjpuVeN+WvQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from PH8PR11MB8107.namprd11.prod.outlook.com (2603:10b6:510:256::6)
+ by PH7PR11MB7641.namprd11.prod.outlook.com (2603:10b6:510:27b::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8026.23; Tue, 8 Oct
+ 2024 00:29:01 +0000
+Received: from PH8PR11MB8107.namprd11.prod.outlook.com
+ ([fe80::6b05:74cf:a304:ecd8]) by PH8PR11MB8107.namprd11.prod.outlook.com
+ ([fe80::6b05:74cf:a304:ecd8%4]) with mapi id 15.20.8026.020; Tue, 8 Oct 2024
+ 00:29:01 +0000
+Date: Mon, 7 Oct 2024 17:28:58 -0700
+From: Dan Williams <dan.j.williams@intel.com>
+To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Dan Williams
+	<dan.j.williams@intel.com>
+CC: <hca@linux.ibm.com>, <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
+	<svens@linux.ibm.com>, Jan Kara <jack@suse.cz>, Matthew Wilcox
+	<willy@infradead.org>, Christoph Hellwig <hch@lst.de>, Alistair Popple
+	<apopple@nvidia.com>, <linux-s390@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: [PATCH] dcssblk: Mark DAX broken
+Message-ID: <67047cca7981b_964fe29451@dwillia2-xfh.jf.intel.com.notmuch>
+References: <172721874675.497781.3277495908107141898.stgit@dwillia2-xfh.jf.intel.com>
+ <20241001122925.52558c08@thinkpad-T15>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20241001122925.52558c08@thinkpad-T15>
+X-ClientProxiedBy: MW4PR04CA0331.namprd04.prod.outlook.com
+ (2603:10b6:303:8a::6) To PH8PR11MB8107.namprd11.prod.outlook.com
+ (2603:10b6:510:256::6)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-07_13,2024-10-07_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- mlxlogscore=999 priorityscore=1501 bulkscore=0 clxscore=1011
- lowpriorityscore=0 malwarescore=0 adultscore=0 phishscore=0 mlxscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410070137
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH8PR11MB8107:EE_|PH7PR11MB7641:EE_
+X-MS-Office365-Filtering-Correlation-Id: 93ac1493-583f-43d7-aa7a-08dce7303519
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|1800799024|7416014;
+X-Microsoft-Antispam-Message-Info: =?us-ascii?Q?FFFhoc5aYPMrIdDLE1xY+Gn+88yKTMD8vgUfqdwfk1CuIdfG3rBKH0iXd9ZC?=
+ =?us-ascii?Q?DURuo11qfyqA4Q/FXyguzDF1Dt8HBMLPQWMlo6YCu915VPCVB72+haR4zUtc?=
+ =?us-ascii?Q?f9/o6ClEaGlW7SZ5r0se5mUekkCuFKCaBcInE279vYAe9iNbp4w6lpGeq7N3?=
+ =?us-ascii?Q?PqZHUxKmXnhR0Iy/GspvyoBFETTsPFRZoKdoepO8lVXxKr8odMpdErxLJD7t?=
+ =?us-ascii?Q?Ki5iM2je6d9+u8EHBEurP+BQwsdcFbJg4+8R8d5rF4NhfRoNeMxC4RUx6sEn?=
+ =?us-ascii?Q?QStBKf6MK9RG1PWbRTkUAH1O7bxfyUV2fDlE8FunXgIiWZ0rBH7bz4wPb346?=
+ =?us-ascii?Q?67J8EVzUZ/1/J8SVelt6STvFwNk2PYXq3oWFJGSMUszw0zIGPaGzIvkkHEaK?=
+ =?us-ascii?Q?QfparqB70c7Sd9vlV3io7dIJd5m7+48fJPlrWEIOHlZAWEbHKCSFte7YIo1B?=
+ =?us-ascii?Q?3qEHkXPPrs2pbIQn4UQbkmZxfBs99r4xn3SfU0V8dHE6rzEdDFkg6BZoznp8?=
+ =?us-ascii?Q?iIfhBpkBmP4BQiXU4rVZDR7y2yIljmFlJjMnYzWXrP974PVRqqxA9LZ17MJc?=
+ =?us-ascii?Q?f2yBFrli8Kk2BNSn33Me977y4GmcFGBzurwSwRo4gTNItN3I82CzB7M8z19Y?=
+ =?us-ascii?Q?rRt+3yPD7sbZBsJ/1NfT3VVG+TjaHuWo34rvjazuGaE8s2/qNd84QuOXPbxa?=
+ =?us-ascii?Q?EKxeoI4tKPR2opPO0Qxxs3qAQfTNbJFVpuDMs2I2Zmnh3U5Vb6KKEm78NKaZ?=
+ =?us-ascii?Q?m+7kXTX2iB4vfHo6wy5kCYqMSoAJmGeyGUD1nvqI1izhWkmuc7vFNwP3THTZ?=
+ =?us-ascii?Q?FP0uqTLbnl6/xFZGwr8zOVXkATQ56F15LemcfmwHZlfyVw6rOt9PbtPsYQ3A?=
+ =?us-ascii?Q?XtDWpeda6y3m9bjEISN7ri9Iy+XvtAkh6kHs8IaJVbig32VQLlyxYxBDtZj/?=
+ =?us-ascii?Q?nf+m9UxtSw740n3kNMxKKDkSySYHtbnghCkXqyXaoxBGuW/8eJyz9+/VJOgs?=
+ =?us-ascii?Q?dnDbEl70V5ZPZmMSPWF9eplm573jFpTjzaogelAtwX2CQnEIZl6KSfwBuhj5?=
+ =?us-ascii?Q?HY0R7JGr/0h6bd4naXUTwBUpNqeV+mKRT1mE1YRU9kFyy2g5ipZRW7ya4tdp?=
+ =?us-ascii?Q?j5GbOof9Et31qH+li3LjNNSdw6BUeYbafnIUc3XvdnVLe7sE8FwVNFcTtrrv?=
+ =?us-ascii?Q?s9rweCgPoBF8Qnlj4YuUJ8wiZ2GujsluVNesTikWbcCnTlaEOhIRI4F2BkC+?=
+ =?us-ascii?Q?3VDz1/G8cwhHLyhr35x9SUcztuD0IaRMqaJkWvf9Lg=3D=3D?=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH8PR11MB8107.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(7416014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?WWbWpe/X0PXR1qLtWCXnnZvvREHy5tu58yotfO+32/Hq6mkhCtKdd38IYpuw?=
+ =?us-ascii?Q?p197XAnn3ribeSXVoFodRqejyfMYCHRR3jM/x/PsR97uX0HoeymoHniociy6?=
+ =?us-ascii?Q?bhNdek2/z8u3eyVYU6FMLxTuE0GRptE065OgzahVrIYlzrdRJRbNYCNrB0ry?=
+ =?us-ascii?Q?/f6pg3aicubVlm8V4YDhdbCKUegRjTjXqvY+xZivHiETgkETibqRSpE1jt9L?=
+ =?us-ascii?Q?rnNtr8ZfSUGnhoPaUwp2dYfKsaNBhOt4O48ecTtKtKZ5h9AGL3vdpVf5OiyA?=
+ =?us-ascii?Q?2LimNkyqX1sW94P5p9jau6Ad8sq5awHmnRvu69cmlKOGMQegiS2rPydR/AnE?=
+ =?us-ascii?Q?C6wHci/d5efo6km5azC0CSfBw9HxethmM8CEvUYUyanjWck/sSdeFtU1UC+r?=
+ =?us-ascii?Q?y6PwxZe4H2KffFE4dKjQKqMpzeKHiWZrGUWvO++WxiCgy6Q/AT97a00jz0fV?=
+ =?us-ascii?Q?KKCpJvCE3lJ/VTOz05IRLNGSOHmS7d43gTrBB46S/lmCuL5hXmjgxjWD7x4n?=
+ =?us-ascii?Q?UuX0uVaP+TL7Ru/Ch9tJ+aliMWGPU0SwcvT9Lx9DzOHxym0RH0AyA3uNkf78?=
+ =?us-ascii?Q?gd9ZgxbKnbQTOASG473yjzy4zR4yVf+4BZ5kY2CMGrihswYMCrg12dW/AHa3?=
+ =?us-ascii?Q?d/Qk7op2JrveB2y4ZKCTxsi62/5z54p6vCzcawAJBDzvxIPSX0Rum0tWHsJE?=
+ =?us-ascii?Q?TXJwK6X2U858qgSI5iWN+LRqeYAwrdUU5vhcWp4uG+oD9GEji9M7pb01DXpA?=
+ =?us-ascii?Q?N3fohLoNRX4XEXDS7BDgEeLgx3QesmMlfdzCKDYBbSc3cIlIHBUKqqqjBuob?=
+ =?us-ascii?Q?nWeIg/hgDBSjlRZjre9e7eeC1Den42yPuE5ff+ZtPqSoyvh8eCDQ9bvCtz0i?=
+ =?us-ascii?Q?V8fnXsivQePFsHNyLxFRUC1Pgn49Yqwk6EdhEN6m3J/1jdmdxRqNTsYosZJj?=
+ =?us-ascii?Q?dHTdKLeFnvopMSfavPTt7Q7eMMNsTMWmYbUjr8KDCT+484DgvDP5d/VJDeWk?=
+ =?us-ascii?Q?YuZs9L93PBB4yK/EZnlgf/wVW/9CMj40jdOFBKvOUw2hzTje72fELNJF8O5B?=
+ =?us-ascii?Q?JRTxfKBUW29UO/j8BkojyNyYPlhxC1GCSkBHDJ/M5zoxxQA6sWxyFh8puHpk?=
+ =?us-ascii?Q?976brChJCoKDbYPwuVubyo4oqjoE3LBGUPQPCa0zaUislrkg254my/fHFEyX?=
+ =?us-ascii?Q?aXGHQ/yyPVXRYZptc4VzpJzFUvH8BBoGFWRINw56MEDg2F788lkMxKzahLQ4?=
+ =?us-ascii?Q?YXXXEEVO3bUmuRxh/UtuF/88csNLYAfg/TkRdW9+8Eqm/380jxNuj4gluItf?=
+ =?us-ascii?Q?czzzdx+EXwoEds0U548Ez5JZQsWnBHgp3jPdCemNTxpH9mdbUZWynAoX7AOT?=
+ =?us-ascii?Q?QKE0G047UYts4RifKs+32fnasIqB5Xzua50rTAeEIEXevaZgCDdSbdg5YmO7?=
+ =?us-ascii?Q?MLUhG3VS62ze4SH19C4bX+n3iuObwakVjzOCxAQ0KqrAIh5UEqIssJeUy2nX?=
+ =?us-ascii?Q?h5V+YIfbNF0uWQUOcCTLuPngxq3AyzM8HF6maBW5MvgzxMf1CFJlg7fV/TzF?=
+ =?us-ascii?Q?KK+GJPw2dhdBGEqSYTjmbNeBAsEfRl5ABGMfU6fhb2tdsys4XRzny7HKOWaU?=
+ =?us-ascii?Q?Uw=3D=3D?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 93ac1493-583f-43d7-aa7a-08dce7303519
+X-MS-Exchange-CrossTenant-AuthSource: PH8PR11MB8107.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Oct 2024 00:29:01.6403
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: wW7iVzt6YXMEtszYVaUfn3CH1pI3esD4+RtPJtubA2GiVPZ6nNqRSJWEBTjmY76qpKboZuQbkn+bcSx9T3FaIIkbdqhBin4UfOw7yw6ysAQ=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR11MB7641
+X-OriginatorOrg: intel.com
 
-At least since commit 334304ac2bac ("dma-mapping: don't return errors
-from dma_set_max_seg_size") setting up device.dma_parms is basically
-mandated by the DMA API. As of now Channel (CCW) I/O in general does not
-utilize the DMA API, except for virtio. For virtio-ccw however the
-common virtio DMA infrastructure is such that most of the DMA stuff
-hinges on the virtio parent device, which is a CCW device.
+Gerald Schaefer wrote:
+[..]
+> When you also remove the now unused dax_dev definition at the top of
+> dcssblk_add_store(), as noticed by kernel test robot:
 
-So lets set up the dma_parms pointer for the CCW parent device and hope
-for the best!
+Yup, already have that fixup locally.
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Fixes: 334304ac2bac ("dma-mapping: don't return errors from dma_set_max_seg_size")
-Reported-by: "Marc Hartmayer" <mhartmay@linux.ibm.com>
-Closes: https://bugzilla.linux.ibm.com/show_bug.cgi?id=209131
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
----
+> Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-In the long run it may make sense to move dma_parms into struct
-ccw_device, since layering-wise it is much cleaner. I decided
-to put it in virtio_ccw_device because currently it is only used for
-virtio.
-
----
- drivers/s390/virtio/virtio_ccw.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 62eca9419ad7..21fa7ac849e5 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -58,6 +58,8 @@ struct virtio_ccw_device {
- 	struct virtio_device vdev;
- 	__u8 config[VIRTIO_CCW_CONFIG_SIZE];
- 	struct ccw_device *cdev;
-+	/* we make cdev->dev.dma_parms point to this */
-+	struct device_dma_parameters dma_parms;
- 	__u32 curr_io;
- 	int err;
- 	unsigned int revision; /* Transport revision */
-@@ -1303,6 +1305,7 @@ static int virtio_ccw_offline(struct ccw_device *cdev)
- 	unregister_virtio_device(&vcdev->vdev);
- 	spin_lock_irqsave(get_ccwdev_lock(cdev), flags);
- 	dev_set_drvdata(&cdev->dev, NULL);
-+	cdev->dev.dma_parms = NULL;
- 	spin_unlock_irqrestore(get_ccwdev_lock(cdev), flags);
- 	return 0;
- }
-@@ -1366,6 +1369,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
- 	}
- 	vcdev->vdev.dev.parent = &cdev->dev;
- 	vcdev->cdev = cdev;
-+	cdev->dev.dma_parms = &vcdev->dma_parms;
- 	vcdev->dma_area = ccw_device_dma_zalloc(vcdev->cdev,
- 						sizeof(*vcdev->dma_area),
- 						&vcdev->dma_area_addr);
-
-base-commit: 87d6aab2389e5ce0197d8257d5f8ee965a67c4cd
--- 
-2.43.0
-
+Thanks!
