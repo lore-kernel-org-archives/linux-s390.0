@@ -1,144 +1,144 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97A191DF964;
-	Tue,  8 Oct 2024 07:43:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3137C13A40D
+	for <linux-s390@vger.kernel.org>; Tue,  8 Oct 2024 07:47:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728373400; cv=none; b=hjxMl7MxmN57TxzTNv/G9Gq98oPhQ6iQ3z2roQMBLO1ly1pva0qUmwrCZ7lCebfYjuHg8GCoxAGQIRuX/+Gx1nDsDolWJSVNyIK90vfxSo8fGuw2jMu8peSldQwyzO67O9gS9YQRX/EFn/49sU9KbRRFro31EHXAO8eHW2XXJ9Y=
+	t=1728373675; cv=none; b=qZ18M005JI3+9Dz14m8hYemaRTrmaG00kU5QhHgV1IeYFzgpYseqvdEM4SSZzwqk0hfSYHrKpjA0qn/hIKbFYcM0kuA4f8uV9MomB5BUXncqcEjkIdm1DVbDaYiaWDmRkaO0yi0lDkpxR9h+Hi0vo9YeAboMOQESU+ynNQzehmA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728373400; c=relaxed/simple;
-	bh=aCgS7xcBNSl28qbG/kUNf7LQsOyi4Bb65R+RliPqmK8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pTiY1/fM95TjI0aQTKoBwW9zFrTsAhNPKnq3pdiTGiyrYyQCSlsuLSFG5H6yJeztTpm214bstVlV3sWsROOw2FLHI+5alZmCOu0FljLHihWAEHlsXMgCHBaEAOycQa79z4ffvw/l2xtUW2RFt49x9vSZKOsy+pOEl7jCOysbEH8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GU/z9URR; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1728373675; c=relaxed/simple;
+	bh=KacrONSbhmhewewU/gu315ddq3zC0RufrWewYF0miNY=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=rep7Oalum937b3rX3GaJLhpY2UOSNHj5xNttFAwrcx1k2qJ5SO3z8n/PUeDN835q042dOjcFAX5H0pYLD4q8fIjilQalI1OV1i4s+yj3MnJ6hLXRDYdmiWSCVn2J0RTh1hzKiz8aWpAybx/KtIZ3PqckZlRl/vfJSR4mQSr32jo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=So5Z7XkR; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GU/z9URR"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4987NhXW014613;
-	Tue, 8 Oct 2024 07:43:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
-	:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding; s=pp1; bh=II9xPt/4qV4DY
-	MBtJH8PRN7/lT+nHhAqoNmvEpWSb4Q=; b=GU/z9URRqMMIiVupS2UnCKNDiLQZa
-	NKVKFRk9O32O5mRZn7tDdnmoJUxQk153B76bHH+FloGLyvejNfjQBJAz65jdtQzw
-	T3OBsEqMqHlRmRpMnlL838PELdCwqJODeu50NXrJ0bgt8A83DJgH55wGPfQbFC/C
-	BNxADTUnUEzPK6EVsfFtKGnK/5ngm/mzntwa94xMxBVOU0HGKE96vO/W/T4sFzOq
-	vIac6tSKAnDRtnMIK2G6AwTtDqlPNpqFLWqj2eya32nK5yUXdeWOjWDXCTdMC86U
-	xVUuNCmIDf+dTi4UXOabJ4NhAnij3vb+CAyps5P73b83U3QjzPQTyJosQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4250a1r2gy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Oct 2024 07:43:09 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4987h9We029296;
-	Tue, 8 Oct 2024 07:43:09 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4250a1r2gw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Oct 2024 07:43:09 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4985cDqa013857;
-	Tue, 8 Oct 2024 07:43:08 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 423fss31mt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Oct 2024 07:43:08 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4987h5DY21561916
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 8 Oct 2024 07:43:05 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E36DA20043;
-	Tue,  8 Oct 2024 07:43:04 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4E50F20040;
-	Tue,  8 Oct 2024 07:43:04 +0000 (GMT)
-Received: from darkmoore.ibmuc.com (unknown [9.171.23.149])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  8 Oct 2024 07:43:04 +0000 (GMT)
-From: Christoph Schlameuss <schlameuss@linux.ibm.com>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, schlameuss@linux.ibm.com
-Subject: [PATCH v5 3/4] selftests: kvm: s390: Verify reject memory region operations for ucontrol VMs
-Date: Tue,  8 Oct 2024 09:42:52 +0200
-Message-ID: <20241008074253.370481-4-schlameuss@linux.ibm.com>
-X-Mailer: git-send-email 2.46.2
-In-Reply-To: <20241008074253.370481-1-schlameuss@linux.ibm.com>
-References: <20241008074253.370481-1-schlameuss@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="So5Z7XkR"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1728373673;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ccukHkwtjpL6eSJNhCykeUOWCFvXciXd/kKxvlhDKa4=;
+	b=So5Z7XkRYIAHpElAcpO2msSiGTJtPqWx2PH92F3WYIt9eY/dsr2Z8mw3fTAQzgSSsEJOLR
+	4YFpgTThxdZvn8ySRkEw+zW9eSUxTN0GFYgOFGaqtlCG9IUdh4TA9a46xKJSNb9653BqME
+	CXpmnMiK6TVJcqI04sTjuxmMLNgArN0=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-567-RWXDJytLM_OChWXcv1J20w-1; Tue,
+ 08 Oct 2024 03:47:49 -0400
+X-MC-Unique: RWXDJytLM_OChWXcv1J20w-1
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 082621954B1F;
+	Tue,  8 Oct 2024 07:47:47 +0000 (UTC)
+Received: from localhost (dhcp-192-244.str.redhat.com [10.33.192.244])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 063EF19560A7;
+	Tue,  8 Oct 2024 07:47:44 +0000 (UTC)
+From: Cornelia Huck <cohuck@redhat.com>
+To: Halil Pasic <pasic@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, "Martin
+ K. Petersen" <martin.petersen@oracle.com>, Robin Murphy
+ <robin.murphy@arm.com>, Ulf Hansson <ulf.hansson@linaro.org>,
+ linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+ kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Marc Hartmayer <mhartmay@linux.ibm.com>
+Subject: Re: [PATCH 1/1] s390/virtio_ccw: fix dma_parm pointer not set up
+In-Reply-To: <20241007201030.204028-1-pasic@linux.ibm.com>
+Organization: "Red Hat GmbH, Sitz: Werner-von-Siemens-Ring 12, D-85630
+ Grasbrunn, Handelsregister: Amtsgericht =?utf-8?Q?M=C3=BCnchen=2C?= HRB
+ 153243,
+ =?utf-8?Q?Gesch=C3=A4ftsf=C3=BChrer=3A?= Ryan Barnhart, Charles Cachera,
+ Michael O'Neill, Amy
+ Ross"
+References: <20241007201030.204028-1-pasic@linux.ibm.com>
+User-Agent: Notmuch/0.38.3 (https://notmuchmail.org)
+Date: Tue, 08 Oct 2024 09:47:40 +0200
+Message-ID: <87set7qbmr.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: u9Eeusu0_kTq0iEImFf66cuFq7hMDGUj
-X-Proofpoint-ORIG-GUID: R22yy0mvipaK8ldWcc8dx9UUier0a8S6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-08_05,2024-10-08_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
- spamscore=0 suspectscore=0 adultscore=0 priorityscore=1501 bulkscore=0
- mlxscore=0 impostorscore=0 lowpriorityscore=0 phishscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
- definitions=main-2410080047
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-Add a test case verifying KVM_SET_USER_MEMORY_REGION and
-KVM_SET_USER_MEMORY_REGION2 cannot be executed on ucontrol VMs.
+On Mon, Oct 07 2024, Halil Pasic <pasic@linux.ibm.com> wrote:
 
-Executing this test case on not patched kernels will cause a null
-pointer dereference in the host kernel.
-This is fixed with commit:
-commit 7816e58967d0 ("kvm: s390: Reject memory region operations for ucontrol VMs")
+> At least since commit 334304ac2bac ("dma-mapping: don't return errors
+> from dma_set_max_seg_size") setting up device.dma_parms is basically
+> mandated by the DMA API. As of now Channel (CCW) I/O in general does not
+> utilize the DMA API, except for virtio. For virtio-ccw however the
+> common virtio DMA infrastructure is such that most of the DMA stuff
+> hinges on the virtio parent device, which is a CCW device.
+>
+> So lets set up the dma_parms pointer for the CCW parent device and hope
+> for the best!
+>
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Fixes: 334304ac2bac ("dma-mapping: don't return errors from dma_set_max_seg_size")
+> Reported-by: "Marc Hartmayer" <mhartmay@linux.ibm.com>
+> Closes: https://bugzilla.linux.ibm.com/show_bug.cgi?id=209131
+> Reviewed-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>
+> In the long run it may make sense to move dma_parms into struct
+> ccw_device, since layering-wise it is much cleaner. I decided
+> to put it in virtio_ccw_device because currently it is only used for
+> virtio.
 
-Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
----
- .../selftests/kvm/s390x/ucontrol_test.c       | 22 +++++++++++++++++++
- 1 file changed, 22 insertions(+)
+Yes, ccw_device would make more sense as a resting place; no idea what
+other devices (dasd, QDIO based, ...) would do with it ATM -- I agree
+that if adding it to virtio_ccw_device get things going again, we should
+do that and consider the possible generic case later.
 
-diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-index f022322a00d4..5185620a21eb 100644
---- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-+++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
-@@ -400,6 +400,28 @@ static void uc_assert_diag44(FIXTURE_DATA(uc_kvm) * self)
- 	TEST_ASSERT_EQ(0x440000, sie_block->ipb);
- }
- 
-+TEST_F(uc_kvm, uc_no_user_region)
-+{
-+	struct kvm_userspace_memory_region region = {
-+		.slot = 1,
-+		.guest_phys_addr = self->code_gpa,
-+		.memory_size = VM_MEM_EXT_SIZE,
-+		.userspace_addr = (uintptr_t)self->code_hva,
-+	};
-+	struct kvm_userspace_memory_region2 region2 = {
-+		.slot = 1,
-+		.guest_phys_addr = self->code_gpa,
-+		.memory_size = VM_MEM_EXT_SIZE,
-+		.userspace_addr = (uintptr_t)self->code_hva,
-+	};
-+
-+	ASSERT_EQ(-1, ioctl(self->vm_fd, KVM_SET_USER_MEMORY_REGION, &region));
-+	ASSERT_EQ(EINVAL, errno);
-+
-+	ASSERT_EQ(-1, ioctl(self->vm_fd, KVM_SET_USER_MEMORY_REGION2, &region2));
-+	ASSERT_EQ(EINVAL, errno);
-+}
-+
- TEST_F(uc_kvm, uc_map_unmap)
- {
- 	struct kvm_sync_regs *sync_regs = &self->run->s.regs;
--- 
-2.46.2
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+
+[I assume this one can be picked up together with other s390 patches?]
+
+>
+> ---
+>  drivers/s390/virtio/virtio_ccw.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index 62eca9419ad7..21fa7ac849e5 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -58,6 +58,8 @@ struct virtio_ccw_device {
+>  	struct virtio_device vdev;
+>  	__u8 config[VIRTIO_CCW_CONFIG_SIZE];
+>  	struct ccw_device *cdev;
+> +	/* we make cdev->dev.dma_parms point to this */
+> +	struct device_dma_parameters dma_parms;
+>  	__u32 curr_io;
+>  	int err;
+>  	unsigned int revision; /* Transport revision */
+> @@ -1303,6 +1305,7 @@ static int virtio_ccw_offline(struct ccw_device *cdev)
+>  	unregister_virtio_device(&vcdev->vdev);
+>  	spin_lock_irqsave(get_ccwdev_lock(cdev), flags);
+>  	dev_set_drvdata(&cdev->dev, NULL);
+> +	cdev->dev.dma_parms = NULL;
+>  	spin_unlock_irqrestore(get_ccwdev_lock(cdev), flags);
+>  	return 0;
+>  }
+> @@ -1366,6 +1369,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+>  	}
+>  	vcdev->vdev.dev.parent = &cdev->dev;
+>  	vcdev->cdev = cdev;
+> +	cdev->dev.dma_parms = &vcdev->dma_parms;
+>  	vcdev->dma_area = ccw_device_dma_zalloc(vcdev->cdev,
+>  						sizeof(*vcdev->dma_area),
+>  						&vcdev->dma_area_addr);
+>
+> base-commit: 87d6aab2389e5ce0197d8257d5f8ee965a67c4cd
 
