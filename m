@@ -1,97 +1,90 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D40F2217338;
-	Tue,  8 Oct 2024 22:41:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF0B6215003;
+	Tue,  8 Oct 2024 22:58:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728427311; cv=none; b=ngtVrIMpq2VK8OtLCuR2WoeRq3cXcNb7UhuvvauscZvgBxEgpS1zBIxe/1hc6Wfno0R5IRr/aR0LvCDQKBFkZd/zaZAyI/ewLoieHywCmi1ZBzpR9QBAMNjdifk8g+eX+qNiBjz/jVekSTtQf/pkxPx6Zsq0jYmqVM6Z5I4OEDs=
+	t=1728428332; cv=none; b=Zg5sC/ld6Nnch7LQbJVSDc4L2AvxVxoZ0zX1cVL102u75fmpYkt/8KTJ4jBRZ90fEaEPK/ysGpDZsCF5hmNgvzAbhRuXYE+To/xqeeCFgYTsVUsnrfZZHU9tzC6q/E5qoZX2kzKt74Pg88+kEAVlx3oRPOUVqsjMfcXeOTnz6xY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728427311; c=relaxed/simple;
-	bh=dcyvt0dgAZszkRlVAvb5HjPFo8uYI0c0H8I8+ifT9Mc=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=ejQpcduJEg3Cg0K1e4GaivddGtXnUqtYAKSy4HLYH0cnapHE3h6qPGayN144PSw6BAKlDLkimAzaik8zp2zSFpEFDTbM05/v9lRzA3IuLaWVPeMrfOojyBW8yPE0MSUoP5bBuXmnQrtYucJm9XTwfFMDp17EnuduNyLKJHgbs9I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YVKI9Crq; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YVKI9Crq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 821CEC4CEC7;
-	Tue,  8 Oct 2024 22:41:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1728427310;
-	bh=dcyvt0dgAZszkRlVAvb5HjPFo8uYI0c0H8I8+ifT9Mc=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=YVKI9Crqoxb+kubNcOuiLkrNECGkggxSHQ7zCyU+C4i8uxiYSqLNhL0X/vyK4nbzv
-	 ZTZhdx2QyfKE2LnLqpmbl5qupaMKqcPjo4pfP0XVVDT7jJ3Pi+yGLIFlAoyQ1zJ8f/
-	 LRx6mNnFL/YEgXB3zZceNPZm3XxIxsg2PBPTbpBe46PAYpR81VHsD8MOEnS/HXOEZ2
-	 Ap8/akyKsgqNs5Pe4svGt4x+EP0vBEWmNqIITelNqML0XZvg5lqB67aOG28+RNgkvt
-	 wfDDeXaYNBD5I8SjevQEEAIRaEj2kZMlEcSfY0ZWuEXT4HdfIj190zY9PkfL3KNXYl
-	 LDp5MEWE7lO/w==
-Date: Wed, 9 Oct 2024 07:41:40 +0900
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-To: Steven Rostedt <rostedt@goodmis.org>
+	s=arc-20240116; t=1728428332; c=relaxed/simple;
+	bh=q3QHIirZM9sbs+qj//brUeZOmkTUKQEfSH/pXtSm+zA=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=YOByeF0BEFPo/a/+0I2TMADuaAdrlE/8v9PqRrTOPidzpmTKYGgx7cRT2wCvPQUNClywNhW6l+r59VF/tqx7PH+BdKblqUH52DUZTaIi9nv1+H+z6gKBDe0uKRuq4N462A3qRdzXDMzhFoRqtcuqTTcKt8XR49seQSSNsch2T+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB329C4CEC7;
+	Tue,  8 Oct 2024 22:58:47 +0000 (UTC)
+Date: Tue, 8 Oct 2024 18:58:51 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Linux Trace Kernel
  <linux-trace-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org,
  loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
  linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
  "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "x86@kernel.org"
- <x86@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>, Mark Rutland <mark.rutland@arm.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao
- <naveen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, Paul
- Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger
+ <x86@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Mark
+ Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>,
+ Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG
+ Xuerui <kernel@xen0n.name>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas
+ Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Naveen N Rao <naveen@kernel.org>, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer
+ Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko
+ Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
+ Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
  <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas
  Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, Borislav
  Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>
 Subject: Re: [PATCH] ftrace: Make ftrace_regs abstract from direct use
-Message-Id: <20241009074140.b163eceb2f973227b400c962@kernel.org>
-In-Reply-To: <20241007204743.41314f1d@gandalf.local.home>
+Message-ID: <20241008185851.274887ca@gandalf.local.home>
+In-Reply-To: <20241009074140.b163eceb2f973227b400c962@kernel.org>
 References: <20241007204743.41314f1d@gandalf.local.home>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	<20241009074140.b163eceb2f973227b400c962@kernel.org>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-Hi Steve, 
+On Wed, 9 Oct 2024 07:41:40 +0900
+Masami Hiramatsu (Google) <mhiramat@kernel.org> wrote:
 
-> diff --git a/include/asm-generic/ftrace.h b/include/asm-generic/ftrace.h
-> index 3a23028d69d2..ba7b7d6e55d6 100644
-> --- a/include/asm-generic/ftrace.h
-> +++ b/include/asm-generic/ftrace.h
-> @@ -10,4 +10,17 @@
->   * common definitions are already in linux/ftrace.h.
->   */
->  
-> +#ifndef CONFIG_HAVE_DYNAMIC_FTRACE_WITH_ARGS
-> +struct __arch_ftrace_regs {
-> +	struct pt_regs		regs;
-> +};
-> +
-> +#define arch_ftrace_get_regs(fregs)					\
-> +	({ struct __arch_fregs_regs *__f = (struct __arch_ftrace_regs *)(fregs); \
-> +		&__f->regs;						\
-> +	})
-> +
-> +struct ftrace_regs;
-> +#define arch_ftrace_regs(fregs) ((struct __arch_ftrace_regs *)(fregs))
-> +
->  #endif /* __ASM_GENERIC_FTRACE_H__ */
+> Hi Steve, 
+> 
+> > diff --git a/include/asm-generic/ftrace.h b/include/asm-generic/ftrace.h
+> > index 3a23028d69d2..ba7b7d6e55d6 100644
+> > --- a/include/asm-generic/ftrace.h
+> > +++ b/include/asm-generic/ftrace.h
+> > @@ -10,4 +10,17 @@
+> >   * common definitions are already in linux/ftrace.h.
+> >   */
+> >  
+> > +#ifndef CONFIG_HAVE_DYNAMIC_FTRACE_WITH_ARGS
+> > +struct __arch_ftrace_regs {
+> > +	struct pt_regs		regs;
+> > +};
+> > +
+> > +#define arch_ftrace_get_regs(fregs)					\
+> > +	({ struct __arch_fregs_regs *__f = (struct __arch_ftrace_regs *)(fregs); \
+> > +		&__f->regs;						\
+> > +	})
+> > +
+> > +struct ftrace_regs;
+> > +#define arch_ftrace_regs(fregs) ((struct __arch_ftrace_regs *)(fregs))
+> > +
+> >  #endif /* __ASM_GENERIC_FTRACE_H__ */  
+> 
+> There seems no #endif for CONFIG_HAVE_DYNAMIC_FTRACE_WITH_ARGS.
+> I wonder how it passed the build. (#ifdef block does not affect over
+> the file boundary?
+> 
 
-There seems no #endif for CONFIG_HAVE_DYNAMIC_FTRACE_WITH_ARGS.
-I wonder how it passed the build. (#ifdef block does not affect over
-the file boundary?
+Yeah I caught that. That's one way I found out that this file is not
+compiled by most architectures. I'll be sending a v2 very shortly.
 
-Thank you,
+-- Steve
 
--- 
-Masami Hiramatsu (Google) <mhiramat@kernel.org>
