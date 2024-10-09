@@ -1,153 +1,201 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B542040849;
-	Wed,  9 Oct 2024 06:55:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 142C142070;
+	Wed,  9 Oct 2024 07:20:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728456927; cv=none; b=d3DgnzRYdj8DSAq93xui7F/9HgBfrvttYqntTHygOPNnCeku5utwa/mO2CSb2ZT3ILgSIdwn+IaeBzIQwZ8fF74JWy9jOWyCko7fQG1zMSqWKIcJ95E8AtWeL4BCNSKGULKZJHMQmkvKJa5hVtFnvQA0p8auBRf9PUf21AJR4Bs=
+	t=1728458442; cv=none; b=c6bHiNEjAObs46WtaDALAhXZd4I4/q6R41iOKr/H2L48prIzOzks8E8Yt3YfpYA1BmKbwbEv227x/AVJm5NrNTbJAOE/b3mkBdKb8sNNUNiGl56enCdXH8E1n48Tfe/AviJPLSKCvfZPNtVx16cTm6/P+5EP12D8YfhGsVT6Yak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728456927; c=relaxed/simple;
-	bh=Bd7iXoEa9UzFsOA5nZ4yG/NgHNPsFlJ16NHvU3fklNs=;
-	h=From:To:Cc:Subject:Date:Message-Id; b=iRFZhr12wUppK5vLxIKchkvRI76MQfD8qqPzwYTjte0Gieuu1zbi23ODakqHyB6xja4pZGuwQXcbL4p5bQZ6mTVw9b5KFIbZOhJ3vP/LAQldGDNIF9EhNjVecmf+HWv2LAEtfPFvay3He24V8RDhXh4CkeuSQaWpX0U39tzj0ag=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=NES5GyDT; arc=none smtp.client-ip=115.124.30.132
+	s=arc-20240116; t=1728458442; c=relaxed/simple;
+	bh=GWO55Gd4e5VgxufP/dVUCheYB0sGwgf33M4iGitmaLk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=O5SSU/A+/SOpM32/TaHQe8qDFuBOsa7pgPEHmCJ28lb+Ix8JErHv8Njp2eP7R9JxvcZV84bfjNe2JomdG01DxJeT3sq/hx0kXyseVLn2l87OYYtRaONHET/LHipxt5Ryl7/qq0aMKouBotXI38giMFTA8KuhV9QLQCXAWkM51uI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=iaXVaiMJ; arc=none smtp.client-ip=115.124.30.99
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="NES5GyDT"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="iaXVaiMJ"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1728456921; h=From:To:Subject:Date:Message-Id;
-	bh=WQW8mgJmkTslYa2D7to3QWwlV3Xf9E2iC1P1rqJMGEM=;
-	b=NES5GyDTxNjsfKNKAFfA+QKeQa/mosys9CX6o9nf32QACOQMWnxpz5xd3HqiMcQaYZRkP4maZvR7G0JP2+oZl26B6ZLW0lIpzO95ld8AG7j7fVj5NkNc3mV3k7H+sErC2Mt1nzbEjxzYIKRXLmEWTO2ayK8L/IFGBGfsYVrUHoY=
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WGhiQZL_1728456917)
+	t=1728458431; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=938oHQ+wLhZ8Ygyt4B57mX230FiSNZdkP1d8+n5HiQ0=;
+	b=iaXVaiMJzmO+y4JqGTnHdyTDljTnuEV4efjwAc4XG3poKDiSRq48nM9iiVzhWf/5/yVE5qkPESf6J+UCZ/Spx1UtoWU/39U7R0NtpooO5WgBz2LEv98UmDcBmAVqNbUdcZxdgu9ZVdpicWFMlTV48ISm1zTaUxDHiqZqFKYHgO4=
+Received: from 30.221.145.216(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WGhwgeU_1728458429)
           by smtp.aliyun-inc.com;
-          Wed, 09 Oct 2024 14:55:20 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-To: kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	wintera@linux.ibm.com,
-	guwen@linux.alibaba.com
-Cc: kuba@kernel.org,
-	davem@davemloft.net,
-	netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	tonylu@linux.alibaba.com,
-	pabeni@redhat.com,
-	edumazet@google.com
-Subject: [PATCH net] net/smc: fix lacks of icsk_syn_mss with IPPROTO_SMC
-Date: Wed,  9 Oct 2024 14:55:16 +0800
-Message-Id: <1728456916-67035-1-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+          Wed, 09 Oct 2024 15:20:30 +0800
+Message-ID: <36b455d7-a743-47c7-928c-e62146a12b9c@linux.alibaba.com>
+Date: Wed, 9 Oct 2024 15:20:28 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] resolve gtp possible deadlock warning
+To: Daniel Yang <danielyangkang@gmail.com>, Eric Dumazet <edumazet@google.com>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+ "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
+References: <20241005045411.118720-1-danielyangkang@gmail.com>
+ <CANn89iKk8TOvzD4cAanACtD0-x2pciEoSJbk9mF97wxNzxmUCg@mail.gmail.com>
+ <CAGiJo8RCXp8MqTPcPY4vyQAJCMhOStSApZzA5RcTq5BJgzXoeQ@mail.gmail.com>
+Content-Language: en-US
 From: "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <CAGiJo8RCXp8MqTPcPY4vyQAJCMhOStSApZzA5RcTq5BJgzXoeQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Eric report a panic on IPPROTO_SMC, and give the facts
-that when INET_PROTOSW_ICSK was set, icsk->icsk_sync_mss must be set too.
 
-Bug: Unable to handle kernel NULL pointer dereference at virtual address
-0000000000000000
-Mem abort info:
-ESR = 0x0000000086000005
-EC = 0x21: IABT (current EL), IL = 32 bits
-SET = 0, FnV = 0
-EA = 0, S1PTW = 0
-FSC = 0x05: level 1 translation fault
-user pgtable: 4k pages, 48-bit VAs, pgdp=00000001195d1000
-[0000000000000000] pgd=0800000109c46003, p4d=0800000109c46003,
-pud=0000000000000000
-Internal error: Oops: 0000000086000005 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 1 UID: 0 PID: 8037 Comm: syz.3.265 Not tainted
-6.11.0-rc7-syzkaller-g5f5673607153 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine,
-BIOS Google 08/06/2024
-pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : 0x0
-lr : cipso_v4_sock_setattr+0x2a8/0x3c0 net/ipv4/cipso_ipv4.c:1910
-sp : ffff80009b887a90
-x29: ffff80009b887aa0 x28: ffff80008db94050 x27: 0000000000000000
-x26: 1fffe0001aa6f5b3 x25: dfff800000000000 x24: ffff0000db75da00
-x23: 0000000000000000 x22: ffff0000d8b78518 x21: 0000000000000000
-x20: ffff0000d537ad80 x19: ffff0000d8b78000 x18: 1fffe000366d79ee
-x17: ffff8000800614a8 x16: ffff800080569b84 x15: 0000000000000001
-x14: 000000008b336894 x13: 00000000cd96feaa x12: 0000000000000003
-x11: 0000000000040000 x10: 00000000000020a3 x9 : 1fffe0001b16f0f1
-x8 : 0000000000000000 x7 : 0000000000000000 x6 : 000000000000003f
-x5 : 0000000000000040 x4 : 0000000000000001 x3 : 0000000000000000
-x2 : 0000000000000002 x1 : 0000000000000000 x0 : ffff0000d8b78000
-Call trace:
-0x0
-netlbl_sock_setattr+0x2e4/0x338 net/netlabel/netlabel_kapi.c:1000
-smack_netlbl_add+0xa4/0x154 security/smack/smack_lsm.c:2593
-smack_socket_post_create+0xa8/0x14c security/smack/smack_lsm.c:2973
-security_socket_post_create+0x94/0xd4 security/security.c:4425
-__sock_create+0x4c8/0x884 net/socket.c:1587
-sock_create net/socket.c:1622 [inline]
-__sys_socket_create net/socket.c:1659 [inline]
-__sys_socket+0x134/0x340 net/socket.c:1706
-__do_sys_socket net/socket.c:1720 [inline]
-__se_sys_socket net/socket.c:1718 [inline]
-__arm64_sys_socket+0x7c/0x94 net/socket.c:1718
-__invoke_syscall arch/arm64/kernel/syscall.c:35 [inline]
-invoke_syscall+0x98/0x2b8 arch/arm64/kernel/syscall.c:49
-el0_svc_common+0x130/0x23c arch/arm64/kernel/syscall.c:132
-do_el0_svc+0x48/0x58 arch/arm64/kernel/syscall.c:151
-el0_svc+0x54/0x168 arch/arm64/kernel/entry-common.c:712
-el0t_64_sync_handler+0x84/0xfc arch/arm64/kernel/entry-common.c:730
-el0t_64_sync+0x190/0x194 arch/arm64/kernel/entry.S:598
-Code: ???????? ???????? ???????? ???????? (????????)
----[ end trace 0000000000000000 ]---
 
-This patch add a toy implementation that performs a simple return to
-prevent such panic. This is because MSS can be set in sock_create_kern
-or smc_setsockopt, similar to how it's done in AF_SMC. However, for
-AF_SMC, there is currently no way to synchronize MSS within
-__sys_connect_file. This toy implementation lays the groundwork for us
-to support such feature for IPPROTO_SMC in the future.
+On 10/7/24 2:54 PM, Daniel Yang wrote:
+> On Sat, Oct 5, 2024 at 12:25 AM Eric Dumazet <edumazet@google.com> wrote:
+>>
+>> On Sat, Oct 5, 2024 at 6:54 AM Daniel Yang <danielyangkang@gmail.com> wrote:
+>>>
+>>> Fixes deadlock described in this bug:
+>>> https://syzkaller.appspot.com/bug?extid=e953a8f3071f5c0a28fd.
+>>> Specific crash report here:
+>>> https://syzkaller.appspot.com/text?tag=CrashReport&x=14670e07980000.
+>>>
+>>> This bug is a false positive lockdep warning since gtp and smc use
+>>> completely different socket protocols.
+>>>
+>>> Lockdep thinks that lock_sock() in smc will deadlock with gtp's
+>>> lock_sock() acquisition. Adding a function that initializes lockdep
+>>> labels for smc socks resolved the false positives in lockdep upon
+>>> testing. Since smc uses AF_SMC and SOCKSTREAM, two labels are created to
+>>> distinguish between proper smc socks and non smc socks incorrectly
+>>> input into the function.
+>>>
+>>> Signed-off-by: Daniel Yang <danielyangkang@gmail.com>
+>>> Reported-by: syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
+>>> ---
+>>> v1->v2: Add lockdep annotations instead of changing locking order
+>>>   net/smc/af_smc.c | 21 +++++++++++++++++++++
+>>>   1 file changed, 21 insertions(+)
+>>>
+>>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>>> index 0316217b7..4de70bfd5 100644
+>>> --- a/net/smc/af_smc.c
+>>> +++ b/net/smc/af_smc.c
+>>> @@ -16,6 +16,8 @@
+>>>    *              based on prototype from Frank Blaschka
+>>>    */
+>>>
+>>> +#include "linux/lockdep_types.h"
+>>> +#include "linux/socket.h"
+>>>   #define KMSG_COMPONENT "smc"
+>>>   #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+>>>
+>>> @@ -2755,6 +2757,24 @@ int smc_getname(struct socket *sock, struct sockaddr *addr,
+>>>          return smc->clcsock->ops->getname(smc->clcsock, addr, peer);
+>>>   }
+>>>
+>>> +static struct lock_class_key smc_slock_key[2];
+>>> +static struct lock_class_key smc_key[2];
+>>> +
+>>> +static inline void smc_sock_lock_init(struct sock *sk)
+>>> +{
+>>> +       bool is_smc = (sk->sk_family == AF_SMC) && sk_is_tcp(sk);
+>>> +
+>>> +       sock_lock_init_class_and_name(sk,
+>>> +                                     is_smc ?
+>>> +                                     "smc_lock-AF_SMC_SOCKSTREAM" :
+>>> +                                     "smc_lock-INVALID",
+>>> +                                     &smc_slock_key[is_smc],
+>>> +                                     is_smc ?
+>>> +                                     "smc_sk_lock-AF_SMC_SOCKSTREAM" :
+>>> +                                     "smc_sk_lock-INVALID",
+>>> +                                     &smc_key[is_smc]);
+>>> +}
+>>> +
+>>>   int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+>>>   {
+>>>          struct sock *sk = sock->sk;
+>>> @@ -2762,6 +2782,7 @@ int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+>>>          int rc;
+>>>
+>>>          smc = smc_sk(sk);
+>>> +       smc_sock_lock_init(sk);
+>>>          lock_sock(sk);
+>>>
+>>>          /* SMC does not support connect with fastopen */
+>>> --
+>>> 2.39.2
+>>>
+>>
+>> sock_lock_init_class_and_name() is not meant to be repeatedly called,
+>> from sendmsg()
+>>
+>> Find a way to do this once, perhaps in smc_create_clcsk(), but I will
+>> let SMC experts chime in.
+> 
+> So I tried putting the lockdep annotations in smc_create_clcsk() as
+> well as smc_sock_alloc() and they both fail to remove the false
+> positive but putting the annotations in smc_sendmsg() gets rid of
+> them. I put some print statements in the functions to see the
+> addresses of the socks.
+> 
+> [   78.121827][ T8326] smc: smc_create_clcsk clcsk_addr: ffffc90007f0fd20
+> [   78.122436][ T8326] smc: sendmsg sk_addr: ffffc90007f0fa88
+> [   78.126907][ T8326] smc: __smc_create input_param clcsock: 0000000000000000
+> [   78.134395][ T8326] smc: smc_sock_alloc sk_addr: ffffc90007f0fd70
+> [   78.136679][ T8326] smc: smc_create_clcsk clcsk_clcsk: ffffc90007f0fd70
+> 
+> It appears that none of the smc allocation methods are called, so
+> where else exactly could the sock used in sendmsg be created?
 
-Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
-Reported-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- net/smc/smc_inet.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
 
-diff --git a/net/smc/smc_inet.c b/net/smc/smc_inet.c
-index a5b20416..a944e7d 100644
---- a/net/smc/smc_inet.c
-+++ b/net/smc/smc_inet.c
-@@ -108,12 +108,23 @@ struct smc6_sock {
- };
- #endif /* CONFIG_IPV6 */
- 
-+static unsigned int smc_sync_mss(struct sock *sk, u32 pmtu)
-+{
-+	/* No need pass it through to clcsock, mss can always be set by
-+	 * sock_create_kern or smc_setsockopt.
-+	 */
-+	return 0;
-+}
+I think the problem you described can be solved through
+https://lore.kernel.org/netdev/20240912000446.1025844-1-xiyou.wangcong@gmail.com/, but Cong Wang 
+seems to have given up on following up at the moment. If you are interested, you can try take on 
+this problem.
+
+
+Additionally, if you want to make sock_lock_init_class_and_name as a solution, the correct approach 
+might be (But I do not recommend doing so. I still hope to maintain consistency between IPPROTO_SMC 
+and other inet implementations as much as possible.)
+
+
++static struct lock_class_key smc_slock_keys[2];
++static struct lock_class_key smc_keys[2];
 +
- static int smc_inet_init_sock(struct sock *sk)
- {
- 	struct net *net = sock_net(sk);
- 
- 	/* init common smc sock */
- 	smc_sk_init(net, sk, IPPROTO_SMC);
+  static int smc_inet_init_sock(struct sock *sk)
+  {
+         struct net *net = sock_net(sk);
++       int rc;
+
+         /* init common smc sock */
+         smc_sk_init(net, sk, IPPROTO_SMC);
+         /* create clcsock */
+-       return smc_create_clcsk(net, sk, sk->sk_family);
++       rc = smc_create_clcsk(net, sk, sk->sk_family);
++       if (rc)
++               return rc;
 +
-+	inet_csk(sk)->icsk_sync_mss = smc_sync_mss;
++       switch (sk->sk_family) {
++       case AF_INET:
++               sock_lock_init_class_and_name(sk, "slock-AF_INET-SMC",
++                                             &smc_slock_keys[0],
++                                             "sk_lock-AF_INET-SMC",
++                                             &smc_keys[0]);
++               break;
++       case AF_INET6:
++               sock_lock_init_class_and_name(sk, "slock-AF_INET6-SMC",
++                                             &smc_slock_keys[1],
++                                             "sk_lock-AF_INET6-SMC",
++                                             &smc_keys[1]);
++               break;
++       default:
++               WARN_ON_ONCE(1);
++       }
 +
- 	/* create clcsock */
- 	return smc_create_clcsk(net, sk, sk->sk_family);
- }
--- 
-1.8.3.1
++       return 0;
+  }
+
 
