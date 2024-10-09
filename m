@@ -1,95 +1,117 @@
-Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBF991E480
-	for <linux-s390@vger.kernel.org>; Wed,  9 Oct 2024 13:08:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBC4B198E83;
+	Wed,  9 Oct 2024 13:43:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728479292; cv=none; b=JsVRjdV3VzM27OVudzRdNxu3MNwTh/Lkdqe6AA4KuZnzLAq3ljtzXEsuKZI9KQiAgprJvR39sSHu+a5Ri/LhkzTsGduyGTadbgr6tLowkGlpL6jd/NhZX59m72Sx1IccxtsFCOqeuiYLZlDkh+FmJKQG+sUTslGa/bsSM2sfzag=
+	t=1728481400; cv=none; b=bflVi1I3sXQCRA9J5Xuq69/UhCSewrqT9j6/CyNmHx0GeU6I/Nye0lLX2v+orOhWjU6Ot2cmI8guJ56szBJ09gaHpmzczqIKH18d4yzIJWlu5BbDDRt4SO9sTiWGdd1QT2Fi2SOti4Px6B7xZ8psw0p5zlVGbBuDE0qSHu1izCQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728479292; c=relaxed/simple;
-	bh=vCQMT4/OGh33l5VSSGRJ9d7C/T789iko1vgWGYbPl3c=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Bx4I2vuAsmNYeTLVobVQMZ7g5e82COagxSVC4ZxkrEicx6IfNbkcgi/A8YC5BkGly3hcc+q5TIJYthOZ59PbGUqg12rf07Ade3JpLz5RpIEHzLqh4Z+Di9OMFJLLiAEVnrYW2wvAtMwXgXh/MjrCVNC0toevEjWP45vyN3sB7cM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=i6Ev8wWy; arc=none smtp.client-ip=209.85.208.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="i6Ev8wWy"
-Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-5c40aea5c40so1730453a12.0
-        for <linux-s390@vger.kernel.org>; Wed, 09 Oct 2024 06:08:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1728479289; x=1729084089; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vCQMT4/OGh33l5VSSGRJ9d7C/T789iko1vgWGYbPl3c=;
-        b=i6Ev8wWyrJJ0Yl0c1tbvd5CmJHJjJWPTrfBJb1pGNFjIepCCc7/a8hDS7cnDANcLP4
-         HfExdkHtbZOImNku/VdHtl70314hhzYL/2FOeiUswb/7LNWofZ0Zes7g3YGn6CkvGKwo
-         auzUAv6CswEdvouXHjR+60F7cUH06Rri5UWzKLJKu8IrzhtQFRB3WVWueJt666buz9Bm
-         t/paGayUYqTD6Uxc9Zvl7dEOKqxa94w2UxrKno7377DrMNYdEL0QK1gBSXIiDMZ6bGED
-         48fq921UWwAcnDG9+8u7WjgfKj+Hcn1GKAwE4CyGlkyAr7sdUVNzjAPkC73xm30zCYou
-         i9BA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728479289; x=1729084089;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vCQMT4/OGh33l5VSSGRJ9d7C/T789iko1vgWGYbPl3c=;
-        b=J3iOSCp/P+O1QsBVqDC1T1Ko57t/rDWELzHqOnRad25PAFUm2yWf2D4ZrX31Fxbcpf
-         mMDovVqYijjIKRs5OBNL1oasy6DxRSxbc5R6Sr6lyL11khBdfK6QE/w6gyWSv+lE5a0E
-         37M0Ud601IWNTkV/gK3r39uHrfBx5XvFzC5Pd9TBPmDVZ3bwyTPvXAJBrWuZ4xp4zraP
-         wpMe/RQq1y/Deaau4HFVL4OWT/iS7ebrG7tc6GyN0O816kyMdsYG425QBR30YGvnb15B
-         ZdVEUjz7xevTXYhhzW53luHa7czAz+7zZz0NBrXR3Ffpt6BSNzMlEItQaKHwmCW6ZSo0
-         J57Q==
-X-Forwarded-Encrypted: i=1; AJvYcCX4wbWJ+eXA5ZtluaGoi5bMSD3cbdy6mNA9W+AahLVoh8Wast3KAtQEKYlm0gk4uTpQ/A0gOqYO9cPg@vger.kernel.org
-X-Gm-Message-State: AOJu0YySRxJixqAAO02bGqo8tzsvm4VO614lJi4eqpBr5l1ekNnIK4p7
-	AH0GRRL0F123mSjEuZ5KusVGVH26dfbY8+AyJXJA50EFZXclfALfp++LMppBqBYZPyZ8pSZMieN
-	kZFh7dFxCOgGQOAwfDu/uH173QhseOn4xyIS7
-X-Google-Smtp-Source: AGHT+IFwK3xKFaDSSCvmmCWjZJRLZHvuDOCWYPKnAPbZzhaE0XDUbBsW+cRSZvarCC5CcONpOhTI9Gbt8lX1yJczGgs=
-X-Received: by 2002:a05:6402:26cd:b0:5c5:c444:4e3a with SMTP id
- 4fb4d7f45d1cf-5c91ce41ba7mr2845945a12.0.1728479288868; Wed, 09 Oct 2024
- 06:08:08 -0700 (PDT)
+	s=arc-20240116; t=1728481400; c=relaxed/simple;
+	bh=S/oj15sxPWHK5m6VWGXl6leJe6peXcKr2JHoaMiRrOQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=a8O9ERMIM20wqlEFlzpeiIfFxDLaOz9UQBhhnHxHjs/DpO1IYseE4NBu+Lg0iBOTy9tYjG4z6P6WcnaY0TJ5sDcTN9LIAYi2jQVG6SO5Lm+WCcS0hS+JWOOZts9NesHAZAcT3+0f88tuIzc1z0WCinDrvwAFMX4h0av4TFaQgZM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C62A7C4CECD;
+	Wed,  9 Oct 2024 13:43:16 +0000 (UTC)
+Date: Wed, 9 Oct 2024 09:43:21 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, "linux-arch@vger.kernel.org"
+ <linux-arch@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, Mathieu
+ Desnoyers <mathieu.desnoyers@efficios.com>, Mark Rutland
+ <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will
+ Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
+ <kernel@xen0n.name>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin
+ <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen
+ N Rao <naveen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, Paul
+  Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas 
+ Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, Borislav 
+ Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>
+Subject: Re: [PATCH v2 2/2] ftrace: Consolidate ftrace_regs accessor
+ functions for archs using pt_regs
+Message-ID: <20241009094321.3f41f8a4@gandalf.local.home>
+In-Reply-To: <20241009134723.6b9eabfdc3cfee10f3757d85@kernel.org>
+References: <20241008230527.674939311@goodmis.org>
+	<20241008230629.118325673@goodmis.org>
+	<20241009134723.6b9eabfdc3cfee10f3757d85@kernel.org>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <1728456916-67035-1-git-send-email-alibuda@linux.alibaba.com>
-In-Reply-To: <1728456916-67035-1-git-send-email-alibuda@linux.alibaba.com>
-From: Eric Dumazet <edumazet@google.com>
-Date: Wed, 9 Oct 2024 15:07:54 +0200
-Message-ID: <CANn89iLHwsKVQo_aVwVQAt3fpZ2E3SL3eM2-v+RacwbOdUqePg@mail.gmail.com>
-Subject: Re: [PATCH net] net/smc: fix lacks of icsk_syn_mss with IPPROTO_SMC
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com, 
-	wintera@linux.ibm.com, guwen@linux.alibaba.com, kuba@kernel.org, 
-	davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, tonylu@linux.alibaba.com, pabeni@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Oct 9, 2024 at 8:55=E2=80=AFAM D. Wythe <alibuda@linux.alibaba.com>=
- wrote:
->
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
->
-> Eric report a panic on IPPROTO_SMC, and give the facts
-> that when INET_PROTOSW_ICSK was set, icsk->icsk_sync_mss must be set too.
->
->
+On Wed, 9 Oct 2024 13:47:23 +0900
+Masami Hiramatsu (Google) <mhiramat@kernel.org> wrote:
 
-> This patch add a toy implementation that performs a simple return to
-> prevent such panic. This is because MSS can be set in sock_create_kern
-> or smc_setsockopt, similar to how it's done in AF_SMC. However, for
-> AF_SMC, there is currently no way to synchronize MSS within
-> __sys_connect_file. This toy implementation lays the groundwork for us
-> to support such feature for IPPROTO_SMC in the future.
->
-> Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
-> Reported-by: Eric Dumazet <edumazet@google.com>
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
+> > --- /dev/null
+> > +++ b/include/linux/ftrace_regs.h
+> > @@ -0,0 +1,36 @@
+> > +/* SPDX-License-Identifier: GPL-2.0 */
+> > +#ifndef _LINUX_FTRACE_TYPES_H
+> > +#define _LINUX_FTRACE_TYPES_H  
+>                ^^^^^^^^^^^^^^^^  Is this _LINUX_FTRACE_REGS_H?
 
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Ah, I originally called it ftrace_types.h, but later decided that name
+didn't really fit. I changed all references to it but this one.
+
+Thanks for catching this.
+
+> 
+> 
+> > +
+> > +/*
+> > + * For archs that just copy pt_regs in ftrace regs, it can use this default.
+> > + * If an architecture does not use pt_regs, it must define all the below
+> > + * accessor functions.
+> > + */
+> > +#ifndef HAVE_ARCH_FTRACE_REGS
+> > +struct __arch_ftrace_regs {
+> > +	struct pt_regs		regs;
+> > +};
+> > +
+> > +#define arch_ftrace_regs(fregs) ((struct __arch_ftrace_regs *)(fregs))
+> > +
+> > +struct ftrace_regs;
+> > +
+> > +#define ftrace_regs_get_instruction_pointer(fregs) \
+> > +	instruction_pointer(arch_ftrace_get_regs(fregs))
+> > +#define ftrace_regs_get_argument(fregs, n) \
+> > +	regs_get_kernel_argument(arch_ftrace_get_regs(fregs), n)
+> > +#define ftrace_regs_get_stack_pointer(fregs) \
+> > +	kernel_stack_pointer(arch_ftrace_get_regs(fregs))
+> > +#define ftrace_regs_return_value(fregs) \
+> > +	regs_return_value(arch_ftrace_get_regs(fregs))
+> > +#define ftrace_regs_set_return_value(fregs, ret) \
+> > +	regs_set_return_value(arch_ftrace_get_regs(fregs), ret)
+> > +#define ftrace_override_function_with_return(fregs) \
+> > +	override_function_with_return(arch_ftrace_get_regs(fregs))
+> > +#define ftrace_regs_query_register_offset(name) \
+> > +	regs_query_register_offset(name)
+> > +
+> > +#endif /* HAVE_ARCH_FTRACE_REGS */
+> > +
+> > +#endif /* _LINUX_FTRACE_TYPES_H */  
+> 
+> Ditto.
+> 
+> Others looks good to me.
+> 
+> Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+
+Thanks,
+
+I'll send a v2 with this update.
+
+-- Steve
