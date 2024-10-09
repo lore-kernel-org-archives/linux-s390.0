@@ -1,111 +1,182 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9211D199EBB;
-	Wed,  9 Oct 2024 14:58:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E287199FB4;
+	Wed,  9 Oct 2024 15:31:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728485910; cv=none; b=EWe6hwMq26Zp71uX4iJZffj+qe7D8dTqUzk8Esf4APS6Xz3aPN/kKLwRF2WrNdqyORmHxHXuVQ8Ekehy2CI0d63nhUAurGALjTI5EH6UY+iOuWkTpnNRJXeQ7ZLN9ET4GcinfCh0nGEuJL4fJL+lV567EFM8K98HQQKVHBsJplg=
+	t=1728487873; cv=none; b=Fisl0RbntehJvCOc22bs8oFKTKVeCNj9NGE1zOeNTGm0HbCrNTpywRYu+DkOh7kn4vsQjs1uYhJJ6VEmab1PMZZMdujacjLdAF2ApK6wGoxqrwXwgQK1dedRMEg0aeApwvM4NCnsXi2ywP/veAlRZMjyCQ/Rd4dwAsSkIewZkVY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728485910; c=relaxed/simple;
-	bh=OV32K35d8RvpVIJxAJa46zA4HVN0mb1PBXvzp9+rAOI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gDzo2FRHOMDQeh26smjBgiW0OezwnzWmvQWRv3+TcHG4VCgUphgyXxT2wlByLAJG2Toev1zbhM+uDnxdKRC7KHS6dUI0lsV1nG8rtSJSR5D8XVzEQzTBT+7IAJrhcyPZ4LHfZvm2QiXieG6oozMw610Eg2uLFsb15mRjsNh3ICY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jppxMLMs; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jppxMLMs"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 499EnGiI021336;
-	Wed, 9 Oct 2024 14:58:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=F
-	SE4vFzVYiMPUHEUKQOrO489/5NR9PGPMJ27xStbNgI=; b=jppxMLMsXn9EmodLA
-	Dm6nHlxc3leotF9zm4hrq+dzdcgFx0ek4enMCQr7lCmoQf5dEHAUXhsX3bx9S/J4
-	Vj0sda3y40jlRqzrQdxBzrZgoOdqTH9Imi6RfmRz74xvg9K+ZjwY/t5AUTvli2nX
-	Fe7Kf+4e/PV7yyZWLXGcygy+CRcI3vPoXTaaXBP++Nd/kdSwAknhdKuBSYr3DuAr
-	qaZ6hMPEHE1V+91/qAeQO9Rf0cENF+sxGGkrvXtkMI23uZg0hr05E1dvJD1OizOx
-	ABArG7LKY4Z6kgLRbBXlnGltTvNCw5f5Gxo4BtbhUXmEfdI5UYakPHhLcdPib9xU
-	W2XYQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 425uxa01ae-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Oct 2024 14:58:18 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 499EtBiW003852;
-	Wed, 9 Oct 2024 14:58:18 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 425uxa018y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Oct 2024 14:58:17 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 499C245e011524;
-	Wed, 9 Oct 2024 14:58:00 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 423g5xtakq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Oct 2024 14:58:00 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 499Evx3A44040694
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 9 Oct 2024 14:57:59 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7617D58059;
-	Wed,  9 Oct 2024 14:57:59 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 535C05805B;
-	Wed,  9 Oct 2024 14:57:57 +0000 (GMT)
-Received: from [9.179.10.188] (unknown [9.179.10.188])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  9 Oct 2024 14:57:57 +0000 (GMT)
-Message-ID: <95e11684-9aa6-4999-98cc-cac874d37a8f@linux.ibm.com>
-Date: Wed, 9 Oct 2024 16:57:56 +0200
+	s=arc-20240116; t=1728487873; c=relaxed/simple;
+	bh=o17P+55KsrlNUzByYpVtjAhlHKstGPAq6g6HHrOJ/f4=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=f3yX3PBXfVtn/mx0w1eUNRVUhryECoR7ulD3tV70BkgF1KByBqJ90HgfK+aSPaFqOfrradGVOxjuesRgCgD1uiq89k8KhFTTMs5dcuj8ssfoNmCo6tahvXp7tkeH87QLyMYyQrEyb5EZH93wXHRCDyd9g57Efu2Yg1VSnjqhbS8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35537C4CEC3;
+	Wed,  9 Oct 2024 15:31:09 +0000 (UTC)
+Date: Wed, 9 Oct 2024 11:31:14 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, "linux-arch@vger.kernel.org"
+ <linux-arch@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, Mark Rutland <mark.rutland@arm.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao
+ <naveen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, Paul 
+ Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas 
+ Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, Borislav 
+ Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>
+Subject: Re: [PATCH v2 2/2] ftrace: Consolidate ftrace_regs accessor
+ functions for archs using pt_regs
+Message-ID: <20241009113114.1da0d84d@gandalf.local.home>
+In-Reply-To: <20241008230629.118325673@goodmis.org>
+References: <20241008230527.674939311@goodmis.org>
+	<20241008230629.118325673@goodmis.org>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next] net/smc: Address spelling errors
-To: Simon Horman <horms@kernel.org>, "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Jan Karcher <jaka@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-References: <20241009-smc-starspell-v1-1-b8b395bbaf82@kernel.org>
-Content-Language: en-US
-From: Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <20241009-smc-starspell-v1-1-b8b395bbaf82@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ezQjHbu0GvavekIkxk3Ck4tr5cGks2fz
-X-Proofpoint-ORIG-GUID: 5GzgBpspE-jm09xylcVg8Gva1Nb8jho3
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-09_14,2024-10-09_02,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- priorityscore=1501 clxscore=1011 lowpriorityscore=0 mlxlogscore=759
- spamscore=0 mlxscore=0 suspectscore=0 malwarescore=0 phishscore=0
- bulkscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2409260000 definitions=main-2410090093
 
 
 
-On 09.10.24 12:05, Simon Horman wrote:
-> Address spelling errors flagged by codespell.
+Loongarch maintainers, please note the below comments!
+
+
+On Tue, 08 Oct 2024 19:05:29 -0400
+Steven Rostedt <rostedt@goodmis.org> wrote:
+
+
+> diff --git a/arch/arm64/include/asm/ftrace.h b/arch/arm64/include/asm/ftrace.h
+> index bbb69c7751b9..5ccff4de7f09 100644
+> --- a/arch/arm64/include/asm/ftrace.h
+> +++ b/arch/arm64/include/asm/ftrace.h
+> @@ -54,6 +54,7 @@ extern void return_to_handler(void);
+>  unsigned long ftrace_call_adjust(unsigned long addr);
+>  
+>  #ifdef CONFIG_DYNAMIC_FTRACE_WITH_ARGS
+> +#define HAVE_ARCH_FTRACE_REGS
+>  struct dyn_ftrace;
+>  struct ftrace_ops;
+>  struct ftrace_regs;
+> diff --git a/arch/loongarch/include/asm/ftrace.h b/arch/loongarch/include/asm/ftrace.h
+> index 0e15d36ce251..8f13eaeaa325 100644
+> --- a/arch/loongarch/include/asm/ftrace.h
+> +++ b/arch/loongarch/include/asm/ftrace.h
+> @@ -43,43 +43,20 @@ void prepare_ftrace_return(unsigned long self_addr, unsigned long *parent);
+>  
+>  #ifdef CONFIG_HAVE_DYNAMIC_FTRACE_WITH_ARGS
+>  struct ftrace_ops;
+> -struct ftrace_regs;
+> -#define arch_ftrace_regs(fregs) ((struct __arch_ftrace_regs *)(fregs))
+>  
+> -struct __arch_ftrace_regs {
+> -	struct pt_regs regs;
+> -};
+> +#include <linux/ftrace_regs.h>
+>  
+>  static __always_inline struct pt_regs *arch_ftrace_get_regs(struct ftrace_regs *fregs)
+>  {
+>  	return &arch_ftrace_regs(fregs)->regs;
+>  }
+
+The above function is incorrect. I know I just added the comment about how
+it is to work below, but if pt_regs is not fully filled, then
+arch_ftrace_get_regs() must return NULL.
+
+This is because if a callback is registered with ftrace, and forgets to add
+the FTRACE_OPS_FL_SAVE_REGS flag, then when it does:
+
+	regs = ftrace_get_regs(fregs);
+
+it should get NULL and not a partially filled pt_regs set. Because the API
+is that ftrace_get_regs() will return either a full pt_regs (where the
+caller can know that it has all the correct registers) or NULL where it
+does not have any registers.
+
+It's an all or nothing approach.
+
+You can see x86 has:
+
+static __always_inline struct pt_regs *
+arch_ftrace_get_regs(struct ftrace_regs *fregs)
+{
+	/* Only when FL_SAVE_REGS is set, cs will be non zero */
+	if (!arch_ftrace_regs(fregs)->regs.cs)
+		return NULL;
+	return &arch_ftrace_regs(fregs)->regs;
+}
+
+Where it checks if regs.cs is set to determine if it has all the regs or
+not.
+
+Please do something similar for your architecture.
+
+>  
+> -static __always_inline unsigned long
+> -ftrace_regs_get_instruction_pointer(struct ftrace_regs *fregs)
+> -{
+> -	return instruction_pointer(&arch_ftrace_regs(fregs)->regs);
+> -}
+> -
+>  static __always_inline void
+>  ftrace_regs_set_instruction_pointer(struct ftrace_regs *fregs, unsigned long ip)
+>  {
+>  	instruction_pointer_set(&arch_ftrace_regs(fregs)->regs, ip);
+>  }
+>  
 > 
-> This patch is intended to cover all files under drivers/smc
-> 
-> Signed-off-by: Simon Horman <horms@kernel.org>
-> ---
 
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
 
-Thanks,
-Wenjia
+> diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
+> index f7d4f152f84d..c96f9b0eb86e 100644
+> --- a/include/linux/ftrace.h
+> +++ b/include/linux/ftrace.h
+> @@ -113,6 +113,8 @@ static inline int ftrace_mod_get_kallsym(unsigned int symnum, unsigned long *val
+>  
+>  #ifdef CONFIG_FUNCTION_TRACER
+>  
+> +#include <linux/ftrace_regs.h>
+> +
+>  extern int ftrace_enabled;
+>  
+>  /**
+> @@ -150,14 +152,11 @@ struct ftrace_regs {
+>  #define ftrace_regs_size()	sizeof(struct __arch_ftrace_regs)
+>  
+>  #ifndef CONFIG_HAVE_DYNAMIC_FTRACE_WITH_ARGS
+> -
+> -struct __arch_ftrace_regs {
+> -	struct pt_regs		regs;
+> -};
+> -
+> -struct ftrace_regs;
+> -#define arch_ftrace_regs(fregs) ((struct __arch_ftrace_regs *)(fregs))
+> -
+> +/*
+> + * Architectures that define HAVE_DYNAMIC_FTRACE_WITH_ARGS must define their own
+> + * arch_ftrace_get_regs() where it only returns pt_regs *if* it is fully
+> + * populated. It should return NULL otherwise.
+> + */
+
+I'm adding the above comment to help other architectures know of this requirement.
+
+>  static inline struct pt_regs *arch_ftrace_get_regs(struct ftrace_regs *fregs)
+>  {
+>  	return &arch_ftrace_regs(fregs)->regs;
+
+
+-- Steve
