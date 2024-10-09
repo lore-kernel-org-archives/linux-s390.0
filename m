@@ -1,117 +1,78 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBC4B198E83;
-	Wed,  9 Oct 2024 13:43:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C17B0199FAD;
+	Wed,  9 Oct 2024 14:06:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728481400; cv=none; b=bflVi1I3sXQCRA9J5Xuq69/UhCSewrqT9j6/CyNmHx0GeU6I/Nye0lLX2v+orOhWjU6Ot2cmI8guJ56szBJ09gaHpmzczqIKH18d4yzIJWlu5BbDDRt4SO9sTiWGdd1QT2Fi2SOti4Px6B7xZ8psw0p5zlVGbBuDE0qSHu1izCQ=
+	t=1728482795; cv=none; b=f+bV24BbafB7Z64SbD5ROXoY9g/kSa9JerCM+e/OE8XaE5CqyXHxL+UxbUrU/dV/FCaVeCtc9csBRyCK4k0y1ccwh2jt82JpOYxrXtiTtY7S4wgF3mfG2tsm//SiGMbCS4EqfRsuTYfrwmtX3rD1WAtSRtSI+kR335kJxuesqxI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728481400; c=relaxed/simple;
-	bh=S/oj15sxPWHK5m6VWGXl6leJe6peXcKr2JHoaMiRrOQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=a8O9ERMIM20wqlEFlzpeiIfFxDLaOz9UQBhhnHxHjs/DpO1IYseE4NBu+Lg0iBOTy9tYjG4z6P6WcnaY0TJ5sDcTN9LIAYi2jQVG6SO5Lm+WCcS0hS+JWOOZts9NesHAZAcT3+0f88tuIzc1z0WCinDrvwAFMX4h0av4TFaQgZM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C62A7C4CECD;
-	Wed,  9 Oct 2024 13:43:16 +0000 (UTC)
-Date: Wed, 9 Oct 2024 09:43:21 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, "linux-arch@vger.kernel.org"
- <linux-arch@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, Mathieu
- Desnoyers <mathieu.desnoyers@efficios.com>, Mark Rutland
- <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will
- Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
- <kernel@xen0n.name>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin
- <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen
- N Rao <naveen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, Paul
-  Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas 
- Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, Borislav 
- Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>
-Subject: Re: [PATCH v2 2/2] ftrace: Consolidate ftrace_regs accessor
- functions for archs using pt_regs
-Message-ID: <20241009094321.3f41f8a4@gandalf.local.home>
-In-Reply-To: <20241009134723.6b9eabfdc3cfee10f3757d85@kernel.org>
-References: <20241008230527.674939311@goodmis.org>
-	<20241008230629.118325673@goodmis.org>
-	<20241009134723.6b9eabfdc3cfee10f3757d85@kernel.org>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1728482795; c=relaxed/simple;
+	bh=64h8af/u+44riv89TdZ9plDkPX2tmcm4LKFGvyXjzqc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=XLa7pt9M7ZDk+rtTu0jfYdmNR+O0xETtG8ycOqxYtSnRXC5s9YMeOvSbZ+aVZFB2RPAjFnw7aBpe8zOu0zclAudZK6sWhsW/AVINS+4R75TyI6RLofPEt0xdrRqmtm8ppqwHrhdq3BJmqXSoBcGcBtBxCRJ9NN6zhdtski1hQXU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ZMRnf1Ql; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ZMRnf1Ql"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+	:Reply-To:Content-ID:Content-Description;
+	bh=O82NaCwclJ0qjBoh2UASSw3aUHeepsmvNIQtsk4ya8k=; b=ZMRnf1QlHcGl0SFhWvdpCa8V2f
+	KQAEyAqn+jxn7F2/p7MhfKQytADH4c6eK9i6bWY+eFDtIYa/NjemYJ4dzFLfccMbQn3OIzBGigPKb
+	GEGXAjEvRAXU/SXrUqEsh9rVxfZxHhklqlliiP4iZMqu5e73X9wU825KnsuxetnH0kpa3LChmzLUk
+	dJW0nx59LYpvp2zyGWL5RX8loXjHciSNtpNHa97NT6phH9iunjtbYKUlfSzrsmZMho/DS0zTSzVtq
+	KURfSP0A/n33AGTXbN9DosId6/ipScdW50M3NO5OSs35hXOxmdl//E2cizP/UqAlss6ZbOk1jVouw
+	k12ub4ww==;
+Received: from [50.53.2.24] (helo=[192.168.254.17])
+	by casper.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
+	id 1syXKZ-00000004zjr-3bBP;
+	Wed, 09 Oct 2024 14:06:24 +0000
+Message-ID: <871b41dc-512c-4910-a00a-5b8311c2c3ab@infradead.org>
+Date: Wed, 9 Oct 2024 07:06:18 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next] net/smc: Address spelling errors
+To: Simon Horman <horms@kernel.org>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Wenjia Zhang <wenjia@linux.ibm.com>,
+ Jan Karcher <jaka@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>
+Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org
+References: <20241009-smc-starspell-v1-1-b8b395bbaf82@kernel.org>
+Content-Language: en-US
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20241009-smc-starspell-v1-1-b8b395bbaf82@kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On Wed, 9 Oct 2024 13:47:23 +0900
-Masami Hiramatsu (Google) <mhiramat@kernel.org> wrote:
 
-> > --- /dev/null
-> > +++ b/include/linux/ftrace_regs.h
-> > @@ -0,0 +1,36 @@
-> > +/* SPDX-License-Identifier: GPL-2.0 */
-> > +#ifndef _LINUX_FTRACE_TYPES_H
-> > +#define _LINUX_FTRACE_TYPES_H  
->                ^^^^^^^^^^^^^^^^  Is this _LINUX_FTRACE_REGS_H?
 
-Ah, I originally called it ftrace_types.h, but later decided that name
-didn't really fit. I changed all references to it but this one.
-
-Thanks for catching this.
-
+On 10/9/24 3:05 AM, Simon Horman wrote:
+> Address spelling errors flagged by codespell.
 > 
+> This patch is intended to cover all files under drivers/smc
 > 
-> > +
-> > +/*
-> > + * For archs that just copy pt_regs in ftrace regs, it can use this default.
-> > + * If an architecture does not use pt_regs, it must define all the below
-> > + * accessor functions.
-> > + */
-> > +#ifndef HAVE_ARCH_FTRACE_REGS
-> > +struct __arch_ftrace_regs {
-> > +	struct pt_regs		regs;
-> > +};
-> > +
-> > +#define arch_ftrace_regs(fregs) ((struct __arch_ftrace_regs *)(fregs))
-> > +
-> > +struct ftrace_regs;
-> > +
-> > +#define ftrace_regs_get_instruction_pointer(fregs) \
-> > +	instruction_pointer(arch_ftrace_get_regs(fregs))
-> > +#define ftrace_regs_get_argument(fregs, n) \
-> > +	regs_get_kernel_argument(arch_ftrace_get_regs(fregs), n)
-> > +#define ftrace_regs_get_stack_pointer(fregs) \
-> > +	kernel_stack_pointer(arch_ftrace_get_regs(fregs))
-> > +#define ftrace_regs_return_value(fregs) \
-> > +	regs_return_value(arch_ftrace_get_regs(fregs))
-> > +#define ftrace_regs_set_return_value(fregs, ret) \
-> > +	regs_set_return_value(arch_ftrace_get_regs(fregs), ret)
-> > +#define ftrace_override_function_with_return(fregs) \
-> > +	override_function_with_return(arch_ftrace_get_regs(fregs))
-> > +#define ftrace_regs_query_register_offset(name) \
-> > +	regs_query_register_offset(name)
-> > +
-> > +#endif /* HAVE_ARCH_FTRACE_REGS */
-> > +
-> > +#endif /* _LINUX_FTRACE_TYPES_H */  
+> Signed-off-by: Simon Horman <horms@kernel.org>
+> ---
+>  net/smc/smc.h      | 2 +-
+>  net/smc/smc_clc.h  | 2 +-
+>  net/smc/smc_core.c | 2 +-
+>  net/smc/smc_core.h | 4 ++--
+>  4 files changed, 5 insertions(+), 5 deletions(-)
 > 
-> Ditto.
-> 
-> Others looks good to me.
-> 
-> Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-Thanks,
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
 
-I'll send a v2 with this update.
+Thanks.
+ 
 
--- Steve
+-- 
+~Randy
