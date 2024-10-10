@@ -1,95 +1,154 @@
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8D111C2DD5;
-	Thu, 10 Oct 2024 12:18:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52B961C57AC
+	for <linux-s390@vger.kernel.org>; Thu, 10 Oct 2024 12:31:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728562684; cv=none; b=EYHub44X9XrTUkdRRlFUmUYou4cGZim+fQfhF68BRtbzDsRq+i/ORmJzFY0bJeN++u3hoFyiieOfvMS9SC48R+1clpREZkXvBTdNawI2cpFVwEx2+Bv6I2ahCWJcjM2E361VFRq2ty5IJKNY0V6IJD8UWG6TNcYUu9G5L1fcCSQ=
+	t=1728563499; cv=none; b=s3+KEblRs+OI219rv6flHL+raKnO0N3wQYCfyUwMYefeoll4MMavG8vSr1nHLIrvkARdvoWZXYS7NGVuB/jxG9F2H1bS6rrBnmGN9M32T+SRrtAvOb7iBxKJfAtW0FhA9X4H4X+/cuSI+K2qNGm+mHciQXfgEBTQ6wQdvh/7BGw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728562684; c=relaxed/simple;
-	bh=BSLkpupPmbeeazmrVZJIeAn8XkcdnLm+q8pU1MdPBt8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RQe7NK0F5LAgAGsHjT+USBWFpoRkHTuEvz3kqrsuIGSqhfd+qKmwZPTQf9PLlsNYFRblbakC6P0nLAgfTPmKSSPzEMWlxp0ivz1+Yzw5NqOTA94BVWC2nSxhHKMxF8+lgxPAJb/qYKhhSmQ161x2s2F9PRyQi1GYuAWmzWJ4DKk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=mlR14Sw3; arc=none smtp.client-ip=115.124.30.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1728563499; c=relaxed/simple;
+	bh=L4ooXiCT1u8VDy2NKMaHzqDIECfnj5QbZHivTQRFVXs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GRuhFVTC27OLdvpbPHHCBpHw9K4H27x8CjgEFi6bkJHBJooXltNeMMy6mVxiRTNb0Sc5PH0DMllSuQDscO1hS0lKKYJ6r0uYs8TGtyKmqnSnMjkkvfpOLYVUq1seQn6LJgHisaFJnx/PL7C3K+gBEh8Rr7FOUMprnqIoXCtJfkA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MF3e5h+7; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="mlR14Sw3"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1728562677; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=Ancs41G/Yo8Fu4D+eEqUSzpEahc9fplNPE1QT5yaBMA=;
-	b=mlR14Sw36jFRNSSkQ1vKNqgWAszxRa/XrNAiALb/hLyRUr6LtAEneLWY0YYP9LrpAAT/8cZVIbmqKIsi82H5IOMZZKd5+HFe+VwpHhrIysZI+FPOVdpvJm0brInT2IPu/2RInAT/F05G0PJQ0C9klTJ+Ts545+syHi/v1xKRPl4=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WGmON1P_1728562676 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 10 Oct 2024 20:17:57 +0800
-Date: Thu, 10 Oct 2024 20:17:56 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Kai Shen <KaiShen@linux.alibaba.com>, kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com, jaka@linux.ibm.com, guwen@linux.alibaba.com,
-	kuba@kernel.org
-Cc: davem@davemloft.net, tonylu@linux.alibaba.com, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: Fix memory leak when using percpu refs
-Message-ID: <20241010121756.GF14069@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20241010115624.7769-1-KaiShen@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MF3e5h+7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1728563497;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=yMLaQ5QkFa8Mr6Qfl8g21moI0yjtVUAR75K3syFBELE=;
+	b=MF3e5h+7os6qB5ocWa6PRheRru23rAtKZCuzN/09kN7bpWu5h+whWBlYEEhpwaAM8DFEKe
+	qgqRBlguJYApaHB6phMRyJVurW2IFA7dmYbfRslJAv4HccbsVq2Ho/Ge6tnpRcAa3chrnS
+	1j6yc8H2T14vfpMH9nx5fbTbCIrfp9Q=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-621-17EanwMRPrKd05hcMJzqmA-1; Thu, 10 Oct 2024 08:31:36 -0400
+X-MC-Unique: 17EanwMRPrKd05hcMJzqmA-1
+Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-53996a1e52bso898007e87.0
+        for <linux-s390@vger.kernel.org>; Thu, 10 Oct 2024 05:31:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1728563495; x=1729168295;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=yMLaQ5QkFa8Mr6Qfl8g21moI0yjtVUAR75K3syFBELE=;
+        b=lZ0DVn11meSk6M4PpY4p+5TsD3dX6TzCHAxZ/k+YcGRKF4ZyJ63aTqJcwfzfPqNsuE
+         8IsfXWYY4ozw7dR0AsUavI1gEftbkqT3+kS+IQD11y72naJo38o23irBqKneDZp7OE78
+         yMKduzpof2yt+GeUgYAyV9TlSipFZaV7Tn2X5pEjDDlrQczcVP9eUPgCN89Our2YhM9X
+         m2wZM2ladT852OB5w2gkfSUAp7fbEdK7UYFF6j+RaKl0yrCPs5a6TipqzMIrbz4+Zt0c
+         Rtc4hFePCueFfyf+g3BjW35QQqVeiXyps5OaMui9/5pXI8wRg1UT2gvyxiapwQVAf8J3
+         LOmg==
+X-Forwarded-Encrypted: i=1; AJvYcCVDdqfSLKm968ZU0SnDKbNc3PPf+sGjJhsBU08NzExpRbFjx2pECVfnRCEUCIYuww/o/Svw5J6t+wMh@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx0Jz/QL/Ht29CGL8hAPdxgGgOxGwZJzltKJ1bYENNzyaXUAr4Y
+	LkKJFvEQPnTnGNoq4AqYSkwVl0V3RwvT7uZbNldRJxj2OWsc2GYWASk1T7aF9lTsjeEOnQo7I2u
+	8tEIL/mKssHy/gZa8MYE+6hNU1GWIkPabIunwtz9XH/MN7WHCToGTUlHg5Hw=
+X-Received: by 2002:a05:6512:224a:b0:52f:154:661b with SMTP id 2adb3069b0e04-539c488d6b3mr3544282e87.11.1728563494627;
+        Thu, 10 Oct 2024 05:31:34 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHnHr4Irxyr+RYVKlyujdagWkzSUYqYfjeKA3ExmFU3+AVt6K1LdKHp/baluH2R3E5i7h5IRg==
+X-Received: by 2002:a05:6512:224a:b0:52f:154:661b with SMTP id 2adb3069b0e04-539c488d6b3mr3544262e87.11.1728563494163;
+        Thu, 10 Oct 2024 05:31:34 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c742:9200:eb2e:74f9:6f5c:3040? (p200300cbc7429200eb2e74f96f5c3040.dip0.t-ipconnect.de. [2003:cb:c742:9200:eb2e:74f9:6f5c:3040])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-430d748dd50sm47931965e9.47.2024.10.10.05.31.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 10 Oct 2024 05:31:33 -0700 (PDT)
+Message-ID: <e0e13b95-bc9a-4f4b-a721-379676725525@redhat.com>
+Date: Thu, 10 Oct 2024 14:31:31 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241010115624.7769-1-KaiShen@linux.alibaba.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 0/5] virtio-mem: s390x support
+To: Mario Casquero <mcasquer@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+ Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
+References: <20240910191541.2179655-1-david@redhat.com>
+ <CAMXpfWvRy_fpNUXeVO_-0O9WXDYY8f+cBEQQvsqZD2g2043LaA@mail.gmail.com>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
+ ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZgEEwEIAEICGwMGCwkIBwMCBhUIAgkKCwQW
+ AgMBAh4BAheAAhkBFiEEG9nKrXNcTDpGDfzKTd4Q9wD/g1oFAl8Ox4kFCRKpKXgACgkQTd4Q
+ 9wD/g1oHcA//a6Tj7SBNjFNM1iNhWUo1lxAja0lpSodSnB2g4FCZ4R61SBR4l/psBL73xktp
+ rDHrx4aSpwkRP6Epu6mLvhlfjmkRG4OynJ5HG1gfv7RJJfnUdUM1z5kdS8JBrOhMJS2c/gPf
+ wv1TGRq2XdMPnfY2o0CxRqpcLkx4vBODvJGl2mQyJF/gPepdDfcT8/PY9BJ7FL6Hrq1gnAo4
+ 3Iv9qV0JiT2wmZciNyYQhmA1V6dyTRiQ4YAc31zOo2IM+xisPzeSHgw3ONY/XhYvfZ9r7W1l
+ pNQdc2G+o4Di9NPFHQQhDw3YTRR1opJaTlRDzxYxzU6ZnUUBghxt9cwUWTpfCktkMZiPSDGd
+ KgQBjnweV2jw9UOTxjb4LXqDjmSNkjDdQUOU69jGMUXgihvo4zhYcMX8F5gWdRtMR7DzW/YE
+ BgVcyxNkMIXoY1aYj6npHYiNQesQlqjU6azjbH70/SXKM5tNRplgW8TNprMDuntdvV9wNkFs
+ 9TyM02V5aWxFfI42+aivc4KEw69SE9KXwC7FSf5wXzuTot97N9Phj/Z3+jx443jo2NR34XgF
+ 89cct7wJMjOF7bBefo0fPPZQuIma0Zym71cP61OP/i11ahNye6HGKfxGCOcs5wW9kRQEk8P9
+ M/k2wt3mt/fCQnuP/mWutNPt95w9wSsUyATLmtNrwccz63XOwU0EVcufkQEQAOfX3n0g0fZz
+ Bgm/S2zF/kxQKCEKP8ID+Vz8sy2GpDvveBq4H2Y34XWsT1zLJdvqPI4af4ZSMxuerWjXbVWb
+ T6d4odQIG0fKx4F8NccDqbgHeZRNajXeeJ3R7gAzvWvQNLz4piHrO/B4tf8svmRBL0ZB5P5A
+ 2uhdwLU3NZuK22zpNn4is87BPWF8HhY0L5fafgDMOqnf4guJVJPYNPhUFzXUbPqOKOkL8ojk
+ CXxkOFHAbjstSK5Ca3fKquY3rdX3DNo+EL7FvAiw1mUtS+5GeYE+RMnDCsVFm/C7kY8c2d0G
+ NWkB9pJM5+mnIoFNxy7YBcldYATVeOHoY4LyaUWNnAvFYWp08dHWfZo9WCiJMuTfgtH9tc75
+ 7QanMVdPt6fDK8UUXIBLQ2TWr/sQKE9xtFuEmoQGlE1l6bGaDnnMLcYu+Asp3kDT0w4zYGsx
+ 5r6XQVRH4+5N6eHZiaeYtFOujp5n+pjBaQK7wUUjDilPQ5QMzIuCL4YjVoylWiBNknvQWBXS
+ lQCWmavOT9sttGQXdPCC5ynI+1ymZC1ORZKANLnRAb0NH/UCzcsstw2TAkFnMEbo9Zu9w7Kv
+ AxBQXWeXhJI9XQssfrf4Gusdqx8nPEpfOqCtbbwJMATbHyqLt7/oz/5deGuwxgb65pWIzufa
+ N7eop7uh+6bezi+rugUI+w6DABEBAAHCwXwEGAEIACYCGwwWIQQb2cqtc1xMOkYN/MpN3hD3
+ AP+DWgUCXw7HsgUJEqkpoQAKCRBN3hD3AP+DWrrpD/4qS3dyVRxDcDHIlmguXjC1Q5tZTwNB
+ boaBTPHSy/Nksu0eY7x6HfQJ3xajVH32Ms6t1trDQmPx2iP5+7iDsb7OKAb5eOS8h+BEBDeq
+ 3ecsQDv0fFJOA9ag5O3LLNk+3x3q7e0uo06XMaY7UHS341ozXUUI7wC7iKfoUTv03iO9El5f
+ XpNMx/YrIMduZ2+nd9Di7o5+KIwlb2mAB9sTNHdMrXesX8eBL6T9b+MZJk+mZuPxKNVfEQMQ
+ a5SxUEADIPQTPNvBewdeI80yeOCrN+Zzwy/Mrx9EPeu59Y5vSJOx/z6OUImD/GhX7Xvkt3kq
+ Er5KTrJz3++B6SH9pum9PuoE/k+nntJkNMmQpR4MCBaV/J9gIOPGodDKnjdng+mXliF3Ptu6
+ 3oxc2RCyGzTlxyMwuc2U5Q7KtUNTdDe8T0uE+9b8BLMVQDDfJjqY0VVqSUwImzTDLX9S4g/8
+ kC4HRcclk8hpyhY2jKGluZO0awwTIMgVEzmTyBphDg/Gx7dZU1Xf8HFuE+UZ5UDHDTnwgv7E
+ th6RC9+WrhDNspZ9fJjKWRbveQgUFCpe1sa77LAw+XFrKmBHXp9ZVIe90RMe2tRL06BGiRZr
+ jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <CAMXpfWvRy_fpNUXeVO_-0O9WXDYY8f+cBEQQvsqZD2g2043LaA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On 2024-10-10 11:56:24, Kai Shen wrote:
->This patch adds missing percpu_ref_exit when releasing percpu refs.
->When releasing percpu refs, percpu_ref_exit should be called.
->Otherwise, memory leak happens.
->
->Fixes: 79a22238b4f2 ("net/smc: Use percpu ref for wr tx reference")
->Signed-off-by: Kai Shen <KaiShen@linux.alibaba.com>
-
-Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-
-
->---
-> net/smc/smc_wr.c | 6 +++++-
-> 1 file changed, 5 insertions(+), 1 deletion(-)
->
->diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
->index 0021065a600a..994c0cd4fddb 100644
->--- a/net/smc/smc_wr.c
->+++ b/net/smc/smc_wr.c
->@@ -648,8 +648,10 @@ void smc_wr_free_link(struct smc_link *lnk)
-> 	smc_wr_tx_wait_no_pending_sends(lnk);
-> 	percpu_ref_kill(&lnk->wr_reg_refs);
-> 	wait_for_completion(&lnk->reg_ref_comp);
->+	percpu_ref_exit(&lnk->wr_reg_refs);
-> 	percpu_ref_kill(&lnk->wr_tx_refs);
-> 	wait_for_completion(&lnk->tx_ref_comp);
->+	percpu_ref_exit(&lnk->wr_tx_refs);
+On 10.10.24 10:41, Mario Casquero wrote:
+> This series has been successfully tested along with the QEMU's series.
+> Virtio-mem devices could be resized, plugged and unplugged seamlessly.
+> The memory information displayed is correct and reboot doesn't cause
+> any issue.
 > 
-> 	if (lnk->wr_rx_dma_addr) {
-> 		ib_dma_unmap_single(ibdev, lnk->wr_rx_dma_addr,
->@@ -912,11 +914,13 @@ int smc_wr_create_link(struct smc_link *lnk)
-> 	init_waitqueue_head(&lnk->wr_reg_wait);
-> 	rc = percpu_ref_init(&lnk->wr_reg_refs, smcr_wr_reg_refs_free, 0, GFP_KERNEL);
-> 	if (rc)
->-		goto dma_unmap;
->+		goto cancel_ref;
-> 	init_completion(&lnk->reg_ref_comp);
-> 	init_waitqueue_head(&lnk->wr_rx_empty_wait);
-> 	return rc;
-> 
->+cancel_ref:
->+	percpu_ref_exit(&lnk->wr_tx_refs);
-> dma_unmap:
-> 	if (lnk->wr_rx_v2_dma_addr) {
-> 		ib_dma_unmap_single(ibdev, lnk->wr_rx_v2_dma_addr,
->-- 
->2.31.1
->
+> Tested-by: Mario Casquero <mcasquer@redhat.com>
+
+Thanks a bunch for testing!
+
+If there are no more comments, I'll add the in-tree kernel update for 
+the new diag500 subcall and resend.
+
+-- 
+Cheers,
+
+David / dhildenb
+
