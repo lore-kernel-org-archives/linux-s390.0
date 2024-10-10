@@ -1,135 +1,91 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 760D618C03D;
-	Thu, 10 Oct 2024 10:08:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A49301BE23D;
+	Thu, 10 Oct 2024 11:56:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728554937; cv=none; b=SfGireK6rBpsxwcrtIOBLi2w1OZWvN1I8advoZlp88M33BqYmgAFGC/pRXxeWR3X6arqqVLKtkdiKjUaNn2019h1MBwICXngzwOzf1tX9prurmyqPmbvHnPeu+AAIcKHip9c749Yd0f99TqITftVdyFnidMXZyN2cevshF1Amp8=
+	t=1728561398; cv=none; b=sIpNuzJWZ0T9TpinfB9+8K/+necOcepiFDj0u90qZx9lRpxzq7JypdPwOK3lWbYaNU2HOaonItpDeaSubYcGVu/VBPfdQgwLSII0XQMKKg/pAZd/zEIaQyunb2cAvk065IltJ5O6kWEUb2k7epsvvZAvPaSYImEM2bsDRLSE14s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728554937; c=relaxed/simple;
-	bh=qf7nU/89BlzHddkiR5Ah6NYm8BRaW0Dkwo9DPkOtPw8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=oKz/DM4LNV2lY0r0Fg8W6o3vZrdiuuOX/SnyyxhcUfgq1U9cTeADaEc1qNaGoJnM1txlSI4Vsc4ERXbVmSbahKirE3AoT2Sz9/mTYGvrN2tFN0jpDucEZFU4/6/hF6NmQxrK8zE9Mw1tZbvNms24vyi1lxJO5vd0QWXLxRUiDKw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BanpF6HT; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1728561398; c=relaxed/simple;
+	bh=g0mJrkgOFjF/EPZobqRoNNKRxR2msN1zVVeJiADVljQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Z3idkvMpObDVYcubX9MFLymdvsemEu8ugCSt5c9eJcBQkWMjilu4M0uq4GgJ8SqOg0edEDxLA2xP8loQtFi+QQWRvRXNuk7gKFEd4TUtgpIg1ECAGBQW4OAb5s78ViTS46WQLH3DoFnNcF3YYLAMiOFjF5GUS6IQfzsOijKxvNo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=fOrvlRz5; arc=none smtp.client-ip=115.124.30.113
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BanpF6HT"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49A3opwW009445;
-	Thu, 10 Oct 2024 10:08:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-type:content-transfer-encoding; s=pp1; bh=
-	aL//amxx9YdMMLbbRrJYlGUmmzOy3nusublparPcj28=; b=BanpF6HTCG9dbVeu
-	2dyS4pmAUwK9OFYDowEYBFPq9NQy89KoecZ9geHIvu6jU3+Z8Q/vZdcZ9RPr5+It
-	7x83jYv/7rp9r+1tFDtHtW19o/dYrzF16Y1mbUBsJynsB6wpUonWdmSi81McSy6u
-	wkYCpeHGhqcxxahQZ3zSLuXH1sJMKQigiAy7i7LI9dh0wZJoqXPB+xj/1fkabWtv
-	2wVaFhYuX6k0CjV7nHRVP6bU5YVuYSlxktJWRKLK0xpmS0EWTt8bIsj/tG2+DirE
-	pDBtLqd+bBdeRHyfCHITAAfK7TUaQWUbHPI2VLnJ99w8tdAbiFTKGOAbHWU7vm5e
-	4WCiBQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4267cmsray-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 10 Oct 2024 10:08:55 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49AA8suU023460;
-	Thu, 10 Oct 2024 10:08:54 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4267cmsrau-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 10 Oct 2024 10:08:54 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49A7M3CU022861;
-	Thu, 10 Oct 2024 10:08:54 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 423jg16tnk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 10 Oct 2024 10:08:54 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49AA8oUA26608174
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 10 Oct 2024 10:08:50 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7280A20079;
-	Thu, 10 Oct 2024 10:08:50 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 13A3520078;
-	Thu, 10 Oct 2024 10:08:50 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.171.66.107])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Thu, 10 Oct 2024 10:08:49 +0000 (GMT)
-Date: Thu, 10 Oct 2024 12:07:29 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Nico Boehr <nrb@linux.ibm.com>
-Cc: frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v4 1/2] s390x: edat: move LC_SIZE to
- arch_def.h
-Message-ID: <20241010120729.74417d7a@p-imbrenda>
-In-Reply-To: <20241010071228.565038-2-nrb@linux.ibm.com>
-References: <20241010071228.565038-1-nrb@linux.ibm.com>
-	<20241010071228.565038-2-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="fOrvlRz5"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1728561385; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=IE9WTErSsarSbJYkwpClIloeKGivinfPYDinjLv3SYM=;
+	b=fOrvlRz5bqYygNDMeLEOVsq2ykJPfcGSJJUGBjnGnxAXRsDhL748AtJaWP4hSkLBIGz9WgNy08EVIU2ORRF+E+p+Xd0OjV0If48nh5ioQAOQF35mKKqAVt3GbNhZJ6SJSjwg0R185VOoUUZpJH8E6vHm4i6BZ1Ko2nuecL3Lq3o=
+Received: from localhost(mailfrom:KaiShen@linux.alibaba.com fp:SMTPD_---0WGmFPL-_1728561384 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 10 Oct 2024 19:56:25 +0800
+From: Kai Shen <KaiShen@linux.alibaba.com>
+To: kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	guwen@linux.alibaba.com,
+	kuba@kernel.org
+Cc: davem@davemloft.net,
+	tonylu@linux.alibaba.com,
+	netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org
+Subject: [PATCH net] net/smc: Fix memory leak when using percpu refs
+Date: Thu, 10 Oct 2024 11:56:24 +0000
+Message-Id: <20241010115624.7769-1-KaiShen@linux.alibaba.com>
+X-Mailer: git-send-email 2.31.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: QrklSppjDOa8axqHyeByuKcZTde49OXz
-X-Proofpoint-GUID: cOMhPNVn8eVEnlvnyEUbZc7sMcnJdEmG
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-10_07,2024-10-09_02,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
- lowpriorityscore=0 malwarescore=0 adultscore=0 priorityscore=1501
- phishscore=0 mlxlogscore=999 mlxscore=0 spamscore=0 suspectscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410100065
+Content-Transfer-Encoding: 8bit
 
-On Thu, 10 Oct 2024 09:11:51 +0200
-Nico Boehr <nrb@linux.ibm.com> wrote:
+This patch adds missing percpu_ref_exit when releasing percpu refs.
+When releasing percpu refs, percpu_ref_exit should be called.
+Otherwise, memory leak happens.
 
-> struct lowcore is defined in arch_def.h and LC_SIZE is useful to other
-> tests as well, therefore move it to arch_def.h.
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Fixes: 79a22238b4f2 ("net/smc: Use percpu ref for wr tx reference")
+Signed-off-by: Kai Shen <KaiShen@linux.alibaba.com>
+---
+ net/smc/smc_wr.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-> ---
->  lib/s390x/asm/arch_def.h | 1 +
->  s390x/edat.c             | 1 -
->  2 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index 745a33878de5..5574a45156a9 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -119,6 +119,7 @@ enum address_space {
->  
->  #define CTL2_GUARDED_STORAGE		(63 - 59)
->  
-> +#define LC_SIZE	(2 * PAGE_SIZE)
->  struct lowcore {
->  	uint8_t		pad_0x0000[0x0080 - 0x0000];	/* 0x0000 */
->  	uint32_t	ext_int_param;			/* 0x0080 */
-> diff --git a/s390x/edat.c b/s390x/edat.c
-> index 16138397017c..e664b09d9633 100644
-> --- a/s390x/edat.c
-> +++ b/s390x/edat.c
-> @@ -17,7 +17,6 @@
->  
->  #define PGD_PAGE_SHIFT (REGION1_SHIFT - PAGE_SHIFT)
->  
-> -#define LC_SIZE	(2 * PAGE_SIZE)
->  #define VIRT(x)	((void *)((unsigned long)(x) + (unsigned long)mem))
->  
->  static uint8_t prefix_buf[LC_SIZE] __attribute__((aligned(LC_SIZE)));
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index 0021065a600a..994c0cd4fddb 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -648,8 +648,10 @@ void smc_wr_free_link(struct smc_link *lnk)
+ 	smc_wr_tx_wait_no_pending_sends(lnk);
+ 	percpu_ref_kill(&lnk->wr_reg_refs);
+ 	wait_for_completion(&lnk->reg_ref_comp);
++	percpu_ref_exit(&lnk->wr_reg_refs);
+ 	percpu_ref_kill(&lnk->wr_tx_refs);
+ 	wait_for_completion(&lnk->tx_ref_comp);
++	percpu_ref_exit(&lnk->wr_tx_refs);
+ 
+ 	if (lnk->wr_rx_dma_addr) {
+ 		ib_dma_unmap_single(ibdev, lnk->wr_rx_dma_addr,
+@@ -912,11 +914,13 @@ int smc_wr_create_link(struct smc_link *lnk)
+ 	init_waitqueue_head(&lnk->wr_reg_wait);
+ 	rc = percpu_ref_init(&lnk->wr_reg_refs, smcr_wr_reg_refs_free, 0, GFP_KERNEL);
+ 	if (rc)
+-		goto dma_unmap;
++		goto cancel_ref;
+ 	init_completion(&lnk->reg_ref_comp);
+ 	init_waitqueue_head(&lnk->wr_rx_empty_wait);
+ 	return rc;
+ 
++cancel_ref:
++	percpu_ref_exit(&lnk->wr_tx_refs);
+ dma_unmap:
+ 	if (lnk->wr_rx_v2_dma_addr) {
+ 		ib_dma_unmap_single(ibdev, lnk->wr_rx_v2_dma_addr,
+-- 
+2.31.1
 
