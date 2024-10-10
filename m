@@ -1,46 +1,47 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7C0A1C8FD7;
-	Thu, 10 Oct 2024 07:02:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD2851B86E9;
+	Thu, 10 Oct 2024 07:02:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728543744; cv=none; b=ASBQh//hxu1yIGdwhr6vFm3cQUXJ/S+SdRdvfVlRo4fQMOuu1M/+h7bcfv41Xi+vvQH3fC59Q/aqM92L4H4vPG5lrqAHpA6tRNmf1MHf1ANawIBFXLEUlu7rA3NIUNoArULeCU7Cc5WDrp4Y2YGU60AJJ2oCivNazMozK7ogdrU=
+	t=1728543745; cv=none; b=jSXnoHotCf0sD6CGF5QAorbljaPEgWhm8PZFviDjFYKEbNBolkbCcezF+BR2qTNYsUqmJxXe9EGT9P8QvMiCG3rdBhpAH4XdATrx9bt2HSnLn5ITgVURWP7OyLGQ1d9YMUWQu3/6YJ4d5fGEbh6IGDxuy1UttvAV/9gAv40ezBg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728543744; c=relaxed/simple;
-	bh=ZZQboHnvnM/bbbcRKZGn1rcNop+vkySTie1MKJiNcgA=;
+	s=arc-20240116; t=1728543745; c=relaxed/simple;
+	bh=u6pUdextyUUiD6HDgNJaE0gAH3sutanC7wWTXNvnTJ0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=bkswejTdnvO9gfqBd69HyzH7rzwxv1sPstUIMUDr+ZjrSO07UuHM9SUtbHrLGw369udsbj0GP34fLmbhuVDBBUsUefELlQffWAmZwlHE1ZwGFAzLVIlzVvEO8F1Y+nck/m8ibmF7alAFS6lII7Q5PJhEnBMozHEBk/cNWWnjrVQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Ik1XdEaE; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=hCd3Bhj5; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=B397FywDOcCevaiq6cdxMnDOSVPWJyLVBdNf1kmMLv86zbCO9BrkyGRwzKv1UrSkqUSW4i0D+elHxMucaT0NZNw+t8oasO6AeOY57IaK0roA7w4koYWe8e5TzNummHT1EuzG2JO62asn6zLpA5m89y75HYFItHWfzAjWfU6XKOU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=fWbAj6SK; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=ksIzw7DM; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Ik1XdEaE";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="hCd3Bhj5"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="fWbAj6SK";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="ksIzw7DM"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1728543735;
+	s=2020; t=1728543736;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ggRaDaX6ovjaR/pgmAGOq81HkwzXwku56vCBX7V7EuU=;
-	b=Ik1XdEaEs4H9sp4p5A8otWVE0rp2agkzUOfCOtDOMM2R1mnMowfHXVevZpm2i1mNCyOfDY
-	7FCEsHIhtCJlx4tT6vDTbfWtQyGDYJPqKX7LM12+5boNVT9/E+5PQLC1Fy+3Y7w72rzI9i
-	tdJBtEs2+6LGCLQGULLhc43obQenaRRNKckpS838mb79mmkzb9/T50FXAoCV06M1xUU9/3
-	u6x9wSj784mwHahOs0+ZDz9gIJ2kgY+XRbi++9WoUxO4s0vqQi+QJE2Rx4xWWL7/ao0nGv
-	X5mYo/sUyAfgXV7u3AlAEwWPhfHrDOD3U+Ib0v7j6zWgMp648uJcGJ3hp2csGg==
+	bh=J6B4IeG8b5QcjhSj/+p4Domwg1/4XtpjyB0sq6j0/Js=;
+	b=fWbAj6SKPmJMSqAA+na8CcrjolRy8rvILXwN2NxnjkEzIbVEB5CYlexodSUjhG/Q8Xm2+4
+	aLE//zeul/XMtt1d/zrVwqXDslhmJV0ztaBLNOayxJ+LdmdHQ4690B5+F97s172+Iih41f
+	+uTS+I4LcGjdJwpZy12nBkb5UCbzfTCNgfKfpGQf+PMIAP4ej0rtOXR9E2hy1n4SKanLu+
+	6uEDB7z7Lio87aSGfEdjEIQU4tKX1asAPwE0HVFgDX/K4EpWRItQrZjbCkwZ/8Jo8tviZt
+	q4ZTwa+cJsA1lehTHFk/Ip+YwuAZIFJWbZohxGDOi/x+Avxk9koRe8VT+942Kg==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1728543735;
+	s=2020e; t=1728543736;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ggRaDaX6ovjaR/pgmAGOq81HkwzXwku56vCBX7V7EuU=;
-	b=hCd3Bhj5uIQctZS0Z5iZSxNs9zFYXt9f6SMaLc73TXRx/J2cC4J+nnXuqu2WjTjc2DIliG
-	+qmHBFAXv/FVh6Cg==
-Date: Thu, 10 Oct 2024 09:01:28 +0200
-Subject: [PATCH 26/28] powerpc: Split systemcfg data out of vdso data page
+	bh=J6B4IeG8b5QcjhSj/+p4Domwg1/4XtpjyB0sq6j0/Js=;
+	b=ksIzw7DMfxsbzKHYfd2j/mNmq8rqLf2y/uNmpD/tzB9ukTW5uKJuQ2FAIinnIWUrCVEyO3
+	UBfqLVYPow0S08CQ==
+Date: Thu, 10 Oct 2024 09:01:30 +0200
+Subject: [PATCH 28/28] vdso: Rename struct arch_vdso_data to
+ arch_vdso_time_data
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,8 +49,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20241010-vdso-generic-base-v1-26-b64f0842d512@linutronix.de>
+Content-Transfer-Encoding: 7bit
+Message-Id: <20241010-vdso-generic-base-v1-28-b64f0842d512@linutronix.de>
 References: <20241010-vdso-generic-base-v1-0-b64f0842d512@linutronix.de>
 In-Reply-To: <20241010-vdso-generic-base-v1-0-b64f0842d512@linutronix.de>
 To: Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
@@ -78,279 +79,201 @@ Cc: Christophe Leroy <christophe.leroy@csgroup.eu>,
  linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
  linux-riscv@lists.infradead.org, loongarch@lists.linux.dev, 
  linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1728543717; l=9933;
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, 
+ Nam Cao <namcao@linutronix.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1728543717; l=7074;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=ZZQboHnvnM/bbbcRKZGn1rcNop+vkySTie1MKJiNcgA=;
- b=SFHp9Xid9TmBG1Yr5k86mnVbeTrQdZPHTL8n5V1Lqq+h7fZb5/X/Jza64YOf3xUnqKnp7NljO
- /HlIxt8QEIiDlxxAddTRxO/f21tO3heN26Zeb8mlAniD/hWk65+d/DE
+ bh=bmLr9bltMVHizIeVDqLzj2HqsQpWocRWT4+kR/T19ag=;
+ b=N3HFGRCOhFBmFayrQto6v2sWiZPZyyxCoZ6rc+97KQn8YQbzqhCmMvQaJzGUe9ZcpAV+Vk3+G
+ VNSUB6zxS7JBUKO30Jn44YK6Zc/Ft0AJW8nj8jbQNCMTG/nweeZhxMs
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-The systemcfg data only has minimal overlap with the vdso data.
-Splitting the two avoids mapping the implementation-defined vdso data
-into /proc/ppc64/systemcfg.
-It is also a preparation for the standardization of vdso data storage.
+From: Nam Cao <namcao@linutronix.de>
 
-The only field actually used by both systemcfg and vdso is
-tb_ticks_per_sec and it is only changed once during time_init().
-Initialize it in both structures there.
+The struct arch_vdso_data is only about vdso time data. So rename it to
+arch_vdso_time_data to make it obvious.
+Non time-related data will be migrated out of these structs soon.
 
-Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+Signed-off-by: Nam Cao <namcao@linutronix.de>
 ---
- arch/powerpc/include/asm/vdso_datapage.h     | 32 ++++++----------------------
- arch/powerpc/kernel/proc_powerpc.c           | 25 +++++++++++++++++++++-
- arch/powerpc/kernel/setup-common.c           |  4 +++-
- arch/powerpc/kernel/smp.c                    | 10 +++++----
- arch/powerpc/kernel/time.c                   |  3 +++
- arch/powerpc/kernel/vdso.c                   | 20 -----------------
- arch/powerpc/platforms/powernv/smp.c         |  4 +++-
- arch/powerpc/platforms/pseries/hotplug-cpu.c |  4 +++-
- 8 files changed, 48 insertions(+), 54 deletions(-)
+ arch/Kconfig                                        |  2 +-
+ arch/riscv/Kconfig                                  |  2 +-
+ arch/riscv/include/asm/vdso/{data.h => time_data.h} |  8 ++++----
+ arch/riscv/kernel/sys_hwprobe.c                     |  2 +-
+ arch/riscv/kernel/vdso/hwprobe.c                    |  4 ++--
+ arch/s390/Kconfig                                   |  2 +-
+ arch/s390/include/asm/vdso/data.h                   | 12 ------------
+ arch/s390/include/asm/vdso/time_data.h              | 12 ++++++++++++
+ include/vdso/datapage.h                             |  8 ++++----
+ 9 files changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/vdso_datapage.h b/arch/powerpc/include/asm/vdso_datapage.h
-index 3d5862d4c4e1618a27840d9136e890870e78a761..8b91b1d34ff639a0efb80b9cdd7274f785643153 100644
---- a/arch/powerpc/include/asm/vdso_datapage.h
-+++ b/arch/powerpc/include/asm/vdso_datapage.h
-@@ -10,21 +10,6 @@
-  */
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 8af374ea1adc245b3aa341314a1dcb51865d03d1..7f1ec327b587c90f02e63edea19ce65c56505b9b 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -1530,7 +1530,7 @@ config HAVE_SPARSE_SYSCALL_NR
+ 	  entries at 4000, 5000 and 6000 locations. This option turns on syscall
+ 	  related optimizations for a given architecture.
  
+-config ARCH_HAS_VDSO_DATA
++config ARCH_HAS_VDSO_TIME_DATA
+ 	bool
  
--/*
-- * Note about this structure:
-- *
-- * This structure was historically called systemcfg and exposed to
-- * userland via /proc/ppc64/systemcfg. Unfortunately, this became an
-- * ABI issue as some proprietary software started relying on being able
-- * to mmap() it, thus we have to keep the base layout at least for a
-- * few kernel versions.
-- *
-- * However, since ppc32 doesn't suffer from this backward handicap,
-- * a simpler version of the data structure is used there with only the
-- * fields actually used by the vDSO.
-- *
-- */
--
- /*
-  * If the major version changes we are incompatible.
-  * Minor version changes are a hint.
-@@ -40,13 +25,9 @@
+ config HAVE_STATIC_CALL
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 62545946ecf432df5b41e235ba66438cd3743c06..c278280c134f78d5a1f89199bdb85ad362aa5436 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -50,7 +50,7 @@ config RISCV
+ 	select ARCH_HAS_SYSCALL_WRAPPER
+ 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
+ 	select ARCH_HAS_UBSAN
+-	select ARCH_HAS_VDSO_DATA
++	select ARCH_HAS_VDSO_TIME_DATA
+ 	select ARCH_KEEP_MEMBLOCK if ACPI
+ 	select ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE	if 64BIT && MMU
+ 	select ARCH_OPTIONAL_KERNEL_RWX if ARCH_HAS_STRICT_KERNEL_RWX
+diff --git a/arch/riscv/include/asm/vdso/data.h b/arch/riscv/include/asm/vdso/time_data.h
+similarity index 71%
+rename from arch/riscv/include/asm/vdso/data.h
+rename to arch/riscv/include/asm/vdso/time_data.h
+index dc2f76f58b7632f0392af6aaf475076203f1a54a..dfa65228999bed41dfd6c5e36cb678e1e055eec8 100644
+--- a/arch/riscv/include/asm/vdso/data.h
++++ b/arch/riscv/include/asm/vdso/time_data.h
+@@ -1,12 +1,12 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef __RISCV_ASM_VDSO_DATA_H
+-#define __RISCV_ASM_VDSO_DATA_H
++#ifndef __RISCV_ASM_VDSO_TIME_DATA_H
++#define __RISCV_ASM_VDSO_TIME_DATA_H
  
- #define SYSCALL_MAP_SIZE      ((NR_syscalls + 31) / 32)
+ #include <linux/types.h>
+ #include <vdso/datapage.h>
+ #include <asm/hwprobe.h>
  
--/*
-- * So here is the ppc64 backward compatible version
-- */
--
- #ifdef CONFIG_PPC64
+-struct arch_vdso_data {
++struct arch_vdso_time_data {
+ 	/* Stash static answers to the hwprobe queries when all CPUs are selected. */
+ 	__u64 all_cpu_hwprobe_values[RISCV_HWPROBE_MAX_KEY + 1];
  
--struct vdso_arch_data {
-+struct systemcfg {
- 	__u8  eye_catcher[16];		/* Eyecatcher: SYSTEMCFG:PPC64	0x00 */
- 	struct {			/* Systemcfg version numbers	     */
- 		__u32 major;		/* Major number			0x10 */
-@@ -71,10 +52,12 @@ struct vdso_arch_data {
- 	__u32 dcache_line_size;		/* L1 d-cache line size		0x64 */
- 	__u32 icache_size;		/* L1 i-cache size		0x68 */
- 	__u32 icache_line_size;		/* L1 i-cache line size		0x6C */
-+};
- 
--	/* those additional ones don't have to be located anywhere
--	 * special as they were not part of the original systemcfg
--	 */
-+extern struct systemcfg *systemcfg;
-+
-+struct vdso_arch_data {
-+	__u64 tb_ticks_per_sec;			/* Timebase tics / sec */
- 	__u32 dcache_block_size;		/* L1 d-cache block size     */
- 	__u32 icache_block_size;		/* L1 i-cache block size     */
- 	__u32 dcache_log_block_size;		/* L1 d-cache log block size */
-@@ -88,9 +71,6 @@ struct vdso_arch_data {
- 
- #else /* CONFIG_PPC64 */
- 
--/*
-- * And here is the simpler 32 bits version
-- */
- struct vdso_arch_data {
- 	__u64 tb_ticks_per_sec;		/* Timebase tics / sec */
- 	__u32 syscall_map[SYSCALL_MAP_SIZE]; /* Map of syscalls */
-diff --git a/arch/powerpc/kernel/proc_powerpc.c b/arch/powerpc/kernel/proc_powerpc.c
-index 3bda365843e44357538651c6c24c11a41de2eb06..e8083e05a1d03f74d9f24bac99e3ab526368c8e2 100644
---- a/arch/powerpc/kernel/proc_powerpc.c
-+++ b/arch/powerpc/kernel/proc_powerpc.c
-@@ -4,6 +4,7 @@
-  */
- 
- #include <linux/init.h>
-+#include <linux/memblock.h>
- #include <linux/mm.h>
- #include <linux/proc_fs.h>
- #include <linux/kernel.h>
-@@ -44,13 +45,35 @@ static const struct proc_ops page_map_proc_ops = {
- 	.proc_mmap	= page_map_mmap,
+@@ -14,4 +14,4 @@ struct arch_vdso_data {
+ 	__u8 homogeneous_cpus;
  };
  
-+static union {
-+	struct systemcfg	data;
-+	u8			page[PAGE_SIZE];
-+} systemcfg_data_store __page_aligned_data;
-+struct systemcfg *systemcfg = &systemcfg_data_store.data;
- 
- static int __init proc_ppc64_init(void)
+-#endif /* __RISCV_ASM_VDSO_DATA_H */
++#endif /* __RISCV_ASM_VDSO_TIME_DATA_H */
+diff --git a/arch/riscv/kernel/sys_hwprobe.c b/arch/riscv/kernel/sys_hwprobe.c
+index cea0ca2bf2a25ecc671e31b141e84c6d1977da25..711a31f27c3d051476dd46afa51e6d33cd2fdffa 100644
+--- a/arch/riscv/kernel/sys_hwprobe.c
++++ b/arch/riscv/kernel/sys_hwprobe.c
+@@ -402,7 +402,7 @@ static int do_riscv_hwprobe(struct riscv_hwprobe __user *pairs,
+ static int __init init_hwprobe_vdso_data(void)
  {
- 	struct proc_dir_entry *pde;
- 
-+	strcpy((char *)systemcfg->eye_catcher, "SYSTEMCFG:PPC64");
-+	systemcfg->version.major = SYSTEMCFG_MAJOR;
-+	systemcfg->version.minor = SYSTEMCFG_MINOR;
-+	systemcfg->processor = mfspr(SPRN_PVR);
-+	/*
-+	 * Fake the old platform number for pSeries and add
-+	 * in LPAR bit if necessary
-+	 */
-+	systemcfg->platform = 0x100;
-+	if (firmware_has_feature(FW_FEATURE_LPAR))
-+		systemcfg->platform |= 1;
-+	systemcfg->physicalMemorySize = memblock_phys_mem_size();
-+	systemcfg->dcache_size = ppc64_caches.l1d.size;
-+	systemcfg->dcache_line_size = ppc64_caches.l1d.line_size;
-+	systemcfg->icache_size = ppc64_caches.l1i.size;
-+	systemcfg->icache_line_size = ppc64_caches.l1i.line_size;
+ 	struct vdso_data *vd = __arch_get_k_vdso_data();
+-	struct arch_vdso_data *avd = &vd->arch_data;
++	struct arch_vdso_time_data *avd = &vd->arch_data;
+ 	u64 id_bitsmash = 0;
+ 	struct riscv_hwprobe pair;
+ 	int key;
+diff --git a/arch/riscv/kernel/vdso/hwprobe.c b/arch/riscv/kernel/vdso/hwprobe.c
+index 1e926e4b5881b6b2c44ec8438870809539f773c5..a158c029344f60c022e7565757ff44df7e3d89e5 100644
+--- a/arch/riscv/kernel/vdso/hwprobe.c
++++ b/arch/riscv/kernel/vdso/hwprobe.c
+@@ -17,7 +17,7 @@ static int riscv_vdso_get_values(struct riscv_hwprobe *pairs, size_t pair_count,
+ 				 unsigned int flags)
+ {
+ 	const struct vdso_data *vd = __arch_get_vdso_data();
+-	const struct arch_vdso_data *avd = &vd->arch_data;
++	const struct arch_vdso_time_data *avd = &vd->arch_data;
+ 	bool all_cpus = !cpusetsize && !cpus;
+ 	struct riscv_hwprobe *p = pairs;
+ 	struct riscv_hwprobe *end = pairs + pair_count;
+@@ -52,7 +52,7 @@ static int riscv_vdso_get_cpus(struct riscv_hwprobe *pairs, size_t pair_count,
+ 			       unsigned int flags)
+ {
+ 	const struct vdso_data *vd = __arch_get_vdso_data();
+-	const struct arch_vdso_data *avd = &vd->arch_data;
++	const struct arch_vdso_time_data *avd = &vd->arch_data;
+ 	struct riscv_hwprobe *p = pairs;
+ 	struct riscv_hwprobe *end = pairs + pair_count;
+ 	unsigned char *c = (unsigned char *)cpus;
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index d339fe4fdedf881fd9224020381a1c7f62998d59..8cdd8359e00c3e383aaf5116f557203b59b065c3 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -88,7 +88,7 @@ config S390
+ 	select ARCH_HAS_STRICT_MODULE_RWX
+ 	select ARCH_HAS_SYSCALL_WRAPPER
+ 	select ARCH_HAS_UBSAN
+-	select ARCH_HAS_VDSO_DATA
++	select ARCH_HAS_VDSO_TIME_DATA
+ 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
+ 	select ARCH_INLINE_READ_LOCK
+ 	select ARCH_INLINE_READ_LOCK_BH
+diff --git a/arch/s390/include/asm/vdso/data.h b/arch/s390/include/asm/vdso/data.h
+deleted file mode 100644
+index 0e2b40ef69b049c5e79ab2e31811e1e6e6ef2475..0000000000000000000000000000000000000000
+--- a/arch/s390/include/asm/vdso/data.h
++++ /dev/null
+@@ -1,12 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef __S390_ASM_VDSO_DATA_H
+-#define __S390_ASM_VDSO_DATA_H
+-
+-#include <linux/types.h>
+-
+-struct arch_vdso_data {
+-	__s64 tod_steering_delta;
+-	__u64 tod_steering_end;
+-};
+-
+-#endif /* __S390_ASM_VDSO_DATA_H */
+diff --git a/arch/s390/include/asm/vdso/time_data.h b/arch/s390/include/asm/vdso/time_data.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..8a08752422e609d925c87ba5aafd1bbb6fef57e7
+--- /dev/null
++++ b/arch/s390/include/asm/vdso/time_data.h
+@@ -0,0 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __S390_ASM_VDSO_TIME_DATA_H
++#define __S390_ASM_VDSO_TIME_DATA_H
 +
- 	pde = proc_create_data("powerpc/systemcfg", S_IFREG | 0444, NULL,
--			       &page_map_proc_ops, vdso_data);
-+			       &page_map_proc_ops, systemcfg);
- 	if (!pde)
- 		return 1;
- 	proc_set_size(pde, PAGE_SIZE);
-diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
-index 943430077375a4e3c95f4ee9c8d38270081d557e..d0b32ff2bc8dedc5aa7afce17f07a5c7c255387c 100644
---- a/arch/powerpc/kernel/setup-common.c
-+++ b/arch/powerpc/kernel/setup-common.c
-@@ -560,7 +560,9 @@ void __init smp_setup_cpu_maps(void)
- 	out:
- 		of_node_put(dn);
- 	}
--	vdso_data->processorCount = num_present_cpus();
-+#endif
-+#ifdef CONFIG_PPC64_PROC_SYSTEMCFG
-+	systemcfg->processorCount = num_present_cpus();
- #endif /* CONFIG_PPC64 */
++#include <linux/types.h>
++
++struct arch_vdso_time_data {
++	__s64 tod_steering_delta;
++	__u64 tod_steering_end;
++};
++
++#endif /* __S390_ASM_VDSO_TIME_DATA_H */
+diff --git a/include/vdso/datapage.h b/include/vdso/datapage.h
+index b85f24cac3f564d8b3c25c6ce86d2527af0e1e0b..d967baa0cd0c65784e38dc4fcd7b9e8273923947 100644
+--- a/include/vdso/datapage.h
++++ b/include/vdso/datapage.h
+@@ -19,10 +19,10 @@
+ #include <vdso/time32.h>
+ #include <vdso/time64.h>
  
-         /* Initialize CPU <=> thread mapping/
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index 4ab9b8cee77a1a775b22ed041d62ca43c9e1f61d..87ae45bf1045d8974e3eed09e284bc582310f3e2 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -1186,8 +1186,8 @@ int generic_cpu_disable(void)
- 		return -EBUSY;
- 
- 	set_cpu_online(cpu, false);
--#ifdef CONFIG_PPC64
--	vdso_data->processorCount--;
-+#ifdef CONFIG_PPC64_PROC_SYSTEMCFG
-+	systemcfg->processorCount--;
+-#ifdef CONFIG_ARCH_HAS_VDSO_DATA
+-#include <asm/vdso/data.h>
++#ifdef CONFIG_ARCH_HAS_VDSO_TIME_DATA
++#include <asm/vdso/time_data.h>
+ #else
+-struct arch_vdso_data {};
++struct arch_vdso_time_data {};
  #endif
- 	/* Update affinity of all IRQs previously aimed at this CPU */
- 	irq_migrate_all_off_this_cpu();
-@@ -1642,10 +1642,12 @@ void start_secondary(void *unused)
  
- 	secondary_cpu_time_init();
+ #define VDSO_BASES	(CLOCK_TAI + 1)
+@@ -114,7 +114,7 @@ struct vdso_data {
+ 	u32			hrtimer_res;
+ 	u32			__unused;
  
--#ifdef CONFIG_PPC64
-+#ifdef CONFIG_PPC64_PROC_SYSTEMCFG
- 	if (system_state == SYSTEM_RUNNING)
--		vdso_data->processorCount++;
-+		systemcfg->processorCount++;
-+#endif
+-	struct arch_vdso_data	arch_data;
++	struct arch_vdso_time_data arch_data;
+ };
  
-+#ifdef CONFIG_PPC64
- 	vdso_getcpu_init();
- #endif
- 	set_numa_node(numa_cpu_lookup_table[cpu]);
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 0ff9f038e800db6dbc910ce581550b457ee5f2db..6c53a0153c0d1c7cd74017a4dadb09ba149e456f 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -951,6 +951,9 @@ void __init time_init(void)
- 	}
- 
- 	vdso_data->tb_ticks_per_sec = tb_ticks_per_sec;
-+#ifdef CONFIG_PPC64_PROC_SYSTEMCFG
-+	systemcfg->tb_ticks_per_sec = tb_ticks_per_sec;
-+#endif
- 
- 	/* initialise and enable the large decrementer (if we have one) */
- 	set_decrementer_max();
-diff --git a/arch/powerpc/kernel/vdso.c b/arch/powerpc/kernel/vdso.c
-index ee4b9d676cff546caced78f6dd76923239697a3c..924f7f4fa597ef4b78f3e8a11ea1c22909c9f0c2 100644
---- a/arch/powerpc/kernel/vdso.c
-+++ b/arch/powerpc/kernel/vdso.c
-@@ -16,7 +16,6 @@
- #include <linux/user.h>
- #include <linux/elf.h>
- #include <linux/security.h>
--#include <linux/memblock.h>
- #include <linux/syscalls.h>
- #include <linux/time_namespace.h>
- #include <vdso/datapage.h>
-@@ -349,25 +348,6 @@ static struct page ** __init vdso_setup_pages(void *start, void *end)
- static int __init vdso_init(void)
- {
- #ifdef CONFIG_PPC64
--	/*
--	 * Fill up the "systemcfg" stuff for backward compatibility
--	 */
--	strcpy((char *)vdso_data->eye_catcher, "SYSTEMCFG:PPC64");
--	vdso_data->version.major = SYSTEMCFG_MAJOR;
--	vdso_data->version.minor = SYSTEMCFG_MINOR;
--	vdso_data->processor = mfspr(SPRN_PVR);
--	/*
--	 * Fake the old platform number for pSeries and add
--	 * in LPAR bit if necessary
--	 */
--	vdso_data->platform = 0x100;
--	if (firmware_has_feature(FW_FEATURE_LPAR))
--		vdso_data->platform |= 1;
--	vdso_data->physicalMemorySize = memblock_phys_mem_size();
--	vdso_data->dcache_size = ppc64_caches.l1d.size;
--	vdso_data->dcache_line_size = ppc64_caches.l1d.line_size;
--	vdso_data->icache_size = ppc64_caches.l1i.size;
--	vdso_data->icache_line_size = ppc64_caches.l1i.line_size;
- 	vdso_data->dcache_block_size = ppc64_caches.l1d.block_size;
- 	vdso_data->icache_block_size = ppc64_caches.l1i.block_size;
- 	vdso_data->dcache_log_block_size = ppc64_caches.l1d.log_block_size;
-diff --git a/arch/powerpc/platforms/powernv/smp.c b/arch/powerpc/platforms/powernv/smp.c
-index 8f14f0581a21b131411eedcccec5c6775a0353fe..672209428b98459ef0a5595c0ec7128a5c5f17a2 100644
---- a/arch/powerpc/platforms/powernv/smp.c
-+++ b/arch/powerpc/platforms/powernv/smp.c
-@@ -136,7 +136,9 @@ static int pnv_smp_cpu_disable(void)
- 	 * the generic fixup_irqs. --BenH.
- 	 */
- 	set_cpu_online(cpu, false);
--	vdso_data->processorCount--;
-+#ifdef CONFIG_PPC64_PROC_SYSTEMCFG
-+	systemcfg->processorCount--;
-+#endif
- 	if (cpu == boot_cpuid)
- 		boot_cpuid = cpumask_any(cpu_online_mask);
- 	if (xive_enabled())
-diff --git a/arch/powerpc/platforms/pseries/hotplug-cpu.c b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-index 6838a0fcda296b1b03fbe7d1bfdcee138343b862..7b80d35d045dc9d947c0b512a58a82ef7398150d 100644
---- a/arch/powerpc/platforms/pseries/hotplug-cpu.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-@@ -83,7 +83,9 @@ static int pseries_cpu_disable(void)
- 	int cpu = smp_processor_id();
- 
- 	set_cpu_online(cpu, false);
--	vdso_data->processorCount--;
-+#ifdef CONFIG_PPC64_PROC_SYSTEMCFG
-+	systemcfg->processorCount--;
-+#endif
- 
- 	/*fix boot_cpuid here*/
- 	if (cpu == boot_cpuid)
+ /**
 
 -- 
 2.47.0
