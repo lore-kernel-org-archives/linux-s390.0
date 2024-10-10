@@ -1,104 +1,123 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA5641B652C;
-	Thu, 10 Oct 2024 07:03:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4510E1CDFBF;
+	Thu, 10 Oct 2024 07:12:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728543829; cv=none; b=HZ9Lm7hOM3v2yQRoaV3rKXisXwUbXZV4F4O+YjMhDJBMVmICdW9+HcnNdqEPRf7dQV6YNdM/Bf8o2ybg8wK8FITz5VUgXncC8CPMEmMLEpSHzClO5Xa8/z74rwnloG4nXIqKozlYWpcQsw7c1xUWcULI269PvVOg/x+xOuVw9EI=
+	t=1728544357; cv=none; b=Zy2PfgjfBz+Fd9nWhPSKq/+G6gjBEdf3ZhsXKk2DmictkYLdNwMRwWcncvZh+Sh2ya38UOIiu8HVl/HLrPp8wTrYemSFlPsz8/bQTWgwSFD+JjhlElpXSKNHJymOdPEwx/erkoPi7xgZDNStXE43QAFndtK276HEeGC4nIXB67w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728543829; c=relaxed/simple;
-	bh=pbSr/1Shdew0RS88jV/eYuiU8d/MNAZikWOcMgX/xoc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eRytG90IJuqMbeq6AuXoeNaqLiHSLTm3Fxl0SCP++1RhifFZ8+pqiOCDAy/cR30w+EQBsnKmaUbsfsWz5adps69WMQU4iKbEors6gfrM/asv9RWsJTzqPKQV7bg1txjxrRLbeARwunT6EL8fSv4AMnbdwZLEiw/Hf3BwDx11q5w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id 1F3E4227A8E; Thu, 10 Oct 2024 09:03:43 +0200 (CEST)
-Date: Thu, 10 Oct 2024 09:03:42 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Christoph Hellwig <hch@lst.de>, linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	"linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	Linux-Arch <linux-arch@vger.kernel.org>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH] asm-generic: provide generic page_to_phys and
- phys_to_page implementations
-Message-ID: <20241010070342.GB6674@lst.de>
-References: <20241009114334.558004-1-hch@lst.de> <20241009114334.558004-2-hch@lst.de> <3e12014e-47a7-4cae-bcd1-87d301e1f80c@app.fastmail.com>
+	s=arc-20240116; t=1728544357; c=relaxed/simple;
+	bh=1EZapPF1hggFvw6L+H4iQFPdyS1ZreY2fue4a95wUxg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uKlGapmnNx8R8ILNe84rrDFTn/o6tbnpku2EOPOigtGHVd4vUGpTLNUQnSeEgVh+ieqbVAEiGwkXJyiQlai6tELa32Bh6m0B5o3xdXLD3dRHorJuaVj+dVQ3b3BHW9VZCAWbLZtWMxs2xw3CIXUDXxFwGWZ57u1R/5hAmmLAA/o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=stqA+4xv; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="stqA+4xv"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49A6X4LI028451;
+	Thu, 10 Oct 2024 07:12:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from
+	:to:cc:subject:date:message-id:content-transfer-encoding
+	:mime-version; s=pp1; bh=xerd8OyYHbwNlzK1cVQ+/Yh9WEOoj30N1hCO85B
+	q+CU=; b=stqA+4xvn4W6sYQ8arWRETjZxLZX5XdXhI27XJn9kha+Ymgh7JJtH34
+	TbCxvwaBK9NSFOV51812FXH+VBIxeodxkIMg6U+OkOIfhMHZOiQA18CWdotjU6OP
+	UQQVNuTA6L55mpcqTpS1a+qm+SGNb5wvtPnOvjIO2E36Q78ALiPSKy5Z73irkw/R
+	FillaSEi6YeN/7dPB9EO/jO2HKC0kFaYuk4LPoMA9XKMrdTmHgpM+tJ3xj+QIdoo
+	9J7NETF5SA8Tg5Px3MI4kuGy4rGGAeBQAQMM3GsZY0irgUilfMGJZgkhRRuiWlEJ
+	lYURKFwvkxQuRVrm3uphcCh6FlUB1fg==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4269rn86b9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 10 Oct 2024 07:12:33 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49A7CXkb013143;
+	Thu, 10 Oct 2024 07:12:33 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4269rn86b7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 10 Oct 2024 07:12:33 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49A72Lph010703;
+	Thu, 10 Oct 2024 07:12:32 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 423j0jp4dt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 10 Oct 2024 07:12:32 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49A7CT5L47186360
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 10 Oct 2024 07:12:29 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1D6AF2004F;
+	Thu, 10 Oct 2024 07:12:29 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EC4912004D;
+	Thu, 10 Oct 2024 07:12:28 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 10 Oct 2024 07:12:28 +0000 (GMT)
+From: Nico Boehr <nrb@linux.ibm.com>
+To: frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v4 0/2] s390x: add tests for diag258
+Date: Thu, 10 Oct 2024 09:11:50 +0200
+Message-ID: <20241010071228.565038-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.46.2
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: lz_dE5V4fD3uY8aRjtMgY9FkaOm0cSD4
+X-Proofpoint-GUID: uIMzoKMKxV6BEcTTN3Gpj7DvsOST15oD
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3e12014e-47a7-4cae-bcd1-87d301e1f80c@app.fastmail.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-10_04,2024-10-09_02,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=720
+ adultscore=0 spamscore=0 malwarescore=0 priorityscore=1501 suspectscore=0
+ bulkscore=0 lowpriorityscore=0 phishscore=0 impostorscore=0 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
+ definitions=main-2410100045
 
-On Wed, Oct 09, 2024 at 02:06:27PM +0000, Arnd Bergmann wrote:
-> This is clearly a good idea, and I'm happy to take that through
-> the asm-generic tree if there are no complaints.
-> 
-> Do you have any other patches that depend on it?
+v4:
+---
+* fix alignment (thanks Claudio)
 
-Well, I have new code that would benefit from these helpers, but just
-open coding it for now and then doing a swipe to clean that up later
-together with the existing open coded versions is easy enough.
+v3:
+---
+* reverse christmas tree (thanks Claudio)
+* test invalid refcodes first since other test rely on it (thanks Claudio)
+* use an invalid refbk to detect whether diag is available
 
-> > -/*
-> > - * Change "struct page" to physical address.
-> > - */
-> > -static inline phys_addr_t page_to_phys(struct page *page)
-> > -{
-> > -	unsigned long pfn = page_to_pfn(page);
-> > -
-> > -	WARN_ON(IS_ENABLED(CONFIG_DEBUG_VIRTUAL) && !pfn_valid(pfn));
-> > -
-> > -	return PFN_PHYS(pfn);
-> > -}
-> 
-> This part is technically a change in behavior, not sure how
-> much anyone cares.
+v2:
+---
+* do not run test under TCG
 
-Well, the only other comment to the patch so far mentioned it.
-It also feels like a useful check, but I'm a bit worried about
-it triggering in various new places.  Although that's just with
-CONFIG_DEBUG_VIRTUAL and probably points to real bugs, so maybe
-adding it everywhere is a good idea.
+Add tests for diag258 handling on s390x.
 
-> > +#define page_to_phys(page)	__pfn_to_phys(page_to_pfn(page))
-> > +#define phys_to_page(phys)	pfn_to_page(__phys_to_pfn(phys))
-> 
-> I think we should try to have a little fewer nested macros
-> to evaluate here, right now this ends up expanding
-> __pfn_to_phys, PFN_PHYS, PAGE_SHIFT, CONFIG_PAGE_SHIFT,
-> page_to_pfn and __page_to_pfn. While the behavior is fine,
-> modern gcc versions list all of those in an warning message
-> if someone passes the wrong arguments.
-> 
-> Changing the two macros above into inline functions
-> would help as well, but may cause other problems.
+There recently was a bugfix in the kernel:
+https://lore.kernel.org/r/20240917151904.74314-2-nrb@linux.ibm.com
 
-Doing them as inlines seems useful to me, let me throw that at
-the buildbot and see if anything explodes.
+This adds tests for it.
 
-> On a related note, it would be even better if we could come
-> up with a generic definition for either __pa/__va or
-> virt_to_phys/phys_to_virt. Most architectures define one
-> of the two pairs in terms of the other, which leads to
-> confusion with header include order.
+Nico Boehr (2):
+  s390x: edat: move LC_SIZE to arch_def.h
+  s390x: add test for diag258
 
-Agreed, but that's a separate project.
+ lib/s390x/asm/arch_def.h |   1 +
+ s390x/Makefile           |   1 +
+ s390x/diag258.c          | 259 +++++++++++++++++++++++++++++++++++++++
+ s390x/edat.c             |   1 -
+ s390x/unittests.cfg      |   3 +
+ 5 files changed, 264 insertions(+), 1 deletion(-)
+ create mode 100644 s390x/diag258.c
+
+-- 
+2.46.2
 
