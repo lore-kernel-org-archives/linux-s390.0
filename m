@@ -1,47 +1,46 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5DED1CC89F;
-	Thu, 10 Oct 2024 15:44:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BD871CDA0B;
+	Thu, 10 Oct 2024 15:44:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728575097; cv=none; b=SLVBaHpGr7gUvDwA0BCB74B9BsGlkGIpCZrq0149lvadcpnrJVt1YbsfclKnlkPxYMiiuFbNHSJPsE/DtOGLUiuXdWlvDlsSBHqU36O6GsOMLJS4zQcY2GB64hbFNYMVvrkWwExfqPb1laYviKavFDdCTo14/8s4/RTtihC5jVQ=
+	t=1728575098; cv=none; b=r/+JD0rjyUg2PS8IG7Fnwyv+LkCssrTg7BOZfjDXI4Sgswf64HbSTd8bfGNX77m3exZROt9tNceJMsDHq9JVCRgGe1+lQ9B1oXU12jjuIqkeZX4TpZDeghZzsI3aA2uKYbFPwTGjB8O9hUp8vQImDbt/NaBPoHNqKudgFqYADB0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728575097; c=relaxed/simple;
-	bh=P9OFc8LoZinuHPdD6G8mUCCAPZekDQoc9eNGYe6RM5M=;
+	s=arc-20240116; t=1728575098; c=relaxed/simple;
+	bh=2LvKRYHam7JPvf9YTnYT/Pt96cAREdv5IB7CnEDdMso=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Sqa+CIP+YGEmLg/m1WOxfNM52HY6vkPzGcm25Fz8RFrXmKT0wKPgkKiJev9mPmEx6PsccIWYbo7I1HUKFrYGDJLqVm+hW2Rvfz6IhLq8jXNbFPUpsObTwuQZ/UdE74nLalLm7SdUsUUsIz3LX7TxU+X4CSbzmR2uSzoWZc/pVpY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=UJo35Z9S; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=8B7wL2Et; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=izFdMv7xpPyTon1l7VcTw8Gr2JQz3mc8io5Xr2tAHQWa9zOwkweaxRw8K4QX2FEt2lbYHjdONu3Jr15XC9QHiJfbrzW/1pB4L7pPLsjhmPZMotKnJESRAiQYmIDmzSPtVY/6lOT0xSYuyb0VgUmNy5lvAHbNP+ZNjZ2RfXH3VbQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=2VrXyCvl; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=84jkthMW; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="UJo35Z9S";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="8B7wL2Et"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="2VrXyCvl";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="84jkthMW"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1728575093;
+	s=2020; t=1728575095;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Tbw860Y8cRi5xxA/qi1H6FVRcI5Ca4sRKMG/9Wo+Ih8=;
-	b=UJo35Z9SJbVvJPEtwXQTx640hZGNYd0yx369ZyIlfIt49f3c0x/SjL/N6mlKrtSjlg4mKm
-	j/sqpAyhDBuAugTWJ8KWafd7X3EtfHEGBGQ6ptpv3Ls8pkj/g8+l9PlsANmS6SvFRkN97D
-	Kon3OvbvB8U59sEuUrx8hhkTfCDfXvtQ5EixPaFMir23HXlcss3yflyAqw1HsFZ/Uwn4zB
-	MT2EsHiPspQHHSAmEwOCTRHoE3fDziowLWBbuGwQT0zkhNYyBUe4V0FVlPnMXwtRrADaLX
-	Mq6zst83FF1WS0p0ObFMXC0E+hEqbmyU/BYYxdVPrnBo+DSn/+03qzP+zKeZZw==
+	bh=//WOaSb+qiFuhDcrD1QvrKSX9jq6HrXx3vMVSTOjlpM=;
+	b=2VrXyCvlEPG/qSkhA7AEYBYXeD45ZWKkLTe2Mlb6dw7lZRpUe5oEjGYhhUTX9WxqWueCmX
+	bWyV8FnZpDzj5zu6qChhR6ojn1Jco3nNNl6s6iqrrUSoJjd1fIrYn3aeRZ/SExewoutWqf
+	D5xXvosPkw4N7cOT+3CDeFTl0H83mGQjnQU0pXyQWSEffFSNQWpuR0lJXUguCuMfB9XWp3
+	vpIgRP5XjW5p56Eo3UApKPrbAzpyLxDzfUjNyI1flxZBOJLMcQhg7ZgijRNfW34LG2iHhk
+	LUe6H17KpbiZZMKc2tFVOsdVPc27Hyahhm3Yb4c82oQB0prBIni+Hbhledyjmg==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1728575093;
+	s=2020e; t=1728575095;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Tbw860Y8cRi5xxA/qi1H6FVRcI5Ca4sRKMG/9Wo+Ih8=;
-	b=8B7wL2EthakSTpTkhWHWWbhqFPddFlgbdTyAxK8V1/rzHtm4Gdl+zZqr3iY43yE3KnKYV6
-	XvBPZpKZ/PJfdTAw==
-Date: Thu, 10 Oct 2024 17:44:44 +0200
-Subject: [PATCH 1/9] vdso: Remove timekeeper argument of
- __arch_update_vsyscall()
+	bh=//WOaSb+qiFuhDcrD1QvrKSX9jq6HrXx3vMVSTOjlpM=;
+	b=84jkthMWjxjsydzn/4oqUu2+UXGDE3w3mSl6Nx3zbBL3u4gTWtw+ZFEf10TNhsDTjLWQy+
+	cBy+YXEZCzhNQPAA==
+Date: Thu, 10 Oct 2024 17:44:47 +0200
+Subject: [PATCH 4/9] powerpc/vdso: Remove timekeeper includes
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,7 +49,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20241010-vdso-generic-arch_update_vsyscall-v1-1-7fe5a3ea4382@linutronix.de>
+Message-Id: <20241010-vdso-generic-arch_update_vsyscall-v1-4-7fe5a3ea4382@linutronix.de>
 References: <20241010-vdso-generic-arch_update_vsyscall-v1-0-7fe5a3ea4382@linutronix.de>
 In-Reply-To: <20241010-vdso-generic-arch_update_vsyscall-v1-0-7fe5a3ea4382@linutronix.de>
 To: Catalin Marinas <catalin.marinas@arm.com>, 
@@ -78,74 +77,57 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  linux-s390@vger.kernel.org, loongarch@lists.linux.dev, 
  linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1728575090; l=2431;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1728575090; l=1560;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=P9OFc8LoZinuHPdD6G8mUCCAPZekDQoc9eNGYe6RM5M=;
- b=rRX2lt1HBT3/u9x9JvlnflNmRDWsy5jscJ4NTC/lrOHnd2lofDJUSy4Brb/2qyoNuIuirmMpQ
- EQ5r/daGrFlB91mXesIGTiy54olcuu6phkOtEZCAbUlBJIlrxz2PwJG
+ bh=2LvKRYHam7JPvf9YTnYT/Pt96cAREdv5IB7CnEDdMso=;
+ b=wCeMto8LigT0NWmLWaYqjH4etZsM507fuDoQptvkr3x3QkMHLdq+92lLyQYSHdu4J9UgjahuM
+ gvKGsW+JLn0B/ParFwQLICcr2DHaXVyP0GNd1k0EsAzL/zETzTfLLPv
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-No implementation of this hook uses the passed in timekeeper anymore.
+Since the generic VDSO clock mode storage is used, this header file is
+unused and can be removed.
 
 This avoids including a non-VDSO header while building the VDSO,
 which can lead to compilation errors.
 
+Also drop the comment which is out of date and in the wrong place.
+
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 ---
- arch/arm64/include/asm/vdso/vsyscall.h | 3 +--
- include/asm-generic/vdso/vsyscall.h    | 3 +--
- kernel/time/vsyscall.c                 | 2 +-
- 3 files changed, 3 insertions(+), 5 deletions(-)
+ arch/powerpc/include/asm/vdso/vsyscall.h | 4 ----
+ arch/powerpc/kernel/time.c               | 1 -
+ 2 files changed, 5 deletions(-)
 
-diff --git a/arch/arm64/include/asm/vdso/vsyscall.h b/arch/arm64/include/asm/vdso/vsyscall.h
-index 5b6d0dd3cef5483ab8166a24ab3c7ca956927350..eea51946d45a2f8c7eebfff971d74878be53a798 100644
---- a/arch/arm64/include/asm/vdso/vsyscall.h
-+++ b/arch/arm64/include/asm/vdso/vsyscall.h
-@@ -6,7 +6,6 @@
+diff --git a/arch/powerpc/include/asm/vdso/vsyscall.h b/arch/powerpc/include/asm/vdso/vsyscall.h
+index 92f480d8cc6dcb905d5960185ca8b615cfc541ee..48560a11955956b8fbb59360334a81972723bd57 100644
+--- a/arch/powerpc/include/asm/vdso/vsyscall.h
++++ b/arch/powerpc/include/asm/vdso/vsyscall.h
+@@ -4,12 +4,8 @@
  
  #ifndef __ASSEMBLY__
  
 -#include <linux/timekeeper_internal.h>
- #include <vdso/datapage.h>
+ #include <asm/vdso_datapage.h>
  
- enum vvar_pages {
-@@ -37,7 +36,7 @@ struct vdso_rng_data *__arm64_get_k_vdso_rnd_data(void)
- #define __arch_get_k_vdso_rng_data __arm64_get_k_vdso_rnd_data
- 
+-/*
+- * Update the vDSO data page to keep in sync with kernel timekeeping.
+- */
  static __always_inline
--void __arm64_update_vsyscall(struct vdso_data *vdata, struct timekeeper *tk)
-+void __arm64_update_vsyscall(struct vdso_data *vdata)
+ struct vdso_data *__arch_get_k_vdso_data(void)
  {
- 	vdata[CS_HRES_COARSE].mask	= VDSO_PRECISION_MASK;
- 	vdata[CS_RAW].mask		= VDSO_PRECISION_MASK;
-diff --git a/include/asm-generic/vdso/vsyscall.h b/include/asm-generic/vdso/vsyscall.h
-index c835607f78ae990e7479878767b05cccd3a99837..01dafd604188fb0512d21c4ce4b027f7da54f5a0 100644
---- a/include/asm-generic/vdso/vsyscall.h
-+++ b/include/asm-generic/vdso/vsyscall.h
-@@ -12,8 +12,7 @@ static __always_inline struct vdso_data *__arch_get_k_vdso_data(void)
- #endif /* __arch_get_k_vdso_data */
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 0ff9f038e800db6dbc910ce581550b457ee5f2db..4a95654c1d36f25d6021284889fdd1510782b408 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -75,7 +75,6 @@
+ /* powerpc clocksource/clockevent code */
  
- #ifndef __arch_update_vsyscall
--static __always_inline void __arch_update_vsyscall(struct vdso_data *vdata,
--						   struct timekeeper *tk)
-+static __always_inline void __arch_update_vsyscall(struct vdso_data *vdata)
- {
- }
- #endif /* __arch_update_vsyscall */
-diff --git a/kernel/time/vsyscall.c b/kernel/time/vsyscall.c
-index 9193d6133e5d688342be8485b9a0efb7af9ee148..28706a13c222df29635fd22d23f21eacb068855c 100644
---- a/kernel/time/vsyscall.c
-+++ b/kernel/time/vsyscall.c
-@@ -119,7 +119,7 @@ void update_vsyscall(struct timekeeper *tk)
- 	if (clock_mode != VDSO_CLOCKMODE_NONE)
- 		update_vdso_data(vdata, tk);
+ #include <linux/clockchips.h>
+-#include <linux/timekeeper_internal.h>
  
--	__arch_update_vsyscall(vdata, tk);
-+	__arch_update_vsyscall(vdata);
- 
- 	vdso_write_end(vdata);
- 
+ static u64 timebase_read(struct clocksource *);
+ static struct clocksource clocksource_timebase = {
 
 -- 
 2.47.0
