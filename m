@@ -1,237 +1,218 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E5F0558B7;
-	Thu, 10 Oct 2024 03:58:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 759A21B652C;
+	Thu, 10 Oct 2024 07:02:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728532702; cv=none; b=T6WAVCSsDCErf3k1PlNmPQaqz5Mgivtw95PwwpeWybPGvq1HdSO4Gboce+BB2P2sQNjEnyvnreCfFzn9VWxV2QkwV+THTbim237rT8tEuGdwNIvfyO9BjCui+Qca9KkX5zF0Pij5+eWq34dRpMqfNE6sU1EaHmuP5wFGnveulos=
+	t=1728543723; cv=none; b=bEmBixwY4rNG9ril1KpTlPD1ah0Fjc3695Xyhx2/OQzCUGB7sWPLy4QRtgWS1qH54cBMdANnjmtcnb8QnBYjs2KXSwNJ3t8wfMBL1foFX8SV5yzoQGq3LHc8ZW88rr0fkihYaEHnIbgsG2p+hDJd6nlZinYWmBT/Xd/Ie8qc4dA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728532702; c=relaxed/simple;
-	bh=FPqeY0G22nBxa9qVXWs1m5Mm6fT3IOVgxr8CX4tynmE=;
-	h=From:To:Cc:Subject:Date:Message-Id; b=PF6WbzUkDHfpgaOVANYMYpXpwsaCnOqdRHtRSAG6S1c5F/AVcSlei67nLx4LLQk2deERoURcNJ5i9GXp3mq8UkCjYITi9oUyo0HvEq5naoPZciO27SpSdYsh6Uz5uMuvZ8udVhKzmKSVVDJvZDC2ci46H5vf/kLLJRvHXPS6Als=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=xGfegS1+; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1728543723; c=relaxed/simple;
+	bh=QNcCT8xdhsRdpIEe1ZjNJ7WuU4tLNw9Mj2qA/M/7NLg=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=qqSRsVffE0hp7Xe/75SbRWR23xciltBv1/AMY+UJk26xgqe8mx9/z8vD0DbQgfVOdE6scfKGKFzhL9WxcJhTgllFY4WE7XxOe2Py9+AYAC8HPE+1Mqeg/LnqlVqAVaLd2yN54DclTTf08yYh3XcG7ONSa57aT6Oku7nkXlVhp+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=lmsrwGd/; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=jky3v+I1; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="xGfegS1+"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1728532696; h=From:To:Subject:Date:Message-Id;
-	bh=7kYNcKRHlS5yYQwqfh0s4ZfdVhzFEa9OJov7XbY1SeA=;
-	b=xGfegS1+K58pccqmYhiqTSKdjsd3M+3v0audUtnuTN3QI5N5Ij3TJv1oiEZMTh3czht6w5IeLumPa40fxr8U0ULEgtB3texyWeCo0Su8YSP90lbfzLDRg7tHmfGfti+ZGqYs4vYkKgPJNcON/ptT2HtdJp+HGwrY9byrsKboJl8=
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WGksTns_1728532691)
-          by smtp.aliyun-inc.com;
-          Thu, 10 Oct 2024 11:58:16 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-To: kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	wintera@linux.ibm.com,
-	guwen@linux.alibaba.com,
-	ast@kernel.org
-Cc: kuba@kernel.org,
-	davem@davemloft.net,
-	netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	tonylu@linux.alibaba.com,
-	pabeni@redhat.com,
-	edumazet@google.com,
-	bpf@vger.kernel.org
-Subject: [PATCH net-next] net/smc: Introduce a hook to modify syn_smc at runtime
-Date: Thu, 10 Oct 2024 11:58:11 +0800
-Message-Id: <1728532691-20044-1-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="lmsrwGd/";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="jky3v+I1"
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1728543719;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=E4T95t+t5uIUSPRmbXi3insr6gkvL1A7vX9/M6uzeAI=;
+	b=lmsrwGd/o99KSttwJ8sgkfe3ORDOYVzQtieE7kyC4+m+vRZ/tzWpxPQ8ePTZNQ19EFjx5I
+	u3jGvagoJGW/qx9g2bUpnmEq8JoWczBHMUhDC79C1JomHxY98uotRFX+A96CPPno1gMwIu
+	LyvrdSpMcdSsFeE5AWm4OzXxE/cIgCQiWE+WdzqZBRdbXLSt+FADnIPVu13PJJKh43s3lM
+	jr/MVOD7fv5IDZjXZMEa9QSGaKAlyNTcMqwQmtVyZLRsNdOIMbYmcRsayg4uNcNoVlIB15
+	aYyMd6cpaCwNPFx2oScFtCmRqL8D8perF6lVmPIECmor4hdzn03+zzeo55ZhLA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1728543719;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=E4T95t+t5uIUSPRmbXi3insr6gkvL1A7vX9/M6uzeAI=;
+	b=jky3v+I1IC+JVC8fX81ewpslVewnrQMUfSlcSSaPKvbXwS/AgvfDy+/FHxXQi6ThcgvJUH
+	9VEhGdOBmWvD01CA==
+Subject: [PATCH 00/28] vdso: Preparations for generic data storage
+Date: Thu, 10 Oct 2024 09:01:02 +0200
+Message-Id: <20241010-vdso-generic-base-v1-0-b64f0842d512@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAK57B2cC/x3MMQqAMAxA0atIZgNRa0WvIg5qY83SSgMiFO9uc
+ fzD+xmUk7DCVGVIfItKDCWauoL9XINnFFcaWmpNQzTi7TSi51DYjtuqjLYjaw9nBrP1UNyV+JD
+ nf87L+37En2/PYwAAAA==
+X-Change-ID: 20241009-vdso-generic-base-63066fd474b5
+To: Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
+ Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, 
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+ Paul Walmsley <paul.walmsley@sifive.com>, 
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+ Russell King <linux@armlinux.org.uk>, Huacai Chen <chenhuacai@kernel.org>, 
+ WANG Xuerui <kernel@xen0n.name>, Theodore Ts'o <tytso@mit.edu>, 
+ "Jason A. Donenfeld" <Jason@zx2c4.com>, 
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+ Dave Hansen <dave.hansen@linux.intel.com>, 
+ Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, x86@kernel.org, 
+ "H. Peter Anvin" <hpa@zytor.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+ Nicholas Piggin <npiggin@gmail.com>, 
+ Christophe Leroy <christophe.leroy@csgroup.eu>, 
+ Naveen N Rao <naveen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+ Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>, 
+ linux-csky@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-riscv@lists.infradead.org, loongarch@lists.linux.dev, 
+ linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, 
+ Nam Cao <namcao@linutronix.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1728543717; l=6636;
+ i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
+ bh=QNcCT8xdhsRdpIEe1ZjNJ7WuU4tLNw9Mj2qA/M/7NLg=;
+ b=sQhdCAF4J2xGSbM7JksLHLhcrVflNnqDCh5fiBcZROnY5OCOWlamlaJcSOTO9oiyIYtO50MPw
+ 565h0NVu1OkDw1F3hJlaEbk39HsimcY4lNzgNEvSbhPhR8U0cTPGVTN
+X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
+ pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+Historically each architecture defined their own datapage to store the
+VDSO data. This stands in contrast to the generic nature of the VDSO
+code itself.
+We plan to introduce a generic framework for the management of the VDSO
+data storage that can be used by all architectures and which works
+together with the existing generic VDSO code.
 
-The introduction of IPPROTO_SMC enables eBPF programs to determine
-whether to use SMC based on the context of socket creation, such as
-network namespaces, PID and comm name, etc.
+Before that is possible align the different architectures by
+standardizing on the existing generic infrastructure and moving things
+out of the VDSO data page which does not belong there.
 
-As a subsequent enhancement, this patch introduces a new hook for eBPF
-programs that allows decisions on whether to use SMC or not at runtime,
-including but not limited to local/remote IP address or ports. In
-simpler words, this feature allows modifications to syn_smc through eBPF
-programs before the TCP three-way handshake got established.
+Patches	 1- 2:	csky
+Patch	    3:	s390
+Patches	 4- 5:	arm64
+Patch	    6:	riscv
+Patch	    7:	arm
+Patch	    8:	LoongArch
+Patch	    9:	MIPS
+Patches 10-20:	x86
+Patches 21-27:	powerpc
+Patch      28: 	Renamings to avoid a name clash with the new code.
 
-Thanks to kfunc for making it easier for us to implement this feature in
-SMC.
+These patches are intended to be merged via the tip tree,
+so the following patches can be based on a unified base.
 
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+The queue, including the full generic storage, is available at
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/thomas.weissschuh/linux.git vdso/store
+
+Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 ---
- include/linux/tcp.h  |  4 ++-
- net/ipv4/tcp_input.c |  4 +--
- net/smc/af_smc.c     | 75 ++++++++++++++++++++++++++++++++++++++++++++++------
- 3 files changed, 72 insertions(+), 11 deletions(-)
+Nam Cao (1):
+      vdso: Rename struct arch_vdso_data to arch_vdso_time_data
 
-diff --git a/include/linux/tcp.h b/include/linux/tcp.h
-index 6a5e08b..d028d76 100644
---- a/include/linux/tcp.h
-+++ b/include/linux/tcp.h
-@@ -478,7 +478,9 @@ struct tcp_sock {
- #endif
- #if IS_ENABLED(CONFIG_SMC)
- 	bool	syn_smc;	/* SYN includes SMC */
--	bool	(*smc_hs_congested)(const struct sock *sk);
-+	void	(*smc_openreq_init)(struct request_sock *req,
-+			     const struct tcp_options_received *rx_opt,
-+			     struct sk_buff *skb, const struct sock *sk);
- #endif
- 
- #if defined(CONFIG_TCP_MD5SIG) || defined(CONFIG_TCP_AO)
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index cc05ec1..15fe8b9 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -7036,8 +7036,8 @@ static void tcp_openreq_init(struct request_sock *req,
- 	ireq->ir_num = ntohs(tcp_hdr(skb)->dest);
- 	ireq->ir_mark = inet_request_mark(sk, skb);
- #if IS_ENABLED(CONFIG_SMC)
--	ireq->smc_ok = rx_opt->smc_ok && !(tcp_sk(sk)->smc_hs_congested &&
--			tcp_sk(sk)->smc_hs_congested(sk));
-+	if (rx_opt->smc_ok && tcp_sk(sk)->smc_openreq_init)
-+		tcp_sk(sk)->smc_openreq_init(req, rx_opt, skb, sk);
- #endif
- }
- 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 0316217..550799c 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -70,6 +70,15 @@
- static void smc_tcp_listen_work(struct work_struct *);
- static void smc_connect_work(struct work_struct *);
- 
-+__bpf_hook_start();
-+
-+__weak noinline int select_syn_smc(const struct sock *sk, struct sockaddr *peer)
-+{
-+	return 1;
-+}
-+
-+__bpf_hook_end();
-+
- int smc_nl_dump_hs_limitation(struct sk_buff *skb, struct netlink_callback *cb)
- {
- 	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
-@@ -156,19 +165,43 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
- 	return NULL;
- }
- 
--static bool smc_hs_congested(const struct sock *sk)
-+static void smc_openreq_init(struct request_sock *req,
-+			     const struct tcp_options_received *rx_opt,
-+			     struct sk_buff *skb, const struct sock *sk)
- {
-+	struct inet_request_sock *ireq = inet_rsk(req);
-+	struct sockaddr_storage rmt_sockaddr = {};
- 	const struct smc_sock *smc;
- 
- 	smc = smc_clcsock_user_data(sk);
- 
- 	if (!smc)
--		return true;
-+		return;
- 
--	if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
--		return true;
-+	if (smc->limit_smc_hs && workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
-+		goto out_no_smc;
- 
--	return false;
-+	rmt_sockaddr.ss_family = sk->sk_family;
-+
-+	if (rmt_sockaddr.ss_family == AF_INET) {
-+		struct sockaddr_in *rmt4_sockaddr =  (struct sockaddr_in *)&rmt_sockaddr;
-+
-+		rmt4_sockaddr->sin_addr.s_addr = ireq->ir_rmt_addr;
-+		rmt4_sockaddr->sin_port	= ireq->ir_rmt_port;
-+#if IS_ENABLED(CONFIG_IPV6)
-+	} else {
-+		struct sockaddr_in6 *rmt6_sockaddr =  (struct sockaddr_in6 *)&rmt_sockaddr;
-+
-+		rmt6_sockaddr->sin6_addr = ireq->ir_v6_rmt_addr;
-+		rmt6_sockaddr->sin6_port = ireq->ir_rmt_port;
-+#endif /* CONFIG_IPV6 */
-+	}
-+
-+	ireq->smc_ok = select_syn_smc(sk, (struct sockaddr *)&rmt_sockaddr);
-+	return;
-+out_no_smc:
-+	ireq->smc_ok = 0;
-+	return;
- }
- 
- struct smc_hashinfo smc_v4_hashinfo = {
-@@ -1671,7 +1704,7 @@ int smc_connect(struct socket *sock, struct sockaddr *addr,
- 	}
- 
- 	smc_copy_sock_settings_to_clc(smc);
--	tcp_sk(smc->clcsock->sk)->syn_smc = 1;
-+	tcp_sk(smc->clcsock->sk)->syn_smc = select_syn_smc(sk, addr);
- 	if (smc->connect_nonblock) {
- 		rc = -EALREADY;
- 		goto out;
-@@ -2650,8 +2683,7 @@ int smc_listen(struct socket *sock, int backlog)
- 
- 	inet_csk(smc->clcsock->sk)->icsk_af_ops = &smc->af_ops;
- 
--	if (smc->limit_smc_hs)
--		tcp_sk(smc->clcsock->sk)->smc_hs_congested = smc_hs_congested;
-+	tcp_sk(smc->clcsock->sk)->smc_openreq_init = smc_openreq_init;
- 
- 	rc = kernel_listen(smc->clcsock, backlog);
- 	if (rc) {
-@@ -3475,6 +3507,24 @@ static void __net_exit smc_net_stat_exit(struct net *net)
- 	.exit = smc_net_stat_exit,
- };
- 
-+#if IS_ENABLED(CONFIG_BPF_SYSCALL)
-+BTF_SET8_START(bpf_smc_fmodret_ids)
-+BTF_ID_FLAGS(func, select_syn_smc)
-+BTF_SET8_END(bpf_smc_fmodret_ids)
-+
-+static const struct btf_kfunc_id_set bpf_smc_fmodret_set = {
-+	.owner = THIS_MODULE,
-+	.set   = &bpf_smc_fmodret_ids,
-+};
-+
-+static int bpf_smc_kfunc_init(void)
-+{
-+	return register_btf_fmodret_id_set(&bpf_smc_fmodret_set);
-+}
-+#else
-+static inline int bpf_smc_kfunc_init(void) { return 0; }
-+#endif /* CONFIG_BPF_SYSCALL */
-+
- static int __init smc_init(void)
- {
- 	int rc;
-@@ -3574,8 +3624,17 @@ static int __init smc_init(void)
- 		pr_err("%s: smc_inet_init fails with %d\n", __func__, rc);
- 		goto out_ulp;
- 	}
-+
-+	rc = bpf_smc_kfunc_init();
-+	if (rc) {
-+		pr_err("%s: bpf_smc_kfunc_init fails with %d\n", __func__, rc);
-+		goto out_inet;
-+	}
-+
- 	static_branch_enable(&tcp_have_smc);
- 	return 0;
-+out_inet:
-+	smc_inet_exit();
- out_ulp:
- 	tcp_unregister_ulp(&smc_ulp_ops);
- out_lo:
+Thomas Weißschuh (27):
+      csky/vdso: Remove gettimeofday() and friends from VDSO
+      csky/vdso: Remove arch_vma_name()
+      s390/vdso: Drop LBASE_VDSO
+      arm64: vdso: Drop LBASE_VDSO
+      arm64: vdso: Use only one single vvar mapping
+      riscv: vdso: Use only one single vvar mapping
+      arm: vdso: Remove assembly for datapage access
+      LoongArch: vDSO: Use vdso/datapage.h to access vDSO data
+      MIPS: vdso: Avoid name conflict around "vdso_data"
+      x86/mm/mmap: Remove arch_vma_name()
+      x86: vdso: Use __arch_get_vdso_data() to access vdso data
+      x86: vdso: Place vdso_data at beginning of vvar page
+      x86: vdso: Access rng data from kernel without vvar
+      x86: vdso: Allocate vvar page from C code
+      x86: vdso: Access timens vdso data without vvar.h
+      x86: vdso: Access rng vdso data without vvar.h
+      x86: vdso: Move the rng offset to vsyscall.h
+      x86: vdso: Access vdso data without vvar.h
+      x86: vdso: Delete vvar.h
+      x86: vdso: Split virtual clock pages into dedicated mapping
+      powerpc: vdso: Remove offset comment from 32bit vdso_arch_data
+      powerpc: procfs: Propagate error of remap_pfn_range()
+      powerpc/pseries/lparcfg: Fix printing of system_active_processors
+      powerpc/pseries/lparcfg: Use num_possible_cpus() for potential processors
+      powerpc: Add kconfig option for the systemcfg page
+      powerpc: Split systemcfg data out of vdso data page
+      powerpc: Split systemcfg struct definitions out from vdso
+
+ arch/Kconfig                                       |   2 +-
+ arch/arm/include/asm/vdso/gettimeofday.h           |   4 +-
+ arch/arm/vdso/Makefile                             |   2 +-
+ arch/arm/vdso/datapage.S                           |  16 ---
+ arch/arm/vdso/vdso.lds.S                           |   3 +-
+ arch/arm64/include/asm/vdso.h                      |   9 +-
+ arch/arm64/kernel/vdso.c                           |  43 +++-----
+ arch/arm64/kernel/vdso/vdso.lds.S                  |   2 +-
+ arch/arm64/kernel/vdso32/vdso.lds.S                |   2 +-
+ arch/csky/Kconfig                                  |   4 -
+ arch/csky/include/asm/vdso/clocksource.h           |   9 --
+ arch/csky/include/asm/vdso/gettimeofday.h          | 114 ---------------------
+ arch/csky/include/asm/vdso/processor.h             |  12 ---
+ arch/csky/include/asm/vdso/vsyscall.h              |  22 ----
+ arch/csky/kernel/vdso.c                            |  31 +-----
+ arch/csky/kernel/vdso/Makefile                     |   1 -
+ arch/csky/kernel/vdso/vdso.lds.S                   |   4 -
+ arch/csky/kernel/vdso/vgettimeofday.c              |  30 ------
+ arch/loongarch/include/asm/vdso/getrandom.h        |   3 +-
+ arch/loongarch/include/asm/vdso/gettimeofday.h     |   4 +-
+ arch/loongarch/include/asm/vdso/vdso.h             |  18 +---
+ arch/loongarch/kernel/asm-offsets.c                |   9 ++
+ arch/loongarch/vdso/vdso.lds.S                     |   8 +-
+ arch/loongarch/vdso/vgetcpu.c                      |   2 +-
+ arch/mips/vdso/genvdso.c                           |   4 +-
+ arch/powerpc/Kconfig                               |   8 ++
+ arch/powerpc/include/asm/systemcfg.h               |  52 ++++++++++
+ arch/powerpc/include/asm/vdso_datapage.h           |  61 +----------
+ arch/powerpc/kernel/proc_powerpc.c                 |  37 +++++--
+ arch/powerpc/kernel/setup-common.c                 |   5 +-
+ arch/powerpc/kernel/smp.c                          |  11 +-
+ arch/powerpc/kernel/time.c                         |   4 +
+ arch/powerpc/kernel/vdso.c                         |  20 ----
+ arch/powerpc/platforms/powernv/smp.c               |   5 +-
+ arch/powerpc/platforms/pseries/hotplug-cpu.c       |   5 +-
+ arch/powerpc/platforms/pseries/lparcfg.c           |   5 +-
+ arch/riscv/Kconfig                                 |   2 +-
+ .../riscv/include/asm/vdso/{data.h => time_data.h} |   8 +-
+ arch/riscv/kernel/sys_hwprobe.c                    |   2 +-
+ arch/riscv/kernel/vdso.c                           |  52 +++-------
+ arch/riscv/kernel/vdso/hwprobe.c                   |   4 +-
+ arch/s390/Kconfig                                  |   2 +-
+ arch/s390/include/asm/vdso.h                       |   3 -
+ arch/s390/include/asm/vdso/data.h                  |  12 ---
+ arch/s390/include/asm/vdso/time_data.h             |  12 +++
+ arch/s390/kernel/vdso32/vdso32.lds.S               |   2 +-
+ arch/s390/kernel/vdso64/vdso64.lds.S               |   2 +-
+ arch/x86/entry/vdso/vdso-layout.lds.S              |  20 ++--
+ arch/x86/entry/vdso/vma.c                          |  87 ++++++++++------
+ arch/x86/include/asm/vdso/getrandom.h              |  10 +-
+ arch/x86/include/asm/vdso/gettimeofday.h           |  12 ++-
+ arch/x86/include/asm/vdso/vsyscall.h               |  14 ++-
+ arch/x86/include/asm/vvar.h                        |  71 -------------
+ arch/x86/kernel/vmlinux.lds.S                      |  23 -----
+ arch/x86/mm/mmap.c                                 |   5 -
+ arch/x86/tools/relocs.c                            |   1 -
+ include/vdso/datapage.h                            |   8 +-
+ 57 files changed, 295 insertions(+), 628 deletions(-)
+---
+base-commit: 8cf0b93919e13d1e8d4466eb4080a4c4d9d66d7b
+change-id: 20241009-vdso-generic-base-63066fd474b5
+
+Best regards,
 -- 
-1.8.3.1
+Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 
