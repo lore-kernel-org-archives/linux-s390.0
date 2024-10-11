@@ -1,195 +1,77 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03FAC209671;
-	Fri, 11 Oct 2024 06:44:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5CC521262B;
+	Fri, 11 Oct 2024 10:26:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728629049; cv=none; b=ueheFwaWd6OHMOPYQuMKjYLHUsPjFr6PECOPwVPGrqPVEYayL45eQa8/Bhwe34ZtLhyOfxZsCym4Q4sQr8EB+QH87EM/lsH1DGaYWB3SQXyrU7NXXxl1ywKgRIOx5FuWDjkoHoKbxVhH4UPIH8Fow0uP9whIBEZXtRaErNxEk1w=
+	t=1728642379; cv=none; b=Abn6jj1+OEVSpQTS6v/fu40V+bVPt9OjiLhBhpVNRXxHWrQUw3NR/xsHV3ZTftdDwNxYeYa2Y6l3NC8blBeo0EiBfn/N2TrzKFcuwtOgEQQieCxfvsJFDPGhTylFz3nMnjrZS6fOmSiSKKDCnTIHMr/W/vq6TCIy4jw6V+jIroQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728629049; c=relaxed/simple;
-	bh=ZuHgz0dsu7sdMQJFjzwOQB+CvPV20/Daho6ghr0QFvE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gXVubuxK+H5xE+io1xQzyyNgUOqIteZxfEjAzMly19y/6Qjk7XhKUKHPSyJT11aY1D8LEZZuODSyBslE3et3iF0y83mr+4WetqdDkbjKtYrBzQleR+y+HpwIrwRnX7dWqoorxTwQzie+H/LN4UHVsODx6ClXIjcN18jnromxXak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=bGXSjAx+; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="bGXSjAx+"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1728629037; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=e120bJ3NLhUF/QK78BG8TahQEd5Mu/BTj6zuxrOMDPQ=;
-	b=bGXSjAx+VxhpsAzeLbJ4INXwC2USHT4pG73ktmL6yLwpm12DS4cOEGwTrReRvF4EQb2VtBb3bEPpF//8HQm9wejBctjnDMIvCMWQ7xjdfhRJuEKxjwYX1FpSmBHoxOXAXKSA7CenmKL4PmDm2kIMwuR91K9sFCgCVbVsob3J/6U=
-Received: from 30.221.146.54(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WGp9pg9_1728629036 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 11 Oct 2024 14:43:57 +0800
-Message-ID: <b5aa477d-a4b1-45cb-af44-bd737504734e@linux.alibaba.com>
-Date: Fri, 11 Oct 2024 14:43:56 +0800
+	s=arc-20240116; t=1728642379; c=relaxed/simple;
+	bh=0dwGa9SVY9M8sJrFLhNflP9Wh3zF7oUBp2nMDwcy8DA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LMZEvwJkJggDkNCgrv5kqUuv8piQCdfQQGCA7Ceja4kSXE5v8kX2/FFvS310rUCYQA0ImXXeQmC75H0DdTS250MLMQZnP0FDHg3Py/pTuizPGwFc5gLwjHF17FJsFmpF6VJIpNrmAdOwL0Rv+jRQYkH+EPjb7EjLAxZhDAYuaFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 828ECC4CEC3;
+	Fri, 11 Oct 2024 10:26:12 +0000 (UTC)
+Date: Fri, 11 Oct 2024 11:26:10 +0100
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	"linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
+	"x86@kernel.org" <x86@kernel.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Mark Rutland <mark.rutland@arm.com>, Will Deacon <will@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>
+Subject: Re: [PATCH v3] ftrace: Consolidate ftrace_regs accessor functions
+ for archs using pt_regs
+Message-ID: <Zwj9QocrEVtgraHp@arm.com>
+References: <20241010202114.2289f6fd@gandalf.local.home>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next] net/smc: Introduce a hook to modify syn_smc at
- runtime
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
- wintera@linux.ibm.com, guwen@linux.alibaba.com,
- Alexei Starovoitov <ast@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>,
- Network Development <netdev@vger.kernel.org>,
- linux-s390 <linux-s390@vger.kernel.org>, linux-rdma@vger.kernel.org,
- Tony Lu <tonylu@linux.alibaba.com>, Paolo Abeni <pabeni@redhat.com>,
- Eric Dumazet <edumazet@google.com>, bpf <bpf@vger.kernel.org>
-References: <1728532691-20044-1-git-send-email-alibuda@linux.alibaba.com>
- <CAADnVQLXyA__zdDSiTdhaw=dXyfgmkr--cH068JvNK=JAYvRDA@mail.gmail.com>
-Content-Language: en-US
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <CAADnVQLXyA__zdDSiTdhaw=dXyfgmkr--cH068JvNK=JAYvRDA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241010202114.2289f6fd@gandalf.local.home>
 
+On Thu, Oct 10, 2024 at 08:21:14PM -0400, Steven Rostedt wrote:
+> diff --git a/arch/arm64/include/asm/ftrace.h b/arch/arm64/include/asm/ftrace.h
+> index bbb69c7751b9..5ccff4de7f09 100644
+> --- a/arch/arm64/include/asm/ftrace.h
+> +++ b/arch/arm64/include/asm/ftrace.h
+> @@ -54,6 +54,7 @@ extern void return_to_handler(void);
+>  unsigned long ftrace_call_adjust(unsigned long addr);
+>  
+>  #ifdef CONFIG_DYNAMIC_FTRACE_WITH_ARGS
+> +#define HAVE_ARCH_FTRACE_REGS
+>  struct dyn_ftrace;
+>  struct ftrace_ops;
+>  struct ftrace_regs;
 
+In case you need an ack for the arm64 change
 
-On 10/11/24 12:21 AM, Alexei Starovoitov wrote:
-> On Wed, Oct 9, 2024 at 8:58 PM D. Wythe <alibuda@linux.alibaba.com> wrote:
->>
->>
->> +__bpf_hook_start();
->> +
->> +__weak noinline int select_syn_smc(const struct sock *sk, struct sockaddr *peer)
->> +{
->> +       return 1;
->> +}
->> +
->> +__bpf_hook_end();
->> +
->>   int smc_nl_dump_hs_limitation(struct sk_buff *skb, struct netlink_callback *cb)
->>   {
->>          struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
->> @@ -156,19 +165,43 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
->>          return NULL;
->>   }
->>
->> -static bool smc_hs_congested(const struct sock *sk)
->> +static void smc_openreq_init(struct request_sock *req,
->> +                            const struct tcp_options_received *rx_opt,
->> +                            struct sk_buff *skb, const struct sock *sk)
->>   {
->> +       struct inet_request_sock *ireq = inet_rsk(req);
->> +       struct sockaddr_storage rmt_sockaddr = {};
->>          const struct smc_sock *smc;
->>
->>          smc = smc_clcsock_user_data(sk);
->>
->>          if (!smc)
->> -               return true;
->> +               return;
->>
->> -       if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
->> -               return true;
->> +       if (smc->limit_smc_hs && workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
->> +               goto out_no_smc;
->>
->> -       return false;
->> +       rmt_sockaddr.ss_family = sk->sk_family;
->> +
->> +       if (rmt_sockaddr.ss_family == AF_INET) {
->> +               struct sockaddr_in *rmt4_sockaddr =  (struct sockaddr_in *)&rmt_sockaddr;
->> +
->> +               rmt4_sockaddr->sin_addr.s_addr = ireq->ir_rmt_addr;
->> +               rmt4_sockaddr->sin_port = ireq->ir_rmt_port;
->> +#if IS_ENABLED(CONFIG_IPV6)
->> +       } else {
->> +               struct sockaddr_in6 *rmt6_sockaddr =  (struct sockaddr_in6 *)&rmt_sockaddr;
->> +
->> +               rmt6_sockaddr->sin6_addr = ireq->ir_v6_rmt_addr;
->> +               rmt6_sockaddr->sin6_port = ireq->ir_rmt_port;
->> +#endif /* CONFIG_IPV6 */
->> +       }
->> +
->> +       ireq->smc_ok = select_syn_smc(sk, (struct sockaddr *)&rmt_sockaddr);
->> +       return;
->> +out_no_smc:
->> +       ireq->smc_ok = 0;
->> +       return;
->>   }
->>
->>   struct smc_hashinfo smc_v4_hashinfo = {
->> @@ -1671,7 +1704,7 @@ int smc_connect(struct socket *sock, struct sockaddr *addr,
->>          }
->>
->>          smc_copy_sock_settings_to_clc(smc);
->> -       tcp_sk(smc->clcsock->sk)->syn_smc = 1;
->> +       tcp_sk(smc->clcsock->sk)->syn_smc = select_syn_smc(sk, addr);
->>          if (smc->connect_nonblock) {
->>                  rc = -EALREADY;
->>                  goto out;
->> @@ -2650,8 +2683,7 @@ int smc_listen(struct socket *sock, int backlog)
->>
->>          inet_csk(smc->clcsock->sk)->icsk_af_ops = &smc->af_ops;
->>
->> -       if (smc->limit_smc_hs)
->> -               tcp_sk(smc->clcsock->sk)->smc_hs_congested = smc_hs_congested;
->> +       tcp_sk(smc->clcsock->sk)->smc_openreq_init = smc_openreq_init;
->>
->>          rc = kernel_listen(smc->clcsock, backlog);
->>          if (rc) {
->> @@ -3475,6 +3507,24 @@ static void __net_exit smc_net_stat_exit(struct net *net)
->>          .exit = smc_net_stat_exit,
->>   };
->>
->> +#if IS_ENABLED(CONFIG_BPF_SYSCALL)
->> +BTF_SET8_START(bpf_smc_fmodret_ids)
->> +BTF_ID_FLAGS(func, select_syn_smc)
->> +BTF_SET8_END(bpf_smc_fmodret_ids)
->> +
->> +static const struct btf_kfunc_id_set bpf_smc_fmodret_set = {
->> +       .owner = THIS_MODULE,
->> +       .set   = &bpf_smc_fmodret_ids,
->> +};
->> +
->> +static int bpf_smc_kfunc_init(void)
->> +{
->> +       return register_btf_fmodret_id_set(&bpf_smc_fmodret_set);
->> +}
-> 
-> fmodret was an approach that hid-bpf took initially,
-> but eventually they removed it all and switched to struct-ops approach.
-> Please learn that lesson.
-> Use struct_ops from the beginning.
-> 
-> I did a presentation recently explaining the motivation behind
-> struct_ops and tips on how to extend the kernel.
-> TLDR: the step one is to design the extension _without_ bpf.
-> The interface should be usable for kernel modules.
-> And then when you have *_ops style api in place
-> the bpf progs will plug-in without extra work.
-> 
-> Slides:
-> https://github.com/4ast/docs/blob/main/BPF%20struct-ops.pdf
-
-
-Hi Alexei,
-
-Thanks very much for your suggestion.
-
-In fact, I tried struct_ops in SMC about a year ago. Unfortunately, at that time struct_ops did not 
-support registration from modules, and I had to move some smc dependencies into bpf, which met with 
-community opposition. However, I noticed that this feature is now supported, so perhaps this is an 
-opportunity.
-
-But on the other hand, given the current functionality, I wonder if struct_ops might be an overkill. 
-I haven't been able to come up with a suitable abstraction to define this ops, and in the future, 
-this ops might only contain the very one callback (select_syn_smc).
-
-Looking forward for your advises.
-
-Thanks,
-D. Wythe
-
-
-
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
