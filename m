@@ -1,77 +1,77 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5CC521262B;
-	Fri, 11 Oct 2024 10:26:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4CD920CCE6;
+	Fri, 11 Oct 2024 13:27:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728642379; cv=none; b=Abn6jj1+OEVSpQTS6v/fu40V+bVPt9OjiLhBhpVNRXxHWrQUw3NR/xsHV3ZTftdDwNxYeYa2Y6l3NC8blBeo0EiBfn/N2TrzKFcuwtOgEQQieCxfvsJFDPGhTylFz3nMnjrZS6fOmSiSKKDCnTIHMr/W/vq6TCIy4jw6V+jIroQ=
+	t=1728653228; cv=none; b=e3mzM2YXs3Mcajm0/GKIgGFT9AVi0KbBpJT7+fxsJx3Ynwd/AifyKJk2fK+oTEIYoQOXDd1Rm+nxDNeVUl4KmDRlp1VOfxln7IEOn+7nIV49lOEtzDpkKJFfh6eJoYQQiCgcIccaFgx5V2XNoC/ERn3+kr8FYl6j+70dyIXkwBQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728642379; c=relaxed/simple;
-	bh=0dwGa9SVY9M8sJrFLhNflP9Wh3zF7oUBp2nMDwcy8DA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LMZEvwJkJggDkNCgrv5kqUuv8piQCdfQQGCA7Ceja4kSXE5v8kX2/FFvS310rUCYQA0ImXXeQmC75H0DdTS250MLMQZnP0FDHg3Py/pTuizPGwFc5gLwjHF17FJsFmpF6VJIpNrmAdOwL0Rv+jRQYkH+EPjb7EjLAxZhDAYuaFQ=
+	s=arc-20240116; t=1728653228; c=relaxed/simple;
+	bh=mvvtwNbvKp4A1OTylp8dWmb0t1EgcxbEJKD/LzFMstA=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=pnhJGGsHmT1LQImW9oTmEE5oKlfoomK7AQyNuTccTFPfHRXHmuGqLuYPxoBdFPIv3r3QDEx8YcX+tLV06FSQU9q4eH3UoU49jTG8oXJuvQKNzlCctb2ZzLzYeibQQHl5D0+aj5xV0/H8A+XwerrgdZXkuAZATuTHMTxv7jd92KA=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 828ECC4CEC3;
-	Fri, 11 Oct 2024 10:26:12 +0000 (UTC)
-Date: Fri, 11 Oct 2024 11:26:10 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: Steven Rostedt <rostedt@goodmis.org>
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1D23C4CEC7;
+	Fri, 11 Oct 2024 13:27:04 +0000 (UTC)
+Date: Fri, 11 Oct 2024 09:27:14 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Catalin Marinas <catalin.marinas@arm.com>
 Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	"linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-	"x86@kernel.org" <x86@kernel.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Mark Rutland <mark.rutland@arm.com>, Will Deacon <will@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, "linux-arch@vger.kernel.org"
+ <linux-arch@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, Masami
+ Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, Mark Rutland <mark.rutland@arm.com>, Will
+ Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
+ <kernel@xen0n.name>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin
+ <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen
+ N Rao <naveen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, Paul
+ Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas
+ Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, Borislav
+ Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>
 Subject: Re: [PATCH v3] ftrace: Consolidate ftrace_regs accessor functions
  for archs using pt_regs
-Message-ID: <Zwj9QocrEVtgraHp@arm.com>
+Message-ID: <20241011092714.71074a2b@gandalf.local.home>
+In-Reply-To: <Zwj9QocrEVtgraHp@arm.com>
 References: <20241010202114.2289f6fd@gandalf.local.home>
+	<Zwj9QocrEVtgraHp@arm.com>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241010202114.2289f6fd@gandalf.local.home>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, Oct 10, 2024 at 08:21:14PM -0400, Steven Rostedt wrote:
-> diff --git a/arch/arm64/include/asm/ftrace.h b/arch/arm64/include/asm/ftrace.h
-> index bbb69c7751b9..5ccff4de7f09 100644
-> --- a/arch/arm64/include/asm/ftrace.h
-> +++ b/arch/arm64/include/asm/ftrace.h
-> @@ -54,6 +54,7 @@ extern void return_to_handler(void);
->  unsigned long ftrace_call_adjust(unsigned long addr);
->  
->  #ifdef CONFIG_DYNAMIC_FTRACE_WITH_ARGS
-> +#define HAVE_ARCH_FTRACE_REGS
->  struct dyn_ftrace;
->  struct ftrace_ops;
->  struct ftrace_regs;
+On Fri, 11 Oct 2024 11:26:10 +0100
+Catalin Marinas <catalin.marinas@arm.com> wrote:
 
-In case you need an ack for the arm64 change
+> On Thu, Oct 10, 2024 at 08:21:14PM -0400, Steven Rostedt wrote:
+> > diff --git a/arch/arm64/include/asm/ftrace.h b/arch/arm64/include/asm/ftrace.h
+> > index bbb69c7751b9..5ccff4de7f09 100644
+> > --- a/arch/arm64/include/asm/ftrace.h
+> > +++ b/arch/arm64/include/asm/ftrace.h
+> > @@ -54,6 +54,7 @@ extern void return_to_handler(void);
+> >  unsigned long ftrace_call_adjust(unsigned long addr);
+> >  
+> >  #ifdef CONFIG_DYNAMIC_FTRACE_WITH_ARGS
+> > +#define HAVE_ARCH_FTRACE_REGS
+> >  struct dyn_ftrace;
+> >  struct ftrace_ops;
+> >  struct ftrace_regs;  
+> 
+> In case you need an ack for the arm64 change
+> 
+> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Thanks, appreciate it.
+
+-- Steve
