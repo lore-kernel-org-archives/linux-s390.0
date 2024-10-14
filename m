@@ -1,176 +1,150 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B7F549659;
-	Mon, 14 Oct 2024 15:48:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 371C8231C8A;
+	Mon, 14 Oct 2024 17:53:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728920891; cv=none; b=ljCqNPhQWYwSd8YYMh7FcyQgtzsCT3HnINW/pZ5HU0VPabVvkfC4GP5PXWM2WsdWc6DZCPDL+2RgYJxePKU4K8Gwgo2a2MjXKlFEHcZ+kHXRxWPP3B87GxezZbtDlIJatZeT+Z6e+7CpHz1YhCNvokxwUANH0is1kBXJF2PYoaY=
+	t=1728928433; cv=none; b=GuIE6OypqWJsIPEjzHv/JkiLD8/nNITM18tmNpcbGe3mAEhEJxJb6H+2O5bxmyxJtvYou7oPsohSaQyGANzo4LutuWu0OD/Kd+10zczhkM7vd2WqCunJS6OHD4/t6aZR21xTPsg1U8vyky6S9k4AM4YyhoYNarMtAu/rSrNqJtc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728920891; c=relaxed/simple;
-	bh=E8NAc1rPlB54YfCHnEK8PZkZMrzWKd3HqcptMOAU8OQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=R3Rs9HMVYbqkYXZw143DhmByrXPXcXQDIQIgJ9c7tnOcFgkW7j9bkNN3CMBo2xH/TeEflu4OqgBwLyGbqbaWvi+1eqZLMA64V7NhaGA7lxm7ZsjciulnVYP87qg1X02EmMDEqk1kxVbS0/SeMvJ7JZz38nCSX8d8g+KwTKoHUho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=H4y6RVpg; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1728928433; c=relaxed/simple;
+	bh=v+mnqLFStPaJF5Mc8YcJfD7J7cx62hdqhcZqrfk1hHk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KSuc/tYL3whmf/AVXZor9KdNq+wr/Lf6F1+fwraHYH7Oidg2j7Zs3mIwxF7iI92t6SQHZLm81EEmxS6d4r9V/eWPEXIDeq/EGpro0YADQMEN8+JjjNCMFecpKsT344ibvWqqnWBo3D6+MJOvf/gQaA6ho85M9ZCur5I213WoNbY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MAWNDWJi; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="H4y6RVpg"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MAWNDWJi"
 Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49EEPArw027489;
-	Mon, 14 Oct 2024 15:47:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:date:mime-version:subject:to:cc:references:from
-	:in-reply-to:content-type:content-transfer-encoding; s=pp1; bh=m
-	qTXyRWMB3w0HH0XDXzBsU9A4VKm9qePpWykY6DK43Q=; b=H4y6RVpgiYsGQPpOt
-	gCmJWd1gzeYNZXLvt79UsOUMjRQdZ+WMQ/53slT8i3a38gIhXaFemfkm0zyYL2TS
-	P5P4D3iM0Q+ap9Z4LcjU6eyqcRBcZ+zfIC8wrAmF7z0hjDzPLR68TjQcViLj0m2B
-	6Q+toG7DuodZPn44U974gKIG43fRx55fyfCgtDDULyu/MC0PxKWap7OV1uSc3P/F
-	vfeoOdiNwWBGPMs9ReMQBE/isePJG/b1bepAlYtfgmbL9HAepNZhoTDQlc/tTCBi
-	QOHnn1FGyKqkqYsXGViVAUXQvxWc0kNFXdouKCQ+1D+2uWSDh+vLjMMImLXuX/PQ
-	C9zhg==
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49EHpnhJ032095;
+	Mon, 14 Oct 2024 17:53:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
+	:from:to:cc:subject:message-id:references:mime-version
+	:content-type:in-reply-to; s=pp1; bh=brLW2EcSwr3dgFdZYov7EsAvpYw
+	fb5CRO99N/OPunA4=; b=MAWNDWJiZRG4uc1TJl8OSC3XFdTTvCXrznd/Ha0VShH
+	wxgDeEO1JHhiA4fNVeZRYmcXUpcYsWa8YNevpkEhEw4wLakdzpXw5fPfM5gqZ5AL
+	lxtfNxAqRXGmX2nZ19xX43YlPHn/53QizNI4UlHrodNROKBuKqwaA/cZAtL8m5sM
+	CQhIukttr9i2wao0GFPvKDuKk7M138WvhHBYi0/QKdhXh2BdLsRh7yNOls0DmfNo
+	zwnXrqoEc2cY7rwOph6xiJrZTSc5u4x717kR/h8v8A00l8HzoA/+ssiXd47JFAF6
+	vuiKZBIEJSXf5qaxo0XmvKJQG3hxTNnNwFgRJuTJAhQ==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42951u8d9f-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42982kg05s-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Oct 2024 15:47:05 +0000 (GMT)
+	Mon, 14 Oct 2024 17:53:44 +0000 (GMT)
 Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49EFggWY013650;
-	Mon, 14 Oct 2024 15:47:05 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42951u8d98-1
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49EHrhJk003502;
+	Mon, 14 Oct 2024 17:53:43 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42982kg05j-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Oct 2024 15:47:04 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49ECgom4005930;
-	Mon, 14 Oct 2024 15:47:03 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 428650q0jk-1
+	Mon, 14 Oct 2024 17:53:43 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49EHgPUo027432;
+	Mon, 14 Oct 2024 17:53:42 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4283txfxmh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Oct 2024 15:47:03 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49EFl2FM41484626
+	Mon, 14 Oct 2024 17:53:41 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49EHrcwV46203318
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 14 Oct 2024 15:47:02 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 43ED75805E;
-	Mon, 14 Oct 2024 15:47:02 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1171758050;
-	Mon, 14 Oct 2024 15:46:41 +0000 (GMT)
-Received: from [9.43.6.16] (unknown [9.43.6.16])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 14 Oct 2024 15:46:40 +0000 (GMT)
-Message-ID: <43eacfd6-e1a3-4d2c-9511-9b5a5707bdcf@linux.ibm.com>
-Date: Mon, 14 Oct 2024 21:16:38 +0530
+	Mon, 14 Oct 2024 17:53:38 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3480020049;
+	Mon, 14 Oct 2024 17:53:38 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 397BC20040;
+	Mon, 14 Oct 2024 17:53:37 +0000 (GMT)
+Received: from osiris (unknown [9.171.66.174])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 14 Oct 2024 17:53:37 +0000 (GMT)
+Date: Mon, 14 Oct 2024 19:53:35 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
+Subject: Re: [PATCH v2 7/7] s390/sparsemem: reduce section size to 128 MiB
+Message-ID: <20241014175335.10447-B-hca@linux.ibm.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-8-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 3/5] powerpc: perf: Use perf_arch_instruction_pointer()
-To: Colton Lewis <coltonlewis@google.com>, kvm@vger.kernel.org
-Cc: Oliver Upton <oliver.upton@linux.dev>,
-        Sean Christopherson <seanjc@google.com>,
-        Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>, Will Deacon <will@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H . Peter Anvin" <hpa@zytor.com>, linux-perf-users@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-References: <20240920174740.781614-1-coltonlewis@google.com>
- <20240920174740.781614-4-coltonlewis@google.com>
-Content-Language: en-US
-From: Madhavan Srinivasan <maddy@linux.ibm.com>
-In-Reply-To: <20240920174740.781614-4-coltonlewis@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241014144622.876731-8-david@redhat.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Jwz0y2srETrJq5vnDrTRMrnGUJsrEiit
-X-Proofpoint-ORIG-GUID: ZjFOQbPfI4aepiuQmLev7nPPg0fy7QCF
+X-Proofpoint-ORIG-GUID: 5D_xC6nknQqUzkF7BmFqB2_0PkJpbEq7
+X-Proofpoint-GUID: UKk9TP1S1FoYIjDngHQjul4Nmfsk5MhM
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-14_10,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- priorityscore=1501 clxscore=1015 adultscore=0 impostorscore=0
- lowpriorityscore=0 bulkscore=0 spamscore=0 mlxlogscore=999 mlxscore=0
- phishscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2409260000 definitions=main-2410140113
+ definitions=2024-10-14_12,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=4 mlxlogscore=143
+ malwarescore=0 adultscore=0 suspectscore=0 clxscore=1011 impostorscore=0
+ priorityscore=1501 mlxscore=4 bulkscore=0 spamscore=4 lowpriorityscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410140128
 
-
-
-On 9/20/24 11:17 PM, Colton Lewis wrote:
-> Make sure powerpc uses the arch-specific function now that those have
-> been reorganized.
->
-
-Changes looks fine to me.
-Acked-by: Madhavan Srinivasan <maddy@linux.ibm.com>
-
- 
-> Signed-off-by: Colton Lewis <coltonlewis@google.com>
-> ---
->  arch/powerpc/perf/callchain.c    | 2 +-
->  arch/powerpc/perf/callchain_32.c | 2 +-
->  arch/powerpc/perf/callchain_64.c | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
+On Mon, Oct 14, 2024 at 04:46:19PM +0200, David Hildenbrand wrote:
+> Ever since commit 421c175c4d609 ("[S390] Add support for memory hot-add.")
+> we've been using a section size of 256 MiB on s390 and 32 MiB on s390.
+> Before that, we were using a section size of 32 MiB on both
+> architectures.
 > 
-> diff --git a/arch/powerpc/perf/callchain.c b/arch/powerpc/perf/callchain.c
-> index 6b4434dd0ff3..26aa26482c9a 100644
-> --- a/arch/powerpc/perf/callchain.c
-> +++ b/arch/powerpc/perf/callchain.c
-> @@ -51,7 +51,7 @@ perf_callchain_kernel(struct perf_callchain_entry_ctx *entry, struct pt_regs *re
->  
->  	lr = regs->link;
->  	sp = regs->gpr[1];
-> -	perf_callchain_store(entry, perf_instruction_pointer(regs));
-> +	perf_callchain_store(entry, perf_arch_instruction_pointer(regs));
->  
->  	if (!validate_sp(sp, current))
->  		return;
-> diff --git a/arch/powerpc/perf/callchain_32.c b/arch/powerpc/perf/callchain_32.c
-> index ea8cfe3806dc..ddcc2d8aa64a 100644
-> --- a/arch/powerpc/perf/callchain_32.c
-> +++ b/arch/powerpc/perf/callchain_32.c
-> @@ -139,7 +139,7 @@ void perf_callchain_user_32(struct perf_callchain_entry_ctx *entry,
->  	long level = 0;
->  	unsigned int __user *fp, *uregs;
->  
-> -	next_ip = perf_instruction_pointer(regs);
-> +	next_ip = perf_arch_instruction_pointer(regs);
->  	lr = regs->link;
->  	sp = regs->gpr[1];
->  	perf_callchain_store(entry, next_ip);
-> diff --git a/arch/powerpc/perf/callchain_64.c b/arch/powerpc/perf/callchain_64.c
-> index 488e8a21a11e..115d1c105e8a 100644
-> --- a/arch/powerpc/perf/callchain_64.c
-> +++ b/arch/powerpc/perf/callchain_64.c
-> @@ -74,7 +74,7 @@ void perf_callchain_user_64(struct perf_callchain_entry_ctx *entry,
->  	struct signal_frame_64 __user *sigframe;
->  	unsigned long __user *fp, *uregs;
->  
-> -	next_ip = perf_instruction_pointer(regs);
-> +	next_ip = perf_arch_instruction_pointer(regs);
->  	lr = regs->link;
->  	sp = regs->gpr[1];
->  	perf_callchain_store(entry, next_ip);
+> Likely the reason was that we'd expect a storage increment size of
+> 256 MiB under z/VM back then. As we didn't support memory blocks spanning
+> multiple memory sections, we would have had to handle having multiple
+> memory blocks for a single storage increment, which complicates things.
+> Although that issue reappeared with even bigger storage increment sizes
+> later, nowadays we have memory blocks that can span multiple memory
+> sections and we avoid any such issue completely.
 
+I doubt that z/VM had support for memory hotplug back then already; and the
+sclp memory hotplug code was always written in a way that it could handle
+increment sizes smaller, larger or equal to section sizes.
+
+If I remember correctly the section size was also be used to represent each
+piece of memory in sysfs (aka memory block). So the different sizes were
+chosen to avoid an excessive number of sysfs entries on 64 bit.
+
+This problem went away later with the introduction of memory_block_size.
+
+Even further back in time I think there were static arrays which had
+2^(MAX_PHYSMEM_BITS - SECTION_SIZE_BITS) elements.
+
+I just gave it a try and, as nowadays expected, bloat-o-meter doesn't
+indicate anything like that anymore.
+
+> 128 MiB has been used by x86-64 since the very beginning. arm64 with 4k
+> base pages switched to 128 MiB as well: it's just big enough on these
+> architectures to allows for using a huge page (2 MiB) in the vmemmap in
+> sane setups with sizeof(struct page) == 64 bytes and a huge page mapping
+> in the direct mapping, while still allowing for small hot(un)plug
+> granularity.
+> 
+> For s390, we could even switch to a 64 MiB section size, as our huge page
+> size is 1 MiB: but the smaller the section size, the more sections we'll
+> have to manage especially on bigger machines. Making it consistent with
+> x86-64 and arm64 feels like te right thing for now.
+
+That's fine with me.
+
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
