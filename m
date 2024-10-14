@@ -1,66 +1,66 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF7B91CACE4
-	for <linux-s390@vger.kernel.org>; Mon, 14 Oct 2024 19:18:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EA2D7F7FC
+	for <linux-s390@vger.kernel.org>; Mon, 14 Oct 2024 19:26:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728933485; cv=none; b=mc5IVx7xyAxZfRSpxc2HAoUhKpwMg+jpKcSTWpO77gO1f0WpaslH/4LqXNB7uHevD+lbs7518hHX6Kad1HX1SyRvfzn+hEveR3U+B8O2NM554xefTyjfZrugpUqQUmEL2xymp3mNTu4OrB07q7mCNR761z0DXZEqgIkyd5Njoq8=
+	t=1728933972; cv=none; b=K3b1/L4D0wCaLOpJx2151eeEZCv89oZP2AY6N3nFnti+w9m9tlJemiVaZoj7gSrE9goDLo+PF/ES1rqdGkgiTopFlPloo4vhiqhXHwrCGm6+eM6msEuKr8k5aP9Pb2tjLaEAjbXOdQ0miCqSoqss494t1arFAuxPmgc3MB8uXJk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728933485; c=relaxed/simple;
-	bh=P1unHhBStk4RRcFI3dRYNMe+aV+Q3cE7EjiTMg2bVDU=;
+	s=arc-20240116; t=1728933972; c=relaxed/simple;
+	bh=mzpLzrClCHVleqISh7AUGsmPYpB2iOLEtRLRcBrdom0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iUQkMLKZW4wd0rctX2jWTl5FTFAj71Xcr/jEwpgIt3oQNx5org/7hPgCx1z4Z9T3kmnHhIvQ/ZUEihDW0ecw//lWktZkXbNAyiijWbvY38Py0zVhBlWRvfQJyJDk9FgZUmVuPvjBwVlyQYNTnStfX35016zDPUKXspJS6vR7JKw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eBWWb5c7; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=qnfrD6QprHrhKDOgszqbzNchv2n18YJYDDFlj15vYUxGMiQ5CJJVl9HloGmlejIlHnAqSwSnYJ3ejW+vpTr4rQ8eSd74xTqysWmdCJ2h/JwSuK/Nw7gEH69TVA9+madS3P+cnjJWUs1Ci2TCGt1pj3Q0+e3Teh4MnmvZ2swcyaE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CbPIdNnh; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eBWWb5c7"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CbPIdNnh"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1728933482;
+	s=mimecast20190719; t=1728933969;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=zF47rTw5gKSqUML4iQcgfNgbusXB9cJHVaZjLwRrtaQ=;
-	b=eBWWb5c79ssiiOBGuUqi3+BTZj61Ns2/YG+kqxvrJXLHUPfAIylOkyzHX+YYzDaou7XsXJ
-	VL+gx/FiYJREfiVZX3JPkGV17zqt5X2GjzNPnIb9KceBEtdSb0Cx/RIZxEnkrBNc0v+Qyu
-	iXOuSpD4x7i7V8QBBlAXm+tcodIiQXU=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=DuTddS/X2ZHJjeoQk4qhcSOa+j0yfxlG1Fj2goHGJ/Y=;
+	b=CbPIdNnh9wvx45Mn4frFWLq1WJElW7SyMo9etggN2GUS8j82EFClWGnmoAQFpBJ6CHQVoD
+	T/v31QUn/9il3o/B+b4GnmAs2zxwydsGH0m1u0PLSCcTz5mxqUhq58PNF363A1Y9zC6aSN
+	DeVzV6IokRnil+JhGHAyyKKJeZzyscM=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-478-gq15GuBSPEKTUOYskCihYw-1; Mon, 14 Oct 2024 15:17:59 -0400
-X-MC-Unique: gq15GuBSPEKTUOYskCihYw-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4311407ae76so23931715e9.3
-        for <linux-s390@vger.kernel.org>; Mon, 14 Oct 2024 12:17:59 -0700 (PDT)
+ us-mta-173-0ZZvSI_TObiqEtopxg0ltg-1; Mon, 14 Oct 2024 15:26:08 -0400
+X-MC-Unique: 0ZZvSI_TObiqEtopxg0ltg-1
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-37d533a484aso1558418f8f.0
+        for <linux-s390@vger.kernel.org>; Mon, 14 Oct 2024 12:26:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728933478; x=1729538278;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=zF47rTw5gKSqUML4iQcgfNgbusXB9cJHVaZjLwRrtaQ=;
-        b=QYMx2E0G0+DuM+wU8x0+fZzIaPowsa25wBLT/ae/pRW028SQOqACy4kGGRYgL+3QV3
-         IwRMd+PmBfuSBP95aGCPmz5KLoxhoUfntHVgrj3NOOFFz6/PGXEZ3pPIAHlF+ewiSv7X
-         XBECDJMS12feqQUvaBOR1k05FFxHGeG1aV+ZCnZekNkxus0K2e+KsiFu/O6gNNYquAGc
-         /8zYmaWeQgh7sqW8NHpqoCFe4S+cWhoYx5LK1HXP7pRwfJjP7upG0QaNHaeehycg8FVC
-         YvUlmlLOGioSF9UxkJTlQ+iFU66J+4lxVC8WVxzhtShkrqTte5dxkH7ZFYMT+hlNb9A+
-         erqg==
-X-Forwarded-Encrypted: i=1; AJvYcCUewqn5V+sRw7KTxcJ1wIed9itJrcM107XEwpTgoI5VMbaXJeIg7HH11p1tZ+VonSoWl2yn/vKO3V4P@vger.kernel.org
-X-Gm-Message-State: AOJu0YytbOGwB58Wl38d+fEVJoS34FdShBs26jni3oh/zyyaU4CQXlid
-	Mu6/Gx11dLK7BQSE2PDJqGCzbBHtwvGtAAiXpYsHB7b4w2z9QKgyBleh1JZxyFgWML1EWPq8Aex
-	Is/LNtdSOqtmIh/myR9Rl7mX6PLN3aIZWFxtgomizLVFyihnvaP24aUWUXQU=
-X-Received: by 2002:a05:600c:5129:b0:428:ec2a:8c94 with SMTP id 5b1f17b1804b1-4311ded5170mr103650705e9.10.1728933478491;
-        Mon, 14 Oct 2024 12:17:58 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGOPrVjVtDpiI7kuxpfNHU/NZDKpMRlCTo/lMm+NEGQtHVKVZOZ0hTh3r3DYjD+mjcUDqCOlQ==
-X-Received: by 2002:a05:600c:5129:b0:428:ec2a:8c94 with SMTP id 5b1f17b1804b1-4311ded5170mr103650575e9.10.1728933478030;
-        Mon, 14 Oct 2024 12:17:58 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1728933967; x=1729538767;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=DuTddS/X2ZHJjeoQk4qhcSOa+j0yfxlG1Fj2goHGJ/Y=;
+        b=Ma2xoB5vEMlX7hKjuMBaLsgIpdG9TMrzKSimenXvMdaBtQJcmBkjze4BR0sSfJOVJf
+         gSFEW5GSgHYABqgVF+SD+4kH+r5JK8STjUbOoOb+SrFo3rsdCzmo11e3GbTohEJqDWIB
+         c1xyTOmyJVsViPKaLmp3+v2KNa23UmrSV5SOXAs5aM/htlQBZHQGkjxWLTDar+hxqkAq
+         3Iey0+wskv0Lvuerj+gan82HxrGcUHvS5xevLXIHN6beuwNSiI8vpJVuRuWCdMoiKFKS
+         0d9/Yh/riGfkaCjQPyM0tneDVM1o7Hmz2pxfRcafe0ADz5Tx1xzZzMmM4cMZYoTimHcL
+         1+zA==
+X-Forwarded-Encrypted: i=1; AJvYcCV60yNilG0T7+8n/0t/ZXbpex+UwkqlsSZ0tff4DSy7koh9ruEJjhUI9VEq1CWzabN3ohSF1jpv4IU0@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx+hdC45B/dEAZVqonVghNmuHyz7oYRsjPpsR3mSByrgj2bC7kT
+	lqGRCyZ6ThC30O66Z2FbLnl4tXHMyasg7gyLoPx7phtkMKwCE5vxk00i/NbU+KJLXmirn/WLEz7
+	/AtJYG6+RqmqXCm2WoOhbCzKatu6m5uzdJZ8u3c95wsrB1MxpwMGZFTddVfc=
+X-Received: by 2002:a5d:6502:0:b0:37d:321e:ef0c with SMTP id ffacd0b85a97d-37d481749f6mr13355031f8f.11.1728933966976;
+        Mon, 14 Oct 2024 12:26:06 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGSqIUDVAQ8yDJ3M4cXNcdYJWjEhFZPZWWc8/QCZ41ZlMC+nT4x3VWwvTySfdaFjPhnyy97+Q==
+X-Received: by 2002:a5d:6502:0:b0:37d:321e:ef0c with SMTP id ffacd0b85a97d-37d481749f6mr13355004f8f.11.1728933966496;
+        Mon, 14 Oct 2024 12:26:06 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c71e:600:9fbb:f0bf:d958:5c70? (p200300cbc71e06009fbbf0bfd9585c70.dip0.t-ipconnect.de. [2003:cb:c71e:600:9fbb:f0bf:d958:5c70])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-430d748dd50sm162401745e9.47.2024.10.14.12.17.56
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-431182ffd14sm128833165e9.18.2024.10.14.12.26.04
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Oct 2024 12:17:57 -0700 (PDT)
-Message-ID: <f13c8c11-6fa3-480a-8035-6beb965fd01f@redhat.com>
-Date: Mon, 14 Oct 2024 21:17:56 +0200
+        Mon, 14 Oct 2024 12:26:05 -0700 (PDT)
+Message-ID: <f93b2c89-821a-4da1-8953-73ccd129a074@redhat.com>
+Date: Mon, 14 Oct 2024 21:26:03 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,7 +68,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/7] virtio-mem: s390 support
+Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
 To: Heiko Carstens <hca@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
@@ -81,11 +81,12 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
  Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
  <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
- Jonathan Corbet <corbet@lwn.net>
+ Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
 References: <20241014144622.876731-1-david@redhat.com>
- <20241014185659.10447-H-hca@linux.ibm.com>
-Content-Language: en-US
+ <20241014144622.876731-2-david@redhat.com>
+ <20241014182054.10447-D-hca@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
  dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
@@ -131,52 +132,71 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20241014185659.10447-H-hca@linux.ibm.com>
+In-Reply-To: <20241014182054.10447-D-hca@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 14.10.24 20:56, Heiko Carstens wrote:
-> On Mon, Oct 14, 2024 at 04:46:12PM +0200, David Hildenbrand wrote:
->> Let's finally add s390 support for virtio-mem; my last RFC was sent
->> 4 years ago, and a lot changed in the meantime.
+On 14.10.24 20:20, Heiko Carstens wrote:
+> On Mon, Oct 14, 2024 at 04:46:13PM +0200, David Hildenbrand wrote:
+>> s390 currently always results in is_kdump_kernel() == false, because
+>> it sets "elfcorehdr_addr = ELFCORE_ADDR_MAX;" early during setup_arch to
+>> deactivate the elfcorehdr= kernel parameter.
 >>
->> The latest QEMU series is available at [1], which contains some more
->> details and a usage example on s390 (last patch).
+>> Let's follow the powerpc example and implement our own logic.
 >>
->> There is not too much in here: The biggest part is querying a new diag(500)
->> STORAGE_LIMIT hypercall to obtain the proper "max_physmem_end".
+>> This is required for virtio-mem to reliably identify a kdump
+>> environment to not try hotplugging memory.
 >>
->> The last two patches are not strictly required but certainly nice-to-have.
->>
->> Note that -- in contrast to standby memory -- virtio-mem memory must be
->> configured to be automatically onlined as soon as hotplugged. The easiest
->> approach is using the "memhp_default_state=" kernel parameter or by using
->> proper udev rules. More details can be found at [2].
->>
->> I have reviving+upstreaming a systemd service to handle configuring
->> that on my todo list, but for some reason I keep getting distracted ...
->>
->> I tested various things, including:
->>   * Various memory hotplug/hotunplug combinations
->>   * Device hotplug/hotunplug
->>   * /proc/iomem output
->>   * reboot
->>   * kexec
->>   * kdump: make sure we don't hotplug memory
->>
->> One remaining work item is kdump support for virtio-mem memory. This will
->> be sent out separately once initial support landed.
+>> Tested-by: Mario Casquero <mcasquer@redhat.com>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>   arch/s390/include/asm/kexec.h | 4 ++++
+>>   arch/s390/kernel/crash_dump.c | 6 ++++++
+>>   2 files changed, 10 insertions(+)
 > 
-> Besides the open kdump question, which I think is quite important, how
-> is this supposed to go upstream?
+> Looks like this could work. But the comment in smp.c above
+> dump_available() needs to be updated.
 
-MST suggested via the s390 tree in v1.
+A right, I remember that there was some outdated documentation.
 
 > 
-> This could go via s390, however in any case this needs reviews and/or
-> Acks from kvm folks.
+> Are you willing to do that, or should I provide an addon patch?
+> 
 
-Yes, hoping there will be some review (there was some on the QEMU series).
+I can squash the following:
+
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 4df56fdb2488..a4f538876462 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -587,16 +587,16 @@ int smp_store_status(int cpu)
+   *    with sigp stop-and-store-status. The firmware or the boot-loader
+   *    stored the registers of the boot CPU in the absolute lowcore in the
+   *    memory of the old system.
+- * 3) kdump and the old kernel did not store the CPU state,
+- *    or stand-alone kdump for DASD
+- *    condition: OLDMEM_BASE != NULL && !is_kdump_kernel()
++ * 3) kdump or stand-alone kdump for DASD
++ *    condition: OLDMEM_BASE != NULL && !is_ipl_type_dump() == false
+   *    The state for all CPUs except the boot CPU needs to be collected
+   *    with sigp stop-and-store-status. The kexec code or the boot-loader
+   *    stored the registers of the boot CPU in the memory of the old system.
+- * 4) kdump and the old kernel stored the CPU state
+- *    condition: OLDMEM_BASE != NULL && is_kdump_kernel()
+- *    This case does not exist for s390 anymore, setup_arch explicitly
+- *    deactivates the elfcorehdr= kernel parameter
++ *
++ * Note that the old Kdump mode where the old kernel stored the CPU state
++ * does no longer exist: setup_arch explicitly deactivates the elfcorehdr=
++ * kernel parameter. The is_kudmp_kernel() implementation on s390 is independent
++ * of the elfcorehdr= parameter.
+   */
+  static bool dump_available(void)
+  {
+
+
+Does that sound reasonable? I'm not so sure about the "2) stand-alone kdump for
+SCSI/NVMe (zfcp/nvme dump with swapped memory)": is that really "kdump" ?
 
 -- 
 Cheers,
