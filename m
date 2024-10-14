@@ -1,66 +1,66 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF9381CACD8
-	for <linux-s390@vger.kernel.org>; Mon, 14 Oct 2024 19:16:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF7B91CACE4
+	for <linux-s390@vger.kernel.org>; Mon, 14 Oct 2024 19:18:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728933414; cv=none; b=rM/OhwiOMzSwwKBEZRUN6wO/SraU5ToZOQ9ebAav1BDodoZBw8Y9T+iWbGK+ci6pBkLHUzdkQE7U+j6WY1eOLDPKAy6sN+NROwgIl/1R6tnxe+4ZTKydRHed6JXm6TzqCulBV5o4rgsjEyvkiQ1ZGfpUUwF9YgnvRJ8id61WU/I=
+	t=1728933485; cv=none; b=mc5IVx7xyAxZfRSpxc2HAoUhKpwMg+jpKcSTWpO77gO1f0WpaslH/4LqXNB7uHevD+lbs7518hHX6Kad1HX1SyRvfzn+hEveR3U+B8O2NM554xefTyjfZrugpUqQUmEL2xymp3mNTu4OrB07q7mCNR761z0DXZEqgIkyd5Njoq8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728933414; c=relaxed/simple;
-	bh=4dLSC1AqyzV3uC10Q3HwD5XOgaZY1SpinKQv+dE8wno=;
+	s=arc-20240116; t=1728933485; c=relaxed/simple;
+	bh=P1unHhBStk4RRcFI3dRYNMe+aV+Q3cE7EjiTMg2bVDU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CYLXvdy8R6jVYQrsFMHKdcQsfOLMxyXcKueRfKBay7qZrHcy4aopVEie/0ljT1RhPEwJQFuxCJZ3CMqvKU1EC5RXl7EW1m1sg6Yy8f8EaEqjcxcwWLpi1fGlk8UZAVBCJfdutfiOE/BtHnREDQA2+/n/nI7kEFG/DYgNzNkoxzg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Lo4eXykn; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=iUQkMLKZW4wd0rctX2jWTl5FTFAj71Xcr/jEwpgIt3oQNx5org/7hPgCx1z4Z9T3kmnHhIvQ/ZUEihDW0ecw//lWktZkXbNAyiijWbvY38Py0zVhBlWRvfQJyJDk9FgZUmVuPvjBwVlyQYNTnStfX35016zDPUKXspJS6vR7JKw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eBWWb5c7; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Lo4eXykn"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eBWWb5c7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1728933411;
+	s=mimecast20190719; t=1728933482;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=sQIx8Zvd1bi6csR0yDCe7VkAynOD+MUuQmAi1iHX0fA=;
-	b=Lo4eXyknESQkjxxNGgx/lo8ShBohjbJcbZprAq+IiL8HbL9bO0WDg4yS0G0mgN6/WqBh1/
-	9It6Yv8510ZFukUZzgQnYbAemn6TWx1vpNuHfSGwSOP7C7faXQIWl7iU1MYngoW/TX6dBL
-	5LwLQvCrmwKHPdTwZCspWcqMahoD9nM=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=zF47rTw5gKSqUML4iQcgfNgbusXB9cJHVaZjLwRrtaQ=;
+	b=eBWWb5c79ssiiOBGuUqi3+BTZj61Ns2/YG+kqxvrJXLHUPfAIylOkyzHX+YYzDaou7XsXJ
+	VL+gx/FiYJREfiVZX3JPkGV17zqt5X2GjzNPnIb9KceBEtdSb0Cx/RIZxEnkrBNc0v+Qyu
+	iXOuSpD4x7i7V8QBBlAXm+tcodIiQXU=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-358-0qSqIGT5MNqFZUOLXbK3oQ-1; Mon, 14 Oct 2024 15:16:49 -0400
-X-MC-Unique: 0qSqIGT5MNqFZUOLXbK3oQ-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-37d589138a9so1492260f8f.1
-        for <linux-s390@vger.kernel.org>; Mon, 14 Oct 2024 12:16:49 -0700 (PDT)
+ us-mta-478-gq15GuBSPEKTUOYskCihYw-1; Mon, 14 Oct 2024 15:17:59 -0400
+X-MC-Unique: gq15GuBSPEKTUOYskCihYw-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4311407ae76so23931715e9.3
+        for <linux-s390@vger.kernel.org>; Mon, 14 Oct 2024 12:17:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728933408; x=1729538208;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=sQIx8Zvd1bi6csR0yDCe7VkAynOD+MUuQmAi1iHX0fA=;
-        b=ZnaQ9r/qEs6f7NvfUu8EhaFWT4lpw3DHQgqRFTbTZ16kXxgvQZeLDoGdlLF/F9J3du
-         3Bf4reifTWqqm6NN31MOF6LSNbWHI6+pLjfq9Em19k3rLP45AhbuJmKi6eY8ZkG3eBKm
-         oey6AU06P+RCdr+VANuh9VMHbKitMiSd2KIq0OGeo1Iv6pGs6FdqPPWpKEmJ23K7nAdq
-         +f3/CkyVhOsTjUHlBd7+nDVg71UAXA9tV91ylOG8r4pGzocouvm7nBbQtY9Nl+cG8hAH
-         gjuThws189ecO7NSu8Ghkq7+hSQRyvP0h1Y16RvrKLlmspDofGHxEkpQ41cFOcM1AIik
-         0rFg==
-X-Forwarded-Encrypted: i=1; AJvYcCWvQMfx+VgC1ueLw5NIjMuS1P2uTCM+tkvEXdN4eYLmwa5Siv/3sfyPhNajpESNfWlP3usXv37yWy2z@vger.kernel.org
-X-Gm-Message-State: AOJu0YyLXvz5C/0BCzc4mzWVU/2o9xGt3pvXnk+z4ZOBHH8O1jUqI7oN
-	f4JF7Zs1sE6EDp1O11i+vpDh+1188YEdwrJWGbUdl935pPLUAL5HML2jRw1SpqjeywNjcWUwac6
-	DsBpCOd8Dw9cH7izX44GMRJhJxb38LaudKhsvS+qZRGoK9ZDWplOeP8ejmiQeHqYwNczN+Q==
-X-Received: by 2002:a5d:4348:0:b0:371:8319:4dbd with SMTP id ffacd0b85a97d-37d551e3d0cmr8006253f8f.17.1728933408033;
-        Mon, 14 Oct 2024 12:16:48 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE6sBThr6RdJ9UzUqBJZ/Z2oXOcyxnQX4PJcKNdIkMaURe8S9HvwixtiT1L8Zrvsmei+/RVow==
-X-Received: by 2002:a5d:4348:0:b0:371:8319:4dbd with SMTP id ffacd0b85a97d-37d551e3d0cmr8006241f8f.17.1728933407562;
-        Mon, 14 Oct 2024 12:16:47 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1728933478; x=1729538278;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zF47rTw5gKSqUML4iQcgfNgbusXB9cJHVaZjLwRrtaQ=;
+        b=QYMx2E0G0+DuM+wU8x0+fZzIaPowsa25wBLT/ae/pRW028SQOqACy4kGGRYgL+3QV3
+         IwRMd+PmBfuSBP95aGCPmz5KLoxhoUfntHVgrj3NOOFFz6/PGXEZ3pPIAHlF+ewiSv7X
+         XBECDJMS12feqQUvaBOR1k05FFxHGeG1aV+ZCnZekNkxus0K2e+KsiFu/O6gNNYquAGc
+         /8zYmaWeQgh7sqW8NHpqoCFe4S+cWhoYx5LK1HXP7pRwfJjP7upG0QaNHaeehycg8FVC
+         YvUlmlLOGioSF9UxkJTlQ+iFU66J+4lxVC8WVxzhtShkrqTte5dxkH7ZFYMT+hlNb9A+
+         erqg==
+X-Forwarded-Encrypted: i=1; AJvYcCUewqn5V+sRw7KTxcJ1wIed9itJrcM107XEwpTgoI5VMbaXJeIg7HH11p1tZ+VonSoWl2yn/vKO3V4P@vger.kernel.org
+X-Gm-Message-State: AOJu0YytbOGwB58Wl38d+fEVJoS34FdShBs26jni3oh/zyyaU4CQXlid
+	Mu6/Gx11dLK7BQSE2PDJqGCzbBHtwvGtAAiXpYsHB7b4w2z9QKgyBleh1JZxyFgWML1EWPq8Aex
+	Is/LNtdSOqtmIh/myR9Rl7mX6PLN3aIZWFxtgomizLVFyihnvaP24aUWUXQU=
+X-Received: by 2002:a05:600c:5129:b0:428:ec2a:8c94 with SMTP id 5b1f17b1804b1-4311ded5170mr103650705e9.10.1728933478491;
+        Mon, 14 Oct 2024 12:17:58 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGOPrVjVtDpiI7kuxpfNHU/NZDKpMRlCTo/lMm+NEGQtHVKVZOZ0hTh3r3DYjD+mjcUDqCOlQ==
+X-Received: by 2002:a05:600c:5129:b0:428:ec2a:8c94 with SMTP id 5b1f17b1804b1-4311ded5170mr103650575e9.10.1728933478030;
+        Mon, 14 Oct 2024 12:17:58 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c71e:600:9fbb:f0bf:d958:5c70? (p200300cbc71e06009fbbf0bfd9585c70.dip0.t-ipconnect.de. [2003:cb:c71e:600:9fbb:f0bf:d958:5c70])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37d4b6cffa5sm12197664f8f.53.2024.10.14.12.16.46
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-430d748dd50sm162401745e9.47.2024.10.14.12.17.56
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Oct 2024 12:16:47 -0700 (PDT)
-Message-ID: <ebce486f-71a0-4196-b52a-a61d0403e384@redhat.com>
-Date: Mon, 14 Oct 2024 21:16:45 +0200
+        Mon, 14 Oct 2024 12:17:57 -0700 (PDT)
+Message-ID: <f13c8c11-6fa3-480a-8035-6beb965fd01f@redhat.com>
+Date: Mon, 14 Oct 2024 21:17:56 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,7 +68,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 5/7] virtio-mem: s390 support
+Subject: Re: [PATCH v2 0/7] virtio-mem: s390 support
 To: Heiko Carstens <hca@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
@@ -81,12 +81,11 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
  Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
  <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
- Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
+ Jonathan Corbet <corbet@lwn.net>
 References: <20241014144622.876731-1-david@redhat.com>
- <20241014144622.876731-6-david@redhat.com>
- <20241014184824.10447-F-hca@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
+ <20241014185659.10447-H-hca@linux.ibm.com>
 Content-Language: en-US
+From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
  dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
@@ -132,44 +131,52 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20241014184824.10447-F-hca@linux.ibm.com>
+In-Reply-To: <20241014185659.10447-H-hca@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 14.10.24 20:48, Heiko Carstens wrote:
-> On Mon, Oct 14, 2024 at 04:46:17PM +0200, David Hildenbrand wrote:
->> The special s390 kdump mode, whereby the 2nd kernel creates the ELF
->> core header, won't currently dump virtio-mem memory. The virtio-mem
->> driver has a special kdump mode, from where we can detect memory ranges
->> to dump. Based on this, support for dumping virtio-mem memory can be
->> added in the future fairly easily.
+On 14.10.24 20:56, Heiko Carstens wrote:
+> On Mon, Oct 14, 2024 at 04:46:12PM +0200, David Hildenbrand wrote:
+>> Let's finally add s390 support for virtio-mem; my last RFC was sent
+>> 4 years ago, and a lot changed in the meantime.
+>>
+>> The latest QEMU series is available at [1], which contains some more
+>> details and a usage example on s390 (last patch).
+>>
+>> There is not too much in here: The biggest part is querying a new diag(500)
+>> STORAGE_LIMIT hypercall to obtain the proper "max_physmem_end".
+>>
+>> The last two patches are not strictly required but certainly nice-to-have.
+>>
+>> Note that -- in contrast to standby memory -- virtio-mem memory must be
+>> configured to be automatically onlined as soon as hotplugged. The easiest
+>> approach is using the "memhp_default_state=" kernel parameter or by using
+>> proper udev rules. More details can be found at [2].
+>>
+>> I have reviving+upstreaming a systemd service to handle configuring
+>> that on my todo list, but for some reason I keep getting distracted ...
+>>
+>> I tested various things, including:
+>>   * Various memory hotplug/hotunplug combinations
+>>   * Device hotplug/hotunplug
+>>   * /proc/iomem output
+>>   * reboot
+>>   * kexec
+>>   * kdump: make sure we don't hotplug memory
+>>
+>> One remaining work item is kdump support for virtio-mem memory. This will
+>> be sent out separately once initial support landed.
 > 
+> Besides the open kdump question, which I think is quite important, how
+> is this supposed to go upstream?
 
-Thanks for the review.
+MST suggested via the s390 tree in v1.
 
-> Hm.. who will add this support? This looks like a showstopper to me.
+> 
+> This could go via s390, however in any case this needs reviews and/or
+> Acks from kvm folks.
 
-The cover letter is clearer on that: "One remaining work item is kdump 
-support for virtio-mem memory. This will be sent out separately once 
-initial support landed."
-
-I had a prototype, but need to spend some time to clean it up -- or find 
-someone to hand it over to clean it up.
-
-I have to chose wisely what I work on nowadays, and cannot spend that 
-time if the basic support won't get ACKed.
-
-> Who is supposed to debug crash dumps where memory parts are missing?
-
-For many production use cases it certainly needs to exist.
-
-But note that virtio-mem can be used with ZONE_MOVABLE, in which case 
-mostly only user data (e.g., pagecache,anon) ends up on hotplugged 
-memory, that would get excluded from makedumpfile in the default configs 
-either way.
-
-It's not uncommon to let kdump support be added later (e.g., AMD SNP 
-variants).
+Yes, hoping there will be some review (there was some on the QEMU series).
 
 -- 
 Cheers,
