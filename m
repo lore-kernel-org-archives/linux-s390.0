@@ -1,104 +1,156 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 217951B4F25;
-	Mon, 14 Oct 2024 14:45:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 395561AE00C
+	for <linux-s390@vger.kernel.org>; Mon, 14 Oct 2024 14:46:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728917123; cv=none; b=eCjBR532hTs1ll+mMo3soaOspIONuQdyidCnpOyhOM5uNKfelGs/vuj2aiLA9GzD/uxQSQkEAK5xZDd53fEFyei9WOYFG14h8MzVyZejzseiUaYgCDdb2iziYeCLbxNMUezTsdg5AAuv7xH+TO8Q+hyz9fViKwVnTjO029cTYUg=
+	t=1728917200; cv=none; b=hY4MkVTndndSAbPhNEdoVx+8JuV3L6sDFeVq7MCgq6LOe1rA9EvUECUAUNs0zTW0B5vVfR+gx6kv6U4B/VQ8niNK5m8HF4Wuun9M2BpurdLhTXU0Z/Pgj9FVqzcXhiXgWZMujvexl1pZVTsi8qNzslaInAVAekB4q0P34wqmt1Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728917123; c=relaxed/simple;
-	bh=y26+r13pUk6qsz13PsTCyN9nVWaOY2WbcrNpyxtSjdE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=oIgC0T+/7pWsPChGcf/f94hUj3xxFgpN5CNwD5IN0AfhK3JUoqs3ItqxG95wHdKjfWL4yPqwptacKs2YuQ9xo+sy99nc3FoIB4B1Tkm96YXaoEojQSVkIq9517fX6DAacuRTunKcBzH0AJlKEYPdhxO6c6SVTfDxfs720cq2msE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=zmmr+87Y; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1728917200; c=relaxed/simple;
+	bh=vyHcmYVND/8sAhmy2mkfCXOuTQ/V3gOInOxW1tqxOKE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=J+xwaxfKDSrx6Z5k5+CnfX49DKdkPcssyM1lYp2YEA2zeqJI+E7EXQdpdeyKHfBx2pPumD18VAxnseA5XS01Q+Jkk6/qdACfZ6CnS7lWwbBaCRh+pedgZ6+6PjX4YDZ6ZyIkGIlaH49hjatc6qkecUqpwbHHqGV/OcVaiWeoxu4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NVapV5l5; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="zmmr+87Y"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
-	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=CBx8oOZP7muTRFWdnTWIX1ck/8Je7EEbolhZOJL2Cgo=; b=zmmr+87Y9fBB2htyIn2LwLkL5/
-	hsChFqRyxCtK8dSibrcQ8PEvXM7QOaRtaKrym2h6jMMzO77s3lS2hn7Ds42Hha1klRD3lM+Hh+Ouy
-	6aq3QvpikKtFJ2F/rq0qXxEEGv112EOwBW14QmpkYktJfsn/t/8gKm0+NOK8hkF/781sbpX7DAr9e
-	Wy9jviDzgvwT73cOdJu8yjmFDmQnePjJFT32ESCWmE2e+osAYE3e1CM3IpLuxXfIkRN1+7xy2ntbq
-	J2YK67lQQmwotM1BaSYABBbzL+B1EFNJ+UJM7BuNOq5VinAEx1k3YZ+nFmu6LbSobVuhQIjj3RpVT
-	JuhE5rtw==;
-Received: from 2a02-8389-2341-5b80-350d-7b06-b28a-173d.cable.dynamic.v6.surfer.at ([2a02:8389:2341:5b80:350d:7b06:b28a:173d] helo=localhost)
-	by bombadil.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
-	id 1t0MJz-00000005Wzd-3wyi;
-	Mon, 14 Oct 2024 14:45:20 +0000
-From: Christoph Hellwig <hch@lst.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NVapV5l5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1728917197;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=CNpmOCUST08vkHQoeG1NSNtCSmJNv1NINO7OIcBeA0Y=;
+	b=NVapV5l5fPwEtDZJ+OTbuJ14j7Kphn7XJ6L+veIc7kyZm8Rovr7i90V3FARdLcCGN3I6bc
+	M2X3wrN2fhPk66PXaQ5FFfm/NUsQNXF1/wZWMSHpOWLxf6BWtziKZQKvT4IgdbvBJoKadb
+	LgA0bAzO/H1nM6ZMqXkV3mLUv8F7W4Q=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-613-NRRBshLPP-2vKK199e8dRA-1; Mon,
+ 14 Oct 2024 10:46:33 -0400
+X-MC-Unique: NRRBshLPP-2vKK199e8dRA-1
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 806081955F40;
+	Mon, 14 Oct 2024 14:46:31 +0000 (UTC)
+Received: from t14s.cit.tum.de (unknown [10.22.32.146])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id E97671955E93;
+	Mon, 14 Oct 2024 14:46:23 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org,
 	linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	linux-arch@vger.kernel.org
-Subject: [PATCH 2/2] asm-generic: add an optional pfn_valid check to pfn_valid
-Date: Mon, 14 Oct 2024 16:44:59 +0200
-Message-ID: <20241014144506.51754-3-hch@lst.de>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20241014144506.51754-1-hch@lst.de>
-References: <20241014144506.51754-1-hch@lst.de>
+	virtualization@lists.linux.dev,
+	linux-doc@vger.kernel.org,
+	kvm@vger.kernel.org,
+	David Hildenbrand <david@redhat.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Huth <thuth@redhat.com>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH v2 0/7] virtio-mem: s390 support
+Date: Mon, 14 Oct 2024 16:46:12 +0200
+Message-ID: <20241014144622.876731-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-page_to_pfn is usually implemented by pointer arithmetics on the memory
-map, which means that bogus input can lead to even more bogus output.
+Let's finally add s390 support for virtio-mem; my last RFC was sent
+4 years ago, and a lot changed in the meantime.
 
-Powerpc had a pfn_valid check on the regult to it's page_to_phys
-implementation when CONFIG_DEBUG_VIRTUAL is defined, which seems
-generally useful, so add that to the generic version.
+The latest QEMU series is available at [1], which contains some more
+details and a usage example on s390 (last patch).
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/asm-generic/memory_model.h | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+There is not too much in here: The biggest part is querying a new diag(500)
+STORAGE_LIMIT hypercall to obtain the proper "max_physmem_end".
 
-diff --git a/include/asm-generic/memory_model.h b/include/asm-generic/memory_model.h
-index a73a140cbecdd7..6d1fb6162ac1a6 100644
---- a/include/asm-generic/memory_model.h
-+++ b/include/asm-generic/memory_model.h
-@@ -64,7 +64,17 @@ static inline int pfn_valid(unsigned long pfn)
- #define page_to_pfn __page_to_pfn
- #define pfn_to_page __pfn_to_page
- 
-+#ifdef CONFIG_DEBUG_VIRTUAL
-+#define page_to_phys(page)						\
-+({									\
-+	unsigned long __pfn = page_to_pfn(page);			\
-+									\
-+	WARN_ON_ONCE(!pfn_valid(__pfn));				\
-+	PFN_PHYS(__pfn);						\
-+})
-+#else
- #define page_to_phys(page)	PFN_PHYS(page_to_pfn(page))
-+#endif /* CONFIG_DEBUG_VIRTUAL */
- #define phys_to_page(phys)	pfn_to_page(PHYS_PFN(phys))
- 
- #endif /* __ASSEMBLY__ */
+The last two patches are not strictly required but certainly nice-to-have.
+
+Note that -- in contrast to standby memory -- virtio-mem memory must be
+configured to be automatically onlined as soon as hotplugged. The easiest
+approach is using the "memhp_default_state=" kernel parameter or by using
+proper udev rules. More details can be found at [2].
+
+I have reviving+upstreaming a systemd service to handle configuring
+that on my todo list, but for some reason I keep getting distracted ...
+
+I tested various things, including:
+ * Various memory hotplug/hotunplug combinations
+ * Device hotplug/hotunplug
+ * /proc/iomem output
+ * reboot
+ * kexec
+ * kdump: make sure we don't hotplug memory
+
+One remaining work item is kdump support for virtio-mem memory. This will
+be sent out separately once initial support landed.
+
+[1] https://lkml.kernel.org/r/20241008105455.2302628-1-david@redhat.com
+[2] https://virtio-mem.gitlab.io/user-guide/user-guide-linux.html
+
+v1 -> v2:
+* Document the new diag500 subfunction
+* Use "s390" instead of "s390x" consistently
+
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Thomas Huth <thuth@redhat.com>
+Cc: Cornelia Huck <cohuck@redhat.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: "Eugenio Pérez" <eperezma@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jonathan Corbet <corbet@lwn.net>
+
+David Hildenbrand (7):
+  s390/kdump: implement is_kdump_kernel()
+  Documentation: s390-diag.rst: make diag500 a generic KVM hypercall
+  Documentation: s390-diag.rst: document diag500(STORAGE LIMIT)
+    subfunction
+  s390/physmem_info: query diag500(STORAGE LIMIT) to support QEMU/KVM
+    memory devices
+  virtio-mem: s390 support
+  lib/Kconfig.debug: default STRICT_DEVMEM to "y" on s390
+  s390/sparsemem: reduce section size to 128 MiB
+
+ Documentation/virt/kvm/s390/s390-diag.rst | 32 ++++++++++++----
+ arch/s390/boot/physmem_info.c             | 46 +++++++++++++++++++++--
+ arch/s390/include/asm/kexec.h             |  4 ++
+ arch/s390/include/asm/physmem_info.h      |  3 ++
+ arch/s390/include/asm/sparsemem.h         |  2 +-
+ arch/s390/kernel/crash_dump.c             |  6 +++
+ drivers/virtio/Kconfig                    | 12 +++---
+ lib/Kconfig.debug                         |  2 +-
+ 8 files changed, 89 insertions(+), 18 deletions(-)
+
+
+base-commit: 6485cf5ea253d40d507cd71253c9568c5470cd27
 -- 
-2.45.2
+2.46.1
 
