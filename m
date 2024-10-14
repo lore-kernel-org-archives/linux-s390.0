@@ -1,57 +1,57 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20ADA231CA6;
-	Mon, 14 Oct 2024 07:30:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 464D71487DD;
+	Mon, 14 Oct 2024 07:31:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728891058; cv=none; b=Onootd0Kn5ENhuKY5eoO3ZZo3LiJeGFGFOWRJcqqqLGlkKwt4mmmw4ypfRveyMt/JTTe+vr1siKTsmKXtmwovqP2FQSBr2a400TG0ugEbEF7a7bg2IGIu2ABdoe+siK8UyfMg1uy9nLtyRPCvyoskQaSjvEFtu9qsq+30VtggQ4=
+	t=1728891067; cv=none; b=pcdIFw3lANn7akCPvpqIibAJhmYxeYekYhKU/q/gRpFwK2RSLSv9cl8AwhrR/W0iMvMe6Ir/rN2JuBdgwibNFwFlxJsmUsYH1xts02jCtAF2D/ksTvjngsBKAhTzA4Qmmuv38ZU3b5L5ZOK+3rcP00yPP7IF0W1GvDUCzpo/d5c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728891058; c=relaxed/simple;
-	bh=h2TpHCcXKvjjQbkLK+KDdm+NpuKUW+htPXR/QR+kba8=;
+	s=arc-20240116; t=1728891067; c=relaxed/simple;
+	bh=PbHuZhtigdL7nx9SVhwNC7oNIWPcsZQSDnX8GpsP61E=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=r5V0qtuwlf/Ds4Oi6uxpRBixPtLIHRTLi4YVk8F0b+aCAiwhqJb6dab6/EBgSHvCRoPg54NH+thDEMn9hg/a5GTPh3OMZfE+pgL26HJ/wGpq/dp/oKg/6SlF0PCvergtlC2hQGZ7VdzVuGMCTRJSrAuMk3+aTnJnZ1eXvclQpLc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LlY+j1UV; arc=none smtp.client-ip=209.85.214.174
+	 MIME-Version; b=qg8GLYtGpmtENQUQshl8LQttb+xyAx9jfk8B2ME8ccEcT46CUhfNa1m7y4ZSQT8muJO0Kg3o2b1KjEP49YUKzuFRkF/MHO8d0fDALxFExE5+pEp9lcYKlbw5qi+gnGIjCk4d+YOpsyfiLPJV+BWyLShvqYcSUeO65Eodm/yKUGo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LgeCY6Eb; arc=none smtp.client-ip=209.85.214.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LlY+j1UV"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-20c6f492d2dso42857955ad.0;
-        Mon, 14 Oct 2024 00:30:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LgeCY6Eb"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-20ca1b6a80aso19047105ad.2;
+        Mon, 14 Oct 2024 00:31:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1728891056; x=1729495856; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1728891065; x=1729495865; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=V0eza33mEm6JCADkBOVhQ8Rji6Layxr0e11dgnxnqgs=;
-        b=LlY+j1UVQyHOtA7jQnP+Tmupf3siXrzX6aN7IHPAvAAkOCc4PB0ef4s9isZiEpVrkq
-         Jhe0c5SlRz7mjWEsYuublUgohNzQnYYN0bSA4fbjAkL6QEP0pflxrvYFP4whMEXxbdNQ
-         oflNhn1p2Ut9Xiu9Nie8dm65dLtdCdzmhX+ynoLFFImBTf0wBSlaPmcv5s/jegsn9irP
-         y9BpapIyRuo3Gay+uFPrWz4SVxUIq04oyenkcylAp+4PhX8psmMQVWIoALAHUBzmxG93
-         nX8uh13TlYlU/uv5JBb+rFJNU1Pn/KhlY8ZmNocIGkoTzFWnvUJ9I38wOr1pcKlZUo0x
-         31AQ==
+        bh=Rd0b9cV8dn2IPQ0SylKLEt3DtGFzHpSwgJ0jzUgwL6E=;
+        b=LgeCY6Eb3PcUAWAOBVnXt/P6RrfPgV9A9MyPO+OOGpO4Qv4RCMuW6UBFIeWmvHoKOl
+         IRoAWpLteaHzta/0pDx2/7txzW0VnXj5unpR3vvU2EuQq1D3t3iY9f3njfIs8Wj2HFbA
+         WfP5lUpnpgYQ9mTHCkTyUhGI2J3nw9QUPJfHJweK00srWYQShDTJPGqvTf6nFpHHiCp8
+         WceYmu5gaDCb/f9V+uFXHNF+K4CqTZQFHP5mFBRIoJLEbK9TfqGqnvJhjY2xcXg2jKIR
+         +3hfKytw1rp7WdVwPQoP5aZkPvyQz7Y9YpP7zEOW1S/uD3/ohOv1P3oX+LfV7yUtuKmX
+         Nwlg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728891056; x=1729495856;
+        d=1e100.net; s=20230601; t=1728891065; x=1729495865;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=V0eza33mEm6JCADkBOVhQ8Rji6Layxr0e11dgnxnqgs=;
-        b=gn5NIEy4srwd2fLsOLtBevrtW6kx0Zb87/5x3Z2zbuxy3UdyFeU5Phf6XmZ8REhFno
-         eFRfsSwq0XoY3TXAmzSRTweuzIZt3JExRjpp0PpTkNDVksE8uCmnRtS5j8HFhcJ+iVZF
-         sZpNyAxDXS473IIP949AvySMytMVMfKOFST8NRUdGOlIRoY7bgCqQLFUGg0y4R3UWT6p
-         OfQDkIlQZ/RVv3X90xjuaq3NKs4ou+7VjFR6DiD91d69gm14kTkhN59HndHDU98ZVqy9
-         ZjTepYbtO34UAJQWOc7Imhp7G8h1zIydApMXEiGUL2v1aloTAF1x9BHsdMVGYEZTwR81
-         doPQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV0WeeOiLXReQWY+sW+aoyFutH/bvy/iRKyGDxn5j+B12L64UB13gmaRBV2OjqiFcw7/yv6I8L6RhO4il0=@vger.kernel.org, AJvYcCVNRhBUqlN7QxGUToGqOxoMvR5XH4tALP+Jk7Xlsm/DMv5oHYIF/4V1PukSC8VuG3u/0S7WemqTKq+zdw==@vger.kernel.org, AJvYcCWToGlIGf2WXuh8Cww/QIhNTLgFeUfcKEW7IX1h9TMtvbP/1uX3BJP7N/xqBgzgFq/loELuSHDP@vger.kernel.org
-X-Gm-Message-State: AOJu0YwzWFttRMLahFzVWrxkErJnK/5m0oM9o9LK/hP7RHFK0/ooIoZe
-	MGXnZEn3ETniC7oOwGgW7sMBQnDE+4dgXOyFQMKqerwABUEh96Ru
-X-Google-Smtp-Source: AGHT+IFxcTIioxfG7xn9xSOBHCCvQ+ALZ2C0ycvdjskfpFd/JqrTskv/4IAJx4X4+lsFP4V6YseNCw==
-X-Received: by 2002:a17:903:1c4:b0:20c:7c09:b2a4 with SMTP id d9443c01a7336-20cbb2a0b7cmr120118545ad.50.1728891056264;
-        Mon, 14 Oct 2024 00:30:56 -0700 (PDT)
+        bh=Rd0b9cV8dn2IPQ0SylKLEt3DtGFzHpSwgJ0jzUgwL6E=;
+        b=i/8v3yMCJ8obxnsp1FF0/QRJJ4W/KKSSDskCVaIeEtEdHKMWIFjq/SNBDSi+HfxTaH
+         41eyp+LrpGGVwjRPzvuSCtj5DMbdMqXV+cCAGqqabj73p1L/3zcU1MZA0IYpUrCUxQr+
+         pm/9u47wMFc/BdqW4omRMznXw7jr7LYP5eDHRKp4qB4BqOsbYwh1q+99iBGlbDnTajwa
+         Rcym3BrtrvFoEOE0OjbpFxgwquHD/Fb1xIoCYgf6DlSTcf8T2+Kv88ct6eQmQ0cGD6cp
+         CmsUvYuC45JNJbslYZ/vBL/Zz8R/z1jvM3yw8Jv6r86+FxeNQFW5bSGUsXTbWDDOqGaB
+         AJSw==
+X-Forwarded-Encrypted: i=1; AJvYcCUAKlhEgsNx1Yvh3++wPA1uOjajGok9KiyRtuPCIjiQGxSUoq7Vm6ePsbb6PRaOyr8HeHZ8DD9/kHAbSQ==@vger.kernel.org, AJvYcCUz8myw26kzwC4wRFnHzyDI0CrB+o8E/NpKgL0DEqjKIG/V51pIWI4BUvQuLPwOdA711097QR9HiqHPLcg=@vger.kernel.org, AJvYcCXbMu8MWRyY9tHUPagYc7pRL+zr/jv/PNtv0mVYmhVKpBWs1VzaG8QopejlNIeJWCFe5mOu9ehj@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx8L7IknyZFNWv+jeLikqiLokqn88ZC1V5B6XpJanr+eKr+1yp7
+	34bj9rVCh0mz3M1ARGqsB54qf63teyD1cKFRsrnr5/IbT+Gd7vVZ
+X-Google-Smtp-Source: AGHT+IEs1DOE8o2DzSwdXu+kqUDBCIxl7IEfRGmHdJXTaLQZ7DgAgrnfy2mycV0tcQgWS4eJCNXz+g==
+X-Received: by 2002:a17:902:db0d:b0:20c:7796:5e76 with SMTP id d9443c01a7336-20cbb19ab94mr109357695ad.18.1728891065490;
+        Mon, 14 Oct 2024 00:31:05 -0700 (PDT)
 Received: from debian.resnet.ucla.edu (s-169-232-97-87.resnet.ucla.edu. [169.232.97.87])
-        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-20c8c213258sm59719315ad.202.2024.10.14.00.30.55
+        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-20c8c213258sm59719315ad.202.2024.10.14.00.31.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Oct 2024 00:30:55 -0700 (PDT)
+        Mon, 14 Oct 2024 00:31:05 -0700 (PDT)
 From: Daniel Yang <danielyangkang@gmail.com>
 To: Wenjia Zhang <wenjia@linux.ibm.com>,
 	Jan Karcher <jaka@linux.ibm.com>,
@@ -67,9 +67,9 @@ To: Wenjia Zhang <wenjia@linux.ibm.com>,
 	linux-kernel@vger.kernel.org
 Cc: danielyangkang@gmail.com,
 	syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
-Subject: [PATCH v3 1/2] Patch from 
-Date: Mon, 14 Oct 2024 00:30:37 -0700
-Message-Id: <20241014073038.27215-2-danielyangkang@gmail.com>
+Subject: [PATCH v3 2/2] Move lockdep annotation to separate function for readability.
+Date: Mon, 14 Oct 2024 00:30:38 -0700
+Message-Id: <20241014073038.27215-3-danielyangkang@gmail.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20241014073038.27215-1-danielyangkang@gmail.com>
 References: <20241014073038.27215-1-danielyangkang@gmail.com>
@@ -81,59 +81,61 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: D. Wythe <alibuda@linux.alibaba.com>
+From: Daniel Yang <danielyangkang@gmail.com>
 
-Adds lockdep annotations on smc inet socket creation
+Moved lockdep annotation to separate function for readability.
 
-Tested-by: Daniel Yang <danielyangkang@gmail.com>
 Signed-off-by: Daniel Yang <danielyangkang@gmail.com>
 Reported-by: syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
 ---
- net/smc/smc_inet.c | 27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ net/smc/smc_inet.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
 diff --git a/net/smc/smc_inet.c b/net/smc/smc_inet.c
-index a5b204160..7ae49ffd2 100644
+index 7ae49ffd2..b3eedc3b0 100644
 --- a/net/smc/smc_inet.c
 +++ b/net/smc/smc_inet.c
-@@ -108,14 +108,39 @@ static struct inet_protosw smc_inet6_protosw = {
- };
- #endif /* CONFIG_IPV6 */
+@@ -111,18 +111,7 @@ static struct inet_protosw smc_inet6_protosw = {
+ static struct lock_class_key smc_slock_keys[2];
+ static struct lock_class_key smc_keys[2];
  
-+static struct lock_class_key smc_slock_keys[2];
-+static struct lock_class_key smc_keys[2];
-+
- static int smc_inet_init_sock(struct sock *sk)
- {
- 	struct net *net = sock_net(sk);
+-static int smc_inet_init_sock(struct sock *sk)
+-{
+-	struct net *net = sock_net(sk);
+-	int rc;
+-
+-	/* init common smc sock */
+-	smc_sk_init(net, sk, IPPROTO_SMC);
+-	/* create clcsock */
+-	rc = smc_create_clcsk(net, sk, sk->sk_family);
+-	if (rc)
+-		return rc;
+-
++static inline void smc_inet_lockdep_annotate(struct sock *sk)
++{
+ 	switch (sk->sk_family) {
+ 		case AF_INET:
+ 			sock_lock_init_class_and_name(sk, "slock-AF_INET-SMC",
+@@ -139,8 +128,21 @@ static int smc_inet_init_sock(struct sock *sk)
+ 		default:
+ 			WARN_ON_ONCE(1);
+ 	}
++}
+ 
+-	return 0;
++static int smc_inet_init_sock(struct sock *sk)
++{
++	struct net *net = sock_net(sk);
 +	int rc;
- 
- 	/* init common smc sock */
- 	smc_sk_init(net, sk, IPPROTO_SMC);
- 	/* create clcsock */
--	return smc_create_clcsk(net, sk, sk->sk_family);
++
++	/* init common smc sock */
++	smc_sk_init(net, sk, IPPROTO_SMC);
++	/* create clcsock */
 +	rc = smc_create_clcsk(net, sk, sk->sk_family);
-+	if (rc)
-+		return rc;
++	if (!rc)
++		smc_inet_lockdep_annotate(sk);
 +
-+	switch (sk->sk_family) {
-+	case AF_INET:
-+		sock_lock_init_class_and_name(sk, "slock-AF_INET-SMC",
-+					      &smc_slock_keys[0],
-+				"sk_lock-AF_INET-SMC",
-+				&smc_keys[0]);
-+		break;
-+	case AF_INET6:
-+		sock_lock_init_class_and_name(sk, "slock-AF_INET6-SMC",
-+					      &smc_slock_keys[1],
-+				"sk_lock-AF_INET6-SMC",
-+				&smc_keys[1]);
-+		break;
-+	default:
-+		WARN_ON_ONCE(1);
-+	}
-+
-+	return 0;
++	return rc;
  }
  
  int __init smc_inet_init(void)
