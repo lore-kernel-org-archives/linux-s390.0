@@ -1,178 +1,155 @@
-Received: from mail-ua1-f42.google.com (mail-ua1-f42.google.com [209.85.222.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7E9318BBAB
-	for <linux-s390@vger.kernel.org>; Tue, 15 Oct 2024 07:50:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12E521CF7DD;
+	Tue, 15 Oct 2024 07:57:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728978618; cv=none; b=SWVWTJv/oxY7UjOlPDaMSiehb0Dipsr78Xvact2m7/CUo8RJew5jOFRP6X4+vMmQoZ4K1+6UVrWxDYtRHmhZD2dtIYzE1G3Uxn/mSnWuygWDGd4VgwmfiGGepdeOufBFVIbMFEkG8oTSRj1a4sRQE2xgICgAvYfkbraSoGEDHdc=
+	t=1728979071; cv=none; b=iGpfysoO500WHqpjDZkIbshekmezoLyXEUWikeIBgq+ZawqrfT8dNGkjhqy+sOY4ENp3UG7gjYrcniQCxwEBlvYW9tSS9jLOctidvoB7x1c29zg5pQDBiQRhr5u7Deihoec3HkShf9RAYloqhGwXfqb8fRQcYPeKpI1ZJBQ62YQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728978618; c=relaxed/simple;
-	bh=vOa6EcRUks3vJ+gN4gguaBuawT8MdWJj35kDikZazRA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IhAecQVpLTJN9/exe1AOk229nASv9tzl24WIRXDlJNe5UDlvXI+TGDmtwLYsU8TIKu2sZmKdbZHhx2Z9/9txWJXhXS5fwX7aERYqpickGghnvyjCQqGNTTf6dF5Jpwp8WQb02grO7exCd8Ih/x9f/6luD6NhaZBw+e+hj3O6+og=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=pq9sqDIu; arc=none smtp.client-ip=209.85.222.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1728979071; c=relaxed/simple;
+	bh=LysHzPd7dlLah+lHs5TKm6/+zie9DVyHTUp7iGUpusc=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ig0IuKg6r0v59gnhvi1MSqEkXWVOSn6wb0AcXhA7qMofXYrb0zknVLhU0CCjE4rMXMCrAZhYUcicE5SiFD3FY6buN5w+1g2hsbSlDfe/rXquuLj2TfsEBXmo+x1JwbiCJmBV2Pu00T4F4+sCd9f5RyAPs04kf8kIwUylrXlc7Ws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Un5fbx4j; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="pq9sqDIu"
-Received: by mail-ua1-f42.google.com with SMTP id a1e0cc1a2514c-84fb86af725so1205726241.0
-        for <linux-s390@vger.kernel.org>; Tue, 15 Oct 2024 00:50:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1728978616; x=1729583416; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=pLYLixg5lxjAYGEflgM8mT9I/QjIrhiXb1eT8NYFyD8=;
-        b=pq9sqDIuUiCN6CgXeF98QqUKUiofaqMEh1s8GRRWDBQn1FKcLaYnpBvYsEWGaCehxq
-         V0yGJLFFXrIr3MTAQCQUYhjaJyfrjsOA6SqU5kFQKlgJJbA90nxQRZic9loUybr2cNSV
-         jm1t3xppD7nyH0a783KUfnEfhv8rmSQtHsk6bELkOthOaF50AAi5hcmNyUB4SDOsWfBe
-         s6Hsp1mLL2LzkwtnvJMYRsqFW617kDDsScA5SzRy6Q2tQIcYW5JTytelx19UBLLW10af
-         CsabWjARaCKqIrWoq2rq0PCqiiO0ZBBEunmUzAjUfl1hsxBieQCFsWhHCfmwnq5j/s5p
-         eT9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728978616; x=1729583416;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=pLYLixg5lxjAYGEflgM8mT9I/QjIrhiXb1eT8NYFyD8=;
-        b=t1ITHhaZiMy4KF7YNzNxqc685KeIk0dZEzfLO8dhxNALf1yzvv0ps1gs2TJ7y730Z0
-         gBuJM9qXA5Xpiz84IoMeePgLBYvY57vGmuo5VBYNeDxzhBUZy63HHUr1Xun3QyOY8MKd
-         Z233WKi9EvjvKxhNwNDrS3ifFHkBkh15YyBRBMKd+jIaR9lcqo1InzziA7qWSgHXD/lz
-         0l7bwzrzZKBENWn5+0tPc6YB8UmRR50H2LDi6Qm7xF2Slif/aOouuNZmjmDIyUB5k9Wd
-         kwAaND5Na4DFk8EppQU4PxgD24jJHWJPM64IabVu06eNKZXk5dUlNn6HH3zzMF2wNh55
-         BFDg==
-X-Forwarded-Encrypted: i=1; AJvYcCU4OYnvBPCjZ1jlYTF47iEbvH5Sbm82/kp3Y1yq1jYjzmg1xeFOY5bE674bZHlPjxIta735OZdVXJey@vger.kernel.org
-X-Gm-Message-State: AOJu0YxfQ9lhC3oyRmUkQ3EYeCzLDndM6UpB+93HfaMKX4ViQuSe7UxS
-	Oi+kZFSiHfPyjc2WeLoenV9aNoyXr3adek0egjyo2aCKLc1AT7JMxb9bdlK0QlclKGIdPnkAF94
-	IdfIwSugZPRJ3RWDeiA7OZU1+Fcs2ureltHEClg==
-X-Google-Smtp-Source: AGHT+IHJTQgMwy07yt4Kv3cxeA6jaDdGJW3Q76nXmTxUbWPQyJERX0qrCdD9zyui+kZPBA1VduE7XrCzaRDLLhLgFV0=
-X-Received: by 2002:a05:6102:3913:b0:493:bb35:d8f9 with SMTP id
- ada2fe7eead31-4a475f0bc31mr6236860137.5.1728978615788; Tue, 15 Oct 2024
- 00:50:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Un5fbx4j"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49F6Pkxu026413;
+	Tue, 15 Oct 2024 07:57:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=QSrseP
+	fkB5K2VV335DeClzFbTBNk++ahYm8ulSAy/iQ=; b=Un5fbx4jaUVIRMkcttwIy/
+	aUUf01mo/c3G3RVrKcUEQZbc+uCc/zUSXz2WveTmZSAzBlUy+BtQVLgqONH4pttO
+	fFQQ3TlIRmKgr4L91BKyuFfRyXR0/wDZVfTG7BQy9rc7GWJDnEKfuXz02uk6IL0p
+	G+0J9l4AMeiBh71UBzEf2RvaUsT/cW28vx9eE4T1lkdmPBEu6FoYYZ0krjrPv4Wb
+	+IL17qNlZYQfgRHdjn7JBTKKrE2rQuEAOUwq8j8DmQuDth8AlpHB7OJT5CPSkgEj
+	NSe4EAQS/kQb8Lb4Sh8ntlNAmJi7dnx9mkhvtyCguImE4ann5vj0knOOMQnyRjFQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429k3xrdss-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 15 Oct 2024 07:57:42 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49F7ugM0021951;
+	Tue, 15 Oct 2024 07:57:41 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429k3xrdsk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 15 Oct 2024 07:57:41 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49F5eTLT005906;
+	Tue, 15 Oct 2024 07:57:40 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 428650t844-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 15 Oct 2024 07:57:40 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49F7vbri32833968
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 15 Oct 2024 07:57:37 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 06C7620040;
+	Tue, 15 Oct 2024 07:57:37 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 73CE320049;
+	Tue, 15 Oct 2024 07:57:36 +0000 (GMT)
+Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 15 Oct 2024 07:57:36 +0000 (GMT)
+Date: Tue, 15 Oct 2024 09:57:35 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        virtualization@lists.linux.dev, linux-doc@vger.kernel.org,
+        kvm@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas
+ Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank
+ <frankja@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang
+ <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio
+ =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+        Andrew Morton
+ <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH v2 0/7] virtio-mem: s390 support
+Message-ID: <20241015095735.189a93a9@p-imbrenda.boeblingen.de.ibm.com>
+In-Reply-To: <20241014185659.10447-H-hca@linux.ibm.com>
+References: <20241014144622.876731-1-david@redhat.com>
+	<20241014185659.10447-H-hca@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241014141044.974962104@linuxfoundation.org> <CA+G9fYsPPmEbjNza_Tjyf+ZweuHcjHboOJfHeVSSVnmEV2gzXw@mail.gmail.com>
-In-Reply-To: <CA+G9fYsPPmEbjNza_Tjyf+ZweuHcjHboOJfHeVSSVnmEV2gzXw@mail.gmail.com>
-From: Naresh Kamboju <naresh.kamboju@linaro.org>
-Date: Tue, 15 Oct 2024 13:20:04 +0530
-Message-ID: <CA+G9fYvpCw4Dh5BhKjS4bsWix=i=koK6Kw_jU=9zSOFu-UePBg@mail.gmail.com>
-Subject: Re: [PATCH 6.11 000/214] 6.11.4-rc1 review
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org, patches@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, 
-	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org, 
-	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de, 
-	jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, 
-	srw@sladewatkins.net, rwarsow@gmx.de, conor@kernel.org, allen.lkml@gmail.com, 
-	broonie@kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Thomas Richter <tmricht@linux.ibm.com>, 
-	linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Du4l9sP7TVUAjH_iYt432adQvi2pGWuw
+X-Proofpoint-ORIG-GUID: uFXJhMFRxlEgNTc8MZnarzacqCG1ep_i
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
+ adultscore=0 clxscore=1011 priorityscore=1501 phishscore=0 mlxlogscore=999
+ impostorscore=0 lowpriorityscore=0 bulkscore=0 mlxscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
+ definitions=main-2410150052
 
-On Tue, 15 Oct 2024 at 12:35, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
->
-> On Mon, 14 Oct 2024 at 19:55, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 6.11.4 release.
-> > There are 214 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Wed, 16 Oct 2024 14:09:57 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.11.4-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.11.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
+On Mon, 14 Oct 2024 20:56:59 +0200
+Heiko Carstens <hca@linux.ibm.com> wrote:
 
-[Adding Reported-by: ]
+> On Mon, Oct 14, 2024 at 04:46:12PM +0200, David Hildenbrand wrote:
+> > Let's finally add s390 support for virtio-mem; my last RFC was sent
+> > 4 years ago, and a lot changed in the meantime.
+> > 
+> > The latest QEMU series is available at [1], which contains some more
+> > details and a usage example on s390 (last patch).
+> > 
+> > There is not too much in here: The biggest part is querying a new diag(500)
+> > STORAGE_LIMIT hypercall to obtain the proper "max_physmem_end".
+> > 
+> > The last two patches are not strictly required but certainly nice-to-have.
+> > 
+> > Note that -- in contrast to standby memory -- virtio-mem memory must be
+> > configured to be automatically onlined as soon as hotplugged. The easiest
+> > approach is using the "memhp_default_state=" kernel parameter or by using
+> > proper udev rules. More details can be found at [2].
+> > 
+> > I have reviving+upstreaming a systemd service to handle configuring
+> > that on my todo list, but for some reason I keep getting distracted ...
+> > 
+> > I tested various things, including:
+> >  * Various memory hotplug/hotunplug combinations
+> >  * Device hotplug/hotunplug
+> >  * /proc/iomem output
+> >  * reboot
+> >  * kexec
+> >  * kdump: make sure we don't hotplug memory
+> > 
+> > One remaining work item is kdump support for virtio-mem memory. This will
+> > be sent out separately once initial support landed.  
+> 
+> Besides the open kdump question, which I think is quite important, how
+> is this supposed to go upstream?
+> 
+> This could go via s390, however in any case this needs reviews and/or
+> Acks from kvm folks.
 
->
-> The S390 build broke on the stable-rc linux-6.11.y branch due to
-> following build warnings / errors.
->
-> First seen on v6.11.3-215-ga491a66f8da4
->   GOOD: v6.11.3
->   BAD: v6.11.3-215-ga491a66f8da4
-
-This S390 build regressions are noticed on stable-rc branches
- - linux-6.11.y
- - linux-6.6.y
- - linux-6.1.y
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-> List of regressions,
-> * s390, build
->   - clang-19-allnoconfig
->   - clang-19-defconfig
->   - clang-nightly-allnoconfig
->   - clang-nightly-defconfig
->   - gcc-13-allmodconfig
->   - gcc-13-allnoconfig
->   - gcc-13-defconfig
->   - gcc-13-tinyconfig
->   - gcc-8-allnoconfig
->   - gcc-8-defconfig-fe40093d
->   - gcc-8-tinyconfig
->
-> Build log:
-> -------
->   arch/s390/include/asm/cpu_mf.h: Assembler messages:
->   arch/s390/include/asm/cpu_mf.h:165: Error: Unrecognized opcode: `lpp'
->   make[3]: *** [scripts/Makefile.build:244: arch/s390/boot/startup.o] Error 1
->
->   arch/s390/include/asm/atomic_ops.h: Assembler messages:
->   arch/s390/include/asm/atomic_ops.h:83: Error: Unrecognized opcode: `laag'
->   arch/s390/include/asm/atomic_ops.h:83: Error: Unrecognized opcode: `laag'
->   make[3]: *** [scripts/Makefile.build:244: arch/s390/boot/vmem.o] Error 1
->
->   arch/s390/include/asm/bitops.h: Assembler messages:
->   arch/s390/include/asm/bitops.h:308: Error: Unrecognized opcode: `flogr'
->   make[3]: *** [scripts/Makefile.build:244:
-> arch/s390/boot/pgm_check_info.o] Error 1
->
->   arch/s390/include/asm/timex.h: Assembler messages:
->   arch/s390/include/asm/timex.h:192: Error: Unrecognized opcode: `stckf'
->   arch/s390/include/asm/timex.h:192: Error: Unrecognized opcode: `stckf'
->   make[3]: *** [scripts/Makefile.build:244: arch/s390/boot/kaslr.o] Error 1
->   make[3]: Target 'arch/s390/boot/bzImage' not remade because of errors.
->   make[2]: *** [arch/s390/Makefile:137: bzImage] Error 2
->
-> Build log:
-> ---------
->  - https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.11.y/build/v6.11.3-215-ga491a66f8da4/testrun/25429522/suite/build/test/gcc-13-defconfig/log
->
-> metadata:
-> ----
->   git describe: v6.11.3-215-ga491a66f8da4
->   git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->   git sha: a491a66f8da4fbfc06aedae9a8b0586d11a51fa9
->   kernel config:
-> https://storage.tuxsuite.com/public/linaro/lkft/builds/2nQsfudCDSTlwmKIKEozbcVOnCs/config
->   build url: https://storage.tuxsuite.com/public/linaro/lkft/builds/2nQsfudCDSTlwmKIKEozbcVOnCs/
->   toolchain: clang-19 and gcc-13
->   config: defconfig
->   arch: S390
->
-> Steps to reproduce:
-> -------
-> # tuxmake --runtime podman --target-arch s390 --toolchain gcc-13
-> --kconfig defconfig
->
->
-> --
-> Linaro LKFT
-> https://lkft.linaro.org
+we're working on it :)
