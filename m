@@ -1,199 +1,132 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id CEF2D189BB2;
-	Tue, 15 Oct 2024 11:16:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 727CF189BB2;
+	Tue, 15 Oct 2024 11:29:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728990986; cv=none; b=cCJ9DQCOVcPk0T50RYPeFPq9kBuJKBciOy9hkj6VVg6AM9mBwtm/UjCOcCQCJLrUJzRguuq1uRqS0ga6ortG8xKqFW2oonHHJpcBGSqYoFFisSJx4tj+ooGCWano6qiy3S7NnHU50kE1ZtHtKj9js9qsOepajDnhkgOMQWAPUdw=
+	t=1728991747; cv=none; b=KioYM5iREIfeJTSbXRMTLdKP6XBfhJmr96njQUHsV1i1G3Xyit+ZjJ0cRqmnpggbg7x9CXhi9n/E+EVlqYvubhdI0tCjc/MOKYn2GScl/vZ/g9R5UC3mWZ5j82QUWgd64gISqXlkvdnn+W4idx7WJI99kXLoaom9ctX6JBeCEtE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728990986; c=relaxed/simple;
-	bh=uw0HbJ0kiobzTbS5RjhFjh8Y60N2Q6x4PT1X8C2PtW0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GBl8/rbz6mCsa/wPYYs6ZXEWXwYt7BDGDHtvl/eNY5M3273pefkLo891o3SBnM3ChV3wFR7YaptaeZFziFYmFA4mooY7UM5xJOrh0GhbPrTifAdVqM9SDIUbzpmjHJJc7B2Ww3KsYD1HJRjX4hoBIWRxBuyqg8Z4sK4erJVkKVk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DBF221063;
-	Tue, 15 Oct 2024 04:16:53 -0700 (PDT)
-Received: from [10.57.86.207] (unknown [10.57.86.207])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 613183F51B;
-	Tue, 15 Oct 2024 04:16:14 -0700 (PDT)
-Message-ID: <c04323d5-6dcd-4391-81bb-94ee580ae98f@arm.com>
-Date: Tue, 15 Oct 2024 12:16:12 +0100
+	s=arc-20240116; t=1728991747; c=relaxed/simple;
+	bh=fCcpbi/DMaiE9UkEgjGd/UHx8Y29H+4O5aEibvVOsio=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FOZEXZc4vjZG4lVLFEsiqyrAt1jVLuXq13gzW8WVpt4PZmWdPsBOS+0JFlZZeIpBPmTXzhQZL4yqMrXev2aksP8Fg3LGx1LlchgMWn8RdtWLMehrLH5CKWyxpJMSxc2XEYjiJLfFrlrV1BA9Z9kMyLLAEjX0rFEcWnQg46P+K1Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UY3KbJJl; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UY3KbJJl"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49FAO3H6004314;
+	Tue, 15 Oct 2024 11:29:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=RhwuawkRavgSoXL5Aj4QSrR4egpta7JnevFXoUhiO
+	8Y=; b=UY3KbJJlNuygd+i0jmd1d6vE749CmSk4z8gvkhC5CVxtfKS4uXlJkDRbo
+	E+nqyfdoHStxUXST5tHvIMbGYXYEETWTXvqDQ7MiCbbKXgAThjXSX55lDK/Mu13W
+	3/QBVdquzmHY0vSA1K/uaUEDGAlsGuTiJo6ajJq83uqAYfExrqH5qimtuvHXOCx8
+	dYeA/3V5msVTXH/X5StFnIV9R0wlh5yqMRBBteP94/2/90iI2HssVDFfEZIxu9u6
+	cvgeVNJll9TbmrmuS2ax2AjUdDPx4D79Nng3RY2tz1MiZxAIAbbgxaoBrd7zItaA
+	czPWo9YWmRFd76SfDqQ+eNRRIJ5JA==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429pkyg9h0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 15 Oct 2024 11:29:04 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49FAYtsu006674;
+	Tue, 15 Oct 2024 11:29:03 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4283eruq59-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 15 Oct 2024 11:29:03 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49FBT0sg48628014
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 15 Oct 2024 11:29:00 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EF26120043;
+	Tue, 15 Oct 2024 11:28:59 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C866520040;
+	Tue, 15 Oct 2024 11:28:59 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 15 Oct 2024 11:28:59 +0000 (GMT)
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Ingo Franzki <ifranzki@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Christoph Schlameuss <schlameuss@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [PATCH v3 0/6] s390/uv: Retrieve Secrets Ultravisor Call support
+Date: Tue, 15 Oct 2024 13:28:53 +0200
+Message-ID: <20241015112859.3069210-1-seiden@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v1 01/57] mm: Add macros ahead of supporting boot-time
- page size selection
-Content-Language: en-GB
-To: Pingfan Liu <piliu@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
- Andreas Larsson <andreas@gaisler.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Anshuman Khandual <anshuman.khandual@arm.com>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Ard Biesheuvel <ardb@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
- Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>,
- Chris Zankel <chris@zankel.net>, Dave Hansen <dave.hansen@linux.intel.com>,
- David Hildenbrand <david@redhat.com>, Dinh Nguyen <dinguyen@kernel.org>,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- Greg Marsden <greg.marsden@oracle.com>, Helge Deller <deller@gmx.de>,
- Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Ivan Ivanov <ivan.ivanov@suse.com>, Johannes Berg
- <johannes@sipsolutions.net>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Jonas Bonn <jonas@southpole.se>, Kalesh Singh <kaleshsingh@google.com>,
- Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Matthias Brugger <mbrugger@suse.com>, Max Filippov <jcmvbkbc@gmail.com>,
- Miroslav Benes <mbenes@suse.cz>, Rich Felker <dalias@libc.org>,
- Richard Weinberger <richard@nod.at>, Stafford Horne <shorne@gmail.com>,
- Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, x86@kernel.org,
- linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-mm@kvack.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
- sparclinux@vger.kernel.org
-References: <20241014105514.3206191-1-ryan.roberts@arm.com>
- <20241014105912.3207374-1-ryan.roberts@arm.com> <Zw0iegwMp5ZVGypy@fedora>
- <9b7e4f65-a171-4574-bd53-580e79527fbc@arm.com>
- <CAF+s44QbdPBN-8EcPiWiZgYgZY4v8RK-wA0VEaVXbfnc9_HQ9Q@mail.gmail.com>
-From: Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <CAF+s44QbdPBN-8EcPiWiZgYgZY4v8RK-wA0VEaVXbfnc9_HQ9Q@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: WNb7Gix-m0yrwepuIlHN3QN5e-5mm2I0
+X-Proofpoint-GUID: WNb7Gix-m0yrwepuIlHN3QN5e-5mm2I0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
+ mlxlogscore=358 mlxscore=0 adultscore=0 lowpriorityscore=0
+ priorityscore=1501 suspectscore=0 phishscore=0 spamscore=0 malwarescore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410150078
 
-On 15/10/2024 04:04, Pingfan Liu wrote:
-> On Mon, Oct 14, 2024 at 10:07 PM Ryan Roberts <ryan.roberts@arm.com> wrote:
->>
->> On 14/10/2024 14:54, Pingfan Liu wrote:
->>> Hello Ryan,
->>>
->>> On Mon, Oct 14, 2024 at 11:58:08AM +0100, Ryan Roberts wrote:
->>>> arm64 can support multiple base page sizes. Instead of selecting a page
->>>> size at compile time, as is done today, we will make it possible to
->>>> select the desired page size on the command line.
->>>>
->>>> In this case PAGE_SHIFT and it's derivatives, PAGE_SIZE and PAGE_MASK
->>>> (as well as a number of other macros related to or derived from
->>>> PAGE_SHIFT, but I'm not worrying about those yet), are no longer
->>>> compile-time constants. So the code base needs to cope with that.
->>>>
->>>> As a first step, introduce MIN and MAX variants of these macros, which
->>>> express the range of possible page sizes. These are always compile-time
->>>> constants and can be used in many places where PAGE_[SHIFT|SIZE|MASK]
->>>> were previously used where a compile-time constant is required.
->>>> (Subsequent patches will do that conversion work). When the arch/build
->>>> doesn't support boot-time page size selection, the MIN and MAX variants
->>>> are equal and everything resolves as it did previously.
->>>>
->>>
->>> MIN and MAX appear to construct a boundary, but it may be not enough.
->>> Please see the following comment inline.
->>>
->>>> Additionally, introduce DEFINE_GLOBAL_PAGE_SIZE_VAR[_CONST]() which wrap
->>>> global variable defintions so that for boot-time page size selection
->>>> builds, the variable being wrapped is initialized at boot-time, instead
->>>> of compile-time. This is done by defining a function to do the
->>>> assignment, which has the "constructor" attribute. Constructor is
->>>> preferred over initcall, because when compiling a module, the module is
->>>> limited to a single initcall but constructors are unlimited. For
->>>> built-in code, constructors are now called earlier to guarrantee that
->>>> the variables are initialized by the time they are used. Any arch that
->>>> wants to enable boot-time page size selection will need to select
->>>> CONFIG_CONSTRUCTORS.
->>>>
->>>> These new macros need to be available anywhere PAGE_SHIFT and friends
->>>> are available. Those are defined via asm/page.h (although some arches
->>>> have a sub-include that defines them). Unfortunately there is no
->>>> reliable asm-generic header we can easily piggy-back on, so let's define
->>>> a new one, pgtable-geometry.h, which we include near where each arch
->>>> defines PAGE_SHIFT. Ugh.
->>>>
->>>> -------
->>>>
->>>> Most of the problems that need to be solved over the next few patches
->>>> fall into these broad categories, which are all solved with the help of
->>>> these new macros:
->>>>
->>>> 1. Assignment of values derived from PAGE_SIZE in global variables
->>>>
->>>>   For boot-time page size builds, we must defer the initialization of
->>>>   these variables until boot-time, when the page size is known. See
->>>>   DEFINE_GLOBAL_PAGE_SIZE_VAR[_CONST]() as described above.
->>>>
->>>> 2. Define static storage in units related to PAGE_SIZE
->>>>
->>>>   This static storage will be defined according to PAGE_SIZE_MAX.
->>>>
->>>> 3. Define size of struct so that it is related to PAGE_SIZE
->>>>
->>>>   The struct often contains an array that is sized to fill the page. In
->>>>   this case, use a flexible array with dynamic allocation. In other
->>>>   cases, the struct fits exactly over a page, which is a header (e.g.
->>>>   swap file header). In this case, remove the padding, and manually
->>>>   determine the struct pointer within the page.
->>>>
->>>
->>> About two years ago, I tried to do similar thing in your series, but ran
->>> into problem at this point, or maybe not exactly as the point you list
->>> here. I consider this as the most challenged part.
->>>
->>> The scenario is
->>> struct X {
->>>       a[size_a];
->>>       b[size_b];
->>>       c;
->>> };
->>>
->>> Where size_a = f(PAGE_SHIFT), size_b=g(PAGE_SHIFT). One of f() and g()
->>> is proportional to PAGE_SHIFT, the other is inversely proportional.
->>>
->>> How can you fix the reference of X.a and X.b?
->>
->> If you need to allocate static memory, then in this scenario, assuming f() is
->> proportional and g() is inversely-proportional, then I guess you need
->> size_a=f(PAGE_SIZE_MAX) and size_b=g(PAGE_SIZE_MIN). Or if you can allocate the
-> 
-> My point is that such stuff can not be handled by scripts
-> automatically and needs manual intervention.
+A new secret type (group) allows SE-guests to retrieve the secret value
+from the UV secret store. All retrieved secrets (but plaintext) are
+retrieved as a PCMKO-wrapped key so that they will never appear in
+plaintext in the secure guest. Supported key/secret types are:
+AES, AES-XTS, HMAC, and EC. Add support for an in-kernel API and an UAPI
+to retrieve a previously added secret. If the Hardware supports it,
+adding secrets works with the same infrastructure that is used by
+associate secrets introduced with AP-pass-through support.
 
-Yes agreed. I spent some time thinking about how much of this could be automated
-(i.e. with Cochinelle or otherwise), but concluded that it's very difficult. As
-a result, all of the patches in this series are manually created.
+With this addition List Secret UVCs can report more-data now and may
+expect a starting index different to zero. This requires the addition of
+LIST_SECRET_EXT IOCTL that works the same as the non_EXT variant but
+additionally accepts an index (u16) as input.
 
-> 
->> memory dynamically, then make a and b pointers to dynamically allocated buffers.
->>
-> 
-> This seems a better way out.
-> 
->> Is there a specific place in the source where this pattern is used today? It
->> might be easier to discuss in the context of the code if so.
->>
-> 
-> No such code at hand. Just throw out the potential issue and be
-> curious about it which frustrates me.
-> I hope people can reach an agreement on it and turn this useful series
-> into reality.
+Since v3:
+	* rename BIT_UVC_CMD_RETR_SECRETS to BIT_UVC_CMD_RETR_SECRET
+	* Streamline list_secrets()
+	* Fix documentation styling issues
+	* Simplify conditional in find_secret()
+	* Add r-b from Christoph
 
-Yes, hope so!
+Since v2:
+	* Simplify conditionals
+	* Fix documentation issues
+	* Simplify list_secrets()
+	* Add r-b from Christoph
 
-> 
-> Thanks,
-> 
-> Pingfan
-> 
+Since v1:
+	* Add various r-b's
+	* Fix nits and minor issues
+
+Steffen Eiden (6):
+  s390/boot/uv.c: Use a constant for more-data rc
+  s390/uv: Retrieve UV secrets support
+  s390/uvdevice: Add Retrieve Secret IOCTL
+  s390/uvdevice: Increase indent in IOCTL definitions
+  s390/uvdevice: Add List Secrets Ext IOCTL
+  s390/uv: Retrieve UV secrets sysfs support
+
+ arch/s390/boot/uv.c                   |   7 +-
+ arch/s390/include/asm/uv.h            | 146 +++++++++++++++++++++++-
+ arch/s390/include/uapi/asm/uvdevice.h |  36 +++---
+ arch/s390/kernel/uv.c                 | 153 ++++++++++++++++++++++++-
+ drivers/s390/char/uvdevice.c          | 154 +++++++++++++++++++++-----
+ 5 files changed, 442 insertions(+), 54 deletions(-)
+
+-- 
+2.43.0
 
