@@ -1,53 +1,53 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 419C31F76A7;
-	Tue, 15 Oct 2024 16:43:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 990CB1F76AC;
+	Tue, 15 Oct 2024 16:43:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729010614; cv=none; b=i0cdiDfkI/OWdKCOzNzByIksRYzM1zihNt3cA7YJn9nHFynGWSZ2O0xbK35bWuc218vGBLX6aNjahQBlvvLnBYjhLvPbiGSBJsJR2dtAa7K27RWMwdE406pbwBAflF0oUqV7a+MGFdgxkm2B92+/TYmlyGNbXq+SVj6ho3EXxjU=
+	t=1729010615; cv=none; b=GhvCE7W4iUB3lFKG0Iy8ethaKp+dyyCTsO4QkrysEwaiCQcyJU9nGPKVI94wu42CVVUw/6HtrcV4OSLDd2ChM9i34gUK3qt3B5pj4Kil2xU+HSIvKJcxj1A6ROg0HM/cRLovcMYyJ8+VemeoQzwqgAWN35fFANF5K2qUmd/3Wks=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729010614; c=relaxed/simple;
-	bh=Y5FMepZoxGiJrpODOM+3gyu4NwjOwdk0gHSXaMccSD8=;
+	s=arc-20240116; t=1729010615; c=relaxed/simple;
+	bh=kT4zk9z21wrdHKXfV1g/GKAsZZM+f6ovKFhpjkJtAb0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=d3ILuzsooD28XqCikxJcYz6LdwmbAGvGOd07VULc5qCNkKWcgUPo3Q3SJmtjRV/4X9R7/HoiTR9gxjaHNcbFS3ivfqOJnOXVL02YKd8CUfISA2qRa/fSs9z5DHsalJdynuzbdabGao0LMrXqVNL4xJ1RQVXlDS8AS0n01I+j+0E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NaQV5n5L; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=F1WmBh28SeVtCHPNlPLRq1KpCIWVjl73csZ3pmtn+FZMQtxAzk8yLS2u7etFrrdxlhGYtMZVJigyQtXdX+gJJM5TBtq3mqMLfLi5jNRX9BsWyO5tyjul39JXfl4sAiWsTykepF1qpmd0Qp+3WIgIHUE34bZeAAAzBl3ZttaDD80=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Rxg1s+TK; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NaQV5n5L"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49FGJKV3013131;
-	Tue, 15 Oct 2024 16:43:32 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Rxg1s+TK"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49FGQYvF019569;
+	Tue, 15 Oct 2024 16:43:33 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=QyY9neWltee04QluT
-	O2GfGfyxlN0Z79eG6W6IJi/hzg=; b=NaQV5n5LAZ02Gj/UE7x6gSAZWstwqV/4M
-	x2s0dka6P95zYr7p4LUJMF581LiUZpe7Gf/x4mvUtelVVaGz9o2i54i2xEh7zI26
-	VLYBFwclzBxGHOdDsm4S05u2uL7Gt2xNFEbp5mEj4ncYL+ZP1h33j8efE9ThdKcK
-	DtYuLzDTjjqFwe0FEA56igV/5EP4OTz3It1XinZAKZR+KeIfFWLFxCrOLZo+lUf5
-	E9G2pFp2FpCPAd+6Spx+3M5IW4/jLvH5CNRhkB9tyrZgObYXTRIZuCYCeGPvxwpg
-	wqipFWwfO+a7UFp2eHWq7//0pptV3DMnBm6bAsNWK83FVC2nc70nQ==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429utbr4bx-1
+	:mime-version:references:subject:to; s=pp1; bh=ISMevC/t9VZZMZv48
+	gp/v+tTh8H+6JLghhUezTk6Boc=; b=Rxg1s+TKFMw8soUzgolZvehM0vHB/VwCd
+	vRGk0TZtt/w4VSlpctmu1AwYtY+DWLy7HgRASbAa7rlgf0tY1bI8pn/lCqC6x19y
+	3IesLetLTZTJSDnVUIK92hhWWTEJI0pISWZ1GpyIsCnJsrl0zuDXLKAssozJ1I5E
+	T0xDSgch33qt8x/e9qAOETT8+BgUneUIQwGneX017q5KlSOfcqGt3Q3ixcoBS+TA
+	PwLgzRw3VQjX5ubFjYit7w8TuYCxWuJgY6PMZPqJnkz27MW0cz5nHG+ESteSFnWt
+	IdetM6wdyv0QVUSv7RDkPlxL1FKk0Ht9XXZH0I0oaQzVYT/cqjdvg==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429uwjg2gc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 16:43:31 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49FETmgR002343;
+	Tue, 15 Oct 2024 16:43:32 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49FDfnV2006674;
 	Tue, 15 Oct 2024 16:43:31 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4284emmxaw-1
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4283erw4c0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 15 Oct 2024 16:43:31 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49FGhRV049545572
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49FGhSwN50069772
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 15 Oct 2024 16:43:27 GMT
+	Tue, 15 Oct 2024 16:43:28 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8944B20043;
-	Tue, 15 Oct 2024 16:43:27 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 00B9720040;
+	Tue, 15 Oct 2024 16:43:28 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 62D452004B;
+	by IMSVA (Postfix) with ESMTP id CDC572004B;
 	Tue, 15 Oct 2024 16:43:27 +0000 (GMT)
 Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -59,9 +59,9 @@ Cc: borntraeger@de.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
         agordeev@linux.ibm.com, gor@linux.ibm.com,
         gerald.schaefer@linux.ibm.com, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [PATCH v3 04/11] s390/mm/gmap: Fix __gmap_fault() return code
-Date: Tue, 15 Oct 2024 18:43:19 +0200
-Message-ID: <20241015164326.124987-5-imbrenda@linux.ibm.com>
+Subject: [PATCH v3 06/11] s390/kvm: Stop using gmap_{en,dis}able()
+Date: Tue, 15 Oct 2024 18:43:21 +0200
+Message-ID: <20241015164326.124987-7-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.47.0
 In-Reply-To: <20241015164326.124987-1-imbrenda@linux.ibm.com>
 References: <20241015164326.124987-1-imbrenda@linux.ibm.com>
@@ -73,54 +73,92 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 6KGM_ShUI_rpT1Nt2Dbmnp8f0fq4cdyD
-X-Proofpoint-ORIG-GUID: 6KGM_ShUI_rpT1Nt2Dbmnp8f0fq4cdyD
+X-Proofpoint-GUID: 4uhVyAa4UzdxKKO3uM6y5Drv81cT-m-L
+X-Proofpoint-ORIG-GUID: 4uhVyAa4UzdxKKO3uM6y5Drv81cT-m-L
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
- suspectscore=0 phishscore=0 impostorscore=0 mlxscore=0 spamscore=0
- bulkscore=0 lowpriorityscore=0 priorityscore=1501 mlxlogscore=896
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 mlxlogscore=489 adultscore=0 clxscore=1015 mlxscore=0
+ phishscore=0 bulkscore=0 spamscore=0 lowpriorityscore=0 malwarescore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2409260000 definitions=main-2410150113
 
-Errors in fixup_user_fault() were masked and -EFAULT was returned for
-any error, including out of memory.
+Stop using gmap_enable(), gmap_disable(), gmap_get_enabled().
 
-Fix this by returning the correct error code. This means that in many
-cases the error code will be propagated all the way to userspace.
+The correct guest ASCE is passed as a parameter of sie64a(), there is
+no need to save the current gmap in lowcore.
 
-Suggested-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Acked-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/s390/mm/gmap.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 7 +------
+ arch/s390/kvm/vsie.c     | 4 +---
+ 2 files changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index f51ad948ba53..a8746f71c679 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -718,13 +718,12 @@ static int __gmap_fault(struct gmap *gmap, unsigned long gaddr, unsigned int fau
- 	if (IS_ERR_VALUE(vmaddr))
- 		return vmaddr;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index cfe3f8182aa5..df778a4a011d 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3719,7 +3719,6 @@ __u64 kvm_s390_get_cpu_timer(struct kvm_vcpu *vcpu)
+ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+ {
  
--	if (fault_flags & FAULT_FLAG_RETRY_NOWAIT) {
-+	if (fault_flags & FAULT_FLAG_RETRY_NOWAIT)
- 		rc = fixup_user_fault_nowait(gmap->mm, vmaddr, fault_flags, &unlocked);
--		if (rc)
--			return rc;
--	} else if (fixup_user_fault(gmap->mm, vmaddr, fault_flags, &unlocked)) {
--		return -EFAULT;
--	}
-+	else
-+		rc = fixup_user_fault(gmap->mm, vmaddr, fault_flags, &unlocked);
-+	if (rc)
-+		return rc;
- 	/*
- 	 * In the case that fixup_user_fault unlocked the mmap_lock during
- 	 * fault-in, redo __gmap_translate() to avoid racing with a
+-	gmap_enable(vcpu->arch.enabled_gmap);
+ 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_RUNNING);
+ 	if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
+ 		__start_cpu_timer_accounting(vcpu);
+@@ -3732,8 +3731,6 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+ 	if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
+ 		__stop_cpu_timer_accounting(vcpu);
+ 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_RUNNING);
+-	vcpu->arch.enabled_gmap = gmap_get_enabled();
+-	gmap_disable(vcpu->arch.enabled_gmap);
+ 
+ }
+ 
+@@ -3751,8 +3748,6 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
+ 	}
+ 	if (test_kvm_facility(vcpu->kvm, 74) || vcpu->kvm->arch.user_instr0)
+ 		vcpu->arch.sie_block->ictl |= ICTL_OPEREXC;
+-	/* make vcpu_load load the right gmap on the first trigger */
+-	vcpu->arch.enabled_gmap = vcpu->arch.gmap;
+ }
+ 
+ static bool kvm_has_pckmo_subfunc(struct kvm *kvm, unsigned long nr)
+@@ -4891,7 +4886,7 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 		}
+ 		exit_reason = sie64a(vcpu->arch.sie_block,
+ 				     vcpu->run->s.regs.gprs,
+-				     gmap_get_enabled()->asce);
++				     vcpu->arch.gmap->asce);
+ 		if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+ 			memcpy(vcpu->run->s.regs.gprs,
+ 			       sie_page->pv_grregs,
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 35e7dd882148..d03f95e528fe 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -1151,7 +1151,7 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	current->thread.gmap_int_code = 0;
+ 	barrier();
+ 	if (!kvm_s390_vcpu_sie_inhibited(vcpu))
+-		rc = sie64a(scb_s, vcpu->run->s.regs.gprs, gmap_get_enabled()->asce);
++		rc = sie64a(scb_s, vcpu->run->s.regs.gprs, vsie_page->gmap->asce);
+ 	barrier();
+ 	vcpu->arch.sie_block->prog0c &= ~PROG_IN_SIE;
+ 
+@@ -1296,10 +1296,8 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		if (!rc)
+ 			rc = map_prefix(vcpu, vsie_page);
+ 		if (!rc) {
+-			gmap_enable(vsie_page->gmap);
+ 			update_intervention_requests(vsie_page);
+ 			rc = do_vsie_run(vcpu, vsie_page);
+-			gmap_enable(vcpu->arch.gmap);
+ 		}
+ 		atomic_andnot(PROG_BLOCK_SIE, &scb_s->prog20);
+ 
 -- 
 2.47.0
 
