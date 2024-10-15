@@ -1,166 +1,128 @@
-Received: from mail-ua1-f41.google.com (mail-ua1-f41.google.com [209.85.222.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09B1A1C68AA
-	for <linux-s390@vger.kernel.org>; Tue, 15 Oct 2024 08:21:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 986FE1C9B87;
+	Tue, 15 Oct 2024 08:22:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728980496; cv=none; b=qZW7sL3BQLDKrW+24952gd4n07/cpqOeDSyqzcwke8obukqO0k0xEArzTBUUX87NdFnQWYofmYAgdMk5x2jOPXCMSlU80PVCNwgFUTnjjy3kjgEHYV9k51+gY1I9QESnAj5fThPBdvnsdbg8P2I20oEfEUyu0MgRfpLzfy8ixqI=
+	t=1728980525; cv=none; b=ZBSgAFS24tsYQIXvYT0K7KHMqmxWTSxLUEEc7Ac02wKUvcFNEE3SpN9ndP5fdlwofQuVnUdEPVjrjubSn3ZU/Ratoso20bYFKQfb+mHEOM63Nk5e9XRU4/tFcvgOBta8+HX0O59fb/DLheUK1K7G3/UwNYwyv9ecTjn3kTfp0ok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728980496; c=relaxed/simple;
-	bh=zD3HmgW+TlfcyOvp2QLRv/48BOBk+PPPEeanN3RBWTE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tuxVcVwDTuA8OZ6cnX5PQgz6M18hMsXMTu1SLpCzMp2ld3jh7bji9hSTHlnDKGO/8SjFlkUsdB4sJPD+7cRLy4R8JEHaXNmrhmUaOrV8vsZknBXJq1N3QgApyz8kMYvVt5+YIqmXXgKSIsgyudFLL2NFRIVYzc2vjb6zgDRCDus=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=cJxQl/vG; arc=none smtp.client-ip=209.85.222.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1728980525; c=relaxed/simple;
+	bh=ZyMJa6Jwuka2TO342RkLAb6dF7EpFvQESmiJFUd2SSY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oyx9/V5yr/C6AjZZiiFKiHZpSBALJBe3iDf66DWGV3JlVqTkThZ49RnyEd02XtS8zdvZ7mAls4qsrTmOWfn4ZRlsXIKdOS5nUvpQpp221idE2iLT5GrGxQ0QlHNFCgPuI8x6VIkW5Nqgb6I1dOK0HVJjlU67iYtKTqowz6ggtuE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=anUFVOvv; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="cJxQl/vG"
-Received: by mail-ua1-f41.google.com with SMTP id a1e0cc1a2514c-84fbee98881so921177241.2
-        for <linux-s390@vger.kernel.org>; Tue, 15 Oct 2024 01:21:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1728980493; x=1729585293; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=lW8e1d56O5rgpMPsi4Gluv5d8nw+f0Vj8iqFfuuPxRg=;
-        b=cJxQl/vGpmKCoYKFErbas4jm6IAU2jvM2UrCApMSZcOM0lNU8P5ABW5E6rXEurnSGC
-         ATyi8msajb33+8h/hVgq+Zg2/ptVOMgPNLu/7p1HNAmiWQXpG08j1jUpObu/lMWqYTXt
-         GLTbsZazjAndN/8fpPLt1ESL7k93Uh+MzpV5HnOxZOqSifqYhuLb1rD2c3OhyAR121Ai
-         Zf7FA18zWWXOxiboOg/sV18lll4SE9/xcEXcNT7srWp+DPBlT+l763jCdVwK2owl3EPy
-         dUTQtlc4dtTMXRtlV0Nx/3U+mxN/5ZR0T5ty9ruWsLkxchMOe/9I0UassSRe8hEpvX7B
-         zQgQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728980493; x=1729585293;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=lW8e1d56O5rgpMPsi4Gluv5d8nw+f0Vj8iqFfuuPxRg=;
-        b=vYZeopToTouW1RhhSN9GFwymOuUewWbI5Sa6uoa8SSPbxX8aHl8MGfMc78/qa1rDyI
-         gyf5VAjoKNOd7HcTg7HTEo4FLtnlApUSKLGIF3oPlN3hkYW53OvswQjsC5Ijt+gKmBtD
-         1GzH0+Qqci+kUGctJHXSdr+z+BeU0I8eoBFQGJ1TmuBgrIq33c0Cj2v5XWZwhFVpbDfC
-         6y/96J/ONWiBTP6z7WB5dcv1uxl0y4onv4m1k/I1ZTrKiCek3d9MaWuwAUaiYE5oGZhN
-         0X4PauK/GbS/fZ8cbkvgArrYCQ1j6tdNdbLbsnWS/L4zl3MZo3LrIxpQWNDorpugus1V
-         P8pw==
-X-Forwarded-Encrypted: i=1; AJvYcCWqVjKNxekoqUQb65R6vTe4kzomkTgBXoMn40mKDKDXhs87P/Qa50e6yeOKIg4bxvRe87jo5/Mqz1Jp@vger.kernel.org
-X-Gm-Message-State: AOJu0YxJ5OzG13UUzuPk8lg0wXIWznUckhSkDBM/tZ78dSJNc23Dn4ED
-	mmCoIRJvBvHWP7o1RgMqN84eiiGvjPkJuBnloOSdGKxFLhPClUxtGt39c5w0S3BSUJzka9cM9wU
-	ousn0TPEo3SGYFb5CBaNqsyMNvqv7H5j8lD7Gzg==
-X-Google-Smtp-Source: AGHT+IFUIwYSu6KbEUAyth9XxFqC5nZrcsAdb62v1PqnR10rTpKu/1c9tc94aN8gqcFnCnBkFhMxBIdlbJj9h25BLbM=
-X-Received: by 2002:a05:6102:cd4:b0:493:eebc:d77d with SMTP id
- ada2fe7eead31-4a4659ca79dmr8656632137.15.1728980492921; Tue, 15 Oct 2024
- 01:21:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="anUFVOvv"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49F7PlOs027400;
+	Tue, 15 Oct 2024 08:21:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=c5lhar7v4eLS49jskAhJTfiKUSi6Am
+	BfPG1gKlXciwU=; b=anUFVOvvzBObet737suFF6+eMr94CEC/9Sqz5ahW4205AX
+	EwkNqsEyF73bGMJwQl5p78s7HluYc7ZF9rTKACz3eAG/HtvzwQDUOAEV/dAHj7aH
+	Gz/B+VKzY9GjviSfgbetNlxdVQRF93NFIAfiSrY2NrC3JP/692+b/eLKNTTCYXdu
+	iBqVABhfIcN6FNEhGMFnCwoC1TrdeOzlvyUgDSQEO5ZE3p4kJEe8fKCxupAzpxnr
+	wOcfZDhLAVLlV7cWfJ1R5sNwPPuJscXsm3M8/8FPQWcJ/B2hMcHNPkvf9SPlj2q6
+	9der7guBj0iBo28mqi8VZKz9ORQy43i0HdhsLNgQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429m0588nk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 15 Oct 2024 08:21:56 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49F8LtqZ015991;
+	Tue, 15 Oct 2024 08:21:56 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429m0588nc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 15 Oct 2024 08:21:55 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49F7gvOI027451;
+	Tue, 15 Oct 2024 08:21:54 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4283txjsbe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 15 Oct 2024 08:21:54 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49F8LoqK19988858
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 15 Oct 2024 08:21:50 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A276120043;
+	Tue, 15 Oct 2024 08:21:50 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0CE2820040;
+	Tue, 15 Oct 2024 08:21:50 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 15 Oct 2024 08:21:49 +0000 (GMT)
+Date: Tue, 15 Oct 2024 10:21:48 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH v2 2/7] Documentation: s390-diag.rst: make diag500 a
+ generic KVM hypercall
+Message-ID: <20241015082148.7641-B-hca@linux.ibm.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-3-david@redhat.com>
+ <20241014180410.10447-C-hca@linux.ibm.com>
+ <78e8794a-d89f-4ded-b102-afc7cea20d1d@redhat.com>
+ <20241015081212.7641-A-hca@linux.ibm.com>
+ <8e39522c-2853-4d1f-b5ec-64fabcca968b@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241014141042.954319779@linuxfoundation.org>
-In-Reply-To: <20241014141042.954319779@linuxfoundation.org>
-From: Naresh Kamboju <naresh.kamboju@linaro.org>
-Date: Tue, 15 Oct 2024 13:51:21 +0530
-Message-ID: <CA+G9fYs-BXW2J-n1R7VO2j-qqpP=3nzYC4a2C7=-fnLTW8OR8w@mail.gmail.com>
-Subject: Re: [PATCH 6.6 000/213] 6.6.57-rc1 review
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org, patches@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, 
-	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org, 
-	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de, 
-	jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, 
-	srw@sladewatkins.net, rwarsow@gmx.de, conor@kernel.org, allen.lkml@gmail.com, 
-	broonie@kernel.org, Sven Schnelle <svens@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8e39522c-2853-4d1f-b5ec-64fabcca968b@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 84a_QRz4QyxkwKqhc4fD72zEUsnc0y0v
+X-Proofpoint-GUID: oPIUMjN_VobXTVvYRnEV425WV2FcuVkA
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
+ mlxlogscore=398 phishscore=0 spamscore=0 suspectscore=0 clxscore=1015
+ mlxscore=0 malwarescore=0 lowpriorityscore=0 adultscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410150052
 
-On Mon, 14 Oct 2024 at 20:06, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 6.6.57 release.
-> There are 213 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 16 Oct 2024 14:09:57 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.6.57-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.6.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, Oct 15, 2024 at 10:16:20AM +0200, David Hildenbrand wrote:
+> On 15.10.24 10:12, Heiko Carstens wrote:
+> > On Mon, Oct 14, 2024 at 09:35:27PM +0200, David Hildenbrand wrote:
+> > > On 14.10.24 20:04, Heiko Carstens wrote:
+> > "If only there would be a query subcode available, so that the program
+> > check handling would not be necessary; but in particular my new subcode
+> > is not worth adding it" :)
+> > 
+> > Anyway, I do not care too much.
+> > 
+> 
+> Okay, I see your point: it would allow for removing the program check
+> handling from the STORAGE LIMIT invocation.
+> 
+> ... if only we wouldn't need the exact same program check handling for the
+> new query subfunction :P
 
-The S390 build broke on the stable-rc linux-6.6.y branch due to
-following build warnings / errors.
-
-First seen on v6.6.56-214-g8a7bf87a1018
-  GOOD: v6.6.56
-  BAD: v6.6.56-214-g8a7bf87a1018
-
-Bisection points to,
-  d38c79a1f30ba78448cc58d5dee31c636e16112d
-  s390/traps: Handle early warnings gracefully
-    [ Upstream commit 3c4d0ae0671827f4b536cc2d26f8b9c54584ccc5 ]
-
-List of regressions,
-* s390, build
-  - clang-19-allnoconfig
-  - clang-19-defconfig
-  - clang-19-tinyconfig
-  - clang-nightly-allnoconfig
-  - clang-nightly-defconfig
-  - clang-nightly-tinyconfig
-  - gcc-13-allmodconfig
-  - gcc-13-allnoconfig
-  - gcc-13-defconfig
-  - gcc-13-tinyconfig
-  - gcc-8-allnoconfig
-  - gcc-8-defconfig-fe40093d
-  - gcc-8-tinyconfig
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-Build log:
--------
-arch/s390/kernel/early.c: In function '__do_early_pgm_check':
-arch/s390/kernel/early.c:177:30: error: implicit declaration of
-function 'get_lowcore'; did you mean 'S390_lowcore'?
-[-Werror=implicit-function-declaration]
-  177 |         struct lowcore *lc = get_lowcore();
-      |                              ^~~~~~~~~~~
-      |                              S390_lowcore
-arch/s390/kernel/early.c:177:30: warning: initialization of 'struct
-lowcore *' from 'int' makes pointer from integer without a cast
-[-Wint-conversion]
-cc1: some warnings being treated as errors
-make[5]: *** [scripts/Makefile.build:243: arch/s390/kernel/early.o] Error 1
-
-
-Build log link:
----------
-  - https://storage.tuxsuite.com/public/linaro/lkft/builds/2nQwi03QYzWjrOZMpsvCF31N0Oc/
-  - https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.6.y/build/v6.6.56-214-g8a7bf87a1018/testrun/25432877/suite/build/test/gcc-13-defconfig/log
-
-metadata:
-----
-  git describe: v6.6.56-214-g8a7bf87a1018
-  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-  git sha: 8a7bf87a1018a21d9dbbc5a794cb9a4fb3243aa0
-  kernel config:
-https://storage.tuxsuite.com/public/linaro/lkft/builds/2nQwi03QYzWjrOZMpsvCF31N0Oc/config
-  build url: https://storage.tuxsuite.com/public/linaro/lkft/builds/2nQwi03QYzWjrOZMpsvCF31N0Oc/
-  toolchain: clang-19 and gcc-13
-  config: defconfig
-  arch: S390
-
-Steps to reproduce:
--------
-# tuxmake --runtime podman --target-arch s390 --toolchain gcc-13
---kconfig defconfig
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Yeah yeah, but I think you got that this might help in the future.
