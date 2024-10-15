@@ -1,57 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 419641F76A5;
-	Tue, 15 Oct 2024 16:43:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B65C51F76D1;
+	Tue, 15 Oct 2024 16:43:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729010616; cv=none; b=K/ai+jrAytGME2cZ1dC1DZTopJr4e2USx4+D7hf7FGMOpuPXXNO6D6Epm7VM9tj42uKegJD1JAV/KRXWrLHjsesrQhSWs7AO1z+wTzo9qd1CqfnsOYNhGIregHQ4vxWw4qgSTTyxLPohhiMS4QTZRiQrYd1FeVOl7PR+v/y4bMA=
+	t=1729010616; cv=none; b=AQ6auebO/ut1oj9XuEW1r/FyDBjCbYMNqOARMfYdbagrss8Fe2ZRZtkIYKSXdxtQfgm0Xqu2az8G1NBOvnf5t12DH8Jz5U+RTWdzHuVfeCCfUtjRfn0XTJtpy4JJvHUNpZ1duUGckh3+tidXgXbfH63zHhQ993JXZSo/OBIG7WY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1729010616; c=relaxed/simple;
-	bh=QQvuMDB3i+1hQRxxMhfrS1fUCS2QiWa5R5FPahhxnCQ=;
+	bh=OD/CTOrwcg6OiHs7buhnlA46yO9ruiybpAnnQ2ioFXg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rDjGTa8IGHxkVvDE1oARLmFPSvu4HHVvN6bx0rTadfGrY3r3/veZBkS2M9Qf6ogUpQe4PX6/Ejl3iEgO36XdpuUbN0ly1cVMdkA0coFC33YqHEwLtqLXWdoKcwaLtFjK5p0L5j3fA7hA/VJeAzKkiEi61rc7jiut0tTCa5Kh7jg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LMl3GBR8; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=gamNBTTcBoKjIAmoXzOu6NO2u24X6mQT12/saMGjSzOpdkrBqJP8ygxFUDXCiEXWIv7wgcQJCdk1PdCCf83mJAW3diRIYkNTkL3Jj4asg5CBLYDcDivphgD26sYzIxpksdP+M9Bee7E59NEjxHL+SITlc0Hw2SdISFTD4rhJotw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZytbZPv4; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LMl3GBR8"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49FDJiNC008390;
-	Tue, 15 Oct 2024 16:43:32 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZytbZPv4"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49FFoWDb031605;
+	Tue, 15 Oct 2024 16:43:33 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=smPbVVUTPeubekiFB
-	5BI/e3FMoGPpsz1X34wv6nlTYY=; b=LMl3GBR8domXCMBHAciEKRP09HA8QXCLf
-	6HFOUuVWx3NyW6gFv0jLaYy68JEkdGitXcSBNXhK+IRimXh64AcwhTnkyu95Touo
-	4Q37rh1AhZC4mIfdPzHbh/gbC8NepJKceTUORDqR4gg2/b6m9kvSL5cxr+3CYvIk
-	wiERo9htE7TITErxtICKg7oOMSawOBTzMXXWO54b3HG0pM8pFkLwgMhbTTYwC6St
-	5Olwe0HajogZ6+TB7eHMr6w8y+GnflAqmSvPFXkLm3oO00H4KSItmE/JxAghW+/6
-	k3zW24QhaEah1WVH+HMrWA/A7qZ3TQNHxMUOQnLTvtXXbMcrToWtQ==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429s68h427-1
+	:mime-version:references:subject:to; s=pp1; bh=b1hrL5t3INOADSR8l
+	YZwbXlFlIC3oQgm2SthebZwLds=; b=ZytbZPv4e3P1bzMOue/sbbzVsbqPyTIrJ
+	ZzWDvHW9Z7VNzYfy+az5kh5PvwZVVrOKujAzxBWHB4iZP33ibMJv+vVv2YKzdTfW
+	c4yGTP42d+L1cY5FF9MwvXFdDqXCuUWahUY1ix/Zo1JqK4A6d6rUI7RHd0GenP3x
+	hAkzLrEQCFig3JfwutXa5eGNNF1KPc4zjadXlNZXu35wVfTIgN2oqmJ2NId1PbFI
+	1w2Hd1o4DomMYmkZAdZkwF0ZL9vDZcj9sBPoucmpsiuRFd5gG6ZYZMdxiDh3xHxp
+	GClhUJqyWetYgCtCaMnnRRUNFJFXlLH37VcGWbrraO3x0kN+B9bZg==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429ucwg8m0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 16:43:31 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49FE4dMF001991;
-	Tue, 15 Oct 2024 16:43:31 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4284emmxav-1
+	Tue, 15 Oct 2024 16:43:33 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49FEmnAp007025;
+	Tue, 15 Oct 2024 16:43:32 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4284xk4tre-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 16:43:30 +0000
+	Tue, 15 Oct 2024 16:43:32 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49FGhRsF49545568
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49FGhSqp50069782
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 15 Oct 2024 16:43:27 GMT
+	Tue, 15 Oct 2024 16:43:29 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 316C520040;
-	Tue, 15 Oct 2024 16:43:27 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id DDC952004B;
+	Tue, 15 Oct 2024 16:43:28 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0952A2004B;
-	Tue, 15 Oct 2024 16:43:27 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B70A320040;
+	Tue, 15 Oct 2024 16:43:28 +0000 (GMT)
 Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 15 Oct 2024 16:43:26 +0000 (GMT)
+	Tue, 15 Oct 2024 16:43:28 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: borntraeger@de.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
@@ -59,9 +59,9 @@ Cc: borntraeger@de.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
         agordeev@linux.ibm.com, gor@linux.ibm.com,
         gerald.schaefer@linux.ibm.com, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [PATCH v3 02/11] s390/kvm: Remove kvm_arch_fault_in_page()
-Date: Tue, 15 Oct 2024 18:43:17 +0200
-Message-ID: <20241015164326.124987-3-imbrenda@linux.ibm.com>
+Subject: [PATCH v3 11/11] s390/mm: Convert to LOCK_MM_AND_FIND_VMA
+Date: Tue, 15 Oct 2024 18:43:26 +0200
+Message-ID: <20241015164326.124987-12-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.47.0
 In-Reply-To: <20241015164326.124987-1-imbrenda@linux.ibm.com>
 References: <20241015164326.124987-1-imbrenda@linux.ibm.com>
@@ -73,98 +73,75 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: fcOfuIXcB3I3Ax0CZ2Xalrx8EV9U60P3
-X-Proofpoint-ORIG-GUID: fcOfuIXcB3I3Ax0CZ2Xalrx8EV9U60P3
+X-Proofpoint-ORIG-GUID: mIwXe_1YdEff2xHHUJkxrOJMh3WJJF-U
+X-Proofpoint-GUID: mIwXe_1YdEff2xHHUJkxrOJMh3WJJF-U
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
- clxscore=1015 malwarescore=0 suspectscore=0 lowpriorityscore=0
- mlxlogscore=999 adultscore=0 mlxscore=0 priorityscore=1501 bulkscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
+ mlxlogscore=641 spamscore=0 priorityscore=1501 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 bulkscore=0 adultscore=0 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2409260000 definitions=main-2410150113
 
-kvm_arch_fault_in_page() is a useless wrapper around gmap_fault(); just
-use gmap_fault() directly instead.
+From: Heiko Carstens <hca@linux.ibm.com>
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+With the gmap code gone s390 can be easily converted to
+LOCK_MM_AND_FIND_VMA like it has been done for most other
+architectures.
+
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 ---
- arch/s390/kvm/intercept.c |  4 ++--
- arch/s390/kvm/kvm-s390.c  | 18 +-----------------
- arch/s390/kvm/kvm-s390.h  |  1 -
- 3 files changed, 3 insertions(+), 20 deletions(-)
+ arch/s390/Kconfig    |  1 +
+ arch/s390/mm/fault.c | 13 ++-----------
+ 2 files changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index b16352083ff9..5bbaadf75dc6 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -367,7 +367,7 @@ static int handle_mvpg_pei(struct kvm_vcpu *vcpu)
- 					      reg2, &srcaddr, GACC_FETCH, 0);
- 	if (rc)
- 		return kvm_s390_inject_prog_cond(vcpu, rc);
--	rc = kvm_arch_fault_in_page(vcpu, srcaddr, 0);
-+	rc = gmap_fault(vcpu->arch.gmap, srcaddr, 0);
- 	if (rc != 0)
- 		return rc;
- 
-@@ -376,7 +376,7 @@ static int handle_mvpg_pei(struct kvm_vcpu *vcpu)
- 					      reg1, &dstaddr, GACC_STORE, 0);
- 	if (rc)
- 		return kvm_s390_inject_prog_cond(vcpu, rc);
--	rc = kvm_arch_fault_in_page(vcpu, dstaddr, 1);
-+	rc = gmap_fault(vcpu->arch.gmap, dstaddr, FAULT_FLAG_WRITE);
- 	if (rc != 0)
- 		return rc;
- 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index bb7134faaebf..08f0c80ef5e9 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4579,22 +4579,6 @@ int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clo
- 	return 1;
- }
- 
--/**
-- * kvm_arch_fault_in_page - fault-in guest page if necessary
-- * @vcpu: The corresponding virtual cpu
-- * @gpa: Guest physical address
-- * @writable: Whether the page should be writable or not
-- *
-- * Make sure that a guest page has been faulted-in on the host.
-- *
-- * Return: Zero on success, negative error code otherwise.
-- */
--long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable)
--{
--	return gmap_fault(vcpu->arch.gmap, gpa,
--			  writable ? FAULT_FLAG_WRITE : 0);
--}
--
- static void __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_token,
- 				      unsigned long token)
- {
-@@ -4797,7 +4781,7 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
- 		if (kvm_arch_setup_async_pf(vcpu))
- 			return 0;
- 		vcpu->stat.pfault_sync++;
--		return kvm_arch_fault_in_page(vcpu, current->thread.gmap_addr, 1);
-+		return gmap_fault(vcpu->arch.gmap, current->thread.gmap_addr, FAULT_FLAG_WRITE);
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index d339fe4fdedf..8109446f7b24 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -224,6 +224,7 @@ config S390
+ 	select HAVE_VIRT_CPU_ACCOUNTING_IDLE
+ 	select IOMMU_HELPER		if PCI
+ 	select IOMMU_SUPPORT		if PCI
++	select LOCK_MM_AND_FIND_VMA
+ 	select MMU_GATHER_MERGE_VMAS
+ 	select MMU_GATHER_NO_GATHER
+ 	select MMU_GATHER_RCU_TABLE_FREE
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index 93ae097ef0e0..8bd2b8d64273 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -308,18 +308,10 @@ static void do_exception(struct pt_regs *regs, int access)
+ 		return;
  	}
- 	return vcpu_post_run_fault_in_sie(vcpu);
- }
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index e680c6bf0c9d..0765ad1031c4 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -394,7 +394,6 @@ int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu);
- 
- /* implemented in kvm-s390.c */
- int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
--long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
- int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr);
- int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr);
- int kvm_s390_vcpu_start(struct kvm_vcpu *vcpu);
+ lock_mmap:
+-	mmap_read_lock(mm);
+ retry:
+-	vma = find_vma(mm, address);
++	vma = lock_mm_and_find_vma(mm, address, regs);
+ 	if (!vma)
+-		return handle_fault_error(regs, SEGV_MAPERR);
+-	if (unlikely(vma->vm_start > address)) {
+-		if (!(vma->vm_flags & VM_GROWSDOWN))
+-			return handle_fault_error(regs, SEGV_MAPERR);
+-		vma = expand_stack(mm, address);
+-		if (!vma)
+-			return handle_fault_error_nolock(regs, SEGV_MAPERR);
+-	}
++		return handle_fault_error_nolock(regs, SEGV_MAPERR);
+ 	if (unlikely(!(vma->vm_flags & access)))
+ 		return handle_fault_error(regs, SEGV_ACCERR);
+ 	fault = handle_mm_fault(vma, address, flags, regs);
+@@ -337,7 +329,6 @@ static void do_exception(struct pt_regs *regs, int access)
+ 	}
+ 	if (fault & VM_FAULT_RETRY) {
+ 		flags |= FAULT_FLAG_TRIED;
+-		mmap_read_lock(mm);
+ 		goto retry;
+ 	}
+ 	mmap_read_unlock(mm);
 -- 
 2.47.0
 
