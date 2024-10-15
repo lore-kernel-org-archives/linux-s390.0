@@ -1,343 +1,187 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 459621DAC8A;
-	Tue, 15 Oct 2024 08:47:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB32D757FC
+	for <linux-s390@vger.kernel.org>; Tue, 15 Oct 2024 08:48:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728982066; cv=none; b=uMrO1aKGiqXebgKhzwj1fmyizgXQicnSfHZGMFCoqB+IHcJ/9m5URxvgeRKSU/uhVawPg8HFbpBdHfojX7m8veAHJs8C8owf5x354o2im5qj4ElzW01EDiZSFi0nH02Mdvh7usgMg61yWjeZcPnTbpxHPHFdoagC9lyIILS0oOg=
+	t=1728982109; cv=none; b=E4Hn6/kLPP0vpbnKFzy+M7+vDwEu9sqfazBjvsPpSlscJhOgvmSFujc3TP41jl8zK6oRgb8c4EEH8qRTHe3EUmhNWrsTZNGXEoVrW0EDoWrk19g/B0H4YHUUfCWmOvDz1yUmzwrqYCPZ9Zkwd2XfZFO4QC4HKcA/6onJGJrVhIw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728982066; c=relaxed/simple;
-	bh=0k/jNEZc9lfw3abXbvYAwbVUgS/oBQHM402EpxxJEL8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BkLc9z4LhVsDu3hRQK88MQC5Ne9qfoX3kjSRmxG5gVl4UpuoCjZNByiMsR4Ur9Y3uNybtztqDjKgmBkLx097dAiTTrh1vCZiKoQi3vbRjIxp8WIH7tsjxQPBZIo+jEfyuzinfT2YPWlpvOvhd1AupQb3EwJz9eoMuOiPW2VyIJ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BUWZ5s97; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1728982109; c=relaxed/simple;
+	bh=p/MIGSRtGZoGVvz7Yr/8nDGL8TNsnqXsAbNUPPNhkrY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TLveJ7LUyo+76IoHXU5Cs2Xv8J2aWrEfS7iLC1fjw/mq/fBIkt34/JHzvZxLjjEb2/ETIsbNNCR4YTY2JGWFNc5fey9m16vbMjQrnmvzvoOvrVliK5hCnPdkHO2lA0j3XzUlbh+zdOoeE6aANVqUIfsYhf9fYpq8zyxkgiZktng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=N+o2hEaM; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BUWZ5s97"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49F7LYBQ002175;
-	Tue, 15 Oct 2024 08:47:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=xWzekMjwCNm9ExClS
-	aAQzXmfQqt81BO5Jsxrhu4BjCI=; b=BUWZ5s97M6U/X1gmI3x9AHIfF3+PVlMME
-	hcz0Xd/cPQ9+NtYBY0QqcdoIzrRLpLDQAE5DKRuLCAoEO5P6/Dvba8q2zN95NNap
-	A9owXsoCrf2cEeDutb5EoCnvGY1uzBg/+9w+OqKiQyMWFqsguC/YZPAedQO7XfEA
-	fc62DWgYqPShFfE90aMv2UTsa+KNENmXmuEfklR6XW1VM0KHktS1ANP4DWGGzXQ3
-	2n6SQdmVLRpzRz/8pzUmIpLqPURFPSbQSASrz9EmcbYZEm2VZ+oIT3Ey9MQSwHGi
-	dcyhNyUF7x6j65CG6vS4JRbH8VIB+6WDFkIxFN4XpzWxwE1WJpt9w==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429kwvrdk3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 08:47:41 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49F8leXt009539;
-	Tue, 15 Oct 2024 08:47:40 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429kwvrdk1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 08:47:40 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49F5PXB1004988;
-	Tue, 15 Oct 2024 08:47:39 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4285nj2hye-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 08:47:39 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49F8lauo52363596
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 15 Oct 2024 08:47:36 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 280A820049;
-	Tue, 15 Oct 2024 08:47:36 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0C4E720040;
-	Tue, 15 Oct 2024 08:47:36 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 15 Oct 2024 08:47:36 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55390)
-	id D2C1AE0125; Tue, 15 Oct 2024 10:47:35 +0200 (CEST)
-From: Sven Schnelle <svens@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Richard Cochran <richardcochran@gmail.com>
-Cc: linux-s390@vger.kernel.org, Yangbo Lu <yangbo.lu@nxp.com>,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH 3/3] s390/time: Add PtP driver
-Date: Tue, 15 Oct 2024 10:47:25 +0200
-Message-ID: <20241015084728.1833876-4-svens@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20241015084728.1833876-1-svens@linux.ibm.com>
-References: <20241015084728.1833876-1-svens@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N+o2hEaM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1728982106;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=50wFFqNXFpjaX6P/Mlz7i8+V12CHV816FHHaZjiGzpk=;
+	b=N+o2hEaM4PXW0RILAAPK7R14ztrwLEn42Zv88neNRO7kTBrI0GX0EFJVE2uyOwJSO1gb1w
+	ba+inOfv9LWDhcHnXto4D91zwLLhsyeMg/JEWuYagKHG0FWj0AiavIW4bAPrZxiGFUveIz
+	IWhvaN87xfyB7hsgVxODqsCypyGfy2Y=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-606-9iEK-vVgMXGOoiYboOdbuQ-1; Tue, 15 Oct 2024 04:48:23 -0400
+X-MC-Unique: 9iEK-vVgMXGOoiYboOdbuQ-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-431159f2864so26708225e9.0
+        for <linux-s390@vger.kernel.org>; Tue, 15 Oct 2024 01:48:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1728982102; x=1729586902;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=50wFFqNXFpjaX6P/Mlz7i8+V12CHV816FHHaZjiGzpk=;
+        b=U26gqeo57BUQKbYSnXzaBH9ohGImi6QLAzTcrL3nIoFS0J0H/dQwzlM+hLQO5RnGoH
+         bbblmkcWuwlDXNIPmSA5o+p6nE9IzzqXA4FvDVs22uH4N/SeBQmSn5sehpxSnSUh3Dbj
+         Ga7I1dw1RLBNv847v+JZz8onfsD96y5LcQAUz5pIp7l9t6Soly+3gtdzbdcJES61XavO
+         yE9JpdZlEgoAK3OuWTezj8RvH0jTB3tntzHD9Uw5UtvMpG/TNajwegbxo+vdgOZXaI65
+         JXEV5vyx51GNW8exBKi5TOvTKYY63s41qEPxmLQoHTHnUt5j/OPcDIBvMJZMhN+zYQTv
+         ZkHQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXrjm+6L0+7D5I0FndhiBaHXW/eyNvZreuSQ7tZ/3EzIwSZZ1PhsS33MvSCg8Q5bUUnC2fOVzbUu0nY@vger.kernel.org
+X-Gm-Message-State: AOJu0YxW8YOlZanprpvCyiLau+WGkSNl7IHxutb7UCSB/VtBGaxMDR4p
+	vIQpJO04ovJTl/uU3fHWE7xa7WRTm4sBf+AJG0JZIcrzeWh3H4LAKBhuQ7iAFhyCs2TiS7uJnPt
+	VdklvnzemSd3BsDt7D/eBkko+xqd3OuU4SGHH31TlbvfSLPXQhipNUmCatOs=
+X-Received: by 2002:a05:600c:c0d:b0:42f:7e87:3438 with SMTP id 5b1f17b1804b1-4311de0041fmr117015375e9.0.1728982102431;
+        Tue, 15 Oct 2024 01:48:22 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHBTHE1MOfpAobdlWqdrQtQCCiBsBcqnh8ka2vWhYs6jn4f2rukhBZXH4tRhj08nCUPlOwNyw==
+X-Received: by 2002:a05:600c:c0d:b0:42f:7e87:3438 with SMTP id 5b1f17b1804b1-4311de0041fmr117015145e9.0.1728982102032;
+        Tue, 15 Oct 2024 01:48:22 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c730:9700:d653:fb19:75e5:ab5c? (p200300cbc7309700d653fb1975e5ab5c.dip0.t-ipconnect.de. [2003:cb:c730:9700:d653:fb19:75e5:ab5c])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4313f6b323asm10945305e9.36.2024.10.15.01.48.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 15 Oct 2024 01:48:21 -0700 (PDT)
+Message-ID: <2050b790-4d88-4e16-8af8-3bde759d5430@redhat.com>
+Date: Tue, 15 Oct 2024 10:48:20 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KYKLsliRxp5wU_vPfEXS8jjyMJrxOYtS
-X-Proofpoint-ORIG-GUID: c9S9dQGmHPDo1CKg8Bw9E4uPNtELAI9k
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
- clxscore=1015 phishscore=0 suspectscore=0 impostorscore=0 malwarescore=0
- mlxlogscore=999 lowpriorityscore=0 mlxscore=0 bulkscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410150056
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/7] Documentation: s390-diag.rst: make diag500 a
+ generic KVM hypercall
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+ Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Jonathan Corbet <corbet@lwn.net>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-3-david@redhat.com>
+ <20241014180410.10447-C-hca@linux.ibm.com>
+ <78e8794a-d89f-4ded-b102-afc7cea20d1d@redhat.com>
+ <20241015081212.7641-A-hca@linux.ibm.com>
+ <8e39522c-2853-4d1f-b5ec-64fabcca968b@redhat.com>
+ <20241015082148.7641-B-hca@linux.ibm.com>
+ <d90566ac-dbe3-486b-bdc7-ece6c2ec6928@redhat.com>
+ <20241015084634.7641-E-hca@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20241015084634.7641-E-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Add a small PtP driver which allows user space to get
-the values of the physical and tod clock. This allows
-programs like chrony to use STP as clock source and
-steer the kernel clock. The physical clock can be used
-as a debugging aid to get the clock without any additional
-offsets like STP steering or LPAR offset.
+On 15.10.24 10:46, Heiko Carstens wrote:
+> On Tue, Oct 15, 2024 at 10:32:43AM +0200, David Hildenbrand wrote:
+>> On 15.10.24 10:21, Heiko Carstens wrote:
+>>> On Tue, Oct 15, 2024 at 10:16:20AM +0200, David Hildenbrand wrote:
+>>>> On 15.10.24 10:12, Heiko Carstens wrote:
+>>>>> On Mon, Oct 14, 2024 at 09:35:27PM +0200, David Hildenbrand wrote:
+>>>>>> On 14.10.24 20:04, Heiko Carstens wrote:
+>>>>> "If only there would be a query subcode available, so that the program
+>>>>> check handling would not be necessary; but in particular my new subcode
+>>>>> is not worth adding it" :)
+>>>>>
+>>>>> Anyway, I do not care too much.
+>>>>>
+>>>>
+>>>> Okay, I see your point: it would allow for removing the program check
+>>>> handling from the STORAGE LIMIT invocation.
+>>>>
+>>>> ... if only we wouldn't need the exact same program check handling for the
+>>>> new query subfunction :P
+>>>
+>>> Yeah yeah, but I think you got that this might help in the future.
+>>
+>> Right. Adding it later also doesn't quite help to get rid of the checks
+>> here, because some user space might implement STORAGE LIMIT without QUERY.
+> 
+> This would only help if the diag500 documentation would state that
+> implementation of the QUERY subcode is mandatory. That is: for every
+> new subcode larger than the QUERY subcode QUERY must also exist.
+> 
+> That way we only would have to implement program check handling once,
+> if a program check happens on QUERY none of the newer subcodes is
+> available, otherwise the return value would indicate that.
+> 
+> Otherwise this whole excercise would be pointless.
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
----
- MAINTAINERS                   |   6 ++
- arch/s390/include/asm/timex.h |   8 +++
- arch/s390/kernel/time.c       |   7 ++
- drivers/ptp/Kconfig           |  11 +++
- drivers/ptp/Makefile          |   1 +
- drivers/ptp/ptp_s390.c        | 127 ++++++++++++++++++++++++++++++++++
- 6 files changed, 160 insertions(+)
- create mode 100644 drivers/ptp/ptp_s390.c
+Yes, that would be the idea.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 7ad507f49324..94793c935e86 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -20328,6 +20328,12 @@ F:	Documentation/arch/s390/pci.rst
- F:	arch/s390/pci/
- F:	drivers/pci/hotplug/s390_pci_hpc.c
- 
-+S390 PTP DRIVER
-+M:	Sven Schnelle <svens@linux.ibm.com>
-+L:	linux-s390@vger.kernel.org
-+S:	Supported
-+F:	drivers/ptp/ptp_s390.c
-+
- S390 SCM DRIVER
- M:	Vineeth Vijayan <vneethv@linux.ibm.com>
- L:	linux-s390@vger.kernel.org
-diff --git a/arch/s390/include/asm/timex.h b/arch/s390/include/asm/timex.h
-index 640901f2fbc3..4fc88a1493f0 100644
---- a/arch/s390/include/asm/timex.h
-+++ b/arch/s390/include/asm/timex.h
-@@ -93,6 +93,7 @@ extern unsigned char ptff_function_mask[16];
- #define PTFF_QAF	0x00	/* query available functions */
- #define PTFF_QTO	0x01	/* query tod offset */
- #define PTFF_QSI	0x02	/* query steering information */
-+#define PTFF_QPT	0x03	/* query physical clock */
- #define PTFF_QUI	0x04	/* query UTC information */
- #define PTFF_ATO	0x40	/* adjust tod offset */
- #define PTFF_STO	0x41	/* set tod offset */
-@@ -250,6 +251,12 @@ static __always_inline unsigned long tod_to_ns(unsigned long todval)
- 	return ((todval >> 9) * 125) + (((todval & 0x1ff) * 125) >> 9);
- }
- 
-+static __always_inline unsigned long eitod_to_ns(union tod_clock *clk)
-+{
-+	clk->eitod -= TOD_UNIX_EPOCH;
-+	return ((clk->eitod >> 9) * 125) + (((clk->eitod & 0x1ff) * 125) >> 9);
-+}
-+
- /**
-  * tod_after - compare two 64 bit TOD values
-  * @a: first 64 bit TOD timestamp
-@@ -278,4 +285,5 @@ static inline int tod_after_eq(unsigned long a, unsigned long b)
- 	return a >= b;
- }
- 
-+bool stp_enabled(void);
- #endif
-diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
-index 4214901c3ab0..47b20235953c 100644
---- a/arch/s390/kernel/time.c
-+++ b/arch/s390/kernel/time.c
-@@ -469,6 +469,13 @@ static void __init stp_reset(void)
- 	}
- }
- 
-+bool stp_enabled(void)
-+{
-+	return test_bit(CLOCK_SYNC_HAS_STP, &clock_sync_flags) &&
-+		stp_online;
-+}
-+EXPORT_SYMBOL(stp_enabled);
-+
- static void stp_timeout(struct timer_list *unused)
- {
- 	queue_work(time_sync_wq, &stp_work);
-diff --git a/drivers/ptp/Kconfig b/drivers/ptp/Kconfig
-index 604541dcb320..907330413ef8 100644
---- a/drivers/ptp/Kconfig
-+++ b/drivers/ptp/Kconfig
-@@ -224,4 +224,15 @@ config PTP_DFL_TOD
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called ptp_dfl_tod.
- 
-+config PTP_S390
-+	tristate "S390 PTP driver"
-+	depends on PTP_1588_CLOCK
-+	default y
-+	help
-+	  This driver adds support for S390 time steering via the PtP
-+	  interface. This works by adding a in-kernel clock delta value,
-+	  which is always added to time values used in the kernel. The PtP
-+	  driver provides the raw clock value without the delta to
-+	  userspace. That way userspace programs like chrony could steer
-+	  the kernel clock.
- endmenu
-diff --git a/drivers/ptp/Makefile b/drivers/ptp/Makefile
-index 68bf02078053..4dd9f35eb0cf 100644
---- a/drivers/ptp/Makefile
-+++ b/drivers/ptp/Makefile
-@@ -21,3 +21,4 @@ obj-$(CONFIG_PTP_1588_CLOCK_MOCK)	+= ptp_mock.o
- obj-$(CONFIG_PTP_1588_CLOCK_VMW)	+= ptp_vmw.o
- obj-$(CONFIG_PTP_1588_CLOCK_OCP)	+= ptp_ocp.o
- obj-$(CONFIG_PTP_DFL_TOD)		+= ptp_dfl_tod.o
-+obj-$(CONFIG_PTP_S390)			+= ptp_s390.o
-diff --git a/drivers/ptp/ptp_s390.c b/drivers/ptp/ptp_s390.c
-new file mode 100644
-index 000000000000..4edccebcf2b5
---- /dev/null
-+++ b/drivers/ptp/ptp_s390.c
-@@ -0,0 +1,126 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * s390 PTP clock driver
-+ *
-+ */
-+
-+#include "ptp_private.h"
-+#include <linux/time.h>
-+static struct ptp_clock *ptp_stcke_clock, *ptp_qpt_clock;
-+
-+static int ptp_s390_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int ptp_s390_adjtime(struct ptp_clock_info *ptp, s64 delta)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static struct timespec64 eitod_to_timespec64(union tod_clock *clk)
-+{
-+	return ns_to_timespec64(eitod_to_ns(clk));
-+}
-+
-+static struct timespec64 tod_to_timespec64(unsigned long tod)
-+{
-+	return ns_to_timespec64(tod_to_ns(tod - TOD_UNIX_EPOCH));
-+}
-+
-+static int ptp_s390_stcke_gettime(struct ptp_clock_info *ptp,
-+				  struct timespec64 *ts)
-+{
-+	union tod_clock tod;
-+
-+	if (!stp_enabled())
-+		return -EOPNOTSUPP;
-+
-+	store_tod_clock_ext_cc(&tod);
-+	*ts = eitod_to_timespec64(&tod);
-+	return 0;
-+}
-+
-+static int ptp_s390_qpt_gettime(struct ptp_clock_info *ptp,
-+				struct timespec64 *ts)
-+{
-+	unsigned long tod;
-+
-+	ptff(&tod, sizeof(tod), PTFF_QPT);
-+	*ts = tod_to_timespec64(tod);
-+	return 0;
-+}
-+
-+static int ptp_s390_settime(struct ptp_clock_info *ptp,
-+			    const struct timespec64 *ts)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int s390_arch_ptp_get_crosststamp(ktime_t *device_time,
-+					 struct system_counterval_t *system_counter,
-+					 void *ctx)
-+{
-+	union tod_clock clk;
-+
-+	store_tod_clock_ext_cc(&clk);
-+	*device_time = ns_to_ktime(tod_to_ns(clk.tod - TOD_UNIX_EPOCH));
-+	system_counter->cycles = clk.tod;
-+	system_counter->cs_id = CSID_S390_TOD;
-+	return 0;
-+}
-+
-+static int ptp_s390_getcrosststamp(struct ptp_clock_info *ptp,
-+				   struct system_device_crosststamp *xtstamp)
-+{
-+	if (!stp_enabled())
-+		return -EOPNOTSUPP;
-+	return get_device_system_crosststamp(s390_arch_ptp_get_crosststamp, NULL, NULL, xtstamp);
-+}
-+
-+static struct ptp_clock_info ptp_s390_stcke_info = {
-+	.owner		= THIS_MODULE,
-+	.name		= "IBM Z STCKE Clock",
-+	.max_adj	= 0,
-+	.adjfine	= ptp_s390_adjfine,
-+	.adjtime	= ptp_s390_adjtime,
-+	.gettime64	= ptp_s390_stcke_gettime,
-+	.settime64	= ptp_s390_settime,
-+	.getcrosststamp = ptp_s390_getcrosststamp,
-+};
-+
-+static struct ptp_clock_info ptp_s390_qpt_info = {
-+	.owner		= THIS_MODULE,
-+	.name		= "IBM Z Physical Clock",
-+	.max_adj	= 0,
-+	.adjfine	= ptp_s390_adjfine,
-+	.adjtime	= ptp_s390_adjtime,
-+	.gettime64	= ptp_s390_qpt_gettime,
-+	.settime64	= ptp_s390_settime,
-+};
-+
-+static __init int ptp_s390_init(void)
-+{
-+	ptp_stcke_clock = ptp_clock_register(&ptp_s390_stcke_info, NULL);
-+	if (IS_ERR(ptp_stcke_clock))
-+		return PTR_ERR(ptp_stcke_clock);
-+
-+	ptp_qpt_clock = ptp_clock_register(&ptp_s390_qpt_info, NULL);
-+	if (IS_ERR(ptp_qpt_clock)) {
-+		ptp_clock_unregister(ptp_stcke_clock);
-+		return PTR_ERR(ptp_qpt_clock);
-+	}
-+	return 0;
-+}
-+
-+static __exit void ptp_s390_exit(void)
-+{
-+	ptp_clock_unregister(ptp_qpt_clock);
-+	ptp_clock_unregister(ptp_stcke_clock);
-+}
-+
-+module_init(ptp_s390_init);
-+module_exit(ptp_s390_exit);
-+
-+MODULE_AUTHOR("Sven Schnelle <svens@linux.ibm.com>");
-+MODULE_LICENSE("GPL");
 -- 
-2.43.0
+Cheers,
+
+David / dhildenb
 
