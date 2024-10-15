@@ -1,57 +1,57 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63CF91F819F;
-	Tue, 15 Oct 2024 22:48:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E68E1FBF7B;
+	Tue, 15 Oct 2024 22:48:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729032516; cv=none; b=GJ5x6/fqnBaT2+9M0lWOZLwzDd/6K+OdLrioN4IOzlz4VW4staPJqOdkl6bBgPCtmld0DwANp+fW4cpmHEVJX7SnFcI05tiFZ2N0B84Mp5epWqOJ7S5/c5XVToprdFsUr6ND2O8PuLdt03+SXQkfrEKehiVm3ucHOJyzrsWmFzk=
+	t=1729032519; cv=none; b=IslLNKrpqylcLl1YDPan07na/iKY1OAkTwVAgqfcJdE2I1xS3uv86gF6D3MhdVbzjdutRonuhWO07gEzghgKn1Lp7b50ycIoqcZKZCWaGRNJHpQof11g2DN4yC5r4xEjXoOiBxbUBPP9NRmKrLc84eZTkuGC/Au9Xc+qrJtzfss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729032516; c=relaxed/simple;
-	bh=q8XdwdqdA5vFLpxF2cA5NlU9hE29v1xzZ4SHv5UUaO0=;
+	s=arc-20240116; t=1729032519; c=relaxed/simple;
+	bh=6fug8UcZA31z1WDHRjCaQNBPXIA2Ym99No37vjGAAvo=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=mKCVcEshzj9Or0qtUERmWD8R4DrE6FvtdVBW78JVrOGHaI7cRiiVF6ZnV5R7zXm9TFt0LuzJx91MD1HNhgSZ3U04/Ral/Vn5jVKU9/Z1DEHudmnBTIAMBOGXydDh76peyW0Abaf3n8iClQ1nZOcjaKpZwOZT82rAbxerJGibu/Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YTSCyXNa; arc=none smtp.client-ip=209.85.214.182
+	 MIME-Version; b=hGXefg3KaTEtbGBcISf2Dzgy8Fuve7hwYczEDcoqFxtpTfg01ha9SbnH9nuP4rKMzjGk8bS03ZClldIGGh7N1Z92FyOb9Me6rnK6USmf+y3M9TDNv8EcGhOlZEhr9o7fI/PZKLvCbc89MkxOxHU7mG4o6yhKd/lLrggr9jaefJs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G3cn6/KQ; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YTSCyXNa"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-20cbca51687so32704515ad.1;
-        Tue, 15 Oct 2024 15:48:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G3cn6/KQ"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-20cdda5cfb6so28220235ad.3;
+        Tue, 15 Oct 2024 15:48:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1729032515; x=1729637315; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1729032517; x=1729637317; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=V0eza33mEm6JCADkBOVhQ8Rji6Layxr0e11dgnxnqgs=;
-        b=YTSCyXNaBz4+YDv3IsvdwX5Htk1bxr+OSClPQKnmRTr/tCzhwUt3urP6kBrtj9aOH8
-         QIVZYRxBBRZxkaf6WdHgiydFm+1CVUyW+nYuFHUwnZdZDZ9aRdNzYkFTkdQ0nM9+//KW
-         ZW3YTxMIxW+ZEyNjTCIsHjlvBhy1lF3OsrSCEv2pARr3RZkuMjmvaA4kB8QaniZooWqb
-         9UR0vkjFo6MV0eAY0mriBFlpmZnjjcfoLK7xyf6aYQaCXeDbdeusD1D2knNmfUsTpR2d
-         zMt5HDEAg4db34xMvL6OUGdnYyIrlEUQHwno68nvyVh5eeL+dq+YX9235kP4E+OEsoyr
-         DiTQ==
+        bh=jhopaATavFb8v8R1JjsKVC6ma8QBMUL6hqdDjaAqBYI=;
+        b=G3cn6/KQ8OYnoKOs0Hqpq9VH4sTsgVZ4a6SHnIOWGbUi0PZvIiBAAfEOxt1Gz/Yrd4
+         68itHcuBvyCOZTVy0bhQbpzM4RiY9o8TZScE8nRCEuweg8FD/nM0/drHaszRJnCQWcKe
+         2GbfL+GQChXOy7ZM4rrKb522Jkpv+YewVw+TjJS8DJCrxQ87+ejij0GEvvir50wW47zj
+         jTT+0/+sUVp+fAuSLUc3QcxTSslv692QbA4ZE7z9X6wY5+Vn0VzWWN5/efChCvPO2Y7K
+         daY5D9RXnJV96ErAgHgMhRUcYOwiLEyP4zOPKXHo3Bme3bF5sd2cIJHCIQcdTKw/pJcP
+         9YYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729032515; x=1729637315;
+        d=1e100.net; s=20230601; t=1729032517; x=1729637317;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=V0eza33mEm6JCADkBOVhQ8Rji6Layxr0e11dgnxnqgs=;
-        b=I1uE41PrkTw5Egh1pWBXHs/mFpXvwnsVYit3kpYHfPjXzC/U8lEop3KoUqexuaCAsn
-         wHWcgtO/ioPO1Ta/OfO8sEs9o4AnN+doyUk/zbIUx8wsJH3ghmHq2lmlczU9NFonQsuL
-         9L4JAHAOBdkZrGMe9ENLOmfGJyy9s3yv24GqyFTbvB1YLBOWRCufqi8yx0Bn8KoBaZuA
-         fSyfvDt7vMY5VlXNnWZevv04YvOxCd02fxYiQ8pXW+9ZgRmFdpA4XtSEe/iruOJQ4h/b
-         KNti4AhJEgZ4IxwPub1LsDtlLefmuz86yNvDActekvquqJjeA+kGgtvcciBzyE1B+SZU
-         x8CQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUETduIJ3Zk6cLnP7G0tE5xg1Z5jqcJGFuLXkB87a1c2REiJux1+lvA1z3L9YYkGTm7DvbGwN8UzDZ1sw==@vger.kernel.org, AJvYcCVJISQt0JJKoyuVpTWX2jW0ZRakRe7JpLbThNo3ZRsqFjLJOlNdl5gPZtCbXIGYaIcQmSjckaes@vger.kernel.org, AJvYcCX0IcxTlBf4JyBHATgXUfbueACKOqOCvAP7k6Jr7+N64yTZOVcE1ZAWQoar9vQ6YI5uga3tStAILqgxglw=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwKPP6WsLSZSRNe90A0gOhgi+PZy9r9MhSKjvorB8IRUtpwVUvr
-	ZP9B0NRL7JAF1w3IV5NT9cTtCaATF53ndR+8R0SSolLxe2/Qsred
-X-Google-Smtp-Source: AGHT+IFZfE+ooZzQsQC+FW8zoiPrfK79QnncsMlRr8Tu6+rNeOLh0pa+pCYavmA3SLnoL4Y/Ye7Ufg==
-X-Received: by 2002:a17:902:e5c7:b0:20c:7796:5e47 with SMTP id d9443c01a7336-20cbb1a94f3mr256237955ad.4.1729032514664;
-        Tue, 15 Oct 2024 15:48:34 -0700 (PDT)
+        bh=jhopaATavFb8v8R1JjsKVC6ma8QBMUL6hqdDjaAqBYI=;
+        b=Y8IuNEwrmBEVVeH+vL5gXtmpWC87reqnqEsXRbijHZlFNEwcy/UE42SbfLAIjYSFUD
+         h+zL4TwI+8Etw/m8eiyL2EJt4W+f+4HdvNl8Qmd1MV2AIUjnEBhC/7AyN24BAoQFw1p+
+         kHCNL13tbMJEegUQ9zLADOK5/y3L+bbs+Sg4YsKi+tyIQzv2yw4ahx1n3XkJU4PbqARW
+         /DuwYuSJJZ/P4UQJ+49J9gR1to3wijDpjuGIG3+uct19VyUywIs6v15LjO3OFmL2Px2q
+         SiKwo5nxuRiosPWoC/2Ycj9qyVq5xzJnS7Yq8GVpdcQUTDMzOD3yVsLdFYJqWXpZ5mw+
+         pO+w==
+X-Forwarded-Encrypted: i=1; AJvYcCVM/YaZHFqhFQ1Ildmu8jOn6n49sPyrQPHLxeJ1PgeInjQ6eMCPQKmxNcUNiFlSGEyYN4l7PYDmiVXvqbg=@vger.kernel.org, AJvYcCVO4atZnWcC8VvJfIBrhUeNSBiT7xUYxiB/ANt3lgdrlHeS/+76LRYbqJ18UuenGreqEbKy4xMx@vger.kernel.org, AJvYcCXeLAKgMxDk+E2qMysYMMkJrBoPzQ71yA5mGqZRn86Sq75zWSCh16IqJr/bWXR9dDHSIDuutXx0k6WkPw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzdAiBPjPv8ceR/vIkuIHdbumOn2g78XoJJQkG5Rd3oKMiSujVJ
+	EWsftRAXRehOQwLeZLBSo3cqFaaDJcsb6siRDpeXBNW0Vda6jr6y
+X-Google-Smtp-Source: AGHT+IGB7TcN1tpZ+LTRdXOjO2Zpt63vGVNmdoYU7qqqJYSD2RKOb3BCwhuqjOA1pTX+2q1UBAg4ag==
+X-Received: by 2002:a17:903:32c8:b0:207:15f4:2637 with SMTP id d9443c01a7336-20ca142a227mr190912615ad.12.1729032517513;
+        Tue, 15 Oct 2024 15:48:37 -0700 (PDT)
 Received: from debian.resnet.ucla.edu (s-169-232-97-87.resnet.ucla.edu. [169.232.97.87])
-        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-20d180366fdsm17205465ad.128.2024.10.15.15.48.33
+        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-20d180366fdsm17205465ad.128.2024.10.15.15.48.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Oct 2024 15:48:34 -0700 (PDT)
+        Tue, 15 Oct 2024 15:48:37 -0700 (PDT)
 From: Daniel Yang <danielyangkang@gmail.com>
 To: Wenjia Zhang <wenjia@linux.ibm.com>,
 	Jan Karcher <jaka@linux.ibm.com>,
@@ -67,9 +67,9 @@ To: Wenjia Zhang <wenjia@linux.ibm.com>,
 	linux-kernel@vger.kernel.org
 Cc: danielyangkang@gmail.com,
 	syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
-Subject: [PATCH v3 1/2 RESEND] resolve gtp possible deadlock warning
-Date: Tue, 15 Oct 2024 15:48:04 -0700
-Message-Id: <a226d1132aa6f7e1e5d9b9054bbf5c291fcfa664.1729031472.git.danielyangkang@gmail.com>
+Subject: [PATCH v3 2/2 RESEND] resolve gtp possible deadlock warning
+Date: Tue, 15 Oct 2024 15:48:05 -0700
+Message-Id: <c2ac8e30806af319eb96f67103196b7cda22d562.1729031472.git.danielyangkang@gmail.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <cover.1729031472.git.danielyangkang@gmail.com>
 References: <cover.1729031472.git.danielyangkang@gmail.com>
@@ -81,59 +81,61 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: D. Wythe <alibuda@linux.alibaba.com>
+From: Daniel Yang <danielyangkang@gmail.com>
 
-Adds lockdep annotations on smc inet socket creation
+Moved lockdep annotation to separate function for readability.
 
-Tested-by: Daniel Yang <danielyangkang@gmail.com>
 Signed-off-by: Daniel Yang <danielyangkang@gmail.com>
 Reported-by: syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
+
 ---
- net/smc/smc_inet.c | 27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ net/smc/smc_inet.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
 diff --git a/net/smc/smc_inet.c b/net/smc/smc_inet.c
-index a5b204160..7ae49ffd2 100644
+index 7ae49ffd2..b3eedc3b0 100644
 --- a/net/smc/smc_inet.c
 +++ b/net/smc/smc_inet.c
-@@ -108,14 +108,39 @@ static struct inet_protosw smc_inet6_protosw = {
- };
- #endif /* CONFIG_IPV6 */
+@@ -111,18 +111,7 @@ static struct inet_protosw smc_inet6_protosw = {
+ static struct lock_class_key smc_slock_keys[2];
+ static struct lock_class_key smc_keys[2];
  
-+static struct lock_class_key smc_slock_keys[2];
-+static struct lock_class_key smc_keys[2];
-+
- static int smc_inet_init_sock(struct sock *sk)
- {
- 	struct net *net = sock_net(sk);
+-static int smc_inet_init_sock(struct sock *sk)
+-{
+-	struct net *net = sock_net(sk);
+-	int rc;
+-
+-	/* init common smc sock */
+-	smc_sk_init(net, sk, IPPROTO_SMC);
+-	/* create clcsock */
+-	rc = smc_create_clcsk(net, sk, sk->sk_family);
+-	if (rc)
+-		return rc;
+-
++static inline void smc_inet_lockdep_annotate(struct sock *sk) {
+ 	switch (sk->sk_family) {
+ 		case AF_INET:
+ 			sock_lock_init_class_and_name(sk, "slock-AF_INET-SMC",
+@@ -139,8 +128,21 @@ static int smc_inet_init_sock(struct sock *sk)
+ 		default:
+ 			WARN_ON_ONCE(1);
+ 	}
++}
+ 
+-	return 0;
++static int smc_inet_init_sock(struct sock *sk)
++{
++	struct net *net = sock_net(sk);
 +	int rc;
- 
- 	/* init common smc sock */
- 	smc_sk_init(net, sk, IPPROTO_SMC);
- 	/* create clcsock */
--	return smc_create_clcsk(net, sk, sk->sk_family);
++
++	/* init common smc sock */
++	smc_sk_init(net, sk, IPPROTO_SMC);
++	/* create clcsock */
 +	rc = smc_create_clcsk(net, sk, sk->sk_family);
-+	if (rc)
-+		return rc;
++	if (!rc)
++		smc_inet_lockdep_annotate(sk);
 +
-+	switch (sk->sk_family) {
-+		case AF_INET:
-+			sock_lock_init_class_and_name(sk, "slock-AF_INET-SMC",
-+					&smc_slock_keys[0],
-+					"sk_lock-AF_INET-SMC",
-+					&smc_keys[0]);
-+			break;
-+		case AF_INET6:
-+			sock_lock_init_class_and_name(sk, "slock-AF_INET6-SMC",
-+					&smc_slock_keys[1],
-+					"sk_lock-AF_INET6-SMC",
-+					&smc_keys[1]);
-+			break;
-+		default:
-+			WARN_ON_ONCE(1);
-+	}
-+
-+	return 0;
++	return rc;
  }
  
  int __init smc_inet_init(void)
