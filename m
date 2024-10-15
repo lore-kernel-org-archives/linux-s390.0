@@ -1,100 +1,105 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7851021E3B5;
-	Tue, 15 Oct 2024 22:13:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9455E1B0F1B;
+	Tue, 15 Oct 2024 22:48:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729030441; cv=none; b=aafQArHegWgM5xCkQcHswZanwJ0vA060TTo9S7f4X1gGyBzN5S1sYAaF65oy0t6Qq9fccx7c2PNQWoHJmVVxRK+TrkccuECx7cUmIAFfF35HSltdShJtrjDifJvEJAi4iQLWN9x72K7bM2Z2JrHxltwSj1EOU8Zj3AOTH4ZBHhw=
+	t=1729032511; cv=none; b=sSmnLw5U7HN2MkKwyjQHdc8MymvbKfOSa4v4Z66u/diU9eqyj5htzkImNdL+xJYyU1x7MPCHH55ig7viM8pvfi8xfS4OrIMQXpm88VY4HIVWYUuyEMHeGBexOwmHfsNwuNliXG4mivq6qvdILP+1Lk1Z2qx3nV8dDD/MZu/1r60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729030441; c=relaxed/simple;
-	bh=k1EsMZe1XUkxGLt8opKdc74ewvH9uoQMBVzNOYwwl40=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=UBJrCOD94/Etn8n56jOFOfuWKgf7Zev+I2e5sVH6+zFO1+TNYXCriYASfFDgy3m6eUHGXmsIifjtfwfHbcuwhCRLl23SOP0Ijbo+Y2OAj3JLZgdBUqxJGV/BN8gkPkF1Ub4dv3LtO1BLuXAjOynPK/D7vu04JMRfXIM3OD1Enfc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=hBhkQn2f; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1729032511; c=relaxed/simple;
+	bh=FyiHtAVvTzCEkj0V3+7gyURY1cc8IYk4SenxCNrmAIk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=iaTUbUI1jTGabClO7HLuT5E6tLpBTF6wMfD9CbbRPj/+/nzSXdLTmz5ALn/MXSuFkb5kujTV0faEVaYieTXNWnt72wVvdSHZgW2IhEhriz6hB88vh2oDMgMQTySJdpQeP0tSsXQOqIeYtbC8dHpLgvwdFugW6gRtMMDDcjzCiWI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F8H2/Yf2; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="hBhkQn2f"
-Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49FCQaoT028136;
-	Tue, 15 Oct 2024 22:13:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	k1EsMZe1XUkxGLt8opKdc74ewvH9uoQMBVzNOYwwl40=; b=hBhkQn2fRPP9FvVI
-	esHuHMRTWfZgGz0nQjVNv/otNyjnP4qRrWJQa0S1yj6Rl15hqPMBgyX44Q0mHLd1
-	pfn+Mw5TRCvpvmcE2jo31ALSNFgnF/0+bHzMkvsYOE2JgBGCCAWLFHHJ/tp3nwhf
-	O8nykgil+PRGJyomPfpbLRiAkdJrhB8bE32IGnUylyzxL91EFpIMkwk/ub/ZF5/d
-	96YVqm92VrQqaKZ4PqXaVCDFzkqcCYUB9BYZYUKRZtDNio2d6B7tsOd7ONPuPiwP
-	n9+An4Ud/JpQ8yKkOfpB7jZyN82HqSfKg1kBUEsRcTXGkKekeXM60R0lyrQryPNb
-	3ozpYQ==
-Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 429exw33nn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 22:13:54 +0000 (GMT)
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-	by NALASPPMTA01.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 49FMDrsk014566
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 22:13:53 GMT
-Received: from [10.81.24.74] (10.49.16.6) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Tue, 15 Oct
- 2024 15:13:53 -0700
-Message-ID: <9ceb24b8-6579-42d9-875c-649a1342c587@quicinc.com>
-Date: Tue, 15 Oct 2024 15:13:52 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F8H2/Yf2"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-20c6f492d2dso66123335ad.0;
+        Tue, 15 Oct 2024 15:48:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1729032509; x=1729637309; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=XMBXGuDQgMrnZyPJNJoyS2+8yVGGtiTTAq3h4RC/wK8=;
+        b=F8H2/Yf21sY5PC9IiCoYmSrHu73n+y3r5nczKEpsLqLFSxUm+RBD02OhgiVZC90qnS
+         3g3u4cOIglFBkY84F4Wud1UECUB1GV740xIvSCYURAub6hh/92pSYzNXcAnV8NUsNUkG
+         RCtREB4oumR9+1XK86/HFn0IXox8+BBcT3UORi9FPlRHZH4eZoaBs+E0KV9vy8zRPlJh
+         ByMAbfC7KI6avXp6meD2tivXGy3Qe7nJAX4TRUyUsG/A48ok+HaU3ruiS7H72wSRk4SP
+         huW5Yg4T6m0Q8BbGTkQhBLtgStnuan+8dq987hGgAJVrFpEa0gjSVgUNdJIlfz1Me3wR
+         k73Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1729032509; x=1729637309;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=XMBXGuDQgMrnZyPJNJoyS2+8yVGGtiTTAq3h4RC/wK8=;
+        b=sZXdoKmpXXDkps+ydGJp+XPGK0iJIIya9p66I+AgIXg4NAtsOKerPQ3Xvj7KmNrIEO
+         O/9YhdnSBonKWOGMESXD+3ymysyr26JxER9ls62G5ude/6kZeraewuZhCcxMLSZOqS+s
+         WSm5DH2m3lEw5J/iwEO8gBAivZFwqXnpaT9jRz1Z7Fma09M6V4F/71jwgRuphwZ98lI3
+         XVtim6EqaIujocVGZ+7eorCi11KiQEWRvWrQOXdPNoBvKFUngizHKBnV3mDJi9syiJs2
+         8is4J3ABWtCQ8mlAUZfIPg+Dh42ugTtqctqiYKUqWANZMB/lkK9cXhqx0Tja8veK5URs
+         tBZA==
+X-Forwarded-Encrypted: i=1; AJvYcCUIVAVivvm32irDLAydqFANu+vWwX5Lvl7LIY/OgkkjL9fUjXnehJ04IwXBM2XqhwUUPQemuLdl2TLPkA==@vger.kernel.org, AJvYcCV/w/FtyevFSPYxJAyVp2RPHrxJt6z/4z3eQ7x8W3+LmxnygE82J9mNeY1MaJZKldgCN4MZhJO6ienMACQ=@vger.kernel.org, AJvYcCWUqPH1OGbpwGbbXW3NRIknz+ACrJL0zk+MZ+z+PiVo66Hw980EXcIEVYRfjLHcThODxkvR61hH@vger.kernel.org
+X-Gm-Message-State: AOJu0YwOHK+xJGJu8IyctRxyHiXrK4ShQDU2kOfKX1qhuJ3cnbGracYe
+	fnvh35U1fU5NUgWh9hvY3G0IJF3EOHsfvvOehsQ9jFZSwOyPazAZ
+X-Google-Smtp-Source: AGHT+IEGXm0WE3tI4661kIpP6F4FzwVlt7SFNDfuIGirv0BD01dFvjYEW1LQh7zxhBhF8hiPc/Fs5g==
+X-Received: by 2002:a17:902:e547:b0:207:6fd:57d5 with SMTP id d9443c01a7336-20cbb236be8mr197038765ad.36.1729032508881;
+        Tue, 15 Oct 2024 15:48:28 -0700 (PDT)
+Received: from debian.resnet.ucla.edu (s-169-232-97-87.resnet.ucla.edu. [169.232.97.87])
+        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-20d180366fdsm17205465ad.128.2024.10.15.15.48.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Oct 2024 15:48:28 -0700 (PDT)
+From: Daniel Yang <danielyangkang@gmail.com>
+To: Wenjia Zhang <wenjia@linux.ibm.com>,
+	Jan Karcher <jaka@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: danielyangkang@gmail.com
+Subject: 
+Date: Tue, 15 Oct 2024 15:48:03 -0700
+Message-Id: <cover.1729031472.git.danielyangkang@gmail.com>
+X-Mailer: git-send-email 2.39.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/3] s390/time: Add PtP driver
-To: Sven Schnelle <svens@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
-	<agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Richard Cochran <richardcochran@gmail.com>
-CC: <linux-s390@vger.kernel.org>, Yangbo Lu <yangbo.lu@nxp.com>,
-        <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>
-References: <20241015084728.1833876-1-svens@linux.ibm.com>
- <20241015084728.1833876-4-svens@linux.ibm.com>
-From: Jeff Johnson <quic_jjohnson@quicinc.com>
-Content-Language: en-US
-In-Reply-To: <20241015084728.1833876-4-svens@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: nalasex01c.na.qualcomm.com (10.47.97.35) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: 9D-3asZBwZdBXM-sUNwMfhd0IUW6QpFu
-X-Proofpoint-GUID: 9D-3asZBwZdBXM-sUNwMfhd0IUW6QpFu
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=818
- bulkscore=0 malwarescore=0 spamscore=0 impostorscore=0 mlxscore=0
- clxscore=1011 adultscore=0 lowpriorityscore=0 suspectscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410150147
+Content-Transfer-Encoding: 8bit
 
-On 10/15/24 01:47, Sven Schnelle wrote:
-...
-> +module_init(ptp_s390_init);
-> +module_exit(ptp_s390_exit);
-> +
-> +MODULE_AUTHOR("Sven Schnelle <svens@linux.ibm.com>");
-> +MODULE_LICENSE("GPL");
+Date: Tue, 15 Oct 2024 15:31:12 -0700
+Subject: [PATCH v3 0/2 RESEND] resolve gtp possible deadlock warning
 
-Since commit 1fffe7a34c89 ("script: modpost: emit a warning when the
-description is missing"), a module without a MODULE_DESCRIPTION() will
-result in a warning when built with make W=1. Recently, multiple
-developers have been eradicating these warnings treewide, and very few
-(if any) are left, so please don't introduce a new one :)
+Fixes deadlock described in this bug:
+https://syzkaller.appspot.com/bug?extid=e953a8f3071f5c0a28fd.
+Specific crash report here:
+https://syzkaller.appspot.com/text?tag=CrashReport&x=14670e07980000.
 
-Please add the missing MODULE_DESCRIPTION()
+This bug is a false positive lockdep warning since gtp and smc use
+completely different socket protocols.
 
-/jeff
+Lockdep thinks that lock_sock() in smc will deadlock with gtp's
+lock_sock() acquisition.
+
+Adding lockdep annotations on smc socket creation prevents these false
+positives.
+
+Daniel Yang (2):
+  Patch from D. Wythe <alibuda@linux.alibaba.com>
+  Move lockdep annotation to separate function for readability.
+
+ net/smc/smc_inet.c | 29 ++++++++++++++++++++++++++++-
+ 1 file changed, 28 insertions(+), 1 deletion(-)
+
+-- 
+2.39.2
+
