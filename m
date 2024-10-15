@@ -1,168 +1,266 @@
-Received: from mail-vk1-f171.google.com (mail-vk1-f171.google.com [209.85.221.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1705148FE1
-	for <linux-s390@vger.kernel.org>; Tue, 15 Oct 2024 08:53:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F0981CF28B
+	for <linux-s390@vger.kernel.org>; Tue, 15 Oct 2024 08:53:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728982426; cv=none; b=GZPLx23xP39jCdSWdz1apxAa5+6rEZsideCrmei6r/CoqQFJX62vaCCX8JyuJn5LASlW4L/vAUbi4QRwLWlqZg4hM/QLoXIbksMY2A4QLL7alE/P5d2/Lm6Ql81E6r2j+nHVZRYdN0iGzUOQmWi+KWX5z4gT9jMhnJ4vu3Ikwp0=
+	t=1728982430; cv=none; b=f3NWcoB5OkEYAVGi4SQzfHzhDB6r+rSRZdAUf0YAQkNqfmxm0Ni8R6erx0H/5ZhWKJHol046NjNkHxU/fDccIR9luJA30nfUhG80d3uK4JU1kEP1zkJti1pqff36QCMWmKlbq0uXnva+9yWOL7+2+DaJe5fJ+RCSgVJ5dPmNrYU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728982426; c=relaxed/simple;
-	bh=mGonrEb1BPUx4D9j4VoLPoRRMOa9lPSnwGc8RZ4M4wA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jYMgkisetVPEoTTAw3PfGNX056qeijb++2o3ZZryCP3maEqyKKjbfYEDKURgC1OMS3JyK3YnM89YK7kAoWOZdMHyvEUYUYoViQ88dUn55pig/8UbaEQA5VWYrWT0xdsIrgR8uIZE0oKiw7x7pJueWMVw14iBI7DtWoeH7fASMoM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=M4HXCAQ7; arc=none smtp.client-ip=209.85.221.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1728982430; c=relaxed/simple;
+	bh=cCO6k509GchPM8MKW2tnK2KlEfAg2yEcGXdslgc9ZAQ=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=UcfvPJ5/k3S43W7b50sPMwdjPe0LK2e28INnQ0vQczHu6Ibxw2Sd5q+vsANELybO0ppax7jsPiqQcJsxRTW1bla3imc1hwditb8RCWC1WLvFT7O/5ZSUAsR2Ifsf/2MCkTTLb/0Gv18TNJgmpOakPwfRkuN6L0AM4B3FO7Xh31Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WNS8J1vi; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="M4HXCAQ7"
-Received: by mail-vk1-f171.google.com with SMTP id 71dfb90a1353d-50d3d4d2ad3so848680e0c.0
-        for <linux-s390@vger.kernel.org>; Tue, 15 Oct 2024 01:53:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1728982424; x=1729587224; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=xxR65U6vScytg2kv+c/PJeOMb0nLoNUa0TL3Lk+ySjQ=;
-        b=M4HXCAQ7PrDoVp1CYTk8Gfra/EnxIy2z+WTzoyR8DTMH/h2RjD2hAJr2bbd0VXasNy
-         iCGYAEa4iERwfQ7ZUExRwyiIYwpT4qWkzW2oxNR5cmyh12t3YJeLKbHvPkQwupkc96ap
-         VvPYgB6ae71H1UXJaYJXOQn40Lv9t4X/wZydRjceURiAw27m9MLFE9khlnS2g4DKvbpz
-         wnITuPNQbjrSpV0q7X/Q19AkfwkiSWy0bF83nAD4n6Jkf7cVDvmRQTjagKg2eXpbnVn/
-         o0Cl+GfuvuIsiARKLA3wQdMRMW2xRPl6DnnBRPth3s0X+jUXhcGgKlUoI41+pZD4saFV
-         /55A==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WNS8J1vi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1728982427;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=vea3Db7MOU1y6JVuoKAndvUjY3oqb1LxEwH6YBMbryM=;
+	b=WNS8J1viY/JQ8QpnjjnV/bX/cTTfj256eicVCZ3Vte89McbksySjLvFy4YT4Awjyra0YJX
+	WGAFraErHrbWug5Patt3QtKENLYcIQI/kX2J/r1d3lfAhdHalo+NmQu0IZc1kgawdeuDvt
+	mBcWUQzXET1IrT2qplefjaUBcKsGwLQ=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-230-OS5DcHB0Ovq2rU2XwZLcjg-1; Tue, 15 Oct 2024 04:53:43 -0400
+X-MC-Unique: OS5DcHB0Ovq2rU2XwZLcjg-1
+Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-539e03bfd4aso3261245e87.1
+        for <linux-s390@vger.kernel.org>; Tue, 15 Oct 2024 01:53:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728982424; x=1729587224;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=xxR65U6vScytg2kv+c/PJeOMb0nLoNUa0TL3Lk+ySjQ=;
-        b=tzboy6Eh/kqNkMyql/4qFwBXJtZChMek80rWmVo176vJ607rtwgBzxdRLh1pHN7Wir
-         ncdmy/koFRBUXOXGv2C5y4uUt5xtFLpF5YiuiKusOliN5T9hRxWRCpBZFe+YmW0F/f5A
-         2h/wvf6xVj04wAtPb1gtib5z9RzPYY2XcvV1KHHHiUWeQar0d3/AxQGxWuPJ204iJB9I
-         1At08h5T/comDOl2FJXBpmz0Frr2oq6952LgUIjUEpL4DG+AFMNhlDecABpDz3JaOoyX
-         ePmqWHuDdNDFc8+77tNmPBGBCzEHXGhdrlvp+MB06V3ry8YoJfeZveZaBbOb9hiDcmAv
-         Z0CA==
-X-Forwarded-Encrypted: i=1; AJvYcCUIG9z5LPM6MHGsszaEkVO803676xK3s+IxQQBhoU0X9aa5XWo8MJinWkoGQzfdUoqtSAFC1d1dTV6B@vger.kernel.org
-X-Gm-Message-State: AOJu0YzQ/6ZP7OUoZQP/0pGp7+fi4L0/bvm0p5ppz4WJgpEDw5vQzdC2
-	x+t4PIs7RMt/0at0g8dMXyAqULP1+/0bLGQPFYyQwWnlSfK2UA/++f/6ZXllDJZp9A9Ee3ZbsAa
-	BCGoSC9h+w/KSxLBz2KP9yauuwIrYutVaOKCmXw==
-X-Google-Smtp-Source: AGHT+IHYT/lHJ/KmvqL7SaqGdoczqsfadmaNNg8dY7DEGsvtTmxYpiRRMNBoaPAsZOUeM9hrJ0Cis2z02a5DwvTJsUI=
-X-Received: by 2002:a05:6122:209f:b0:50d:35d9:ad5a with SMTP id
- 71dfb90a1353d-50d35d9b726mr6394442e0c.5.1728982423743; Tue, 15 Oct 2024
- 01:53:43 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1728982422; x=1729587222;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:references:cc:to:from:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=vea3Db7MOU1y6JVuoKAndvUjY3oqb1LxEwH6YBMbryM=;
+        b=puTNeQtaUxiob9yBA4OU+ssFO8q9QCC9lrVLSrJdm+rFLA0RwtaJVg7nVkqsGfrW8X
+         dDoMBO/ehLm+thbKg3yA1G84mS4qpbabbtIe/daiPOqB1SaZqf0dIc7d2DLxLFyVJQdv
+         wm4yEY75TlTEqy++eb0T2+e3emdfBnORW6qLu83miH/ccUoS17uYK6cDKYqoneYxeRdv
+         P2M4jqBLp8qLqnHDEIWkHUMoc3U+CJ8Oeu3GpKqWb2zykJMuYP61bRkvGWiffVod/oVJ
+         PZOh4ij06MZFinVNb3+Ku+5Qii3d9/sz7gVxuKib1w6q/OtZg17fG85yRkeP16kqHx1Z
+         ChPg==
+X-Forwarded-Encrypted: i=1; AJvYcCVhls3G8wvCzajAkFZf/fgQU6CldPfZHXpn4WRV3zibwU61vSSFiMZQc59inKR7befpwV5iykGNeTqS@vger.kernel.org
+X-Gm-Message-State: AOJu0YxoDf18Ao8OP29183Qu++uZq0S4p3Vw8qO35Zui0I8z6KaPDiMW
+	lrlUqtvE96IFfuWpMRTXDpZIaxo2tgbE5qHsogG3ubba4FnsK5Q9Xmci3Zc0rYVSW0oDMrFom4p
+	Pw3MtHUSGZtdzLReaLvGAg7bf45ZcrcyYvI1bzRRiePxHnhtJ6wYzLlVDl+U=
+X-Received: by 2002:a05:6512:2c90:b0:539:e776:71f2 with SMTP id 2adb3069b0e04-539e7767459mr4594047e87.52.1728982421693;
+        Tue, 15 Oct 2024 01:53:41 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IESPX9nlg7zsDBefSD6Paju6t8SbolD81sKh21Sxmd+f1ZnXPm6cBexBcsMMBeSMJwPe6g/1g==
+X-Received: by 2002:a05:6512:2c90:b0:539:e776:71f2 with SMTP id 2adb3069b0e04-539e7767459mr4594020e87.52.1728982421165;
+        Tue, 15 Oct 2024 01:53:41 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c730:9700:d653:fb19:75e5:ab5c? (p200300cbc7309700d653fb1975e5ab5c.dip0.t-ipconnect.de. [2003:cb:c730:9700:d653:fb19:75e5:ab5c])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4313f569eacsm11175035e9.20.2024.10.15.01.53.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 15 Oct 2024 01:53:39 -0700 (PDT)
+Message-ID: <9be496ff-9d94-4680-b095-863ec12e3261@redhat.com>
+Date: Tue, 15 Oct 2024 10:53:37 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241014141217.941104064@linuxfoundation.org>
-In-Reply-To: <20241014141217.941104064@linuxfoundation.org>
-From: Naresh Kamboju <naresh.kamboju@linaro.org>
-Date: Tue, 15 Oct 2024 14:23:32 +0530
-Message-ID: <CA+G9fYuaZVQL_h1BYX4LajoMgUzZxJUH5ipdyO_4k36F62Z5DA@mail.gmail.com>
-Subject: Re: [PATCH 6.1 000/798] 6.1.113-rc1 review
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org, patches@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, 
-	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org, 
-	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de, 
-	jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, 
-	srw@sladewatkins.net, rwarsow@gmx.de, conor@kernel.org, allen.lkml@gmail.com, 
-	broonie@kernel.org, linux-s390@vger.kernel.org, 
-	Sven Schnelle <svens@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
+From: David Hildenbrand <david@redhat.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+ Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-2-david@redhat.com>
+ <20241014182054.10447-D-hca@linux.ibm.com>
+ <f93b2c89-821a-4da1-8953-73ccd129a074@redhat.com>
+ <20241015083040.7641-C-hca@linux.ibm.com>
+ <0c7e876f-5648-4a82-b809-ca48f778b4a6@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <0c7e876f-5648-4a82-b809-ca48f778b4a6@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, 14 Oct 2024 at 20:20, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 6.1.113 release.
-> There are 798 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 16 Oct 2024 14:09:57 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.113-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On 15.10.24 10:41, David Hildenbrand wrote:
+> On 15.10.24 10:30, Heiko Carstens wrote:
+>> On Mon, Oct 14, 2024 at 09:26:03PM +0200, David Hildenbrand wrote:
+>>> On 14.10.24 20:20, Heiko Carstens wrote:
+>>>> Looks like this could work. But the comment in smp.c above
+>>>> dump_available() needs to be updated.
+>>>
+>>> A right, I remember that there was some outdated documentation.
+>>>
+>>>>
+>>>> Are you willing to do that, or should I provide an addon patch?
+>>>>
+>>>
+>>> I can squash the following:
+>>>
+>>> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+>>> index 4df56fdb2488..a4f538876462 100644
+>>> --- a/arch/s390/kernel/smp.c
+>>> +++ b/arch/s390/kernel/smp.c
+>>> @@ -587,16 +587,16 @@ int smp_store_status(int cpu)
+>>>     *    with sigp stop-and-store-status. The firmware or the boot-loader
+>>>     *    stored the registers of the boot CPU in the absolute lowcore in the
+>>>     *    memory of the old system.
+>>> - * 3) kdump and the old kernel did not store the CPU state,
+>>> - *    or stand-alone kdump for DASD
+>>> - *    condition: OLDMEM_BASE != NULL && !is_kdump_kernel()
+>>> + * 3) kdump or stand-alone kdump for DASD
+>>> + *    condition: OLDMEM_BASE != NULL && !is_ipl_type_dump() == false
+>>>     *    The state for all CPUs except the boot CPU needs to be collected
+>>>     *    with sigp stop-and-store-status. The kexec code or the boot-loader
+>>>     *    stored the registers of the boot CPU in the memory of the old system.
+>>> - * 4) kdump and the old kernel stored the CPU state
+>>> - *    condition: OLDMEM_BASE != NULL && is_kdump_kernel()
+>>> - *    This case does not exist for s390 anymore, setup_arch explicitly
+>>> - *    deactivates the elfcorehdr= kernel parameter
+>>> + *
+>>> + * Note that the old Kdump mode where the old kernel stored the CPU state
+>>
+>> To be consistent with the rest of the comment, please write kdump in
+>> all lower case characters, please.
+> 
+> It obviously was too late in the evening for me :) Thanks!
+> 
+>>
+>>> + * does no longer exist: setup_arch explicitly deactivates the elfcorehdr=
+>>> + * kernel parameter. The is_kudmp_kernel() implementation on s390 is independent
+>>
+>> Typo: kudmp.
+>>
+>>> Does that sound reasonable? I'm not so sure about the "2) stand-alone kdump for
+>>> SCSI/NVMe (zfcp/nvme dump with swapped memory)": is that really "kdump" ?
+>>
+>> Yes, it is some sort of kdump, even though a bit odd.
+> 
+> My concern is that we'll now have
+> 
+> bool is_kdump_kernel(void)
+> {
+>          return oldmem_data.start && !is_ipl_type_dump();
+> }
+> 
+> Which matches 3), but if 2) is also called "kdump", then should it
+> actually be
+> 
+> bool is_kdump_kernel(void)
+> {
+>          return oldmem_data.start;
+> }
+> 
+> ?
+> 
+> When I wrote that code I was rather convinced that the variant in this
+> patch is the right thing to do.
+> 
+
+I think we can do some follow up cleanups, assuming is_kdump_kernel() here is correct:
+
+diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+index cca1827d3d2e..fbc5de66d03b 100644
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -609,7 +609,7 @@ int elfcorehdr_alloc(unsigned long long *addr, unsigned long long *size)
+         u64 hdr_off;
+  
+         /* If we are not in kdump or zfcp/nvme dump mode return */
+-       if (!oldmem_data.start && !is_ipl_type_dump())
++       if (!dump_available())
+                 return 0;
+         /* If we cannot get HSA size for zfcp/nvme dump return error */
+         if (is_ipl_type_dump() && !sclp.hsa_size)
+diff --git a/arch/s390/kernel/os_info.c b/arch/s390/kernel/os_info.c
+index b695f980bbde..09578f400ef7 100644
+--- a/arch/s390/kernel/os_info.c
++++ b/arch/s390/kernel/os_info.c
+@@ -148,7 +148,7 @@ static void os_info_old_init(void)
+  
+         if (os_info_init)
+                 return;
+-       if (!oldmem_data.start && !is_ipl_type_dump())
++       if (!dump_available())
+                 goto fail;
+         if (copy_oldmem_kernel(&addr, __LC_OS_INFO, sizeof(addr)))
+                 goto fail;
+diff --git a/drivers/s390/char/zcore.c b/drivers/s390/char/zcore.c
+index 33cebb91b933..6a194b4f6ba5 100644
+--- a/drivers/s390/char/zcore.c
++++ b/drivers/s390/char/zcore.c
+@@ -300,9 +300,7 @@ static int __init zcore_init(void)
+         unsigned char arch;
+         int rc;
+  
+-       if (!is_ipl_type_dump())
+-               return -ENODATA;
+-       if (oldmem_data.start)
++       if (is_kdump_kernel())
+                 return -ENODATA;
+  
+         zcore_dbf = debug_register("zcore", 4, 1, 4 * sizeof(long));
 
 
-The S390 build broke on the stable-rc linux-6.1.y branch due to
-following build warnings / errors.
+-- 
+Cheers,
 
-First seen on v6.1.112-799-gc060104c065d
-  GOOD: v6.1.112
-  BAD: v6.1.112-799-gc060104c065d
+David / dhildenb
 
-List of regressions,
-* s390, build
-  - clang-19-allnoconfig
-  - clang-19-defconfig
-  - clang-19-tinyconfig
-  - clang-nightly-allnoconfig
-  - clang-nightly-defconfig
-  - clang-nightly-tinyconfig
-  - gcc-13-allmodconfig
-  - gcc-13-allnoconfig
-  - gcc-13-defconfig
-  - gcc-13-tinyconfig
-  - gcc-8-allnoconfig
-  - gcc-8-defconfig-fe40093d
-  - gcc-8-tinyconfig
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-The bisection pointing to,
-  73e9443b9ea8d5a1b9b87c4988acc3daae363832
-  s390/traps: Handle early warnings gracefully
-    [ Upstream commit 3c4d0ae0671827f4b536cc2d26f8b9c54584ccc5 ]
-
-
-Build log:
--------
-arch/s390/kernel/early.c: In function '__do_early_pgm_check':
-arch/s390/kernel/early.c:154:30: error: implicit declaration of
-function 'get_lowcore'; did you mean 'S390_lowcore'?
-[-Werror=implicit-function-declaration]
-  154 |         struct lowcore *lc = get_lowcore();
-      |                              ^~~~~~~~~~~
-      |                              S390_lowcore
-arch/s390/kernel/early.c:154:30: warning: initialization of 'struct
-lowcore *' from 'int' makes pointer from integer without a cast
-[-Wint-conversion]
-cc1: some warnings being treated as errors
-
-
-Build log link:
----------
- - https://storage.tuxsuite.com/public/linaro/lkft/builds/2nQwhZnhhAGtyIv600SDYdtypnI/
- - https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.112-799-gc060104c065d/testrun/25432580/suite/build/test/gcc-13-defconfig/log
-
-metadata:
-----
-  git describe: v6.1.112-799-gc060104c065d
-  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-  git sha: c060104c065dc2884e301155e32dd955e6bb45b5
-  kernel config:
-https://storage.tuxsuite.com/public/linaro/lkft/builds/2nQwhZnhhAGtyIv600SDYdtypnI/config
-  build url: https://storage.tuxsuite.com/public/linaro/lkft/builds/2nQwhZnhhAGtyIv600SDYdtypnI/
-  toolchain: clang-19 and gcc-13
-  config: defconfig
-  arch: S390
-
-Steps to reproduce:
--------
-# tuxmake --runtime podman --target-arch s390 --toolchain gcc-13
---kconfig defconfig
-
---
-Linaro LKFT
-https://lkft.linaro.org
