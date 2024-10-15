@@ -1,133 +1,134 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6DBA1CB9FE;
-	Tue, 15 Oct 2024 15:20:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A4E71F76A3;
+	Tue, 15 Oct 2024 16:43:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729005625; cv=none; b=Q1cprr0AMJv98VOgwzgRcSj5Cul5XqISgC2EvR3+0+EaTCO33ikGOc0fxLYllq+u1yIyAf8max0q9Io5jn0O9M+VFQ1Vi18jsIiiFjl9ss/RmI/XARru0MLCQ/JextviBLcegIaFcayX3M3hKK8a7ND3X3glDkiz/DvlY/Px3Y8=
+	t=1729010614; cv=none; b=Cjwom35J8MC0rNe91sGZeszYGG8NYNYDKbGNU3fOuOARsQvSSKFRz5I0IKd5EVLllvxS4uBUfnWlnozvGFQRoRchi1Sb7mOuoAjSA0pLxZ6aAgn8mxebYFlR9DmZ2adx9eK0DBvu10KJ3r7tmctVeO2AMwM9aqF5EWdBNSFdOIc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729005625; c=relaxed/simple;
-	bh=lVkV1vFjNJEMDvdyimYUH+siM7VBxYLLrgPg2wIHi2w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=IQgD4wYbTVn50HTqWxwWhxF+ak7OqGEIM1R06df/PquIlWME75WdJ6r4lg9VL0vBkas2x8NeNKdL/GXBqepzKX2uk5DsKh2uI8mbdTUSVWVC3eu0YibpL4sCwN18oOueyLMZrffizfrUbUW7eAeHm3D1vwa/oPzXjM11yYw+DKw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TpHTiMsV; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1729010614; c=relaxed/simple;
+	bh=tP3rXaozqoNu3tDhXn0iby1XH6Rz+GI82mf7FfVJBvo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Qw6OMljSwg+jCTNt8lqpJoGrz/nQm9OIXzvigDWlYaJgjEDyyeSmbw6R84Vr/Wx5dtnq06MqUPcAuWIm7sKSEoofKNA5kXP10vRtoLIX9kwVCaSlJmSVTC6gJQjGC+GXq/UtHFuivfJDICrVBlwQVyXGyn6CTVbEvY2B/4iEyvQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iyi+Ok0n; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TpHTiMsV"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iyi+Ok0n"
 Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49FFJqMo016714;
-	Tue, 15 Oct 2024 15:20:16 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49FFpdsX000819;
+	Tue, 15 Oct 2024 16:43:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=iGuQeqwI6HZC3u7lEqO9aIAaSIscVF
-	1CMX/wdfvit/s=; b=TpHTiMsV7gss9CE2gbTv2CeHsBmwRk9TsMr12i/hKys93P
-	WKlRkjvobxfliO1vTzhtIxt+eW5FfqcrDXvU1ucgCaZCC8y4F+nwbiO7zezxjUOk
-	TUwI9kmcCTCGDAd9VrQ4PoTD9oO0joSVgiuTDmBl4io9IwAaF71Y7u168DIqGS4+
-	MokAYq7Sl1D3LCgAi0k9IuBtPoJirNfIt7OmSf0A5WLM0LzpVjTrq59FBGwRbNKT
-	Q+TYgxxaHAyejOuT3a7N/lXpAr4gdzStgwz8h5PRBpDmgFGvR0gFCNBtbXqtz8gt
-	s8j/VF7dXYidIvDu/zIsipCnLc2M6oPxIFVCSW6A==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429txf004v-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=/k/6xQu7g3mfBYnfLuMOXyxmLgPOpChPnjVW+A18B
+	9w=; b=iyi+Ok0nnQic+PATviri5zwIO3ac9+nS4hxps6hDGYAzQyfzc/ivI6JG9
+	OqRHssmwEleRw3b6JgvSWyiF3ofJt4K+lpN2C3GUlsYhF/CUZEmsrtoKti5dgjsv
+	y9FfvUgvN9YzMO3Z7+ue8lKBUkusr5qmty69cEIsIloivRkO4Tfjy/QKAK4ZG9wn
+	7p9shIVAnQzZDzNHbF3nFCb/4EDZeykuQbSYCq+3JZpxy28TOZltHBRNWL/aLRwl
+	jaDEUmvKZtSJ8slecd7uri4wz4fKOCIKfvQuzJCJ3WOrsujWkoVaSrYuTcMs1meQ
+	MLPtn9A0iDrKMOTOECJOjDTXARjEQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429ucwg8ks-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 15:20:16 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49FFKFsp017969;
-	Tue, 15 Oct 2024 15:20:15 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429txf004n-1
+	Tue, 15 Oct 2024 16:43:31 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49FFiZxi005906;
+	Tue, 15 Oct 2024 16:43:30 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 428650vjh3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 15:20:15 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49FEdsIN006401;
-	Tue, 15 Oct 2024 15:20:14 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4284xk4fps-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 15:20:14 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49FFKA2H57999682
+	Tue, 15 Oct 2024 16:43:30 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49FGhQTB25690862
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 15 Oct 2024 15:20:10 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AA9F62004F;
-	Tue, 15 Oct 2024 15:20:10 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 133C420040;
-	Tue, 15 Oct 2024 15:20:10 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 15 Oct 2024 15:20:10 +0000 (GMT)
-Date: Tue, 15 Oct 2024 17:20:08 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Eric Farman <farman@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        virtualization@lists.linux.dev, linux-doc@vger.kernel.org,
-        kvm@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
-Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT)
- to support QEMU/KVM memory devices
-Message-ID: <20241015152008.7641-P-hca@linux.ibm.com>
-References: <20241014144622.876731-1-david@redhat.com>
- <20241014144622.876731-5-david@redhat.com>
- <20241014184339.10447-E-hca@linux.ibm.com>
- <8131b905c61a7baf4bd09ec4a08e1ace84d36754.camel@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8131b905c61a7baf4bd09ec4a08e1ace84d36754.camel@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: i1zBRW8UGLcWVcN5Coobxt0ARxFddDl7
-X-Proofpoint-ORIG-GUID: Ub7xaX8YqTGNc9RIsPz804moAAXEwY3a
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	Tue, 15 Oct 2024 16:43:26 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CA71720040;
+	Tue, 15 Oct 2024 16:43:26 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A0B462004B;
+	Tue, 15 Oct 2024 16:43:26 +0000 (GMT)
+Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 15 Oct 2024 16:43:26 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: borntraeger@de.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
+        frankja@linux.ibm.com, seiden@linux.ibm.com, hca@linux.ibm.com,
+        agordeev@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH v3 00/11] s390/kvm: Handle guest-related program interrupts in KVM
+Date: Tue, 15 Oct 2024 18:43:15 +0200
+Message-ID: <20241015164326.124987-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Vu_RAR4zheI4bCcJgPFC9fXJ7ICC5S-c
+X-Proofpoint-GUID: Vu_RAR4zheI4bCcJgPFC9fXJ7ICC5S-c
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 phishscore=0 priorityscore=1501 suspectscore=0 spamscore=0
- lowpriorityscore=0 bulkscore=0 clxscore=1015 mlxscore=0 adultscore=0
- mlxlogscore=649 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410150105
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
+ mlxlogscore=468 spamscore=0 priorityscore=1501 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 bulkscore=0 adultscore=0 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410150113
 
-On Tue, Oct 15, 2024 at 11:01:44AM -0400, Eric Farman wrote:
-> On Mon, 2024-10-14 at 20:43 +0200, Heiko Carstens wrote:
-> > On Mon, Oct 14, 2024 at 04:46:16PM +0200, David Hildenbrand wrote:
-...
-> > +#define DIAG500_SC_STOR_LIMIT 4
-...
-> I like the idea of a defined constant here instead of hardcoded, but maybe it should be placed
-> somewhere in include/uapi so that QEMU can pick it up with update-linux-headers.sh and be in sync
-> with the kernel, instead of just an equivalent definition in [1] ?
-> 
-> [1] https://lore.kernel.org/qemu-devel/20241008105455.2302628-8-david@redhat.com/
+This patchseries moves the handling of host program interrupts that
+happen while a KVM guest is running into KVM itself.
 
-It is already a mess; we have already subcode 3 defined:
+All program interrupts that happen in the host while a KVM guest is
+running are due to DAT exceptions. It is cleaner and more maintainable
+to have KVM handle those.
 
-#define KVM_S390_VIRTIO_CCW_NOTIFY 3
+As a side effect, some more cleanups is also possible.
 
-in
+Moreover, this series serves as a foundation for an upcoming series
+that will further move as much s390 KVM memory managament as possible
+into KVM itself, and away from the rest of the kernel.
 
-arch/s390/include/uapi/asm/virtio-ccw.h
+Version 1 and 2 of this series were sent privately, which is also where
+the various reviews and acks come from.
 
-which for some reason is uapi. But it doesn't make sense to put the
-new subcode 4 there too. So what is the end result?
+Claudio Imbrenda (8):
+  s390/entry: Remove __GMAP_ASCE and use _PIF_GUEST_FAULT again
+  s390/kvm: Remove kvm_arch_fault_in_page()
+  s390/mm/gmap: Refactor gmap_fault() and add support for pfault
+  s390/mm/gmap: Fix __gmap_fault() return code
+  s390/mm/fault: Handle guest-related program interrupts in KVM
+  s390/kvm: Stop using gmap_{en,dis}able()
+  s390/mm/gmap: Remove gmap_{en,dis}able()
+  s390: Remove gmap pointer from lowcore
 
-Another uapi file? I think resolving this would be a project on its own.
+Heiko Carstens (3):
+  s390/mm: Simplify get_fault_type()
+  s390/mm: Get rid of fault type switch statements
+  s390/mm: Convert to LOCK_MM_AND_FIND_VMA
+
+ arch/s390/Kconfig                 |   1 +
+ arch/s390/include/asm/gmap.h      |   3 -
+ arch/s390/include/asm/kvm_host.h  |   3 +
+ arch/s390/include/asm/lowcore.h   |   3 +-
+ arch/s390/include/asm/processor.h |   5 +-
+ arch/s390/include/asm/ptrace.h    |   2 +
+ arch/s390/kernel/asm-offsets.c    |   3 -
+ arch/s390/kernel/entry.S          |  44 ++-----
+ arch/s390/kernel/traps.c          |  23 +++-
+ arch/s390/kvm/intercept.c         |   4 +-
+ arch/s390/kvm/kvm-s390.c          | 139 ++++++++++++++-------
+ arch/s390/kvm/kvm-s390.h          |   8 +-
+ arch/s390/kvm/vsie.c              |  17 ++-
+ arch/s390/mm/fault.c              | 195 +++++-------------------------
+ arch/s390/mm/gmap.c               | 151 +++++++++++++++--------
+ 15 files changed, 278 insertions(+), 323 deletions(-)
+
+-- 
+2.47.0
+
