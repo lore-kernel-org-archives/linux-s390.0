@@ -1,123 +1,149 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 869DE7F7FC;
-	Tue, 15 Oct 2024 09:54:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5C671E379B;
+	Tue, 15 Oct 2024 10:09:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728986084; cv=none; b=YoHfda0sbmWiaaMgWUmjdr79SUKbftDCEwbe0U1Z9iG7aHAu8CvO6g2iu/SKYbHgGix7XCJ3kMJ5OWinGwNkKbosS0IwWAhdpxclPSQJP3gmch77CLZH3495z5eC+TRt1UgRGuo4/Ul4feE10JfJmG2K005c3tdBBLDh4pNMQzQ=
+	t=1728986951; cv=none; b=C2LxnlqpmtA6vk6ugvp20BdxvZYVaFKCYLQa5yypXRHx+YX0o3rkUTjK57VImdfPtzzXjYMUXF8uabxwaexItUriEf6V+7306FMXEG1zVRA5v5kLbPWGAYIsnW54LTjja20BITW9AXl1zKcH0xtMR2eApMjPPRSrZZllfZKz07o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728986084; c=relaxed/simple;
-	bh=5zCk3Qy6Y5TLnYoUotW/C2u0baK4JuQiR6Bvckd63Mg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nQL+ZqqxbTTIDge0R8ywok5vRywG81JgVlmYuGnJEy7WpE4wZ/Oc1MjHzT+UaMF188KXQjc/YnaVi1ChMi3nO07BS0QVGATfdVebJpcbyCACBBpqA11mhUUXhPtyqo4kVTwedVCC+sDEmkN8MVXrL90dPGvHA1pQG5OutDDf6J8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=avFcb2wa; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1728986951; c=relaxed/simple;
+	bh=L/+YSZd9FgzSTjtlgoEb7AhHZrvE5ViY4redsR5s1EE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=WErFpEgnsFcu1WZKU7JX74CpBNqNSb4e57ApebGHXTddwfEU4z4ezbJPaz8VuWZXSu9TCSSkAjxy4uU4vfuCyBK1lupE5oYqXpv1MBQHve7PFQXNTcuF1iDP3XSdD0k//td36MFatXfC6uXhLZKWOGuwFd7OuKq9ftEmg55H/7U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=orD2fuzx; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="avFcb2wa"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49F8np92013359;
-	Tue, 15 Oct 2024 09:54:14 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="orD2fuzx"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49F8PIdt023808;
+	Tue, 15 Oct 2024 10:09:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=yvcSEBzEWVNB2Ni84vQ67UK/7Pa3Dk
-	SZ4DoAZjmRbo4=; b=avFcb2waQeDHh9zFWB0QhV3w2B5nu+nls41wHFzcr9zUq5
-	sJh87O/mMqiezYV23PisJ1poXYs6MeQOxs0SOoWeM+2/KO+fn3BSs98U6NFVaVfZ
-	G3pteDgQV+J4EpGAMXGVt079dzoI42bUs4AGbForS6mlwFt1ZpUJRQe89Ann1sbx
-	NWL4+E81twm6eiOU68P+wN6xIboJLGaMMOXrEyS8H3U1wVcR0GnN4nhGrFsk/+z9
-	Dhqql37p8wfuiW4uY/Nxs+Q+H39Stx62DnSCZa0axl79eOAAPZJnmOgxs34DgQ/Q
-	3HwHNdP4t0qWAvHaZuSqzAiUlCBSqp326zdu9Etg==
+	:references:subject:to; s=pp1; bh=/c7LV/XQCFoM90nvgmsgvrUkllUDo6
+	cElhrXfABkZfQ=; b=orD2fuzxADOT2+HxgEydnL3W+PkhEdGjS5UKKVau1xhD5b
+	EgtbAK4cINCp6W7feBhvjPexGoQbNGSBMg4Niu20J3NYWfq4ti551CFDS9F7UUs4
+	uJI6QQgPmfNYxb8ejTqzwUby7nEIfRJaG12732FzvJ9RkqL6t+fWS0kMANy5ss/E
+	olzppJ2JbaqWLgxLdiG4guUDpoRWRYSpBmIjjHw6ahq69x6/xv08Q5rV4ekCr6fu
+	jFK/7dSCrKf6xaML6LtYFhz9dxxBnfUoS7zOBhVRnoE4TfZ7PVFEckqULqo6Z3ej
+	2iDVmL5pjdwfZBhIGkxCw/D4iKme8VVz3FkbS8iA==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429n7tr8p5-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429mv4rh6x-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 09:54:13 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49F9sDrN017567;
-	Tue, 15 Oct 2024 09:54:13 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429n7tr8nq-1
+	Tue, 15 Oct 2024 10:09:02 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49FA91wf019574;
+	Tue, 15 Oct 2024 10:09:01 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429mv4rh6q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 09:54:12 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49F94lrv005906;
-	Tue, 15 Oct 2024 09:50:19 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 428650tqta-1
+	Tue, 15 Oct 2024 10:09:01 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49F8hDOg005377;
+	Tue, 15 Oct 2024 10:09:00 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4285nj2w6a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 09:50:19 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49F9oGmR48627986
+	Tue, 15 Oct 2024 10:09:00 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49FA8uJs53608814
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 15 Oct 2024 09:50:16 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EE5AD20043;
-	Tue, 15 Oct 2024 09:50:15 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4472320040;
-	Tue, 15 Oct 2024 09:50:15 +0000 (GMT)
+	Tue, 15 Oct 2024 10:08:56 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 75FC52004B;
+	Tue, 15 Oct 2024 10:08:56 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3088B20049;
+	Tue, 15 Oct 2024 10:08:56 +0000 (GMT)
 Received: from osiris (unknown [9.152.212.60])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 15 Oct 2024 09:50:15 +0000 (GMT)
-Date: Tue, 15 Oct 2024 11:50:13 +0200
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 15 Oct 2024 10:08:56 +0000 (GMT)
+Date: Tue, 15 Oct 2024 12:08:54 +0200
 From: Heiko Carstens <hca@linux.ibm.com>
-To: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, srw@sladewatkins.net,
-        rwarsow@gmx.de, conor@kernel.org, allen.lkml@gmail.com,
-        broonie@kernel.org, linux-s390@vger.kernel.org,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
-Subject: Re: [PATCH 6.1 000/798] 6.1.113-rc1 review
-Message-ID: <20241015095013.7641-H-hca@linux.ibm.com>
-References: <20241014141217.941104064@linuxfoundation.org>
- <CA+G9fYuaZVQL_h1BYX4LajoMgUzZxJUH5ipdyO_4k36F62Z5DA@mail.gmail.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Mikhail Zaslonko <zaslonko@linux.ibm.com>
+Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
+Message-ID: <20241015100854.7641-J-hca@linux.ibm.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-2-david@redhat.com>
+ <20241014182054.10447-D-hca@linux.ibm.com>
+ <f93b2c89-821a-4da1-8953-73ccd129a074@redhat.com>
+ <20241015083040.7641-C-hca@linux.ibm.com>
+ <0c7e876f-5648-4a82-b809-ca48f778b4a6@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0c7e876f-5648-4a82-b809-ca48f778b4a6@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: B4FoBzXg4xRB3GzcXvcGiFpFwcYSCEoJ
+X-Proofpoint-ORIG-GUID: ydJ8NcHofxE6nimFbJhOvYGvELg379sK
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYuaZVQL_h1BYX4LajoMgUzZxJUH5ipdyO_4k36F62Z5DA@mail.gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: SVJbmvkKBLlzeEJX2HbsQEdhT4Jm-2w6
-X-Proofpoint-ORIG-GUID: Ktw1NQADo0zaaLQHcAZxytGiXPY506v0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- mlxlogscore=359 spamscore=0 lowpriorityscore=0 malwarescore=0 adultscore=0
- bulkscore=0 impostorscore=0 phishscore=0 suspectscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
- definitions=main-2410150066
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
+ mlxscore=0 suspectscore=0 phishscore=0 adultscore=0 priorityscore=1501
+ impostorscore=0 bulkscore=0 malwarescore=0 mlxlogscore=468
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410150068
 
-On Tue, Oct 15, 2024 at 02:23:32PM +0530, Naresh Kamboju wrote:
-> On Mon, 14 Oct 2024 at 20:20, Greg Kroah-Hartman
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> The bisection pointing to,
->   73e9443b9ea8d5a1b9b87c4988acc3daae363832
->   s390/traps: Handle early warnings gracefully
->     [ Upstream commit 3c4d0ae0671827f4b536cc2d26f8b9c54584ccc5 ]
-> 
-> 
-> Build log:
-> -------
-> arch/s390/kernel/early.c: In function '__do_early_pgm_check':
-> arch/s390/kernel/early.c:154:30: error: implicit declaration of
-> function 'get_lowcore'; did you mean 'S390_lowcore'?
-> [-Werror=implicit-function-declaration]
->   154 |         struct lowcore *lc = get_lowcore();
->       |                              ^~~~~~~~~~~
->       |                              S390_lowcore
-> arch/s390/kernel/early.c:154:30: warning: initialization of 'struct
-> lowcore *' from 'int' makes pointer from integer without a cast
-> [-Wint-conversion]
-> cc1: some warnings being treated as errors
+On Tue, Oct 15, 2024 at 10:41:21AM +0200, David Hildenbrand wrote:
+> On 15.10.24 10:30, Heiko Carstens wrote:
+> > On Mon, Oct 14, 2024 at 09:26:03PM +0200, David Hildenbrand wrote:
+> > > On 14.10.24 20:20, Heiko Carstens wrote:
+> > > > Looks like this could work. But the comment in smp.c above
+> > > > dump_available() needs to be updated.
+> > > 
+> > > A right, I remember that there was some outdated documentation.
 
-Same here, please drop this patch.
+...
+
+> My concern is that we'll now have
+> 
+> bool is_kdump_kernel(void)
+> {
+>        return oldmem_data.start && !is_ipl_type_dump();
+> }
+> 
+> Which matches 3), but if 2) is also called "kdump", then should it actually
+> be
+> 
+> bool is_kdump_kernel(void)
+> {
+>        return oldmem_data.start;
+> }
+> 
+> ?
+> 
+> When I wrote that code I was rather convinced that the variant in this patch
+> is the right thing to do.
+
+Oh well, we simply of too many dump options. I'll let Alexander and
+Mikhail better comment on this :)
+
+Alexander, Mikhail, the discussion starts here, and we need a sane
+is_kdump_kernel() for s390:
+https://lore.kernel.org/all/20241014144622.876731-1-david@redhat.com/
