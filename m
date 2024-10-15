@@ -1,84 +1,199 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36EB31D8DE2;
-	Tue, 15 Oct 2024 11:14:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id CEF2D189BB2;
+	Tue, 15 Oct 2024 11:16:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728990862; cv=none; b=ryrkKS10rrE6ol2akOI2kwVk/3MsDY4AOT37y9fzDprrmoXeUJGdsuElBhyiyzaa1PPJs2qygylQl8HAdLl0Z/DNUTfFUJWUZy9PJJLE4H0RbgA78BN8twyFUAnckiTPuOThcFzw6fYQWgAMhqiYbGClwAnXAlkWVIZgJL32xNs=
+	t=1728990986; cv=none; b=cCJ9DQCOVcPk0T50RYPeFPq9kBuJKBciOy9hkj6VVg6AM9mBwtm/UjCOcCQCJLrUJzRguuq1uRqS0ga6ortG8xKqFW2oonHHJpcBGSqYoFFisSJx4tj+ooGCWano6qiy3S7NnHU50kE1ZtHtKj9js9qsOepajDnhkgOMQWAPUdw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728990862; c=relaxed/simple;
-	bh=Ww7I9qP9b+gQT6n8y5YBtyJZUxROCz7Fcg7oOE0SK0w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OB22Oyg3r297yyXq2TQx0Tg3auEm8ZpBd7OK5Rr4ImVAaiZPiTN3qtWU5gn9ytNRNNA5tL5QFLuuaC/gxW8EjRKfzON5urfAKjDL/WNORTDXaUOa+Zh0fL+IufNpxvPBKzvdwKGmr1qzUZfsy/Uh+he0Y5ShSoTPxrnInsfrnUE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=SE1f2BDD; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="SE1f2BDD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D607C4CEC6;
-	Tue, 15 Oct 2024 11:14:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1728990861;
-	bh=Ww7I9qP9b+gQT6n8y5YBtyJZUxROCz7Fcg7oOE0SK0w=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=SE1f2BDD/RciteVCvrKm+seK1CXQDh5xrSyicPArx0Q/OJU22BkSaoTT/RRSTk8Zs
-	 Fk8tlDglHip8qZt53zvfwzVHkirIiKYMsjHRxSM5N52jH1+mHvG1iEpsiqE22Dtj9X
-	 zAW5rbWubeCnABr2rpT4q4BRjpXVzULc12CKuX2c=
-Date: Tue, 15 Oct 2024 13:14:18 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Naresh Kamboju <naresh.kamboju@linaro.org>, stable@vger.kernel.org,
-	patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-	torvalds@linux-foundation.org, akpm@linux-foundation.org,
-	linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-	lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-	f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-	srw@sladewatkins.net, rwarsow@gmx.de, conor@kernel.org,
-	allen.lkml@gmail.com, broonie@kernel.org,
-	linux-s390@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>
-Subject: Re: [PATCH 6.1 000/798] 6.1.113-rc1 review
-Message-ID: <2024101509-cesspool-sensation-f3f3@gregkh>
-References: <20241014141217.941104064@linuxfoundation.org>
- <CA+G9fYuaZVQL_h1BYX4LajoMgUzZxJUH5ipdyO_4k36F62Z5DA@mail.gmail.com>
- <20241015095013.7641-H-hca@linux.ibm.com>
+	s=arc-20240116; t=1728990986; c=relaxed/simple;
+	bh=uw0HbJ0kiobzTbS5RjhFjh8Y60N2Q6x4PT1X8C2PtW0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GBl8/rbz6mCsa/wPYYs6ZXEWXwYt7BDGDHtvl/eNY5M3273pefkLo891o3SBnM3ChV3wFR7YaptaeZFziFYmFA4mooY7UM5xJOrh0GhbPrTifAdVqM9SDIUbzpmjHJJc7B2Ww3KsYD1HJRjX4hoBIWRxBuyqg8Z4sK4erJVkKVk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DBF221063;
+	Tue, 15 Oct 2024 04:16:53 -0700 (PDT)
+Received: from [10.57.86.207] (unknown [10.57.86.207])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 613183F51B;
+	Tue, 15 Oct 2024 04:16:14 -0700 (PDT)
+Message-ID: <c04323d5-6dcd-4391-81bb-94ee580ae98f@arm.com>
+Date: Tue, 15 Oct 2024 12:16:12 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241015095013.7641-H-hca@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH v1 01/57] mm: Add macros ahead of supporting boot-time
+ page size selection
+Content-Language: en-GB
+To: Pingfan Liu <piliu@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+ Andreas Larsson <andreas@gaisler.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Anshuman Khandual <anshuman.khandual@arm.com>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Ard Biesheuvel <ardb@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+ Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>,
+ Chris Zankel <chris@zankel.net>, Dave Hansen <dave.hansen@linux.intel.com>,
+ David Hildenbrand <david@redhat.com>, Dinh Nguyen <dinguyen@kernel.org>,
+ Geert Uytterhoeven <geert@linux-m68k.org>,
+ Greg Marsden <greg.marsden@oracle.com>, Helge Deller <deller@gmx.de>,
+ Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Ivan Ivanov <ivan.ivanov@suse.com>, Johannes Berg
+ <johannes@sipsolutions.net>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Jonas Bonn <jonas@southpole.se>, Kalesh Singh <kaleshsingh@google.com>,
+ Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Matthias Brugger <mbrugger@suse.com>, Max Filippov <jcmvbkbc@gmail.com>,
+ Miroslav Benes <mbenes@suse.cz>, Rich Felker <dalias@libc.org>,
+ Richard Weinberger <richard@nod.at>, Stafford Horne <shorne@gmail.com>,
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>, x86@kernel.org,
+ linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-mm@kvack.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+ sparclinux@vger.kernel.org
+References: <20241014105514.3206191-1-ryan.roberts@arm.com>
+ <20241014105912.3207374-1-ryan.roberts@arm.com> <Zw0iegwMp5ZVGypy@fedora>
+ <9b7e4f65-a171-4574-bd53-580e79527fbc@arm.com>
+ <CAF+s44QbdPBN-8EcPiWiZgYgZY4v8RK-wA0VEaVXbfnc9_HQ9Q@mail.gmail.com>
+From: Ryan Roberts <ryan.roberts@arm.com>
+In-Reply-To: <CAF+s44QbdPBN-8EcPiWiZgYgZY4v8RK-wA0VEaVXbfnc9_HQ9Q@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 15, 2024 at 11:50:13AM +0200, Heiko Carstens wrote:
-> On Tue, Oct 15, 2024 at 02:23:32PM +0530, Naresh Kamboju wrote:
-> > On Mon, 14 Oct 2024 at 20:20, Greg Kroah-Hartman
-> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> > 
-> > The bisection pointing to,
-> >   73e9443b9ea8d5a1b9b87c4988acc3daae363832
-> >   s390/traps: Handle early warnings gracefully
-> >     [ Upstream commit 3c4d0ae0671827f4b536cc2d26f8b9c54584ccc5 ]
-> > 
-> > 
-> > Build log:
-> > -------
-> > arch/s390/kernel/early.c: In function '__do_early_pgm_check':
-> > arch/s390/kernel/early.c:154:30: error: implicit declaration of
-> > function 'get_lowcore'; did you mean 'S390_lowcore'?
-> > [-Werror=implicit-function-declaration]
-> >   154 |         struct lowcore *lc = get_lowcore();
-> >       |                              ^~~~~~~~~~~
-> >       |                              S390_lowcore
-> > arch/s390/kernel/early.c:154:30: warning: initialization of 'struct
-> > lowcore *' from 'int' makes pointer from integer without a cast
-> > [-Wint-conversion]
-> > cc1: some warnings being treated as errors
+On 15/10/2024 04:04, Pingfan Liu wrote:
+> On Mon, Oct 14, 2024 at 10:07 PM Ryan Roberts <ryan.roberts@arm.com> wrote:
+>>
+>> On 14/10/2024 14:54, Pingfan Liu wrote:
+>>> Hello Ryan,
+>>>
+>>> On Mon, Oct 14, 2024 at 11:58:08AM +0100, Ryan Roberts wrote:
+>>>> arm64 can support multiple base page sizes. Instead of selecting a page
+>>>> size at compile time, as is done today, we will make it possible to
+>>>> select the desired page size on the command line.
+>>>>
+>>>> In this case PAGE_SHIFT and it's derivatives, PAGE_SIZE and PAGE_MASK
+>>>> (as well as a number of other macros related to or derived from
+>>>> PAGE_SHIFT, but I'm not worrying about those yet), are no longer
+>>>> compile-time constants. So the code base needs to cope with that.
+>>>>
+>>>> As a first step, introduce MIN and MAX variants of these macros, which
+>>>> express the range of possible page sizes. These are always compile-time
+>>>> constants and can be used in many places where PAGE_[SHIFT|SIZE|MASK]
+>>>> were previously used where a compile-time constant is required.
+>>>> (Subsequent patches will do that conversion work). When the arch/build
+>>>> doesn't support boot-time page size selection, the MIN and MAX variants
+>>>> are equal and everything resolves as it did previously.
+>>>>
+>>>
+>>> MIN and MAX appear to construct a boundary, but it may be not enough.
+>>> Please see the following comment inline.
+>>>
+>>>> Additionally, introduce DEFINE_GLOBAL_PAGE_SIZE_VAR[_CONST]() which wrap
+>>>> global variable defintions so that for boot-time page size selection
+>>>> builds, the variable being wrapped is initialized at boot-time, instead
+>>>> of compile-time. This is done by defining a function to do the
+>>>> assignment, which has the "constructor" attribute. Constructor is
+>>>> preferred over initcall, because when compiling a module, the module is
+>>>> limited to a single initcall but constructors are unlimited. For
+>>>> built-in code, constructors are now called earlier to guarrantee that
+>>>> the variables are initialized by the time they are used. Any arch that
+>>>> wants to enable boot-time page size selection will need to select
+>>>> CONFIG_CONSTRUCTORS.
+>>>>
+>>>> These new macros need to be available anywhere PAGE_SHIFT and friends
+>>>> are available. Those are defined via asm/page.h (although some arches
+>>>> have a sub-include that defines them). Unfortunately there is no
+>>>> reliable asm-generic header we can easily piggy-back on, so let's define
+>>>> a new one, pgtable-geometry.h, which we include near where each arch
+>>>> defines PAGE_SHIFT. Ugh.
+>>>>
+>>>> -------
+>>>>
+>>>> Most of the problems that need to be solved over the next few patches
+>>>> fall into these broad categories, which are all solved with the help of
+>>>> these new macros:
+>>>>
+>>>> 1. Assignment of values derived from PAGE_SIZE in global variables
+>>>>
+>>>>   For boot-time page size builds, we must defer the initialization of
+>>>>   these variables until boot-time, when the page size is known. See
+>>>>   DEFINE_GLOBAL_PAGE_SIZE_VAR[_CONST]() as described above.
+>>>>
+>>>> 2. Define static storage in units related to PAGE_SIZE
+>>>>
+>>>>   This static storage will be defined according to PAGE_SIZE_MAX.
+>>>>
+>>>> 3. Define size of struct so that it is related to PAGE_SIZE
+>>>>
+>>>>   The struct often contains an array that is sized to fill the page. In
+>>>>   this case, use a flexible array with dynamic allocation. In other
+>>>>   cases, the struct fits exactly over a page, which is a header (e.g.
+>>>>   swap file header). In this case, remove the padding, and manually
+>>>>   determine the struct pointer within the page.
+>>>>
+>>>
+>>> About two years ago, I tried to do similar thing in your series, but ran
+>>> into problem at this point, or maybe not exactly as the point you list
+>>> here. I consider this as the most challenged part.
+>>>
+>>> The scenario is
+>>> struct X {
+>>>       a[size_a];
+>>>       b[size_b];
+>>>       c;
+>>> };
+>>>
+>>> Where size_a = f(PAGE_SHIFT), size_b=g(PAGE_SHIFT). One of f() and g()
+>>> is proportional to PAGE_SHIFT, the other is inversely proportional.
+>>>
+>>> How can you fix the reference of X.a and X.b?
+>>
+>> If you need to allocate static memory, then in this scenario, assuming f() is
+>> proportional and g() is inversely-proportional, then I guess you need
+>> size_a=f(PAGE_SIZE_MAX) and size_b=g(PAGE_SIZE_MIN). Or if you can allocate the
 > 
-> Same here, please drop this patch.
->
+> My point is that such stuff can not be handled by scripts
+> automatically and needs manual intervention.
 
-Now dropped from 6.1.y and 6.6.y, thanks!
+Yes agreed. I spent some time thinking about how much of this could be automated
+(i.e. with Cochinelle or otherwise), but concluded that it's very difficult. As
+a result, all of the patches in this series are manually created.
 
-greg k-h
+> 
+>> memory dynamically, then make a and b pointers to dynamically allocated buffers.
+>>
+> 
+> This seems a better way out.
+> 
+>> Is there a specific place in the source where this pattern is used today? It
+>> might be easier to discuss in the context of the code if so.
+>>
+> 
+> No such code at hand. Just throw out the potential issue and be
+> curious about it which frustrates me.
+> I hope people can reach an agreement on it and turn this useful series
+> into reality.
+
+Yes, hope so!
+
+> 
+> Thanks,
+> 
+> Pingfan
+> 
+
