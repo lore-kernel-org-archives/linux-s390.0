@@ -1,165 +1,158 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79CE0209F3C;
-	Wed, 16 Oct 2024 13:36:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42FDE52F76;
+	Wed, 16 Oct 2024 14:34:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729085770; cv=none; b=r1qxuPZD49wJ8zLcZLC2Vr7C5XhgfLEOPehyq9wKteKlIQnunJ4hgHzm6u0CDkfgrnuQcmwFXWME+62TlOT/gK+ecvMH4wc1EyhEXkvz3oVFf3pk1AHTjihaPfy2h0TTjOURl4Js13q4metHtJzD7HNgHVFhtGCesZT+ce74xyA=
+	t=1729089288; cv=none; b=WNpyebRcaFcRFB95GrYAhKK0Uy2Z08iIEeqEbO0vpJRx1FK6oA7MlFEe98+QsyD3o8G/tuTi8kFl+CAcsocnKm9IQbcty89wZWE1d8LOBtJ0f6FB/ik9tAqrz2I2LJUelTaDF/G3SGqR4yHRiJzTlfmPrbo7MQxTeAdganrWSm0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729085770; c=relaxed/simple;
-	bh=pZNXk/x0fFwUjZqS/zBnAfyZnmbaXf4MIWAifLb2V1Q=;
-	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:MIME-Version:
-	 Content-Type; b=CLXrO7AAsnXOqkgUve6gRR+eAV83ZExLVV4596POyASH13RxfHk3YMl3FRUv4RdnqRteGM8nmPipeyUb0X5ywrHsE/jXutMLqINy3yyJAtYcDkWEhQgn9XJfOqtDfbAldOLTdj8iIJdjUVbVCgbSfTZFUKvGTv58efZQGiFreDY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=maObSdMq; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1729089288; c=relaxed/simple;
+	bh=9pGvOg7/zJ+sEkmg/MqTZPaUTQA12sZ3ht8GHY8VcY0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=NN90fFTwh/7wgUwAAM/UJ8FtX0kGOSCGvOQ0R1f10Px9GfwzFMAqyZzblevmcwoyny3oUufg2knKEB8Yv2dRWiUI6XkIxG/0JUueG7mnexXTZk8huL79bwlITvbOkpdi8/l5gsMf10XlGWh3t/XVQuOVYO90I2Uc+1gtYKNKYJU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kJf14sRU; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="maObSdMq"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49GCs3FM021241;
-	Wed, 16 Oct 2024 13:36:01 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kJf14sRU"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49GBtBRi026328;
+	Wed, 16 Oct 2024 14:34:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:subject:to; s=pp1; bh=YSX7Qf3np3wpVslux96pU8DtgICF+GNcykXf3D0a9
-	jM=; b=maObSdMq9gobBKJPWmzX31K7KNNbmheIkGTgvgDPVg6Hldi4Kj9c9a8Ck
-	Hv+TCuBwoQi84r8BWa+oOQRIm+SOGDHcuxhvl7ZJdETh7MqAelw3MZUJAA2et6oI
-	Sqsfukr1bnKSHzy6JQi7710rS9hTY50qmVVDley0TPMa4tfPuYhN4x5H+6FXFU7e
-	bOeWAZsWWMoUoap8B56ZHGfmhxvJyz96EoGfMHRQekpFngiT836iEsVOpglaehD3
-	TEDVDHN4xnpsHci62XNv3YqlzJ5I284nLbV77OXA1stbp43/n6ovRX9ZtU40PGgy
-	5htOptCwrb7MI0dUtJTp0is777d+Q==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42adw8r7m6-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=/2qEwJ
+	b8qhapWyJn4YJ9nNClV92VT537dWyiNsRXy1s=; b=kJf14sRUKzdQBrYgujn20V
+	NsCSGde5d4EsVgXFQzeUwpdIBZ28TP3Bg0YtWuiN3Vug4bmiTd2hmuf1mfXqW/iC
+	iGwxhDH4rg6DugbqGDXyPSWjnpOVW2V046ZVOsG9zGS3exmX0SNg1IId6K73cjLN
+	/c8zdoVMH1Zn/e348KJZd2Hc5PCCvW7xbWNo5jsbPbYlWnsZkYh+TyKfPLPnVmqD
+	8ZNdxbYQFuZcWAyKaZele+PXFGKHlr3qcH9Zy7PpwHId5FJpQPrxt4/M9Hjz6PPp
+	vb+FEng35ouuhSjOuw0Sipya5CmAQB26pqFAw1pVG9azaT3XbYPgqP0e9mVinTpw
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42ad1j0u02-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Oct 2024 13:36:00 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49GDa0x0027595;
-	Wed, 16 Oct 2024 13:36:00 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42adw8r7kx-1
+	Wed, 16 Oct 2024 14:34:44 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49GCte5D001991;
+	Wed, 16 Oct 2024 14:34:44 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4284emsxmh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Oct 2024 13:36:00 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49GCg5eV006690;
-	Wed, 16 Oct 2024 13:35:59 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4283es1ur1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Oct 2024 13:35:59 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49GDZtmt28508670
+	Wed, 16 Oct 2024 14:34:44 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49GEYdHk26936056
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 16 Oct 2024 13:35:55 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7A4F220043;
-	Wed, 16 Oct 2024 13:35:55 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5E81320040;
-	Wed, 16 Oct 2024 13:35:55 +0000 (GMT)
-Received: from localhost (unknown [9.155.200.179])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 16 Oct 2024 13:35:55 +0000 (GMT)
-From: Alexander Egorenkov <egorenar@linux.ibm.com>
-To: david@redhat.com
-Cc: agordeev@linux.ibm.com, akpm@linux-foundation.org,
-        borntraeger@linux.ibm.com, cohuck@redhat.com, corbet@lwn.net,
-        egorenar@linux.ibm.com, eperezma@redhat.com, frankja@linux.ibm.com,
-        gor@linux.ibm.com, hca@linux.ibm.com, imbrenda@linux.ibm.com,
-        jasowang@redhat.com, kvm@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, mcasquer@redhat.com, mst@redhat.com,
-        svens@linux.ibm.com, thuth@redhat.com, virtualization@lists.linux.dev,
-        xuanzhuo@linux.alibaba.com, zaslonko@linux.ibm.com
-Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
-In-Reply-To: <a3f310d0-b878-44c4-9454-f7faf8be04ad@redhat.com>
-Date: Wed, 16 Oct 2024 15:35:55 +0200
-Message-ID: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+	Wed, 16 Oct 2024 14:34:40 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CDCD720049;
+	Wed, 16 Oct 2024 14:34:39 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9C00B20040;
+	Wed, 16 Oct 2024 14:34:39 +0000 (GMT)
+Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 16 Oct 2024 14:34:39 +0000 (GMT)
+Date: Wed, 16 Oct 2024 16:34:37 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, nsg@linux.ibm.com,
+        nrb@linux.ibm.com, frankja@linux.ibm.com, seiden@linux.ibm.com,
+        agordeev@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 05/11] s390/mm/fault: Handle guest-related program
+ interrupts in KVM
+Message-ID: <20241016163437.35ae1a51@p-imbrenda.boeblingen.de.ibm.com>
+In-Reply-To: <20241016100514.16801-B-hca@linux.ibm.com>
+References: <20241015164326.124987-1-imbrenda@linux.ibm.com>
+	<20241015164326.124987-6-imbrenda@linux.ibm.com>
+	<20241016100514.16801-B-hca@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: MZec_mqCiGFqFGIM06wGZZ-9NJht6plF
-X-Proofpoint-ORIG-GUID: NI9xYGJknyFiVOPGQDiENcgtrcbdq7fD
+X-Proofpoint-GUID: W7rY38ICAyuVKEoPNw73QewcQUa1eLic
+X-Proofpoint-ORIG-GUID: W7rY38ICAyuVKEoPNw73QewcQUa1eLic
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
- phishscore=0 priorityscore=1501 clxscore=1011 impostorscore=0 adultscore=0
- mlxlogscore=400 mlxscore=0 lowpriorityscore=0 spamscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
- definitions=main-2410160084
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 mlxscore=0 clxscore=1015 spamscore=0 bulkscore=0
+ mlxlogscore=813 phishscore=0 adultscore=0 impostorscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410160089
 
+On Wed, 16 Oct 2024 12:05:14 +0200
+Heiko Carstens <hca@linux.ibm.com> wrote:
 
-Hi David,
+> On Tue, Oct 15, 2024 at 06:43:20PM +0200, Claudio Imbrenda wrote:
+> > Any program interrupt that happens in the host during the execution of
+> > a KVM guest will now short circuit the fault handler and return to KVM
+> > immediately. Guest fault handling (including pfault) will happen
+> > entirely inside KVM.
+> > 
+> > When sie64a() returns zero, current->thread.gmap_int_code will contain
+> > the program interrupt number that caused the exit, or zero if the exit
+> > was not caused by a host program interrupt.
+> > 
+> > KVM will now take care of handling all guest faults in vcpu_post_run().
+> > 
+> > Since gmap faults will not be visible by the rest of the kernel, remove
+> > GMAP_FAULT, the linux fault handlers for secure execution faults, the
+> > exception table entries for the sie instruction, the nop padding after
+> > the sie instruction, and all other references to guest faults from the
+> > s390 code.  
+> 
+> ...
+> 
+> > diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c  
+> ...
+> > @@ -317,9 +318,23 @@ void noinstr __do_pgm_check(struct pt_regs *regs)
+> >  	struct lowcore *lc = get_lowcore();
+> >  	irqentry_state_t state;
+> >  	unsigned int trapnr;
+> > +	union teid teid = { .val = lc->trans_exc_code };
+> >  
+> >  	regs->int_code = lc->pgm_int_code;
+> > -	regs->int_parm_long = lc->trans_exc_code;
+> > +	regs->int_parm_long = teid.val;
+> > +
+> > +	/*
+> > +	 * In case of a guest fault, short-circuit the fault handler and return.
+> > +	 * This way the sie64a() function will return 0; fault address and
+> > +	 * other relevant bits are saved in current->thread.gmap_teid, and
+> > +	 * the fault number in current->thread.gmap_int_code. KVM will be
+> > +	 * able to use this information to handle the fault.
+> > +	 */
+> > +	if (test_pt_regs_flag(regs, PIF_GUEST_FAULT) && (teid.as == PSW_BITS_AS_PRIMARY)) {
+> > +		current->thread.gmap_teid.val = regs->int_parm_long;
+> > +		current->thread.gmap_int_code = regs->int_code & 0xffff;
+> > +		return;
+> > +	}  
+> 
+> This check looks suboptimal to me for two reasons:
+> 
+> - if PIF_GUEST_FAULT is set it should never happen that the normal
+>   exception handling code is executed; it is clearly a bug if that
+>   would happen, and with the above check this may or may not be
+>   recognized with a kernel crash, if I'm not mistaken.
+> 
+> - __do_pgm_check() is executed for all program interruptions. This
+>   includes those interruptions which do not write a teid. Therefore
+>   the above check may do something unexpected depending on what teid a
+>   previous program interruption wrote. I think the teid.as check
+>   should be moved to kvm as well, and only be done for those cases
+>   where it is known that the teid contains a valid value.
 
-> My concern is that we'll now have
->
-> bool is_kdump_kernel(void)
-> {
->         return oldmem_data.start && !is_ipl_type_dump();
-> }
->
-> Which matches 3), but if 2) is also called "kdump", then should it actually
-> be
->
-> bool is_kdump_kernel(void)
-> {
->         return oldmem_data.start;
-> }
->
-> ?
->
-> When I wrote that code I was rather convinced that the variant in this patch
-> is the right thing to do.
+makes sense
 
-A short explanation about what a stand-alone kdump is.
-
-* First, it's not really a _regular_ kdump activated with kexec-tools and
-  executed by Linux itself but a regular stand-alone dump (SCSI) from the
-  FW's perspective (one has to use HMC or dumpconf to execute it and not
-  with kexec-tools like for the _regular_ kdump).
-* One has to reserve crashkernel memory region in the old crashed kernel
-  even if it remains unused until the dump starts.
-* zipl uses regular kdump kernel and initramfs to create stand-alone
-  dumper images and to write them to a dump disk which is used for
-  IPLIng the stand-alone dumper.
-* The zipl bootloader takes care of transferring the old kernel memory
-  saved in HSA by the FW to the crashkernel memory region reserved by the old
-  crashed kernel before it enters the dumper. The HSA memory is released
-  by the zipl bootloader _before_ the dumper image is entered,
-  therefore, we cannot use HSA to read old kernel memory, and instead
-  use memory from crashkernel region, just like the regular kdump.
-* is_ipl_type_dump() will be true for a stand-alone kdump because we IPL
-  the dumper like a regular stand-alone dump (e.g. zfcpdump).
-* Summarized, zipl bootloader prepares an environment which is expected by
-  the regular kdump for a stand-alone kdump dumper before it is entered.
-
-In my opinion, the correct version of is_kdump_kernel() would be
-
-bool is_kdump_kernel(void)
-{
-        return oldmem_data.start;
-}
-
-because Linux kernel doesn't differentiate between both the regular
-and the stand-alone kdump where it matters while performing dumper
-operations (e.g. reading saved old kernel memory from crashkernel memory region).
-
-Furthermore, if i'm not mistaken then the purpose of is_kdump_kernel()
-is to tell us whether Linux kernel runs in a kdump like environment and not
-whether the current mode is identical to the proper and true kdump,
-right ? And if stand-alone kdump swims like a duck, quacks like one, then it
-is one, regardless how it was started, by kexecing or IPLing
-from a disk.
-
-The stand-alone kdump has a very special use case which most users will
-never encounter. And usually, one just takes zfcpdump instead which is
-more robust and much smaller considering how big kdump initrd can get.
-stand-alone kdump dumper images cannot exceed HSA memory limit on a Z machine.
-
-Regards
-Alex
+I'll move the checks into the kvm part of the code, and trigger a
+KVM_BUG if things are wrong
