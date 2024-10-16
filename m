@@ -1,222 +1,232 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FC8520E02B;
-	Wed, 16 Oct 2024 14:42:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBEE2209687
+	for <linux-s390@vger.kernel.org>; Wed, 16 Oct 2024 15:47:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729089745; cv=none; b=LlNVd8tpmw5LzYjCcSz85xhFMpxb4twWZynSl6vYkso8FjnhRKAjCsRHchUl7Qypg2YfSyMbMEhpzf2afjMb2HCi444ohM9r6HJmMlj4ueQH15WJ4mBzGp6l7ylnccar2skOjEPMZHjh4GHv+19N5yO2Rwne6fNSXe8dEFhVAVM=
+	t=1729093667; cv=none; b=bPpx1LWoyZipl3F+FhtGulyWxpaHmNqFroJtUhop507BWxr+rKg9CBK0KP3bfBLuWcgSw26c+fsItmBKvfCaz+iHGt7G/SfVknZtLH3aBa95qjOK7CzN/Ebp1Vaizx20MVAWj/5AK9cpQ2aBhhqOYtfld03mjMkxNGBfjbdvVXA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729089745; c=relaxed/simple;
-	bh=HsR5nfdcFwll8ZvnEJwdrpRYSjagPQrRY1+6vgSGPTA=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=a7oD789uC6/KE88las/JhHhCpjDnHAzP2xred4X71yqgtXIEDapn2TztvHGHYNh/Pyk3b7OCNY/p9/hIi3Gmf2YTFuybvrEESqfC5UByQ5ka7/7TgS+Cj37lMvPVazLVvUhuQqeh/S8cFFlMnzUunULjeAbn070x1Ky91DEjdDg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nlhwOZzR; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1729093667; c=relaxed/simple;
+	bh=bWT0jZQi2gTGU5Bd8og0Hyl0LagtMrLPaQKxohyIPwA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qlMfaGWCFaQQLLt2Sst6tC4a4wl0iFG/3vWQo8CSNTXyRHq6J00R6OP/fqk7XTnrFpgraJthPVClMKcxNbMe0Piy4tu52EmFu8iDgfErOBUlQx6y9iowfOjiimES1T1GGDSZ4KHhma3IYoluYRmGKnaMzBbY6ufBbq+Au8S82z8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MHQ+wqha; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nlhwOZzR"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49GEH320002066;
-	Wed, 16 Oct 2024 14:42:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=n5RqZ7
-	hhZqPWPMojAnyhiNnK43XJxh8KxJL0euJKmGE=; b=nlhwOZzRyAnyQ1gAhy33wR
-	VN3PMY1YRINEt1FdRdZXGJZpuPQm7+B+V2/ymBmeYbiozeBGz5xk7k/nenOpEwLJ
-	8ye/T2NL6o4mUjTfev1XScC7Plb5OdmDrpJG6Vl9Ty5cKSdBg1wfVARYLqMc64+S
-	6ZzttvpFjIoMUmVDB4sGR0FeVI/eHpWTJpKhdVJS4Fzqz417xckAnq9obXB2Ujeg
-	ugVrX6Ib/3GF6ANQVtGotPWqeUd4252TE7cN/X2bvBBkvIQHgeyDieX31YBJ8saZ
-	gKYhXdW5pHQvyRScENFOxNd54HWvcrktmQAtZPf161pJN5cyNasdE0ewSgN47GYA
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42af3t848y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Oct 2024 14:42:14 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49GEgE4A031052;
-	Wed, 16 Oct 2024 14:42:14 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42af3t848v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Oct 2024 14:42:14 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49GESP0S005374;
-	Wed, 16 Oct 2024 14:42:13 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4285nj9p9m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Oct 2024 14:42:13 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49GEg9OG50201004
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 16 Oct 2024 14:42:09 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 82F3F20043;
-	Wed, 16 Oct 2024 14:42:09 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E76B120040;
-	Wed, 16 Oct 2024 14:42:08 +0000 (GMT)
-Received: from li-978a334c-2cba-11b2-a85c-a0743a31b510.ibm.com (unknown [9.171.85.190])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 16 Oct 2024 14:42:08 +0000 (GMT)
-Message-ID: <6be1f3a5204df164753c7b5a28e179d21e2eda5d.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v3 5/7] s390x: Add library functions for
- exiting from snippet
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To: Nicholas Piggin <npiggin@gmail.com>, Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nico =?ISO-8859-1?Q?B=F6hr?=
- <nrb@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Andrew
- Jones <andrew.jones@linux.dev>, kvm@vger.kernel.org
-Date: Wed, 16 Oct 2024 16:42:08 +0200
-In-Reply-To: <D28R3KHKTK6E.36HBUYZEGH2YA@gmail.com>
-References: <20240620141700.4124157-1-nsg@linux.ibm.com>
-	 <20240620141700.4124157-6-nsg@linux.ibm.com>
-	 <D28R3KHKTK6E.36HBUYZEGH2YA@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.3 (3.52.3-1.fc40) 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MHQ+wqha"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729093664;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=VIzfBQnPXM1p+cHUAfPvEKZFWEw7tRlCE5XfNpemY2E=;
+	b=MHQ+wqharG9EKXvpNnBfdKH5Fn4ou5M1g+3t8bG/t77TsKlAGzYfsrBdWrFwLFQI8o+iA4
+	solD9CSiFyzNaq8htBIwIGTLIsfOIt2R9n3uOveWB87JAl3vMcGm/tBZVQLOTC3LQ0wP8S
+	tffFQJBCccqF15I+GEnLcUoZ2CS+VUY=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-355-Z22e8XD6MUqmIIUezzFZiw-1; Wed, 16 Oct 2024 11:47:43 -0400
+X-MC-Unique: Z22e8XD6MUqmIIUezzFZiw-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43157e3521dso752475e9.1
+        for <linux-s390@vger.kernel.org>; Wed, 16 Oct 2024 08:47:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1729093662; x=1729698462;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=VIzfBQnPXM1p+cHUAfPvEKZFWEw7tRlCE5XfNpemY2E=;
+        b=Ok/Do6fDnFfne0vq7lidJK8D0pJEyLVigYCPN1vm/e8ORXgbehnNCwjzBr0MxfSocH
+         rjxBJdXZCyIblj7Akdgd73yVr+hKGmsonZh3B7XdiUYzMF7jx1iLKSdNWBAtfDpL3KZ9
+         h9m8MoLtK0VSDFaE1/345npFOK8Mw2INatIpxn8STrpaiq7OPEXsmY7CSK1xY26kl7Ld
+         /MiOCLzHPNFZzhnCBGWufKBmyB4d1rbOJLrWPjosHCFdBaERhBkv1CkOn/oQHdVUY25Z
+         N8t/IMq6iKxrL+N4EhP4S6fwDms4Omf+cSjRolOYJGwG1P6ngKed6tqxt2a6l5mtF7kp
+         8SPA==
+X-Forwarded-Encrypted: i=1; AJvYcCUvMtfZyqToBW2VCsyGzA3qVtNi1FG7oj1BAnBfg+qC+YEbbc/zRy3lGofnEaBcNXWYRIjzqOsfpRsm@vger.kernel.org
+X-Gm-Message-State: AOJu0YwzeVqbBDTU7jRAYNvbluquS/ArpYv4GBxJ+Q4eXy7xPXillZeO
+	OUse9JFJYCFOKplvsf+QadS7hodtRyYiLV09Yu++j6vx/ar6k/sDYf7bMcwOKOh3eE8rlVz1HYh
+	7KMm3m62/FmL8TsqC0Q1+NhiL4DMQKqvW7FLMgbIj+r1Xh7srf8eJ3tePE8U=
+X-Received: by 2002:a05:600c:4711:b0:430:54a4:5b02 with SMTP id 5b1f17b1804b1-43125619e8fmr121331175e9.34.1729093662300;
+        Wed, 16 Oct 2024 08:47:42 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH/bW0hLobbLXjaDGKyq9Ar43ysgaBvBnKudmwOIGvXULooHv87b61qCzy2T1b+NaF7gXinDw==
+X-Received: by 2002:a05:600c:4711:b0:430:54a4:5b02 with SMTP id 5b1f17b1804b1-43125619e8fmr121330835e9.34.1729093661825;
+        Wed, 16 Oct 2024 08:47:41 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c74b:d000:3a9:de5c:9ae6:ccb3? (p200300cbc74bd00003a9de5c9ae6ccb3.dip0.t-ipconnect.de. [2003:cb:c74b:d000:3a9:de5c:9ae6:ccb3])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4315069032asm25144845e9.0.2024.10.16.08.47.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 16 Oct 2024 08:47:41 -0700 (PDT)
+Message-ID: <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
+Date: Wed, 16 Oct 2024 17:47:39 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: hsVnQcnTPoRvPSeVukd1jSK7Apz5zjf1
-X-Proofpoint-ORIG-GUID: P-qW7Tz9I5XPuCTQZ1gfZ4xAxsNGS-VL
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
- bulkscore=0 impostorscore=0 malwarescore=0 clxscore=1015
- priorityscore=1501 spamscore=0 adultscore=0 phishscore=0 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410160089
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
+To: Alexander Egorenkov <egorenar@linux.ibm.com>
+Cc: agordeev@linux.ibm.com, akpm@linux-foundation.org,
+ borntraeger@linux.ibm.com, cohuck@redhat.com, corbet@lwn.net,
+ eperezma@redhat.com, frankja@linux.ibm.com, gor@linux.ibm.com,
+ hca@linux.ibm.com, imbrenda@linux.ibm.com, jasowang@redhat.com,
+ kvm@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, mcasquer@redhat.com, mst@redhat.com,
+ svens@linux.ibm.com, thuth@redhat.com, virtualization@lists.linux.dev,
+ xuanzhuo@linux.alibaba.com, zaslonko@linux.ibm.com
+References: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, 2024-06-25 at 12:43 +1000, Nicholas Piggin wrote:
-> On Fri Jun 21, 2024 at 12:16 AM AEST, Nina Schoetterl-Glausch wrote:
-> > It is useful to be able to force an exit to the host from the snippet,
-> > as well as do so while returning a value.
-> > Add this functionality, also add helper functions for the host to check
-> > for an exit and get or check the value.
-> > Use diag 0x44 and 0x9c for this.
-> > Add a guest specific snippet header file and rename snippet.h to reflec=
-t
-> > that it is host specific.
-> >=20
-> > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> > ---
-> >  s390x/Makefile                          |  1 +
-> >  lib/s390x/asm/arch_def.h                | 13 ++++++++
-> >  lib/s390x/snippet-guest.h               | 26 +++++++++++++++
-> >  lib/s390x/{snippet.h =3D> snippet-host.h} | 10 ++++--
-> >  lib/s390x/snippet-host.c                | 42 +++++++++++++++++++++++++
-> >  lib/s390x/uv.c                          |  2 +-
-> >  s390x/mvpg-sie.c                        |  2 +-
-> >  s390x/pv-diags.c                        |  2 +-
-> >  s390x/pv-icptcode.c                     |  2 +-
-> >  s390x/pv-ipl.c                          |  2 +-
-> >  s390x/sie-dat.c                         |  2 +-
-> >  s390x/spec_ex-sie.c                     |  2 +-
-> >  s390x/uv-host.c                         |  2 +-
-> >  13 files changed, 97 insertions(+), 11 deletions(-)
-> >  create mode 100644 lib/s390x/snippet-guest.h
-> >  rename lib/s390x/{snippet.h =3D> snippet-host.h} (92%)
-> >  create mode 100644 lib/s390x/snippet-host.c
-> >=20
-[...]
+>>
+>> When I wrote that code I was rather convinced that the variant in this patch
+>> is the right thing to do.
+> 
+> A short explanation about what a stand-alone kdump is.
+> 
+> * First, it's not really a _regular_ kdump activated with kexec-tools and
+>    executed by Linux itself but a regular stand-alone dump (SCSI) from the
+>    FW's perspective (one has to use HMC or dumpconf to execute it and not
+>    with kexec-tools like for the _regular_ kdump).
 
-> > diff --git a/lib/s390x/snippet-guest.h b/lib/s390x/snippet-guest.h
-> > new file mode 100644
-> > index 00000000..3cc098e1
-> > --- /dev/null
-> > +++ b/lib/s390x/snippet-guest.h
-> > @@ -0,0 +1,26 @@
-> > +/* SPDX-License-Identifier: GPL-2.0-only */
-> > +/*
-> > + * Snippet functionality for the guest.
-> > + *
-> > + * Copyright IBM Corp. 2023
-> > + */
-> > +
-> > +#ifndef _S390X_SNIPPET_GUEST_H_
-> > +#define _S390X_SNIPPET_GUEST_H_
-> > +
-> > +#include <asm/arch_def.h>
-> > +#include <asm/barrier.h>
-> > +
-> > +static inline void force_exit(void)
-> > +{
-> > +	diag44();
-> > +	mb(); /* allow host to modify guest memory */
-> > +}
-> > +
-> > +static inline void force_exit_value(uint64_t val)
-> > +{
-> > +	diag9c(val);
-> > +	mb(); /* allow host to modify guest memory */
-> > +}
->=20
-> You have barriers here, but couldn't the diag get moved before a prior
-> store by the guest?
+Ah, that makes sense.
 
-Yeah, makes sense to add another before.
->=20
-> Silly question since I don't understand the s390x arch or snippet design
-> too well... the diag here causes a guest exit to the host. After the
-> host handles that, it may resume guest at the next instruction? If that
-> is correct, then the barrier here (I think) is for when the guest
-> resumes it would not reorder subsequent loads from guest memory before
-> the diag, because the host might have modified it.
+> * One has to reserve crashkernel memory region in the old crashed kernel
+>    even if it remains unused until the dump starts.
+> * zipl uses regular kdump kernel and initramfs to create stand-alone
+>    dumper images and to write them to a dump disk which is used for
+>    IPLIng the stand-alone dumper.
+> * The zipl bootloader takes care of transferring the old kernel memory
+>    saved in HSA by the FW to the crashkernel memory region reserved by the old
+>    crashed kernel before it enters the dumper. The HSA memory is released
+>    by the zipl bootloader _before_ the dumper image is entered,
+>    therefore, we cannot use HSA to read old kernel memory, and instead
+>    use memory from crashkernel region, just like the regular kdump.
+> * is_ipl_type_dump() will be true for a stand-alone kdump because we IPL
+>    the dumper like a regular stand-alone dump (e.g. zfcpdump).
+> * Summarized, zipl bootloader prepares an environment which is expected by
+>    the regular kdump for a stand-alone kdump dumper before it is entered.
 
-[...]
+Thanks for the details!
 
-> > diff --git a/lib/s390x/snippet-host.c b/lib/s390x/snippet-host.c
-> > new file mode 100644
-> > index 00000000..44a60bb9
-> > --- /dev/null
-> > +++ b/lib/s390x/snippet-host.c
+> 
+> In my opinion, the correct version of is_kdump_kernel() would be
+> 
+> bool is_kdump_kernel(void)
+> {
+>          return oldmem_data.start;
+> }
+> 
+> because Linux kernel doesn't differentiate between both the regular
+> and the stand-alone kdump where it matters while performing dumper
+> operations (e.g. reading saved old kernel memory from crashkernel memory region).
+> 
 
-[...]
+Right, but if we consider "/proc/vmcore is available", a better version 
+would IMHO be:
 
-> > +void snippet_check_force_exit_value(struct vm *vm, uint64_t value_exp)
-> > +{
-> > +	uint64_t value;
-> > +
-> > +	if (snippet_is_force_exit_value(vm)) {
-> > +		value =3D snippet_get_force_exit_value(vm);
-> > +		report(value =3D=3D value_exp, "guest forced exit with value (0x%lx =
-=3D=3D 0x%lx)",
-> > +		       value, value_exp);
->=20
-> This is like kvm selftests guest/host synch design, which is quite
-> nice and useful.
->=20
-> > +	} else {
-> > +		report_fail("guest forced exit with value");
-> > +	}
->=20
-> Guest forced exit without value?
+bool is_kdump_kernel(void)
+{
+           return dump_available();
+}
 
-It's this way round so the output reads:
+Because that is mostly (not completely) how is_kdump_kernel() would have 
+worked right now *after* we had the elfcorehdr_alloc() during the 
+fs_init call.
 
-FAIL: guest forced exit with value
 
-What's after the colon is what failed and the message
-is the same for PASS/FAIL. Indeed a bit confusing.
+> Furthermore, if i'm not mistaken then the purpose of is_kdump_kernel()
+> is to tell us whether Linux kernel runs in a kdump like environment and not
+> whether the current mode is identical to the proper and true kdump,
+> right ? And if stand-alone kdump swims like a duck, quacks like one, then it
+> is one, regardless how it was started, by kexecing or IPLing
+> from a disk.
 
-> And do you also need to check for non-value force
-> exit to distinguish from a normal snippet exit?
+Same thinking here.
 
-No, the function does just this check and if you need to handle
-more complicated situations you need to do that in the caller.
+> 
+> The stand-alone kdump has a very special use case which most users will
+> never encounter. And usually, one just takes zfcpdump instead which is
+> more robust and much smaller considering how big kdump initrd can get.
+> stand-alone kdump dumper images cannot exceed HSA memory limit on a Z machine.
 
->=20
-> Thanks,
-> Nick
+Makes sense, so it boils down to either
+
+bool is_kdump_kernel(void)
+{
+          return oldmem_data.start;
+}
+
+Which means is_kdump_kernel() can be "false" even though /proc/vmcore is 
+available or
+
+bool is_kdump_kernel(void)
+{
+          return dump_available();
+}
+
+Which means is_kdump_kernel() can never be "false" if /proc/vmcore is 
+available. There is the chance of is_kdump_kernel() being "true" if 
+"elfcorehdr_alloc()" fails with -ENODEV.
+
+
+You're call :) Thanks!
+
+-- 
+Cheers,
+
+David / dhildenb
 
