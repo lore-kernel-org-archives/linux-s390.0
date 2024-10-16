@@ -1,75 +1,74 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46F4F18BC22;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEBFD210195;
 	Wed, 16 Oct 2024 18:03:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729101813; cv=none; b=akTUKwYFEQNL1DOaXlZTmBi52RoJOdkFoDfGlAMy8fbbVLbLjkn47FfgfvzZVo1BHSTCqEbzxnXw/ZQ98YEG3jMA8gMtjerqy9c+PcGVMdWRt1J79uYgF2BiLQnwoU9GbWY0o02OyIxTfYiB+8Gv6pJXG08B2U8oDrD9eVqBAP4=
+	t=1729101813; cv=none; b=JAzztOwbt/eB+Da4bNDQtkxw8ISV/OLpwViFsP8qv2q1ieEZM30yJDzdwC//I5WryT005wHKJWiXvBYxuTHm6YvSbtTyr8NN5+bRq6vBBtPbYXFn9CiFGY6xNYBO6cnBY1Z8PsXOvXQqfB5X2Jw64p40JIcL84iMphiDWYVKvy0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1729101813; c=relaxed/simple;
-	bh=m3AO7aBK4MWTSz1LWFdO8AS1RY4l05ArBvO08Bco/2o=;
+	bh=bBBKuJCx1AIpGf30S88tX/OKx6J/Gq6hl6pLgmUdlPc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dGD+Rg7zi0E7GFKWn+dIC+gnBxZ8lhonVONVVRlynw6zTtmwyHdgzGC4ylJ3qxui/ymZsQRLm8u5NsQ4itTrMavlODeZS45AN4VS5+Dpsa5KLOVUux0oh2yiBgahGYbKpId+gj6JYGNiLUCtJ1odELjPcLC6VJ//Q/9ItBG8RrI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nQ/ZCXqi; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=XgciJcqUSAHamWomMT2bI9ITSwnTsQlfcjbZKVs8uOkIBIhiaz+Yo+tH0WHur2a016zpUa1Nf42KxNIMTnjxOVvdR7ToQhTprMaOSDcnZEpzUQJjsYirWXFd0CV69rIfLRyUuzZxsq3rCDAoWUo7nLyl9abuKh5Q8tNwRWwS1kY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TX/BZWUW; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nQ/ZCXqi"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49GHULf8022054;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TX/BZWUW"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49GFj1vd029595;
 	Wed, 16 Oct 2024 18:03:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=mPUHICf5szgYoJCN9
-	IfaDhAMJAmT40dXC0dlmKhWqcE=; b=nQ/ZCXqijEUbGC2pGnQJCs1KWuWONrsvC
-	lytAzLkK7sAN//IFPeoV+o2oW0jVW12ANJvJDhc3HwnKL8YLSjdDOqIgCMiomNZE
-	3fl8BQk0fLaPDWhzaKLiSCZeJHtV0Us0BCEbDWby4RoNb+ODq0JRDQx4eDuzRm2r
-	jyRT6ln42Mamoqhe8fllA0ti1jq8oHcEUuOrjs9RwfO8G2b18Y/q8cIeVsYZHAxG
-	NTmNfG39amSE07CVsop2ejnwc0YnHKQBT/wnk34cErp6TFb3JcOvnDIiNQ7Gr/uV
-	c7st5/9qLHLlz9IwN+wo/p+LpkVkv0e6vOWC/e50D9Puofs0M3/WA==
+	:mime-version:references:subject:to; s=pp1; bh=uQeM+TzA576VDxP9W
+	2y+SZ8MTQww7xNptWT3qgceP2o=; b=TX/BZWUWYDg2rgLpFPSiccdBEO8T3+OVS
+	5O/pYnaxem3biBi10bhVt8hAWgDwYPsS7IUj2mIb6+5+IqYx1d2WR7ZocikgPkIX
+	TUfDp4FbHDyLAY2pK0Lp8h930/fd9S9a4/8edCK97y8s/W20TQ1j6Bon8/D2tWPr
+	WpCUwL1o2reWVVqE3ct9Ls8G54j9kktlGrYTjpBuwc3QzFC24UF20T0toqVmIIdL
+	PJddFMem/rHvVACh6JURTasEQizfLXVRB0eNUA66exhzw1C2gLrc37w4muorkqD2
+	azSeENTl+zKV3W7uODhiSUAolm/hmNs0cWb0epRj6SNGq7sZb78Jw==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42ahxj04gs-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42agd70kuq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 16 Oct 2024 18:03:30 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49GI0fjS021962;
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49GI3U5Z026740;
+	Wed, 16 Oct 2024 18:03:30 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42agd70kum-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 16 Oct 2024 18:03:30 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49GGw3Q4006789;
 	Wed, 16 Oct 2024 18:03:29 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42ahxj04gh-1
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4284xkap92-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Oct 2024 18:03:29 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49GGlTWs027451;
-	Wed, 16 Oct 2024 18:03:28 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4283txtv1d-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Oct 2024 18:03:28 +0000
+	Wed, 16 Oct 2024 18:03:29 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49GI3Ora52691242
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49GI3PVd20513030
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 16 Oct 2024 18:03:24 GMT
+	Wed, 16 Oct 2024 18:03:25 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9828420049;
-	Wed, 16 Oct 2024 18:03:24 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 92F7E20049;
+	Wed, 16 Oct 2024 18:03:25 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 433762004B;
-	Wed, 16 Oct 2024 18:03:24 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 3F36620040;
+	Wed, 16 Oct 2024 18:03:25 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 16 Oct 2024 18:03:24 +0000 (GMT)
+	Wed, 16 Oct 2024 18:03:25 +0000 (GMT)
 From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 To: =?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        Nicholas Piggin <npiggin@gmail.com>
-Subject: [kvm-unit-tests PATCH v4 3/6] s390x: Add function for checking diagnose intercepts
-Date: Wed, 16 Oct 2024 20:03:14 +0200
-Message-ID: <20241016180320.686132-4-nsg@linux.ibm.com>
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>, Nicholas Piggin <npiggin@gmail.com>
+Cc: Nina Schoetterl-Glausch <nsg@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>
+Subject: [kvm-unit-tests PATCH v4 5/6] s390x: Use library functions for snippet exit
+Date: Wed, 16 Oct 2024 20:03:16 +0200
+Message-ID: <20241016180320.686132-6-nsg@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20241016180320.686132-1-nsg@linux.ibm.com>
 References: <20241016180320.686132-1-nsg@linux.ibm.com>
@@ -81,345 +80,101 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: GWgE8EGwI2uyXPgT9l7zGkVocwpog-dn
-X-Proofpoint-ORIG-GUID: x4tAdbaeVIiOk_kCDe3qQJGtixISKOVF
+X-Proofpoint-GUID: NTPn4AWDQ4hDqjXWdNzln42wE3_Z1-dQ
+X-Proofpoint-ORIG-GUID: AAfXAiU0Vkw1UbliRTnWb5IczKtF9J_L
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- clxscore=1015 bulkscore=0 adultscore=0 mlxlogscore=999 lowpriorityscore=0
- phishscore=0 priorityscore=1501 suspectscore=0 mlxscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
- definitions=main-2410160115
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
+ clxscore=1015 suspectscore=0 adultscore=0 mlxscore=0 malwarescore=0
+ phishscore=0 spamscore=0 lowpriorityscore=0 mlxlogscore=999
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410160115
 
-sie_is_diag_icpt() checks if the intercept is due to an expected
-diagnose call and is valid.
-It subsumes pv_icptdata_check_diag.
+Replace the existing code for exiting from snippets with the newly
+introduced library functionality.
 
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 ---
- s390x/Makefile          |  1 +
- lib/s390x/pv_icptdata.h | 42 -----------------------------
- lib/s390x/sie-icpt.h    | 39 +++++++++++++++++++++++++++
- lib/s390x/sie-icpt.c    | 60 +++++++++++++++++++++++++++++++++++++++++
- s390x/pv-diags.c        |  9 +++----
- s390x/pv-icptcode.c     | 12 ++++-----
- s390x/pv-ipl.c          |  8 +++---
- 7 files changed, 114 insertions(+), 57 deletions(-)
- delete mode 100644 lib/s390x/pv_icptdata.h
- create mode 100644 lib/s390x/sie-icpt.h
- create mode 100644 lib/s390x/sie-icpt.c
+ s390x/sie-dat.c            | 12 ++++--------
+ s390x/snippets/c/sie-dat.c | 19 +------------------
+ 2 files changed, 5 insertions(+), 26 deletions(-)
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 23342bd6..0ad8d021 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -111,6 +111,7 @@ cflatobjs += lib/s390x/css_lib.o
- cflatobjs += lib/s390x/malloc_io.o
- cflatobjs += lib/s390x/uv.o
- cflatobjs += lib/s390x/sie.o
-+cflatobjs += lib/s390x/sie-icpt.o
- cflatobjs += lib/s390x/fault.o
+diff --git a/s390x/sie-dat.c b/s390x/sie-dat.c
+index f0257770..44bf29fe 100644
+--- a/s390x/sie-dat.c
++++ b/s390x/sie-dat.c
+@@ -17,6 +17,7 @@
+ #include <sclp.h>
+ #include <sie.h>
+ #include <snippet.h>
++#include <snippet-exit.h>
+ #include "snippets/c/sie-dat.h"
  
- OBJDIRS += lib/s390x
-diff --git a/lib/s390x/pv_icptdata.h b/lib/s390x/pv_icptdata.h
-deleted file mode 100644
-index 4746117e..00000000
---- a/lib/s390x/pv_icptdata.h
-+++ /dev/null
-@@ -1,42 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-only */
--/*
-- * Commonly used checks for PV SIE intercept data
-- *
-- * Copyright IBM Corp. 2023
-- * Author: Janosch Frank <frankja@linux.ibm.com>
-- */
+ static struct vm vm;
+@@ -27,23 +28,18 @@ static void test_sie_dat(void)
+ 	uint64_t test_page_gpa, test_page_hpa;
+ 	uint8_t *test_page_hva, expected_val;
+ 	bool contents_match;
+-	uint8_t r1;
+ 
+ 	/* guest will tell us the guest physical address of the test buffer */
+ 	sie(&vm);
+-	assert(vm.sblk->icptcode == ICPT_INST &&
+-	       (vm.sblk->ipa & 0xff00) == 0x8300 && vm.sblk->ipb == 0x9c0000);
 -
--#ifndef _S390X_PV_ICPTDATA_H_
--#define _S390X_PV_ICPTDATA_H_
--
--#include <sie.h>
--
--/*
-- * Checks the diagnose instruction intercept data for consistency with
-- * the constants defined by the PV SIE architecture
-- *
-- * Supports: 0x44, 0x9c, 0x288, 0x308, 0x500
-- */
--static bool pv_icptdata_check_diag(struct vm *vm, int diag)
--{
--	int icptcode;
--
--	switch (diag) {
--	case 0x44:
--	case 0x9c:
--	case 0x288:
--	case 0x308:
--		icptcode = ICPT_PV_NOTIFY;
--		break;
--	case 0x500:
--		icptcode = ICPT_PV_INSTR;
--		break;
--	default:
--		/* If a new diag is introduced add it to the cases above! */
--		assert(0);
--	}
--
--	return vm->sblk->icptcode == icptcode && vm->sblk->ipa == 0x8302 &&
--	       vm->sblk->ipb == 0x50000000 && vm->save_area.guest.grs[5] == diag;
--}
--#endif
-diff --git a/lib/s390x/sie-icpt.h b/lib/s390x/sie-icpt.h
-new file mode 100644
-index 00000000..604a7221
---- /dev/null
-+++ b/lib/s390x/sie-icpt.h
-@@ -0,0 +1,39 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Functionality for SIE interception handling.
-+ *
-+ * Copyright IBM Corp. 2024
-+ */
-+
-+#ifndef _S390X_SIE_ICPT_H_
-+#define _S390X_SIE_ICPT_H_
-+
-+#include <libcflat.h>
-+#include <sie.h>
-+
-+struct diag_itext {
-+	uint64_t opcode   :  8;
-+	uint64_t r_1      :  4;
-+	uint64_t r_2      :  4;
-+	uint64_t r_base   :  4;
-+	uint64_t displace : 12;
-+	uint64_t zero     : 16;
-+	uint64_t          : 16;
-+};
-+
-+struct diag_itext sblk_ip_as_diag(struct kvm_s390_sie_block *sblk);
-+
-+/**
-+ * sie_is_diag_icpt() - Check if intercept is due to diagnose instruction
-+ * @vm: the guest
-+ * @diag: the expected diagnose code
-+ *
-+ * Check that the intercept is due to diagnose @diag and valid.
-+ * For protected virtualization, check that the intercept data meets additional
-+ * constraints.
-+ *
-+ * Returns: true if intercept is due to a valid and has matching diagnose code
-+ */
-+bool sie_is_diag_icpt(struct vm *vm, unsigned int diag);
-+
-+#endif /* _S390X_SIE_ICPT_H_ */
-diff --git a/lib/s390x/sie-icpt.c b/lib/s390x/sie-icpt.c
-new file mode 100644
-index 00000000..17064424
---- /dev/null
-+++ b/lib/s390x/sie-icpt.c
-@@ -0,0 +1,60 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Functionality for SIE interception handling.
-+ *
-+ * Copyright IBM Corp. 2024
-+ */
-+
-+#include <sie-icpt.h>
-+
-+struct diag_itext sblk_ip_as_diag(struct kvm_s390_sie_block *sblk)
-+{
-+	union {
-+		struct {
-+			uint64_t ipa : 16;
-+			uint64_t ipb : 32;
-+			uint64_t     : 16;
-+		};
-+		struct diag_itext diag;
-+	} instr = { .ipa = sblk->ipa, .ipb = sblk->ipb };
-+
-+	return instr.diag;
-+}
-+
-+bool sie_is_diag_icpt(struct vm *vm, unsigned int diag)
-+{
-+	struct diag_itext instr = sblk_ip_as_diag(vm->sblk);
-+	uint8_t icptcode;
-+	uint64_t code;
-+
-+	switch (diag) {
-+	case 0x44:
-+	case 0x9c:
-+	case 0x288:
-+	case 0x308:
-+		icptcode = ICPT_PV_NOTIFY;
-+		break;
-+	case 0x500:
-+		icptcode = ICPT_PV_INSTR;
-+		break;
-+	default:
-+		/* If a new diag is introduced add it to the cases above! */
-+		assert_msg(false, "unknown diag 0x%x", diag);
-+	}
-+
-+	if (sie_is_pv(vm)) {
-+		if (instr.r_1 != 0 || instr.r_2 != 2 || instr.r_base != 5)
-+			return false;
-+		if (instr.displace)
-+			return false;
-+	} else {
-+		icptcode = ICPT_INST;
-+	}
-+	if (vm->sblk->icptcode != icptcode)
-+		return false;
-+	if (instr.opcode != 0x83 || instr.zero)
-+		return false;
-+	code = instr.r_base ? vm->save_area.guest.grs[instr.r_base] : 0;
-+	code = (code + instr.displace) & 0xffff;
-+	return code == diag;
-+}
-diff --git a/s390x/pv-diags.c b/s390x/pv-diags.c
-index 3193ad99..09b83d59 100644
---- a/s390x/pv-diags.c
-+++ b/s390x/pv-diags.c
-@@ -9,7 +9,7 @@
-  */
+-	r1 = (vm.sblk->ipa & 0xf0) >> 4;
+-	test_page_gpa = vm.save_area.guest.grs[r1];
++	assert(snippet_is_force_exit_value(&vm));
++	test_page_gpa = snippet_get_force_exit_value(&vm);
+ 	test_page_hpa = virt_to_pte_phys(guest_root, (void*)test_page_gpa);
+ 	test_page_hva = __va(test_page_hpa);
+ 	report_info("test buffer gpa=0x%lx hva=%p", test_page_gpa, test_page_hva);
+ 
+ 	/* guest will now write to the test buffer and we verify the contents */
+ 	sie(&vm);
+-	assert(vm.sblk->icptcode == ICPT_INST &&
+-	       vm.sblk->ipa == 0x8300 && vm.sblk->ipb == 0x440000);
++	assert(snippet_is_force_exit(&vm));
+ 
+ 	contents_match = true;
+ 	for (unsigned int i = 0; i < GUEST_TEST_PAGE_COUNT; i++) {
+diff --git a/s390x/snippets/c/sie-dat.c b/s390x/snippets/c/sie-dat.c
+index 9d89801d..ba1604de 100644
+--- a/s390x/snippets/c/sie-dat.c
++++ b/s390x/snippets/c/sie-dat.c
+@@ -10,28 +10,11 @@
  #include <libcflat.h>
- #include <snippet.h>
--#include <pv_icptdata.h>
-+#include <sie-icpt.h>
- #include <sie.h>
- #include <sclp.h>
- #include <asm/facility.h>
-@@ -32,8 +32,7 @@ static void test_diag_500(void)
- 			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
+ #include <asm-generic/page.h>
+ #include <asm/mem.h>
++#include <snippet-exit.h>
+ #include "sie-dat.h"
  
- 	sie(&vm);
--	report(pv_icptdata_check_diag(&vm, 0x500),
--	       "intercept values");
-+	report(sie_is_diag_icpt(&vm, 0x500), "intercept values");
- 	report(vm.save_area.guest.grs[1] == 1 &&
- 	       vm.save_area.guest.grs[2] == 2 &&
- 	       vm.save_area.guest.grs[3] == 3 &&
-@@ -45,7 +44,7 @@ static void test_diag_500(void)
- 	 */
- 	vm.sblk->iictl = IICTL_CODE_OPERAND;
- 	sie(&vm);
--	report(pv_icptdata_check_diag(&vm, 0x9c) &&
-+	report(sie_is_diag_icpt(&vm, 0x9c) &&
- 	       vm.save_area.guest.grs[0] == PGM_INT_CODE_OPERAND,
- 	       "operand exception");
+ static uint8_t test_pages[GUEST_TEST_PAGE_COUNT * PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
  
-@@ -57,7 +56,7 @@ static void test_diag_500(void)
- 	vm.sblk->iictl = IICTL_CODE_SPECIFICATION;
- 	/* Inject PGM, next exit should be 9c */
- 	sie(&vm);
--	report(pv_icptdata_check_diag(&vm, 0x9c) &&
-+	report(sie_is_diag_icpt(&vm, 0x9c) &&
- 	       vm.save_area.guest.grs[0] == PGM_INT_CODE_SPECIFICATION,
- 	       "specification exception");
- 
-diff --git a/s390x/pv-icptcode.c b/s390x/pv-icptcode.c
-index d7c47d6f..5293306b 100644
---- a/s390x/pv-icptcode.c
-+++ b/s390x/pv-icptcode.c
-@@ -13,7 +13,7 @@
- #include <smp.h>
- #include <sclp.h>
- #include <snippet.h>
--#include <pv_icptdata.h>
-+#include <sie-icpt.h>
- #include <asm/facility.h>
- #include <asm/barrier.h>
- #include <asm/sigp.h>
-@@ -47,7 +47,7 @@ static void test_validity_timing(void)
- 			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
- 
- 	sie(&vm);
--	report(pv_icptdata_check_diag(&vm, 0x44), "spt done");
-+	report(sie_is_diag_icpt(&vm, 0x44), "spt done");
- 	stck(&time_exit);
- 	tmp = vm.sblk->cputm;
- 	mb();
-@@ -258,7 +258,7 @@ static void test_validity_asce(void)
- 
- 	/* Try if we can still do an entry with the correct asce */
- 	sie(&vm);
--	report(pv_icptdata_check_diag(&vm, 0x44), "re-entry with valid CR1");
-+	report(sie_is_diag_icpt(&vm, 0x44), "re-entry with valid CR1");
- 	uv_destroy_guest(&vm);
- 	free_pages(pgd_new);
- 	report_prefix_pop();
-@@ -294,7 +294,7 @@ static void run_icpt_122_tests_prefix(unsigned long prefix)
- 
- 	sie(&vm);
- 	/* Guest indicates that it has been setup via the diag 0x44 */
--	assert(pv_icptdata_check_diag(&vm, 0x44));
-+	assert(sie_is_diag_icpt(&vm, 0x44));
- 	/* If the pages have not been shared these writes will cause exceptions */
- 	ptr = (uint32_t *)prefix;
- 	WRITE_ONCE(ptr, 0);
-@@ -328,7 +328,7 @@ static void test_icpt_112(void)
- 
- 	/* Setup of the guest's state for 0x0 prefix */
- 	sie(&vm);
--	assert(pv_icptdata_check_diag(&vm, 0x44));
-+	assert(sie_is_diag_icpt(&vm, 0x44));
- 
- 	/* Test on standard 0x0 prefix */
- 	run_icpt_122_tests_prefix(0);
-@@ -348,7 +348,7 @@ static void test_icpt_112(void)
- 
- 	/* Try a re-entry after everything has been imported again */
- 	sie(&vm);
--	report(pv_icptdata_check_diag(&vm, 0x9c) &&
-+	report(sie_is_diag_icpt(&vm, 0x9c) &&
- 	       vm.save_area.guest.grs[0] == 42,
- 	       "re-entry successful");
- 	report_prefix_pop();
-diff --git a/s390x/pv-ipl.c b/s390x/pv-ipl.c
-index cc46e7f7..61a1e0c0 100644
---- a/s390x/pv-ipl.c
-+++ b/s390x/pv-ipl.c
-@@ -11,7 +11,7 @@
- #include <sie.h>
- #include <sclp.h>
- #include <snippet.h>
--#include <pv_icptdata.h>
-+#include <sie-icpt.h>
- #include <asm/facility.h>
- #include <asm/uv.h>
- 
-@@ -35,7 +35,7 @@ static void test_diag_308(int subcode)
- 
- 	/* First exit is a diag 0x500 */
- 	sie(&vm);
--	assert(pv_icptdata_check_diag(&vm, 0x500));
-+	assert(sie_is_diag_icpt(&vm, 0x500));
- 
- 	/*
- 	 * The snippet asked us for the subcode and we answer by
-@@ -46,7 +46,7 @@ static void test_diag_308(int subcode)
- 
- 	/* Continue after diag 0x500, next icpt should be the 0x308 */
- 	sie(&vm);
--	assert(pv_icptdata_check_diag(&vm, 0x308));
-+	assert(sie_is_diag_icpt(&vm, 0x308));
- 	assert(vm.save_area.guest.grs[2] == subcode);
- 
- 	/*
-@@ -118,7 +118,7 @@ static void test_diag_308(int subcode)
- 	 * see a diagnose 0x9c PV instruction notification.
- 	 */
- 	sie(&vm);
--	report(pv_icptdata_check_diag(&vm, 0x9c) &&
-+	report(sie_is_diag_icpt(&vm, 0x9c) &&
- 	       vm.save_area.guest.grs[0] == 42,
- 	       "continue after load");
- 
+-static inline void force_exit(void)
+-{
+-	asm volatile("diag	0,0,0x44\n"
+-		     :
+-		     :
+-		     : "memory"
+-	);
+-}
+-
+-static inline void force_exit_value(uint64_t val)
+-{
+-	asm volatile("diag	%[val],0,0x9c\n"
+-		     :
+-		     : [val] "d"(val)
+-		     : "memory"
+-	);
+-}
+-
+ int main(void)
+ {
+ 	uint8_t *invalid_ptr;
 -- 
 2.44.0
 
