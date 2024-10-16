@@ -1,66 +1,66 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBEE2209687
-	for <linux-s390@vger.kernel.org>; Wed, 16 Oct 2024 15:47:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C72B20E011
+	for <linux-s390@vger.kernel.org>; Wed, 16 Oct 2024 15:55:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729093667; cv=none; b=bPpx1LWoyZipl3F+FhtGulyWxpaHmNqFroJtUhop507BWxr+rKg9CBK0KP3bfBLuWcgSw26c+fsItmBKvfCaz+iHGt7G/SfVknZtLH3aBa95qjOK7CzN/Ebp1Vaizx20MVAWj/5AK9cpQ2aBhhqOYtfld03mjMkxNGBfjbdvVXA=
+	t=1729094105; cv=none; b=laMW11FOhqWEStQuBIofPxrmrZ5jfZPBaYZxDKl5QFLutSGViW0rZTLXArWwHNdI9cTq+GsGG3EN/+U0eoXnv6Fkc+QlTELdSWfPmGqzjfbXd7U9+p3y7pK1jPDVlzEw1JK7fZn6z50blUWCQHydDrvDQK1xOrAUZ06E1N0B6hk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729093667; c=relaxed/simple;
-	bh=bWT0jZQi2gTGU5Bd8og0Hyl0LagtMrLPaQKxohyIPwA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qlMfaGWCFaQQLLt2Sst6tC4a4wl0iFG/3vWQo8CSNTXyRHq6J00R6OP/fqk7XTnrFpgraJthPVClMKcxNbMe0Piy4tu52EmFu8iDgfErOBUlQx6y9iowfOjiimES1T1GGDSZ4KHhma3IYoluYRmGKnaMzBbY6ufBbq+Au8S82z8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MHQ+wqha; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1729094105; c=relaxed/simple;
+	bh=qYl2Sy0hY1O7mS4Yywghy4Pbib9+2/q8/iAS6YXwtjw=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=JU63y5sjAT4nwgR4icXqh1SpCoQD5gJDffSOFkmX/u3seFMI/vDESNczPlO9zutCAOzAnVp/tp0Tc5XWA0XX5emcL34SkE8YVifNbS233HyOfInJ2srkCmvvTogiCdxVgEEggoDk9CIqx7kchGkD0zBJliSeh9KhK1urBLapAbk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Pawzloib; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MHQ+wqha"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pawzloib"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729093664;
+	s=mimecast20190719; t=1729094102;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=VIzfBQnPXM1p+cHUAfPvEKZFWEw7tRlCE5XfNpemY2E=;
-	b=MHQ+wqharG9EKXvpNnBfdKH5Fn4ou5M1g+3t8bG/t77TsKlAGzYfsrBdWrFwLFQI8o+iA4
-	solD9CSiFyzNaq8htBIwIGTLIsfOIt2R9n3uOveWB87JAl3vMcGm/tBZVQLOTC3LQ0wP8S
-	tffFQJBCccqF15I+GEnLcUoZ2CS+VUY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=48P55mGkCCxQ03xjhgzSLSsbrSXDZPkk4TcShvxlXM8=;
+	b=PawzloibEchqWsf88lDRJrxPiJ/wCbmaBNzWfNbaOM9+sC1b5+ZCDII/rmQOwRauNVBHIR
+	7A8oYDjywRPn1HfkWzqtXlwpBqyH+fBm7MZrfmuM1EUaB2lF/IiLXIpAgUPHDKXLoNMeXS
+	K8HQhLRa52LA92hEMSRidTX4bD4eenw=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-355-Z22e8XD6MUqmIIUezzFZiw-1; Wed, 16 Oct 2024 11:47:43 -0400
-X-MC-Unique: Z22e8XD6MUqmIIUezzFZiw-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43157e3521dso752475e9.1
-        for <linux-s390@vger.kernel.org>; Wed, 16 Oct 2024 08:47:43 -0700 (PDT)
+ us-mta-611-MHdlFP2gO46W4IO9EAfpmQ-1; Wed, 16 Oct 2024 11:55:01 -0400
+X-MC-Unique: MHdlFP2gO46W4IO9EAfpmQ-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-37d45f1e935so2091857f8f.0
+        for <linux-s390@vger.kernel.org>; Wed, 16 Oct 2024 08:55:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729093662; x=1729698462;
+        d=1e100.net; s=20230601; t=1729094100; x=1729698900;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
+         :content-language:references:cc:to:from:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=VIzfBQnPXM1p+cHUAfPvEKZFWEw7tRlCE5XfNpemY2E=;
-        b=Ok/Do6fDnFfne0vq7lidJK8D0pJEyLVigYCPN1vm/e8ORXgbehnNCwjzBr0MxfSocH
-         rjxBJdXZCyIblj7Akdgd73yVr+hKGmsonZh3B7XdiUYzMF7jx1iLKSdNWBAtfDpL3KZ9
-         h9m8MoLtK0VSDFaE1/345npFOK8Mw2INatIpxn8STrpaiq7OPEXsmY7CSK1xY26kl7Ld
-         /MiOCLzHPNFZzhnCBGWufKBmyB4d1rbOJLrWPjosHCFdBaERhBkv1CkOn/oQHdVUY25Z
-         N8t/IMq6iKxrL+N4EhP4S6fwDms4Omf+cSjRolOYJGwG1P6ngKed6tqxt2a6l5mtF7kp
-         8SPA==
-X-Forwarded-Encrypted: i=1; AJvYcCUvMtfZyqToBW2VCsyGzA3qVtNi1FG7oj1BAnBfg+qC+YEbbc/zRy3lGofnEaBcNXWYRIjzqOsfpRsm@vger.kernel.org
-X-Gm-Message-State: AOJu0YwzeVqbBDTU7jRAYNvbluquS/ArpYv4GBxJ+Q4eXy7xPXillZeO
-	OUse9JFJYCFOKplvsf+QadS7hodtRyYiLV09Yu++j6vx/ar6k/sDYf7bMcwOKOh3eE8rlVz1HYh
-	7KMm3m62/FmL8TsqC0Q1+NhiL4DMQKqvW7FLMgbIj+r1Xh7srf8eJ3tePE8U=
-X-Received: by 2002:a05:600c:4711:b0:430:54a4:5b02 with SMTP id 5b1f17b1804b1-43125619e8fmr121331175e9.34.1729093662300;
-        Wed, 16 Oct 2024 08:47:42 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH/bW0hLobbLXjaDGKyq9Ar43ysgaBvBnKudmwOIGvXULooHv87b61qCzy2T1b+NaF7gXinDw==
-X-Received: by 2002:a05:600c:4711:b0:430:54a4:5b02 with SMTP id 5b1f17b1804b1-43125619e8fmr121330835e9.34.1729093661825;
-        Wed, 16 Oct 2024 08:47:41 -0700 (PDT)
+        bh=48P55mGkCCxQ03xjhgzSLSsbrSXDZPkk4TcShvxlXM8=;
+        b=q+uiTPyQsoy08zv0RldyaEO8F/6vLE/T22fWvJJVbrvYY8gPud2AAUBF39bph4R6r+
+         IfhZ5WXisdsu4iGG0Zd3IFY2AqsTFzOllrv8COLmuc1MW7iwvSzcsWKu7fbGMykK9jza
+         rEaNy0ucWPfKjB6vIAIRmdbDsOae4lbvk6TlXN4JKLG2RIbazg0uOfRPRJkeAxEamf3U
+         0CvRHEwtI0YthNbsy+79dlRv9bBBuf8cyvrGT6cPtPMA0+cibcuB3Grh+2l0HndIiTxK
+         fz1zgTTwfiLiO5f5WCQPlMpelMm00h8uiNKb2bSxwLTY9SnUvnkC7nkj9i8FWDQ2r2Br
+         UnDg==
+X-Forwarded-Encrypted: i=1; AJvYcCV/eQbquOwMIEhDG9LAmzhLOWq7RcS0GKEhz/tNLnLYYckqgwWj9XsPdHF9hShy3c6zUKm+96O309Ge@vger.kernel.org
+X-Gm-Message-State: AOJu0YwyZ4NOzNTaltuaAmMFbYDKCISrysEJTcHvVv040nyzlHMpapVN
+	m/WdKPYQwxptfRO5OV/Y6WLvYQjcIUUNusdDWy7pXDFnqyORc8BR9Y2E9ewzNmXTCzigBXpkZP4
+	CF5JCE6Jm+yTDd/IPZkMKfzPe95j7Sh3iWjxi0XVV7ehGgnXTgjHnC9Yl9+A=
+X-Received: by 2002:a05:6000:10c1:b0:37d:4a68:61a1 with SMTP id ffacd0b85a97d-37d601cd19amr10687163f8f.56.1729094100044;
+        Wed, 16 Oct 2024 08:55:00 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFQtbfVTBZ5NkmWo/03oyq9JfbDyRlPhDr0wCs2j6/mCMXk6wnjrnWGYEMTUmZ0bShmT8bRQQ==
+X-Received: by 2002:a05:6000:10c1:b0:37d:4a68:61a1 with SMTP id ffacd0b85a97d-37d601cd19amr10687102f8f.56.1729094098224;
+        Wed, 16 Oct 2024 08:54:58 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c74b:d000:3a9:de5c:9ae6:ccb3? (p200300cbc74bd00003a9de5c9ae6ccb3.dip0.t-ipconnect.de. [2003:cb:c74b:d000:3a9:de5c:9ae6:ccb3])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4315069032asm25144845e9.0.2024.10.16.08.47.40
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37d7fa7a04asm4651030f8f.8.2024.10.16.08.54.56
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 16 Oct 2024 08:47:41 -0700 (PDT)
-Message-ID: <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
-Date: Wed, 16 Oct 2024 17:47:39 +0200
+        Wed, 16 Oct 2024 08:54:57 -0700 (PDT)
+Message-ID: <87956f31-472d-4091-8061-1e55fea7a3d7@redhat.com>
+Date: Wed, 16 Oct 2024 17:54:56 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,6 +69,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
+From: David Hildenbrand <david@redhat.com>
 To: Alexander Egorenkov <egorenar@linux.ibm.com>
 Cc: agordeev@linux.ibm.com, akpm@linux-foundation.org,
  borntraeger@linux.ibm.com, cohuck@redhat.com, corbet@lwn.net,
@@ -80,7 +81,7 @@ Cc: agordeev@linux.ibm.com, akpm@linux-foundation.org,
  svens@linux.ibm.com, thuth@redhat.com, virtualization@lists.linux.dev,
  xuanzhuo@linux.alibaba.com, zaslonko@linux.ibm.com
 References: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
-From: David Hildenbrand <david@redhat.com>
+ <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -127,103 +128,216 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+In-Reply-To: <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
+On 16.10.24 17:47, David Hildenbrand wrote:
+>>>
+>>> When I wrote that code I was rather convinced that the variant in this patch
+>>> is the right thing to do.
 >>
->> When I wrote that code I was rather convinced that the variant in this patch
->> is the right thing to do.
+>> A short explanation about what a stand-alone kdump is.
+>>
+>> * First, it's not really a _regular_ kdump activated with kexec-tools and
+>>     executed by Linux itself but a regular stand-alone dump (SCSI) from the
+>>     FW's perspective (one has to use HMC or dumpconf to execute it and not
+>>     with kexec-tools like for the _regular_ kdump).
 > 
-> A short explanation about what a stand-alone kdump is.
+> Ah, that makes sense.
 > 
-> * First, it's not really a _regular_ kdump activated with kexec-tools and
->    executed by Linux itself but a regular stand-alone dump (SCSI) from the
->    FW's perspective (one has to use HMC or dumpconf to execute it and not
->    with kexec-tools like for the _regular_ kdump).
-
-Ah, that makes sense.
-
-> * One has to reserve crashkernel memory region in the old crashed kernel
->    even if it remains unused until the dump starts.
-> * zipl uses regular kdump kernel and initramfs to create stand-alone
->    dumper images and to write them to a dump disk which is used for
->    IPLIng the stand-alone dumper.
-> * The zipl bootloader takes care of transferring the old kernel memory
->    saved in HSA by the FW to the crashkernel memory region reserved by the old
->    crashed kernel before it enters the dumper. The HSA memory is released
->    by the zipl bootloader _before_ the dumper image is entered,
->    therefore, we cannot use HSA to read old kernel memory, and instead
->    use memory from crashkernel region, just like the regular kdump.
-> * is_ipl_type_dump() will be true for a stand-alone kdump because we IPL
->    the dumper like a regular stand-alone dump (e.g. zfcpdump).
-> * Summarized, zipl bootloader prepares an environment which is expected by
->    the regular kdump for a stand-alone kdump dumper before it is entered.
-
-Thanks for the details!
-
+>> * One has to reserve crashkernel memory region in the old crashed kernel
+>>     even if it remains unused until the dump starts.
+>> * zipl uses regular kdump kernel and initramfs to create stand-alone
+>>     dumper images and to write them to a dump disk which is used for
+>>     IPLIng the stand-alone dumper.
+>> * The zipl bootloader takes care of transferring the old kernel memory
+>>     saved in HSA by the FW to the crashkernel memory region reserved by the old
+>>     crashed kernel before it enters the dumper. The HSA memory is released
+>>     by the zipl bootloader _before_ the dumper image is entered,
+>>     therefore, we cannot use HSA to read old kernel memory, and instead
+>>     use memory from crashkernel region, just like the regular kdump.
+>> * is_ipl_type_dump() will be true for a stand-alone kdump because we IPL
+>>     the dumper like a regular stand-alone dump (e.g. zfcpdump).
+>> * Summarized, zipl bootloader prepares an environment which is expected by
+>>     the regular kdump for a stand-alone kdump dumper before it is entered.
 > 
-> In my opinion, the correct version of is_kdump_kernel() would be
+> Thanks for the details!
+> 
+>>
+>> In my opinion, the correct version of is_kdump_kernel() would be
+>>
+>> bool is_kdump_kernel(void)
+>> {
+>>           return oldmem_data.start;
+>> }
+>>
+>> because Linux kernel doesn't differentiate between both the regular
+>> and the stand-alone kdump where it matters while performing dumper
+>> operations (e.g. reading saved old kernel memory from crashkernel memory region).
+>>
+> 
+> Right, but if we consider "/proc/vmcore is available", a better version
+> would IMHO be:
 > 
 > bool is_kdump_kernel(void)
 > {
->          return oldmem_data.start;
+>             return dump_available();
 > }
 > 
-> because Linux kernel doesn't differentiate between both the regular
-> and the stand-alone kdump where it matters while performing dumper
-> operations (e.g. reading saved old kernel memory from crashkernel memory region).
+> Because that is mostly (not completely) how is_kdump_kernel() would have
+> worked right now *after* we had the elfcorehdr_alloc() during the
+> fs_init call.
+> 
+> 
+>> Furthermore, if i'm not mistaken then the purpose of is_kdump_kernel()
+>> is to tell us whether Linux kernel runs in a kdump like environment and not
+>> whether the current mode is identical to the proper and true kdump,
+>> right ? And if stand-alone kdump swims like a duck, quacks like one, then it
+>> is one, regardless how it was started, by kexecing or IPLing
+>> from a disk.
+> 
+> Same thinking here.
+> 
+>>
+>> The stand-alone kdump has a very special use case which most users will
+>> never encounter. And usually, one just takes zfcpdump instead which is
+>> more robust and much smaller considering how big kdump initrd can get.
+>> stand-alone kdump dumper images cannot exceed HSA memory limit on a Z machine.
+> 
+> Makes sense, so it boils down to either
+> 
+> bool is_kdump_kernel(void)
+> {
+>            return oldmem_data.start;
+> }
+> 
+> Which means is_kdump_kernel() can be "false" even though /proc/vmcore is
+> available or
+> 
+> bool is_kdump_kernel(void)
+> {
+>            return dump_available();
+> }
+> 
+> Which means is_kdump_kernel() can never be "false" if /proc/vmcore is
+> available. There is the chance of is_kdump_kernel() being "true" if
+> "elfcorehdr_alloc()" fails with -ENODEV.
+> 
+> 
+> You're call :) Thanks!
 > 
 
-Right, but if we consider "/proc/vmcore is available", a better version 
-would IMHO be:
-
-bool is_kdump_kernel(void)
-{
-           return dump_available();
-}
-
-Because that is mostly (not completely) how is_kdump_kernel() would have 
-worked right now *after* we had the elfcorehdr_alloc() during the 
-fs_init call.
+What I think we should do is the following (improved comment + patch
+description), but I'll do whatever you think is better:
 
 
-> Furthermore, if i'm not mistaken then the purpose of is_kdump_kernel()
-> is to tell us whether Linux kernel runs in a kdump like environment and not
-> whether the current mode is identical to the proper and true kdump,
-> right ? And if stand-alone kdump swims like a duck, quacks like one, then it
-> is one, regardless how it was started, by kexecing or IPLing
-> from a disk.
+ From e86194b5195c743eff33f563796b9c725fecc65f Mon Sep 17 00:00:00 2001
+From: David Hildenbrand <david@redhat.com>
+Date: Wed, 4 Sep 2024 14:57:10 +0200
+Subject: [PATCH] s390/kdump: provide custom is_kdump_kernel()
 
-Same thinking here.
+s390 currently always results in is_kdump_kernel() == false until
+vmcore_init()->elfcorehdr_alloc() ran, because it sets
+"elfcorehdr_addr = ELFCORE_ADDR_MAX;" early during setup_arch to deactivate
+any elfcorehdr= kernel parameter.
 
-> 
-> The stand-alone kdump has a very special use case which most users will
-> never encounter. And usually, one just takes zfcpdump instead which is
-> more robust and much smaller considering how big kdump initrd can get.
-> stand-alone kdump dumper images cannot exceed HSA memory limit on a Z machine.
+Let's follow the powerpc example and implement our own logic. Let's use
+"dump_available()", because this is mostly (with one exception when
+elfcorehdr_alloc() fails with -ENODEV) when we would create /proc/vmcore
+and when is_kdump_kernel() would have returned "true" after
+vmcore_init().
 
-Makes sense, so it boils down to either
+This is required for virtio-mem to reliably identify a kdump
+environment before vmcore_init() was called to not try hotplugging memory.
 
-bool is_kdump_kernel(void)
-{
-          return oldmem_data.start;
-}
+Update the documentation above dump_available().
 
-Which means is_kdump_kernel() can be "false" even though /proc/vmcore is 
-available or
+Tested-by: Mario Casquero <mcasquer@redhat.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+  arch/s390/include/asm/kexec.h |  4 ++++
+  arch/s390/kernel/crash_dump.c |  6 ++++++
+  arch/s390/kernel/smp.c        | 16 ++++++++--------
+  3 files changed, 18 insertions(+), 8 deletions(-)
 
-bool is_kdump_kernel(void)
-{
-          return dump_available();
-}
+diff --git a/arch/s390/include/asm/kexec.h b/arch/s390/include/asm/kexec.h
+index 1bd08eb56d5f..bd20543515f5 100644
+--- a/arch/s390/include/asm/kexec.h
++++ b/arch/s390/include/asm/kexec.h
+@@ -94,6 +94,9 @@ void arch_kexec_protect_crashkres(void);
+  
+  void arch_kexec_unprotect_crashkres(void);
+  #define arch_kexec_unprotect_crashkres arch_kexec_unprotect_crashkres
++
++bool is_kdump_kernel(void);
++#define is_kdump_kernel is_kdump_kernel
+  #endif
+  
+  #ifdef CONFIG_KEXEC_FILE
+@@ -107,4 +110,5 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
+  int arch_kimage_file_post_load_cleanup(struct kimage *image);
+  #define arch_kimage_file_post_load_cleanup arch_kimage_file_post_load_cleanup
+  #endif
++
+  #endif /*_S390_KEXEC_H */
+diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+index 51313ed7e617..43bbaf534dd2 100644
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -237,6 +237,12 @@ int remap_oldmem_pfn_range(struct vm_area_struct *vma, unsigned long from,
+  						       prot);
+  }
+  
++bool is_kdump_kernel(void)
++{
++	return dump_available();
++}
++EXPORT_SYMBOL_GPL(is_kdump_kernel);
++
+  static const char *nt_name(Elf64_Word type)
+  {
+  	const char *name = "LINUX";
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 4df56fdb2488..bd41e35a27a0 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -574,7 +574,7 @@ int smp_store_status(int cpu)
+  
+  /*
+   * Collect CPU state of the previous, crashed system.
+- * There are four cases:
++ * There are three cases:
+   * 1) standard zfcp/nvme dump
+   *    condition: OLDMEM_BASE == NULL && is_ipl_type_dump() == true
+   *    The state for all CPUs except the boot CPU needs to be collected
+@@ -587,16 +587,16 @@ int smp_store_status(int cpu)
+   *    with sigp stop-and-store-status. The firmware or the boot-loader
+   *    stored the registers of the boot CPU in the absolute lowcore in the
+   *    memory of the old system.
+- * 3) kdump and the old kernel did not store the CPU state,
+- *    or stand-alone kdump for DASD
+- *    condition: OLDMEM_BASE != NULL && !is_kdump_kernel()
++ * 3) kdump or stand-alone kdump for DASD
++ *    condition: OLDMEM_BASE != NULL && !is_ipl_type_dump() == false
+   *    The state for all CPUs except the boot CPU needs to be collected
+   *    with sigp stop-and-store-status. The kexec code or the boot-loader
+   *    stored the registers of the boot CPU in the memory of the old system.
+- * 4) kdump and the old kernel stored the CPU state
+- *    condition: OLDMEM_BASE != NULL && is_kdump_kernel()
+- *    This case does not exist for s390 anymore, setup_arch explicitly
+- *    deactivates the elfcorehdr= kernel parameter
++ *
++ * Note that the old kdump mode where the old kernel stored the CPU state
++ * does no longer exist: setup_arch explicitly deactivates the elfcorehdr=
++ * kernel parameter. The is_kdump_kernel() implementation on s390 is independent
++ * of the elfcorehdr= parameter, and is purely based on dump_available().
+   */
+  static bool dump_available(void)
+  {
+-- 
+2.46.1
 
-Which means is_kdump_kernel() can never be "false" if /proc/vmcore is 
-available. There is the chance of is_kdump_kernel() being "true" if 
-"elfcorehdr_alloc()" fails with -ENODEV.
-
-
-You're call :) Thanks!
 
 -- 
 Cheers,
