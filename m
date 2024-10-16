@@ -1,81 +1,94 @@
-Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E17C28EA;
-	Wed, 16 Oct 2024 00:03:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.171.184.29
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38769B641;
+	Wed, 16 Oct 2024 00:25:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729036990; cv=none; b=jmx41DODyRHjvF3TZ943ZrZXKvPOVXaA7vBcwTS1xHHcJ+GIG9iejxx4B+7t7YQwOyuZnXEJbY5YhnPDuk5NLjDWFntlFNehfv2pn4zdj96hbpbiQk+rozjT/Pv1WVxNv+zxRyDScZFd68CM2P4yOB8wZ5kquwEpZveeCutWiHk=
+	t=1729038337; cv=none; b=OyyS0jny9h163fHEECpTZottJEofY3r1c0uMmaURN2hbCIsDbIkUucOauBR5jjDKenvg6e9RnnJ2z0Lo8Ns9UvYl8de0r9XRb5l3a0whfyoe+4PJM9KaP5BwlcG5va5uZ2+a0MTLnbaa9UEse1eYRj0UpHPPLKU1aGA6senaUsY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729036990; c=relaxed/simple;
-	bh=EsQUlY0iIVqr49EUFFG3JKe16MmGbUs8PhKtWDaafzI=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=e/u15PSmjO/A6xRYQ8+1anKjfxgiTAJoGRIF1nmyIY0zo4LgGVZ5a9p1BGwKv2UDSGaOE5psug8OVx5zvTl2B3Jj5aivEYZPer1IhgcBZdSU2Q/WovEVluGrPrpwBznoK08uq3Zcvr8mfRVbSfsk1O+kHr3gPdEGMWotETgCQRs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=q0G8FTHO; arc=none smtp.client-ip=207.171.184.29
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
+	s=arc-20240116; t=1729038337; c=relaxed/simple;
+	bh=rqIZtvXctmAYJMrBZLyNIeQUeCbHnZJe1GvXXllvP6Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=M9YT5cAxOrrs+F0vklNHPAFa/ifXVO5n+KATj2QGna/+HL/w7hd1B0BM8yRvY8uusKE17ROYrrGvyTPvvZprMpINsjej4YkmMAnVhbgvtwOYGolYTkdOg3bBXiw5mbJXMeLlh5wPwS2CIKM5SZ73PfMrcX1qfWcg+S/OR9jHH7A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U6FO8NLO; arc=none smtp.client-ip=209.85.128.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="q0G8FTHO"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U6FO8NLO"
+Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-6e39bf12830so2974507b3.1;
+        Tue, 15 Oct 2024 17:25:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1729036989; x=1760572989;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=4E+/Rqgrgl4WKr4CdpxCbdJJMyhPANBPQnK9tayaHNI=;
-  b=q0G8FTHOHeVVC+spUGv9ZPqHz1JzGBd5KgEWnZoTwwLERNUlK8GufsOE
-   YCQx3uioIBt9YA4azYzi+SZd8OKmnMSEIGdSEnW25dlyn4XppOPru+u09
-   udNU183jIBpIR4wuWIidUIjJDvtQtr3bF22+lpKAq6KG1TUOtlx6dLz9M
-   w=;
-X-IronPort-AV: E=Sophos;i="6.11,206,1725321600"; 
-   d="scan'208";a="461102459"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.214])
-  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Oct 2024 00:03:08 +0000
-Received: from EX19MTAUWC001.ant.amazon.com [10.0.7.35:12286]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.38.26:2525] with esmtp (Farcaster)
- id aa6e0dc7-036c-4370-99d9-a7c022c5ce00; Wed, 16 Oct 2024 00:03:08 +0000 (UTC)
-X-Farcaster-Flow-ID: aa6e0dc7-036c-4370-99d9-a7c022c5ce00
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX19MTAUWC001.ant.amazon.com (10.250.64.174) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.34;
- Wed, 16 Oct 2024 00:03:07 +0000
-Received: from 6c7e67c6786f.amazon.com (10.106.100.36) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.35;
- Wed, 16 Oct 2024 00:03:04 +0000
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-To: <danielyangkang@gmail.com>
-CC: <alibuda@linux.alibaba.com>, <davem@davemloft.net>, <edumazet@google.com>,
-	<guwen@linux.alibaba.com>, <jaka@linux.ibm.com>, <kuba@kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<netdev@vger.kernel.org>, <pabeni@redhat.com>,
-	<syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com>,
-	<tonylu@linux.alibaba.com>, <wenjia@linux.ibm.com>
-Subject: Re: [PATCH v3 2/2 RESEND] resolve gtp possible deadlock warning
-Date: Tue, 15 Oct 2024 17:03:00 -0700
-Message-ID: <20241016000300.70582-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.39.5 (Apple Git-154)
-In-Reply-To: <c2ac8e30806af319eb96f67103196b7cda22d562.1729031472.git.danielyangkang@gmail.com>
-References: <c2ac8e30806af319eb96f67103196b7cda22d562.1729031472.git.danielyangkang@gmail.com>
+        d=gmail.com; s=20230601; t=1729038335; x=1729643135; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rqIZtvXctmAYJMrBZLyNIeQUeCbHnZJe1GvXXllvP6Q=;
+        b=U6FO8NLON+ndkAhm1i6v9r8ptXhTnesF4HzquvX4OQpzq1fme3bnty61PZ5culI8cN
+         4xJz9ZW9q/j9yVM1aLceFVbBDytHYf9KSQBik5gZRwApeJ6pPJuMcbwh/lBUTgu2EynS
+         SjgPTikVOyRRIakc9GfZOv/B1s8lKBjbn6mHmyK9hJhDVunslHHO+sMxHPaqqJ1z2Vs1
+         AepTBjIpEfwp5+Zld/Q6EuI5Zj3iJnLj+Sg1A7qFlgmPZXOnpnJHgYWmV5HpGQuGlRb9
+         FRq+5/IPQxHVa63++13gapWkP0wdJcg1zKIYPKXU+tm+oi0s/7FVcr/gpgO1KSpTX31h
+         qOcg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1729038335; x=1729643135;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=rqIZtvXctmAYJMrBZLyNIeQUeCbHnZJe1GvXXllvP6Q=;
+        b=TBAM7kDfUg5GaPhWYyfI6DFjdkymr10iUOZ4I/K8if2RdQye3CU2gLow5QhXAu9siF
+         uuAw0nnag7ieUTVwDULRtJZeKQqzECHWA1Rl29uAZzI4SMe6zkX+7t44q/rAEUjsM81C
+         4cWW/ZKb0t71/v6/Xm3phiGnkx7x4G62uV9Qk1V8rV1odRvr+QeJFr1AbkNRnWE4eN7r
+         j3BdHANXNzFThiBj1emgkQlUP40Pq6YMlW70IP4R7mmoGuqWNBxwSeLI71THhwCYx6JE
+         ARIPkcaIFxXLuDcw+jA7a1r58LJvt/BuQssQqgMIG5oS/N5YQD0QErg4ld8Dn2GYh5pd
+         sizQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVQ3OMD+coe1gI8j68B+AhD3jGfBePO6REkrMjfVLBTWjae07D7zr8GiEgjLp4qOnOAnbuzy6rI@vger.kernel.org, AJvYcCWOF7wEEqNZhO/TmJCzYI+8/s8+ekl7Y1D2DBagAHIXTj0OUvHFC2usoJDYuXI39RqkTmkXUp4i8APujQ==@vger.kernel.org, AJvYcCX+27pX3csaky6Z1TK2G4l5Y2/cJWRd5JKv+z3MsEDUBGvhs1glWb9T1PcZZkpYgM0O3/r9hAcvn/4rP3k=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyZItJpTOvy+WfNan67krZ+/XKLrGJmgcy0VeLL2bWKfgkBrNKT
+	C8bcFT8O/eKJhZ7LRNYxJNeDbgMs88nZlGEsZjylueJEK6JnAdexvk2KxDmZ/fmihbpoaTMw5lt
+	qQ2HJv8JLf+WatZ6xugPEMbkPcIM=
+X-Google-Smtp-Source: AGHT+IFbgbPgSKYpuAnLjCIsvyOx18JpQUlHFxXiepXTjGj/OtGqmS8xC4iu66gAWy6OuCHlutJVn4fGqGobMz7ycHI=
+X-Received: by 2002:a05:690c:281:b0:6e3:2dec:6b01 with SMTP id
+ 00721157ae682-6e3d34ee42cmr22082977b3.4.1729038335194; Tue, 15 Oct 2024
+ 17:25:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D036UWB004.ant.amazon.com (10.13.139.170) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
-
+References: <c2ac8e30806af319eb96f67103196b7cda22d562.1729031472.git.danielyangkang@gmail.com>
+ <20241016000300.70582-1-kuniyu@amazon.com>
+In-Reply-To: <20241016000300.70582-1-kuniyu@amazon.com>
 From: Daniel Yang <danielyangkang@gmail.com>
-Date: Tue, 15 Oct 2024 15:48:05 -0700
+Date: Tue, 15 Oct 2024 17:24:59 -0700
+Message-ID: <CAGiJo8Qo-uZZLLyRsq+BKfcxgcpA7B5agOzSkO5czHv6aHLStw@mail.gmail.com>
+Subject: Re: [PATCH v3 2/2 RESEND] resolve gtp possible deadlock warning
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: alibuda@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, 
+	guwen@linux.alibaba.com, jaka@linux.ibm.com, kuba@kernel.org, 
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	netdev@vger.kernel.org, pabeni@redhat.com, 
+	syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com, 
+	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Oct 15, 2024 at 5:03=E2=80=AFPM Kuniyuki Iwashima <kuniyu@amazon.co=
+m> wrote:
+>
 > From: Daniel Yang <danielyangkang@gmail.com>
-> 
-> Moved lockdep annotation to separate function for readability.
-> 
-> Signed-off-by: Daniel Yang <danielyangkang@gmail.com>
-> Reported-by: syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
+> Date: Tue, 15 Oct 2024 15:48:05 -0700
+> > From: Daniel Yang <danielyangkang@gmail.com>
+> >
+> > Moved lockdep annotation to separate function for readability.
+> >
+> > Signed-off-by: Daniel Yang <danielyangkang@gmail.com>
+> > Reported-by: syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
+>
+> This tag is bogus, why not squash to patch 1 ?
+>
+> Also, patch 1 needs Fixes: tag.
 
-This tag is bogus, why not squash to patch 1 ?
-
-Also, patch 1 needs Fixes: tag.
+I wanted to split them up since D. Wythe suggested the fix when I was
+having trouble finding where the packets were being created so I
+wanted to give credit.
