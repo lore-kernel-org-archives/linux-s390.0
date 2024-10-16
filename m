@@ -1,88 +1,112 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74F7F157A41;
-	Wed, 16 Oct 2024 03:38:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C921918B481;
+	Wed, 16 Oct 2024 05:20:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729049914; cv=none; b=BOg/gRdsk4GLMhvW2qR50qWRKSS0Wvkd/URLBkt5L76NArfPyULDTcfpTz5rZtKcafKZz1QuOkbLUHxKF5h48Fc3TKUKPQvxadMuOg9Ahcb3lvYFpmVs8IfeSpcbzgIEfIhZ7VjPa2QgKVTmv1N1OB/1jgCJw6dH5l3z4KxNJIU=
+	t=1729056045; cv=none; b=DZ/LiCyZtk/Wcb8Ub4HL9US6DvU761Ad6EZmM+YURZqwwILemM6aPYkYMyf7JqyA/yMa1RcYlwMDGvtj2aW1q31shokqJw4QBzZSV9c9dBFn7X4Pno9V9g1j0/WDrCaHRl2fPZSOtYnNkJ6VZedylMP4M4gH/K5OwbNzKxqZKgI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729049914; c=relaxed/simple;
-	bh=IiwQTOReGpHpyc57pvtjEfBBpq/82DCVCZB2+aVwLdo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FmFIIoy4YIcQERG+UfXf7Wz4TmNnXc91BXGzDzg7W9qRwexEGozAtM41j1XQEx0Qt23Or2AaveCsT7ZhlCNoKrQ3wAbOUsFgYZ7orqI7ZeNOXdP5smAkgkBfnlW8fBU/CdbzLHYqRQFlIyVPJv7C/hLeSrfmF3qjtmpYHWCC1Qc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aSWt+MhC; arc=none smtp.client-ip=209.85.216.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1729056045; c=relaxed/simple;
+	bh=kY9s7ieYNFRf5vd6rWLrxX3RydNTXVEAmhHE6BU8hOw=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=ChuGa9mzkYEo4nBysalsNKeCKgcP9q4gZoWRSSPIQ97djRqMQxhYbobwB21HjDWzQ9X4705OyYqtTkJy5RQusYW0tGCeGf5AU7SR7uGEF5ZF9Es2LNSpJZzaSksNxebSvAZk10l2hRaHUC+HE0GXgnHZXntDutvODr/FhvUE3eg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KNRC5j4E; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aSWt+MhC"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-2e2ed59a35eso4541182a91.0;
-        Tue, 15 Oct 2024 20:38:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1729049913; x=1729654713; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=YOVrKg3W/lMlewNmiQ2TbyPettlnm3jdFbJlR9Wuzis=;
-        b=aSWt+MhCTgL6gSM7aaA3pChsAp0I3xOz3LvjV2iqhchJeaEjqHBpmEjb3UW8WesN8n
-         y9H3YCMnvh2IE2BTuORQJHnd6sg2For8tYpo0YwDIWoYxC5agnm61uWd9sAic8ZRlP+T
-         T2w9exAVimTzKkyQtNg4hUHIHuyAlGyJFfGPHttxyh7WUO01UdxkqLjtGPgcYYDsrz/E
-         lbcefe8QL9E3Tor1tHZG5jhTEf85lkGNqvxAbPCsCv6C/eqqTWn8/nfTWbPC2Pl0qzUc
-         sTBWYdokdMs3x+0dit2mFvVqKkvp8NSGYdancnYyseGp1FMImZNo86K5AUNxZkkgWyM1
-         +9Ug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729049913; x=1729654713;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YOVrKg3W/lMlewNmiQ2TbyPettlnm3jdFbJlR9Wuzis=;
-        b=M0PbqqcmEAAAOYMdPa+lKb6x9MKjB+zYuutVLoS1Rs58tvAtPtEdBf0fO33pHsro+5
-         1Wamdmhbp9CG5BQQQ7v5wg4PnwwSYWVWPvGvPYbcpUDsONQEqs5/cD4H0Gz/FAOUlBvK
-         vckW4Pc+8IijOdRW1IC3PG0GdqdliICnjEIEkcYvILbLBg7w55VJPgC3Iw8O6M+7loE7
-         NX+5Q+zWjrvbDngrzUETrxdl4lT40i0vNKLxangz25pNW4+jVBV8lwbmkhn19I6TV1Wr
-         XUj8IbfsoXkWSV4WCcTapg47j/crFnP30WJBY3xDX8WfHZBfGo7tZbyXjlvF2wtuk1L/
-         AxHw==
-X-Forwarded-Encrypted: i=1; AJvYcCWF6R4xpnODEr6idnxyrHl7KFyvgLoPK/ZRqFtehzFlCRUNhOqx/kD5Sunv6rQ/1z7kDIkcza6w@vger.kernel.org, AJvYcCWOfZZ3ZnKi2CFd/8eJYTZK3b6zxL4jmJvfddGYFTtC4qfCnpp+giRH2m6A6nT5b8UGUuC1ooz/c5o3rA==@vger.kernel.org, AJvYcCWT+cmq9BGdMsItcojo8xYULKvIcPPBO3NE2Zpyy5MVakQ20hYQVshNTdH03NBQwbXapE6fhgJfM4VBsmQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwK3PJvOMezCvMLw+ZL7/1c3hfwT9UBlPCVnip4kNMXXfGJkLUB
-	wEcROUUIGe+jR8/fyeVBYzX1ashc9yGwq3pqrOHMQRNnwk27K0+HPPzlmQ==
-X-Google-Smtp-Source: AGHT+IE3vnWlR7rGXqBZsgmkw8xrNg/Q9W20jINBB6XcWIz0wpEmNiY/PEfBGkaLCcIUlyXo+pNhCA==
-X-Received: by 2002:a17:90a:e7c4:b0:2e2:d82b:d144 with SMTP id 98e67ed59e1d1-2e3ab8e2885mr3170552a91.37.1729049912721;
-        Tue, 15 Oct 2024 20:38:32 -0700 (PDT)
-Received: from hoboy.vegasvil.org ([2600:1700:2430:6f6f:e2d5:5eff:fea5:802f])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2e392e8ce39sm2832641a91.12.2024.10.15.20.38.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Oct 2024 20:38:32 -0700 (PDT)
-Date: Tue, 15 Oct 2024 20:38:30 -0700
-From: Richard Cochran <richardcochran@gmail.com>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-	Yangbo Lu <yangbo.lu@nxp.com>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KNRC5j4E"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49G5FDnr012151;
+	Wed, 16 Oct 2024 05:20:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=93dRBASK2NX/nahhuRQA/0Vp278JrC
+	oL/iXOrYitZYw=; b=KNRC5j4Eux0ksx2ivs1VBB6Qq4jGgynlVzU50891JkkKfr
+	5e/KfQyhmFSJIxIM0JnPK7UAwGYnDnVw6jAiDSqiWzBRnQXbM08Z3Mg6QSMfm8hx
+	DjWWyopaFqI6AozMJ65yAbaoqJLivwLeZA1uAEKrO+WyMpVSFh+IT7FcqtdVDiHS
+	hOLobSnKfR4VT61S2zRWjsFcEZNRIf9lmfOiZZtqKvUoh/CueXSs4t1/8XrVtgku
+	XOyuZIw7wReaelRvbRkd7bR4Er+IPxeN3SLh+KWTJCcwQqgDE4/PVxjZdaPJEJmF
+	Q5bVWHiebCSrsbtGH9enXIqx3q9N+FKQXJ8jme6Q==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42a762r0gt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 16 Oct 2024 05:20:30 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49G5KT0R021873;
+	Wed, 16 Oct 2024 05:20:29 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42a762r0gq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 16 Oct 2024 05:20:29 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49G407VL004988;
+	Wed, 16 Oct 2024 05:20:28 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4285nj76ed-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 16 Oct 2024 05:20:28 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49G5KRdx55116116
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 16 Oct 2024 05:20:27 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8063420043;
+	Wed, 16 Oct 2024 05:20:24 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 607D120040;
+	Wed, 16 Oct 2024 05:20:24 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 16 Oct 2024 05:20:24 +0000 (GMT)
+From: Sven Schnelle <svens@linux.ibm.com>
+To: Richard Cochran <richardcochran@gmail.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, linux-s390@vger.kernel.org,
+        Yangbo Lu
+ <yangbo.lu@nxp.com>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 2/3] ptp: Add clock name to uevent
-Message-ID: <Zw81Nlx9OF-PveY0@hoboy.vegasvil.org>
+In-Reply-To: <Zw81Nlx9OF-PveY0@hoboy.vegasvil.org> (Richard Cochran's message
+	of "Tue, 15 Oct 2024 20:38:30 -0700")
 References: <20241015084728.1833876-1-svens@linux.ibm.com>
- <20241015084728.1833876-3-svens@linux.ibm.com>
- <c9c1c660-9278-426c-9290-b9b0cb76dcaf@lunn.ch>
+	<20241015084728.1833876-3-svens@linux.ibm.com>
+	<c9c1c660-9278-426c-9290-b9b0cb76dcaf@lunn.ch>
+	<Zw81Nlx9OF-PveY0@hoboy.vegasvil.org>
+Date: Wed, 16 Oct 2024 07:20:24 +0200
+Message-ID: <yt9dr08gfwtj.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c9c1c660-9278-426c-9290-b9b0cb76dcaf@lunn.ch>
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: IKpiQpf83eHtSz42-ABl1IBGWSOMLfov
+X-Proofpoint-ORIG-GUID: Zhwun_uNYFZouXgHlJPaKdU871Evb0Rw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=409 clxscore=1011 bulkscore=0 spamscore=0 priorityscore=1501
+ phishscore=0 malwarescore=0 adultscore=0 mlxscore=0 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410160031
 
-On Tue, Oct 15, 2024 at 02:43:28PM +0200, Andrew Lunn wrote:
->  * @name:      A short "friendly name" to identify the clock and to
->  *             help distinguish PHY based devices from MAC based ones.
->  *             The string is not meant to be a unique id.
-> 
-> If the name is not unique, you probably should not be using it for
-> udev naming.
+Richard Cochran <richardcochran@gmail.com> writes:
 
-+1
+> On Tue, Oct 15, 2024 at 02:43:28PM +0200, Andrew Lunn wrote:
+>>  * @name:      A short "friendly name" to identify the clock and to
+>>  *             help distinguish PHY based devices from MAC based ones.
+>>  *             The string is not meant to be a unique id.
+>> 
+>> If the name is not unique, you probably should not be using it for
+>> udev naming.
+>
+> +1
+>
+> Maybe the name is unique for s390, but it will not be in general.
 
-Maybe the name is unique for s390, but it will not be in general.
-
-Thanks,
-Richard
+As already written to Greg, i will drop this Patch. The name is unique,
+i was just not aware that the clock_name attribute is present in sysfs.
