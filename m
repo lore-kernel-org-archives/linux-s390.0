@@ -1,66 +1,66 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FD6E1D0BA7
-	for <linux-s390@vger.kernel.org>; Thu, 17 Oct 2024 10:01:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28A331DC18B
+	for <linux-s390@vger.kernel.org>; Thu, 17 Oct 2024 12:07:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729159265; cv=none; b=j1UvnndTVd90mpCgu3KXg70Kq+au9cpD5aKCR2G4IjuNsUpnca42Z5cNsVKFfHEgW700UysnL9mEv/OgcS6JeULZ6vF2KobYSSg4DZneszTo2poz4cJhWO3rRkZ6e12xo3zKLxZdGqEDvjXLcyKPKql7XbJ/hAQjdZVJVXKtWxw=
+	t=1729166839; cv=none; b=r+JwXBkNGpUdRzH0kUJAqAvZZGX2YK93xWhhgvFYcf/+nZSrmzdI1q/ya5KSriW8buePSojh0Kv23opczYmALWGPhLFPEbGnONnGSAwrEybNSxk9tmO82Vl5TN9/2S/TprhJpwuHGc+YgSQS/4+jx3av7w/AeSVNK/RHPXcolTY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729159265; c=relaxed/simple;
-	bh=VKBNhI+Ue429dozrCIKUPXiUij6uamodEC+N98AL0lo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nILvYzFwO7uF4uneOIePlKqV+nXmJNTWSEpikjnGOO5Un0UMZldX1c4nyLy5Ss+CuacnQX4K2QG4z0av25El4DcAR88qWmnwK7cipOLmmg8odGJewDcR0iydVFagR/vUps8/MQBYyuvvzO2qoy5dCsKP6A6Kg8YmQ1n5vn/YWLk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fkpcSU7J; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1729166839; c=relaxed/simple;
+	bh=dXb6XyiXk/+aUp3Pwekw1+a/Oqt07DIe4NaNC6mAOSs=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=dRT96gfnPiGqsud4AVVGAb507mTfSrYHUM5u1KJxuoXIu+Dh9euE5z5a5Je1O1bbnVgp35NFluFG4QSKO7DT5A+gE3gBmL8m7EtR3L6vKJT/YzIOd52sCfqzWm6tP/1W9Tcbd7umttSY7hSLhQWa0hqEMOI7iR0wO9nZXxS1sqU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Z7uSuvS4; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fkpcSU7J"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Z7uSuvS4"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729159263;
+	s=mimecast20190719; t=1729166837;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=MNXpYWC/snVv/RcQcy4Z6FTQ4rOQoP2EVP5TGZ+dUTk=;
-	b=fkpcSU7JR+MpaNzTFfldfCeXZ4Ytv22KwM9zjkS8Jt3GRjgv2i6+O4zVsY1xM3k8fKPSJv
-	bVEr/uL9lP17joeQu6gveFOitm36B55CF/k5O+uJeAvq63jF51c6NpHeDdtz4U7k8j7qpj
-	vp3Jsp/VNGfP7xCl444LtlXsvF7LI0w=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=2/IGRRzIJv3DLfiog8MtLmqRn3GxBRWzG+PtYfHPlzU=;
+	b=Z7uSuvS4bmOryQE6CYeuOFoMTUhX4DXfv54c3sqc3u1+j2r1K7vpINSzRsdYi6XENA0ezz
+	4GJMzgSo4Of+zrG5dCcT97m60SP9qGxD0x+KDyToudumlXioKf0Qh0uBrRIJdR7PIlN3LH
+	9vUlkjPxoZUXJQ+5w1LzbyiFardbPxU=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-682-adep754GMY2PMh2FIqEOnA-1; Thu, 17 Oct 2024 06:01:02 -0400
-X-MC-Unique: adep754GMY2PMh2FIqEOnA-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-37d4854fa0eso424465f8f.2
-        for <linux-s390@vger.kernel.org>; Thu, 17 Oct 2024 03:01:02 -0700 (PDT)
+ us-mta-493-hweb1ORhM9OCoS-fPM56yQ-1; Thu, 17 Oct 2024 08:07:16 -0400
+X-MC-Unique: hweb1ORhM9OCoS-fPM56yQ-1
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43151a9ea95so8390005e9.1
+        for <linux-s390@vger.kernel.org>; Thu, 17 Oct 2024 05:07:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729159261; x=1729764061;
+        d=1e100.net; s=20230601; t=1729166835; x=1729771635;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
+         :content-language:references:cc:to:from:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=MNXpYWC/snVv/RcQcy4Z6FTQ4rOQoP2EVP5TGZ+dUTk=;
-        b=ENvMCxAqbSTq3/dww0wyA2EHrCBgzoUKWPdTtLnqHwtKiKbRODtSX2ztE1sFM13tjV
-         7j4KUpUQnzz1ib9ix9n2WUuNCLUSiPWXwaeuUZZQCFSRfyO8MSS/LILaYzKmedhCvJlg
-         cd2B3iIwVCtQr+OWzav4UlYWy2ziPZ00BVbdf4ikW30tEOFBXyZeG1wJVT9BmWmWaCg0
-         ENEXzS+qIlKjCxp+VEC0OMB+7vrr1gm6B+STK44GcZjinrhX7asn4SImAst6ysa5/N3R
-         g8dMHJXJHoa5CPMQ3VkYUEeplL5EJM6kccFOzP+44qmBybi+S6CRqqycFCk3Ft9HpWEM
-         tXOQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWDudAJJHJUtP8QOZhb+8dwDFBHntAaIf5bgZHZm0bWQyKI2mj/zM9bmAgpyr1Q2Am9V4py5OJWOHL/@vger.kernel.org
-X-Gm-Message-State: AOJu0YwL15b2SUDEvfcdK2uhJqnwzUxAzvAAGmdID8372TsHlR682LZ8
-	7HxkBJnLLI9Bd/URMReMCgKUxQ/hXDlZkI6DsL2u6AYiWhB5VtipuzXW5vAq4OTU4jzFKZa+qMv
-	sNDW5o7fJUglw3qCclkxvEE5aDb6GRhNR6ISqljb6YVNWO8xgq4aLpOtxmaQ=
-X-Received: by 2002:adf:f803:0:b0:37d:43f1:57fc with SMTP id ffacd0b85a97d-37d86d84f81mr3888597f8f.58.1729159260966;
-        Thu, 17 Oct 2024 03:01:00 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEeAsN2x2tkKcYuYJ2ZGm7ZZUGgpQNN57Jt9VpZjjuVf5PjflWwSWuvgSY7iIq2nRYvpheTJQ==
-X-Received: by 2002:adf:f803:0:b0:37d:43f1:57fc with SMTP id ffacd0b85a97d-37d86d84f81mr3888571f8f.58.1729159260463;
-        Thu, 17 Oct 2024 03:01:00 -0700 (PDT)
+        bh=2/IGRRzIJv3DLfiog8MtLmqRn3GxBRWzG+PtYfHPlzU=;
+        b=NQR6aR9VNZU0Rr13uH/cxRgVwNscf7Hi0CYmQDu6VJfIZGbGX+E4lJkA8p4pWRtLSG
+         +F8HC+lF7ghLsJ01Q2JgECx4epeTlsHVcfdJqClA0yQF5Ui+8HXX1ykVBtyi7yqCa0xh
+         cm+Trq28SacUQ5OC+Lv0Ud7avmRgmU55SO/fnHpCp9utRGN4seoM0k4itvKcsWkSgoao
+         5/x9sCcQBNCxEubPQLsMrdSaAZecCMWfapHe655dJhPrS/lnm1ba15KPXHsv0cy28bhZ
+         Z9UNw4Y7nYuxzEZUusDOjLL2wALYUjtut+nDtnZCcCUXM6x4YUkks5wT7Qb3x/KUgDfR
+         shfg==
+X-Forwarded-Encrypted: i=1; AJvYcCXRFKAcqjdz5a3V/hr1nWLr5mDzbcDp1BxLOOrP8ytpK+B4SGYQj2mbv0JO26/ZnPhHzLQq1MZ+UZee@vger.kernel.org
+X-Gm-Message-State: AOJu0YxfgDmS8Q/aH5DSv163kWrPcbs+ExhJSTQqbkUojp6ghcFgjIzR
+	x0x1XI7vyEH/D/dgvN2lky5CtqAthDFDCyr1Q+IvJ24mzEi2KKzO7EewiWGh7ksHA0bWhx5tGyw
+	ftl+ETt/ZPeXhZXASfdjA2KYqO3++iVBV5/46Ie3xJV2weYfQIE+cg+amxow=
+X-Received: by 2002:a05:600c:46c7:b0:431:5475:3cd1 with SMTP id 5b1f17b1804b1-4315875fb2fmr17727405e9.17.1729166834700;
+        Thu, 17 Oct 2024 05:07:14 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFNtzUUQ7bQ+NpQeHrbKRpg9T0l3bVeZZHrV5Z5JZeh/ysPpsYqvaaR5yenVoFBRSIOrkr5Fw==
+X-Received: by 2002:a05:600c:46c7:b0:431:5475:3cd1 with SMTP id 5b1f17b1804b1-4315875fb2fmr17727205e9.17.1729166834226;
+        Thu, 17 Oct 2024 05:07:14 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c705:7600:62cc:24c1:9dbe:a2f5? (p200300cbc705760062cc24c19dbea2f5.dip0.t-ipconnect.de. [2003:cb:c705:7600:62cc:24c1:9dbe:a2f5])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37d7fa7a2a8sm6734586f8f.3.2024.10.17.03.00.59
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37d7fa7a2a8sm7055378f8f.3.2024.10.17.05.07.12
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Oct 2024 03:01:00 -0700 (PDT)
-Message-ID: <1c7ef09e-9ba2-488e-a249-4db3f65e077d@redhat.com>
-Date: Thu, 17 Oct 2024 12:00:58 +0200
+        Thu, 17 Oct 2024 05:07:13 -0700 (PDT)
+Message-ID: <45de474c-9af3-4d71-959f-6dbc223b432b@redhat.com>
+Date: Thu, 17 Oct 2024 14:07:12 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -70,6 +70,7 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT) to
  support QEMU/KVM memory devices
+From: David Hildenbrand <david@redhat.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
@@ -88,7 +89,7 @@ References: <20241014144622.876731-1-david@redhat.com>
  <ZxC+mr5PcGv4fBcY@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
  <04d5169f-3289-4aac-abca-90b20ad4e9c9@redhat.com>
  <ZxDetq73hETPMjln@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-From: David Hildenbrand <david@redhat.com>
+ <1c7ef09e-9ba2-488e-a249-4db3f65e077d@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -135,55 +136,63 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <ZxDetq73hETPMjln@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+In-Reply-To: <1c7ef09e-9ba2-488e-a249-4db3f65e077d@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 17.10.24 11:53, Alexander Gordeev wrote:
->>> Why search_mem_end() is not tried in case sclp_early_get_memsize() failed?
->>
->> Patch #3 documents that:
->>
->> +    The storage limit does not indicate currently usable storage, it may
->> +    include holes, standby storage and areas reserved for other means, such
->> +    as memory hotplug or virtio-mem devices. Other interfaces for detecting
->> +    actually usable storage, such as SCLP, must be used in conjunction with
->> +    this subfunction.
-> 
-> Yes, I read this and that exactly what causes my confusion. In this wording it
-> sounds like SCLP *or* other methods are fine to use. But then you use SCLP or
-> DIAGNOSE 260, but not memory scanning. So I am still confused ;)
-
-Well, DIAGNOSE 260 is z/VM only and DIAG 500 is KVM only. So there are 
-currently not really any other reasonable ways besides SCLP.
-
-> 
->> If SCLP would fail, something would be seriously wrong and we should just crash
->> instead of trying to fallback to the legacy way of scanning.
-> 
-> But what is wrong with the legacy way of scanning?
-
-Missing to detect holes and starting to use them, detecting and using 
-device memory without negotiating with the device ... it all falls to 
-pieces.
-
-> 
->>>> +	case MEM_DETECT_DIAG500_STOR_LIMIT:
->>>> +		return "diag500 storage limit";
+On 17.10.24 12:00, David Hildenbrand wrote:
+> On 17.10.24 11:53, Alexander Gordeev wrote:
+>>>> Why search_mem_end() is not tried in case sclp_early_get_memsize() failed?
 >>>
->>> AFAIU you want to always override MEM_DETECT_DIAG500_STOR_LIMIT method
->>> with an online memory detection method. In that case this code is dead.
+>>> Patch #3 documents that:
+>>>
+>>> +    The storage limit does not indicate currently usable storage, it may
+>>> +    include holes, standby storage and areas reserved for other means, such
+>>> +    as memory hotplug or virtio-mem devices. Other interfaces for detecting
+>>> +    actually usable storage, such as SCLP, must be used in conjunction with
+>>> +    this subfunction.
 >>
->> Not in the above case, pathological case above where something went wrong
->> during sclp_early_get_memsize(). In that scenario, die_oom() would indicate
->> that there are no memory ranges but that "diag500 storage limit" worked.
->>
->> Does that make sense?
+>> Yes, I read this and that exactly what causes my confusion. In this wording it
+>> sounds like SCLP *or* other methods are fine to use. But then you use SCLP or
+>> DIAGNOSE 260, but not memory scanning. So I am still confused ;)
 > 
-> Yes, I get your approach.
+> Well, DIAGNOSE 260 is z/VM only and DIAG 500 is KVM only. So there are
+> currently not really any other reasonable ways besides SCLP.
 
-Thanks, please let me know if I should make it clearer in the 
-description, of if you think we can improve the code.
+Correction: Staring at the code again, in detect_physmem_online_ranges()
+we will indeed try:
+
+a) sclp_early_read_storage_info()
+b) diag260()
+
+But if neither works, we cannot blindly add all that memory, something is
+messed up. So we'll fallback to
+
+c) sclp_early_get_memsize()
+
+But if none of that works, something is seriously wrong.
+
+
+I will squash the following:
+
+diff --git a/arch/s390/boot/physmem_info.c b/arch/s390/boot/physmem_info.c
+index 975fc478e0e3..6ad3ac2050eb 100644
+--- a/arch/s390/boot/physmem_info.c
++++ b/arch/s390/boot/physmem_info.c
+@@ -214,6 +214,12 @@ void detect_physmem_online_ranges(unsigned long max_physmem_end)
+                 return;
+         } else if (physmem_info.info_source == MEM_DETECT_DIAG500_STOR_LIMIT) {
+                 max_physmem_end = 0;
++               /*
++                * If we know the storage limit but do not find any other
++                * indication of usable initial memory, something is messed
++                * up. In that case, we'll not add any physical memory so
++                * we'll run into die_oom() later.
++                */
+                 if (!sclp_early_get_memsize(&max_physmem_end))
+                         physmem_info.info_source = MEM_DETECT_SCLP_READ_INFO;
+         }
+
 
 -- 
 Cheers,
