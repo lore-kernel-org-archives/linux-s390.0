@@ -1,134 +1,170 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 751F3176FCE;
-	Thu, 17 Oct 2024 06:08:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 461DB18784A;
+	Thu, 17 Oct 2024 07:37:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729145297; cv=none; b=iQQg5ShrhVCEg+zOGBqXAMD4wCTfFzu0OFVZ6zL6/lVnUScIDkfdQKs1BMYW0CuEVaGWNvBhbrG0z00GtzZ4fIhqjMPkn0oFOSOgF2P1qTfOuzAsUOrUFwoLJOVW/gxOSu9yjerWKdqfdWLg0agJ1VNhaxCZG+lcFwkdSxO5GAY=
+	t=1729150636; cv=none; b=gLEp6VXWzrusGqTj7LxYdDH6BWWcTq3OE75vIXuYQwE+JA8Xb4LUL34BJ8Ar/sD+trW1ID6om12H6LPNah+TtOeQU56gjnbaBkotnv8wESdR/WTcPgVDiN8kKCWfgs6LdSXiP0afy8nRzC1nkqXQ1hHDdDEUvMz95fd+16FuiJg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729145297; c=relaxed/simple;
-	bh=iguEBDl8q+O3eYgeqHRt+q0bauQl/22Of+lo5GWS9OI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ct+7n2dWQalq/ZD9DL21Csp85m3Wkd0taxmj7kyH6+uLjLYBatFHE/giM4ajiFYY2xkCDGg9I23CoMqIxPSKq3uQ/BfS8R4/0RBEH5F92lgUa8wXiOaV01F744ZT5kDcLeVnqXBbdw+wDYIn2msJgyL8T94MCWSrhix9JQdvCJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rSMPtfVH; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1729150636; c=relaxed/simple;
+	bh=ULpWoA+MsrzVpR2MlRuFWV7zX9hHcTjhDUqYHtMGPMw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=M482eM+NgMkOotQMD3nCQpXRX0vmf490KA3a2ezXvAHdPytqiznKJgA8QDXhPKa/d4U1CAX4jMeoXRX4I00R7hu6/tEpFQ2AowRf2OiQ5XR2rnZFjQXNmx3OSqJE0RserdSADQM/zG8KErjFuG6B1rtF7g6KWDIrsCCyxwoPIQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UjTR6QP5; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rSMPtfVH"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UjTR6QP5"
 Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49H1tS4x028269;
-	Thu, 17 Oct 2024 06:08:04 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49H1tltB028414;
+	Thu, 17 Oct 2024 07:37:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=E+k3UV0GeMDRIFZTg
-	pu8BxXs0tZH4a0UJwOSzoCuvas=; b=rSMPtfVHTsSXMOB0B0+YJEIC27z5TXS9G
-	/+YG0MTHT5HI+igKPYgdoK0+AEdt53ru0vwnfEU3lwfmatxXNIEdEHowQIfB+IUp
-	L+OdKg3JHtZpC/HAOmRZoxYSDj9pKdXKBSEcuxhmF9+jPWynPkMeWDXSkfpFmX7n
-	55t4tu3lIGQpYr7bnErKx61+Tgdj7KTmsv6mqBDEhAYeQMvSYNnK3ry6NGYMQ+WK
-	de4UCwxHXiC/ftbJbKPKQA6sydEw/9G2J7Qgr3SOH28h2THBwAHOq4ShTiyPoVbo
-	OCeEQYD9LDc2tBnZC7Vr2u3I2ftuQRHwTpB/n5Ya4BYCEiL4oYO5A==
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=CCockiiMIdzXFF10k9ecjz3T/PBTZF
+	sqm9mtgI58+4o=; b=UjTR6QP5gdttKteJTjOOPX61PMn5doVH66+queNczgz/vK
+	YOZb36GRkMUBNOrjzE8wt4kakW4grWrRi+8NFe9UwJFqGe8OzbS1y48PNu/uDu4Y
+	FFf8XFchFn+bJ8MS5AgeqG4KS8K252VShEjBHc/sZobnNM+zRTIS6xioyVJWXHME
+	gQPjwAun2y2bU2wABSIrWHGWktprvkSvDA2bDTid20KRK32jXYULZ8rcQ6eqtKum
+	9toCtOb2X30ovGnILNh3+uuf+WM2y/VgQ9XH+IXXqJkdDkcpGtJo/wfGXrl5ZqJv
+	Egqgvz/Rd3G+zEpZudT/lsspmRxWWycaWbHctrrw==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42asbd0t3m-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42asbd16cf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 17 Oct 2024 06:08:03 +0000 (GMT)
+	Thu, 17 Oct 2024 07:37:07 +0000 (GMT)
 Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49H67tbI030821;
-	Thu, 17 Oct 2024 06:08:03 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42asbd0t3k-1
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49H7b6Bg020668;
+	Thu, 17 Oct 2024 07:37:06 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42asbd16c9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 17 Oct 2024 06:08:03 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49H2PShJ005965;
-	Thu, 17 Oct 2024 06:08:02 GMT
+	Thu, 17 Oct 2024 07:37:06 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49H6AHRq006401;
+	Thu, 17 Oct 2024 07:37:04 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4286514tgm-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4284xkde73-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 17 Oct 2024 06:08:02 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49H67wPP34538078
+	Thu, 17 Oct 2024 07:37:04 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49H7b06D18809164
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 17 Oct 2024 06:07:58 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C5DB62004D;
-	Thu, 17 Oct 2024 06:07:58 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B51612004B;
-	Thu, 17 Oct 2024 06:07:58 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 17 Oct 2024 06:07:58 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55390)
-	id 2CB18E00F4; Thu, 17 Oct 2024 08:07:58 +0200 (CEST)
-From: Sven Schnelle <svens@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+	Thu, 17 Oct 2024 07:37:00 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 870CD2004B;
+	Thu, 17 Oct 2024 07:37:00 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 804AE20040;
+	Thu, 17 Oct 2024 07:36:59 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.179.26.155])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 17 Oct 2024 07:36:59 +0000 (GMT)
+Date: Thu, 17 Oct 2024 09:36:58 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Ricardo B. Marliere" <ricardo@marliere.net>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH v3 1/2] s390/time: Add clocksource id to TOD clock
-Date: Thu, 17 Oct 2024 08:07:48 +0200
-Message-ID: <20241017060749.3893793-2-svens@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20241017060749.3893793-1-svens@linux.ibm.com>
-References: <20241017060749.3893793-1-svens@linux.ibm.com>
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
+Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT)
+ to support QEMU/KVM memory devices
+Message-ID: <ZxC+mr5PcGv4fBcY@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-5-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241014144622.876731-5-david@redhat.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: uuu7BIsiqu7raj3CcTDlbug7jnr7wUu8
-X-Proofpoint-GUID: lmDNaYw7azHNB2eP3hc3AJtu5ty6tUjk
+X-Proofpoint-ORIG-GUID: I8XjFklzuWznK3cD6E4X0sa9LCHD5Rtg
+X-Proofpoint-GUID: bnb60nF_oPjDqifw1vM7LX54XpsdFO6s
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
  malwarescore=0 spamscore=0 lowpriorityscore=0 phishscore=0 mlxscore=0
- clxscore=1015 adultscore=0 priorityscore=1501 mlxlogscore=999
+ clxscore=1011 adultscore=0 priorityscore=1501 mlxlogscore=535
  impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410170039
+ engine=8.19.0-2409260000 definitions=main-2410170048
 
-To allow specifying the clock source in the upcoming PtP driver,
-add a clocksource ID to the s390 TOD clock.
+On Mon, Oct 14, 2024 at 04:46:16PM +0200, David Hildenbrand wrote:
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
----
- arch/s390/kernel/time.c         | 1 +
- include/linux/clocksource_ids.h | 1 +
- 2 files changed, 2 insertions(+)
+Hi David!
 
-diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
-index b713effe0579..4214901c3ab0 100644
---- a/arch/s390/kernel/time.c
-+++ b/arch/s390/kernel/time.c
-@@ -255,6 +255,7 @@ static struct clocksource clocksource_tod = {
- 	.shift		= 24,
- 	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
- 	.vdso_clock_mode = VDSO_CLOCKMODE_TOD,
-+	.id		= CSID_S390_TOD,
- };
- 
- struct clocksource * __init clocksource_default_clock(void)
-diff --git a/include/linux/clocksource_ids.h b/include/linux/clocksource_ids.h
-index 2bb4d8c2f1b0..c4ef4ae2eded 100644
---- a/include/linux/clocksource_ids.h
-+++ b/include/linux/clocksource_ids.h
-@@ -6,6 +6,7 @@
- enum clocksource_ids {
- 	CSID_GENERIC		= 0,
- 	CSID_ARM_ARCH_COUNTER,
-+	CSID_S390_TOD,
- 	CSID_X86_TSC_EARLY,
- 	CSID_X86_TSC,
- 	CSID_X86_KVM_CLK,
--- 
-2.43.0
+> @@ -157,7 +189,9 @@ unsigned long detect_max_physmem_end(void)
+>  {
+>  	unsigned long max_physmem_end = 0;
+>  
+> -	if (!sclp_early_get_memsize(&max_physmem_end)) {
+> +	if (!diag500_storage_limit(&max_physmem_end)) {
+> +		physmem_info.info_source = MEM_DETECT_DIAG500_STOR_LIMIT;
+> +	} else if (!sclp_early_get_memsize(&max_physmem_end)) {
+>  		physmem_info.info_source = MEM_DETECT_SCLP_READ_INFO;
+>  	} else {
+>  		max_physmem_end = search_mem_end();
+> @@ -170,11 +204,17 @@ void detect_physmem_online_ranges(unsigned long max_physmem_end)
+>  {
+>  	if (!sclp_early_read_storage_info()) {
+>  		physmem_info.info_source = MEM_DETECT_SCLP_STOR_INFO;
+> +		return;
+>  	} else if (!diag260()) {
+>  		physmem_info.info_source = MEM_DETECT_DIAG260;
+> -	} else if (max_physmem_end) {
+> -		add_physmem_online_range(0, max_physmem_end);
+> +		return;
+> +	} else if (physmem_info.info_source == MEM_DETECT_DIAG500_STOR_LIMIT) {
+> +		max_physmem_end = 0;
+> +		if (!sclp_early_get_memsize(&max_physmem_end))
+> +			physmem_info.info_source = MEM_DETECT_SCLP_READ_INFO;
 
+Why search_mem_end() is not tried in case sclp_early_get_memsize() failed?
+
+>  	}
+> +	if (max_physmem_end)
+> +		add_physmem_online_range(0, max_physmem_end);
+>  }
+>  
+>  void physmem_set_usable_limit(unsigned long limit)
+> diff --git a/arch/s390/include/asm/physmem_info.h b/arch/s390/include/asm/physmem_info.h
+> index f45cfc8bc233..51b68a43e195 100644
+> --- a/arch/s390/include/asm/physmem_info.h
+> +++ b/arch/s390/include/asm/physmem_info.h
+> @@ -9,6 +9,7 @@ enum physmem_info_source {
+>  	MEM_DETECT_NONE = 0,
+>  	MEM_DETECT_SCLP_STOR_INFO,
+>  	MEM_DETECT_DIAG260,
+> +	MEM_DETECT_DIAG500_STOR_LIMIT,
+>  	MEM_DETECT_SCLP_READ_INFO,
+>  	MEM_DETECT_BIN_SEARCH
+>  };
+> @@ -107,6 +108,8 @@ static inline const char *get_physmem_info_source(void)
+>  		return "sclp storage info";
+>  	case MEM_DETECT_DIAG260:
+>  		return "diag260";
+> +	case MEM_DETECT_DIAG500_STOR_LIMIT:
+> +		return "diag500 storage limit";
+
+AFAIU you want to always override MEM_DETECT_DIAG500_STOR_LIMIT method
+with an online memory detection method. In that case this code is dead.
+
+>  	case MEM_DETECT_SCLP_READ_INFO:
+>  		return "sclp read info";
+>  	case MEM_DETECT_BIN_SEARCH:
+
+Thanks!
