@@ -1,228 +1,120 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 636491C233A
-	for <linux-s390@vger.kernel.org>; Thu, 17 Oct 2024 08:19:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 933CBC147;
+	Thu, 17 Oct 2024 09:46:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729153185; cv=none; b=ar/uyutTQ24wFJ+XIqL5kjQQNdK+CfwakbLPck8OccZeN3xRFr2XU/6chxqDMQGK3WkEfhqIHko4o/tg2hXPZtC0G5ll2l6XNAU3ug6Q2TTjCzPGu/MopPyoNuaicHxKjLdKLMx8WZ6nDOrEJbWwSHzUtdAGgUrCYEdqidY99jA=
+	t=1729158381; cv=none; b=LxJtw7GPG7xm3fyJEGeu6Mc0j0eJ+5lHjE+UBXFyNrjn3uM3vz6LxIcfT/XbNcRvH9ziv7wQfhHmdU7RalFCN6SPfendclIaplaj0ixIUE5qRqxx4TvzvCQ/SyiLqer04/eK0AVjbpIOtxg/ANEE7A0hX2pgve/LogOvY9dca9k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729153185; c=relaxed/simple;
-	bh=drap6yRTWUV8zY03UQ8GuuoRsDJoBiyKbOtSKJ+Ypww=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=B3yGgtSv7lalFIySJcTWaUCeSQpUicwDxmxY8IPi4SQ2Zef1i1a1nubcSg5e02tnjVFkzbMxDEZJQETVanYZVuRqyzkxfS/B0WpxD6pByRLmxa3+fddpukiLMo5TgL7ydmUySAQuWJjYNBJiLDM353671v3AW/KpZ3x69TdgtPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=N3PPXrHJ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1729158381; c=relaxed/simple;
+	bh=wAu4lUH2ZdAEXqz/CGQi+vr7whbypoaU3diiPTqlLEk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dSMrfEXJNLiOthNCGg7tz4wvyB9gxrBnF4NQM3fvFwheaFTPJrdystB/IOHQiWttWLLXFTNvPP0GKU8ax7cymuH8SGQnqajE6KqXfFJneWphW7im4vxEynM+UNTh3WZwEKcUJJQ8ilBqg+htFCqzAN9buwzQfr2c3vyLRZrGRTw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=puWc0Sfe; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N3PPXrHJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729153182;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=yucW1PH2OPYsrEpldE45jW5xNoecHxa8NdyxGrQqNKM=;
-	b=N3PPXrHJhRgl5DbnsYsLe+oIVe/pDmcVgczn4oQbq+AdQuyYTY9KjOCo4eNgVtVVuhfvrD
-	CWkzxB6KkhH2DQ2jK2iKWgUZm4AcD8loGZqT/+4SEpHEzFb4lIyM1dLeTV3z6iV8tUFBML
-	hLaZSFEpmvBf3dJkKrn2UHY0Rnk7sns=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-581-lAOHla2wMSC02Fzn5fBBAg-1; Thu, 17 Oct 2024 04:19:41 -0400
-X-MC-Unique: lAOHla2wMSC02Fzn5fBBAg-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-37d609ef9f7so327611f8f.3
-        for <linux-s390@vger.kernel.org>; Thu, 17 Oct 2024 01:19:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729153180; x=1729757980;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=yucW1PH2OPYsrEpldE45jW5xNoecHxa8NdyxGrQqNKM=;
-        b=ps2/ppSoI26ORoJ2PedZl4+XEWWCvSj72/YqglT63rRjOjOoeC2cl11OfhSA4U0MtT
-         qcFdAfXzn4BXnD9ssJmvBX2uUnunUxtkJNAAotCZUjE6nHtcWwFTFXTtaXifbp3/i2zL
-         WY3kSjilO98rhecZj3T2Z1aAYSyrFQB4s/2el4ZFjnpCVMg+UkZchKjNf9COTfctZqN0
-         v747aMyyOw+Zmr9wKATb1kUVJMv7fc26GPcgR6c+Vsl0vXP7WAXTPfn246vHXj9xtyi2
-         pPCpsoU2ROewvYSgVUmbUrlRWxq8iIWv7KF9gQctvXadEB+lRSb0cwcHvusQ+MveX3hD
-         ss0Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUzq1Gl0S7MZ/AR7lbvnhJ+TA0kllOcyeqmPQibZ/j+sedfV8/uFw1mNFHp1eRtGuvCa8C7A229ZTHv@vger.kernel.org
-X-Gm-Message-State: AOJu0YwIxN1++APqjtj7ZLVF+4ZGb4qAKIPXS2jLWCCb/EPYrAEKzCZv
-	WFKdR7PZ74BBxHWOkEXtH8ISfgSE0Z3zDCFt992JFsP+k256oFRUhJh/9TyOV37qWJbdlyWowY+
-	1ZQU/JBmFsCAdzEHAxnLDXyGx18CtDStldRCIYHlIFGJDSD1d0Sz8LL9JgDA=
-X-Received: by 2002:adf:e908:0:b0:37c:cd0d:3437 with SMTP id ffacd0b85a97d-37d5530438bmr15476766f8f.58.1729153179981;
-        Thu, 17 Oct 2024 01:19:39 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEHvGRV7gRI9scIXVqygnO0gFFWAgggOmNSlEaAKQ5e7/aADl4rIuAo+u5BaUehhaRDGGy2LQ==
-X-Received: by 2002:adf:e908:0:b0:37c:cd0d:3437 with SMTP id ffacd0b85a97d-37d5530438bmr15476747f8f.58.1729153179553;
-        Thu, 17 Oct 2024 01:19:39 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c705:7600:62cc:24c1:9dbe:a2f5? (p200300cbc705760062cc24c19dbea2f5.dip0.t-ipconnect.de. [2003:cb:c705:7600:62cc:24c1:9dbe:a2f5])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43158c3dedfsm18012235e9.26.2024.10.17.01.19.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Oct 2024 01:19:39 -0700 (PDT)
-Message-ID: <04d5169f-3289-4aac-abca-90b20ad4e9c9@redhat.com>
-Date: Thu, 17 Oct 2024 10:19:36 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="puWc0Sfe"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49GLRH8V000899;
+	Thu, 17 Oct 2024 09:46:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=ba5YfAfV1i1Kts3hR/V69uV8ukSuTw
+	UlftkXc9gcqO4=; b=puWc0SfeklF1O5Ue+nuQRWg7XXTuGEfhpxsJJ4EgzgUrXw
+	shXS5A1uYl9WelR/IEplKkTifUrc2QGBmHKVai5khjg+RpR2i3PCDkTeXAMewO5h
+	CuGwyG5IZ9zohzZSMbKAtgCBPC4vpfRcymPrJxcCFzPl4kzligLyATqlW4EyTIov
+	uC4zfuj0c0OLJUVoyvHXqwkEr1si7vAyf0H89N4pGaX4pEC3nABCJriO5DCAXWAG
+	vScLsq//Ad5/D4xPttlQb3FfaCZOuBA1iUQklD3mu1CG1ZT7p5j/A2I9ZnF3TiHr
+	FmjZo8lAbq4kpCr1Ua6QD/eqMrutns+sr10gWm0w==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42and7jj3q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 17 Oct 2024 09:46:13 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49H9kDHc010398;
+	Thu, 17 Oct 2024 09:46:13 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42and7jj3m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 17 Oct 2024 09:46:13 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49H8xSmG027444;
+	Thu, 17 Oct 2024 09:46:12 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4283txx4pq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 17 Oct 2024 09:46:12 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49H9k8Kf30933714
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 17 Oct 2024 09:46:08 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 22BDC20043;
+	Thu, 17 Oct 2024 09:46:08 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EFB6320040;
+	Thu, 17 Oct 2024 09:46:07 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 17 Oct 2024 09:46:07 +0000 (GMT)
+Date: Thu, 17 Oct 2024 11:46:06 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Sven Schnelle <svens@linux.ibm.com>,
+        Richard Cochran <richardcochran@gmail.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Ricardo B. Marliere" <ricardo@marliere.net>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: Re: [PATCH v3 0/2] PtP driver for s390 clocks
+Message-ID: <20241017094606.6757-A-hca@linux.ibm.com>
+References: <20241017060749.3893793-1-svens@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT) to
- support QEMU/KVM memory devices
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
- linux-doc@vger.kernel.org, kvm@vger.kernel.org,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
- Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
- Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
-References: <20241014144622.876731-1-david@redhat.com>
- <20241014144622.876731-5-david@redhat.com>
- <ZxC+mr5PcGv4fBcY@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <ZxC+mr5PcGv4fBcY@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241017060749.3893793-1-svens@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 9v15hzj-vzCxdfm87l2gIIuW1M6_icYy
+X-Proofpoint-ORIG-GUID: 5LTXIhDXDiPeVgwLIpNUxVmAgMHpL_En
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ impostorscore=0 spamscore=0 priorityscore=1501 clxscore=1015
+ mlxlogscore=620 adultscore=0 bulkscore=0 mlxscore=0 suspectscore=0
+ phishscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2409260000 definitions=main-2410170064
 
-On 17.10.24 09:36, Alexander Gordeev wrote:
-> On Mon, Oct 14, 2024 at 04:46:16PM +0200, David Hildenbrand wrote:
+On Thu, Oct 17, 2024 at 08:07:47AM +0200, Sven Schnelle wrote:
+> Hi,
 > 
-> Hi David!
+> these patches add support for using the s390 physical and TOD clock as ptp
+> clock. To do so, the first patch adds a clock id to the s390 TOD clock,
+> while the second patch adds the PtP driver itself.
+...
+>  MAINTAINERS                     |   6 ++
+>  arch/s390/include/asm/stp.h     |   1 +
+>  arch/s390/include/asm/timex.h   |   6 ++
+>  arch/s390/kernel/time.c         |   7 ++
+>  drivers/ptp/Kconfig             |  11 +++
+>  drivers/ptp/Makefile            |   1 +
+>  drivers/ptp/ptp_s390.c          | 129 ++++++++++++++++++++++++++++++++
+>  include/linux/clocksource_ids.h |   1 +
+>  8 files changed, 162 insertions(+)
+>  create mode 100644 drivers/ptp/ptp_s390.c
 
-Hi Alexander!
+As far as I am concerned:
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
 
-> 
->> @@ -157,7 +189,9 @@ unsigned long detect_max_physmem_end(void)
->>   {
->>   	unsigned long max_physmem_end = 0;
->>   
->> -	if (!sclp_early_get_memsize(&max_physmem_end)) {
->> +	if (!diag500_storage_limit(&max_physmem_end)) {
->> +		physmem_info.info_source = MEM_DETECT_DIAG500_STOR_LIMIT;
->> +	} else if (!sclp_early_get_memsize(&max_physmem_end)) {
->>   		physmem_info.info_source = MEM_DETECT_SCLP_READ_INFO;
->>   	} else {
->>   		max_physmem_end = search_mem_end();
->> @@ -170,11 +204,17 @@ void detect_physmem_online_ranges(unsigned long max_physmem_end)
->>   {
->>   	if (!sclp_early_read_storage_info()) {
->>   		physmem_info.info_source = MEM_DETECT_SCLP_STOR_INFO;
->> +		return;
->>   	} else if (!diag260()) {
->>   		physmem_info.info_source = MEM_DETECT_DIAG260;
->> -	} else if (max_physmem_end) {
->> -		add_physmem_online_range(0, max_physmem_end);
->> +		return;
->> +	} else if (physmem_info.info_source == MEM_DETECT_DIAG500_STOR_LIMIT) {
->> +		max_physmem_end = 0;
->> +		if (!sclp_early_get_memsize(&max_physmem_end))
->> +			physmem_info.info_source = MEM_DETECT_SCLP_READ_INFO;
-> 
-> Why search_mem_end() is not tried in case sclp_early_get_memsize() failed?
-
-Patch #3 documents that:
-
-+    The storage limit does not indicate currently usable storage, it may
-+    include holes, standby storage and areas reserved for other means, such
-+    as memory hotplug or virtio-mem devices. Other interfaces for detecting
-+    actually usable storage, such as SCLP, must be used in conjunction with
-+    this subfunction.
-
-If SCLP would fail, something would be seriously wrong and we should just crash
-instead of trying to fallback to the legacy way of scanning.
-
-> 
->>   	}
->> +	if (max_physmem_end)
->> +		add_physmem_online_range(0, max_physmem_end);
->>   }
->>   
->>   void physmem_set_usable_limit(unsigned long limit)
->> diff --git a/arch/s390/include/asm/physmem_info.h b/arch/s390/include/asm/physmem_info.h
->> index f45cfc8bc233..51b68a43e195 100644
->> --- a/arch/s390/include/asm/physmem_info.h
->> +++ b/arch/s390/include/asm/physmem_info.h
->> @@ -9,6 +9,7 @@ enum physmem_info_source {
->>   	MEM_DETECT_NONE = 0,
->>   	MEM_DETECT_SCLP_STOR_INFO,
->>   	MEM_DETECT_DIAG260,
->> +	MEM_DETECT_DIAG500_STOR_LIMIT,
->>   	MEM_DETECT_SCLP_READ_INFO,
->>   	MEM_DETECT_BIN_SEARCH
->>   };
->> @@ -107,6 +108,8 @@ static inline const char *get_physmem_info_source(void)
->>   		return "sclp storage info";
->>   	case MEM_DETECT_DIAG260:
->>   		return "diag260";
->> +	case MEM_DETECT_DIAG500_STOR_LIMIT:
->> +		return "diag500 storage limit";
-> 
-> AFAIU you want to always override MEM_DETECT_DIAG500_STOR_LIMIT method
-> with an online memory detection method. In that case this code is dead.
-
-Not in the above case, pathological case above where something went wrong
-during sclp_early_get_memsize(). In that scenario, die_oom() would indicate
-that there are no memory ranges but that "diag500 storage limit" worked.
-
-Does that make sense?
-
-Thanks for the review!
-
--- 
-Cheers,
-
-David / dhildenb
-
+Richard, if this looks good for you too, how should this go upstream?
+We could carry this via the s390 tree, if you want.
