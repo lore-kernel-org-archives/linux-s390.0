@@ -1,198 +1,149 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA3451DE4FC;
-	Thu, 17 Oct 2024 14:11:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6DA61DE4EA;
+	Thu, 17 Oct 2024 14:32:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729174291; cv=none; b=dQoiLb1FTdN6yc3CFjcMG2aNKBjSK/z0Zco88qc99rXz9m0jDZOe+fo2wbo89AGJgMbZk9e1sP6QSDfOjtHD54MAhSx++kSFWflp5JqLvNK+QlyNhOARhIxFqH/CfO7OzhRijFYpJ7nh/6vwvjvaIL1SvXihNWbXA2fKILqOBxM=
+	t=1729175545; cv=none; b=GFuPepQ0zsEXJIX18HkDG1e5t0EO6NsaFFiREqr0T30uvsKmx1d5aJPMiJ7ZmobNuV49qO4xg4mi+duSYmhXgyQi1cFFeT2ExHtQNQ7RmqHcjS9uVaETLuj88pVyoU5ieoRh1R2uFpseRk+qSDyOW6RgGD5/Nc1AiBXbMVcEx34=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729174291; c=relaxed/simple;
-	bh=XY7zdhu7QudhUkiM0AodZhJmfPNC9EYIGL5unKDNQ8M=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=QJeCZWqF+i1+RrtQ/W4dHJcPSFAGciOVrLBpZxUXkqGES2XOTPRhcRB+h6ynnZR+u8SDNcaXlSb7/w5bSvSunTS4/wCW2d9wgYeWr3M1YbNgqW4ry+DCiDXI8dd2FDalb6ac3P9wsExAaSpcOG5aocSOB1W2/CoCCDhElCtfImc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=djU3W3O6; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1729175545; c=relaxed/simple;
+	bh=lqwk6LYhIvZ4BuQ+y9qMS+/LMg+fUflKiZ7c5mJ07yM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WBdnFC4xJtv6PPFYZKLPN0eJQ2LqjvQcqijCBiStdFalveLFtf6j8H744eWG14bFSbIJmu6VlJ84Dg6pmGie7ks6r3+99Q8GIlpQdX075NCqxAhiHLiUTwdWfAGs0dPxJ46HYeda2PkUJyq4HBi74MmFeEV2wE849WD2nOf140Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oPVXLRa4; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="djU3W3O6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1729174286; x=1760710286;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=XY7zdhu7QudhUkiM0AodZhJmfPNC9EYIGL5unKDNQ8M=;
-  b=djU3W3O6D09D8ub6LhGTuZW+sW865oEcUBSHgPtuLvjTzihs8FJ5m23G
-   qtVWarOfdEdzxGafo8LusiiiL2C4g8yYQgd2hd02Z90K8+XIRyDTzOQUA
-   XLgr3cXnySIjPVoHFLG1dq56eHMqf1+ozF6qfYmMOP5yK3fVEkgszVJEv
-   WDaKbs6vJ8oCFxTr57k4hIB41e8e29FvYlZad9836zpX3APdmSguGL/n4
-   g4DIPrtkky4XcbAVB+YSe3t3PyfycXminpSvcThAq4gArbPr0Rh8Wu/xP
-   fjfe0BiA05s0ofwIzWQ/naBjXSMkhzPpMM5YeWauRqh9qLUJbDfSzaKcx
-   g==;
-X-CSE-ConnectionGUID: wyTzASqiT0uxyueUURE/Jw==
-X-CSE-MsgGUID: gmkI/b2pS1WybbieWhzFcg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11228"; a="54075335"
-X-IronPort-AV: E=Sophos;i="6.11,211,1725346800"; 
-   d="scan'208";a="54075335"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Oct 2024 07:11:25 -0700
-X-CSE-ConnectionGUID: p9664RvmRn28cOnoBFRtYg==
-X-CSE-MsgGUID: 03bod7CHSoe54/Uv7tvVmQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.11,211,1725346800"; 
-   d="scan'208";a="78701325"
-Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.91])
-  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Oct 2024 07:11:19 -0700
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-To: Niklas Schnelle <schnelle@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-pci@vger.kernel.org
-Cc: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 1/3] PCI: Remove unused PCI_SUBTRACTIVE_DECODE
-Date: Thu, 17 Oct 2024 17:11:08 +0300
-Message-Id: <20241017141111.44612-1-ilpo.jarvinen@linux.intel.com>
-X-Mailer: git-send-email 2.39.5
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oPVXLRa4"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49HBnpDp030939;
+	Thu, 17 Oct 2024 14:32:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=x9M7OqCmvYwJLYp7viWiXrPFfxDnW3
+	xZHfW7zLFJR0w=; b=oPVXLRa46MOc6Sf+5LBNZDM0qkdDCDe2W+Ef2UqLTdqR1R
+	mt1HSka4pBPv67fk3O7RPoDXwiupI6N4Ex7naatzPHyjB+GL/9aW6uBfHEug5GvN
+	ZH6RAyI6rrA7u5ESXRlf5vwelKAC/D+mw4kYd5X5Yzzvf10eDW5zEUuFDHSbpG/0
+	a59f9iyZn1Xq8L0f851CeK/LHvCRORqZPnr2OMo9Ap6sweb9Ghig8N8TQItzoVsO
+	47ssd8S4GR87Rgt0oubL3bfNteAlYdBl9EUCY1kORvH1DxLHAQRSvu3xBOuppg38
+	V1taPJrS9eJx1nwkM6b1f4OjDKAzMk1hgqWA1meg==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42asbd3a3y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 17 Oct 2024 14:32:16 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49HERF9H018368;
+	Thu, 17 Oct 2024 14:32:15 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42asbd3a3r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 17 Oct 2024 14:32:15 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49HDr3Bj005377;
+	Thu, 17 Oct 2024 14:32:14 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4285njf5dv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 17 Oct 2024 14:32:14 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49HEWAhP48628210
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 17 Oct 2024 14:32:10 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A8B7B20049;
+	Thu, 17 Oct 2024 14:32:10 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C59BF20040;
+	Thu, 17 Oct 2024 14:32:09 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 17 Oct 2024 14:32:09 +0000 (GMT)
+Date: Thu, 17 Oct 2024 16:32:08 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
+Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT)
+ to support QEMU/KVM memory devices
+Message-ID: <ZxEf6NOs1hDFZd1E@tuxmaker.boeblingen.de.ibm.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-5-david@redhat.com>
+ <ZxC+mr5PcGv4fBcY@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <04d5169f-3289-4aac-abca-90b20ad4e9c9@redhat.com>
+ <ZxDetq73hETPMjln@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <1c7ef09e-9ba2-488e-a249-4db3f65e077d@redhat.com>
+ <45de474c-9af3-4d71-959f-6dbc223b432b@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45de474c-9af3-4d71-959f-6dbc223b432b@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: cHhgOMeaziZtns-QiP2HmAZDEba7eikD
+X-Proofpoint-GUID: 2uY6DRZW2AitsKuflnkKSDREZnezK4Ep
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
+ malwarescore=0 spamscore=0 lowpriorityscore=0 phishscore=0 mlxscore=0
+ clxscore=1015 adultscore=0 priorityscore=1501 mlxlogscore=512
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410170100
 
-The commit 2fe2abf896c1 ("PCI: augment bus resource table with a list")
-added PCI_SUBTRACTIVE_DECODE which is put into the struct
-pci_bus_resource flags field but is never read. There seems to never
-have been users for it. Remove both PCI_SUBTRACTIVE_DECODE and the
-flags field from the struct pci_bus_resource.
+On Thu, Oct 17, 2024 at 02:07:12PM +0200, David Hildenbrand wrote:
+> On 17.10.24 12:00, David Hildenbrand wrote:
+> > Well, DIAGNOSE 260 is z/VM only and DIAG 500 is KVM only. So there are
+> > currently not really any other reasonable ways besides SCLP.
+> 
+> Correction: Staring at the code again, in detect_physmem_online_ranges()
+> we will indeed try:
+> 
+> a) sclp_early_read_storage_info()
+> b) diag260()
 
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
----
- arch/s390/pci/pci_bus.c |  2 +-
- arch/x86/pci/fixup.c    |  2 +-
- drivers/pci/bus.c       |  4 +---
- drivers/pci/probe.c     |  5 ++---
- include/linux/pci.h     | 12 +-----------
- 5 files changed, 6 insertions(+), 19 deletions(-)
+So why care to call diag260() in case of DIAGNOSE 500? What about the below?
 
-diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-index daa5d7450c7d..5630af5deb8b 100644
---- a/arch/s390/pci/pci_bus.c
-+++ b/arch/s390/pci/pci_bus.c
-@@ -53,7 +53,7 @@ static int zpci_bus_prepare_device(struct zpci_dev *zdev)
- 		zpci_setup_bus_resources(zdev);
- 		for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 			if (zdev->bars[i].res)
--				pci_bus_add_resource(zdev->zbus->bus, zdev->bars[i].res, 0);
-+				pci_bus_add_resource(zdev->zbus->bus, zdev->bars[i].res);
- 		}
- 	}
- 
-diff --git a/arch/x86/pci/fixup.c b/arch/x86/pci/fixup.c
-index 98a9bb92d75c..0681ecfe3430 100644
---- a/arch/x86/pci/fixup.c
-+++ b/arch/x86/pci/fixup.c
-@@ -757,7 +757,7 @@ static void pci_amd_enable_64bit_bar(struct pci_dev *dev)
- 		dev_info(&dev->dev, "adding root bus resource %pR (tainting kernel)\n",
- 			 res);
- 		add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
--		pci_bus_add_resource(dev->bus, res, 0);
-+		pci_bus_add_resource(dev->bus, res);
- 	}
- 
- 	base = ((res->start >> 8) & AMD_141b_MMIO_BASE_MMIOBASE_MASK) |
-diff --git a/drivers/pci/bus.c b/drivers/pci/bus.c
-index 55c853686051..9cf6d0f3ab2b 100644
---- a/drivers/pci/bus.c
-+++ b/drivers/pci/bus.c
-@@ -46,8 +46,7 @@ void pci_free_resource_list(struct list_head *resources)
- }
- EXPORT_SYMBOL(pci_free_resource_list);
- 
--void pci_bus_add_resource(struct pci_bus *bus, struct resource *res,
--			  unsigned int flags)
-+void pci_bus_add_resource(struct pci_bus *bus, struct resource *res)
- {
- 	struct pci_bus_resource *bus_res;
- 
-@@ -58,7 +57,6 @@ void pci_bus_add_resource(struct pci_bus *bus, struct resource *res,
- 	}
- 
- 	bus_res->res = res;
--	bus_res->flags = flags;
- 	list_add_tail(&bus_res->list, &bus->resources);
- }
- 
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index 4f68414c3086..4243b1e6ece2 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -546,8 +546,7 @@ void pci_read_bridge_bases(struct pci_bus *child)
- 	if (dev->transparent) {
- 		pci_bus_for_each_resource(child->parent, res) {
- 			if (res && res->flags) {
--				pci_bus_add_resource(child, res,
--						     PCI_SUBTRACTIVE_DECODE);
-+				pci_bus_add_resource(child, res);
- 				pci_info(dev, "  bridge window %pR (subtractive decode)\n",
- 					   res);
- 			}
-@@ -1032,7 +1031,7 @@ static int pci_register_host_bridge(struct pci_host_bridge *bridge)
- 		if (res->flags & IORESOURCE_BUS)
- 			pci_bus_insert_busn_res(bus, bus->number, res->end);
- 		else
--			pci_bus_add_resource(bus, res, 0);
-+			pci_bus_add_resource(bus, res);
- 
- 		if (offset) {
- 			if (resource_type(res) == IORESOURCE_IO)
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 573b4c4c2be6..6a9cf80d0d4b 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -633,18 +633,9 @@ int pcibios_root_bridge_prepare(struct pci_host_bridge *bridge);
-  * Use pci_bus_for_each_resource() to iterate through all the resources.
-  */
- 
--/*
-- * PCI_SUBTRACTIVE_DECODE means the bridge forwards the window implicitly
-- * and there's no way to program the bridge with the details of the window.
-- * This does not apply to ACPI _CRS windows, even with the _DEC subtractive-
-- * decode bit set, because they are explicit and can be programmed with _SRS.
-- */
--#define PCI_SUBTRACTIVE_DECODE	0x1
--
- struct pci_bus_resource {
- 	struct list_head	list;
- 	struct resource		*res;
--	unsigned int		flags;
- };
- 
- #define PCI_REGION_FLAG_MASK	0x0fU	/* These bits of resource flags tell us the PCI region flags */
-@@ -1498,8 +1489,7 @@ void pci_add_resource(struct list_head *resources, struct resource *res);
- void pci_add_resource_offset(struct list_head *resources, struct resource *res,
- 			     resource_size_t offset);
- void pci_free_resource_list(struct list_head *resources);
--void pci_bus_add_resource(struct pci_bus *bus, struct resource *res,
--			  unsigned int flags);
-+void pci_bus_add_resource(struct pci_bus *bus, struct resource *res);
- struct resource *pci_bus_resource_n(const struct pci_bus *bus, int n);
- void pci_bus_remove_resources(struct pci_bus *bus);
- void pci_bus_remove_resource(struct pci_bus *bus, struct resource *res);
--- 
-2.39.5
+void detect_physmem_online_ranges(unsigned long max_physmem_end)
+{
+	if (!sclp_early_read_storage_info()) {
+		physmem_info.info_source = MEM_DETECT_SCLP_STOR_INFO;
+	} else if (physmem_info.info_source == MEM_DETECT_DIAG500_STOR_LIMIT) {
+		unsigned long online_end;
 
+		if (!sclp_early_get_memsize(&online_end)) {
+			physmem_info.info_source = MEM_DETECT_SCLP_READ_INFO;
+			add_physmem_online_range(0, online_end);
+		}
+	} else if (!diag260()) {
+		physmem_info.info_source = MEM_DETECT_DIAG260;
+	} else if (max_physmem_end) {
+		add_physmem_online_range(0, max_physmem_end);
+	}
+}
+
+> But if neither works, we cannot blindly add all that memory, something is
+> messed up. So we'll fallback to
+> 
+> c) sclp_early_get_memsize()
+> 
+> But if none of that works, something is seriously wrong.
+
+Ok, thanks for the clarification.
