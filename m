@@ -1,67 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CB8E35894;
-	Fri, 18 Oct 2024 08:03:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D60D19005E;
+	Fri, 18 Oct 2024 09:03:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729238625; cv=none; b=lZAh4DsDgU8WSRU9LmTt1GCng8HZLfZOOkMddWMvlPHZ++yoEEgftd0ozUkVdICjB6W4zOa12J8fExXnqpkqf5nT5wRuYVu75qoEVcqJgr2OSdgTaa/Qgy24jrhHr7EayiMMixnARVqWKckx0LwhhaVNyyyYj3ipE7gYnB2DWJ8=
+	t=1729242233; cv=none; b=AoVQ1yzOWTipRd7SnW5lJ76y083+BP0+owOcUI3K17Duwp+wJy/VafYZTvrvxllQ2c0pMx/YB7BabPA8It3DWhvqPsfIJLxZARUQjrKTMJlbrjhtO5E+XnZ+niLLNb7ysPE215A3Ai4uvrqKeBZRSZ7woGKyItcQ0V0f5JG8jcY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729238625; c=relaxed/simple;
-	bh=KuDuWula4PgTw8pNnCR7DOGG2nCTn9VOQIiIOXdbpzk=;
+	s=arc-20240116; t=1729242233; c=relaxed/simple;
+	bh=lGXZDdasYKEnFlv2mzNK2Z+xdDWSlyxeS0oofZeQIRw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LI8iBZfIpDRXT51obQozd6/qbRcUP6ASgh0abxlzhDHv/0QdxMcVcozMsDnLX1UX5jnksHELB9ORaEkNh+7nQ5EvbEevhMTziabQ17m4fk78VrXMI4psep1sm76JRVEuk/Ve6eY761yAYzPaBFDLTXzh4iIwD0nmZ+YMx5n7un0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WDJT90HR; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=VfkSAH+TNPo+3goKZpmQlL7mHqAWoBjJN2hTEybTm1wTJafXsu9+Ei7BxlcwRSXo6rzT9DSA4xkMbvZY6Jxd6QW+/KHwBG/aRrMoG19oRwC59T2wrcIwf6eQkzwoQsMspl4qnijxZvT/bSRLN7fHcEGKFm/yJx1izu/GeVSgJ3A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ohz5l6zp; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WDJT90HR"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49HJSAsF014016;
-	Fri, 18 Oct 2024 08:03:40 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ohz5l6zp"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49I5a5or013887;
+	Fri, 18 Oct 2024 09:03:47 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=9hlr2e
-	Qq96n/qPaVyElEvGhwGwn/7U7AQmnDbJS1PZw=; b=WDJT90HRqnGGb+xJ6g1Lkx
-	wbbUEWzLgBoRpQHRYVitBZydn8nreaRNEiwT7AmaIXMUV4llcWuLOpv803WMjZue
-	Z2Vvtr9uK79ZQ71ZwFhH+ZGAXeJhFoJm5/3Lgx6ffFsL4llyJKszAc4w968Nx61g
-	C+TAZBWLkh9dDbdGrU4nRAlM6eyBLwRSOhz6A0kIsuazDgj9XzSvoBbBGZeanBq7
-	/bCxlnjglzY0nRXU4GYr/v69CFKGfc4VmWfzvnVA2yNmi8rmH9TGjxLJvGJ5nJzS
-	xgrqmF2xHI8NXkJwNOHuAHYpaBMaTe5xTcXqHdOfTcub8te1UJkxp5DQkIqm1Y1w
+	:message-id:mime-version:references:subject:to; s=pp1; bh=PiSI6j
+	1MtOwTiFNJHvrYIgaf6ieP1ybkj9J8bqKVcCM=; b=ohz5l6zpljUxai3ZmHz2U5
+	nxWu2Y9iNQqNkjPDhujNOQrO7+Zt1cE/K/KI+S+xUPDBFaTz1m6egFbx9ArPkyI4
+	iXrxrdPpdNGqQ00dSPTRGp+YqFh0Lehm1QgyEqzcMIWEqYY2BJkChxtZz4BnzfrE
+	YX20K5WPNogmsWISKe0kdEU/BO/o7HLaDwEcX7OPwFPW85Sq3huaJrHm3X5B8jiG
+	0WXm4dtev108yvW3a0tf44NpGMFo1FFqUm+JKJdlhlx6eVhXAYZWWDfae5gga69m
+	EBtNqryCofrRNR+ntNF7tUDdPRPD/BAfBJ9ElUbN5WWYf58NeNopB/w+bgNG1Yug
 	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42aqk2r33p-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42bhnf904q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 18 Oct 2024 08:03:40 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49I83e1x011344;
-	Fri, 18 Oct 2024 08:03:40 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42aqk2r33m-1
+	Fri, 18 Oct 2024 09:03:46 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49I61TIY006338;
+	Fri, 18 Oct 2024 09:03:46 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 428651b527-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 18 Oct 2024 08:03:40 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49I7FNb4006690;
-	Fri, 18 Oct 2024 08:03:39 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4283esbfxq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 18 Oct 2024 08:03:39 +0000
+	Fri, 18 Oct 2024 09:03:46 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49I83Zml49021298
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49I93gsk45416784
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 18 Oct 2024 08:03:35 GMT
+	Fri, 18 Oct 2024 09:03:42 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7D65520040;
-	Fri, 18 Oct 2024 08:03:35 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 715722004B;
+	Fri, 18 Oct 2024 09:03:42 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 179282004D;
-	Fri, 18 Oct 2024 08:03:35 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1130F20043;
+	Fri, 18 Oct 2024 09:03:42 +0000 (GMT)
 Received: from [9.171.57.243] (unknown [9.171.57.243])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 18 Oct 2024 08:03:35 +0000 (GMT)
-Message-ID: <aeabd77d-6b3b-4e14-a6bb-4db65de275e9@linux.ibm.com>
-Date: Fri, 18 Oct 2024 10:03:34 +0200
+	Fri, 18 Oct 2024 09:03:41 +0000 (GMT)
+Message-ID: <33070d84-d261-4cec-8272-aef4757af353@linux.ibm.com>
+Date: Fri, 18 Oct 2024 11:03:41 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,17 +62,15 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v4 5/6] s390x: Use library functions for
- snippet exit
-To: Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        =?UTF-8?Q?Nico_B=C3=B6hr?=
- <nrb@linux.ibm.com>,
+Subject: Re: [PATCH v6 2/5] selftests: kvm: s390: Add uc_skey VM test case
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>, Nicholas Piggin <npiggin@gmail.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         David Hildenbrand <david@redhat.com>
-References: <20241016180320.686132-1-nsg@linux.ibm.com>
- <20241016180320.686132-6-nsg@linux.ibm.com>
+References: <D4WF2493HS7M.QHC37L73T9L5@linux.ibm.com>
+ <20241015141539.57638-1-schlameuss@linux.ibm.com>
 Content-Language: en-US
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
@@ -124,28 +115,29 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20241016180320.686132-6-nsg@linux.ibm.com>
+In-Reply-To: <20241015141539.57638-1-schlameuss@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: DAeytmaGmfDoXMGmhLKdkmHTp8xqeiyq
-X-Proofpoint-ORIG-GUID: MTvxv-Y35gYjE9ql4sNrF73L0Hv9N1S7
+X-Proofpoint-GUID: vjJf-AuTvSGVj3XZQtAI0KuaxeuRrG_e
+X-Proofpoint-ORIG-GUID: vjJf-AuTvSGVj3XZQtAI0KuaxeuRrG_e
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
- spamscore=0 priorityscore=1501 phishscore=0 clxscore=1015 mlxlogscore=925
- impostorscore=0 bulkscore=0 malwarescore=0 lowpriorityscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410180048
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ suspectscore=0 lowpriorityscore=0 impostorscore=0 mlxlogscore=713
+ malwarescore=0 bulkscore=0 adultscore=0 spamscore=0 phishscore=0
+ clxscore=1011 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410180056
 
-On 10/16/24 8:03 PM, Nina Schoetterl-Glausch wrote:
-> Replace the existing code for exiting from snippets with the newly
-> introduced library functionality.
+On 10/15/24 4:15 PM, Christoph Schlameuss wrote:
+> Add a test case manipulating s390 storage keys from within the ucontrol
+> VM.
 > 
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> Storage key instruction (ISKE, SSKE and RRBE) intercepts and
+> Keyless-subset facility are disabled on first use, where the skeys are
+> setup by KVM in non ucontrol VMs.
+> 
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
