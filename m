@@ -1,194 +1,147 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E05A14830F;
-	Mon, 21 Oct 2024 00:29:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DECA194C6C;
+	Mon, 21 Oct 2024 06:34:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729470599; cv=none; b=ClkoqdmqW/rwpgIF5W1bq7oCsGhwBg9CmmrG/k1jXEBaDvnzsiSs7kDKbxcFrUCapQROWKcVAfZPRuNbaYdc/YNHtElREYspXrD/ZVg0MFtNZKzn/i/NFvtgux/G6XptOS4uMeBZQsLw5nA/xSk5Z75Mjj+qJR2WT+wiluPguZk=
+	t=1729492446; cv=none; b=t5+Q8phWfxZ5ezGudR2dG5bsB+M4/vOj3ahUkPnE9jr3xV9xzjAdk+ZJNPHJrgwHIJgIeY33Jr+YJ7MUlKAfulwE2tNOnP1RfzrUEMdU20zEgWNp/fJrXhXiubYiof+aBsmcwkJ93VJYq143nVKoX/IekpaAl4dwx8PxOrOnMlo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729470599; c=relaxed/simple;
-	bh=2edVn3yzlgvTIcU4OYne6VaRBmOeBMvpuDRrHbVNdrI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=oGoohfC3AJJKp+I9JdTM7rGeMiA+bimxvlVQmu+SCee0SBRdI8Yx7uMvS6fYNV7/XBxrGbCsaEc5lopM6st+ffv7FFT2U1nJ5KjEoUO8vmvebafRLXt7DO4xuetHDIJa4OCSukXJDopmhxQLLWr0QHCpC1TZ3Km/7I/hH/qWFP0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NFFk4W0d; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1729492446; c=relaxed/simple;
+	bh=d+Vn5Dqu0W7NzPHX/GrXXUEhW3wXOthQtBtO6LLwieE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=AOl/krtWkGWX6nJC91l5W/C+9BTiXokGdaV/wGcODwiw0Kd4iiOYVDt+CdT6eY+e/jeAvUcBJdNSd0xhDXiJdW9wRLcDOyWX6gnp//Jbjz2rF5kchj8Hbd8Uc1iUX3p4G7zlZ9jJcVdfsyPN/XiZPoGWBXhmY0qEJj8Mo//nl/E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ARnhkOK5; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NFFk4W0d"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87B75C4CEE5;
-	Mon, 21 Oct 2024 00:29:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1729470598;
-	bh=2edVn3yzlgvTIcU4OYne6VaRBmOeBMvpuDRrHbVNdrI=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=NFFk4W0dyvHD7M3v36IIWTb5ySBBZX5uZ/VLRYiArPPR5++D/baWB8d+lyfAaBOhk
-	 rztTLk/6ilOUZBWwQxzKVpNgy7hbS+bAqO2cV8DFYmzWDyAaKEezQcPZFBrYh8vShT
-	 roh7zUz+tjlNZy+E9vuB5Q59JQnN14hGjhkd5gjyQeUJqlHGIc+Uf3/5EwjEZ4O6Ps
-	 TvEpzXEcAb/PHAsselt3G1remC4TFMm//VXM0Ciyn11PZQ9zsIxfN5iARYumUTBA9J
-	 8pJ0BrJoKwcW+JUENnQzEDWoyb2qcx6NpA2gan0ia3pz9LbggvtIVcVcrMMhn+Rn2b
-	 w+zTkdQuRqfwg==
-From: Eric Biggers <ebiggers@kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-crypto@vger.kernel.org,
-	linux-ext4@vger.kernel.org,
-	linux-f2fs-devel@lists.sourceforge.net,
-	linux-mips@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	loongarch@lists.linux.dev,
-	sparclinux@vger.kernel.org,
-	x86@kernel.org
-Subject: [PATCH 15/15] f2fs: switch to using the crc32 library
-Date: Sun, 20 Oct 2024 17:29:35 -0700
-Message-ID: <20241021002935.325878-16-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.47.0
-In-Reply-To: <20241021002935.325878-1-ebiggers@kernel.org>
-References: <20241021002935.325878-1-ebiggers@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ARnhkOK5"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49L2KHwX002179;
+	Mon, 21 Oct 2024 06:33:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=QKaq4B
+	5URAFGBy0bwe2UmpkraYPJ2j4a6Afx8H1P0X8=; b=ARnhkOK5gLJCohv7zvJln5
+	KtBlrpHd5u3tMrI0NxOHaHponCeVVkq+d2/uugPxNBEydz/TQr3zG9tDX2Uc2Ldm
+	Q3SLMBz2vLtKHpPzDUoZJk2vmkake10+YLeA440DsVzkph5gTILQBs1+QW66G5nh
+	61xO4c1/475UDzmjFOPtsMXO1+jhnceejSNmVOSmPW+hKQaHajFPtE70X8KuXsD+
+	ZkNHcK6Lfud1hzWf1ew+WhQomIZ1FRHRHwZBdHjXyDPh4KEx765d4/6/P9/iERA/
+	ExBU+gCvB0BeXPWtkCxtPssI6rLKitct5U36/KNdHRmt+8CIhiKmw87KnzTBzj1A
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42c5gcfeq5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 21 Oct 2024 06:33:53 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49L6Xqjk000729;
+	Mon, 21 Oct 2024 06:33:53 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42c5gcfeq1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 21 Oct 2024 06:33:52 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49L5O8fs029401;
+	Mon, 21 Oct 2024 06:33:51 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42crkjvmyr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 21 Oct 2024 06:33:51 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49L6XliM49938792
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 21 Oct 2024 06:33:47 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9B96F2004B;
+	Mon, 21 Oct 2024 06:33:47 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2FB6A20040;
+	Mon, 21 Oct 2024 06:33:46 +0000 (GMT)
+Received: from [9.179.24.137] (unknown [9.179.24.137])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 21 Oct 2024 06:33:46 +0000 (GMT)
+Message-ID: <fbee219a-cc88-414b-8f5f-2cb3b4c9f470@linux.ibm.com>
+Date: Mon, 21 Oct 2024 08:33:45 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 5/7] virtio-mem: s390 support
+To: Heiko Carstens <hca@linux.ibm.com>, David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-6-david@redhat.com>
+ <20241014184824.10447-F-hca@linux.ibm.com>
+ <ebce486f-71a0-4196-b52a-a61d0403e384@redhat.com>
+ <20241015083750.7641-D-hca@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20241015083750.7641-D-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: MZ1yrbyezdS4zll8wFGufHjjP4N0smer
+X-Proofpoint-ORIG-GUID: 37ZgR9RiC9b_Gof1v4vav0KFZsJWLwy9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=853 clxscore=1011 suspectscore=0 lowpriorityscore=0 mlxscore=0
+ impostorscore=0 spamscore=0 phishscore=0 adultscore=0 priorityscore=1501
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410210043
 
-From: Eric Biggers <ebiggers@google.com>
 
-Now that the crc32() library function takes advantage of
-architecture-specific optimizations, it is unnecessary to go through the
-crypto API.  Just use crc32().  This is much simpler, and it improves
-performance due to eliminating the crypto API overhead.
 
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- fs/f2fs/Kconfig |  3 +--
- fs/f2fs/f2fs.h  | 19 +------------------
- fs/f2fs/super.c | 15 ---------------
- 3 files changed, 2 insertions(+), 35 deletions(-)
+Am 15.10.24 um 10:37 schrieb Heiko Carstens:
+> On Mon, Oct 14, 2024 at 09:16:45PM +0200, David Hildenbrand wrote:
+>> On 14.10.24 20:48, Heiko Carstens wrote:
+>>> On Mon, Oct 14, 2024 at 04:46:17PM +0200, David Hildenbrand wrote:
+>>>> to dump. Based on this, support for dumping virtio-mem memory can be
+>>> Hm.. who will add this support? This looks like a showstopper to me.
+>>
+>> The cover letter is clearer on that: "One remaining work item is kdump
+>> support for virtio-mem memory. This will be sent out separately once initial
+>> support landed."
+>>
+>> I had a prototype, but need to spend some time to clean it up -- or find
+>> someone to hand it over to clean it up.
+>>
+>> I have to chose wisely what I work on nowadays, and cannot spend that time
+>> if the basic support won't get ACKed.
+>>
+>>> Who is supposed to debug crash dumps where memory parts are missing?
+>>
+>> For many production use cases it certainly needs to exist.
+>>
+>> But note that virtio-mem can be used with ZONE_MOVABLE, in which case mostly
+>> only user data (e.g., pagecache,anon) ends up on hotplugged memory, that
+>> would get excluded from makedumpfile in the default configs either way.
+>>
+>> It's not uncommon to let kdump support be added later (e.g., AMD SNP
+>> variants).
+> 
+> I'll leave it up to kvm folks to decide if we need kdump support from
+> the beginning or if we are good with the current implementation.
 
-diff --git a/fs/f2fs/Kconfig b/fs/f2fs/Kconfig
-index 68a1e23e1557c..5916a02fb46dd 100644
---- a/fs/f2fs/Kconfig
-+++ b/fs/f2fs/Kconfig
-@@ -2,12 +2,11 @@
- config F2FS_FS
- 	tristate "F2FS filesystem support"
- 	depends on BLOCK
- 	select BUFFER_HEAD
- 	select NLS
--	select CRYPTO
--	select CRYPTO_CRC32
-+	select CRC32
- 	select F2FS_FS_XATTR if FS_ENCRYPTION
- 	select FS_ENCRYPTION_ALGS if FS_ENCRYPTION
- 	select FS_IOMAP
- 	select LZ4_COMPRESS if F2FS_FS_LZ4
- 	select LZ4_DECOMPRESS if F2FS_FS_LZ4
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 33f5449dc22d5..1fc5c2743c8d4 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -1761,13 +1761,10 @@ struct f2fs_sb_info {
- 
- 	/* For write statistics */
- 	u64 sectors_written_start;
- 	u64 kbytes_written;
- 
--	/* Reference to checksum algorithm driver via cryptoapi */
--	struct crypto_shash *s_chksum_driver;
--
- 	/* Precomputed FS UUID checksum for seeding other checksums */
- 	__u32 s_chksum_seed;
- 
- 	struct workqueue_struct *post_read_wq;	/* post read workqueue */
- 
-@@ -1941,25 +1938,11 @@ static inline unsigned int f2fs_time_to_wait(struct f2fs_sb_info *sbi,
-  * Inline functions
-  */
- static inline u32 __f2fs_crc32(struct f2fs_sb_info *sbi, u32 crc,
- 			      const void *address, unsigned int length)
- {
--	struct {
--		struct shash_desc shash;
--		char ctx[4];
--	} desc;
--	int err;
--
--	BUG_ON(crypto_shash_descsize(sbi->s_chksum_driver) != sizeof(desc.ctx));
--
--	desc.shash.tfm = sbi->s_chksum_driver;
--	*(u32 *)desc.ctx = crc;
--
--	err = crypto_shash_update(&desc.shash, address, length);
--	BUG_ON(err);
--
--	return *(u32 *)desc.ctx;
-+	return crc32(crc, address, length);
- }
- 
- static inline u32 f2fs_crc32(struct f2fs_sb_info *sbi, const void *address,
- 			   unsigned int length)
- {
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 87ab5696bd482..003d3bcb0caa2 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1670,12 +1670,10 @@ static void f2fs_put_super(struct super_block *sb)
- 
- 	f2fs_destroy_post_read_wq(sbi);
- 
- 	kvfree(sbi->ckpt);
- 
--	if (sbi->s_chksum_driver)
--		crypto_free_shash(sbi->s_chksum_driver);
- 	kfree(sbi->raw_super);
- 
- 	f2fs_destroy_page_array_cache(sbi);
- 	f2fs_destroy_xattr_caches(sbi);
- #ifdef CONFIG_QUOTA
-@@ -4419,19 +4417,10 @@ static int f2fs_fill_super(struct super_block *sb, void *data, int silent)
- 		INIT_LIST_HEAD(&sbi->inode_list[i]);
- 		spin_lock_init(&sbi->inode_lock[i]);
- 	}
- 	mutex_init(&sbi->flush_lock);
- 
--	/* Load the checksum driver */
--	sbi->s_chksum_driver = crypto_alloc_shash("crc32", 0, 0);
--	if (IS_ERR(sbi->s_chksum_driver)) {
--		f2fs_err(sbi, "Cannot load crc32 driver.");
--		err = PTR_ERR(sbi->s_chksum_driver);
--		sbi->s_chksum_driver = NULL;
--		goto free_sbi;
--	}
--
- 	/* set a block size */
- 	if (unlikely(!sb_set_blocksize(sb, F2FS_BLKSIZE))) {
- 		f2fs_err(sbi, "unable to set blocksize");
- 		goto free_sbi;
- 	}
-@@ -4872,12 +4861,10 @@ static int f2fs_fill_super(struct super_block *sb, void *data, int silent)
- 	fscrypt_free_dummy_policy(&F2FS_OPTION(sbi).dummy_enc_policy);
- 	kvfree(options);
- free_sb_buf:
- 	kfree(raw_super);
- free_sbi:
--	if (sbi->s_chksum_driver)
--		crypto_free_shash(sbi->s_chksum_driver);
- 	kfree(sbi);
- 	sb->s_fs_info = NULL;
- 
- 	/* give only one another chance */
- 	if (retry_cnt > 0 && skip_recovery) {
-@@ -5080,7 +5067,5 @@ module_init(init_f2fs_fs)
- module_exit(exit_f2fs_fs)
- 
- MODULE_AUTHOR("Samsung Electronics's Praesto Team");
- MODULE_DESCRIPTION("Flash Friendly File System");
- MODULE_LICENSE("GPL");
--MODULE_SOFTDEP("pre: crc32");
--
--- 
-2.47.0
-
+If David confirms that he has a plan for this, I am fine with a staged approach
+for upstream.
