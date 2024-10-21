@@ -1,147 +1,139 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F5AD1E7C13
-	for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2024 12:19:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DB591E7C18;
+	Mon, 21 Oct 2024 12:46:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729513170; cv=none; b=jznUVorNEh51MWkAA+sjQL4lfpn8jxFYVdGqhKoHUKSKtmK864pEwumC9sHjI/bIP2AmY2HiUFZGKzoFiUb5PNn/UVccxnr0uhPmZ93GGEDppotjS9G2LT8FMsYtz97nIlJadhj1fLWhAFnlqOscwXpRDD/m9bUE+ZcsOtd/GS0=
+	t=1729514785; cv=none; b=mlRhnELxLjIPOyfvmpEopwr3UouTQIff3kpCvTFopXD1Exq+mHRu0XK1q1gA0usHVkU06BPuylS+rHuZqMOFMLmrdVHzBV7tjEzR6xQYz/a5l/Xlo1MxMMO0+nNFwMe+02JleiguMKBEA22Bs2JM39Cy7Pc9XMs+ZJaKE8pnzyA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729513170; c=relaxed/simple;
-	bh=85dwOBqgxabEtu7DlXSK3j+X36k6w41TKJHAAtHgg2A=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QHKSWjXz4YJ542EONvnf2EE2hmuhhR8M+7DVz/t1fp1XRfZGPJ5WqdIrizUgUeO0bHiNFr1SnwdK9i/AWoNPE/oWsu1J2Uo9fUZErF2w6gS6F+n0RQx6d3fzw40CMPpR7sYrFnNPl1Uj7xGDzLewUa4knnsLJjY/pmKoJCih9Wg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=itBqERyJ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1729514785; c=relaxed/simple;
+	bh=pWofFWrN4meoxrlDgXFp+FDqGZwULUzvgV2VK4OrfvI=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=s42qijc+ecmtS/A9rHO1f76Z/QbxayeMCc8Ze6TUf0wJitr1GuTv05tzJnLeUmhEmb0R5+4ZQOZ75kNhy2acAtKFouTveEiNO+qXbK4uIL7k2kHW8NPtz1Uc9pE9u1vjYLe2afQlrZLoVB9+7x94nZTTME69YdOLHyMMtkOinN8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FllWIjqg; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="itBqERyJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729513167;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=3SSNANQOGj1r9ayrCBzVvFmFj/ChOB3ieC2hxuoZm3o=;
-	b=itBqERyJZx0C2HdogBZrG1iHhbTD+RVGYjGo8WQyOwltnzNBy58AqH6ro8TNzpLRkxKfWp
-	Ghvv3brzegyNpke9jO2nji55JSLzY5N46YCYOlXaLUHP98x3wvsr2abHHaXYNmm06pJFJe
-	jmt/atFFhosb9d41FV9VbifIoXhVQHI=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-203-JBnaO3nFORunbXZtrxsdYA-1; Mon, 21 Oct 2024 08:19:26 -0400
-X-MC-Unique: JBnaO3nFORunbXZtrxsdYA-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4315d98a75fso29986995e9.2
-        for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2024 05:19:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729513165; x=1730117965;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=3SSNANQOGj1r9ayrCBzVvFmFj/ChOB3ieC2hxuoZm3o=;
-        b=AI7nRwCoNCXXwnDUf5yzIMcZ90gRolfHAH41r922nO9zGxFbIueFjssHo/Lu8fnhFX
-         XFtvH2e1s2OQoRilFre1odE1xqsdHMRapw1kKTcB2NhAhFHqZ+8XDFaak1WTvcXwF34G
-         R9ZRbP2I2IOqpsX1Qx54WRpFNt2JVrWJSwwQKlgEffhHv+i0F+9GfpDrmfbZWvUdvFPV
-         3B3vWm0fSdRtdezxUKEvPmPNStq1y0SYJAT2Sib3nRQDfDlygYwFXZ5pzbmD0GdL2xgu
-         te10EXQtQXCAjGetX8wsYSKndACW6neRYKZ7mNbHB9G8eLKlKZkwp/kE1TW/ViV7sCZV
-         q9fw==
-X-Forwarded-Encrypted: i=1; AJvYcCVgYQfFtxlrDIdG3PEKrKaiXbwX5DASqKrjUkOiv0T5wZpCDqnofzD+XzY5XFzlLuqUtnJnBVgXm3Ec@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy6m6xOCdnEFGjlMp1wskarKsTcTpYPDHNhLpapEVuF49nT1rhQ
-	NWJ9G3j6o2qkByiMBb7GZDs5J9gH3v49AFRCMQjpp8lCzXQb6FfhGCmhCoXndhAkpmN5HKcEs/L
-	U0Jb2cTlHeyN8D5eJDm6e2Ool4SVk8w+7sJdvGe5Zz7ECnPDd0UIdytEKfAQ=
-X-Received: by 2002:a05:600c:4e12:b0:431:1d97:2b0a with SMTP id 5b1f17b1804b1-43161641793mr95707985e9.15.1729513164987;
-        Mon, 21 Oct 2024 05:19:24 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHL+4zTIZRaHCwKu0OkK2nf7jN/ima55H0fGeAQpNI8aBlBlaAzYq2yIrtU/CEO+/V54e4DoQ==
-X-Received: by 2002:a05:600c:4e12:b0:431:1d97:2b0a with SMTP id 5b1f17b1804b1-43161641793mr95707665e9.15.1729513164570;
-        Mon, 21 Oct 2024 05:19:24 -0700 (PDT)
-Received: from ?IPV6:2a09:80c0:192:0:36d3:2b96:a142:a05b? ([2a09:80c0:192:0:36d3:2b96:a142:a05b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4316f57fa4fsm56089275e9.16.2024.10.21.05.19.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Oct 2024 05:19:24 -0700 (PDT)
-Message-ID: <213b6a6a-3594-4bc5-ae6d-930bbaf3616d@redhat.com>
-Date: Mon, 21 Oct 2024 14:19:20 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FllWIjqg"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49L2KIwL030363;
+	Mon, 21 Oct 2024 12:46:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=lR0jO/0xiV9IX40bSvxOvJgQf4enhl
+	qTnliqRfVPuDQ=; b=FllWIjqgF7s33e3vF82ifvOX4m/HI/xa7RUFy9iUYyvQER
+	bTwNkzmdSYyBB5Ju5Xp4lXOULnvRGV4b/LIkw7M//GFVSCGV7AcjOVTi9/HaVq6S
+	qlYl1/ewPa1Pkk/WST5jGhCPE/ZrZLQ0LnTY+Z5yL95WWM+eCJr5zFhLCuxaasRv
+	d7j6VoXY7zWM2v2IaQPSldfTXWFp5bASAh/fnek1pucpLvKDTdgUcpy3K6rfR062
+	/nQS3flCd73yoM/g0rQsH0Lb82GcHBdKg1/Zj8v4tkYh0i9ggytzquEP5RtLwNSu
+	m4IfdnInJwOor/hml/Q7lJVN+tzVL6nIMNXrbzZw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42c5fsrtp8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 21 Oct 2024 12:46:12 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49LCkBt7028404;
+	Mon, 21 Oct 2024 12:46:11 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42c5fsrtp5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 21 Oct 2024 12:46:11 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49LBV0hn028864;
+	Mon, 21 Oct 2024 12:46:10 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42cqfxefp6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 21 Oct 2024 12:46:10 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49LCk6Y853281068
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 21 Oct 2024 12:46:07 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D8F0220043;
+	Mon, 21 Oct 2024 12:46:06 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C10F120040;
+	Mon, 21 Oct 2024 12:46:06 +0000 (GMT)
+Received: from localhost (unknown [9.152.212.62])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 21 Oct 2024 12:46:06 +0000 (GMT)
+From: Alexander Egorenkov <egorenar@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: agordeev@linux.ibm.com, akpm@linux-foundation.org,
+        borntraeger@linux.ibm.com, cohuck@redhat.com, corbet@lwn.net,
+        eperezma@redhat.com, frankja@linux.ibm.com, gor@linux.ibm.com,
+        hca@linux.ibm.com, imbrenda@linux.ibm.com, jasowang@redhat.com,
+        kvm@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, mcasquer@redhat.com, mst@redhat.com,
+        svens@linux.ibm.com, thuth@redhat.com, virtualization@lists.linux.dev,
+        xuanzhuo@linux.alibaba.com, zaslonko@linux.ibm.com
+Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
+In-Reply-To: <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
+References: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+ <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
+Date: Mon, 21 Oct 2024 14:46:06 +0200
+Message-ID: <87sespfwtt.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 5/7] virtio-mem: s390 support
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
- linux-doc@vger.kernel.org, kvm@vger.kernel.org,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
- Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
- Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
-References: <20241014144622.876731-1-david@redhat.com>
- <20241014144622.876731-6-david@redhat.com>
- <20241014184824.10447-F-hca@linux.ibm.com>
- <ebce486f-71a0-4196-b52a-a61d0403e384@redhat.com>
- <20241015083750.7641-D-hca@linux.ibm.com>
- <fbee219a-cc88-414b-8f5f-2cb3b4c9f470@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-In-Reply-To: <fbee219a-cc88-414b-8f5f-2cb3b4c9f470@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 4UF9Fv-AK_XRBxOtezlAQD7YmT9k-wuq
+X-Proofpoint-ORIG-GUID: gPbbIZU3umCCUjsbfFgI52rfW3pmqV0a
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ impostorscore=0 clxscore=1015 mlxscore=0 malwarescore=0 bulkscore=0
+ lowpriorityscore=0 adultscore=0 phishscore=0 priorityscore=1501
+ spamscore=0 mlxlogscore=690 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2409260000 definitions=main-2410210090
 
+Hi David,
 
+David Hildenbrand <david@redhat.com> writes:
 
-Am 21.10.24 um 08:33 schrieb Christian Borntraeger:
-> 
-> 
-> Am 15.10.24 um 10:37 schrieb Heiko Carstens:
->> On Mon, Oct 14, 2024 at 09:16:45PM +0200, David Hildenbrand wrote:
->>> On 14.10.24 20:48, Heiko Carstens wrote:
->>>
->>> The cover letter is clearer on that: "One remaining work item is kdump
->>> support for virtio-mem memory. This will be sent out separately once initial
->>> support landed."
->>>
->>> I had a prototype, but need to spend some time to clean it up -- or find
->>> someone to hand it over to clean it up.
->>>
->>> I have to chose wisely what I work on nowadays, and cannot spend that time
->>> if the basic support won't get ACKed.
->>>
->>>
->>> For many production use cases it certainly needs to exist.
->>>
->>> But note that virtio-mem can be used with ZONE_MOVABLE, in which case mostly
->>> only user data (e.g., pagecache,anon) ends up on hotplugged memory, that
->>> would get excluded from makedumpfile in the default configs either way.
->>>
->>> It's not uncommon to let kdump support be added later (e.g., AMD SNP
->>> variants).
->>
->> I'll leave it up to kvm folks to decide if we need kdump support from
->> the beginning or if we are good with the current implementation.
-> 
-> If David confirms that he has a plan for this, I am fine with a staged approach
-> for upstream.
+> Makes sense, so it boils down to either
+>
+> bool is_kdump_kernel(void)
+> {
+>           return oldmem_data.start;
+> }
+>
+> Which means is_kdump_kernel() can be "false" even though /proc/vmcore is 
+> available or
+>
+> bool is_kdump_kernel(void)
+> {
+>           return dump_available();
+> }
+>
+> Which means is_kdump_kernel() can never be "false" if /proc/vmcore is 
+> available. There is the chance of is_kdump_kernel() being "true" if 
+> "elfcorehdr_alloc()" fails with -ENODEV.
 
-I do have a plan and a even a semi-working prototype that I am currently 
-improving. In summary, the virtio-mem driver in kdump mode can report ranges 
-with plugged memory to the core so we can include them in the elfcore hdr. That 
-is the easy part.
+Do you consider is_kdump_kernel() returning "true" in case of zfcpdump or
+nvme/eckd+ldipl dump (also called NGDump) okay ? Because
+dump_available() would return "true" in such cases too.
+If yes then please explain why, i might have missed a previous
+explanation from you.
 
-The "challenge" is when the virtio-mem driver is built as a module and gets 
-loaded after building/allocating the elfcore hdr (which happens when creating 
-/proc/vmcore). We have to defer detecting+adding the ranges to the time 
-/proc/vmcore gets opened. Not super complicated, but needs some thought to get 
-it done in a clean way / with minimal churn.
+I'm afraid everyone will make wrong assumptions while reading the name
+of is_kdump_kernel() and assuming that it only applies to kdump or
+kdump-alike dumps (like stand-alone kdump), and, therefore, introduce
+bugs because the name of the function conveys the wrong idea to code
+readers. I consider dump_available() as a superset of is_kdump_kernel()
+and, therefore, to me they are not equivalent.
 
--- 
-Cheers,
+I have the feeling you consider is_kdump_kernel() equivalent to
+"/proc/vmcore" being present and not really saying anything about
+whether kdump is active ?
 
-David / dhildenb
-
+Regards
+Alex
