@@ -1,25 +1,65 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B69181E285E;
-	Mon, 21 Oct 2024 13:23:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF3C41F9A90
+	for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2024 14:46:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729516993; cv=none; b=nn0CJafYOUNDB706Eu6eCVx3izyCtAXOMcNmJu26qrTvF5kydczVk963ksOj0Eivt/KzzpMNiMgi6ee2dueTM4OIJymGTnALDLdTn/V9IUZgquXCXU0Ie0r5UY3Aib47vrOfxCU+0P8B7UL+WXF5gGT8HzqDGxWBN5Q8pWJys8g=
+	t=1729521973; cv=none; b=tvS4GnEZt9szr8NmuP1JQJDzSbbvE8f/vU78UDU1qD3gYCZuZxnWWIEpqgFTBt5x5YzcVMNeFo3XvHVeKZjCWOUvzZuxdk5Lj8FzFbds1gdTQyeKDx407A8brbom2n2fdY6/TzfPiXHpUY1vku4X74ErN0FHdmDj39ndTCrFUkc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729516993; c=relaxed/simple;
-	bh=sZVT35tPktjswObqMzDeNjpp8MfKEIT8nIy1KCQbxUQ=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=TejOHOYjZ9dc1l3wOZWn7VcyyrZF6AtMhwPvVg47NUxh0elDuDcVUT00GLuUdE9gykbZXrroOAC1hvOpqiYRBrNoe0rg7MYS7XVvAaGMhnteSpqLb/u3ZAQn8AtRr1QoHYTF6WaC59A1uoOEeuGh/uZkUkV2/4dcjGGbVUDKVBE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D2598FEC;
-	Mon, 21 Oct 2024 06:23:40 -0700 (PDT)
-Received: from [10.57.24.27] (unknown [10.57.24.27])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E8DCB3F73B;
-	Mon, 21 Oct 2024 06:22:59 -0700 (PDT)
-Message-ID: <b6ca55b7-4de2-4085-97bd-619f91d9fcb8@arm.com>
-Date: Mon, 21 Oct 2024 14:22:56 +0100
+	s=arc-20240116; t=1729521973; c=relaxed/simple;
+	bh=DmQWkn1T9PFoG0NEwWjY8BdpxvZZCy1ZxEjLTxUCtIw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ErxSH+S/Vk1XIT9fczBKdvQORQmDdZ5PytL9W2WgXgtTICAXgwx0Lcr87CvRdBcOvnNC2YStrlOel0YujierkztM46H8CUc/BrJA6Z1V3zlnrThCeV0UWbKzLXbZieW3SuizwC8s/wvJEx6Le+TeBC477Of7y3rhI1d/kexVPxo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=N4Rr+2yy; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N4Rr+2yy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729521969;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3pBpP7qLCW9N3cROeVqgUltAMhaWq+ArP+b0NXa5W34=;
+	b=N4Rr+2yyYVp5QhwwsG5s90bxFZA8dj/CQWUEXe78q+0OlCVe1CkFUddnk9/9CXuLHSa61a
+	XZuml/JcLjNJt7reTyq4lQJ2zzwYDH2INWvS74+fAxnua3XRTk+jcqpFvCnT1XWYL1YwyY
+	wR/yG8KjuL6cjn1AxK8JHn093zqpNuU=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-328-2c_du_nPNAy7sT020-xfwQ-1; Mon, 21 Oct 2024 10:46:06 -0400
+X-MC-Unique: 2c_du_nPNAy7sT020-xfwQ-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4315544642eso36525885e9.3
+        for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2024 07:46:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1729521962; x=1730126762;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=3pBpP7qLCW9N3cROeVqgUltAMhaWq+ArP+b0NXa5W34=;
+        b=M/2QkukwkMlYDpzouvzu/d1ZK9+r57eSCiqTteQNJF/dgp6nhaYTkKBLfRGh3knf7r
+         I7gzBaRyKQs253RNmZG+RAkzvVqDjtKNDpo7LwdPv6u4fFl6UdZsuHd5sLgKZiJI/bOB
+         48OwTMxY5bnAkbzS+tX10EUwTnwaDF+jKOnVzcuEimldJshCBuqA6/gQTE/a8X5tOBTO
+         1BWt5KiO09vOnhzoGzsDSLTa1a6sN6Uax6PjUXszi8kJOVNzwRFj1jMcpIuqzXFOR4JC
+         avw73qE8P/CIx/Bjq8veQLDZjhlmXunOGqMNHQU7KB5WncYTFcwyKCcrQhy+soQJRain
+         W6Ww==
+X-Forwarded-Encrypted: i=1; AJvYcCW3I1sJPVDUQ/Vl/88Jp9plmtyPgg6LVapYCJ0TkmeQNHONsIFEo2qHIx8VmDnPkYsAAH4fZVHZnujz@vger.kernel.org
+X-Gm-Message-State: AOJu0Yza7TbvYSCA/XXXeGHQ+KUzpORefnADGzaF0/3X+RN2t7pmDRm6
+	1A/nUB7i0EGPPiy8zawxWQms51tWVJ/y/mCunXyDSAfFKIZFV7a/gZYL0XewmMxQpIK0fd/Ifle
+	A2vD418tb05zMWltkTc0vhmXfsGS09AMh3PCcqva57YlNA4hHqXk8HiQQCFQ=
+X-Received: by 2002:a05:600c:4f15:b0:42c:b187:bde9 with SMTP id 5b1f17b1804b1-4316168ffb3mr101784395e9.30.1729521961921;
+        Mon, 21 Oct 2024 07:46:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHnIcoVRRXbRUhxXReK6GpWNjdl0oiVGYJ9jq/7PmjHByyOKh4qiRtxhiYigJPvogBLyhVgLw==
+X-Received: by 2002:a05:600c:4f15:b0:42c:b187:bde9 with SMTP id 5b1f17b1804b1-4316168ffb3mr101784205e9.30.1729521961507;
+        Mon, 21 Oct 2024 07:46:01 -0700 (PDT)
+Received: from ?IPV6:2a09:80c0:192:0:36d3:2b96:a142:a05b? ([2a09:80c0:192:0:36d3:2b96:a142:a05b])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4316f57fc77sm60419925e9.17.2024.10.21.07.46.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Oct 2024 07:46:01 -0700 (PDT)
+Message-ID: <64db4a88-4f2d-4d1d-8f7c-37c797d15529@redhat.com>
+Date: Mon, 21 Oct 2024 16:45:59 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -27,146 +67,130 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-From: Steven Price <steven.price@arm.com>
-Subject: Re: [PATCH RFC v2 0/4] mm: Introduce MAP_BELOW_HINT
-To: "Kirill A. Shutemov" <kirill@shutemov.name>,
- Charlie Jenkins <charlie@rivosinc.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
- Richard Henderson <richard.henderson@linaro.org>,
- Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner
- <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
- Russell King <linux@armlinux.org.uk>, Guo Ren <guoren@kernel.org>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
- Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Naveen N Rao <naveen@kernel.org>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- "David S. Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, Muchun Song <muchun.song@linux.dev>,
- Andrew Morton <akpm@linux-foundation.org>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
- <vbabka@suse.cz>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Shuah Khan <shuah@kernel.org>, linux-arch@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
- linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org,
- linux-kselftest@vger.kernel.org
-References: <20240829-patches-below_hint_mmap-v2-0-638a28d9eae0@rivosinc.com>
- <yu7um2tcxg2apoz372rmzpkrfgbb42ndvabvrsp4usb2e3bkrf@huaucjsp5vlj>
- <Ztnp3OAIRz/daj7s@ghost>
- <pbotlphw77fkfacldtpxfjcs2w5nhb2uvxszv5rmlrhjm42akd@4pvcqb7ojq4v>
-Content-Language: en-GB
-In-Reply-To: <pbotlphw77fkfacldtpxfjcs2w5nhb2uvxszv5rmlrhjm42akd@4pvcqb7ojq4v>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
+To: Alexander Egorenkov <egorenar@linux.ibm.com>
+Cc: agordeev@linux.ibm.com, akpm@linux-foundation.org,
+ borntraeger@linux.ibm.com, cohuck@redhat.com, corbet@lwn.net,
+ eperezma@redhat.com, frankja@linux.ibm.com, gor@linux.ibm.com,
+ hca@linux.ibm.com, imbrenda@linux.ibm.com, jasowang@redhat.com,
+ kvm@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, mcasquer@redhat.com, mst@redhat.com,
+ svens@linux.ibm.com, thuth@redhat.com, virtualization@lists.linux.dev,
+ xuanzhuo@linux.alibaba.com, zaslonko@linux.ibm.com
+References: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+ <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
+ <87sespfwtt.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+In-Reply-To: <87sespfwtt.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 09/09/2024 10:46, Kirill A. Shutemov wrote:
-> On Thu, Sep 05, 2024 at 10:26:52AM -0700, Charlie Jenkins wrote:
->> On Thu, Sep 05, 2024 at 09:47:47AM +0300, Kirill A. Shutemov wrote:
->>> On Thu, Aug 29, 2024 at 12:15:57AM -0700, Charlie Jenkins wrote:
->>>> Some applications rely on placing data in free bits addresses allocated
->>>> by mmap. Various architectures (eg. x86, arm64, powerpc) restrict the
->>>> address returned by mmap to be less than the 48-bit address space,
->>>> unless the hint address uses more than 47 bits (the 48th bit is reserved
->>>> for the kernel address space).
->>>>
->>>> The riscv architecture needs a way to similarly restrict the virtual
->>>> address space. On the riscv port of OpenJDK an error is thrown if
->>>> attempted to run on the 57-bit address space, called sv57 [1].  golang
->>>> has a comment that sv57 support is not complete, but there are some
->>>> workarounds to get it to mostly work [2].
+
+
+Am 21.10.24 um 14:46 schrieb Alexander Egorenkov:
+> Hi David,
 > 
-> I also saw libmozjs crashing with 57-bit address space on x86.
+> David Hildenbrand <david@redhat.com> writes:
 > 
->>>> These applications work on x86 because x86 does an implicit 47-bit
->>>> restriction of mmap() address that contain a hint address that is less
->>>> than 48 bits.
->>>>
->>>> Instead of implicitly restricting the address space on riscv (or any
->>>> current/future architecture), a flag would allow users to opt-in to this
->>>> behavior rather than opt-out as is done on other architectures. This is
->>>> desirable because it is a small class of applications that do pointer
->>>> masking.
+>> Makes sense, so it boils down to either
+>>
+>> bool is_kdump_kernel(void)
+>> {
+>>            return oldmem_data.start;
+>> }
+>>
+>> Which means is_kdump_kernel() can be "false" even though /proc/vmcore is
+>> available or
+>>
+>> bool is_kdump_kernel(void)
+>> {
+>>            return dump_available();
+>> }
+>>
+>> Which means is_kdump_kernel() can never be "false" if /proc/vmcore is
+>> available. There is the chance of is_kdump_kernel() being "true" if
+>> "elfcorehdr_alloc()" fails with -ENODEV.
+
+Thanks for having another look!
+
 > 
-> You reiterate the argument about "small class of applications". But it
-> makes no sense to me.
+> Do you consider is_kdump_kernel() returning "true" in case of zfcpdump or
+> nvme/eckd+ldipl dump (also called NGDump) okay ? Because
+> dump_available() would return "true" in such cases too.
+> If yes then please explain why, i might have missed a previous
+> explanation from you.
 
-Sorry to chime in late on this - I had been considering implementing
-something like MAP_BELOW_HINT and found this thread.
+I consider it okay because this is the current behavior after elfcorehdr_alloc() 
+succeeded and set elfcorehdr_addr.
 
-While the examples of applications that want to use high VA bits and get
-bitten by future upgrades is not very persuasive. It's worth pointing
-out that there are a variety of somewhat horrid hacks out there to work
-around this feature not existing.
+Not sure if it is the right think to do, though :)
 
-E.g. from my brief research into other code:
+Whatever we do, we should achieve on s390 that the result of is_kdump_kernel() 
+is consistent throughout the booting stages, just like on all other architectures.
 
-  * Box64 seems to have a custom allocator based on reading 
-    /proc/self/maps to allocate a block of VA space with a low enough 
-    address [1]
+Right now it goes from false->true when /proc/vmcore gets initialized (and only 
+if it gets initialized properly).
 
-  * PHP has code reading /proc/self/maps - I think this is to find a 
-    segment which is close enough to the text segment [2]
-
-  * FEX-Emu mmap()s the upper 128TB of VA on Arm to avoid full 48 bit
-    addresses [3][4]
-
-  * pmdk has some funky code to find the lowest address that meets 
-    certain requirements - this does look like an ALSR alternative and 
-    probably couldn't directly use MAP_BELOW_HINT, although maybe this 
-    suggests we need a mechanism to map without a VA-range? [5]
-
-  * MIT-Scheme parses /proc/self/maps to find the lowest mapping within 
-    a range [6]
-
-  * LuaJIT uses an approach to 'probe' to find a suitable low address 
-    for allocation [7]
-
-The biggest benefit I see of MAP_BELOW_HINT is that it would allow a
-library to get low addresses without causing any problems for the rest
-of the application. The use case I'm looking at is in a library and 
-therefore a personality mode wouldn't be appropriate (because I don't 
-want to affect the rest of the application). Reading /proc/self/maps
-is also problematic because other threads could be allocating/freeing
-at the same time.
-
-Thanks,
-Steve
-
-
-[1] https://sources.debian.org/src/box64/0.3.0+dfsg-1/src/custommem.c/
-[2] https://sources.debian.org/src/php8.2/8.2.24-1/ext/opcache/shared_alloc_mmap.c/#L62
-[3] https://github.com/FEX-Emu/FEX/blob/main/FEXCore/Source/Utils/Allocator.cpp
-[4] https://github.com/FEX-Emu/FEX/commit/df2f1ad074e5cdfb19a0bd4639b7604f777fb05c
-[5] https://sources.debian.org/src/pmdk/1.13.1-1.1/src/common/mmap_posix.c/?hl=29#L29
-[6] https://sources.debian.org/src/mit-scheme/12.1-3/src/microcode/ux.c/#L826
-[7] https://sources.debian.org/src/luajit/2.1.0+openresty20240815-1/src/lj_alloc.c/
-
-> With full address space by default, this small class of applications is
-> going to *broken* unless they would handle RISC-V case specifically.
 > 
-> On other hand, if you limit VA to 128TiB by default (like many
-> architectures do[1]) everything would work without intervention.
-> And if an app needs wider address space it would get it with hint opt-in,
-> because it is required on x86-64 anyway. Again, no RISC-V-specific code.
-> 
-> I see no upside with your approach. Just worse user experience.
-> 
-> [1] See va_high_addr_switch test case in https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/testing/selftests/mm/Makefile#n115
-> 
+> I'm afraid everyone will make wrong assumptions while reading the name
+> of is_kdump_kernel() and assuming that it only applies to kdump or
+> kdump-alike dumps (like stand-alone kdump), and, therefore, introduce
+> bugs because the name of the function conveys the wrong idea to code
+> readers. I consider dump_available() as a superset of is_kdump_kernel()
+> and, therefore, to me they are not equivalent.
+ > > I have the feeling you consider is_kdump_kernel() equivalent to
+> "/proc/vmcore" being present and not really saying anything about
+> whether kdump is active ?
+
+Yes, but primarily because this is the existing handling.
+
+Staring at the powerpc implementation:
+
+/*
+  * Return true only when kexec based kernel dump capturing method is used.
+  * This ensures all restritions applied for kdump case are not automatically
+  * applied for fadump case.
+  */
+bool is_kdump_kernel(void)
+{
+	return !is_fadump_active() && elfcorehdr_addr != ELFCORE_ADDR_MAX;
+}
+EXPORT_SYMBOL_GPL(is_kdump_kernel);
+
+
+Which was added by
+
+commit b098f1c32365304633077d73e4ae21c72d4241b3
+Author: Hari Bathini <hbathini@linux.ibm.com>
+Date:   Tue Sep 12 13:59:50 2023 +0530
+
+     powerpc/fadump: make is_kdump_kernel() return false when fadump is active
+
+     Currently, is_kdump_kernel() returns true in crash dump capture kernel
+     for both kdump and fadump crash dump capturing methods, as both these
+     methods set elfcorehdr_addr. Some restrictions enforced for crash dump
+     capture kernel, based on is_kdump_kernel(), are specifically meant for
+     kdump case and not desirable for fadump - eg. IO queues restriction in
+     device drivers. So, define is_kdump_kernel() to return false when f/w
+     assisted dump is active.
+
+
+For my purpose (virtio-mem), it's sufficient to only support "kexec triggered 
+kdump" either way, so I don't care.
+
+So for me it's good enough to have
+
+bool is_kdump_kernel(void)
+{
+	return oldmem_data.start;
+}
+
+And trying to document the situation in a comment like powerpc does :)
+
+-- 
+Cheers,
+
+David / dhildenb
 
