@@ -1,118 +1,111 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C77DA5B216;
-	Tue, 22 Oct 2024 02:00:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 202301494B2;
+	Tue, 22 Oct 2024 08:25:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729562422; cv=none; b=bcXaiGWJvQZpT6x/qti6akK6VCYi2HY71RtkJn8Cx4tCkt/K4RwbhoWfzFrQolhEQQ3sBWoBXE10kaVVWQYc6fZmVBYdi/6ouCrWa9fue70+C7XtV0aP1AaaEpWVQaWI5e/AQYUKmDMEw9Im6WgjFzFZsNbDL6p5bFgQerB097Y=
+	t=1729585549; cv=none; b=odJKO97eDYJEV09quB/lM1j1n9MEnG43sGt2hmcjRWRYQh/HOSwIzeIzZLm58ErBIBXOpv/cC3K5Ib5mhOb+VKIy+gCwm7QtrlHT9dUCWFah/TOtHCdkKes0nolA4J4NcFUEJX/pxa4DW/ldDqVmo09jCc5FqNynhS3v/Tlg0UI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729562422; c=relaxed/simple;
-	bh=QY3g6Qwdo5/3ZoYCID2b/TExQufL9KcYp8YD0IzX3qg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=K67pNNoH5L0Tnh3Ip+5ckNh1NUFNUb/pfegxsd3CPIl5h8T6V6hPXE16fOX25oVqKM1yQieIyM9DNqyuYZlSEQ5GlUs8UetLaVlXId+If3QBMCBfpDfRG7m5GRxBD/qKmS9JMRG64MseRZhw2EUDQnfZVXi7BhCNTMtUy/8ZP5g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=yptbV/tP; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1729585549; c=relaxed/simple;
+	bh=7xT3ZfRxS+Ea0dW5I5mtoD+/BVwN+LslvFuvS4EnjPs=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:To:Subject:From:
+	 References:In-Reply-To; b=gDpdC5hgbEnHqFM2/qIv1CcwZaJSar9XwFUHij0CPiX55RvXbF+EvNdSGV+rORfnp+S9+RtgRT8tTnjDWa0kEewFpMc6WDf3Bn8IYt2uiTywrZfkDWVICcBPimP1M4GrjUdAIy/Ghb7oYa62YzrkIByx1LKSdOAokxmr+44CWPc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VsHBy0Kl; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="yptbV/tP"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1729562411; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=jnB/hhMsFk72J+nzMdTPHQDhD1sA65aIl7jzVIYxuj8=;
-	b=yptbV/tPfpJkhxaCVi3vC4f76jdzPs6sAh53jAz6LQJnJuTeHZtXlOZLgr34TUYfLKRuRGFPsGi6biH4M9HCLfUonCviNhKFdce0Y3OW/j9rB6RGMysnyW/0PkfQbtGCdnu8/slcxYtH8vSvhQ4m3Be8A1/T0oQdVC6V9rS2uMg=
-Received: from 30.221.147.210(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WHfyQem_1729562409 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 22 Oct 2024 10:00:10 +0800
-Message-ID: <17c1f52d-e032-44c1-8f56-34d5cd8e30ac@linux.alibaba.com>
-Date: Tue, 22 Oct 2024 10:00:09 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VsHBy0Kl"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49M2HCWx029534;
+	Tue, 22 Oct 2024 08:25:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=TOThjF
+	53vl7D1D0h5+W6guVI3ubmW5wlSXTEoDXMR4U=; b=VsHBy0Klel8i8Ocd+T/xpO
+	UYcAap3Q6da5qlQrwhNAx2MaXZ9QeR+Hz0cfOiCCk8ETmEcVIRAn3E+uf+5hQ4R8
+	IKy0m68yS9ONP3iwj50l0U1H5rPnFli0CsGANTH8EuCxsGB899ZB5oewrEa/OByw
+	OvnYDhz/Rs0nGyb2AkTYdsjitBfdaR2lGsxIZBiul2XJWkCyns8wb/74UEI31FKI
+	9P36jCHhgFdpfsKT9iyCcKr3RmBxCKXhZbQhYWx4/5j+XHEesupH85zK3LdoABwR
+	pAxaWVkpf3qezaD4MLom77b+2DovZCvr3hQGLuCaJE8sMDtCrp7Riz/vU4kUpYsw
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42c5eucxaj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 22 Oct 2024 08:25:46 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49M44utI026425;
+	Tue, 22 Oct 2024 08:25:46 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 42cq3sahxq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 22 Oct 2024 08:25:46 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49M8Pgic52756926
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 22 Oct 2024 08:25:42 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B17AC20049;
+	Tue, 22 Oct 2024 08:25:42 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 80B9C20040;
+	Tue, 22 Oct 2024 08:25:42 +0000 (GMT)
+Received: from darkmoore (unknown [9.171.78.143])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 22 Oct 2024 08:25:42 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/2 RESEND] resolve gtp possible deadlock warning
-To: Daniel Yang <danielyangkang@gmail.com>,
- Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Cc: syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
-References: <cover.1729031472.git.danielyangkang@gmail.com>
- <c2ac8e30806af319eb96f67103196b7cda22d562.1729031472.git.danielyangkang@gmail.com>
-Content-Language: en-US
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <c2ac8e30806af319eb96f67103196b7cda22d562.1729031472.git.danielyangkang@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 22 Oct 2024 10:25:37 +0200
+Message-Id: <D526WIRSO9IK.DBBSW7DNWR0@linux.ibm.com>
+Cc: "Ingo Franzki" <ifranzki@linux.ibm.com>,
+        "Harald Freudenberger"
+ <freude@linux.ibm.com>,
+        "Janosch Frank" <frankja@linux.ibm.com>,
+        "Claudio
+ Imbrenda" <imbrenda@linux.ibm.com>
+To: "Steffen Eiden" <seiden@linux.ibm.com>, <linux-kernel@vger.kernel.org>,
+        <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH v4 2/6] s390/uv: Retrieve UV secrets support
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+X-Mailer: aerc 0.18.2
+References: <20241018091516.2167885-1-seiden@linux.ibm.com>
+ <20241018091516.2167885-3-seiden@linux.ibm.com>
+In-Reply-To: <20241018091516.2167885-3-seiden@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: IVpROmBhXEWOjPJDG-vSKc2yd8nkBRCc
+X-Proofpoint-ORIG-GUID: IVpROmBhXEWOjPJDG-vSKc2yd8nkBRCc
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 spamscore=0 suspectscore=0 phishscore=0 impostorscore=0
+ mlxlogscore=384 mlxscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410220052
 
+On Fri Oct 18, 2024 at 11:15 AM CEST, Steffen Eiden wrote:
+> Provide a kernel API to retrieve secrets from the UV secret store.
+> Add two new functions:
+> * `uv_get_secret_metadata` - get metadata for a given secret identifier
+> * `uv_retrieve_secret` - get the secret value for the secret index
+>
+> With those two functions one can extract the secret for a given secret
+> id, if the secret is retrievable.
+>
+> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-On 10/16/24 6:48 AM, Daniel Yang wrote:
-> From: Daniel Yang <danielyangkang@gmail.com>
-> 
-> Moved lockdep annotation to separate function for readability.
-> 
-> Signed-off-by: Daniel Yang <danielyangkang@gmail.com>
-> Reported-by: syzbot+e953a8f3071f5c0a28fd@syzkaller.appspotmail.com
-> 
 > ---
->   net/smc/smc_inet.c | 28 +++++++++++++++-------------
->   1 file changed, 15 insertions(+), 13 deletions(-)
-> 
-> diff --git a/net/smc/smc_inet.c b/net/smc/smc_inet.c
-> index 7ae49ffd2..b3eedc3b0 100644
-> --- a/net/smc/smc_inet.c
-> +++ b/net/smc/smc_inet.c
-> @@ -111,18 +111,7 @@ static struct inet_protosw smc_inet6_protosw = {
->   static struct lock_class_key smc_slock_keys[2];
->   static struct lock_class_key smc_keys[2];
->   
-> -static int smc_inet_init_sock(struct sock *sk)
-> -{
-> -	struct net *net = sock_net(sk);
-> -	int rc;
-> -
-> -	/* init common smc sock */
-> -	smc_sk_init(net, sk, IPPROTO_SMC);
-> -	/* create clcsock */
-> -	rc = smc_create_clcsk(net, sk, sk->sk_family);
-> -	if (rc)
-> -		return rc;
-> -
-> +static inline void smc_inet_lockdep_annotate(struct sock *sk) {
->   	switch (sk->sk_family) {
->   		case AF_INET:
->   			sock_lock_init_class_and_name(sk, "slock-AF_INET-SMC",
-> @@ -139,8 +128,21 @@ static int smc_inet_init_sock(struct sock *sk)
->   		default:
->   			WARN_ON_ONCE(1);
->   	}
-> +}
->   
-> -	return 0;
-> +static int smc_inet_init_sock(struct sock *sk)
-> +{
-> +	struct net *net = sock_net(sk);
-> +	int rc;
-> +
-> +	/* init common smc sock */
-> +	smc_sk_init(net, sk, IPPROTO_SMC);
-> +	/* create clcsock */
-> +	rc = smc_create_clcsk(net, sk, sk->sk_family);
-> +	if (!rc)
-> +		smc_inet_lockdep_annotate(sk);
-> +
-> +	return rc;
->   }
->   
->   int __init smc_inet_init(void)
+>  arch/s390/include/asm/uv.h | 135 ++++++++++++++++++++++++++++++++++++-
+>  arch/s390/kernel/uv.c      | 129 ++++++++++++++++++++++++++++++++++-
+>  2 files changed, 261 insertions(+), 3 deletions(-)
 
-I need to check why you said Wang Cong's patch cannot fix the issue.
-As soon as I reach a conclusion, I'll inform you right away.
+[...]
 
-D. Wythe
