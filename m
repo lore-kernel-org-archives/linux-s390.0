@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E67D19F47A;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C3561A0706;
 	Tue, 22 Oct 2024 12:06:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729598780; cv=none; b=Yb4xEY8Q+m/xTTPsJ72MMoXN+wT211wOm/jBmKdT6hYtPeMdJZPQpvlfre2T4kKibUukbnYD1AGKlV/O+0OF7ytQeHQdkTnvmzL6eAH9qInQpDcJdFn/GZCqj57MU6hpoEpohbjiMLBjJyj649suRhxrzEegyvGBzs7mAGxTZMY=
+	t=1729598781; cv=none; b=olkbCYhKoECRgHtiJT8A8WTdholRaN1Agyvx5c0vQXJjWr6eXcHrFjUicNqFjxFO0ju9hNV2lSbaEG1dHGYkN//iROu1MpFMc4KDQ4KmCm7Y6HtALWOa5ZG/h7hn5BY+4QAM5RgUTWpUJXYSNCbVvrSmdCwpxt/pll+rO9uSUAQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729598780; c=relaxed/simple;
-	bh=+g9t5WufnlNvzouzFwgjvpnjUHXr6pbQ3jNUSlRVc14=;
+	s=arc-20240116; t=1729598781; c=relaxed/simple;
+	bh=OD/CTOrwcg6OiHs7buhnlA46yO9ruiybpAnnQ2ioFXg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=L3CUJTunD3Xdmym1GbEoX2oiTfNi1lVnpce3B+Cp/9qjQXDwEWvfGTrmfIedjlrwYLvjeYsmgsPJP4/lyn1hdtRgaC6FgpbR86dGjYLdA4gm4Q9gk5TdrGJW+VIzmiFju4Q29dVZjMwRnqg9B/rBUnl03poMw2xF7YUwnY5camc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AYSRPEOd; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=tZunYYFLHtH7QHp3X+3W3hVRwgbeS13vLMmgz8f6qzMAI4lq5YLb9Xi2fkLQmAsrHaCoXk3XlOO78uHT3CYSpuQvBjnynPeM6vROzgylVQnB+buS8IVstUSSrjULIfpiE3aJIDT5mSRBBTVQnKCkKdgCRbQ8UWDJRPBzTZE81Ys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hcswGXHZ; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AYSRPEOd"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49M2HD4D009315;
-	Tue, 22 Oct 2024 12:06:13 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hcswGXHZ"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49M2HjYa006796;
+	Tue, 22 Oct 2024 12:06:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=R+YVoTU9vVboQiluc
-	VJHs3H+c/Qmy79N2AV76dBKy/0=; b=AYSRPEOdNKt3sBWpIDiLO2OsB64DWjtHN
-	moHvG7D0gu5IyWefX6XjvZGWTH4rhlLztQwyElqtXr4qgNKr8XDBEToPuI0UWVXz
-	chSR02P7MqYfXh1scVsy93Xsk6uYS4qPPvb3InbzVjZjwV18ZGFHCRFBnAHD1tIX
-	PHWJhDD2WMLAo6f5vTFW5HY7V3eoAwS0cSSYTrfnFSYib6GyNgY2R/of85qy8v+E
-	+DrRjfdhumncmpNzQ/aeGSNumMKQalwHFdKJx9G9dg1fVTMalIEpLYpO8085aYqq
-	EOsQ4sQsvCjWoGFEfnVs9V6zTOwXbvgGY0+hvndl+C6aR217Fc4FA==
+	:mime-version:references:subject:to; s=pp1; bh=b1hrL5t3INOADSR8l
+	YZwbXlFlIC3oQgm2SthebZwLds=; b=hcswGXHZWpEsGBiVwX1ZlSZ8JIgQBPZ5z
+	l4qYVVskoVTmYnWRIl6N4nEuSaJ7RADZY5GPe1i3LKo0jHNfWMYAvLieiv6nk8ie
+	fJQNHW1TAJ6kAKkj8Un42T+T7CCPoJTPAtjE/YOgF7oGdDr9X8ifbcuNmCuLA6D+
+	lFgrnnBffCJSvlMRX/uq2naAtIR/QxZzVUdwanVGo55jNva6BxuyvfSgFFBHqmRF
+	GVMG9ho50XGD2c6e0DYC/2nazPFkuq/oXmzNPbVv++lp5zgtVI6MRNTBuq0Bh3vx
+	fg49MaBEV3gkcgyXWysSO5fe/YVhT6xdmlnYGSqVlykNm8hM8oZjw==
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42c5hmeevt-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42c5fcnqf5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 22 Oct 2024 12:06:13 +0000 (GMT)
+	Tue, 22 Oct 2024 12:06:16 +0000 (GMT)
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49MAkbsS023815;
-	Tue, 22 Oct 2024 12:06:11 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 42cst12scm-1
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49MBGvkj023927;
+	Tue, 22 Oct 2024 12:06:15 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 42cst12scw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 22 Oct 2024 12:06:11 +0000
+	Tue, 22 Oct 2024 12:06:15 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49MC68f554853888
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49MC6Ckr55050594
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 22 Oct 2024 12:06:08 GMT
+	Tue, 22 Oct 2024 12:06:12 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 36CF620043;
-	Tue, 22 Oct 2024 12:06:08 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 84ED420040;
+	Tue, 22 Oct 2024 12:06:12 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 707CD20040;
-	Tue, 22 Oct 2024 12:06:07 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id ADA082004B;
+	Tue, 22 Oct 2024 12:06:11 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.171.37.93])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 22 Oct 2024 12:06:07 +0000 (GMT)
+	Tue, 22 Oct 2024 12:06:11 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: borntraeger@de.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
@@ -59,9 +59,9 @@ Cc: borntraeger@de.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
         agordeev@linux.ibm.com, gor@linux.ibm.com,
         gerald.schaefer@linux.ibm.com, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org, david@redhat.com
-Subject: [PATCH v4 05/11] s390/mm/fault: Handle guest-related program interrupts in KVM
-Date: Tue, 22 Oct 2024 14:05:55 +0200
-Message-ID: <20241022120601.167009-6-imbrenda@linux.ibm.com>
+Subject: [PATCH v4 11/11] s390/mm: Convert to LOCK_MM_AND_FIND_VMA
+Date: Tue, 22 Oct 2024 14:06:01 +0200
+Message-ID: <20241022120601.167009-12-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.47.0
 In-Reply-To: <20241022120601.167009-1-imbrenda@linux.ibm.com>
 References: <20241022120601.167009-1-imbrenda@linux.ibm.com>
@@ -73,615 +73,75 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: oOTvuI0niK3Lny5ta_FNq26UA1UUBjpF
-X-Proofpoint-GUID: oOTvuI0niK3Lny5ta_FNq26UA1UUBjpF
+X-Proofpoint-ORIG-GUID: wvpmKYq1BQyazEQmuq0JDh8QT7Y17-eg
+X-Proofpoint-GUID: wvpmKYq1BQyazEQmuq0JDh8QT7Y17-eg
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
- phishscore=0 impostorscore=0 priorityscore=1501 lowpriorityscore=0
- bulkscore=0 mlxscore=0 adultscore=0 mlxlogscore=999 suspectscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 mlxscore=0 clxscore=1015 mlxlogscore=641 phishscore=0
+ impostorscore=0 malwarescore=0 lowpriorityscore=0 adultscore=0
+ suspectscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2409260000 definitions=main-2410220074
 
-Any program interrupt that happens in the host during the execution of
-a KVM guest will now short circuit the fault handler and return to KVM
-immediately. Guest fault handling (including pfault) will happen
-entirely inside KVM.
+From: Heiko Carstens <hca@linux.ibm.com>
 
-When sie64a() returns zero, current->thread.gmap_int_code will contain
-the program interrupt number that caused the exit, or zero if the exit
-was not caused by a host program interrupt.
+With the gmap code gone s390 can be easily converted to
+LOCK_MM_AND_FIND_VMA like it has been done for most other
+architectures.
 
-KVM will now take care of handling all guest faults in vcpu_post_run().
-
-Since gmap faults will not be visible by the rest of the kernel, remove
-GMAP_FAULT, the linux fault handlers for secure execution faults, the
-exception table entries for the sie instruction, the nop padding after
-the sie instruction, and all other references to guest faults from the
-s390 code.
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Co-developed-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-[agordeev@linux.ibm.com: remove spurious flags &= ~FAULT_FLAG_RETRY_NOWAIT]
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h  |   3 +
- arch/s390/include/asm/processor.h |   5 +-
- arch/s390/kernel/entry.S          |  22 ------
- arch/s390/kernel/traps.c          |  23 ++++--
- arch/s390/kvm/kvm-s390.c          | 119 ++++++++++++++++++++++++------
- arch/s390/kvm/kvm-s390.h          |   7 ++
- arch/s390/kvm/vsie.c              |  13 ++--
- arch/s390/mm/fault.c              |  99 +------------------------
- 8 files changed, 135 insertions(+), 156 deletions(-)
+ arch/s390/Kconfig    |  1 +
+ arch/s390/mm/fault.c | 13 ++-----------
+ 2 files changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 8e77afbed58e..603b56bfccd3 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -527,6 +527,9 @@ struct kvm_vcpu_stat {
- #define PGM_REGION_FIRST_TRANS		0x39
- #define PGM_REGION_SECOND_TRANS		0x3a
- #define PGM_REGION_THIRD_TRANS		0x3b
-+#define PGM_SECURE_STORAGE_ACCESS	0x3d
-+#define PGM_NON_SECURE_STORAGE_ACCESS	0x3e
-+#define PGM_SECURE_STORAGE_VIOLATION	0x3f
- #define PGM_MONITOR			0x40
- #define PGM_PER				0x80
- #define PGM_CRYPTO_OPERATION		0x119
-diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
-index 9a5236acc0a8..8761fd01a9f0 100644
---- a/arch/s390/include/asm/processor.h
-+++ b/arch/s390/include/asm/processor.h
-@@ -39,6 +39,7 @@
- #include <asm/runtime_instr.h>
- #include <asm/irqflags.h>
- #include <asm/alternative.h>
-+#include <asm/fault.h>
- 
- struct pcpu {
- 	unsigned long ec_mask;		/* bit mask for ec_xxx functions */
-@@ -187,10 +188,8 @@ struct thread_struct {
- 	unsigned long hardirq_timer;		/* task cputime in hardirq context */
- 	unsigned long softirq_timer;		/* task cputime in softirq context */
- 	const sys_call_ptr_t *sys_call_table;	/* system call table address */
--	unsigned long gmap_addr;		/* address of last gmap fault. */
--	unsigned int gmap_write_flag;		/* gmap fault write indication */
-+	union teid gmap_teid;			/* address and flags of last gmap fault */
- 	unsigned int gmap_int_code;		/* int code of last gmap fault */
--	unsigned int gmap_pfault;		/* signal of a pending guest pfault */
- 	int ufpu_flags;				/* user fpu flags */
- 	int kfpu_flags;				/* kernel fpu flags */
- 
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 454841229ef4..924bcb71a33f 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -222,17 +222,6 @@ SYM_FUNC_START(__sie64a)
- 	lctlg	%c1,%c1,__LC_KERNEL_ASCE(%r14)	# load primary asce
- 	lg	%r14,__LC_CURRENT(%r14)
- 	mvi	__TI_sie(%r14),0
--# some program checks are suppressing. C code (e.g. do_protection_exception)
--# will rewind the PSW by the ILC, which is often 4 bytes in case of SIE. There
--# are some corner cases (e.g. runtime instrumentation) where ILC is unpredictable.
--# Other instructions between __sie64a and .Lsie_done should not cause program
--# interrupts. So lets use 3 nops as a landing pad for all possible rewinds.
--.Lrewind_pad6:
--	nopr	7
--.Lrewind_pad4:
--	nopr	7
--.Lrewind_pad2:
--	nopr	7
- SYM_INNER_LABEL(sie_exit, SYM_L_GLOBAL)
- 	lg	%r14,__SF_SIE_SAVEAREA(%r15)	# load guest register save area
- 	stmg	%r0,%r13,0(%r14)		# save guest gprs 0-13
-@@ -244,15 +233,6 @@ SYM_INNER_LABEL(sie_exit, SYM_L_GLOBAL)
- 	lmg	%r6,%r14,__SF_GPRS(%r15)	# restore kernel registers
- 	lg	%r2,__SF_SIE_REASON(%r15)	# return exit reason code
- 	BR_EX	%r14
--.Lsie_fault:
--	lghi	%r14,-EFAULT
--	stg	%r14,__SF_SIE_REASON(%r15)	# set exit reason code
--	j	sie_exit
--
--	EX_TABLE(.Lrewind_pad6,.Lsie_fault)
--	EX_TABLE(.Lrewind_pad4,.Lsie_fault)
--	EX_TABLE(.Lrewind_pad2,.Lsie_fault)
--	EX_TABLE(sie_exit,.Lsie_fault)
- SYM_FUNC_END(__sie64a)
- EXPORT_SYMBOL(__sie64a)
- EXPORT_SYMBOL(sie_exit)
-@@ -341,7 +321,6 @@ SYM_CODE_START(pgm_check_handler)
- 	jz	1f
- 	BPENTER	__SF_SIE_FLAGS(%r15),_TIF_ISOLATE_BP_GUEST
- 	SIEEXIT __SF_SIE_CONTROL(%r15),%r13
--	lg	%r12,__SF_SIE_GUEST_ASCE(%r15)
- 	lghi	%r10,_PIF_GUEST_FAULT
- #endif
- 1:	tmhh	%r8,0x4000		# PER bit set in old PSW ?
-@@ -355,7 +334,6 @@ SYM_CODE_START(pgm_check_handler)
- 3:	lg	%r15,__LC_KERNEL_STACK(%r13)
- 4:	la	%r11,STACK_FRAME_OVERHEAD(%r15)
- 	stg	%r10,__PT_FLAGS(%r11)
--	stg	%r12,__PT_CR1(%r11)
- 	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
- 	stmg	%r0,%r7,__PT_R0(%r11)
- 	mvc	__PT_R8(64,%r11),__LC_SAVE_AREA(%r13)
-diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
-index 160b2acba8db..b7ce15107477 100644
---- a/arch/s390/kernel/traps.c
-+++ b/arch/s390/kernel/traps.c
-@@ -31,6 +31,7 @@
- #include <asm/asm-extable.h>
- #include <asm/vtime.h>
- #include <asm/fpu.h>
-+#include <asm/fault.h>
- #include "entry.h"
- 
- static inline void __user *get_trap_ip(struct pt_regs *regs)
-@@ -317,9 +318,23 @@ void noinstr __do_pgm_check(struct pt_regs *regs)
- 	struct lowcore *lc = get_lowcore();
- 	irqentry_state_t state;
- 	unsigned int trapnr;
-+	union teid teid = { .val = lc->trans_exc_code };
- 
- 	regs->int_code = lc->pgm_int_code;
--	regs->int_parm_long = lc->trans_exc_code;
-+	regs->int_parm_long = teid.val;
-+
-+	/*
-+	 * In case of a guest fault, short-circuit the fault handler and return.
-+	 * This way the sie64a() function will return 0; fault address and
-+	 * other relevant bits are saved in current->thread.gmap_teid, and
-+	 * the fault number in current->thread.gmap_int_code. KVM will be
-+	 * able to use this information to handle the fault.
-+	 */
-+	if (test_pt_regs_flag(regs, PIF_GUEST_FAULT)) {
-+		current->thread.gmap_teid.val = regs->int_parm_long;
-+		current->thread.gmap_int_code = regs->int_code & 0xffff;
-+		return;
-+	}
- 
- 	state = irqentry_enter(regs);
- 
-@@ -408,8 +423,8 @@ static void (*pgm_check_table[128])(struct pt_regs *regs) = {
- 	[0x3b]		= do_dat_exception,
- 	[0x3c]		= default_trap_handler,
- 	[0x3d]		= do_secure_storage_access,
--	[0x3e]		= do_non_secure_storage_access,
--	[0x3f]		= do_secure_storage_violation,
-+	[0x3e]		= default_trap_handler,
-+	[0x3f]		= default_trap_handler,
- 	[0x40]		= monitor_event_exception,
- 	[0x41 ... 0x7f] = default_trap_handler,
- };
-@@ -420,5 +435,3 @@ static void (*pgm_check_table[128])(struct pt_regs *regs) = {
- 	__stringify(default_trap_handler))
- 
- COND_TRAP(do_secure_storage_access);
--COND_TRAP(do_non_secure_storage_access);
--COND_TRAP(do_secure_storage_violation);
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 08f0c80ef5e9..050710549a10 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4646,12 +4646,11 @@ static bool kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu)
- 	if (!vcpu->arch.gmap->pfault_enabled)
- 		return false;
- 
--	hva = gfn_to_hva(vcpu->kvm, gpa_to_gfn(current->thread.gmap_addr));
--	hva += current->thread.gmap_addr & ~PAGE_MASK;
-+	hva = gfn_to_hva(vcpu->kvm, current->thread.gmap_teid.addr);
- 	if (read_guest_real(vcpu, vcpu->arch.pfault_token, &arch.pfault_token, 8))
- 		return false;
- 
--	return kvm_setup_async_pf(vcpu, current->thread.gmap_addr, hva, &arch);
-+	return kvm_setup_async_pf(vcpu, current->thread.gmap_teid.addr * PAGE_SIZE, hva, &arch);
- }
- 
- static int vcpu_pre_run(struct kvm_vcpu *vcpu)
-@@ -4689,6 +4688,7 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
- 	clear_bit(vcpu->vcpu_idx, vcpu->kvm->arch.gisa_int.kicked_mask);
- 
- 	vcpu->arch.sie_block->icptcode = 0;
-+	current->thread.gmap_int_code = 0;
- 	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
- 	VCPU_EVENT(vcpu, 6, "entering sie flags %x", cpuflags);
- 	trace_kvm_s390_sie_enter(vcpu, cpuflags);
-@@ -4696,7 +4696,7 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
--static int vcpu_post_run_fault_in_sie(struct kvm_vcpu *vcpu)
-+static int vcpu_post_run_addressing_exception(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_pgm_info pgm_info = {
- 		.code = PGM_ADDRESSING,
-@@ -4732,10 +4732,100 @@ static int vcpu_post_run_fault_in_sie(struct kvm_vcpu *vcpu)
- 	return kvm_s390_inject_prog_irq(vcpu, &pgm_info);
- }
- 
-+static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
-+{
-+	unsigned long gaddr;
-+	unsigned int flags;
-+	int rc = 0;
-+
-+	gaddr = current->thread.gmap_teid.addr * PAGE_SIZE;
-+	if (kvm_s390_cur_gmap_fault_is_write())
-+		flags = FAULT_FLAG_WRITE;
-+
-+	switch (current->thread.gmap_int_code) {
-+	case 0:
-+		vcpu->stat.exit_null++;
-+		break;
-+	case PGM_NON_SECURE_STORAGE_ACCESS:
-+		KVM_BUG_ON(current->thread.gmap_teid.as != PSW_BITS_AS_PRIMARY, vcpu->kvm);
-+		/*
-+		 * This is normal operation; a page belonging to a protected
-+		 * guest has not been imported yet. Try to import the page into
-+		 * the protected guest.
-+		 */
-+		if (gmap_convert_to_secure(vcpu->arch.gmap, gaddr) == -EINVAL)
-+			send_sig(SIGSEGV, current, 0);
-+		break;
-+	case PGM_SECURE_STORAGE_ACCESS:
-+	case PGM_SECURE_STORAGE_VIOLATION:
-+		KVM_BUG_ON(current->thread.gmap_teid.as != PSW_BITS_AS_PRIMARY, vcpu->kvm);
-+		/*
-+		 * This can happen after a reboot with asynchronous teardown;
-+		 * the new guest (normal or protected) will run on top of the
-+		 * previous protected guest. The old pages need to be destroyed
-+		 * so the new guest can use them.
-+		 */
-+		if (gmap_destroy_page(vcpu->arch.gmap, gaddr)) {
-+			/*
-+			 * Either KVM messed up the secure guest mapping or the
-+			 * same page is mapped into multiple secure guests.
-+			 *
-+			 * This exception is only triggered when a guest 2 is
-+			 * running and can therefore never occur in kernel
-+			 * context.
-+			 */
-+			pr_warn_ratelimited("Secure storage violation (%x) in task: %s, pid %d\n",
-+					    current->thread.gmap_int_code, current->comm,
-+					    current->pid);
-+			send_sig(SIGSEGV, current, 0);
-+		}
-+		break;
-+	case PGM_PROTECTION:
-+	case PGM_SEGMENT_TRANSLATION:
-+	case PGM_PAGE_TRANSLATION:
-+	case PGM_ASCE_TYPE:
-+	case PGM_REGION_FIRST_TRANS:
-+	case PGM_REGION_SECOND_TRANS:
-+	case PGM_REGION_THIRD_TRANS:
-+		KVM_BUG_ON(current->thread.gmap_teid.as != PSW_BITS_AS_PRIMARY, vcpu->kvm);
-+		if (vcpu->arch.gmap->pfault_enabled) {
-+			rc = gmap_fault(vcpu->arch.gmap, gaddr, flags | FAULT_FLAG_RETRY_NOWAIT);
-+			if (rc == -EFAULT)
-+				return vcpu_post_run_addressing_exception(vcpu);
-+			if (rc == -EAGAIN) {
-+				trace_kvm_s390_major_guest_pfault(vcpu);
-+				if (kvm_arch_setup_async_pf(vcpu))
-+					return 0;
-+				vcpu->stat.pfault_sync++;
-+			} else {
-+				return rc;
-+			}
-+		}
-+		rc = gmap_fault(vcpu->arch.gmap, gaddr, flags);
-+		if (rc == -EFAULT) {
-+			if (kvm_is_ucontrol(vcpu->kvm)) {
-+				vcpu->run->exit_reason = KVM_EXIT_S390_UCONTROL;
-+				vcpu->run->s390_ucontrol.trans_exc_code = gaddr;
-+				vcpu->run->s390_ucontrol.pgm_code = 0x10;
-+				return -EREMOTE;
-+			}
-+			return vcpu_post_run_addressing_exception(vcpu);
-+		}
-+		break;
-+	default:
-+		KVM_BUG(1, vcpu->kvm, "Unexpected program interrupt 0x%x, TEID 0x%016lx",
-+			current->thread.gmap_int_code, current->thread.gmap_teid.val);
-+		send_sig(SIGSEGV, current, 0);
-+		break;
-+	}
-+	return rc;
-+}
-+
- static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
- {
- 	struct mcck_volatile_info *mcck_info;
- 	struct sie_page *sie_page;
-+	int rc;
- 
- 	VCPU_EVENT(vcpu, 6, "exit sie icptcode %d",
- 		   vcpu->arch.sie_block->icptcode);
-@@ -4757,7 +4847,7 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
- 	}
- 
- 	if (vcpu->arch.sie_block->icptcode > 0) {
--		int rc = kvm_handle_sie_intercept(vcpu);
-+		rc = kvm_handle_sie_intercept(vcpu);
- 
- 		if (rc != -EOPNOTSUPP)
- 			return rc;
-@@ -4766,24 +4856,9 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
- 		vcpu->run->s390_sieic.ipa = vcpu->arch.sie_block->ipa;
- 		vcpu->run->s390_sieic.ipb = vcpu->arch.sie_block->ipb;
- 		return -EREMOTE;
--	} else if (exit_reason != -EFAULT) {
--		vcpu->stat.exit_null++;
--		return 0;
--	} else if (kvm_is_ucontrol(vcpu->kvm)) {
--		vcpu->run->exit_reason = KVM_EXIT_S390_UCONTROL;
--		vcpu->run->s390_ucontrol.trans_exc_code =
--						current->thread.gmap_addr;
--		vcpu->run->s390_ucontrol.pgm_code = 0x10;
--		return -EREMOTE;
--	} else if (current->thread.gmap_pfault) {
--		trace_kvm_s390_major_guest_pfault(vcpu);
--		current->thread.gmap_pfault = 0;
--		if (kvm_arch_setup_async_pf(vcpu))
--			return 0;
--		vcpu->stat.pfault_sync++;
--		return gmap_fault(vcpu->arch.gmap, current->thread.gmap_addr, FAULT_FLAG_WRITE);
- 	}
--	return vcpu_post_run_fault_in_sie(vcpu);
-+
-+	return vcpu_post_run_handle_fault(vcpu);
- }
- 
- #define PSW_INT_MASK (PSW_MASK_EXT | PSW_MASK_IO | PSW_MASK_MCHECK)
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 0765ad1031c4..597d7a71deeb 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -528,6 +528,13 @@ static inline int kvm_s390_use_sca_entries(void)
- void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
- 				     struct mcck_volatile_info *mcck_info);
- 
-+static inline bool kvm_s390_cur_gmap_fault_is_write(void)
-+{
-+	if (current->thread.gmap_int_code == PGM_PROTECTION)
-+		return true;
-+	return test_facility(75) && (current->thread.gmap_teid.fsi == TEID_FSI_STORE);
-+}
-+
- /**
-  * kvm_s390_vcpu_crypto_reset_all
-  *
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 89cafea4c41f..35e7dd882148 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -925,16 +925,16 @@ static int handle_fault(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	if (current->thread.gmap_int_code == PGM_PROTECTION)
- 		/* we can directly forward all protection exceptions */
- 		return inject_fault(vcpu, PGM_PROTECTION,
--				    current->thread.gmap_addr, 1);
-+				    current->thread.gmap_teid.addr * PAGE_SIZE, 1);
- 
- 	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
--				   current->thread.gmap_addr, NULL);
-+				   current->thread.gmap_teid.addr * PAGE_SIZE, NULL);
- 	if (rc > 0) {
- 		rc = inject_fault(vcpu, rc,
--				  current->thread.gmap_addr,
--				  current->thread.gmap_write_flag);
-+				  current->thread.gmap_teid.addr * PAGE_SIZE,
-+				  kvm_s390_cur_gmap_fault_is_write());
- 		if (rc >= 0)
--			vsie_page->fault_addr = current->thread.gmap_addr;
-+			vsie_page->fault_addr = current->thread.gmap_teid.addr * PAGE_SIZE;
- 	}
- 	return rc;
- }
-@@ -1148,6 +1148,7 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	 * also kick the vSIE.
- 	 */
- 	vcpu->arch.sie_block->prog0c |= PROG_IN_SIE;
-+	current->thread.gmap_int_code = 0;
- 	barrier();
- 	if (!kvm_s390_vcpu_sie_inhibited(vcpu))
- 		rc = sie64a(scb_s, vcpu->run->s.regs.gprs, gmap_get_enabled()->asce);
-@@ -1172,7 +1173,7 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 
- 	if (rc > 0)
- 		rc = 0; /* we could still have an icpt */
--	else if (rc == -EFAULT)
-+	else if (current->thread.gmap_int_code)
- 		return handle_fault(vcpu, vsie_page);
- 
- 	switch (scb_s->icptcode) {
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index d339fe4fdedf..8109446f7b24 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -224,6 +224,7 @@ config S390
+ 	select HAVE_VIRT_CPU_ACCOUNTING_IDLE
+ 	select IOMMU_HELPER		if PCI
+ 	select IOMMU_SUPPORT		if PCI
++	select LOCK_MM_AND_FIND_VMA
+ 	select MMU_GATHER_MERGE_VMAS
+ 	select MMU_GATHER_NO_GATHER
+ 	select MMU_GATHER_RCU_TABLE_FREE
 diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index a6cf33b0f339..e48910b0b816 100644
+index 93ae097ef0e0..8bd2b8d64273 100644
 --- a/arch/s390/mm/fault.c
 +++ b/arch/s390/mm/fault.c
-@@ -49,7 +49,6 @@
- enum fault_type {
- 	KERNEL_FAULT,
- 	USER_FAULT,
--	GMAP_FAULT,
- };
- 
- static DEFINE_STATIC_KEY_FALSE(have_store_indication);
-@@ -72,10 +71,6 @@ static enum fault_type get_fault_type(struct pt_regs *regs)
- 	if (likely(teid.as == PSW_BITS_AS_PRIMARY)) {
- 		if (user_mode(regs))
- 			return USER_FAULT;
--		if (!IS_ENABLED(CONFIG_PGSTE))
--			return KERNEL_FAULT;
--		if (test_pt_regs_flag(regs, PIF_GUEST_FAULT))
--			return GMAP_FAULT;
- 		return KERNEL_FAULT;
- 	}
- 	if (teid.as == PSW_BITS_AS_SECONDARY)
-@@ -184,10 +179,6 @@ static void dump_fault_info(struct pt_regs *regs)
- 		asce = get_lowcore()->user_asce.val;
- 		pr_cont("user ");
- 		break;
--	case GMAP_FAULT:
--		asce = regs->cr1;
--		pr_cont("gmap ");
--		break;
- 	case KERNEL_FAULT:
- 		asce = get_lowcore()->kernel_asce.val;
- 		pr_cont("kernel ");
-@@ -285,7 +276,6 @@ static void do_exception(struct pt_regs *regs, int access)
- 	struct mm_struct *mm;
- 	enum fault_type type;
- 	unsigned int flags;
--	struct gmap *gmap;
- 	vm_fault_t fault;
- 	bool is_write;
- 
-@@ -304,7 +294,6 @@ static void do_exception(struct pt_regs *regs, int access)
- 	case KERNEL_FAULT:
- 		return handle_fault_error_nolock(regs, 0);
- 	case USER_FAULT:
--	case GMAP_FAULT:
- 		if (faulthandler_disabled() || !mm)
- 			return handle_fault_error_nolock(regs, 0);
- 		break;
-@@ -348,18 +337,6 @@ static void do_exception(struct pt_regs *regs, int access)
+@@ -308,18 +308,10 @@ static void do_exception(struct pt_regs *regs, int access)
+ 		return;
  	}
  lock_mmap:
- 	mmap_read_lock(mm);
--	gmap = NULL;
--	if (IS_ENABLED(CONFIG_PGSTE) && type == GMAP_FAULT) {
--		gmap = (struct gmap *)get_lowcore()->gmap;
--		current->thread.gmap_addr = address;
--		current->thread.gmap_write_flag = !!(flags & FAULT_FLAG_WRITE);
--		current->thread.gmap_int_code = regs->int_code & 0xffff;
--		address = __gmap_translate(gmap, address);
--		if (address == -EFAULT)
--			return handle_fault_error(regs, SEGV_MAPERR);
--		if (gmap->pfault_enabled)
--			flags |= FAULT_FLAG_RETRY_NOWAIT;
--	}
+-	mmap_read_lock(mm);
  retry:
- 	vma = find_vma(mm, address);
+-	vma = find_vma(mm, address);
++	vma = lock_mm_and_find_vma(mm, address, regs);
  	if (!vma)
-@@ -375,50 +352,22 @@ static void do_exception(struct pt_regs *regs, int access)
+-		return handle_fault_error(regs, SEGV_MAPERR);
+-	if (unlikely(vma->vm_start > address)) {
+-		if (!(vma->vm_flags & VM_GROWSDOWN))
+-			return handle_fault_error(regs, SEGV_MAPERR);
+-		vma = expand_stack(mm, address);
+-		if (!vma)
+-			return handle_fault_error_nolock(regs, SEGV_MAPERR);
+-	}
++		return handle_fault_error_nolock(regs, SEGV_MAPERR);
+ 	if (unlikely(!(vma->vm_flags & access)))
  		return handle_fault_error(regs, SEGV_ACCERR);
  	fault = handle_mm_fault(vma, address, flags, regs);
- 	if (fault_signal_pending(fault, regs)) {
--		if (flags & FAULT_FLAG_RETRY_NOWAIT)
--			mmap_read_unlock(mm);
- 		if (!user_mode(regs))
- 			handle_fault_error_nolock(regs, 0);
- 		return;
- 	}
- 	/* The fault is fully completed (including releasing mmap lock) */
--	if (fault & VM_FAULT_COMPLETED) {
--		if (gmap) {
--			mmap_read_lock(mm);
--			goto gmap;
--		}
-+	if (fault & VM_FAULT_COMPLETED)
- 		return;
--	}
- 	if (unlikely(fault & VM_FAULT_ERROR)) {
- 		mmap_read_unlock(mm);
- 		goto error;
+@@ -337,7 +329,6 @@ static void do_exception(struct pt_regs *regs, int access)
  	}
  	if (fault & VM_FAULT_RETRY) {
--		if (IS_ENABLED(CONFIG_PGSTE) && gmap &&	(flags & FAULT_FLAG_RETRY_NOWAIT)) {
--			/*
--			 * FAULT_FLAG_RETRY_NOWAIT has been set,
--			 * mmap_lock has not been released
--			 */
--			current->thread.gmap_pfault = 1;
--			return handle_fault_error(regs, 0);
--		}
--		flags &= ~FAULT_FLAG_RETRY_NOWAIT;
  		flags |= FAULT_FLAG_TRIED;
- 		mmap_read_lock(mm);
+-		mmap_read_lock(mm);
  		goto retry;
  	}
--gmap:
--	if (IS_ENABLED(CONFIG_PGSTE) && gmap) {
--		address =  __gmap_link(gmap, current->thread.gmap_addr,
--				       address);
--		if (address == -EFAULT)
--			return handle_fault_error(regs, SEGV_MAPERR);
--		if (address == -ENOMEM) {
--			fault = VM_FAULT_OOM;
--			mmap_read_unlock(mm);
--			goto error;
--		}
--	}
  	mmap_read_unlock(mm);
- 	return;
- error:
-@@ -494,7 +443,6 @@ void do_secure_storage_access(struct pt_regs *regs)
- 	struct folio_walk fw;
- 	struct mm_struct *mm;
- 	struct folio *folio;
--	struct gmap *gmap;
- 	int rc;
- 
- 	/*
-@@ -520,15 +468,6 @@ void do_secure_storage_access(struct pt_regs *regs)
- 		panic("Unexpected PGM 0x3d with TEID bit 61=0");
- 	}
- 	switch (get_fault_type(regs)) {
--	case GMAP_FAULT:
--		mm = current->mm;
--		gmap = (struct gmap *)get_lowcore()->gmap;
--		mmap_read_lock(mm);
--		addr = __gmap_translate(gmap, addr);
--		mmap_read_unlock(mm);
--		if (IS_ERR_VALUE(addr))
--			return handle_fault_error_nolock(regs, SEGV_MAPERR);
--		fallthrough;
- 	case USER_FAULT:
- 		mm = current->mm;
- 		mmap_read_lock(mm);
-@@ -564,40 +503,4 @@ void do_secure_storage_access(struct pt_regs *regs)
- }
- NOKPROBE_SYMBOL(do_secure_storage_access);
- 
--void do_non_secure_storage_access(struct pt_regs *regs)
--{
--	struct gmap *gmap = (struct gmap *)get_lowcore()->gmap;
--	unsigned long gaddr = get_fault_address(regs);
--
--	if (WARN_ON_ONCE(get_fault_type(regs) != GMAP_FAULT))
--		return handle_fault_error_nolock(regs, SEGV_MAPERR);
--	if (gmap_convert_to_secure(gmap, gaddr) == -EINVAL)
--		send_sig(SIGSEGV, current, 0);
--}
--NOKPROBE_SYMBOL(do_non_secure_storage_access);
--
--void do_secure_storage_violation(struct pt_regs *regs)
--{
--	struct gmap *gmap = (struct gmap *)get_lowcore()->gmap;
--	unsigned long gaddr = get_fault_address(regs);
--
--	/*
--	 * If the VM has been rebooted, its address space might still contain
--	 * secure pages from the previous boot.
--	 * Clear the page so it can be reused.
--	 */
--	if (!gmap_destroy_page(gmap, gaddr))
--		return;
--	/*
--	 * Either KVM messed up the secure guest mapping or the same
--	 * page is mapped into multiple secure guests.
--	 *
--	 * This exception is only triggered when a guest 2 is running
--	 * and can therefore never occur in kernel context.
--	 */
--	pr_warn_ratelimited("Secure storage violation in task: %s, pid %d\n",
--			    current->comm, current->pid);
--	send_sig(SIGSEGV, current, 0);
--}
--
- #endif /* CONFIG_PGSTE */
 -- 
 2.47.0
 
