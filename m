@@ -1,134 +1,172 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D588042065;
-	Tue, 22 Oct 2024 14:45:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E8155672;
+	Wed, 23 Oct 2024 00:09:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729608316; cv=none; b=u37CKxpfLprfdx4jEVp1Rnlulykk5EjsPsfbNRg4xDP0qSZIIFg9KMXYNNEJak8oiHLRH3kUx4t6FnZUOhT82Ntz0VBQ4sM9k6sUq+Tf1BW7FbSKLi0rCZD8hZ21aFlmQhIjeZRUSI99vaxnuVOXIPrvwpgDsBT1/PoYuhQkvqE=
+	t=1729642171; cv=none; b=pccekiRCIsKG0D0bEDqluTuyIoU8EtEPpmZSr5eocKFF9AN2O5E5wm8ew2PK8ra+/cvf+hF+QWdiI3MRGOAf3yHH06kNcDrre0gIxRdiEgv5yPaiOgrrF6Zz+ZA7yGzK90BeG56heNzzUpa+WO9PGwqB176VRigoe1asDJZZlVI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729608316; c=relaxed/simple;
-	bh=3rSf6p+Eb338S3jqFz7thCVwdKBWMkoB5j+tB+1HwJU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hGH63D47iuRnsliTF5CX5ZRK2XmSfMnWU7miIqc5JMimsyZ7m6k0AoZLI6qC2jGWdy+7DfuBysCrxe7s6Axh7bK+3yVLUexqgjngr/p/hI0N6KWlxHYxaCk8MAtqIwdVMhoa5D257EoqxslTtVcWOmHHsHHUXYjG4ZIaXFzVtFE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aUDEGs4l; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1729642171; c=relaxed/simple;
+	bh=A4QwPJQlw9zD0sZg2Q9Dv/Ayd2j8ALkZKSmR7YsG0Hw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=bMdCHckxg2PY41MsA9MXHe/5rMelqZGqsGwP/fw//syMSt6+8WOIZpxAqUv412xNEcnnj/Bv3j/hX36JFFvlTlEO9jajH+5+mPtrUvaFfyMpT+8kWXSGsrl6ZDdn14huaVAMQg2cyF6Y93DlJ8QiHeq9YY4zY2ff/tNphxiLzT8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=exojCRsB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aUDEGs4l"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49M2HIko029688;
-	Tue, 22 Oct 2024 14:45:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=pIsmFpDMFhgpKpzx7/i5ySZCnPjETM
-	qgNut5wXDL46U=; b=aUDEGs4lIzBl2L42bzvATNq4ehd8irPjtzukODO2wTiKRL
-	qbQrWFu1qwZub/BulXTj2UA6iEdeLF1ODx7tYF0tiRYFWPX3HzCvTF1gAvnJc+3+
-	95Hm3+QrSHd0Fg4jg2WSSfRCbY/f6M0bclQfM849+hRVhy4uJSThYyV+wWxzG5Tc
-	K65BA/xeVTTlL25xlvqJpS7yrbuQ21EcaXAUS5A6ucuxYZTdIxVrAiaofNerI4jm
-	C/5A3WJ6/SAVSeJt9yUwF9L58WX/YZjkXQ5gP7YG/f+dmXcAC9B4ipv1x5atTf76
-	EIg3+5aTEWJYlHd3DMRHX3gwvdCCPWGV7+J6Le7w==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42c5euefs3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 22 Oct 2024 14:45:12 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49MCjmdD026416;
-	Tue, 22 Oct 2024 14:45:11 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 42cq3sbtvb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 22 Oct 2024 14:45:11 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49MEj8bS35390078
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 22 Oct 2024 14:45:08 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 11F3820043;
-	Tue, 22 Oct 2024 14:45:08 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D070F2004D;
-	Tue, 22 Oct 2024 14:45:07 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 22 Oct 2024 14:45:07 +0000 (GMT)
-Date: Tue, 22 Oct 2024 16:45:06 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, nsg@linux.ibm.com,
-        nrb@linux.ibm.com, frankja@linux.ibm.com, seiden@linux.ibm.com,
-        agordeev@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, david@redhat.com
-Subject: Re: [PATCH v4 00/11] s390/kvm: Handle guest-related program
- interrupts in KVM
-Message-ID: <20241022144506.13839-B-hca@linux.ibm.com>
-References: <20241022120601.167009-1-imbrenda@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="exojCRsB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53889C4CEC3;
+	Wed, 23 Oct 2024 00:09:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1729642170;
+	bh=A4QwPJQlw9zD0sZg2Q9Dv/Ayd2j8ALkZKSmR7YsG0Hw=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=exojCRsB+rVAk4Fj9T2SZgXmyFivZay4GulED0veFq/Md4DUyyHzd3UTkSZQnuxbX
+	 X4OSqlZ4wglU9AbmYuA2VuDiwihXT+UgjZELujmRtRnpBwTND4zDoXzj/8IRrD2WsZ
+	 wi/9V8X7zOAHZpmVAjIEvs4Qx5mfUXcCcc3Gz1kZWT4iiqNudCwS0w1cPw5ozdF3mW
+	 lHrW+0/RInp+uzMxwCb7zw07C/JfTysoQoIXu//w7os/uCe9BGGAyKxHAGW/kwrbD4
+	 HHOTR6w3Iyg5WGQe3o5+3jk/P78h5ZRQjxmUUFzyPJhs+oo/AbUNGGWiJWkZbZpp8X
+	 cKa0VBnKFBnBw==
+From: Namhyung Kim <namhyung@kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>,
+	Ingo Molnar <mingo@kernel.org>
+Cc: Kan Liang <kan.liang@linux.intel.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Stephane Eranian <eranian@google.com>,
+	Ravi Bangoria <ravi.bangoria@amd.com>,
+	Sandipan Das <sandipan.das@amd.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Richter <tmricht@linux.ibm.com>,
+	linux-s390@vger.kernel.org
+Subject: [PATCH v4 2/5] perf/core: Export perf_exclude_event()
+Date: Tue, 22 Oct 2024 17:09:25 -0700
+Message-ID: <20241023000928.957077-3-namhyung@kernel.org>
+X-Mailer: git-send-email 2.47.0.105.g07ac214952-goog
+In-Reply-To: <20241023000928.957077-1-namhyung@kernel.org>
+References: <20241023000928.957077-1-namhyung@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241022120601.167009-1-imbrenda@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -ErL8fIKzmqcf_3B5-B_4LFHoleawTBC
-X-Proofpoint-ORIG-GUID: -ErL8fIKzmqcf_3B5-B_4LFHoleawTBC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- adultscore=0 spamscore=0 suspectscore=0 phishscore=0 impostorscore=0
- mlxlogscore=522 mlxscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410220093
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 22, 2024 at 02:05:50PM +0200, Claudio Imbrenda wrote:
-> This patchseries moves the handling of host program interrupts that
-> happen while a KVM guest is running into KVM itself.
-> 
-> All program interrupts that happen in the host while a KVM guest is
-> running are due to DAT exceptions. It is cleaner and more maintainable
-> to have KVM handle those.
-> 
-> As a side effect, some more cleanups is also possible.
-> 
-> Moreover, this series serves as a foundation for an upcoming series
-> that will further move as much s390 KVM memory managament as possible
-> into KVM itself, and away from the rest of the kernel.
-...
-> Claudio Imbrenda (8):
->   s390/entry: Remove __GMAP_ASCE and use _PIF_GUEST_FAULT again
->   s390/kvm: Remove kvm_arch_fault_in_page()
->   s390/mm/gmap: Refactor gmap_fault() and add support for pfault
->   s390/mm/gmap: Fix __gmap_fault() return code
->   s390/mm/fault: Handle guest-related program interrupts in KVM
->   s390/kvm: Stop using gmap_{en,dis}able()
->   s390/mm/gmap: Remove gmap_{en,dis}able()
->   s390: Remove gmap pointer from lowcore
-> 
-> Heiko Carstens (3):
->   s390/mm: Simplify get_fault_type()
->   s390/mm: Get rid of fault type switch statements
->   s390/mm: Convert to LOCK_MM_AND_FIND_VMA
-> 
->  arch/s390/Kconfig                 |   1 +
->  arch/s390/include/asm/gmap.h      |   3 -
->  arch/s390/include/asm/kvm_host.h  |   5 +-
->  arch/s390/include/asm/lowcore.h   |   3 +-
->  arch/s390/include/asm/processor.h |   5 +-
->  arch/s390/include/asm/ptrace.h    |   2 +
->  arch/s390/kernel/asm-offsets.c    |   3 -
->  arch/s390/kernel/entry.S          |  44 ++-----
->  arch/s390/kernel/traps.c          |  23 +++-
->  arch/s390/kvm/intercept.c         |   4 +-
->  arch/s390/kvm/kvm-s390.c          | 142 +++++++++++++++-------
->  arch/s390/kvm/kvm-s390.h          |   8 +-
->  arch/s390/kvm/vsie.c              |  17 ++-
->  arch/s390/mm/fault.c              | 195 +++++-------------------------
->  arch/s390/mm/gmap.c               | 151 +++++++++++++++--------
->  15 files changed, 281 insertions(+), 325 deletions(-)
+And increase the dropped_sample count when it returns 1.  Now it can
+track how many samples are dropped due to the privilege filters in
+software events.
 
-Series applied, thanks!
+While at it, rename the same function in s390 cpum_sf PMU and also count
+the dropped samples.
+
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+---
+ arch/s390/kernel/perf_cpum_sf.c |  8 +++++---
+ include/linux/perf_event.h      |  6 ++++++
+ kernel/events/core.c            | 11 +++++++----
+ 3 files changed, 18 insertions(+), 7 deletions(-)
+
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 5b765e3ccf0cadc8..ff9e694f2be45c6b 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -996,7 +996,7 @@ static void cpumsf_pmu_disable(struct pmu *pmu)
+ 	cpuhw->flags &= ~PMU_F_ENABLED;
+ }
+ 
+-/* perf_exclude_event() - Filter event
++/* perf_event_exclude() - Filter event
+  * @event:	The perf event
+  * @regs:	pt_regs structure
+  * @sde_regs:	Sample-data-entry (sde) regs structure
+@@ -1005,7 +1005,7 @@ static void cpumsf_pmu_disable(struct pmu *pmu)
+  *
+  * Return non-zero if the event shall be excluded.
+  */
+-static int perf_exclude_event(struct perf_event *event, struct pt_regs *regs,
++static int perf_event_exclude(struct perf_event *event, struct pt_regs *regs,
+ 			      struct perf_sf_sde_regs *sde_regs)
+ {
+ 	if (event->attr.exclude_user && user_mode(regs))
+@@ -1088,8 +1088,10 @@ static int perf_push_sample(struct perf_event *event,
+ 	data.tid_entry.pid = basic->hpp & LPP_PID_MASK;
+ 
+ 	overflow = 0;
+-	if (perf_exclude_event(event, &regs, sde_regs))
++	if (perf_event_exclude(event, &regs, sde_regs)) {
++		atomic64_inc(&event->dropped_samples);
+ 		goto out;
++	}
+ 	if (perf_event_overflow(event, &data, &regs)) {
+ 		overflow = 1;
+ 		event->pmu->stop(event, 0);
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index c1e6340e561c400e..6b31958a2b1db8db 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -1649,6 +1649,8 @@ static inline int perf_allow_tracepoint(struct perf_event_attr *attr)
+ 	return security_perf_event_open(attr, PERF_SECURITY_TRACEPOINT);
+ }
+ 
++extern int perf_exclude_event(struct perf_event *event, struct pt_regs *regs);
++
+ extern void perf_event_init(void);
+ extern void perf_tp_event(u16 event_type, u64 count, void *record,
+ 			  int entry_size, struct pt_regs *regs,
+@@ -1832,6 +1834,10 @@ static inline u64 perf_event_pause(struct perf_event *event, bool reset)
+ {
+ 	return 0;
+ }
++static inline int perf_exclude_event(struct perf_event *event, struct pt_regs *regs)
++{
++	return 0;
++}
+ #endif
+ 
+ #if defined(CONFIG_PERF_EVENTS) && defined(CONFIG_CPU_SUP_INTEL)
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 7e15fe0a8dee4ee7..5d24597180dec167 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -10001,18 +10001,21 @@ static void perf_swevent_event(struct perf_event *event, u64 nr,
+ 	perf_swevent_overflow(event, 0, data, regs);
+ }
+ 
+-static int perf_exclude_event(struct perf_event *event,
+-			      struct pt_regs *regs)
++int perf_exclude_event(struct perf_event *event, struct pt_regs *regs)
+ {
+ 	if (event->hw.state & PERF_HES_STOPPED)
+ 		return 1;
+ 
+ 	if (regs) {
+-		if (event->attr.exclude_user && user_mode(regs))
++		if (event->attr.exclude_user && user_mode(regs)) {
++			atomic64_inc(&event->dropped_samples);
+ 			return 1;
++		}
+ 
+-		if (event->attr.exclude_kernel && !user_mode(regs))
++		if (event->attr.exclude_kernel && !user_mode(regs)) {
++			atomic64_inc(&event->dropped_samples);
+ 			return 1;
++		}
+ 	}
+ 
+ 	return 0;
+-- 
+2.47.0.105.g07ac214952-goog
+
