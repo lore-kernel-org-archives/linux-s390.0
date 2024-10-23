@@ -1,105 +1,189 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF8B7155A4E;
-	Wed, 23 Oct 2024 08:39:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BD79184556
+	for <linux-s390@vger.kernel.org>; Wed, 23 Oct 2024 09:07:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729672775; cv=none; b=anK3iTbZxFZ7sdNP7MsekYOvY+lTkvOfoHSboPagPk0HVAWEHHDencwxmAqx3y964GABpSv//2SZ72P/MXh/kB/hVTwsNd1NgCQTSgIGg+CuBqaclFmxVGF/ztl0+i5jqC6IEq5D1Gyh+aOnGvkOZBTnKNFrj4kU1cpZCBVeKws=
+	t=1729674424; cv=none; b=TW7WygPAi7dcwsLa1MCjQMGoxvOBkYRdg9FfscHlvBWWS3muu2w2kB8uatdlvPjSVnDuly91AAmpApMnKgHFxdf/BwimzAJ1Pb3POZIdCF3U0XHJwkAqHXOPdl0UHjLyeBbMLu3fbkDnjUsDyfCkdxtfM0QwuXHyLry5TcsT+9E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729672775; c=relaxed/simple;
-	bh=6yZe5On9N9ES5WK+PcoGH9hQE8jwLxmL+buOlTdDEJc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=P+aZxTubsiPMUe2Pz8FdBy49RuHbNtexbtAU7fwgm5O7ch4f6lQxhkDSjxOjv+orMZ/DHt39EwkudwScSh4X7mXAtTVmD6UUDw7tmwSiWM9bEiAZzLSJLkQd9gfJTiF8NKhLBvF9af7JilYmKa1H4OSM/8nyEs9KHmMEL7TNYTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kS0pMbq8; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1729674424; c=relaxed/simple;
+	bh=bjOJOfZfY/iX44yodp3Y3Csyso/TAeICAqN1lJoie78=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gYwWpffr2s1hjKFfTmaReyC5kVjQCrUB1VhXIWI3Gsg5SOdBtiywKVSVQAq3RBxo9KzokwHXp7SYt6vj4vbgrH/ral2+DLl2cHrB4UQyMIXEMNW1RDtpkbRZu0qf+OAZcqNCoX9O4r+fgFgdRtCI3u1ZA9gPQExITjudVJ7GGwg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=V9jkVcgE; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kS0pMbq8"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49N6QseC023289;
-	Wed, 23 Oct 2024 08:39:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=bbXgH1
-	luo5HBCa44WRLwZpoQCjCDIgPirpopAVwuCWw=; b=kS0pMbq8YWunCV6JqRi2nm
-	VsXK+U1X1fo0R1AGDWQbws+APnA8UbNpz8gfxhvqC1TWFp8eXFNzpSHwF50BAFAi
-	gyZL4mg0iCyfwmyJWAjPWOuMEh+CaJhuyPImdZ60bGwjbBUCkaRGKs0YBzMhh8up
-	+sUJU+4BX3Nh3DROkgxXXxyUIh42B32hU216eFvJXd8G/IBnWNGmhUDk/89n4HHh
-	5QjlZkvcHrNxvE4v0CpHuM5Ol/Pmi7f4FX+yF9N9UAzgjuvdyXAW4NE1LuWyjUZE
-	1JSGx1jXDQtXK3GRa3qDkx1XrrrAbFJqFBrU0kJ1vWGB9lfMltnfijMFufGfENrg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42emaft276-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 23 Oct 2024 08:39:31 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49N7aNrT001530;
-	Wed, 23 Oct 2024 08:39:30 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 42emk9a0kg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 23 Oct 2024 08:39:30 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49N8dTU246990066
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 23 Oct 2024 08:39:29 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 11BB458043;
-	Wed, 23 Oct 2024 08:39:29 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7E02758059;
-	Wed, 23 Oct 2024 08:39:26 +0000 (GMT)
-Received: from [9.155.199.163] (unknown [9.155.199.163])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 23 Oct 2024 08:39:26 +0000 (GMT)
-Message-ID: <dc112ac5-17bc-4b43-adf8-d7d2ca21082e@linux.ibm.com>
-Date: Wed, 23 Oct 2024 10:39:25 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V9jkVcgE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729674421;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=rmnd9v0LSmhXFonF77TwYci6uZaGz+E2notKw0mY5v0=;
+	b=V9jkVcgENVs3Y3SaO5/c7V59rbPE18rhZATlsowgH4GKUwcXgadUWO6NNTW1YBXuVn511I
+	YgT2rG8rI+thHvG5VkVRnDNf0wF1kLXnGnzKE8YrEDYRi3ZeQrWUQBgstCCHyk23/6ARUm
+	dBSXv4Fct55g63QbPax+v+EVxQkvgZw=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-306-ej37Uap8NNKLQcT2wViX7g-1; Wed,
+ 23 Oct 2024 05:06:58 -0400
+X-MC-Unique: ej37Uap8NNKLQcT2wViX7g-1
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 782CA1955D4E;
+	Wed, 23 Oct 2024 09:06:56 +0000 (UTC)
+Received: from t14s.fritz.box (unknown [10.22.88.10])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id EEA221956089;
+	Wed, 23 Oct 2024 09:06:52 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org,
+	David Hildenbrand <david@redhat.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>
+Subject: [PATCH v3] s390/kdump: make is_kdump_kernel() consistently return "true" in kdump environments only
+Date: Wed, 23 Oct 2024 11:06:51 +0200
+Message-ID: <20241023090651.1115507-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 07/11] s390/mm/gmap: Remove gmap_{en,dis}able()
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
-Cc: borntraeger@de.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
-        frankja@linux.ibm.com, hca@linux.ibm.com, agordeev@linux.ibm.com,
-        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, david@redhat.com
-References: <20241022120601.167009-1-imbrenda@linux.ibm.com>
- <20241022120601.167009-8-imbrenda@linux.ibm.com>
-Content-Language: en-US
-From: Steffen Eiden <seiden@linux.ibm.com>
-In-Reply-To: <20241022120601.167009-8-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: vZoZXv4KINX2AFsFd4R0OS5M3kJd4kfJ
-X-Proofpoint-ORIG-GUID: vZoZXv4KINX2AFsFd4R0OS5M3kJd4kfJ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- priorityscore=1501 bulkscore=0 lowpriorityscore=0 malwarescore=0
- mlxscore=0 adultscore=0 mlxlogscore=711 phishscore=0 suspectscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410230052
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
+s390 sets "elfcorehdr_addr = ELFCORE_ADDR_MAX;" early during
+setup_arch() to deactivate the "elfcorehdr= kernel" parameter, resulting in
+is_kdump_kernel() returning "false".
 
+During vmcore_init()->elfcorehdr_alloc(), if on a dump kernel and
+allocation succeeded, elfcorehdr_addr will be set to a valid address and
+is_kdump_kernel() will consequently return "true".
 
-On 10/22/24 2:05 PM, Claudio Imbrenda wrote:
-> Remove gmap_enable(), gmap_disable(), and gmap_get_enabled() since they do
-> not have any users anymore.
-> 
-> Suggested-by: Heiko Carstens <hca@linux.ibm.com>
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->   arch/s390/include/asm/gmap.h |  3 ---
->   arch/s390/mm/gmap.c          | 31 -------------------------------
->   2 files changed, 34 deletions(-)
+We want to make is_kdump_kernel() return a consistent result during
+all boot stages, and properly return "true" if we are actually in a kdump
+environment -- just like we already do on powerpc where we indicate "false"
+in fadump environments, as added in commit b098f1c32365 ("powerpc/fadump:
+make is_kdump_kernel() return false when fadump is active").
 
-...
+Similarly provide a custom is_kdump_kernel() implementation that will only
+return "true" in kdump environments, and will do so consistently during
+boot.
+
+Update the documentation of is_dump_available().
+
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+
+This is v3 of [1], split out from the virtio-mem stuff.
+
+I played more with having virtio-mem built in as a module on current
+upstream and at least for virtio-mem this change *might* currently not be
+required (built-in virtio-mem driver seems to get probed after fs_init();
+I recall this behavior was different 4 years ago with my RFCs where I
+first decided to craft this patch).
+
+But this change sounds like a reasonable cleanup to me in any case.
+
+v1 -> v2:
+* Use "oldmem_data.start" and add a comment to is_kdump_kernel()
+* Update dump_available() documentation
+* Rewrote patch subject/description
+
+[1] https://lore.kernel.org/all/20241014144622.876731-2-david@redhat.com/
+
+---
+ arch/s390/include/asm/kexec.h |  3 +++
+ arch/s390/kernel/crash_dump.c | 11 +++++++++++
+ arch/s390/kernel/smp.c        | 16 ++++++++--------
+ 3 files changed, 22 insertions(+), 8 deletions(-)
+
+diff --git a/arch/s390/include/asm/kexec.h b/arch/s390/include/asm/kexec.h
+index 1bd08eb56d5f..9084b750350d 100644
+--- a/arch/s390/include/asm/kexec.h
++++ b/arch/s390/include/asm/kexec.h
+@@ -94,6 +94,9 @@ void arch_kexec_protect_crashkres(void);
+ 
+ void arch_kexec_unprotect_crashkres(void);
+ #define arch_kexec_unprotect_crashkres arch_kexec_unprotect_crashkres
++
++bool is_kdump_kernel(void);
++#define is_kdump_kernel is_kdump_kernel
+ #endif
+ 
+ #ifdef CONFIG_KEXEC_FILE
+diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+index edae13416196..d9301c00852e 100644
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -237,6 +237,17 @@ int remap_oldmem_pfn_range(struct vm_area_struct *vma, unsigned long from,
+ 						       prot);
+ }
+ 
++/*
++ * Return true only when we are in a kdump or stand-alone kdump environment.
++ * Note that /proc/vmcore might also be available in "standard zfcp/nvme dump"
++ * environments, where this function returns false; see dump_available().
++ */
++bool is_kdump_kernel(void)
++{
++	return oldmem_data.start;
++}
++EXPORT_SYMBOL_GPL(is_kdump_kernel);
++
+ static const char *nt_name(Elf64_Word type)
+ {
+ 	const char *name = "LINUX";
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 4df56fdb2488..455400bdafe8 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -574,7 +574,7 @@ int smp_store_status(int cpu)
+ 
+ /*
+  * Collect CPU state of the previous, crashed system.
+- * There are four cases:
++ * There are three cases:
+  * 1) standard zfcp/nvme dump
+  *    condition: OLDMEM_BASE == NULL && is_ipl_type_dump() == true
+  *    The state for all CPUs except the boot CPU needs to be collected
+@@ -587,16 +587,16 @@ int smp_store_status(int cpu)
+  *    with sigp stop-and-store-status. The firmware or the boot-loader
+  *    stored the registers of the boot CPU in the absolute lowcore in the
+  *    memory of the old system.
+- * 3) kdump and the old kernel did not store the CPU state,
+- *    or stand-alone kdump for DASD
+- *    condition: OLDMEM_BASE != NULL && !is_kdump_kernel()
++ * 3) kdump or stand-alone kdump for DASD
++ *    condition: OLDMEM_BASE != NULL && !is_ipl_type_dump() == false
+  *    The state for all CPUs except the boot CPU needs to be collected
+  *    with sigp stop-and-store-status. The kexec code or the boot-loader
+  *    stored the registers of the boot CPU in the memory of the old system.
+- * 4) kdump and the old kernel stored the CPU state
+- *    condition: OLDMEM_BASE != NULL && is_kdump_kernel()
+- *    This case does not exist for s390 anymore, setup_arch explicitly
+- *    deactivates the elfcorehdr= kernel parameter
++ *
++ * Note that the legacy kdump mode where the old kernel stored the CPU states
++ * does no longer exist: setup_arch() explicitly deactivates the elfcorehdr=
++ * kernel parameter. The is_kdump_kernel() implementation on s390 is independent
++ * of the elfcorehdr= parameter.
+  */
+ static bool dump_available(void)
+ {
+-- 
+2.46.1
+
