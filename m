@@ -1,104 +1,191 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6E8E130AF6;
-	Wed, 23 Oct 2024 12:54:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52AE51C729B;
+	Wed, 23 Oct 2024 14:30:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729688042; cv=none; b=lw9SdgXUa1RUeeXPi447mc0JW//W9p6yYzs/nSVBG+2mUBMMa01eAdm7BlhqX2TiW9xOxN4I6amINVn3s+q6wy3vycOcuI5Hx/aMz2BVZVBUWBzSKomFwYB0m+3hJ75eEcDz3KOrN9O0l+nBmDlv1GlJWP7pJSjBy3Ss4DY48VQ=
+	t=1729693841; cv=none; b=RTll2XdsEwV2qJSk8HTs7yYISXisP+5dgBp2Ao4JBq0Q1Z6dNDKh+pndiVF0qthq8eshaSRglHfkBjQpQZ0PAJeDiFOItJg1g1Sj0r8AiIMH+ZLxP9GNAQi/0opjVDrAmwkq/AjVlcYMBg+JpzVgjabDgf3mhWI1+e+EVuYlXlU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729688042; c=relaxed/simple;
-	bh=tXaxKqHuCg1Tvq9+YFI+ZgXBgan+kLSt1m1umb+dr9c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rqH3P6bK4o7ROVZnD1hGAACO18MAsUYqAu3N8MkYmBc8mYitwTdSRd/553zMl5D+UOzjK0bXjsEbVrMzfL0y7kXxWM81vMfW50bjDynARL9ITlNEZORAGFWjY+2CUIv/pnHHQZdSTh/AX2ThIz9ikOrgm4xdC6p3koT2OagC7RE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=r4sJ60jG; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1729693841; c=relaxed/simple;
+	bh=o/iUv/QeiUIIxgh39xa8PcUoll0cIbbEDFx12+h4Kzo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ArGmiMAWn6RmudUELnO6BMi0UmGer8CYAILeV2LPsGeLXBRgMiLlfqajWIltbocWfChltv6h+6sbCZgy+09Lu9xBiztcVKUGyugrYVx3gGQhjQU+kFwzXe+8s4TVXw/tzqWCk8lkCXNhpbdUjzqT446UkBsITfiV68feH5R3zbY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lFDLMZEJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="r4sJ60jG"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49N0N2HC002916;
-	Wed, 23 Oct 2024 12:53:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=gJjkoWx0v7EJieqmAwvTwDuoLvPP07
-	4KFvWCYB8i+LU=; b=r4sJ60jGae15GMN6FQ6YWJJs2rKKoF279cH9jmuu5RwR5l
-	y117AQ1ebruk1EUorF/4xKQ6sv4vM7uz2PBvP+NdjumT+kfuRqneV5yvFJlQqdD/
-	ZveTO/XxD/mybfM07bHOcrbairbzzIy2ZLk775qqu47WzH7VBFIA/ZBWpklnjxxR
-	C8Q4W3wwtJM4I2RByN3a2PkRxsXWl2HyWqNbzezKb8O8Lc6E7mk/IsXR8QaT6Aiz
-	yE8wg4xQHMBaj+oE7lzavJ98rehlL2HvvKg7r1I2O/xVg8YZjTNJNs7WfEGMCoBI
-	9wKHU2XNVktwVoPsPa+302x0PaKtePADjQUCBNiw==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42emafu13j-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 23 Oct 2024 12:53:58 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49NBRcPn014308;
-	Wed, 23 Oct 2024 12:53:57 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42emhfjvtc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 23 Oct 2024 12:53:57 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49NCrrOi57344388
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 23 Oct 2024 12:53:53 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9D27820043;
-	Wed, 23 Oct 2024 12:53:53 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3A5AE20040;
-	Wed, 23 Oct 2024 12:53:53 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 23 Oct 2024 12:53:53 +0000 (GMT)
-Date: Wed, 23 Oct 2024 14:53:51 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: Alexander Egorenkov <egorenar@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH v3] s390/kdump: make is_kdump_kernel() consistently
- return "true" in kdump environments only
-Message-ID: <20241023125351.8013-I-hca@linux.ibm.com>
-References: <20241023090651.1115507-1-david@redhat.com>
- <87ttd3t3v7.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
- <7da9f43f-e2a8-4079-8b1d-d7b16d8f388e@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lFDLMZEJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E607DC4CEC6;
+	Wed, 23 Oct 2024 14:30:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1729693840;
+	bh=o/iUv/QeiUIIxgh39xa8PcUoll0cIbbEDFx12+h4Kzo=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=lFDLMZEJ7YKsZBdt/tJV1tkopPkThjEW2TFXPy8mFiZr7tNbzpwvtlut53yR2CtFA
+	 9n0uB0vYx37IaS0aSGP1o75cAOidIdTMnZ7JAdBkuSdjGHp/IbSYRj+7CZfbzMjpnY
+	 MYMTQWhQ1DmJDMA9oI5YWU8SChI//3lmRbmNv33ac+pqX/i2APaOKJq4L+8/FXB2Ni
+	 Pt4oN/MofOwPclBg7dPRHRA/nciJChD7xNK5PAH43m56gnimGHTy8KN3VVuEi3NTUN
+	 AYhfdtAKNJnlYUJZ5mqt7HfljGkd8K8z3g4CuhHGaO952E+VC+9/Jd2DSkYhiegJLK
+	 RbGf/6kUw14YQ==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Sasha Levin <sashal@kernel.org>,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.11 17/30] s390/ap: Fix CCA crypto card behavior within protected execution environment
+Date: Wed, 23 Oct 2024 10:29:42 -0400
+Message-ID: <20241023143012.2980728-17-sashal@kernel.org>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20241023143012.2980728-1-sashal@kernel.org>
+References: <20241023143012.2980728-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7da9f43f-e2a8-4079-8b1d-d7b16d8f388e@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: AjL6nn8VDTpxcV38jjRBC9177R16lS95
-X-Proofpoint-ORIG-GUID: AjL6nn8VDTpxcV38jjRBC9177R16lS95
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- priorityscore=1501 bulkscore=0 lowpriorityscore=0 malwarescore=0
- mlxscore=0 adultscore=0 mlxlogscore=924 phishscore=0 suspectscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410230076
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.11.5
+Content-Transfer-Encoding: 8bit
 
-On Wed, Oct 23, 2024 at 02:22:18PM +0200, David Hildenbrand wrote:
-> On 23.10.24 14:12, Alexander Egorenkov wrote:
-> > Here is a typo in the condition, a redundant '!' before is_ipl_type_dump().
-> > 
-> 
-> Thanks for catching these! Too much going back and forth ... :)
-> 
-> > Otherwise, looks very good to me.
-> 
-> Thanks for the fast review. I assume these can be fixed up when applying.
-> But please let me know if a v3 is preferred, and I can send one after
-> waiting a couple of days.
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-Fixed typos, slightly reworded subject and commit message, and applied.
-Thanks a lot!
+[ Upstream commit 78f636e82b2288462498e235dc5a886426ce5dd7 ]
+
+A crypto card comes in 3 flavors: accelerator, CCA co-processor or
+EP11 co-processor. Within a protected execution environment only the
+accelerator and EP11 co-processor is supported. However, it is
+possible to set up a KVM guest with a CCA card and run it as a
+protected execution guest. There is nothing at the host side which
+prevents this. Within such a guest, a CCA card is shown as "illicit"
+and you can't do anything with such a crypto card.
+
+Regardless of the unsupported CCA card within a protected execution
+guest there are a couple of user space applications which
+unconditional try to run crypto requests to the zcrypt device
+driver. There was a bug within the AP bus code which allowed such a
+request to be forwarded to a CCA card where it is finally
+rejected and the driver reacts with -ENODEV but also triggers an AP
+bus scan. Together with a retry loop this caused some kind of "hang"
+of the KVM guest. On startup it caused timeouts and finally led the
+KVM guest startup fail. Fix that by closing the gap and make sure a
+CCA card is not usable within a protected execution environment.
+
+Another behavior within an protected execution environment with CCA
+cards was that the se_bind and se_associate AP queue sysfs attributes
+where shown. The implementation unconditional always added these
+attributes. Fix that by checking if the card mode is supported within
+a protected execution environment and only if valid, add the attribute
+group.
+
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/crypto/ap_bus.c   |  3 +--
+ drivers/s390/crypto/ap_bus.h   |  2 +-
+ drivers/s390/crypto/ap_queue.c | 28 ++++++++++++++++++++--------
+ 3 files changed, 22 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index 3ba4e1c5e15df..57aefccbb8556 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -1865,13 +1865,12 @@ static inline void ap_scan_domains(struct ap_card *ac)
+ 		}
+ 		/* if no queue device exists, create a new one */
+ 		if (!aq) {
+-			aq = ap_queue_create(qid, ac->ap_dev.device_type);
++			aq = ap_queue_create(qid, ac);
+ 			if (!aq) {
+ 				AP_DBF_WARN("%s(%d,%d) ap_queue_create() failed\n",
+ 					    __func__, ac->id, dom);
+ 				continue;
+ 			}
+-			aq->card = ac;
+ 			aq->config = !decfg;
+ 			aq->chkstop = chkstop;
+ 			aq->se_bstate = hwinfo.bs;
+diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+index 0b275c7193196..f4622ee4d8947 100644
+--- a/drivers/s390/crypto/ap_bus.h
++++ b/drivers/s390/crypto/ap_bus.h
+@@ -272,7 +272,7 @@ int ap_test_config_usage_domain(unsigned int domain);
+ int ap_test_config_ctrl_domain(unsigned int domain);
+ 
+ void ap_queue_init_reply(struct ap_queue *aq, struct ap_message *ap_msg);
+-struct ap_queue *ap_queue_create(ap_qid_t qid, int device_type);
++struct ap_queue *ap_queue_create(ap_qid_t qid, struct ap_card *ac);
+ void ap_queue_prepare_remove(struct ap_queue *aq);
+ void ap_queue_remove(struct ap_queue *aq);
+ void ap_queue_init_state(struct ap_queue *aq);
+diff --git a/drivers/s390/crypto/ap_queue.c b/drivers/s390/crypto/ap_queue.c
+index 1f647ffd6f4db..dcd1590c0f81f 100644
+--- a/drivers/s390/crypto/ap_queue.c
++++ b/drivers/s390/crypto/ap_queue.c
+@@ -22,6 +22,11 @@ static void __ap_flush_queue(struct ap_queue *aq);
+  * some AP queue helper functions
+  */
+ 
++static inline bool ap_q_supported_in_se(struct ap_queue *aq)
++{
++	return aq->card->hwinfo.ep11 || aq->card->hwinfo.accel;
++}
++
+ static inline bool ap_q_supports_bind(struct ap_queue *aq)
+ {
+ 	return aq->card->hwinfo.ep11 || aq->card->hwinfo.accel;
+@@ -1104,18 +1109,19 @@ static void ap_queue_device_release(struct device *dev)
+ 	kfree(aq);
+ }
+ 
+-struct ap_queue *ap_queue_create(ap_qid_t qid, int device_type)
++struct ap_queue *ap_queue_create(ap_qid_t qid, struct ap_card *ac)
+ {
+ 	struct ap_queue *aq;
+ 
+ 	aq = kzalloc(sizeof(*aq), GFP_KERNEL);
+ 	if (!aq)
+ 		return NULL;
++	aq->card = ac;
+ 	aq->ap_dev.device.release = ap_queue_device_release;
+ 	aq->ap_dev.device.type = &ap_queue_type;
+-	aq->ap_dev.device_type = device_type;
+-	// add optional SE secure binding attributes group
+-	if (ap_sb_available() && is_prot_virt_guest())
++	aq->ap_dev.device_type = ac->ap_dev.device_type;
++	/* in SE environment add bind/associate attributes group */
++	if (ap_is_se_guest() && ap_q_supported_in_se(aq))
+ 		aq->ap_dev.device.groups = ap_queue_dev_sb_attr_groups;
+ 	aq->qid = qid;
+ 	spin_lock_init(&aq->lock);
+@@ -1196,10 +1202,16 @@ bool ap_queue_usable(struct ap_queue *aq)
+ 	}
+ 
+ 	/* SE guest's queues additionally need to be bound */
+-	if (ap_q_needs_bind(aq) &&
+-	    !(aq->se_bstate == AP_BS_Q_USABLE ||
+-	      aq->se_bstate == AP_BS_Q_USABLE_NO_SECURE_KEY))
+-		rc = false;
++	if (ap_is_se_guest()) {
++		if (!ap_q_supported_in_se(aq)) {
++			rc = false;
++			goto unlock_and_out;
++		}
++		if (ap_q_needs_bind(aq) &&
++		    !(aq->se_bstate == AP_BS_Q_USABLE ||
++		      aq->se_bstate == AP_BS_Q_USABLE_NO_SECURE_KEY))
++			rc = false;
++	}
+ 
+ unlock_and_out:
+ 	spin_unlock_bh(&aq->lock);
+-- 
+2.43.0
+
