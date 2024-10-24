@@ -1,53 +1,53 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B59BA184101;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8236117E016;
 	Thu, 24 Oct 2024 06:26:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729751207; cv=none; b=lQ0c1bMosVA3US7rEKkRdxWGxXwD2leM9w5DArq6QFvG5lXZ4qcv8RfDCvAoiDvDO+qMm6oKvQKPiR5IdmOx0rW5gDGgNdykDCS/DYR/PkHMMyC/4kXRXxOVMQEB9xb0ExzSWSqEWChif7YoMFb2umBJA0TWtKmNnX7O2a2uC/Y=
+	t=1729751208; cv=none; b=D6/DRjXBLfqHKJKvBm08+abCj0QV+TJL2xx2NQBv9J7zwcGRPaVPyGBlKytsutonpTQJGcZBdYFVtmR3g5y5B8iEZRORXRIyGPjbCukyvTWKSJtpaDGlGicUfJ51TvgqBPP3c/prVwyJCTFTLvS0DaZDreMSE4B5LgmBjoL+tA8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729751207; c=relaxed/simple;
-	bh=wi7DrlcozzdfQQxbJz64FcJgeM+hzTWDnMjNyGx1qvU=;
+	s=arc-20240116; t=1729751208; c=relaxed/simple;
+	bh=k9OKe48qASrXfyx949DVS+U/DUt07afEMHXpcHHAUjA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=C/1SPjJ3oxg6fLQkOsVqcqs+6RU7pF0xCNvnTyhrhn9tlqGVvXfaPLfqNC0VbZ4N71XTs8TZ7aPlEkkpUPZ7wBwkMIZGVIf3+XmP8+b2lBTJO1Ev8Xu9ALHPr7anNiGVsbJvriN3p6EUlNGpsLbb3eoIP5whVq26Pq5sERjflQo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XzjhfDM9; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=eo7iOzzTbaAkUPKynsVxvNDxaCUT9w2uRyA1qmEQ8K2E2LlO64Cc8HxbP3V9/0UnJY9iia0JsxBC9ch8DTtLooBJ8sNVCpJAJFgy01ojCq8uwck7KA+EkYhsOYoePdDEb2fe/WQImxXEYRVIbhdAKGGUzk90VFqEcq8AAUBYTeg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HnrgWN44; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XzjhfDM9"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49O0e9u8012538;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HnrgWN44"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49O0v5rD028145;
 	Thu, 24 Oct 2024 06:26:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=pNqU+806yrBGetf5b
-	f5sG94MR4fWhoSVuIHkbtiUnkc=; b=XzjhfDM9a1oStwB2pk3tANbDnaQzKRqHj
-	JISGnOX/niPh+/vA8vHxc35OpLJMSCdD6sRM6jdKfZGvnhdpa7Ly6t07ZycOgLgZ
-	LuC39EQd5WerZ93biivWSq/TgcFBpdjpHxBux3a8qeXNTGkQO/k/y6+yRqqkulci
-	rP/15caNt2LYh1cNEH0fhcpHnJLzGQY0Y3DqIgr8vUUKJmcrDvfmsjsc0b5aEcv3
-	JEgkrsZcHAPwmo/6OIRrRYhy2mv/jc20boLp6/Jb3Nup1ZkmrHPT6RGe9nLbu6O/
-	mLdlS8LAWigG90eg4ldJus3CO0hlRKmBdy4GeRo80Hs3DiP4iewUw==
+	:mime-version:references:subject:to; s=pp1; bh=pbDVWllb5Ued5pX1d
+	Ab+ymjDkErCfAX4KoycJqg1iyQ=; b=HnrgWN44eAhucDxlxUGzoGn+R+sapX9Wl
+	vfdYQEmBWsHScuMiW6y/xGwkvZ0iGI8RVCzaQrxUgIxdeYk/DaPv1zC5aW+brLPX
+	9t33kPMrT0dOIud8Ig1rBzFX8YWjkIUdykspk2t4MIt5x0pSepuOVbmPGnYA7PEU
+	ycNXGr93pTS6QPCQea7Ei3nmi8qiKRZDhfzy9Rfo9NhQV9gO660K9A4LfmjKMN5u
+	HeCO5/tUnmPK+0tpMCLt0tt98+pDs1Uid/BvDBxGcYLsR7HMCjabDjZBddA5RudD
+	a3NTbuOVmfsvvkzyEczKuDLrnqxAD7O7G/BmuUcILgcWZyMY5tWlA==
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42fbw411em-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42emafpw34-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 24 Oct 2024 06:26:44 +0000 (GMT)
 Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49O305KF014557;
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49O2k2o9014565;
 	Thu, 24 Oct 2024 06:26:43 GMT
 Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42emk7xwvj-1
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42emk7xwvf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 24 Oct 2024 06:26:43 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49O6QdGR33686138
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49O6Qdi011338206
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 24 Oct 2024 06:26:40 GMT
+	Thu, 24 Oct 2024 06:26:39 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D0D5C20040;
+	by IMSVA (Postfix) with ESMTP id 4205D20040;
 	Thu, 24 Oct 2024 06:26:39 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B39F22004E;
+	by IMSVA (Postfix) with ESMTP id 1C02E20043;
 	Thu, 24 Oct 2024 06:26:39 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -59,9 +59,9 @@ Cc: Ingo Franzki <ifranzki@linux.ibm.com>,
         Christoph Schlameuss <schlameuss@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [PATCH v5 6/6] s390/uv: Retrieve UV secrets sysfs support
-Date: Thu, 24 Oct 2024 08:26:38 +0200
-Message-ID: <20241024062638.1465970-7-seiden@linux.ibm.com>
+Subject: [PATCH v5 2/6] s390/uv: Retrieve UV secrets support
+Date: Thu, 24 Oct 2024 08:26:34 +0200
+Message-ID: <20241024062638.1465970-3-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20241024062638.1465970-1-seiden@linux.ibm.com>
 References: <20241024062638.1465970-1-seiden@linux.ibm.com>
@@ -73,124 +73,365 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3PJcCV_PogiDJuU7nKS68LfHGZcPyFPU
-X-Proofpoint-GUID: 3PJcCV_PogiDJuU7nKS68LfHGZcPyFPU
+X-Proofpoint-ORIG-GUID: kyTHoP0RE64J3CdEzeyWa3IzKWRK1RYf
+X-Proofpoint-GUID: kyTHoP0RE64J3CdEzeyWa3IzKWRK1RYf
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- bulkscore=0 suspectscore=0 spamscore=0 phishscore=0 adultscore=0
- priorityscore=1501 clxscore=1015 lowpriorityscore=0 malwarescore=0
- mlxlogscore=863 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410240042
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ mlxscore=0 mlxlogscore=702 adultscore=0 lowpriorityscore=0 malwarescore=0
+ spamscore=0 phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
+ definitions=main-2410240047
 
-Reflect the updated content in the query information UVC to the sysfs at
-/sys/firmware/query
+Provide a kernel API to retrieve secrets from the UV secret store.
+Add two new functions:
+* `uv_get_secret_metadata` - get metadata for a given secret identifier
+* `uv_retrieve_secret` - get the secret value for the secret index
 
-* new UV-query sysfs entry for the maximum number of retrievable
-  secrets the UV can store for one secure guest.
-* new UV-query sysfs entry for the maximum number of association
-  secrets the UV can store for one secure guest.
-* max_secrets contains the sum of max association and max retrievable
-  secrets.
+With those two functions one can extract the secret for a given secret
+id, if the secret is retrievable.
 
 Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/s390/boot/uv.c        |  3 ++-
- arch/s390/include/asm/uv.h | 10 ++++++----
- arch/s390/kernel/uv.c      | 24 +++++++++++++++++++++++-
- 3 files changed, 31 insertions(+), 6 deletions(-)
+ arch/s390/include/asm/uv.h | 136 ++++++++++++++++++++++++++++++++++++-
+ arch/s390/kernel/uv.c      | 129 ++++++++++++++++++++++++++++++++++-
+ 2 files changed, 262 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/boot/uv.c b/arch/s390/boot/uv.c
-index 2a71e759dc42..4568e8f81dac 100644
---- a/arch/s390/boot/uv.c
-+++ b/arch/s390/boot/uv.c
-@@ -46,7 +46,8 @@ void uv_query_info(void)
- 		uv_info.supp_add_secret_req_ver = uvcb.supp_add_secret_req_ver;
- 		uv_info.supp_add_secret_pcf = uvcb.supp_add_secret_pcf;
- 		uv_info.supp_secret_types = uvcb.supp_secret_types;
--		uv_info.max_secrets = uvcb.max_secrets;
-+		uv_info.max_assoc_secrets = uvcb.max_assoc_secrets;
-+		uv_info.max_retr_secrets = uvcb.max_retr_secrets;
- 	}
- 
- 	if (test_bit_inv(BIT_UVC_CMD_SET_SHARED_ACCESS, (unsigned long *)uvcb.inst_calls_list) &&
 diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index f063e21d898d..0f8d107d678c 100644
+index 94ff58336e8e..f063e21d898d 100644
 --- a/arch/s390/include/asm/uv.h
 +++ b/arch/s390/include/asm/uv.h
-@@ -143,9 +143,10 @@ struct uv_cb_qui {
- 	u64 reservedf0;				/* 0x00f0 */
- 	u64 supp_add_secret_req_ver;		/* 0x00f8 */
- 	u64 supp_add_secret_pcf;		/* 0x0100 */
--	u64 supp_secret_types;			/* 0x0180 */
--	u16 max_secrets;			/* 0x0110 */
--	u8 reserved112[0x120 - 0x112];		/* 0x0112 */
-+	u64 supp_secret_types;			/* 0x0108 */
-+	u16 max_assoc_secrets;			/* 0x0110 */
-+	u16 max_retr_secrets;			/* 0x0112 */
-+	u8 reserved114[0x120 - 0x114];		/* 0x0114 */
+@@ -2,7 +2,7 @@
+ /*
+  * Ultravisor Interfaces
+  *
+- * Copyright IBM Corp. 2019, 2022
++ * Copyright IBM Corp. 2019, 2024
+  *
+  * Author(s):
+  *	Vasily Gorbik <gor@linux.ibm.com>
+@@ -62,6 +62,7 @@
+ #define UVC_CMD_ADD_SECRET		0x1031
+ #define UVC_CMD_LIST_SECRETS		0x1033
+ #define UVC_CMD_LOCK_SECRETS		0x1034
++#define UVC_CMD_RETR_SECRET		0x1035
+ 
+ /* Bits in installed uv calls */
+ enum uv_cmds_inst {
+@@ -95,6 +96,7 @@ enum uv_cmds_inst {
+ 	BIT_UVC_CMD_ADD_SECRET = 29,
+ 	BIT_UVC_CMD_LIST_SECRETS = 30,
+ 	BIT_UVC_CMD_LOCK_SECRETS = 31,
++	BIT_UVC_CMD_RETR_SECRET = 33,
+ };
+ 
+ enum uv_feat_ind {
+@@ -318,7 +320,6 @@ struct uv_cb_dump_complete {
+  * A common UV call struct for pv guests that contains a single address
+  * Examples:
+  * Add Secret
+- * List Secrets
+  */
+ struct uv_cb_guest_addr {
+ 	struct uv_cb_header header;
+@@ -327,6 +328,91 @@ struct uv_cb_guest_addr {
+ 	u64 reserved28[4];
  } __packed __aligned(8);
  
- /* Initialize Ultravisor */
-@@ -531,7 +532,8 @@ struct uv_info {
- 	unsigned long supp_add_secret_req_ver;
- 	unsigned long supp_add_secret_pcf;
- 	unsigned long supp_secret_types;
--	unsigned short max_secrets;
-+	unsigned short max_assoc_secrets;
-+	unsigned short max_retr_secrets;
- };
- 
- extern struct uv_info uv_info;
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index cb9cb3f47471..5247c8b0cdff 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -696,12 +696,32 @@ static struct kobj_attribute uv_query_supp_secret_types_attr =
- static ssize_t uv_query_max_secrets(struct kobject *kobj,
- 				    struct kobj_attribute *attr, char *buf)
++#define UVC_RC_RETR_SECR_BUF_SMALL	0x0109
++#define UVC_RC_RETR_SECR_STORE_EMPTY	0x010f
++#define UVC_RC_RETR_SECR_INV_IDX	0x0110
++#define UVC_RC_RETR_SECR_INV_SECRET	0x0111
++
++struct uv_cb_retr_secr {
++	struct uv_cb_header header;
++	u64 reserved08[2];
++	u16 secret_idx;
++	u16 reserved1a;
++	u32 buf_size;
++	u64 buf_addr;
++	u64 reserved28[4];
++}  __packed __aligned(8);
++
++struct uv_cb_list_secrets {
++	struct uv_cb_header header;
++	u64 reserved08[2];
++	u8  reserved18[6];
++	u16 start_idx;
++	u64 list_addr;
++	u64 reserved28[4];
++} __packed __aligned(8);
++
++enum uv_secret_types {
++	UV_SECRET_INVAL = 0x0,
++	UV_SECRET_NULL = 0x1,
++	UV_SECRET_ASSOCIATION = 0x2,
++	UV_SECRET_PLAIN = 0x3,
++	UV_SECRET_AES_128 = 0x4,
++	UV_SECRET_AES_192 = 0x5,
++	UV_SECRET_AES_256 = 0x6,
++	UV_SECRET_AES_XTS_128 = 0x7,
++	UV_SECRET_AES_XTS_256 = 0x8,
++	UV_SECRET_HMAC_SHA_256 = 0x9,
++	UV_SECRET_HMAC_SHA_512 = 0xa,
++	/* 0x0b - 0x10 reserved */
++	UV_SECRET_ECDSA_P256 = 0x11,
++	UV_SECRET_ECDSA_P384 = 0x12,
++	UV_SECRET_ECDSA_P521 = 0x13,
++	UV_SECRET_ECDSA_ED25519 = 0x14,
++	UV_SECRET_ECDSA_ED448 = 0x15,
++};
++
++/**
++ * uv_secret_list_item_hdr - UV secret metadata.
++ * @index: Index of the secret in the secret list.
++ * @type: Type of the secret. See `enum uv_secret_types`.
++ * @length: Length of the stored secret.
++ */
++struct uv_secret_list_item_hdr {
++	u16 index;
++	u16 type;
++	u32 length;
++} __packed __aligned(8);
++
++#define UV_SECRET_ID_LEN 32
++/**
++ * uv_secret_list_item - UV secret entry.
++ * @hdr: The metadata of this secret.
++ * @id: The ID of this secret, not the secret itself.
++ */
++struct uv_secret_list_item {
++	struct uv_secret_list_item_hdr hdr;
++	u64 reserverd08;
++	u8 id[UV_SECRET_ID_LEN];
++} __packed __aligned(8);
++
++/**
++ * uv_secret_list - UV secret-metadata list.
++ * @num_secr_stored: Number of secrets stored in this list.
++ * @total_num_secrets: Number of secrets stored in the UV for this guest.
++ * @next_secret_idx: positive number if there are more secrets available or zero.
++ * @secrets: Up to 85 UV-secret metadata entries.
++ */
++struct uv_secret_list {
++	u16 num_secr_stored;
++	u16 total_num_secrets;
++	u16 next_secret_idx;
++	u16 reserved_06;
++	u64 reserved_08;
++	struct uv_secret_list_item secrets[85];
++} __packed __aligned(8);
++static_assert(sizeof(struct uv_secret_list) == PAGE_SIZE);
++
+ static inline int __uv_call(unsigned long r1, unsigned long r2)
  {
--	return sysfs_emit(buf, "%d\n", uv_info.max_secrets);
-+	return sysfs_emit(buf, "%d\n",
-+			  uv_info.max_assoc_secrets + uv_info.max_retr_secrets);
+ 	int cc;
+@@ -383,6 +469,48 @@ static inline int uv_cmd_nodata(u64 handle, u16 cmd, u16 *rc, u16 *rrc)
+ 	return cc ? -EINVAL : 0;
  }
  
- static struct kobj_attribute uv_query_max_secrets_attr =
- 	__ATTR(max_secrets, 0444, uv_query_max_secrets, NULL);
- 
-+static ssize_t uv_query_max_retr_secrets(struct kobject *kobj,
-+					 struct kobj_attribute *attr, char *buf)
++/**
++ *  uv_list_secrets() - Do a List Secrets UVC.
++ *
++ *  @buf: Buffer to write list into; size of one page.
++ *  @start_idx: The smallest index that should be included in the list.
++ *		For the fist invocation use 0.
++ *  @rc: Pointer to store the return code or NULL.
++ *  @rrc: Pointer to store the return reason code or NULL.
++ *
++ *  This function calls the List Secrets UVC. The result is written into `buf`,
++ *  that needs to be at least one page of writable memory.
++ *  `buf` consists of:
++ *  * %struct uv_secret_list_hdr
++ *  * %struct uv_secret_list_item (multiple)
++ *
++ *  For `start_idx` use _0_ for the first call. If there are more secrets available
++ *  but could not fit into the page then `rc` is `UVC_RC_MORE_DATA`.
++ *  In this case use `uv_secret_list_hdr.next_secret_idx` for `start_idx`.
++ *
++ *  Context: might sleep.
++ *
++ *  Return: The UVC condition code.
++ */
++static inline int uv_list_secrets(struct uv_secret_list *buf, u16 start_idx,
++				  u16 *rc, u16 *rrc)
 +{
-+	return sysfs_emit(buf, "%d\n", uv_info.max_retr_secrets);
++	struct uv_cb_list_secrets uvcb = {
++		.header.len = sizeof(uvcb),
++		.header.cmd = UVC_CMD_LIST_SECRETS,
++		.start_idx = start_idx,
++		.list_addr = (u64)buf,
++	};
++	int cc = uv_call_sched(0, (u64)&uvcb);
++
++	if (rc)
++		*rc = uvcb.header.rc;
++	if (rrc)
++		*rrc = uvcb.header.rrc;
++
++	return cc;
 +}
 +
-+static struct kobj_attribute uv_query_max_retr_secrets_attr =
-+	__ATTR(max_retr_secrets, 0444, uv_query_max_retr_secrets, NULL);
+ struct uv_info {
+ 	unsigned long inst_calls_list[4];
+ 	unsigned long uv_base_stor_len;
+@@ -469,6 +597,10 @@ static inline int uv_remove_shared(unsigned long addr)
+ 	return share(addr, UVC_CMD_REMOVE_SHARED_ACCESS);
+ }
+ 
++int uv_get_secret_metadata(const u8 secret_id[UV_SECRET_ID_LEN],
++			   struct uv_secret_list_item_hdr *secret);
++int uv_retrieve_secret(u16 secret_idx, u8 *buf, size_t buf_size);
 +
-+static ssize_t uv_query_max_assoc_secrets(struct kobject *kobj,
-+					  struct kobj_attribute *attr,
-+					  char *buf)
+ extern int prot_virt_host;
+ 
+ static inline int is_prot_virt_host(void)
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index 9646f773208a..cb9cb3f47471 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -2,7 +2,7 @@
+ /*
+  * Common Ultravisor functions and initialization
+  *
+- * Copyright IBM Corp. 2019, 2020
++ * Copyright IBM Corp. 2019, 2024
+  */
+ #define KMSG_COMPONENT "prot_virt"
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+@@ -787,3 +787,130 @@ static int __init uv_info_init(void)
+ 	return rc;
+ }
+ device_initcall(uv_info_init);
++
++/*
++ * Find the secret with the secret_id in the provided list.
++ *
++ * Context: might sleep.
++ */
++static int find_secret_in_page(const u8 secret_id[UV_SECRET_ID_LEN],
++			       const struct uv_secret_list *list,
++			       struct uv_secret_list_item_hdr *secret)
 +{
-+	return sysfs_emit(buf, "%d\n", uv_info.max_assoc_secrets);
++	u16 i;
++
++	for (i = 0; i < list->total_num_secrets; i++) {
++		if (memcmp(secret_id, list->secrets[i].id, UV_SECRET_ID_LEN) == 0) {
++			*secret = list->secrets[i].hdr;
++			return 0;
++		}
++	}
++	return -ENOENT;
 +}
 +
-+static struct kobj_attribute uv_query_max_assoc_secrets_attr =
-+	__ATTR(max_assoc_secrets, 0444, uv_query_max_assoc_secrets, NULL);
++/*
++ * Do the actual search for `uv_get_secret_metadata`.
++ *
++ * Context: might sleep.
++ */
++static int find_secret(const u8 secret_id[UV_SECRET_ID_LEN],
++		       struct uv_secret_list *list,
++		       struct uv_secret_list_item_hdr *secret)
++{
++	u16 start_idx = 0;
++	u16 list_rc;
++	int ret;
 +
- static struct attribute *uv_query_attrs[] = {
- 	&uv_query_facilities_attr.attr,
- 	&uv_query_feature_indications_attr.attr,
-@@ -719,6 +739,8 @@ static struct attribute *uv_query_attrs[] = {
- 	&uv_query_supp_add_secret_pcf_attr.attr,
- 	&uv_query_supp_secret_types_attr.attr,
- 	&uv_query_max_secrets_attr.attr,
-+	&uv_query_max_assoc_secrets_attr.attr,
-+	&uv_query_max_retr_secrets_attr.attr,
- 	NULL,
- };
- 
++	do {
++		uv_list_secrets(list, start_idx, &list_rc, NULL);
++		if (list_rc != UVC_RC_EXECUTED && list_rc != UVC_RC_MORE_DATA) {
++			if (list_rc == UVC_RC_INV_CMD)
++				return -ENODEV;
++			else
++				return -EIO;
++		}
++		ret = find_secret_in_page(secret_id, list, secret);
++		if (ret == 0)
++			return ret;
++		start_idx = list->next_secret_idx;
++	} while (list_rc == UVC_RC_MORE_DATA && start_idx < list->next_secret_idx);
++
++	return -ENOENT;
++}
++
++/**
++ * uv_get_secret_metadata() - get secret metadata for a given secret id.
++ * @secret_id: search pattern.
++ * @secret: output data, containing the secret's metadata.
++ *
++ * Search for a secret with the given secret_id in the Ultravisor secret store.
++ *
++ * Context: might sleep.
++ *
++ * Return:
++ * * %0:	- Found entry; secret->idx and secret->type are valid.
++ * * %ENOENT	- No entry found.
++ * * %ENODEV:	- Not supported: UV not available or command not available.
++ * * %EIO:	- Other unexpected UV error.
++ */
++int uv_get_secret_metadata(const u8 secret_id[UV_SECRET_ID_LEN],
++			   struct uv_secret_list_item_hdr *secret)
++{
++	struct uv_secret_list *buf;
++	int rc;
++
++	buf = kzalloc(sizeof(*buf), GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++	rc = find_secret(secret_id, buf, secret);
++	kfree(buf);
++	return rc;
++}
++EXPORT_SYMBOL_GPL(uv_get_secret_metadata);
++
++/**
++ * uv_retrieve_secret() - get the secret value for the secret index.
++ * @secret_idx: Secret index for which the secret should be retrieved.
++ * @buf: Buffer to store retrieved secret.
++ * @buf_size: Size of the buffer. The correct buffer size is reported as part of
++ * the result from `uv_get_secret_metadata`.
++ *
++ * Calls the Retrieve Secret UVC and translates the UV return code into an errno.
++ *
++ * Context: might sleep.
++ *
++ * Return:
++ * * %0		- Entry found; buffer contains a valid secret.
++ * * %ENOENT:	- No entry found or secret at the index is non-retrievable.
++ * * %ENODEV:	- Not supported: UV not available or command not available.
++ * * %EINVAL:	- Buffer too small for content.
++ * * %EIO:	- Other unexpected UV error.
++ */
++int uv_retrieve_secret(u16 secret_idx, u8 *buf, size_t buf_size)
++{
++	struct uv_cb_retr_secr uvcb = {
++		.header.len = sizeof(uvcb),
++		.header.cmd = UVC_CMD_RETR_SECRET,
++		.secret_idx = secret_idx,
++		.buf_addr = (u64)buf,
++		.buf_size = buf_size,
++	};
++
++	uv_call_sched(0, (u64)&uvcb);
++
++	switch (uvcb.header.rc) {
++	case UVC_RC_EXECUTED:
++		return 0;
++	case UVC_RC_INV_CMD:
++		return -ENODEV;
++	case UVC_RC_RETR_SECR_STORE_EMPTY:
++	case UVC_RC_RETR_SECR_INV_SECRET:
++	case UVC_RC_RETR_SECR_INV_IDX:
++		return -ENOENT;
++	case UVC_RC_RETR_SECR_BUF_SMALL:
++		return -EINVAL;
++	default:
++		return -EIO;
++	}
++}
++EXPORT_SYMBOL_GPL(uv_retrieve_secret);
 -- 
 2.45.2
 
