@@ -1,82 +1,107 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22AFB9474;
-	Thu, 24 Oct 2024 04:49:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6081BC8F0;
+	Thu, 24 Oct 2024 05:45:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729745371; cv=none; b=KLEHW2scrBpX4dHTrJa/Uc4cojr3qjuYxzQg6/kFZJrZt9fGFpOxpu0otd32ropdHp8vgGsJHMV28H7zXRtto+idc1nV0RBlWtnCHOrLYG8cx7/huRi4Z8Vm0D2oLUzWQEGVJAMrT/oPFdRJzTSixBE2naB33xwiqK2MREXbo4g=
+	t=1729748705; cv=none; b=KvZonnM96gW214/Qmy1QzAZOav5+FM0c+1xBEN0OfrMtQbuDENubCon8BW6+H2ZO4E18T8WvPzw2f524J4wSmqBJzUUxslDxUCvmPKrMHtb0T+eNb8qn/XIDKf+k/WvhJOgEGttQXhZ/pDJpfxCQXSp6rg7GsPsu44g91eonev0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729745371; c=relaxed/simple;
-	bh=A2PjJARB/fw8n8qTNn2259+mELoQ3NLH5OdpTAW5aek=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jWinroVmu7l598FiMHQWxeDM93J/nPbJKFPkyVs1Xy5pcC4PpOw2JcdGTMyUCpU9md9FcNojQMZNIJf+HR7ivi4PoiejfiYEXsh4V11yTZ8ToQ8fho6+SYrBpkMFJlmV4XcQmdqBslzWYPi4WhvR8ebQrq09SEnNRuK0pS5TyM4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ka96vJ8A; arc=none smtp.client-ip=115.124.30.118
+	s=arc-20240116; t=1729748705; c=relaxed/simple;
+	bh=AO9kzHVqu6CkS7PKlwu6V4JxdUz5AE3Z/e1V0l0sLPI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=faFnNKbxN9khr7GMn/s472msJ6IDvApi0fJeNp0aN7U9YNc3AB52wUR159KvDXdHggcMTIe7gdeu0tNAlTHCINR8EoJA9u4t4SI5VsfZrtERpMqI+5uJBQo8yV1KKcaxBBPfHcFF8pTKwyDjVa0s05yRE7FDwVAB/7hlqEn0fDE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=pC66RixE; arc=none smtp.client-ip=115.124.30.112
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ka96vJ8A"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="pC66RixE"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1729745358; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=iwmxYZ0CXYfXJAMg2rSfDvfc82uItayVWx9BloNjOyo=;
-	b=ka96vJ8A6Zas8/5Zelf4ToH+lT+NeuK+3sVJEIs/4JYR4LsjnKeLLpS1Jc2DF2wdojFa+rQIUsqOly2Lo3LQxlhyxOcxLhnClxssIo6ZtotyZJ3J+De8WgMWiePW8G+jR8NIVU2omDKmAyDe91gzHtYJ2Ux2F61/sIsBcoqVC3E=
-Received: from 30.74.129.183(mailfrom:dtcccc@linux.alibaba.com fp:SMTPD_---0WHnso7r_1729745355 cluster:ay36)
+	t=1729748698; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=6e+vage7Syc/ckTeGnwMXWcLKLUNAWjPBIjR0sU7HoM=;
+	b=pC66RixEjkLL6sYJzh6vV3mul5y/BvP5eIrdTvmU3vngJAa9XsIC/R5vo+SRSO3nqlvF0NyiN0DHYsU/8t7WkSEj1+uezoJF+ICuYsG3/DqbrjUs4U//852F6tKzjZHXRHvMoMa2khjyv5m5Gj6gdjrhJrCF3IiaQa5a7/aXq1U=
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WHnzPxs_1729748696 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 24 Oct 2024 12:49:16 +0800
-Message-ID: <284e3cb9-9f27-413c-9c05-f017171fa40e@linux.alibaba.com>
-Date: Thu, 24 Oct 2024 12:49:15 +0800
+          Thu, 24 Oct 2024 13:44:58 +0800
+From: Wen Gu <guwen@linux.alibaba.com>
+To: wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com
+Cc: alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net-next] net/smc: use new helper to get the netdev associated to an ibdev
+Date: Thu, 24 Oct 2024 13:44:56 +0800
+Message-Id: <20241024054456.37124-1-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH bpf-next 4/4] bpf/selftests: add simple selftest for
- bpf_smc_ops
-Content-Language: en-US
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, bpf@vger.kernel.org,
- kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
- ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
- martin.lau@linux.dev, pabeni@redhat.com, song@kernel.org, sdf@google.com,
- haoluo@google.com, yhs@fb.com, edumazet@google.com,
- john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
- guwen@linux.alibaba.com
-References: <1729737768-124596-1-git-send-email-alibuda@linux.alibaba.com>
- <1729737768-124596-5-git-send-email-alibuda@linux.alibaba.com>
- <2006b84c-e83a-431b-ac35-bb357459fa96@linux.alibaba.com>
-From: Tianchen Ding <dtcccc@linux.alibaba.com>
-In-Reply-To: <2006b84c-e83a-431b-ac35-bb357459fa96@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 2024/10/24 12:04, D. Wythe wrote:
-> 
-> 
-> On 10/24/24 10:42 AM, D. Wythe wrote:
->> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>
->> This PATCH adds a tiny selftest for bpf_smc_ops, to verify the ability
->> to attach and write access.
->>
->> Follow the steps below to run this test.
->>
->> make -C tools/testing/selftests/bpf
->> cd tools/testing/selftests/bpf
->> sudo ./test_progs -t smc
->>
->> Results shows:
->> Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
-> 
-> 
-> Sorry for just found an issue with vary config. I will fix this issues
-> in the next version.
-> 
-> D. Wythe
+Patch [1] provides common interfaces to store and get net devices
+associated to an IB device port and removes the ops->get_netdev()
+callback of mlx5 driver. So use the new interface in smc.
 
-This doesn't build with !CONFIG_SMC.
+[1]: 8d159eb2117b ("RDMA/mlx5: Use IB set_netdev and get_netdev functions")
 
-Maybe you should create an individual dir. (like what sched_ext does)
+Reported-by: D. Wythe <alibuda@linux.alibaba.com>
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
+ net/smc/smc_ib.c   | 8 ++------
+ net/smc/smc_pnet.c | 4 +---
+ 2 files changed, 3 insertions(+), 9 deletions(-)
+
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 9297dc20bfe2..9c563cdbea90 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -899,9 +899,7 @@ static void smc_copy_netdev_ifindex(struct smc_ib_device *smcibdev, int port)
+ 	struct ib_device *ibdev = smcibdev->ibdev;
+ 	struct net_device *ndev;
+ 
+-	if (!ibdev->ops.get_netdev)
+-		return;
+-	ndev = ibdev->ops.get_netdev(ibdev, port + 1);
++	ndev = ib_device_get_netdev(ibdev, port + 1);
+ 	if (ndev) {
+ 		smcibdev->ndev_ifidx[port] = ndev->ifindex;
+ 		dev_put(ndev);
+@@ -921,9 +919,7 @@ void smc_ib_ndev_change(struct net_device *ndev, unsigned long event)
+ 		port_cnt = smcibdev->ibdev->phys_port_cnt;
+ 		for (i = 0; i < min_t(size_t, port_cnt, SMC_MAX_PORTS); i++) {
+ 			libdev = smcibdev->ibdev;
+-			if (!libdev->ops.get_netdev)
+-				continue;
+-			lndev = libdev->ops.get_netdev(libdev, i + 1);
++			lndev = ib_device_get_netdev(libdev, i + 1);
+ 			dev_put(lndev);
+ 			if (lndev != ndev)
+ 				continue;
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index a04aa0e882f8..716808f374a8 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -1054,9 +1054,7 @@ static void smc_pnet_find_rdma_dev(struct net_device *netdev,
+ 		for (i = 1; i <= SMC_MAX_PORTS; i++) {
+ 			if (!rdma_is_port_valid(ibdev->ibdev, i))
+ 				continue;
+-			if (!ibdev->ibdev->ops.get_netdev)
+-				continue;
+-			ndev = ibdev->ibdev->ops.get_netdev(ibdev->ibdev, i);
++			ndev = ib_device_get_netdev(ibdev->ibdev, i);
+ 			if (!ndev)
+ 				continue;
+ 			dev_put(ndev);
+-- 
+2.32.0.3.g01195cf9f
+
