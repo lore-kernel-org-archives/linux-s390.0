@@ -1,164 +1,76 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 868311E51D;
-	Thu, 24 Oct 2024 02:48:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2CD72C9A;
+	Thu, 24 Oct 2024 04:04:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729738112; cv=none; b=tCNqxjsY4cfcRM9sEEJ6W+EadvwSLhp5lFjeOTX9yfkVSMznzzLyiCH93q+zpJxgSXBX7zC0RF6kaPxCe+xcYuLcSWQI3vQQHYib62c9MDf6epk1yCefB9IL5R4nXFd5eEjE22TF3/Mavb5bJoHCsS/NTchAVbkmvitr34xTUCQ=
+	t=1729742688; cv=none; b=LbyVseByIMJOaxTUAfIVpt+PfmHxcVtWDPwoUeyBeaUfLGX4lDrfxrt/lMg4BsMRIEoqTlUQHNcvzYdmudX+f9oDhekUuUfijUs2YCCLH1DwS3wY2Hv0Zy3J/FB91km6KDcO0UNpb3pWuV1ymiL5IOUKsQPW6klAnTunMxDq6ew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729738112; c=relaxed/simple;
-	bh=pDBnVwV4TrSz9x6jHbsxWa5WmwTlfzb/lAVwo0dzrhc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=DlAhQyBOSw0PuVxwCB4S6q7D6xDr/4Ba033lcMf5VsZ+SR5NXDHn93/4ASc2mryPwdct3zvkFqBJUmp9PYk0fb06Np8yhB93WDD5uO4EhJuejivC7/jrnRx1hRILoM/ul0QzXx0ShcCwYM5PLNhGTWU+AINw5VU4iEH3XhEXdbA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=wm7uSVrh; arc=none smtp.client-ip=115.124.30.101
+	s=arc-20240116; t=1729742688; c=relaxed/simple;
+	bh=BN4KxyJeSbI9lrleBa12C+6OpbPXEGBtF1/wBfL+vzc=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=Xv1IC3GFV0j4AEiFaNjUCF3KrC2XjZq49cU2D+UGqZurpYPoWKGH8z1sUZdeosvB2vau15eLj8KhIv+IujO5C6rhdqzaIAnKggdKZFjLq6EcQucCMWePn0b24ok4D+dObc6gQL72FvsYhNR3juttd521Fw+Ao/cCRkFjCCjFzck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=eC+RghMl; arc=none smtp.client-ip=115.124.30.112
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="wm7uSVrh"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="eC+RghMl"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1729738100; h=From:To:Subject:Date:Message-Id;
-	bh=9jvqQZLq79EKmM2QtBsiWqAED1EfuumssWsjxKW9xfc=;
-	b=wm7uSVrhEyHL4EtJ5yrE0EfuyL++xuqviL4PenWQstX0vlOfzhCrQjQxCZLUk7ryPA2PcynL5khZckwkX6vOJSj8B8My/0QjdqWawAKNoa9PYH8dh0eyJ1AaW3Xhn4m3cxSclU0Q6xGX6kSaf8r6cVEmzvYltOyTs3j6gfbxTKI=
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WHnU0H6_1729737776 cluster:ay36)
+	t=1729742676; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type;
+	bh=mRJXIoF9p2pnVpRbIFNfNZ8xFxJdIE7RijO56fWUVqo=;
+	b=eC+RghMlTskUNq2zNSFRSaazk9gde8FgNhJaB/hXgQ2h4GXr8s9YZiIIebRZyNGJaZ3ad+rVfPzrmXsRakVR8rfnSpcsHWFXrM/bXA5iUxo+DcFHfpKwftRhzt9QtjJr4ILT4RzLVJ1NC4nJNb76m3StVS4SynCr/74pQJsVKQs=
+Received: from 30.221.147.97(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WHne6jJ_1729742673 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 24 Oct 2024 10:42:57 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-To: kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	ast@kernel.org,
-	daniel@iogearbox.net,
-	andrii@kernel.org,
-	martin.lau@linux.dev,
-	pabeni@redhat.com,
-	song@kernel.org,
-	sdf@google.com,
-	haoluo@google.com,
-	yhs@fb.com,
-	edumazet@google.com,
-	john.fastabend@gmail.com,
-	kpsingh@kernel.org,
-	jolsa@kernel.org,
-	guwen@linux.alibaba.com
-Cc: kuba@kernel.org,
-	davem@davemloft.net,
-	netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	bpf@vger.kernel.org,
-	dtcccc@linux.alibaba.com
-Subject: [PATCH bpf-next 4/4] bpf/selftests: add simple selftest for bpf_smc_ops
-Date: Thu, 24 Oct 2024 10:42:48 +0800
-Message-Id: <1729737768-124596-5-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1729737768-124596-1-git-send-email-alibuda@linux.alibaba.com>
-References: <1729737768-124596-1-git-send-email-alibuda@linux.alibaba.com>
+          Thu, 24 Oct 2024 12:04:34 +0800
+Message-ID: <2006b84c-e83a-431b-ac35-bb357459fa96@linux.alibaba.com>
+Date: Thu, 24 Oct 2024 12:04:33 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH bpf-next 4/4] bpf/selftests: add simple selftest for
+ bpf_smc_ops
 From: "D. Wythe" <alibuda@linux.alibaba.com>
+To: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+ ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
+ martin.lau@linux.dev, pabeni@redhat.com, song@kernel.org, sdf@google.com,
+ haoluo@google.com, yhs@fb.com, edumazet@google.com,
+ john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
+ guwen@linux.alibaba.com
+Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, bpf@vger.kernel.org,
+ dtcccc@linux.alibaba.com
+References: <1729737768-124596-1-git-send-email-alibuda@linux.alibaba.com>
+ <1729737768-124596-5-git-send-email-alibuda@linux.alibaba.com>
+Content-Language: en-US
+In-Reply-To: <1729737768-124596-5-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This PATCH adds a tiny selftest for bpf_smc_ops, to verify the ability
-to attach and write access.
 
-Follow the steps below to run this test.
 
-make -C tools/testing/selftests/bpf
-cd tools/testing/selftests/bpf
-sudo ./test_progs -t smc
+On 10/24/24 10:42 AM, D. Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
+> 
+> This PATCH adds a tiny selftest for bpf_smc_ops, to verify the ability
+> to attach and write access.
+> 
+> Follow the steps below to run this test.
+> 
+> make -C tools/testing/selftests/bpf
+> cd tools/testing/selftests/bpf
+> sudo ./test_progs -t smc
+> 
+> Results shows:
+> Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
 
-Results shows:
-Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
 
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- .../selftests/bpf/prog_tests/test_bpf_smc.c        | 21 +++++++++++
- tools/testing/selftests/bpf/progs/bpf_smc.c        | 44 ++++++++++++++++++++++
- 2 files changed, 65 insertions(+)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
- create mode 100644 tools/testing/selftests/bpf/progs/bpf_smc.c
+Sorry for just found an issue with vary config. I will fix this issues
+in the next version.
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c b/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
-new file mode 100644
-index 00000000..2299853
---- /dev/null
-+++ b/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
-@@ -0,0 +1,21 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <test_progs.h>
-+
-+#include "bpf_smc.skel.h"
-+
-+static void load(void)
-+{
-+	struct bpf_smc *skel;
-+
-+	skel = bpf_smc__open_and_load();
-+	if (!ASSERT_OK_PTR(skel, "bpf_smc__open_and_load"))
-+		return;
-+
-+	bpf_smc__destroy(skel);
-+}
-+
-+void test_bpf_smc(void)
-+{
-+	if (test__start_subtest("load"))
-+		load();
-+}
-diff --git a/tools/testing/selftests/bpf/progs/bpf_smc.c b/tools/testing/selftests/bpf/progs/bpf_smc.c
-new file mode 100644
-index 00000000..ebff477
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/bpf_smc.c
-@@ -0,0 +1,44 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include "vmlinux.h"
-+
-+#include <bpf/bpf_helpers.h>
-+#include <bpf/bpf_tracing.h>
-+
-+char _license[] SEC("license") = "GPL";
-+
-+struct smc_bpf_ops_ctx {
-+	struct {
-+		struct tcp_sock *tp;
-+	} set_option;
-+	struct {
-+		const struct tcp_sock *tp;
-+		struct inet_request_sock *ireq;
-+		int smc_ok;
-+	} set_option_cond;
-+};
-+
-+struct smc_bpf_ops {
-+	void (*set_option)(struct smc_bpf_ops_ctx *ctx);
-+	void (*set_option_cond)(struct smc_bpf_ops_ctx *ctx);
-+};
-+
-+SEC("struct_ops/bpf_smc_set_tcp_option_cond")
-+void BPF_PROG(bpf_smc_set_tcp_option_cond, struct smc_bpf_ops_ctx *arg)
-+{
-+	arg->set_option_cond.smc_ok = 1;
-+}
-+
-+SEC("struct_ops/bpf_smc_set_tcp_option")
-+void BPF_PROG(bpf_smc_set_tcp_option, struct smc_bpf_ops_ctx *arg)
-+{
-+	struct tcp_sock *tp = arg->set_option.tp;
-+
-+	tp->syn_smc = 1;
-+}
-+
-+SEC(".struct_ops.link")
-+struct smc_bpf_ops sample_smc_bpf_ops = {
-+	.set_option         = (void *) bpf_smc_set_tcp_option,
-+	.set_option_cond    = (void *) bpf_smc_set_tcp_option_cond,
-+};
--- 
-1.8.3.1
-
+D. Wythe
