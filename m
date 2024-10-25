@@ -1,120 +1,92 @@
-Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89E8B1632D5;
-	Fri, 25 Oct 2024 13:37:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EFE31FB886;
+	Fri, 25 Oct 2024 13:56:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729863461; cv=none; b=hKnmYldDJ3SBTW80ZEuX7EhMIYOD5vlPVYJNUN/a9q5Mp1BXcZ3W0OpKyOr2fslE/RZXqpHKUrHE0cd7cQ5Zjm/BfElMLVjeYOKtl9XJVXGHnzxxBCF2uSDbdjiB7r0Gx38pW7dAqk64Nu9x65tVFcPOWXPqJW3bQ/7VWqjAdRo=
+	t=1729864611; cv=none; b=h62W8Jevmh4tpuQmSAOzfZvC44HURI5ribV59hQTKNuGFu4LL3X2XJv4bZJ5lXMP10aUmcVs0MZM01auzqs58CydA81iq4YML/PpBDZfJkEMVsLXzViT7GUC2/ifJJR2NwTOdh4GyywnDY5uVn05pLCxdWTc2BuMNDYtZAdJO14=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729863461; c=relaxed/simple;
-	bh=IO5JRAi5QVuzB3nZMKM6uhv+seJAQIBK2VjWW9MTLG0=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=pO/WSeOhnV4TRJ57ZlTrvjstVsnX9Aew079uu6wd3sLpHpyTJLIZxB3UkYYmGJIn/i6s3jm7kvHwgkwQ31C9mflou6MPdSBoQM4mBTH7c95fOztk9qBw6uC+eSiYfr0crWrVSBKG4giA9AQv6SSy9nPFSx4objkSXvh8maNrWMw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=nTq77u+Y; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YYd+CaNQ; arc=none smtp.client-ip=202.12.124.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1729864611; c=relaxed/simple;
+	bh=VOVthntb2aOe9RBecJRGYMjMbQDWDpKNZr66qOOPCxU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FoAWOzsbzGx3XALSatij1tFsEjDXSJ0k8Socd13xKbmwPmBk/TuuJF75jQG2sQNsklVGdMhLRF0WxaHJHrg1E6MRQCv3w54tOvPuRoZUbMkDwoj2Oai5kfuYYnfkzi4goG78R2ZvH6w8rmN7GrbKe6XV3SSYpMBJKa4knpZy8SE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KNC5khJ1; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="nTq77u+Y";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YYd+CaNQ"
-Received: from phl-compute-10.internal (phl-compute-10.phl.internal [10.202.2.50])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 54D1325400C4;
-	Fri, 25 Oct 2024 09:37:37 -0400 (EDT)
-Received: from phl-imap-11 ([10.202.2.101])
-  by phl-compute-10.internal (MEProxy); Fri, 25 Oct 2024 09:37:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1729863457;
-	 x=1729949857; bh=mTD/E8mUSNoNp+vtjeW8NYfb5u7ndnKHIytXzDhahwE=; b=
-	nTq77u+YbjEK1oOGqWOEMss4pavBeea5xmfNB5v8n1RQ22NxJIlmfp2TzT4IKpOx
-	caApVTp1/TP1+2AFsH+6DaC7B1jXPpi59lVd0QmK1g4cyigLCbwCjjCU5UZejO28
-	8c3d8AGT1CdV1FpUSe8Ohc2JPaB0EAv7X1aw4eGMMqsDN9QNF4MBCkY7XT7NWXhL
-	O/OEAgSYzhCEctYt3/dxus3LsMgxjvtStf4TUCEi3KDe+iRqYuAwvWG/ws/9TCTb
-	91Febe33d87M4u4RsAc2PSDoS2l7TEXW3ZHH0N9mqk4H/wIO2sYqmM++nNVpXfOu
-	l8mVjbE2Y3ckzB0U2VTGjA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1729863457; x=
-	1729949857; bh=mTD/E8mUSNoNp+vtjeW8NYfb5u7ndnKHIytXzDhahwE=; b=Y
-	Yd+CaNQUnHw9YsFM/xsr4EEUnyKUrgtD2vti8QGZood/Hu9648OKjYo4bH7A6Neg
-	jnJDKNvwBYkFvlybTuqF2bH/KaZKDCsMPx9nvXzHCWTKjsCUnllyUHCbFyKAeDhX
-	YNkya00Lwsz0+acBTk9P7pZOFNJx3BvJUubdQClXQQcfFmAJOHzcSMDEsFGYeUz+
-	Jg9HE+6A7ymczxjo7UpkNZEyk9ue5mso6y8MDn4M5ldn8ZNSI/lsZrOwKW2qGN95
-	SK1C5a5uk//QbB1mqxfMZZhPvCEMy7uIU9Opdu0mHCbXfdkyJRO6uRsr50PfJcTO
-	dO3S1hvvUj92Ys457iJAw==
-X-ME-Sender: <xms:IJ8bZxsuj29dJ1vr5lHn5cEFvY6c8AEcCMtZGM1az7Jp64ZRgbF05Q>
-    <xme:IJ8bZ6f_PFYR1VPWQ6NunpU9GXYmb8uTFHK2WzhvwLuyhGpOciB1CBT9pvUeu8GH4
-    UYBuOr6HJ-I4-vOr1Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrvdejvddgieeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
-    rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
-    htshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddt
-    necuhfhrohhmpedftehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrd
-    guvgeqnecuggftrfgrthhtvghrnhephfdthfdvtdefhedukeetgefggffhjeeggeetfefg
-    gfevudegudevledvkefhvdeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepudel
-    pdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehlihhnuhigqdgrrhhmqdhkvghrnh
-    gvlheslhhishhtshdrihhnfhhrrgguvggrugdrohhrghdprhgtphhtthhopehlihhnuhig
-    qdhrihhstghvsehlihhsthhsrdhinhhfrhgruggvrggurdhorhhgpdhrtghpthhtoheplh
-    hinhhugidqshhnphhsqdgrrhgtsehlihhsthhsrdhinhhfrhgruggvrggurdhorhhgpdhr
-    tghpthhtoheplhhinhhugidquhhmsehlihhsthhsrdhinhhfrhgruggvrggurdhorhhgpd
-    hrtghpthhtoheplhhinhhugidqmheikehksehlihhsthhsrdhlihhnuhigqdhmieekkhdr
-    ohhrghdprhgtphhtthhopehlohhonhhgrghrtghhsehlihhsthhsrdhlihhnuhigrdguvg
-    hvpdhrtghpthhtoheplhhinhhugihpphgtqdguvghvsehlihhsthhsrdhoiihlrggsshdr
-    ohhrghdprhgtphhtthhopehhtghhsehlshhtrdguvgdprhgtphhtthhopehlihhnuhigqd
-    grlhhphhgrsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:IJ8bZ0w8_fyzDu0Dhxg43egcOQd9fPmeL9IF1HbPQzAPODUmdkywqg>
-    <xmx:IJ8bZ4Ng8v61LIOz9Z6hcNW7TrkYDvZ9-QsNLZ7fNM7Okgrh7sPTiA>
-    <xmx:IJ8bZx-O8B7MlF4JofybzIynmnGJvvLwnq8RLzH_1fknLv9ZsqMu1w>
-    <xmx:IJ8bZ4X5lrN7iDkKbGm85k7BOBq5kmsTovQZ6V9cVszatdT146tmOA>
-    <xmx:IZ8bZ02QO2wzbQXTtXh5NJPoq2r5QyMwBKYu4QPUoTFRk_k35DiZGUWq>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 3B9352220071; Fri, 25 Oct 2024 09:37:36 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KNC5khJ1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26270C4CEE3;
+	Fri, 25 Oct 2024 13:56:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1729864610;
+	bh=VOVthntb2aOe9RBecJRGYMjMbQDWDpKNZr66qOOPCxU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=KNC5khJ1ECcRsOZ/SIXMh8Ozb4M0UoNCAkqaYTY5hqYOLSnVIoZZCaSONHeMY90DI
+	 xl3gcoLDoi603XhvDCI7XRlBvyOuwBVa01jAX+GQzzxvyYTyhAYT5U8+kgA1f9H0Cc
+	 LRDKTJl4KoWFKMtoM6PxouqqRMbWCEY/qqtQ+wz9TYtSh9RXrXk1CEssxosgsSV2yT
+	 D7c1D87hwlbZJR2Wc1DLu91acwxRRb/TWG6GixcXtAEF37owiIT7lWPIVlayFb4pFm
+	 ydrUcTYQh0dkc6pUb23CIJybnCnOjX8PttNsxNDbmKNZhWp4xeHsqTrY5gZmW4lYoG
+	 b0OmbjjxtZa7Q==
+Date: Fri, 25 Oct 2024 14:56:45 +0100
+From: Simon Horman <horms@kernel.org>
+To: Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: Wen Gu <guwen@linux.alibaba.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	David Miller <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
+	Alexandra Winter <wintera@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Nils Hoppmann <niho@linux.ibm.com>,
+	Niklas Schnell <schnelle@linux.ibm.com>,
+	Thorsten Winkler <twinkler@linux.ibm.com>,
+	Karsten Graul <kgraul@linux.ibm.com>,
+	Stefan Raspl <raspl@linux.ibm.com>
+Subject: Re: [PATCH net-next] net/smc: increase SMC_WR_BUF_CNT
+Message-ID: <20241025135645.GA1507976@kernel.org>
+References: <20241025074619.59864-1-wenjia@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Fri, 25 Oct 2024 13:37:15 +0000
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Christoph Hellwig" <hch@lst.de>
-Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-um@lists.infradead.org, Linux-Arch <linux-arch@vger.kernel.org>
-Message-Id: <c9f10ee9-697f-4f45-8c82-a6dc61e5a74e@app.fastmail.com>
-In-Reply-To: <20241023053644.311692-1-hch@lst.de>
-References: <20241023053644.311692-1-hch@lst.de>
-Subject: Re: provide generic page_to_phys and phys_to_page implementations v3
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241025074619.59864-1-wenjia@linux.ibm.com>
 
-On Wed, Oct 23, 2024, at 05:36, Christoph Hellwig wrote:
-> page_to_phys is duplicated by all architectures, and from some strange
-> reason placed in <asm/io.h> where it doesn't fit at all.  
->
-> phys_to_page is only provided by a few architectures despite having a lot 
-> of open coded users.
->
-> Provide generic versions in <asm-generic/memory_model.h> to make these
-> helpers more easily usable.
->
+On Fri, Oct 25, 2024 at 09:46:19AM +0200, Wenjia Zhang wrote:
+> From: Halil Pasic <pasic@linux.ibm.com>
+> 
+> The current value of SMC_WR_BUF_CNT is 16 which leads to heavy
+> contention on the wr_tx_wait workqueue of the SMC-R linkgroup and its
+> spinlock when many connections are  competing for the buffer. Currently
+> up to 256 connections per linkgroup are supported.
+> 
+> To make things worse when finally a buffer becomes available and
+> smc_wr_tx_put_slot() signals the linkgroup's wr_tx_wait wq, because
+> WQ_FLAG_EXCLUSIVE is not used all the waiters get woken up, most of the
+> time a single one can proceed, and the rest is contending on the
+> spinlock of the wq to go to sleep again.
+> 
+> For some reason include/linux/wait.h does not offer a top level wrapper
+> macro for wait_event with interruptible, exclusive and timeout. I did
+> not spend too many cycles on thinking if that is even a combination that
+> makes sense (on the quick I don't see why not) and conversely I
+> refrained from making an attempt to accomplish the interruptible,
+> exclusive and timeout combo by using the abstraction-wise lower
+> level __wait_event interface.
+> 
+> To alleviate the tx performance bottleneck and the CPU overhead due to
+> the spinlock contention, let us increase SMC_WR_BUF_CNT to 256.
+> 
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Reported-by: Nils Hoppmann <niho@linux.ibm.com>
+> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+> Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
 
-I've applied this to the asm-generic tree now.
+Reviewed-by: Simon Horman <horms@kernel.org>
 
-Thanks for the cleanup!
-
-     Arnd
