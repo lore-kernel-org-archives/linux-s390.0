@@ -1,285 +1,163 @@
-Received: from out-186.mta1.migadu.com (out-186.mta1.migadu.com [95.215.58.186])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 691F35221
-	for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2024 00:27:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.186
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9493E18DF7F;
+	Fri, 25 Oct 2024 07:24:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729816026; cv=none; b=h4mhrKiuYduRsHA7xN9rXy8UezKqabaq+6JN7KAxW1pMiPzKxbP7Dnj8UZveM4GiRMR7JsZD2XWXHLLMypaSdvZ2kmGim6Zrc6EyPoHMhmwxkW+x+Ef2xuaerN8OWcEaZBFV2bKtseDDOYb9cPM9weZNOpYCF91CXJb5SvOEmrQ=
+	t=1729841052; cv=none; b=ExWGmoE7MbHL3+XEl50rxVz1+rDLczFf85TP65MBNfxIjJDnXPBxa0KHRXm2N5PkbP+js+lUFFfKZXuv9ybRQcKU7BlSglnPIOMcUZuJrj4y4HGA0nxNm8Sr6ggbUNnyjO28gBhVCkw4XAUbOucteoDXRi/iijAf1UmlzTJXTv4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729816026; c=relaxed/simple;
-	bh=sUlonnYzk09GLqAwS2WJKo0KBHCiiNG2So7rABxdhfI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gTdWemQutqeOWdfiwJIazw62JUzrW4ZkpVY3QRzkxsCNVByWx/JaWNFtPus8F1YyZ23gPMSEdB++04dHjyTA0PalK0LQuOR9EK4vsQqirqo2vbtvZVItqIHzy4WQxQbsIEQglKfMZR0aKQzVrmDyp8I7JWdlhU9QBTJnf4FzKQs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=POSimtOW; arc=none smtp.client-ip=95.215.58.186
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1729841052; c=relaxed/simple;
+	bh=rGdMudwJl1RcLtNxkMzfUbwAfbCOQ17rU0daHqxFbjI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=s0hLXY/c/CH1F6xxw9U9QnPgpVgkRH/LvCJyHES0dUUTEIVsP2dkfuRHBvbMBmjynculD8QAc1gsj79tqp+QlzlFc/X8yB27pH8OYPSUyp8243IkAW48fOrGCjb0Twq7PO2xU3QMF5xQIYFmfFYtkHw+bFm132PBIjEljofk+7s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=s42weJCq; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="POSimtOW"
-Message-ID: <74c06b43-095f-414a-b4aa-2addbe610336@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1729816021;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=cO+P2/BVH76BUnj+FBfjAkcsAssXYM+8F1HEYhrXDuw=;
-	b=POSimtOWIPEl0SvDBCtD8jra2jpxRO7BUt2vYNMqbYd76zb+19gQUvWCz4MdfsZpcmMt2/
-	5c5pNRki6wj9VVbwf9zR5o0qSw3gEiU4nN2QjQMwzo2SwgEJokA5P/ax4c3u+SqtmS00rZ
-	867z4ejQUEU79LgL2qiVjW9JvRV2V9M=
-Date: Thu, 24 Oct 2024 17:26:49 -0700
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="s42weJCq"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49P5tQ5Z003086;
+	Fri, 25 Oct 2024 07:24:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=CTSkejew1mbESZ6z5fD+xQoUgFiZoV/aiJrEWj5Jq
+	cU=; b=s42weJCqX7voseEVEBcNQma0iFA/BLUax86nztNm5EO/1XqIKLQdbfPcf
+	7reJBDLnJ2UFrSpZhWsBMpOlux+cy9p0s/Vsxq7Hu5Wtv7yqtSY8YVW4K+xGOer9
+	h2Vt0EcRfNCzxuqa3VOU/8/3w9arWh/wrc/SQ84NxL/U6wuH7pFbb/7Vr54gMKZd
+	7tMmdGTEUENQuvzNa1W9IuFPxeWrWwU0Niqt69A5uNnXfQbvxSBArSB6i8rcB9dn
+	MwQK9BLY0MDvZKob8aCdnsR/KjX4u57mjevTPCzcNTkdqHQvicSsQz0FgrAYW3kr
+	ivSF2bsvhSc5v/+sJ0XF1HfAWh/iw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42g5kxgayv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 25 Oct 2024 07:24:05 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49P7O4js019811;
+	Fri, 25 Oct 2024 07:24:04 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42g5kxgayr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 25 Oct 2024 07:24:04 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49P6PAYT001777;
+	Fri, 25 Oct 2024 07:24:03 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 42emk9mh7y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 25 Oct 2024 07:24:03 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49P7O03k41746900
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 25 Oct 2024 07:24:00 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 175D120043;
+	Fri, 25 Oct 2024 07:24:00 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0A03D20040;
+	Fri, 25 Oct 2024 07:23:59 +0000 (GMT)
+Received: from MacBook-Pro-von-Wenjia.fritz.box.com (unknown [9.171.42.103])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 25 Oct 2024 07:23:58 +0000 (GMT)
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+To: Wen Gu <guwen@linux.alibaba.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>, Nils Hoppmann <niho@linux.ibm.com>,
+        Niklas Schnell <schnelle@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Stefan Raspl <raspl@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>, Aswin K <aswin@linux.ibm.com>
+Subject: [PATCH net] net/smc: Fix lookup of netdev by using ib_device_get_netdev()
+Date: Fri, 25 Oct 2024 09:23:55 +0200
+Message-ID: <20241025072356.56093-1-wenjia@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH net-next 3/4] net/smc: Introduce smc_bpf_ops
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
- ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, pabeni@redhat.com,
- song@kernel.org, sdf@google.com, haoluo@google.com, yhs@fb.com,
- edumazet@google.com, john.fastabend@gmail.com, kpsingh@kernel.org,
- jolsa@kernel.org, guwen@linux.alibaba.com, kuba@kernel.org,
- davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-rdma@vger.kernel.org, bpf@vger.kernel.org, dtcccc@linux.alibaba.com
-References: <1729737768-124596-1-git-send-email-alibuda@linux.alibaba.com>
- <1729737768-124596-4-git-send-email-alibuda@linux.alibaba.com>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Martin KaFai Lau <martin.lau@linux.dev>
-In-Reply-To: <1729737768-124596-4-git-send-email-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ZjED-xRAXRX2C8HLC7WV5QbRbA2h2JcS
+X-Proofpoint-GUID: epVEHzlf6S_W2um1v5Ad1WMu_av3QNGX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ malwarescore=0 spamscore=0 bulkscore=0 priorityscore=1501 impostorscore=0
+ suspectscore=0 phishscore=0 mlxscore=0 lowpriorityscore=0 adultscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410250054
 
-On 10/23/24 7:42 PM, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
-> 
-> The introduction of IPPROTO_SMC enables eBPF programs to determine
-> whether to use SMC based on the context of socket creation, such as
-> network namespaces, PID and comm name, etc.
-> 
-> As a subsequent enhancement, this patch introduces a new hook for eBPF
-> programs that allows decisions on whether to use SMC or not at runtime,
-> including but not limited to local/remote IP address or ports. In
-> simpler words, this feature allows modifications to syn_smc through eBPF
-> programs before the TCP three-way handshake got established.
-> 
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
->   include/linux/tcp.h   |   2 +-
->   include/net/smc.h     |  47 +++++++++++
->   include/net/tcp.h     |   6 ++
->   net/ipv4/tcp_input.c  |   3 +-
->   net/ipv4/tcp_output.c |  14 +++-
->   net/smc/Kconfig       |  12 +++
->   net/smc/Makefile      |   1 +
->   net/smc/af_smc.c      |  38 ++++++---
->   net/smc/smc.h         |   4 +
->   net/smc/smc_bpf.c     | 212 ++++++++++++++++++++++++++++++++++++++++++++++++++
->   net/smc/smc_bpf.h     |  34 ++++++++
->   11 files changed, 357 insertions(+), 16 deletions(-)
->   create mode 100644 net/smc/smc_bpf.c
->   create mode 100644 net/smc/smc_bpf.h
-> 
-> diff --git a/include/linux/tcp.h b/include/linux/tcp.h
-> index 6a5e08b..4ef160a 100644
-> --- a/include/linux/tcp.h
-> +++ b/include/linux/tcp.h
-> @@ -478,7 +478,7 @@ struct tcp_sock {
->   #endif
->   #if IS_ENABLED(CONFIG_SMC)
->   	bool	syn_smc;	/* SYN includes SMC */
-> -	bool	(*smc_hs_congested)(const struct sock *sk);
-> +	struct tcpsmc_ctx *smc;
->   #endif
->   
->   #if defined(CONFIG_TCP_MD5SIG) || defined(CONFIG_TCP_AO)
-> diff --git a/include/net/smc.h b/include/net/smc.h
-> index db84e4e..34ab2c6 100644
-> --- a/include/net/smc.h
-> +++ b/include/net/smc.h
-> @@ -18,6 +18,8 @@
->   #include "linux/ism.h"
->   
->   struct sock;
-> +struct tcp_sock;
-> +struct inet_request_sock;
->   
->   #define SMC_MAX_PNETID_LEN	16	/* Max. length of PNET id */
->   
-> @@ -97,4 +99,49 @@ struct smcd_dev {
->   	u8 going_away : 1;
->   };
->   
-> +/*
-> + * This structure is used to store the parameters passed to the member of struct_ops.
-> + * Due to the BPF verifier cannot restrict the writing of bit fields, such as limiting
-> + * it to only write ireq->smc_ok. Using kfunc can solve this issue, but we don't want
-> + * to introduce a kfunc with such a narrow function.
+Commit c2261dd76b54 ("RDMA/device: Add ib_device_set_netdev() as an
+alternative to get_netdev") introduced an API ib_device_get_netdev.
+The SMC-R variant of the SMC protocol continued to use the old API
+ib_device_ops.get_netdev() to lookup netdev. As this commit 8d159eb2117b
+("RDMA/mlx5: Use IB set_netdev and get_netdev functions") removed the
+get_netdev callback from mlx5_ib_dev_common_roce_ops, calling
+ib_device_ops.get_netdev didn't work any more at least by using a mlx5
+device driver. Thus, using ib_device_set_netdev() now became mandatory.
 
-imo, adding kfunc is fine.
+Replace ib_device_ops.get_netdev() with ib_device_get_netdev().
 
-> + *
-> + * Moreover, using this structure for unified parameters also addresses another
-> + * potential issue. Currently, kfunc cannot recognize the calling context
-> + * through BPF's existing structure. In the future, we can solve this problem
-> + * by passing this ctx to kfunc.
+Fixes: 54903572c23c ("net/smc: allow pnetid-less configuration")
+Fixes: 8d159eb2117b ("RDMA/mlx5: Use IB set_netdev and get_netdev functions")
+Reported-by: Aswin K <aswin@linux.ibm.com>
+Reviewed-by: Gerd Bayer <gbayer@linux.ibm.com>
+Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
+---
+ net/smc/smc_ib.c   | 8 ++------
+ net/smc/smc_pnet.c | 4 +---
+ 2 files changed, 3 insertions(+), 9 deletions(-)
 
-This part I don't understand. How is it different from the "tcp_cubic_kfunc_set" 
-allowed in tcp_congestion_ops?
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 9297dc20bfe2..9c563cdbea90 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -899,9 +899,7 @@ static void smc_copy_netdev_ifindex(struct smc_ib_device *smcibdev, int port)
+ 	struct ib_device *ibdev = smcibdev->ibdev;
+ 	struct net_device *ndev;
+ 
+-	if (!ibdev->ops.get_netdev)
+-		return;
+-	ndev = ibdev->ops.get_netdev(ibdev, port + 1);
++	ndev = ib_device_get_netdev(ibdev, port + 1);
+ 	if (ndev) {
+ 		smcibdev->ndev_ifidx[port] = ndev->ifindex;
+ 		dev_put(ndev);
+@@ -921,9 +919,7 @@ void smc_ib_ndev_change(struct net_device *ndev, unsigned long event)
+ 		port_cnt = smcibdev->ibdev->phys_port_cnt;
+ 		for (i = 0; i < min_t(size_t, port_cnt, SMC_MAX_PORTS); i++) {
+ 			libdev = smcibdev->ibdev;
+-			if (!libdev->ops.get_netdev)
+-				continue;
+-			lndev = libdev->ops.get_netdev(libdev, i + 1);
++			lndev = ib_device_get_netdev(libdev, i + 1);
+ 			dev_put(lndev);
+ 			if (lndev != ndev)
+ 				continue;
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index 1dd362326c0a..8566937c8903 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -1054,9 +1054,7 @@ static void smc_pnet_find_rdma_dev(struct net_device *netdev,
+ 		for (i = 1; i <= SMC_MAX_PORTS; i++) {
+ 			if (!rdma_is_port_valid(ibdev->ibdev, i))
+ 				continue;
+-			if (!ibdev->ibdev->ops.get_netdev)
+-				continue;
+-			ndev = ibdev->ibdev->ops.get_netdev(ibdev->ibdev, i);
++			ndev = ib_device_get_netdev(ibdev->ibdev, i);
+ 			if (!ndev)
+ 				continue;
+ 			dev_put(ndev);
+-- 
+2.43.0
 
-> + */
-> +struct smc_bpf_ops_ctx {
-> +	struct {
-> +		struct tcp_sock *tp;
-> +	} set_option;
-> +	struct {
-> +		const struct tcp_sock *tp;
-> +		struct inet_request_sock *ireq;
-> +		int smc_ok;
-> +	} set_option_cond;
-> +};
-
-There is no need to create one single ctx for struct_ops prog. struct_ops prog 
-can take >1 args and different ops can take different args.
-
-> +
-> +struct smc_bpf_ops {
-> +	/* priavte */
-> +
-> +	struct list_head	list;
-> +
-> +	/* public */
-> +
-> +	/* Invoked before computing SMC option for SYN packets.
-> +	 * We can control whether to set SMC options by modifying
-> +	 * ctx->set_option->tp->syn_smc.
-> +	 * This's also the only member that can be modified now.
-> +	 * Only member in ctx->set_option is valid for this callback.
-> +	 */
-> +	void (*set_option)(struct smc_bpf_ops_ctx *ctx);
-> +
-> +	/* Invoked before Set up SMC options for SYN-ACK packets
-> +	 * We can control whether to respond SMC options by modifying
-> +	 * ctx->set_option_cond.smc_ok.
-> +	 * Only member in ctx->set_option_cond is valid for this callback.
-> +	 */
-> +	void (*set_option_cond)(struct smc_bpf_ops_ctx *ctx);
-
-The struct smc_bpf_ops already has set_option and set_option_cnd, but...
-
-> +};
-> +
->   #endif	/* _SMC_H */
-> diff --git a/include/net/tcp.h b/include/net/tcp.h
-> index 739a9fb..c322443 100644
-> --- a/include/net/tcp.h
-> +++ b/include/net/tcp.h
-> @@ -2730,6 +2730,12 @@ static inline void tcp_bpf_rtt(struct sock *sk, long mrtt, u32 srtt)
->   
->   #if IS_ENABLED(CONFIG_SMC)
->   extern struct static_key_false tcp_have_smc;
-> +struct tcpsmc_ctx {
-> +	/* Invoked before computing SMC option for SYN packets. */
-> +	void (*set_option)(struct tcp_sock *tp);
-> +	/* Invoked before Set up SMC options for SYN-ACK packets */
-> +	void (*set_option_cond)(const struct tcp_sock *tp, struct inet_request_sock *ireq);
-> +};
-
-another new struct tcpsmc_ctx has exactly the same functions (at least the same 
-name) but different arguments. I don't understand why this duplicate, is it 
-because the need to prepare the "struct smc_bpf_ops_ctx"?
-
-The "struct tcpsmc_ctx" should be the "struct smc_bpf_ops" itself.
-
-[ ... ]
-
-> +static int smc_bpf_ops_btf_struct_access(struct bpf_verifier_log *log,
-> +					 const struct bpf_reg_state *reg,
-> +					 const struct bpf_prog *prog,
-> +					 int off, int size)
-> +{
-> +	const struct btf_member *member;
-> +	const char *mname;
-> +	int member_idx;
-> +
-> +	member_idx = prog->expected_attach_type;
-> +	if (member_idx >= btf_type_vlen(smc_bpf_ops_type))
-> +		goto out_err;
-> +
-> +	member = &btf_type_member(smc_bpf_ops_type)[member_idx];
-> +	mname = btf_str_by_offset(saved_btf, member->name_off);
-> +
-> +	if (!strcmp(mname, "set_option")) {
-
-btf_member_bit_offset can be used instead of strcmp. Take a look at bpf_tcp_ca.c 
-and kernel/sched/ext.c
-
-> +		/* only support to modify tcp_sock->syn_smc */
-> +		if (reg->btf_id == tcp_sock_id &&
-> +		    off == offsetof(struct tcp_sock, syn_smc) &&
-> +		    off + size == offsetofend(struct tcp_sock, syn_smc))
-> +			return 0;
-> +	} else if (!strcmp(mname, "set_option_cond")) {
-> +		/* only support to modify smc_bpf_ops_ctx->smc_ok */
-> +		if (reg->btf_id == smc_bpf_ops_ctx_id &&
-> +		    off == offsetof(struct smc_bpf_ops_ctx, set_option_cond.smc_ok) &&
-> +		    off + size == offsetofend(struct smc_bpf_ops_ctx, set_option_cond.smc_ok))
-> +			return 0;
-> +	}
-> +
-> +out_err:
-> +	return -EACCES;
-> +}
-> +
-> +static const struct bpf_verifier_ops smc_bpf_verifier_ops = {
-> +	.get_func_proto = bpf_base_func_proto,
-> +	.is_valid_access = bpf_tracing_btf_ctx_access,
-> +	.btf_struct_access = smc_bpf_ops_btf_struct_access,
-> +};
-> +
-> +static struct bpf_struct_ops bpf_smc_bpf_ops = {
-> +	.init = smc_bpf_ops_init,
-> +	.name = "smc_bpf_ops",
-> +	.reg = smc_bpf_ops_reg,
-> +	.unreg = smc_bpf_ops_unreg,
-> +	.cfi_stubs = &__bpf_smc_bpf_ops,
-> +	.verifier_ops = &smc_bpf_verifier_ops,
-> +	.init_member = smc_bpf_ops_init_member,
-> +	.check_member = smc_bpf_ops_check_member,
-> +	.owner = THIS_MODULE,
-> +};
-> +
-> +int smc_bpf_struct_ops_init(void)
-> +{
-> +	return register_bpf_struct_ops(&bpf_smc_bpf_ops, smc_bpf_ops);
-> +}
-> +
-> +void bpf_smc_set_tcp_option(struct tcp_sock *tp)
-> +{
-> +	struct smc_bpf_ops_ctx ops_ctx = {};
-> +	struct smc_bpf_ops *ops;
-> +
-> +	ops_ctx.set_option.tp = tp;
-
-All this initialization should be unnecessary. Directly pass tp instead.
-
-> +
-> +	rcu_read_lock();
-> +	list_for_each_entry_rcu(ops, &smc_bpf_ops_list, list) {
-
-Does it need to have a list (meaning >1) of smc_bpf_ops to act on a sock? The 
-ordering expectation is hard to manage.
-
-> +		ops->set_option(&ops_ctx);
-
-A dumb question. This will only affect AF_SMC (or AF_INET[6]/IPPROTO_SMC) 
-socket but not the AF_INET[6]/IPPROTO_{TCP,UDP} socket?
-
-pw-bot: cr
-
-> +	}
-> +	rcu_read_unlock();
-> +}
