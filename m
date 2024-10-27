@@ -1,42 +1,43 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from out-171.mta1.migadu.com (out-171.mta1.migadu.com [95.215.58.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA278161;
-	Sun, 27 Oct 2024 11:18:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 543A87E110
+	for <linux-s390@vger.kernel.org>; Sun, 27 Oct 2024 19:28:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730027897; cv=none; b=cEnDxyGHDwRuXQHDACKLqP5RjMtpDvWHLXs27u5F5ZTiJv6zwE1p9kBog9t8UWGUOeP6GSa8onG9QoL8hNie0lnBxQCDAZhXJcy3PFq9C5kgf3x6XtoHehY/spXbWP244ePnDd5n8I5+B/5sVe7m2r5ueTCap6gUvQLuSlG+h78=
+	t=1730057325; cv=none; b=AzHTsYU5Eyu2qTsH9pA6TSv32kGYPUDac4cGwKL7oEL5CMG35YPB6hnZiaX5/3ORJIKIztJhDah7vp20oyIjwOPMO/ZZFYjeZ+G2YxMojtScJlzripnRhxJR/KjpTw5JblJsEFgd0p74kYTBAp6JwJiJqPZDU4Nu86XdXQSPMYI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730027897; c=relaxed/simple;
-	bh=1t0hPj5j/GoJWCB+D9JDiK6Ur3FebwDE732vMCkQfas=;
+	s=arc-20240116; t=1730057325; c=relaxed/simple;
+	bh=na5RqGkEZnfKl/taVAsW55k5aIMm/HhhoP69JHNVo4w=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jGeFpVRzE56z7MwWPpQVd8RwktPSxquCGcKh5PxmhEIzFCuTiX7V7sm6Ydzxaw3r+p53U/Iv5MMf1dsrpl3APrUAdcDg9KMxJiE8aTqRITQnN+o4d2vFPZq8W8PvYMe92QHJ8BZZ01MKMgJ0ALPIWG0+6u8fAzvEE/HyuBV01/I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=YJffDRJL; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 In-Reply-To:Content-Type; b=lFyK9Oy5+EcJicURJMqkqyDVIJ8FalD+cSH2M3kxBbOuyVHFeXFqtU7V/fphlYQiVzpxK55+BHFKkbMFXrdfvk32zzsY0szZCYeKyQMq9NKdN0FWExtJhNpRRsisRxMzaAFBDUBVlC+X5wQa8cgdNHD4LtPrKkFT4BuhMoW63Oc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=H90EGbWT; arc=none smtp.client-ip=95.215.58.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="YJffDRJL"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1730027883; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=SMAOEmNZAtuLgKjy34T7btJXdrvMUuoF7jRJ7UBb9Zg=;
-	b=YJffDRJLNzncT9zQNakw9VLtciuvTQcZ+vwEoqYpv91SgNkz0m8BAEwCpmWDOYEYbZIwUggEngXiKbta2skKrxNxlyeeh6NeJcyxzi4cWJ64lotCCex4kR9MIdBo0vyYRav2a4JeFd9sJekxtGteURedN4NzaB6nQeE38l4uHx8=
-Received: from 30.212.186.15(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WHxbQlB_1730027880 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Sun, 27 Oct 2024 19:18:03 +0800
-Message-ID: <456e2ab1-d137-45e0-a130-eef1ffb582a4@linux.alibaba.com>
-Date: Sun, 27 Oct 2024 19:18:00 +0800
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="H90EGbWT"
+Message-ID: <2a7dca47-4107-4bd9-b539-aacdf733f3d4@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1730057320;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=DdZnJKOedTRWsKA+yx0HzasB5LXG8yplTAt8DgncFdU=;
+	b=H90EGbWT8vyu3mmQdhIE9QE94gB2tyisxF8QP1UqGSfgy0MeZ6ipltvC8V1+RCDybZwpaq
+	ELSfA3gNVfzNx51ZEWBJI4c9btqWcSLNI1XRtt5wEpHC3Vg0mP7tAcfHtZsQ0Ufg/LdQtM
+	x+m+1T/xdu1cFRcXpDbSZ4IJfxIht20=
+Date: Sun, 27 Oct 2024 20:28:32 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH net] net/smc: Fix lookup of netdev by using
  ib_device_get_netdev()
-To: Wenjia Zhang <wenjia@linux.ibm.com>, "D. Wythe"
- <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>,
+To: Wenjia Zhang <wenjia@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>,
+ "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>,
  David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
  Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>
 Cc: netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
@@ -48,20 +49,109 @@ Cc: netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
  Karsten Graul <kgraul@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>,
  Aswin K <aswin@linux.ibm.com>
 References: <20241025072356.56093-1-wenjia@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
 In-Reply-To: <20241025072356.56093-1-wenjia@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-
-
-On 2024/10/25 15:23, Wenjia Zhang wrote:
+在 2024/10/25 9:23, Wenjia Zhang 写道:
 > Commit c2261dd76b54 ("RDMA/device: Add ib_device_set_netdev() as an
 > alternative to get_netdev") introduced an API ib_device_get_netdev.
 > The SMC-R variant of the SMC protocol continued to use the old API
 > ib_device_ops.get_netdev() to lookup netdev. As this commit 8d159eb2117b
 > ("RDMA/mlx5: Use IB set_netdev and get_netdev functions") removed the
 > get_netdev callback from mlx5_ib_dev_common_roce_ops, calling
+
+Thanks a lot.
+
+Reviewed-by: Zhu Yanjun <yanjun.zhu@linux.dev>
+
+Because the commit 8d159eb2117b ("RDMA/mlx5: Use IB set_netdev and 
+get_netdev functions") removes the get_netdev callback from 
+mlx5_ib_dev_common_roce_ops, in mlx4, get_netdev is still in 
+mlx4_ib_dev_ops. So the following commit will follow mlx5 to remove 
+get_netdev from mlx4 driver.
+
+ From a59f2e01428640a332a51b8d910ec166704aa441 Mon Sep 17 00:00:00 2001
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
+Date: Sun, 27 Oct 2024 20:21:27 +0100
+Subject: [PATCH 1/1] RDMA/mlx4: Use IB get_netdev functions and remove
+  get_netdev callback
+
+In the commit 8d159eb2117b ("RDMA/mlx5: Use IB set_netdev and get_netdev
+functions") removed the get_netdev callback from
+mlx5_ib_dev_common_roce_ops, in mlx4, get_netdev callback should also
+be removed.
+
+Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
+---
+compile successfully only
+---
+  drivers/infiniband/hw/mlx4/main.c | 35 -------------------------------
+  1 file changed, 35 deletions(-)
+
+diff --git a/drivers/infiniband/hw/mlx4/main.c 
+b/drivers/infiniband/hw/mlx4/main.c
+index 529db874d67c..cf34d92de7b1 100644
+--- a/drivers/infiniband/hw/mlx4/main.c
++++ b/drivers/infiniband/hw/mlx4/main.c
+@@ -123,40 +123,6 @@ static int num_ib_ports(struct mlx4_dev *dev)
+         return ib_ports;
+  }
+
+-static struct net_device *mlx4_ib_get_netdev(struct ib_device *device,
+-                                            u32 port_num)
+-{
+-       struct mlx4_ib_dev *ibdev = to_mdev(device);
+-       struct net_device *dev, *ret = NULL;
+-
+-       rcu_read_lock();
+-       for_each_netdev_rcu(&init_net, dev) {
+-               if (dev->dev.parent != ibdev->ib_dev.dev.parent ||
+-                   dev->dev_port + 1 != port_num)
+-                       continue;
+-
+-               if (mlx4_is_bonded(ibdev->dev)) {
+-                       struct net_device *upper;
+-
+-                       upper = netdev_master_upper_dev_get_rcu(dev);
+-                       if (upper) {
+-                               struct net_device *active;
+-
+-                               active = 
+bond_option_active_slave_get_rcu(netdev_priv(upper));
+-                               if (active)
+-                                       dev = active;
+-                       }
+-               }
+-
+-               dev_hold(dev);
+-               ret = dev;
+-               break;
+-       }
+-
+-       rcu_read_unlock();
+-       return ret;
+-}
+-
+  static int mlx4_ib_update_gids_v1(struct gid_entry *gids,
+                                   struct mlx4_ib_dev *ibdev,
+                                   u32 port_num)
+@@ -2544,7 +2510,6 @@ static const struct ib_device_ops mlx4_ib_dev_ops = {
+         .get_dev_fw_str = get_fw_ver_str,
+         .get_dma_mr = mlx4_ib_get_dma_mr,
+         .get_link_layer = mlx4_ib_port_link_layer,
+-       .get_netdev = mlx4_ib_get_netdev,
+         .get_port_immutable = mlx4_port_immutable,
+         .map_mr_sg = mlx4_ib_map_mr_sg,
+         .mmap = mlx4_ib_mmap,
+--
+2.34.1
+
+Zhu Yanjun
+
 > ib_device_ops.get_netdev didn't work any more at least by using a mlx5
 > device driver. Thus, using ib_device_set_netdev() now became mandatory.
 > 
@@ -72,11 +162,6 @@ On 2024/10/25 15:23, Wenjia Zhang wrote:
 > Reported-by: Aswin K <aswin@linux.ibm.com>
 > Reviewed-by: Gerd Bayer <gbayer@linux.ibm.com>
 > Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
-
-LGTM!
-
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
-
 > ---
 >   net/smc/smc_ib.c   | 8 ++------
 >   net/smc/smc_pnet.c | 4 +---
@@ -123,3 +208,4 @@ Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
 >   			if (!ndev)
 >   				continue;
 >   			dev_put(ndev);
+
