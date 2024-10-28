@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8EFF185B5B;
-	Mon, 28 Oct 2024 18:02:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A68C1DF972;
+	Mon, 28 Oct 2024 18:39:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730138525; cv=none; b=DmOy+5nGRe1PzZUhHI4hdWgOVXugVFkQpOYION6k3zbaMrfsDWSa2uH7VeB8ef6CwdPK/ct3I12Soxc0D6CWp8ZAw6QcrEj/GGY6RvLi4B8HoBEtAD8uAX3qZDjoEXbtYbMWecdASQPJ4sZhtbhHQ5xsfP07F56tOSn+YHVwRAk=
+	t=1730140789; cv=none; b=poWbdNtyfSxdtOBeL1kN8QUQZ6lsYDdJ/QDmNWHqgUzLn3cKLH8cTX3So5dGY2b3zTAULZNUfuwRGM6y132EUIqwoSxBybldbkRsYWbH49Wcsj+a1EF6rILz0R5+1O4EjJwGkE3Fezx6JR0o/4c6Yvfvrvc7JM7Izku2U2Ls8tY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730138525; c=relaxed/simple;
-	bh=Cqqg0EuRygm2muKmG3Em56D2KQbpxOn57TA3RY3+BS4=;
+	s=arc-20240116; t=1730140789; c=relaxed/simple;
+	bh=uk4BWPlVVVwanPbUBrAaB+ERcnlLbOL0Xx2a3Ixjboc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aK/+f3lj+aygdJ/rsYgjbvR9EsXnmHXZht1+oHn0vl/IjAJlkcvKbb3vvo/YvwBq+xBP/q6iO5IOpjjc57HXOaBZ4+Uobw3Ee8s55VW+Q6X5xr1dFVt3FFEqUQA6V5mC+Q8jDkN0NWjhdK54yxoHegF5+T7vt3KZBcDJ23caVOo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gtEcfTSA; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=H9rhzs6eUATWdEW72bLDH9/FBUpll2yGGp/nM1cRIKJPmTyWXQxbWLJ5DbdcgRHkWhEminy6WwQsIoXzfUh4ER7Vw+DcqLJPwt92c5Iz4/cFmSc8jhTLBO3F943sAx7Smzu4byjaqbY/SgfIaw1NMKvFG78HIUfocvuN71Si1fk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ufVbxxkT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gtEcfTSA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8251C4CEC7;
-	Mon, 28 Oct 2024 18:01:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ufVbxxkT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 611F4C4CEC3;
+	Mon, 28 Oct 2024 18:39:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1730138524;
-	bh=Cqqg0EuRygm2muKmG3Em56D2KQbpxOn57TA3RY3+BS4=;
+	s=k20201202; t=1730140789;
+	bh=uk4BWPlVVVwanPbUBrAaB+ERcnlLbOL0Xx2a3Ixjboc=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=gtEcfTSA06walZP4EYky8YvX5+tSLqxGDLXcf9dA0tiJOg6r12ODMxN4IBYDVwhg7
-	 /9sHuVvYEUTAUeLgzE/KvgtlkLSdirLw00I5bGlwJ/Cgt7TVO5MVaTO6+UMlpVICeX
-	 OxI9y0jpxfslXPNVHEstnt5RNnozHioJPVXd5A12qMAr+Tmg8g+i3JF03owZspBheX
-	 5WbgQU4+e5FVES1E30JvzTbHetoei1m463Q75tPDO+KVh/8FHNHcyhbP4oOnAr90BU
-	 lHyfVNVrxZxPWRybYPdWzcCypiAkDKEiZjwaR4QWRqEopGgtZU/FsDxoBuXS7+xjxA
-	 lBkIk08k8iv+A==
-Date: Mon, 28 Oct 2024 18:01:54 +0000
+	b=ufVbxxkTWxJDj8HIHfBS/e+90hOVJwh2ipSDoAm1RUfU5KMmgV7WmmTEjAnysS0gC
+	 z5jEygQH1q1/a4tB71R8Bp1ATC7U76OqZCKr7wjOu+I99j4mc2QjAt8Nucxunj7xg1
+	 wZGv+VyMIcKunGsRclb7iUvRyfGDDFbVTaCVCog4/uhm9IRpC0XmzA5NwCl+5V8/Bn
+	 9wZ5570n4BR8rOzU1bjzDuSdR42R13+66vSllQDn/p2SFwTnRgy26PwXV6Ke4S75WX
+	 FEIMyZc4Wgc+/rkrpAtXMY0SjfvDNi/ydcZe2lrkEs8d5xkzyJZMRC4Uj03ufeh6Rh
+	 9Iy6DC7COCGhw==
+Date: Mon, 28 Oct 2024 18:39:38 +0000
 From: Will Deacon <will@kernel.org>
 To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <thomas.weissschuh@linutronix.de>
 Cc: Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
@@ -59,10 +59,10 @@ Cc: Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
 	linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-riscv@lists.infradead.org, loongarch@lists.linux.dev,
 	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH 04/28] arm64: vdso: Drop LBASE_VDSO
-Message-ID: <20241028180153.GA3029@willie-the-truck>
+Subject: Re: [PATCH 05/28] arm64: vdso: Use only one single vvar mapping
+Message-ID: <20241028183937.GA3132@willie-the-truck>
 References: <20241010-vdso-generic-base-v1-0-b64f0842d512@linutronix.de>
- <20241010-vdso-generic-base-v1-4-b64f0842d512@linutronix.de>
+ <20241010-vdso-generic-base-v1-5-b64f0842d512@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -72,22 +72,24 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20241010-vdso-generic-base-v1-4-b64f0842d512@linutronix.de>
+In-Reply-To: <20241010-vdso-generic-base-v1-5-b64f0842d512@linutronix.de>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 
-On Thu, Oct 10, 2024 at 09:01:06AM +0200, Thomas Weiﬂschuh wrote:
-> This constant is always "0", providing no value and making the logic
-> harder to understand.
-> Also prepare for a consolidation of the vdso linkerscript logic by
-> aligning it with other architectures.
+On Thu, Oct 10, 2024 at 09:01:07AM +0200, Thomas Weiﬂschuh wrote:
+> The vvar mapping is the same for all processes. Use a single mapping to
+> simplify the logic and align it with the other architectures.
+> 
+> In addition this will enable the move of the vvar handling into generic code.
 > 
 > Signed-off-by: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
 > ---
->  arch/arm64/include/asm/vdso.h       | 9 +--------
->  arch/arm64/kernel/vdso/vdso.lds.S   | 2 +-
->  arch/arm64/kernel/vdso32/vdso.lds.S | 2 +-
->  3 files changed, 3 insertions(+), 10 deletions(-)
+>  arch/arm64/kernel/vdso.c | 43 +++++++++++++------------------------------
+>  1 file changed, 13 insertions(+), 30 deletions(-)
+
+I took this for a spin in qemu to double-check that compat and native
+tasks can peacefully co-exist while using the vDSO. It all seems ok, so:
 
 Acked-by: Will Deacon <will@kernel.org>
+Tested-by: Will Deacon <will@kernel.org>
 
 Will
