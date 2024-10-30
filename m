@@ -1,126 +1,112 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F69A194151;
-	Wed, 30 Oct 2024 10:04:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 618061E49B;
+	Wed, 30 Oct 2024 11:39:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730282678; cv=none; b=KMoPTb+vkgA3Vtkz7ExwIIck9lzgfV1xATLAWQ/zG4IvJmMctYmTRfiipq2Lag5J78/A7QBh8vaphqYrI61QbeM3SNomgV8v32un4Z2MTISxOzZeJAH/Nqt/tLetKMYzM2ykQyvDslskILdFn4lFdAFZuJaaHkC13XTm3w8jEh8=
+	t=1730288390; cv=none; b=oT8Sebch8Vp6zrU3qOlQYKAERU2KSk8758x7exFUctIg2WUg/InvPsu7d7MTtViDGf+sf0r9M1F9hP1mm5Wkayn/fki/C0HvBRua19r2/yaNhbsohRxS0bYUxRgU/uFwJXSq5DL6Y6edQnE6BnixS9XmOzOOdkUKw4nZlmhzZYQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730282678; c=relaxed/simple;
-	bh=x9327/y0ayjOlDpKWFFxaZgtxDwZhLqHbl7ht1HUnz0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Qi0pjV3LZL00fTVKIJx3YgxPDoqEJO62xry2+J7SDfUpGJPqVq0eH1mmzZIFMfDBbsAAbQAdp87Rv7j66WGeJFJFG9u8r7iSDVRyqzEWNBSEtk2TfdfyBf1qyUr4rdV5qyTyR/Oy7ad0W5LYsXixdzblBYHXa7XevTtxj3AeqoE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WpvEjBLh; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1730288390; c=relaxed/simple;
+	bh=7eL/IITYqZV4GKb8Ss/XdGwYmKuSXJu9nnxd/jfR1P0=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=F1hJ/HU/AVRaB2mQxj5Wu1T3FccPSTMdABkx3qYowu9zk9Nqf47QbceZBNhupjrtx6nONIu0Rr39nyf2T8f2z1rHtEvXbcjG6jiQNURQPBUYNH8lVzN3+aqviQhV2r1+mieOpOA7Tj+xoCxrIgG86Ss5R3d10a3PZGKQytOvgO0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=rhEg0d1z; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Sf9t6VjH; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WpvEjBLh"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49U2d2Zd012478;
-	Wed, 30 Oct 2024 10:04:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=z32S3KqoArkKiV5/iHoKdn4+IX63mI
-	RttPijudjwk+s=; b=WpvEjBLhEEaq3JqBZ628gSJNXMH+fEq+cwtdowOE5bZcZL
-	WyPiUfkuhBLrEbNIM0Kcl6rr5nS8wPXQz7+sx+M/zjcvG6r5W3fOLy2UoOeM9d5o
-	lyHayKJd6Uit8qQPOeKYclqe8EMA72rC7sLiHGrxaGaA2S4atpj3G9yNeVFx/F7i
-	YFh6dGD6MUmFxsMuxEgUQkX/OIc47esSGDVyVFC2+bv+zA3paZEsT60UCq05MUqH
-	U1tH/4KtNXcrDqve2q3ZPnQ2pHDcltma5Q7Zh2cIK1C20kJpPK+1FVCC95tB6y3E
-	bfw1TgwakmD2Y78gwD3waZcTpd8v8CIg6773XKIA==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42k6gt2uaq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Oct 2024 10:04:26 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49UA4PB7003903;
-	Wed, 30 Oct 2024 10:04:25 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42k6gt2uak-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Oct 2024 10:04:25 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49U7po0N018404;
-	Wed, 30 Oct 2024 10:04:24 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42hc8k7dsc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Oct 2024 10:04:24 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49UA4K8336438500
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 30 Oct 2024 10:04:20 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AF22D20082;
-	Wed, 30 Oct 2024 10:04:20 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6C1A62007F;
-	Wed, 30 Oct 2024 10:04:20 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 30 Oct 2024 10:04:20 +0000 (GMT)
-Date: Wed, 30 Oct 2024 11:04:18 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
-Subject: Re: [PATCH v3 3/7] s390/physmem_info: query diag500(STORAGE LIMIT)
- to support QEMU/KVM memory devices
-Message-ID: <20241030100418.6264-I-hca@linux.ibm.com>
-References: <20241025141453.1210600-1-david@redhat.com>
- <20241025141453.1210600-4-david@redhat.com>
- <20241030092324.6264-E-hca@linux.ibm.com>
- <35fc960b-0013-4264-93d6-6511d54ab474@redhat.com>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="rhEg0d1z";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Sf9t6VjH"
+From: Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1730288386;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VeIG/ZcqI3p+nLl4RvpoP3/dtuBOLvCoB03RCodl0P0=;
+	b=rhEg0d1z87PUbjnSMEsHa2ZTMjm4V7As2oyILf5i4K2VK/32cI0L1o8550RHGdp6sqGjh3
+	ErfD1VAW2o++iRalLhw8wi1ciSvnXToQPU/7Dqz5Wlnc51fuF7yZtMempbYTt2HzLBGqx0
+	Y9YSzHbUO+IR24Yjq+Ny338RBqa0jzNLUw2m9Vrr52kzfVeGJB4+uj1JaJRYCIo3DE6Lly
+	bobxafA+CuOfJYFL3jZUIAtXVESnMTctTppzVthR6fn1ijnvzGIvSfDwZ8yFMWE8zMh75v
+	CjtAzrsY5JQC46+IYsUu5faYS3U6XCuR8hSr6G0+pno9IQ0T9vFbLX0np3OHDQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1730288386;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VeIG/ZcqI3p+nLl4RvpoP3/dtuBOLvCoB03RCodl0P0=;
+	b=Sf9t6VjHntegt94+/ZST48Lk206fyTt9ZFie/7zblKXgaCtLwerDU5H5dAAiGuPUAe0Y5b
+	9F1eFOTF9JGc5hBw==
+To: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, Guo
+ Ren
+ <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Christian
+ Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
+ <svens@linux.ibm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will
+ Deacon <will@kernel.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer
+ Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Russell
+ King <linux@armlinux.org.uk>, Huacai Chen <chenhuacai@kernel.org>, WANG
+ Xuerui <kernel@xen0n.name>, Theodore Ts'o <tytso@mit.edu>, "Jason A.
+ Donenfeld" <Jason@zx2c4.com>, Thomas Bogendoerfer
+ <tsbogend@alpha.franken.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Michael Ellerman
+ <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Christophe
+ Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>, Vincenzo Frascino
+ <vincenzo.frascino@arm.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>,
+ linux-csky@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-riscv@lists.infradead.org, loongarch@lists.linux.dev,
+ linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Thomas
+ =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, Nam Cao
+ <namcao@linutronix.de>
+Subject: Re: [PATCH 00/28] vdso: Preparations for generic data storage
+In-Reply-To: <20241010-vdso-generic-base-v1-0-b64f0842d512@linutronix.de>
+References: <20241010-vdso-generic-base-v1-0-b64f0842d512@linutronix.de>
+Date: Wed, 30 Oct 2024 12:39:45 +0100
+Message-ID: <871pzxzuny.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <35fc960b-0013-4264-93d6-6511d54ab474@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: jMpsSJ9u4VEsnQ5qhNnomQE2ssfMG_fY
-X-Proofpoint-ORIG-GUID: qENfN970vDa7Liz-_CUTkjbzzRihWYNV
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- priorityscore=1501 impostorscore=0 suspectscore=0 lowpriorityscore=0
- mlxscore=0 clxscore=1015 phishscore=0 adultscore=0 spamscore=0 bulkscore=0
- mlxlogscore=593 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410300076
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 30, 2024 at 10:42:05AM +0100, David Hildenbrand wrote:
-> On 30.10.24 10:23, Heiko Carstens wrote:
-> > Looks like I couldn't convince you to implement a query subcode.
-> 
-> Well, you convinced me that it might be useful, but after waiting on
-> feedback from the KVM folks ... which didn't happen I moved on. In the cover
-> letter I have "No query function for diag500 for now."
-> 
-> My thinking was that if we go for a query subcode, maybe we'd start "anew"
-> with a new diag and use "0=query" like all similar instructions I am aware
-> of. And that is then a bigger rework ...
-> 
-> ... and I am not particularly interested in extra work without a clear
-> statement from KVM people what (a) if that work is required and; (b) what it
-> should look like.
+Folks!
 
-Yes, it is all good. Let's just move on.
+On Thu, Oct 10 2024 at 09:01, Thomas Wei=C3=9Fschuh wrote:
+> Historically each architecture defined their own datapage to store the
+> VDSO data. This stands in contrast to the generic nature of the VDSO
+> code itself.
+> We plan to introduce a generic framework for the management of the VDSO
+> data storage that can be used by all architectures and which works
+> together with the existing generic VDSO code.
+>
+> Before that is possible align the different architectures by
+> standardizing on the existing generic infrastructure and moving things
+> out of the VDSO data page which does not belong there.
+>
+> Patches	 1- 2:	csky
+> Patch	    3:	s390
+> Patches	 4- 5:	arm64
+> Patch	    6:	riscv
+> Patch	    7:	arm
+> Patch	    8:	LoongArch
+> Patch	    9:	MIPS
+> Patches 10-20:	x86
+> Patches 21-27:	powerpc
+> Patch      28: 	Renamings to avoid a name clash with the new code.
+
+As this has been sitting for two weeks now without major comments, I'm
+planning to merge that through the tip tree tomorrow.
+
+Thanks,
+
+        tglx
