@@ -1,147 +1,146 @@
-Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3D7B1EBA16;
-	Wed, 30 Oct 2024 13:50:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.171.184.29
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DD951F81A2;
+	Wed, 30 Oct 2024 14:30:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730296257; cv=none; b=gvnBWfKzQi+eLIdcqo9s4NBByUVdV3ByV2ACnpDdYioCSM7MnvTRpIGX3YO0KiEveJ7osD1MWEaQEsr0SjqxrxGPc3oJENgjdjhFkXkptFongOz7v2LZcWfA1x3J0fbRz/atVSJMQLWWo2+sxse/KDr82leSoL7xBbZbtzAnHV0=
+	t=1730298639; cv=none; b=HhR+KoOtD4SYevsXHtLL6wiOyjMR48UXooQvYjaLtP9AdNKS8broEyAEbVTIkldrKD6ECLxZvNtgKFKzlAh6tiPpwROMNwgzONy+8gb2Fz8kzPORwWlvJ4zgyw86OCQqoHI/BKn2YLJkFSM7cZbBjWtEeQWByMn3kS2TtODflrs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730296257; c=relaxed/simple;
-	bh=KEwEpQdJY5TdUoDFmv47xM2UNsTBxRNoYKCsHyvBKq4=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cnhmN4voorPQJgYaXcnc7dY8b+5zD0rcZsmBuSWi/STbg2rrNh0BRcMLJZurNWVev4FLFPs/shUCESWVFbsKmAzMq4215y/f01xNn7aRa5zlDPnil78JtRR9l6b5tpeU7H02YCTsUfzeiobyXtY6Xfw9WZG9Y55QT+M8lSRoj88=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (1024-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b=SPp+p+il; arc=none smtp.client-ip=207.171.184.29
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
+	s=arc-20240116; t=1730298639; c=relaxed/simple;
+	bh=gzjIFKrEXj7Aftc4CfgtSmWNjrDVzXiGbesbIvaaSxs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NWIcWqkgLS7ZxJc+1HEL1W8wHXvi9n6WtXXr1HxP6ecBawZX27vRRlQLWy4uIPWN9nMy+W3WrvmgegO0d8VEs50Ah+y3mOfF5wJPxZEfC+c2a9KcBSxiNWMOnV5O6ohT0+urNXNGxABVbAdVYmSpKpM+UEJ5+9IvORomgIDDNwo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HbWDG2Ic; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b="SPp+p+il"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.co.uk; i=@amazon.co.uk; q=dns/txt;
-  s=amazon201209; t=1730296255; x=1761832255;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=7/qXvSh0Hjany10m5XTRwJaHsD/IFz61ERHpnmidOYs=;
-  b=SPp+p+ilvd+Xn68IOkHSbIuDM5bwYkr2Y2T1VMzqcWbLulVRAc/WOE6R
-   bE3g0m5GjPlNiyQy/DScaEdNysG3zkcqBLubZD3eGl88jfs3XsQLN65mH
-   Ry4tfsrd0ALbamhOqnau8e471UZYvRYfqLu7hUHGTHBBamSK3t+p2tB9e
-   g=;
-X-IronPort-AV: E=Sophos;i="6.11,245,1725321600"; 
-   d="scan'208";a="465820264"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.214])
-  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Oct 2024 13:50:54 +0000
-Received: from EX19MTAUWB002.ant.amazon.com [10.0.21.151:12628]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.35.102:2525] with esmtp (Farcaster)
- id 00b2c9f1-27f5-4a01-ae54-6fda17405dbb; Wed, 30 Oct 2024 13:50:53 +0000 (UTC)
-X-Farcaster-Flow-ID: 00b2c9f1-27f5-4a01-ae54-6fda17405dbb
-Received: from EX19D020UWC002.ant.amazon.com (10.13.138.147) by
- EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.34;
- Wed, 30 Oct 2024 13:50:46 +0000
-Received: from EX19MTAUEB002.ant.amazon.com (10.252.135.47) by
- EX19D020UWC002.ant.amazon.com (10.13.138.147) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.34;
- Wed, 30 Oct 2024 13:50:45 +0000
-Received: from email-imr-corp-prod-pdx-all-2c-8a67eb17.us-west-2.amazon.com
- (10.43.8.2) by mail-relay.amazon.com (10.252.135.97) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id
- 15.2.1258.34 via Frontend Transport; Wed, 30 Oct 2024 13:50:45 +0000
-Received: from ua2d7e1a6107c5b.home (dev-dsk-roypat-1c-dbe2a224.eu-west-1.amazon.com [172.19.88.180])
-	by email-imr-corp-prod-pdx-all-2c-8a67eb17.us-west-2.amazon.com (Postfix) with ESMTPS id B5B724032D;
-	Wed, 30 Oct 2024 13:50:35 +0000 (UTC)
-From: Patrick Roy <roypat@amazon.co.uk>
-To: <tabba@google.com>, <quic_eberman@quicinc.com>, <david@redhat.com>,
-	<seanjc@google.com>, <pbonzini@redhat.com>, <jthoughton@google.com>,
-	<ackerleytng@google.com>, <vannapurve@google.com>, <rppt@kernel.org>
-CC: Patrick Roy <roypat@amazon.co.uk>, <graf@amazon.com>,
-	<jgowans@amazon.com>, <derekmn@amazon.com>, <kalyazin@amazon.com>,
-	<xmarcalx@amazon.com>, <linux-mm@kvack.org>, <corbet@lwn.net>,
-	<catalin.marinas@arm.com>, <will@kernel.org>, <chenhuacai@kernel.org>,
-	<kernel@xen0n.name>, <paul.walmsley@sifive.com>, <palmer@dabbelt.com>,
-	<aou@eecs.berkeley.edu>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
-	<agordeev@linux.ibm.com>, <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
-	<gerald.schaefer@linux.ibm.com>, <tglx@linutronix.de>, <mingo@redhat.com>,
-	<bp@alien8.de>, <dave.hansen@linux.intel.com>, <x86@kernel.org>,
-	<hpa@zytor.com>, <luto@kernel.org>, <peterz@infradead.org>,
-	<rostedt@goodmis.org>, <mhiramat@kernel.org>,
-	<mathieu.desnoyers@efficios.com>, <shuah@kernel.org>, <kvm@vger.kernel.org>,
-	<linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <loongarch@lists.linux.dev>,
-	<linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-	<linux-trace-kernel@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
-Subject: [RFC PATCH v3 6/6] kvm: selftests: run gmem tests with KVM_GMEM_NO_DIRECT_MAP set
-Date: Wed, 30 Oct 2024 13:49:10 +0000
-Message-ID: <20241030134912.515725-7-roypat@amazon.co.uk>
-X-Mailer: git-send-email 2.47.0
-In-Reply-To: <20241030134912.515725-1-roypat@amazon.co.uk>
-References: <20241030134912.515725-1-roypat@amazon.co.uk>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HbWDG2Ic"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49UDw4Tk027057;
+	Wed, 30 Oct 2024 14:30:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=QoT7eE2k9HBigUNotJEuDjW8wq/kBu
+	Ua4MTBBYTqlWI=; b=HbWDG2Ic65XlMqb/D3TwV1oPEqcF5RCxQ9TgUawZNO/cqm
+	Tnp24tsoW/Yjbi3C0skNfiIGSg7D4RgRHMhB+sOoG0jH42U8eQUbakTlQf4MHUIv
+	jMTUrhx27tuhiPfBQEo8zVpryMy1EAo1IhxMSRKLuREM+rMVaXBliBAST9uH7Z/N
+	XClRoh83sBAvy0M/9lN+Bt+DcSLaKJMAlGS1HcT+eH5fEdx3Tzz9CIG/4lKSr8rJ
+	01dGny0S6N+sfaQQELe+lTMxfp53r/jeou/ANEqINjs+orALVgrTgUkjVdG5lmFy
+	laKJ0gzsMXThqGRL7OwEA0v028PFmwFRosHB+b/g==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42j43g7pmv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 30 Oct 2024 14:30:26 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49UEUQVq009391;
+	Wed, 30 Oct 2024 14:30:26 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42j43g7pmn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 30 Oct 2024 14:30:26 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49UBsO9F018383;
+	Wed, 30 Oct 2024 14:30:24 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42hc8k8aw1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 30 Oct 2024 14:30:24 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49UEUKMk55116176
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 30 Oct 2024 14:30:20 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 752C120043;
+	Wed, 30 Oct 2024 14:30:20 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1C2E02004B;
+	Wed, 30 Oct 2024 14:30:20 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 30 Oct 2024 14:30:20 +0000 (GMT)
+Date: Wed, 30 Oct 2024 15:30:18 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
+Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT)
+ to support QEMU/KVM memory devices
+Message-ID: <ZyJC+s5L6JI3xO44@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-5-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241014144622.876731-5-david@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: jcbMrInueqgSbuMhblYjsLoimVoh1fDK
+X-Proofpoint-ORIG-GUID: zWiWWhTbdgzaKB2WcP0riaikdeezGz5v
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=742 clxscore=1011
+ adultscore=0 mlxscore=0 priorityscore=1501 spamscore=0 malwarescore=0
+ impostorscore=0 lowpriorityscore=0 bulkscore=0 phishscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
+ definitions=main-2410300111
 
-Also adjust test_create_guest_memfd_invalid, as now BIT(0) is a
-valid value for flags (note that this also fixes an issue where the loop
-in test_create_guest_memfd_invalid is a noop. I've posted that fix as a
-separate patch last week [1]).
+On Mon, Oct 14, 2024 at 04:46:16PM +0200, David Hildenbrand wrote:
 
-[1]: https://lore.kernel.org/kvm/20241024095956.3668818-1-roypat@amazon.co.uk/
+Hi David,
 
-Signed-off-by: Patrick Roy <roypat@amazon.co.uk>
----
- tools/testing/selftests/kvm/guest_memfd_test.c             | 2 +-
- .../selftests/kvm/x86_64/private_mem_conversions_test.c    | 7 ++++---
- 2 files changed, 5 insertions(+), 4 deletions(-)
+> To support memory devices under QEMU/KVM, such as virtio-mem,
+> we have to prepare our kernel virtual address space accordingly and
+> have to know the highest possible physical memory address we might see
+> later: the storage limit. The good old SCLP interface is not suitable for
+> this use case.
+> 
+> In particular, memory owned by memory devices has no relationship to
+> storage increments, it is always detected using the device driver, and
+> unaware OSes (no driver) must never try making use of that memory.
+> Consequently this memory is located outside of the "maximum storage
+> increment"-indicated memory range.
+> 
+> Let's use our new diag500 STORAGE_LIMIT subcode to query this storage
+> limit that can exceed the "maximum storage increment", and use the
+> existing interfaces (i.e., SCLP) to obtain information about the initial
+> memory that is not owned+managed by memory devices.
+> 
+> If a hypervisor does not support such memory devices, the address exposed
+> through diag500 STORAGE_LIMIT will correspond to the maximum storage
+> increment exposed through SCLP.
+> 
+> To teach kdump on s390 to include memory owned by memory devices, there
+> will be ways to query the relevant memory ranges from the device via a
+> driver running in special kdump mode (like virtio-mem already implements
+> to filter /proc/vmcore access so we don't end up reading from unplugged
+> device blocks).
+> 
+> Tested-by: Mario Casquero <mcasquer@redhat.com>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  arch/s390/boot/physmem_info.c        | 46 ++++++++++++++++++++++++++--
+>  arch/s390/include/asm/physmem_info.h |  3 ++
+>  2 files changed, 46 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/guest_memfd_test.c b/tools/testing/selftests/kvm/guest_memfd_test.c
-index ba0c8e9960358..d04f7ff3dfb15 100644
---- a/tools/testing/selftests/kvm/guest_memfd_test.c
-+++ b/tools/testing/selftests/kvm/guest_memfd_test.c
-@@ -134,7 +134,7 @@ static void test_create_guest_memfd_invalid(struct kvm_vm *vm)
- 			    size);
- 	}
- 
--	for (flag = 0; flag; flag <<= 1) {
-+	for (flag = BIT(1); flag; flag <<= 1) {
- 		fd = __vm_create_guest_memfd(vm, page_size, flag);
- 		TEST_ASSERT(fd == -1 && errno == EINVAL,
- 			    "guest_memfd() with flag '0x%lx' should fail with EINVAL",
-diff --git a/tools/testing/selftests/kvm/x86_64/private_mem_conversions_test.c b/tools/testing/selftests/kvm/x86_64/private_mem_conversions_test.c
-index 82a8d88b5338e..dfc78781e93b8 100644
---- a/tools/testing/selftests/kvm/x86_64/private_mem_conversions_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/private_mem_conversions_test.c
-@@ -367,7 +367,7 @@ static void *__test_mem_conversions(void *__vcpu)
- }
- 
- static void test_mem_conversions(enum vm_mem_backing_src_type src_type, uint32_t nr_vcpus,
--				 uint32_t nr_memslots)
-+				 uint32_t nr_memslots, uint64_t gmem_flags)
- {
- 	/*
- 	 * Allocate enough memory so that each vCPU's chunk of memory can be
-@@ -394,7 +394,7 @@ static void test_mem_conversions(enum vm_mem_backing_src_type src_type, uint32_t
- 
- 	vm_enable_cap(vm, KVM_CAP_EXIT_HYPERCALL, (1 << KVM_HC_MAP_GPA_RANGE));
- 
--	memfd = vm_create_guest_memfd(vm, memfd_size, 0);
-+	memfd = vm_create_guest_memfd(vm, memfd_size, gmem_flags);
- 
- 	for (i = 0; i < nr_memslots; i++)
- 		vm_mem_add(vm, src_type, BASE_DATA_GPA + slot_size * i,
-@@ -477,7 +477,8 @@ int main(int argc, char *argv[])
- 		}
- 	}
- 
--	test_mem_conversions(src_type, nr_vcpus, nr_memslots);
-+	test_mem_conversions(src_type, nr_vcpus, nr_memslots, 0);
-+	test_mem_conversions(src_type, nr_vcpus, nr_memslots, KVM_GMEM_NO_DIRECT_MAP);
- 
- 	return 0;
- }
--- 
-2.47.0
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
 
+Thanks!
