@@ -1,66 +1,66 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02B95197A88
-	for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2024 09:50:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4CBF19885F
+	for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2024 09:57:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730368222; cv=none; b=DtrPVj5GOJ9FKSzWCfzUdGOxjCwEEuiK9InBxzA0N51Z2WjQvJRaJqFUCLee/oPq7fV5Cqf+DtZ0gRyC6WnmR9kyOdGxEwOwXQOPjc1WRK0pe/R552PLr6c6TKzOwEFkBBHeshMhQbr8ow9N+giH1mafNUtr8I4cyAUSz0Pa4Eo=
+	t=1730368650; cv=none; b=lxURafbuVEUg4zS0CQTnP96csyMXo/DAIROceP45HRYtCM5v8OuEfyUjgrouTGsm7LpcK/lvVKjCEwJw3foRqb1jUdt2rM0rwj7B7f6eFpmtvDTvWnL08KogEjDygFEbzQgSVlXdBeIBa+m6Y2spywxzVRWX0uDCI4nFiw3sNpA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730368222; c=relaxed/simple;
-	bh=JeqHqYTQbXzcOkcj5SKrTxHQTcinplbKbGCznH/JgL4=;
+	s=arc-20240116; t=1730368650; c=relaxed/simple;
+	bh=13eghfT8yLaHx96wZhWKC7DsHhPBihpYadIGFzJ2Nwc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HnnEd7i3tDeDgVtW1kCJMptAKGQS3BraPHpZO2pgJe/ttbox3SrmbjI6onVhubw73x8WCG3bp4Yelq+mhy35shF65pR+HeCSM/ZPOtW6ETmx3saBEWiyaQdxWypoqhPl39yf1gTYTpku1+Pl0ZTZw3NzhJN368NiaS0IWDNZk48=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Y77Iweku; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=RIPIamEoRRD36cAoeqyQauIX1k1mOPVHwq0AxV8u993OVkOE0cLlvR3rb7roWdGnoWcAm7tSyUMvgpGNUg0+uycPOh8LKJ5dZvafqnCGPVBNCmGWAikNWBH3O4W3zT4lzXiDc1QYbzvMJmnKO1o5w4NQMOECOvYFIrUdreNGjS4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ToYbrV/T; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y77Iweku"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ToYbrV/T"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730368219;
+	s=mimecast20190719; t=1730368647;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=8dIcxwobV6BNAuIuaE7aLzJugH838eIdiZ2hVMt1ILQ=;
-	b=Y77IwekubosuHnlyBYhV8pIE+nkrQSYf7GLTtGHGaPdxTf6HWE4vWGr3EBr+JKjg+l+BFJ
-	FlUTwV69p2I0qqEdByCvv8QGz6aYp7/o8Ualfbz+pCY30XSqHI1hI+BHfgcBS9d5j6+Jh9
-	HCycZPf2YlzaIEerJJvvIVycLIk/vaA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=B7rUylMoiJ32y2mf0MmXQsKypLnMwGBu8KDma38hXgg=;
+	b=ToYbrV/TfFc63j2jeJ9F8RQYd9kaB4vkJuiyzdPE5Su5YgNLovW5pY1VI1ZUHkag6BD6M0
+	kiN6Zf/jqqTF/hVv//EbAKEAzYq1onG3A2AWpgmdGhVnJzW8ZE3cpIFpf/mLhRWOqJWBhk
+	4nOYtVRXb9e+8+3Pk+cIZJ5+lO19NuE=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-213-duNPKHZLNG2_RtAMsBJ7BA-1; Thu, 31 Oct 2024 05:50:16 -0400
-X-MC-Unique: duNPKHZLNG2_RtAMsBJ7BA-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4315544642eso5733225e9.3
-        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2024 02:50:16 -0700 (PDT)
+ us-mta-615-WWyRlBtKOReap-2KpMhgzg-1; Thu, 31 Oct 2024 05:57:26 -0400
+X-MC-Unique: WWyRlBtKOReap-2KpMhgzg-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-37d609ef9f7so402244f8f.3
+        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2024 02:57:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730368215; x=1730973015;
+        d=1e100.net; s=20230601; t=1730368645; x=1730973445;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=8dIcxwobV6BNAuIuaE7aLzJugH838eIdiZ2hVMt1ILQ=;
-        b=h0Dkgc2J0sU/5d335GDD9zQ7hzCvELL0zDMCMBh8+mauDuQUlW/U+omdvf4VmHXszU
-         CiTMJ/iCUyunOAGKcMLxTqWTHzNUlv4UrWl2Xs6gbNupKfVYvIIdTif9greEgD920H4q
-         ddw+7suPI9noDqp1JSd2KPJfLslcAYrwTfDzb/7WStUjo81ISAOVluRRGayvLsIuIxnz
-         HdKSCBzDZ8fZ+AzFNtVHuOxiqzJ9YfiZsg9QrxjAsSvTiJ+BFq0RPFTjYSoc4HyrPRmg
-         muN6URASzbFDBeN0VpyOvGn7wdPNTnsu3HIy+sai9w0FQoPXfRkuPjVCy6azig4xJUOH
-         6vZg==
-X-Forwarded-Encrypted: i=1; AJvYcCV0jffdWmrvvWqP9bVkfpyEThsqe32ayEJaJQFDA6BVjQnc0XxH3dmkLBM9BSALtuvh3JQGduldomy/@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzsxx5KcSlTx2jjIiJpb11+AZtMOod1YGDVAQfuBrX9A238wjPU
-	A4fIH+TUr4dhqoL0dnNunJrutgldtj5OJug8cgW07m6XlPUPYoVhD9b69NyqKkJgFcaUwnRaWaG
-	DAR9Bshkuc3ELl/mbY2K6ieEsh4p6nNRKRPuyr69RYV3/VNKZA8BWvLjsduM=
-X-Received: by 2002:a05:6000:1866:b0:37d:33a3:de14 with SMTP id ffacd0b85a97d-381be7adfdemr2447482f8f.7.1730368214959;
-        Thu, 31 Oct 2024 02:50:14 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFeVaRdVGCqBIKY+7Vfj4lrlXB4BTEaQ/Q5YZsm5NFKJxn9YuGzq2b6/rrf6LYaZ8QcgqCaug==
-X-Received: by 2002:a05:6000:1866:b0:37d:33a3:de14 with SMTP id ffacd0b85a97d-381be7adfdemr2447426f8f.7.1730368214468;
-        Thu, 31 Oct 2024 02:50:14 -0700 (PDT)
+        bh=B7rUylMoiJ32y2mf0MmXQsKypLnMwGBu8KDma38hXgg=;
+        b=wLrj3sD+O0r+OROy+3CIgbxCzfn9ACc5TzVqCGbszyzJBw4tmPb/9Ti+ivrZSMP64U
+         3Rk4apg7kNHZjyOCOVTC4NDG4jyqe4iJBHAP3ck8ElD/V+a170dNrpg3rqQDZEC36RGa
+         TLv7mL1dX0J9EnTQNWQ6zM48lsiWYm2qMBCuJbu/UeLCNHnW1jqrqQCgxv3kKFegWvDf
+         565RmFYJokSHtsezFSGwNca6UXcFuLZkUXrUuMIvmbMAHjTA+0eho2mlJCmEblOgP6wE
+         Am2557vUfTaIS56Y8hA27am8Ctn64nJQUy7ELMNk84a+CrFtQRkOpjeiWdN3QXL1UXtP
+         3PUw==
+X-Forwarded-Encrypted: i=1; AJvYcCViOQjtADWa503VVgDF8nFoqIHgRZpJpIps8vMuK6f6qteplriINsmEVT28Ly7++JA9i2HeyZreJhHp@vger.kernel.org
+X-Gm-Message-State: AOJu0YxXZ1GeB3nhUgQqMzjyEF6JNPIiFjpttJokq9iCPHtiblGZzGIY
+	AOV2wHIlRLG+EMTHvlDTjaIBwPqHe1EJOif6qmt/LpPYbytkebIk8nwg4bYNDhZN8oCOKwsmuV5
+	A1LcZ3aT8DC4tcinLYxYVAgKRYBY8+ikcX+wpZ/aa6ZzDBtUAHR9ktjLRZUU=
+X-Received: by 2002:a5d:6d8b:0:b0:374:c31e:9721 with SMTP id ffacd0b85a97d-381be906fb1mr1924007f8f.42.1730368644904;
+        Thu, 31 Oct 2024 02:57:24 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGB5YibDMb1v+9lfgYV8B9TgwSctIaUJV5dcpKC4opd7SH8qkWAYMYCwwnkwClMNCW9rRk/3g==
+X-Received: by 2002:a5d:6d8b:0:b0:374:c31e:9721 with SMTP id ffacd0b85a97d-381be906fb1mr1923969f8f.42.1730368644438;
+        Thu, 31 Oct 2024 02:57:24 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c70a:ed00:7ddf:1ea9:4f7a:91fe? (p200300cbc70aed007ddf1ea94f7a91fe.dip0.t-ipconnect.de. [2003:cb:c70a:ed00:7ddf:1ea9:4f7a:91fe])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-381c10d49d4sm1605679f8f.34.2024.10.31.02.50.11
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-381c116a781sm1611441f8f.96.2024.10.31.02.57.22
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 31 Oct 2024 02:50:13 -0700 (PDT)
-Message-ID: <4aa0ccf4-ebbe-4244-bc85-8bc8dcd14e74@redhat.com>
-Date: Thu, 31 Oct 2024 10:50:10 +0100
+        Thu, 31 Oct 2024 02:57:24 -0700 (PDT)
+Message-ID: <a774e13e-0616-4d96-bb51-bac0fcb2cb9b@redhat.com>
+Date: Thu, 31 Oct 2024 10:57:21 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,7 +68,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v3 0/6] Direct Map Removal for guest_memfd
+Subject: Re: [RFC PATCH v3 1/6] arch: introduce set_direct_map_valid_noflush()
 To: Patrick Roy <roypat@amazon.co.uk>, tabba@google.com,
  quic_eberman@quicinc.com, seanjc@google.com, pbonzini@redhat.com,
  jthoughton@google.com, ackerleytng@google.com, vannapurve@google.com,
@@ -89,6 +89,7 @@ Cc: graf@amazon.com, jgowans@amazon.com, derekmn@amazon.com,
  linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
  linux-kselftest@vger.kernel.org
 References: <20241030134912.515725-1-roypat@amazon.co.uk>
+ <20241030134912.515725-2-roypat@amazon.co.uk>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -136,51 +137,58 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20241030134912.515725-1-roypat@amazon.co.uk>
+In-Reply-To: <20241030134912.515725-2-roypat@amazon.co.uk>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 30.10.24 14:49, Patrick Roy wrote:
-> Unmapping virtual machine guest memory from the host kernel's direct map
-> is a successful mitigation against Spectre-style transient execution
-> issues: If the kernel page tables do not contain entries pointing to
-> guest memory, then any attempted speculative read through the direct map
-> will necessarily be blocked by the MMU before any observable
-> microarchitectural side-effects happen. This means that Spectre-gadgets
-> and similar cannot be used to target virtual machine memory. Roughly 60%
-> of speculative execution issues fall into this category [1, Table 1].
+> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 > 
-> This patch series extends guest_memfd with the ability to remove its
-> memory from the host kernel's direct map, to be able to attain the above
-> protection for KVM guests running inside guest_memfd.
+> From: Mike Rapoport (Microsoft) <rppt@kernel.org>
 > 
-> === Changes to v2 ===
+> Add an API that will allow updates of the direct/linear map for a set of
+> physically contiguous pages.
 > 
-> - Handle direct map removal for physically contiguous pages in arch code
->    (Mike R.)
-> - Track the direct map state in guest_memfd itself instead of at the
->    folio level, to prepare for huge pages support (Sean C.)
-> - Allow configuring direct map state of not-yet faulted in memory
->    (Vishal A.)
-> - Pay attention to alignment in ftrace structs (Steven R.)
+> It will be used in the following patches.
 > 
-> Most significantly, I've reduced the patch series to focus only on
-> direct map removal for guest_memfd for now, leaving the whole "how to do
-> non-CoCo VMs in guest_memfd" for later. If this separation is
-> acceptable, then I think I can drop the RFC tag in the next revision
-> (I've mainly kept it here because I'm not entirely sure what to do with
-> patches 3 and 4).
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> Signed-off-by: Patrick Roy <roypat@amazon.co.uk>
 
-Hi,
 
-keeping upcoming "shared and private memory in guest_memfd" in mind, I 
-assume the focus would be to only remove the direct map for private memory?
+[...]
 
-So in the current upstream state, you would only be removing the direct 
-map for private memory, currently translating to "encrypted"/"protected" 
-memory that is inaccessible either way already.
+>   #ifdef CONFIG_DEBUG_PAGEALLOC
+>   void __kernel_map_pages(struct page *page, int numpages, int enable)
+>   {
+> diff --git a/include/linux/set_memory.h b/include/linux/set_memory.h
+> index e7aec20fb44f1..3030d9245f5ac 100644
+> --- a/include/linux/set_memory.h
+> +++ b/include/linux/set_memory.h
+> @@ -34,6 +34,12 @@ static inline int set_direct_map_default_noflush(struct page *page)
+>   	return 0;
+>   }
+>   
+> +static inline int set_direct_map_valid_noflush(struct page *page,
+> +					       unsigned nr, bool valid)
 
-Correct?
+I recall that "unsigned" is frowned upon; "unsigned int".
+
+> +{
+> +	return 0;
+> +}
+
+Can we add some kernel doc for this?
+
+In particular
+
+(a) What does it mean when we return 0? That it worked? Then, this
+     dummy function looks wrong. Or this it return the
+     number of processed entries? Then we'd have a possible "int" vs.
+     "unsigned int" inconsistency.
+
+(b) What are the semantics when we fail halfway through the operation
+     when processing nr > 1? Is it "all or nothing"?
+
 
 -- 
 Cheers,
