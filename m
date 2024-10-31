@@ -1,52 +1,52 @@
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2055.outbound.protection.outlook.com [40.107.100.55])
+Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2043.outbound.protection.outlook.com [40.107.212.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E108F19C56F;
-	Thu, 31 Oct 2024 13:56:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.100.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AF711A08AB;
+	Thu, 31 Oct 2024 14:20:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.212.43
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730383018; cv=fail; b=cFDdAVWX4WDkiRHmCkY+ym26bMi6eY/+Oqcp6rJPWmtB/HuhlUtNbn4hEodT9I04TsqpX5v0Y+6392kFiagnun6cs2msGBGdstCy7zlzcEFYIqdB5pzIr8Qo0G8GGNMUkh+CYuJ//eMunetzVrjfeUjk36pqwE1qAnwleH6yQUs=
+	t=1730384434; cv=fail; b=D+ZITb4EbBb76KDsYv40dDimK18xi8BZB3V85sJhehjSBwkdvKgrgITL+0B4xLQCQwU4NZ93k1/6jdnFZHGyRl5+izSPcS4nLUeO0ughKIWL7//1o6v/VT7YNRtlkC97++rROdYnshw8wsAAXgzJWZorQNvDYpw1Dit+Tt0ErQs=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730383018; c=relaxed/simple;
-	bh=ngtdKQrKICrXAC4cC3snB1Aa3F+S0xLvEP7C2IPlfI4=;
+	s=arc-20240116; t=1730384434; c=relaxed/simple;
+	bh=M99tIeTpp7R6YHHkpPtSN8JLKWHwvJPkPPs3uP+Z7kg=;
 	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=EgxjEAbLpI9pfIrUK/drd8fCY9w5aDrFlO8dEJutERRv8zSn0yN0hQEZtC97RGIyvIZAkxtqQ6vlUYI6DmG82VZvNDLOh5e8srBiYWu3dQ+AMEK/rufK993hqJJComDsrrMskdtAerp5ySVTTv05OJcTO8HBZCz1MAOFJ1BM80I=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=vadiW8y7; arc=fail smtp.client-ip=40.107.100.55
+	 Content-Type:MIME-Version; b=RaHFC8/WYntOOXbRB4Tkgu/ulmuJHCtHjJOXGsBJEpsaH3gdbKfJjxEJr6DDbuc7rzNQDNdFswKBtsVpvrFeB5UCsR0DgOiRcxMaZG/CJOkPXcf/er12Ub0ZgSR1EW+hxlZLeVgUkZBbFqHIyfeq0MZ0gnT3EVgBuO8NiFctUNQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=R1oCBAq9; arc=fail smtp.client-ip=40.107.212.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="vadiW8y7"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="R1oCBAq9"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=CHBu8MsQXV4XvY2HgwDlHO+XxLF57aWChcc5RH34O/Yq0dNztiif/IeJEb5NGtY7thpvjcth8DXF9HyhWNzuvjplXxVy4njiA7Sr7EH0eIBu5c6RbhtE3GFp+Lukid5IdbwSV1CGl9LMwHixZEnQyQdM7T25vS5n/cN4h9A4DsdpzJFcvcVJ07OhqPhp2MwMaH2H8SSqzC2cI67fH1Ce+vUR8wql7XY7qyAGJePQgi9eyrFbzDGwCPLIlgWLHLGddHtAEIQ7ydPxmnmKOyxF61YsViM/vhNpIixcdSFBZ3p1OSQNZ5zrmD6StegUJgr7m/F70KDoRMxOKA9h//xRwA==
+ b=aiE8kaNBSM1Dv6u8GtK5OFwXvgq9wehN4onbpjjq10NOSUzmZd4vLkA6PLGMBx/iU9OtZOONY+Bd5fytmw2biVeCR6Css85nygsRI5+Zu4DP0hewGCkn3hoGkpSttnrQK1I8kVdM0WBayr4n3H0toR7h0yJ2YdYA9MdLqLWK9ApDn0D8rvQsheVWiHmXh5siQNBXiIw6paqV6SBR8CNYhMZKVK+qInd3uBBbNd1EOjMuFVexi3shs5c/kJMtMH2t28h6ByjObNTDZogBqU6A3cbKm2xRDuQreDwnqUY7kCgc5TOOWc0+yxmiW1d1hbs0TXIcilob3JnignONQtL5sw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=vnYx3bkfH57vYGto/QIC/BO+o+evdB6Iiobd9uBnTPo=;
- b=b6BJoE6rSbexNcrv/2t4sR6hMLxO/S5ndSb6DxOVh4y/CNVN47usAySyv58jzJqlnWubAea6JPUNSt5L5UHoHY7ar5VfexX9pZiLPO7XPulIj3fJ4LiKsi5vZt8Kc5OP4AufxtTVzaeji/wvlizUnrQqumhc6B+EhTGY4tO1mTniFfVimloncdAXeOcN0OKqbBYWjChbk2iSW77VR+KsA5Iz/zzU45cyGZH02f5P9K9b50RG++aUlYIQIDtbJHaXlgDjg+ImByh0PtIoIGHT6ri7g6t8gUvVrPXfdDTYKrDIEV0lrqa2XOBpRcsElXKyds1Rft55T1ipilnocrUqSA==
+ bh=I/MrVG8WveGddeEkdbdPceTerqMFZYZTgL7ZKhHJcTs=;
+ b=BBwiB20JkZ7pax3ACthZ19u/O5cyh7xQdAIec4ZFLPO0KiTwilR3eTo5ShgDwV/u9NOtLDoro8YZFdgNxVXn7BbIqUAXsWStpW6T/aPJY0fzlFfYKzWtZq2euqPzk6GMRMQ/VRRzSQijJmss9ZtoSYkuLt+5tuUdz07+Hfy9FPpN0dJpdTU5zhv7VGCrdbkuvr6qYsqy4SKQdNJAmDDQaqlIttp9ZU5pjuB877qx3UwaOp926CEyucwyu0dxHQVmh/ZX43OQs/GShqTAq6iMooza4jnnsUD0nDMoYvMCr/tnDS+fkGW/p+xUm0zSFRl6CJsVZu4/6x64TLQ6EH5j1A==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
  header.d=amd.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=vnYx3bkfH57vYGto/QIC/BO+o+evdB6Iiobd9uBnTPo=;
- b=vadiW8y7F69UgYxF7EnvHBL0YWXj+zUM/M7PhW9Mo2sV0Sg+o9Jxrj2OX7FW4+yc8Kp8M3u9o7VSQnyv3YwzCSeNCvki//YZMdNxHpZkEHxay1DN7e4iCisXboPhiqnbYu0R9UXK+tt/+g/5wwk1YiReRg8YKQQvgCQQHzseAGQ=
+ bh=I/MrVG8WveGddeEkdbdPceTerqMFZYZTgL7ZKhHJcTs=;
+ b=R1oCBAq9+ndhLcs0kONcYOtnQxshVm5SVw94oB4r+wTp44XV72m713n/BCmK5CwqL9dcxa6wn1io5sPSTWZNr9pagFwyHBQwkLR6t1Fno8Vyo6GVhWYxk3bTqg3TCePDbUXLv8wPm50X0uu2hJRbTi14OGmfIitpsMrlC5hBuhQ=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=amd.com;
 Received: from SA1PR12MB5672.namprd12.prod.outlook.com (2603:10b6:806:23c::5)
- by IA0PR12MB8837.namprd12.prod.outlook.com (2603:10b6:208:491::18) with
+ by CH3PR12MB9252.namprd12.prod.outlook.com (2603:10b6:610:1ba::9) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8093.32; Thu, 31 Oct
- 2024 13:56:49 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.20; Thu, 31 Oct
+ 2024 14:20:28 +0000
 Received: from SA1PR12MB5672.namprd12.prod.outlook.com
  ([fe80::60f:5e8d:f0da:4eca]) by SA1PR12MB5672.namprd12.prod.outlook.com
  ([fe80::60f:5e8d:f0da:4eca%3]) with mapi id 15.20.8114.015; Thu, 31 Oct 2024
- 13:56:48 +0000
-Message-ID: <1eedec63-9a62-49c6-8f0f-8e03a96ae67c@amd.com>
-Date: Thu, 31 Oct 2024 08:56:05 -0500
+ 14:20:28 +0000
+Message-ID: <80d700e8-5800-4128-b9fd-6bd37525facd@amd.com>
+Date: Thu, 31 Oct 2024 09:19:41 -0500
 User-Agent: Mozilla Thunderbird
 Reply-To: michael.day@amd.com
-Subject: Re: [RFC PATCH v3 2/6] kvm: gmem: add flag to remove memory from
- kernel direct map
+Subject: Re: [RFC PATCH v3 3/6] kvm: gmem: implement direct map manipulation
+ routines
 To: Patrick Roy <roypat@amazon.co.uk>, tabba@google.com,
  quic_eberman@quicinc.com, david@redhat.com, seanjc@google.com,
  pbonzini@redhat.com, jthoughton@google.com, ackerleytng@google.com,
@@ -67,14 +67,14 @@ Cc: graf@amazon.com, jgowans@amazon.com, derekmn@amazon.com,
  linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
  linux-kselftest@vger.kernel.org
 References: <20241030134912.515725-1-roypat@amazon.co.uk>
- <20241030134912.515725-3-roypat@amazon.co.uk>
+ <20241030134912.515725-4-roypat@amazon.co.uk>
 From: Mike Day <michael.day@amd.com>
 Content-Language: en-US
-In-Reply-To: <20241030134912.515725-3-roypat@amazon.co.uk>
+In-Reply-To: <20241030134912.515725-4-roypat@amazon.co.uk>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SN6PR08CA0033.namprd08.prod.outlook.com
- (2603:10b6:805:66::46) To SA1PR12MB5672.namprd12.prod.outlook.com
+X-ClientProxiedBy: SA1P222CA0063.NAMP222.PROD.OUTLOOK.COM
+ (2603:10b6:806:2c1::12) To SA1PR12MB5672.namprd12.prod.outlook.com
  (2603:10b6:806:23c::5)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -83,269 +83,273 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA1PR12MB5672:EE_|IA0PR12MB8837:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3b81874c-57ca-4a6a-6d0c-08dcf9b3dd48
+X-MS-TrafficTypeDiagnostic: SA1PR12MB5672:EE_|CH3PR12MB9252:EE_
+X-MS-Office365-Filtering-Correlation-Id: 03b27bb4-c192-41d9-b124-08dcf9b72af2
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|376014|7416014|366016|921020;
+	BCL:0;ARA:13230040|376014|7416014|1800799024|366016|921020;
 X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?b1E3Y0R3ZlNsR3I2QTVMcUI5WFpidnZjZHdtRmZlam9ubmJML1BBNElyWkdq?=
- =?utf-8?B?cElnaUoyUFFTaEY0dmd5R3BxZVl0VDZ2SVUwcjVkd0NmRk4vRXNlaGI1dWFJ?=
- =?utf-8?B?cmpTa0EwYzlvYUJtdTZ2aXQ0TWlmdStWOVYzaElqTWNsWnloQndoNk5DU0Vr?=
- =?utf-8?B?ZzZma1AzTTI0K0REaklDQ0c4cHo5bHJaM1F1VDVxSlRIZTJmSXAyRUZaVnNC?=
- =?utf-8?B?NzZvd2NOK0NRVjVmMFhvbk1zWGlVR3o3WjRhbkNzOE5NbWp6aGF1dWFXVVVJ?=
- =?utf-8?B?eFIzOVY5bkxXL1djVUtib2xRZ1ZkVkNCOU5tSk92N3BvUjZLVkM3WGFhNHYx?=
- =?utf-8?B?dTBuOGs3Z2Vncjhvek9LR2JBQzAwaTZLS2phZG5UeFQ4cmNZNW5CY3lacUFY?=
- =?utf-8?B?bU5oVysxdnBLazdpajBRWmJYUnJSRVFuS0M2RHcrN1RjQ3dRSnVSTFdQc0Zx?=
- =?utf-8?B?L2phNE9IbEIwTzNiMksxZXpUMHdBMUlZT3A4VmRKYStaV0hqUFl2MjJJanFz?=
- =?utf-8?B?c2o4ZGJtVTlncndSSDBWNmxyMTVzVVc0cnRuWW16K2ZTSk9td09LQkxkTE1S?=
- =?utf-8?B?eUJFcEM5dVBwN1EwUWhZSnZDVlppWitTZ1k5YStFOGVzNndqUWFFUTAzMGxo?=
- =?utf-8?B?NEVkN21uQ3F4QjFEUThGTU04Wmk3NnZKVXRpbDZUWDdpRitqdml3SWJkZFVa?=
- =?utf-8?B?L2J6YWhkR3pkRVVJcG5PVStZRC9zVnRCM1BsS0JKV0tLamxDWkd6aGdSVU9J?=
- =?utf-8?B?OGZNRnZnbEM3TmplbDVlWlVYb1UwOHNnS3BHWUM3dUNuUnBTdk5VSmRJRzY5?=
- =?utf-8?B?eDBacGRac3B1SUhTdi85N00wQ25oMkRydmt3Q3VBS1JJNmYveFhnZDRBNjE4?=
- =?utf-8?B?dGpua0pYQTdva285WWx2UDJqa3JneWtlRFB6ZTRIbVhIYkdCQUlWUHJpcUNM?=
- =?utf-8?B?NUVkY0ZWNjhXVUVhcEh2NUdZdjU2ZUR3RWZhaUlkMTluVlloeUFVdWFqNkJ0?=
- =?utf-8?B?eTNwVHMvWWEwZFlMQXovMHdWTU04QVI4M1lyNHNvZUE1MjQ2a0MrallBZGM1?=
- =?utf-8?B?UjJZMEN4ai9SdjlDVmhZRm9iVmxTZkhRQVVPVnZhcG9CZHVjTHZIa1pZS3hX?=
- =?utf-8?B?SmJLWTFSSVRHek9pSzZ3ZHpmbHhLMnZCSlEyOThrKzVFaGVHTFcxVkU5SGUr?=
- =?utf-8?B?UnB6SU83ajREbmpoRFkxbFI3WEtPdld3V3JWamNDUnc3QjdCblRWRUZFbTFm?=
- =?utf-8?B?TnRiOGNJOVVyTTJYUFA0OCtKazAyQWNRbi9qWUJYV0tWQTJ3MVdBYlVLbkNH?=
- =?utf-8?B?ZHh6YXZiakhDS2UwSTdVa2dXYlRUSnVaZm4ydlJsZUZBblR3Z3NnU0NhL0Vi?=
- =?utf-8?B?bVVpWm4yQzNFN0hiYjdESHFzV2o4UlVVeFl0VHFxaHZvcDFTc212TXJsZlVX?=
- =?utf-8?B?ZFBzSjN3WTBBNWxyTHVuNmpEY2t0QWN6cjVwTWdRNkV1Umc2OVQxd2hNdTQw?=
- =?utf-8?B?Wmo1Szh6dVdXaXlXNmtYaXRMQlhkZ0tlUEZ0KzdJNUtBUVdzRXVkaVZQSlBz?=
- =?utf-8?B?dzc4T0k5TnUvMVEzTTNmaGpBR1NCamhuTlZHN2grQUJLaHJNemNXdXdEMks2?=
- =?utf-8?B?cmozWktETnRXUUNwejZ3TlM4d3ZVZUZwSVhOL1VKUE55NENsNzFCTEZiUVov?=
- =?utf-8?B?T0ZNNnNQOERRTWt3cHc2NEVmSUdRRlk3Nms0N1F4VHJaV3hLTkFuNVZob0dM?=
- =?utf-8?B?TFZqektJbVhCNkM0SGU4bnhPR0JOL3BNa2xodG1QYkNrSUFxbmc1bWVVVllw?=
- =?utf-8?Q?i548otp9PE8qqwc4vKLUH51lW/T4YL+Z/IZcs=3D?=
+	=?utf-8?B?Qy9NOTdEUFFGbk1GZ2l5UlVYbndORFhycUJYeFprQ3FVZmpqYlF5YVFuRElE?=
+ =?utf-8?B?d05FZi9tVkZSNTYvbkQ3YUxUMmZXUEl1TUxaWFE2V3hiZUdmS3ZrWTV4bVhm?=
+ =?utf-8?B?K05ySCs4eWFESDBScVFoUnArcFVhcWtGRnBnRzcyME0ybWZJNHh6djNIS3FD?=
+ =?utf-8?B?ZEVNVHhHd0hyNmRkQWdwZHFZM3ZWb0V5eGdOOUdab2k2dnVyNmpsSExQTjVh?=
+ =?utf-8?B?Vk5pNWFFQ0J2THJSZGxYUXM3QXlKU1RCTy9VMEs3amxSOFBEN1QzWGNuK0Rn?=
+ =?utf-8?B?TmprZ2JHaUpkaFNuR3VGWEdqYUxoRlVHVU9HWEhEVlE0VlkveVRrWHg5enhN?=
+ =?utf-8?B?dmg1clVrV08xMzJYZ3FqSlNNRndQM2J4MWVyZW9XWEZwVzRwQWpPdjltV2FC?=
+ =?utf-8?B?S2FqOXB3VFZ6QTc2dURQOW9VTW5mVVNCeE52VWQrN3R4aG1TQVBnM3RJK3V5?=
+ =?utf-8?B?VjJobG1mTmJxTURkUDlISzQ5aWpYWno1M0ViVElCSjY2aUhBTUFqT0RFZ0sx?=
+ =?utf-8?B?L0FERHJDaEdic1ZMRGwrVnV2OWhIVTBxZlN0MnZzcjhHaDVGOW5zd1gzRVlP?=
+ =?utf-8?B?Q0JnKzlaNTZXTGFka3NPZXcrMHpBU1Y2dkpGV1IyTGFScVFMRGZwbXNpMDZp?=
+ =?utf-8?B?RHZhUk5URTVidjRXdXFmTnpObFY4ai85eG1URUpCeVJ6WUNaYlNCOFh5M3g0?=
+ =?utf-8?B?cm1VNHRnQ1Qyd2ptU0luOGNHYUJ3Y25xcFNrb3hTTWJMb3Z1S2xqcWRYaDJL?=
+ =?utf-8?B?ZXpTSno2ck5lWC9INFNDQ1Q5ZFdnODlEM3FEaksxVGdtSFR1allnNUZkdzQ2?=
+ =?utf-8?B?Z3lLWEIxRk9LYk1VRlQ4MzRxV2Rtb1RFOCt3OHJ0di9uTVhlMWsvT0t3WVRE?=
+ =?utf-8?B?QlV1MVovN0xjNEhPcnlGQjU1UjE5ZHBHZXRDa2FaSTZuUGt1NkVBbjl3QlZZ?=
+ =?utf-8?B?YTNtQzdNWTlBVWVveDFiMEFSVklhUUhBZ3lqM0hTczE1SXBaWG1UczVhc3d0?=
+ =?utf-8?B?dFM1R1hFaWhVQmkyRTRyeE9OTDd4MHdCUXZVaTFqcmprUHFFZWtpTkx6bm15?=
+ =?utf-8?B?RHJzSGZDUndMdlAwYnRVdFBJZXpOTHZtTVhtbUd5Q1NUcTI3UHF2NEFra21w?=
+ =?utf-8?B?TG1lT0JRZWtzVTFzRHMyMVhFRHV1Z1pJbVVuNkpwaXpVVnprMHJaaUFSUU95?=
+ =?utf-8?B?R29pcU5hSWxrWnVlYnlYVWdPUEx4UVBCQnhrNXhYdHhXRE9mUWRYZ25NaHUv?=
+ =?utf-8?B?UHhsWjdxQmtkYUYrelFncHdtbmhIM2JJTy8wOEoxMXpYWmFmaW1iNldwLzgr?=
+ =?utf-8?B?bjJPMVdpLzRPUE1xckxhU2dCaHBYdGgyUTJXb25EeXlGaXRxa0pCTGN0U05i?=
+ =?utf-8?B?SG9FNlNHV1B5bTY0Zll0bE5oWU5Vb2h1N2NtWGw5VE1ZZHgzMFdsUnAxQkE4?=
+ =?utf-8?B?N212c0lROEZQa1B6ZUZJVFN3ZjA1cXZzODd3aXhMRFRpaUMzeGhvUmhGaUdz?=
+ =?utf-8?B?bkVxL2h4d1p0eE5sVGpUN3VQdlQ3bVZ1NlZzRi9hNEREN1RYTnpnVEtyblZ4?=
+ =?utf-8?B?UFhmMk5wUlhNMHFNek9IOFpOVnQ5dS8zVVkvcXFMVmwvMW1MUFkvY0hRQjJa?=
+ =?utf-8?B?eXVVaS9PeG1FOVR3d3dteVY3dFJBaUpqL2NHUEQrVTBtTmNXU0xscUsxYVpX?=
+ =?utf-8?B?eWFCZU44Tmp0VXQxRzJmVTRVN3VjMnlBY1hLanNrSUpNZ3hkajk0Tjg3bnBE?=
+ =?utf-8?B?TFdzeFFJUDVTZ1BEeG5QSWlScVZPeFRkUmQvcGl4cXYyUlFYRVpDT3hVQkdk?=
+ =?utf-8?Q?gBLuBK4AhPLbZiIHa5qV2dkaafeLqDoqeUT74=3D?=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR12MB5672.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(366016)(921020);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR12MB5672.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016)(921020);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?NVgzWWVYQmFQNHVHb0JuZ25wWlJMSE9OSW1SbGVwdmw0WXVYaFNLZVhvL2dR?=
- =?utf-8?B?TXQzWGtzUTFRUkJBZkVIK01GL0YxekRJVHpsQWlWcUZsSlZqanRHM00zMzVw?=
- =?utf-8?B?TU4wT2trb0ozMG1tOHVEbDdxcUhST29Oak96SlJlcGNDY2ttMTVkSmJGU0dW?=
- =?utf-8?B?VFhSTndrY1FGOEYvY0tLLzlIUmc5R0pnaTk3SEs3OXdqd2J2V25UakJraG9m?=
- =?utf-8?B?M2ZPVEYzUmNiVFQ0dlB6OG44RjQ0U2MyZjF2RFBRMmZIY1dCcGZ0Wkhna0h5?=
- =?utf-8?B?TVY1d1NnQ0tuWTRQMmEydlg5Rjc2QUE3MEpUTHFlWGZ1WXZvKzl5Ymk5SHd2?=
- =?utf-8?B?R2lTUi9UaHd0S0JObi85dUpNUXhnZTdmRmZoV29SZ0prZEhrQ0RWWWxRb0dv?=
- =?utf-8?B?SVBxeXp3emI3SGJ2MDEwR3NnRVRqNTByMXU0KzEwd011OTVLRzlVbEJQbVFW?=
- =?utf-8?B?dE5MSjlsVjNxbHhtT2dtQklycmVJU21sNFVlL05uV2t0VysrdHZlM0g4Z0lj?=
- =?utf-8?B?cm5IWXVPMFVBZkozNVBTOWZTdVl5SlRrbStYZTgzR1lLYjFna1gyeE1mSlF4?=
- =?utf-8?B?UTF0Qm5jNTFDcGRBQks1UmxaMG5veEFZWFc3Zk9Gb3VyNXRidmtkRnl0LzMx?=
- =?utf-8?B?UWQ1bk9GNEZTWWljcjVvSkNHOFByN3MxTkQyZHVYdWJGWFpReVNsNVp6QjN4?=
- =?utf-8?B?Ums3MjRXLzNqWjJydFNJek9PRUdRdWxHYUpJWDJGT3lXVml6ellIR1BmWG5T?=
- =?utf-8?B?ODMzRFVubkpmelhzckhwMDZHY1VvR0hhTGJkV2tkWit3WW85dG9HZ2hrcFh2?=
- =?utf-8?B?aURieUZ4UnBLdk9relNjU2ZmUk1lbnB2bVBFbjk5OEY4d0NMMldNWTVuOHdR?=
- =?utf-8?B?M2xITVBCM3VzMmZ5MlBFb1A0Q1YvZ2s3SlVPdkUwZEJDTnlSNWRaQWFhQkJH?=
- =?utf-8?B?SlE3R2hMa0pORlBjZkFaUzdXU3BRYVZTeWRxTUdCajR5bUUrVlJXVkMyb0JE?=
- =?utf-8?B?YURBUWFzNEMwN1NMQlFweENPNVNOOXk3bWVGRyt1TlRWU2VSRHB5UCtKenJn?=
- =?utf-8?B?L1VwVTlsbTU3Mm04REp4ZEM3UE5tck8vNHQxNG9QaXRQeTRlRWtPbUFpem8z?=
- =?utf-8?B?bzljcWVHWnNhQzlaSFdLSUhVY1pJMmh4ZVZxVEx3eUdWSGZlMmFENlQ2VDUy?=
- =?utf-8?B?Z1dpOEhlWDRCZDdvRU5HQy9XeVd6QzAvRWQwZGhvVXhjUEVqdGFkaExKNHFV?=
- =?utf-8?B?RUNiTEtDcnVSSGJBem1uUVZyQzN3ZkZSdGwzWVdxY0I3VFNoMGJPVVp0TUsv?=
- =?utf-8?B?VWcrR1orNmhqSzBWcmRJM3ZJczlMTjUwQnhvUUpFR3dmQXNWSVQ5aFV4T3I3?=
- =?utf-8?B?MlU0YXZOUC9SVnZoYWMrMzFKeENWQnlmNVAwYTBvZ2dzT1Z6V2R3UjE1VlFX?=
- =?utf-8?B?dGZPQkhKSUkxSnhta0t5QS8ybEg0UmJxYU1rVnk5cS9NcHBnOEdhTXg5RHZJ?=
- =?utf-8?B?c2Q0RE1HU3dQV3NnTzJJV0xzSkRiS2xGdmMrYUk1WGY4SWRkc2JvMUdGU3JW?=
- =?utf-8?B?dmtCRHJBMXUyWS95dDVYNmxKQzhnYWVSeks0b1J4eks3QiszN2ViWWd2aERl?=
- =?utf-8?B?U0ZIMCsyQjJFa3pZYUFpK1JsdXlYaERhMDg2V2pRbW8rMGZDOFA4SUpOZ0xm?=
- =?utf-8?B?ZkJKZktnNE1ZMzVMZWNQdTc2NVVYT2ZNTGIvR040R0pORi9YTHJ5eEZna3E1?=
- =?utf-8?B?dGx0QzdwcDZzeG5pcXlHUXJ1K0JwLzY4K3lXRWNGTkdmNkpnNTVkNjAyajZK?=
- =?utf-8?B?VWdvSFovL0JuRG9FWlBYczNQTFBYLzdkOWI1WlFxU21zR3NqcWdmVDFrSlZL?=
- =?utf-8?B?NURoKzZRV2xUbkM1OG41Tlg1MmtnNUV3b3FYVjJ4bHd1N2xQaU43ck10UFJM?=
- =?utf-8?B?Y2UrdUNKZ3c5bDlnaHRXSi9KTzg1RmZvZTF5QUFXa0NOTmNxVWlRckNoT0sr?=
- =?utf-8?B?cnd0UTFrcEhDa3lndEFYYW1Uem1ObjdrN0F0cndQdnRTa2kyZTNLR1Vwd1FQ?=
- =?utf-8?B?ZHFwZW16OS9aeUw1MDVQdkxZNUZnYkwrWjBxMlZtelVKNHNEOFNaTTdHSGdw?=
- =?utf-8?Q?TvD6n6wj6crJ3+dzivOqNrNuk?=
+	=?utf-8?B?ZjZiVFJkd0xjSlNjQkFMV2JnUE1zb0Z4RndOOFltTUNwZDJxUVdJNkxzMzBG?=
+ =?utf-8?B?aW0wblpicWZMRmtMMEg3dTVUOWhLR1VEcmRVeDR4MVJ6MURRSlhxNUZGK0Fz?=
+ =?utf-8?B?WGd2eGFGOEluVm44S3pxcHFwSlNlVWRmNE9aNk1UYjlrejBjSkV6aUliRzRN?=
+ =?utf-8?B?WEE2azBmUU8zbHVTVUZFcklSVHo4Mi94YlA5VXdva1NZN0x6TmdTVGpQcGRa?=
+ =?utf-8?B?TUlQOThLTllTUmZGazZ1YlJxb0RmQUtIbGlhMXBnbnlTWnY3RXJFTjh4bkt5?=
+ =?utf-8?B?N1QyaG5wWGJjZ21vWXo1UTZTYnhkd1RNQkZKVk1MMis1TnkxTkx3VEczdkxP?=
+ =?utf-8?B?Rmd1OCtmNVZKYW9salRGR3JaZnk5MUYyaFRLdi9hQUpwV240em5iWjJXZTR3?=
+ =?utf-8?B?YTMyay9Zbk1KWG8raWNJbWRiYkRCUFlJOTgzUllWK1MxVERNcEVEYUNGSWg2?=
+ =?utf-8?B?QWRaUDMvQkNhN3MvTTlYNzBOSUlxR21EazJ0elZsd0tIdk1hbHV3dmxoYzNj?=
+ =?utf-8?B?Q01Vc2U4cHZmb1lrY3hPdFdlVEtOQXlxR2NsNUlvai9FaUJOS0FIYzJ2T0FI?=
+ =?utf-8?B?Qm1Tdy9TdktSaVlMaU03dXhZczRWOUoyWHNKZ1VndDdkUm9qbmROT1pCNXNk?=
+ =?utf-8?B?b3dyMUV2aEx5ODZHeUZqdXhTYXEvWjJLZ05UL1U2N3dSdE5ObXJ0bkdER1Zn?=
+ =?utf-8?B?citkZlUwUnV6RERzeE4wSlZUTm9zZ0lESzJuaDFReHgzVkpsZHovZk5nSUZE?=
+ =?utf-8?B?djZIdzNQQVVNUkNINGxYQlNuMVcxcWtlMk5RbUF0R1pYSDZkSUVKc2MreC9y?=
+ =?utf-8?B?MkhTS3pUNUpyMnlxMS9naXMzbjBaak15NEFpNFdaSmRFNU81NWg0WDl1NVBa?=
+ =?utf-8?B?N0Y0eUwzZ2NjOW5uRmVEK1NDaDdXUjcyZGxyaUVNbSs2VGRMTTd2NGFVT0pT?=
+ =?utf-8?B?WEhyanFDWEhqMkxYcHYrMVJsSGdrZkZlU0IrRUxjaUt3TTlGZFBhNWpMT0py?=
+ =?utf-8?B?R2QzaFBMM0hwV2xCLzA0UjZYSFRDeUJ0eDV1NUd1S2IweFo1SU1QeVl1SEFW?=
+ =?utf-8?B?Tm5pR3RqY3N2ZklaSHNacWJ3M0dUU0dEdDVCYTVEdXVsaHI0RC9BQWJreDJ2?=
+ =?utf-8?B?NU13dlBEWTE0WnZ6VmVWTzg2TWR3TWpYLzhpaHBvWFlLOVFPL1pWSkNSSzNo?=
+ =?utf-8?B?UjNqNjE5YXBTSDdGRW13ZTNVUjFnaTI5cHlXeUZwMDc2dlg2eU5yYW1MRUVT?=
+ =?utf-8?B?a2NQdHFUdVBmNmdBWFQvZ0UydlR1bjk2RUNCWTRVVnR5VzVGM0xCeXNwTDRF?=
+ =?utf-8?B?eit3b0E5ZC9weG54YmlwZ3hRREVJQU91RnZ5UktWbEtQcEJ2SEtTeXdWODRL?=
+ =?utf-8?B?UHUyQ3YvekhhV0JpdU9sN05YRzVpUHVKS0pIZVIvWWx4REVUTTlybU9Mb1c0?=
+ =?utf-8?B?V0pNYUdJeGpXQmVDMjFaL1FkZmhnY1puOUtBRDlTSFFMOWhyOEtQcEpoNHJi?=
+ =?utf-8?B?YXF6SWVuRk5pTks2eFl4Q3gxY0djUEhseTVvOEpHT2xnTkpHUlczcFhIQkdk?=
+ =?utf-8?B?SjkxQmM0WU1PVjE1SUtSbm5Cd21hbWxHZmEvbFd6NVV4U3Q0blVIaVZkRFBp?=
+ =?utf-8?B?aVpSQytNc2d2WG9FS3hDT3c1ZjRxSHJqTEVHNHlqVDNvRXdUMnF5VzcyYWdk?=
+ =?utf-8?B?U3pjQ29ZamtqeEFFVXFsSy9DeER3RkwyNnRhTHBkckJJOVpNQkNPOHlGaWdG?=
+ =?utf-8?B?Ly9xd2xSajZwN0pKUFNwbVZSRlozeWx3NHhKNXYrSG1vUmw1anlrMTcvcndU?=
+ =?utf-8?B?M2VuNU5JcjUyUHUvMmF6VHl5Zk1YOS9MZXZXM0JtSEdzTEt4UkZZQ1JUREVj?=
+ =?utf-8?B?NDFscW5aVGR3ZHlvUWJKRURyMy9BTVR1S0d6cGduTjh0OUJvblBLSS9ENlZJ?=
+ =?utf-8?B?ZjM0ekpVdnFLTjNqdHNpcnVGeG05YzhWZkpyMTJ6RFNDODdiY29JWDY2aG5B?=
+ =?utf-8?B?ZGY5ZUZsbGd6K3pVRnFQcHZuMnkrZ1VYaHI3THhMYm56cGtOenNYY2phVkNj?=
+ =?utf-8?B?cHoxVW9BTnJma1A4KzlXdEJCdDBDcFhWL0hIZGdpT2h3MWtIa041MVF3Y1Z2?=
+ =?utf-8?Q?cOr1ZwR2iURIuAUvX3hlmvx+A?=
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3b81874c-57ca-4a6a-6d0c-08dcf9b3dd48
+X-MS-Exchange-CrossTenant-Network-Message-Id: 03b27bb4-c192-41d9-b124-08dcf9b72af2
 X-MS-Exchange-CrossTenant-AuthSource: SA1PR12MB5672.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Oct 2024 13:56:48.8428
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Oct 2024 14:20:27.8051
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: hLuMTvzl8Sx+H8UxE42alsLs0ZV07MW3ByAMK7AuUJbTbEtRiWOxoB2PukFTdnfCzCXSoyLzgDcN440PA5t9XA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB8837
+X-MS-Exchange-CrossTenant-UserPrincipalName: vKi41KtFA053dYVS9MqKWNzeU2bkCTpmMJ8ZrIKWkyuKrH3LZnj8LdFox0xlBIs9q6w+bqpvAgwuFot/4mmCBw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB9252
 
 
 
 On 10/30/24 08:49, Patrick Roy wrote:
-> Add a new flag, KVM_GMEM_NO_DIRECT_MAP, to KVM_CREATE_GUEST_MEMFD, which
-> causes KVM to remove the folios backing this guest_memfd from the direct
-> map after preparation/population. This flag is only exposed on
-> architectures that can set the direct map (the notable exception here
-> being ARM64 if the direct map is not set up at 4K granularity),
-> otherwise EOPNOTSUPP is returned.
+> Implement (yet unused) routines for manipulating guest_memfd direct map
+> state. This is largely for illustration purposes.
 > 
-> This patch also implements infrastructure for tracking (temporary)
-> reinsertation of memory ranges into the direct map (more accurately: It
-> allows recording that specific memory ranges deviate from the default
-> direct map setup. Currently the default setup is always "direct map
-> entries removed", but it is trivial to extend this with some
-> "default_state_for_vm_type" mechanism to cover the pKVM usecase of
-> memory starting off with directe map entries present). An xarray
-> tracks this at page granularity, to be compatible with future
-> hugepages usecases that might require subranges of hugetlb folios to
-> have direct map entries restored. This xarray holds entries for each
-> page that has a direct map state deviating from the default, and holes
-> for all pages whose direct map state matches the default, the idea being
-> that these "deviations" will be rare.
-> kvm_gmem_folio_configure_direct_map applies the configuration stored in
-> the xarray to a given folio, and is called for each new gmem folio after
-> preparation/population.
+> kvm_gmem_set_direct_map allows manipulating arbitrary pgoff_t
+> ranges, even if the covered memory has not yet been faulted in (in which
+> case the requested direct map state is recorded in the xarray and will
+> be applied by kvm_gmem_folio_configure_direct_map after the folio is
+> faulted in and prepared/populated). This can be used to realize
+> private/shared conversions on not-yet-faulted in memory, as discussed in
+> the guest_memfd upstream call [1].
 > 
-> Storing direct map state in the gmem inode has two advantages:
-> 1) We can track direct map state at page granularity even for huge
->     folios (see also Ackerley's series on hugetlbfs support in
->     guest_memfd [1])
-> 2) We can pre-configure the direct map state of not-yet-faulted in
->     folios. This would for example be needed if a VMM is receiving a
->     virtio buffer that the guest is requested it to fill. In this case,
->     the pages backing the guest physical address range of the buffer
->     might not be faulted in yet, and thus would be faulted when the VMM
->     tries to write to them, and at this point we would need to ensure
->     direct map entries are present)
+> kvm_gmem_folio_set_direct_map allows manipulating the direct map entries
+> for a gmem folio that the caller already holds a reference for (whereas
+> kvm_gmem_set_direct_map needs to look up all folios intersecting the
+> given pgoff range in the filemap first).
 > 
-> Note that this patch does not include operations for manipulating the
-> direct map state xarray, or for changing direct map state of already
-> existing folios. These routines are sketched out in the following patch,
-> although are not needed in this initial patch series.
+> The xa lock serializes calls to kvm_gmem_folio_set_direct_map and
+> kvm_gmem_set_direct_map, while the read side
+> (kvm_gmem_folio_configure_direct_map) is protected by RCU. This is
+> sufficient to ensure consistency between the xarray and the folio's
+> actual direct map state, as kvm_gmem_folio_configure_direct_map is
+> called only for freshly allocated folios, and before the folio lock is
+> dropped for the first time, meaning kvm_gmem_folio_configure_direct_map
+> always does it's set_direct_map calls before either of
+> kvm_gmem_[folio_]set_direct_map get a chance. Even if a concurrent call
+> to kvm_gmem_[folio_]set_direct_map happens, this ensures a sort of
+> "eventual consistency" between xarray and actual direct map
+> configuration by the time kvm_gmem_[folio_]set_direct_map exits.
 > 
-> When a gmem folio is freed, it is reinserted into the direct map (and
-> failing this, marked as HWPOISON to avoid any other part of the kernel
-> accidentally touching folios without complete direct map entries). The
-> direct map configuration stored in the xarray is _not_ reset when the
-> folio is freed (although this could be implemented by storing the
-> reference to the xarray in the folio's private data instead of only the
-> inode).
-> 
-> [1]: https://lore.kernel.org/kvm/cover.1726009989.git.ackerleytng@google.com/
+> [1]: https://lore.kernel.org/kvm/4b49248b-1cf1-44dc-9b50-ee551e1671ac@redhat.com/
 > 
 > Signed-off-by: Patrick Roy <roypat@amazon.co.uk>
 > ---
->   include/uapi/linux/kvm.h |   2 +
->   virt/kvm/guest_memfd.c   | 150 +++++++++++++++++++++++++++++++++++----
->   2 files changed, 137 insertions(+), 15 deletions(-)
+>   virt/kvm/guest_memfd.c | 125 +++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 125 insertions(+)
 > 
-> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-> index 637efc0551453..81b0f4a236b8c 100644
-> --- a/include/uapi/linux/kvm.h
-> +++ b/include/uapi/linux/kvm.h
-> @@ -1564,6 +1564,8 @@ struct kvm_create_guest_memfd {
->   	__u64 reserved[6];
->   };
->   
-> +#define KVM_GMEM_NO_DIRECT_MAP			(1ULL << 0)
-> +
->   #define KVM_PRE_FAULT_MEMORY	_IOWR(KVMIO, 0xd5, struct kvm_pre_fault_memory)
->   
->   struct kvm_pre_fault_memory {
 > diff --git a/virt/kvm/guest_memfd.c b/virt/kvm/guest_memfd.c
-> index 47a9f68f7b247..50ffc2ad73eda 100644
+> index 50ffc2ad73eda..54387828dcc6a 100644
 > --- a/virt/kvm/guest_memfd.c
 > +++ b/virt/kvm/guest_memfd.c
-> @@ -4,6 +4,7 @@
->   #include <linux/kvm_host.h>
->   #include <linux/pagemap.h>
->   #include <linux/anon_inodes.h>
-> +#include <linux/set_memory.h>
+> @@ -96,6 +96,131 @@ static int kvm_gmem_folio_configure_direct_map(struct folio *folio)
+>   	return r;
+>   }
 >   
->   #include "kvm_mm.h"
->   
-> @@ -13,6 +14,88 @@ struct kvm_gmem {
->   	struct list_head entry;
->   };
->   
-> +struct kvm_gmem_inode_private {
-> +	unsigned long long flags;
+> +/*
+> + * Updates the range [@start, @end] in @gmem_priv's direct map state xarray to be @state,
+> + * e.g. erasing entries in this range if @state is the default state, and creating
+> + * entries otherwise.
+> + *
+> + * Assumes the xa_lock is held.
+> + */
+> +static int __kvm_gmem_update_xarray(struct kvm_gmem_inode_private *gmem_priv, pgoff_t start,
+> +				    pgoff_t end, bool state)
+> +{
+> +	struct xarray *xa = &gmem_priv->direct_map_state;
+> +	int r = 0;
 > +
 > +	/*
-> +	 * direct map configuration of the gmem instance this private data
-> +	 * is associated with. present indices indicate a desired direct map
-> +	 * configuration deviating from default_direct_map_state (e.g. if
-> +	 * default_direct_map_state is false/not present, then the xarray
-> +	 * contains all indices for which direct map entries are restored).
+> +	 * Cannot use xa_store_range, as multi-indexes cannot easily
+> +	 * be partially updated.
 > +	 */
-> +	struct xarray direct_map_state;
-> +	bool default_direct_map_state;
-> +};
+> +	for (pgoff_t index = start; index < end; ++index) {
+> +		if (state == gmem_priv->default_direct_map_state)
+> +			__xa_erase(xa, index);
+> +		else
+> +			/* don't care _what_ we store in the xarray, only care about presence */
+> +			__xa_store(xa, index, gmem_priv, GFP_KERNEL);
 > +
-> +static bool kvm_gmem_test_no_direct_map(struct kvm_gmem_inode_private *gmem_priv)
+> +		r = xa_err(xa);
+> +		if (r)
+> +			goto out;
+> +	}
+> +
+> +out:
+> +	return r;
+> +}
+> +
+> +static int __kvm_gmem_folio_set_direct_map(struct folio *folio, pgoff_t start, pgoff_t end,
+> +					   bool state)
 > +{
-> +	return ((unsigned long)gmem_priv->flags & KVM_GMEM_NO_DIRECT_MAP) != 0;
+> +	unsigned long npages = end - start + 1;
+> +	struct page *first_page = folio_file_page(folio, start);
+> +
+> +	int r = set_direct_map_valid_noflush(first_page, npages, state);
+> +
+> +	flush_tlb_kernel_range((unsigned long)page_address(first_page),
+> +			       (unsigned long)page_address(first_page) +
+> +				       npages * PAGE_SIZE);
+> +	return r;
 > +}
 > +
 > +/*
-> + * Configure the direct map present/not present state of @folio based on
-> + * the xarray stored in the associated inode's private data.
+> + * Updates the direct map status for the given range from @start to @end (inclusive), returning
+> + * -EINVAL if this range is not completely contained within @folio. Also updates the
+> + * xarray stored in the private data of the inode @folio is attached to.
 > + *
-> + * Assumes the folio lock is held.
+> + * Takes and drops the folio lock.
 > + */
-> +static int kvm_gmem_folio_configure_direct_map(struct folio *folio)
+> +static __always_unused int kvm_gmem_folio_set_direct_map(struct folio *folio, pgoff_t start,
+> +								 pgoff_t end, bool state)
 > +{
 > +	struct inode *inode = folio_inode(folio);
 > +	struct kvm_gmem_inode_private *gmem_priv = inode->i_private;
-> +	bool default_state = gmem_priv->default_direct_map_state;
+> +	int r = -EINVAL;
 > +
-> +	pgoff_t start = folio_index(folio);
-> +	pgoff_t last = start + folio_nr_pages(folio) - 1;
-
-	pgoff_t last = folio_next_index(folio) - 1;
-
-thanks,
-Mike
-
-> +
-> +	struct xarray *xa = &gmem_priv->direct_map_state;
-> +	unsigned long index;
-> +	void *entry;
-> +
-> +	pgoff_t range_start = start;
-> +	unsigned long npages = 1;
-> +	int r = 0;
-> +
-> +	if (!kvm_gmem_test_no_direct_map(gmem_priv))
+> +	if (!folio_contains(folio, start) || !folio_contains(folio, end))
 > +		goto out;
 > +
-> +	r = set_direct_map_valid_noflush(folio_page(folio, 0), folio_nr_pages(folio),
-> +					 default_state);
+> +	xa_lock(&gmem_priv->direct_map_state);
+> +	r = __kvm_gmem_update_xarray(gmem_priv, start, end, state);
+> +	if (r)
+> +		goto unlock_xa;
+> +
+> +	folio_lock(folio);
+> +	r = __kvm_gmem_folio_set_direct_map(folio, start, end, state);
+> +	folio_unlock(folio);
+> +
+> +unlock_xa:
+> +	xa_unlock(&gmem_priv->direct_map_state);
+> +out:
+> +	return r;
+> +}
+> +
+> +/*
+> + * Updates the direct map status for the given range from @start to @end (inclusive)
+> + * of @inode. Folios in this range have their direct map entries reconfigured,
+> + * and the xarray in the @inode's private data is updated.
+> + */
+> +static __always_unused int kvm_gmem_set_direct_map(struct inode *inode, pgoff_t start,
+> +							   pgoff_t end, bool state)
+> +{
+> +	struct kvm_gmem_inode_private *gmem_priv = inode->i_private;
+> +	struct folio_batch fbatch;
+> +	pgoff_t index = start;
+> +	unsigned int count, i;
+> +	int r = 0;
+> +
+> +	xa_lock(&gmem_priv->direct_map_state);
+> +
+> +	r = __kvm_gmem_update_xarray(gmem_priv, start, end, state);
 > +	if (r)
 > +		goto out;
 > +
-> +	if (!xa_find_after(xa, &range_start, last, XA_PRESENT))
-> +		goto out_flush;
+	if (r) {
+		xa_unlock(&gmem_priv->direct_map_state);
+		goto out;
+	}
+
+thanks,
+
+Mike
+
+> +	folio_batch_init(&fbatch);
+> +	while (!filemap_get_folios(inode->i_mapping, &index, end, &fbatch) && !r) {
+> +		count = folio_batch_count(&fbatch);
+> +		for (i = 0; i < count; i++) {
+> +			struct folio *folio = fbatch.folios[i];
+> +			pgoff_t folio_start = max(folio_index(folio), start);
+> +			pgoff_t folio_end =
+> +				min(folio_index(folio) + folio_nr_pages(folio),
+> +				    end);
 > +
-> +	xa_for_each_range(xa, index, entry, range_start, last) {
-> +		++npages;
+> +			folio_lock(folio);
+> +			r = __kvm_gmem_folio_set_direct_map(folio, folio_start,
+> +							    folio_end, state);
+> +			folio_unlock(folio);
 > +
-> +		if (index == range_start + npages)
-> +			continue;
-> +
-> +		r = set_direct_map_valid_noflush(folio_file_page(folio, range_start), npages - 1,
-> +						 !default_state);
-> +		if (r)
-> +			goto out_flush;
-> +
-> +		range_start = index;
-> +		npages = 1;
+> +			if (r)
+> +				break;
+> +		}
+> +		folio_batch_release(&fbatch);
 > +	}
 > +
-> +	r = set_direct_map_valid_noflush(folio_file_page(folio, range_start), npages,
-> +					 !default_state);
-> +
-> +out_flush:
-> +	/*
-> +	 * Use PG_private to track that this folio has had potentially some of
-> +	 * its direct map entries modified, so that we can restore them in free_folio.
-> +	 */
-> +	folio_set_private(folio);
-> +	flush_tlb_kernel_range(start, start + folio_size(folio));
+> +	xa_unlock(&gmem_priv->direct_map_state);
 > +out:
 > +	return r;
 > +}
@@ -353,185 +357,3 @@ Mike
 >   /**
 >    * folio_file_pfn - like folio_file_page, but return a pfn.
 >    * @folio: The folio which contains this index.
-> @@ -42,9 +125,19 @@ static int __kvm_gmem_prepare_folio(struct kvm *kvm, struct kvm_memory_slot *slo
->   	return 0;
->   }
->   
-> -static inline void kvm_gmem_mark_prepared(struct folio *folio)
-> +
-> +static inline int kvm_gmem_finalize_folio(struct folio *folio)
->   {
-> +	int r = kvm_gmem_folio_configure_direct_map(folio);
-> +
-> +	/*
-> +	 * Parts of the direct map might have been punched out, mark this folio
-> +	 * as prepared even in the error case to avoid touching parts without
-> +	 * direct map entries in a potential re-preparation.
-> +	 */
->   	folio_mark_uptodate(folio);
-> +
-> +	return r;
->   }
->   
->   /*
-> @@ -82,11 +175,10 @@ static int kvm_gmem_prepare_folio(struct kvm *kvm, struct kvm_memory_slot *slot,
->   	index = ALIGN_DOWN(index, 1 << folio_order(folio));
->   	r = __kvm_gmem_prepare_folio(kvm, slot, index, folio);
->   	if (!r)
-> -		kvm_gmem_mark_prepared(folio);
-> +		r = kvm_gmem_finalize_folio(folio);
->   
->   	return r;
->   }
-> -
->   /*
->    * Returns a locked folio on success.  The caller is responsible for
->    * setting the up-to-date flag before the memory is mapped into the guest.
-> @@ -249,6 +341,7 @@ static long kvm_gmem_fallocate(struct file *file, int mode, loff_t offset,
->   static int kvm_gmem_release(struct inode *inode, struct file *file)
->   {
->   	struct kvm_gmem *gmem = file->private_data;
-> +	struct kvm_gmem_inode_private *gmem_priv;
->   	struct kvm_memory_slot *slot;
->   	struct kvm *kvm = gmem->kvm;
->   	unsigned long index;
-> @@ -279,13 +372,17 @@ static int kvm_gmem_release(struct inode *inode, struct file *file)
->   
->   	list_del(&gmem->entry);
->   
-> +	gmem_priv = inode->i_private;
-> +
->   	filemap_invalidate_unlock(inode->i_mapping);
->   
->   	mutex_unlock(&kvm->slots_lock);
-> -
->   	xa_destroy(&gmem->bindings);
->   	kfree(gmem);
->   
-> +	xa_destroy(&gmem_priv->direct_map_state);
-> +	kfree(gmem_priv);
-> +
->   	kvm_put_kvm(kvm);
->   
->   	return 0;
-> @@ -357,24 +454,37 @@ static int kvm_gmem_error_folio(struct address_space *mapping, struct folio *fol
->   	return MF_DELAYED;
->   }
->   
-> -#ifdef CONFIG_HAVE_KVM_ARCH_GMEM_INVALIDATE
->   static void kvm_gmem_free_folio(struct folio *folio)
->   {
-> +#ifdef CONFIG_HAVE_KVM_ARCH_GMEM_INVALIDATE
->   	struct page *page = folio_page(folio, 0);
->   	kvm_pfn_t pfn = page_to_pfn(page);
->   	int order = folio_order(folio);
->   
->   	kvm_arch_gmem_invalidate(pfn, pfn + (1ul << order));
-> -}
->   #endif
->   
-> +	if (folio_test_private(folio)) {
-> +		unsigned long start = (unsigned long)folio_address(folio);
-> +
-> +		int r = set_direct_map_valid_noflush(folio_page(folio, 0), folio_nr_pages(folio),
-> +						     true);
-> +		/*
-> +		 * There might be holes left in the folio, better make sure
-> +		 * nothing tries to touch it again.
-> +		 */
-> +		if (r)
-> +			folio_set_hwpoison(folio);
-> +
-> +		flush_tlb_kernel_range(start, start + folio_size(folio));
-> +	}
-> +}
-> +
->   static const struct address_space_operations kvm_gmem_aops = {
->   	.dirty_folio = noop_dirty_folio,
->   	.migrate_folio	= kvm_gmem_migrate_folio,
->   	.error_remove_folio = kvm_gmem_error_folio,
-> -#ifdef CONFIG_HAVE_KVM_ARCH_GMEM_INVALIDATE
->   	.free_folio = kvm_gmem_free_folio,
-> -#endif
->   };
->   
->   static int kvm_gmem_getattr(struct mnt_idmap *idmap, const struct path *path,
-> @@ -401,6 +511,7 @@ static int __kvm_gmem_create(struct kvm *kvm, loff_t size, u64 flags)
->   {
->   	const char *anon_name = "[kvm-gmem]";
->   	struct kvm_gmem *gmem;
-> +	struct kvm_gmem_inode_private *gmem_priv;
->   	struct inode *inode;
->   	struct file *file;
->   	int fd, err;
-> @@ -409,11 +520,14 @@ static int __kvm_gmem_create(struct kvm *kvm, loff_t size, u64 flags)
->   	if (fd < 0)
->   		return fd;
->   
-> +	err = -ENOMEM;
->   	gmem = kzalloc(sizeof(*gmem), GFP_KERNEL);
-> -	if (!gmem) {
-> -		err = -ENOMEM;
-> +	if (!gmem)
-> +		goto err_fd;
-> +
-> +	gmem_priv = kzalloc(sizeof(*gmem_priv), GFP_KERNEL);
-> +	if (!gmem_priv)
->   		goto err_fd;
-> -	}
->   
->   	file = anon_inode_create_getfile(anon_name, &kvm_gmem_fops, gmem,
->   					 O_RDWR, NULL);
-> @@ -427,7 +541,7 @@ static int __kvm_gmem_create(struct kvm *kvm, loff_t size, u64 flags)
->   	inode = file->f_inode;
->   	WARN_ON(file->f_mapping != inode->i_mapping);
->   
-> -	inode->i_private = (void *)(unsigned long)flags;
-> +	inode->i_private = gmem_priv;
->   	inode->i_op = &kvm_gmem_iops;
->   	inode->i_mapping->a_ops = &kvm_gmem_aops;
->   	inode->i_mode |= S_IFREG;
-> @@ -442,6 +556,9 @@ static int __kvm_gmem_create(struct kvm *kvm, loff_t size, u64 flags)
->   	xa_init(&gmem->bindings);
->   	list_add(&gmem->entry, &inode->i_mapping->i_private_list);
->   
-> +	xa_init(&gmem_priv->direct_map_state);
-> +	gmem_priv->flags = flags;
-> +
->   	fd_install(fd, file);
->   	return fd;
->   
-> @@ -456,11 +573,14 @@ int kvm_gmem_create(struct kvm *kvm, struct kvm_create_guest_memfd *args)
->   {
->   	loff_t size = args->size;
->   	u64 flags = args->flags;
-> -	u64 valid_flags = 0;
-> +	u64 valid_flags = KVM_GMEM_NO_DIRECT_MAP;
->   
->   	if (flags & ~valid_flags)
->   		return -EINVAL;
->   
-> +	if ((flags & KVM_GMEM_NO_DIRECT_MAP) && !can_set_direct_map())
-> +		return -EOPNOTSUPP;
-> +
->   	if (size <= 0 || !PAGE_ALIGNED(size))
->   		return -EINVAL;
->   
-> @@ -679,7 +799,6 @@ long kvm_gmem_populate(struct kvm *kvm, gfn_t start_gfn, void __user *src, long
->   			break;
->   		}
->   
-> -		folio_unlock(folio);
->   		WARN_ON(!IS_ALIGNED(gfn, 1 << max_order) ||
->   			(npages - i) < (1 << max_order));
->   
-> @@ -695,7 +814,8 @@ long kvm_gmem_populate(struct kvm *kvm, gfn_t start_gfn, void __user *src, long
->   		p = src ? src + i * PAGE_SIZE : NULL;
->   		ret = post_populate(kvm, gfn, pfn, p, max_order, opaque);
->   		if (!ret)
-> -			kvm_gmem_mark_prepared(folio);
-> +			ret = kvm_gmem_finalize_folio(folio);
-> +		folio_unlock(folio);
->   
->   put_folio_and_exit:
->   		folio_put(folio);
