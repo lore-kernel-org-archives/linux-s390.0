@@ -1,160 +1,109 @@
-Received: from smtp-fw-52003.amazon.com (smtp-fw-52003.amazon.com [52.119.213.152])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED2D6199395;
-	Thu, 31 Oct 2024 10:42:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.119.213.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9007E1BC20;
+	Thu, 31 Oct 2024 12:03:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730371346; cv=none; b=gnI2TVUtl5K/AJDuVZcHf1TtdelpCBH0YuoVQ/sYYWDFRxo7pSFV2AoaKuGTIMRT6os3Y8X7IDIyLERAwPr1rjd23w3BzJ5k3ahkS04jgid+8ISpmfUHKhG/ThrHRjoBzBfiapDlM/XMS/4QD21+IuPuhghq4e0J7884+kmH88w=
+	t=1730376204; cv=none; b=d2xqgD4ZKL0yA9W/NE51u9qNGSvL26eqKt4WULYHElyJ12W/t1JjTwQ6vFo6MKAxBz2NDHpWQbfy35QNU5/Wg3xiUpOJXzmVVs6HS19irJOjhoSgr5Q/OhlQMpqRg/cwN88gl1EwLK7pWVgAyl06uBUDrQdbNamgm6Lzgzj+v9k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730371346; c=relaxed/simple;
-	bh=LirR3kzbScaAvwOKGcEk0tU8aX0hkYtaRdjnyAUg0cA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=gMCcwrT8qGm18JX3KLTwGt8USSqCHAPTWHPx8psi55r7JDjVkLjHf2eWazlM0J7uF9yfY5HzBCpdd7qWG9Zzb8to1TBEtPx9yXeVpXYB1iq3sLyGzNgIA34P/726lzshHlrusc4RKRE05XnE3CODNjkcNDWBtOTk+gvUkVse31Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (1024-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b=eE2nQMdK; arc=none smtp.client-ip=52.119.213.152
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
+	s=arc-20240116; t=1730376204; c=relaxed/simple;
+	bh=Qg4mJxs4fXCmXS7KB5laOTg+7yxkd7M8r4nAAkZ9adQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KfM96zXXUrJF/f1vlUD0A3Q9pLyLAzcIQOU8PV5WSBc8vHGlJVfipmG+l61EPehHqdhvfPBWl0b6mpJoC4Qitjhrw5VJKfMSpjQn9XMqfjcT0CYymYdJ4zrT9WPcyUHJWoBn7K3aqI4gYfZgqPqZBfN0V88W9UO7V2foHS9xg9E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qqJjygng; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b="eE2nQMdK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.co.uk; i=@amazon.co.uk; q=dns/txt;
-  s=amazon201209; t=1730371345; x=1761907345;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=2XSQmg9XPL/tUl5Uy9X9cqzqndsoHfM/nyIda+DnmYs=;
-  b=eE2nQMdKcNLuqicCNqHp/j4fLUzG++kDn/aXTaIkjrxy5eY2/n2qc5ry
-   EzFguMwjRcOQS5VGG5a41lkhKP6ZfTWaqVDNzaPKrgKQYgBX0k0gFbeLE
-   JPgqQh8ZhswAKPqQP8H1Rp4WrKhK2Ha3PN+RHSxJuaQgS+TfABckgWvzv
-   0=;
-X-IronPort-AV: E=Sophos;i="6.11,247,1725321600"; 
-   d="scan'208";a="37873631"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.43.8.6])
-  by smtp-border-fw-52003.iad7.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Oct 2024 10:42:19 +0000
-Received: from EX19MTAUWA001.ant.amazon.com [10.0.38.20:53488]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.22.121:2525] with esmtp (Farcaster)
- id f575b9e2-c87c-4dc7-9ccf-8641a67b176b; Thu, 31 Oct 2024 10:42:18 +0000 (UTC)
-X-Farcaster-Flow-ID: f575b9e2-c87c-4dc7-9ccf-8641a67b176b
-Received: from EX19D003UWB002.ant.amazon.com (10.13.138.11) by
- EX19MTAUWA001.ant.amazon.com (10.250.64.217) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.34;
- Thu, 31 Oct 2024 10:42:09 +0000
-Received: from EX19MTAUWA001.ant.amazon.com (10.250.64.204) by
- EX19D003UWB002.ant.amazon.com (10.13.138.11) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.35;
- Thu, 31 Oct 2024 10:42:09 +0000
-Received: from email-imr-corp-prod-iad-all-1b-a03c1db8.us-east-1.amazon.com
- (10.25.36.214) by mail-relay.amazon.com (10.250.64.204) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id
- 15.2.1258.34 via Frontend Transport; Thu, 31 Oct 2024 10:42:08 +0000
-Received: from [127.0.0.1] (dev-dsk-roypat-1c-dbe2a224.eu-west-1.amazon.com [172.19.88.180])
-	by email-imr-corp-prod-iad-all-1b-a03c1db8.us-east-1.amazon.com (Postfix) with ESMTPS id 524C0804C3;
-	Thu, 31 Oct 2024 10:42:02 +0000 (UTC)
-Message-ID: <27646c08-f724-49f7-9f45-d03bad500219@amazon.co.uk>
-Date: Thu, 31 Oct 2024 10:42:00 +0000
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qqJjygng"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49V6vL49013181;
+	Thu, 31 Oct 2024 12:03:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=9APeEwQXPLuuVKK42xBYkPKUFePEi9WFCzuJSO91+
+	GE=; b=qqJjygngaYB5kwBLfuqTHlQH2fza25uBLy7IB6m9ylAPeEqz0yOhQaZq2
+	7uwmZC6QGWzFT1tKjtfO5FkcvRUJGtQ8RaQij8zpSdj7/UbltIBWGVrKwYgIMm0C
+	Npjg9W6nyFaxazNelj5q37KZR3sbafLkFMnKAELpLCFRHdvAOrXF1mVeAi2XG3U2
+	s3FaGsr6Zz1qoM7/X0ZbzvaLrO16SCVCCTyzaEqZXxW0K3BEqgNDXMvIyWTztiu8
+	aqJPYRPsyLvMbYIshgr1F4Sbxtf4y+V8Ey0wyyDshM5oqp26DEKwbhWGxmxM0otW
+	yUpFhl1JM8WvFR6qyAdHtV6HrFpqg==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42m52c97rk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 31 Oct 2024 12:03:21 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49VBI8p4015899;
+	Thu, 31 Oct 2024 12:03:20 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 42hdf1mbxg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 31 Oct 2024 12:03:20 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49VC3H0t40698144
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 31 Oct 2024 12:03:17 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2F66320043;
+	Thu, 31 Oct 2024 12:03:17 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 83FAC2004B;
+	Thu, 31 Oct 2024 12:03:16 +0000 (GMT)
+Received: from p-imbrenda.ibmuc.com (unknown [9.171.69.120])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 31 Oct 2024 12:03:16 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: borntraeger@de.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
+        frankja@linux.ibm.com, seiden@linux.ibm.com, hca@linux.ibm.com,
+        agordeev@linux.ibm.com, gor@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH v1 1/1] s390/kvm: mask extra bits from program interrupt code
+Date: Thu, 31 Oct 2024 13:03:16 +0100
+Message-ID: <20241031120316.25462-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v3 0/6] Direct Map Removal for guest_memfd
-To: David Hildenbrand <david@redhat.com>, <tabba@google.com>,
-	<quic_eberman@quicinc.com>, <seanjc@google.com>, <pbonzini@redhat.com>,
-	<jthoughton@google.com>, <ackerleytng@google.com>, <vannapurve@google.com>,
-	<rppt@kernel.org>
-CC: <graf@amazon.com>, <jgowans@amazon.com>, <derekmn@amazon.com>,
-	<kalyazin@amazon.com>, <xmarcalx@amazon.com>, <linux-mm@kvack.org>,
-	<corbet@lwn.net>, <catalin.marinas@arm.com>, <will@kernel.org>,
-	<chenhuacai@kernel.org>, <kernel@xen0n.name>, <paul.walmsley@sifive.com>,
-	<palmer@dabbelt.com>, <aou@eecs.berkeley.edu>, <hca@linux.ibm.com>,
-	<gor@linux.ibm.com>, <agordeev@linux.ibm.com>, <borntraeger@linux.ibm.com>,
-	<svens@linux.ibm.com>, <gerald.schaefer@linux.ibm.com>, <tglx@linutronix.de>,
-	<mingo@redhat.com>, <bp@alien8.de>, <dave.hansen@linux.intel.com>,
-	<x86@kernel.org>, <hpa@zytor.com>, <luto@kernel.org>, <peterz@infradead.org>,
-	<rostedt@goodmis.org>, <mhiramat@kernel.org>,
-	<mathieu.desnoyers@efficios.com>, <shuah@kernel.org>, <kvm@vger.kernel.org>,
-	<linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <loongarch@lists.linux.dev>,
-	<linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-	<linux-trace-kernel@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
-References: <20241030134912.515725-1-roypat@amazon.co.uk>
- <4aa0ccf4-ebbe-4244-bc85-8bc8dcd14e74@redhat.com>
-From: Patrick Roy <roypat@amazon.co.uk>
-Content-Language: en-US
-Autocrypt: addr=roypat@amazon.co.uk; keydata=
- xjMEY0UgYhYJKwYBBAHaRw8BAQdA7lj+ADr5b96qBcdINFVJSOg8RGtKthL5x77F2ABMh4PN
- NVBhdHJpY2sgUm95IChHaXRodWIga2V5IGFtYXpvbikgPHJveXBhdEBhbWF6b24uY28udWs+
- wpMEExYKADsWIQQ5DAcjaM+IvmZPLohVg4tqeAbEAgUCY0UgYgIbAwULCQgHAgIiAgYVCgkI
- CwIEFgIDAQIeBwIXgAAKCRBVg4tqeAbEAmQKAQC1jMl/KT9pQHEdALF7SA1iJ9tpA5ppl1J9
- AOIP7Nr9SwD/fvIWkq0QDnq69eK7HqW14CA7AToCF6NBqZ8r7ksi+QLOOARjRSBiEgorBgEE
- AZdVAQUBAQdAqoMhGmiXJ3DMGeXrlaDA+v/aF/ah7ARbFV4ukHyz+CkDAQgHwngEGBYKACAW
- IQQ5DAcjaM+IvmZPLohVg4tqeAbEAgUCY0UgYgIbDAAKCRBVg4tqeAbEAtjHAQDkh5jZRIsZ
- 7JMNkPMSCd5PuSy0/Gdx8LGgsxxPMZwePgEAn5Tnh4fVbf00esnoK588bYQgJBioXtuXhtom
- 8hlxFQM=
-In-Reply-To: <4aa0ccf4-ebbe-4244-bc85-8bc8dcd14e74@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Qj_0wnjad3No7P3g8mDomxTi9CIg2yz4
+X-Proofpoint-ORIG-GUID: Qj_0wnjad3No7P3g8mDomxTi9CIg2yz4
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
+ mlxlogscore=587 mlxscore=0 suspectscore=0 priorityscore=1501 bulkscore=0
+ clxscore=1015 phishscore=0 lowpriorityscore=0 malwarescore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
+ definitions=main-2410310091
 
-On Thu, 2024-10-31 at 09:50 +0000, David Hildenbrand wrote:
-> On 30.10.24 14:49, Patrick Roy wrote:
->> Unmapping virtual machine guest memory from the host kernel's direct map
->> is a successful mitigation against Spectre-style transient execution
->> issues: If the kernel page tables do not contain entries pointing to
->> guest memory, then any attempted speculative read through the direct map
->> will necessarily be blocked by the MMU before any observable
->> microarchitectural side-effects happen. This means that Spectre-gadgets
->> and similar cannot be used to target virtual machine memory. Roughly 60%
->> of speculative execution issues fall into this category [1, Table 1].
->>
->> This patch series extends guest_memfd with the ability to remove its
->> memory from the host kernel's direct map, to be able to attain the above
->> protection for KVM guests running inside guest_memfd.
->>
->> === Changes to v2 ===
->>
->> - Handle direct map removal for physically contiguous pages in arch code
->>    (Mike R.)
->> - Track the direct map state in guest_memfd itself instead of at the
->>    folio level, to prepare for huge pages support (Sean C.)
->> - Allow configuring direct map state of not-yet faulted in memory
->>    (Vishal A.)
->> - Pay attention to alignment in ftrace structs (Steven R.)
->>
->> Most significantly, I've reduced the patch series to focus only on
->> direct map removal for guest_memfd for now, leaving the whole "how to do
->> non-CoCo VMs in guest_memfd" for later. If this separation is
->> acceptable, then I think I can drop the RFC tag in the next revision
->> (I've mainly kept it here because I'm not entirely sure what to do with
->> patches 3 and 4).
-> 
-> Hi,
-> 
-> keeping upcoming "shared and private memory in guest_memfd" in mind, I
-> assume the focus would be to only remove the direct map for private memory?
-> 
-> So in the current upstream state, you would only be removing the direct
-> map for private memory, currently translating to "encrypted"/"protected"
-> memory that is inaccessible either way already.
-> 
-> Correct?
+The program interrupt code has some extra bits that are sometimes set
+by hardware for various reasons; those bits should be ignored when the
+program interrupt number is needed for interrupt handling.
 
-Yea, with the upcomming "shared and private" stuff, I would expect the
-the shared<->private conversions would call the routines from patch 3 to
-restore direct map entries on private->shared, and zap them on
-shared->private.
+Fixes: ce2b276ebe51 ("s390/mm/fault: Handle guest-related program interrupts in KVM")
+Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-But as you said, the current upstream state has no notion of "shared"
-memory in guest_memfd, so everything is private and thus everything is
-direct map removed (although it is indeed already inaccessible anyway
-for TDX and friends. That's what makes this patch series a bit awkward
-:( )
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 8b3afda99397..f2d1351f6992 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4737,7 +4737,7 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
+ 	if (kvm_s390_cur_gmap_fault_is_write())
+ 		flags = FAULT_FLAG_WRITE;
+ 
+-	switch (current->thread.gmap_int_code) {
++	switch (current->thread.gmap_int_code & PGM_INT_CODE_MASK) {
+ 	case 0:
+ 		vcpu->stat.exit_null++;
+ 		break;
+-- 
+2.47.0
 
-> -- 
-> Cheers,
-> 
-> David / dhildenb
-> 
-
-Best, 
-Patrick
