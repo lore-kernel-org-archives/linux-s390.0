@@ -1,82 +1,82 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBCF719AD78;
-	Thu, 31 Oct 2024 14:52:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 614D81A01C6;
+	Thu, 31 Oct 2024 14:57:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730386338; cv=none; b=J+2JPUlCkI39fUY/DXE6m3e/Q2gyRhAA74vVkPmaV8eMA/DW5N8MHz/ASHXu2XsRqGVtfpq5Zmj4k1Y8xZgYSFVYTXktNCPmQkEj/QYhH6qQ7YULO2k7GTDaukjk9QOCCmP35mkYFfQEr3piIImbf6Y/NCRB85JCQVBuIUPe80g=
+	t=1730386632; cv=none; b=GZt4PbneADZ6TwDGQ0n4Bku8cggsJVBK+IKz4YELmhqeHLk00OTvtI5vlb5LqvvDVxqoppvWxKFoyVnVTVKHEhc9gqaFS8xc754nYcb/zrTDl7tkYyHuRk58iwaM/5jQ96nGwJDqAeS4q/XD1XluqUcj9Xmf1O1PJa0yLMunKMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730386338; c=relaxed/simple;
-	bh=2nxpmqk4qNJOrhJC1KFlRwea3LTbAEa5eA1ZIPaKIsc=;
+	s=arc-20240116; t=1730386632; c=relaxed/simple;
+	bh=1yQ5OPuuQi/uXkPJsoL1Q6gToqNfv0k7XkIu1spX//4=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=nDiKashDhyD/JXivP0ol5hYZMtezYd+zzELRGfvJUP31HkggvwjwUyQLeO1mNmbkAr02WN6hVrLgrn+JuQJdsxeYdSq+lexzNlYYnNz//UYOnYYQnS7nuMjDnJjYUYOdXYxxgg1xuaLSrwfYfcz+yXqLa2lP9XbR5akh04Z9M08=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Aail3gZw; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:MIME-Version; b=LA1slQWUNIaM32Wy42J1K5OsE9zUniAApdgsrPPKzIOsI5YA20GKuMvvAtZdgwBnk7jT8WeDAZzGqzEkZDpyNLq3cO5kbLPwhyLthoIm6FnVGhJHwtOyBfrBOHJlCThinMRfdjrydpErBePyCGLuhrmwTx0MvcBNg0uYm0vXIQQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=W+boXa2k; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Aail3gZw"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49V2ivUw012608;
-	Thu, 31 Oct 2024 14:52:06 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="W+boXa2k"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49V2jDmC000401;
+	Thu, 31 Oct 2024 14:56:58 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=eMehb8
-	yZLbrGamAQxaO+5FS89f8D8W8mRO1fH7L4EBE=; b=Aail3gZwnLwbhByxbfxKhy
-	M9zxfaQ9+xBCXfwr10bTvme//9oaXij3VdLxOlTU5YlAndJybTePMWg2bKahVSgP
-	nqcAMs5CE0Y4xbjjBpMY5OfaI+q7/M1/S6/XNIKMOhxw+fXcZ+dmid403hmiQwZx
-	75P1Dh5igl1Ap7ccYf3mbXPMr0QcNjGm+GTgarquR768g6QI9tGnH/tWsZKHTkfG
-	XSmHF3tLt05IZobL/c0xyd2ca0OGwnCHAGIhaYJOiaUhQyl+rG8/hZlOsVn/k6Tu
-	lvwhmK+fM8GzkTXOkz5jegJ1HFuDIWn9Z34ggGYVvhDDXPI/+0wtK1O6NqRPiioA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=LSh8xK
+	5yqliL0HYBXZmT0bHiP4UGC1lgBePWTbzhDl0=; b=W+boXa2ks9A85zEPDlwg2T
+	3k2d89L7aOopYe9WHjEgbhAFmx26IiEQfrYvRogMIkADaeH0oQdVSjJJorjspcf4
+	EQDs69ej2EP9a0WKVgv6t80CKT3BsL+r54qbaPku0CGNFKiwZ0ZpT9ezP8slWFHu
+	+BMzqo1/SSsNq0QVSMx3tlu3R5aGZC49/2/KZY2/VYIoAJHRjoMryqJNuxlqFUG3
+	5KCALLkGcHBlzqzXlOyvoA+zuUOt9tRYOTyp4NxEkOTdA2U2vaa2etD/WHnIhG/W
+	Bzpyqjkgt6k7hz/1/VO9FwlLacb/V0F5x+oSsxHzTweOKVmgRqGNyZ8GneaTpwRw
 	==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42j3nt5c1u-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42jb65rfu7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 31 Oct 2024 14:52:06 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49VElC8i007486;
-	Thu, 31 Oct 2024 14:52:05 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42j3nt5c1r-1
+	Thu, 31 Oct 2024 14:56:58 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49VEuvtw018322;
+	Thu, 31 Oct 2024 14:56:57 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42jb65rfu1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 31 Oct 2024 14:52:05 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49VB3UHi015831;
-	Thu, 31 Oct 2024 14:52:04 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 42hdf1mx4u-1
+	Thu, 31 Oct 2024 14:56:57 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49VEG86S013670;
+	Thu, 31 Oct 2024 14:56:57 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42hbrn5a23-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 31 Oct 2024 14:52:04 +0000
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49VEq2Wd48693792
+	Thu, 31 Oct 2024 14:56:57 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49VEuuTj49545726
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 31 Oct 2024 14:52:03 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B7D7B5805C;
-	Thu, 31 Oct 2024 14:52:02 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DDC8358051;
-	Thu, 31 Oct 2024 14:52:00 +0000 (GMT)
+	Thu, 31 Oct 2024 14:56:56 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 03C1058056;
+	Thu, 31 Oct 2024 14:56:56 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2DF0758052;
+	Thu, 31 Oct 2024 14:56:54 +0000 (GMT)
 Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.67.19.177])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 31 Oct 2024 14:52:00 +0000 (GMT)
-Message-ID: <3713941b040d7ba2528c11b820bbb362a17b33d9.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 0/7] virtio-mem: s390 support
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 31 Oct 2024 14:56:53 +0000 (GMT)
+Message-ID: <7aa84534df1a6637bebd60e628500f6dbad47c05.camel@linux.ibm.com>
+Subject: Re: [PATCH v3 1/7] Documentation: s390-diag.rst: make diag500 a
+ generic KVM hypercall
 From: Eric Farman <farman@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens
-	 <hca@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        virtualization@lists.linux.dev, linux-doc@vger.kernel.org,
+        kvm@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik
  <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven
- Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-        Cornelia
- Huck <cohuck@redhat.com>,
+        Christian
+ Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck
+ <cohuck@redhat.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Claudio
  Imbrenda <imbrenda@linux.ibm.com>,
@@ -86,14 +86,11 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
         Eugenio =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
         Andrew Morton
  <akpm@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Hendrik
- Brueckner <brueckner@linux.ibm.com>
-Date: Thu, 31 Oct 2024 10:52:00 -0400
-In-Reply-To: <67a85d88-6705-4e8e-ba48-7b945aca4d8f@linux.ibm.com>
+        Jonathan Corbet <corbet@lwn.net>
+Date: Thu, 31 Oct 2024 10:56:53 -0400
+In-Reply-To: <20241025141453.1210600-2-david@redhat.com>
 References: <20241025141453.1210600-1-david@redhat.com>
-	 <20241030093453.6264-H-hca@linux.ibm.com>
-	 <67a85d88-6705-4e8e-ba48-7b945aca4d8f@linux.ibm.com>
+	 <20241025141453.1210600-2-david@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 User-Agent: Evolution 3.52.4 (3.52.4-2.fc40) 
@@ -104,67 +101,32 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: RZZHKLG0DjRZaVpObym4PP_q71cjF6_I
-X-Proofpoint-GUID: S4IY6Vq2BQurOvyMtvCHK31wWN3P9WEN
+X-Proofpoint-ORIG-GUID: 1T_xI4u9IKJpgvf4LBInHV3e2-xkpAfW
+X-Proofpoint-GUID: n_TgE2SuFctjzTmTDSTHmywe8zj19dOf
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- bulkscore=0 mlxlogscore=999 clxscore=1011 priorityscore=1501
- suspectscore=0 lowpriorityscore=0 mlxscore=0 impostorscore=0
- malwarescore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1015 adultscore=0 phishscore=0 bulkscore=0 mlxlogscore=634
+ impostorscore=0 spamscore=0 suspectscore=0 mlxscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2409260000 definitions=main-2410310110
 
-On Wed, 2024-10-30 at 17:49 +0100, Christian Borntraeger wrote:
+On Fri, 2024-10-25 at 16:14 +0200, David Hildenbrand wrote:
+> Let's make it a generic KVM hypercall, allowing other subfunctions to
+> be more independent of virtio.
 >=20
-> Am 30.10.24 um 10:34 schrieb Heiko Carstens:
-> > On Fri, Oct 25, 2024 at 04:14:45PM +0200, David Hildenbrand wrote:
-> > > Let's finally add s390 support for virtio-mem; my last RFC was sent
-> > > 4 years ago, and a lot changed in the meantime.
-> > >=20
-> > > The latest QEMU series is available at [1], which contains some more
-> > > details and a usage example on s390 (last patch).
-> > >=20
-> > > There is not too much in here: The biggest part is querying a new dia=
-g(500)
-> > > STORAGE_LIMIT hypercall to obtain the proper "max_physmem_end".
-> >=20
-> > ...
-> >=20
-> > > David Hildenbrand (7):
-> > >    Documentation: s390-diag.rst: make diag500 a generic KVM hypercall
-> > >    Documentation: s390-diag.rst: document diag500(STORAGE LIMIT)
-> > >      subfunction
-> > >    s390/physmem_info: query diag500(STORAGE LIMIT) to support QEMU/KV=
-M
-> > >      memory devices
-> > >    virtio-mem: s390 support
-> > >    lib/Kconfig.debug: default STRICT_DEVMEM to "y" on s390
-> > >    s390/sparsemem: reduce section size to 128 MiB
-> > >    s390/sparsemem: provide memory_add_physaddr_to_nid() with CONFIG_N=
-UMA
-> > >=20
-> > >   Documentation/virt/kvm/s390/s390-diag.rst | 35 +++++++++++++----
-> > >   arch/s390/boot/physmem_info.c             | 47 ++++++++++++++++++++=
-++-
-> > >   arch/s390/boot/startup.c                  |  7 +++-
-> > >   arch/s390/include/asm/physmem_info.h      |  3 ++
-> > >   arch/s390/include/asm/sparsemem.h         | 10 ++++-
-> > >   drivers/virtio/Kconfig                    | 12 +++---
-> > >   lib/Kconfig.debug                         |  2 +-
-> > >   7 files changed, 98 insertions(+), 18 deletions(-)
-> >=20
-> > I'll apply the whole series as soon as there are ACKs for the third
-> > patch, and from the KVM guys for the whole series.
-> > Christian, Janosch, Claudio?
+> While at it, document that unsupported/unimplemented subfunctions result
+> in a SPECIFICATION exception.
 >=20
-> Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> for the series.
->=20
-> @Eric Farman,
-> Was someone from your team planning to look into this (testing, review wh=
-atever)?
+> This is a preparation for documenting a new hypercall.
 
-The guy that was testing it just got back from a long holiday. I'll ping hi=
-m and see if he can chime
-in here.
+s/hypercall/subfunction/ ?
+
+>=20
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  Documentation/virt/kvm/s390/s390-diag.rst | 18 +++++++++++-------
+>  1 file changed, 11 insertions(+), 7 deletions(-)
+
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
