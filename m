@@ -1,197 +1,215 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4CBF19885F
-	for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2024 09:57:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85C9F19538D;
+	Thu, 31 Oct 2024 09:58:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730368650; cv=none; b=lxURafbuVEUg4zS0CQTnP96csyMXo/DAIROceP45HRYtCM5v8OuEfyUjgrouTGsm7LpcK/lvVKjCEwJw3foRqb1jUdt2rM0rwj7B7f6eFpmtvDTvWnL08KogEjDygFEbzQgSVlXdBeIBa+m6Y2spywxzVRWX0uDCI4nFiw3sNpA=
+	t=1730368739; cv=none; b=ld0rCyOR5uDpQ+fxVppx06ZeT0dU1+F/JjkUMDJ9L+5LmBWIGyi1QosmHlGAzMDqbaN2/UKrc50ZKKvG7P1ZoeJR9YQSttbYPkwPRbQLtTdqyJpv15fTqtq0/CJ8tLhmql1rMNH9++2XRpAwWCat0Uqn8YhfaNfvWk3yRQEy4Sg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730368650; c=relaxed/simple;
-	bh=13eghfT8yLaHx96wZhWKC7DsHhPBihpYadIGFzJ2Nwc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RIPIamEoRRD36cAoeqyQauIX1k1mOPVHwq0AxV8u993OVkOE0cLlvR3rb7roWdGnoWcAm7tSyUMvgpGNUg0+uycPOh8LKJ5dZvafqnCGPVBNCmGWAikNWBH3O4W3zT4lzXiDc1QYbzvMJmnKO1o5w4NQMOECOvYFIrUdreNGjS4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ToYbrV/T; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1730368739; c=relaxed/simple;
+	bh=+ayMeQelMoVwDcllnti8Ixel1VjIXot/5wDHLedscUk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Iw/7Zj0o2EINQyqGM4NbjkQ1s1haxDhhEEnUwOjHM0FkCcBcZj5aAhoyXWWpMQQGA5407MiT34FcHWhA9AF+nandh6VksEw+kTihgiYvQUZxzxCxNQEFu6njK7k7dVjQa5QIj3t+FvBWIhXMZ6lzPq+0ppT/hfpYEr8vZnPD5mU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eXRlWaiE; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ToYbrV/T"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730368647;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=B7rUylMoiJ32y2mf0MmXQsKypLnMwGBu8KDma38hXgg=;
-	b=ToYbrV/TfFc63j2jeJ9F8RQYd9kaB4vkJuiyzdPE5Su5YgNLovW5pY1VI1ZUHkag6BD6M0
-	kiN6Zf/jqqTF/hVv//EbAKEAzYq1onG3A2AWpgmdGhVnJzW8ZE3cpIFpf/mLhRWOqJWBhk
-	4nOYtVRXb9e+8+3Pk+cIZJ5+lO19NuE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-615-WWyRlBtKOReap-2KpMhgzg-1; Thu, 31 Oct 2024 05:57:26 -0400
-X-MC-Unique: WWyRlBtKOReap-2KpMhgzg-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-37d609ef9f7so402244f8f.3
-        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2024 02:57:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730368645; x=1730973445;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=B7rUylMoiJ32y2mf0MmXQsKypLnMwGBu8KDma38hXgg=;
-        b=wLrj3sD+O0r+OROy+3CIgbxCzfn9ACc5TzVqCGbszyzJBw4tmPb/9Ti+ivrZSMP64U
-         3Rk4apg7kNHZjyOCOVTC4NDG4jyqe4iJBHAP3ck8ElD/V+a170dNrpg3rqQDZEC36RGa
-         TLv7mL1dX0J9EnTQNWQ6zM48lsiWYm2qMBCuJbu/UeLCNHnW1jqrqQCgxv3kKFegWvDf
-         565RmFYJokSHtsezFSGwNca6UXcFuLZkUXrUuMIvmbMAHjTA+0eho2mlJCmEblOgP6wE
-         Am2557vUfTaIS56Y8hA27am8Ctn64nJQUy7ELMNk84a+CrFtQRkOpjeiWdN3QXL1UXtP
-         3PUw==
-X-Forwarded-Encrypted: i=1; AJvYcCViOQjtADWa503VVgDF8nFoqIHgRZpJpIps8vMuK6f6qteplriINsmEVT28Ly7++JA9i2HeyZreJhHp@vger.kernel.org
-X-Gm-Message-State: AOJu0YxXZ1GeB3nhUgQqMzjyEF6JNPIiFjpttJokq9iCPHtiblGZzGIY
-	AOV2wHIlRLG+EMTHvlDTjaIBwPqHe1EJOif6qmt/LpPYbytkebIk8nwg4bYNDhZN8oCOKwsmuV5
-	A1LcZ3aT8DC4tcinLYxYVAgKRYBY8+ikcX+wpZ/aa6ZzDBtUAHR9ktjLRZUU=
-X-Received: by 2002:a5d:6d8b:0:b0:374:c31e:9721 with SMTP id ffacd0b85a97d-381be906fb1mr1924007f8f.42.1730368644904;
-        Thu, 31 Oct 2024 02:57:24 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGB5YibDMb1v+9lfgYV8B9TgwSctIaUJV5dcpKC4opd7SH8qkWAYMYCwwnkwClMNCW9rRk/3g==
-X-Received: by 2002:a5d:6d8b:0:b0:374:c31e:9721 with SMTP id ffacd0b85a97d-381be906fb1mr1923969f8f.42.1730368644438;
-        Thu, 31 Oct 2024 02:57:24 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c70a:ed00:7ddf:1ea9:4f7a:91fe? (p200300cbc70aed007ddf1ea94f7a91fe.dip0.t-ipconnect.de. [2003:cb:c70a:ed00:7ddf:1ea9:4f7a:91fe])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-381c116a781sm1611441f8f.96.2024.10.31.02.57.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 31 Oct 2024 02:57:24 -0700 (PDT)
-Message-ID: <a774e13e-0616-4d96-bb51-bac0fcb2cb9b@redhat.com>
-Date: Thu, 31 Oct 2024 10:57:21 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eXRlWaiE"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49V2jCEc000381;
+	Thu, 31 Oct 2024 09:58:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=XP3siNQlvKdGFWT11pXCzmzCXCjXmKichlPYLUtej
+	JM=; b=eXRlWaiEICtdKZRRheV6PLGPj0rV4kfKpMXgylIrBoaz6yzJZmwwpY4RB
+	nQ21heiameNEE01rV5W/dK0CQOnK4BlCjftkMAzJg8y3JB3LjhGoZuWqWEAVvekw
+	dBVSdgNJOn4cnOK0qoQhIE5JT1V2CfQra4EjNpYF+e86ofaRETLVaJU1iqRGPz1b
+	HNdBNuiycaXHA7y/B6WKumA4vU/7OCc/lp0p7E3V9n+pw768HlbB0W6QwuQv1Wzp
+	hwEzdFTWFWGD5XNpbxlJtf/reo5Kd0fNCfPSrgO8vsmvlsfZsSUkVtO2U1BsrGyK
+	Oq/ySKs8dqCqgDkVNSOM5yLOdjoQw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42jb65q8vy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 31 Oct 2024 09:58:55 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49V60oRX024560;
+	Thu, 31 Oct 2024 09:58:55 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 42hcyjm0v9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 31 Oct 2024 09:58:55 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49V9wpUG39321910
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 31 Oct 2024 09:58:51 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6D59E2029F;
+	Thu, 31 Oct 2024 09:35:41 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4746B2029D;
+	Thu, 31 Oct 2024 09:35:41 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 31 Oct 2024 09:35:41 +0000 (GMT)
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Ingo Franzki <ifranzki@linux.ibm.com>,
+        Christoph Schlameuss <schlameuss@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, borntraeger@linux.ibm.com
+Subject: [PATCH v2] s390/uvdevice: Support longer secret lists
+Date: Thu, 31 Oct 2024 10:35:41 +0100
+Message-ID: <20241031093541.1641849-1-seiden@linux.ibm.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v3 1/6] arch: introduce set_direct_map_valid_noflush()
-To: Patrick Roy <roypat@amazon.co.uk>, tabba@google.com,
- quic_eberman@quicinc.com, seanjc@google.com, pbonzini@redhat.com,
- jthoughton@google.com, ackerleytng@google.com, vannapurve@google.com,
- rppt@kernel.org
-Cc: graf@amazon.com, jgowans@amazon.com, derekmn@amazon.com,
- kalyazin@amazon.com, xmarcalx@amazon.com, linux-mm@kvack.org,
- corbet@lwn.net, catalin.marinas@arm.com, will@kernel.org,
- chenhuacai@kernel.org, kernel@xen0n.name, paul.walmsley@sifive.com,
- palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
- svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, tglx@linutronix.de,
- mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
- hpa@zytor.com, luto@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
- mhiramat@kernel.org, mathieu.desnoyers@efficios.com, shuah@kernel.org,
- kvm@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linux-kselftest@vger.kernel.org
-References: <20241030134912.515725-1-roypat@amazon.co.uk>
- <20241030134912.515725-2-roypat@amazon.co.uk>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20241030134912.515725-2-roypat@amazon.co.uk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: YPwz-f_llA14oVPVsJVOhwrb3eT1WLYl
+X-Proofpoint-GUID: YPwz-f_llA14oVPVsJVOhwrb3eT1WLYl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1015 adultscore=0 phishscore=0 bulkscore=0 mlxlogscore=937
+ impostorscore=0 spamscore=0 suspectscore=0 mlxscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410310074
 
-On 30.10.24 14:49, Patrick Roy wrote:
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-> 
-> From: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> 
-> Add an API that will allow updates of the direct/linear map for a set of
-> physically contiguous pages.
-> 
-> It will be used in the following patches.
-> 
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> Signed-off-by: Patrick Roy <roypat@amazon.co.uk>
+Enable the list IOCTL to provide lists longer than on page (85 entries).
+The list IOCTL accepts argument length up to 8 pages in page granularity
+and will fill the argument up to this length with entries until the list
+ends. User space unaware of this enhancement will still receive one page
+of data and an uv_rc 0x0100.
 
+Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+---
+Reworked the whole list-creation loop. Hardened+simplified the implementation.
+Now, only the actual data filled by the CP is copied to userspace.
 
-[...]
+ arch/s390/include/uapi/asm/uvdevice.h |  1 +
+ drivers/s390/char/uvdevice.c          | 72 ++++++++++++++++++++-------
+ 2 files changed, 54 insertions(+), 19 deletions(-)
 
->   #ifdef CONFIG_DEBUG_PAGEALLOC
->   void __kernel_map_pages(struct page *page, int numpages, int enable)
->   {
-> diff --git a/include/linux/set_memory.h b/include/linux/set_memory.h
-> index e7aec20fb44f1..3030d9245f5ac 100644
-> --- a/include/linux/set_memory.h
-> +++ b/include/linux/set_memory.h
-> @@ -34,6 +34,12 @@ static inline int set_direct_map_default_noflush(struct page *page)
->   	return 0;
->   }
->   
-> +static inline int set_direct_map_valid_noflush(struct page *page,
-> +					       unsigned nr, bool valid)
-
-I recall that "unsigned" is frowned upon; "unsigned int".
-
-> +{
-> +	return 0;
-> +}
-
-Can we add some kernel doc for this?
-
-In particular
-
-(a) What does it mean when we return 0? That it worked? Then, this
-     dummy function looks wrong. Or this it return the
-     number of processed entries? Then we'd have a possible "int" vs.
-     "unsigned int" inconsistency.
-
-(b) What are the semantics when we fail halfway through the operation
-     when processing nr > 1? Is it "all or nothing"?
-
-
+diff --git a/arch/s390/include/uapi/asm/uvdevice.h b/arch/s390/include/uapi/asm/uvdevice.h
+index 4947f26ad9fb..c584250d4a35 100644
+--- a/arch/s390/include/uapi/asm/uvdevice.h
++++ b/arch/s390/include/uapi/asm/uvdevice.h
+@@ -71,6 +71,7 @@ struct uvio_uvdev_info {
+ #define UVIO_ATT_ADDITIONAL_MAX_LEN	0x8000
+ #define UVIO_ADD_SECRET_MAX_LEN		0x100000
+ #define UVIO_LIST_SECRETS_LEN		0x1000
++#define UVIO_LIST_SECRETS_MAX_LEN	0x8000
+ #define UVIO_RETR_SECRET_MAX_LEN	0x2000
+ 
+ #define UVIO_DEVICE_NAME "uv"
+diff --git a/drivers/s390/char/uvdevice.c b/drivers/s390/char/uvdevice.c
+index 1f90976293e8..667d573e54b0 100644
+--- a/drivers/s390/char/uvdevice.c
++++ b/drivers/s390/char/uvdevice.c
+@@ -297,6 +297,43 @@ static int uvio_add_secret(struct uvio_ioctl_cb *uv_ioctl)
+ 	return ret;
+ }
+ 
++/*
++ * Do the actual secret list creation. Calls the list-UVC until there is no more
++ * space in the user buffer, or the list ends.
++ */
++static int uvio_get_list(void *zpage, struct uvio_ioctl_cb *uv_ioctl)
++{
++	const size_t data_off = offsetof(struct uv_secret_list, secrets);
++	u8 __user *user_buf = (u8 __user *)uv_ioctl->argument_addr;
++	struct uv_secret_list *list = zpage;
++	u16 num_secrets_stored = 0;
++	size_t user_off = data_off;
++	size_t copy_len;
++
++	do {
++		uv_list_secrets(list, list->next_secret_idx, &uv_ioctl->uv_rc,
++				&uv_ioctl->uv_rrc);
++		if (uv_ioctl->uv_rc != UVC_RC_EXECUTED &&
++		    uv_ioctl->uv_rc != UVC_RC_MORE_DATA)
++			break;
++
++		copy_len = sizeof(list->secrets[0]) * list->num_secr_stored;
++		WARN_ON(copy_len > sizeof(list->secrets));
++
++		if (copy_to_user(user_buf + user_off, list->secrets, copy_len))
++			return -EFAULT;
++
++		user_off += copy_len;
++		num_secrets_stored += list->num_secr_stored;
++	} while (uv_ioctl->uv_rc == UVC_RC_MORE_DATA &&
++		 user_off + sizeof(*list) <= uv_ioctl->argument_len);
++
++	list->num_secr_stored = num_secrets_stored;
++	if (copy_to_user(user_buf, list, data_off))
++		return -EFAULT;
++	return 0;
++}
++
+ /** uvio_list_secrets() - perform a List Secret UVC
+  * @uv_ioctl: ioctl control block
+  *
+@@ -308,6 +345,12 @@ static int uvio_add_secret(struct uvio_ioctl_cb *uv_ioctl)
+  *
+  * The argument specifies the location for the result of the UV-Call.
+  *
++ * Argument len must be a multiple of a page; 1-8 pages allowed.
++ * The list secrets IOCTL will call the list UVC multiple times and fill
++ * the provided user-buffer with list elements until either the list ends or
++ * the buffer is full. The list header is merged over all list header from the
++ * individual UVCs.
++ *
+  * If the List Secrets UV facility is not present, UV will return invalid
+  * command rc. This won't be fenced in the driver and does not result in a
+  * negative return value.
+@@ -318,31 +361,22 @@ static int uvio_add_secret(struct uvio_ioctl_cb *uv_ioctl)
+  */
+ static int uvio_list_secrets(struct uvio_ioctl_cb *uv_ioctl)
+ {
+-	void __user *user_buf_arg = (void __user *)uv_ioctl->argument_addr;
+-	struct uv_cb_guest_addr uvcb = {
+-		.header.len = sizeof(uvcb),
+-		.header.cmd = UVC_CMD_LIST_SECRETS,
+-	};
+-	void *secrets = NULL;
+-	int ret = 0;
++	void *zpage = NULL;
++	int rc;
+ 
+-	if (uv_ioctl->argument_len != UVIO_LIST_SECRETS_LEN)
++	if (uv_ioctl->argument_len == 0 ||
++	    uv_ioctl->argument_len % UVIO_LIST_SECRETS_LEN != 0 ||
++	    uv_ioctl->argument_len > UVIO_LIST_SECRETS_MAX_LEN)
+ 		return -EINVAL;
+ 
+-	secrets = kvzalloc(UVIO_LIST_SECRETS_LEN, GFP_KERNEL);
+-	if (!secrets)
++	zpage = (void *)get_zeroed_page(GFP_KERNEL);
++	if (!zpage)
+ 		return -ENOMEM;
+ 
+-	uvcb.addr = (u64)secrets;
+-	uv_call_sched(0, (u64)&uvcb);
+-	uv_ioctl->uv_rc = uvcb.header.rc;
+-	uv_ioctl->uv_rrc = uvcb.header.rrc;
+-
+-	if (copy_to_user(user_buf_arg, secrets, UVIO_LIST_SECRETS_LEN))
+-		ret = -EFAULT;
++	rc = uvio_get_list(zpage, uv_ioctl);
+ 
+-	kvfree(secrets);
+-	return ret;
++	free_page((unsigned long)zpage);
++	return rc;
+ }
+ 
+ /** uvio_lock_secrets() - perform a Lock Secret Store UVC
 -- 
-Cheers,
-
-David / dhildenb
+2.45.2
 
