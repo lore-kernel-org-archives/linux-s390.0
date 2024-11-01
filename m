@@ -1,121 +1,128 @@
-Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3801F1C304F
-	for <linux-s390@vger.kernel.org>; Fri,  1 Nov 2024 15:18:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29D281B4F2D;
+	Fri,  1 Nov 2024 16:07:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730474296; cv=none; b=UA0OWMgTM2ejxKBdSZFOxIQfloJ17Pz+nD2XchqM1Px6npqGe1GVQCHI1dOpx2MEA6UWIi3GgneYzsDlivRZkxrSisZGYNhajH0hzbvilgLXk/sjtuwRjrWC5BeLDJ9Jc9nGsqIHdUb8x8zgUWjzgMI8pQTzhjZeDMoHrWX5zbI=
+	t=1730477244; cv=none; b=BNPpNX455tXkCaxCXt4PKdGVKMj+F42bGnRl00/+cWlt1Glo1LOtSeNekNtX1bZugU0YOAOnZbYs0neGNJnE5MKR34fdHvAinLqJGOsReqzoLQvRnFAPxLjhJiXHWCgWwi/t+67q1zqHq6tjcvdP2AQRFbrAPs0uDI2cM/ixO1E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730474296; c=relaxed/simple;
-	bh=xGkv3LzrhtoCbCqtDpE3y3Q0GFXGAU72Ny2WiKf/Iuk=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=b3jM06v8P/gC3/GSGTgvAsyj82pc2dNqEJwGxzTyI8BG+/l35lMHyyb34krj95mIKhRbAZba/7tg6ncylgJAr9pFQBr3bCvIgpB79EX9590DamMqz1hb5VTkQSVt2GY3gZh0TiNg52911EI9mnPu31yQLT8wZSP27rEA6SuxpUU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=bYuZc2if; arc=none smtp.client-ip=209.85.128.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1730477244; c=relaxed/simple;
+	bh=RahQfZ/XUlkIuOR+dTOjhXIg4K5uTPhllesohsmYC0M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hEcNbdeXFjAokGXeLXy3lIHvh+cTupHCSIfSD/XdLRGHpAPELhXcC9fjs1YAeLhTPxDIWUzQtI/eopeaZms9T2+gRpYabG8vcyQM/mNw7NiAXl3Jg3IYHyFaM6C/+tGiPFG3ax6aWVApYIYEXVSskj5t76RkUv8gNQk/ACTDA50=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=E6ip0iLY; arc=none smtp.client-ip=192.198.163.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="bYuZc2if"
-Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-6e3d660a1afso42787327b3.0
-        for <linux-s390@vger.kernel.org>; Fri, 01 Nov 2024 08:18:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1730474293; x=1731079093; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=By0MMba+WbzG2cXuHlWeMQpST2oOpWmZSXA68XVHYo0=;
-        b=bYuZc2ifWnC89m8jPwJZ+9o1aVJVUPtGrn+a2Tq6I7DPyGcA7YqMirJwCywfY7dDdV
-         LulpNzMnigxZTsvXIDZqVd0UG19ynWGvrjwz5SRW/g2Y3nbuR/kASz3mqdwBJyyZSdij
-         jLg+cW5GwRjt6NxPFfAOW9D/BPgCK2aHrRLlZQ2ogRpr/BBTq3vgBDnbUVkErVrPmxGF
-         bdEiXB6uJMIDzWdMp3GEumYry8fh8R4gTLUOn89JMNi8cyiQ7KAcdZXj52mMsvzifjMd
-         PimfOS64nkjk4Ng7RqN2hT6f6KWwDVzZO89CKJYuXA7RXYpYUiIs1IDUD6eg4ir1Wkv9
-         kAtA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730474293; x=1731079093;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=By0MMba+WbzG2cXuHlWeMQpST2oOpWmZSXA68XVHYo0=;
-        b=biCqc97hbsm3GQGLPRxcUGgJaz9oT66JrKPjwyFfZtlbyWa0adqFqlpUzx262xo+QO
-         pHCwf/vGyhD+yfYNFpP+Cpl5wAHDytIrvSd0i2nPPIr5gldV4l8UOYTl7CgmDtDVTt4z
-         crUEtUemP815S/nazLBCXy7ErhQFvDlokh9rkDl0R/mmU3DUcoTKxru3EuOVous5w7FA
-         /cXShD5chJOBh4ZvsUJtEfcuxrCnbPzlHJSYPBREekmYuH6B+71qBY508tgX2RvhY3Xq
-         UoHtbssnyRgODIY7T/nDRM+cJw3Oj/5CNW/C5+zogijh5NvXABChEXCrlDiCFbKihID7
-         hR6g==
-X-Forwarded-Encrypted: i=1; AJvYcCXwc9BdANZLMpJ+mWIFN4hi7kVNukt8Ja57KzkQKqjaDXzjKm64wCnfb4JLRUMh2Xt329TydNNeSF8z@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzbwed28bNcTQ4PGHOcV0y3B1qIpwawQQeEvXuwnUGrjtk3e2vS
-	e6s+VSAMUxfOCoIuZbZRS1CYbxdR/0UZF6HPGTu9p85sTfRa8kh/obh7qbgwC7wmWtmFWwGXZgZ
-	wrg==
-X-Google-Smtp-Source: AGHT+IFdnwVveoc9N/MGUlZwVqfEB7IUicwB9rrAOOy2FhtDeXiq05HGyssNX0DfJOP/ZgHAaQZXrEGcvIk=
-X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:9d:3983:ac13:c240])
- (user=seanjc job=sendgmr) by 2002:a05:690c:6c8c:b0:6e3:1702:b3e6 with SMTP id
- 00721157ae682-6ea64b8c450mr251257b3.4.1730474293279; Fri, 01 Nov 2024
- 08:18:13 -0700 (PDT)
-Date: Fri, 1 Nov 2024 08:18:11 -0700
-In-Reply-To: <2233397c-f423-40e3-8546-728b50ce0489@amazon.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="E6ip0iLY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1730477242; x=1762013242;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=RahQfZ/XUlkIuOR+dTOjhXIg4K5uTPhllesohsmYC0M=;
+  b=E6ip0iLYlwYwkAuW3I6l1TU7n4UOGQaZdbVVHkpLoZGq6iabFQ1yDuMW
+   UJ4gnP30EF9tl9L+/pH2UX0Tx72kLy9yNOgvFIYT9ZoTj5F3jm+JA5cja
+   7e/B59/Xc0HPLeVu/8FjmHRH0BXzmGG74A5hAywLSpam2C9r4h4dE9XNp
+   rw6XQqkZs0tJlXGCtx1dFw8DutIRNKhqZEUDPo0hh+p3ypSD+Wd0dAiMS
+   R/EDuBhm51Y9YjwdSY2hqx/Ji3Nh6LrfwvwX1MOEut8eSF+TE20g6tgpQ
+   /8IRXgU/8pBfHInl3RmHLUAsjBgOV+AbQ5Q2LtRrPbaCOhUwYhRPSon9x
+   g==;
+X-CSE-ConnectionGUID: PV2JVaixRr+kq5c53ZLYrg==
+X-CSE-MsgGUID: MyTPk73VTRWYKkMaaSSILA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11243"; a="30459858"
+X-IronPort-AV: E=Sophos;i="6.11,250,1725346800"; 
+   d="scan'208";a="30459858"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Nov 2024 09:07:21 -0700
+X-CSE-ConnectionGUID: 4dc8HIY5RT6JkqpGnUzUUg==
+X-CSE-MsgGUID: fkeBRFMzSu6jXbNStoM6pA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.11,250,1725346800"; 
+   d="scan'208";a="83107022"
+Received: from ccbilbre-mobl3.amr.corp.intel.com (HELO [10.124.220.146]) ([10.124.220.146])
+  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Nov 2024 09:06:51 -0700
+Message-ID: <784d1522-0451-4844-a334-8b7d49019437@intel.com>
+Date: Fri, 1 Nov 2024 09:06:50 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <27646c08-f724-49f7-9f45-d03bad500219@amazon.co.uk> <2233397c-f423-40e3-8546-728b50ce0489@amazon.com>
-Message-ID: <ZyTxM7Po4v7VkmHO@google.com>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
 Subject: Re: [RFC PATCH v3 0/6] Direct Map Removal for guest_memfd
-From: Sean Christopherson <seanjc@google.com>
-To: Derek Manwaring <derekmn@amazon.com>
-Cc: roypat@amazon.co.uk, ackerleytng@google.com, agordeev@linux.ibm.com, 
-	aou@eecs.berkeley.edu, borntraeger@linux.ibm.com, bp@alien8.de, 
-	catalin.marinas@arm.com, chenhuacai@kernel.org, corbet@lwn.net, 
-	dave.hansen@linux.intel.com, david@redhat.com, gerald.schaefer@linux.ibm.com, 
-	gor@linux.ibm.com, graf@amazon.com, hca@linux.ibm.com, hpa@zytor.com, 
-	jgowans@amazon.com, jthoughton@google.com, kalyazin@amazon.com, 
-	kernel@xen0n.name, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-mm@kvack.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, loongarch@lists.linux.dev, 
-	luto@kernel.org, mathieu.desnoyers@efficios.com, mhiramat@kernel.org, 
-	mingo@redhat.com, palmer@dabbelt.com, paul.walmsley@sifive.com, 
-	pbonzini@redhat.com, peterz@infradead.org, quic_eberman@quicinc.com, 
-	rostedt@goodmis.org, rppt@kernel.org, shuah@kernel.org, svens@linux.ibm.com, 
-	tabba@google.com, tglx@linutronix.de, vannapurve@google.com, will@kernel.org, 
-	x86@kernel.org, xmarcalx@amazon.com, David Kaplan <david.kaplan@amd.com>
-Content-Type: text/plain; charset="us-ascii"
+To: "Manwaring, Derek" <derekmn@amazon.com>, roypat@amazon.co.uk
+Cc: ackerleytng@google.com, agordeev@linux.ibm.com, aou@eecs.berkeley.edu,
+ borntraeger@linux.ibm.com, bp@alien8.de, catalin.marinas@arm.com,
+ chenhuacai@kernel.org, corbet@lwn.net, dave.hansen@linux.intel.com,
+ david@redhat.com, gerald.schaefer@linux.ibm.com, gor@linux.ibm.com,
+ graf@amazon.com, hca@linux.ibm.com, hpa@zytor.com, jgowans@amazon.com,
+ jthoughton@google.com, kalyazin@amazon.com, kernel@xen0n.name,
+ kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, linux-mm@kvack.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org, loongarch@lists.linux.dev,
+ luto@kernel.org, mathieu.desnoyers@efficios.com, mhiramat@kernel.org,
+ mingo@redhat.com, palmer@dabbelt.com, paul.walmsley@sifive.com,
+ pbonzini@redhat.com, peterz@infradead.org, quic_eberman@quicinc.com,
+ rostedt@goodmis.org, rppt@kernel.org, seanjc@google.com, shuah@kernel.org,
+ svens@linux.ibm.com, tabba@google.com, tglx@linutronix.de,
+ vannapurve@google.com, will@kernel.org, x86@kernel.org, xmarcalx@amazon.com
+References: <27646c08-f724-49f7-9f45-d03bad500219@amazon.co.uk>
+ <2233397c-f423-40e3-8546-728b50ce0489@amazon.com>
+From: Dave Hansen <dave.hansen@intel.com>
+Content-Language: en-US
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <2233397c-f423-40e3-8546-728b50ce0489@amazon.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-+David Kaplan
-
-On Thu, Oct 31, 2024, Derek Manwaring wrote:
-> On 2024-10-31 at 10:42+0000 Patrick Roy wrote:
-> > On Thu, 2024-10-31 at 09:50 +0000, David Hildenbrand wrote:
-> > > On 30.10.24 14:49, Patrick Roy wrote:
-> > >> Most significantly, I've reduced the patch series to focus only on
-> > >> direct map removal for guest_memfd for now, leaving the whole "how to do
-> > >> non-CoCo VMs in guest_memfd" for later. If this separation is
-> > >> acceptable, then I think I can drop the RFC tag in the next revision
-> > >> (I've mainly kept it here because I'm not entirely sure what to do with
-> > >> patches 3 and 4).
-> > >
-> > > Hi,
-> > >
-> > > keeping upcoming "shared and private memory in guest_memfd" in mind, I
-> > > assume the focus would be to only remove the direct map for private memory?
-> > >
-> > > So in the current upstream state, you would only be removing the direct
-> > > map for private memory, currently translating to "encrypted"/"protected"
-> > > memory that is inaccessible either way already.
-> > >
-> > > Correct?
-> >
-> > Yea, with the upcomming "shared and private" stuff, I would expect the
-> > the shared<->private conversions would call the routines from patch 3 to
-> > restore direct map entries on private->shared, and zap them on
-> > shared->private.
-> >
-> > But as you said, the current upstream state has no notion of "shared"
-> > memory in guest_memfd, so everything is private and thus everything is
-> > direct map removed (although it is indeed already inaccessible anyway
-> > for TDX and friends. That's what makes this patch series a bit awkward
-> > :( )
-> 
+On 10/31/24 17:10, Manwaring, Derek wrote:
 > TDX and SEV encryption happens between the core and main memory, so
 > cached guest data we're most concerned about for transient execution
 > attacks isn't necessarily inaccessible.
@@ -123,17 +130,33 @@ On Thu, Oct 31, 2024, Derek Manwaring wrote:
 > I'd be interested what Intel, AMD, and other folks think on this, but I
 > think direct map removal is worthwhile for CoCo cases as well.
 
-Removal of the direct map entries for guest private PFNs likely won't affect the
-ability of an attacker to glean information from the unencrypted data that's in
-the CPU caches, at least not on x86.  Both TDX and SEV steal physical address
-bit(s) for tagging encrypted memory, and unless things have changed on recent
-AMD microarchitectures (I'm 99.9% certain Intel CPUs haven't changed), those stolen
-address bits are propagated into the caches.  I.e. the encrypted and unencrypted
-forms of a given PFN are actually two different physical addresses under the hood.
+I'm not sure specifically which attacks you have in mind.  Also, don't
+forget that TDX doesn't get any intra-system security from encryption
+itself.  All that the encryption does is prevent some physical attacks.
 
-I don't actually know how SEV uses the stolen PA bits though.  I don't see how it
-simply be the ASID, because IIUC, AMD CPUs allow for more unique SEV-capable ASIDs
-than uniquely addressable PAs by the number of stolen bits.  But I would be very
-surprised if the tag for the cache isn't guaranteed to be unique per encryption key.
+The main thing I think you want to keep in mind is mentioned in the "TDX
+Module v1.5 Base Architecture Specification"[1]:
 
-David?
+> Any software except guest TD or TDX module must not be able to
+> speculatively or non-speculatively access TD private memory,
+
+That's a pretty broad claim and it involves mitigations in hardware and
+the TDX module.
+
+I _think_ you might be thinking of attacks like MDS where some random
+microarchitectural buffer contains guest data after a VM exit and then
+an attacker extracts it.  Direct map removal doesn't affect these
+buffers and doesn't mitigate an attacker getting the data out.  TDX
+relies on other defenses.
+
+As for the CPU caches, direct map removal doesn't help or hurt anything.
+ A malicious VMM would just map the guest data if it could and try to
+extract it if that were possible.  If the attack is mitigated when the
+data is _mapped_, then it's certainly not possible _unmapped_.
+
+So why bother with direct map removal for TDX?  A VMM write to TD
+private data causes machine checks.  So any kernel bug that even
+accidentally writes to kernel memory can bring the whole system down.
+Not nice.
+
+1. https://cdrdv2.intel.com/v1/dl/getContent/733575
