@@ -1,135 +1,191 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57697156880;
-	Fri,  1 Nov 2024 19:39:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CBCC154420;
+	Sat,  2 Nov 2024 06:43:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730489967; cv=none; b=Ig5LQqYSydLedq+dt53aHPZ3Ue82ykI4klhLSFROqkKMmjHV9zDgAuPHaWLbXo8HJMiKHp0eElyua+a62WIs0k+x5VZxyCNy1ho+sa3lS2DrghOpXzsAVP6XHK9GVQnYdQuLWFyLkIBeu7N2V6rHlpD306oFbRusSFh9FBrQqdo=
+	t=1730529841; cv=none; b=sE/SxTGUoL4sEIVgfN67E7v2OmFvvLmba0RE44Ny2//xGDuArCOwGC/P9lB1YUzQKt9tpzRHSAZUwp+gQatcPzrdplTF7Q5TGnplSsQ8MKBSr+F8E5oYVt6xhtqCmL8l+GOaG7bMflnGbkVoF8rosNDSoJLUJALw+ENAv61oTP0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730489967; c=relaxed/simple;
-	bh=54QzldtV+oOQ8waAwjCrWq0G6D0V6v+b9usu7SWxFqg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=k+9SuPnWHLyHOff+Fw77m9bcSk80G9Xiun3/34Q8pBxsvQ8CbipMRuGQdJhxAAf2DnXOu6edE3APkUYB0Sx4dFBlZ+NvfydBaSYqk3EMEu339SVBuo7/lCsDBx+04CLfj/uSC7hsP62WUmBi2ilDNrenbECeTiOtUP0bP59E8QY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kM0FfhhT; arc=none smtp.client-ip=198.175.65.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kM0FfhhT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1730489965; x=1762025965;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=54QzldtV+oOQ8waAwjCrWq0G6D0V6v+b9usu7SWxFqg=;
-  b=kM0FfhhTGcXBC8giwQurecKlK2kmHsKy4lqUjHKGkSL8vZcdtNgeyVeJ
-   1NgpqfZDEThIM3ZSvMcdWZtVXA8PyfnVKIERMdeGobUYVXwqXX15w/zN3
-   8BunwdNoykEqzm7CYrV9VYevwiaEEwIf3OHXIecnQebTmZ7PNmyybSQWz
-   O8wwahUrPneK2FfjP4D+WhvZXqj3nkfGZoexUNTHVWqQlLkVkE5iLwcGc
-   MqU+F3Ib8QTllak/+Zn5Vkrm69a+pQexw+JOBqZ3iPkWKW9SvxbjOo5pw
-   ct8oIl8FvA9HtQqd5uodAO36wvRkhFbavbUf/MwszxYVVI/aiOJ9GfQ69
-   A==;
-X-CSE-ConnectionGUID: Ovpr0SPyRAq2eK6TYIIwEA==
-X-CSE-MsgGUID: FvDk8wgxS/KpzXaPDplHUw==
-X-IronPort-AV: E=McAfee;i="6700,10204,11222"; a="47717862"
-X-IronPort-AV: E=Sophos;i="6.11,199,1725346800"; 
-   d="scan'208";a="47717862"
-Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Nov 2024 12:39:24 -0700
-X-CSE-ConnectionGUID: OHnYS5S6TcuNT3OY7OKdwA==
-X-CSE-MsgGUID: 2dJ9/DffSeuFoRFq5NBtZA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.11,250,1725346800"; 
-   d="scan'208";a="87583065"
-Received: from ccbilbre-mobl3.amr.corp.intel.com (HELO [10.124.220.146]) ([10.124.220.146])
-  by fmviesa005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Nov 2024 12:39:22 -0700
-Message-ID: <4a015283-28e2-4459-825a-1fd542b81110@intel.com>
-Date: Fri, 1 Nov 2024 12:39:21 -0700
+	s=arc-20240116; t=1730529841; c=relaxed/simple;
+	bh=CEPiZmlaOgfiy1fI/76QvlTTEvCqNeS0OgAx6cSUIn4=;
+	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=FonYSMBleYXdpBb9kpgKRgtWKuzeCBI2IsNH5ztEz5wVZuO/hl7BHkLIZobuc9pqCyOWxajH96AO7KrkC0miqftuhxLreby8U/6EDLA/ibbaz+UuPTnROU5jeL33oxXc2tT4skOIp0giWqe90NLFAI8uIs5F/R+PJd67w7RMaXU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.17])
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4XgSph1xxDz20rHh;
+	Sat,  2 Nov 2024 14:42:52 +0800 (CST)
+Received: from kwepemf200001.china.huawei.com (unknown [7.202.181.227])
+	by mail.maildlp.com (Postfix) with ESMTPS id A67671A0188;
+	Sat,  2 Nov 2024 14:43:54 +0800 (CST)
+Received: from [10.110.54.32] (10.110.54.32) by kwepemf200001.china.huawei.com
+ (7.202.181.227) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Sat, 2 Nov
+ 2024 14:43:53 +0800
+Subject: Re: [PATCH net-next] net/smc: Optimize the search method of reused
+ buf_desc
+To: <dust.li@linux.alibaba.com>, <wenjia@linux.ibm.com>, <jaka@linux.ibm.com>,
+	<alibuda@linux.alibaba.com>, <tonylu@linux.alibaba.com>,
+	<guwen@linux.alibaba.com>
+CC: <linux-s390@vger.kernel.org>, <netdev@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <luanjianhai@huawei.com>,
+	<zhangxuzhou4@huawei.com>, <dengguangxing@huawei.com>,
+	<gaochao24@huawei.com>, <kuba@kernel.org>
+References: <20241101082342.1254-1-liqiang64@huawei.com>
+ <20241101105253.GG101007@linux.alibaba.com>
+From: Li Qiang <liqiang64@huawei.com>
+Message-ID: <fa7dc8fc-fc6a-5ee1-94a2-b4ad62624834@huawei.com>
+Date: Sat, 2 Nov 2024 14:43:52 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v3 0/6] Direct Map Removal for guest_memfd
-To: "Manwaring, Derek" <derekmn@amazon.com>
-Cc: ackerleytng@google.com, agordeev@linux.ibm.com, aou@eecs.berkeley.edu,
- borntraeger@linux.ibm.com, bp@alien8.de, canellac@amazon.at,
- catalin.marinas@arm.com, chenhuacai@kernel.org, corbet@lwn.net,
- dave.hansen@linux.intel.com, david@redhat.com, elena.reshetova@intel.com,
- gerald.schaefer@linux.ibm.com, gor@linux.ibm.com, graf@amazon.com,
- hca@linux.ibm.com, hpa@zytor.com, jgowans@amazon.com, jthoughton@google.com,
- kalyazin@amazon.com, kernel@xen0n.name, kvm@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mm@kvack.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- loongarch@lists.linux.dev, luto@kernel.org, mathieu.desnoyers@efficios.com,
- mhiramat@kernel.org, mingo@redhat.com, mlipp@amazon.at, palmer@dabbelt.com,
- paul.walmsley@sifive.com, pbonzini@redhat.com, peterz@infradead.org,
- quic_eberman@quicinc.com, rostedt@goodmis.org, roypat@amazon.co.uk,
- rppt@kernel.org, seanjc@google.com, shuah@kernel.org, svens@linux.ibm.com,
- tabba@google.com, tglx@linutronix.de, vannapurve@google.com,
- will@kernel.org, x86@kernel.org, xmarcalx@amazon.com
-References: <d467e6bd-c673-415f-8bb0-91603f06498a@intel.com>
- <71e9b2c8-0cc4-4646-88f0-7780e108e610@amazon.com>
-From: Dave Hansen <dave.hansen@intel.com>
-Content-Language: en-US
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-In-Reply-To: <71e9b2c8-0cc4-4646-88f0-7780e108e610@amazon.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20241101105253.GG101007@linux.alibaba.com>
+Content-Type: text/plain; charset="gbk"
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ kwepemf200001.china.huawei.com (7.202.181.227)
 
-On 11/1/24 12:29, Manwaring, Derek wrote:
-> As far as performance, are you talking about just the fracturing or
-> something beyond that? The data Mike brought to LSFMMBPF 2023 showed the
-> perf impact from direct map fragmentation for memfd_secret isn't "that
-> bad" [1].
 
-Just the fracturing.
 
-Mike's data are interesting, but I still think we're pretty far away
-from saying that the kernel doesn't need large mappings.
+ÔÚ 2024/11/1 18:52, Dust Li Ð´µÀ:
+> On 2024-11-01 16:23:42, liqiang wrote:
+>> connections based on redis-benchmark (test in smc loopback-ism mode):
+> 
+> I think you can run test wrk/nginx test with short-lived connection.
+> For example:
+> 
+> ```
+> # client
+> wrk -H "Connection: close" http://$serverIp
+> 
+> # server
+> nginx
+> ```
+
+I tested with nginx, the test command is:
+# server
+smc_run nginx
+
+# client
+smc_run wrk -t <2,4,8,16,32,64> -c 200 -H "Connection: close" http://127.0.0.1
+
+Requests/sec
+--------+---------------+---------------+
+req/s	| without patch	| apply patch	|
+--------+---------------+---------------+
+-t 2	|6924.18	|7456.54	|
+--------+---------------+---------------+
+-t 4	|8731.68	|9660.33	|
+--------+---------------+---------------+
+-t 8	|11363.22	|13802.08	|
+--------+---------------+---------------+
+-t 16	|12040.12	|18666.69	|
+--------+---------------+---------------+
+-t 32	|11460.82	|17017.28	|
+--------+---------------+---------------+
+-t 64	|11018.65	|14974.80	|
+--------+---------------+---------------+
+
+Transfer/sec
+--------+---------------+---------------+
+trans/s	| without patch	| apply patch	|
+--------+---------------+---------------+
+-t 2	|24.72MB	|26.62MB	|
+--------+---------------+---------------+
+-t 4	|31.18MB	|34.49MB	|
+--------+---------------+---------------+
+-t 8	|40.57MB	|49.28MB	|
+--------+---------------+---------------+
+-t 16	|42.99MB	|66.65MB	|
+--------+---------------+---------------+
+-t 32	|40.92MB	|60.76MB	|
+--------+---------------+---------------+
+-t 64	|39.34MB	|53.47MB	|
+--------+---------------+---------------+
+
+> 
+>>
+>>    1. On the current version:
+>>        [x.832733] smc_buf_get_slot cost:602 ns, walk 10 buf_descs
+>>        [x.832860] smc_buf_get_slot cost:329 ns, walk 12 buf_descs
+>>        [x.832999] smc_buf_get_slot cost:479 ns, walk 17 buf_descs
+>>        [x.833157] smc_buf_get_slot cost:679 ns, walk 13 buf_descs
+>>        ...
+>>        [x.045240] smc_buf_get_slot cost:5528 ns, walk 196 buf_descs
+>>        [x.045389] smc_buf_get_slot cost:4721 ns, walk 197 buf_descs
+>>        [x.045537] smc_buf_get_slot cost:4075 ns, walk 198 buf_descs
+>>        [x.046010] smc_buf_get_slot cost:6476 ns, walk 199 buf_descs
+>>
+>>    2. Apply this patch:
+>>        [x.180857] smc_buf_get_slot_free cost:75 ns
+>>        [x.181001] smc_buf_get_slot_free cost:147 ns
+>>        [x.181128] smc_buf_get_slot_free cost:97 ns
+>>        [x.181282] smc_buf_get_slot_free cost:132 ns
+>>        [x.181451] smc_buf_get_slot_free cost:74 ns
+>>
+>> It can be seen from the data that it takes about 5~6us to traverse 200 
+> 
+> Based on your data, I'm afraid the short-lived connection
+> test won't show much benificial. Since the time to complete a
+> SMC-R connection should be several orders of magnitude larger
+> than 100ns.
+
+Sorry, I didn't explain my test data well before.
+
+The main optimized functions of this patch are as follows:
+
+```
+struct smc_buf_desc *smc_buf_get_slot(...)
+{
+	struct smc_buf_desc *buf_slot;
+        down_read(lock);
+        list_for_each_entry(buf_slot, buf_list, list) {
+                if (cmpxchg(&buf_slot->used, 0, 1) == 0) {
+                        up_read(lock);
+                        return buf_slot;
+                }
+        }
+        up_read(lock);
+        return NULL;
+}
+```
+The above data is the time-consuming data of this function.
+If the current system has 200 active links, then during the
+process of establishing a new SMC connection, this function
+must traverse all 200 active links, which will take 5~6us.
+If there are already 1,000 for active links, it takes about 30us.
+
+After optimization, this function takes <100ns, it has nothing
+to do with the number of active links.
+
+Moreover, the lock has been removed, which is firendly to multi-thread
+parallel scenarios.
+
+The optimized code is as follows:
+
+```
+static struct smc_buf_desc *smc_buf_get_slot_free(struct llist_head *buf_llist)
+{
+        struct smc_buf_desc *buf_free;
+        struct llist_node *llnode;
+
+        if (llist_empty(buf_llist))
+                return NULL;
+        // lock-less link list don't need an lock
+        llnode = llist_del_first(buf_llist);
+        buf_free = llist_entry(llnode, struct smc_buf_desc, llist);
+        WRITE_ONCE(buf_free->used, 1);
+        return buf_free;
+}
+```
+
+-- 
+Cheers,
+Li Qiang
