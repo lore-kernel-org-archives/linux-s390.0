@@ -1,171 +1,95 @@
-Received: from out-188.mta1.migadu.com (out-188.mta1.migadu.com [95.215.58.188])
+Received: from smtpbg154.qq.com (smtpbg154.qq.com [15.184.224.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C64C23B0
-	for <linux-s390@vger.kernel.org>; Sun,  3 Nov 2024 13:01:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87B1ABA42;
+	Sun,  3 Nov 2024 13:37:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=15.184.224.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730638908; cv=none; b=O1v85TLnIY9nzNfFO/ZNaBZYUtXQs7eahTgMd82do2AYJ22nJ+Ji+rcJwV2Xf9geOEcS+pvT4pKl+mzw1Cd5Yg73K65Ejdohs88erECQPjz9oxbcum9YBuwQxtSnHS9UERLpEL/uhJQj3XXGWZoeMBKtkrxUBVTj7LyzDzQnx44=
+	t=1730641042; cv=none; b=EuIFYB8XauCHhMeLtpHfMwAP23xSwT5dtmUQ/71YS43zeRabyUG9vW0C3Z1oWRlV9cwL3ZJlFH490gZF5/Hofte/8EjhsiicCbkzo0/oPFWB/AsMeUlg158Y8U6BjF5r2qlyuEmXyvUfLu+NMBy0flECPFUBJ+yD96d786kE+Q4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730638908; c=relaxed/simple;
-	bh=VwMBJ2K2+XANpk9Usn57k6DX/DB71GOxMHVlly/+dw8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CuILJgovv62yAQV8oBLOVPj45H1h9zcUEGxO2IxGiztqor7beAcVSUqiYrCAoZY6Qx65AVvJYT2L86KfE774O3MpCkW90Fnqnxss3Dmj3i15Jxlm0z9sVXL5G3X+O3F/OKf346O6YXDmJIGNck9Vl6QknDZStG5T49CAQYZHbxE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=B57W/QIl; arc=none smtp.client-ip=95.215.58.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1730641042; c=relaxed/simple;
+	bh=0u2qY5VmW02QoZQQ8PVGB0RvEt+gYfighmeowfpBp9Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=akCh/hWE7sNeulbTWRNXrTD4fAyTA8PjhMOHh380Yhb3j0P1jsSibQDr1Hbj6zmQFpvF+3WwukBEwXkVsii5JkR/tSuif/+KGdAt518ZhDsgWTCXsmEFwu4qWKdmJS+eXIuNHpAofXFQIbi9zFiD6CLVHtdNEwEnHgS9fPpXv2k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=KLF8HuA2; arc=none smtp.client-ip=15.184.224.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="B57W/QIl"
-Message-ID: <8c06240b-540b-472f-974f-d2db80d90c22@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1730638904;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ReGYHVYD8E6M3nWSfKDR+gV/Sseh9igwmx9QD3ig80M=;
-	b=B57W/QIlF/4PlN1s8QLuCxcq2PE+PlbFrDtUs23zr2HmlDSeUnB1AuQDe85dfBPMDq0xhk
-	AqnvByMS9EFlNGHhXyCoA7t25eqPAnLqGosyIoLhAkFba4DfxshUO3i+h/32XssbjQGKYM
-	/YUtEjua1h7Ensvjk4rZeCGygSXbXoE=
-Date: Sun, 3 Nov 2024 14:01:35 +0100
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="KLF8HuA2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1730641022;
+	bh=0u2qY5VmW02QoZQQ8PVGB0RvEt+gYfighmeowfpBp9Q=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=KLF8HuA2XZZA8PyiFIvxZyWe/QyPFXt7v/I0izyxgFtQDYw727X9/PTsC+BZn74Y0
+	 mWRYJkxiA6zPS+DHh2CYqTkCl6rOZpFl9M65nsnUxXhTKvCMjUxLR4CJ4QUZsLa+Ci
+	 r1taA2f3NHlHgNNy0bmBr+6w+ezN9xazZzSxWx9w=
+X-QQ-mid: bizesmtpip2t1730641018t4vihmk
+X-QQ-Originating-IP: OJFfFUb+TagDtWAwy6uc0+sLCBe0njxsmdHE22f+THA=
+Received: from avenger-OMEN-by-HP-Gaming-Lapto ( [localhost])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Sun, 03 Nov 2024 21:36:56 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 16809586154877906677
+From: WangYuli <wangyuli@uniontech.com>
+To: ebiggers@kernel.org
+Cc: ardb@kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-crypto@vger.kernel.org,
+	linux-ext4@vger.kernel.org,
+	linux-f2fs-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org,
+	linux-mips@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	loongarch@lists.linux.dev,
+	kernel@xen0n.name,
+	chenhuacai@kernel.org,
+	xry111@xry111.site,
+	sparclinux@vger.kernel.org,
+	x86@kernel.org
+Subject: Re: [PATCH v2 06/18] loongarch/crc32: expose CRC32 functions through lib
+Date: Sun,  3 Nov 2024 21:36:55 +0800
+Message-ID: <DA8BCDFFEACDA1C6+20241103133655.217375-1-wangyuli@uniontech.com>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20241025191454.72616-7-ebiggers@kernel.org>
+References: <20241025191454.72616-7-ebiggers@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH bpf-next 4/4] bpf/selftests: add simple selftest for
- bpf_smc_ops
-To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
- wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
- daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
- pabeni@redhat.com, song@kernel.org, sdf@google.com, haoluo@google.com,
- yhs@fb.com, edumazet@google.com, john.fastabend@gmail.com,
- kpsingh@kernel.org, jolsa@kernel.org, guwen@linux.alibaba.com
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, bpf@vger.kernel.org,
- dtcccc@linux.alibaba.com
-References: <1729737768-124596-1-git-send-email-alibuda@linux.alibaba.com>
- <1729737768-124596-5-git-send-email-alibuda@linux.alibaba.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
-In-Reply-To: <1729737768-124596-5-git-send-email-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtpip:uniontech.com:qybglogicsvrgz:qybglogicsvrgz8a-1
+X-QQ-XMAILINFO: MAXRuxnbzssegXhSBUmiIE6Ni8PjKv5CHWWsGTJU0o95Ea/t2pd6wnqu
+	av3bthBKz45tsWOf6m/LRZbQSWTt7BcsFHtEyxKQKiMG/UONhlRAE+jREH3dkz5J2RCrn3L
+	EbNOGompESEmaKd/JRKrIWo8YjKuybwCcZoQbJlwZLKdyOeketSff2EOXVVi197Q11ABGJj
+	zCDVLr5RahkoLwstEJ+vqFDa14JyI0DM16D2s1izf/JZoWOsYMuhDx5NAlzWweFxdxW8iJN
+	VOIhEiUl/8dvJ/QXdQCUu2f5le0cqfUepm11FxRrjAo1Habnb4GSCzeWanGtE76dDAIzK89
+	OY8bTcZrACgJJyaasaaeXrLkuWqajEX5KrRt8689iMb4z0Qty1MYQEUokgx/tVBRJYO7ePL
+	dF2C2KFfnT1ZNm2JWJNccTgd/07en/sJl8LazlcZen1MBts3mA8V0YNF1Rdpkb4o/Y54qc3
+	j8jDPxQhsdG9y72GOs4QMaPR1/fVv59RW+Xm+4sfr1yn2ZoFUme8u5u3kez4CvZ8Bdh8sfJ
+	Y/dbxn8T25Lf8NWjJG2BvDKM8jSC7HAEJvGJKUItnpI8z7m5TEq2Y7PNear4vrh24uVr3dW
+	9YhZYMHCMT4Juxx8eaSJg7r5WfqgSqOg3ark4Q2lLXWELJ8XxcjmniURpSeuQL4xpMELCiJ
+	gDbVnykSObxsNor/pBnDXf3bK3KCNZFgxQNJtWkbgM5ScOyo73BbeExW6vzdv+8R9LELDiP
+	tpiVn3b02RS2f+C79pak5W9FN56GtXmwY0F1LA3+ewf2qDy53ROjE6xLkhVZmVsXzpW15YJ
+	9dPYVLJTZftDqtbbXCu4JW5OsrQUPJSiy8gE1wMdIolddx6iRYquGlS1V2EaWe6ofSQvdRu
+	R/ksWoSGNU/P1X87cIITRGob5HcXmjUmG5183YZTYAMUsBn4B9ub/nQ9dwH7swW9vZK4Pn6
+	sIAhRQ3rzG9Mxm+a6HLoaOYfkMD2LhuDprb8k4DagQ4WCLUiNRAJJjSPdh6CdSaZNOIda5s
+	B+fiPygXfSsV4idJTf
+X-QQ-XMRINFO: Mp0Kj//9VHAxr69bL5MkOOs=
+X-QQ-RECHKSPAM: 0
 
-在 2024/10/24 4:42, D. Wythe 写道:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
-> 
-> This PATCH adds a tiny selftest for bpf_smc_ops, to verify the ability
-> to attach and write access.
-> 
-> Follow the steps below to run this test.
-> 
-> make -C tools/testing/selftests/bpf
-> cd tools/testing/selftests/bpf
-> sudo ./test_progs -t smc
+Even though the narrower CRC instructions doesn't require GRLEN=64, they still *aren't* part of LA32 (LoongArch reference manual v1.10, Volume 1, Table 2-1).
+Link: https://lore.kernel.org/all/0a7d0a9e-c56e-4ee2-a83b-00164a450abe@xen0n.name/
 
-Thanks a lot.
+Therefore, we could not directly add ARCH_HAS_CRC32 to config LOONGARCH.
 
-# ./test_progs -t smc
-#27/1    bpf_smc/load:OK
-#27      bpf_smc:OK
-Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
-
-The above command is based on several kernel modules. After these 
-dependent kernel modules are loaded, then can run the above command 
-successfully.
-
-Zhu Yanjun
-
-> 
-> Results shows:
-> Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
-> 
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
->   .../selftests/bpf/prog_tests/test_bpf_smc.c        | 21 +++++++++++
->   tools/testing/selftests/bpf/progs/bpf_smc.c        | 44 ++++++++++++++++++++++
->   2 files changed, 65 insertions(+)
->   create mode 100644 tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
->   create mode 100644 tools/testing/selftests/bpf/progs/bpf_smc.c
-> 
-> diff --git a/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c b/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
-> new file mode 100644
-> index 00000000..2299853
-> --- /dev/null
-> +++ b/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
-> @@ -0,0 +1,21 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +#include <test_progs.h>
-> +
-> +#include "bpf_smc.skel.h"
-> +
-> +static void load(void)
-> +{
-> +	struct bpf_smc *skel;
-> +
-> +	skel = bpf_smc__open_and_load();
-> +	if (!ASSERT_OK_PTR(skel, "bpf_smc__open_and_load"))
-> +		return;
-> +
-> +	bpf_smc__destroy(skel);
-> +}
-> +
-> +void test_bpf_smc(void)
-> +{
-> +	if (test__start_subtest("load"))
-> +		load();
-> +}
-> diff --git a/tools/testing/selftests/bpf/progs/bpf_smc.c b/tools/testing/selftests/bpf/progs/bpf_smc.c
-> new file mode 100644
-> index 00000000..ebff477
-> --- /dev/null
-> +++ b/tools/testing/selftests/bpf/progs/bpf_smc.c
-> @@ -0,0 +1,44 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +
-> +#include "vmlinux.h"
-> +
-> +#include <bpf/bpf_helpers.h>
-> +#include <bpf/bpf_tracing.h>
-> +
-> +char _license[] SEC("license") = "GPL";
-> +
-> +struct smc_bpf_ops_ctx {
-> +	struct {
-> +		struct tcp_sock *tp;
-> +	} set_option;
-> +	struct {
-> +		const struct tcp_sock *tp;
-> +		struct inet_request_sock *ireq;
-> +		int smc_ok;
-> +	} set_option_cond;
-> +};
-> +
-> +struct smc_bpf_ops {
-> +	void (*set_option)(struct smc_bpf_ops_ctx *ctx);
-> +	void (*set_option_cond)(struct smc_bpf_ops_ctx *ctx);
-> +};
-> +
-> +SEC("struct_ops/bpf_smc_set_tcp_option_cond")
-> +void BPF_PROG(bpf_smc_set_tcp_option_cond, struct smc_bpf_ops_ctx *arg)
-> +{
-> +	arg->set_option_cond.smc_ok = 1;
-> +}
-> +
-> +SEC("struct_ops/bpf_smc_set_tcp_option")
-> +void BPF_PROG(bpf_smc_set_tcp_option, struct smc_bpf_ops_ctx *arg)
-> +{
-> +	struct tcp_sock *tp = arg->set_option.tp;
-> +
-> +	tp->syn_smc = 1;
-> +}
-> +
-> +SEC(".struct_ops.link")
-> +struct smc_bpf_ops sample_smc_bpf_ops = {
-> +	.set_option         = (void *) bpf_smc_set_tcp_option,
-> +	.set_option_cond    = (void *) bpf_smc_set_tcp_option_cond,
-> +};
-
+Thanks,
+--
+WangYuli
