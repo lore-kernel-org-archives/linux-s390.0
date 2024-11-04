@@ -1,212 +1,143 @@
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FD213214;
-	Mon,  4 Nov 2024 08:47:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.255
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 923EA1AC426;
+	Mon,  4 Nov 2024 09:43:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730710078; cv=none; b=VhrRyYbrpAhi7nurirzjVxLJitLg1zj3xiHAtMSHfLE0XEOrQ/JeZRAbYrQF+EEgvzaX7+rfXiuK2wZPU422KF/XyVFbGG4hl1ooORiqhv90/f+3iJCcMsm47388UKBuGo/yODv9GjcEj7XUwiPVxZquDQtpGGNzyxnpF4NZ3UE=
+	t=1730713429; cv=none; b=UvTUlYJMQVgvw4YqBpgIN29ju2Xaa18yoS6jy4VwYIntnv+RlWlOg4XI1N/tnhgML0W+Mv7u/x3qWgLN8ZDG0WqZaATGIoWeytRD797SPU0nuXc/rndMK4CM4owfTEV4+q/R+0uwfOH8ot3OxvcSt6e33uuAhFclG3r0PAIZMok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730710078; c=relaxed/simple;
-	bh=NGV3URn//MNt6TNIxM7qh0d3R6qI0K4QaslkHHzl+RY=;
-	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=olD4/9Qiix7xXfmHnwfYXKhugDtOFo5uAZte+eYaiNrJnsjvpx+q8/tAsIz1yknkzPS+RcLKT4nf23MWEpUXrPeTzkoFHBxTQ6ivavXRnW5S6wOLl5nz3Isj37Tgb3g7cA7kkS4MS4eyas6gQoymq/rrztof9jWvEPFaRVbEp44=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.255
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.162.254])
-	by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4XhlRD5yjmz1T8BF;
-	Mon,  4 Nov 2024 16:45:28 +0800 (CST)
-Received: from kwepemf200001.china.huawei.com (unknown [7.202.181.227])
-	by mail.maildlp.com (Postfix) with ESMTPS id 156CB180105;
-	Mon,  4 Nov 2024 16:47:46 +0800 (CST)
-Received: from [10.110.54.32] (10.110.54.32) by kwepemf200001.china.huawei.com
- (7.202.181.227) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Mon, 4 Nov
- 2024 16:47:44 +0800
-Subject: Re: [PATCH net-next] net/smc: Optimize the search method of reused
- buf_desc
-To: <dust.li@linux.alibaba.com>, <wenjia@linux.ibm.com>, <jaka@linux.ibm.com>,
-	<alibuda@linux.alibaba.com>, <tonylu@linux.alibaba.com>,
-	<guwen@linux.alibaba.com>
-CC: <linux-s390@vger.kernel.org>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <luanjianhai@huawei.com>,
-	<zhangxuzhou4@huawei.com>, <dengguangxing@huawei.com>,
-	<gaochao24@huawei.com>, <kuba@kernel.org>
-References: <20241101082342.1254-1-liqiang64@huawei.com>
- <20241101105253.GG101007@linux.alibaba.com>
- <fa7dc8fc-fc6a-5ee1-94a2-b4ad62624834@huawei.com>
- <20241104081304.GB54400@linux.alibaba.com>
-From: Li Qiang <liqiang64@huawei.com>
-Message-ID: <57ca11f4-1194-2fe0-426b-ef049c4fc884@huawei.com>
-Date: Mon, 4 Nov 2024 16:47:43 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+	s=arc-20240116; t=1730713429; c=relaxed/simple;
+	bh=BHQy9cw8IkQGQu73pQMwV9Rg9OnChJJTfBGrhKuQX28=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=nSRF1NGYvibeZ6WI2Udt7iHMaeCH2SuyIH28x4hxRmJ8Lh8N2tg3eKS9qkHBO/qoYgNZat1rTeFBOxAQppxiYjcznK6s3AtR2jqi+Pic6Sdf72NZJ2Od3+UhCPgTzteTVIa8AzkZXcbgbEZsMpjh+WJ5TLT8549VVMAOUfB1OdA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eKZTjp5/; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eKZTjp5/"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A48f6gu004933;
+	Mon, 4 Nov 2024 09:43:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=lT64JN
+	RYte/rsTHbhnobQpMIyA7V1hYp1YrzuDEW/kU=; b=eKZTjp5/ubpaXiV47hNlnf
+	eJoNMiGGLRTlVDNVE84ls6YVQuKd0ruXewXA8wO3qBvFaSfoMIjSCB6vaYz8b07i
+	QMJy6tfe6YeAxY6Lqr0wYjjB6196eEapwf61HZ+Hazq5Im7lf2Wsbbc9iNlkViQO
+	/3hHgby2HYjXirl1g0Jpm1Lc7Lw+Pu8hnFZbRd/YmvEKJ6FZB8/esrcSOQ8A3DC4
+	dC1SsBbBfiJBfni19pN7vNp3FQOHqBXcuSnNne+9fe3oX18LQlFmi4JGUGZ04xY5
+	ByxTLld5P1W8Pi63mM2OMstq66V32tJKQX5YGp1w/sl9oEJXnUPmAHJqNoif6GsQ
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42ptyar9c4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 Nov 2024 09:43:46 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4A3JCCax019503;
+	Mon, 4 Nov 2024 09:43:45 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 42p0mj1tc4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 Nov 2024 09:43:45 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4A49hg6059113798
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 4 Nov 2024 09:43:42 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 168302004D;
+	Mon,  4 Nov 2024 09:43:42 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7589E20040;
+	Mon,  4 Nov 2024 09:43:41 +0000 (GMT)
+Received: from [9.171.49.1] (unknown [9.171.49.1])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  4 Nov 2024 09:43:41 +0000 (GMT)
+Message-ID: <462c0ab7-67f6-4815-8f23-433625b58150@linux.ibm.com>
+Date: Mon, 4 Nov 2024 10:43:41 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20241104081304.GB54400@linux.alibaba.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- kwepemf200001.china.huawei.com (7.202.181.227)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/1] s390/kvm: initialize uninitialized flags variable
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
+Cc: borntraeger@de.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
+        seiden@linux.ibm.com, hca@linux.ibm.com, agordeev@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20241030161906.85476-1-imbrenda@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20241030161906.85476-1-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 6zniY-EFd4f8RwTTuUf6qlzREQUt9l6E
+X-Proofpoint-ORIG-GUID: 6zniY-EFd4f8RwTTuUf6qlzREQUt9l6E
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ priorityscore=1501 mlxlogscore=798 impostorscore=0 malwarescore=0
+ bulkscore=0 mlxscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411040085
 
-
-
-在 2024/11/4 16:13, Dust Li 写道:
-> On 2024-11-02 14:43:52, Li Qiang wrote:
->>
->>
->> 在 2024/11/1 18:52, Dust Li 写道:
->>> On 2024-11-01 16:23:42, liqiang wrote:
->>>> connections based on redis-benchmark (test in smc loopback-ism mode):
->>> ...
->>> ```
->>
->> I tested with nginx, the test command is:
->> # server
->> smc_run nginx
->>
->> # client
->> smc_run wrk -t <2,4,8,16,32,64> -c 200 -H "Connection: close" http://127.0.0.1
->>
->> Requests/sec
->> --------+---------------+---------------+
->> req/s	| without patch	| apply patch	|
->> --------+---------------+---------------+
->> -t 2	|6924.18	|7456.54	|
->> --------+---------------+---------------+
->> -t 4	|8731.68	|9660.33	|
->> --------+---------------+---------------+
->> -t 8	|11363.22	|13802.08	|
->> --------+---------------+---------------+
->> -t 16	|12040.12	|18666.69	|
->> --------+---------------+---------------+
->> -t 32	|11460.82	|17017.28	|
->> --------+---------------+---------------+
->> -t 64	|11018.65	|14974.80	|
->> --------+---------------+---------------+
->>
->> Transfer/sec
->> --------+---------------+---------------+
->> trans/s	| without patch	| apply patch	|
->> --------+---------------+---------------+
->> -t 2	|24.72MB	|26.62MB	|
->> --------+---------------+---------------+
->> -t 4	|31.18MB	|34.49MB	|
->> --------+---------------+---------------+
->> -t 8	|40.57MB	|49.28MB	|
->> --------+---------------+---------------+
->> -t 16	|42.99MB	|66.65MB	|
->> --------+---------------+---------------+
->> -t 32	|40.92MB	|60.76MB	|
->> --------+---------------+---------------+
->> -t 64	|39.34MB	|53.47MB	|
->> --------+---------------+---------------+
->>
->>>
->>>>
->>>>    1. On the current version:
->>>>        [x.832733] smc_buf_get_slot cost:602 ns, walk 10 buf_descs
->>>>        [x.832860] smc_buf_get_slot cost:329 ns, walk 12 buf_descs
->>>>        [x.832999] smc_buf_get_slot cost:479 ns, walk 17 buf_descs
->>>>        [x.833157] smc_buf_get_slot cost:679 ns, walk 13 buf_descs
->>>>        ...
->>>>        [x.045240] smc_buf_get_slot cost:5528 ns, walk 196 buf_descs
->>>>        [x.045389] smc_buf_get_slot cost:4721 ns, walk 197 buf_descs
->>>>        [x.045537] smc_buf_get_slot cost:4075 ns, walk 198 buf_descs
->>>>        [x.046010] smc_buf_get_slot cost:6476 ns, walk 199 buf_descs
->>>>
->>>>    2. Apply this patch:
->>>>        [x.180857] smc_buf_get_slot_free cost:75 ns
->>>>        [x.181001] smc_buf_get_slot_free cost:147 ns
->>>>        [x.181128] smc_buf_get_slot_free cost:97 ns
->>>>        [x.181282] smc_buf_get_slot_free cost:132 ns
->>>>        [x.181451] smc_buf_get_slot_free cost:74 ns
->>>>
->>>> It can be seen from the data that it takes about 5~6us to traverse 200 
->>>
->>> Based on your data, I'm afraid the short-lived connection
->>> test won't show much benificial. Since the time to complete a
->>> SMC-R connection should be several orders of magnitude larger
->>> than 100ns.
->>
->> Sorry, I didn't explain my test data well before.
->>
->> The main optimized functions of this patch are as follows:
->>
->> ```
->> struct smc_buf_desc *smc_buf_get_slot(...)
->> {
->> 	struct smc_buf_desc *buf_slot;
->>        down_read(lock);
->>        list_for_each_entry(buf_slot, buf_list, list) {
->>                if (cmpxchg(&buf_slot->used, 0, 1) == 0) {
->>                        up_read(lock);
->>                        return buf_slot;
->>                }
->>        }
->>        up_read(lock);
->>        return NULL;
->> }
->> ```
->> ...
->>
->> The optimized code is as follows:
->>
->> ```
->> static struct smc_buf_desc *smc_buf_get_slot_free(struct llist_head *buf_llist)
->> {
->>        struct smc_buf_desc *buf_free;
->>        struct llist_node *llnode;
->>
->>        if (llist_empty(buf_llist))
->>                return NULL;
->>        // lock-less link list don't need an lock
->          ^^^ kernel use /**/ for comments
-
-Ok I will change it. :-)
-
+On 10/30/24 5:19 PM, Claudio Imbrenda wrote:
+> The flags variable was being used uninitialized.
+> Initialize it to 0 as expected.
 > 
->>        llnode = llist_del_first(buf_llist);
->>        buf_free = llist_entry(llnode, struct smc_buf_desc, llist);
+> For some reason neither gcc nor clang reported a warning.
 > 
-> If 2 CPU both passed the llist_empty() check, only 1 CPU can get llnode,
-> the other one should be NULL ?
+> Fixes: ce2b276ebe51 ("s390/mm/fault: Handle guest-related program interrupts in KVM")
+> Reported-by: Janosch Frank <frankja@linux.ibm.com>
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Well, what you said makes sense, I think the previous judgment of llist_empty
-is useless and can be deleted. This function should be changed to:
-```
-static struct smc_buf_desc *smc_buf_get_slot_free(struct llist_head *buf_llist)
-{
-	struct smc_buf_desc *buf_free;
-	struct llist_node *llnode;
+Thanks for tracking this down, tprot selftest is green with this fix.
 
-	/* lock-less link list don't need an lock */
-	llnode = llist_del_first(buf_llist);
-        if (llnode == NULL)
-            return NULL;
-	buf_free = llist_entry(llnode, struct smc_buf_desc, llist);
-	WRITE_ONCE(buf_free->used, 1);
-	return buf_free;
-}
-```
-
-If there is only one node left in the linked list, multiple CPUs will
-compete based on CAS instructions in llist_del_first. In the end, only
-one consumer will get the node, and other consumers will get the null pointer.
-
-Thank you!
-
-> 
->>        WRITE_ONCE(buf_free->used, 1);
->>        return buf_free;
->> }
->> ```
-
--- 
-Best regards,
-Li Qiang
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
