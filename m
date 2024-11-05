@@ -1,290 +1,194 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 651FD1FCF4A
-	for <linux-s390@vger.kernel.org>; Mon,  4 Nov 2024 21:31:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730755867; cv=none; b=tvnLf5dA3IevnMQWiXntsL60kiV0lKSlCTUyNKGQ+D9wEYJWMIMy9goQrUmFhJl+Dsy2W1bCaJTkoJ42qfAvSHAtvTmPYdkCu4hfL4MOmjsRBChTRyfWEbASj2RwAh9qcGK+eRqDQ96cqj4wxiuZB4s6QAMS90nLzp0rHkLZ42Y=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730755867; c=relaxed/simple;
-	bh=L4YNKSkuZEV/hZj7pOw8iiKxbPrnNSbHsVLEZvSgA0w=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SZJgoCRTdKTIlQVETaTYOJoG7/6nZHQHskJ1qQO96N9/3EIuLzYMmDurNfC0E73atnFWfcn/4H58R6TE1UpRW/o2RhP1h2W/Omoi4K+1p0BGL0aakClCTpG3dfH9mP5vMVAZCKoTmKRH7x6VazBNXHLp2BbtaaG35JvUIMCMoSQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g35YUeou; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFFDDA94A;
+	Tue,  5 Nov 2024 01:34:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730770461; cv=fail; b=jWaqgiZamlSZga3hNsAYHMWrdV8roZHk8bkLkeUivCt4QW+PctFKTmZQmn8mlYA2qcsTOCaPiL4Qd0Se+DcKvnkN1bgCGhLPIGd7bnFHFW/RHsWWyUzrnWieSRSOrZFzYNPpXHqLYjBI/r0WSksM14XfZq0Blokj+dWvfgrjVsk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730770461; c=relaxed/simple;
+	bh=Kq+/AQFH39rrJY9ezj2wRY8L4a7LXTBxsZ985XNHysQ=;
+	h=To:Cc:Subject:From:In-Reply-To:Message-ID:References:Date:
+	 Content-Type:MIME-Version; b=fa3psEuniMCc9r4g1pOYftNOp7Fd2m1u8cwTnDynGjxDcmAWgjUT1tmQnUjVbkGSmwiweT0alVCADbAkzVttANeaHfXgrVzEiXBBXP+ce6/+Bid2oNE7qVHFqJ08cEknt99s6EerwW51M/JM6bEVAYZOy6ubhX6VBQtPcybPNRc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=dHJB/fNk; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=rqwZKjrC; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g35YUeou"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730755864;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=8gtfMet1sTXUCLzJyNvknJfnL40j6MbNvJoVn8lPrro=;
-	b=g35YUeouG0+KAADjb+ZRNM10/YYvtZ0y/0Q38LPccgdvPITaBIMYdrtEMsMmU9QJIe22Le
-	sA0VQUtfWep1HaEKbP/l7jYfCk9EUlDNMci/0kiKTyqg5h45F7dLHnfLS6q0mUdRZf10ZI
-	bLBcs/zAO4vrnGMT6eCpy6FAcHw1chw=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-582-NVeVitCnPxOBE9gFFfznww-1; Mon, 04 Nov 2024 16:31:00 -0500
-X-MC-Unique: NVeVitCnPxOBE9gFFfznww-1
-Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-539fb5677c9so4700307e87.0
-        for <linux-s390@vger.kernel.org>; Mon, 04 Nov 2024 13:30:59 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730755858; x=1731360658;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=8gtfMet1sTXUCLzJyNvknJfnL40j6MbNvJoVn8lPrro=;
-        b=XuocURsw1etgepExWIx6KVIO88Q7A5PvbjZrN735E/uhNmLyfe8ywUioAe2ILDmCCa
-         3sJ7K/BsSrXijhBQv/4oZ7VoU8xFtIET4SNtuwY+hXr3FxDh7Ynwj0HO8bkZnOFmG1+y
-         6mKlfGo7SXFEbmk8xKOu9HOysCKkWLDjMUcwdAmD9Kxr6rxy+b0p3knjSRnKnVUwHpqC
-         Y1jvl9ogQgHnlUtB+cJ41O8wAqdIa5gknYtniicfOY3AvFTvMqK/zqKym+I9QzOjxgzF
-         XoINB5VFXtvT2wshADvOhFrorwfKEf2Cs9GlEj4aTsLTuCTOvA6uTkk2hlBlG19A24A9
-         hPng==
-X-Forwarded-Encrypted: i=1; AJvYcCU8o7HXOhx2lL12l7v9khwzST58glxpzHMHSh1CgH6ukLPm0YwH6AD7tvf0boV0aq4CFroP0G8CrLbD@vger.kernel.org
-X-Gm-Message-State: AOJu0YwzXxP4XVx5YbwdyOBp808dOAELbrC5GeylIbIrZEfdwbA+7yO3
-	JqpNjjIuMZRNjA3kijo1+L6hZ+dRUt4wBPIdiENpRRSJiWLc9Mdv//KAGYue0G7Aou01UD9OYiD
-	gt/J8bvAC7nP6njKaSrNlgRSarVEZwzncAGURHL8KYQkmqqrGB53LYnsPCuQ=
-X-Received: by 2002:a05:6512:118a:b0:53b:1526:3a4c with SMTP id 2adb3069b0e04-53b348d894amr16609350e87.26.1730755858330;
-        Mon, 04 Nov 2024 13:30:58 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH7ORituTFTzp2MdetjVSX333muBt/1oz+5gl2SMZriCSkTuHWz0TGj9Uec44RVhT9sC9SApw==
-X-Received: by 2002:a05:6512:118a:b0:53b:1526:3a4c with SMTP id 2adb3069b0e04-53b348d894amr16609326e87.26.1730755857778;
-        Mon, 04 Nov 2024 13:30:57 -0800 (PST)
-Received: from ?IPV6:2003:cb:c72f:e500:e96a:8043:1211:8e6a? (p200300cbc72fe500e96a804312118e6a.dip0.t-ipconnect.de. [2003:cb:c72f:e500:e96a:8043:1211:8e6a])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-381c10e7435sm14249477f8f.52.2024.11.04.13.30.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 Nov 2024 13:30:56 -0800 (PST)
-Message-ID: <10e4d078-3cdb-4d1c-a1a3-80e91b247217@redhat.com>
-Date: Mon, 4 Nov 2024 22:30:53 +0100
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="dHJB/fNk";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="rqwZKjrC"
+Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A50fZfJ023927;
+	Tue, 5 Nov 2024 01:33:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=corp-2023-11-20; bh=7IB8CNdfnFOF4TldQu
+	t5IiwiWExW0itzIaBYWtKlLvk=; b=dHJB/fNkW7WQ7Bdqd1XxWyj3sPuIV/2cEv
+	0+JuwLTqIoDE3HwFeIR6snYsInpUpERifTLCVdDeZeLGGkV8TuAd26PPE4p1LvaS
+	g9UEmUpsRQBEmi6C6GGzeNMcA44IhzgyYpUHU4HcmoNKW3t/II/U3UQY7DE1mLIR
+	pWo7wBQs2hJQW2NDzF4Woxa+en9zXj3dEPh6O0CDZOjTgSgxss/qrodcSt8OlFiI
+	9iHlGF5kniFq/8bM9arjI/PwY+iT7qYKSyFiJsHpuIVoFNtMXbizXPE4sFqwleKn
+	AmkFhnuPRNjQX6+LGGJ/GI8SxMG4g5OVmndk6PAVgGYl4HyLglLA==
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 42nc4bv7ms-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 05 Nov 2024 01:33:53 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 4A50ggKd005034;
+	Tue, 5 Nov 2024 01:33:52 GMT
+Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2175.outbound.protection.outlook.com [104.47.57.175])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 42p879xepe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 05 Nov 2024 01:33:52 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=LQZ1ML04cFMXEWsudQbBc3qVUebzp2TRlCsDspgP2LopXlF5BeZbTp2Tkfzs++QfNxi2gWhmtG9opATf6Z7bBv+IQF135XZg1W0jJJlFBm0n8wyigQBGwnAauHp/G0ghAP7ijRq1LZ7drUde820YN0hQEGCYWCIYOsLveKjbd3gG9/uLvyaisSXKCx/vnf4qeltLmArqBgFhv8I3CWoFWVDNVw3HRYLn9Y+NZSLQXfJWE8zWtUIJsU3vF+5ixx3DXM9fR+L8g8dDePvCBVahjJCFkFyaMhRQ2jXZZGMeTOc1ycr78gSf6BRcT9gYYFjUHnutsNkJP0g9aZNjxDFc3w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=7IB8CNdfnFOF4TldQut5IiwiWExW0itzIaBYWtKlLvk=;
+ b=AHvDPLukAj65MCoNNa5Ush2S6u/yRNjH2iBYb6M5bVfWHN2AAFE9nZw1sq/kLwIoJ/I4W+cwE4yNWcvaWB80yyFCVsfn1PlT9YXs3AP9DooA7olLXJH5a+Rxo0YC7584TSZLhpRgAC07/DN2kOABe7vYWeIdnp6IR2CnYu/nIwdfm7CXrnHEomReDAyJoc31aTdKzhhvSl+NrHjFNjU4DvjR0OLcqzBpBJth6A59HhYDf59KC+Qhk4f0kBuEkVUVMO0V2vWMMAnyoI6zeDEikwQBLuCSIdxx+FQHMqVNxehcec7laRwg53heZPjJoyQTWhRAhxzqLYIXglE8R0O7Lg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7IB8CNdfnFOF4TldQut5IiwiWExW0itzIaBYWtKlLvk=;
+ b=rqwZKjrCN0ldhFCy/X5MkVSCzCqCCPlZbaFWVs2R+FWIh4tdmVsOUQo1T2rMpXGNWF0dbauVA1qevCedS+UrRYBOdYRkB5Pcv/FpzwcYjPSEvli7AEBPNDKLXJIUQ6PUdEfxAkwTtLwmDckX0Roj8SeBrgwecNbDuBW9OuO9850=
+Received: from SN6PR10MB2957.namprd10.prod.outlook.com (2603:10b6:805:cb::19)
+ by SN7PR10MB6476.namprd10.prod.outlook.com (2603:10b6:806:2a3::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8093.32; Tue, 5 Nov
+ 2024 01:33:49 +0000
+Received: from SN6PR10MB2957.namprd10.prod.outlook.com
+ ([fe80::72ff:b8f4:e34b:18c]) by SN6PR10MB2957.namprd10.prod.outlook.com
+ ([fe80::72ff:b8f4:e34b:18c%4]) with mapi id 15.20.8114.015; Tue, 5 Nov 2024
+ 01:33:49 +0000
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+        linux-mips@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        sparclinux@vger.kernel.org, x86@kernel.org,
+        Ard Biesheuvel
+ <ardb@kernel.org>
+Subject: Re: [PATCH v3 18/18] scsi: target: iscsi: switch to using the
+ crc32c library
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+In-Reply-To: <20241103223154.136127-19-ebiggers@kernel.org> (Eric Biggers's
+	message of "Sun, 3 Nov 2024 14:31:54 -0800")
+Organization: Oracle Corporation
+Message-ID: <yq1bjyu5usb.fsf@ca-mkp.ca.oracle.com>
+References: <20241103223154.136127-1-ebiggers@kernel.org>
+	<20241103223154.136127-19-ebiggers@kernel.org>
+Date: Mon, 04 Nov 2024 20:33:47 -0500
+Content-Type: text/plain
+X-ClientProxiedBy: SJ0PR13CA0228.namprd13.prod.outlook.com
+ (2603:10b6:a03:2c1::23) To SN6PR10MB2957.namprd10.prod.outlook.com
+ (2603:10b6:805:cb::19)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v3 0/6] Direct Map Removal for guest_memfd
-To: Patrick Roy <roypat@amazon.co.uk>, tabba@google.com,
- quic_eberman@quicinc.com, seanjc@google.com, pbonzini@redhat.com,
- jthoughton@google.com, ackerleytng@google.com, vannapurve@google.com,
- rppt@kernel.org
-Cc: graf@amazon.com, jgowans@amazon.com, derekmn@amazon.com,
- kalyazin@amazon.com, xmarcalx@amazon.com, linux-mm@kvack.org,
- corbet@lwn.net, catalin.marinas@arm.com, will@kernel.org,
- chenhuacai@kernel.org, kernel@xen0n.name, paul.walmsley@sifive.com,
- palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
- svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, tglx@linutronix.de,
- mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
- hpa@zytor.com, luto@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
- mhiramat@kernel.org, mathieu.desnoyers@efficios.com, shuah@kernel.org,
- kvm@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linux-kselftest@vger.kernel.org
-References: <20241030134912.515725-1-roypat@amazon.co.uk>
- <4aa0ccf4-ebbe-4244-bc85-8bc8dcd14e74@redhat.com>
- <27646c08-f724-49f7-9f45-d03bad500219@amazon.co.uk>
- <d1a69eb7-85d5-4ffa-88e2-f4841713c1d7@redhat.com>
- <90c9d8c0-814e-4c86-86ef-439cb5552cb6@amazon.co.uk>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <90c9d8c0-814e-4c86-86ef-439cb5552cb6@amazon.co.uk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-
->> We talked about shared (faultable) vs. private (unfaultable), and how it
->> would interact with the directmap patches here.
->>
->> As discussed, having private (unfaultable) memory with the direct-map
->> removed and shared (faultable) memory with the direct-mapping can make
->> sense for non-TDX/AMD-SEV/... non-CoCo use cases. Not sure about CoCo,
->> the discussion here seems to indicate that it might currently not be
->> required.
->>
->> So one thing we could do is that shared (faultable) will have a direct
->> mapping and be gup-able and private (unfaultable) memory will not have a
->> direct mapping and is, by design, not gup-able.>
->> Maybe it could make sense to not have a direct map for all guest_memfd
->> memory, making it behave like secretmem (and it would be easy to
->> implement)? But I'm not sure if that is really desirable in VM context.
-> 
-> This would work for us (in this scenario, the swiotlb areas would be
-> "traditional" memory, e.g. set to shared via mem attributes instead of
-> "shared" inside KVM), it's kinda what I had prototyped in my v1 of this
-> series (well, we'd need to figure out how to get the mappings of gmem
-> back into KVM, since in this setup, short-circuiting it into
-> userspace_addr wouldn't work, unless we banish swiotlb into a different
-> memslot altogether somehow).
-
-Right.
-
-> But I don't think it'd work for pKVM, iirc
-> they need GUP on gmem, and also want direct map removal (... but maybe,
-> the gmem VMA for non-CoCo usecase and the gmem VMA for pKVM could be
-> behave differently?  non-CoCo gets essentially memfd_secret, pKVM gets
-> GUP+no faults of private mem).
-
-Good question. So far my perception was that the directmap removal on 
-"private/unfaultable" would be sufficient.
-
-> 
->> Having a mixture of "has directmap" and "has no directmap" for shared
->> (faultable) memory should not be done. Similarly, private memory really
->> should stay "unfaultable".
-> 
-> You've convinced me that having both GUP-able and non GUP-able
-> memory in the same VMA will be tricky. However, I'm less convinced on
-> why private memory should stay unfaultable; only that it shouldn't be
-> faultable into a VMA that also allows GUP. Can we have two VMAs? One
-> that disallows GUP, but allows userspace access to shared and private,
-> and one that allows GUP, but disallows accessing private memory? Maybe
-> via some `PROT_NOGUP` flag to `mmap`? I guess this is a slightly
-> different spin of the above idea.
-
-What we are trying to achieve is making guest_memfd not behave 
-completely different on that level for different "types" of VMs. So one 
-of the goals should be to try to unify it as much as possible.
-
-shared -> faultable: GUP-able
-private -> unfaultable: unGUP-able
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SN6PR10MB2957:EE_|SN7PR10MB6476:EE_
+X-MS-Office365-Filtering-Correlation-Id: e68e28b2-0908-4426-9f41-08dcfd39e62f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|376014|1800799024|7416014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?FRuDr7RU5g2q0ZO7udvXvR7Txt0VFvkeuaUfV0aQR5Y109qNr0UMeCVoe2n+?=
+ =?us-ascii?Q?aJSI/QiCD7yea1X3Qan+I5NQDjvLVgPz4NZlVCW2Z0n6pLWs5pfgWj7u32mN?=
+ =?us-ascii?Q?dMRCM8ojRmn9G7E/pOtw6gXqTyTyxSoUkMsp8mAqvlPGab/P3MLG2rBNvjnB?=
+ =?us-ascii?Q?DTcyr+AVIqvlKRuy9g1S9Mo0Fkkkr9P0uRuPMtXnTluuP8uZ53ALYbQauY1b?=
+ =?us-ascii?Q?XmnozBjounBm+PWff0TwRYseYO/Nlnmo2zcO26pqNhm0y1COq6UMKtwoSPWd?=
+ =?us-ascii?Q?BNP7wQogcJhv2d1oYfUWpGqKihpb/M0bg6KdtINtatAU3n7STh7bF6lNMQkg?=
+ =?us-ascii?Q?oQCKFUkQl1tnwxbbe5xRyC6TZPNAtOuEMWPAyHXt6MHsh25yNsh9OUM9e5fK?=
+ =?us-ascii?Q?HuOuR5TjKjgn8vG95kVDC+1d6Ii4HR0icAerJ9mO5toBWZUvl2CmHh3yw686?=
+ =?us-ascii?Q?BrSRr8brImQ4tdQG9eYD3lzBc3qCA9RmeNRPl69lFtceooffQidqtrqSNEER?=
+ =?us-ascii?Q?ok3ryYed2OrQdg9pTxKjV+ewj/Xg0EnAtFwfw9foBZ+Kt7Q9GDyR/Sdp8JRe?=
+ =?us-ascii?Q?/2rz0NKBAXr0OuG7scXjV8gTwZhCTMtsfJrxizDeXY1lpKNEtr2xA8yiM4in?=
+ =?us-ascii?Q?Fgx/JRomgutOUlvmYj4WZC3MXtGA4YpbBaEB/7UJMtMOgwtb2riw6qg9CuIe?=
+ =?us-ascii?Q?uJuYh9ntavbFmH2At7nJuLSZ+OGZnrluOPRVTrSNDhfCfURa+oiXDAXS8HO5?=
+ =?us-ascii?Q?X8zcHFQxzWQwKii+BS+hYK9sBjh1Vlsx+Y5Sod4ApODp9FvlJedoihp2oKpW?=
+ =?us-ascii?Q?xKgmPatVNuSrikVkY+JV6fRIg5QG1rMQEPqgaSk45WXuL/gP4Y7Udatq1e+O?=
+ =?us-ascii?Q?vMnX7TekC5Bkj/Bkg9kjgyWCgykzeYIhcWsmMs4/mXAQAsyRPGiz34lVWe+Y?=
+ =?us-ascii?Q?VP4zeQRfG3IYHl7ebWwMu707FqVwbwqZ8qjd9NCYxmsptV3vVwSKKPpfr/Cz?=
+ =?us-ascii?Q?eO8KYUz2KYzffutA1Tu4i9f9Y9Tm5fdpBUW5bobYtJyNRYsOVMIeVCh8dGFt?=
+ =?us-ascii?Q?NtcZ74gTTWk9YydW17/Julye3RyaHQgYS3+dDmMZ9G+fCO26N2RY/WhqgbtM?=
+ =?us-ascii?Q?iGiu9HvKvTCZJtc18eTcywNfEgKPF/uelyK6sJ1ffEVpl+YV/yxJQwtCJUVD?=
+ =?us-ascii?Q?tEdqab3clbdAcSm7ydfHsoWIdjevrtJYcz98TMCf/Hj0/+mIindGvy2p7ilZ?=
+ =?us-ascii?Q?KmJSW5cC3ZySqNhu8nIjhjBwgKg23Yyrhl2xDt4kTLFxaaCBrpHWp8z3VwQL?=
+ =?us-ascii?Q?/ltkM9If1g2aoI6AF93n8bTt?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR10MB2957.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024)(7416014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?5QkpAVc8Oo46ovNy4ljkzzM/A1dvIRdPxlWsTFo0JpNxmNCEI1qXqDsooKLV?=
+ =?us-ascii?Q?ttlXCpwbg/KDQX2n14mCLSpKJ8bnS8EGexmoY//uNuZ16Aavb5AjsHb2EF26?=
+ =?us-ascii?Q?THbkBergFB0nP4kIBSQYPlLkKXT4lMyfgnWkdrl+nfBPwpPeYPaGnFFOld6w?=
+ =?us-ascii?Q?mB9RRXG7D1t3W7fzsrY3i3reCJLN3mx5N27RSl8liKfzxpLeZ7Gn7Hl4zwgb?=
+ =?us-ascii?Q?moRNLscOxBr/sAMkx3IHm2tQOy53QaXN+JS0ixYMfS4pyKKbX+amIL5yajc9?=
+ =?us-ascii?Q?0B+6zyhNSJ3jhMJrqrW0+GAcscYKmfnyNWp3PLMvoOoHNlYyJ5Vqt6E9wJem?=
+ =?us-ascii?Q?RLoJOr4b+CjVaCGiOo+MCCbyOqRzK6IhTIL1bTMSUvA4gLSXhjwi/s5xOK1e?=
+ =?us-ascii?Q?l4i9LIn9EwD2x/hoRio+Chi4kfPKIAbnjn8e2KkIcpg98i8r7BPP6FLIZBKf?=
+ =?us-ascii?Q?vsx9sJFFXBA3BfaWo8aAGcz14HtoukYsk+tF7iy6Rs+1g8mXdxC53EC8pBow?=
+ =?us-ascii?Q?ThPxUc+VAOSdoaOc0ksndCCZ+Bw4AQqiGLsQXIH3RWMiv87/iNrLVooTsddB?=
+ =?us-ascii?Q?20fNew3qgHihJLbeyCOwtPvrOeoqTzd1A7BqvKt21/DXWmTkj8Ay+qi8uYlc?=
+ =?us-ascii?Q?SivrbTvW7NOy0wO8AdoHa/gs0hiqNxVvWgY4MK0+mYVrqP6ZQtkDCp/nGsrV?=
+ =?us-ascii?Q?SmKt4Bk6ds/SfBcY3Smqbo8id7vWrZ5Ap6MsRlac21MMeRLsI3q3A1LG82Vn?=
+ =?us-ascii?Q?FKs4giY4/RiOyyGRlZrH4h0tjPfsSS1zm22ss33p677I6SgEUEV/MMWOKRmb?=
+ =?us-ascii?Q?1tvhMUq2LSpU+52MpvShbU6CNMuIHa/YwAp2sx3xnwHBFl74zR182LLS5ZlV?=
+ =?us-ascii?Q?Y6BgifOwxz6eofCYfXTST6lLNhzw/o9DJec7IpSTe1k0WUZb/jyNesuBtwJs?=
+ =?us-ascii?Q?JF4UTbYdaKIfjwdwwKkD2A1/5jPfLZmGQDI7etUu2v1Hf2sQopk6vezE8KS3?=
+ =?us-ascii?Q?gsR4dd1PZLUBxBGjm/wDwNSob61ujUooPzvaOj5E/i+AyZO/KgSph4qOcHsh?=
+ =?us-ascii?Q?J5iMmbaJTZdGZWQeSpnmKChY3gOKBGmkR5Qn93UgzNm7ycxCxAbFL/opHFxz?=
+ =?us-ascii?Q?zWoKftsp6ybzFNTiXKjV4HIwe+h611lmo7krCpsQiezTiWQZAmR1c0PjcJ98?=
+ =?us-ascii?Q?uTFJ7MHBIuD/VmxqEbXjf2hvZo74pqui64tYqz9PBA7gds3LmsaDnhHTcR30?=
+ =?us-ascii?Q?9LNIhvjKe/9oeaY9OQezh6J0Hd3LOTjz5XXPTtYD1n9m75SoDPG5RB3CxV30?=
+ =?us-ascii?Q?xAhOwJ8qiTjJ9TAl1fQdH4opQ1ZzpcmCui1h7wvl8tKjSV7ywVFxvKML3wRh?=
+ =?us-ascii?Q?tH5CCmlQdjJdUWbw1SvJBMpR/TDi3KSQl5aLF/9kP1Gxul3D/kx3+liROkV1?=
+ =?us-ascii?Q?Kr/wMPXm0DdH8Oo4/ab0F9r6v4oa3zKiaX+URxXhIZFaSP6QSQ9eF+R0ja5L?=
+ =?us-ascii?Q?F/WaMjAGsjEFppG8P1irA8NlXxdfRaQCXHC9rgTYzF1tb++EMhraAYEgXske?=
+ =?us-ascii?Q?alOz3TZtctec8yn7uT2H/Zqt89laFgMiHt11sf4h+jZ5O0hTpubl9Fzv1qeb?=
+ =?us-ascii?Q?Jw=3D=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	qOTAdrk+VxxIS9XP8QJcNTaoD6J7wG6733BATC9QZ+yN8gSaVxYJ3Zh87IkXNFFfXvm/sXZHytS9LWru7uN+ME7JQA3Fhl9xCcDmQieE/N9W31Et1ndfdUpegzOfMfMRVF5zhJiHm3kPrbGIq9ytGTrmEzUuK9fsNJTAqwAPVhSB33AHWK1ecGeu9Afzg7gNUivjxSYPGMvf4/QZR0qqpX4YVwF2YdyBjMO17O1qmpVaS8FFARyyB6pmWAJilTLwCRw+qqw+fjKCbaKXTEe9HNLWfb3J4XX4vyVnMKYlACpTtfqRVXkMBOoelOivq52tryXineEx6HhQwqupMWwqJHYLavhQZQypXXcJtxu2x2f5PtbCVOOrXE3Tbhz7CP3Q0KD533RDb2YHrBhqXinP0aQXmbMvl4uYWpvWsK6TKslJ2mQfXgRif+eUn/rxI8/w7sv9tll+khZQ+Y3J6F5xyz/YsnyNpJNXRe6xrFAJbcaGzVkGcC4KkY9j4J2TE3A++4gStGrAydrg9V0fD6rMje2A3pTl4pJzWBmGHg/4Dt+iuif6sGG6xGnYvEvm+EM6rTg2p45Kfy1WuJOZBV3oV9zgSrSbxrYoXtni7y08I8E=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e68e28b2-0908-4426-9f41-08dcfd39e62f
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR10MB2957.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Nov 2024 01:33:49.7656
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 2yEi59SUlAfl2Lu/OVWOOlm/x2ZrMyY2iMQxhWsKNKv8KgDEGfNFJ+eG2otCSwc6eJrd3817hfu/ia/mEf77ZopzACNPDwmipxcOS3hrmd4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR10MB6476
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-11-04_22,2024-11-04_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 adultscore=0 spamscore=0
+ mlxlogscore=999 phishscore=0 malwarescore=0 bulkscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2409260000
+ definitions=main-2411050011
+X-Proofpoint-ORIG-GUID: zs8GZAjkthqksiW3uwoFJcptg6625-0g
+X-Proofpoint-GUID: zs8GZAjkthqksiW3uwoFJcptg6625-0g
 
 
-And it makes sense, because a lot of future work will rely on some 
-important properties: for example, if private memory cannot be faulted 
-in + GUPed, core-MM will never have obtained valid references to such a 
-page. There is no need to split large folios into smaller ones for 
-tracking purposes; there is no need to maintain per-page refcounts and 
-pincounts ...
+Eric,
 
-It doesn't mean that we cannot consider it if really required, but there 
-really has to be a strong case for it, because it will all get really messy.
+> Now that the crc32c() library function directly takes advantage of
+> architecture-specific optimizations, it is unnecessary to go through
+> the crypto API. Just use crc32c(). This is much simpler, and it
+> improves performance due to eliminating the crypto API overhead.
 
-For example, one issue is that a folio only has a single mapping 
-(folio->mapping), and that is used in the GUP-fast path (no VMA) to 
-determine whether GUP-fast is allowed or not.
-
-So you'd have to force everything through GUP-slow, where you could 
-consider VMA properties :( It sounds quite suboptimal.
-
-I don't think multiple VMAs are what we really want. See below.
-
-> 
->> I think one of the points raised during the bi-weekly call was that
->> using a viommu/swiotlb might be the right call, such that all memory can
->> be considered private (unfaultable) that is not explicitly
->> shared/expected to be modified by the hypervisor (-> faultable, ->
->> GUP-able).
->>
->> Further, I think Sean had some good points why we should explore that
->> direction, but I recall that there were some issue to be sorted out
->> (interpreted instructions requiring direct map when accessing "private"
->> memory?), not sure if that is already working/can be made working in KVM.
-> 
-> Yeah, the big one is MMIO instruction emulation on x86, which does guest
-> page table walks and instruction fetch (and particularly the latter
-> cannot be known ahead-of-time by the guest, aka cannot be explicitly
-> "shared"). That's what the majority of my v2 series was about. For
-> traditional memslots, KVM handles these via get_user and friends, but if
-> we don't have a VMA that allows faulting all of gmem, then that's
-> impossible, and we're in "temporarily restore direct map" land. Which
-> comes with significantly performance penalties due to TLB flushes.
-
-Agreed.
-
- > >> What's your opinion after the call and the next step for use cases 
-like
->> you have in mind (IIRC firecracker, which wants to not have the
->> direct-map for guest memory where it can be avoided)?
-> 
-> Yea, the usecase is for Firecracker to not have direct map entries for
-> guest memory, unless needed for I/O (-> swiotlb).
-> 
-> As for next steps, let's determine once and for all if we can do the
-> KVM-internal guest memory accesses for MMIO emulation through userspace
-> mappings (although if we can't I'll have some serious soul-searching to
-> do, because all other solutions we talked about so far also have fairly
-> big drawbacks; on-demand direct map reinsertion has terrible
-> performance
-So IIUC, KVM would have to access "unfaultable" guest_memfd memory using 
-fd+offset, and that's problematic because "no-directmap".
-
-So you'd have to map+unmap the directmap repeatedly, and still expose it 
-temporarily in the direct map to others. I see how that is undesirable, 
-even when trying to cache hotspots (partly destroying the purpose of the 
-directmap removal).
-
-
-Would a per-MM kernel mapping of these pages work, so KVM can access them?
-
-It sounds a bit like what is required for clean per-MM allocations [1]: 
-establish a per-MM kernel mapping of (selected?) pages. Not necessarily 
-all of them.
-
-Yes, we'd be avoiding VMAs, GUP, mapcounts, pincounts and everything 
-involved with ordinary user mappings for these private/unfaultable 
-thingies. Just like as discussed in, and similar to [1].
-
-Just throwing it out there, maybe we really want to avoid the directmap 
-(keep it unmapped) and maintain a per-mm mapping for a bunch of folios 
-that can be easily removed when required by guest_memfd (ftruncate, 
-conversion private->shared) on request.
-
-[1] https://lore.kernel.org/all/20240911143421.85612-1-faresx@amazon.de/T/#u
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
 
 -- 
-Cheers,
-
-David / dhildenb
-
+Martin K. Petersen	Oracle Linux Engineering
