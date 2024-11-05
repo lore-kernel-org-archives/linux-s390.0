@@ -1,715 +1,183 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f202.google.com (mail-yb1-f202.google.com [209.85.219.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E43F188703;
-	Tue,  5 Nov 2024 17:45:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 514612139D7
+	for <linux-s390@vger.kernel.org>; Tue,  5 Nov 2024 19:56:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730828736; cv=none; b=SjA3tp/2mO8SlvL8/GUYKiEILkfIlPy7kSLNQFbdWCQGIgOzqKswkriHmH2DEjOBBXFYHTyegJhka4UlrCeyz9JxBHfwAQjdAn5+NxwWvtk6NpyvKOJs4vPNZDJytyuJrYXgotrtf1gps+lGjBkzoO5tmXtOa6oCgNnb1Zeu1VU=
+	t=1730836591; cv=none; b=m/nKRp8r1lwASo5uxDvCrL+J6Qo7W2r9jO+qgT5mWyK1zwjisiHMYXiuzMea2Mx0tx/j+8Nnz/dhxE02FMbhbJ7u9Es9hD7NldhjzZw4N8I9NGtGQwl1tbXYZ3wC0SLtnTUvbLY4DRG53xbgPXkfbBzHeRxbpFxW2mH8xEeoPME=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730828736; c=relaxed/simple;
-	bh=mZZb3/hA/W7EmscFtgYuGXBuNY8T70vOrhVwTZMGf/0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lpNKWrakMA2VlJ7ui9TFLi/FutGJizYCRraLPNipvCBY9F/GLwxuqlX92BrC753HolquLZVc0hRAqfujOpan/IWaNr/8xFGc27bPZzc3QN8adA0DBgrdep5LH4d4t6otVRbFNItLyjA6dJyr520412vGTtBWyvEMbDzFFhesKjo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VTIMU1W2; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1730836591; c=relaxed/simple;
+	bh=sAKKgucoI4QTRhj9J+f6y3dNEk0UUb1jSv7yTfaZEHk=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=lBgExcJCbYdl4q16KUpyD05vUv7grz8B82r39J1UcT7P9Xnjv1DrMN9F0F6XJjYpzp9ysrMP8bUypMuB6trsahLWqoMKwrjAk4Tppdkw2tduSpJV34k9uSLxakMjg4hxuqn8i0cY7GqV6S3q9hKu80qbRGNZllUXEqux/Ko2UIg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=oQBx1en3; arc=none smtp.client-ip=209.85.219.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VTIMU1W2"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A5GeQlD018016;
-	Tue, 5 Nov 2024 17:45:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=03A1hYYVPwB/YwiTducQMCbGq14xULLZEQ42bfUiO
-	2M=; b=VTIMU1W2cwWvKpsu2nX9EdQbPwhkhApjhgX8N0iW2Ein+x1XGHC5sIMnJ
-	Q750c/MeNcfYslveP0J/ve9iOPzI9BLquWj42i476bdzdvx2PHiVbHj+2cVMz3Nk
-	JrfTiHAkh3OBM5J/U/ucqc13/K+IPCCo2w0wZfIsbWW/hWNQUXc7Y/nq5DBueelo
-	MesrdoZ29K+Cp/z7iYi6cZIuZSk1VfgfaAfrT9rj2KewwAYPxEl+Rk0xRYBFkpjD
-	k8aje8ti5tvZYS55l1GQhqsmNPLFFnUnFjYvZJanKMHbTawFrkaF2qLBiFUJZcf6
-	3JbSIoradPHl5+CmkNMiaiJ6/IE7A==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42qq338940-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 05 Nov 2024 17:45:31 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4A5G9QJ6008423;
-	Tue, 5 Nov 2024 17:45:30 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42nywkjahf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 05 Nov 2024 17:45:30 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4A5HjOuF55771430
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 5 Nov 2024 17:45:24 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5FA3F20040;
-	Tue,  5 Nov 2024 17:45:24 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E303B2004B;
-	Tue,  5 Nov 2024 17:45:23 +0000 (GMT)
-Received: from p-imbrenda.ibmuc.com (unknown [9.171.65.220])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  5 Nov 2024 17:45:23 +0000 (GMT)
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: kvm@vger.kernel.org
-Cc: nrb@linux.ibm.com, frankja@linux.ibm.com, borntraeger@de.ibm.com,
-        thuth@redhat.com, david@redhat.com, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v1 1/1] s390x: pv: Add test for large host pages backing
-Date: Tue,  5 Nov 2024 18:45:23 +0100
-Message-ID: <20241105174523.51257-1-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.47.0
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="oQBx1en3"
+Received: by mail-yb1-f202.google.com with SMTP id 3f1490d57ef6-e02b5792baaso9368446276.2
+        for <linux-s390@vger.kernel.org>; Tue, 05 Nov 2024 11:56:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1730836589; x=1731441389; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=hzMiS31Q99SH+ivi/H+fLjhfNr8W/1ENyadMPU3uzYk=;
+        b=oQBx1en3JDZTc0i3f08iqxy2rQYzsKR88cDHyn/fdqHSgv79sLaRo+ESj7hf+cmPo/
+         SkA7TtK74KvmPx1nVQx5gvdSrDKMPTNRUBOeR5kGuUnQKZqZ+K5weiJRa+u71NO/P4Jh
+         csTGNOQHBsMN3hxu0hcm37ht2OyhD4Wbnyvv96d7DLIPECwajjC1LdBYvMX8zoeKc0zf
+         xPqlbao+gDXRvpDvPH2YK6nPUAy69qHut8pe/z23jCKLdvK8uGq0yFo3HE0hLMf2GSMQ
+         ioOTvDdo31AGGg4/5R8g+DAuBEDoPvF9gmbyf52JJO03puIll3uA36UHaX/0clVSTTIb
+         ZPpg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730836589; x=1731441389;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=hzMiS31Q99SH+ivi/H+fLjhfNr8W/1ENyadMPU3uzYk=;
+        b=EZhPkccjUcOtySL0D3BIPB0B8AvGwL3JdpJvBhxy0K2/xFrmI01fFueAwRCsk5evfR
+         4uozh5hi6NwQXQ4KYxzo68zT7ckQoLqGEJsW/zW1XddrOO8b651haIv7BSkJPii2b/FO
+         0/x7FTYoinYKHitfQH7XUgGYEsd13/TmuvgbzBIy4Dc57hpya5prvGzkiz400EFoNgP7
+         3QNBsIx9jhf0EAhDax3jisl9K2N75BaH/KY2f+M4rnI05tLM9mcUBWxPkgJATwZQAzvo
+         DyBNi2zUGQfa8xn3mr347g0ON1jqdaqQeNYrMY70mCZQRl9PyeHSfW0F8PWbzqIQEg3F
+         A0yw==
+X-Forwarded-Encrypted: i=1; AJvYcCVeBG8vI3nUwgGf8O9uNG6HmIlbTJ4NvLjE/hEYzBvNB/PlnrMh5pfqtxxiP/KT+tWWYkALWvL//AoF@vger.kernel.org
+X-Gm-Message-State: AOJu0YztDu2BQLQ82umwLgTvBNwLB7dsBrb+cR1zpdxDHaegmFYYXRmS
+	svsbGkjNsFyFm4rsaBXp8GxAywfDO2lNj3GaOCL02BKz+yG06KfRXWwjRan+8jvB2V44KUTiMnP
+	d+Q7zgdvJ8x3OKKO5ChtO9w==
+X-Google-Smtp-Source: AGHT+IGCeubudBZvDHKVyK9hoysogwq8Oy8BphtTGtN9ESDHF0Oe45MlIu4/byZXs6BbgdCbpbF4nba1Gh+JSm/9sQ==
+X-Received: from coltonlewis-kvm.c.googlers.com ([fda3:e722:ac3:cc00:11b:3898:ac11:fa18])
+ (user=coltonlewis job=sendgmr) by 2002:a25:b28e:0:b0:e29:6df8:ef58 with SMTP
+ id 3f1490d57ef6-e3087a5bd64mr143088276.4.1730836589136; Tue, 05 Nov 2024
+ 11:56:29 -0800 (PST)
+Date: Tue,  5 Nov 2024 19:55:57 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: erzEoYyKjSsVi5NLGg4IKzclzgr36TRC
-X-Proofpoint-GUID: erzEoYyKjSsVi5NLGg4IKzclzgr36TRC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- mlxlogscore=999 clxscore=1015 bulkscore=0 priorityscore=1501
- malwarescore=0 adultscore=0 impostorscore=0 lowpriorityscore=0
- suspectscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2411050135
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.47.0.199.ga7371fff76-goog
+Message-ID: <20241105195603.2317483-1-coltonlewis@google.com>
+Subject: [PATCH v6 0/5] Correct perf sampling with Guest VMs
+From: Colton Lewis <coltonlewis@google.com>
+To: kvm@vger.kernel.org
+Cc: Oliver Upton <oliver.upton@linux.dev>, Sean Christopherson <seanjc@google.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
+	Mark Rutland <mark.rutland@arm.com>, 
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
+	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
+	Kan Liang <kan.liang@linux.intel.com>, Will Deacon <will@kernel.org>, 
+	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H . Peter Anvin" <hpa@zytor.com>, linux-perf-users@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	Colton Lewis <coltonlewis@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Add a new test to check that the host can use 1M large pages to back
-protected guests when the corresponding feature is present.
+v6:
+* Apply all Reviewed-by and Acked-by trailers from previous versions
+* Rebase to v6.12-rc6
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- s390x/Makefile               |   2 +
- lib/s390x/asm/arch_def.h     |   1 +
- lib/s390x/asm/uv.h           |  18 ++
- s390x/pv-edat1.c             | 472 +++++++++++++++++++++++++++++++++++
- s390x/snippets/c/pv-memhog.c |  59 +++++
- 5 files changed, 552 insertions(+)
- create mode 100644 s390x/pv-edat1.c
- create mode 100644 s390x/snippets/c/pv-memhog.c
+v5:
+https://lore.kernel.org/all/20240920174740.781614-1-coltonlewis@google.com/
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 23342bd6..c5c6f92c 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -48,6 +48,7 @@ tests += $(TEST_DIR)/sie-dat.elf
- pv-tests += $(TEST_DIR)/pv-diags.elf
- pv-tests += $(TEST_DIR)/pv-icptcode.elf
- pv-tests += $(TEST_DIR)/pv-ipl.elf
-+pv-tests += $(TEST_DIR)/pv-edat1.elf
- 
- ifneq ($(HOST_KEY_DOCUMENT),)
- ifneq ($(GEN_SE_HEADER),)
-@@ -137,6 +138,7 @@ $(TEST_DIR)/pv-icptcode.elf: pv-snippets += $(SNIPPET_DIR)/asm/icpt-loop.gbin
- $(TEST_DIR)/pv-icptcode.elf: pv-snippets += $(SNIPPET_DIR)/asm/loop.gbin
- $(TEST_DIR)/pv-icptcode.elf: pv-snippets += $(SNIPPET_DIR)/asm/pv-icpt-vir-timing.gbin
- $(TEST_DIR)/pv-ipl.elf: pv-snippets += $(SNIPPET_DIR)/asm/pv-diag-308.gbin
-+$(TEST_DIR)/pv-edat1.elf: pv-snippets += $(SNIPPET_DIR)/c/pv-memhog.gbin
- 
- ifneq ($(GEN_SE_HEADER),)
- snippets += $(pv-snippets)
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 745a3387..481ede8f 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -249,6 +249,7 @@ extern struct lowcore lowcore;
- #define PGM_INT_CODE_REGION_FIRST_TRANS		0x39
- #define PGM_INT_CODE_REGION_SECOND_TRANS	0x3a
- #define PGM_INT_CODE_REGION_THIRD_TRANS		0x3b
-+#define PGM_INT_CODE_SECURE_PAGE_SIZE		0x3c
- #define PGM_INT_CODE_SECURE_STOR_ACCESS		0x3d
- #define PGM_INT_CODE_NON_SECURE_STOR_ACCESS	0x3e
- #define PGM_INT_CODE_SECURE_STOR_VIOLATION	0x3f
-diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-index 611dcd3f..7527be48 100644
---- a/lib/s390x/asm/uv.h
-+++ b/lib/s390x/asm/uv.h
-@@ -35,6 +35,7 @@
- #define UVC_CMD_CONV_TO_SEC_STOR	0x0200
- #define UVC_CMD_CONV_FROM_SEC_STOR	0x0201
- #define UVC_CMD_DESTR_SEC_STOR		0x0202
-+#define UVC_CMD_VERIFY_LARGE_FRAME	0x0203
- #define UVC_CMD_SET_SEC_CONF_PARAMS	0x0300
- #define UVC_CMD_UNPACK_IMG		0x0301
- #define UVC_CMD_VERIFY_IMG		0x0302
-@@ -74,6 +75,11 @@ enum uv_cmds_inst {
- 	BIT_UVC_CMD_PIN_PAGE_SHARED = 21,
- 	BIT_UVC_CMD_UNPIN_PAGE_SHARED = 22,
- 	BIT_UVC_CMD_ATTESTATION = 28,
-+	BIT_UVC_CMD_VERIFY_LARGE_FRAME = 32,
-+};
-+
-+enum uv_features {
-+	BIT_UV_1M_BACKING = 6,
- };
- 
- struct uv_cb_header {
-@@ -312,6 +318,18 @@ static inline int uv_import(uint64_t handle, unsigned long gaddr)
- 	return uv_call(0, (uint64_t)&uvcb);
- }
- 
-+static inline int uv_merge(uint64_t handle, unsigned long gaddr)
-+{
-+	struct uv_cb_cts uvcb = {
-+		.header.cmd = UVC_CMD_VERIFY_LARGE_FRAME,
-+		.header.len = sizeof(uvcb),
-+		.guest_handle = handle,
-+		.gaddr = gaddr,
-+	};
-+
-+	return uv_call(0, (uint64_t)&uvcb);
-+}
-+
- static inline int uv_export(unsigned long paddr)
- {
- 	struct uv_cb_cfs uvcb = {
-diff --git a/s390x/pv-edat1.c b/s390x/pv-edat1.c
-new file mode 100644
-index 00000000..a211c6f9
---- /dev/null
-+++ b/s390x/pv-edat1.c
-@@ -0,0 +1,472 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * PV huge page backing tests
-+ *
-+ * Copyright (c) 2024 IBM Corp
-+ *
-+ * Authors:
-+ *  Claudio Imbrenda <imbrenda@linux.ibm.com>
-+ */
-+#include <libcflat.h>
-+#include <vmalloc.h>
-+#include <sie.h>
-+#include <sclp.h>
-+#include <snippet.h>
-+#include <pv_icptdata.h>
-+#include <asm/interrupt.h>
-+#include <asm/facility.h>
-+#include <asm/uv.h>
-+#include <asm/page.h>
-+#include <asm/mem.h>
-+#include <mmu.h>
-+#include <asm/time.h>
-+
-+#define GUEST_ORDER	REGION3_SHIFT
-+#define GUEST_SIZE	BIT_ULL(REGION3_SHIFT)
-+#define N_ITER 		32
-+#define MAGIC_ADDRESS	0x12a000
-+
-+#define FIRST		42
-+#define SECOND		23
-+
-+#define STR(x)		((x) ? "1m" : "4k")
-+#define STR3(x)		((x) != -1 ? STR(x) : "no")
-+#define PARAM(n, step)	(((unsigned long)(n) << 32) | (step))
-+
-+static struct vm vm;
-+static void *root;
-+
-+extern const char SNIPPET_NAME_START(c, pv_memhog)[];
-+extern const char SNIPPET_NAME_END(c, pv_memhog)[];
-+extern const char SNIPPET_HDR_START(c, pv_memhog)[];
-+extern const char SNIPPET_HDR_END(c, pv_memhog)[];
-+
-+static void init_snippet(struct vm *vm) {
-+	const unsigned long size_hdr = SNIPPET_HDR_LEN(c, pv_memhog);
-+	const unsigned long size_gbin = SNIPPET_LEN(c, pv_memhog);
-+
-+	snippet_pv_init(vm, SNIPPET_NAME_START(c, pv_memhog),
-+			SNIPPET_HDR_START(c, pv_memhog),
-+			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
-+}
-+
-+static uint64_t tod_to_us(uint64_t tod)
-+{
-+	return tod >> STCK_SHIFT_US;
-+}
-+/*
-+static uint64_t tod_to_ns(uint64_t tod)
-+{
-+	return tod_to_us(tod * 1000);
-+}
-+*/
-+
-+static inline uint64_t guest_start(struct vm *vm)
-+{
-+	return vm->sblk->mso;
-+}
-+
-+static inline uint64_t guest_end(struct vm *vm)
-+{
-+	return vm->sblk->msl + SZ_1M;
-+}
-+
-+static inline uint64_t guest_size(struct vm *vm)
-+{
-+	return guest_end(vm) - guest_start(vm);
-+}
-+
-+static uint16_t uvc_merge(struct vm *vm, uint64_t addr)
-+{
-+	struct uv_cb_cts uvcb = {
-+		.header.cmd = UVC_CMD_VERIFY_LARGE_FRAME,
-+		.header.len = sizeof(uvcb),
-+		.guest_handle = vm->uv.vm_handle,
-+		.gaddr = addr,
-+	};
-+	int cc;
-+
-+	cc = uv_call(0, (uint64_t)&uvcb);
-+	assert(cc ? uvcb.header.rc != 1 : uvcb.header.rc == 1);
-+	return uvcb.header.rc;
-+}
-+
-+static void map_identity_range(struct vm *vm, uint64_t start, uint64_t end, bool map1m)
-+{
-+	uint64_t mem = guest_start(vm);
-+
-+	if (map1m) {
-+		for (start &= HPAGE_MASK; start < end; start += HPAGE_SIZE)
-+			install_large_page(root, mem + start, (void *)(mem + start));
-+	} else {
-+		for (start &= PAGE_SIZE; start < end; start += PAGE_SIZE)
-+			install_page(root, mem + start, (void *)(mem + start));
-+	}
-+}
-+
-+static inline void map_identity_all(struct vm *vm, bool map1m)
-+{
-+	map_identity_range(vm, 0, guest_size(vm), map1m);
-+}
-+
-+static void import_range(struct vm *vm, uint64_t start, uint64_t end)
-+{
-+	for (start &= PAGE_MASK; start < end; start += PAGE_SIZE)
-+		assert(uv_import(vm->uv.vm_handle, guest_start(vm) + start) == 0);
-+}
-+
-+static inline void import_all(struct vm *vm)
-+{
-+	import_range(vm, 0, guest_size(vm));
-+}
-+
-+static void export_range(struct vm *vm, uint64_t start, uint64_t end)
-+{
-+	for (start &= PAGE_MASK; start < end; start += PAGE_SIZE)
-+		assert(uv_export(guest_start(vm) + start) == 0);
-+}
-+
-+static void merge_range(struct vm *vm, uint64_t start, uint64_t end)
-+{
-+	for (start &= HPAGE_MASK; start < end; start += HPAGE_SIZE)
-+		assert(uvc_merge(vm, guest_start(vm) + start) == 1);
-+}
-+
-+static inline void merge_all(struct vm *vm)
-+{
-+	merge_range(vm, 0, guest_size(vm));
-+}
-+
-+static inline bool pgm_3c_addr_is(struct vm *vm, uint64_t gaddr)
-+{
-+	union teid teid = { .val = lowcore.trans_exc_id };
-+	bool res;
-+
-+	res = (lowcore.pgm_int_code == PGM_INT_CODE_SECURE_PAGE_SIZE) &&
-+		(teid.addr == (guest_start(vm) + gaddr) >> PAGE_SHIFT);
-+	clear_pgm_int();
-+	return res;
-+}
-+
-+static inline void assert_diag500_val(struct vm *vm, uint64_t val)
-+{
-+	assert(pv_icptdata_check_diag(vm, 0x500));
-+	assert(vm->save_area.guest.grs[2] == val);
-+}
-+
-+static void run_iterations(struct vm *vm, uint64_t param, bool ptlb_always, bool merge)
-+{
-+	uint64_t total, elapsed, best, worst;
-+	uint64_t before, after;
-+	int i;
-+
-+	map_identity_all(vm, 0);
-+	init_snippet(vm);
-+	import_all(vm);
-+	map_identity_all(vm, merge);
-+	if (merge)
-+		merge_all(vm);
-+
-+	sie(vm);
-+	assert_diag500_val(vm, FIRST);
-+	vm->save_area.guest.grs[2] = PARAM(0, param);
-+
-+	total  = worst = 0;
-+	best = -1;
-+
-+	ptlb();
-+	for (i = 0; i < N_ITER; i++) {
-+		if (ptlb_always)
-+			ptlb();
-+
-+		stckf(&before);
-+		sie(vm);
-+		stckf(&after);
-+
-+		assert_diag500_val(vm, SECOND);
-+		vm->save_area.guest.grs[2] = 42;
-+
-+		elapsed = tod_to_us(after - before);
-+
-+		total += elapsed;
-+
-+		best = best > elapsed ? elapsed : best;
-+		worst = worst < elapsed ? elapsed : worst;
-+	}
-+	uv_destroy_guest(vm);
-+
-+	report_info("%5lu %5lu %5lu", best, total / N_ITER, worst);
-+}
-+
-+static void timings(void)
-+{
-+	const uint64_t seqs[] = { 0, 1, 3, 7, 17, 27, 63, 127};
-+	unsigned int purge, map1m, seq;
-+
-+	report_prefix_push("timings");
-+
-+	report_info("Averages over %u iterations, in us (best/average/worst)", N_ITER);
-+	for (purge = 0; purge < 2; purge++) {
-+		report_prefix_pushf("ptlb %s", purge ? "always" : "  once");
-+		for (seq = 0; seq < ARRAY_SIZE(seqs); seq++) {
-+			if (seqs[seq])
-+				report_prefix_pushf("seq step %3lu", seqs[seq]);
-+			else
-+				report_prefix_push("pseudorandom");
-+			for (map1m = 0; map1m < 2; map1m++) {
-+				report_prefix_pushf("%s", STR(map1m));
-+				run_iterations(&vm, seqs[seq], purge, map1m);
-+				report_prefix_pop();
-+			}
-+			report_prefix_pop();
-+		}
-+		report_prefix_pop();
-+	}
-+
-+	report_pass("Timing tests successful");
-+	report_prefix_pop();
-+}
-+
-+
-+static void do_one_test(struct vm *vm, bool init1m, bool import1m, int merge, bool run1m)
-+{
-+	map_identity_all(vm, init1m);
-+	init_snippet(vm);
-+
-+	map_identity_all(vm, import1m);
-+	import_all(vm);
-+
-+	if (merge >= 0) {
-+		map_identity_all(vm, merge);
-+		merge_all(vm);
-+	}
-+
-+	map_identity_all(vm, run1m);
-+	if ((merge == -1) && run1m) {
-+		sie(vm);
-+		report(vm->sblk->icptcode == ICPT_PV_PREF, "ICPT 112");
-+		merge_range(vm, 0, SZ_1M);
-+		expect_pgm_int();
-+		sie(vm);
-+		report(pgm_3c_addr_is(vm, MAGIC_ADDRESS), "PGM 3C at address %#x", MAGIC_ADDRESS);
-+		map_identity_all(vm, false);
-+	}
-+
-+	sie(vm);
-+	assert_diag500_val(vm, FIRST);
-+	vm->save_area.guest.grs[2] = PARAM(4096, 1);
-+	sie(vm);
-+	assert_diag500_val(vm, 23);
-+
-+	uv_destroy_guest(vm);
-+}
-+
-+
-+static void test_run(void)
-+{
-+	int init1m, import1m, merge, run1m;
-+
-+	report_prefix_push("test run");
-+
-+	for (init1m = 0; init1m < 1; init1m++) {
-+		for (import1m = 0; import1m < 2; import1m++) {
-+			for (merge = -1; merge < 2; merge++) {
-+				for (run1m = 0; run1m < 2; run1m++) {
-+					report_prefix_pushf("init %s, import %s, merge %s, run %s",
-+						STR(init1m), STR(import1m), STR3(merge), STR(run1m));
-+
-+					do_one_test(&vm, init1m, import1m, merge, run1m);
-+					report_pass("Execution successful");
-+
-+					report_prefix_pop();
-+				}
-+			}
-+		}
-+	}
-+
-+	report_prefix_pop();
-+}
-+
-+static void test_merge(void)
-+{
-+	uint64_t tmp, mem;
-+	int cc;
-+
-+	report_prefix_push("merge");
-+	init_snippet(&vm);
-+
-+	mem = guest_start(&vm);
-+
-+	map_identity_all(&vm, false);
-+	install_page(root, mem + 0x101000, (void *)(mem + 0x102000));
-+	install_page(root, mem + 0x102000, (void *)(mem + 0x101000));
-+	install_page(root, mem + 0x205000, (void *)(mem + 0x305000));
-+	install_page(root, mem + 0x305000, (void *)(mem + 0x205000));
-+	import_range(&vm, 0, 0x400000);
-+	import_range(&vm, 0x401000, 0x501000);
-+	import_range(&vm, 0x600000, 0x700000);
-+
-+	/* Address lower than MSO */
-+	report(uvc_merge(&vm, 0) == 0x103, "Address below MSO");
-+	report(uvc_merge(&vm, mem - SZ_1M) == 0x103, "Address below MSO");
-+
-+	/* Address higher than MSL */
-+	install_large_page(root, guest_end(&vm), (void *)guest_end(&vm));
-+	report(uvc_merge(&vm, guest_end(&vm)) == 0x103, "Address above MSL");
-+
-+	/* Not all pages are imported */
-+	report(uvc_merge(&vm, mem + 0x400000) == 0x106, "First page not imported");
-+	report(uvc_merge(&vm, mem + 0x500000) == 0x106, "Only first page imported");
-+
-+	/* Large 2G page used */
-+	tmp = mem & REGION3_ENTRY_RFAA;
-+	install_huge_page(root, tmp, (void *)tmp);
-+	report(uvc_merge(&vm, mem) == 0x109, "Large region-3 table entry (2G page)");
-+	map_identity_range(&vm, 0, SZ_2G, false);
-+
-+	/* Not all pages are aligned correctly */
-+	report(uvc_merge(&vm, mem + 0x100000) == 0x104, "Pages not consecutive");
-+	report(uvc_merge(&vm, mem + 0x200000) == 0x104, "Pages not in the same 1M frame");
-+
-+	/* Invalid host virtual to host aboslute mapping */
-+	install_large_page(root, get_ram_size(), (void *)(mem + 0x600000));
-+	report(uvc_merge(&vm, mem + 0x600000) == 0x107, "Invalid mapping");
-+	map_identity_range(&vm, 0x600000, 0x700000, false);
-+
-+	/* Success */
-+	report(uvc_merge(&vm, mem) == 1, "Successful merge");
-+
-+	cc = uv_export(mem + 0xff000);
-+	report(cc == 0, "Successful export of merged page");
-+
-+	uv_destroy_guest(&vm);
-+	report_prefix_pop();
-+}
-+
-+static void test_one_export(struct vm *vm, int pre1m, bool exportfirst, int page, bool post1m)
-+{
-+	uint64_t addr = SZ_1M + page * PAGE_SIZE;
-+	int expected = FIRST;
-+
-+	report_prefix_pushf("page %d", page);
-+
-+	map_identity_all(vm, pre1m == 1);
-+	init_snippet(vm);
-+	import_all(vm);
-+	merge_all(vm);
-+
-+	if (pre1m != -1) {
-+		sie(vm);
-+		assert_diag500_val(vm, expected);
-+		vm->save_area.guest.grs[2] = PARAM(4, 256 + 42);
-+		expected = SECOND;
-+	}
-+
-+	if (exportfirst) {
-+		export_range(vm, addr, addr + PAGE_SIZE);
-+		if (pre1m != 1)
-+			map_identity_all(vm, true);
-+	} else {
-+		if (pre1m != 1)
-+			map_identity_all(vm, true);
-+		export_range(vm, addr, addr + PAGE_SIZE);
-+	}
-+	expect_pgm_int();
-+	sie(vm);
-+	assert(pgm_3c_addr_is(vm, MAGIC_ADDRESS));
-+
-+	import_range(vm, addr, addr + PAGE_SIZE);
-+	if (post1m) {
-+		merge_range(vm, SZ_1M, 2 * SZ_1M);
-+	} else {
-+		map_identity_all(vm, false);
-+	}
-+	sie(vm);
-+	assert_diag500_val(vm, expected);
-+	report_pass("Successful");
-+
-+	uv_destroy_guest(vm);
-+	report_prefix_pop();
-+}
-+
-+static void test_export(void)
-+{
-+	int pre1m, post1m, exportfirst;
-+
-+	report_prefix_push("export");
-+
-+	for (pre1m = -1; pre1m < 1; pre1m++) {
-+		for (post1m = 0; post1m < 2; post1m++) {
-+			for (exportfirst = 0; exportfirst < 2; exportfirst++) {
-+				report_prefix_pushf("%s pre-run, %s post-run, export %s remap",
-+						    STR3(pre1m), STR(post1m), exportfirst ? "before" : "after");
-+
-+				test_one_export(&vm, pre1m, exportfirst, 0, post1m);
-+				test_one_export(&vm, pre1m, exportfirst, 1, post1m);
-+				test_one_export(&vm, pre1m, exportfirst, 42, post1m);
-+				test_one_export(&vm, pre1m, exportfirst, 128, post1m);
-+				test_one_export(&vm, pre1m, exportfirst, 254, post1m);
-+				test_one_export(&vm, pre1m, exportfirst, 255, post1m);
-+
-+				report_prefix_pop();
-+			}
-+		}
-+	}
-+
-+	report_prefix_pop();
-+}
-+
-+static bool check_facilities(void)
-+{
-+	if (!uv_host_requirement_checks())
-+		return false;
-+	if (!test_facility(8) || !test_facility(78)) {
-+		report_skip("EDAT1 and EDAT2 not available in the host.");
-+		return false;
-+	}
-+	if (!uv_query_test_call(BIT_UVC_CMD_VERIFY_LARGE_FRAME)) {
-+		report_skip("Verify Large Frame UVC not supported.");
-+		return false;
-+	}
-+	if (!uv_query_test_feature(BIT_UV_1M_BACKING)) {
-+		report_skip("Large frames not supported for Secure Execution.");
-+		return false;
-+	}
-+	return true;
-+}
-+
-+static void init(void)
-+{
-+	uint8_t *guest_memory;
-+
-+	setup_vm();
-+
-+	root = (void *)(stctg(1) & PAGE_MASK);
-+	ctl_set_bit(0, CTL0_EDAT);
-+
-+	guest_memory = alloc_pages(GUEST_ORDER - PAGE_SHIFT);
-+	sie_guest_create(&vm, (uint64_t)guest_memory, GUEST_SIZE);
-+	sie_guest_sca_create(&vm);
-+	uv_init();
-+	uv_setup_asces();
-+}
-+
-+int main(void)
-+{
-+	report_prefix_push("uv-edat1-host");
-+
-+	if (check_facilities()) {
-+		init();
-+
-+		test_merge();
-+		test_export();
-+		test_run();
-+
-+		timings();
-+
-+		sie_guest_destroy(&vm);
-+	}
-+
-+	report_prefix_pop();
-+	return report_summary();
-+}
-diff --git a/s390x/snippets/c/pv-memhog.c b/s390x/snippets/c/pv-memhog.c
-new file mode 100644
-index 00000000..43f0c2b1
---- /dev/null
-+++ b/s390x/snippets/c/pv-memhog.c
-@@ -0,0 +1,59 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Snippet used by the pv-edat1.c test.
-+ * This snippet expects to run with at least 2G or memory.
-+ *
-+ * Copyright (c) 2024 IBM Corp
-+ *
-+ * Authors:
-+ *  Claudio Imbrenda <imbrenda@linux.ibm.com>
-+ */
-+#include <libcflat.h>
-+#include <asm-generic/page.h>
-+#include <asm/mem.h>
-+
-+#define N_PAGES		(SZ_2G / PAGE_SIZE)
-+#define MID_OF_PAGE	(PAGE_SIZE / 2)
-+#define MASK_2G		(SZ_2G - 1)
-+#define MIDPAGE_PTR(x)	((uint64_t *)((x) + MID_OF_PAGE))
-+
-+static inline void sie_exit(void)
-+{
-+	asm volatile("diag	0,0,0x44\n" : : : "memory");
-+}
-+
-+static inline uint64_t get_value(uint64_t res)
-+{
-+	asm volatile("lgr	%%r2, %[res]\n"
-+		"	diag	0, 0, 0x500\n"
-+		"	lgr	%[res], %%r2\n"
-+		     : [res] "+d"(res)
-+		     :
-+		     : "2", "memory"
-+	);
-+	return res;
-+}
-+
-+int main(void)
-+{
-+	uint64_t param, addr, i, n;
-+
-+	READ_ONCE(*MIDPAGE_PTR(SZ_1M + 42 * PAGE_SIZE));
-+	param = get_value(42);
-+
-+	n = (param >> 32) & 0x1fffffff;
-+	n = n ? n : N_PAGES;
-+	param &= 0x7fffffff;
-+
-+	while (true) {
-+		for (i = 0; i < n; i++) {
-+			addr = ((param ? i * param : i * i * i) * PAGE_SIZE) & MASK_2G;
-+			WRITE_ONCE(*MIDPAGE_PTR(addr), addr);
-+		}
-+
-+		i = get_value(23);
-+		if (i != 42)
-+			sie_exit();
-+	}
-+	return 0;
-+}
--- 
-2.47.0
+v4:
+https://lore.kernel.org/kvm/20240919190750.4163977-1-coltonlewis@google.com/
 
+v3:
+https://lore.kernel.org/kvm/20240912205133.4171576-1-coltonlewis@google.com/
+
+v2:
+https://lore.kernel.org/kvm/20240911222433.3415301-1-coltonlewis@google.com/
+
+v1:
+https://lore.kernel.org/kvm/20240904204133.1442132-1-coltonlewis@google.com/
+
+This series cleans up perf recording around guest events and improves
+the accuracy of the resulting perf reports.
+
+Perf was incorrectly counting any PMU overflow interrupt that occurred
+while a VCPU was loaded as a guest event even when the events were not
+truely guest events. This lead to much less accurate and useful perf
+recordings.
+
+See as an example the below reports of `perf record
+dirty_log_perf_test -m 2 -v 4` before and after the series on ARM64.
+
+Without series:
+
+Samples: 15K of event 'instructions', Event count (approx.): 31830580924
+Overhead  Command          Shared Object        Symbol
+  54.54%  dirty_log_perf_  dirty_log_perf_test  [.] run_test
+   5.39%  dirty_log_perf_  dirty_log_perf_test  [.] vcpu_worker
+   0.89%  dirty_log_perf_  [kernel.vmlinux]     [k] release_pages
+   0.70%  dirty_log_perf_  [kernel.vmlinux]     [k] free_pcppages_bulk
+   0.62%  dirty_log_perf_  dirty_log_perf_test  [.] userspace_mem_region_find
+   0.49%  dirty_log_perf_  dirty_log_perf_test  [.] sparsebit_is_set
+   0.46%  dirty_log_perf_  dirty_log_perf_test  [.] _virt_pg_map
+   0.46%  dirty_log_perf_  dirty_log_perf_test  [.] node_add
+   0.37%  dirty_log_perf_  dirty_log_perf_test  [.] node_reduce
+   0.35%  dirty_log_perf_  [kernel.vmlinux]     [k] free_unref_page_commit
+   0.33%  dirty_log_perf_  [kernel.vmlinux]     [k] __kvm_pgtable_walk
+   0.31%  dirty_log_perf_  [kernel.vmlinux]     [k] stage2_attr_walker
+   0.29%  dirty_log_perf_  [kernel.vmlinux]     [k] unmap_page_range
+   0.29%  dirty_log_perf_  dirty_log_perf_test  [.] test_assert
+   0.26%  dirty_log_perf_  [kernel.vmlinux]     [k] __mod_memcg_lruvec_state
+   0.24%  dirty_log_perf_  [kernel.vmlinux]     [k] kvm_s2_put_page
+
+With series:
+
+Samples: 15K of event 'instructions', Event count (approx.): 31830580924
+Samples: 15K of event 'instructions', Event count (approx.): 30898031385
+Overhead  Command          Shared Object        Symbol
+  54.05%  dirty_log_perf_  dirty_log_perf_test  [.] run_test
+   5.48%  dirty_log_perf_  [kernel.kallsyms]    [k] kvm_arch_vcpu_ioctl_run
+   4.70%  dirty_log_perf_  dirty_log_perf_test  [.] vcpu_worker
+   3.11%  dirty_log_perf_  [kernel.kallsyms]    [k] kvm_handle_guest_abort
+   2.24%  dirty_log_perf_  [kernel.kallsyms]    [k] up_read
+   1.98%  dirty_log_perf_  [kernel.kallsyms]    [k] __kvm_tlb_flush_vmid_ipa_nsh
+   1.97%  dirty_log_perf_  [kernel.kallsyms]    [k] __pi_clear_page
+   1.30%  dirty_log_perf_  [kernel.kallsyms]    [k] down_read
+   1.13%  dirty_log_perf_  [kernel.kallsyms]    [k] release_pages
+   1.12%  dirty_log_perf_  [kernel.kallsyms]    [k] __kvm_pgtable_walk
+   1.08%  dirty_log_perf_  [kernel.kallsyms]    [k] folio_batch_move_lru
+   1.06%  dirty_log_perf_  [kernel.kallsyms]    [k] __srcu_read_lock
+   1.03%  dirty_log_perf_  [kernel.kallsyms]    [k] get_page_from_freelist
+   1.01%  dirty_log_perf_  [kernel.kallsyms]    [k] __pte_offset_map_lock
+   0.82%  dirty_log_perf_  [kernel.kallsyms]    [k] handle_mm_fault
+   0.74%  dirty_log_perf_  [kernel.kallsyms]    [k] mas_state_walk
+
+Colton Lewis (5):
+  arm: perf: Drop unused functions
+  perf: Hoist perf_instruction_pointer() and perf_misc_flags()
+  powerpc: perf: Use perf_arch_instruction_pointer()
+  x86: perf: Refactor misc flag assignments
+  perf: Correct perf sampling with guest VMs
+
+ arch/arm/include/asm/perf_event.h            |  7 ---
+ arch/arm/kernel/perf_callchain.c             | 17 -------
+ arch/arm64/include/asm/perf_event.h          |  4 --
+ arch/arm64/kernel/perf_callchain.c           | 28 ------------
+ arch/powerpc/include/asm/perf_event_server.h |  6 +--
+ arch/powerpc/perf/callchain.c                |  2 +-
+ arch/powerpc/perf/callchain_32.c             |  2 +-
+ arch/powerpc/perf/callchain_64.c             |  2 +-
+ arch/powerpc/perf/core-book3s.c              |  4 +-
+ arch/s390/include/asm/perf_event.h           |  6 +--
+ arch/s390/kernel/perf_event.c                |  4 +-
+ arch/x86/events/core.c                       | 47 +++++++++++---------
+ arch/x86/include/asm/perf_event.h            | 12 ++---
+ include/linux/perf_event.h                   | 26 +++++++++--
+ kernel/events/core.c                         | 27 ++++++++++-
+ 15 files changed, 95 insertions(+), 99 deletions(-)
+
+
+base-commit: 59b723cd2adbac2a34fc8e12c74ae26ae45bf230
+--
+2.47.0.199.ga7371fff76-goog
