@@ -1,165 +1,123 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 449601D362B;
-	Tue,  5 Nov 2024 13:40:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10CF41D8DEA;
+	Tue,  5 Nov 2024 13:58:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730814001; cv=none; b=UToxdvH4yKgBvAO5hkG3ZyYvL6XBbR4COBYVeT3vlrxndWt99i8MFfz1upevLEcoZ0GNgJsapimfdiN0YlDZ+MhNn28kLTwCw/sIh4p+iScENWWPmwVgiMAJ69zMIWMaBr69CrS2dJKR4qNz9FLr3AjRty3F3jN9IhHJOJzt4MM=
+	t=1730815123; cv=none; b=RsWtrH1U/iai+TsNi4izrgRWkEn3pLIJr9bgUbNmYCcZbdG4KUvxH+Bj3+bOLfK7Ftd+uGK4ou2z5ettt6Yq8VuPgJYUiVLG16WFPM0w6btXCYKco4IN81+l6/9JFD6FxtoHESebssWZ9nkceS6bFMae0i95NTrr/8i0r7fGUTo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730814001; c=relaxed/simple;
-	bh=X+jkMNJf202J2qCII6QtiwBjooGAeSjJ1FivbkrQ/d0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QoSTOKlfPp5Hq5Ei2oPdNuw0wYbYMkcEXlHP16s549abaWAa8ZSKobizJpgnrJtDCUKfjhwO05es0ra+B26oE604CfF/d80PHMXvBnC52Sz9Nvzj1rDw15I1WgbmSikl0YbD1fpAXiXmLRBqQDmPBLXlWdvTFQqmWzItOy36mB4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DxznB3XN; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1730815123; c=relaxed/simple;
+	bh=4o4WTqHExdXhZZfYXrCAXtbfOpJ9ED+z4tuuZIof0X8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hD5WM83lC62VAbeSZHC5fpfEWtiQ1yqZ094E2HzohcekmVhGnyVOYw9gSqE6oGa97ViwgaF0jtMNnvxSlrKmwKLW6rYOONg3N/LVszAY1WtHhCZE/E2gTUFBssDM11/pnmLR2cGGa82kZQcgaTtPb5B+fLaFiIGoeojQVDv/RXA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TGz4xz5K; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DxznB3XN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 290FFC4CECF;
-	Tue,  5 Nov 2024 13:39:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1730814001;
-	bh=X+jkMNJf202J2qCII6QtiwBjooGAeSjJ1FivbkrQ/d0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=DxznB3XNa4vSg81xiTd126Ga2cYMH4eJmxgA+UrsT35LqYbnBJAcre2w+sNMcA1kz
-	 Fui4F3KUj/muw3CweyuZLGcaVLtaB7IIzjfcYXAXFtE+vRvpmdxKboOp6OUj9APMZL
-	 oJqiBpus//Kok5GG9yLpJLa9+po7ExY1uF0jBRP0AcY8ddRSR8u69yDhxQKSr2UH/h
-	 TeKwFZXRU1KO5XN8DQpvG6Rb9avbf55CxHEKkgDdaiWVHfvE+LY/SExhlSWf+0aIMq
-	 qSXR+51W+/JVvCpCpH5sgsfhF66SApK3g+L2TtpILpsMMSS538baIiV5lF6SKvpyA4
-	 i/cQKYjzwCG5w==
-Date: Tue, 5 Nov 2024 15:39:55 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: Wen Gu <guwen@linux.alibaba.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Nils Hoppmann <niho@linux.ibm.com>,
-	Niklas Schnell <schnelle@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	Karsten Graul <kgraul@linux.ibm.com>,
-	Stefan Raspl <raspl@linux.ibm.com>, Aswin K <aswin@linux.ibm.com>
-Subject: Re: [PATCH net] net/smc: Fix lookup of netdev by using
- ib_device_get_netdev()
-Message-ID: <20241105133955.GF311159@unreal>
-References: <20241025072356.56093-1-wenjia@linux.ibm.com>
- <20241027201857.GA1615717@unreal>
- <8d17b403-aefa-4f36-a913-7ace41cf2551@linux.ibm.com>
- <20241105112313.GE311159@unreal>
- <e88d6049-6be1-4967-b88d-94d437900c3d@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TGz4xz5K"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A5De74l025051;
+	Tue, 5 Nov 2024 13:58:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=ZBixBGZfXBY4UzPm2T4CaA/YfqIuhYuQbJOUEYaN9
+	ys=; b=TGz4xz5K8KTHmJbvevLDL7NzwDCwOH8e6jB41O8d/YMgTRZpQw2KHJ4H3
+	l3RZhVh5IL4yrfUT+nDyMwl8MSRvCsdkNSNqCc1mP1YkzKWpPMMPanSMgcGZWpG7
+	WgwHzZ/ygET6N+57HUajnhj6nyrvaTHd8bmKd8M9tNJFB60R7cYbt4qIxxXzR3FK
+	os4T412AbDTk3D3OvAegWG8rs4xGahm40fenXD998LBwtt/yD1rBFxI04wfdFj0s
+	+JnU09fp5j/t+hOsWFPtMIp0jytV1IUXsc6bDEplM3OuiHyF17/+0/doYOK/P2Y3
+	IjJiZfRsXJeznNEm33RAdf7M4RMhg==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42qmepg3n0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 05 Nov 2024 13:58:37 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4A58EJCs019503;
+	Tue, 5 Nov 2024 13:58:37 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 42p0mj465k-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 05 Nov 2024 13:58:36 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4A5DwXh920054518
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 5 Nov 2024 13:58:33 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7F98A20043;
+	Tue,  5 Nov 2024 13:58:33 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 55A7620040;
+	Tue,  5 Nov 2024 13:58:33 +0000 (GMT)
+Received: from funtu2.fritz.box?044ibm.com (unknown [9.152.224.229])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  5 Nov 2024 13:58:33 +0000 (GMT)
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: dengler@linux.ibm.com, herbert@gondor.apana.org.au, davem@davemloft.net,
+        hca@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: [PATCH v2 0/3] New s390 specific protected key hmac
+Date: Tue,  5 Nov 2024 14:58:29 +0100
+Message-ID: <20241105135833.391957-1-freude@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e88d6049-6be1-4967-b88d-94d437900c3d@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XHmYwHvhlMXsNcHXUka86gYI1J6AxcJb
+X-Proofpoint-GUID: XHmYwHvhlMXsNcHXUka86gYI1J6AxcJb
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=546
+ lowpriorityscore=0 spamscore=0 phishscore=0 adultscore=0 clxscore=1011
+ suspectscore=0 priorityscore=1501 malwarescore=0 mlxscore=0 bulkscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411050105
 
-On Tue, Nov 05, 2024 at 01:30:24PM +0100, Wenjia Zhang wrote:
-> 
-> 
-> On 05.11.24 12:23, Leon Romanovsky wrote:
-> > On Tue, Nov 05, 2024 at 10:50:45AM +0100, Wenjia Zhang wrote:
-> > > 
-> > > 
-> > > On 27.10.24 21:18, Leon Romanovsky wrote:
-> > > > On Fri, Oct 25, 2024 at 09:23:55AM +0200, Wenjia Zhang wrote:
-> > > > > Commit c2261dd76b54 ("RDMA/device: Add ib_device_set_netdev() as an
-> > > > > alternative to get_netdev") introduced an API ib_device_get_netdev.
-> > > > > The SMC-R variant of the SMC protocol continued to use the old API
-> > > > > ib_device_ops.get_netdev() to lookup netdev.
-> > > > 
-> > > > I would say that calls to ibdev ops from ULPs was never been right
-> > > > thing to do. The ib_device_set_netdev() was introduced for the drivers.
-> > > > 
-> > > > So the whole commit message is not accurate and better to be rewritten.
-> > > > 
-> > > > > As this commit 8d159eb2117b
-> > > > > ("RDMA/mlx5: Use IB set_netdev and get_netdev functions") removed the
-> > > > > get_netdev callback from mlx5_ib_dev_common_roce_ops, calling
-> > > > > ib_device_ops.get_netdev didn't work any more at least by using a mlx5
-> > > > > device driver.
-> > > > 
-> > > > It is not a correct statement too. All modern drivers (for last 5 years)
-> > > > don't have that .get_netdev() ops, so it is not mlx5 specific, but another
-> > > > justification to say that SMC-R was doing it wrong.
-> > > > 
-> > > > > Thus, using ib_device_set_netdev() now became mandatory.
-> > > > 
-> > > > ib_device_set_netdev() is mandatory for the drivers, it is nothing to do
-> > > > with ULPs.
-> > > > 
-> > > > > 
-> > > > > Replace ib_device_ops.get_netdev() with ib_device_get_netdev().
-> > > > 
-> > > > It is too late for me to do proper review for today, but I would say
-> > > > that it is worth to pay attention to multiple dev_put() calls in the
-> > > > functions around the ib_device_get_netdev().
-> > > > 
-> > > > > 
-> > > > > Fixes: 54903572c23c ("net/smc: allow pnetid-less configuration")
-> > > > > Fixes: 8d159eb2117b ("RDMA/mlx5: Use IB set_netdev and get_netdev functions")
-> > > > 
-> > > > It is not related to this change Fixes line.
-> > > > 
-> > > 
-> > > Hi Leon,
-> > > 
-> > > Thank you for the review! I agree that SMC could do better. However, we
-> > > should fix it and give enough information and reference on the changes,
-> > > since the code has already existed and didn't work with the old way.
-> > 
-> > The code which you change worked by chance and was wrong from day one.
-> > 
-> > > I can rewrite the commit message.
-> > > 
-> > > What about:
-> > > "
-> > > The SMC-R variant of the SMC protocol still called
-> > > ib_device_ops.get_netdev() to lookup netdev. As we used mlx5 device driver
-> > > to run SMC-R, it failed to find a device, because in mlx5_ib the internal
-> > > net device management for retrieving net devices was replaced by a common
-> > > interface ib_device_get_netdev() in commit 8d159eb2117b ("RDMA/mlx5: Use IB
-> > > set_netdev and get_netdev functions"). Thus, replace
-> > > ib_device_ops.get_netdev() with ib_device_get_netdev() in SMC.
-> > > "
-> > 
-> >   The SMC-R variant of the SMC protocol used direct call to ib_device_ops.get_netdev()
-> >   function to lookup netdev. Such direct accesses are not correct for any
-> >   usage outside of RDMA core code.
-> > 
-> Is such an absolute statement documented somewhere? If not, I don't think
-> it's convenient that I use it. Maybe you guys as RDMA core maintainer can,
-> not I.
+Add support for protected key hmac ("phmac") for s390 arch.
 
-You can too as it is very clear. All functions which can be used have
-EXPORT_SYMBOL near them, ops.get_netdev() has nothing like that.
+With the latest machine generation there is now support for
+protected key (that is a key wrapped by a master key stored
+in firmware) hmac for sha2 (sha224, sha256, sha384 and sha512)
+for the s390 specific CPACF instruction kmac.
 
-> >   RDMA subsystem provides ib_device_get_netdev() function that works on
-> >   all RDMA drivers returns valid netdev with proper locking an reference
-> >   counting. The commit 8d159eb2117b ("RDMA/mlx5: Use IB set_netdev and get_netdev
-> >   functions") exposed that SMC-R didn't use that function.
-> > 
-> >   So update the SMC-R to use proper API,
-> > 
-> > Thanks
-> > 
-> mhhh, I'd like to stick to my version, which sounds more neutral IMO. I
-> think the purpose is the same.
+This patch adds support via 4 new shashes registered as
+phmac(sha224), phmac(sha256), phmac(sha384) and phmac(sha512).
 
-I don't want to argue about the words, my point is that get_netdev() was
-never been the right interface.
+Please note that as of now, there is no selftest enabled for
+these shashes, but the implementation has been tested with
+testcases via AF_ALG interface. However, there may come an
+improvement soon to use the available clear key hmac selftests.
 
-Thanks
+Changelog:
+v1: Initial version
+v2: Increase HASH_MAX_DESCSIZE generic (not just for arch s390).
+    Fix one finding to use kmemdup instead of kmalloc/memcpy
+    from test robot. Remove unneeded cpacf subfunctions checks.
+    Simplify clone_tfm() function.
+    Rebased to s390/features.
 
-> 
-> Thanks,
-> Wenjia
+Holger Dengler (3):
+  crypto: api - Adjust HASH_MAX_DESCSIZE for s390-phmac context
+  s390/crypto: Add protected key hmac subfunctions for KMAC
+  s390/crypto: New s390 specific shash phmac
+
+ arch/s390/configs/debug_defconfig |   1 +
+ arch/s390/configs/defconfig       |   1 +
+ arch/s390/crypto/Makefile         |   1 +
+ arch/s390/crypto/phmac_s390.c     | 468 ++++++++++++++++++++++++++++++
+ arch/s390/include/asm/cpacf.h     |   4 +
+ drivers/crypto/Kconfig            |  12 +
+ include/crypto/hash.h             |   5 +-
+ 7 files changed, 489 insertions(+), 3 deletions(-)
+ create mode 100644 arch/s390/crypto/phmac_s390.c
+
+
+base-commit: 8cf0b93919e13d1e8d4466eb4080a4c4d9d66d7b
+-- 
+2.43.0
+
