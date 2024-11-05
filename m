@@ -1,253 +1,212 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CF691D95A4;
-	Tue,  5 Nov 2024 14:45:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE93C1779A4;
+	Tue,  5 Nov 2024 15:37:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730817905; cv=none; b=VQBHpfyAWG4HgiM72dbFAv93K7K8QXZHRv1a0qHA8aDuGiXS2oKcZwVjbXesplks/5NcP3S3Uz97R+ehGZ2XgAkYfe53EpJJxdPReDqcqjVtyvL31vCiRqEXTjD2S/+LnweHW3T+2tS76nsI2ogs7FN42aZ6SdltVAM6flZHtZ0=
+	t=1730821062; cv=none; b=GtEcq4H1lHO0FycLhPhvavXjmaIKPthW89XnHPyoT1Znf7mZfkMpGONPL+ZRkMOi2toQTmH1ClkRVo6BQfbmMJAnxLC6REp0SuHgFRG5C29PJlQoLW5s4kJjRhd646PHcsyquTak98JxJXhSsLq8oaAX0aKutlSif+w6MO7/iOs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730817905; c=relaxed/simple;
-	bh=NBhv007oegK3QiD4ZEnOaHiTOAgukYUFeGfQIFPAJTw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oLmYWnjuZ6aG/RSOo8REdnIO16pSgiCliN71/gx3TFmcRolT77K22831Vw3t0hsDrhpW45DgEd+ANnoyTd3iZpIaa26jX/MhblWtAgynmWoNwLx8Vjky7FmKJ/BAX/CKKD8nxsrQjqYdqz43W5LP0VscnhXI58M1Z1VO6pi1lCc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=lDuEtyai; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1730821062; c=relaxed/simple;
+	bh=oh6ZWRugK+yD+jIwObkk9DUhPVdGbA3YYhI/9o84w2g=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=N6icsNaR+x3+IvgrZYjcBlmAPslhf6Bz+GqLy9LjH3S7SH+Z/0R6tipHHOAiN/B1wyMcmfCMRfokikGqkz6T8ypHiYVGZ05FZ0TPmXgj9Ys44GcR/TmIEshBZTZ7ALa4MPDE8HPBgvSR4IBSaiEqhrtjalFSsycuDQ/KOKby9Pk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ajsypDbA; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="lDuEtyai"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1730817898; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=Bl8dUu38mV34PNYl4s6+f0+cpEYr9/tiFmLIhR9wbg0=;
-	b=lDuEtyaiTy/8wxR2h1oLquUJX2hln9KhDn/v9kTC6K+cRFTKsiy0jFewkA/9dagMFMvzGn9u6yflI+sLy9yF6XFSTK4Nz4Qic03/ZnVHeW2y9cJs0ZRz39yacqCMoCYFYbq+iywLcYyKMaWr5o7Yd6eu/Fn3BlCBnYWuy6Hpqn4=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WInGHW._1730817897 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 05 Nov 2024 22:44:58 +0800
-Date: Tue, 5 Nov 2024 22:44:57 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: liqiang <liqiang64@huawei.com>, wenjia@linux.ibm.com,
-	jaka@linux.ibm.com, alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com, guwen@linux.alibaba.com, kuba@kernel.org
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, luanjianhai@huawei.com,
-	zhangxuzhou4@huawei.com, dengguangxing@huawei.com,
-	gaochao24@huawei.com
-Subject: Re: [PATCH v2 net-next] net/smc: Optimize the search method of
- reused buf_desc
-Message-ID: <20241105144457.GB89669@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20241101082342.1254-1-liqiang64@huawei.com>
- <20241105031938.1319-1-liqiang64@huawei.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ajsypDbA"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A5FA43o019290;
+	Tue, 5 Nov 2024 15:37:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=oh6ZWR
+	ugK+yD+jIwObkk9DUhPVdGbA3YYhI/9o84w2g=; b=ajsypDbAANpAkFJrwPL1Y1
+	+KuBigyZgGNkQlSYln6qr+2Ro5ue6jOTnb15npYlaDXOngy3LTD+yPi4hA4IPKTv
+	n9Gh+rWRBm/N2KoWS1GZB4VehsUzy5q2s7fLLXndMOodI9n09M3JIZXNxsJMUZBM
+	ZAsQfFaAn89Awsp/KI06uSe5Ujyv3w/kskiaHPzEGikZ50uLISoIYwrYpX+YrG7/
+	lJinihCO5aAlvDCwWATgTqycLsmpuQFxFqTivc3wylZS5u2y/Lbj2V41+7qkYIlr
+	u2GmxfDN16XezoG33GeqXB7HvGtLNKZfO9cpogQPr44H2+w5yUbgtDhdOUal43tA
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42qnrw04tn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 05 Nov 2024 15:37:37 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4A5Fbb7t004003;
+	Tue, 5 Nov 2024 15:37:37 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42qnrw04c5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 05 Nov 2024 15:37:36 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4A5F8v9P005873;
+	Tue, 5 Nov 2024 15:34:08 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 42p0mj4aey-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 05 Nov 2024 15:34:08 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4A5FY7oc54722832
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 5 Nov 2024 15:34:08 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DFD845803F;
+	Tue,  5 Nov 2024 15:34:07 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 41BFB58061;
+	Tue,  5 Nov 2024 15:34:05 +0000 (GMT)
+Received: from [9.152.212.119] (unknown [9.152.212.119])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  5 Nov 2024 15:34:05 +0000 (GMT)
+Message-ID: <8d6535b523f2aad694e5825ac3f514cff788b2bf.camel@linux.ibm.com>
+Subject: Re: [PATCH v2] PCI: s390: Handle ARI on bus without associated
+ struct pci_dev
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Bjorn Helgaas <bhelgaas@google.com>,
+        Gerald Schaefer
+ <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Date: Tue, 05 Nov 2024 16:34:04 +0100
+In-Reply-To: <20240918-ari_no_bus_dev-v2-1-83cfa991082f@linux.ibm.com>
+References: <20240918-ari_no_bus_dev-v2-1-83cfa991082f@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.52.4 (3.52.4-2.fc40) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: HyU4bCelNQgopBVc-VvxUY2AquQ01MAu
+X-Proofpoint-GUID: Fu_ZUpmqzRQNVAlfxDF8GIJD75wLXbMI
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241105031938.1319-1-liqiang64@huawei.com>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
+ mlxscore=0 bulkscore=0 spamscore=0 impostorscore=0 mlxlogscore=639
+ lowpriorityscore=0 priorityscore=1501 adultscore=0 clxscore=1011
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411050121
 
-On 2024-11-05 11:19:38, liqiang wrote:
->We create a lock-less link list for the currently
->idle reusable smc_buf_desc.
->
->When the 'used' filed mark to 0, it is added to
->the lock-less linked list.
->
->When a new connection is established, a suitable
->element is obtained directly, which eliminates the
->need for traversal and search, and does not require
->locking resource.
->
->A lock-free linked list is a linked list that uses
->atomic operations to optimize the producer-consumer model.
->
->I tested the time-consuming comparison of this function
->under multiple connections based on redis-benchmark
->(test in smc loopback-ism mode):
->The function 'smc_buf_get_slot' takes less time when a
->new SMC link is established:
->1. 5us->100ns (when there are 200 active links);
->2. 30us->100ns (when there are 1000 active links).
->
->Test data with wrk+nginx command:
->On server:
->smc_run nginx
->
->On client:
->smc_run wrk -t <2~64> -c 200 -H "Connection: close" http://127.0.0.1
->
->Requests/sec
->--------+---------------+---------------+
->req/s   | without patch | apply patch   |
->--------+---------------+---------------+
->-t 2    |6924.18        |7456.54        |
->--------+---------------+---------------+
->-t 4    |8731.68        |9660.33        |
->--------+---------------+---------------+
->-t 8    |11363.22       |13802.08       |
->--------+---------------+---------------+
->-t 16   |12040.12       |18666.69       |
->--------+---------------+---------------+
->-t 32   |11460.82       |17017.28       |
->--------+---------------+---------------+
->-t 64   |11018.65       |14974.80       |
->--------+---------------+---------------+
->
->Transfer/sec
->--------+---------------+---------------+
->trans/s | without patch | apply patch   |
->--------+---------------+---------------+
->-t 2    |24.72MB        |26.62MB        |
->--------+---------------+---------------+
->-t 4    |31.18MB        |34.49MB        |
->--------+---------------+---------------+
->-t 8    |40.57MB        |49.28MB        |
->--------+---------------+---------------+
->-t 16   |42.99MB        |66.65MB        |
->--------+---------------+---------------+
->-t 32   |40.92MB        |60.76MB        |
->--------+---------------+---------------+
->-t 64   |39.34MB        |53.47MB        |
->--------+---------------+---------------+
->
->
->Signed-off-by: liqiang <liqiang64@huawei.com>
->---
->v2:
->- Correct the acquisition logic of a lock-less linked list.(Dust.Li)
->- fix comment symbol '//' -> '/**/'.(Dust.Li)
->v1: https://lore.kernel.org/all/20241101082342.1254-1-liqiang64@huawei.com/
->
-> net/smc/smc_core.c | 58 ++++++++++++++++++++++++++++++----------------
-> net/smc/smc_core.h |  4 ++++
-> 2 files changed, 42 insertions(+), 20 deletions(-)
->
->diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
->index 500952c2e67b..6f26e70c7c4d 100644
->--- a/net/smc/smc_core.c
->+++ b/net/smc/smc_core.c
->@@ -16,6 +16,7 @@
-> #include <linux/wait.h>
-> #include <linux/reboot.h>
-> #include <linux/mutex.h>
->+#include <linux/llist.h>
-> #include <linux/list.h>
-> #include <linux/smc.h>
-> #include <net/tcp.h>
->@@ -909,6 +910,8 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
-> 	for (i = 0; i < SMC_RMBE_SIZES; i++) {
-> 		INIT_LIST_HEAD(&lgr->sndbufs[i]);
-> 		INIT_LIST_HEAD(&lgr->rmbs[i]);
->+		init_llist_head(&lgr->rmbs_free[i]);
->+		init_llist_head(&lgr->sndbufs_free[i]);
-> 	}
-> 	lgr->next_link_id = 0;
-> 	smc_lgr_list.num += SMC_LGR_NUM_INCR;
->@@ -1183,6 +1186,10 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
-> 		/* memzero_explicit provides potential memory barrier semantics */
-> 		memzero_explicit(buf_desc->cpu_addr, buf_desc->len);
-> 		WRITE_ONCE(buf_desc->used, 0);
->+		if (is_rmb)
->+			llist_add(&buf_desc->llist, &lgr->rmbs_free[buf_desc->bufsiz_comp]);
->+		else
->+			llist_add(&buf_desc->llist, &lgr->sndbufs_free[buf_desc->bufsiz_comp]);
-> 	}
-> }
-> 
->@@ -1214,6 +1221,8 @@ static void smc_buf_unuse(struct smc_connection *conn,
-> 		} else {
-> 			memzero_explicit(conn->sndbuf_desc->cpu_addr, bufsize);
-> 			WRITE_ONCE(conn->sndbuf_desc->used, 0);
->+			llist_add(&conn->sndbuf_desc->llist,
->+				  &lgr->sndbufs_free[conn->sndbuf_desc->bufsiz_comp]);
-> 		}
-> 		SMC_STAT_RMB_SIZE(smc, is_smcd, false, false, bufsize);
-> 	}
->@@ -1225,6 +1234,8 @@ static void smc_buf_unuse(struct smc_connection *conn,
-> 			bufsize += sizeof(struct smcd_cdc_msg);
-> 			memzero_explicit(conn->rmb_desc->cpu_addr, bufsize);
-> 			WRITE_ONCE(conn->rmb_desc->used, 0);
->+			llist_add(&conn->rmb_desc->llist,
->+				  &lgr->rmbs_free[conn->rmb_desc->bufsiz_comp]);
-> 		}
-> 		SMC_STAT_RMB_SIZE(smc, is_smcd, true, false, bufsize);
-> 	}
->@@ -1413,13 +1424,21 @@ static void __smc_lgr_free_bufs(struct smc_link_group *lgr, bool is_rmb)
-> {
-> 	struct smc_buf_desc *buf_desc, *bf_desc;
-> 	struct list_head *buf_list;
->+	struct llist_head *buf_llist;
-> 	int i;
-> 
-> 	for (i = 0; i < SMC_RMBE_SIZES; i++) {
->-		if (is_rmb)
->+		if (is_rmb) {
-> 			buf_list = &lgr->rmbs[i];
->-		else
->+			buf_llist = &lgr->rmbs_free[i];
->+		} else {
-> 			buf_list = &lgr->sndbufs[i];
->+			buf_llist = &lgr->sndbufs_free[i];
->+		}
->+		/* just invalid this list first, and then free the memory
->+		 * in the following loop
->+		 */
->+		llist_del_all(buf_llist);
-> 		list_for_each_entry_safe(buf_desc, bf_desc, buf_list,
-> 					 list) {
-> 			smc_lgr_buf_list_del(lgr, is_rmb, buf_desc);
->@@ -2087,24 +2106,19 @@ int smc_uncompress_bufsize(u8 compressed)
-> 	return (int)size;
-> }
-> 
->-/* try to reuse a sndbuf or rmb description slot for a certain
->- * buffer size; if not available, return NULL
->- */
->-static struct smc_buf_desc *smc_buf_get_slot(int compressed_bufsize,
->-					     struct rw_semaphore *lock,
->-					     struct list_head *buf_list)
->+/* use lock less list to save and find reuse buf desc */
->+static struct smc_buf_desc *smc_buf_get_slot_free(struct llist_head *buf_llist)
-> {
->-	struct smc_buf_desc *buf_slot;
->+	struct smc_buf_desc *buf_free;
->+	struct llist_node *llnode;
-> 
->-	down_read(lock);
->-	list_for_each_entry(buf_slot, buf_list, list) {
->-		if (cmpxchg(&buf_slot->used, 0, 1) == 0) {
->-			up_read(lock);
->-			return buf_slot;
->-		}
->-	}
->-	up_read(lock);
->-	return NULL;
->+	/* lock-less link list don't need an lock */
->+	llnode = llist_del_first(buf_llist);
->+	if (!llnode)
->+		return NULL;
->+	buf_free = llist_entry(llnode, struct smc_buf_desc, llist);
->+	WRITE_ONCE(buf_free->used, 1);
->+	return buf_free;
+On Wed, 2024-09-18 at 11:04 +0200, Niklas Schnelle wrote:
+> On s390 PCI busses are virtualized and the downstream ports are
+> invisible to the OS and struct pci_bus::self is NULL. This associated
+> struct pci_dev is however relied upon in pci_ari_enabled() to check
+> whether ARI is enabled for the bus. ARI is therefor always detected as
+> disabled.
+>=20
+> At the same time firmware on s390 always enables and relies upon ARI
+> thus causing a mismatch. Moreover with per-PCI function pass-through
+> there may exist busses with no function with devfn 0. For example
+> a SR-IOV capable device with two PFs may have separate function
+> dependency link chains for each of the PFs and their child VFs. In this
+> case the OS may only see the second PF and its child VFs on a bus
+> without a devfn 0 function. A situation which is also not supported by
+> the common pci_configure_ari() code.
+>=20
+> Dispite simply being a mismatch this causes problems as some PCI devices
+> present a different SR-IOV topology depending on PCI_SRIOV_CTRL_ARI.
+>=20
+> A similar mismatch may occur with SR-IOV when virtfn_add_bus() creates new
+> busses with no associated struct pci_dev. Here too pci_ari_enabled()
+> on these busses would return false even if ARI is actually used.
+>=20
+> Prevent both mismatches by moving the ari_enabled flag from struct
+> pci_dev to struct pci_bus making it independent from struct pci_bus::
+> self. Let the bus inherit the ari_enabled state from its parent bus when
+> there is no bridge device such that busses added by virtfn_add_bus()
+> match their parent. For s390 set ari_enabled when the device supports
+> ARI in the awareness that all PCIe ports on s390 systems are ARI
+> capable.
+>=20
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
+> Note: In a comment of the v1 thread I discussed an alternative idea for
+> a generic solution that would include the Jailhouse hypervisor via
+> hypervisor_isolated_pci_functions(). As Bjorn correctly pointed out this
+> more generic solution however lacks a way to indicate that ARI is really
+> enabled in the hardware. So instead for now I propose to stick with this
+> patch which only enables this unconditionally on s390x and SR-IOV
+> virtual busses where the ARI is inherited.
+> ---
+> Changes in v2:
+> - Rebased on v6.11
+> - Link to v1: https://lore.kernel.org/r/20240730-ari_no_bus_dev-v1-1-7de1=
+7676f9fe@linux.ibm.com
+>=20
+>=20
 
-Sorry for the late reply.
+@Bjorn, this seems to have dropped off your radar or would you like me
+to see if I can find a different approach?
 
-It looks this is not right here.
-
-The rw_semaphore here is not used to protect against adding/deleting
-the buf_list since we don't even add/remove elements on the buf_list.
-The cmpxchg already makes sure only one will get an unused smc_buf_desc.
-
-Removing the down_read()/up_read() would cause mapping/unmapping link
-on the link group race agains the buf_slot alloc/free here. For exmaple
-_smcr_buf_map_lgr() take the write lock of the rw_semaphore.
-
-But I agree the lgr->rmbs_lock/sndbufs_lock should be improved. Would
-you like digging into it and improve the usage of the lock here ?
-
-Best regrads,
-Dust
+Thanks,
+Niklas
 
