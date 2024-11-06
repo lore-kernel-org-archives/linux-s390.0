@@ -1,31 +1,60 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E1E9653;
-	Wed,  6 Nov 2024 10:01:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B750E1DED49;
+	Wed,  6 Nov 2024 12:18:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730887297; cv=none; b=R/Ji8f9FE9TSl6jeGpdJo22RGbKv86jxPAsJroJYlveeRa1mtQ4b06hzbptabOV6KRf6yULHYN3RIwV9bi/GUrHh2ljlnv6dAj2sSlkXHWnMNGeahI+8k1Qdgi5RPZ4y7kc9odg+PTszaML+oIbEf/Shu9KZHg7pLT33se4SWIA=
+	t=1730895537; cv=none; b=BzPndzxtQdr2G1pI02B1n9v0l8OHzJmt/Upi/JcudkSdXuEGqo/bUSJK55FHLBH2m8G7JJ+DFO/g23nHE0zneTIhhgkbM/7fEHqIFTe0ZH4Fd4dN15CKv6QJ/9k+JfQMCmJKqOE6GIxLOKQiJBD/mzClbpV8c83zjEJdvsdZJR8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730887297; c=relaxed/simple;
-	bh=5H4p85iBCVpCJqUU/+0E8vRTCYLytXTgiQ/HjbhbJuo=;
+	s=arc-20240116; t=1730895537; c=relaxed/simple;
+	bh=3CVeQLY73Hqsc1GqMKPPC/Jjjw1e0xTEovtO+WzIxIk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OnoB2CL7XhLs9EN5WzXL7NmfhBepF3vznFfWm05Fqd4e147BsXbvYiGizQ8gjm6lCHX0cN7Ir6ncLtS+KbgmM65mkqYx59DeVpOaXFip7WHtEGzCQJJ+J/vf4FuYpxciIN0HipcO4k0CAQsEPkl2A6agSm4lQWj48+d3UscfI1A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=kvy+j8WI; arc=none smtp.client-ip=115.124.30.111
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 In-Reply-To:Content-Type; b=CJMfvdxKGh1unsOG27GgZJOYMAIn8A5HRf1TrBwYcuDiIgGFwX2VHsK6VFVsgZbRZhz33SxjsWt3nRiKPENxLFSTE4K3r3muvK2EIt4DnnCF1rzk6WpWHfelZ9s57XueAd2tVDUJtJ/l+bUe+nI/lSsAMjh+NZ0xOXu/wAuSe74=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RppNg5Yr; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="kvy+j8WI"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1730887291; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=gAEn9thfzLRy42eN3/oD6NOZqicEf53zaj+UIUQCNdQ=;
-	b=kvy+j8WIfJJJDrynNtWY2DrUllAaAwA5VSw028x/+FTMOjM+AlJ7mCbrPJ9P+AMjTrY8sQ5X9o8IriXrDr1uEHYtjrQhupVID/GdDLgBO0ZF49YeECRPL8xfh7TZ57FUWybaYNShFcyhIzX7A2uk88N3uGu4f1Ui/q62v7va7GU=
-Received: from 30.221.147.151(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WIqqUbo_1730887288 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 06 Nov 2024 18:01:29 +0800
-Message-ID: <c9a1c5c5-58dc-48d0-9693-0ae4ac347b97@linux.alibaba.com>
-Date: Wed, 6 Nov 2024 18:01:28 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RppNg5Yr"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A6AAO57000941;
+	Wed, 6 Nov 2024 12:18:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=JLYFSO
+	Qgx67CtVFvTm+73ZaW44P08m56s6HHeuQHQyY=; b=RppNg5Yr4ThbRvrBQWlNuo
+	cq3rlGZiko0PhQ1qbHDxlBnZDNqDEoj+96OQqA4pCWlM0JvdnlkHTJS1stWEAiaz
+	Vsm2SF0NQdCPZjdMyr5jdv1rik69VFtflQAdKkYE5BroiX4Qp4DxEBtF93GPOUE6
+	rDEnFLHJRb+OkGpK3dhfSMsmDTnQr958uXW3moopWDGHEh9gT5k9Bbq6xilt9r4B
+	ooKHqgKoJTRdPfQtyEFSeraYB6F0fwAi9WkZKNJJSlKWKUpdvVGbTCV1yfJEiqFz
+	0//HlENe2XhPKswT1/IshYScV0ZxW/A/S7bfbEfRzVQsc5wwNAo49vhOk/ZUp2vg
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42r6fb0nh2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 06 Nov 2024 12:18:51 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4A65OI45012253;
+	Wed, 6 Nov 2024 12:18:51 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 42p140x1fm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 06 Nov 2024 12:18:51 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4A6CIogJ46006724
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 6 Nov 2024 12:18:50 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 20D465804E;
+	Wed,  6 Nov 2024 12:18:50 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E9A3F5803F;
+	Wed,  6 Nov 2024 12:18:47 +0000 (GMT)
+Received: from [9.155.199.163] (unknown [9.155.199.163])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  6 Nov 2024 12:18:47 +0000 (GMT)
+Message-ID: <479b6b3e-72d4-4755-acf4-11011b822682@linux.ibm.com>
+Date: Wed, 6 Nov 2024 13:18:46 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -33,57 +62,59 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [syzbot] [lvs?] possible deadlock in start_sync_thread
-To: Pablo Neira Ayuso <pablo@netfilter.org>,
- Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
- linux-s390@vger.kernel.org
-Cc: syzbot <syzbot+e929093395ec65f969c7@syzkaller.appspotmail.com>,
- coreteam@netfilter.org, davem@davemloft.net, edumazet@google.com,
- horms@verge.net.au, ja@ssi.bg, kadlec@netfilter.org, kuba@kernel.org,
- linux-kernel@vger.kernel.org, lvs-devel@vger.kernel.org,
- netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, pabeni@redhat.com,
- syzkaller-bugs@googlegroups.com
-References: <000000000000abf2f0061ba46a1a@google.com>
- <6725704b.050a0220.35b515.0180.GAE@google.com> <ZyoAjPBjtQA6jE-8@calendula>
-Content-Language: en-US
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <ZyoAjPBjtQA6jE-8@calendula>
+Subject: Re: [PATCH v3] s390/uvdevice: Support longer secret lists
+To: Heiko Carstens <hca@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Ingo Franzki <ifranzki@linux.ibm.com>,
+        Christoph Schlameuss <schlameuss@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, borntraeger@linux.ibm.com
+References: <20241104153609.1361388-1-seiden@linux.ibm.com>
+ <20241106081004.16507-A-hca@linux.ibm.com>
+ <a74cfc12-f404-47ca-85a8-164da22bdbfc@linux.ibm.com>
+ <20241106091345.16507-B-hca@linux.ibm.com>
+Content-Language: en-US, en-HK
+From: Steffen Eiden <seiden@linux.ibm.com>
+In-Reply-To: <20241106091345.16507-B-hca@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: w8PSHmkbUXE0IvuomI-4rejHQxHworza
+X-Proofpoint-ORIG-GUID: w8PSHmkbUXE0IvuomI-4rejHQxHworza
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ impostorscore=0 mlxscore=0 clxscore=1015 phishscore=0 priorityscore=1501
+ suspectscore=0 lowpriorityscore=0 bulkscore=0 mlxlogscore=695 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
+ definitions=main-2411060099
 
 
 
-On 11/5/24 7:25 PM, Pablo Neira Ayuso wrote:
-> Hi,
+On 11/6/24 10:13 AM, Heiko Carstens wrote:
+> On Wed, Nov 06, 2024 at 09:54:33AM +0100, Janosch Frank wrote:
+>> On 11/6/24 9:10 AM, Heiko Carstens wrote:
+>>> On Mon, Nov 04, 2024 at 04:36:09PM +0100, Steffen Eiden wrote:
+>>>> +		copy_len = sizeof(list->secrets[0]) * list->num_secr_stored;
+>>>> +		WARN_ON(copy_len > sizeof(list->secrets));
+>>>
+>>> Is this really possible? Without checking the documentation I guess
+>>> this is not possible and therefore the WARN_ON() should be removed.
+>>>
+>>
+>> This happening requires a FW error, no?
+>> list->num_secr_stored is reported by FW and would need to be >85.
+>>
+>> We could clamp it down to 85 secrets / 4k - sizeof(header) with a
+>> WARN_ON_ONCE() to catch FW problems if that suits you more.
 > 
-> I am Cc'ing SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS maintainers.
+> If this would be an *error* why even add this check? We have tons of
+> code without doing sanity checks for firmware provided values - where
+> should we start or end?
+Yes, this would be an error.
+
 > 
-> Similar issue already reported by syzkaller here:
-> 
-> https://lore.kernel.org/netdev/ZyIgRmJUbnZpzXNV@calendula/T/#mf1f03a65108226102d8567c9fb6bab98c072444c
-> 
-> related to smc->clcsock_release_lock.
-> 
-> I think this is a false possible lockdep considers smc->clcsock_release_lock
-> is a lock of the same class sk_lock-AF_INET.
-> 
-> Could you please advise?
-> 
-> Thanks.
-
-Hi Pablo,
-
-Thank you for the reminder. We are currently working on it. The community has already submitted some 
-fixes[1], and we are still reviewing them.
-
-
-Best wishes,
-D. Wythe
-
-
-[1] 
-https://lore.kernel.org/netdev/c2ac8e30806af319eb96f67103196b7cda22d562.1729031472.git.danielyangkang@gmail.com/
-
-
-
+> So imho: either remove this check if this would be firmware error,
+> unless there is a good reason do keep this check, or if this is not an
+> error convert to WARN_ON_ONCE() and limit the copy_to_user().
+OK. I'll remove the check. Sending a fix-up reply.
