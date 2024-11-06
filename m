@@ -1,172 +1,173 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 284631D5151;
-	Wed,  6 Nov 2024 08:26:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1D551922EF;
+	Wed,  6 Nov 2024 08:54:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730881603; cv=none; b=fS/XyN4IVomIpQ1+1DRFjVQtDGh42SjtqfYsZa3s0c+tv65sv8wzi/3jYUc+n2EneA1mycImECrNcUUnJTVUcsl7McAgzvF78OhLHRAQAJPiL42k28z41DITcedRsV5AxgcpN/BiES4ljIPQ5rCo7B7v2Up1WPOGc1Gn27Uprks=
+	t=1730883287; cv=none; b=cYi49QRVtYl3w7Z2aYzrsnT5FJG9UADdpe2hhYnPqDNTUCu765XGADWBNGU0mBWlqfG3sPeFd6yRhn251n6E2yRmpIFtQW1DSemBM6E0m79SJGJPZg+y3e359t2snWCc+lJbX2LF/wxUUQ9Cc8shvO7fLPQmzamHA/39tycRKoU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730881603; c=relaxed/simple;
-	bh=iUcT/gwGrRVy7MprbFBNOk3U6166YlFFOKSZnEBXUx0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mRJQUUkEywnM3uAnIxjYOOU1pGr0/sdijIY5QTnIomGYM9japRMUZ1BbKmvJ2qorzMsPXHSOOqFGcbCGtMiQFiwV/W2flOGzkexumhpEBz+PLdLfRN1ed+AcLl05pm5IP04oBtE3mHtUqsStJg2FZ9da6Qu5N0SSGyxrtHx0zQo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Vq3/ZVxg; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1730883287; c=relaxed/simple;
+	bh=sqSd93rmDbn8W6wxgo6v2bpwue+1Hnq4A9JjctkB24U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PdnQuyQH601Y/6l8xFCHQvY1ddRCVtGYTzX5v6HBIyEySv9XA9fLvXHvEOdll5q+Yrng9twKtOjlXjHwfR20stDCtna4CuRN72Hwjr3tr7jiGxC7gE88R85zaYzjBdhX/oF7lIKbLJB2iLd+rFgs+i3KNhcLrkHV9CaWpM5etDM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ojxsdQNk; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Vq3/ZVxg"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A68BISL023384;
-	Wed, 6 Nov 2024 08:26:32 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ojxsdQNk"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A68elQQ003692;
+	Wed, 6 Nov 2024 08:54:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=e52w3lhZtfHAPxbejgCls0YBeKYdmjEqpuUeEO/e9
-	Ng=; b=Vq3/ZVxg0iiGSXTQdZFL/84BtJzolkQLzzFKlHvZCGTnyrRkmBXyMnGJg
-	xqMtcx8FDWH7MOGd/W0LkGkKspC5t15LuY4HEfigXhq5W4/jJ38duq+5pAdd7JQ1
-	ZCdv4H3Xs8oSXULhJ6KvdqHF2EcEaT0f0sjoiqI3AB8Ej8aOXVq7YH5u+2+PMG8O
-	Y3A7JAuc0yo0D6p38+j1db/XcnJibBO14Mrzlh0jMshE80qgUj8drPUiGyVMMckn
-	hznRA+yLUxqKSF8/H5WvXmeXb+SPX108bQDTlOcVtZ9WLyN4oK7jMvgYj9xNIOh2
-	JFWmQASulNEWbZGZYxSDoHOskjZpQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42r4q0825j-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=gjieog
+	9CXQsydB5JwgTyVj+b7ANqha4EmKC/kzAqM/A=; b=ojxsdQNkL54QFvqG1CM7D/
+	pUmGP4ndKK3rChLd+9V8NXpyVmSnuQOayAdatvJ6ByUo0v8atN0rMbjyLpSWheP5
+	39O2MtfYLgnLI7muE/vkDm8H8J31xK+tj9ojfng7NLKjlUQ5T/jcPTMN9xlFLKnH
+	PVhanTE9FT/tbLOEeYx+kNcG2akkwS5NB0f8qwv4/FfbUYvAZcoKbCuNi3M6RMoB
+	Bz2Fofm259XGA9RezNzwEfm8TE6noeLnwUtto7H7mYTm3nK94ihuQ1UIyUegXy+A
+	9t9NOPNhVjgieSx8pl7lkXgnc536F03QZ9jRwcacf6lpyvhc1We2pk/EWbcGzNYQ
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42r55fg1mg-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Nov 2024 08:26:32 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4A68QW5A019713;
-	Wed, 6 Nov 2024 08:26:32 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42r4q0825g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Nov 2024 08:26:32 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4A645qEs031854;
-	Wed, 6 Nov 2024 08:26:30 GMT
+	Wed, 06 Nov 2024 08:54:38 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4A68Pirx024174;
+	Wed, 6 Nov 2024 08:54:38 GMT
 Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42nydmnsgx-1
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42nxsyhrrd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Nov 2024 08:26:30 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4A68QQaH56099128
+	Wed, 06 Nov 2024 08:54:38 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4A68sYJU56230232
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 6 Nov 2024 08:26:26 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AE9F320040;
-	Wed,  6 Nov 2024 08:26:26 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8E2A720043;
-	Wed,  6 Nov 2024 08:26:24 +0000 (GMT)
-Received: from MacBookPro.fritz.box.com (unknown [9.171.50.17])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  6 Nov 2024 08:26:24 +0000 (GMT)
-From: Wenjia Zhang <wenjia@linux.ibm.com>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org, Simon Horman <horms@kernel.org>,
-        Leon Romanovsky <leon@kernel.org>,
-        Michael Guralnik <michaelgur@nvidia.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, Jan Karcher <jaka@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>, Nils Hoppmann <niho@linux.ibm.com>,
-        Niklas Schnell <schnelle@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>, Aswin K <aswin@linux.ibm.com>,
-        Dust Li <dust.li@linux.alibaba.com>, Zhu Yanjun <yanjun.zhu@linux.dev>
-Subject: [PATCH net v2] net/smc: Fix lookup of netdev by using ib_device_get_netdev()
-Date: Wed,  6 Nov 2024 09:26:12 +0100
-Message-ID: <20241106082612.57803-1-wenjia@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
+	Wed, 6 Nov 2024 08:54:34 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 48E7920043;
+	Wed,  6 Nov 2024 08:54:34 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BCD0E20040;
+	Wed,  6 Nov 2024 08:54:33 +0000 (GMT)
+Received: from [9.171.91.81] (unknown [9.171.91.81])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  6 Nov 2024 08:54:33 +0000 (GMT)
+Message-ID: <a74cfc12-f404-47ca-85a8-164da22bdbfc@linux.ibm.com>
+Date: Wed, 6 Nov 2024 09:54:33 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] s390/uvdevice: Support longer secret lists
+To: Heiko Carstens <hca@linux.ibm.com>, Steffen Eiden <seiden@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Ingo Franzki <ifranzki@linux.ibm.com>,
+        Christoph Schlameuss <schlameuss@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, borntraeger@linux.ibm.com
+References: <20241104153609.1361388-1-seiden@linux.ibm.com>
+ <20241106081004.16507-A-hca@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ xsFNBFubpD4BEADX0uhkRhkj2AVn7kI4IuPY3A8xKat0ihuPDXbynUC77mNox7yvK3X5QBO6
+ qLqYr+qrG3buymJJRD9xkp4mqgasHdB5WR9MhXWKH08EvtvAMkEJLnqxgbqf8td3pCQ2cEpv
+ 15mH49iKSmlTcJ+PvJpGZcq/jE42u9/0YFHhozm8GfQdb9SOI/wBSsOqcXcLTUeAvbdqSBZe
+ zuMRBivJQQI1esD9HuADmxdE7c4AeMlap9MvxvUtWk4ZJ/1Z3swMVCGzZb2Xg/9jZpLsyQzb
+ lDbbTlEeyBACeED7DYLZI3d0SFKeJZ1SUyMmSOcr9zeSh4S4h4w8xgDDGmeDVygBQZa1HaoL
+ Esb8Y4avOYIgYDhgkCh0nol7XQ5i/yKLtnNThubAcxNyryw1xSstnKlxPRoxtqTsxMAiSekk
+ 0m3WJwvwd1s878HrQNK0orWd8BzzlSswzjNfQYLF466JOjHPWFOok9pzRs+ucrs6MUwDJj0S
+ cITWU9Rxb04XyigY4XmZ8dywaxwi2ZVTEg+MD+sPmRrTw+5F+sU83cUstuymF3w1GmyofgsU
+ Z+/ldjToHnq21MNa1wx0lCEipCCyE/8K9B9bg9pUwy5lfx7yORP3JuAUfCYb8DVSHWBPHKNj
+ HTOLb2g2UT65AjZEQE95U2AY9iYm5usMqaWD39pAHfhC09/7NQARAQABzSVKYW5vc2NoIEZy
+ YW5rIDxmcmFua2phQGxpbnV4LmlibS5jb20+wsF3BBMBCAAhBQJbm6Q+AhsjBQsJCAcCBhUI
+ CQoLAgQWAgMBAh4BAheAAAoJEONU5rjiOLn4p9gQALjkdj5euJVI2nNT3/IAxAhQSmRhPEt0
+ AmnCYnuTcHRWPujNr5kqgtyER9+EMQ0ZkX44JU2q7OWxTdSNSAN/5Z7qmOR9JySvDOf4d3mS
+ bMB5zxL9d8SbnSs1uW96H9ZBTlTQnmLfsiM9TetAjSrR8nUmjGhe2YUhJLR1v1LguME+YseT
+ eXnLzIzqqpu311/eYiiIGcmaOjPCE+vFjcXL5oLnGUE73qSYiujwhfPCCUK0850o1fUAYq5p
+ CNBCoKT4OddZR+0itKc/cT6NwEDwdokeg0+rAhxb4Rv5oFO70lziBplEjOxu3dqgIKbHbjza
+ EXTb+mr7VI9O4tTdqrwJo2q9zLqqOfDBi7NDvZFLzaCewhbdEpDYVu6/WxprAY94hY3F4trT
+ rQMHJKQENtF6ZTQc9fcT5I3gAmP+OEvDE5hcTALpWm6Z6SzxO7gEYCnF+qGXqp8sJVrweMub
+ UscyLqHoqdZC2UG4LQ1OJ97nzDpIRe0g6oJ9ZIYHKmfw5jjwH6rASTld5MFWajWdNsqK15k/
+ RZnHAGICKVIBOBsq26m4EsBlfCdt3b/6emuBjUXR1pyjHMz2awWzCq6/6OWs5eANZ0sdosNq
+ dq2v0ULYTazJz2rlCXV89qRa7ukkNwdBSZNEwsD4eEMicj1LSrqWDZMAALw50L4jxaMD7lPL
+ jJbazsFNBFubpD4BEADAcUTRqXF/aY53OSH7IwIK9lFKxIm0IoFkOEh7LMfp7FGzaP7ANrZd
+ cIzhZi38xyOkcaFY+npGEWvko7rlIAn0JpBO4x3hfhmhBD/WSY8LQIFQNNjEm3vzrMo7b9Jb
+ JAqQxfbURY3Dql3GUzeWTG9uaJ00u+EEPlY8zcVShDltIl5PLih20e8xgTnNzx5c110lQSu0
+ iZv2lAE6DM+2bJQTsMSYiwKlwTuv9LI9Chnoo6+tsN55NqyMxYqJgElk3VzlTXSr3+rtSCwf
+ tq2cinETbzxc1XuhIX6pu/aCGnNfuEkM34b7G1D6CPzDMqokNFbyoO6DQ1+fW6c5gctXg/lZ
+ 602iEl4C4rgcr3+EpfoPUWzKeM8JXv5Kpq4YDxhvbitr8Dm8gr38+UKFZKlWLlwhQ56r/zAU
+ v6LIsm11GmFs2/cmgD1bqBTNHHcTWwWtRTLgmnqJbVisMJuYJt4KNPqphTWsPY8SEtbufIlY
+ HXOJ2lqUzOReTrie2u0qcSvGAbSfec9apTFl2Xko/ddqPcZMpKhBiXmY8tJzSPk3+G4tqur4
+ 6TYAm5ouitJsgAR61Cu7s+PNuq/pTLDhK+6/Njmc94NGBcRA4qTuysEGE79vYWP2oIAU4Fv6
+ gqaWHZ4MEI2XTqH8wiwzPdCQPYsSE0fXWiYu7ObeErT6iLSTZGx4rQARAQABwsFfBBgBCAAJ
+ BQJbm6Q+AhsMAAoJEONU5rjiOLn4DDEP/RuyckW65SZcPG4cMfNgWxZF8rVjeVl/9PBfy01K
+ 8R0hajU40bWtXSMiby7j0/dMjz99jN6L+AJHJvrLz4qYRzn2Ys843W+RfXj62Zde4YNBE5SL
+ jJweRCbMWKaJLj6499fctxTyeb9+AMLQS4yRSwHuAZLmAb5AyCW1gBcTWZb8ON5BmWnRqeGm
+ IgC1EvCnHy++aBnHTn0m+zV89BhTLTUal35tcjUFwluBY39R2ux/HNlBO1GY3Z+WYXhBvq7q
+ katThLjaQSmnOrMhzqYmdShP1leFTVbzXUUIYv/GbynO/YrL2gaQpaP1bEUEi8lUAfXJbEWG
+ dnHFkciryi092E8/9j89DJg4mmZqOau7TtUxjRMlBcIliXkzSLUk+QvD4LK1kWievJse4mte
+ FBdkWHfP4BH/+8DxapRcG1UAheSnSRQ5LiO50annOB7oXF+vgKIaie2TBfZxQNGAs3RQ+bga
+ DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
+ Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
+ phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
+In-Reply-To: <20241106081004.16507-A-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: vVliH-_85x80HYY8j6ru-P5L6NRwzY_w
-X-Proofpoint-ORIG-GUID: FvfFRUqBOtmALvW4bUO29lKSWp4I1oQe
+X-Proofpoint-ORIG-GUID: NjZUrZ1piqleZ00nw_oMzMh4kTQ0e-6t
+X-Proofpoint-GUID: NjZUrZ1piqleZ00nw_oMzMh4kTQ0e-6t
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 adultscore=0
- bulkscore=0 mlxlogscore=936 mlxscore=0 suspectscore=0 phishscore=0
- lowpriorityscore=0 priorityscore=1501 malwarescore=0 spamscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2411060065
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=769 adultscore=0
+ mlxscore=0 phishscore=0 impostorscore=0 priorityscore=1501 suspectscore=0
+ bulkscore=0 malwarescore=0 clxscore=1015 lowpriorityscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
+ definitions=main-2411060069
 
-The SMC-R variant of the SMC protocol used direct call to function
-ib_device_ops.get_netdev() to lookup netdev. As we used mlx5 device
-driver to run SMC-R, it failed to find a device, because in mlx5_ib the
-internal net device management for retrieving net devices was replaced
-by a common interface ib_device_get_netdev() in commit 8d159eb2117b
-("RDMA/mlx5: Use IB set_netdev and get_netdev functions").
+On 11/6/24 9:10 AM, Heiko Carstens wrote:
+> On Mon, Nov 04, 2024 at 04:36:09PM +0100, Steffen Eiden wrote:
+>> Enable the list IOCTL to provide lists longer than one page (85 entries).
+>> The list IOCTL now accepts any argument length in page granularity.
+>> It fills the argument up to this length with entries until the list
+>> ends. User space unaware of this enhancement will still receive one page
+>> of data and an uv_rc 0x0100.
+>>
+>> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+>> ---
+>>   v3: remove upper boundary (8 pages) for arg len
+> 
+> ...
+> 
+>> +static int uvio_get_list(void *zpage, struct uvio_ioctl_cb *uv_ioctl)
+>> +{
+>> +	const size_t data_off = offsetof(struct uv_secret_list, secrets);
+>> +	u8 __user *user_buf = (u8 __user *)uv_ioctl->argument_addr;
+>> +	struct uv_secret_list *list = zpage;
+>> +	u16 num_secrets_stored = 0;
+>> +	size_t user_off = data_off;
+>> +	size_t copy_len;
+>> +
+>> +	do {
+>> +		uv_list_secrets(list, list->next_secret_idx, &uv_ioctl->uv_rc,
+>> +				&uv_ioctl->uv_rrc);
+>> +		if (uv_ioctl->uv_rc != UVC_RC_EXECUTED &&
+>> +		    uv_ioctl->uv_rc != UVC_RC_MORE_DATA)
+>> +			break;
+>> +
+>> +		copy_len = sizeof(list->secrets[0]) * list->num_secr_stored;
+>> +		WARN_ON(copy_len > sizeof(list->secrets));
+> 
+> Is this really possible? Without checking the documentation I guess
+> this is not possible and therefore the WARN_ON() should be removed.
+> 
 
-Since such direct accesses to the internal net device management is not
-recommended at all, update the SMC-R code to use proper API
-ib_device_get_netdev().
+This happening requires a FW error, no?
+list->num_secr_stored is reported by FW and would need to be >85.
 
-Fixes: 54903572c23c ("net/smc: allow pnetid-less configuration")
-Reported-by: Aswin K <aswin@linux.ibm.com>
-Reviewed-by: Gerd Bayer <gbayer@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Simon Horman <horms@kernel.org>
-Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
-Reviewed-by: Zhu Yanjun <yanjun.zhu@linux.dev>
-Reviewed-by: D. Wythe <alibuda@linux.alibaba.com>
-Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
----
- net/smc/smc_ib.c   | 8 ++------
- net/smc/smc_pnet.c | 4 +---
- 2 files changed, 3 insertions(+), 9 deletions(-)
-
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 9297dc20bfe2..9c563cdbea90 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -899,9 +899,7 @@ static void smc_copy_netdev_ifindex(struct smc_ib_device *smcibdev, int port)
- 	struct ib_device *ibdev = smcibdev->ibdev;
- 	struct net_device *ndev;
- 
--	if (!ibdev->ops.get_netdev)
--		return;
--	ndev = ibdev->ops.get_netdev(ibdev, port + 1);
-+	ndev = ib_device_get_netdev(ibdev, port + 1);
- 	if (ndev) {
- 		smcibdev->ndev_ifidx[port] = ndev->ifindex;
- 		dev_put(ndev);
-@@ -921,9 +919,7 @@ void smc_ib_ndev_change(struct net_device *ndev, unsigned long event)
- 		port_cnt = smcibdev->ibdev->phys_port_cnt;
- 		for (i = 0; i < min_t(size_t, port_cnt, SMC_MAX_PORTS); i++) {
- 			libdev = smcibdev->ibdev;
--			if (!libdev->ops.get_netdev)
--				continue;
--			lndev = libdev->ops.get_netdev(libdev, i + 1);
-+			lndev = ib_device_get_netdev(libdev, i + 1);
- 			dev_put(lndev);
- 			if (lndev != ndev)
- 				continue;
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index a04aa0e882f8..716808f374a8 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -1054,9 +1054,7 @@ static void smc_pnet_find_rdma_dev(struct net_device *netdev,
- 		for (i = 1; i <= SMC_MAX_PORTS; i++) {
- 			if (!rdma_is_port_valid(ibdev->ibdev, i))
- 				continue;
--			if (!ibdev->ibdev->ops.get_netdev)
--				continue;
--			ndev = ibdev->ibdev->ops.get_netdev(ibdev->ibdev, i);
-+			ndev = ib_device_get_netdev(ibdev->ibdev, i);
- 			if (!ndev)
- 				continue;
- 			dev_put(ndev);
--- 
-2.43.0
-
+We could clamp it down to 85 secrets / 4k - sizeof(header) with a 
+WARN_ON_ONCE() to catch FW problems if that suits you more.
