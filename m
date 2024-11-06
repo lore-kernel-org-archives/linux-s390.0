@@ -1,196 +1,189 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EFEF201116;
-	Wed,  6 Nov 2024 13:59:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D366F204028;
+	Wed,  6 Nov 2024 16:03:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730901556; cv=none; b=K9gvn5VuvYcrMTf2awaGAPfjrG/q3BIAv249A6OZq28i7WoamAExUegQNKmB5Te6RS0ZHd1rX/Es2MCT9NXJYkh8bcHYTLIQdMsX+5T6wpSdsksdKyHY18psQqCJpBh7IScTlYTIUHv9sZu8lnFHNSLocvp7yzyGQSLoqWCPjJ0=
+	t=1730909001; cv=none; b=IxfyfprJ1sHeCHEz3J2bVHNQZ2nnFRZG07pcynG103IpwbBO6aO4pBhno6wCTVw0aWj9IvfGil9dvGjZqaNcMPN+Hvue57TIp0jyEEmwFM+DA423yp2fYn5jfc/Lm2932Cm5tMrv3JKHfQxIGHYmirfF9pcKdt6meicN9Z4UetM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730901556; c=relaxed/simple;
-	bh=Ypi8TKGo3g8F9OHU6rjov6A0/pgWfbKDn7l6s0WRkKo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RiocB2Za9xISfnFPhMCkXSmP4uWLAA5xf+LwQG0fcEyVvW+Rcjv24VN0sEhu6Ftm4RRn+g4DbH42CHckqTfoBwyIhpYgCGNYErL359gwclOEtiM1g3xNnUtWT55tBqAF8QOmIQFxbklVxwVdkjym3LEBVjh5SRyQaxMy0WZfRNA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=az+W8Gto; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1730909001; c=relaxed/simple;
+	bh=eeEXuIJ2vlczIF22PZRVZhnTIMIbHqdB4rwbCI1c/Sg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ioHxjZvG2b/rKl6i/a9S1Pg1BDRxa0z/4iLF/c/FJbM0VqV0EHMGsIS4X9gifo/pSYDnIP7wsKPjBNBS7wDV6lgPJzDoUdiMPaDa/1gTKI1ISVPvBY142jZaCISZLGzbvfs2TEc3tP0Tk1bhI7CVZBvXTaA+mIY6rE8lrgENED4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NKC//QNW; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="az+W8Gto"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 728BEC4CECC;
-	Wed,  6 Nov 2024 13:59:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1730901556;
-	bh=Ypi8TKGo3g8F9OHU6rjov6A0/pgWfbKDn7l6s0WRkKo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=az+W8GtoQJLib+LwIbWagqpPHea2qAsKjvw8b4waSSwTtKu6rFS1MEVnXdNnvERvq
-	 IT7+AnmSpbR9dosbMJ+sucPwchYywY/VkfeogYxHnzb/mPzChyRfg46e0E5muoTQrv
-	 Rpcmmw2IV/PhXP+V/YywfBoyANHJGGpsj9smONbEXESMO3g7AsyJUUhVGsoJXJwJnl
-	 TvuAClXYG2adXtJ5R2lT9W/hzOWKVn8FPkVxIIrfwfD4FAqntk1FVhKpvrP9yzo9wy
-	 f7Zxmu8RXPTJxY6uk33vD4GLbY0MnG9ZY7wGI4VWFaWA9/9Gv5Yd4TfN6565YqRuIz
-	 AAIqKg92auG7A==
-Date: Wed, 6 Nov 2024 15:59:10 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Wenjia Zhang <wenjia@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Nils Hoppmann <niho@linux.ibm.com>,
-	Niklas Schnell <schnelle@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	Karsten Graul <kgraul@linux.ibm.com>,
-	Stefan Raspl <raspl@linux.ibm.com>, Aswin K <aswin@linux.ibm.com>
-Subject: Re: [PATCH net] net/smc: Fix lookup of netdev by using
- ib_device_get_netdev()
-Message-ID: <20241106135910.GF5006@unreal>
-References: <20241025072356.56093-1-wenjia@linux.ibm.com>
- <20241027201857.GA1615717@unreal>
- <8d17b403-aefa-4f36-a913-7ace41cf2551@linux.ibm.com>
- <20241105112313.GE311159@unreal>
- <20241106102439.4ca5effc.pasic@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NKC//QNW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1730908999; x=1762444999;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=eeEXuIJ2vlczIF22PZRVZhnTIMIbHqdB4rwbCI1c/Sg=;
+  b=NKC//QNWBYXoeHvZEqxuSnuxCT8KPuPef2vRSskVLfPrVkXKORdjfijW
+   PT7V0JcFNbWVVXXhZwlVA794AgC694G7LGkNkSz2IbCO1hDExl+sq3xG7
+   /fRkRkG5ju89ymQYYguwuEomHa1v/GjWw8MjjK28lvNUNJOBNDv7AcMWZ
+   yxw0QRmo+0ToBCzstBTRpq6oTMdqgIVJr7/PZ8W2ga3++bO5+X8dG+MrF
+   K1YcUPu0accPxz4YTPXOifFZJSr29oIB8TOZSmE/1ttypxAeeUppdpFAP
+   F5DBWDDDNkKxnuwtnTrUfyig6yjxQPRNXpi7UcMAHMhIUtz0PiPYhRudm
+   w==;
+X-CSE-ConnectionGUID: Nh3lJl2hQrih+hUTaZUwAg==
+X-CSE-MsgGUID: kfGnJJAiTmm8xeWlk7XzkQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11222"; a="48176917"
+X-IronPort-AV: E=Sophos;i="6.11,199,1725346800"; 
+   d="scan'208";a="48176917"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Nov 2024 08:03:17 -0800
+X-CSE-ConnectionGUID: a5M3gJ+/QYaSWgS/qH6ALg==
+X-CSE-MsgGUID: phJVPBFJQuabQWlVho3xvg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.11,263,1725346800"; 
+   d="scan'208";a="84715253"
+Received: from linux.intel.com ([10.54.29.200])
+  by fmviesa008.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Nov 2024 08:03:17 -0800
+Received: from [10.212.82.230] (kliang2-mobl1.ccr.corp.intel.com [10.212.82.230])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by linux.intel.com (Postfix) with ESMTPS id 2C51820B5703;
+	Wed,  6 Nov 2024 08:03:12 -0800 (PST)
+Message-ID: <65675ed8-e569-47f8-b1eb-40c853751bfb@linux.intel.com>
+Date: Wed, 6 Nov 2024 11:03:10 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241106102439.4ca5effc.pasic@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 4/5] x86: perf: Refactor misc flag assignments
+To: Colton Lewis <coltonlewis@google.com>, kvm@vger.kernel.org
+Cc: Oliver Upton <oliver.upton@linux.dev>,
+ Sean Christopherson <seanjc@google.com>,
+ Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+ Adrian Hunter <adrian.hunter@intel.com>, Will Deacon <will@kernel.org>,
+ Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>,
+ linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org
+References: <20241105195603.2317483-1-coltonlewis@google.com>
+ <20241105195603.2317483-5-coltonlewis@google.com>
+Content-Language: en-US
+From: "Liang, Kan" <kan.liang@linux.intel.com>
+In-Reply-To: <20241105195603.2317483-5-coltonlewis@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Nov 06, 2024 at 10:24:39AM +0100, Halil Pasic wrote:
-> On Tue, 5 Nov 2024 13:23:13 +0200
-> Leon Romanovsky <leon@kernel.org> wrote:
-> 
-> > On Tue, Nov 05, 2024 at 10:50:45AM +0100, Wenjia Zhang wrote:
-> > > 
-> > > 
-> > > On 27.10.24 21:18, Leon Romanovsky wrote:  
-> > > > On Fri, Oct 25, 2024 at 09:23:55AM +0200, Wenjia Zhang wrote:  
-> > > > > Commit c2261dd76b54 ("RDMA/device: Add ib_device_set_netdev() as
-> > > > > an alternative to get_netdev") introduced an API
-> > > > > ib_device_get_netdev. The SMC-R variant of the SMC protocol
-> > > > > continued to use the old API ib_device_ops.get_netdev() to
-> > > > > lookup netdev.  
-> > > > 
-> > > > I would say that calls to ibdev ops from ULPs was never been right
-> > > > thing to do. The ib_device_set_netdev() was introduced for the
-> > > > drivers.
-> > > > 
-> > > > So the whole commit message is not accurate and better to be
-> > > > rewritten. 
-> > > > > As this commit 8d159eb2117b
-> > > > > ("RDMA/mlx5: Use IB set_netdev and get_netdev functions")
-> > > > > removed the get_netdev callback from
-> > > > > mlx5_ib_dev_common_roce_ops, calling ib_device_ops.get_netdev
-> > > > > didn't work any more at least by using a mlx5 device driver.  
-> > > > 
-> > > > It is not a correct statement too. All modern drivers (for last 5
-> > > > years) don't have that .get_netdev() ops, so it is not mlx5
-> > > > specific, but another justification to say that SMC-R was doing it
-> > > > wrong. 
-> > > > > Thus, using ib_device_set_netdev() now became mandatory.  
-> > > > 
-> > > > ib_device_set_netdev() is mandatory for the drivers, it is nothing
-> > > > to do with ULPs.
-> > > >   
-> > > > > 
-> > > > > Replace ib_device_ops.get_netdev() with ib_device_get_netdev().  
-> > > > 
-> > > > It is too late for me to do proper review for today, but I would
-> > > > say that it is worth to pay attention to multiple dev_put() calls
-> > > > in the functions around the ib_device_get_netdev().
-> > > >   
-> > > > > 
-> > > > > Fixes: 54903572c23c ("net/smc: allow pnetid-less configuration")
-> > > > > Fixes: 8d159eb2117b ("RDMA/mlx5: Use IB set_netdev and
-> > > > > get_netdev functions")  
-> > > > 
-> > > > It is not related to this change Fixes line.
-> > > >   
-> > > 
-> > > Hi Leon,
-> > > 
-> > > Thank you for the review! I agree that SMC could do better. However,
-> > > we should fix it and give enough information and reference on the
-> > > changes, since the code has already existed and didn't work with the
-> > > old way.   
-> > 
-> > The code which you change worked by chance and was wrong from day one.
-> 
-> I absolutely agree with that statement. But please notice that the
-> commit date of commit c2261dd76b54 ("RDMA/device: Add
-> ib_device_set_netdev() as an alternative to get_netdev") predates the
-> commit date of commit 54903572c23c ("net/smc: allow pnetid-less
-> configuration") only by 9 days. And before commit c2261dd76b54
-> ("RDMA/device: Add ib_device_set_netdev() as an alternative to
-> get_netdev") there was no 
-> ib_device_get_netdev() AFAICT.
 
-It doesn't make it right.
 
-1. While commit c2261dd76b54 was submitted and discussed, RDMA was not CCed.
-2. Author didn't try to add his version of ib_device_get_netdev() as it
-is done for all APIs exposed by RDMA core.
+On 2024-11-05 2:56 p.m., Colton Lewis wrote:
+> Break the assignment logic for misc flags into their own respective
+> functions to reduce the complexity of the nested logic.
+> 
+> Signed-off-by: Colton Lewis <coltonlewis@google.com>
+> Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
+> ---
+>  arch/x86/events/core.c            | 31 +++++++++++++++++++++++--------
+>  arch/x86/include/asm/perf_event.h |  2 ++
+>  2 files changed, 25 insertions(+), 8 deletions(-)
+> 
+> diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
+> index d19e939f3998..24910c625e3d 100644
+> --- a/arch/x86/events/core.c
+> +++ b/arch/x86/events/core.c
+> @@ -3011,16 +3011,34 @@ unsigned long perf_arch_instruction_pointer(struct pt_regs *regs)
+>  	return regs->ip + code_segment_base(regs);
+>  }
+>  
+> +static unsigned long common_misc_flags(struct pt_regs *regs)
+> +{
+> +	if (regs->flags & PERF_EFLAGS_EXACT)
+> +		return PERF_RECORD_MISC_EXACT_IP;
+> +
+> +	return 0;
+> +}
+> +
+> +unsigned long perf_arch_guest_misc_flags(struct pt_regs *regs)
+> +{
+> +	unsigned long guest_state = perf_guest_state();
+> +	unsigned long flags = common_misc_flags(regs);
+> +
+> +	if (guest_state & PERF_GUEST_USER)
+> +		flags |= PERF_RECORD_MISC_GUEST_USER;
+> +	else if (guest_state & PERF_GUEST_ACTIVE)
+> +		flags |= PERF_RECORD_MISC_GUEST_KERNEL;
+> +
 
-> 
-> Maybe the two patches crossed mid air so to say.
-> 
-> > 
-> > > I can rewrite the commit message.
-> > > 
-> > > What about:
-> > > "
-> > > The SMC-R variant of the SMC protocol still called
-> > > ib_device_ops.get_netdev() to lookup netdev. As we used mlx5 device
-> > > driver to run SMC-R, it failed to find a device, because in mlx5_ib
-> > > the internal net device management for retrieving net devices was
-> > > replaced by a common interface ib_device_get_netdev() in commit
-> > > 8d159eb2117b ("RDMA/mlx5: Use IB set_netdev and get_netdev
-> > > functions"). Thus, replace ib_device_ops.get_netdev() with
-> > > ib_device_get_netdev() in SMC. "  
-> > 
-> >  The SMC-R variant of the SMC protocol used direct call to
-> > ib_device_ops.get_netdev() function to lookup netdev. Such direct
-> > accesses are not correct for any usage outside of RDMA core code. 
-> > 
-> 
-> I agree, it is not correct since c2261dd76b54 ("RDMA/device: Add
-> ib_device_set_netdev() as an alternative to get_netdev").
-> 
-> Does fs/smb/server/transport_rdma.c qualify as inside of RDMA core code?
+The logic of setting the GUEST_KERNEL flag is implicitly changed here.
 
-RDMA core code is drivers/infiniband/core/*.
+For the current code, the GUEST_KERNEL flag is set for !PERF_GUEST_USER,
+which include both guest_in_kernel and guest_in_NMI.
 
-> I would guess it is not, and I would not actually mind sending a patch
-> but I have trouble figuring out the logic behind  commit ecce70cf17d9
-> ("ksmbd: fix missing RDMA-capable flag for IPoIB device in
-> ksmbd_rdma_capable_netdev()").
+With the above change, the GUEST_KERNEL flag should be only set for the
+guest_in_kernel case.
+IIUC, this is the series's target, right?
 
-It is strange version of RDMA-CM. All other ULPs use RDMA-CM to avoid
-GID, netdev and fabric complexity.
+If so, could you please move the explanation into this patch?
+For x86, the behavior has already been changed since this patch.
 
-> 
-> 
-> >  RDMA subsystem provides ib_device_get_netdev() function that works on
-> >  all RDMA drivers returns valid netdev with proper locking an reference
-> >  counting. The commit 8d159eb2117b ("RDMA/mlx5: Use IB set_netdev and
-> > get_netdev functions") exposed that SMC-R didn't use that function.
-> > 
-> 
-> I believe the intention was this all along. I think the commit message
-> was written with the idea that 54903572c23c happened before c2261dd76b54
-> which is not the case.
-> 
-> >  So update the SMC-R to use proper API,
-> > 
-> 
-> I believe this is exactly what the patch does! And I agree we need to
-> improve on the commit message.
-> 
-> Regards,
-> Halil
+Thanks,
+Kan
+
+> +	return flags;
+> +}
+> +
+>  unsigned long perf_arch_misc_flags(struct pt_regs *regs)
+>  {
+>  	unsigned int guest_state = perf_guest_state();
+> -	int misc = 0;
+> +	unsigned long misc = common_misc_flags(regs);
+>  
+>  	if (guest_state) {
+> -		if (guest_state & PERF_GUEST_USER)
+> -			misc |= PERF_RECORD_MISC_GUEST_USER;
+> -		else
+> -			misc |= PERF_RECORD_MISC_GUEST_KERNEL;
+> +		misc |= perf_arch_guest_misc_flags(regs);
+>  	} else {
+>  		if (user_mode(regs))
+>  			misc |= PERF_RECORD_MISC_USER;
+> @@ -3028,9 +3046,6 @@ unsigned long perf_arch_misc_flags(struct pt_regs *regs)
+>  			misc |= PERF_RECORD_MISC_KERNEL;
+>  	}
+>  
+> -	if (regs->flags & PERF_EFLAGS_EXACT)
+> -		misc |= PERF_RECORD_MISC_EXACT_IP;
+> -
+>  	return misc;
+>  }
+>  
+> diff --git a/arch/x86/include/asm/perf_event.h b/arch/x86/include/asm/perf_event.h
+> index feb87bf3d2e9..d95f902acc52 100644
+> --- a/arch/x86/include/asm/perf_event.h
+> +++ b/arch/x86/include/asm/perf_event.h
+> @@ -538,7 +538,9 @@ struct x86_perf_regs {
+>  
+>  extern unsigned long perf_arch_instruction_pointer(struct pt_regs *regs);
+>  extern unsigned long perf_arch_misc_flags(struct pt_regs *regs);
+> +extern unsigned long perf_arch_guest_misc_flags(struct pt_regs *regs);
+>  #define perf_arch_misc_flags(regs)	perf_arch_misc_flags(regs)
+> +#define perf_arch_guest_misc_flags(regs)	perf_arch_guest_misc_flags(regs)
+>  
+>  #include <asm/stacktrace.h>
+>  
+
