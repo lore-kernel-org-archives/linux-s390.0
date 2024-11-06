@@ -1,164 +1,115 @@
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+Received: from mail.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A067519046E;
-	Wed,  6 Nov 2024 07:05:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B603A2D;
+	Wed,  6 Nov 2024 07:06:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=150.107.74.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730876717; cv=none; b=Xu0TTeIHszsO33qG9H4tCX2kNMsMvLJK04hdJ/81vL45rDY9NUZ2jb6KybaD5U41ZbyNxr3kHY/1ErhJzciIgEPbzrhdOd9BRuNnyYJZmIkavfMo3xnH+QpMiYFC+RqIlbU2l1QH2ID5kEr1vSInaZBnYzlL5X5wIeVKeMiPtHQ=
+	t=1730876813; cv=none; b=bL8WSCcwe41hD4FbejvDYUDCpwljpLj8tNPYjbw5lwTelzhN0QwdebF/PD0mrvQ8rJhVosQ3gifU4PoVN59Y3Ph/YBik4qsoZBD/pFj8pLyXJzrp6SpVFAi+GIyL55ipAdONEYWldTSwuexYqVp2QaS1DjdhDWdUQb7cuuuv6Fk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730876717; c=relaxed/simple;
-	bh=FlrbajGkVWKZv7DBfiNmX0RwbnrSl4eKa+pz0LV46GQ=;
-	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=khqsQMkrs9HCYy93ga6FW3Xdwev0xMzINEuSDfpIVKSroVvIuaLXnDYEUnmUmqolwu2OoTzShjFufBKMUgAgnlYo8pwdWsINpg323k1j4r0OBzauBwtghmhNp29mny4paKj5wSh/VYWDGxp3AYDy9WITH9rg31zxViqCFGQ6y44=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.174])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Xjx3S075VzNqYG;
-	Wed,  6 Nov 2024 15:02:28 +0800 (CST)
-Received: from kwepemf200001.china.huawei.com (unknown [7.202.181.227])
-	by mail.maildlp.com (Postfix) with ESMTPS id BE481140384;
-	Wed,  6 Nov 2024 15:05:04 +0800 (CST)
-Received: from [10.110.54.32] (10.110.54.32) by kwepemf200001.china.huawei.com
- (7.202.181.227) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Wed, 6 Nov
- 2024 15:05:03 +0800
-Subject: Re: [PATCH v2 net-next] net/smc: Optimize the search method of reused
- buf_desc
-To: <dust.li@linux.alibaba.com>, <wenjia@linux.ibm.com>, <jaka@linux.ibm.com>,
-	<alibuda@linux.alibaba.com>, <tonylu@linux.alibaba.com>,
-	<guwen@linux.alibaba.com>, <kuba@kernel.org>
-CC: <linux-s390@vger.kernel.org>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <luanjianhai@huawei.com>,
-	<zhangxuzhou4@huawei.com>, <dengguangxing@huawei.com>, <gaochao24@huawei.com>
-References: <20241101082342.1254-1-liqiang64@huawei.com>
- <20241105031938.1319-1-liqiang64@huawei.com>
- <20241105144457.GB89669@linux.alibaba.com>
-From: Li Qiang <liqiang64@huawei.com>
-Message-ID: <07f7e770-f78c-b272-f077-c238f1dc030b@huawei.com>
-Date: Wed, 6 Nov 2024 15:05:02 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+	s=arc-20240116; t=1730876813; c=relaxed/simple;
+	bh=mxUa4wXzdvBDGoXNKjPAAdJI49s9TSRxkkDIR/2IP/A=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=CM/RtJtQnioCElDQVvJY5/UXLAVMSKx8VGl22z3BQNsYr4SBvPhtlqhMrvVQ9UG2FkTdMoTWBNkbAucZrhNCoCk+93/cGmu5DJPh9Rih8LQDqCoj1GbcPxetQlsxc+HwI2Xjt4dxrtmvs7e+TkCCoL6KHSA9Xuhn/pHzvIwt8PI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au; spf=pass smtp.mailfrom=ellerman.id.au; dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b=h80rEgtJ; arc=none smtp.client-ip=150.107.74.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ellerman.id.au
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b="h80rEgtJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+	s=201909; t=1730876806;
+	bh=yAUFaVAsNQ/ccJyGlmMcytG2+Qr2oEjByXJHlP+rk68=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=h80rEgtJ7qD9jyDyLJcISbRk3INZH8ZPcYosK4VrHHZVogREXxmMdnucgdz5uGIVq
+	 2FKIvnwHaCmTCM5h2wCPV5BHvVPqGtTkGb8EMAQ3QpqRcFOIuuN9J+N+f2mo7sMJe/
+	 dU4VVqU+Z1FcyNgWJiu6rzNqueMfO3e6FKKNop6UZT1IVzPlW79wIw8rl8ikKnhRpJ
+	 +n1/bbdRaP9EQPbjeaxIqHG5JuYMBpoWql3abi4yDgJ1tGm3FhgLFRk5m7yklMr2OW
+	 JsGlZDD1354L3XGFFlQ4dOrEE1hpvtyE9IKa50nyhPWS+nOpSyzlxB/+3KkxmrZtK5
+	 AOEEtdbWDj8jw==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by mail.ozlabs.org (Postfix) with ESMTPSA id 4Xjx8D1mmSz4x11;
+	Wed,  6 Nov 2024 18:06:36 +1100 (AEDT)
+From: Michael Ellerman <mpe@ellerman.id.au>
+To: Christophe Leroy <christophe.leroy@csgroup.eu>, Thomas Gleixner
+ <tglx@linutronix.de>, Thomas =?utf-8?Q?Wei=C3=9Fschuh?=
+ <thomas.weissschuh@linutronix.de>,
+ Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
+ <svens@linux.ibm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will
+ Deacon <will@kernel.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer
+ Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Russell
+ King <linux@armlinux.org.uk>, Huacai Chen <chenhuacai@kernel.org>, WANG
+ Xuerui <kernel@xen0n.name>, Theodore Ts'o <tytso@mit.edu>, "Jason A.
+ Donenfeld" <Jason@zx2c4.com>, Thomas Bogendoerfer
+ <tsbogend@alpha.franken.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Nicholas Piggin
+ <npiggin@gmail.com>, Naveen N Rao <naveen@kernel.org>, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: linux-csky@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-riscv@lists.infradead.org, loongarch@lists.linux.dev,
+ linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Nam Cao
+ <namcao@linutronix.de>
+Subject: Re: [PATCH 00/28] vdso: Preparations for generic data storage
+In-Reply-To: <e33569c8-1591-462c-9388-4a514e156bfa@csgroup.eu>
+References: <20241010-vdso-generic-base-v1-0-b64f0842d512@linutronix.de>
+ <871pzxzuny.ffs@tglx> <e33569c8-1591-462c-9388-4a514e156bfa@csgroup.eu>
+Date: Wed, 06 Nov 2024 18:06:35 +1100
+Message-ID: <877c9glu2s.fsf@mpe.ellerman.id.au>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20241105144457.GB89669@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- kwepemf200001.china.huawei.com (7.202.181.227)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
+Christophe Leroy <christophe.leroy@csgroup.eu> writes:
+> Le 30/10/2024 =C3=A0 12:39, Thomas Gleixner a =C3=A9crit=C2=A0:
+>> Folks!
+>>=20
+>> On Thu, Oct 10 2024 at 09:01, Thomas Wei=C3=9Fschuh wrote:
+>>> Historically each architecture defined their own datapage to store the
+>>> VDSO data. This stands in contrast to the generic nature of the VDSO
+>>> code itself.
+>>> We plan to introduce a generic framework for the management of the VDSO
+>>> data storage that can be used by all architectures and which works
+>>> together with the existing generic VDSO code.
+>>>
+>>> Before that is possible align the different architectures by
+>>> standardizing on the existing generic infrastructure and moving things
+>>> out of the VDSO data page which does not belong there.
+>>>
+>>> Patches	 1- 2:	csky
+>>> Patch	    3:	s390
+>>> Patches	 4- 5:	arm64
+>>> Patch	    6:	riscv
+>>> Patch	    7:	arm
+>>> Patch	    8:	LoongArch
+>>> Patch	    9:	MIPS
+>>> Patches 10-20:	x86
+>>> Patches 21-27:	powerpc
+>>> Patch      28: 	Renamings to avoid a name clash with the new code.
+>>=20
+>> As this has been sitting for two weeks now without major comments, I'm
+>> planning to merge that through the tip tree tomorrow.
+>
+> To avoid any future conflicts with powerpc tree, I suggest you merge=20
+> https://git.kernel.org/pub/scm/linux/kernel/git/powerpc/linux.git=20
+> topic/vdso into your tree before applying this series.
 
+I thought the same, but there actually isn't any conflict at the moment
+between the two trees.
 
-在 2024/11/5 22:44, Dust Li 写道:
-> On 2024-11-05 11:19:38, liqiang wrote:
->> [...]
->> I tested the time-consuming comparison of this function
->> under multiple connections based on redis-benchmark
->> (test in smc loopback-ism mode):
->> The function 'smc_buf_get_slot' takes less time when a
->> new SMC link is established:
->> 1. 5us->100ns (when there are 200 active links);
->> 2. 30us->100ns (when there are 1000 active links).
->> [...]
->> -/* try to reuse a sndbuf or rmb description slot for a certain
->> - * buffer size; if not available, return NULL
->> - */
->> -static struct smc_buf_desc *smc_buf_get_slot(int compressed_bufsize,
->> -					     struct rw_semaphore *lock,
->> -					     struct list_head *buf_list)
->> +/* use lock less list to save and find reuse buf desc */
->> +static struct smc_buf_desc *smc_buf_get_slot_free(struct llist_head *buf_llist)
->> {
->> -	struct smc_buf_desc *buf_slot;
->> +	struct smc_buf_desc *buf_free;
->> +	struct llist_node *llnode;
->>
->> -	down_read(lock);
->> -	list_for_each_entry(buf_slot, buf_list, list) {
->> -		if (cmpxchg(&buf_slot->used, 0, 1) == 0) {
->> -			up_read(lock);
->> -			return buf_slot;
->> -		}
->> -	}
->> -	up_read(lock);
->> -	return NULL;
->> +	/* lock-less link list don't need an lock */
->> +	llnode = llist_del_first(buf_llist);
->> +	if (!llnode)
->> +		return NULL;
->> +	buf_free = llist_entry(llnode, struct smc_buf_desc, llist);
->> +	WRITE_ONCE(buf_free->used, 1);
->> +	return buf_free;
-> 
-> Sorry for the late reply.
-> 
-> It looks this is not right here.
-> 
-> The rw_semaphore here is not used to protect against adding/deleting
-> the buf_list since we don't even add/remove elements on the buf_list.
-> The cmpxchg already makes sure only one will get an unused smc_buf_desc.
+Some of Thomas W's later changes to convert arches to generic VDSO
+storage do conflict, but they look to be destined for the next merge
+window.
 
-I first came up with the idea of ​​​​optimizing because this function needs to
-traverse all rmbs/sndbufs, which includes all active links and is a waste
-of time and unnecessary.
-
-Changing to an llist linked list implementation can ensure that a free buf_slot
-with a 'used' mark of 0 can be directly obtained every time, without the need
-to start traversing from the first element of the rmbs/sndbufs linked list.
-
-> 
-> Removing the down_read()/up_read() would cause mapping/unmapping link
-> on the link group race agains the buf_slot alloc/free here. For exmaple
-> _smcr_buf_map_lgr() take the write lock of the rw_semaphore.
-
-Read from the relevant code, here only a buf_slot is found in the
-down_read/up_read and 'used' is set to 0, while the 'used' is read
-in other down_write/up_write code.
-
-so I have two questions:
-
-1. Is the read lock of rw_semaphore necessary here? (The read lock here
-   is mutually exclusive with the write lock elsewhere, what is guaranteed
-   should be that in the critical section of the write lock, all
-   'smc_buf_desc->used' statuses in rmbs/sndbufs will not change.)
-2. If is necessary, can we add it in new implement of this patch, like this?
-
-```
-{
-        struct smc_buf_desc *buf_free;
-        struct llist_node *llnode;
-
-        /* lock-less link list don't need an lock */
-        llnode = llist_del_first(buf_llist);
-        if (!llnode)
-                return NULL;
-        buf_free = llist_entry(llnode, struct smc_buf_desc, llist);
-	up_read(lock);
-        WRITE_ONCE(buf_free->used, 1);
-	down_read(lock);
-        return buf_free;
-}
-```
-I think this can also ensure that all 'used' marks remain unchanged during
-the write lock process.
-Anyway, use llist to manage free rmbs/sndbufs is a better choice than traverse,
-and it doesn't conflict with useing or not using rw_semaphore. :)
-
-> 
-> But I agree the lgr->rmbs_lock/sndbufs_lock should be improved. Would
-> you like digging into it and improve the usage of the lock here ?
-> 
-
-Maybe I can try it, I need to spend some time to read in detail the
-code used in every place of this lock.
-
-Thanks for taking the time to read this email. ;-)
-
--- 
-Best regards,
-Li Qiang
+cheers
