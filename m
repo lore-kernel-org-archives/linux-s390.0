@@ -1,56 +1,49 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+Received: from smtp-fw-80006.amazon.com (smtp-fw-80006.amazon.com [99.78.197.217])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 044B5203703;
-	Wed,  6 Nov 2024 16:08:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F01B1205129;
+	Wed,  6 Nov 2024 17:04:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=99.78.197.217
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730909284; cv=none; b=KH8NfhLD/zhqi1Q2AWO1LTWt9Q+eM1x/drS8tBo0R78wAHu8/6gJLEq3MQfrltrGeZOJaPM+fW6mPKLb99314wjTkm3pG2FNiPw6zSqOk5iZ3pac+ITFt9gZUlyxPxDOlBVQnPTyMuyO5citLGnJkJqYXeSvbid0oLDyUMke7MA=
+	t=1730912679; cv=none; b=iEaIwImkcDkn7WKRZfQOfrrtszIWx0BhRlh1FnMI2GfJhO6LGlxSEANmqtlNgiX5Ggj7Mv836gIPHV1vBnDQWlw3JvIKS1mYP0xycWLuauHEAmkDAwn+MkH0G/BwM/t8D4QNWkNF4WDKOL3KT6TKMLmu0EHW/j8dtnA6BzhIWj8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730909284; c=relaxed/simple;
-	bh=YqxQs5N7780pZPl+viPzrqgEiiSjrsm9V2x3PaeBgBM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OmaxjU1CnOsPS0Zm2U+kcLRwjhx3yIC/BNgcKYY5oUFa46MkWMi7VT/aGXXt6f1SP5v55cWcgkoSPm9kQhpIyqvQy3/s7PYxBW1wGX0bs44pbefRy19opUSHoYNMPhNmpRygp5pE3pt6V81D2/4k71XHJ0hNyyT53qE6O+AGOFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=AiPxPu/9; arc=none smtp.client-ip=192.198.163.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1730912679; c=relaxed/simple;
+	bh=45lm7teIJIgBDhR6WrM3tTb7cS3pi+iWOg5nbyI7j9s=;
+	h=Message-ID:Date:MIME-Version:To:CC:References:Subject:From:
+	 In-Reply-To:Content-Type; b=P2OEFf0qVj99/zSGe16l3AyuSQa44eD07dZ4inQQMexq5SEUgEqmvYUFjgiafvqgCH7j5X0eKvWf4lhokwtJYRQT4ijrRtMSnikwFqdGjotLlupaFvH6xnWm6wkGbqj5pkNNW87xBEnmpBdvOSdKNa5YJJu5+TdR+fvZU4g7OAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=MntEmEzy; arc=none smtp.client-ip=99.78.197.217
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="AiPxPu/9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1730909283; x=1762445283;
-  h=message-id:date:mime-version:subject:to:cc:references:
+	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="MntEmEzy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1730912678; x=1762448678;
+  h=message-id:date:mime-version:to:cc:references:subject:
    from:in-reply-to:content-transfer-encoding;
-  bh=YqxQs5N7780pZPl+viPzrqgEiiSjrsm9V2x3PaeBgBM=;
-  b=AiPxPu/9BW93C01IeU9xSyMjWsMgtdLdy2gIyUvtfvAEN/3Qcmisl3e+
-   jae/y5vRSJ6JsKw+1nA/Nxnaz96frQhNv4vEbJY0ludroxP3mX+H3UZzz
-   E063LF/YNn4F6n/bBNkq53MH10XjiKlHB15ho29vpczEF9hYNf/h//1bU
-   LCjH9n/ztrmhWHR/pKfKqGh+/LJwmeo6+C9OEKBJWUuGuSr6AMJnNNUtO
-   BPTvTzwmy4Pp1Y40Rb5u2Xch8fnNhMj5HCnQqsLJpJJCxirHq0/XZqc9A
-   V9ScaVG3H6Gx5LBVMpqG6aFSKZmGymhH4XbOU1aSYTS+y9qoZ3XKck+aW
-   g==;
-X-CSE-ConnectionGUID: dVdQsUfcRwKlR7cbA1KMVA==
-X-CSE-MsgGUID: dIXMeLMRRiuYMq/+tNqmww==
-X-IronPort-AV: E=McAfee;i="6700,10204,11248"; a="30932615"
-X-IronPort-AV: E=Sophos;i="6.11,263,1725346800"; 
-   d="scan'208";a="30932615"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Nov 2024 08:08:02 -0800
-X-CSE-ConnectionGUID: 09YIEWwaQoulcZ9i16jkuA==
-X-CSE-MsgGUID: iezak7uMSDC1ynrtqPQ/4w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.11,263,1725346800"; 
-   d="scan'208";a="89211010"
-Received: from linux.intel.com ([10.54.29.200])
-  by fmviesa004.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Nov 2024 08:07:58 -0800
-Received: from [10.212.82.230] (kliang2-mobl1.ccr.corp.intel.com [10.212.82.230])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by linux.intel.com (Postfix) with ESMTPS id 2CB5920B5703;
-	Wed,  6 Nov 2024 08:07:54 -0800 (PST)
-Message-ID: <007cfed1-111d-45aa-b873-24cca9d4af01@linux.intel.com>
-Date: Wed, 6 Nov 2024 11:07:53 -0500
+  bh=45lm7teIJIgBDhR6WrM3tTb7cS3pi+iWOg5nbyI7j9s=;
+  b=MntEmEzy4eKV8WMoKuJyil3cfPrevzWF7DEZpYXiDmtvyRiVc3D0lwNW
+   ltL3Lns9qmLFg6rgQLjlCj/B5cFfgGCN9ZF1r7ioMv3dg8jIP3mmlK7KS
+   QWFogHx/Gy/w/k1wiJjArCiCCfT24P0eAjEY0ovMHoIJZNO9D0petJvvj
+   o=;
+X-IronPort-AV: E=Sophos;i="6.11,263,1725321600"; 
+   d="scan'208";a="2538545"
+Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.214])
+  by smtp-border-fw-80006.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Nov 2024 17:04:38 +0000
+Received: from EX19MTAUWC002.ant.amazon.com [10.0.38.20:42869]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.35.42:2525] with esmtp (Farcaster)
+ id 18efcd76-237c-46fb-afb1-2dbc7d25b1d1; Wed, 6 Nov 2024 17:04:37 +0000 (UTC)
+X-Farcaster-Flow-ID: 18efcd76-237c-46fb-afb1-2dbc7d25b1d1
+Received: from EX19D003UWC002.ant.amazon.com (10.13.138.169) by
+ EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.34;
+ Wed, 6 Nov 2024 17:04:37 +0000
+Received: from [192.168.12.4] (10.187.171.30) by EX19D003UWC002.ant.amazon.com
+ (10.13.138.169) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.35; Wed, 6 Nov 2024
+ 17:04:34 +0000
+Message-ID: <7ad5d114-3d19-4c33-bb3c-7f8940ad114e@amazon.com>
+Date: Wed, 6 Nov 2024 10:04:27 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -58,248 +51,44 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 5/5] perf: Correct perf sampling with guest VMs
-To: Colton Lewis <coltonlewis@google.com>, kvm@vger.kernel.org
-Cc: Oliver Upton <oliver.upton@linux.dev>,
- Sean Christopherson <seanjc@google.com>,
- Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
- Adrian Hunter <adrian.hunter@intel.com>, Will Deacon <will@kernel.org>,
- Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>,
- linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org
-References: <20241105195603.2317483-1-coltonlewis@google.com>
- <20241105195603.2317483-6-coltonlewis@google.com>
+To: <elena.reshetova@intel.com>
+CC: <ackerleytng@google.com>, <agordeev@linux.ibm.com>,
+	<aou@eecs.berkeley.edu>, <borntraeger@linux.ibm.com>, <bp@alien8.de>,
+	<canellac@amazon.at>, <catalin.marinas@arm.com>, <chenhuacai@kernel.org>,
+	<corbet@lwn.net>, <dave.hansen@intel.com>, <dave.hansen@linux.intel.com>,
+	<david@redhat.com>, <derekmn@amazon.com>, <gerald.schaefer@linux.ibm.com>,
+	<gor@linux.ibm.com>, <graf@amazon.com>, <hca@linux.ibm.com>, <hpa@zytor.com>,
+	<jgowans@amazon.com>, <jthoughton@google.com>, <kalyazin@amazon.com>,
+	<kernel@xen0n.name>, <kvm@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-doc@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
+	<linux-mm@kvack.org>, <linux-riscv@lists.infradead.org>,
+	<linux-s390@vger.kernel.org>, <linux-trace-kernel@vger.kernel.org>,
+	<loongarch@lists.linux.dev>, <luto@kernel.org>,
+	<mathieu.desnoyers@efficios.com>, <mhiramat@kernel.org>, <mingo@redhat.com>,
+	<mlipp@amazon.at>, <palmer@dabbelt.com>, <paul.walmsley@sifive.com>,
+	<pbonzini@redhat.com>, <peterz@infradead.org>, <quic_eberman@quicinc.com>,
+	<rostedt@goodmis.org>, <roypat@amazon.co.uk>, <rppt@kernel.org>,
+	<seanjc@google.com>, <shuah@kernel.org>, <svens@linux.ibm.com>,
+	<tabba@google.com>, <tglx@linutronix.de>, <vannapurve@google.com>,
+	<will@kernel.org>, <x86@kernel.org>, <xmarcalx@amazon.com>
+References: <DM8PR11MB57509ED04CB0730680735AC9E7512@DM8PR11MB5750.namprd11.prod.outlook.com>
+Subject: RE: [RFC PATCH v3 0/6] Direct Map Removal for guest_memfd
 Content-Language: en-US
-From: "Liang, Kan" <kan.liang@linux.intel.com>
-In-Reply-To: <20241105195603.2317483-6-coltonlewis@google.com>
-Content-Type: text/plain; charset=UTF-8
+From: "Manwaring, Derek" <derekmn@amazon.com>
+In-Reply-To: <DM8PR11MB57509ED04CB0730680735AC9E7512@DM8PR11MB5750.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: EX19D032UWB002.ant.amazon.com (10.13.139.190) To
+ EX19D003UWC002.ant.amazon.com (10.13.138.169)
 
+On 2024-11-04 at 08:33+0000, Elena Reshetova wrote:
+> This statement *is* for integrity section. We have a separate TDX guidance
+> on side-channels (including speculative) [3] and some speculative attacks
+> that affect confidentiality (for example spectre v1) are listed as not covered
+> by TDX but remaining SW responsibility (as they are now).
 
+Thanks for the additional info, Elena. Given that clarification, I
+definitely see direct map removal and TDX as complementary.
 
-On 2024-11-05 2:56 p.m., Colton Lewis wrote:
-> Previously any PMU overflow interrupt that fired while a VCPU was
-> loaded was recorded as a guest event whether it truly was or not. This
-> resulted in nonsense perf recordings that did not honor
-> perf_event_attr.exclude_guest and recorded guest IPs where it should
-> have recorded host IPs.
-> 
-> Rework the sampling logic to only record guest samples for events with
-> exclude_guest = 0. This way any host-only events with exclude_guest
-> set will never see unexpected guest samples. The behaviour of events
-> with exclude_guest = 0 is unchanged.
-> 
-> Note that events configured to sample both host and guest may still
-> misattribute a PMI that arrived in the host as a guest event depending
-> on KVM arch and vendor behavior.
-> 
-> Signed-off-by: Colton Lewis <coltonlewis@google.com>
-> Acked-by: Mark Rutland <mark.rutland@arm.com>
-> Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
-> ---
->  arch/arm64/include/asm/perf_event.h |  4 ----
->  arch/arm64/kernel/perf_callchain.c  | 28 ----------------------------
->  arch/x86/events/core.c              | 16 ++++------------
->  include/linux/perf_event.h          | 21 +++++++++++++++++++--
->  kernel/events/core.c                | 21 +++++++++++++++++----
->  5 files changed, 40 insertions(+), 50 deletions(-)
-> 
-> diff --git a/arch/arm64/include/asm/perf_event.h b/arch/arm64/include/asm/perf_event.h
-> index 31a5584ed423..ee45b4e77347 100644
-> --- a/arch/arm64/include/asm/perf_event.h
-> +++ b/arch/arm64/include/asm/perf_event.h
-> @@ -10,10 +10,6 @@
->  #include <asm/ptrace.h>
->  
->  #ifdef CONFIG_PERF_EVENTS
-> -struct pt_regs;
-> -extern unsigned long perf_arch_instruction_pointer(struct pt_regs *regs);
-> -extern unsigned long perf_arch_misc_flags(struct pt_regs *regs);
-> -#define perf_arch_misc_flags(regs)	perf_misc_flags(regs)
->  #define perf_arch_bpf_user_pt_regs(regs) &regs->user_regs
->  #endif
->  
-> diff --git a/arch/arm64/kernel/perf_callchain.c b/arch/arm64/kernel/perf_callchain.c
-> index 01a9d08fc009..9b7f26b128b5 100644
-> --- a/arch/arm64/kernel/perf_callchain.c
-> +++ b/arch/arm64/kernel/perf_callchain.c
-> @@ -38,31 +38,3 @@ void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
->  
->  	arch_stack_walk(callchain_trace, entry, current, regs);
->  }
-> -
-> -unsigned long perf_arch_instruction_pointer(struct pt_regs *regs)
-> -{
-> -	if (perf_guest_state())
-> -		return perf_guest_get_ip();
-> -
-> -	return instruction_pointer(regs);
-> -}
-> -
-> -unsigned long perf_arch_misc_flags(struct pt_regs *regs)
-> -{
-> -	unsigned int guest_state = perf_guest_state();
-> -	int misc = 0;
-> -
-> -	if (guest_state) {
-> -		if (guest_state & PERF_GUEST_USER)
-> -			misc |= PERF_RECORD_MISC_GUEST_USER;
-> -		else
-> -			misc |= PERF_RECORD_MISC_GUEST_KERNEL;
-> -	} else {
-> -		if (user_mode(regs))
-> -			misc |= PERF_RECORD_MISC_USER;
-> -		else
-> -			misc |= PERF_RECORD_MISC_KERNEL;
-> -	}
-> -
-> -	return misc;
-> -}
-> diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
-> index 24910c625e3d..aae0c5eabf09 100644
-> --- a/arch/x86/events/core.c
-> +++ b/arch/x86/events/core.c
-> @@ -3005,9 +3005,6 @@ static unsigned long code_segment_base(struct pt_regs *regs)
->  
->  unsigned long perf_arch_instruction_pointer(struct pt_regs *regs)
->  {
-> -	if (perf_guest_state())
-> -		return perf_guest_get_ip();
-> -
->  	return regs->ip + code_segment_base(regs);
->  }
->  
-> @@ -3034,17 +3031,12 @@ unsigned long perf_arch_guest_misc_flags(struct pt_regs *regs)
->  
->  unsigned long perf_arch_misc_flags(struct pt_regs *regs)
->  {
-> -	unsigned int guest_state = perf_guest_state();
->  	unsigned long misc = common_misc_flags(regs);
->  
-> -	if (guest_state) {
-> -		misc |= perf_arch_guest_misc_flags(regs);
-> -	} else {
-> -		if (user_mode(regs))
-> -			misc |= PERF_RECORD_MISC_USER;
-> -		else
-> -			misc |= PERF_RECORD_MISC_KERNEL;
-> -	}
-> +	if (user_mode(regs))
-> +		misc |= PERF_RECORD_MISC_USER;
-> +	else
-> +		misc |= PERF_RECORD_MISC_KERNEL;
->  
->  	return misc;
->  }
-> diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-> index 772ad352856b..e207acdd9e73 100644
-> --- a/include/linux/perf_event.h
-> +++ b/include/linux/perf_event.h
-> @@ -1655,8 +1655,9 @@ extern void perf_tp_event(u16 event_type, u64 count, void *record,
->  			  struct task_struct *task);
->  extern void perf_bp_event(struct perf_event *event, void *data);
->  
-> -extern unsigned long perf_misc_flags(struct pt_regs *regs);
-> -extern unsigned long perf_instruction_pointer(struct pt_regs *regs);
-> +extern unsigned long perf_misc_flags(struct perf_event *event, struct pt_regs *regs);
-> +extern unsigned long perf_instruction_pointer(struct perf_event *event,
-> +					      struct pt_regs *regs);
->  
->  #ifndef perf_arch_misc_flags
->  # define perf_arch_misc_flags(regs) \
-> @@ -1667,6 +1668,22 @@ extern unsigned long perf_instruction_pointer(struct pt_regs *regs);
->  # define perf_arch_bpf_user_pt_regs(regs) regs
->  #endif
->  
-> +#ifndef perf_arch_guest_misc_flags
-> +static inline unsigned long perf_arch_guest_misc_flags(struct pt_regs *regs)
-> +{
-> +	unsigned long guest_state = perf_guest_state();
-> +
-> +	if (guest_state & PERF_GUEST_USER)
-> +		return PERF_RECORD_MISC_GUEST_USER;
-> +
-> +	if (guest_state & PERF_GUEST_ACTIVE)
-> +		return PERF_RECORD_MISC_GUEST_KERNEL;
-
-Is there by any chance to add a PERF_GUEST_KERNEL flag in KVM?
-
-The PERF_GUEST_ACTIVE flag check looks really confusing.
-
-Thanks,
-Kan
-> +
-> +	return 0;
-> +}
-> +# define perf_arch_guest_misc_flags(regs)	perf_arch_guest_misc_flags(regs)
-> +#endif
-> +
->  static inline bool has_branch_stack(struct perf_event *event)
->  {
->  	return event->attr.sample_type & PERF_SAMPLE_BRANCH_STACK;
-> diff --git a/kernel/events/core.c b/kernel/events/core.c
-> index 2c44ffd6f4d8..c62164a2ff23 100644
-> --- a/kernel/events/core.c
-> +++ b/kernel/events/core.c
-> @@ -7022,13 +7022,26 @@ void perf_unregister_guest_info_callbacks(struct perf_guest_info_callbacks *cbs)
->  EXPORT_SYMBOL_GPL(perf_unregister_guest_info_callbacks);
->  #endif
->  
-> -unsigned long perf_misc_flags(struct pt_regs *regs)
-> +static bool should_sample_guest(struct perf_event *event)
->  {
-> +	return !event->attr.exclude_guest && perf_guest_state();
-> +}
-> +
-> +unsigned long perf_misc_flags(struct perf_event *event,
-> +			      struct pt_regs *regs)
-> +{
-> +	if (should_sample_guest(event))
-> +		return perf_arch_guest_misc_flags(regs);
-> +
->  	return perf_arch_misc_flags(regs);
->  }
->  
-> -unsigned long perf_instruction_pointer(struct pt_regs *regs)
-> +unsigned long perf_instruction_pointer(struct perf_event *event,
-> +				       struct pt_regs *regs)
->  {
-> +	if (should_sample_guest(event))
-> +		return perf_guest_get_ip();
-> +
->  	return perf_arch_instruction_pointer(regs);
->  }
->  
-> @@ -7849,7 +7862,7 @@ void perf_prepare_sample(struct perf_sample_data *data,
->  	__perf_event_header__init_id(data, event, filtered_sample_type);
->  
->  	if (filtered_sample_type & PERF_SAMPLE_IP) {
-> -		data->ip = perf_instruction_pointer(regs);
-> +		data->ip = perf_instruction_pointer(event, regs);
->  		data->sample_flags |= PERF_SAMPLE_IP;
->  	}
->  
-> @@ -8013,7 +8026,7 @@ void perf_prepare_header(struct perf_event_header *header,
->  {
->  	header->type = PERF_RECORD_SAMPLE;
->  	header->size = perf_sample_data_size(data, event);
-> -	header->misc = perf_misc_flags(regs);
-> +	header->misc = perf_misc_flags(event, regs);
->  
->  	/*
->  	 * If you're adding more sample types here, you likely need to do
-
+Derek
