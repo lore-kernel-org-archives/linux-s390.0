@@ -1,94 +1,109 @@
-Received: from smtp-fw-80006.amazon.com (smtp-fw-80006.amazon.com [99.78.197.217])
+Received: from out-180.mta1.migadu.com (out-180.mta1.migadu.com [95.215.58.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F01B1205129;
-	Wed,  6 Nov 2024 17:04:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=99.78.197.217
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 914C620BB4E
+	for <linux-s390@vger.kernel.org>; Wed,  6 Nov 2024 19:53:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730912679; cv=none; b=iEaIwImkcDkn7WKRZfQOfrrtszIWx0BhRlh1FnMI2GfJhO6LGlxSEANmqtlNgiX5Ggj7Mv836gIPHV1vBnDQWlw3JvIKS1mYP0xycWLuauHEAmkDAwn+MkH0G/BwM/t8D4QNWkNF4WDKOL3KT6TKMLmu0EHW/j8dtnA6BzhIWj8=
+	t=1730922810; cv=none; b=ri30YQWl+o3XsIt6XJPggEdnK+gwySpH5UolthezGN7SZFo/0dqtq1LAjHgzsZvqhTNBotsAh6Zd7Bm/2Uz9PYaonXZVCbA/nf1hdAfzj6LZn53kK6y/7tmHRfaB/F6uFOlx5KEgTlKLmz1xoVKZDUAIbj3I2LuXIKrgm/GuuyY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730912679; c=relaxed/simple;
-	bh=45lm7teIJIgBDhR6WrM3tTb7cS3pi+iWOg5nbyI7j9s=;
-	h=Message-ID:Date:MIME-Version:To:CC:References:Subject:From:
-	 In-Reply-To:Content-Type; b=P2OEFf0qVj99/zSGe16l3AyuSQa44eD07dZ4inQQMexq5SEUgEqmvYUFjgiafvqgCH7j5X0eKvWf4lhokwtJYRQT4ijrRtMSnikwFqdGjotLlupaFvH6xnWm6wkGbqj5pkNNW87xBEnmpBdvOSdKNa5YJJu5+TdR+fvZU4g7OAA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=MntEmEzy; arc=none smtp.client-ip=99.78.197.217
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
+	s=arc-20240116; t=1730922810; c=relaxed/simple;
+	bh=46vNwXHJt3VTkoNVKvyUOMEbBuMcyNhib1Czm9V81qg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ry1BOGUgw1B/29CzGJ5riJtPASTEmedCx9d+8Y6nuAQWc/TnQXLUk+5SJ7Qv0r8CrloKL0CcddL3FjbsP3i9oX+ngI75OafdoPUDibet+mzddYmkDHhKDZkxvmSTGSqxIat2rGOVw1C2KnyVy9hiXP9jDrUPPAQ9j5K1JDntQAQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=azPQPKMc; arc=none smtp.client-ip=95.215.58.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="MntEmEzy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1730912678; x=1762448678;
-  h=message-id:date:mime-version:to:cc:references:subject:
-   from:in-reply-to:content-transfer-encoding;
-  bh=45lm7teIJIgBDhR6WrM3tTb7cS3pi+iWOg5nbyI7j9s=;
-  b=MntEmEzy4eKV8WMoKuJyil3cfPrevzWF7DEZpYXiDmtvyRiVc3D0lwNW
-   ltL3Lns9qmLFg6rgQLjlCj/B5cFfgGCN9ZF1r7ioMv3dg8jIP3mmlK7KS
-   QWFogHx/Gy/w/k1wiJjArCiCCfT24P0eAjEY0ovMHoIJZNO9D0petJvvj
-   o=;
-X-IronPort-AV: E=Sophos;i="6.11,263,1725321600"; 
-   d="scan'208";a="2538545"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.214])
-  by smtp-border-fw-80006.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Nov 2024 17:04:38 +0000
-Received: from EX19MTAUWC002.ant.amazon.com [10.0.38.20:42869]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.35.42:2525] with esmtp (Farcaster)
- id 18efcd76-237c-46fb-afb1-2dbc7d25b1d1; Wed, 6 Nov 2024 17:04:37 +0000 (UTC)
-X-Farcaster-Flow-ID: 18efcd76-237c-46fb-afb1-2dbc7d25b1d1
-Received: from EX19D003UWC002.ant.amazon.com (10.13.138.169) by
- EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.34;
- Wed, 6 Nov 2024 17:04:37 +0000
-Received: from [192.168.12.4] (10.187.171.30) by EX19D003UWC002.ant.amazon.com
- (10.13.138.169) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.35; Wed, 6 Nov 2024
- 17:04:34 +0000
-Message-ID: <7ad5d114-3d19-4c33-bb3c-7f8940ad114e@amazon.com>
-Date: Wed, 6 Nov 2024 10:04:27 -0700
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="azPQPKMc"
+Date: Wed, 6 Nov 2024 11:53:07 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1730922800;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=uIYHrYeDhg7kNxYUdjNDrUK44gnqtUzRYj+2b/H+nmQ=;
+	b=azPQPKMcRZ7n0haevtf+gW2LUqUgNTZ0txSbzF62ESJFFuZ5O81yldkwxJtbt9eMJ9rYhP
+	N+C8TyY7NMWCBJoFUX2fQEo2lLIcOBBEbEAiDRA7VK/RvAEm4WY0TpFGNaZYNkz2wLfxEo
+	3CDxbqePxlmasgDPRU9wm5HtPnrmBuo=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Oliver Upton <oliver.upton@linux.dev>
+To: "Liang, Kan" <kan.liang@linux.intel.com>
+Cc: Colton Lewis <coltonlewis@google.com>, kvm@vger.kernel.org,
+	Sean Christopherson <seanjc@google.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+	Adrian Hunter <adrian.hunter@intel.com>,
+	Will Deacon <will@kernel.org>, Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H . Peter Anvin" <hpa@zytor.com>, linux-perf-users@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v6 5/5] perf: Correct perf sampling with guest VMs
+Message-ID: <ZyvJIx-UHXawnUYs@linux.dev>
+References: <20241105195603.2317483-1-coltonlewis@google.com>
+ <20241105195603.2317483-6-coltonlewis@google.com>
+ <007cfed1-111d-45aa-b873-24cca9d4af01@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: <elena.reshetova@intel.com>
-CC: <ackerleytng@google.com>, <agordeev@linux.ibm.com>,
-	<aou@eecs.berkeley.edu>, <borntraeger@linux.ibm.com>, <bp@alien8.de>,
-	<canellac@amazon.at>, <catalin.marinas@arm.com>, <chenhuacai@kernel.org>,
-	<corbet@lwn.net>, <dave.hansen@intel.com>, <dave.hansen@linux.intel.com>,
-	<david@redhat.com>, <derekmn@amazon.com>, <gerald.schaefer@linux.ibm.com>,
-	<gor@linux.ibm.com>, <graf@amazon.com>, <hca@linux.ibm.com>, <hpa@zytor.com>,
-	<jgowans@amazon.com>, <jthoughton@google.com>, <kalyazin@amazon.com>,
-	<kernel@xen0n.name>, <kvm@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-doc@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
-	<linux-mm@kvack.org>, <linux-riscv@lists.infradead.org>,
-	<linux-s390@vger.kernel.org>, <linux-trace-kernel@vger.kernel.org>,
-	<loongarch@lists.linux.dev>, <luto@kernel.org>,
-	<mathieu.desnoyers@efficios.com>, <mhiramat@kernel.org>, <mingo@redhat.com>,
-	<mlipp@amazon.at>, <palmer@dabbelt.com>, <paul.walmsley@sifive.com>,
-	<pbonzini@redhat.com>, <peterz@infradead.org>, <quic_eberman@quicinc.com>,
-	<rostedt@goodmis.org>, <roypat@amazon.co.uk>, <rppt@kernel.org>,
-	<seanjc@google.com>, <shuah@kernel.org>, <svens@linux.ibm.com>,
-	<tabba@google.com>, <tglx@linutronix.de>, <vannapurve@google.com>,
-	<will@kernel.org>, <x86@kernel.org>, <xmarcalx@amazon.com>
-References: <DM8PR11MB57509ED04CB0730680735AC9E7512@DM8PR11MB5750.namprd11.prod.outlook.com>
-Subject: RE: [RFC PATCH v3 0/6] Direct Map Removal for guest_memfd
-Content-Language: en-US
-From: "Manwaring, Derek" <derekmn@amazon.com>
-In-Reply-To: <DM8PR11MB57509ED04CB0730680735AC9E7512@DM8PR11MB5750.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: EX19D032UWB002.ant.amazon.com (10.13.139.190) To
- EX19D003UWC002.ant.amazon.com (10.13.138.169)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <007cfed1-111d-45aa-b873-24cca9d4af01@linux.intel.com>
+X-Migadu-Flow: FLOW_OUT
 
-On 2024-11-04 at 08:33+0000, Elena Reshetova wrote:
-> This statement *is* for integrity section. We have a separate TDX guidance
-> on side-channels (including speculative) [3] and some speculative attacks
-> that affect confidentiality (for example spectre v1) are listed as not covered
-> by TDX but remaining SW responsibility (as they are now).
+On Wed, Nov 06, 2024 at 11:07:53AM -0500, Liang, Kan wrote:
+> > +#ifndef perf_arch_guest_misc_flags
+> > +static inline unsigned long perf_arch_guest_misc_flags(struct pt_regs *regs)
+> > +{
+> > +	unsigned long guest_state = perf_guest_state();
+> > +
+> > +	if (guest_state & PERF_GUEST_USER)
+> > +		return PERF_RECORD_MISC_GUEST_USER;
+> > +
+> > +	if (guest_state & PERF_GUEST_ACTIVE)
+> > +		return PERF_RECORD_MISC_GUEST_KERNEL;
+> 
+> Is there by any chance to add a PERF_GUEST_KERNEL flag in KVM?
 
-Thanks for the additional info, Elena. Given that clarification, I
-definitely see direct map removal and TDX as complementary.
+Why do we need another flag? As it stands today, the vCPU is either in
+user mode or kernel mode.
 
-Derek
+> The PERF_GUEST_ACTIVE flag check looks really confusing.
+
+Perhaps instead:
+
+static inline unsigned long perf_arch_guest_misc_flags(struct pt_regs *regs)
+{
+	unsigned long guest_state = perf_guest_state();
+
+	if (!(guest_state & PERF_GUEST_ACTIVE))
+		return 0;
+
+	return (guest_state & PERF_GUEST_USER) ? PERF_RECORD_MISC_GUEST_USER :
+						 PERF_RECORD_MISC_GUEST_KERNEL;
+}
+
+-- 
+Thanks,
+Oliver
