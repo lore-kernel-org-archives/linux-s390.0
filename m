@@ -1,103 +1,138 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BFB41EF0A2;
-	Thu,  7 Nov 2024 12:13:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DA8928F1;
+	Thu,  7 Nov 2024 14:13:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730981595; cv=none; b=HW850hWDEcO0542RYWuoS34mDktNXeBIW0EALFAq9VCy1Pp/7W456Sln8f6HngWG+Bb5pt4Vi/85/VprURjaQNnC9fyW79JRNSJDxWMX95HlW8i7xJ9SPlZB6ZbsUR2hv/WG60urBaf3J56DtEZk3nNE3/fG9vxYGjJJvt+WHm4=
+	t=1730988813; cv=none; b=KYV1aRzjY9LydMRzBJcLv9XCe32j+FJOWEYFhdgO8Hu363RS1dZRr8R02VPaumcEmsKvoAfx9431BK5UkocmfJAbPQfxB4/A+XSX3kkXOispVYbkLa7L390RvtH30cQguBvlJuOGn2el30d8f9ka2KEMLcV920cOO97oFKpNWNo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730981595; c=relaxed/simple;
-	bh=wA6HaF5jWhqC7PHRHi/nW4wj5K9TmEPJwgmIrA6Ht2A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tvv8YG/RL815FFlbymguZ2HGoSqXm2dbuYUN7Im66ARrWBq+cH7QG4ENp6+Bo6JDVOxeNTztDQ92WYbmNgIRc+bxYZ2iWLZAQuMb1vfxEaRFOc2VkSJPXKR3nOR0tN6IKXW40uhd/MrhKPSLqmsEmqKE8UB+rGAlpV2RP5xycUI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I0TLjSo+; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1730988813; c=relaxed/simple;
+	bh=sJ935eMUUjHWOSYwNX6SnA/FJrgaus3gC1OXryikwFE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=lTwPNtPGccFPMv5ohhFn1KtgyzdRF3yy/CI+mXujcQxVD+N2yd6o3daK7i27i5wZMOr41fnv+p/gTCO0LxyK6NVsbkM5m7IeM6l+LNnQjkUkBv0P2sqvHwSB+16n3p7lAcnVRqW1B5HVOZ4In4C7+ipoYZs4Yo49t1Y47WMEYYw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=C8OtgBkg; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I0TLjSo+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CFDDC4CECC;
-	Thu,  7 Nov 2024 12:13:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1730981594;
-	bh=wA6HaF5jWhqC7PHRHi/nW4wj5K9TmEPJwgmIrA6Ht2A=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=I0TLjSo+i59L8NKIbuMoYlUM/IhFCjq6dim4A6lnqJQ+86SbWy7/920OCxxG5828a
-	 eGFm8YGTVAkJ65mW/hL7d5ykmag5DOUQyK76Vv5zwkShDHC4k/1bbLpfn2xiKjhdEE
-	 AhwdGOpDpA3zwdbQ/NWAZLybgcXSECc9iwoqysidkD8OLDlT9bbFxIfmLcXSRzFr3G
-	 6mvWH0AWkuHgClh/cFDSqQz9ZTtFU8AnOybjF0kt7rpIDmE9qAAMeGx5rYmHJFmvdL
-	 tm/44D1xtPxEh3tSn15ZFfy8mjAGJ3Kp+PUmVN2MzwnJy3EuhC86c5YAQP2HtDXTns
-	 cX9idrzvy4S1Q==
-Date: Thu, 7 Nov 2024 14:13:07 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Wenjia Zhang <wenjia@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Nils Hoppmann <niho@linux.ibm.com>,
-	Niklas Schnell <schnelle@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	Karsten Graul <kgraul@linux.ibm.com>,
-	Stefan Raspl <raspl@linux.ibm.com>, Aswin K <aswin@linux.ibm.com>,
-	linux-cifs@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: Fix lookup of netdev by using
- ib_device_get_netdev()
-Message-ID: <20241107121307.GN5006@unreal>
-References: <20241025072356.56093-1-wenjia@linux.ibm.com>
- <20241027201857.GA1615717@unreal>
- <8d17b403-aefa-4f36-a913-7ace41cf2551@linux.ibm.com>
- <20241105112313.GE311159@unreal>
- <20241106102439.4ca5effc.pasic@linux.ibm.com>
- <20241106135910.GF5006@unreal>
- <20241107125643.04f97394.pasic@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="C8OtgBkg"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A7E9v9V031401;
+	Thu, 7 Nov 2024 14:10:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=RarTLkoppdvcghdSF
+	0/FsQRpTX7IClGqjn7xbgrGp1U=; b=C8OtgBkg0h6Nyzx8UUqID8repUkG8M1SS
+	L19+/cFln4011u8W+wHLFXRwcsXyuzYHgGO8UrETYHoycKRkFjUKWANs0QkiFpnz
+	BLSSsnKc605TzRlxO8EeZ05Dq9seMDy7xh3E4Uzheaz0Y9p90rNMWEr5R7YKpcIR
+	bFHySkSU054TPt4+EXi2zsUOiqv58ILtOfIxhJaAqVQKcsxTdNi/aGReKatdCOkn
+	pPEcXikJpmy1+jZ1VVNUTF0U0A5a+jPfWK4uCwI3NDW02pMN4eNBvpV7edr/UtGJ
+	1N3Q3IGlcTHFWNqyfuMmTN93TJU5KgkInWKlABkPFQmTqnQ7t8WyA==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42rxmrr4kw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Nov 2024 14:10:39 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4A7DqQrg012243;
+	Thu, 7 Nov 2024 14:10:38 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 42p14108dv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Nov 2024 14:10:38 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4A7EAYkw57213188
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 7 Nov 2024 14:10:34 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BCC1920040;
+	Thu,  7 Nov 2024 14:10:34 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9A18C2004B;
+	Thu,  7 Nov 2024 14:10:34 +0000 (GMT)
+Received: from darkmoore.boeblingen.de.ibm.com (unknown [9.152.222.253])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  7 Nov 2024 14:10:34 +0000 (GMT)
+From: Christoph Schlameuss <schlameuss@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, schlameuss@linux.ibm.com
+Subject: [PATCH v7 4/5] selftests: kvm: s390: Fix whitespace confusion in ucontrol test
+Date: Thu,  7 Nov 2024 15:10:23 +0100
+Message-ID: <20241107141024.238916-5-schlameuss@linux.ibm.com>
+X-Mailer: git-send-email 2.47.0
+In-Reply-To: <20241107141024.238916-1-schlameuss@linux.ibm.com>
+References: <20241107141024.238916-1-schlameuss@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241107125643.04f97394.pasic@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ZNmuBy7E-XX0djP_BbmUvuP_3j3reAuN
+X-Proofpoint-GUID: ZNmuBy7E-XX0djP_BbmUvuP_3j3reAuN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ spamscore=0 clxscore=1015 mlxscore=0 mlxlogscore=867 lowpriorityscore=0
+ phishscore=0 impostorscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411070110
 
-On Thu, Nov 07, 2024 at 12:56:43PM +0100, Halil Pasic wrote:
-> On Wed, 6 Nov 2024 15:59:10 +0200
-> Leon Romanovsky <leon@kernel.org> wrote:
-> 
-> > > Does  fs/smb/server/transport_rdma.c qualify as inside of RDMA core code?  
-> > 
-> > RDMA core code is drivers/infiniband/core/*.
-> 
-> Understood. So this is a violation of the no direct access to the
-> callbacks rule.
+Checkpatch thinks that we're doing a multiplication but we're obviously
+not. Fix 4 instances where we adhered to wrong checkpatch advice.
 
-It is not rule, but more common sense. Callbacks don't provide any
-module reference counting, module autoload e.t.c
+Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+---
+ tools/testing/selftests/kvm/s390x/ucontrol_test.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-It is very rare situation where you call device callbacks from one subsystem
-in another. I'm not familiar with such situations.
+diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+index 68d17b1ab128..71e76337d9dc 100644
+--- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
++++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+@@ -369,7 +369,7 @@ static bool uc_handle_insn_ic(FIXTURE_DATA(uc_kvm) *self)
+  * * fail on codes not expected in the test cases
+  * Returns if interception is handled / execution can be continued
+  */
+-static bool uc_handle_sieic(FIXTURE_DATA(uc_kvm) * self)
++static bool uc_handle_sieic(FIXTURE_DATA(uc_kvm) *self)
+ {
+ 	struct kvm_s390_sie_block *sie_block = self->sie_block;
+ 	struct kvm_run *run = self->run;
+@@ -397,7 +397,7 @@ static bool uc_handle_sieic(FIXTURE_DATA(uc_kvm) * self)
+ }
+ 
+ /* verify VM state on exit */
+-static bool uc_handle_exit(FIXTURE_DATA(uc_kvm) * self)
++static bool uc_handle_exit(FIXTURE_DATA(uc_kvm) *self)
+ {
+ 	struct kvm_run *run = self->run;
+ 
+@@ -417,7 +417,7 @@ static bool uc_handle_exit(FIXTURE_DATA(uc_kvm) * self)
+ }
+ 
+ /* run the VM until interrupted */
+-static int uc_run_once(FIXTURE_DATA(uc_kvm) * self)
++static int uc_run_once(FIXTURE_DATA(uc_kvm) *self)
+ {
+ 	int rc;
+ 
+@@ -428,7 +428,7 @@ static int uc_run_once(FIXTURE_DATA(uc_kvm) * self)
+ 	return rc;
+ }
+ 
+-static void uc_assert_diag44(FIXTURE_DATA(uc_kvm) * self)
++static void uc_assert_diag44(FIXTURE_DATA(uc_kvm) *self)
+ {
+ 	struct kvm_s390_sie_block *sie_block = self->sie_block;
+ 
+-- 
+2.47.0
 
-> 
-> > 
-> > > I would guess it is not, and I would not actually mind sending a patch
-> > > but I have trouble figuring out the logic behind  commit ecce70cf17d9
-> > > ("ksmbd: fix missing RDMA-capable flag for IPoIB device in
-> > > ksmbd_rdma_capable_netdev()").  
-> > 
-> > It is strange version of RDMA-CM. All other ULPs use RDMA-CM to avoid
-> > GID, netdev and fabric complexity.
-> 
-> I'm not familiar enough with either of the subsystems. Based on your
-> answer my guess is that it ain't outright bugous but still a layering 
-> violation. Copying linux-cifs@vger.kernel.org so that 
-> the smb are aware.
-> 
-> Thank you very much for all the explanations!
-> 
-> Regards,
-> Halil 
