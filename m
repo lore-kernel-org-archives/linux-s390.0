@@ -1,67 +1,64 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C05BD2101A4;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E04E9212F05;
 	Thu,  7 Nov 2024 15:23:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730993022; cv=none; b=ZmtnqaiH9NJtPLNrBRYhKWVEz/mQOz1T3ZBjybT41OsmST0QG7I4OgayX2GsoFF+05F5GSww/uQpvs8yBAwNrSC2V2G7/rung32x5fSXo4wsb5cu3bNNxGAU6YEzCgq5CAYbzV+yaCrlzmliBuOrq2IxECW/Z/Z5kWjeXndYG7g=
+	t=1730993022; cv=none; b=qFtEKM/oHNftYw50f0rYbiHlBeJPcVs2A5U0Nnd0KM/zuuZ32TOGQxWe+Qg+tAmArP6Srw6Zdwt1XRev3MqDOvJ+PsBf4Meom2r1SAjMRKJaUBKAlje2JjMea6RJQs7y7a5vfiz4FVJoni4VG/WPm52PZcRxkm3XFRc9NO+R29w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1730993022; c=relaxed/simple;
-	bh=XRWV1WfINcc2nhLFjtdfAtRY9pdCvoEvSxGcZpOL7cM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iYyVXjl9DhG0GXTHdLLQO1BrFyx0EUh9cttdj9etJufAfJTeKgDKDTl5JYKTe4mkCS0lEAxl3MU3HgLwSW5sqgIZ0XrYqM2Sj1MJxU1FnhmwOoax1fZtbX8Euejg5PUTrzUnSGT9koQum84gsUePzTfWEvXRUa+ArP+CmbYIra8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BYlN/YlM; arc=none smtp.client-ip=148.163.156.1
+	bh=FKu9032jL3r4/jDRiXUTc/dDnWWJMs3FR1idxnjGxis=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JLpZWb0AzAuoqDQgcPxXGAvm1jDHoUyog+CivvA4aEV5Q9AMbHIKKYZ6fSB8MoxNU2UAORF8nNvT7Z17MhjTc11+gJN8SmhDzht4jMD+YigVeOJ2/RxUl3jBiH937ulhjvbPjXD61fWH5g99yvz31XEsjba/1fENXCaFY2qBCEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=suzxc8UT; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BYlN/YlM"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A7FA1bg017938;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="suzxc8UT"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A7EeIR0027775;
 	Thu, 7 Nov 2024 15:23:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=q609OraqBOvlDyxd/
-	0H+yFREJ4wh3UnuVVyvsl486DA=; b=BYlN/YlM3+0WPyhK0tsU1am47qLyJ5X1G
-	3vCpxtJKw2jKKQU/filLEHZp3KI4DcL7U3y5cwf0GQo8ZGYtnnTzB1HfpJxFxcS4
-	QbRXYvDW45XXy1Tppu30tzCLL5C1W6MuToL13qKCWnIe4E5DTSVoKrFPL6W+akJ7
-	yxQkQUfd0Fed6F6W3vz0+KfYLFTNy1tbx0eiqjh3WipCTvVAc96h6FjW9t+RvmeW
-	OTbaRz103J2O3s1x0NlfB0tdYx/nCMFj+D515RE8kArCeipofwAur8Tw66N0tVRJ
-	9/a7ZrV6Yc4EiJLGT24Uhu1jAL+VIzs/0S6+B7HvNcTWVEyVYy0FA==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42ryxx02dm-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=UxuAAutmpCp5YJxt37n+4R828bFO9y5Na6Ji2s5UF
+	wc=; b=suzxc8UTF88Ay1PZ7EDGXysAfJuolyYmWc/NijCIJSByU6nVFkQqsBqaH
+	ValOeNL8sEBj99dF5U/sVAFSgvD+ZegJGNJQqkfVHdnHeb7+M4CYtWPv7dmhZl4v
+	z7VT2C42ZL29X5RBjT6lJUZsi3IcPozfbY7FC67bYfGUFL8jRRMQICfSxg+Vg2Co
+	DNb21AF4xRutb+gOAKsYdZJPex4sSO0McDfu4pQZbrd7pU2HqBKvNIiojjRrT2/G
+	/yMI3GMA3wZcWSGnr3o5keLFd5CxdjE026yLrCDTo7JV0ockPYwC+GFub0hbseOs
+	uCxGEcvpCHaNXju5C4X/C0oiByMow==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42rygs883g-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 07 Nov 2024 15:23:37 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4A7Dm5rm012288;
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4A7Dm3Ud008433;
 	Thu, 7 Nov 2024 15:23:36 GMT
 Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 42p1410bnk-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42nywm7gk4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 07 Nov 2024 15:23:36 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4A7FNXmJ45089254
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4A7FNXvF45089250
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Thu, 7 Nov 2024 15:23:33 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6CA1220040;
-	Thu,  7 Nov 2024 15:23:33 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id F234320049;
+	Thu,  7 Nov 2024 15:23:32 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3ED4B20049;
-	Thu,  7 Nov 2024 15:23:33 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id BA18720040;
+	Thu,  7 Nov 2024 15:23:32 +0000 (GMT)
 Received: from vela.boeblingen.de.ibm.com (unknown [9.155.210.79])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  7 Nov 2024 15:23:33 +0000 (GMT)
+	Thu,  7 Nov 2024 15:23:32 +0000 (GMT)
 From: Hendrik Brueckner <brueckner@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, thuth@redhat.com,
         david@redhat.com, borntraeger@linux.ibm.com, frankja@linux.ibm.com
-Subject: [PATCH 2/4] KVM: s390: add msa11 to cpu model
-Date: Thu,  7 Nov 2024 16:23:17 +0100
-Message-ID: <20241107152319.77816-3-brueckner@linux.ibm.com>
+Subject: [PATCH 0/4] KVM: s390: CPU model for gen17
+Date: Thu,  7 Nov 2024 16:23:15 +0100
+Message-ID: <20241107152319.77816-1-brueckner@linux.ibm.com>
 X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20241107152319.77816-1-brueckner@linux.ibm.com>
-References: <20241107152319.77816-1-brueckner@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -70,95 +67,44 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ixe8DRdiB9XbtysGGv61-bxYJhBOAQRk
-X-Proofpoint-GUID: ixe8DRdiB9XbtysGGv61-bxYJhBOAQRk
+X-Proofpoint-ORIG-GUID: uWfJAuR1X79HpTRWBmtdkcIBUZ6TCGKQ
+X-Proofpoint-GUID: uWfJAuR1X79HpTRWBmtdkcIBUZ6TCGKQ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- suspectscore=0 priorityscore=1501 spamscore=0 phishscore=0 malwarescore=0
- mlxlogscore=848 lowpriorityscore=0 impostorscore=0 adultscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2411070117
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 priorityscore=1501 malwarescore=0 adultscore=0
+ lowpriorityscore=0 clxscore=1015 mlxscore=0 spamscore=0 bulkscore=0
+ mlxlogscore=928 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2409260000 definitions=main-2411070114
 
-Message-security-assist 11 introduces pckmo subfunctions to encrypt
-hmac keys.
 
-Signed-off-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |  1 +
- arch/s390/kvm/kvm-s390.c         | 13 +++++++++++--
- arch/s390/kvm/vsie.c             |  3 ++-
- 3 files changed, 14 insertions(+), 3 deletions(-)
+Adding gen17 features to the CPU model for features that are
+(partially) handled or indicated by KVM.  Those comprises of:
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 51201b4ac93a..1cd8eaebd3c0 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -356,6 +356,7 @@ struct kvm_s390_sie_block {
- #define ECD_MEF		0x08000000
- #define ECD_ETOKENF	0x02000000
- #define ECD_ECC		0x00200000
-+#define ECD_HMAC	0x00004000
- 	__u32	ecd;			/* 0x01c8 */
- 	__u8	reserved1cc[18];	/* 0x01cc */
- 	__u64	pp;			/* 0x01de */
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f9cc1c92a79d..6efa812ca592 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3791,6 +3791,13 @@ static bool kvm_has_pckmo_ecc(struct kvm *kvm)
- 
- }
- 
-+static bool kvm_has_pckmo_hmac(struct kvm *kvm)
-+{
-+	/* At least one HMAC subfunction must be present */
-+	return kvm_has_pckmo_subfunc(kvm, 118) ||
-+	       kvm_has_pckmo_subfunc(kvm, 122);
-+}
-+
- static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
- {
- 	/*
-@@ -3803,7 +3810,7 @@ static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
- 	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
- 	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
- 	vcpu->arch.sie_block->eca &= ~ECA_APIE;
--	vcpu->arch.sie_block->ecd &= ~ECD_ECC;
-+	vcpu->arch.sie_block->ecd &= ~(ECD_ECC | ECD_HMAC);
- 
- 	if (vcpu->kvm->arch.crypto.apie)
- 		vcpu->arch.sie_block->eca |= ECA_APIE;
-@@ -3811,9 +3818,11 @@ static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
- 	/* Set up protected key support */
- 	if (vcpu->kvm->arch.crypto.aes_kw) {
- 		vcpu->arch.sie_block->ecb3 |= ECB3_AES;
--		/* ecc is also wrapped with AES key */
-+		/* ecc/hmac is also wrapped with AES key */
- 		if (kvm_has_pckmo_ecc(vcpu->kvm))
- 			vcpu->arch.sie_block->ecd |= ECD_ECC;
-+		if (kvm_has_pckmo_hmac(vcpu->kvm))
-+			vcpu->arch.sie_block->ecd |= ECD_HMAC;
- 	}
- 
- 	if (vcpu->kvm->arch.crypto.dea_kw)
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index d3cdde1b18e5..b30f58f0bf95 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -335,7 +335,8 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	/* we may only allow it if enabled for guest 2 */
- 	ecb3_flags = scb_o->ecb3 & vcpu->arch.sie_block->ecb3 &
- 		     (ECB3_AES | ECB3_DEA);
--	ecd_flags = scb_o->ecd & vcpu->arch.sie_block->ecd & ECD_ECC;
-+	ecd_flags = scb_o->ecd & vcpu->arch.sie_block->ecd &
-+		     (ECD_ECC | ECD_HMAC);
- 	if (!ecb3_flags && !ecd_flags)
- 		goto end;
- 
+- Concurrent-function facility with subcodes
+- More vector extensions
+- Ineffective-nonconstrained-transaction facility
+- Even more msa crypto extensions
+
+Feedback and review is always welcome.  Thanks a lot!
+
+
+Hendrik Brueckner (4):
+  KVM: s390: add concurrent-function facility to cpu model
+  KVM: s390: add msa11 to cpu model
+  KVM: s390: add gen17 facilities to CPU model
+  KVM: s390: selftests: Add regression tests for PFCR subfunctions
+
+ arch/s390/include/asm/kvm_host.h              |  1 +
+ arch/s390/include/uapi/asm/kvm.h              |  3 +-
+ arch/s390/kvm/kvm-s390.c                      | 43 ++++++++++++++++++-
+ arch/s390/kvm/vsie.c                          |  3 +-
+ arch/s390/tools/gen_facilities.c              |  2 +
+ tools/arch/s390/include/uapi/asm/kvm.h        |  3 +-
+ .../kvm/s390x/cpumodel_subfuncs_test.c        | 15 +++++++
+ 7 files changed, 65 insertions(+), 5 deletions(-)
+
 -- 
 2.43.5
 
