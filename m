@@ -1,184 +1,185 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f202.google.com (mail-il1-f202.google.com [209.85.166.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 266C22139D3;
-	Thu,  7 Nov 2024 15:23:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 684BE215033
+	for <linux-s390@vger.kernel.org>; Thu,  7 Nov 2024 19:04:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730993023; cv=none; b=Q5aduwriBjZ/qqy42FdBAWFWw2ZHRvomQTnEcnZYHq6/YYapZ1RgrYiDZekNKu+ngKeO0AiTjn1bhtOF7wPwDKzKKEVxXvHF7Dicn5fekntP/MJoY5uqKuUsrj4zVnlRrSe8YlONa8iAvMf7F3Xccnlr56nglpetNnnb+UYylOI=
+	t=1731006266; cv=none; b=H4NJIekd4cGtFhHibQdEmCFU7yNEWplbOKGP8PhXBASGSHmFh1qnFjibLDXbe0xLNX6z9B0ndcdCz/sDuDMmL17tbradGm62ve2bsn+FeJc71HpmOt0Q3nFu3L9f994uViOFc/4zl6WFRMafHb4+TpT6FvOkzoIWmM2B+PmA0A0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730993023; c=relaxed/simple;
-	bh=kpFZRJEAe8iAGoQAb7BnMMqtjyylyhgY5ibqYfw3JwE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=acnljIjWKkdkRq4WgNBNQKHYHdbe06XtiS17NTW9ylMwc2EDoVb6kqq2kahSE5DJvvi4UnxB6/ZLj2HKE9PLxbQDgZe/qnjGNVVOa2s+JzbybfQEJ+QysK7qd3+cDOkopMANrcPcVJNFryPnhGc4qKC8OcR7t9hW8YDQ0XyY9y4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UK/xibtM; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1731006266; c=relaxed/simple;
+	bh=rH+0U/U8QuJjNW02LPfeGGz9R6pA7ntPpm1SvusvDpE=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=uYvIjDT/eX2EdLGZRWq0SrAoCLPVhoqqQzTysjDIbhHgLUB7j45f9DA7M66xZWmlDTrM978zulkcAdozndoUORRXm8MzBhsOWprHqK3bC2VhDmdimU7bZsA20hvbqTYiIVsd2WgJgibOx3KoT9On44e0K5GtdTEtIfXKNJwXv6M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=c/RRTibV; arc=none smtp.client-ip=209.85.166.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UK/xibtM"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A7EeIR1027775;
-	Thu, 7 Nov 2024 15:23:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=mCGvaOKuIYvTaUIfJ
-	3g+A8nj3e4nN0QlTM2wtE0B17s=; b=UK/xibtMRXSgbzLkyYAnuRisVqED2po7P
-	qFUrlYHg7Co15A3zOLZR2mgsnEJ8XtmC/66xXgd33X9FFPT3WSY6V6nVMAsfX2Uy
-	qTUmY2za4+Es9dt8F7JObZYGpUJiAQFxmMTtrEbw7MbEiItsIfAXUM4uMbTZooSM
-	VflYQFHC4aqfZwWbxhUweu4faKpOn9aKEjb8EnnlDiSTJhJ3lSTC7a5HcBbatcHd
-	eN3bUh2abtrMnBPnzV+H/zkcpkr0KE0Ophfi7ErDD45cRoYhLEyNzyREI14VKryT
-	3AKXyMkWo2lW/BO62xNptSDsKz/cWHU+lylVVG2K2H2RA6D4mhRow==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42rygs883h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Nov 2024 15:23:38 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4A7BxNlV031966;
-	Thu, 7 Nov 2024 15:23:37 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42nydmree7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Nov 2024 15:23:37 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4A7FNXpX45089252
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 7 Nov 2024 15:23:33 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 35F4C20040;
-	Thu,  7 Nov 2024 15:23:33 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 06BAA2004B;
-	Thu,  7 Nov 2024 15:23:33 +0000 (GMT)
-Received: from vela.boeblingen.de.ibm.com (unknown [9.155.210.79])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  7 Nov 2024 15:23:32 +0000 (GMT)
-From: Hendrik Brueckner <brueckner@linux.ibm.com>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, thuth@redhat.com,
-        david@redhat.com, borntraeger@linux.ibm.com, frankja@linux.ibm.com
-Subject: [PATCH 1/4] KVM: s390: add concurrent-function facility to cpu model
-Date: Thu,  7 Nov 2024 16:23:16 +0100
-Message-ID: <20241107152319.77816-2-brueckner@linux.ibm.com>
-X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20241107152319.77816-1-brueckner@linux.ibm.com>
-References: <20241107152319.77816-1-brueckner@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="c/RRTibV"
+Received: by mail-il1-f202.google.com with SMTP id e9e14a558f8ab-3a6b7974696so16666195ab.1
+        for <linux-s390@vger.kernel.org>; Thu, 07 Nov 2024 11:04:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1731006263; x=1731611063; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=307d+oKSDEQceCQxX9m+tC9eleFe8W0Ggi8DlXu2swQ=;
+        b=c/RRTibVQaVzNzQrAwxE4Znu7PlIxLgW1UVR7YLRCpWehSWa6liJuGhKi9e7fGoaQJ
+         D5hv8C4gr3mp7Xr0W26VyViOr4AfaPJXAV6DhYDXFBVEaEhmhyTIJqwzDlwTyhdXWb2Q
+         QE7BI/oHeY97MhqpyGk2/0nDGNW/X9UZsZ8xNW4Dg0ZgwQzWcHkqmKMFt6bgvMuDmV1N
+         vhnQNTwOMEsy1Eyppv6VIpmqYq9g4QSKPWpMrQc+6pWrhSO5gZNzIjpnyoc6JTOJ2NOq
+         eAOXRjUeXJIqxna1lKP0zzYYZX1i/Ayli+9DriOFLkkPlhOKXZuemA4DFP3VH8Z83kHy
+         hm/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1731006263; x=1731611063;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=307d+oKSDEQceCQxX9m+tC9eleFe8W0Ggi8DlXu2swQ=;
+        b=VEEI4brMz3VsDlBtbBs8HTv06YTMDDNO/TUZ1nNnc9a2gWnY5pDFQeqx/fdp4sB5An
+         yA2IjPm0I5CI4cl5VmDO5EXYMvpFGAYY/+kaUAqoGnzjvMP0OmfbWPAF4PZ1lwljh7Qv
+         W3qtHH2vnZ/0m1Noh6/qYn1d87m8Lmx1ZanyC6x+Fyft3OWQO/5P5pMHuvQpwCFkuhAA
+         gYpEzDA4mkYONaHxc7MuPd1UuXBUozf7+AR/b1PXZAJoYIjSAzR1HJDvvLbt996HuQFA
+         F44Q4QfXomm5vukOkzfNKOAB0dXZM3+4wN5wia6slsmRPw+iXQnbkgj8CY2VKkR1JMLb
+         VIPA==
+X-Forwarded-Encrypted: i=1; AJvYcCUnRrsD71dcX8FttfSNhfaiv7hiOqGo99owzZplX3WzcKDNc5AuyjCagpJ/L6/U0RIT6i0W7HcuHGwa@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzqk91LSZ7OJ0o/b892BQvvcirqQN94Vd1oFw3eU68BQ/3nQZ3H
+	DjSDU1ByA9Vk10Mywce2ulOs4kLE7xl57lE67g6I/6egR/tLy2Rw6EHjcU75Roau+VZfpoROTSC
+	Z7iEPG/w86rpEwAGnk8tl4A==
+X-Google-Smtp-Source: AGHT+IEEjTpPYQzMBAhybW04MdjW8AF86rC0c7OtK7AUjaSX9oKv312D06txGG3KDB2dLThYbB5SuJMvIMPM40vk7Q==
+X-Received: from coltonlewis-kvm.c.googlers.com ([fda3:e722:ac3:cc00:11b:3898:ac11:fa18])
+ (user=coltonlewis job=sendgmr) by 2002:a05:6e02:1d88:b0:3a6:be9e:fb56 with
+ SMTP id e9e14a558f8ab-3a6f1a44701mr21665ab.3.1731006263567; Thu, 07 Nov 2024
+ 11:04:23 -0800 (PST)
+Date: Thu,  7 Nov 2024 19:03:31 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: PVSScK_8VEVTA8cDCrvdzoq02bFtGPAC
-X-Proofpoint-GUID: PVSScK_8VEVTA8cDCrvdzoq02bFtGPAC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 priorityscore=1501 malwarescore=0 adultscore=0
- lowpriorityscore=0 clxscore=1015 mlxscore=0 spamscore=0 bulkscore=0
- mlxlogscore=555 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2409260000 definitions=main-2411070114
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.47.0.277.g8800431eea-goog
+Message-ID: <20241107190336.2963882-1-coltonlewis@google.com>
+Subject: [PATCH v7 0/5] Correct perf sampling with Guest VMs
+From: Colton Lewis <coltonlewis@google.com>
+To: kvm@vger.kernel.org
+Cc: Oliver Upton <oliver.upton@linux.dev>, Sean Christopherson <seanjc@google.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
+	Mark Rutland <mark.rutland@arm.com>, 
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
+	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
+	Kan Liang <kan.liang@linux.intel.com>, Will Deacon <will@kernel.org>, 
+	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H . Peter Anvin" <hpa@zytor.com>, linux-perf-users@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	Colton Lewis <coltonlewis@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Adding support for concurrent-functions facility which provides
-additional subfunctions.
+v7:
+* Refactor th misc_flags check in patch 4 and 5 for more clarity
 
-Signed-off-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
----
- arch/s390/include/uapi/asm/kvm.h |  3 ++-
- arch/s390/kvm/kvm-s390.c         | 22 ++++++++++++++++++++++
- arch/s390/tools/gen_facilities.c |  1 +
- 3 files changed, 25 insertions(+), 1 deletion(-)
+v6:
+https://lore.kernel.org/all/20241105195603.2317483-1-coltonlewis@google.com/
 
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 05eaf6db3ad4..60345dd2cba2 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -469,7 +469,8 @@ struct kvm_s390_vm_cpu_subfunc {
- 	__u8 kdsa[16];		/* with MSA9 */
- 	__u8 sortl[32];		/* with STFLE.150 */
- 	__u8 dfltcc[32];	/* with STFLE.151 */
--	__u8 reserved[1728];
-+	__u8 pfcr[16];		/* with STFLE.201 */
-+	__u8 reserved[1712];
- };
- 
- #define KVM_S390_VM_CPU_PROCESSOR_UV_FEAT_GUEST	6
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 06e55f681a39..f9cc1c92a79d 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -348,6 +348,16 @@ static inline int plo_test_bit(unsigned char nr)
- 	return cc == 0;
- }
- 
-+static __always_inline void pfcr_query(u8 (*query)[16])
-+{
-+	asm volatile(
-+		"	lghi	0,0\n"
-+		"	.insn   rsy,0xeb0000000016,0,0,%[query]\n"
-+		: [query] "=QS" (*query)
-+		:
-+		: "cc", "0");
-+}
-+
- static __always_inline void __sortl_query(u8 (*query)[32])
- {
- 	asm volatile(
-@@ -429,6 +439,9 @@ static void __init kvm_s390_cpu_feat_init(void)
- 	if (test_facility(151)) /* DFLTCC */
- 		__dfltcc_query(&kvm_s390_available_subfunc.dfltcc);
- 
-+	if (test_facility(201))	/* PFCR */
-+		pfcr_query(&kvm_s390_available_subfunc.pfcr);
-+
- 	if (MACHINE_HAS_ESOP)
- 		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
- 	/*
-@@ -1543,6 +1556,9 @@ static int kvm_s390_set_processor_subfunc(struct kvm *kvm,
- 		 ((unsigned long *) &kvm->arch.model.subfuncs.dfltcc)[1],
- 		 ((unsigned long *) &kvm->arch.model.subfuncs.dfltcc)[2],
- 		 ((unsigned long *) &kvm->arch.model.subfuncs.dfltcc)[3]);
-+	VM_EVENT(kvm, 3, "GET: guest PFCR   subfunc 0x%16.16lx.%16.16lx",
-+		 ((unsigned long *) &kvm_s390_available_subfunc.pfcr)[0],
-+		 ((unsigned long *) &kvm_s390_available_subfunc.pfcr)[1]);
- 
- 	return 0;
- }
-@@ -1757,6 +1773,9 @@ static int kvm_s390_get_processor_subfunc(struct kvm *kvm,
- 		 ((unsigned long *) &kvm->arch.model.subfuncs.dfltcc)[1],
- 		 ((unsigned long *) &kvm->arch.model.subfuncs.dfltcc)[2],
- 		 ((unsigned long *) &kvm->arch.model.subfuncs.dfltcc)[3]);
-+	VM_EVENT(kvm, 3, "GET: guest PFCR   subfunc 0x%16.16lx.%16.16lx",
-+		 ((unsigned long *) &kvm_s390_available_subfunc.pfcr)[0],
-+		 ((unsigned long *) &kvm_s390_available_subfunc.pfcr)[1]);
- 
- 	return 0;
- }
-@@ -1825,6 +1844,9 @@ static int kvm_s390_get_machine_subfunc(struct kvm *kvm,
- 		 ((unsigned long *) &kvm_s390_available_subfunc.dfltcc)[1],
- 		 ((unsigned long *) &kvm_s390_available_subfunc.dfltcc)[2],
- 		 ((unsigned long *) &kvm_s390_available_subfunc.dfltcc)[3]);
-+	VM_EVENT(kvm, 3, "GET: host  PFCR   subfunc 0x%16.16lx.%16.16lx",
-+		 ((unsigned long *) &kvm_s390_available_subfunc.pfcr)[0],
-+		 ((unsigned long *) &kvm_s390_available_subfunc.pfcr)[1]);
- 
- 	return 0;
- }
-diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
-index c3d5214c8442..e97b4faaf222 100644
---- a/arch/s390/tools/gen_facilities.c
-+++ b/arch/s390/tools/gen_facilities.c
-@@ -116,6 +116,7 @@ static struct facility_def facility_defs[] = {
- 			194, /* rdp enhancement facility */
- 			196, /* processor activity instrumentation facility */
- 			197, /* processor activity instrumentation extension 1 */
-+			201, /* concurrent-functions facility */
- 			-1  /* END */
- 		}
- 	},
--- 
-2.43.5
+v5:
+https://lore.kernel.org/all/20240920174740.781614-1-coltonlewis@google.com/
 
+v4:
+https://lore.kernel.org/kvm/20240919190750.4163977-1-coltonlewis@google.com/
+
+v3:
+https://lore.kernel.org/kvm/20240912205133.4171576-1-coltonlewis@google.com/
+
+v2:
+https://lore.kernel.org/kvm/20240911222433.3415301-1-coltonlewis@google.com/
+
+v1:
+https://lore.kernel.org/kvm/20240904204133.1442132-1-coltonlewis@google.com/
+
+This series cleans up perf recording around guest events and improves
+the accuracy of the resulting perf reports.
+
+Perf was incorrectly counting any PMU overflow interrupt that occurred
+while a VCPU was loaded as a guest event even when the events were not
+truely guest events. This lead to much less accurate and useful perf
+recordings.
+
+See as an example the below reports of `perf record
+dirty_log_perf_test -m 2 -v 4` before and after the series on ARM64.
+
+Without series:
+
+Samples: 15K of event 'instructions', Event count (approx.): 31830580924
+Overhead  Command          Shared Object        Symbol
+  54.54%  dirty_log_perf_  dirty_log_perf_test  [.] run_test
+   5.39%  dirty_log_perf_  dirty_log_perf_test  [.] vcpu_worker
+   0.89%  dirty_log_perf_  [kernel.vmlinux]     [k] release_pages
+   0.70%  dirty_log_perf_  [kernel.vmlinux]     [k] free_pcppages_bulk
+   0.62%  dirty_log_perf_  dirty_log_perf_test  [.] userspace_mem_region_find
+   0.49%  dirty_log_perf_  dirty_log_perf_test  [.] sparsebit_is_set
+   0.46%  dirty_log_perf_  dirty_log_perf_test  [.] _virt_pg_map
+   0.46%  dirty_log_perf_  dirty_log_perf_test  [.] node_add
+   0.37%  dirty_log_perf_  dirty_log_perf_test  [.] node_reduce
+   0.35%  dirty_log_perf_  [kernel.vmlinux]     [k] free_unref_page_commit
+   0.33%  dirty_log_perf_  [kernel.vmlinux]     [k] __kvm_pgtable_walk
+   0.31%  dirty_log_perf_  [kernel.vmlinux]     [k] stage2_attr_walker
+   0.29%  dirty_log_perf_  [kernel.vmlinux]     [k] unmap_page_range
+   0.29%  dirty_log_perf_  dirty_log_perf_test  [.] test_assert
+   0.26%  dirty_log_perf_  [kernel.vmlinux]     [k] __mod_memcg_lruvec_state
+   0.24%  dirty_log_perf_  [kernel.vmlinux]     [k] kvm_s2_put_page
+
+With series:
+
+Samples: 15K of event 'instructions', Event count (approx.): 31830580924
+Samples: 15K of event 'instructions', Event count (approx.): 30898031385
+Overhead  Command          Shared Object        Symbol
+  54.05%  dirty_log_perf_  dirty_log_perf_test  [.] run_test
+   5.48%  dirty_log_perf_  [kernel.kallsyms]    [k] kvm_arch_vcpu_ioctl_run
+   4.70%  dirty_log_perf_  dirty_log_perf_test  [.] vcpu_worker
+   3.11%  dirty_log_perf_  [kernel.kallsyms]    [k] kvm_handle_guest_abort
+   2.24%  dirty_log_perf_  [kernel.kallsyms]    [k] up_read
+   1.98%  dirty_log_perf_  [kernel.kallsyms]    [k] __kvm_tlb_flush_vmid_ipa_nsh
+   1.97%  dirty_log_perf_  [kernel.kallsyms]    [k] __pi_clear_page
+   1.30%  dirty_log_perf_  [kernel.kallsyms]    [k] down_read
+   1.13%  dirty_log_perf_  [kernel.kallsyms]    [k] release_pages
+   1.12%  dirty_log_perf_  [kernel.kallsyms]    [k] __kvm_pgtable_walk
+   1.08%  dirty_log_perf_  [kernel.kallsyms]    [k] folio_batch_move_lru
+   1.06%  dirty_log_perf_  [kernel.kallsyms]    [k] __srcu_read_lock
+   1.03%  dirty_log_perf_  [kernel.kallsyms]    [k] get_page_from_freelist
+   1.01%  dirty_log_perf_  [kernel.kallsyms]    [k] __pte_offset_map_lock
+   0.82%  dirty_log_perf_  [kernel.kallsyms]    [k] handle_mm_fault
+   0.74%  dirty_log_perf_  [kernel.kallsyms]    [k] mas_state_walk
+
+Colton Lewis (5):
+  arm: perf: Drop unused functions
+  perf: Hoist perf_instruction_pointer() and perf_misc_flags()
+  powerpc: perf: Use perf_arch_instruction_pointer()
+  x86: perf: Refactor misc flag assignments
+  perf: Correct perf sampling with guest VMs
+
+ arch/arm/include/asm/perf_event.h            |  7 ---
+ arch/arm/kernel/perf_callchain.c             | 17 -------
+ arch/arm64/include/asm/perf_event.h          |  4 --
+ arch/arm64/kernel/perf_callchain.c           | 28 ------------
+ arch/powerpc/include/asm/perf_event_server.h |  6 +--
+ arch/powerpc/perf/callchain.c                |  2 +-
+ arch/powerpc/perf/callchain_32.c             |  2 +-
+ arch/powerpc/perf/callchain_64.c             |  2 +-
+ arch/powerpc/perf/core-book3s.c              |  4 +-
+ arch/s390/include/asm/perf_event.h           |  6 +--
+ arch/s390/kernel/perf_event.c                |  4 +-
+ arch/x86/events/core.c                       | 48 ++++++++++++--------
+ arch/x86/include/asm/perf_event.h            | 12 +++--
+ include/linux/perf_event.h                   | 26 +++++++++--
+ kernel/events/core.c                         | 27 ++++++++++-
+ 15 files changed, 96 insertions(+), 99 deletions(-)
+
+
+base-commit: 59b723cd2adbac2a34fc8e12c74ae26ae45bf230
+--
+2.47.0.277.g8800431eea-goog
