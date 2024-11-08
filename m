@@ -1,113 +1,179 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f201.google.com (mail-yw1-f201.google.com [209.85.128.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B247233D67;
-	Fri,  8 Nov 2024 17:59:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9028E1AA1DD
+	for <linux-s390@vger.kernel.org>; Fri,  8 Nov 2024 19:01:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731088753; cv=none; b=Xuxx5jn/+VLZkqsnlZFymsvCFlLFmvXqlOfT+UVoi37YtV/RbhR/IQAF4Mm+Fr8u7D81vOPoOgRgLeOefmp/zDvsQDGaFUaSxdXrgNiitHkCjg3s+xuIY6lessj5VtHDXM78GikhkKz5jcpNOzCXclbPktY+CW9YEGr92EGCN24=
+	t=1731092480; cv=none; b=ElJNB0tIWbUcI/z7x2bZeeF2jBscU+kaAsY2RlHM6v3I/bdCesMyke4qNEvKyv6wSvHMLTBE9oVyK34boXc60duoJagFK58cWMn3W7ACgopesuxPmm1BGpU+K9+AG0UqbxwTP1qQBijgRdsKvu0nZwD7zuE/FvVZk3gUvyWxst4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731088753; c=relaxed/simple;
-	bh=njRHL3LaliikKZctNZcbQmlhWG5PDd/sxP2CVB4KNl0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FFUjp1ajSdus5ed4RSbm/X1QpJSHp/mJbYNQN1RJtM9O3o4EpVpNSV9GM7UEbi90sOzTI0kexluoWmpNqys/ogmeb3QhjLzBwDYWgEhZrJs6CuJkFJAw1GEXgyd/I2+Llm5K9FtEf1WvbL+kJ0GxvaYemXMX0bHigwzZZ56qAtM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=o9xbZGPU; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1731092480; c=relaxed/simple;
+	bh=osKkh8o/4ZEkyOIZVRVY+2aEgfDt/7qhPpuXstOv05g=;
+	h=Date:In-Reply-To:Mime-Version:Message-ID:Subject:From:To:Cc:
+	 Content-Type; b=AL8hNnB+roZw0PfC0ZrCH3gZ8/qKz4BWxBpJdxZPX16CyPD15osvtQRQDx8kq47uB8yV/H6IT8pECR/P9evwvb8NqZgZ/qbp7LhiJr1HEK8aEufTu+TmioD6Jc4kyqiRCnPlh+8jxTXEmAM0dTvbO6lbOuNdFzq2S8NTxt7ySK8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=GOrqArq6; arc=none smtp.client-ip=209.85.128.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--coltonlewis.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="o9xbZGPU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10CCAC4CECD;
-	Fri,  8 Nov 2024 17:59:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1731088752;
-	bh=njRHL3LaliikKZctNZcbQmlhWG5PDd/sxP2CVB4KNl0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=o9xbZGPUoEDjcljiuA04F7V2sPGjbnBqOHkxiJIqWEC8kQP3ScBiINGTeelI13nDE
-	 rOgX8Cb9wPFHBVq+tppbBl26ZQbrPs2+9XOZu+CpobBs0CSB7tCdCypWqxo4BfpqUj
-	 IGbdma8WYKUwdtwXoeIGIKFbR6/1CGUXlVfF5wrBL6Svn1aHNBonQosJgHbJVwcF9H
-	 32xT46rGOfSJs4enLRTS45FOOYLrl/yZRNmh88IRyc2UVezJR5thxLc93qXT+MbLbZ
-	 +c1i2XO4EDDewVeqxdYV6k35H+6ewPFbMJChCPBEbMvJM0IyWenSY0tsmNvF61w4ej
-	 LggrNLE0sJ5NQ==
-Date: Fri, 8 Nov 2024 19:59:06 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Namjae Jeon <linkinjeon@kernel.org>
-Cc: Halil Pasic <pasic@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Nils Hoppmann <niho@linux.ibm.com>,
-	Niklas Schnell <schnelle@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	Karsten Graul <kgraul@linux.ibm.com>,
-	Stefan Raspl <raspl@linux.ibm.com>, Aswin K <aswin@linux.ibm.com>,
-	linux-cifs@vger.kernel.org,
-	Kangjing Huang <huangkangjing@gmail.com>
-Subject: Re: [PATCH net] net/smc: Fix lookup of netdev by using
- ib_device_get_netdev()
-Message-ID: <20241108175906.GB189042@unreal>
-References: <20241025072356.56093-1-wenjia@linux.ibm.com>
- <20241027201857.GA1615717@unreal>
- <8d17b403-aefa-4f36-a913-7ace41cf2551@linux.ibm.com>
- <20241105112313.GE311159@unreal>
- <20241106102439.4ca5effc.pasic@linux.ibm.com>
- <20241106135910.GF5006@unreal>
- <20241107125643.04f97394.pasic@linux.ibm.com>
- <CAKYAXd9QD5N-mYdGv5Sf1Bx6uBUwghCOWfvYC=_PC_2wDvao+w@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="GOrqArq6"
+Received: by mail-yw1-f201.google.com with SMTP id 00721157ae682-6ea33140094so46844857b3.1
+        for <linux-s390@vger.kernel.org>; Fri, 08 Nov 2024 11:01:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1731092477; x=1731697277; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:in-reply-to:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=X/YH5u+uVD0X+IYthPhg6GmXA/jaE5JARCEDgbJjUV8=;
+        b=GOrqArq6EMibI9fiJTyKYP0obQ4Opu9eIIK24AF6Ue/JgY3v0lLVD+hhK/UWiTT3sg
+         tKqVQtNhIzPc0jPJjhwvtx//O35a7pEl9bPhBrlonNe+oYqkpohSszIACVeplMepVpEr
+         ZXbCKlbuHsr5t2D5eLG8/LvYOM70b5J1wwyWR4MfPa3KEW/Nub/+BN4aIphVYi5kgu+s
+         RyTXyX/pQ8a9wxcqTG0Q18uS0aNittHu0MUBQsTKoUwIfWVBFU4pSYPUEl3pp3MXbsoP
+         Rr1vTwKNKDs3kh7r6oeVkQFfhGZJTjxKj88CQUod9EOq/1IMPtnp2oPqiP1scpHdIMl3
+         YLew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1731092477; x=1731697277;
+        h=cc:to:from:subject:message-id:mime-version:in-reply-to:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=X/YH5u+uVD0X+IYthPhg6GmXA/jaE5JARCEDgbJjUV8=;
+        b=jN+Hxuru0qPcVRRHkCdCF8Z7T7ULBbGXqlvTyRyx0FqZ1oNYWUdgAsn2SJp3ieJ+sE
+         aGBPt4BYy13wB3Bx+1r2+y6Ow9JxntfCDys4Nq2K8zWMWz0V7/fu5Sr5V7nVvjpNBEAw
+         L6PEUMkTxJSQr/s7luynLV71X0+z+IZCW29Oj2r5pdbr+jNT6TudwDNEJ29nIEQVbj0k
+         ZRNgkwIl4jrrIlapOq153tQQ2TGPRxSOszKcik/iA01Wa7FmRrEHmY0775s9d2BnSRsG
+         iyfzX3G/CFpcHBw0mP4uXVIPyufO6LoUuticMZ5xQf8aQr1HnVeUCv6qN8wUXXAB/kag
+         0RXQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXAH8ziYtlDnHddlf5+Xu7UPhoQ3Fasf0Elq0kojMwukwKe/GJBao3NKpYx7bOu0E7zeON1Roo5iTl+@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyw2LUFNymsR+R72aUKKBEN8aJ7SzfT2UM5K5ptzubTERYRMGrM
+	MPf+ngEB5/k4Gu3cwiTYR5hPwg4vW4cJHwnwO7GFN2wU+k1wSGdFrf2/q9lQ1Wc+K7LxpDf4xrD
+	qvRjYxcD4xWQXOiZorOaQjg==
+X-Google-Smtp-Source: AGHT+IHf5E46yE8Goi3JQ3NCwqhgizTTCCoxt5IIbUtqVWxYQ8qv+MmQFEFlUtd8c2orQuarK4c0d4RFcTxIc3XLxg==
+X-Received: from coltonlewis-kvm.c.googlers.com ([fda3:e722:ac3:cc00:11b:3898:ac11:fa18])
+ (user=coltonlewis job=sendgmr) by 2002:a05:690c:25c3:b0:6e3:d670:f62a with
+ SMTP id 00721157ae682-6eadde333e0mr258367b3.3.1731092477590; Fri, 08 Nov 2024
+ 11:01:17 -0800 (PST)
+Date: Fri, 08 Nov 2024 19:01:16 +0000
+In-Reply-To: <20241108153411.GF38786@noisy.programming.kicks-ass.net> (message
+ from Peter Zijlstra on Fri, 8 Nov 2024 16:34:11 +0100)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAKYAXd9QD5N-mYdGv5Sf1Bx6uBUwghCOWfvYC=_PC_2wDvao+w@mail.gmail.com>
+Mime-Version: 1.0
+Message-ID: <gsntbjypft37.fsf@coltonlewis-kvm.c.googlers.com>
+Subject: Re: [PATCH v7 4/5] x86: perf: Refactor misc flag assignments
+From: Colton Lewis <coltonlewis@google.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: kvm@vger.kernel.org, oliver.upton@linux.dev, seanjc@google.com, 
+	mingo@redhat.com, acme@kernel.org, namhyung@kernel.org, mark.rutland@arm.com, 
+	alexander.shishkin@linux.intel.com, jolsa@kernel.org, irogers@google.com, 
+	adrian.hunter@intel.com, kan.liang@linux.intel.com, will@kernel.org, 
+	linux@armlinux.org.uk, catalin.marinas@arm.com, mpe@ellerman.id.au, 
+	npiggin@gmail.com, christophe.leroy@csgroup.eu, naveen@kernel.org, 
+	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
+	borntraeger@linux.ibm.com, svens@linux.ibm.com, tglx@linutronix.de, 
+	bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, 
+	linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 
-On Fri, Nov 08, 2024 at 08:40:40AM +0900, Namjae Jeon wrote:
-> On Thu, Nov 7, 2024 at 9:00 PM Halil Pasic <pasic@linux.ibm.com> wrote:
-> >
-> > On Wed, 6 Nov 2024 15:59:10 +0200
-> > Leon Romanovsky <leon@kernel.org> wrote:
-> >
-> > > > Does  fs/smb/server/transport_rdma.c qualify as inside of RDMA core code?
-> > >
-> > > RDMA core code is drivers/infiniband/core/*.
-> >
-> > Understood. So this is a violation of the no direct access to the
-> > callbacks rule.
-> >
-> > >
-> > > > I would guess it is not, and I would not actually mind sending a patch
-> > > > but I have trouble figuring out the logic behind  commit ecce70cf17d9
-> > > > ("ksmbd: fix missing RDMA-capable flag for IPoIB device in
-> > > > ksmbd_rdma_capable_netdev()").
-> > >
-> > > It is strange version of RDMA-CM. All other ULPs use RDMA-CM to avoid
-> > > GID, netdev and fabric complexity.
-> >
-> > I'm not familiar enough with either of the subsystems. Based on your
-> > answer my guess is that it ain't outright bugous but still a layering
-> > violation. Copying linux-cifs@vger.kernel.org so that
-> > the smb are aware.
-> Could you please elaborate what the violation is ?
+Peter Zijlstra <peterz@infradead.org> writes:
 
-There are many, but the most screaming is that ksmbd has logic to
-differentiate IPoIB devices. These devices are pure netdev devices
-and should be treated like that. ULPs should treat them exactly
-as they treat netdev devices.
+> On Thu, Nov 07, 2024 at 07:03:35PM +0000, Colton Lewis wrote:
+>> Break the assignment logic for misc flags into their own respective
+>> functions to reduce the complexity of the nested logic.
 
-> I would also appreciate it if you could suggest to me how to fix this.
-> 
-> Thanks.
-> >
-> > Thank you very much for all the explanations!
-> >
-> > Regards,
-> > Halil
-> >
+>> Signed-off-by: Colton Lewis <coltonlewis@google.com>
+>> Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
+>> ---
+>>   arch/x86/events/core.c            | 32 +++++++++++++++++++++++--------
+>>   arch/x86/include/asm/perf_event.h |  2 ++
+>>   2 files changed, 26 insertions(+), 8 deletions(-)
+
+>> diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
+>> index d19e939f3998..9fdc5fa22c66 100644
+>> --- a/arch/x86/events/core.c
+>> +++ b/arch/x86/events/core.c
+>> @@ -3011,16 +3011,35 @@ unsigned long  
+>> perf_arch_instruction_pointer(struct pt_regs *regs)
+>>   	return regs->ip + code_segment_base(regs);
+>>   }
+
+>> +static unsigned long common_misc_flags(struct pt_regs *regs)
+>> +{
+>> +	if (regs->flags & PERF_EFLAGS_EXACT)
+>> +		return PERF_RECORD_MISC_EXACT_IP;
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +unsigned long perf_arch_guest_misc_flags(struct pt_regs *regs)
+>> +{
+>> +	unsigned long guest_state = perf_guest_state();
+>> +	unsigned long flags = common_misc_flags(regs);
+
+> This is double common_misc and makes no sense
+
+I'm confused what you mean. Are you referring to starting with
+common_misc_flags in both perf_arch_misc_flags and
+perf_arch_guest_misc_flags so possibly the common_msic_flags are set
+twice?
+
+That seems like a good thing that common flags are set wherever they
+apply. You can't guarantee where perf_arch_guest_misc_flags may be
+called in the future.
+>> +
+>> +	if (!(guest_state & PERF_GUEST_ACTIVE))
+>> +		return flags;
+>> +
+>> +	if (guest_state & PERF_GUEST_USER)
+>> +		return flags & PERF_RECORD_MISC_GUEST_USER;
+>> +	else
+>> +		return flags & PERF_RECORD_MISC_GUEST_KERNEL;
+
+> And this is just broken garbage, right?
+
+>> +}
+
+> Did you mean to write:
+
+> unsigned long perf_arch_guest_misc_flags(struct pt_regs *regs)
+> {
+> 	unsigned long guest_state = perf_guest_state();
+> 	unsigned long flags = 0;
+
+> 	if (guest_state & PERF_GUEST_ACTIVE) {
+> 		if (guest_state & PERF_GUEST_USER)
+> 			flags |= PERF_RECORD_MISC_GUEST_USER;
+> 		else
+> 			flags |= PERF_RECORD_MISC_GUEST_KERNEL;
+> 	}
+
+> 	return flags;
+> }
+
+Ok, my mistake was using & instead of |, but the branches are
+functionally the same.
+
+I'll use something closer to your suggestion.
+
+>>   unsigned long perf_arch_misc_flags(struct pt_regs *regs)
+>>   {
+>>   	unsigned int guest_state = perf_guest_state();
+>> -	int misc = 0;
+>> +	unsigned long misc = common_misc_flags(regs);
+
+> Because here you do the common thing..
+
+
+>>   	if (guest_state) {
+>> -		if (guest_state & PERF_GUEST_USER)
+>> -			misc |= PERF_RECORD_MISC_GUEST_USER;
+>> -		else
+>> -			misc |= PERF_RECORD_MISC_GUEST_KERNEL;
+>> +		misc |= perf_arch_guest_misc_flags(regs);
+
+> And here you mix in the guest things.
+
+>>   	} else {
+>>   		if (user_mode(regs))
+>>   			misc |= PERF_RECORD_MISC_USER;
