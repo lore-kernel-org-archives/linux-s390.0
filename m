@@ -1,65 +1,67 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4979925777
-	for <linux-s390@vger.kernel.org>; Mon, 11 Nov 2024 15:07:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26F7F1A4F0C
+	for <linux-s390@vger.kernel.org>; Mon, 11 Nov 2024 15:10:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731337633; cv=none; b=MQwAf3BzUD/l89Vc9bGUP1/Yqy8jApEDGbucw7E036Zu8HpYpjnwHN8zjO2jVVChe23GG+hbVXTf0FL8K7uDlCD9q2gEX+k+QY6MSNV85vIaeKKJ7UeBU8b+UetDJp4bt3iY917eJRVYixez12AgWdpuuIuLblXAroyw/BZiNLM=
+	t=1731337828; cv=none; b=SJ9qTN+rHVxehff5nCvn+WS/yK+Q567+M5kwPSfDhfATNikaPZtwCyZJQeriuXvsdGzsL6wceBOC1/WNOoyr+h548u/Eo0q+CQC4QYZtlRaALX/oqgyGc5XitimfzaOCwaoTnvkDtTTLW/ULci7WxJjDwgc42WiGx5ltE1bOVe4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731337633; c=relaxed/simple;
-	bh=urF7+ZrvJb01w3jQbw0zJapXP5NGYyamAOImQFBwpt4=;
+	s=arc-20240116; t=1731337828; c=relaxed/simple;
+	bh=qGmcoBIEKaX1H0xWi2Qp7OQKOR+qAViu0lO/elGfL/c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YyiCpnNQBLquHxmiA0z8o5uUrVwrZQmrVatRvsw+6bbur3H84QiD8FNzOBgJ3MR/wNlv4VUK8OwmtrBnfyA7tgg4b+SbISRN7RWJKwBNCR2m2wwXQwC+WeR9Kpm1c+sPho5sJ88wkGimJcSq+aiGK2c0rj2nQSDP0NUWBYsGRF8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iiitd.ac.in; spf=pass smtp.mailfrom=iiitd.ac.in; dkim=pass (1024-bit key) header.d=iiitd.ac.in header.i=@iiitd.ac.in header.b=PV4pGUhd; arc=none smtp.client-ip=209.85.214.170
+	 Content-Type:Content-Disposition:In-Reply-To; b=bCn0WOdhJlus52TyzXiQ9v0afXq3EHa+k5e08HYA7tUfirIANg/F3WDBNbmo3KfdzPduB12B5+KRKPu1zApqQovoyaAwBS+MWJmkNQl+XKft94ZhE/MvgTnfxYoiU3OheT1FmTLS8jlTxSJyYN+p9Mw38yIxZyYuvAhmfzBBIm4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iiitd.ac.in; spf=pass smtp.mailfrom=iiitd.ac.in; dkim=pass (1024-bit key) header.d=iiitd.ac.in header.i=@iiitd.ac.in header.b=YJfbQFYz; arc=none smtp.client-ip=209.85.215.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iiitd.ac.in
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iiitd.ac.in
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=iiitd.ac.in header.i=@iiitd.ac.in header.b="PV4pGUhd"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-20cb47387ceso47301515ad.1
-        for <linux-s390@vger.kernel.org>; Mon, 11 Nov 2024 07:07:10 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=iiitd.ac.in header.i=@iiitd.ac.in header.b="YJfbQFYz"
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-7f45ab88e7fso778635a12.1
+        for <linux-s390@vger.kernel.org>; Mon, 11 Nov 2024 07:10:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=iiitd.ac.in; s=google; t=1731337630; x=1731942430; darn=vger.kernel.org;
+        d=iiitd.ac.in; s=google; t=1731337825; x=1731942625; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=pv2dsGLy5hlCQCQMw0mRaxqTomq041o04AFI/16zT3I=;
-        b=PV4pGUhddsHcFzJ+vyyAQ6giPL2F6lEud7GBrzsakFXnILW/NKNMVNZGnV55iihicZ
-         SosT9KiLWr2TgAlfC/J6o+ttbeZTjGLHg6YhsgGolVjZj1jyIwe5+PBe4Y61IaN3pnjq
-         QkwRsWvB0j/wa+lx5S35TYk+IFBtCzNX78qmw=
+        bh=LccvR0IWvQyoOnW9SnRg/FOFACnALCcOHU477bYWR1U=;
+        b=YJfbQFYz7tpcNbtTl165F4o2eTzZ81yhniWhaT4O6oYa6/hRGs83yeh/tePn9mrJaq
+         RQcqc85+gh12pQMb8Fqq/3FOJdOFpvw8jcc5TN+miHX6XVx2xTfr2gnHN/QWRZMaWyQM
+         pP9vjpR9JLj9XPL7GkRW9IpM5nmN6UO7yZOmQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731337630; x=1731942430;
+        d=1e100.net; s=20230601; t=1731337825; x=1731942625;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=pv2dsGLy5hlCQCQMw0mRaxqTomq041o04AFI/16zT3I=;
-        b=jCh9yYNruRbcRUoSzUA4SpwERLghJos0E9oR/2zsqAWZy8/J7lwS6uzOtmYXymeaa8
-         piz4BoH/79YoXddQOqFxnTco0IB5UObuRHjWcu51B/47sIUecZVX3I8ZeZ/7KwuxPYuo
-         n6Y9LTeP0mejobAq7G4xlFQYiT5JOBQHgiuSVZmYlLUvIhFfi+C0ECuENVxUPM/2c9cG
-         A4ekpZxZg4TnyIXeS4oAZAsidEtZGqNd+GferWm+6fLkLDoBZ715JxPrS0zfwh+Phg3C
-         85nkw/GPWCGT0Q4l3htypSgGPC3PEL5LPhMUuApln/59AwX1F98LhkXyIHe1QEEHqvKC
-         aaQw==
-X-Forwarded-Encrypted: i=1; AJvYcCVfHCBhPQZNvcapwXBBlqD1LrF1jUz3LcfNXvcpQ7axBkRCr/BwyVhLCa1NF+c5ggIN7SV0tB7/j4cQ@vger.kernel.org
-X-Gm-Message-State: AOJu0YwcEa4ZhuBGOuDiXxt3ZV8RS0iQykQqt6zLzyTHY35q5CFRVBgV
-	Rk3dW+TeW8j0/KpJW9jhfdjX3WWYECX5n0dpUm6aFIIKTeu2S8sEId9BszRY9YU=
-X-Google-Smtp-Source: AGHT+IE/3RHLj44jfPFU+OP+sItz5ZLYB/FRD/A5nKaMuQaTLI3Nu/IGfIXNjgRWqWRSQGrK7OssHg==
-X-Received: by 2002:a17:903:110c:b0:211:6b31:2f30 with SMTP id d9443c01a7336-211835ccb20mr180272005ad.50.1731337630325;
-        Mon, 11 Nov 2024 07:07:10 -0800 (PST)
+        bh=LccvR0IWvQyoOnW9SnRg/FOFACnALCcOHU477bYWR1U=;
+        b=bC0vQyAeoXihlUQkzBzEqoPkrtxcK1oPxRk3sJX1HQ3dRN5+Oh2DSTlY6eA71NK3w/
+         i/qDNfNKD+lGjH6+qfhggkpKZFpEVI3AS5TLpo/6m7+qwdTtdOinWNN2v96dzS5W7zN8
+         LsPZRTQibS1Eat938K9lGQr/3NAqjriQ1ea86CrhnvC6+CZaLxkXVryX655WMGyBfh6M
+         pRHcz0lomDfEZxvJzvLU1/255xz91dbTbVEPntDXrsoSAfcK6A9pOmcitp0/zOY6Au90
+         lJ+kUeC+styiQ3oow+QQhgkyd5oRKljjiO7xqcIuxO6fROGRs+LO1BEeMMIuUP7bfkzZ
+         z2gQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVr1x3VI2JlK1a49RpxPquCjO53k/R6Rjkz6XcsyaWC1R4QBjGFJG54iuCe3YQ/o5bpNZ7ObMT72HDw@vger.kernel.org
+X-Gm-Message-State: AOJu0YzZCaVtmpagrWKHDozBPLti0b8/IBRMJ3Tl1EDF7Wp9ZYK2hOxj
+	19VzBYm2eFhQeUn/5N/4IYl3tdYbYQYNvQl8Il6JaDiT3Y5uv20a8mTGzFMikqs=
+X-Google-Smtp-Source: AGHT+IGlvE8MnWFmGfXGoYLBe2FkYBOQtGb2CmMB7BTmUrjaiDql86Va5/IEQq+zyQwlW7/+bzC6yw==
+X-Received: by 2002:a17:90b:4b09:b0:2e2:c98e:c33f with SMTP id 98e67ed59e1d1-2e9b16eb860mr19646569a91.1.1731337825317;
+        Mon, 11 Nov 2024 07:10:25 -0800 (PST)
 Received: from fedora ([103.3.204.81])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21177dc8287sm77078295ad.48.2024.11.11.07.07.03
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2e9a5fd180fsm8628464a91.33.2024.11.11.07.10.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Nov 2024 07:07:09 -0800 (PST)
-Date: Mon, 11 Nov 2024 20:36:58 +0530
+        Mon, 11 Nov 2024 07:10:24 -0800 (PST)
+Date: Mon, 11 Nov 2024 20:40:14 +0530
 From: Manas <manas18244@iiitd.ac.in>
-To: Jeongjun Park <aha310510@gmail.com>
-Cc: devnull+manas18244.iiitd.ac.in@kernel.org, alibuda@linux.alibaba.com, 
-	anupnewsmail@gmail.com, davem@davemloft.net, edumazet@google.com, 
-	guwen@linux.alibaba.com, horms@kernel.org, jaka@linux.ibm.com, kuba@kernel.org, 
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, 
-	pabeni@redhat.com, shuah@kernel.org, tonylu@linux.alibaba.com, wenjia@linux.ibm.com
+To: Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: Jan Karcher <jaka@linux.ibm.com>, 
+	"D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, 
+	Wen Gu <guwen@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Shuah Khan <shuah@kernel.org>, 
+	Anup Sharma <anupnewsmail@gmail.com>, linux-s390@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Remove unused function parameter in __smc_diag_dump
-Message-ID: <p2b37jlmexphoab2fohx6npcwfxx3cgajbn67taxbpqhh2qn42@m4fmmkihgm53>
+Message-ID: <niqf7e6xbvkloosm7auwb4wlulkfr66dagdfnbigsn3fedclui@qoag5bzbd3ys>
 References: <20241109-fix-oops-__smc_diag_dump-v1-1-1c55a3e54ad4@iiitd.ac.in>
- <20241111130439.7536-1-aha310510@gmail.com>
+ <ae8e61c6-e407-4303-aece-b7ce4060d73e@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,89 +70,101 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20241111130439.7536-1-aha310510@gmail.com>
+In-Reply-To: <ae8e61c6-e407-4303-aece-b7ce4060d73e@linux.ibm.com>
 
-On 11.11.2024 22:04, Jeongjun Park wrote:
->Manas <devnull+manas18244.iiitd.ac.in@kernel.org> wrote:
->> The last parameter in __smc_diag_dump (struct nlattr *bc) is unused.
->> There is only one instance of this function being called and its passed
->> with a NULL value in place of bc.
->>
->> Signed-off-by: Manas <manas18244@iiitd.ac.in>
->> ---
->> The last parameter in __smc_diag_dump (struct nlattr *bc) is unused.
->> There is only one instance of this function being called and its passed
->> with a NULL value in place of bc.
->>
->> Though, the compiler (gcc) optimizes it. Looking at the object dump of
->> vmlinux (via `objdump -D vmlinux`), a new function clone
->> (__smc_diag_dump.constprop.0) is added which removes this parameter from
->> calling convention altogether.
->>
->> ffffffff8a701770 <__smc_diag_dump.constprop.0>:
->> ffffffff8a701770:       41 57                   push   %r15
->> ffffffff8a701772:       41 56                   push   %r14
->> ffffffff8a701774:       41 55                   push   %r13
->> ffffffff8a701776:       41 54                   push   %r12
->>
->> There are 5 parameters in original function, but in the cloned function
->> only 4.
->>
->> I believe this patch also fixes this oops bug[1], which arises in the
->> same function __smc_diag_dump. But I couldn't verify it further. Can
->> someone please test this?
->>
->> [1] https://syzkaller.appspot.com/bug?extid=271fed3ed6f24600c364
+On 11.11.2024 15:11, Wenjia Zhang wrote:
 >
->Unfortunately, I tested it myself and this bug is still triggering. Basically,
->this bug is not triggered in normal situations, but triggered when a race
->condition occurs, so I think the root cause is somewhere else.
 >
-Thank you Jeongjun for reviewing this.
-
->> ---
+>On 09.11.24 07:28, Manas via B4 Relay wrote:
+>>From: Manas <manas18244@iiitd.ac.in>
+>>
+>>The last parameter in __smc_diag_dump (struct nlattr *bc) is unused.
+>>There is only one instance of this function being called and its passed
+>>with a NULL value in place of bc.
+>>
+>>Signed-off-by: Manas <manas18244@iiitd.ac.in>
+>>---
+>>The last parameter in __smc_diag_dump (struct nlattr *bc) is unused.
+>>There is only one instance of this function being called and its passed
+>>with a NULL value in place of bc.
+>>
+>>Though, the compiler (gcc) optimizes it. Looking at the object dump of
+>>vmlinux (via `objdump -D vmlinux`), a new function clone
+>>(__smc_diag_dump.constprop.0) is added which removes this parameter from
+>>calling convention altogether.
+>>
+>>ffffffff8a701770 <__smc_diag_dump.constprop.0>:
+>>ffffffff8a701770:       41 57                   push   %r15
+>>ffffffff8a701772:       41 56                   push   %r14
+>>ffffffff8a701774:       41 55                   push   %r13
+>>ffffffff8a701776:       41 54                   push   %r12
+>>
+>>There are 5 parameters in original function, but in the cloned function
+>>only 4.
+>>
+>>I believe this patch also fixes this oops bug[1], which arises in the
+>>same function __smc_diag_dump. But I couldn't verify it further. Can
+>>someone please test this?
+>>
+>>[1] https://syzkaller.appspot.com/bug?extid=271fed3ed6f24600c364
+>>---
 >>  net/smc/smc_diag.c | 6 ++----
 >>  1 file changed, 2 insertions(+), 4 deletions(-)
 >>
->> diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
->> index 6fdb2d96777ad704c394709ec845f9ddef5e599a..8f7bd40f475945171a0afa5a2cce12d9aa2b1eb4 100644
->> --- a/net/smc/smc_diag.c
->> +++ b/net/smc/smc_diag.c
->> @@ -71,8 +71,7 @@ static int smc_diag_msg_attrs_fill(struct sock *sk, struct sk_buff *skb,
->>
+>>diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+>>index 6fdb2d96777ad704c394709ec845f9ddef5e599a..8f7bd40f475945171a0afa5a2cce12d9aa2b1eb4 100644
+>>--- a/net/smc/smc_diag.c
+>>+++ b/net/smc/smc_diag.c
+>>@@ -71,8 +71,7 @@ static int smc_diag_msg_attrs_fill(struct sock *sk, struct sk_buff *skb,
 >>  static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
 >>  			   struct netlink_callback *cb,
->> -			   const struct smc_diag_req *req,
->> -			   struct nlattr *bc)
->> +			   const struct smc_diag_req *req)
+>>-			   const struct smc_diag_req *req,
+>>-			   struct nlattr *bc)
+>>+			   const struct smc_diag_req *req)
 >>  {
 >>  	struct smc_sock *smc = smc_sk(sk);
 >>  	struct smc_diag_fallback fallback;
->> @@ -199,7 +198,6 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
+>>@@ -199,7 +198,6 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
 >>  	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
 >>  	struct net *net = sock_net(skb->sk);
 >>  	int snum = cb_ctx->pos[p_type];
->> -	struct nlattr *bc = NULL;
+>>-	struct nlattr *bc = NULL;
 >>  	struct hlist_head *head;
 >>  	int rc = 0, num = 0;
 >>  	struct sock *sk;
->> @@ -214,7 +212,7 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
+>>@@ -214,7 +212,7 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
 >>  			continue;
 >>  		if (num < snum)
 >>  			goto next;
->> -		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh), bc);
->> +		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh));
+>>-		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh), bc);
+>>+		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh));
 >>  		if (rc < 0)
 >>  			goto out;
 >>  next:
 >>
->> ---
->> base-commit: 59b723cd2adbac2a34fc8e12c74ae26ae45bf230
->> change-id: 20241109-fix-oops-__smc_diag_dump-06ab3e9d39f4
+>>---
+>>base-commit: 59b723cd2adbac2a34fc8e12c74ae26ae45bf230
+>>change-id: 20241109-fix-oops-__smc_diag_dump-06ab3e9d39f4
 >>
->> Best regards,
->> --
->> Manas <manas18244@iiitd.ac.in>
+>>Best regards,
+>
+>That's true that the last parameter is not used. And the patch you 
+>suggested as a cleanup patch looks good to me. However, it should not 
+>fix the bug[1], because it does not match what the bug[1] described. 
+>Thank you, Jeongjun, for testing it! That verified that it indeed 
+>didn't fix the issue. I think the root cause is on handling 
+>idiag_sport. I'll look into it.
+>
+>[1] https://syzkaller.appspot.com/bug?extid=271fed3ed6f24600c364
+>
+>Thanks,
+>Wenjia
+
+Thank you Wenjia for reviewing this.
+
+Should I make any changes to the commit message if we are going forward with it
+being as a cleanup patch? The commit message itself (barring the cover letter)
+should be enough, I reckon.
 
 -- 
 Manas
