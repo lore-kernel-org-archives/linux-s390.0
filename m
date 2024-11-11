@@ -1,170 +1,118 @@
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26F7F1A4F0C
-	for <linux-s390@vger.kernel.org>; Mon, 11 Nov 2024 15:10:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 774E419F133;
+	Mon, 11 Nov 2024 19:00:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731337828; cv=none; b=SJ9qTN+rHVxehff5nCvn+WS/yK+Q567+M5kwPSfDhfATNikaPZtwCyZJQeriuXvsdGzsL6wceBOC1/WNOoyr+h548u/Eo0q+CQC4QYZtlRaALX/oqgyGc5XitimfzaOCwaoTnvkDtTTLW/ULci7WxJjDwgc42WiGx5ltE1bOVe4=
+	t=1731351646; cv=none; b=g3HTk2GdDvctMtR0KQqyoIwkpblqpJyuISPQXZ4dWhREHqhEGK4qcc/ngsVz2BwkOmGS6ayBxtFHehwBXz0x/W1zhrYQwwHKP7gVGBkINi2gyN2jerv+yjK6hcpbfgqy2/q/utNRwFraHltbvnHmS/r+2Ye8NKuKU+TUZThyp0Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731337828; c=relaxed/simple;
-	bh=qGmcoBIEKaX1H0xWi2Qp7OQKOR+qAViu0lO/elGfL/c=;
+	s=arc-20240116; t=1731351646; c=relaxed/simple;
+	bh=nEmV4O6Y98x1Bj7k9TTFtrwHsYFS349eDVJFb9C2BxM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bCn0WOdhJlus52TyzXiQ9v0afXq3EHa+k5e08HYA7tUfirIANg/F3WDBNbmo3KfdzPduB12B5+KRKPu1zApqQovoyaAwBS+MWJmkNQl+XKft94ZhE/MvgTnfxYoiU3OheT1FmTLS8jlTxSJyYN+p9Mw38yIxZyYuvAhmfzBBIm4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iiitd.ac.in; spf=pass smtp.mailfrom=iiitd.ac.in; dkim=pass (1024-bit key) header.d=iiitd.ac.in header.i=@iiitd.ac.in header.b=YJfbQFYz; arc=none smtp.client-ip=209.85.215.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iiitd.ac.in
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iiitd.ac.in
+	 Content-Type:Content-Disposition:In-Reply-To; b=Pm5SV5N+tu1qcwArZNieXuRI0t72A+l1ChRkEjREuiqqdUalByTR0QNj/q3/zSNhaUDcnouY3O9xSrdlVd4qQDOpJxiBSXIF1F1xSHfBZMOVQqn2ukNBgJ7hNxcM4IJ1STn86gGKgkBIiKWnPsoogfzgoi2WUDt8+IZKJ0f6ZRY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YAlhmFU+; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=iiitd.ac.in header.i=@iiitd.ac.in header.b="YJfbQFYz"
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-7f45ab88e7fso778635a12.1
-        for <linux-s390@vger.kernel.org>; Mon, 11 Nov 2024 07:10:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=iiitd.ac.in; s=google; t=1731337825; x=1731942625; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=LccvR0IWvQyoOnW9SnRg/FOFACnALCcOHU477bYWR1U=;
-        b=YJfbQFYz7tpcNbtTl165F4o2eTzZ81yhniWhaT4O6oYa6/hRGs83yeh/tePn9mrJaq
-         RQcqc85+gh12pQMb8Fqq/3FOJdOFpvw8jcc5TN+miHX6XVx2xTfr2gnHN/QWRZMaWyQM
-         pP9vjpR9JLj9XPL7GkRW9IpM5nmN6UO7yZOmQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731337825; x=1731942625;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LccvR0IWvQyoOnW9SnRg/FOFACnALCcOHU477bYWR1U=;
-        b=bC0vQyAeoXihlUQkzBzEqoPkrtxcK1oPxRk3sJX1HQ3dRN5+Oh2DSTlY6eA71NK3w/
-         i/qDNfNKD+lGjH6+qfhggkpKZFpEVI3AS5TLpo/6m7+qwdTtdOinWNN2v96dzS5W7zN8
-         LsPZRTQibS1Eat938K9lGQr/3NAqjriQ1ea86CrhnvC6+CZaLxkXVryX655WMGyBfh6M
-         pRHcz0lomDfEZxvJzvLU1/255xz91dbTbVEPntDXrsoSAfcK6A9pOmcitp0/zOY6Au90
-         lJ+kUeC+styiQ3oow+QQhgkyd5oRKljjiO7xqcIuxO6fROGRs+LO1BEeMMIuUP7bfkzZ
-         z2gQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVr1x3VI2JlK1a49RpxPquCjO53k/R6Rjkz6XcsyaWC1R4QBjGFJG54iuCe3YQ/o5bpNZ7ObMT72HDw@vger.kernel.org
-X-Gm-Message-State: AOJu0YzZCaVtmpagrWKHDozBPLti0b8/IBRMJ3Tl1EDF7Wp9ZYK2hOxj
-	19VzBYm2eFhQeUn/5N/4IYl3tdYbYQYNvQl8Il6JaDiT3Y5uv20a8mTGzFMikqs=
-X-Google-Smtp-Source: AGHT+IGlvE8MnWFmGfXGoYLBe2FkYBOQtGb2CmMB7BTmUrjaiDql86Va5/IEQq+zyQwlW7/+bzC6yw==
-X-Received: by 2002:a17:90b:4b09:b0:2e2:c98e:c33f with SMTP id 98e67ed59e1d1-2e9b16eb860mr19646569a91.1.1731337825317;
-        Mon, 11 Nov 2024 07:10:25 -0800 (PST)
-Received: from fedora ([103.3.204.81])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2e9a5fd180fsm8628464a91.33.2024.11.11.07.10.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Nov 2024 07:10:24 -0800 (PST)
-Date: Mon, 11 Nov 2024 20:40:14 +0530
-From: Manas <manas18244@iiitd.ac.in>
-To: Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: Jan Karcher <jaka@linux.ibm.com>, 
-	"D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, 
-	Wen Gu <guwen@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Shuah Khan <shuah@kernel.org>, 
-	Anup Sharma <anupnewsmail@gmail.com>, linux-s390@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove unused function parameter in __smc_diag_dump
-Message-ID: <niqf7e6xbvkloosm7auwb4wlulkfr66dagdfnbigsn3fedclui@qoag5bzbd3ys>
-References: <20241109-fix-oops-__smc_diag_dump-v1-1-1c55a3e54ad4@iiitd.ac.in>
- <ae8e61c6-e407-4303-aece-b7ce4060d73e@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YAlhmFU+"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4ABIeDvA007739;
+	Mon, 11 Nov 2024 19:00:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=Edm+L53qF3mjaPZMzLe4yRqmmNhA63
+	TIO1n90mNl/I4=; b=YAlhmFU+5bvsRU1pv/UZ1hrMr2o5LrttXLJtY5BDxSb9Av
+	LLTfzceCcHRZ+4Eda04AoCpRdnaNblYrfcxF9PQjLwUPGN0/yRETVxsHM8JLi84N
+	DPISYCABB0QI+tJ/OqFJDAhhHCysD/+Uc9688A7lMqPUC6pIOJBgnfK5HwujI53C
+	yMjiOKxCv85+jrY4TSQIEQ2W2nxi7Nlj6TfJp00Mtvg6otkkdDIFt0h7FAVOjLMC
+	sIBQAY2GxrC+AtDPmHq2nWYhLf6jaS37ZqfnJEChv+kw/Lf+zP0LPOxmpgswIgvr
+	5OoYqpBwNvsrloiCMFClFMbaAevVTvzL/AccGJ5g==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42uqdb825c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 11 Nov 2024 19:00:42 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4ABAtLkZ021445;
+	Mon, 11 Nov 2024 19:00:41 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 42tms12q41-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 11 Nov 2024 19:00:41 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4ABJ0ZH853215648
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 11 Nov 2024 19:00:36 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DAA3C2004B;
+	Mon, 11 Nov 2024 19:00:35 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5EAFA20040;
+	Mon, 11 Nov 2024 19:00:35 +0000 (GMT)
+Received: from osiris (unknown [9.171.44.149])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 11 Nov 2024 19:00:35 +0000 (GMT)
+Date: Mon, 11 Nov 2024 20:00:33 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.vnet.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] s390/syscalls: avoid creation of arch/arch/ directory
+Message-ID: <20241111190033.13515-A-hca@linux.ibm.com>
+References: <20241111134603.2063226-1-masahiroy@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ae8e61c6-e407-4303-aece-b7ce4060d73e@linux.ibm.com>
+In-Reply-To: <20241111134603.2063226-1-masahiroy@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: bV_MfayEaDPOthLUJMTqqqjzgtQ2wzUb
+X-Proofpoint-GUID: bV_MfayEaDPOthLUJMTqqqjzgtQ2wzUb
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
+ lowpriorityscore=0 impostorscore=0 priorityscore=1501 clxscore=1015
+ adultscore=0 mlxlogscore=375 phishscore=0 mlxscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411110150
 
-On 11.11.2024 15:11, Wenjia Zhang wrote:
->
->
->On 09.11.24 07:28, Manas via B4 Relay wrote:
->>From: Manas <manas18244@iiitd.ac.in>
->>
->>The last parameter in __smc_diag_dump (struct nlattr *bc) is unused.
->>There is only one instance of this function being called and its passed
->>with a NULL value in place of bc.
->>
->>Signed-off-by: Manas <manas18244@iiitd.ac.in>
->>---
->>The last parameter in __smc_diag_dump (struct nlattr *bc) is unused.
->>There is only one instance of this function being called and its passed
->>with a NULL value in place of bc.
->>
->>Though, the compiler (gcc) optimizes it. Looking at the object dump of
->>vmlinux (via `objdump -D vmlinux`), a new function clone
->>(__smc_diag_dump.constprop.0) is added which removes this parameter from
->>calling convention altogether.
->>
->>ffffffff8a701770 <__smc_diag_dump.constprop.0>:
->>ffffffff8a701770:       41 57                   push   %r15
->>ffffffff8a701772:       41 56                   push   %r14
->>ffffffff8a701774:       41 55                   push   %r13
->>ffffffff8a701776:       41 54                   push   %r12
->>
->>There are 5 parameters in original function, but in the cloned function
->>only 4.
->>
->>I believe this patch also fixes this oops bug[1], which arises in the
->>same function __smc_diag_dump. But I couldn't verify it further. Can
->>someone please test this?
->>
->>[1] https://syzkaller.appspot.com/bug?extid=271fed3ed6f24600c364
->>---
->>  net/smc/smc_diag.c | 6 ++----
->>  1 file changed, 2 insertions(+), 4 deletions(-)
->>
->>diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
->>index 6fdb2d96777ad704c394709ec845f9ddef5e599a..8f7bd40f475945171a0afa5a2cce12d9aa2b1eb4 100644
->>--- a/net/smc/smc_diag.c
->>+++ b/net/smc/smc_diag.c
->>@@ -71,8 +71,7 @@ static int smc_diag_msg_attrs_fill(struct sock *sk, struct sk_buff *skb,
->>  static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
->>  			   struct netlink_callback *cb,
->>-			   const struct smc_diag_req *req,
->>-			   struct nlattr *bc)
->>+			   const struct smc_diag_req *req)
->>  {
->>  	struct smc_sock *smc = smc_sk(sk);
->>  	struct smc_diag_fallback fallback;
->>@@ -199,7 +198,6 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
->>  	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
->>  	struct net *net = sock_net(skb->sk);
->>  	int snum = cb_ctx->pos[p_type];
->>-	struct nlattr *bc = NULL;
->>  	struct hlist_head *head;
->>  	int rc = 0, num = 0;
->>  	struct sock *sk;
->>@@ -214,7 +212,7 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
->>  			continue;
->>  		if (num < snum)
->>  			goto next;
->>-		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh), bc);
->>+		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh));
->>  		if (rc < 0)
->>  			goto out;
->>  next:
->>
->>---
->>base-commit: 59b723cd2adbac2a34fc8e12c74ae26ae45bf230
->>change-id: 20241109-fix-oops-__smc_diag_dump-06ab3e9d39f4
->>
->>Best regards,
->
->That's true that the last parameter is not used. And the patch you 
->suggested as a cleanup patch looks good to me. However, it should not 
->fix the bug[1], because it does not match what the bug[1] described. 
->Thank you, Jeongjun, for testing it! That verified that it indeed 
->didn't fix the issue. I think the root cause is on handling 
->idiag_sport. I'll look into it.
->
->[1] https://syzkaller.appspot.com/bug?extid=271fed3ed6f24600c364
->
->Thanks,
->Wenjia
+On Mon, Nov 11, 2024 at 10:45:52PM +0900, Masahiro Yamada wrote:
+> Building the kernel with ARCH=s390 creates a weird arch/arch/ directory.
+> 
+>   $ find arch/arch
+>   arch/arch
+>   arch/arch/s390
+>   arch/arch/s390/include
+>   arch/arch/s390/include/generated
+>   arch/arch/s390/include/generated/asm
+>   arch/arch/s390/include/generated/uapi
+>   arch/arch/s390/include/generated/uapi/asm
+> 
+> The root cause is 'targets' in arch/s390/kernel/syscalls/Makefile,
+> where the relative path is incorrect.
+> 
+> Strictly speaking, 'targets' was not necessary in the first place
+> because this Makefile uses 'filechk' instead of 'if_changed'.
+> 
+> However, this commit keeps it, as it will be useful when converting
+> 'filechk' to 'if_changed' later.
+> 
+> Fixes: 5c75824d915e ("s390/syscalls: add Makefile to generate system call header files")
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> ---
+> 
+>  arch/s390/kernel/syscalls/Makefile | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thank you Wenjia for reviewing this.
-
-Should I make any changes to the commit message if we are going forward with it
-being as a cleanup patch? The commit message itself (barring the cover letter)
-should be enough, I reckon.
-
--- 
-Manas
+Oh wow, this survived nearly seven years. Thanks for fixing!
+Applied all three patchs.
