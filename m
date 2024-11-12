@@ -1,216 +1,224 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B43EB20010C
-	for <linux-s390@vger.kernel.org>; Tue, 12 Nov 2024 14:53:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E08EA202635;
+	Tue, 12 Nov 2024 14:59:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731423188; cv=none; b=AUXzk7bmDgQypYZPkPsBHR5yVqAYfm3WEbeQ38NsLJurqeHR81wgTIY+cUOV/A+BSDAKgcmp4GcuCvU6mfwizLd0Qjb1nM5M/yt7WieZQc7fo1oYLtHY44g5QNNXdCo/QizyqBnKOwhdEmNIfqRpDX8b47MbRYgZARoG2W8lmtE=
+	t=1731423551; cv=none; b=S2LjW1LJ7MtwH/c5tmgs/0BcjYu1Px6U8AFkDHqkZ0AU03QdgcfIdT1rKr1O8zlNOGdPjnmzQDBlO1ZQUeajq3VNo8ixSLF2R5lLXNLx7b31IRNtdVfq0PQveFeG1RH1EEOBL4O/UUzNC+PUlKf/91reSPALz5XICg3k28DT9H0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731423188; c=relaxed/simple;
-	bh=PFAaWUvIyI3giFGudIqxe60yKDKb1iju/nGcamc34BU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=s76Z9aJ5JU6Mu2BuJF8r3KhLWokgEHDuAlUv1Xi7GwkokqggN9gOTdpuKzQ+v2n0QGBfoe9bsjepqpB5EAZmFy1ITcFq7TuVNPJh0oDsu82DlyV7UD7K6519UBeiHlizzEU39axqneGI46A0hNNal8VlAF886pd94m/eIpQ667k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gpNyR69h; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1731423551; c=relaxed/simple;
+	bh=Mo/PawkcWqDrDIGt8ffAwA8BHPmeDtADdtTfUVwHSys=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=D4nlg1Bag7Rrrw1gBf8JtEkGFOzY2mcvqoQ7mbrh+JpD8sr1+/tnAbdMu31NUfVBo4C8cmpXKhZBgfdfv7dukIjtT77TXpbxfwHkqaAXGfentyKVsDaajaqd5v3W5t1zYaP2TL90DccBL1rxZ7g7GnjOHWdCXFlWHdN2Xm+JWZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=REhNLIuJ; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gpNyR69h"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1731423185;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=0gJGIdsoCUz3ckQL83q6kRW+jiBXvU5rpWKRHe1/m98=;
-	b=gpNyR69ho0NrcTBQgvDlvzmDTUV3daMcZJUrBLPSa68CV+ow/oJ8TdACQ5NXeuWP3g1XBm
-	k6dJ1ZLRbEKFqGYBiRxFx3lr/rcar66sKrwE4emArsCxAqcJdAcc9ZwHB765eT48szKmek
-	MaBv5q4r29EdJVnPFUXz8YWaEcWtlSY=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-664-vDtABNvLPU23J5f612s0XA-1; Tue, 12 Nov 2024 09:53:04 -0500
-X-MC-Unique: vDtABNvLPU23J5f612s0XA-1
-X-Mimecast-MFC-AGG-ID: vDtABNvLPU23J5f612s0XA
-Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-539eaa055feso4377571e87.1
-        for <linux-s390@vger.kernel.org>; Tue, 12 Nov 2024 06:53:04 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731423183; x=1732027983;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=0gJGIdsoCUz3ckQL83q6kRW+jiBXvU5rpWKRHe1/m98=;
-        b=l4gCwtG7/haRnvRZ+CDCSF07FU+8sJhj+TqrVFOLENOEP+p+Xsilnt0E7j0zLo1u5P
-         t4EieymqmeZqaFJ46GdsUJeSRm1KZenWLH5i8BY41dKd5UrFIAgvRFyQmLF0xpH5cxMJ
-         H6wxRVPdcIsx1q/awX/kIUlyNGSTWaYrchxspzjQCkbVzMcbMvBJfAAU+W7D0ILIJjCZ
-         79APRy2+1LcnmlbQJUgf5jEOtuIPgiozo70r/ZoWwQAW1py5HF/UtFxiOiUcjem0/Qrf
-         NXYrDc17Z3q9AO1PjIGyFdt3TBx1Q3nayec0XEhXSYZvH652E08E5WuR+XOsK0xnuKT6
-         wBfg==
-X-Forwarded-Encrypted: i=1; AJvYcCXrGVPhp7Rg4n+cFQZiv6C3R8atGvcic6dYVWU9OVJm/ErFPZhSIEJ31H9oramb0f+PQSEDq68kiS0n@vger.kernel.org
-X-Gm-Message-State: AOJu0YwWXBSAJJdDyLByn18YEUmUJ4Wd1XAMQBvOk0t88Xv1MCpYiLLm
-	HiRMg7KvccXp63chW35ajfWpuSrVQU4VUnN4j5+0oZmF1fkNj7PCkAx6VhxMmk4vlh8Y1GSFivU
-	XsQ24AUf9bfVE9M//8k2vw4yTyXNN6gxxjstnJKvz620Z5R8Sg85ls2GjqOQ=
-X-Received: by 2002:a05:6512:130e:b0:539:896e:46c9 with SMTP id 2adb3069b0e04-53d862be340mr8794132e87.45.1731423182713;
-        Tue, 12 Nov 2024 06:53:02 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGWbnpbXzRLMvOa0UtrtzbmtKcDGrKbBby1v5EU8Z2y9SKUzZkouXaYSPO+sb/cLeasmpm09Q==
-X-Received: by 2002:a05:6512:130e:b0:539:896e:46c9 with SMTP id 2adb3069b0e04-53d862be340mr8794102e87.45.1731423182255;
-        Tue, 12 Nov 2024 06:53:02 -0800 (PST)
-Received: from ?IPV6:2003:cb:c739:8e00:7a46:1b8c:8b13:d3d? (p200300cbc7398e007a461b8c8b130d3d.dip0.t-ipconnect.de. [2003:cb:c739:8e00:7a46:1b8c:8b13:d3d])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432b05e5b96sm220710455e9.41.2024.11.12.06.52.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 12 Nov 2024 06:53:00 -0800 (PST)
-Message-ID: <f4c5d0a6-a582-44e3-8949-c199cc0bfba7@redhat.com>
-Date: Tue, 12 Nov 2024 15:52:58 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="REhNLIuJ"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4ACEeoB6008391;
+	Tue, 12 Nov 2024 14:59:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Mo/Paw
+	kcWqDrDIGt8ffAwA8BHPmeDtADdtTfUVwHSys=; b=REhNLIuJelI9cR93HgAbjj
+	cr8S9uS7aRDYiPXxD18bPfNOTBPRE70mzqjOnQmX7OEukdM7810hr3UmMl5swGzV
+	/DV4znCdws+7sXTQFi42K2JlWg4NMrlNaXx8bukNt/FDj25DpqJLfB8w1jGWQAjd
+	KkAuQNtfBtVud2XapiLJcxNRO+zo0QHBAqbmLizRh1/NLgodhZG79OPeEMSezZHe
+	Djljh/aQshAh2rKJkw8h1pbmWXWdREy1eOPc26nwX/MnBoMf6BM/2itNLalwMgqh
+	iZruQR0rC/O7oA1wb4CPddG9zvVCf9XMlyRSAV7k2AqNlU9L6WLk7sWCr/PK6HQA
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42v90202jr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 12 Nov 2024 14:59:03 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4ACEx2le019327;
+	Tue, 12 Nov 2024 14:59:02 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42v90202jk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 12 Nov 2024 14:59:02 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4AC6oBde002777;
+	Tue, 12 Nov 2024 14:59:01 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 42tms148x4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 12 Nov 2024 14:59:01 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4ACEx0HA26608240
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 12 Nov 2024 14:59:00 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 53FED5804E;
+	Tue, 12 Nov 2024 14:59:00 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 733445803F;
+	Tue, 12 Nov 2024 14:58:58 +0000 (GMT)
+Received: from [9.152.212.119] (unknown [9.152.212.119])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 12 Nov 2024 14:58:58 +0000 (GMT)
+Message-ID: <91246a61c5e89c87528e6421b01ec4fddc133901.camel@linux.ibm.com>
+Subject: Re: [PATCH v2] PCI: s390: Handle ARI on bus without associated
+ struct pci_dev
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Bjorn Helgaas <bhelgaas@google.com>,
+        Gerald Schaefer
+ <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Date: Tue, 12 Nov 2024 15:58:57 +0100
+In-Reply-To: <8d6535b523f2aad694e5825ac3f514cff788b2bf.camel@linux.ibm.com>
+References: <20240918-ari_no_bus_dev-v2-1-83cfa991082f@linux.ibm.com>
+	 <8d6535b523f2aad694e5825ac3f514cff788b2bf.camel@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.52.4 (3.52.4-2.fc40) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: C5Fd8OIeQmSEs32ei9jOYGXFFxdjUN2R
+X-Proofpoint-GUID: 1nubqf18M7H6mI_xg6FW_6YHdr_4ejRp
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v3 0/6] Direct Map Removal for guest_memfd
-To: Patrick Roy <roypat@amazon.co.uk>, tabba@google.com,
- quic_eberman@quicinc.com, seanjc@google.com, pbonzini@redhat.com,
- jthoughton@google.com, ackerleytng@google.com, vannapurve@google.com,
- rppt@kernel.org
-Cc: graf@amazon.com, jgowans@amazon.com, derekmn@amazon.com,
- kalyazin@amazon.com, xmarcalx@amazon.com, linux-mm@kvack.org,
- corbet@lwn.net, catalin.marinas@arm.com, will@kernel.org,
- chenhuacai@kernel.org, kernel@xen0n.name, paul.walmsley@sifive.com,
- palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
- svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, tglx@linutronix.de,
- mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
- hpa@zytor.com, luto@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
- mhiramat@kernel.org, mathieu.desnoyers@efficios.com, shuah@kernel.org,
- kvm@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linux-kselftest@vger.kernel.org, faresx@amazon.com
-References: <20241030134912.515725-1-roypat@amazon.co.uk>
- <4aa0ccf4-ebbe-4244-bc85-8bc8dcd14e74@redhat.com>
- <27646c08-f724-49f7-9f45-d03bad500219@amazon.co.uk>
- <d1a69eb7-85d5-4ffa-88e2-f4841713c1d7@redhat.com>
- <90c9d8c0-814e-4c86-86ef-439cb5552cb6@amazon.co.uk>
- <10e4d078-3cdb-4d1c-a1a3-80e91b247217@redhat.com>
- <02f77d32-e2a1-431b-bb67-33d36c06acd3@amazon.co.uk>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
- ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZgEEwEIAEICGwMGCwkIBwMCBhUIAgkKCwQW
- AgMBAh4BAheAAhkBFiEEG9nKrXNcTDpGDfzKTd4Q9wD/g1oFAl8Ox4kFCRKpKXgACgkQTd4Q
- 9wD/g1oHcA//a6Tj7SBNjFNM1iNhWUo1lxAja0lpSodSnB2g4FCZ4R61SBR4l/psBL73xktp
- rDHrx4aSpwkRP6Epu6mLvhlfjmkRG4OynJ5HG1gfv7RJJfnUdUM1z5kdS8JBrOhMJS2c/gPf
- wv1TGRq2XdMPnfY2o0CxRqpcLkx4vBODvJGl2mQyJF/gPepdDfcT8/PY9BJ7FL6Hrq1gnAo4
- 3Iv9qV0JiT2wmZciNyYQhmA1V6dyTRiQ4YAc31zOo2IM+xisPzeSHgw3ONY/XhYvfZ9r7W1l
- pNQdc2G+o4Di9NPFHQQhDw3YTRR1opJaTlRDzxYxzU6ZnUUBghxt9cwUWTpfCktkMZiPSDGd
- KgQBjnweV2jw9UOTxjb4LXqDjmSNkjDdQUOU69jGMUXgihvo4zhYcMX8F5gWdRtMR7DzW/YE
- BgVcyxNkMIXoY1aYj6npHYiNQesQlqjU6azjbH70/SXKM5tNRplgW8TNprMDuntdvV9wNkFs
- 9TyM02V5aWxFfI42+aivc4KEw69SE9KXwC7FSf5wXzuTot97N9Phj/Z3+jx443jo2NR34XgF
- 89cct7wJMjOF7bBefo0fPPZQuIma0Zym71cP61OP/i11ahNye6HGKfxGCOcs5wW9kRQEk8P9
- M/k2wt3mt/fCQnuP/mWutNPt95w9wSsUyATLmtNrwccz63XOwU0EVcufkQEQAOfX3n0g0fZz
- Bgm/S2zF/kxQKCEKP8ID+Vz8sy2GpDvveBq4H2Y34XWsT1zLJdvqPI4af4ZSMxuerWjXbVWb
- T6d4odQIG0fKx4F8NccDqbgHeZRNajXeeJ3R7gAzvWvQNLz4piHrO/B4tf8svmRBL0ZB5P5A
- 2uhdwLU3NZuK22zpNn4is87BPWF8HhY0L5fafgDMOqnf4guJVJPYNPhUFzXUbPqOKOkL8ojk
- CXxkOFHAbjstSK5Ca3fKquY3rdX3DNo+EL7FvAiw1mUtS+5GeYE+RMnDCsVFm/C7kY8c2d0G
- NWkB9pJM5+mnIoFNxy7YBcldYATVeOHoY4LyaUWNnAvFYWp08dHWfZo9WCiJMuTfgtH9tc75
- 7QanMVdPt6fDK8UUXIBLQ2TWr/sQKE9xtFuEmoQGlE1l6bGaDnnMLcYu+Asp3kDT0w4zYGsx
- 5r6XQVRH4+5N6eHZiaeYtFOujp5n+pjBaQK7wUUjDilPQ5QMzIuCL4YjVoylWiBNknvQWBXS
- lQCWmavOT9sttGQXdPCC5ynI+1ymZC1ORZKANLnRAb0NH/UCzcsstw2TAkFnMEbo9Zu9w7Kv
- AxBQXWeXhJI9XQssfrf4Gusdqx8nPEpfOqCtbbwJMATbHyqLt7/oz/5deGuwxgb65pWIzufa
- N7eop7uh+6bezi+rugUI+w6DABEBAAHCwXwEGAEIACYCGwwWIQQb2cqtc1xMOkYN/MpN3hD3
- AP+DWgUCXw7HsgUJEqkpoQAKCRBN3hD3AP+DWrrpD/4qS3dyVRxDcDHIlmguXjC1Q5tZTwNB
- boaBTPHSy/Nksu0eY7x6HfQJ3xajVH32Ms6t1trDQmPx2iP5+7iDsb7OKAb5eOS8h+BEBDeq
- 3ecsQDv0fFJOA9ag5O3LLNk+3x3q7e0uo06XMaY7UHS341ozXUUI7wC7iKfoUTv03iO9El5f
- XpNMx/YrIMduZ2+nd9Di7o5+KIwlb2mAB9sTNHdMrXesX8eBL6T9b+MZJk+mZuPxKNVfEQMQ
- a5SxUEADIPQTPNvBewdeI80yeOCrN+Zzwy/Mrx9EPeu59Y5vSJOx/z6OUImD/GhX7Xvkt3kq
- Er5KTrJz3++B6SH9pum9PuoE/k+nntJkNMmQpR4MCBaV/J9gIOPGodDKnjdng+mXliF3Ptu6
- 3oxc2RCyGzTlxyMwuc2U5Q7KtUNTdDe8T0uE+9b8BLMVQDDfJjqY0VVqSUwImzTDLX9S4g/8
- kC4HRcclk8hpyhY2jKGluZO0awwTIMgVEzmTyBphDg/Gx7dZU1Xf8HFuE+UZ5UDHDTnwgv7E
- th6RC9+WrhDNspZ9fJjKWRbveQgUFCpe1sa77LAw+XFrKmBHXp9ZVIe90RMe2tRL06BGiRZr
- jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <02f77d32-e2a1-431b-bb67-33d36c06acd3@amazon.co.uk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 mlxscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
+ phishscore=0 suspectscore=0 spamscore=0 malwarescore=0 adultscore=0
+ mlxlogscore=597 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411120117
 
-On 12.11.24 15:40, Patrick Roy wrote:
-> 
-> Hi David,
-> 
-> sorry for the late response, I ended up catching the flu last week and
-> was out of commission for a while :(
-> 
-> On Mon, 2024-11-04 at 21:30 +0000, David Hildenbrand wrote:
->>>> We talked about shared (faultable) vs. private (unfaultable), and how it
->>>> would interact with the directmap patches here.
->>>>
->>>> As discussed, having private (unfaultable) memory with the direct-map
->>>> removed and shared (faultable) memory with the direct-mapping can make
->>>> sense for non-TDX/AMD-SEV/... non-CoCo use cases. Not sure about CoCo,
->>>> the discussion here seems to indicate that it might currently not be
->>>> required.
->>>>
->>>> So one thing we could do is that shared (faultable) will have a direct
->>>> mapping and be gup-able and private (unfaultable) memory will not have a
->>>> direct mapping and is, by design, not gup-able.>
->>>> Maybe it could make sense to not have a direct map for all guest_memfd
->>>> memory, making it behave like secretmem (and it would be easy to
->>>> implement)? But I'm not sure if that is really desirable in VM context.
->>>
->>> This would work for us (in this scenario, the swiotlb areas would be
->>> "traditional" memory, e.g. set to shared via mem attributes instead of
->>> "shared" inside KVM), it's kinda what I had prototyped in my v1 of this
->>> series (well, we'd need to figure out how to get the mappings of gmem
->>> back into KVM, since in this setup, short-circuiting it into
->>> userspace_addr wouldn't work, unless we banish swiotlb into a different
->>> memslot altogether somehow).
->>
->> Right.
-> 
-> "right" as in, "yes we could do that"? :p
+On Tue, 2024-11-05 at 16:34 +0100, Niklas Schnelle wrote:
+> On Wed, 2024-09-18 at 11:04 +0200, Niklas Schnelle wrote:
+> > On s390 PCI busses are virtualized and the downstream ports are
+> > invisible to the OS and struct pci_bus::self is NULL. This associated
+> > struct pci_dev is however relied upon in pci_ari_enabled() to check
+> > whether ARI is enabled for the bus. ARI is therefor always detected as
+> > disabled.
+> >=20
+> > At the same time firmware on s390 always enables and relies upon ARI
+> > thus causing a mismatch. Moreover with per-PCI function pass-through
+> > there may exist busses with no function with devfn 0. For example
+> > a SR-IOV capable device with two PFs may have separate function
+> > dependency link chains for each of the PFs and their child VFs. In this
+> > case the OS may only see the second PF and its child VFs on a bus
+> > without a devfn 0 function. A situation which is also not supported by
+> > the common pci_configure_ari() code.
+> >=20
+> > Dispite simply being a mismatch this causes problems as some PCI devices
+> > present a different SR-IOV topology depending on PCI_SRIOV_CTRL_ARI.
+> >=20
+> > A similar mismatch may occur with SR-IOV when virtfn_add_bus() creates =
+new
+> > busses with no associated struct pci_dev. Here too pci_ari_enabled()
+> > on these busses would return false even if ARI is actually used.
+> >=20
+> > Prevent both mismatches by moving the ari_enabled flag from struct
+> > pci_dev to struct pci_bus making it independent from struct pci_bus::
+> > self. Let the bus inherit the ari_enabled state from its parent bus when
+> > there is no bridge device such that busses added by virtfn_add_bus()
+> > match their parent. For s390 set ari_enabled when the device supports
+> > ARI in the awareness that all PCIe ports on s390 systems are ARI
+> > capable.
+> >=20
+> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > ---
+> > Note: In a comment of the v1 thread I discussed an alternative idea for
+> > a generic solution that would include the Jailhouse hypervisor via
+> > hypervisor_isolated_pci_functions(). As Bjorn correctly pointed out this
+> > more generic solution however lacks a way to indicate that ARI is really
+> > enabled in the hardware. So instead for now I propose to stick with this
+> > patch which only enables this unconditionally on s390x and SR-IOV
+> > virtual busses where the ARI is inherited.
+> > ---
+> > Changes in v2:
+> > - Rebased on v6.11
+> > - Link to v1: https://lore.kernel.org/r/20240730-ari_no_bus_dev-v1-1-7d=
+e17676f9fe@linux.ibm.com
+> >=20
+> >=20
+>=20
+> @Bjorn, this seems to have dropped off your radar or would you like me
+> to see if I can find a different approach?
+>=20
+> Thanks,
+> Niklas
+>=20
 
-"right" as in "I see how that could work" :)
+Note I'll send a v3 with some small changes for this. We've found in
+internal testing that this patch set the ARI enabled on s390 too late
+thus not using it it during probing. My previous testing only looked at
+the ARI enabled flag later and so didn't detect this. Sorry for any
+annoyance.
 
-[...]
-
-> 
-> I remember talking to someone at some point about whether we could reuse
-> the proc-local stuff for guest memory, but I cannot remember the outcome
-> of that discussion... (or maybe I just wanted to have a discussion about
-> it, but forgot to follow up on that thought?).  I guess we wouldn't use
-> proc-local _allocations_, but rather just set up proc-local mappings of
-> the gmem allocations that have been removed from the direct map.
-
-Yes. And likely only for memory we really access / try access, if possible.
-
-> 
-> I'm wondering, where exactly would be the differences to Sean's idea
-> about messing with the CR3 register inside KVM to temporarily install
-> page tables that contain all the gmem stuff, conceptually? Wouldn't we
-> run into the same interrupt problems that Sean foresaw for the CR3
-> stuff? (which, admittedly, I still don't quite follow what these are :(
-> ).
-
-I'd need some more details on that. If anything would rely on the direct 
-mapping (from IRQ context?) than ... we obviously cannot remove the 
-direct mapping :)
-
--- 
-Cheers,
-
-David / dhildenb
-
+Thanks,
+Niklas
