@@ -1,49 +1,75 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 355A1185955;
-	Wed, 13 Nov 2024 07:14:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0174C2582;
+	Wed, 13 Nov 2024 15:40:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731482063; cv=none; b=CB0iVx8gk0+I79y1Jef29HhDVXn9DCRr0RI5SjE+4QeADH15W/voCiENugOizCXze5+ptpcxo0qd+8ALeC1Ni5+WlgPkzrKWenKHFLn0GmUNn98cWDsshsh6wpUvvH+Z4aJBalXNfuCHthqX3t6ZYyYjnmk7NE8CuhBh+AFTuOs=
+	t=1731512424; cv=none; b=Bp+dBeYuVrBRT9TDdcprT4inUfCAUh+xdAMlQoBjwksaI9vif+HPXiI5y9t/ikHQtPYX7W3+i2ZLbRe6G599dd3dkloHx+jvCywVemdklQj8SUeBYH4I8TLnTwjBxvgrTLWFXbTil9pLBxq7QzjPoOd5WS5kx/ScsM9jRqrB444=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731482063; c=relaxed/simple;
-	bh=l+5HyIj32fbVTGtzDINCjsR3g+1NbEQW2obKWuVnDyQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=F1VHiVaDCktt45AoewiCV3bI2Ceg9rhtxlLq7IFAhoaEUx9xsOfplLEQFXu+HqIAQhbtkUKs0s+i8DtWZzMbXUG2GCCU2Rs7DCdqYAhCnDCcXQ3XmZQhf5bhi9tcCsks5OBdg9iTBjAe3tjGaYTrMVDvDA/GdfLq3N1zXtY5+qQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=sIA2wXJ4; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1731512424; c=relaxed/simple;
+	bh=lmbcpRZZjaAoP1qWtDaq6UZUfjAfOLrSFWSE0HRrK1w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sLQrIhVnXYeMLeKtELhLv4S6SDE6UCj2g243v+d3XVYppFP9RbDgfbD5CReS6h0w2XVi7/M99PPb3AMpjVucYFoBQD2V2H1HGygcBB3NmX/jHU0qBtHkQdEVFYi73SpMszNsdCryBZj4MCxmcEoik3H729etyFdCZQdhKf677EM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=F0Evi/HB; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="sIA2wXJ4"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1731482050; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=k7PKF8hhqvZn8N68g6ArHQgO48xhrDex1jJ1oL90Nh0=;
-	b=sIA2wXJ4ahh60xQNK3lwfrpvG1ezhX/uA4blVIkaMgaJ8HBe6WMvZUzXAIajaZLKrUyOPaaY8SrJkHGoD+F/9JNi88oZkkUHts8a3AzyaBcvQCbEgO6BZoT1nhazfoK49QMP3INArsTY/nT2dj9sBPdQgg0iUwq5jqZCPvTO5Sk=
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WJK51YB_1731482049 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 13 Nov 2024 15:14:10 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-To: kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	wintera@linux.ibm.com,
-	guwen@linux.alibaba.com
-Cc: kuba@kernel.org,
-	davem@davemloft.net,
-	netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	tonylu@linux.alibaba.com,
-	pabeni@redhat.com,
-	edumazet@google.com
-Subject: [PATCH net-next 1/3] net/smc: refactoring lgr pending lock
-Date: Wed, 13 Nov 2024 15:14:03 +0800
-Message-ID: <20241113071405.67421-2-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 2.45.0
-In-Reply-To: <20241113071405.67421-1-alibuda@linux.alibaba.com>
-References: <20241113071405.67421-1-alibuda@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="F0Evi/HB"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4AD79wqu025025;
+	Wed, 13 Nov 2024 15:40:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=0o5ujX6jknUuWaqA4ZnO9qS1aUgKkue+Qjr5BF4Cj
+	Mo=; b=F0Evi/HBq14O0kL18iW1pLgerdkyLC3aJJGyer/ETqQV13nf9XEA/zSAg
+	FQ3O81TstlPKEtt5ZYmLB1lVswvfRv0c2UQHojO21pY/dTEtILqrZEh7opTmhqsV
+	dUhnGma9KIhSxtTdRlKqdkUxaJXj2lxBQztXYlbZSAvfywlMesUv2W5I3KceoqIY
+	XE1pqzcccS4jtudUyMWE//vi+5spnIYa5zwKMoR9FniEMOSu6W5aZ722l3yp3Sej
+	PuPjIMzxVIjWw8ewa6FrVHuvkY9lm4hSYVCNHKD3ukz5HhDssr3GPka35OZI54df
+	BUGoo+0tDKsBuibUhnJg3b4zdHxlA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42vqfuj5d8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Nov 2024 15:40:20 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4ADFeJmD012233;
+	Wed, 13 Nov 2024 15:40:19 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42vqfuj5d4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Nov 2024 15:40:19 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4ADDtahD017511;
+	Wed, 13 Nov 2024 15:40:18 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42tk2mxf8n-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Nov 2024 15:40:18 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4ADFeEtC57999764
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 13 Nov 2024 15:40:14 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4061520043;
+	Wed, 13 Nov 2024 15:40:14 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C32062004D;
+	Wed, 13 Nov 2024 15:40:13 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 13 Nov 2024 15:40:13 +0000 (GMT)
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: [PATCH 0/2] s390: Raise minimum clang version to 19.1.0
+Date: Wed, 13 Nov 2024 16:40:11 +0100
+Message-ID: <20241113154013.961113-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -51,169 +77,33 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: RSngnhPvDsG0JKq9rQE-GjZS1PDA-M5H
+X-Proofpoint-GUID: I2baA1dTYsOPJOOICvY3Opy1ii3GkN8r
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 bulkscore=0 impostorscore=0 spamscore=0 mlxscore=0
+ malwarescore=0 mlxlogscore=422 adultscore=0 suspectscore=0 phishscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411130131
 
-This patch replaces the locking and unlocking of lgr pending with
-a unified inline function, and since the granularity of lgr pending
-lock is within the lifecycle of init_info, which make it possible
-to record the lock state on init_info, which provides a potential
-functionality for multiple unlocks without triggering exceptions, which
-creates conditions to reduce the scope of locks in the future.
+In order to get rid of special inline assemblies for old clang versions,
+raise the minimum clang version to 19.1.0 for s390.
 
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- net/smc/af_smc.c   | 24 ++++++++++++------------
- net/smc/smc_core.h | 29 +++++++++++++++++++++++++++++
- 2 files changed, 41 insertions(+), 12 deletions(-)
+This allows to make use of various inline assembly format flags for which
+support has been added with llvm-project commit 9c75a981554d ("[SystemZ]
+Implement A, O and R inline assembly format flags (#80685)").
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 9d76e902fd77..19480d8affb0 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1251,10 +1251,10 @@ static int smc_connect_rdma(struct smc_sock *smc,
- 	if (reason_code)
- 		return reason_code;
- 
--	mutex_lock(&smc_client_lgr_pending);
-+	smc_lgr_pending_lock(ini, &smc_client_lgr_pending);
- 	reason_code = smc_conn_create(smc, ini);
- 	if (reason_code) {
--		mutex_unlock(&smc_client_lgr_pending);
-+		smc_lgr_pending_unlock(ini);
- 		return reason_code;
- 	}
- 
-@@ -1343,7 +1343,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
- 		if (reason_code)
- 			goto connect_abort;
- 	}
--	mutex_unlock(&smc_client_lgr_pending);
-+	smc_lgr_pending_unlock(ini);
- 
- 	smc_copy_sock_settings_to_clc(smc);
- 	smc->connect_nonblock = 0;
-@@ -1353,7 +1353,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
- 	return 0;
- connect_abort:
- 	smc_conn_abort(smc, ini->first_contact_local);
--	mutex_unlock(&smc_client_lgr_pending);
-+	smc_lgr_pending_unlock(ini);
- 	smc->connect_nonblock = 0;
- 
- 	return reason_code;
-@@ -1412,10 +1412,10 @@ static int smc_connect_ism(struct smc_sock *smc,
- 	ini->ism_peer_gid[ini->ism_selected].gid = ntohll(aclc->d0.gid);
- 
- 	/* there is only one lgr role for SMC-D; use server lock */
--	mutex_lock(&smc_server_lgr_pending);
-+	smc_lgr_pending_lock(ini, &smc_server_lgr_pending);
- 	rc = smc_conn_create(smc, ini);
- 	if (rc) {
--		mutex_unlock(&smc_server_lgr_pending);
-+		smc_lgr_pending_unlock(ini);
- 		return rc;
- 	}
- 
-@@ -1446,7 +1446,7 @@ static int smc_connect_ism(struct smc_sock *smc,
- 				  aclc->hdr.version, eid, ini);
- 	if (rc)
- 		goto connect_abort;
--	mutex_unlock(&smc_server_lgr_pending);
-+	smc_lgr_pending_unlock(ini);
- 
- 	smc_copy_sock_settings_to_clc(smc);
- 	smc->connect_nonblock = 0;
-@@ -1456,7 +1456,7 @@ static int smc_connect_ism(struct smc_sock *smc,
- 	return 0;
- connect_abort:
- 	smc_conn_abort(smc, ini->first_contact_local);
--	mutex_unlock(&smc_server_lgr_pending);
-+	smc_lgr_pending_unlock(ini);
- 	smc->connect_nonblock = 0;
- 
- 	return rc;
-@@ -2478,7 +2478,7 @@ static void smc_listen_work(struct work_struct *work)
- 	if (rc)
- 		goto out_decl;
- 
--	mutex_lock(&smc_server_lgr_pending);
-+	smc_lgr_pending_lock(ini, &smc_server_lgr_pending);
- 	smc_close_init(new_smc);
- 	smc_rx_init(new_smc);
- 	smc_tx_init(new_smc);
-@@ -2497,7 +2497,7 @@ static void smc_listen_work(struct work_struct *work)
- 
- 	/* SMC-D does not need this lock any more */
- 	if (ini->is_smcd)
--		mutex_unlock(&smc_server_lgr_pending);
-+		smc_lgr_pending_unlock(ini);
- 
- 	/* receive SMC Confirm CLC message */
- 	memset(buf, 0, sizeof(*buf));
-@@ -2528,7 +2528,7 @@ static void smc_listen_work(struct work_struct *work)
- 					    ini->first_contact_local, ini);
- 		if (rc)
- 			goto out_unlock;
--		mutex_unlock(&smc_server_lgr_pending);
-+		smc_lgr_pending_unlock(ini);
- 	}
- 	smc_conn_save_peer_info(new_smc, cclc);
- 
-@@ -2544,7 +2544,7 @@ static void smc_listen_work(struct work_struct *work)
- 	goto out_free;
- 
- out_unlock:
--	mutex_unlock(&smc_server_lgr_pending);
-+	smc_lgr_pending_unlock(ini);
- out_decl:
- 	smc_listen_decline(new_smc, rc, ini ? ini->first_contact_local : 0,
- 			   proposal_version);
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 69b54ecd6503..5abe9438772c 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -432,6 +432,8 @@ struct smc_init_info {
- 	u8			ism_offered_cnt; /* # of ISM devices offered */
- 	u8			ism_selected;    /* index of selected ISM dev*/
- 	u8			smcd_version;
-+	/* mutex holding for conn create */
-+	struct mutex *mutex;
- };
- 
- /* Find the connection associated with the given alert token in the link group.
-@@ -600,6 +602,33 @@ int smcr_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb);
- int smcr_nl_get_link(struct sk_buff *skb, struct netlink_callback *cb);
- int smcd_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb);
- 
-+static inline void smc_lgr_pending_lock(struct smc_init_info *ini, struct mutex *lock)
-+{
-+	if (unlikely(ini->mutex))
-+		pr_warn_once("smc: lgr pending deadlock dected.");
-+
-+	mutex_lock(lock);
-+	ini->mutex = lock;
-+}
-+
-+/* It will save the locking status of the ini, which provides a potential functionality
-+ * for multiple unlocks without triggering exceptions. This creates conditions
-+ * to reduce the scope of locks in the future.
-+ */
-+static inline void smc_lgr_pending_unlock(struct smc_init_info *ini)
-+{
-+	/* tempory */
-+	struct mutex *lock;
-+
-+	/* already unlock it, just return */
-+	if (!ini->mutex)
-+		return;
-+
-+	lock = ini->mutex;
-+	ini->mutex = NULL;
-+	mutex_unlock(lock);
-+}
-+
- static inline struct smc_link_group *smc_get_lgr(struct smc_link *link)
- {
- 	return link->lgr;
+Heiko Carstens (2):
+  scripts/min-tool-version.sh: Raise minimum clang version to 19.1.0 for s390
+  s390/fpu: Remove inline assembly variants for old clang versions
+
+ arch/s390/include/asm/fpu-insn.h | 124 -------------------------------
+ scripts/min-tool-version.sh      |   2 +-
+ 2 files changed, 1 insertion(+), 125 deletions(-)
+
 -- 
-2.45.0
+2.45.2
 
