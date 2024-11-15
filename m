@@ -1,90 +1,141 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B37318A92D;
-	Fri, 15 Nov 2024 23:05:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14201193067;
+	Fri, 15 Nov 2024 23:20:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731711954; cv=none; b=fDjo1GyZ3pCgDN2uHJ5/FD1CYhMQ3f4Wr1mC+gwfEa7goWGAWNlI9eRDYbZHddpUFfJR7ODhO2myv7zxwgI1HAJ+KEJCDkBC1C8LD8w2mmOecYX4EwmEfPP+wQggeH2GLEVepCcqL8Zp7FCLa2sqHmCGmH1zxA5sxJTce4ONEaQ=
+	t=1731712849; cv=none; b=Yqny0HZ3VwYzs1sKJOB5ctqlsHOB+mV8KUgeKS4Kw40j4uaiWv9JNlM/Pk0NOknX/7ftkn1sQamElJJYD2R23KUUVBz5KMEwc/73KCzs1UDwrpMkcPX5o1kJYjJO9cE5k9T2xTYKxhoKsugUM0MFTE3CI6vShg2izrn+ej+Ui7Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731711954; c=relaxed/simple;
-	bh=GM8RftUMNxoU4hzxmn4JTX8MZKYxjBFPF/mx9Z+p+zc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KSsBIQIpihpyNb0cJ1SdeNP5i0OxDhYsRijigbmNtReHaGMKjO+tQOqrlYHkuDVG1h28MYGjASQGJ1SgJ6w+sDIQAeW6GTja6oy14Ov6V55Spmy9WfvS26FuxwCbjVY++dGga9+aCzhm9E/CTu9w0RsmYgGL8YGGkWIkWJO6kL0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=Jdd6g3UP; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1731712849; c=relaxed/simple;
+	bh=aHBaGiFTzA9hi/c3ULYVgr+MH6ar7nzsPVpxqhlR3d0=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=qReqhrbXA4BTNdYF06GnI1OqwyA+VAcVP2a9b+CeH7jsEZ1KpILmr9Wi2pmU34ZR6F5odXwsXVFkAVzYmYO/lGPIAlh9okqpQ+fqTGk6iXdrNNmVMvi+UMATpaAzeizp0J/0ELOX6RPLGpseXn2CqrzAB8PqkQXp3VNs1888tBQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=SaYzzMZW; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=o0jZxjqE; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="Jdd6g3UP"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=iNrmCujufagul09VCWaNFQr74RFfyRLFySNKzZRpBgk=; b=Jdd6g3UPvqg6mftQzYyWAlcPRs
-	S59qVZ5zEswJ+LhakJwH6d5jiDo6uQHmY2CJt4lGr97qHN74BCYzzBvldNtdt4KVUn45YjZ56Rb9I
-	SpFFElvjLn8X9WqV3iKYmStGETYCfgggYit68/3w/F98q+ZxwKjpFwhcdOmPRO1chO5t8P+ifZPKq
-	PIupu+2TQ3ASe8YAMv3En9kCxZgAQV9E5YNE8U1VpoIL3E2iNGA4H7tk8Su6I7w5JK1Pw1aqwWz/W
-	0pLNcI4JEiS6FniyQdoLVYqnU3wndlEjrlc26csAx5PZr2YRV/hLqKY4Wu3YISLGkNdsAK9WEGiPB
-	JyHtqVCA==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1tC5Nk-00HBOg-0Y;
-	Sat, 16 Nov 2024 07:05:41 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Sat, 16 Nov 2024 07:05:40 +0800
-Date: Sat, 16 Nov 2024 07:05:40 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: dengler@linux.ibm.com, davem@davemloft.net, hca@linux.ibm.com,
-	linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v4 3/3] s390/crypto: New s390 specific shash phmac
-Message-ID: <ZzfTxNSOmXDz8iQG@gondor.apana.org.au>
-References: <20241115144724.12146-1-freude@linux.ibm.com>
- <20241115144724.12146-4-freude@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="SaYzzMZW";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="o0jZxjqE"
+From: Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1731712845;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ocF2UaqffllWgiGWdH3dEXBRLSQ8zx6v3UTSvYUEWBM=;
+	b=SaYzzMZW0ZsY0TGo8HlsbXzuUvCi20iDEgp+8ohYBSE4TZQXRHLKLbged2BOetLpsx4OkO
+	tbZB0k+QLCEJmNzJNJ7TX06kODrXybKEr0MN0pB2oucYCsCZhXwiPTvkrVYx4d0RSom1W9
+	M5V6DhOs4++KN4sHh/UkGD4PfYSgL/msvq0en1H26aBKpf6quxCthUWooMmyaT4o/QkfC2
+	lCNSo4ipp434fYIwklbWGy8m/kIcsHAL1J9mGF0JwBaNElltRXstfx+KSUKFTEf5oJlO1l
+	imvGv9XAnBM1fMHYuOdaaDvDY2O6X0pakSlzfvsLT9wL98INhCHIDkaV3HsBDQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1731712845;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ocF2UaqffllWgiGWdH3dEXBRLSQ8zx6v3UTSvYUEWBM=;
+	b=o0jZxjqE/bb/KZAxT0liDWVEJtakeTQr/m7JfpgliBKuwvw5FjJoNIULPPZ+hcCbxwHCjD
+	VmO8h0eWyvF8dzAA==
+To: Easwar Hariharan <eahariha@linux.microsoft.com>, Jeff Johnson
+ <quic_jjohnson@quicinc.com>
+Cc: eahariha@linux.microsoft.com, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, cocci@inria.fr,
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
+ linux-scsi@vger.kernel.org, xen-devel@lists.xenproject.org,
+ linux-block@vger.kernel.org, linux-wireless@vger.kernel.org,
+ ath11k@lists.infradead.org, linux-mm@kvack.org,
+ linux-bluetooth@vger.kernel.org, linux-staging@lists.linux.dev,
+ linux-rpi-kernel@lists.infradead.org, ceph-devel@vger.kernel.org,
+ live-patching@vger.kernel.org, linux-sound@vger.kernel.org,
+ etnaviv@lists.freedesktop.org, oss-drivers@corigine.com,
+ linuxppc-dev@lists.ozlabs.org, Anna-Maria Behnsen
+ <anna-maria@linutronix.de>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Naveen N Rao <naveen@kernel.org>, Christophe Leroy
+ <christophe.leroy@csgroup.eu>, Louis Peens <louis.peens@corigine.com>,
+ Nicholas Piggin <npiggin@gmail.com>, Michael Ellerman
+ <mpe@ellerman.id.au>, Christian Gmeiner <christian.gmeiner@gmail.com>,
+ Russell King <linux+etnaviv@armlinux.org.uk>, Lucas Stach
+ <l.stach@pengutronix.de>, Takashi Iwai <tiwai@suse.com>, Jaroslav Kysela
+ <perex@perex.cz>, Petr Mladek <pmladek@suse.com>, Joe Lawrence
+ <joe.lawrence@redhat.com>, Miroslav Benes <mbenes@suse.cz>, Jiri Kosina
+ <jikos@kernel.org>, Josh Poimboeuf <jpoimboe@kernel.org>, Ilya Dryomov
+ <idryomov@gmail.com>, Xiubo Li <xiubli@redhat.com>, Broadcom internal
+ kernel review list <bcm-kernel-feedback-list@broadcom.com>, Scott Branden
+ <sbranden@broadcom.com>, Ray Jui <rjui@broadcom.com>, Florian Fainelli
+ <florian.fainelli@broadcom.com>, Greg Kroah-Hartman
+ <gregkh@linuxfoundation.org>, Luiz Augusto von Dentz
+ <luiz.dentz@gmail.com>, Johan Hedberg <johan.hedberg@gmail.com>, Jens
+ Axboe <axboe@kernel.dk>, Marcel Holtmann <marcel@holtmann.org>, Kalle Valo
+ <kvalo@kernel.org>, Jeff Johnson <jjohnson@kernel.org>, Catalin Marinas
+ <catalin.marinas@arm.com>, Roger Pau =?utf-8?Q?Monn=C3=A9?=
+ <roger.pau@citrix.com>, Jack
+ Wang <jinpu.wang@cloud.ionos.com>, Andrew Morton
+ <akpm@linux-foundation.org>, "Martin K. Petersen"
+ <martin.petersen@oracle.com>, Praveen Kaligineedi
+ <pkaligineedi@google.com>, Andrew Lunn <andrew+netdev@lunn.ch>, James
+ Smart <james.smart@broadcom.com>, Dick Kennedy
+ <dick.kennedy@broadcom.com>, "James E.J. Bottomley"
+ <James.Bottomley@HansenPartnership.com>, Maxime Ripard
+ <mripard@kernel.org>, David Airlie <airlied@gmail.com>, Simona Vetter
+ <simona@ffwll.ch>, Jeroen de Borst <jeroendb@google.com>, Shailend Chand
+ <shailend@google.com>, Thomas Zimmermann <tzimmermann@suse.de>, Maarten
+ Lankhorst <maarten.lankhorst@linux.intel.com>, Rodrigo Vivi
+ <rodrigo.vivi@intel.com>, Thomas =?utf-8?Q?Hellstr=C3=B6m?=
+ <thomas.hellstrom@linux.intel.com>, Lucas De Marchi
+ <lucas.demarchi@intel.com>, Oded Gabbay <ogabbay@kernel.org>, Ofir Bitton
+ <obitton@habana.ai>, Sven Schnelle <svens@linux.ibm.com>, Christian
+ Borntraeger <borntraeger@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko
+ Carstens <hca@linux.ibm.com>, Russell King <linux@armlinux.org.uk>, Robert
+ Jarzmik <robert.jarzmik@free.fr>, Haojian Zhuang
+ <haojian.zhuang@gmail.com>, Daniel Mack <daniel@zonque.org>, Nicolas Palix
+ <nicolas.palix@imag.fr>, Julia Lawall <Julia.Lawall@inria.fr>, Simon
+ Horman <horms@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski
+ <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller"
+ <davem@davemloft.net>, Jozsef Kadlecsik <kadlec@netfilter.org>, Pablo
+ Neira Ayuso <pablo@netfilter.org>
+Subject: Re: [PATCH v2 00/21] Converge on using secs_to_jiffies()
+In-Reply-To: <8127a2e6-fa62-4c85-b7ed-24748cc9e285@linux.microsoft.com>
+References: <20241115-converge-secs-to-jiffies-v2-0-911fb7595e79@linux.microsoft.com>
+ <10ee4e8f-d8b4-4502-a5e2-0657802aeb11@linux.microsoft.com>
+ <3ac480f5-549b-4449-baa9-f766e074c409@quicinc.com>
+ <8127a2e6-fa62-4c85-b7ed-24748cc9e285@linux.microsoft.com>
+Date: Sat, 16 Nov 2024 00:20:50 +0100
+Message-ID: <87plmwytgt.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241115144724.12146-4-freude@linux.ibm.com>
+Content-Type: text/plain
 
-On Fri, Nov 15, 2024 at 03:47:24PM +0100, Harald Freudenberger wrote:
+On Fri, Nov 15 2024 at 14:15, Easwar Hariharan wrote:
+> On 11/15/2024 1:41 PM, Jeff Johnson wrote:
+>> 
+>> How do you expect this series to land since it overlaps a large number of
+>> maintainer trees? Do you have a maintainer who has volunteered to take the
+>> series and the maintainers should just ack? Or do you want the maintainers to
+>> take the individual patches that are applicable to them?
+>> 
+>> /jeff
 >
-> Please note also that this implementation actively checks for
-> non-sleeping context before attempting to derive a protected
-> key from the given raw key material. This is due to the fact
-> that it may be (in the future) that this process has to interact
-> with crypto cards and thus requires IO traffic - which requires
-> sleeping allowed context. So there is a check for in_task()
-> and if this fails, -EOPNOTSUPP is returned to the caller.
+> I am hoping for tglx to take it through his tree since the patch
+> introducing secs_to_jiffies() is in his tree, so sequencing of
+> dependencies would not be an issue.
 
-I don't think in_task is right.  You cannot sleep when spinlocks
-are held and in general there is no way to test for that:
+Right, but it's two days before the merge window opens, so no.
 
-/*
- * Are we running in atomic context?  WARNING: this macro cannot
- * always detect atomic context; in particular, it cannot know about
- * held spinlocks in non-preemptible kernels.  Thus it should not be
- * used in the general case to determine whether sleeping is possible.
- * Do not use in_atomic() in driver code.
- */
-#define in_atomic()     (preempt_count() != 0)
+> But if tglx won't, we could push it out another cycle and individual
+> maintainers can take the patches that are applicable to their tree for
+> the series.
 
-While the Crypto API provides a mechanism for you to determine
-whether you can sleep (CRYPTO_TFM_REQ_MAY_SLEEP), I don't think
-it is acceptable to just randomly fail because you got called in
-a unsleepable context.
+That's the easiest way forward as it does not create conflicts and all
+maintainers will have the base patch in their trees after rc1.
 
-The general solution for this problem is to make your algorithms
-asynchronous in the unsleepable context.  See how we handle this
-in crypto/simd.c.
+Thanks,
 
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+        tglx
