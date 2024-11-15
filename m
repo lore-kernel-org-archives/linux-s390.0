@@ -1,141 +1,154 @@
-Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 696F2166307;
-	Fri, 15 Nov 2024 17:24:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.171.184.29
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id F248818B463;
+	Fri, 15 Nov 2024 21:22:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731691449; cv=none; b=KbG9bMmZ0ctPdjzSBJfOwZkF4htW3dVfIi1oos9zgHiXOhUf/5CZEoewVvGYwq+B8U5lQ+xuyInEFdz49CqejtzN/zHVo0n81fyD9jtiXu79hKzcFJJYvE19uqfGLh2q/pstThpf9WyLeb+0PXtfGfH1yVyLcXQzIFJ4x39fjCs=
+	t=1731705764; cv=none; b=bARVhpoO88P9F3P6zhHQq2MDn1B2WrW119xpPvSU+/fyTwdajIaddGIJnua4pn3k04UPNAQNE6WYfPG/UlfRtymeL0sF+t9FJtiUaWEKHJ64Nep6uIjmEMYxnM+xypm5bohy2bxn/Qf274Z4IwTBVw7F0GABbs7EHcapAOn3fWA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731691449; c=relaxed/simple;
-	bh=lEyWvGX0JG+Yw319+gafXH1ELjZoKnONXw/B9hTbf6Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=NaGOdLh6HTV/hxI2GHaeQ/0rMvidvdSwV8IDUAA+fH51YmgZ0LIK7TCjfDsxOHPSMzcsp6WdMwzo3GzMtdrTg4zejFTPn6psLQWSUUUF1ihKbVbHrE+U8IeM4Qle9lZvqxO1cUx2DRJPF+gIy8j4v5qE+ACHz4h7JrWlC57mAMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (1024-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b=v1fzfTTl; arc=none smtp.client-ip=207.171.184.29
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
+	s=arc-20240116; t=1731705764; c=relaxed/simple;
+	bh=2iWwhGMiOXyDUdwM0ZnOEDU3u4Uun5dVYtqdWB2sR+Q=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=TnGjljdAd3L8mx8BYGads/9PFgCqdElZZ9Ao3+O2A/NV8GyOo7RTQyJD7CHfIqk0XAQH59nuShHdLqRYuU8GpHIpt3yC5Q4jTNFt/D4/YBrNkyTLYSjJqxj4sgJtbdEV6tY5jYzI9kynjUfBIY1JT4nCcGvYSfDJAfHBwDEMJ/E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=TpPSBC6Q; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b="v1fzfTTl"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.co.uk; i=@amazon.co.uk; q=dns/txt;
-  s=amazon201209; t=1731691448; x=1763227448;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=Bk0JymAs/OEj+UcEvmUanxee/ezdfeE24i85gdC/NwU=;
-  b=v1fzfTTlLMnu2X5WPNwFdXUd4FV7OEHW4KP4gun3bkygP8S0+6gcKbdN
-   QSD5K95IgXGpA8vvie3KAMk+oAVOQulG0xKJkitMjf2Qv8O+Ka7BoRhdu
-   gIOT2ZkR5UMhMOJwYZypYGNcxAY8A9d7nGydqluZu3GrRXKqHBHwmIUs9
-   o=;
-X-IronPort-AV: E=Sophos;i="6.12,157,1728950400"; 
-   d="scan'208";a="470536855"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.214])
-  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Nov 2024 17:24:02 +0000
-Received: from EX19MTAUWB001.ant.amazon.com [10.0.38.20:38135]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.52.223:2525] with esmtp (Farcaster)
- id 5ff6a4b3-184c-4e50-9e2d-e5baf28ad41c; Fri, 15 Nov 2024 17:24:01 +0000 (UTC)
-X-Farcaster-Flow-ID: 5ff6a4b3-184c-4e50-9e2d-e5baf28ad41c
-Received: from EX19D003UWB004.ant.amazon.com (10.13.138.24) by
- EX19MTAUWB001.ant.amazon.com (10.250.64.248) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.34;
- Fri, 15 Nov 2024 17:23:56 +0000
-Received: from EX19MTAUWC002.ant.amazon.com (10.250.64.143) by
- EX19D003UWB004.ant.amazon.com (10.13.138.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.35;
- Fri, 15 Nov 2024 17:23:56 +0000
-Received: from email-imr-corp-prod-pdx-all-2b-a57195ef.us-west-2.amazon.com
- (10.25.36.210) by mail-relay.amazon.com (10.250.64.149) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id
- 15.2.1258.34 via Frontend Transport; Fri, 15 Nov 2024 17:23:56 +0000
-Received: from [127.0.0.1] (dev-dsk-roypat-1c-dbe2a224.eu-west-1.amazon.com [172.19.88.180])
-	by email-imr-corp-prod-pdx-all-2b-a57195ef.us-west-2.amazon.com (Postfix) with ESMTPS id AE0FAA04A5;
-	Fri, 15 Nov 2024 17:23:48 +0000 (UTC)
-Message-ID: <81d14448-29eb-4496-b876-ef6de526a840@amazon.co.uk>
-Date: Fri, 15 Nov 2024 17:23:47 +0000
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="TpPSBC6Q"
+Received: from eahariha-devbox.internal.cloudapp.net (unknown [40.91.112.99])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 1682D206BCE4;
+	Fri, 15 Nov 2024 13:22:42 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 1682D206BCE4
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1731705762;
+	bh=Q64Lap8gGilYnZS8wBYuXVtg6CkDWFgIDR5hpRb/qKY=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+	b=TpPSBC6Q0pyCMIPKcOfsvZX/wWIHu4+ejmKY8xw+0GecDvIAUfgwshz01AoOkZ0WD
+	 k4gHIei/egZSo7W0NlMAlHYHatQ5bzRsbZtX1NOQvIcE9aFKMDcUHtqmglM484AIGB
+	 /3Fdhfw7EN1qT/zCvUp8095p9P9VmicZ+TZgDM0I=
+From: Easwar Hariharan <eahariha@linux.microsoft.com>
+Date: Fri, 15 Nov 2024 21:22:31 +0000
+Subject: [PATCH 01/22] netfilter: conntrack: Cleanup timeout definitions
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v3 0/6] Direct Map Removal for guest_memfd
-To: David Hildenbrand <david@redhat.com>, <tabba@google.com>,
-	<quic_eberman@quicinc.com>, <seanjc@google.com>, <pbonzini@redhat.com>,
-	<jthoughton@google.com>, <ackerleytng@google.com>, <vannapurve@google.com>,
-	<rppt@kernel.org>
-CC: <graf@amazon.com>, <jgowans@amazon.com>, <derekmn@amazon.com>,
-	<kalyazin@amazon.com>, <xmarcalx@amazon.com>, <linux-mm@kvack.org>,
-	<corbet@lwn.net>, <catalin.marinas@arm.com>, <will@kernel.org>,
-	<chenhuacai@kernel.org>, <kernel@xen0n.name>, <paul.walmsley@sifive.com>,
-	<palmer@dabbelt.com>, <aou@eecs.berkeley.edu>, <hca@linux.ibm.com>,
-	<gor@linux.ibm.com>, <agordeev@linux.ibm.com>, <borntraeger@linux.ibm.com>,
-	<svens@linux.ibm.com>, <gerald.schaefer@linux.ibm.com>, <tglx@linutronix.de>,
-	<mingo@redhat.com>, <bp@alien8.de>, <dave.hansen@linux.intel.com>,
-	<x86@kernel.org>, <hpa@zytor.com>, <luto@kernel.org>, <peterz@infradead.org>,
-	<rostedt@goodmis.org>, <mhiramat@kernel.org>,
-	<mathieu.desnoyers@efficios.com>, <shuah@kernel.org>, <kvm@vger.kernel.org>,
-	<linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <loongarch@lists.linux.dev>,
-	<linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-	<linux-trace-kernel@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
-	<faresx@amazon.com>
-References: <20241030134912.515725-1-roypat@amazon.co.uk>
- <4aa0ccf4-ebbe-4244-bc85-8bc8dcd14e74@redhat.com>
- <27646c08-f724-49f7-9f45-d03bad500219@amazon.co.uk>
- <d1a69eb7-85d5-4ffa-88e2-f4841713c1d7@redhat.com>
- <90c9d8c0-814e-4c86-86ef-439cb5552cb6@amazon.co.uk>
- <10e4d078-3cdb-4d1c-a1a3-80e91b247217@redhat.com>
- <02f77d32-e2a1-431b-bb67-33d36c06acd3@amazon.co.uk>
- <f4c5d0a6-a582-44e3-8949-c199cc0bfba7@redhat.com>
- <f1f34ac0-d505-4982-aad9-86a0db9f4a35@amazon.co.uk>
- <dcdce8e1-51da-42da-a892-59c6ccd9de23@redhat.com>
-From: Patrick Roy <roypat@amazon.co.uk>
-Content-Language: en-US
-Autocrypt: addr=roypat@amazon.co.uk; keydata=
- xjMEY0UgYhYJKwYBBAHaRw8BAQdA7lj+ADr5b96qBcdINFVJSOg8RGtKthL5x77F2ABMh4PN
- NVBhdHJpY2sgUm95IChHaXRodWIga2V5IGFtYXpvbikgPHJveXBhdEBhbWF6b24uY28udWs+
- wpMEExYKADsWIQQ5DAcjaM+IvmZPLohVg4tqeAbEAgUCY0UgYgIbAwULCQgHAgIiAgYVCgkI
- CwIEFgIDAQIeBwIXgAAKCRBVg4tqeAbEAmQKAQC1jMl/KT9pQHEdALF7SA1iJ9tpA5ppl1J9
- AOIP7Nr9SwD/fvIWkq0QDnq69eK7HqW14CA7AToCF6NBqZ8r7ksi+QLOOARjRSBiEgorBgEE
- AZdVAQUBAQdAqoMhGmiXJ3DMGeXrlaDA+v/aF/ah7ARbFV4ukHyz+CkDAQgHwngEGBYKACAW
- IQQ5DAcjaM+IvmZPLohVg4tqeAbEAgUCY0UgYgIbDAAKCRBVg4tqeAbEAtjHAQDkh5jZRIsZ
- 7JMNkPMSCd5PuSy0/Gdx8LGgsxxPMZwePgEAn5Tnh4fVbf00esnoK588bYQgJBioXtuXhtom
- 8hlxFQM=
-In-Reply-To: <dcdce8e1-51da-42da-a892-59c6ccd9de23@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20241115-converge-secs-to-jiffies-v1-1-19aadc34941b@linux.microsoft.com>
+References: <20241115-converge-secs-to-jiffies-v1-0-19aadc34941b@linux.microsoft.com>
+In-Reply-To: <20241115-converge-secs-to-jiffies-v1-0-19aadc34941b@linux.microsoft.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>, 
+ Jozsef Kadlecsik <kadlec@netfilter.org>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, Julia Lawall <Julia.Lawall@inria.fr>, 
+ Nicolas Palix <nicolas.palix@imag.fr>, Daniel Mack <daniel@zonque.org>, 
+ Haojian Zhuang <haojian.zhuang@gmail.com>, 
+ Robert Jarzmik <robert.jarzmik@free.fr>, 
+ Russell King <linux@armlinux.org.uk>, Heiko Carstens <hca@linux.ibm.com>, 
+ Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Ofir Bitton <obitton@habana.ai>, 
+ Oded Gabbay <ogabbay@kernel.org>, 
+ Lucas De Marchi <lucas.demarchi@intel.com>, 
+ =?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+ Jeroen de Borst <jeroendb@google.com>, 
+ Praveen Kaligineedi <pkaligineedi@google.com>, 
+ Shailend Chand <shailend@google.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+ James Smart <james.smart@broadcom.com>, 
+ Dick Kennedy <dick.kennedy@broadcom.com>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ "Martin K. Petersen" <martin.petersen@oracle.com>, 
+ =?utf-8?q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>, 
+ Jens Axboe <axboe@kernel.dk>, Kalle Valo <kvalo@kernel.org>, 
+ Jeff Johnson <jjohnson@kernel.org>, 
+ Catalin Marinas <catalin.marinas@arm.com>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ Jack Wang <jinpu.wang@cloud.ionos.com>, 
+ Marcel Holtmann <marcel@holtmann.org>, 
+ Johan Hedberg <johan.hedberg@gmail.com>, 
+ Luiz Augusto von Dentz <luiz.dentz@gmail.com>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Florian Fainelli <florian.fainelli@broadcom.com>, 
+ Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, 
+ Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+ Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>, 
+ Josh Poimboeuf <jpoimboe@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
+ Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, 
+ Joe Lawrence <joe.lawrence@redhat.com>, Jaroslav Kysela <perex@perex.cz>, 
+ Takashi Iwai <tiwai@suse.com>, Lucas Stach <l.stach@pengutronix.de>, 
+ Russell King <linux+etnaviv@armlinux.org.uk>, 
+ Christian Gmeiner <christian.gmeiner@gmail.com>, 
+ Louis Peens <louis.peens@corigine.com>, 
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+ Christophe Leroy <christophe.leroy@csgroup.eu>, 
+ Naveen N Rao <naveen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: netfilter-devel@vger.kernel.org, coreteam@netfilter.org, 
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, cocci@inria.fr, 
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
+ linux-scsi@vger.kernel.org, xen-devel@lists.xenproject.org, 
+ linux-block@vger.kernel.org, linux-wireless@vger.kernel.org, 
+ ath11k@lists.infradead.org, linux-mm@kvack.org, 
+ linux-bluetooth@vger.kernel.org, linux-staging@lists.linux.dev, 
+ linux-rpi-kernel@lists.infradead.org, ceph-devel@vger.kernel.org, 
+ live-patching@vger.kernel.org, linux-sound@vger.kernel.org, 
+ etnaviv@lists.freedesktop.org, oss-drivers@corigine.com, 
+ linuxppc-dev@lists.ozlabs.org, 
+ Anna-Maria Behnsen <anna-maria@linutronix.de>, 
+ Easwar Hariharan <eahariha@linux.microsoft.com>
+X-Mailer: b4 0.14.2
 
+None of the higher order definitions are used anymore, so remove
+definitions for minutes, hours, and days timeouts. Convert the seconds
+denominated timeouts to secs_to_jiffies()
 
+Signed-off-by: Easwar Hariharan <eahariha@linux.microsoft.com>
+---
+ net/netfilter/nf_conntrack_proto_sctp.c | 21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
 
-On Fri, 2024-11-15 at 17:10 +0000, David Hildenbrand wrote:
->> [...]
->>
->> I've talked to Fares internally, and it seems that generally doing
->> mm-local mappings of guest memory would work for us. We also figured out
->> what the "interrupt problem" is, namely that if we receive an interrupt
->> while executing in a context that has mm-local mappings available, those
->> mappings will continue to be available while the interrupt is being
->> handled.
-> 
-> Isn't that likely also the case with secretmem where we removed the
-> directmap, but have an effective per-mm mapping in the (user-space
-> portion) of the page table?
+diff --git a/net/netfilter/nf_conntrack_proto_sctp.c b/net/netfilter/nf_conntrack_proto_sctp.c
+index 4cc97f971264ed779434ab4597dd0162586b3736..6c95ac96fa42a39acafb5b88a7cf8898010e911c 100644
+--- a/net/netfilter/nf_conntrack_proto_sctp.c
++++ b/net/netfilter/nf_conntrack_proto_sctp.c
+@@ -39,20 +39,15 @@ static const char *const sctp_conntrack_names[] = {
+ 	[SCTP_CONNTRACK_HEARTBEAT_SENT]		= "HEARTBEAT_SENT",
+ };
+ 
+-#define SECS  * HZ
+-#define MINS  * 60 SECS
+-#define HOURS * 60 MINS
+-#define DAYS  * 24 HOURS
+-
+ static const unsigned int sctp_timeouts[SCTP_CONNTRACK_MAX] = {
+-	[SCTP_CONNTRACK_CLOSED]			= 10 SECS,
+-	[SCTP_CONNTRACK_COOKIE_WAIT]		= 3 SECS,
+-	[SCTP_CONNTRACK_COOKIE_ECHOED]		= 3 SECS,
+-	[SCTP_CONNTRACK_ESTABLISHED]		= 210 SECS,
+-	[SCTP_CONNTRACK_SHUTDOWN_SENT]		= 3 SECS,
+-	[SCTP_CONNTRACK_SHUTDOWN_RECD]		= 3 SECS,
+-	[SCTP_CONNTRACK_SHUTDOWN_ACK_SENT]	= 3 SECS,
+-	[SCTP_CONNTRACK_HEARTBEAT_SENT]		= 30 SECS,
++	[SCTP_CONNTRACK_CLOSED]			= secs_to_jiffies(10),
++	[SCTP_CONNTRACK_COOKIE_WAIT]		= secs_to_jiffies(3),
++	[SCTP_CONNTRACK_COOKIE_ECHOED]		= secs_to_jiffies(3),
++	[SCTP_CONNTRACK_ESTABLISHED]		= secs_to_jiffies(210),
++	[SCTP_CONNTRACK_SHUTDOWN_SENT]		= secs_to_jiffies(3),
++	[SCTP_CONNTRACK_SHUTDOWN_RECD]		= secs_to_jiffies(3),
++	[SCTP_CONNTRACK_SHUTDOWN_ACK_SENT]	= secs_to_jiffies(3),
++	[SCTP_CONNTRACK_HEARTBEAT_SENT]		= secs_to_jiffies(3),
+ };
+ 
+ #define	SCTP_FLAG_HEARTBEAT_VTAG_FAILED	1
 
-Mh, that's an excellent point, I never thought of that. But with
-secretmem, the memory would still be protected by SMAP (admittedly, I
-have no idea how much this is worth in the face of all these speculative
-issues), right?
+-- 
+2.34.1
 
->> I'm talking to my security folks to see how much of a concern
->> this is for the speculation hardening we're trying to achieve. Will keep
->> you in the loop there :)
-> 
-> Thanks!
-> 
-> -- 
-> Cheers,
-> 
-> David / dhildenb
-
-Best,
-Patrick
