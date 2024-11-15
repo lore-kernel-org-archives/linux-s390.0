@@ -1,67 +1,67 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCD981B0F06
-	for <linux-s390@vger.kernel.org>; Fri, 15 Nov 2024 10:03:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 962051B21AA
+	for <linux-s390@vger.kernel.org>; Fri, 15 Nov 2024 10:05:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731665029; cv=none; b=DBfGikbkduFwZefY7jRBCyQ+OlyBAYK5cm7+TE+EbHwiqW+b7foQvkEraX/mkWQ7jLyRkuJA2+p63fpb6XQLW6XqpsaO247TPR0b6X3NqYwt5i4/AnxXK85xeG/6e/Crw/BqWPK+ePL06ZFY2kUg4zm5N7eX/gD+9qbauVVno3M=
+	t=1731665107; cv=none; b=kdWq4KGDkvL3XsamiS1cjGQOBu9JxcZFvm28QWjOHTGeSeLH+HU9CcxJbpA6QegRv0T1wm/76LkyaqzsKflrEpFIeVTupzjlXqPQRnui2e/c9w5B9EAhDiiNRhrQG4n8fPJd49Bjo926Q0pMKpATxaAiZDbCN9CxDAaU/N7A9ng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731665029; c=relaxed/simple;
-	bh=L6OzTDXtMVeHKAMLm7qgg1RpXOWOiKC8x4b2sryhmZo=;
+	s=arc-20240116; t=1731665107; c=relaxed/simple;
+	bh=UxggTA5vLInAIjYh1n0ydwNp3BO1gkE6PaUWMpgjedk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FUZbN5MwK5Sg7NpeX7fFp9//AKAtpYEjr0SAiFRCRAm05Da665AHMaaa5z2DGdeUenPTAX/fIRL/1UfSCwIJYVJ4XWjJIvhpoXJ644Fe2OFVxZR+YyWQCDCK5CpNIKac5Zqz/h8ee6t2Ng+etqKxy0hqRf6jhNnnmeZnMY7vA4w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Gmzo1xC7; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=c9u1iM8lEXF/WksKkTb4Rh6kzVTektNpUge3F300Y7+EPZxsa4iJ4XjRDM4YdCDrUEvFzG8yE15y6RQItVszaCSQgZPbrxa1nWmP7ojgZ4DLLXg7MJz+njyxOLl9O0Kp6mKGUaqzb1kLTT/INv5e9A1gLEudVOlF+fibEvOsqiI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gTDjr2QO; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Gmzo1xC7"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gTDjr2QO"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1731665026;
+	s=mimecast20190719; t=1731665104;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=EZnDRZ71uyzvr2+dGgO534gfg5ta2KTMQyX5WiGwzMw=;
-	b=Gmzo1xC7tv1K4Y2WuzUVViTqFh493FSY9I9Rrd5k62RqSVRlJzJgImoORjepu0VfD5/yMR
-	ieMaQoh4Ucli+agFF7KkImjffm1B8uTQaXKzf5e/8x2arKXk4vwkthmoiEp+6ucBd4xH12
-	Urx/uhS78+E1FoyWrN75xq4Oznb+9WA=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=g1kAKAvwdmdjiltkVd6qbqhCfl7VUxLedhiq8NASCwc=;
+	b=gTDjr2QOCuxVoG5NX0rTmDbRQuiuW+c61jZh85nAB9QQx1Z5yRCwreUFZpcYmf2QE+DLSq
+	LA22RJUmRVcpGEliG1x6knzQLYSfFfHz9YltFuQIZR6TSqWerC1IsEi49uEEckqo+AnIsx
+	bbFFizD5Pj2g5wYyzPMIqi/H/9+dN/U=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-283-y8ZvsshFMM6h1nRLp_GE8w-1; Fri, 15 Nov 2024 05:03:45 -0500
-X-MC-Unique: y8ZvsshFMM6h1nRLp_GE8w-1
-X-Mimecast-MFC-AGG-ID: y8ZvsshFMM6h1nRLp_GE8w
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-37d5ca192b8so980520f8f.1
-        for <linux-s390@vger.kernel.org>; Fri, 15 Nov 2024 02:03:45 -0800 (PST)
+ us-mta-264-k6XnHM-yM5KGewEuBaGaNA-1; Fri, 15 Nov 2024 05:05:02 -0500
+X-MC-Unique: k6XnHM-yM5KGewEuBaGaNA-1
+X-Mimecast-MFC-AGG-ID: k6XnHM-yM5KGewEuBaGaNA
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4314c6ca114so3813135e9.1
+        for <linux-s390@vger.kernel.org>; Fri, 15 Nov 2024 02:05:02 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731665024; x=1732269824;
+        d=1e100.net; s=20230601; t=1731665101; x=1732269901;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=EZnDRZ71uyzvr2+dGgO534gfg5ta2KTMQyX5WiGwzMw=;
-        b=HDM3HZvhYb/Ths2vQW8OqsrFk8Kv8tLdzCuSez/IMXlbCNkSQK6TGaVeM93G+9htdB
-         /l2pQw73AZ+s7mIwn9us1qikOTjafBklXfxaaqYdObQNX17F7MWeryC7c/hFLxHLRBSN
-         X29WGNNNAgmtbmodHYLxhlzQUwod8JD6ravm1b8n6lXtxbARzpi3EKYLRQwHUGwKN4Fn
-         4oNCezjxIa21vCLqpDlKCxGi407xtyZHPetkjU11n2QfmvzNDMkEIqHPors5zSHsO0fr
-         y/r6fdQHmJWv0cySY4H1DRdGrQOwO8D1dTcKdAzdJQI99//jeXyQIMc5hAVaMWGD+czt
-         5VBA==
-X-Forwarded-Encrypted: i=1; AJvYcCV5Ekuzvje+avn/+jBoSldJzUNCwxmqve8F2daeJDtslxDrQvoPh38xdjdKa6dkea1IsRE0FHuYweN9@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx7LhGqgfXgpP5bOeUkL2AoSQRYQAr3Dyf23VV/D9BZ57XrlABY
-	ukVs4MzdjNX+kr7BNB5Y5YsfwWve+gMUXJepUagjfB5wtX1kEpe555jMD0js8F+fV30ZxCpceT8
-	uPc8t2wueueg/VwLoTKLPv8SYi+04Jh5Ni4u77SVtZQz9IafLX5AnhhOTilM=
-X-Received: by 2002:a05:6000:1865:b0:37d:443b:7ca4 with SMTP id ffacd0b85a97d-38214022068mr6154314f8f.14.1731665023925;
-        Fri, 15 Nov 2024 02:03:43 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEcalZaTTsWSZU/E4ZgekugNGYKtIjPxdb5azK2RW63irWlZEd/lURJaTLrMsANb0/rcEU5NA==
-X-Received: by 2002:a05:6000:1865:b0:37d:443b:7ca4 with SMTP id ffacd0b85a97d-38214022068mr6154132f8f.14.1731665023249;
-        Fri, 15 Nov 2024 02:03:43 -0800 (PST)
+        bh=g1kAKAvwdmdjiltkVd6qbqhCfl7VUxLedhiq8NASCwc=;
+        b=QkENjH3jLWNfWkF2ezxQ2jQZkMo3B84i1g6P7FH3jTl0HA2JhyiAommsZjLto0z7St
+         SK450kJyLBrHaTEc9NzKzWbs8rRY5FdauNMokn4JyIrwgrsN4I6H4L8drrpydTTAbktT
+         XAVhQLLLKTB58soPas9J5J4XDisyFRCD32RFe/XhAJ9VQ3/yDvIPLPgJLyb7pHK4qnov
+         KRcML18AKPag8ht3Poa2iWDPmKc8jGM7EAbyZpyAMPuZu+X9oVPjMkIeqUvbTqFpZbd0
+         o5Hj0Q/X+oChwQ0CQbofkyKl/OYGXJnWu/ZDfwsdRFDpae6TTIPn4dStw127u/REsqPj
+         mtTA==
+X-Forwarded-Encrypted: i=1; AJvYcCVpiw+xdvRdtikVOcVUAT2mNn+kFQx95/hOdPS4RmKN68/oQQN9ERO/v9mI5tFq8qovwAnEMEYh0NH6@vger.kernel.org
+X-Gm-Message-State: AOJu0YwjRFAdDL0v8yK35qknby3a+MWFkrj2F1+JILX+PsK9YIbDJy2v
+	zLNO8fxIMUrVzDJjASn9gAv0RoNpe7wPpfPWzNJ9xKWwvprEulompQlig8I+AoxvdHM2X+dJMZF
+	YQciw1YfmG1VRJqmdMTxNQ32stkxB8XZ9A7AiCiDI6bUBMaB+hy8c7sUXRGU=
+X-Received: by 2002:a05:600c:3b2a:b0:431:6153:a246 with SMTP id 5b1f17b1804b1-432df726227mr16479485e9.13.1731665101475;
+        Fri, 15 Nov 2024 02:05:01 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEEz5+u3ZRZYo78oPclwnT1nZIiEdnYHBaxqmzIQBER+J7j/3O0koftmeu3voXxmbcw6vb7sQ==
+X-Received: by 2002:a05:600c:3b2a:b0:431:6153:a246 with SMTP id 5b1f17b1804b1-432df726227mr16479215e9.13.1731665101094;
+        Fri, 15 Nov 2024 02:05:01 -0800 (PST)
 Received: from ?IPV6:2003:cb:c721:8100:177e:1983:5478:64ec? (p200300cbc7218100177e1983547864ec.dip0.t-ipconnect.de. [2003:cb:c721:8100:177e:1983:5478:64ec])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432dac21a15sm48656425e9.38.2024.11.15.02.03.40
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432da2444e7sm53797785e9.4.2024.11.15.02.04.58
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 Nov 2024 02:03:42 -0800 (PST)
-Message-ID: <2b5c2b71-d31b-406d-abc5-d9a0a67712f5@redhat.com>
-Date: Fri, 15 Nov 2024 11:03:40 +0100
+        Fri, 15 Nov 2024 02:04:59 -0800 (PST)
+Message-ID: <9160c6b4-f8a0-431d-8a21-ead510a887a1@redhat.com>
+Date: Fri, 15 Nov 2024 11:04:57 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,7 +69,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 01/11] fs/proc/vmcore: convert vmcore_cb_lock into
+Subject: Re: [PATCH v1 02/11] fs/proc/vmcore: replace vmcoredd_mutex by
  vmcore_mutex
 To: Baoquan He <bhe@redhat.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
@@ -87,7 +87,7 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Claudio Imbrenda <imbrenda@linux.ibm.com>, Eric Farman
  <farman@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
 References: <20241025151134.1275575-1-david@redhat.com>
- <20241025151134.1275575-2-david@redhat.com> <ZzcUpoDJ2xPc3FzF@MiWiFi-R3L-srv>
+ <20241025151134.1275575-3-david@redhat.com> <ZzcVGrUcgNMXPkqw@MiWiFi-R3L-srv>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -135,40 +135,22 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <ZzcUpoDJ2xPc3FzF@MiWiFi-R3L-srv>
+In-Reply-To: <ZzcVGrUcgNMXPkqw@MiWiFi-R3L-srv>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 15.11.24 10:30, Baoquan He wrote:
+On 15.11.24 10:32, Baoquan He wrote:
 > On 10/25/24 at 05:11pm, David Hildenbrand wrote:
->> We want to protect vmcore modifications from concurrent opening of
->> the vmcore, and also serialize vmcore modiciations. Let's convert the
+>> Let's use our new mutex instead.
 > 
-> 
->> spinlock into a mutex, because some of the operations we'll be
->> protecting might sleep (e.g., memory allocations) and might take a bit
->> longer.
-> 
-> Could you elaborate this a little further. E.g the concurrent opening of
-> vmcore is spot before this patchset or have been seen, and in which place
-> the memory allocation is spot. Asking this becasue I'd like to learn and
-> make clear if this is a existing issue and need be back ported into our
-> old RHEL distros. Thanks in advance.
+> Is there reason vmcoredd_mutex need be replaced and integrated with the
+> vmcore_mutex? Is it the reason the concurrent opening of vmcore could
+> happen with the old vmcoredd_mutex?
 
-It's a preparation for the other patches, that do what is described here:
+Yes, see the next patch in this series. But I consider this valuable on 
+its own: there is no need to have two mutexes.
 
-a) We can currently modify the vmcore after it was opened. This can 
-happen if the vmcoredd is added after the vmcore was loaded. Similar 
-things will happen with the PROC_VMCORE_DEVICE_RAM extension.
-
-b) To handle it cleanly we need to protect the modifications against 
-concurrent opening. And the modifcations end up allocating memory and 
-cannot easily take the spinlock.
-
-So far a spinlock was sufficient, now a mutex is required.
-
-Maybe we'd want to backport 1,2,3, but not sure if we consider this 
-critical enough.
+I can make that clearer in the patch description.
 
 -- 
 Cheers,
