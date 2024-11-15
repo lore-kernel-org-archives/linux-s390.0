@@ -1,83 +1,196 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D292B262A3;
-	Thu, 14 Nov 2024 17:25:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A12EB18A92F
+	for <linux-s390@vger.kernel.org>; Fri, 15 Nov 2024 08:46:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731605137; cv=none; b=VD81PQkaGhcSzu3zUgNfw5jdHhRs0KCWUZJVhCuaZUvrPr/JOdYJSynXCoOlQHOqN6kJL3yTIYayJL4QzkWpi64r5PSUB8u3wz1bNPbc1oiNbsA6Q64aGVu1nJeBO8GMNqPbE0rY/cdzaTLSaMdFNCNSGj+ZXQpgN+tTEQcg/dQ=
+	t=1731660404; cv=none; b=JHTeZ23xM8RLok0ytBkVckIaxrHdcUcMVqqXtrEJIGiGs4HuerBBnn3gG71ljjBYjHKeLSIF3tZXSguDiC4bBLE0sSVUMqKiZTIIU0iI1ih7NBJw/ZzRU/C0AI6qLPXoRJvJV5C905YgAgT2m1s+ro1cECbYOR5eZaGDTS4N0EM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731605137; c=relaxed/simple;
-	bh=tUCiJsMt1bFcsP1fASFoxInuAmtpzrNbhqqYPweoS/4=;
+	s=arc-20240116; t=1731660404; c=relaxed/simple;
+	bh=Y+MsEKnzmc/83yMVSNfuCtSeI6/WxsCKwrXXNhZ5XLg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=As/9nb3JyVXn2lkBwbcw/R1Y0j88u0gQtwQEM8fA62FdT2Zn50J/3Wbh2phuVmIl+P+aKkBZ5nY9UDuB5SeX/4q76gOrb3FZb7C4EuRVQDl3KaRc+hw9IwZcsCIaz2XNRDZZZpbFinOQg96GUxURZgeJLvDAwPtMCaPnj7O002U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bkZGOoWi; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=Zj/NNDZob9h3tsYGoqyu2u3m+dOYLbUOEGzJ5k26t5Typh39mhi9gvveGCHlQcIoo2VaMd0TimzKKhVdsjOeXbJG+B+CgnlX47pKLCQBWdFvD7mYArQlPhRwS2vx4idc/vL/FssOgML+z4d397zQ7eII4rZqx+XfkA4F09gFaYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DNvcV98o; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bkZGOoWi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E237AC4CECD;
-	Thu, 14 Nov 2024 17:25:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1731605137;
-	bh=tUCiJsMt1bFcsP1fASFoxInuAmtpzrNbhqqYPweoS/4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=bkZGOoWiPqIXOoAjQuzGTGgZheqesXNLwkIWOGvcJH6VhfMo1vi/pTO4Qljj5ZYft
-	 Zt0yJk1m37u2vnGrUy5qHJ+EFFURzq+Fgl5Kmor2gUYBxScz4QbNXIKrvoZ1YlCNty
-	 Cvhgc2HKAaWVFVW927jLj9+KZE8dkS3B6pEBzAmAt4imeIiymRiv+syElvRByeewnh
-	 RnAi0BRz4nuSweizXO6VoTq2lR1y0raVYnHCYBGIxk8zm2JMEKUExx/IF2Knj9oxPp
-	 mW1pJV+PhaD4I98AMDKXyKbOGu9ltFunzSq5MVcwcQ0BJDfQ3NbksxzBw3HGTlz6Ay
-	 ZLc8RC5iyebBA==
-Date: Thu, 14 Nov 2024 10:25:35 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DNvcV98o"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1731660401;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iU3AwiO23RxdWGWn7Yp7jp33a5YtE5yN//tDV9uC5Ss=;
+	b=DNvcV98o95278eYdFS1fxbZWTBdd+ftk0xI+ACyvgbNcnHigC5VNIp/BQj+DbiSpjs97pZ
+	RBw+hdC9CWy/jjyjbZUHjnzAReCYclgkEARqjWH8fR9ECuwgO/Ed1xjfOauoNW/fA47oGh
+	P/76ZS8viMMPgjyUTGpfIZ7KWfDFmMw=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-119-Ae3uHm1KMM642lvste8crA-1; Fri,
+ 15 Nov 2024 03:46:37 -0500
+X-MC-Unique: Ae3uHm1KMM642lvste8crA-1
+X-Mimecast-MFC-AGG-ID: Ae3uHm1KMM642lvste8crA
+Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 0C2E31955F41;
+	Fri, 15 Nov 2024 08:46:35 +0000 (UTC)
+Received: from localhost (unknown [10.72.113.10])
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A99EE1956054;
+	Fri, 15 Nov 2024 08:46:32 +0000 (UTC)
+Date: Fri, 15 Nov 2024 16:46:27 +0800
+From: Baoquan He <bhe@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	kexec@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: Re: [PATCH 1/2] scripts/min-tool-version.sh: Raise minimum clang
- version to 19.1.0 for s390
-Message-ID: <20241114172535.GB1956005@thelio-3990X>
-References: <20241113154013.961113-1-hca@linux.ibm.com>
- <20241113154013.961113-2-hca@linux.ibm.com>
- <20241113182109.GA3713382@thelio-3990X>
- <20241114170524.9691-B-hca@linux.ibm.com>
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
+	Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v1 00/11] fs/proc/vmcore: kdump support for virtio-mem on
+ s390
+Message-ID: <ZzcKY8hap3OMqTjC@MiWiFi-R3L-srv>
+References: <20241025151134.1275575-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20241114170524.9691-B-hca@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20241025151134.1275575-1-david@redhat.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 
-On Thu, Nov 14, 2024 at 06:05:24PM +0100, Heiko Carstens wrote:
-> On Wed, Nov 13, 2024 at 11:21:09AM -0700, Nathan Chancellor wrote:
-> > On Wed, Nov 13, 2024 at 04:40:12PM +0100, Heiko Carstens wrote:
-> > > Raise minimum clang version to 19.1.0 for s390 so that various inline
-> > > assembly format flags can be used. The missing format flags were
-> > > implemented with llvm-project commit 9c75a981554d ("[SystemZ] Implement A,
-> > > O and R inline assembly format flags (#80685)").
-> > > 
-> > > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> > 
-> > Oof, this is quite new but now that kernel.org has LLVM binaries
-> > available, I do not think this is an unreasonable ask, especially if it
-> > makes your life easier with code maintenance.
+On 10/25/24 at 05:11pm, David Hildenbrand wrote:
+> This is based on "[PATCH v3 0/7] virtio-mem: s390 support" [1], which adds
+> virtio-mem support on s390.
 > 
-> Thanks for your feedback! I read this as "is nearly unreasonable" :)
+> The only "different than everything else" thing about virtio-mem on s390
+> is kdump: The crash (2nd) kernel allocates+prepares the elfcore hdr
+> during fs_init()->vmcore_init()->elfcorehdr_alloc(). Consequently, the
+> crash kernel must detect memory ranges of the crashed/panicked kernel to
+> include via PT_LOAD in the vmcore.
+> 
+> On other architectures, all RAM regions (boot + hotplugged) can easily be
+> observed on the old (to crash) kernel (e.g., using /proc/iomem) to create
+> the elfcore hdr.
+> 
+> On s390, information about "ordinary" memory (heh, "storage") can be
+> obtained by querying the hypervisor/ultravisor via SCLP/diag260, and
+> that information is stored early during boot in the "physmem" memblock
+> data structure.
+> 
+> But virtio-mem memory is always detected by as device driver, which is
+> usually build as a module. So in the crash kernel, this memory can only be
+                                       ~~~~~~~~~~~
+                                       Is it 1st kernel or 2nd kernel?
+Usually we call the 1st kernel as panicked kernel, crashed kernel, the
+2nd kernel as kdump kernel. 
+> properly detected once the virtio-mem driver started up.
+> 
+> The virtio-mem driver already supports the "kdump mode", where it won't
+> hotplug any memory but instead queries the device to implement the
+> pfn_is_ram() callback, to avoid reading unplugged memory holes when reading
+> the vmcore.
+> 
+> With this series, if the virtio-mem driver is included in the kdump
+> initrd -- which dracut already takes care of under Fedora/RHEL -- it will
+> now detect the device RAM ranges on s390 once it probes the devices, to add
+> them to the vmcore using the same callback mechanism we already have for
+> pfn_is_ram().
 
-Yeah, that is probably a fair way to put it :)
+Do you mean on s390 virtio-mem memory region will be detected and added
+to vmcore in kdump kernel when virtio-mem driver is initialized? Not
+sure if I understand it correctly.
 
-> Even though you acked this, I guess I will drop this for now and
-> maybe address this a few clang versions later.
+> 
+> To add these device RAM ranges to the vmcore ("patch the vmcore"), we will
+> add new PT_LOAD entries that describe these memory ranges, and update
+> all offsets vmcore size so it is all consistent.
+> 
+> Note that makedumfile is shaky with v6.12-rcX, I made the "obvious" things
+> (e.g., free page detection) work again while testing as documented in [2].
+> 
+> Creating the dumps using makedumpfile seems to work fine, and the
+> dump regions (PT_LOAD) are as expected. I yet have to check in more detail
+> if the created dumps are good (IOW, the right memory was dumped, but it
+> looks like makedumpfile reads the right memory when interpreting the
+> kernel data structures, which is promising).
+> 
+> Patch #1 -- #6 are vmcore preparations and cleanups
+> Patch #7 adds the infrastructure for drivers to report device RAM
+> Patch #8 + #9 are virtio-mem preparations
+> Patch #10 implements virtio-mem support to report device RAM
+> Patch #11 activates it for s390, implementing a new function to fill
+>           PT_LOAD entry for device RAM
+> 
+> [1] https://lkml.kernel.org/r/20241025141453.1210600-1-david@redhat.com
+> [2] https://github.com/makedumpfile/makedumpfile/issues/16
+> 
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Cc: "Eugenio Pérez" <eperezma@redhat.com>
+> Cc: Baoquan He <bhe@redhat.com>
+> Cc: Vivek Goyal <vgoyal@redhat.com>
+> Cc: Dave Young <dyoung@redhat.com>
+> Cc: Thomas Huth <thuth@redhat.com>
+> Cc: Cornelia Huck <cohuck@redhat.com>
+> Cc: Janosch Frank <frankja@linux.ibm.com>
+> Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Cc: Eric Farman <farman@linux.ibm.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> 
+> David Hildenbrand (11):
+>   fs/proc/vmcore: convert vmcore_cb_lock into vmcore_mutex
+>   fs/proc/vmcore: replace vmcoredd_mutex by vmcore_mutex
+>   fs/proc/vmcore: disallow vmcore modifications after the vmcore was
+>     opened
+>   fs/proc/vmcore: move vmcore definitions from kcore.h to crash_dump.h
+>   fs/proc/vmcore: factor out allocating a vmcore memory node
+>   fs/proc/vmcore: factor out freeing a list of vmcore ranges
+>   fs/proc/vmcore: introduce PROC_VMCORE_DEVICE_RAM to detect device RAM
+>     ranges in 2nd kernel
+>   virtio-mem: mark device ready before registering callbacks in kdump
+>     mode
+>   virtio-mem: remember usable region size
+>   virtio-mem: support CONFIG_PROC_VMCORE_DEVICE_RAM
+>   s390/kdump: virtio-mem kdump support (CONFIG_PROC_VMCORE_DEVICE_RAM)
+> 
+>  arch/s390/Kconfig             |   1 +
+>  arch/s390/kernel/crash_dump.c |  39 +++--
+>  drivers/virtio/Kconfig        |   1 +
+>  drivers/virtio/virtio_mem.c   | 103 +++++++++++++-
+>  fs/proc/Kconfig               |  25 ++++
+>  fs/proc/vmcore.c              | 258 +++++++++++++++++++++++++---------
+>  include/linux/crash_dump.h    |  47 +++++++
+>  include/linux/kcore.h         |  13 --
+>  8 files changed, 396 insertions(+), 91 deletions(-)
+> 
+> -- 
+> 2.46.1
+> 
 
-Yes, I think waiting until that LLVM change has had some time to
-actually make it into the hands of users would be good if it is not too
-much of a burden. However, if you start writing new kernel code that depends on
-these format flags, it may be reasonable to revisit this series at that
-point for ease of maintenance on your end.
-
-Cheers,
-Nathan
