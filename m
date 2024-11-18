@@ -1,159 +1,97 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7CEB193435;
-	Mon, 18 Nov 2024 11:28:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80175881E;
+	Mon, 18 Nov 2024 13:21:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731929318; cv=none; b=JnrC+Kz56QPCbLm7I6ZVfVM0cpoO5CDPtSKEOWNVpXtSgXfVSJye83CT+cYeHUG2AfFGfEjU3RAZOqE1Ub43cdqrad51fWCka6hp472svUdaM4CAbIToFFnSJ+aDn9lkaCrtIE3s01jarq0m1HyLxtnaKenW2NNbsmOc7MiEwxw=
+	t=1731936117; cv=none; b=UM7fTILWoBozyxcChDN4CzewHpWlaq7URAhKOec9UNyfhsAnnmRWdrOtbj+ooN0agGrt39EiYNxvwTMp44vjviKHTxa0WzXMYCK/CRc4Q9T8TdkC3iJTuwbzVNLg5eNLcfmdvrvmvK80lTPlHgCjndV6cZa1B+E93nKv4AlxvE8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731929318; c=relaxed/simple;
-	bh=eflO5BqcAdiHnObc19vuFxv1kFN4bcVh6FEadC6e/J0=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=T6XTRc2TTB2/I+CZHGZuUSK0AknwoSwHSo949+Nym4GcNaA1BlRudEmeGAU281/nBBS5e6xY1e3dBX9ePi/Qa/XKhN9ezXEA2At2vFfYkmKSzjfzc8sJ9SnY2PWPA/JNZG0ZxnJH7JF2+GI77HKU6YblxQ9ubYC+HAUYgZ+eA/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=m/8JdPtt; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="m/8JdPtt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1731929317; x=1763465317;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:content-transfer-encoding:mime-version;
-  bh=eflO5BqcAdiHnObc19vuFxv1kFN4bcVh6FEadC6e/J0=;
-  b=m/8JdPttVwUXB5ZhVtJXKSa0qsOobC2hjqN6pZsmq5ZFypOQD0vpYCKi
-   6N1ldEbE7IX6cI/JPyGTLJphyOa8qs7J9LsaxXS2T3h8Mhe6xE4mY1tCq
-   la+qvukZUQkQzQX1jOk/yyCJz5ix7tej6qx7AKwllnCOC3Et+dvcKuxG9
-   LXStNjnOvrJXlYrTiY1ntu1sKAVgK/JY8xFxs4yjkzgF5gBfMcVG1hKyP
-   CzsFthbx3Wj2ZxKf6rqqMH7sS4Qcl9NdLn+cy8xySJrxnbQSORPrnwSim
-   f6cncK9WeAZ8+6pNGUyjtvGlSKM4rqt4BllKp/b4Xc/1nPtj0a8wp3UK6
-   A==;
-X-CSE-ConnectionGUID: NZT1qeH0SnGr7jSWfhdmHw==
-X-CSE-MsgGUID: FLXFwY+gRrWhIKX7RjAeSQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11259"; a="42396204"
-X-IronPort-AV: E=Sophos;i="6.12,163,1728975600"; 
-   d="scan'208";a="42396204"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2024 03:28:31 -0800
-X-CSE-ConnectionGUID: rRdUd/MrRkyoZEJD1Sac1Q==
-X-CSE-MsgGUID: apTDPmdSTQ+3Y3NYJwg9xw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,163,1728975600"; 
-   d="scan'208";a="89329614"
-Received: from mwiniars-desk2.ger.corp.intel.com (HELO [10.245.246.149]) ([10.245.246.149])
-  by fmviesa008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2024 03:28:08 -0800
-Message-ID: <62c1e9e941cec75cf8771761fb9981879fefcce5.camel@linux.intel.com>
-Subject: Re: [PATCH 08/22] drm/xe: Convert timeout to secs_to_jiffies()
-From: Thomas =?ISO-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>
-To: Easwar Hariharan <eahariha@linux.microsoft.com>, Pablo Neira Ayuso
- <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
- Kicinski <kuba@kernel.org>,  Paolo Abeni <pabeni@redhat.com>, Simon Horman
- <horms@kernel.org>, Julia Lawall <Julia.Lawall@inria.fr>,  Nicolas Palix
- <nicolas.palix@imag.fr>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang
- <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>,
- Russell King <linux@armlinux.org.uk>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Ofir
- Bitton <obitton@habana.ai>, Oded Gabbay <ogabbay@kernel.org>, Lucas De
- Marchi <lucas.demarchi@intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard
- <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Airlie
- <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Jeroen de Borst
- <jeroendb@google.com>, Praveen Kaligineedi <pkaligineedi@google.com>,
- Shailend Chand <shailend@google.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- James Smart <james.smart@broadcom.com>, Dick Kennedy
- <dick.kennedy@broadcom.com>, "James E.J. Bottomley"
- <James.Bottomley@HansenPartnership.com>, "Martin K. Petersen"
- <martin.petersen@oracle.com>, Roger Pau =?ISO-8859-1?Q?Monn=E9?=
- <roger.pau@citrix.com>, Jens Axboe <axboe@kernel.dk>, Kalle Valo
- <kvalo@kernel.org>, Jeff Johnson <jjohnson@kernel.org>, Catalin Marinas
- <catalin.marinas@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Jack
- Wang <jinpu.wang@cloud.ionos.com>, Marcel Holtmann <marcel@holtmann.org>,
- Johan Hedberg <johan.hedberg@gmail.com>, Luiz Augusto von Dentz
- <luiz.dentz@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Florian Fainelli <florian.fainelli@broadcom.com>, Ray Jui
- <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Broadcom
- internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Xiubo
- Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,  Josh Poimboeuf
- <jpoimboe@kernel.org>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes
- <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, Joe Lawrence
- <joe.lawrence@redhat.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai
- <tiwai@suse.com>, Lucas Stach <l.stach@pengutronix.de>, Russell King
- <linux+etnaviv@armlinux.org.uk>,  Christian Gmeiner
- <christian.gmeiner@gmail.com>, Louis Peens <louis.peens@corigine.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao
- <naveen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: netfilter-devel@vger.kernel.org, coreteam@netfilter.org, 
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, cocci@inria.fr, 
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
- dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
- linux-scsi@vger.kernel.org, xen-devel@lists.xenproject.org, 
- linux-block@vger.kernel.org, linux-wireless@vger.kernel.org, 
- ath11k@lists.infradead.org, linux-mm@kvack.org,
- linux-bluetooth@vger.kernel.org,  linux-staging@lists.linux.dev,
- linux-rpi-kernel@lists.infradead.org,  ceph-devel@vger.kernel.org,
- live-patching@vger.kernel.org,  linux-sound@vger.kernel.org,
- etnaviv@lists.freedesktop.org,  oss-drivers@corigine.com,
- linuxppc-dev@lists.ozlabs.org, Anna-Maria Behnsen <anna-maria@linutronix.de>
-Date: Mon, 18 Nov 2024 12:27:53 +0100
-In-Reply-To: <20241115-converge-secs-to-jiffies-v1-8-19aadc34941b@linux.microsoft.com>
-References: 
-	<20241115-converge-secs-to-jiffies-v1-0-19aadc34941b@linux.microsoft.com>
-	 <20241115-converge-secs-to-jiffies-v1-8-19aadc34941b@linux.microsoft.com>
-Autocrypt: addr=thomas.hellstrom@linux.intel.com; prefer-encrypt=mutual;
- keydata=mDMEZaWU6xYJKwYBBAHaRw8BAQdAj/We1UBCIrAm9H5t5Z7+elYJowdlhiYE8zUXgxcFz360SFRob21hcyBIZWxsc3Ryw7ZtIChJbnRlbCBMaW51eCBlbWFpbCkgPHRob21hcy5oZWxsc3Ryb21AbGludXguaW50ZWwuY29tPoiTBBMWCgA7FiEEbJFDO8NaBua8diGTuBaTVQrGBr8FAmWllOsCGwMFCwkIBwICIgIGFQoJCAsCBBYCAwECHgcCF4AACgkQuBaTVQrGBr/yQAD/Z1B+Kzy2JTuIy9LsKfC9FJmt1K/4qgaVeZMIKCAxf2UBAJhmZ5jmkDIf6YghfINZlYq6ixyWnOkWMuSLmELwOsgPuDgEZaWU6xIKKwYBBAGXVQEFAQEHQF9v/LNGegctctMWGHvmV/6oKOWWf/vd4MeqoSYTxVBTAwEIB4h4BBgWCgAgFiEEbJFDO8NaBua8diGTuBaTVQrGBr8FAmWllOsCGwwACgkQuBaTVQrGBr/P2QD9Gts6Ee91w3SzOelNjsus/DcCTBb3fRugJoqcfxjKU0gBAKIFVMvVUGbhlEi6EFTZmBZ0QIZEIzOOVfkaIgWelFEH
-Organization: Intel Sweden AB, Registration Number: 556189-6027
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.4 (3.50.4-3.fc39) 
+	s=arc-20240116; t=1731936117; c=relaxed/simple;
+	bh=oq91IVbWrLtgx588ljOpmdm19FTZCsv3AqoE9KQjznE=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=o/dsAl/jI/O7CE93Lq3+hwrxDGgPnJARuJ1Hr8rOssMBCNEkcrdaCyJglhx3zGbYEvEEvKqiYiwevuSS2d122b89aLP+g5A0IijKJpvkC4yTMMC+Ppo2KLjqFQ454Qi7mjGrJyqu14kGIoOD96FPP2YNtpT/1PLvqXZdglzDE5o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.174])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4XsSsL4xv5z10W7q;
+	Mon, 18 Nov 2024 21:19:50 +0800 (CST)
+Received: from kwepemf200001.china.huawei.com (unknown [7.202.181.227])
+	by mail.maildlp.com (Postfix) with ESMTPS id 84220140360;
+	Mon, 18 Nov 2024 21:21:50 +0800 (CST)
+Received: from huawei.com (10.110.54.32) by kwepemf200001.china.huawei.com
+ (7.202.181.227) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Mon, 18 Nov
+ 2024 21:21:49 +0800
+From: liqiang <liqiang64@huawei.com>
+To: <wenjia@linux.ibm.com>, <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
+	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>,
+	<dust.li@linux.alibaba.com>
+CC: <linux-s390@vger.kernel.org>, <netdev@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <luanjianhai@huawei.com>,
+	<zhangxuzhou4@huawei.com>, <dengguangxing@huawei.com>,
+	<gaochao24@huawei.com>, <liqiang64@huawei.com>
+Subject: [PATCH net-next 0/1] net/smc: Optimize rmbs/sndbufs lock
+Date: Mon, 18 Nov 2024 21:21:46 +0800
+Message-ID: <20241118132147.1614-1-liqiang64@huawei.com>
+X-Mailer: git-send-email 2.23.0.windows.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ kwepemf200001.china.huawei.com (7.202.181.227)
 
-On Fri, 2024-11-15 at 21:22 +0000, Easwar Hariharan wrote:
-> Changes made with the following Coccinelle rules:
->=20
-> @@ constant C; @@
->=20
-> - msecs_to_jiffies(C * 1000)
-> + secs_to_jiffies(C)
->=20
-> @@ constant C; @@
->=20
-> - msecs_to_jiffies(C * MSEC_PER_SEC)
-> + secs_to_jiffies(C)
->=20
-> Signed-off-by: Easwar Hariharan <eahariha@linux.microsoft.com>
-Reviewed-by: Thomas Hellstr=C3=B6m <thomas.hellstrom@linux.intel.com>
+This patch changes the global lock used by the buf_desc linked list
+array in the smc link group to a smaller granularity, which can
+reduce competition between links using different bufsizes and make
+them perform better.
 
-<
-> ---
-> =C2=A0drivers/gpu/drm/xe/xe_device.c | 2 +-
-> =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/gpu/drm/xe/xe_device.c
-> b/drivers/gpu/drm/xe/xe_device.c
-> index
-> a1987b554a8d2aa42b29301f2853edddfda7fda5..bb3338ef4191e76128611eeb953
-> 1c9d2089db85a 100644
-> --- a/drivers/gpu/drm/xe/xe_device.c
-> +++ b/drivers/gpu/drm/xe/xe_device.c
-> @@ -502,7 +502,7 @@ static int wait_for_lmem_ready(struct xe_device
-> *xe)
-> =C2=A0	drm_dbg(&xe->drm, "Waiting for lmem initialization\n");
-> =C2=A0
-> =C2=A0	start =3D jiffies;
-> -	timeout =3D start + msecs_to_jiffies(60 * 1000); /* 60 sec! */
-> +	timeout =3D start + secs_to_jiffies(60); /* 60 sec! */
-> =C2=A0
-> =C2=A0	do {
-> =C2=A0		if (signal_pending(current))
->=20
+After applying this patch, the main scenarios that generate benefits
+are as follows: multiple threads use different socket buffers
+(sk->sk_sndbuf/sk_rcvbuf) to establish connections concurrently.
+
+I constructed the above scenario and compared the performance of
+socket buffer distribution in 4 sizes when multi-threaded in
+parallel (tested using nginx/wrk):
+
+On server:
+smc_run nginx
+
+On client:
+smc_run wrk -t <2~128> -c 200 -H "Connection: close" http://127.0.0.1
+
++-------------------+--------+--------+--------+--------+--------+~
+|conns/qps          |  -t 2  | -t 4   | -t 8   | -t 16  | -t 32  |
++-------------------+--------+--------+--------+--------+--------+~
+|loopback-ism origin|6824.01 |9011.71 |11571.07|12179.72|11576.88|
++-------------------+--------+--------+--------+--------+--------+~
+|loopback-ism after |7280.63 |9508.53 |13173.27|16368.93|14664.51|
++-------------------+--------+--------+--------+--------+--------+~
+
+~--------+--------+
+  -t 64  | -t 128 |
+~--------+--------+
+ 11080.98|11909.36|
+~--------+--------+
+ 14664.51|13112.89|
+~--------+--------+
+
+Test environment:
+QEMU emulator version 1.5.3 @ Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz
+
+liqiang (1):
+  Separate locks for rmbs/sndbufs linked lists of different lengths
+
+ net/smc/smc_core.c | 66 +++++++++++++++++++-------------------
+ net/smc/smc_core.h |  9 +++---
+ net/smc/smc_llc.c  | 79 +++++++++++++++++++++++++++++++++++++---------
+ 3 files changed, 103 insertions(+), 51 deletions(-)
+
+-- 
+2.43.0
 
