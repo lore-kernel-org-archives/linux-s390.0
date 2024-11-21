@@ -1,182 +1,266 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCEDC2309A2;
-	Thu, 21 Nov 2024 02:00:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B0812DD88
+	for <linux-s390@vger.kernel.org>; Thu, 21 Nov 2024 04:30:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732154429; cv=none; b=b7OxoJIDDDQlgbLcltEiiWzMu36VC97NFwzfetkAqC6EarFbftURkLkR0G1u1aiG3iFN2f8SRXvwSWiFxeuuoLO2CoevHRmP4zYRA1wxVZAv4rs3kl5ieAl0m5fjDoopYTk7ZNuIVobev6YekM9et0xfjqM4WxjoJ2Ncur+9HEw=
+	t=1732163447; cv=none; b=M1qwjcarE4+mFO+qCbN/uB2m/Ru8K06+d6n6I9BNlMv8JD0a9bx0JIBhOk7qZ7LM5P4OPksg5JfgWu8mDcWRK1whlsZ8P8JPkw8atCptYFxg54HTyMj2P2mSev1VNMgUsMmGp0FNGAjZgsB2V/JE5sAhyx3E9oNxCVyrjOEBBnA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732154429; c=relaxed/simple;
-	bh=xPcOqsgfWRP7fz7JFDU7Jg1juGljBjJgB+PKbapdhn0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jsR4lJ1z3uJRasIwHQQ03P1Z5hTCE+lbXoceODTL/psrUj4NaS3SRIgp0IBb5UeYZmvBOglDr6EutAmJWGWYljkNnjBygrGeisM2OmxAyZ/i3blCxhMURWlNDjHzA8mML12EcgzreyDGkRDJIoGNcX7Yv44siEVshPw+nbGoAxs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=MCZN9h4v; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1732163447; c=relaxed/simple;
+	bh=jWBs3NnSTOjK3J8EnQyfYA9dgj0lOTaKtfBS7xEb0Zc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Npx8pqI3aCbdunRR1E+ZKgNWQ/zpIAgg+ytWywZl4V7F6jdEMCy6tdXBgi5k+YA3enk1AUud8C6AUSSWaTR0T4yb2vXaZ6T+7yFt1G5Yb4WtTK55SY3emHC1QT4oTk8NL7ni6sUQrOb4+VgtrjkVBA1PnK06bZteW3iA26tzFYw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Wjod+LTM; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="MCZN9h4v"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1732154423; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=xh5Bpj6oIo/uqbOf5Itvj/cPaIQp+JkS88W542IzEM8=;
-	b=MCZN9h4vAdFjiZtaNKa4Z392ZjS7c4D3UJCyPzZ3Aaf/UnbDHtKYQG4+OIJLRsRe1PLLJGPlc7s3M7KN3Apn0UjeWUgO9aP/RSskfsLGkKIbK7L0Mk7kF5m6/3f2fQ+gKbxMqQxLWBax0z271zkguq1t3OPcqKt1B48v3UuzThU=
-Received: from 30.221.147.241(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WJu1vbm_1732154420 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 21 Nov 2024 10:00:21 +0800
-Message-ID: <e8ba7dc0-96b5-4119-b2f6-b07432f65fdb@linux.alibaba.com>
-Date: Thu, 21 Nov 2024 10:00:20 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Wjod+LTM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1732163443;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=1oRBVeUrG/30shRvr2+oS14u3aaQZd0tcZcIHNfuOZU=;
+	b=Wjod+LTMfdmQY8c2o0GzbDyt8dI8dqSufKkYESuM+k4xrvECLBJPHR4n30NbWyu+80yS48
+	9dAfxP7dd0t5rMsC+HrI2mcEKT4GNwSBlmMK+9N/bfZfJa2f3dJwQJ8sMH9ZWHyelcJfgC
+	0PUr8jk1e99Dfe2uvLpM7yjpkT2TCR0=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-250-vNatiTkcPDWezXWdS3a--g-1; Wed,
+ 20 Nov 2024 23:30:42 -0500
+X-MC-Unique: vNatiTkcPDWezXWdS3a--g-1
+X-Mimecast-MFC-AGG-ID: vNatiTkcPDWezXWdS3a--g
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 89EE219560B1;
+	Thu, 21 Nov 2024 04:30:39 +0000 (UTC)
+Received: from localhost (unknown [10.72.113.10])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 361E81956086;
+	Thu, 21 Nov 2024 04:30:36 +0000 (UTC)
+Date: Thu, 21 Nov 2024 12:30:32 +0800
+From: Baoquan He <bhe@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	kexec@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
+	Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v1 07/11] fs/proc/vmcore: introduce
+ PROC_VMCORE_DEVICE_RAM to detect device RAM ranges in 2nd kernel
+Message-ID: <Zz63aGL7NcrONk+p@MiWiFi-R3L-srv>
+References: <20241025151134.1275575-1-david@redhat.com>
+ <20241025151134.1275575-8-david@redhat.com>
+ <Zz22ZidsMqkafYeg@MiWiFi-R3L-srv>
+ <4b07a3eb-aad6-4436-9591-289c6504bb92@redhat.com>
+ <Zz3sm+BhCrTO3bId@MiWiFi-R3L-srv>
+ <3ed18ba1-e4b1-461e-a3a7-5de2df59ca60@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH bpf-next 4/4] bpf/selftests: add simple selftest for
- bpf_smc_ops
-To: Zhu Yanjun <yanjun.zhu@linux.dev>, kgraul@linux.ibm.com,
- wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
- daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
- pabeni@redhat.com, song@kernel.org, sdf@google.com, haoluo@google.com,
- yhs@fb.com, edumazet@google.com, john.fastabend@gmail.com,
- kpsingh@kernel.org, jolsa@kernel.org, guwen@linux.alibaba.com
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, bpf@vger.kernel.org,
- dtcccc@linux.alibaba.com
-References: <1729737768-124596-1-git-send-email-alibuda@linux.alibaba.com>
- <1729737768-124596-5-git-send-email-alibuda@linux.alibaba.com>
- <8c06240b-540b-472f-974f-d2db80d90c22@linux.dev>
-Content-Language: en-US
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <8c06240b-540b-472f-974f-d2db80d90c22@linux.dev>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3ed18ba1-e4b1-461e-a3a7-5de2df59ca60@redhat.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-
-
-On 11/3/24 9:01 PM, Zhu Yanjun wrote:
-> 在 2024/10/24 4:42, D. Wythe 写道:
->> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>
->> This PATCH adds a tiny selftest for bpf_smc_ops, to verify the ability
->> to attach and write access.
->>
->> Follow the steps below to run this test.
->>
->> make -C tools/testing/selftests/bpf
->> cd tools/testing/selftests/bpf
->> sudo ./test_progs -t smc
+On 11/20/24 at 03:39pm, David Hildenbrand wrote:
+> On 20.11.24 15:05, Baoquan He wrote:
+> > On 11/20/24 at 11:48am, David Hildenbrand wrote:
+> > > On 20.11.24 11:13, Baoquan He wrote:
+> > > > On 10/25/24 at 05:11pm, David Hildenbrand wrote:
+> > > > > s390 allocates+prepares the elfcore hdr in the dump (2nd) kernel, not in
+> > > > > the crashed kernel.
+> > > > > 
+> > > > > RAM provided by memory devices such as virtio-mem can only be detected
+> > > > > using the device driver; when vmcore_init() is called, these device
+> > > > > drivers are usually not loaded yet, or the devices did not get probed
+> > > > > yet. Consequently, on s390 these RAM ranges will not be included in
+> > > > > the crash dump, which makes the dump partially corrupt and is
+> > > > > unfortunate.
+> > > > > 
+> > > > > Instead of deferring the vmcore_init() call, to an (unclear?) later point,
+> > > > > let's reuse the vmcore_cb infrastructure to obtain device RAM ranges as
+> > > > > the device drivers probe the device and get access to this information.
+> > > > > 
+> > > > > Then, we'll add these ranges to the vmcore, adding more PT_LOAD
+> > > > > entries and updating the offsets+vmcore size.
+> > > > > 
+> > > > > Use Kconfig tricks to include this code automatically only if (a) there is
+> > > > > a device driver compiled that implements the callback
+> > > > > (PROVIDE_PROC_VMCORE_DEVICE_RAM) and; (b) the architecture actually needs
+> > > > > this information (NEED_PROC_VMCORE_DEVICE_RAM).
+> > > > > 
+> > > > > The current target use case is s390, which only creates an elf64
+> > > > > elfcore, so focusing on elf64 is sufficient.
+> > > > > 
+> > > > > Signed-off-by: David Hildenbrand <david@redhat.com>
+> > > > > ---
+> > > > >    fs/proc/Kconfig            |  25 ++++++
+> > > > >    fs/proc/vmcore.c           | 156 +++++++++++++++++++++++++++++++++++++
+> > > > >    include/linux/crash_dump.h |   9 +++
+> > > > >    3 files changed, 190 insertions(+)
+> > > > > 
+> > > > > diff --git a/fs/proc/Kconfig b/fs/proc/Kconfig
+> > > > > index d80a1431ef7b..1e11de5f9380 100644
+> > > > > --- a/fs/proc/Kconfig
+> > > > > +++ b/fs/proc/Kconfig
+> > > > > @@ -61,6 +61,31 @@ config PROC_VMCORE_DEVICE_DUMP
+> > > > >    	  as ELF notes to /proc/vmcore. You can still disable device
+> > > > >    	  dump using the kernel command line option 'novmcoredd'.
+> > > > > +config PROVIDE_PROC_VMCORE_DEVICE_RAM
+> > > > > +	def_bool n
+> > > > > +
+> > > > > +config NEED_PROC_VMCORE_DEVICE_RAM
+> > > > > +	def_bool n
+> > > > > +
+> > > > > +config PROC_VMCORE_DEVICE_RAM
+> > > > > +	def_bool y
+> > > > > +	depends on PROC_VMCORE
+> > > > > +	depends on NEED_PROC_VMCORE_DEVICE_RAM
+> > > > > +	depends on PROVIDE_PROC_VMCORE_DEVICE_RAM
+> > > > 
+> > > > Kconfig item is always a thing I need learn to master.
+> > > 
+> > > Yes, it's usually a struggle to get it right. It took me a couple of
+> > > iterations to get to this point :)
+> > > 
+> > > > When I checked
+> > > > this part, I have to write them down to deliberate. I am wondering if
+> > > > below 'simple version' works too and more understandable. Please help
+> > > > point out what I have missed.
+> > > > 
+> > > > ===========simple version======
+> > > > config PROC_VMCORE_DEVICE_RAM
+> > > >           def_bool y
+> > > >           depends on PROC_VMCORE && VIRTIO_MEM
+> > > >           depends on NEED_PROC_VMCORE_DEVICE_RAM
+> > > > 
+> > > > config S390
+> > > >           select NEED_PROC_VMCORE_DEVICE_RAM
+> > > > ============
+> > 
+> > Sorry, things written down didn't correctly reflect them in my mind.
+> > 
+> > ===========simple version======
+> > fs/proc/Kconfig:
+> > config PROC_VMCORE_DEVICE_RAM
+> >          def_bool y
+> >          depends on PROC_VMCORE && VIRTIO_MEM
+> >          depends on NEED_PROC_VMCORE_DEVICE_RAM
+> > config NEED_PROC_VMCORE_DEVICE_RAM
+> >          def y
+> > 
+> > arch/s390/Kconfig:
+> > config NEED_PROC_VMCORE_DEVICE_RAM
+> >          def y
+> > ==================================
 > 
-> Thanks a lot.
+> That would work, but I don't completely like it.
 > 
-> # ./test_progs -t smc
-> #27/1    bpf_smc/load:OK
-> #27      bpf_smc:OK
-> Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
+> (a) I want s390x to select NEED_PROC_VMCORE_DEVICE_RAM instead. Staring at a
+> bunch of similar cases (git grep "config NEED" | grep Kconfig, git grep
+> "config ARCH_WANTS" | grep Kconfig), "select" is the common way to do it.
 > 
-> The above command is based on several kernel modules. After these dependent kernel modules are 
-> loaded, then can run the above command successfully.
+> So unless there is a pretty good reason, I'll keep
+> NEED_PROC_VMCORE_DEVICE_RAM as is.
+
+That's easy to satify, see below:
+
+============simple version=====
+fs/proc/Kconfig:
+config NEED_PROC_VMCORE_DEVICE_RAM
+        def n
+
+config PROC_VMCORE_DEVICE_RAM
+        def_bool y
+        depends on PROC_VMCORE && VIRTIO_MEM
+        depends on NEED_PROC_VMCORE_DEVICE_RAM
+
+arch/s390/Kconfig:
+config S390
+        select NEED_PROC_VMCORE_DEVICE_RAM
+==============================
+
 > 
-> Zhu Yanjun
+> (b) In the context of this patch, "depends on VIRTIO_MEM" does not make
+> sense. We could have an intermediate:
 > 
+> config PROC_VMCORE_DEVICE_RAM
+>          def_bool n
+>          depends on PROC_VMCORE
+>          depends on NEED_PROC_VMCORE_DEVICE_RAM
+> 
+> And change that with VIRTIO_MEM support in the relevant patch.
 
-Hi, Yanjun
+Oh, it's not comment for this patch, I made the simple version based on
+the whole patchset. When I had a glance at this patch, I also took
+several iterations to get it after I applied the whole patchset and
+tried to understand the whole code.
 
-This is indeed a problem, a better way may be to create a separate testing directory for SMC, and we 
-are trying to do this.
+> 
+> 
+> I faintly remember that we try avoiding such dependencies and prefer
+> selecting Kconfigs instead. Just look at the SPLIT_PTE_PTLOCKS mess we still
+> have to clean up. But as we don't expect that many providers for now, I
+> don't care.
 
-Best wishes,
-D. Wythe
+With the simple version, Kconfig learner as me can easily understand what
+they are doing. If it took you a couple of iterations to make them as
+you had mentioned earlier, and it took me several iterations to
+understand them, I believe there must be room to improve the presented
+ones in this patchset. These are only my humble opinion, and I am not
+aware of virtio-mem at all, I'll leave this to you and other virtio-mem
+dev to decide what should be taken. Thanks for your patience and
+provided information, I learned a lot from this discussion.
 
->>
->> Results shows:
->> Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
->>
->> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
->> ---
->>   .../selftests/bpf/prog_tests/test_bpf_smc.c        | 21 +++++++++++
->>   tools/testing/selftests/bpf/progs/bpf_smc.c        | 44 ++++++++++++++++++++++
->>   2 files changed, 65 insertions(+)
->>   create mode 100644 tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
->>   create mode 100644 tools/testing/selftests/bpf/progs/bpf_smc.c
->>
->> diff --git a/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c 
->> b/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
->> new file mode 100644
->> index 00000000..2299853
->> --- /dev/null
->> +++ b/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
->> @@ -0,0 +1,21 @@
->> +// SPDX-License-Identifier: GPL-2.0
->> +#include <test_progs.h>
->> +
->> +#include "bpf_smc.skel.h"
->> +
->> +static void load(void)
->> +{
->> +    struct bpf_smc *skel;
->> +
->> +    skel = bpf_smc__open_and_load();
->> +    if (!ASSERT_OK_PTR(skel, "bpf_smc__open_and_load"))
->> +        return;
->> +
->> +    bpf_smc__destroy(skel);
->> +}
->> +
->> +void test_bpf_smc(void)
->> +{
->> +    if (test__start_subtest("load"))
->> +        load();
->> +}
->> diff --git a/tools/testing/selftests/bpf/progs/bpf_smc.c 
->> b/tools/testing/selftests/bpf/progs/bpf_smc.c
->> new file mode 100644
->> index 00000000..ebff477
->> --- /dev/null
->> +++ b/tools/testing/selftests/bpf/progs/bpf_smc.c
->> @@ -0,0 +1,44 @@
->> +// SPDX-License-Identifier: GPL-2.0
->> +
->> +#include "vmlinux.h"
->> +
->> +#include <bpf/bpf_helpers.h>
->> +#include <bpf/bpf_tracing.h>
->> +
->> +char _license[] SEC("license") = "GPL";
->> +
->> +struct smc_bpf_ops_ctx {
->> +    struct {
->> +        struct tcp_sock *tp;
->> +    } set_option;
->> +    struct {
->> +        const struct tcp_sock *tp;
->> +        struct inet_request_sock *ireq;
->> +        int smc_ok;
->> +    } set_option_cond;
->> +};
->> +
->> +struct smc_bpf_ops {
->> +    void (*set_option)(struct smc_bpf_ops_ctx *ctx);
->> +    void (*set_option_cond)(struct smc_bpf_ops_ctx *ctx);
->> +};
->> +
->> +SEC("struct_ops/bpf_smc_set_tcp_option_cond")
->> +void BPF_PROG(bpf_smc_set_tcp_option_cond, struct smc_bpf_ops_ctx *arg)
->> +{
->> +    arg->set_option_cond.smc_ok = 1;
->> +}
->> +
->> +SEC("struct_ops/bpf_smc_set_tcp_option")
->> +void BPF_PROG(bpf_smc_set_tcp_option, struct smc_bpf_ops_ctx *arg)
->> +{
->> +    struct tcp_sock *tp = arg->set_option.tp;
->> +
->> +    tp->syn_smc = 1;
->> +}
->> +
->> +SEC(".struct_ops.link")
->> +struct smc_bpf_ops sample_smc_bpf_ops = {
->> +    .set_option         = (void *) bpf_smc_set_tcp_option,
->> +    .set_option_cond    = (void *) bpf_smc_set_tcp_option_cond,
->> +};
+===================
+fs/proc/Kconfig:
+config PROVIDE_PROC_VMCORE_DEVICE_RAM
+        def_bool n
+
+config NEED_PROC_VMCORE_DEVICE_RAM
+        def_bool n
+
+config PROC_VMCORE_DEVICE_RAM
+        def_bool y
+        depends on PROC_VMCORE
+        depends on NEED_PROC_VMCORE_DEVICE_RAM
+        depends on PROVIDE_PROC_VMCORE_DEVICE_RAM
+
+drivers/virtio/Kconfig:
+config VIRTIO_MEM
+        select PROVIDE_PROC_VMCORE_DEVICE_RAM if PROC_VMCORE
+                                              ~~~~~~~~~~~~~~
+
+arch/s390/Kconfig:
+config S390
+        select NEED_PROC_VMCORE_DEVICE_RAM if PROC_VMCORE
+                                           ~~~~~~~~~~~~~~
+========================
+
+One last thing I haven't got well, If PROC_VMCORE_DEVICE_RAM has had
+dependency on PROC_VMCORE, can we take off the ' if PROC_VMCORE' when
+select PROVIDE_PROC_VMCORE_DEVICE_RAM and NEED_PROC_VMCORE_DEVICE_RAM?
+
+Thanks
+Baoquan
+
