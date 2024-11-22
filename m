@@ -1,111 +1,152 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C8DE138490;
-	Fri, 22 Nov 2024 14:39:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8903237171;
+	Fri, 22 Nov 2024 15:56:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732286379; cv=none; b=baD39FtkNROlr/0VCEianx0fLRf6uNKc6LTstsh0WHh/XQz0iOtdR1wgFKsbptTQzZU1yvy/FTChN3mxqDstZM/pcxbUoRUi8UNZF77ALDDUK/j+HBK0cCXCUuItzhMbzgri53kTpAI1UCNdijXdkbFICT+PfoxBzSMKcrDMDV4=
+	t=1732290999; cv=none; b=QDXLLuCaw55ZZNoXEpR68BLtTpg69yKYIA8W7+kWMFmYTqZnHqPWQHanY8hGWRcw2OGEhoZoML73asQ2unfYbE3M/BVbXgtBXCrmpAI+V2UCqYYum588G8s7/QsHFLI5e++Ba6Q/mHDEOmWl/cjscG1BezoXUIpyiL2TOIHxmwQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732286379; c=relaxed/simple;
-	bh=ADFRSAzm+tOB1BuB5MVG+obXR3rDsoHWpt6GfHSel0Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=B3UXi8MQidQQmBQd2/oYvswpXuOzr2OHkNvaK9xxpcx2akYi972QU0Z+V/AHJSNQC0VokYwN5iKEUhD7c7A/Gj/oFI60W05+1swUlwFDsriGhtyvA+I+ImC4SK7kVyucvUyOHRx1Ony7+fcInQ2l98TwmbwD8/DWKllPY21Jxws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ljGVKkBV; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1732290999; c=relaxed/simple;
+	bh=+OMbc/XwftdxUR4oD4irFa2VWszcWmfXwbsURr/2m6M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=eF+4XA7XbFDdp0OrYvBQMZsNSXJbL1dpc+Td2PloX1L2eZ32KXKxTHfNSW01cCx9eTc97N8RQ4G1XtgOR9eH+pbH/qyzxt1+bYwoxITp7GsxZXpSG7peFFSTUva42Pj7iBYzmOSE91zwM3saXvnvp/dkEEiVeRAsoBqm75RggnM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bF1UAQtM; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ljGVKkBV"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4AMCa6vS016849;
-	Fri, 22 Nov 2024 14:34:32 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bF1UAQtM"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4AMAgM3l006909;
+	Fri, 22 Nov 2024 15:56:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=zqw2cRGCyNuHDcmTc
-	mmMEA0nDM95Ca6wVjUxbwztkD0=; b=ljGVKkBVjcJsSZM4MOMiZAfrdVpztC4/R
-	yofPVlZMgFEMGEuYMgENomBW723hqpWHuEttXKEmoeOzY+JjAMgR0TtcUh2Ra4na
-	fVEnVt1zxoVDSUieHfy0Mr+ZEhXQpCVLCZaLo9spoU1I/NMS77/fiEzbENUAJPgg
-	TZObPgzX5X2+8Sw8e8acfQfKLvaXb8e/XQwxyYBrypWvVF8ZTgDEbtbBaZKBYbhV
-	iyKUbgV94WyPFY3Bxtxu6Nwv9y4Dv79EosL8Jcea7UD1suF7gHe7O0lJfD5OU8aC
-	9bC1HywzKyjMLq6CA4uZ6kutX5aXFgtKyrhe9JyJIZxBB+v7GrpJA==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42xgttsu1a-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=BtS4Qc
+	/esBxeTVYq7ccMMMG1Zp+siGlrneQgiDLoZyo=; b=bF1UAQtMZ6pOG+EF2Oh8Nj
+	054IPB0d1FQ85AA5UQ8QXU5x7ccFbTabRJWw18Ko7f2mgCClhOFauCxn5pp7yIhc
+	rr+HrP8BM36TTwEzX9HYPdWpcyI9UmHvqRoyKrR4STLPqDMAu4Ap8f0p+sIj0C0i
+	bkUV2DjDx+mN3Y5Ubj5LCZuyxqVjGSz0gxvhppwMjcPba86CvanRSKsG59Oru3hU
+	Rtj3UezM09tCsQZ3FwBlTbQW7AKJ9NxRBpezdFCD99ZOkGdSDSA2U3K8pfddf/5a
+	fX18Y8i9otuozad80J7HiMpHNAx75WgVKSy7KKMdy6GZj795/twzwD3On7gCK2zQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42xyu291s4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 Nov 2024 14:34:31 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4AMAC2Hu021833;
-	Fri, 22 Nov 2024 14:34:31 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42y6qn39r6-1
+	Fri, 22 Nov 2024 15:56:31 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4AMFQtZt028286;
+	Fri, 22 Nov 2024 15:56:30 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42xyu291s0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 Nov 2024 14:34:30 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4AMEYTIS56295900
+	Fri, 22 Nov 2024 15:56:30 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4AMCGgrL013699;
+	Fri, 22 Nov 2024 15:56:29 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 42y7xju9w5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 22 Nov 2024 15:56:29 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4AMFuTbD51773780
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 22 Nov 2024 14:34:29 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EDEC220040;
-	Fri, 22 Nov 2024 14:34:28 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BAB712004F;
-	Fri, 22 Nov 2024 14:34:28 +0000 (GMT)
-Received: from funtu2.fritz.box?044ibm.com (unknown [9.171.82.52])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 22 Nov 2024 14:34:28 +0000 (GMT)
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: herbert@gondor.apana.org.au, davem@davemloft.net, dengler@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: [PATCH v5 2/3] s390/crypto: Add protected key hmac subfunctions for KMAC
-Date: Fri, 22 Nov 2024 15:34:26 +0100
-Message-ID: <20241122143427.135682-3-freude@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20241122143427.135682-1-freude@linux.ibm.com>
-References: <20241122143427.135682-1-freude@linux.ibm.com>
+	Fri, 22 Nov 2024 15:56:29 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 31ECC5805F;
+	Fri, 22 Nov 2024 15:56:29 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CF9B858059;
+	Fri, 22 Nov 2024 15:56:26 +0000 (GMT)
+Received: from [9.171.76.132] (unknown [9.171.76.132])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 22 Nov 2024 15:56:26 +0000 (GMT)
+Message-ID: <faba3530-c5f9-48af-be80-3847aa4921b7@linux.ibm.com>
+Date: Fri, 22 Nov 2024 16:56:25 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net 1/2] net/smc: initialize close_work early to avoid
+ warning
+To: Wen Gu <guwen@linux.alibaba.com>, jaka@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc: alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, horms@kernel.org,
+        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20241122071630.63707-1-guwen@linux.alibaba.com>
+ <20241122071630.63707-2-guwen@linux.alibaba.com>
+Content-Language: en-US
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <20241122071630.63707-2-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: SpzeqeRKa8iovjHIvOI-GJr9dMTHwT4R
-X-Proofpoint-ORIG-GUID: SpzeqeRKa8iovjHIvOI-GJr9dMTHwT4R
+X-Proofpoint-GUID: TRAArkc36m_aQ__PuSUVa1CYc2fwBGFH
+X-Proofpoint-ORIG-GUID: 6x9L0fJA9uJrH3xu2WtvYOciLTenCXuM
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
- mlxscore=0 malwarescore=0 mlxlogscore=584 adultscore=0 priorityscore=1501
- bulkscore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
- definitions=main-2411220122
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 priorityscore=1501 suspectscore=0 impostorscore=0
+ bulkscore=0 spamscore=0 mlxlogscore=999 adultscore=0 mlxscore=0
+ clxscore=1015 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411220130
 
-From: Holger Dengler <dengler@linux.ibm.com>
 
-The CPACF KMAC instruction supports new subfunctions for
-protected key hmac. Add defines for these 4 new subfuctions.
 
-Signed-off-by: Holger Dengler <dengler@linux.ibm.com>
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
----
- arch/s390/include/asm/cpacf.h | 4 ++++
- 1 file changed, 4 insertions(+)
+On 22.11.24 08:16, Wen Gu wrote:
+> We encountered a warning that close_work was canceled before
+> initialization.
+> 
+>    WARNING: CPU: 7 PID: 111103 at kernel/workqueue.c:3047 __flush_work+0x19e/0x1b0
+>    Workqueue: events smc_lgr_terminate_work [smc]
+>    RIP: 0010:__flush_work+0x19e/0x1b0
+>    Call Trace:
+>     ? __wake_up_common+0x7a/0x190
+>     ? work_busy+0x80/0x80
+>     __cancel_work_timer+0xe3/0x160
+>     smc_close_cancel_work+0x1a/0x70 [smc]
+>     smc_close_active_abort+0x207/0x360 [smc]
+>     __smc_lgr_terminate.part.38+0xc8/0x180 [smc]
+>     process_one_work+0x19e/0x340
+>     worker_thread+0x30/0x370
+>     ? process_one_work+0x340/0x340
+>     kthread+0x117/0x130
+>     ? __kthread_cancel_work+0x50/0x50
+>     ret_from_fork+0x22/0x30
+> 
+> This is because when smc_close_cancel_work is triggered, e.g. the RDMA
+> driver is rmmod and the LGR is terminated, the conn->close_work is
+> flushed before initialization, resulting in WARN_ON(!work->func).
+> 
+> __smc_lgr_terminate             | smc_connect_{rdma|ism}
+> -------------------------------------------------------------
+>                                  | smc_conn_create
+> 				| \- smc_lgr_register_conn
+> for conn in lgr->conns_all      |
+> \- smc_conn_kill                |
+>     \- smc_close_active_abort    |
+>        \- smc_close_cancel_work  |
+>           \- cancel_work_sync    |
+>              \- __flush_work     |
+> 	         (close_work)   |
+> 	                        | smc_close_init
+> 	                        | \- INIT_WORK(&close_work)
+> 
+> So fix this by initializing close_work before establishing the
+> connection.
+> 
+> Fixes: 46c28dbd4c23 ("net/smc: no socket state changes in tasklet context")
+> Fixes: 413498440e30 ("net/smc: add SMC-D support in af_smc")
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
 
-diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
-index 59ab1192e2d5..0468dd5c4690 100644
---- a/arch/s390/include/asm/cpacf.h
-+++ b/arch/s390/include/asm/cpacf.h
-@@ -129,6 +129,10 @@
- #define CPACF_KMAC_HMAC_SHA_256	0x71
- #define CPACF_KMAC_HMAC_SHA_384	0x72
- #define CPACF_KMAC_HMAC_SHA_512	0x73
-+#define CPACF_KMAC_PHMAC_SHA_224	0x78
-+#define CPACF_KMAC_PHMAC_SHA_256	0x79
-+#define CPACF_KMAC_PHMAC_SHA_384	0x7a
-+#define CPACF_KMAC_PHMAC_SHA_512	0x7b
- 
- /*
-  * Function codes for the PCKMO (PERFORM CRYPTOGRAPHIC KEY MANAGEMENT)
--- 
-2.43.0
+It looks plausible to me. Thank you for fixing it!
 
+Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+
+Thanks,
+Wenjia
