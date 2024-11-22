@@ -1,142 +1,174 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E49CD230987;
-	Fri, 22 Nov 2024 07:22:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 833D42AE96
+	for <linux-s390@vger.kernel.org>; Fri, 22 Nov 2024 07:31:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732260129; cv=none; b=BYIHfQ4ZlGX0N9Gi8sOcgabnxwJ8tMd7AG3z/RmOZaj7mi2Mn0fCNOogrwxssxU0Ij5/SeLXXffRQ0HNMlY6zeTwLD6EeILXWI8zE4GBuIY1UHstJt9LxDkMkONPfBA7QF4JJ6W6u8WCJwVJDe4LyeM1p0+tHwLTnZWmAeHdzSI=
+	t=1732260693; cv=none; b=ewdNP6NTfxRutJ13TdqG8UEHWxe7oeRrCBek+epCfCyNssyk9hF9r4/iNpydBsL5KYOXFpTM3IA+X2kSKAMlqGtQgxx+RgOVsE8r1r4D5IWkB5Kt8oet9WSXNKcwTa5JnKwalcl5aojAJ/bXKAhpyBMcbuYYzfbd3dqm7hJ2Fcw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732260129; c=relaxed/simple;
-	bh=krLSltSvxa1b5p+97f+phk+FYHKalBzUK+6b+JMRYx4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=kcN030gTVI2cPS6fur6JS9GD9paSRxsZRPw8omvw/0R+O08iLCMkt1IdP3zNVNfj17aB6bq7EnPSR2q5YK5gllq8qvVbuEI6CNSUzwL52gIJgZ250Yco5ef5IIc22YwBC0GbVCCueLzUznHrzauVF5c0M34lea2asXaDZ7Wzo5g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=HX7iYiBI; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1732260693; c=relaxed/simple;
+	bh=HQvBfxRd8qJug47oyF/nl4DbLd5Lm22tQlEI+j4EkI8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NwqksJEQHPjrhTInt4JrQcmxwQXNcus+xjQro34dxHrv0ArHW1/8GocMNN2ptylZfFjTOxUmzp4qYUTi3rVHD4fnBKC+WEFmQ2hXL8n9x7Jqf29ugiXFSYFI7dEtxg4jcwgxx85lAgGG9MfVygj9syU6WLNSnfuu02qY53WicMg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L8gUn1cu; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="HX7iYiBI"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1732260117; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=gaDcST95Gx4iPn815neB9XkKhGEorlv6Hxro/QIQDq0=;
-	b=HX7iYiBIv7GZGTDu2uM6KVaanHFL/1sCyAzBlwm/f8ThZXPUHENQTzwR+La72dgpDRb4q14vZ3uNd9vR9SuvVLPUe5IExZaMeKA69YmomsOEYH42rBgaK7ZP69gaqapZcPASZVajO7wlwfR09NF3kvmY88oSoPx+fK2Bd2N577Q=
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WJzio16_1732259792 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 22 Nov 2024 15:16:34 +0800
-From: Wen Gu <guwen@linux.alibaba.com>
-To: wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com
-Cc: alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	horms@kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net 1/2] net/smc: initialize close_work early to avoid warning
-Date: Fri, 22 Nov 2024 15:16:29 +0800
-Message-Id: <20241122071630.63707-2-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20241122071630.63707-1-guwen@linux.alibaba.com>
-References: <20241122071630.63707-1-guwen@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L8gUn1cu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1732260690;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PXq9Wjiti00hPsb6uBFVS+EGZ67OZCcyDnwcfoAoCsg=;
+	b=L8gUn1cuaPeEPv5GU4jo9q+JJztMmIBWRZIwv3oI80MAIfaN0yjQSKjEHDq/OP1yN5MwLw
+	qnHieZRlIXfgEnl/NqMSRIHRFZNtS9oud+9Vqmn9pIB7qz/YfgS8rIOeg9Ow3gjuMEzXjh
+	mgGD9fETSQWJpTl17qB1DvgoVjg2qCw=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-641-sLMKtwRkP9C3ZZ084QJlQw-1; Fri,
+ 22 Nov 2024 02:31:28 -0500
+X-MC-Unique: sLMKtwRkP9C3ZZ084QJlQw-1
+X-Mimecast-MFC-AGG-ID: sLMKtwRkP9C3ZZ084QJlQw
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E8D46195608A;
+	Fri, 22 Nov 2024 07:31:25 +0000 (UTC)
+Received: from localhost (unknown [10.72.113.10])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id DA2AF19560A3;
+	Fri, 22 Nov 2024 07:31:23 +0000 (UTC)
+Date: Fri, 22 Nov 2024 15:31:19 +0800
+From: Baoquan He <bhe@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	kexec@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
+	Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v1 07/11] fs/proc/vmcore: introduce
+ PROC_VMCORE_DEVICE_RAM to detect device RAM ranges in 2nd kernel
+Message-ID: <Z0AzR2Yhl527wkbP@MiWiFi-R3L-srv>
+References: <20241025151134.1275575-1-david@redhat.com>
+ <20241025151134.1275575-8-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241025151134.1275575-8-david@redhat.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-We encountered a warning that close_work was canceled before
-initialization.
+On 10/25/24 at 05:11pm, David Hildenbrand wrote:
+......snip...
+> diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
+> index 3e90416ee54e..c332a9a4920b 100644
+> --- a/fs/proc/vmcore.c
+> +++ b/fs/proc/vmcore.c
+> @@ -69,6 +69,8 @@ static LIST_HEAD(vmcore_cb_list);
+>  /* Whether the vmcore has been opened once. */
+>  static bool vmcore_opened;
+>  
+> +static void vmcore_process_device_ram(struct vmcore_cb *cb);
+> +
+>  void register_vmcore_cb(struct vmcore_cb *cb)
+>  {
+>  	INIT_LIST_HEAD(&cb->next);
+> @@ -80,6 +82,8 @@ void register_vmcore_cb(struct vmcore_cb *cb)
+>  	 */
+>  	if (vmcore_opened)
+>  		pr_warn_once("Unexpected vmcore callback registration\n");
+> +	else if (cb->get_device_ram)
+> +		vmcore_process_device_ram(cb);
 
-  WARNING: CPU: 7 PID: 111103 at kernel/workqueue.c:3047 __flush_work+0x19e/0x1b0
-  Workqueue: events smc_lgr_terminate_work [smc]
-  RIP: 0010:__flush_work+0x19e/0x1b0
-  Call Trace:
-   ? __wake_up_common+0x7a/0x190
-   ? work_busy+0x80/0x80
-   __cancel_work_timer+0xe3/0x160
-   smc_close_cancel_work+0x1a/0x70 [smc]
-   smc_close_active_abort+0x207/0x360 [smc]
-   __smc_lgr_terminate.part.38+0xc8/0x180 [smc]
-   process_one_work+0x19e/0x340
-   worker_thread+0x30/0x370
-   ? process_one_work+0x340/0x340
-   kthread+0x117/0x130
-   ? __kthread_cancel_work+0x50/0x50
-   ret_from_fork+0x22/0x30
+Global variable 'vmcore_opened' is used to indicate if /proc/vmcore is
+opened. With &vmcore_mutex, we don't need to worry about concurrent
+opening and modification. However, if people just open /proc/vmcore and
+close it after checking, then s390 will miss the vmcore dumping, is it
+acceptable?
 
-This is because when smc_close_cancel_work is triggered, e.g. the RDMA
-driver is rmmod and the LGR is terminated, the conn->close_work is
-flushed before initialization, resulting in WARN_ON(!work->func).
+>  	mutex_unlock(&vmcore_mutex);
+>  }
+>  EXPORT_SYMBOL_GPL(register_vmcore_cb);
+> @@ -1511,6 +1515,158 @@ int vmcore_add_device_dump(struct vmcoredd_data *data)
+......
+> +
+> +static void vmcore_process_device_ram(struct vmcore_cb *cb)
+> +{
+> +	unsigned char *e_ident = (unsigned char *)elfcorebuf;
+> +	struct vmcore_mem_node *first, *m;
+> +	LIST_HEAD(list);
+> +	int count;
+> +
+> +	if (cb->get_device_ram(cb, &list)) {
+> +		pr_err("Kdump: obtaining device ram ranges failed\n");
+> +		return;
+> +	}
+> +	count = list_count_nodes(&list);
+> +	if (!count)
+> +		return;
+> +
+> +	/* We only support Elf64 dumps for now. */
+> +	if (WARN_ON_ONCE(e_ident[EI_CLASS] != ELFCLASS64)) {
+> +		pr_err("Kdump: device ram ranges only support Elf64\n");
+> +		goto out_free;
+> +	}
 
-__smc_lgr_terminate             | smc_connect_{rdma|ism}
--------------------------------------------------------------
-                                | smc_conn_create
-				| \- smc_lgr_register_conn
-for conn in lgr->conns_all      |
-\- smc_conn_kill                |
-   \- smc_close_active_abort    |
-      \- smc_close_cancel_work  |
-         \- cancel_work_sync    |
-            \- __flush_work     |
-	         (close_work)   |
-	                        | smc_close_init
-	                        | \- INIT_WORK(&close_work)
+Only supporting Elf64 dumps seems to be a basic checking, do we need
+to put it at the beginning of function? Otherwise, we spend efforts to
+call cb->get_device_ram(), then fail.
 
-So fix this by initializing close_work before establishing the
-connection.
-
-Fixes: 46c28dbd4c23 ("net/smc: no socket state changes in tasklet context")
-Fixes: 413498440e30 ("net/smc: add SMC-D support in af_smc")
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----
- net/smc/af_smc.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 9d76e902fd77..ed6d4d520bc7 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -383,6 +383,7 @@ void smc_sk_init(struct net *net, struct sock *sk, int protocol)
- 	smc->limit_smc_hs = net->smc.limit_smc_hs;
- 	smc->use_fallback = false; /* assume rdma capability first */
- 	smc->fallback_rsn = 0;
-+	smc_close_init(smc);
- }
- 
- static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
-@@ -1299,7 +1300,6 @@ static int smc_connect_rdma(struct smc_sock *smc,
- 		goto connect_abort;
- 	}
- 
--	smc_close_init(smc);
- 	smc_rx_init(smc);
- 
- 	if (ini->first_contact_local) {
-@@ -1435,7 +1435,6 @@ static int smc_connect_ism(struct smc_sock *smc,
- 			goto connect_abort;
- 		}
- 	}
--	smc_close_init(smc);
- 	smc_rx_init(smc);
- 	smc_tx_init(smc);
- 
-@@ -2479,7 +2478,6 @@ static void smc_listen_work(struct work_struct *work)
- 		goto out_decl;
- 
- 	mutex_lock(&smc_server_lgr_pending);
--	smc_close_init(new_smc);
- 	smc_rx_init(new_smc);
- 	smc_tx_init(new_smc);
- 
--- 
-2.32.0.3.g01195cf9f
+> +
+> +	/*
+> +	 * For some reason these ranges are already know? Might happen
+> +	 * with unusual register->unregister->register sequences; we'll simply
+> +	 * sanity check using the first range.
+> +	 */
+> +	first = list_first_entry(&list, struct vmcore_mem_node, list);
+> +	list_for_each_entry(m, &vmcore_list, list) {
+> +		unsigned long long m_end = m->paddr + m->size;
+> +		unsigned long long first_end = first->paddr + first->size;
+> +
+> +		if (first->paddr < m_end && m->paddr < first_end)
+> +			goto out_free;
+> +	}
+> +
+> +	/* If adding the mem nodes succeeds, they must not be freed. */
+> +	if (!vmcore_add_device_ram_elf64(&list, count))
+> +		return;
+> +out_free:
+> +	vmcore_free_mem_nodes(&list);
+> +}
+> +#else /* !CONFIG_PROC_VMCORE_DEVICE_RAM */
+> +static void vmcore_process_device_ram(struct vmcore_cb *cb)
+> +{
+> +}
+> +#endif /* CONFIG_PROC_VMCORE_DEVICE_RAM */
+> +
+>  /* Free all dumps in vmcore device dump list */
+>  static void vmcore_free_device_dumps(void)
+>  {
+> diff --git a/include/linux/crash_dump.h b/include/linux/crash_dump.h
+> index 722dbcff7371..8e581a053d7f 100644
+> --- a/include/linux/crash_dump.h
+> +++ b/include/linux/crash_dump.h
 
