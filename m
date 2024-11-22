@@ -1,72 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA0311D0143
-	for <linux-s390@vger.kernel.org>; Fri, 22 Nov 2024 09:30:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FF9518A951
+	for <linux-s390@vger.kernel.org>; Fri, 22 Nov 2024 09:47:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732267839; cv=none; b=ZQYSurhD/CbnbmczU+7Lm10s0X/KYSbCpdYIOitG6h1D2xMBoQkkfzRnK0bos0HBdabmxuOJvQuQ/RpQi6as9lZB+t+w53Fg9E1Pc6WvCGWeRZO5EcJht4x09OzI+at9TCoBtmMJQKrVdvgPbcFUd4k9pgoU/8A6P1G+jiqcSuw=
+	t=1732268875; cv=none; b=lRNzr1U1QzlkgfKXJGaavdi+h8aVT6WUNYIJVhrneQiCYES4q9+SjW4ViGKE+sERvKfeITuz4gVVo/dPAZX+iqLux/XTB+CmdcHAdFkHmmdXJSjqfmLi6PQc0LN9SPSZWYXJOowPudMF/hCaI0Qic1OWNSKG+AFS6qIVUQ0bG24=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732267839; c=relaxed/simple;
-	bh=KI3YKUPD9vNEr7V3+oI0tMF9YZYmRK144NZhkWv99tc=;
+	s=arc-20240116; t=1732268875; c=relaxed/simple;
+	bh=WNryyBl4dVVX3K8sxpI48Twccde7pfNcdJG+7PxRTFU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=oKTZbTGyeFnUHKDYUh7A3g9XYs3najszKpGTJ+qFG9O6s4CPH3mYRt7jq8iYdl/Q/AGEVx+ACbIb6T4OlgGHTanfrqgwUBa1OveFPihPPEAR9ae/G982FpYsCPxeUsydL6sRWoTdlu2vcUGJzqs0kaDQoQFiouUF0ulD1UCpwJI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fPUmNNjz; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=NVvoayY1PodIfcKSbfPlxVG+569KZM/AbX/Rgi9bmMOTseAjw3ry/y2dazZ4VlW/oACOzZDXc53s/zZ4k0f7RLaPH5+oYZ5C2EOfwg21Fydryzrb4nbb9TSz/VV/AQyUmu+/9VGPIPgax8TrJglwe6kEMYUYBG8iLjUg7tEvnKI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=glCU8Swd; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fPUmNNjz"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="glCU8Swd"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1732267836;
+	s=mimecast20190719; t=1732268872;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=ZPzJgPIHxsNdnR7yqCSFuF5OvFAEiAeo8b6cdlkp3Go=;
-	b=fPUmNNjzJoO51OecXXNSSGpbfo/H3DYTJwdFui9XKE65JRvT5J8GS7uk8sIxpbWDWwmD6H
-	CR6mQ7x4UpxDDrAa8rDbklSl2fopfkxjC7W8QgNKa+NMdUrEA0fv3v51bkKMQH9iXxmL8A
-	givO8koGriPVyll8tvbegpCnCHn1CB0=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=ci6p4OAEag/t/B0pMHs058dh2BK7Mn/De3aq3KIhX5Y=;
+	b=glCU8SwdxPpwkemJD4U4x1CZxrCTyZ/a3OkGfV9x9VRaDkO2iNXZe7Kz83+lQaoCRHWW7r
+	953srOrLiweTmAAi8QfGnKoaejNZr6bJ1EzWLhvTrJC73MZ1SS9cFgINAwadMzi+Eds5Mm
+	JLKE9THoqMUpNb5u6lbksbwXJNFLB3o=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-62-irmlRP-3PY-khcZ8VWM2LQ-1; Fri, 22 Nov 2024 04:30:35 -0500
-X-MC-Unique: irmlRP-3PY-khcZ8VWM2LQ-1
-X-Mimecast-MFC-AGG-ID: irmlRP-3PY-khcZ8VWM2LQ
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43159603c92so12687225e9.2
-        for <linux-s390@vger.kernel.org>; Fri, 22 Nov 2024 01:30:35 -0800 (PST)
+ us-mta-222-5oIhMNvgNBGxX_egY1TC5A-1; Fri, 22 Nov 2024 04:47:50 -0500
+X-MC-Unique: 5oIhMNvgNBGxX_egY1TC5A-1
+X-Mimecast-MFC-AGG-ID: 5oIhMNvgNBGxX_egY1TC5A
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-432d04b3d40so11876015e9.1
+        for <linux-s390@vger.kernel.org>; Fri, 22 Nov 2024 01:47:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732267834; x=1732872634;
+        d=1e100.net; s=20230601; t=1732268869; x=1732873669;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=ZPzJgPIHxsNdnR7yqCSFuF5OvFAEiAeo8b6cdlkp3Go=;
-        b=dlXWvl8yMW3BT0fbcP33wHYRx4yeGAFgODRwo39ZHvWufGkAHzse9dLvuQtK9no9Hw
-         apVcgq8xy619uXLTh/7241pUVd+QQwRtOePyPI5abw/qw3jbqkTIWpajZ0BrwnUVnI/S
-         VDLOdl8wznDjYaZ3ewBPQzm6vX7OjpEn5QupStDWCT3W+FOrjtOQeaKSkPkJ2Ba6DECk
-         Ww3kJy+9WiamA9XCwuf76Y2RRYowmr6G4/y1Z4J+QT9DfkcUgnXDU2H0AZrZR7z6YBUg
-         2i1PxUCxz4Y04XQ/yZY3LWUcPv+gKN5j77zfB8i+PkFXOhmWAiiQ5jRwGUHaLByMg6Pf
-         I+4g==
-X-Forwarded-Encrypted: i=1; AJvYcCXTDXsMlQze0ZAd30Qp3WuX4AYJmFm2M2Wzk67NaUDAMqkSB0hajG4IYRPWmU2AKoBrvl4qhV2V8a+S@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx/wW5r0zi6fldpQ6GnQnnSM+MrC92ATKx1PRge6sItIvbd7Q8B
-	Y7G9c6TGJ4a3obG/6fvCWSRnubUv0ciDebU3RI3056n3DW9V0OTYGOIfSMq1sWhSm30CuaJ6tBL
-	ouX4ugQYp6F7EY/eSVER/BFUR9E0R3MLk6754mdnRpUnthMo52FtNSEqTzlg=
-X-Gm-Gg: ASbGncs3jQHmn+9UsR1FWtInm9buK+ll/TosGQik4aM/OkDm0oHSiLhPpcZyHCfXayY
-	AKZISzUCEore4bI0ls4SHolY4GNHmSfB9Pnxu0pLdorhUjqJ0KtZfFCaa2CfKBdUPtF/jZkCFiN
-	1yn3niMfL105a3vCN1rvN7MMKK/gOGa8LeIsWlNTpGXxKIxeG9kAmvx42i7vGDT0o8wAk66ECpH
-	wR3N9GbpcOOvgLJsWhhttArKdGlET/xV9E/mggP8Z3K3bhkaRiMTiHchf0B8E6hq0yfobe0FhQu
-	bXc=
-X-Received: by 2002:a05:600c:46c8:b0:431:52a3:d9d9 with SMTP id 5b1f17b1804b1-433ce39b925mr18040215e9.0.1732267834014;
-        Fri, 22 Nov 2024 01:30:34 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFE2Jmm0kH5mkdPBXazAl7oCBJsLup6iLzWAKDWw6AnFymT/MfuLEVdTbIYMc4wqCh2umdy0Q==
-X-Received: by 2002:a05:600c:46c8:b0:431:52a3:d9d9 with SMTP id 5b1f17b1804b1-433ce39b925mr18039735e9.0.1732267833570;
-        Fri, 22 Nov 2024 01:30:33 -0800 (PST)
-Received: from [192.168.3.141] (p5b0c6b59.dip0.t-ipconnect.de. [91.12.107.89])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-433b01e115asm88763975e9.6.2024.11.22.01.30.30
+        bh=ci6p4OAEag/t/B0pMHs058dh2BK7Mn/De3aq3KIhX5Y=;
+        b=bjb+TEx6Ya/PSe71GVCfqBSpROhIf+k2aD109Emvv2fef5pinAfUuuNX6JB2FIzCcS
+         QuKXfTHt1tsR+AdWMZLfr5K+l9pkNA5g7IjXkqTdGLaNgHnyuzYcVZcTkxFsRL87OyZl
+         HSK+nT9VOIQVBFV21hU8DnmRJ8+jVFkJDKQagq9ylfVWaMXZPJ6m93FpXNNg3JapRDxD
+         ERht2AAHYYVJ/lGeJjzVRN8Alfvt2Olva6HAVQyxmFAoBuC2XK6fGqFldmg/S9gXF5t7
+         LsOu8VfgHFJLLpnlQ4xge2I5Zls8lA1C0tMykeePraFBK81k546RTOrBkPrT0FbVXjZT
+         kNbg==
+X-Forwarded-Encrypted: i=1; AJvYcCWrp0JyCLrJfj++tKiajXQtK7CcW1w8oShoH6W0NbSkunserInZOC0uzneYdVaDKOyiFKSoXf3GhQXO@vger.kernel.org
+X-Gm-Message-State: AOJu0YzQJlkBzeetHvFmp3KLh5QK45+GyxZIumOuYfruOHUYxTFbjO/o
+	kUWX/3xESlg/Z3L+kXO702KKQvygiqB1uraoG63mwidYJHGgGNB6w5HqFuIxI4is7IkO92/TJSM
+	6LPpVXJunkbctgKJRsyawldkjSabELITedjf2V8WS7gFJ8P9nJ5ke0vLcPqc=
+X-Gm-Gg: ASbGncs3mYj3PM0l9DShXTFI1YLWGnLPIvKqR2SIyWdHYsoTnaVc/HJH8FPl6W7FfbJ
+	JQVofXLwuAvJ9j+X4dbT0HBH9fCvg4wuRZzStrGaOPwp+qtI+7ZaeAF6GG8L5Iyk8LlRpJrOkOZ
+	CmZxXSCd/ilXR9MJht8f9fSzv1Osk0i/f+mekJTG/BRMUgsXADfDqw0CwyOzDMfBNvCjvcUZd9b
+	/iqCh5pRTv/gBhvcKylPE+Ys2xnRnUa0xM7pD/FtJtwmygVZVqgZj11VKu3+X+oMwg00ii/Hlxl
+	Iz98EbAcpFrtBgd38VAtncQrL4+TSRRPiTZKoKpCVIe0AtMDTkhogH+ijJVm+vGrYjNpbMXG/+I
+	=
+X-Received: by 2002:a5d:6d8c:0:b0:381:f08b:71a4 with SMTP id ffacd0b85a97d-38260bce4a4mr2031160f8f.45.1732268869393;
+        Fri, 22 Nov 2024 01:47:49 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGzdx/gLIZH1VTc8mr3WHY/86y1dvP0OX0vMKHqWCr02PkymP5OabS5ttIAfpHLubkoBaO9IA==
+X-Received: by 2002:a5d:6d8c:0:b0:381:f08b:71a4 with SMTP id ffacd0b85a97d-38260bce4a4mr2031131f8f.45.1732268869025;
+        Fri, 22 Nov 2024 01:47:49 -0800 (PST)
+Received: from ?IPV6:2003:cb:c70b:7a00:9ccd:493:d8e2:9ac8? (p200300cbc70b7a009ccd0493d8e29ac8.dip0.t-ipconnect.de. [2003:cb:c70b:7a00:9ccd:493:d8e2:9ac8])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3825faf9dd2sm1906180f8f.26.2024.11.22.01.47.46
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 22 Nov 2024 01:30:31 -0800 (PST)
-Message-ID: <d29d7816-a3e5-4f34-bb0c-dd427931efb4@redhat.com>
-Date: Fri, 22 Nov 2024 10:30:29 +0100
+        Fri, 22 Nov 2024 01:47:47 -0800 (PST)
+Message-ID: <3866cec8-9983-4adf-b96e-42fa728c84a8@redhat.com>
+Date: Fri, 22 Nov 2024 10:47:45 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,8 +75,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 03/11] fs/proc/vmcore: disallow vmcore modifications
- after the vmcore was opened
+Subject: Re: [PATCH v1 07/11] fs/proc/vmcore: introduce PROC_VMCORE_DEVICE_RAM
+ to detect device RAM ranges in 2nd kernel
 To: Baoquan He <bhe@redhat.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
@@ -92,7 +93,7 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Claudio Imbrenda <imbrenda@linux.ibm.com>, Eric Farman
  <farman@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
 References: <20241025151134.1275575-1-david@redhat.com>
- <20241025151134.1275575-4-david@redhat.com> <Z0BL/UopaH5Xg5jS@MiWiFi-R3L-srv>
+ <20241025151134.1275575-8-david@redhat.com> <Z0AzR2Yhl527wkbP@MiWiFi-R3L-srv>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -140,68 +141,75 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <Z0BL/UopaH5Xg5jS@MiWiFi-R3L-srv>
+In-Reply-To: <Z0AzR2Yhl527wkbP@MiWiFi-R3L-srv>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 22.11.24 10:16, Baoquan He wrote:
+On 22.11.24 08:31, Baoquan He wrote:
 > On 10/25/24 at 05:11pm, David Hildenbrand wrote:
 > ......snip...
->> @@ -1482,6 +1470,10 @@ int vmcore_add_device_dump(struct vmcoredd_data *data)
->>   		return -EINVAL;
->>   	}
+>> diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
+>> index 3e90416ee54e..c332a9a4920b 100644
+>> --- a/fs/proc/vmcore.c
+>> +++ b/fs/proc/vmcore.c
+>> @@ -69,6 +69,8 @@ static LIST_HEAD(vmcore_cb_list);
+>>   /* Whether the vmcore has been opened once. */
+>>   static bool vmcore_opened;
 >>   
->> +	/* We'll recheck under lock later. */
->> +	if (data_race(vmcore_opened))
->> +		return -EBUSY;
+>> +static void vmcore_process_device_ram(struct vmcore_cb *cb);
+>> +
+>>   void register_vmcore_cb(struct vmcore_cb *cb)
+>>   {
+>>   	INIT_LIST_HEAD(&cb->next);
+>> @@ -80,6 +82,8 @@ void register_vmcore_cb(struct vmcore_cb *cb)
+>>   	 */
+>>   	if (vmcore_opened)
+>>   		pr_warn_once("Unexpected vmcore callback registration\n");
+>> +	else if (cb->get_device_ram)
+>> +		vmcore_process_device_ram(cb);
 > 
+> Global variable 'vmcore_opened' is used to indicate if /proc/vmcore is
+> opened. With &vmcore_mutex, we don't need to worry about concurrent
+> opening and modification. However, if people just open /proc/vmcore and
+> close it after checking, then s390 will miss the vmcore dumping, is it
+> acceptable?
 
-Hi,
+See my reply to your other mail (patch #3).
 
-> As I commented to patch 7, if vmcore is opened and closed after
-> checking, do we need to give up any chance to add device dumping
-> as below?
 > 
-> fd = open(/proc/vmcore);
-> ...do checking;
-> close(fd);
+>>   	mutex_unlock(&vmcore_mutex);
+>>   }
+>>   EXPORT_SYMBOL_GPL(register_vmcore_cb);
+>> @@ -1511,6 +1515,158 @@ int vmcore_add_device_dump(struct vmcoredd_data *data)
+> ......
+>> +
+>> +static void vmcore_process_device_ram(struct vmcore_cb *cb)
+>> +{
+>> +	unsigned char *e_ident = (unsigned char *)elfcorebuf;
+>> +	struct vmcore_mem_node *first, *m;
+>> +	LIST_HEAD(list);
+>> +	int count;
+>> +
+>> +	if (cb->get_device_ram(cb, &list)) {
+>> +		pr_err("Kdump: obtaining device ram ranges failed\n");
+>> +		return;
+>> +	}
+>> +	count = list_count_nodes(&list);
+>> +	if (!count)
+>> +		return;
+>> +
+>> +	/* We only support Elf64 dumps for now. */
+>> +	if (WARN_ON_ONCE(e_ident[EI_CLASS] != ELFCLASS64)) {
+>> +		pr_err("Kdump: device ram ranges only support Elf64\n");
+>> +		goto out_free;
+>> +	}
 > 
-> quit any device dump adding;
-> 
-> run makedumpfile on s390;
->    ->fd = open(/proc/vmcore);
->      -> try to dump;
->    ->close(fd);
+> Only supporting Elf64 dumps seems to be a basic checking, do we need
+> to put it at the beginning of function? Otherwise, we spend efforts to
+> call cb->get_device_ram(), then fail.
 
-The only reasonable case where this could happen (with virtio_mem) would 
-be when you hotplug a virtio-mem device into a VM that is currently in 
-the kdump kernel. However, in this case, the device would not provide 
-any memory we want to dump:
-
-(1) The memory was not available to the 1st (crashed) kernel, because
-     the device got hotplugged later.
-(2) Hotplugged virtio-mem devices show up with "no plugged memory",
-     meaning there wouldn't be even something to dump.
-
-Drivers will be loaded (as part of the kernel or as part of the initrd) 
-before any kdump action is happening. Similarly, just imagine your NIC 
-driver not being loaded when you start dumping to a network share ...
-
-This should similarly apply to vmcoredd providers.
-
-There is another concern I had at some point with changing the effective 
-/proc/vmcore size after someone already opened it, and might assume the 
-size will stay unmodified (IOW, the file was completely static before 
-vmcoredd showed up).
-
-So unless there is a real use case that requires tracking whether the 
-file is no longer open, to support modifying the vmcore afterwards, we 
-should keep it simple.
-
-I am not aware of any such cases, and my experiments with virtio_mem 
-showed that the driver get loaded extremely early from the initrd, 
-compared to when we actually start messing with /proc/vmcore from user 
-space.
+The idea was that if there is nothing to add, then the elf class doesn't 
+matter. But yes, I can move this further up.
 
 Thanks!
 
