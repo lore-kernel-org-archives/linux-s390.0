@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58BD818E743;
-	Sun, 24 Nov 2024 12:40:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4570518CC1D;
+	Sun, 24 Nov 2024 12:40:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732452018; cv=none; b=k7j0Qv8xt1eaoxvZEMsZpuj4LWdo9lC6ByZZ9hW1ubhYsnYAqHwS+tqZd5D5YGpm06wRgJ2fNDdHVSbvV811tZDGvA6I5jiAYjEA4sqDR4tOVeazeQwSmhgvuQSQ0SnXh2ggAxalrP5nx4vgBL8rBztf0JpXUINgMhcjso9Ms4A=
+	t=1732452020; cv=none; b=iNTMI1Sn1a478thIe33XwttkrPoA4B2lsAFNkHOJB/T67YuyxUJStJXh4c0SDQLqjVVBVQXRLWuqSutJvksfYSy3fiRVPD6MJTx/9lHSiWN1g7D5fLIJvZmo6XrbYP4jDfoZ8T0m2hmOrdYaQhWBE4ZFx/xLLik0TJdQROsmamU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732452018; c=relaxed/simple;
-	bh=umtQx+XfR4zl9S+NYVbOe8Wbht6I/MuCQRZweYmlhTw=;
+	s=arc-20240116; t=1732452020; c=relaxed/simple;
+	bh=Sn+dHuoVkaVrFFOIO5DC/IIouVhINA+PiFHYtFBb67w=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DVqHnRvyZJmi5aHXtB2ycG2oIVNu4/7S4ltlDQL8E/eZVHyNvfgwjdszjJ0UjaG8miZkW9UYXssdv5yI9dud2+eetpp9/7XNeu125wa9551O66r3AdStmGx2ePLDd82JOYT6Xxguw0FgMBothzeSxSsdqA39+IoOVNh1JcfoEWQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ww4E3n2S; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=H1yVF/e8l4WR8X2WqeNRzANN879p7hDe2clugbzjWt7KuKi9h/ywTLiInHh/oo0k7E63OSpKLa0RSzE5ItWN0UTFewNf4jfjd8PYPsEozEq9MCscMWkr2Om5Gm4tNpLfIgr+ExQAGMvVbOclvUCfZet7Tf7dm0IXSoJYvcdXPWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kLf3Uocn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ww4E3n2S"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB366C4CECC;
-	Sun, 24 Nov 2024 12:40:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kLf3Uocn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAD2BC4CED8;
+	Sun, 24 Nov 2024 12:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1732452018;
-	bh=umtQx+XfR4zl9S+NYVbOe8Wbht6I/MuCQRZweYmlhTw=;
+	s=k20201202; t=1732452019;
+	bh=Sn+dHuoVkaVrFFOIO5DC/IIouVhINA+PiFHYtFBb67w=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Ww4E3n2S3J2jqCRwlj0ykLxdFGZ8tAubqpyAHG5U8dZammwuTMM81DAQMsxHipIu3
-	 j2J9SRYs+NNvt+GGSYwq6bBHcmOONb99Fn+dlfPQpgSiZ1BhJctu9UiPv/X8rm4S7e
-	 94+TbaaAFAKDckH2pXjr0l78f/n43pZowq2M5IxItQ47wXi4P+WskBz1DmcJdYYGQH
-	 3AgwNmRswCFPDe3f7/OSxc4ZnBn6NGpDHhYrpDLbvBL0Rq7UNJA3xkChF4LXqlYPBI
-	 SSBcq+sLeZUXxlBhGfwnbVxNloYi4j7f2Qo221xCLuykPr7IG4/xhyXioYLb2Z4T1h
-	 MvO721h6FE5tA==
+	b=kLf3UocnhJGFpfatYpTeWGSDj+hvp2BRa3G3L4u4tF/T5IKaB6v6LrP6TfAWH4ONM
+	 ah9G9iKM9Khso5aYjmVjFvv0yVaEtzRclbdzQZDvwzm6h7/LN0OxV2fKvhpdONIsru
+	 HCTuhNv6sup90i3Zo2oXK/MjAfhvjRnAgHK8dZeU1x9T8Ii6rYogCsucWf0nROjpQ2
+	 Xn86xtowloEqqxrg3gGEBLKF7lwxy/AygoKyNzG9u90q1AzCdTJvJ/e5JjQXyjBuRi
+	 ceJfEBUHTMUgUfhLNrWyhLyCVVuycwuSdB+RuRcQVm2cV98Nq+DwFsfwQMSYNjV2Bg
+	 UI6/2alPlK55w==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -33,17 +33,13 @@ Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
 	Gerd Bayer <gbayer@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Sasha Levin <sashal@kernel.org>,
+	gerald.schaefer@linux.ibm.com,
 	gor@linux.ibm.com,
 	agordeev@linux.ibm.com,
-	gerald.schaefer@linux.ibm.com,
-	lukas@wunner.de,
-	jgg@ziepe.ca,
-	mjrosato@linux.ibm.com,
-	wintera@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.11 02/16] s390/pci: Use topology ID for multi-function devices
-Date: Sun, 24 Nov 2024 07:39:39 -0500
-Message-ID: <20241124124009.3336072-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.11 03/16] s390/pci: Ignore RID for isolated VFs
+Date: Sun, 24 Nov 2024 07:39:40 -0500
+Message-ID: <20241124124009.3336072-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20241124124009.3336072-1-sashal@kernel.org>
 References: <20241124124009.3336072-1-sashal@kernel.org>
@@ -60,168 +56,136 @@ Content-Transfer-Encoding: 8bit
 
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-[ Upstream commit 126034faaac5f356822c4a9bebfa75664da11056 ]
+[ Upstream commit 25f39d3dcb48bbc824a77d16b3d977f0f3713cfe ]
 
-The newly introduced topology ID (TID) field in the CLP Query PCI
-Function explicitly identifies groups of PCI functions whose RIDs belong
-to the same (sub-)topology. When available use the TID instead of the
-PCHID to match zPCI busses/domains for multi-function devices. Note that
-currently only a single PCI bus per TID is supported. This change is
-required because in future machines the PCHID will not identify a PCI
-card but a specific port in the case of some multi-port NICs while from
-a PCI point of view the entire card is a subtopology.
+Ensure that VFs used in isolation, that is with their parent PF not
+visible to the configuration but with their RID exposed, are treated
+compatibly with existing isolated VF use cases without exposed RID
+including RoCE Express VFs. This allows creating configurations where
+one LPAR manages PFs while their child VFs are used by other LPARs. This
+gives the LPAR managing the PFs a role analogous to that of the
+hypervisor in a typical use case of passing child VFs to guests.
+
+Instead of creating a multifunction struct zpci_bus whenever a PCI
+function with RID exposed is discovered only create such a bus for
+configured physical functions and only consider multifunction busses
+when searching for an existing bus. Additionally only set zdev->devfn to
+the devfn part of the RID once the function is added to a multifunction
+bus.
+
+This also fixes probing of more than 7 such isolated VFs from the same
+physical bus. This is because common PCI code in pci_scan_slot() only
+looks for more functions when pdev->multifunction is set which somewhat
+counter intutively is not the case for VFs.
+
+Note that PFs are looked at before their child VFs is guaranteed because
+we sort the zpci_list by RID ascending.
 
 Reviewed-by: Gerd Bayer <gbayer@linux.ibm.com>
 Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/pci.h     |  9 ++++++---
- arch/s390/include/asm/pci_clp.h |  8 +++++---
- arch/s390/pci/pci_bus.c         | 17 ++++++++++-------
- arch/s390/pci/pci_clp.c         |  3 +++
- 4 files changed, 24 insertions(+), 13 deletions(-)
+ arch/s390/pci/pci_bus.c | 33 ++++++++++++++++++++-------------
+ arch/s390/pci/pci_clp.c |  2 --
+ 2 files changed, 20 insertions(+), 15 deletions(-)
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index fdec455892486..94b5ce797c63b 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -107,9 +107,10 @@ struct zpci_bus {
- 	struct list_head	resources;
- 	struct list_head	bus_next;
- 	struct resource		bus_resource;
--	int			pchid;
-+	int			topo;		/* TID if topo_is_tid, PCHID otherwise */
- 	int			domain_nr;
--	bool			multifunction;
-+	u8			multifunction	: 1;
-+	u8			topo_is_tid	: 1;
- 	enum pci_bus_speed	max_bus_speed;
- };
- 
-@@ -131,6 +132,7 @@ struct zpci_dev {
- 	u16		pchid;		/* physical channel ID */
- 	u16		maxstbl;	/* Maximum store block size */
- 	u16		rid;		/* RID as supplied by firmware */
-+	u16		tid;		/* Topology for which RID is valid */
- 	u8		pfgid;		/* function group ID */
- 	u8		pft;		/* pci function type */
- 	u8		port;
-@@ -141,7 +143,8 @@ struct zpci_dev {
- 	u8		is_physfn	: 1;
- 	u8		util_str_avail	: 1;
- 	u8		irqs_registered	: 1;
--	u8		reserved	: 2;
-+	u8		tid_avail	: 1;
-+	u8		reserved	: 1;
- 	unsigned int	devfn;		/* DEVFN part of the RID*/
- 
- 	u8 pfip[CLP_PFIP_NR_SEGMENTS];	/* pci function internal path */
-diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
-index f0c677ddd2706..14afb9ce91f3b 100644
---- a/arch/s390/include/asm/pci_clp.h
-+++ b/arch/s390/include/asm/pci_clp.h
-@@ -110,7 +110,8 @@ struct clp_req_query_pci {
- struct clp_rsp_query_pci {
- 	struct clp_rsp_hdr hdr;
- 	u16 vfn;			/* virtual fn number */
--	u16			:  3;
-+	u16			:  2;
-+	u16 tid_avail		:  1;
- 	u16 rid_avail		:  1;
- 	u16 is_physfn		:  1;
- 	u16 reserved1		:  1;
-@@ -130,8 +131,9 @@ struct clp_rsp_query_pci {
- 	u64 edma;			/* end dma as */
- #define ZPCI_RID_MASK_DEVFN 0x00ff
- 	u16 rid;			/* BUS/DEVFN PCI address */
--	u16 reserved0;
--	u32 reserved[10];
-+	u32 reserved0;
-+	u16 tid;
-+	u32 reserved[9];
- 	u32 uid;			/* user defined id */
- 	u8 util_str[CLP_UTIL_STR_LEN];	/* utility string */
- 	u32 reserved2[16];
 diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-index daa5d7450c7d3..54879e773e4a3 100644
+index 54879e773e4a3..1b74a000ff645 100644
 --- a/arch/s390/pci/pci_bus.c
 +++ b/arch/s390/pci/pci_bus.c
-@@ -232,13 +232,13 @@ static void zpci_bus_put(struct zpci_bus *zbus)
- 	kref_put(&zbus->kref, zpci_bus_release);
+@@ -168,9 +168,16 @@ void zpci_bus_scan_busses(void)
+ 	mutex_unlock(&zbus_list_lock);
  }
  
--static struct zpci_bus *zpci_bus_get(int pchid)
-+static struct zpci_bus *zpci_bus_get(int topo, bool topo_is_tid)
- {
- 	struct zpci_bus *zbus;
++static bool zpci_bus_is_multifunction_root(struct zpci_dev *zdev)
++{
++	return !s390_pci_no_rid && zdev->rid_available &&
++		zpci_is_device_configured(zdev) &&
++		!zdev->vfn;
++}
++
+ /* zpci_bus_create_pci_bus - Create the PCI bus associated with this zbus
+  * @zbus: the zbus holding the zdevices
+- * @fr: PCI root function that will determine the bus's domain, and bus speeed
++ * @fr: PCI root function that will determine the bus's domain, and bus speed
+  * @ops: the pci operations
+  *
+  * The PCI function @fr determines the domain (its UID), multifunction property
+@@ -188,7 +195,7 @@ static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *fr, s
+ 		return domain;
+ 
+ 	zbus->domain_nr = domain;
+-	zbus->multifunction = fr->rid_available;
++	zbus->multifunction = zpci_bus_is_multifunction_root(fr);
+ 	zbus->max_bus_speed = fr->max_bus_speed;
+ 
+ 	/*
+@@ -238,6 +245,8 @@ static struct zpci_bus *zpci_bus_get(int topo, bool topo_is_tid)
  
  	mutex_lock(&zbus_list_lock);
  	list_for_each_entry(zbus, &zbus_list, bus_next) {
--		if (pchid == zbus->pchid) {
-+		if (topo_is_tid == zbus->topo_is_tid && topo == zbus->topo) {
++		if (!zbus->multifunction)
++			continue;
+ 		if (topo_is_tid == zbus->topo_is_tid && topo == zbus->topo) {
  			kref_get(&zbus->kref);
  			goto out_unlock;
- 		}
-@@ -249,7 +249,7 @@ static struct zpci_bus *zpci_bus_get(int pchid)
- 	return zbus;
- }
- 
--static struct zpci_bus *zpci_bus_alloc(int pchid)
-+static struct zpci_bus *zpci_bus_alloc(int topo, bool topo_is_tid)
+@@ -293,19 +302,22 @@ static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
  {
- 	struct zpci_bus *zbus;
+ 	int rc = -EINVAL;
  
-@@ -257,7 +257,8 @@ static struct zpci_bus *zpci_bus_alloc(int pchid)
- 	if (!zbus)
- 		return NULL;
- 
--	zbus->pchid = pchid;
-+	zbus->topo = topo;
-+	zbus->topo_is_tid = topo_is_tid;
- 	INIT_LIST_HEAD(&zbus->bus_next);
- 	mutex_lock(&zbus_list_lock);
- 	list_add_tail(&zbus->bus_next, &zbus_list);
-@@ -321,8 +322,9 @@ static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
- 
- int zpci_bus_device_register(struct zpci_dev *zdev, struct pci_ops *ops)
- {
-+	bool topo_is_tid = zdev->tid_avail;
- 	struct zpci_bus *zbus = NULL;
--	int rc = -EBADF;
-+	int topo, rc = -EBADF;
- 
- 	if (zpci_nb_devices == ZPCI_NR_DEVICES) {
- 		pr_warn("Adding PCI function %08x failed because the configured limit of %d is reached\n",
-@@ -333,11 +335,12 @@ int zpci_bus_device_register(struct zpci_dev *zdev, struct pci_ops *ops)
- 	if (zdev->devfn >= ZPCI_FUNCTIONS_PER_BUS)
- 		return -EINVAL;
- 
-+	topo = topo_is_tid ? zdev->tid : zdev->pchid;
- 	if (!s390_pci_no_rid && zdev->rid_available)
--		zbus = zpci_bus_get(zdev->pchid);
-+		zbus = zpci_bus_get(topo, topo_is_tid);
- 
- 	if (!zbus) {
--		zbus = zpci_bus_alloc(zdev->pchid);
-+		zbus = zpci_bus_alloc(topo, topo_is_tid);
- 		if (!zbus)
- 			return -ENOMEM;
++	if (zbus->multifunction) {
++		if (!zdev->rid_available) {
++			WARN_ONCE(1, "rid_available not set for multifunction\n");
++			return rc;
++		}
++		zdev->devfn = zdev->rid & ZPCI_RID_MASK_DEVFN;
++	}
++
+ 	if (zbus->function[zdev->devfn]) {
+ 		pr_err("devfn %04x is already assigned\n", zdev->devfn);
+ 		return rc;
  	}
+-
+ 	zdev->zbus = zbus;
+ 	zbus->function[zdev->devfn] = zdev;
+ 	zpci_nb_devices++;
+ 
+-	if (zbus->multifunction && !zdev->rid_available) {
+-		WARN_ONCE(1, "rid_available not set for multifunction\n");
+-		goto error;
+-	}
+ 	rc = zpci_init_slot(zdev);
+ 	if (rc)
+ 		goto error;
+@@ -332,13 +344,8 @@ int zpci_bus_device_register(struct zpci_dev *zdev, struct pci_ops *ops)
+ 		return -ENOSPC;
+ 	}
+ 
+-	if (zdev->devfn >= ZPCI_FUNCTIONS_PER_BUS)
+-		return -EINVAL;
+-
+ 	topo = topo_is_tid ? zdev->tid : zdev->pchid;
+-	if (!s390_pci_no_rid && zdev->rid_available)
+-		zbus = zpci_bus_get(topo, topo_is_tid);
+-
++	zbus = zpci_bus_get(topo, topo_is_tid);
+ 	if (!zbus) {
+ 		zbus = zpci_bus_alloc(topo, topo_is_tid);
+ 		if (!zbus)
 diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index 3049e4eb01fe7..658802b82f9eb 100644
+index 658802b82f9eb..421c95e1841ef 100644
 --- a/arch/s390/pci/pci_clp.c
 +++ b/arch/s390/pci/pci_clp.c
-@@ -170,6 +170,9 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
+@@ -168,8 +168,6 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
+ 	zdev->rid_available = response->rid_avail;
+ 	if (zdev->rid_available)
  		zdev->rid = response->rid;
- 	if (!s390_pci_no_rid && zdev->rid_available)
- 		zdev->devfn = response->rid & ZPCI_RID_MASK_DEVFN;
-+	zdev->tid_avail = response->tid_avail;
-+	if (zdev->tid_avail)
-+		zdev->tid = response->tid;
- 
- 	memcpy(zdev->pfip, response->pfip, sizeof(zdev->pfip));
- 	if (response->util_str_avail) {
+-	if (!s390_pci_no_rid && zdev->rid_available)
+-		zdev->devfn = response->rid & ZPCI_RID_MASK_DEVFN;
+ 	zdev->tid_avail = response->tid_avail;
+ 	if (zdev->tid_avail)
+ 		zdev->tid = response->tid;
 -- 
 2.43.0
 
