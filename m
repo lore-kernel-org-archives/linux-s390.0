@@ -1,30 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED9C318A6D7;
-	Sun, 24 Nov 2024 12:40:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58BD818E743;
+	Sun, 24 Nov 2024 12:40:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732452014; cv=none; b=QTWnZLlk3DJoEv7l4hRcl6ovFrVa2//QKwyB3hgCgAQwLrOn/mk+JSUIhDGW4DlZkTsDUeUR/UdARrGxPmYQLuJQHi5sEJ4XmD6wf0hDKTNN+uPpdtG6fy4p45gHx4A+q/oSjiGyC87w6reeaNp9sPLkW6V5Fr9HSo/E9KxpCEE=
+	t=1732452018; cv=none; b=k7j0Qv8xt1eaoxvZEMsZpuj4LWdo9lC6ByZZ9hW1ubhYsnYAqHwS+tqZd5D5YGpm06wRgJ2fNDdHVSbvV811tZDGvA6I5jiAYjEA4sqDR4tOVeazeQwSmhgvuQSQ0SnXh2ggAxalrP5nx4vgBL8rBztf0JpXUINgMhcjso9Ms4A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732452014; c=relaxed/simple;
-	bh=A431mVE7yIilgCS8TRuP+Twg1mGsAXtygyCBLld/jCw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=O8dizQ+dm4RQcL4n72EfElDik6lvR05U3f8CPX2wBLbh80mXRlMfdaRroOMINgkl5nQWCi170sTMeNo6chUylWxpcCdt608tFNr+g+3FCi7N/mNzYxKan4GE6tMM+5QkLmf5LlG1u36C60LrQg9GaMJOz9t5IxslnxtvE6rAjwE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=stHLgK9X; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1732452018; c=relaxed/simple;
+	bh=umtQx+XfR4zl9S+NYVbOe8Wbht6I/MuCQRZweYmlhTw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=DVqHnRvyZJmi5aHXtB2ycG2oIVNu4/7S4ltlDQL8E/eZVHyNvfgwjdszjJ0UjaG8miZkW9UYXssdv5yI9dud2+eetpp9/7XNeu125wa9551O66r3AdStmGx2ePLDd82JOYT6Xxguw0FgMBothzeSxSsdqA39+IoOVNh1JcfoEWQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ww4E3n2S; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="stHLgK9X"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A488C4CECC;
-	Sun, 24 Nov 2024 12:40:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ww4E3n2S"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB366C4CECC;
+	Sun, 24 Nov 2024 12:40:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1732452013;
-	bh=A431mVE7yIilgCS8TRuP+Twg1mGsAXtygyCBLld/jCw=;
-	h=From:To:Cc:Subject:Date:From;
-	b=stHLgK9X5MLDXb8TnnxhncJ5JqEZ+Sd7i9SYl4iKzYwNohMu21Cy/oUmVBT8NZTc7
-	 24IQe2o4cJnQ2pIduRdxzTBsPjqVDJsoDrLdiKAYH1IOWTN5tAeNw6HxS+pyefLCWb
-	 nk+0IIxTLiNRi5gpCO6yGJXDujsUrrcHx4jn/jbtZW1ZiO35wBNijnk211xHc85xu9
-	 NWa+9FSql+7yd9oVd8T5tSpTvofV5jghO6loIS41zWMMfVUuW5Z0qS2Zlc/sX46jGy
-	 9E48hyqCNIVfYbpLKZqzUVXngDoWUGgvJ3E15mu91hwD1YkAGUDSB3ObW6lXPIBzvI
-	 GYCSSpdi0ZhgA==
+	s=k20201202; t=1732452018;
+	bh=umtQx+XfR4zl9S+NYVbOe8Wbht6I/MuCQRZweYmlhTw=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=Ww4E3n2S3J2jqCRwlj0ykLxdFGZ8tAubqpyAHG5U8dZammwuTMM81DAQMsxHipIu3
+	 j2J9SRYs+NNvt+GGSYwq6bBHcmOONb99Fn+dlfPQpgSiZ1BhJctu9UiPv/X8rm4S7e
+	 94+TbaaAFAKDckH2pXjr0l78f/n43pZowq2M5IxItQ47wXi4P+WskBz1DmcJdYYGQH
+	 3AgwNmRswCFPDe3f7/OSxc4ZnBn6NGpDHhYrpDLbvBL0Rq7UNJA3xkChF4LXqlYPBI
+	 SSBcq+sLeZUXxlBhGfwnbVxNloYi4j7f2Qo221xCLuykPr7IG4/xhyXioYLb2Z4T1h
+	 MvO721h6FE5tA==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -35,15 +36,17 @@ Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
 	gor@linux.ibm.com,
 	agordeev@linux.ibm.com,
 	gerald.schaefer@linux.ibm.com,
-	wintera@linux.ibm.com,
-	jroedel@suse.de,
 	lukas@wunner.de,
+	jgg@ziepe.ca,
 	mjrosato@linux.ibm.com,
+	wintera@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.11 01/16] s390/pci: Sort PCI functions prior to creating virtual busses
-Date: Sun, 24 Nov 2024 07:39:38 -0500
-Message-ID: <20241124124009.3336072-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.11 02/16] s390/pci: Use topology ID for multi-function devices
+Date: Sun, 24 Nov 2024 07:39:39 -0500
+Message-ID: <20241124124009.3336072-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20241124124009.3336072-1-sashal@kernel.org>
+References: <20241124124009.3336072-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -57,279 +60,168 @@ Content-Transfer-Encoding: 8bit
 
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-[ Upstream commit 0467cdde8c4320bbfdb31a8cff1277b202f677fc ]
+[ Upstream commit 126034faaac5f356822c4a9bebfa75664da11056 ]
 
-Instead of relying on the observed but not architected firmware behavior
-that PCI functions from the same card are listed in ascending RID order
-in clp_list_pci() ensure this by sorting. To allow for sorting separate
-the initial clp_list_pci() and creation of the virtual PCI busses.
-
-Note that fundamentally in our per-PCI function hotplug design non RID
-order of discovery is still possible. For example when the two PFs of
-a two port NIC are hotplugged after initial boot and in descending RID
-order. In this case the virtual PCI bus would be created by the second
-PF using that PF's UID as domain number instead of that of the first PF.
-Thus the domain number would then change from the UID of the second PF
-to that of the first PF on reboot but there is really nothing we can do
-about that since changing domain numbers at runtime seems even worse.
-This only impacts the domain number as the RIDs are consistent and thus
-even with just the second PF visible it will show up in the correct
-position on the virtual bus.
+The newly introduced topology ID (TID) field in the CLP Query PCI
+Function explicitly identifies groups of PCI functions whose RIDs belong
+to the same (sub-)topology. When available use the TID instead of the
+PCHID to match zPCI busses/domains for multi-function devices. Note that
+currently only a single PCI bus per TID is supported. This change is
+required because in future machines the PCHID will not identify a PCI
+card but a specific port in the case of some multi-port NICs while from
+a PCI point of view the entire card is a subtopology.
 
 Reviewed-by: Gerd Bayer <gbayer@linux.ibm.com>
 Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/pci.h |  5 ++-
- arch/s390/pci/pci.c         | 69 ++++++++++++++++++++++++++++++++-----
- arch/s390/pci/pci_clp.c     | 12 ++++---
- arch/s390/pci/pci_event.c   | 13 ++++---
- 4 files changed, 82 insertions(+), 17 deletions(-)
+ arch/s390/include/asm/pci.h     |  9 ++++++---
+ arch/s390/include/asm/pci_clp.h |  8 +++++---
+ arch/s390/pci/pci_bus.c         | 17 ++++++++++-------
+ arch/s390/pci/pci_clp.c         |  3 +++
+ 4 files changed, 24 insertions(+), 13 deletions(-)
 
 diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 30820a649e6e7..fdec455892486 100644
+index fdec455892486..94b5ce797c63b 100644
 --- a/arch/s390/include/asm/pci.h
 +++ b/arch/s390/include/asm/pci.h
-@@ -130,6 +130,7 @@ struct zpci_dev {
- 	u16		vfn;		/* virtual function number */
+@@ -107,9 +107,10 @@ struct zpci_bus {
+ 	struct list_head	resources;
+ 	struct list_head	bus_next;
+ 	struct resource		bus_resource;
+-	int			pchid;
++	int			topo;		/* TID if topo_is_tid, PCHID otherwise */
+ 	int			domain_nr;
+-	bool			multifunction;
++	u8			multifunction	: 1;
++	u8			topo_is_tid	: 1;
+ 	enum pci_bus_speed	max_bus_speed;
+ };
+ 
+@@ -131,6 +132,7 @@ struct zpci_dev {
  	u16		pchid;		/* physical channel ID */
  	u16		maxstbl;	/* Maximum store block size */
-+	u16		rid;		/* RID as supplied by firmware */
+ 	u16		rid;		/* RID as supplied by firmware */
++	u16		tid;		/* Topology for which RID is valid */
  	u8		pfgid;		/* function group ID */
  	u8		pft;		/* pci function type */
  	u8		port;
-@@ -203,12 +204,14 @@ extern struct airq_iv *zpci_aif_sbv;
- ----------------------------------------------------------------------------- */
- /* Base stuff */
- struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state);
-+int zpci_add_device(struct zpci_dev *zdev);
- int zpci_enable_device(struct zpci_dev *);
- int zpci_disable_device(struct zpci_dev *);
- int zpci_scan_configured_device(struct zpci_dev *zdev, u32 fh);
- int zpci_deconfigure_device(struct zpci_dev *zdev);
- void zpci_device_reserved(struct zpci_dev *zdev);
- bool zpci_is_device_configured(struct zpci_dev *zdev);
-+int zpci_scan_devices(void);
+@@ -141,7 +143,8 @@ struct zpci_dev {
+ 	u8		is_physfn	: 1;
+ 	u8		util_str_avail	: 1;
+ 	u8		irqs_registered	: 1;
+-	u8		reserved	: 2;
++	u8		tid_avail	: 1;
++	u8		reserved	: 1;
+ 	unsigned int	devfn;		/* DEVFN part of the RID*/
  
- int zpci_hot_reset_device(struct zpci_dev *zdev);
- int zpci_register_ioat(struct zpci_dev *, u8, u64, u64, u64, u8 *);
-@@ -218,7 +221,7 @@ void zpci_update_fh(struct zpci_dev *zdev, u32 fh);
- 
- /* CLP */
- int clp_setup_writeback_mio(void);
--int clp_scan_pci_devices(void);
-+int clp_scan_pci_devices(struct list_head *scan_list);
- int clp_query_pci_fn(struct zpci_dev *zdev);
- int clp_enable_fh(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as);
- int clp_disable_fh(struct zpci_dev *zdev, u32 *fh);
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index cff4838fad216..e70318fba275a 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -29,6 +29,7 @@
- #include <linux/pci.h>
- #include <linux/printk.h>
- #include <linux/lockdep.h>
-+#include <linux/list_sort.h>
- 
- #include <asm/isc.h>
- #include <asm/airq.h>
-@@ -786,7 +787,6 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
- 	struct zpci_dev *zdev;
- 	int rc;
- 
--	zpci_dbg(1, "add fid:%x, fh:%x, c:%d\n", fid, fh, state);
- 	zdev = kzalloc(sizeof(*zdev), GFP_KERNEL);
- 	if (!zdev)
- 		return ERR_PTR(-ENOMEM);
-@@ -806,6 +806,19 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
- 	mutex_init(&zdev->fmb_lock);
- 	mutex_init(&zdev->kzdev_lock);
- 
-+	return zdev;
-+
-+error:
-+	zpci_dbg(0, "crt fid:%x, rc:%d\n", fid, rc);
-+	kfree(zdev);
-+	return ERR_PTR(rc);
-+}
-+
-+int zpci_add_device(struct zpci_dev *zdev)
-+{
-+	int rc;
-+
-+	zpci_dbg(1, "add fid:%x, fh:%x, c:%d\n", zdev->fid, zdev->fh, zdev->state);
- 	rc = zpci_init_iommu(zdev);
- 	if (rc)
- 		goto error;
-@@ -817,15 +830,13 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
- 	spin_lock(&zpci_list_lock);
- 	list_add_tail(&zdev->entry, &zpci_list);
- 	spin_unlock(&zpci_list_lock);
--
--	return zdev;
-+	return 0;
- 
- error_destroy_iommu:
- 	zpci_destroy_iommu(zdev);
- error:
--	zpci_dbg(0, "add fid:%x, rc:%d\n", fid, rc);
--	kfree(zdev);
--	return ERR_PTR(rc);
-+	zpci_dbg(0, "add fid:%x, rc:%d\n", zdev->fid, rc);
-+	return rc;
+ 	u8 pfip[CLP_PFIP_NR_SEGMENTS];	/* pci function internal path */
+diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
+index f0c677ddd2706..14afb9ce91f3b 100644
+--- a/arch/s390/include/asm/pci_clp.h
++++ b/arch/s390/include/asm/pci_clp.h
+@@ -110,7 +110,8 @@ struct clp_req_query_pci {
+ struct clp_rsp_query_pci {
+ 	struct clp_rsp_hdr hdr;
+ 	u16 vfn;			/* virtual fn number */
+-	u16			:  3;
++	u16			:  2;
++	u16 tid_avail		:  1;
+ 	u16 rid_avail		:  1;
+ 	u16 is_physfn		:  1;
+ 	u16 reserved1		:  1;
+@@ -130,8 +131,9 @@ struct clp_rsp_query_pci {
+ 	u64 edma;			/* end dma as */
+ #define ZPCI_RID_MASK_DEVFN 0x00ff
+ 	u16 rid;			/* BUS/DEVFN PCI address */
+-	u16 reserved0;
+-	u32 reserved[10];
++	u32 reserved0;
++	u16 tid;
++	u32 reserved[9];
+ 	u32 uid;			/* user defined id */
+ 	u8 util_str[CLP_UTIL_STR_LEN];	/* utility string */
+ 	u32 reserved2[16];
+diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
+index daa5d7450c7d3..54879e773e4a3 100644
+--- a/arch/s390/pci/pci_bus.c
++++ b/arch/s390/pci/pci_bus.c
+@@ -232,13 +232,13 @@ static void zpci_bus_put(struct zpci_bus *zbus)
+ 	kref_put(&zbus->kref, zpci_bus_release);
  }
  
- bool zpci_is_device_configured(struct zpci_dev *zdev)
-@@ -1083,6 +1094,49 @@ bool zpci_is_enabled(void)
- 	return s390_pci_initialized;
- }
- 
-+static int zpci_cmp_rid(void *priv, const struct list_head *a,
-+			const struct list_head *b)
-+{
-+	struct zpci_dev *za = container_of(a, struct zpci_dev, entry);
-+	struct zpci_dev *zb = container_of(b, struct zpci_dev, entry);
-+
-+	/*
-+	 * PCI functions without RID available maintain original order
-+	 * between themselves but sort before those with RID.
-+	 */
-+	if (za->rid == zb->rid)
-+		return za->rid_available > zb->rid_available;
-+	/*
-+	 * PCI functions with RID sort by RID ascending.
-+	 */
-+	return za->rid > zb->rid;
-+}
-+
-+static void zpci_add_devices(struct list_head *scan_list)
-+{
-+	struct zpci_dev *zdev, *tmp;
-+
-+	list_sort(NULL, scan_list, &zpci_cmp_rid);
-+	list_for_each_entry_safe(zdev, tmp, scan_list, entry) {
-+		list_del_init(&zdev->entry);
-+		zpci_add_device(zdev);
-+	}
-+}
-+
-+int zpci_scan_devices(void)
-+{
-+	LIST_HEAD(scan_list);
-+	int rc;
-+
-+	rc = clp_scan_pci_devices(&scan_list);
-+	if (rc)
-+		return rc;
-+
-+	zpci_add_devices(&scan_list);
-+	zpci_bus_scan_busses();
-+	return 0;
-+}
-+
- static int __init pci_base_init(void)
+-static struct zpci_bus *zpci_bus_get(int pchid)
++static struct zpci_bus *zpci_bus_get(int topo, bool topo_is_tid)
  {
- 	int rc;
-@@ -1112,10 +1166,9 @@ static int __init pci_base_init(void)
- 	if (rc)
- 		goto out_irq;
+ 	struct zpci_bus *zbus;
  
--	rc = clp_scan_pci_devices();
-+	rc = zpci_scan_devices();
- 	if (rc)
- 		goto out_find;
--	zpci_bus_scan_busses();
+ 	mutex_lock(&zbus_list_lock);
+ 	list_for_each_entry(zbus, &zbus_list, bus_next) {
+-		if (pchid == zbus->pchid) {
++		if (topo_is_tid == zbus->topo_is_tid && topo == zbus->topo) {
+ 			kref_get(&zbus->kref);
+ 			goto out_unlock;
+ 		}
+@@ -249,7 +249,7 @@ static struct zpci_bus *zpci_bus_get(int pchid)
+ 	return zbus;
+ }
  
- 	s390_pci_initialized = 1;
- 	return 0;
+-static struct zpci_bus *zpci_bus_alloc(int pchid)
++static struct zpci_bus *zpci_bus_alloc(int topo, bool topo_is_tid)
+ {
+ 	struct zpci_bus *zbus;
+ 
+@@ -257,7 +257,8 @@ static struct zpci_bus *zpci_bus_alloc(int pchid)
+ 	if (!zbus)
+ 		return NULL;
+ 
+-	zbus->pchid = pchid;
++	zbus->topo = topo;
++	zbus->topo_is_tid = topo_is_tid;
+ 	INIT_LIST_HEAD(&zbus->bus_next);
+ 	mutex_lock(&zbus_list_lock);
+ 	list_add_tail(&zbus->bus_next, &zbus_list);
+@@ -321,8 +322,9 @@ static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
+ 
+ int zpci_bus_device_register(struct zpci_dev *zdev, struct pci_ops *ops)
+ {
++	bool topo_is_tid = zdev->tid_avail;
+ 	struct zpci_bus *zbus = NULL;
+-	int rc = -EBADF;
++	int topo, rc = -EBADF;
+ 
+ 	if (zpci_nb_devices == ZPCI_NR_DEVICES) {
+ 		pr_warn("Adding PCI function %08x failed because the configured limit of %d is reached\n",
+@@ -333,11 +335,12 @@ int zpci_bus_device_register(struct zpci_dev *zdev, struct pci_ops *ops)
+ 	if (zdev->devfn >= ZPCI_FUNCTIONS_PER_BUS)
+ 		return -EINVAL;
+ 
++	topo = topo_is_tid ? zdev->tid : zdev->pchid;
+ 	if (!s390_pci_no_rid && zdev->rid_available)
+-		zbus = zpci_bus_get(zdev->pchid);
++		zbus = zpci_bus_get(topo, topo_is_tid);
+ 
+ 	if (!zbus) {
+-		zbus = zpci_bus_alloc(zdev->pchid);
++		zbus = zpci_bus_alloc(topo, topo_is_tid);
+ 		if (!zbus)
+ 			return -ENOMEM;
+ 	}
 diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index ee90a91ed8881..3049e4eb01fe7 100644
+index 3049e4eb01fe7..658802b82f9eb 100644
 --- a/arch/s390/pci/pci_clp.c
 +++ b/arch/s390/pci/pci_clp.c
-@@ -164,8 +164,10 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
- 	zdev->port = response->port;
- 	zdev->uid = response->uid;
- 	zdev->fmb_length = sizeof(u32) * response->fmb_len;
--	zdev->rid_available = response->rid_avail;
- 	zdev->is_physfn = response->is_physfn;
-+	zdev->rid_available = response->rid_avail;
-+	if (zdev->rid_available)
-+		zdev->rid = response->rid;
+@@ -170,6 +170,9 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
+ 		zdev->rid = response->rid;
  	if (!s390_pci_no_rid && zdev->rid_available)
  		zdev->devfn = response->rid & ZPCI_RID_MASK_DEVFN;
++	zdev->tid_avail = response->tid_avail;
++	if (zdev->tid_avail)
++		zdev->tid = response->tid;
  
-@@ -407,6 +409,7 @@ static int clp_find_pci(struct clp_req_rsp_list_pci *rrb, u32 fid,
- 
- static void __clp_add(struct clp_fh_list_entry *entry, void *data)
- {
-+	struct list_head *scan_list = data;
- 	struct zpci_dev *zdev;
- 
- 	if (!entry->vendor_id)
-@@ -417,10 +420,11 @@ static void __clp_add(struct clp_fh_list_entry *entry, void *data)
- 		zpci_zdev_put(zdev);
- 		return;
- 	}
--	zpci_create_device(entry->fid, entry->fh, entry->config_state);
-+	zdev = zpci_create_device(entry->fid, entry->fh, entry->config_state);
-+	list_add_tail(&zdev->entry, scan_list);
- }
- 
--int clp_scan_pci_devices(void)
-+int clp_scan_pci_devices(struct list_head *scan_list)
- {
- 	struct clp_req_rsp_list_pci *rrb;
- 	int rc;
-@@ -429,7 +433,7 @@ int clp_scan_pci_devices(void)
- 	if (!rrb)
- 		return -ENOMEM;
- 
--	rc = clp_list_pci(rrb, NULL, __clp_add);
-+	rc = clp_list_pci(rrb, scan_list, __clp_add);
- 
- 	clp_free_block(rrb);
- 	return rc;
-diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-index d4f19d33914cb..47f934f4e828e 100644
---- a/arch/s390/pci/pci_event.c
-+++ b/arch/s390/pci/pci_event.c
-@@ -340,6 +340,7 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- 			zdev = zpci_create_device(ccdf->fid, ccdf->fh, ZPCI_FN_STATE_CONFIGURED);
- 			if (IS_ERR(zdev))
- 				break;
-+			zpci_add_device(zdev);
- 		} else {
- 			/* the configuration request may be stale */
- 			if (zdev->state != ZPCI_FN_STATE_STANDBY)
-@@ -349,10 +350,14 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- 		zpci_scan_configured_device(zdev, ccdf->fh);
- 		break;
- 	case 0x0302: /* Reserved -> Standby */
--		if (!zdev)
--			zpci_create_device(ccdf->fid, ccdf->fh, ZPCI_FN_STATE_STANDBY);
--		else
-+		if (!zdev) {
-+			zdev = zpci_create_device(ccdf->fid, ccdf->fh, ZPCI_FN_STATE_STANDBY);
-+			if (IS_ERR(zdev))
-+				break;
-+			zpci_add_device(zdev);
-+		} else {
- 			zpci_update_fh(zdev, ccdf->fh);
-+		}
- 		break;
- 	case 0x0303: /* Deconfiguration requested */
- 		if (zdev) {
-@@ -381,7 +386,7 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- 		break;
- 	case 0x0306: /* 0x308 or 0x302 for multiple devices */
- 		zpci_remove_reserved_devices();
--		clp_scan_pci_devices();
-+		zpci_scan_devices();
- 		break;
- 	case 0x0308: /* Standby -> Reserved */
- 		if (!zdev)
+ 	memcpy(zdev->pfip, response->pfip, sizeof(zdev->pfip));
+ 	if (response->util_str_avail) {
 -- 
 2.43.0
 
