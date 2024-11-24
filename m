@@ -1,31 +1,30 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 190651AA7A2;
-	Sun, 24 Nov 2024 12:41:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8BEF1A76B5;
+	Sun, 24 Nov 2024 12:42:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732452115; cv=none; b=FHUl+1sqHcDlU5xDGLKUl487E0Okb8HQx9p7N4hr0VqqWZFgYC9WGZh33S80ZoW/D/Z0ogG3WuSRCqZFNc7zG7zGqQZN2UyC0vhDQHuVcwFKX6D63X26oZNcl43W3b2Z7U9rb3gCVZ9WgmkkuSGtWLwY83QrDYlJmFnLFgFNzzs=
+	t=1732452132; cv=none; b=itc2914F6ClyD2GQHpfswlkpNkU5jj1itGlCN2ux/R61RI9nIwmZImHKHZNE0rxoEwUL00UmbejBVLSMP7bHWq4RPtZDtFcvcODJ8g8ym35eRLXzsNIv1SLnBnkq163CDPVW4j+WVFKII8d0ZQyTTfybFSObE8ap9+ipXw5//1M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732452115; c=relaxed/simple;
-	bh=UaZB+94mF/RjtCobNyvGgy9j3amN2jV+dfu4ozjwxc0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=C/lMWBYHx3cvkwulGTPwOwc+F5iEMmkezheTcAsBvKK/PyB4G9KsKrktGGA1ercypNr8r3nJ8zyWwsELZq8jZyGRXD5aBp/KScmxerzBDWrDU0RA5iZbCQv6/IpP/heK2ZWd4Svpl0KBlgnP+FEQ4WWtPWaJ8Plof+IFk0hAnBA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vRHAR1ES; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1732452132; c=relaxed/simple;
+	bh=TclN3FuxER+VgqurAwKnGUXiVgQPJrAJQ/ER7xaZn6M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=e4KW1C1Hq30OyHCS3LOiOJeXgX3OGZ5rQDPFUareyLqrHGTEkHioYrQcp8n90oZMaq8gNXNmbp3Lf5mnWbXv45t9TCrB3DVpFu9nPsXWs3FMWUVC+tsQPoc5Z+IHzX96vt4mjBIlCFSE/M+Vo+KcdiWWgTGB658X1ZEQOOk37mg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mPccgkak; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vRHAR1ES"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6E24C4CECC;
-	Sun, 24 Nov 2024 12:41:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mPccgkak"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89181C4CED1;
+	Sun, 24 Nov 2024 12:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1732452114;
-	bh=UaZB+94mF/RjtCobNyvGgy9j3amN2jV+dfu4ozjwxc0=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=vRHAR1ES+d0kLwREalZnDscIvbZnhn48/s3MXy+Hf+KY9ZiB89epFMWOk5LBAoSt/
-	 qaGqD5coIx4m2wVnYOG63G120DSytz7U8JRmypDvR7w9LQ4aybkOBxlE84+zpUom8w
-	 Ttzk8oFKonHLQHxstOH0kwpPWMvsq+z24Os/T6zjHB9XVM+dQXXOm9E1LY0xyk/JxL
-	 i97XIByKhvLoJGAPnBygofVLZuxGOPRSwPnlm6FDH79gaFLKCCvqXQXvvfZawwo53J
-	 1no6MOcqXJblz6uTSrpfizBqq2uSusxnnqebF5kdnQBpRTYn+ypRAv2+0x2IC+1kQC
-	 Xx3EaxM/Y7DQg==
+	s=k20201202; t=1732452132;
+	bh=TclN3FuxER+VgqurAwKnGUXiVgQPJrAJQ/ER7xaZn6M=;
+	h=From:To:Cc:Subject:Date:From;
+	b=mPccgkak0yfJy/7Oi5+XaN5Uus2XmvbRKHlQqM/uO0/m3CLRx0WzOvsqbsci6R08L
+	 OJHlvoKBjS7Ryjy0zeYjvK6/8Ol6AE717S4fJfdyOk1JExZCbDzbdK/We+Po3lPo7B
+	 bchrC7oXYA44+JfnXc4o+vKC7sPhr9i/ryciTW9YLROIsmBiUcAnL23pJqY9W6vJPI
+	 yRzfxD0P66z97zwjIUNEW4nVxpduOPsSh9dgxHcrTfOPSM4KnoO6ZGF/FLvboTY7BN
+	 0hI7v3pUE9WbgWoaDZnirWXrtxYQty6M1PwbvM8H79dD4BXPp+/otZFPA0H0yzQ9sJ
+	 4ETfWYsMDFLlg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -37,12 +36,10 @@ Cc: Thomas Richter <tmricht@linux.ibm.com>,
 	agordeev@linux.ibm.com,
 	sumanthk@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 2/6] s390/cpum_sf: Handle CPU hotplug remove during sampling
-Date: Sun, 24 Nov 2024 07:41:38 -0500
-Message-ID: <20241124124149.3336868-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 1/5] s390/cpum_sf: Handle CPU hotplug remove during sampling
+Date: Sun, 24 Nov 2024 07:42:00 -0500
+Message-ID: <20241124124210.3337020-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20241124124149.3336868-1-sashal@kernel.org>
-References: <20241124124149.3336868-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -51,7 +48,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.15.173
+X-stable-base: Linux 5.10.230
 Content-Transfer-Encoding: 8bit
 
 From: Thomas Richter <tmricht@linux.ibm.com>
@@ -112,7 +109,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index a8ba3887b367f..22893bf86f650 100644
+index a9e05f4d0a483..fc45f123f3bdc 100644
 --- a/arch/s390/kernel/perf_cpum_sf.c
 +++ b/arch/s390/kernel/perf_cpum_sf.c
 @@ -1896,7 +1896,9 @@ static void cpumsf_pmu_stop(struct perf_event *event, int flags)
