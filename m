@@ -1,30 +1,30 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 253061AC891;
-	Sun, 24 Nov 2024 12:42:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E93A1AD418;
+	Sun, 24 Nov 2024 12:42:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732452147; cv=none; b=CmZvbNEhkwHvDmlNfTacfTCtcjI8blwjrVuBSOLV7ZwmdXYlAMxIKmoiiBhELwLvLewgA0vEuNgYsnlVfv/4Fjj72vH8AL2+AoH3xNvdQdIU5Y2TOOVR3cGStQvPhauZR8bNZFBzCLhv7PpGALxltZwWUuahtBAvsuZFJ9FiQEQ=
+	t=1732452154; cv=none; b=q7MxGoCgk9ggI1ppbh0fWzL6RQbykbTASdmJOb8j0lu7JBrNqoMo442301U/XgxuzWWsKJWmeNtEPI12nSS5Dg0ZNxJWq1pZnlXGBNzCKq98Ipeeru7PrGrk644+O0JvG96zZzZIVivcqw3OCXVxd4eI18VjG6GwtaThQGyjmV8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732452147; c=relaxed/simple;
-	bh=olyvTspdfHDyt5B6QxXNZzVEsAjT24Xn76a+us0aN3w=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=K8U2+jQHifIyogWDeYwDYEZKL9XnIE/9sqxo3mUQoRILZkspeKD90gcLIZT03395464HqDPDR7cMn56gjZOnsHgAoxmEvnuHYnXITyw1g2ue4xs5s5ZGSi88f92lUhoITss/ta2fp0it7rV8Tl6SgkRH5vFE/Hxbl2fjRTbm/mY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hLX34YBA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1732452154; c=relaxed/simple;
+	bh=Z5BDYCr6jGz1BfbKgnWKw0OXaNVL3avyWk+A4vvdbVA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rShVntirl75X4pgPNjI7rU8QL8T1KYoxQqM3BhY5NZdV/vMIxkPxPZA2KcMJkMpHc9VvvZPJX8loVGX1h9v7DyzzwRVGqhibbXCNDfcEJ2LUnzubXSpJ5ETrA3n5g3fyNL/2wk/hA2o2psjJGEl44M9jbCBv4pbWD4DZRipUnW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qYZsJA7s; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hLX34YBA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91844C4CECC;
-	Sun, 24 Nov 2024 12:42:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qYZsJA7s"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECC59C4CECC;
+	Sun, 24 Nov 2024 12:42:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1732452146;
-	bh=olyvTspdfHDyt5B6QxXNZzVEsAjT24Xn76a+us0aN3w=;
+	s=k20201202; t=1732452154;
+	bh=Z5BDYCr6jGz1BfbKgnWKw0OXaNVL3avyWk+A4vvdbVA=;
 	h=From:To:Cc:Subject:Date:From;
-	b=hLX34YBApSzCVjSA+OmJrpiTSTZ/WmQVp8wF8WIIdiHCHgiUdRH3UOLF84MtT8GEB
-	 JwoAtj28h8qakICw0gNEc/giwzeaU4jDh8eumUqgYTlh0PAerCYNoAsd4vwAhRrvt1
-	 n5FhJhem1gD2k43AxJpPhJWAQqHKMXuo9Qp8jv84f7Z2azZ9g5N6gntQqqEjuR5SQD
-	 9feR7d2hgutIiLfFNg6r1NRFwDtMdEJ4tSTB8tUETB73p7URNWsDwL7ucOLRiqiM6J
-	 J01WvPvKd2fal37nJIhy0q2WoqlhIXjf4RWlN7I0YUSRwIKOSWvv1RsgfhMUaxaq1E
-	 F5LUA+my5P89w==
+	b=qYZsJA7s1hcczN68LSy5rZlAG4Utt1z000PQW3NYXaihXts9k+aiHS2sk1NnlPOmq
+	 HbPpoTMbavsy/xQ3UV/lhkIdB3XDVQYcpRpK8VvgLu4PMAJRCgSw6DjC0R/raJJ0tv
+	 9TcBK9fYoivRz4WyqN3hbb7nnTvxV78vQhYaRNNAqf6FhSJDH5oEWFU5t0zSpB9vQZ
+	 axDvowGH4CKZs1+5Kh3DbLQ6wHF3muBK8O1/PCINrZquYwZ4GHRDYeHNmeQD6UcYQf
+	 QreMp5Tw/DxEaxAk3Wqg4aniChsiJpwtkzT7C2QJBcF4WwYazImL3+tod0g3A3X5Zl
+	 HESTEWOSTLytg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -36,9 +36,9 @@ Cc: Thomas Richter <tmricht@linux.ibm.com>,
 	agordeev@linux.ibm.com,
 	sumanthk@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 1/2] s390/cpum_sf: Handle CPU hotplug remove during sampling
-Date: Sun, 24 Nov 2024 07:42:20 -0500
-Message-ID: <20241124124224.3337144-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 1/2] s390/cpum_sf: Handle CPU hotplug remove during sampling
+Date: Sun, 24 Nov 2024 07:42:27 -0500
+Message-ID: <20241124124231.3337202-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -48,7 +48,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.4.286
+X-stable-base: Linux 4.19.324
 Content-Transfer-Encoding: 8bit
 
 From: Thomas Richter <tmricht@linux.ibm.com>
@@ -109,10 +109,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 4f251cd624d7e..6047ccb6f8e26 100644
+index c7f94b5d93968..e51babd0bbc10 100644
 --- a/arch/s390/kernel/perf_cpum_sf.c
 +++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1862,7 +1862,9 @@ static void cpumsf_pmu_stop(struct perf_event *event, int flags)
+@@ -1772,7 +1772,9 @@ static void cpumsf_pmu_stop(struct perf_event *event, int flags)
  	event->hw.state |= PERF_HES_STOPPED;
  
  	if ((flags & PERF_EF_UPDATE) && !(event->hw.state & PERF_HES_UPTODATE)) {
