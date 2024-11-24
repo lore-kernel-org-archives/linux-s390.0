@@ -1,190 +1,334 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE5201DF99F;
-	Fri, 22 Nov 2024 16:17:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40F652309A9;
+	Sun, 24 Nov 2024 12:39:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732292236; cv=none; b=EHIotQaoV2nkRH1BTEWkvOCCPLro6j/5g+cLAs6jSv983uak/+9guQJ0sGJHh0RVGJ6vZW28iwVHd6vq3NvBFMtDfZQuxNisamX14Gq0re075lYv+WDRetcGADzxIQ/lfbuPGdZRb3PGG3R4cL1X8AH86+LV5v4PAgwk7UkdiB0=
+	t=1732451955; cv=none; b=NWFdX+bJuPlytyL3UAxhBMQfmLvhdjYlbMOBujWGrf6OVb8lh1p3TjPbipDQSSYGZ4eQ6Sqi6THNwN8QRXVsdmEFIDqTRCiJTEf3UDNMVK6hDtrEQLmDb1uEhArZ107uuRXAg3A2AwDBk4M28T8kYovTf/UIPAs+XJ7A3imSo2c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732292236; c=relaxed/simple;
-	bh=YzT+Es9/r0Nk8ji75is2LAqMUQbHockjpf5WvhsLNeE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=P8urXbDY6WN+W/F0CklLlIIquH/srjsCpPe4hrjclJ2cOHQwTWtVSjY7vrxSGajhvfcjimQ1NaN/2fs944TmM64mZ+yjyQwPWXui8NxIEyF7QI9czekGz/c/1VQgEi5hzlhQ/CyTTN5+ooTeuh6FrT2x1p7CHGacnUjq6xTAFxs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VhfdFFnx; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1732451955; c=relaxed/simple;
+	bh=oB24oEeXtMiSwVGU8Tk3Vj+pu0zXMpSnHrrdgLJ8UgQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ltyjFEVDkK1gozKaTzwD6INhQFeQOE8hvApiIRdEPtDWZzU+fN3eEQok4P943EJImpSIB9eUQs6pfaWXpS6Dt860Xe3d12rTqBDolX1V989mE8vLmNlQjzpxfNV36Z1GI1YwsbN0odcACsplVhzDp1Pe2BiSHVFI9tsCiJ8328w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QP9Altwm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VhfdFFnx"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4AMBpVe6029097;
-	Fri, 22 Nov 2024 16:17:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=vdaEE2
-	rniiMaP5IeAGFH9iciTB4UVN8gNK9Mw/1GLAU=; b=VhfdFFnxp9LPZNd31/u/7C
-	JzQo9bJNgPwGK0KtQkwblrx5Bmz+M8nI0LB5jTW86JL0h7KVucR/WHFpgcZ7Lu/q
-	4xX5XefOGO6l28JMWJaQl6W0GQTrqqp/QuK7HGgkSVwGGjTV+eAfT8lHGyU4i3AV
-	zVrgyid6Vw74LNCtWmoBoNV0mF2C3rkZZBxcwnGX+YYtXX08v4uXzALejvIdbK4H
-	tiXRTFdcreWDFs4tOS6AGpoNKZ6rugqheYjWd68IAtI9QUMDs++FojRbGAGa2qru
-	zyuIq79ekHzeiO7+klnrS+hDuJ9wd/MNe0/ykFSqlj8Qw2uDKjf5vc0eLOQvcapg
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42xhtk9yyk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 Nov 2024 16:17:06 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4AMG70J6014298;
-	Fri, 22 Nov 2024 16:17:06 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42xhtk9yye-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 Nov 2024 16:17:05 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4AMCGBrl024589;
-	Fri, 22 Nov 2024 16:17:05 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 42y8e1k9eh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 Nov 2024 16:17:05 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4AMGH1K341025962
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 22 Nov 2024 16:17:01 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CA8AF2004F;
-	Fri, 22 Nov 2024 16:17:01 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 274372004E;
-	Fri, 22 Nov 2024 16:17:01 +0000 (GMT)
-Received: from [9.171.57.248] (unknown [9.171.57.248])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 22 Nov 2024 16:17:01 +0000 (GMT)
-Message-ID: <05586fa4-308b-4a13-a5f7-0c93ec3760a5@linux.ibm.com>
-Date: Fri, 22 Nov 2024 17:17:00 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QP9Altwm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75907C4CECC;
+	Sun, 24 Nov 2024 12:39:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1732451954;
+	bh=oB24oEeXtMiSwVGU8Tk3Vj+pu0zXMpSnHrrdgLJ8UgQ=;
+	h=From:To:Cc:Subject:Date:From;
+	b=QP9AltwmQXUc/bvt/aFpDjTjXRO4U/CxQeDjocQzVgjYZNKBTcOpMFHgpM6G9WxhW
+	 hLeRibIAaXp7IS2qmRvldMTnGetVzocl6nY0UblZf9garayWCjwHmLACvv3bKi1hEf
+	 SyqSQjQEnUN8L7ZfKFX20aPgFRw9pp4/CiyPQsEqROREvEmIDyPNnp+9+A/rOkNYxC
+	 7TaxC+gqKSUmV5jxEqToR2V3FmDKTe78m6i005/L6gWnC83kij3834mxDYnxsTHfl9
+	 /W5772k8juOaMdaDBUl+R7HdCi/nHqsZpzcQWVQ1GsfAMpfVTqg2eqOpoYbHZM/sFj
+	 qAZZCN8ENuV+Q==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
+	Gerd Bayer <gbayer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Sasha Levin <sashal@kernel.org>,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	gerald.schaefer@linux.ibm.com,
+	jroedel@suse.de,
+	mjrosato@linux.ibm.com,
+	lukas@wunner.de,
+	linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.12 01/19] s390/pci: Sort PCI functions prior to creating virtual busses
+Date: Sun, 24 Nov 2024 07:38:36 -0500
+Message-ID: <20241124123912.3335344-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 1/2] net/smc: initialize close_work early to avoid
- warning
-Content-Language: en-US
-To: Wen Gu <guwen@linux.alibaba.com>, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc: alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, horms@kernel.org,
-        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20241122071630.63707-1-guwen@linux.alibaba.com>
- <20241122071630.63707-2-guwen@linux.alibaba.com>
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20241122071630.63707-2-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: k_01IezWKk5IHnvxTtGUEt0HUCF5J5Zv
-X-Proofpoint-GUID: 2rlw1_ADSm6LApR0iENBbbsFbgrmrOU-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=999
- clxscore=1015 malwarescore=0 spamscore=0 bulkscore=0 priorityscore=1501
- impostorscore=0 mlxscore=0 adultscore=0 suspectscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
- definitions=main-2411220135
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.12.1
+Content-Transfer-Encoding: 8bit
 
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
+[ Upstream commit 0467cdde8c4320bbfdb31a8cff1277b202f677fc ]
 
-On 22.11.24 08:16, Wen Gu wrote:
-> We encountered a warning that close_work was canceled before
-> initialization.
-> 
->   WARNING: CPU: 7 PID: 111103 at kernel/workqueue.c:3047 __flush_work+0x19e/0x1b0
->   Workqueue: events smc_lgr_terminate_work [smc]
->   RIP: 0010:__flush_work+0x19e/0x1b0
->   Call Trace:
->    ? __wake_up_common+0x7a/0x190
->    ? work_busy+0x80/0x80
->    __cancel_work_timer+0xe3/0x160
->    smc_close_cancel_work+0x1a/0x70 [smc]
->    smc_close_active_abort+0x207/0x360 [smc]
->    __smc_lgr_terminate.part.38+0xc8/0x180 [smc]
->    process_one_work+0x19e/0x340
->    worker_thread+0x30/0x370
->    ? process_one_work+0x340/0x340
->    kthread+0x117/0x130
->    ? __kthread_cancel_work+0x50/0x50
->    ret_from_fork+0x22/0x30
-> 
-> This is because when smc_close_cancel_work is triggered, e.g. the RDMA
-> driver is rmmod and the LGR is terminated, the conn->close_work is
-> flushed before initialization, resulting in WARN_ON(!work->func).
-> 
-> __smc_lgr_terminate             | smc_connect_{rdma|ism}
-> -------------------------------------------------------------
->                                 | smc_conn_create
-> 				| \- smc_lgr_register_conn
-> for conn in lgr->conns_all      |
-> \- smc_conn_kill                |
->    \- smc_close_active_abort    |
->       \- smc_close_cancel_work  |
->          \- cancel_work_sync    |
->             \- __flush_work     |
-> 	         (close_work)   |
-> 	                        | smc_close_init
-> 	                        | \- INIT_WORK(&close_work)
-> 
-> So fix this by initializing close_work before establishing the
-> connection.
-> 
-> Fixes: 46c28dbd4c23 ("net/smc: no socket state changes in tasklet context")
-> Fixes: 413498440e30 ("net/smc: add SMC-D support in af_smc")
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-> ---
->  net/smc/af_smc.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 9d76e902fd77..ed6d4d520bc7 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -383,6 +383,7 @@ void smc_sk_init(struct net *net, struct sock *sk, int protocol)
->  	smc->limit_smc_hs = net->smc.limit_smc_hs;
->  	smc->use_fallback = false; /* assume rdma capability first */
->  	smc->fallback_rsn = 0;
-> +	smc_close_init(smc);
->  }
->  
->  static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
-> @@ -1299,7 +1300,6 @@ static int smc_connect_rdma(struct smc_sock *smc,
->  		goto connect_abort;
->  	}
->  
-> -	smc_close_init(smc);
->  	smc_rx_init(smc);
->  
->  	if (ini->first_contact_local) {
-> @@ -1435,7 +1435,6 @@ static int smc_connect_ism(struct smc_sock *smc,
->  			goto connect_abort;
->  		}
->  	}
-> -	smc_close_init(smc);
->  	smc_rx_init(smc);
->  	smc_tx_init(smc);
->  
-> @@ -2479,7 +2478,6 @@ static void smc_listen_work(struct work_struct *work)
->  		goto out_decl;
->  
->  	mutex_lock(&smc_server_lgr_pending);
-> -	smc_close_init(new_smc);
->  	smc_rx_init(new_smc);
->  	smc_tx_init(new_smc);
->  
+Instead of relying on the observed but not architected firmware behavior
+that PCI functions from the same card are listed in ascending RID order
+in clp_list_pci() ensure this by sorting. To allow for sorting separate
+the initial clp_list_pci() and creation of the virtual PCI busses.
 
+Note that fundamentally in our per-PCI function hotplug design non RID
+order of discovery is still possible. For example when the two PFs of
+a two port NIC are hotplugged after initial boot and in descending RID
+order. In this case the virtual PCI bus would be created by the second
+PF using that PF's UID as domain number instead of that of the first PF.
+Thus the domain number would then change from the UID of the second PF
+to that of the first PF on reboot but there is really nothing we can do
+about that since changing domain numbers at runtime seems even worse.
+This only impacts the domain number as the RIDs are consistent and thus
+even with just the second PF visible it will show up in the correct
+position on the virtual bus.
 
-Thank you for the very good commit message. Makes sense to me.
+Reviewed-by: Gerd Bayer <gbayer@linux.ibm.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/include/asm/pci.h |  5 ++-
+ arch/s390/pci/pci.c         | 69 ++++++++++++++++++++++++++++++++-----
+ arch/s390/pci/pci_clp.c     | 12 ++++---
+ arch/s390/pci/pci_event.c   | 13 ++++---
+ 4 files changed, 82 insertions(+), 17 deletions(-)
 
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+index 9d920ced60475..45e87c7c122a6 100644
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -130,6 +130,7 @@ struct zpci_dev {
+ 	u16		vfn;		/* virtual function number */
+ 	u16		pchid;		/* physical channel ID */
+ 	u16		maxstbl;	/* Maximum store block size */
++	u16		rid;		/* RID as supplied by firmware */
+ 	u8		pfgid;		/* function group ID */
+ 	u8		pft;		/* pci function type */
+ 	u8		port;
+@@ -210,12 +211,14 @@ extern struct airq_iv *zpci_aif_sbv;
+ ----------------------------------------------------------------------------- */
+ /* Base stuff */
+ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state);
++int zpci_add_device(struct zpci_dev *zdev);
+ int zpci_enable_device(struct zpci_dev *);
+ int zpci_disable_device(struct zpci_dev *);
+ int zpci_scan_configured_device(struct zpci_dev *zdev, u32 fh);
+ int zpci_deconfigure_device(struct zpci_dev *zdev);
+ void zpci_device_reserved(struct zpci_dev *zdev);
+ bool zpci_is_device_configured(struct zpci_dev *zdev);
++int zpci_scan_devices(void);
+ 
+ int zpci_hot_reset_device(struct zpci_dev *zdev);
+ int zpci_register_ioat(struct zpci_dev *, u8, u64, u64, u64, u8 *);
+@@ -225,7 +228,7 @@ void zpci_update_fh(struct zpci_dev *zdev, u32 fh);
+ 
+ /* CLP */
+ int clp_setup_writeback_mio(void);
+-int clp_scan_pci_devices(void);
++int clp_scan_pci_devices(struct list_head *scan_list);
+ int clp_query_pci_fn(struct zpci_dev *zdev);
+ int clp_enable_fh(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as);
+ int clp_disable_fh(struct zpci_dev *zdev, u32 *fh);
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index bd9624c20b802..b7efa96776eac 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -29,6 +29,7 @@
+ #include <linux/pci.h>
+ #include <linux/printk.h>
+ #include <linux/lockdep.h>
++#include <linux/list_sort.h>
+ 
+ #include <asm/isc.h>
+ #include <asm/airq.h>
+@@ -785,7 +786,6 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
+ 	struct zpci_dev *zdev;
+ 	int rc;
+ 
+-	zpci_dbg(1, "add fid:%x, fh:%x, c:%d\n", fid, fh, state);
+ 	zdev = kzalloc(sizeof(*zdev), GFP_KERNEL);
+ 	if (!zdev)
+ 		return ERR_PTR(-ENOMEM);
+@@ -805,6 +805,19 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
+ 	mutex_init(&zdev->fmb_lock);
+ 	mutex_init(&zdev->kzdev_lock);
+ 
++	return zdev;
++
++error:
++	zpci_dbg(0, "crt fid:%x, rc:%d\n", fid, rc);
++	kfree(zdev);
++	return ERR_PTR(rc);
++}
++
++int zpci_add_device(struct zpci_dev *zdev)
++{
++	int rc;
++
++	zpci_dbg(1, "add fid:%x, fh:%x, c:%d\n", zdev->fid, zdev->fh, zdev->state);
+ 	rc = zpci_init_iommu(zdev);
+ 	if (rc)
+ 		goto error;
+@@ -816,15 +829,13 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
+ 	spin_lock(&zpci_list_lock);
+ 	list_add_tail(&zdev->entry, &zpci_list);
+ 	spin_unlock(&zpci_list_lock);
+-
+-	return zdev;
++	return 0;
+ 
+ error_destroy_iommu:
+ 	zpci_destroy_iommu(zdev);
+ error:
+-	zpci_dbg(0, "add fid:%x, rc:%d\n", fid, rc);
+-	kfree(zdev);
+-	return ERR_PTR(rc);
++	zpci_dbg(0, "add fid:%x, rc:%d\n", zdev->fid, rc);
++	return rc;
+ }
+ 
+ bool zpci_is_device_configured(struct zpci_dev *zdev)
+@@ -1082,6 +1093,49 @@ bool zpci_is_enabled(void)
+ 	return s390_pci_initialized;
+ }
+ 
++static int zpci_cmp_rid(void *priv, const struct list_head *a,
++			const struct list_head *b)
++{
++	struct zpci_dev *za = container_of(a, struct zpci_dev, entry);
++	struct zpci_dev *zb = container_of(b, struct zpci_dev, entry);
++
++	/*
++	 * PCI functions without RID available maintain original order
++	 * between themselves but sort before those with RID.
++	 */
++	if (za->rid == zb->rid)
++		return za->rid_available > zb->rid_available;
++	/*
++	 * PCI functions with RID sort by RID ascending.
++	 */
++	return za->rid > zb->rid;
++}
++
++static void zpci_add_devices(struct list_head *scan_list)
++{
++	struct zpci_dev *zdev, *tmp;
++
++	list_sort(NULL, scan_list, &zpci_cmp_rid);
++	list_for_each_entry_safe(zdev, tmp, scan_list, entry) {
++		list_del_init(&zdev->entry);
++		zpci_add_device(zdev);
++	}
++}
++
++int zpci_scan_devices(void)
++{
++	LIST_HEAD(scan_list);
++	int rc;
++
++	rc = clp_scan_pci_devices(&scan_list);
++	if (rc)
++		return rc;
++
++	zpci_add_devices(&scan_list);
++	zpci_bus_scan_busses();
++	return 0;
++}
++
+ static int __init pci_base_init(void)
+ {
+ 	int rc;
+@@ -1111,10 +1165,9 @@ static int __init pci_base_init(void)
+ 	if (rc)
+ 		goto out_irq;
+ 
+-	rc = clp_scan_pci_devices();
++	rc = zpci_scan_devices();
+ 	if (rc)
+ 		goto out_find;
+-	zpci_bus_scan_busses();
+ 
+ 	s390_pci_initialized = 1;
+ 	return 0;
+diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
+index 6f55a59a08711..f7430086e9739 100644
+--- a/arch/s390/pci/pci_clp.c
++++ b/arch/s390/pci/pci_clp.c
+@@ -164,8 +164,10 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
+ 	zdev->port = response->port;
+ 	zdev->uid = response->uid;
+ 	zdev->fmb_length = sizeof(u32) * response->fmb_len;
+-	zdev->rid_available = response->rid_avail;
+ 	zdev->is_physfn = response->is_physfn;
++	zdev->rid_available = response->rid_avail;
++	if (zdev->rid_available)
++		zdev->rid = response->rid;
+ 	if (!s390_pci_no_rid && zdev->rid_available)
+ 		zdev->devfn = response->rid & ZPCI_RID_MASK_DEVFN;
+ 
+@@ -407,6 +409,7 @@ static int clp_find_pci(struct clp_req_rsp_list_pci *rrb, u32 fid,
+ 
+ static void __clp_add(struct clp_fh_list_entry *entry, void *data)
+ {
++	struct list_head *scan_list = data;
+ 	struct zpci_dev *zdev;
+ 
+ 	if (!entry->vendor_id)
+@@ -417,10 +420,11 @@ static void __clp_add(struct clp_fh_list_entry *entry, void *data)
+ 		zpci_zdev_put(zdev);
+ 		return;
+ 	}
+-	zpci_create_device(entry->fid, entry->fh, entry->config_state);
++	zdev = zpci_create_device(entry->fid, entry->fh, entry->config_state);
++	list_add_tail(&zdev->entry, scan_list);
+ }
+ 
+-int clp_scan_pci_devices(void)
++int clp_scan_pci_devices(struct list_head *scan_list)
+ {
+ 	struct clp_req_rsp_list_pci *rrb;
+ 	int rc;
+@@ -429,7 +433,7 @@ int clp_scan_pci_devices(void)
+ 	if (!rrb)
+ 		return -ENOMEM;
+ 
+-	rc = clp_list_pci(rrb, NULL, __clp_add);
++	rc = clp_list_pci(rrb, scan_list, __clp_add);
+ 
+ 	clp_free_block(rrb);
+ 	return rc;
+diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
+index d4f19d33914cb..47f934f4e828e 100644
+--- a/arch/s390/pci/pci_event.c
++++ b/arch/s390/pci/pci_event.c
+@@ -340,6 +340,7 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
+ 			zdev = zpci_create_device(ccdf->fid, ccdf->fh, ZPCI_FN_STATE_CONFIGURED);
+ 			if (IS_ERR(zdev))
+ 				break;
++			zpci_add_device(zdev);
+ 		} else {
+ 			/* the configuration request may be stale */
+ 			if (zdev->state != ZPCI_FN_STATE_STANDBY)
+@@ -349,10 +350,14 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
+ 		zpci_scan_configured_device(zdev, ccdf->fh);
+ 		break;
+ 	case 0x0302: /* Reserved -> Standby */
+-		if (!zdev)
+-			zpci_create_device(ccdf->fid, ccdf->fh, ZPCI_FN_STATE_STANDBY);
+-		else
++		if (!zdev) {
++			zdev = zpci_create_device(ccdf->fid, ccdf->fh, ZPCI_FN_STATE_STANDBY);
++			if (IS_ERR(zdev))
++				break;
++			zpci_add_device(zdev);
++		} else {
+ 			zpci_update_fh(zdev, ccdf->fh);
++		}
+ 		break;
+ 	case 0x0303: /* Deconfiguration requested */
+ 		if (zdev) {
+@@ -381,7 +386,7 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
+ 		break;
+ 	case 0x0306: /* 0x308 or 0x302 for multiple devices */
+ 		zpci_remove_reserved_devices();
+-		clp_scan_pci_devices();
++		zpci_scan_devices();
+ 		break;
+ 	case 0x0308: /* Standby -> Reserved */
+ 		if (!zdev)
+-- 
+2.43.0
+
