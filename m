@@ -1,70 +1,74 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E950018872F;
-	Mon, 25 Nov 2024 13:40:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 736A117DFEC
+	for <linux-s390@vger.kernel.org>; Mon, 25 Nov 2024 14:42:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732542032; cv=none; b=tqlnFjzxh4DJl1A72U9ZwhwJHTEbWPEWe0txUrjVO+M0gA9BCPGnjzF08G3c9QIw4+MSpFW8d0m6MscDZo8vaM05Cyy6RgYXBv69gV9tYeuJVk0vcZn5tHSc2r5xrA+dgO39lTARb5f2/3GWvxqz8oQ6M0rxAk8AqrluAulLNYk=
+	t=1732545723; cv=none; b=C4GUfThVEmxCUJjy64dSPmWcXySWxnctu7ylkJ4zJdedRIjvhMcGpuZ4y0go928BFsPUze7W07mGjKkiluKqRZleSAk85w8eyiBB1tu0NCBURhr0svFpH6xy1TZRLR4jtdrCBDpSMCl9DntVrSG9tamVnaZApBH7obeVA6c9bQs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732542032; c=relaxed/simple;
-	bh=Ywqwd6YALEXzhnE6FFAoiYljnJijnT7S0iUZ8xoHAdU=;
+	s=arc-20240116; t=1732545723; c=relaxed/simple;
+	bh=Tr/cQ1TM/FF9xGvPfcuB0kYLT2zKMPvRvPes1SuHlCw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YJvVC2/JVsV+cXqb5NS60bYdpSuTWGuv5kS3dvlckkdaWycJdf6TChR+yCXVasEqS3RlQe8eDR+fOOXjXkyVkKz1TsaxFjg8MUBnVJsI7EDp0igFri4jqDiweffBXjk+mv75Ag1tW7Um2Ia+eLiA7dnBGrqkcJhFRhgXnOEvtfM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JO2trHqw; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=bvjga79YugWFenLexjeS+mJCPG2YZYUg+Qd6/84zyHSkO8QZhtkQhf0zpCLq7rpwr/51hBgELDNU9MxNcsojl8RuTTT3dvxKbihy2NxejPKWb3S6C5xHtZbFFJv+B/8yjN/vE1jfkkXk9CClNejqZ8aHyIQzr++mw7u1w5sTGCo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NrxHyMvO; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JO2trHqw"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4APBDorY005357;
-	Mon, 25 Nov 2024 13:40:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=aqJI7R1FRzjvbqvVNF3SYg37bbVlYS
-	EUty2FMF7VzE0=; b=JO2trHqwcT5S9TZe4GyPxVHa+tgReBDNkywE4YvwO4PcyF
-	lKgIY2io7tGNIn5dCf5wKxWFFf4GENngmp23OCdCBpg9FilS4vImYpjXSfFoI242
-	WJJAnwve/X83Fz5mUFJpOALT1+nt8CRzJpDEpqanz1vp9efUs4clt1XG/O5y0TuX
-	cSIc5+VkGTpl1lMlQcZwZ0pd4VuBYAJhkWUjjWe2uh+pdjEqUSNgTiY3IOGKuze2
-	hIjsnzRfOHcROv3imxQU1Ananjyyh2olX37FAT5m76qCghF4TRNu256GaC3trT3D
-	MfZ7naapSpQyXLHOzztUK5CZ2MM44zcBoXBhH4Jw==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4338a78d3s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 25 Nov 2024 13:40:28 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4AP5oAEW026337;
-	Mon, 25 Nov 2024 13:40:27 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 433v30tehq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 25 Nov 2024 13:40:27 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4APDeN2Q54788492
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 25 Nov 2024 13:40:24 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E3FE020043;
-	Mon, 25 Nov 2024 13:40:23 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9056820040;
-	Mon, 25 Nov 2024 13:40:23 +0000 (GMT)
-Received: from osiris (unknown [9.179.25.253])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 25 Nov 2024 13:40:23 +0000 (GMT)
-Date: Mon, 25 Nov 2024 14:40:22 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] KVM: s390: Increase size of union sca_utility to
- four bytes
-Message-ID: <20241125134022.14417-E-hca@linux.ibm.com>
-References: <20241125115039.1809353-1-hca@linux.ibm.com>
- <20241125115039.1809353-4-hca@linux.ibm.com>
- <20241125132042.44918953@p-imbrenda>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NrxHyMvO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1732545720;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=46wCtS3Eh2MWHiDHvSqDOE0J1G+zlgwVIrX5wgmHpV8=;
+	b=NrxHyMvOHcoFucANY77YebLT+uCl0WKy+CsjlXa2T5ajitrUMtOk/196+WSNs351z8mKl1
+	MnZDn6Ew2iDIoeVqLHXtVrNQ8CoXgWtjAkdeeW+vrIOBDVMyM//jG7kQamEoRmzH6HTkei
+	DCHBPpSrXieu4LamZvL0ZZSVecA0mCQ=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-527-bEyv-BAOPx6TDm6pRFxqBA-1; Mon,
+ 25 Nov 2024 09:41:55 -0500
+X-MC-Unique: bEyv-BAOPx6TDm6pRFxqBA-1
+X-Mimecast-MFC-AGG-ID: bEyv-BAOPx6TDm6pRFxqBA
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 6BFA41954B0A;
+	Mon, 25 Nov 2024 14:41:52 +0000 (UTC)
+Received: from localhost (unknown [10.72.113.10])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 28945195E483;
+	Mon, 25 Nov 2024 14:41:50 +0000 (UTC)
+Date: Mon, 25 Nov 2024 22:41:45 +0800
+From: Baoquan He <bhe@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	kexec@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
+	Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v1 03/11] fs/proc/vmcore: disallow vmcore modifications
+ after the vmcore was opened
+Message-ID: <Z0SMqYX8gMvdiU4T@MiWiFi-R3L-srv>
+References: <20241025151134.1275575-1-david@redhat.com>
+ <20241025151134.1275575-4-david@redhat.com>
+ <Z0BL/UopaH5Xg5jS@MiWiFi-R3L-srv>
+ <d29d7816-a3e5-4f34-bb0c-dd427931efb4@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -73,34 +77,79 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20241125132042.44918953@p-imbrenda>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ZAMo7C4kmPJKVx8m5_WxSnGl_7IhNwW1
-X-Proofpoint-ORIG-GUID: ZAMo7C4kmPJKVx8m5_WxSnGl_7IhNwW1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
- impostorscore=0 priorityscore=1501 mlxlogscore=549 malwarescore=0
- adultscore=0 phishscore=0 lowpriorityscore=0 mlxscore=0 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2411250115
+In-Reply-To: <d29d7816-a3e5-4f34-bb0c-dd427931efb4@redhat.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Mon, Nov 25, 2024 at 01:20:42PM +0100, Claudio Imbrenda wrote:
-> On Mon, 25 Nov 2024 12:50:39 +0100
-> Heiko Carstens <hca@linux.ibm.com> wrote:
-> 
-> > kvm_s390_update_topology_change_report() modifies a single bit within
-> > sca_utility using cmpxchg(). Given that the size of the sca_utility union
-> > is two bytes this generates very inefficient code. Change the size to four
-> > bytes, so better code can be generated.
+On 11/22/24 at 10:30am, David Hildenbrand wrote:
+> On 22.11.24 10:16, Baoquan He wrote:
+> > On 10/25/24 at 05:11pm, David Hildenbrand wrote:
+> > ......snip...
+> > > @@ -1482,6 +1470,10 @@ int vmcore_add_device_dump(struct vmcoredd_data *data)
+> > >   		return -EINVAL;
+> > >   	}
+> > > +	/* We'll recheck under lock later. */
+> > > +	if (data_race(vmcore_opened))
+> > > +		return -EBUSY;
 > > 
-> > Even though the size of sca_utility doesn't reflect architecture anymore
-> > this seems to be the easiest and most pragmatic approach to avoid
-> > inefficient code.
 > 
-> wouldn't an atomic bit_op be better in that case?
+> Hi,
+> 
+> > As I commented to patch 7, if vmcore is opened and closed after
+> > checking, do we need to give up any chance to add device dumping
+> > as below?
+> > 
+> > fd = open(/proc/vmcore);
+> > ...do checking;
+> > close(fd);
+> > 
+> > quit any device dump adding;
+> > 
+> > run makedumpfile on s390;
+> >    ->fd = open(/proc/vmcore);
+> >      -> try to dump;
+> >    ->close(fd);
+> 
+> The only reasonable case where this could happen (with virtio_mem) would be
+> when you hotplug a virtio-mem device into a VM that is currently in the
+> kdump kernel. However, in this case, the device would not provide any memory
+> we want to dump:
+> 
+> (1) The memory was not available to the 1st (crashed) kernel, because
+>     the device got hotplugged later.
+> (2) Hotplugged virtio-mem devices show up with "no plugged memory",
+>     meaning there wouldn't be even something to dump.
+> 
+> Drivers will be loaded (as part of the kernel or as part of the initrd)
+> before any kdump action is happening. Similarly, just imagine your NIC
+> driver not being loaded when you start dumping to a network share ...
+> 
+> This should similarly apply to vmcoredd providers.
+> 
+> There is another concern I had at some point with changing the effective
+> /proc/vmcore size after someone already opened it, and might assume the size
+> will stay unmodified (IOW, the file was completely static before vmcoredd
+> showed up).
+> 
+> So unless there is a real use case that requires tracking whether the file
+> is no longer open, to support modifying the vmcore afterwards, we should
+> keep it simple.
+> 
+> I am not aware of any such cases, and my experiments with virtio_mem showed
+> that the driver get loaded extremely early from the initrd, compared to when
+> we actually start messing with /proc/vmcore from user space.
 
-I had that, but decided against it, since the generated code isn't shorter.
-And it would require and unsigned long type within the union, or a cast,
-which I also both disliked.
+Hmm, thanks for sharing your thoughts. I personally think if we could,
+we had better make code as robust as possible. Here, since we have
+already integrated the lock with one vmcore_mutex, whether the vmcoredd 
+is added before or after /proc/vmcore opening/closing, it won't harm.
+The benefit is it works well with the current kwown case, virtio-mem 
+probing, makedumpfile running. And it also works well with other
+possible cases, e.g if you doubt virtio-mem dumping and want to debug,
+you set rd.break or take any way to drop into emengency shell of kdump
+kernel, you can play it to poke virtio-mem module again and run makedumpfile
+manually or reversing the order or taking any testing. Then kernel
+implementation should not preset that user space have to run the
+makedumpfile after the much earlier virtio-mem probing. If we implement
+codes according to preset userspace scenario, that limit the future
+adapttion, IMHO.
+
