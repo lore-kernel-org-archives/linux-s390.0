@@ -1,224 +1,123 @@
-Received: from out-181.mta1.migadu.com (out-181.mta1.migadu.com [95.215.58.181])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 580DD192D75
-	for <linux-s390@vger.kernel.org>; Mon, 25 Nov 2024 10:52:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 400FF376E0;
+	Mon, 25 Nov 2024 11:50:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732531974; cv=none; b=hAKVGRDV91Bz7gqMDWpMZ+65IIFiQiCsI+mSBF5wjMhoGnhTMa5UFDQH33tYGg/+pSyBpT6t/+6X9lr5vLzqTOOGXRLsGNlyfu418BoR/aa7qJ1jZhI8sOMiP1ApxakJIGCS2VLiYNTSTfKa9jhJ5wjRjf0SUsHCIEO+v7alabo=
+	t=1732535447; cv=none; b=V5T6LU91k1EM0cKKs+YdXkNFELvfaOFOim/Y6GZSeaHO5PDoZCCzrxodOtIjWky3hcvNBUKpHFI88ML0BMXleaWay7uifH4d4WO+xeJovT+dd37xw/mIs02+/wJ96h9UtaJG2Kkkla4SYrrCs3n8I+ICGK7KKpa9kbX674q0BqM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732531974; c=relaxed/simple;
-	bh=N5OJASuUNrxir7OkItusUNt/HE0H2KgHqM5QwkfAxB4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RAL/2QB9rt0P9/kpeDbe5NLMBeAmQ2GrHn/khQfNF6NMRBPx+dckJfx6QxzuS6xoLYIbhvHMEvWdKPnYavpUpj/FNcj6v6biyKJ/UAg3ffTUtZ4yjHY9tu+WWLz/73fR4R/6PadySxm9x8C1isL8KRHILYVBvfrFSStCJXr2p/I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=AG/iqdDk; arc=none smtp.client-ip=95.215.58.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1732535447; c=relaxed/simple;
+	bh=sdha4UFbzAj/IT3/+mxW7xRcKh1JUJ9MHdzxrrQtAhw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=q9ffHKUooFQ9g20AWj+bGiIq1q70yxZBKhqWDvPnuLwfhpX7lLXmK80E53yiF236J9RZ/BY5Hel8GoZQjBb88nesBN94+ZS0xgcyLwL75lvao/Lmo5Kv0FBE9fjlHYmJA7kMey8j2g+/reQHF+k2Qsjg4CX8SZOMo3gREwt7nLY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KJDksxwh; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="AG/iqdDk"
-Message-ID: <0a8c2285-29c2-4a79-b704-c2baeac90b70@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1732531965;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=A1KpdPwnSbk5EQncnXyppapMggQ4L+h6E0nxjLIioNE=;
-	b=AG/iqdDkm5jIIRtnb7xBAxMVoJGAo2sn3tvY6bD4JkeXlKoVRse76XaLuAX4yie46AGQGF
-	JsH5Y15Jp4wqxOt8rbkiipPmGxsWxcOWOR6skMT7Feqmh3/hVHvqJzBAUC+swQLa3P6Xbn
-	hxogJnIFHTnn1HgEfqI7udwg0HC99jw=
-Date: Mon, 25 Nov 2024 11:52:41 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KJDksxwh"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4APBiAx2028800;
+	Mon, 25 Nov 2024 11:50:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=tW1SiColR96hkspMdkCnUsugwI9bUJxDV15p475UL
+	Q8=; b=KJDksxwhxEt1wsF5iydiLk6+3lmv0R06uSQLWBNqiLAZw/uQAyChL2nel
+	QrC+X74B81XK9gfPEA45vMzbDDa5qAtG9kp4AdK58QanXKPVX2/ewta6OZ5V0m3e
+	6Wx9JVq5pHe1Rmv+xqlMQkDkYTjJ+R+f82jPr+dQKJzhcboTqu1RHslCsLk8n8NI
+	bBwTuPgfffdH82syYEPxxTQTOgPel4jOZuwJxFnvf8YsYU3y+pbHNj53PnG4d+uW
+	kTVDiH0x9+kibf8HtiT6YUNhO+zB9RsZFEzAvM0UlxatCN0JTKJ7DhzCsdwH+xU3
+	5aHkHFQMNsVvaXPjjhNoCddIfA/IQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4338a77x2h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 25 Nov 2024 11:50:43 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4AP5ePqC026351;
+	Mon, 25 Nov 2024 11:50:43 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 433v30ta4y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 25 Nov 2024 11:50:43 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4APBodAW20840912
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 25 Nov 2024 11:50:39 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B280A2004B;
+	Mon, 25 Nov 2024 11:50:39 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8F42720043;
+	Mon, 25 Nov 2024 11:50:39 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 25 Nov 2024 11:50:39 +0000 (GMT)
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 0/3] KVM: s390: Couple of small cmpxchg() optimizations
+Date: Mon, 25 Nov 2024 12:50:36 +0100
+Message-ID: <20241125115039.1809353-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH bpf-next 4/4] bpf/selftests: add simple selftest for
- bpf_smc_ops
-To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
- wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
- daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
- pabeni@redhat.com, song@kernel.org, sdf@google.com, haoluo@google.com,
- yhs@fb.com, edumazet@google.com, john.fastabend@gmail.com,
- kpsingh@kernel.org, jolsa@kernel.org, guwen@linux.alibaba.com
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, bpf@vger.kernel.org,
- dtcccc@linux.alibaba.com
-References: <1729737768-124596-1-git-send-email-alibuda@linux.alibaba.com>
- <1729737768-124596-5-git-send-email-alibuda@linux.alibaba.com>
- <8c06240b-540b-472f-974f-d2db80d90c22@linux.dev>
- <e8ba7dc0-96b5-4119-b2f6-b07432f65fdb@linux.alibaba.com>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
-In-Reply-To: <e8ba7dc0-96b5-4119-b2f6-b07432f65fdb@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: v7yQPefRjDtoGXpXvX1ze3UzwQYTBj3f
+X-Proofpoint-ORIG-GUID: v7yQPefRjDtoGXpXvX1ze3UzwQYTBj3f
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
+ impostorscore=0 priorityscore=1501 mlxlogscore=721 malwarescore=0
+ adultscore=0 phishscore=0 lowpriorityscore=0 mlxscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411250098
+
+Use try_cmpxchg() instead of cmpxchg() so compilers with flag output
+operand support (gcc 14 and newer) can generate slightly better code.
+
+Also get rid of two cmpxchg() usages on one/two byte memory areas
+which generates inefficient code.
+
+bloat-o-meter statistics of the kvm module:
+
+add/remove: 0/0 grow/shrink: 0/11 up/down: 0/-318 (-318)
+Function                                     old     new   delta
+kvm_s390_handle_wait                         886     880      -6
+kvm_s390_gisa_destroy                        226     220      -6
+kvm_s390_gisa_clear                           96      90      -6
+ipte_unlock                                  380     372      -8
+kvm_s390_gisc_unregister                     270     260     -10
+kvm_s390_gisc_register                       290     280     -10
+gisa_vcpu_kicker                             200     190     -10
+account_mem                                  250     232     -18
+ipte_lock                                    416     368     -48
+kvm_s390_update_topology_change_report       174     122     -52
+kvm_s390_clear_local_irqs                    420     276    -144
+Total: Before=316521, After=316203, chg -0.10%
+
+Heiko Carstens (3):
+  KVM: s390: Use try_cmpxchg() instead of cmpxchg() loops
+  KVM: s390: Remove one byte cmpxchg() usage
+  KVM: s390: Increase size of union sca_utility to four bytes
+
+ arch/s390/include/asm/kvm_host.h | 10 +++++-----
+ arch/s390/kvm/gaccess.c          | 16 ++++++++--------
+ arch/s390/kvm/interrupt.c        | 25 ++++++++-----------------
+ arch/s390/kvm/kvm-s390.c         |  4 ++--
+ arch/s390/kvm/pci.c              |  5 ++---
+ 5 files changed, 25 insertions(+), 35 deletions(-)
 
 
-On 21.11.24 03:00, D. Wythe wrote:
->
->
-> On 11/3/24 9:01 PM, Zhu Yanjun wrote:
->> 在 2024/10/24 4:42, D. Wythe 写道:
->>> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>>
->>> This PATCH adds a tiny selftest for bpf_smc_ops, to verify the ability
->>> to attach and write access.
->>>
->>> Follow the steps below to run this test.
->>>
->>> make -C tools/testing/selftests/bpf
->>> cd tools/testing/selftests/bpf
->>> sudo ./test_progs -t smc
->>
->> Thanks a lot.
->>
->> # ./test_progs -t smc
->> #27/1    bpf_smc/load:OK
->> #27      bpf_smc:OK
->> Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
->>
->> The above command is based on several kernel modules. After these 
->> dependent kernel modules are loaded, then can run the above command 
->> successfully.
->>
->> Zhu Yanjun
->>
->
-> Hi, Yanjun
->
-> This is indeed a problem, a better way may be to create a separate 
-> testing directory for SMC, and we are trying to do this.
-
-Got it. In the latest patch series, if a test program in sample/bpf can 
-verify this bpf feature, it is better than a selftest program in the 
-directory tools/testing/selftests/bpf.
-
-I delved into this selftest tool. It seems that this selftest tool only 
-makes the basic checks. A test program in sample/bpf can do more.
-
-I mean, it is very nice that a selftest tool can make selftest on smc 
-bpf. But it is better that a test program in sample/bpf can make some 
-parameter changes in smc.
-
-These parameter changes are mentioned in the previous commits.
-
-"
-
-     As a subsequent enhancement, this patch introduces a new hook for eBPF
-     programs that allows decisions on whether to use SMC or not at runtime,
-     including but not limited to local/remote IP address or ports. In
-     simpler words, this feature allows modifications to syn_smc through 
-eBPF
-     programs before the TCP three-way handshake got established.
-
-"
-
-Zhu Yanjun
-
->
-> Best wishes,
-> D. Wythe
->
->>>
->>> Results shows:
->>> Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
->>>
->>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
->>> ---
->>>   .../selftests/bpf/prog_tests/test_bpf_smc.c        | 21 +++++++++++
->>>   tools/testing/selftests/bpf/progs/bpf_smc.c        | 44 
->>> ++++++++++++++++++++++
->>>   2 files changed, 65 insertions(+)
->>>   create mode 100644 
->>> tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
->>>   create mode 100644 tools/testing/selftests/bpf/progs/bpf_smc.c
->>>
->>> diff --git a/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c 
->>> b/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
->>> new file mode 100644
->>> index 00000000..2299853
->>> --- /dev/null
->>> +++ b/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
->>> @@ -0,0 +1,21 @@
->>> +// SPDX-License-Identifier: GPL-2.0
->>> +#include <test_progs.h>
->>> +
->>> +#include "bpf_smc.skel.h"
->>> +
->>> +static void load(void)
->>> +{
->>> +    struct bpf_smc *skel;
->>> +
->>> +    skel = bpf_smc__open_and_load();
->>> +    if (!ASSERT_OK_PTR(skel, "bpf_smc__open_and_load"))
->>> +        return;
->>> +
->>> +    bpf_smc__destroy(skel);
->>> +}
->>> +
->>> +void test_bpf_smc(void)
->>> +{
->>> +    if (test__start_subtest("load"))
->>> +        load();
->>> +}
->>> diff --git a/tools/testing/selftests/bpf/progs/bpf_smc.c 
->>> b/tools/testing/selftests/bpf/progs/bpf_smc.c
->>> new file mode 100644
->>> index 00000000..ebff477
->>> --- /dev/null
->>> +++ b/tools/testing/selftests/bpf/progs/bpf_smc.c
->>> @@ -0,0 +1,44 @@
->>> +// SPDX-License-Identifier: GPL-2.0
->>> +
->>> +#include "vmlinux.h"
->>> +
->>> +#include <bpf/bpf_helpers.h>
->>> +#include <bpf/bpf_tracing.h>
->>> +
->>> +char _license[] SEC("license") = "GPL";
->>> +
->>> +struct smc_bpf_ops_ctx {
->>> +    struct {
->>> +        struct tcp_sock *tp;
->>> +    } set_option;
->>> +    struct {
->>> +        const struct tcp_sock *tp;
->>> +        struct inet_request_sock *ireq;
->>> +        int smc_ok;
->>> +    } set_option_cond;
->>> +};
->>> +
->>> +struct smc_bpf_ops {
->>> +    void (*set_option)(struct smc_bpf_ops_ctx *ctx);
->>> +    void (*set_option_cond)(struct smc_bpf_ops_ctx *ctx);
->>> +};
->>> +
->>> +SEC("struct_ops/bpf_smc_set_tcp_option_cond")
->>> +void BPF_PROG(bpf_smc_set_tcp_option_cond, struct smc_bpf_ops_ctx 
->>> *arg)
->>> +{
->>> +    arg->set_option_cond.smc_ok = 1;
->>> +}
->>> +
->>> +SEC("struct_ops/bpf_smc_set_tcp_option")
->>> +void BPF_PROG(bpf_smc_set_tcp_option, struct smc_bpf_ops_ctx *arg)
->>> +{
->>> +    struct tcp_sock *tp = arg->set_option.tp;
->>> +
->>> +    tp->syn_smc = 1;
->>> +}
->>> +
->>> +SEC(".struct_ops.link")
->>> +struct smc_bpf_ops sample_smc_bpf_ops = {
->>> +    .set_option         = (void *) bpf_smc_set_tcp_option,
->>> +    .set_option_cond    = (void *) bpf_smc_set_tcp_option_cond,
->>> +};
-
+base-commit: 9f16d5e6f220661f73b36a4be1b21575651d8833
 -- 
-Best Regards,
-Yanjun.Zhu
+2.45.2
 
