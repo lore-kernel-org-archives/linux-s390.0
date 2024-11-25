@@ -1,86 +1,211 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EE92364D6;
-	Mon, 25 Nov 2024 06:09:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 265551EB2A;
+	Mon, 25 Nov 2024 06:47:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732514983; cv=none; b=tJSUyw9yow2g3hyOp51lDWTKydtCwDKeO43YE4pqNY4i/6XZi4+2Jub6F+Ow+t+GpPf6Y5OjiYVG/7QFKZ9JntoE2CSvhZUSqqqlgWZ4vn5INRRrdiZ4heq0nwkNzz8Mn8QcC2vlpu2JUdfKVoq5E82IPNVs6UZMHUPLlTjOuUU=
+	t=1732517232; cv=none; b=WT9lZfOz9pvkmuBpSjFEVvOf2A6axcJ9WpDZjsVedpk2zVjl19FC8pxdZxYsxq1RAXZH4tTVxwQyDXrtSKJBeFM7ofL3EJb6+jINjNsrySA4msYJ/PtAEnx00bYXTdrvs0Kt6CwjnNunvp4Mupu5rXhjplh4UOn6GrXqeqihGFY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732514983; c=relaxed/simple;
-	bh=MRQeRVTaqmoNfnsHa+uLbRfTdnGwyDlPAHWuiTkbs54=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=X2JymjsKK6wxZfA9RKqH2erkOPu+S/ky/upz68FUlAQPFGXHZ5fSLQb1fNUt0msiMStDKQVfGweKXpCGYewZMYZEfHgc9f9iVqx/CNU7mxRMU2i0aJwuxgHhaDU/kFTgC2DHxsSnBrIASiWd7bjNqIUzd+I1zgC9Ptn9mJuaXJg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=I393jQfM; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1732517232; c=relaxed/simple;
+	bh=eKEF0BbjxvqO5gPT9snUzKY28f2XgUTDks902HhaKww=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mAobl+ziUTni/SaYge5hcYHqJVx1LiM0Jj93+PEr/8CviSeLu++btsYmgjuJefVwIRQgnymIsRGapB/Nzg2iby7Pq3aIZ5R1hQ+4AinUUlPsjbOca8K2wDzlN7vztRid8dSyg+/xmR8gxVxzQiMu0LmUzdM3Co8/jk03nQ6IpHI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Cb8qg0KH; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="I393jQfM"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=B7r4LINbl9oYYjpznVoVNyIXz5UKh/UFGV/wN7Hu1ck=; b=I393jQfMoxwoj8oWWYqCLPTmh6
-	EhHGtdAI6ngONbbMHcan8KcJA+UyzvzW9ow8F1Hivx+Z38DBD5Z0v8iNF93v+BcqSxIK4zFvbY2oI
-	evc8MoIa4sPc/F8+Yxa+nliqBZnvzT81nQvfRxc4dym9XY2yV/8kPXZkB/RM6SGKpXJhtyQHlHyKu
-	Cx6eUv/QK7i0GJKF/DRQBpNbc3HAMV6ORv71nitk8AuALWOuJ9WC0mXjTatWjp0FUBwSiAAfnY2Dr
-	f4hwlmXwIG+gBhrDhhaYqmBfPGwb/r6sfXxTg36BugjlhnCfwxFzP6/J+Ly/urJQDl8tHjLbwawwf
-	7KkU9j0w==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1tFSHn-001TMd-36;
-	Mon, 25 Nov 2024 14:09:29 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Mon, 25 Nov 2024 14:09:27 +0800
-Date: Mon, 25 Nov 2024 14:09:27 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Harald Freudenberger <freude@linux.ibm.com>,
-	Eric Biggers <ebiggers@kernel.org>
-Cc: davem@davemloft.net, dengler@linux.ibm.com, linux-s390@vger.kernel.org,
-	linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v5 3/3] s390/crypto: New s390 specific protected key hash
- phmac
-Message-ID: <Z0QUl_eSUwEANb4s@gondor.apana.org.au>
-References: <20241122143427.135682-1-freude@linux.ibm.com>
- <20241122143427.135682-4-freude@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Cb8qg0KH"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1732517220; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=MirHr3XbOTdU6te/YJQY0lZO69FMwy07aad9WvZ04iU=;
+	b=Cb8qg0KHS57jx1S22KC0bxW+2FwTjy4QAsnYf9Q0ks63fNxZvWhuB44cWFR6UtvXqKkW9KfzIyUIz2bI6gUHbnwnY7+JrlBwz4GdeQUMp7DRB/3Uk1qv6KhsVONoChwwyy4d6AvRIiIqsYyvQz8KX7tSf3mKaMeKFQIwrxpK9Gs=
+Received: from 30.221.129.101(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WK76Lb0_1732517210 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 25 Nov 2024 14:46:59 +0800
+Message-ID: <53933615-6508-4603-b62c-f9a355377fe2@linux.alibaba.com>
+Date: Mon, 25 Nov 2024 14:46:48 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241122143427.135682-4-freude@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net 2/2] net/smc: fix LGR and link use-after-free issue
+To: Wenjia Zhang <wenjia@linux.ibm.com>, jaka@linux.ibm.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc: alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, horms@kernel.org,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20241122071630.63707-1-guwen@linux.alibaba.com>
+ <20241122071630.63707-3-guwen@linux.alibaba.com>
+ <4c65cb7a-fcf3-4f24-9aaf-f270033db5db@linux.ibm.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <4c65cb7a-fcf3-4f24-9aaf-f270033db5db@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Fri, Nov 22, 2024 at 03:34:27PM +0100, Harald Freudenberger wrote:
->
-> +static inline int phmac_keyblob2pkey(const u8 *key, unsigned int keylen,
-> +				     struct phmac_protkey *pk)
-> +{
-> +	int i, rc = -EIO;
-> +
-> +	/* try three times in case of busy card */
-> +	for (i = 0; rc && i < 3; i++) {
-> +		if (rc == -EBUSY && msleep_interruptible(1000))
-> +			return -EINTR;
 
-You can't sleep in crypto calls in general.
 
-Now there are specific circumstances where sleeping is allowed,
-e.g., when the MAY_SLEEP flag is set, but I don't think this will
-be acceptable for your purpose.
+On 2024/11/22 23:56, Wenjia Zhang wrote:
+> 
+> 
+> On 22.11.24 08:16, Wen Gu wrote:
+>> We encountered a LGR/link use-after-free issue, which manifested as
+>> the LGR/link refcnt reaching 0 early and entering the clear process,
+>> making resource access unsafe.
+>>
+> 
+> How did you make sure that the refcount mentioned in the warning are the LGR/link refcnt, not &sk->sk_refcnt?
+> 
+Because according to the panic stack, the UAF is found in smcr_link_put(),
+and it is also found that the link has been cleared at that time (lnk has
+been memset to all zero by __smcr_link_clear()).
 
-I see the same problem exists in paes_s390, which was not reviewed
-on linux-crypto.
+>>   refcount_t: addition on 0; use-after-free.
+>>   WARNING: CPU: 14 PID: 107447 at lib/refcount.c:25 refcount_warn_saturate+0x9c/0x140
+>>   Workqueue: events smc_lgr_terminate_work [smc]
+>>   Call trace:
+>>    refcount_warn_saturate+0x9c/0x140
+>>    __smc_lgr_terminate.part.45+0x2a8/0x370 [smc]
+>>    smc_lgr_terminate_work+0x28/0x30 [smc]
+>>    process_one_work+0x1b8/0x420
+>>    worker_thread+0x158/0x510
+>>    kthread+0x114/0x118
+>>
+>> or
+>>
+>>   refcount_t: underflow; use-after-free.
+>>   WARNING: CPU: 6 PID: 93140 at lib/refcount.c:28 refcount_warn_saturate+0xf0/0x140
+>>   Workqueue: smc_hs_wq smc_listen_work [smc]
+>>   Call trace:
+>>    refcount_warn_saturate+0xf0/0x140
+>>    smcr_link_put+0x1cc/0x1d8 [smc]
+>>    smc_conn_free+0x110/0x1b0 [smc]
+>>    smc_conn_abort+0x50/0x60 [smc]
+>>    smc_listen_find_device+0x75c/0x790 [smc]
+>>    smc_listen_work+0x368/0x8a0 [smc]
+>>    process_one_work+0x1b8/0x420
+>>    worker_thread+0x158/0x510
+>>    kthread+0x114/0x118
+>>
+>> It is caused by repeated release of LGR/link refcnt. One suspect is that
+>> smc_conn_free() is called repeatedly because some smc_conn_free() are not
+>> protected by sock lock.
+>>
+>> Calls under socklock        | Calls not under socklock
+>> -------------------------------------------------------
+>> lock_sock(sk)               | smc_conn_abort
+>> smc_conn_free               | \- smc_conn_free
+>> \- smcr_link_put            |    \- smcr_link_put (duplicated)
+>> release_sock(sk)
+>>
+>> So make sure smc_conn_free() is called under the sock lock.
+>>
+> 
+> If I understand correctly, the fix could only solve a part of the problem, i.e. what the second call trace reported, right?
 
-So what exactly causes the EBUSY? The 3 retries followed by failure
-seem rather dangerous too given that this could be used by the block
-layer for critical data that cannot fail.
+I think that these panic stacks (there are some other variations that I haven't posted)
+have the same root cause, that is the link/lgr refcnt reaches 0 early in the race situation,
+making access to link/lgr related resources no longer safe.
 
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+The link/lgr refcnt was introduced by [1] & [2], the link refcnt is operated by link
+itself and connections registered to it, and the lgr refcnt is operated by lgr itself,
+links belong to it and connections registered to it. Through code analysis, the most
+likely suspect is that smc_conn_free() duplicate put link/lgr refcnt because some
+smc_conn_free() calls by smc_conn_abort() are not under the protection of sock lock,
+so if they are called at the same time, there may be a race condition.
+
+for example:
+
+    __smc_lgr_terminate            | smc_listen_decline
+    --------------------------------------------------------------
+    lock_sock                      |
+    smc_conn_kill                  | smc_conn_abort
+     \- smc_conn_free              |  \- smc_conn_free
+    release_sock                   |
+
+[1] 61f434b0280e ("net/smc: Resolve the race between link group access and termination")
+[2] 20c9398d3309 ("net/smc: Resolve the race between SMC-R link access and clear")
+
+> 
+>> Fixes: 8cf3f3e42374 ("net/smc: use helper smc_conn_abort() in listen processing")
+>> Co-developed-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+>> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+>> Co-developed-by: Kai <KaiShen@linux.alibaba.com>
+>> Signed-off-by: Kai <KaiShen@linux.alibaba.com>
+>> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+>> ---
+>>   net/smc/af_smc.c | 25 +++++++++++++++++++++----
+>>   1 file changed, 21 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> index ed6d4d520bc7..e0a7a0151b11 100644
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -973,7 +973,8 @@ static int smc_connect_decline_fallback(struct smc_sock *smc, int reason_code,
+>>       return smc_connect_fallback(smc, reason_code);
+>>   }
+>> -static void smc_conn_abort(struct smc_sock *smc, int local_first)
+>> +static void __smc_conn_abort(struct smc_sock *smc, int local_first,
+>> +                 bool locked)
+>>   {
+>>       struct smc_connection *conn = &smc->conn;
+>>       struct smc_link_group *lgr = conn->lgr;
+>> @@ -982,11 +983,27 @@ static void smc_conn_abort(struct smc_sock *smc, int local_first)
+>>       if (smc_conn_lgr_valid(conn))
+>>           lgr_valid = true;
+>> -    smc_conn_free(conn);
+>> +    if (!locked) {
+>> +        lock_sock(&smc->sk);
+>> +        smc_conn_free(conn);
+>> +        release_sock(&smc->sk);
+>> +    } else {
+>> +        smc_conn_free(conn);
+>> +    }
+>>       if (local_first && lgr_valid)
+>>           smc_lgr_cleanup_early(lgr);
+>>   }
+>> +static void smc_conn_abort(struct smc_sock *smc, int local_first)
+>> +{
+>> +    __smc_conn_abort(smc, local_first, false);
+>> +}
+>> +
+>> +static void smc_conn_abort_locked(struct smc_sock *smc, int local_first)
+>> +{
+>> +    __smc_conn_abort(smc, local_first, true);
+>> +}
+>> +
+>>   /* check if there is a rdma device available for this connection. */
+>>   /* called for connect and listen */
+>>   static int smc_find_rdma_device(struct smc_sock *smc, struct smc_init_info *ini)
+>> @@ -1352,7 +1369,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
+>>       return 0;
+>>   connect_abort:
+>> -    smc_conn_abort(smc, ini->first_contact_local);
+>> +    smc_conn_abort_locked(smc, ini->first_contact_local);
+>>       mutex_unlock(&smc_client_lgr_pending);
+>>       smc->connect_nonblock = 0;
+>> @@ -1454,7 +1471,7 @@ static int smc_connect_ism(struct smc_sock *smc,
+>>       return 0;
+>>   connect_abort:
+>> -    smc_conn_abort(smc, ini->first_contact_local);
+>> +    smc_conn_abort_locked(smc, ini->first_contact_local);
+>>       mutex_unlock(&smc_server_lgr_pending);
+>>       smc->connect_nonblock = 0;
+> 
+> Why is smc_conn_abort_locked() only necessary for the smc_connect_work, not for the smc_listen_work?
+> 
+
+Before this patch, the smc_conn_abort()->smc_conn_free() calls are not
+protected by sock lock except in smc_conn_{rdma|ism}. So I add sock lock
+protection inside the __smc_conn_abort() and introduce smc_conn_abort_locked()
+(which means sock lock has been taken) for smc_conn_{rdma|ism}.
+
+> Thanks,
+> Wenjia
+
+Thanks!
+Wen Gu
