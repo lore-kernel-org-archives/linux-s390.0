@@ -1,33 +1,33 @@
-Received: from out-173.mta1.migadu.com (out-173.mta1.migadu.com [95.215.58.173])
+Received: from out-175.mta1.migadu.com (out-175.mta1.migadu.com [95.215.58.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1A6618130D
-	for <linux-s390@vger.kernel.org>; Mon, 25 Nov 2024 23:32:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EEB245023
+	for <linux-s390@vger.kernel.org>; Tue, 26 Nov 2024 08:29:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732577557; cv=none; b=JGpOskelHvMPmOl1mKnZk1i72FciiNYdX3OXEugkoEFetkjMSSQvOAVr9kzFRemxGtTrTxZIYEf2mU1zQpWGmFmrXWHJkfjX/lVhRsiOMa069luSbpwzQf22EB3SUTU8e8iG9t4o1zHDZT827gh+trD5KTjGrhtEtqsz+2PBMNE=
+	t=1732609799; cv=none; b=ihwCQ0tjTz15uRmFys7xAf+EZtKdtR8Y90jOIsOV2GC12/HwWzmxr7xuaS7O3344+s61GP11YDm3Y2TslhlfbQqAB+oW09hQpvuxNy69yrsb+UkZs0Q7WiW4dkbAj1eNqooPnXD6FsfwqrrRmwr6Hxm8bLtmJVkYB8PlFyme+HM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732577557; c=relaxed/simple;
-	bh=LNccCELnCrrqGQYbKuoIRwN1z+f7ffZ07hvTsR886aQ=;
+	s=arc-20240116; t=1732609799; c=relaxed/simple;
+	bh=+PHgQAc1B4ytje4hZjbwIj43XIYJaG2UExnCW3e7OSc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=quTlGM/FcAbpfCNVlRR+tRuJt2jW3T5aMsIZjk+YKf4n+FSd3yVCfBd3Z2b+jIF0aZKA1iwpKalMc5gXQZ98Kc7zmblaXJBtieFveewSX1NRoxTJ19jUqMPrKPFG2pXyGSZeNFFBEDtFC5mplDhm1/w+UWBmpchBwHsVBuoMcVg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=I7XBtWgo; arc=none smtp.client-ip=95.215.58.173
+	 In-Reply-To:Content-Type; b=TQQb+v7IggVqWlb8EquryNIKkFv74YDdPAUEXydpvKFRj9Qca2ZNBLdUaj+5DqUnPdSmZIhb5A5nbmX1fzP6TsmWXK1XYNOz2UcwYHehXEToohOIwTvGZ/9kvBsLQuK9kfagLDSltnDK+EDMW72H9lk7QzkOZtApKOETGjW9EDM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=JaSzBd2B; arc=none smtp.client-ip=95.215.58.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="I7XBtWgo"
-Message-ID: <c96fe7a8-8512-48e8-b253-d5ff8a0f4755@linux.dev>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="JaSzBd2B"
+Message-ID: <bf535357-74ad-4eaa-96d7-5e527789d10d@linux.dev>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1732577553;
+	t=1732609794;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=42xw4Y/QgzVishOExotOvnZ6629ZtF3nEkWEZ8DaPJ8=;
-	b=I7XBtWgoi21uPDExAyXxP3I5eIHuuliAfUq7hNhg/Cq/gcVONaqN7oQbH45zuQNMGiQuwp
-	ItBqM/JLGbbqmeYf0NyXLG+LNdZH4RjmrNSCS4iw+ujSERgIE1oGF1gXp3rDWV+JYpGJRP
-	HJHchJs3puUNxIPSmMu6+FzGwU6MEy4=
-Date: Mon, 25 Nov 2024 15:32:25 -0800
+	bh=9gbq5TzS0a4IseLhp6Tc7c8shxkxLBAvltDhxn81LO0=;
+	b=JaSzBd2BrWOg6ShpnvSIn3jvyObCFgbc4poOgfmDA3ZL1r2HAODai5v/JMM3yApimSjtmk
+	8BiU3pmMegXppbjtIFWVz+LnbO2Po8x3VnruvmSeZLiJnTMEv++QeKjWSiwJonGJhzlhJq
+	I5HMEFnkGtmDNYmMtclXJY6j/iMiMBk=
+Date: Tue, 26 Nov 2024 09:29:49 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -36,7 +36,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Subject: Re: [PATCH bpf-next 4/4] bpf/selftests: add simple selftest for
  bpf_smc_ops
-To: Zhu Yanjun <yanjun.zhu@linux.dev>, "D. Wythe" <alibuda@linux.alibaba.com>
+To: Martin KaFai Lau <martin.lau@linux.dev>,
+ "D. Wythe" <alibuda@linux.alibaba.com>
 Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
  ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, pabeni@redhat.com,
  song@kernel.org, sdf@google.com, haoluo@google.com, yhs@fb.com,
@@ -49,37 +50,54 @@ References: <1729737768-124596-1-git-send-email-alibuda@linux.alibaba.com>
  <8c06240b-540b-472f-974f-d2db80d90c22@linux.dev>
  <e8ba7dc0-96b5-4119-b2f6-b07432f65fdb@linux.alibaba.com>
  <0a8c2285-29c2-4a79-b704-c2baeac90b70@linux.dev>
+ <c96fe7a8-8512-48e8-b253-d5ff8a0f4755@linux.dev>
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Martin KaFai Lau <martin.lau@linux.dev>
-Content-Language: en-US
-In-Reply-To: <0a8c2285-29c2-4a79-b704-c2baeac90b70@linux.dev>
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
+In-Reply-To: <c96fe7a8-8512-48e8-b253-d5ff8a0f4755@linux.dev>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-On 11/25/24 2:52 AM, Zhu Yanjun wrote:
->>> # ./test_progs -t smc
->>> #27/1    bpf_smc/load:OK
->>> #27      bpf_smc:OK
->>> Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
+在 2024/11/26 0:32, Martin KaFai Lau 写道:
+> On 11/25/24 2:52 AM, Zhu Yanjun wrote:
+>>>> # ./test_progs -t smc
+>>>> #27/1    bpf_smc/load:OK
+>>>> #27      bpf_smc:OK
+>>>> Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
+>>>>
+>>>> The above command is based on several kernel modules. After these 
+>>>> dependent kernel modules are loaded, then can run the above command 
+>>>> successfully.
+> 
 >>>
->>> The above command is based on several kernel modules. After these dependent 
->>> kernel modules are loaded, then can run the above command successfully.
-
+>>> This is indeed a problem, a better way may be to create a separate 
+>>> testing directory for SMC, and we are trying to do this.
 >>
->> This is indeed a problem, a better way may be to create a separate testing 
->> directory for SMC, and we are trying to do this.
+>> Got it. In the latest patch series, if a test program in sample/bpf 
+>> can verify this bpf feature, it is better than a selftest program in 
+>> the directory tools/ testing/selftests/bpf.
+>>
+>> I delved into this selftest tool. It seems that this selftest tool 
+>> only makes the basic checks. A test program in sample/bpf can do more.
 > 
-> Got it. In the latest patch series, if a test program in sample/bpf can verify 
-> this bpf feature, it is better than a selftest program in the directory tools/ 
-> testing/selftests/bpf.
+> sample(s)/bpf? No new test should be added to samples/bpf which is 
+> obsolete. The bpf CI only runs tests under selftests/bpf.
+
+Thanks for letting me know this, Martin.
+
+In the past, with samples/bpf, we can know a lot of details of bpf 
+samples. But in the selftests/bpf, it seems that only load method can be 
+found. For example, in this smc bpf selftests commit, we can not find 
+how to change parameters in smc. In the past, this method about how to 
+change parameters can be found in samples/bpf.
+
+I am not sure whether this selftests/bpf is designed for this simple 
+tests or the detailed information can be found in other places.
+
+Zhu Yanjun
+
 > 
-> I delved into this selftest tool. It seems that this selftest tool only makes 
-> the basic checks. A test program in sample/bpf can do more.
-
-sample(s)/bpf? No new test should be added to samples/bpf which is obsolete. The 
-bpf CI only runs tests under selftests/bpf.
-
-There is selftests/bpf/config to tell the bpf CI about what kconfig needs to 
-turn on.
+> There is selftests/bpf/config to tell the bpf CI about what kconfig 
+> needs to turn on.
+> 
 
