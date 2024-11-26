@@ -1,103 +1,82 @@
-Received: from out-175.mta1.migadu.com (out-175.mta1.migadu.com [95.215.58.175])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EEB245023
-	for <linux-s390@vger.kernel.org>; Tue, 26 Nov 2024 08:29:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 394B718F2DA;
+	Tue, 26 Nov 2024 09:10:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732609799; cv=none; b=ihwCQ0tjTz15uRmFys7xAf+EZtKdtR8Y90jOIsOV2GC12/HwWzmxr7xuaS7O3344+s61GP11YDm3Y2TslhlfbQqAB+oW09hQpvuxNy69yrsb+UkZs0Q7WiW4dkbAj1eNqooPnXD6FsfwqrrRmwr6Hxm8bLtmJVkYB8PlFyme+HM=
+	t=1732612218; cv=none; b=QVUusKxOldZmf8TKaYa1ADJX3nDqsLxL9VRICEPmjwisb0pZrnkKxUkEiK90DutADKO8M5gCaEnBcYTlbefs8yuKVL11020J7q1eUh5l395JqYjJ+9Vm27GVxpiywbcfVOFX9KQyykNyeQ30GyekI5fqVHWLc5gY0K7GKvwlEaY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732609799; c=relaxed/simple;
-	bh=+PHgQAc1B4ytje4hZjbwIj43XIYJaG2UExnCW3e7OSc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TQQb+v7IggVqWlb8EquryNIKkFv74YDdPAUEXydpvKFRj9Qca2ZNBLdUaj+5DqUnPdSmZIhb5A5nbmX1fzP6TsmWXK1XYNOz2UcwYHehXEToohOIwTvGZ/9kvBsLQuK9kfagLDSltnDK+EDMW72H9lk7QzkOZtApKOETGjW9EDM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=JaSzBd2B; arc=none smtp.client-ip=95.215.58.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1732612218; c=relaxed/simple;
+	bh=RKTl4ZHFTCDBw3opPPqPySWer7MgDg24OXtqlCf6FCI=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=fSNUzrPlqTlX5MEOd7XFqpAldjUjnYm3xVMwAcrtdM0VIpRYr3KtCDMsYZmrgcWaxOYlQl1Oop97TxnzerP9+pPiYphYpb5gAqQRNCRM1XVkrZAirl0ngTx4AU8/1zJxs4iw2USuyjMCFFzZYHj6/qea++iWGXGwfjuJ7I6uAOU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SHju/Ee8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="JaSzBd2B"
-Message-ID: <bf535357-74ad-4eaa-96d7-5e527789d10d@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1732609794;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=9gbq5TzS0a4IseLhp6Tc7c8shxkxLBAvltDhxn81LO0=;
-	b=JaSzBd2BrWOg6ShpnvSIn3jvyObCFgbc4poOgfmDA3ZL1r2HAODai5v/JMM3yApimSjtmk
-	8BiU3pmMegXppbjtIFWVz+LnbO2Po8x3VnruvmSeZLiJnTMEv++QeKjWSiwJonGJhzlhJq
-	I5HMEFnkGtmDNYmMtclXJY6j/iMiMBk=
-Date: Tue, 26 Nov 2024 09:29:49 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SHju/Ee8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9621C4CECF;
+	Tue, 26 Nov 2024 09:10:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1732612217;
+	bh=RKTl4ZHFTCDBw3opPPqPySWer7MgDg24OXtqlCf6FCI=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=SHju/Ee8NC8GX4VgkopikGbogKtOK4d/8yp6X13USAS/K0SX8KV14nyI5OtIW45Gs
+	 Yimzhxwa3t84W236WKKEH4AoOoj8reVD7YgOWxtqwjySH/cdmapAnfyySpUaKounKP
+	 w1UU0b2r1U6/hBtPKqgOV9HiR7/tKSPTVb9ZugAfT9cQU6YFcWB2X22HJSFb+Ez3V7
+	 tgk0evyx/nlDycViEHlwtXeTGdMuJQi+s6NZ/wXvdvkvVptlgTx/dCOs6Xrxklxs0U
+	 CusJnUeujTXkgelnZcqeFDOaL0M/9lxcgI9BqXsLVjs/au6E3OH4O6oKHuT/VnecmQ
+	 A9LO/qISZbzSg==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id AE3CE3809A00;
+	Tue, 26 Nov 2024 09:10:31 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH bpf-next 4/4] bpf/selftests: add simple selftest for
- bpf_smc_ops
-To: Martin KaFai Lau <martin.lau@linux.dev>,
- "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
- ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, pabeni@redhat.com,
- song@kernel.org, sdf@google.com, haoluo@google.com, yhs@fb.com,
- edumazet@google.com, john.fastabend@gmail.com, kpsingh@kernel.org,
- jolsa@kernel.org, guwen@linux.alibaba.com, kuba@kernel.org,
- davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-rdma@vger.kernel.org, bpf@vger.kernel.org, dtcccc@linux.alibaba.com
-References: <1729737768-124596-1-git-send-email-alibuda@linux.alibaba.com>
- <1729737768-124596-5-git-send-email-alibuda@linux.alibaba.com>
- <8c06240b-540b-472f-974f-d2db80d90c22@linux.dev>
- <e8ba7dc0-96b5-4119-b2f6-b07432f65fdb@linux.alibaba.com>
- <0a8c2285-29c2-4a79-b704-c2baeac90b70@linux.dev>
- <c96fe7a8-8512-48e8-b253-d5ff8a0f4755@linux.dev>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
-In-Reply-To: <c96fe7a8-8512-48e8-b253-d5ff8a0f4755@linux.dev>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+Subject: Re: [PATCH net] s390/iucv: MSG_PEEK causes memory leak in
+ iucv_sock_destruct()
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <173261223051.316212.8347433268494188785.git-patchwork-notify@kernel.org>
+Date: Tue, 26 Nov 2024 09:10:30 +0000
+References: <20241119152219.3712168-1-wintera@linux.ibm.com>
+In-Reply-To: <20241119152219.3712168-1-wintera@linux.ibm.com>
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ borntraeger@linux.ibm.com, svens@linux.ibm.com, twinkler@linux.ibm.com,
+ horms@kernel.org, sidraya@linux.ibm.com
 
-在 2024/11/26 0:32, Martin KaFai Lau 写道:
-> On 11/25/24 2:52 AM, Zhu Yanjun wrote:
->>>> # ./test_progs -t smc
->>>> #27/1    bpf_smc/load:OK
->>>> #27      bpf_smc:OK
->>>> Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
->>>>
->>>> The above command is based on several kernel modules. After these 
->>>> dependent kernel modules are loaded, then can run the above command 
->>>> successfully.
+Hello:
+
+This patch was applied to netdev/net.git (main)
+by Paolo Abeni <pabeni@redhat.com>:
+
+On Tue, 19 Nov 2024 16:22:19 +0100 you wrote:
+> From: Sidraya Jayagond <sidraya@linux.ibm.com>
 > 
->>>
->>> This is indeed a problem, a better way may be to create a separate 
->>> testing directory for SMC, and we are trying to do this.
->>
->> Got it. In the latest patch series, if a test program in sample/bpf 
->> can verify this bpf feature, it is better than a selftest program in 
->> the directory tools/ testing/selftests/bpf.
->>
->> I delved into this selftest tool. It seems that this selftest tool 
->> only makes the basic checks. A test program in sample/bpf can do more.
+> Passing MSG_PEEK flag to skb_recv_datagram() increments skb refcount
+> (skb->users) and iucv_sock_recvmsg() does not decrement skb refcount
+> at exit.
+> This results in skb memory leak in skb_queue_purge() and WARN_ON in
+> iucv_sock_destruct() during socket close. To fix this decrease
+> skb refcount by one if MSG_PEEK is set in order to prevent memory
+> leak and WARN_ON.
 > 
-> sample(s)/bpf? No new test should be added to samples/bpf which is 
-> obsolete. The bpf CI only runs tests under selftests/bpf.
+> [...]
 
-Thanks for letting me know this, Martin.
+Here is the summary with links:
+  - [net] s390/iucv: MSG_PEEK causes memory leak in iucv_sock_destruct()
+    https://git.kernel.org/netdev/net/c/ebaf81317e42
 
-In the past, with samples/bpf, we can know a lot of details of bpf 
-samples. But in the selftests/bpf, it seems that only load method can be 
-found. For example, in this smc bpf selftests commit, we can not find 
-how to change parameters in smc. In the past, this method about how to 
-change parameters can be found in samples/bpf.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-I am not sure whether this selftests/bpf is designed for this simple 
-tests or the detailed information can be found in other places.
-
-Zhu Yanjun
-
-> 
-> There is selftests/bpf/config to tell the bpf CI about what kconfig 
-> needs to turn on.
-> 
 
