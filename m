@@ -1,35 +1,67 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 394B718F2DA;
-	Tue, 26 Nov 2024 09:10:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABD3918FDBA;
+	Tue, 26 Nov 2024 10:25:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732612218; cv=none; b=QVUusKxOldZmf8TKaYa1ADJX3nDqsLxL9VRICEPmjwisb0pZrnkKxUkEiK90DutADKO8M5gCaEnBcYTlbefs8yuKVL11020J7q1eUh5l395JqYjJ+9Vm27GVxpiywbcfVOFX9KQyykNyeQ30GyekI5fqVHWLc5gY0K7GKvwlEaY=
+	t=1732616725; cv=none; b=kEHO+98q5I5nQ3hEN4uGeAshEeSyZK2giGd9WpO4e94vZe/gFsv5pR0TbRRC/C1aUsR6gSlCavVjaGUsXgDBnp/ZKvN0H4nN6EgWcl9Yb0Uus7F7jDYimzDgMAlRRN1WbbP4LMMDWVsIt7JQJRSiuMWuJ2DZ43ThO/QQUAmy1eE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732612218; c=relaxed/simple;
-	bh=RKTl4ZHFTCDBw3opPPqPySWer7MgDg24OXtqlCf6FCI=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=fSNUzrPlqTlX5MEOd7XFqpAldjUjnYm3xVMwAcrtdM0VIpRYr3KtCDMsYZmrgcWaxOYlQl1Oop97TxnzerP9+pPiYphYpb5gAqQRNCRM1XVkrZAirl0ngTx4AU8/1zJxs4iw2USuyjMCFFzZYHj6/qea++iWGXGwfjuJ7I6uAOU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SHju/Ee8; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1732616725; c=relaxed/simple;
+	bh=sN4gMg9uBLGYCgEAiCW2m+6i8yxHMS1uivc2+893cgU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tozmq5MrGd47T4iNetGXJzxVi/IP0ap0s34bwfU/G36atmYPjGntkLDRM8SmY5zUlhEJZmLtryh45OIk8NFzNNQr/SeLjcP970eKUlBJDgJKqZD9t/QYRqp6xkfCSuRUOt4T9a3rEFx9bM/npUfJDQgfCZE8pcf937YZw59uong=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aIXXZUJ9; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SHju/Ee8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9621C4CECF;
-	Tue, 26 Nov 2024 09:10:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1732612217;
-	bh=RKTl4ZHFTCDBw3opPPqPySWer7MgDg24OXtqlCf6FCI=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=SHju/Ee8NC8GX4VgkopikGbogKtOK4d/8yp6X13USAS/K0SX8KV14nyI5OtIW45Gs
-	 Yimzhxwa3t84W236WKKEH4AoOoj8reVD7YgOWxtqwjySH/cdmapAnfyySpUaKounKP
-	 w1UU0b2r1U6/hBtPKqgOV9HiR7/tKSPTVb9ZugAfT9cQU6YFcWB2X22HJSFb+Ez3V7
-	 tgk0evyx/nlDycViEHlwtXeTGdMuJQi+s6NZ/wXvdvkvVptlgTx/dCOs6Xrxklxs0U
-	 CusJnUeujTXkgelnZcqeFDOaL0M/9lxcgI9BqXsLVjs/au6E3OH4O6oKHuT/VnecmQ
-	 A9LO/qISZbzSg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id AE3CE3809A00;
-	Tue, 26 Nov 2024 09:10:31 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aIXXZUJ9"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4AQ8NhYk011347;
+	Tue, 26 Nov 2024 10:25:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=d1aG/8cN0IYk6bFwJfeq264k7++gwids8Ohxh5FXr
+	fc=; b=aIXXZUJ9dOOQOD/ojeB7NePAJDdsV6tCzFaQei5oRv40EndfEgLs+9saX
+	3iy5djua2u/Sv3l6Uzsq9c74fh537K/EgC+YpJUYo6BSF5ZnSet1qaNbqsLqWJfj
+	VEKLMgFWq3m75EWK5VzosB79TuvR+D8RynJBe2+DyTDIguuyB5FWY306X8xcrRvH
+	KscKlEtIx+BiyEHharg+Je2UZXSNymnIwVdattMBsEy5VLNZrZFXyNx8LnOxhkN9
+	0DeVo+kzm8KNVThsrKjdOWLL11HHXRj4mg5yjC5p0OelJI/humn+K9g4KwWTUl1x
+	NEkJ5tid01GCt12GmXUn/UGSBbmSw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43389cdbba-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 26 Nov 2024 10:25:20 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4AQ6WcDF010044;
+	Tue, 26 Nov 2024 10:25:19 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 433ukj46rq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 26 Nov 2024 10:25:19 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4AQAPGv727198002
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 26 Nov 2024 10:25:16 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 44F8B20077;
+	Tue, 26 Nov 2024 10:25:16 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 20AD320072;
+	Tue, 26 Nov 2024 10:25:16 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 26 Nov 2024 10:25:16 +0000 (GMT)
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/3] KVM: s390: Couple of small cmpxchg() optimizations
+Date: Tue, 26 Nov 2024 11:25:12 +0100
+Message-ID: <20241126102515.3178914-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,46 +69,57 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] s390/iucv: MSG_PEEK causes memory leak in
- iucv_sock_destruct()
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <173261223051.316212.8347433268494188785.git-patchwork-notify@kernel.org>
-Date: Tue, 26 Nov 2024 09:10:30 +0000
-References: <20241119152219.3712168-1-wintera@linux.ibm.com>
-In-Reply-To: <20241119152219.3712168-1-wintera@linux.ibm.com>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
- edumazet@google.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- borntraeger@linux.ibm.com, svens@linux.ibm.com, twinkler@linux.ibm.com,
- horms@kernel.org, sidraya@linux.ibm.com
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 4c_-XVv-4HNHkRdhL1mUIE7TE2BztFhX
+X-Proofpoint-ORIG-GUID: 4c_-XVv-4HNHkRdhL1mUIE7TE2BztFhX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=719
+ adultscore=0 lowpriorityscore=0 impostorscore=0 spamscore=0 clxscore=1015
+ suspectscore=0 bulkscore=0 priorityscore=1501 phishscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
+ definitions=main-2411260079
 
-Hello:
+v2:
+- Replace broken WRITE_ONCE(..., 9) with intended WRITE_ONCE(..., 0).
 
-This patch was applied to netdev/net.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
+v1:
+Use try_cmpxchg() instead of cmpxchg() so compilers with flag output
+operand support (gcc 14 and newer) can generate slightly better code.
 
-On Tue, 19 Nov 2024 16:22:19 +0100 you wrote:
-> From: Sidraya Jayagond <sidraya@linux.ibm.com>
-> 
-> Passing MSG_PEEK flag to skb_recv_datagram() increments skb refcount
-> (skb->users) and iucv_sock_recvmsg() does not decrement skb refcount
-> at exit.
-> This results in skb memory leak in skb_queue_purge() and WARN_ON in
-> iucv_sock_destruct() during socket close. To fix this decrease
-> skb refcount by one if MSG_PEEK is set in order to prevent memory
-> leak and WARN_ON.
-> 
-> [...]
+Also get rid of two cmpxchg() usages on one/two byte memory areas
+which generates inefficient code.
 
-Here is the summary with links:
-  - [net] s390/iucv: MSG_PEEK causes memory leak in iucv_sock_destruct()
-    https://git.kernel.org/netdev/net/c/ebaf81317e42
+bloat-o-meter statistics of the kvm module:
 
-You are awesome, thank you!
+add/remove: 0/0 grow/shrink: 0/11 up/down: 0/-318 (-318)
+Function                                     old     new   delta
+kvm_s390_handle_wait                         886     880      -6
+kvm_s390_gisa_destroy                        226     220      -6
+kvm_s390_gisa_clear                           96      90      -6
+ipte_unlock                                  380     372      -8
+kvm_s390_gisc_unregister                     270     260     -10
+kvm_s390_gisc_register                       290     280     -10
+gisa_vcpu_kicker                             200     190     -10
+account_mem                                  250     232     -18
+ipte_lock                                    416     368     -48
+kvm_s390_update_topology_change_report       174     122     -52
+kvm_s390_clear_local_irqs                    420     276    -144
+Total: Before=316521, After=316203, chg -0.10%
+
+Heiko Carstens (3):
+  KVM: s390: Use try_cmpxchg() instead of cmpxchg() loops
+  KVM: s390: Remove one byte cmpxchg() usage
+  KVM: s390: Increase size of union sca_utility to four bytes
+
+ arch/s390/include/asm/kvm_host.h | 10 +++++-----
+ arch/s390/kvm/gaccess.c          | 16 ++++++++--------
+ arch/s390/kvm/interrupt.c        | 25 ++++++++-----------------
+ arch/s390/kvm/kvm-s390.c         |  4 ++--
+ arch/s390/kvm/pci.c              |  5 ++---
+ 5 files changed, 25 insertions(+), 35 deletions(-)
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.45.2
 
