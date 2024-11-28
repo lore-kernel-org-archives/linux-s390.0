@@ -1,175 +1,297 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from exchange.fintech.ru (exchange.fintech.ru [195.54.195.159])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1D3A158527;
-	Thu, 28 Nov 2024 13:53:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5F25192D77;
+	Thu, 28 Nov 2024 14:23:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.54.195.159
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732801985; cv=none; b=em7Wh98ZWb+K/tTVlOYePU/rhi5DnR0GNZFsDPboHQQ+HR0DonMu2QLMlDWydwUBMbpa9KS9Am9IaNwIC3vvjR8LXDEfF+9iYfmQRmbYFJIhG0YSlEBbEfdKKmWl/H15OdaKU41uSlz40qdnNEt13aSB7KoGxiOMAi3HeXkbxGI=
+	t=1732803787; cv=none; b=R/ES0m46wguO0V2rsv+TdCu6po4Yl/Qwg0/5lxuR7EJZpiAlD6h9FgITSdSkQWINCY4gqAjmGAa8wMQeYTsexgcMgnNBASxTqvXwSQkg0ZeUNAaqeeIiu+lR8ZCLy64UeH5AQH8LIjlH6zcru6ep3czDMaFaIrO353imK7BxApA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732801985; c=relaxed/simple;
-	bh=UG+77VmKk7jPmYy+z4+sWVfveyZZmvMyCQvvHM+X7Gs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QPoeYoiONjHBeFNc94K42vYIJ9DiH0Jtdx/ZXapmMweZIGLeTf51abUDYIuSKfcutf0JXlwR5UruIzb3C/6aITbF9XD/qFp4WfB6iFfwomFKaUY1SPHL2hWu+QvaAkJZuCccd3m7kUJZ0Im6omlI/AZP3xlCmEUTmAf1M3w2bE0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nXru4PHy; arc=none smtp.client-ip=192.198.163.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nXru4PHy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1732801983; x=1764337983;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=UG+77VmKk7jPmYy+z4+sWVfveyZZmvMyCQvvHM+X7Gs=;
-  b=nXru4PHy8tKuVyt638fxhfaX7gC8I2gzvHVqZqEfHl0yxOIVrosxMVn1
-   MqvMNGjHa/DBleZuSV1j7mHuY+qAmh3mJaJ5Fsyi05sCoM7tLf9FHLLKw
-   +koHjdmUbSJzlxM4zNGWDADLHOxVXzLjhTWGelSC+rRP+z1Fg3EgS9L7i
-   RpWAdH6Om8BWFtHKwwbbbWPuxd3pczmSPkr0EP9PfgICjiWwSlnRBE6uF
-   A+s3LH1MHDgeA2fLjhQXUuoVRyydWzAZwIeQAzC0O+yy1PgyBJIDzN2R2
-   CoSJXM2boHcizQL6cYV7pO7bcKfUEQVcGHgel/GPZ+1PYbCyYXltKgh7F
-   A==;
-X-CSE-ConnectionGUID: KkCtx6B3QSCMoShgVjEZxw==
-X-CSE-MsgGUID: tgfDycWOT76zvNcVaDMwdA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11270"; a="33279016"
-X-IronPort-AV: E=Sophos;i="6.12,192,1728975600"; 
-   d="scan'208";a="33279016"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Nov 2024 05:53:02 -0800
-X-CSE-ConnectionGUID: bTMg1z2ETMCuv7KPMMZ99A==
-X-CSE-MsgGUID: ucUiTrj/RAaNx28VzoteOg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,192,1728975600"; 
-   d="scan'208";a="97203444"
-Received: from lkp-server01.sh.intel.com (HELO 8122d2fc1967) ([10.239.97.150])
-  by orviesa005.jf.intel.com with ESMTP; 28 Nov 2024 05:52:58 -0800
-Received: from kbuild by 8122d2fc1967 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1tGewx-0009dT-1q;
-	Thu, 28 Nov 2024 13:52:55 +0000
-Date: Thu, 28 Nov 2024 21:52:13 +0800
-From: kernel test robot <lkp@intel.com>
-To: Guangguan Wang <guangguan.wang@linux.alibaba.com>, wenjia@linux.ibm.com,
-	jaka@linux.ibm.com, alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, horms@kernel.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Dust Li <dust.li@linux.alibaba.com>
-Subject: Re: [PATCH net-next 2/2] net/smc: support ipv4 mapped ipv6 addr
- client for smc-r v2
-Message-ID: <202411282154.DjX7ilwF-lkp@intel.com>
-References: <20241127094533.18459-3-guangguan.wang@linux.alibaba.com>
+	s=arc-20240116; t=1732803787; c=relaxed/simple;
+	bh=JZap4FTHf9uMQk2MsiLMwwKj8M9JWuLR9yAeWtL0nOE=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=dJoKqF9YG3FV0gj7I2Mc6E9BGAwgpHxqFrKCsX4Vk79jqKoXJuYTllKngFX3QMQEpxOnm+CLgvtMfm1ofzxfNNxmLm66XAaBaos+4cCeyIaQ4dObutBJe0gnXU1Nek0tPyGTtUIYONtb6QkqV/SnZfdlueHH03690iERiSlgfIk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fintech.ru; spf=pass smtp.mailfrom=fintech.ru; arc=none smtp.client-ip=195.54.195.159
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fintech.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fintech.ru
+Received: from Ex16-01.fintech.ru (10.0.10.18) by exchange.fintech.ru
+ (195.54.195.169) with Microsoft SMTP Server (TLS) id 14.3.498.0; Thu, 28 Nov
+ 2024 17:23:00 +0300
+Received: from localhost (10.0.253.138) by Ex16-01.fintech.ru (10.0.10.18)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Thu, 28 Nov
+ 2024 17:22:59 +0300
+From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sasha Levin
+	<sashal@kernel.org>, <stable@vger.kernel.org>
+CC: Nikita Zhandarovich <n.zhandarovich@fintech.ru>, Harald Freudenberger
+	<freude@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+	<gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "Holger
+ Dengler" <dengler@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+	<linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<lvc-project@linuxtesting.org>
+Subject: [PATCH 5.10/5.15 3/3] s390/pkey: Wipe copies of protected- and secure-keys
+Date: Thu, 28 Nov 2024 06:22:45 -0800
+Message-ID: <20241128142245.18136-4-n.zhandarovich@fintech.ru>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20241128142245.18136-1-n.zhandarovich@fintech.ru>
+References: <20241128142245.18136-1-n.zhandarovich@fintech.ru>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241127094533.18459-3-guangguan.wang@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: Ex16-02.fintech.ru (10.0.10.19) To Ex16-01.fintech.ru
+ (10.0.10.18)
 
-Hi Guangguan,
+From: Holger Dengler <dengler@linux.ibm.com>
 
-kernel test robot noticed the following build errors:
+commit f2ebdadd85af4f4d0cae1e5d009c70eccc78c207 upstream.
 
-[auto build test ERROR on net-next/main]
+Although the clear-key of neither protected- nor secure-keys is
+accessible, this key material should only be visible to the calling
+process. So wipe all copies of protected- or secure-keys from stack,
+even in case of an error.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Guangguan-Wang/net-smc-support-SMC-R-V2-for-rdma-devices-with-max_recv_sge-equals-to-1/20241128-111259
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20241127094533.18459-3-guangguan.wang%40linux.alibaba.com
-patch subject: [PATCH net-next 2/2] net/smc: support ipv4 mapped ipv6 addr client for smc-r v2
-config: arm-randconfig-001-20241128 (https://download.01.org/0day-ci/archive/20241128/202411282154.DjX7ilwF-lkp@intel.com/config)
-compiler: clang version 20.0.0git (https://github.com/llvm/llvm-project 592c0fe55f6d9a811028b5f3507be91458ab2713)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20241128/202411282154.DjX7ilwF-lkp@intel.com/reproduce)
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Reviewed-by: Ingo Franzki <ifranzki@linux.ibm.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Holger Dengler <dengler@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+[Nikita: small changes were made during cherry-picking due to
+different debug macro use and similar discrepancies between branches]
+Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+---
+P.S. As no Fixes: tag was present, I decided against adding it myself
+and leaving commit body intact.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202411282154.DjX7ilwF-lkp@intel.com/
+ drivers/s390/crypto/pkey_api.c | 80 ++++++++++++++++------------------
+ 1 file changed, 37 insertions(+), 43 deletions(-)
 
-All errors (new ones prefixed by >>):
-
-   In file included from net/smc/af_smc.c:27:
-   In file included from include/linux/if_vlan.h:10:
-   In file included from include/linux/netdevice.h:38:
-   In file included from include/net/net_namespace.h:43:
-   In file included from include/linux/skbuff.h:17:
-   In file included from include/linux/bvec.h:10:
-   In file included from include/linux/highmem.h:8:
-   In file included from include/linux/cacheflush.h:5:
-   In file included from arch/arm/include/asm/cacheflush.h:10:
-   In file included from include/linux/mm.h:2225:
-   include/linux/vmstat.h:518:36: warning: arithmetic between different enumeration types ('enum node_stat_item' and 'enum lru_list') [-Wenum-enum-conversion]
-     518 |         return node_stat_name(NR_LRU_BASE + lru) + 3; // skip "nr_"
-         |                               ~~~~~~~~~~~ ^ ~~~
->> net/smc/af_smc.c:1120:46: error: no member named 'skc_v6_rcv_saddr' in 'struct sock_common'; did you mean 'skc_rcv_saddr'?
-    1120 |              !ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)) ||
-         |                                                     ^
-   include/net/sock.h:376:37: note: expanded from macro 'sk_v6_rcv_saddr'
-     376 | #define sk_v6_rcv_saddr __sk_common.skc_v6_rcv_saddr
-         |                                     ^
-   include/net/sock.h:155:11: note: 'skc_rcv_saddr' declared here
-     155 |                         __be32  skc_rcv_saddr;
-         |                                 ^
-   1 warning and 1 error generated.
-
-
-vim +1120 net/smc/af_smc.c
-
-  1087	
-  1088	static int smc_find_proposal_devices(struct smc_sock *smc,
-  1089					     struct smc_init_info *ini)
-  1090	{
-  1091		int rc = 0;
-  1092	
-  1093		/* check if there is an ism device available */
-  1094		if (!(ini->smcd_version & SMC_V1) ||
-  1095		    smc_find_ism_device(smc, ini) ||
-  1096		    smc_connect_ism_vlan_setup(smc, ini))
-  1097			ini->smcd_version &= ~SMC_V1;
-  1098		/* else ISM V1 is supported for this connection */
-  1099	
-  1100		/* check if there is an rdma device available */
-  1101		if (!(ini->smcr_version & SMC_V1) ||
-  1102		    smc_find_rdma_device(smc, ini))
-  1103			ini->smcr_version &= ~SMC_V1;
-  1104		/* else RDMA is supported for this connection */
-  1105	
-  1106		ini->smc_type_v1 = smc_indicated_type(ini->smcd_version & SMC_V1,
-  1107						      ini->smcr_version & SMC_V1);
-  1108	
-  1109		/* check if there is an ism v2 device available */
-  1110		if (!(ini->smcd_version & SMC_V2) ||
-  1111		    !smc_ism_is_v2_capable() ||
-  1112		    smc_find_ism_v2_device_clnt(smc, ini))
-  1113			ini->smcd_version &= ~SMC_V2;
-  1114	
-  1115		/* check if there is an rdma v2 device available */
-  1116		ini->check_smcrv2 = true;
-  1117		ini->smcrv2.saddr = smc->clcsock->sk->sk_rcv_saddr;
-  1118		if (!(ini->smcr_version & SMC_V2) ||
-  1119		    (smc->clcsock->sk->sk_family != AF_INET &&
-> 1120		     !ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)) ||
-  1121		    !smc_clc_ueid_count() ||
-  1122		    smc_find_rdma_device(smc, ini))
-  1123			ini->smcr_version &= ~SMC_V2;
-  1124		ini->check_smcrv2 = false;
-  1125	
-  1126		ini->smc_type_v2 = smc_indicated_type(ini->smcd_version & SMC_V2,
-  1127						      ini->smcr_version & SMC_V2);
-  1128	
-  1129		/* if neither ISM nor RDMA are supported, fallback */
-  1130		if (ini->smc_type_v1 == SMC_TYPE_N && ini->smc_type_v2 == SMC_TYPE_N)
-  1131			rc = SMC_CLC_DECL_NOSMCDEV;
-  1132	
-  1133		return rc;
-  1134	}
-  1135	
-
+diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
+index 778eddb911fd..754e645c2c71 100644
+--- a/drivers/s390/crypto/pkey_api.c
++++ b/drivers/s390/crypto/pkey_api.c
+@@ -1137,10 +1137,9 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 		rc = cca_genseckey(kgs.cardnr, kgs.domain,
+ 				   kgs.keytype, kgs.seckey.seckey);
+ 		DEBUG_DBG("%s cca_genseckey()=%d\n", __func__, rc);
+-		if (rc)
+-			break;
+-		if (copy_to_user(ugs, &kgs, sizeof(kgs)))
+-			return -EFAULT;
++		if (!rc && copy_to_user(ugs, &kgs, sizeof(kgs)))
++			rc = -EFAULT;
++		memzero_explicit(&kgs, sizeof(kgs));
+ 		break;
+ 	}
+ 	case PKEY_CLR2SECK: {
+@@ -1167,10 +1166,9 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 				     ksp.seckey.seckey, ksp.protkey.protkey,
+ 				     &ksp.protkey.len, &ksp.protkey.type);
+ 		DEBUG_DBG("%s cca_sec2protkey()=%d\n", __func__, rc);
+-		if (rc)
+-			break;
+-		if (copy_to_user(usp, &ksp, sizeof(ksp)))
+-			return -EFAULT;
++		if (!rc && copy_to_user(usp, &ksp, sizeof(ksp)))
++			rc = -EFAULT;
++		memzero_explicit(&ksp, sizeof(ksp));
+ 		break;
+ 	}
+ 	case PKEY_CLR2PROTK: {
+@@ -1210,10 +1208,9 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 			return -EFAULT;
+ 		rc = pkey_skey2pkey(ksp.seckey.seckey, &ksp.protkey);
+ 		DEBUG_DBG("%s pkey_skey2pkey()=%d\n", __func__, rc);
+-		if (rc)
+-			break;
+-		if (copy_to_user(usp, &ksp, sizeof(ksp)))
+-			return -EFAULT;
++		if (!rc && copy_to_user(usp, &ksp, sizeof(ksp)))
++			rc = -EFAULT;
++		memzero_explicit(&ksp, sizeof(ksp));
+ 		break;
+ 	}
+ 	case PKEY_VERIFYKEY: {
+@@ -1225,10 +1222,9 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 		rc = pkey_verifykey(&kvk.seckey, &kvk.cardnr, &kvk.domain,
+ 				    &kvk.keysize, &kvk.attributes);
+ 		DEBUG_DBG("%s pkey_verifykey()=%d\n", __func__, rc);
+-		if (rc)
+-			break;
+-		if (copy_to_user(uvk, &kvk, sizeof(kvk)))
+-			return -EFAULT;
++		if (!rc && copy_to_user(uvk, &kvk, sizeof(kvk)))
++			rc = -EFAULT;
++		memzero_explicit(&kvk, sizeof(kvk));
+ 		break;
+ 	}
+ 	case PKEY_GENPROTK: {
+@@ -1239,10 +1235,9 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 			return -EFAULT;
+ 		rc = pkey_genprotkey(kgp.keytype, &kgp.protkey);
+ 		DEBUG_DBG("%s pkey_genprotkey()=%d\n", __func__, rc);
+-		if (rc)
+-			break;
+-		if (copy_to_user(ugp, &kgp, sizeof(kgp)))
+-			return -EFAULT;
++		if (!rc && copy_to_user(ugp, &kgp, sizeof(kgp)))
++			rc = -EFAULT;
++		memzero_explicit(&kgp, sizeof(kgp));
+ 		break;
+ 	}
+ 	case PKEY_VERIFYPROTK: {
+@@ -1253,6 +1248,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 			return -EFAULT;
+ 		rc = pkey_verifyprotkey(&kvp.protkey);
+ 		DEBUG_DBG("%s pkey_verifyprotkey()=%d\n", __func__, rc);
++		memzero_explicit(&kvp, sizeof(kvp));
+ 		break;
+ 	}
+ 	case PKEY_KBLOB2PROTK: {
+@@ -1268,10 +1264,9 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 		rc = pkey_keyblob2pkey(kkey, ktp.keylen, &ktp.protkey);
+ 		DEBUG_DBG("%s pkey_keyblob2pkey()=%d\n", __func__, rc);
+ 		kfree_sensitive(kkey);
+-		if (rc)
+-			break;
+-		if (copy_to_user(utp, &ktp, sizeof(ktp)))
+-			return -EFAULT;
++		if (!rc && copy_to_user(utp, &ktp, sizeof(ktp)))
++			rc = -EFAULT;
++		memzero_explicit(&ktp, sizeof(ktp));
+ 		break;
+ 	}
+ 	case PKEY_GENSECK2: {
+@@ -1297,23 +1292,23 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 		DEBUG_DBG("%s pkey_genseckey2()=%d\n", __func__, rc);
+ 		kfree(apqns);
+ 		if (rc) {
+-			kfree(kkey);
++			kfree_sensitive(kkey);
+ 			break;
+ 		}
+ 		if (kgs.key) {
+ 			if (kgs.keylen < klen) {
+-				kfree(kkey);
++				kfree_sensitive(kkey);
+ 				return -EINVAL;
+ 			}
+ 			if (copy_to_user(kgs.key, kkey, klen)) {
+-				kfree(kkey);
++				kfree_sensitive(kkey);
+ 				return -EFAULT;
+ 			}
+ 		}
+ 		kgs.keylen = klen;
+ 		if (copy_to_user(ugs, &kgs, sizeof(kgs)))
+ 			rc = -EFAULT;
+-		kfree(kkey);
++		kfree_sensitive(kkey);
+ 		break;
+ 	}
+ 	case PKEY_CLR2SECK2: {
+@@ -1341,18 +1336,18 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 		DEBUG_DBG("%s pkey_clr2seckey2()=%d\n", __func__, rc);
+ 		kfree(apqns);
+ 		if (rc) {
+-			kfree(kkey);
++			kfree_sensitive(kkey);
+ 			memzero_explicit(&kcs, sizeof(kcs));
+ 			break;
+ 		}
+ 		if (kcs.key) {
+ 			if (kcs.keylen < klen) {
+-				kfree(kkey);
++				kfree_sensitive(kkey);
+ 				memzero_explicit(&kcs, sizeof(kcs));
+ 				return -EINVAL;
+ 			}
+ 			if (copy_to_user(kcs.key, kkey, klen)) {
+-				kfree(kkey);
++				kfree_sensitive(kkey);
+ 				memzero_explicit(&kcs, sizeof(kcs));
+ 				return -EFAULT;
+ 			}
+@@ -1361,7 +1356,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 		if (copy_to_user(ucs, &kcs, sizeof(kcs)))
+ 			rc = -EFAULT;
+ 		memzero_explicit(&kcs, sizeof(kcs));
+-		kfree(kkey);
++		kfree_sensitive(kkey);
+ 		break;
+ 	}
+ 	case PKEY_VERIFYKEY2: {
+@@ -1378,7 +1373,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 				     &kvk.cardnr, &kvk.domain,
+ 				     &kvk.type, &kvk.size, &kvk.flags);
+ 		DEBUG_DBG("%s pkey_verifykey2()=%d\n", __func__, rc);
+-		kfree(kkey);
++		kfree_sensitive(kkey);
+ 		if (rc)
+ 			break;
+ 		if (copy_to_user(uvk, &kvk, sizeof(kvk)))
+@@ -1406,10 +1401,9 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 		DEBUG_DBG("%s pkey_keyblob2pkey2()=%d\n", __func__, rc);
+ 		kfree(apqns);
+ 		kfree_sensitive(kkey);
+-		if (rc)
+-			break;
+-		if (copy_to_user(utp, &ktp, sizeof(ktp)))
+-			return -EFAULT;
++		if (!rc && copy_to_user(utp, &ktp, sizeof(ktp)))
++			rc = -EFAULT;
++		memzero_explicit(&ktp, sizeof(ktp));
+ 		break;
+ 	}
+ 	case PKEY_APQNS4K: {
+@@ -1437,7 +1431,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 		rc = pkey_apqns4key(kkey, kak.keylen, kak.flags,
+ 				    apqns, &nr_apqns);
+ 		DEBUG_DBG("%s pkey_apqns4key()=%d\n", __func__, rc);
+-		kfree(kkey);
++		kfree_sensitive(kkey);
+ 		if (rc && rc != -ENOSPC) {
+ 			kfree(apqns);
+ 			break;
+@@ -1523,7 +1517,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 		protkey = kmalloc(protkeylen, GFP_KERNEL);
+ 		if (!protkey) {
+ 			kfree(apqns);
+-			kfree(kkey);
++			kfree_sensitive(kkey);
+ 			return -ENOMEM;
+ 		}
+ 		rc = pkey_keyblob2pkey3(apqns, ktp.apqn_entries, kkey,
+@@ -1533,20 +1527,20 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 		kfree(apqns);
+ 		kfree_sensitive(kkey);
+ 		if (rc) {
+-			kfree(protkey);
++			kfree_sensitive(protkey);
+ 			break;
+ 		}
+ 		if (ktp.pkey && ktp.pkeylen) {
+ 			if (protkeylen > ktp.pkeylen) {
+-				kfree(protkey);
++				kfree_sensitive(protkey);
+ 				return -EINVAL;
+ 			}
+ 			if (copy_to_user(ktp.pkey, protkey, protkeylen)) {
+-				kfree(protkey);
++				kfree_sensitive(protkey);
+ 				return -EFAULT;
+ 			}
+ 		}
+-		kfree(protkey);
++		kfree_sensitive(protkey);
+ 		ktp.pkeylen = protkeylen;
+ 		if (copy_to_user(utp, &ktp, sizeof(ktp)))
+ 			return -EFAULT;
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.25.1
+
