@@ -1,133 +1,170 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58C251A286D;
-	Thu, 28 Nov 2024 12:14:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E2E719CC1F
+	for <linux-s390@vger.kernel.org>; Thu, 28 Nov 2024 12:28:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732796101; cv=none; b=FRXYEPfxm+Jlush1/WJfE6k10VZyG+fW5Wl6jQPdEuHEdb5WfU8WfbKQ+PFAj0gUgUlqGoEd2q5Fux6GS+hma6lCRUYgYWB+LiZu/9e45oIX71ubgCUDTmlS2f0Z73EYfcsq+GEDgFI6l7uQ4Iz/hWU6vQuETMpN+Ke4Of5pFiE=
+	t=1732796938; cv=none; b=ar9NaRQLw/TzrL9wb8Ebhs4DkYGUbmyPC2sv6NCCPgSOMmks02ibchvZd2Sdjpfh35xx4uoriu3M7/q5nubtuXO17VKoWns7g0Y7OXC/S7b/dYyxHsYrC2I8ZGfcebmtsyuPPUE7/p1FnmAn9PCVyHCwWeKmOoGzH/ehL7okUhc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732796101; c=relaxed/simple;
-	bh=NbjMqZDxwd5fwMDUQRMntD21nvqixRwspGsXvNUU4VY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=LMbahG/CdMAsnlZrhfk4Bevzv8BR4f3jAjM7egopU5+kaeCnrfxoeaI43IjHIw+Ywfs1ALadp3k3cDja4/4RAZhN3J8XwvBJQm0duUQwnmPHPD2E9Jy6G58JMQj98C+4k1aV/og1INmLN60Sx7SHJlQmT4z0xpjPVb6SDi5hPq0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=rIvcyaPA; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1732796938; c=relaxed/simple;
+	bh=7YyGrl4KoRmc0JeVQNy93UMWTak4tQ4PB7z7wqFR2wU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=GSzC5nTmYDxW8p+TiFP/zJoFQ2Pt1BcGYqCIpIkgN5Tyl1ibArmkWnt3U5hfX3uurPRM546xFIM5Tzdt5RgHftcrodOIOxTWRiD8Tfoz9crZmh0k8TpXW1VH7WVDFqjUzh/AXrepWi2C676lQ4HV1jJKMrKTwFAYr2/XElSMK/c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SR+2143n; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="rIvcyaPA"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1732796088; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=a+2iRNxo+4wn8SyiCErQfyXgZ5G41KWwwTXasWh3J0E=;
-	b=rIvcyaPAZUd5okZssQrjjKyWY4RYi2VoQAB/EAHPrdZJ7mCzsYTuFHhRYxlji0xHfmZ6XRnaAAe1xsYHP+xcRBnUbwIwDnZw8czOwRL2yfEIL4uMkzyvfYwpkDMhjY+7rVUJFi4DnQsDwwzI+tH6Bdm8MlnciIMSnYtXC9LTfcg=
-Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WKQ-9Tl_1732796087 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 28 Nov 2024 20:14:48 +0800
-From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-To: wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org
-Cc: linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net 3/6] net/smc: check iparea_offset and ipv6_prefixes_cnt when receiving proposal msg
-Date: Thu, 28 Nov 2024 20:14:32 +0800
-Message-Id: <20241128121435.73071-4-guangguan.wang@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.3 (Apple Git-128)
-In-Reply-To: <20241128121435.73071-1-guangguan.wang@linux.alibaba.com>
-References: <20241128121435.73071-1-guangguan.wang@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SR+2143n"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1732796934;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ZACMslqIaF7iVtmlx12c8LPoSlN7TzLegXngDuX2z78=;
+	b=SR+2143n/ny/c1ljGZjDnEADm/Ip4JnzZKHEGegX2fSpQuWWcE1/kNzNUvhvIvpffUaami
+	pQnV8KfkLGfnmwFF1tW7gB4vxoTu6M1GGF94HZMZeKWCvFMHdHksmJydcDHl7j7pLyw10t
+	usmZaRSuxFMIGWqNTbACv75cFVGLQL0=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-664--BcUco63PlC1Y5pfF7RgBQ-1; Thu, 28 Nov 2024 07:28:53 -0500
+X-MC-Unique: -BcUco63PlC1Y5pfF7RgBQ-1
+X-Mimecast-MFC-AGG-ID: -BcUco63PlC1Y5pfF7RgBQ
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-385d6ee042eso94036f8f.0
+        for <linux-s390@vger.kernel.org>; Thu, 28 Nov 2024 04:28:53 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1732796932; x=1733401732;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ZACMslqIaF7iVtmlx12c8LPoSlN7TzLegXngDuX2z78=;
+        b=kLQH5UJTd9V6Q0I+BGwKInzsJqpWx9M57nA1ppoyXU7SGVoZe5+P+lVlNS8HKtPpVf
+         8bXyVXC5DRQAjLUdm5ppPWZGavyq6EYU853ipgwZ94pvhZqRCAOyrtCth/HCIlD9BrBC
+         zI1Vx4nWgNY+v6iB19VZ8sAlnuRIiUJFBJ5d+w5WtU+j9/39pSfvUvGqwjGq9XfMZ8Mk
+         4932ct2EQ5+TWgjBgpC3dJ2o/WptPq4nWxSEfiI62NJG61lEKy4xQ6GaKWzuKNtb9rU1
+         WpLBvsjgez/hYGoMRcVRhdeKSPJ7UW1+ZH6QOLflQH1JDsuGimG3PMLjcwSfM88txkRg
+         6vvg==
+X-Forwarded-Encrypted: i=1; AJvYcCXIPzjxvXytjiNsqqpQIxX6x+tHt4gtZQVNhRrXnDxU09Ulqf7zB75giIrc3tKf9+CcAf32WrjVAmH4@vger.kernel.org
+X-Gm-Message-State: AOJu0YzF0HwQB/plq+OAqiAmaNtdQKDWE5zmvo5+7NfAPSOmkmdxc85f
+	sEpe2E2/m/5JEU8/sM1Ee8u3gDcdXIcyJ9/Ix6VhRJEur5Rk7gp0jEWKshrhEQwGYHuNGg+OlB7
+	l/I+dTuQTdNXf2WXbrkQzl1r4/eUWgcadYYo4ZQPuJlkEetOw9IvoX9h3ZmYsKPviaxOGdshLSJ
+	INmX8ron1/E3XM/7gja/x9Cl/OnT4nkj3xkg==
+X-Gm-Gg: ASbGncsQqv6KCI6eIm3BF29tfprrtmz8MFynioyT/5sG7jVYZeGmlPwiCYzSE7EcRXX
+	bT2wV2CHA2SPL2HGnVAFQmAvovZYrpxs=
+X-Received: by 2002:a05:6000:18ac:b0:382:4a27:1319 with SMTP id ffacd0b85a97d-385c6eb5840mr5776137f8f.6.1732796931982;
+        Thu, 28 Nov 2024 04:28:51 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGGOqoP8tsZ6KQpRsoqtGa6KHF61EJ3NUmj3Aw3MlprtODTvHQ/TDY7uTpa3Nw0Vy2Is2RlK3QrcXMwzmVV8rU=
+X-Received: by 2002:a05:6000:18ac:b0:382:4a27:1319 with SMTP id
+ ffacd0b85a97d-385c6eb5840mr5776067f8f.6.1732796931576; Thu, 28 Nov 2024
+ 04:28:51 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20241115-converge-secs-to-jiffies-v2-0-911fb7595e79@linux.microsoft.com>
+ <20241115-converge-secs-to-jiffies-v2-18-911fb7595e79@linux.microsoft.com>
+In-Reply-To: <20241115-converge-secs-to-jiffies-v2-18-911fb7595e79@linux.microsoft.com>
+From: Alex Markuze <amarkuze@redhat.com>
+Date: Thu, 28 Nov 2024 14:28:40 +0200
+Message-ID: <CAO8a2SgQ-==SjhDFZpi2s3r9FUGA96jwuJL7kTDwE=Hw4UcgUg@mail.gmail.com>
+Subject: Re: [PATCH v2 18/21] ceph: Convert timeouts to secs_to_jiffies()
+To: Easwar Hariharan <eahariha@linux.microsoft.com>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Julia Lawall <Julia.Lawall@inria.fr>, Nicolas Palix <nicolas.palix@imag.fr>, 
+	Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, 
+	Robert Jarzmik <robert.jarzmik@free.fr>, Russell King <linux@armlinux.org.uk>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Ofir Bitton <obitton@habana.ai>, 
+	Oded Gabbay <ogabbay@kernel.org>, Lucas De Marchi <lucas.demarchi@intel.com>, 
+	=?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
+	Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+	Jeroen de Borst <jeroendb@google.com>, Praveen Kaligineedi <pkaligineedi@google.com>, 
+	Shailend Chand <shailend@google.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	James Smart <james.smart@broadcom.com>, Dick Kennedy <dick.kennedy@broadcom.com>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	"Martin K. Petersen" <martin.petersen@oracle.com>, =?UTF-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>, 
+	Jens Axboe <axboe@kernel.dk>, Kalle Valo <kvalo@kernel.org>, Jeff Johnson <jjohnson@kernel.org>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	Jack Wang <jinpu.wang@cloud.ionos.com>, Marcel Holtmann <marcel@holtmann.org>, 
+	Johan Hedberg <johan.hedberg@gmail.com>, Luiz Augusto von Dentz <luiz.dentz@gmail.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Florian Fainelli <florian.fainelli@broadcom.com>, Ray Jui <rjui@broadcom.com>, 
+	Scott Branden <sbranden@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Xiubo Li <xiubli@redhat.com>, 
+	Ilya Dryomov <idryomov@gmail.com>, Josh Poimboeuf <jpoimboe@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
+	Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, 
+	Joe Lawrence <joe.lawrence@redhat.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
+	Lucas Stach <l.stach@pengutronix.de>, Russell King <linux+etnaviv@armlinux.org.uk>, 
+	Christian Gmeiner <christian.gmeiner@gmail.com>, Louis Peens <louis.peens@corigine.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, netfilter-devel@vger.kernel.org, 
+	coreteam@netfilter.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	cocci@inria.fr, linux-arm-kernel@lists.infradead.org, 
+	linux-s390@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	intel-xe@lists.freedesktop.org, linux-scsi@vger.kernel.org, 
+	xen-devel@lists.xenproject.org, linux-block@vger.kernel.org, 
+	linux-wireless@vger.kernel.org, ath11k@lists.infradead.org, 
+	linux-mm@kvack.org, linux-bluetooth@vger.kernel.org, 
+	linux-staging@lists.linux.dev, linux-rpi-kernel@lists.infradead.org, 
+	ceph-devel@vger.kernel.org, live-patching@vger.kernel.org, 
+	linux-sound@vger.kernel.org, etnaviv@lists.freedesktop.org, 
+	oss-drivers@corigine.com, linuxppc-dev@lists.ozlabs.org, 
+	Anna-Maria Behnsen <anna-maria@linutronix.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-When receiving proposal msg in server, the field iparea_offset
-and the field ipv6_prefixes_cnt in proposal msg are from the
-remote client and can not be fully trusted. Especially the
-field iparea_offset, once exceed the max value, there has the
-chance to access wrong address, and crash may happen.
+looks good
 
-This patch checks iparea_offset and ipv6_prefixes_cnt before using them.
-
-Fixes: e7b7a64a8493 ("smc: support variable CLC proposal messages")
-Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
-Reviewed-by: D. Wythe <alibuda@linux.alibaba.com>
----
- net/smc/af_smc.c  | 6 +++++-
- net/smc/smc_clc.c | 4 ++++
- net/smc/smc_clc.h | 6 +++++-
- 3 files changed, 14 insertions(+), 2 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 9d76e902fd77..8a2f196ab995 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2032,6 +2032,8 @@ static int smc_listen_prfx_check(struct smc_sock *new_smc,
- 	if (pclc->hdr.typev1 == SMC_TYPE_N)
- 		return 0;
- 	pclc_prfx = smc_clc_proposal_get_prefix(pclc);
-+	if (!pclc_prfx)
-+		return -EPROTO;
- 	if (smc_clc_prfx_match(newclcsock, pclc_prfx))
- 		return SMC_CLC_DECL_DIFFPREFIX;
- 
-@@ -2221,7 +2223,9 @@ static void smc_find_ism_v1_device_serv(struct smc_sock *new_smc,
- 	int rc = 0;
- 
- 	/* check if ISM V1 is available */
--	if (!(ini->smcd_version & SMC_V1) || !smcd_indicated(ini->smc_type_v1))
-+	if (!(ini->smcd_version & SMC_V1) ||
-+	    !smcd_indicated(ini->smc_type_v1) ||
-+	    !pclc_smcd)
- 		goto not_found;
- 	ini->is_smcd = true; /* prepare ISM check */
- 	ini->ism_peer_gid[0].gid = ntohll(pclc_smcd->ism.gid);
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index 33fa787c28eb..66a43b97eede 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -354,6 +354,10 @@ static bool smc_clc_msg_prop_valid(struct smc_clc_msg_proposal *pclc)
- 
- 	v2_ext = smc_get_clc_v2_ext(pclc);
- 	pclc_prfx = smc_clc_proposal_get_prefix(pclc);
-+	if (!pclc_prfx ||
-+	    pclc_prfx->ipv6_prefixes_cnt > SMC_CLC_MAX_V6_PREFIX)
-+		return false;
-+
- 	if (hdr->version == SMC_V1) {
- 		if (hdr->typev1 == SMC_TYPE_N)
- 			return false;
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index 5fd6f5b8ef03..ac8de6a177fa 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -336,8 +336,12 @@ struct smc_clc_msg_decline_v2 {	/* clc decline message */
- static inline struct smc_clc_msg_proposal_prefix *
- smc_clc_proposal_get_prefix(struct smc_clc_msg_proposal *pclc)
- {
-+	u16 offset = ntohs(pclc->iparea_offset);
-+
-+	if (offset > sizeof(struct smc_clc_msg_smcd))
-+		return NULL;
- 	return (struct smc_clc_msg_proposal_prefix *)
--	       ((u8 *)pclc + sizeof(*pclc) + ntohs(pclc->iparea_offset));
-+	       ((u8 *)pclc + sizeof(*pclc) + offset);
- }
- 
- static inline bool smcr_indicated(int smc_type)
--- 
-2.24.3 (Apple Git-128)
+On Sat, Nov 16, 2024 at 12:32=E2=80=AFAM Easwar Hariharan
+<eahariha@linux.microsoft.com> wrote:
+>
+> Changes made with the following Coccinelle rules:
+>
+> @@ constant C; @@
+>
+> - msecs_to_jiffies(C * 1000)
+> + secs_to_jiffies(C)
+>
+> @@ constant C; @@
+>
+> - msecs_to_jiffies(C * MSEC_PER_SEC)
+> + secs_to_jiffies(C)
+>
+> Signed-off-by: Easwar Hariharan <eahariha@linux.microsoft.com>
+> ---
+>  fs/ceph/quota.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/fs/ceph/quota.c b/fs/ceph/quota.c
+> index 06ee397e0c3a6172592e62dba95cd267cfff0db1..d90eda19bcc4618f98bfed833=
+c10a6071cf2e2ac 100644
+> --- a/fs/ceph/quota.c
+> +++ b/fs/ceph/quota.c
+> @@ -166,7 +166,7 @@ static struct inode *lookup_quotarealm_inode(struct c=
+eph_mds_client *mdsc,
+>         if (IS_ERR(in)) {
+>                 doutc(cl, "Can't lookup inode %llx (err: %ld)\n", realm->=
+ino,
+>                       PTR_ERR(in));
+> -               qri->timeout =3D jiffies + msecs_to_jiffies(60 * 1000); /=
+* XXX */
+> +               qri->timeout =3D jiffies + secs_to_jiffies(60); /* XXX */
+>         } else {
+>                 qri->timeout =3D 0;
+>                 qri->inode =3D in;
+>
+> --
+> 2.34.1
+>
+>
 
