@@ -1,168 +1,95 @@
-Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [52.237.72.81])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1DD3152F88;
-	Thu, 28 Nov 2024 09:12:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.237.72.81
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DF0C199385;
+	Thu, 28 Nov 2024 11:45:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732785161; cv=none; b=kZehL2cRfHX6/pDzcb4+2cOFeWqGw93WeE/KxZWyjFN25K0WL0HI2yXcpDKNUI6cgMNeP9mKkqpmqXUACVqQcfEdFKq5Qv/MfWYfCl8Liwc+DEejmf7FPcI/bNAlSp2pMnU1sdHdhJw9YeVNgDUgxXveuaclXLgonZNB8jiFk5I=
+	t=1732794332; cv=none; b=Qb/UUKGbZz+BmvoPKOUw5gtK+44VMmKhhbaSPpcpVB9dAVk69H2e1o+bAzgc2ImZY10Q30g7nn7JCFnJFkeOfxlZ6X1I9e+1vnt9HgxwRc0GxJSqJpcnlCDQMPlNKFq3ReFFR9gLLcGqHAOAx+OATrGUMDbFhEdd9y042zWBF64=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732785161; c=relaxed/simple;
-	bh=1sVSn+wGEVJ9+/hESfNHaLKQDbFIyKtsyuXZieaZ6HQ=;
-	h=Date:From:To:Cc:Subject:Content-Type:MIME-Version:Message-ID; b=ueFV+Fhd+LgUDmP9833hRA9SnzmABPG5ETO5EsDEf7vtc5sClxl4PWVtWsHCSx4NFGMSm43GfzOVuHor/6DwANVcjBGa6qUYUzy8PzV3Ia9T0MnSEEQowdBJZ6V2QZCGMwKXgtHF53onSK+JxuPqD/EDgJxdxwT5LPuLvLvojRU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn; spf=pass smtp.mailfrom=zju.edu.cn; arc=none smtp.client-ip=52.237.72.81
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zju.edu.cn
-Received: from sh.jiang$zju.edu.cn ( [183.157.161.210] ) by
- ajax-webmail-mail-app2 (Coremail) ; Thu, 28 Nov 2024 17:12:23 +0800
- (GMT+08:00)
-Date: Thu, 28 Nov 2024 17:12:23 +0800 (GMT+08:00)
-X-CM-HeaderCharset: UTF-8
-From: =?UTF-8?B?5rGf5LiW5piK?= <sh.jiang@zju.edu.cn>
-To: security@kernel.org
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org, syzkaller@googlegroups.com
-Subject: [bug report] smc: possible deadlock in smc_switch_to_fallback
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2024.1-cmXT5 build
- 20240625(a75f206e) Copyright (c) 2002-2024 www.mailtech.cn zju.edu.cn
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+	s=arc-20240116; t=1732794332; c=relaxed/simple;
+	bh=UbFqEHszhOJc/zW99AyYdYtb9W7H15irjg6dg+DLI9A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bKU2dZHhyHPh2btjvGSqLjouipQmx5TvKUAAlSWI3N99a4tKxfnIFJjYbRAGFs+pF0e3mggTY38fEEoWspnOvKiLiXrNOLDhUpGnDMWhw392cxrA9fRATDEjO5nInD0a0xcu7r3hMLjJFqnmHXVTBmI8dugOk035xmiad49hJ00=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=K3CnLGrC; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="K3CnLGrC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81AD0C4CECE;
+	Thu, 28 Nov 2024 11:45:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1732794332;
+	bh=UbFqEHszhOJc/zW99AyYdYtb9W7H15irjg6dg+DLI9A=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=K3CnLGrCdAlpH/XW/GJUghKkohbwV9u4m9DtavnRfHf+DEDCQ1lv8MX/QDgnwMu9J
+	 YKVoxdfV2K+8CcXcv+GIPXfF6KkbvTCnxSyca235ywDfsBvYNNEWlRcg41bAbpwo6v
+	 wyQEttMOc4r+K4o7UblZIiMu0IknE7mkjJap0/YQ=
+Date: Thu, 28 Nov 2024 12:45:01 +0100
+From: Greg KH <gregkh@linuxfoundation.org>
+To: =?utf-8?B?5rGf5LiW5piK?= <sh.jiang@zju.edu.cn>
+Cc: security@kernel.org, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+	syzkaller@googlegroups.com
+Subject: Re: [bug report] smc: possible deadlock in smc_switch_to_fallback
+Message-ID: <2024112820-vehicular-unsocial-ccdf@gregkh>
+References: <4224f194.3c7a6.193720afd34.Coremail.sh.jiang@zju.edu.cn>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-ID: <4224f194.3c7a6.193720afd34.Coremail.sh.jiang@zju.edu.cn>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:by_KCgC3Pef3M0hnQ1NDAQ--.4865W
-X-CM-SenderInfo: qrsujiarxsq6lmxovvfxof0/1tbiAgATEWdHVCgdaAAAsp
-X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VWxJw
-	CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
-	daVFxhVjvjDU=
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4224f194.3c7a6.193720afd34.Coremail.sh.jiang@zju.edu.cn>
 
-SGkgZGV2ZWxvcGVyczoKCldlIG1heSBmb3VuZCBhIGJ1ZyBpbiBzbWMgbW9kdWxlIHdoaWNoIGNh
-biBsZWFkIHRvIGRlYWRsb2NrIHJlY2VudGx5LgoKSEVBRCBjb21taXQ6IDgxOTgzNzU4NDMwOSA2
-LjEyLjAtcmM1CmdpdCB0cmVlOiB1cHN0cmVhbQprZXJuZWwgY29uZmlnOiBodHRwczovL2RyaXZl
-Lmdvb2dsZS5jb20vZmlsZS9kLzEtOXBsdEUtMUNNZ0dnTkZ1OW81bDBCbENIazNSbnpiXy92aWV3
-P3VzcD1zaGFyaW5nCmNvbnNvbGUgb3V0cHV0OiBodHRwczovL2RyaXZlLmdvb2dsZS5jb20vZmls
-ZS9kLzF1SDBSRGRmdFZJcV9Cb2E2WVdvd0xqM1d1anFWQnVMNy92aWV3P3VzcD1zaGFyaW5nCnN5
-eiByZXBybzogaHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xV1VqaVlTTWViU1o3ZlIw
-dXhyR3gta0RMcmYxdl9OcmEvdmlldz91c3A9c2hhcmluZwpDIHJlcHJvZHVjZXI6IGh0dHBzOi8v
-ZHJpdmUuZ29vZ2xlLmNvbS9maWxlL2QvMV9sQjVfdWFjVm5mRE5FOFZwdWlZLU54RXREZHpKMFo4
-L3ZpZXc/dXNwPXNoYXJpbmcKCkVudmlyb25tZW50OgpVYnVudHUgMjIuMDQgb24gTGludXggNS4x
-NQpRRU1VIGVtdWxhdG9yIHZlcnNpb24gNi4yLjAKcWVtdS1zeXN0ZW0teDg2XzY0IFwKLW0gMkcg
-XAotc21wIDIgXAota2VybmVsIC9ob21lL3dkL2J6SW1hZ2UgXAotYXBwZW5kICJjb25zb2xlPXR0
-eVMwIHJvb3Q9L2Rldi9zZGEgZWFybHlwcmludGs9c2VyaWFsIG5ldC5pZm5hbWVzPTAiIFwKLWRy
-aXZlIGZpbGU9L2hvbWUvd2QvYnVsbHNleWUuaW1nLGZvcm1hdD1yYXcgXAotbmV0IHVzZXIsaG9z
-dD0xMC4wLjIuMTAsaG9zdGZ3ZD10Y3A6MTI3LjAuMC4xOjEwMDIxLToyMiBcCi1uZXQgbmljLG1v
-ZGVsPWUxMDAwIFwKLWVuYWJsZS1rdm0gXAotbm9ncmFwaGljIFwKLXBpZGZpbGUgdm0ucGlkIFwK
-Mj4mMSB8IHRlZSB2bS5sb2cKCklmIHlvdSBmaXggdGhpcyBpc3N1ZSwgcGxlYXNlIGFkZCB0aGUg
-Zm9sbG93aW5nIHRhZyB0byB0aGUgY29tbWl0OgpSZXBvcnRlZC1ieTogU2hpaGFvIEppYW5nPHNo
-LmppYW5nQHpqdS5lZHUuY24+Cgo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT0KV0FSTklORzogcG9zc2libGUgY2lyY3VsYXIgbG9ja2luZyBkZXBl
-bmRlbmN5IGRldGVjdGVkCjYuMTIuMC1yYzUgIzEgVGFpbnRlZDogRyAgICAgICAgVyAgICAgICAg
-IAotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0K
-c3l6LWV4ZWN1dG9yMzUxLzk0MTMgaXMgdHJ5aW5nIHRvIGFjcXVpcmUgbG9jazoKZmZmZjg4ODA0
-YmQ2OGFhOCAoJnNtYy0+Y2xjc29ja19yZWxlYXNlX2xvY2speysuKy59LXszOjN9LCBhdDogc21j
-X3N3aXRjaF90b19mYWxsYmFjaysweDJkLzB4YTAwIG5ldC9zbWMvYWZfc21jLmM6OTAyCgpidXQg
-dGFzayBpcyBhbHJlYWR5IGhvbGRpbmcgbG9jazoKZmZmZjg4ODA0YmQ2ODI1OCAoc2tfbG9jay1B
-Rl9JTkVUNil7Ky4rLn0tezA6MH0sIGF0OiBsb2NrX3NvY2sgaW5jbHVkZS9uZXQvc29jay5oOjE2
-MTEgW2lubGluZV0KZmZmZjg4ODA0YmQ2ODI1OCAoc2tfbG9jay1BRl9JTkVUNil7Ky4rLn0tezA6
-MH0sIGF0OiBzbWNfc2V0c29ja29wdCsweDMyMy8weGMxMCBuZXQvc21jL2FmX3NtYy5jOjMwNzcK
-CndoaWNoIGxvY2sgYWxyZWFkeSBkZXBlbmRzIG9uIHRoZSBuZXcgbG9jay4KCgp0aGUgZXhpc3Rp
-bmcgZGVwZW5kZW5jeSBjaGFpbiAoaW4gcmV2ZXJzZSBvcmRlcikgaXM6CgotPiAjMiAoc2tfbG9j
-ay1BRl9JTkVUNil7Ky4rLn0tezA6MH06CiAgICAgICBsb2NrX3NvY2tfbmVzdGVkKzB4M2EvMHhm
-MCBuZXQvY29yZS9zb2NrLmM6MzYxMQogICAgICAgbG9ja19zb2NrIGluY2x1ZGUvbmV0L3NvY2su
-aDoxNjExIFtpbmxpbmVdCiAgICAgICBzb2Nrb3B0X2xvY2tfc29jaysweDU0LzB4NzAgbmV0L2Nv
-cmUvc29jay5jOjExMjUKICAgICAgIGRvX2lwdjZfc2V0c29ja29wdCsweDI1MDkvMHg0OGIwIG5l
-dC9pcHY2L2lwdjZfc29ja2dsdWUuYzo1NjcKICAgICAgIGlwdjZfc2V0c29ja29wdCsweGNiLzB4
-MTcwIG5ldC9pcHY2L2lwdjZfc29ja2dsdWUuYzo5OTMKICAgICAgIHJhd3Y2X3NldHNvY2tvcHQr
-MHhkNy8weDcwMCBuZXQvaXB2Ni9yYXcuYzoxMDU0CiAgICAgICBkb19zb2NrX3NldHNvY2tvcHQr
-MHgyMjcvMHg0ODAgbmV0L3NvY2tldC5jOjIzMzQKICAgICAgIF9fc3lzX3NldHNvY2tvcHQrMHgx
-YTYvMHgyNzAgbmV0L3NvY2tldC5jOjIzNTcKICAgICAgIF9fZG9fc3lzX3NldHNvY2tvcHQgbmV0
-L3NvY2tldC5jOjIzNjYgW2lubGluZV0KICAgICAgIF9fc2Vfc3lzX3NldHNvY2tvcHQgbmV0L3Nv
-Y2tldC5jOjIzNjMgW2lubGluZV0KICAgICAgIF9feDY0X3N5c19zZXRzb2Nrb3B0KzB4YmQvMHgx
-NjAgbmV0L3NvY2tldC5jOjIzNjMKICAgICAgIGRvX3N5c2NhbGxfeDY0IGFyY2gveDg2L2VudHJ5
-L2NvbW1vbi5jOjUyIFtpbmxpbmVdCiAgICAgICBkb19zeXNjYWxsXzY0KzB4Y2IvMHgyNTAgYXJj
-aC94ODYvZW50cnkvY29tbW9uLmM6ODMKICAgICAgIGVudHJ5X1NZU0NBTExfNjRfYWZ0ZXJfaHdm
-cmFtZSsweDc3LzB4N2YKCi0+ICMxIChydG5sX211dGV4KXsrLisufS17MzozfToKICAgICAgIF9f
-bXV0ZXhfbG9ja19jb21tb24ga2VybmVsL2xvY2tpbmcvbXV0ZXguYzo2MDggW2lubGluZV0KICAg
-ICAgIF9fbXV0ZXhfbG9jaysweDE0Ny8weDkzMCBrZXJuZWwvbG9ja2luZy9tdXRleC5jOjc1Mgog
-ICAgICAgZG9faXBfc2V0c29ja29wdCsweDE4YTEvMHgzNzgwIG5ldC9pcHY0L2lwX3NvY2tnbHVl
-LmM6MTA3NwogICAgICAgaXBfc2V0c29ja29wdCsweDU5LzB4ZjAgbmV0L2lwdjQvaXBfc29ja2ds
-dWUuYzoxNDE3CiAgICAgICB0Y3Bfc2V0c29ja29wdCsweGE5LzB4MTEwIG5ldC9pcHY0L3RjcC5j
-OjQwMjkKICAgICAgIHNtY19zZXRzb2Nrb3B0KzB4MWIxLzB4YzEwIG5ldC9zbWMvYWZfc21jLmM6
-MzA2NAogICAgICAgZG9fc29ja19zZXRzb2Nrb3B0KzB4MjI3LzB4NDgwIG5ldC9zb2NrZXQuYzoy
-MzM0CiAgICAgICBfX3N5c19zZXRzb2Nrb3B0KzB4MWE2LzB4MjcwIG5ldC9zb2NrZXQuYzoyMzU3
-CiAgICAgICBfX2RvX3N5c19zZXRzb2Nrb3B0IG5ldC9zb2NrZXQuYzoyMzY2IFtpbmxpbmVdCiAg
-ICAgICBfX3NlX3N5c19zZXRzb2Nrb3B0IG5ldC9zb2NrZXQuYzoyMzYzIFtpbmxpbmVdCiAgICAg
-ICBfX3g2NF9zeXNfc2V0c29ja29wdCsweGJkLzB4MTYwIG5ldC9zb2NrZXQuYzoyMzYzCiAgICAg
-ICBkb19zeXNjYWxsX3g2NCBhcmNoL3g4Ni9lbnRyeS9jb21tb24uYzo1MiBbaW5saW5lXQogICAg
-ICAgZG9fc3lzY2FsbF82NCsweGNiLzB4MjUwIGFyY2gveDg2L2VudHJ5L2NvbW1vbi5jOjgzCiAg
-ICAgICBlbnRyeV9TWVNDQUxMXzY0X2FmdGVyX2h3ZnJhbWUrMHg3Ny8weDdmCgotPiAjMCAoJnNt
-Yy0+Y2xjc29ja19yZWxlYXNlX2xvY2speysuKy59LXszOjN9OgogICAgICAgY2hlY2tfcHJldl9h
-ZGQga2VybmVsL2xvY2tpbmcvbG9ja2RlcC5jOjMxNjEgW2lubGluZV0KICAgICAgIGNoZWNrX3By
-ZXZzX2FkZCBrZXJuZWwvbG9ja2luZy9sb2NrZGVwLmM6MzI4MCBbaW5saW5lXQogICAgICAgdmFs
-aWRhdGVfY2hhaW4ga2VybmVsL2xvY2tpbmcvbG9ja2RlcC5jOjM5MDQgW2lubGluZV0KICAgICAg
-IF9fbG9ja19hY3F1aXJlKzB4MjQyNS8weDNiOTAga2VybmVsL2xvY2tpbmcvbG9ja2RlcC5jOjUy
-MDIKICAgICAgIGxvY2tfYWNxdWlyZS5wYXJ0LjArMHgxMWIvMHgzNzAga2VybmVsL2xvY2tpbmcv
-bG9ja2RlcC5jOjU4MjUKICAgICAgIF9fbXV0ZXhfbG9ja19jb21tb24ga2VybmVsL2xvY2tpbmcv
-bXV0ZXguYzo2MDggW2lubGluZV0KICAgICAgIF9fbXV0ZXhfbG9jaysweDE0Ny8weDkzMCBrZXJu
-ZWwvbG9ja2luZy9tdXRleC5jOjc1MgogICAgICAgc21jX3N3aXRjaF90b19mYWxsYmFjaysweDJk
-LzB4YTAwIG5ldC9zbWMvYWZfc21jLmM6OTAyCiAgICAgICBzbWNfc2V0c29ja29wdCsweDgwOS8w
-eGMxMCBuZXQvc21jL2FmX3NtYy5jOjMwODcKICAgICAgIGRvX3NvY2tfc2V0c29ja29wdCsweDIy
-Ny8weDQ4MCBuZXQvc29ja2V0LmM6MjMzNAogICAgICAgX19zeXNfc2V0c29ja29wdCsweDFhNi8w
-eDI3MCBuZXQvc29ja2V0LmM6MjM1NwogICAgICAgX19kb19zeXNfc2V0c29ja29wdCBuZXQvc29j
-a2V0LmM6MjM2NiBbaW5saW5lXQogICAgICAgX19zZV9zeXNfc2V0c29ja29wdCBuZXQvc29ja2V0
-LmM6MjM2MyBbaW5saW5lXQogICAgICAgX194NjRfc3lzX3NldHNvY2tvcHQrMHhiZC8weDE2MCBu
-ZXQvc29ja2V0LmM6MjM2MwogICAgICAgZG9fc3lzY2FsbF94NjQgYXJjaC94ODYvZW50cnkvY29t
-bW9uLmM6NTIgW2lubGluZV0KICAgICAgIGRvX3N5c2NhbGxfNjQrMHhjYi8weDI1MCBhcmNoL3g4
-Ni9lbnRyeS9jb21tb24uYzo4MwogICAgICAgZW50cnlfU1lTQ0FMTF82NF9hZnRlcl9od2ZyYW1l
-KzB4NzcvMHg3ZgoKb3RoZXIgaW5mbyB0aGF0IG1pZ2h0IGhlbHAgdXMgZGVidWcgdGhpczoKCkNo
-YWluIGV4aXN0cyBvZjoKICAmc21jLT5jbGNzb2NrX3JlbGVhc2VfbG9jayAtLT4gcnRubF9tdXRl
-eCAtLT4gc2tfbG9jay1BRl9JTkVUNgoKIFBvc3NpYmxlIHVuc2FmZSBsb2NraW5nIHNjZW5hcmlv
-OgoKICAgICAgIENQVTAgICAgICAgICAgICAgICAgICAgIENQVTEKICAgICAgIC0tLS0gICAgICAg
-ICAgICAgICAgICAgIC0tLS0KICBsb2NrKHNrX2xvY2stQUZfSU5FVDYpOwogICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgbG9jayhydG5sX211dGV4KTsKICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIGxvY2soc2tfbG9jay1BRl9JTkVUNik7CiAgbG9jaygmc21jLT5jbGNzb2NrX3Jl
-bGVhc2VfbG9jayk7CgogKioqIERFQURMT0NLICoqKgoKMSBsb2NrIGhlbGQgYnkgc3l6LWV4ZWN1
-dG9yMzUxLzk0MTM6CiAjMDogZmZmZjg4ODA0YmQ2ODI1OCAoc2tfbG9jay1BRl9JTkVUNil7Ky4r
-Ln0tezA6MH0sIGF0OiBsb2NrX3NvY2sgaW5jbHVkZS9uZXQvc29jay5oOjE2MTEgW2lubGluZV0K
-ICMwOiBmZmZmODg4MDRiZDY4MjU4IChza19sb2NrLUFGX0lORVQ2KXsrLisufS17MDowfSwgYXQ6
-IHNtY19zZXRzb2Nrb3B0KzB4MzIzLzB4YzEwIG5ldC9zbWMvYWZfc21jLmM6MzA3NwoKc3RhY2sg
-YmFja3RyYWNlOgpDUFU6IDEgVUlEOiAwIFBJRDogOTQxMyBDb21tOiBzeXotZXhlY3V0b3IzNTEg
-VGFpbnRlZDogRyAgICAgICAgVyAgICAgICAgICA2LjEyLjAtcmM1ICMxClRhaW50ZWQ6IFtXXT1X
-QVJOCkhhcmR3YXJlIG5hbWU6IFFFTVUgU3RhbmRhcmQgUEMgKGk0NDBGWCArIFBJSVgsIDE5OTYp
-LCBCSU9TIDEuMTUuMC0xIDA0LzAxLzIwMTQKQ2FsbCBUcmFjZToKIDxUQVNLPgogX19kdW1wX3N0
-YWNrIGxpYi9kdW1wX3N0YWNrLmM6OTQgW2lubGluZV0KIGR1bXBfc3RhY2tfbHZsKzB4MTE2LzB4
-MWIwIGxpYi9kdW1wX3N0YWNrLmM6MTIwCiBwcmludF9jaXJjdWxhcl9idWcrMHg0MDYvMHg1YzAg
-a2VybmVsL2xvY2tpbmcvbG9ja2RlcC5jOjIwNzQKIGNoZWNrX25vbmNpcmN1bGFyKzB4MmY3LzB4
-M2UwIGtlcm5lbC9sb2NraW5nL2xvY2tkZXAuYzoyMjA2CiBjaGVja19wcmV2X2FkZCBrZXJuZWwv
-bG9ja2luZy9sb2NrZGVwLmM6MzE2MSBbaW5saW5lXQogY2hlY2tfcHJldnNfYWRkIGtlcm5lbC9s
-b2NraW5nL2xvY2tkZXAuYzozMjgwIFtpbmxpbmVdCiB2YWxpZGF0ZV9jaGFpbiBrZXJuZWwvbG9j
-a2luZy9sb2NrZGVwLmM6MzkwNCBbaW5saW5lXQogX19sb2NrX2FjcXVpcmUrMHgyNDI1LzB4M2I5
-MCBrZXJuZWwvbG9ja2luZy9sb2NrZGVwLmM6NTIwMgogbG9ja19hY3F1aXJlLnBhcnQuMCsweDEx
-Yi8weDM3MCBrZXJuZWwvbG9ja2luZy9sb2NrZGVwLmM6NTgyNQogX19tdXRleF9sb2NrX2NvbW1v
-biBrZXJuZWwvbG9ja2luZy9tdXRleC5jOjYwOCBbaW5saW5lXQogX19tdXRleF9sb2NrKzB4MTQ3
-LzB4OTMwIGtlcm5lbC9sb2NraW5nL211dGV4LmM6NzUyCiBzbWNfc3dpdGNoX3RvX2ZhbGxiYWNr
-KzB4MmQvMHhhMDAgbmV0L3NtYy9hZl9zbWMuYzo5MDIKIHNtY19zZXRzb2Nrb3B0KzB4ODA5LzB4
-YzEwIG5ldC9zbWMvYWZfc21jLmM6MzA4NwogZG9fc29ja19zZXRzb2Nrb3B0KzB4MjI3LzB4NDgw
-IG5ldC9zb2NrZXQuYzoyMzM0CiBfX3N5c19zZXRzb2Nrb3B0KzB4MWE2LzB4MjcwIG5ldC9zb2Nr
-ZXQuYzoyMzU3CiBfX2RvX3N5c19zZXRzb2Nrb3B0IG5ldC9zb2NrZXQuYzoyMzY2IFtpbmxpbmVd
-CiBfX3NlX3N5c19zZXRzb2Nrb3B0IG5ldC9zb2NrZXQuYzoyMzYzIFtpbmxpbmVdCiBfX3g2NF9z
-eXNfc2V0c29ja29wdCsweGJkLzB4MTYwIG5ldC9zb2NrZXQuYzoyMzYzCiBkb19zeXNjYWxsX3g2
-NCBhcmNoL3g4Ni9lbnRyeS9jb21tb24uYzo1MiBbaW5saW5lXQogZG9fc3lzY2FsbF82NCsweGNi
-LzB4MjUwIGFyY2gveDg2L2VudHJ5L2NvbW1vbi5jOjgzCiBlbnRyeV9TWVNDQUxMXzY0X2FmdGVy
-X2h3ZnJhbWUrMHg3Ny8weDdmClJJUDogMDAzMzoweDdmOGQ5NmZjMzA0ZApDb2RlOiAyOCBjMyBl
-OCA0NiAxZSAwMCAwMCA2NiAwZiAxZiA0NCAwMCAwMCBmMyAwZiAxZSBmYSA0OCA4OSBmOCA0OCA4
-OSBmNyA0OCA4OSBkNiA0OCA4OSBjYSA0ZCA4OSBjMiA0ZCA4OSBjOCA0YyA4YiA0YyAyNCAwOCAw
-ZiAwNSA8NDg+IDNkIDAxIGYwIGZmIGZmIDczIDAxIGMzIDQ4IGM3IGMxIGI4IGZmIGZmIGZmIGY3
-IGQ4IDY0IDg5IDAxIDQ4ClJTUDogMDAyYjowMDAwN2ZmZWYzMGUwMjE4IEVGTEFHUzogMDAwMDAy
-NDYgT1JJR19SQVg6IDAwMDAwMDAwMDAwMDAwMzYKUkFYOiBmZmZmZmZmZmZmZmZmZmRhIFJCWDog
-MDAwMDdmZmVmMzBlMDQxOCBSQ1g6IDAwMDA3ZjhkOTZmYzMwNGQKUkRYOiAwMDAwMDAwMDAwMDAw
-MDE3IFJTSTogMDAwMDAwMDAwMDAwMDAyOSBSREk6IDAwMDAwMDAwMDAwMDAwMDUKUkJQOiAwMDAw
-MDAwMDAwMDAwMDAxIFIwODogMDAwMDAwMDAwMDAwMDAwNCBSMDk6IDAwMDA3ZmZlZjMwZTA0MTgK
-UjEwOiAwMDAwMDAwMDIwMDAwMGMwIFIxMTogMDAwMDAwMDAwMDAwMDI0NiBSMTI6IDAwMDAwMDAw
-MDAwMDAwMDEKUjEzOiAwMDAwN2ZmZWYzMGUwNDA4IFIxNDogMDAwMDdmOGQ5NzA0MDUzMCBSMTU6
-IDAwMDAwMDAwMDAwMDAwMDEKIDwvVEFTSz4KCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PQoKQmVzdCBSZWdhcmRzLCAKU2hpaGFv
+On Thu, Nov 28, 2024 at 05:12:23PM +0800, 江世昊 wrote:
+> Hi developers:
+> 
+> We may found a bug in smc module which can lead to deadlock recently.
+> 
+> HEAD commit: 819837584309 6.12.0-rc5
+> git tree: upstream
+> kernel config: https://drive.google.com/file/d/1-9pltE-1CMgGgNFu9o5l0BlCHk3Rnzb_/view?usp=sharing
+> console output: https://drive.google.com/file/d/1uH0RDdftVIq_Boa6YWowLj3WujqVBuL7/view?usp=sharing
+> syz repro: https://drive.google.com/file/d/1WUjiYSMebSZ7fR0uxrGx-kDLrf1v_Nra/view?usp=sharing
+> C reproducer: https://drive.google.com/file/d/1_lB5_uacVnfDNE8VpuiY-NxEtDdzJ0Z8/view?usp=sharing
+> 
+> Environment:
+> Ubuntu 22.04 on Linux 5.15
+> QEMU emulator version 6.2.0
+> qemu-system-x86_64 \
+> -m 2G \
+> -smp 2 \
+> -kernel /home/wd/bzImage \
+> -append "console=ttyS0 root=/dev/sda earlyprintk=serial net.ifnames=0" \
+> -drive file=/home/wd/bullseye.img,format=raw \
+> -net user,host=10.0.2.10,hostfwd=tcp:127.0.0.1:10021-:22 \
+> -net nic,model=e1000 \
+> -enable-kvm \
+> -nographic \
+> -pidfile vm.pid \
+> 2>&1 | tee vm.log
+> 
+> If you fix this issue, please add the following tag to the commit:
+> Reported-by: Shihao Jiang<sh.jiang@zju.edu.cn>
+> 
+> ======================================================
+> WARNING: possible circular locking dependency detected
+> 6.12.0-rc5 #1 Tainted: G        W         
+> ------------------------------------------------------
+> syz-executor351/9413 is trying to acquire lock:
+> ffff88804bd68aa8 (&smc->clcsock_release_lock){+.+.}-{3:3}, at: smc_switch_to_fallback+0x2d/0xa00 net/smc/af_smc.c:902
+> 
+> but task is already holding lock:
+> ffff88804bd68258 (sk_lock-AF_INET6){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1611 [inline]
+> ffff88804bd68258 (sk_lock-AF_INET6){+.+.}-{0:0}, at: smc_setsockopt+0x323/0xc10 net/smc/af_smc.c:3077
+> 
+> which lock already depends on the new lock.
+
+Please submit a fix for this issue as you have a test-case for it.  It's
+just a "normal" lockdep warning, not a "security" issue.
+
+thanks,
+
+greg k-h
