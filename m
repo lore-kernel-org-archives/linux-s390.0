@@ -1,95 +1,133 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DF0C199385;
-	Thu, 28 Nov 2024 11:45:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D16819ADBF;
+	Thu, 28 Nov 2024 12:14:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732794332; cv=none; b=Qb/UUKGbZz+BmvoPKOUw5gtK+44VMmKhhbaSPpcpVB9dAVk69H2e1o+bAzgc2ImZY10Q30g7nn7JCFnJFkeOfxlZ6X1I9e+1vnt9HgxwRc0GxJSqJpcnlCDQMPlNKFq3ReFFR9gLLcGqHAOAx+OATrGUMDbFhEdd9y042zWBF64=
+	t=1732796093; cv=none; b=u5+8CyobYa/N8pZFwF0QVzQDrP7+kVv8J0O1nGU2CB2IpEXlUTNLAHtwyBBaPv5SZZenPc4OKWOLDmlqQAuC2qKJUsj03CnhtqGw6bij6+bVOW6ZzFRskXa6gVTO+oRb5fOVO29eY/PwbZe/4zHqz+Hl90qGf8jPFOIklSXW+5I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732794332; c=relaxed/simple;
-	bh=UbFqEHszhOJc/zW99AyYdYtb9W7H15irjg6dg+DLI9A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bKU2dZHhyHPh2btjvGSqLjouipQmx5TvKUAAlSWI3N99a4tKxfnIFJjYbRAGFs+pF0e3mggTY38fEEoWspnOvKiLiXrNOLDhUpGnDMWhw392cxrA9fRATDEjO5nInD0a0xcu7r3hMLjJFqnmHXVTBmI8dugOk035xmiad49hJ00=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=K3CnLGrC; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1732796093; c=relaxed/simple;
+	bh=a2nBastnrCJ+Q8H/sRyw6AmS0iybgPTtu8YvzJdxEl0=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=SyzRTJtotBMn1NWxggjHaohpBpiVdj28JCBQQJAEFkOMIv5U1+xIK+vUY9K2VlVRB1P96CoyPhsax/kR+VGjpyaQsJW8Orqie0IVMPWpUknmGm19U62diCp+VIget6mDUCaSCE/hC/bUyQFCoXWrEf8EYHiVhVtJKJZlnFLM1E4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=OnkuTnvU; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="K3CnLGrC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81AD0C4CECE;
-	Thu, 28 Nov 2024 11:45:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1732794332;
-	bh=UbFqEHszhOJc/zW99AyYdYtb9W7H15irjg6dg+DLI9A=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=K3CnLGrCdAlpH/XW/GJUghKkohbwV9u4m9DtavnRfHf+DEDCQ1lv8MX/QDgnwMu9J
-	 YKVoxdfV2K+8CcXcv+GIPXfF6KkbvTCnxSyca235ywDfsBvYNNEWlRcg41bAbpwo6v
-	 wyQEttMOc4r+K4o7UblZIiMu0IknE7mkjJap0/YQ=
-Date: Thu, 28 Nov 2024 12:45:01 +0100
-From: Greg KH <gregkh@linuxfoundation.org>
-To: =?utf-8?B?5rGf5LiW5piK?= <sh.jiang@zju.edu.cn>
-Cc: security@kernel.org, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-	syzkaller@googlegroups.com
-Subject: Re: [bug report] smc: possible deadlock in smc_switch_to_fallback
-Message-ID: <2024112820-vehicular-unsocial-ccdf@gregkh>
-References: <4224f194.3c7a6.193720afd34.Coremail.sh.jiang@zju.edu.cn>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="OnkuTnvU"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1732796087; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=BTRNYGHrd82xYJL1vADKA/NPF30Dt6eN5hXvBItCJ9o=;
+	b=OnkuTnvUsZ9ZzVWfcFw+ey97p85Xf+KQROX/5bMhmD5HrkmINW9x0rnkEf7ubEI5rTSRB18W5jmCuYr6QPdfO9H4Mwxwn1wv6TD9qZFR38I9HXuYaoXrwbV7R8OhniX5qSKkMlR0SRXiXmTY/WoRHzef3Iiz08lqT9cK0FbxrAw=
+Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WKQ-9TN_1732796086 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 28 Nov 2024 20:14:46 +0800
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+To: wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org
+Cc: linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net 1/6] net/smc: protect link down work from execute after lgr freed
+Date: Thu, 28 Nov 2024 20:14:30 +0800
+Message-Id: <20241128121435.73071-2-guangguan.wang@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
+In-Reply-To: <20241128121435.73071-1-guangguan.wang@linux.alibaba.com>
+References: <20241128121435.73071-1-guangguan.wang@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <4224f194.3c7a6.193720afd34.Coremail.sh.jiang@zju.edu.cn>
 
-On Thu, Nov 28, 2024 at 05:12:23PM +0800, 江世昊 wrote:
-> Hi developers:
-> 
-> We may found a bug in smc module which can lead to deadlock recently.
-> 
-> HEAD commit: 819837584309 6.12.0-rc5
-> git tree: upstream
-> kernel config: https://drive.google.com/file/d/1-9pltE-1CMgGgNFu9o5l0BlCHk3Rnzb_/view?usp=sharing
-> console output: https://drive.google.com/file/d/1uH0RDdftVIq_Boa6YWowLj3WujqVBuL7/view?usp=sharing
-> syz repro: https://drive.google.com/file/d/1WUjiYSMebSZ7fR0uxrGx-kDLrf1v_Nra/view?usp=sharing
-> C reproducer: https://drive.google.com/file/d/1_lB5_uacVnfDNE8VpuiY-NxEtDdzJ0Z8/view?usp=sharing
-> 
-> Environment:
-> Ubuntu 22.04 on Linux 5.15
-> QEMU emulator version 6.2.0
-> qemu-system-x86_64 \
-> -m 2G \
-> -smp 2 \
-> -kernel /home/wd/bzImage \
-> -append "console=ttyS0 root=/dev/sda earlyprintk=serial net.ifnames=0" \
-> -drive file=/home/wd/bullseye.img,format=raw \
-> -net user,host=10.0.2.10,hostfwd=tcp:127.0.0.1:10021-:22 \
-> -net nic,model=e1000 \
-> -enable-kvm \
-> -nographic \
-> -pidfile vm.pid \
-> 2>&1 | tee vm.log
-> 
-> If you fix this issue, please add the following tag to the commit:
-> Reported-by: Shihao Jiang<sh.jiang@zju.edu.cn>
-> 
-> ======================================================
-> WARNING: possible circular locking dependency detected
-> 6.12.0-rc5 #1 Tainted: G        W         
-> ------------------------------------------------------
-> syz-executor351/9413 is trying to acquire lock:
-> ffff88804bd68aa8 (&smc->clcsock_release_lock){+.+.}-{3:3}, at: smc_switch_to_fallback+0x2d/0xa00 net/smc/af_smc.c:902
-> 
-> but task is already holding lock:
-> ffff88804bd68258 (sk_lock-AF_INET6){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1611 [inline]
-> ffff88804bd68258 (sk_lock-AF_INET6){+.+.}-{0:0}, at: smc_setsockopt+0x323/0xc10 net/smc/af_smc.c:3077
-> 
-> which lock already depends on the new lock.
+link down work may be scheduled before lgr freed but execute
+after lgr freed, which may result in crash. So it is need to
+hold a reference before shedule link down work, and put the
+reference after work executed or canceled.
 
-Please submit a fix for this issue as you have a test-case for it.  It's
-just a "normal" lockdep warning, not a "security" issue.
+The relevant crash call stack as follows:
+ list_del corruption. prev->next should be ffffb638c9c0fe20,
+    but was 0000000000000000
+ ------------[ cut here ]------------
+ kernel BUG at lib/list_debug.c:51!
+ invalid opcode: 0000 [#1] SMP NOPTI
+ CPU: 6 PID: 978112 Comm: kworker/6:119 Kdump: loaded Tainted: G #1
+ Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 2221b89 04/01/2014
+ Workqueue: events smc_link_down_work [smc]
+ RIP: 0010:__list_del_entry_valid.cold+0x31/0x47
+ RSP: 0018:ffffb638c9c0fdd8 EFLAGS: 00010086
+ RAX: 0000000000000054 RBX: ffff942fb75e5128 RCX: 0000000000000000
+ RDX: ffff943520930aa0 RSI: ffff94352091fc80 RDI: ffff94352091fc80
+ RBP: 0000000000000000 R08: 0000000000000000 R09: ffffb638c9c0fc38
+ R10: ffffb638c9c0fc30 R11: ffffffffa015eb28 R12: 0000000000000002
+ R13: ffffb638c9c0fe20 R14: 0000000000000001 R15: ffff942f9cd051c0
+ FS:  0000000000000000(0000) GS:ffff943520900000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007f4f25214000 CR3: 000000025fbae004 CR4: 00000000007706e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ PKRU: 55555554
+ Call Trace:
+  rwsem_down_write_slowpath+0x17e/0x470
+  smc_link_down_work+0x3c/0x60 [smc]
+  process_one_work+0x1ac/0x350
+  worker_thread+0x49/0x2f0
+  ? rescuer_thread+0x360/0x360
+  kthread+0x118/0x140
+  ? __kthread_bind_mask+0x60/0x60
+  ret_from_fork+0x1f/0x30
 
-thanks,
+Fixes: 541afa10c126 ("net/smc: add smcr_port_err() and smcr_link_down() processing")
+Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+---
+ net/smc/smc_core.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-greg k-h
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 500952c2e67b..3b125d348b4a 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1818,7 +1818,9 @@ void smcr_link_down_cond_sched(struct smc_link *lnk)
+ {
+ 	if (smc_link_downing(&lnk->state)) {
+ 		trace_smcr_link_down(lnk, __builtin_return_address(0));
+-		schedule_work(&lnk->link_down_wrk);
++		smcr_link_hold(lnk); /* smcr_link_put in link_down_wrk */
++		if (!schedule_work(&lnk->link_down_wrk))
++			smcr_link_put(lnk);
+ 	}
+ }
+ 
+@@ -1850,11 +1852,14 @@ static void smc_link_down_work(struct work_struct *work)
+ 	struct smc_link_group *lgr = link->lgr;
+ 
+ 	if (list_empty(&lgr->list))
+-		return;
++		goto out;
+ 	wake_up_all(&lgr->llc_msg_waiter);
+ 	down_write(&lgr->llc_conf_mutex);
+ 	smcr_link_down(link);
+ 	up_write(&lgr->llc_conf_mutex);
++
++out:
++	smcr_link_put(link); /* smcr_link_hold by schedulers of link_down_work */
+ }
+ 
+ static int smc_vlan_by_tcpsk_walk(struct net_device *lower_dev,
+-- 
+2.24.3 (Apple Git-128)
+
