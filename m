@@ -1,25 +1,26 @@
 Received: from exchange.fintech.ru (exchange.fintech.ru [195.54.195.159])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AA571B85E1;
-	Thu, 28 Nov 2024 15:33:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E17EB1BD003;
+	Thu, 28 Nov 2024 15:33:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.54.195.159
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732808028; cv=none; b=BfjV8p0OK9jZngHuTo1XIn3kWFkdtdOYSNUknRyqEfQBoswoiBmS8PdSSUa5mux+sc2sqCOwsDpg2PtOS30lSbAsPw/DdJFVnJZCaGh1GUeOCsSoFfuN48/gpOcr6bnFydPDudKGhlSgjloF3AjN2ohs71NVkbuF8uX/MWC+OJY=
+	t=1732808031; cv=none; b=POHaaQAhc6hWmGyFHjkzzMHHlEw5wdsDsojg0ENzNBxKQVuEdPRfMTBhCVa2fLIx5pBP0JUlFfhJnYlPWZJvyBasC4MyVoebhIDWAxNUkOpL+NGbRpkdl/GHmyIzFkTmUjBQjzm2uzIIQI5dqYYWIq3XqqbQD719Fa3+FcifTto=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732808028; c=relaxed/simple;
-	bh=/U7kaNA2fDhFwYK5OOrGrST3PZ1U9/vnIicHP4Fvnco=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Rck0e+oIvPb6DF3QxOHcf+51nIpldXxQzhA9lIMG0c7HL4zABEp2cJsuhqHiVZlYY85N5eWeYq0peMoZWj82uFVDPzGzJHdKNnee2U6/puJX03rrqkCRuVxjz9kYqsIEeb/7NYVQF4oU5NnpF6j6i65Iq3o3ouTUZgh1X0Gt0WM=
+	s=arc-20240116; t=1732808031; c=relaxed/simple;
+	bh=7+2fvqHmSSiZr8FzvsxvGsUCIxuqZwRAFJF1lweIaDI=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=UdlLsVMSkdPE7aG6dOSYo1f6KxAyrvgp5NoXV7+dDuFsBBtZYkASHimscdyPimja5GRlSpwKf4/QTQslJbyNbCIKLl340jrzP/1McmB2O3waVwYMr3UUjiTtn3oIRfs4OF/nQnPT68Iy+XN8ifc1Ky0AWIxH3zdwWS6k/TeK4lE=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fintech.ru; spf=pass smtp.mailfrom=fintech.ru; arc=none smtp.client-ip=195.54.195.159
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fintech.ru
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fintech.ru
 Received: from Ex16-01.fintech.ru (10.0.10.18) by exchange.fintech.ru
  (195.54.195.159) with Microsoft SMTP Server (TLS) id 14.3.498.0; Thu, 28 Nov
- 2024 18:33:41 +0300
+ 2024 18:33:45 +0300
 Received: from localhost (10.0.253.138) by Ex16-01.fintech.ru (10.0.10.18)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Thu, 28 Nov
- 2024 18:33:41 +0300
+ 2024 18:33:45 +0300
 From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sasha Levin
 	<sashal@kernel.org>, <stable@vger.kernel.org>
@@ -29,10 +30,12 @@ CC: Nikita Zhandarovich <n.zhandarovich@fintech.ru>, Harald Freudenberger
  Dengler" <dengler@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
 	<linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
 	<lvc-project@linuxtesting.org>
-Subject: [PATCH 6.1 0/3] Backport fixes for CVE-2024-42155, CVE-2024-42156 and CVE-2024-42158
-Date: Thu, 28 Nov 2024 07:33:34 -0800
-Message-ID: <20241128153337.19666-1-n.zhandarovich@fintech.ru>
+Subject: [PATCH 6.1 1/3] s390/pkey: Use kfree_sensitive() to fix Coccinelle warnings
+Date: Thu, 28 Nov 2024 07:33:35 -0800
+Message-ID: <20241128153337.19666-2-n.zhandarovich@fintech.ru>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20241128153337.19666-1-n.zhandarovich@fintech.ru>
+References: <20241128153337.19666-1-n.zhandarovich@fintech.ru>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -44,34 +47,66 @@ Content-Type: text/plain
 X-ClientProxiedBy: Ex16-02.fintech.ru (10.0.10.19) To Ex16-01.fintech.ru
  (10.0.10.18)
 
-This series addresses several s390 driver vulnerabilities related to
-improper handling of sensitive keys-related material and its lack
-of proper disposal in stable kernel branches. These issues have been
-announced as CVE-2024-42155 [1], CVE-2024-42156 [2] and
-CVE-2024-42158 [4] and fixed in upstream. Another problem named as
-CVE-2024-42157 [3] has already been successfully backported.
+From: Jules Irenge <jbi.octave@gmail.com>
 
-All patches have been cherry-picked and are ready to be cleanly
-applied to 6.1 stable branch. Same series adapted for 6.6 version
-will follow separately. Backports for 5.10/5.15 have already been
-sent, see [5].
+commit 22e6824622e8a8889df0f8fc4ed5aea0e702a694 upstream.
 
-[PATCH 6.1 1/3] s390/pkey: Use kfree_sensitive() to fix Coccinelle warnings
-Use kfree_sensitive() instead of kfree() and memzero_explicit().
-Fixes CVE-2024-42158.
+Replace memzero_explicit() and kfree() with kfree_sensitive() to fix
+warnings reported by Coccinelle:
 
-[PATCH 6.1 2/3] s390/pkey: Wipe copies of clear-key structures on failure
-Properly wipe sensitive key material from stack for IOCTLs that
-deal with clear-key conversion.
-Fixes CVE-2024-42156.
+WARNING opportunity for kfree_sensitive/kvfree_sensitive (line 1506)
+WARNING opportunity for kfree_sensitive/kvfree_sensitive (line 1643)
+WARNING opportunity for kfree_sensitive/kvfree_sensitive (line 1770)
 
-[PATCH 6.1 3/3] s390/pkey: Wipe copies of protected- and secure-keys
-Properly wipe key copies from stack for affected IOCTLs.
-Fixes CVE-2024-42155.
+Signed-off-by: Jules Irenge <jbi.octave@gmail.com>
+Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+Link: https://lore.kernel.org/r/ZjqZkNi_JUJu73Rg@octinomon.home
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+[Nikita: small changes were made during cherry-picking due to
+different debug macro use and similar discrepancies between branches]
+Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+---
+P.S. As no Fixes: tag was present, I decided against adding it myself
+and leaving commit body intact.
 
-[1] https://nvd.nist.gov/vuln/detail/CVE-2024-42155
-[2] https://nvd.nist.gov/vuln/detail/CVE-2024-42156
-[3] https://nvd.nist.gov/vuln/detail/CVE-2024-42157
-[4] https://nvd.nist.gov/vuln/detail/CVE-2024-42158
-[5] https://lore.kernel.org/all/20241128142245.18136-1-n.zhandarovich@fintech.ru/
+ drivers/s390/crypto/pkey_api.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
+index 17885c9f55cb..d1429622036f 100644
+--- a/drivers/s390/crypto/pkey_api.c
++++ b/drivers/s390/crypto/pkey_api.c
+@@ -1307,8 +1307,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 			return PTR_ERR(kkey);
+ 		rc = pkey_keyblob2pkey(kkey, ktp.keylen, &ktp.protkey);
+ 		DEBUG_DBG("%s pkey_keyblob2pkey()=%d\n", __func__, rc);
+-		memzero_explicit(kkey, ktp.keylen);
+-		kfree(kkey);
++		kfree_sensitive(kkey);
+ 		if (rc)
+ 			break;
+ 		if (copy_to_user(utp, &ktp, sizeof(ktp)))
+@@ -1441,8 +1440,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 					kkey, ktp.keylen, &ktp.protkey);
+ 		DEBUG_DBG("%s pkey_keyblob2pkey2()=%d\n", __func__, rc);
+ 		kfree(apqns);
+-		memzero_explicit(kkey, ktp.keylen);
+-		kfree(kkey);
++		kfree_sensitive(kkey);
+ 		if (rc)
+ 			break;
+ 		if (copy_to_user(utp, &ktp, sizeof(ktp)))
+@@ -1568,8 +1566,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 					protkey, &protkeylen);
+ 		DEBUG_DBG("%s pkey_keyblob2pkey3()=%d\n", __func__, rc);
+ 		kfree(apqns);
+-		memzero_explicit(kkey, ktp.keylen);
+-		kfree(kkey);
++		kfree_sensitive(kkey);
+ 		if (rc) {
+ 			kfree(protkey);
+ 			break;
+-- 
+2.25.1
 
