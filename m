@@ -1,77 +1,77 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E2E719CC1F
-	for <linux-s390@vger.kernel.org>; Thu, 28 Nov 2024 12:28:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D24C419D06A
+	for <linux-s390@vger.kernel.org>; Thu, 28 Nov 2024 12:29:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732796938; cv=none; b=ar9NaRQLw/TzrL9wb8Ebhs4DkYGUbmyPC2sv6NCCPgSOMmks02ibchvZd2Sdjpfh35xx4uoriu3M7/q5nubtuXO17VKoWns7g0Y7OXC/S7b/dYyxHsYrC2I8ZGfcebmtsyuPPUE7/p1FnmAn9PCVyHCwWeKmOoGzH/ehL7okUhc=
+	t=1732796957; cv=none; b=lZ4D2mGKRiYrKKJL/DKdoSh5UA3ZT2hqA0clty4srTFdipK944d+hwY7mrHMW4OP+RZdMIZ4DioKw9ODv0dBQPTKvqXcahRLXimnFF5YsHZCFVpKMd0EPxYozXnhbdQRPf6A16GmsCS8sBW1qlRsGL5Jud8ryOp51y9IwXYgkvI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732796938; c=relaxed/simple;
-	bh=7YyGrl4KoRmc0JeVQNy93UMWTak4tQ4PB7z7wqFR2wU=;
+	s=arc-20240116; t=1732796957; c=relaxed/simple;
+	bh=JpPbSJkGmB+FiXHSVu+2bxdWkGhcoXfBF30rmHgjyGg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GSzC5nTmYDxW8p+TiFP/zJoFQ2Pt1BcGYqCIpIkgN5Tyl1ibArmkWnt3U5hfX3uurPRM546xFIM5Tzdt5RgHftcrodOIOxTWRiD8Tfoz9crZmh0k8TpXW1VH7WVDFqjUzh/AXrepWi2C676lQ4HV1jJKMrKTwFAYr2/XElSMK/c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SR+2143n; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=bQXyNQViHw40lBZYcK34FqyiBYROqiZ/tdvVje2EKDZoBDhMTVm+CKIvfj/hZctGiN7vSOEhjKduGeAB9Kpome07RvHFOKlfn4CvkbGdmSwEPRhwc5OFycmnROK8xCAEzLPMZnSq32YmgbGDH0+mAJaHnjrmbznhOJNP4aC2Hhs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NF86R7YP; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SR+2143n"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NF86R7YP"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1732796934;
+	s=mimecast20190719; t=1732796954;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ZACMslqIaF7iVtmlx12c8LPoSlN7TzLegXngDuX2z78=;
-	b=SR+2143n/ny/c1ljGZjDnEADm/Ip4JnzZKHEGegX2fSpQuWWcE1/kNzNUvhvIvpffUaami
-	pQnV8KfkLGfnmwFF1tW7gB4vxoTu6M1GGF94HZMZeKWCvFMHdHksmJydcDHl7j7pLyw10t
-	usmZaRSuxFMIGWqNTbACv75cFVGLQL0=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=0Nxf6CkGK3NslY+JLgqPcTLt32q1OCumzkrHYUKQkbE=;
+	b=NF86R7YPaO4OmYapdN/YmkctK36hyatOwgFnMmypDgOYs+5hDSzw9VI6kPrX1Sfwh9Y/oh
+	pkRUEbh4+BmMaTxCAagWRlwi7lwQxDFd7HAWNdry//JprUXWVkYB37Tpxs4gq9uxDC5E3q
+	Hb7mXLh0aj/aMRbdo2tBNwPWG0P55Bs=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-664--BcUco63PlC1Y5pfF7RgBQ-1; Thu, 28 Nov 2024 07:28:53 -0500
-X-MC-Unique: -BcUco63PlC1Y5pfF7RgBQ-1
-X-Mimecast-MFC-AGG-ID: -BcUco63PlC1Y5pfF7RgBQ
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-385d6ee042eso94036f8f.0
-        for <linux-s390@vger.kernel.org>; Thu, 28 Nov 2024 04:28:53 -0800 (PST)
+ us-mta-258-ddaYfpX-PL6qt9LnuRzn5A-1; Thu, 28 Nov 2024 07:29:13 -0500
+X-MC-Unique: ddaYfpX-PL6qt9LnuRzn5A-1
+X-Mimecast-MFC-AGG-ID: ddaYfpX-PL6qt9LnuRzn5A
+Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5d035c8f3afso502688a12.2
+        for <linux-s390@vger.kernel.org>; Thu, 28 Nov 2024 04:29:13 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732796932; x=1733401732;
+        d=1e100.net; s=20230601; t=1732796952; x=1733401752;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ZACMslqIaF7iVtmlx12c8LPoSlN7TzLegXngDuX2z78=;
-        b=kLQH5UJTd9V6Q0I+BGwKInzsJqpWx9M57nA1ppoyXU7SGVoZe5+P+lVlNS8HKtPpVf
-         8bXyVXC5DRQAjLUdm5ppPWZGavyq6EYU853ipgwZ94pvhZqRCAOyrtCth/HCIlD9BrBC
-         zI1Vx4nWgNY+v6iB19VZ8sAlnuRIiUJFBJ5d+w5WtU+j9/39pSfvUvGqwjGq9XfMZ8Mk
-         4932ct2EQ5+TWgjBgpC3dJ2o/WptPq4nWxSEfiI62NJG61lEKy4xQ6GaKWzuKNtb9rU1
-         WpLBvsjgez/hYGoMRcVRhdeKSPJ7UW1+ZH6QOLflQH1JDsuGimG3PMLjcwSfM88txkRg
-         6vvg==
-X-Forwarded-Encrypted: i=1; AJvYcCXIPzjxvXytjiNsqqpQIxX6x+tHt4gtZQVNhRrXnDxU09Ulqf7zB75giIrc3tKf9+CcAf32WrjVAmH4@vger.kernel.org
-X-Gm-Message-State: AOJu0YzF0HwQB/plq+OAqiAmaNtdQKDWE5zmvo5+7NfAPSOmkmdxc85f
-	sEpe2E2/m/5JEU8/sM1Ee8u3gDcdXIcyJ9/Ix6VhRJEur5Rk7gp0jEWKshrhEQwGYHuNGg+OlB7
-	l/I+dTuQTdNXf2WXbrkQzl1r4/eUWgcadYYo4ZQPuJlkEetOw9IvoX9h3ZmYsKPviaxOGdshLSJ
-	INmX8ron1/E3XM/7gja/x9Cl/OnT4nkj3xkg==
-X-Gm-Gg: ASbGncsQqv6KCI6eIm3BF29tfprrtmz8MFynioyT/5sG7jVYZeGmlPwiCYzSE7EcRXX
-	bT2wV2CHA2SPL2HGnVAFQmAvovZYrpxs=
-X-Received: by 2002:a05:6000:18ac:b0:382:4a27:1319 with SMTP id ffacd0b85a97d-385c6eb5840mr5776137f8f.6.1732796931982;
-        Thu, 28 Nov 2024 04:28:51 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGGOqoP8tsZ6KQpRsoqtGa6KHF61EJ3NUmj3Aw3MlprtODTvHQ/TDY7uTpa3Nw0Vy2Is2RlK3QrcXMwzmVV8rU=
-X-Received: by 2002:a05:6000:18ac:b0:382:4a27:1319 with SMTP id
- ffacd0b85a97d-385c6eb5840mr5776067f8f.6.1732796931576; Thu, 28 Nov 2024
- 04:28:51 -0800 (PST)
+        bh=0Nxf6CkGK3NslY+JLgqPcTLt32q1OCumzkrHYUKQkbE=;
+        b=mE9IWrUhjZu2RSEWFwwXzuSnX9ihbiLfkhI10dKdMQ56inmeQUuVcttxRWgODNeOlQ
+         ERATGcpl1giq0LNXavYwl4mpc+rGNG2I9CJCBjVlndpBchwUof2WtPmKmAy5HHrKmoS2
+         Vt6ek4SAXfoBoeGKZ797a6LohkS2ZtNFxHX9QGtS8sGl27nNgn9NOAQhlL9oazI8QmNb
+         zpr2ZQse8zxdeNQA6EFrlJ1sDYWUXBz+7J5cQCetPvFnXAfTtzilGGYL0GO2G/rlhFPs
+         LTxw9vXU6cA97zJYypUjFmm76of/jiDqKXCp6ehjg22jwRfNLH4U/r2UGEY0AdpDqKT/
+         peKg==
+X-Forwarded-Encrypted: i=1; AJvYcCXPCHvT1DsBhRzuOcQkQrS8r3LTQTQHc+cRjCNIfdDJgBVCMmk0FHG+xKImIDLNKp1mM3cal9TVQj4H@vger.kernel.org
+X-Gm-Message-State: AOJu0Yww4gIkGDGQfqA6G1PAa2SnIRC0oCk1/gUybpbrhQoi1ShK99W9
+	0eE2qxZiRQFA3/s3/DNNNhYyZz+a/p94dnnyrRnL4nDe/RU+tMPBKv1SGWeaVxE5xDwtfxsv5/2
+	yhAD/odZlFP9zn7Eabx6EZXmFeCuDF3nhQ+swTFgAdjAe6xo8fzEze3yQtB191X9HJQct+nY/on
+	qDZovw3JXtJKaYJj6s6IHE0EnH/PbhQxMY/A==
+X-Gm-Gg: ASbGncuwieIP2u2aFYTIJ8+l9IvfEK6sialnLCeiN3yhkWg8b0bJqrEtC7JN63/ZbgO
+	Og7D/9B5EfSD/wnDSxIMHTQ5qrhzB0NI=
+X-Received: by 2002:a05:6402:5243:b0:5cf:e26b:9797 with SMTP id 4fb4d7f45d1cf-5d080c604fcmr5605176a12.29.1732796951988;
+        Thu, 28 Nov 2024 04:29:11 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGuE0zkJ6zJza+fGet7qX+06h7Jmet7/bu0xRwgqC9A06SMAgod8PaoQJd1k5pY7KRDfw0cJAGqmNIglvOyUZo=
+X-Received: by 2002:a05:6402:5243:b0:5cf:e26b:9797 with SMTP id
+ 4fb4d7f45d1cf-5d080c604fcmr5605060a12.29.1732796951475; Thu, 28 Nov 2024
+ 04:29:11 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241115-converge-secs-to-jiffies-v2-0-911fb7595e79@linux.microsoft.com>
- <20241115-converge-secs-to-jiffies-v2-18-911fb7595e79@linux.microsoft.com>
-In-Reply-To: <20241115-converge-secs-to-jiffies-v2-18-911fb7595e79@linux.microsoft.com>
+References: <20241115-converge-secs-to-jiffies-v1-0-19aadc34941b@linux.microsoft.com>
+ <20241115-converge-secs-to-jiffies-v1-18-19aadc34941b@linux.microsoft.com>
+In-Reply-To: <20241115-converge-secs-to-jiffies-v1-18-19aadc34941b@linux.microsoft.com>
 From: Alex Markuze <amarkuze@redhat.com>
-Date: Thu, 28 Nov 2024 14:28:40 +0200
-Message-ID: <CAO8a2SgQ-==SjhDFZpi2s3r9FUGA96jwuJL7kTDwE=Hw4UcgUg@mail.gmail.com>
-Subject: Re: [PATCH v2 18/21] ceph: Convert timeouts to secs_to_jiffies()
+Date: Thu, 28 Nov 2024 14:29:00 +0200
+Message-ID: <CAO8a2SjKS2nWWVkAcqXkZhR+Q1TocULkwRk09ABf8XQjjzwJPQ@mail.gmail.com>
+Subject: Re: [PATCH 18/22] ceph: Convert timeouts to secs_to_jiffies()
 To: Easwar Hariharan <eahariha@linux.microsoft.com>
 Cc: Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, 
 	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
@@ -125,7 +125,7 @@ Content-Transfer-Encoding: quoted-printable
 
 looks good
 
-On Sat, Nov 16, 2024 at 12:32=E2=80=AFAM Easwar Hariharan
+On Fri, Nov 15, 2024 at 11:35=E2=80=AFPM Easwar Hariharan
 <eahariha@linux.microsoft.com> wrote:
 >
 > Changes made with the following Coccinelle rules:
