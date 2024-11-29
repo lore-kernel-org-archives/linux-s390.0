@@ -1,128 +1,80 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1D4A19F424;
-	Fri, 29 Nov 2024 13:29:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03BEE13D62B;
+	Fri, 29 Nov 2024 14:48:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732886958; cv=none; b=Ve3WFjeNbrOHk4lPnFX3SBH3kyOo4+yeeJDhk6YSyML8QjoUZU/oUKl+WZr2UTU2gjt3svOzvA1tqrnPJ3Va4JCJbyp97LF4Ob0qcdSilgSQSZ73ri7sw5IvmcwVniS6o+HdWDnaPV5SNm5xPgyckO+4hlDofXjj+6/8wEJGnZA=
+	t=1732891726; cv=none; b=PnXIVuJ1FPynEjPzxd/juuQ9kZwWX3L1cNZhYgvOL8KmgocvOpiBYbWi1beUPMS7ciVsnF7SWvs11oere007qpe0paoMJYj05VHuV0YDLOt7aTxRXjZ3dGDjKyGjWwBE/sQp/zE4OF+hTGJid0LGw3May+xqep4ibl++QBTHqY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732886958; c=relaxed/simple;
-	bh=hHSy2jje0m2fGnDElMDfUwXzsVlVbqnNaNhRx2jTiwQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YBEJZf8i3u+e0mKrGmAAnPmkb1lUquyrFyKiFt588jWu5byeB80IHR1wbYaYhEA8bZca/UfV6kdpLuf3bkhJS480SGG55QkMkZ5qFKvRtATysykJr9U7noqgdWq7Nl0OXNvip8HiBSNgP2gT8XelhuCL0feqtWi/AivSoL3pGuw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=liXOh80t; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1732891726; c=relaxed/simple;
+	bh=Tiz2B5jXTprDgzZE35cPt7dUjmF+troZo9TTgtqgxLU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QQZARKsF3STDfNzM+Gn53em5dtrnGY+99/L7P23qsZjDHDiU7NQPHJ9Nl1Jn0aQdamV3paAtoiiUm27M1a799NkKMmqRSCgDtJytGMVn9xGvZY8qeBsOsgWAvoL1Xw1CvnsGRlDKEvixaHC1DjtdYCgiO4wulE72Jd0cATmlY2U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=AhmV5Z7F; arc=none smtp.client-ip=144.6.53.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="liXOh80t"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4AT5paRY030786;
-	Fri, 29 Nov 2024 13:29:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=P4TsIX
-	xU1c6A7+T5dOldsD3Fa1gS0AfXfSrycHUdFlA=; b=liXOh80tIYXnJcvtnXwEGw
-	VImgB3vdbUhGdqdkJIVI16WNA5CyhpiIrAZbcdwiwUbBdtUOwUG1Au6J4CcJsq3h
-	6j+agmJZTG8c5sEkYwMWGp0JVPWspQzEo8g6cIeyHjkSAS/752S0wxdyVuFMQ1mq
-	IcfVG3G3LuiT8BDD86dUijvP3yjV1JtTgG37eAN0uohCj2rEt3PiGYJSMmmJNxnY
-	79KKnCj47JG25bE/7xgHsUYqC05RU6VZj/vdW/jTAnQChM74qze9aQLwRjN/fNIR
-	Sw9afX3LgWh6GCbykiqr6b/i+km617+1mQgW39bMbmsoPwuhRZjcSg5SS59i7D3A
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 436upa4p6t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 Nov 2024 13:29:11 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4ATDQJBk029268;
-	Fri, 29 Nov 2024 13:29:10 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 436upa4p42-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 Nov 2024 13:29:10 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4AT9rKVs020371;
-	Fri, 29 Nov 2024 13:28:43 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43672gbw34-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 Nov 2024 13:28:43 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4ATDSd0P47120764
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 29 Nov 2024 13:28:39 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BDFB12004B;
-	Fri, 29 Nov 2024 13:28:39 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0FB7720043;
-	Fri, 29 Nov 2024 13:28:39 +0000 (GMT)
-Received: from [9.171.68.139] (unknown [9.171.68.139])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 29 Nov 2024 13:28:38 +0000 (GMT)
-Message-ID: <227ce73e-a4f9-4b97-a137-f3a6472bf07f@linux.ibm.com>
-Date: Fri, 29 Nov 2024 14:28:37 +0100
+	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="AhmV5Z7F"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
+	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=GEWl5NVp3Zv83iWj9bU6X1qy5XOxznJ93A6A+/FFGhY=; b=AhmV5Z7F/ToAYqv5RufiP09NfG
+	afv4pCnyay4GpC7IEN/4viHZzNKNU7r2yzrXQDUPUCcgR6B9ZO8xx9VezvmBVjvlswObTlKzDOWiB
+	pRxgjSFe4SVzvWRuxnPTVlIkPXXjCZWLklPpsqiPWWaFz+Rc/Bp3O867V3nrB6mfdhs+Pt3wnNMS+
+	TqEnNa+8pgXAC1HP54COBAfTEYVw2rDNIeArXWxE6P0WuzAumvCrB0Jo2lDC06wOKpx6EUrtERIvZ
+	3BpW7toHYd+m9t3QskPeREIhhAZsjyvcyThdBjxm1+xCn+K11XQXg0sLvYZp38mArwJfF3UWWLmg5
+	WreXg2Fw==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
+	id 1tH2IL-002PW5-1E;
+	Fri, 29 Nov 2024 22:48:34 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 29 Nov 2024 22:48:33 +0800
+Date: Fri, 29 Nov 2024 22:48:33 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: davem@davemloft.net, dengler@linux.ibm.com, linux-s390@vger.kernel.org,
+	linux-crypto@vger.kernel.org
+Subject: Re: [PATCH v6 2/2] s390/crypto: New s390 specific protected key hash
+ phmac
+Message-ID: <Z0nUQQ9E32xq0SY4@gondor.apana.org.au>
+References: <20241129111059.303905-1-freude@linux.ibm.com>
+ <20241129111059.303905-3-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2 2/2] net/smc: fix LGR and link use-after-free issue
-To: Wen Gu <guwen@linux.alibaba.com>, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc: alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, horms@kernel.org,
-        kgraul@linux.ibm.com, hwippel@linux.ibm.com,
-        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20241127133014.100509-1-guwen@linux.alibaba.com>
- <20241127133014.100509-3-guwen@linux.alibaba.com>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20241127133014.100509-3-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: M2cTUaHw4ohcglK7s_ECQuD1U814d6VV
-X-Proofpoint-GUID: -352ikGp2Goil5r1crjjY8nSacc7TBNG
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- priorityscore=1501 impostorscore=0 lowpriorityscore=0 mlxscore=0
- adultscore=0 mlxlogscore=802 phishscore=0 bulkscore=0 suspectscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2411290110
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241129111059.303905-3-freude@linux.ibm.com>
 
+On Fri, Nov 29, 2024 at 12:10:58PM +0100, Harald Freudenberger wrote:
+>
+> +static inline int phmac_keyblob2pkey(const u8 *key, unsigned int keylen,
+> +				     struct phmac_protkey *pk)
+> +{
+> +	int i, rc = -EIO;
+> +
+> +	/* try three times in case of busy card */
+> +	for (i = 0; rc && i < 3; i++) {
+> +		if (rc == -EBUSY && msleep_interruptible(1000))
+> +			return -EINTR;
 
+You can't sleep in an ahash algorithm either.  What you can do
+however is schedule a delayed work and pick up where you left
+off.  That's how asynchronous completion works.
 
-On 27.11.24 14:30, Wen Gu wrote:
->  net/smc/af_smc.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index ed6d4d520bc7..9e6c69d18581 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -1900,6 +1900,7 @@ static void smc_listen_out(struct smc_sock *new_smc)
->  	if (tcp_sk(new_smc->clcsock->sk)->syn_smc)
->  		atomic_dec(&lsmc->queued_smc_hs);
->  
-> +	release_sock(newsmcsk); /* lock in smc_listen_work() */
->  	if (lsmc->sk.sk_state == SMC_LISTEN) {
->  		lock_sock_nested(&lsmc->sk, SINGLE_DEPTH_NESTING);
->  		smc_accept_enqueue(&lsmc->sk, newsmcsk);
-> @@ -2421,6 +2422,7 @@ static void smc_listen_work(struct work_struct *work)
->  	u8 accept_version;
->  	int rc = 0;
->  
-> +	lock_sock(&new_smc->sk); /* release in smc_listen_out() */
->  	if (new_smc->listen_smc->sk.sk_state != SMC_LISTEN)
->  		return smc_listen_out_err(new_smc);
->  
+But my question still stands, under what circumstances can
+this fail? I don't think storage folks will be too happy with
+a crypto algorithm that can produce random failures.
 
-As far as I can tell, this looks good to me.
-Unfortunately I don't understand the dependencies between the different SMC sockets and TCP sockets
-well enough to give an R-b.
+Cheers,
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
