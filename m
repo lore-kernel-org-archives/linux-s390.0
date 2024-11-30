@@ -1,63 +1,74 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ED161A08D7;
-	Fri, 29 Nov 2024 18:54:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CDCF1798F;
+	Sat, 30 Nov 2024 08:26:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732906470; cv=none; b=Y+IjP39OTzgwpst0bZ31SkNaVBW+PsXKCkDCq5f1k9BJbylIcuWMeQjGsOzoVsu4hc1OZTXFO14lRQzZo4NjUEGGXmM9IbNaGsv4yXr9wa3cpWfdse+UefXxXd++URQIkVRP9XPpHTR7bluxOGdLIiPFtppiAJ3cIvFwXseA9l0=
+	t=1732955200; cv=none; b=YH9ngv2S/CE1eXeG5iaN8MYV2t85wVUi/9dNJTZXrhCqtpKsjdZkqSGKazeS305j0z74x97T1MJiNette8EnPK32Xo+chI1ORSFY5y15m2MzWDoahr4CdeBdaAaOsgHc7x8j08sFwMOmkB085iidn0jXtA3/5V3scKFxbKvGATc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732906470; c=relaxed/simple;
-	bh=sdgGh0uy2btKUN56DLTgiNCLBS9u6cZXv0Aa6RgluyU=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=ErVP9C6KYh4bozNiQ7+NWeDVb0YPe7lovX0IcDyzPhhRtgWuTct3LUwzH+1hMlgcafd3sjGVOKfEa1KQiWQGPRyINZ1syEWugX++kETvbDxryincW0OxDw0TtrIE0E9fgJ6Iz/FBmMDe/VeBxRRFbPGXL3EVxDsUCucM9CbICZI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ruKYSZI8; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ruKYSZI8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F576C4CECF;
-	Fri, 29 Nov 2024 18:54:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1732906470;
-	bh=sdgGh0uy2btKUN56DLTgiNCLBS9u6cZXv0Aa6RgluyU=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=ruKYSZI8+Q8A5hd3ZHfuIXwK+FnFzf5pTImywWThJWopN+YrqCZi273iGzZ3e3eRa
-	 dqVY/9iz64BGDtpoMH1zB+gkHBGx5bk3WyCgeLeg85bt3WX2mEU/genjaqmwaQ/VkO
-	 B+PdGMOwXMRv6yGuDJUl0gJR5ymahIJCyQjbyEvR26Mk6L3vI7TNu1MOz1ZjAFQNQL
-	 bJI3j/55ao+6sTGtvhmc/oT9rIotgi4XqTNbrMQHWDDzc+JGV7cPxsZ4NCaiXs6raA
-	 tJ6MFP8w4D7a/Q5ee8V9Zj0sykjXKS4YFpar1frR+K6e7096cj9V4j9CZ5rK2oWMk6
-	 9fkMptSH9xmDw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33E82380A944;
-	Fri, 29 Nov 2024 18:54:45 +0000 (UTC)
-Subject: Re: [GIT PULL] more s390 updates for 6.13 merge window
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20241129154542.8578-D-hca@linux.ibm.com>
-References: <20241129154542.8578-D-hca@linux.ibm.com>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20241129154542.8578-D-hca@linux.ibm.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.13-2
-X-PR-Tracked-Commit-Id: cc00550b2ae7ab1c7c56669fc004a13d880aaf0a
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 509f806f7f70db42cbb95856d32a9a0d6700b2e5
-Message-Id: <173290648377.2148737.1954028872899410049.pr-tracker-bot@kernel.org>
-Date: Fri, 29 Nov 2024 18:54:43 +0000
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+	s=arc-20240116; t=1732955200; c=relaxed/simple;
+	bh=Y8SJTUIMR06Xgi5e3gMvJXWnCrwtiJRS1rmMj72Rvew=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=tbV8dUZNk7GkxefpmU33QQzwxWF7RnXEoaqd5exD7kU5TvOF2vM782MBEOU/f3axSjWiCVZBlAWIhd2qX1LBpqEtfAL0i6p3/jrQ/EdjMc/XkJlrf1HAtTdwpedYLE92K2quz/XM2SWn0hJ7y7/fkDCpivIPvhdlZqf6464YtOA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.214])
+	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4Y0jkt0GMTz1k0nZ;
+	Sat, 30 Nov 2024 16:24:22 +0800 (CST)
+Received: from kwepemf200001.china.huawei.com (unknown [7.202.181.227])
+	by mail.maildlp.com (Postfix) with ESMTPS id 772D11A016C;
+	Sat, 30 Nov 2024 16:26:33 +0800 (CST)
+Received: from huawei.com (10.110.54.32) by kwepemf200001.china.huawei.com
+ (7.202.181.227) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Sat, 30 Nov
+ 2024 16:26:32 +0800
+From: liqiang <liqiang64@huawei.com>
+To: <wenjia@linux.ibm.com>, <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
+	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>
+CC: <linux-s390@vger.kernel.org>, <netdev@vger.kernel.org>,
+	<luanjianhai@huawei.com>, <zhangxuzhou4@huawei.com>,
+	<dengguangxing@huawei.com>, <gaochao24@huawei.com>, <liqiang64@huawei.com>
+Subject: [PATCH net-next] net/smc: Optimize the timing of unlocking in smc_listen_work
+Date: Sat, 30 Nov 2024 16:26:30 +0800
+Message-ID: <20241130082630.2007-1-liqiang64@huawei.com>
+X-Mailer: git-send-email 2.23.0.windows.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ kwepemf200001.china.huawei.com (7.202.181.227)
 
-The pull request you sent on Fri, 29 Nov 2024 16:45:42 +0100:
+The optimized code is equivalent to the original process, and it releases t=
+he=0D
+lock early.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.13-2
+Signed-off-by: liqiang <liqiang64@huawei.com>
+---
+ net/smc/af_smc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/509f806f7f70db42cbb95856d32a9a0d6700b2e5
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 9d76e902fd77..7fa80be1ea93 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -2526,9 +2526,9 @@ static void smc_listen_work(struct work_struct *work)
+ 	if (!ini->is_smcd) {
+ 		rc =3D smc_listen_rdma_finish(new_smc, cclc,
+ 					    ini->first_contact_local, ini);
+-		if (rc)
+-			goto out_unlock;
+ 		mutex_unlock(&smc_server_lgr_pending);
++		if (rc)
++			goto out_decl;
+ 	}
+ 	smc_conn_save_peer_info(new_smc, cclc);
+=20
+--=20
+2.43.0
 
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
