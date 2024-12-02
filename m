@@ -1,56 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC2A81F9AAD;
-	Mon,  2 Dec 2024 08:28:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09B011F9EB6;
+	Mon,  2 Dec 2024 08:28:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733128086; cv=none; b=cCu9vRRaumZQ6ECCLwkAPGs4gZk4VXjQq2dL151e3lJBdenud2vpqyL+rW3+YRx+y+kJQYr0Yl4j2BZAFZRUHSK9gHoIFKuiJySNfyQLvnhGGG8kT9uuSNmANqQ8Q8dOTsSATqGafNZhAyRf3rTEuG8Teu9MZFo6CMWr/XJHfI4=
+	t=1733128088; cv=none; b=YafoikxsV4btBOWt+BmYaZuP9sXzgGuU9h0CbJ/WtlmFSiJLSvH8iMnoc3R67Y1FBj2uOHXrx8p2zOXyK4+6kmv8cdqFLkoEfZhupaa+lstU+JZh0Mz1/R8NpzqSQU8YXaUY0wm30zvHkUZtWC3MNIgk2aY7z3gU+Bu1nsTNKn8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733128086; c=relaxed/simple;
-	bh=jgncwBFw+nAZ7FP7lNL8o3Xsn2iuPgfKqTUh8xtE4h4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XOCn/bMNX86O15X9Zb5KI4nz4fRoZNMU7odZ+xbe6kTFaNiHhi8VAmBFeveKkHRTsoQFrquCXAxkDeCoRNVnZ4d0b6QjYsgQ4XiJVhw2F3gUlndVcVsLBnKYKDYvgz+dbImPFGG0zPw+wPgPTa4LFG/ATsXOQjBELkUV6Wmxa7g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fZSdml5a; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1733128088; c=relaxed/simple;
+	bh=omh02Qqp5XKw7wm7hUqTKB2lA0p66F9/vlR7aGGFk3g=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=hAyFqhH7FgELQV5BpF88qtJxx+AlP2vRKGEia+Iv8saRT6E553BKjzX2bPyogUb54ZAfGMrsmsHRMksBq9I0iQBK5sWcZgNc1rCWPOyOkqZEB1YYNmZpZrsJm/psGg17BC7t4N7dsfkg36VLEOFi4SSTjgc0dGtjKxzidtOkQrU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oL60V92d; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fZSdml5a"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B1Ji0Cs030566;
-	Mon, 2 Dec 2024 08:27:51 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oL60V92d"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B1Ij4rp022972;
+	Mon, 2 Dec 2024 08:28:00 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=boD7gr6wETUVAOdp7AcuGDr9AoLg9R0LORT1dyV81
-	TI=; b=fZSdml5a+jVYA7nc57cAiSGnRz0mHal2xc9CB0BGlXpn3g5SxJvBvz4kx
-	Kw4B9r4him1uEsENqu3x/9w5aCVALajNQ436w9XJ+SP7FqX6xCC6ARB8k1IEaDt5
-	9qr0X1sHRcTb7DR51LJHl+Uk2UOABZqqVfhR3isaKERk9lmeXrdloVIJQjsA3j5U
-	lYYIPLttdZmeZfpriknlNe8Hft76tmIaUfTvIE2/IoiDqHCHNVvcPNM0NvkHLbTC
-	AZstdr5I0cWm104QXyLR/p2tgi95wjm6C4yR5JUgEYXUP3teaSm0FpFM8b6dMxD/
-	kmMfSLIIUqExHrnLZQe8UiFK1iW/Q==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 437tbx7byt-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=FckEokSgRioUHQRcH
+	ayHqWILEETFnWG+x7hLq5rxsJM=; b=oL60V92dQozFG2No7T4TVJsetS9MWzWMA
+	B6z7rIUjXXlwW4Qf/Qt3f/dv0mYRFpycgzw7Yxor//QlejQFgARLhoExIWAOqH1T
+	hpJmz3axibcIQqYZlXzHJANaqshE9HoUMy4oLYgo0bAi+1Nhz/l42WIuLVEag57F
+	8fUbnsBuiKXoAHJBMewEsUEHsRIsYDh3kyEamhMJvm/4jSVZMoh32WOM4xkCXCrm
+	JCVgGxiQaPR7kb5/igIsjA8p2MW27OxK+ZciYHrzRbC27iqk7hSQ/GPCr6VDjU7w
+	tIOrkOBFVmoaZp33DH7GQ+gExiaOsIIG2pUK+KtLwRkJtBiXa8Qyw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 437r4p7pwc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Dec 2024 08:27:51 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B271aPw007202;
-	Mon, 2 Dec 2024 08:27:50 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 438ehkb62a-1
+	Mon, 02 Dec 2024 08:28:00 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B27JolW007467;
+	Mon, 2 Dec 2024 08:27:59 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 438f8j9wn6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Dec 2024 08:27:50 +0000
+	Mon, 02 Dec 2024 08:27:59 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B28Rl6R44761598
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B28RuWD14287148
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 2 Dec 2024 08:27:47 GMT
+	Mon, 2 Dec 2024 08:27:56 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 08CEE20043;
-	Mon,  2 Dec 2024 08:27:47 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id DECAB2004E;
+	Mon,  2 Dec 2024 08:27:55 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CE07A20040;
-	Mon,  2 Dec 2024 08:27:46 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A776B20040;
+	Mon,  2 Dec 2024 08:27:55 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  2 Dec 2024 08:27:46 +0000 (GMT)
+	Mon,  2 Dec 2024 08:27:55 +0000 (GMT)
 From: Sumanth Korikkar <sumanthk@linux.ibm.com>
 To: David Hildenbrand <david@redhat.com>, linux-mm <linux-mm@kvack.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>,
@@ -61,10 +62,12 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
         linux-s390 <linux-s390@vger.kernel.org>,
         LKML <linux-kernel@vger.kernel.org>,
         Sumanth Korikkar <sumanthk@linux.ibm.com>
-Subject: [RFC PATCH 0/4] Support dynamic (de)configuration of memory
-Date: Mon,  2 Dec 2024 09:27:28 +0100
-Message-ID: <20241202082732.3959803-1-sumanthk@linux.ibm.com>
+Subject: [RFC PATCH 1/4] mm/memory_hotplug: Add interface for runtime (de)configuration of memory
+Date: Mon,  2 Dec 2024 09:27:29 +0100
+Message-ID: <20241202082732.3959803-2-sumanthk@linux.ibm.com>
 X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20241202082732.3959803-1-sumanthk@linux.ibm.com>
+References: <20241202082732.3959803-1-sumanthk@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -73,115 +76,252 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: V8g67JSdf12o8H9oVTCxxT37KzH761ZO
-X-Proofpoint-GUID: V8g67JSdf12o8H9oVTCxxT37KzH761ZO
+X-Proofpoint-GUID: p1XxvKuTo3rCWRRzBvjFXhl2SyYkMdyS
+X-Proofpoint-ORIG-GUID: p1XxvKuTo3rCWRRzBvjFXhl2SyYkMdyS
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 impostorscore=0
- mlxscore=0 suspectscore=0 mlxlogscore=830 priorityscore=1501 bulkscore=0
- phishscore=0 adultscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2412020070
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 clxscore=1015 phishscore=0 malwarescore=0
+ suspectscore=0 mlxscore=0 bulkscore=0 mlxlogscore=999 adultscore=0
+ lowpriorityscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2411120000 definitions=main-2412020070
 
-This patchset provides a new interface for dynamic configuration and
-deconfiguration of hotplug memory, allowing for mixed altmap and
-non-altmap support. It is a follow-up on the discussion with David,
-when introducing memmap_on_memory support for s390:
+Provide a new interface for dynamic configuration and deconfiguration of
+hotplug memory, allowing for mixed altmap and non-altmap support.  It is
+a follow-up on the discussion with David:
+
 https://lore.kernel.org/all/ee492da8-74b4-4a97-8b24-73e07257f01d@redhat.com/
 
-The following suggestions from that discussion are addressed:
+As mentioned in the discussion, advantages of the new interface are:
 
-* "Look into a proper interface to add/remove memory instead of relying
-  on online/offline ... (e.g., where user don't want an altmap because
-  of fragmentation)"
+* Users can dynamically specify which memory ranges should have altmap
+  support, rather than having it statically enabled or disabled for all
+  hot-plugged memory.
 
-With the new interface, users can dynamically specify which memory
-ranges should have altmap support, rather than having it statically
-enabled or disabled for all hot-plugged memory.
+* In the long term,  user could specify a memory range, including
+  multiple blocks, and whether user wants altmap support for that range.
+  This could allow for the altmap block grouping, or even variable-sized
+  blocks, in the future. i.e. "grouping" memory blocks that share a same
+  altmap located on the first memory blocks in the group and reduce
+  fragementation due to altmap.
 
-It would also be possible to revert the
-MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers, that were previously
-added for s390, and move that part to the new interface handler. This is
-not yet done in this series, and might also need further evaluation,
-e.g. we would lose the memmap_on_memory feature for s390, when the new
-interface config option is not selected.
+To leverage these advantages:
+Create a sysfs interface /sys/bus/memory/devices/configure_memory, which
+performs runtime (de)configuration of memory with altmap or non-altmap
+support. The interface validates the memory ranges against architecture
+specific memory configuration and performs add_memory()/remove_memory().
+Dynamic (de)configuration of memory is made configurable via config
+CONFIG_RUNTIME_MEMORY_CONFIGURATION.
 
-* "Support variable-sized memory blocks long-term, or simulate that by
-  "grouping" memory blocks that share a same altmap located on the first
-  memory blocks in that group.  On s390x that adds all memory ahead of
-  time, it's hard to make a decision what the right granularity will be.
-  The user can give better hints when adding/removing memory
-  explicitly."
-
-With the new interface, the user could specify a memory range, including
-multiple blocks, and whether he wants altmap support for that range.
-This could allow for the mentioned altmap block grouping, or even
-variable-sized blocks, in the future.
-
-When the new interface is enabled, s390 will not add all possible
-hotplug memory in advance, like before, to make it visible in sysfs for
-online/offline actions. Instead, a new "max_configurable" sysfs
-attribute will give a hint on the presence of hotplug memory. Before it
-can be set online, it has to be configured via a new interface in
-/sys/bus/memory/devices/configure_memory, basically imitating what is
-done in ACPI handlers for other archs.
-
-Usage format for the new interface: echo
-config_mode,memoryrange,altmap_mode >
+Usage format for the new interface:
+echo config_mode,memoryrange,altmap_mode >
 /sys/bus/memory/devices/configure_memory
 
 E.g. to configure a range with altmap:
 echo 1,0x200000000-0x20fffffff,1 > /sys/bus/memory/devices/configure_memory
 
-lsmem/chmem tools can be adjusted to do all that transparently, so that
-there would be no visible impact to the user, at least not when using
-those tools. In addition, support for dynamic altmap configuration can
-be added to those tools.
+This interface could not only help to make s390 more flexible and
+similar to others (wrt adding hotplug memory in advance). It might also
+be possible to provide the dynamically configured altmap support for
+others. E.g.  instead of directly doing an add_memory() in the ACPI
+handler, with the static altmap setting, one could instead defer that to
+the new interface which allows dynamic altmap configuration.
 
-This could not only help to make s390 more flexible and similar to
-others (wrt adding hotplug memory in advance). It might also be possible
-to provide the dynamically configured altmap support for others. E.g.
-instead of directly doing an add_memory() in the ACPI handler, with the
-static altmap setting, you could instead defer that to the new interface
-which allows dynamic altmap configuration.
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+---
+ drivers/base/memory.c  | 124 +++++++++++++++++++++++++++++++++++++++++
+ include/linux/memory.h |   6 ++
+ mm/Kconfig             |  16 ++++++
+ 3 files changed, 146 insertions(+)
 
-Patch 1 provides necessary validation against user inputs for new
-/sys/bus/memory/devices/configure_memory sysfs interface.
-
-Patch 2 displays altmap support per memory block.
-CONFIG_RUNTIME_MEMORY_CONFIGURATION enables dynamic addition of memory
-with altmap/non-altmap support. Hence, providing concrete altmap
-information would be beneficial.
-
-Patch 3 adds /sys/devices/system/memory/max_configurable sysfs show
-interface to list maximum number of possible memory block supported by
-the architecture. This information would be beneficial for tools like
-lsmem to distinguish betweeen configured memory blocks and deconfigured
-memory blocks.
-
-Patch 4 provides support for both legacy boottime standby memory
-configuration or runtime configuration of standby memory. The patch also
-validates user inputs against /sys/bus/memory/devices/configure_memory
-interface and overrides /sys/devices/system/memory/max_configurable
-value.
-
-Thank you.
-
-
-Sumanth Korikkar (4):
-  mm/memory_hotplug: Add interface for runtime (de)configuration of
-    memory
-  mm/memory_hotplug: Add memory block altmap sysfs attribute
-  mm/memory_hotplug: Add max_configurable sysfs read attribute
-  s390/sclp: Add support for dynamic (de)configuration of memory
-
- drivers/base/memory.c        | 153 +++++++++++++++++++++++++++++++++++
- drivers/s390/char/sclp_cmd.c |  80 +++++++++++++++---
- include/linux/memory.h       |   6 ++
- mm/Kconfig                   |  16 ++++
- 4 files changed, 246 insertions(+), 9 deletions(-)
-
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index 67858eeb92ed..f024444b3301 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -631,6 +631,127 @@ int __weak arch_get_memory_phys_device(unsigned long start_pfn)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_RUNTIME_MEMORY_CONFIGURATION
++enum {
++	REMOVE_MEMORY = 0,
++	ADD_MEMORY,
++	MAX_CONFIGURE_MODE
++};
++
++enum {
++	NOALTMAP = 0,
++	ALTMAP,
++	MAX_ALTMAP_MODE
++};
++
++/*
++ * Return true when the memory range is valid.
++ *
++ * Architecture specific code can override the below function and validate the
++ * memory range against its possible memory configurations.
++ */
++bool __weak arch_validate_memory_range(unsigned long long start,
++				       unsigned long long end)
++{
++	return false;
++}
++
++/*
++ * Format:
++ * echo config_mode,memoryrange,altmap_mode >
++ * /sys/bus/memory/devices/configure_memory
++ *
++ * config_mode:
++ *	value: 1 - add_memory, 0 - remove_memory
++ *
++ * range:
++ * 0x<start address>-0x<end address>
++ * Where start address is aligned to memory block size and end address
++ * represents last byte in the range.
++ * example: 0x200000000-0x20fffffff
++ *
++ * altmap_mode:
++ *	value: 1 - altmap support, 0 - no altmap support
++ */
++static ssize_t configure_memory_store(struct device *dev,
++				      struct device_attribute *attr,
++				      const char *buf, size_t count)
++{
++	s64 start, end, block_size, range;
++	u32 config_mode, altmap_mode;
++	int num, nid, ret = -EINVAL;
++	struct memory_block *mem;
++
++	num = sscanf(buf, "%u,0x%llx-0x%llx,%u", &config_mode, &start, &end, &altmap_mode);
++	if (num != 4)
++		goto out;
++
++	if (config_mode >= MAX_CONFIGURE_MODE || altmap_mode >= MAX_ALTMAP_MODE)
++		goto out;
++
++	altmap_mode = altmap_mode ? MHP_MEMMAP_ON_MEMORY |
++			MHP_OFFLINE_INACCESSIBLE : MHP_NONE;
++
++	block_size = memory_block_size_bytes();
++
++	if (!IS_ALIGNED(start, block_size) || !IS_ALIGNED(end + 1, block_size))
++		goto out;
++
++	if (start < 0 || end < 0 || start >= end)
++		goto out;
++
++	if (!arch_validate_memory_range(start, end))
++		goto out;
++
++	ret = lock_device_hotplug_sysfs();
++	if (ret)
++		goto out;
++
++	if (config_mode == ADD_MEMORY) {
++		for (range = start; range < end + 1; range += block_size) {
++			mem = find_memory_block(pfn_to_section_nr(PFN_DOWN(range)));
++			if (mem) {
++				pr_info("Memory already configured - (start:0x%llx)\n", range);
++				ret = -EEXIST;
++				put_device(&mem->dev);
++				goto out_unlock;
++			}
++			nid = memory_add_physaddr_to_nid(range);
++			ret = __add_memory(nid, range, block_size, altmap_mode);
++			if (ret) {
++				pr_info("Memory addition failed - (start:0x%llx)\n", range);
++				goto out_unlock;
++			}
++		}
++	} else if (config_mode == REMOVE_MEMORY) {
++		for (range = start; range < end + 1; range += block_size) {
++			mem = find_memory_block(pfn_to_section_nr(PFN_DOWN(range)));
++			if (!mem) {
++				pr_info("Memory not configured - (start:0x%llx)\n", range);
++				ret = -EINVAL;
++				goto out_unlock;
++			}
++			if (mem->state != MEM_OFFLINE) {
++				pr_info("Memory removal failed - (start:0x%llx) not offline\n",
++					range);
++				put_device(&mem->dev);
++				ret = -EBUSY;
++				goto out_unlock;
++			} else {
++				/* drop the ref just got via find_memory_block() */
++				put_device(&mem->dev);
++			}
++			__remove_memory(range, block_size);
++		}
++	}
++out_unlock:
++	unlock_device_hotplug();
++out:
++	return ret ? ret : count;
++}
++static DEVICE_ATTR_WO(configure_memory);
++#endif /* CONFIG_RUNTIME_MEMORY_CONFIGURATION */
++
+ /*
+  * A reference for the returned memory block device is acquired.
+  *
+@@ -941,6 +1062,9 @@ static struct attribute *memory_root_attrs[] = {
+ 	&dev_attr_auto_online_blocks.attr,
+ #ifdef CONFIG_CRASH_HOTPLUG
+ 	&dev_attr_crash_hotplug.attr,
++#endif
++#ifdef CONFIG_RUNTIME_MEMORY_CONFIGURATION
++	&dev_attr_configure_memory.attr,
+ #endif
+ 	NULL
+ };
+diff --git a/include/linux/memory.h b/include/linux/memory.h
+index c0afee5d126e..88b2b374bc44 100644
+--- a/include/linux/memory.h
++++ b/include/linux/memory.h
+@@ -85,6 +85,12 @@ struct memory_block {
+ #endif
+ };
+ 
++#ifdef CONFIG_RUNTIME_MEMORY_CONFIGURATION
++bool arch_validate_memory_range(unsigned long long start, unsigned long long end);
++ssize_t arch_get_memory_max_configurable(void);
++int memory_create_sysfs_max_configurable(void);
++#endif /* CONFIG_RUNTIME_MEMORY_CONFIGURATION */
++
+ int arch_get_memory_phys_device(unsigned long start_pfn);
+ unsigned long memory_block_size_bytes(void);
+ int set_memory_block_size_order(unsigned int order);
+diff --git a/mm/Kconfig b/mm/Kconfig
+index 84000b016808..2aec2fc3fb25 100644
+--- a/mm/Kconfig
++++ b/mm/Kconfig
+@@ -576,6 +576,22 @@ config MHP_MEMMAP_ON_MEMORY
+ 	depends on MEMORY_HOTPLUG && SPARSEMEM_VMEMMAP
+ 	depends on ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE
+ 
++config RUNTIME_MEMORY_CONFIGURATION
++	bool "Dynamic configuration and deconfiguration of memory"
++	def_bool n
++	depends on MEMORY_HOTPLUG && SPARSEMEM_VMEMMAP
++	help
++	  This option provides support to perform dynamic configuration and
++	  deconfiguration of memory with altmap or non-altmap support
++	  (/sys/bus/memory/devices/configure_memory). The interface validates
++	  the configuration and deconfiguration of memory ranges against
++	  architecture specific configuration and performs add_memory() with
++	  altmap or non-altmap support and remove_memory() respectively.
++
++	  Say Y here if the architecture supports validating dynamically
++	  (de)configured memory against architecture specific memory
++	  configurations.
++
+ endif # MEMORY_HOTPLUG
+ 
+ config ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE
 -- 
 2.45.2
 
