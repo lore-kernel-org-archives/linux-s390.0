@@ -1,275 +1,128 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5785E1FA16C;
-	Mon,  2 Dec 2024 08:28:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 556D21FBEA9;
+	Mon,  2 Dec 2024 10:10:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733128101; cv=none; b=lxKicUv9fAM3I54jsqE1okHGv02fsFsihANsxFyhFMP5RcUeVQb25qPuBWBXihKzWrkV43gyPjgn+PX0QHbVwdljjtexSGu52k7Y63zgsfmA5NhNoEofxR3Cp1erSO+fdhhvGguJl7x0f8K0Udtr8Ujsh+g8tbHTQOteRAyd8DA=
+	t=1733134254; cv=none; b=NXjLc9lyrUKc2KdNn4mcOekO01sW7rG8B0mQIUTfpU5RQ0C9aQfdyWYA9K5fD7uURuZI9bzZfNYVdPXmO4OrUE0CQj0TpSpgi6vhdvcVLnFeFYdVVj+DsNKdab484/cR1xMyEPuBh9CCp2V6RrkpkJeZ74/PbypJQk3py4bdwb0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733128101; c=relaxed/simple;
-	bh=Rf0ZjoDnR00pyvPccIKgbQEOUbeadoDktB9N2WQxguM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Xcgk43shPbxcJ4Quq62r6Gy3cIfKiJaoYq8bbQqdvjeNw1Md7rb2eqyeVDFlZroipQjTzoBVzHn0dfiKHduI1ooZFXPSscCVetSx/Xx10OqZGKC9caKR9qMwsQyXvXvNwYOGoxnM7/vI0ryxkwx92CshaGLCZVe1xoLhXPSEYfw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LQWuR01L; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1733134254; c=relaxed/simple;
+	bh=K12IWzr7ZzpJLWTT+sNll1SfEYElORyx9EZ8o7u51ME=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Rz75FECQirx/H8Uacb9IhnJEC/SuXwyh9go2DsB3n9FEPHUB5ntmM4UFrLt61XiXaJQ0Rcx+6bgeZ3U55I2UTQBZuzlW+VJ9lrEwyFSQ6JQBTv4M6FRIdcO9e7l4jM44YPPuEkfKyRdvYhZYPKiFh7P5zpmqnxhRv+tR6OjObuw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KIbb3Fc+; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LQWuR01L"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B1Ka1ou025537;
-	Mon, 2 Dec 2024 08:28:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=PzEKgDn/rKSXqmNTX
-	o3NBRYIUx3uyjVObkesFz0KD9k=; b=LQWuR01LmwBcb2be3LiGD17FjALpnnjDa
-	5wehK/kPfLFi/ZURE+FSJ6y0CacVSOOBxwJ8jRpHoQ4l4VtrQSK9yx2L7d5bREx8
-	OEM2z+/zpnVCJaHSDprEHW9zbEO+0iD06sY//q429GNmOUtXKhyZVsYMkHLYRL5D
-	Mx3cVcIMTorNzmzhMC6kZgolb/hHl1gIWMxYCpbh1JHDdQU4eegapuZzHhC2d4Ht
-	NRHtS/cvTirr4skFdYENNoOf6CcjUvZaVrRDf4XlS6kMY/K4crEFziIrxdVsZzno
-	T1e83YOSpoPJzDvDCSPvb7VG13ioqOGcdHeFtwoRcU4/eniOnVVfw==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 437tbx7c1f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Dec 2024 08:28:12 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B27WoQ0008576;
-	Mon, 2 Dec 2024 08:28:11 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 438f8j9wng-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Dec 2024 08:28:11 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B28S8PU48693674
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 2 Dec 2024 08:28:08 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 22D5F20043;
-	Mon,  2 Dec 2024 08:28:08 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EA9D120040;
-	Mon,  2 Dec 2024 08:28:07 +0000 (GMT)
-Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  2 Dec 2024 08:28:07 +0000 (GMT)
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>, linux-mm <linux-mm@kvack.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>
-Subject: [RFC PATCH 4/4] s390/sclp: Add support for dynamic (de)configuration of memory
-Date: Mon,  2 Dec 2024 09:27:32 +0100
-Message-ID: <20241202082732.3959803-5-sumanthk@linux.ibm.com>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20241202082732.3959803-1-sumanthk@linux.ibm.com>
-References: <20241202082732.3959803-1-sumanthk@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KIbb3Fc+"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id C29FEC4CED1;
+	Mon,  2 Dec 2024 10:10:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1733134253;
+	bh=K12IWzr7ZzpJLWTT+sNll1SfEYElORyx9EZ8o7u51ME=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=KIbb3Fc+KDroWCb3fIq+KTn/HPAhZWNr4o8JQU9cjzJkUPjgdcgYZEe6p0tAurvCj
+	 1eiA6UXh365jffZoNhSk3C2uVdua2ptrmrLMGe4bVhkdYIYb8LtWuvgvpm2DiBzGke
+	 XxR/DMJW32YPCcYzGhnmE1fMztImytGqh5wLaFIPfZX0bstMSdvC50PLyi9UMmi00M
+	 QgRzeO24alFNZo6bSqqnjpj99Y86cQXxItasX0ejTYrYb1We4AvmQAP03VwXao3O8a
+	 edwKtN8Fv4S0eWk1hw5+afahCGMe9Rf4MGiXeM+bofJK+Oq5KN5QMxdfbNrmYjPQ+j
+	 flQek4PPwhbDg==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ADBF5D73612;
+	Mon,  2 Dec 2024 10:10:53 +0000 (UTC)
+From: Manas via B4 Relay <devnull+manas18244.iiitd.ac.in@kernel.org>
+Date: Mon, 02 Dec 2024 15:40:51 +0530
+Subject: [PATCH net-next RESEND v2] net/smc: Remove unused function
+ parameter in __smc_diag_dump
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: mNVRnZon9w0MjKg3c6OTZ7IdQtD_qvjb
-X-Proofpoint-GUID: mNVRnZon9w0MjKg3c6OTZ7IdQtD_qvjb
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 impostorscore=0
- mlxscore=0 suspectscore=0 mlxlogscore=999 priorityscore=1501 bulkscore=0
- phishscore=0 adultscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2412020070
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20241202-fix-oops-__smc_diag_dump-v2-1-119736963ba9@iiitd.ac.in>
+X-B4-Tracking: v=1; b=H4sIAKqHTWcC/4WNMQ+CMBSE/wrpbElbQK2Tg6wOOhpDCn3AGyikr
+ QRD+O9WJl00t7zLu/tuJg4sgiOHaCYWRnTYm2DEJiJVq0wDFHXwRDCRcs4krXGifT84WhSuqwq
+ Nqin0oxso26oyAakTWack1AcLIbuib8SApwYm/35c8mt+PpF7OFt0vrfPdX3ka/L/0MhpUJVlK
+ oEsVTo9IqLXsapiNCt2FB8owX6gREDJHUtKvueSA/tGLcvyAlRntyYhAQAA
+X-Change-ID: 20241109-fix-oops-__smc_diag_dump-06ab3e9d39f4
+To: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>, 
+ "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, 
+ Wen Gu <guwen@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>
+Cc: Shuah Khan <shuah@kernel.org>, Anup Sharma <anupnewsmail@gmail.com>, 
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org, 
+ Manas <manas18244@iiitd.ac.in>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1733134252; l=1964;
+ i=manas18244@iiitd.ac.in; s=20240813; h=from:subject:message-id;
+ bh=zCxOxxK4jUmuWneAk7mzPYC43+hjuOr5TSFC2vSGlrc=;
+ b=UJ2tqCJTl+Rjxgg3UW7xGs/kWb0PbQKYRae+HCAb15pkoLFCldFgsbURksOSEj2qN4V8BQfaf
+ x1Gk5jADLFOCg3tFAZ9B8zgBAYRtO83dl52EQLzyYyK9kv9RtMJ2kB+
+X-Developer-Key: i=manas18244@iiitd.ac.in; a=ed25519;
+ pk=pXNEDKd3qTkQe9vsJtBGT9hrfOR7Dph1rfX5ig2AAoM=
+X-Endpoint-Received: by B4 Relay for manas18244@iiitd.ac.in/20240813 with
+ auth_id=196
+X-Original-From: Manas <manas18244@iiitd.ac.in>
+Reply-To: manas18244@iiitd.ac.in
 
-CONFIG_RUNTIME_MEMORY_CONFIGURATION introduced dynamic configuration and
-deconfiguration of  hotpluggable memory with altmap/non-altmap support
-during runtime.  Add support for dynamic (de)configuration of standby
-memory on s390 by providing validation of s390 memory configuration
-against user inputs by overriding arch_validate_memory_range().
+From: Manas <manas18244@iiitd.ac.in>
 
-Design:
-1. If CONFIG_RUNTIME_MEMORY_CONFIGURATION is enabled, then support
-   runtime (de)configuration of standby memory. If
-   CONFIG_RUNTIME_MEMORY_CONFIGURATION is disabled, then provide
-   backward compatibility and standby memory addition is performed
-   during boottime.
+The last parameter in __smc_diag_dump (struct nlattr *bc) is unused.
+There is only one instance of this function being called and its passed
+with a NULL value in place of bc.
 
-2. If CONFIG_RUNTIME_MEMORY_CONFIGURATION is enabled,
-   /sys/devices/system/memory/configure_memory sysfs interface exists.
-   Perform memory block range validation against user inputs. Also,
-   measures are taken to ensure that add_memory() / remove_memory() is
-   performed on only standby memory ranges.
-
-3. If CONFIG_RUNTIME_MEMORY_CONFIGURATION is enabled, provide the
-   maximum number of configurable memory blocks on s390 via
-   /sys/devices/system/memory/max_configurable.
-
-   NOTE: When there is no hotpluggable standby memory and when
-   CONFIG_RUNTIME_MEMORY_CONFIGURATION is enabled,
-   /sys/devices/system/memory/max_configurable will return 0.
-
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Reviewed-by: Simon Horman <horms@kernel.org>
+Signed-off-by: Manas <manas18244@iiitd.ac.in>
 ---
- drivers/s390/char/sclp_cmd.c | 80 ++++++++++++++++++++++++++++++++----
- 1 file changed, 71 insertions(+), 9 deletions(-)
+Changes in v2:
+- Added target tree and prefix
+- Carried forward Reviewed-by: tag from v1
+- Link to v1: https://lore.kernel.org/r/20241109-fix-oops-__smc_diag_dump-v1-1-1c55a3e54ad4@iiitd.ac.in
+---
+ net/smc/smc_diag.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
-index f905a6643a0f..8c02097960b0 100644
---- a/drivers/s390/char/sclp_cmd.c
-+++ b/drivers/s390/char/sclp_cmd.c
-@@ -171,11 +171,15 @@ static DEFINE_MUTEX(sclp_mem_mutex);
- static LIST_HEAD(sclp_mem_list);
- static u8 sclp_max_storage_id;
- static DECLARE_BITMAP(sclp_storage_ids, 256);
-+static bool runtime_memory_config = IS_ENABLED(CONFIG_RUNTIME_MEMORY_CONFIGURATION);
-+static unsigned long long max_standby, max_online;
-+static ssize_t max_configurable;
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index 6fdb2d96777ad704c394709ec845f9ddef5e599a..8f7bd40f475945171a0afa5a2cce12d9aa2b1eb4 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -71,8 +71,7 @@ static int smc_diag_msg_attrs_fill(struct sock *sk, struct sk_buff *skb,
  
- struct memory_increment {
- 	struct list_head list;
- 	u16 rn;
- 	int standby;
-+	int boot_standby;
- };
- 
- struct assign_storage_sccb {
-@@ -390,24 +394,29 @@ static struct notifier_block sclp_mem_nb = {
- 	.notifier_call = sclp_mem_notifier,
- };
- 
--static void __init align_to_block_size(unsigned long long *start,
--				       unsigned long long *size,
--				       unsigned long long alignment)
-+static void align_to_block_size(unsigned long long *start,
-+				unsigned long long *size,
-+				unsigned long long alignment)
+ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 			   struct netlink_callback *cb,
+-			   const struct smc_diag_req *req,
+-			   struct nlattr *bc)
++			   const struct smc_diag_req *req)
  {
--	unsigned long long start_align, size_align;
-+	unsigned long long start_align;
- 
- 	start_align = roundup(*start, alignment);
--	size_align = rounddown(*start + *size, alignment) - start_align;
--
--	pr_info("Standby memory at 0x%llx (%lluM of %lluM usable)\n",
--		*start, size_align >> 20, *size >> 20);
-+	*size = rounddown(*start + *size, alignment) - start_align;
- 	*start = start_align;
--	*size = size_align;
-+}
-+
-+static void __init set_max_memory_configuration(void)
-+{
-+	unsigned long long blocksz = memory_block_size_bytes();
-+
-+	max_online = roundup(max_online, blocksz);
-+	max_configurable = (max_online + max_standby) / blocksz;
- }
- 
- static void __init add_memory_merged(u16 rn)
- {
- 	unsigned long long start, size, addr, block_size;
-+	unsigned long long basesize, basestart;
- 	static u16 first_rn, num;
- 
- 	if (rn && first_rn && (first_rn + num == rn)) {
-@@ -423,9 +432,17 @@ static void __init add_memory_merged(u16 rn)
- 	if (start + size > ident_map_size)
- 		size = ident_map_size - start;
- 	block_size = memory_block_size_bytes();
-+	basestart = start;
-+	basesize = size;
- 	align_to_block_size(&start, &size, block_size);
-+	pr_info("Standby memory at 0x%llx (%lluM of %lluM usable)\n",
-+		basestart, size >> 20, basesize >> 20);
- 	if (!size)
- 		goto skip_add;
-+	if (runtime_memory_config) {
-+		max_standby += size;
-+		goto skip_add;
-+	}
- 	for (addr = start; addr < start + size; addr += block_size)
- 		add_memory(0, addr, block_size,
- 			   MACHINE_HAS_EDAT1 ?
-@@ -435,6 +452,48 @@ static void __init add_memory_merged(u16 rn)
- 	num = 1;
- }
- 
-+#ifdef CONFIG_RUNTIME_MEMORY_CONFIGURATION
-+bool arch_validate_memory_range(unsigned long long start, unsigned long long end)
-+{
-+	unsigned long long incr_start, incr_end, curr = start;
-+	struct memory_increment *incr;
-+	bool rangefound = false;
-+
-+	if (start >= ident_map_size || end + 1 > ident_map_size) {
-+		pr_info("Memory range (start:0x%llx,end:0x%llx) exceeds max physical memory (0x%lx)\n",
-+			start, end, ident_map_size);
-+		goto out;
-+	}
-+
-+	list_for_each_entry(incr, &sclp_mem_list, list) {
-+		incr_start = rn2addr(incr->rn);
-+		incr_end = incr_start + sclp.rzm - 1;
-+
-+		if (curr != incr_start)
-+			continue;
-+		/*
-+		 * Allow runtime configuration/deconfiguration for only
-+		 * standby memory
-+		 */
-+		if (!incr->boot_standby)
-+			goto out;
-+		if (incr_end == end) {
-+			rangefound = true;
-+			goto out;
-+		} else {
-+			curr = incr_end + 1;
-+		}
-+	}
-+out:
-+	return rangefound;
-+}
-+
-+ssize_t arch_get_memory_max_configurable(void)
-+{
-+	return max_configurable;
-+}
-+#endif
-+
- static void __init sclp_add_standby_memory(void)
- {
- 	struct memory_increment *incr;
-@@ -456,6 +515,7 @@ static void __init insert_increment(u16 rn, int standby, int assigned)
- 		return;
- 	new_incr->rn = rn;
- 	new_incr->standby = standby;
-+	new_incr->boot_standby = standby;
- 	last_rn = 0;
- 	prev = &sclp_mem_list;
- 	list_for_each_entry(incr, &sclp_mem_list, list) {
-@@ -502,6 +562,7 @@ static int __init sclp_detect_standby_memory(void)
- 				if (!sccb->entries[i])
- 					continue;
- 				assigned++;
-+				max_online += sclp.rzm;
- 				insert_increment(sccb->entries[i] >> 16, 0, 1);
- 			}
- 			break;
-@@ -530,6 +591,7 @@ static int __init sclp_detect_standby_memory(void)
- 	if (rc)
- 		goto out;
- 	sclp_add_standby_memory();
-+	set_max_memory_configuration();
- out:
- 	free_page((unsigned long) sccb);
- 	return rc;
+ 	struct smc_sock *smc = smc_sk(sk);
+ 	struct smc_diag_fallback fallback;
+@@ -199,7 +198,6 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
+ 	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
+ 	struct net *net = sock_net(skb->sk);
+ 	int snum = cb_ctx->pos[p_type];
+-	struct nlattr *bc = NULL;
+ 	struct hlist_head *head;
+ 	int rc = 0, num = 0;
+ 	struct sock *sk;
+@@ -214,7 +212,7 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
+ 			continue;
+ 		if (num < snum)
+ 			goto next;
+-		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh), bc);
++		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh));
+ 		if (rc < 0)
+ 			goto out;
+ next:
+
+---
+base-commit: 40384c840ea1944d7c5a392e8975ed088ecf0b37
+change-id: 20241109-fix-oops-__smc_diag_dump-06ab3e9d39f4
+
+Best regards,
 -- 
-2.45.2
+Manas <manas18244@iiitd.ac.in>
+
 
