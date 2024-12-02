@@ -1,128 +1,340 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 556D21FBEA9;
-	Mon,  2 Dec 2024 10:10:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFB67A95C;
+	Mon,  2 Dec 2024 12:52:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733134254; cv=none; b=NXjLc9lyrUKc2KdNn4mcOekO01sW7rG8B0mQIUTfpU5RQ0C9aQfdyWYA9K5fD7uURuZI9bzZfNYVdPXmO4OrUE0CQj0TpSpgi6vhdvcVLnFeFYdVVj+DsNKdab484/cR1xMyEPuBh9CCp2V6RrkpkJeZ74/PbypJQk3py4bdwb0=
+	t=1733143949; cv=none; b=Xu/fsjGomnFoV1Krg4Mv67frUvJwjo7btZVNrZMtohhPIT0zNWhD+16cJB4akD4wz+0JEGV0PJFiKc7q8grZFhUceIIBDmkeMaqWQgXehleJULa6bqsefuovC1la1+3vXPeZ8XyVqUGNpjf0tyNeS6wv1dXayMdMekXkRrDTgTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733134254; c=relaxed/simple;
-	bh=K12IWzr7ZzpJLWTT+sNll1SfEYElORyx9EZ8o7u51ME=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Rz75FECQirx/H8Uacb9IhnJEC/SuXwyh9go2DsB3n9FEPHUB5ntmM4UFrLt61XiXaJQ0Rcx+6bgeZ3U55I2UTQBZuzlW+VJ9lrEwyFSQ6JQBTv4M6FRIdcO9e7l4jM44YPPuEkfKyRdvYhZYPKiFh7P5zpmqnxhRv+tR6OjObuw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KIbb3Fc+; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1733143949; c=relaxed/simple;
+	bh=5yfOKQEo5T3y6xK81o+UAx3eLEbjl8iAYsbPwg92jzM=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=VyANP2d9ZQaRF2RClSq+gYrBBuz2Q06AaktzBNCZIR5yugpSp9e34eOT4bewZEq+pYW4IjrwB9tVwj3H/yZFcYMV6wRqE2kxIyjcAd+p1RCB6F43c5aq5RpnaiMkB2kHM1Zy7KZ4vVR4g72VlsxCwQx5Z2T0l9+5zecO4StR7Nw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=c4FezOj8; arc=none smtp.client-ip=115.124.30.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KIbb3Fc+"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C29FEC4CED1;
-	Mon,  2 Dec 2024 10:10:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1733134253;
-	bh=K12IWzr7ZzpJLWTT+sNll1SfEYElORyx9EZ8o7u51ME=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=KIbb3Fc+KDroWCb3fIq+KTn/HPAhZWNr4o8JQU9cjzJkUPjgdcgYZEe6p0tAurvCj
-	 1eiA6UXh365jffZoNhSk3C2uVdua2ptrmrLMGe4bVhkdYIYb8LtWuvgvpm2DiBzGke
-	 XxR/DMJW32YPCcYzGhnmE1fMztImytGqh5wLaFIPfZX0bstMSdvC50PLyi9UMmi00M
-	 QgRzeO24alFNZo6bSqqnjpj99Y86cQXxItasX0ejTYrYb1We4AvmQAP03VwXao3O8a
-	 edwKtN8Fv4S0eWk1hw5+afahCGMe9Rf4MGiXeM+bofJK+Oq5KN5QMxdfbNrmYjPQ+j
-	 flQek4PPwhbDg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADBF5D73612;
-	Mon,  2 Dec 2024 10:10:53 +0000 (UTC)
-From: Manas via B4 Relay <devnull+manas18244.iiitd.ac.in@kernel.org>
-Date: Mon, 02 Dec 2024 15:40:51 +0530
-Subject: [PATCH net-next RESEND v2] net/smc: Remove unused function
- parameter in __smc_diag_dump
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="c4FezOj8"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1733143936; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=i47arluX3FDMYUCONBfrM7TK9LSaGe34biX+jE8Ot1Q=;
+	b=c4FezOj87wYU2UZ8Pxl5TalJPc+I0OzreV8K44b/mx3eq2SqvH9A6zaEXwtHQ99yudopEdpOOd4tlJhXEZ4PCPZc7jNWncLPF2hot4abhOdtXDPufgNIXHPMml7avBDTWUug6TkZsgGMBBawvKKDhUdz80Qx5OwL5R3SbGVpxO4=
+Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WKiDfpL_1733143935 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 02 Dec 2024 20:52:15 +0800
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+To: wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org
+Cc: linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net-next v2 1/2] net/smc: support SMC-R V2 for rdma devices with max_recv_sge equals to 1
+Date: Mon,  2 Dec 2024 20:52:02 +0800
+Message-Id: <20241202125203.48821-2-guangguan.wang@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
+In-Reply-To: <20241202125203.48821-1-guangguan.wang@linux.alibaba.com>
+References: <20241202125203.48821-1-guangguan.wang@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20241202-fix-oops-__smc_diag_dump-v2-1-119736963ba9@iiitd.ac.in>
-X-B4-Tracking: v=1; b=H4sIAKqHTWcC/4WNMQ+CMBSE/wrpbElbQK2Tg6wOOhpDCn3AGyikr
- QRD+O9WJl00t7zLu/tuJg4sgiOHaCYWRnTYm2DEJiJVq0wDFHXwRDCRcs4krXGifT84WhSuqwq
- Nqin0oxso26oyAakTWack1AcLIbuib8SApwYm/35c8mt+PpF7OFt0vrfPdX3ka/L/0MhpUJVlK
- oEsVTo9IqLXsapiNCt2FB8owX6gREDJHUtKvueSA/tGLcvyAlRntyYhAQAA
-X-Change-ID: 20241109-fix-oops-__smc_diag_dump-06ab3e9d39f4
-To: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>, 
- "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, 
- Wen Gu <guwen@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>
-Cc: Shuah Khan <shuah@kernel.org>, Anup Sharma <anupnewsmail@gmail.com>, 
- linux-s390@vger.kernel.org, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org, 
- Manas <manas18244@iiitd.ac.in>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1733134252; l=1964;
- i=manas18244@iiitd.ac.in; s=20240813; h=from:subject:message-id;
- bh=zCxOxxK4jUmuWneAk7mzPYC43+hjuOr5TSFC2vSGlrc=;
- b=UJ2tqCJTl+Rjxgg3UW7xGs/kWb0PbQKYRae+HCAb15pkoLFCldFgsbURksOSEj2qN4V8BQfaf
- x1Gk5jADLFOCg3tFAZ9B8zgBAYRtO83dl52EQLzyYyK9kv9RtMJ2kB+
-X-Developer-Key: i=manas18244@iiitd.ac.in; a=ed25519;
- pk=pXNEDKd3qTkQe9vsJtBGT9hrfOR7Dph1rfX5ig2AAoM=
-X-Endpoint-Received: by B4 Relay for manas18244@iiitd.ac.in/20240813 with
- auth_id=196
-X-Original-From: Manas <manas18244@iiitd.ac.in>
-Reply-To: manas18244@iiitd.ac.in
+Content-Transfer-Encoding: 8bit
 
-From: Manas <manas18244@iiitd.ac.in>
+For SMC-R V2, llc msg can be larger than SMC_WR_BUF_SIZE, thus every
+recv wr has 2 sges, the first sge with length SMC_WR_BUF_SIZE is for
+V1/V2 compatible llc/cdc msg, and the second sge with length
+SMC_WR_BUF_V2_SIZE-SMC_WR_TX_SIZE is for V2 specific llc msg, like
+SMC_LLC_DELETE_RKEY and SMC_LLC_ADD_LINK for SMC-R V2. The memory
+buffer in the second sge is shared by all recv wr in one link and
+all link in one lgr for saving memory usage purpose.
 
-The last parameter in __smc_diag_dump (struct nlattr *bc) is unused.
-There is only one instance of this function being called and its passed
-with a NULL value in place of bc.
+But not all RDMA devices with max_recv_sge greater than 1. Thus SMC-R
+V2 can not support on such RDMA devices and SMC_CLC_DECL_INTERR fallback
+happens because of the failure of create qp.
 
-Reviewed-by: Simon Horman <horms@kernel.org>
-Signed-off-by: Manas <manas18244@iiitd.ac.in>
+This patch introduce the support for SMC-R V2 on RDMA devices with
+max_recv_sge equals to 1. Every recv wr has only one sge with individual
+buffer whose size is SMC_WR_BUF_V2_SIZE once the RDMA device's max_recv_sge
+equals to 1. It may use more memory, but it is better than
+SMC_CLC_DECL_INTERR fallback.
+
+Co-developed-by: Wen Gu <guwen@linux.alibaba.com>
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
 ---
-Changes in v2:
-- Added target tree and prefix
-- Carried forward Reviewed-by: tag from v1
-- Link to v1: https://lore.kernel.org/r/20241109-fix-oops-__smc_diag_dump-v1-1-1c55a3e54ad4@iiitd.ac.in
----
- net/smc/smc_diag.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/smc/smc_core.c |  5 +++++
+ net/smc/smc_core.h | 11 ++++++++++-
+ net/smc/smc_ib.c   |  3 +--
+ net/smc/smc_llc.c  | 21 +++++++++++++++------
+ net/smc/smc_wr.c   | 42 +++++++++++++++++++++---------------------
+ 5 files changed, 52 insertions(+), 30 deletions(-)
 
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index 6fdb2d96777ad704c394709ec845f9ddef5e599a..8f7bd40f475945171a0afa5a2cce12d9aa2b1eb4 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -71,8 +71,7 @@ static int smc_diag_msg_attrs_fill(struct sock *sk, struct sk_buff *skb,
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 500952c2e67b..ede4d5f3111b 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -795,9 +795,14 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ 	if (lgr->smc_version == SMC_V2) {
+ 		lnk->smcibdev = ini->smcrv2.ib_dev_v2;
+ 		lnk->ibport = ini->smcrv2.ib_port_v2;
++		lnk->wr_rx_sge_cnt = lnk->smcibdev->ibdev->attrs.max_recv_sge < 2 ? 1 : 2;
++		lnk->wr_rx_buflen = smc_link_shared_v2_rxbuf(lnk) ?
++			SMC_WR_BUF_SIZE : SMC_WR_BUF_V2_SIZE;
+ 	} else {
+ 		lnk->smcibdev = ini->ib_dev;
+ 		lnk->ibport = ini->ib_port;
++		lnk->wr_rx_sge_cnt = 1;
++		lnk->wr_rx_buflen = SMC_WR_BUF_SIZE;
+ 	}
+ 	get_device(&lnk->smcibdev->ibdev->dev);
+ 	atomic_inc(&lnk->smcibdev->lnk_cnt);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 69b54ecd6503..48a1b1dcb576 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -122,10 +122,14 @@ struct smc_link {
+ 	} ____cacheline_aligned_in_smp;
+ 	struct completion	tx_ref_comp;
  
- static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 			   struct netlink_callback *cb,
--			   const struct smc_diag_req *req,
--			   struct nlattr *bc)
-+			   const struct smc_diag_req *req)
+-	struct smc_wr_buf	*wr_rx_bufs;	/* WR recv payload buffers */
++	u8			*wr_rx_bufs;	/* WR recv payload buffers */
+ 	struct ib_recv_wr	*wr_rx_ibs;	/* WR recv meta data */
+ 	struct ib_sge		*wr_rx_sges;	/* WR recv scatter meta data */
+ 	/* above three vectors have wr_rx_cnt elements and use the same index */
++	int			wr_rx_sge_cnt; /* rx sge, V1 is 1, V2 is either 2 or 1 */
++	int			wr_rx_buflen;	/* buffer len for the first sge, len for the
++						 * second sge is lgr shared if rx sge is 2.
++						 */
+ 	dma_addr_t		wr_rx_dma_addr;	/* DMA address of wr_rx_bufs */
+ 	dma_addr_t		wr_rx_v2_dma_addr; /* DMA address of v2 rx buf*/
+ 	u64			wr_rx_id;	/* seq # of last recv WR */
+@@ -506,6 +510,11 @@ static inline bool smc_link_active(struct smc_link *lnk)
+ 	return lnk->state == SMC_LNK_ACTIVE;
+ }
+ 
++static inline bool smc_link_shared_v2_rxbuf(struct smc_link *lnk)
++{
++	return lnk->wr_rx_sge_cnt > 1;
++}
++
+ static inline void smc_gid_be16_convert(__u8 *buf, u8 *gid_raw)
  {
- 	struct smc_sock *smc = smc_sk(sk);
- 	struct smc_diag_fallback fallback;
-@@ -199,7 +198,6 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
- 	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
- 	struct net *net = sock_net(skb->sk);
- 	int snum = cb_ctx->pos[p_type];
--	struct nlattr *bc = NULL;
- 	struct hlist_head *head;
- 	int rc = 0, num = 0;
- 	struct sock *sk;
-@@ -214,7 +212,7 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
- 			continue;
- 		if (num < snum)
- 			goto next;
--		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh), bc);
-+		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh));
- 		if (rc < 0)
- 			goto out;
- next:
-
----
-base-commit: 40384c840ea1944d7c5a392e8975ed088ecf0b37
-change-id: 20241109-fix-oops-__smc_diag_dump-06ab3e9d39f4
-
-Best regards,
+ 	sprintf(buf, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 9c563cdbea90..53828833a3f7 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -662,7 +662,6 @@ void smc_ib_destroy_queue_pair(struct smc_link *lnk)
+ /* create a queue pair within the protection domain for a link */
+ int smc_ib_create_queue_pair(struct smc_link *lnk)
+ {
+-	int sges_per_buf = (lnk->lgr->smc_version == SMC_V2) ? 2 : 1;
+ 	struct ib_qp_init_attr qp_attr = {
+ 		.event_handler = smc_ib_qp_event_handler,
+ 		.qp_context = lnk,
+@@ -676,7 +675,7 @@ int smc_ib_create_queue_pair(struct smc_link *lnk)
+ 			.max_send_wr = SMC_WR_BUF_CNT * 3,
+ 			.max_recv_wr = SMC_WR_BUF_CNT * 3,
+ 			.max_send_sge = SMC_IB_MAX_SEND_SGE,
+-			.max_recv_sge = sges_per_buf,
++			.max_recv_sge = lnk->wr_rx_sge_cnt,
+ 			.max_inline_data = 0,
+ 		},
+ 		.sq_sig_type = IB_SIGNAL_REQ_WR,
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 018ce8133b02..f865c58c3aa7 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -997,13 +997,14 @@ static int smc_llc_cli_conf_link(struct smc_link *link,
+ }
+ 
+ static void smc_llc_save_add_link_rkeys(struct smc_link *link,
+-					struct smc_link *link_new)
++					struct smc_link *link_new,
++					u8 *llc_msg)
+ {
+ 	struct smc_llc_msg_add_link_v2_ext *ext;
+ 	struct smc_link_group *lgr = link->lgr;
+ 	int max, i;
+ 
+-	ext = (struct smc_llc_msg_add_link_v2_ext *)((u8 *)lgr->wr_rx_buf_v2 +
++	ext = (struct smc_llc_msg_add_link_v2_ext *)(llc_msg +
+ 						     SMC_WR_TX_SIZE);
+ 	max = min_t(u8, ext->num_rkeys, SMC_LLC_RKEYS_PER_MSG_V2);
+ 	down_write(&lgr->rmbs_lock);
+@@ -1098,7 +1099,9 @@ int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry)
+ 	if (rc)
+ 		goto out_clear_lnk;
+ 	if (lgr->smc_version == SMC_V2) {
+-		smc_llc_save_add_link_rkeys(link, lnk_new);
++		u8 *llc_msg = smc_link_shared_v2_rxbuf(link) ?
++			(u8 *)lgr->wr_rx_buf_v2 : (u8 *)llc;
++		smc_llc_save_add_link_rkeys(link, lnk_new, llc_msg);
+ 	} else {
+ 		rc = smc_llc_cli_rkey_exchange(link, lnk_new);
+ 		if (rc) {
+@@ -1498,7 +1501,9 @@ int smc_llc_srv_add_link(struct smc_link *link,
+ 	if (rc)
+ 		goto out_err;
+ 	if (lgr->smc_version == SMC_V2) {
+-		smc_llc_save_add_link_rkeys(link, link_new);
++		u8 *llc_msg = smc_link_shared_v2_rxbuf(link) ?
++			(u8 *)lgr->wr_rx_buf_v2 : (u8 *)add_llc;
++		smc_llc_save_add_link_rkeys(link, link_new, llc_msg);
+ 	} else {
+ 		rc = smc_llc_srv_rkey_exchange(link, link_new);
+ 		if (rc)
+@@ -1807,8 +1812,12 @@ static void smc_llc_rmt_delete_rkey(struct smc_link_group *lgr)
+ 	if (lgr->smc_version == SMC_V2) {
+ 		struct smc_llc_msg_delete_rkey_v2 *llcv2;
+ 
+-		memcpy(lgr->wr_rx_buf_v2, llc, sizeof(*llc));
+-		llcv2 = (struct smc_llc_msg_delete_rkey_v2 *)lgr->wr_rx_buf_v2;
++		if (smc_link_shared_v2_rxbuf(link)) {
++			memcpy(lgr->wr_rx_buf_v2, llc, sizeof(*llc));
++			llcv2 = (struct smc_llc_msg_delete_rkey_v2 *)lgr->wr_rx_buf_v2;
++		} else {
++			llcv2 = (struct smc_llc_msg_delete_rkey_v2 *)llc;
++		}
+ 		llcv2->num_inval_rkeys = 0;
+ 
+ 		max = min_t(u8, llcv2->num_rkeys, SMC_LLC_RKEYS_PER_MSG_V2);
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index 994c0cd4fddb..b04a21b8c511 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -439,7 +439,7 @@ static inline void smc_wr_rx_demultiplex(struct ib_wc *wc)
+ 		return; /* short message */
+ 	temp_wr_id = wc->wr_id;
+ 	index = do_div(temp_wr_id, link->wr_rx_cnt);
+-	wr_rx = (struct smc_wr_rx_hdr *)&link->wr_rx_bufs[index];
++	wr_rx = (struct smc_wr_rx_hdr *)(link->wr_rx_bufs + index * link->wr_rx_buflen);
+ 	hash_for_each_possible(smc_wr_rx_hash, handler, list, wr_rx->type) {
+ 		if (handler->type == wr_rx->type)
+ 			handler->handler(wc, wr_rx);
+@@ -555,7 +555,6 @@ void smc_wr_remember_qp_attr(struct smc_link *lnk)
+ 
+ static void smc_wr_init_sge(struct smc_link *lnk)
+ {
+-	int sges_per_buf = (lnk->lgr->smc_version == SMC_V2) ? 2 : 1;
+ 	bool send_inline = (lnk->qp_attr.cap.max_inline_data > SMC_WR_TX_SIZE);
+ 	u32 i;
+ 
+@@ -608,13 +607,14 @@ static void smc_wr_init_sge(struct smc_link *lnk)
+ 	 * the larger spillover buffer, allowing easy data mapping.
+ 	 */
+ 	for (i = 0; i < lnk->wr_rx_cnt; i++) {
+-		int x = i * sges_per_buf;
++		int x = i * lnk->wr_rx_sge_cnt;
+ 
+ 		lnk->wr_rx_sges[x].addr =
+-			lnk->wr_rx_dma_addr + i * SMC_WR_BUF_SIZE;
+-		lnk->wr_rx_sges[x].length = SMC_WR_TX_SIZE;
++			lnk->wr_rx_dma_addr + i * lnk->wr_rx_buflen;
++		lnk->wr_rx_sges[x].length = smc_link_shared_v2_rxbuf(lnk) ?
++			SMC_WR_TX_SIZE : lnk->wr_rx_buflen;
+ 		lnk->wr_rx_sges[x].lkey = lnk->roce_pd->local_dma_lkey;
+-		if (lnk->lgr->smc_version == SMC_V2) {
++		if (lnk->lgr->smc_version == SMC_V2 && smc_link_shared_v2_rxbuf(lnk)) {
+ 			lnk->wr_rx_sges[x + 1].addr =
+ 					lnk->wr_rx_v2_dma_addr + SMC_WR_TX_SIZE;
+ 			lnk->wr_rx_sges[x + 1].length =
+@@ -624,7 +624,7 @@ static void smc_wr_init_sge(struct smc_link *lnk)
+ 		}
+ 		lnk->wr_rx_ibs[i].next = NULL;
+ 		lnk->wr_rx_ibs[i].sg_list = &lnk->wr_rx_sges[x];
+-		lnk->wr_rx_ibs[i].num_sge = sges_per_buf;
++		lnk->wr_rx_ibs[i].num_sge = lnk->wr_rx_sge_cnt;
+ 	}
+ 	lnk->wr_reg.wr.next = NULL;
+ 	lnk->wr_reg.wr.num_sge = 0;
+@@ -655,7 +655,7 @@ void smc_wr_free_link(struct smc_link *lnk)
+ 
+ 	if (lnk->wr_rx_dma_addr) {
+ 		ib_dma_unmap_single(ibdev, lnk->wr_rx_dma_addr,
+-				    SMC_WR_BUF_SIZE * lnk->wr_rx_cnt,
++				    lnk->wr_rx_buflen * lnk->wr_rx_cnt,
+ 				    DMA_FROM_DEVICE);
+ 		lnk->wr_rx_dma_addr = 0;
+ 	}
+@@ -740,13 +740,11 @@ int smc_wr_alloc_lgr_mem(struct smc_link_group *lgr)
+ 
+ int smc_wr_alloc_link_mem(struct smc_link *link)
+ {
+-	int sges_per_buf = link->lgr->smc_version == SMC_V2 ? 2 : 1;
+-
+ 	/* allocate link related memory */
+ 	link->wr_tx_bufs = kcalloc(SMC_WR_BUF_CNT, SMC_WR_BUF_SIZE, GFP_KERNEL);
+ 	if (!link->wr_tx_bufs)
+ 		goto no_mem;
+-	link->wr_rx_bufs = kcalloc(SMC_WR_BUF_CNT * 3, SMC_WR_BUF_SIZE,
++	link->wr_rx_bufs = kcalloc(SMC_WR_BUF_CNT * 3, link->wr_rx_buflen,
+ 				   GFP_KERNEL);
+ 	if (!link->wr_rx_bufs)
+ 		goto no_mem_wr_tx_bufs;
+@@ -774,7 +772,7 @@ int smc_wr_alloc_link_mem(struct smc_link *link)
+ 	if (!link->wr_tx_sges)
+ 		goto no_mem_wr_tx_rdma_sges;
+ 	link->wr_rx_sges = kcalloc(SMC_WR_BUF_CNT * 3,
+-				   sizeof(link->wr_rx_sges[0]) * sges_per_buf,
++				   sizeof(link->wr_rx_sges[0]) * link->wr_rx_sge_cnt,
+ 				   GFP_KERNEL);
+ 	if (!link->wr_rx_sges)
+ 		goto no_mem_wr_tx_sges;
+@@ -872,7 +870,7 @@ int smc_wr_create_link(struct smc_link *lnk)
+ 	smc_wr_tx_set_wr_id(&lnk->wr_tx_id, 0);
+ 	lnk->wr_rx_id = 0;
+ 	lnk->wr_rx_dma_addr = ib_dma_map_single(
+-		ibdev, lnk->wr_rx_bufs,	SMC_WR_BUF_SIZE * lnk->wr_rx_cnt,
++		ibdev, lnk->wr_rx_bufs,	lnk->wr_rx_buflen * lnk->wr_rx_cnt,
+ 		DMA_FROM_DEVICE);
+ 	if (ib_dma_mapping_error(ibdev, lnk->wr_rx_dma_addr)) {
+ 		lnk->wr_rx_dma_addr = 0;
+@@ -880,13 +878,15 @@ int smc_wr_create_link(struct smc_link *lnk)
+ 		goto out;
+ 	}
+ 	if (lnk->lgr->smc_version == SMC_V2) {
+-		lnk->wr_rx_v2_dma_addr = ib_dma_map_single(ibdev,
+-			lnk->lgr->wr_rx_buf_v2, SMC_WR_BUF_V2_SIZE,
+-			DMA_FROM_DEVICE);
+-		if (ib_dma_mapping_error(ibdev, lnk->wr_rx_v2_dma_addr)) {
+-			lnk->wr_rx_v2_dma_addr = 0;
+-			rc = -EIO;
+-			goto dma_unmap;
++		if (smc_link_shared_v2_rxbuf(lnk)) {
++			lnk->wr_rx_v2_dma_addr =
++				ib_dma_map_single(ibdev, lnk->lgr->wr_rx_buf_v2,
++						  SMC_WR_BUF_V2_SIZE, DMA_FROM_DEVICE);
++			if (ib_dma_mapping_error(ibdev, lnk->wr_rx_v2_dma_addr)) {
++				lnk->wr_rx_v2_dma_addr = 0;
++				rc = -EIO;
++				goto dma_unmap;
++			}
+ 		}
+ 		lnk->wr_tx_v2_dma_addr = ib_dma_map_single(ibdev,
+ 			lnk->lgr->wr_tx_buf_v2, SMC_WR_BUF_V2_SIZE,
+@@ -935,7 +935,7 @@ int smc_wr_create_link(struct smc_link *lnk)
+ 		lnk->wr_tx_v2_dma_addr = 0;
+ 	}
+ 	ib_dma_unmap_single(ibdev, lnk->wr_rx_dma_addr,
+-			    SMC_WR_BUF_SIZE * lnk->wr_rx_cnt,
++			    lnk->wr_rx_buflen * lnk->wr_rx_cnt,
+ 			    DMA_FROM_DEVICE);
+ 	lnk->wr_rx_dma_addr = 0;
+ out:
 -- 
-Manas <manas18244@iiitd.ac.in>
-
+2.24.3 (Apple Git-128)
 
