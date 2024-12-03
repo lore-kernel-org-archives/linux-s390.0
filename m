@@ -1,53 +1,66 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C98D71FC7E7;
-	Tue,  3 Dec 2024 18:04:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F4951362;
+	Tue,  3 Dec 2024 18:47:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733249083; cv=none; b=Kb7JQxvABi9idK9E0XYCf33I0XAKter+kiz7sUFWI/IXH/M/GTLqbP0IxW72nckBI668mShiGHXBj0FBPOaSiuhUd2Xq6rNw3QOhdN7gW+zB7WWGa2+WG/BDF+pGKVsz+qIJUvynCr0rgyTx+2gwxgtWBP+77hjw9tL/6JWxxzE=
+	t=1733251677; cv=none; b=RuQI9lAXLIVE8OA6vgrz4EgaqWVfPxFzItKQ86AtU8WDHupVcLEhJLn4LuQwX0OBtcnZgr/sVP+QGy8UPG6qqeEqAjVQ77uUtApNaDbX/mO+Uv2i39JSl7NkeTsycLXYMX5nPuwAmLWzYSlyyGGvovVfekNI/OMdy4puBTkd4vM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733249083; c=relaxed/simple;
-	bh=L4BkkKXTWvXmMfLn0RL6KeEHKDcuO56tiD37MnLutg8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BHziIZAA/C2nTUypAEZDzOwnSP29lbjQl7vktzo4zpHMPj23WLDMu+MSE851e55FzeZS4fvhv7zdS7CMle+DYvHS79U1ls6Qhi3solS042UysyLCCAdepDQ6iZtPkf5Rc9vgKT1qRGH/N5W6tebn9oDb/zYj53MeRpd6tMMjq5g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pgbFiohB; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1733251677; c=relaxed/simple;
+	bh=62qKMZZWNcz5M+209QiFVBa+TWcB3rtKMsA/EBEsFAM=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=TAJ7JXOqycZLAdkgaiiCXF/NvSdXdrH/VVgc5rngXdmafp3c0KxcCp+QFFpqaL1nLkjFYzQcujsCpD5UuGxnRhy64s5LsgIRbzWg9zeRtzkhsf1IqGDOOODEcICZnhZaa46B9mH87NZwaE4Z6I0QV8WtuIkZ1pdgUv/BVILzCLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HRFiJEZ+; arc=none smtp.client-ip=198.175.65.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pgbFiohB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0750C4CED6;
-	Tue,  3 Dec 2024 18:04:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1733249083;
-	bh=L4BkkKXTWvXmMfLn0RL6KeEHKDcuO56tiD37MnLutg8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=pgbFiohBsH/JTSqPwJps3HwoZwk6/6ppcl+lWIPQ5HCMfj5Vhe+qkqVgvu95WJtSI
-	 SgipJV+KwH71M1yriIsYzZ354vj7RR6SBPcow4dEpMaCgaUzwNJInKFoDOd+oE99+h
-	 LgBJxJkSAbXlJ4VjE4GIkFUOZY0pAKwpFz/CjZ56PkT/YuP1LXiSGyBdE7NRCTsxPU
-	 YmgG2jsopH7Lh3cxAvfra7B6VKeS+XPjNPKM54BqyCpyQVhJib4mMXuRxAJBcrA89/
-	 jtQbSnw1wvAfyzpxmZ9I+yu2gPOLKJJXajtNri0OrDzpfK/LSozVv9o0mHksfPchfe
-	 F1V6UrdAFeo8A==
-From: Namhyung Kim <namhyung@kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>,
-	Ingo Molnar <mingo@kernel.org>
-Cc: Kan Liang <kan.liang@linux.intel.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Thomas Richter <tmricht@linux.ibm.com>,
-	Ravi Bangoria <ravi.bangoria@amd.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: [PATCH 1/2] perf/core: Export perf_exclude_event()
-Date: Tue,  3 Dec 2024 10:04:40 -0800
-Message-ID: <20241203180441.1634709-2-namhyung@kernel.org>
-X-Mailer: git-send-email 2.47.0.338.g60cca15819-goog
-In-Reply-To: <20241203180441.1634709-1-namhyung@kernel.org>
-References: <20241203180441.1634709-1-namhyung@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HRFiJEZ+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1733251676; x=1764787676;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=62qKMZZWNcz5M+209QiFVBa+TWcB3rtKMsA/EBEsFAM=;
+  b=HRFiJEZ+UeJKefNw6UgtRSjQtVrQqDsikbJGgcfFF1/wmVLQYqtZGdGE
+   05Xy4vbEgn4FhMOznsKPOmIkTE/X/iNmAh/m3S0PyhQAYkuoIX8wFc83m
+   2N7FH3ll57MCVY9+cobLNaP7OBKJxBO+fCNFQuds1fYglvKflqA+CGOdT
+   G2iXiSvmOEBRPkaf8S3Pzn8GZBg/mpC8og7VoqeNDZ+c66uv8Z7nknumB
+   6LNMEHWWJoYpyHA9LONR+h7W+cz9CADZo1D7zxCUe9LHGvGOBCHW3fL+G
+   x73QJqTZvMAVn8fqmgl+AYZasC1GmcJLadj9QVaIO4Qa7PkkfDwsw1UXz
+   A==;
+X-CSE-ConnectionGUID: afDQlZKeRlay4ai3iymM4g==
+X-CSE-MsgGUID: +vmghaZmRSyREKPlNae/JA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11275"; a="37143160"
+X-IronPort-AV: E=Sophos;i="6.12,205,1728975600"; 
+   d="scan'208";a="37143160"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Dec 2024 10:47:55 -0800
+X-CSE-ConnectionGUID: AsBODGdQSZOoo3sEf9T5GQ==
+X-CSE-MsgGUID: n+55R6mgRIebNkinu6YKpg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,205,1728975600"; 
+   d="scan'208";a="93420011"
+Received: from rthomas.sc.intel.com ([172.25.112.51])
+  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Dec 2024 10:47:54 -0800
+From: Ramesh Thomas <ramesh.thomas@intel.com>
+To: alex.williamson@redhat.com,
+	jgg@ziepe.ca,
+	schnelle@linux.ibm.com,
+	gbayer@linux.ibm.com
+Cc: kvm@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	ankita@nvidia.com,
+	yishaih@nvidia.com,
+	pasic@linux.ibm.com,
+	julianr@linux.ibm.com,
+	bpsegal@us.ibm.com,
+	ramesh.thomas@intel.com,
+	kevin.tian@intel.com,
+	cho@microsoft.com
+Subject: [PATCH v2 0/2] Extend 8-byte PCI load/store support to x86 arch
+Date: Tue,  3 Dec 2024 10:41:56 -0800
+Message-Id: <20241203184158.172492-1-ramesh.thomas@intel.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -56,92 +69,42 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-While at it, rename the same function in s390 cpum_sf PMU.
+This patch series extends the recently added 8-byte PCI load/store
+support to the x86 architecture. 
 
-Acked-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-and-tested-by: Ravi Bangoria <ravi.bangoria@amd.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
----
- arch/s390/kernel/perf_cpum_sf.c | 6 +++---
- include/linux/perf_event.h      | 6 ++++++
- kernel/events/core.c            | 3 +--
- 3 files changed, 10 insertions(+), 5 deletions(-)
+Refer patch series adding above support:
+https://lore.kernel.org/all/20240522150651.1999584-1-gbayer@linux.ibm.com/
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 1e99514fb7ae3db4..5f60248cb46873ea 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -981,7 +981,7 @@ static void cpumsf_pmu_disable(struct pmu *pmu)
- 	cpuhw->flags &= ~PMU_F_ENABLED;
- }
- 
--/* perf_exclude_event() - Filter event
-+/* perf_event_exclude() - Filter event
-  * @event:	The perf event
-  * @regs:	pt_regs structure
-  * @sde_regs:	Sample-data-entry (sde) regs structure
-@@ -990,7 +990,7 @@ static void cpumsf_pmu_disable(struct pmu *pmu)
-  *
-  * Return non-zero if the event shall be excluded.
-  */
--static int perf_exclude_event(struct perf_event *event, struct pt_regs *regs,
-+static int perf_event_exclude(struct perf_event *event, struct pt_regs *regs,
- 			      struct perf_sf_sde_regs *sde_regs)
- {
- 	if (event->attr.exclude_user && user_mode(regs))
-@@ -1073,7 +1073,7 @@ static int perf_push_sample(struct perf_event *event,
- 	data.tid_entry.pid = basic->hpp & LPP_PID_MASK;
- 
- 	overflow = 0;
--	if (perf_exclude_event(event, &regs, sde_regs))
-+	if (perf_event_exclude(event, &regs, sde_regs))
- 		goto out;
- 	if (perf_event_overflow(event, &data, &regs)) {
- 		overflow = 1;
-diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-index bf831b1485ff5b3a..8333f132f4a96cff 100644
---- a/include/linux/perf_event.h
-+++ b/include/linux/perf_event.h
-@@ -1690,6 +1690,8 @@ static inline int perf_allow_tracepoint(struct perf_event_attr *attr)
- 	return security_perf_event_open(attr, PERF_SECURITY_TRACEPOINT);
- }
- 
-+extern int perf_exclude_event(struct perf_event *event, struct pt_regs *regs);
-+
- extern void perf_event_init(void);
- extern void perf_tp_event(u16 event_type, u64 count, void *record,
- 			  int entry_size, struct pt_regs *regs,
-@@ -1895,6 +1897,10 @@ static inline u64 perf_event_pause(struct perf_event *event, bool reset)
- {
- 	return 0;
- }
-+static inline int perf_exclude_event(struct perf_event *event, struct pt_regs *regs)
-+{
-+	return 0;
-+}
- #endif
- 
- #if defined(CONFIG_PERF_EVENTS) && defined(CONFIG_CPU_SUP_INTEL)
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 4c6f6c286b2d8d1d..1089c41b63c1e683 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -10081,8 +10081,7 @@ static void perf_swevent_event(struct perf_event *event, u64 nr,
- 	perf_swevent_overflow(event, 0, data, regs);
- }
- 
--static int perf_exclude_event(struct perf_event *event,
--			      struct pt_regs *regs)
-+int perf_exclude_event(struct perf_event *event, struct pt_regs *regs)
- {
- 	if (event->hw.state & PERF_HES_STOPPED)
- 		return 1;
+The 8-byte implementations are enclosed inside #ifdef checks of the
+macros "ioread64" and "iowrite64". These macros don't get defined if
+CONFIG_GENERIC_IOMAP is defined. CONFIG_GENERIC_IOMAP gets defined for
+x86 and hence the macros are undefined. Due to this the 8-byte support
+was not enabled for x86 architecture.
+
+To resolve this, include the header file io-64-nonatomic-lo-hi.h that
+maps the ioread64 and iowrite64 macros to a generic implementation in
+lib/iomap.c. This was the intention of defining CONFIG_GENERIC_IOMAP.
+
+Tested using a pass-through PCI device bound to vfio-pci driver and
+doing BAR reads and writes that trigger calls to
+vfio_pci_core_do_io_rw() that does the 8-byte reads and writes.
+
+Patch history:
+v2: Based on Jason's feedback moved #include io-64-nonatomic-lo-hi.h
+to vfio_pci_rdwr.c and replaced #ifdef checks of iowrite64 and ioread64
+macros with checks for CONFIG_64BIT.
+
+https://lore.kernel.org/all/20240522232125.548643-1-ramesh.thomas@intel.com/
+https://lore.kernel.org/all/20240524140013.GM69273@ziepe.ca/
+https://lore.kernel.org/all/bfb273b2-fc5e-4a8b-a40d-56996fc9e0af@intel.com/
+
+Ramesh Thomas (2):
+  vfio/pci: Enable iowrite64 and ioread64 for vfio pci
+  vfio/pci: Remove #ifdef iowrite64 and #ifdef ioread64
+
+ drivers/vfio/pci/vfio_pci_rdwr.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
 -- 
-2.47.0.338.g60cca15819-goog
+2.34.1
 
