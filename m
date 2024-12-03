@@ -1,217 +1,137 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9B3C3BB24;
-	Tue,  3 Dec 2024 14:33:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 807771FCFEE
+	for <linux-s390@vger.kernel.org>; Tue,  3 Dec 2024 17:47:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733236406; cv=none; b=aTPFeuOdfZjU+rASHDwnC086kTXudq5s1aHmGzNcbpjVT7FKYTsVScvrDpIBmZoLr8NU0lPmvB8dqrLpljL7Nb/Y4RDZkJJ1uDrLP7gSS5F9CRjrmUA7QZPZOO6gCEU8PzE0r476r63QO2o6cLilyHDaCFRxXG8c2KHAbF+4frY=
+	t=1733248041; cv=none; b=bxsZ4WmM7H0HsLTGIaSdMDKQ57CRWFxs6epfo7uItiJP9+cdhbRqNU0J7kd9mEH0x4Lpx/IKzb52NfsWg22ombzm9owxSqMHdrJ9jOWs+6mEe1n9wLFWHVJ+hl9iVOtXahUlrrFBcIk8THON9hW2PWnPJ3nEFG1JJA9EPUJiG24=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733236406; c=relaxed/simple;
-	bh=11j42MwHiEKqypzz0wQHy9eouxCnRZ0P38XMeQx2weI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Bk8osaWR2lfa1INftiuZkAiCbRrIZEOZlh29Chs3HD10dAhlATc1keTU4+6UmMDam/kOYoQDWhr+b66VAtH1a4m8aQYIcgbFw1COBNdw/GNzn5vm7qX/6Z0EvzveF6Mbot7vp+HMuc9VpizZfawPW93hPWM/XXTQqpCn2HxbSgc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VwSoI1Ax; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VwSoI1Ax"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3CrBHM011897;
-	Tue, 3 Dec 2024 14:33:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=rt42MDgeK03o2gsfWT114x3hcN+2YJ
-	+aVG8pLK9z4/A=; b=VwSoI1Ax8xzUJrCv4kItpgZ+9TMC+RdXwDDo5mZh1RktEu
-	od70T4XW5SjDdAoE6V36/yF/P8O8uDlu7p9jQWLd/R5y+SKkzOustiJbLlfeLO8z
-	ttYnzDiOW2/JF+n6kQdizDS5n4i+4Xxd5PdXx4DLr9yCxoidEUWpbQ78+fTJhaKz
-	d/GVtdeB2My+RYTqj1xm0Lf5zuNKzQC1idobT5Fo7w6GGnPuPlqDpbQP90gpVuhK
-	7yujaQ7mFaIIFfyf/bHtS+cZDZVlDEc4ChldiqYExt06kBR1EXHhVdbLMKsVfPTb
-	UwQEKggbY4gEFDsv1cqb6jdsP1qAxjtjbTs4s1DA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 437s4j28df-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 03 Dec 2024 14:33:15 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3D0RMK031726;
-	Tue, 3 Dec 2024 14:33:14 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 438ehkwb6r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 03 Dec 2024 14:33:14 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B3EXAuR31588924
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 3 Dec 2024 14:33:11 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D22482004B;
-	Tue,  3 Dec 2024 14:33:10 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 23D0A20040;
-	Tue,  3 Dec 2024 14:33:10 +0000 (GMT)
-Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.171.16.180])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  3 Dec 2024 14:33:10 +0000 (GMT)
-Date: Tue, 3 Dec 2024 15:33:08 +0100
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC PATCH 1/4] mm/memory_hotplug: Add interface for runtime
- (de)configuration of memory
-Message-ID: <Z08WpCxt4lsIsjcN@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-References: <20241202082732.3959803-1-sumanthk@linux.ibm.com>
- <20241202082732.3959803-2-sumanthk@linux.ibm.com>
- <3151b9a0-3e96-4820-b6af-9f9ec4996ee1@redhat.com>
+	s=arc-20240116; t=1733248041; c=relaxed/simple;
+	bh=Q95+gOI7pTAZtpI5+UrdylhdkgXfWijiKSsgRKgGNcI=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=EMtz6AF2Hx+50pBELm208zecw7CCkbaonRmIxfwtycFO8MVQoU3DUgdrTeXBKyo5W3FzDFBJWCDLZjZOwC/GpE/yGsyYzRTJYFdQBC3DusdSOAb0AuK+y4lF/xIwBlob4KFgMe7V/VrYgS/WaV9dAu91mOzIPKSGA4oWo409oRM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from ptz.office.stw.pengutronix.de ([2a0a:edc0:0:900:1d::77] helo=[IPv6:::1])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <l.stach@pengutronix.de>)
+	id 1tIWyE-0003sq-Mm; Tue, 03 Dec 2024 18:45:58 +0100
+Message-ID: <fc624e3fd4a4a38dedf02e31be9e4f1c85fb40a0.camel@pengutronix.de>
+Subject: Re: [PATCH 09/22] drm/etnaviv: Convert timeouts to secs_to_jiffies()
+From: Lucas Stach <l.stach@pengutronix.de>
+To: Easwar Hariharan <eahariha@linux.microsoft.com>, Pablo Neira Ayuso
+ <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, "David S.
+ Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>,  Paolo Abeni <pabeni@redhat.com>, Simon Horman
+ <horms@kernel.org>, Julia Lawall <Julia.Lawall@inria.fr>,  Nicolas Palix
+ <nicolas.palix@imag.fr>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang
+ <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>,
+ Russell King <linux@armlinux.org.uk>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Ofir
+ Bitton <obitton@habana.ai>, Oded Gabbay <ogabbay@kernel.org>, Lucas De
+ Marchi <lucas.demarchi@intel.com>, Thomas =?ISO-8859-1?Q?Hellstr=F6m?=
+ <thomas.hellstrom@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard
+ <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Airlie
+ <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Jeroen de Borst
+ <jeroendb@google.com>, Praveen Kaligineedi <pkaligineedi@google.com>,
+ Shailend Chand <shailend@google.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ James Smart <james.smart@broadcom.com>, Dick Kennedy
+ <dick.kennedy@broadcom.com>, "James E.J. Bottomley"
+ <James.Bottomley@HansenPartnership.com>, "Martin K. Petersen"
+ <martin.petersen@oracle.com>, Roger Pau =?ISO-8859-1?Q?Monn=E9?=
+ <roger.pau@citrix.com>, Jens Axboe <axboe@kernel.dk>, Kalle Valo
+ <kvalo@kernel.org>, Jeff Johnson <jjohnson@kernel.org>, Catalin Marinas
+ <catalin.marinas@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Jack
+ Wang <jinpu.wang@cloud.ionos.com>, Marcel Holtmann <marcel@holtmann.org>,
+ Johan Hedberg <johan.hedberg@gmail.com>, Luiz Augusto von Dentz
+ <luiz.dentz@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Florian Fainelli <florian.fainelli@broadcom.com>, Ray Jui
+ <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Broadcom
+ internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Xiubo
+ Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,  Josh Poimboeuf
+ <jpoimboe@kernel.org>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes
+ <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, Joe Lawrence
+ <joe.lawrence@redhat.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai
+ <tiwai@suse.com>, Russell King <linux+etnaviv@armlinux.org.uk>, Christian
+ Gmeiner <christian.gmeiner@gmail.com>,  Louis Peens
+ <louis.peens@corigine.com>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas
+ Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Naveen N Rao <naveen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: netfilter-devel@vger.kernel.org, coreteam@netfilter.org, 
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, cocci@inria.fr, 
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
+ linux-scsi@vger.kernel.org, xen-devel@lists.xenproject.org, 
+ linux-block@vger.kernel.org, linux-wireless@vger.kernel.org, 
+ ath11k@lists.infradead.org, linux-mm@kvack.org,
+ linux-bluetooth@vger.kernel.org,  linux-staging@lists.linux.dev,
+ linux-rpi-kernel@lists.infradead.org,  ceph-devel@vger.kernel.org,
+ live-patching@vger.kernel.org,  linux-sound@vger.kernel.org,
+ etnaviv@lists.freedesktop.org,  oss-drivers@corigine.com,
+ linuxppc-dev@lists.ozlabs.org, Anna-Maria Behnsen <anna-maria@linutronix.de>
+Date: Tue, 03 Dec 2024 18:45:50 +0100
+In-Reply-To: <20241115-converge-secs-to-jiffies-v1-9-19aadc34941b@linux.microsoft.com>
+References: 
+	<20241115-converge-secs-to-jiffies-v1-0-19aadc34941b@linux.microsoft.com>
+	 <20241115-converge-secs-to-jiffies-v1-9-19aadc34941b@linux.microsoft.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.4 (3.52.4-2.fc40) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3151b9a0-3e96-4820-b6af-9f9ec4996ee1@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 9ItduTtDKXqtELposVLLu0zuhPtcE-6J
-X-Proofpoint-ORIG-GUID: 9ItduTtDKXqtELposVLLu0zuhPtcE-6J
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- adultscore=0 mlxscore=0 mlxlogscore=596 lowpriorityscore=0 bulkscore=0
- impostorscore=0 phishscore=0 spamscore=0 malwarescore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2412030124
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:900:1d::77
+X-SA-Exim-Mail-From: l.stach@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-s390@vger.kernel.org
 
-On Mon, Dec 02, 2024 at 05:55:19PM +0100, David Hildenbrand wrote:
-> Hi!
-> 
-> Not completely what I had in mind, especially not that we need something
-> that generic without any indication of ranges :)
-> 
-> In general, the flow is as follows:
-> 
-> 1) Driver detects memory and adds it
-> 2) Something auto-onlines that memory (e.g., udev rule)
-> 
-> For dax/kmem, 1) can be controlled using devdax, and usually it also tries
-> to take care of 2).
-> 
-> s390x standby storage really is the weird thing here, because it does 1) and
-> doesn't want 2). It shouldn't do 1) until a user wants to make use of
-> standby memory.
+Am Freitag, dem 15.11.2024 um 21:22 +0000 schrieb Easwar Hariharan:
+> Changes made with the following Coccinelle rules:
+>=20
+> @@ constant C; @@
+>=20
+> - msecs_to_jiffies(C * 1000)
+> + secs_to_jiffies(C)
+>=20
+> @@ constant C; @@
+>=20
+> - msecs_to_jiffies(C * MSEC_PER_SEC)
+> + secs_to_jiffies(C)
+>=20
+Thanks, applied to etnaviv/next.
 
-Hi David,
+Regards,
+Lucas
 
-The current rfc design doesnt do 1) until user initiates it.
+> Signed-off-by: Easwar Hariharan <eahariha@linux.microsoft.com>
+> ---
+>  drivers/gpu/drm/etnaviv/etnaviv_cmdbuf.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/gpu/drm/etnaviv/etnaviv_cmdbuf.c b/drivers/gpu/drm/e=
+tnaviv/etnaviv_cmdbuf.c
+> index 721d633aece9d4c81f0019e4c55884f26ee61c60..0f5a2c885d0ab7029c7248e15=
+d6ea3c31823b782 100644
+> --- a/drivers/gpu/drm/etnaviv/etnaviv_cmdbuf.c
+> +++ b/drivers/gpu/drm/etnaviv/etnaviv_cmdbuf.c
+> @@ -100,7 +100,7 @@ int etnaviv_cmdbuf_init(struct etnaviv_cmdbuf_suballo=
+c *suballoc,
+>  		mutex_unlock(&suballoc->lock);
+>  		ret =3D wait_event_interruptible_timeout(suballoc->free_event,
+>  						       suballoc->free_space,
+> -						       msecs_to_jiffies(10 * 1000));
+> +						       secs_to_jiffies(10));
+>  		if (!ret) {
+>  			dev_err(suballoc->dev,
+>  				"Timeout waiting for cmdbuf space\n");
+>=20
 
-The current rfc design considers the fact that there cannot be memory
-holes, when there is a availability of standby memory. (which holds true
-for both lpars and zvms)
-
-With number of online and standby memory ranges count
-(max_configurable), prototype lsmem/chmem could determine memory ranges
-which are not yet configured 
-i.e. (configurable_memory = max_configurable - online ranges from sysfs
-/sys/devices/system/memory/memory*).
-
-Example prototype implementation of lsmem/chmem looks like:
-./lsmem -o RANGE,SIZE,STATE,BLOCK,ALTMAP
-RANGE                                 SIZE        STATE  BLOCK ALTMAP
-0x0000000000000000-0x00000002ffffffff  12G       online   0-95      0
-0x0000000300000000-0x00000003ffffffff   4G deconfigured 96-127      -
-
-# Configure range with altmap
-./chmem -c 0x0000000300000000-0x00000003ffffffff -a
-./lsmem -o RANGE,SIZE,STATE,BLOCK,ALTMAP
-RANGE                                 SIZE   STATE  BLOCK ALTMAP
-0x0000000000000000-0x00000002ffffffff  12G  online   0-95      0
-0x0000000300000000-0x00000003ffffffff   4G offline 96-127      1
-
-
-# Online range
-./chmem -e 0x0000000300000000-0x00000003ffffffff &&
-./lsmem -o RANGE,SIZE,STATE,BLOCK,ALTMAP
-RANGE                                 SIZE  STATE  BLOCK ALTMAP
-0x0000000000000000-0x00000002ffffffff  12G online   0-95      0
-0x0000000300000000-0x00000003ffffffff   4G online 96-127      1
-
-Memory block size:       128M
-Total online memory:      16G
-Total offline memory:      0B
-Total deconfigured:        0B
-
-# offline range
-./chmem -d 0x0000000300000000-0x00000003ffffffff &&
-./lsmem -o RANGE,SIZE,STATE,BLOCK,ALTMAP
-RANGE                                 SIZE   STATE  BLOCK ALTMAP
-0x0000000000000000-0x00000002ffffffff  12G  online   0-95      0
-0x0000000300000000-0x00000003ffffffff   4G offline 96-127      1
-
-Memory block size:       128M
-Total online memory:      12G
-Total offline memory:      4G
-Total deconfigured:        0B
-
-# Defconfigure range.
-./chmem -g 0x0000000300000000-0x00000003ffffffff &&
-./lsmem -o RANGE,SIZE,STATE,BLOCK,ALTMAP
-RANGE                                 SIZE        STATE  BLOCK ALTMAP
-0x0000000000000000-0x00000002ffffffff  12G       online   0-95      0
-0x0000000300000000-0x00000003ffffffff   4G deconfigured 96-127      -
-
-Memory block size:       128M
-Total online memory:      12G
-Total offline memory:      0B
-Total deconfigured:        4G
-
-The user can still determine the available memory ranges and make them
-configurable using tools like lsmem or chmem with this approach atleast
-on s390 with this approach.
-
-> My thinking was that s390x would expose the standby memory ranges somewhere
-> arch specific in sysfs. From there, one could simply trigger the adding
-> (maybe specifying e.g, memmap_on_memory) of selected ranges.
-
-As far as I understand, sysfs interface limits the size of the buffer
-used in show() to 4kb.  When there are huge number of standby memory
-ranges, wouldnt it be an issue to display everything in one attribute?
-
-Or use sysfs binary attributes to overcome the limitation?
-
-Please correct me, If I am wrong.
-
-Questions:
-1. If we go ahead with this sysfs interface approach to list all standby
-memory ranges, could the list be made available via
-/sys/devices/system/memory/configurable_memlist?  This could be helpful,
-as /sys/devices/system/memory/configure_memory performs architecture
-independent checks and could also be useful for other architectures in
-the future.
-
-2. Whether the new interface should also be compatible with lsmem/chmem?
-
-3. OR can we have a s390 specific path (eg:
-/sys/firmware/memory/standy_range) to list all standby memory range
-which are in deconfigured state and also use the current design
-(max_configurable) to make it easier for lsmem/chmem tool to detect
-these standby memory ranges?
-
-> To disable standby memory, one would first offline the memory to then
-> trigger removal using the arch specific interface. It is very similar to
-> dax/kmem's way of handling offline+removal.
-
-ok
-
-> Now I wonder if dax/kmem could be (ab)used on s390x for standby storage.
-> Likely a simple sysfs interface could be easier to implement.
-
-I havent checked dax/kmem in detail yet. I will look into it.
-
-Thank you
