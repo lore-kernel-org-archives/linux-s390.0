@@ -1,181 +1,101 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C96318FDAE;
-	Tue,  3 Dec 2024 03:53:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2D2D192D64;
+	Tue,  3 Dec 2024 08:50:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733198036; cv=none; b=cSAeAOkEEkDiaq2EuiSwZWcuJPyGWvkodYgA7cLvMB2RXT8dUogw+HX4Cl5Zc59WVD64UBxmEjfpHCy1jDQoEWFHZ/+AfkX0O8QM3Du2OeE99wcotyKpUalOhl/CdmLEM7WfzfUy8JsZ4fVQVZY/EPrmWvYOR17b3Uxj7H9YUFQ=
+	t=1733215853; cv=none; b=Q21AAfqwwWHSwYXqOUdZyYZn/IP1WifO1ngO6vUd4XuwoPco1ybu1p9nWdUsKZrysVu4Jqi8C4+eL1FEKQ6lIAdj5CTrAf0U9m6ABkDv8slZW6zMtFqgtSloFEtyGrSPDHeqoxT5XS31NLK1/81SoWgdlCSrXW0zHcoIQfADzXw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733198036; c=relaxed/simple;
-	bh=nKvcOkAgT9eGLo+1IwUFYryCnxBo3MpKhtpqtDuNVl8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HQrTi3YgM3cOLNmVz6wy1pNaLqc4SawoSDEPvZjTABo3ZE16xZzrHx0p+iKiWFUfmA8cl50i79ZUC9sFadlsDMRtnCtxYx3zqnbSUGhOOUY1LmtXAlHknyrJ7pSc27SyQtW7BPMtB2NfsZU0GFTUlhpLRVCtneU7nVOcUbGXkHE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G0gotNSR; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1733215853; c=relaxed/simple;
+	bh=V9mE91uJU38RWrFIrEtW2u16C+OaUZHHwy6JCoVZGP0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=O0C2JX6vxS0ATRr3YAbu045OZGyXUhBxliHa5rzKj2ZisdsINLJoD3WJTsry9zzsnYiY8feoQbsXSQRUHuGEV6RDIUERO9bM56UIUbBm+pirYlMl5WWkmsuOzqZo187lNz5HW2K0GHxKfmT/AGYrap8tkuFyFUOxeJTQg03PI0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=BhgBw16W; arc=none smtp.client-ip=144.6.53.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G0gotNSR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8441AC4CECF;
-	Tue,  3 Dec 2024 03:53:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1733198035;
-	bh=nKvcOkAgT9eGLo+1IwUFYryCnxBo3MpKhtpqtDuNVl8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=G0gotNSRONxMRV3ybu2QdEkE9nK/sNKtOf3PG1b5012GdQHoNtospa/lqZYwD5rPe
-	 /0tDnWHQfpsN7GWoEEFAAKM0byhFfPyUaQKaj9vOvceUZuAozwS3bT9uP9DysLc4zi
-	 HsIJqXpxDmRBkW7OXeH8/mMgDWThI4MV9t0JDb2qB7e1WlgnrLeKRJZijWtZczy2RD
-	 Ex9qhn7giClb+jMZlvE7rQeRiXBF7vCs1CfAiZercJhfash4D7zdO0qweR7dQtXBIg
-	 sWGmmkuUoav3BFp0ZcuhZsxDTB5mbxyyaCU2xeQ62+Y7GxygLBJ3lCcE65BPcVkCWR
-	 GN0S8lEEHAK5Q==
-From: Namhyung Kim <namhyung@kernel.org>
-To: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Ian Rogers <irogers@google.com>,
-	Jiri Olsa <jolsa@kernel.org>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	linux-perf-users@vger.kernel.org,
-	Arnd Bergmann <arnd@arndb.de>,
-	Christian Brauner <brauner@kernel.org>,
-	x86@kernel.org,
-	linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org
-Subject: [PATCH 06/11] tools headers: Sync *xattrat syscall changes with the kernel sources
-Date: Mon,  2 Dec 2024 19:53:44 -0800
-Message-ID: <20241203035349.1901262-7-namhyung@kernel.org>
-X-Mailer: git-send-email 2.47.0.338.g60cca15819-goog
-In-Reply-To: <20241203035349.1901262-1-namhyung@kernel.org>
-References: <20241203035349.1901262-1-namhyung@kernel.org>
+	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="BhgBw16W"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
+	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=jJYA7Tj+Zo3Z3yF+IwYyaS7Puyr19q55Ek5JTHaOGp0=; b=BhgBw16Wy52oNykb/IRpz0izPA
+	UCV4vvucnJPrqSe6VYmcV3f/Nh3MruSDFwNP9KqfsjWD4DkXPzzHQKuXHeLF2v1DmDfOVauX2tC+t
+	fKuYMr0hRZG5R2Yr7dOQVvV9rSprqgUw7R3fHZ3I3Zj/Ot8RK9ZqWQvf/PK7BcIo0FdsHvdTJE9v2
+	7bsyTQclErrzwQCFxWe3Up4leN5G7+xpcm7ZnGQQg++H+RX5Jufjqg3L+8/34DfA3WYWRK9waQaws
+	/Ax86fACCYe/w1zzDsZRbf5euX/lUXIt8+YKac4jWempX5GFBtZqjrUlMMp0D+8Fc9vNSbaBPq/wD
+	t8CAIlaQ==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
+	id 1tIOcE-0038VG-3B;
+	Tue, 03 Dec 2024 16:50:44 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Tue, 03 Dec 2024 16:50:42 +0800
+Date: Tue, 3 Dec 2024 16:50:42 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: davem@davemloft.net, dengler@linux.ibm.com, linux-s390@vger.kernel.org,
+	linux-crypto@vger.kernel.org, Eric Biggers <ebiggers@kernel.org>
+Subject: Re: [PATCH v6 2/2] s390/crypto: New s390 specific protected key hash
+ phmac
+Message-ID: <Z07GYlVeohJJyLNE@gondor.apana.org.au>
+References: <20241129111059.303905-1-freude@linux.ibm.com>
+ <20241129111059.303905-3-freude@linux.ibm.com>
+ <Z0nUQQ9E32xq0SY4@gondor.apana.org.au>
+ <c86548e680a151394fa814f543103481@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c86548e680a151394fa814f543103481@linux.ibm.com>
 
-To pick up the changes in this cset:
+On Mon, Dec 02, 2024 at 06:25:22PM +0100, Harald Freudenberger wrote:
+>
+> - The attempt to derive a protected key usable by the cpacf instructions
+>   depends of the raw key material used. For 'clear key' material the
+>   derivation process is a simple instruction which can't fail.
+>   A more preferred way however is to use 'secure key' material which
+>   is transferred to a crypto card and then re-wrapped to be usable
+>   with cpacf instructions. This requires communication with a crypto
+>   card and thus may fail - because there is no card at all or there
+>   is temporarily no card available or the card is in bad state. If there
+>   is no usable card the AP bus returns -EBUSY at the pkey_key2protkey()
+>   function and triggers an asynchronous bus scan. As long as this scan
+>   is running (usually about 100ms or so) the -EBUSY is returned to indicate
+>   that the caller should retry "later". Other states are covered with
+>   other return codes like ENODEV or EIO and the caller is not supposed
+>   to loop but should fail. When there is no accessible hardware available
+>   to derive a protected key either the user or the admin broke something
+>   or something went really the bad way and then there is no help but the
+>   storage device must fail.
 
-  6140be90ec70c39f ("fs/xattr: add *at family syscalls")
+Thanks for the explanation.  I think it's fair enough to fail an
+op if the hardware is absent or broken.
 
-This addresses these perf build warnings:
+So all I need is for you to turn the BUSY case into a delayed retry
+and I think that should be good enough.
 
-  Warning: Kernel ABI header differences:
-    diff -u tools/include/uapi/asm-generic/unistd.h include/uapi/asm-generic/unistd.h
-    diff -u tools/perf/arch/x86/entry/syscalls/syscall_32.tbl arch/x86/entry/syscalls/syscall_32.tbl
-    diff -u tools/perf/arch/x86/entry/syscalls/syscall_64.tbl arch/x86/entry/syscalls/syscall_64.tbl
-    diff -u tools/perf/arch/powerpc/entry/syscalls/syscall.tbl arch/powerpc/kernel/syscalls/syscall.tbl
-    diff -u tools/perf/arch/s390/entry/syscalls/syscall.tbl arch/s390/kernel/syscalls/syscall.tbl
-    diff -u tools/perf/arch/mips/entry/syscalls/syscall_n64.tbl arch/mips/kernel/syscalls/syscall_n64.tbl
+> - Do I get you right, that a completion is ok? I always had the impression
+>   that waiting on a completion is also a sleeping act and thus not allowed?
 
-The arm64 changes are not included as it requires more changes in the
-tools.  It'll be worked for the later cycle.
+No, what I mean is that if you get an EBUSY, you should return
+-EINPROGRESS to indicate that the operation is pending, and then
+schedule a delayed work to retry the operation.  When the retry
+fails or succeeds, it should invoke the callback with the correct
+error status.
 
-Please see tools/include/uapi/README for further details.
+If the retry gets EBUSY again, then schedule another delayed
+work, or fail permanently by invoking the callback if you hit
+some sort of threshold like your existing limit of 3.
 
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Christian Brauner <brauner@kernel.org>
-CC: x86@kernel.org
-CC: linux-mips@vger.kernel.org
-CC: linuxppc-dev@lists.ozlabs.org
-CC: linux-s390@vger.kernel.org
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
----
- tools/include/uapi/asm-generic/unistd.h             | 11 ++++++++++-
- tools/perf/arch/mips/entry/syscalls/syscall_n64.tbl |  4 ++++
- tools/perf/arch/powerpc/entry/syscalls/syscall.tbl  |  4 ++++
- tools/perf/arch/s390/entry/syscalls/syscall.tbl     |  4 ++++
- tools/perf/arch/x86/entry/syscalls/syscall_32.tbl   |  4 ++++
- tools/perf/arch/x86/entry/syscalls/syscall_64.tbl   |  4 ++++
- 6 files changed, 30 insertions(+), 1 deletion(-)
-
-diff --git a/tools/include/uapi/asm-generic/unistd.h b/tools/include/uapi/asm-generic/unistd.h
-index 5bf6148cac2b93e3..88dc393c2bca38c0 100644
---- a/tools/include/uapi/asm-generic/unistd.h
-+++ b/tools/include/uapi/asm-generic/unistd.h
-@@ -841,8 +841,17 @@ __SYSCALL(__NR_lsm_list_modules, sys_lsm_list_modules)
- #define __NR_mseal 462
- __SYSCALL(__NR_mseal, sys_mseal)
- 
-+#define __NR_setxattrat 463
-+__SYSCALL(__NR_setxattrat, sys_setxattrat)
-+#define __NR_getxattrat 464
-+__SYSCALL(__NR_getxattrat, sys_getxattrat)
-+#define __NR_listxattrat 465
-+__SYSCALL(__NR_listxattrat, sys_listxattrat)
-+#define __NR_removexattrat 466
-+__SYSCALL(__NR_removexattrat, sys_removexattrat)
-+
- #undef __NR_syscalls
--#define __NR_syscalls 463
-+#define __NR_syscalls 467
- 
- /*
-  * 32 bit systems traditionally used different
-diff --git a/tools/perf/arch/mips/entry/syscalls/syscall_n64.tbl b/tools/perf/arch/mips/entry/syscalls/syscall_n64.tbl
-index 1464c6be6eb3c752..c844cd5cda620b28 100644
---- a/tools/perf/arch/mips/entry/syscalls/syscall_n64.tbl
-+++ b/tools/perf/arch/mips/entry/syscalls/syscall_n64.tbl
-@@ -377,3 +377,7 @@
- 460	n64	lsm_set_self_attr		sys_lsm_set_self_attr
- 461	n64	lsm_list_modules		sys_lsm_list_modules
- 462	n64	mseal				sys_mseal
-+463	n64	setxattrat			sys_setxattrat
-+464	n64	getxattrat			sys_getxattrat
-+465	n64	listxattrat			sys_listxattrat
-+466	n64	removexattrat			sys_removexattrat
-diff --git a/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl b/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl
-index ebae8415dfbbab6f..d8b4ab78bef076bd 100644
---- a/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl
-+++ b/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl
-@@ -553,3 +553,7 @@
- 460	common	lsm_set_self_attr		sys_lsm_set_self_attr
- 461	common	lsm_list_modules		sys_lsm_list_modules
- 462	common	mseal				sys_mseal
-+463	common	setxattrat			sys_setxattrat
-+464	common	getxattrat			sys_getxattrat
-+465	common	listxattrat			sys_listxattrat
-+466	common	removexattrat			sys_removexattrat
-diff --git a/tools/perf/arch/s390/entry/syscalls/syscall.tbl b/tools/perf/arch/s390/entry/syscalls/syscall.tbl
-index 01071182763e96ff..e9115b4d8b635b84 100644
---- a/tools/perf/arch/s390/entry/syscalls/syscall.tbl
-+++ b/tools/perf/arch/s390/entry/syscalls/syscall.tbl
-@@ -465,3 +465,7 @@
- 460  common	lsm_set_self_attr	sys_lsm_set_self_attr		sys_lsm_set_self_attr
- 461  common	lsm_list_modules	sys_lsm_list_modules		sys_lsm_list_modules
- 462  common	mseal			sys_mseal			sys_mseal
-+463  common	setxattrat		sys_setxattrat			sys_setxattrat
-+464  common	getxattrat		sys_getxattrat			sys_getxattrat
-+465  common	listxattrat		sys_listxattrat			sys_listxattrat
-+466  common	removexattrat		sys_removexattrat		sys_removexattrat
-diff --git a/tools/perf/arch/x86/entry/syscalls/syscall_32.tbl b/tools/perf/arch/x86/entry/syscalls/syscall_32.tbl
-index 534c74b14fab5117..4d0fb2fba7e208ae 100644
---- a/tools/perf/arch/x86/entry/syscalls/syscall_32.tbl
-+++ b/tools/perf/arch/x86/entry/syscalls/syscall_32.tbl
-@@ -468,3 +468,7 @@
- 460	i386	lsm_set_self_attr	sys_lsm_set_self_attr
- 461	i386	lsm_list_modules	sys_lsm_list_modules
- 462	i386	mseal 			sys_mseal
-+463	i386	setxattrat		sys_setxattrat
-+464	i386	getxattrat		sys_getxattrat
-+465	i386	listxattrat		sys_listxattrat
-+466	i386	removexattrat		sys_removexattrat
-diff --git a/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl b/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl
-index 7093ee21c0d1c041..5eb708bff1c791de 100644
---- a/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl
-+++ b/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl
-@@ -386,6 +386,10 @@
- 460	common	lsm_set_self_attr	sys_lsm_set_self_attr
- 461	common	lsm_list_modules	sys_lsm_list_modules
- 462 	common  mseal			sys_mseal
-+463	common	setxattrat		sys_setxattrat
-+464	common	getxattrat		sys_getxattrat
-+465	common	listxattrat		sys_listxattrat
-+466	common	removexattrat		sys_removexattrat
- 
- #
- # Due to a historical design error, certain syscalls are numbered differently
+Cheers,
 -- 
-2.47.0.338.g60cca15819-goog
-
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
