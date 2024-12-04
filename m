@@ -1,197 +1,199 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC99A20A5C8
-	for <linux-s390@vger.kernel.org>; Wed,  4 Dec 2024 14:39:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7552020FAA5
+	for <linux-s390@vger.kernel.org>; Wed,  4 Dec 2024 15:58:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733323177; cv=none; b=jRV8Lzobc6axraF9K7ivhL5yh66hZboi1CWsYpUUE1gPwNdO7P7+S8hUoWK4jH4Y94Q2WWALCTiJDIEnxUyHKDnKjlxkhrsUx4+94w69IdAMw2jQpfCiYVa+KWIn2ldSBeuzz2v9onUAJ98XwoALQlu24+gQ75MywOSRTecndDM=
+	t=1733327941; cv=none; b=H59atalu5czuavOYwLV3LMvcHjAEc+jqlrtGKw1lU0mmWmu9FxjRk2vB97WSosWzYb0O1zbdG+Lnujo7IVPCIHG6ixVvMkuX7CWuZZ4oN5XdP0NzvIQBRxoLsIwC7UIwjWkwiCmfefTen/tYmxirSjadmdq0d+VcYGfHl7tXEwE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733323177; c=relaxed/simple;
-	bh=7vm+GgU7IzYoJVoPQmQEkbgSGw3DdebIEtgOIlj7sr4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=enEMiVYD/JzK9vuZanw22WT+ig2w8WR2hGREwYAvmu5xyjTVgaxnZw+OmXHlNybSyhE+EVvGouCeToHIfLoCdgd0YlBs82mIvMD3tYEv8q/fkrIAwJVzIfna1BXvn3E2E7n4RZoK1jTWheu/m6fNnief6DFulJ+y8aeS0UpcoUY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=q6l0doVf; arc=none smtp.client-ip=209.85.128.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1733327941; c=relaxed/simple;
+	bh=MkIX+0Q7uVANQn1tUXSoOXDigaq3pzGNPuLxZollUPg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=S8DfQgIe+gqtoBBJiEJhdc5FBjGxQlMYaAODBHZFbNUv7Ykqwa/rOUY4BqvBRhHE9HoeoRyjvZsUYLZV0crTcihS3M46p/e2k58eFUYY/BV5Lq3bzENiUF3NevFjkb387zObMWWVy/Aa7LxjvqOiVx9vf9rujGgqwahs4jmc+3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L9iuDnc8; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="q6l0doVf"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-434a8b94fb5so6281255e9.0
-        for <linux-s390@vger.kernel.org>; Wed, 04 Dec 2024 06:39:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1733323173; x=1733927973; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=u7Deb6ozPBCd5HaUFhdz6hCVVIOvpic/u3v2HTGhW9U=;
-        b=q6l0doVfthszIGrrzjjOf+4PrPTNF2YKj8VPyhcjxIkXjY2BXcpn+1zK4No3MOd7DE
-         eA6Urr0lz9isJYDloS+E71oJYyULmvpICeKNH/pmS8GfhZI7k9DVznEWnRWELKjHDEFF
-         lGLrfp6RYfo9oFyacfthTbLHHhHshRSMmGmeyPKU4MoDCt9YGRe4sHjML9r1ypD/9dwa
-         +mfOO1wJn3P5F1dBe6J7M7MUAdNJ3zlLuF9nA+wMs5ds9+rNeIHQ65ppKteUSsWxrymP
-         5Ap3/aYcLbM7HK/E+aYtteo+fikcxVyWJOBkHUm274EhKrLNty3y430RgFNMRyJjKD4p
-         e1/g==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L9iuDnc8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1733327938;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=PKbyfYlEzsBujPEJXUvTgJm5gyk4gXBwn1S2KY6PxE0=;
+	b=L9iuDnc8SdhvbPBYy/7F5qniOwSf7SbrFE0ZBFzdXaDToPjcmlOHVFme+asyEKjWziI05T
+	T97sEsfQqNqqLcIN6wuL4Tkge7MHFIeuMMdaPsLMamlE0vCnZQPxi8YQnrNGOlTtI3RBfL
+	NHE6DcGPMHyPCy8C/9xGO6U1BDXczZY=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-128-fK-dcKD6PbGv43FZNxl-Pg-1; Wed, 04 Dec 2024 10:58:57 -0500
+X-MC-Unique: fK-dcKD6PbGv43FZNxl-Pg-1
+X-Mimecast-MFC-AGG-ID: fK-dcKD6PbGv43FZNxl-Pg
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4349c5e58a3so57079295e9.2
+        for <linux-s390@vger.kernel.org>; Wed, 04 Dec 2024 07:58:57 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733323173; x=1733927973;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=u7Deb6ozPBCd5HaUFhdz6hCVVIOvpic/u3v2HTGhW9U=;
-        b=VB8MX+IpvXSCQw2uPPbevhs8gbL7EGifeaizCJiZvHI+QCK1V6cbjFHi+T7ezTpTcP
-         ugZ1mwUx6wBr8wE+AV+dsZm968GW//bIAGUOoDIdfkqLWeXFRApcD624eBvcpjFJM69l
-         otmXG4ZJVLY/wjvHbtj5X6OKdKhkkV7W9FmU2EV8GX0/y5E6M26XnjFw8EgNPLa38aqG
-         dUhQGzGH9EhyF/Uw5jwQXePBcgmDkqM82556mILEqG0LTQVJx80ZWHcFToJnXr2SsFWV
-         ErFr1vu3bd78uW6XPtkVPYqPe0giO4oHGwQLFRNGxJW+OJFoUJ2+X5wpUSGPOUXVk6Oe
-         vVqw==
-X-Gm-Message-State: AOJu0Yw426DdAuwAH2DDgB+gtUnhZQlTahmeXMyL53vdl4N/0MlCzWIJ
-	uSWe7BHNhxPpcfv/jDF5VZhPjw5FisWg8iW+KISVYzSvpnsbrKvc0Wrdd60t3j8=
-X-Gm-Gg: ASbGncuAyF4V68oJmMvvKB7E6l1IaA2bKIVVv0MIaae0z5rvYeYhrGIh8Zff1cNJ4Np
-	PfePtIkqEwaRYG1lSc21s7C8/wDhyPVQ8uND1QqPQFHzbIB+l/Trh2t/jPIeMykElgc9vJLM+NY
-	hbj5NHIdpcFytdrf3i3a6kH7KjrP/F10/5MDMIZVodQbG+F1tyNueg6/17D/RPd1c5FY65I+EKX
-	goYestRnbKk6wYV54nALR7LvE4WYUjN0VWkCZvmhlX/3CzjBY/Jdow=
-X-Google-Smtp-Source: AGHT+IFgNAhlHmTZM9dIRgErvl8+0lGzD3UNMNEnIcEA1d5Rnbb0Ap2o8TKx3zX6wtjKyR3FwkoocA==
-X-Received: by 2002:a05:600c:198e:b0:434:9cf6:a2a5 with SMTP id 5b1f17b1804b1-434afb9ecc7mr229792735e9.8.1733323173202;
-        Wed, 04 Dec 2024 06:39:33 -0800 (PST)
-Received: from localhost ([196.207.164.177])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-434d528ab4esm26074105e9.26.2024.12.04.06.39.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Dec 2024 06:39:32 -0800 (PST)
-Date: Wed, 4 Dec 2024 17:39:29 +0300
-From: Dan Carpenter <dan.carpenter@linaro.org>
-To: Naresh Kamboju <naresh.kamboju@linaro.org>,
-	David Laight <David.Laight@aculab.com>
-Cc: linux-s390@vger.kernel.org, clang-built-linux <llvm@lists.linux.dev>,
-	linux-block <linux-block@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>,
-	lkft-triage@lists.linaro.org,
-	Linux Regressions <regressions@lists.linux.dev>,
-	Anders Roxell <anders.roxell@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Nathan Chancellor <nathan@kernel.org>, Jens Axboe <axboe@kernel.dk>
-Subject: Re: s390: block/blk-iocost.c:1101:11: error: call to
- '__compiletime_assert_557' declared with 'error' attribute: clamp() low
- limit 1 greater than high limit active
-Message-ID: <5ffa868f-cbf0-42ae-ae10-5c39b0de05e7@stanley.mountain>
-References: <CA+G9fYsD7mw13wredcZn0L-KBA3yeoVSTuxnss-AEWMN3ha0cA@mail.gmail.com>
+        d=1e100.net; s=20230601; t=1733327936; x=1733932736;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=PKbyfYlEzsBujPEJXUvTgJm5gyk4gXBwn1S2KY6PxE0=;
+        b=A58yTy4Qq13tmvdwAwlxah2uggWDwrePn62FA8dXbZh8f2F1xPF+PKCKeAM6GZWEb3
+         5OH/y1I9tEQ1CCMOTMBhQKyBfLJo3ELkoaM8xa4INKFllItPdZLYFxQcH+gCHX5z03PK
+         D8jpal+bQfcX4RtUt2NL2sv+DxRuKUXY4UAORw1gE/aXhRDF7T249JW0hqG9RJndjF2h
+         4FubJ6cz7DZ6vcCNQPtRpKDpyqXQTP7uyNrXFcPwSPdsABLYIhuoTIqRQcqqji+4sVOo
+         WbHvdgFEXd6Aii0hwY19DMa/GwD5YWfWtIqP4ZRm6B+DbFa3Spxg5wrgW4XCEbuPm2Mh
+         bDQw==
+X-Forwarded-Encrypted: i=1; AJvYcCXRd5ycmvmcvGb+c7FQbsklxj7M+PPWvqa2n9+en56d6W/MF/TxYU5PLoS8NiEaRdohWxtxLuPdSjGF@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz5v7yqTEVRnujEyAVXFV3mhHmfUNJqYXEhk9oYK3JBFnYLxBPO
+	YImJuaJZBbVWUHjPipHXCP14AhBmbcfDaUZlWCVxqNkQg47mGS1jx4hWVtHgJJIcxHYVH8HXf6U
+	Yqx2z1gzmnlkCCI5s44xgOnT+mIWyVenB17HU6Fqbuv5g9RWjxMW9aOqjVms=
+X-Gm-Gg: ASbGncuZAuXvBPeUhfjDfzFhwMBP6dQrUgvyfBowmt2HlE1EGiotMyRQz4sdoOQLhi9
+	xxBj64ysAiH3FAMnt5Dxxnb3XklzXqlzO1CnroIrRJrgoYHExCpqfujWWictymWyUDi2CrA5Kp5
+	q2o3Zb2XtqtHdwwgTuPNcrABvJn89NnoKW6DsFUiW0JdScNyvoBtWlCbae5PhbCsKMv259eW1Pw
+	+tIJjxKDYBoh1cWH9D3J2QI5ysQqDlFA7hacpCYOufIMP08IVrKRQljgRWnPFgpwFWKqCpJ8CB+
+	4la0eZycLeNuVWQPp0U0PbzWxp0qvs1hsx3UG8R79OUViU8sl8jhbMmusrsy3nAeu8yse+E4fbb
+	L1w==
+X-Received: by 2002:a5d:6d0a:0:b0:385:df87:28de with SMTP id ffacd0b85a97d-385fd433607mr5947955f8f.56.1733327936068;
+        Wed, 04 Dec 2024 07:58:56 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFdOQUBULKzvFzkHWqPRGxc1LuUQ7T34ds9Ipq4JMMTeGrEwEobbTL5YAOMuZklHAw/mSdAhw==
+X-Received: by 2002:a5d:6d0a:0:b0:385:df87:28de with SMTP id ffacd0b85a97d-385fd433607mr5947932f8f.56.1733327935659;
+        Wed, 04 Dec 2024 07:58:55 -0800 (PST)
+Received: from ?IPV6:2003:cb:c70b:e100:38d6:8aa1:11b0:a20a? (p200300cbc70be10038d68aa111b0a20a.dip0.t-ipconnect.de. [2003:cb:c70b:e100:38d6:8aa1:11b0:a20a])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-385faec0c9dsm6142889f8f.20.2024.12.04.07.58.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 04 Dec 2024 07:58:54 -0800 (PST)
+Message-ID: <cebb44b2-e258-43ff-80a5-6bd19c8edab8@redhat.com>
+Date: Wed, 4 Dec 2024 16:58:52 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYsD7mw13wredcZn0L-KBA3yeoVSTuxnss-AEWMN3ha0cA@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: Removing page->index
+To: Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, linux-fsdevel@vger.kernel.org
+Cc: linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-s390@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>
+References: <Z09hOy-UY9KC8WMb@casper.infradead.org>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <Z09hOy-UY9KC8WMb@casper.infradead.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Let's add David to the Cc list because he's the expert on clamp().
+On 03.12.24 20:51, Matthew Wilcox wrote:
+> I've pushed out a new tree to
+> git://git.infradead.org/users/willy/pagecache.git shrunk-page
+> aka
+> http://git.infradead.org/?p=users/willy/pagecache.git;a=shortlog;h=refs/heads/shrunk-page
+> 
+> The observant will notice that it doesn't actually shrink struct page
+> yet.  However, we're getting close.  What it does do is rename
+> page->index to page->__folio_index to prevent new users of page->index
+> from showing up.
 
-regards,
-dan carpenter
+BTW, I was wondering how often we convert a page to a folio to then 
+access folio->index / folio->mapping and not actually having a folio (in 
+the future).
 
-On Wed, Dec 04, 2024 at 04:01:09PM +0530, Naresh Kamboju wrote:
-> The s390 builds failed with clang-19 with defconfig on the
-> Linux next-20241203 tag due to following build warnings / errors.
-> Build pass with gcc-13 defconfig for s390.
+I suspect this will need quite some changes to get it right, and I would 
+count that as "less obvious".
+
+Calling PageAnon() on anything mapped into user space page tables might 
+be one such case, for example.
+
 > 
-> First seen on Linux next-20241203 tag
-> GOOD: Linux next-20241128 tag
-> BAD: Linux next-20241203 tag
+> There are (I believe) three build failures in that tree:
 > 
-> List of arch and toolchains :
->   s390 defconfig with clang-19
+>   - fb_defio
+>   - fbtft
+>   - s390's gmap (and vsie?  is that the same thing?)
+
+Not completely (vsie (nested VMs) uses shadow gmap, ordinary VMs use 
+ordinary gmap) , but they are very related (-> KVM implementation on s390x).
+
+I know that Claudio is working on some changes, but not sure how that 
+would affect gmap's usage of page->index.
+
+s390x gmap is 64bit only, so we have to store stuff in 8byte. gmap page 
+tables are
+
+Maybew e could simply switch from page->index to page->private? But I 
+lost track if that will also be gone in the near future :)
+
 > 
-> s390:
->   build:
->     * clang-19-defconfig
->     * korg-clang-19-lkftconfig-lto-full
->     * korg-clang-19-lkftconfig-hardening
->     * korg-clang-19-lkftconfig-lto-thing
+> Other than that, allmodconfig builds on x86 and I'm convinced the build
+> bots will tell me about anything else I missed.
 > 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> Lorenzo is working on fb_defio and fbtft will come along for the ride
+> (it's a debug printk, so could just be deleted).
 > 
-> Build log:
-> ===========
-> block/blk-iocost.c:1101:11: error: call to '__compiletime_assert_557'
-> declared with 'error' attribute: clamp() low limit 1 greater than high
-> limit active
->  1101 |                 inuse = clamp_t(u32, inuse, 1, active);
->       |                         ^
-> include/linux/minmax.h:218:36: note: expanded from macro 'clamp_t'
->   218 | #define clamp_t(type, val, lo, hi) __careful_clamp(type, val, lo, hi)
->       |                                    ^
-> include/linux/minmax.h:195:2: note: expanded from macro '__careful_clamp'
->   195 |         __clamp_once(type, val, lo, hi, __UNIQUE_ID(v_),
-> __UNIQUE_ID(l_), __UNIQUE_ID(h_))
->       |         ^
-> include/linux/minmax.h:188:2: note: expanded from macro '__clamp_once'
->   188 |         BUILD_BUG_ON_MSG(statically_true(ulo > uhi),
->                  \
->       |         ^
-> note: (skipping 2 expansions in backtrace; use
-> -fmacro-backtrace-limit=0 to see all)
-> include/linux/compiler_types.h:530:2: note: expanded from macro
-> '_compiletime_assert'
->   530 |         __compiletime_assert(condition, msg, prefix, suffix)
->       |         ^
-> include/linux/compiler_types.h:523:4: note: expanded from macro
-> '__compiletime_assert'
->   523 |                         prefix ## suffix();
->          \
->       |                         ^
-> <scratch space>:38:1: note: expanded from here
->    38 | __compiletime_assert_557
->       | ^
-> block/blk-iocost.c:1101:11: error: call to '__compiletime_assert_557'
-> declared with 'error' attribute: clamp() low limit 1 greater than high
-> limit active
-> include/linux/minmax.h:218:36: note: expanded from macro 'clamp_t'
->   218 | #define clamp_t(type, val, lo, hi) __careful_clamp(type, val, lo, hi)
->       |                                    ^
-> include/linux/minmax.h:195:2: note: expanded from macro '__careful_clamp'
->   195 |         __clamp_once(type, val, lo, hi, __UNIQUE_ID(v_),
-> __UNIQUE_ID(l_), __UNIQUE_ID(h_))
->       |         ^
-> include/linux/minmax.h:188:2: note: expanded from macro '__clamp_once'
->   188 |         BUILD_BUG_ON_MSG(statically_true(ulo > uhi),
->                  \
->       |         ^
-> note: (skipping 2 expansions in backtrace; use
-> -fmacro-backtrace-limit=0 to see all)
-> include/linux/compiler_types.h:530:2: note: expanded from macro
-> '_compiletime_assert'
->   530 |         __compiletime_assert(condition, msg, prefix, suffix)
->       |         ^
-> include/linux/compiler_types.h:523:4: note: expanded from macro
-> '__compiletime_assert'
->   523 |                         prefix ## suffix();
->          \
->       |                         ^
-> <scratch space>:38:1: note: expanded from here
->    38 | __compiletime_assert_557
->       | ^
-> 2 errors generated.
+> s390 is complicated.  I'd really appreciate some help.
 > 
-> Links:
-> ---
-> - https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20241203/testrun/26188938/suite/build/test/clang-19-defconfig/log
-> - https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20241203/testrun/26188938/suite/build/test/clang-19-defconfig/history/
-> - https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20241203/testrun/26188938/suite/build/test/clang-19-defconfig/details/
+> The next step is to feed most of the patches through the appropriate
+> subsystems.  Some have already gone into various maintainer trees
+> (thanks!)
 > 
-> Steps to reproduce:
-> ------------
-> # tuxmake --runtime podman --target-arch s390 --toolchain clang-19
-> --kconfig defconfig LLVM_IAS=1
 > 
-> metadata:
-> ----
->   git describe: next-20241203
->   git repo: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
->   git sha: c245a7a79602ccbee780c004c1e4abcda66aec32
->   kernel config:
-> https://storage.tuxsuite.com/public/linaro/lkft/builds/2pjAPS9UrJkbAKFHktQei7eqW4Y/config
->   build url: https://storage.tuxsuite.com/public/linaro/lkft/builds/2pjAPS9UrJkbAKFHktQei7eqW4Y/
->   toolchain: clang-19
->   config: clang-19-defconfig
->   arch: s390
-> 
-> --
-> Linaro LKFT
-> https://lkft.linaro.org
+> There are still many more steps to go after this; eliminating memcg_data
+> is closest to complete, and after that will come (in some order)
+> eliminating ->lru, ->mapping, ->refcount and ->mapcount. 
+
+Will continue working on the latter ;)
+
+-- 
+Cheers,
+
+David / dhildenb
+
