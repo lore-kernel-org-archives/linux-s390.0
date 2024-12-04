@@ -1,102 +1,84 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BBFE20B7E3
-	for <linux-s390@vger.kernel.org>; Wed,  4 Dec 2024 12:55:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF07C1CEADF;
+	Wed,  4 Dec 2024 14:02:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733316929; cv=none; b=sswPlNhYMyGcopVNfpNZYvlvpUTSQ6fbd+lwFCAxUdFW8bcWOY66Kb/Ym9RM8XfF+LVcqSqRw+yMq/x/aetKrj4SQJdw6X8KYYCqrzLVXkEWvM2V/qRh1UiPs8vC9gzVIokLUeyJSSkJC9SJJKdUJoGNKdY8n40Xs63PjA5X0sM=
+	t=1733320980; cv=none; b=u8sG5ChJ34ztIX0lCI1dbDZjr+ZpnirSm15nwiCw7R1a2Jyqiu6K6LbP8z2xOeTl2rDoXjFme7wdaQcyi7XxuYwa1sHFT7SztdgnuzdlIeArIU9Apkg7G5SSdU0C2q99fcIH8Wx5xxrIQDC5OHRHrYvZGXD5bl8+DUdiAYdF2XI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733316929; c=relaxed/simple;
-	bh=uRjaOZTjHUvybJWAv9vGsJi33hCxx6hpGz/B8OQ605Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jnTQgitynwSkECW810x4yanGuXvCsnsqF8DY+EB2uQJI4NQHoUILURu54nMCDkegLEf7TVSm4KfUT5ccK4irWpz16Dl7pV9Xe4N5H2ZLUfAS7ldUco3C1zhSZNRO4f2cxrK1x9/LSeZ942j+LQNviqXbmuuuuSbSAw2Kubcj8qI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L1MFR3wp; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1733320980; c=relaxed/simple;
+	bh=y0oAHHEAf/jLUw+oPniy2chA+dzwlDRLzGB7DxkGF4c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WShepuYQw7tWdVYX/LlfAVksFNVxLiOqfXx2qQY+lydX6737nQkgpcsNDeFII23WD1ku1HLctQBzEVgezt1PgiiacoW8qWOtY3OvVf+S2R5sgJ9WB5xzz4XMjAeu8jxqptKow/vB8blSJ6Hm8GobLG7vFVvPTYcjJTbj1if4UZ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dVie2Qfk; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L1MFR3wp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1733316926;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QMLpjiP43p31BywTFNffjh3NzCBHssnVGTYWU2BwGcs=;
-	b=L1MFR3wpxcV/woNa0Zy01CNEt6DrB3JVd7u4D56T/aeRj8PjUWj/m45fANd7oGkPqMPA8c
-	GMyYHfkRgceZSbK/QHx/4+DRbIwtJGABz3UFZtJCPauuhy3LVbqSXm6BvmmBUpR35tmrQT
-	9UD6KBowp1AdB1+hkupOSSaZcwe73H8=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-658-ywJZtv3PNbqN_5q2hXDtfA-1; Wed, 04 Dec 2024 07:55:25 -0500
-X-MC-Unique: ywJZtv3PNbqN_5q2hXDtfA-1
-X-Mimecast-MFC-AGG-ID: ywJZtv3PNbqN_5q2hXDtfA
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4349c5e58a3so55277695e9.2
-        for <linux-s390@vger.kernel.org>; Wed, 04 Dec 2024 04:55:25 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733316924; x=1733921724;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QMLpjiP43p31BywTFNffjh3NzCBHssnVGTYWU2BwGcs=;
-        b=isr88E333NlWBhkHWv0uyC9bqF0ynHcWxuj3g2DFUBJOPJhfF6AItM5rnldgv3ZevG
-         sDxVx8iH39IoQ36MDmaOkTOVZ+AlQvq72JAbS2nj5pkMK33NL4xznnnBFsqvbyMT5yTG
-         0E/tzx+yMhgWLmf5VGKsGE511XX7xEhjO8NoN3wYQzRYC1a7cy/9qYEF8euXSx6mMfZS
-         c2A3u5xsHGSM/JIAq7wSDcAxoxJlsMwRB5tMWAOPrif96f6IRpEEZ98Xyt1t8+NcEA4O
-         k289qoMGyOXrtfxLq9BhTgQq2bTVjbUZndT33JHBgWT3r9/BD2Us0jTKV3OnFU0MBVa8
-         gIVQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXi+ewTdH6EtwKRXR6lDPaNftHCtRDhy1PRhC2ksB5KihRg+IrZqK7A4uPDwcTn7BtKU/7mWViQwv+B@vger.kernel.org
-X-Gm-Message-State: AOJu0YyRE3dNLr5iAYl4s2HvUwEOxxJeT8Cw4spd3K+LcqU5aY4vQJrq
-	zVlCBQyht77O+pTQLIgSgV1txlyK8Tnna+c0Vk1nnBXwwo2l9c8Ae8k0p1CQK7JCcxKJBzydR5p
-	3fcYqBtlr0IB6hqdU9C4efxrYAVYFJ2XQz3AWJ9UBsLjvR6gzgJ0lPh6PHoc=
-X-Gm-Gg: ASbGncuFXQxyPE3H8oBxJW/PmjTAWFXQRAta31YIcSzyXTvCN21ZOE818d7UoV5Sv4m
-	cOgAm1UXYHnsJWn3Qgcjrb/ZkrmRFAyn5kRCAIVsArY5OL2Ixd+hF5frTnhkUzCe2+WK7AHebWQ
-	8xNh2iFHUQG75j0nw/nsogMQ6dhSTL08/WBxpjPOIvO+7LtwDBo11+K8h8R/LukfDVTo+ofWcr2
-	Gg2RQj0TWJ5deRF7L05HslYXEUfCc2gMM6Q26RG5nhbbWeJBNnLrMMvlQOfBlo4tmJ9Ut1KQ3Wi
-	fnX5LVDMqunetouKz2aD/ujswNmeLWZPhcU=
-X-Received: by 2002:a05:600c:1910:b0:434:a962:2aa2 with SMTP id 5b1f17b1804b1-434d0a178d4mr49286515e9.33.1733316924457;
-        Wed, 04 Dec 2024 04:55:24 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFFzA2SYKI5zve6AhLcTcIqYEQR+M/xeFfejA5VMHPdifDyO5ycBtXVIAK8EC4IQe7u0N0Ewg==
-X-Received: by 2002:a05:600c:1910:b0:434:a962:2aa2 with SMTP id 5b1f17b1804b1-434d0a178d4mr49286335e9.33.1733316924087;
-        Wed, 04 Dec 2024 04:55:24 -0800 (PST)
-Received: from localhost (p200300cbc70be10038d68aa111b0a20a.dip0.t-ipconnect.de. [2003:cb:c70b:e100:38d6:8aa1:11b0:a20a])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-434d52c0bc7sm23531055e9.35.2024.12.04.04.55.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 04 Dec 2024 04:55:22 -0800 (PST)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org,
-	linux-s390@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	kexec@lists.infradead.org,
-	David Hildenbrand <david@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Baoquan He <bhe@redhat.com>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Dave Young <dyoung@redhat.com>,
-	Thomas Huth <thuth@redhat.com>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v2 12/12] s390/kdump: virtio-mem kdump support (CONFIG_PROC_VMCORE_DEVICE_RAM)
-Date: Wed,  4 Dec 2024 13:54:43 +0100
-Message-ID: <20241204125444.1734652-13-david@redhat.com>
-X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20241204125444.1734652-1-david@redhat.com>
-References: <20241204125444.1734652-1-david@redhat.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dVie2Qfk"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B480N9t005582;
+	Wed, 4 Dec 2024 14:02:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=kc+cLkePYKI1a0U9UKKEWLLtvUq4zsoHCKdEMA4A0
+	r4=; b=dVie2Qfk6MeL5ZJx9WHYQ/hkZJ+5jpHKQUbqaTwXi7pK3c2SdkY1GjFHh
+	geodkw/oOdQgDLqlp9cHHfV3pdthrc/7L4s1SL1CnK7hSyIvrLCl0IRcSX7i1pq+
+	09M7th65LYiMWKhOm2Xizv3rtbiIIwx00OQ0kzg58Qyo+7NtmJOKO2pkn4Kc38OH
+	2wGS+q9k6iDHarkP7z6dKlLrMwdPwWaO9TG5LrX7gN8Za1GbhGCA4GV17cVg63Sb
+	wrDoLHj8IZav77h7ddFGQA87sqmWvVTCdmjY8nOK20gGoh6yJc/k6FIZaC9UiM+H
+	M68UHB0ZvYw0vmmiGoArmuX1jAbtA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 437te98xd2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 04 Dec 2024 14:02:36 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4B4DxFAF009627;
+	Wed, 4 Dec 2024 14:02:35 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 437te98xcx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 04 Dec 2024 14:02:35 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B4APEX7007467;
+	Wed, 4 Dec 2024 14:02:34 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 438f8jn0xv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 04 Dec 2024 14:02:34 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B4E2Vgn21234168
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 4 Dec 2024 14:02:31 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 401C02004B;
+	Wed,  4 Dec 2024 14:02:31 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 28BF320040;
+	Wed,  4 Dec 2024 14:02:31 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed,  4 Dec 2024 14:02:31 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
+	id BA37DE0788; Wed, 04 Dec 2024 15:02:30 +0100 (CET)
+From: Alexandra Winter <wintera@linux.ibm.com>
+To: Rahul Rameshbabu <rrameshbabu@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>, Tariq Toukan <tariqt@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>, David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: Nils Hoppmann <niho@linux.ibm.com>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Simon Horman <horms@kernel.org>
+Subject: [PATCH net-next] net/mlx5e: Transmit small messages in linear skb
+Date: Wed,  4 Dec 2024 15:02:30 +0100
+Message-ID: <20241204140230.23858-1-wintera@linux.ibm.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -104,95 +86,119 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 49W39RiHlGhq9C68PtpvaJtRfl09BlnE
+X-Proofpoint-ORIG-GUID: kU1xrMSuKHv2JksqzIUyy2V3I12o5UpA
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 mlxlogscore=999 impostorscore=0 lowpriorityscore=0
+ mlxscore=0 phishscore=0 adultscore=0 clxscore=1011 spamscore=0
+ malwarescore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412040107
 
-Let's add support for including virtio-mem device RAM in the crash dump,
-setting NEED_PROC_VMCORE_DEVICE_RAM, and implementing
-elfcorehdr_fill_device_ram_ptload_elf64().
+Linearize the skb if the device uses IOMMU and the data buffer can fit
+into one page. So messages can be transferred in one transfer to the card
+instead of two.
 
-To avoid code duplication, factor out the code to fill a PT_LOAD entry.
+Performance issue:
+------------------
+Since commit 472c2e07eef0 ("tcp: add one skb cache for tx")
+tcp skbs are always non-linear. Especially on platforms with IOMMU,
+mapping and unmapping two pages instead of one per transfer can make a
+noticeable difference. On s390 we saw a 13% degradation in throughput,
+when running uperf with a request-response pattern with 1k payload and
+250 connections parallel. See [0] for a discussion.
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
+This patch mitigates these effects using a work-around in the mlx5 driver.
+
+Notes on implementation:
+------------------------
+TCP skbs never contain any tailroom, so skb_linearize() will allocate a
+new data buffer.
+No need to handle rc of skb_linearize(). If it fails, we continue with the
+unchanged skb.
+
+As mentioned in the discussion, an alternative, but more invasive approach
+would be: premapping a coherent piece of memory in which you can copy
+small skbs.
+
+Measurement results:
+--------------------
+We see an improvement in throughput of up to 16% compared to kernel v6.12.
+We measured throughput and CPU consumption of uperf benchmarks with
+ConnectX-6 cards on s390 architecture and compared results of kernel v6.12
+with and without this patch.
+
++------------------------------------------+
+| Transactions per Second - Deviation in % |
++-------------------+----------------------+
+| Workload          |                      |
+|  rr1c-1x1--50     |          4.75        |
+|  rr1c-1x1-250     |         14.53        |
+| rr1c-200x1000--50 |          2.22        |
+| rr1c-200x1000-250 |         12.24        |
++-------------------+----------------------+
+| Server CPU Consumption - Deviation in %  |
++-------------------+----------------------+
+| Workload          |                      |
+|  rr1c-1x1--50     |         -1.66        |
+|  rr1c-1x1-250     |        -10.00        |
+| rr1c-200x1000--50 |         -0.83        |
+| rr1c-200x1000-250 |         -8.71        |
++-------------------+----------------------+
+
+Note:
+- CPU consumption: less is better
+- Client CPU consumption is similar
+- Workload:
+  rr1c-<bytes send>x<bytes received>-<parallel connections>
+
+  Highly transactional small data sizes (rr1c-1x1)
+    This is a Request & Response (RR) test that sends a 1-byte request
+    from the client and receives a 1-byte response from the server. This
+    is the smallest possible transactional workload test and is smaller
+    than most customer workloads. This test represents the RR overhead
+    costs.
+  Highly transactional medium data sizes (rr1c-200x1000)
+    Request & Response (RR) test that sends a 200-byte request from the
+    client and receives a 1000-byte response from the server. This test
+    should be representative of a typical user's interaction with a remote
+    web site.
+
+Link: https://lore.kernel.org/netdev/20220907122505.26953-1-wintera@linux.ibm.com/#t [0]
+Suggested-by: Rahul Rameshbabu <rrameshbabu@nvidia.com>
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Co-developed-by: Nils Hoppmann <niho@linux.ibm.com>
+Signed-off-by: Nils Hoppmann <niho@linux.ibm.com>
 ---
- arch/s390/Kconfig             |  1 +
- arch/s390/kernel/crash_dump.c | 39 ++++++++++++++++++++++++++++-------
- 2 files changed, 32 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tx.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 0077969170e8..c230bad7f5cc 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -240,6 +240,7 @@ config S390
- 	select MODULES_USE_ELF_RELA
- 	select NEED_DMA_MAP_STATE	if PCI
- 	select NEED_PER_CPU_EMBED_FIRST_CHUNK
-+	select NEED_PROC_VMCORE_DEVICE_RAM if PROC_VMCORE
- 	select NEED_SG_DMA_LENGTH	if PCI
- 	select OLD_SIGACTION
- 	select OLD_SIGSUSPEND3
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index cd0c93a8fb8b..f699df2a2b11 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -508,6 +508,19 @@ static int get_mem_chunk_cnt(void)
- 	return cnt;
- }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
+index f8c7912abe0e..421ba6798ca7 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
+@@ -32,6 +32,7 @@
  
-+static void fill_ptload(Elf64_Phdr *phdr, unsigned long paddr,
-+		unsigned long vaddr, unsigned long size)
-+{
-+	phdr->p_type = PT_LOAD;
-+	phdr->p_vaddr = vaddr;
-+	phdr->p_offset = paddr;
-+	phdr->p_paddr = paddr;
-+	phdr->p_filesz = size;
-+	phdr->p_memsz = size;
-+	phdr->p_flags = PF_R | PF_W | PF_X;
-+	phdr->p_align = PAGE_SIZE;
-+}
-+
- /*
-  * Initialize ELF loads (new kernel)
-  */
-@@ -520,14 +533,8 @@ static void loads_init(Elf64_Phdr *phdr, bool os_info_has_vm)
- 	if (os_info_has_vm)
- 		old_identity_base = os_info_old_value(OS_INFO_IDENTITY_BASE);
- 	for_each_physmem_range(idx, &oldmem_type, &start, &end) {
--		phdr->p_type = PT_LOAD;
--		phdr->p_vaddr = old_identity_base + start;
--		phdr->p_offset = start;
--		phdr->p_paddr = start;
--		phdr->p_filesz = end - start;
--		phdr->p_memsz = end - start;
--		phdr->p_flags = PF_R | PF_W | PF_X;
--		phdr->p_align = PAGE_SIZE;
-+		fill_ptload(phdr, start, old_identity_base + start,
-+			    end - start);
- 		phdr++;
- 	}
- }
-@@ -537,6 +544,22 @@ static bool os_info_has_vm(void)
- 	return os_info_old_value(OS_INFO_KASLR_OFFSET);
- }
+ #include <linux/tcp.h>
+ #include <linux/if_vlan.h>
++#include <linux/iommu-dma.h>
+ #include <net/geneve.h>
+ #include <net/dsfield.h>
+ #include "en.h"
+@@ -269,6 +270,10 @@ static void mlx5e_sq_xmit_prepare(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+ {
+ 	struct mlx5e_sq_stats *stats = sq->stats;
  
-+#ifdef CONFIG_PROC_VMCORE_DEVICE_RAM
-+/*
-+ * Fill PT_LOAD for a physical memory range owned by a device and detected by
-+ * its device driver.
-+ */
-+void elfcorehdr_fill_device_ram_ptload_elf64(Elf64_Phdr *phdr,
-+		unsigned long long paddr, unsigned long long size)
-+{
-+	unsigned long old_identity_base = 0;
++	/* Don't require 2 IOMMU TLB entries, if one is sufficient */
++	if (use_dma_iommu(sq->pdev) && skb->truesize <= PAGE_SIZE)
++		skb_linearize(skb);
 +
-+	if (os_info_has_vm())
-+		old_identity_base = os_info_old_value(OS_INFO_IDENTITY_BASE);
-+	fill_ptload(phdr, paddr, old_identity_base + paddr, size);
-+}
-+#endif
-+
- /*
-  * Prepare PT_LOAD type program header for kernel image region
-  */
+ 	if (skb_is_gso(skb)) {
+ 		int hopbyhop;
+ 		u16 ihs = mlx5e_tx_get_gso_ihs(sq, skb, &hopbyhop);
 -- 
-2.47.1
+2.45.2
 
