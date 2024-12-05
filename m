@@ -1,141 +1,184 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44C32222584;
-	Thu,  5 Dec 2024 16:00:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9792E218AD3;
+	Thu,  5 Dec 2024 17:07:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733414433; cv=none; b=NwNehCWWs+umfJzCfKm9zbTDYvMKqWb0SS0PxrnWL7pYkVJ+TXRHXGknb8Jn93LqlSbG+AbJxBrqkNQo5OYZpOv5Z79RX5A0B9wOEWbcwXYaf/tXdQVkDMRy6x7k9/u3RGXbGB+9uXg8evRnKPTbbAa7ZNxGuw0WeEK8eUGYwNE=
+	t=1733418459; cv=none; b=Nz84DRxOJW4YD7jnMtRxOQtOD+904nsnJ44P/oHIMi2vkFzY8rYC5aCPeJk4lLqEA6UhJRviIZuriv1icM9SPDosifyNQUGL6jDfrolZ213e1Zb+kWRQLuBkPGjiwrAQ//ONIAuo89GfDfur2lrXQpwNp1saOXWeDffdAs4oevE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733414433; c=relaxed/simple;
-	bh=Y3BC4etPPl/b4w9eUGX/QBIjVLYvrkp6s24ROrPuWho=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kDVt6pxDCaUQmepyLbPFqZayPwbU7hI0tUG9ZDFwpLhmD4VNExc03vR4WDOps+wEljR90pzgc1XDN+5jgzU4Hm5IBE0UiZOqTCGzx/iTpTxvivRDt9Jr+xAKziMjEN0q8sej/ODyqg1aWckTOpKYgv9Z8K7qz2/hUEBI4/s+74g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZvknxtmE; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1733418459; c=relaxed/simple;
+	bh=E3N88pgbfcFNczdyyZIDRWIEzyj/imMXLOtvtzzfj5I=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=V4D83OiebWhcZlPQ6sSVxKRc1nFuzPv4ZezwCHPvMEFqXIFYUcsk7UrK0RIjPtKRhYvrxO0KlNiYHMq1a792QUUi5sBBDZPwtrOEN29rbUF5jqInDUVDpGu9gdxvWl/Tb0zzAOIQHYsj2DJYS0KPY+fRFABMr9T+7z0cq4X7yJk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=gMg9obWh; arc=none smtp.client-ip=159.69.126.157
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZvknxtmE"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B5FiQOO030884;
-	Thu, 5 Dec 2024 16:00:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=jD/Em2Ai3/jlpSYYChWHqflvo706SNuYTQqdF1rgf
-	tg=; b=ZvknxtmEHJK7kbguRwi6TjoI5LXbfKEWpYH9RWj8ZpzXQegOB3nuftVz9
-	RQqZcg4eZ2JyiJklmWzrjl49JwDyUU7+/7KcjpKkRWTbLcOANuEl90ILbeGUzvxL
-	Ay0Ymx/+HuiEGxtZAqNN+uLLrzFw59dgmeHa3m/UCi6IPedZzxaGgtENijjzEWr1
-	sG4+mqnOXQnkjijFUF2SpHEECyJaAA+005heZMZaBCbvnrzFqX7C/NoBHWToJcJ+
-	I50gJ75O3g/AAjvaKHAwLLp5XmW8lzbQlpalCIqREC1fXnjkr+ZkJfE9Rxo1izK4
-	sWhIAfd5cXaFccOzlIQQNeUD9MdKw==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43b6hb2wu9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Dec 2024 16:00:27 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B5FWIqm006819;
-	Thu, 5 Dec 2024 16:00:26 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 438f8jtej2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Dec 2024 16:00:26 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B5G0NL718546992
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 5 Dec 2024 16:00:23 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 257C520040;
-	Thu,  5 Dec 2024 16:00:23 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B968920043;
-	Thu,  5 Dec 2024 16:00:22 +0000 (GMT)
-Received: from li-1de7cd4c-3205-11b2-a85c-d27f97db1fe1.ibm.com.com (unknown [9.179.10.218])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  5 Dec 2024 16:00:22 +0000 (GMT)
-From: Marc Hartmayer <mhartmay@linux.ibm.com>
-To: <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>
-Cc: <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH] s390x: Support newer version of genprotimg
-Date: Thu,  5 Dec 2024 17:00:11 +0100
-Message-ID: <20241205160011.100609-1-mhartmay@linux.ibm.com>
-X-Mailer: git-send-email 2.47.1
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="gMg9obWh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
+	s=mail; t=1733418454;
+	bh=E3N88pgbfcFNczdyyZIDRWIEzyj/imMXLOtvtzzfj5I=;
+	h=From:Date:Subject:To:Cc:From;
+	b=gMg9obWhZy2Hze5qDX2TxRvmJ3ZO2py+NRt8sMvfLrUksupPw/mWexk22inDUtNcW
+	 Dd/3O2Riue6i/GbcqdilnilBEYvUnP6OMj/R4aBjY/sK+7o+Y9hdbODZF0Eo5sQZGe
+	 MYHmXb0gkzIiQLrItT8E8KpiQ7W2LB2mgaJEq4vo=
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
+Date: Thu, 05 Dec 2024 18:07:31 +0100
+Subject: [PATCH] sysfs: constify macro BIN_ATTRIBUTE_GROUPS()
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3bV3g36pHsuvoc_6hfXyEo_uXePSOVgR
-X-Proofpoint-GUID: 3bV3g36pHsuvoc_6hfXyEo_uXePSOVgR
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- adultscore=0 suspectscore=0 mlxlogscore=999 clxscore=1011 impostorscore=0
- malwarescore=0 bulkscore=0 lowpriorityscore=0 spamscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2412050116
+Message-Id: <20241205-sysfs-const-bin_attr-groups_macro-v1-1-ac5e855031e8@weissschuh.net>
+X-B4-Tracking: v=1; b=H4sIANLdUWcC/x3NQQ6CMBBA0auQWTtJqVLEqxhDapniLGjJTDUaw
+ t1tWL7N/xsoCZPCrdlA6MPKOVW0pwbCy6eZkKdqsMZeWms61J9GxZCTFnxyGn0pgrPk96rj4oN
+ kdNF5d566fjBXqJ1VKPL3eNwf+/4HPRR1D3MAAAA=
+X-Change-ID: 20241205-sysfs-const-bin_attr-groups_macro-6f6a63d57908
+To: Vineeth Vijayan <vneethv@linux.ibm.com>, 
+ Peter Oberparleiter <oberpar@linux.ibm.com>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1733418454; l=4906;
+ i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
+ bh=E3N88pgbfcFNczdyyZIDRWIEzyj/imMXLOtvtzzfj5I=;
+ b=v+ul19CBklTVDUy3JIyuDMl11glqTGxgWy0d6lIV29RyMzkcHe1OYz5oi1wy8knh7oEYiFW1x
+ 8ER6gtOEbQJALaVzaJ+kHsD+0MZGyd0So2PBAYZc0/smZD2gWU2IDId
+X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
+ pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
-Since s390-tools commit f4cf4ae6ebb1 ("rust: Add a new tool called 'pvimg'") the
-genprotimg command checks if a given image/kernel is a s390x Linux kernel, and
-it does no longer overwrite the output file by default. Disable the component
-check, since a KUT test is being prepared, and use the '--overwrite' option to
-overwrite the output.
+As there is only one in-tree user, avoid a transition phase and switch
+that user in the same commit. As there are some interdependencies
+between the constness of the different symbols in the s390 driver,
+covert the whole driver at once.
 
-Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- s390x/Makefile | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+This is intended to be merged through the driver core tree.
+---
+ drivers/s390/cio/chp.c | 28 ++++++++++++++--------------
+ include/linux/sysfs.h  |  2 +-
+ 2 files changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 23342bd64f44..3da3bebb6775 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -197,17 +197,26 @@ $(comm-key):
- %.bin: %.elf
- 	$(OBJCOPY) -O binary  $< $@
+diff --git a/drivers/s390/cio/chp.c b/drivers/s390/cio/chp.c
+index cba2d048a96b3cb0cc79080ef4c771b0f7d5bc34..4a0b3f19bd8ef9780da6b4657fbda73171e8c22b 100644
+--- a/drivers/s390/cio/chp.c
++++ b/drivers/s390/cio/chp.c
+@@ -128,7 +128,7 @@ static int s390_vary_chpid(struct chp_id chpid, int on)
+  * Channel measurement related functions
+  */
+ static ssize_t measurement_chars_read(struct file *filp, struct kobject *kobj,
+-				      struct bin_attribute *bin_attr,
++				      const struct bin_attribute *bin_attr,
+ 				      char *buf, loff_t off, size_t count)
+ {
+ 	struct channel_path *chp;
+@@ -142,11 +142,11 @@ static ssize_t measurement_chars_read(struct file *filp, struct kobject *kobj,
+ 	return memory_read_from_buffer(buf, count, &off, &chp->cmg_chars,
+ 				       sizeof(chp->cmg_chars));
+ }
+-static BIN_ATTR_ADMIN_RO(measurement_chars, sizeof(struct cmg_chars));
++static const BIN_ATTR_ADMIN_RO(measurement_chars, sizeof(struct cmg_chars));
  
-+define test_genprotimg_opt
-+$(shell $(GENPROTIMG) --help | grep -q -- "$1" && echo yes || echo no)
-+endef
-+
-+GENPROTIMG_DEFAULT_ARGS := --no-verify
-+ifneq ($(HOST_KEY_DOCUMENT),)
- # The genprotimg arguments for the cck changed over time so we need to
- # figure out which argument to use in order to set the cck
--ifneq ($(HOST_KEY_DOCUMENT),)
--GENPROTIMG_HAS_COMM_KEY = $(shell $(GENPROTIMG) --help | grep -q -- --comm-key && echo yes)
--ifeq ($(GENPROTIMG_HAS_COMM_KEY),yes)
-+ifeq ($(call test_genprotimg_opt,--comm-key),yes)
- 	GENPROTIMG_COMM_OPTION := --comm-key
- else
- 	GENPROTIMG_COMM_OPTION := --x-comm-key
- endif
--else
--GENPROTIMG_HAS_COMM_KEY =
-+# Newer version of the genprotimg command checks if the given image/kernel is a
-+# s390x Linux kernel and it does not overwrite the output file by default.
-+# Disable the component check, since a KUT test is being prepared, and always
-+# overwrite the output.
-+ifeq ($(call test_genprotimg_opt,--overwrite),yes)
-+	GENPROTIMG_DEFAULT_ARGS += --overwrite --no-component-check
-+endif
- endif
+ static ssize_t measurement_chars_full_read(struct file *filp,
+ 					   struct kobject *kobj,
+-					   struct bin_attribute *bin_attr,
++					   const struct bin_attribute *bin_attr,
+ 					   char *buf, loff_t off, size_t count)
+ {
+ 	struct channel_path *chp = to_channelpath(kobj_to_dev(kobj));
+@@ -196,22 +196,22 @@ static ssize_t chp_measurement_copy_block(void *buf, loff_t off, size_t count,
+ }
  
- ifeq ($(CONFIG_DUMP),yes)
-@@ -221,7 +230,7 @@ endif
- $(patsubst %.parmfile,%.pv.bin,$(wildcard s390x/*.parmfile)): %.pv.bin: %.parmfile
- %.pv.bin: %.bin $(HOST_KEY_DOCUMENT) $(comm-key)
- 	$(eval parmfile_args = $(if $(filter %.parmfile,$^),--parmfile $(filter %.parmfile,$^),))
--	$(GENPROTIMG) --host-key-document $(HOST_KEY_DOCUMENT) --no-verify $(GENPROTIMG_COMM_OPTION) $(comm-key) --x-pcf $(GENPROTIMG_PCF) $(parmfile_args) --image $(filter %.bin,$^) -o $@
-+	$(GENPROTIMG) $(GENPROTIMG_DEFAULT_ARGS) --host-key-document $(HOST_KEY_DOCUMENT) $(GENPROTIMG_COMM_OPTION) $(comm-key) --x-pcf $(GENPROTIMG_PCF) $(parmfile_args) --image $(filter %.bin,$^) -o $@
+ static ssize_t measurement_read(struct file *filp, struct kobject *kobj,
+-				struct bin_attribute *bin_attr,
++				const struct bin_attribute *bin_attr,
+ 				char *buf, loff_t off, size_t count)
+ {
+ 	return chp_measurement_copy_block(buf, off, count, kobj, false);
+ }
+-static BIN_ATTR_ADMIN_RO(measurement, sizeof(struct cmg_entry));
++static const BIN_ATTR_ADMIN_RO(measurement, sizeof(struct cmg_entry));
  
- $(snippet_asmlib): $$(patsubst %.o,%.S,$$@) $(asm-offsets)
- 	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
+ static ssize_t ext_measurement_read(struct file *filp, struct kobject *kobj,
+-				    struct bin_attribute *bin_attr,
++				    const struct bin_attribute *bin_attr,
+ 				    char *buf, loff_t off, size_t count)
+ {
+ 	return chp_measurement_copy_block(buf, off, count, kobj, true);
+ }
+-static BIN_ATTR_ADMIN_RO(ext_measurement, sizeof(struct cmg_ext_entry));
++static const BIN_ATTR_ADMIN_RO(ext_measurement, sizeof(struct cmg_ext_entry));
+ 
+-static struct bin_attribute *measurement_attrs[] = {
++static const struct bin_attribute *measurement_attrs[] = {
+ 	&bin_attr_measurement_chars,
+ 	&bin_attr_measurement_chars_full,
+ 	&bin_attr_measurement,
+@@ -435,7 +435,7 @@ static ssize_t speed_bps_show(struct device *dev,
+ static DEVICE_ATTR_RO(speed_bps);
+ 
+ static ssize_t util_string_read(struct file *filp, struct kobject *kobj,
+-				struct bin_attribute *attr, char *buf,
++				const struct bin_attribute *attr, char *buf,
+ 				loff_t off, size_t count)
+ {
+ 	struct channel_path *chp = to_channelpath(kobj_to_dev(kobj));
+@@ -448,10 +448,10 @@ static ssize_t util_string_read(struct file *filp, struct kobject *kobj,
+ 
+ 	return rc;
+ }
+-static BIN_ATTR_RO(util_string,
+-		   sizeof(((struct channel_path_desc_fmt3 *)0)->util_str));
++static const BIN_ATTR_RO(util_string,
++			 sizeof(((struct channel_path_desc_fmt3 *)0)->util_str));
+ 
+-static struct bin_attribute *chp_bin_attrs[] = {
++static const struct bin_attribute *const chp_bin_attrs[] = {
+ 	&bin_attr_util_string,
+ 	NULL,
+ };
+@@ -468,9 +468,9 @@ static struct attribute *chp_attrs[] = {
+ 	&dev_attr_speed_bps.attr,
+ 	NULL,
+ };
+-static struct attribute_group chp_attr_group = {
++static const struct attribute_group chp_attr_group = {
+ 	.attrs = chp_attrs,
+-	.bin_attrs = chp_bin_attrs,
++	.bin_attrs_new = chp_bin_attrs,
+ };
+ static const struct attribute_group *chp_attr_groups[] = {
+ 	&chp_attr_group,
+diff --git a/include/linux/sysfs.h b/include/linux/sysfs.h
+index 0f2fcd244523f050c5286f19d4fe1846506f9214..b4368377fac96734a5ee98209f9532b838953f07 100644
+--- a/include/linux/sysfs.h
++++ b/include/linux/sysfs.h
+@@ -293,7 +293,7 @@ __ATTRIBUTE_GROUPS(_name)
+ 
+ #define BIN_ATTRIBUTE_GROUPS(_name)				\
+ static const struct attribute_group _name##_group = {		\
+-	.bin_attrs = _name##_attrs,				\
++	.bin_attrs_new = _name##_attrs,				\
+ };								\
+ __ATTRIBUTE_GROUPS(_name)
+ 
 
-base-commit: 0ed2cdf3c80ee803b9150898e687e77e4d6f5db2
+---
+base-commit: dabe889a826e866d71af72a890f2be07a660350c
+change-id: 20241205-sysfs-const-bin_attr-groups_macro-6f6a63d57908
+
+Best regards,
 -- 
-2.47.1
+Thomas Weißschuh <linux@weissschuh.net>
 
