@@ -1,72 +1,143 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB39D1D4340;
-	Thu,  5 Dec 2024 09:21:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 882191DF978;
+	Thu,  5 Dec 2024 10:16:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733390496; cv=none; b=rfev1Y7k4oyD3/lAeTogRhJ+wHFQThoE5YyjDVYzVQfTyvMGZQDPBRv8n3jZdvOpTVT9ImBXjvlTL6D3roW4iEkBrsc8IPQvPrQdJgmw98x0dyqO/1THlzCOELkjVLNVUjzvThfbTILJp9AncOGnvei5N5tmVJLOSCfsp3Au3FI=
+	t=1733393800; cv=none; b=SFeg1u2V/N4fnk3lL/4LW95YmSEwOQgYLHlxrNNzET+XY9TcKx28ozsz80Qizm7pcUrqqRFxReR90PhCI28Mda9HtZrCuWa3i3gx8vPQuKeTGx8V/Ps8pRE4mYqUbUx4+qpDsJDZU4N0x0+489GKUsQgrWck0ecZZukJtFXrXFY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733390496; c=relaxed/simple;
-	bh=0NtFK3oCzvBSihoOheuwFu9KzJvVPyvwejVb22YMDX8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VS0XelSj88p/W3qjWuam62Ds/D/TqFKBHWR4EN/2af2Y+uh6xt6IxBcu6xz7z9uS1rG9l16PN67aTaLB0NYE/C6eKtTcHW1bkIt0OWm8s3xmvqj8wi7K1sFVF8HXY6+tu85cbn6b9YL4IygQ7UYAs2+F2P3ADs/18l3KWX5j4/U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bO+iAcht; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1733393800; c=relaxed/simple;
+	bh=wC9F39bP9E/IxiveXkv6KlGdl0rMiFxlzZqfFDmCgMI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=DkM4dsdytRYTXgkjcFeecKDDjRJgFvuNFtsxyHnG44s7RjKf6XfhIQ4vaX0BPCuz6DsBtLT4bPCfM/6/Z9MHQHsjmghnXmymbTcYSSxCf+7MYmoJ2cRgVx+ePDJFcXZrqduVMBx6bzcI3BiDSctZsazkv4GNfyE0faQ7UsWUrjs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FYMXDpju; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bO+iAcht"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2DA0C4CEDE;
-	Thu,  5 Dec 2024 09:21:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1733390495;
-	bh=0NtFK3oCzvBSihoOheuwFu9KzJvVPyvwejVb22YMDX8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=bO+iAchtJ2xcasBhdzF+wbKSTg19ybb/JAHkdXYvclcrjO0D4X8bJ3DeLNUn2bEFa
-	 77lJpJ0g3Pajml0kav68z3LlmOMFTdeTXhAtjxYw8F+oAacKePbD0UKw9UHzIMcqev
-	 TvabFo0KBg2gviCqTfvyVJSA7M+9v5w237FTHKikw8hH5q8K4tncW5uvC4zwyHnzys
-	 BtHac/HZX0UM+Kf69TC/JMuKcpkf83Lj3DCfPhTjX05rh/Eqn77fFYUts72J6jyaa8
-	 29bEH6HxVThRRTUJK7Rj24nbhs18WAgJ6WPlYn9cXFCYWYTBplwHLHRuLnes8eWfid
-	 QmTznu7igjaEA==
-Date: Thu, 5 Dec 2024 09:21:30 +0000
-From: Tzung-Bi Shih <tzungbi@kernel.org>
-To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Brian Norris <briannorris@chromium.org>,
-	Julius Werner <jwerner@chromium.org>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, chrome-platform@lists.linux.dev,
-	linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 5/5] scsi: arcmsr: Use BIN_ATTR_ADMIN_WO() for
- bin_attribute definitions
-Message-ID: <Z1FwmmFEDKeEgNRO@google.com>
-References: <20241202-sysfs-const-bin_attr-admin_wo-v1-0-f489116210bf@weissschuh.net>
- <20241202-sysfs-const-bin_attr-admin_wo-v1-5-f489116210bf@weissschuh.net>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FYMXDpju"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B560M2G030933;
+	Thu, 5 Dec 2024 10:16:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=QKs+Qn
+	LHuxwEtIzM5BEVHWjYZXhC7adgsN4wg51HcZI=; b=FYMXDpjuh/PUor4fHDn9MS
+	3BWAMapSaWRz07jbNEsrlvJzDxAgYCwzM4D5iy9XbVkXORiQBgy/r4gSxEz5aUzD
+	aSGeGdxaT3vBHb7egVZWFNWswzNskbmb3hL/yZ72uEWRZGtQkw0StlD6TjYynQlB
+	ig7EfjS5Ue80Rbwsg4aCnUhkUoQGP6nFXyOAzVRqg5r7CQbx8cQXKwJkJw9HqcRL
+	7hKEAmNuzgRDS0LGJ3fdBgicebLHi7Kp59r00hRJvnlUOF/jQurrYRiqvHjiL8QB
+	iO3zcHAurjKN0VcrkbtjRyPi3D6JkfnQxKYZR3U9FVw6JRNgfXS1Rzx+JtmtrEEw
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43b6hb15xe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Dec 2024 10:16:33 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4B5A4oFF017632;
+	Thu, 5 Dec 2024 10:16:32 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43b6hb15x8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Dec 2024 10:16:32 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B59fe5D005226;
+	Thu, 5 Dec 2024 10:16:31 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43a2kxr2g8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Dec 2024 10:16:31 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B5AGVkd15860244
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 5 Dec 2024 10:16:31 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1D6A458063;
+	Thu,  5 Dec 2024 10:16:31 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B14005806B;
+	Thu,  5 Dec 2024 10:16:28 +0000 (GMT)
+Received: from [9.152.224.33] (unknown [9.152.224.33])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  5 Dec 2024 10:16:28 +0000 (GMT)
+Message-ID: <894d640f-d9f6-4851-adb8-779ff3678440@linux.ibm.com>
+Date: Thu, 5 Dec 2024 11:16:27 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2 2/2] net/smc: support ipv4 mapped ipv6 addr
+ client for smc-r v2
+To: Guangguan Wang <guangguan.wang@linux.alibaba.com>, jaka@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, horms@kernel.org
+Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Dust Li <dust.li@linux.alibaba.com>
+References: <20241202125203.48821-1-guangguan.wang@linux.alibaba.com>
+ <20241202125203.48821-3-guangguan.wang@linux.alibaba.com>
+Content-Language: en-US
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <20241202125203.48821-3-guangguan.wang@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20241202-sysfs-const-bin_attr-admin_wo-v1-5-f489116210bf@weissschuh.net>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: cS0wI3rwYu2q3GSM4Hzi_SBuKA_9w6HV
+X-Proofpoint-GUID: BYDpJsiIgdIGgbkJiXMYvyxooeArGL7v
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ adultscore=0 suspectscore=0 mlxlogscore=843 clxscore=1015 impostorscore=0
+ malwarescore=0 bulkscore=0 lowpriorityscore=0 spamscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412050070
 
-On Mon, Dec 02, 2024 at 08:00:40PM +0100, Thomas Wei�schuh wrote:
-> Using the macro saves some lines of code and prepares the attributes for
-> the general constifications of struct bin_attributes.
-> 
-> While at it also constify the callback parameters.
-> 
-> Signed-off-by: Thomas Wei�schuh <linux@weissschuh.net>
 
-Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
+
+On 02.12.24 13:52, Guangguan Wang wrote:
+> AF_INET6 is not supported for smc-r v2 client before, event if the
+%s/event/even/g
+
+> ipv6 addr is ipv4 mapped. Thus, when using AF_INET6, smc-r connection
+> will fallback to tcp, especially for java applications running smc-r.
+> This patch support ipv4 mapped ipv6 addr client for smc-r v2. Clients
+> using real global ipv6 addr is still not supported yet.
+> 
+> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+> Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+> Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+> Reviewed-by: D. Wythe <alibuda@linux.alibaba.com>
+> ---
+>   net/smc/af_smc.c | 5 +++++
+>   1 file changed, 5 insertions(+)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 9d76e902fd77..5b13dd759766 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -1116,7 +1116,12 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
+>   	ini->check_smcrv2 = true;
+>   	ini->smcrv2.saddr = smc->clcsock->sk->sk_rcv_saddr;
+>   	if (!(ini->smcr_version & SMC_V2) ||
+> +#if IS_ENABLED(CONFIG_IPV6)
+> +	    (smc->clcsock->sk->sk_family != AF_INET &&
+> +	     !ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)) ||
+I think here you want to say !(smc->clcsock->sk->sk_family == AF_INET && 
+ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)), right? If it 
+is, the negativ form of the logical operation (a&&b) is (!a)||(!b), i.e. 
+here should be:
+（smc->clcsock->sk->sk_family != AF_INET）|| 
+（!ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)）
+
+> +#else
+>   	    smc->clcsock->sk->sk_family != AF_INET ||
+> +#endif
+>   	    !smc_clc_ueid_count() ||
+>   	    smc_find_rdma_device(smc, ini))
+>   		ini->smcr_version &= ~SMC_V2;
+
