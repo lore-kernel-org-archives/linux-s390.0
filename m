@@ -1,55 +1,113 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA19479DC;
-	Thu,  5 Dec 2024 02:39:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9DC05028C;
+	Thu,  5 Dec 2024 07:27:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733366387; cv=none; b=J814cskCJ+W7BHN2ayIdHGdR7YWF72uKRSgNOVUnP9KQnMQnHs8b24OL3/WL1ntBEvomaofi3YSfsVH38WN+NSW27IAmaX0ieYl/es6vYZtthnrOtA6ozHHTG/UcYoZsdyTNGXAi1UGPNapfUhw/mJFVwB+C0Jp/rbS3/escINM=
+	t=1733383641; cv=none; b=DP5TAhqruspvjyiQbXXsKGWjKF6FFIjkJ6bJ4v+cFEYzaPJPBPdVvkSniR8/56FQVum6JFdM6v546f3ygce/ogaWtYUbORwbyLcy4hgp+3SmeV/rh6gHzQH+K/GDCtNI/3ylfQ7sgbNF8puAyP00Dhl4Qu/PVer7aWP2EeONmUM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733366387; c=relaxed/simple;
-	bh=wCifLBtiH7uvFAQWr12TxflDBT7QOSS+B+BSxKTDQL8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Xg7SzWCNC0ZjmRFj3Wzu8aUu3/IQDS3xsj0BZp+yNWAOFHcbNRRB3upmPLO4jc+CsVzOBvQdCMoAZzBpOsXy5ei0DWFyoPHCefbM12qdzV48RbQcz2tw1AmnXQx4PRne9/5YbjYnzBHvRTMkmNw/LDqN48z4Vu2DcC3ZniVwY0k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FRSCqx5h; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1733383641; c=relaxed/simple;
+	bh=TjmcgDp9KFitTQb0NHqg3c27lZHbkp5In9e/mJ+vCMg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=KJdIkux8FMUl4VlvMeJMMHfGqgXhNj+dGbSCC6uRYTmQtuJcphhanLRAo2/u3OYea85+o0xFPV9HockOfAzv9jIG1qGTgKfCRlUyvPq3yMzRKuTRrjje8EKz6OiaJBD5p1VqcFKjr3d39BjJ+9FhpX5Z7mqbJGpKwnuapvPopJk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KhOo0obg; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FRSCqx5h"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B602FC4CECD;
-	Thu,  5 Dec 2024 02:39:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1733366387;
-	bh=wCifLBtiH7uvFAQWr12TxflDBT7QOSS+B+BSxKTDQL8=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=FRSCqx5hYhpH0pq/x+TwSCFqfC35fzNpfOEVfSNPIZHsGUfLg8wjR8InKYQivg4GJ
-	 LZ2vrU2Vj85RczH96Z+5mphyawpcichvMb8iuecSr0b6zbxjzHm9EwZ7S16I6aR5qO
-	 W/qx+/w0ibBL6kD1fJ9i6bSLe60OQ4xlD3jz3BPLTyqyEhcyjoGePKNfkXrGvyf1oB
-	 LcjvG7MEdxuhBfmIkRfjpMTB0RlijFZqwr2PE4fjCm+wVV+pDsZCTZDJmQ+v/gzRy6
-	 0uVFTeRKEron3C9qvtQUyJT/EvRL1eP68AYP9VTNrHQbgWGMU2wLRxF0Na0BrdQCnP
-	 M1skWTIQ+apBA==
-Date: Wed, 4 Dec 2024 18:39:45 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc: Guangguan Wang <guangguan.wang@linux.alibaba.com>,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
- pabeni@redhat.com, horms@kernel.org, linux-rdma@vger.kernel.org,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next v2 0/2] net/smc: Two features for smc-r
-Message-ID: <20241204183945.47759ac5@kernel.org>
-In-Reply-To: <20241202125203.48821-1-guangguan.wang@linux.alibaba.com>
-References: <20241202125203.48821-1-guangguan.wang@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KhOo0obg"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B510NAA010702;
+	Thu, 5 Dec 2024 07:27:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=NFrIAp
+	QEAFs/nBrx48aIshjgRWcHcvvRKe3JlV2Z3dw=; b=KhOo0obg17FvCASIwEuozs
+	oWueRDnc9ZD1AOHeIlX+ZJdZ0HfZXtIx2XnAZeT6EcBXAOCTT6u5PM1tXM9+tB1o
+	/lgOAV/NV1VP2vAzm71HtAffTp261uEHD5qWkOm42vls86DITSGF8pZHgcXmEzre
+	fuHcx9vVYHhOSB+bBSr4zsT+mjbbcMW7g+IkOHxZDNm159WYS57qbN0bNy44LpCZ
+	ckC7BD71z+ZMPO8arWcyHSwZGNKe/ttxYVXHnAID/IAWoTc1UUMclv9A3rPBp6EF
+	T3HU0gXjmq1D/O8LyEivlFrdzZXHHy+kjTOmeSb3br0g9WJdMmsXoM+xeUqKTDBw
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43b24r9a1y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Dec 2024 07:27:13 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4B57RCk9020989;
+	Thu, 5 Dec 2024 07:27:12 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43b24r9a1u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Dec 2024 07:27:12 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B545WEG007478;
+	Thu, 5 Dec 2024 07:27:11 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 438f8jrn3m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Dec 2024 07:27:11 +0000
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B57RAsZ23266016
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 5 Dec 2024 07:27:11 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9FDB558923;
+	Thu,  5 Dec 2024 07:27:10 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AB30758926;
+	Thu,  5 Dec 2024 07:27:08 +0000 (GMT)
+Received: from [9.152.224.33] (unknown [9.152.224.33])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  5 Dec 2024 07:27:08 +0000 (GMT)
+Message-ID: <4658d918-4473-4920-b49f-7c4fe34c7ccb@linux.ibm.com>
+Date: Thu, 5 Dec 2024 08:27:07 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2 0/2] net/smc: Two features for smc-r
+To: Jakub Kicinski <kuba@kernel.org>, jaka@linux.ibm.com
+Cc: Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+        pabeni@redhat.com, horms@kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20241202125203.48821-1-guangguan.wang@linux.alibaba.com>
+ <20241204183945.47759ac5@kernel.org>
+Content-Language: en-US
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <20241204183945.47759ac5@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: _uZ9YnCtAUjEF3TZY-jNVW5iC6SrPccN
+X-Proofpoint-ORIG-GUID: oV7gDylWdmaXrjleQJ1V6MhpPz5ODIL7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
+ bulkscore=0 adultscore=0 impostorscore=0 priorityscore=1501
+ lowpriorityscore=0 clxscore=1015 mlxscore=0 spamscore=0 malwarescore=0
+ mlxlogscore=582 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412050052
 
-On Mon,  2 Dec 2024 20:52:01 +0800 Guangguan Wang wrote:
-> net/smc: Two features for smc-r
 
-changes look relatively straightforward, IBM folks do you need more
-time to review?
+
+On 05.12.24 03:39, Jakub Kicinski wrote:
+> On Mon,  2 Dec 2024 20:52:01 +0800 Guangguan Wang wrote:
+>> net/smc: Two features for smc-r
+> 
+> changes look relatively straightforward, IBM folks do you need more
+> time to review?
+
+Hi Jakub,
+
+Thank you for the reminder! Yes, we still need a bit more time.
+
+Thanks,
+Wenjia
