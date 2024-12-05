@@ -1,377 +1,141 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C90CB1B0F22;
-	Thu,  5 Dec 2024 14:49:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44C32222584;
+	Thu,  5 Dec 2024 16:00:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733410142; cv=none; b=CzCSEriOFVntHxeZJGfjA+NoLudyYaQJt0jJknGxF0xQqJV3AfEggevgy/3l2HrvM/0hR4tQrirLuuwwnayFSYZV/M9h8zYEiiJpVBCw505FyRWRrKlrlDNmgFp/qQEMo+XUKgA4XmEUBUy7CSv/lskIyDsjdS1oSr0Zf6WDUBM=
+	t=1733414433; cv=none; b=NwNehCWWs+umfJzCfKm9zbTDYvMKqWb0SS0PxrnWL7pYkVJ+TXRHXGknb8Jn93LqlSbG+AbJxBrqkNQo5OYZpOv5Z79RX5A0B9wOEWbcwXYaf/tXdQVkDMRy6x7k9/u3RGXbGB+9uXg8evRnKPTbbAa7ZNxGuw0WeEK8eUGYwNE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733410142; c=relaxed/simple;
-	bh=Qv4zyOQrF9iQghhNt/KoN4bFDn5xZQIlmjYeDyZeSbA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sSYqza0DJRiiHDO9Hg0xX8t6z66N654MmbGa4nMtxgEh2fmLfgUrG0Ga0YTjrbabTTvv6V8M6kPmuxhZuQOrC0ovvjqHKdwOW8AHz7XmXMk6gNTh2X2cFsnyPm+C3O09n0A5WEbpOo3tFRxyCa2fmkReY5FjRXpg929NePFPoRM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qCXl/kdn; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1733414433; c=relaxed/simple;
+	bh=Y3BC4etPPl/b4w9eUGX/QBIjVLYvrkp6s24ROrPuWho=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kDVt6pxDCaUQmepyLbPFqZayPwbU7hI0tUG9ZDFwpLhmD4VNExc03vR4WDOps+wEljR90pzgc1XDN+5jgzU4Hm5IBE0UiZOqTCGzx/iTpTxvivRDt9Jr+xAKziMjEN0q8sej/ODyqg1aWckTOpKYgv9Z8K7qz2/hUEBI4/s+74g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZvknxtmE; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qCXl/kdn"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B5554iX014551;
-	Thu, 5 Dec 2024 14:48:43 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZvknxtmE"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B5FiQOO030884;
+	Thu, 5 Dec 2024 16:00:28 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=msSW/X
-	nJUyMrSC+OBhNgfdmUZjqQ3iW2zMsbZkiwUyY=; b=qCXl/kdnT/bYJgyyLOZEDj
-	N6RPpgS4qlkaFYdUlkxBureUo1OLs+ehA+BXRZd9vIeJ3pXLwAzUmQo9u3l8xoN/
-	+++vNUc5N9Ffz25L0kltUeC+16z/CMCDNLyuSxvgIe6TAnTdh8ufNKKvf5cTxLbf
-	4MXEBe0tjFK/N4QIYVGETNDfYiJ9ZGIqbLjsF03GxggnqcBGKJcpjQ0OuItS90kn
-	8XKecmNGwqEBimo3JqSepgDq7WYY2TgBSRO1CWM/ulZhmlvYcWm4HphxNJCMyOqr
-	wkboxSUMUp4Jp1KjFAvjmvtO1xvGZmFhuQDXfH3zzk/GpNg2CwQ4NZzYA6FF/9Mw
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 437tbxww33-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=jD/Em2Ai3/jlpSYYChWHqflvo706SNuYTQqdF1rgf
+	tg=; b=ZvknxtmEHJK7kbguRwi6TjoI5LXbfKEWpYH9RWj8ZpzXQegOB3nuftVz9
+	RQqZcg4eZ2JyiJklmWzrjl49JwDyUU7+/7KcjpKkRWTbLcOANuEl90ILbeGUzvxL
+	Ay0Ymx/+HuiEGxtZAqNN+uLLrzFw59dgmeHa3m/UCi6IPedZzxaGgtENijjzEWr1
+	sG4+mqnOXQnkjijFUF2SpHEECyJaAA+005heZMZaBCbvnrzFqX7C/NoBHWToJcJ+
+	I50gJ75O3g/AAjvaKHAwLLp5XmW8lzbQlpalCIqREC1fXnjkr+ZkJfE9Rxo1izK4
+	sWhIAfd5cXaFccOzlIQQNeUD9MdKw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43b6hb2wu9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Dec 2024 14:48:42 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4B5Emg3O016124;
-	Thu, 5 Dec 2024 14:48:42 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 437tbxww2y-1
+	Thu, 05 Dec 2024 16:00:27 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B5FWIqm006819;
+	Thu, 5 Dec 2024 16:00:26 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 438f8jtej2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Dec 2024 14:48:42 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B5C6lJI005273;
-	Thu, 5 Dec 2024 14:48:41 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 438fr1taau-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Dec 2024 14:48:41 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B5EmdTO32833804
+	Thu, 05 Dec 2024 16:00:26 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B5G0NL718546992
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 5 Dec 2024 14:48:39 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CFFBB20040;
-	Thu,  5 Dec 2024 14:48:39 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AFAC120043;
-	Thu,  5 Dec 2024 14:48:33 +0000 (GMT)
-Received: from [9.39.27.31] (unknown [9.39.27.31])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  5 Dec 2024 14:48:32 +0000 (GMT)
-Message-ID: <543d376c-85a7-4628-a38e-52bc117258a5@linux.ibm.com>
-Date: Thu, 5 Dec 2024 20:18:28 +0530
+	Thu, 5 Dec 2024 16:00:23 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 257C520040;
+	Thu,  5 Dec 2024 16:00:23 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B968920043;
+	Thu,  5 Dec 2024 16:00:22 +0000 (GMT)
+Received: from li-1de7cd4c-3205-11b2-a85c-d27f97db1fe1.ibm.com.com (unknown [9.179.10.218])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  5 Dec 2024 16:00:22 +0000 (GMT)
+From: Marc Hartmayer <mhartmay@linux.ibm.com>
+To: <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>
+Cc: <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH] s390x: Support newer version of genprotimg
+Date: Thu,  5 Dec 2024 17:00:11 +0100
+Message-ID: <20241205160011.100609-1-mhartmay@linux.ibm.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 0/2] sched/fair: introduce new scheduler group type
- group_parked
-To: Tobias Huschle <huschle@linux.ibm.com>, linux-kernel@vger.kernel.org
-Cc: mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-        rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de,
-        vschneid@redhat.com, linux-s390@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-References: <20241204112149.25872-1-huschle@linux.ibm.com>
-From: Shrikanth Hegde <sshegde@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <20241204112149.25872-1-huschle@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ZG0OQFbJ6RTCPqqlVwM6XydZ6_HYbCJ0
-X-Proofpoint-GUID: bKbILWRgrvc6pJIxTQjr7e7AJtrQ9Z7v
+X-Proofpoint-ORIG-GUID: 3bV3g36pHsuvoc_6hfXyEo_uXePSOVgR
+X-Proofpoint-GUID: 3bV3g36pHsuvoc_6hfXyEo_uXePSOVgR
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 impostorscore=0
- mlxscore=0 suspectscore=0 mlxlogscore=999 priorityscore=1501 bulkscore=0
- phishscore=0 adultscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2412050105
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ adultscore=0 suspectscore=0 mlxlogscore=999 clxscore=1011 impostorscore=0
+ malwarescore=0 bulkscore=0 lowpriorityscore=0 spamscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412050116
 
+Since s390-tools commit f4cf4ae6ebb1 ("rust: Add a new tool called 'pvimg'") the
+genprotimg command checks if a given image/kernel is a s390x Linux kernel, and
+it does no longer overwrite the output file by default. Disable the component
+check, since a KUT test is being prepared, and use the '--overwrite' option to
+overwrite the output.
 
+Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+---
+ s390x/Makefile | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-On 12/4/24 16:51, Tobias Huschle wrote:
-> Adding a new scheduler group type which allows to remove all tasks
-> from certain CPUs through load balancing can help in scenarios where
-> such CPUs are currently unfavorable to use, for example in a
-> virtualized environment.
-> 
-> Functionally, this works as intended. The question would be, if this
-> could be considered to be added and would be worth going forward
-> with. If so, which areas would need additional attention?
-> Some cases are referenced below.
-> 
-> The underlying concept and the approach of adding a new scheduler
-> group type were presented in the Sched MC of the 2024 LPC.
-> A short summary:
-
-Thanks for working on this. Yes, we had two possible implementable version.
-1. Using new group type. (this RFC)
-2. Using group_misfit and use very low CPU capacity set using thermal framework.
-Those tricky issues were discussed at plumbers.
-
-I agree using new group type simplifies from implementation perspective.
-So for the idea of using this,
-Acked-by: Shrikanth Hegde <sshegde@linux.ibm.com>
-
-> 
-> Some architectures (e.g. s390) provide virtualization on a firmware
-> level. This implies, that Linux kernels running on such architectures
-> run on virtualized CPUs.
-> 
-> Like in other virtualized environments, the CPUs are most likely shared
-> with other guests on the hardware level. This implies, that Linux
-> kernels running in such an environment may encounter 'steal time'. In
-> other words, instead of being able to use all available time on a
-> physical CPU, some of said available time is 'stolen' by other guests.
-> 
-> This can cause side effects if a guest is interrupted at an unfavorable
-> point in time or if the guest is waiting for one of its other virtual
-> CPUs to perform certain actions while those are suspended in favour of
-> another guest.
-> 
-> Architectures, like arch/s390, address this issue by providing an
-> alternative classification for the CPUs seen by the Linux kernel.
-> 
-> The following example is arch/s390 specific:
-> In the default mode (horizontal CPU polarization), all CPUs are treated
-> equally and can be subject to steal time equally.
-> In the alternate mode (vertical CPU polarization), the underlying
-> firmware hypervisor assigns the CPUs, visible to the guest, different
-> types, depending on how many CPUs the guest is entitled to use. Said
-> entitlement is configured by assigning weights to all active guests.
-> The three CPU types are:
->      - vertical high   : On these CPUs, the guest has always highest
->                          priority over other guests. This means
->                          especially that if the guest executes tasks on
->                          these CPUs, it will encounter no steal time.
->      - vertical medium : These CPUs are meant to cover fractions of
->                          entitlement.
->      - vertical low    : These CPUs will have no priority when being
->                          scheduled. This implies especially, that while
->                          all other guests are using their full
->                          entitlement, these CPUs might not be ran for a
->                          significant amount of time.
-> 
-> As a consequence, using vertical lows while the underlying hypervisor
-> experiences a high load, driven by all defined guests, is to be avoided.
-> 
-> In order to consequently move tasks off of vertical lows, introduce a
-> new type of scheduler groups: group_parked.
-> Parked implies, that processes should be evacuated as fast as possible
-> from these CPUs. This implies that other CPUs should start pulling tasks
-> immediately, while the parked CPUs should refuse to pull any tasks
-> themselves.
-> Adding a group type beyond group_overloaded achieves the expected
-> behavior. By making its selection architecture dependent, it has
-> no effect on architectures which will not make use of that group type.
-> 
-> This approach works very well for many kinds of workloads. Tasks are
-> getting migrated back and forth in line with changing the parked
-> state of the involved CPUs.
-
-Likely there could more use-cases. It is basically supposed to be a lightweight
-mechanism to remove tasks out of CPUs instead of offline. Right?
-
-> 
-> There are a couple of issues and corner cases which need further
-> considerations:
-> - no_hz:        While the scheduler tick can and should still be disabled
->                  on idle CPUs, it should not be disabled on parked CPUs
->                  which run only one task, as that task will not be
-task running on Parked CPUs itself is concern right? unless it is pinned.
-
->                  scheduled away in time. Side effects and completeness
->                  need to be further investigated. One option might be to
->                  allow dynamic changes to tick_nohz_full_mask. It is also
->                  possible to handle this in exclusively fair.c, but that
->                  seems not to be the best environment to do so.
-> - pinned tasks: If a task is pinned to CPUs which are all parked, it will
->                  get moved to other CPUs. Like during CPU hotplug, the
->                  information about the tasks initial CPU mask gets lost.
-
-Could be a warning instead saying to user or fail?
-
-> - rt & dl:      Realtime and deadline scheduling require some additional
->                  attention.
-
-Ideal would be not run RT and DL there. But in these virtualized environment there is likely a number of CPUS
-such a number of Vertical High which is always available (in PowerPC we call these as entitled CPUs) and use those
-for RT or DL calculations of admission control?
-
-> - ext:          Probably affected as well. Needs some conceptional
->                  thoughts first.
-> - idle vs parked: It could be considered whether an idle parked CPU
->                  would contribute to the count of idle CPUs. It is
->                  usually preferable to utilize idle CPUs, but parked CPUs
->                  should not be used. So a scheduler group with many idle,
->                  but parked, CPUs, should not be the target for additional
->                  workload. At this point, some more thought needs to be
->                  spent to evaluate if it would be ok to not set the idle
->                  flag on parked CPUs.
-
-I think idle_cpus shouldn't include parked CPUs.
-
-> - optimization: It is probably possible to cut some corners. In order to
->                  avoid tampering with scheduler statistics too much, the
->                  actions based on the parkedness on the CPU are not always
->                  taken on the earliest possible occasion yet.
-> - raciness:     Right now, there are no synchronization efforts. It needs
->                  to be considered whether those might be necessary or if
->                  it is alright that the parked-state of a CPU might change
->                  during load-balancing.
-
-Next load balancing will take care of this instead right? Similar to CPU capacity can
-change on its own even during load balancing. next load balancer takes care.
-
-> 
-> Patches apply to tip:sched/core
-> 
-> The s390 patch serves as a simplified implementation example.
-> 
-> Tobias Huschle (2):
->    sched/fair: introduce new scheduler group type group_parked
->    s390/topology: Add initial implementation for selection of parked CPUs
-> 
->   arch/s390/include/asm/topology.h |   3 +
->   arch/s390/kernel/topology.c      |   5 ++
->   include/linux/sched/topology.h   |  20 +++++
->   kernel/sched/core.c              |  10 ++-
->   kernel/sched/fair.c              | 122 +++++++++++++++++++++++++------
->   5 files changed, 135 insertions(+), 25 deletions(-)
-> 
-
-tl;dr; debug patch and some testing results with mpstats logs.
-
-
-So I gave it a try with using a debugfs based hint to say which CPUs are parked.
-It is a hack to try it out. patch is below so one could try something similar is their archs
-and see if it help if they have a use case.
-
-Notes:
-1. Arch shouldn't set cpu_parked for all CPUs at boot. It causes panic.
-2. Workload gets unpacked to all CPUs when changing from 40 CPUs to 80 CPUs, but
-    doesn't get packed when changing the from 80 to 40 CPUs.
-
-===================================debug patch ======================================
-
-diff --git a/arch/powerpc/include/asm/topology.h b/arch/powerpc/include/asm/topology.h
-index 16bacfe8c7a2..ae7571f86773 100644
---- a/arch/powerpc/include/asm/topology.h
-+++ b/arch/powerpc/include/asm/topology.h
-@@ -140,6 +140,9 @@ static inline int cpu_to_coregroup_id(int cpu)
-  #define topology_core_cpumask(cpu)     (per_cpu(cpu_core_map, cpu))
-  #define topology_core_id(cpu)          (cpu_to_core_id(cpu))
-  
-+#define arch_cpu_parked cpu_parked
-+int cpu_parked(int cpu);
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 23342bd64f44..3da3bebb6775 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -197,17 +197,26 @@ $(comm-key):
+ %.bin: %.elf
+ 	$(OBJCOPY) -O binary  $< $@
+ 
++define test_genprotimg_opt
++$(shell $(GENPROTIMG) --help | grep -q -- "$1" && echo yes || echo no)
++endef
 +
-  #endif
-  #endif
-  
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index 5ac7084eebc0..6715ea78388c 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -64,6 +64,7 @@
-  #include <asm/systemcfg.h>
-  
-  #include <trace/events/ipi.h>
-+#include <linux/debugfs.h>
-  
-  #ifdef DEBUG
-  #include <asm/udbg.h>
-@@ -77,6 +78,8 @@
-  static DEFINE_PER_CPU(int, cpu_state) = { 0 };
-  #endif
-  
-+static int vp_manual_hint = NR_CPUS;
-+
-  struct task_struct *secondary_current;
-  bool has_big_cores __ro_after_init;
-  bool coregroup_enabled __ro_after_init;
-@@ -1727,6 +1730,7 @@ static void __init build_sched_topology(void)
-         BUG_ON(i >= ARRAY_SIZE(powerpc_topology) - 1);
-  
-         set_sched_topology(powerpc_topology);
-+       vp_manual_hint = num_present_cpus();
-  }
-  
-  void __init smp_cpus_done(unsigned int max_cpus)
-@@ -1807,4 +1811,43 @@ void __noreturn arch_cpu_idle_dead(void)
-         start_secondary_resume();
-  }
-  
-+int cpu_parked(int cpu) {
-+       if (cpu  >= vp_manual_hint)
-+               return true;
-+
-+       return false;
-+}
-+
-+static int pv_vp_manual_hint_set(void *data, u64 val)
-+{
-+       if (val == 0 || vp_manual_hint > num_present_cpus())
-+               vp_manual_hint = num_present_cpus();
-+
-+       if (val != vp_manual_hint) {
-+               vp_manual_hint = val;
-+       }
-+       return 0;
-+}
-+
-+static int pv_vp_manual_hint_get(void *data, u64 *val)
-+{
-+       *val = vp_manual_hint;
-+       return 0;
-+}
-+
-+DEFINE_SIMPLE_ATTRIBUTE(fops_pv_vp_manual_hint, pv_vp_manual_hint_get, pv_vp_manual_hint_set, "%llu\n");
-+
-+
-+static __init int paravirt_debugfs_init(void)
-+{
-+       if (is_shared_processor()) {
-+               debugfs_create_file("vp_manual_hint", 0600, arch_debugfs_dir, NULL, &fops_pv_vp_manual_hint);
-+       }
-+
-+       return 0;
-+}
-+
-+device_initcall(paravirt_debugfs_init)
++GENPROTIMG_DEFAULT_ARGS := --no-verify
++ifneq ($(HOST_KEY_DOCUMENT),)
+ # The genprotimg arguments for the cck changed over time so we need to
+ # figure out which argument to use in order to set the cck
+-ifneq ($(HOST_KEY_DOCUMENT),)
+-GENPROTIMG_HAS_COMM_KEY = $(shell $(GENPROTIMG) --help | grep -q -- --comm-key && echo yes)
+-ifeq ($(GENPROTIMG_HAS_COMM_KEY),yes)
++ifeq ($(call test_genprotimg_opt,--comm-key),yes)
+ 	GENPROTIMG_COMM_OPTION := --comm-key
+ else
+ 	GENPROTIMG_COMM_OPTION := --x-comm-key
+ endif
+-else
+-GENPROTIMG_HAS_COMM_KEY =
++# Newer version of the genprotimg command checks if the given image/kernel is a
++# s390x Linux kernel and it does not overwrite the output file by default.
++# Disable the component check, since a KUT test is being prepared, and always
++# overwrite the output.
++ifeq ($(call test_genprotimg_opt,--overwrite),yes)
++	GENPROTIMG_DEFAULT_ARGS += --overwrite --no-component-check
++endif
+ endif
+ 
+ ifeq ($(CONFIG_DUMP),yes)
+@@ -221,7 +230,7 @@ endif
+ $(patsubst %.parmfile,%.pv.bin,$(wildcard s390x/*.parmfile)): %.pv.bin: %.parmfile
+ %.pv.bin: %.bin $(HOST_KEY_DOCUMENT) $(comm-key)
+ 	$(eval parmfile_args = $(if $(filter %.parmfile,$^),--parmfile $(filter %.parmfile,$^),))
+-	$(GENPROTIMG) --host-key-document $(HOST_KEY_DOCUMENT) --no-verify $(GENPROTIMG_COMM_OPTION) $(comm-key) --x-pcf $(GENPROTIMG_PCF) $(parmfile_args) --image $(filter %.bin,$^) -o $@
++	$(GENPROTIMG) $(GENPROTIMG_DEFAULT_ARGS) --host-key-document $(HOST_KEY_DOCUMENT) $(GENPROTIMG_COMM_OPTION) $(comm-key) --x-pcf $(GENPROTIMG_PCF) $(parmfile_args) --image $(filter %.bin,$^) -o $@
+ 
+ $(snippet_asmlib): $$(patsubst %.o,%.S,$$@) $(asm-offsets)
+ 	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
 
-========================================= test logs 80 CPUs system ================================================
+base-commit: 0ed2cdf3c80ee803b9150898e687e77e4d6f5db2
+-- 
+2.47.1
 
-set the hint as 40 and run 80 stress-ng.
-Average:      37   82.89    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00   17.11
-Average:      38   82.81    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00   17.19
-Average:      39   82.98    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00   17.02
-Average:      40    0.00    0.00    0.00    0.00    0.00    2.42    0.08    0.00    0.00   97.50
-Average:      41    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
-Average:      42    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
-
-Set the hint as 20 and run 80 stress-ng
-Average:      18   93.54    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    6.46
-Average:      19   93.54    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    6.46
-Average:      20    0.00    0.00    0.00    0.00    0.00    1.14    0.00    0.00    0.00   98.86
-Average:      21    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
-
-
-Set the hint as 40 initially and set to 80 midway.
-Average:      38   94.52    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    5.48
-Average:      39   94.53    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    5.47
-Average:      40   42.03    0.00    0.00    0.00    0.00    1.31    0.08    0.00    0.00   56.59
-Average:      41   43.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00   57.00
-
-Set the hint as 80 initially and set to 40 midway -- *not working*
-Average:      38   95.27    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    4.73
-Average:      39   95.27    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    4.73
-Average:      40   95.24    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    4.76
-Average:      41   95.25    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    4.75
