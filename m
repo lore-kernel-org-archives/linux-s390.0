@@ -1,158 +1,147 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64E281D88C4;
-	Fri,  6 Dec 2024 06:06:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B057D1CD219;
+	Fri,  6 Dec 2024 09:25:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733465217; cv=none; b=V+CVd1ZDEe1py4qaLt9QTHqM2stvr7kxjF2g7hg02TLord2BBadmpHHkHs5aT3jWThfZUr9GFd9Xl44NeYkpmn+1kD8LleTThsGHYqurfBgSE83fjmp4I9LTuCvdGGqZ9g0ULzIRCQPH+ZyQLRPRxA0OAj/we9JOj0rKHyyu/tY=
+	t=1733477122; cv=none; b=AePRJm3x55whjoCZCTo+tMoqzDHVOzXsElNKfyYjjGJeqlD5vgc7dGeu8Tt5ahksCiJOrzOkkFQM5suwNGWbrdnMz9TlviL/hGyGZ/cddLcpScQ1eNwmEHqTdR8XyuMA7ZzdwUznc+VurPs61zA9bBfT8XPd263XwaxGwQ/660w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733465217; c=relaxed/simple;
-	bh=igMVSjSbC2cinxn8o6z2KpyGdrUFwLzvIB2Y2TSdw1M=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pHGJd5xxeD+8kOKN8Opi/fkph/ZiqN7HSUXnR0i0dbkAp7gt1NvNjdSO6nlfdSJDriSBZd/pZXONdT2FUu9vDVeu4HG/HpZBT3XnYD4XbSDZsA3QIQzY7KxNPAIOg1FXh8vL6YSJMY+7KPcYH0OfSNbKyiZeINmf8OoUg4aaRug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=cJt5DVWG; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1733477122; c=relaxed/simple;
+	bh=WkxUZmi3pnNlkbYCoGcUcUNXIVcAzpOl3fQlVAgSdnQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Kc8hDBMoSszwAakeR77RaMqIJ03qJZNGFXCGPbPZ4QZTWQm4Mo2yRzgAXRvXnWpJQBoQGRK8mw6pOp1ub18uH9kShm8kq4skFau8kcbb6cKxjCmem+C4o5pfyP4pAXt+nS0Uq7KBvlN+PLWNriuOBlONYDheGYGatEo91K6XjL4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QzLceQVi; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="cJt5DVWG"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1733465209; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=CqYIBO72TbpWaL+ZYCPQ9yPK0iW4NdTNpwShIH5Vwa4=;
-	b=cJt5DVWGrndKMS9RpsR3DDAj9xZ1Jf/iDQnNZ5xQrxDGxDDmXUIj+HK1RSnlonqd2ytSaBdQqEpmQF23tAMnhbeddyng4kmc/yATYCynA7uJTLywKofYv49RHddYFdu1wSQKUN4CTUCSaK8UKmOvzYKrpG4+EnMHWhwEVFdYdQU=
-Received: from 30.221.100.83(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WKvQP5c_1733465207 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 06 Dec 2024 14:06:49 +0800
-Message-ID: <5ac2c5a7-3f12-48e5-83a9-ecd3867e6125@linux.alibaba.com>
-Date: Fri, 6 Dec 2024 14:06:46 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QzLceQVi"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B5KUr8a011023;
+	Fri, 6 Dec 2024 09:25:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=RZS6F1TKgzJqFxis0CrZzfpp//nfgL
+	kDyjeydfC6dVc=; b=QzLceQVio46n4VJnVjsTBKG7JWiYjMOnX94zbJNo9HHaEn
+	Bg6zUM+0R8TruDBeTNigXuAs+6XimhS/+fwamln9DpY91ygxV3zn3F2/FnkBU4zp
+	GhvtFgTTbYd8aWspcXdXrw6kdeOuuHIk6jEmqi7rAlU0L9+c/RXh7bfhDqwG3F54
+	UoMdAYw8c9+y2SboQkbW9jKTdcN5PnY72g9sxDz04U1KwqGUSGAyCBLUN5y+N2zg
+	9LHEf2e1VoN8JhbyWCsQxPmsF5GrrYASa+WunSCy0Af9QQ+XxDlqMA0e33aUXl52
+	g6naz0zidXpLJqZzhYpJoYAfVw5FUoh0EAkPkqBg==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43bk99jmtb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 06 Dec 2024 09:25:00 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B65J76C008622;
+	Fri, 6 Dec 2024 09:24:59 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 438f8jwwkw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 06 Dec 2024 09:24:59 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B69Ot1v10486200
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 6 Dec 2024 09:24:55 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AA7E020043;
+	Fri,  6 Dec 2024 09:24:55 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F032320040;
+	Fri,  6 Dec 2024 09:24:54 +0000 (GMT)
+Received: from osiris (unknown [9.171.17.195])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri,  6 Dec 2024 09:24:54 +0000 (GMT)
+Date: Fri, 6 Dec 2024 10:24:53 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Guillaume Morin <guillaume@morinfr.org>
+Cc: Nathan Chancellor <nathan@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Muchun Song <muchun.song@linux.dev>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Xu <peterx@redhat.com>, David Hildenbrand <david@redhat.com>,
+        Eric Hagberg <ehagberg@janestreet.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3] mm/hugetlb: support FOLL_FORCE|FOLL_WRITE
+Message-ID: <20241206092453.9026-A-hca@linux.ibm.com>
+References: <Z1EJssqd93w2erMZ@bender.morinfr.org>
+ <20241206045019.GA2215843@thelio-3990X>
+ <Z1KLLXpzrDac-oqF@bender.morinfr.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2 2/2] net/smc: support ipv4 mapped ipv6 addr
- client for smc-r v2
-To: Halil Pasic <pasic@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- Dust Li <dust.li@linux.alibaba.com>
-References: <20241202125203.48821-1-guangguan.wang@linux.alibaba.com>
- <20241202125203.48821-3-guangguan.wang@linux.alibaba.com>
- <894d640f-d9f6-4851-adb8-779ff3678440@linux.ibm.com>
- <20241205135833.0beafd61.pasic@linux.ibm.com>
-Content-Language: en-US
-From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <20241205135833.0beafd61.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Z1KLLXpzrDac-oqF@bender.morinfr.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 7EedieBvwZ570EpYYf5NVEvE0HRd2YQh
+X-Proofpoint-ORIG-GUID: 7EedieBvwZ570EpYYf5NVEvE0HRd2YQh
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ lowpriorityscore=0 bulkscore=0 adultscore=0 clxscore=1011 malwarescore=0
+ priorityscore=1501 spamscore=0 mlxlogscore=539 impostorscore=0 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412060065
 
-
-
-On 2024/12/5 20:58, Halil Pasic wrote:
-> On Thu, 5 Dec 2024 11:16:27 +0100
-> Wenjia Zhang <wenjia@linux.ibm.com> wrote:
+On Fri, Dec 06, 2024 at 06:27:09AM +0100, Guillaume Morin wrote:
+> On 05 Dec 21:50, Nathan Chancellor wrote:
+> > >  #ifdef CONFIG_PGTABLE_HAS_HUGE_LEAVES
+> > > +/* FOLL_FORCE can write to even unwritable PUDs in COW mappings. */
+> > > +static inline bool can_follow_write_pud(pud_t pud, struct page *page,
+> > > +					struct vm_area_struct *vma,
+> > > +					unsigned int flags)
+> > > +{
+> > > +	/* If the pud is writable, we can write to the page. */
+> > > +	if (pud_write(pud))
+> > > +		return true;
+> > > +
+> > > +	if (!can_follow_write_common(page, vma, flags))
+> > > +		return false;
+> > > +
+> > > +	/* ... and a write-fault isn't required for other reasons. */
+> > > +	return !vma_soft_dirty_enabled(vma) || pud_soft_dirty(pud);
+> > 
+> > This looks to be one of the first uses of pud_soft_dirty() in a generic
+> > part of the tree from what I can tell, which shows that s390 is lacking
+> > it despite setting CONFIG_HAVE_ARCH_SOFT_DIRTY:
+> > 
+> >   $ make -skj"$(nproc)" ARCH=s390 CROSS_COMPILE=s390-linux- mrproper defconfig mm/gup.o
+> >   mm/gup.c: In function 'can_follow_write_pud':
+> >   mm/gup.c:665:48: error: implicit declaration of function 'pud_soft_dirty'; did you mean 'pmd_soft_dirty'? [-Wimplicit-function-declaration]
+> >     665 |         return !vma_soft_dirty_enabled(vma) || pud_soft_dirty(pud);
+> >         |                                                ^~~~~~~~~~~~~~
+> >         |                                                pmd_soft_dirty
+> > 
+> > Is this expected?
 > 
->>> --- a/net/smc/af_smc.c
->>> +++ b/net/smc/af_smc.c
->>> @@ -1116,7 +1116,12 @@ static int smc_find_proposal_devices(struct
->>> smc_sock *smc, ini->check_smcrv2 = true;
->>>   	ini->smcrv2.saddr = smc->clcsock->sk->sk_rcv_saddr;
->>>   	if (!(ini->smcr_version & SMC_V2) ||
->>> +#if IS_ENABLED(CONFIG_IPV6)
->>> +	    (smc->clcsock->sk->sk_family != AF_INET &&
->>> +
->>> !ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)) ||  
->> I think here you want to say !(smc->clcsock->sk->sk_family == AF_INET
->> && ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)), right? If
->> it is, the negativ form of the logical operation (a&&b) is (!a)||(!b),
->> i.e. here should be:
->> （smc->clcsock->sk->sk_family != AF_INET）|| 
->> （!ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)）
+> Yikes! It does look like an oversight in the s390 code since as you said
+> it has CONFIG_HAVE_ARCH_SOFT_DIRTY and pud_mkdirty seems to be setting
+> _REGION3_ENTRY_SOFT_DIRTY. But I'll let the s390 folks opine.
 > 
-> Wenjia, I think you happen to confuse something here. The condition
-> of this if statement is supposed to evaluate as true iff we don't want
-> to propose SMCRv2 because the situation is such that SMCRv2 is not
-> supported.
-> 
-> We have a bunch of conditions we need to meet for SMCRv2 so
-> logically we have (A && B && C && D). Now since the if is
-> about when SMCRv2 is not supported we have a super structure
-> that looks like !A || !B || !C || !D. With this patch, if
-> CONFIG_IPV6 is not enabled, the sub-condition remains the same:
-> if smc->clcsock->sk->sk_family is something else that AF_INET
-> the we do not do SMCRv2!
-> 
-> But when we do have CONFIG_IPV6 then we want to do SMCRv2 for
-> AF_INET6 sockets too if the addresses used are actually
-> v4 mapped addresses.
-> 
-> Now this is where the cognitive dissonance starts on my end. I
-> think the author assumes sk_family == AF_INET || sk_family == AF_INET6
-> is a tautology in this context. That may be a reasonable thing to
-> assume. Under that assumption 
-> sk_family != AF_INET &&	!ipv6_addr_v4mapped(addr) (shortened for
-> convenience)
-> becomes equivalent to
-> sk_family == AF_INET6 && !ipv6_addr_v4mapped(addr)
-> which means in words if the socket is an IPv6 sockeet and the addr is not
-> a v4 mapped v6 address then we *can not* do SMCRv2. And the condition
-> when we can is sk_family != AF_INET6 || ipv6_addr_v4mapped(addr) which
-> is equivalen to sk_family == AF_INET || ipv6_addr_v4mapped(addr) under
-> the aforementioned assumption.
+> I don't mind dropping the pud part of the change (even if that's a bit
+> of a shame) if it's causing too many issues.
 
-Hi, Halil
+It would be quite easy to add pud_soft_dirty() etc. helper functions
+for s390, but I think that would be the wrong answer to this problem.
 
-Thank you for such a detailed derivation. 
+s390 implements pud_mkdirty(), but it is only used in the context of
+HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD, which s390 doesn't support. So
+this function should probably be removed from s390's pgtable.h.
 
-Yes, here assume that sk_family == AF_INET || sk_family == AF_INET6. Indeed,
-many codes in SMC have already made this assumption, for example,
-static int __smc_create(struct net *net, struct socket *sock, int protocol,
-			int kern, struct socket *clcsock)
-{
-	int family = (protocol == SMCPROTO_SMC6) ? PF_INET6 : PF_INET;
-	...
-}
-And I also believe it is reasonable.
+Similar the pud_soft_dirty() and friends helper functions should only
+be implemented if common code support for soft dirty would exist,
+which is currently not the case. Otherwise similar fallbacks like for
+pmd_soft_dirty() (-> include/linux/pgtable.h) would also need to be
+implemented.
 
-Before this patch, for SMCR client, only an IPV4 socket can do SMCRv2. This patch
-introduce an IPV6 socket with v4 mapped v6 address for SMCRv2. It is equivalen
-to sk_family == AF_INET || ipv6_addr_v4mapped(addr) as you described.
+So IMHO the right fix (at this time) seems to be to remove the above
+pud part of your patch, and in addition we should probably also drop
+the partially implemented pud level soft dirty bits in s390 code,
+since that is dead code and might cause even more confusion in future.
 
-> 
-> But if we assume sk_family == AF_INET || sk_family == AF_INET6 then
-> the #else does not make any sense, because I guess with IPv6 not
-> available AF_INET6 is not available ant thus the else is always
-> guaranteed to evaluate to false under the assumption made.
-> 
-You are right. The #else here does not make any sense. It's my mistake.
-
-The condition is easier to understand and read should be like this:
- 	if (!(ini->smcr_version & SMC_V2) ||
-+#if IS_ENABLED(CONFIG_IPV6)
-+	    (smc->clcsock->sk->sk_family == AF_INET6 &&
-+	     !ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)) ||
-+#endif
- 	    !smc_clc_ueid_count() ||
- 	    smc_find_rdma_device(smc, ini))
- 		ini->smcr_version &= ~SMC_V2;
-
-Thanks,
-Guangguan Wang
-
-
-> Thus I conclude, that I am certainly missing something here. Guangguan,
-> do you care to explain?
-> 
-> Regards,
-> Halil
->  
-
-
-
-
+Does that make sense?
