@@ -1,205 +1,93 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B10B51AAE10;
-	Fri,  6 Dec 2024 10:51:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1393D47F53
+	for <linux-s390@vger.kernel.org>; Fri,  6 Dec 2024 14:48:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.58.86.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733482298; cv=none; b=CVIA9WjcJCDcwsxZa6N2KF1cKQ7+a4qY6dff1QCFgKi+lytr8NiD/OJbplV1rDw3RCmkRUqFHp3gossscZy9D3pErEqdT5pn6Ttm1sY/rX55W1nZD+tG1Hah8DtNLo5oJjrX0x4+dy6GzvP3hAM27IlLwtPMzbnb4e2InQIH2wE=
+	t=1733496504; cv=none; b=clFpCFMHHhJHbO0+cgCnP2L9PMjaE+2sE3Hztm0e22lv8dq03nssXaUtlmAnUKG9V/Bc2s/5xYsHMMQMkHucLJn+JfcqB4mZCwf680q5yRwDhla20zHvZcDXjuCFpC1CnTRZoUpoxcNYJZ+zN24vjz0LwL105P8y2D2tEf7vAiE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733482298; c=relaxed/simple;
-	bh=CouLME7orFdsU+8T/hW1JlX7rf7refWTSmCp9wD1qvo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kT3JJQdlHbFeCMpWmWLn/YTIFb4g6vWqUwNnjKFwLC6xoBrr0Sdh4aOK0RM9v1YvcT+nevQjPHDH5R9S803b6vhaFyOxQs3G/aMRHlBZN5SG8ghJOiwCj1cQ6eStaP/4P2nCjemt95ANteaqLjMfeqq5dGJsxtbf9ZsFdkzo5gs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gGVGUYRf; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gGVGUYRf"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B627O4i030944;
-	Fri, 6 Dec 2024 10:51:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=hgsoxT
-	LPhEfkhPwnpiSSF2RRyng1pMSplvj6kwx2bBc=; b=gGVGUYRfLWDYqzLIlh6Qnh
-	Cg/GV01JosqKo+PTHS/pz5jDejKBIc/+THAXubsPeHWpBpzNRgzhZZP8j9Zn+Y2U
-	acEseQk2gk6aBG3VZtAO0r9O8JEG795ewQLDDkLrpmG+uI3H1EjQaixZXhzC2CVl
-	1CqK9ZwRQBOE7rD2j61KtCukVOFztpWnefCqMXIgGdmQh89I08GtUnJZ87lpXGn5
-	/dJJngcK8VG0TeG9i/s3FiSB6jn2o7ApK4un7/4WCbCBpjmbEoG3JYZM1NCS0oY1
-	X/5gxhniGXzi7vSE/dWAkmlpiGJED16Tg2nGkM0eI3PsBAGYWyj98z0bfbYSrysg
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43b6hb7mdc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Dec 2024 10:51:31 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4B6AkUFR020759;
-	Fri, 6 Dec 2024 10:51:30 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43b6hb7md8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Dec 2024 10:51:30 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B67G1vf005213;
-	Fri, 6 Dec 2024 10:51:29 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43a2kxw0e1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Dec 2024 10:51:29 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B6ApSgS18612872
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 6 Dec 2024 10:51:28 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E484858067;
-	Fri,  6 Dec 2024 10:51:27 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 81BFE5805D;
-	Fri,  6 Dec 2024 10:51:25 +0000 (GMT)
-Received: from [9.171.74.148] (unknown [9.171.74.148])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  6 Dec 2024 10:51:25 +0000 (GMT)
-Message-ID: <7de81edd-86f2-4cfd-95db-e273c3436eb6@linux.ibm.com>
-Date: Fri, 6 Dec 2024 11:51:24 +0100
+	s=arc-20240116; t=1733496504; c=relaxed/simple;
+	bh=a4VdDgcNRQispJAYUjxPoAHZ3vxUxA88remkA5pmB+0=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 MIME-Version:Content-Type; b=mNQgwCWbqFuq3wLgg6u8Cucl2JT4Its43ZIBgriQzdrKT5nuiUsF5cM++moKsUExW1RqQhdcPgpgmq/nwoWIBQy/VmiXM1uSwLrqvTc39zw8Ychu1KIfX9Sg20BbdhfzBStOopwwfc/y1/uC6xBZeeDZ0kqeqhsyqFO1g/znCRk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM; spf=pass smtp.mailfrom=aculab.com; arc=none smtp.client-ip=185.58.86.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aculab.com
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-287-azdpdCQEMWK4TCHGYV3GAg-1; Fri, 06 Dec 2024 14:48:19 +0000
+X-MC-Unique: azdpdCQEMWK4TCHGYV3GAg-1
+X-Mimecast-MFC-AGG-ID: azdpdCQEMWK4TCHGYV3GAg
+Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
+ (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Fri, 6 Dec
+ 2024 14:47:33 +0000
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.048; Fri, 6 Dec 2024 14:47:33 +0000
+From: David Laight <David.Laight@ACULAB.COM>
+To: 'Eric Dumazet' <edumazet@google.com>, Alexandra Winter
+	<wintera@linux.ibm.com>
+CC: Rahul Rameshbabu <rrameshbabu@nvidia.com>, Saeed Mahameed
+	<saeedm@nvidia.com>, Tariq Toukan <tariqt@nvidia.com>, Leon Romanovsky
+	<leon@kernel.org>, David Miller <davem@davemloft.net>, Jakub Kicinski
+	<kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Andrew Lunn
+	<andrew+netdev@lunn.ch>, Nils Hoppmann <niho@linux.ibm.com>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Heiko Carstens
+	<hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+	<agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, Thorsten Winkler
+	<twinkler@linux.ibm.com>, Simon Horman <horms@kernel.org>
+Subject: RE: [PATCH net-next] net/mlx5e: Transmit small messages in linear skb
+Thread-Topic: [PATCH net-next] net/mlx5e: Transmit small messages in linear
+ skb
+Thread-Index: AQHbRlnOqxcJ6RUXVkmlcnxPCu2657LZSr5g
+Date: Fri, 6 Dec 2024 14:47:32 +0000
+Message-ID: <138dab5cc2ee40229a72804c2b92dce3@AcuMS.aculab.com>
+References: <20241204140230.23858-1-wintera@linux.ibm.com>
+ <CANn89i+DX-b4PM4R2uqtcPmztCxe_Onp7Vk+uHU4E6eW1H+=zA@mail.gmail.com>
+ <CANn89iJZfKntPrZdC=oc0_8j89a7was90+6Fh=fCf4hR7LZYSQ@mail.gmail.com>
+In-Reply-To: <CANn89iJZfKntPrZdC=oc0_8j89a7was90+6Fh=fCf4hR7LZYSQ@mail.gmail.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2 2/2] net/smc: support ipv4 mapped ipv6 addr
- client for smc-r v2
-To: Guangguan Wang <guangguan.wang@linux.alibaba.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Cc: jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
-        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Dust Li <dust.li@linux.alibaba.com>
-References: <20241202125203.48821-1-guangguan.wang@linux.alibaba.com>
- <20241202125203.48821-3-guangguan.wang@linux.alibaba.com>
- <894d640f-d9f6-4851-adb8-779ff3678440@linux.ibm.com>
- <20241205135833.0beafd61.pasic@linux.ibm.com>
- <5ac2c5a7-3f12-48e5-83a9-ecd3867e6125@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: od4qOcLWd5F21Ie6am7ke9NyngP8qbZSv-yzQSvFf9M_1733496498
+X-Mimecast-Originator: aculab.com
 Content-Language: en-US
-From: Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <5ac2c5a7-3f12-48e5-83a9-ecd3867e6125@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: v9iop3K27SzZta1MsyvdopGoIWgTM3xl
-X-Proofpoint-GUID: pE9rWIVZVP_Kh0eMFGqNfeh1mWLq_Ezt
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- adultscore=0 suspectscore=0 mlxlogscore=910 clxscore=1015 impostorscore=0
- malwarescore=0 bulkscore=0 lowpriorityscore=0 spamscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2412060076
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 
+RnJvbTogRXJpYyBEdW1hemV0DQo+IFNlbnQ6IDA0IERlY2VtYmVyIDIwMjQgMTQ6MzYNCi4uLg0K
+PiBJIHdvdWxkIHN1Z2dlc3QgdGhlIG9wcG9zaXRlIDogY29weSB0aGUgaGVhZGVycyAodHlwaWNh
+bGx5IGxlc3MgdGhhbg0KPiAxMjggYnl0ZXMpIG9uIGEgcGllY2Ugb2YgY29oZXJlbnQgbWVtb3J5
+Lg0KDQpBIGxvbmcgdGltZSBhZ28gYSBjb2xsZWFndWUgdGVzdGVkIHRoZSBjdXRvZmYgYmV0d2Vl
+biBjb3B5aW5nIHRvDQphIGZpeGVkIGJ1ZmZlciBhbmQgZG1hIGFjY2VzcyB0byB0aGUga2VybmVs
+IG1lbW9yeSBidWZmZXIgZm9yDQphIHNwYXJjIG1idXMvc2J1cyBzeXN0ZW0gKHdoaWNoIGhhcyBh
+biBpb21tdSkuDQpXaGlsZSBlbnRpcmVseSBkaWZmZXJlbnQgaW4gYWxsIHJlZ2FyZHMgdGhlIGN1
+dG9mZiB3YXMganVzdCBvdmVyIDFrLg0KDQpUaGUgZXRoZXJuZXQgZHJpdmVycyBJIHdyb3RlIGRp
+ZCBhIGRhdGEgY29weSB0by9mcm9tIGEgcHJlLW1hcHBlZA0KYXJlYSBmb3IgYm90aCB0cmFuc21p
+dCBhbmQgcmVjZWl2ZS4NCkkgc3VzcGVjdCB0aGUgc2ltcGxpY2l0eSBvZiB0aGF0IGFsc28gaW1w
+cm92ZWQgdGhpbmdzLg0KDQpUaGVzZSBkYXlzIHlvdSdkIGRlZmluaXRlbHkgd2FudCB0byBtYXAg
+dHNvIGJ1ZmZlcnMuDQpCdXQgdGhlICdjb3B5YnJlYWsnIHNpemUgZm9yIHJlY2VpdmUgY291bGQg
+YmUgcXVpdGUgaGlnaC4NCg0KT24geDg2IGp1c3QgbWFrZSBzdXJlIHRoZSBkZXN0aW5hdGlvbiBh
+ZGRyZXNzIGZvciAncmVwIG1vdnNiJw0KaXMgNjQgYnl0ZSBhbGlnbmVkIC0gaXQgd2lsbCBkb3Vi
+bGUgdGhlIGNvcHkgc3BlZWQuDQpUaGUgc291cmNlIGFsaWdubWVudCBkb2Vzbid0IG1hdHRlciBh
+dCBhbGwuDQooQU1EIGNoaXBzIG1pZ2h0IGJlIGRpZmZlcmVudCwgYnV0IGFuIGFsaWduZWQgY29w
+eSBvZiBhIHdob2xlDQpudW1iZXIgb2YgJ3dvcmRzJyBjYW4gYWx3YXlzIGJlIGRvbmUuKQ0KDQpJ
+J3ZlIGFsc28gd29uZGVyZWQgd2hldGhlciB0aGUgZXRoZXJuZXQgZHJpdmVyIGNvdWxkICdob2xk
+JyB0aGUNCmlvbW11IHBhZ2UgdGFibGUgZW50cmllcyBhZnRlciAoZWcpIGEgcmVjZWl2ZSBmcmFt
+ZSBpcyBwcm9jZXNzZWQNCmFuZCB0aGVuIGRyb3AgdGhlIFBBIG9mIHRoZSByZXBsYWNlbWVudCBi
+dWZmZXIgaW50byB0aGUgc2FtZSBzbG90Lg0KVGhhdCBpcyBsaWtlbHkgdG8gc3BlZWQgdXAgaW9t
+bXUgc2V0dXAuDQoNCglEYXZpZA0KDQotDQpSZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJy
+YW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lz
+dHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
 
-
-On 06.12.24 07:06, Guangguan Wang wrote:
-> 
-> 
-> On 2024/12/5 20:58, Halil Pasic wrote:
->> On Thu, 5 Dec 2024 11:16:27 +0100
->> Wenjia Zhang <wenjia@linux.ibm.com> wrote:
->>
->>>> --- a/net/smc/af_smc.c
->>>> +++ b/net/smc/af_smc.c
->>>> @@ -1116,7 +1116,12 @@ static int smc_find_proposal_devices(struct
->>>> smc_sock *smc, ini->check_smcrv2 = true;
->>>>    	ini->smcrv2.saddr = smc->clcsock->sk->sk_rcv_saddr;
->>>>    	if (!(ini->smcr_version & SMC_V2) ||
->>>> +#if IS_ENABLED(CONFIG_IPV6)
->>>> +	    (smc->clcsock->sk->sk_family != AF_INET &&
->>>> +
->>>> !ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)) ||
->>> I think here you want to say !(smc->clcsock->sk->sk_family == AF_INET
->>> && ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)), right? If
->>> it is, the negativ form of the logical operation (a&&b) is (!a)||(!b),
->>> i.e. here should be:
->>> （smc->clcsock->sk->sk_family != AF_INET）||
->>> （!ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)）
->>
->> Wenjia, I think you happen to confuse something here. The condition
->> of this if statement is supposed to evaluate as true iff we don't want
->> to propose SMCRv2 because the situation is such that SMCRv2 is not
->> supported.
->>
->> We have a bunch of conditions we need to meet for SMCRv2 so
->> logically we have (A && B && C && D). Now since the if is
->> about when SMCRv2 is not supported we have a super structure
->> that looks like !A || !B || !C || !D. With this patch, if
->> CONFIG_IPV6 is not enabled, the sub-condition remains the same:
->> if smc->clcsock->sk->sk_family is something else that AF_INET
->> the we do not do SMCRv2!
->>
->> But when we do have CONFIG_IPV6 then we want to do SMCRv2 for
->> AF_INET6 sockets too if the addresses used are actually
->> v4 mapped addresses.
->>
->> Now this is where the cognitive dissonance starts on my end. I
->> think the author assumes sk_family == AF_INET || sk_family == AF_INET6
->> is a tautology in this context. That may be a reasonable thing to
->> assume. Under that assumption
->> sk_family != AF_INET &&	!ipv6_addr_v4mapped(addr) (shortened for
->> convenience)
->> becomes equivalent to
->> sk_family == AF_INET6 && !ipv6_addr_v4mapped(addr)
->> which means in words if the socket is an IPv6 sockeet and the addr is not
->> a v4 mapped v6 address then we *can not* do SMCRv2. And the condition
->> when we can is sk_family != AF_INET6 || ipv6_addr_v4mapped(addr) which
->> is equivalen to sk_family == AF_INET || ipv6_addr_v4mapped(addr) under
->> the aforementioned assumption.
-> 
-> Hi, Halil
-> 
-> Thank you for such a detailed derivation.
-> 
-> Yes, here assume that sk_family == AF_INET || sk_family == AF_INET6. Indeed,
-> many codes in SMC have already made this assumption, for example,
-> static int __smc_create(struct net *net, struct socket *sock, int protocol,
-> 			int kern, struct socket *clcsock)
-> {
-> 	int family = (protocol == SMCPROTO_SMC6) ? PF_INET6 : PF_INET;
-> 	...
-> }
-> And I also believe it is reasonable.
-> 
-> Before this patch, for SMCR client, only an IPV4 socket can do SMCRv2. This patch
-> introduce an IPV6 socket with v4 mapped v6 address for SMCRv2. It is equivalen
-> to sk_family == AF_INET || ipv6_addr_v4mapped(addr) as you described.
-> 
->>
->> But if we assume sk_family == AF_INET || sk_family == AF_INET6 then
->> the #else does not make any sense, because I guess with IPv6 not
->> available AF_INET6 is not available ant thus the else is always
->> guaranteed to evaluate to false under the assumption made.
->>
-> You are right. The #else here does not make any sense. It's my mistake.
-> 
-> The condition is easier to understand and read should be like this:
->   	if (!(ini->smcr_version & SMC_V2) ||
-> +#if IS_ENABLED(CONFIG_IPV6)
-> +	    (smc->clcsock->sk->sk_family == AF_INET6 &&
-> +	     !ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)) ||
-> +#endif
->   	    !smc_clc_ueid_count() ||
->   	    smc_find_rdma_device(smc, ini))
->   		ini->smcr_version &= ~SMC_V2;
-> 
-
-sorry, I still don't agree on this version. You removed the condition
-"
-smc->clcsock->sk->sk_family != AF_INET ||
-"
-completely. What about the socket with neither AF_INET nor AF_INET6 family?
-
-Thanks,
-Wenjia
