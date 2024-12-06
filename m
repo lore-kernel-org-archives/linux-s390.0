@@ -1,93 +1,123 @@
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+Received: from smtp2-g21.free.fr (smtp2-g21.free.fr [212.27.42.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1393D47F53
-	for <linux-s390@vger.kernel.org>; Fri,  6 Dec 2024 14:48:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.58.86.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D7B81474AF;
+	Fri,  6 Dec 2024 14:52:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.27.42.2
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733496504; cv=none; b=clFpCFMHHhJHbO0+cgCnP2L9PMjaE+2sE3Hztm0e22lv8dq03nssXaUtlmAnUKG9V/Bc2s/5xYsHMMQMkHucLJn+JfcqB4mZCwf680q5yRwDhla20zHvZcDXjuCFpC1CnTRZoUpoxcNYJZ+zN24vjz0LwL105P8y2D2tEf7vAiE=
+	t=1733496743; cv=none; b=X8a2DByq4Yb/iljMAOv2JrD6EVN0cPdEoOwqJefvc/zTokzd6xmHaqkN42DqcCbsnnt2c73kdOhmKAcAoDJH4MN8ouu5AkoU6PA18f7UtR/3AYJ2s13vf9aLhcVLwDjJhCZbha35LApqeT8YASOfHFDmEpnCuMgGOcjERFGrjzA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733496504; c=relaxed/simple;
-	bh=a4VdDgcNRQispJAYUjxPoAHZ3vxUxA88remkA5pmB+0=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 MIME-Version:Content-Type; b=mNQgwCWbqFuq3wLgg6u8Cucl2JT4Its43ZIBgriQzdrKT5nuiUsF5cM++moKsUExW1RqQhdcPgpgmq/nwoWIBQy/VmiXM1uSwLrqvTc39zw8Ychu1KIfX9Sg20BbdhfzBStOopwwfc/y1/uC6xBZeeDZ0kqeqhsyqFO1g/znCRk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM; spf=pass smtp.mailfrom=aculab.com; arc=none smtp.client-ip=185.58.86.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aculab.com
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-287-azdpdCQEMWK4TCHGYV3GAg-1; Fri, 06 Dec 2024 14:48:19 +0000
-X-MC-Unique: azdpdCQEMWK4TCHGYV3GAg-1
-X-Mimecast-MFC-AGG-ID: azdpdCQEMWK4TCHGYV3GAg
-Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
- (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Fri, 6 Dec
- 2024 14:47:33 +0000
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.048; Fri, 6 Dec 2024 14:47:33 +0000
-From: David Laight <David.Laight@ACULAB.COM>
-To: 'Eric Dumazet' <edumazet@google.com>, Alexandra Winter
-	<wintera@linux.ibm.com>
-CC: Rahul Rameshbabu <rrameshbabu@nvidia.com>, Saeed Mahameed
-	<saeedm@nvidia.com>, Tariq Toukan <tariqt@nvidia.com>, Leon Romanovsky
-	<leon@kernel.org>, David Miller <davem@davemloft.net>, Jakub Kicinski
-	<kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Andrew Lunn
-	<andrew+netdev@lunn.ch>, Nils Hoppmann <niho@linux.ibm.com>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Heiko Carstens
-	<hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
-	<agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, Thorsten Winkler
-	<twinkler@linux.ibm.com>, Simon Horman <horms@kernel.org>
-Subject: RE: [PATCH net-next] net/mlx5e: Transmit small messages in linear skb
-Thread-Topic: [PATCH net-next] net/mlx5e: Transmit small messages in linear
- skb
-Thread-Index: AQHbRlnOqxcJ6RUXVkmlcnxPCu2657LZSr5g
-Date: Fri, 6 Dec 2024 14:47:32 +0000
-Message-ID: <138dab5cc2ee40229a72804c2b92dce3@AcuMS.aculab.com>
-References: <20241204140230.23858-1-wintera@linux.ibm.com>
- <CANn89i+DX-b4PM4R2uqtcPmztCxe_Onp7Vk+uHU4E6eW1H+=zA@mail.gmail.com>
- <CANn89iJZfKntPrZdC=oc0_8j89a7was90+6Fh=fCf4hR7LZYSQ@mail.gmail.com>
-In-Reply-To: <CANn89iJZfKntPrZdC=oc0_8j89a7was90+6Fh=fCf4hR7LZYSQ@mail.gmail.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
+	s=arc-20240116; t=1733496743; c=relaxed/simple;
+	bh=c/8ZlkYzbi6DXqIwQK4RCNgWQVop5LJWPwZQmkhzQxs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Xvdo5pd3r3DRWL5zc7MXxqI2d1wshwJQctJKGyeHZQa71lKQiZ15ZfuaUXCMEfwSuvANzXy6rAq1ByvpQYNrFkgbu7Wg/OzUsmqt75mBzrDL1V+1MnkTVPSGP/MMNNQsGqxe7OGBo92lZ+k0T+s9QalEbDH71mI1Uqo3PBWZEyM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=morinfr.org; spf=pass smtp.mailfrom=morinfr.org; dkim=pass (1024-bit key) header.d=morinfr.org header.i=@morinfr.org header.b=PxFerdCI; arc=none smtp.client-ip=212.27.42.2
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=morinfr.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=morinfr.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=morinfr.org header.i=@morinfr.org header.b="PxFerdCI"
+Received: from bender.morinfr.org (unknown [82.66.66.112])
+	by smtp2-g21.free.fr (Postfix) with ESMTPS id 64F5B2003CA;
+	Fri,  6 Dec 2024 15:52:07 +0100 (CET)
+Authentication-Results: smtp2-g21.free.fr;
+	dkim=pass (1024-bit key; unprotected) header.d=morinfr.org header.i=@morinfr.org header.a=rsa-sha256 header.s=20170427 header.b=PxFerdCI;
+	dkim-atps=neutral
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=morinfr.org
+	; s=20170427; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=Z0V41C+el6ZxU+5bWs0t+oix5z85dABjQe8DaTTtBhM=; b=PxFerdCIiCaY8kBwiLnLtlVvpK
+	hUKVkQWTVJ8G8cruN1Y9qYkReotnK48NHn0Kyfrr2LSNaq4Bca4cMHMSOb5PcwP5Yew5H+1+HbOwa
+	OWVcvvwSaM6fKsny5CFzJojc9T0RiEW5aTHr2mo8uflPzIpQVESFbFqv1Q1XB7wLZHKY=;
+Received: from guillaum by bender.morinfr.org with local (Exim 4.96)
+	(envelope-from <guillaume@morinfr.org>)
+	id 1tJZgc-002J1j-1t;
+	Fri, 06 Dec 2024 15:52:06 +0100
+Date: Fri, 6 Dec 2024 15:52:06 +0100
+From: Guillaume Morin <guillaume@morinfr.org>
+To: David Hildenbrand <david@redhat.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+	Guillaume Morin <guillaume@morinfr.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	Muchun Song <muchun.song@linux.dev>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Peter Xu <peterx@redhat.com>,
+	Eric Hagberg <ehagberg@janestreet.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3] mm/hugetlb: support FOLL_FORCE|FOLL_WRITE
+Message-ID: <Z1MPlgsli-eA4o7z@bender.morinfr.org>
+References: <Z1EJssqd93w2erMZ@bender.morinfr.org>
+ <20241206045019.GA2215843@thelio-3990X>
+ <Z1KLLXpzrDac-oqF@bender.morinfr.org>
+ <20241206092453.9026-A-hca@linux.ibm.com>
+ <c43a3149-c84b-448b-be80-1e026740911c@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: od4qOcLWd5F21Ie6am7ke9NyngP8qbZSv-yzQSvFf9M_1733496498
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c43a3149-c84b-448b-be80-1e026740911c@redhat.com>
 
-RnJvbTogRXJpYyBEdW1hemV0DQo+IFNlbnQ6IDA0IERlY2VtYmVyIDIwMjQgMTQ6MzYNCi4uLg0K
-PiBJIHdvdWxkIHN1Z2dlc3QgdGhlIG9wcG9zaXRlIDogY29weSB0aGUgaGVhZGVycyAodHlwaWNh
-bGx5IGxlc3MgdGhhbg0KPiAxMjggYnl0ZXMpIG9uIGEgcGllY2Ugb2YgY29oZXJlbnQgbWVtb3J5
-Lg0KDQpBIGxvbmcgdGltZSBhZ28gYSBjb2xsZWFndWUgdGVzdGVkIHRoZSBjdXRvZmYgYmV0d2Vl
-biBjb3B5aW5nIHRvDQphIGZpeGVkIGJ1ZmZlciBhbmQgZG1hIGFjY2VzcyB0byB0aGUga2VybmVs
-IG1lbW9yeSBidWZmZXIgZm9yDQphIHNwYXJjIG1idXMvc2J1cyBzeXN0ZW0gKHdoaWNoIGhhcyBh
-biBpb21tdSkuDQpXaGlsZSBlbnRpcmVseSBkaWZmZXJlbnQgaW4gYWxsIHJlZ2FyZHMgdGhlIGN1
-dG9mZiB3YXMganVzdCBvdmVyIDFrLg0KDQpUaGUgZXRoZXJuZXQgZHJpdmVycyBJIHdyb3RlIGRp
-ZCBhIGRhdGEgY29weSB0by9mcm9tIGEgcHJlLW1hcHBlZA0KYXJlYSBmb3IgYm90aCB0cmFuc21p
-dCBhbmQgcmVjZWl2ZS4NCkkgc3VzcGVjdCB0aGUgc2ltcGxpY2l0eSBvZiB0aGF0IGFsc28gaW1w
-cm92ZWQgdGhpbmdzLg0KDQpUaGVzZSBkYXlzIHlvdSdkIGRlZmluaXRlbHkgd2FudCB0byBtYXAg
-dHNvIGJ1ZmZlcnMuDQpCdXQgdGhlICdjb3B5YnJlYWsnIHNpemUgZm9yIHJlY2VpdmUgY291bGQg
-YmUgcXVpdGUgaGlnaC4NCg0KT24geDg2IGp1c3QgbWFrZSBzdXJlIHRoZSBkZXN0aW5hdGlvbiBh
-ZGRyZXNzIGZvciAncmVwIG1vdnNiJw0KaXMgNjQgYnl0ZSBhbGlnbmVkIC0gaXQgd2lsbCBkb3Vi
-bGUgdGhlIGNvcHkgc3BlZWQuDQpUaGUgc291cmNlIGFsaWdubWVudCBkb2Vzbid0IG1hdHRlciBh
-dCBhbGwuDQooQU1EIGNoaXBzIG1pZ2h0IGJlIGRpZmZlcmVudCwgYnV0IGFuIGFsaWduZWQgY29w
-eSBvZiBhIHdob2xlDQpudW1iZXIgb2YgJ3dvcmRzJyBjYW4gYWx3YXlzIGJlIGRvbmUuKQ0KDQpJ
-J3ZlIGFsc28gd29uZGVyZWQgd2hldGhlciB0aGUgZXRoZXJuZXQgZHJpdmVyIGNvdWxkICdob2xk
-JyB0aGUNCmlvbW11IHBhZ2UgdGFibGUgZW50cmllcyBhZnRlciAoZWcpIGEgcmVjZWl2ZSBmcmFt
-ZSBpcyBwcm9jZXNzZWQNCmFuZCB0aGVuIGRyb3AgdGhlIFBBIG9mIHRoZSByZXBsYWNlbWVudCBi
-dWZmZXIgaW50byB0aGUgc2FtZSBzbG90Lg0KVGhhdCBpcyBsaWtlbHkgdG8gc3BlZWQgdXAgaW9t
-bXUgc2V0dXAuDQoNCglEYXZpZA0KDQotDQpSZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJy
-YW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lz
-dHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
+On 06 Dec 10:29, David Hildenbrand wrote:
+>
+> On 06.12.24 10:24, Heiko Carstens wrote:
+> > On Fri, Dec 06, 2024 at 06:27:09AM +0100, Guillaume Morin wrote:
+> > > On 05 Dec 21:50, Nathan Chancellor wrote:
+> > > > This looks to be one of the first uses of pud_soft_dirty() in a generic
+> > > > part of the tree from what I can tell, which shows that s390 is lacking
+> > > > it despite setting CONFIG_HAVE_ARCH_SOFT_DIRTY:
+> > > > 
+> > > >    $ make -skj"$(nproc)" ARCH=s390 CROSS_COMPILE=s390-linux- mrproper defconfig mm/gup.o
+> > > >    mm/gup.c: In function 'can_follow_write_pud':
+> > > >    mm/gup.c:665:48: error: implicit declaration of function 'pud_soft_dirty'; did you mean 'pmd_soft_dirty'? [-Wimplicit-function-declaration]
+> > > >      665 |         return !vma_soft_dirty_enabled(vma) || pud_soft_dirty(pud);
+> > > >          |                                                ^~~~~~~~~~~~~~
+> > > >          |                                                pmd_soft_dirty
+> > > > 
+> > > > Is this expected?
+> > > 
+> > > Yikes! It does look like an oversight in the s390 code since as you said
+> > > it has CONFIG_HAVE_ARCH_SOFT_DIRTY and pud_mkdirty seems to be setting
+> > > _REGION3_ENTRY_SOFT_DIRTY. But I'll let the s390 folks opine.
+> > > 
+> > > I don't mind dropping the pud part of the change (even if that's a bit
+> > > of a shame) if it's causing too many issues.
+> > 
+> > It would be quite easy to add pud_soft_dirty() etc. helper functions
+> > for s390, but I think that would be the wrong answer to this problem.
+> > 
+> > s390 implements pud_mkdirty(), but it is only used in the context of
+> > HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD, which s390 doesn't support. So
+> > this function should probably be removed from s390's pgtable.h.
+> > 
+> > Similar the pud_soft_dirty() and friends helper functions should only
+> > be implemented if common code support for soft dirty would exist,
+> > which is currently not the case. Otherwise similar fallbacks like for
+> > pmd_soft_dirty() (-> include/linux/pgtable.h) would also need to be
+> > implemented.
+> > 
+> > So IMHO the right fix (at this time) seems to be to remove the above
+> > pud part of your patch, and in addition we should probably also drop
+> > the partially implemented pud level soft dirty bits in s390 code,
+> > since that is dead code and might cause even more confusion in future.
+> > 
+> > Does that make sense?
+> 
+> As hugetlb does not support softdirty, and PUDs are currently only possible
+> (weird DAX thing put aside) with hugetlb, it makes sense to drop the pud
+> softdirty thingy.
 
+Thanks all. I dropped the check and the dummy definition I had to add
+for i386 in v4 [1]
+
+[1] https://lore.kernel.org/linux-mm/Z1MO5slZh8uWl8LH@bender.morinfr.org/T/#u
+
+-- 
+Guillaume Morin <guillaume@morinfr.org>
