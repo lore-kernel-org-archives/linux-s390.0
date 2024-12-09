@@ -1,103 +1,116 @@
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 465E614D283
-	for <linux-s390@vger.kernel.org>; Mon,  9 Dec 2024 18:19:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7499F1850AF;
+	Mon,  9 Dec 2024 19:24:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733768398; cv=none; b=oLyz5WPk7G8wsl3TcodMDLmD8fsSfBb0Xppq+UezcJ9XsWEIY0E15miK+Si6r1c64h/Bs5nmF4ElUMDrfIY1MPxqc4Kmy+ecwysnBhR4v5rSXrFp6sjjrxw93FDjnsM/sbIwbZn0fAoD0xO5SC4p3K7f+DSbJrWNdl7e6JbumCY=
+	t=1733772259; cv=none; b=eToqA5fHHO+5wfcdo7de9GuwzEERe5FxQOKq82zAp4AhzQhEuIc+8DWgb4wzREwkM75ObmroLvTTH4dzvKDXAZTWJOT7fTquxx2WSZgFjvvGD8Wm+ACxcmC090ac99aDrJ5+/1ZN4KKwe7cV2u5Wh0D3LEDY1OiOcCCyt96t4vU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733768398; c=relaxed/simple;
-	bh=qcBUYF+09hJCYkGs4wxsTdoZ8xqLA7ePhPeZolaV/1I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=p5/eknL2OuPKsjXwtcV4+yRnyWzVXzpScQY5Mu0YR8ZfntuMVkydArn8ybNSskRkk6uyCtjXLPR0D86yJL5MzOr7jMzAXnxGYwy4e57ROOSPxQ8JIP2Ai2XthBjoPjXHOBbem1nBkoVHlODRd1jMO+1iV/RbW1Jb5U5apaEFDns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=k0RHbcEr; arc=none smtp.client-ip=209.85.160.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1733772259; c=relaxed/simple;
+	bh=u50d26RvbtfcaZDxSeP0KgsaZLJEbWoUHpAH7IDGEBY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kYD7EwMzbqLuqT4tVo0Vvu/iST6LDHG/mihiXHVM36Oa3BgOacRpGhHfmKswjQ2NzgKgHh8uNJ/WsDaoKmn/Esar24W8xMzkhaJTXuRLL3ao7F+RGDs+qOzHfDcMezd1Mb7rWEIjdcP//K+aR9cCqXm3JkKE7fdUsxRCniDgXuA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nPmwaYue; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="k0RHbcEr"
-Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-466879f84ccso36546471cf.1
-        for <linux-s390@vger.kernel.org>; Mon, 09 Dec 2024 10:19:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1733768395; x=1734373195; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=qcBUYF+09hJCYkGs4wxsTdoZ8xqLA7ePhPeZolaV/1I=;
-        b=k0RHbcErLYhCUYXHcJEfpTL3NsGKBDug4LNYnuCG1GDng+1wWG3Qjwh04yLni7nSpL
-         4rMQF/FAbFpgpiOMXTMpLtceGLLvRRobu0G1cxB83mmkve3WC5Nrv0vv/KohnzTCxSAl
-         X+0N4JE1mjmrojJDBZKeCcRN/9qgGSqCBnWl1wKAvPRXc9S5jRpIyMg9d5NqOwi63hcC
-         KJSS6qZoVEjnY6+vmmEwsOJDLNaCXFhn5TWdo9hzCFINpj+JP9Swf2PxqRLebqMeDtk8
-         3pxCTgwva939zd9S0nVNOv3rxAjsX76hUq8hW48KZBsFGA12WLIQ/MwHorsiyuR6NMRf
-         ywNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733768395; x=1734373195;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=qcBUYF+09hJCYkGs4wxsTdoZ8xqLA7ePhPeZolaV/1I=;
-        b=vWQ9N2mAHGOwjxayaPBxdyxdDjIhwGhELZ7kd6nG3Q5WB1wUXwddAeLssWdggETFUR
-         5qbH3Fps+CJN2iMJLJP0gcoYslfHgsEfyMXvSw5uK6+bqVrqpqrEidHBuz053wr5KIqL
-         ZAL/Tig6k4h7afLknc5Y2NP1FRDnUNAmBjmcXNzoQtR1HQ6U/8kj05Coie1XO7k3XyEb
-         Iwr4iF/i+pzVfJCKLxybUhopp5Jgy4LlbzM9LGfUjg36OlpKyms4/EB+h0aW7zOs6+Ic
-         SyU/fZwJe3h8TzScMjHIUt+vBntYXo0o3wngrikcHoR3bdp+NLFo8p8ebhNBRXvxSKTl
-         pC8Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWP9zA3hAEDuMnim4Z/w55vAAfX948xCPXMsHOXd21cYDbxRLsKCSdQ5ex8wxH/ORHjZ/n5YYMWK3Rw@vger.kernel.org
-X-Gm-Message-State: AOJu0YzW3uyjXjxZceeV48fBtSpqJkhqQtcQ6GIyBK84krjcxnWlW880
-	YxFiolpBNXgQQA0+4TsKDGE1LyPw/d6yHWno4OhF4RQPWFY3eQncw9GH93Ud0MI=
-X-Gm-Gg: ASbGncuKg9fweBmoKvkzBhMoP3jCjfdPnTUw0bLHEbUFmhocS/eUIlvNa1BOn6QCtNh
-	g/r7oJflEG+a4dPf5fW4B/65Gz8nS1ydkOcN7OkPcrTMZWkJH268gjZFddncAT4nAz0oNJpxjHN
-	ntmXWYqrjcFjCCKem1covI8HqHfDZDcU5oswAjjuNCLK//1+wJprqbkt2zOR2GLGBzmeAXYzPx/
-	2hqk2kRfPF1bAVyq961DhAP4MtQQNp1/Z4UikewiLCWUYZ3/MxRWF0A/zGRwI3SVk1iQK7NHS8p
-	ntUTlGorWTF6cbmXrABi3gc=
-X-Google-Smtp-Source: AGHT+IGv6sgkZ0/PiNXaWy/sLDGes2SiMQVxjAwfcdBV2f2Sx38nvJy0Az9I4u+WVdfALJz6yHegbw==
-X-Received: by 2002:a05:622a:6f07:b0:467:613d:9b0 with SMTP id d75a77b69052e-467613d1304mr83471271cf.50.1733768395116;
-        Mon, 09 Dec 2024 10:19:55 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-68-128-5.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.128.5])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4674d343428sm27693891cf.76.2024.12.09.10.19.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Dec 2024 10:19:54 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1tKiML-00000009u4t-2IFD;
-	Mon, 09 Dec 2024 14:19:53 -0400
-Date: Mon, 9 Dec 2024 14:19:53 -0400
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Ramesh Thomas <ramesh.thomas@intel.com>
-Cc: alex.williamson@redhat.com, schnelle@linux.ibm.com,
-	gbayer@linux.ibm.com, kvm@vger.kernel.org,
-	linux-s390@vger.kernel.org, ankita@nvidia.com, yishaih@nvidia.com,
-	pasic@linux.ibm.com, julianr@linux.ibm.com, bpsegal@us.ibm.com,
-	kevin.tian@intel.com, cho@microsoft.com
-Subject: Re: [PATCH v2 2/2] vfio/pci: Remove #ifdef iowrite64 and #ifdef
- ioread64
-Message-ID: <20241209181953.GD1888283@ziepe.ca>
-References: <20241203184158.172492-1-ramesh.thomas@intel.com>
- <20241203184158.172492-3-ramesh.thomas@intel.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nPmwaYue"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B9CD7oK011164;
+	Mon, 9 Dec 2024 19:24:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=IIYYVux+1iMONKF0yPGBAnVmD9qlPsySTVsLN6kNI
+	Ck=; b=nPmwaYues2zOvimfhSz/7Q38h1gY77PJoy7yR1/nYjtlH3KRRJ2xTVoUw
+	a2npi8y4hNFB7HdJMQdw8qAJ68T+i9Yns9pW2z5ymWVG4o0tK2umkiqQizxQz8iB
+	ossZ2MfCMtuQusEtv0uc0CsiDmKMfD3ArqTTo1fqrH/0mt/g9qgUwb3jua31Wnhh
+	6PBFEAffufU3qlBVf296KbCt/ok+Q2A7d6VntXb4R4Sw8mcB9T/Z0at20cG4Wcq5
+	m+puduk6LCYrp9l7YRJ9DnYiuDTY6ewkZE3CSAVJoru9uSEYpn3K+/5P1mqTAEm+
+	abE6uxvPx3YMs63oTkqx23I7cjNeg==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ce0xa6bb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 09 Dec 2024 19:24:08 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B9Hgq6Y032739;
+	Mon, 9 Dec 2024 19:24:07 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 43d0ps89ja-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 09 Dec 2024 19:24:07 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B9JO6WX7340672
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 9 Dec 2024 19:24:06 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3EC0E5806B;
+	Mon,  9 Dec 2024 19:24:06 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 847AB58065;
+	Mon,  9 Dec 2024 19:24:04 +0000 (GMT)
+Received: from li-2311da4c-2e09-11b2-a85c-c003041e9174.ibm.com.com (unknown [9.61.107.222])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  9 Dec 2024 19:24:04 +0000 (GMT)
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+To: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
+        gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com
+Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, borntraeger@linux.ibm.com, farman@linux.ibm.com,
+        clegoate@redhat.com, iommu@lists.linux.dev,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH 0/6] iommu/s390: add support for IOMMU passthrough
+Date: Mon,  9 Dec 2024 14:23:57 -0500
+Message-ID: <20241209192403.107090-1-mjrosato@linux.ibm.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241203184158.172492-3-ramesh.thomas@intel.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: JyeEx5IlrMzQ6eHTqj9k_W4m4waSpOv-
+X-Proofpoint-ORIG-GUID: JyeEx5IlrMzQ6eHTqj9k_W4m4waSpOv-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 clxscore=1011 impostorscore=0 mlxscore=0 mlxlogscore=417
+ priorityscore=1501 malwarescore=0 adultscore=0 bulkscore=0 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412090147
 
-On Tue, Dec 03, 2024 at 10:41:58AM -0800, Ramesh Thomas wrote:
-> Remove the #ifdef iowrite64 and #ifdef ioread64 checks around calls to
-> 64 bit IO access. Since default implementations have been enabled, the
-> checks are not required. Such checks can hide potential bugs as well.
-> Instead check for CONFIG_64BIT to make the 64 bit IO calls only when 64
-> bit support is enabled.
+This series introduces the ability for certain devices on s390 to bypass
+a layer of IOMMU via the iommu.passthrough=1 option.  In order to enable
+this, the concept of an identity domain is added to s390-iommu.  On s390,
+IOMMU passthrough is only allowed if indicated via a special bit in s390
+CLP data for the associated device group, otherwise we must fall back to
+dma-iommu.
 
-Why?
+Matthew Rosato (6):
+  s390/pci: check for relaxed translation capability
+  s390: enable ARCH_HAS_PHYS_TO_DMA
+  iommu/s390: implement iommu passthrough via identity domain
+  iommu: add routine to check strict setting
+  iommu: document missing def_domain_type return
+  iommu/s390: implement def_domain_type
 
-The whole point of the emulation header to to avoid this?
+ arch/s390/Kconfig                  |  1 +
+ arch/s390/include/asm/device.h     | 12 ++++++
+ arch/s390/include/asm/dma-direct.h | 14 +++++++
+ arch/s390/include/asm/pci.h        |  2 +-
+ arch/s390/include/asm/pci_clp.h    |  4 +-
+ arch/s390/pci/pci.c                |  6 ++-
+ arch/s390/pci/pci_bus.c            |  2 +
+ arch/s390/pci/pci_clp.c            |  1 +
+ drivers/iommu/iommu.c              |  5 +++
+ drivers/iommu/s390-iommu.c         | 65 ++++++++++++++++++++++++++++--
+ include/linux/iommu.h              |  2 +
+ 11 files changed, 107 insertions(+), 7 deletions(-)
+ create mode 100644 arch/s390/include/asm/device.h
+ create mode 100644 arch/s390/include/asm/dma-direct.h
 
-I think you would just include the header and then remove the ifdef
-entirely. Instead of vfio doing memcpy with 32 bit it will do memcpy
-internally to the io accessors?
+-- 
+2.47.0
 
-There is nothing about this that has to be atomic or something.
-
-Jason
