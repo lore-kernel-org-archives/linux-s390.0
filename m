@@ -1,63 +1,60 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D050021E093;
-	Mon,  9 Dec 2024 11:36:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E99CF21B90B;
+	Mon,  9 Dec 2024 11:41:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733744209; cv=none; b=IH8ATcLKud1/9NcePhAI9rg86zltynVMDjP2I+/vjE8Px4+fHzImr01ab+LT2f+5Y5Y3R9reNGoonKrtLCjIifTaOdc9jgiBdVB+Edp/jyxM7v81TNdgKWGNPyMkoggRXf61LiCZPjpiooEhAhDHMvBj5eJMglq/4xL/MNh/eKY=
+	t=1733744469; cv=none; b=fH2PxhqHQLQAZNlYfhxXMh9YrYyYedoX75/iv4jzgj6dEEq6Qs6O/UUSNQIBq+QvtrbGB6CsBNVO9Q+MIdfjOsE7n0A3rzdtOan8v60zbtj+/DHT9QGP5F1+6sMmUAsWbTVbKVuISYEzK/AZFNC62iLECqQSALVH927iQE2pnnk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733744209; c=relaxed/simple;
-	bh=ZlKLqseD77SAZvOORQVUfrSOF8Pn6ADkryyopa+DG9g=;
+	s=arc-20240116; t=1733744469; c=relaxed/simple;
+	bh=H2Fb+rLSAQGGZ2TmP85u8O8gEOmSROkF+tE09mqNqYk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hs5kz083tg248jDwuKZtJ5/5gQVE02oXP2J77QXlDLkp9tJAqTYi/oNB39cZ9ISCF1meJBkXjm0kE9oPyys1FrA4DWCrmpxnfDpK6KVWo2Sa8TUACe6ChcCTjWtY2MIe1H23Tt1kRL5TsamlXTHlQFPP6lrzVmwirc76zJc+pUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QvssUjPr; arc=none smtp.client-ip=209.85.218.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type; b=P5X6BkpJ4qj0fcFuCv9IV83SP+v2UIWU4HCsYkK3CGqZsIJk4xeuIc5AqnptLHAEX5ZfmclRdJcyV092ElT/EhCbN3WG/nCKplf+P8TReCihDoh4NZ/mU8NQatjM6MFlmYknrRmw3o3L8IDbdh7LnWJ17z7fJDmWkLdDPAtMpA8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZjdDReBv; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QvssUjPr"
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-aa689a37dd4so150948766b.3;
-        Mon, 09 Dec 2024 03:36:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733744206; x=1734349006; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=zoqe9Whe3yMtlFet31USqO0Fn1cK27Vp8jD/bmMM6cY=;
-        b=QvssUjPrIhX3l8vPHTv2opHGP5yC3SMr9D53qWl1wTbCV7oDGHGyu7jAqUa0K/YSNY
-         sLUH2nUvydd0B+3x0gNvPKNba+F0WYUQbFk3c6VPAO9238SUr7X3tl2bRog5Db16JuG9
-         yJLVjoLXm0e2mTNqifzqV1cPGPZLBTrxcKp4B++7XX/+452MX2CX2C/XKQFTQA8RczWQ
-         152KjjfzncczTFT8lD+j5wSG5peA92XK7m6w6RzSCrHJBNJivTtsEPv1e3c/SRxVck1U
-         H+SQx/cDj+rT08OewbXTSkmTXvsamY69czup0HLz8ARsXrlJhsB+RufBIhEnElzYgxo1
-         yksg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733744206; x=1734349006;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=zoqe9Whe3yMtlFet31USqO0Fn1cK27Vp8jD/bmMM6cY=;
-        b=I8Pmzx2a2pJkLDgXqI7pv07oX8L+vmh4Ge2lMFe8LczO9tBXCU9aljCrliqExTOesl
-         DbJVwVLXN0bRYE7O+vFXrTNQtYcun9hZ1wQ6dnrTFO3ktUO9ZlnoSKZ7HD0b2StGVISq
-         yzLsLetl4C0l/2Waf4XCD/jhYczgoWulIRAoTtQWEtpKoMzzdM20+z8hSTGOpiF3u8Wg
-         0IkHuLFtHaoE5rFei5DpfEOp60XfIB5cVhGN1xl06Y5nWGjhCsjNKnQFtITzZLCOXcz+
-         hy4DhjMP7Z3tAVz7Ntt2m7d4Oq64LLdZs3x7R5zOhkGCLXQoavoqSn7gcAQyIymCza9g
-         ZqcQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUN89e0MxdxmNe1pCcJfpC0IMgmvJh/rYGiKEUpmkVOp9qdDw9/REF3ddb7igd0cZhB265eB1n5@vger.kernel.org, AJvYcCWjsYcx2FLKRS4WT9Wtz9VEWum3ZUYci4jWExidTxhsEz5n4QmFTTk5wGbZGZ4xbgNbL3vkJxwen2D8@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz+w0tdhZZwGDIMvjn1+AbA16Z9+MDSY02SyHu1olcE7zfem6Ej
-	NvFWRx5LS7t7gRTIBho0A9d/JpdjoM4oyT8VeTgcJloOHWNz4DHD
-X-Gm-Gg: ASbGncv6rhhsKpKQR4eYWCTWQcw+FxnXbQ21npGJpJJUr9hTKNyk6uJB/oAw3osOuCc
-	+a0Yuu9tKpjlt1vvbQV/gq3y48VHF3C2n1e9iGfkYAsqUgMZIHbYA5tUWx7ZWVHZeVkN8l+4c9A
-	wk4BmU55llSbrQnAng7EQ5WNAd5N8WkMqALfRXAXK7JXQScf/xGWF5Qr2iu6x82Cquxi4g9ZJhB
-	pesP9F+RzCRrGCn/sjUIDUiHLDJligIdi01UMPT1dBmbm+R5Rsu2h/AL+LUklMRZHg=
-X-Google-Smtp-Source: AGHT+IFKdatPgMfDBN7Xfbk2j+VSacP3ycm6JKmMGa2vsAcwBzl/eTdZm6wsNrpZNUR5VVOsPl1YeA==
-X-Received: by 2002:a17:907:9554:b0:aa6:6c08:dc79 with SMTP id a640c23a62f3a-aa66c08de57mr581772266b.35.1733744205646;
-        Mon, 09 Dec 2024 03:36:45 -0800 (PST)
-Received: from [10.80.1.87] ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aa6800a99f4sm196237566b.31.2024.12.09.03.36.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Dec 2024 03:36:45 -0800 (PST)
-Message-ID: <6ebe9fdf-ae3f-4e77-a2d4-82427e59f51b@gmail.com>
-Date: Mon, 9 Dec 2024 13:36:29 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZjdDReBv"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B8MFc1X011164;
+	Mon, 9 Dec 2024 11:40:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=zNAbcS
+	JlzI9zZuIvNYLlljbO/ACfGr9d55IxHaVVEFo=; b=ZjdDReBvPVF1DcKKNjELbS
+	ZoRoCZc7sEOUdrano/RToZf83QP6U3nVgDzOknrkOxvLPtVBOD3HmVmkrzMDL84m
+	y2HyH0SIfdPMfI9vSMdb250gPgSp4icuXi6rWTQlttArw9JVRCQPJQEW5hVzcBES
+	zcj5XxgpvU1NYTfcFFbbMlurV2HxV7I9HbiS2vInlI9kZu2CCWAaRCNQ3q25G3V3
+	ZgqgH3/An6WPBjaWGpK6ReYII5JaiIKuEOq2sZjTLg43h+AbW2wBEzHcuBo2CYMj
+	5ROAlitvGJ0LYqZxFeh899qBhNT5Gqt4vbXeXqwBrvGFsOc/lrECpeTbPxRBAJZQ
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ce0x8305-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 09 Dec 2024 11:40:59 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B9BApaS023023;
+	Mon, 9 Dec 2024 11:40:58 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43d2wjp4mh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 09 Dec 2024 11:40:58 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B9Bet1140567236
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 9 Dec 2024 11:40:55 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3B1F320043;
+	Mon,  9 Dec 2024 11:40:55 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0E91220040;
+	Mon,  9 Dec 2024 11:40:55 +0000 (GMT)
+Received: from [9.155.198.95] (unknown [9.155.198.95])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  9 Dec 2024 11:40:55 +0000 (GMT)
+Message-ID: <0585d9ec-b680-407e-9f82-6c2c98b93a09@linux.ibm.com>
+Date: Mon, 9 Dec 2024 12:40:54 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -65,81 +62,85 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next] net/mlx5e: Transmit small messages in linear skb
-To: Alexandra Winter <wintera@linux.ibm.com>,
- Alexander Lobakin <aleksander.lobakin@intel.com>
-Cc: Rahul Rameshbabu <rrameshbabu@nvidia.com>,
- Saeed Mahameed <saeedm@nvidia.com>, Tariq Toukan <tariqt@nvidia.com>,
- Leon Romanovsky <leon@kernel.org>, David Miller <davem@davemloft.net>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Eric Dumazet <edumazet@google.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- Nils Hoppmann <niho@linux.ibm.com>, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Thorsten Winkler <twinkler@linux.ibm.com>, Simon Horman <horms@kernel.org>
-References: <20241204140230.23858-1-wintera@linux.ibm.com>
- <a8e529b2-1454-4c3f-aa49-b3d989e1014a@intel.com>
- <8e7f3798-c303-44b9-ae3f-5343f7f811e8@linux.ibm.com>
+Subject: Re: [PATCH v1 1/6] kvm: s390: Reject setting flic pfault attributes
+ on ucontrol VMs
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
+References: <20241209110717.77279-1-schlameuss@linux.ibm.com>
+ <20241209110717.77279-2-schlameuss@linux.ibm.com>
 Content-Language: en-US
-From: Tariq Toukan <ttoukan.linux@gmail.com>
-In-Reply-To: <8e7f3798-c303-44b9-ae3f-5343f7f811e8@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20241209110717.77279-2-schlameuss@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: l_aN9b2xTLIeHex7ijfPJeZufVaRV-9e
+X-Proofpoint-ORIG-GUID: l_aN9b2xTLIeHex7ijfPJeZufVaRV-9e
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 clxscore=1015 impostorscore=0 mlxscore=0 mlxlogscore=405
+ priorityscore=1501 malwarescore=0 adultscore=0 bulkscore=0 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412090090
 
+On 12/9/24 12:07 PM, Christoph Schlameuss wrote:
+> Prevent null pointer dereference when processing the
+> KVM_DEV_FLIC_APF_ENABLE and KVM_DEV_FLIC_APF_DISABLE_WAIT ioctls in the
+> interrupt controller.
+> 
+> Reported-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
+Please have a look into the documentation and find a place to write down 
+the !ucontrol requirement.
 
-On 06/12/2024 17:20, Alexandra Winter wrote:
-> 
-> 
-> On 04.12.24 15:32, Alexander Lobakin wrote:
->>> @@ -269,6 +270,10 @@ static void mlx5e_sq_xmit_prepare(struct mlx5e_txqsq *sq, struct sk_buff *skb,
->>>   {
->>>   	struct mlx5e_sq_stats *stats = sq->stats;
->>>   
->>> +	/* Don't require 2 IOMMU TLB entries, if one is sufficient */
->>> +	if (use_dma_iommu(sq->pdev) && skb->truesize <= PAGE_SIZE)
->     +		skb_linearize(skb);
->> 1. What's with the direct DMA? I believe it would benefit, too?
-> 
-> 
-> Removing the use_dma_iommu check is fine with us (s390). It is just a proposal to reduce the impact.
-> Any opinions from the NVidia people?
-> 
-> 
->> 2. Why truesize, not something like
->>
->> 	if (skb->len <= some_sane_value_maybe_1k)
-> 
-> 
-> With (skb->truesize <= PAGE_SIZE) the whole "head" buffer fits into 1 page.
-> When we set the threshhold at a smaller value, skb->len makes more sense
-> 
-> 
->>
->> 3. As Eric mentioned, PAGE_SIZE can be up to 256 Kb, I don't think
->>     it's a good idea to rely on this.
->>     Some test-based hardcode would be enough (i.e. threshold on which
->>     DMA mapping starts performing better).
-> 
-> 
-> A threshhold of 4k is absolutely fine with us (s390).
-> A threshhold of 1k would definitvely improve our situation and bring back the performance for some important scenarios.
-> 
-> 
-> NVidia people do you have any opinion on a good threshhold?
-> 
-
-Hi,
-
-Many approaches in the past few years are going the opposite direction, 
-trying to avoid copies ("zero-copy").
-
-In many cases, copy up to PAGE_SIZE means copy everything.
-For high NIC speeds this is not realistic.
-
-Anyway, based on past experience, threshold should not exceed "max 
-header size" (128/256b).
-
-
+Documentation/virt/kvm/devices/s390_flic.rst
+Documentation/virt/kvm/api.rst
