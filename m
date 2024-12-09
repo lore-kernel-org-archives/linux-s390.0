@@ -1,70 +1,74 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F4194233151;
-	Mon,  9 Dec 2024 17:36:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 513171F5F6;
+	Mon,  9 Dec 2024 18:14:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733765791; cv=none; b=HtIY8+5d62ibIf4hvHviUBItUV9+LXuMHJkX4J4TaOuSe+57zMalkzWju942lDPOQqs85Adq7jbsu4iFqSmugNGdx5bNcrv+R4bIbzmsqUfSUdQPCKBmcaYngpbT/fpg3UfIprvKuJfFpKf1G/3PJ0T+9u6+oKrbvZ89ixBSvGY=
+	t=1733768087; cv=none; b=O0XTnJ6TA2N0DIPFdzLQWWMzhDxOkxN8isifNgJoRzGoN57OmJX3g63PBCu8bt9fXdUqqWvxF0VHVTWuulU7gEVUaGTKKaSQszEpD1pNajX5L+QNwhsObOBlAattCy96yBCFxInR+f04TsD03ou8pRrSVUitH/ehTJkZUJ29xW4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733765791; c=relaxed/simple;
-	bh=Hq5rnsJB/aKu9z8c1l+psZm54aIsx4j7G7c5ol1WoVo=;
+	s=arc-20240116; t=1733768087; c=relaxed/simple;
+	bh=E49VBYWzl2VDgDBTnaG/kwBLSjQvkZNC0v+S1CFvd7g=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=CURFXsixhmAtwt4zu0rjcq6WRNPq7FfaMocERoEzk7y9BrQ117groEhWs3wTGSPtiq7LV+2L20Yu1SmPLed32OS1o2guUt6eyS02CMn6W1DYqEW6uq1AWALI8HQSfIn4QCIJIOh+myQXvcWtZ3a9R1UBFjet4QLCVfnGiTnnExs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GTU+clBP; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version:Content-Type; b=lwvlhw+jGr6UzIO87YsxvNYD/JCjDbpI06vxNwzvA1EOqGlDLYznzbrl3DhUisJ5vVG6Z9NkUoqKoUMKfRvMdkgoLGpXkxt3J+ax/PZfiNdiH/nnducLxjAEEyPLQxWClX7w6LUB4Xk8uXTb19UchQLe57cYrspHdeFhUDT6MZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=p8fYesV9; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GTU+clBP"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B9CNZvm030669;
-	Mon, 9 Dec 2024 17:36:16 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="p8fYesV9"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B9CvKYv016121;
+	Mon, 9 Dec 2024 18:14:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=TvXjD5
-	sYjVjwVQKUFAm5ajrLGlsD4EPwD6ySYHNV9y0=; b=GTU+clBPgWoKiThNubTyx9
-	6OsyBvbc0LvJtUJ94ybICM8GbhTAvKJlsAS6ST91rcozg9O+PAsHndvx10R5cH97
-	gD9HfBItn/hIsCOpKq7Nqt0mGP4JJb6gNMV2O8ygJwXWvmcBCWSMXT3tB1LksUNd
-	2FzVWgD0Ls0ByT5Ig5Kj526FYsBOIVqt6ZTvcFwhzt13IxoHh/O3PuoTQj3rMnHx
-	bbLFClMX5wVnh5ZpnnVOp1PBvzHPAVEpzfAEv0o2v8yB4Tyxi5U3EfBYnoa1g9hD
-	k5+DwbdsVdKMS8dyL4bj2ESP6GKyr0pBA7in4bHt3l8Tb9v/UvPvnljcIPL0oMMw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=llI+IA
+	InT7EnPiXfWG0aJ8N9qiD1xs/Qb+SaEvhpci8=; b=p8fYesV9owVwOFPB8vaYkG
+	Y5v+IMpfgQK/Fdggr3XBCkswZdDU7AU4Y7JY3hW91w5d+Kl+vRDGmi+7DVg9GKXA
+	lwJ5DSF8gI/avP6YNpOL6x+n5by4nQZciZIqngMu8j20CLhfq9tUnBDM6+yGAJWk
+	gQiZiy7QzfPy0gnvR8ATmrxM33uLXZPS6G1lbkLyWjA7rajlOoiXgNLmIsdsYcK4
+	lH+qNBra0c65PfNxgfRGExfvbKKIYvv0IR0GGdYYB5Ew4JNtgOH6rDjDAcgNYJCi
+	T/l18w6c8LSHUGD7/MFhS9wo1BydF2CbBhYGuIzna47cr9YSntTfRWU8/BxN97Dg
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ccsj9w16-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ce0x9wgb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 09 Dec 2024 17:36:15 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B9FbdWI023018;
-	Mon, 9 Dec 2024 17:36:15 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43d2wjqdrb-1
+	Mon, 09 Dec 2024 18:14:39 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B9HgETu016910;
+	Mon, 9 Dec 2024 18:14:38 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43d12y008u-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 09 Dec 2024 17:36:14 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B9HaDfg22872490
+	Mon, 09 Dec 2024 18:14:38 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B9IEYid22872758
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 9 Dec 2024 17:36:13 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 58F6D20043;
-	Mon,  9 Dec 2024 17:36:13 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1E31620040;
-	Mon,  9 Dec 2024 17:36:13 +0000 (GMT)
+	Mon, 9 Dec 2024 18:14:34 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A197520043;
+	Mon,  9 Dec 2024 18:14:34 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6D6D620040;
+	Mon,  9 Dec 2024 18:14:34 +0000 (GMT)
 Received: from p-imbrenda (unknown [9.152.224.66])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  9 Dec 2024 17:36:13 +0000 (GMT)
-Date: Mon, 9 Dec 2024 18:36:11 +0100
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  9 Dec 2024 18:14:34 +0000 (GMT)
+Date: Mon, 9 Dec 2024 19:14:32 +0100
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-fsdevel@vger.kernel.org,
-        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-s390@vger.kernel.org
-Subject: Re: Removing page->index
-Message-ID: <20241209183611.1f15595f@p-imbrenda>
-In-Reply-To: <cebb44b2-e258-43ff-80a5-6bd19c8edab8@redhat.com>
-References: <Z09hOy-UY9KC8WMb@casper.infradead.org>
-	<cebb44b2-e258-43ff-80a5-6bd19c8edab8@redhat.com>
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Cc: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand
+ <david@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan
+ <shuah@kernel.org>,
+        linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH v1 2/6] selftests: kvm: s390: Add ucontrol flic attr
+ selftests
+Message-ID: <20241209191432.03c98f38@p-imbrenda>
+In-Reply-To: <20241209110717.77279-3-schlameuss@linux.ibm.com>
+References: <20241209110717.77279-1-schlameuss@linux.ibm.com>
+	<20241209110717.77279-3-schlameuss@linux.ibm.com>
 Organization: IBM
 X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
@@ -76,88 +80,204 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: HBnYQoZuWsDnCU7JE8hIozGZoBz_2fKN
-X-Proofpoint-ORIG-GUID: HBnYQoZuWsDnCU7JE8hIozGZoBz_2fKN
+X-Proofpoint-GUID: 5_f5WAiK6GAvRVd3IdCjE3E2XPGn0xWS
+X-Proofpoint-ORIG-GUID: 5_f5WAiK6GAvRVd3IdCjE3E2XPGn0xWS
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 adultscore=0
- impostorscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0 mlxlogscore=890
- mlxscore=0 priorityscore=1501 suspectscore=0 malwarescore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2412090136
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 clxscore=1011 impostorscore=0 mlxscore=0 mlxlogscore=974
+ priorityscore=1501 malwarescore=0 adultscore=0 bulkscore=0 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412090136
 
-On Wed, 4 Dec 2024 16:58:52 +0100
-David Hildenbrand <david@redhat.com> wrote:
+On Mon,  9 Dec 2024 12:07:13 +0100
+Christoph Schlameuss <schlameuss@linux.ibm.com> wrote:
 
-> On 03.12.24 20:51, Matthew Wilcox wrote:
-> > I've pushed out a new tree to
-> > git://git.infradead.org/users/willy/pagecache.git shrunk-page
-> > aka
-> > http://git.infradead.org/?p=users/willy/pagecache.git;a=shortlog;h=refs/heads/shrunk-page
-> > 
-> > The observant will notice that it doesn't actually shrink struct page
-> > yet.  However, we're getting close.  What it does do is rename
-> > page->index to page->__folio_index to prevent new users of page->index
-> > from showing up.  
+> Add some superficial selftests for the floating interrupt controller
+> when using ucontrol VMs. These tests are intended to cover very basic
+> calls only.
 > 
-> BTW, I was wondering how often we convert a page to a folio to then 
-> access folio->index / folio->mapping and not actually having a folio (in 
-> the future).
+> Some of the calls may trigger null pointer dereferences on kernels not
+> containing the fixes in this patch series.
 > 
-> I suspect this will need quite some changes to get it right, and I would 
-> count that as "less obvious".
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> ---
+>  .../selftests/kvm/s390x/ucontrol_test.c       | 150 ++++++++++++++++++
+>  1 file changed, 150 insertions(+)
 > 
-> Calling PageAnon() on anything mapped into user space page tables might 
-> be one such case, for example.
-> 
-> > 
-> > There are (I believe) three build failures in that tree:
-> > 
-> >   - fb_defio
-> >   - fbtft
-> >   - s390's gmap (and vsie?  is that the same thing?)  
-> 
-> Not completely (vsie (nested VMs) uses shadow gmap, ordinary VMs use 
-> ordinary gmap) , but they are very related (-> KVM implementation on s390x).
-> 
-> I know that Claudio is working on some changes, but not sure how that 
-> would affect gmap's usage of page->index.
+> diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> index 0c112319dab1..972fac1023b5 100644
+> --- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> +++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> @@ -635,4 +635,154 @@ TEST_F(uc_kvm, uc_skey)
+>  	uc_assert_diag44(self);
+>  }
+>  
+> +static char uc_flic_b[PAGE_SIZE];
+> +static struct kvm_s390_io_adapter uc_flic_ioa = { .id = 0 };
+> +static struct kvm_s390_io_adapter_req uc_flic_ioam = { .id = 0 };
+> +static struct kvm_s390_ais_req uc_flic_asim = { .isc = 0 };
+> +static struct kvm_s390_ais_all uc_flic_asima = { .simm = 0 };
+> +static struct uc_flic_attr_test {
+> +	char *name;
+> +	struct kvm_device_attr a;
+> +	int hasrc;
+> +	u64 getrc;
+> +	int geterrno;
+> +	u64 setrc;
 
-After I'm done, we won't use page->index anymore.
+I wonder if you really need getrc and setrc? (see below)
 
-The changes I'm working on are massive, it's very impractical to push
-everything at once, so I'm refactoring and splitting smaller and more
-manageable (and reviewable) series.
+> +	int seterrno;
+> +} uc_flic_attr_tests[] = {
+> +	{
+> +		.name = "KVM_DEV_FLIC_GET_ALL_IRQS",
+> +		.setrc = 1, .seterrno = EINVAL,
 
-This means that it will take some time before I'm done (I'm *hoping*
-to be done for 6.15)
+please put them on separate lines ^ (if you end up keeping both)
 
-> 
-> s390x gmap is 64bit only, so we have to store stuff in 8byte. gmap page 
-> tables are
-> 
-> Maybew e could simply switch from page->index to page->private? But I 
-> lost track if that will also be gone in the near future :)
-> 
-> > 
-> > Other than that, allmodconfig builds on x86 and I'm convinced the build
-> > bots will tell me about anything else I missed.
-> > 
-> > Lorenzo is working on fb_defio and fbtft will come along for the ride
-> > (it's a debug printk, so could just be deleted).
-> > 
-> > s390 is complicated.  I'd really appreciate some help.
-> > 
-> > The next step is to feed most of the patches through the appropriate
-> > subsystems.  Some have already gone into various maintainer trees
-> > (thanks!)
-> > 
-> > 
-> > There are still many more steps to go after this; eliminating memcg_data
-> > is closest to complete, and after that will come (in some order)
-> > eliminating ->lru, ->mapping, ->refcount and ->mapcount.   
-> 
-> Will continue working on the latter ;)
-> 
+> +		.a = {
+> +			.group = KVM_DEV_FLIC_GET_ALL_IRQS,
+> +			.addr = (u64)&uc_flic_b,
+> +			.attr = PAGE_SIZE,
+> +		},
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_ENQUEUE",
+> +		.getrc = 1, .geterrno = EINVAL,
+> +		.a = { .group = KVM_DEV_FLIC_ENQUEUE, },
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_CLEAR_IRQS",
+> +		.getrc = 1, .geterrno = EINVAL,
+> +		.a = { .group = KVM_DEV_FLIC_CLEAR_IRQS, },
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_ADAPTER_REGISTER",
+> +		.getrc = 1, .geterrno = EINVAL,
+> +		.a = {
+> +			.group = KVM_DEV_FLIC_ADAPTER_REGISTER,
+> +			.addr = (u64)&uc_flic_ioa,
+> +		},
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_ADAPTER_MODIFY",
+> +		.getrc = 1, .geterrno = EINVAL,
+> +		.setrc = 1, .seterrno = EINVAL,
+> +		.a = {
+> +			.group = KVM_DEV_FLIC_ADAPTER_MODIFY,
+> +			.addr = (u64)&uc_flic_ioam,
+> +			.attr = sizeof(uc_flic_ioam),
+> +		},
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_CLEAR_IO_IRQ",
+> +		.getrc = 1, .geterrno = EINVAL,
+> +		.setrc = 1, .seterrno = EINVAL,
+> +		.a = {
+> +			.group = KVM_DEV_FLIC_CLEAR_IO_IRQ,
+> +			.attr = 32,
+> +		},
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_AISM",
+> +		.getrc = 1, .geterrno = EINVAL,
+> +		.setrc = 1, .seterrno = ENOTSUP,
+> +		.a = {
+> +			.group = KVM_DEV_FLIC_AISM,
+> +			.addr = (u64)&uc_flic_asim,
+> +		},
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_AIRQ_INJECT",
+> +		.getrc = 1, .geterrno = EINVAL,
+> +		.a = { .group = KVM_DEV_FLIC_AIRQ_INJECT, },
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_AISM_ALL",
+> +		.getrc = 1, .geterrno = ENOTSUP,
+> +		.setrc = 1, .seterrno = ENOTSUP,
+> +		.a = {
+> +			.group = KVM_DEV_FLIC_AISM_ALL,
+> +			.addr = (u64)&uc_flic_asima,
+> +			.attr = sizeof(uc_flic_asima),
+> +		},
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_APF_ENABLE",
+> +		.getrc = 1, .geterrno = EINVAL,
+> +		.setrc = 1, .seterrno = EINVAL,
+> +		.a = { .group = KVM_DEV_FLIC_APF_ENABLE, },
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_APF_DISABLE_WAIT",
+> +		.getrc = 1, .geterrno = EINVAL,
+> +		.setrc = 1, .seterrno = EINVAL,
+> +		.a = { .group = KVM_DEV_FLIC_APF_DISABLE_WAIT, },
+> +	},
+> +};
+> +
+> +TEST_F(uc_kvm, uc_flic_attrs)
+> +{
+> +	struct kvm_create_device cd = { .type = KVM_DEV_TYPE_FLIC };
+> +	struct kvm_device_attr attr;
+> +	u64 value;
+> +	int rc, i;
+> +
+> +	rc = ioctl(self->vm_fd, KVM_CREATE_DEVICE, &cd);
+> +	ASSERT_EQ(0, rc) TH_LOG("create device failed with err %s (%i)",
+> +				strerror(errno), errno);
+> +
+> +	for (i = 0; i < ARRAY_SIZE(uc_flic_attr_tests); i++) {
+> +		TH_LOG("test %s", uc_flic_attr_tests[i].name);
+> +		attr = (struct kvm_device_attr) {
+> +			.group = uc_flic_attr_tests[i].a.group,
+> +			.attr = uc_flic_attr_tests[i].a.attr,
+> +			.addr = uc_flic_attr_tests[i].a.addr,
+> +		};
+> +		if (attr.addr == 0)
+> +			attr.addr = (u64)&value;
+> +
+> +		rc = ioctl(cd.fd, KVM_HAS_DEVICE_ATTR, &attr);
+> +		EXPECT_EQ(uc_flic_attr_tests[i].hasrc, !!rc)
+> +			TH_LOG("expected dev attr missing %s",
+> +			       uc_flic_attr_tests[i].name);
+> +
+> +		rc = ioctl(cd.fd, KVM_GET_DEVICE_ATTR, &attr);
+> +		EXPECT_EQ(uc_flic_attr_tests[i].getrc, !!rc)
+
+maybe you could just do:
+
+	EXPECT_EQ(!!uc_flic_attr_tests[i].geterrno, !!rc)
+
+(unless I am missing something)
+
+this is not super important, though
+
+> +			TH_LOG("get dev attr rc not expected on %s %s (%i)",
+> +			       uc_flic_attr_tests[i].name,
+> +			       strerror(errno), errno);
+> +		if (uc_flic_attr_tests[i].geterrno)
+> +			EXPECT_EQ(uc_flic_attr_tests[i].geterrno, errno)
+> +				TH_LOG("get dev attr errno not expected on %s %s (%i)",
+> +				       uc_flic_attr_tests[i].name,
+> +				       strerror(errno), errno);
+> +
+> +		rc = ioctl(cd.fd, KVM_SET_DEVICE_ATTR, &attr);
+> +		EXPECT_EQ(uc_flic_attr_tests[i].setrc, !!rc)
+> +			TH_LOG("set sev attr rc not expected on %s %s (%i)",
+> +			       uc_flic_attr_tests[i].name,
+> +			       strerror(errno), errno);
+> +		if (uc_flic_attr_tests[i].seterrno)
+> +			EXPECT_EQ(uc_flic_attr_tests[i].seterrno, errno)
+> +				TH_LOG("set dev attr errno not expected on %s %s (%i)",
+> +				       uc_flic_attr_tests[i].name,
+> +				       strerror(errno), errno);
+> +	}
+> +
+> +	close(cd.fd);
+> +}
+> +
+>  TEST_HARNESS_MAIN
 
