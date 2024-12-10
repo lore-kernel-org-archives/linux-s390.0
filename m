@@ -1,178 +1,198 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7100238731
-	for <linux-s390@vger.kernel.org>; Tue, 10 Dec 2024 17:10:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 133CE8634E
+	for <linux-s390@vger.kernel.org>; Tue, 10 Dec 2024 17:34:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733850617; cv=none; b=CNJiXlnjfIxD7b9Bs1Bu7J4x2znWlzNw5e+dhNQbVFB/dFm9OF7kiBLs5tETYlwEEIIXdlVnDLVfn6U8Bx+CgJGO5PHBvm8a+bMzmtnzz2AHke2rXD/43FGaHxRAYRwkC4tAclrTydDAekwfpTbiK3FLi7X8aMyu5+r5GjylbQM=
+	t=1733852056; cv=none; b=a17fXeCpuGtp9WXuuA6wYqv+sUSp8+uBWPv4T0IhBqbGrjaCmKhwYH1xRZ+w/LOLk98zqghgvi+tV9VZliyarPFDBWkahM+/qmZTl+0zGtu6o5sF/QS1Ko0FMWnqAnqU84v9w1xxX1tnBVu0bLdl7u+Tv58HzBY6e49R86AZsd8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733850617; c=relaxed/simple;
-	bh=dOcgx4vsAaKPwnMQs4DZgk10sp7QpEKQF5PwdcJZOW0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mJCDiw4DxVqNO1lUR64pQoIOpI1gUwvibQRtss/TaiG5+lB0rGCVA6/4Tn/kBIPmHcbMAh7RaTwzc6hquqp5xqJlgheZlyYjoXFVwtpuTq3amMv3BHOhRhsOJyUWaKxnbz4NL005zd49eqmy+a0No3IPqdbchlFcl2PVoR9oJlU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=qxp9XfwK; arc=none smtp.client-ip=209.85.214.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
+	s=arc-20240116; t=1733852056; c=relaxed/simple;
+	bh=Y9Up7Zg+iyA0n56miZ38zueiGUjxJwQJgWARnjm2vZA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=GblwKbqZ3STx8132rK4DlDKb/hHKXmftk+Q4QBtmk1ApUcO0jvfsJiqVhTZTy7JtCULTX3HQWBn68ScMAO4kVk32cWRHdCC4Z6Qk5jV5FxfAuwgAiLFzwSuz6MhuXiI7kNQvlAbzCbsMnMvzV3z8oHc9gxBKCXIlEKuLbCQbIAk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=RrJITF+i; arc=none smtp.client-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="qxp9XfwK"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-21670dce0a7so13637045ad.1
-        for <linux-s390@vger.kernel.org>; Tue, 10 Dec 2024 09:10:15 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="RrJITF+i"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2155c25e9a4so137415ad.1
+        for <linux-s390@vger.kernel.org>; Tue, 10 Dec 2024 09:34:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fastly.com; s=google; t=1733850615; x=1734455415; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+ywDe46rhLkZ9bsyw9G5gDKVK+sDMoiD1i1tPx8KAFg=;
-        b=qxp9XfwKCdJvPLoO3j3nSZ2OJHe0lKjQDSh1rw62gdfaf+7FzvSbbY0COO5S7ZJ4xJ
-         z1X8oJ8ejpk28v5zEBHe4CrThSH0h8og8zv7dEWpYH7nJVk3mWTWsSDozQPxW9bj7R1a
-         o3rH4v2/CeVRve1pAONJRtPl+ci4XOvQIhfxY=
+        d=google.com; s=20230601; t=1733852054; x=1734456854; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=RArVkKSCeMH/NY6o3gQIWtxTREQOsCr1U+SuNtxbEwg=;
+        b=RrJITF+ijB+z0s9PlbhtAHtVpSVAqsqFtAX1QLROd7jzZkoeIerRiGYHyGx+AeyS5b
+         QrDA1M2s2I8tmg0Z9MzfXCVH0PwcC+v2eyn5h9Bs7/XKEf3O1duuh6X41w0q/mYJFyXI
+         kM9nmca5d9OuN8k592OV/1dYQO3gexurKoXfai8mlAmNn2OpNIa5o9i9RSuVZvc+Zea5
+         1ZPMT9aQ8XlVZgFS7bBmu5KaTN6h/FNfKrBQbvewJLeSiPDI6GF/4VDbRd0ddGVk9THn
+         iwXlYTOHXFzce4J3jjLJX9pj7+ruDWU7tpUywgJx5HrDNzOEg9eIKYuhqN6r5kT+e2H8
+         RZXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733850615; x=1734455415;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+ywDe46rhLkZ9bsyw9G5gDKVK+sDMoiD1i1tPx8KAFg=;
-        b=Saux9EzX9PdZLvzRdpdLjQC8iW2pDRmR+ZqMkqLbmub4dwS3r1nEQcJkgW2wMni7rt
-         XmjutW+mjx0sP6/G7Wd24o1+EM8jOm0K9qOeFx7p3W3ZLMR7OvQotIcntv9Dbiloc6Nb
-         nF6hb6WG4dfGoy2M1DVFSrxnguNlsaZiDX3TcS/m5QpzPGHHng/HbveeQ63WT9gbsicZ
-         KkXD712QnqOK+KrLR50UEVie8QXkyWZEQDpzDkE3UPqvthtrs5CZEYTaNDE3JLg5BcQe
-         vnIdIyby3LvClKR4PIkpAu1kdrsEi6/Slma4sSk7GF02pjVjtje5B19QzzSoLDP99Uq9
-         pQyg==
-X-Forwarded-Encrypted: i=1; AJvYcCV53BW42LswE/3DzZ7pvU0aizd/GJJfVpdQgBBpeYod/3y3+w8USqTfd2dsg3BOGLrBxGyb748gO/Rh@vger.kernel.org
-X-Gm-Message-State: AOJu0YzF5Cm4iAEZQ+/5PQ5d1mP6hWo1DJh7tqBpbBby/TeymSc5pJgH
-	tTKbgKgFP0Y77zJ5YRfYdtYKTklE2n6hPCbI9YmZ8JF1HYc0iJOgebeZX/yWXjY=
-X-Gm-Gg: ASbGncsLslc3IsA2MT7TEwAExpqapJzFeoxr63ZO5wvevfV8Q7kiLPF2+rhCwPUvPPG
-	anvf069avSUZJZa1+8t3vo9pVdouCR/gSINVbxOzQ7FvWnJ0kzHtjHk9cRhv+wSsx/5q0G5Dx8D
-	x6+S09uvXBPKynX1oKnixDCve7kKGK/jSiuGSrky5XqQY6wcJtvxVR8RgvDjBwTOknzpkcS5kOv
-	sRwlETvaSDk5690PBiQmyUviTLmell73uCm5R7eIHY4u/TsX8zVCV38s6wcr8kr+p9SO8rdGS7E
-	yi5jNc/nxQ/PgLGpx5sW
-X-Google-Smtp-Source: AGHT+IHUOOB5pTTIy2MHsVvW23BzqMe3H8KuiJav8M/pdsu2J52R48xEMht0knZ76z0znc0x05NmqA==
-X-Received: by 2002:a17:902:e887:b0:215:4450:54fb with SMTP id d9443c01a7336-2166a0b58dbmr74822495ad.55.1733850614753;
-        Tue, 10 Dec 2024 09:10:14 -0800 (PST)
-Received: from LQ3V64L9R2 (c-24-6-151-244.hsd1.ca.comcast.net. [24.6.151.244])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2167dafcb5asm8234895ad.211.2024.12.10.09.10.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Dec 2024 09:10:14 -0800 (PST)
-Date: Tue, 10 Dec 2024 09:10:11 -0800
-From: Joe Damato <jdamato@fastly.com>
-To: Alexander Lobakin <aleksander.lobakin@intel.com>
-Cc: Dragos Tatulea <dtatulea@nvidia.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Rahul Rameshbabu <rrameshbabu@nvidia.com>,
-	Saeed Mahameed <saeedm@nvidia.com>,
-	Tariq Toukan <tariqt@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Nils Hoppmann <niho@linux.ibm.com>, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>
-Subject: Re: [PATCH net-next] net/mlx5e: Transmit small messages in linear skb
-Message-ID: <Z1h18zpbbgT0QaoV@LQ3V64L9R2>
-Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	Dragos Tatulea <dtatulea@nvidia.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Rahul Rameshbabu <rrameshbabu@nvidia.com>,
-	Saeed Mahameed <saeedm@nvidia.com>,
-	Tariq Toukan <tariqt@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Nils Hoppmann <niho@linux.ibm.com>, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>
-References: <20241204140230.23858-1-wintera@linux.ibm.com>
- <a8e529b2-1454-4c3f-aa49-b3d989e1014a@intel.com>
- <8e7f3798-c303-44b9-ae3f-5343f7f811e8@linux.ibm.com>
- <554a3061-5f3b-4a7e-a9bd-574f2469f96e@nvidia.com>
- <bc9459f0-62b0-407f-9caf-d80ee37eb581@intel.com>
+        d=1e100.net; s=20230601; t=1733852054; x=1734456854;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=RArVkKSCeMH/NY6o3gQIWtxTREQOsCr1U+SuNtxbEwg=;
+        b=PT+bG1CIbge24UzWsYxvy8wt8qdopbxFXKgariI8cABkYNHdJ/dDKW+aLib/0NbIc6
+         SANR8Crl/cC+0PF8GkmFCP77rcLMuWr9419fG9hER1Y8OLLi+OZhPcHlgpnEaW2w+jg1
+         ZMC2d7yg+al5DmE7USdhOutBfnOYAdpZS67jcF13BGBz/DHCqmrLWvze6ISzVmu9ZcZN
+         VAZRQSMNgf6fdCHeHYTu9cUJycDjLgXfENudwCFr2joBY7XEJqjDsIeg6J7ZGvCjiM+C
+         LE4c418zO4V6COkdf3XpmJ0ltvPSyskiZcHhtYYRuHm8XMWujrJyLfs7mXitR2HYbV+W
+         l13w==
+X-Forwarded-Encrypted: i=1; AJvYcCVZGAi+vCMnZjve+4MhJ0ejPdM0WSM5nWO/cay2gLOGOOwMKG34hGtDPry32CC8oyDOP2/tvJo9Go63@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw82StDWyO2lWIgq2sUyhVAsNLKThLYKT6f9N9PBoQq1uq9LMrr
+	9VuJCXU+46h6u2CH/lrWf0ukz/BeE2MlatIjLLYOLedINpjIH9y5IAaW7EZh7RvXsKtNJnGIIUq
+	MZAsJp083CHVKzRcGwhyW/I1eh1ihAZ86B5qg
+X-Gm-Gg: ASbGncuRlNyP8MJ6x4yOLT9aiYaFf2OlEHcYaFNG3eTaQhRZjU34gwnvw/xtfXZcRBF
+	26Iv2FiWmyaPRz2le4Ix9/+zlrI1LA3OFYlBF+0CkSASgXzunpGMvCsqjzv9kMWKD
+X-Google-Smtp-Source: AGHT+IEDudBnir5+jttzQm+7tNnzRHUlcioRTO8j0Dis2V+coMoC8sfWSozH23fEnrYfZy4bwgZvjEwIXStM7LatHiM=
+X-Received: by 2002:a17:903:4403:b0:215:9d29:1aba with SMTP id
+ d9443c01a7336-21674cbdb12mr2775015ad.1.1733852054062; Tue, 10 Dec 2024
+ 09:34:14 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bc9459f0-62b0-407f-9caf-d80ee37eb581@intel.com>
+References: <20241210024119.2488608-1-kaleshsingh@google.com>
+ <20241210024119.2488608-18-kaleshsingh@google.com> <CAHbLzkq2SNaqzx4d981H2QfQvtObS3X0pPL8=oqFsFbMditWPA@mail.gmail.com>
+In-Reply-To: <CAHbLzkq2SNaqzx4d981H2QfQvtObS3X0pPL8=oqFsFbMditWPA@mail.gmail.com>
+From: Kalesh Singh <kaleshsingh@google.com>
+Date: Tue, 10 Dec 2024 09:34:01 -0800
+Message-ID: <CAC_TJvdReRHzBSgg2iqOw3Kw6BBOtwGE=8nB2Hsw-nsmkxN0+g@mail.gmail.com>
+Subject: Re: [PATCH mm-unstable 17/17] mm: Respect mmap hint before THP
+ alignment if allocation is possible
+To: Yang Shi <shy828301@gmail.com>
+Cc: akpm@linux-foundation.org, vbabka@suse.cz, yang@os.amperecomputing.com, 
+	riel@surriel.com, david@redhat.com, linux@armlinux.org.uk, 
+	tsbogend@alpha.franken.de, James.Bottomley@hansenpartnership.com, 
+	ysato@users.sourceforge.jp, dalias@libc.org, glaubitz@physik.fu-berlin.de, 
+	davem@davemloft.net, andreas@gaisler.com, tglx@linutronix.de, bp@alien8.de, 
+	dave.hansen@linux.intel.com, x86@kernel.org, chris@zankel.net, 
+	jcmvbkbc@gmail.com, bhelgaas@google.com, jason.andryuk@amd.com, 
+	leitao@debian.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-csky@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, 
+	kernel-team@android.com, android-mm@google.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 10, 2024 at 02:54:26PM +0100, Alexander Lobakin wrote:
-> From: Dragos Tatulea <dtatulea@nvidia.com>
-> Date: Tue, 10 Dec 2024 12:44:04 +0100
-> 
-> > 
-> > 
-> > On 06.12.24 16:20, Alexandra Winter wrote:
-> >>
-> >>
-> >> On 04.12.24 15:32, Alexander Lobakin wrote:
-> >>>> @@ -269,6 +270,10 @@ static void mlx5e_sq_xmit_prepare(struct mlx5e_txqsq *sq, struct sk_buff *skb,
-> >>>>  {
-> >>>>  	struct mlx5e_sq_stats *stats = sq->stats;
-> >>>>  
-> >>>> +	/* Don't require 2 IOMMU TLB entries, if one is sufficient */
-> >>>> +	if (use_dma_iommu(sq->pdev) && skb->truesize <= PAGE_SIZE)
-> >>    +		skb_linearize(skb);
-> >>> 1. What's with the direct DMA? I believe it would benefit, too?
-> >>
-> >>
-> >> Removing the use_dma_iommu check is fine with us (s390). It is just a proposal to reduce the impact.
-> >> Any opinions from the NVidia people?
-> >>
-> > Agreed.
-> > 
-> >>
-> >>> 2. Why truesize, not something like
-> >>>
-> >>> 	if (skb->len <= some_sane_value_maybe_1k)
-> >>
-> >>
-> >> With (skb->truesize <= PAGE_SIZE) the whole "head" buffer fits into 1 page.
-> >> When we set the threshhold at a smaller value, skb->len makes more sense
-> >>
-> >>
-> >>>
-> >>> 3. As Eric mentioned, PAGE_SIZE can be up to 256 Kb, I don't think
-> >>>    it's a good idea to rely on this.
-> >>>    Some test-based hardcode would be enough (i.e. threshold on which
-> >>>    DMA mapping starts performing better).
-> >>
-> >>
-> >> A threshhold of 4k is absolutely fine with us (s390). 
-> >> A threshhold of 1k would definitvely improve our situation and bring back the performance for some important scenarios.
-> >>
-> >>
-> >> NVidia people do you have any opinion on a good threshhold?
-> >>
-> > 1KB is still to large. As Tariq mentioned, the threshold should not
-> > exceed 128/256B. I am currently testing this with 256B on x86. So far no
-> > regressions but I need to play with it more.
-> 
-> On different setups, usually the copybreak of 192 or 256 bytes was the
-> most efficient as well.
+On Mon, Dec 9, 2024 at 7:37=E2=80=AFPM Yang Shi <shy828301@gmail.com> wrote=
+:
+>
+> On Mon, Dec 9, 2024 at 6:45=E2=80=AFPM Kalesh Singh <kaleshsingh@google.c=
+om> wrote:
+> >
+> > Commit 249608ee4713 ("mm: respect mmap hint address when aligning for T=
+HP")
+> > fallsback to PAGE_SIZE alignment instead of THP alignment
+> > for anonymous mapping as long as a hint address is provided by the user
+> > -- even if we weren't able to allocate the unmapped area at the hint
+> > address in the end.
+> >
+> > This was done to address the immediate regression in anonymous mappings
+> > where the hint address were being ignored in some cases; due to commit
+> > efa7df3e3bb5 ("mm: align larger anonymous mappings on THP boundaries").
+> >
+> > It was later pointed out that this issue also existed for file-backed
+> > mappings from file systems that use thp_get_unmapped_area() for their
+> > .get_unmapped_area() file operation.
+> >
+> > The same fix was not applied for file-backed mappings since it would
+> > mean any mmap requests that provide a hint address would be only
+> > PAGE_SIZE-aligned regardless of whether allocation was successful at
+> > the hint address or not.
+> >
+> > Instead, use arch_mmap_hint() to first attempt allocation at the hint
+> > address and fallback to THP alignment if that fails.
+>
+> Thanks for taking time to try to fix this.
+>
+> >
+> > Signed-off-by: Kalesh Singh <kaleshsingh@google.com>
+> > ---
+> >  mm/huge_memory.c | 15 ++++++++-------
+> >  mm/mmap.c        |  1 -
+> >  2 files changed, 8 insertions(+), 8 deletions(-)
+> >
+> > diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+> > index 137abeda8602..f070c89dafc9 100644
+> > --- a/mm/huge_memory.c
+> > +++ b/mm/huge_memory.c
+> > @@ -1097,6 +1097,14 @@ static unsigned long __thp_get_unmapped_area(str=
+uct file *filp,
+> >         loff_t off_align =3D round_up(off, size);
+> >         unsigned long len_pad, ret, off_sub;
+> >
+> > +       /*
+> > +        * If allocation at the address hint succeeds; respect the hint=
+ and
+> > +        * don't try to align to THP boundary.
+> > +        */
+> > +       addr =3D arch_mmap_hint(filp, addr, len, off, flags);
+> > +       if (addr)
+> > +               return addr;
+> > +
 
-A minor suggestion:
+Hi Yang,
 
-Would it be at all possible for the people who've run these
-experiments to document their findings somewhere: what the different
-test setups were, what the copybreak settings were, what the
-results were, and how they were measured?
+Thanks for the comments.
 
-Some drivers have a few details documented in
-Documentation/networking/device_drivers/ethernet/, but if others
-could do this too, like mlx5, in detail so findings could be
-reproduced by others, that would be amazing.
+>
+> IIUC, arch_mmap_hint() will be called in arch_get_unmapped_area() and
+> arch_get_unmapped_area_topdown() again. So we will actually look up
+> maple tree twice. It sounds like the second hint address search is
+> pointless. You should be able to set addr to 0 before calling
+> mm_get_unmapped_area_vmflags() in order to skip the second hint
+> address search.
+
+You are right that it would call into arch_mmap_hint() twice but it
+only attempts the lookup once since on the second attempt addr =3D=3D 0.
+
+Thanks,
+Kalesh
+>
+> >         if (!IS_ENABLED(CONFIG_64BIT) || in_compat_syscall())
+> >                 return 0;
+> >
+> > @@ -1117,13 +1125,6 @@ static unsigned long __thp_get_unmapped_area(str=
+uct file *filp,
+> >         if (IS_ERR_VALUE(ret))
+> >                 return 0;
+> >
+> > -       /*
+> > -        * Do not try to align to THP boundary if allocation at the add=
+ress
+> > -        * hint succeeds.
+> > -        */
+> > -       if (ret =3D=3D addr)
+> > -               return addr;
+> > -
+> >         off_sub =3D (off - ret) & (size - 1);
+> >
+> >         if (test_bit(MMF_TOPDOWN, &current->mm->flags) && !off_sub)
+> > diff --git a/mm/mmap.c b/mm/mmap.c
+> > index 59bf7d127aa1..6bfeec80152a 100644
+> > --- a/mm/mmap.c
+> > +++ b/mm/mmap.c
+> > @@ -807,7 +807,6 @@ __get_unmapped_area(struct file *file, unsigned lon=
+g addr, unsigned long len,
+> >         if (get_area) {
+> >                 addr =3D get_area(file, addr, len, pgoff, flags);
+> >         } else if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) && !file
+> > -                  && !addr /* no hint */
+> >                    && IS_ALIGNED(len, PMD_SIZE)) {
+> >                 /* Ensures that larger anonymous mappings are THP align=
+ed. */
+> >                 addr =3D thp_get_unmapped_area_vmflags(file, addr, len,
+> > --
+> > 2.47.0.338.g60cca15819-goog
+> >
+> >
