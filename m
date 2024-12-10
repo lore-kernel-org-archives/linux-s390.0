@@ -1,117 +1,160 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4743A198823;
-	Tue, 10 Dec 2024 11:11:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF15923DEA1;
+	Tue, 10 Dec 2024 11:39:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733829072; cv=none; b=Ltto2eyJ3S0M7V7KIm06yIQqSq4QWIiVhVdcK2q8Wzk3zLoIYPfhGbFCw6bdi2PhEfTz+owEK6RnamwWRZYH6w7UPERxSIJF50C8N1qR6otomNhUBGBwoKktleIwZ7TMQsfs0sFddzz6vR7fmrKLHYtMozB1cYJ1cu04XB6+S/Q=
+	t=1733830789; cv=none; b=LWpWImhDlmSQcMjzCXOUCk2ydknUUAZu3xpPf/428vAreEOM99rzHs1WFodFiQ31OZkyQBBf/QqtssgLjJLbOXwL6eNKtYw2jDM7A7Yi1I61An/gUpfH7+18EoYB2abPjvP4vebVZhkHNpzWhjjS2xITwCXQVcaVNpIty+ku/ck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733829072; c=relaxed/simple;
-	bh=WmM56rWaA+ibYBICkRPOFNZVIlUsUbLa9mtToOsDnk8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=P6AmrLuefqaB5UQ/tT6jV68IVH27f4f5JYmLRBrIlo2CP/yS5pRVeymWuXimcS2Qzwnne8ML13Ju0R6/PmlDYv8TkOUmze6zogIFYXGHtjPttiW6EgquoWWPxiduogIMTweI4A9Jid+vL4p5gyPqFmzjaaHeWAAaehh0nUI6oqY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EYnDuM1i; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1733830789; c=relaxed/simple;
+	bh=MTzLSYgqUA+bsOXDpT13CU6rZYFE9WiZ5LWCOFsmbTc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=kuk7TMVvarf5vdFNsJyDQjhjZXGjjxwKBy2kd8TXoLM9/+51fzN3QiHXyvg5++L1pHDw15cCSUw/jitCQgGbquJDRJsTE/XymBzAgUn3y+HVeSFKtYX2Oh/b6Ls1+J+1l3wp7FIAYie68/VBkEfLmVUwrzcGTF70LT2hJn7bPI4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eU09mV9o; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EYnDuM1i"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BA1jC1n026166;
-	Tue, 10 Dec 2024 11:10:58 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eU09mV9o"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BAAliFS014132;
+	Tue, 10 Dec 2024 11:39:46 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=YRWuaf
-	W8QJmSyZR5XykB7q2JyYMIHBo/0XTJs51UPrA=; b=EYnDuM1iAb93Gi23DWUQaB
-	oFri/azhKA6aF5b2QfGNOVQIJvcwZvu8xlgbi/ChyRbkoZX82Zk8uMj+SP0V8D1a
-	W3G5l8+PwZp7jhueSOOW8QroMbto9UailKaq/sjxwVW+nuS4mmPm6J3Z/Hy01Vj9
-	vJg63zXuo8JqKsjnqa9g/FxOt4A7PApndgPWmJx3SPn/j0DGBbK/NPeecYDRkLLb
-	d4tzCoW0Vs/vlH25qiDC1ukEOlhxdod6WNkPmnLQDYHfVpFJMhONVKFv+74g5fk7
-	2iuzeB5gF4jeAeFBZd70YS6ej+pHz73v6zDVoxGgXXsVoKTPa1oq+hUT1+Gwbolg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=mz1VnT
+	CLKwSTE/XFSlcXZVDFOm23CFsOIfddiKwhVAg=; b=eU09mV9okO50Wj2nAFafab
+	fPg2Q6IIt3XsQ7gSMm/YTIxyBm4Ugnr7RH3kMOf8MLTE7MBLz6ru3scegZiQKD4B
+	Z4swt0HuJILCz+qv/Lr7a4LSVXFArMsg2KQBLiqV8zYQSqSqTJGg8goYcwJ0evzz
+	sslzreMzrj4icg3E3IXZ+yqK3iMcmze6bhbbd68Ksjt1ywQ0FCN8rQoaNagM2+iR
+	WiEtRd/fkDLdji2GntUflXZnMunFk7MAy1exrcycXroRW2SwBOqTNmowjzC4zRNw
+	p0XE8zUKsBBe/2TkQSsLWhCZmIpt6e0FOKvQ7lyYTs15aesqAFr48C46cH1yiySg
 	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43cdv8pnh5-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43cbsq610n-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Dec 2024 11:10:58 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4BAB6eLL004753;
-	Tue, 10 Dec 2024 11:10:58 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43cdv8pnh0-1
+	Tue, 10 Dec 2024 11:39:46 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BA81BUa018636;
+	Tue, 10 Dec 2024 11:39:45 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43d26kbagm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Dec 2024 11:10:57 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BA7SM1T032590;
-	Tue, 10 Dec 2024 11:10:56 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43d1pn399h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Dec 2024 11:10:56 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BABAq4L57213196
+	Tue, 10 Dec 2024 11:39:45 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BABde8k55705988
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 10 Dec 2024 11:10:52 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C673E20049;
-	Tue, 10 Dec 2024 11:10:52 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 729AD20040;
-	Tue, 10 Dec 2024 11:10:52 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.152.224.212])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 10 Dec 2024 11:10:52 +0000 (GMT)
-Date: Tue, 10 Dec 2024 12:10:50 +0100
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        horms@kernel.org, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Dust Li
- <dust.li@linux.alibaba.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH net-next v3 2/2] net/smc: support ipv4 mapped ipv6 addr
- client for smc-r v2
-Message-ID: <20241210121050.760b8693.pasic@linux.ibm.com>
-In-Reply-To: <20241209130649.34591-3-guangguan.wang@linux.alibaba.com>
-References: <20241209130649.34591-1-guangguan.wang@linux.alibaba.com>
-	<20241209130649.34591-3-guangguan.wang@linux.alibaba.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+	Tue, 10 Dec 2024 11:39:40 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F01D620043;
+	Tue, 10 Dec 2024 11:39:39 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CC56420040;
+	Tue, 10 Dec 2024 11:39:39 +0000 (GMT)
+Received: from [9.155.198.95] (unknown [9.155.198.95])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 10 Dec 2024 11:39:39 +0000 (GMT)
+Message-ID: <1dfd5850-3fd0-4b85-8293-ba4221a5e6ae@linux.ibm.com>
+Date: Tue, 10 Dec 2024 12:39:39 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/1] KVM: s390: VSIE: fix virtual/physical address in
+ unpin_scb()
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, nrb@linux.ibm.com
+References: <20241210083948.23963-1-imbrenda@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20241210083948.23963-1-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: HzZCdnvSlYq8Pe7LIUi0ijqNtBFtMUaM
-X-Proofpoint-ORIG-GUID: uFmtwOwdKp8UUdBtn5APXoizY2saBQ-B
+X-Proofpoint-ORIG-GUID: CVlB-01JWvYpwiVx0a7D0SYh7SL6E04g
+X-Proofpoint-GUID: CVlB-01JWvYpwiVx0a7D0SYh7SL6E04g
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 lowpriorityscore=0 spamscore=0 clxscore=1015 mlxscore=0
- malwarescore=0 adultscore=0 phishscore=0 suspectscore=0 mlxlogscore=493
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=943 adultscore=0
+ lowpriorityscore=0 clxscore=1015 phishscore=0 impostorscore=0
+ suspectscore=0 spamscore=0 mlxscore=0 priorityscore=1501 malwarescore=0
  bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2412100082
+ engine=8.19.0-2411120000 definitions=main-2412100085
 
-On Mon,  9 Dec 2024 21:06:49 +0800
-Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
-
-> AF_INET6 is not supported for smc-r v2 client before, even if the
-> ipv6 addr is ipv4 mapped. Thus, when using AF_INET6, smc-r connection
-> will fallback to tcp, especially for java applications running smc-r.
-> This patch support ipv4 mapped ipv6 addr client for smc-r v2. Clients
-> using real global ipv6 addr is still not supported yet.
+On 12/10/24 9:39 AM, Claudio Imbrenda wrote:
+> In commit 77b533411595 ("KVM: s390: VSIE: sort out virtual/physical
+> address in pin_guest_page"), only pin_scb() has been updated. This
+> means that in unpin_scb() a virtual address was still used directly as
+> physical address without conversion. The resulting physical address is
+> obviously wrong and most of the time also invalid.
 > 
-> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-> Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
-> Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-> Reviewed-by: D. Wythe <alibuda@linux.alibaba.com>
-> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+> Since commit d0ef8d9fbebe ("KVM: s390: Use kvm_release_page_dirty() to
+> unpin "struct page" memory"), unpin_guest_page() will directly use
+> kvm_release_page_dirty(), instead of kvm_release_pfn_dirty(), which has
+> since been removed.
+> 
+> One of the checks that were performed by kvm_release_pfn_dirty() was to
+> verify whether the page was valid at all, and silently return
+> successfully without doing anything if the page was invalid.
+> 
+> When kvm_release_pfn_dirty() was still used, the invalid page was thus
+> silently ignored. Now the check is gone and the result is an Oops.
+> This also means that when running with a V!=R kernel, the page was not
+> released, causing a leak.
+> 
+> The solution is simply to add the missing virt_to_phys()
 
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Please lower-case the "VSIE" in the subject.
+I know that you're replicating the subject prefix from the patch you're 
+fixing but this looks weird.
+
+Thanks for fixing this so quickly.
+Please push this for CI coverage if you haven't already.
+
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
