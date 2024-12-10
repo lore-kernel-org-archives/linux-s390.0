@@ -1,139 +1,211 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id E1B153C17;
-	Tue, 10 Dec 2024 18:42:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D767D214229;
+	Tue, 10 Dec 2024 19:40:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733856159; cv=none; b=gNb86CT3fR/3ifb4JO18VV6Te6Tz4T8hh28TB4aL6WjT31F+qOKdmrwkxz0blf7GtaMQ7Oq8U/RND6601ZagA/r58DyHvxtIgmRzIIwH9hAyYxXi7bSrvWtS89T0g0B7vqOzbonbxIc0Kxh1Z5yxDd3CETTydhlLhdO5T/2N5HA=
+	t=1733859604; cv=none; b=K7/JqPl3DQtQJl0WFQmWsAYJPayLEjCnplNfOBVBrCeh9O8NEJI+aJaUwamGcct/j7uDf+G5m0lRS4e6wtnwhMbk6PjX5KdU42er1stkyDJQBhizvmnOa2Up7sdpxSmX6S6a3LiQstFbAENNuEyJxrTTN8VR0F8sHxGzhj0OiqQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733856159; c=relaxed/simple;
-	bh=13n6v+T01Xi8fpqVO4hjM7iv1ONrRbl6Glb7UC/yXMA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=u2TB6nEC3TSYbLRnC5AruoTZ3uyLv3VNsHrDpyd0BekkJYS/xS+kV49pA4X6UoeFXsMK85bztnPeSktpGpF8/QYe3eyMy5kwCDRkeH/7Lmc5gTXyy/vzuNjjegwBOSg2p0dJZeGWSPzjzKSb0omi58369X2LFXjHluqTW/wTkvs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 233CD1063;
-	Tue, 10 Dec 2024 10:43:04 -0800 (PST)
-Received: from [10.1.196.40] (e121345-lin.cambridge.arm.com [10.1.196.40])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 26DEC3F58B;
-	Tue, 10 Dec 2024 10:42:34 -0800 (PST)
-Message-ID: <e2c80012-bf7a-4420-a478-482aac4903b8@arm.com>
-Date: Tue, 10 Dec 2024 18:42:27 +0000
+	s=arc-20240116; t=1733859604; c=relaxed/simple;
+	bh=dv49gsM9X6vxEVxhRoy9UrWifvJpzPiOHoKBO4dRQCQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=uEDhbtjrK9vZ/RPrHyrUVPUQjV8RXw+boT+CQ2wODG6ENce5Au5d9JXOExfsv0gdlbkEb1cQo1c4pPqbGpg4SUKWH4M461i44gLY7mdJTFQk5i2D7dOcSpdFKCsyoUh1xpCr2G2aE384QgMP1yuVNIFmi1RW8Z2/0Rk4vaRlLPk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OOOPUG/b; arc=none smtp.client-ip=209.85.208.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OOOPUG/b"
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-5cec9609303so7013687a12.1;
+        Tue, 10 Dec 2024 11:40:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1733859600; x=1734464400; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=IRTnbzohup0wCZkD2CjtRfmdnuYKFBQ3yOoD8MNis+g=;
+        b=OOOPUG/b6uinLPQcZOe6VxmyO66Jkwg1lP0+h2q/i5CqarMPIyAwRcMy915tq4CmhW
+         yzsXQxjZVaA1Cr73jwKCDIZcQiNTSgD0BLzNC9G4BTERMGLrMyiYKxU5cHd27YJxgp3A
+         HfsRpg1Ruz8rBIaB2z9V7oJHTER525dBhyxw7qesqF0veAkP+PkOOfcJ8nzuihTUxz0H
+         KgHngvj6spI2AtaIgGlWjBdn20leVyjcYXQ9gAyTlbuoXh6FlsThdL8kD69RSmlUZX5W
+         83WHROVDCkkhCgItib2RybqOFFPA+JHPHg71seGz4FZx9ula+SuVLFs1994BM1QDTT4Q
+         m+Qg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733859600; x=1734464400;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=IRTnbzohup0wCZkD2CjtRfmdnuYKFBQ3yOoD8MNis+g=;
+        b=KCrOt1B0ENn/MqJPmUXo251kb1LAjvmOdjmVxJiNOqeW3ZYckcW282U0EpKAaQuHrj
+         O32TZ+GpwWHYw7Bxjl1SisaEmo4FEExDIP/+hNdCfAKzbq/vsV737oa/q+WgiX7uipAN
+         d7kX2NdIyHPuyjEUHIxECIQzICXCvoxHEfTKm/GigREJIDXxjRbJQ7y/0m+o4I1yx6pY
+         OzNiaPZSe5zGKPaqo7vZNEbtcYHgvGW8HL0iYGH8ABkC1VxwYc5c7jSJvUv5EoO7n+De
+         m4eGQVB5YCZI+2fgLQYmESN4ihXeOZHPQMr981g1N9IiKkyT9en0MydehZ4hmBxedOuU
+         ZJbA==
+X-Forwarded-Encrypted: i=1; AJvYcCUc2f5O/2VtlQh1ucMx6DGTsA9Bw3JycXaAxGSHCpgKLbC4gnjUvFG+0vkV8WTfTgtsAeBWTYzeJKWPxw==@vger.kernel.org, AJvYcCVXwwxKxXp8MK7Gu8kiBFz8V841FqyjQyyfCYt5ciUxxa7K+kth9cWG9HkACaHFo7vf89fB2V9zDriJ9A==@vger.kernel.org, AJvYcCVYbW6+perrconKoLmGjpLOa2cADugl9ZwfYPfDLUFPPa3B8ISe5TGozaHRYLs+YOlmk9qi5+ZAuP8yNg==@vger.kernel.org, AJvYcCVclgPlNp4mTFR91UCRpuRDgpJB1Gakv9vWoI11jJL6ZhWUNLiNtDMZS6srq7piM1AfzU37kpIz7SwyXw==@vger.kernel.org, AJvYcCWuGgod93HQkp8HIPQ5Ql9/BDgnpGeqW/Dvev2aBgldosm7nNROlHaMZeosO2uicUP40dhkkU12S618j3II@vger.kernel.org, AJvYcCWxusp3GjymTs3mbo0ERL3oWrTGzOjz8t8OF/8sD1IdL20fVVCBv0cHZXzrixNTlNLC5+nKf6RGDx1n5w==@vger.kernel.org, AJvYcCXTvTDP0Dna/g3vcnXcvvmlJDrcuZGPdbLh+WqCZJ7nGXqj29hMr0FUoKqDllVP4P8/lM9uZ/f6oRz35tHL@vger.kernel.org, AJvYcCXpzZBcybp9Lk8rkXr87v6lq65vtL7Zqmh2IZiYVGwem4ck6EmUh7DtjZHud3Js//Mbg1du9su7D5Y=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyosJwuPMsbjGbaYYuZD1Wteok68tSuwU+cF498Jr1qHrqKALhf
+	A6igQXk4FE1coCOM7cMa4m2SwPVvQiIwdkxwb54D+guasYuT+7IeZcsTS2i1gtY4jFevbe5JE/q
+	5gjjv9lD1+VkKn2xfVRE2S7R+Yn8=
+X-Gm-Gg: ASbGncsfqCMXgL1z3LAqfXnKso33sZs26xx1LQwcoPJJ9EOBfEYh9q8ExAU/F+iX4dR
+	IwXqORyBLm6coN+jJx3PH3KiVREGJN0yS2Cm/Gg==
+X-Google-Smtp-Source: AGHT+IGn1TGMw5Q3ZRvX4tSkpBgSMsKO1aElzvBulPGolgowmhm7A7II8tzVQjdTXusigtkhjHD3HA/xYigxPDvvUCI=
+X-Received: by 2002:a05:6402:5299:b0:5d0:c9e6:30bc with SMTP id
+ 4fb4d7f45d1cf-5d4330814d0mr38059a12.10.1733859599911; Tue, 10 Dec 2024
+ 11:39:59 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 5/6] iommu: document missing def_domain_type return
-To: Matthew Rosato <mjrosato@linux.ibm.com>,
- Baolu Lu <baolu.lu@linux.intel.com>, joro@8bytes.org, will@kernel.org,
- gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- svens@linux.ibm.com, borntraeger@linux.ibm.com, farman@linux.ibm.com,
- clegoate@redhat.com, iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org
-References: <20241209192403.107090-1-mjrosato@linux.ibm.com>
- <20241209192403.107090-6-mjrosato@linux.ibm.com>
- <3db6f346-0cb4-41f7-b532-91bcb0265849@linux.intel.com>
- <0e80948b-7593-4b59-bb77-2f78f00ad2c3@linux.ibm.com>
-From: Robin Murphy <robin.murphy@arm.com>
-Content-Language: en-GB
-In-Reply-To: <0e80948b-7593-4b59-bb77-2f78f00ad2c3@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20241210024119.2488608-1-kaleshsingh@google.com>
+ <20241210024119.2488608-18-kaleshsingh@google.com> <CAHbLzkq2SNaqzx4d981H2QfQvtObS3X0pPL8=oqFsFbMditWPA@mail.gmail.com>
+ <CAC_TJvdReRHzBSgg2iqOw3Kw6BBOtwGE=8nB2Hsw-nsmkxN0+g@mail.gmail.com>
+In-Reply-To: <CAC_TJvdReRHzBSgg2iqOw3Kw6BBOtwGE=8nB2Hsw-nsmkxN0+g@mail.gmail.com>
+From: Yang Shi <shy828301@gmail.com>
+Date: Tue, 10 Dec 2024 11:39:48 -0800
+Message-ID: <CAHbLzkqbH_AR2jy_6LZ7KSh6bcf4L5B51Mq9DwYtdBcVz1Lu6w@mail.gmail.com>
+Subject: Re: [PATCH mm-unstable 17/17] mm: Respect mmap hint before THP
+ alignment if allocation is possible
+To: Kalesh Singh <kaleshsingh@google.com>
+Cc: akpm@linux-foundation.org, vbabka@suse.cz, yang@os.amperecomputing.com, 
+	riel@surriel.com, david@redhat.com, linux@armlinux.org.uk, 
+	tsbogend@alpha.franken.de, James.Bottomley@hansenpartnership.com, 
+	ysato@users.sourceforge.jp, dalias@libc.org, glaubitz@physik.fu-berlin.de, 
+	davem@davemloft.net, andreas@gaisler.com, tglx@linutronix.de, bp@alien8.de, 
+	dave.hansen@linux.intel.com, x86@kernel.org, chris@zankel.net, 
+	jcmvbkbc@gmail.com, bhelgaas@google.com, jason.andryuk@amd.com, 
+	leitao@debian.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-csky@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, 
+	kernel-team@android.com, android-mm@google.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 10/12/2024 4:26 pm, Matthew Rosato wrote:
-> On 12/9/24 9:57 PM, Baolu Lu wrote:
->> On 12/10/24 03:24, Matthew Rosato wrote:
->>> In addition to IOMMU_DOMAIN_DMA, def_domain_type can also return
->>> IOMMU_DOMAIN_DMA_FQ when applicable, else flush queues will never be
->>> used.
->>>
->>> Signed-off-by: Matthew Rosato<mjrosato@linux.ibm.com>
->>> ---
->>>    include/linux/iommu.h | 1 +
->>>    1 file changed, 1 insertion(+)
->>>
->>> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
->>> index 05279109c732..d0da1918d2de 100644
->>> --- a/include/linux/iommu.h
->>> +++ b/include/linux/iommu.h
->>> @@ -585,6 +585,7 @@ iommu_copy_struct_from_full_user_array(void *kdst, size_t kdst_entry_size,
->>>     * @def_domain_type: device default domain type, return value:
->>>     *        - IOMMU_DOMAIN_IDENTITY: must use an identity domain
->>>     *        - IOMMU_DOMAIN_DMA: must use a dma domain
->>> + *              - IOMMU_DOMAIN_DMA_FQ: dma domain with batch invalidation
->>
->> In which case must an iommu driver return IOMMU_DOMAIN_DMA_FQ?
->>
->> The flush queue is a policy of "when and how to synchronize the IOTLB"
->> in dma-iommu.c. The iommu driver actually has no need to understand such
->> policy.
-> 
-> If you look ahead to the next patch where I implement def_domain_type for s390, I found that if I only ever return IOMMU_DOMAIN_DMA from ops->def_domain_type then when go through iommu_dma_init_domain() we will never call iommu_dma_init_fq() regardless of IOMMU_CAP_DEFERRED_FLUSH because of the if (domain->type == IOMMU_DOMAIN_DMA_FQ) check.  So something isn't right here.
+On Tue, Dec 10, 2024 at 9:34=E2=80=AFAM Kalesh Singh <kaleshsingh@google.co=
+m> wrote:
+>
+> On Mon, Dec 9, 2024 at 7:37=E2=80=AFPM Yang Shi <shy828301@gmail.com> wro=
+te:
+> >
+> > On Mon, Dec 9, 2024 at 6:45=E2=80=AFPM Kalesh Singh <kaleshsingh@google=
+.com> wrote:
+> > >
+> > > Commit 249608ee4713 ("mm: respect mmap hint address when aligning for=
+ THP")
+> > > fallsback to PAGE_SIZE alignment instead of THP alignment
+> > > for anonymous mapping as long as a hint address is provided by the us=
+er
+> > > -- even if we weren't able to allocate the unmapped area at the hint
+> > > address in the end.
+> > >
+> > > This was done to address the immediate regression in anonymous mappin=
+gs
+> > > where the hint address were being ignored in some cases; due to commi=
+t
+> > > efa7df3e3bb5 ("mm: align larger anonymous mappings on THP boundaries"=
+).
+> > >
+> > > It was later pointed out that this issue also existed for file-backed
+> > > mappings from file systems that use thp_get_unmapped_area() for their
+> > > .get_unmapped_area() file operation.
+> > >
+> > > The same fix was not applied for file-backed mappings since it would
+> > > mean any mmap requests that provide a hint address would be only
+> > > PAGE_SIZE-aligned regardless of whether allocation was successful at
+> > > the hint address or not.
+> > >
+> > > Instead, use arch_mmap_hint() to first attempt allocation at the hint
+> > > address and fallback to THP alignment if that fails.
+> >
+> > Thanks for taking time to try to fix this.
+> >
+> > >
+> > > Signed-off-by: Kalesh Singh <kaleshsingh@google.com>
+> > > ---
+> > >  mm/huge_memory.c | 15 ++++++++-------
+> > >  mm/mmap.c        |  1 -
+> > >  2 files changed, 8 insertions(+), 8 deletions(-)
+> > >
+> > > diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+> > > index 137abeda8602..f070c89dafc9 100644
+> > > --- a/mm/huge_memory.c
+> > > +++ b/mm/huge_memory.c
+> > > @@ -1097,6 +1097,14 @@ static unsigned long __thp_get_unmapped_area(s=
+truct file *filp,
+> > >         loff_t off_align =3D round_up(off, size);
+> > >         unsigned long len_pad, ret, off_sub;
+> > >
+> > > +       /*
+> > > +        * If allocation at the address hint succeeds; respect the hi=
+nt and
+> > > +        * don't try to align to THP boundary.
+> > > +        */
+> > > +       addr =3D arch_mmap_hint(filp, addr, len, off, flags);
+> > > +       if (addr)
+> > > +               return addr;
+> > > +
+>
+> Hi Yang,
+>
+> Thanks for the comments.
+>
+> >
+> > IIUC, arch_mmap_hint() will be called in arch_get_unmapped_area() and
+> > arch_get_unmapped_area_topdown() again. So we will actually look up
+> > maple tree twice. It sounds like the second hint address search is
+> > pointless. You should be able to set addr to 0 before calling
+> > mm_get_unmapped_area_vmflags() in order to skip the second hint
+> > address search.
+>
+> You are right that it would call into arch_mmap_hint() twice but it
+> only attempts the lookup once since on the second attempt addr =3D=3D 0.
 
-Conceptually I don't think it ever makes sense for a driver to *require* 
-a device to use deferred invalidation. Furthermore it's been the whole 
-design for a while now that drivers should never see nor have to 
-acknowledge IOMMU_DOMAIN_DMA_FQ, it's now just an internal type which 
-exists largely for the sake of making the sysfs interface work really 
-neatly. Also beware that a major reason for overriding 
-iommu_def_domain_type with a paging domain is for untrusted devices, so 
-massaging the result based on iommu_dma_strict is still not necessarily 
-appropriate anyway.
+Aha, yeah, I missed addr is going to be reset if arch_mmap_hint()
+fails to find a suitable area.
 
-It appears the real underlying issue is that, like everyone else in the 
-same situation, you're doing def_domain_type wrong. If and when you 
-can't support IOMMU_DOMAIN_IDENTITY, the expectation is that you make 
-__iommu_alloc_identity_domain() fail, such that if iommu_def_domain_type 
-is then ever set to passthrough, iommu_group_alloc_default_domain() 
-falls back to IOMMU_DOMAIN_DMA by itself, and the user gets told they 
-did a silly thing.
-
-What you see apple-dart doing is a hack around the old bus-based 
-iommu_domain_alloc() API where there wasn't enough information at the 
-right point to necessarily do the right thing.
-
-Thanks,
-Robin.
-
-> It looks to me like the following is happening:
-> 
-> We first have the iommu_def_domain_type set in iommu_subsys_init or via one of the set_default routines, e.g.:
-> 	if (!iommu_default_passthrough() && !iommu_dma_strict)
-> 		iommu_def_domain_type = IOMMU_DOMAIN_DMA_FQ;
-> 
-> But when we arrive at iommu_group_alloc_default_domain()...
-> 
-> if we have no ops->def_domain_type() defined we will call __iommu_group_alloc_default_domain using what is in iommu_def_domain_type, which could be IOMMU_DOMAIN_DMA, IOMMU_DOMAIN_DMA_FQ or IOMMU_DOMAIN_IDENTITY based on strict/passthrough settings.  Testing an s390 scenario today without this series applied, we will call __iommu_group_alloc_default_domain with IOMMU_DOMAIN_DMA_FQ, as long as iommu.strict/passthrough is not specified, so then later in dma-iommu:iommu_dma_init_domain() we can use FQ based on IOMMU_CAP_DEFERRED_FLUSH.
-> 
-> but once we add ops->def_domain_type() then we end up calling iommu_group_alloc_default_domain() with a req_type == the return value from ops->def_domain_type(), which by the current definition can only be IOMMU_DOMAIN_DMA or IOMMU_DOMAIN_IDENTITY.  We will then call __iommu_group_alloc_default_domain with that req_type; so without this patch + the DMA_FQ path in patch 6 we would always end up allocating IOMMU_DOMAIN_DMA instead of IOMMU_DOMAIN_DMA_FQ by default, so when we arrive at dma:iommu_dma_init_domain() we won't check for IOMMU_CAP_DEFERRED_FLUSH because of the type.
-> 
-> So unless I'm missing something I think either we have to
-> 1) be more flexible in what ops->default_domain_type() is allowed to return as this patch does
-> or
-> 2) iommu core needs to look at the return from ops->default_domain_type() and decide whether it's OK to convert IOMMU_DOMAIN_DMA->IOMMU_DOMAIN_DMA_FQ based on strict setting.  This removes the decision from the individual drivers and dma-iommu can later decide whether or not to use it or not based on IOMMU_CAP_DEFERRED_FLUSH?  But would also affect other users of def_domain_type() today that perhaps did not want DMA_FQ?  Unsure.  What I mean is something like (untested):
-> 
-> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-> index 6bdede4177ff..275daa7f819d 100644
-> --- a/drivers/iommu/iommu.c
-> +++ b/drivers/iommu/iommu.c
-> @@ -1744,9 +1744,11 @@ static int iommu_get_def_domain_type(struct iommu_group *group,
->                   */
->                  type = ops->default_domain->type;
->          } else {
-> -               if (ops->def_domain_type)
-> +               if (ops->def_domain_type) {
->                          type = ops->def_domain_type(dev);
-> -               else
-> +                       if (type == IOMMU_DOMAIN_DMA && !iommu_dma_strict)
-> +                               type = IOMMU_DOMAIN_DMA_FQ;
-> +               } else
->                          return cur_type;
->          }
->          if (!type || cur_type == type)
-> 
-> 
+>
+> Thanks,
+> Kalesh
+> >
+> > >         if (!IS_ENABLED(CONFIG_64BIT) || in_compat_syscall())
+> > >                 return 0;
+> > >
+> > > @@ -1117,13 +1125,6 @@ static unsigned long __thp_get_unmapped_area(s=
+truct file *filp,
+> > >         if (IS_ERR_VALUE(ret))
+> > >                 return 0;
+> > >
+> > > -       /*
+> > > -        * Do not try to align to THP boundary if allocation at the a=
+ddress
+> > > -        * hint succeeds.
+> > > -        */
+> > > -       if (ret =3D=3D addr)
+> > > -               return addr;
+> > > -
+> > >         off_sub =3D (off - ret) & (size - 1);
+> > >
+> > >         if (test_bit(MMF_TOPDOWN, &current->mm->flags) && !off_sub)
+> > > diff --git a/mm/mmap.c b/mm/mmap.c
+> > > index 59bf7d127aa1..6bfeec80152a 100644
+> > > --- a/mm/mmap.c
+> > > +++ b/mm/mmap.c
+> > > @@ -807,7 +807,6 @@ __get_unmapped_area(struct file *file, unsigned l=
+ong addr, unsigned long len,
+> > >         if (get_area) {
+> > >                 addr =3D get_area(file, addr, len, pgoff, flags);
+> > >         } else if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) && !file
+> > > -                  && !addr /* no hint */
+> > >                    && IS_ALIGNED(len, PMD_SIZE)) {
+> > >                 /* Ensures that larger anonymous mappings are THP ali=
+gned. */
+> > >                 addr =3D thp_get_unmapped_area_vmflags(file, addr, le=
+n,
+> > > --
+> > > 2.47.0.338.g60cca15819-goog
+> > >
+> > >
