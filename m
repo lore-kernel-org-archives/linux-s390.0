@@ -1,158 +1,178 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6675723DEAD;
-	Tue, 10 Dec 2024 16:26:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7100238731
+	for <linux-s390@vger.kernel.org>; Tue, 10 Dec 2024 17:10:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733848013; cv=none; b=njyxI9TmwDLVGV9viRTF5522rDU47/OxbDgwGTrEMlaHwozsjr8Vzn7jwPazs8My+WHVYg8j1AUkpaTnu1sFwEN9qj35bKC0+bXA0GT6FA4PWUfOeq9gMrDsoHPwiP581w8SnXLy3JsEK3MoPmNxsmO0Wh+ErsbCfH+fbcsGcaE=
+	t=1733850617; cv=none; b=CNJiXlnjfIxD7b9Bs1Bu7J4x2znWlzNw5e+dhNQbVFB/dFm9OF7kiBLs5tETYlwEEIIXdlVnDLVfn6U8Bx+CgJGO5PHBvm8a+bMzmtnzz2AHke2rXD/43FGaHxRAYRwkC4tAclrTydDAekwfpTbiK3FLi7X8aMyu5+r5GjylbQM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733848013; c=relaxed/simple;
-	bh=7ne9y2HZeK03QnmWb6ITXdMTZJ//s1gJwlxN0xRzesM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=H+m50r+c6nQTYbBs1N/a+ozfl6Gl9rlkbR9NX/cmhPBKOE7rodiXdS7WHbgtjvzQMvsO/VlrnNbfebupgHRLLIxUDjYGa/nNgOWKHOwSEc9I2IEM3zR9s0D1Wkg1DjQ5WZFU0aVsDUiY2ZbIDxppnaTes6ptdVWFeYMxBTJ40lI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Yt5yqWRw; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1733850617; c=relaxed/simple;
+	bh=dOcgx4vsAaKPwnMQs4DZgk10sp7QpEKQF5PwdcJZOW0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mJCDiw4DxVqNO1lUR64pQoIOpI1gUwvibQRtss/TaiG5+lB0rGCVA6/4Tn/kBIPmHcbMAh7RaTwzc6hquqp5xqJlgheZlyYjoXFVwtpuTq3amMv3BHOhRhsOJyUWaKxnbz4NL005zd49eqmy+a0No3IPqdbchlFcl2PVoR9oJlU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=qxp9XfwK; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Yt5yqWRw"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BADrYYg005962;
-	Tue, 10 Dec 2024 16:26:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=64ybYp
-	w/DtLTVNR6whj0o6KYiqsmVjRoQcI4XyXZFvk=; b=Yt5yqWRwazbWZ5tvmZF+L/
-	nsLm18iDUSwTnAiYG0yt9p4/FuAF1376G8Eo8pvUujpvLo98ojDo5qvrQ/RSR9wd
-	3OzYq5LkXurwMv2d0vglg/kvihwTOuJK3mntTOcWuhcAn0gJL2To/Tp/IDAf8X1Q
-	4dbzPo5Q5onbr7O07VPT/v7MqIkEnPTbE3uiSC0mgHiaFYtzkwOkx1ETXWa3NrrO
-	yKFmw/qwJKUg71eFOvJu/lOWAcNNmX2U9kSWHHs/9Di73gVCFM6kCQyAswBMjVDx
-	7oVIqi49zXsfzhKiiArv5nJJeND0Duy7yF4VVWe/23X22P1imQyOTQd2s/9gNyrQ
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ce1vr5u8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Dec 2024 16:26:32 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BAG82DM032555;
-	Tue, 10 Dec 2024 16:26:31 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43d1pn4caa-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Dec 2024 16:26:31 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BAGQTc933096418
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 10 Dec 2024 16:26:30 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A936C58059;
-	Tue, 10 Dec 2024 16:26:29 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F2EA35804B;
-	Tue, 10 Dec 2024 16:26:27 +0000 (GMT)
-Received: from [9.61.107.222] (unknown [9.61.107.222])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 10 Dec 2024 16:26:27 +0000 (GMT)
-Message-ID: <0e80948b-7593-4b59-bb77-2f78f00ad2c3@linux.ibm.com>
-Date: Tue, 10 Dec 2024 11:26:27 -0500
+	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="qxp9XfwK"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-21670dce0a7so13637045ad.1
+        for <linux-s390@vger.kernel.org>; Tue, 10 Dec 2024 09:10:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fastly.com; s=google; t=1733850615; x=1734455415; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+ywDe46rhLkZ9bsyw9G5gDKVK+sDMoiD1i1tPx8KAFg=;
+        b=qxp9XfwKCdJvPLoO3j3nSZ2OJHe0lKjQDSh1rw62gdfaf+7FzvSbbY0COO5S7ZJ4xJ
+         z1X8oJ8ejpk28v5zEBHe4CrThSH0h8og8zv7dEWpYH7nJVk3mWTWsSDozQPxW9bj7R1a
+         o3rH4v2/CeVRve1pAONJRtPl+ci4XOvQIhfxY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733850615; x=1734455415;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+ywDe46rhLkZ9bsyw9G5gDKVK+sDMoiD1i1tPx8KAFg=;
+        b=Saux9EzX9PdZLvzRdpdLjQC8iW2pDRmR+ZqMkqLbmub4dwS3r1nEQcJkgW2wMni7rt
+         XmjutW+mjx0sP6/G7Wd24o1+EM8jOm0K9qOeFx7p3W3ZLMR7OvQotIcntv9Dbiloc6Nb
+         nF6hb6WG4dfGoy2M1DVFSrxnguNlsaZiDX3TcS/m5QpzPGHHng/HbveeQ63WT9gbsicZ
+         KkXD712QnqOK+KrLR50UEVie8QXkyWZEQDpzDkE3UPqvthtrs5CZEYTaNDE3JLg5BcQe
+         vnIdIyby3LvClKR4PIkpAu1kdrsEi6/Slma4sSk7GF02pjVjtje5B19QzzSoLDP99Uq9
+         pQyg==
+X-Forwarded-Encrypted: i=1; AJvYcCV53BW42LswE/3DzZ7pvU0aizd/GJJfVpdQgBBpeYod/3y3+w8USqTfd2dsg3BOGLrBxGyb748gO/Rh@vger.kernel.org
+X-Gm-Message-State: AOJu0YzF5Cm4iAEZQ+/5PQ5d1mP6hWo1DJh7tqBpbBby/TeymSc5pJgH
+	tTKbgKgFP0Y77zJ5YRfYdtYKTklE2n6hPCbI9YmZ8JF1HYc0iJOgebeZX/yWXjY=
+X-Gm-Gg: ASbGncsLslc3IsA2MT7TEwAExpqapJzFeoxr63ZO5wvevfV8Q7kiLPF2+rhCwPUvPPG
+	anvf069avSUZJZa1+8t3vo9pVdouCR/gSINVbxOzQ7FvWnJ0kzHtjHk9cRhv+wSsx/5q0G5Dx8D
+	x6+S09uvXBPKynX1oKnixDCve7kKGK/jSiuGSrky5XqQY6wcJtvxVR8RgvDjBwTOknzpkcS5kOv
+	sRwlETvaSDk5690PBiQmyUviTLmell73uCm5R7eIHY4u/TsX8zVCV38s6wcr8kr+p9SO8rdGS7E
+	yi5jNc/nxQ/PgLGpx5sW
+X-Google-Smtp-Source: AGHT+IHUOOB5pTTIy2MHsVvW23BzqMe3H8KuiJav8M/pdsu2J52R48xEMht0knZ76z0znc0x05NmqA==
+X-Received: by 2002:a17:902:e887:b0:215:4450:54fb with SMTP id d9443c01a7336-2166a0b58dbmr74822495ad.55.1733850614753;
+        Tue, 10 Dec 2024 09:10:14 -0800 (PST)
+Received: from LQ3V64L9R2 (c-24-6-151-244.hsd1.ca.comcast.net. [24.6.151.244])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2167dafcb5asm8234895ad.211.2024.12.10.09.10.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Dec 2024 09:10:14 -0800 (PST)
+Date: Tue, 10 Dec 2024 09:10:11 -0800
+From: Joe Damato <jdamato@fastly.com>
+To: Alexander Lobakin <aleksander.lobakin@intel.com>
+Cc: Dragos Tatulea <dtatulea@nvidia.com>,
+	Alexandra Winter <wintera@linux.ibm.com>,
+	Rahul Rameshbabu <rrameshbabu@nvidia.com>,
+	Saeed Mahameed <saeedm@nvidia.com>,
+	Tariq Toukan <tariqt@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+	David Miller <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Nils Hoppmann <niho@linux.ibm.com>, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thorsten Winkler <twinkler@linux.ibm.com>,
+	Simon Horman <horms@kernel.org>
+Subject: Re: [PATCH net-next] net/mlx5e: Transmit small messages in linear skb
+Message-ID: <Z1h18zpbbgT0QaoV@LQ3V64L9R2>
+Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
+	Alexander Lobakin <aleksander.lobakin@intel.com>,
+	Dragos Tatulea <dtatulea@nvidia.com>,
+	Alexandra Winter <wintera@linux.ibm.com>,
+	Rahul Rameshbabu <rrameshbabu@nvidia.com>,
+	Saeed Mahameed <saeedm@nvidia.com>,
+	Tariq Toukan <tariqt@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+	David Miller <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Nils Hoppmann <niho@linux.ibm.com>, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thorsten Winkler <twinkler@linux.ibm.com>,
+	Simon Horman <horms@kernel.org>
+References: <20241204140230.23858-1-wintera@linux.ibm.com>
+ <a8e529b2-1454-4c3f-aa49-b3d989e1014a@intel.com>
+ <8e7f3798-c303-44b9-ae3f-5343f7f811e8@linux.ibm.com>
+ <554a3061-5f3b-4a7e-a9bd-574f2469f96e@nvidia.com>
+ <bc9459f0-62b0-407f-9caf-d80ee37eb581@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 5/6] iommu: document missing def_domain_type return
-To: Baolu Lu <baolu.lu@linux.intel.com>, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, gerald.schaefer@linux.ibm.com,
-        schnelle@linux.ibm.com
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, borntraeger@linux.ibm.com, farman@linux.ibm.com,
-        clegoate@redhat.com, iommu@lists.linux.dev,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20241209192403.107090-1-mjrosato@linux.ibm.com>
- <20241209192403.107090-6-mjrosato@linux.ibm.com>
- <3db6f346-0cb4-41f7-b532-91bcb0265849@linux.intel.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <3db6f346-0cb4-41f7-b532-91bcb0265849@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _GxKAIjVMnsRhL5VwBL0Ut3Bw19op3fQ
-X-Proofpoint-ORIG-GUID: _GxKAIjVMnsRhL5VwBL0Ut3Bw19op3fQ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 clxscore=1015 phishscore=0 bulkscore=0 mlxlogscore=999
- impostorscore=0 spamscore=0 malwarescore=0 suspectscore=0 adultscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2412100119
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bc9459f0-62b0-407f-9caf-d80ee37eb581@intel.com>
 
-On 12/9/24 9:57 PM, Baolu Lu wrote:
-> On 12/10/24 03:24, Matthew Rosato wrote:
->> In addition to IOMMU_DOMAIN_DMA, def_domain_type can also return
->> IOMMU_DOMAIN_DMA_FQ when applicable, else flush queues will never be
->> used.
->>
->> Signed-off-by: Matthew Rosato<mjrosato@linux.ibm.com>
->> ---
->>   include/linux/iommu.h | 1 +
->>   1 file changed, 1 insertion(+)
->>
->> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
->> index 05279109c732..d0da1918d2de 100644
->> --- a/include/linux/iommu.h
->> +++ b/include/linux/iommu.h
->> @@ -585,6 +585,7 @@ iommu_copy_struct_from_full_user_array(void *kdst, size_t kdst_entry_size,
->>    * @def_domain_type: device default domain type, return value:
->>    *        - IOMMU_DOMAIN_IDENTITY: must use an identity domain
->>    *        - IOMMU_DOMAIN_DMA: must use a dma domain
->> + *              - IOMMU_DOMAIN_DMA_FQ: dma domain with batch invalidation
+On Tue, Dec 10, 2024 at 02:54:26PM +0100, Alexander Lobakin wrote:
+> From: Dragos Tatulea <dtatulea@nvidia.com>
+> Date: Tue, 10 Dec 2024 12:44:04 +0100
 > 
-> In which case must an iommu driver return IOMMU_DOMAIN_DMA_FQ?
+> > 
+> > 
+> > On 06.12.24 16:20, Alexandra Winter wrote:
+> >>
+> >>
+> >> On 04.12.24 15:32, Alexander Lobakin wrote:
+> >>>> @@ -269,6 +270,10 @@ static void mlx5e_sq_xmit_prepare(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+> >>>>  {
+> >>>>  	struct mlx5e_sq_stats *stats = sq->stats;
+> >>>>  
+> >>>> +	/* Don't require 2 IOMMU TLB entries, if one is sufficient */
+> >>>> +	if (use_dma_iommu(sq->pdev) && skb->truesize <= PAGE_SIZE)
+> >>    +		skb_linearize(skb);
+> >>> 1. What's with the direct DMA? I believe it would benefit, too?
+> >>
+> >>
+> >> Removing the use_dma_iommu check is fine with us (s390). It is just a proposal to reduce the impact.
+> >> Any opinions from the NVidia people?
+> >>
+> > Agreed.
+> > 
+> >>
+> >>> 2. Why truesize, not something like
+> >>>
+> >>> 	if (skb->len <= some_sane_value_maybe_1k)
+> >>
+> >>
+> >> With (skb->truesize <= PAGE_SIZE) the whole "head" buffer fits into 1 page.
+> >> When we set the threshhold at a smaller value, skb->len makes more sense
+> >>
+> >>
+> >>>
+> >>> 3. As Eric mentioned, PAGE_SIZE can be up to 256 Kb, I don't think
+> >>>    it's a good idea to rely on this.
+> >>>    Some test-based hardcode would be enough (i.e. threshold on which
+> >>>    DMA mapping starts performing better).
+> >>
+> >>
+> >> A threshhold of 4k is absolutely fine with us (s390). 
+> >> A threshhold of 1k would definitvely improve our situation and bring back the performance for some important scenarios.
+> >>
+> >>
+> >> NVidia people do you have any opinion on a good threshhold?
+> >>
+> > 1KB is still to large. As Tariq mentioned, the threshold should not
+> > exceed 128/256B. I am currently testing this with 256B on x86. So far no
+> > regressions but I need to play with it more.
 > 
-> The flush queue is a policy of "when and how to synchronize the IOTLB"
-> in dma-iommu.c. The iommu driver actually has no need to understand such
-> policy.
+> On different setups, usually the copybreak of 192 or 256 bytes was the
+> most efficient as well.
 
-If you look ahead to the next patch where I implement def_domain_type for s390, I found that if I only ever return IOMMU_DOMAIN_DMA from ops->def_domain_type then when go through iommu_dma_init_domain() we will never call iommu_dma_init_fq() regardless of IOMMU_CAP_DEFERRED_FLUSH because of the if (domain->type == IOMMU_DOMAIN_DMA_FQ) check.  So something isn't right here.
+A minor suggestion:
 
-It looks to me like the following is happening:
+Would it be at all possible for the people who've run these
+experiments to document their findings somewhere: what the different
+test setups were, what the copybreak settings were, what the
+results were, and how they were measured?
 
-We first have the iommu_def_domain_type set in iommu_subsys_init or via one of the set_default routines, e.g.:
-	if (!iommu_default_passthrough() && !iommu_dma_strict)
-		iommu_def_domain_type = IOMMU_DOMAIN_DMA_FQ;
-
-But when we arrive at iommu_group_alloc_default_domain()...
-
-if we have no ops->def_domain_type() defined we will call __iommu_group_alloc_default_domain using what is in iommu_def_domain_type, which could be IOMMU_DOMAIN_DMA, IOMMU_DOMAIN_DMA_FQ or IOMMU_DOMAIN_IDENTITY based on strict/passthrough settings.  Testing an s390 scenario today without this series applied, we will call __iommu_group_alloc_default_domain with IOMMU_DOMAIN_DMA_FQ, as long as iommu.strict/passthrough is not specified, so then later in dma-iommu:iommu_dma_init_domain() we can use FQ based on IOMMU_CAP_DEFERRED_FLUSH.
-
-but once we add ops->def_domain_type() then we end up calling iommu_group_alloc_default_domain() with a req_type == the return value from ops->def_domain_type(), which by the current definition can only be IOMMU_DOMAIN_DMA or IOMMU_DOMAIN_IDENTITY.  We will then call __iommu_group_alloc_default_domain with that req_type; so without this patch + the DMA_FQ path in patch 6 we would always end up allocating IOMMU_DOMAIN_DMA instead of IOMMU_DOMAIN_DMA_FQ by default, so when we arrive at dma:iommu_dma_init_domain() we won't check for IOMMU_CAP_DEFERRED_FLUSH because of the type.
-
-So unless I'm missing something I think either we have to
-1) be more flexible in what ops->default_domain_type() is allowed to return as this patch does 
-or 
-2) iommu core needs to look at the return from ops->default_domain_type() and decide whether it's OK to convert IOMMU_DOMAIN_DMA->IOMMU_DOMAIN_DMA_FQ based on strict setting.  This removes the decision from the individual drivers and dma-iommu can later decide whether or not to use it or not based on IOMMU_CAP_DEFERRED_FLUSH?  But would also affect other users of def_domain_type() today that perhaps did not want DMA_FQ?  Unsure.  What I mean is something like (untested):
-
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 6bdede4177ff..275daa7f819d 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -1744,9 +1744,11 @@ static int iommu_get_def_domain_type(struct iommu_group *group,
-                 */
-                type = ops->default_domain->type;
-        } else {
--               if (ops->def_domain_type)
-+               if (ops->def_domain_type) {
-                        type = ops->def_domain_type(dev);
--               else
-+                       if (type == IOMMU_DOMAIN_DMA && !iommu_dma_strict)
-+                               type = IOMMU_DOMAIN_DMA_FQ;
-+               } else
-                        return cur_type;
-        }
-        if (!type || cur_type == type)
-
-
+Some drivers have a few details documented in
+Documentation/networking/device_drivers/ethernet/, but if others
+could do this too, like mlx5, in detail so findings could be
+reproduced by others, that would be amazing.
