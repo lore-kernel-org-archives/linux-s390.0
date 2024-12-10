@@ -1,64 +1,118 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39ECD23312A;
-	Tue, 10 Dec 2024 04:33:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E2E522617C;
+	Tue, 10 Dec 2024 07:07:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733805203; cv=none; b=f6mE2u2X3x2YwuYcO7fi5WXXjRl3QIDDo+QiAevbzkTaJmnzdqSHbbuqxfODS/xSQ8gWmgWTgN0y4KanPNWCZvl3rfeQV+0RhHxgFzM6racGDvjwaFm1gxEHJkvoJkOwnckp/gLdpSzqyejsEy49U7xUsfeACbbQ3Wga8Q8PBnE=
+	t=1733814439; cv=none; b=EDDDkISyVECXInZm8S4ZFPAvWzeo4+rBxfHKgCh2zIvjlOT8I361U/IG5Fq3Bg5qa0CW/a8ViLR1HVdV9fhDUoIbvnk1JXpw9TVOiHEyv3S4N8BFmiwU9vF+RQwdowPvGoToBQ13y3EYY9Cn7kJeJ1GkxdeFqtZSGo1TlFbSMpc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733805203; c=relaxed/simple;
-	bh=t5waVAzNALBU70hsF89/OfqKkEFf6t1GIMsIoR2cszU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fSLrHwgF0zzMVhTjjfvdP7GMIqs2fUk2ov0aLQMF8AfrzcajLw5ET4o14HRZbkBQVvb1gOJoubeiwG2MoMM68oBBQGFffn3VB73Jpvt6PSemcd27yO0GImjTav2znyQNfGkiEgQnMuLsJxVdoY+LW2onMOIOeBQ7VHz+KQyT69s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=nzEj6mPI; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1733814439; c=relaxed/simple;
+	bh=21yYhE3JbhGoBWJsgIJYYeuG7B7/nF2qsxltmh9NDKw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ig6Qz9T3hOsoZ9qswtUdfecFsa9qkAvS2X59mx/GATsLc747a4NJGS/aINrntWJylkahm1ZPSCGYTvtYGK5U13rePkDu188BuLxDlD1GEz/zK9k2L7/3g4ZhlUtShfdEw0POIV9KKcyJ+9FDJVUAEwD9t6GBXRvVCUOYfo3PW+M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=q7lGGmHB; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="nzEj6mPI"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=yHQ6nHpSWovH60gzu0oE4BkrgsHEhWRJ/1lstw88FCA=; b=nzEj6mPI7NnBhOWvRt55mC84A2
-	laccC44oUYfbXdTgTqDwaSOyEHTVsRUeeLqzlf1PqGRWb5FRn3HNSU+KslYYfLAeTD+pywD/GsjEq
-	j8DpUZ+6k06F3ZGS1nozCZ7+hDBlpkYLJMQ5kQUUPngTzppxoA/ZPSrhNJTsDRucTd28E4PJdm0aN
-	1H6REVxRnIsxfEQ3OT89PwmB6GaoVwodA1ao7JL8YnnhUD+I3NsuQ+UID2YDpSbKFaQ7YZc5SbZOb
-	BvIYq9guyGLa4PHQO1suhF0/X5o/pCrc+c/vQmrmrmq2qB7Ah1RY+4mt1HAAdGGIOIGnZ45qLq+Vz
-	TVAk+atw==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.98 #2 (Red Hat Linux))
-	id 1tKrvz-0000000ACOO-0LdG;
-	Tue, 10 Dec 2024 04:33:19 +0000
-Date: Mon, 9 Dec 2024 20:33:19 -0800
-From: Christoph Hellwig <hch@infradead.org>
-To: Matthew Rosato <mjrosato@linux.ibm.com>
-Cc: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
-	gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com,
-	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-	svens@linux.ibm.com, borntraeger@linux.ibm.com,
-	farman@linux.ibm.com, clegoate@redhat.com, iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 2/6] s390: enable ARCH_HAS_PHYS_TO_DMA
-Message-ID: <Z1fEj_6beeRdGpJL@infradead.org>
-References: <20241209192403.107090-1-mjrosato@linux.ibm.com>
- <20241209192403.107090-3-mjrosato@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="q7lGGmHB"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1733814427; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=DCSpoueBZE9y2EqJgZJxE02iPNXEzifaehYh+skOFvs=;
+	b=q7lGGmHBkO89AIDcpa3JHCdyUCG1Incd5pzr5H+5wk86rW23xZjW7ztFL9IPZofzH6EJVjcQamjotLra+d3KY99pmoJNwyogGfMO3PY/OPHOAds7T2SxSqjQor3SZJAyn1e22Z49bN3afKLFDTOYwRfcAzUwJ6fapZejWnL+Gfo=
+Received: from 30.221.101.48(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WLE42aD_1733814424 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 10 Dec 2024 15:07:06 +0800
+Message-ID: <58075d86-b43a-4d58-bf64-c29418f99143@linux.alibaba.com>
+Date: Tue, 10 Dec 2024 15:07:04 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241209192403.107090-3-mjrosato@linux.ibm.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2 2/2] net/smc: support ipv4 mapped ipv6 addr
+ client for smc-r v2
+To: Halil Pasic <pasic@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Dust Li <dust.li@linux.alibaba.com>
+References: <20241202125203.48821-1-guangguan.wang@linux.alibaba.com>
+ <20241202125203.48821-3-guangguan.wang@linux.alibaba.com>
+ <894d640f-d9f6-4851-adb8-779ff3678440@linux.ibm.com>
+ <20241205135833.0beafd61.pasic@linux.ibm.com>
+ <5ac2c5a7-3f12-48e5-83a9-ecd3867e6125@linux.alibaba.com>
+ <7de81edd-86f2-4cfd-95db-e273c3436eb6@linux.ibm.com>
+ <3710a042-cabe-4b6d-9caa-fd4d864b2fdc@linux.ibm.com>
+ <d2af79e2-adb2-46f0-a7e3-67a9265f3adf@linux.alibaba.com>
+ <868f5d66-ac74-4b0a-a0d0-e44fdea3bb73@linux.ibm.com>
+ <20241209104647.5c36c429.pasic@linux.ibm.com>
+ <85d1c6e1-0fe3-4c71-af4e-8015270b90dc@linux.alibaba.com>
+ <20241209214449.0bb5afce.pasic@linux.ibm.com>
+Content-Language: en-US
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+In-Reply-To: <20241209214449.0bb5afce.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Dec 09, 2024 at 02:23:59PM -0500, Matthew Rosato wrote:
-> PCI devices on s390 have a DMA offset that is reported via CLP.  In
-> preparation for allowing identity domains, enable ARCH_HAS_PHYS_TO_DMA
-> for s390 and get the dma offset for all PCI devices from the reported
-> CLP value.
 
-Nothing new should select ARCH_HAS_PHYS_TO_DMA, please fill out the
-bus_dma_region attached to the device instead.
 
+On 2024/12/10 04:44, Halil Pasic wrote:
+> On Mon, 9 Dec 2024 20:36:45 +0800
+> Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
+> 
+>>> I believe we would like to have a v3 here. Also I'm not sure
+>>> checking on saddr is sufficient, but I didn't do my research on
+>>> that question yet.
+>>>
+>>> Regards,
+>>> Halil  
+>>
+>> Did you mean to research whether the daddr should be checked too?
+> 
+> Right! Or is it implied that if saddr is a ipv4 mapped ipv6 addr
+> then the daddr must be ipv4 mapped ipv6 addr as well?
+> 
+> Regards,
+> Halil
+
+I did a test by iperf3:
+A server with IPV4 addr 11.213.5.33/24 and real IPV6 addr 2012::1/64.
+A client with IPV4 addr 11.213.5.5/24 and real IPV6 addr 2012::2/64.
+iperf3 fails to run when server listen on IPV6 addr and client connect
+to server using IPV4 mapped IPV6 addr. commands show below:
+server: smc_run iperf3 -s -6 -B 2012::1
+client: smc_run iperf3 -t 10 -c 2012::1 -6 -B ::ffff:11.213.5.5
+
+Failure happened due to the connect() function got the errno -EAFNOSUPPORT,
+I also located the kernel code where the -EAFNOSUPPORT is returned
+(https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/tree/net/ipv6/ip6_output.c#:~:text=err%20%3D%20%2DEAFNOSUPPORT%3B).
+The call stack is:
+ip6_dst_lookup_tail+1
+ip6_dst_lookup_flow+55
+tcp_v6_connect+743
+__inet_stream_connect+181
+inet_stream_connect+59
+kernel_connect+109
+smc_connect+239
+__sys_connect+179
+__x64_sys_connect+26
+do_syscall_64+112
+entry_SYSCALL_64_after_hwframe+118
+
+The kernel code mentioned above restricts that when the saddr is ipv4
+mapped ipv6 addr, the daddr should be either ipv4 mapped ipv6 addr or
+ipv6_addr_any(::). As far as I know, the ipv6_addr_any daddr is used
+to connect to a server listen on ipv6_addr_any(::) by loopback connection.
+
+Thus, based on the test and the code, I think it has the restrict that for
+SMC-Rv2 if saddr is a ipv4 mapped ipv6 addr then the daddr must be
+ipv4 mapped ipv6 addr as well.
+
+Thanks,
+Guangguan Wang
