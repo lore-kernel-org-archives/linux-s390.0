@@ -1,177 +1,107 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13BBA13B59E;
-	Tue, 10 Dec 2024 10:20:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C10472080E5;
+	Tue, 10 Dec 2024 10:57:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733826029; cv=none; b=qrfYdts54I8sU5QJkjBGgvOCpADgkOmEii5EpQqvM+OFSJGiFMDftvo+szB821rwZmqDGMXDeQbBaYc7mOMgw5ENgCcGI4OBFiHMtWdfVG4yg3ygUKAFc/rbh4L1ReamNAkTSdunMexDBQcCXavl+xAa5iIptfc3JeVKymqUA4c=
+	t=1733828258; cv=none; b=KwHxzvA3fJHr0rXB/mkRQlo2EisRh/u8lAg41CO8mJl+ehJIIFaGBbGHCfVIMn1Wa40CxbVZ19m+Jbqyqcqg6kMP8BoJwiqQ0768eLlIOVjbaJkdL55yFFIxaqFePtzoHiTBmk0n+HqMTN2hLVHnNcRtF0ySdE9+5SimN+WBIRM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733826029; c=relaxed/simple;
-	bh=uS38OaZSre1uSIRUZ5pRDL5kxBMKXa5VlT15pztdn+k=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=On1AY4UzO5s97OzibCy3C4011L6Dd6HJTBhdMw3rCn5LCf7IQ+ZGClReJXFELLgm2yakyngYpaRHqHFmJ3yxhADedE20VqvJPENVuMQxK/3jpntvT6cYQ08yKgRje6ffw2R7UnoRRwIE0acQKv3iCK6l9ROefRZsCioqSbMwL50=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dku/HPVN; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1733828258; c=relaxed/simple;
+	bh=j1MmgnUHnOiy0oh0HNDkid08LWfd7ytR58QtPYP7wwA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=M84nkRjmqJ3kXBRMYV3jjRpy7Fa4K8wpdrgBWOKs+12IMzeOYHadzZ3aRxp95w4Bj54397eJCpo3X1iYw2W7kDGkSpUTxucwSne0IJmxHcf/zRx/qKfhkzG+znv8Hrc2cBFTPKhmC584wOXLXvYZZWdBqHDi80O/bk+Q6ptRMuE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=n/dhuxDm; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dku/HPVN"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BA7fNgT002984;
-	Tue, 10 Dec 2024 10:20:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=sTT91U
-	vEB0FYXlPOc8UsmqdGpRmtiii0LpZOwT5UTSE=; b=dku/HPVNe9VO2lR3n2pcS3
-	2QOv9iw2tVRm9tOYZVgKxkAXorp0rtp9tNF6Y7dZLS5X2uvcrBWj8BgazodLOS4X
-	2AFZLhefKQINCjYne1Tz4PScfE647zzzc92fn8D7i4g8nm+OX7xpyHZ82/kDJbvE
-	QT8YOv2gRWj6uPKXBF6nlqtVGFVZzXhRRcqiMYLhPT3L4YwByapcSynO2rGmPUNA
-	smsAZQVOCeT+6CrPAh1d2avxGDXkDdmQnkHGR0uMu+43qPuoO6xSqj73KhE2fYeP
-	+6i3WNwcf+MP5ITExYoMvNTIgGrIQHUnhJFDZUActK84etkAP9eseg9IJxRqHPrA
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ccsjdfa3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Dec 2024 10:20:25 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4BAAKOSq032585;
-	Tue, 10 Dec 2024 10:20:24 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ccsjdfa1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Dec 2024 10:20:24 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BA9G725017369;
-	Tue, 10 Dec 2024 10:20:24 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 43d3d1jry7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Dec 2024 10:20:24 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BAAKKgd33882848
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 10 Dec 2024 10:20:20 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 788D320063;
-	Tue, 10 Dec 2024 10:20:20 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5BB422005A;
-	Tue, 10 Dec 2024 10:20:20 +0000 (GMT)
-Received: from t14-nrb (unknown [9.155.202.61])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 10 Dec 2024 10:20:20 +0000 (GMT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="n/dhuxDm"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1733828252; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=za3DqWLC997CzA35yUW0weA03pexBgrTU4NPXoJrrBU=;
+	b=n/dhuxDmrndTO6007L4nIXf9fOB7b5oZPXelZCnnP/ucIW0mxlyIa+KQFFhT44OvltvZhKdEYXvcXR1ZpweuM2wnvWzYPcRJW0yzIIzoT53+Zc86G51AgnRLOAEd05RHRovwm5WNsPfpkMOeuQTxT9orWAK1D2Yk+DLF3VFdQGM=
+Received: from 30.221.101.48(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WLEr7oq_1733828250 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 10 Dec 2024 18:57:31 +0800
+Message-ID: <f9609fe8-f8c2-4280-acc2-515485adfc1f@linux.alibaba.com>
+Date: Tue, 10 Dec 2024 18:57:28 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v3 2/2] net/smc: support ipv4 mapped ipv6 addr
+ client for smc-r v2
+To: Wenjia Zhang <wenjia@linux.ibm.com>, pasic@linux.ibm.com,
+ jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, horms@kernel.org
+Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Dust Li <dust.li@linux.alibaba.com>
+References: <20241209130649.34591-1-guangguan.wang@linux.alibaba.com>
+ <20241209130649.34591-3-guangguan.wang@linux.alibaba.com>
+ <1fc33d2e-83c1-4651-b761-27188d22fba0@linux.ibm.com>
+Content-Language: en-US
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+In-Reply-To: <1fc33d2e-83c1-4651-b761-27188d22fba0@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
-Date: Tue, 10 Dec 2024 11:20:20 +0100
-Message-Id: <D67Y11RRNUJ4.3U17EAZFWQR6M@linux.ibm.com>
-Cc: "David Hildenbrand" <david@redhat.com>, <kvm@vger.kernel.org>,
-        "Nicholas
- Piggin" <npiggin@gmail.com>, <linux-s390@vger.kernel.org>
-Subject: Re: [kvm-unit-tests PATCH v4 4/6] s390x: Add library functions for
- exiting from snippet
-From: "Nico Boehr" <nrb@linux.ibm.com>
-To: "Nina Schoetterl-Glausch" <nsg@linux.ibm.com>,
-        "Claudio Imbrenda"
- <imbrenda@linux.ibm.com>,
-        "Thomas Huth" <thuth@redhat.com>,
-        "Janosch Frank"
- <frankja@linux.ibm.com>
-X-Mailer: aerc 0.18.2
-References: <20241016180320.686132-1-nsg@linux.ibm.com>
- <20241016180320.686132-5-nsg@linux.ibm.com>
-In-Reply-To: <20241016180320.686132-5-nsg@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: SZPrQc0DzVdz9ht5O3y43UM-K6vsUPwE
-X-Proofpoint-ORIG-GUID: 4bvwaUirU2w8u63fqzYzMA1KW0lrVU33
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
- impostorscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0 mlxlogscore=881
- mlxscore=0 priorityscore=1501 suspectscore=0 malwarescore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2412100074
-
-On Wed Oct 16, 2024 at 8:03 PM CEST, Nina Schoetterl-Glausch wrote:
-> It is useful to be able to force an exit to the host from the snippet,
-> as well as do so while returning a value.
-> Add this functionality, also add helper functions for the host to check
-> for an exit and get or check the value.
-> Use diag 0x44 and 0x9c for this.
-> Add a guest specific snippet header file and rename snippet.h to reflect
-> that it is host specific.
->
-> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-
-Hi Nina,
-
-would you mind if I fix this up like this?
-
-(copy-pasted so whitespace damage ahead)
-
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 2dec7924..03adcd3c 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -510,11 +510,14 @@ static inline void diag44(void)
- 	asm volatile("diag	0,0,0x44\n");
- }
-
--static inline void diag9c(uint64_t val)
-+static inline void diag500(uint64_t val)
- {
--	asm volatile("diag	%[val],0,0x9c\n"
-+	asm volatile(
-+		"lgr	2,%[val]\n"
-+		"diag	0,0,0x500\n"
- 		:
- 		: [val] "d"(val)
-+		: "r2"
- 	);
- }
-
-diff --git a/lib/s390x/snippet-exit.h b/lib/s390x/snippet-exit.h
-index f62f0068..3ed4c22c 100644
---- a/lib/s390x/snippet-exit.h
-+++ b/lib/s390x/snippet-exit.h
-@@ -19,16 +19,14 @@ static inline bool snippet_is_force_exit(struct vm *vm)
-
- static inline bool snippet_is_force_exit_value(struct vm *vm)
- {
--	return sie_is_diag_icpt(vm, 0x9c);
-+	return sie_is_diag_icpt(vm, 0x500);
- }
-
- static inline uint64_t snippet_get_force_exit_value(struct vm *vm)
- {
--	struct kvm_s390_sie_block *sblk =3D vm->sblk;
--
- 	assert(snippet_is_force_exit_value(vm));
-
--	return vm->save_area.guest.grs[sblk_ip_as_diag(sblk).r_1];
-+	return vm->save_area.guest.grs[2];
- }
-
- static inline void snippet_check_force_exit_value(struct vm *vm, uint64_t =
-value_exp)
-diff --git a/s390x/snippets/lib/snippet-exit.h b/s390x/snippets/lib/snippet=
--exit.h
-index 0b483366..ac00de3f 100644
---- a/s390x/snippets/lib/snippet-exit.h
-+++ b/s390x/snippets/lib/snippet-exit.h
-@@ -21,7 +21,7 @@ static inline void force_exit(void)
- static inline void force_exit_value(uint64_t val)
- {
- 	mb(); /* host may read any memory written by the guest before */
--	diag9c(val);
-+	diag500(val);
- 	mb(); /* allow host to modify guest memory */
- }
+Content-Transfer-Encoding: 8bit
 
 
+
+On 2024/12/9 22:10, Wenjia Zhang wrote:
+> 
+> 
+> On 09.12.24 14:06, Guangguan Wang wrote:
+>> AF_INET6 is not supported for smc-r v2 client before, even if the
+>> ipv6 addr is ipv4 mapped. Thus, when using AF_INET6, smc-r connection
+>> will fallback to tcp, especially for java applications running smc-r.
+>> This patch support ipv4 mapped ipv6 addr client for smc-r v2. Clients
+>> using real global ipv6 addr is still not supported yet.
+>>
+>> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+>> Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+>> Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+>> Reviewed-by: D. Wythe <alibuda@linux.alibaba.com>
+>> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+>> ---
+>>   net/smc/af_smc.c | 5 ++++-
+>>   1 file changed, 4 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> index 9d76e902fd77..c3f9c0457418 100644
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -1116,7 +1116,10 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
+>>       ini->check_smcrv2 = true;
+>>       ini->smcrv2.saddr = smc->clcsock->sk->sk_rcv_saddr;
+>>       if (!(ini->smcr_version & SMC_V2) ||
+>> -        smc->clcsock->sk->sk_family != AF_INET ||
+>> +#if IS_ENABLED(CONFIG_IPV6)
+>> +        (smc->clcsock->sk->sk_family == AF_INET6 &&
+>> +         !ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)) ||
+>> +#endif
+>>           !smc_clc_ueid_count() ||
+>>           smc_find_rdma_device(smc, ini))
+>>           ini->smcr_version &= ~SMC_V2;
+> 
+> @Guangguan, I think Halil's point is valid, and we need to verify if checking on saddr is sufficient before this patch is applied. i.e. what about one peer with ipv4 mapped ipv6 communicates with another peer with a real ipv6 address? Is it possible? If yes, would SMCRv2 be used? I still haven't thought much on this yet, but it is worth to verify. Maybe you already have the answer?
+
+Hi, Wenjia
+
+I have replied the answer to the thread of v2 patch(https://lore.kernel.org/netdev/58075d86-b43a-4d58-bf64-c29418f99143@linux.alibaba.com/)
+
+If there are still any doubts or any other points to clarification, please let me know.
+
+Thanks,
+Guangguan Wang
+
+> 
+> @Jakub, could you please give us some more time to verify the issue mentioned above?
+> 
+> Thanks,
+> Wenjia
