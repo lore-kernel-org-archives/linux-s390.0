@@ -1,204 +1,150 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id E9E4A24037B;
-	Tue, 10 Dec 2024 22:02:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1F4322B59D;
+	Tue, 10 Dec 2024 22:06:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733868172; cv=none; b=BprrbBR4otn74l6UP8Wwjx+xqvVHwlrENLdIOHVUg6EkRP2B52QXx33qIp6fbMhQknyM4mnyh7OTwUBFl2Eopcy53CJ14EJuUCsF2HY9u2S1FXfqgOG33VguS6ed1nifHUQQtIaevA1sYPJFNQMqep46XOwkbANupwTYkPtSsmM=
+	t=1733868387; cv=none; b=V8M4F9ONsic8G3WxapDhB8g3NNP7ysRkJbw4P7ufQSL+NUMyGSxMQym7UrVtzDWekm9eq9j5wWbqhUeF5hcb04e+KxPalEms6g+Rs8k4e/D1Y5YCJ0DsKXQzJA2FAr9Uqz9BZyW/vqetKoU7unoPE/ifw/3imJpa6+GEcyoxk8g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733868172; c=relaxed/simple;
-	bh=8M8tI83jERsUzY8R+Kb09XTlALhu0Mh9yRr+lGLrynU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=AApdSqcClE5usQVOgtiDWyq85Zf2hOvqkYMtlRzWbiejjjFwuold78Rz9ugrO80q5fcpTZVkIr8dnz4QxQvH6k0Y2u5TALU3jsww3cYAtfybvJuW4H+8K7V8s0/3lCxNGBLsD2zDchHHfDbM6Tt6d6353W60yY/UzP2+OI0hvqc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=e/J9gwCA; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1733868387; c=relaxed/simple;
+	bh=RMklrb3Xczq1CnNyAWx0NuwO3BYGmvSOBxinCLw9Ln0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=K4niLxcLrSzIjxPa3VBhZLuH/eg2VqXNzztlsoD4b3mfv14AiKfHrti7PUNNohCpiVe/L5FimC2EyUs6pvzUSQol7a4O8JomNcBcLMjO5BMScurIfvu435m8C9afzwqWbXXTzhOJ67ko0RvF/sbnfdJpy2FQ4BmmxKDbapSCTTg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gP23HQ+O; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="e/J9gwCA"
-Received: from eahariha-devbox.internal.cloudapp.net (unknown [40.91.112.99])
-	by linux.microsoft.com (Postfix) with ESMTPSA id C173C20ACD6E;
-	Tue, 10 Dec 2024 14:02:39 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com C173C20ACD6E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1733868159;
-	bh=RbQWNnMSFMFriUk4NuHYTwiGcsEx+EnrYdZ9JaogvX4=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=e/J9gwCA4uBKGknzsmiO3oet8slWv1kdiClhfZ9LTUvDcAr8km71ONqn/wjRdmpri
-	 4EyHjbbYG4CKX/8T2eN5ATCPWVrLNipH5jKYYefAMdH+qlSBTJn1LIV6HX/UxzfdGn
-	 9DHlxQpHUKnw1xm9c/b/XukYCVTGP1/9SF9qgehM=
-From: Easwar Hariharan <eahariha@linux.microsoft.com>
-Date: Tue, 10 Dec 2024 22:02:49 +0000
-Subject: [PATCH v3 18/19] livepatch: Convert timeouts to secs_to_jiffies()
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gP23HQ+O"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BADrZwF006007;
+	Tue, 10 Dec 2024 22:06:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=7aJ4Q1
+	LeVYT6SUkuvf2t47oeSOSvzYlJohh+0tAsRBE=; b=gP23HQ+OA648vtg7AeUxS4
+	UJUMebi0pMhwyUTstbZqnwhvKCkXkqCOQoG766ylIoUIlrYxzXNpzUOm6MNpusht
+	xu4Nj5mbc/heGfcX72NIBfhxxpaNilwqdfdjjCeRi5CuZm9ZkvWKez4KX5GK6r/K
+	p2Jag0XhJjiXEQFb9SG2uKF9JVlkjj9BTwBx05dJYw9d++a/821p2PXbCaF4qFbw
+	KyIZAjBHfzKAtGV7SlaxezkbWogvCCs0NU+X3wPJ5SEi5R0pPjsI6nU4BUoopi4w
+	OAHIRlqoYPIrkgKd7YCfdt6JrOT92/HXCMBW7S8u5RV8M/9Ldh89jPN5GIwobcbw
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ce1vsptu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Dec 2024 22:06:13 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BAJr0KH018608;
+	Tue, 10 Dec 2024 22:06:12 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43d26kdqw4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Dec 2024 22:06:12 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BAM6BXB22282976
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 10 Dec 2024 22:06:11 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 392CA5805B;
+	Tue, 10 Dec 2024 22:06:11 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7796458055;
+	Tue, 10 Dec 2024 22:06:09 +0000 (GMT)
+Received: from [9.61.107.222] (unknown [9.61.107.222])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 10 Dec 2024 22:06:09 +0000 (GMT)
+Message-ID: <b6edaea3-3ccb-424b-bd84-762936b7448e@linux.ibm.com>
+Date: Tue, 10 Dec 2024 17:06:08 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20241210-converge-secs-to-jiffies-v3-18-ddfefd7e9f2a@linux.microsoft.com>
-References: <20241210-converge-secs-to-jiffies-v3-0-ddfefd7e9f2a@linux.microsoft.com>
-In-Reply-To: <20241210-converge-secs-to-jiffies-v3-0-ddfefd7e9f2a@linux.microsoft.com>
-To: Pablo Neira Ayuso <pablo@netfilter.org>, 
- Jozsef Kadlecsik <kadlec@netfilter.org>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, Julia Lawall <Julia.Lawall@inria.fr>, 
- Nicolas Palix <nicolas.palix@imag.fr>, Daniel Mack <daniel@zonque.org>, 
- Haojian Zhuang <haojian.zhuang@gmail.com>, 
- Robert Jarzmik <robert.jarzmik@free.fr>, 
- Russell King <linux@armlinux.org.uk>, Heiko Carstens <hca@linux.ibm.com>, 
- Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, Ofir Bitton <obitton@habana.ai>, 
- Oded Gabbay <ogabbay@kernel.org>, 
- Lucas De Marchi <lucas.demarchi@intel.com>, 
- =?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
- Rodrigo Vivi <rodrigo.vivi@intel.com>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
- Jeroen de Borst <jeroendb@google.com>, 
- Praveen Kaligineedi <pkaligineedi@google.com>, 
- Shailend Chand <shailend@google.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
- James Smart <james.smart@broadcom.com>, 
- Dick Kennedy <dick.kennedy@broadcom.com>, 
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
- "Martin K. Petersen" <martin.petersen@oracle.com>, 
- =?utf-8?q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>, 
- Jens Axboe <axboe@kernel.dk>, Kalle Valo <kvalo@kernel.org>, 
- Jeff Johnson <jjohnson@kernel.org>, 
- Catalin Marinas <catalin.marinas@arm.com>, 
- Andrew Morton <akpm@linux-foundation.org>, 
- Jack Wang <jinpu.wang@cloud.ionos.com>, 
- Marcel Holtmann <marcel@holtmann.org>, 
- Johan Hedberg <johan.hedberg@gmail.com>, 
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- Florian Fainelli <florian.fainelli@broadcom.com>, 
- Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
- Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>, 
- Josh Poimboeuf <jpoimboe@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
- Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, 
- Joe Lawrence <joe.lawrence@redhat.com>, Jaroslav Kysela <perex@perex.cz>, 
- Takashi Iwai <tiwai@suse.com>, Louis Peens <louis.peens@corigine.com>, 
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
- Christophe Leroy <christophe.leroy@csgroup.eu>, 
- Naveen N Rao <naveen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: netfilter-devel@vger.kernel.org, coreteam@netfilter.org, 
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, cocci@inria.fr, 
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
- dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
- linux-scsi@vger.kernel.org, xen-devel@lists.xenproject.org, 
- linux-block@vger.kernel.org, linux-wireless@vger.kernel.org, 
- ath11k@lists.infradead.org, linux-mm@kvack.org, 
- linux-bluetooth@vger.kernel.org, linux-staging@lists.linux.dev, 
- linux-rpi-kernel@lists.infradead.org, ceph-devel@vger.kernel.org, 
- live-patching@vger.kernel.org, linux-sound@vger.kernel.org, 
- oss-drivers@corigine.com, linuxppc-dev@lists.ozlabs.org, 
- Anna-Maria Behnsen <anna-maria@linutronix.de>, 
- Easwar Hariharan <eahariha@linux.microsoft.com>
-X-Mailer: b4 0.14.2
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 5/6] iommu: document missing def_domain_type return
+To: Robin Murphy <robin.murphy@arm.com>, Baolu Lu <baolu.lu@linux.intel.com>,
+        joro@8bytes.org, will@kernel.org, gerald.schaefer@linux.ibm.com,
+        schnelle@linux.ibm.com
+Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, borntraeger@linux.ibm.com, farman@linux.ibm.com,
+        clegoate@redhat.com, iommu@lists.linux.dev,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20241209192403.107090-1-mjrosato@linux.ibm.com>
+ <20241209192403.107090-6-mjrosato@linux.ibm.com>
+ <3db6f346-0cb4-41f7-b532-91bcb0265849@linux.intel.com>
+ <0e80948b-7593-4b59-bb77-2f78f00ad2c3@linux.ibm.com>
+ <e2c80012-bf7a-4420-a478-482aac4903b8@arm.com>
+Content-Language: en-US
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <e2c80012-bf7a-4420-a478-482aac4903b8@arm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: LidFcGQV5J-w-U6jy9QUJ9Kyla0jOSbp
+X-Proofpoint-ORIG-GUID: LidFcGQV5J-w-U6jy9QUJ9Kyla0jOSbp
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ priorityscore=1501 clxscore=1015 phishscore=0 bulkscore=0 mlxlogscore=999
+ impostorscore=0 spamscore=0 malwarescore=0 suspectscore=0 adultscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412100157
 
-Commit b35108a51cf7 ("jiffies: Define secs_to_jiffies()") introduced
-secs_to_jiffies(). As the value here is a multiple of 1000, use
-secs_to_jiffies() instead of msecs_to_jiffies to avoid the multiplication.
+On 12/10/24 1:42 PM, Robin Murphy wrote:
+> On 10/12/2024 4:26 pm, Matthew Rosato wrote:
+>> On 12/9/24 9:57 PM, Baolu Lu wrote:
+>>> On 12/10/24 03:24, Matthew Rosato wrote:
+>>>> In addition to IOMMU_DOMAIN_DMA, def_domain_type can also return
+>>>> IOMMU_DOMAIN_DMA_FQ when applicable, else flush queues will never be
+>>>> used.
+>>>>
+>>>> Signed-off-by: Matthew Rosato<mjrosato@linux.ibm.com>
+>>>> ---
+>>>>    include/linux/iommu.h | 1 +
+>>>>    1 file changed, 1 insertion(+)
+>>>>
+>>>> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+>>>> index 05279109c732..d0da1918d2de 100644
+>>>> --- a/include/linux/iommu.h
+>>>> +++ b/include/linux/iommu.h
+>>>> @@ -585,6 +585,7 @@ iommu_copy_struct_from_full_user_array(void *kdst, size_t kdst_entry_size,
+>>>>     * @def_domain_type: device default domain type, return value:
+>>>>     *        - IOMMU_DOMAIN_IDENTITY: must use an identity domain
+>>>>     *        - IOMMU_DOMAIN_DMA: must use a dma domain
+>>>> + *              - IOMMU_DOMAIN_DMA_FQ: dma domain with batch invalidation
+>>>
+>>> In which case must an iommu driver return IOMMU_DOMAIN_DMA_FQ?
+>>>
+>>> The flush queue is a policy of "when and how to synchronize the IOTLB"
+>>> in dma-iommu.c. The iommu driver actually has no need to understand such
+>>> policy.
+>>
+>> If you look ahead to the next patch where I implement def_domain_type for s390, I found that if I only ever return IOMMU_DOMAIN_DMA from ops->def_domain_type then when go through iommu_dma_init_domain() we will never call iommu_dma_init_fq() regardless of IOMMU_CAP_DEFERRED_FLUSH because of the if (domain->type == IOMMU_DOMAIN_DMA_FQ) check.  So something isn't right here.
+> 
+> Conceptually I don't think it ever makes sense for a driver to *require* a device to use deferred invalidation. Furthermore it's been the whole design for a while now that drivers should never see nor have to acknowledge IOMMU_DOMAIN_DMA_FQ, it's now just an internal type which exists largely for the sake of making the sysfs interface work really neatly. Also beware that a major reason for overriding iommu_def_domain_type with a paging domain is for untrusted devices, so massaging the result based on iommu_dma_strict is still not necessarily appropriate anyway.
+> 
+> It appears the real underlying issue is that, like everyone else in the same situation, you're doing def_domain_type wrong. If and when you can't support IOMMU_DOMAIN_IDENTITY, the expectation is that you make __iommu_alloc_identity_domain() fail, such that if iommu_def_domain_type is then ever set to passthrough, iommu_group_alloc_default_domain() falls back to IOMMU_DOMAIN_DMA by itself, and the user gets told they did a silly thing.
 
-This is converted using scripts/coccinelle/misc/secs_to_jiffies.cocci with
-the following Coccinelle rules:
+OK, I almost see where this all fits to throw out def_domain_type for this series...  but looking at __iommu_alloc_identity_domain, the preferred approach is using a static identity domain which turns __iommu_alloc_identity_domain into a nofail case once you define the identity_domain:
+ 
+if (ops->identity_domain)
+	return ops->identity_domain;
 
-@@ constant C; @@
+So it seems to me to be an all-or-nothing thing, whereas what I'm trying to achieve is a device-based decision on whether the group is allowed to use that identity domain.  Which reminds me that this is ultimately why I ended up looking into def_domain_type in the first place.
 
-- msecs_to_jiffies(C * 1000)
-+ secs_to_jiffies(C)
+If I need __iommu_alloc_identity_domain to fail, I guess what I'm looking to do boils down to something like...
 
-@@ constant C; @@
+if (ops->identity_domain) { 
+	if (!ops->allow_identity || ops->allow_identity(dev))
+		return ops->identity_domain;
+	else
+		return ERR_PTR(-EOPNOTSUPP);
+}
 
-- msecs_to_jiffies(C * MSEC_PER_SEC)
-+ secs_to_jiffies(C)
 
-Signed-off-by: Easwar Hariharan <eahariha@linux.microsoft.com>
----
- samples/livepatch/livepatch-callbacks-busymod.c |  3 +--
- samples/livepatch/livepatch-shadow-fix1.c       |  3 +--
- samples/livepatch/livepatch-shadow-mod.c        | 15 +++++----------
- 3 files changed, 7 insertions(+), 14 deletions(-)
 
-diff --git a/samples/livepatch/livepatch-callbacks-busymod.c b/samples/livepatch/livepatch-callbacks-busymod.c
-index 378e2d40271a9717d09eff51d3d3612c679736fc..69105596e72e6826aa2815cb2599eea56a0055ba 100644
---- a/samples/livepatch/livepatch-callbacks-busymod.c
-+++ b/samples/livepatch/livepatch-callbacks-busymod.c
-@@ -44,8 +44,7 @@ static void busymod_work_func(struct work_struct *work)
- static int livepatch_callbacks_mod_init(void)
- {
- 	pr_info("%s\n", __func__);
--	schedule_delayed_work(&work,
--		msecs_to_jiffies(1000 * 0));
-+	schedule_delayed_work(&work, 0);
- 	return 0;
- }
- 
-diff --git a/samples/livepatch/livepatch-shadow-fix1.c b/samples/livepatch/livepatch-shadow-fix1.c
-index 6701641bf12d454a770e49abeeb0dea92560e55e..f3f153895d6ce751fc91ae1224d91b220cba3e37 100644
---- a/samples/livepatch/livepatch-shadow-fix1.c
-+++ b/samples/livepatch/livepatch-shadow-fix1.c
-@@ -72,8 +72,7 @@ static struct dummy *livepatch_fix1_dummy_alloc(void)
- 	if (!d)
- 		return NULL;
- 
--	d->jiffies_expire = jiffies +
--		msecs_to_jiffies(1000 * EXPIRE_PERIOD);
-+	d->jiffies_expire = jiffies + secs_to_jiffies(EXPIRE_PERIOD);
- 
- 	/*
- 	 * Patch: save the extra memory location into a SV_LEAK shadow
-diff --git a/samples/livepatch/livepatch-shadow-mod.c b/samples/livepatch/livepatch-shadow-mod.c
-index 7e753b0d2fa611524c9e2adbe02c8fa3e9b6015e..5d83ad5a8118dbbac897dfcbb92e6d5f399d1dc3 100644
---- a/samples/livepatch/livepatch-shadow-mod.c
-+++ b/samples/livepatch/livepatch-shadow-mod.c
-@@ -101,8 +101,7 @@ static __used noinline struct dummy *dummy_alloc(void)
- 	if (!d)
- 		return NULL;
- 
--	d->jiffies_expire = jiffies +
--		msecs_to_jiffies(1000 * EXPIRE_PERIOD);
-+	d->jiffies_expire = jiffies + secs_to_jiffies(EXPIRE_PERIOD);
- 
- 	/* Oops, forgot to save leak! */
- 	leak = kzalloc(sizeof(*leak), GFP_KERNEL);
-@@ -152,8 +151,7 @@ static void alloc_work_func(struct work_struct *work)
- 	list_add(&d->list, &dummy_list);
- 	mutex_unlock(&dummy_list_mutex);
- 
--	schedule_delayed_work(&alloc_dwork,
--		msecs_to_jiffies(1000 * ALLOC_PERIOD));
-+	schedule_delayed_work(&alloc_dwork, secs_to_jiffies(ALLOC_PERIOD));
- }
- 
- /*
-@@ -184,16 +182,13 @@ static void cleanup_work_func(struct work_struct *work)
- 	}
- 	mutex_unlock(&dummy_list_mutex);
- 
--	schedule_delayed_work(&cleanup_dwork,
--		msecs_to_jiffies(1000 * CLEANUP_PERIOD));
-+	schedule_delayed_work(&cleanup_dwork, secs_to_jiffies(CLEANUP_PERIOD));
- }
- 
- static int livepatch_shadow_mod_init(void)
- {
--	schedule_delayed_work(&alloc_dwork,
--		msecs_to_jiffies(1000 * ALLOC_PERIOD));
--	schedule_delayed_work(&cleanup_dwork,
--		msecs_to_jiffies(1000 * CLEANUP_PERIOD));
-+	schedule_delayed_work(&alloc_dwork, secs_to_jiffies(ALLOC_PERIOD));
-+	schedule_delayed_work(&cleanup_dwork, secs_to_jiffies(CLEANUP_PERIOD));
- 
- 	return 0;
- }
 
--- 
-2.43.0
+
 
