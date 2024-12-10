@@ -1,121 +1,139 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72E338633C;
-	Tue, 10 Dec 2024 18:01:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E1B153C17;
+	Tue, 10 Dec 2024 18:42:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733853713; cv=none; b=N+xzIc2qiBJRZwIFTT1/UjumhKrNCaqQzbxXejFYbsEzWxww2gy4xslnXEFjV+83cxHROrXskD2XKy8y1aCrnRz+yB9y8a7I7WEEJqHq01cWHzajT04+asyL8DJCWZDNkZkxAtxmh9Q7RukRQiJjs4TBY0w9YzXUhr7lCDi+img=
+	t=1733856159; cv=none; b=gNb86CT3fR/3ifb4JO18VV6Te6Tz4T8hh28TB4aL6WjT31F+qOKdmrwkxz0blf7GtaMQ7Oq8U/RND6601ZagA/r58DyHvxtIgmRzIIwH9hAyYxXi7bSrvWtS89T0g0B7vqOzbonbxIc0Kxh1Z5yxDd3CETTydhlLhdO5T/2N5HA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733853713; c=relaxed/simple;
-	bh=rsTGxL0HBNmGxWBc2VDCHNPEl3HaF5w17PiOUuj5rUg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pDirsiqEkuBpiM7nPdMbn5/bQh1bs/fGb4r9WoMaOxtz6VpAHHwgFEThCql+Jos15rrPmQCXPtifln0ZsDYe4v8FUvEmzxmiMMWi4Pig1K7FaMWpyeb7jxTDMP+8B1xXIxUAwKUQylb+xUTp1dLrthXZNxqSqebXaDsRTixopV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jTc8Qlsd; arc=none smtp.client-ip=209.85.128.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jTc8Qlsd"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-434e406a547so24842095e9.3;
-        Tue, 10 Dec 2024 10:01:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733853710; x=1734458510; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yBlvItGA4s+sxQEx1hGblMxAfdPEGezlVzN9Y20RcFI=;
-        b=jTc8Qlsd5BvAZtDnpHpvaRDMa8PazbIbOKxPZGYc+o85Cb/wAQZ/XdUZlVhK1AqI7z
-         rfk6ey3voEopJ8oCrIm+ABPBxS/J780ln2G9Lctij2S7lunnFmgwSQiQv6w5APqeYxfH
-         Dh1KbYB4Yw0d0U2OfD71KEEgyBIqhymu/8SnYRcF7tjqLsbnDx2Lvht0ouLzTuZvaWb2
-         OGENhY2l6kHqTNas/9JafTY0G9EsMMmbtxUgZgqvKUbMlgJ3xbLuLL2TPu1w+TtnlJaL
-         WbLKzxirQa1FIswrPxMXepXUang7XSxDSnBVDBjyAxUash4UmwoPs3FYtOugk4RQRbfx
-         +4Cg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733853710; x=1734458510;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=yBlvItGA4s+sxQEx1hGblMxAfdPEGezlVzN9Y20RcFI=;
-        b=GLRd6bRpiRz4+AY6r7rS90UmxQ+LiKw5wNHZNxVI7saKBNPVJODUCUBs+5a9zBWs+M
-         5k3hw70pxVzJze7anOEZ1ssM3QGbU2FQVhKrDtLewCp8uVuVjj4Z2oSr2mWug3inZVyA
-         cc3DX8ya4VyPMHrE7i9jJwPbocW7MXTYpwiezZDsNzKgDLhUnBEQ8aWcBcF8HcUW3giH
-         qsE8ho89uCXk1IuTYCeLC6M6KJZ9qfS9QzvLzcBMyN8dDRo0WZFmZmnEd1q2fV93y5LU
-         fVO3YZ3fIoxQms4pZGLF0iYlXiQo9Js7larQc99++Q6KItE6sR+/uQzxjXud/CpMsDJF
-         IqUQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVF0OElDrUog9aIil1n/9IGePbtUxqOIDrylt8nvH+p5B+Ye078TzMoLClLXuoYXnlg7VA=@vger.kernel.org, AJvYcCVXLA2kpzUbClPAKLTlz98G20ZPgT91tNPxkhdGsU/F50zqSnxvMXN+hkOlh5j7u747zgakvLCV@vger.kernel.org, AJvYcCW3XyptrON7JeairzYphSW9uhTyKiRcfpNfVj/nJ4tnbenKbtoL0m+fKUjSthurddyzrYZ+DkBC7yBB/g==@vger.kernel.org, AJvYcCWRQvbeFfbdB6ADtOCM0+lY4GvU9Rrg8ILHuPtl9JNmMEjO8Ad1fSC5aA8N+zuZiWCHpmqu1d12NFRXQA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyPqjSKzWkdaDo3gC4elMuqimt9Yorp+6VQjlJJEVoXJzh5bWDI
-	P94arYjMpu0x3psnwjXHSBp01iuZeUSdVDLlCOJM4Fd57Z7E1rstvmki1BekeAZov0K+6PAHlsy
-	PUtWYdBUWbQUZ69aWmr1BHzn9x5U=
-X-Gm-Gg: ASbGncuhqWuhuDrs+d+gFqZBYCzCgIOD6Te25CU3Aiabs5y3zDC4Pwqv3USYgHwfjAy
-	RPmj9EAInXbL8JsNd7i1qYW/jKM1+i6fOHo4HbxXGRyyOIXh/YdM=
-X-Google-Smtp-Source: AGHT+IHhGuEaEWR7fFfHE+4MIKBVmJs6l0dKJ8v3/9GLrqsDK8ii+HMxWZdSOJjxHGu+I796y6DFOO/fpzSIzAcl93Y=
-X-Received: by 2002:a05:600c:458c:b0:434:edcf:7464 with SMTP id
- 5b1f17b1804b1-434fffc0b2bmr54752515e9.30.1733853709387; Tue, 10 Dec 2024
- 10:01:49 -0800 (PST)
+	s=arc-20240116; t=1733856159; c=relaxed/simple;
+	bh=13n6v+T01Xi8fpqVO4hjM7iv1ONrRbl6Glb7UC/yXMA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=u2TB6nEC3TSYbLRnC5AruoTZ3uyLv3VNsHrDpyd0BekkJYS/xS+kV49pA4X6UoeFXsMK85bztnPeSktpGpF8/QYe3eyMy5kwCDRkeH/7Lmc5gTXyy/vzuNjjegwBOSg2p0dJZeGWSPzjzKSb0omi58369X2LFXjHluqTW/wTkvs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 233CD1063;
+	Tue, 10 Dec 2024 10:43:04 -0800 (PST)
+Received: from [10.1.196.40] (e121345-lin.cambridge.arm.com [10.1.196.40])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 26DEC3F58B;
+	Tue, 10 Dec 2024 10:42:34 -0800 (PST)
+Message-ID: <e2c80012-bf7a-4420-a478-482aac4903b8@arm.com>
+Date: Tue, 10 Dec 2024 18:42:27 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241210040404.10606-1-alibuda@linux.alibaba.com> <20241210040404.10606-6-alibuda@linux.alibaba.com>
-In-Reply-To: <20241210040404.10606-6-alibuda@linux.alibaba.com>
-From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date: Tue, 10 Dec 2024 10:01:38 -0800
-Message-ID: <CAADnVQJisbHFpS2==pw4aOAmKsbo6m6EDvOBntF_ATMrbp0G=w@mail.gmail.com>
-Subject: Re: [PATCH bpf-next v2 5/5] bpf/selftests: add simple selftest for bpf_smc_ops
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, 
-	Paolo Abeni <pabeni@redhat.com>, Song Liu <song@kernel.org>, Stanislav Fomichev <sdf@google.com>, 
-	Hao Luo <haoluo@google.com>, Yonghong Song <yhs@fb.com>, Eric Dumazet <edumazet@google.com>, 
-	John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>, 
-	Jiri Olsa <jolsa@kernel.org>, guwen@linux.alibaba.com, 
-	Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
-	Network Development <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, 
-	linux-rdma@vger.kernel.org, bpf <bpf@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 5/6] iommu: document missing def_domain_type return
+To: Matthew Rosato <mjrosato@linux.ibm.com>,
+ Baolu Lu <baolu.lu@linux.intel.com>, joro@8bytes.org, will@kernel.org,
+ gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com
+Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ svens@linux.ibm.com, borntraeger@linux.ibm.com, farman@linux.ibm.com,
+ clegoate@redhat.com, iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org
+References: <20241209192403.107090-1-mjrosato@linux.ibm.com>
+ <20241209192403.107090-6-mjrosato@linux.ibm.com>
+ <3db6f346-0cb4-41f7-b532-91bcb0265849@linux.intel.com>
+ <0e80948b-7593-4b59-bb77-2f78f00ad2c3@linux.ibm.com>
+From: Robin Murphy <robin.murphy@arm.com>
+Content-Language: en-GB
+In-Reply-To: <0e80948b-7593-4b59-bb77-2f78f00ad2c3@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Mon, Dec 9, 2024 at 8:04=E2=80=AFPM D. Wythe <alibuda@linux.alibaba.com>=
- wrote:
->
-> +SEC("struct_ops/bpf_smc_set_tcp_option_cond")
-> +int BPF_PROG(bpf_smc_set_tcp_option_cond, const struct tcp_sock *tp, str=
-uct inet_request_sock *ireq)
-> +{
-> +       return 0;
-> +}
-> +
-> +SEC("struct_ops/bpf_smc_set_tcp_option")
-> +int BPF_PROG(bpf_smc_set_tcp_option, struct tcp_sock *tp)
-> +{
-> +       return 1;
-> +}
-> +
-> +SEC(".struct_ops.link")
-> +struct smc_ops  sample_smc_ops =3D {
-> +       .name                   =3D "sample",
-> +       .set_option             =3D (void *) bpf_smc_set_tcp_option,
-> +       .set_option_cond        =3D (void *) bpf_smc_set_tcp_option_cond,
-> +};
+On 10/12/2024 4:26 pm, Matthew Rosato wrote:
+> On 12/9/24 9:57 PM, Baolu Lu wrote:
+>> On 12/10/24 03:24, Matthew Rosato wrote:
+>>> In addition to IOMMU_DOMAIN_DMA, def_domain_type can also return
+>>> IOMMU_DOMAIN_DMA_FQ when applicable, else flush queues will never be
+>>> used.
+>>>
+>>> Signed-off-by: Matthew Rosato<mjrosato@linux.ibm.com>
+>>> ---
+>>>    include/linux/iommu.h | 1 +
+>>>    1 file changed, 1 insertion(+)
+>>>
+>>> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+>>> index 05279109c732..d0da1918d2de 100644
+>>> --- a/include/linux/iommu.h
+>>> +++ b/include/linux/iommu.h
+>>> @@ -585,6 +585,7 @@ iommu_copy_struct_from_full_user_array(void *kdst, size_t kdst_entry_size,
+>>>     * @def_domain_type: device default domain type, return value:
+>>>     *        - IOMMU_DOMAIN_IDENTITY: must use an identity domain
+>>>     *        - IOMMU_DOMAIN_DMA: must use a dma domain
+>>> + *              - IOMMU_DOMAIN_DMA_FQ: dma domain with batch invalidation
+>>
+>> In which case must an iommu driver return IOMMU_DOMAIN_DMA_FQ?
+>>
+>> The flush queue is a policy of "when and how to synchronize the IOTLB"
+>> in dma-iommu.c. The iommu driver actually has no need to understand such
+>> policy.
+> 
+> If you look ahead to the next patch where I implement def_domain_type for s390, I found that if I only ever return IOMMU_DOMAIN_DMA from ops->def_domain_type then when go through iommu_dma_init_domain() we will never call iommu_dma_init_fq() regardless of IOMMU_CAP_DEFERRED_FLUSH because of the if (domain->type == IOMMU_DOMAIN_DMA_FQ) check.  So something isn't right here.
 
-These stubs don't inspire confidence that smc_ops api
-will be sufficient.
-Please implement a real bpf prog that demonstrates the actual use case.
+Conceptually I don't think it ever makes sense for a driver to *require* 
+a device to use deferred invalidation. Furthermore it's been the whole 
+design for a while now that drivers should never see nor have to 
+acknowledge IOMMU_DOMAIN_DMA_FQ, it's now just an internal type which 
+exists largely for the sake of making the sysfs interface work really 
+neatly. Also beware that a major reason for overriding 
+iommu_def_domain_type with a paging domain is for untrusted devices, so 
+massaging the result based on iommu_dma_strict is still not necessarily 
+appropriate anyway.
 
-See how bpf_cubic was done. On the day one it was implemented
-as a parity to builtin cubic cong control.
-And over years we didn't need to touch tcp_congestion_ops.
-To be fair that api was already solid due to in-kernel cc modules,
-but bpf comes with its own limitations, so it wasn't a guarantee
-that tcp_congestion_ops would be enough.
-Here you're proposing a brand new smc_ops api while bpf progs
-are nothing but stubs. That's not sufficient to prove that api
-is viable long term.
+It appears the real underlying issue is that, like everyone else in the 
+same situation, you're doing def_domain_type wrong. If and when you 
+can't support IOMMU_DOMAIN_IDENTITY, the expectation is that you make 
+__iommu_alloc_identity_domain() fail, such that if iommu_def_domain_type 
+is then ever set to passthrough, iommu_group_alloc_default_domain() 
+falls back to IOMMU_DOMAIN_DMA by itself, and the user gets told they 
+did a silly thing.
 
-In terms of look and feel the smc_ops look ok.
-The change from v1 to v2 was a good step.
+What you see apple-dart doing is a hack around the old bus-based 
+iommu_domain_alloc() API where there wasn't enough information at the 
+right point to necessarily do the right thing.
 
-pw-bot: cr
+Thanks,
+Robin.
+
+> It looks to me like the following is happening:
+> 
+> We first have the iommu_def_domain_type set in iommu_subsys_init or via one of the set_default routines, e.g.:
+> 	if (!iommu_default_passthrough() && !iommu_dma_strict)
+> 		iommu_def_domain_type = IOMMU_DOMAIN_DMA_FQ;
+> 
+> But when we arrive at iommu_group_alloc_default_domain()...
+> 
+> if we have no ops->def_domain_type() defined we will call __iommu_group_alloc_default_domain using what is in iommu_def_domain_type, which could be IOMMU_DOMAIN_DMA, IOMMU_DOMAIN_DMA_FQ or IOMMU_DOMAIN_IDENTITY based on strict/passthrough settings.  Testing an s390 scenario today without this series applied, we will call __iommu_group_alloc_default_domain with IOMMU_DOMAIN_DMA_FQ, as long as iommu.strict/passthrough is not specified, so then later in dma-iommu:iommu_dma_init_domain() we can use FQ based on IOMMU_CAP_DEFERRED_FLUSH.
+> 
+> but once we add ops->def_domain_type() then we end up calling iommu_group_alloc_default_domain() with a req_type == the return value from ops->def_domain_type(), which by the current definition can only be IOMMU_DOMAIN_DMA or IOMMU_DOMAIN_IDENTITY.  We will then call __iommu_group_alloc_default_domain with that req_type; so without this patch + the DMA_FQ path in patch 6 we would always end up allocating IOMMU_DOMAIN_DMA instead of IOMMU_DOMAIN_DMA_FQ by default, so when we arrive at dma:iommu_dma_init_domain() we won't check for IOMMU_CAP_DEFERRED_FLUSH because of the type.
+> 
+> So unless I'm missing something I think either we have to
+> 1) be more flexible in what ops->default_domain_type() is allowed to return as this patch does
+> or
+> 2) iommu core needs to look at the return from ops->default_domain_type() and decide whether it's OK to convert IOMMU_DOMAIN_DMA->IOMMU_DOMAIN_DMA_FQ based on strict setting.  This removes the decision from the individual drivers and dma-iommu can later decide whether or not to use it or not based on IOMMU_CAP_DEFERRED_FLUSH?  But would also affect other users of def_domain_type() today that perhaps did not want DMA_FQ?  Unsure.  What I mean is something like (untested):
+> 
+> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> index 6bdede4177ff..275daa7f819d 100644
+> --- a/drivers/iommu/iommu.c
+> +++ b/drivers/iommu/iommu.c
+> @@ -1744,9 +1744,11 @@ static int iommu_get_def_domain_type(struct iommu_group *group,
+>                   */
+>                  type = ops->default_domain->type;
+>          } else {
+> -               if (ops->def_domain_type)
+> +               if (ops->def_domain_type) {
+>                          type = ops->def_domain_type(dev);
+> -               else
+> +                       if (type == IOMMU_DOMAIN_DMA && !iommu_dma_strict)
+> +                               type = IOMMU_DOMAIN_DMA_FQ;
+> +               } else
+>                          return cur_type;
+>          }
+>          if (!type || cur_type == type)
+> 
+> 
