@@ -1,118 +1,124 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E2E522617C;
-	Tue, 10 Dec 2024 07:07:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 749231B6CE5;
+	Tue, 10 Dec 2024 08:39:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733814439; cv=none; b=EDDDkISyVECXInZm8S4ZFPAvWzeo4+rBxfHKgCh2zIvjlOT8I361U/IG5Fq3Bg5qa0CW/a8ViLR1HVdV9fhDUoIbvnk1JXpw9TVOiHEyv3S4N8BFmiwU9vF+RQwdowPvGoToBQ13y3EYY9Cn7kJeJ1GkxdeFqtZSGo1TlFbSMpc=
+	t=1733819998; cv=none; b=aYIC6V7Isf5Q84YfaCp0Gcjp0gQpdoF3mHGki4+h/Fcn8RtoIsW062y5ezERXGRsKN7ybyefVQ6kwQutML9Ef3AR6JQJ3iQCQ0wPTk2aEfQwT8lCC4wCfY+9e6/GKaUDoy+7TY8pWIbA5XK1xcvv+F7YpvL1i/zGZ3oMX9T8kxU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733814439; c=relaxed/simple;
-	bh=21yYhE3JbhGoBWJsgIJYYeuG7B7/nF2qsxltmh9NDKw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ig6Qz9T3hOsoZ9qswtUdfecFsa9qkAvS2X59mx/GATsLc747a4NJGS/aINrntWJylkahm1ZPSCGYTvtYGK5U13rePkDu188BuLxDlD1GEz/zK9k2L7/3g4ZhlUtShfdEw0POIV9KKcyJ+9FDJVUAEwD9t6GBXRvVCUOYfo3PW+M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=q7lGGmHB; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1733819998; c=relaxed/simple;
+	bh=1U90tkSlgCM2c0ntCjd0/PeGDQGi1IHybKfQQgSA9aY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lOV5OakbUtfnuPKtIEBsUu8bEVnCNQ9sZFURPGPPAgV5VApQ/tqBySn9grbpCObQL+FhNarHTD7mPdmGcmtwdTOemABKzGMEBmhv83ERaczRNUSqzSbUDD9gmn+AnTEDSCfPnhCMl7CUc5rpD9PTz2Y3iPmHVZPW95cWPbfNSx8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tAsoiRmh; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="q7lGGmHB"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1733814427; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=DCSpoueBZE9y2EqJgZJxE02iPNXEzifaehYh+skOFvs=;
-	b=q7lGGmHBkO89AIDcpa3JHCdyUCG1Incd5pzr5H+5wk86rW23xZjW7ztFL9IPZofzH6EJVjcQamjotLra+d3KY99pmoJNwyogGfMO3PY/OPHOAds7T2SxSqjQor3SZJAyn1e22Z49bN3afKLFDTOYwRfcAzUwJ6fapZejWnL+Gfo=
-Received: from 30.221.101.48(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WLE42aD_1733814424 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 10 Dec 2024 15:07:06 +0800
-Message-ID: <58075d86-b43a-4d58-bf64-c29418f99143@linux.alibaba.com>
-Date: Tue, 10 Dec 2024 15:07:04 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tAsoiRmh"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BA7NBqW015473;
+	Tue, 10 Dec 2024 08:39:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=qUdpemlOHZ1Ug0Ns/x2SUT080FHnIeZFUe0Dk7C6Q
+	xM=; b=tAsoiRmh3r9FM34afzHlucmu1W9p20zkUFJPUjrWTSpgdYvQvgXytrqqe
+	aVOn1VfpbEqYBWBXW/J7pkSnDCuyFn4VHc2bsMX7x2NV4GqJpIvv7gPqpOxwmLE+
+	kWGR9BNCUU2/DtzsXiLrsDppKSZpLRTQ1rbkHSathbxdQ0pOI8tXJLrYof6RVTIL
+	N/eO4lg+ra6bvZ4bPziy/6fmfPCZA2xcgwD8p04yb5jD7dYbnsLa/IuP6+2wTxfi
+	q8Qr3QxeK5lZ1fxDrJHFWO0cqylgyaCoXEPkjmZpGbP1jwaF1gIQvSRgS/T7uP/B
+	n3i1J7U7LCB7osDIiRwPgxqx1E+Ng==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ccsjd1e7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Dec 2024 08:39:55 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BA6WZcA032760;
+	Tue, 10 Dec 2024 08:39:54 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 43d0psb00h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Dec 2024 08:39:54 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BA8dm2u31261214
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 10 Dec 2024 08:39:48 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CA89C20043;
+	Tue, 10 Dec 2024 08:39:48 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7231320040;
+	Tue, 10 Dec 2024 08:39:48 +0000 (GMT)
+Received: from p-imbrenda.ibmuc.com (unknown [9.179.15.147])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 10 Dec 2024 08:39:48 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        frankja@linux.ibm.com, borntraeger@de.ibm.com, nrb@linux.ibm.com
+Subject: [PATCH v1 1/1] KVM: s390: VSIE: fix virtual/physical address in unpin_scb()
+Date: Tue, 10 Dec 2024 09:39:48 +0100
+Message-ID: <20241210083948.23963-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2 2/2] net/smc: support ipv4 mapped ipv6 addr
- client for smc-r v2
-To: Halil Pasic <pasic@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- Dust Li <dust.li@linux.alibaba.com>
-References: <20241202125203.48821-1-guangguan.wang@linux.alibaba.com>
- <20241202125203.48821-3-guangguan.wang@linux.alibaba.com>
- <894d640f-d9f6-4851-adb8-779ff3678440@linux.ibm.com>
- <20241205135833.0beafd61.pasic@linux.ibm.com>
- <5ac2c5a7-3f12-48e5-83a9-ecd3867e6125@linux.alibaba.com>
- <7de81edd-86f2-4cfd-95db-e273c3436eb6@linux.ibm.com>
- <3710a042-cabe-4b6d-9caa-fd4d864b2fdc@linux.ibm.com>
- <d2af79e2-adb2-46f0-a7e3-67a9265f3adf@linux.alibaba.com>
- <868f5d66-ac74-4b0a-a0d0-e44fdea3bb73@linux.ibm.com>
- <20241209104647.5c36c429.pasic@linux.ibm.com>
- <85d1c6e1-0fe3-4c71-af4e-8015270b90dc@linux.alibaba.com>
- <20241209214449.0bb5afce.pasic@linux.ibm.com>
-Content-Language: en-US
-From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <20241209214449.0bb5afce.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: hSLyTAwSBb-AbiSM_-ub1Jf8i0HXQKnF
+X-Proofpoint-ORIG-GUID: hSLyTAwSBb-AbiSM_-ub1Jf8i0HXQKnF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
+ impostorscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0 mlxlogscore=868
+ mlxscore=0 priorityscore=1501 suspectscore=0 malwarescore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2412100065
 
+In commit 77b533411595 ("KVM: s390: VSIE: sort out virtual/physical
+address in pin_guest_page"), only pin_scb() has been updated. This
+means that in unpin_scb() a virtual address was still used directly as
+physical address without conversion. The resulting physical address is
+obviously wrong and most of the time also invalid.
 
+Since commit d0ef8d9fbebe ("KVM: s390: Use kvm_release_page_dirty() to
+unpin "struct page" memory"), unpin_guest_page() will directly use
+kvm_release_page_dirty(), instead of kvm_release_pfn_dirty(), which has
+since been removed.
 
-On 2024/12/10 04:44, Halil Pasic wrote:
-> On Mon, 9 Dec 2024 20:36:45 +0800
-> Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
-> 
->>> I believe we would like to have a v3 here. Also I'm not sure
->>> checking on saddr is sufficient, but I didn't do my research on
->>> that question yet.
->>>
->>> Regards,
->>> Halil  
->>
->> Did you mean to research whether the daddr should be checked too?
-> 
-> Right! Or is it implied that if saddr is a ipv4 mapped ipv6 addr
-> then the daddr must be ipv4 mapped ipv6 addr as well?
-> 
-> Regards,
-> Halil
+One of the checks that were performed by kvm_release_pfn_dirty() was to
+verify whether the page was valid at all, and silently return
+successfully without doing anything if the page was invalid.
 
-I did a test by iperf3:
-A server with IPV4 addr 11.213.5.33/24 and real IPV6 addr 2012::1/64.
-A client with IPV4 addr 11.213.5.5/24 and real IPV6 addr 2012::2/64.
-iperf3 fails to run when server listen on IPV6 addr and client connect
-to server using IPV4 mapped IPV6 addr. commands show below:
-server: smc_run iperf3 -s -6 -B 2012::1
-client: smc_run iperf3 -t 10 -c 2012::1 -6 -B ::ffff:11.213.5.5
+When kvm_release_pfn_dirty() was still used, the invalid page was thus
+silently ignored. Now the check is gone and the result is an Oops.
+This also means that when running with a V!=R kernel, the page was not
+released, causing a leak.
 
-Failure happened due to the connect() function got the errno -EAFNOSUPPORT,
-I also located the kernel code where the -EAFNOSUPPORT is returned
-(https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/tree/net/ipv6/ip6_output.c#:~:text=err%20%3D%20%2DEAFNOSUPPORT%3B).
-The call stack is:
-ip6_dst_lookup_tail+1
-ip6_dst_lookup_flow+55
-tcp_v6_connect+743
-__inet_stream_connect+181
-inet_stream_connect+59
-kernel_connect+109
-smc_connect+239
-__sys_connect+179
-__x64_sys_connect+26
-do_syscall_64+112
-entry_SYSCALL_64_after_hwframe+118
+The solution is simply to add the missing virt_to_phys().
 
-The kernel code mentioned above restricts that when the saddr is ipv4
-mapped ipv6 addr, the daddr should be either ipv4 mapped ipv6 addr or
-ipv6_addr_any(::). As far as I know, the ipv6_addr_any daddr is used
-to connect to a server listen on ipv6_addr_any(::) by loopback connection.
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Fixes: 77b533411595 ("KVM: s390: VSIE: sort out virtual/physical address in pin_guest_page")
+---
+ arch/s390/kvm/vsie.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thus, based on the test and the code, I think it has the restrict that for
-SMC-Rv2 if saddr is a ipv4 mapped ipv6 addr then the daddr must be
-ipv4 mapped ipv6 addr as well.
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 150b9387860a..a687695d8f68 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -854,7 +854,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ static void unpin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
+ 		      gpa_t gpa)
+ {
+-	hpa_t hpa = (hpa_t) vsie_page->scb_o;
++	hpa_t hpa = virt_to_phys(vsie_page->scb_o);
+ 
+ 	if (hpa)
+ 		unpin_guest_page(vcpu->kvm, gpa, hpa);
+-- 
+2.47.1
 
-Thanks,
-Guangguan Wang
