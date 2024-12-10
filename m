@@ -1,104 +1,218 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0998481727;
-	Tue, 10 Dec 2024 02:59:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3033B644;
+	Tue, 10 Dec 2024 03:27:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733799565; cv=none; b=XAx6ePPlk0NHIZQbkQiUNZ3+2xOjKOami/tHiJragkWuuymerwPKuZRfxP6wkj541VOHm4s6Dk8q6ltEmB6UodC9fBW6WY0YqKUQbzmOd8iHPHpzAVUjvreGd5taaL2IkmNX4rh5lvq0f8w0zTlylS7vGg5BDXvEVh5ZnghqD1E=
+	t=1733801239; cv=none; b=c7bSbybQoLeK0X/G1kZ7a040U2iVQxqJxCjIwDftj90YNjZVJ2MK+wFQL4yqu5DerYq2rQF6sgmHRDQnAc+xdHjMzqnOOCnugSK3lHZDFVPVisIf8yAGhC911OmM0hWJgDYARoYxeU5jDbr6wwXrtNLEoQEbKqZFffH0P+gtb1k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733799565; c=relaxed/simple;
-	bh=f9Ld5/tN7J9t9E2p92p+1WX2c8lX9Pyu1YBmBrWwB8w=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nBk67me0g1gkYJD2gj/20vjnbN/DqcIuB9iD8BV7ea6LceKyiUSaBtT63vrcif3hzSk/BpNTWFh6nV8LDuEYwJKOQGPoa8fhrfIp2XDnWF8jkiAs159MXh5caqBielugv0MyYyU/ugQLXLsublWyWhLqnzVQ78KohYcn0nQUXXg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QXtmQmjP; arc=none smtp.client-ip=198.175.65.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1733801239; c=relaxed/simple;
+	bh=LlXvsVxs1ZBGsstwIB3bDPbexaTDwqyvZf6awYEUQxI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YaIBMHQdakKgagqHj4mAvVpwt16cPefSGbc+cacGAH1n6sdNNEr01j3mBm9nU5tKbG4iMkAbqV2vplaqfjRevicwEfveSo8w0ms6kJbK75El/kVnWo/jnVaULCaf5w4yiWVprPheuSB/Bm54R9wWokdA/P7NPZHsgJTxz1F0O60=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Yn0QGp7Y; arc=none smtp.client-ip=209.85.208.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QXtmQmjP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1733799564; x=1765335564;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=f9Ld5/tN7J9t9E2p92p+1WX2c8lX9Pyu1YBmBrWwB8w=;
-  b=QXtmQmjPC8PqxBLFsIw/ZkvgT44Jub5YBv9oR6InbwjnGPb2DTzZz3gv
-   zoA3zBte/ERFYdhMTfvUgsTsX4agG2JMFkC+jxnvHtkLgrSViMRJFYssk
-   ufxfm7Tpwm123aj7w5rM58/RrPjs4u3bbSjNIzrEdWEB5m1mOKNK/WWi7
-   VAQMhVWyOd7Ll9/+MPVpBUXS+9l8uEF6CKbFbZHCfu7bmhnheUwv5WMju
-   RoDHDqd94wY2fyDdruN3eYhPaEa38o+xR+0oT58gcPzo+paIDrIYKU585
-   w+yB7e0mjU2SOnPQnii46xk9PgTJYKU2JD3vAeDMOygteS7tZtwYg43qa
-   Q==;
-X-CSE-ConnectionGUID: Mv4VhM4aQ1W9q1nI1I4H5g==
-X-CSE-MsgGUID: zJ2DcPQRQQmmnaznElTjCg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11281"; a="37811425"
-X-IronPort-AV: E=Sophos;i="6.12,221,1728975600"; 
-   d="scan'208";a="37811425"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Dec 2024 18:59:23 -0800
-X-CSE-ConnectionGUID: BBVtQdtSQxChcrx56XGyaQ==
-X-CSE-MsgGUID: rUnBTS7BR7ej3VS1Wvbidg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,221,1728975600"; 
-   d="scan'208";a="95104133"
-Received: from allen-sbox.sh.intel.com (HELO [10.239.159.30]) ([10.239.159.30])
-  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Dec 2024 18:59:20 -0800
-Message-ID: <3db6f346-0cb4-41f7-b532-91bcb0265849@linux.intel.com>
-Date: Tue, 10 Dec 2024 10:57:49 +0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Yn0QGp7Y"
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-5d3d14336f0so5584595a12.3;
+        Mon, 09 Dec 2024 19:27:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1733801236; x=1734406036; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Zw8KjUeVLCoeUttHvlAE11LYFS9kka7RYPFB87xdCOo=;
+        b=Yn0QGp7YvF8+o3h0o80tR9NWuDMNMUdzL2Ytmazolc9CYX4gE8LRVs2MS3lrHV/Mol
+         rs0tx0Iec3t+XmU/R0djpjWQ135ifnZGr4xpyolR+cfOJtmeUP0B7L+uZbFz0lU1iefx
+         VCElq8KJJNYG0zi6aHYbeuUISEZjcq/215w/FQCFdovVqjP14/YiSxnsLGxGH9Sqmfeq
+         0hJSjn9I34y2tiyzFD99GpqH69YUbwR9uSusg1cmhntNTTMHVm8K+3+DiqPO2PSm1M0A
+         jEWqc703meWTveIaoJy5V1yPrDRq4IYjCcuJwgAAKMX63PbysrxApj0WOaaXUk01d+Nh
+         rW2Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733801236; x=1734406036;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Zw8KjUeVLCoeUttHvlAE11LYFS9kka7RYPFB87xdCOo=;
+        b=vHUvtB6TRIdgLB66HafMp/f3Q5bMw875pM7oqqC0JlDLcmNPkSZrT4Rggp8wydD6+L
+         PeI0hadNttep2ZJIW0ZQRPB3bnSbnM9aY8JXNRlyrx9lMJnZLm2wgpzcM8sD3Z0kzLaA
+         TW/yhPIZb7gTPNBDTk+EqvGaYdqQmQvLgqKWlQF+O1q4FLSDAgVglzQg1ETAR52JjOVE
+         hRh32f3Aem5U2HTNRrkpjb0VBgRsA1xRWwkmTKXUXO1+dLHaq4oZfqJcpJ69y8i6m5nw
+         oV9ENmM0m/VUS5CTQkuVEucBd4OAmIGirX8NKR12xdiid23PovS8usiufDe333vqKyBu
+         QYxA==
+X-Forwarded-Encrypted: i=1; AJvYcCV6fnPF0embCSabuyN9hhDmBHazZWg6WFFHju6BPg0WT2U+VUPmkial0ksLsATGhbH1uIuYOGtBPC1IBQ==@vger.kernel.org, AJvYcCVSro9A6m14PshU1c31GOmo1U+4ke4XZgSgqF7gk1h/C1GSVGsEdXaDBp4GZGfR3IpN1rBV64wcfJVpUJJZ@vger.kernel.org, AJvYcCVkvPxSiuspxzkq6NcS2KBW/OPHq5tN+XlOlrJcxA3BMnqUEz2TWmjHBMjQ1hk9d5Kanj1zHTJV7ZaqtA==@vger.kernel.org, AJvYcCW6h2kuns9R/czE5/I5Wd8l9F0vbbt6baHcT8aOnQb+ha2xeidh0963ft9mqn+D3lwpJFvR0JPaKDacBA==@vger.kernel.org, AJvYcCWFMdPYksuxqu/2CHRjOVGLLEIniVxXrj9SB5T4V1Z9XuxLQPCTeMWXQvywpV+cyY86HjKT0DxPIDM=@vger.kernel.org, AJvYcCWPbYDIlCIBhb3afOvvVuOVR1qgRmKHXzurNkJPU0dQtO3KBG9OM3FAUTK3nw2qXeDo1Idzgr7mcxgmUQ==@vger.kernel.org, AJvYcCXQ0UoNUPG0C4aW3qw+EW4HaK0mjhB4zexj+KT4Rr95HIg7bxeQyP3tF0jGxAPJ2Q3IZO5tkjqbaR/Q/CCr@vger.kernel.org, AJvYcCXs9nnghe582B6ZaMU534jNoE/QrxVdr6J2D4gJwx5OGgXTxwcEi15algqXmiySr0+v/ZI3mlvaCYC9TQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzVyaNTxg1hlwMSHkuuQVQabWKYYpQ4UC5JkNULsuyLN/soSyMh
+	akiT27uKOVizDryavkuGK5OvhkE1UmQSegO89nq8j7O5CasU+AURQ1s+G+4lfl54kTslJ/qieOP
+	T+46Kr51diRKOjmFebeXbz0g23gA=
+X-Gm-Gg: ASbGncv9ZqZ0C6gzWXJ9HShVGapp01CZE7d2557Hhgns8vaWG80GVjUod9ruiT2yHs/
+	XzDEjSpT8Ji3pmE58T2cnX/SFy46qpdS4RQFqhA==
+X-Google-Smtp-Source: AGHT+IHf2Fi/42HQsEiQo6WzNdGmDcvEV4I1TbpQP4oAJiq1u3pQn+R3NnSbM/I4gmKvXuY9eOlF5eGp3h/ZPgrcEvo=
+X-Received: by 2002:a05:6402:278f:b0:5d0:fc80:c4d1 with SMTP id
+ 4fb4d7f45d1cf-5d41852f140mr3377986a12.14.1733801235781; Mon, 09 Dec 2024
+ 19:27:15 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 5/6] iommu: document missing def_domain_type return
-To: Matthew Rosato <mjrosato@linux.ibm.com>, joro@8bytes.org,
- will@kernel.org, robin.murphy@arm.com, gerald.schaefer@linux.ibm.com,
- schnelle@linux.ibm.com
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- svens@linux.ibm.com, borntraeger@linux.ibm.com, farman@linux.ibm.com,
- clegoate@redhat.com, iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org
-References: <20241209192403.107090-1-mjrosato@linux.ibm.com>
- <20241209192403.107090-6-mjrosato@linux.ibm.com>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <20241209192403.107090-6-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20241210024119.2488608-1-kaleshsingh@google.com> <20241210024119.2488608-2-kaleshsingh@google.com>
+In-Reply-To: <20241210024119.2488608-2-kaleshsingh@google.com>
+From: Yang Shi <shy828301@gmail.com>
+Date: Mon, 9 Dec 2024 19:27:04 -0800
+Message-ID: <CAHbLzkpCRGF+-WXkHVEutkEGHSWydmpb1CwkvHZRTH-f773J-w@mail.gmail.com>
+Subject: Re: [PATCH mm-unstable 01/17] mm: Introduce generic_mmap_hint()
+To: Kalesh Singh <kaleshsingh@google.com>
+Cc: akpm@linux-foundation.org, vbabka@suse.cz, yang@os.amperecomputing.com, 
+	riel@surriel.com, david@redhat.com, linux@armlinux.org.uk, 
+	tsbogend@alpha.franken.de, James.Bottomley@hansenpartnership.com, 
+	ysato@users.sourceforge.jp, dalias@libc.org, glaubitz@physik.fu-berlin.de, 
+	davem@davemloft.net, andreas@gaisler.com, tglx@linutronix.de, bp@alien8.de, 
+	dave.hansen@linux.intel.com, x86@kernel.org, chris@zankel.net, 
+	jcmvbkbc@gmail.com, bhelgaas@google.com, jason.andryuk@amd.com, 
+	leitao@debian.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-csky@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, 
+	kernel-team@android.com, android-mm@google.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 12/10/24 03:24, Matthew Rosato wrote:
-> In addition to IOMMU_DOMAIN_DMA, def_domain_type can also return
-> IOMMU_DOMAIN_DMA_FQ when applicable, else flush queues will never be
-> used.
-> 
-> Signed-off-by: Matthew Rosato<mjrosato@linux.ibm.com>
+On Mon, Dec 9, 2024 at 6:41=E2=80=AFPM Kalesh Singh <kaleshsingh@google.com=
+> wrote:
+>
+> Consolidate the hint searches from both direcitons (topdown and
+> bottomup) into generic_mmap_hint().
+>
+> No functional change is introduced.
+>
+> Signed-off-by: Kalesh Singh <kaleshsingh@google.com>
 > ---
->   include/linux/iommu.h | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-> index 05279109c732..d0da1918d2de 100644
-> --- a/include/linux/iommu.h
-> +++ b/include/linux/iommu.h
-> @@ -585,6 +585,7 @@ iommu_copy_struct_from_full_user_array(void *kdst, size_t kdst_entry_size,
->    * @def_domain_type: device default domain type, return value:
->    *		- IOMMU_DOMAIN_IDENTITY: must use an identity domain
->    *		- IOMMU_DOMAIN_DMA: must use a dma domain
-> + *              - IOMMU_DOMAIN_DMA_FQ: dma domain with batch invalidation
+>  include/linux/sched/mm.h |  4 ++++
+>  mm/mmap.c                | 45 ++++++++++++++++++++++++----------------
+>  2 files changed, 31 insertions(+), 18 deletions(-)
+>
+> diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+> index 928a626725e6..edeec19d1708 100644
+> --- a/include/linux/sched/mm.h
+> +++ b/include/linux/sched/mm.h
+> @@ -201,6 +201,10 @@ unsigned long mm_get_unmapped_area_vmflags(struct mm=
+_struct *mm,
+>                                            unsigned long flags,
+>                                            vm_flags_t vm_flags);
+>
+> +unsigned long generic_mmap_hint(struct file *filp, unsigned long addr,
+> +                               unsigned long len, unsigned long pgoff,
+> +                               unsigned long flags);
+> +
+>  unsigned long
+>  generic_get_unmapped_area(struct file *filp, unsigned long addr,
+>                           unsigned long len, unsigned long pgoff,
+> diff --git a/mm/mmap.c b/mm/mmap.c
+> index df9154b15ef9..e97eb8bf4889 100644
+> --- a/mm/mmap.c
+> +++ b/mm/mmap.c
+> @@ -620,6 +620,27 @@ unsigned long vm_unmapped_area(struct vm_unmapped_ar=
+ea_info *info)
+>         return addr;
+>  }
+>
+> +unsigned long generic_mmap_hint(struct file *filp, unsigned long addr,
+> +                               unsigned long len, unsigned long pgoff,
+> +                               unsigned long flags)
+> +{
+> +       struct mm_struct *mm =3D current->mm;
+> +       struct vm_area_struct *vma, *prev;
+> +       const unsigned long mmap_end =3D arch_get_mmap_end(addr, len, fla=
+gs);
+> +
+> +       if (!addr)
+> +               return 0;
+> +
+> +       addr =3D PAGE_ALIGN(addr);
+> +       vma =3D find_vma_prev(mm, addr, &prev);
+> +       if (mmap_end - len >=3D addr && addr >=3D mmap_min_addr &&
+> +           (!vma || addr + len <=3D vm_start_gap(vma)) &&
+> +           (!prev || addr >=3D vm_end_gap(prev)))
+> +               return addr;
+> +
+> +       return 0;
+> +}
+> +
+>  /* Get an address range which is currently unmapped.
+>   * For shmat() with addr=3D0.
+>   *
+> @@ -637,7 +658,6 @@ generic_get_unmapped_area(struct file *filp, unsigned=
+ long addr,
+>                           unsigned long flags, vm_flags_t vm_flags)
+>  {
+>         struct mm_struct *mm =3D current->mm;
+> -       struct vm_area_struct *vma, *prev;
+>         struct vm_unmapped_area_info info =3D {};
+>         const unsigned long mmap_end =3D arch_get_mmap_end(addr, len, fla=
+gs);
+>
+> @@ -647,14 +667,9 @@ generic_get_unmapped_area(struct file *filp, unsigne=
+d long addr,
+>         if (flags & MAP_FIXED)
+>                 return addr;
 
-In which case must an iommu driver return IOMMU_DOMAIN_DMA_FQ?
+It seems you also can move the MAP_FIXED case into generic_mmap_hint(), rig=
+ht?
 
-The flush queue is a policy of "when and how to synchronize the IOTLB"
-in dma-iommu.c. The iommu driver actually has no need to understand such
-policy.
-
-By the way, "dma domain" in this comment is a bit confusing, it reads
-better if we make it like:
-
-- IOMMU_DOMAIN_IDENTITY: must use an identity domain
-- IOMMU_DOMAIN_DMA: must use a paging domain
-
-Thanks,
-baolu
+>
+> -       if (addr) {
+> -               addr =3D PAGE_ALIGN(addr);
+> -               vma =3D find_vma_prev(mm, addr, &prev);
+> -               if (mmap_end - len >=3D addr && addr >=3D mmap_min_addr &=
+&
+> -                   (!vma || addr + len <=3D vm_start_gap(vma)) &&
+> -                   (!prev || addr >=3D vm_end_gap(prev)))
+> -                       return addr;
+> -       }
+> +       addr =3D generic_mmap_hint(filp, addr, len, pgoff, flags);
+> +       if (addr)
+> +               return addr;
+>
+>         info.length =3D len;
+>         info.low_limit =3D mm->mmap_base;
+> @@ -685,7 +700,6 @@ generic_get_unmapped_area_topdown(struct file *filp, =
+unsigned long addr,
+>                                   unsigned long len, unsigned long pgoff,
+>                                   unsigned long flags, vm_flags_t vm_flag=
+s)
+>  {
+> -       struct vm_area_struct *vma, *prev;
+>         struct mm_struct *mm =3D current->mm;
+>         struct vm_unmapped_area_info info =3D {};
+>         const unsigned long mmap_end =3D arch_get_mmap_end(addr, len, fla=
+gs);
+> @@ -698,14 +712,9 @@ generic_get_unmapped_area_topdown(struct file *filp,=
+ unsigned long addr,
+>                 return addr;
+>
+>         /* requesting a specific address */
+> -       if (addr) {
+> -               addr =3D PAGE_ALIGN(addr);
+> -               vma =3D find_vma_prev(mm, addr, &prev);
+> -               if (mmap_end - len >=3D addr && addr >=3D mmap_min_addr &=
+&
+> -                               (!vma || addr + len <=3D vm_start_gap(vma=
+)) &&
+> -                               (!prev || addr >=3D vm_end_gap(prev)))
+> -                       return addr;
+> -       }
+> +       addr =3D generic_mmap_hint(filp, addr, len, pgoff, flags);
+> +       if (addr)
+> +               return addr;
+>
+>         info.flags =3D VM_UNMAPPED_AREA_TOPDOWN;
+>         info.length =3D len;
+> --
+> 2.47.0.338.g60cca15819-goog
+>
+>
