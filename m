@@ -1,211 +1,439 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D767D214229;
-	Tue, 10 Dec 2024 19:40:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA6C8226860;
+	Tue, 10 Dec 2024 20:24:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733859604; cv=none; b=K7/JqPl3DQtQJl0WFQmWsAYJPayLEjCnplNfOBVBrCeh9O8NEJI+aJaUwamGcct/j7uDf+G5m0lRS4e6wtnwhMbk6PjX5KdU42er1stkyDJQBhizvmnOa2Up7sdpxSmX6S6a3LiQstFbAENNuEyJxrTTN8VR0F8sHxGzhj0OiqQ=
+	t=1733862270; cv=none; b=MJOxbvUkpHfpZ74Vmg5gpDa/7GeqHaHHyO0PjAKr7EWWreSaZlet/F+0H3O9MbsaYoWkCK662RP99p9lUdyqaIeAoEwdo/uGNzxHdFvtr0IrUpSo1wx6LCDKykmQmn+dqdKoKRENINjUgO4hwhueurMyLHvTWNKhcDTEcblfRnM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733859604; c=relaxed/simple;
-	bh=dv49gsM9X6vxEVxhRoy9UrWifvJpzPiOHoKBO4dRQCQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uEDhbtjrK9vZ/RPrHyrUVPUQjV8RXw+boT+CQ2wODG6ENce5Au5d9JXOExfsv0gdlbkEb1cQo1c4pPqbGpg4SUKWH4M461i44gLY7mdJTFQk5i2D7dOcSpdFKCsyoUh1xpCr2G2aE384QgMP1yuVNIFmi1RW8Z2/0Rk4vaRlLPk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OOOPUG/b; arc=none smtp.client-ip=209.85.208.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1733862270; c=relaxed/simple;
+	bh=Tqy1qmcm+Fw1hPL85YwVGC6Admnl7Ip6PvxqZOOOVG0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Md5leQ8+JYTeVOGWnHmh68o6ecundi5zTXR+RTHFDMAiERwE494oYqzq2QESCiwUEcZqSsie0aMI2YcD66eGlF9yA747k47+/P5ChRWm6bBK9Gr3a1IZYaVmZv6IyRGumecGmrKfznHmufKfIbwlT+Am6lF1kdSXRIbmDKGmpr8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WTVsmr7M; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OOOPUG/b"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-5cec9609303so7013687a12.1;
-        Tue, 10 Dec 2024 11:40:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733859600; x=1734464400; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=IRTnbzohup0wCZkD2CjtRfmdnuYKFBQ3yOoD8MNis+g=;
-        b=OOOPUG/b6uinLPQcZOe6VxmyO66Jkwg1lP0+h2q/i5CqarMPIyAwRcMy915tq4CmhW
-         yzsXQxjZVaA1Cr73jwKCDIZcQiNTSgD0BLzNC9G4BTERMGLrMyiYKxU5cHd27YJxgp3A
-         HfsRpg1Ruz8rBIaB2z9V7oJHTER525dBhyxw7qesqF0veAkP+PkOOfcJ8nzuihTUxz0H
-         KgHngvj6spI2AtaIgGlWjBdn20leVyjcYXQ9gAyTlbuoXh6FlsThdL8kD69RSmlUZX5W
-         83WHROVDCkkhCgItib2RybqOFFPA+JHPHg71seGz4FZx9ula+SuVLFs1994BM1QDTT4Q
-         m+Qg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733859600; x=1734464400;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=IRTnbzohup0wCZkD2CjtRfmdnuYKFBQ3yOoD8MNis+g=;
-        b=KCrOt1B0ENn/MqJPmUXo251kb1LAjvmOdjmVxJiNOqeW3ZYckcW282U0EpKAaQuHrj
-         O32TZ+GpwWHYw7Bxjl1SisaEmo4FEExDIP/+hNdCfAKzbq/vsV737oa/q+WgiX7uipAN
-         d7kX2NdIyHPuyjEUHIxECIQzICXCvoxHEfTKm/GigREJIDXxjRbJQ7y/0m+o4I1yx6pY
-         OzNiaPZSe5zGKPaqo7vZNEbtcYHgvGW8HL0iYGH8ABkC1VxwYc5c7jSJvUv5EoO7n+De
-         m4eGQVB5YCZI+2fgLQYmESN4ihXeOZHPQMr981g1N9IiKkyT9en0MydehZ4hmBxedOuU
-         ZJbA==
-X-Forwarded-Encrypted: i=1; AJvYcCUc2f5O/2VtlQh1ucMx6DGTsA9Bw3JycXaAxGSHCpgKLbC4gnjUvFG+0vkV8WTfTgtsAeBWTYzeJKWPxw==@vger.kernel.org, AJvYcCVXwwxKxXp8MK7Gu8kiBFz8V841FqyjQyyfCYt5ciUxxa7K+kth9cWG9HkACaHFo7vf89fB2V9zDriJ9A==@vger.kernel.org, AJvYcCVYbW6+perrconKoLmGjpLOa2cADugl9ZwfYPfDLUFPPa3B8ISe5TGozaHRYLs+YOlmk9qi5+ZAuP8yNg==@vger.kernel.org, AJvYcCVclgPlNp4mTFR91UCRpuRDgpJB1Gakv9vWoI11jJL6ZhWUNLiNtDMZS6srq7piM1AfzU37kpIz7SwyXw==@vger.kernel.org, AJvYcCWuGgod93HQkp8HIPQ5Ql9/BDgnpGeqW/Dvev2aBgldosm7nNROlHaMZeosO2uicUP40dhkkU12S618j3II@vger.kernel.org, AJvYcCWxusp3GjymTs3mbo0ERL3oWrTGzOjz8t8OF/8sD1IdL20fVVCBv0cHZXzrixNTlNLC5+nKf6RGDx1n5w==@vger.kernel.org, AJvYcCXTvTDP0Dna/g3vcnXcvvmlJDrcuZGPdbLh+WqCZJ7nGXqj29hMr0FUoKqDllVP4P8/lM9uZ/f6oRz35tHL@vger.kernel.org, AJvYcCXpzZBcybp9Lk8rkXr87v6lq65vtL7Zqmh2IZiYVGwem4ck6EmUh7DtjZHud3Js//Mbg1du9su7D5Y=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyosJwuPMsbjGbaYYuZD1Wteok68tSuwU+cF498Jr1qHrqKALhf
-	A6igQXk4FE1coCOM7cMa4m2SwPVvQiIwdkxwb54D+guasYuT+7IeZcsTS2i1gtY4jFevbe5JE/q
-	5gjjv9lD1+VkKn2xfVRE2S7R+Yn8=
-X-Gm-Gg: ASbGncsfqCMXgL1z3LAqfXnKso33sZs26xx1LQwcoPJJ9EOBfEYh9q8ExAU/F+iX4dR
-	IwXqORyBLm6coN+jJx3PH3KiVREGJN0yS2Cm/Gg==
-X-Google-Smtp-Source: AGHT+IGn1TGMw5Q3ZRvX4tSkpBgSMsKO1aElzvBulPGolgowmhm7A7II8tzVQjdTXusigtkhjHD3HA/xYigxPDvvUCI=
-X-Received: by 2002:a05:6402:5299:b0:5d0:c9e6:30bc with SMTP id
- 4fb4d7f45d1cf-5d4330814d0mr38059a12.10.1733859599911; Tue, 10 Dec 2024
- 11:39:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WTVsmr7M"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BADrYsn005957;
+	Tue, 10 Dec 2024 20:24:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=2q8vTx
+	AheHXufmEPBdGNUWKYuQANJMWD5+TNRfKqQPU=; b=WTVsmr7MvAOTRx/sGKglbT
+	O96hFSaycQaOKfXF+thAXy0TvDFWE0hus9Xdr7uTvOkv9xuLm5tGCmdP4Dox+Aaz
+	zx1yzqKtAHM3fTfp3c5WlVH4hgpcK7D/CEzsEyqX//3R/AugrRB6efa6x8oGxVUZ
+	363OHXggD7+aSLf/l5rUw/ws2DnEJo/PrKy/my5TWF6iSZ7u/Cgf6pC6a/7M697b
+	xVMtJYB4pkONVp8isAFCJTx18BlR3MOyozpcEI6Vo6fgqy5XE7NFoEVBn5etz5JQ
+	9GdIiujfTaeSeDBBPgLjpVAZbCX1qQ5TCIEZbMrhUhBky5DC2FHtom2W78ndhlQQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ce1vsa0s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Dec 2024 20:24:09 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4BAKEhZ7004397;
+	Tue, 10 Dec 2024 20:24:08 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ce1vsa0q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Dec 2024 20:24:08 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BAKGGVi000582;
+	Tue, 10 Dec 2024 20:24:07 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43d1pn5by5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Dec 2024 20:24:07 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BAKO5Gp56557834
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 10 Dec 2024 20:24:05 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0FA2020049;
+	Tue, 10 Dec 2024 20:24:05 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3EDB220040;
+	Tue, 10 Dec 2024 20:24:02 +0000 (GMT)
+Received: from [9.124.213.130] (unknown [9.124.213.130])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 10 Dec 2024 20:24:02 +0000 (GMT)
+Message-ID: <4f3b49cb-15bc-43ef-b4cb-3af98c8a1c5f@linux.ibm.com>
+Date: Wed, 11 Dec 2024 01:54:00 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241210024119.2488608-1-kaleshsingh@google.com>
- <20241210024119.2488608-18-kaleshsingh@google.com> <CAHbLzkq2SNaqzx4d981H2QfQvtObS3X0pPL8=oqFsFbMditWPA@mail.gmail.com>
- <CAC_TJvdReRHzBSgg2iqOw3Kw6BBOtwGE=8nB2Hsw-nsmkxN0+g@mail.gmail.com>
-In-Reply-To: <CAC_TJvdReRHzBSgg2iqOw3Kw6BBOtwGE=8nB2Hsw-nsmkxN0+g@mail.gmail.com>
-From: Yang Shi <shy828301@gmail.com>
-Date: Tue, 10 Dec 2024 11:39:48 -0800
-Message-ID: <CAHbLzkqbH_AR2jy_6LZ7KSh6bcf4L5B51Mq9DwYtdBcVz1Lu6w@mail.gmail.com>
-Subject: Re: [PATCH mm-unstable 17/17] mm: Respect mmap hint before THP
- alignment if allocation is possible
-To: Kalesh Singh <kaleshsingh@google.com>
-Cc: akpm@linux-foundation.org, vbabka@suse.cz, yang@os.amperecomputing.com, 
-	riel@surriel.com, david@redhat.com, linux@armlinux.org.uk, 
-	tsbogend@alpha.franken.de, James.Bottomley@hansenpartnership.com, 
-	ysato@users.sourceforge.jp, dalias@libc.org, glaubitz@physik.fu-berlin.de, 
-	davem@davemloft.net, andreas@gaisler.com, tglx@linutronix.de, bp@alien8.de, 
-	dave.hansen@linux.intel.com, x86@kernel.org, chris@zankel.net, 
-	jcmvbkbc@gmail.com, bhelgaas@google.com, jason.andryuk@amd.com, 
-	leitao@debian.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, loongarch@lists.linux.dev, 
-	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, 
-	kernel-team@android.com, android-mm@google.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 0/2] sched/fair: introduce new scheduler group type
+ group_parked
+To: Tobias Huschle <huschle@linux.ibm.com>
+Cc: mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de,
+        vschneid@redhat.com, linux-s390@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
+References: <20241204112149.25872-1-huschle@linux.ibm.com>
+ <543d376c-85a7-4628-a38e-52bc117258a5@linux.ibm.com>
+ <27c4288d-5617-4195-8424-e6e346acefd0@linux.ibm.com>
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <27c4288d-5617-4195-8424-e6e346acefd0@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ZUN6nJxWn9e1I32cRwgH_nzVEJyf0_NC
+X-Proofpoint-ORIG-GUID: Y-PYyUnFS4cURr2wYDEHbSXen2MFm9oc
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ priorityscore=1501 clxscore=1015 phishscore=0 bulkscore=0 mlxlogscore=999
+ impostorscore=0 spamscore=0 malwarescore=0 suspectscore=0 adultscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412100144
 
-On Tue, Dec 10, 2024 at 9:34=E2=80=AFAM Kalesh Singh <kaleshsingh@google.co=
-m> wrote:
->
-> On Mon, Dec 9, 2024 at 7:37=E2=80=AFPM Yang Shi <shy828301@gmail.com> wro=
-te:
-> >
-> > On Mon, Dec 9, 2024 at 6:45=E2=80=AFPM Kalesh Singh <kaleshsingh@google=
-.com> wrote:
-> > >
-> > > Commit 249608ee4713 ("mm: respect mmap hint address when aligning for=
- THP")
-> > > fallsback to PAGE_SIZE alignment instead of THP alignment
-> > > for anonymous mapping as long as a hint address is provided by the us=
-er
-> > > -- even if we weren't able to allocate the unmapped area at the hint
-> > > address in the end.
-> > >
-> > > This was done to address the immediate regression in anonymous mappin=
-gs
-> > > where the hint address were being ignored in some cases; due to commi=
-t
-> > > efa7df3e3bb5 ("mm: align larger anonymous mappings on THP boundaries"=
-).
-> > >
-> > > It was later pointed out that this issue also existed for file-backed
-> > > mappings from file systems that use thp_get_unmapped_area() for their
-> > > .get_unmapped_area() file operation.
-> > >
-> > > The same fix was not applied for file-backed mappings since it would
-> > > mean any mmap requests that provide a hint address would be only
-> > > PAGE_SIZE-aligned regardless of whether allocation was successful at
-> > > the hint address or not.
-> > >
-> > > Instead, use arch_mmap_hint() to first attempt allocation at the hint
-> > > address and fallback to THP alignment if that fails.
-> >
-> > Thanks for taking time to try to fix this.
-> >
-> > >
-> > > Signed-off-by: Kalesh Singh <kaleshsingh@google.com>
-> > > ---
-> > >  mm/huge_memory.c | 15 ++++++++-------
-> > >  mm/mmap.c        |  1 -
-> > >  2 files changed, 8 insertions(+), 8 deletions(-)
-> > >
-> > > diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-> > > index 137abeda8602..f070c89dafc9 100644
-> > > --- a/mm/huge_memory.c
-> > > +++ b/mm/huge_memory.c
-> > > @@ -1097,6 +1097,14 @@ static unsigned long __thp_get_unmapped_area(s=
-truct file *filp,
-> > >         loff_t off_align =3D round_up(off, size);
-> > >         unsigned long len_pad, ret, off_sub;
-> > >
-> > > +       /*
-> > > +        * If allocation at the address hint succeeds; respect the hi=
-nt and
-> > > +        * don't try to align to THP boundary.
-> > > +        */
-> > > +       addr =3D arch_mmap_hint(filp, addr, len, off, flags);
-> > > +       if (addr)
-> > > +               return addr;
-> > > +
->
-> Hi Yang,
->
-> Thanks for the comments.
->
-> >
-> > IIUC, arch_mmap_hint() will be called in arch_get_unmapped_area() and
-> > arch_get_unmapped_area_topdown() again. So we will actually look up
-> > maple tree twice. It sounds like the second hint address search is
-> > pointless. You should be able to set addr to 0 before calling
-> > mm_get_unmapped_area_vmflags() in order to skip the second hint
-> > address search.
->
-> You are right that it would call into arch_mmap_hint() twice but it
-> only attempts the lookup once since on the second attempt addr =3D=3D 0.
 
-Aha, yeah, I missed addr is going to be reset if arch_mmap_hint()
-fails to find a suitable area.
 
->
-> Thanks,
-> Kalesh
-> >
-> > >         if (!IS_ENABLED(CONFIG_64BIT) || in_compat_syscall())
-> > >                 return 0;
-> > >
-> > > @@ -1117,13 +1125,6 @@ static unsigned long __thp_get_unmapped_area(s=
-truct file *filp,
-> > >         if (IS_ERR_VALUE(ret))
-> > >                 return 0;
-> > >
-> > > -       /*
-> > > -        * Do not try to align to THP boundary if allocation at the a=
-ddress
-> > > -        * hint succeeds.
-> > > -        */
-> > > -       if (ret =3D=3D addr)
-> > > -               return addr;
-> > > -
-> > >         off_sub =3D (off - ret) & (size - 1);
-> > >
-> > >         if (test_bit(MMF_TOPDOWN, &current->mm->flags) && !off_sub)
-> > > diff --git a/mm/mmap.c b/mm/mmap.c
-> > > index 59bf7d127aa1..6bfeec80152a 100644
-> > > --- a/mm/mmap.c
-> > > +++ b/mm/mmap.c
-> > > @@ -807,7 +807,6 @@ __get_unmapped_area(struct file *file, unsigned l=
-ong addr, unsigned long len,
-> > >         if (get_area) {
-> > >                 addr =3D get_area(file, addr, len, pgoff, flags);
-> > >         } else if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) && !file
-> > > -                  && !addr /* no hint */
-> > >                    && IS_ALIGNED(len, PMD_SIZE)) {
-> > >                 /* Ensures that larger anonymous mappings are THP ali=
-gned. */
-> > >                 addr =3D thp_get_unmapped_area_vmflags(file, addr, le=
-n,
-> > > --
-> > > 2.47.0.338.g60cca15819-goog
-> > >
-> > >
+On 12/9/24 13:35, Tobias Huschle wrote:
+> 
+[...]
+>> So I gave it a try with using a debugfs based hint to say which CPUs 
+>> are parked.
+>> It is a hack to try it out. patch is below so one could try something 
+>> similar is their archs
+>> and see if it help if they have a use case.
+>>
+>> Notes:
+>> 1. Arch shouldn't set cpu_parked for all CPUs at boot. It causes panic.
+>> 2. Workload gets unpacked to all CPUs when changing from 40 CPUs to 80 
+>> CPUs, but
+>>     doesn't get packed when changing the from 80 to 40 CPUs.
+> 
+> With stress-ng -l 100 this can happen, I tested with stress-ng -l 50 and 
+> that worked well in all cases. As mentioned above, the -l 100 case would 
+> need changes to handle the no-hz scenario. I have a patch for that which 
+> works, but it is a bit hacky.
+> If this also happens with non-100% stressors on your end, something 
+> needs ot be fixed code-wise.
+> 
+
+It was happening with 100% stress-ng case. I was wondering since i dont have no-hz full enabled.
+I found out the reason why and one way to do is to trigger active load balance if there are any parked cpus
+in the group. That probably needs a IS_ENABLED check not to hurt the regular case.
+
+Also, I gave a try to include arch_cpu_parked in idle_cpu and friends. It seems to working for me.
+I will attach the code below. It simplifies code quite a bit.
+
+Also, I am thinking to rely on active balance codepath more than the regular pull model.
+so this would be akin to asym packing codepaths. The below code does that too.
+
+Feel free to take the bits as necessary if it works.
+
+---
+  include/linux/sched/topology.h | 20 ++++++++++
+  kernel/sched/core.c            |  6 ++-
+  kernel/sched/fair.c            | 72 ++++++++++++++++++++++++++++++++--
+  kernel/sched/syscalls.c        |  3 ++
+  4 files changed, 97 insertions(+), 4 deletions(-)
+
+diff --git a/include/linux/sched/topology.h b/include/linux/sched/topology.h
+index 4237daa5ac7a..cfe3c59bc329 100644
+--- a/include/linux/sched/topology.h
++++ b/include/linux/sched/topology.h
+@@ -270,6 +270,26 @@ unsigned long arch_scale_cpu_capacity(int cpu)
+  }
+  #endif
+  
++#ifndef arch_cpu_parked
++/**
++ * arch_cpu_parked - Check if a given CPU is currently parked.
++ *
++ * A parked CPU cannot run any kind of workload since underlying
++ * physical CPU should not be used at the moment .
++ *
++ * @cpu: the CPU in question.
++ *
++ * By default assume CPU is not parked
++ *
++ * Return: Parked state of CPU
++ */
++static __always_inline
++unsigned long arch_cpu_parked(int cpu)
++{
++	return false;
++}
++#endif
++
+  #ifndef arch_scale_hw_pressure
+  static __always_inline
+  unsigned long arch_scale_hw_pressure(int cpu)
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 5fbec67d48b2..78ca95aad66b 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -2437,7 +2437,7 @@ static inline bool is_cpu_allowed(struct task_struct *p, int cpu)
+  
+  	/* Non kernel threads are not allowed during either online or offline. */
+  	if (!(p->flags & PF_KTHREAD))
+-		return cpu_active(cpu);
++		return !arch_cpu_parked(cpu) && cpu_active(cpu);
+  
+  	/* KTHREAD_IS_PER_CPU is always allowed. */
+  	if (kthread_is_per_cpu(p))
+@@ -2447,6 +2447,10 @@ static inline bool is_cpu_allowed(struct task_struct *p, int cpu)
+  	if (cpu_dying(cpu))
+  		return false;
+  
++	/* CPU should be avoided at the moment */
++	if (arch_cpu_parked(cpu))
++		return false;
++
+  	/* But are allowed during online. */
+  	return cpu_online(cpu);
+  }
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index d5127d9beaea..a6216f63b756 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -6898,6 +6898,9 @@ static int sched_idle_rq(struct rq *rq)
+  #ifdef CONFIG_SMP
+  static int sched_idle_cpu(int cpu)
+  {
++	if (arch_cpu_parked(cpu))
++		return 0;
++
+  	return sched_idle_rq(cpu_rq(cpu));
+  }
+  #endif
+@@ -7415,6 +7418,9 @@ static int wake_affine(struct sched_domain *sd, struct task_struct *p,
+  {
+  	int target = nr_cpumask_bits;
+  
++	if (arch_cpu_parked(target))
++		return prev_cpu;
++
+  	if (sched_feat(WA_IDLE))
+  		target = wake_affine_idle(this_cpu, prev_cpu, sync);
+  
+@@ -9198,7 +9204,13 @@ enum group_type {
+  	 * The CPU is overloaded and can't provide expected CPU cycles to all
+  	 * tasks.
+  	 */
+-	group_overloaded
++	group_overloaded,
++	/*
++	 * The CPU should be avoided as it can't provide expected CPU cycles
++	 * even for small amounts of workload.
++	 */
++	group_parked
++
+  };
+  
+  enum migration_type {
+@@ -9880,6 +9892,9 @@ struct sg_lb_stats {
+  	unsigned int nr_numa_running;
+  	unsigned int nr_preferred_running;
+  #endif
++	unsigned int sum_nr_parked;
++	unsigned int parked_cpus;
++
+  };
+  
+  /*
+@@ -10127,6 +10142,9 @@ group_type group_classify(unsigned int imbalance_pct,
+  			  struct sched_group *group,
+  			  struct sg_lb_stats *sgs)
+  {
++	if (sgs->parked_cpus)
++		return group_parked;
++
+  	if (group_is_overloaded(imbalance_pct, sgs))
+  		return group_overloaded;
+  
+@@ -10328,6 +10346,11 @@ static inline void update_sg_lb_stats(struct lb_env *env,
+  		sgs->nr_numa_running += rq->nr_numa_running;
+  		sgs->nr_preferred_running += rq->nr_preferred_running;
+  #endif
++		if (rq->cfs.h_nr_running) {
++			sgs->parked_cpus += arch_cpu_parked(i);
++			sgs->sum_nr_parked += arch_cpu_parked(i) * rq->cfs.h_nr_running;
++		}
++
+  		/*
+  		 * No need to call idle_cpu() if nr_running is not 0
+  		 */
+@@ -10422,6 +10445,8 @@ static bool update_sd_pick_busiest(struct lb_env *env,
+  	 */
+  
+  	switch (sgs->group_type) {
++	case group_parked:
++		return sgs->sum_nr_parked > busiest->sum_nr_parked;
+  	case group_overloaded:
+  		/* Select the overloaded group with highest avg_load. */
+  		return sgs->avg_load > busiest->avg_load;
+@@ -10633,6 +10658,8 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
+  		nr_running = rq->nr_running - local;
+  		sgs->sum_nr_running += nr_running;
+  
++		sgs->parked_cpus += arch_cpu_parked(i);
++		sgs->sum_nr_parked += arch_cpu_parked(i) * rq->cfs.h_nr_running;
+  		/*
+  		 * No need to call idle_cpu_without() if nr_running is not 0
+  		 */
+@@ -10680,6 +10707,8 @@ static bool update_pick_idlest(struct sched_group *idlest,
+  	 */
+  
+  	switch (sgs->group_type) {
++	case group_parked:
++		return false;
+  	case group_overloaded:
+  	case group_fully_busy:
+  		/* Select the group with lowest avg_load. */
+@@ -10730,7 +10759,7 @@ sched_balance_find_dst_group(struct sched_domain *sd, struct task_struct *p, int
+  	unsigned long imbalance;
+  	struct sg_lb_stats idlest_sgs = {
+  			.avg_load = UINT_MAX,
+-			.group_type = group_overloaded,
++			.group_type = group_parked,
+  	};
+  
+  	do {
+@@ -10788,6 +10817,8 @@ sched_balance_find_dst_group(struct sched_domain *sd, struct task_struct *p, int
+  		return idlest;
+  
+  	switch (local_sgs.group_type) {
++	case group_parked:
++		return idlest;
+  	case group_overloaded:
+  	case group_fully_busy:
+  
+@@ -11039,6 +11070,12 @@ static inline void calculate_imbalance(struct lb_env *env, struct sd_lb_stats *s
+  	local = &sds->local_stat;
+  	busiest = &sds->busiest_stat;
+  
++	if (busiest->group_type == group_parked) {
++		env->migration_type = migrate_task;
++		env->imbalance = busiest->sum_nr_parked;
++		return;
++	}
++
+  	if (busiest->group_type == group_misfit_task) {
+  		if (env->sd->flags & SD_ASYM_CPUCAPACITY) {
+  			/* Set imbalance to allow misfit tasks to be balanced. */
+@@ -11252,6 +11289,13 @@ static struct sched_group *sched_balance_find_src_group(struct lb_env *env)
+  		goto out_balanced;
+  
+  	busiest = &sds.busiest_stat;
++	local = &sds.local_stat;
++
++	if (local->group_type == group_parked)
++		goto out_balanced;
++
++	if (busiest->group_type == group_parked)
++		goto force_balance;
+  
+  	/* Misfit tasks should be dealt with regardless of the avg load */
+  	if (busiest->group_type == group_misfit_task)
+@@ -11273,7 +11317,6 @@ static struct sched_group *sched_balance_find_src_group(struct lb_env *env)
+  	if (busiest->group_type == group_imbalanced)
+  		goto force_balance;
+  
+-	local = &sds.local_stat;
+  	/*
+  	 * If the local group is busier than the selected busiest group
+  	 * don't try and pull any tasks.
+@@ -11386,6 +11429,9 @@ static struct rq *sched_balance_find_src_rq(struct lb_env *env,
+  		enum fbq_type rt;
+  
+  		rq = cpu_rq(i);
++		if (arch_cpu_parked(i) && rq->cfs.h_nr_running)
++			return rq;
++
+  		rt = fbq_classify_rq(rq);
+  
+  		/*
+@@ -11556,6 +11602,9 @@ static int need_active_balance(struct lb_env *env)
+  {
+  	struct sched_domain *sd = env->sd;
+  
++	if (arch_cpu_parked(env->src_cpu))
++		return 1;
++
+  	if (asym_active_balance(env))
+  		return 1;
+  
+@@ -11588,6 +11637,20 @@ static int should_we_balance(struct lb_env *env)
+  	struct cpumask *swb_cpus = this_cpu_cpumask_var_ptr(should_we_balance_tmpmask);
+  	struct sched_group *sg = env->sd->groups;
+  	int cpu, idle_smt = -1;
++	int cpus_parked = 0;
++
++	if (arch_cpu_parked(env->dst_cpu))
++		return 0;
++
++	for_each_cpu(cpu, sched_domain_span(env->sd)) {
++		if (arch_cpu_parked(cpu)) {
++			cpus_parked ++;
++		}
++	}
++
++	if (cpus_parked && !arch_cpu_parked(env->dst_cpu)) {
++		return 1;
++	}
+  
+  	/*
+  	 * Ensure the balancing environment is consistent; can happen
+@@ -12708,6 +12771,9 @@ static int sched_balance_newidle(struct rq *this_rq, struct rq_flags *rf)
+  
+  	update_misfit_status(NULL, this_rq);
+  
++	if (arch_cpu_parked(this_cpu))
++		return 0;
++
+  	/*
+  	 * There is a task waiting to run. No need to search for one.
+  	 * Return 0; the task will be enqueued when switching to idle.
+diff --git a/kernel/sched/syscalls.c b/kernel/sched/syscalls.c
+index ff0e5ab4e37c..d408d87da563 100644
+--- a/kernel/sched/syscalls.c
++++ b/kernel/sched/syscalls.c
+@@ -203,6 +203,9 @@ int idle_cpu(int cpu)
+  {
+  	struct rq *rq = cpu_rq(cpu);
+  
++	if (arch_cpu_parked(cpu))
++		return 0;
++
+  	if (rq->curr != rq->idle)
+  		return 0;
+  
+-- 
+2.39.3
+
+
+
+>>
+
+>>
+>> Set the hint as 80 initially and set to 40 midway -- *not working*
+>> Average:      38   95.27    0.00    0.00    0.00    0.00    0.00 
+>> 0.00    0.00    0.00    4.73
+>> Average:      39   95.27    0.00    0.00    0.00    0.00    0.00 
+>> 0.00    0.00    0.00    4.73
+>> Average:      40   95.24    0.00    0.00    0.00    0.00    0.00 
+>> 0.00    0.00    0.00    4.76
+>> Average:      41   95.25    0.00    0.00    0.00    0.00    0.00 
+>> 0.00    0.00    0.00    4.75
+> 
+
+Set the hint as 80 initially and set to 40 midway.
+
+Average:      38   92.11    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    7.89
+Average:      39   92.13    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    7.87
+Average:      40   53.35    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00   46.65
+Average:      41   53.39    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00   46.61
