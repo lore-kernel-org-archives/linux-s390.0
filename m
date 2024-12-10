@@ -1,55 +1,55 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+Received: from mail-oa1-f73.google.com (mail-oa1-f73.google.com [209.85.160.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 688B91CB33F
-	for <linux-s390@vger.kernel.org>; Tue, 10 Dec 2024 02:41:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA2721AAA36
+	for <linux-s390@vger.kernel.org>; Tue, 10 Dec 2024 02:41:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733798496; cv=none; b=L13CISp7Vk0EpqdjtpPFsiyS/RScEoshrHitRaB6LTzkaAnRKTjAitnZ/uGhac9ZEnD3vGQM668CVroe/KjCly2sri4OyDF/Hx62CZ5gVTGibiP7bovr5ER/1ma1L2aObk4t88Hm1Hn9iXZhoNRJHHuYSYzyzkNRF8hMKIxNwgY=
+	t=1733798498; cv=none; b=qfKK6YIH+UHqDtNbDb3LGEiRy63wD519efuyWdk963pkhFhko5M3o6cZlR/qRJOgKtawOABv3kmB3dRzdFjMZ1E4WS6CrxnIZdiUH7HD9JXmP9MnWhT/PH4j6zypimfQxN9FEE5Cx4JcrIv25CLLKqaBBrnVdfqz8s5LqS+1BLc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733798496; c=relaxed/simple;
-	bh=JvP+EsC2ed2h2HeDVKMeMFmoQFp3PpsCZOYPNBeb6GE=;
+	s=arc-20240116; t=1733798498; c=relaxed/simple;
+	bh=AS+vZpJpCSDy0bq9wgoCdVRRzUEUY/Kb0H8feia1C7Q=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=ElM5VneSk61xA2laCHQu/l15fmZ8DX8NWXpmJqseQ/fAB3ldFppy3D0+30+VOG8L98h9BxgT+RzXhnFXSv4A/I4MFGo8+UYj7jP2sGnS0BU3WNQLmu9Pgysd3Hp87UmSFOJEzwW5CqnokAWjiljtOs4uLDy+kW2ZloVXkeqZ13M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--kaleshsingh.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=r+l2mXHR; arc=none smtp.client-ip=209.85.216.73
+	 To:Cc:Content-Type; b=NrPc+lJV+MwYBjgDpHVUKlfZ8sZTcM6CLjmGRf/0wtx4I5SOJukCRzvN0yrSkJ8AfVG4FO78ZGm9IvLoT1L4S1wmLbwxdaOWy+xySPcEaBhLoY1yypEJfbObwMmF/1cWdgLA6xpi92NphCXXOn7/rfQ/dwhI6Pbj1oqxw4TMm/4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--kaleshsingh.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=XEyyBpSy; arc=none smtp.client-ip=209.85.160.73
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--kaleshsingh.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="r+l2mXHR"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2efc3292021so1880776a91.1
-        for <linux-s390@vger.kernel.org>; Mon, 09 Dec 2024 18:41:33 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="XEyyBpSy"
+Received: by mail-oa1-f73.google.com with SMTP id 586e51a60fabf-296ab48c1faso3704333fac.0
+        for <linux-s390@vger.kernel.org>; Mon, 09 Dec 2024 18:41:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1733798493; x=1734403293; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1733798494; x=1734403294; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=plyHizQjFILOlGH5Iba1IrDdDMxWHhXvOcpLcYrtGxg=;
-        b=r+l2mXHRQQf9ZJoqHmigNLqlOMQjyKL01T5+fxo/Dzzgs9vnTq8GE0KJaxp09Pl24x
-         wxHaZGNDB+Dni92914rkYtbYiQv7lucf0gTYIrFq8lTbKV08jA/4sOf7d8I9C8bC80uC
-         agDtEKVVSQIoCgEGuQrRvIluI4WWpm8MIYWfjtFk8dPwhHk/uDzqGadWYFzAD4KZ/rOu
-         2+rmbe1sTS2OoUy3OzX3UtY+johXvkrLk/WldfoZsqpIpBTghj2uyRFG/9/Jf97mRTiI
-         XzWajhNTX8SNxMYxXfJcnwGoO9+lP6JKLSohM4FCtF4WTeduLv4UlMveaCdHLYKLKIOn
-         FXMg==
+        bh=10lySyzZTVvC+S5oM1O6pINxMohBlWGSJurdKiLL+/8=;
+        b=XEyyBpSyUqYUUE3KrenB4BevDH3I8nRVBVVU5u3rHKnJOtPrPs2jmbcoVcfNY2FQxp
+         9SBd5YpFXGZGLSxE736vanXSurno8933Ls4CBIpBmKlj0kyxq7v8GigoRHwiB7kHjJhW
+         GGprp50TPTIKo+00wiMbzShBcVk6u6QiV9leo3P7jy5B4vv3mraRn9ej6bAa9wJ0ngNa
+         21ioHSDgMAETK1QZkJ8AJM8VwCIMW9qJkU31GOC0YqLV4sz4Wm8AsfMF+1vTvzLrq1VP
+         wi2nbKi/ambLx/1jrdpDJvtdBBCWP6z9i//zgKhqzRslUlbEi5ai9yRldNoCEo2/xY8i
+         xtow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733798493; x=1734403293;
+        d=1e100.net; s=20230601; t=1733798494; x=1734403294;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=plyHizQjFILOlGH5Iba1IrDdDMxWHhXvOcpLcYrtGxg=;
-        b=bHvWh3eQ5yykhhE4OrjLDfWlAcP9qp1BEdGyXOBKe1J3kFW0EipQQLY7HPzWVtutol
-         jUU+dHf1t8HpoK5H9p6d4LFN8KDJSUoV7ToHoJs82ivKqaJkYcFvAQEdXlpwlF1u2plx
-         996zLn7T7yMWeg4RIrXaFiCJx7iM0YXalF74aJPoyCGEHRUjP7AacoA1X2mcYQGhu0Kv
-         TdVRh3GhsRdCze0Rjtc0vt67qh1qhMF2IQlAlnUpgj4CAgSRdPdLQf5ivTi4zm0lMp5D
-         CezEHNUnwfGpzp6412++bwX/Im6eW/Sp1nLA85z3kRrK7FbdJYo9zjMd4dBqSrbBlG9u
-         1ROg==
-X-Forwarded-Encrypted: i=1; AJvYcCUGAyIK7mSLVTF0IX+2mHGQZbTb1bg3Mbjll7MJayr2Wsn0P2cS0+biRyLUjL8/u7r3kNIs+hLnhi1x@vger.kernel.org
-X-Gm-Message-State: AOJu0YxUapgtYnX/bQ/LtLvj5IqSTQgpcagPi/0ZVeTISdCPNPMo5AtU
-	C/iBjR4p3RpXpywlG1KwWoSIR7/D+VIipfTiivLdtnVfYO2lOesmVP24fSiWCEkyp2NE4ACEKMC
-	049TICCcdyvyKaYfYith6xA==
-X-Google-Smtp-Source: AGHT+IHwTbEIW/FAeU1sg3ure6LNMbce1+qfNwJ7QwjwcLyYjZmtwQZSOt2eORyWNRKplpOxNs0RywA1YRSDvXTeEQ==
-X-Received: from pjbsd7.prod.google.com ([2002:a17:90b:5147:b0:2ea:5c73:542c])
+        bh=10lySyzZTVvC+S5oM1O6pINxMohBlWGSJurdKiLL+/8=;
+        b=MZ8i1SjDPE95Xfkk1YVUN3g+tlrpk0aISUd+uq9xiPiDa9g/VncamizAPO+acnuJBn
+         Bl2ilYPBvfltt9Q0UvDlLjSTDAyjXuGo6igd0n8jxfzxvuebzKU+rWiFYpncc4giRpro
+         bah/gFmWVHz9rWyo7ap8KRXzzpd3A0/SsjbWUlzgDUZ9gMfKpzCbTNg1K/dvGIwuB/Xq
+         MQMe/4UJ07i2b3YkGX4dZnoNXcp0C/xpLTBHPpZVmx3M4grZU1Doh8WE4uxHar7xtA7p
+         3RFQ8GSi+f4FvgoCXQKOZYMGyKDVPiLeivVIMEKkRp5ovq2yo34uKGTM/WkVfbFLgNC3
+         9VXA==
+X-Forwarded-Encrypted: i=1; AJvYcCWqsur5nP0Wx6HSMcqfMGlxbJqQdCMHGVaeWJgekNzAL0jh17s5snz3tffH/NJnz8L1SMAkV3J+3GXR@vger.kernel.org
+X-Gm-Message-State: AOJu0YxBlzi2bk+e4h5PcJXipvEccvExaVUdga8IOwjmUB91hL/vA7dd
+	tTYIDnQMc/EsPHQpkPPZVaYGBocrubdswCLVcRqxiTnC1y71CFy2MEvg7M3k8mKalR9IImYRnTX
+	l9B3EjbWr9bJJcjte8ylILg==
+X-Google-Smtp-Source: AGHT+IGrVCmYvgbRZyJY6d84f+llUxgBN0sslSfR3tN174qad1011sAwn0+s/lhjeAWOT5E3i4gR4UE5Ru9TVnP2PA==
+X-Received: from oabfu21.prod.google.com ([2002:a05:6870:5d95:b0:29d:c6f7:1bb2])
  (user=kaleshsingh job=prod-delivery.src-stubby-dispatcher) by
- 2002:a17:90b:3c0f:b0:2ee:ad18:b309 with SMTP id 98e67ed59e1d1-2efcf1700c3mr4344722a91.3.1733798492790;
- Mon, 09 Dec 2024 18:41:32 -0800 (PST)
-Date: Mon,  9 Dec 2024 18:41:07 -0800
+ 2002:a05:6870:5a9c:b0:29f:f4af:dc34 with SMTP id 586e51a60fabf-29ff4b0889emr667703fac.7.1733798494636;
+ Mon, 09 Dec 2024 18:41:34 -0800 (PST)
+Date: Mon,  9 Dec 2024 18:41:08 -0800
 In-Reply-To: <20241210024119.2488608-1-kaleshsingh@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -59,8 +59,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20241210024119.2488608-1-kaleshsingh@google.com>
 X-Mailer: git-send-email 2.47.0.338.g60cca15819-goog
-Message-ID: <20241210024119.2488608-6-kaleshsingh@google.com>
-Subject: [PATCH mm-unstable 05/17] mm: arc: Use generic_mmap_hint()
+Message-ID: <20241210024119.2488608-7-kaleshsingh@google.com>
+Subject: [PATCH mm-unstable 06/17] mm: csky: Introduce arch_mmap_hint()
 From: Kalesh Singh <kaleshsingh@google.com>
 To: akpm@linux-foundation.org, vbabka@suse.cz, yang@os.amperecomputing.com, 
 	riel@surriel.com, david@redhat.com
@@ -80,43 +80,89 @@ Cc: linux@armlinux.org.uk, tsbogend@alpha.franken.de,
 	Kalesh Singh <kaleshsingh@google.com>
 Content-Type: text/plain; charset="UTF-8"
 
-Use generic_mmap_hint() in arch arch_get_unmapped_area().
+Introduce csky arch_mmap_hint() and define HAVE_ARCH_MMAP_HINT.
+This is a preparatory patch, no functional change is introduced.
 
 Signed-off-by: Kalesh Singh <kaleshsingh@google.com>
 ---
- arch/arc/mm/mmap.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ arch/csky/abiv1/inc/abi/pgtable-bits.h |  1 +
+ arch/csky/abiv1/mmap.c                 | 38 ++++++++++++++++++--------
+ 2 files changed, 27 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arc/mm/mmap.c b/arch/arc/mm/mmap.c
-index 2185afe8d59f..6b1fcea06779 100644
---- a/arch/arc/mm/mmap.c
-+++ b/arch/arc/mm/mmap.c
-@@ -27,7 +27,6 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
+diff --git a/arch/csky/abiv1/inc/abi/pgtable-bits.h b/arch/csky/abiv1/inc/abi/pgtable-bits.h
+index ae7a2f76dd42..c346a9fcb522 100644
+--- a/arch/csky/abiv1/inc/abi/pgtable-bits.h
++++ b/arch/csky/abiv1/inc/abi/pgtable-bits.h
+@@ -51,5 +51,6 @@
+ 					((offset) << 10)})
+ 
+ #define HAVE_ARCH_UNMAPPED_AREA
++#define HAVE_ARCH_MMAP_HINT
+ 
+ #endif /* __ASM_CSKY_PGTABLE_BITS_H */
+diff --git a/arch/csky/abiv1/mmap.c b/arch/csky/abiv1/mmap.c
+index 1047865e82a9..184921a73856 100644
+--- a/arch/csky/abiv1/mmap.c
++++ b/arch/csky/abiv1/mmap.c
+@@ -13,6 +13,29 @@
+ 	((((addr)+SHMLBA-1)&~(SHMLBA-1)) +	\
+ 	 (((pgoff)<<PAGE_SHIFT) & (SHMLBA-1)))
+ 
++unsigned long arch_mmap_hint(struct file *filp, unsigned long addr,
++			     unsigned long len, unsigned long pgoff,
++			     unsigned long flags)
++{
++	int do_align = 0;
++
++	if (!addr)
++		return 0;
++
++	/*
++	 * We only need to do colour alignment if either the I or D
++	 * caches alias.
++	 */
++	do_align = filp || (flags & MAP_SHARED);
++
++	if (do_align)
++		addr = COLOUR_ALIGN(addr, pgoff);
++	else
++		addr = PAGE_ALIGN(addr);
++
++	return generic_mmap_hint(filp, addr, len, pgoff, flags);
++}
++
+ /*
+  * We need to ensure that shared mappings are correctly aligned to
+  * avoid aliasing issues with VIPT caches.  We need to ensure that
+@@ -27,7 +50,6 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
  		unsigned long flags, vm_flags_t vm_flags)
  {
  	struct mm_struct *mm = current->mm;
 -	struct vm_area_struct *vma;
- 	struct vm_unmapped_area_info info = {};
- 
- 	/*
-@@ -43,14 +42,9 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
+ 	int do_align = 0;
+ 	struct vm_unmapped_area_info info = {
+ 		.length = len,
+@@ -55,17 +77,9 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
  	if (len > TASK_SIZE)
  		return -ENOMEM;
  
 -	if (addr) {
--		addr = PAGE_ALIGN(addr);
+-		if (do_align)
+-			addr = COLOUR_ALIGN(addr, pgoff);
+-		else
+-			addr = PAGE_ALIGN(addr);
 -
 -		vma = find_vma(mm, addr);
 -		if (TASK_SIZE - len >= addr &&
 -		    (!vma || addr + len <= vm_start_gap(vma)))
 -			return addr;
 -	}
-+	addr = generic_mmap_hint(filp, addr, len, pgoff, flags);
++	addr = arch_mmap_hint(filp, addr, len, pgoff, flags);
 +	if (addr)
 +		return addr;
  
- 	info.length = len;
- 	info.low_limit = mm->mmap_base;
+ 	info.align_mask = do_align ? (PAGE_MASK & (SHMLBA - 1)) : 0;
+ 	return vm_unmapped_area(&info);
 -- 
 2.47.0.338.g60cca15819-goog
 
