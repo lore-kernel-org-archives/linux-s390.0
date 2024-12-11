@@ -1,108 +1,80 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 287064A08;
-	Wed, 11 Dec 2024 01:35:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ADC71FDE1E;
+	Wed, 11 Dec 2024 02:31:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733880954; cv=none; b=FRcd2FclOOHssh8S81vY6ScnctC+Sj9GHGzbv7/qFrIg3/boaCioaST2QRvHb2UGX88x7P8Bb6LqmTejf2cqCGZaO5kVpzbV8oK6lGEZgPvIQC90WkZ67tvUE1lS2KpMFsO7bTzdFjgY97Q1fY66dERyk3k6if25Btksww3EFvE=
+	t=1733884272; cv=none; b=FC79YeJuH6tQPrwL1/248RHtgrJUJrMLEc89UwnVVw54alYfJgOyqvcpl4bjvhpQXuFzl2yJw6DvrRcjKRPoQzENiykUhZDJKScSdDX9crxuVIVp0hY4m3qNnLihFhnWlY3ghVxlhN6n9RnWY7jVYF0ephMCj0IiZ09ntXlNuYo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733880954; c=relaxed/simple;
-	bh=Dz1h0dkmrv6Ze1cxU8t5rn465fyVUykxbTsS0X2OpsA=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=SbYGXO1EW8Nx/B0Ix2UEJEZF4xQdyly1BAin6X+UDXC7JThmXoJ3s6QSvSNLRzE5isfLIM4Ra45XyDap9bQL1tq7gTZoxceNGQupJ9eBvM8ed5ariMK1X4rJS0v7spUsyqAUQd37W2XhLOoJPSoVUBKkcqGGD8P+LNM+ftBVz1I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lWXuqS/O; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1733884272; c=relaxed/simple;
+	bh=E+UAeEJoDkplvRMVF2pktf22DII10AsH7WGPs7ZpbT4=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=kHf0hYaBLMQqdkN3CGdcf5hKrHZNBJhvQpquJEmJYXNNbpvswP8SYtkLj/jVP4Yook7r0Zka0gFqIcp/C5yRD3TWt6t9o5rnguAXInPQUk1ZO/zjr6UxJ7FQuxfxenbsjOHGtQ+9gb4QhJdicVCpjF7NMKfp6OYBIqchZpBk3B4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=E2PnwzhH; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lWXuqS/O"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 199D6C4CED6;
-	Wed, 11 Dec 2024 01:35:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1733880952;
-	bh=Dz1h0dkmrv6Ze1cxU8t5rn465fyVUykxbTsS0X2OpsA=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=lWXuqS/OGpuLDDn3e6rd0Ny3W9lOBqxl6ouihxGY5DI5BnIAz9k8OvBxV/WkkoGKL
-	 hvX4IUIFhNQrpaU/cm1/wigfic0JSqIb6VAvnSxeGoBEhxQ8j23ePZ7Up9KKZysBId
-	 uO/7yQ7qC/+pZb6ESDTBeZAbwesJTCLTy1XLYAF4mlcKRBKyoFjzB5pZOEDAYCVUSK
-	 PtvZkQ2HN8nf8vIhBE/HaUtHV2aj4U1eGeFDoHxYziwThc1ReVtXl39rfXh3mERvJ2
-	 23iH30lOevYf8TCz5YvtH3bGmPPNofPB05oCl1pJa3BU8K8c+a39qY+xcVUgGWrb0g
-	 vGjoGdbfKJTPg==
-Date: Tue, 10 Dec 2024 17:35:48 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Easwar Hariharan
- <eahariha@linux.microsoft.com>
-Cc: Jeff Johnson <jeff.johnson@oss.qualcomm.com>, Pablo Neira Ayuso
- <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
- Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Julia Lawall
- <Julia.Lawall@inria.fr>, Nicolas Palix <nicolas.palix@imag.fr>, Daniel Mack
- <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert
- Jarzmik <robert.jarzmik@free.fr>, Russell King <linux@armlinux.org.uk>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Ofir
- Bitton <obitton@habana.ai>, Oded Gabbay <ogabbay@kernel.org>, Lucas De
- Marchi <lucas.demarchi@intel.com>, Thomas =?UTF-8?B?SGVsbHN0csO2bQ==?=
- <thomas.hellstrom@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard
- <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Airlie
- <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Jeroen de Borst
- <jeroendb@google.com>, Praveen Kaligineedi <pkaligineedi@google.com>,
- Shailend Chand <shailend@google.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- James Smart <james.smart@broadcom.com>, Dick Kennedy
- <dick.kennedy@broadcom.com>, "James E.J. Bottomley"
- <James.Bottomley@HansenPartnership.com>, "Martin K. Petersen"
- <martin.petersen@oracle.com>, Roger Pau =?UTF-8?B?TW9ubsOp?=
- <roger.pau@citrix.com>, Jens Axboe <axboe@kernel.dk>, Kalle Valo
- <kvalo@kernel.org>, Jeff Johnson <jjohnson@kernel.org>, Catalin Marinas
- <catalin.marinas@arm.com>, Jack Wang <jinpu.wang@cloud.ionos.com>, Marcel
- Holtmann <marcel@holtmann.org>, Johan Hedberg <johan.hedberg@gmail.com>,
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>, Greg Kroah-Hartman
- <gregkh@linuxfoundation.org>, Florian Fainelli
- <florian.fainelli@broadcom.com>, Ray Jui <rjui@broadcom.com>, Scott Branden
- <sbranden@broadcom.com>, Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Xiubo Li <xiubli@redhat.com>, Ilya
- Dryomov <idryomov@gmail.com>, Josh Poimboeuf <jpoimboe@kernel.org>, Jiri
- Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek
- <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>, Jaroslav Kysela
- <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Louis Peens
- <louis.peens@corigine.com>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas
- Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
- Naveen N Rao <naveen@kernel.org>, Madhavan Srinivasan
- <maddy@linux.ibm.com>, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, cocci@inria.fr,
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
- dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
- linux-scsi@vger.kernel.org, xen-devel@lists.xenproject.org,
- linux-block@vger.kernel.org, linux-wireless@vger.kernel.org,
- ath11k@lists.infradead.org, linux-mm@kvack.org,
- linux-bluetooth@vger.kernel.org, linux-staging@lists.linux.dev,
- linux-rpi-kernel@lists.infradead.org, ceph-devel@vger.kernel.org,
- live-patching@vger.kernel.org, linux-sound@vger.kernel.org,
- oss-drivers@corigine.com, linuxppc-dev@lists.ozlabs.org, Anna-Maria Behnsen
- <anna-maria@linutronix.de>
-Subject: Re: [PATCH v3 00/19] Converge on using secs_to_jiffies()
-Message-ID: <20241210173548.5d32efe0@kernel.org>
-In-Reply-To: <20241210153604.cf99699f264f12740ffce5c7@linux-foundation.org>
-References: <20241210-converge-secs-to-jiffies-v3-0-ddfefd7e9f2a@linux.microsoft.com>
-	<315e9178-5b10-4de0-bdcf-7243e0e355bb@oss.qualcomm.com>
-	<20241210153604.cf99699f264f12740ffce5c7@linux-foundation.org>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="E2PnwzhH"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1733884266; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=/I7yPO7EcSekPMhCgT8SWcWo1LXPkjZ7aepql1hUkXg=;
+	b=E2PnwzhHi4LjF90ZBBCew1AVYhh4FgqwTVjm8RiZI9UPlqophm31EHZxn8M9tl90rXeXNjaeR0XjGniMoy7LlpioJ+7TrvLPyIQEei+IMFHCK6I+mhR9uiPRYpehGQib3Q0MCjhbk5RchpLJeLVtGgVqaUVDVhu0RZNjc52nHE0=
+Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WLGemUd_1733884265 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 11 Dec 2024 10:31:06 +0800
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+To: wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	pasic@linux.ibm.com,
+	alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org
+Cc: linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net-next RESEND v3 0/2] net/smc: Two features for smc-r
+Date: Wed, 11 Dec 2024 10:30:53 +0800
+Message-Id: <20241211023055.89610-1-guangguan.wang@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Tue, 10 Dec 2024 15:36:04 -0800 Andrew Morton wrote:
-> > I have the same question as before: How do you expect these to land?
-> > Do you now have a maintainer who will take all of them?
-> > Or do you want individual maintainers to take the ones applicable to them?  
-> 
-> I'll just grab everything and see if anyone complains ;)
+v2 -> v3:
+(https://lore.kernel.org/netdev/20241202125203.48821-1-guangguan.wang@linux.alibaba.com/)
+Patch #1 add 'Reviewed-by' tag.
+Patch #2 remove the condition when IPV6 is disabled, and change the
+condition to an easier understanding way. Correct the typo and add
+'Reviewed-by' tag.
 
-I may, if this leads to a conflict :(
+v1 -> v2:
+Patch #2 fix build error reported by kernel test robot <lkp@intel.com>.
+https://lore.kernel.org/oe-kbuild-all/202411282154.DjX7ilwF-lkp@intel.com/
 
-Easwar, please break this up per subsystem.
+Guangguan Wang (2):
+  net/smc: support SMC-R V2 for rdma devices with max_recv_sge equals to
+    1
+  net/smc: support ipv4 mapped ipv6 addr client for smc-r v2
+
+ net/smc/af_smc.c   |  5 ++++-
+ net/smc/smc_core.c |  5 +++++
+ net/smc/smc_core.h | 11 ++++++++++-
+ net/smc/smc_ib.c   |  3 +--
+ net/smc/smc_llc.c  | 21 +++++++++++++++------
+ net/smc/smc_wr.c   | 42 +++++++++++++++++++++---------------------
+ 6 files changed, 56 insertions(+), 31 deletions(-)
+
+-- 
+2.24.3 (Apple Git-128)
+
