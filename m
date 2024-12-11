@@ -1,123 +1,88 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1913B23FD2E;
-	Wed, 11 Dec 2024 18:54:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5FF31FA8FF;
+	Wed, 11 Dec 2024 22:32:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733943299; cv=none; b=u2pV4sS6kGCSC2LRdUilvUYurekHJII9AB8Iq0/yTzdutGVtOT84YkCngbdxjEsmzf2bAnUT7AnqfgFuWoskZsdZ35XOOOs32CIBLtxu6rjEIosPdUkG4nJJOFRrg87buNpJSMTfQ7xnrSLCVSqEy2nTL05InhHIWWeV5o779yg=
+	t=1733956349; cv=none; b=VLo7clw6Ql40dWKU/1ZFpIqMTBrTBa6w4fUdcbcKAV/UbtUEoovZojBT5o3anAEPjcGtYF7c6uoodQ4/gEENp/rh0rGedligKeaBsqTY0JekttdToUFddTjM9HJVTtqALH1O9SkLXb7ZtyRHY92tfXpPWBFwTL10KrDjdydl8Gc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733943299; c=relaxed/simple;
-	bh=VsLFDWRcpPe3Dn5zdglydGPNIzRwNv5JSeTvfZ/Qy2M=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ssXZkk9aB4BD0zEVRqrCx8iih1KNcP1uuyt0i5yzrtVasaohs6Iy7M1Q4w2dJtBXh/6a844fbKLwnKeMUQzR5HN1JBgezpI0ENR9t7xjiEBCa/VVK5x+3DgpT+RVw3a6ku2mnZ1qXOHSKlvLF5/l4jmDISsri+6HYSKpy9nvIsU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LdjFUTiu; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1733956349; c=relaxed/simple;
+	bh=BsLL13WVfc3NzEKIjd52mjnoMrC/Et1GCt0kRWiLCQo=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=bPth9QcmsZNdlBbPF7WHBbwtm8uYLNUDlciBjNkTVzk3utk+02KTIJPJEzhisp4M/zntbH7im217JL2FN6IPsvdGHmbOGqs8pApGIs8pLHyXwqBYHzzN0RU7b1Wb/iMM9m2gI2BmwS6PwAzwXjEmdHdotnbk9I+Hd/Bm1LoC7ho=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qv6gvZPd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LdjFUTiu"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BBBvEqW025841;
-	Wed, 11 Dec 2024 18:54:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=tbLHFR
-	PDkwEfVtwHNEpSw/kwG8L4VWUBxBNMVuE96VA=; b=LdjFUTiuXWUKZ6mM4O9XLG
-	gmwtrZbGjjVytZHNRMRohvR+Zfz8GsPFggEzvHP/gTlainJ2H1QGiXNv2u/JS1+3
-	iWO64eJk1mc4ja/LBD2oaNu7RX6lRoqxzD4rUgpVPpm1OQCKWfr1Dh4+fp8AJ2gb
-	TbOcZaXlMhBN9A43H8/KusFR9nkye2v+/QMSEwqvTbLdwxxYWl1eWqQ2pl181gUJ
-	H/zkbXgsbDS9UfREoXocjOQxsEIYLIiFlln04LZTjt96WYA2dOoJYwzJYiY9Kdop
-	2261Lu8US03fyDY0VRbbDK5kAktE75WFB1wDiZsC2FDZi7bnnvC6/ytMx/BsdZ/A
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43cbsqej7p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Dec 2024 18:54:51 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4BBIspac005666;
-	Wed, 11 Dec 2024 18:54:51 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43cbsqej7k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Dec 2024 18:54:51 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BBHIF9B017421;
-	Wed, 11 Dec 2024 18:54:50 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 43d3d1u0qf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Dec 2024 18:54:50 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BBIskpJ62456262
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 11 Dec 2024 18:54:47 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D37E220043;
-	Wed, 11 Dec 2024 18:54:46 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CC09520040;
-	Wed, 11 Dec 2024 18:54:45 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.81.50])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Wed, 11 Dec 2024 18:54:45 +0000 (GMT)
-Date: Wed, 11 Dec 2024 19:54:40 +0100
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        horms@kernel.org, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Dust Li
- <dust.li@linux.alibaba.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH net-next RESEND v3 2/2] net/smc: support ipv4 mapped
- ipv6 addr client for smc-r v2
-Message-ID: <20241211195440.54b37a79.pasic@linux.ibm.com>
-In-Reply-To: <20241211023055.89610-3-guangguan.wang@linux.alibaba.com>
-References: <20241211023055.89610-1-guangguan.wang@linux.alibaba.com>
-	<20241211023055.89610-3-guangguan.wang@linux.alibaba.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qv6gvZPd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2AB6C4CED2;
+	Wed, 11 Dec 2024 22:32:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1733956348;
+	bh=BsLL13WVfc3NzEKIjd52mjnoMrC/Et1GCt0kRWiLCQo=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=qv6gvZPdDzbdVPybtFSPx8+F0xql/LHjAUoa61PxHbq7BiNILQmSVN3xV/Fk+jm3l
+	 eRj2euKpGQwhzha10D0yvWpJ5jdjr8+V1iYsps4/RL/90xpWyAoPlqxLTgT8H2p1Qr
+	 znxHE8HzGGVb3bxCyQgvVT/2hoGKZW56OU+GylgAoSP4eq7TpXB3MZRt3VoyD522af
+	 qGwcNNMDDsGqYKHkYodSX7oguHOLk4TTwi/8Q8fATZ6k5VUR9Dw7CkfxIhk8aSQAz0
+	 q46lv24Cq5nGqzFQZkxa8IXK7+L/Hgf8e5dM0N1jW5ubxUNiav+to559ZbObo4j7v8
+	 24oLtA9z8Jf7w==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAFBE380A965;
+	Wed, 11 Dec 2024 22:32:45 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ojddAGxzXGN6xT6MqxVDlPPu-LDffvjO
-X-Proofpoint-GUID: bIA3QC9xMxVzuWVB8X2EzXkTV9ipzQ-Q
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=639 adultscore=0
- lowpriorityscore=0 clxscore=1015 phishscore=0 impostorscore=0
- suspectscore=0 spamscore=0 mlxscore=0 priorityscore=1501 malwarescore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2412110133
+Subject: Re: [PATCH 1/2] asm-generic: provide generic page_to_phys and
+ phys_to_page implementations
+From: patchwork-bot+linux-riscv@kernel.org
+Message-Id: 
+ <173395636448.1729195.13128530873311699126.git-patchwork-notify@kernel.org>
+Date: Wed, 11 Dec 2024 22:32:44 +0000
+References: <20241023053644.311692-2-hch@lst.de>
+In-Reply-To: <20241023053644.311692-2-hch@lst.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: linux-riscv@lists.infradead.org, arnd@arndb.de,
+ linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-arch@vger.kernel.org
 
-On Wed, 11 Dec 2024 10:30:55 +0800
-Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
+Hello:
 
-> AF_INET6 is not supported for smc-r v2 client before, even if the
-> ipv6 addr is ipv4 mapped. Thus, when using AF_INET6, smc-r connection
-> will fallback to tcp, especially for java applications running smc-r.
-> This patch support ipv4 mapped ipv6 addr client for smc-r v2. Clients
-> using real global ipv6 addr is still not supported yet.
+This series was applied to riscv/linux.git (fixes)
+by Arnd Bergmann <arnd@arndb.de>:
+
+On Wed, 23 Oct 2024 07:36:36 +0200 you wrote:
+> page_to_phys is duplicated by all architectures, and from some strange
+> reason placed in <asm/io.h> where it doesn't fit at all.
 > 
-> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-> Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
-> Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-> Reviewed-by: D. Wythe <alibuda@linux.alibaba.com>
-> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> phys_to_page is only provided by a few architectures despite having a lot
+> of open coded users.
+> 
+> Provide generic versions in <asm-generic/memory_model.h> to make these
+> helpers more easily usable.
+> 
+> [...]
 
-Sorry for the late remark, but does this need a Fixes tag? I mean
-my gut feeling is that this is a bugfix -- i.e. should have been
-working from the get go -- and not a mere enhancement. No strong
-opinions here.
+Here is the summary with links:
+  - [1/2] asm-generic: provide generic page_to_phys and phys_to_page implementations
+    https://git.kernel.org/riscv/c/c5c3238d9b8c
+  - [2/2] asm-generic: add an optional pfn_valid check to page_to_phys
+    https://git.kernel.org/riscv/c/3e25d5a49f99
 
-Halil
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
