@@ -1,116 +1,160 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE8E81514F8;
-	Wed, 11 Dec 2024 05:17:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A6571BEF75;
+	Wed, 11 Dec 2024 07:00:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733894255; cv=none; b=fwvhpZN8By7ophuyPLdkaJxXsnllnv5VAUrM7JWRB2h9tGt3Dom6GHJcK8pMrg1+aRMKxqfR+GT/JCVmKwjFaZ25yj+DcWFPZlQhc5kWxsoi8d6IFupIRNl6/Ml6TtKLNO9SHLDYvMAdhTYpS0amFPFsxuLli4XW7nEi0BN32Mw=
+	t=1733900417; cv=none; b=f0dT4/voX78QtJDqOhY9/1RLKtX564bXHfl0GFtf8hzOqspGM2GSJcCrxgwju3Oop0Mc9CX6uwuRcqlkamJO4VVvfzIg6yKJO/48yB/FQ/phVAZJjw0bPY43woCUsD5v7YKgkDpyOv9QkUxFpFcCXWJCT3XKwhqSKAGREt4uIu4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733894255; c=relaxed/simple;
-	bh=RPWCoG4RhG6ryjnD0ys4kpDDuDXeC7eMtJBFDhrGKLo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RVMp0odaEvkrtqfZdTABe84Mv0KQl/7RF0BwBC+OIWgzzm0hd66Py8Cp9JbV8z+OsacILVA2iY+VatycdIjx7D40j+yolrsP4C195Y1KaSOxiZHssFWmeFY8gTmMQhYVamPb3iBGoqI5Ayc6uSZTPDGboJdi439A+CS31wSM3Ys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=D8LakECd; arc=none smtp.client-ip=115.124.30.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="D8LakECd"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1733894248; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=nQcLfV2xZwKTL2O3SG540LsNxNtq3k+Lv38jppzlJyg=;
-	b=D8LakECdV6PtHFpA4aH2HxB7yZRpxlFj5nHsy5nsCH4VFPiPgSBCb5IQq9lGQqoYk28AEKwslYMaETNTDqPCltk3syqkJM97KVGQAo9utHBOd5v327lEJ3Kftprb8p5Cx/7BM5AGHLIMZcmW+jZAKwGjphWfKyw/l/T9PLkYCro=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WLH6tub_1733894245 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 11 Dec 2024 13:17:26 +0800
-Date: Wed, 11 Dec 2024 13:17:25 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com, jaka@linux.ibm.com,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Martin KaFai Lau <martin.lau@linux.dev>,
-	Paolo Abeni <pabeni@redhat.com>, Song Liu <song@kernel.org>,
-	Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
-	Yonghong Song <yhs@fb.com>, Eric Dumazet <edumazet@google.com>,
-	John Fastabend <john.fastabend@gmail.com>,
-	KP Singh <kpsingh@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-	guwen@linux.alibaba.com, Jakub Kicinski <kuba@kernel.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Network Development <netdev@vger.kernel.org>,
-	linux-s390 <linux-s390@vger.kernel.org>, linux-rdma@vger.kernel.org,
-	bpf <bpf@vger.kernel.org>
-Subject: Re: [PATCH bpf-next v2 5/5] bpf/selftests: add simple selftest for
- bpf_smc_ops
-Message-ID: <20241211051725.GA97570@j66a10360.sqa.eu95>
-References: <20241210040404.10606-1-alibuda@linux.alibaba.com>
- <20241210040404.10606-6-alibuda@linux.alibaba.com>
- <CAADnVQJisbHFpS2==pw4aOAmKsbo6m6EDvOBntF_ATMrbp0G=w@mail.gmail.com>
+	s=arc-20240116; t=1733900417; c=relaxed/simple;
+	bh=B1wGhrvFoDOmFrhgO6ctmjhLDhnpcrjN7YBDBIx3Y40=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Zbkfh3dL1b7iasJkAfL69EL8Qe3d8Q2Sz9+hV9kejnq/UWQXhvsbJlBQIkHRGJUoxh3iycHwuVm2cU5z6INBgR0lUR/QvN1ug4eEh8BN/Ljsj4LlPJ0pO94qkylEnLKlbWi1RGM0oiy5GEVfhBFWEFd7icP5yUEmhUCitxwLwfE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+	by localhost (Postfix) with ESMTP id 4Y7RLj3GV8z9t4d;
+	Wed, 11 Dec 2024 08:00:13 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id c0Dk1hMGM9_h; Wed, 11 Dec 2024 08:00:13 +0100 (CET)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+	by pegase2.c-s.fr (Postfix) with ESMTP id 4Y7RLY2gbNz9t4Z;
+	Wed, 11 Dec 2024 08:00:05 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id 3FA418B76E;
+	Wed, 11 Dec 2024 08:00:05 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+	with ESMTP id lblUBnLQKeTT; Wed, 11 Dec 2024 08:00:05 +0100 (CET)
+Received: from [10.25.209.139] (unknown [10.25.209.139])
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id A13268B763;
+	Wed, 11 Dec 2024 08:00:03 +0100 (CET)
+Message-ID: <07784753-6874-4dda-a080-2d2812f4a10a@csgroup.eu>
+Date: Wed, 11 Dec 2024 08:00:02 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 18/19] livepatch: Convert timeouts to secs_to_jiffies()
+To: Easwar Hariharan <eahariha@linux.microsoft.com>,
+ Pablo Neira Ayuso <pablo@netfilter.org>,
+ Jozsef Kadlecsik <kadlec@netfilter.org>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>, Julia Lawall <Julia.Lawall@inria.fr>,
+ Nicolas Palix <nicolas.palix@imag.fr>, Daniel Mack <daniel@zonque.org>,
+ Haojian Zhuang <haojian.zhuang@gmail.com>,
+ Robert Jarzmik <robert.jarzmik@free.fr>, Russell King
+ <linux@armlinux.org.uk>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Ofir Bitton <obitton@habana.ai>,
+ Oded Gabbay <ogabbay@kernel.org>, Lucas De Marchi
+ <lucas.demarchi@intel.com>,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Jeroen de Borst <jeroendb@google.com>,
+ Praveen Kaligineedi <pkaligineedi@google.com>,
+ Shailend Chand <shailend@google.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ James Smart <james.smart@broadcom.com>,
+ Dick Kennedy <dick.kennedy@broadcom.com>,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ =?UTF-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>,
+ Jens Axboe <axboe@kernel.dk>, Kalle Valo <kvalo@kernel.org>,
+ Jeff Johnson <jjohnson@kernel.org>, Catalin Marinas
+ <catalin.marinas@arm.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Jack Wang <jinpu.wang@cloud.ionos.com>, Marcel Holtmann
+ <marcel@holtmann.org>, Johan Hedberg <johan.hedberg@gmail.com>,
+ Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Florian Fainelli <florian.fainelli@broadcom.com>, Ray Jui
+ <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Xiubo Li <xiubli@redhat.com>,
+ Ilya Dryomov <idryomov@gmail.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
+ Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
+ Petr Mladek <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>,
+ Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+ Louis Peens <louis.peens@corigine.com>, Michael Ellerman
+ <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Naveen N Rao <naveen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, cocci@inria.fr,
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
+ linux-scsi@vger.kernel.org, xen-devel@lists.xenproject.org,
+ linux-block@vger.kernel.org, linux-wireless@vger.kernel.org,
+ ath11k@lists.infradead.org, linux-mm@kvack.org,
+ linux-bluetooth@vger.kernel.org, linux-staging@lists.linux.dev,
+ linux-rpi-kernel@lists.infradead.org, ceph-devel@vger.kernel.org,
+ live-patching@vger.kernel.org, linux-sound@vger.kernel.org,
+ oss-drivers@corigine.com, linuxppc-dev@lists.ozlabs.org,
+ Anna-Maria Behnsen <anna-maria@linutronix.de>
+References: <20241210-converge-secs-to-jiffies-v3-0-ddfefd7e9f2a@linux.microsoft.com>
+ <20241210-converge-secs-to-jiffies-v3-18-ddfefd7e9f2a@linux.microsoft.com>
+Content-Language: fr-FR
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+In-Reply-To: <20241210-converge-secs-to-jiffies-v3-18-ddfefd7e9f2a@linux.microsoft.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAADnVQJisbHFpS2==pw4aOAmKsbo6m6EDvOBntF_ATMrbp0G=w@mail.gmail.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
 
-On Tue, Dec 10, 2024 at 10:01:38AM -0800, Alexei Starovoitov wrote:
-> On Mon, Dec 9, 2024 at 8:04 PM D. Wythe <alibuda@linux.alibaba.com> wrote:
-> >
-> > +SEC("struct_ops/bpf_smc_set_tcp_option_cond")
-> > +int BPF_PROG(bpf_smc_set_tcp_option_cond, const struct tcp_sock *tp, struct inet_request_sock *ireq)
-> > +{
-> > +       return 0;
-> > +}
-> > +
-> > +SEC("struct_ops/bpf_smc_set_tcp_option")
-> > +int BPF_PROG(bpf_smc_set_tcp_option, struct tcp_sock *tp)
-> > +{
-> > +       return 1;
-> > +}
-> > +
-> > +SEC(".struct_ops.link")
-> > +struct smc_ops  sample_smc_ops = {
-> > +       .name                   = "sample",
-> > +       .set_option             = (void *) bpf_smc_set_tcp_option,
-> > +       .set_option_cond        = (void *) bpf_smc_set_tcp_option_cond,
-> > +};
+
+
+Le 10/12/2024 à 23:02, Easwar Hariharan a écrit :
+> Commit b35108a51cf7 ("jiffies: Define secs_to_jiffies()") introduced
+> secs_to_jiffies(). As the value here is a multiple of 1000, use
+> secs_to_jiffies() instead of msecs_to_jiffies to avoid the multiplication.
 > 
-> These stubs don't inspire confidence that smc_ops api
-> will be sufficient.
-> Please implement a real bpf prog that demonstrates the actual use case.
+> This is converted using scripts/coccinelle/misc/secs_to_jiffies.cocci with
+> the following Coccinelle rules:
 > 
-> See how bpf_cubic was done. On the day one it was implemented
-> as a parity to builtin cubic cong control.
-> And over years we didn't need to touch tcp_congestion_ops.
-> To be fair that api was already solid due to in-kernel cc modules,
-> but bpf comes with its own limitations, so it wasn't a guarantee
-> that tcp_congestion_ops would be enough.
-> Here you're proposing a brand new smc_ops api while bpf progs
-> are nothing but stubs. That's not sufficient to prove that api
-> is viable long term.
-
-Hi Alexei,
-
-Thanks a lot for your advices. I will add actual cases in the
-next version to prove why we need it.
-
+> @@ constant C; @@
 > 
-> In terms of look and feel the smc_ops look ok.
-> The change from v1 to v2 was a good step.
-
-I'm glad that you feel it looks okay. If you have any questions,
-please let me know.
-
-Thanks,
-D. Wythe
-
+> - msecs_to_jiffies(C * 1000)
+> + secs_to_jiffies(C)
 > 
-> pw-bot: cr
+> @@ constant C; @@
+> 
+> - msecs_to_jiffies(C * MSEC_PER_SEC)
+> + secs_to_jiffies(C)
+> 
+> Signed-off-by: Easwar Hariharan <eahariha@linux.microsoft.com>
+> ---
+>   samples/livepatch/livepatch-callbacks-busymod.c |  3 +--
+>   samples/livepatch/livepatch-shadow-fix1.c       |  3 +--
+>   samples/livepatch/livepatch-shadow-mod.c        | 15 +++++----------
+>   3 files changed, 7 insertions(+), 14 deletions(-)
+> 
+> diff --git a/samples/livepatch/livepatch-callbacks-busymod.c b/samples/livepatch/livepatch-callbacks-busymod.c
+> index 378e2d40271a9717d09eff51d3d3612c679736fc..69105596e72e6826aa2815cb2599eea56a0055ba 100644
+> --- a/samples/livepatch/livepatch-callbacks-busymod.c
+> +++ b/samples/livepatch/livepatch-callbacks-busymod.c
+> @@ -44,8 +44,7 @@ static void busymod_work_func(struct work_struct *work)
+>   static int livepatch_callbacks_mod_init(void)
+>   {
+>   	pr_info("%s\n", __func__);
+> -	schedule_delayed_work(&work,
+> -		msecs_to_jiffies(1000 * 0));
+> +	schedule_delayed_work(&work, 0);
+
+This hunk is not in line with the patch description.
+
+This is probably OK to have in this patch, but you should add additional 
+description to mention that special case with a 0 delay.
+
+Allthough you should probably change it to schedule_work() instead of 
+using a 0 delay.
+
+Christophe
