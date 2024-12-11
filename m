@@ -1,136 +1,116 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 19F1D2451C1;
-	Wed, 11 Dec 2024 04:34:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE8E81514F8;
+	Wed, 11 Dec 2024 05:17:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733891688; cv=none; b=C/RT1NeRrsxI8j+7E82VjPWVfZzrZSZFLHa0IgU56Bo8P3SZ1ovI3qWiIdbV65+sQ+BpyyDE0vQTIp7O+aS4iomNcXVYjl2t1OFnT/VcRt1EQUsZjQtinBeE01DmOLyUiWQFgM6JmTilsXNB3FYBPvHFWYDGWAXfw/TFBnZRVeM=
+	t=1733894255; cv=none; b=fwvhpZN8By7ophuyPLdkaJxXsnllnv5VAUrM7JWRB2h9tGt3Dom6GHJcK8pMrg1+aRMKxqfR+GT/JCVmKwjFaZ25yj+DcWFPZlQhc5kWxsoi8d6IFupIRNl6/Ml6TtKLNO9SHLDYvMAdhTYpS0amFPFsxuLli4XW7nEi0BN32Mw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733891688; c=relaxed/simple;
-	bh=+6iom3xS2EcNM1rvfQkOHsuFsgIrc5Jo/yPosMOw+8I=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=OtnXlDmr7igFEUBRJuCxlaqmgfdxzQ578452dcmzngwKGPo7O9rVrs3nJveZIXhWD7Ccgn+2QdMy1GLtpi+swbYr9kqQ8W8notJT5v5pTpgc+wKNsKJcMFK5KiXS+PqUZ1oSJZar8/HNt8U8Rep4y3noWnG0rzNZrctz6OKbHPE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=IJPud503; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1733894255; c=relaxed/simple;
+	bh=RPWCoG4RhG6ryjnD0ys4kpDDuDXeC7eMtJBFDhrGKLo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RVMp0odaEvkrtqfZdTABe84Mv0KQl/7RF0BwBC+OIWgzzm0hd66Py8Cp9JbV8z+OsacILVA2iY+VatycdIjx7D40j+yolrsP4C195Y1KaSOxiZHssFWmeFY8gTmMQhYVamPb3iBGoqI5Ayc6uSZTPDGboJdi439A+CS31wSM3Ys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=D8LakECd; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="IJPud503"
-Received: from [100.65.208.14] (unknown [20.236.11.185])
-	by linux.microsoft.com (Postfix) with ESMTPSA id C44BD204722B;
-	Tue, 10 Dec 2024 20:34:43 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com C44BD204722B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1733891686;
-	bh=SKADluaoUiTETH1UwG/V5DVCwgNdNCuMvx/YiXR3rAc=;
-	h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
-	b=IJPud503TZQ7qC+nAh33r29ZAguv/DZaDYDmYDAbJHqsXv7vFEisx4C+2Bx4/X0Ny
-	 QNmGT6WWiLLDSDyIxMX24BlKcPvLa2DRjFmS0GhpoB9JmvKOYeEniEHPcKfYI5Rx3Y
-	 UFvay1FmNXEMmTdeKu7+xEJKV27TsW4+ndYHIugA=
-Message-ID: <d93e388c-ed18-400c-b6cf-ec00a5979457@linux.microsoft.com>
-Date: Tue, 10 Dec 2024 20:34:43 -0800
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="D8LakECd"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1733894248; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=nQcLfV2xZwKTL2O3SG540LsNxNtq3k+Lv38jppzlJyg=;
+	b=D8LakECdV6PtHFpA4aH2HxB7yZRpxlFj5nHsy5nsCH4VFPiPgSBCb5IQq9lGQqoYk28AEKwslYMaETNTDqPCltk3syqkJM97KVGQAo9utHBOd5v327lEJ3Kftprb8p5Cx/7BM5AGHLIMZcmW+jZAKwGjphWfKyw/l/T9PLkYCro=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WLH6tub_1733894245 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 11 Dec 2024 13:17:26 +0800
+Date: Wed, 11 Dec 2024 13:17:25 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com, jaka@linux.ibm.com,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Paolo Abeni <pabeni@redhat.com>, Song Liu <song@kernel.org>,
+	Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
+	Yonghong Song <yhs@fb.com>, Eric Dumazet <edumazet@google.com>,
+	John Fastabend <john.fastabend@gmail.com>,
+	KP Singh <kpsingh@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
+	guwen@linux.alibaba.com, Jakub Kicinski <kuba@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Network Development <netdev@vger.kernel.org>,
+	linux-s390 <linux-s390@vger.kernel.org>, linux-rdma@vger.kernel.org,
+	bpf <bpf@vger.kernel.org>
+Subject: Re: [PATCH bpf-next v2 5/5] bpf/selftests: add simple selftest for
+ bpf_smc_ops
+Message-ID: <20241211051725.GA97570@j66a10360.sqa.eu95>
+References: <20241210040404.10606-1-alibuda@linux.alibaba.com>
+ <20241210040404.10606-6-alibuda@linux.alibaba.com>
+ <CAADnVQJisbHFpS2==pw4aOAmKsbo6m6EDvOBntF_ATMrbp0G=w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: Andrew Morton <akpm@linux-foundation.org>, eahariha@linux.microsoft.com,
- Jeff Johnson <jeff.johnson@oss.qualcomm.com>,
- Pablo Neira Ayuso <pablo@netfilter.org>,
- Jozsef Kadlecsik <kadlec@netfilter.org>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Julia Lawall <Julia.Lawall@inria.fr>, Nicolas Palix <nicolas.palix@imag.fr>,
- Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>,
- Robert Jarzmik <robert.jarzmik@free.fr>, Russell King
- <linux@armlinux.org.uk>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Ofir Bitton <obitton@habana.ai>,
- Oded Gabbay <ogabbay@kernel.org>, Lucas De Marchi
- <lucas.demarchi@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Jeroen de Borst <jeroendb@google.com>,
- Praveen Kaligineedi <pkaligineedi@google.com>,
- Shailend Chand <shailend@google.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- James Smart <james.smart@broadcom.com>,
- Dick Kennedy <dick.kennedy@broadcom.com>,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- =?UTF-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>,
- Jens Axboe <axboe@kernel.dk>, Kalle Valo <kvalo@kernel.org>,
- Jeff Johnson <jjohnson@kernel.org>, Catalin Marinas
- <catalin.marinas@arm.com>, Jack Wang <jinpu.wang@cloud.ionos.com>,
- Marcel Holtmann <marcel@holtmann.org>,
- Johan Hedberg <johan.hedberg@gmail.com>,
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Florian Fainelli <florian.fainelli@broadcom.com>, Ray Jui
- <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Xiubo Li <xiubli@redhat.com>,
- Ilya Dryomov <idryomov@gmail.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
- Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
- Petr Mladek <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- Louis Peens <louis.peens@corigine.com>, Michael Ellerman
- <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Naveen N Rao <naveen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, cocci@inria.fr,
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
- dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
- linux-scsi@vger.kernel.org, xen-devel@lists.xenproject.org,
- linux-block@vger.kernel.org, linux-wireless@vger.kernel.org,
- ath11k@lists.infradead.org, linux-mm@kvack.org,
- linux-bluetooth@vger.kernel.org, linux-staging@lists.linux.dev,
- linux-rpi-kernel@lists.infradead.org, ceph-devel@vger.kernel.org,
- live-patching@vger.kernel.org, linux-sound@vger.kernel.org,
- oss-drivers@corigine.com, linuxppc-dev@lists.ozlabs.org,
- Anna-Maria Behnsen <anna-maria@linutronix.de>
-Subject: Re: [PATCH v3 00/19] Converge on using secs_to_jiffies()
-To: Jakub Kicinski <kuba@kernel.org>
-References: <20241210-converge-secs-to-jiffies-v3-0-ddfefd7e9f2a@linux.microsoft.com>
- <315e9178-5b10-4de0-bdcf-7243e0e355bb@oss.qualcomm.com>
- <20241210153604.cf99699f264f12740ffce5c7@linux-foundation.org>
- <20241210173548.5d32efe0@kernel.org>
- <20241210183130.81111d05148c41278a299aad@linux-foundation.org>
- <20241210184129.41aaf371@kernel.org>
-From: Easwar Hariharan <eahariha@linux.microsoft.com>
-Content-Language: en-US
-In-Reply-To: <20241210184129.41aaf371@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAADnVQJisbHFpS2==pw4aOAmKsbo6m6EDvOBntF_ATMrbp0G=w@mail.gmail.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-On 12/10/2024 6:41 PM, Jakub Kicinski wrote:
-> On Tue, 10 Dec 2024 18:31:30 -0800 Andrew Morton wrote:
->>>> I'll just grab everything and see if anyone complains ;)  
->>>
->>> I may, if this leads to a conflict :(  
->>
->> Very unlikely, and any such conflict will be trivial.
+On Tue, Dec 10, 2024 at 10:01:38AM -0800, Alexei Starovoitov wrote:
+> On Mon, Dec 9, 2024 at 8:04 PM D. Wythe <alibuda@linux.alibaba.com> wrote:
+> >
+> > +SEC("struct_ops/bpf_smc_set_tcp_option_cond")
+> > +int BPF_PROG(bpf_smc_set_tcp_option_cond, const struct tcp_sock *tp, struct inet_request_sock *ireq)
+> > +{
+> > +       return 0;
+> > +}
+> > +
+> > +SEC("struct_ops/bpf_smc_set_tcp_option")
+> > +int BPF_PROG(bpf_smc_set_tcp_option, struct tcp_sock *tp)
+> > +{
+> > +       return 1;
+> > +}
+> > +
+> > +SEC(".struct_ops.link")
+> > +struct smc_ops  sample_smc_ops = {
+> > +       .name                   = "sample",
+> > +       .set_option             = (void *) bpf_smc_set_tcp_option,
+> > +       .set_option_cond        = (void *) bpf_smc_set_tcp_option_cond,
+> > +};
 > 
-> Agreed, mainly I don't understand why we'd make an exception
-> and take the patchset via a special tree.
+> These stubs don't inspire confidence that smc_ops api
+> will be sufficient.
+> Please implement a real bpf prog that demonstrates the actual use case.
 > 
->>> Easwar, please break this up per subsystem.  
->>
->> The series is already one-patch-per-changed-file.
-> 
-> More confusingly still, they did send one standalone patch for 
-> an Ethernet driver:
-> https://lore.kernel.org/all/20241210-converge-secs-to-jiffies-v3-20-59479891e658@linux.microsoft.com/
-> And yet another Ethernet driver (drivers/net/ethernet/google/gve/) 
-> is converted in this series.
+> See how bpf_cubic was done. On the day one it was implemented
+> as a parity to builtin cubic cong control.
+> And over years we didn't need to touch tcp_congestion_ops.
+> To be fair that api was already solid due to in-kernel cc modules,
+> but bpf comes with its own limitations, so it wasn't a guarantee
+> that tcp_congestion_ops would be enough.
+> Here you're proposing a brand new smc_ops api while bpf progs
+> are nothing but stubs. That's not sufficient to prove that api
+> is viable long term.
 
-Sorry about the confusion, I missed pulling the gve patch from this
-series. I'll send that (and ath11k) separately as well. I'll pull all
-these together into a series so you can merge them together if you prefer.
+Hi Alexei,
+
+Thanks a lot for your advices. I will add actual cases in the
+next version to prove why we need it.
+
+> 
+> In terms of look and feel the smc_ops look ok.
+> The change from v1 to v2 was a good step.
+
+I'm glad that you feel it looks okay. If you have any questions,
+please let me know.
 
 Thanks,
-Easwar
+D. Wythe
+
+> 
+> pw-bot: cr
