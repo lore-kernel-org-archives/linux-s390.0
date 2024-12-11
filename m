@@ -1,92 +1,159 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f201.google.com (mail-pg1-f201.google.com [209.85.215.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D19082080C5;
-	Wed, 11 Dec 2024 22:33:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD48A1F2C41
+	for <linux-s390@vger.kernel.org>; Wed, 11 Dec 2024 23:27:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733956381; cv=none; b=Lz9FFVnz6SMN/zLQecwibFgSyb1j1c7eY60Tp+uK2112Nv+JelSZcAEjW1kXdCFGUIhHha7hp8eKEjObXSBY+fDMwQf//j8MGBv922RiqkN9HMnglnERTSkEJWpfvXlhflnuQ9DIeZYUD/JE3YP+yklfPtIXG1ZmYCfoVWr82o0=
+	t=1733959680; cv=none; b=BBKNsq+hjvK1AQWnBKQUHRq8n88eB1eTPQtAwo/UcwxRUeU5CVx+/ZOavdlNETFYdltyDYt2rmd8Ge1ewWvTQemOzuxC32SRcsd1nKts9riw1YSNq38r+p1RNiARAY8mfdZADS5DseI1hZUkUzXZV5IhsPruAE9zbLFcpeUL064=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733956381; c=relaxed/simple;
-	bh=22J+gOpjU9cUBjJTCfbYoXOQOQ02vFL/kmDAmitv0Oc=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=fY5UEvozfHIZAp5lC8zqbdNd9Vi7etQCzkBM7Q6R7GDGZEUHp/xl+xBF3oyQ1IiHb3I91JaCbFsbaGQ84Xmgi0+7D0YYuV8w7mxbhQLb+vCVpAVuOt27xXKYeKoSoNbV3pk4Lj6btq/TplbIxhFRNDOuF3FxCGJLGkU1yc1J0qw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nWKDnM8z; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1733959680; c=relaxed/simple;
+	bh=tkYUgsJNBXav1rnN7mRsWNxCkvx1+/sVfFghfRuojcE=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=X+HWoQhGgoeXiApCVU25FkSv4BWtZiZ9JGMNCguW81aA3BH8Idgbqr2qCPQRW70jD+Vexjbqhx81L7YNJ/aobm+duK5QEA+JJHOBcnNNCI2sgBWEmPG80eM4LTSAzSFGdDQqmNA26FQfezi9v/N3GeETt3Ng0nqylxkR33fuGwU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--kaleshsingh.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=iU7GxywT; arc=none smtp.client-ip=209.85.215.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--kaleshsingh.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nWKDnM8z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A92BFC4CED2;
-	Wed, 11 Dec 2024 22:33:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1733956381;
-	bh=22J+gOpjU9cUBjJTCfbYoXOQOQ02vFL/kmDAmitv0Oc=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=nWKDnM8zbcIF2djxC8fiOIOI3aUWr7TPAJCWU7ymE3mh5w2HYnJyAIXKcD5Z/72Ik
-	 RXR4O9F/aU40PoBXvJ7XQXthLV2s4bsqOgfr50SDKFPRdnN9Us4sRkg4wVPA1v1sWs
-	 kmuwkRDqP/9t5kMphxqk619d2ax7wRCqOpRNHKzjgvwJVCBNZYsBwGByJZh6bRNViD
-	 yrqc1wHdhtHkBz1Bsd0sAtAVRFHXuN3A8nyxlLFqzm4TGzLspNaCqc2nuGjGhk5Ngr
-	 pRCorRCtj+x28DI2Z1vxcZ2g3p4dEWd2sTvDRfb/s5xPU/4+C8mw0GfDgU2OE3HHnZ
-	 3Ww2yKRibpabg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EACB2380A965;
-	Wed, 11 Dec 2024 22:33:18 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="iU7GxywT"
+Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-7f80959f894so1058139a12.1
+        for <linux-s390@vger.kernel.org>; Wed, 11 Dec 2024 15:27:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1733959678; x=1734564478; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=5Y13tezS9osfEyeZZhDu0hB4QwVrkWFM3vdAGWXDL0s=;
+        b=iU7GxywTPRhv00BP/fgEg0NmrmdoZvsb18J0qNknuA9FMsK90V2SUmf3EHvcZEMqxJ
+         2K0leJKkuL/h0g5LyguBhaAzdCwf/ixV35hU2N28UlRo3iDCexPyZJlZ8ADVsUbzQdSu
+         36f6fBihpDkgrvms7FyRKG90XrZdvglESUBx38od50WwLvZKwzAq1mdoFtMhJK5InUC2
+         2maZR+72rUQpReNpLsRqs44RtGvHjZvqOxXIt3BomWgB01Pu7FsM0OeM7kooK/j+MkHg
+         7sUfGhlRaKTjZr3YSiu0HnafSMsqeck/TWmmYHeBvKSEXWEpIpYD65lm/dCdHhJMAwbD
+         3fsw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733959678; x=1734564478;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=5Y13tezS9osfEyeZZhDu0hB4QwVrkWFM3vdAGWXDL0s=;
+        b=umQFmBFVb7kJ0/IQwTuqjlC9H4i5TxWFtwqPP7hiUTmuOSXnozC+bdujKNcX7VNCa8
+         SwmwwM6W4dO+j+fd4ibLKyeu+kiyjlH7OCNIxNDsyG5Pafkd3yqujMZMj6KBRH0ERgy8
+         k6/AK8fPApKXFzU1DQR1O/HOrYcbCBbW3KTW+EXxU4SfbIouXTHnUb+hPIfODgEByMGf
+         4iLYX+SSzR1f6fMTmnDnskBuIvjWoX7Q/LkNNo8rum6pMz1rOI8gWnlCwBRZA7odr5Oa
+         M6ysY1CvH9Q+tPWZk7sJT3YbvZSrqBgaM3Xp35jzlZSrotnnpOImdzi945sgwkdPMgHz
+         AsUA==
+X-Forwarded-Encrypted: i=1; AJvYcCWewOB6MU+1qBQJd03c9JfCLgizg060ZOVETCXZsKVf+VB41FEFV2hgOV2O5icPJ3hu78Gn+dlALizP@vger.kernel.org
+X-Gm-Message-State: AOJu0YzBUV5cXUmc0dDrtalY2n+MESXdRHTWXeSfs1ms3S/dszwG7pvh
+	cowgPJOgDpFm8MpvHjbW1uYUDvjYBg26a4eOqzFuzExexQy1q4DFPeA/YoY1qGJqLSuvBQpwCqT
+	knRJKhgnrqJWLfdPBES7cPA==
+X-Google-Smtp-Source: AGHT+IH+hxwnbTejsd5rMe6ZdiiLsQVYXh76CpSNZ1O0EO7ZME4Z+uiov/c6u6U8sBeYTnWqfHb7LFZNMZjeMUedcw==
+X-Received: from pjj11.prod.google.com ([2002:a17:90b:554b:b0:2ef:9866:6155])
+ (user=kaleshsingh job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a17:90b:1f81:b0:2e2:c2b0:d03e with SMTP id 98e67ed59e1d1-2f13abc6e43mr1624666a91.5.1733959677870;
+ Wed, 11 Dec 2024 15:27:57 -0800 (PST)
+Date: Wed, 11 Dec 2024 15:27:38 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2 0/2] ftrace: Make ftrace_regs abstract and consolidate code
-From: patchwork-bot+linux-riscv@kernel.org
-Message-Id: 
- <173395639774.1729195.5975449690225774291.git-patchwork-notify@kernel.org>
-Date: Wed, 11 Dec 2024 22:33:17 +0000
-References: <20241008230527.674939311@goodmis.org>
-In-Reply-To: <20241008230527.674939311@goodmis.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, x86@kernel.org,
- mhiramat@kernel.org, mathieu.desnoyers@efficios.com, mark.rutland@arm.com,
- catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org,
- kernel@xen0n.name, mpe@ellerman.id.au, npiggin@gmail.com,
- christophe.leroy@csgroup.eu, naveen@kernel.org, maddy@linux.ibm.com,
- paul.walmsley@sifive.com, palmer@dabbelt.com, aou@eecs.berkeley.edu,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- borntraeger@linux.ibm.com, svens@linux.ibm.com, tglx@linutronix.de,
- mingo@kernel.org, bp@alien8.de, dave.hansen@linux.intel.com
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.47.0.338.g60cca15819-goog
+Message-ID: <20241211232754.1583023-1-kaleshsingh@google.com>
+Subject: [PATCH mm-unstable v2 00/16] mm: Introduce arch_mmap_hint()
+From: Kalesh Singh <kaleshsingh@google.com>
+To: akpm@linux-foundation.org, vbabka@suse.cz, yang@os.amperecomputing.com, 
+	riel@surriel.com, david@redhat.com, minchan@kernel.org, jyescas@google.com
+Cc: linux@armlinux.org.uk, tsbogend@alpha.franken.de, 
+	James.Bottomley@HansenPartnership.com, ysato@users.sourceforge.jp, 
+	dalias@libc.org, glaubitz@physik.fu-berlin.de, davem@davemloft.net, 
+	andreas@gaisler.com, tglx@linutronix.de, bp@alien8.de, 
+	dave.hansen@linux.intel.com, x86@kernel.org, chris@zankel.net, 
+	jcmvbkbc@gmail.com, bhelgaas@google.com, jason.andryuk@amd.com, 
+	leitao@debian.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-csky@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, 
+	kernel-team@android.com, android-mm@google.com, 
+	Kalesh Singh <kaleshsingh@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Hello:
+Hi all,
 
-This series was applied to riscv/linux.git (fixes)
-by Steven Rostedt (Google) <rostedt@goodmis.org>:
+This is v2 othe the arch_mmap_hint() series.
 
-On Tue, 08 Oct 2024 19:05:27 -0400 you wrote:
-> This is based on:
-> 
->   https://git.kernel.org/pub/scm/linux/kernel/git/trace/linux-trace.git/
->      ftrace/for-next
-> 
-> ftrace_regs was created to hold registers that store information to save
-> function parameters, return value and stack. Since it is a subset of
-> pt_regs, it should only be used by its accessor functions. But because
-> pt_regs can easily be taken from ftrace_regs (on most archs), it is
-> tempting to use it directly. But when running on other architectures, it
-> may fail to build or worse, build but crash the kernel!
-> 
-> [...]
+Changes in v2:
+  - MAP_FIXED case is also handled in arch_mmap_hint() since this is just a
+    special case of the hint addr being "enforced", per Yang Shi.
+  - Consolidate most of the error handling in arch_mmap_hint().
+  - Patch 16 ("mm: Fallback to generic_mmap_hint()") was folded into
+    Patch 2 ("mm: x86: Introduce arch_mmap_hint()")
 
-Here is the summary with links:
-  - [v2,1/2] ftrace: Make ftrace_regs abstract from direct use
-    https://git.kernel.org/riscv/c/7888af4166d4
-  - [v2,2/2] ftrace: Consolidate ftrace_regs accessor functions for archs using pt_regs
-    (no matching commit)
+v1: https://lore.kernel.org/r/20241210024119.2488608-1-kaleshsingh@google.com/
 
-You are awesome, thank you!
+=======
+
+This series introduces arch_mmap_hint() to handle allocating VA space
+for the hint address.
+
+Patches 1-16 introduce this new helper and Patch 17 uses it to fix the
+issue of mmap hint being ignored in some cases due to THP alignment [1]
+
+[1] https://lore.kernel.org/r/20241118214650.3667577-1-kaleshsingh@google.com/
+
+Thanks,
+Kalesh
+
+
+Kalesh Singh (16):
+  mm: Introduce generic_mmap_hint()
+  mm: x86: Introduce arch_mmap_hint()
+  mm: arm: Introduce arch_mmap_hint()
+  mm: alpha: Introduce arch_mmap_hint()
+  mm: arc: Use generic_mmap_hint()
+  mm: csky: Introduce arch_mmap_hint()
+  mm: loongarch: Introduce arch_mmap_hint()
+  mm: mips: Introduce arch_align_mmap_hint()
+  mm: parisc: Introduce arch_align_mmap_hint()
+  mm: s390: Use generic_mmap_hint()
+  mm: sh: Introduce arch_mmap_hint()
+  mm: sparc32: Introduce arch_mmap_hint()
+  mm: sparc64: Introduce arch_mmap_hint()
+  mm: xtensa: Introduce arch_mmap_hint()
+  mm: powerpc: Introduce arch_mmap_hint()
+  mm: Respect mmap hint before THP alignment if allocation is possible
+
+ arch/alpha/include/asm/pgtable.h           |   1 +
+ arch/alpha/kernel/osf_sys.c                |  31 +++---
+ arch/arc/include/asm/pgtable.h             |   1 +
+ arch/arc/mm/mmap.c                         |  43 +++++----
+ arch/arm/include/asm/pgtable.h             |   1 +
+ arch/arm/mm/mmap.c                         | 107 +++++++++------------
+ arch/csky/abiv1/inc/abi/pgtable-bits.h     |   1 +
+ arch/csky/abiv1/mmap.c                     |  68 +++++++------
+ arch/loongarch/include/asm/pgtable.h       |   1 +
+ arch/loongarch/mm/mmap.c                   |  49 +++++-----
+ arch/mips/include/asm/pgtable.h            |   1 +
+ arch/mips/mm/mmap.c                        |  50 +++++-----
+ arch/parisc/include/asm/pgtable.h          |   1 +
+ arch/parisc/kernel/sys_parisc.c            |  53 +++++-----
+ arch/powerpc/include/asm/book3s/64/slice.h |   1 +
+ arch/powerpc/mm/book3s64/slice.c           |  31 ++++++
+ arch/s390/include/asm/pgtable.h            |   1 +
+ arch/s390/mm/mmap.c                        |  51 +++++-----
+ arch/sh/include/asm/pgtable.h              |   1 +
+ arch/sh/mm/mmap.c                          |  83 ++++++----------
+ arch/sparc/include/asm/pgtable_32.h        |   1 +
+ arch/sparc/include/asm/pgtable_64.h        |   1 +
+ arch/sparc/kernel/sys_sparc_32.c           |  33 ++++---
+ arch/sparc/kernel/sys_sparc_64.c           |  96 +++++++-----------
+ arch/x86/include/asm/pgtable_64.h          |   1 +
+ arch/x86/kernel/sys_x86_64.c               |  64 ++++++------
+ arch/xtensa/kernel/syscall.c               |  31 ++++--
+ include/linux/sched/mm.h                   |   9 ++
+ mm/huge_memory.c                           |  17 ++--
+ mm/mmap.c                                  |  86 +++++++++++------
+ 30 files changed, 491 insertions(+), 424 deletions(-)
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.47.0.338.g60cca15819-goog
 
