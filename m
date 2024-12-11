@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A4CA2063EA;
-	Wed, 11 Dec 2024 22:32:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 567F4206F11;
+	Wed, 11 Dec 2024 22:32:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733956375; cv=none; b=YhMZ8JNnovSvW44MS0/NyasMHPIKtIhp2bqwPgiO2VtlSiV8KLXWIaXjqKNY53Db/z/yKugCeYraLqJSqxrH0sWMTIAy6tOK3F3DD4UGteGcYXoSmvL7ts8R3AQlloSxoq2jxDgRJQ33JiTVx5j3AiMIUSjquSTThC7pNQSdnzk=
+	t=1733956376; cv=none; b=loqAeG45tfYkpfj5EIC3DV7/2LvW8YhGsCgSOjG9on38Re7XUs2yX58o7eeWsvX21eM0zTiO53BHey4I1LObaeGUzSWaQ/NMPdF6SYLrrvrm560eEeDZuJQoW5UBtzvXqkFv0+iERTAY4YeCUhfP9xarmG35h9EkyvliMyDqb4w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733956375; c=relaxed/simple;
-	bh=29u5B09z/mNiOUipvbCAR8d/HfuJKD9vMPDnfCmrneU=;
+	s=arc-20240116; t=1733956376; c=relaxed/simple;
+	bh=1MJ06IwhKiUOka6t13pDPzzxerzMi81atHP/6c9+22c=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=I8SEnBthGNtu76sMssaHt4AQXBTItLIGBBYK44W+zhzbBCmbh+UUTudFAerDuWGImnKv8pvG4YSz3CVgW/1XEfKzQhaukImnIT/ElN3Z8W8lTS6izRAeNOVrgttt35XgYVpC8uQw+wVQOnj84we5rhhReHOi9QI6yA2oYznwj2Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dnrDcNkO; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=eZ36vJSRX68Z8mxKCxAuJUi7KRy+LEEF4oW6GIGdJa5DqWgDiOfweGYj8mQ8xsCCcsP4CEvwrIvZfulNURDzl299HhSc5OoCFSsYHaC6B5okkG4Iqh0go2FvBLlALhVfTZS3BGTAeCB4yleH3i6VZS9aOZMqNWKOGy9wOAGnSQg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Hia/ijUE; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dnrDcNkO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1C1BC4CED2;
-	Wed, 11 Dec 2024 22:32:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Hia/ijUE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A09FC4CED3;
+	Wed, 11 Dec 2024 22:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1733956374;
-	bh=29u5B09z/mNiOUipvbCAR8d/HfuJKD9vMPDnfCmrneU=;
+	s=k20201202; t=1733956376;
+	bh=1MJ06IwhKiUOka6t13pDPzzxerzMi81atHP/6c9+22c=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=dnrDcNkOoxwSBjPjDdUGrvVokaL8PbY/29PjhRdPkvydqw8DxYooD5ABeBk3HzL/N
-	 76xby5lMWnFghEv7vC3hF+lPCP97eOVPUwp3+ZSkE4SEdqJhuc4M4tsMuMgquf/1Sh
-	 MR1GipeeO24AReN6/ejtJZElR5CRC8RyZljN784IO+9YPc2RBnMzEXA7w+OQ/yoYqa
-	 adhGvjnBGfHafNdP3219wtIr4V6sPs3ti0dnt0aZa1Z6WSjl0+E+Zb5OzErlTpRYgu
-	 UkzyIpABUuFP1nVewt4cL6HBuOiiJYxbTNdocbttNyq8XlE99Zmw+EmsHH8rPlCKUB
-	 H5x4fe1dWfyKw==
+	b=Hia/ijUEuZBroxj7nHTcTLUeY0lUzwbIDShfmCnvrhgwkWkpcTiJx7pJ1rDHrcbYd
+	 v9xc5XYWsKCanEQ84GJFDJY00b2HgNbwArL4F0yC9b3PGcwDDt8RjKLjKLEhKLhhcd
+	 fmxIfg3UO49ThB7NCaSOMylOZeYdgxA9dXMqt5Zh24qGuiC5PnXYEzmSSsUEGzlsGM
+	 QIuCwUtbYZSKHZWQsPR/5JQlLYffzh4qHAuBe3D1CDOd8aIWP34Q5xS6MsQDi3t00y
+	 2Sa/0R/Urbix0SVQmgQhhgfeqd/s3orjw+NRpayKDn0m9Fbd2FqUvFGpLePlE4DJR6
+	 KkGTKHdygfE8A==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAD93380A965;
-	Wed, 11 Dec 2024 22:33:11 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 710A8380A965;
+	Wed, 11 Dec 2024 22:33:13 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -37,49 +37,102 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v3] ftrace: Consolidate ftrace_regs accessor functions for
- archs using pt_regs
+Subject: Re: [PATCH 00/28] vdso: Preparations for generic data storage
 From: patchwork-bot+linux-riscv@kernel.org
 Message-Id: 
- <173395639050.1729195.18342749493985130890.git-patchwork-notify@kernel.org>
-Date: Wed, 11 Dec 2024 22:33:10 +0000
-References: <20241010202114.2289f6fd@gandalf.local.home>
-In-Reply-To: <20241010202114.2289f6fd@gandalf.local.home>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, x86@kernel.org,
- mhiramat@kernel.org, mathieu.desnoyers@efficios.com, mark.rutland@arm.com,
- catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org,
- kernel@xen0n.name, mpe@ellerman.id.au, npiggin@gmail.com,
- christophe.leroy@csgroup.eu, naveen@kernel.org, maddy@linux.ibm.com,
+ <173395639200.1729195.15576952837564128066.git-patchwork-notify@kernel.org>
+Date: Wed, 11 Dec 2024 22:33:12 +0000
+References: <20241010-vdso-generic-base-v1-0-b64f0842d512@linutronix.de>
+In-Reply-To: <20241010-vdso-generic-base-v1-0-b64f0842d512@linutronix.de>
+To: =?utf-8?q?Thomas_Wei=C3=9Fschuh_=3Cthomas=2Eweissschuh=40linutronix=2Ede=3E?=@aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org
+Cc: linux-riscv@lists.infradead.org, guoren@kernel.org, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, catalin.marinas@arm.com, will@kernel.org,
  paul.walmsley@sifive.com, palmer@dabbelt.com, aou@eecs.berkeley.edu,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- borntraeger@linux.ibm.com, svens@linux.ibm.com, tglx@linutronix.de,
- mingo@kernel.org, bp@alien8.de, dave.hansen@linux.intel.com
+ linux@armlinux.org.uk, chenhuacai@kernel.org, kernel@xen0n.name,
+ tytso@mit.edu, Jason@zx2c4.com, tsbogend@alpha.franken.de,
+ dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org,
+ tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org,
+ hpa@zytor.com, mpe@ellerman.id.au, npiggin@gmail.com,
+ christophe.leroy@csgroup.eu, naveen@kernel.org, maddy@linux.ibm.com,
+ vincenzo.frascino@arm.com, linux-csky@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ namcao@linutronix.de
 
 Hello:
 
-This patch was applied to riscv/linux.git (fixes)
-by Steven Rostedt (Google) <rostedt@goodmis.org>:
+This series was applied to riscv/linux.git (fixes)
+by Thomas Gleixner <tglx@linutronix.de>:
 
-On Thu, 10 Oct 2024 20:21:14 -0400 you wrote:
-> From: Steven Rostedt <rostedt@goodmis.org>
-> 
-> Most architectures use pt_regs within ftrace_regs making a lot of the
-> accessor functions just calls to the pt_regs internally. Instead of
-> duplication this effort, use a HAVE_ARCH_FTRACE_REGS for architectures
-> that have their own ftrace_regs that is not based on pt_regs and will
-> define all the accessor functions, and for the architectures that just use
-> pt_regs, it will leave it undefined, and the default accessor functions
-> will be used.
+On Thu, 10 Oct 2024 09:01:02 +0200 you wrote:
+> Historically each architecture defined their own datapage to store the
+> VDSO data. This stands in contrast to the generic nature of the VDSO
+> code itself.
+> We plan to introduce a generic framework for the management of the VDSO
+> data storage that can be used by all architectures and which works
+> together with the existing generic VDSO code.
 > 
 > [...]
 
 Here is the summary with links:
-  - [v3] ftrace: Consolidate ftrace_regs accessor functions for archs using pt_regs
-    https://git.kernel.org/riscv/c/e4cf33ca4812
+  - [01/28] csky/vdso: Remove gettimeofday() and friends from VDSO
+    (no matching commit)
+  - [02/28] csky/vdso: Remove arch_vma_name()
+    (no matching commit)
+  - [03/28] s390/vdso: Drop LBASE_VDSO
+    (no matching commit)
+  - [04/28] arm64: vdso: Drop LBASE_VDSO
+    (no matching commit)
+  - [05/28] arm64: vdso: Use only one single vvar mapping
+    (no matching commit)
+  - [06/28] riscv: vdso: Use only one single vvar mapping
+    https://git.kernel.org/riscv/c/d34b60752fcb
+  - [07/28] arm: vdso: Remove assembly for datapage access
+    (no matching commit)
+  - [08/28] LoongArch: vDSO: Use vdso/datapage.h to access vDSO data
+    (no matching commit)
+  - [09/28] MIPS: vdso: Avoid name conflict around "vdso_data"
+    (no matching commit)
+  - [10/28] x86/mm/mmap: Remove arch_vma_name()
+    (no matching commit)
+  - [11/28] x86: vdso: Use __arch_get_vdso_data() to access vdso data
+    (no matching commit)
+  - [12/28] x86: vdso: Place vdso_data at beginning of vvar page
+    (no matching commit)
+  - [13/28] x86: vdso: Access rng data from kernel without vvar
+    (no matching commit)
+  - [14/28] x86: vdso: Allocate vvar page from C code
+    (no matching commit)
+  - [15/28] x86: vdso: Access timens vdso data without vvar.h
+    (no matching commit)
+  - [16/28] x86: vdso: Access rng vdso data without vvar.h
+    (no matching commit)
+  - [17/28] x86: vdso: Move the rng offset to vsyscall.h
+    (no matching commit)
+  - [18/28] x86: vdso: Access vdso data without vvar.h
+    (no matching commit)
+  - [19/28] x86: vdso: Delete vvar.h
+    (no matching commit)
+  - [20/28] x86: vdso: Split virtual clock pages into dedicated mapping
+    (no matching commit)
+  - [21/28] powerpc: vdso: Remove offset comment from 32bit vdso_arch_data
+    (no matching commit)
+  - [22/28] powerpc: procfs: Propagate error of remap_pfn_range()
+    (no matching commit)
+  - [23/28] powerpc/pseries/lparcfg: Fix printing of system_active_processors
+    (no matching commit)
+  - [24/28] powerpc/pseries/lparcfg: Use num_possible_cpus() for potential processors
+    (no matching commit)
+  - [25/28] powerpc: Add kconfig option for the systemcfg page
+    (no matching commit)
+  - [26/28] powerpc: Split systemcfg data out of vdso data page
+    (no matching commit)
+  - [27/28] powerpc: Split systemcfg struct definitions out from vdso
+    (no matching commit)
+  - [28/28] vdso: Rename struct arch_vdso_data to arch_vdso_time_data
+    (no matching commit)
 
 You are awesome, thank you!
 -- 
