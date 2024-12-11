@@ -1,67 +1,67 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDD70233687;
-	Wed, 11 Dec 2024 13:36:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 911DF1494CC;
+	Wed, 11 Dec 2024 16:19:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733924167; cv=none; b=aySCjTonL0Px+limW/cOG75N3IDhFOMKuBUu80n1KL9QMnZKvK11jLml5IyudenOdKhwdxClLeVi6Sq2xoxvhhu5vxcI7JHbNJrhfR1GTJH3uv7imBa7iOlSgtl8++Ail4G32oFY9baK//7dPNkjprkXEfC9BzPofQcFWpoz3rE=
+	t=1733933969; cv=none; b=mPa5RLvvBgBHhY1ZcS71UvmunDo0P5EV6BMPlS/peO1urYRcVcClzYR1+8dYVnD3X+1rN+dvgZxzyFaUpnXMBxBbkJN/5nVQmLHY6nmvAhQtt26OJJKfrVVsf0zcreXEt8J+p253wXHhLO4+w4ran6hZxwGwH0NnI7HPnw0tN9w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733924167; c=relaxed/simple;
-	bh=Nx2OtLznPMrYylAFzfby0Fi4vm/scTkyO7y2Bx9GMp0=;
+	s=arc-20240116; t=1733933969; c=relaxed/simple;
+	bh=lDhD6+tDZspQ1OCjLzfC0gYXFIjw9MVva4rDHo5opI8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dy5+JT6np6cZ+HK7/Oyvye3KZCQ2kd/AXL3FZEBoTXwOfl6SHLQkqnmDWn2XkbKQHKB3eqs3kJbl6mdFbJTfL/W7x/jHJE1o/RMxM4ictDKxLCcUAqKUh0FTYIjLH6lMAE6sQWJkJjlo0TMAaw9b3nguQrq/56sB+TbaTfq2rm4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Uuy6mqcM; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=CRQv30wJnwwAMsQSS29wqJZQ/zbWRZvj5kFbp5KjHbFVbtdIo5Mabd31wKsGomgfp+j2EgyFe9uJv397RqJ8tN7Z2pu6gjfa4xo+zYRL9H3M0bIU21jPS91HDf5V3Z+R8Q4SAkq8RvN6/YTPNz42xvi/w2ZhHfVy8hojoWL1SLw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=I0tQxVPw; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Uuy6mqcM"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="I0tQxVPw"
 Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BBAbVJ8026694;
-	Wed, 11 Dec 2024 13:35:54 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BBC3GkQ025935;
+	Wed, 11 Dec 2024 16:19:16 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=83Mm14
-	vPTCxgTAsRML9zi54L/sMJzjl1PVd6kBYPl0g=; b=Uuy6mqcMmlKkni9mu9IkIT
-	pZubqxO+NamKv/6XTMFzT418bh3/K17nb7Wjha7yo7gsRjHfldogRx4eVszsIr97
-	qnsXbAevt5B0yV48Nut+9JmXftiRLL5ISH+ZOREl0qNgcZ7FxnmS3EKfSPqSmro5
-	WkOOECI8ZqPwymdt7Kmkd5NwYybb4ZhBDG50tboXZIBP49ZnRtC8C9WakCO7ggx4
-	GoTAY1Pk0ankqcCTVCI+BciyrRYZtFr8ybuQtnJni3V1OjW69Cm33yalh8aQSvNn
-	hA8tInjSMHgW0N7CX9/tj2S2kUhBeLr/RC+MMDiNbEnBdEsVkH4Vl9PuLu6O90Xg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=3htUVI
+	B/OArTLncn1KO884Dr6D0HlSVp2bxsBLN0V80=; b=I0tQxVPwgd0w2yu3ZcJKBT
+	oEFIj5na/4MP4DG4AnGPVgq/cR68sS7M0xcBjKyqucm3WzqMMHccPkmoXWxC5mw4
+	1JIWS7OwAp1zF7gsBsS17ajrukWtRaEGfIDLk/tfdLTnv21dPGw7epkOt0+fxwT0
+	yTQdry0iqemaITrQz0GESpgFXD7O5omHG2dA12kfZqhdPi5IOPkxGEIBJvYMkrjQ
+	ZxLJD72vXGydTb3D+AfMwU2S9CIuloV0D9PrEItxb8WOkXb5iik4t0t5zlueVPFA
+	4TFNQdlu3E3C97thIQxBQzgQ2GfeUn0bYsqjdkLFunBloBAdsMrx4AzoIKejmOXw
 	==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43cbsqcpup-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43cbsqdms5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Dec 2024 13:35:53 +0000 (GMT)
+	Wed, 11 Dec 2024 16:19:15 +0000 (GMT)
 Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4BBDX6fC029033;
-	Wed, 11 Dec 2024 13:35:52 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43cbsqcpug-1
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4BBFx7CY013823;
+	Wed, 11 Dec 2024 16:19:14 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43cbsqdmrw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Dec 2024 13:35:52 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BBD6rIY000572;
-	Wed, 11 Dec 2024 13:35:52 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43d1pn9n7y-1
+	Wed, 11 Dec 2024 16:19:14 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BBFt862016919;
+	Wed, 11 Dec 2024 16:19:14 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43d12yamhs-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Dec 2024 13:35:51 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BBDZmMR48103920
+	Wed, 11 Dec 2024 16:19:13 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BBGJAte64029050
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 11 Dec 2024 13:35:48 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3BD662004B;
-	Wed, 11 Dec 2024 13:35:48 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EEDEC20040;
-	Wed, 11 Dec 2024 13:35:47 +0000 (GMT)
+	Wed, 11 Dec 2024 16:19:10 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E574720043;
+	Wed, 11 Dec 2024 16:19:09 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8411020040;
+	Wed, 11 Dec 2024 16:19:09 +0000 (GMT)
 Received: from [9.152.224.44] (unknown [9.152.224.44])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 11 Dec 2024 13:35:47 +0000 (GMT)
-Message-ID: <54738182-3438-4a58-8c33-27dc20a4b3fe@linux.ibm.com>
-Date: Wed, 11 Dec 2024 14:35:47 +0100
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 11 Dec 2024 16:19:09 +0000 (GMT)
+Message-ID: <54945b8c-8328-4c34-982c-9a92ebab5b1c@linux.ibm.com>
+Date: Wed, 11 Dec 2024 17:19:09 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -70,147 +70,93 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH net-next] net/mlx5e: Transmit small messages in linear skb
-To: Alexander Lobakin <aleksander.lobakin@intel.com>,
-        Dragos Tatulea <dtatulea@nvidia.com>
+Content-Language: en-US
+To: Dragos Tatulea <dtatulea@nvidia.com>, Eric Dumazet <edumazet@google.com>
 Cc: Rahul Rameshbabu <rrameshbabu@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>, Tariq Toukan <tariqt@nvidia.com>,
         Leon Romanovsky <leon@kernel.org>, David Miller <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
         Andrew Lunn <andrew+netdev@lunn.ch>,
         Nils Hoppmann <niho@linux.ibm.com>, netdev@vger.kernel.org,
         linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Thorsten Winkler <twinkler@linux.ibm.com>,
         Simon Horman <horms@kernel.org>,
         Niklas Schnelle <schnelle@linux.ibm.com>
 References: <20241204140230.23858-1-wintera@linux.ibm.com>
- <a8e529b2-1454-4c3f-aa49-b3d989e1014a@intel.com>
- <8e7f3798-c303-44b9-ae3f-5343f7f811e8@linux.ibm.com>
- <554a3061-5f3b-4a7e-a9bd-574f2469f96e@nvidia.com>
- <bc9459f0-62b0-407f-9caf-d80ee37eb581@intel.com>
-Content-Language: en-US
+ <CANn89i+DX-b4PM4R2uqtcPmztCxe_Onp7Vk+uHU4E6eW1H+=zA@mail.gmail.com>
+ <CANn89iJZfKntPrZdC=oc0_8j89a7was90+6Fh=fCf4hR7LZYSQ@mail.gmail.com>
+ <b966eb7b-2acd-460d-a84c-4d2f58526f58@linux.ibm.com>
+ <82c14009-da71-4c2a-920c-7d32fcb1ffcb@nvidia.com>
 From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <bc9459f0-62b0-407f-9caf-d80ee37eb581@intel.com>
+In-Reply-To: <82c14009-da71-4c2a-920c-7d32fcb1ffcb@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2w-Kl8r3XbVrtkmVuh3bDXP2BaosYrL1
-X-Proofpoint-GUID: -Ph2-HwnIgstGyLMG9Mj4OlSGqU9Shto
+X-Proofpoint-ORIG-GUID: Yqdbb3MOQ2heAcNv5AyX0YV9oW-1ndzA
+X-Proofpoint-GUID: 3QCj56shnCBGi3NEw4a2xKB2INHVwDV0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 adultscore=0
- lowpriorityscore=0 clxscore=1011 phishscore=0 impostorscore=0
+ lowpriorityscore=0 clxscore=1015 phishscore=0 impostorscore=0
  suspectscore=0 spamscore=0 mlxscore=0 priorityscore=1501 malwarescore=0
  bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2412110099
+ engine=8.19.0-2411120000 definitions=main-2412110111
 
 
 
-On 10.12.24 14:54, Alexander Lobakin wrote:
-> From: Dragos Tatulea <dtatulea@nvidia.com>
-> Date: Tue, 10 Dec 2024 12:44:04 +0100
+On 10.12.24 12:49, Dragos Tatulea wrote:
 > 
+> 
+> On 06.12.24 16:25, Alexandra Winter wrote:
 >>
 >>
->> On 06.12.24 16:20, Alexandra Winter wrote:
+>> On 04.12.24 15:36, Eric Dumazet wrote:
+>>> I would suggest the opposite : copy the headers (typically less than
+>>> 128 bytes) on a piece of coherent memory.
 >>>
+>>> As a bonus, if skb->len is smaller than 256 bytes, copy the whole skb.
 >>>
->>> On 04.12.24 15:32, Alexander Lobakin wrote:
->>>>> @@ -269,6 +270,10 @@ static void mlx5e_sq_xmit_prepare(struct mlx5e_txqsq *sq, struct sk_buff *skb,
->>>>>  {
->>>>>  	struct mlx5e_sq_stats *stats = sq->stats;
->>>>>  
->>>>> +	/* Don't require 2 IOMMU TLB entries, if one is sufficient */
->>>>> +	if (use_dma_iommu(sq->pdev) && skb->truesize <= PAGE_SIZE)
->>>    +		skb_linearize(skb);
->>>> 1. What's with the direct DMA? I believe it would benefit, too?
+>>> include/net/tso.h and net/core/tso.c users do this.
 >>>
->>>
->>> Removing the use_dma_iommu check is fine with us (s390). It is just a proposal to reduce the impact.
->>> Any opinions from the NVidia people?
->>>
->> Agreed.
+>>> Sure, patch is going to be more invasive, but all arches will win.
 >>
->>>
->>>> 2. Why truesize, not something like
->>>>
->>>> 	if (skb->len <= some_sane_value_maybe_1k)
->>>
->>>
->>> With (skb->truesize <= PAGE_SIZE) the whole "head" buffer fits into 1 page.
->>> When we set the threshhold at a smaller value, skb->len makes more sense
->>>
->>>
->>>>
->>>> 3. As Eric mentioned, PAGE_SIZE can be up to 256 Kb, I don't think
->>>>    it's a good idea to rely on this.
->>>>    Some test-based hardcode would be enough (i.e. threshold on which
->>>>    DMA mapping starts performing better).
->>>
->>>
->>> A threshhold of 4k is absolutely fine with us (s390). 
->>> A threshhold of 1k would definitvely improve our situation and bring back the performance for some important scenarios.
->>>
->>>
->>> NVidia people do you have any opinion on a good threshhold?
->>>
-
-On 09.12.24 12:36, Tariq Toukan wrote:
-> Hi,
-> 
-> Many approaches in the past few years are going the opposite direction, trying to avoid copies ("zero-copy").
-> 
-> In many cases, copy up to PAGE_SIZE means copy everything.
-> For high NIC speeds this is not realistic.
-> 
-> Anyway, based on past experience, threshold should not exceed "max header size" (128/256b).
-
->> 1KB is still to large. As Tariq mentioned, the threshold should not
->> exceed 128/256B. I am currently testing this with 256B on x86. So far no
->> regressions but I need to play with it more.
-> 
-> On different setups, usually the copybreak of 192 or 256 bytes was the
-> most efficient as well.
-> 
 >>
+>> Thank you very much for the examples, I think I understand what you are proposing.
+>> I am not sure whether I'm able to map it to the mlx5 driver, but I could
+>> try to come up with a RFC. It may take some time though.
+>>
+>> NVidia people, any suggesttions? Do you want to handle that yourselves?
+>>
+> Discussed with Saeed and he proposed another approach that is better for
+> us: copy the whole skb payload inline into the WQE if it's size is below a
+> threshold. This threshold can be configured through the
+> tx-copybreak mechanism.
+> 
+> Thanks,
+> Dragos
 
 
-Thank you very much, everybody for looking into this.
+Thank you very much Dargos and Saeed.
+I am not sure I understand the details of "inline into the WQE". 
+The idea seems to be to use a premapped coherent array per WQ 
+that is indexed by queue element index and can be used to copy headers and
+maybe small messages into.
+I think I see something similar to your proposal in mlx4 (?).
+To me the general concept seems to be similar to what Eric is proposing.
+Did I get it right?
 
-Unfortunately we are seeing these performance regressions with ConnectX-6 cards on s390
-and with this patch we get up to 12% more transactions/sec even for 1k messages.
+I really like the idea to use tx-copybreak for threshold configuration.
 
-As we're always using an IOMMU and are operating with large multi socket systems,
-DMA costs far outweigh the costs of small to medium memcpy()s on our system.
-We realize that the recommendation is to just run without IOMMU when performance is important,
-but this is not an option in our environment.
+As Eric mentioned that is not a very small patch and maybe not fit for backporting
+to older distro versions.
+What do you think of a two-step approach as described in the other sub-thread?
+A simple patch for mitigation that can be backported, and then the improvement
+as a replacement?
 
-I understand that the simple patch of calling skb_linearize() in mlx5 for small messages is not a
-strategic direction, it is more a simple mitigation of our problem.
-
-Whether it should be restricted to use_dma_iommu() or not is up to you and your measurements.
-We could even restrict it to S390 arch, if you want.
-
-A threshold of 256b would cover some amount of our typical request-response workloads
-(think database queries/updates), but we would prefer a higher number (e.g. 1k or 2k).
-Could we maybe define an architecture dependent threshold?
-
-My preferred scenario for the next steps would be the following:
-1) It would be great if we could get a simple mitigation patch upstream, that the distros could
-easily backport. This would avoid our customers experiencing performance regression when they
-upgrade their distro versions. (e.g. from RHEL8 to RHEL9 or RHEL10 just as an example)
-
-2) Then we could work on a more invasive solution. (see proposals by Eric, Dragos/Saeed).
-This would then replace the simple mitigation patch upstream, and future releases would contain 
-that solution. If somebody else wants to work on this improved version, fine with me, otherwise
-I could give it a try.
-
-What do you think of this approach?
-
-
+Thanks,
+Alexandra
