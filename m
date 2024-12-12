@@ -1,80 +1,92 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 855322135BE;
-	Thu, 12 Dec 2024 13:00:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9A33209F5F;
+	Thu, 12 Dec 2024 13:13:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734008415; cv=none; b=f0IIlNwF4TNfkLK7JloCcr5aqwV/ZSA5rDWPcij/LqlFf8+vYizrGlBQ4Mh1Xy5ccaBXeqaMYEOg2YKJ41k3xhZH+4nQejbgrdCCaZLbROQ1i5LiD+ewT/M2hcFi7CnXLnvaAdRzUzgCp/lVuqnAy2prcftaG/0sbfBnypk9smA=
+	t=1734009239; cv=none; b=Mr75rDuzyQdQuVBYNE6OKA2o9HY41O2BOBf6l+J9YibBfCzykyiZd65NHJIq66NVnhEtPgaHGmdVrntIBFQYoObLQlLAyqUxUBFw3nil3vnymJgI+wM46jwBqIpTqUTO1NFSgtJ6gTuiiYMcn1+1efwTAz3CGUstT3Yv09rlhVU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734008415; c=relaxed/simple;
-	bh=gCszh6ieTcAWNN1ZKvCTr91ve5Jd7QMeeXcGc472jL4=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=bVZa6L+1iIIlc7FVmic9Hg8wwtJDRJJdY1CPMJ1rElAt+76xmhH9xKT/8k2rcqao0I/bTrKy8l8xyMwXjIgk3iHD7/ji4W3nGLYIIwIpUfxK2IV8RMxPXubnUVRG0HgJN+owrYHWJJDxudPBMM+xxhTnQcCXiU+qohCznjZvZa0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QoFmKCK5; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1734009239; c=relaxed/simple;
+	bh=8ZxdqX3677DIbR7WzIe7BoYgv1eV+CE7CNkvztLo224=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=O7fGRqVjStJ+uqQCQa5S3GiTi6tYFxIe2jCTNyTSJLCZ4+Z8wOASZHMR1LVq/bvAd0T3j2nrwvnWSBooWAL8Qoo0dVwGVk0X4GIlTANaMSkvmroWHXUpy1y2d4IChU2m8xocpMbsE2pNLzRFxCWstlSIxGgJ5LW/kN/sKtYadjk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Yv+GVMEZ; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QoFmKCK5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1538DC4CECE;
-	Thu, 12 Dec 2024 13:00:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1734008415;
-	bh=gCszh6ieTcAWNN1ZKvCTr91ve5Jd7QMeeXcGc472jL4=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=QoFmKCK5/X1cobfRcFONkWWeBP+oWmH+If3d9lDT0h8otWFNVpvEnb9R0I57fyh3o
-	 aBQvt4fjocuGDshxHZKidStCCzPoYPZiuPPspPtGJm5Oc7hE+Uc+dD7KHeg/IRq5Sc
-	 eiEm/IlJEPl6WhG9NXyopO6b5Um4outhNCWfoSzghqc6VBGgJH0egU6pNvr0UXDjsk
-	 SDQ/bnzWtLclArDUFhY2/TcygVsJ1STZp1LGEp/KCRBCzLx+WqHr6dyGENS1GPvXQh
-	 zO4V35aNLNE2hul1RzL+TREY2zHA7lu/wV87Sa0/M1eMEaAnDVh8FpxfJMA/JnSqBQ
-	 u4gfo9cHN2x+Q==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7140B380A959;
-	Thu, 12 Dec 2024 13:00:32 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Yv+GVMEZ"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1734009230; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=I/mdsBc2XXbIj10bhSyyhla6NBjcnS9BYPIXBNq4lm0=;
+	b=Yv+GVMEZERG878asvO5T6KTBSxXTajRiksDeLqejOop9gA/lzM6gimThnScORpwQcAIiJqcZ7LdUJe5+0vENdiMpz83mvQARg+oGaFMRowac9N9ebeXjcEAsBQsqXVIuQCxyo0sFNTJ6r0UIx9nzz6JMPUbPfCjv+p0MBjSCfiA=
+Received: from 30.221.100.127(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WLLqqd-_1734009227 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 12 Dec 2024 21:13:49 +0800
+Message-ID: <a3535b6a-8bd9-4ab8-a2a1-8919927af9f1@linux.alibaba.com>
+Date: Thu, 12 Dec 2024 21:13:47 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next RESEND v3 0/2] net/smc: Two features for smc-r
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <173400843115.2294712.16537890153664787173.git-patchwork-notify@kernel.org>
-Date: Thu, 12 Dec 2024 13:00:31 +0000
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next RESEND v3 2/2] net/smc: support ipv4 mapped ipv6
+ addr client for smc-r v2
+To: Paolo Abeni <pabeni@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, horms@kernel.org,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Dust Li <dust.li@linux.alibaba.com>
 References: <20241211023055.89610-1-guangguan.wang@linux.alibaba.com>
-In-Reply-To: <20241211023055.89610-1-guangguan.wang@linux.alibaba.com>
-To: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, pasic@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- horms@kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+ <20241211023055.89610-3-guangguan.wang@linux.alibaba.com>
+ <20241211195440.54b37a79.pasic@linux.ibm.com>
+ <c67f6f4d-2291-41c8-8a89-aa0ae8f2ecd9@redhat.com>
+Content-Language: en-US
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+In-Reply-To: <c67f6f4d-2291-41c8-8a89-aa0ae8f2ecd9@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hello:
 
-This series was applied to netdev/net-next.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
 
-On Wed, 11 Dec 2024 10:30:53 +0800 you wrote:
-> v2 -> v3:
-> (https://lore.kernel.org/netdev/20241202125203.48821-1-guangguan.wang@linux.alibaba.com/)
-> Patch #1 add 'Reviewed-by' tag.
-> Patch #2 remove the condition when IPV6 is disabled, and change the
-> condition to an easier understanding way. Correct the typo and add
-> 'Reviewed-by' tag.
+On 2024/12/12 20:49, Paolo Abeni wrote:
+> On 12/11/24 19:54, Halil Pasic wrote:
+>> On Wed, 11 Dec 2024 10:30:55 +0800
+>> Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
+>>
+>>> AF_INET6 is not supported for smc-r v2 client before, even if the
+>>> ipv6 addr is ipv4 mapped. Thus, when using AF_INET6, smc-r connection
+>>> will fallback to tcp, especially for java applications running smc-r.
+>>> This patch support ipv4 mapped ipv6 addr client for smc-r v2. Clients
+>>> using real global ipv6 addr is still not supported yet.
+>>>
+>>> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+>>> Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+>>> Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+>>> Reviewed-by: D. Wythe <alibuda@linux.alibaba.com>
+>>> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+>>> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+>>
+>> Sorry for the late remark, but does this need a Fixes tag? I mean
+>> my gut feeling is that this is a bugfix -- i.e. should have been
+>> working from the get go -- and not a mere enhancement. No strong
+>> opinions here.
 > 
-> [...]
+> FTR: my take is this is really a new feature, as the ipv6 support for
+> missing from the smc-r v2 introduction and sub-system maintainers
+> already implicitly agreed on that via RB tags.
+> 
+> Cheers,
+> 
+> /P
 
-Here is the summary with links:
-  - [net-next,RESEND,v3,1/2] net/smc: support SMC-R V2 for rdma devices with max_recv_sge equals to 1
-    https://git.kernel.org/netdev/net-next/c/27ef6a9981fe
-  - [net-next,RESEND,v3,2/2] net/smc: support ipv4 mapped ipv6 addr client for smc-r v2
-    https://git.kernel.org/netdev/net-next/c/c12b2704a678
+Agree.
+This patch enlarges the scope of using SMCRv2, so I think it is a new feature.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Thanks,
+Guangguan Wang
