@@ -1,180 +1,155 @@
-Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87E011917D6;
-	Thu, 12 Dec 2024 20:12:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 523631422D4;
+	Thu, 12 Dec 2024 20:37:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.22
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734034327; cv=none; b=E545n1q1iKGJ4PPNz6UD2KXwwGnB4DlRhZ8izVB9qF5RbLjdhifml9g7z56CknYjfpRssRkov0Hg4M09Y4oWsV+xKzi25hw01sUyT0DU5OEf239e7x4mnWZqjtas1MkKOy1LGPL7uz8eGPdh1mYfrjCRcxw6LszVeEiuOQIbsOU=
+	t=1734035877; cv=none; b=SdrbItp+0zA74Pdiij/3RBi2zy0EJ+v6kxH17rSZoo1kKPaZAC9+Y/ktZoW4Lj30E3aPVkFyVe8OGJbDatFwW6D73pLExjKRz0cStdlXO2f/uGf3BF5DLES9rjYwT46StXz7z9LkHZ34WeAPmXZpPEkWWW2VLWKKmOSEK3tw8hI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734034327; c=relaxed/simple;
-	bh=ifgXMXPeJaw+0iXfb3YVtq+uFZZPMVRdg7oRM0gxOwI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=K3fkonEgYlW2bkToHIYsiED2k1yOsHlNwCm5DjNiUpM5xuu1Hc4e85TtG8EM7fYuZRmy1plVk1+sgKI30t7QYYIYTgEPL5TLJg1uWSBwAGOHQrHs/Z5t1dnkacGQUY4tP7byFWmdDgZGR3rDvmrTBlck8dwqXDTJXHcGY3Ba5DU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B/xwloNO; arc=none smtp.client-ip=209.85.218.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1734035877; c=relaxed/simple;
+	bh=MARY6dTFg2yP1/HJ5ATv5KHC3lbY2n8VnsTBcWvNK3M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RaFCecjITyGwLna+tECZ/hZfG5RTpCHOv/FQL0RhMX1QUwCF9GSPGzVidkFZD7p27Ni1EswR7qJPjfa/fb4ZiYxnpxE9rFV0f7kkOMiQBWRMt0/jEXj1uf+eFPRjO6Hm20xHTVVMqFOsl7nMHGs8JGL0cqODHZxkOJLp9PVV8iw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com; spf=pass smtp.mailfrom=gmx.com; dkim=pass (2048-bit key) header.d=gmx.com header.i=quwenruo.btrfs@gmx.com header.b=gnoHIExn; arc=none smtp.client-ip=212.227.17.22
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B/xwloNO"
-Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-aa66ead88b3so186305766b.0;
-        Thu, 12 Dec 2024 12:12:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1734034324; x=1734639124; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ccEjllC2XhoGMyYqcFrLm7vpFIY0Cm+U6Sao32tSe/w=;
-        b=B/xwloNOa71LT0OQyobLZ72r7ltLXGRwoANhNW3pdNLOLfoZXHgS14ixdb2Bao4WCD
-         H9N1iXyA8il2Jl9PFbnvIcjQUA7ivQuC6InLqFWwVm4YcpjR1Cy9paGnEHlBmZlwed7W
-         lk3AaSJbKGLu10AIYMmfskS2ck1C7qA8KLvNxnP1lGQPJ19aiRlVyvBFMCUEpBRuD7WN
-         ly/Mlu9Yoz2+y6cSxo61lb3tOpApfmuYdFLG9dcBLCiE/MK7TVq6WCBK/5arZUinGjQ5
-         vbofT0phu6Be50T0ClqabCKlLTGMMDQIAjeTw4TUDewhhR9rlEIuLXJ9XC7St9wJNJhr
-         Ho/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734034324; x=1734639124;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ccEjllC2XhoGMyYqcFrLm7vpFIY0Cm+U6Sao32tSe/w=;
-        b=M0kOJ1LoL0zQT6ZBFXj6eTkylKVSprsowNwcExLmZ4budlRnt7S06cBaKHmXEn9dLA
-         JggQ83rkpMix9SqDVCzTvWu3ams3EyQezegHjVO4i8snV0EYKVxpLOaBizEYbRSRVlvF
-         eOtHnLhX0ehZGMwR8JE7+RutCExxNXHIU+tDuxRaWPYaqbqv+gs0fB5JvSANTk/f6WtY
-         V3rKV/I7X7kCc1dOrSgrY3bVArZ4/vVcgrmWgCC4me7fvyjs4yTZ3Yx+PFcCI+vfJtlI
-         TAMaxqmA1UouIBFbN1XUqt9M3WCEVQ+0fgNiYZVMvI2Qyih5I/oykFJieFjzTzeSxEqA
-         SsEA==
-X-Forwarded-Encrypted: i=1; AJvYcCUAXx2BV+Eh5d9cwgBopEIrw/5eoFIt8iyWZcpjCXk21BG6LB0aB1dhE+Wbfnl0hX764H6bqrYg+XOLAg==@vger.kernel.org, AJvYcCUEvRCtoQjrRH+7yh3ixqGenh2gb+kfXU4h4Hf4KOLSDCtWGdFD/EB/Mj2t2PYnv8yB6CLkgcIYS2QTvA==@vger.kernel.org, AJvYcCUMxZM3yLoJ68Y9UpXxE1bDSFbG6g7Ip0rA+lFR1RteBOSy9xiRFUAqFfCVz4qvfNtu3TSmnGSF47zQ23Fw@vger.kernel.org, AJvYcCWPdo1exEZNaQUPobEQWTZq8+Ju2kRNUUHvmByic2oeItdM/qFCt4QRBvAN88Dl0J9HlLOYfqdaDv7WRQ==@vger.kernel.org, AJvYcCWg/9WTlxFMM+//zRBDMbFDdCJs3snB8jvOB1Efay34M5ByEG3IuN3kuur4W9uOpyKPM1NQTdAzBMickw==@vger.kernel.org, AJvYcCWsn/IxjKzBF/wWIUwjTlYXpzyB87rxBBjJZa4MaJTUnnFL7Az5J5iCv6mPA6IAOpzHiRQ9YkBw+52b1VvB@vger.kernel.org, AJvYcCWtw0MaL11nUjb8GjyGFf+7coAAY8f52R5S9yP1A7XfnS7CPiHCBTdsQsBr+ixKKXnMmBS9oN0ytoM=@vger.kernel.org, AJvYcCXwFKPMJzZ0GHwN215PsSCKk3GyuyiWMyK2KAQwBNSE9oXTuo74jPMrXT9+AvghSEaWDLEzJUlBOhR39g==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz07jaPZ4T3ESnlRtmUfqpI4ZqHVUpN4PJIyWuOYzK6jVj/tt0A
-	uRK/kLN7d3JZZdzb5PkWOoqD0RLAyG9MSkXUljCue7CZ97hCipptVsbTfrpEJlAacTwT+3gsmW4
-	UZQ6s5uYXqqWgfgZ/OcV91z+2s8Y=
-X-Gm-Gg: ASbGncu+AhHzhcAhTrW+9kDieRTarVLJLHrHkIWfdC0wkE7rzb/U0PiTsG6rE6TwqUo
-	aAmmd3zTY4QDCRMp/y4fX0QF/imPnGbu0FaO30uQR
-X-Google-Smtp-Source: AGHT+IF7qx5Z1/fQb+D9Nv/8CkFXoKyEEzLktdUfd+sTUwFi+n5jfhaKRcSctFjQDfGrQzxwJV8DWyyLGWYjEOqOZ4M=
-X-Received: by 2002:a17:906:7304:b0:aa6:94c0:f755 with SMTP id
- a640c23a62f3a-aab778c1eaemr4266066b.1.1734034323514; Thu, 12 Dec 2024
- 12:12:03 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmx.com header.i=quwenruo.btrfs@gmx.com header.b="gnoHIExn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.com;
+	s=s31663417; t=1734035869; x=1734640669; i=quwenruo.btrfs@gmx.com;
+	bh=sU4tDiWNTNcxD3yowewJ1TroqVKauDSKX8n01TRGqRc=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
+	 References:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:cc:content-transfer-encoding:
+	 content-type:date:from:message-id:mime-version:reply-to:subject:
+	 to;
+	b=gnoHIExnwe4dlx2F+ge1djxvKpJTNYna+gOIXnKUdp+M8j3wLON/GgL28mU4TWlD
+	 T5o0+VyWVn5hyXRM0l2lcKh5JQlutZhpdVCMbix6Z/obGE1ybdgKRZV02rO1dASfd
+	 0kV3uMVyzdPhNx4soLFzDQZEGFDs8/zAn3ut87eVWr4BRZhdHDiCj42pslHYkt/gu
+	 EQdu+Fd1JYiE+P/cwMRoN/WGQXO3t1evqn0++zM+8CvDCAvLa1siFHIdYQc2zsEQM
+	 1QN/Wv4eW54gPLoFuYjqrgMIQ3c6q9Wccb9pS+PQDJVpDYsHeasCPRiEqgkLmQVIZ
+	 bnohNSoDc1RgbZ+bGg==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from [172.16.0.191] ([159.196.52.54]) by mail.gmx.net (mrgmx104
+ [212.227.17.174]) with ESMTPSA (Nemesis) id 1Ma20q-1t9j0j1dK8-00PA4T; Thu, 12
+ Dec 2024 21:37:49 +0100
+Message-ID: <85bd7f9b-d9de-46ce-bda9-e7f2db31b8d6@gmx.com>
+Date: Fri, 13 Dec 2024 07:07:44 +1030
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241211232754.1583023-1-kaleshsingh@google.com> <20241211232754.1583023-17-kaleshsingh@google.com>
-In-Reply-To: <20241211232754.1583023-17-kaleshsingh@google.com>
-From: Yang Shi <shy828301@gmail.com>
-Date: Thu, 12 Dec 2024 12:11:51 -0800
-Message-ID: <CAHbLzko2Z0-QReXo54H=sd1asXsPKEHf9N4Nmv0=Ry7SM=XX+g@mail.gmail.com>
-Subject: Re: [PATCH mm-unstable v2 16/16] mm: Respect mmap hint before THP
- alignment if allocation is possible
-To: Kalesh Singh <kaleshsingh@google.com>
-Cc: akpm@linux-foundation.org, vbabka@suse.cz, yang@os.amperecomputing.com, 
-	riel@surriel.com, david@redhat.com, minchan@kernel.org, jyescas@google.com, 
-	linux@armlinux.org.uk, tsbogend@alpha.franken.de, 
-	James.Bottomley@hansenpartnership.com, ysato@users.sourceforge.jp, 
-	dalias@libc.org, glaubitz@physik.fu-berlin.de, davem@davemloft.net, 
-	andreas@gaisler.com, tglx@linutronix.de, bp@alien8.de, 
-	dave.hansen@linux.intel.com, x86@kernel.org, chris@zankel.net, 
-	jcmvbkbc@gmail.com, bhelgaas@google.com, jason.andryuk@amd.com, 
-	leitao@debian.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, loongarch@lists.linux.dev, 
-	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, 
-	kernel-team@android.com, android-mm@google.com
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] btrfs: Fix avail_in bytes for s390 zlib HW compression
+ path
+To: Mikhail Zaslonko <zaslonko@linux.ibm.com>, Qu Wenruo <wqu@suse.com>,
+ David Sterba <dsterba@suse.cz>, linux-btrfs@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>,
+ linux-s390@vger.kernel.org
+References: <20241212135000.1926110-1-zaslonko@linux.ibm.com>
+Content-Language: en-US
+From: Qu Wenruo <quwenruo.btrfs@gmx.com>
+Autocrypt: addr=quwenruo.btrfs@gmx.com; keydata=
+ xsBNBFnVga8BCACyhFP3ExcTIuB73jDIBA/vSoYcTyysFQzPvez64TUSCv1SgXEByR7fju3o
+ 8RfaWuHCnkkea5luuTZMqfgTXrun2dqNVYDNOV6RIVrc4YuG20yhC1epnV55fJCThqij0MRL
+ 1NxPKXIlEdHvN0Kov3CtWA+R1iNN0RCeVun7rmOrrjBK573aWC5sgP7YsBOLK79H3tmUtz6b
+ 9Imuj0ZyEsa76Xg9PX9Hn2myKj1hfWGS+5og9Va4hrwQC8ipjXik6NKR5GDV+hOZkktU81G5
+ gkQtGB9jOAYRs86QG/b7PtIlbd3+pppT0gaS+wvwMs8cuNG+Pu6KO1oC4jgdseFLu7NpABEB
+ AAHNIlF1IFdlbnJ1byA8cXV3ZW5ydW8uYnRyZnNAZ214LmNvbT7CwJQEEwEIAD4CGwMFCwkI
+ BwIGFQgJCgsCBBYCAwECHgECF4AWIQQt33LlpaVbqJ2qQuHCPZHzoSX+qAUCZxF1YAUJEP5a
+ sQAKCRDCPZHzoSX+qF+mB/9gXu9C3BV0omDZBDWevJHxpWpOwQ8DxZEbk9b9LcrQlWdhFhyn
+ xi+l5lRziV9ZGyYXp7N35a9t7GQJndMCFUWYoEa+1NCuxDs6bslfrCaGEGG/+wd6oIPb85xo
+ naxnQ+SQtYLUFbU77WkUPaaIU8hH2BAfn9ZSDX9lIxheQE8ZYGGmo4wYpnN7/hSXALD7+oun
+ tZljjGNT1o+/B8WVZtw/YZuCuHgZeaFdhcV2jsz7+iGb+LsqzHuznrXqbyUQgQT9kn8ZYFNW
+ 7tf+LNxXuwedzRag4fxtR+5GVvJ41Oh/eygp8VqiMAtnFYaSlb9sjia1Mh+m+OBFeuXjgGlG
+ VvQFzsBNBFnVga8BCACqU+th4Esy/c8BnvliFAjAfpzhI1wH76FD1MJPmAhA3DnX5JDORcga
+ CbPEwhLj1xlwTgpeT+QfDmGJ5B5BlrrQFZVE1fChEjiJvyiSAO4yQPkrPVYTI7Xj34FnscPj
+ /IrRUUka68MlHxPtFnAHr25VIuOS41lmYKYNwPNLRz9Ik6DmeTG3WJO2BQRNvXA0pXrJH1fN
+ GSsRb+pKEKHKtL1803x71zQxCwLh+zLP1iXHVM5j8gX9zqupigQR/Cel2XPS44zWcDW8r7B0
+ q1eW4Jrv0x19p4P923voqn+joIAostyNTUjCeSrUdKth9jcdlam9X2DziA/DHDFfS5eq4fEv
+ ABEBAAHCwHwEGAEIACYCGwwWIQQt33LlpaVbqJ2qQuHCPZHzoSX+qAUCZxF1gQUJEP5a0gAK
+ CRDCPZHzoSX+qHGpB/kB8A7M7KGL5qzat+jBRoLwB0Y3Zax0QWuANVdZM3eJDlKJKJ4HKzjo
+ B2Pcn4JXL2apSan2uJftaMbNQbwotvabLXkE7cPpnppnBq7iovmBw++/d8zQjLQLWInQ5kNq
+ Vmi36kmq8o5c0f97QVjMryHlmSlEZ2Wwc1kURAe4lsRG2dNeAd4CAqmTw0cMIrR6R/Dpt3ma
+ +8oGXJOmwWuDFKNV4G2XLKcghqrtcRf2zAGNogg3KulCykHHripG3kPKsb7fYVcSQtlt5R6v
+ HZStaZBzw4PcDiaAF3pPDBd+0fIKS6BlpeNRSFG94RYrt84Qw77JWDOAZsyNfEIEE0J6LSR/
+In-Reply-To: <20241212135000.1926110-1-zaslonko@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:PzkNlcE/RRInJK66ffBW1pOxoQwoeoa6Ox1A+fWIBeDszxux413
+ YMMuAKhmoZHIFjqfOWxMlR6NGyhwLdj4Rh05rHDAyF5NjmCEhYvNXAvVBkvVD1mk0QSbbvP
+ iQvYdoSn71kmsvYgezyLJsZFUgfRLkHuhiVjlL8q+Je2oj35435rrYqvmmqwgkXzJ9LHl6R
+ KCadNySCDWknw8cTeVApw==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:KDOCV57KgmA=;j1eana9Dcm4tAvuDF/1wcp1Isbl
+ 5DXlhld8ju2sAIUcdWsdLbmBLxHgyJFExPXQH6fYxaEyl+IxSFX4PCaJcUB1Q5PBKDKuWrwQe
+ UMANo86kNn+KfiOEx+4EgZECKIIqS9p0/0TeIRvCObWT/8hJpaF82naCI8K5+R6wDuXlW9C68
+ l+AqTr5E7lu2yeAwpvcNjhJf4fiZTJvysoRuHfvvBxCUCK9NGsnfuiUH7auOxO+ndeQwrNlrf
+ cidFoR9iz555JATQj8J63uykQNhjZ8AeIOqVC4sW2n6Jl5+0zpWY2Vltw4EOrOdNaOwh9RTH0
+ Ju1q9VkuLocStsnCouBfH3EMJVDHhNh3fYXhjRbF14RUpDGm39oPqAEbkiKd1RXC/xOR6SzPk
+ JUWW/yIvSUtk5swLXfVJSZau1Al4gfYlatZ/Mh+PUrY6WZUFa5t4k700b1RyVeEpmL6uTY6Pa
+ hSWYPQzJLsAHFSUZWg/JITtPQY9vyDJxKnUOd7/mxjsGHxGLMZYdOz8MG8vXwEAYkB5xjvZ/2
+ l+nxCz9Zw9UcpGbd6VctCQ+nY+DaSSDLqh/zhfuMUuq7cwBy5KIyJO0C5DWRmzFCjhqV+jKRn
+ 2kdR6H2eHGWndop94MxAabcvXaKWSETmfqH0uCnWPbqT2ZOFRA10T81SAZJIEf5qfp2JAAMdL
+ dM0Fyc5pZENUnw2kpoUiufbUckBg5juYjolk08caBPGsA3RMuT36JRFoiUtKUqulSJW7eBPCY
+ 0JecT+S+Fwe7HoigS7N/YRhC6LumsTS0FqNY0+D4MToIC28c7z/KKGq3PRWYESm2uCgX3KuJR
+ RUj8ZeaniUpckzXLdas7rxfb8e8c7Z4wbUfQ9NBVIG2fFbEttw2BqEhqL0ZaKsFagqL3rYK7w
+ 8Tc7DqW4AaiSzIRnREkfEN4q5J7pPI6Lz/60lkke8Xe5ObZxb+IG8E8gV1ojbePS5gzmIh9IG
+ bqXsOtpoUyKSRcXW5UciXB8yXPqyvsH52wT3NZwsVtCxpjezCaT865O/zL9bJTLkZ58cbbV6s
+ 34dj2O8Qfdk/PpT2JWHf1+9E5QKXTodrx1KnwyR8ENqmVhlYO39jbPbxJd4tL2uHuhByrOD9u
+ H7g4w24uI1kjVJt5WWdqu32haRhnNj
 
-On Wed, Dec 11, 2024 at 3:31=E2=80=AFPM Kalesh Singh <kaleshsingh@google.co=
-m> wrote:
->
-> Commit 249608ee4713 ("mm: respect mmap hint address when aligning for THP=
-")
-> fallsback to PAGE_SIZE alignment instead of THP alignment
-> for anonymous mapping as long as a hint address is provided by the user
-> -- even if we weren't able to allocate the unmapped area at the hint
-> address in the end.
->
-> This was done to address the immediate regression in anonymous mappings
-> where the hint address were being ignored in some cases; due to commit
-> efa7df3e3bb5 ("mm: align larger anonymous mappings on THP boundaries").
->
-> It was later pointed out that this issue also existed for file-backed
-> mappings from file systems that use thp_get_unmapped_area() for their
-> .get_unmapped_area() file operation.
->
-> The same fix was not applied for file-backed mappings since it would
-> mean any mmap requests that provide a hint address would be only
-> PAGE_SIZE-aligned regardless of whether allocation was successful at
-> the hint address or not.
->
-> Instead, use arch_mmap_hint() to first attempt allocation at the hint
-> address and fallback to THP alignment if there isn't sufficient VA space
-> to satisfy the allocation at the hint address.
->
-> Signed-off-by: Kalesh Singh <kaleshsingh@google.com>
 
-Reviewed-by: Yang Shi <shy828301@gmail.com>
 
+=E5=9C=A8 2024/12/13 00:20, Mikhail Zaslonko =E5=86=99=E9=81=93:
+> Since the input data length passed to zlib_compress_folios() can be
+> arbitrary, always setting strm.avail_in to a multiple of PAGE_SIZE may
+> cause read-in bytes to exceed the input range. Currently this triggers
+> an assert in btrfs_compress_folios() on the debug kernel. But it may
+> potentially lead to data corruption.
+
+Mind to provide the real world ASSERT() call trace?
+
+AFAIK the range passed into btrfs_compress_folios() should always have
+its start/length aligned to sector size.
+
+Since s390 only supports 4K page size, that means the range is always
+aligned to page size, and the existing code is also doing full page copy
+anyway, thus I see no problem with the existing read.
+
+Thanks,
+Qu
+
+> Fix strm.avail_in calculation for S390 hardware acceleration path.
+>
+> Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+> Fixes: fd1e75d0105d ("btrfs: make compression path to be subpage compati=
+ble")
 > ---
->  mm/huge_memory.c | 17 ++++++++++-------
->  mm/mmap.c        |  1 -
->  2 files changed, 10 insertions(+), 8 deletions(-)
+>   fs/btrfs/zlib.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
 >
-> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-> index 2da5520bfe24..426761a30aff 100644
-> --- a/mm/huge_memory.c
-> +++ b/mm/huge_memory.c
-> @@ -1097,6 +1097,16 @@ static unsigned long __thp_get_unmapped_area(struc=
-t file *filp,
->         loff_t off_align =3D round_up(off, size);
->         unsigned long len_pad, ret, off_sub;
->
-> +       /*
-> +        * If allocation at the address hint succeeds; respect the hint a=
-nd
-> +        * don't try to align to THP boundary;
-> +        *
-> +        * Or if an the requested extent is invalid return the error imme=
-diately.
-> +        */
-> +       addr =3D arch_mmap_hint(filp, addr, len, off, flags);
-> +       if (addr)
-> +               return addr;
-> +
->         if (!IS_ENABLED(CONFIG_64BIT) || in_compat_syscall())
->                 return 0;
->
-> @@ -1117,13 +1127,6 @@ static unsigned long __thp_get_unmapped_area(struc=
-t file *filp,
->         if (IS_ERR_VALUE(ret))
->                 return 0;
->
-> -       /*
-> -        * Do not try to align to THP boundary if allocation at the addre=
-ss
-> -        * hint succeeds.
-> -        */
-> -       if (ret =3D=3D addr)
-> -               return addr;
-> -
->         off_sub =3D (off - ret) & (size - 1);
->
->         if (test_bit(MMF_TOPDOWN, &current->mm->flags) && !off_sub)
-> diff --git a/mm/mmap.c b/mm/mmap.c
-> index 76dd6acdf051..3286fdff26f2 100644
-> --- a/mm/mmap.c
-> +++ b/mm/mmap.c
-> @@ -814,7 +814,6 @@ __get_unmapped_area(struct file *file, unsigned long =
-addr, unsigned long len,
->         if (get_area) {
->                 addr =3D get_area(file, addr, len, pgoff, flags);
->         } else if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) && !file
-> -                  && !addr /* no hint */
->                    && IS_ALIGNED(len, PMD_SIZE)) {
->                 /* Ensures that larger anonymous mappings are THP aligned=
-. */
->                 addr =3D thp_get_unmapped_area_vmflags(file, addr, len,
-> --
-> 2.47.0.338.g60cca15819-goog
->
->
+> diff --git a/fs/btrfs/zlib.c b/fs/btrfs/zlib.c
+> index ddf0d5a448a7..c9e92c6941ec 100644
+> --- a/fs/btrfs/zlib.c
+> +++ b/fs/btrfs/zlib.c
+> @@ -174,10 +174,10 @@ int zlib_compress_folios(struct list_head *ws, str=
+uct address_space *mapping,
+>   					copy_page(workspace->buf + i * PAGE_SIZE,
+>   						  data_in);
+>   					start +=3D PAGE_SIZE;
+> -					workspace->strm.avail_in =3D
+> -						(in_buf_folios << PAGE_SHIFT);
+>   				}
+>   				workspace->strm.next_in =3D workspace->buf;
+> +				workspace->strm.avail_in =3D min(bytes_left,
+> +							       in_buf_folios << PAGE_SHIFT);
+>   			} else {
+>   				unsigned int pg_off;
+>   				unsigned int cur_len;
+
