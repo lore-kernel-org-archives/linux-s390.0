@@ -1,107 +1,250 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEB3E2135C1;
-	Thu, 12 Dec 2024 15:37:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5F411917D6;
+	Thu, 12 Dec 2024 20:08:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734017858; cv=none; b=KHT6f/uhb9lhS9up2m4pLreRYCN8gW7jIlPm9wBL1RU3bzbyt6GO4pwH2sBZMuVmDeaWl4i9oYgxrDGbXqSLTW0heYFTyJlJYa2depwD7WmhGYsOiBoup+JjLjpmYqPtjtrn/CclBIRyf6v/zL9Ky0W2oJEy40U2xoVX627HiNg=
+	t=1734034131; cv=none; b=B82oJIzXM6AsawXMZgnQqjZ5zDjqyDjPwyyFPUtam0ygzuOBEH9bWQKaTDFttqQyF0CHFsH5vovgYj2xfMxsDgann1yJzYP4RiNl6gXVhG1CskPegGqH93aGddwjajN8fa4nYtYYTWHmxdkndH9041fWuv8gZdu54xg4a2+GSbE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734017858; c=relaxed/simple;
-	bh=9NJoAGWx2pghEfc3rNKYfTIe5XjeR5Raa4KUfdF19to=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=H5S72fzd9z/llIU3Aaz59BOH3NDnvc3eCCeL9xvKHnaRAV/6E+Uj35yXo/y1tJiGE7KYBf5AOdwqWwWNXSD0OAf5Etb2/JD8a3yjcmEfx1rqUOrp7Wli+hsAGCfVchIsW8FfJQFD7DFX6vfcmoybqaBUmRuw5LY5lduWqAOd6aI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Jp6frxlO; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1734034131; c=relaxed/simple;
+	bh=rGlNM0MTKO9H5+NJ7e+yXuofUkMksUw402gZcNo+JtY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=pkL4pkOlrrcBcg1dPfXCzyjd4bv6OZKoPSBhJmpSGEutp+GhT1aMT6vX5YurqLvoZdFpchOOq2d6af2W0+WmtR6pxMaYFBn8m27QtokgKWa9gQu8Br/zm/z2aBui7hQKUSHIk3+YfvgJJqZt+Vu4t2//cDwggPHRlBAL6Hzi79E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nC18HmEk; arc=none smtp.client-ip=209.85.218.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Jp6frxlO"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BCDVd9x001731;
-	Thu, 12 Dec 2024 15:37:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=9NJoAG
-	Wx2pghEfc3rNKYfTIe5XjeR5Raa4KUfdF19to=; b=Jp6frxlOC/xCTD9M5/FSsA
-	IjmVFbQ4mTgZx4Uqjvj6z/oY4W1lEZvUnq8xPRG0UEiM0BRhhW/uDTCxXV5R8AV2
-	+/P01/MLhX2RooTAZrt84JeROxMC+V3hQweDz+n5t6T6viv+yJVgx6pyNK1C0Cpm
-	rfTOZT1wK+Hyh6NkjPAbb631yEM/onO6wkvFrKnp1mNg0hGDSJM5AL9gsAPIohAq
-	Y9uDSzevea9uGPod2iV+IagNLM6BI1VM5n+yWmn+qd3ghzVWYPYv0ECCXihr1ux9
-	MsK0SBNkewz7PiXt4h/H5ia1oddKrXrsTsJO0Xqth0nG2ZaeE4NuAKtMBQBR9aFw
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43g0sbgs05-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Dec 2024 15:37:32 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BCFGATn007776;
-	Thu, 12 Dec 2024 15:37:31 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43ft11tqgb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Dec 2024 15:37:31 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BCFbRSb17039666
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 12 Dec 2024 15:37:27 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 76C3920043;
-	Thu, 12 Dec 2024 15:37:27 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E7A2D20040;
-	Thu, 12 Dec 2024 15:37:26 +0000 (GMT)
-Received: from [127.0.0.1] (unknown [9.152.108.100])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 12 Dec 2024 15:37:26 +0000 (GMT)
-Message-ID: <32b98d12e822557f23939a90dbaa091d9f8a4c97.camel@linux.ibm.com>
-Subject: Re: [PATCH] btrfs: Fix avail_in bytes for s390 zlib HW compression
- path
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-To: Mikhail Zaslonko <zaslonko@linux.ibm.com>, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.cz>, linux-btrfs@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
-	 <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org
-Date: Thu, 12 Dec 2024 16:37:26 +0100
-In-Reply-To: <20241212135000.1926110-1-zaslonko@linux.ibm.com>
-References: <20241212135000.1926110-1-zaslonko@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.4 (3.52.4-2.fc40) 
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nC18HmEk"
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-a9ec267b879so85627266b.2;
+        Thu, 12 Dec 2024 12:08:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1734034127; x=1734638927; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zN4Ym/UunmzCYsNSflmoKoSUjG0g5+VHwXB/fYxaNqo=;
+        b=nC18HmEkPWk2LHyQx694Tbr42oN7dFcjfH5A9N3keoz3zBUaE0/rtZORWjmLmy5EpH
+         gbq34HCneM6WwNhQLv85ughXiPO9Llki6vWL0soaIOjVUXoKI6/LaGV+dOfsfyihPMXN
+         osH911k6Xemv36oeCtZ65bC8+XT7OedAft59sXZ0/X7BRiFNVw2X1XC7T47zFsz9PYUB
+         e1921ouzKmOvJXwg5MBUrKJ82FFlyhifhPvBs8T/5fav/Bb8trkvK0QTBS+EfEx3roK/
+         JyTEHJcyu3fTDPEuCW9QLJM+OLcMeChVwPo+Jqx4nLIH86uIu745W6jQVW/webhagDaL
+         qOPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1734034127; x=1734638927;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zN4Ym/UunmzCYsNSflmoKoSUjG0g5+VHwXB/fYxaNqo=;
+        b=e5WmD3OM7ojmI3VHMtI6OyaCFLVJWYldZk3ejd/9SNFRFWS3f+X8FrQQUcFqRKFxsx
+         /hMgH26BqA4X4Sp2dtNuqqR/xbtAN5Wi9DKXPQNXvSG8inwhbiHwcwL2Zm3Lta7iEI/A
+         CnEgjanK+/oshm7E0SXDW5Gf3GU4yX+7N2IFpv3oCnEE9+sAIyNisfHrwlVvDJoxPeVS
+         cBMpCC+YM8N1CL4kTMOh1AwsZC69nerNw64Q0/Lek+SM03UxZXUF6JJ1PrRIebvLVqW7
+         o82scXSZ90htrZfviEVGzNmTbUafxbXkqFG5xB6C9Nrg13QYRq7asIThwDyv05PJi7Dp
+         ycwA==
+X-Forwarded-Encrypted: i=1; AJvYcCU2Tn+g09L73kYuP+hssrO7SNypLGKd3FCoxrx2zzFkaXCTjFfu8KO13s7ol7dGm0T9L+uxQ/GRTJW2HQ==@vger.kernel.org, AJvYcCU5/8FwEbJzTjeBB3vZQ3BC6SAgue9GvuMPw9gbwk6evrCmhijw0EkEZQ7VL4uhxthrfFJRolWDEr8zCejv@vger.kernel.org, AJvYcCUQZZBTk1hr+RrghbPyHjooLFQL2HElizZGgA9EBrVkKHBXzvBsXkYyLUCvv76e+xzlie4PCb3r9XeF2+Y7@vger.kernel.org, AJvYcCWw7bTyHolEVY+fzNFpPhMcqbEEoBOApAbG1OKZvM5XDtX4ZN95Tv20l/EmbzYt+2b0lxV0FIEC4xhmpQ==@vger.kernel.org, AJvYcCXPhXMM48rvHNzILyBfCz4i3FgiiQH0TQ4DcpHGUNtIeuFzCgUWqBoXn13ETBeetS3OEPz33tqXcNkL3Q==@vger.kernel.org, AJvYcCXQJNRgRicRc566dtDi7tUn9SWSNwEstVWrQC/o9etEJ47T1J8KFKWSV5QeXVqnf5au7w4dOTPtJdt1tQ==@vger.kernel.org, AJvYcCXeJPenmMR3kJFk+Z8Tl7GjWv8wGurEJwC5sKuRvrs2ao+c7M/P6B7KXf5ilav3+ghwwU/HRQw0S7Y=@vger.kernel.org, AJvYcCXjtPVDUdDeerHQSwyF8193l0ssk4ek0vPty7Lpd51smRp99PB2Ejp4JD6c4va7iGc8b2WyrJvXQmOJGg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwXzoLMJ/YL62gNnItcGvhUFoBaQ0iMiUgouE/Mv7uJXRcK2efE
+	RhA6c+3LeMIEUvsRZ0RER+4NfaFkBrI1fLjYzUtql0+3QjvJtKWmq3hIQ3bt9zBUnDsxIH3hGPb
+	s0LcfNGm7NDmG8w/oapZPXZyshTg=
+X-Gm-Gg: ASbGncuvWyWSD1Zh+XCt4PDA11TJdv6BrGUKoorhizN3mEUuYfzYyyFUf1m/UY1SZWq
+	yCCgQ0jRa0wVzqYT8VFA8ICEDf93G6WvL5N2pZwkT
+X-Google-Smtp-Source: AGHT+IFBjZrg88OqeWBDO1jTyqFkrRhdvj/sM97FkFYUxtUn8pc+yCVr/hdiAj5KO+SOUnoKUqWUM88SK7LqY4tEHG8=
+X-Received: by 2002:a17:907:3e9f:b0:aa6:64be:ff2d with SMTP id
+ a640c23a62f3a-aab778c168emr3388966b.4.1734034126714; Thu, 12 Dec 2024
+ 12:08:46 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: nA6Yft9oKMLV31pWKHEtdPdA4AONx9MP
-X-Proofpoint-ORIG-GUID: nA6Yft9oKMLV31pWKHEtdPdA4AONx9MP
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- impostorscore=0 mlxscore=0 malwarescore=0 suspectscore=0
- priorityscore=1501 spamscore=0 adultscore=0 phishscore=0 bulkscore=0
- clxscore=1011 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2411120000 definitions=main-2412120112
+References: <20241211232754.1583023-1-kaleshsingh@google.com> <20241211232754.1583023-2-kaleshsingh@google.com>
+In-Reply-To: <20241211232754.1583023-2-kaleshsingh@google.com>
+From: Yang Shi <shy828301@gmail.com>
+Date: Thu, 12 Dec 2024 12:08:35 -0800
+Message-ID: <CAHbLzkovqMsjti1g_G4dFj2mb4hneBPtR2eGTxTZmC717455-A@mail.gmail.com>
+Subject: Re: [PATCH mm-unstable v2 01/16] mm: Introduce generic_mmap_hint()
+To: Kalesh Singh <kaleshsingh@google.com>
+Cc: akpm@linux-foundation.org, vbabka@suse.cz, yang@os.amperecomputing.com, 
+	riel@surriel.com, david@redhat.com, minchan@kernel.org, jyescas@google.com, 
+	linux@armlinux.org.uk, tsbogend@alpha.franken.de, 
+	James.Bottomley@hansenpartnership.com, ysato@users.sourceforge.jp, 
+	dalias@libc.org, glaubitz@physik.fu-berlin.de, davem@davemloft.net, 
+	andreas@gaisler.com, tglx@linutronix.de, bp@alien8.de, 
+	dave.hansen@linux.intel.com, x86@kernel.org, chris@zankel.net, 
+	jcmvbkbc@gmail.com, bhelgaas@google.com, jason.andryuk@amd.com, 
+	leitao@debian.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-csky@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, 
+	kernel-team@android.com, android-mm@google.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2024-12-12 at 14:50 +0100, Mikhail Zaslonko wrote:
-> Since the input data length passed to zlib_compress_folios() can be
-> arbitrary, always setting strm.avail_in to a multiple of PAGE_SIZE
-> may
-> cause read-in bytes to exceed the input range. Currently this
-> triggers
-> an assert in btrfs_compress_folios() on the debug kernel. But it may
-> potentially lead to data corruption.
-> Fix strm.avail_in calculation for S390 hardware acceleration path.
->=20
-> Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-> Fixes: fd1e75d0105d ("btrfs: make compression path to be subpage
-> compatible")
+On Wed, Dec 11, 2024 at 3:28=E2=80=AFPM Kalesh Singh <kaleshsingh@google.co=
+m> wrote:
+>
+> Consolidate the hint searches from both directions (topdown and
+> bottomup) into generic_mmap_hint().
+>
+> No functional change is introduced.
+>
+> Signed-off-by: Kalesh Singh <kaleshsingh@google.com>
 > ---
-> =C2=A0fs/btrfs/zlib.c | 4 ++--
-> =C2=A01 file changed, 2 insertions(+), 2 deletions(-)
+>
+> Changes in v2:
+>   - MAP_FIXED case is also handled in arch_mmap_hint() since this is just=
+ a
+>     special case of the hint addr being "enforced", per Yang Shi.
+>   - Consolidate error handling in arch_mmap_hint().
 
-Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+
+>
+>  include/linux/sched/mm.h |  4 +++
+>  mm/mmap.c                | 76 ++++++++++++++++++++++++----------------
+>  2 files changed, 50 insertions(+), 30 deletions(-)
+>
+> diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+> index 928a626725e6..edeec19d1708 100644
+> --- a/include/linux/sched/mm.h
+> +++ b/include/linux/sched/mm.h
+> @@ -201,6 +201,10 @@ unsigned long mm_get_unmapped_area_vmflags(struct mm=
+_struct *mm,
+>                                            unsigned long flags,
+>                                            vm_flags_t vm_flags);
+>
+> +unsigned long generic_mmap_hint(struct file *filp, unsigned long addr,
+> +                               unsigned long len, unsigned long pgoff,
+> +                               unsigned long flags);
+> +
+>  unsigned long
+>  generic_get_unmapped_area(struct file *filp, unsigned long addr,
+>                           unsigned long len, unsigned long pgoff,
+> diff --git a/mm/mmap.c b/mm/mmap.c
+> index df9154b15ef9..382b4eac5406 100644
+> --- a/mm/mmap.c
+> +++ b/mm/mmap.c
+> @@ -620,6 +620,47 @@ unsigned long vm_unmapped_area(struct vm_unmapped_ar=
+ea_info *info)
+>         return addr;
+>  }
+>
+> +/*
+> + * Look up unmapped area at the requested hint addr
+> + *
+> + * NOTE: MAP_FIXED is also handled here since it's a special case of
+> + * enforcing the hint address.
+> + *
+> + * Returns:
+> + *    ERR_VALUE: If the requested mapping is not valid
+> + *    0: If there isn't a sufficiently large hole at the hint addr.
+> + *    addr: If sufficient VA space is available at the hint address;
+> + *          or MAP_FIXED was specified.
+> + */
+> +unsigned long generic_mmap_hint(struct file *filp, unsigned long addr,
+> +                               unsigned long len, unsigned long pgoff,
+> +                               unsigned long flags)
+> +{
+> +       struct mm_struct *mm =3D current->mm;
+> +       struct vm_area_struct *vma, *prev;
+> +       const unsigned long mmap_end =3D arch_get_mmap_end(addr, len, fla=
+gs);
+> +
+> +       /* requested length too big for entire address space */
+> +       if (len > mmap_end - mmap_min_addr)
+> +               return -ENOMEM;
+> +
+> +       if (flags & MAP_FIXED)
+> +               return addr;
+> +
+> +       if (!addr)
+> +               return 0;
+> +
+> +       addr =3D PAGE_ALIGN(addr);
+> +       vma =3D find_vma_prev(mm, addr, &prev);
+> +       if (mmap_end - len >=3D addr && addr >=3D mmap_min_addr &&
+> +           (!vma || addr + len <=3D vm_start_gap(vma)) &&
+> +           (!prev || addr >=3D vm_end_gap(prev)))
+> +               return addr;
+> +
+> +       /* Fallback to VA space search */
+> +       return 0;
+> +}
+> +
+>  /* Get an address range which is currently unmapped.
+>   * For shmat() with addr=3D0.
+>   *
+> @@ -637,25 +678,13 @@ generic_get_unmapped_area(struct file *filp, unsign=
+ed long addr,
+>                           unsigned long flags, vm_flags_t vm_flags)
+>  {
+>         struct mm_struct *mm =3D current->mm;
+> -       struct vm_area_struct *vma, *prev;
+>         struct vm_unmapped_area_info info =3D {};
+>         const unsigned long mmap_end =3D arch_get_mmap_end(addr, len, fla=
+gs);
+>
+> -       if (len > mmap_end - mmap_min_addr)
+> -               return -ENOMEM;
+> -
+> -       if (flags & MAP_FIXED)
+> +       addr =3D generic_mmap_hint(filp, addr, len, pgoff, flags);
+> +       if (addr)
+>                 return addr;
+>
+> -       if (addr) {
+> -               addr =3D PAGE_ALIGN(addr);
+> -               vma =3D find_vma_prev(mm, addr, &prev);
+> -               if (mmap_end - len >=3D addr && addr >=3D mmap_min_addr &=
+&
+> -                   (!vma || addr + len <=3D vm_start_gap(vma)) &&
+> -                   (!prev || addr >=3D vm_end_gap(prev)))
+> -                       return addr;
+> -       }
+> -
+>         info.length =3D len;
+>         info.low_limit =3D mm->mmap_base;
+>         info.high_limit =3D mmap_end;
+> @@ -685,27 +714,14 @@ generic_get_unmapped_area_topdown(struct file *filp=
+, unsigned long addr,
+>                                   unsigned long len, unsigned long pgoff,
+>                                   unsigned long flags, vm_flags_t vm_flag=
+s)
+>  {
+> -       struct vm_area_struct *vma, *prev;
+>         struct mm_struct *mm =3D current->mm;
+>         struct vm_unmapped_area_info info =3D {};
+>         const unsigned long mmap_end =3D arch_get_mmap_end(addr, len, fla=
+gs);
+>
+> -       /* requested length too big for entire address space */
+> -       if (len > mmap_end - mmap_min_addr)
+> -               return -ENOMEM;
+> -
+> -       if (flags & MAP_FIXED)
+> -               return addr;
+> -
+>         /* requesting a specific address */
+> -       if (addr) {
+> -               addr =3D PAGE_ALIGN(addr);
+> -               vma =3D find_vma_prev(mm, addr, &prev);
+> -               if (mmap_end - len >=3D addr && addr >=3D mmap_min_addr &=
+&
+> -                               (!vma || addr + len <=3D vm_start_gap(vma=
+)) &&
+> -                               (!prev || addr >=3D vm_end_gap(prev)))
+> -                       return addr;
+> -       }
+> +       addr =3D generic_mmap_hint(filp, addr, len, pgoff, flags);
+> +       if (addr)
+> +               return addr;
+>
+>         info.flags =3D VM_UNMAPPED_AREA_TOPDOWN;
+>         info.length =3D len;
+> --
+> 2.47.0.338.g60cca15819-goog
+>
+>
