@@ -1,81 +1,71 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C16CB6F2FE;
-	Thu, 12 Dec 2024 15:33:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEB3E2135C1;
+	Thu, 12 Dec 2024 15:37:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734017595; cv=none; b=q5gt7qN1stCWAD5MW3sBi3KBmokuRbFS38+Ay2Yl374isLSn/bwRAD9hLa1r3nyIh7/8zpm7wdN7O+t4GRwFC/enmQbAjEdLp3SfcoFvlQtWZ4bc1J2WlU8stIhn4D7hNmk5DBNVTYWOtVCwlWNQdJl8NdBVciXdh9mOP4RrYEg=
+	t=1734017858; cv=none; b=KHT6f/uhb9lhS9up2m4pLreRYCN8gW7jIlPm9wBL1RU3bzbyt6GO4pwH2sBZMuVmDeaWl4i9oYgxrDGbXqSLTW0heYFTyJlJYa2depwD7WmhGYsOiBoup+JjLjpmYqPtjtrn/CclBIRyf6v/zL9Ky0W2oJEy40U2xoVX627HiNg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734017595; c=relaxed/simple;
-	bh=tT+Wh1Hrn/98HHLh2dY6UB4EGQadqMgb2u7840ZYUu4=;
+	s=arc-20240116; t=1734017858; c=relaxed/simple;
+	bh=9NJoAGWx2pghEfc3rNKYfTIe5XjeR5Raa4KUfdF19to=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=ONp8C+0z1h7iZvynEeBaNhGdhp6YHJZiMh+5V4ubiEbMCc4dC7zzvkK93nIQrRvj1u4eU6pZ3C0YRKNBzmg1VDjSARf6LRliVwlX2Jp2OlNUlizypAYs/3GD+d4skihmJ/WGAEuHoO4+0h3m0j+fqyolFNZ/vVwbfJAuUuUQEhc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MjA1TeZp; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:MIME-Version; b=H5S72fzd9z/llIU3Aaz59BOH3NDnvc3eCCeL9xvKHnaRAV/6E+Uj35yXo/y1tJiGE7KYBf5AOdwqWwWNXSD0OAf5Etb2/JD8a3yjcmEfx1rqUOrp7Wli+hsAGCfVchIsW8FfJQFD7DFX6vfcmoybqaBUmRuw5LY5lduWqAOd6aI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Jp6frxlO; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MjA1TeZp"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BCF35DT012146;
-	Thu, 12 Dec 2024 15:33:11 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Jp6frxlO"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BCDVd9x001731;
+	Thu, 12 Dec 2024 15:37:32 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=tT+Wh1
-	Hrn/98HHLh2dY6UB4EGQadqMgb2u7840ZYUu4=; b=MjA1TeZpHerpU2wTLxSFZd
-	YpZQDcwaxPTdHVam6vpyF5FSfiHPMrYprJbKo7GUyXTEW7ez0tJg6pstgNeF/hom
-	c4GC8x0cfL3S8arCMRBm2s8+nTF0hDRzjz9qW0C/zl3oN+O5+/WtVfPZGF+WEWLT
-	mepjWdCnJnLwaFrIih2GwCH8HclxbcK/IIJlSHJT2B9flmB9pPdF6hhkUPoDBT3f
-	XXoRMkRCpsHf7M/DJs5IykPcOoS5w8UgsdNQfEc2iYNn7WXzefeTIemi+NPZXEbr
-	j6f/v2XYQ+e4vw073e9a9nFyQ/g08HuGf6MKRmx5vZnEljb8/11bn1NFgH8Gyn0g
+	:message-id:mime-version:references:subject:to; s=pp1; bh=9NJoAG
+	Wx2pghEfc3rNKYfTIe5XjeR5Raa4KUfdF19to=; b=Jp6frxlOC/xCTD9M5/FSsA
+	IjmVFbQ4mTgZx4Uqjvj6z/oY4W1lEZvUnq8xPRG0UEiM0BRhhW/uDTCxXV5R8AV2
+	+/P01/MLhX2RooTAZrt84JeROxMC+V3hQweDz+n5t6T6viv+yJVgx6pyNK1C0Cpm
+	rfTOZT1wK+Hyh6NkjPAbb631yEM/onO6wkvFrKnp1mNg0hGDSJM5AL9gsAPIohAq
+	Y9uDSzevea9uGPod2iV+IagNLM6BI1VM5n+yWmn+qd3ghzVWYPYv0ECCXihr1ux9
+	MsK0SBNkewz7PiXt4h/H5ia1oddKrXrsTsJO0Xqth0nG2ZaeE4NuAKtMBQBR9aFw
 	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ce3959x7-1
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43g0sbgs05-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Dec 2024 15:33:10 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4BCFWJWt020663;
-	Thu, 12 Dec 2024 15:33:10 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ce3959x4-1
+	Thu, 12 Dec 2024 15:37:32 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BCFGATn007776;
+	Thu, 12 Dec 2024 15:37:31 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43ft11tqgb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Dec 2024 15:33:10 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BCEbSOl023018;
-	Thu, 12 Dec 2024 15:33:09 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43d2wk8xuw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Dec 2024 15:33:09 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BCFX6gN37355824
+	Thu, 12 Dec 2024 15:37:31 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BCFbRSb17039666
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 12 Dec 2024 15:33:06 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1E6652004B;
-	Thu, 12 Dec 2024 15:33:06 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 85BFE20040;
-	Thu, 12 Dec 2024 15:33:05 +0000 (GMT)
-Received: from li-978a334c-2cba-11b2-a85c-a0743a31b510.ibm.com (unknown [9.171.84.250])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 12 Dec 2024 15:33:05 +0000 (GMT)
-Message-ID: <fcc8d46283daa6922c90328a1a8a36b528530166.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v4 4/6] s390x: Add library functions for
- exiting from snippet
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To: Nico Boehr <nrb@linux.ibm.com>, Claudio Imbrenda
- <imbrenda@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>, Janosch Frank
- <frankja@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        Nicholas
- Piggin <npiggin@gmail.com>, linux-s390@vger.kernel.org
-Date: Thu, 12 Dec 2024 16:33:05 +0100
-In-Reply-To: <D67Y11RRNUJ4.3U17EAZFWQR6M@linux.ibm.com>
-References: <20241016180320.686132-1-nsg@linux.ibm.com>
-	 <20241016180320.686132-5-nsg@linux.ibm.com>
-	 <D67Y11RRNUJ4.3U17EAZFWQR6M@linux.ibm.com>
+	Thu, 12 Dec 2024 15:37:27 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 76C3920043;
+	Thu, 12 Dec 2024 15:37:27 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E7A2D20040;
+	Thu, 12 Dec 2024 15:37:26 +0000 (GMT)
+Received: from [127.0.0.1] (unknown [9.152.108.100])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 12 Dec 2024 15:37:26 +0000 (GMT)
+Message-ID: <32b98d12e822557f23939a90dbaa091d9f8a4c97.camel@linux.ibm.com>
+Subject: Re: [PATCH] btrfs: Fix avail_in bytes for s390 zlib HW compression
+ path
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+To: Mikhail Zaslonko <zaslonko@linux.ibm.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.cz>, linux-btrfs@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+	 <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org
+Date: Thu, 12 Dec 2024 16:37:26 +0100
+In-Reply-To: <20241212135000.1926110-1-zaslonko@linux.ibm.com>
+References: <20241212135000.1926110-1-zaslonko@linux.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 User-Agent: Evolution 3.52.4 (3.52.4-2.fc40) 
@@ -86,34 +76,32 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: whiVVwsuQXoSH2Ywb0xtUg5wTjTY1wCG
-X-Proofpoint-ORIG-GUID: VLkzXgkd14hWWURx9GX7P7NmgSwH8rJO
+X-Proofpoint-GUID: nA6Yft9oKMLV31pWKHEtdPdA4AONx9MP
+X-Proofpoint-ORIG-GUID: nA6Yft9oKMLV31pWKHEtdPdA4AONx9MP
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 suspectscore=0
- spamscore=0 clxscore=1011 priorityscore=1501 lowpriorityscore=0
- impostorscore=0 bulkscore=0 mlxscore=0 malwarescore=0 mlxlogscore=908
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2412120112
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ impostorscore=0 mlxscore=0 malwarescore=0 suspectscore=0
+ priorityscore=1501 spamscore=0 adultscore=0 phishscore=0 bulkscore=0
+ clxscore=1011 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2411120000 definitions=main-2412120112
 
-On Tue, 2024-12-10 at 11:20 +0100, Nico Boehr wrote:
-> On Wed Oct 16, 2024 at 8:03 PM CEST, Nina Schoetterl-Glausch wrote:
-> > It is useful to be able to force an exit to the host from the snippet,
-> > as well as do so while returning a value.
-> > Add this functionality, also add helper functions for the host to check
-> > for an exit and get or check the value.
-> > Use diag 0x44 and 0x9c for this.
-> > Add a guest specific snippet header file and rename snippet.h to reflec=
-t
-> > that it is host specific.
-> >=20
-> > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+On Thu, 2024-12-12 at 14:50 +0100, Mikhail Zaslonko wrote:
+> Since the input data length passed to zlib_compress_folios() can be
+> arbitrary, always setting strm.avail_in to a multiple of PAGE_SIZE
+> may
+> cause read-in bytes to exceed the input range. Currently this
+> triggers
+> an assert in btrfs_compress_folios() on the debug kernel. But it may
+> potentially lead to data corruption.
+> Fix strm.avail_in calculation for S390 hardware acceleration path.
 >=20
-> Hi Nina,
->=20
-> would you mind if I fix this up like this?
+> Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+> Fixes: fd1e75d0105d ("btrfs: make compression path to be subpage
+> compatible")
+> ---
+> =C2=A0fs/btrfs/zlib.c | 4 ++--
+> =C2=A01 file changed, 2 insertions(+), 2 deletions(-)
 
-Looks good to me.
-Thanks!
-
+Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
