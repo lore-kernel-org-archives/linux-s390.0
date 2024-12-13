@@ -1,217 +1,209 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18EA7187849;
-	Fri, 13 Dec 2024 09:01:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734080502; cv=fail; b=YouPFwafgDu5GgViaSMCE24s1xU4piR2vof2Np9pYpLHUgWRwkLvsjHiEAyTuzUrxPkpadupXfvOcLCVA4GJBDXPjHAQHZWPuPvKXV1LyMnqOYBIKr/9NFeBkOSWHTRQx21v5y+SdpA3wH/UoCCtJ4gCU9Z/E7MUyE9vRcOVBz4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734080502; c=relaxed/simple;
-	bh=3kN4M6HlFBRgfiN/uF4ObwfmfQmiDkkDVf8pS/MyLxE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=jTuVH6kIiv2nSTMzCG5KU24jQaLYYxg+ozfIF+ZBD9u3ugxJKstubRTShcnFSuTu4ovomIpaOkMJRc1xEy86CHy7rGoGvaTFjFLDiWrpG5UyDEHYcm81uvqLunbCae8EA8eFY+9uys2gtD2mFNOw01w3SLi6qOVcuaIJcfL/2yo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=SZbpE1pJ; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=eCMxQ/ht; arc=fail smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCCB71AF0D6;
+	Fri, 13 Dec 2024 09:35:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1734082506; cv=none; b=k11sU3cXH2CRE0edAJpC3hn8vzkYZh4HtV1Vdpr6Dl38ffr1YBxrq3+1VFmFz22MJItAv3eEaqjvqlPrj60g5ZVfRzWw/hHmB52P/i/PyGPpKwOO8o5u+H55jC9wl3I6PAc3StMEPz4ZIcrI0HX4CnEoONL0VWWi6oV76o5bgb8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1734082506; c=relaxed/simple;
+	bh=dP3/CfozjEfuMPOoOTKCEAiW8yq14u8H4ZwmRPEKn5g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=stsIrAeZQcDoAx9T0TN1OVULrOI84w5dEqqwDQLTPKkPwJt7i0XtW3ZHcGT29ailBRL7C9PU0RyVlv+6wt6JA+tDNprpyV40jpm/MbgTa0s4VWUR+fXwUoA7gOPaomnz4fLZjiqstalNzfXHv9Q2Aq35dLgLcR9+N17m6+h0jG8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bS3j7q7M; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="SZbpE1pJ";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="eCMxQ/ht"
-Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BD1fp7q025939;
-	Fri, 13 Dec 2024 09:00:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=corp-2023-11-20; bh=NMmWjr7UBg4pQA5c8U
-	k82OwgnFISVWuyqQJH3/esbh4=; b=SZbpE1pJbSTPGfPJHr34Ogzf9SZUK28YIW
-	CL3qxnPI5j11dS8K/eDFi9t4S6xbWngNwsjB7YlLVnJpboC+8lBPDRmy/gHxMUsX
-	s4GF6AsY6g69+B6EGD2/EYg63ezL38HSHS5qtj3J0Q3pojTTUwcan/BJJESbHPPH
-	jSS/h+o+Gq3l+wjqB3eBWljCndx+EX7BWwzflWqvppsvxdHY1Dvuhu16wxN3g1Of
-	3hDj7/k2OtHZtFzdXKG33Mv8S68Eg9hjVExSabBKi4RCQM7ABoCBQsq6KPUNIHuF
-	tdYROL+5Af5vNwKgyWWfQFqF0VytKnYg/D9cylffu2HxFifhKMug==
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 43ce89ctw0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 13 Dec 2024 09:00:10 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 4BD6dA4K019284;
-	Fri, 13 Dec 2024 09:00:10 GMT
-Received: from nam04-mw2-obe.outbound.protection.outlook.com (mail-mw2nam04lp2169.outbound.protection.outlook.com [104.47.73.169])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 43cctcftvm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 13 Dec 2024 09:00:10 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=fDtz8ZMihpawcShNkHiveVd9a+F438SUUUNOh/kngQbn4Agcwl/EyjzVp9GGanLlZ4YmwJnfi1BUOdnw/O82kpjyxfP7rFIaNwTJ4WBHM+9sG4Pu4C5WnZbb5gnNXSsj+fpJ2vjQ29Df4DXZnJi5QmOMMv2k8YiF7y8WJ7DRyvgEtJM0HQIIIdJa/Chhz2VUp073uLLe+OwEm2pHavBpec/mh+jHhl5DngioXxE6J/730qPxoLqnW+s+xg7QnhMyP6WosnREERGw+mpzqvz0JkjwkU7mzY2UejN5g5I+nkr2iReKQrXjJhwQr8vief7XGv80iF2rolPZydfhmF4lag==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=NMmWjr7UBg4pQA5c8Uk82OwgnFISVWuyqQJH3/esbh4=;
- b=hKQx4JGwWMeczGUrw+jORUk/bbz2n9krNtugS2GSEO0xMOhQudAxrV0i8F38rhVBzQz/up3XUDxHWBquPyswwCMtiqdl3zRTQnJHGC3LwdVYG8e9Bn2K/viXLSmiqQcN0SEA5a/7Xww7uyguVsM6XgMTfiI7uhk4gP4f92pVhwLclnxObqm1wUJRXUvaGtuVAr5pESXa/+a3vMtthOZYNZFnSldeKi+xGR4PUCJqVlGSasiiGBEzTvwGC2rCUq0r+cbM++Kypj/nB+7AYg9Xub8w1lxB6RV6iySNPo28U3W4TheS57wsDtKzdB9owoFa5cA/4wy4ix1/iAF0CU4fCw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NMmWjr7UBg4pQA5c8Uk82OwgnFISVWuyqQJH3/esbh4=;
- b=eCMxQ/htOyjMmG7D83qCx8JPgFvHT/+QB0IamZpa5Nu8622ZACs5Ike3rPKgnXkJ8KzFDDbMwd+XkKH1fTgsYPRWuLFBtsgU2ninUuEmAf9u1cwFxAqjIyJ+3XBvNonmpahmLiPFE54lSFNTpE8UsvDcFvfm/B6r9jpierYAp2o=
-Received: from BYAPR10MB3366.namprd10.prod.outlook.com (2603:10b6:a03:14f::25)
- by MW4PR10MB6559.namprd10.prod.outlook.com (2603:10b6:303:228::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8182.20; Fri, 13 Dec
- 2024 09:00:01 +0000
-Received: from BYAPR10MB3366.namprd10.prod.outlook.com
- ([fe80::baf2:dff1:d471:1c9]) by BYAPR10MB3366.namprd10.prod.outlook.com
- ([fe80::baf2:dff1:d471:1c9%7]) with mapi id 15.20.8251.015; Fri, 13 Dec 2024
- 09:00:01 +0000
-Date: Fri, 13 Dec 2024 08:59:53 +0000
-From: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Kalesh Singh <kaleshsingh@google.com>, vbabka@suse.cz,
-        yang@os.amperecomputing.com, riel@surriel.com, david@redhat.com,
-        minchan@kernel.org, jyescas@google.com, linux@armlinux.org.uk,
-        tsbogend@alpha.franken.de, James.Bottomley@hansenpartnership.com,
-        ysato@users.sourceforge.jp, dalias@libc.org,
-        glaubitz@physik.fu-berlin.de, davem@davemloft.net, andreas@gaisler.com,
-        tglx@linutronix.de, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, chris@zankel.net, jcmvbkbc@gmail.com,
-        bhelgaas@google.com, jason.andryuk@amd.com, leitao@debian.org,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-mm@kvack.org,
-        kernel-team@android.com, android-mm@google.com,
-        Jann Horn <jannh@google.com>
-Subject: Re: [PATCH mm-unstable v2 00/16] mm: Introduce arch_mmap_hint()
-Message-ID: <695eabb8-ba28-4031-bc4d-66dc4f1d096f@lucifer.local>
-References: <20241211232754.1583023-1-kaleshsingh@google.com>
- <hmuzfspqjzb36xlj2x44keihacrrhzj5madqrfbcnhqouzredv@wo75achgkuh5>
- <1818e2ea-f170-4a9c-8d93-2a24f2755a41@lucifer.local>
- <20241212173609.afd41d1dffbefe0d731ed4ed@linux-foundation.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241212173609.afd41d1dffbefe0d731ed4ed@linux-foundation.org>
-X-ClientProxiedBy: LO4P265CA0156.GBRP265.PROD.OUTLOOK.COM
- (2603:10a6:600:2c7::18) To BYAPR10MB3366.namprd10.prod.outlook.com
- (2603:10b6:a03:14f::25)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bS3j7q7M"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BD57HDe029618;
+	Fri, 13 Dec 2024 09:35:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=aL90YR
+	nXCctrHOIYUk/NI6Uyt5G4dfnsjIsH3GNjchQ=; b=bS3j7q7MTixoxkLSX2MjIM
+	BAXzPXQd1Bq3cw84dJ0SPENdLLmQiG+V4BFf2kDa0bh9kvruFmqrhgQuSAwREtYK
+	o8yMQce/hFVjNHLJ37aFxkCsbs9mVIUk4E4NhN1AlpAXG1BIlckXdwP2f1yxZ5a4
+	vTR+ZpemY8j08PX1oyzRRvECjP7MBk66jehWlgqZ1BYwS8D/PDTAzhMPHayyKPMT
+	EPduXZmMSfQ4waKIuYZES7bUhpmFH3XOkq3mw1NTmZ+a2ZoP6etFIGJJ2dfHoBSx
+	pRO0jfDrSTHrigaWwmuwOAabMjNI5B5B5ud5TMG61QiXAKnkKnITUB42oj6BoJPA
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ccsk034t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 13 Dec 2024 09:35:00 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4BD9TTeq000402;
+	Fri, 13 Dec 2024 09:35:00 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ccsk034r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 13 Dec 2024 09:35:00 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BD7fX2t007781;
+	Fri, 13 Dec 2024 09:34:59 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43ft11xmgm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 13 Dec 2024 09:34:59 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BD9Yw8q62849386
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 13 Dec 2024 09:34:58 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3EF7E58076;
+	Fri, 13 Dec 2024 09:34:58 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6D60A5808F;
+	Fri, 13 Dec 2024 09:34:56 +0000 (GMT)
+Received: from [9.171.36.222] (unknown [9.171.36.222])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 13 Dec 2024 09:34:56 +0000 (GMT)
+Message-ID: <22b856e1-39a9-4926-b3b7-41147519d2da@linux.ibm.com>
+Date: Fri, 13 Dec 2024 10:34:55 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BYAPR10MB3366:EE_|MW4PR10MB6559:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9e224750-0921-4799-7b0d-08dd1b5486c3
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|1800799024|376014|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?GAo00ggUoH68zGe1aXtgKBE5HpwmH9El8YtOGNOqQPpwe4dPDXWRVhtg1l9+?=
- =?us-ascii?Q?AyiG53b80R0BJu+7pTelqRZqg6+bBCf2QOafMPRPRiCtT1Ro9QosalvbD8Ri?=
- =?us-ascii?Q?vxbzZ7HODq+gn+j1TfY3BD5sIuZid4vj1+7UNQ3zeixL9sEiXFqjRpUqHLm7?=
- =?us-ascii?Q?WP3WkqpQZyj7HsjVXZQKeFWlq+1vnjFWDCRKjW+qWBaBKI1LbJ32TIOcZBtm?=
- =?us-ascii?Q?+je//1xtJTuFYWjfRoU+XCibSGanWepUP3AGspSA922aYaJVFelWej+QlUW7?=
- =?us-ascii?Q?YE+4Iri3jhQas9J8RHf+gLk533HVt+3Ebb78xYk+lZoqlRWUaSYLPuCcQ/uW?=
- =?us-ascii?Q?1SfG5BEu3oglmn/l0wVY9W/zZkefy8dRe6Tj/+hlKUU/auEolFc9mxOVpi4g?=
- =?us-ascii?Q?qhDYF3OAh9nEOZQ9UTdYCeotIRTFjlFhjwNk9VgGUWXrx/QIWHp5ljfCEckt?=
- =?us-ascii?Q?Wuj/rQXPan7qTavr57ctIylpCD4eIWTW3c4OCnDNvEr/H823kF21xKLM7vut?=
- =?us-ascii?Q?GeXAwSqXTmlX83uFr/+YS1XuYxWajWbw4YCfSnISAsFxmNOXMNkKD771QnGC?=
- =?us-ascii?Q?0qethwTAcLX8m/LrNCdBh36lvPq9bwobEnWWQSwWWFcEUFslQBTr3dTEA1tK?=
- =?us-ascii?Q?LI6VpKZUqLBkGJz9y05U+Vh6Nzf1dUujdN799aZ1hecDLDyuqhxmSpswNABp?=
- =?us-ascii?Q?Pv7gqBVF1EQF+JPCH4xK0qjk+s/kFLTd1dY0L++aOfQu7EgIV4HFNhQiYNpH?=
- =?us-ascii?Q?f9bN/zWgsSNJ2ZH5f07BYyPQjErNXXqF+TN6tk48vj042PM1AkK/SFcPjNmY?=
- =?us-ascii?Q?IxFMFpYVIkQj89mGXeyEkG7rwaPB5OykNQriqS2w2qRzVSD2ONwYlGyhq/6C?=
- =?us-ascii?Q?hk332UZA+ZH8cgNvEu5blxgEelmerFNQHEe0lErNZbWPewHMr2KsXIRwcy1o?=
- =?us-ascii?Q?anjGSyEgGeIW2Tm1dMvV7t/yk8DdxTAOa7bOUOOXiHSSCEYIv6aIs+cHJCJN?=
- =?us-ascii?Q?F3nNHUjH6xdjniGc7DXrawgi0VKEbLr1tZtWi7PSDtr91Z6qreshmrwMlkah?=
- =?us-ascii?Q?WkNP9oUOi263Hxu0ROVXWfzV144PEgLXrlbM5r/mTZUm0XXtWlbXryWpz78Y?=
- =?us-ascii?Q?kqSpsYZVo843iiP2y0WsVpJDD5FulU2Kiu6aiaay8mmV/QJXge9JBcJD5eGw?=
- =?us-ascii?Q?hFM5cebj5nfdgxseGxrXKWXOkzZk28d3RZ5Qj/dggZc7HKc0+A/krGCwaWq4?=
- =?us-ascii?Q?UArXn/Z1zRAM/R/NQlWYJ8HdEr5BDjvrHwBWpVi0/fpQz3Vzl0mOC2Io1H83?=
- =?us-ascii?Q?osUr+iNy3q8ZfOGFnvp8RJGfNIZOwkjy971AlYC+V6wP+g=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR10MB3366.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(1800799024)(376014)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?7dYh9cMLE9TAe8UuOXWzGMSy8ZyWJ6kPsYtkGo11DKGA6igHVy9ea2ud1Oef?=
- =?us-ascii?Q?llUdu+XeHMhHHshbrB3PMFHMaSTvvT4udIAiGRkNxEra5enuSBxpavVQ31zf?=
- =?us-ascii?Q?M78XRxlr3RPZyupbIHrRg9m0uiTSdaZYOxg4aXVvOYebeZJzONSOq0XmG46j?=
- =?us-ascii?Q?QG66cBIzHC54TG3Tewmol3m0InFEIOxG4qVFa8EU9Z5b6t5+tHKxK4fbPtpp?=
- =?us-ascii?Q?bDEFvQoQodLHhXf+4wjtBry2e7RBXxYqTAlyj1cezbMnapumzaJXjyi1TS0s?=
- =?us-ascii?Q?/QkxU13qUGY0dnrSF4mFhPyXPNJ88cbGrlJ/pQ4Yi2h8xHznGm4uHphhHFwt?=
- =?us-ascii?Q?EKXQqClEQ4qE30D5DEBGYeZ794eiVRIeyrnxYVkWKAfrrZxYIn4t5T7B3vP6?=
- =?us-ascii?Q?jMEiNjWTDcnM87iizY8vVTbTHc0WcTKGC+e1Ek9nsMpVSmu6IA99JtPi53lb?=
- =?us-ascii?Q?3H+QYcz3Sxluozjjty5bG9A51O+0JPHLAlHi+sdPcGUUHOzuA8fA6mCE2aPO?=
- =?us-ascii?Q?hJjjcq2I5ZhfJe0wCQr18gYqHXrEBriB1knJU1QUa22t9U/THF2V4VcvnwN0?=
- =?us-ascii?Q?sgMTFDA0mLotG2JPj8iv/2vpr+DlQoFyDEx+Bju2MDitFjTlIUlgK4ewVpJZ?=
- =?us-ascii?Q?6qwP0TWbIn1kj5ij0vYjR0gONWoysQsih6bNaHgwPWUuh8tnV7efbG9RRmF/?=
- =?us-ascii?Q?4rXYVWAXmf8I2Rrzc76YR0doPMHH1+Uu3eyxmxLXUGxZ/lRERNS5Q1yESB5o?=
- =?us-ascii?Q?NhdEPxM36LpqCWHrKapA6YLvMUFeO805scNbvgYArv9718LpaUWodpGz5ke7?=
- =?us-ascii?Q?SXKlv2peY8/WEpNqXP35n/3NvrmmccJ3fxnAW9S9VNxF3PVNYdjD5TdbezqZ?=
- =?us-ascii?Q?xkg79IIQ8kisVErRGf12I1KHU0vT4OFBkjhmEwa0RjAG+4C51FNzKJOfJ+dh?=
- =?us-ascii?Q?kQTa1R5nLJMGo9dIEj9PQtvRkitoOWZeBuXRO+MO56U2lYCOjQu4wn93bI/4?=
- =?us-ascii?Q?NKIyDyd8VaJP2MZaucqXDqKcxq/3PlLfU6zu5Kw0jseVI1pDCDHm22jJZmY2?=
- =?us-ascii?Q?ylcKeLhJHuXjnaoGy3035XVrX3tgBmMez54lnGS1MHru0tT4YaOFW7N5yOXe?=
- =?us-ascii?Q?tjbleSy8JHHV2yDIC43pHgSOQTn/s4hUNtVVFENmKA+wX3gaG664QxIASDvM?=
- =?us-ascii?Q?jI26lMbDEvdGI9Ui8F1hUG5r2vWiHkEgsW4bpnD6UmDLFpmoFFntHuIqZnm6?=
- =?us-ascii?Q?Zoqq0ikt38onH2Hgk7OI3TNuQcfp/zUS1uJraDSXkxl1GK5Fw9vChA+K1iOH?=
- =?us-ascii?Q?afErV767C6fVBOYJwqTh+tDVLbArf4339cD++TLNeqdnhtMSW7a1Y569pHIF?=
- =?us-ascii?Q?qz5iNok0o7Z44ygQ7XaWsC+bNKGWh7CM+Cics00mxmJJQZtLR5YgRWZJc1b2?=
- =?us-ascii?Q?O9r/2o8TyCo5yQAOjulh8+bIZ4sDAEazyk2v7FR9TSz9NYrsS/46a+hFS2px?=
- =?us-ascii?Q?w8JDCAadQmBB23h7VS7TSvcVWP4idGpDIVCh/Ez517y0lg6Rc0OEQCZnyPCQ?=
- =?us-ascii?Q?f6Dtriti4N0eeh9KIwcONS0HUR6p/O1O2pJYkQyvlMCqVHyfNLIbJ37gU2qj?=
- =?us-ascii?Q?Cg=3D=3D?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	MZuYPRS7qOuJ4H8xxVPsZVfJdculA4RY908QLDhoKJWORjHZTICv2u/r4cLLq06T3BN1T8FU/O7AsldCWiLSB54LUYASXAlint3U1s9yy6SpB4pvh3xH3sdjxrMbRiWJ+3fgUZnFkMkBgmTbsQqI53b9RSCO/YKbk2Q8hUzqkzZvXedj6dR2mE7dMwmvT8vQmbm6vZPozJggqro+cNGOvMinyrSO+7pHnjTIZEn5hxg4HOGkQdppoYfDa6hNfN0ozd4+AK1Y383JEFAYbRFvOmE3flz/RwsJjyxOb7kpfEQdD2rWuPw37ayqQHfH3Rp7Ns9C795n4a9dtgGoguHGVRFmN0ng/YVLHleRzwLgA+WbtOB8Q0akdHbbOQXw+F+0ha4lQyP7kRnxG3QslINNKOW1d112q4pXHANGoUXautwFuRyM/PIO1PP6hWgSJsaNi8ZadZ7t8bC1BpEj9cwyECOFVmN+MCrzt9zw8MvPkfqjGvRQKVzs1iZc3bDp7AJ+z0AgfAD6nbmwtmHBmRxfRuQ89XHtC/1neRPS30Uk7td+QaR3C6bEd9Y3Ofroc6EGXwWmjV2KTFKZCIFHy3y4qlpAvd0QrRdKDaNh3OBUj6w=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9e224750-0921-4799-7b0d-08dd1b5486c3
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3366.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Dec 2024 09:00:01.1056
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: uszMKqVbgv6DsRdltl1BjI+K70mr/iXFpHj4WIwyan6bs4bR9ZRM+/DE0w0qN71+czaZLIM/yBgyFoHQEjcKHgl05GEV5jdHrepOXBGco4Q=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR10MB6559
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] btrfs: Fix avail_in bytes for s390 zlib HW compression
+ path
+To: Qu Wenruo <quwenruo.btrfs@gmx.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.cz>, linux-btrfs@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>, linux-s390@vger.kernel.org
+References: <20241212135000.1926110-1-zaslonko@linux.ibm.com>
+ <85bd7f9b-d9de-46ce-bda9-e7f2db31b8d6@gmx.com>
+Content-Language: en-US
+From: Zaslonko Mikhail <zaslonko@linux.ibm.com>
+In-Reply-To: <85bd7f9b-d9de-46ce-bda9-e7f2db31b8d6@gmx.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: _y206LWh0g9FAEwixpMv00J3p_2gXNh-
+X-Proofpoint-ORIG-GUID: nYZM3PhHPD0sDAd1h40g1EeddOIcQa8J
 X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2024-12-13_03,2024-12-12_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 malwarescore=0
- adultscore=0 spamscore=0 suspectscore=0 mlxlogscore=999 bulkscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2411120000 definitions=main-2412130061
-X-Proofpoint-GUID: -iyWgZSl288tpoKPOvJ26Tno9KRxujzM
-X-Proofpoint-ORIG-GUID: -iyWgZSl288tpoKPOvJ26Tno9KRxujzM
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
+ impostorscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0 mlxlogscore=999
+ mlxscore=0 priorityscore=1501 suspectscore=0 malwarescore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2412130064
 
-On Thu, Dec 12, 2024 at 05:36:09PM -0800, Andrew Morton wrote:
-> On Thu, 12 Dec 2024 22:51:34 +0000 Lorenzo Stoakes <lorenzo.stoakes@oracle.com> wrote:
->
-> > You've fundamentally violated kernel process and etiquette. I'd be more
-> > forgiving, but this is at v2 and you've not cc'd KEY people. Twice. This is
-> > totally unacceptable. See [0] if you are unsure of how to do so.
->
-> This feels excessive to me.  linux-mm averages a mere 140 mesages/day
-> and it seems reasonable to assume that key people are spending their 5
-> minutes to scroll through the email subjects.
+Hello Qu,
 
-In practice we did all miss it, and I don't think it's unreasonable to ask
-people to run get_maintainers.pl to avoid this.
+On 12.12.2024 21:37, Qu Wenruo wrote:
+> 
+> 
+> 在 2024/12/13 00:20, Mikhail Zaslonko 写道:
+>> Since the input data length passed to zlib_compress_folios() can be
+>> arbitrary, always setting strm.avail_in to a multiple of PAGE_SIZE may
+>> cause read-in bytes to exceed the input range. Currently this triggers
+>> an assert in btrfs_compress_folios() on the debug kernel. But it may
+>> potentially lead to data corruption.
+> 
+> Mind to provide the real world ASSERT() call trace?
 
-In any case, I truly do think this series works better as RFC, I mean Liam
-has already voiced the kind of disagreements I share with it, and we need
-to rethink how to approach it in general.
+Here is the call trace triggered by one of our tests (wasn't sure whether to include it to the commit message):
 
-So if this is simply sent as RFC with the correct cc's (and ideally with
-some review feedback applied - a better cover letter, etc.) then it makes
-everything easier.
+[ 2928.542300] BTRFS: device fsid 98138b99-a1bc-47cd-9b77-9e64fbba11de devid 1 transid 55 /dev/dasdc1 (94:9) scanned by mount (2000)                            
+[ 2928.543029] BTRFS info (device dasdc1): first mount of filesystem 98138b99-a1bc-47cd-9b77-9e64fbba11de                                                       
+[ 2928.543051] BTRFS info (device dasdc1): using crc32c (crc32c-vx) checksum algorithm                                                                          
+[ 2928.543058] BTRFS info (device dasdc1): using free-space-tree                                                                                                
+[ 2964.842146] assertion failed: *total_in <= orig_len, in fs/btrfs/compression.c:1041                                                                          
+[ 2964.842226] ------------[ cut here ]------------                                                                                                             
+[ 2964.842229] kernel BUG at fs/btrfs/compression.c:1041!                                                                                                       
+[ 2964.842306] monitor event: 0040 ilc:2 [#1] PREEMPT SMP                                                                                                       
+[ 2964.842314] Modules linked in: nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat n
+f_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables pkey_pckmo s390_trng rng_core vfio_ccw mdev vfio_iommu_type1 vfio sch_fq_codel drm loop i2c_co
+re dm_multipath drm_panel_orientation_quirks nfnetlink vsock_loopback vmw_vsock_virtio_transport_common vsock lcs ctcm fsm zfcp scsi_transport_fc ghash_s390 prn
+g chacha_s390 aes_s390 des_s390 libdes sha3_512_s390 sha3_256_s390 sha512_s390 sha256_s390 sha1_s390 sha_common scsi_dh_rdac scsi_dh_emc scsi_dh_alua pkey autof
+s4 ecdsa_generic ecc                                                                                                                                            
+[ 2964.842387] CPU: 16 UID: 0 PID: 325 Comm: kworker/u273:3 Not tainted 6.13.0-20241204.rc1.git6.fae3b21430ca.300.fc41.s390x+debug #1                           
+[ 2964.842406] Hardware name: IBM 3931 A01 703 (z/VM 7.4.0)                                                                                                     
+[ 2964.842409] Workqueue: btrfs-delalloc btrfs_work_helper                                                                                                      
+[ 2964.842420] Krnl PSW : 0704d00180000000 0000021761df6538 (btrfs_compress_folios+0x198/0x1a0)                                                                 
+[ 2964.842426]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3                                                                          
+[ 2964.842430] Krnl GPRS: 0000000080000000 0000000000000001 0000000000000047 0000000000000000                                                                   
+[ 2964.842433]            0000000000000006 ffffff01757bb000 000001976232fcc0 000000000000130c                                                                   
+[ 2964.842436]            000001976232fcd0 000001976232fcc8 00000118ff4a0e30 0000000000000001                                                                   
+[ 2964.842438]            00000111821ab400 0000011100000000 0000021761df6534 000001976232fb58                                                                   
+[ 2964.842446] Krnl Code: 0000021761df6528: c020006f5ef4        larl    %r2,0000021762be2310                                                                    
+[ 2964.842446]            0000021761df652e: c0e5ffbd09d5        brasl   %r14,00000217615978d8                                                                   
+[ 2964.842446]           #0000021761df6534: af000000            mc      0,0                                                                                     
+[ 2964.842446]           >0000021761df6538: 0707                bcr     0,%r7                                                                                   
+[ 2964.842446]            0000021761df653a: 0707                bcr     0,%r7                                                                                   
+[ 2964.842446]            0000021761df653c: 0707                bcr     0,%r7                                                                                   
+[ 2964.842446]            0000021761df653e: 0707                bcr     0,%r7                                                                                   
+[ 2964.842446]            0000021761df6540: c004004bb7ec        brcl    0,000002176276d518                                                                      
+[ 2964.842463] Call Trace:                                                                                                                                      
+[ 2964.842465]  [<0000021761df6538>] btrfs_compress_folios+0x198/0x1a0                                                                                          
+[ 2964.842468] ([<0000021761df6534>] btrfs_compress_folios+0x194/0x1a0)                                                                                         
+[ 2964.842708]  [<0000021761d97788>] compress_file_range+0x3b8/0x6d0                                                                                            
+[ 2964.842714]  [<0000021761dcee7c>] btrfs_work_helper+0x10c/0x160                                                                                              
+[ 2964.842718]  [<0000021761645760>] process_one_work+0x2b0/0x5d0                                                                                               
+[ 2964.842724]  [<000002176164637e>] worker_thread+0x20e/0x3e0                                                                                                  
+[ 2964.842728]  [<000002176165221a>] kthread+0x15a/0x170                                                                                                        
+[ 2964.842732]  [<00000217615b859c>] __ret_from_fork+0x3c/0x60                                                                                                  
+[ 2964.842736]  [<00000217626e72d2>] ret_from_fork+0xa/0x38                                                                                                     
+[ 2964.842744] INFO: lockdep is turned off.                                                                                                                     
+[ 2964.842746] Last Breaking-Event-Address:                                                                                                                     
+[ 2964.842748]  [<0000021761597924>] _printk+0x4c/0x58                                                                                                          
+[ 2964.842755] Kernel panic - not syncing: Fatal exception: panic_on_oops                                                                                       
 
-As mentioned the timing is unfortunate here, this is a series we really
-want to make sure is properly reviewed before any chance of merge so again
-this points to RFC being the way forward.
+Let me know if I can provide any other details.
+
+> 
+> AFAIK the range passed into btrfs_compress_folios() should always have
+> its start/length aligned to sector size.
+
+Based on my tests, btrfs_compress_folios() input length (total_out) is not always a
+multiple of PAGE_SIZE. One can see this when writing less than 4K of data to an
+empty btrfs file.
+
+> 
+> Since s390 only supports 4K page size, that means the range is always
+> aligned to page size, and the existing code is also doing full page copy
+> anyway, thus I see no problem with the existing read.
+
+The code is doing full page copy to the workspace buffer for further compression. But the
+number of bytes actually processed by zlib_deflate() is controlled by strm.avail_in
+parameter.
+
+> 
+> Thanks,
+> Qu
+> 
+>> Fix strm.avail_in calculation for S390 hardware acceleration path.
+>>
+>> Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+>> Fixes: fd1e75d0105d ("btrfs: make compression path to be subpage compatible")
+>> ---
+>>   fs/btrfs/zlib.c | 4 ++--
+>>   1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/fs/btrfs/zlib.c b/fs/btrfs/zlib.c
+>> index ddf0d5a448a7..c9e92c6941ec 100644
+>> --- a/fs/btrfs/zlib.c
+>> +++ b/fs/btrfs/zlib.c
+>> @@ -174,10 +174,10 @@ int zlib_compress_folios(struct list_head *ws, struct address_space *mapping,
+>>                       copy_page(workspace->buf + i * PAGE_SIZE,
+>>                             data_in);
+>>                       start += PAGE_SIZE;
+>> -                    workspace->strm.avail_in =
+>> -                        (in_buf_folios << PAGE_SHIFT);
+>>                   }
+>>                   workspace->strm.next_in = workspace->buf;
+>> +                workspace->strm.avail_in = min(bytes_left,
+>> +                                   in_buf_folios << PAGE_SHIFT);
+>>               } else {
+>>                   unsigned int pg_off;
+>>                   unsigned int cur_len;
+> 
+
