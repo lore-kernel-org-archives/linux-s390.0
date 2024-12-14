@@ -1,70 +1,85 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79D8F1974EA;
-	Fri, 13 Dec 2024 22:50:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05D8C14D43D
+	for <linux-s390@vger.kernel.org>; Sat, 14 Dec 2024 09:04:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734130205; cv=none; b=n+EfHrVzmn4pWoFYa2zu5JuWGv1UoA5EyWvLj2xW8WHmZA/FzPa/usyZwkUAGpn9xkTfcGk8GIn/mqlGD0WD0uwxaiwGkfW7MBgcQuQO172Vve2qe0zPMHANsGIjJ9QjMDjRG/qRGqgTIhoBcK3e9uSc0AHIQ0yFOkkfPEfcYDk=
+	t=1734167055; cv=none; b=aThYODZ0F66fjInz45QGDvvhf40E3nAEL50RnnACPp9ZsTeQcybUmd1Q0WHUBlx8HU5kYC1/BLszJ/bHrBWQBQcIIlNWuU4Rgu2nKCN27tamepUXqYOTnzRWYKi2cQLoIRHh3nN8F3/b8f/1n7AZ0BAJN4Pm5ezb5acpj46je0c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734130205; c=relaxed/simple;
-	bh=0QrxwDumdv9ylh/ETp9pcFH7MM4XVeh5MXPIRYyG6vo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Vo7ipE3PGcJT3+PTcSRGtiYoVS/eOpQWETTwHzOMTxAcsuurnXfhj2BiI39JtvrjdSY9WQakp06YOu07j7gBLMa42Q/6idxjAIR0P+62GRP9+hd1kG3gn7EWg49DZHFsV9nFaL2WFSIVW7Lo/s61K/xZsLuTy2C35i6JJH/9D+M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UAw76aLS; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1734167055; c=relaxed/simple;
+	bh=WunXdhU7qtQHmUT93eVkt+8JRouSIOc5FLEynmCEfmU=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=PWzpjT9N9f2UGnud/BoWlbPrpHl3Z7mS/qdpznmtI0ryxUiCTKNkOna63n7NPXwUz1X5hWvDf1BJN4AsdcY/mClcPKcYH47qDnzFUHOr5o/AtAP5fzOi9mn5oRBva9Q1YVFa/dWyqKDyUYNoEDn4sZHE8rRe5GQxSiPCU5T9WHQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=QX9pEfn0; arc=none smtp.client-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UAw76aLS"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BDGfGaM026699;
-	Fri, 13 Dec 2024 22:49:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=XlZ7QWe3g498nZiSw
-	gZp6D/1c5C+8eNDxfmcCpETGq0=; b=UAw76aLSePYWOlnh7yozAwkxQUCLqBZbN
-	hukhww4S7xxM7X+dvvgQKjIb1eRybVA4P9MKN3KjH3Cr+rAzklLUUo7t7U2tHXJp
-	oiaXuYgZw7bSyXDT0lssSuXciAjKBfsA421LrszGmMqlu4tXuNXzdexdFWnBhrWu
-	su/1kOLUSnzyLvgfTzg4VVwAPYoQwuRCEh/E0MnpMXwTGr7G7KEnrkOArNdDfL3D
-	kUacNDwAxu9GiV4l6AEAWat2i1xXywdFByOuB7YKi1mNTFdhjBoaj5aVmMxFWZW6
-	pV6jBKAO6vaxgOyNQ+1Rb2N3HQgwCMTVwVqbquZpPs12z+PCI5qNA==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43g9yhnqwh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Dec 2024 22:49:52 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BDIjudC029309;
-	Fri, 13 Dec 2024 22:49:51 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 43gcprv9vw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Dec 2024 22:49:51 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BDMno9c26149410
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 13 Dec 2024 22:49:50 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 03EC85805A;
-	Fri, 13 Dec 2024 22:49:50 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3C25A58054;
-	Fri, 13 Dec 2024 22:49:48 +0000 (GMT)
-Received: from li-2311da4c-2e09-11b2-a85c-c003041e9174.ibm.com.com (unknown [9.61.107.222])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 13 Dec 2024 22:49:48 +0000 (GMT)
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-To: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
-        gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, borntraeger@linux.ibm.com, farman@linux.ibm.com,
-        clegoate@redhat.com, iommu@lists.linux.dev,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH v2 3/3] iommu/s390: implement iommu passthrough via identity domain
-Date: Fri, 13 Dec 2024 17:49:41 -0500
-Message-ID: <20241213224941.571060-4-mjrosato@linux.ibm.com>
-X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20241213224941.571060-1-mjrosato@linux.ibm.com>
-References: <20241213224941.571060-1-mjrosato@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="QX9pEfn0"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-2ee709715d9so1714686a91.3
+        for <linux-s390@vger.kernel.org>; Sat, 14 Dec 2024 01:04:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1734167053; x=1734771853; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PLGKRzIB8HXo0VMNVO8Y1nbnLVdnH3jBTxV4FtFLzdM=;
+        b=QX9pEfn0hCffAO5eIM3JGCbr0eL2BLuIky+xnV1G9vki5vBIdJPLGhkiTvvQmWaezb
+         faHyzqqGyUK2Xpg6uMaUlvIaMnEm2DVKuFlqnFRZVIo8i5TBlLfHY6vRYNkde6HK2U2C
+         3jzLLlH/n2OIN6ECiNS3+vJGd4fcbyPr7EhtqokLe0Zanx990yglNCX+MnIr4jS96hW3
+         IHF++IWi5zKcpoOLcInhoSGYR2Ro/pxefyPo5jZAQ4tmmJiWLuOzmXLDxNaX30sy+TIa
+         HVVzq+G/E0cI/Bcg9jXpt8hNAk02Ar2LFV8UBCzbdsEvbH/rb67kVxvpSucIkY77jbNj
+         fwxw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1734167053; x=1734771853;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=PLGKRzIB8HXo0VMNVO8Y1nbnLVdnH3jBTxV4FtFLzdM=;
+        b=jKHefxTNLwulARxZM7QSgiFT7i0auCbCnwJyy2Uo353sViGVtY5gmUJzIskQwt4QD2
+         Y2/hKbdmxxdFOvUrTH9QanIRo17CN/inCDyWw1s8oNy1aTfzhwFtUO62DxAT1lc7lvY7
+         ijFKxuGEjlDW9l7WpCXIS4a7ZmAR3VXnK37oDzNbGF5r0jpjkQ6iAW1rDenun5v85jMp
+         xm0ql7mlMTqjIxGBMQWNdM2iLlxZuUNBQUt61vEwwNcJDG40mP/oQYoDSkm20BX51KtG
+         x0zg/M7MDbNVz7IatR+tK4qqoQbwlqHj7ivIKgY56PQm/rkaTnu+lNUXM6EkkWFSgTwr
+         BQkg==
+X-Forwarded-Encrypted: i=1; AJvYcCXtoK0gx7SUFBn65iOm+ZYuPG3l/ykUC6FRY4JFFLGlfLO2puyLbsrM5Ri0f6Rn3tWPVPou+Le+lLbl@vger.kernel.org
+X-Gm-Message-State: AOJu0YzFiGVmAy5ULh+64dOS2MEniy1H5i4ziazxVXW8z+GXalhjyljM
+	kyylP8VMWStQpSkwx7E3P3WQPSPoYMx4qWJDIFYVEfWkbKe7uha7Qwgn4WzwMak=
+X-Gm-Gg: ASbGncsVq5AufqUH/zkpUFbVAffxWBobbPR/8fLNkPxLJXInJexioudgO+o1VulSyEw
+	ulGAR3qfCC4/WG+Rf7D9FF4skELfF6pon7liUT2DuMLfTV5BZir+ESX6SrP3sWYK3/piXhZ9Ikq
+	LRi+Kk7D/cui04ES6rHXEnKv2jc5gB+EcDM3UwwRbnNa+dSsuWSH0kHwVHfB5gez7aExL90YLtW
+	YLLSf5g2HWwdGNVNQ7imes1u7OkvUnZdMDZfGA4Qn+Bj5tGxDythBmlmCXYJ9MiZxXELB+fg1lY
+	YJ6FtAnSZH4NveqtkfeZoTQcboqNlg==
+X-Google-Smtp-Source: AGHT+IEUuhlzMDGPbhHcy72Znz6SKiudYIj5PWGCvj9lWM7sC/HnXgPB6JSnynFl46+kyeoAQCdvNg==
+X-Received: by 2002:a17:90b:3848:b0:2ee:d797:408b with SMTP id 98e67ed59e1d1-2f28fa55c45mr8606530a91.2.1734167053262;
+        Sat, 14 Dec 2024 01:04:13 -0800 (PST)
+Received: from C02DW0BEMD6R.bytedance.net ([2409:8a28:f4f:a9a4:5d46:4ef0:daa9:1db8])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-801d5a90ba0sm905731a12.16.2024.12.14.01.04.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 14 Dec 2024 01:04:12 -0800 (PST)
+From: Qi Zheng <zhengqi.arch@bytedance.com>
+To: peterz@infradead.org,
+	tglx@linutronix.de,
+	david@redhat.com,
+	jannh@google.com,
+	hughd@google.com,
+	yuzhao@google.com,
+	willy@infradead.org,
+	muchun.song@linux.dev,
+	vbabka@kernel.org,
+	lorenzo.stoakes@oracle.com,
+	akpm@linux-foundation.org,
+	rientjes@google.com
+Cc: linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	Qi Zheng <zhengqi.arch@bytedance.com>,
+	linux-s390@vger.kernel.org
+Subject: [PATCH 04/12] s390: pgtable: add statistics for PUD and P4D level page table
+Date: Sat, 14 Dec 2024 17:02:50 +0800
+Message-Id: <fd4223519c6300160cde2fce1c85a1ea0661b116.1734164094.git.zhengqi.arch@bytedance.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
+In-Reply-To: <cover.1734164094.git.zhengqi.arch@bytedance.com>
+References: <cover.1734164094.git.zhengqi.arch@bytedance.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -72,186 +87,132 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xEitcT7Om9Vv-MH5wyhxCzaQDno0AFNw
-X-Proofpoint-ORIG-GUID: xEitcT7Om9Vv-MH5wyhxCzaQDno0AFNw
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
- priorityscore=1501 spamscore=0 lowpriorityscore=0 suspectscore=0
- malwarescore=0 impostorscore=0 mlxscore=0 bulkscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2412130159
 
-Enabled via the kernel command-line 'iommu.passthrough=1' option.
+Like PMD and PTE level page table, also add statistics for PUD and P4D
+page table.
 
-Introduce the concept of identity domains to s390-iommu, which relies on
-the bus_dma_region to offset identity mappings to the start of the DMA
-aperture advertized by CLP.
-
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
+Cc: linux-s390@vger.kernel.org
 ---
- arch/s390/pci/pci.c        |  6 ++-
- drivers/iommu/s390-iommu.c | 95 +++++++++++++++++++++++++++++---------
- 2 files changed, 76 insertions(+), 25 deletions(-)
+ arch/s390/include/asm/pgalloc.h | 29 +++++++++++++++++++-------
+ arch/s390/include/asm/tlb.h     | 37 +++++++++++++++++----------------
+ 2 files changed, 40 insertions(+), 26 deletions(-)
 
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 88f72745fa59..758b23331754 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -124,14 +124,16 @@ int zpci_register_ioat(struct zpci_dev *zdev, u8 dmaas,
- 	struct zpci_fib fib = {0};
- 	u8 cc;
+diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
+index 7b84ef6dc4b6d..a0c1ca5d8423c 100644
+--- a/arch/s390/include/asm/pgalloc.h
++++ b/arch/s390/include/asm/pgalloc.h
+@@ -53,29 +53,42 @@ static inline p4d_t *p4d_alloc_one(struct mm_struct *mm, unsigned long address)
+ {
+ 	unsigned long *table = crst_table_alloc(mm);
  
--	WARN_ON_ONCE(iota & 0x3fff);
- 	fib.pba = base;
- 	/* Work around off by one in ISM virt device */
- 	if (zdev->pft == PCI_FUNC_TYPE_ISM && limit > base)
- 		fib.pal = limit + (1 << 12);
- 	else
- 		fib.pal = limit;
--	fib.iota = iota | ZPCI_IOTA_RTTO_FLAG;
-+	if (iota == 0)
-+		fib.iota = iota;
-+	else
-+		fib.iota = iota | ZPCI_IOTA_RTTO_FLAG;
- 	fib.gd = zdev->gisa;
- 	cc = zpci_mod_fc(req, &fib, status);
- 	if (cc)
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index fbdeded3d48b..3d93a9644fca 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -16,7 +16,7 @@
- 
- #include "dma-iommu.h"
- 
--static const struct iommu_ops s390_iommu_ops;
-+static const struct iommu_ops s390_iommu_ops, s390_iommu_rtr_ops;
- 
- static struct kmem_cache *dma_region_table_cache;
- static struct kmem_cache *dma_page_table_cache;
-@@ -392,9 +392,11 @@ static int blocking_domain_attach_device(struct iommu_domain *domain,
- 		return 0;
- 
- 	s390_domain = to_s390_domain(zdev->s390_domain);
--	spin_lock_irqsave(&s390_domain->list_lock, flags);
--	list_del_rcu(&zdev->iommu_list);
--	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-+	if (zdev->dma_table) {
-+		spin_lock_irqsave(&s390_domain->list_lock, flags);
-+		list_del_rcu(&zdev->iommu_list);
-+		spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-+	}
- 
- 	zpci_unregister_ioat(zdev, 0);
- 	zdev->dma_table = NULL;
-@@ -723,7 +725,13 @@ int zpci_init_iommu(struct zpci_dev *zdev)
- 	if (rc)
- 		goto out_err;
- 
--	rc = iommu_device_register(&zdev->iommu_dev, &s390_iommu_ops, NULL);
-+	if (zdev->rtr_avail) {
-+		rc = iommu_device_register(&zdev->iommu_dev,
-+					   &s390_iommu_rtr_ops, NULL);
-+	} else {
-+		rc = iommu_device_register(&zdev->iommu_dev, &s390_iommu_ops,
-+					   NULL);
-+	}
- 	if (rc)
- 		goto out_sysfs;
- 
-@@ -787,6 +795,39 @@ static int __init s390_iommu_init(void)
+-	if (table)
+-		crst_table_init(table, _REGION2_ENTRY_EMPTY);
++	if (!table)
++		return NULL;
++	crst_table_init(table, _REGION2_ENTRY_EMPTY);
++	pagetable_p4d_ctor(virt_to_ptdesc(table));
++
+ 	return (p4d_t *) table;
  }
- subsys_initcall(s390_iommu_init);
  
-+static int s390_attach_dev_identity(struct iommu_domain *domain,
-+				    struct device *dev)
+ static inline void p4d_free(struct mm_struct *mm, p4d_t *p4d)
+ {
+-	if (!mm_p4d_folded(mm))
+-		crst_table_free(mm, (unsigned long *) p4d);
++	if (mm_p4d_folded(mm))
++		return;
++
++	pagetable_p4d_dtor(virt_to_ptdesc(p4d));
++	crst_table_free(mm, (unsigned long *) p4d);
+ }
+ 
+ static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
+ {
+ 	unsigned long *table = crst_table_alloc(mm);
+-	if (table)
+-		crst_table_init(table, _REGION3_ENTRY_EMPTY);
++
++	if (!table)
++		return NULL;
++	crst_table_init(table, _REGION3_ENTRY_EMPTY);
++	pagetable_pud_ctor(virt_to_ptdesc(table));
++
+ 	return (pud_t *) table;
+ }
+ 
+ static inline void pud_free(struct mm_struct *mm, pud_t *pud)
+ {
+-	if (!mm_pud_folded(mm))
+-		crst_table_free(mm, (unsigned long *) pud);
++	if (mm_pud_folded(mm))
++		return;
++
++	pagetable_pud_dtor(virt_to_ptdesc(pud));
++	crst_table_free(mm, (unsigned long *) pud);
+ }
+ 
+ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
+diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
+index e95b2c8081eb8..b946964afce8e 100644
+--- a/arch/s390/include/asm/tlb.h
++++ b/arch/s390/include/asm/tlb.h
+@@ -110,24 +110,6 @@ static inline void pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmd,
+ 	tlb_remove_ptdesc(tlb, pmd);
+ }
+ 
+-/*
+- * p4d_free_tlb frees a pud table and clears the CRSTE for the
+- * region second table entry from the tlb.
+- * If the mm uses a four level page table the single p4d is freed
+- * as the pgd. p4d_free_tlb checks the asce_limit against 8PB
+- * to avoid the double free of the p4d in this case.
+- */
+-static inline void p4d_free_tlb(struct mmu_gather *tlb, p4d_t *p4d,
+-				unsigned long address)
+-{
+-	if (mm_p4d_folded(tlb->mm))
+-		return;
+-	__tlb_adjust_range(tlb, address, PAGE_SIZE);
+-	tlb->mm->context.flush_mm = 1;
+-	tlb->freed_tables = 1;
+-	tlb_remove_ptdesc(tlb, p4d);
+-}
+-
+ /*
+  * pud_free_tlb frees a pud table and clears the CRSTE for the
+  * region third table entry from the tlb.
+@@ -140,11 +122,30 @@ static inline void pud_free_tlb(struct mmu_gather *tlb, pud_t *pud,
+ {
+ 	if (mm_pud_folded(tlb->mm))
+ 		return;
++	pagetable_pud_dtor(virt_to_ptdesc(pud));
+ 	tlb->mm->context.flush_mm = 1;
+ 	tlb->freed_tables = 1;
+ 	tlb->cleared_p4ds = 1;
+ 	tlb_remove_ptdesc(tlb, pud);
+ }
+ 
++/*
++ * p4d_free_tlb frees a p4d table and clears the CRSTE for the
++ * region second table entry from the tlb.
++ * If the mm uses a four level page table the single p4d is freed
++ * as the pgd. p4d_free_tlb checks the asce_limit against 8PB
++ * to avoid the double free of the p4d in this case.
++ */
++static inline void p4d_free_tlb(struct mmu_gather *tlb, p4d_t *p4d,
++				unsigned long address)
 +{
-+	struct zpci_dev *zdev = to_zpci_dev(dev);
-+	u8 status;
-+	int cc;
-+
-+	blocking_domain_attach_device(&blocking_domain, dev);
-+
-+	/* If we fail now DMA remains blocked via blocking domain */
-+	cc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
-+				0, &status);
-+	/*
-+	 * If the device is undergoing error recovery the reset code
-+	 * will re-establish the new domain.
-+	 */
-+	if (cc && status != ZPCI_PCI_ST_FUNC_NOT_AVAIL)
-+		return -EIO;
-+
-+	zdev_s390_domain_update(zdev, domain);
-+
-+	return 0;
++	if (mm_p4d_folded(tlb->mm))
++		return;
++	pagetable_p4d_dtor(virt_to_ptdesc(p4d));
++	__tlb_adjust_range(tlb, address, PAGE_SIZE);
++	tlb->mm->context.flush_mm = 1;
++	tlb->freed_tables = 1;
++	tlb_remove_ptdesc(tlb, p4d);
 +}
-+
-+static const struct iommu_domain_ops s390_identity_ops = {
-+	.attach_dev = s390_attach_dev_identity,
-+};
-+
-+static struct iommu_domain s390_identity_domain = {
-+	.type = IOMMU_DOMAIN_IDENTITY,
-+	.ops = &s390_identity_ops,
-+};
-+
- static struct iommu_domain blocking_domain = {
- 	.type = IOMMU_DOMAIN_BLOCKED,
- 	.ops = &(const struct iommu_domain_ops) {
-@@ -794,23 +835,31 @@ static struct iommu_domain blocking_domain = {
- 	}
- };
  
--static const struct iommu_ops s390_iommu_ops = {
--	.blocked_domain		= &blocking_domain,
--	.release_domain		= &blocking_domain,
--	.capable = s390_iommu_capable,
--	.domain_alloc_paging = s390_domain_alloc_paging,
--	.probe_device = s390_iommu_probe_device,
--	.device_group = generic_device_group,
--	.pgsize_bitmap = SZ_4K,
--	.get_resv_regions = s390_iommu_get_resv_regions,
--	.default_domain_ops = &(const struct iommu_domain_ops) {
--		.attach_dev	= s390_iommu_attach_device,
--		.map_pages	= s390_iommu_map_pages,
--		.unmap_pages	= s390_iommu_unmap_pages,
--		.flush_iotlb_all = s390_iommu_flush_iotlb_all,
--		.iotlb_sync      = s390_iommu_iotlb_sync,
--		.iotlb_sync_map  = s390_iommu_iotlb_sync_map,
--		.iova_to_phys	= s390_iommu_iova_to_phys,
--		.free		= s390_domain_free,
-+#define S390_IOMMU_COMMON_OPS() \
-+	.blocked_domain		= &blocking_domain, \
-+	.release_domain		= &blocking_domain, \
-+	.capable = s390_iommu_capable, \
-+	.domain_alloc_paging = s390_domain_alloc_paging, \
-+	.probe_device = s390_iommu_probe_device, \
-+	.device_group = generic_device_group, \
-+	.pgsize_bitmap = SZ_4K, \
-+	.get_resv_regions = s390_iommu_get_resv_regions, \
-+	.default_domain_ops = &(const struct iommu_domain_ops) { \
-+		.attach_dev	= s390_iommu_attach_device, \
-+		.map_pages	= s390_iommu_map_pages, \
-+		.unmap_pages	= s390_iommu_unmap_pages, \
-+		.flush_iotlb_all = s390_iommu_flush_iotlb_all, \
-+		.iotlb_sync      = s390_iommu_iotlb_sync, \
-+		.iotlb_sync_map  = s390_iommu_iotlb_sync_map, \
-+		.iova_to_phys	= s390_iommu_iova_to_phys, \
-+		.free		= s390_domain_free, \
- 	}
-+
-+static const struct iommu_ops s390_iommu_ops = {
-+	S390_IOMMU_COMMON_OPS()
-+};
-+
-+static const struct iommu_ops s390_iommu_rtr_ops = {
-+	.identity_domain	= &s390_identity_domain,
-+	S390_IOMMU_COMMON_OPS()
- };
+ #endif /* _S390_TLB_H */
 -- 
-2.47.1
+2.20.1
 
