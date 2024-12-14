@@ -1,181 +1,114 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46A8818E028
-	for <linux-s390@vger.kernel.org>; Sat, 14 Dec 2024 09:05:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2635C126C10
+	for <linux-s390@vger.kernel.org>; Sat, 14 Dec 2024 09:18:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734167111; cv=none; b=hRgrgp1xoEL4PYooeqmky1iNjKsPewkEZz11S+fHKPjroQLAgyghZRIQgQn/1N6JhY0JdAyf5B25GF7xYU21Ms7sOKQDQ/RzRwyv930Z84Vj/gRJbEavK1HlVozIDzGr3vVhS4//xgvviHSWIfhjgd1WqnY9a0VI1X0QPPupczM=
+	t=1734167917; cv=none; b=XpHRQReTIeaZJd+NX+2eJxXrt0q+1FSwHKmZ1FV+7nS6ZCzjjaU1Bovnv8OcYcnRK/kdwdb/jUWozm9bQ/Gj0L3zoE+NIXxwxfAxqpn/qOP6/7/fnH4peQyYk6jFkj7OzPx3Z0S7na8sZlcv9fRmHmk+Gh3zMYxJfVGnitlmjYk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734167111; c=relaxed/simple;
-	bh=dUn22uFUF/7Q2aX8/sTNpsqlDbyw/AbPrg+Ofum3Ioc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=SCSlbzE0O1c9o9T116b3UgyV+QU1E4hrhlXaxOZS/7up/0TDpcq/Ex7fXEHI5TowVSqlq8U+llEimBrKmZtiwDUr1rxoiTzlk3SVoZVUnn4yi/SM1iU6VMKyQz+SUrLOrpKF/L1Aeau9IafRUj1Kv4DlnGLGxvXktYQqfG2swdg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=EkJs1S40; arc=none smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	s=arc-20240116; t=1734167917; c=relaxed/simple;
+	bh=fqllHZZPd0h2bIjPpy43/VddcIqh/5Iq0aqHycfTOmI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=C8O2Ymg3NvKlxhJ4hghkQalJmmlhBCxsiCJhXb0J/zt4HHMmr4tq/4kUv3PDcyuwXo9emGoadqfzffPef8zSOw2aU6bYJdvDpCjxWe8wXd161+tNj0+UKJNh//F5I3fQf0rhKHOvOCwCzy/klnK0yGgVlY547NY6R+db6ccEh1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=I/UmBmQl; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="EkJs1S40"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-725dac69699so2193758b3a.0
-        for <linux-s390@vger.kernel.org>; Sat, 14 Dec 2024 01:05:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1734167109; x=1734771909; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=eMqrm4pkcrZJ7adK/0JGqqs1dXiKNR49XOWaF/ar7JI=;
-        b=EkJs1S40b36UBcQ5tUf9/vhozXD4UmwBoav0utIjGg4O6vI87BIvXEcRBESTFU0jxA
-         kinWKUyncOnTcS0i9Fbv0ON6LZZX9H33oWjAbCGrS1HkbiftT8zr+ReTpScQbaInnsm2
-         dvBp553B55mShlO/mo39Tii4GpIsm9L5IYJT2RC1ZQ8SpkAfpLtJeJK1qvvf0+oXa6Ok
-         T5sf1ovXb1U9w5v9psnSDheggAZUErRkndv/Bf8dg1aEDjfuwwLCl/Fq1vu+6SiXxogC
-         F59pck4XW8mkJT9Y+MhBSTwlMxeCOmM6HK+O3ylpUZKdHyg16Hezfi5S7o7cmroCjbLA
-         urTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734167109; x=1734771909;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=eMqrm4pkcrZJ7adK/0JGqqs1dXiKNR49XOWaF/ar7JI=;
-        b=XRlcuEPkV9eOqqHwbP2+R2BqkA7iEd9lGWk6Oyqay8j508SbcLiqaaYR0oJ/OcU1/F
-         XOONi6D8fNfrLd2k8eivJNCJX0sLgCzUIzz/ZIgKmPTXDclEmJMNWkFFYgrPak6njxaB
-         4de9BxyQ59Kj74YmYLCQk2k5oXfqDXa/JtUkPk7yoiGxHwJqhOgUwLbNxI7LJnglowVy
-         J0mgihuCMzgbXr5bK52vSh4hTDfKc4e3ZeQeoM7YpWbyxRqb3Hxh7Rn919JqpQRQtxqt
-         7VdiqYs1mhyarjMkUTBNzzyiSKLP6p6URHbi6sCKmAbSbPMvp3vFpuwkzMI4iSzDANgb
-         c1fA==
-X-Forwarded-Encrypted: i=1; AJvYcCWAIS7uaSrSjDmMmkkpkMPL9SZi1HvAbCgMANyxi1m3BNhFt01u5wXd2oO42iSA1N6d2oPX0Ae5//TM@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx49HRqDKgYY/9bufZYqeLXoLnlj8L6C30HLEE+U5Mi2g9OMUzc
-	HwVRp6ToU6p7ZKzVZqYGK32UJVqZvceLJCmh8vCKQ8IavkPsahtQhc0B8RdrKJA=
-X-Gm-Gg: ASbGnctGltU5YaYMrdW7vLyqno/iQzDry34rEQFi23H8QxZ9hnx/hQICjmRmR3EOu+5
-	Xz07prBsVIylOFMA6eQdwGHiAigNP7GrE944pjBtPUd8IAn9Mol8fKYgN0gIm3iZCMvMiidpxyu
-	KK60sGnYDBq/+WqjBit+R2+4ylQwEb3Y0EU9ZkJiST3SN8CJOiVknd799ycdkboGkYw6YftFtN0
-	i68AXQHClMtdOR4CsafZa3Lg5PpvS4z25x780qPcqZNR9us0WxXn3IQTawXLeTY7mx8T+V4t/v1
-	1XfJpd6CB8rq0y+byuzJNSFeuU1y8Q==
-X-Google-Smtp-Source: AGHT+IE/1mbbP4uNRetgOIypjg2bvSDj3GWH/cGEc/xqzPLinfL2kdCDxCigFtQu4L9Hg/0wQ4NEdw==
-X-Received: by 2002:a05:6a20:a123:b0:1e1:96d9:a7db with SMTP id adf61e73a8af0-1e1dfbfc129mr8345681637.4.1734167109554;
-        Sat, 14 Dec 2024 01:05:09 -0800 (PST)
-Received: from C02DW0BEMD6R.bytedance.net ([2409:8a28:f4f:a9a4:5d46:4ef0:daa9:1db8])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-801d5a90ba0sm905731a12.16.2024.12.14.01.05.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Dec 2024 01:05:08 -0800 (PST)
-From: Qi Zheng <zhengqi.arch@bytedance.com>
-To: peterz@infradead.org,
-	tglx@linutronix.de,
-	david@redhat.com,
-	jannh@google.com,
-	hughd@google.com,
-	yuzhao@google.com,
-	willy@infradead.org,
-	muchun.song@linux.dev,
-	vbabka@kernel.org,
-	lorenzo.stoakes@oracle.com,
-	akpm@linux-foundation.org,
-	rientjes@google.com
-Cc: linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	Qi Zheng <zhengqi.arch@bytedance.com>,
-	linux-s390@vger.kernel.org
-Subject: [PATCH 10/12] s390: pgtable: also move pagetable_dtor() of PxD to __tlb_remove_table()
-Date: Sat, 14 Dec 2024 17:02:56 +0800
-Message-Id: <1e87efe43e9b8b679384e947dd8503715dd9faf0.1734164094.git.zhengqi.arch@bytedance.com>
-X-Mailer: git-send-email 2.24.3 (Apple Git-128)
-In-Reply-To: <cover.1734164094.git.zhengqi.arch@bytedance.com>
-References: <cover.1734164094.git.zhengqi.arch@bytedance.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="I/UmBmQl"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BE4TRso018926;
+	Sat, 14 Dec 2024 09:18:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=WcqJw9z8Xi2dAQdId8Agf80AKwGPMv
+	w7TFoeRY/+4Ac=; b=I/UmBmQl2elfBnta0fgFP4KIKPmTOS87BDuXUdfvunjUzU
+	DBFBiHewXvraVPVJ5BdH69F0phsAI35o3uk4MOYsA8hTzNWlCoy2sWcMDHk4czB8
+	GKnSSr9Mo95tanFUfFCSwycT6rCTRd7OCfAViIA35B+EIg77u/zAt09TI906NQ0U
+	s6DmSCzPQa1l+MwQTnQsRxoU37BoaXvPU1ukkJmri8nX462n+feqUPUaE+U2FCPJ
+	dMsZCYg9VdWV63zsb0/9h7Mfi0FniTZQEN+4nsWlZncS/AEQ3Xg5hMCoun4p6cl2
+	oXaa/MTHMgHtbMfq2zKuQ1r8TqTLcQgCFPpZ1Dzg==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43h2gb17v7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 14 Dec 2024 09:18:21 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BE7mNOJ032734;
+	Sat, 14 Dec 2024 09:18:20 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 43d0pt2mtc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 14 Dec 2024 09:18:20 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BE9IIK434996732
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 14 Dec 2024 09:18:18 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7E91A20043;
+	Sat, 14 Dec 2024 09:18:18 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6128420040;
+	Sat, 14 Dec 2024 09:18:18 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Sat, 14 Dec 2024 09:18:18 +0000 (GMT)
+Date: Sat, 14 Dec 2024 10:18:14 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dafna Hirschfeld <dafna.hirschfeld@intel.com>, linux-mm@kvack.org,
+        muchun.song@linux.dev, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] mm/hugetlb: change ENOSPC to ENOMEM in
+ alloc_hugetlb_folio
+Message-ID: <Z11NVjR88-mxoDM9@tuxmaker.boeblingen.de.ibm.com>
+References: <20241201010341.1382431-1-dafna.hirschfeld@intel.com>
+ <20241130185121.02da011be898052454116c4b@linux-foundation.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241130185121.02da011be898052454116c4b@linux-foundation.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: LXEOui7LmHJ84tox0LpDxDn1svrhYRcq
+X-Proofpoint-GUID: LXEOui7LmHJ84tox0LpDxDn1svrhYRcq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
+ impostorscore=0 suspectscore=0 bulkscore=0 phishscore=0 priorityscore=1501
+ lowpriorityscore=0 mlxlogscore=651 adultscore=0 mlxscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2412140074
 
-In s390, the pagetable_dtor() of PTE has long been moved to
-__tlb_remove_table(). So similarly, also move the pagetable_dtor() of
-PMD|PUD|P4D to __tlb_remove_table(). This prevents the use-after-free
-problem where the ptlock is freed immediately but the page table pages
-is freed later via RCU.
+On Sat, Nov 30, 2024 at 06:51:21PM -0800, Andrew Morton wrote:
 
-By the way, rename pagetable_pte_dtor_free() to pagetable_dtor_free().
+Hi Andrew,
+...
+> > -	return ERR_PTR(-ENOSPC);
+> > +	return ERR_PTR(-ENOMEM);
+...
+> err, yes.  ENOSPC is for disk drives!  I'll slap a cc:stable on this
+> fix for a decade old bug.
 
-Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-Cc: linux-s390@vger.kernel.org
----
- arch/s390/include/asm/tlb.h |  3 ---
- arch/s390/mm/pgalloc.c      | 14 ++++----------
- 2 files changed, 4 insertions(+), 13 deletions(-)
+This fix invalidates the comment in hugetlb_no_page():
 
-diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
-index 74b6fba4c2ee3..79df7c0932c56 100644
---- a/arch/s390/include/asm/tlb.h
-+++ b/arch/s390/include/asm/tlb.h
-@@ -102,7 +102,6 @@ static inline void pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmd,
- {
- 	if (mm_pmd_folded(tlb->mm))
- 		return;
--	pagetable_dtor(virt_to_ptdesc(pmd));
- 	__tlb_adjust_range(tlb, address, PAGE_SIZE);
- 	tlb->mm->context.flush_mm = 1;
- 	tlb->freed_tables = 1;
-@@ -122,7 +121,6 @@ static inline void pud_free_tlb(struct mmu_gather *tlb, pud_t *pud,
- {
- 	if (mm_pud_folded(tlb->mm))
- 		return;
--	pagetable_dtor(virt_to_ptdesc(pud));
- 	tlb->mm->context.flush_mm = 1;
- 	tlb->freed_tables = 1;
- 	tlb->cleared_p4ds = 1;
-@@ -141,7 +139,6 @@ static inline void p4d_free_tlb(struct mmu_gather *tlb, p4d_t *p4d,
- {
- 	if (mm_p4d_folded(tlb->mm))
- 		return;
--	pagetable_dtor(virt_to_ptdesc(p4d));
- 	__tlb_adjust_range(tlb, address, PAGE_SIZE);
- 	tlb->mm->context.flush_mm = 1;
- 	tlb->freed_tables = 1;
-diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-index 569de24d33761..c73b89811a264 100644
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -180,7 +180,7 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
- 	return table;
- }
- 
--static void pagetable_pte_dtor_free(struct ptdesc *ptdesc)
-+static void pagetable_dtor_free(struct ptdesc *ptdesc)
- {
- 	pagetable_dtor(ptdesc);
- 	pagetable_free(ptdesc);
-@@ -190,20 +190,14 @@ void page_table_free(struct mm_struct *mm, unsigned long *table)
- {
- 	struct ptdesc *ptdesc = virt_to_ptdesc(table);
- 
--	pagetable_pte_dtor_free(ptdesc);
-+	pagetable_dtor_free(ptdesc);
- }
- 
- void __tlb_remove_table(void *table)
- {
- 	struct ptdesc *ptdesc = virt_to_ptdesc(table);
--	struct page *page = ptdesc_page(ptdesc);
- 
--	if (compound_order(page) == CRST_ALLOC_ORDER) {
--		/* pmd, pud, or p4d */
--		pagetable_free(ptdesc);
--		return;
--	}
--	pagetable_pte_dtor_free(ptdesc);
-+	pagetable_dtor_free(ptdesc);
- }
- 
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-@@ -211,7 +205,7 @@ static void pte_free_now(struct rcu_head *head)
- {
- 	struct ptdesc *ptdesc = container_of(head, struct ptdesc, pt_rcu_head);
- 
--	pagetable_pte_dtor_free(ptdesc);
-+	pagetable_dtor_free(ptdesc);
- }
- 
- void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
--- 
-2.20.1
+	/*
+	 * Returning error will result in faulting task being
+	 * sent SIGBUS.  The hugetlb fault mutex prevents two
+	   ...
+	 */
 
+The problem is an attempt to write to a MAP_NORESERVE huge page (as per [1])
+causes an infinite page fault cycle instead of SIGBUS, at least on s390:
+
+	q = mmap(NULL, hpage_size,
+		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_NORESERVE, fd2, 0);
+	...
+	test_write(q);
+
+1. https://github.com/libhugetlbfs/libhugetlbfs/blob/master/tests/noresv-preserve-resv-page.c
+
+Thanks!
