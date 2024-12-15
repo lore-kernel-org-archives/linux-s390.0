@@ -1,114 +1,95 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2635C126C10
-	for <linux-s390@vger.kernel.org>; Sat, 14 Dec 2024 09:18:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2E7E14A4D4;
+	Sun, 15 Dec 2024 13:00:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734167917; cv=none; b=XpHRQReTIeaZJd+NX+2eJxXrt0q+1FSwHKmZ1FV+7nS6ZCzjjaU1Bovnv8OcYcnRK/kdwdb/jUWozm9bQ/Gj0L3zoE+NIXxwxfAxqpn/qOP6/7/fnH4peQyYk6jFkj7OzPx3Z0S7na8sZlcv9fRmHmk+Gh3zMYxJfVGnitlmjYk=
+	t=1734267618; cv=none; b=fzFjkFHTJo4RMoQDQN3UfriqKACzVYDVJLMz1tWNo6a1HMW8pxz3+3IKaKIwnQdMMrH0HYEBQ6lMo94rYYaCgg1QLJfRbBK5RbRUlkKhMStv1WL/cku+hYF2kN9c6/nfzSlm8MYZViDfah+3F+Ofb++elW+L3YeEo95j5sb4XDo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734167917; c=relaxed/simple;
-	bh=fqllHZZPd0h2bIjPpy43/VddcIqh/5Iq0aqHycfTOmI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=C8O2Ymg3NvKlxhJ4hghkQalJmmlhBCxsiCJhXb0J/zt4HHMmr4tq/4kUv3PDcyuwXo9emGoadqfzffPef8zSOw2aU6bYJdvDpCjxWe8wXd161+tNj0+UKJNh//F5I3fQf0rhKHOvOCwCzy/klnK0yGgVlY547NY6R+db6ccEh1g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=I/UmBmQl; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1734267618; c=relaxed/simple;
+	bh=ovjTdhdS2ag8ix+fDM+12rd3WwymerQdUPyZV39SyIg=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=txIzG5DW6W5piL+at04mQipMAp6yuDpUAuTzPG5xSD84k5vqwz5TF1DBfJZ67TWrjCCCPxzc1x8Z1JlS8q/2GnYtTVK9FjGKRqO2tCQwPpUJoa7p2UMohVXKTXaZAia7qcddJa9zVdexu0U/lSRO/d8oBevpgOfkHREM4vVXQbo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mCwzFEX+; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="I/UmBmQl"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BE4TRso018926;
-	Sat, 14 Dec 2024 09:18:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=WcqJw9z8Xi2dAQdId8Agf80AKwGPMv
-	w7TFoeRY/+4Ac=; b=I/UmBmQl2elfBnta0fgFP4KIKPmTOS87BDuXUdfvunjUzU
-	DBFBiHewXvraVPVJ5BdH69F0phsAI35o3uk4MOYsA8hTzNWlCoy2sWcMDHk4czB8
-	GKnSSr9Mo95tanFUfFCSwycT6rCTRd7OCfAViIA35B+EIg77u/zAt09TI906NQ0U
-	s6DmSCzPQa1l+MwQTnQsRxoU37BoaXvPU1ukkJmri8nX462n+feqUPUaE+U2FCPJ
-	dMsZCYg9VdWV63zsb0/9h7Mfi0FniTZQEN+4nsWlZncS/AEQ3Xg5hMCoun4p6cl2
-	oXaa/MTHMgHtbMfq2zKuQ1r8TqTLcQgCFPpZ1Dzg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43h2gb17v7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 14 Dec 2024 09:18:21 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BE7mNOJ032734;
-	Sat, 14 Dec 2024 09:18:20 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 43d0pt2mtc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 14 Dec 2024 09:18:20 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BE9IIK434996732
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sat, 14 Dec 2024 09:18:18 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7E91A20043;
-	Sat, 14 Dec 2024 09:18:18 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6128420040;
-	Sat, 14 Dec 2024 09:18:18 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Sat, 14 Dec 2024 09:18:18 +0000 (GMT)
-Date: Sat, 14 Dec 2024 10:18:14 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Dafna Hirschfeld <dafna.hirschfeld@intel.com>, linux-mm@kvack.org,
-        muchun.song@linux.dev, linux-s390@vger.kernel.org
-Subject: Re: [PATCH] mm/hugetlb: change ENOSPC to ENOMEM in
- alloc_hugetlb_folio
-Message-ID: <Z11NVjR88-mxoDM9@tuxmaker.boeblingen.de.ibm.com>
-References: <20241201010341.1382431-1-dafna.hirschfeld@intel.com>
- <20241130185121.02da011be898052454116c4b@linux-foundation.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mCwzFEX+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B5E0C4CECE;
+	Sun, 15 Dec 2024 13:00:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1734267618;
+	bh=ovjTdhdS2ag8ix+fDM+12rd3WwymerQdUPyZV39SyIg=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=mCwzFEX+Ay6sXBZmKo9FCmXxdCjVeNhhgWg7sjekJ+f3rPeRV1pfsmdFJplj0Gp+a
+	 CCpLUFzQpnox3SGmNRht2Z8lDTDtSDANIbn1uFPzySz+zSqLDOoobzKSXsv4IFkarl
+	 NCN7EIdLGK7SI2KPmnsnqV/mY6IvPUUYjzOc3Mqhm2ILzidz4u2jvl8tD8WAPpqEk2
+	 Hpa6aMlhZhs1u9/IY8Sfr5NCHpDKYgv/3heXpFXpYFcgYstELmtUv0IqiKtFpBM5cn
+	 C/2QfKShFcEcmmdtK2R2ublPc4oUz/9Z01nV90pYK3z1kquc+kDxVufaByk2vk4TIL
+	 FJQkM09RoD0Wg==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 70CCA3806656;
+	Sun, 15 Dec 2024 13:00:36 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241130185121.02da011be898052454116c4b@linux-foundation.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: LXEOui7LmHJ84tox0LpDxDn1svrhYRcq
-X-Proofpoint-GUID: LXEOui7LmHJ84tox0LpDxDn1svrhYRcq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
- impostorscore=0 suspectscore=0 bulkscore=0 phishscore=0 priorityscore=1501
- lowpriorityscore=0 mlxlogscore=651 adultscore=0 mlxscore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2412140074
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v2 0/6] several fixes for smc
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <173426763526.3514004.3994108925591833248.git-patchwork-notify@kernel.org>
+Date: Sun, 15 Dec 2024 13:00:35 +0000
+References: <20241211092121.19412-1-guangguan.wang@linux.alibaba.com>
+In-Reply-To: <20241211092121.19412-1-guangguan.wang@linux.alibaba.com>
+To: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Nov 30, 2024 at 06:51:21PM -0800, Andrew Morton wrote:
+Hello:
 
-Hi Andrew,
-...
-> > -	return ERR_PTR(-ENOSPC);
-> > +	return ERR_PTR(-ENOMEM);
-...
-> err, yes.  ENOSPC is for disk drives!  I'll slap a cc:stable on this
-> fix for a decade old bug.
+This series was applied to netdev/net.git (main)
+by David S. Miller <davem@davemloft.net>:
 
-This fix invalidates the comment in hugetlb_no_page():
+On Wed, 11 Dec 2024 17:21:15 +0800 you wrote:
+> v1 -> v2:
+> rewrite patch #2 suggested by Paolo.
+> 
+> Guangguan Wang (6):
+>   net/smc: protect link down work from execute after lgr freed
+>   net/smc: check sndbuf_space again after NOSPACE flag is set in
+>     smc_poll
+>   net/smc: check iparea_offset and ipv6_prefixes_cnt when receiving
+>     proposal msg
+>   net/smc: check v2_ext_offset/eid_cnt/ism_gid_cnt when receiving
+>     proposal msg
+>   net/smc: check smcd_v2_ext_offset when receiving proposal msg
+>   net/smc: check return value of sock_recvmsg when draining clc data
+> 
+> [...]
 
-	/*
-	 * Returning error will result in faulting task being
-	 * sent SIGBUS.  The hugetlb fault mutex prevents two
-	   ...
-	 */
+Here is the summary with links:
+  - [net,v2,1/6] net/smc: protect link down work from execute after lgr freed
+    https://git.kernel.org/netdev/net/c/2b33eb8f1b3e
+  - [net,v2,2/6] net/smc: check sndbuf_space again after NOSPACE flag is set in smc_poll
+    https://git.kernel.org/netdev/net/c/679e9ddcf90d
+  - [net,v2,3/6] net/smc: check iparea_offset and ipv6_prefixes_cnt when receiving proposal msg
+    https://git.kernel.org/netdev/net/c/a29e220d3c8e
+  - [net,v2,4/6] net/smc: check v2_ext_offset/eid_cnt/ism_gid_cnt when receiving proposal msg
+    https://git.kernel.org/netdev/net/c/7863c9f3d24b
+  - [net,v2,5/6] net/smc: check smcd_v2_ext_offset when receiving proposal msg
+    https://git.kernel.org/netdev/net/c/9ab332deb671
+  - [net,v2,6/6] net/smc: check return value of sock_recvmsg when draining clc data
+    https://git.kernel.org/netdev/net/c/c5b8ee5022a1
 
-The problem is an attempt to write to a MAP_NORESERVE huge page (as per [1])
-causes an infinite page fault cycle instead of SIGBUS, at least on s390:
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-	q = mmap(NULL, hpage_size,
-		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_NORESERVE, fd2, 0);
-	...
-	test_write(q);
 
-1. https://github.com/libhugetlbfs/libhugetlbfs/blob/master/tests/noresv-preserve-resv-page.c
-
-Thanks!
