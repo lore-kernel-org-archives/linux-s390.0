@@ -1,100 +1,96 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 249938BE8;
-	Mon, 16 Dec 2024 02:14:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F96D2E628;
+	Mon, 16 Dec 2024 09:11:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734315265; cv=none; b=T1u5I5E25hyxpc9ZG0Xhg0jnIqwtGJye5M4Telhbciyu0q6lmc0FsmEeJeTuFru+yWs2Ug6pebX/Dvfe8O4XmaGxFtZBFAajJUrp8JqOqt1qDX0zA4mrbQDDe+cWFO/y0fqLKPYNVV2F51LwsSX2b9DJe2ytFiKxLP2cJWkPMb0=
+	t=1734340315; cv=none; b=IJkEz76JFscEjusV/XMXxGHaqFwKQDOEQH/qGn7VdsSIu3ZXn7F+WPmB2YrbVYg7UlHOr1xr48CtU7UL2Otjtymkqg5xRuGEbNa5RxcHZ6BZD3HZTt8mFWy2HHWIa34MAeEAUIfNu0SSImqMr+lhsoX+sVpQclGxZXjC4vRUpOI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734315265; c=relaxed/simple;
-	bh=6V+shrdB2vbTHb6R82jUo0/uUAiL8Fi82YYWHfrXz9I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nmm+Za2VYwRVh8P5k5xugzwHFHx46Dh05p5/+NpQ7zhnQkxGWLhZKRwKRf2GBKsjjjFDZpiD41Hm8Z400RleCR6lmOekoyXb2gFeASoRQ4Fn1BirioR62n1IxnUUBjqLNPhZ7M86OEBkL86SuuC9AlADWaPaRtmPK2W0dx8+scQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=vnrsu+zy; arc=none smtp.client-ip=115.124.30.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1734340315; c=relaxed/simple;
+	bh=jc+ktQpe1snGAisoPsN0qsFlu6le9/TqPnUf04ohDYE=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=dUt9IhzOQZjIigNx8S/ocQv4xnmrbmJX5rWOSQgRoo7Bc6QJKKAOqE+EFpDZfGos4p+4NkUhdiF5zR6JsD9681uTerZuqgZkJWYVNi3riss94upbyScdGBTlwogcMnKyoJfau/qzZCBJCp6lBrS6k8TyUxRKTXWRi6fgqcM/c3g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LgjlQtsF; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="vnrsu+zy"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1734315253; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=aqauEWhdS3VAOAkJnsfZji7HEujR8JydSb0C6qnhp9I=;
-	b=vnrsu+zyYs/gTZemDtQT7ksKcC2uy6bmJYQwjFJv3XLYrcyeDEJdMBISUifFopivpidxWvTKLFcBELfdfhDT9m8yGVmTQ6u9Yr295WBs2qhyGHdhLpfWFw7APEqPONsRocTmWmQgbiuKMH24L4YQwbOw9N6y/3C2r12K0zI+P2I=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WLVDXsW_1734315250 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 16 Dec 2024 10:14:11 +0800
-Date: Mon, 16 Dec 2024 10:14:10 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
-	daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
-	pabeni@redhat.com, song@kernel.org, sdf@google.com,
-	haoluo@google.com, yhs@fb.com, edumazet@google.com,
-	john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
-	guwen@linux.alibaba.com, kuba@kernel.org, davem@davemloft.net,
-	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH bpf-next v2 4/5] libbpf: fix error when st-prefix_ops and
- ops from differ btf
-Message-ID: <20241216021410.GA129445@j66a10360.sqa.eu95>
-References: <20241210040404.10606-1-alibuda@linux.alibaba.com>
- <20241210040404.10606-5-alibuda@linux.alibaba.com>
- <CAEf4BzYMWTTnniPN-2cmjkPOefDFOLgbdo0cHzmMNJiFPL8riQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LgjlQtsF"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BG85Um5027009;
+	Mon, 16 Dec 2024 09:11:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:message-id:mime-version:subject:to; s=
+	pp1; bh=jc+ktQpe1snGAisoPsN0qsFlu6le9/TqPnUf04ohDYE=; b=LgjlQtsF
+	uCWedpcoooVezw6YEMeSvHgzLqd9LocHH2MRUbSTRMZ7w9QACBO2I3GgqW5I/9il
+	gcgr44ZNVF2FsuX6nJF/TcHum9wzmG+STIZfKut3ClrLhGQOlG7mCcw0dkS8kuyq
+	vJMLWmWaK2jfbGBuP4w1sO53a+XgEp2Z6M2Ib2Dcem7YfjK34RhwXYVRdlaAqXbK
+	NY4zifyNvNP0t5jYAy6QfudDIG1uobDdf2HLVykLm4grP1YhVP1papB7yFZtfrOm
+	8XZ7TGxbLJigvyX+UHlCYZsJo3T0REFRfmX0wzevYQfCzcx8Q/qoumuWlr72GjAn
+	TVXbk6bAMpcxnA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43jgd289fa-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 16 Dec 2024 09:11:51 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4BG97mSa025745;
+	Mon, 16 Dec 2024 09:11:51 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43jgd289f7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 16 Dec 2024 09:11:51 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BG56cqV024044;
+	Mon, 16 Dec 2024 09:11:50 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43hnuk54c8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 16 Dec 2024 09:11:50 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BG9BmiQ29295160
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 16 Dec 2024 09:11:49 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D4BBF2004D;
+	Mon, 16 Dec 2024 09:11:48 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1C4AB20040;
+	Mon, 16 Dec 2024 09:11:48 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.179.5.32])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 16 Dec 2024 09:11:48 +0000 (GMT)
+Date: Mon, 16 Dec 2024 10:11:46 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Dave Penkler <dpenkler@gmail.com>
+Cc: linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: GPIB build failures
+Message-ID: <Z1/u0u9Nu4aEHA5h@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAEf4BzYMWTTnniPN-2cmjkPOefDFOLgbdo0cHzmMNJiFPL8riQ@mail.gmail.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: n7FPiz6nEczHTxmAXZPgqfP8F6fAcdDe
+X-Proofpoint-GUID: swZOic95wKZ-YcZEdGzI69jv_opTL1sv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
+ suspectscore=0 lowpriorityscore=0 adultscore=0 clxscore=1011
+ mlxlogscore=588 priorityscore=1501 malwarescore=0 impostorscore=0
+ mlxscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412160074
 
-On Thu, Dec 12, 2024 at 02:24:46PM -0800, Andrii Nakryiko wrote:
-> On Mon, Dec 9, 2024 at 8:04 PM D. Wythe <alibuda@linux.alibaba.com> wrote:
-> >
-> > When a struct_ops named xxx_ops was registered by a module, and
-> > it will be used in both built-in modules and the module itself,
-> > so that the btf_type of xxx_ops will be present in btf_vmlinux
-> 
-> instead of using find_btf_by_prefix_kind, let's have:
-> 
-> 1) snprintf(STRUCT_OPS_VALUE_PREFIX, tname) right here in this
-> function, so we have expected type constructed and ready to be used
-> and reused, if necessary
-> 2) call btf__find_by_name_kind() instead of find_btf_by_prefix_kind()
-> 3) if (kern_vtype_id < 0 && !*mod_btf)
->       kern_vtype_id = find_ksym_btf_id(...)
-> 4) if (kern_vtype_id < 0) /* now emit error and error out */
+Hi Dave,
 
-Got it. This looks more concise, I will modify it in the next version in
-this way.
+Drivers in drivers/staging/gpib/ cause multiple build errors (I guess not only)
+on s390, when allyesconfig configuration is used. Please, let me know if I am
+missing something.
 
-Thanks,
-D. Wythe
-
-> 
-> >         if (kern_vtype_id < 0) {
-> > -               pr_warn("struct_ops init_kern: struct %s%s is not found in kernel BTF\n",
-> > -                       STRUCT_OPS_VALUE_PREFIX, tname);
-> > -               return kern_vtype_id;
-> > +               if (kern_vtype_id == -ENOENT && !*mod_btf)
-> > +                       kern_vtype_id =
-> > +                               find_ksym_btf_id_by_prefix_kind(obj, STRUCT_OPS_VALUE_PREFIX,
-> > +                                                               tname, BTF_KIND_STRUCT, &btf,
-> > +                                                               mod_btf);
-> > +               if (kern_vtype_id < 0) {
-> > +                       pr_warn("struct_ops init_kern: struct %s%s is not found in kernel BTF\n",
-> > +                               STRUCT_OPS_VALUE_PREFIX, tname);
-> > +                       return kern_vtype_id;
-> > +               }
-> >         }
-> >         kern_vtype = btf__type_by_id(btf, kern_vtype_id);
-> >
-> > --
-> > 2.45.0
-> >
+Thanks!
