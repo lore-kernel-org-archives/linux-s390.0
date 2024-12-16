@@ -1,56 +1,57 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FC9820127A;
-	Mon, 16 Dec 2024 09:22:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C42DB202C2D;
+	Mon, 16 Dec 2024 09:22:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734340934; cv=none; b=DksTgPsyojenGbBge9duJB/8cG563+JiNPS6r2QqWUFGgMxfSAiCfGYtQ+7OG9UcLkTklTwTSnsvqWujqM7n4+nc+12kmfEh2rqXy7GFn8/KZYTe3kSbZHJpNmF+W1lwDNjYM9POMbIhg08MF/tDLqZNr7a3SX4fbWNrgij0ph0=
+	t=1734340937; cv=none; b=C2DtG7I2yfvfJ9OQDAZQ5FPKbBHMyJ2UqBPGd5QOSnS/OcvtCmBP9N2lY9aHNMMkfjaF7u9U9YVDqedodbWBAzSAY6WrGgoWZNV4CCEM8FslltOuMkq9tIzqfxHpX4YpOSrIJ8FiZa1uujscXcf0bXmVp6VrERqCPBldPFBbZ3I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734340934; c=relaxed/simple;
-	bh=sbEEUkpQe8slEBBADusNCTPxw48Fxk2pqpa2j2+J0Ss=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KukHxwx2R5LEBc7se+OV/JzbWtfMOpf1vKIiBf983IGXy5rKcnF9CbB0alqQ5uFt53lfevEWIQhT3vnynkFJQgCDJyMIf2pKKh0pBvaTd2M1vwUGYpVEw6gc0jFNcktSNr99d5kU5eZ1vkNt+j0Wk4FqZ9b5mDv8zzUOvRp8yXY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eiqNBbsm; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1734340937; c=relaxed/simple;
+	bh=7B54tR1iKt0w3fNUGvj2YAS4o0xv6aTFm+7Tn6SDW7w=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=azCHAcNeAUFovac13QPtYdAisf+1khOYZrgmyXLnsRVH5yK4rxx0+LJ0IZ8iClGB/oblC+gKHoaR7trSO2XShs79GvWGcYTnV8HfxeqUjkaV5A3QvLpCmW6B4uOpmKLAJa6sYIHrjx2KDiSh4VzrzshbT8hFc7vSlITuTq1r8BQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RjVQ3dGc; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eiqNBbsm"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BFNw7Yx006313;
-	Mon, 16 Dec 2024 09:22:02 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RjVQ3dGc"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BG3qT9o011994;
+	Mon, 16 Dec 2024 09:22:06 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=s7CDuadi59DbdJQYtEXF2MmygEGRsK2onQV1LrfHL
-	MQ=; b=eiqNBbsmW3n9RWcPP2Z4o16EGaw8YwZW272w9W2Z6gEernZA1TG37DVqF
-	GP4qS4LswrgsfCsDQe4mtaa3AKB1CXK1SMLdUmkoWUT+ADRe+dJGegDn4lsxdlZG
-	U1FV1KKhOAhvsiIeEu6s4APiLreYK+nm3KqRNAlgQtRixOqQxnlOHcyJ+tq0cx+a
-	Gm16tFkda1w1HmLbGUoy95BnIoYqAIM4IrryTeCR55iw93hgyYBg+hhWZvKDMZax
-	tTfA88meVun/EkZhw+9O24kvR4M5/KIjJgvAPdkwW3LNfJ59TBR4fCbRBqCeEdh7
-	YNjH5/FbSsy61youE5Pin6Obs3CWg==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43j98h20d8-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=TPXhzVRC9InqJX36q
+	MuFuhGo3TZReRYuagQV5gd2jc8=; b=RjVQ3dGcL4+IiKqs/LUaEDWtjbJQdFbU1
+	idpAdRjePv2uHDNtcmnGUMfTyvivcMyBF8Qi/XBK6Z4gkfjb+/HMr3nv7RNJWidE
+	MoR06Jk7rkNry1HHJz5Hgd9BHcZ+l8plcohgX95xPCKeLWZtFL2tL7D94aelAQxH
+	Dv3QrQuVloPUjgGleTw2J/943o1XUCKB75HKTM1vamDOXhy73fLldKlpea0DBYmv
+	p1/mxF3Ebn+VJBjDIPJTyhQZEVFQqJ4wekByctSQy4oHtogz76nwCZT4hzqN21Vq
+	4h6BBe84XuN+cXwnZd1xv8HUnj1wDIgad1NrWPTt1yD99quiwnruA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43jcpb1amt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 16 Dec 2024 09:22:02 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BG6BEJm011252;
-	Mon, 16 Dec 2024 09:22:01 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43hpjjw0na-1
+	Mon, 16 Dec 2024 09:22:06 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BG4kYcX005544;
+	Mon, 16 Dec 2024 09:22:05 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43hnbmw81r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 16 Dec 2024 09:22:01 +0000
+	Mon, 16 Dec 2024 09:22:05 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BG9Lwgx52494770
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BG9M12u56820216
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 16 Dec 2024 09:21:58 GMT
+	Mon, 16 Dec 2024 09:22:01 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1A99620043;
-	Mon, 16 Dec 2024 09:21:58 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8920B2004B;
+	Mon, 16 Dec 2024 09:22:01 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5005620040;
-	Mon, 16 Dec 2024 09:21:57 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C30E920040;
+	Mon, 16 Dec 2024 09:22:00 +0000 (GMT)
 Received: from darkmoore.ibmuc.com (unknown [9.179.0.126])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 16 Dec 2024 09:21:57 +0000 (GMT)
+	Mon, 16 Dec 2024 09:22:00 +0000 (GMT)
 From: Christoph Schlameuss <schlameuss@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
@@ -62,10 +63,12 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Ulrich Weigand <ulrich.weigand@de.ibm.com>,
         Dominik Dingel <dingel@linux.vnet.ibm.com>,
         Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH v2 0/6] selftests: kvm: s390: Reject invalid ioctls on ucontrol VMs
-Date: Mon, 16 Dec 2024 10:21:34 +0100
-Message-ID: <20241216092140.329196-1-schlameuss@linux.ibm.com>
+Subject: [PATCH v2 4/6] selftests: kvm: s390: Add ucontrol gis routing test
+Date: Mon, 16 Dec 2024 10:21:38 +0100
+Message-ID: <20241216092140.329196-5-schlameuss@linux.ibm.com>
 X-Mailer: git-send-email 2.47.1
+In-Reply-To: <20241216092140.329196-1-schlameuss@linux.ibm.com>
+References: <20241216092140.329196-1-schlameuss@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,46 +77,56 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ioP2lhAIBxCiOCbpJk-EVV-7_VVCGrrn
-X-Proofpoint-GUID: ioP2lhAIBxCiOCbpJk-EVV-7_VVCGrrn
+X-Proofpoint-ORIG-GUID: lW5AWENBFJgIpDIAqvjperoXpvCmgbZ_
+X-Proofpoint-GUID: lW5AWENBFJgIpDIAqvjperoXpvCmgbZ_
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 lowpriorityscore=0 malwarescore=0 spamscore=0 bulkscore=0
- adultscore=0 mlxscore=0 impostorscore=0 mlxlogscore=754 suspectscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2412160074
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
+ lowpriorityscore=0 impostorscore=0 spamscore=0 mlxscore=0 adultscore=0
+ mlxlogscore=932 suspectscore=0 bulkscore=0 phishscore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2412160074
 
-This patch series adds more test case issuing ioctls to ucontrol VMs and
-its floating interrupt controller.
-The test cases trigger three possible null pointer dereferences within
-the handling of the KVM_DEV_FLIC_APF_ENABLE,
-KVM_DEV_FLIC_APF_DISABLE_WAIT and KVM_SET_GSI_ROUTING ioctl.
+Add a selftests for the interrupt routing configuration when using
+ucontrol VMs.
 
-All of these issues do only exist on ucontrol VMs. Fixes for the issues
-are included within the patch series.
+Calling the test may trigger a null pointer dereferences on kernels not
+containing the fixes in this patch series.
 
-v2:
-- added documentation changes
-- simplify uc_flic_attrs; remove .getrc and .setrc from uc_flic_attrs
-(Thanks Claudio)
+Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+---
+ .../selftests/kvm/s390x/ucontrol_test.c       | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-Christoph Schlameuss (6):
-  kvm: s390: Reject setting flic pfault attributes on ucontrol VMs
-  selftests: kvm: s390: Add ucontrol flic attr selftests
-  kvm: s390: Reject KVM_SET_GSI_ROUTING on ucontrol VMs
-  selftests: kvm: s390: Add ucontrol gis routing test
-  selftests: kvm: s390: Streamline uc_skey test to issue iske after sske
-  selftests: kvm: s390: Add has device attr check to uc_attr_mem_limit
-    selftest
-
- Documentation/virt/kvm/api.rst                |   3 +
- Documentation/virt/kvm/devices/s390_flic.rst  |   4 +
- arch/s390/kvm/interrupt.c                     |   6 +
- .../selftests/kvm/s390x/ucontrol_test.c       | 194 ++++++++++++++++--
- 4 files changed, 189 insertions(+), 18 deletions(-)
-
+diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+index b003abda8495..8f306395696e 100644
+--- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
++++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+@@ -783,4 +783,23 @@ TEST_F(uc_kvm, uc_flic_attrs)
+ 	close(cd.fd);
+ }
+ 
++TEST_F(uc_kvm, uc_set_gsi_routing)
++{
++	struct kvm_irq_routing *routing = kvm_gsi_routing_create();
++	struct kvm_irq_routing_entry ue = {
++		.type = KVM_IRQ_ROUTING_S390_ADAPTER,
++		.gsi = 1,
++		.u.adapter = (struct kvm_irq_routing_s390_adapter) {
++			.ind_addr = 0,
++		},
++	};
++	int rc;
++
++	routing->entries[0] = ue;
++	routing->nr = 1;
++	rc = ioctl(self->vm_fd, KVM_SET_GSI_ROUTING, routing);
++	ASSERT_EQ(-1, rc) TH_LOG("err %s (%i)", strerror(errno), errno);
++	ASSERT_EQ(EINVAL, errno) TH_LOG("err %s (%i)", strerror(errno), errno);
++}
++
+ TEST_HARNESS_MAIN
 -- 
 2.47.1
 
