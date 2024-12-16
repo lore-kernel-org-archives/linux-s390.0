@@ -1,59 +1,59 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7A192010E1;
-	Mon, 16 Dec 2024 09:30:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF1E62010EF;
+	Mon, 16 Dec 2024 10:18:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734341414; cv=none; b=K6ZQtprWAbCD1NLX5wuCivYrkaOhHmS5ocGF3rG20Jw13dqane3t5v3Mj7uDafk4QFPFK7oG3w9mOGyPOC9g32iPrh/mEPamcw+dm6ChNZ0p+soeavGOhA5X4s7KgyFKNY1mRFC/whzCFbSElbjwmAR36dfn0Oo0+yDYzyhVpXM=
+	t=1734344317; cv=none; b=isSsc8fYft95KimqyDIr7EL5NVhIK6801GhoHAjt4C6Rg16dMRXHZFMpAZczUnUQzUMHVl51Bx7rcvGqvFxi/2qGr7CTpHQZmaDJBcfPnIeqQqqY8tHxTePKw5woDYnxSDdRf7E3hH4QMpbCgEsAAd5Vd+gljEkkPdi88N2TZkM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734341414; c=relaxed/simple;
-	bh=y+PKPoiWsIYWms73/MSWuQuo7A7NhDQd6sU1pRwxmJI=;
+	s=arc-20240116; t=1734344317; c=relaxed/simple;
+	bh=8ZRmIeW76t/I1WIb/QIxH1Qky+u71Mk4Lo1yE3WW+jE=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=W1lq5nyaYmBoLD3Sa2OUpbWvxSQPfkWbj0D+GwF6Vx+A09ELcE1a2Q/94ChCLY3cAftmjS4GudDjt9XwdZSWuzVw3pGFMgVRAScctZ7oFgu94C8k73vs+kD4Og6yyYaqxook77xbMTaXt9ihFgJHRRPJTZjN0zqR4oP+m3ZiGyg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RpTFBKFr; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:MIME-Version; b=mXqIZXizWnqEeo26MwjOhSwH1ROByy4HCH4h2jEtXsCkZznSVhOnNP+Ey/QJRGk53rwGbqGe7svBqoWnmzq/GILD+B3WXv/O2hPugG51D17NO66ghsvwbVyDr5Xr1u3gm6dSrWhm0mbHAvKSuwEWrG2Akv0QDcKcIG1CPgRIg+k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UheN/KU9; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RpTFBKFr"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BG3qFq9011243;
-	Mon, 16 Dec 2024 09:30:00 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UheN/KU9"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BFNP1bQ021382;
+	Mon, 16 Dec 2024 10:18:25 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=gcXWUW
-	3Z+ZhfYKGs7Px9fRAqsM/PHTRtie+bXMWmrfo=; b=RpTFBKFrtZYZbfozI5zUbx
-	+BJGsRquJUvGowu0AFICMf8i1bbbe+AhnR5DgoQoBJurfuvoxb/2ELZZN8VC3TGo
-	OVd+ioeEUq2lAMo/12D27xuMR5N2v58zaw7nxk00J0CfA7/S58Z073QUB6jvEHG5
-	uDmslOLns+khbFnO/uEOTjOitC+pDI4NL1MWDLno1dWmrdHd1Fl0AFb8QmJNGzg7
-	A2cvNdJfDmD0UV4wFC/ihU4FbjbDuRzlswlPIpOxgY3pb6z1CJNQiH29tPJuQYav
-	k7igNs2hQExtqZ7nN8mGK+wuNDnvHWTRKxQzk2oR4Liiz5vCzppctpjAAEFOTjbQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=F9oeZT
+	OvEDkV3gWjPGCTl5Hpqtrf5KHDTXD9gQqxMGs=; b=UheN/KU93Nw6MH+qHOsPTq
+	y15uWaWaCXf1er5qIQnKaMeRXFfSP3wLgxukROsWRJ7Q/qn3v6q9qEi22mYgxH5F
+	tlUGonWdRMvoHs8MxRjUq4oDHNdtlJaI+NOlMfoSnghdI50lvQvLMNFtpi7vTKoF
+	tQgkdDp09rxPJGdi6u3tTVlYvjUx5PPMBpxdSmF5ulxI8ac8GX/PmwTtXf13Ort1
+	r3EjKCHw2S+7tnrfqJOgG1H/naTxb8+zTY77Vp9DQK2J4eNb2yK7ZkXLL2kdrdSo
+	a8OCvfqa321GN5DKCv0kys/lGSYPa1/Xtppt1Zcba1e0YNVZjCPZVe9Pb0+W3RLA
 	==
 Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43jcpb1cdh-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43j0k4bd15-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 16 Dec 2024 09:30:00 +0000 (GMT)
+	Mon, 16 Dec 2024 10:18:25 +0000 (GMT)
 Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BG5Xcf0011249;
-	Mon, 16 Dec 2024 09:29:59 GMT
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BG636sk011260;
+	Mon, 16 Dec 2024 10:18:24 GMT
 Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43hpjjw1uv-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43hpjjw75m-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 16 Dec 2024 09:29:59 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BG9Tw5821430892
+	Mon, 16 Dec 2024 10:18:24 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BGAINxI12059226
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 16 Dec 2024 09:29:58 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9CB4058069;
-	Mon, 16 Dec 2024 09:29:58 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A3C6158052;
-	Mon, 16 Dec 2024 09:29:56 +0000 (GMT)
+	Mon, 16 Dec 2024 10:18:23 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3376958053;
+	Mon, 16 Dec 2024 10:18:23 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8BFEC58043;
+	Mon, 16 Dec 2024 10:18:20 +0000 (GMT)
 Received: from [9.152.212.155] (unknown [9.152.212.155])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 16 Dec 2024 09:29:56 +0000 (GMT)
-Message-ID: <1a1c9b992a9a957e200d55b0a1330a0c3d75baa0.camel@linux.ibm.com>
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 16 Dec 2024 10:18:20 +0000 (GMT)
+Message-ID: <d2d6c27d12a5d7770952a9c027d290204c4fac6d.camel@linux.ibm.com>
 Subject: Re: [PATCH v2 2/3] s390/pci: store DMA offset in bus_dma_region
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 To: Matthew Rosato <mjrosato@linux.ibm.com>, joro@8bytes.org, will@kernel.org,
@@ -62,10 +62,11 @@ Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, borntraeger@linux.ibm.com, farman@linux.ibm.com,
         clegoate@redhat.com, iommu@lists.linux.dev,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Date: Mon, 16 Dec 2024 10:29:56 +0100
-In-Reply-To: <20241213224941.571060-3-mjrosato@linux.ibm.com>
+Date: Mon, 16 Dec 2024 11:18:19 +0100
+In-Reply-To: <1a1c9b992a9a957e200d55b0a1330a0c3d75baa0.camel@linux.ibm.com>
 References: <20241213224941.571060-1-mjrosato@linux.ibm.com>
-	 <20241213224941.571060-3-mjrosato@linux.ibm.com>
+		 <20241213224941.571060-3-mjrosato@linux.ibm.com>
+	 <1a1c9b992a9a957e200d55b0a1330a0c3d75baa0.camel@linux.ibm.com>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
  /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
@@ -131,76 +132,82 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: JHXACY7HyTDr-Mapzy3qTZZ1vZUXk_HX
-X-Proofpoint-GUID: JHXACY7HyTDr-Mapzy3qTZZ1vZUXk_HX
+X-Proofpoint-GUID: 86-5Kh2tH5bRQvb9PlAxH4F7583fyuWg
+X-Proofpoint-ORIG-GUID: 86-5Kh2tH5bRQvb9PlAxH4F7583fyuWg
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1011
- lowpriorityscore=0 impostorscore=0 spamscore=0 mlxscore=0 adultscore=0
- mlxlogscore=999 suspectscore=0 bulkscore=0 phishscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2412160079
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 malwarescore=0 bulkscore=0 mlxlogscore=999
+ clxscore=1015 suspectscore=0 adultscore=0 phishscore=0 mlxscore=0
+ spamscore=0 priorityscore=1501 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2411120000 definitions=main-2412160083
 
-On Fri, 2024-12-13 at 17:49 -0500, Matthew Rosato wrote:
-> PCI devices on s390 have a DMA offset that is reported via CLP.  In
-> preparation for allowing identity domains, setup the bus_dma_region
-> for all PCI devices using the reported CLP value.
+On Mon, 2024-12-16 at 10:29 +0100, Niklas Schnelle wrote:
+> On Fri, 2024-12-13 at 17:49 -0500, Matthew Rosato wrote:
+> > PCI devices on s390 have a DMA offset that is reported via CLP.  In
+> > preparation for allowing identity domains, setup the bus_dma_region
+> > for all PCI devices using the reported CLP value.
+> >=20
+> > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> > ---
+> >  arch/s390/pci/pci_bus.c | 18 ++++++++++++++++++
+> >  1 file changed, 18 insertions(+)
+> >=20
+> > diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
+> > index d5ace00d10f0..14527687d0f2 100644
+> > --- a/arch/s390/pci/pci_bus.c
+> > +++ b/arch/s390/pci/pci_bus.c
+> > @@ -19,6 +19,7 @@
+> >  #include <linux/jump_label.h>
+> >  #include <linux/pci.h>
+> >  #include <linux/printk.h>
+> > +#include <linux/dma-direct.h>
+> > =20
+> >  #include <asm/pci_clp.h>
+> >  #include <asm/pci_dma.h>
+> > @@ -284,10 +285,27 @@ static struct zpci_bus *zpci_bus_alloc(int topo, =
+bool topo_is_tid)
+> >  	return zbus;
+> >  }
+> > =20
+> > +static void pci_dma_range_setup(struct pci_dev *pdev)
+> > +{
+> > +	struct zpci_dev *zdev =3D to_zpci(pdev);
+> > +	struct bus_dma_region *map;
+> > +
+> > +	map =3D kzalloc(sizeof(*map), GFP_KERNEL);
+> > +	if (!map)
+> > +		return;
+> > +
+> > +	map->cpu_start =3D 0;
+> > +	map->dma_start =3D PAGE_ALIGN(zdev->start_dma);
+> > +	map->size =3D (u64)virt_to_phys(high_memory);
 >=20
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->  arch/s390/pci/pci_bus.c | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
+> I don't think we should restrict the size here to the size of memory.
+> Instead I think it should be zdev->end_dma - zdev->start_dma.
 >=20
-> diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-> index d5ace00d10f0..14527687d0f2 100644
-> --- a/arch/s390/pci/pci_bus.c
-> +++ b/arch/s390/pci/pci_bus.c
-> @@ -19,6 +19,7 @@
->  #include <linux/jump_label.h>
->  #include <linux/pci.h>
->  #include <linux/printk.h>
-> +#include <linux/dma-direct.h>
-> =20
->  #include <asm/pci_clp.h>
->  #include <asm/pci_dma.h>
-> @@ -284,10 +285,27 @@ static struct zpci_bus *zpci_bus_alloc(int topo, bo=
-ol topo_is_tid)
->  	return zbus;
->  }
-> =20
-> +static void pci_dma_range_setup(struct pci_dev *pdev)
-> +{
-> +	struct zpci_dev *zdev =3D to_zpci(pdev);
-> +	struct bus_dma_region *map;
-> +
-> +	map =3D kzalloc(sizeof(*map), GFP_KERNEL);
-> +	if (!map)
-> +		return;
-> +
-> +	map->cpu_start =3D 0;
-> +	map->dma_start =3D PAGE_ALIGN(zdev->start_dma);
-> +	map->size =3D (u64)virt_to_phys(high_memory);
+> Since we handle the restriction to memory size as reserved regions I
+> think that should be compatible. Also I think otherwise this might
+> break the admittedly odd s390_iommu_aperture=3DX kernel parameter on
+> LPARs.
 
-I don't think we should restrict the size here to the size of memory.
-Instead I think it should be zdev->end_dma - zdev->start_dma.
+Correction, zdev->end_dma - zdev->start_dma + 1 because zdev->end_dma
+is inclusive ;-)
 
-Since we handle the restriction to memory size as reserved regions I
-think that should be compatible. Also I think otherwise this might
-break the admittedly odd s390_iommu_aperture=3DX kernel parameter on
-LPARs.
-
-
-> +	pdev->dev.dma_range_map =3D map;
-> +}
-> +
->  void pcibios_bus_add_device(struct pci_dev *pdev)
->  {
->  	struct zpci_dev *zdev =3D to_zpci(pdev);
-> =20
-> +	pci_dma_range_setup(pdev);
-> +
->  	/*
->  	 * With pdev->no_vf_scan the common PCI probing code does not
->  	 * perform PF/VF linking.
+>=20
+>=20
+> > +	pdev->dev.dma_range_map =3D map;
+> > +}
+> > +
+> >  void pcibios_bus_add_device(struct pci_dev *pdev)
+> >  {
+> >  	struct zpci_dev *zdev =3D to_zpci(pdev);
+> > =20
+> > +	pci_dma_range_setup(pdev);
+> > +
+> >  	/*
+> >  	 * With pdev->no_vf_scan the common PCI probing code does not
+> >  	 * perform PF/VF linking.
+>=20
 
