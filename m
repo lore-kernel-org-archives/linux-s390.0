@@ -1,41 +1,25 @@
-Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D08E156F39;
-	Wed, 18 Dec 2024 06:30:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id EF7C53C0B;
+	Wed, 18 Dec 2024 06:59:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734503408; cv=none; b=rPsP9aQFYw9bZsQwj1LKND1ZDbIjDqscTC2awlWv2UhSdvGUPpJaGR0B/WZq4SHNdU5dfX8RfaNxfw4OdiUtZJLz8XeYxWt0mR6J93CyWadGvTQERCGlGJXbqrKs/gL0xOXZLHzS8Gx3CJ/t/+C04sCXskVHFUgHaxMPtLRAc3Q=
+	t=1734505193; cv=none; b=cY3SoaD2Q8Baz+Q0fVUnjHcbogmd2lhYJpQr0VEaFfg4Kw5bTp7HSRkMFFGMcAqUSqzE0OcHm9Urc8nUEnLIEl8akWTQNlSxCVH1wrewQoD4NISiyGZ2pu6e4KX+Zaj6cSx92ypZ9AMv0QNYXNG9GmNm2JdIcIouRIWwtmjq6kM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734503408; c=relaxed/simple;
-	bh=S5bIwRiT8KbF4EN+dU9szsz5vRjDGh89/P0LHY/FYmM=;
+	s=arc-20240116; t=1734505193; c=relaxed/simple;
+	bh=6XkxCLnkagCQrqnMXLNlKWRCkotbGzdLQUScvqzHCWg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sM2j1c6xIU96t8u32zEQMG7mLwPv9C8gDECkUA6ucAEdvaU5P7nP00Cepr+22nYRqwISnGOHRyIWBQ8cJpn2NacZgIWINu8Y7/hb6UQync0g70HYrKhl69ifaQ+7/NdBO0dXc8x0WpL8d0qOGZuEQTZTRaNtrX2BNXCG23U93XQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
-Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-	by localhost (Postfix) with ESMTP id 4YCkLh3Ctlz9sPd;
-	Wed, 18 Dec 2024 07:30:04 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id E7IDI2DzgVZM; Wed, 18 Dec 2024 07:30:04 +0100 (CET)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-	by pegase2.c-s.fr (Postfix) with ESMTP id 4YCkLh2HRlz9rvV;
-	Wed, 18 Dec 2024 07:30:04 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 3E0888B770;
-	Wed, 18 Dec 2024 07:30:04 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-	with ESMTP id 1LBSUZsuu7uI; Wed, 18 Dec 2024 07:30:04 +0100 (CET)
-Received: from [10.25.209.139] (unknown [10.25.209.139])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id F1DF88B763;
-	Wed, 18 Dec 2024 07:30:03 +0100 (CET)
-Message-ID: <b06505de-e119-40a2-acc8-b0ac47d6c941@csgroup.eu>
-Date: Wed, 18 Dec 2024 07:30:03 +0100
+	 In-Reply-To:Content-Type; b=S5IcLiwqsNEwaivlkCFn3wXV/fxfPZRCcxOeutjL6CnwAwWmpqZwzTXwLRzhKP/fUmUhHPkf4j9cO89IpsQVLVBk2gc5D0ubF13tdWJ8PZMNMUT66oO4nksFXSjs/g+HchLCfUeTKJdzWmnPbBSoGJRImNJoFqOyiZV83t9HgjI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 39DF8FEC;
+	Tue, 17 Dec 2024 23:00:18 -0800 (PST)
+Received: from [10.163.50.13] (unknown [10.163.50.13])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4E7733F720;
+	Tue, 17 Dec 2024 22:59:43 -0800 (PST)
+Message-ID: <27980882-4433-443f-abd1-ea5d96b687ea@arm.com>
+Date: Wed, 18 Dec 2024 12:29:40 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -43,129 +27,158 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 2/2] livepatch: Convert timeouts to secs_to_jiffies()
-To: Easwar Hariharan <eahariha@linux.microsoft.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+Subject: Re: [PATCH] mm/ptdump: Drop GENERIC_PTDUMP
+To: Christophe Leroy <christophe.leroy@csgroup.eu>, linux-mm@kvack.org
+Cc: steven.price@arm.com, Catalin Marinas <catalin.marinas@arm.com>,
+ Will Deacon <will@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ Marc Zyngier <maz@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>, Paul Walmsley
+ <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
  Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
- Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
- Petr Mladek <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
- live-patching@vger.kernel.org
-References: <20241217231000.228677-1-eahariha@linux.microsoft.com>
- <20241217231000.228677-3-eahariha@linux.microsoft.com>
-Content-Language: fr-FR
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-In-Reply-To: <20241217231000.228677-3-eahariha@linux.microsoft.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, kvmarm@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org
+References: <20241217034807.2541349-1-anshuman.khandual@arm.com>
+ <ddd4439e-6f6f-4513-a7dc-b7f01bec03dc@csgroup.eu>
+Content-Language: en-US
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <ddd4439e-6f6f-4513-a7dc-b7f01bec03dc@csgroup.eu>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 
 
-Le 18/12/2024 à 00:09, Easwar Hariharan a écrit :
-> Commit b35108a51cf7 ("jiffies: Define secs_to_jiffies()") introduced
-> secs_to_jiffies(). As the value here is a multiple of 1000, use
-> secs_to_jiffies() instead of msecs_to_jiffies to avoid the multiplication.
+On 12/17/24 13:17, Christophe Leroy wrote:
 > 
-> This is converted using scripts/coccinelle/misc/secs_to_jiffies.cocci with
-> the following Coccinelle rules:
 > 
-> @@ constant C; @@
+> Le 17/12/2024 à 04:48, Anshuman Khandual a écrit :
+>> GENERIC_PTDUMP does not guard any code but instead just used for platform's
+>> subscription into core ptdump defined under PTDUMP_CORE, which is selected.
+>> Instead use PTDUMP_CORE for platform subscription and drop GENERIC_PTDUMP.
+>>
+>> Cc: Catalin Marinas <catalin.marinas@arm.com>
+>> Cc: Will Deacon <will@kernel.org>
+>> Cc: Jonathan Corbet <corbet@lwn.net>
+>> Cc: Marc Zyngier <maz@kernel.org>
+>> Cc: Michael Ellerman <mpe@ellerman.id.au>
+>> Cc: Nicholas Piggin <npiggin@gmail.com>
+>> Cc: Paul Walmsley <paul.walmsley@sifive.com>
+>> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+>> Cc: Heiko Carstens <hca@linux.ibm.com>
+>> Cc: Vasily Gorbik <gor@linux.ibm.com>
+>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>> Cc: Ingo Molnar <mingo@redhat.com>
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>> Cc: linux-arm-kernel@lists.infradead.org
+>> Cc: linux-doc@vger.kernel.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Cc: kvmarm@lists.linux.dev
+>> Cc: linuxppc-dev@lists.ozlabs.org
+>> Cc: linux-riscv@lists.infradead.org
+>> Cc: linux-s390@vger.kernel.org
+>> Cc: linux-mm@kvack.org
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>> ---
+>> This patch applies on v6.13-rc3 and has been tested on arm64, although it
+>> also clears build tests on impacted platforms.
+>>
+>>   Documentation/arch/arm64/ptdump.rst       | 1 -
+>>   arch/arm64/Kconfig                        | 2 +-
+>>   arch/arm64/kvm/Kconfig                    | 3 +--
+>>   arch/powerpc/Kconfig                      | 2 +-
+>>   arch/powerpc/configs/mpc885_ads_defconfig | 1 -
+>>   arch/riscv/Kconfig                        | 2 +-
+>>   arch/s390/Kconfig                         | 2 +-
+>>   arch/x86/Kconfig                          | 2 +-
+>>   arch/x86/Kconfig.debug                    | 2 +-
+>>   kernel/configs/debug.config               | 1 -
+>>   mm/Kconfig.debug                          | 8 ++------
+>>   11 files changed, 9 insertions(+), 17 deletions(-)
+>>
 > 
-> - msecs_to_jiffies(C * 1000)
-> + secs_to_jiffies(C)
+>> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+>> index a0ce777f9706..c716f8df10de 100644
+>> --- a/arch/powerpc/Kconfig
+>> +++ b/arch/powerpc/Kconfig
+>> @@ -203,7 +203,7 @@ config PPC
+>>       select GENERIC_IRQ_SHOW
+>>       select GENERIC_IRQ_SHOW_LEVEL
+>>       select GENERIC_PCI_IOMAP        if PCI
+>> -    select GENERIC_PTDUMP
+>> +    select PTDUMP_CORE
 > 
-> @@ constant C; @@
-> 
-> - msecs_to_jiffies(C * MSEC_PER_SEC)
-> + secs_to_jiffies(C)
-> 
-> While here, replace the schedule_delayed_work() call with a 0 timeout
-> with an immediate schedule_work() call.
-> 
-> Signed-off-by: Easwar Hariharan <eahariha@linux.microsoft.com>
+> Please keep alphabetical order.
 
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Sure, will do that.
 
-> ---
->   samples/livepatch/livepatch-callbacks-busymod.c |  3 +--
->   samples/livepatch/livepatch-shadow-fix1.c       |  3 +--
->   samples/livepatch/livepatch-shadow-mod.c        | 15 +++++----------
->   3 files changed, 7 insertions(+), 14 deletions(-)
 > 
-> diff --git a/samples/livepatch/livepatch-callbacks-busymod.c b/samples/livepatch/livepatch-callbacks-busymod.c
-> index 378e2d40271a..0220f7715fcc 100644
-> --- a/samples/livepatch/livepatch-callbacks-busymod.c
-> +++ b/samples/livepatch/livepatch-callbacks-busymod.c
-> @@ -44,8 +44,7 @@ static void busymod_work_func(struct work_struct *work)
->   static int livepatch_callbacks_mod_init(void)
->   {
->   	pr_info("%s\n", __func__);
-> -	schedule_delayed_work(&work,
-> -		msecs_to_jiffies(1000 * 0));
-> +	schedule_work(&work);
->   	return 0;
->   }
->   
-> diff --git a/samples/livepatch/livepatch-shadow-fix1.c b/samples/livepatch/livepatch-shadow-fix1.c
-> index 6701641bf12d..f3f153895d6c 100644
-> --- a/samples/livepatch/livepatch-shadow-fix1.c
-> +++ b/samples/livepatch/livepatch-shadow-fix1.c
-> @@ -72,8 +72,7 @@ static struct dummy *livepatch_fix1_dummy_alloc(void)
->   	if (!d)
->   		return NULL;
->   
-> -	d->jiffies_expire = jiffies +
-> -		msecs_to_jiffies(1000 * EXPIRE_PERIOD);
-> +	d->jiffies_expire = jiffies + secs_to_jiffies(EXPIRE_PERIOD);
->   
->   	/*
->   	 * Patch: save the extra memory location into a SV_LEAK shadow
-> diff --git a/samples/livepatch/livepatch-shadow-mod.c b/samples/livepatch/livepatch-shadow-mod.c
-> index 7e753b0d2fa6..5d83ad5a8118 100644
-> --- a/samples/livepatch/livepatch-shadow-mod.c
-> +++ b/samples/livepatch/livepatch-shadow-mod.c
-> @@ -101,8 +101,7 @@ static __used noinline struct dummy *dummy_alloc(void)
->   	if (!d)
->   		return NULL;
->   
-> -	d->jiffies_expire = jiffies +
-> -		msecs_to_jiffies(1000 * EXPIRE_PERIOD);
-> +	d->jiffies_expire = jiffies + secs_to_jiffies(EXPIRE_PERIOD);
->   
->   	/* Oops, forgot to save leak! */
->   	leak = kzalloc(sizeof(*leak), GFP_KERNEL);
-> @@ -152,8 +151,7 @@ static void alloc_work_func(struct work_struct *work)
->   	list_add(&d->list, &dummy_list);
->   	mutex_unlock(&dummy_list_mutex);
->   
-> -	schedule_delayed_work(&alloc_dwork,
-> -		msecs_to_jiffies(1000 * ALLOC_PERIOD));
-> +	schedule_delayed_work(&alloc_dwork, secs_to_jiffies(ALLOC_PERIOD));
->   }
->   
->   /*
-> @@ -184,16 +182,13 @@ static void cleanup_work_func(struct work_struct *work)
->   	}
->   	mutex_unlock(&dummy_list_mutex);
->   
-> -	schedule_delayed_work(&cleanup_dwork,
-> -		msecs_to_jiffies(1000 * CLEANUP_PERIOD));
-> +	schedule_delayed_work(&cleanup_dwork, secs_to_jiffies(CLEANUP_PERIOD));
->   }
->   
->   static int livepatch_shadow_mod_init(void)
->   {
-> -	schedule_delayed_work(&alloc_dwork,
-> -		msecs_to_jiffies(1000 * ALLOC_PERIOD));
-> -	schedule_delayed_work(&cleanup_dwork,
-> -		msecs_to_jiffies(1000 * CLEANUP_PERIOD));
-> +	schedule_delayed_work(&alloc_dwork, secs_to_jiffies(ALLOC_PERIOD));
-> +	schedule_delayed_work(&cleanup_dwork, secs_to_jiffies(CLEANUP_PERIOD));
->   
->   	return 0;
->   }
+>>       select GENERIC_SMP_IDLE_THREAD
+>>       select GENERIC_TIME_VSYSCALL
+>>       select GENERIC_VDSO_TIME_NS
+> 
+>> diff --git a/mm/Kconfig.debug b/mm/Kconfig.debug
+>> index 41a58536531d..b206e5a11f96 100644
+>> --- a/mm/Kconfig.debug
+>> +++ b/mm/Kconfig.debug
+>> @@ -187,7 +187,7 @@ config DEBUG_WX
+>>       bool "Warn on W+X mappings at boot"
+>>       depends on ARCH_HAS_DEBUG_WX
+>>       depends on MMU
+>> -    select PTDUMP_CORE
+>> +    depends on PTDUMP_CORE
+> 
+> This change is unclear to me. It works because all arch selecting ARCH_HAS_DEBUG_WX also select GENERIC_PTDUMP. For riscv it's even more tricking, Riscv only selects GENERIC_PTDUMP when MMU is set, so it works because here it also depends on MMU.
 
+Right, all the archs selecting ARCH_HAS_DEBUG_WX also select PTDUMP_CORE.
+DEBUG_WX dependency on PTDUMP_CORE will always be met, when the platform
+selects ARCH_HAS_DEBUG_WX as expected.
+
+git grep "select PTDUMP_CORE" arch/
+arch/arm64/Kconfig:     select PTDUMP_CORE
+arch/powerpc/Kconfig:   select PTDUMP_CORE
+arch/riscv/Kconfig:     select PTDUMP_CORE if MMU
+arch/s390/Kconfig:      select PTDUMP_CORE
+arch/x86/Kconfig:       select PTDUMP_CORE
+
+git grep ARCH_HAS_DEBUG_WX arch/
+arch/arm64/Kconfig:     select ARCH_HAS_DEBUG_WX
+arch/powerpc/Kconfig:   select ARCH_HAS_DEBUG_WX                if STRICT_KERNEL_RWX
+arch/riscv/Kconfig:     select ARCH_HAS_DEBUG_WX
+arch/s390/Kconfig:      select ARCH_HAS_DEBUG_WX
+arch/x86/Kconfig:       select ARCH_HAS_DEBUG_WX
+
+On riscv platform, does not PTDUMP_CORE implicitly imply existence of MMU ?
+Could there be a page table dumper without a MMU.
+
+> 
+> But what happens if in the future an architecture selects ARCH_HAS_DEBUG_WX without selecting PTDUMP_CORE ?
+
+Should DEBUG_WX just select PTDUMP_CORE as it exists now. A platform
+will be able to get PTDUMP_CORE via DEBUG_WX if ARCH_HAS_DEBUG_WX is
+subscribed into. Would that be better ?
+
+> 
+> 
+>>       help
+>>         Generate a warning if any W+X mappings are found at boot.
+>>   @@ -212,9 +212,6 @@ config DEBUG_WX
+>>           If in doubt, say "Y".
+>>   -config GENERIC_PTDUMP
+>> -    bool
+>> -
+>>   config PTDUMP_CORE
+>>       bool
+>>   @@ -222,8 +219,7 @@ config PTDUMP_DEBUGFS
+>>       bool "Export kernel pagetable layout to userspace via debugfs"
+>>       depends on DEBUG_KERNEL
+>>       depends on DEBUG_FS
+>> -    depends on GENERIC_PTDUMP
+>> -    select PTDUMP_CORE
+>> +    depends on PTDUMP_CORE
+>>       help
+>>         Say Y here if you want to show the kernel pagetable layout in a
+>>         debugfs file. This information is only useful for kernel developers
+> 
