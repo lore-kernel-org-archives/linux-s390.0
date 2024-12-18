@@ -1,117 +1,101 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 20972153BF7;
-	Wed, 18 Dec 2024 17:35:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E64135949;
+	Wed, 18 Dec 2024 21:44:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734543348; cv=none; b=IZLEoUwF58co5N8eHcHoNEJKwhWXFOrvvFlkGwrQ+APWEZJsGIGOIdvlaFKohqUGAQAzUc4AZycFvGi6vP6Ozaf8hNSPcyjjbuFLpLf2EC2RC9bL6ZevpBYNNwxV5KhrZfxJEigioRea9ZeKqOmeZq2UlgBkkVyJjfXViWhvKYs=
+	t=1734558291; cv=none; b=JvjL2cLHyL2IjLFDOsFVWj9Mgam+go0aQmqdX2XSyu93oUMtGe/wtlatFwdEvsMpdwXX5vnVmlKNo3diNxeTzzEOqONCqHktYxLsaEYFoL7YKPBcZSXCRVLH+YmPlqrl4v1FFyH/wew97gzll8zVniGbFBo2fDQ65Hc7QJ+NcbU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734543348; c=relaxed/simple;
-	bh=G0f3CRK4OGezAKhdYo1icwfLcgJFxcR4S8qBiRtil7o=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=eGRC591iNoOfEumZz2O5JBUhXoFJgZ20l0d+Fj+4+MApx9DxhKQG1KJqFWHEHKnxjtsmztVu4GPKLJbjEJfk8Bkwsus5SZLh/8BWvR5MG+rGWEgb+7Uo5Ff/UnXU/e8OHl+uku8BJrI6dmJFcLSrwb8wgGdMdkxmLb6EtiT7hvs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=BDpx71TF; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1734558291; c=relaxed/simple;
+	bh=edYBZ11YYqwZSp46/krx8ylEh93INu4/gD9nmkbYM7c=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=RYF2S61A4o+uCBONMFBYesMNBOh++ZAFgIPcvccqs6KBIuY25yRLYpN7Ih+UyscdsUVp+cqmfJ8HL58Xx+Hflbmm5SUTUE9R8S9EKZfZEcvVZyiWgEa4VI+ecWF+6OLWFLEc61jlkBPacWO3GlA3C8uSR6Eg7WXI4bEdL5rIxUg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HkgL6Byl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="BDpx71TF"
-Received: from [100.65.66.26] (unknown [20.236.11.29])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 51685203FC76;
-	Wed, 18 Dec 2024 09:35:45 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 51685203FC76
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1734543345;
-	bh=kcOrnKDEjBPRMmid+r2VdwuzstviJhoWxPMriTuDVOU=;
-	h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
-	b=BDpx71TFNqkfcoNFP9tlXMkEiZlcyLmnkjtLEmJ+MhBnajYtSKlI+1b5mxS3pw8EJ
-	 A4YzRcA8T0PZv5Xeu/cKB94FN+j3kIY8U2C390+PsU7YtHcaqdc2DJzKYxHWBHMwtQ
-	 kCNhMQQRza+rJBAliOTmk2objRZIiGlmr+PlV2C8=
-Message-ID: <195abda2-8209-45aa-9652-f981a5de2eae@linux.microsoft.com>
-Date: Wed, 18 Dec 2024 09:35:46 -0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HkgL6Byl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8940AC4CECD;
+	Wed, 18 Dec 2024 21:44:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1734558290;
+	bh=edYBZ11YYqwZSp46/krx8ylEh93INu4/gD9nmkbYM7c=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=HkgL6BylkA2oCiTYEUxu6ip6gvJbDnAA9ohgrXER5+c7S1Y1fH8+tnFLcacxNgvUH
+	 k+7Tenl6R0iAugypn+93OhXyCBbytyR+kKTVSs7akn1rN6Thp821D/ldVjLt12MDEf
+	 lq6B45XkXfOf2lFitv2+QThkpiMUMQpup04WD6hGy+7BsY4NPwSLTz1rpG2XjTfajO
+	 QmlEmmQ0VEPsRCDoMedzBJEq6Y4grdPTT0GdWW1P2emtLlfOsKjREkIH5dUraT01PV
+	 ojRCVIj6tkg6HIB1tJUYGjePXJhZt6r5lTAi262ap8FkjJCzlrWRkzR3ouF/5bUREB
+	 +Alpj5beJhjvw==
+Date: Wed, 18 Dec 2024 13:44:47 -0800
+From: Kees Cook <kees@kernel.org>
+To: Alexandra Winter <wintera@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>
+CC: linux-kernel@vger.kernel.org,
+ ", linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+ ", netdev" <netdev@vger.kernel.org>
+Subject: Re: [PATCH] net: Convert proto_ops::getname to sockaddr_storage
+User-Agent: K-9 Mail for Android
+In-Reply-To: <aa6c671d-f4f4-446d-b024-923555c3f041@linux.ibm.com>
+References: <20241217023417.work.145-kees@kernel.org> <aa6c671d-f4f4-446d-b024-923555c3f041@linux.ibm.com>
+Message-ID: <C822C723-2141-4380-87FF-CA1D87FF8DBF@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: eahariha@linux.microsoft.com, Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
- Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
- Joe Lawrence <joe.lawrence@redhat.com>, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org, live-patching@vger.kernel.org
-Subject: Re: [PATCH v4 2/2] livepatch: Convert timeouts to secs_to_jiffies()
-To: Christophe Leroy <christophe.leroy@csgroup.eu>,
- Petr Mladek <pmladek@suse.com>, Andrew Morton <akpm@linux-foundation.org>
-References: <20241217231000.228677-1-eahariha@linux.microsoft.com>
- <20241217231000.228677-3-eahariha@linux.microsoft.com>
- <Z2KJ8C7nOOK2tJ1X@pathway.suse.cz>
- <f54d34f8-05cd-4081-92a2-85df3f76a35b@csgroup.eu>
-From: Easwar Hariharan <eahariha@linux.microsoft.com>
-Content-Language: en-US
-In-Reply-To: <f54d34f8-05cd-4081-92a2-85df3f76a35b@csgroup.eu>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-On 12/18/2024 12:48 AM, Christophe Leroy wrote:
-> 
-> 
-> Le 18/12/2024 à 09:38, Petr Mladek a écrit :
->> On Tue 2024-12-17 23:09:59, Easwar Hariharan wrote:
->>> Commit b35108a51cf7 ("jiffies: Define secs_to_jiffies()") introduced
->>> secs_to_jiffies(). As the value here is a multiple of 1000, use
->>> secs_to_jiffies() instead of msecs_to_jiffies to avoid the
->>> multiplication.
->>>
->>> This is converted using scripts/coccinelle/misc/secs_to_jiffies.cocci
->>> with
->>> the following Coccinelle rules:
->>>
->>> @@ constant C; @@
->>>
->>> - msecs_to_jiffies(C * 1000)
->>> + secs_to_jiffies(C)
->>>
->>> @@ constant C; @@
->>>
->>> - msecs_to_jiffies(C * MSEC_PER_SEC)
->>> + secs_to_jiffies(C)
->>>
->>> While here, replace the schedule_delayed_work() call with a 0 timeout
->>> with an immediate schedule_work() call.
->>>
->>> --- a/samples/livepatch/livepatch-callbacks-busymod.c
->>> +++ b/samples/livepatch/livepatch-callbacks-busymod.c
->>> @@ -44,8 +44,7 @@ static void busymod_work_func(struct work_struct
->>> *work)
->>>   static int livepatch_callbacks_mod_init(void)
->>>   {
->>>       pr_info("%s\n", __func__);
->>> -    schedule_delayed_work(&work,
->>> -        msecs_to_jiffies(1000 * 0));
->>> +    schedule_work(&work);
->>
->> Is it safe to use schedule_work() for struct delayed_work?
-> 
-> Should be, but you are right it should then be a standard work not a
-> delayed work.
-> 
-> So probably the easiest is to keep
-> 
->     schedule_delayed_work(&work, 0)
-> 
-> And eventually changing it to a not delayed work could be a follow-up
-> patch.
-> 
->>
-
-Thanks for the catch, Petr! This suggestion would effectively revert
-this patch to the v3 version, albeit with some extra explanation in the
-commit message. I'd propose just keeping the v3 in the next branch where
-it is.
-
-Andrew, Petr, Christophe, what do you think?
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
 
+
+On December 18, 2024 4:26:37 AM PST, Alexandra Winter <wintera@linux=2Eibm=
+=2Ecom> wrote:
+>
+>I had to shorten the CC-List to get this message through our mailserver, =
+sorry about that=2E
+>
+>On 17=2E12=2E24 03:34, Kees Cook wrote:
+>> diff --git a/net/iucv/af_iucv=2Ec b/net/iucv/af_iucv=2Ec
+>> index 7929df08d4e0=2E=2E2612382e1a48 100644
+>> --- a/net/iucv/af_iucv=2Ec
+>> +++ b/net/iucv/af_iucv=2Ec
+>> @@ -848,14 +848,14 @@ static int iucv_sock_accept(struct socket *sock, =
+struct socket *newsock,
+>>  	return err;
+>>  }
+>> =20
+>> -static int iucv_sock_getname(struct socket *sock, struct sockaddr *add=
+r,
+>> -			     int peer)
+>> +static int iucv_sock_getname(struct socket *sock,
+>> +			     struct sockaddr_storage *addr, int peer)
+>>  {
+>>  	DECLARE_SOCKADDR(struct sockaddr_iucv *, siucv, addr);
+>>  	struct sock *sk =3D sock->sk;
+>>  	struct iucv_sock *iucv =3D iucv_sk(sk);
+>> =20
+>> -	addr->sa_family =3D AF_IUCV;
+>> +	siucv->sa_family =3D AF_IUCV;
+>
+>
+>This does not compile, it needs to be:
+>siucv->siucv_family =3D AF_IUCV;
+
+Thanks! I saw 0-day reported the same=2E I've fixed this for the next revi=
+sion=2E Do you happen to know why this doesn't get built during an x86 allm=
+odconfig build?
+
+-Kees
+
+>
+>> =20
+>>  	if (peer) {
+>>  		memcpy(siucv->siucv_user_id, iucv->dst_user_id, 8);
+>
+>
+>With this change feel free to add my=20
+>Acked-by: Alexandra Winter <wintera@linux=2Eibm=2Ecom>
+
+--=20
+Kees Cook
