@@ -1,166 +1,117 @@
-Received: from flow-b3-smtp.messagingengine.com (flow-b3-smtp.messagingengine.com [202.12.124.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C0711F7570;
-	Wed, 18 Dec 2024 16:36:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.138
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 20972153BF7;
+	Wed, 18 Dec 2024 17:35:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734539801; cv=none; b=NOUzGtVO1g4n481HtLImjmiuwrhrfGipot+ttMPP7vJF8090Yikz3XEBuiTIr+6PaVMvzSI4jPQyAOwM9ldwgQMshqO5XjsUdI7AW6Ho8ybvNrneCVWFKHBPNvlQ5ekSWGd12yCB9gU4nHJ6C/N7K72A9hVOrzf8Fn0X4XINPc8=
+	t=1734543348; cv=none; b=IZLEoUwF58co5N8eHcHoNEJKwhWXFOrvvFlkGwrQ+APWEZJsGIGOIdvlaFKohqUGAQAzUc4AZycFvGi6vP6Ozaf8hNSPcyjjbuFLpLf2EC2RC9bL6ZevpBYNNwxV5KhrZfxJEigioRea9ZeKqOmeZq2UlgBkkVyJjfXViWhvKYs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734539801; c=relaxed/simple;
-	bh=ECU7a7g+Yd5ux9s9u8W1DLTzWcr6VeDcVb9iJT8TVAY=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=FTb1dAu8FqdA9hldCAivGIvxvjMkXVVS5bGoXVSy4b+jFyomSgvdccPFlM/f/f99e6Jz1aF/CjGHgfJtKD3voDQXK/zm3Ti9mkvvLnWll0Bz2UpSDPSrISwbmaI8RKAzSwPeQj3dzX3p1uhhbm6W6+FECBgN2qQXaQICONbbtzQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=ZBQAOqwW; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=KqJZWQVI; arc=none smtp.client-ip=202.12.124.138
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1734543348; c=relaxed/simple;
+	bh=G0f3CRK4OGezAKhdYo1icwfLcgJFxcR4S8qBiRtil7o=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=eGRC591iNoOfEumZz2O5JBUhXoFJgZ20l0d+Fj+4+MApx9DxhKQG1KJqFWHEHKnxjtsmztVu4GPKLJbjEJfk8Bkwsus5SZLh/8BWvR5MG+rGWEgb+7Uo5Ff/UnXU/e8OHl+uku8BJrI6dmJFcLSrwb8wgGdMdkxmLb6EtiT7hvs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=BDpx71TF; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="ZBQAOqwW";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="KqJZWQVI"
-Received: from phl-compute-10.internal (phl-compute-10.phl.internal [10.202.2.50])
-	by mailflow.stl.internal (Postfix) with ESMTP id 604441D40442;
-	Wed, 18 Dec 2024 11:36:36 -0500 (EST)
-Received: from phl-imap-11 ([10.202.2.101])
-  by phl-compute-10.internal (MEProxy); Wed, 18 Dec 2024 11:36:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1734539796;
-	 x=1734546996; bh=nfvIer0zFabb2CSH4FYG5+b3Q6Xz7yeeSWmQEgNJheM=; b=
-	ZBQAOqwWg2K05L5uK2bYuwdACrxkLsoc2PIgD0cQgiEZ7YYzhpCxLlGgVZW3DVx6
-	RnHtDGYZacvkFOApE5i8PpEKXJJGSLMPZi1/7zYeCxngLwFiuC9mIs0r1MfRf1d7
-	ljvkEfr+wDzKKBBc+aurNSqkpq8ZRtQDdq0HUTxnfOR5XzEt97aJE7dwOdFVZ/hQ
-	G7NwA6xY0dgZ+/xg4YILY7/7WbCEybiUYNzp0z8/igRlYf8NVwKiJsF4kOTG+iqu
-	JyrXPLjrjW44Sllz4+cRSo0lIJniQhepEl9dIW9Ha7JzvHs7+IVaGL96wRRmTQVz
-	/xIay+l60aHEAef4QHVc4w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1734539796; x=
-	1734546996; bh=nfvIer0zFabb2CSH4FYG5+b3Q6Xz7yeeSWmQEgNJheM=; b=K
-	qJZWQVI8dLKjsLZD5P9G0J1qUuKhEEsdqq+hKLVZma8PcO0rePXvzMeh3Gx+vBOD
-	4nrPDtjhBHF33PiCb2oLKtLN8BuhIxgjeQHXotN9690yJVqb/PXCqLhFT2gY2knP
-	SHOoAC5zDrv2o7AYcQSL9H9AgGMdlkVSHmV5ZjLFwBX52jgdNDzgyVppGNX1wod9
-	7ttZ7ZLraiTYPJxQ1MR/SR1x3wO/EGPAqJ0WFhEdeVI7D2KnDKbbNvBechT+mDuz
-	cpPDpxvu0YbekmHfrUlPuFeXsXgCSELupq6HK7beqkIp0QrURFeBQbSN0zMiN8me
-	L7v+l+rQqTjKGKfPI+cXQ==
-X-ME-Sender: <xms:EPpiZ2PhewnaDdeTezsY7UHZ-8MZHheQgg2o6m05zEshehzpenow1A>
-    <xme:EPpiZ08FeD-PHv9DfxkMbyU44Z2agIt5ndVb5bJvAT7p7tClm27qKJ2TH4eLJ14WB
-    FQJfPGZ_sMFiMW81M0>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefuddrleekgdeltdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdpuffr
-    tefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnth
-    hsucdlqddutddtmdenucfjughrpefoggffhffvvefkjghfufgtgfesthhqredtredtjeen
-    ucfhrhhomhepfdetrhhnugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdrug
-    gvqeenucggtffrrghtthgvrhhnpedvhfdvkeeuudevfffftefgvdevfedvleehvddvgeej
-    vdefhedtgeegveehfeeljeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggvpdhnsggprhgtphhtthhopeegiedp
-    mhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepsghpsegrlhhivghnkedruggvpdhrtg
-    hpthhtohepthhssghoghgvnhgusegrlhhphhgrrdhfrhgrnhhkvghnrdguvgdprhgtphht
-    thhopegtrghtrghlihhnrdhmrghrihhnrghssegrrhhmrdgtohhmpdhrtghpthhtohepvh
-    hinhgtvghniihordhfrhgrshgtihhnohesrghrmhdrtghomhdprhgtphhtthhopehlihhn
-    uhigsegrrhhmlhhinhhugidrohhrghdruhhkpdhrtghpthhtoheptghhrhhishhtohhphh
-    gvrdhlvghrohihsegtshhgrhhouhhprdgvuhdprhgtphhtthhopehprghlmhgvrhesuggr
-    sggsvghlthdrtghomhdprhgtphhtthhopegrohhusegvvggtshdrsggvrhhkvghlvgihrd
-    gvughupdhrtghpthhtohepmhhpvgesvghllhgvrhhmrghnrdhiugdrrghu
-X-ME-Proxy: <xmx:EPpiZ9SUEzmB8m4BWTnSvNTtSXRoY8pckW1eK5W5rKnWC0lS5naOKQ>
-    <xmx:EPpiZ2tCYDXsXEJFpJcBW2DlzBqmukOXYouat3DqxhmhFciRrpQLMQ>
-    <xmx:EPpiZ-ctkHakbRRswX0-1x3fLnbcgCLh6ogHHQVM_Yz1HDnHdPdaLw>
-    <xmx:EPpiZ62xeygOoJZVhzcxu1Lkfiip8AzfGhxGF4meBhl3PD_5MD0-1Q>
-    <xmx:FPpiZ3eUuVl_kIXn3EabUXk14dEdg5IU1747WEAAdir6NevQA5VhmJtW>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 5B4AC2220075; Wed, 18 Dec 2024 11:36:32 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="BDpx71TF"
+Received: from [100.65.66.26] (unknown [20.236.11.29])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 51685203FC76;
+	Wed, 18 Dec 2024 09:35:45 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 51685203FC76
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1734543345;
+	bh=kcOrnKDEjBPRMmid+r2VdwuzstviJhoWxPMriTuDVOU=;
+	h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
+	b=BDpx71TFNqkfcoNFP9tlXMkEiZlcyLmnkjtLEmJ+MhBnajYtSKlI+1b5mxS3pw8EJ
+	 A4YzRcA8T0PZv5Xeu/cKB94FN+j3kIY8U2C390+PsU7YtHcaqdc2DJzKYxHWBHMwtQ
+	 kCNhMQQRza+rJBAliOTmk2objRZIiGlmr+PlV2C8=
+Message-ID: <195abda2-8209-45aa-9652-f981a5de2eae@linux.microsoft.com>
+Date: Wed, 18 Dec 2024 09:35:46 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Wed, 18 Dec 2024 17:35:31 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
- "Conor Dooley" <conor@kernel.org>
-Cc: "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
- "Helge Deller" <deller@gmx.de>, "Andy Lutomirski" <luto@kernel.org>,
- "Thomas Gleixner" <tglx@linutronix.de>,
- "Vincenzo Frascino" <vincenzo.frascino@arm.com>,
- "Anna-Maria Gleixner" <anna-maria@linutronix.de>,
- "Frederic Weisbecker" <frederic@kernel.org>,
- "Andrew Morton" <akpm@linux-foundation.org>,
- "Catalin Marinas" <catalin.marinas@arm.com>,
- "Will Deacon" <will@kernel.org>, "Theodore Ts'o" <tytso@mit.edu>,
- "Jason A . Donenfeld" <Jason@zx2c4.com>,
- "Paul Walmsley" <paul.walmsley@sifive.com>,
- "Palmer Dabbelt" <palmer@dabbelt.com>,
- "Albert Ou" <aou@eecs.berkeley.edu>,
- "Huacai Chen" <chenhuacai@kernel.org>, "WANG Xuerui" <kernel@xen0n.name>,
- "Russell King" <linux@armlinux.org.uk>,
- "Heiko Carstens" <hca@linux.ibm.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>,
- "Sven Schnelle" <svens@linux.ibm.com>,
- "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
- "Michael Ellerman" <mpe@ellerman.id.au>,
- "Nicholas Piggin" <npiggin@gmail.com>,
- "Christophe Leroy" <christophe.leroy@csgroup.eu>,
- "Naveen N Rao" <naveen@kernel.org>,
- "Madhavan Srinivasan" <maddy@linux.ibm.com>,
- "Ingo Molnar" <mingo@redhat.com>, "Borislav Petkov" <bp@alien8.de>,
- "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, linux-parisc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-riscv@lists.infradead.org, loongarch@lists.linux.dev,
- linux-s390@vger.kernel.org, linux-mips@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, Linux-Arch <linux-arch@vger.kernel.org>,
- "Nam Cao" <namcao@linutronix.de>
-Message-Id: <137c0594-e178-4c91-bc8b-5f99b3ddb2f0@app.fastmail.com>
-In-Reply-To: 
- <20241218162031-ee920684-db10-4f17-b1cb-50373d7ea954@linutronix.de>
-References: <20241216-vdso-store-rng-v1-0-f7aed1bdb3b2@linutronix.de>
- <20241216-vdso-store-rng-v1-7-f7aed1bdb3b2@linutronix.de>
- <20241218-action-matchbook-571b597b7f55@spud>
- <20241218162031-ee920684-db10-4f17-b1cb-50373d7ea954@linutronix.de>
-Subject: Re: [PATCH 07/17] riscv: vdso: Switch to generic storage implementation
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Cc: eahariha@linux.microsoft.com, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
+ Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
+ Joe Lawrence <joe.lawrence@redhat.com>, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org, live-patching@vger.kernel.org
+Subject: Re: [PATCH v4 2/2] livepatch: Convert timeouts to secs_to_jiffies()
+To: Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Petr Mladek <pmladek@suse.com>, Andrew Morton <akpm@linux-foundation.org>
+References: <20241217231000.228677-1-eahariha@linux.microsoft.com>
+ <20241217231000.228677-3-eahariha@linux.microsoft.com>
+ <Z2KJ8C7nOOK2tJ1X@pathway.suse.cz>
+ <f54d34f8-05cd-4081-92a2-85df3f76a35b@csgroup.eu>
+From: Easwar Hariharan <eahariha@linux.microsoft.com>
+Content-Language: en-US
+In-Reply-To: <f54d34f8-05cd-4081-92a2-85df3f76a35b@csgroup.eu>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed, Dec 18, 2024, at 16:46, Thomas Wei=C3=9Fschuh wrote:
-> On Wed, Dec 18, 2024 at 03:08:28PM +0000, Conor Dooley wrote:
->> On Mon, Dec 16, 2024 at 03:10:03PM +0100, Thomas Wei=C3=9Fschuh wrote:
+On 12/18/2024 12:48 AM, Christophe Leroy wrote:
+> 
+> 
+> Le 18/12/2024 à 09:38, Petr Mladek a écrit :
+>> On Tue 2024-12-17 23:09:59, Easwar Hariharan wrote:
+>>> Commit b35108a51cf7 ("jiffies: Define secs_to_jiffies()") introduced
+>>> secs_to_jiffies(). As the value here is a multiple of 1000, use
+>>> secs_to_jiffies() instead of msecs_to_jiffies to avoid the
+>>> multiplication.
+>>>
+>>> This is converted using scripts/coccinelle/misc/secs_to_jiffies.cocci
+>>> with
+>>> the following Coccinelle rules:
+>>>
+>>> @@ constant C; @@
+>>>
+>>> - msecs_to_jiffies(C * 1000)
+>>> + secs_to_jiffies(C)
+>>>
+>>> @@ constant C; @@
+>>>
+>>> - msecs_to_jiffies(C * MSEC_PER_SEC)
+>>> + secs_to_jiffies(C)
+>>>
+>>> While here, replace the schedule_delayed_work() call with a 0 timeout
+>>> with an immediate schedule_work() call.
+>>>
+>>> --- a/samples/livepatch/livepatch-callbacks-busymod.c
+>>> +++ b/samples/livepatch/livepatch-callbacks-busymod.c
+>>> @@ -44,8 +44,7 @@ static void busymod_work_func(struct work_struct
+>>> *work)
+>>>   static int livepatch_callbacks_mod_init(void)
+>>>   {
+>>>       pr_info("%s\n", __func__);
+>>> -    schedule_delayed_work(&work,
+>>> -        msecs_to_jiffies(1000 * 0));
+>>> +    schedule_work(&work);
+>>
+>> Is it safe to use schedule_work() for struct delayed_work?
+> 
+> Should be, but you are right it should then be a standard work not a
+> delayed work.
+> 
+> So probably the easiest is to keep
+> 
+>     schedule_delayed_work(&work, 0)
+> 
+> And eventually changing it to a not delayed work could be a follow-up
+> patch.
+> 
+>>
 
->> Might be a clang thing, allmodconfig with clang doesn't build either.
->
-> The proposed generic storage infrastructure currently expects that all
-> its users also use HAVE_GENERIC_VDSO.
-> I missed rv32 when checking this assumption.
->
-> I can add a bunch of ifdefs into the storage code to handle this.
->
-> Or we re-add the time vDSO functions which were removed in commit
-> d4c08b9776b3 ("riscv: Use latest system call ABI").
-> Today there are upstream ports of musl and glibc which can use them.
-> (currently musl even tries to use __vdso_clock_gettime() as 64-bit only
-> on rv32 due to a copy-and-paste error from its rv64 code)
+Thanks for the catch, Petr! This suggestion would effectively revert
+this patch to the v3 version, albeit with some extra explanation in the
+commit message. I'd propose just keeping the v3 in the next branch where
+it is.
 
-Adding back __vdso_clock_gettime() wouldn't work on rv32 because there
-is no fallback syscall for it, and it wouldn't really help since
-there is no existing userspace that uses time32 structures.
+Andrew, Petr, Christophe, what do you think?
 
-> There is precedence in providing 64bit only vDSO functions, for example
-> __vdso_clock_gettime64() in arm.
-> I do have a small, so far untested, proof-of-concept patch for it.
-> This would even be less code than the ifdefs.
->
-> What do you think about it?
 
-Yes, simply exposing the normal time64 syscalls through vdso
-should be fine. I think this currently works on everything except
-rv32 and sparc32, probably because neither of them have actual
-users that are able to test.
-
-       Arnd
