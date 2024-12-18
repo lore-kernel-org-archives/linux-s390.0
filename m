@@ -1,139 +1,157 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C796C198E75;
-	Wed, 18 Dec 2024 10:25:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AF06192B94;
+	Wed, 18 Dec 2024 10:33:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734517548; cv=none; b=tjxjqWoSesRpjEv1PFVwaUtd0O8nvQ74qK319oqiNVvUXkNMCwqz0HCPMeCUVCzEzXFYzM8SoQFEkYlj9e3+JBMPKSmnJ2z03KKC8sN/poEXBlKPNc0hboYM1jBEp+/DOIm65LwH6EeveUayj4QsQPpz4BlCMdWYLKGfgSBLyZ0=
+	t=1734517985; cv=none; b=J+JSgWDHeRdHNrLc5IjF655k8QFfGx9WwwAHyoMJbp6NaTitFmHf2HkRoLDmUSj3D+uuMPhw8Zwr4OWiOI/klMhejkK2+iAw3hgv6LCy1NVPd99jqkWHc1DeRTj9SAfrYdKGGW4HF8sXmNnygYD5Lvtphqfo1QMnRwAHiKQGkzo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734517548; c=relaxed/simple;
-	bh=/VgkqBQeVlIOAs2uYQLNDJXkep5HLD235lAaSkgEzsE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WHP7aR/STk4iJP9EPvoNBYrx56PunXWZexPrZR9Tl3jmtgUmHDb7QyVm1z9oJZpmKu3cDxjPfKf3JIBigOGIdHe8+49yQX0WCGy4xriIjTAdfblS/UqHh9/vt9oZeqmchu7GqfldFj96iQtdtTTd/qeOW4e66OVTWJRICztMM/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=2SSWoTmi; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=AoKeNEyu; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1734517985; c=relaxed/simple;
+	bh=c5Uy1OydmqKjACvTX6VTVEgbiYrqyiypbgaMgDX27nI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SCvNHaCaX9chBKZa++vOTLxWOevc4KO1+qX9rPYUDAmQSm0LwmDYToYIS5s1Z0WeYkOrZ1jPiIBDosHTi39e841oibNokwr8r03v6Jznd77QRYb3NH6/VRIEi+X2/LgSFeGbvrFfY6+YO1ZqpnJ+g3QUUrE2J4XEWwX0qDUA24g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ol5qgh78; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="2SSWoTmi";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="AoKeNEyu"
-Date: Wed, 18 Dec 2024 11:25:44 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1734517545;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Wc3y2MMAV4l4fXGHcieZbsIyWfTg/ozhFPhFb4lifrk=;
-	b=2SSWoTmikqml+QyzziVj/m4Yg45xAoP4dNtwTBlJig2p14toOtHozKw5Bxfjy4L/DvACGV
-	OMNT4R2Rekm2Ck8CCOW0XGD1j8FoyZrt3Z7jazkfGB6Zv+KWrHTMOhmUum+sr+mgUm1e61
-	TM1KWhbGQXbTlvxJf51hlLY47fK7pZY7y05qey8SsXBH0Nkg9uMgzFSWUJ30b/nxZp2S3N
-	Hy4DtDnFlOUNAID7T8cQaJtlrwqn059Y+FAOYDMu2CWWxXTn5NsAeABAkO/WY90H+pP48R
-	uMCgaoU5KLrPl82I7qw8SvgoxROfvTSXg9ibM/gPkLEPvpm/oD+JPk198PVRXA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1734517545;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Wc3y2MMAV4l4fXGHcieZbsIyWfTg/ozhFPhFb4lifrk=;
-	b=AoKeNEyuPrW2z0f+0sR+kxNpoFiiPy1/gq9ak22q5IqO1FLos7EO/vgThimKc+44ktm5ZR
-	tRGCj/jF+KFa4yBw==
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-To: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	Helge Deller <deller@gmx.de>, Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
-	Anna-Maria Behnsen <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>, 
-	Andrew Morton <akpm@linux-foundation.org>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Theodore Ts'o <tytso@mit.edu>, 
-	"Jason A. Donenfeld" <Jason@zx2c4.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
-	Russell King <linux@armlinux.org.uk>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Naveen N Rao <naveen@kernel.org>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Arnd Bergmann <arnd@arndb.de>, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-riscv@lists.infradead.org, loongarch@lists.linux.dev, 
-	linux-s390@vger.kernel.org, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-arch@vger.kernel.org, Nam Cao <namcao@linutronix.de>
-Subject: Re: [PATCH 03/17] vdso: Add generic time data storage
-Message-ID: <20241218111724-41f5e3c6-f41d-41ec-beed-bd05cca05016@linutronix.de>
-References: <20241216-vdso-store-rng-v1-0-f7aed1bdb3b2@linutronix.de>
- <20241216-vdso-store-rng-v1-3-f7aed1bdb3b2@linutronix.de>
- <3b44defd-cd2a-4a3c-b72d-bcc0530336da@csgroup.eu>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ol5qgh78"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BI85ejZ026872;
+	Wed, 18 Dec 2024 10:32:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=D95hDIqy2TzdDmcchXwrGfN7XvooHZqCScoDnrrR6
+	YY=; b=ol5qgh78M8WltY0Jx/ymGIcIoTtB9pz+vcRbjtpJHQzX2Y3jpPpQqio0R
+	v0etb2GqWCcvog6a4gkrI+Z6GyPetVULCB1Ew2RZw7+fwYagjeNlNDgIhx01wvUN
+	ioIUeGyRhSAfuve9Cqz9vFQEzdi+f/5WEoWyEgbPKxM6BUwvwNF/XE0caS3slrHx
+	ghwrPqfXYUMfQw51l5p5aWkflifzpVyGzucCRD1JDL1J0Zj+9gSYrphIF+xNRUBC
+	bPXuFNeSETkQ+tl62ial5oBz/nVPX8qrcZWi7pkDbMmvpI0tOuFrFKKQ6Fx1nra4
+	8KM9G6XagSnB/+Jm1zxjL+9X8CXYA==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43ktk2gmja-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Dec 2024 10:32:57 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BI8rSP7024044;
+	Wed, 18 Dec 2024 10:32:57 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43hnukfa2x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Dec 2024 10:32:57 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BIAWqdd46924104
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 18 Dec 2024 10:32:53 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F265B2004B;
+	Wed, 18 Dec 2024 10:32:51 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C934420043;
+	Wed, 18 Dec 2024 10:32:51 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 18 Dec 2024 10:32:51 +0000 (GMT)
+From: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+To: Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.cz>, linux-btrfs@vger.kernel.org
+Cc: Qu Wenruo <wqu@suse.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: [PATCH v2] btrfs: Fix avail_in bytes for s390 zlib HW compression path
+Date: Wed, 18 Dec 2024 11:32:51 +0100
+Message-ID: <20241218103251.3753503-1-zaslonko@linux.ibm.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <3b44defd-cd2a-4a3c-b72d-bcc0530336da@csgroup.eu>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: HXF_0mKXlQDXQa1L0evxHAIRp-MDO9bC
+X-Proofpoint-ORIG-GUID: HXF_0mKXlQDXQa1L0evxHAIRp-MDO9bC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ spamscore=0 impostorscore=0 clxscore=1011 mlxlogscore=999 adultscore=0
+ phishscore=0 priorityscore=1501 lowpriorityscore=0 malwarescore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412180084
 
-Hi Christophe,
+Since the input data length passed to zlib_compress_folios() can be
+arbitrary, always setting strm.avail_in to a multiple of PAGE_SIZE may
+cause read-in bytes to exceed the input range. Currently this triggers
+an assert in btrfs_compress_folios() on the debug kernel (see below).
+Fix strm.avail_in calculation for S390 hardware acceleration path.
 
-On Wed, Dec 18, 2024 at 08:32:14AM +0100, Christophe Leroy wrote:
-> Le 16/12/2024 ‡ 15:09, Thomas Weiﬂschuh a Ècrit†:
-> > Historically each architecture defined their own way to store the vDSO
-> > data page. Add a generic mechanism to provide storage for that page.
-> > 
-> > Furthermore this generic storage will be extended to also provide
-> > uniform storage for *non*-time-related data, like the random state or
-> > architecture-specific data. These will have their own pages and data
-> > structures, so rename 'vdso_data' into 'vdso_time_data' to make that
-> > split clear from the name.
-> > 
-> > Also introduce a new consistent naming scheme for the symbols related to
-> > the vDSO, which makes it clear if the symbol is accessible from
-> > userspace or kernel space and the type of data behind the symbol.
-> > 
-> > The generic fault handler contains an optimization to prefault the vvar
-> > page when the timens page is accessed. This was lifted from s390 and x86.
-> > 
-> > Co-developed-by: Nam Cao <namcao@linutronix.de>
-> > Signed-off-by: Nam Cao <namcao@linutronix.de>
-> > Signed-off-by: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
-> > ---
-> >   MAINTAINERS                    |  1 +
-> >   include/linux/time_namespace.h |  1 +
-> >   include/linux/vdso_datastore.h | 10 +++++
-> >   include/vdso/datapage.h        | 69 +++++++++++++++++++++++++----
-> >   lib/Kconfig                    |  1 +
-> >   lib/Makefile                   |  2 +
-> >   lib/vdso_kernel/Kconfig        |  7 +++
-> >   lib/vdso_kernel/Makefile       |  3 ++
-> >   lib/vdso_kernel/datastore.c    | 99 ++++++++++++++++++++++++++++++++++++++++++
-> 
-> There is only one single file, namely datastore.c. You don't need a new
-> directory for that, I should go in lib/vdso/
+ assertion failed: *total_in <= orig_len, in fs/btrfs/compression.c:1041
+ ------------[ cut here ]------------
+ kernel BUG at fs/btrfs/compression.c:1041!
+ monitor event: 0040 ilc:2 [#1] PREEMPT SMP
+ CPU: 16 UID: 0 PID: 325 Comm: kworker/u273:3 Not tainted 6.13.0-20241204.rc1.git6.fae3b21430ca.300.fc41.s390x+debug #1
+ Hardware name: IBM 3931 A01 703 (z/VM 7.4.0)
+ Workqueue: btrfs-delalloc btrfs_work_helper
+ Krnl PSW : 0704d00180000000 0000021761df6538 (btrfs_compress_folios+0x198/0x1a0)
+            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
+ Krnl GPRS: 0000000080000000 0000000000000001 0000000000000047 0000000000000000
+            0000000000000006 ffffff01757bb000 000001976232fcc0 000000000000130c
+            000001976232fcd0 000001976232fcc8 00000118ff4a0e30 0000000000000001
+            00000111821ab400 0000011100000000 0000021761df6534 000001976232fb58
+ Krnl Code: 0000021761df6528: c020006f5ef4        larl    %r2,0000021762be2310
+            0000021761df652e: c0e5ffbd09d5        brasl   %r14,00000217615978d8
+           #0000021761df6534: af000000            mc      0,0
+           >0000021761df6538: 0707                bcr     0,%r7
+            0000021761df653a: 0707                bcr     0,%r7
+            0000021761df653c: 0707                bcr     0,%r7
+            0000021761df653e: 0707                bcr     0,%r7
+            0000021761df6540: c004004bb7ec        brcl    0,000002176276d518
+ Call Trace:
+  [<0000021761df6538>] btrfs_compress_folios+0x198/0x1a0
+ ([<0000021761df6534>] btrfs_compress_folios+0x194/0x1a0)
+  [<0000021761d97788>] compress_file_range+0x3b8/0x6d0
+  [<0000021761dcee7c>] btrfs_work_helper+0x10c/0x160
+  [<0000021761645760>] process_one_work+0x2b0/0x5d0
+  [<000002176164637e>] worker_thread+0x20e/0x3e0
+  [<000002176165221a>] kthread+0x15a/0x170
+  [<00000217615b859c>] __ret_from_fork+0x3c/0x60
+  [<00000217626e72d2>] ret_from_fork+0xa/0x38
+ INFO: lockdep is turned off.
+ Last Breaking-Event-Address:
+  [<0000021761597924>] _printk+0x4c/0x58
+ Kernel panic - not syncing: Fatal exception: panic_on_oops
 
-lib/vdso/ currently only contains userspace code.
-I don't have a strong opinion on that.
-The lib/vdso_kernel location was suggested by tglx, maybe he has some
-feedback. (Originally I put it into kernel/vdso_storage.c)
+Fixes: fd1e75d0105d ("btrfs: make compression path to be subpage compatible")
+Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+---
+ fs/btrfs/zlib.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-[..]
+Changes since v1
+----------------
+Call Trace added to the commit message 
 
-> > +enum vdso_pages {
-> > +	VDSO_TIME_PAGE_OFFSET,
-> > +	VDSO_TIMENS_PAGE_OFFSET,
-> > +	VDSO_NR_PAGES
-> > +};
-> 
-> Naming that VDSO_ is confusing. Most macros called VDSO_ are related to the
-> VDSO Code. VDSO data related macros should be prefixed with VVAR_
+diff --git a/fs/btrfs/zlib.c b/fs/btrfs/zlib.c
+index ddf0d5a448a7..c9e92c6941ec 100644
+--- a/fs/btrfs/zlib.c
++++ b/fs/btrfs/zlib.c
+@@ -174,10 +174,10 @@ int zlib_compress_folios(struct list_head *ws, struct address_space *mapping,
+ 					copy_page(workspace->buf + i * PAGE_SIZE,
+ 						  data_in);
+ 					start += PAGE_SIZE;
+-					workspace->strm.avail_in =
+-						(in_buf_folios << PAGE_SHIFT);
+ 				}
+ 				workspace->strm.next_in = workspace->buf;
++				workspace->strm.avail_in = min(bytes_left,
++							       in_buf_folios << PAGE_SHIFT);
+ 			} else {
+ 				unsigned int pg_off;
+ 				unsigned int cur_len;
+-- 
+2.45.2
 
-Also a request from tglx.
-
-[..]
-
-
-Thanks!
-Thomas
