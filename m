@@ -1,122 +1,220 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FA141A239D;
-	Wed, 18 Dec 2024 12:26:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84A781ACECE
+	for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2024 13:05:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734524805; cv=none; b=dwWHuw9Nwi/sbayzzuf4NNBSyWQLGDgZTnX53OK75XaEg1ecY8IBIEo58MHwx+rnipa2Z/2tob8lAFzeH2gfp/n+kvbdgD4Trv1gN98Qu3X0Sq1/GQnzqcr2y7WdwW5oFTLtlwMt2hgGtEe8G5j/rPjbIUuAZlD5Yj07TbQQW54=
+	t=1734527142; cv=none; b=PmCzJhoVWGuBsVH7yImv2XWbzuH5J7+ig534Gq9c/vlFNHYcdFbPYtyr6nY6a0GqxxRSIZP8wkNK3brrz5HsCXxItUf3HZnmhZURf2Qz3Its9+MhoB07xUZArgqD7K+o1vTJwMrdWCjcx/TiRU/uC+SKw+9YUCL3JhY1vA432qc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734524805; c=relaxed/simple;
-	bh=JI+TcQRUzFQtEBVzclbiRV6gysvK9wFPfR+PDn1FOhM=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:References:Cc:
-	 In-Reply-To:Content-Type; b=jF99RsyYI/f6PpGwaA14zoGOlH4EVgjbTblBqi81dpSogRHtnQW0Exr8/XN2kPavF5SRJAeSlZ5XkYafYkwniUpBRLa2Jf2FkGqHcjOZUhBvGhtalqm40FyMmPA46RYkEU1aSivIEQAsReh6ZyxjE+C7HykgEaxhY1xrb4tLJ9c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WYRER3lc; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1734527142; c=relaxed/simple;
+	bh=gsn2MxaDHMIkVDeNJoAZ1GXzg4UbDMQdMp9AlgDJXWI=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=Qfq2efBZYcoSG+Fe9e32MBhBigP02ynh0M9sT1OnNaElDACECTwK+uNCYkRJFucOTpj0sEOfKUF/m06ogxE9sb9FkZkOAksDMmrAXGPT6Vpbry/b44ek6FvN9peo9H6AxQJ7SyuC9jJGxtr+IoFiogyV7k0mEU/fu0hVIUZ83ms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=IivdJq3z; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WYRER3lc"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BHNwFSV032381;
-	Wed, 18 Dec 2024 12:26:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=eFrsQc
-	TBIx3s7uS9Y7bfcZKk8X3P8e0tLJokQz2DKjg=; b=WYRER3lcvrXiAchm26jxBm
-	rm9RUFxcdBVf50tzDV/IsOHxHruyRtOBSZr+Dz5AKR5//zgkzWTBbtg2fqo+4hlA
-	8Hs2szE58lTI5FzT2u1HLOvRFQRrXAkZskIi45lFzLRq6HtDTCdvtdrWPVP/Ec+p
-	cVHqVcFN+ltrg9S4sYyTPX01djFWgdVIYP2pcUCYFJn7Z8b9ncMcNlmDtrK5XZK5
-	/akKoT38rMmg8OZOV1PXKOPfrWSpX8fENzy9mmhEc85WZC9SxTmmtR1vxa/TGH5M
-	g9vhWIwf8sqOBMrEwayMHPCk5ebybaAEg9LfzY8sd7xqVa31SnCeVN12XFqEmkSA
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43kkehaupb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Dec 2024 12:26:41 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BI8VdhO005549;
-	Wed, 18 Dec 2024 12:26:40 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43hnbn7t1b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Dec 2024 12:26:40 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BICQcdO18874858
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 18 Dec 2024 12:26:38 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7496220043;
-	Wed, 18 Dec 2024 12:26:38 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2FD8820040;
-	Wed, 18 Dec 2024 12:26:38 +0000 (GMT)
-Received: from [9.171.87.168] (unknown [9.171.87.168])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 18 Dec 2024 12:26:38 +0000 (GMT)
-Message-ID: <aa6c671d-f4f4-446d-b024-923555c3f041@linux.ibm.com>
-Date: Wed, 18 Dec 2024 13:26:37 +0100
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="IivdJq3z"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2163bd70069so65617735ad.0
+        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2024 05:05:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1734527139; x=1735131939; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xY41yoAggnrpKZDOvMIy0+FhpPRF9QFn+bDK7HKPzWw=;
+        b=IivdJq3zwTbBWUsPy2MsCP/5HmRbrv/2yQa+fwmHxKVx0Yvj7bbyZ80AM6lvy9O285
+         cUHneJFlqIG4sTmzj56M7TR87h1kU76i285aRYZtELUEy9prvihgOoxnn1rzDquUwui5
+         IUAQuYQP90EfzAVlIp26nn/r5g74vfIWxi6zcway74EXyO2FM+W5y5bUscUWk5KJYWsy
+         TEHR7M5ONoh7GK4a1bgRANf/YF0yBUh3XaaMGUQvYkdTLxq4+BXBk0+6RYinhkeb69xQ
+         EdqWqNtultUYStJrcbEKa8esFMU2sF87VBupLBTawrjDcGA0XuK/I/0AqiD8xozFaW8M
+         XuIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1734527139; x=1735131939;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=xY41yoAggnrpKZDOvMIy0+FhpPRF9QFn+bDK7HKPzWw=;
+        b=Ou+FgF+ogArJTYjpkLz1uzcyjyuLRglbSNl21+79eZSGIzRwHT2oZBaePany64UzHH
+         l8OiGPuc+cetXUficXSbHStw4thZ/7xghNQ+8aRNmcscVNGaUUHecRXGBil6um+xIEq4
+         GHGpVLd/lD33NoR/eYMO5MHBPwVqIajx7ngs+G3OJchG0SFcezHBvc68ieSOmMfYGYPZ
+         d4uSiTlD6ehaFIv5Gp3CafQZw5W6adRUUIaMtZBfJLiqlEgSF/Ah6ncF1hIkMztHxpXA
+         +VP+W9W0MM25oFQykhsAa6kXlSLcBcJoaB+ytbF4CvlLG3esoruHTQnfwvK2dBdUnC+I
+         GDXQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUr0d7ibW4phihTQ9UM9/rWuyeOzFehA0+6xWfg+DxmBqjAXEf3wtE3lIfZkSS9+75M73QXI+7Ym5cG@vger.kernel.org
+X-Gm-Message-State: AOJu0YzMWMdiswZ91/pJ7Jnqt8dWrp5mueVU/ifbC6qwJsuaSAdXNNUP
+	NdBy33MxsVZEaXMprDfGE0k7KsTpimXXyvyZqXQrqNsMkHdkDU7V0L2VoX0XvFk=
+X-Gm-Gg: ASbGncsPZJ2rQq68adzcUKwJTunSjwmoOXVRmOkCbz1YdYfNmNUBAqn/dpeLbi4AHlk
+	KeAXORf9if1YiAUoIjjxRi5+byRUK7teTE+xA7NcaNG2OzGlp6S1rIJGXUdh3PhapS0ny9x8ql2
+	zOhUuVm6BFojm5Zjw+okotd6YPSVvb5erlAfVnIDPCjEDQcYJqLuJIAU7EOKdcMefr2E/UtpEmV
+	EsakEnG3Q/KIPMbaKJe+jGzOL5OmxWTTGbs/Fk8PpiHIte01RKtwM95Ls0zevcuc030cgaWodVn
+	ws5RXgwF4EDimDYdqiHMpQ==
+X-Google-Smtp-Source: AGHT+IEBex3adiI4KuoLgCHeY1D81j9Q6JTE0T6gwcWqf4Lz8nOg8PmUUMxAQoz8nfmNTBwOZklCxg==
+X-Received: by 2002:a17:903:2448:b0:216:6769:9eea with SMTP id d9443c01a7336-218d72477d0mr41450855ad.37.1734527138569;
+        Wed, 18 Dec 2024 05:05:38 -0800 (PST)
+Received: from C02DW0BEMD6R.bytedance.net ([139.177.225.238])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-218a1db755dsm75751825ad.42.2024.12.18.05.05.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Dec 2024 05:05:37 -0800 (PST)
+From: Qi Zheng <zhengqi.arch@bytedance.com>
+To: peterz@infradead.org,
+	tglx@linutronix.de,
+	david@redhat.com,
+	jannh@google.com,
+	hughd@google.com,
+	yuzhao@google.com,
+	willy@infradead.org,
+	muchun.song@linux.dev,
+	vbabka@kernel.org,
+	lorenzo.stoakes@oracle.com,
+	akpm@linux-foundation.org,
+	rientjes@google.com,
+	vishal.moola@gmail.com
+Cc: linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	Qi Zheng <zhengqi.arch@bytedance.com>,
+	linux-s390@vger.kernel.org
+Subject: [PATCH v2 04/15] s390: pgtable: add statistics for PUD and P4D level page table
+Date: Wed, 18 Dec 2024 21:04:40 +0800
+Message-Id: <64401d867f3a965f60e9c8d09099b42f21749a47.1734526570.git.zhengqi.arch@bytedance.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
+In-Reply-To: <cover.1734526570.git.zhengqi.arch@bytedance.com>
+References: <cover.1734526570.git.zhengqi.arch@bytedance.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Alexandra Winter <wintera@linux.ibm.com>
-Subject: Re: [PATCH] net: Convert proto_ops::getname to sockaddr_storage
-To: Kees Cook <kees@kernel.org>, Jakub Kicinski <kuba@kernel.org>
-References: <20241217023417.work.145-kees@kernel.org>
-Content-Language: en-US
-Cc: linux-kernel@vger.kernel.org,
-        ", linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        ", netdev" <netdev@vger.kernel.org>
-In-Reply-To: <20241217023417.work.145-kees@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 2EFyKPV8DDG2Kq17gfWxx8slnK4VXWGo
-X-Proofpoint-ORIG-GUID: 2EFyKPV8DDG2Kq17gfWxx8slnK4VXWGo
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 clxscore=1011 spamscore=0 priorityscore=1501
- suspectscore=0 adultscore=0 mlxscore=0 malwarescore=0 bulkscore=0
- mlxlogscore=999 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2411120000 definitions=main-2412180096
+Content-Transfer-Encoding: 8bit
 
+Like PMD and PTE level page table, also add statistics for PUD and P4D
+page table.
 
-I had to shorten the CC-List to get this message through our mailserver, sorry about that.
+Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: linux-s390@vger.kernel.org
+---
+ arch/s390/include/asm/pgalloc.h | 29 +++++++++++++++++++-------
+ arch/s390/include/asm/tlb.h     | 37 +++++++++++++++++----------------
+ 2 files changed, 40 insertions(+), 26 deletions(-)
 
-On 17.12.24 03:34, Kees Cook wrote:
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index 7929df08d4e0..2612382e1a48 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-> @@ -848,14 +848,14 @@ static int iucv_sock_accept(struct socket *sock, struct socket *newsock,
->  	return err;
->  }
->  
-> -static int iucv_sock_getname(struct socket *sock, struct sockaddr *addr,
-> -			     int peer)
-> +static int iucv_sock_getname(struct socket *sock,
-> +			     struct sockaddr_storage *addr, int peer)
->  {
->  	DECLARE_SOCKADDR(struct sockaddr_iucv *, siucv, addr);
->  	struct sock *sk = sock->sk;
->  	struct iucv_sock *iucv = iucv_sk(sk);
->  
-> -	addr->sa_family = AF_IUCV;
-> +	siucv->sa_family = AF_IUCV;
+diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
+index 7b84ef6dc4b6d..a0c1ca5d8423c 100644
+--- a/arch/s390/include/asm/pgalloc.h
++++ b/arch/s390/include/asm/pgalloc.h
+@@ -53,29 +53,42 @@ static inline p4d_t *p4d_alloc_one(struct mm_struct *mm, unsigned long address)
+ {
+ 	unsigned long *table = crst_table_alloc(mm);
+ 
+-	if (table)
+-		crst_table_init(table, _REGION2_ENTRY_EMPTY);
++	if (!table)
++		return NULL;
++	crst_table_init(table, _REGION2_ENTRY_EMPTY);
++	pagetable_p4d_ctor(virt_to_ptdesc(table));
++
+ 	return (p4d_t *) table;
+ }
+ 
+ static inline void p4d_free(struct mm_struct *mm, p4d_t *p4d)
+ {
+-	if (!mm_p4d_folded(mm))
+-		crst_table_free(mm, (unsigned long *) p4d);
++	if (mm_p4d_folded(mm))
++		return;
++
++	pagetable_p4d_dtor(virt_to_ptdesc(p4d));
++	crst_table_free(mm, (unsigned long *) p4d);
+ }
+ 
+ static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
+ {
+ 	unsigned long *table = crst_table_alloc(mm);
+-	if (table)
+-		crst_table_init(table, _REGION3_ENTRY_EMPTY);
++
++	if (!table)
++		return NULL;
++	crst_table_init(table, _REGION3_ENTRY_EMPTY);
++	pagetable_pud_ctor(virt_to_ptdesc(table));
++
+ 	return (pud_t *) table;
+ }
+ 
+ static inline void pud_free(struct mm_struct *mm, pud_t *pud)
+ {
+-	if (!mm_pud_folded(mm))
+-		crst_table_free(mm, (unsigned long *) pud);
++	if (mm_pud_folded(mm))
++		return;
++
++	pagetable_pud_dtor(virt_to_ptdesc(pud));
++	crst_table_free(mm, (unsigned long *) pud);
+ }
+ 
+ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
+diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
+index e95b2c8081eb8..b946964afce8e 100644
+--- a/arch/s390/include/asm/tlb.h
++++ b/arch/s390/include/asm/tlb.h
+@@ -110,24 +110,6 @@ static inline void pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmd,
+ 	tlb_remove_ptdesc(tlb, pmd);
+ }
+ 
+-/*
+- * p4d_free_tlb frees a pud table and clears the CRSTE for the
+- * region second table entry from the tlb.
+- * If the mm uses a four level page table the single p4d is freed
+- * as the pgd. p4d_free_tlb checks the asce_limit against 8PB
+- * to avoid the double free of the p4d in this case.
+- */
+-static inline void p4d_free_tlb(struct mmu_gather *tlb, p4d_t *p4d,
+-				unsigned long address)
+-{
+-	if (mm_p4d_folded(tlb->mm))
+-		return;
+-	__tlb_adjust_range(tlb, address, PAGE_SIZE);
+-	tlb->mm->context.flush_mm = 1;
+-	tlb->freed_tables = 1;
+-	tlb_remove_ptdesc(tlb, p4d);
+-}
+-
+ /*
+  * pud_free_tlb frees a pud table and clears the CRSTE for the
+  * region third table entry from the tlb.
+@@ -140,11 +122,30 @@ static inline void pud_free_tlb(struct mmu_gather *tlb, pud_t *pud,
+ {
+ 	if (mm_pud_folded(tlb->mm))
+ 		return;
++	pagetable_pud_dtor(virt_to_ptdesc(pud));
+ 	tlb->mm->context.flush_mm = 1;
+ 	tlb->freed_tables = 1;
+ 	tlb->cleared_p4ds = 1;
+ 	tlb_remove_ptdesc(tlb, pud);
+ }
+ 
++/*
++ * p4d_free_tlb frees a p4d table and clears the CRSTE for the
++ * region second table entry from the tlb.
++ * If the mm uses a four level page table the single p4d is freed
++ * as the pgd. p4d_free_tlb checks the asce_limit against 8PB
++ * to avoid the double free of the p4d in this case.
++ */
++static inline void p4d_free_tlb(struct mmu_gather *tlb, p4d_t *p4d,
++				unsigned long address)
++{
++	if (mm_p4d_folded(tlb->mm))
++		return;
++	pagetable_p4d_dtor(virt_to_ptdesc(p4d));
++	__tlb_adjust_range(tlb, address, PAGE_SIZE);
++	tlb->mm->context.flush_mm = 1;
++	tlb->freed_tables = 1;
++	tlb_remove_ptdesc(tlb, p4d);
++}
+ 
+ #endif /* _S390_TLB_H */
+-- 
+2.20.1
 
-
-This does not compile, it needs to be:
-siucv->siucv_family = AF_IUCV;
-
->  
->  	if (peer) {
->  		memcpy(siucv->siucv_user_id, iucv->dst_user_id, 8);
-
-
-With this change feel free to add my 
-Acked-by: Alexandra Winter <wintera@linux.ibm.com>
