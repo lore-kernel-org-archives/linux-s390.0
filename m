@@ -1,184 +1,142 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68C081C5CDD;
-	Wed, 18 Dec 2024 15:08:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 052CD1DF27F;
+	Wed, 18 Dec 2024 15:09:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734534519; cv=none; b=c/IZBRJ8G7DIGADopQACfcu5RS4vj3Id0JE0jOp2ih4Yn+JGUQx9AWzhbebC9MPipQ4Fod8FGJqplGMlCu7UEJ6xW6S86u9bKpDIZqDALJwsuOLuN3kmHx3UAj2hPFZep4Qr7x3wUxSdtGYj5KsQW5FXyj1DGdOggVBsKAF3dLs=
+	t=1734534542; cv=none; b=esuHxm5n6Kru/P/F6TNcZMHtGOoTvUZjTC5bh7xEZGlGF1RR9dPCzb1HWYUQWLlSOT3SlW/0SwwL/d4vtGka2JQGhhQNsA8M5TUBjNdP7+6smCjNmzjx0ezHxVDjbvDldytZEXqqJUwVd3pgc5laiIQquSmeYBXG0nc1o8cxzQ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734534519; c=relaxed/simple;
-	bh=dsz8257D+6as1uUtKCRNXMXuyupbAqskFTKy5dqOl5Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oyrHnn6YoSXStwWMOmxiDNu27gM+vN3QGW1Q7BHK/9J/shrppdlQLNHVIDRl1wmtdU9bfhy+optFXy07E/XrVfkltvb3T/YOelQPpLtuRnjw1lSJYEkQ0DDWSOVGI4ko0NxS8EJ1nu0emyuwgQBJFjb2eL/pvU/+DLpZXO17aPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DOFYmV/O; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1734534542; c=relaxed/simple;
+	bh=LZIbz1tZMEBK1PmarK8c0Eov5hYMwzAa8Wu084f9y1s=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=aoPjLSorKukTR4Hl81ICqoKBIQSEdpEkJRVNJRLVHOou+PAtQwt+bRsDZRPP9BH/II5ROvvxEyA6TJBnpUPmIfQeoVzoECUILW9j1a/OUwvO3f3iMXpKb0wnxEgtCnz+UBg6Uz8EezoRZzqGjgxDG+s4mHF0nXyDbVr0wW8D1so=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eW/mDXWz; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DOFYmV/O"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31A23C4CECE;
-	Wed, 18 Dec 2024 15:08:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1734534519;
-	bh=dsz8257D+6as1uUtKCRNXMXuyupbAqskFTKy5dqOl5Q=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=DOFYmV/OC+pxzzSN2F3KRoWuPa3RBYPTcC/zoOH2NCKjp1MeXanV999doe0z17HZ9
-	 kZeRFu9n52HpxIYfDvjY68cwj2dFjby7xXYHkkhE6r1WCfyp9XvKDBOdii0weYJCm+
-	 9xKCOdfjiu4YgHKWSLJx0oNXIh9y/gozVqQ4FgrGJap66A/Q1lO5Vt/tWoIGECJlWH
-	 Rp7OGHr4sDQ+63bPykzZvg4/ERY2JHbLdJSx7PfB1jdfh7ai0OGgoE0GCVZHUb6g+l
-	 lHS+ibQI7IPTVeyzL3d/9mjIO74XkR3qFvTP3HJ4GhKXpeqZidOrYIhtpJAdAEabhd
-	 m0OkMY0OfPMpw==
-Date: Wed, 18 Dec 2024 15:08:28 +0000
-From: Conor Dooley <conor@kernel.org>
-To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <thomas.weissschuh@linutronix.de>
-Cc: "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>, Andy Lutomirski <luto@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Vincenzo Frascino <vincenzo.frascino@arm.com>,
-	Anna-Maria Behnsen <anna-maria@linutronix.de>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
-	"Jason A. Donenfeld" <Jason@zx2c4.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Russell King <linux@armlinux.org.uk>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-	linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-riscv@lists.infradead.org, loongarch@lists.linux.dev,
-	linux-s390@vger.kernel.org, linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-arch@vger.kernel.org,
-	Nam Cao <namcao@linutronix.de>
-Subject: Re: [PATCH 07/17] riscv: vdso: Switch to generic storage
- implementation
-Message-ID: <20241218-action-matchbook-571b597b7f55@spud>
-References: <20241216-vdso-store-rng-v1-0-f7aed1bdb3b2@linutronix.de>
- <20241216-vdso-store-rng-v1-7-f7aed1bdb3b2@linutronix.de>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eW/mDXWz"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BIElTfP028420;
+	Wed, 18 Dec 2024 15:08:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=aq/2xe
+	4eLlgPOaUXNY0YsZeIsnH76dCFD6HPFcHMaVk=; b=eW/mDXWz0K1HMSBN9PwOe4
+	wQzpoTLG4ViwTFLZwTRvGto2CY8nZe+MhwC4S/eq434nrN97pfGQMVUf6PlqKSyf
+	UxKDVJAARZddwIRues02WQ89EmepecBYB+YQFx1c1PHh2KYYGq/rsUzNKYzZ/GoV
+	CJWVjtY+VW1YvJAfOactaTZCl15M7w7L1BcohtLviXf41GqS6Ugepc4FYEusgTx+
+	fyAu3MGfoA8TJy5t0H1aAvDuP+vOvhzo0OQ5mK5QnRt+zhA679w8eVgkpr7vVzwl
+	R3JXK41Ae4b1/1ajLiL3X9k9t5dyBVcWrn50irk/hoYKFAejrQOviNFbkWdhhH6Q
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43kpvgu0gy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Dec 2024 15:08:56 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BIE8rfs014388;
+	Wed, 18 Dec 2024 15:08:55 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 43hq21r40e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Dec 2024 15:08:55 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BIF8sEW21955324
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 18 Dec 2024 15:08:54 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 256E658054;
+	Wed, 18 Dec 2024 15:08:54 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4794E5803F;
+	Wed, 18 Dec 2024 15:08:53 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 18 Dec 2024 15:08:53 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="fu8z2+BbmIxUgToy"
-Content-Disposition: inline
-In-Reply-To: <20241216-vdso-store-rng-v1-7-f7aed1bdb3b2@linutronix.de>
+Date: Wed, 18 Dec 2024 16:08:52 +0100
+From: Hariharan Mari <hari55@linux.ibm.com>
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Cc: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda
+ <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Paolo
+ Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Ulrich Weigand
+ <ulrich.weigand@de.ibm.com>,
+        Dominik Dingel <dingel@linux.vnet.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v2 4/6] selftests: kvm: s390: Add ucontrol gis routing
+ test
+In-Reply-To: <20241216092140.329196-5-schlameuss@linux.ibm.com>
+References: <20241216092140.329196-1-schlameuss@linux.ibm.com>
+ <20241216092140.329196-5-schlameuss@linux.ibm.com>
+Message-ID: <20a136a05340d7f0bb0c3669e0b73003@linux.ibm.com>
+X-Sender: hari55@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: VLP2FQuMKs5msNyarePyJiil6llB3VGM
+X-Proofpoint-ORIG-GUID: VLP2FQuMKs5msNyarePyJiil6llB3VGM
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1015 lowpriorityscore=0 spamscore=0 adultscore=0 malwarescore=0
+ impostorscore=0 bulkscore=0 phishscore=0 suspectscore=0 mlxscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412180117
 
+On 2024-12-16 10:21, Christoph Schlameuss wrote:
+> Add a selftests for the interrupt routing configuration when using
+> ucontrol VMs.
+> 
+> Calling the test may trigger a null pointer dereferences on kernels not
+> containing the fixes in this patch series.
+> 
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
---fu8z2+BbmIxUgToy
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Dec 16, 2024 at 03:10:03PM +0100, Thomas Wei=DFschuh wrote:
-> The generic storage implementation provides the same features as the
-> custom one. However it can be shared between architectures, making
-> maintenance easier.
->=20
-> Co-developed-by: Nam Cao <namcao@linutronix.de>
-> Signed-off-by: Nam Cao <namcao@linutronix.de>
-> Signed-off-by: Thomas Wei=DFschuh <thomas.weissschuh@linutronix.de>
+Tested-by: Hariharan Mari <hari55@linux.ibm.com>
 > ---
->  arch/riscv/Kconfig                                 |  3 +-
->  arch/riscv/include/asm/vdso.h                      |  2 +-
->  .../include/asm/vdso/{time_data.h =3D> arch_data.h}  |  8 +-
->  arch/riscv/include/asm/vdso/gettimeofday.h         | 14 +---
->  arch/riscv/include/asm/vdso/vsyscall.h             |  9 ---
->  arch/riscv/kernel/sys_hwprobe.c                    |  3 +-
->  arch/riscv/kernel/vdso.c                           | 90 +---------------=
-------
->  arch/riscv/kernel/vdso/hwprobe.c                   |  6 +-
->  arch/riscv/kernel/vdso/vdso.lds.S                  |  7 +-
->  9 files changed, 18 insertions(+), 124 deletions(-)
-
-Fails to build:
-Patch 7/17: Test 1/12: .github/scripts/patches/tests/build_rv32_defconfig.sh
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:11:33: warning: de=
-claration of 'struct riscv_hwprobe' will not be visible outside of this fun=
-ction [-Wvisibility]
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:15:41: warning: de=
-claration of 'struct riscv_hwprobe' will not be visible outside of this fun=
-ction [-Wvisibility]
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:19:37: error: call=
- to undeclared function '__arch_get_vdso_u_arch_data'; ISO C99 and later do=
- not support implicit function declarations [-Wimplicit-function-declaratio=
-n]
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:19:31: error: inco=
-mpatible integer to pointer conversion initializing 'const struct vdso_arch=
-_data *' with an expression of type 'int' [-Wint-conversion]
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:22:36: error: arit=
-hmetic on a pointer to an incomplete type 'struct riscv_hwprobe'
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:30:40: error: inco=
-mplete definition of type 'const struct vdso_arch_data'
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:31:24: error: inco=
-mpatible pointer types passing 'struct riscv_hwprobe *' to parameter of typ=
-e 'struct riscv_hwprobe *' [-Werror,-Wincompatible-pointer-types]
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:35:7: error: call =
-to undeclared function 'riscv_hwprobe_key_is_valid'; ISO C99 and later do n=
-ot support implicit function declarations [-Wimplicit-function-declaration]
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:35:35: error: inco=
-mplete definition of type 'struct riscv_hwprobe'
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:36:5: error: incom=
-plete definition of type 'struct riscv_hwprobe'
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:36:18: error: inco=
-mplete definition of type 'const struct vdso_arch_data'
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:36:44: error: inco=
-mplete definition of type 'struct riscv_hwprobe'
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:39:5: error: incom=
-plete definition of type 'struct riscv_hwprobe'
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:40:5: error: incom=
-plete definition of type 'struct riscv_hwprobe'
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:43:4: error: arith=
-metic on a pointer to an incomplete type 'struct riscv_hwprobe'
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:49:39: warning: de=
-claration of 'struct riscv_hwprobe' will not be visible outside of this fun=
-ction [-Wvisibility]
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:53:37: error: call=
- to undeclared function '__arch_get_vdso_u_arch_data'; ISO C99 and later do=
- not support implicit function declarations [-Wimplicit-function-declaratio=
-n]
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:53:31: error: inco=
-mpatible integer to pointer conversion initializing 'const struct vdso_arch=
-_data *' with an expression of type 'int' [-Wint-conversion]
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:55:36: error: arit=
-hmetic on a pointer to an incomplete type 'struct riscv_hwprobe'
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:71:61: error: inco=
-mplete definition of type 'const struct vdso_arch_data'
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:71:29: error: use =
-of undeclared identifier 'RISCV_HWPROBE_WHICH_CPUS'
-  /build/tmp.cAQOaMfDA3/arch/riscv/kernel/vdso/hwprobe.c:72:24: error: inco=
-mpatible pointer types passing 'struct riscv_hwprobe *' to parameter of typ=
-e 'struct riscv_hwprobe *' [-Werror,-Wincompatible-pointer-types]
-  fatal error: too many errors emitted, stopping now [-ferror-limit=3D]
-
-Might be a clang thing, allmodconfig with clang doesn't build either.
-
---fu8z2+BbmIxUgToy
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZ2LlbAAKCRB4tDGHoIJi
-0n2PAQDyBQBbIhWl4PuPh0Arh+dY5o5V02LpT/vyZTOInKNMcgEAqZD+a5hkxJEH
-lFXI4u2esepSVEUEOeQQYFauBervVQc=
-=gqd2
------END PGP SIGNATURE-----
-
---fu8z2+BbmIxUgToy--
+>  .../selftests/kvm/s390x/ucontrol_test.c       | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+> 
+> diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> index b003abda8495..8f306395696e 100644
+> --- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> +++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> @@ -783,4 +783,23 @@ TEST_F(uc_kvm, uc_flic_attrs)
+>  	close(cd.fd);
+>  }
+> 
+> +TEST_F(uc_kvm, uc_set_gsi_routing)
+> +{
+> +	struct kvm_irq_routing *routing = kvm_gsi_routing_create();
+> +	struct kvm_irq_routing_entry ue = {
+> +		.type = KVM_IRQ_ROUTING_S390_ADAPTER,
+> +		.gsi = 1,
+> +		.u.adapter = (struct kvm_irq_routing_s390_adapter) {
+> +			.ind_addr = 0,
+> +		},
+> +	};
+> +	int rc;
+> +
+> +	routing->entries[0] = ue;
+> +	routing->nr = 1;
+> +	rc = ioctl(self->vm_fd, KVM_SET_GSI_ROUTING, routing);
+> +	ASSERT_EQ(-1, rc) TH_LOG("err %s (%i)", strerror(errno), errno);
+> +	ASSERT_EQ(EINVAL, errno) TH_LOG("err %s (%i)", strerror(errno), 
+> errno);
+> +}
+> +
+>  TEST_HARNESS_MAIN
