@@ -1,73 +1,50 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 347BB86337
-	for <linux-s390@vger.kernel.org>; Thu, 19 Dec 2024 16:56:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E285819DF60;
+	Thu, 19 Dec 2024 17:13:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734627421; cv=none; b=a8VGf1aKz7Z0RPCdO5gBi5Yra9qN073KhWDfsg1vO8+7wk0oqpWxyj6l//hn6uZwb4hluismVHMqI5H4paqGINzZG/8+wMow4nn+ZsjOg8yqLJscbkRgBDOY/zLKNuLRlK1wLdrPTx0CspP7UsoiytASAL37ndX8hLEjJclT5Hc=
+	t=1734628442; cv=none; b=l1ZPrTskrfLb53EVF8zGu5PX8uuIyGBODx6VhKU6ZFBjFujVMe3vyAMeyx1TM9OU4HJcAXGagWoD/x0PEEy1JU0lRpgCFhMw2CFZSVaKO4V0Jaje66TSF0ouFitpyh9ZW6csPdiu8oanLEoj5Wzp9g5tjbghf6tDAjGsPE5TTPY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734627421; c=relaxed/simple;
-	bh=nL9an/TFvRzhA3x383OlVx6btp5ekODkFvklDicZ538=;
+	s=arc-20240116; t=1734628442; c=relaxed/simple;
+	bh=B/XF+RCIDxItDDpVuhBVdHslbd/M+ZJTAW7f1trwsn4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KnynKa39KZqzEHsgtU4cznoIF0QfxUJ8HZ1Dqp5YwSNsM2iCVC1PxMLDc9izuRq9Mm5hTAuN36bTwY+7QxMn/hf477fqV7OET3P91CfhDU7Rli1HJBWDIJ22yHB5tqyM8XcGHoOS3Mhkn9I5c4mnb+jJVY5tzPTqW9SPnybQ8U0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AlPgg3fg; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=qtvXty6/C2Z5af4Nnh+afavmXVrRcqS0UByvIzk7r9LSGlmdH7Rf+Vjoz/Sx0KKbhqqcsCrQC6i7rAGwhYpzLkCaFbnjPTB0ab7jY/Hno3Oa+429SqamJ5+cpoNwmT9qiSbHCS2AK0W+MagXP53EMnvtXTlhf5dLVqKmGqH9vEE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Hvb93cQE; arc=none smtp.client-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AlPgg3fg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1734627419;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=MRTUn6J+ksVgeDseV7t1yVqVIzAgB4EqVwWAFEnymPo=;
-	b=AlPgg3fgI6otV1qRGocdJI8aq8Hg8egcbB7ky1oZsdFfbQm52BZZRtm2BO8rydWjReG4sH
-	PISHG2wMyV0GfLCR+fp8xGuEj2q1xYRRKJ1HRiqcl3NKN8TIZi3bXFINPUInA7wh6TwRJ/
-	ED1dNB0sIm70iDw5TYj7Y6446jBdkQI=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-96-lBdxfrNiNRuFHv1qPPOYlA-1; Thu, 19 Dec 2024 11:56:57 -0500
-X-MC-Unique: lBdxfrNiNRuFHv1qPPOYlA-1
-X-Mimecast-MFC-AGG-ID: lBdxfrNiNRuFHv1qPPOYlA
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43610eba55bso8294205e9.3
-        for <linux-s390@vger.kernel.org>; Thu, 19 Dec 2024 08:56:57 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734627417; x=1735232217;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=MRTUn6J+ksVgeDseV7t1yVqVIzAgB4EqVwWAFEnymPo=;
-        b=KtFIgzogtllZfaAZkLS2nM+qNj4vf42pnQMpEuK8AKshOv+oF0v84OHHFJoEHF9LcU
-         wW4LkRRg9+7FAjwBhLSJpphFmTs5AwfeiDaIzxB/EZjZvZA9Fr9s8wYHlxjjg+Pd9vNQ
-         d+NfBTCibhW9wpMnzYJKbnDq+vVoRAIbVhYgkxD7AhiC8GuYfWWCg+zaexz2utV9K/Uq
-         Op+cpJLRHYvDeInTwJHBDFmc4doCp/6K6ERCRTGI/0po4dn8Us+ZnjbGDOFUQAySZbdR
-         kcUpQLCXUkJ56dbfyTr7tXLYkcBeroK5U6tGf81iRUxtbEvcpW7gKEoJbTdrQ4EPlhzF
-         AdGA==
-X-Forwarded-Encrypted: i=1; AJvYcCWL0xGGQGi0iLnwC1N75HjzWTYKhBGiKbrUYFhmKbo+fb4T0CKtate2I49LvngQ8eWvtwAwxHfBWCm9@vger.kernel.org
-X-Gm-Message-State: AOJu0YxuQvSyCybeyzl52gLhfOqVibNT4Kkwxpf5bj16tArgFKWVCFZ0
-	O+0V3quGEOUC0xjcVB7UuTdDB1hUeehm61UpZmtXHRgDjrA7ypXcKOdbkXuZaEWeyCTuW1iUOS0
-	hmT5vqxPfvq5/JnrcqxvaBXLjLPRs962IsGuLK+ea0yYKl6Y+vLL0rcU0DcM=
-X-Gm-Gg: ASbGncvNVdW1uVeznAI9bXbuBKoAb8G2JP2cekMezqOtJotYHPxnjiuB61QCMFQjlRC
-	YIje+f9zGk7ZD8kilN8YBrZEXdAOJ6KGxfrAHpaQblGN2AMQJYEkYnyWYpn13/VgUJPXClwfEii
-	YXPno1k1K7OBPswaAMSWBlWgLDIL+5xukN2iyXzMxaoXbmCm913azkJYyT8KGNUeLiNxBGVZ5nK
-	QpgXgemOv50ynQLVp0NgizyZcJkdrekxkJTBrmhA88GaIyECED/FBJNUustRDoZnLRjqSGIp5dH
-	TL0qKz3ajXf0x6JcH7BoBHCrtQ9C0iJNPKXMLUg8JgPSF2onVxS2JZhEYNbvxy4awmhI3mUjjF/
-	LQPgwaA==
-X-Received: by 2002:a05:600c:198b:b0:436:51bb:7a3b with SMTP id 5b1f17b1804b1-4365534136emr73139675e9.6.1734627416690;
-        Thu, 19 Dec 2024 08:56:56 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF62IFrlRkEIkWipkRYilhy6ALmna4rbwwdgZ2jRLZqlEeXBhmW4aYIR47oRo54qXMtqJa3NA==
-X-Received: by 2002:a05:600c:198b:b0:436:51bb:7a3b with SMTP id 5b1f17b1804b1-4365534136emr73139455e9.6.1734627416259;
-        Thu, 19 Dec 2024 08:56:56 -0800 (PST)
-Received: from ?IPV6:2003:cb:c749:6600:b73a:466c:e610:686? (p200300cbc7496600b73a466ce6100686.dip0.t-ipconnect.de. [2003:cb:c749:6600:b73a:466c:e610:686])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4364a3766dcsm63707265e9.0.2024.12.19.08.56.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 19 Dec 2024 08:56:55 -0800 (PST)
-Message-ID: <5fae8eb9-0639-4b1b-aeac-c5adc4172446@redhat.com>
-Date: Thu, 19 Dec 2024 17:56:54 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Hvb93cQE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1734628439; x=1766164439;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=B/XF+RCIDxItDDpVuhBVdHslbd/M+ZJTAW7f1trwsn4=;
+  b=Hvb93cQEnT2C7KoGdkh+0C/vmLAQOXlDgXUUxLrORR291wQR52CVaJaY
+   xf11FkgiIqTEZ5PB+X94Q5S+kaSSWtcX8oMSWSyGXAqk8iKL84q9JjWz9
+   CnRagrrUyxWQZcv5XeKG/gNN+tDuleVMUYgY/2wy5N1/Nk68y+2ew9/I+
+   N2b6u8bH3jQeh6RFvn7gH335TAEPmqkmRbwdIRy0r0INFRvFDhoY2MqPp
+   ZSwCchiVbLDfdtKK/3nUtO8CopgoQe8u+KVHfeuzBR84Hqky/7DcjP2Bb
+   X6zN2VPpQEKfzDbn6b6qQKxcQeRpUFeuxfaOVb+ykHpyOGTPBnW44X5el
+   w==;
+X-CSE-ConnectionGUID: vBO4Zmr5Sy25tdmE38ymsg==
+X-CSE-MsgGUID: JRci2KQ2RjiVaj71p7AA4w==
+X-IronPort-AV: E=McAfee;i="6700,10204,11291"; a="35183119"
+X-IronPort-AV: E=Sophos;i="6.12,248,1728975600"; 
+   d="scan'208";a="35183119"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Dec 2024 09:13:58 -0800
+X-CSE-ConnectionGUID: BjE5PnWZRtuB8GpG2kHABA==
+X-CSE-MsgGUID: 7CSY673QTbyIAwyjyBTzCw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,248,1728975600"; 
+   d="scan'208";a="98779806"
+Received: from msangele-mobl.amr.corp.intel.com (HELO [10.124.221.111]) ([10.124.221.111])
+  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Dec 2024 09:13:58 -0800
+Message-ID: <a7398426-56d1-40b4-a1c9-40ae8c8a4b4b@intel.com>
+Date: Thu, 19 Dec 2024 09:13:57 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,96 +52,86 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/2] s390: Remove uses of page->index
-To: Matthew Wilcox <willy@infradead.org>
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-mm@kvack.org,
- linux-s390@vger.kernel.org
-References: <20241219162252.1025317-1-willy@infradead.org>
- <9d4efc2e-56d9-4786-9ccb-ecd15f34f3e7@redhat.com>
- <Z2RPNBDbWvZ9Vu9D@casper.infradead.org>
-From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH 00/10] Account page tables at all levels
+To: Kevin Brodsky <kevin.brodsky@arm.com>, linux-mm@kvack.org
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ Linus Walleij <linus.walleij@linaro.org>, Andy Lutomirski <luto@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, "Mike Rapoport (IBM)"
+ <rppt@kernel.org>, Ryan Roberts <ryan.roberts@arm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+ Matthew Wilcox <willy@infradead.org>, linux-alpha@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-um@lists.infradead.org, loongarch@lists.linux.dev, x86@kernel.org
+References: <20241219164425.2277022-1-kevin.brodsky@arm.com>
+From: Dave Hansen <dave.hansen@intel.com>
 Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <Z2RPNBDbWvZ9Vu9D@casper.infradead.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ xsFNBE6HMP0BEADIMA3XYkQfF3dwHlj58Yjsc4E5y5G67cfbt8dvaUq2fx1lR0K9h1bOI6fC
+ oAiUXvGAOxPDsB/P6UEOISPpLl5IuYsSwAeZGkdQ5g6m1xq7AlDJQZddhr/1DC/nMVa/2BoY
+ 2UnKuZuSBu7lgOE193+7Uks3416N2hTkyKUSNkduyoZ9F5twiBhxPJwPtn/wnch6n5RsoXsb
+ ygOEDxLEsSk/7eyFycjE+btUtAWZtx+HseyaGfqkZK0Z9bT1lsaHecmB203xShwCPT49Blxz
+ VOab8668QpaEOdLGhtvrVYVK7x4skyT3nGWcgDCl5/Vp3TWA4K+IofwvXzX2ON/Mj7aQwf5W
+ iC+3nWC7q0uxKwwsddJ0Nu+dpA/UORQWa1NiAftEoSpk5+nUUi0WE+5DRm0H+TXKBWMGNCFn
+ c6+EKg5zQaa8KqymHcOrSXNPmzJuXvDQ8uj2J8XuzCZfK4uy1+YdIr0yyEMI7mdh4KX50LO1
+ pmowEqDh7dLShTOif/7UtQYrzYq9cPnjU2ZW4qd5Qz2joSGTG9eCXLz5PRe5SqHxv6ljk8mb
+ ApNuY7bOXO/A7T2j5RwXIlcmssqIjBcxsRRoIbpCwWWGjkYjzYCjgsNFL6rt4OL11OUF37wL
+ QcTl7fbCGv53KfKPdYD5hcbguLKi/aCccJK18ZwNjFhqr4MliQARAQABzUVEYXZpZCBDaHJp
+ c3RvcGhlciBIYW5zZW4gKEludGVsIFdvcmsgQWRkcmVzcykgPGRhdmUuaGFuc2VuQGludGVs
+ LmNvbT7CwXgEEwECACIFAlQ+9J0CGwMGCwkIBwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJEGg1
+ lTBwyZKwLZUP/0dnbhDc229u2u6WtK1s1cSd9WsflGXGagkR6liJ4um3XCfYWDHvIdkHYC1t
+ MNcVHFBwmQkawxsYvgO8kXT3SaFZe4ISfB4K4CL2qp4JO+nJdlFUbZI7cz/Td9z8nHjMcWYF
+ IQuTsWOLs/LBMTs+ANumibtw6UkiGVD3dfHJAOPNApjVr+M0P/lVmTeP8w0uVcd2syiaU5jB
+ aht9CYATn+ytFGWZnBEEQFnqcibIaOrmoBLu2b3fKJEd8Jp7NHDSIdrvrMjYynmc6sZKUqH2
+ I1qOevaa8jUg7wlLJAWGfIqnu85kkqrVOkbNbk4TPub7VOqA6qG5GCNEIv6ZY7HLYd/vAkVY
+ E8Plzq/NwLAuOWxvGrOl7OPuwVeR4hBDfcrNb990MFPpjGgACzAZyjdmYoMu8j3/MAEW4P0z
+ F5+EYJAOZ+z212y1pchNNauehORXgjrNKsZwxwKpPY9qb84E3O9KYpwfATsqOoQ6tTgr+1BR
+ CCwP712H+E9U5HJ0iibN/CDZFVPL1bRerHziuwuQuvE0qWg0+0SChFe9oq0KAwEkVs6ZDMB2
+ P16MieEEQ6StQRlvy2YBv80L1TMl3T90Bo1UUn6ARXEpcbFE0/aORH/jEXcRteb+vuik5UGY
+ 5TsyLYdPur3TXm7XDBdmmyQVJjnJKYK9AQxj95KlXLVO38lczsFNBFRjzmoBEACyAxbvUEhd
+ GDGNg0JhDdezyTdN8C9BFsdxyTLnSH31NRiyp1QtuxvcqGZjb2trDVuCbIzRrgMZLVgo3upr
+ MIOx1CXEgmn23Zhh0EpdVHM8IKx9Z7V0r+rrpRWFE8/wQZngKYVi49PGoZj50ZEifEJ5qn/H
+ Nsp2+Y+bTUjDdgWMATg9DiFMyv8fvoqgNsNyrrZTnSgoLzdxr89FGHZCoSoAK8gfgFHuO54B
+ lI8QOfPDG9WDPJ66HCodjTlBEr/Cwq6GruxS5i2Y33YVqxvFvDa1tUtl+iJ2SWKS9kCai2DR
+ 3BwVONJEYSDQaven/EHMlY1q8Vln3lGPsS11vSUK3QcNJjmrgYxH5KsVsf6PNRj9mp8Z1kIG
+ qjRx08+nnyStWC0gZH6NrYyS9rpqH3j+hA2WcI7De51L4Rv9pFwzp161mvtc6eC/GxaiUGuH
+ BNAVP0PY0fqvIC68p3rLIAW3f97uv4ce2RSQ7LbsPsimOeCo/5vgS6YQsj83E+AipPr09Caj
+ 0hloj+hFoqiticNpmsxdWKoOsV0PftcQvBCCYuhKbZV9s5hjt9qn8CE86A5g5KqDf83Fxqm/
+ vXKgHNFHE5zgXGZnrmaf6resQzbvJHO0Fb0CcIohzrpPaL3YepcLDoCCgElGMGQjdCcSQ+Ci
+ FCRl0Bvyj1YZUql+ZkptgGjikQARAQABwsFfBBgBAgAJBQJUY85qAhsMAAoJEGg1lTBwyZKw
+ l4IQAIKHs/9po4spZDFyfDjunimEhVHqlUt7ggR1Hsl/tkvTSze8pI1P6dGp2XW6AnH1iayn
+ yRcoyT0ZJ+Zmm4xAH1zqKjWplzqdb/dO28qk0bPso8+1oPO8oDhLm1+tY+cOvufXkBTm+whm
+ +AyNTjaCRt6aSMnA/QHVGSJ8grrTJCoACVNhnXg/R0g90g8iV8Q+IBZyDkG0tBThaDdw1B2l
+ asInUTeb9EiVfL/Zjdg5VWiF9LL7iS+9hTeVdR09vThQ/DhVbCNxVk+DtyBHsjOKifrVsYep
+ WpRGBIAu3bK8eXtyvrw1igWTNs2wazJ71+0z2jMzbclKAyRHKU9JdN6Hkkgr2nPb561yjcB8
+ sIq1pFXKyO+nKy6SZYxOvHxCcjk2fkw6UmPU6/j/nQlj2lfOAgNVKuDLothIxzi8pndB8Jju
+ KktE5HJqUUMXePkAYIxEQ0mMc8Po7tuXdejgPMwgP7x65xtfEqI0RuzbUioFltsp1jUaRwQZ
+ MTsCeQDdjpgHsj+P2ZDeEKCbma4m6Ez/YWs4+zDm1X8uZDkZcfQlD9NldbKDJEXLIjYWo1PH
+ hYepSffIWPyvBMBTW2W5FRjJ4vLRrJSUoEfJuPQ3vW9Y73foyo/qFoURHO48AinGPZ7PC7TF
+ vUaNOTjKedrqHkaOcqB185ahG2had0xnFsDPlx5y
+In-Reply-To: <20241219164425.2277022-1-kevin.brodsky@arm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 19.12.24 17:52, Matthew Wilcox wrote:
-> On Thu, Dec 19, 2024 at 05:33:32PM +0100, David Hildenbrand wrote:
->> On 19.12.24 17:22, Matthew Wilcox (Oracle) wrote:
->>> These two patches compile ... I can promise nothing more than that.
->>>
->>> David suggested to me that the gmap code really should be using ptdesc,
->>> and I think I agree with him.  The vsie code looks quite different
->>> and probably shouldn't be using a ptdesc, but we can use page->private
->>> instead of page->index.  It's not yet clear to me if we'll ever manage
->>> to get rid of page->private.
->>
->> Just curious, does that mean that memdesc would always contain these
->> additional 8 bytes?
-> 
-> Eventually we'll have a choice to make.
-> 
-> 1. Shrink struct page to 8 bytes, but we'll need to allocate a 32 byte
->     memdesc for all the current users of page->private
-> 2. Shrink struct page to 16 bytes
-> 
-> I genuinely don't know which will be better for the whole system.
-> 
-> If you're asking because we can defer some of the mapcount
-> work by using the 8 bytes of page->private to store mapcount, then
-> yes, let's do that.
+On 12/19/24 08:44, Kevin Brodsky wrote:
+>   +---------------+-------------------------+-----------------------+--------------+------------------------------------+
+>   | x86           | Y                       | Y                     | Y/N          | kmem_cache at pgd level if PAE     |
+>   +---------------+-------------------------+-----------------------+--------------+------------------------------------+
 
-Yeah, it could give us a bit more time, until we know that we can just 
-get rid of it in all kernel configs. But let's see if that is still a 
-problem when we're getting closer to removing them.
+This is a really rare series that adds functionality _and_ removes code
+overall. It looks really good to me. The x86 implementation seems to be
+captured just fine in the generic one:
 
--- 
-Cheers,
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
 
-David / dhildenb
+One super tiny nit is that the PAE pgd _can_ be allocated using
+__get_free_pages(). It was originally there for Xen, but I think it's
+being used for PTI only at this point and the comments are wrong-ish.
 
+I kinda think we should just get rid of the 32-bit kmem_cache entirely.
