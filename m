@@ -1,65 +1,65 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19EC5221472;
-	Thu, 19 Dec 2024 10:03:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB29122616E;
+	Thu, 19 Dec 2024 15:52:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734602630; cv=none; b=VG8J1EUj5xU1NnELQz+WYawIcOXVsq2JO2HKuJfikzO4pHZgSuXHrDs4N7VKT8L9w9NvVU+d+km+ykWhnXz0QxiutADkGl9Mz84BUesxotxpzvx2RMGxTliJlYh2C8eYHKXHcD9b/sVSC1WIRxlzOkR/IW7TtvdPLDqFt19Bqyc=
+	t=1734623568; cv=none; b=TMCX7vRVlQQO1PPX5BX5zZPAREfJhXVV3aEcZNdLnL8NYrSVgZXiODqlXXdFHNcWZ7QjjtRMFm2w0gQBh3vcZ4PO7BcDHqONPQpjVmlPCmMwx57b41Cs2V3Hy+5AEW++hhSF0OXABwVrtnUnsgS4UhJUGeN3Jv2tWrJcWz+lJWo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734602630; c=relaxed/simple;
-	bh=XAedBOlMhtPKmrXOzx34DNTKZ7KjrXvyFemz6GIr2dI=;
+	s=arc-20240116; t=1734623568; c=relaxed/simple;
+	bh=pZS0z/+QmAkuWRS00bA7z53xQJNLEdQgeveeVGf3BtM=;
 	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=Z4aQW1QPPf5EV89HlTqmyeqhng/eVmShW10gwXOgf6+PwU8ejsqA2sm/USW8LBGvAEbQpFxOF+YPuaB3b5MPcFlrypqUNKf7on54MTuv8lOpYWY+e9dC6N2jjaH5awwWT2lpuHjpzEzMAg7dntUBS13YBujAQSw7gfOZuJnaVmk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rhvgUpK2; arc=none smtp.client-ip=148.163.156.1
+	 Message-ID:Content-Type; b=Az+rHSp/T09sE8VSp/iBvipiLE5N3fMzYkapqAc6RjcOcNMKnLsAJx/wyMYRHAZuQZyTJz4BELgS+srrH48tdC6s+QZVUecD+2t6I1dFPQuBEKqHP3nefWrO4k/3wOMlUHR0b/Pl/T8BfumltFT/nYqLfewE5iGdcvC3n3jCXwc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EigtaQQw; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rhvgUpK2"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BINxGtF025761;
-	Thu, 19 Dec 2024 10:03:44 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EigtaQQw"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BJEHjlQ026270;
+	Thu, 19 Dec 2024 15:52:41 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=IQs4/Z
-	O0ua7USvNHAZnRC+v/OF4OFq36cU5u+Uz4Y1U=; b=rhvgUpK2bhmpPOmxdco7LA
-	X6sHyAfzY2O7l6XqJwYmX1Pf2lDOZoyHAXk0tZXdmOVIFSNheGdHORYWlr6BOMCs
-	UUF+TsEdzqk8V1yblP/Q/0I/QitCtebEJHqZlv9ljx2w/VnLX12DuEi7a24UypCC
-	7DO2jmY2HeUkPxpFQRs5gHWs6HFI/7zVjZw/jAiUw4HROoPXzEp14QiSQzSSb7FK
-	T5KYPuIFUADwLsNyVYOldH2j6OxMRjm98/mktiXVfQo7TknPYqZr1UCvj5itwhUZ
-	EtHvFJh542zrPb3x2zY57P1whtf3dRLO1UGtBg65QwomTvdEfrh71Ikue/YYAEIg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=HP4gNt
+	CVE41AhqwbvJgSpDbsQIUOJMCKdPKKLcAwHWI=; b=EigtaQQw1ryQcuKHtZPZdI
+	fbT27M8xyGXXFao5Cqs3z6hz5mOfz42I6uFeaBSL6yLHEFwfpgKBjrCGJLxbn5jh
+	rk2mHZNPXRfW8hCbbVVDhAX08donDmDn0JA/8HQvaQCfo+KLytaeH2Tw6BVX8fTG
+	J3iDL6D42BM5GllyFrSsBONHJsZLhGgBLB02ON7KKYs4hGh0i5u/OieghINWVNoU
+	VgiYUiMGJCO0vD4pfORX9W3lE+FImbOc29NbrihzPLGaAcawFftrdFkl0OlaT8sq
+	ed8kPJGy+SWuL6ZPMPyVB+c+XD4zl3wJvkrRb3Vvyy/bnybiDOaX7gpxkDss1Jyw
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43m8hh27g6-1
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43mbyhu3d0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 19 Dec 2024 10:03:44 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BJ7U5lm029321;
-	Thu, 19 Dec 2024 10:03:43 GMT
+	Thu, 19 Dec 2024 15:52:40 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BJDmrBf011271;
+	Thu, 19 Dec 2024 15:52:40 GMT
 Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 43hmbsvu19-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43hpjkdjh2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 19 Dec 2024 10:03:43 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BJA3gp166191860
+	Thu, 19 Dec 2024 15:52:40 +0000
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BJFqcwW22151748
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 19 Dec 2024 10:03:42 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 08FE458064;
-	Thu, 19 Dec 2024 10:03:42 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 210C75804E;
-	Thu, 19 Dec 2024 10:03:41 +0000 (GMT)
+	Thu, 19 Dec 2024 15:52:38 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 404F058043;
+	Thu, 19 Dec 2024 15:52:38 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A9C6158055;
+	Thu, 19 Dec 2024 15:52:37 +0000 (GMT)
 Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 19 Dec 2024 10:03:41 +0000 (GMT)
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 19 Dec 2024 15:52:37 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Thu, 19 Dec 2024 11:03:40 +0100
+Date: Thu, 19 Dec 2024 16:52:37 +0100
 From: Hariharan Mari <hari55@linux.ibm.com>
 To: Christoph Schlameuss <schlameuss@linux.ibm.com>
 Cc: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@linux.ibm.com>,
@@ -74,84 +74,198 @@ Cc: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@linux.ibm.com>,
  <ulrich.weigand@de.ibm.com>,
         Dominik Dingel <dingel@linux.vnet.ibm.com>,
         Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v2 1/6] kvm: s390: Reject setting flic pfault attributes
- on ucontrol VMs
-In-Reply-To: <20241216092140.329196-2-schlameuss@linux.ibm.com>
+Subject: Re: [PATCH v2 2/6] selftests: kvm: s390: Add ucontrol flic attr
+ selftests
+In-Reply-To: <20241216092140.329196-3-schlameuss@linux.ibm.com>
 References: <20241216092140.329196-1-schlameuss@linux.ibm.com>
- <20241216092140.329196-2-schlameuss@linux.ibm.com>
-Message-ID: <c2740713c2e5f3ba488950908c7b5a38@linux.ibm.com>
+ <20241216092140.329196-3-schlameuss@linux.ibm.com>
+Message-ID: <0cc5df8fb51600c1c9d843ba36becf95@linux.ibm.com>
 X-Sender: hari55@linux.ibm.com
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: w6jOwpvRb_3WxE1AX2lsitvOLbdmmrE-
-X-Proofpoint-ORIG-GUID: w6jOwpvRb_3WxE1AX2lsitvOLbdmmrE-
+X-Proofpoint-ORIG-GUID: EsgNTH-R3NbOTXGvfxBx1ZKrGfhFlt1q
+X-Proofpoint-GUID: EsgNTH-R3NbOTXGvfxBx1ZKrGfhFlt1q
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- adultscore=0 suspectscore=0 priorityscore=1501 spamscore=0 impostorscore=0
- lowpriorityscore=0 clxscore=1015 mlxlogscore=762 bulkscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2412190080
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 adultscore=0 bulkscore=0 clxscore=1015 phishscore=0
+ mlxscore=0 lowpriorityscore=0 mlxlogscore=908 malwarescore=0 spamscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412190124
 
 On 2024-12-16 10:21, Christoph Schlameuss wrote:
-> Prevent null pointer dereference when processing the
-> KVM_DEV_FLIC_APF_ENABLE and KVM_DEV_FLIC_APF_DISABLE_WAIT ioctls in the
-> interrupt controller.
+> Add some superficial selftests for the floating interrupt controller
+> when using ucontrol VMs. These tests are intended to cover very basic
+> calls only.
 > 
-> Fixes: 3c038e6be0e2 ("KVM: async_pf: Async page fault support on s390")
-> Reported-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Some of the calls may trigger null pointer dereferences on kernels not
+> containing the fixes in this patch series.
+> 
 > Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
 Reviewed-by: Hariharan Mari <hari55@linux.ibm.com>
 > ---
->  Documentation/virt/kvm/devices/s390_flic.rst | 4 ++++
->  arch/s390/kvm/interrupt.c                    | 4 ++++
->  2 files changed, 8 insertions(+)
+>  .../selftests/kvm/s390x/ucontrol_test.c       | 148 ++++++++++++++++++
+>  1 file changed, 148 insertions(+)
 > 
-> diff --git a/Documentation/virt/kvm/devices/s390_flic.rst
-> b/Documentation/virt/kvm/devices/s390_flic.rst
-> index ea96559ba501..b784f8016748 100644
-> --- a/Documentation/virt/kvm/devices/s390_flic.rst
-> +++ b/Documentation/virt/kvm/devices/s390_flic.rst
-> @@ -58,11 +58,15 @@ Groups:
->      Enables async page faults for the guest. So in case of a major 
-> page fault
->      the host is allowed to handle this async and continues the guest.
+> diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> index 0c112319dab1..b003abda8495 100644
+> --- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> +++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> @@ -635,4 +635,152 @@ TEST_F(uc_kvm, uc_skey)
+>  	uc_assert_diag44(self);
+>  }
 > 
-> +    -EINVAL is returned when called on the FLIC of a ucontrol VM.
+> +static char uc_flic_b[PAGE_SIZE];
+> +static struct kvm_s390_io_adapter uc_flic_ioa = { .id = 0 };
+> +static struct kvm_s390_io_adapter_req uc_flic_ioam = { .id = 0 };
+> +static struct kvm_s390_ais_req uc_flic_asim = { .isc = 0 };
+> +static struct kvm_s390_ais_all uc_flic_asima = { .simm = 0 };
+> +static struct uc_flic_attr_test {
+> +	char *name;
+> +	struct kvm_device_attr a;
+> +	int hasrc;
+> +	int geterrno;
+> +	int seterrno;
+> +} uc_flic_attr_tests[] = {
+> +	{
+> +		.name = "KVM_DEV_FLIC_GET_ALL_IRQS",
+> +		.seterrno = EINVAL,
+> +		.a = {
+> +			.group = KVM_DEV_FLIC_GET_ALL_IRQS,
+> +			.addr = (u64)&uc_flic_b,
+> +			.attr = PAGE_SIZE,
+> +		},
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_ENQUEUE",
+> +		.geterrno = EINVAL,
+> +		.a = { .group = KVM_DEV_FLIC_ENQUEUE, },
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_CLEAR_IRQS",
+> +		.geterrno = EINVAL,
+> +		.a = { .group = KVM_DEV_FLIC_CLEAR_IRQS, },
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_ADAPTER_REGISTER",
+> +		.geterrno = EINVAL,
+> +		.a = {
+> +			.group = KVM_DEV_FLIC_ADAPTER_REGISTER,
+> +			.addr = (u64)&uc_flic_ioa,
+> +		},
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_ADAPTER_MODIFY",
+> +		.geterrno = EINVAL,
+> +		.seterrno = EINVAL,
+> +		.a = {
+> +			.group = KVM_DEV_FLIC_ADAPTER_MODIFY,
+> +			.addr = (u64)&uc_flic_ioam,
+> +			.attr = sizeof(uc_flic_ioam),
+> +		},
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_CLEAR_IO_IRQ",
+> +		.geterrno = EINVAL,
+> +		.seterrno = EINVAL,
+> +		.a = {
+> +			.group = KVM_DEV_FLIC_CLEAR_IO_IRQ,
+> +			.attr = 32,
+> +		},
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_AISM",
+> +		.geterrno = EINVAL,
+> +		.seterrno = ENOTSUP,
+> +		.a = {
+> +			.group = KVM_DEV_FLIC_AISM,
+> +			.addr = (u64)&uc_flic_asim,
+> +		},
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_AIRQ_INJECT",
+> +		.geterrno = EINVAL,
+> +		.a = { .group = KVM_DEV_FLIC_AIRQ_INJECT, },
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_AISM_ALL",
+> +		.geterrno = ENOTSUP,
+> +		.seterrno = ENOTSUP,
+> +		.a = {
+> +			.group = KVM_DEV_FLIC_AISM_ALL,
+> +			.addr = (u64)&uc_flic_asima,
+> +			.attr = sizeof(uc_flic_asima),
+> +		},
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_APF_ENABLE",
+> +		.geterrno = EINVAL,
+> +		.seterrno = EINVAL,
+> +		.a = { .group = KVM_DEV_FLIC_APF_ENABLE, },
+> +	},
+> +	{
+> +		.name = "KVM_DEV_FLIC_APF_DISABLE_WAIT",
+> +		.geterrno = EINVAL,
+> +		.seterrno = EINVAL,
+> +		.a = { .group = KVM_DEV_FLIC_APF_DISABLE_WAIT, },
+> +	},
+> +};
 > +
->    KVM_DEV_FLIC_APF_DISABLE_WAIT
->      Disables async page faults for the guest and waits until already 
-> pending
->      async page faults are done. This is necessary to trigger a
-> completion interrupt
->      for every init interrupt before migrating the interrupt list.
-> 
-> +    -EINVAL is returned when called on the FLIC of a ucontrol VM.
+> +TEST_F(uc_kvm, uc_flic_attrs)
+> +{
+> +	struct kvm_create_device cd = { .type = KVM_DEV_TYPE_FLIC };
+> +	struct kvm_device_attr attr;
+> +	u64 value;
+> +	int rc, i;
 > +
->    KVM_DEV_FLIC_ADAPTER_REGISTER
->      Register an I/O adapter interrupt source. Takes a 
-> kvm_s390_io_adapter
->      describing the adapter to register::
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index ea8dce299954..22d73c13e555 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -2678,9 +2678,13 @@ static int flic_set_attr(struct kvm_device
-> *dev, struct kvm_device_attr *attr)
->  		kvm_s390_clear_float_irqs(dev->kvm);
->  		break;
->  	case KVM_DEV_FLIC_APF_ENABLE:
-> +		if (kvm_is_ucontrol(dev->kvm))
-> +			return -EINVAL;
->  		dev->kvm->arch.gmap->pfault_enabled = 1;
->  		break;
->  	case KVM_DEV_FLIC_APF_DISABLE_WAIT:
-> +		if (kvm_is_ucontrol(dev->kvm))
-> +			return -EINVAL;
->  		dev->kvm->arch.gmap->pfault_enabled = 0;
->  		/*
->  		 * Make sure no async faults are in transition when
+> +	rc = ioctl(self->vm_fd, KVM_CREATE_DEVICE, &cd);
+> +	ASSERT_EQ(0, rc) TH_LOG("create device failed with err %s (%i)",
+> +				strerror(errno), errno);
+> +
+> +	for (i = 0; i < ARRAY_SIZE(uc_flic_attr_tests); i++) {
+> +		TH_LOG("test %s", uc_flic_attr_tests[i].name);
+> +		attr = (struct kvm_device_attr) {
+> +			.group = uc_flic_attr_tests[i].a.group,
+> +			.attr = uc_flic_attr_tests[i].a.attr,
+> +			.addr = uc_flic_attr_tests[i].a.addr,
+> +		};
+> +		if (attr.addr == 0)
+> +			attr.addr = (u64)&value;
+> +
+> +		rc = ioctl(cd.fd, KVM_HAS_DEVICE_ATTR, &attr);
+> +		EXPECT_EQ(uc_flic_attr_tests[i].hasrc, !!rc)
+> +			TH_LOG("expected dev attr missing %s",
+> +			       uc_flic_attr_tests[i].name);
+> +
+> +		rc = ioctl(cd.fd, KVM_GET_DEVICE_ATTR, &attr);
+> +		EXPECT_EQ(!!uc_flic_attr_tests[i].geterrno, !!rc)
+> +			TH_LOG("get dev attr rc not expected on %s %s (%i)",
+> +			       uc_flic_attr_tests[i].name,
+> +			       strerror(errno), errno);
+> +		if (uc_flic_attr_tests[i].geterrno)
+> +			EXPECT_EQ(uc_flic_attr_tests[i].geterrno, errno)
+> +				TH_LOG("get dev attr errno not expected on %s %s (%i)",
+> +				       uc_flic_attr_tests[i].name,
+> +				       strerror(errno), errno);
+> +
+> +		rc = ioctl(cd.fd, KVM_SET_DEVICE_ATTR, &attr);
+> +		EXPECT_EQ(!!uc_flic_attr_tests[i].seterrno, !!rc)
+> +			TH_LOG("set sev attr rc not expected on %s %s (%i)",
+> +			       uc_flic_attr_tests[i].name,
+> +			       strerror(errno), errno);
+> +		if (uc_flic_attr_tests[i].seterrno)
+> +			EXPECT_EQ(uc_flic_attr_tests[i].seterrno, errno)
+> +				TH_LOG("set dev attr errno not expected on %s %s (%i)",
+> +				       uc_flic_attr_tests[i].name,
+> +				       strerror(errno), errno);
+> +	}
+> +
+> +	close(cd.fd);
+> +}
+> +
+>  TEST_HARNESS_MAIN
