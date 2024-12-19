@@ -1,61 +1,158 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from out-183.mta0.migadu.com (out-183.mta0.migadu.com [91.218.175.183])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D2241A0B0C
-	for <linux-s390@vger.kernel.org>; Thu, 19 Dec 2024 21:23:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71C8386337
+	for <linux-s390@vger.kernel.org>; Thu, 19 Dec 2024 22:43:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.183
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734643438; cv=none; b=SyE1ONaNCKkAMnt1UK8FaYjbpUuMKxg4LfnkzDjnRw9foWJ+sspnJ/wZzmT2uoLbbl3xv4mGPpD/4n34vti4+Zi8xW9OTWPOKDMVNvJREj1X7p4qJwV2gFd+JSlEYEP/sAUms+XagX++DIZx8DvqfFaYtuyYdru+3RgTKs+GcK4=
+	t=1734648231; cv=none; b=t+kW+Ch8NwJ8T942sqZHLxJ3ibjrf6a50zQVpYqJPv0JjuG1uEuvXPmyl/JXWVWUf6kztA40QGuAUkGbzYy88npacQ1xUrFwf4cX8t0gRjsY480A9NvWmt8GapgU144R3xZKBJLj4eyK0X2ayitPFr3IzWtTzQ1hnoYMbzFUVAU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734643438; c=relaxed/simple;
-	bh=keoRl54NWZPtQ84RElGXzpELoz6344MYboTc2v3bu40=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dLx/OefSZq/dGap1hZytGj2LOpt9oBYin8RM9oe4CTTO76qZXirfqAU/UMPTEkfLz1RHZ2mzzSBgqYeh654bDEw7xL6p899RLES1zIQZxWZqUrp4yIXLPpGcDCYBG2gJoHHnw/nDNMiig0hLbLkHLpitJj95Xy20GqYlMzDQzcw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=m8jG4o7/; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1734648231; c=relaxed/simple;
+	bh=4fmPcWKjeO67qj6ciJPlVo6dJyCUn+0clUCf5Birzy8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=REkOHsPtf6w8qVmheai+iJrBP0Rz4A3R3qz1tOAWycUEBaLaSVsL357uZq7V4F3NV/l3b0/FRoDiwkdd1Xw5eG7TvrmyVVrRgBnC9qsMCyRTTzqj3QCchDlZ1dlk9ZMywDBSXJRjp008rXvpk6wvAQaFRuCXQUdtepiVsiBtm1o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Ft+wKP6q; arc=none smtp.client-ip=91.218.175.183
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="m8jG4o7/"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=8kKonPtP1zr+o198crHshLQzyr24FQfVra5qjFFGmFw=; b=m8jG4o7/21QmvUf4VIt3CeuxkW
-	hIYvsPQQW4mILbSkP9ZkglmfeljQtP2l3KUxnxt2i/kZuQSo9w2w/An248HwEn/YV5E0128QjoSt4
-	l2eD+je8n3QO1ODCbiRrkO1RV2ukifbyZTTFijTBjMXOh2FlweSQFwwK5x1LwCXZB9ZX+bCzqj1XI
-	E9MXaSKfqpSIY/uJHmZr2qKSlgIXTdserHHANMLQzG+GqCpEIPX2pCcp9Pstp2W/mskMCA7iqu3Ra
-	QudWz+iv92D9n7gxqFNIDVCRWkHs6LTQ+F+k6DStdIRWB/rXRtWv4NKli5iiNwghubz3+tWKufLjw
-	btrQRpdg==;
-Received: from willy by casper.infradead.org with local (Exim 4.98 #2 (Red Hat Linux))
-	id 1tONzu-00000005TnP-2lUU;
-	Thu, 19 Dec 2024 21:23:54 +0000
-Date: Thu, 19 Dec 2024 21:23:54 +0000
-From: Matthew Wilcox <willy@infradead.org>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>, linux-mm@kvack.org,
-	linux-s390@vger.kernel.org,
-	"Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: Re: [PATCH 1/2] s390: Convert gmap code to use ptdesc
-Message-ID: <Z2SO6p5MJuPBUwRf@casper.infradead.org>
-References: <20241219162252.1025317-1-willy@infradead.org>
- <20241219162252.1025317-2-willy@infradead.org>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Ft+wKP6q"
+Message-ID: <2f56aca3-a27a-49b6-90de-7f1b2ff39df1@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1734648217;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=q+i4PtjvWS84jCmxpRNu1g3Fzl6WMJ7eBdsTXPqebBg=;
+	b=Ft+wKP6q6S5wsyOb5FP9+VzdSYp8OdSpAuPpk3Tgii6ZLXEelP9M2xOAsvkD17FsFTlWvK
+	5051wHWOzA6YgrGmmm76c/qk2xn/tge4c22azzSpuBoyVtpevLMRIu/la/bM58PnBM4uca
+	qxgjqCMaYuoHICVL027sUcvsmawjxYk=
+Date: Thu, 19 Dec 2024 14:43:30 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241219162252.1025317-2-willy@infradead.org>
+Subject: Re: [PATCH bpf-next v3 4/5] libbpf: fix error when st-prefix_ops and
+ ops from differ btf
+To: "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+ ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, pabeni@redhat.com,
+ song@kernel.org, sdf@google.com, haoluo@google.com, yhs@fb.com,
+ edumazet@google.com, john.fastabend@gmail.com, kpsingh@kernel.org,
+ jolsa@kernel.org, guwen@linux.alibaba.com, kuba@kernel.org,
+ davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-rdma@vger.kernel.org, bpf@vger.kernel.org, Daniel Xu <dlxu@meta.com>
+References: <20241218024422.23423-1-alibuda@linux.alibaba.com>
+ <20241218024422.23423-5-alibuda@linux.alibaba.com>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Martin KaFai Lau <martin.lau@linux.dev>
+In-Reply-To: <20241218024422.23423-5-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-On Thu, Dec 19, 2024 at 04:22:49PM +0000, Matthew Wilcox (Oracle) wrote:
-> There was originally some doubt about whether these page tables
-> should be represented by a vanilla struct page or whether they
-> should be a ptdesc.  As we continue on our quest to shrink
-> struct page, we seem to have crossed the line into believing that
-> thse page tables should be a ptdesc.  At least for now.
+On 12/17/24 6:44 PM, D. Wythe wrote:
+> When a struct_ops named xxx_ops was registered by a module, and
+> it will be used in both built-in modules and the module itself,
+> so that the btf_type of xxx_ops will be present in btf_vmlinux
+> instead of in btf_mod, which means that the btf_type of
+> bpf_struct_ops_xxx_ops and xxx_ops will not be in the same btf.
+> 
+> Here are four possible case:
+> 
+> +--------+-------------+-------------+---------------------------------+
+> |        | st_opx_xxx  | xxx         |                                 |
+> +--------+-------------+-------------+---------------------------------+
+> | case 0 | btf_vmlinux | bft_vmlinux | be used and reg only in vmlinux |
+> +--------+-------------+-------------+---------------------------------+
+> | case 1 | btf_vmlinux | bpf_mod     | INVALID                         |
+> +--------+-------------+-------------+---------------------------------+
+> | case 2 | btf_mod     | btf_vmlinux | reg in mod but be used both in  |
+> |        |             |             | vmlinux and mod.                |
+> +--------+-------------+-------------+---------------------------------+
+> | case 3 | btf_mod     | btf_mod     | be used and reg only in mod     |
+> +--------+-------------+-------------+---------------------------------+
+> 
+> At present, cases 0, 1, and 3 can be correctly identified, because
+> st_ops_xxx is searched from the same btf with xxx. In order to
+> handle case 2 correctly without affecting other cases, we cannot simply
+> change the search method for st_ops_xxx from find_btf_by_prefix_kind()
+> to find_ksym_btf_id(), because in this way, case 1 will not be
+> recognized anymore.
+> 
+> To address this issue, if st_ops_xxx cannot be found in the btf with xxx
+> and mod_btf does not exist, do find_ksym_btf_id() again to
+> avoid such issue.
+> 
+> Fixes: 590a00888250 ("bpf: libbpf: Add STRUCT_OPS support")
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> ---
+>   tools/lib/bpf/libbpf.c | 25 +++++++++++++++++--------
+>   1 file changed, 17 insertions(+), 8 deletions(-)
+> 
+> diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+> index 66173ddb5a2d..56bf74894110 100644
+> --- a/tools/lib/bpf/libbpf.c
+> +++ b/tools/lib/bpf/libbpf.c
+> @@ -1005,7 +1005,8 @@ find_struct_ops_kern_types(struct bpf_object *obj, const char *tname_raw,
+>   	const struct btf_member *kern_data_member;
+>   	struct btf *btf = NULL;
+>   	__s32 kern_vtype_id, kern_type_id;
+> -	char tname[256];
+> +	char tname[256], stname[256];
+> +	int ret;
+>   	__u32 i;
+>   
+>   	snprintf(tname, sizeof(tname), "%.*s",
+> @@ -1020,17 +1021,25 @@ find_struct_ops_kern_types(struct bpf_object *obj, const char *tname_raw,
+>   	}
+>   	kern_type = btf__type_by_id(btf, kern_type_id);
+>   
+> +	ret = snprintf(stname, sizeof(stname), "%s%s", STRUCT_OPS_VALUE_PREFIX, tname);
 
-Looking at this patch some more, I'm not sure that pt_index is really
-what we should be calling this.  Would pt_gmap_addr make sense?  If
-not, what's the right name?
+How about always look for "struct bpf_struct_ops_smc_ops" first, figure out the 
+btf, and then look for "struct smc_ops", would it work?
+
+If CONFIG_SMC=y instead of =m, this change cannot be tested?
+
+> +	if (ret < 0 || ret >= sizeof(stname))
+> +		return -ENAMETOOLONG;
+> +
+>   	/* Find the corresponding "map_value" type that will be used
+>   	 * in map_update(BPF_MAP_TYPE_STRUCT_OPS).  For example,
+>   	 * find "struct bpf_struct_ops_tcp_congestion_ops" from the
+>   	 * btf_vmlinux.
+>   	 */
+> -	kern_vtype_id = find_btf_by_prefix_kind(btf, STRUCT_OPS_VALUE_PREFIX,
+> -						tname, BTF_KIND_STRUCT);
+> +	kern_vtype_id = btf__find_by_name_kind(btf, stname, BTF_KIND_STRUCT);
+>   	if (kern_vtype_id < 0) {
+> -		pr_warn("struct_ops init_kern: struct %s%s is not found in kernel BTF\n",
+> -			STRUCT_OPS_VALUE_PREFIX, tname);
+> -		return kern_vtype_id;
+> +		if (kern_vtype_id == -ENOENT && !*mod_btf)
+> +			kern_vtype_id = find_ksym_btf_id(obj, stname, BTF_KIND_STRUCT,
+> +							 &btf, mod_btf);
+> +		if (kern_vtype_id < 0) {
+> +			pr_warn("struct_ops init_kern: struct %s is not found in kernel BTF\n",
+> +				stname);
+> +			return kern_vtype_id;
+> +		}
+>   	}
+>   	kern_vtype = btf__type_by_id(btf, kern_vtype_id);
+>   
+> @@ -1046,8 +1055,8 @@ find_struct_ops_kern_types(struct bpf_object *obj, const char *tname_raw,
+>   			break;
+>   	}
+>   	if (i == btf_vlen(kern_vtype)) {
+> -		pr_warn("struct_ops init_kern: struct %s data is not found in struct %s%s\n",
+> -			tname, STRUCT_OPS_VALUE_PREFIX, tname);
+> +		pr_warn("struct_ops init_kern: struct %s data is not found in struct %s\n",
+> +			tname, stname);
+>   		return -EINVAL;
+>   	}
+>   
+
