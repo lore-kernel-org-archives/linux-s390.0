@@ -1,129 +1,217 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B0291DFF8;
-	Fri, 20 Dec 2024 14:45:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 780D8215713;
+	Fri, 20 Dec 2024 15:22:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734705961; cv=none; b=inbSIsLlSWD2rmu+NA4t3lCwUUzq8K3EuQyMbKUktmebD/EIziul83W1jv31np59KMaF/0L2MFuwy3oMzsLlDd9pC2AxLuR7CRyew0h8VuJPRUiFePYi9QM5nph9kVlckM6SKCyls+RTUBdmOH1YPqWqX/VDpTiJdsZ9qMSile4=
+	t=1734708163; cv=none; b=nvugBhtSJ2VFlPkr5YCBkNMlz75v4gbIS4kugboV4CeZRsLGQ82nFujpxsvC48h/rw26GtoFr2zKfHgkuRIS+2Orq5Cqyx/VRB86I6W0wfRzjrRx89yYS8+yH4a2PmC4KNDpPPcp6FAB5DJoah0SV/SjrwJ3GkT3N5koFPjZQIE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734705961; c=relaxed/simple;
-	bh=l+TvdBfWvVPAcsK8VbC159CKm8RgkJY+V79Gv5r8DN4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=X8TKVXYSIBRVx3ygUrnCaKKmjRQFMEOTfTsqlu1ptE077tJ0wYGlHAnSUJuCoSD4AEJDqGh8cx8wx3kRdCWdf3Gt/W7vBC1/XXto65YeKYutEylS2C72PuLgV6xAx+j8nJefpWSLj1M5kF77Y7UOD8EpBTqzXPv35MWn7yAcOLA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Y2t7h63B; arc=none smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1734708163; c=relaxed/simple;
+	bh=/W7zQRHLWYkrdCwj39EIf+V3biaa2rEpIK1TYYmPaHU=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
+	 References:In-Reply-To; b=LHrk4x8ZunXTP+QA7f+acPZ/mclsNJTmo+zW6TjDzi+Fewoa0VdK/Ratc0EJvQnNwYkq2A5kJTqJrtS8nZweoRNrXomySaYt4vhRkR+B4l33Py5BYZ6/7T7E915kHCkHVrroODs+s8iPZZlh/Ey5sfqvbWMgGV+RdEHMWNnuPsQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pSEcy4s7; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Y2t7h63B"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1734705960; x=1766241960;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=l+TvdBfWvVPAcsK8VbC159CKm8RgkJY+V79Gv5r8DN4=;
-  b=Y2t7h63B84LFeLPl5Vlj39/ZVv+UOwsCcCnQSTSMXvQIrKEUpcnYDhtv
-   9NGVkftjBhhkv6e72J7iw3yz9br09WXQsYW1UfLVXjVUjJHbjSd0g/JyB
-   XSLkrRCIr8MCVYNKjnWXa2C8FYE4uS1LecZhh6lFHEGT6Qb7N52Du7JIG
-   bMNS/w1Wjmv1Td4Y8v7JkJxy2GX432K9BopKX0zXpvKLd7QeAXY3llk2W
-   EM5/7BgGkdrSWuba1sNILezqEmXoAxwLYu4n7xGC4TSwDquZqbNHrMvBb
-   IsKsKDoTa4gVoeO739+MJzBrZjnr0vG/IF5UwHyGbel1aKAM3zrTMcx/v
-   Q==;
-X-CSE-ConnectionGUID: Hdq3m46dTbqatmmq178X3A==
-X-CSE-MsgGUID: fAZfb6TOQ+u2AdiisAqDcA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11292"; a="39040668"
-X-IronPort-AV: E=Sophos;i="6.12,251,1728975600"; 
-   d="scan'208";a="39040668"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Dec 2024 06:45:59 -0800
-X-CSE-ConnectionGUID: hdInxSi0Qf+/UQqd7LkLGQ==
-X-CSE-MsgGUID: OYmUDywbTrqpRN47tHU7cw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,251,1728975600"; 
-   d="scan'208";a="98311222"
-Received: from jairdeje-mobl1.amr.corp.intel.com (HELO [10.124.221.219]) ([10.124.221.219])
-  by fmviesa006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Dec 2024 06:45:56 -0800
-Message-ID: <719c5aa7-63ad-43f1-a2e8-644ef220db4f@intel.com>
-Date: Fri, 20 Dec 2024 06:45:55 -0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pSEcy4s7"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BKE6Pnw022371;
+	Fri, 20 Dec 2024 15:22:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Op2les
+	FEA7RR++75w2AtqCnoplzID8i5/GEw9L7IBKQ=; b=pSEcy4s7jf+apZNP00A3oS
+	wWHVKW+6zCu5e+eit3qLTG+Ietg0aOZLJH3P+TuoH9TK0lYckKGCY3/9tAoXaD1M
+	21V+IX64BdK+OCYlBzvcXtS7G0x6hfEbxTVOi7iJkkz6ECoAEV+fITfkkHPAmbqy
+	jMK8/k4MJcIioS4PcSJV068FOvVTZv7ujsySy06bMr1Q/2GIovJau32k00nD7R//
+	uAlN78XsKpFQ5GbkzffVyELDsWMKE3OekMM0ZI+VtKv49hOgayKcu2cpShstX7uZ
+	RRqSV68l6EFaJZSGQeUhl7ELxpxm1yfxVuoFH8B6LGKn0QkXGnwyhHOaCr77Pzrw
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43na258d1v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 20 Dec 2024 15:22:37 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BKE3j1Y005544;
+	Fri, 20 Dec 2024 15:22:37 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43hnbnjqdj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 20 Dec 2024 15:22:37 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BKFMVpH54460906
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 20 Dec 2024 15:22:31 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6A00E2004B;
+	Fri, 20 Dec 2024 15:22:31 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4156420043;
+	Fri, 20 Dec 2024 15:22:31 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.46.101])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 20 Dec 2024 15:22:31 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/10] Account page tables at all levels
-To: Kevin Brodsky <kevin.brodsky@arm.com>, linux-mm@kvack.org
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- Linus Walleij <linus.walleij@linaro.org>, Andy Lutomirski <luto@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, "Mike Rapoport (IBM)"
- <rppt@kernel.org>, Ryan Roberts <ryan.roberts@arm.com>,
- Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
- Matthew Wilcox <willy@infradead.org>, linux-alpha@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
- linux-um@lists.infradead.org, loongarch@lists.linux.dev, x86@kernel.org
-References: <20241219164425.2277022-1-kevin.brodsky@arm.com>
- <a7398426-56d1-40b4-a1c9-40ae8c8a4b4b@intel.com>
- <765aec36-55a4-4161-bb30-4ff838bc2d98@arm.com>
-From: Dave Hansen <dave.hansen@intel.com>
-Content-Language: en-US
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-In-Reply-To: <765aec36-55a4-4161-bb30-4ff838bc2d98@arm.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Date: Fri, 20 Dec 2024 16:22:31 +0100
+Message-Id: <D6GMPV211UPF.CC1OSNJYEJ6T@linux.ibm.com>
+From: "Nico Boehr" <nrb@linux.ibm.com>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, <kvm@vger.kernel.org>
+Cc: <frankja@linux.ibm.com>, <borntraeger@de.ibm.com>, <thuth@redhat.com>,
+        <david@redhat.com>, <schlameuss@linux.ibm.com>,
+        <linux-s390@vger.kernel.org>
+Subject: Re: [kvm-unit-tests PATCH v3 3/3] s390x: pv: Add test for large
+ host pages backing
+X-Mailer: aerc 0.18.2
+References: <20241218135138.51348-1-imbrenda@linux.ibm.com>
+ <20241218135138.51348-4-imbrenda@linux.ibm.com>
+In-Reply-To: <20241218135138.51348-4-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 8N59N5kfHqgCkx3AhnWdqAdPA7tLI_sw
+X-Proofpoint-ORIG-GUID: 8N59N5kfHqgCkx3AhnWdqAdPA7tLI_sw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 bulkscore=0 adultscore=0 spamscore=0 priorityscore=1501
+ mlxlogscore=999 impostorscore=0 phishscore=0 clxscore=1015 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412200123
 
-On 12/20/24 02:58, Kevin Brodsky wrote:
->> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-> Just to double-check, are your ack'ing the x86 changes specifically? If
-> so I'll add your Acked-by on patch 6, 7 and 9.
+On Wed Dec 18, 2024 at 2:51 PM CET, Claudio Imbrenda wrote:
+[...]
+> diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
+> index 611dcd3f..7527be48 100644
+> --- a/lib/s390x/asm/uv.h
+> +++ b/lib/s390x/asm/uv.h
+[...]
+> +static inline int uv_merge(uint64_t handle, unsigned long gaddr)
+> +{
+> +	struct uv_cb_cts uvcb =3D {
+> +		.header.cmd =3D UVC_CMD_VERIFY_LARGE_FRAME,
+> +		.header.len =3D sizeof(uvcb),
+> +		.guest_handle =3D handle,
+> +		.gaddr =3D gaddr,
+> +	};
+> +
+> +	return uv_call(0, (uint64_t)&uvcb);
+> +}
 
-Feel free to add it to each patch in the series.
+This function seems unused and uvc_merge() below looks very similar.
+
+[...]
+
+> diff --git a/s390x/pv-edat1.c b/s390x/pv-edat1.c
+> new file mode 100644
+> index 00000000..3f96c716
+> --- /dev/null
+> +++ b/s390x/pv-edat1.c
+[...]
+> +#define FIRST		42
+> +#define SECOND		23
+
+It was not obvious to me what these mean. It would be easier for me to
+understand if they had some name like GUEST_READ_DONE_GET_PARAM and
+SHOULD_EXIT_LOOP (or so) and share the define with the guest or at least ha=
+ve
+defines with the same name in the guest (see also below).
+
+[...]
+> +static inline void assert_diag500_val(struct vm *vm, uint64_t val)
+> +{
+> +	assert(pv_icptdata_check_diag(vm, 0x500));
+> +	assert(vm->save_area.guest.grs[2] =3D=3D val);
+> +}
+
+I would appreciate it if you could base on Ninas STFLE series and use
+snippet_check_force_exit_value() here. See
+https://lore.kernel.org/kvm/20240620141700.4124157-6-nsg@linux.ibm.com/
+See also below.
+
+[...]
+> +static void test_run(void)
+> +{
+> +	int init1m, import1m, merge, run1m;
+> +
+> +	report_prefix_push("test run");
+> +
+> +	for (init1m =3D 0; init1m < 1; init1m++) {
+
+Are you sure this does what you want it to do?
+
+[...]
+> +static void test_merge(void)
+> +{
+> +	uint64_t tmp, mem;
+> +	int cc;
+> +
+> +	report_prefix_push("merge");
+> +	init_snippet(&vm);
+> +
+> +	mem =3D guest_start(&vm);
+> +
+> +	map_identity_all(&vm, false);
+> +	install_page(root, mem + 0x101000, (void *)(mem + 0x102000));
+> +	install_page(root, mem + 0x102000, (void *)(mem + 0x101000));
+> +	install_page(root, mem + 0x205000, (void *)(mem + 0x305000));
+
+(see below)
+
+[...]
+> +	/* Not all pages are aligned correctly */
+> +	report(uvc_merge(&vm, mem + 0x100000) =3D=3D 0x104, "Pages not consecut=
+ive");
+> +	report(uvc_merge(&vm, mem + 0x200000) =3D=3D 0x104, "Pages not in the s=
+ame 1M frame");
+
+It would be easier for me to understand if the regions were named, e.g. wit=
+h a
+variable for each region, for example:
+
+uint64_t non_consecutive =3D mem + 0x100000
+
+and then above
+
+install_page(root, mem + 0x101000, (void *)(non_consecutive + 0x2000));
+install_page(root, mem + 0x102000, (void *)(non_consecutive + 0x1000));
+
+[...]
+> diff --git a/s390x/snippets/c/pv-memhog.c b/s390x/snippets/c/pv-memhog.c
+> new file mode 100644
+> index 00000000..43f0c2b1
+> --- /dev/null
+> +++ b/s390x/snippets/c/pv-memhog.c
+> @@ -0,0 +1,59 @@
+[...]
+> +int main(void)
+> +{
+> +	uint64_t param, addr, i, n;
+> +
+> +	READ_ONCE(*MIDPAGE_PTR(SZ_1M + 42 * PAGE_SIZE));
+> +	param =3D get_value(42);
+
+(see below)
+
+> +	n =3D (param >> 32) & 0x1fffffff;
+> +	n =3D n ? n : N_PAGES;
+> +	param &=3D 0x7fffffff;
+> +
+> +	while (true) {
+> +		for (i =3D 0; i < n; i++) {
+> +			addr =3D ((param ? i * param : i * i * i) * PAGE_SIZE) & MASK_2G;
+> +			WRITE_ONCE(*MIDPAGE_PTR(addr), addr);
+> +		}
+> +
+> +		i =3D get_value(23);
+> +		if (i !=3D 42)
+
+I would like some defines for 23 and 42 and possibly share them with the ho=
+st.
