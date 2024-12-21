@@ -1,80 +1,162 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 898D42AF16;
-	Sat, 21 Dec 2024 08:57:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C2911F238A;
+	Sat, 21 Dec 2024 09:11:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734771448; cv=none; b=R3C40WpvK+T8Ya4vKaeZstDVpusGiV/62QAth6Qxq9nm+JCyWR9xbj6LcjffZTiLN7hX+g8fpTa6cbtHQQbeAVs9f+/BOXxRFE62yvU/BMyh8n18pe7uXzPYjn/SCLJSqZqYNJszx2hQVpEoQIGN0GOi7JmmAbDF17vXKsfrYwM=
+	t=1734772295; cv=none; b=g9oXL273n0hHcwlUB4kTTtHmSMmfrmwZoTYvNQba1lnTuXXCCRSMlpbwBVDTSs7Gjf02WzxwDnvvENNC1NVQj3+8WqyZpbQsNuM3Knao13ey3eiGb4hTQmbi0kpA3mI7ZKrEbgYoHL1mT9Jso7RQndgNZ+f0VJJxHHC9s0GLs3s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734771448; c=relaxed/simple;
-	bh=DL1nckMrNqYSmoo8ndycUOmfoPMkmyOPi8N+3W32EM4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bw6BI3caamz2omosFzIl0oTZ9mQSOY34dp1Tx5qL6xqoSSbhBVLuGIhwIHbglf4zYiY7GUjCq7ip/0ne9v39jajaW7IjF5scLwQJqNZXZ8U2FOoLIrx607L2SHH7eNhZHh9eeOeygZ9nKkjNTW5E3YTp3CwaWBBPeUF7728Sjas=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=MgcJrVat; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1734772295; c=relaxed/simple;
+	bh=H979TZHDgKLaUbglwnxL0UQbpoLtqMQtPXY6pBrdkHY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=M7VhZalaUcsAhBLW/pj1orqEaHzb2Rq5zmfVMhiAPie3Tbqqcj/C4uJsC337dTlaj9GQSkEaXJZkkJt3sTlG/pC6yxuEDujQ4TTTysThkKfBtUKeQLjYFfH5Dq1hWGEGKdz/EMr1zgDDQMlmPNjceQrZIxXYE3o1ncyarGRAbVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KjcPLqiH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="MgcJrVat"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=64LSUbYBKfcsTB5VhbQqqofrClK56EVU4TkqqM/B9Gs=; b=MgcJrVatOXeBgd1i3o2yFBjh+W
-	Y51MGEYT54OKX+sZghquaqKlmsLJ5qbVHkSQNXUoFm7YqYf9JkBRenpuWG/MZAz5Wrx9acve4/kMy
-	F2wUiVO+9ACi78KI0wxN5t+aXLq+I561Pd+4Oy/4PCNzzN1wbX/SxWdDqI6fw05r5MFpGrLrYdFbg
-	OIU7W/m90JT8y6KZuxpZTXiZrIkIDf2bctX6XSM5HfQBw6XcrEWoZheBTSHVYjjwksC6LFBYCp///
-	5/WDVCTUYx8ayRuS//6B2fIuvvli8a+qi3CQI92cc8DrkPs8OyvByGE4S7dJVqoVxtLNNKmuJycFR
-	9krjBfpQ==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1tOv5R-002Pzd-1K;
-	Sat, 21 Dec 2024 16:57:11 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Sat, 21 Dec 2024 16:57:10 +0800
-Date: Sat, 21 Dec 2024 16:57:10 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: davem@davemloft.net, dengler@linux.ibm.com, linux-s390@vger.kernel.org,
-	linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v8 2/3] s390/crypto: New s390 specific protected key hash
- phmac
-Message-ID: <Z2aC5g-7_yc6ziL4@gondor.apana.org.au>
-References: <20241218140530.82581-1-freude@linux.ibm.com>
- <20241218140530.82581-3-freude@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KjcPLqiH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11E55C4CED7;
+	Sat, 21 Dec 2024 09:11:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1734772295;
+	bh=H979TZHDgKLaUbglwnxL0UQbpoLtqMQtPXY6pBrdkHY=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=KjcPLqiHfTy2/XRWS3CpUuGEGYQBpRM73/IBhcg1xQPXNH8tHsWjzre8sOAbDtZ72
+	 z9Bnvt/nYMEpZTxz/6dsekP22L3wpPmKO7tQTLfm3SARRl0UoE8dZyjwhcaSTLLCjD
+	 i9+hGXTjCj8AqrMkMzk0RqS3D9B15ciuannRdSTUv7UBsndTL/LoWrN2K4KdNDsCwQ
+	 fdvEaMNfwT/eTqIr8pWglKV27o+aSxC3YSC27d8mPTpOluAfgW5j8bKLRleJu+yLf4
+	 k1hObXjJH6ON8rtjpC3Jo57Vb28msuxETe18w7pGks/cl6/1llnl3DA5rOh7GTV5bK
+	 OFBBs2aYM6KUg==
+From: Eric Biggers <ebiggers@kernel.org>
+To: linux-crypto@vger.kernel.org
+Cc: Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	linux-s390@vger.kernel.org
+Subject: [PATCH 21/29] crypto: s390/aes-gcm - use the new scatterwalk functions
+Date: Sat, 21 Dec 2024 01:10:48 -0800
+Message-ID: <20241221091056.282098-22-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.47.1
+In-Reply-To: <20241221091056.282098-1-ebiggers@kernel.org>
+References: <20241221091056.282098-1-ebiggers@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241218140530.82581-3-freude@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
 
-On Wed, Dec 18, 2024 at 03:05:28PM +0100, Harald Freudenberger wrote:
->
-> +static void phmac_wq_init_fn(struct work_struct *work)
-> +{
-> +	struct delayed_work *dwork = to_delayed_work(work);
-> +	struct s390_phmac_req_ctx *req_ctx =
-> +		container_of(dwork, struct s390_phmac_req_ctx, work);
-> +	struct ahash_request *req = req_ctx->req;
-> +	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
-> +	struct s390_kmac_sha2_ctx *ctx = &req_ctx->sha2_ctx;
-> +	int rc;
-> +
-> +	rc = phmac_init(tfm, ctx, true);
-> +
-> +	pr_debug("req complete with rc=%d\n", rc);
-> +	crypto_request_complete(&req->base, rc);
+From: Eric Biggers <ebiggers@google.com>
 
-This should be ahash_request_complete, and you should also call
-local_bh_disable before calling it.
+Use scatterwalk_next() which consolidates scatterwalk_clamp() and
+scatterwalk_map().  Use scatterwalk_done_src() and
+scatterwalk_done_dst() which consolidate scatterwalk_unmap(),
+scatterwalk_advance(), and scatterwalk_done().
 
-Cheers,
+Besides the new functions being a bit easier to use, this is necessary
+because scatterwalk_done() is planned to be removed.
+
+Cc: Harald Freudenberger <freude@linux.ibm.com>
+Cc: Holger Dengler <dengler@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+
+This patch is part of a long series touching many files, so I have
+limited the Cc list on the full series.  If you want the full series and
+did not receive it, please retrieve it from lore.kernel.org.
+
+ arch/s390/crypto/aes_s390.c | 33 +++++++++++++--------------------
+ 1 file changed, 13 insertions(+), 20 deletions(-)
+
+diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
+index 9c46b1b630b1..7fd303df05ab 100644
+--- a/arch/s390/crypto/aes_s390.c
++++ b/arch/s390/crypto/aes_s390.c
+@@ -785,32 +785,25 @@ static void gcm_walk_start(struct gcm_sg_walk *gw, struct scatterlist *sg,
+ 	scatterwalk_start(&gw->walk, sg);
+ }
+ 
+ static inline unsigned int _gcm_sg_clamp_and_map(struct gcm_sg_walk *gw)
+ {
+-	struct scatterlist *nextsg;
+-
+-	gw->walk_bytes = scatterwalk_clamp(&gw->walk, gw->walk_bytes_remain);
+-	while (!gw->walk_bytes) {
+-		nextsg = sg_next(gw->walk.sg);
+-		if (!nextsg)
+-			return 0;
+-		scatterwalk_start(&gw->walk, nextsg);
+-		gw->walk_bytes = scatterwalk_clamp(&gw->walk,
+-						   gw->walk_bytes_remain);
+-	}
+-	gw->walk_ptr = scatterwalk_map(&gw->walk);
++	if (gw->walk_bytes_remain == 0)
++		return 0;
++	gw->walk_ptr = scatterwalk_next(&gw->walk, gw->walk_bytes_remain,
++					&gw->walk_bytes);
+ 	return gw->walk_bytes;
+ }
+ 
+ static inline void _gcm_sg_unmap_and_advance(struct gcm_sg_walk *gw,
+-					     unsigned int nbytes)
++					     unsigned int nbytes, bool out)
+ {
+ 	gw->walk_bytes_remain -= nbytes;
+-	scatterwalk_unmap(gw->walk_ptr);
+-	scatterwalk_advance(&gw->walk, nbytes);
+-	scatterwalk_done(&gw->walk, 0, gw->walk_bytes_remain);
++	if (out)
++		scatterwalk_done_dst(&gw->walk, gw->walk_ptr, nbytes);
++	else
++		scatterwalk_done_src(&gw->walk, gw->walk_ptr, nbytes);
+ 	gw->walk_ptr = NULL;
+ }
+ 
+ static int gcm_in_walk_go(struct gcm_sg_walk *gw, unsigned int minbytesneeded)
+ {
+@@ -842,11 +835,11 @@ static int gcm_in_walk_go(struct gcm_sg_walk *gw, unsigned int minbytesneeded)
+ 
+ 	while (1) {
+ 		n = min(gw->walk_bytes, AES_BLOCK_SIZE - gw->buf_bytes);
+ 		memcpy(gw->buf + gw->buf_bytes, gw->walk_ptr, n);
+ 		gw->buf_bytes += n;
+-		_gcm_sg_unmap_and_advance(gw, n);
++		_gcm_sg_unmap_and_advance(gw, n, false);
+ 		if (gw->buf_bytes >= minbytesneeded) {
+ 			gw->ptr = gw->buf;
+ 			gw->nbytes = gw->buf_bytes;
+ 			goto out;
+ 		}
+@@ -902,11 +895,11 @@ static int gcm_in_walk_done(struct gcm_sg_walk *gw, unsigned int bytesdone)
+ 			memmove(gw->buf, gw->buf + bytesdone, n);
+ 			gw->buf_bytes = n;
+ 		} else
+ 			gw->buf_bytes = 0;
+ 	} else
+-		_gcm_sg_unmap_and_advance(gw, bytesdone);
++		_gcm_sg_unmap_and_advance(gw, bytesdone, false);
+ 
+ 	return bytesdone;
+ }
+ 
+ static int gcm_out_walk_done(struct gcm_sg_walk *gw, unsigned int bytesdone)
+@@ -920,14 +913,14 @@ static int gcm_out_walk_done(struct gcm_sg_walk *gw, unsigned int bytesdone)
+ 		for (i = 0; i < bytesdone; i += n) {
+ 			if (!_gcm_sg_clamp_and_map(gw))
+ 				return i;
+ 			n = min(gw->walk_bytes, bytesdone - i);
+ 			memcpy(gw->walk_ptr, gw->buf + i, n);
+-			_gcm_sg_unmap_and_advance(gw, n);
++			_gcm_sg_unmap_and_advance(gw, n, true);
+ 		}
+ 	} else
+-		_gcm_sg_unmap_and_advance(gw, bytesdone);
++		_gcm_sg_unmap_and_advance(gw, bytesdone, true);
+ 
+ 	return bytesdone;
+ }
+ 
+ static int gcm_aes_crypt(struct aead_request *req, unsigned int flags)
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+2.47.1
+
