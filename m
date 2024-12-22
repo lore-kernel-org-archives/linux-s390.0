@@ -1,80 +1,70 @@
-Received: from mail-oi1-f177.google.com (mail-oi1-f177.google.com [209.85.167.177])
+Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 867212E64A;
-	Sat, 21 Dec 2024 14:10:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72F5F1854;
+	Sun, 22 Dec 2024 00:52:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734790259; cv=none; b=uDxeD3w/IXqzzD2icyxTAuQ3emsitVs2sHJ6Ae+L7eeEuenD/ulnQmVdJvPztn4WGdSYaZgkx8blbcS1+maHKu8ztgRirOeUWtCHPa9Adiqovhvb5qPoZs8X2XgAxXWwItYACHiTCD9LokMm/9jMJrKFuqNQM/9lvNwTywx/j6U=
+	t=1734828747; cv=none; b=CsIKqhynanBcSDgocXXWD5omDbd4GDkvwJutwhyqKZeM7GibbR7KYkazkuqAtXnX3fzgV8aJOooNyDOJNqKKUsCKuPh4urinYyXEueSJ6Twhxh3mRn51Q3KoXD9G5mwHd7lsfHoWxLIPYLDAaW+BgGh/AF3j62n6sdwQTixldeo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734790259; c=relaxed/simple;
-	bh=nGWeQg8S6y6shLHbmW3aMKeXpkYiYJxrmAinLDsKRyY=;
+	s=arc-20240116; t=1734828747; c=relaxed/simple;
+	bh=Lwv+95ot2twUX6GsOV+1rAqhwnRBzkh6SEQLcu7rgjY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WU1sFUVc8TS1ZZ5w/Aq1sE9ceRo3PzZoA7wR2S/0DVA01PtNs8ZS1Mg5qq/IPooUh96MLxf+j0gjAVrIAmOja/gSDALXEaadzVpipTJ6Vy3tDZayvliCnr2iwAphUkxmVgmdTGKCP48uKHqTUufWCNKDf1k3euGVAlFm3ZmORLQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.167.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+	 To:Cc:Content-Type; b=hcFmSGUb/24nLXjLwQ0qXnXTMu3J67o+NWeokHvVmhv0NYTMbdNBEPPHF1Pw+2m97UjUOebMNuXmDLEgf98EOKnO/IKSZmzfdgJN0Vrl6+u7TpJEK0GemTioT7ivA0/GebrIPW1N3C8EiKGC81yGqlUvZaPZlIW8O12OxLwucZg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VjhtN6Ln; arc=none smtp.client-ip=209.85.128.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-oi1-f177.google.com with SMTP id 5614622812f47-3eb9101419cso1522082b6e.0;
-        Sat, 21 Dec 2024 06:10:57 -0800 (PST)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VjhtN6Ln"
+Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-6f2c8aea797so24963377b3.1;
+        Sat, 21 Dec 2024 16:52:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1734828744; x=1735433544; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=G56dFj5BRaIttSoRxhRi+K83W3sP81bwdAaZ6QoaIrc=;
+        b=VjhtN6Lnq/b5eUHhbxrAlUyqLeDNSkb1rLqw0Mmq/DxufZDAp8MxvvEFxG+3zAcpSo
+         dCzocuDfMr97+DA4APKECYQu5Y3e646hQ1yKwc9CPObBRVxDIWBdW0ubqOsIGl9DIPfC
+         Mue4ee7f0+2aQGmuAeE0BTfbKQuD4Nu0wXBueFNeDaPCS91VaqvvlHwfA/57+2LmxYsk
+         RMrXGDJqDTdsp7foaMxJUZqXx61mN6HiP0i1XNBsYl5fdq7pJezBmbWyacC16QnZuc+s
+         zO1VSTKmBWTeqhsGfssI+pDEkmYsic7JsV2YyuhjmixtIbMeJzPveUHZwdi5/bVG+C6B
+         7hdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734790256; x=1735395056;
+        d=1e100.net; s=20230601; t=1734828744; x=1735433544;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GpBog1LJdntPo57cyHdGkHydPz04prdcJbkki5MzpWU=;
-        b=TpWjqCsCmVQlHcmwTeicWaB1bGRUpy9Oi35DrzlHLfkoEF8h/+p4znIMe+MXbek/aJ
-         A30tDToASNtw6unuXN/XZR1wOw/bPAmFq2TMg+IlKY3YSjSWK+mnkoaphPX1vnP9599N
-         wUMerZlMbds7bHuKCSn7BzZdaajBvgnaTdDA3ulTNiqDEVTVUZVDZ4buJpQdzuHswjBk
-         3I9HM/0btUiiDwijEV+vSEc/aeR1W3ATu3hZS/ayMImrKdusmRFlvAI2ry9XUXZ9iLAB
-         r8Ztbtk6QuzB6xXKSFg60RsObz1vjD0KwIFPQlOMqsw3zu+V4DPqSdGkQcQKKcp3wudn
-         PH/Q==
-X-Forwarded-Encrypted: i=1; AJvYcCU8ZSN0l/FNIiORiuNvvy3KQRzYb9ZBpFCQeFHqSl2fSJ6Wr+OW/eTAJ2N96xr0K4aPOpNEuAfB8dRNq9ke@vger.kernel.org, AJvYcCUBlmTusJsjqlliT1kVkqQKqBa6s1nHP9iysYQtSGu6ToBqLbm2sReOy8LGF8+tzF99XtZ8B1JfLVA=@vger.kernel.org, AJvYcCUKo+hJqR4NBH9a9hpFTDgQLWXDgmlRq3vs04JblGMFdeUZMc1dUepyjJsqYZiddBzWdTx5urW3aClvsjak@vger.kernel.org, AJvYcCV14ShbOzS4bKriNt5asOm+ndEZvn6dQfp/sE0DfUW6lgEOzuDCNKE3XqN9WryzYAqZ7PYwI1WuNFYAZw==@vger.kernel.org, AJvYcCVQTr2t0sITj8Y/MBfZk89Q/HMqvl8WAd9KfN5J6phDx1vKAW3VwvRynualpf5YCHv7HHpTYuvUu6mV3Q==@vger.kernel.org, AJvYcCVYeQ8Efrz9JaLWmOuERvHmRHZaLcjFGQdOnz6EDS0QjXwRfGH1bB+emoacM2oR0sjhwyw5BPLI/KzDmA==@vger.kernel.org, AJvYcCVr1QJv7ra5wIBAD0BpJUXHWFuol5feRflZDgCrYGmTj5zB7tt2WGMoox0uqCB9DmXntbgxL2Vdx2r0@vger.kernel.org, AJvYcCW8rzViTQOEtl7tXuBcGpTllGifmP5AhHxAygpyeL9laxX/ofWd9M7MBgMcGAWOgaoFchoTaysm2Ig=@vger.kernel.org, AJvYcCWQJCMnCiq3rMTQCTfD4Met3n/Ky+1yH3U5S4m5EO+ctS6W+Yw2gzDgds/aZr5DNddv7oRULKOTsz5/+5E=@vger.kernel.org, AJvYcCWTcptxjWrekurmlfnHJoUAkOKmqqKndGU8LoVbD7WScKp+F4kiF5BXqrhIFsGpXg0KEE0AsAcp+R9UsOIy1I0=@vger.kernel.org, AJvYcCX9K+h4NnX5LMuWxMQWvwYQjMJhOTA3iCsdAXrc2/d8qYaoxzjMg6jVAoGWiJmc3LeAoNxXvJUgJaKSPQ==@vger.kernel.org, AJvYcCXWUY39GeoYz6s4VTnTTwkg4mgRuFQLW+fVQnWJfA2hJts4kRHZYK+0u0LUp8rCXJOOTxMn/fFUXusi@vger.kernel.org, AJvYcCXyHUl/pvPtdcg16hb+5sjjcIBcsYLI0bJ+FvENJBMcw8LhTfasiCep4NtlswPe+KqchfmK2tpZlJtnxw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy3XjopM29SS5z3fiKI3gKgO4WfZ/Dr0yheM2nZ/25pCQi8TvY5
-	s/H9k3NwMtnLgb6xAt4xs8FVFduau1cEm1Vxl+bEK4g86NRGHAQy829BODNZ
-X-Gm-Gg: ASbGncvEJV2phJivv+o9cKVa3uv3hjuTHoUfRvGE8LeTL/aJyGrmGxNpzcbHIi1tOHc
-	Y/WOrgCZZPg2cKfHw78C9EU1PtZv0hPvnE3hk60gK6JYN3v6WEaTkA1VduSYL76k0N4gHqBZIyc
-	MSIplGxp/ExGjY/q05AKkNh4EXSeyXR9z5LMntZFeSD3b+fWYCNwpSNnFV0yny6tnDbscI2mzDY
-	MJ4wEjp12ALONgK61NrBU+qgDqNvdRJwVemiAoAcAUdb5DzXBcWo7kZL9NA0ts4E5rh0WwY7IN9
-	eY3r7xaSyDcFQceKVbyCS8o=
-X-Google-Smtp-Source: AGHT+IH318VFJbILSf0sP1FE+WYJEi2wjNgqOClVq+hkCsZd7dK/+ayurqjnTjV9+mscjiAoUQP/0w==
-X-Received: by 2002:a05:6808:3a0d:b0:3ea:64cc:4954 with SMTP id 5614622812f47-3ed890b8703mr4298465b6e.35.1734790256222;
-        Sat, 21 Dec 2024 06:10:56 -0800 (PST)
-Received: from mail-oi1-f176.google.com (mail-oi1-f176.google.com. [209.85.167.176])
-        by smtp.gmail.com with ESMTPSA id 5614622812f47-3ece2704181sm1294420b6e.54.2024.12.21.06.10.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 21 Dec 2024 06:10:55 -0800 (PST)
-Received: by mail-oi1-f176.google.com with SMTP id 5614622812f47-3eb7f3b1342so1200263b6e.1;
-        Sat, 21 Dec 2024 06:10:55 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCU5qjHC5OBeYp+fsU0OpwvBxiF8LJfAk0lpSSUsYAafpvA0T4jbtje9lVOviXu9Byx2wdSwbWky+X9xw5U=@vger.kernel.org,
- AJvYcCUAAGPX59ZfNvS16TjaiWtvAiE6M4FvRY6I7muA1i84i9BfENEgTm0CVyUQKmSedsifjBVZ5z4Q8nYxkA==@vger.kernel.org,
- AJvYcCUt8dhDHAOyzYgbuQo3CW4GnaDRlaLYQmu+vyva8ngINpYsg65wGnqlrNa4n4WRJbzjMD6ZhJBj61WKMQ==@vger.kernel.org,
- AJvYcCVK4lc15WqbGR9I1sOeLS1EfwTbOlvdDss78J2CUV4RAOF5s/CIj715yz2Ycl0dsRcIoQdPhmtfsINl@vger.kernel.org,
- AJvYcCVhk83g33hLQoaYdKuSQcAqT7DxCHQpxVF+L7bNFmns1K3Iwm+BWJiZQcIhHYa4nHkS2MfyGHkTjyzwLmkjY4U=@vger.kernel.org,
- AJvYcCW9K7C/JV0mbdHwZew7jwdlq0wr+2Ec4hil0cOUQzC2GgYS9auSYMMJjZ9DAIxq2DeLDRdVmioDXXdNR/FF@vger.kernel.org,
- AJvYcCWAT09k1OyRwzr+h4z+/VDVf+6LMYXGHloAQ02vdGbEIn/JgltizZ/L32m57B0g+OMGX5BbsW52PK4LBU78@vger.kernel.org,
- AJvYcCWLC7QGeElx3vXhxiOH5eUqzJ4mTk0md6HBC0lJY5phbzz4jHuZTWJPfmBAmgBZFAaV6yobf3ybtQs=@vger.kernel.org,
- AJvYcCWLSRCinRGZVH2gwEeKhVH132l7KBglAz0o0ZCXIjEzrVF4MeYzHq6JXwidhETOUthgKUrqmx/3U3DejQ==@vger.kernel.org,
- AJvYcCWgnIdgb0r3xvJvUQD2ACtDy8ZU4bbo4tScQyxxSanyuTo5OnM2SP7o6okoUGvduodBYsey6wF9udw=@vger.kernel.org,
- AJvYcCWk0q+dZBYwtXS4zPSOM/tpZbKgb3CeYvoQg890rGZkpusUi7yFyqGaVkEHKqtJT8PKzFH/AupTW1kNjA==@vger.kernel.org,
- AJvYcCWsVsySwKoxSiCZ7/hlAMfQ7Sr6pdToHkPEA4VtjBYQsbpAfYsdD5ic4pSIj1tmJ+gavwmyGtgWWjlS@vger.kernel.org,
- AJvYcCXFzo40MdKRZ0nH+B7H2KeC4Cw5gBcG8E+pJGPBNWLWTRg/GLVaMGYQTpEWNqbQ0lbWVdJ7NW+umeQ3jQ==@vger.kernel.org
-X-Received: by 2002:a05:6102:cc8:b0:4af:ef85:dae4 with SMTP id
- ada2fe7eead31-4b2cc313a2cmr7064126137.5.1734789822327; Sat, 21 Dec 2024
- 06:03:42 -0800 (PST)
+        bh=G56dFj5BRaIttSoRxhRi+K83W3sP81bwdAaZ6QoaIrc=;
+        b=BtRzjPDNsh9uVptfyswBW9KNADDkT18bFzGqRgSP/wNlbZ7M3j49VPsCO3KjGvPTm4
+         Y+JeSfrdL7omfrJUy882n/xf4CGecT4T/QFAzmW9ECn2B3EVCoqy0wPyWmeIUAajvvta
+         VXRAVAqLRAzzFhAQLCJuUp4yE6Ce+MlqrTDEJOlzNFYT3Ow+CFOwj75SKHq/BG991Ff6
+         PebZ+ezqPYEyX3Dd/NeMAh811r3zgxEgYPcabmdkEj2yT0/Ev5hLdNEYADFOZzJEyGG6
+         ShpqEqDlYkwcS3riO9T/EniyR2fDZGBbp07geVCXjR4t7d30hkrAMBPyfSpbj+GNi7DL
+         SmiQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUT/h1J7NHBvtpBl62RdbisEE9LC937abaMU4Ps+nnNIjLr1PsAOPKrahG05JXH6lwXvLOtpp8NlZk=@vger.kernel.org, AJvYcCUmaEeOFasPm2LaeRQXUsX+ODFFpe9XkFzqPiTCuDaNcBO3gEc8N7Y44jBuULoCJg0an2qZwJi9wJeo@vger.kernel.org, AJvYcCUz6i49DgS/sw0XTg14Br9qCW55fvJhhS+7XjxgGTFQTCM40aPOja8P/4BcYtbBWyRsE729djRibrFB8g==@vger.kernel.org, AJvYcCW/vYFnIclr0YTxdixHF7nhY+Rbnxly7q8YWaANHj+AbGyE7xmDZhgiAcctMLczDN8/nILC+5dP02yHVFCW@vger.kernel.org, AJvYcCW4JJWRGzn6cMshFvUHT+pS7cFpD6i1y5m/Cta7OS1omFW2FLh6nDo+x+Co6PGOYNo3NDJhFgPMvoMf59eEdsU=@vger.kernel.org, AJvYcCWHkGBTPd0QM8JRKJTFKdduFMzHc9Qa6U6/s/6109C/+JP+uGEcL0y+wxrlTHnVhT4ivVh/LEpCZTFG@vger.kernel.org, AJvYcCWaTlcolB0Bi+b8gUuLQWvhQEG5MTHOxOuTbdCYQWlvXqFIwLbA8QoC0D3v6aDqS/nvwtfcmFbNeIK/tBY8@vger.kernel.org, AJvYcCWyf5v18KtaCukhYhVMfydZg7Y1lZNi7QJ7YVQxhZajGO2sjWqjZssGA/RjPNSsFx75clV+n18kloQ=@vger.kernel.org, AJvYcCWzHaQwDZeQ9L4dOZKAqRRs3l4EED80r2ao3DFKM1uGxSRmOUwBrGqHhFUb8rgNdzFbN29PIRlk38dmAw==@vger.kernel.org, AJvYcCX+1THZNZ3p0QG4HqTUB/IgJzhTAOXxdIqlRammgikTSfl3yOjqleORnwLfjK3cHCfQSwqOEL/+HA6G1Q==@vger.kernel.org, AJvYcCXa31wyMV+5+YOaSnPsdBJeFF8QEUs+tpOJLjMkouYeMDxVbmin8CALb9UNKnb1+vkvoqTzlW4PsRrtn0M=@vger.kernel.org, AJvYcCXg7EKIhe7F/H7Z5Wp0zd3i4uMgDBy3u0tXxd73EqEQVeeDmh229I2AvzjCyOYYwhnt4Muq3Fcwf5ba9Q==@vger.kernel.org, AJvYcCXmkyHrkeowEB2H/9Xgr3/AwkB1KJKB1xXNKFLW0u8N+ORU4CBvJJhEDymmcZwBXic/fgry1YQcfGgbag==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwNSvkn64ncZxlTFV7M4vUj/3q5JY3nh+e2Wlp+3JOIeIvD5R5s
+	O6N7lo2uUQYmXerF1gSWscnr+mIupp60DkJ1fFaNTJjP1QHVGRaD8wJEFQ7bi7ec7N8noZX4SIo
+	dWQVyrX7BtMiA4ttQ6ENbyp17rJc=
+X-Gm-Gg: ASbGncudvlwzbf6/dUj9SGQHM7Zbf0pmYNLJR0EATPOVBFQFJvyk4TiCm63tSZxioOS
+	eDO1106OS96H5zQS4KUwFMSz4Zw5CKvrgwdRN4ko=
+X-Google-Smtp-Source: AGHT+IHH5gTAOmFubOYjlrK+2+jdIvePBlyZPYVyBZBy90RljxEGCQgcvHQMo3bTypvAoytVk58QJl8i95oeqQUdh1w=
+X-Received: by 2002:a05:690c:4e82:b0:6f0:21d6:4497 with SMTP id
+ 00721157ae682-6f3f80d911amr42730727b3.9.1734828744363; Sat, 21 Dec 2024
+ 16:52:24 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241221104304.2655909-1-guoweikang.kernel@gmail.com>
-In-Reply-To: <20241221104304.2655909-1-guoweikang.kernel@gmail.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Sat, 21 Dec 2024 15:03:30 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdXbB-ksxZ9+YRz86wazPGSM09ZFX7JZoyH--=UDndS=TQ@mail.gmail.com>
-Message-ID: <CAMuHMdXbB-ksxZ9+YRz86wazPGSM09ZFX7JZoyH--=UDndS=TQ@mail.gmail.com>
+References: <20241221104304.2655909-1-guoweikang.kernel@gmail.com> <CAMuHMdXbB-ksxZ9+YRz86wazPGSM09ZFX7JZoyH--=UDndS=TQ@mail.gmail.com>
+In-Reply-To: <CAMuHMdXbB-ksxZ9+YRz86wazPGSM09ZFX7JZoyH--=UDndS=TQ@mail.gmail.com>
+From: Weikang Guo <guoweikang.kernel@gmail.com>
+Date: Sun, 22 Dec 2024 08:52:14 +0800
+Message-ID: <CAOm6qn=aN_n3jRc79wr-AGVaQXCbZoyE0yXYcZfw28-uBv+zuQ@mail.gmail.com>
 Subject: Re: [PATCH v2] mm/memblock: Add memblock_alloc_or_panic interface
-To: Guo Weikang <guoweikang.kernel@gmail.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>, 
 	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>, 
 	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Sam Creasey <sammy@sammy.net>, 
@@ -116,64 +106,76 @@ Cc: Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi Guo,
-
-On Sat, Dec 21, 2024 at 11:43=E2=80=AFAM Guo Weikang
-<guoweikang.kernel@gmail.com> wrote:
-> Before SLUB initialization, various subsystems used memblock_alloc to
-> allocate memory. In most cases, when memory allocation fails, an immediat=
-e
-> panic is required. To simplify this behavior and reduce repetitive checks=
-,
-> introduce `memblock_alloc_or_panic`. This function ensures that memory
-> allocation failures result in a panic automatically, improving code
-> readability and consistency across subsystems that require this behavior.
+Geert Uytterhoeven <geert@linux-m68k.org> wrote on Saturday, 21
+December 2024 at 22:10
 >
-> Signed-off-by: Guo Weikang <guoweikang.kernel@gmail.com>
-
-Thanks for your patch!
-
-> --- a/include/linux/memblock.h
-> +++ b/include/linux/memblock.h
-> @@ -417,6 +417,20 @@ static __always_inline void *memblock_alloc(phys_add=
-r_t size, phys_addr_t align)
->                                       MEMBLOCK_ALLOC_ACCESSIBLE, NUMA_NO_=
-NODE);
->  }
+> Hi Guo,
 >
-> +static __always_inline void *__memblock_alloc_or_panic(phys_addr_t size,
-> +                                                      phys_addr_t align,
-> +                                                      const char *func)
-> +{
-> +       void *addr =3D memblock_alloc(size, align);
-> +
-> +       if (unlikely(!addr))
-> +               panic("%s: Failed to allocate %llu bytes\n", func, size);
-> +       return addr;
-> +}
+> On Sat, Dec 21, 2024 at 11:43=E2=80=AFAM Guo Weikang
+> <guoweikang.kernel@gmail.com> wrote:
+> > Before SLUB initialization, various subsystems used memblock_alloc to
+> > allocate memory. In most cases, when memory allocation fails, an immedi=
+ate
+> > panic is required. To simplify this behavior and reduce repetitive chec=
+ks,
+> > introduce `memblock_alloc_or_panic`. This function ensures that memory
+> > allocation failures result in a panic automatically, improving code
+> > readability and consistency across subsystems that require this behavio=
+r.
+> >
+> > Signed-off-by: Guo Weikang <guoweikang.kernel@gmail.com>
+>
+> Thanks for your patch!
+>
+> > --- a/include/linux/memblock.h
+> > +++ b/include/linux/memblock.h
+> > @@ -417,6 +417,20 @@ static __always_inline void *memblock_alloc(phys_a=
+ddr_t size, phys_addr_t align)
+> >                                       MEMBLOCK_ALLOC_ACCESSIBLE, NUMA_N=
+O_NODE);
+> >  }
+> >
+> > +static __always_inline void *__memblock_alloc_or_panic(phys_addr_t siz=
+e,
+> > +                                                      phys_addr_t alig=
+n,
+> > +                                                      const char *func=
+)
+> > +{
+> > +       void *addr =3D memblock_alloc(size, align);
+> > +
+> > +       if (unlikely(!addr))
+> > +               panic("%s: Failed to allocate %llu bytes\n", func, size=
+);
+> > +       return addr;
+> > +}
+>
+> Please make this out-of-line, and move it to mm/memblock.c, so we have
+> just a single copy in the final binary.
+>
+Got it, I'll make the change
+> > +
+> > +#define memblock_alloc_or_panic(size, align)    \
+> > +        __memblock_alloc_or_panic(size, align, __func__)
+> > +
+> >  static inline void *memblock_alloc_raw(phys_addr_t size,
+> >                                                phys_addr_t align)
+> >  {
+> > diff --git a/init/main.c b/init/main.c
+>
+> Gr{oetje,eeting}s,
+>
+>                         Geert
+>
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m6=
+8k.org
+>
+> In personal conversations with technical people, I call myself a hacker. =
+But
+> when I'm talking to journalists I just say "programmer" or something like=
+ that.
+>                                 -- Linus Torvalds
 
-Please make this out-of-line, and move it to mm/memblock.c, so we have
-just a single copy in the final binary.
-
-> +
-> +#define memblock_alloc_or_panic(size, align)    \
-> +        __memblock_alloc_or_panic(size, align, __func__)
-> +
->  static inline void *memblock_alloc_raw(phys_addr_t size,
->                                                phys_addr_t align)
->  {
-> diff --git a/init/main.c b/init/main.c
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
-
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
+Best regards
+             Guo
