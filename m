@@ -1,47 +1,100 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18C06632;
-	Mon, 23 Dec 2024 02:16:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8E7DEEB5;
+	Mon, 23 Dec 2024 07:12:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734920168; cv=none; b=jhnrZ5bFp3J5lOzGpHF0JlJA5+o6dwL8CU2mrnHh4d94tRX3A4cAcvIleNyU9/foccjALN7AhpreROodDqAQ4n0fvOlTsBo/1jAcXp25HseBhLfWFKGkuftJ934XDAZ2aMnIN9+9tf9fhEp7xPx138ewjqp5jb0aVkztBVCfSFM=
+	t=1734937969; cv=none; b=snHG42aaUkWPFmaVRpb8BREmdwGNRZN76AzysjEndYLuyR7JIegUbv0vkCz2BEkLhMfKM6Q0KIRTxyvFGlJmNABCB3i/WTWjd8pR+YLNZUJktXdxKCB7RNoik8w4ffblMo6oUx5G5rWNxPJH3gBptWDwQ+VA+HT60FKQaL219jA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734920168; c=relaxed/simple;
-	bh=fYb8/eRsED0a5QPevVYXqFlTk81Xxf99AFlxwor7Bx4=;
+	s=arc-20240116; t=1734937969; c=relaxed/simple;
+	bh=KiW6z79yHKtUcMEX/b8/Sp0F2L3XtvvNObnoy9wnwCI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RUnI4W1X0wnWmRiHjGQjLeYybXtVJj+ZYkFTkFt2zFskr+VtuRXR3PVcyCh0awz/YDCqO4kN83gdTlnYzeu+GZU5mapQ5/kO1D8T1Ui1oMKys7nBwZa84GBSu+ISYeNEn5jG59wKm8bKGXQkmbraAZDMqSRromxWvHkvGfGNs+k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=bn+cKf+6; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=AKqL7y/ouO2p1OPG7NNYsZ2XpAebYpYtcHhE61Vkq4MGIzc2w8mUtF/E72B59YoaCHwn9/ZJfm5+GcANGXuLplBdPTZPm7sEjbFURC+Vy5pSAWVu2Jw+dF1122NKFhGrfMfSegFw0FnRk5TUJejzqWAKVOXa4n19XQo88HKaRCw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PadoaIur; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="bn+cKf+6"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1734920161; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=X8L9prpbeK1sda734hduULb78ArRrtxowYpuEuW1bZM=;
-	b=bn+cKf+6jWnT90k7Mr6akem1g6VMseS2C7F/L/smAJ6fTPoqWn0qHbpVV1WPRZRBBMLGaAzuNQazGUFKuK5bFlVKukAtu0hXoFQCe7/wq/fzr7+dICUCapIoS5VSqQcHB+DAGLrolI1Q9YjlZpD8ZDJMmq7GTLuw0GBcu226Fuw=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WM-5smN_1734919836 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 23 Dec 2024 10:10:37 +0800
-Date: Mon, 23 Dec 2024 10:10:36 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Martin KaFai Lau <martin.lau@linux.dev>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
-	daniel@iogearbox.net, andrii@kernel.org, pabeni@redhat.com,
-	song@kernel.org, sdf@google.com, haoluo@google.com, yhs@fb.com,
-	edumazet@google.com, john.fastabend@gmail.com, kpsingh@kernel.org,
-	jolsa@kernel.org, guwen@linux.alibaba.com, kuba@kernel.org,
-	davem@davemloft.net, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-	bpf@vger.kernel.org, Daniel Xu <dlxu@meta.com>
-Subject: Re: [PATCH bpf-next v3 4/5] libbpf: fix error when st-prefix_ops and
- ops from differ btf
-Message-ID: <20241223021036.GC36000@j66a10360.sqa.eu95>
-References: <20241218024422.23423-1-alibuda@linux.alibaba.com>
- <20241218024422.23423-5-alibuda@linux.alibaba.com>
- <2f56aca3-a27a-49b6-90de-7f1b2ff39df1@linux.dev>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PadoaIur"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2221C4CED4;
+	Mon, 23 Dec 2024 07:12:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1734937968;
+	bh=KiW6z79yHKtUcMEX/b8/Sp0F2L3XtvvNObnoy9wnwCI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=PadoaIur+Bq/ska4dZ3htQaJQz4uazLSVowJVHucSNC53reVkWxd5YVJWY/8jYQei
+	 G/2ikWxztSp4IduffOwXB0a3mVJH23t9Ex7EGVUz/CnbNl3iJwZRxMrSqxsyp7jx0f
+	 g/t903ItkhiEVo2DrupFM7faoTX7/DPcXhBh/bkr20Ay+uNKYZumDkMyBSpawM5raK
+	 Ut+5vnDGc2C1sPQD75jm/n63pJiamwi58eI2wR3M3lVdk6xTR5vMn3Ur4QTOlkun8B
+	 BK41Buv9qow1NTThvM4tSiBT0cMpdhUu2SLkRibN1ROgpuegs2ZYg313l0II/8FbH3
+	 cxXTeCHYfJOYg==
+Date: Mon, 23 Dec 2024 09:12:14 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: Guo Weikang <guoweikang.kernel@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+	Christoph Lameter <cl@linux.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Sam Creasey <sammy@sammy.net>, Huacai Chen <chenhuacai@kernel.org>,
+	Will Deacon <will@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Oreoluwa Babatunde <quic_obabatun@quicinc.com>,
+	rafael.j.wysocki@intel.com, Palmer Dabbelt <palmer@rivosinc.com>,
+	Hanjun Guo <guohanjun@huawei.com>,
+	Easwar Hariharan <eahariha@linux.microsoft.com>,
+	Johannes Berg <johannes.berg@intel.com>,
+	Ingo Molnar <mingo@kernel.org>, Dave Hansen <dave.hansen@intel.com>,
+	Christian Brauner <brauner@kernel.org>,
+	KP Singh <kpsingh@kernel.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Geoff Levand <geoff@infradead.org>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+	Alexander Potapenko <glider@google.com>,
+	Andrey Konovalov <andreyknvl@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Vincenzo Frascino <vincenzo.frascino@arm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	kasan-dev@googlegroups.com, linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+	linux-um@lists.infradead.org, linux-acpi@vger.kernel.org,
+	xen-devel@lists.xenproject.org, linux-omap@vger.kernel.org,
+	linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-mm@kvack.org, linux-pm@vger.kernel.org,
+	Xi Ruoyao <xry111@xry111.site>
+Subject: Re: [PATCH v7] mm/memblock: Add memblock_alloc_or_panic interface
+Message-ID: <Z2kNTjO8hXzN66bX@kernel.org>
+References: <20241222111537.2720303-1-guoweikang.kernel@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,89 +103,45 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2f56aca3-a27a-49b6-90de-7f1b2ff39df1@linux.dev>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+In-Reply-To: <20241222111537.2720303-1-guoweikang.kernel@gmail.com>
 
-On Thu, Dec 19, 2024 at 02:43:30PM -0800, Martin KaFai Lau wrote:
-> On 12/17/24 6:44 PM, D. Wythe wrote:
-> >Here are four possible case:
-> >
-> >+--------+-------------+-------------+---------------------------------+
-> >|        | st_opx_xxx  | xxx         |                                 |
-> >+--------+-------------+-------------+---------------------------------+
-> >| case 0 | btf_vmlinux | bft_vmlinux | be used and reg only in vmlinux |
-> >+--------+-------------+-------------+---------------------------------+
-> >| case 1 | btf_vmlinux | bpf_mod     | INVALID                         |
-> >+--------+-------------+-------------+---------------------------------+
-> >| case 2 | btf_mod     | btf_vmlinux | reg in mod but be used both in  |
-> >|        |             |             | vmlinux and mod.                |
-> >+--------+-------------+-------------+---------------------------------+
-> >| case 3 | btf_mod     | btf_mod     | be used and reg only in mod     |
-> >+--------+-------------+-------------+---------------------------------+
-> >
-> >At present, cases 0, 1, and 3 can be correctly identified, because
-> >st_ops_xxx is searched from the same btf with xxx. In order to
-> >handle case 2 correctly without affecting other cases, we cannot simply
-> >change the search method for st_ops_xxx from find_btf_by_prefix_kind()
-> >to find_ksym_btf_id(), because in this way, case 1 will not be
-> >recognized anymore.
-> >  	snprintf(tname, sizeof(tname), "%.*s",
-> >@@ -1020,17 +1021,25 @@ find_struct_ops_kern_types(struct bpf_object *obj, const char *tname_raw,
-> >  	}
-> >  	kern_type = btf__type_by_id(btf, kern_type_id);
-> >+	ret = snprintf(stname, sizeof(stname), "%s%s", STRUCT_OPS_VALUE_PREFIX, tname);
+On Sun, Dec 22, 2024 at 07:15:37PM +0800, Guo Weikang wrote:
+> Before SLUB initialization, various subsystems used memblock_alloc to
+> allocate memory. In most cases, when memory allocation fails, an immediate
+> panic is required. To simplify this behavior and reduce repetitive checks,
+> introduce `memblock_alloc_or_panic`. This function ensures that memory
+> allocation failures result in a panic automatically, improving code
+> readability and consistency across subsystems that require this behavior.
 > 
-> How about always look for "struct bpf_struct_ops_smc_ops" first,
-> figure out the btf, and then look for "struct smc_ops", would it
-> work?
-
-I think this might not work, as the core issue lies in the fact that
-bpf_struct_ops_smc_ops and smc_ops are located on different btf.
-Searching for one fisrt cannot lead to the inference of the other.
-
+> Changelog:
+> ----------
+> v1: initial version
+> v2: add __memblock_alloc_or_panic support panic output caller
+> v3: panic output phys_addr_t use printk's %pap
+> v4: make __memblock_alloc_or_panic out-of-line, move to memblock.c
+> v6: Fix CI compile error
+> Links to CI: https://lore.kernel.org/oe-kbuild-all/202412221000.r1NzXJUO-lkp@intel.com/
+> v6: Fix CI compile warinigs
+> Links to CI: https://lore.kernel.org/oe-kbuild-all/202412221259.JuGNAUCq-lkp@intel.com/
+> v7: add chagelog and adjust function declaration alignment format
+> ----------
 > 
-> If CONFIG_SMC=y instead of =m, this change cannot be tested?
-> 
+> Signed-off-by: Guo Weikang <guoweikang.kernel@gmail.com>
+> Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Reviewed-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> Acked-by: Xi Ruoyao <xry111@xry111.site>
 
-That is indeed a problem, but currently there is no better solution
-unless the CI can add a step to run 'make modules_install'.
+If people commented on your patch it does not mean you should add
+Reviewed-by or Acked-by tags for them. Wait for explicit tags from the
+reviewers.
+
+And don't respin that often, "Reviewers are busy people and may not get to
+your patch right away" [1].
+
+[1] https://docs.kernel.org/process/submitting-patches.html
 
 
-Best wishes,
-D. Wythe
-
-> >+	if (ret < 0 || ret >= sizeof(stname))
-> >+		return -ENAMETOOLONG;
-> >+
-> >  	/* Find the corresponding "map_value" type that will be used
-> >  	 * in map_update(BPF_MAP_TYPE_STRUCT_OPS).  For example,
-> >  	 * find "struct bpf_struct_ops_tcp_congestion_ops" from the
-> >  	 * btf_vmlinux.
-> >  	 */
-> >-	kern_vtype_id = find_btf_by_prefix_kind(btf, STRUCT_OPS_VALUE_PREFIX,
-> >-						tname, BTF_KIND_STRUCT);
-> >+	kern_vtype_id = btf__find_by_name_kind(btf, stname, BTF_KIND_STRUCT);
-> >  	if (kern_vtype_id < 0) {
-> >-		pr_warn("struct_ops init_kern: struct %s%s is not found in kernel BTF\n",
-> >-			STRUCT_OPS_VALUE_PREFIX, tname);
-> >-		return kern_vtype_id;
-> >+		if (kern_vtype_id == -ENOENT && !*mod_btf)
-> >+			kern_vtype_id = find_ksym_btf_id(obj, stname, BTF_KIND_STRUCT,
-> >+							 &btf, mod_btf);
-> >+		if (kern_vtype_id < 0) {
-> >+			pr_warn("struct_ops init_kern: struct %s is not found in kernel BTF\n",
-> >+				stname);
-> >+			return kern_vtype_id;
-> >+		}
-> >  	}
-> >  	kern_vtype = btf__type_by_id(btf, kern_vtype_id);
-> >@@ -1046,8 +1055,8 @@ find_struct_ops_kern_types(struct bpf_object *obj, const char *tname_raw,
-> >  			break;
-> >  	}
-> >  	if (i == btf_vlen(kern_vtype)) {
-> >-		pr_warn("struct_ops init_kern: struct %s data is not found in struct %s%s\n",
-> >-			tname, STRUCT_OPS_VALUE_PREFIX, tname);
-> >+		pr_warn("struct_ops init_kern: struct %s data is not found in struct %s\n",
-> >+			tname, stname);
-> >  		return -EINVAL;
-> >  	}
+-- 
+Sincerely yours,
+Mike.
