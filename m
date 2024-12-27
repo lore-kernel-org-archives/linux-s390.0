@@ -1,237 +1,100 @@
-Received: from out-179.mta1.migadu.com (out-179.mta1.migadu.com [95.215.58.179])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F22381728
-	for <linux-s390@vger.kernel.org>; Thu, 26 Dec 2024 19:44:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0B9442AA4;
+	Fri, 27 Dec 2024 04:05:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735242272; cv=none; b=DEuYiWwMcQr2H5ZP/ftWSUaeEtrtt6xxT/QoDFsl0nbLjpEB/k9h4o9T2RVg+yzhh9Ii6+CR40DBIGfV1BMKHzsUMBQjRN3RBMuoLuCGygkhi94SBVkUAytnnAkLchOpPF6J12YMQL2V6ftTFnbU0doVFHh/k32V4fVhVUDhDSQ=
+	t=1735272304; cv=none; b=TOJPqtVXja9qPITnGzMVpI6KUCNZ1rkYEsk0n/wpLvxHbO1GlZJeLuTds66Yu0sqvtt1qLUjDRbmlTh3tcCypZFKtTe5/++6ERgEdLEl0JfsO/V/F2eubNBakX6Qn5JBnBwjUelW8q3xQtA594wwr5u9nuWX/vK+7YN8PaQoRfY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735242272; c=relaxed/simple;
-	bh=qh8YiLQEPm6J01WJ9vgmIlVgUj0wrARDiQk6bRITLXI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nKUqFqPlg5QJtYY0yGgud0IvIYQWQXyeWBoi/GaGVA7Mt5XtyDQXtoF75vdH5vtI3FKe4l6fJXzOf7Jn6sYVRwuMqMyUWCtphXUhJhz1Pis625/ynFkJkNoisGxokLIYhf532yRbFcX17oEloWfFIJf7IL6XqYm1GWgNAYxfmfk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Uy4xpuD6; arc=none smtp.client-ip=95.215.58.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1735272304; c=relaxed/simple;
+	bh=9KooM9uA6rOZrgLJ58/qmuXvemjwtIe2oCKQoWvGLoc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=SF2fvs+oMj8a8KHpXOm/Yg6nJqNE/Dm6XhP/u4V3d4HAt+YLcLCw8A1Jt2+VynLC1RMlv7JB16syq3LlIWCfkrcUmynEOnbFXtXcTccfUre9Y+x68mVs9+pTDwHB7vfBy3pMMqfsdZD870WbDsiniVRDZS+PgzDo/XdIm1y08Vw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=yfDbul7y; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Uy4xpuD6"
-Message-ID: <525a2714-f8b0-4fdb-9cfb-d8a913c43c8e@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1735242265;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=gu5R6izyMs3ousa/yHvXEfFiqdro8Nj/rTjNjqWOmIY=;
-	b=Uy4xpuD6ViYbGZcyD8rjCgxHglxuthWxr5sRakF6dtTdTOBazmoLcKHpBgdnUz6/y4JkXs
-	YZbHmRy34XEz4wfs/ktbX5Y/qcLRfp2gN+GELvMmms5c4LN3E87gBart3ihtYEcqY9ChAE
-	gov2L4b8wSnRM2RLhDlzAQ2hp/cXjCI=
-Date: Thu, 26 Dec 2024 20:44:20 +0100
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="yfDbul7y"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1735272298; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=PEA6YoYeyQImoXgEOXsRIu4bA0feaqonuxZ5B3IMRhY=;
+	b=yfDbul7y3ABWuX4A62JygV7rxZyv4ZvS/bI5Lvb3obhuprsMm3wnGbnCiG02J4Z6tBHf9RhkQ49qXF3uHY2Q+SIHFwojZY16LKsG/TG56UQzy2LZrMillFlEUB8a1ZLUStzu13DsYLBZhN3HKAjQILTWLKwv2NQcT0I5ws4wsGw=
+Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WMJwKuQ_1735272295 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 27 Dec 2024 12:04:57 +0800
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+To: wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	PASIC@de.ibm.com,
+	alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org
+Cc: linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net] net/smc: use the correct ndev to find pnetid by pnetid table
+Date: Fri, 27 Dec 2024 12:04:55 +0800
+Message-Id: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH bpf-next v3 3/5] net/smc: bpf: register smc_ops info
- struct_ops
-To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
- wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
- daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
- pabeni@redhat.com, song@kernel.org, sdf@google.com, haoluo@google.com,
- yhs@fb.com, edumazet@google.com, john.fastabend@gmail.com,
- kpsingh@kernel.org, jolsa@kernel.org, guwen@linux.alibaba.com
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, bpf@vger.kernel.org
-References: <20241218024422.23423-1-alibuda@linux.alibaba.com>
- <20241218024422.23423-4-alibuda@linux.alibaba.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
-In-Reply-To: <20241218024422.23423-4-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
-在 2024/12/18 3:44, D. Wythe 写道:
-> To implement injection capability for smc via struct_ops, so that
-> user can make their own smc_ops to modify the behavior of smc stack.
-> 
-> Currently, user can write their own implememtion to choose whether to
-> use SMC or not before TCP 3rd handshake to be comleted. In the future,
-> users can implement more complex functions on smc by expanding it.
-> 
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
->   net/smc/af_smc.c  | 10 +++++
->   net/smc/smc_ops.c | 99 +++++++++++++++++++++++++++++++++++++++++++++++
->   net/smc/smc_ops.h |  2 +
->   3 files changed, 111 insertions(+)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 9d76e902fd77..6adedae2986d 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -55,6 +55,7 @@
->   #include "smc_sysctl.h"
->   #include "smc_loopback.h"
->   #include "smc_inet.h"
-> +#include "smc_ops.h"
->   
->   static DEFINE_MUTEX(smc_server_lgr_pending);	/* serialize link group
->   						 * creation on server
-> @@ -3576,8 +3577,17 @@ static int __init smc_init(void)
->   		pr_err("%s: smc_inet_init fails with %d\n", __func__, rc);
->   		goto out_ulp;
->   	}
-> +
-> +	rc = smc_bpf_struct_ops_init();
-> +	if (rc) {
-> +		pr_err("%s: smc_bpf_struct_ops_init fails with %d\n", __func__, rc);
-> +		goto out_inet;
-> +	}
-> +
->   	static_branch_enable(&tcp_have_smc);
->   	return 0;
-> +out_inet:
-> +	smc_inet_exit();
->   out_ulp:
->   	tcp_unregister_ulp(&smc_ulp_ops);
->   out_lo:
-> diff --git a/net/smc/smc_ops.c b/net/smc/smc_ops.c
-> index 0fc19cadd760..0f07652f4837 100644
-> --- a/net/smc/smc_ops.c
-> +++ b/net/smc/smc_ops.c
-> @@ -10,6 +10,10 @@
->    *  Author: D. Wythe <alibuda@linux.alibaba.com>
->    */
->   
-> +#include <linux/bpf_verifier.h>
-> +#include <linux/bpf.h>
-> +#include <linux/btf.h>
-> +
->   #include "smc_ops.h"
->   
->   static DEFINE_SPINLOCK(smc_ops_list_lock);
-> @@ -49,3 +53,98 @@ struct smc_ops *smc_ops_find_by_name(const char *name)
->   	}
->   	return NULL;
->   }
-> +
-> +static int __bpf_smc_stub_set_tcp_option(struct tcp_sock *tp) { return 1; }
-> +static int __bpf_smc_stub_set_tcp_option_cond(const struct tcp_sock *tp,
-> +					      struct inet_request_sock *ireq)
-> +{
-> +	return 1;
-> +}
-> +
-> +static struct smc_ops __bpf_smc_bpf_ops = {
-> +	.set_option		= __bpf_smc_stub_set_tcp_option,
-> +	.set_option_cond	= __bpf_smc_stub_set_tcp_option_cond,
-> +};
-> +
-> +static int smc_bpf_ops_init(struct btf *btf) { return 0; }
-> +
-> +static int smc_bpf_ops_reg(void *kdata, struct bpf_link *link)
-> +{
-> +	return smc_ops_reg(kdata);
-> +}
-> +
-> +static void smc_bpf_ops_unreg(void *kdata, struct bpf_link *link)
-> +{
-> +	smc_ops_unreg(kdata);
-> +}
-> +
-> +static int smc_bpf_ops_init_member(const struct btf_type *t,
-> +				   const struct btf_member *member,
-> +				   void *kdata, const void *udata)
-> +{
-> +	const struct smc_ops *u_ops;
-> +	struct smc_ops *k_ops;
-> +	u32 moff;
-> +
-> +	u_ops = (const struct smc_ops *)udata;
-> +	k_ops = (struct smc_ops *)kdata;
-> +
-> +	moff = __btf_member_bit_offset(t, member) / 8;
-> +	switch (moff) {
-> +	case offsetof(struct smc_ops, name):
-> +		if (bpf_obj_name_cpy(k_ops->name, u_ops->name,
-> +				     sizeof(u_ops->name)) <= 0)
-> +			return -EINVAL;
-> +		return 1;
-> +	case offsetof(struct smc_ops, flags):
-> +		if (u_ops->flags & ~SMC_OPS_ALL_FLAGS)
-> +			return -EINVAL;
-> +		k_ops->flags = u_ops->flags;
-> +		return 1;
-> +	default:
-> +		break;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int smc_bpf_ops_check_member(const struct btf_type *t,
-> +				    const struct btf_member *member,
-> +				    const struct bpf_prog *prog)
-> +{
-> +	u32 moff = __btf_member_bit_offset(t, member) / 8;
-> +
-> +	switch (moff) {
-> +	case offsetof(struct smc_ops, name):
-> +	case offsetof(struct smc_ops, flags):
-> +	case offsetof(struct smc_ops, set_option):
-> +	case offsetof(struct smc_ops, set_option_cond):
-> +		break;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct bpf_verifier_ops smc_bpf_verifier_ops = {
-> +	.get_func_proto		= bpf_base_func_proto,
-> +	.is_valid_access	= bpf_tracing_btf_ctx_access,
-> +};
-> +
-> +static struct bpf_struct_ops bpf_smc_bpf_ops = {
-> +	.name		= "smc_ops",
-> +	.init		= smc_bpf_ops_init,
-> +	.reg		= smc_bpf_ops_reg,
-> +	.unreg		= smc_bpf_ops_unreg,
-> +	.cfi_stubs	= &__bpf_smc_bpf_ops,
-> +	.verifier_ops	= &smc_bpf_verifier_ops,
-> +	.init_member	= smc_bpf_ops_init_member,
-> +	.check_member	= smc_bpf_ops_check_member,
-> +	.owner		= THIS_MODULE,
-> +};
-> +
-> +int smc_bpf_struct_ops_init(void)
-> +{
-> +	return register_bpf_struct_ops(&bpf_smc_bpf_ops, smc_ops);
-> +}
-> diff --git a/net/smc/smc_ops.h b/net/smc/smc_ops.h
-> index 214f4c99efd4..f4e50eae13f6 100644
-> --- a/net/smc/smc_ops.h
-> +++ b/net/smc/smc_ops.h
-> @@ -22,8 +22,10 @@
->    * Note: Caller MUST ensure it's was invoked under rcu_read_lock.
->    */
->   struct smc_ops *smc_ops_find_by_name(const char *name);
-> +int smc_bpf_struct_ops_init(void);
->   #else
->   static inline struct smc_ops *smc_ops_find_by_name(const char *name) { return NULL; }
-> +static inline int smc_bpf_struct_ops_init(void) { return 0; }
+The command 'smc_pnet -a -I <ethx> <pnetid>' will add <pnetid>
+to the pnetid table and will attach the <pnetid> to net device
+whose name is <ethx>. But When do SMCR by <ethx>, in function
+smc_pnet_find_roce_by_pnetid, it will use <ethx>'s base ndev's
+pnetid to match rdma device, not <ethx>'s pnetid. The asymmetric
+use of the pnetid seems weird. Sometimes it is difficult to know
+the hierarchy of net device what may make it difficult to configure
+the pnetid and to use the pnetid. Looking into the history of
+commit, it was the commit 890a2cb4a966 ("net/smc: rework pnet table")
+that changes the ndev from the <ethx> to the <ethx>'s base ndev
+when finding pnetid by pnetid table. It seems a mistake.
 
-Both smc_ops_find_by_name and smc_bpf_struct_ops_init seem to be dead 
-codes. Enabling/Disabling CONFIG_SMC_OPS, the above 2 inline functions 
-will not be called. The 2 functions should be removed.
+This patch changes the ndev back to the <ethx> when finding pnetid
+by pnetid table.
 
-Zhu Yanjun
+Fixes: 890a2cb4a966 ("net/smc: rework pnet table")
+Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+---
+ net/smc/smc_pnet.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
->   #endif /* CONFIG_SMC_OPS*/
->   
->   #endif /* __SMC_OPS */
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index 716808f374a8..cc098780970b 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -1079,14 +1079,15 @@ static void smc_pnet_find_roce_by_pnetid(struct net_device *ndev,
+ 					 struct smc_init_info *ini)
+ {
+ 	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
++	struct net_device *base_ndev;
+ 	struct net *net;
+ 
+-	ndev = pnet_find_base_ndev(ndev);
++	base_ndev = pnet_find_base_ndev(ndev);
+ 	net = dev_net(ndev);
+-	if (smc_pnetid_by_dev_port(ndev->dev.parent, ndev->dev_port,
++	if (smc_pnetid_by_dev_port(base_ndev->dev.parent, base_ndev->dev_port,
+ 				   ndev_pnetid) &&
+ 	    smc_pnet_find_ndev_pnetid_by_table(ndev, ndev_pnetid)) {
+-		smc_pnet_find_rdma_dev(ndev, ini);
++		smc_pnet_find_rdma_dev(base_ndev, ini);
+ 		return; /* pnetid could not be determined */
+ 	}
+ 	_smc_pnet_find_roce_by_pnetid(ndev_pnetid, ini, NULL, net);
+-- 
+2.24.3 (Apple Git-128)
 
