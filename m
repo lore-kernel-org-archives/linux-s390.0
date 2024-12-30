@@ -1,164 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 929291A0B15;
-	Mon, 30 Dec 2024 00:16:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1B2314B080
+	for <linux-s390@vger.kernel.org>; Mon, 30 Dec 2024 03:12:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735517766; cv=none; b=dccLli6OUecuJ2L8AgjrFr2O1df9+0p5mRvtamYIFgu/5AJCAEm4wsaEqT+LGinEZXYZ1P+6xnrw/do5MIj5g9qIaM6iSafLWyAfbmMDWx9pVknsMQlT5pAXXeXUlmsFJl4UWmvndA89YncCzPS8QbhW4FEVC3OCl7cv+bNLaZk=
+	t=1735528337; cv=none; b=KVWf6oxvvdGeY1vZttL4D8hAr1Rkdni3K0MFCQfDn+NBwBZFCzFDEx+4o3tDUvEwM2LeQ+J+Lov7Y4YzZ18iIq7hnquOn1fj+FuHggMWqhI/O7CbvXvqGpTgTcqJ+WyrXQ5L+cZqljKSmMikO93Om/AhrMVKnZJz6m5RZv7YBsA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735517766; c=relaxed/simple;
-	bh=H979TZHDgKLaUbglwnxL0UQbpoLtqMQtPXY6pBrdkHY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=K1XM3f5rYBTkfR5oKW98i9T6hWb3wWKTIPJFsn1sYJDdpTOsrrX+q6XOVFur8lWLlhuHxSC/CamzgkY3iipL+/mKdqFjAg5Yobbr/Opc5bPmqViUMsLBv8unpZEJ3pJqqMy0uJu+ymgqpShsdF+n5lhLswVqLd1rhbkfnIdbOFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OVv7ieP8; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1735528337; c=relaxed/simple;
+	bh=RByHVD3bvwf9OBgmvjYl7zmyuddvG3+m7GzmELh8Ojk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BsCwKjsXLpGGkDYJ5gq8uLy4xJBoxzFTeN7NPwAioKmxD+QZUtzN1Y6s8GmMVlXV4JLQrUjJoABv8SgSbbTuFnTRKjAh8KtivgTKZwxNJYmRiY+Aw/MxB3iwmUhw7zsif05MLHyGrORRd4nrm9VaNyULb89Bfr9iVE6SMvePiZ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=U4TKcd5D; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OVv7ieP8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2CCCC4CEDC;
-	Mon, 30 Dec 2024 00:16:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1735517766;
-	bh=H979TZHDgKLaUbglwnxL0UQbpoLtqMQtPXY6pBrdkHY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=OVv7ieP8SjYk/HjaXd0tHHAvWhYyEeizW7IRUKiiA8xqB5Yq63CHK6thVfRetcYdY
-	 XrzADxDGMfIio8KG4x38IIh558UFNmRQ95drvi+0u275GXhE/ZJT3YiTenqo2BB9JC
-	 LLGpYM7FxTJ/b8vgYPOfCIIKMZZ9IGbVCuWwV9AXSaIEJvlrfQdUEXToZD2+TQ5zA0
-	 uU8xcsI/+F8GRsBGYCAjCT5PpF456KOLQn7/0vH8LjIm08dA0oEbZpEzrYSmIcshQ0
-	 d3ObtqAq5VVH6+bHquDAr3RJevWu8J+5hWPWQF6dqDblo5zHstQJQrO0TMQZUtiS7v
-	 wlKCqJxFSDOQA==
-From: Eric Biggers <ebiggers@kernel.org>
-To: linux-crypto@vger.kernel.org
-Cc: netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: [PATCH v2 21/29] crypto: s390/aes-gcm - use the new scatterwalk functions
-Date: Sun, 29 Dec 2024 16:14:10 -0800
-Message-ID: <20241230001418.74739-22-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20241230001418.74739-1-ebiggers@kernel.org>
-References: <20241230001418.74739-1-ebiggers@kernel.org>
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="U4TKcd5D"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-21a1e6fd923so54931335ad.1
+        for <linux-s390@vger.kernel.org>; Sun, 29 Dec 2024 19:12:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1735528335; x=1736133135; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=00MV44O/wLuPQ/RpQp8S/rpHXiOskq9DnLB00pReqmw=;
+        b=U4TKcd5D4yLghx2l4BTUej/I4g4Z33Z5EuOg4tqgR1jpnnlPEVnqdX27VklOCdJMzj
+         VZOfTwRmpJpqPi2m4SQzuJdbXiHWuvKAigs0JOvPTR6wkY9L7u/t/zIoZO0s8AjE8VtS
+         2w7VNScCKvWQoQOa2cMwoDCdd6PpS3fw9sgx5WOBebldyJ9PZyFhF/9oGjf23X3wufGz
+         /8QxukHxfuamu8NP0HHvE/qQoFJfPM5DZGjRXAzmsJWZzDqGRubur3XHHzqmQrPPdktj
+         FPk97rpDrbb1LkLj+b2zZKuczfGTh5ngsdYU1MFuNTe13Mf/JBkMCsTv8QN52rmjXrVU
+         MyNQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1735528335; x=1736133135;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=00MV44O/wLuPQ/RpQp8S/rpHXiOskq9DnLB00pReqmw=;
+        b=X2NGrYAgiEBF5NsUXDi4MRsRg0o4u5uGi21nR8W/vdUzEps++ehw9cf1B5Vwbjw5Y6
+         Mei4cab40p1+p9WTbsyxyAmk2UVgF072ThhmyUUr/vGj9yDI5SuVYtKr+h7Vh4jM8wCc
+         eUvtBtCsqRJlXgPfgotLKIhSR19WG6hI82me1nd9t1C6mWBlvaa6xAVxAHA2C8TA85e3
+         VAKMR4+EV0Jq8RbQa76Ti2jtEaHEWJuy7MkqXr+KMZWWb52wNvgYuqpe9aINWH1ln+Os
+         dRyAw4obYWs1hB78/CupW2ivSf+jtaXk0v0vvNLM8KvBnrb47YZoq9tDd5zYiEu+M2mi
+         infw==
+X-Forwarded-Encrypted: i=1; AJvYcCXwnLq8+PE7nJ6Ij4RbaCMroftO2etW7WndvRh96jou2m2wXONFinrVLwCV4fWjz4j4v0N4VrUrtRB8@vger.kernel.org
+X-Gm-Message-State: AOJu0YzoiXZegCP2mh/j6ioLLdMs6OIXL5M2EHXqI/fJx0XIyU2tsBeE
+	F1KuV6DTQvUeOZaftpgHAnfT5GLNVkNxwtfeDJngdIpB5ok4n4F9Ew8EqN+SYRs=
+X-Gm-Gg: ASbGncv+IhMX65Gb6Fggd5TPelxeIYKGWWj9bDkrHt34R+80QcXPh02sM70R+4iSd5b
+	b78nt+IRJsnQvTmRySAGwxuenlDzXz7iVxHWUTeaBUOKdy5uAye75KZRn3z5lOagDGejKdjvlIJ
+	oYudH3F5MNpMAmMVhfPqmt2B6jCjv8bpHAYv1w2inO0l7LRAL9ytep9925QA6wjTukfsPvBTU+U
+	JQGP/H7KJJY/JCIdQmsQ8LXrRMoDZFlvfDofMrniZck6XHrVxJcjNRczUjQ58Ho6HE0+KpY3wuj
+	2md0wA==
+X-Google-Smtp-Source: AGHT+IHVtuGTDJKnXgo1JS5AtVrvj0I/cg1dyieo6seko5BYBtWvsXqnYPIAVAFKhaTndzKmWg8VgQ==
+X-Received: by 2002:a05:6a20:9185:b0:1e5:7db5:d6e7 with SMTP id adf61e73a8af0-1e5e083f019mr66304616637.46.1735528334820;
+        Sun, 29 Dec 2024 19:12:14 -0800 (PST)
+Received: from [10.84.148.23] ([203.208.167.148])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72aad84eb45sm18191842b3a.88.2024.12.29.19.12.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 29 Dec 2024 19:12:14 -0800 (PST)
+Message-ID: <9cac5690-c570-4d43-a6bc-2b59b85497ae@bytedance.com>
+Date: Mon, 30 Dec 2024 11:12:00 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 15/17] mm: pgtable: remove tlb_remove_page_ptdesc()
+Content-Language: en-US
+To: Mike Rapoport <rppt@kernel.org>, akpm@linux-foundation.org,
+ kevin.brodsky@arm.com, peterz@infradead.org
+Cc: agordeev@linux.ibm.com, tglx@linutronix.de, david@redhat.com,
+ jannh@google.com, hughd@google.com, yuzhao@google.com, willy@infradead.org,
+ muchun.song@linux.dev, vbabka@kernel.org, lorenzo.stoakes@oracle.com,
+ rientjes@google.com, vishal.moola@gmail.com, arnd@arndb.de, will@kernel.org,
+ aneesh.kumar@kernel.org, npiggin@gmail.com, dave.hansen@linux.intel.com,
+ ryan.roberts@arm.com, linux-mm@kvack.org,
+ linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org,
+ linux-arch@vger.kernel.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-um@lists.infradead.org
+References: <cover.1734945104.git.zhengqi.arch@bytedance.com>
+ <b37435768345e0fcf7ea358f69b4a71767f0f530.1734945104.git.zhengqi.arch@bytedance.com>
+ <Z2_EPmOTUHhcBegW@kernel.org>
+From: Qi Zheng <zhengqi.arch@bytedance.com>
+In-Reply-To: <Z2_EPmOTUHhcBegW@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: Eric Biggers <ebiggers@google.com>
+Hi Mike,
 
-Use scatterwalk_next() which consolidates scatterwalk_clamp() and
-scatterwalk_map().  Use scatterwalk_done_src() and
-scatterwalk_done_dst() which consolidate scatterwalk_unmap(),
-scatterwalk_advance(), and scatterwalk_done().
+On 2024/12/28 17:26, Mike Rapoport wrote:
+> On Mon, Dec 23, 2024 at 05:41:01PM +0800, Qi Zheng wrote:
+>> Here we are explicitly dealing with struct page, and the following logic
+>> semms strange:
+>>
+>> tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));
+>>
+>> tlb_remove_page_ptdesc
+>> --> tlb_remove_page(tlb, ptdesc_page(pt));
+>>
+>> So remove tlb_remove_page_ptdesc() and make callers call tlb_remove_page()
+>> directly.
+> 
+> Please don't. The ptdesc wrappers are there as a part of reducing the size
+> of struct page project [1].
+> 
+> For now struct ptdesc overlaps struct page, but the goal is to have them
+> separate and always operate on struct ptdesc when working with page tables.
 
-Besides the new functions being a bit easier to use, this is necessary
-because scatterwalk_done() is planned to be removed.
+OK, so tlb_remove_page_ptdesc() and tlb_remove_ptdesc() are somewhat
+intermediate products of the project.
 
-Cc: Harald Freudenberger <freude@linux.ibm.com>
-Cc: Holger Dengler <dengler@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
+Hi Andrew, can you help remove [PATCH v3 15/17], [PATCH v3 16/17] and
+[PATCH v3 17/17] from the mm-unstable branch?
 
-This patch is part of a long series touching many files, so I have
-limited the Cc list on the full series.  If you want the full series and
-did not receive it, please retrieve it from lore.kernel.org.
+For [PATCH v3 17/17], I can send it separately later, or Kevin Brodsky
+can help do this in his patch series. ;)
 
- arch/s390/crypto/aes_s390.c | 33 +++++++++++++--------------------
- 1 file changed, 13 insertions(+), 20 deletions(-)
+Thanks,
+Qi
 
-diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
-index 9c46b1b630b1..7fd303df05ab 100644
---- a/arch/s390/crypto/aes_s390.c
-+++ b/arch/s390/crypto/aes_s390.c
-@@ -785,32 +785,25 @@ static void gcm_walk_start(struct gcm_sg_walk *gw, struct scatterlist *sg,
- 	scatterwalk_start(&gw->walk, sg);
- }
- 
- static inline unsigned int _gcm_sg_clamp_and_map(struct gcm_sg_walk *gw)
- {
--	struct scatterlist *nextsg;
--
--	gw->walk_bytes = scatterwalk_clamp(&gw->walk, gw->walk_bytes_remain);
--	while (!gw->walk_bytes) {
--		nextsg = sg_next(gw->walk.sg);
--		if (!nextsg)
--			return 0;
--		scatterwalk_start(&gw->walk, nextsg);
--		gw->walk_bytes = scatterwalk_clamp(&gw->walk,
--						   gw->walk_bytes_remain);
--	}
--	gw->walk_ptr = scatterwalk_map(&gw->walk);
-+	if (gw->walk_bytes_remain == 0)
-+		return 0;
-+	gw->walk_ptr = scatterwalk_next(&gw->walk, gw->walk_bytes_remain,
-+					&gw->walk_bytes);
- 	return gw->walk_bytes;
- }
- 
- static inline void _gcm_sg_unmap_and_advance(struct gcm_sg_walk *gw,
--					     unsigned int nbytes)
-+					     unsigned int nbytes, bool out)
- {
- 	gw->walk_bytes_remain -= nbytes;
--	scatterwalk_unmap(gw->walk_ptr);
--	scatterwalk_advance(&gw->walk, nbytes);
--	scatterwalk_done(&gw->walk, 0, gw->walk_bytes_remain);
-+	if (out)
-+		scatterwalk_done_dst(&gw->walk, gw->walk_ptr, nbytes);
-+	else
-+		scatterwalk_done_src(&gw->walk, gw->walk_ptr, nbytes);
- 	gw->walk_ptr = NULL;
- }
- 
- static int gcm_in_walk_go(struct gcm_sg_walk *gw, unsigned int minbytesneeded)
- {
-@@ -842,11 +835,11 @@ static int gcm_in_walk_go(struct gcm_sg_walk *gw, unsigned int minbytesneeded)
- 
- 	while (1) {
- 		n = min(gw->walk_bytes, AES_BLOCK_SIZE - gw->buf_bytes);
- 		memcpy(gw->buf + gw->buf_bytes, gw->walk_ptr, n);
- 		gw->buf_bytes += n;
--		_gcm_sg_unmap_and_advance(gw, n);
-+		_gcm_sg_unmap_and_advance(gw, n, false);
- 		if (gw->buf_bytes >= minbytesneeded) {
- 			gw->ptr = gw->buf;
- 			gw->nbytes = gw->buf_bytes;
- 			goto out;
- 		}
-@@ -902,11 +895,11 @@ static int gcm_in_walk_done(struct gcm_sg_walk *gw, unsigned int bytesdone)
- 			memmove(gw->buf, gw->buf + bytesdone, n);
- 			gw->buf_bytes = n;
- 		} else
- 			gw->buf_bytes = 0;
- 	} else
--		_gcm_sg_unmap_and_advance(gw, bytesdone);
-+		_gcm_sg_unmap_and_advance(gw, bytesdone, false);
- 
- 	return bytesdone;
- }
- 
- static int gcm_out_walk_done(struct gcm_sg_walk *gw, unsigned int bytesdone)
-@@ -920,14 +913,14 @@ static int gcm_out_walk_done(struct gcm_sg_walk *gw, unsigned int bytesdone)
- 		for (i = 0; i < bytesdone; i += n) {
- 			if (!_gcm_sg_clamp_and_map(gw))
- 				return i;
- 			n = min(gw->walk_bytes, bytesdone - i);
- 			memcpy(gw->walk_ptr, gw->buf + i, n);
--			_gcm_sg_unmap_and_advance(gw, n);
-+			_gcm_sg_unmap_and_advance(gw, n, true);
- 		}
- 	} else
--		_gcm_sg_unmap_and_advance(gw, bytesdone);
-+		_gcm_sg_unmap_and_advance(gw, bytesdone, true);
- 
- 	return bytesdone;
- }
- 
- static int gcm_aes_crypt(struct aead_request *req, unsigned int flags)
--- 
-2.47.1
+> 
+> [1] https://kernelnewbies.org/MatthewWilcox/Memdescs
+>   
 
