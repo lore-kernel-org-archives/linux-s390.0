@@ -1,68 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61A2164A;
-	Tue, 31 Dec 2024 00:24:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBE221A2398;
+	Thu,  2 Jan 2025 09:46:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735604658; cv=none; b=edgyLTGsiuSuz2pf5FiWM4BsqYMLyNpKm3CjxarCPr8b7X7wQvq5kTWAdZlV64ZDO/g/n8+3xLokeUNIbdTD/iqO+a9p78LILkKdeSlYqAraExPDonlwDFhmsqVYb/1xpZSgOlBbMBFRJxrTvZiGrcfRth1Vdg5oWF1UIORUqRI=
+	t=1735811185; cv=none; b=kDyoE23M7y5wmJJtz9VXXoMhpUKMT+iBhfmJaIw9hLCnlNVxdhSO06m5TCvs/awch9W6S7uJ92nWmduokaqPG/C/pRyJ2o+Z8WCIwpY2UDDVUqq87kG7KOFur5i5RupWcLMooHdzrNek+q/d43N67P4s68NZdSBQcf6To8APZ68=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735604658; c=relaxed/simple;
-	bh=2Z/3V1q46cErKadoV3y8VtC0UOopLVjvmzLFmpjI5ZE=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=Cbou3nRo1tLpAMkw0B1xahgAVl9ZYMpbkp98X1Hqoh1atwPcvnIYodRrVZ++pauLIbjhr8lfefmxo2CjB448/NHCmDZJaHOcW896QLyIiFEppBuSvPOgWqNQKZxRK1ZklJ7iACA+yHYYLFdFCpe7S++lU95620V0TMZBykMTBWg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=e1svhMQU; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1735811185; c=relaxed/simple;
+	bh=ADFRSAzm+tOB1BuB5MVG+obXR3rDsoHWpt6GfHSel0Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=N9+wpCmEsKtQ87Jldq+GhAf8WT74I0JbQukECseaDdvfMQevw7uemwbHhBmsSU/I82c161wdd6D0OmnZ/+zzXxACBQJKAL61QpIIEOJlepgSsVnM8DeBSaesz4nxLDqz+bkrpVlvKD7Qkf5xZGOFe+aMFLYKhNDrKjSf4R4FTRM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZK6HOOvH; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="e1svhMQU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97495C4CED0;
-	Tue, 31 Dec 2024 00:24:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1735604657;
-	bh=2Z/3V1q46cErKadoV3y8VtC0UOopLVjvmzLFmpjI5ZE=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=e1svhMQUmdhMgcQjt88gUZcpq5ze2FpENDmeroTm5j525bnUbXasg93NeBqNAKuwX
-	 4zTZ6tN5Yr2qdY61qOZxnyRQ1159nEMzAQ1YQfsHm2DW8ARwWXBuvfim5detOnI3XI
-	 EB0PhrLFTgZnLoKq75DG+Xuc3x8ekQPiOw33OnkY=
-Date: Mon, 30 Dec 2024 16:24:16 -0800
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Qi Zheng <zhengqi.arch@bytedance.com>
-Cc: peterz@infradead.org, agordeev@linux.ibm.com, kevin.brodsky@arm.com,
- palmer@dabbelt.com, tglx@linutronix.de, david@redhat.com, jannh@google.com,
- hughd@google.com, yuzhao@google.com, willy@infradead.org,
- muchun.song@linux.dev, vbabka@kernel.org, lorenzo.stoakes@oracle.com,
- rientjes@google.com, vishal.moola@gmail.com, arnd@arndb.de,
- will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com,
- dave.hansen@linux.intel.com, rppt@kernel.org, ryan.roberts@arm.com,
- linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-kernel@vger.kernel.org, x86@kernel.org, linux-arch@vger.kernel.org,
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
- loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-um@lists.infradead.org
-Subject: Re: [PATCH v4 00/15] move pagetable_*_dtor() to
- __tlb_remove_table()
-Message-Id: <20241230162416.da83460318c4726f65fb4e3b@linux-foundation.org>
-In-Reply-To: <cover.1735549103.git.zhengqi.arch@bytedance.com>
-References: <cover.1735549103.git.zhengqi.arch@bytedance.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZK6HOOvH"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5023sO2T004767;
+	Thu, 2 Jan 2025 09:46:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=zqw2cRGCyNuHDcmTc
+	mmMEA0nDM95Ca6wVjUxbwztkD0=; b=ZK6HOOvH79FStNvSCBKNiUlEVFtafnRyh
+	uBJjM+2Ehis0diXometWIQko0JQ0zaG9fA02ka71Ez2cpUzS5RYZGWuAhY7Bov1D
+	7KarEiP5y+6Gc/AeKf+oOxkVe1Pi6/fv3XAPwMUGL4YHMT0ikW4M6HdPDytKOO3i
+	P/WjAoclyw0o5l1odEFCMLA8Jd01u2v7sgQ+hQ5b3m4Do/Ip/TEWdJR9BLZHS9/J
+	VSoIJIx/yzOqD9w6Z6v4kard1d1wg/u3NxJALRzPMjVnDIyrjHj6PasRVtu+q9y9
+	iNJJplFZUu+6GvksIOeRhPs/nVONVI/+WoclHfbyiDhPZUzJxYpIQ==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43wk9b93cw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 02 Jan 2025 09:46:20 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50254XA1016711;
+	Thu, 2 Jan 2025 09:46:18 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43tw5khfkn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 02 Jan 2025 09:46:18 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5029kGTJ48496908
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 2 Jan 2025 09:46:16 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A64B220043;
+	Thu,  2 Jan 2025 09:46:16 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5E1312004B;
+	Thu,  2 Jan 2025 09:46:16 +0000 (GMT)
+Received: from funtu2.fritz.box?044ibm.com (unknown [9.171.11.208])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  2 Jan 2025 09:46:16 +0000 (GMT)
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: herbert@gondor.apana.org.au, davem@davemloft.net, dengler@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: [PATCH v9 1/3] s390/crypto: Add protected key hmac subfunctions for KMAC
+Date: Thu,  2 Jan 2025 10:46:13 +0100
+Message-ID: <20250102094615.99181-2-freude@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20250102094615.99181-1-freude@linux.ibm.com>
+References: <20250102094615.99181-1-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 0B_FaZcCg1OQLDVAYkV2CzDs6v6r726X
+X-Proofpoint-ORIG-GUID: 0B_FaZcCg1OQLDVAYkV2CzDs6v6r726X
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
+ spamscore=0 adultscore=0 mlxscore=0 clxscore=1015 mlxlogscore=595
+ lowpriorityscore=0 priorityscore=1501 malwarescore=0 bulkscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501020081
 
-On Mon, 30 Dec 2024 17:07:35 +0800 Qi Zheng <zhengqi.arch@bytedance.com> wrote:
+From: Holger Dengler <dengler@linux.ibm.com>
 
-> Changes in v4:
->  - remove [PATCH v3 15/17] and [PATCH v3 16/17] (Mike Rapoport)
->    (the tlb_remove_page_ptdesc() and tlb_remove_ptdesc() are intermediate
->     products of the project: https://kernelnewbies.org/MatthewWilcox/Memdescs,
->     so keep them)
->  - collect Acked-by
+The CPACF KMAC instruction supports new subfunctions for
+protected key hmac. Add defines for these 4 new subfuctions.
 
-Thanks, I've updated mm.git to v5.
+Signed-off-by: Holger Dengler <dengler@linux.ibm.com>
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+---
+ arch/s390/include/asm/cpacf.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
+index 59ab1192e2d5..0468dd5c4690 100644
+--- a/arch/s390/include/asm/cpacf.h
++++ b/arch/s390/include/asm/cpacf.h
+@@ -129,6 +129,10 @@
+ #define CPACF_KMAC_HMAC_SHA_256	0x71
+ #define CPACF_KMAC_HMAC_SHA_384	0x72
+ #define CPACF_KMAC_HMAC_SHA_512	0x73
++#define CPACF_KMAC_PHMAC_SHA_224	0x78
++#define CPACF_KMAC_PHMAC_SHA_256	0x79
++#define CPACF_KMAC_PHMAC_SHA_384	0x7a
++#define CPACF_KMAC_PHMAC_SHA_512	0x7b
+ 
+ /*
+  * Function codes for the PCKMO (PERFORM CRYPTOGRAPHIC KEY MANAGEMENT)
+-- 
+2.43.0
+
