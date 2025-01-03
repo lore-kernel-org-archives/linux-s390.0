@@ -1,106 +1,57 @@
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E20177462;
-	Thu,  2 Jan 2025 22:47:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.177.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3252118E359;
+	Fri,  3 Jan 2025 03:02:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735858041; cv=none; b=MFg2VtuupNMKgpRu/lSlA4Kj8DlL/VfgFjSwf4BlNTq00qL5yeJ2dSsT31SAx3jVJjgietptTw4EhbanuiFqzfKeCboXrlP56SRZc0v+3MtLgoVy+gIKty5SXbwHVaD4pJPsu+q7o53sUjTe2oA0PanAnYQzRcAULfbLO02L7/Q=
+	t=1735873373; cv=none; b=UNmRgwhbn8fTVrw4yiuSnjx7kHjhZSP5UStZYRJze13vhRDNfaG0X4XHyIw1KSbWc8GVplAdU/2kgAPVCHClbF1JVeV5u3C6l2+rpvlRpzgcGhhJcrl8CO9v0mKCYzx7YhCY9Vy3yU0p4GocHMn0QcW0Ry3dxEzqUAwkgDgQFbI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735858041; c=relaxed/simple;
-	bh=xn0Gvxmpq3sCJlFD5wLuUjhPP0d8tS+FiaplLijnHUA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ayi6C/2ZNFMiArBjnkKudhZnB10HFFEoRO45Va3ZCXnjXpB2ayvYpDWeeVLGwlC08+hQOqaW5bixVCe1NilKkZXITZ6Watpy0LLJ9ODAXw2oCeH3e4f/zSIep+VUKg5YiXI7SVZcsUjeojmR3u/aoF9T4ZjPdhY3V0dBo5pYBtw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=QgAK14fk; arc=none smtp.client-ip=205.220.177.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	s=arc-20240116; t=1735873373; c=relaxed/simple;
+	bh=sISZToZ3HkWThbVCO4MjptYH89XgoDn1B/Ii76AHTmc=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=bgEykqIWwQCKkkWc2Lfpa99As8F4sD27B8iT+SGUJ74wRGvuzjYCro3krIPM8wQmyXtLig1QuRBlaN+8NVFW+2I8wNP3xmZzKd4hVEecsS57m1zUsck6VZMyY2ovvfaIvOOQrwYyqNv43//WKbA33uPHQObRwb6UQuRfz8hm7nM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ugFlG+HR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="QgAK14fk"
-Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 502KfuQ4030631;
-	Thu, 2 Jan 2025 22:47:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	corp-2023-11-20; bh=Gjo6fdzrYE4PhFRTs9ndQrk9WC3uUCywnJRN27P3lsk=; b=
-	QgAK14fkD/Q23UEitKGnGaZR8M5OSkPWvRB5IpNjA4ln4tu1BpefyZIAnNsaiX6I
-	tJZ6jcEiakpQ2vQQ6OkAlY5gt67xbO5Q+lTA9w2xsjY0sPPHZcUllesWrXPYV8ik
-	G2RdE139HVmUahKXENVtz1vzEYwxhRCK8VLIynd+iWkuX1jsvFWI1hAtyXwwqZt1
-	It6c4o2uxW8F2bEhnEr6XMxryY3Ia4PIEdg70bh0qNLYYup0ZAzRh7rS2DjRLosd
-	5+WuRL5mL6L3iLb56nLgLjDJRECUwcdbHPQAWlKn8NXyYjv3w4PM/FyoJl5VlSPE
-	r3yl29N6eCLbG2HWqRVAZQ==
-Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 43t9chfdr3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 02 Jan 2025 22:47:16 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 502K72i5009443;
-	Thu, 2 Jan 2025 22:47:15 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 43t7s93nxd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 02 Jan 2025 22:47:15 +0000
-Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 502MlAth004461;
-	Thu, 2 Jan 2025 22:47:14 GMT
-Received: from ca-mkp2.ca.oracle.com.com (mpeterse-ol9.allregionaliads.osdevelopmeniad.oraclevcn.com [100.100.251.135])
-	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 43t7s93nuq-3;
-	Thu, 02 Jan 2025 22:47:14 +0000
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-To: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Nihar Panda <niharp@linux.ibm.com>
-Cc: "Martin K . Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: Re: [PATCH 0/3] zfcp changes for v6.14
-Date: Thu,  2 Jan 2025 17:46:39 -0500
-Message-ID: <173583977784.171606.5545700115595892014.b4-ty@oracle.com>
-X-Mailer: git-send-email 2.46.2
-In-Reply-To: <20241205141932.1227039-1-niharp@linux.ibm.com>
-References: <20241205141932.1227039-1-niharp@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ugFlG+HR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3919BC4CED0;
+	Fri,  3 Jan 2025 03:02:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1735873372;
+	bh=sISZToZ3HkWThbVCO4MjptYH89XgoDn1B/Ii76AHTmc=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=ugFlG+HRXTyqhUwVLjvUwu/fu5+OLe8CdW5FTbiQw2BK+/HTIPNpsleLc4wb6a6ao
+	 uA7HncLGBM5IezfTwwNu4DQolgrT2N6Ka2QTdULdc9iXuPLx0tK1z7q1eusrwQ1psI
+	 xMcvPYBsZnHsYJfnFtRZR4DxzY1nOKnWOJUILk/6ucPARUB/GnO0A4cS3uFsec/nUB
+	 mWzIsjj2KzN71pVANthcgAbp+G1U3KLG1hqU6DkfVsVGOkXOI+ehFojJKKUamtAlwP
+	 hSawZeulJJXmqGAjbJRfiCs0+a0JX11ZmuM5FmPaozUpLzEuZUu3TB5A7iLDRNDvD1
+	 pYqyH/Ath+2uA==
+Date: Thu, 2 Jan 2025 19:02:51 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, PASIC@de.ibm.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ pabeni@redhat.com, horms@kernel.org, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net] net/smc: fix data error when recvmsg with MSG_PEEK
+ flag
+Message-ID: <20250102190251.73b389d8@kernel.org>
+In-Reply-To: <20241220031451.52343-1-guangguan.wang@linux.alibaba.com>
+References: <20241220031451.52343-1-guangguan.wang@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-02_03,2025-01-02_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 bulkscore=0 mlxscore=0
- suspectscore=0 phishscore=0 mlxlogscore=968 adultscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2411120000
- definitions=main-2501020199
-X-Proofpoint-GUID: hGrceDJC0iwHuPCHy6FCtfMStzE2PQWs
-X-Proofpoint-ORIG-GUID: hGrceDJC0iwHuPCHy6FCtfMStzE2PQWs
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, 05 Dec 2024 15:19:29 +0100, Nihar Panda wrote:
+On Fri, 20 Dec 2024 11:14:51 +0800 Guangguan Wang wrote:
+> Subject: [PATCH net] net/smc: fix data error when recvmsg with MSG_PEEK flag
 
-> here is a small set of changes for the zFCP device driver.
-> 
-> Fedor Loshakov (1):
->   zfcp: correct kdoc parameter description for sending ELS and CT
-> 
-> Steffen Maier (2):
->   zfcp: clarify zfcp_port refcount ownership during "link" test
->   MAINTAINERS: Update zfcp entry
-> 
-> [...]
-
-Applied to 6.14/scsi-queue, thanks!
-
-[1/3] zfcp: correct kdoc parameter description for sending ELS and CT
-      https://git.kernel.org/mkp/scsi/c/9fe5b6130baf
-[2/3] zfcp: clarify zfcp_port refcount ownership during "link" test
-      https://git.kernel.org/mkp/scsi/c/32574fe6e19d
-[3/3] MAINTAINERS: Update zfcp entry
-      https://git.kernel.org/mkp/scsi/c/bd55f56188ca
-
+Since this is a fix you need to repost with a Fixes tag added.
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+pw-bot: cr
