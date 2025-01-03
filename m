@@ -1,87 +1,87 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 227D1101E6;
-	Fri,  3 Jan 2025 07:02:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id B48511CCB26;
+	Fri,  3 Jan 2025 07:46:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735887761; cv=none; b=IiTm53qfdsbz2a4emKWbh8wHy4mD/cUcvd6LDc2NA3aaOt1RRkYts5BOlg3X7SInFM3BvUKfzR3FhETbU1sfEo+/a0ECs6iZM4h6t92Hz9oAgn5w6W1ztBKjnkeubBQ2JW29nq4DsoOSMt7rXQ/kyd8nzYDAz+rdNq0oK4Nvc4c=
+	t=1735890400; cv=none; b=B0i7VHqFjEMvbtusSYqWfSWLkuQca00gHqqRtPEQNgzcV7cyE5hwKiGtPYbGY74hIy5xcM7sLvbJ0km/i62C6uRQpkeiNlryl3/zcpEs5Q4C9+aD9IcZ9S/4RrZ8mne+EqzVTCfg29ZxfvbW+io/cFwe/U4g2Nl8iTw5GhpiiS4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735887761; c=relaxed/simple;
-	bh=SPZEWfN/R4Rj4I3RGMZkVlSC7prs5DAi1smJJ+I+hYc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sXqKlfjK1AQb8UO4bbVzG4lYI3OLa4oOe9GbStKZihPt/6ydgk3CBNoo1nY2s6mylPvpTweJhXkcv+D2r4GGOCl2JkKrhMpaQV4+pz+4YNp1gPezSVYY3hzJWJ/DpNMCIpeAiszmu9Ow9kHtOnIS9O8r609UWmo1jTm6LPRLgrs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id 1D09668C7B; Fri,  3 Jan 2025 08:02:30 +0100 (CET)
-Date: Fri, 3 Jan 2025 08:02:29 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Yury Norov <yury.norov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
-	linux-hyperv@vger.kernel.org, linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-crypto@vger.kernel.org,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Haren Myneni <haren@linux.ibm.com>,
-	Rick Lindsley <ricklind@linux.ibm.com>,
-	Nick Child <nnac123@linux.ibm.com>,
-	Thomas Falcon <tlfalcon@linux.ibm.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
-	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-	Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
-	James Smart <james.smart@broadcom.com>,
-	Dick Kennedy <dick.kennedy@broadcom.com>,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	Matt Wu <wuqiang.matt@bytedance.com>,
-	Steffen Klassert <steffen.klassert@secunet.com>,
-	Daniel Jordan <daniel.m.jordan@oracle.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Greg Kurz <groug@kaod.org>, Peter Xu <peterx@redhat.com>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>
-Subject: Re: [PATCH 00/14] cpumask: cleanup cpumask_next_wrap()
- implementation and usage
-Message-ID: <20250103070229.GC28303@lst.de>
-References: <20241228184949.31582-1-yury.norov@gmail.com>
+	s=arc-20240116; t=1735890400; c=relaxed/simple;
+	bh=mzXoocIGNPwPKsYdLFaXMb11ojm1vKIwEO1w66c7Yo8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ffgE1yGggg6/X1CY/EVsV8CWRQawPYb7dCMFVv9GGtyyy0VPzydm6Trk3lMqiidN9YYNdmaeG1G91tHzkEPZ8WvnSmF254n2IXvFyOAE76+Uls6ZNnqWfYK4Grlhk8y792vqpatYfAnjQ9wbkCX6A6dR6EKq1Frey4/YLAtWZ54=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 21C9D1516;
+	Thu,  2 Jan 2025 23:47:05 -0800 (PST)
+Received: from [10.57.92.237] (unknown [10.57.92.237])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6E1313F6A8;
+	Thu,  2 Jan 2025 23:46:28 -0800 (PST)
+Message-ID: <d7f079ea-6530-4f92-9cab-bee90b84e2c3@arm.com>
+Date: Fri, 3 Jan 2025 08:46:25 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241228184949.31582-1-yury.norov@gmail.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 04/15] mm: pgtable: add statistics for P4D level page
+ table
+To: Qi Zheng <zhengqi.arch@bytedance.com>
+Cc: peterz@infradead.org, agordeev@linux.ibm.com, palmer@dabbelt.com,
+ tglx@linutronix.de, david@redhat.com, jannh@google.com, hughd@google.com,
+ yuzhao@google.com, willy@infradead.org, muchun.song@linux.dev,
+ vbabka@kernel.org, lorenzo.stoakes@oracle.com, akpm@linux-foundation.org,
+ rientjes@google.com, vishal.moola@gmail.com, arnd@arndb.de, will@kernel.org,
+ aneesh.kumar@kernel.org, npiggin@gmail.com, dave.hansen@linux.intel.com,
+ rppt@kernel.org, ryan.roberts@arm.com, linux-mm@kvack.org,
+ linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org,
+ linux-arch@vger.kernel.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-um@lists.infradead.org
+References: <cover.1735549103.git.zhengqi.arch@bytedance.com>
+ <2fa644e37ab917292f5c342e40fa805aa91afbbd.1735549103.git.zhengqi.arch@bytedance.com>
+ <237a3bf6-c24f-4feb-8d3d-bb3beb2fd18e@arm.com>
+ <77c202bf-e0a3-45e7-bf8d-eef7903e3c64@bytedance.com>
+Content-Language: en-GB
+From: Kevin Brodsky <kevin.brodsky@arm.com>
+In-Reply-To: <77c202bf-e0a3-45e7-bf8d-eef7903e3c64@bytedance.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-You've sent me less than a handfull of 14 patches, there's no way
-to properly review this.
+On 03/01/2025 04:53, Qi Zheng wrote:
+> On 2025/1/3 00:53, Kevin Brodsky wrote:
+>> On 30/12/2024 10:07, Qi Zheng wrote:
+>>> diff --git a/arch/riscv/include/asm/pgalloc.h
+>>> b/arch/riscv/include/asm/pgalloc.h
+>>> index 551d614d3369c..3466fbe2e508d 100644
+>>> --- a/arch/riscv/include/asm/pgalloc.h
+>>> +++ b/arch/riscv/include/asm/pgalloc.h
+>>> @@ -108,8 +108,12 @@ static inline void __pud_free_tlb(struct
+>>> mmu_gather *tlb, pud_t *pud,
+>>>   static inline void __p4d_free_tlb(struct mmu_gather *tlb, p4d_t *p4d,
+>>>                     unsigned long addr)
+>>>   {
+>>> -    if (pgtable_l5_enabled)
+>>> +    if (pgtable_l5_enabled) {
+>>> +        struct ptdesc *ptdesc = virt_to_ptdesc(p4d);
+>>> +
+>>> +        pagetable_p4d_dtor(ptdesc);
+>>>           riscv_tlb_remove_ptdesc(tlb, virt_to_ptdesc(p4d));
+>>
+>> Nit: could use the new ptdesc variable here instead of calling
+>> virt_to_ptdesc().
+>
+> Right, but we will remove pagetable_p4d_dtor() in patch #10, so this
+> may not matter.
 
+You're right, I missed that. Makes sense not to create a diff that's
+reverted later then :)
+
+- Kevin
