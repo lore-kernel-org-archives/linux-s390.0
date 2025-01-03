@@ -1,151 +1,105 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0158F1E0087;
-	Fri,  3 Jan 2025 13:27:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E19031BD9E5;
+	Fri,  3 Jan 2025 14:12:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735910835; cv=none; b=oL/lGoh2ruLuwVpZptocCsZgMuONA2u6pjUb+TeT0rOryGnCqXEDguEc4fLsXwKE44vKGCLiM3ykI8bAVepMgaaYSjQgNxncsAqF33W4rf/tLRi2yWBI3JlvbT78HzWutkjSKESPB+X+C1cL/PJ8A5McAx19AkGluwlsbiUqNK8=
+	t=1735913564; cv=none; b=I+0PS2pQT/gTFUgFU51Lk9Nx7gkhNRW2L8YM2liueX9SJBv1dT/+Zvl/REb2mQzAX0M0LS2FybfVD2Isg0KOeXc0WB7AhDzGWIcbfF346rUnWks6nWs6YY2Xj6T2M9NanEEDVt5ATGLApJw68bIOsAQbifPWlppBpMXBwlRCKHI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735910835; c=relaxed/simple;
-	bh=+8G2mn5XjC+6BvOgDwIaLzTXtQekFe6X8F8stkKVxBA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LG7CGOIXbrUqsTszv/QcpZXN9OTjXmXBOHS7d+GJKPIZ+E0ge2vUR/IBlizey18lsG4/Vr/OH7YCGKOUjlfmmafDjIAoHfRmRYv6CtD6JWKgOxzf0qSK6Op0Nwbel3HJS2y2Z/eEsa7H4nCd98NHOgYl+4C5oii9YttFLyrqgdc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 330911480;
-	Fri,  3 Jan 2025 05:27:39 -0800 (PST)
-Received: from [10.44.160.93] (e126510-lin.lund.arm.com [10.44.160.93])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CB2C23F673;
-	Fri,  3 Jan 2025 05:27:02 -0800 (PST)
-Message-ID: <d9a14211-4bbd-4fb6-ba87-a555a40bb67a@arm.com>
-Date: Fri, 3 Jan 2025 14:27:00 +0100
+	s=arc-20240116; t=1735913564; c=relaxed/simple;
+	bh=LnUzofE/+glc/F/49WY89reoIqsWGosoWsw7G0OpoPU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=s2sSLBJ2a6g5gydfjtjjtNlCRZnwvSV8vEIo+F3JFxqwCu+rWP3MlDcfGAgYnx2SiNCPHSeK1G+Upwvvl0axFAMev/bW4yIS41UdqLnZ+DWtle5IV8j6X9o38at0O3X5Tsx9XGSi4YrI1x70MW4zqeL1pkCbBtDVLkZO/x8tEUA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DSVraOnJ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DSVraOnJ"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 502NwHos013693;
+	Fri, 3 Jan 2025 14:12:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=YE6cpK
+	4BNP0XgKDFuPVYzPzA8tB1Hni2uRwUCO6mhC8=; b=DSVraOnJWLLCEgo91Mzncr
+	5B8/T/+j8oPgs6EPT95bcg2snmaFqCLI4eGiI3aLnQHEX7kYFZ+9mQfOFjU1nwS4
+	HYrye9xMSl08p92Llybl+okpEd/obxpQeWJIrmANVsZ+Fp0p6vdp7zEQHQ8uPWdn
+	vwdARO8GUPRJKifglYAcfnjBfL3WYdodLbCraKGxvCYelDDmJRAOKej0vAyIRvHe
+	QYCTPTD5FGerN0WgBduzd3lhXxBcfDTYGxAiI5JpA2Z0px31pmvBPf8v4kKifm83
+	uRLRF7yWvvOLa2c6GF9x4BIjpd41hZqhNWw8E2QIeEk+RWLkyWYPCarJ5AFoq6SA
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43x4xh2nms-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 03 Jan 2025 14:12:41 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5039g6hQ014584;
+	Fri, 3 Jan 2025 14:12:39 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 43tunsxqth-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 03 Jan 2025 14:12:38 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 503ECYAR54395370
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 3 Jan 2025 14:12:34 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C79292004B;
+	Fri,  3 Jan 2025 14:12:34 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F16912004F;
+	Fri,  3 Jan 2025 14:12:33 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.179.15.34])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri,  3 Jan 2025 14:12:33 +0000 (GMT)
+Date: Fri, 3 Jan 2025 15:12:32 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Holger Dengler <dengler@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/5] s390/ipl: Constify 'struct bin_attribute'
+Message-ID: <Z3fwUAfxZX9M0zAy@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20241211-sysfs-const-bin_attr-s390-v1-0-be01f66bfcf7@weissschuh.net>
+ <20241211-sysfs-const-bin_attr-s390-v1-2-be01f66bfcf7@weissschuh.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 10/15] riscv: pgtable: move pagetable_dtor() to
- __tlb_remove_table()
-To: Qi Zheng <zhengqi.arch@bytedance.com>, peterz@infradead.org
-Cc: agordeev@linux.ibm.com, palmer@dabbelt.com, tglx@linutronix.de,
- david@redhat.com, jannh@google.com, hughd@google.com, yuzhao@google.com,
- willy@infradead.org, muchun.song@linux.dev, vbabka@kernel.org,
- lorenzo.stoakes@oracle.com, akpm@linux-foundation.org, rientjes@google.com,
- vishal.moola@gmail.com, arnd@arndb.de, will@kernel.org,
- aneesh.kumar@kernel.org, npiggin@gmail.com, dave.hansen@linux.intel.com,
- rppt@kernel.org, ryan.roberts@arm.com, linux-mm@kvack.org,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org,
- linux-arch@vger.kernel.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-um@lists.infradead.org
-References: <cover.1735549103.git.zhengqi.arch@bytedance.com>
- <0e8f0b3835c15e99145e0006ac1020ae45a2b166.1735549103.git.zhengqi.arch@bytedance.com>
- <1b09335c-f0b6-4ccb-9800-5fb22f7e8083@arm.com>
- <ebce5e05-5e46-4c6e-94a0-bcf3655a862b@bytedance.com>
- <7e2c26c8-f5df-4833-a93f-3409b00b58fd@arm.com>
- <e9fe97d4-99d5-443e-b722-43903655a76e@bytedance.com>
- <31e1a033-00a7-4953-81e7-0caedd0227a9@bytedance.com>
-Content-Language: en-GB
-From: Kevin Brodsky <kevin.brodsky@arm.com>
-In-Reply-To: <31e1a033-00a7-4953-81e7-0caedd0227a9@bytedance.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20241211-sysfs-const-bin_attr-s390-v1-2-be01f66bfcf7@weissschuh.net>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: gBSVeM0XpQWpg5C2snAPFK-vWtjcDwzc
+X-Proofpoint-GUID: gBSVeM0XpQWpg5C2snAPFK-vWtjcDwzc
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1011
+ priorityscore=1501 lowpriorityscore=0 adultscore=0 phishscore=0
+ impostorscore=0 spamscore=0 malwarescore=0 mlxlogscore=479 bulkscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501030124
 
-On 03/01/2025 10:35, Qi Zheng wrote:
-> On 2025/1/3 17:13, Qi Zheng wrote:
->> On 2025/1/3 16:02, Kevin Brodsky wrote:
->>> On 03/01/2025 04:48, Qi Zheng wrote:
->>>> [...]
->>>>
->>>> In __tlb_batch_free_encoded_pages(), we can indeed detect PageTable()
->>>> and call pagetable_dtor() to dtor the page table pages.
->>>> But __tlb_batch_free_encoded_pages() is also used to free normal pages
->>>> (not page table pages), so I don't want to add overhead there.
->>>
->>> Interesting, can a tlb batch refer to pages than are not PTPs then?
->>
->> Yes, you can see the caller of __tlb_remove_folio_pages() or
->> tlb_remove_page_size().
+On Wed, Dec 11, 2024 at 06:54:40PM +0100, Thomas Wei�schuh wrote:
+> The sysfs core now allows instances of 'struct bin_attribute' to be
+> moved into read-only memory. Make use of that to protect them against
+> accidental or malicious modifications.
+> 
+> Signed-off-by: Thomas Wei�schuh <linux@weissschuh.net>
+> ---
+>  arch/s390/kernel/ipl.c | 142 ++++++++++++++++++++++++-------------------------
+>  1 file changed, 71 insertions(+), 71 deletions(-)
 
-I had a brief look but clearly not a good enough one! I hadn't realised
-that "table" in tlb_remove_table() means PTP, while "page" in
-tlb_remove_page() can mean any page, and it's making more sense now.
-
-[...]
-
->>
->> For arm, the call to pagetable_dtor() is indeed missed in the
->> non-MMU_GATHER_RCU_TABLE_FREE case. This needs to be fixed. But we
->> can't fix this by adding pagetable_dtor() to tlb_remove_table(),
->> because some architectures call tlb_remove_table() but don't support
->> page table statistics, like sparc.
-
-When I investigated this for my own series, I found that the only case
-where ctor/dtor are not called for page-sized page tables is 32-bit
-sparc (see table at the end of [1]). However only 64-bit sparc makes use
-of tlb_remove_table() (at PTE level, where ctor/dtor are already called).
-
-So really calling pagetable_dtor() from tlb_remove_table() in the
-non-MMU_GATHER_TABLE_FREE case seems to be the obvious thing to do.
-
-Once this is done, we should be able to replace all those confusing
-calls to tlb_remove_page() on PTPs with tlb_remove_table() and remove
-the explicit call to pagetable_dtor(). AIUI this is essentially what
-Peter suggested on v3 [2].
-
-[1]
-https://lore.kernel.org/linux-mm/20241219164425.2277022-1-kevin.brodsky@arm.com/
-[2]
-https://lore.kernel.org/linux-mm/20250103111457.GC22934@noisy.programming.kicks-ass.net/
-
-[...]
-
-> Or can we just not let tlb_remove_table() fall back to
-> tlb_remove_page()? Like the following:
->
-> diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-> index a59205863f431..354ffaa4bd120 100644
-> --- a/include/asm-generic/tlb.h
-> +++ b/include/asm-generic/tlb.h
-> @@ -195,8 +195,6 @@
->   *  various ptep_get_and_clear() functions.
->   */
->
-> -#ifdef CONFIG_MMU_GATHER_TABLE_FREE
-> -
->  struct mmu_table_batch {
->  #ifdef CONFIG_MMU_GATHER_RCU_TABLE_FREE
->         struct rcu_head         rcu;
-> @@ -219,16 +217,6 @@ static inline void __tlb_remove_table(void *table)
->
->  extern void tlb_remove_table(struct mmu_gather *tlb, void *table);
->
-> -#else /* !CONFIG_MMU_GATHER_HAVE_TABLE_FREE */
-> -
-> -/*
-> - * Without MMU_GATHER_TABLE_FREE the architecture is assumed to have
-> page based
-> - * page directories and we can use the normal page batching to free
-> them.
-> - */
-> -#define tlb_remove_table(tlb, page) tlb_remove_page((tlb), (page))
-
-We still need a different implementation of tlb_remove_table() in this
-case. We could define it inline here:
-
-static inline void tlb_remove_table(struct mmu_gather *tlb, void *table)
-{
-    struct page *page = table;
-
-    pagetable_dtor(page_ptdesc(page));
-    tlb_remove_page(page);
-}
-
-- Kevin
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
