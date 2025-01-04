@@ -1,64 +1,64 @@
-Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02E6F1C5F10
-	for <linux-s390@vger.kernel.org>; Sat,  4 Jan 2025 14:39:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C3DC1C9B62
+	for <linux-s390@vger.kernel.org>; Sat,  4 Jan 2025 14:39:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736001544; cv=none; b=MJcpynQNUuvHjtnpbZQHemY/jALChBJpW5UqOJVYhScKoP5bpbz+4e+iL8Xzgl/SgfjqvRY8e6zr0ckWXHqqEFMLbJqunG+7cQR10+zdVZlSTaJWBEXuYcUL+Jd/82y6XIdS5HZPerSl46YUyx0t4bWZ4k7GbZC19bLng1jttjE=
+	t=1736001551; cv=none; b=S+hkHAunEEA6gh1oeQgsoeQ0tnsIt5maFhBv1USEcqmdyUiLuZ7UfY6Qa2On3QEr81rgEAJ+GoP/duuC6k+5+J8re2EQF90y9ElvlMsj2hKlBgJWT5K7vGJ2082gSgfX3PCTtnujRBLvnFuOgfHA1yQxgbLpOgVnWE7c4dVOR6A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736001544; c=relaxed/simple;
-	bh=n4yUt/8CTfVsdNp2Y/HwcFzJG4NA/osFdZPQ2b8qMZ8=;
+	s=arc-20240116; t=1736001551; c=relaxed/simple;
+	bh=wCQpl7cAn/vCUbH0Vn+YujxXIXBJJFXyKJRaUtyuXrM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=gQsHzwrtKhsdrvRLP7+/X/BVjzdAatFTh46XbsjMnSevJyeJvAYP25K92WvOlokXI/L3zQKbjuV//yWEgmY5EwR7Uw9ZxqG+h5MOIjemH4caPvnDh5tUPxBG7yHjjG/xFgNLkP33fto92R3FQUS/BZ0HABFgK0pHi0PiNQubxts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=vmT3w0L0; arc=none smtp.client-ip=209.85.214.172
+	 In-Reply-To:To:Cc; b=o2FNZzBGjyd/LbMjJUay92G/zKADJ655k80svlI+hvYLpHmdhaxvIAu9rUN0VGplxK2XjHgQUS0WLCyPrG8K+Rj1p2JhWosxBavD6WLtsQ/GFczCA4Ve5TXKqPWUsLm/r8Ghp2xK1Cf0JIkAJYdIVElnM3fROH9PLLbZCGLvLR8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=Pv3nLWhB; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=daynix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="vmT3w0L0"
-Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2166651f752so214486705ad.3
-        for <linux-s390@vger.kernel.org>; Sat, 04 Jan 2025 06:39:02 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="Pv3nLWhB"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2165448243fso219670785ad.1
+        for <linux-s390@vger.kernel.org>; Sat, 04 Jan 2025 06:39:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736001542; x=1736606342; darn=vger.kernel.org;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736001549; x=1736606349; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=ffgGfa1tRdbMu1hKTw9Yyv/ZhjBJNeWsWiWpVjLRBnw=;
-        b=vmT3w0L0b/G/aGrEu4xHCDL3ZPfvEuzSd5PypOgAVXO/JFqHz0TKuLofE4tB27HhpI
-         97ronqBXzNKs4KfzEHEN1rpayJQqK1cBfJMKUTBF51mJCjLm92ld5WhVj/gm5c1Dzva5
-         Ik/WufXQ9qzeHtw5dqQomCruzMftsxX96ukgmXpYNvIP/e/EPnswwkuU03W3nJg8T4Cw
-         ObukW+rhX7l0EeT6khxSnyLC2iLh66i7DgMrl8LYzzzTxBnF/MRwGhZNjy180eW0xJbh
-         HInEY0fyDVGmRPuSVQve3ToWz25R60EMY1FLWobKYKbbHj3pA2UaRY7NCXGKs4QewwRS
-         qBoQ==
+        bh=SYIrxPsAVLm9525H8KmJlUUcKlEHI39WEeyICf7u0AY=;
+        b=Pv3nLWhBe3mqTr/LfUcL72rzoWqsQ4Qs9vRkKkQ1qRIqLUa3KU75VqwJYjQ62jt9sH
+         tA2TSAciVDlbzbss/JU2LbeODM1Wb/itAUzqKb2xZEN/4EhbdFQ1wpof2tDLWTnl5oHI
+         o9rzZbQCmv+LVyuf1vFAdNfmm932DIRh42ypGMWCnb2f4DmHiYeBRJLfUBiGXLt66D6F
+         sxmOr7GQvqrKaxkR7W20wqMDPODyPpowbWHpYngzoINqpmvHi1nwBw5M+TQB+nVDJF0U
+         NtRIE2nY4pIZkr3LZLdA8AgK1eOk2uWhFWPfJypt/GyU6Cdsg9NFsEmAZIrYDoQO3lgu
+         9aoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736001542; x=1736606342;
+        d=1e100.net; s=20230601; t=1736001549; x=1736606349;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ffgGfa1tRdbMu1hKTw9Yyv/ZhjBJNeWsWiWpVjLRBnw=;
-        b=KZoEe3V+UnYW8ZhvqoBVj9yth12TzX4u2RaWOCY4tb+UW1TCRv4c1A8RKNKnKPwCFS
-         ywZ/MBA+mXipH8+y4Ir3lRNpJQuhtNwEGDTyyjaLcvVFgCeNtrCmv6BIGXE6lmWFitcv
-         1/uf3E7ndokEoyxgFW1/czuFB8wCLRjHHal9274YyftUFY4aQFknAJoQf9eY3MTKNos0
-         +JmF/CiUbSnR4Cvx7YDB8u05bW7pqMp4PGOL7ay64aNQj9r4s3LfAWE/attESAjTBxOB
-         Jx3ubb3Wzoz0pc/WU+VUXoCz4wwxrjM+5SMqa+Hxlx6PLXlDFJUJN5vF9fh9P9CO1POu
-         iatQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU4GycvZ9HOewMTxvyXLEE1/J+dLB3HJzGcmZkaNf7C0+sWEmdVpX/gwmHlhfIIFqZxMc7zq1lFWwqJ@vger.kernel.org
-X-Gm-Message-State: AOJu0YxBcYgMING7YJiitpQnefRjEg/bCHsiF/BAp1+z1IdBkXEbzXyL
-	0ITrUI9M9jTwYmZAdWNFMVng6XMOlqLNjg5SLnBuIWrrVD1GvfjM6BCxgd4dN5g=
-X-Gm-Gg: ASbGncsv2YsHFlKI9aNOS3mA1qYh+hH4ye0+P3iu0io5btHumHwOEp2Ambf6m2G3kTr
-	q3ab6ZKZj1C2KXB9xghE9QoBb3L7CnP5ynBkDqdx3rKVNPK+fkBo3l76wbM8UOnHLmvJyIKxBaS
-	qsg1gUF0IDAGhdolc3rbFNk0Z5XItLhOlHnTwaezxv/jWdisXNXd8L0OwGcXkwy3pStc0EdY5Ni
-	SghHTkDqjUwTOtf7/NxuRrCkFsXbaDvBP3RuT3LcYLKTAyfki6AqNZhQIdFVsE=
-X-Google-Smtp-Source: AGHT+IFOWxSlU7LboQeYrGu1ZapBf19hzzItaS6bjgdVpBMRFBzVa4lgIENsB6ZfRDlcb/evlyTHrw==
-X-Received: by 2002:a05:6a20:2d1f:b0:1e1:b1e4:e750 with SMTP id adf61e73a8af0-1e5e04717a2mr77843013637.18.1736001542441;
-        Sat, 04 Jan 2025 06:39:02 -0800 (PST)
+        bh=SYIrxPsAVLm9525H8KmJlUUcKlEHI39WEeyICf7u0AY=;
+        b=JR/u18EIZlVZbH6ZkWyHE6Z/OD0Nd0bf1bjR9/PuNpggxIV9hNVB6bjOeWjfyA8JV+
+         KpEnKBe2GQ2TwI+yi1FLYTw73rQun1YZjrGk6MIHyhoFbg6M6p3V1BcViWrpcyYxKnBx
+         pRJvkOnsbSjOzvv2Lyd4jXBH+WatQ5V9PUQPy0y9TBuQk4UJshPcDnyleos+ZU2tjci4
+         ZP96KS0TXmyhELAhj8Lx4nJSPTccXko7RBXgpzLZar0m0EHw0otZo9QK+twZwcSQbGFX
+         G75cR9agaZESck5MJ8ST8FIQsR4Z3cNEll0xPFb2OTjdoNYJJ77wS7767Wgz6haZ9iu3
+         NmXg==
+X-Forwarded-Encrypted: i=1; AJvYcCUADR7kX5gD6fAaPPI7cQOqZri7HML2M00y1WjbAbaGmoeK76HWdjo7Vz866jurQgwWltqlE9qjBenR@vger.kernel.org
+X-Gm-Message-State: AOJu0YxdgxQV6broDxCkh36p4LZLqteX0NkfYjwk3n/KlOvfV9zXe5fs
+	ydSbuV3crYNm00RC52AV2r3WeDthviTuyzuQCq4MJB5MOru8SA1/eiFr0f27t0I=
+X-Gm-Gg: ASbGncsp3kp5vD5VxbzkwQJiUI8ui481/ir9brRV332SpPb2lE5Ly+7gRG44efSrgbp
+	7JGAqk0Uo87dNd5f7oFQCsCAgf0Gn5QdNMlWXkxhx4bi2r1pw2I9tggyZMhUgNQ1gl44oFS9axJ
+	y/Tq5lZXmcuWIvMZcqVea4fDZj3wb1GDRYI8aNPoveAdcG1IbSEVMVJoyiaTL2HCiGxY5AXa3Pe
+	0LH0JXM9bLfV0Slgcp1dNXHf0dtm1ds19XvI3WLI01AkLjtPsthWEdhvmugjsI=
+X-Google-Smtp-Source: AGHT+IEy84cJ3h5ytJvCxSHHyFyZN9d/gzxb3RlphGjioGS1LvEPzNOYZA2OsynrQSHDV4AjG+98tg==
+X-Received: by 2002:a17:902:db0f:b0:215:4362:bc76 with SMTP id d9443c01a7336-219e6f29827mr814402335ad.54.1736001548953;
+        Sat, 04 Jan 2025 06:39:08 -0800 (PST)
 Received: from localhost ([2400:4050:b783:b00:4952:3c52:120a:27e9])
-        by smtp.gmail.com with UTF8SMTPSA id d2e1a72fcca58-72aad8fd7b0sm17288107b3a.139.2025.01.04.06.38.58
+        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-219dc963103sm262510765ad.52.2025.01.04.06.39.05
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 04 Jan 2025 06:39:02 -0800 (PST)
+        Sat, 04 Jan 2025 06:39:08 -0800 (PST)
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Date: Sat, 04 Jan 2025 23:38:36 +0900
-Subject: [PATCH v2 3/5] powwerpc: Use note name macros
+Date: Sat, 04 Jan 2025 23:38:37 +0900
+Subject: [PATCH v2 4/5] crash: Use note name macros
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,7 +67,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250104-elf-v2-3-77dc2e06db4e@daynix.com>
+Message-Id: <20250104-elf-v2-4-77dc2e06db4e@daynix.com>
 References: <20250104-elf-v2-0-77dc2e06db4e@daynix.com>
 In-Reply-To: <20250104-elf-v2-0-77dc2e06db4e@daynix.com>
 To: Eric Biederman <ebiederm@xmission.com>, Kees Cook <kees@kernel.org>, 
@@ -84,63 +84,76 @@ Use note name macros to match with the userspace's expectation.
 
 Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 ---
- arch/powerpc/kernel/fadump.c               | 2 +-
- arch/powerpc/platforms/powernv/opal-core.c | 8 ++++----
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ fs/proc/kcore.c             | 12 ++++++------
+ include/linux/vmcore_info.h |  2 +-
+ kernel/crash_core.c         |  2 +-
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
-index 4b371c738213..d44349fe8e2b 100644
---- a/arch/powerpc/kernel/fadump.c
-+++ b/arch/powerpc/kernel/fadump.c
-@@ -751,7 +751,7 @@ u32 *__init fadump_regs_to_elf_notes(u32 *buf, struct pt_regs *regs)
- 	 * prstatus.pr_pid = ????
- 	 */
+diff --git a/fs/proc/kcore.c b/fs/proc/kcore.c
+index e376f48c4b8b..e5612313b8b4 100644
+--- a/fs/proc/kcore.c
++++ b/fs/proc/kcore.c
+@@ -34,8 +34,6 @@
+ #include <asm/sections.h>
+ #include "internal.h"
+ 
+-#define CORE_STR "CORE"
+-
+ #ifndef ELF_CORE_EFLAGS
+ #define ELF_CORE_EFLAGS	0
+ #endif
+@@ -119,7 +117,9 @@ static size_t get_kcore_size(int *nphdr, size_t *phdrs_len, size_t *notes_len,
+ 
+ 	*phdrs_len = *nphdr * sizeof(struct elf_phdr);
+ 	*notes_len = (4 * sizeof(struct elf_note) +
+-		      3 * ALIGN(sizeof(CORE_STR), 4) +
++		      ALIGN(sizeof(NN_PRSTATUS), 4) +
++		      ALIGN(sizeof(NN_PRPSINFO), 4) +
++		      ALIGN(sizeof(NN_TASKSTRUCT), 4) +
+ 		      VMCOREINFO_NOTE_NAME_BYTES +
+ 		      ALIGN(sizeof(struct elf_prstatus), 4) +
+ 		      ALIGN(sizeof(struct elf_prpsinfo), 4) +
+@@ -444,11 +444,11 @@ static ssize_t read_kcore_iter(struct kiocb *iocb, struct iov_iter *iter)
+ 			goto out;
+ 		}
+ 
+-		append_kcore_note(notes, &i, CORE_STR, NT_PRSTATUS, &prstatus,
++		append_kcore_note(notes, &i, NN_PRSTATUS, NT_PRSTATUS, &prstatus,
+ 				  sizeof(prstatus));
+-		append_kcore_note(notes, &i, CORE_STR, NT_PRPSINFO, &prpsinfo,
++		append_kcore_note(notes, &i, NN_PRPSINFO, NT_PRPSINFO, &prpsinfo,
+ 				  sizeof(prpsinfo));
+-		append_kcore_note(notes, &i, CORE_STR, NT_TASKSTRUCT, current,
++		append_kcore_note(notes, &i, NN_TASKSTRUCT, NT_TASKSTRUCT, current,
+ 				  arch_task_struct_size);
+ 		/*
+ 		 * vmcoreinfo_size is mostly constant after init time, but it
+diff --git a/include/linux/vmcore_info.h b/include/linux/vmcore_info.h
+index e1dec1a6a749..1672801fd98c 100644
+--- a/include/linux/vmcore_info.h
++++ b/include/linux/vmcore_info.h
+@@ -8,7 +8,7 @@
+ 
+ #define CRASH_CORE_NOTE_NAME	   "CORE"
+ #define CRASH_CORE_NOTE_HEAD_BYTES ALIGN(sizeof(struct elf_note), 4)
+-#define CRASH_CORE_NOTE_NAME_BYTES ALIGN(sizeof(CRASH_CORE_NOTE_NAME), 4)
++#define CRASH_CORE_NOTE_NAME_BYTES ALIGN(sizeof(NN_PRSTATUS), 4)
+ #define CRASH_CORE_NOTE_DESC_BYTES ALIGN(sizeof(struct elf_prstatus), 4)
+ 
+ /*
+diff --git a/kernel/crash_core.c b/kernel/crash_core.c
+index 078fe5bc5a74..335b8425dd4b 100644
+--- a/kernel/crash_core.c
++++ b/kernel/crash_core.c
+@@ -436,7 +436,7 @@ void crash_save_cpu(struct pt_regs *regs, int cpu)
+ 	memset(&prstatus, 0, sizeof(prstatus));
+ 	prstatus.common.pr_pid = current->pid;
  	elf_core_copy_regs(&prstatus.pr_reg, regs);
--	buf = append_elf_note(buf, CRASH_CORE_NOTE_NAME, NT_PRSTATUS,
+-	buf = append_elf_note(buf, KEXEC_CORE_NOTE_NAME, NT_PRSTATUS,
 +	buf = append_elf_note(buf, NN_PRSTATUS, NT_PRSTATUS,
  			      &prstatus, sizeof(prstatus));
- 	return buf;
+ 	final_note(buf);
  }
-diff --git a/arch/powerpc/platforms/powernv/opal-core.c b/arch/powerpc/platforms/powernv/opal-core.c
-index c9a9b759cc92..a379ff86c120 100644
---- a/arch/powerpc/platforms/powernv/opal-core.c
-+++ b/arch/powerpc/platforms/powernv/opal-core.c
-@@ -149,7 +149,7 @@ static Elf64_Word *__init auxv_to_elf64_notes(Elf64_Word *buf,
- 	/* end of vector */
- 	bufp[idx++] = cpu_to_be64(AT_NULL);
- 
--	buf = append_elf64_note(buf, CRASH_CORE_NOTE_NAME, NT_AUXV,
-+	buf = append_elf64_note(buf, NN_AUXV, NT_AUXV,
- 				oc_conf->auxv_buf, AUXV_DESC_SZ);
- 	return buf;
- }
-@@ -252,7 +252,7 @@ static Elf64_Word * __init opalcore_append_cpu_notes(Elf64_Word *buf)
- 	 * crashing CPU's prstatus.
- 	 */
- 	first_cpu_note = buf;
--	buf = append_elf64_note(buf, CRASH_CORE_NOTE_NAME, NT_PRSTATUS,
-+	buf = append_elf64_note(buf, NN_PRSTATUS, NT_PRSTATUS,
- 				&prstatus, sizeof(prstatus));
- 
- 	for (i = 0; i < oc_conf->num_cpus; i++, bufp += size_per_thread) {
-@@ -279,7 +279,7 @@ static Elf64_Word * __init opalcore_append_cpu_notes(Elf64_Word *buf)
- 		fill_prstatus(&prstatus, thread_pir, &regs);
- 
- 		if (thread_pir != oc_conf->crashing_cpu) {
--			buf = append_elf64_note(buf, CRASH_CORE_NOTE_NAME,
-+			buf = append_elf64_note(buf, NN_PRSTATUS,
- 						NT_PRSTATUS, &prstatus,
- 						sizeof(prstatus));
- 		} else {
-@@ -287,7 +287,7 @@ static Elf64_Word * __init opalcore_append_cpu_notes(Elf64_Word *buf)
- 			 * Add crashing CPU as the first NT_PRSTATUS note for
- 			 * GDB to process the core file appropriately.
- 			 */
--			append_elf64_note(first_cpu_note, CRASH_CORE_NOTE_NAME,
-+			append_elf64_note(first_cpu_note, NN_PRSTATUS,
- 					  NT_PRSTATUS, &prstatus,
- 					  sizeof(prstatus));
- 		}
 
 -- 
 2.47.1
