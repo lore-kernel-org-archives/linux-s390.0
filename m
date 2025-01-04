@@ -1,194 +1,64 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id AA6831F9F7D;
-	Fri,  3 Jan 2025 18:44:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D0AB1C0DED;
+	Sat,  4 Jan 2025 14:29:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735929898; cv=none; b=SRzodrhBAfS4OPyt0X9b6RFkNPoMbanD6zhzAqq3GKajwHV9ua6RNB8Uq7ag8gQKVxylllLNaohaLu+97mu+KCL7zInCm6Ac0J8sQr4GWKXk0VpGyq6/udYASz+gFJrZwSLp5ZqSYtpvB4whAXc7do6TtvyLrdHKDmlJF+MBnjQ=
+	t=1736000997; cv=none; b=WMR0m+VOyWfCl226GNh8m2SG6aRZQ6dbnGluBwRqKNlaok+C6nml389PDZN6dZJVRgCuBTaccTxUbYNZbZPsfwkTF6OxyWNUcWD5Z1UQ9wu94fQ13c4tWZxFR7KPIep1AC7DXXRgixSdEY6UeFA//5A9NPLhUuh4d5h+qZpc1fg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735929898; c=relaxed/simple;
-	bh=Ew7hsMLrfUdjKrXDhAKFhRJ7b4ft/IVhPbLobtBTgDU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GH6xuFri8EffxTXigCL0sb/4XvlXwXoARhD9bU+0cyji1hKSHI8hgP+XM/AHKEXUNuktrwOH/2Ml1wSBDBrjVWGz8pw+YbzcdRSMTgA64IEsjIuZLB/jnMRMVNGDDrkmNx7Nvb3N2xnaZ2cI2M8RgsalnXz2rOIbPJ6MDAx4I78=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 575781C14;
-	Fri,  3 Jan 2025 10:45:23 -0800 (PST)
-Received: from e123572-lin.arm.com (e123572-lin.cambridge.arm.com [10.1.194.54])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2191A3F673;
-	Fri,  3 Jan 2025 10:44:51 -0800 (PST)
-From: Kevin Brodsky <kevin.brodsky@arm.com>
-To: linux-mm@kvack.org
-Cc: Kevin Brodsky <kevin.brodsky@arm.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	"Mike Rapoport (IBM)" <rppt@kernel.org>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Will Deacon <will@kernel.org>,
-	Matthew Wilcox <willy@infradead.org>,
-	Qi Zheng <zhengqi.arch@bytedance.com>,
-	linux-alpha@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-um@lists.infradead.org,
-	loongarch@lists.linux.dev,
-	x86@kernel.org
-Subject: [PATCH v2 6/6] mm: Introduce ctor/dtor at PGD level
-Date: Fri,  3 Jan 2025 18:44:15 +0000
-Message-ID: <20250103184415.2744423-7-kevin.brodsky@arm.com>
-X-Mailer: git-send-email 2.47.0
-In-Reply-To: <20250103184415.2744423-1-kevin.brodsky@arm.com>
-References: <20250103184415.2744423-1-kevin.brodsky@arm.com>
+	s=arc-20240116; t=1736000997; c=relaxed/simple;
+	bh=2QsLBjnqFiVvAgOGKno5kaNm5Ulb18UE+Q5yqVObqeU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=OjPS2ISZ1ZBQgKlduMO6NDQY7kx8bHxdDfmSssZ+KoJlsjtBD6/Nk13UBvOpFDGhYxzHv1RRv7R1b7mzcMlAHQYJX1r/oYzmb1OkM7OcrbJfu/WHXJxKBLUiPpDaCBKPCDYIzq7jiZ8IhuEK6gtp85clILsqe6oDbc8N1FN5sRw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=vFsU461T; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="vFsU461T"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1736000985; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=H4G3A9ya85VFNRHxiMF5hvkQd8M0Zfv6QOF+y2epB98=;
+	b=vFsU461TI/1yIvirkovoUL6tVc2BMm1UKaDjvZruTDKU4ExIH2F9zbla1KGWu4EKkGs73yhugxTEaDu2Ceww+Vv8Rq4opS2VcimDJtV2ScVgBWwtXn8fpYTxK816BfnH3EnUoFOeYIsm1J/wu1RzrVliWP545Vxqp0lpcZeSwsU=
+Received: from 30.32.68.161(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WMw6oFD_1736000983 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Sat, 04 Jan 2025 22:29:45 +0800
+Message-ID: <d0c1d3ae-43ac-482d-91ac-cde4686a3cdc@linux.alibaba.com>
+Date: Sat, 4 Jan 2025 22:29:42 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: fix data error when recvmsg with MSG_PEEK
+ flag
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, PASIC@de.ibm.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ pabeni@redhat.com, horms@kernel.org, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20241220031451.52343-1-guangguan.wang@linux.alibaba.com>
+ <20250102190251.73b389d8@kernel.org>
+Content-Language: en-US
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+In-Reply-To: <20250102190251.73b389d8@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Following on from the introduction of P4D-level ctor/dtor, let's
-finish the job and introduce ctor/dtor at PGD level. The incurred
-improvement in page accounting is minimal - the main motivation is
-to create a single, generic place where construction/destruction
-hooks can be added for all page table pages.
 
-This patch should cover all architectures and all configurations
-where PGDs are one or more regular pages. This excludes any
-configuration where PGDs are allocated from a kmem_cache object.
 
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Signed-off-by: Kevin Brodsky <kevin.brodsky@arm.com>
----
- arch/m68k/include/asm/mcf_pgalloc.h | 3 ++-
- arch/m68k/mm/motorola.c             | 6 ++++--
- arch/s390/include/asm/pgalloc.h     | 9 ++++++++-
- include/asm-generic/pgalloc.h       | 3 ++-
- include/linux/mm.h                  | 5 +++++
- 5 files changed, 21 insertions(+), 5 deletions(-)
+On 2025/1/3 11:02, Jakub Kicinski wrote:
+> On Fri, 20 Dec 2024 11:14:51 +0800 Guangguan Wang wrote:
+>> Subject: [PATCH net] net/smc: fix data error when recvmsg with MSG_PEEK flag
+> 
+> Since this is a fix you need to repost with a Fixes tag added.
 
-diff --git a/arch/m68k/include/asm/mcf_pgalloc.h b/arch/m68k/include/asm/mcf_pgalloc.h
-index 22d6c1fcabfb..4c648b51e7fd 100644
---- a/arch/m68k/include/asm/mcf_pgalloc.h
-+++ b/arch/m68k/include/asm/mcf_pgalloc.h
-@@ -73,7 +73,7 @@ static inline void pte_free(struct mm_struct *mm, pgtable_t pgtable)
- 
- static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
- {
--	pagetable_free(virt_to_ptdesc(pgd));
-+	pagetable_dtor_free(virt_to_ptdesc(pgd));
- }
- 
- static inline pgd_t *pgd_alloc(struct mm_struct *mm)
-@@ -84,6 +84,7 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
- 
- 	if (!ptdesc)
- 		return NULL;
-+	pagetable_pgd_ctor(ptdesc);
- 	new_pgd = ptdesc_address(ptdesc);
- 
- 	memcpy(new_pgd, swapper_pg_dir, PTRS_PER_PGD * sizeof(pgd_t));
-diff --git a/arch/m68k/mm/motorola.c b/arch/m68k/mm/motorola.c
-index 6c09ccb72e8b..73651e093c4d 100644
---- a/arch/m68k/mm/motorola.c
-+++ b/arch/m68k/mm/motorola.c
-@@ -169,6 +169,9 @@ void *get_pointer_table(int type)
- 		case TABLE_PMD:
- 			pagetable_pmd_ctor(virt_to_ptdesc(page));
- 			break;
-+		case TABLE_PGD:
-+			pagetable_pgd_ctor(virt_to_ptdesc(page));
-+			break;
- 		}
- 
- 		mmu_page_ctor(page);
-@@ -207,8 +210,7 @@ int free_pointer_table(void *table, int type)
- 		/* all tables in page are free, free page */
- 		list_del(dp);
- 		mmu_page_dtor((void *)page);
--		if (type == TABLE_PTE || type == TABLE_PMD)
--			pagetable_dtor(virt_to_ptdesc((void *)page));
-+		pagetable_dtor(virt_to_ptdesc((void *)page));
- 		free_page (page);
- 		return 1;
- 	} else if (ptable_list[type].next != dp) {
-diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
-index 5fced6d3c36b..b19b6ed2ab53 100644
---- a/arch/s390/include/asm/pgalloc.h
-+++ b/arch/s390/include/asm/pgalloc.h
-@@ -130,11 +130,18 @@ static inline void pud_populate(struct mm_struct *mm, pud_t *pud, pmd_t *pmd)
- 
- static inline pgd_t *pgd_alloc(struct mm_struct *mm)
- {
--	return (pgd_t *) crst_table_alloc(mm);
-+	unsigned long *table = crst_table_alloc(mm);
-+
-+	if (!table)
-+		return NULL;
-+	pagetable_pgd_ctor(virt_to_ptdesc(table));
-+
-+	return (pgd_t *) table;
- }
- 
- static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
- {
-+	pagetable_dtor(virt_to_ptdesc(pgd));
- 	crst_table_free(mm, (unsigned long *) pgd);
- }
- 
-diff --git a/include/asm-generic/pgalloc.h b/include/asm-generic/pgalloc.h
-index de4df14158e6..892ece4558a2 100644
---- a/include/asm-generic/pgalloc.h
-+++ b/include/asm-generic/pgalloc.h
-@@ -271,6 +271,7 @@ static inline pgd_t *__pgd_alloc_noprof(struct mm_struct *mm, unsigned int order
- 	if (!ptdesc)
- 		return NULL;
- 
-+	pagetable_pgd_ctor(ptdesc);
- 	return ptdesc_address(ptdesc);
- }
- #define __pgd_alloc(...)	alloc_hooks(__pgd_alloc_noprof(__VA_ARGS__))
-@@ -280,7 +281,7 @@ static inline void __pgd_free(struct mm_struct *mm, pgd_t *pgd)
- 	struct ptdesc *ptdesc = virt_to_ptdesc(pgd);
- 
- 	BUG_ON((unsigned long)pgd & (PAGE_SIZE-1));
--	pagetable_free(ptdesc);
-+	pagetable_dtor_free(ptdesc);
- }
- 
- #ifndef __HAVE_ARCH_PGD_FREE
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 065fa9449d03..486638d22fc6 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -3243,6 +3243,11 @@ static inline void pagetable_p4d_ctor(struct ptdesc *ptdesc)
- 	__pagetable_ctor(ptdesc);
- }
- 
-+static inline void pagetable_pgd_ctor(struct ptdesc *ptdesc)
-+{
-+	__pagetable_ctor(ptdesc);
-+}
-+
- extern void __init pagecache_init(void);
- extern void free_initmem(void);
- 
--- 
-2.47.0
+Thanks for reminding. I will resend it soon.
 
+Thanks,
+Guangguan Wang
