@@ -1,67 +1,97 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23F5E18C008;
-	Sat,  4 Jan 2025 16:40:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B97B143725;
+	Sun,  5 Jan 2025 19:42:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=150.107.74.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736008813; cv=none; b=i3QRm53/GEppvnA+NqKsUb7MH1WhO6/SsjgcrROuW4w972K15WRlXO16vrt/cOnUzyvx/nsqOJvv8rPImy94zz5S5JY2zGl2Hdlk0zJuhbMul4fKw4qgrZ392IwsjDERLLdHG1Xgs2CxVOVvK4tuCO1SQ/8U4nT6LMb+jom+y9k=
+	t=1736106157; cv=none; b=p/2wG1N9lUfyzJovIrvJM8TaDKBMrOdOqWQYiVDNWytJFpuTi1DLQrYavriZt19Ew5YKs3inGgfzrxsMsKiqUptfcTHE9us195yIhIEkFn8WOac8VdPt7lqYpjIOyN/RXfQquQbZa2/wHFVLMlzZUgRMtXIHQhjrDA7tOLl5gi8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736008813; c=relaxed/simple;
-	bh=WhcARQrOYd0kxlrcV5SsxGxVxRxXshHTRGRV3vNYsCc=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=pn5xr4tggTZg4cdt4oh+xmYKP8DILghtYKn4zYor0ozGoQyBIk2P8sU3EXS05xyswjhWY5dRmV0EZFQbzDFzfFjneQFjxTLNWMtwXxmfTRrWmSNEkEjGHKZBzPiNcHsr1XC9QeIRhUiKZPYxl8D9w+Yw4ZpDh0q7IlZ8CPrJm20=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pIiKBqtq; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1736106157; c=relaxed/simple;
+	bh=oza7v3yHsqpHOHQHaI2+tZYj5ycQRLiyseScSMk1/G4=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=oAIWltmuFRd5DctzgBKNYWb816qbgJrMakcrUgWY7GlyW8xBUPEXLOO1h3B8PX85up3pIg9kpNxWvChLuyjJhQP7P6sGrCSbIzzXKsAHaanjd8aMyYTP3UTJuOBIiT/NjJi+j9cB3F9EDLBh8AAngTKJagwgOKhW+csOx5iVzh8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canb.auug.org.au; spf=pass smtp.mailfrom=canb.auug.org.au; dkim=pass (2048-bit key) header.d=canb.auug.org.au header.i=@canb.auug.org.au header.b=SgkiQC0j; arc=none smtp.client-ip=150.107.74.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canb.auug.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canb.auug.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pIiKBqtq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6375EC4CED1;
-	Sat,  4 Jan 2025 16:40:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1736008813;
-	bh=WhcARQrOYd0kxlrcV5SsxGxVxRxXshHTRGRV3vNYsCc=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=pIiKBqtq/rVrj2YuUse8AQcxf5eZoif77sniQGOGBO7mosIG7iREDKIEUjuaM25Gm
-	 a9dEqL3Ma2P0bjJfFr2YlF7DvJJFMOkPIym21eqDvja18Jc+OIbw23k9TAXewGFLzL
-	 tlS4HZq4X/CopSzSKLbhRnx4WK0mC0/gYCHKokktzn3wwW5jby8EtZUTcoByeBs6sd
-	 86InkpP0L4GON4XUYvzaeBrXR3bIGEIqYQIfqLyRex620638kwTdKeRtqqBDcIwy5A
-	 Fex8i/BhL6ZKs83b483RsEYVrnDbYn7VFtbkjv6BFOTEm381txR9jzr77v9Ii/jm1y
-	 CUpoLhnDeHnwQ==
-Date: Sat, 4 Jan 2025 08:40:11 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com
-Cc: Guangguan Wang <guangguan.wang@linux.alibaba.com>, PASIC@de.ibm.com,
- davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
- horms@kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: use the correct ndev to find pnetid by
- pnetid table
-Message-ID: <20250104084011.15446a17@kernel.org>
-In-Reply-To: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
-References: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=canb.auug.org.au header.i=@canb.auug.org.au header.b="SgkiQC0j"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canb.auug.org.au;
+	s=201702; t=1736106146;
+	bh=XVyMAhYAccp+Zqo59dhZgtuYbzrnE8vfKpM26LAfmTc=;
+	h=Date:From:To:Cc:Subject:From;
+	b=SgkiQC0jF5yzRFKKHucbZ7FaqPIkj/mRkGer2/X6iWca67JuhUn82UZjpGXu7PtLP
+	 xE0R2pda4w7b36N1arjVUHnEcQfIcT8XXua5Ko2U7uvfvBvt5SOS9QmSF9qJT2edDl
+	 Xej6T2AhChJZ7q2hsK1QTj6LLZ3gfroHZ1DeANoZUPpyJ8N/h+qZR5YR5zbe1O7hf8
+	 /l/vTiKSoWSWcq+1jq3aseERgSuVp8D+ieYAtJVwQFhRvuax15MPVtYsDOugEvDR+R
+	 mdtwmbn+ckWobpW2+yjF4SounN8+pmy0XxsEZxSnjrzlHdiuQ1vYS2rQ1papMMxeRu
+	 eq15sLWqyZY1Q==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by mail.ozlabs.org (Postfix) with ESMTPSA id 4YR74f47Ppz4wvc;
+	Mon,  6 Jan 2025 06:42:26 +1100 (AEDT)
+Date: Mon, 6 Jan 2025 06:42:32 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank
+ <frankja@linux.ibm.com>, KVM <kvm@vger.kernel.org>, S390
+ <linux-s390@vger.kernel.org>
+Cc: Christoph Schlameuss <schlameuss@linux.ibm.com>, Claudio Imbrenda
+ <imbrenda@linux.ibm.com>, Linux Kernel Mailing List
+ <linux-kernel@vger.kernel.org>, Linux Next Mailing List
+ <linux-next@vger.kernel.org>
+Subject: linux-next: Fixes tag needs some work in the kvms390-fixes tree
+Message-ID: <20250106064232.3c34fdb1@canb.auug.org.au>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="Sig_/NbXAMPvXk4m27Aklu6opAl3";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
+
+--Sig_/NbXAMPvXk4m27Aklu6opAl3
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 27 Dec 2024 12:04:55 +0800 Guangguan Wang wrote:
-> The command 'smc_pnet -a -I <ethx> <pnetid>' will add <pnetid>
-> to the pnetid table and will attach the <pnetid> to net device
-> whose name is <ethx>. But When do SMCR by <ethx>, in function
-> smc_pnet_find_roce_by_pnetid, it will use <ethx>'s base ndev's
-> pnetid to match rdma device, not <ethx>'s pnetid. The asymmetric
-> use of the pnetid seems weird. Sometimes it is difficult to know
-> the hierarchy of net device what may make it difficult to configure
-> the pnetid and to use the pnetid. Looking into the history of
-> commit, it was the commit 890a2cb4a966 ("net/smc: rework pnet table")
-> that changes the ndev from the <ethx> to the <ethx>'s base ndev
-> when finding pnetid by pnetid table. It seems a mistake.
-> 
-> This patch changes the ndev back to the <ethx> when finding pnetid
-> by pnetid table.
+Hi all,
 
-SMC maintainers, please review..
+In commit
+
+  6c2b70cc4887 ("selftests: kvm: s390: Streamline uc_skey test to issue isk=
+e after sske")
+
+Fixes tag
+
+  Fixes: 7d900f8ac191 ("selftests: kvm: s390: Add uc_skey VM test case")
+
+has these problem(s):
+
+  - Target SHA1 does not exist
+
+Maybe you meant
+
+Fixes: 0185fbc6a2d3 ("KVM: s390: selftests: Add uc_skey VM test case")
+
+--=20
+Cheers,
+Stephen Rothwell
+
+--Sig_/NbXAMPvXk4m27Aklu6opAl3
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAmd64KgACgkQAVBC80lX
+0Gxkfwf/Sc1PKm60m0A97vGq54UbmWNb0qRQZ4bc3b2UfGzEVGGQ4PdDEoTVyFQZ
+rXvnJPnkQTWfWUo9i6FsoWLd2Do4r1cdhny+tE+jQS2tKnN8XDpJ+WZ7/+v6O7+N
+4OEF6Wte63Csp6+J8ioieuNwWqmFS4YZi2TW8WxrsIMxaiKbsrWgQfKKBgX7waRt
+INGizVYwyBYAB/wbrAxkOgu09coRLTVguxGT6zSfuNRRSiNNywz0yQcyWVNwLtoF
+t8RQL6VDy4jcvM3eXL3Ni3vz9BldHqx5FKfGjSsLc1PC0NFOAPI1HMJhSMvziQxK
+mh4FsHCcbtVYtiljP/oseJ2GI41KDA==
+=xvST
+-----END PGP SIGNATURE-----
+
+--Sig_/NbXAMPvXk4m27Aklu6opAl3--
