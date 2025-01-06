@@ -1,93 +1,173 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED40B159596
-	for <linux-s390@vger.kernel.org>; Mon,  6 Jan 2025 06:08:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 344344594D
+	for <linux-s390@vger.kernel.org>; Mon,  6 Jan 2025 08:38:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736143695; cv=none; b=Nj321OwlSG42CNpy8uR+wCGn0PHDbHL+RTMWYADjNS0B9BuONPtrCxxwSNg9ik7dhrAE1UIsKbqLahugLA3Yayl6jc9W+JKr8MIZ63h3y+ouv4JV08jUUvpaBL7IfIcXhdlJld0mMEmaQCCRHcOpqeKnUrVZXpcO3x8r/G7UbL8=
+	t=1736152728; cv=none; b=gLKnvhF1F3e0DoCj4sOS3/OigyvNgs/5r65WngpO6cjgYSh0slfk7TNzHdsRYEdbyznsBtQV6hEhsDohSEr0PGtrALfHH9pHtC1/MuN8xqusiFBlOUlOOdbvTHiTIAn5nbuCQBOjr+03VRFh9gjN9OKMtFuQblAYfLZYNfNXDiQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736143695; c=relaxed/simple;
-	bh=DkJ/AVZDr+223bh7T9SGuJvD3BwYN7Ayn7jY/gRteDM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pbxZgaB4Ou/sr7EwThE3ykuLb5+tqgiyWvGxKpuW70De+ABQZNP3LuSlkVA+ZITEYBOsV1YO3SnVyaPFnv45pSq2IRtRiAEeFCtnLa/tFHswUvixpP767gPw5IA50TuF3KrGL+IOPX14kE9IUET5B0Cr5P5Vha8ZFiF7WIQxeck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TO8KuJHz; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1736152728; c=relaxed/simple;
+	bh=+p2WuEDH6YSUra8No0eTrFef4hHj25RtnE5OhVgbkBA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=kRYS4OMqAUcXTBpebYGwDZ5KgGM5FWrK3sAuYQLoFhyvki24Nr1VLDszL+JQRhee1JIN4JWMKQpTleXtAA+euqJBHP+cJbWvIAxO5QmcOP6v3hU4BbsEXY5+hJLdmqCbXSUHH9aeLOYxlMBs2ddMbYYE9D/k3ckpaXv//SGXt6w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=NFsLUn+3; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TO8KuJHz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736143693;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ECj6xbOSydsrQ0h3y60hbN6oNhcXb1gzQeH/Gov1IA4=;
-	b=TO8KuJHzpvch5coStrHWTHkA7LQm0yWZ8BgYSFTmDjBb8HCVtVpu+wdCy+aQ6tj7MSE/Ok
-	6/AKG4T+3VutOVIejus7g/g/M9OSIK+B7Ee1+9+M/MQ5QHZqIGKgylWbQ1oiraSSz0pbva
-	BquSlgCOpRDmaZ1rXYDcBUnZBf3I16c=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-260-jEM1C5x0O9uGyYUyawzKbA-1; Mon,
- 06 Jan 2025 01:08:07 -0500
-X-MC-Unique: jEM1C5x0O9uGyYUyawzKbA-1
-X-Mimecast-MFC-AGG-ID: jEM1C5x0O9uGyYUyawzKbA
-Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A94B91956057;
-	Mon,  6 Jan 2025 06:08:04 +0000 (UTC)
-Received: from localhost (unknown [10.72.112.99])
-	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 439E5195605F;
-	Mon,  6 Jan 2025 06:08:01 +0000 (UTC)
-Date: Mon, 6 Jan 2025 14:07:57 +0800
-From: Baoquan He <bhe@redhat.com>
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Eric Biederman <ebiederm@xmission.com>, Kees Cook <kees@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Mark Brown <broonie@kernel.org>, Dave Martin <Dave.Martin@arm.com>,
-	Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	kexec@lists.infradead.org, devel@daynix.com
-Subject: Re: [PATCH v2 0/5] elf: Define note name macros
-Message-ID: <Z3tzPXorz6hzkvy/@MiWiFi-R3L-srv>
-References: <20250104-elf-v2-0-77dc2e06db4e@daynix.com>
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="NFsLUn+3"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-21661be2c2dso182858155ad.1
+        for <linux-s390@vger.kernel.org>; Mon, 06 Jan 2025 00:38:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1736152725; x=1736757525; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=YiOAOk5kGRx9rmUPaHmWdeff0Y5xhlY6UwwEsQqm8Hw=;
+        b=NFsLUn+3yEM2FDTjs/PJX3tSiRKo819ajchol7CEUEIqTKnnIetUFjv7UyKk9Xv0ET
+         q7aG6uRRbHIpX+KcVjhoJ1Emnprv+3yQxZQXGOSnF1LI+OvH3WEF2pf7QwtTCu8uLjjn
+         9jW/akY85hecYcHCRchRcsstDpum6+k4TsAU+hM9A7kjJtE4PiLS+Fm0mQfqZrmCKFTu
+         crVPszzp3SRiel79bd/whBbXsp+IsYr7N8tCTRHLahdnVCe71ujvrd6wRyPCcGQ0sQ6U
+         xnTifguMp98uznuCkMH4eyl3EokFEp3ndOhqdaqtGP9P6UVtEG7l5et861Y6tt6TQnpe
+         Jhxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736152725; x=1736757525;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=YiOAOk5kGRx9rmUPaHmWdeff0Y5xhlY6UwwEsQqm8Hw=;
+        b=AKBF9OoYKSI9T6WnOO4smnnUAB0xk3qdE/87JcopR345JgLYFV38ag+DNgGQlxIVE4
+         alPKBW7T+52k9LT45kZkGmqzVQTATiyflV0nbKkb+XP/fQybO7aeRXDa6QFnOW/tBwbH
+         vWhVYLt7nGlcSdPq+1rak8BIETLdAv+SosME5oractzl6Ed/o0bk4i9KmezWX5jqkzKB
+         pNEufsK7VIr21ZSg2z69S//4BJMIrkmDg2uK0a4AhyFWQAOEsjDcjToyU9rf4Sp07ZPP
+         CQKEgEeHUW7rvVzyquqDGbOX0RrgUW2H2exLKb7Zimrf6vZjYwR0/1VK30yHfa2lAL5V
+         2laA==
+X-Forwarded-Encrypted: i=1; AJvYcCXTxuj6dLy3emzbbtlZzoPHL1iuZafzn5hjaTnMaf+SwzVhf7Hn2Z9PcopeHNaxVkWs578u5o7Ahnzw@vger.kernel.org
+X-Gm-Message-State: AOJu0YxlUwQTFJyy+4YBsGX/g2gW5G1wbrVWVlOFb8VuUJVIqfGYgFda
+	Mjye9NnnzoGsMSKa6CoUuM+L/x0XdYecNtyKT4CZELmlPWH5hWX4x1zN/lU4XMc=
+X-Gm-Gg: ASbGncugQKX4DVwmmlwPlBjXrA/jKUxOjQCusMieZufbq6Ckauv04oRTvIxB0+zAj06
+	bSYGQWBnTdFGBKPPynUW2jXJh/Pf7PUAKBfDff6HPcEze2DmMmgoGdtjVYfA0iUms2DYbuCPAwV
+	yylbhxJykp907XmZaaV5RJMNuq5hPsy07MDkI0lFkNDb+gvTI2vUIHu0nnGWsfUp51RB95wBZP4
+	MVkmYlgywfFPKK+6yASDNuJv0KPZiYQkXoNoaYMUl4JPXOqqPZtwbJQ/9RoTsKmSwtGZIcuVb4O
+	w/L23Q==
+X-Google-Smtp-Source: AGHT+IGUVd4iqCCZ9lciazZSWpc6AL/Za8b2BM7ngUBHt9ys8AcRhMXZRUNC6JrwIwMnpr/5pGC4Lg==
+X-Received: by 2002:a17:903:234c:b0:215:5a53:edee with SMTP id d9443c01a7336-219e6e85b25mr837178605ad.9.1736152725600;
+        Mon, 06 Jan 2025 00:38:45 -0800 (PST)
+Received: from [10.84.148.23] ([203.208.167.148])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-219dc9f5087sm282364745ad.202.2025.01.06.00.38.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 06 Jan 2025 00:38:45 -0800 (PST)
+Message-ID: <ae8aa8d7-4121-4939-9890-c54e0aee7896@bytedance.com>
+Date: Mon, 6 Jan 2025 16:38:32 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250104-elf-v2-0-77dc2e06db4e@daynix.com>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 0/6] Account page tables at all levels
+Content-Language: en-US
+To: Kevin Brodsky <kevin.brodsky@arm.com>
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ Linus Walleij <linus.walleij@linaro.org>, Andy Lutomirski <luto@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, "Mike Rapoport (IBM)"
+ <rppt@kernel.org>, Ryan Roberts <ryan.roberts@arm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+ Matthew Wilcox <willy@infradead.org>, linux-alpha@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-um@lists.infradead.org, loongarch@lists.linux.dev, x86@kernel.org
+References: <20250103184415.2744423-1-kevin.brodsky@arm.com>
+From: Qi Zheng <zhengqi.arch@bytedance.com>
+In-Reply-To: <20250103184415.2744423-1-kevin.brodsky@arm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On 01/04/25 at 11:38pm, Akihiko Odaki wrote:
-> elf.h had a comment saying:
-> > Notes used in ET_CORE. Architectures export some of the arch register
-> > sets using the corresponding note types via the PTRACE_GETREGSET and
-> > PTRACE_SETREGSET requests.
-> > The note name for these types is "LINUX", except NT_PRFPREG that is
-> > named "CORE".
+
+
+On 2025/1/4 02:44, Kevin Brodsky wrote:
+> v1: https://lore.kernel.org/linux-mm/20241219164425.2277022-1-kevin.brodsky@arm.com/
 > 
-> However, NT_PRSTATUS is also named "CORE". It is also unclear what
-> "these types" refers to.
+> This series should be considered in conjunction with Qi's series [1].
+> Together, they ensure that page table ctor/dtor are called at all levels
+> (PTE to PGD) and all architectures, where page tables are regular pages.
+> Besides the improvement in accounting and general cleanup, this also
+> create a single place where construction/destruction hooks can be called
+> for all page tables, namely the now-generic pagetable_dtor() introduced
+> by Qi, and __pagetable_ctor() introduced in this series.
 > 
-> To fix these problems, define a name for each note type. The added
-> definitions are macros so the kernel and userspace can directly refer to
-> them.
+> v2 is essentially v1 rebased on top of mm-unstable, which includes Qi's
+> v4 series. A number of patches from v1 were dropped:
 > 
-> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+> * v1 patch 4 is superseded by patch 6 in Qi's series.
+> * v1 patch 5 and 6 moved to Qi's series from v3 onwards.
+> * v1 patch 7 is superseded by patch 4 in Qi's series.
+> 
+> Changes from v1 in the remaining patches:
+> 
+> * Patch 1 only introduces __pagetable_ctor() as there is now a single
+>    generic pagetable_dtor().
+> 
+> * Patch 3 and 6: in arch/m68k/mm/motorola.c, free_pointer_table() can
+>    now unconditionally call pagetable_dtor() since it is the same for all
+>    levels.
+> 
+> * Patch 6 just uses pagetable_dtor() instead of introducing
+>    pagetable_pgd_dtor().
+> 
+> * Added Dave Hansen's Acked-by to all patches.
+> 
+> - Kevin
+> 
+> [1] https://lore.kernel.org/linux-mm/cover.1735549103.git.zhengqi.arch@bytedance.com/
 > ---
-> Changes in v2:
-> - Added a macro definition for each note type instead of trying to
->   describe in a comment.
-> - Link to v1: https://lore.kernel.org/r/20241225-elf-v1-1-79e940350d50@daynix.com
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: Andy Lutomirski <luto@kernel.org>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: "Mike Rapoport (IBM)" <rppt@kernel.org>
+> Cc: Ryan Roberts <ryan.roberts@arm.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Cc: Qi Zheng <zhengqi.arch@bytedance.com>
+> Cc: linux-alpha@vger.kernel.org
+> Cc: linux-arch@vger.kernel.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-csky@vger.kernel.org
+> Cc: linux-hexagon@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: linux-m68k@lists.linux-m68k.org
+> Cc: linux-mips@vger.kernel.org
+> Cc: linux-openrisc@vger.kernel.org
+> Cc: linux-parisc@vger.kernel.org
+> Cc: linux-riscv@lists.infradead.org
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-snps-arc@lists.infradead.org
+> Cc: linux-um@lists.infradead.org
+> Cc: loongarch@lists.linux.dev
+> Cc: x86@kernel.org
+> ---
+> Kevin Brodsky (6):
+>    mm: Move common part of pagetable_*_ctor to helper
+>    parisc: mm: Ensure pagetable_pmd_[cd]tor are called
+>    m68k: mm: Add calls to pagetable_pmd_[cd]tor
+>    ARM: mm: Rename PGD helpers
+>    asm-generic: pgalloc: Provide generic __pgd_{alloc,free}
+>    mm: Introduce ctor/dtor at PGD level
 
-The entire patchset looks good to me, thx.
+For this series:
 
-Acked-by: Baoquan He <bhe@redhat.com>
+Acked-by: Qi Zheng <zhengqi.arch@bytedance.com>
+
+Thanks!
 
