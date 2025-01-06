@@ -1,64 +1,63 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2773C14B94B
-	for <linux-s390@vger.kernel.org>; Mon,  6 Jan 2025 03:53:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3018617E0
+	for <linux-s390@vger.kernel.org>; Mon,  6 Jan 2025 05:07:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736135633; cv=none; b=nZoyB7+ZPxJO/LBPc1nX2ecO7joGPmZZvwzO8Co0f7GHcSIb4ssai8iy3H0XjAi+ceIAqfPnfD3GXCDudMfyUGsKLTEkZc3Lfkv8l4OSRK78eTbkBo00v4/klTw2flHri6LnBYTHPdnIQ/4vI57NpWwI1bVqbd0hjNRpmZTVrDk=
+	t=1736140079; cv=none; b=aXmtJld7C5mSyfW7NbtLyJWnL4a1J8Jyi9Ti7+MooF63irxdjibns+csQa6D/XJmr+7j9H66zok+O7azWyFi5juciTEjYT4QOYs0kHqSyINkIlSzWLblIFdm4uWhdMrRO0ey7S3YTfioYk8OamyVvB4HpmbjQmVt3HcIHHOKQ9U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736135633; c=relaxed/simple;
-	bh=W5R5SVhoruE2dQ0Ov21TCrDEEfRfDgUrkE/35gJj4fs=;
+	s=arc-20240116; t=1736140079; c=relaxed/simple;
+	bh=blhIGNloNLsFDpwhkBW+XtwhtdlDgMDwe0vXGOqOmsU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=U4//b6UkdO7X/luYezaRjb5i7bRu1g9ZGi2qmPoxNWR4Zv8b4wSw8TExbebKeNoLHcmw2dhQ6djRLl5rPgcY5GJYXJRvx7wOoZLDM3g6BmGCc/LAhn7LRu+rDAQRjdD20Glj4fZmsYADH9MfVIK1jVUcJfxKkSxEXA+p1/SvyKI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=XnIvtuOV; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	 In-Reply-To:Content-Type; b=VmSq3OI0Ogg/rM3iX2ny0K7yYPkuC+cFdR9o6i3MxBxaZGm0lV1cEaJU43jXZFLNRdUY/bQFN1UtEzaKmd26a+E5xgtrj/oh0yd50GhgQeGBqkECU/ZWpqIazAWUE9gZpc6SuPj0EAgtKIZwAjB26Lhuqbe5rkCvqHYUdpJBywk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=R4FsrfUo; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=daynix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="XnIvtuOV"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-2eeb4d643a5so20359348a91.3
-        for <linux-s390@vger.kernel.org>; Sun, 05 Jan 2025 19:53:50 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="R4FsrfUo"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-21654fdd5daso184685335ad.1
+        for <linux-s390@vger.kernel.org>; Sun, 05 Jan 2025 21:07:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1736135630; x=1736740430; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736140077; x=1736744877; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=/q466ctbH84kLf48L1cXJtHFTRzDl7be/n0cI3LGmOM=;
-        b=XnIvtuOV81XcSbEOVEqkLIGy4oUE2RJyokQACtMv99teM4sXVRHd+9dQ2jHVTl/oPe
-         5ggtpLIQ9WMmVdXtIn9UDEH5NWgL7MuSgNXoxOeYFny6E0z8tYaSIQkCitQql/fgDcu3
-         4IxMqEubmtXrjfF5c42T6BOzsCKAsrOCOyP8bVmBBU3xhxEl5hSdzZFWBWivJehX/Mc+
-         EFFXyRhbcAd4kbayug/30opeCkPEI5Jqc4Tv02v4QA3makjbveDX1AVkgOEqTWpTUsAL
-         ImoyBAfSR+PldJu8Ds0TC7GffSCjtvCCBmYNQrXTJVFG418+lclj2fpI2adbQeqTi1OI
-         19TQ==
+        bh=LuPI2QoCWSGABhNaHmyyQbTaoQ2qivKcvMjG9VSzHt4=;
+        b=R4FsrfUoGQuqZPFk53P2ki+smTKfQXhFntjCps/DGPTm/mh4XdpVdePnrEBAyMLa/i
+         mlRPwcduqYysRGCram3ELBIAo9i0f4C65HCEXhH1/UGmNg7KYhCfW5auCJL7IaeCWurq
+         iHNzLINTre0zFwTFq1odEKrKrcg7tcWrnoqBY3l69mA4l+jL6W8JeKBo3p8k7c6Lw9MX
+         uMbBehTADtNpiS2QoOfo9L+tcOA65xkBY7m7b1hIlEKsi2Dq76ZkWOruKTqm7QuyClBz
+         sj7F1vgdoCNRfC902Nf+l88L4nV/2YvV+vB5eML2eyhMBRbSLkNjtv05NRh/jKBFjcGK
+         SQYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736135630; x=1736740430;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1736140077; x=1736744877;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/q466ctbH84kLf48L1cXJtHFTRzDl7be/n0cI3LGmOM=;
-        b=aRt5IyVtvAxsL+ciaV04joJjlEdgCn5rrHt29dFfXckHtLeeIDunJnofaQzVxMrMEy
-         uXbyIpH0KVvLMCpNzQlLJRVKeClMo4VWFrHOqiXyXJic6Gv9/W7g8e9QRYH6t/j8oEGV
-         UXi93l2apUfk+bqIY2KmySiKEZoW6L6nXUW//2eF5vWmMR0zTmmEsye4Lnhg3AqRTz/k
-         uzpsD64X28MOzITJ+J9PNfgnfoHFA074NAefx4yKcSyFl7o6+kyfQm0+TJuEospObli1
-         bClrigXll3K8y6YSC2sLV/eqCvBGhleCAcOQ7pWA5l1DmfK66tPM1P3iBsjYwgHrPUsz
-         y56w==
-X-Forwarded-Encrypted: i=1; AJvYcCUj5G8ISwhHOGTn07wmm5bCtSCpy546PLPvR+Z/HtHFFAWa9fFfKjzPLb0Qd+NQRoP33WY9IbJNHbwf@vger.kernel.org
-X-Gm-Message-State: AOJu0YyqF89NISwxNyzkCOGtY2pRmaVJW0NzlzDO0C+vtKEl5xuS5tG+
-	n55lyTmlRXXyyNNEuwD5Z5o/OXD/CGAqI0CCrh/JYyAgVAQ5zrl6/1NKrV0EA9o=
-X-Gm-Gg: ASbGncuVTbxbnuyr+CcRpML2/FA5HLInzoeRgDA4ote36Rrz0ukDTsuWYtduus30cpK
-	JPre3KV+NWokwt78hF8V/BsMGoyaDLTJzn+d/ktCRg1sZ4yBJQClWdHfl/WiyqjSXwq1s+S586U
-	hos5lww6tE6gUy+nOwbwOh3edAcpc27E24I03d+HwYLfGahTdquNG3NiQyKBwkDA/TiQiioHUBp
-	B/OaEPuY0vRTseDvuvmaYrDpqH8J56ZGgF+sUjaM5+ylDKx40s6fn8VgExcb/Q1YslRz2uouDuS
-	BwZG8A==
-X-Google-Smtp-Source: AGHT+IE2eKUVGb+J7TSGZASTVnkByt6mt8YLIy++PUNY+VFfsnF7zlybMe8WL3Umwm8kwi4ry/BkkA==
-X-Received: by 2002:a17:90b:54c3:b0:2ee:a127:ba8b with SMTP id 98e67ed59e1d1-2f452ee83d9mr71788615a91.36.1736135630440;
-        Sun, 05 Jan 2025 19:53:50 -0800 (PST)
-Received: from [10.84.148.23] ([203.208.167.150])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-219dca02f72sm283551435ad.249.2025.01.05.19.53.38
+        bh=LuPI2QoCWSGABhNaHmyyQbTaoQ2qivKcvMjG9VSzHt4=;
+        b=jQIONT//btM0hwQVQAiNbpgyv/UrV5gi8NpkyNA+VPYF5OVRgt8tnoBXt8gWgAwA0S
+         lsRZhQrmVfDazo7fID3pe9fflgjDpaoEd6as2/n2XwUap4k2Fhw4GrpY9Dps9nuPCnIC
+         ouFQnmuzWZM8s+VFJxZCZ+Zx1U1wtFLkCJazzYHqbk+TKFSZl6Fv13d097qpu/r2RhuC
+         XM8QyKkvDk8LvFx5Da0/PVGtWC996J3Z9DyD4EoLdxtX30qvMVGrcQR1BH+gw3ER+W1r
+         LEAShu6NEHMdeHG1L9UsZpByk1r+7RvLGJzgz5eO7u6tPZ5/wsbhREeHvwEaEHFcjCE3
+         4kiw==
+X-Forwarded-Encrypted: i=1; AJvYcCXX43phhm3fXsHE3wOtDzxomYsJmAIh4VTZ3ni2zSkBYMd3E1/9lz75aURf9GN5UqQoWO4p8MlknHxJ@vger.kernel.org
+X-Gm-Message-State: AOJu0YwcWnUTwd9U/phNoCgogl0mSWRk/Jh0yQrvo6xV/b0BY3b9k91E
+	wM8OZtNmbORWsZqFYAYSdbw46cRXCWjGdc/+bcYuPTyhVj1EKVFmTzVUOJK2KoA=
+X-Gm-Gg: ASbGncuOtRt2Z4iBWMjgYSa+q2U1vxcBUVhmPSDwx+CpJQoPdTsuNVJbAsXNSFqCwrg
+	+Fw82yR/AGL0pWVOjqwxgeTp8EuT2ZSdzac3v7zg6JHKOvDrNsSM9d3twsuuHq5iq27R1S9GxZW
+	H4/kbYTtS4wFvzZYRWlruBm/lHFtilgVfiTz8RaWWwIMF6/HXp6s4Zr+z4iqwWQIktOIWuawLyh
+	W81FzBxaLThlrg4Elub7uoJkBoF/yPD17RTTJIHL4fwWdWe49WwhDxhQRWTOTby
+X-Google-Smtp-Source: AGHT+IHO9h+H3nQtpCAylHi4N1tDhCEXwfFp2Ug4YvZcEwI3J7mIrB866g5t/GIXJEMR5ZJQFBtNMg==
+X-Received: by 2002:a17:903:1209:b0:216:36ff:ba33 with SMTP id d9443c01a7336-219e6ebcfc7mr750060565ad.26.1736140077545;
+        Sun, 05 Jan 2025 21:07:57 -0800 (PST)
+Received: from [10.100.1.231] ([157.82.128.7])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-219dc96e94dsm285208985ad.67.2025.01.05.21.07.50
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 05 Jan 2025 19:53:49 -0800 (PST)
-Message-ID: <a84a7b0f-dad5-4100-9d0c-3b515e7fb71f@bytedance.com>
-Date: Mon, 6 Jan 2025 11:53:36 +0800
+        Sun, 05 Jan 2025 21:07:57 -0800 (PST)
+Message-ID: <70daf544-f59f-404b-bec0-0d60e892a9e9@daynix.com>
+Date: Mon, 6 Jan 2025 14:07:47 +0900
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -66,73 +65,171 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 15/17] mm: pgtable: remove tlb_remove_page_ptdesc()
+Subject: Re: [PATCH v2 1/5] elf: Define note name macros
+To: Baoquan He <bhe@redhat.com>
+Cc: Eric Biederman <ebiederm@xmission.com>, Kees Cook <kees@kernel.org>,
+ Catalin Marinas <catalin.marinas@arm.com>, Mark Brown <broonie@kernel.org>,
+ Dave Martin <Dave.Martin@arm.com>, Vivek Goyal <vgoyal@redhat.com>,
+ Dave Young <dyoung@redhat.com>, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, kexec@lists.infradead.org, devel@daynix.com
+References: <20250104-elf-v2-0-77dc2e06db4e@daynix.com>
+ <20250104-elf-v2-1-77dc2e06db4e@daynix.com> <Z3s+QeMv8AaGbMGs@MiWiFi-R3L-srv>
 Content-Language: en-US
-To: Peter Zijlstra <peterz@infradead.org>, Mike Rapoport <rppt@kernel.org>
-Cc: agordeev@linux.ibm.com, kevin.brodsky@arm.com, tglx@linutronix.de,
- david@redhat.com, jannh@google.com, hughd@google.com, yuzhao@google.com,
- willy@infradead.org, muchun.song@linux.dev, vbabka@kernel.org,
- lorenzo.stoakes@oracle.com, akpm@linux-foundation.org, rientjes@google.com,
- vishal.moola@gmail.com, arnd@arndb.de, will@kernel.org,
- aneesh.kumar@kernel.org, npiggin@gmail.com, dave.hansen@linux.intel.com,
- ryan.roberts@arm.com, linux-mm@kvack.org,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org,
- linux-arch@vger.kernel.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-um@lists.infradead.org
-References: <cover.1734945104.git.zhengqi.arch@bytedance.com>
- <b37435768345e0fcf7ea358f69b4a71767f0f530.1734945104.git.zhengqi.arch@bytedance.com>
- <Z2_EPmOTUHhcBegW@kernel.org>
- <20250103111457.GC22934@noisy.programming.kicks-ass.net>
-From: Qi Zheng <zhengqi.arch@bytedance.com>
-In-Reply-To: <20250103111457.GC22934@noisy.programming.kicks-ass.net>
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+In-Reply-To: <Z3s+QeMv8AaGbMGs@MiWiFi-R3L-srv>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-
-
-On 2025/1/3 19:14, Peter Zijlstra wrote:
-> On Sat, Dec 28, 2024 at 11:26:22AM +0200, Mike Rapoport wrote:
->> On Mon, Dec 23, 2024 at 05:41:01PM +0800, Qi Zheng wrote:
->>> Here we are explicitly dealing with struct page, and the following logic
->>> semms strange:
->>>
->>> tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));
->>>
->>> tlb_remove_page_ptdesc
->>> --> tlb_remove_page(tlb, ptdesc_page(pt));
->>>
->>> So remove tlb_remove_page_ptdesc() and make callers call tlb_remove_page()
->>> directly.
+On 2025/01/06 11:21, Baoquan He wrote:
+> On 01/04/25 at 11:38pm, Akihiko Odaki wrote:
+>> elf.h had a comment saying:
+>>> Notes used in ET_CORE. Architectures export some of the arch register
+>>> sets using the corresponding note types via the PTRACE_GETREGSET and
+>>> PTRACE_SETREGSET requests.
+>>> The note name for these types is "LINUX", except NT_PRFPREG that is
+>>> named "CORE".
 >>
->> Please don't. The ptdesc wrappers are there as a part of reducing the size
->> of struct page project [1].
+>> However, NT_PRSTATUS is also named "CORE". It is also unclear what
+>> "these types" refers to.
 >>
->> For now struct ptdesc overlaps struct page, but the goal is to have them
->> separate and always operate on struct ptdesc when working with page tables.
+>> To fix these problems, define a name for each note type. The added
+>> definitions are macros so the kernel and userspace can directly refer to
+>> them.
+>>
+>> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+>> ---
+>>   include/uapi/linux/elf.h | 86 ++++++++++++++++++++++++++++++++++++++++++++++--
+>>   1 file changed, 83 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/include/uapi/linux/elf.h b/include/uapi/linux/elf.h
+>> index b44069d29cec..014b705b97d7 100644
+>> --- a/include/uapi/linux/elf.h
+>> +++ b/include/uapi/linux/elf.h
+>> @@ -372,8 +372,6 @@ typedef struct elf64_shdr {
+>>    * Notes used in ET_CORE. Architectures export some of the arch register sets
+>>    * using the corresponding note types via the PTRACE_GETREGSET and
+>>    * PTRACE_SETREGSET requests.
+>> - * The note name for these types is "LINUX", except NT_PRFPREG that is named
+>> - * "CORE".
+>>    */
+>>   #define NT_PRSTATUS	1
+>>   #define NT_PRFPREG	2
+>> @@ -460,9 +458,91 @@ typedef struct elf64_shdr {
+>>   #define NT_LOONGARCH_HW_BREAK	0xa05   /* LoongArch hardware breakpoint registers */
+>>   #define NT_LOONGARCH_HW_WATCH	0xa06   /* LoongArch hardware watchpoint registers */
+>>   
+>> -/* Note types with note name "GNU" */
+>> +/* Note used in ET_EXEC and ET_DYN. */
+>>   #define NT_GNU_PROPERTY_TYPE_0	5
+>>   
+>> +/* Note names */
+>> +#define NN_PRSTATUS	"CORE"
+>> +#define NN_PRFPREG	"CORE"
+>> +#define NN_PRPSINFO	"CORE"
+>> +#define NN_TASKSTRUCT	"CORE"
+>> +#define NN_AUXV	"CORE"
+>> +#define NN_SIGINFO	"CORE"
+>> +#define NN_FILE	"CORE"
+>> +#define NN_PRXFPREG	"LINUX"
 > 
-> I don't see how the current idiotic code helps with that at all.
+> No objection to make them clearer. Thanks for the effort.
 > 
-> Fundamentally tlb_remove_page() is about removing *pages* as from a PTE,
-> there should not be a page-table anywhere near here *ever*.
-> 
-> Yes, some architectures use tlb_remove_page() for page-tables too, but
-> that is more or less an implementation detail that can be fixed.
-> 
-> So no, please keep these patches and kill this utterly idiotic code.
-> 
-> The only thing that should eventually care about page-tables is
-> tlb_remove_table(), and that takes a 'void *' and is expected to match
-> whatever __tlb_remove_table() does.
-> 
-> Flipping those to pgdesc, once its actually a thing, should be fairly
-> straight forward.
+> Wondering where below arch specific macros are used. So you just
+> added all NN_xxx for the corresponding NT_xxx? Not sure if this is
+> needed if we don't use them at all in the current kernel.
 
-Well, since I've already sent v4, and that patch series is mainly for
-bug fix, I'll send a separate patch series to do this.
+Indeed I just added all NN_xxx. The kernel won't use the macros that are 
+defined as "LINUX"; fs/binfmt_elf.c uses "LINUX" by default as the notes 
+named "CORE" or "GNU" are exceptional.
 
-Thanks!
+Userspace applications may still be interested in these macros as 
+demonstrated in:
+https://lore.kernel.org/r/Z3f7zJwu8bu8HYln@e133380.arm.com
+
+These macros also serve as documentation; correcting and clarifying the 
+documentation is the main purpose of this series.
+
+> 
+>> +#define NN_PPC_VMX	"LINUX"
+>> +#define NN_PPC_SPE	"LINUX"
+>> +#define NN_PPC_VSX	"LINUX"
+>> +#define NN_PPC_TAR	"LINUX"
+>> +#define NN_PPC_PPR	"LINUX"
+>> +#define NN_PPC_DSCR	"LINUX"
+>> +#define NN_PPC_EBB	"LINUX"
+>> +#define NN_PPC_PMU	"LINUX"
+>> +#define NN_PPC_TM_CGPR	"LINUX"
+>> +#define NN_PPC_TM_CFPR	"LINUX"
+>> +#define NN_PPC_TM_CVMX	"LINUX"
+>> +#define NN_PPC_TM_CVSX	"LINUX"
+>> +#define NN_PPC_TM_SPR	"LINUX"
+>> +#define NN_PPC_TM_CTAR	"LINUX"
+>> +#define NN_PPC_TM_CPPR	"LINUX"
+>> +#define NN_PPC_TM_CDSCR	"LINUX"
+>> +#define NN_PPC_PKEY	"LINUX"
+>> +#define NN_PPC_DEXCR	"LINUX"
+>> +#define NN_PPC_HASHKEYR	"LINUX"
+>> +#define NN_386_TLS	"LINUX"
+>> +#define NN_386_IOPERM	"LINUX"
+>> +#define NN_X86_XSTATE	"LINUX"
+>> +#define NN_X86_SHSTK	"LINUX"
+>> +#define NN_X86_XSAVE_LAYOUT	"LINUX"
+>> +#define NN_S390_HIGH_GPRS	"LINUX"
+>> +#define NN_S390_TIMER	"LINUX"
+>> +#define NN_S390_TODCMP	"LINUX"
+>> +#define NN_S390_TODPREG	"LINUX"
+>> +#define NN_S390_CTRS	"LINUX"
+>> +#define NN_S390_PREFIX	"LINUX"
+>> +#define NN_S390_LAST_BREAK	"LINUX"
+>> +#define NN_S390_SYSTEM_CALL	"LINUX"
+>> +#define NN_S390_TDB	"LINUX"
+>> +#define NN_S390_VXRS_LOW	"LINUX"
+>> +#define NN_S390_VXRS_HIGH	"LINUX"
+>> +#define NN_S390_GS_CB	"LINUX"
+>> +#define NN_S390_GS_BC	"LINUX"
+>> +#define NN_S390_RI_CB	"LINUX"
+>> +#define NN_S390_PV_CPU_DATA	"LINUX"
+>> +#define NN_ARM_VFP	"LINUX"
+>> +#define NN_ARM_TLS	"LINUX"
+>> +#define NN_ARM_HW_BREAK	"LINUX"
+>> +#define NN_ARM_HW_WATCH	"LINUX"
+>> +#define NN_ARM_SYSTEM_CALL	"LINUX"
+>> +#define NN_ARM_SVE	"LINUX"
+>> +#define NN_ARM_PAC_MASK	"LINUX"
+>> +#define NN_ARM_PACA_KEYS	"LINUX"
+>> +#define NN_ARM_PACG_KEYS	"LINUX"
+>> +#define NN_ARM_TAGGED_ADDR_CTRL	"LINUX"
+>> +#define NN_ARM_PAC_ENABLED_KEYS	"LINUX"
+>> +#define NN_ARM_SSVE	"LINUX"
+>> +#define NN_ARM_ZA	"LINUX"
+>> +#define NN_ARM_ZT	"LINUX"
+>> +#define NN_ARM_FPMR	"LINUX"
+>> +#define NN_ARM_POE	"LINUX"
+>> +#define NN_ARM_GCS	"LINUX"
+>> +#define NN_ARC_V2	"LINUX"
+>> +#define NN_VMCOREDD	"LINUX"
+>> +#define NN_MIPS_DSP	"LINUX"
+>> +#define NN_MIPS_FP_MODE	"LINUX"
+>> +#define NN_MIPS_MSA	"LINUX"
+>> +#define NN_RISCV_CSR	"LINUX"
+>> +#define NN_RISCV_VECTOR	"LINUX"
+>> +#define NN_RISCV_TAGGED_ADDR_CTRL	"LINUX"
+>> +#define NN_LOONGARCH_CPUCFG	"LINUX"
+>> +#define NN_LOONGARCH_CSR	"LINUX"
+>> +#define NN_LOONGARCH_LSX	"LINUX"
+>> +#define NN_LOONGARCH_LASX	"LINUX"
+>> +#define NN_LOONGARCH_LBT	"LINUX"
+>> +#define NN_LOONGARCH_HW_BREAK	"LINUX"
+>> +#define NN_LOONGARCH_HW_WATCH	"LINUX"
+>> +#define NN_GNU_PROPERTY_TYPE_0	"GNU"
+>> +
+>>   /* Note header in a PT_NOTE section */
+>>   typedef struct elf32_note {
+>>     Elf32_Word	n_namesz;	/* Name size */
+>>
+>> -- 
+>> 2.47.1
+>>
+> 
+
