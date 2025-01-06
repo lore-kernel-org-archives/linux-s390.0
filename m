@@ -1,173 +1,87 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com [209.85.166.200])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 344344594D
-	for <linux-s390@vger.kernel.org>; Mon,  6 Jan 2025 08:38:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FC8D1D9A63
+	for <linux-s390@vger.kernel.org>; Mon,  6 Jan 2025 10:01:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.200
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736152728; cv=none; b=gLKnvhF1F3e0DoCj4sOS3/OigyvNgs/5r65WngpO6cjgYSh0slfk7TNzHdsRYEdbyznsBtQV6hEhsDohSEr0PGtrALfHH9pHtC1/MuN8xqusiFBlOUlOOdbvTHiTIAn5nbuCQBOjr+03VRFh9gjN9OKMtFuQblAYfLZYNfNXDiQ=
+	t=1736157690; cv=none; b=PtMk2XvjUixfe59cXAtqOG5okoKDuTcfPamxFD6QlR7Nd2hkdK2cQMp54BVLht3PNq9sZ1H1x9JccZ9qicCZcn+Z2MDaTNJfqgjeq3C3J5zUHJRRaZ7XHfYZc4xDGpGaVT9cZ1pkRDcdvLG7lOcjJN4jKBMXFJhctkrh75mGJaQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736152728; c=relaxed/simple;
-	bh=+p2WuEDH6YSUra8No0eTrFef4hHj25RtnE5OhVgbkBA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kRYS4OMqAUcXTBpebYGwDZ5KgGM5FWrK3sAuYQLoFhyvki24Nr1VLDszL+JQRhee1JIN4JWMKQpTleXtAA+euqJBHP+cJbWvIAxO5QmcOP6v3hU4BbsEXY5+hJLdmqCbXSUHH9aeLOYxlMBs2ddMbYYE9D/k3ckpaXv//SGXt6w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=NFsLUn+3; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="NFsLUn+3"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-21661be2c2dso182858155ad.1
-        for <linux-s390@vger.kernel.org>; Mon, 06 Jan 2025 00:38:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1736152725; x=1736757525; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=YiOAOk5kGRx9rmUPaHmWdeff0Y5xhlY6UwwEsQqm8Hw=;
-        b=NFsLUn+3yEM2FDTjs/PJX3tSiRKo819ajchol7CEUEIqTKnnIetUFjv7UyKk9Xv0ET
-         q7aG6uRRbHIpX+KcVjhoJ1Emnprv+3yQxZQXGOSnF1LI+OvH3WEF2pf7QwtTCu8uLjjn
-         9jW/akY85hecYcHCRchRcsstDpum6+k4TsAU+hM9A7kjJtE4PiLS+Fm0mQfqZrmCKFTu
-         crVPszzp3SRiel79bd/whBbXsp+IsYr7N8tCTRHLahdnVCe71ujvrd6wRyPCcGQ0sQ6U
-         xnTifguMp98uznuCkMH4eyl3EokFEp3ndOhqdaqtGP9P6UVtEG7l5et861Y6tt6TQnpe
-         Jhxg==
+	s=arc-20240116; t=1736157690; c=relaxed/simple;
+	bh=YEJy09+VZi/NFVG++wR5nJMwmmb7rfhGiYKZrkpbdr0=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=BbVqCWgmvZdAxOZ/q+F4/nvYTPtBgUI5xFv7OxRTipPEzFe2R93WfK+O/hYi/nyb62IyEawoYhnm3j/NxmTC73sLrOflUNdcR3vA0TdJRceC2jCrJi6ASyrnTmrrFuPph+W4IRPj/dP0mYYwANcc+9+MzBskfdsxPniM0weBC2A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.200
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f200.google.com with SMTP id e9e14a558f8ab-3a817e4aa67so139192065ab.2
+        for <linux-s390@vger.kernel.org>; Mon, 06 Jan 2025 02:01:27 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736152725; x=1736757525;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=YiOAOk5kGRx9rmUPaHmWdeff0Y5xhlY6UwwEsQqm8Hw=;
-        b=AKBF9OoYKSI9T6WnOO4smnnUAB0xk3qdE/87JcopR345JgLYFV38ag+DNgGQlxIVE4
-         alPKBW7T+52k9LT45kZkGmqzVQTATiyflV0nbKkb+XP/fQybO7aeRXDa6QFnOW/tBwbH
-         vWhVYLt7nGlcSdPq+1rak8BIETLdAv+SosME5oractzl6Ed/o0bk4i9KmezWX5jqkzKB
-         pNEufsK7VIr21ZSg2z69S//4BJMIrkmDg2uK0a4AhyFWQAOEsjDcjToyU9rf4Sp07ZPP
-         CQKEgEeHUW7rvVzyquqDGbOX0RrgUW2H2exLKb7Zimrf6vZjYwR0/1VK30yHfa2lAL5V
-         2laA==
-X-Forwarded-Encrypted: i=1; AJvYcCXTxuj6dLy3emzbbtlZzoPHL1iuZafzn5hjaTnMaf+SwzVhf7Hn2Z9PcopeHNaxVkWs578u5o7Ahnzw@vger.kernel.org
-X-Gm-Message-State: AOJu0YxlUwQTFJyy+4YBsGX/g2gW5G1wbrVWVlOFb8VuUJVIqfGYgFda
-	Mjye9NnnzoGsMSKa6CoUuM+L/x0XdYecNtyKT4CZELmlPWH5hWX4x1zN/lU4XMc=
-X-Gm-Gg: ASbGncugQKX4DVwmmlwPlBjXrA/jKUxOjQCusMieZufbq6Ckauv04oRTvIxB0+zAj06
-	bSYGQWBnTdFGBKPPynUW2jXJh/Pf7PUAKBfDff6HPcEze2DmMmgoGdtjVYfA0iUms2DYbuCPAwV
-	yylbhxJykp907XmZaaV5RJMNuq5hPsy07MDkI0lFkNDb+gvTI2vUIHu0nnGWsfUp51RB95wBZP4
-	MVkmYlgywfFPKK+6yASDNuJv0KPZiYQkXoNoaYMUl4JPXOqqPZtwbJQ/9RoTsKmSwtGZIcuVb4O
-	w/L23Q==
-X-Google-Smtp-Source: AGHT+IGUVd4iqCCZ9lciazZSWpc6AL/Za8b2BM7ngUBHt9ys8AcRhMXZRUNC6JrwIwMnpr/5pGC4Lg==
-X-Received: by 2002:a17:903:234c:b0:215:5a53:edee with SMTP id d9443c01a7336-219e6e85b25mr837178605ad.9.1736152725600;
-        Mon, 06 Jan 2025 00:38:45 -0800 (PST)
-Received: from [10.84.148.23] ([203.208.167.148])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-219dc9f5087sm282364745ad.202.2025.01.06.00.38.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Jan 2025 00:38:45 -0800 (PST)
-Message-ID: <ae8aa8d7-4121-4939-9890-c54e0aee7896@bytedance.com>
-Date: Mon, 6 Jan 2025 16:38:32 +0800
+        d=1e100.net; s=20230601; t=1736157687; x=1736762487;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=E7v37jBGNMDkgAc2Y1HhS0TznHkH3BVfG42P2zjGCNk=;
+        b=eoUJjP/HZg1VS4dVUCwQ5bdiO/kf5HyXpWUDAzcm5cmtMgtTDUtHLYPNg8EQlYTKuv
+         AgykhW19lUCZVMKeJCt2X5ZRRzHFPahGO2m+7ixNTe1A8tFvCA1AfSSPQgV07In9zoen
+         trpTb6jWW1dnFrEfwGn7Xulm1u3h8mbSO3VqHfKYTIMiFsxjTGb4Ah/73NJWnF6MRYOm
+         htZc99Xjvx0RvYjTze8PjWTXeR8oNnWZVCdBXXeYiUMpK0j5FQsCB4MwIaWDLiJViZOD
+         ybPudgTKuDIvzLZ4NTCDek36qbzlXXoF7hr9OmndgUR72gFY6U+kVQsQpK73iX+uzxn6
+         4L2w==
+X-Forwarded-Encrypted: i=1; AJvYcCXcIHXQXzvRfu5efHw9IVNVNrVUolAe5CSgvEJ8f+mIiBe6tominDiTApkGnmaMQkeTpi9ToVzln+8J@vger.kernel.org
+X-Gm-Message-State: AOJu0YwMMFdxRy8UerXpe5pk1RxNPlH/itSiJ41yc64wI8nd4fx4VPJh
+	fUKsT/pyY0uSY7rmQaFk4SylGDv3wawH/ujM93nn9FTKtPCU6rXgWVFE+RMJ7ttmhX+NDOTL4BL
+	+yyQHLt6wYkGow3CVkjeMpDPPalK22pWlTkNgLCuXxZ1OP4j/WVWKxoM=
+X-Google-Smtp-Source: AGHT+IFF07DySG9r4IU0XKMfJCCKh9f2dT8Pr6Nn5OP5wcy9Fa1WWZERA0OF+peMqVoKRkqOt7a2wnGmIRWpCuM7b8sO5aeAZk6i
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/6] Account page tables at all levels
-Content-Language: en-US
-To: Kevin Brodsky <kevin.brodsky@arm.com>
-Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- Linus Walleij <linus.walleij@linaro.org>, Andy Lutomirski <luto@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, "Mike Rapoport (IBM)"
- <rppt@kernel.org>, Ryan Roberts <ryan.roberts@arm.com>,
- Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
- Matthew Wilcox <willy@infradead.org>, linux-alpha@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
- linux-um@lists.infradead.org, loongarch@lists.linux.dev, x86@kernel.org
-References: <20250103184415.2744423-1-kevin.brodsky@arm.com>
-From: Qi Zheng <zhengqi.arch@bytedance.com>
-In-Reply-To: <20250103184415.2744423-1-kevin.brodsky@arm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a05:6e02:1c87:b0:3a7:172f:1299 with SMTP id
+ e9e14a558f8ab-3c2d2d50d0dmr498105615ab.12.1736157687057; Mon, 06 Jan 2025
+ 02:01:27 -0800 (PST)
+Date: Mon, 06 Jan 2025 02:01:27 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <677ba9f7.050a0220.a40f5.0008.GAE@google.com>
+Subject: [syzbot] Monthly s390 report (Jan 2025)
+From: syzbot <syzbot+list4a63d4f06484a1c63c1b@syzkaller.appspotmail.com>
+To: agordeev@linux.ibm.com, linux-kernel@vger.kernel.org, 
+	linux-s390@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
+Hello s390 maintainers/developers,
 
+This is a 31-day syzbot report for the s390 subsystem.
+All related reports/information can be found at:
+https://syzkaller.appspot.com/upstream/s/s390
 
-On 2025/1/4 02:44, Kevin Brodsky wrote:
-> v1: https://lore.kernel.org/linux-mm/20241219164425.2277022-1-kevin.brodsky@arm.com/
-> 
-> This series should be considered in conjunction with Qi's series [1].
-> Together, they ensure that page table ctor/dtor are called at all levels
-> (PTE to PGD) and all architectures, where page tables are regular pages.
-> Besides the improvement in accounting and general cleanup, this also
-> create a single place where construction/destruction hooks can be called
-> for all page tables, namely the now-generic pagetable_dtor() introduced
-> by Qi, and __pagetable_ctor() introduced in this series.
-> 
-> v2 is essentially v1 rebased on top of mm-unstable, which includes Qi's
-> v4 series. A number of patches from v1 were dropped:
-> 
-> * v1 patch 4 is superseded by patch 6 in Qi's series.
-> * v1 patch 5 and 6 moved to Qi's series from v3 onwards.
-> * v1 patch 7 is superseded by patch 4 in Qi's series.
-> 
-> Changes from v1 in the remaining patches:
-> 
-> * Patch 1 only introduces __pagetable_ctor() as there is now a single
->    generic pagetable_dtor().
-> 
-> * Patch 3 and 6: in arch/m68k/mm/motorola.c, free_pointer_table() can
->    now unconditionally call pagetable_dtor() since it is the same for all
->    levels.
-> 
-> * Patch 6 just uses pagetable_dtor() instead of introducing
->    pagetable_pgd_dtor().
-> 
-> * Added Dave Hansen's Acked-by to all patches.
-> 
-> - Kevin
-> 
-> [1] https://lore.kernel.org/linux-mm/cover.1735549103.git.zhengqi.arch@bytedance.com/
-> ---
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Andy Lutomirski <luto@kernel.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: "Mike Rapoport (IBM)" <rppt@kernel.org>
-> Cc: Ryan Roberts <ryan.roberts@arm.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Matthew Wilcox <willy@infradead.org>
-> Cc: Qi Zheng <zhengqi.arch@bytedance.com>
-> Cc: linux-alpha@vger.kernel.org
-> Cc: linux-arch@vger.kernel.org
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-csky@vger.kernel.org
-> Cc: linux-hexagon@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: linux-m68k@lists.linux-m68k.org
-> Cc: linux-mips@vger.kernel.org
-> Cc: linux-openrisc@vger.kernel.org
-> Cc: linux-parisc@vger.kernel.org
-> Cc: linux-riscv@lists.infradead.org
-> Cc: linux-s390@vger.kernel.org
-> Cc: linux-snps-arc@lists.infradead.org
-> Cc: linux-um@lists.infradead.org
-> Cc: loongarch@lists.linux.dev
-> Cc: x86@kernel.org
-> ---
-> Kevin Brodsky (6):
->    mm: Move common part of pagetable_*_ctor to helper
->    parisc: mm: Ensure pagetable_pmd_[cd]tor are called
->    m68k: mm: Add calls to pagetable_pmd_[cd]tor
->    ARM: mm: Rename PGD helpers
->    asm-generic: pgalloc: Provide generic __pgd_{alloc,free}
->    mm: Introduce ctor/dtor at PGD level
+During the period, 1 new issues were detected and 0 were fixed.
+In total, 7 issues are still open and 43 have already been fixed.
 
-For this series:
+Some of the still happening issues:
 
-Acked-by: Qi Zheng <zhengqi.arch@bytedance.com>
+Ref Crashes Repro Title
+<1> 13861   Yes   possible deadlock in smc_switch_to_fallback (2)
+                  https://syzkaller.appspot.com/bug?extid=bef85a6996d1737c1a2f
+<2> 2301    Yes   possible deadlock in smc_vlan_by_tcpsk
+                  https://syzkaller.appspot.com/bug?extid=c75d1de73d3b8b76272f
+<3> 153     Yes   general protection fault in smc_diag_dump_proto
+                  https://syzkaller.appspot.com/bug?extid=f69bfae0a4eb29976e44
+<4> 40      Yes   possible deadlock in smc_release
+                  https://syzkaller.appspot.com/bug?extid=621fd56ba002faba6392
+<5> 39      Yes   general protection fault in __smc_diag_dump (3)
+                  https://syzkaller.appspot.com/bug?extid=271fed3ed6f24600c364
 
-Thanks!
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
+To disable reminders for individual bugs, reply with the following command:
+#syz set <Ref> no-reminders
+
+To change bug's subsystems, reply with:
+#syz set <Ref> subsystems: new-subsystem
+
+You may send multiple commands in a single email message.
