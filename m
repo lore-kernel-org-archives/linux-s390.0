@@ -1,130 +1,88 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA58A1DE88E
-	for <linux-s390@vger.kernel.org>; Mon,  6 Jan 2025 14:44:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9F90A8634A;
+	Mon,  6 Jan 2025 14:51:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736174677; cv=none; b=fMmmzrAIPAfbsaDWwSUUz4+QJBJfuhGp4xOKkGctE+ffUASSSiNhfDgpwPWsd9E4Q+ZBnG8Y4xAo/yNkJl6OujjawhunoxtpXW8QUJP0eU9KYTiXoaMqQlqH6ET5wXLUa8EJGYaCRj2TUdxCxYcWQSPRIzwx5psNxWwnH5ib3XM=
+	t=1736175116; cv=none; b=Lksubtp7erVHnRwofryd1zvzQwGYBFU2MJDjsoglTD4bUKDUkNOwWbG8A8WRHPxrmsma1/sobZhiA/PiVF+QdH68f+nXSv8mi9xkbxCcSlrXH5gXpjYmV81nNi+PoqZDAC2sU4jCpKr4M1nKBjH2AJQ/BSIibRhVRBc6bI0sY4Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736174677; c=relaxed/simple;
-	bh=FT+GsbrHFNytgmVw9pS4MWUyG9GELMc2aWIALV4R5HM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WVXUXSLT44ffKVDNr3iIfc5EHWytLRBybuAXgaMMXefGNniuBeECSKIUTS+EIwhcVvXpQ7wKGPF87AND4ZbuB5pXLwhoOX6GgHhKiElbqyJqUj/OFyXPdkm+eAVVuLZ1/D59rfpfzfCttxglFEN8ToPHSPE7fauTeEV9HaSsxcc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=AOENsm2R; arc=none smtp.client-ip=209.85.214.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="AOENsm2R"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2161eb95317so214336575ad.1
-        for <linux-s390@vger.kernel.org>; Mon, 06 Jan 2025 06:44:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1736174674; x=1736779474; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=NViglkR77PlL2AqsFJ9M2rA8vsy0VBtzEibmSHACi+I=;
-        b=AOENsm2RWVESkj+tEE8NednRuNGe+HrlfMpqdMmB96TFPb1M05S6p2+RrKZ6kOJ2r6
-         2m1ghhviUlJEv7uX2tL/vtDm1POjsFwB5CCUwKifHrGiN6wAdyKGQ9X2oL3piluKNYb0
-         I3X+PpobzTtVz7/hTPrBW0pImZItQ99bJssa2FVL4Lrrjx7q1lNsJd7rELXfXFDMcswv
-         aXqs85gh+NKJfwv3V9Dy+ZrYnXCasR3YIZbwRcM0jNsQdZ/dg9IB1W+XfduD1DKb5HNn
-         zxq03RDCixKBfv9y4elRxUNAap32HNjC1W6uJzlwSMZFFa8MSUhCPMDJQ1aCRNa6iLgr
-         188g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736174674; x=1736779474;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=NViglkR77PlL2AqsFJ9M2rA8vsy0VBtzEibmSHACi+I=;
-        b=qAs53rnrToRKs05QqxlMW8xqz8cTnDozydJ0okqxuaAMw1vTEZ1SH0csjUPEiYzObs
-         UPoZRqIetVlQkRHbCbR63DSlWIHANcLbs+2yV69qtl79AVQb1DV5g5JycCsvqjfAroTY
-         dZbbRdXJjXlWZjQBmYP/AVysD+RYPmj3U2Zjp6TedRkLwWdBH7Nz5aFsxXJxPKORfSfj
-         Zxt1hgvSu9dAY93o4ARMnwvruhhGV7rll3AHSqA4Z+erRD+wTuwnhr/2e1MdpxWReoma
-         LSBkC9iERdUp2mgjkx21JN+iWM82hxAw6zufIgv0QdoBBcaUNIOf5Qypn8myQumEeAVc
-         2WDA==
-X-Forwarded-Encrypted: i=1; AJvYcCVZVAPUJlrsEOeKzqtEo0xOoc0ei0LoAA4qHWYpGZVn58PINjQw6+M7yuQNN/eWUx+urQJn2oTzo9O5@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz4haK+mxE7okpuArQlWOv9CVSVBmgcn3xpvxwnalSVvGmrx9d5
-	W9AFJQyeKesjKBCuZevVQCAGzVULg88lb1cyuLeQM1FPaNLy02WWnzxqe2PC56Y=
-X-Gm-Gg: ASbGnctjWg56rUJ5pB55xXItNfys+dtqjYcr/YPu94iQr4wsflunezO+kKqUNn/+CgK
-	pDMS0cn9TieNqYXaoTSnkcfEzQKcHr7fjd3AYNbYPLBVA/7oZ+rU7RyXbRwG5mihtqrfLHZ6kHu
-	lh7FTE9NP05u2Z6r+4xtT9Fr27EVS165mQTZyQe+Df9dq6tzNbDKwzsXDVFdfodvHOSGd2cSb4A
-	63QZi91cuW6OAGwhuD8+Enbewco9gszH6bflYLzvBP81Ec0bRNFwbUjE01bKuB4rCcx85nH0Qcq
-	hBMcFWHm/7NgNLkyqQcvPn7w9/EwPD0FtspSkh9NNv6Pku0hIfla
-X-Google-Smtp-Source: AGHT+IHfRKlSBRBXUw7mHIW0SQFNESOEWbBrtQcBXd7/ffhetsdlBCZHRjeTrMJdIBfoDiMG7l+wRg==
-X-Received: by 2002:a05:6a00:ac3:b0:726:f7c9:7b1e with SMTP id d2e1a72fcca58-72abddcadd6mr82367083b3a.13.1736174674262;
-        Mon, 06 Jan 2025 06:44:34 -0800 (PST)
-Received: from ?IPV6:2409:8a28:f44:d64:296c:a8f3:f81e:f88b? ([2409:8a28:f44:d64:296c:a8f3:f81e:f88b])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72aad815804sm31532588b3a.32.2025.01.06.06.44.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Jan 2025 06:44:33 -0800 (PST)
-Message-ID: <dbcbf4c3-f86a-4414-be52-8ac02dae5b6b@bytedance.com>
-Date: Mon, 6 Jan 2025 22:44:21 +0800
+	s=arc-20240116; t=1736175116; c=relaxed/simple;
+	bh=EtkFYRgPP8I+qjKq9oIL3DMsS4fT+1X/SN+WP1wZ3Sg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ciKQLCqrpnWTOj9AoBrZbVQ9K52pdTFSZG3x4ixlt5ydSM+H8I4z2S8bGtl7uZ0pcnBj9ooSCb0QCXXhXXoNkNrNhtO215r51+wo2HFY1zwgR0KPVgohRz/s/7c+UkEAgCPDMXFPMw6QdrASBxKwhRRxtAoeB3uIUEiGDnBX6A8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 58B98143D;
+	Mon,  6 Jan 2025 06:52:22 -0800 (PST)
+Received: from e133380.arm.com (e133380.arm.com [10.1.197.41])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 24D7D3F59E;
+	Mon,  6 Jan 2025 06:51:52 -0800 (PST)
+Date: Mon, 6 Jan 2025 14:51:49 +0000
+From: Dave Martin <Dave.Martin@arm.com>
+To: Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: Eric Biederman <ebiederm@xmission.com>, Kees Cook <kees@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Mark Brown <broonie@kernel.org>, Baoquan He <bhe@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	kexec@lists.infradead.org, devel@daynix.com
+Subject: Re: [PATCH v2 5/5] crash: Remove KEXEC_CORE_NOTE_NAME
+Message-ID: <Z3vuBTiQvnRvv9DQ@e133380.arm.com>
+References: <20250104-elf-v2-0-77dc2e06db4e@daynix.com>
+ <20250104-elf-v2-5-77dc2e06db4e@daynix.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 12/15] s390: pgtable: also move pagetable_dtor() of PxD
- to __tlb_remove_table()
-Content-Language: en-US
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: peterz@infradead.org, kevin.brodsky@arm.com, palmer@dabbelt.com,
- tglx@linutronix.de, david@redhat.com, jannh@google.com, hughd@google.com,
- yuzhao@google.com, willy@infradead.org, muchun.song@linux.dev,
- vbabka@kernel.org, lorenzo.stoakes@oracle.com, akpm@linux-foundation.org,
- rientjes@google.com, vishal.moola@gmail.com, arnd@arndb.de, will@kernel.org,
- aneesh.kumar@kernel.org, npiggin@gmail.com, dave.hansen@linux.intel.com,
- rppt@kernel.org, ryan.roberts@arm.com, linux-mm@kvack.org,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org,
- linux-arch@vger.kernel.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-um@lists.infradead.org
-References: <cover.1735549103.git.zhengqi.arch@bytedance.com>
- <ad21b9392096336cf15aee46f68f9989a9cf877e.1735549103.git.zhengqi.arch@bytedance.com>
- <Z3uyJ2BjslzsjkZI@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <2d16f0fe-9c7f-4229-b7b5-ffa3ab1b1143@bytedance.com>
- <Z3vQHplZqtHf6Td8@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <57ea8193-2fd9-41a9-85b4-7af924f900f4@bytedance.com>
- <Z3vqHXdwIMBVQ2GT@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-From: Qi Zheng <zhengqi.arch@bytedance.com>
-In-Reply-To: <Z3vqHXdwIMBVQ2GT@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250104-elf-v2-5-77dc2e06db4e@daynix.com>
 
+Hi,
 
-
-On 2025/1/6 22:35, Alexander Gordeev wrote:
-> On Mon, Jan 06, 2025 at 09:34:55PM +0800, Qi Zheng wrote:
->> OK, will change the subject and description to:
->>
->> s390: pgtable: also move pagetable_dtor() of PxD to pagetable_dtor_free()
->>
->> To unify the PxD and PTE TLB free path, also move the pagetable_dtor() of
->> PMD|PUD|P4D to pagetable_dtor_free().
->>
->> But pagetable_dtor_free() is newly introduced in this patch, should it
->> be changed to 'move ... to pagetable_pte_dtor_free()'? But this seems
->> strange. :(
+On Sat, Jan 04, 2025 at 11:38:38PM +0900, Akihiko Odaki wrote:
+> Now KEXEC_CORE_NOTE_NAME is only used at one place and it does not seem
+> to provide any value anymore. Replace the remaining usage with the
+> literal and remove the macro.
 > 
-> s390: pgtable: consolidate PxD and PTE TLB free paths
+> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+> ---
+>  arch/s390/kernel/crash_dump.c | 2 +-
+>  include/linux/kexec.h         | 2 --
+>  include/linux/vmcore_info.h   | 1 -
+>  3 files changed, 1 insertion(+), 4 deletions(-)
 > 
-> Call pagetable_dtor() for PMD|PUD|P4D tables just before ptdesc is
-> freed - same as it is done for PTE tables. That allows consolidating
-> TLB free paths for all table types.
-> 
-> Makes sense?
+> diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+> index cd0c93a8fb8b..4a9817489e35 100644
+> --- a/arch/s390/kernel/crash_dump.c
+> +++ b/arch/s390/kernel/crash_dump.c
+> @@ -253,7 +253,7 @@ static const char *nt_name(Elf64_Word type)
+>  	const char *name = "LINUX";
+>  
+>  	if (type == NT_PRPSINFO || type == NT_PRSTATUS || type == NT_PRFPREG)
+> -		name = KEXEC_CORE_NOTE_NAME;
+> +		name = "CORE";
 
-Ah, make sense. Many thanks to you!
+If I've understood the code here correctly, the note type is supplied
+at all the nt_init() and nt_size() call sites, so instead of this hack
+can we wrap those in macros that get the formal name from elf.h rather
+than guessing it here?  e.g.:
 
-Will do it in v5.
+#define nt_size(..., note, ...) \
+	__nt_size(..., NT ## _ ## note, NN ## _ ## note, ...)
 
-> 
->> Thanks!
-> 
-> Thank you!
+etc.
+
+The compiler is quite likely to fold away most of the implied
+duplication of code (it would be interesting to look at the compiler
+output) -- but anyway, this is super-slow-path: nobody expects realtime
+response when the kernel has crashed.
+
+[...]
+
+Cheers
+---Dave
