@@ -1,206 +1,220 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A4C93224
-	for <linux-s390@vger.kernel.org>; Mon,  6 Jan 2025 02:22:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77F6E1F19A;
+	Mon,  6 Jan 2025 02:22:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736130130; cv=none; b=T4L/yRZG2hSXN7tpt+DwBAJlPAqMEo2Co4tqgj1cqmaXdrjp4YsvUKstUidW40/0OemI3gW/WgLYh9hO17ckukHLqBBeaCFkYz+XkMW8ITzVKYwCZ0PubF49j3G/lVFF0fbYwEagw0ab0+GVCIKmDp8sxFC3bapFwVZwiQOFY/I=
+	t=1736130161; cv=none; b=P/KTSGLlACYWMauFs3tQbXs8p3UAbzSfQlQZW1Fm30Nhn5iGVvNED0j/ahfcsNnuvPnDMqIUttpirbav6SXw3wWaQ/CRRtUrraOVN/llG0ewDWnR1fvxEPPyR8wTZytMLZ/ftk0dDuy+dcoASgD9h/DVM/h3dYOSY1yKTGfccYc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736130130; c=relaxed/simple;
-	bh=/NOu2yPx0pef5/9FbjHkK7N4tGONq2ogwrYJBCXZVvM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GSF1qHdgwjhtVd1E9HUvo+2EAULQXe9T1T+xaRbjJEynNv8YrLhFNlltJyxSZxXglvZSF72vdx+YnRPd24AX6nzsze1OHY9jqv4zyayHjBdDbqjNbIwUZkuReUo/0ShwaWk7yStnH+y8VB0saV76mL6aT/0jJi2kyK2sT3Fe+Ns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ctyd3z2s; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1736130161; c=relaxed/simple;
+	bh=BndSGjZeeV8yhLuRMYNsncQZ7TF/PC+gXFAxaM11Isw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ksiSEK3KLMi4m8OsHRXoSl3xTraxZBNJqZ1taIRaXO42kwmSUQjgqRmVCsVp5cf7Z/7Xy5LBSgQEY+crGN6jHJNFhyLM+e+J5ekWaCDJ7RyUcXdqegDa48fwRjK4eFd79dFpb4u+CINorFTLdkeB3xCe/iKR9qDyc8crGMaQnFM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=kaTx6/US; arc=none smtp.client-ip=115.124.30.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ctyd3z2s"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736130127;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QDNMuGdRbtFXOEF4wgeAn1mDrtVJdeBZdGzWjrJ9xwA=;
-	b=Ctyd3z2sSCcfdarxXzjsemdA4OhEUpYBKBogz4+J2ZEgYIyaRisyy/07RFyQJudRZAJ7Gx
-	OM04/zPjWCPPCXtKXgAw1PULHTN08HfOIXhoV4ylJjdscVh1IRGEdODaTwsgA1udZ8pH6G
-	LB/PQ9YzVqB1+h/iVTHZA3NkOyc1sps=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-440-WPXHLyM9NlasFo14ZUzn-g-1; Sun,
- 05 Jan 2025 21:22:04 -0500
-X-MC-Unique: WPXHLyM9NlasFo14ZUzn-g-1
-X-Mimecast-MFC-AGG-ID: WPXHLyM9NlasFo14ZUzn-g
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3DB7D19560A2;
-	Mon,  6 Jan 2025 02:22:01 +0000 (UTC)
-Received: from localhost (unknown [10.72.112.99])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E7E113000197;
-	Mon,  6 Jan 2025 02:21:57 +0000 (UTC)
-Date: Mon, 6 Jan 2025 10:21:53 +0800
-From: Baoquan He <bhe@redhat.com>
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Eric Biederman <ebiederm@xmission.com>, Kees Cook <kees@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Mark Brown <broonie@kernel.org>, Dave Martin <Dave.Martin@arm.com>,
-	Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	kexec@lists.infradead.org, devel@daynix.com
-Subject: Re: [PATCH v2 1/5] elf: Define note name macros
-Message-ID: <Z3s+QeMv8AaGbMGs@MiWiFi-R3L-srv>
-References: <20250104-elf-v2-0-77dc2e06db4e@daynix.com>
- <20250104-elf-v2-1-77dc2e06db4e@daynix.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="kaTx6/US"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1736130154; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=8XcwzEH1Li0PZHViDS8i234tbohuRUg6Knq6W29/4RE=;
+	b=kaTx6/USLpFVSlbkuUvrKUOw3DOsFtuOVD1GQyhMtcN7cw5brovciVAv8oNtJ15XVijxREfqquOB65NWJ++mWbyq797gZoSPRDYQiyqiQsCTdBAFbwQuRVHJvcwYFau+zpjHL2P6/dzWVXwvS6hqS/86AvSLaAWsZlZ28l3QQ6s=
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WMzlXYf_1736130152 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 06 Jan 2025 10:22:32 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com>
+To: kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	ast@kernel.org,
+	daniel@iogearbox.net,
+	andrii@kernel.org,
+	martin.lau@linux.dev,
+	pabeni@redhat.com,
+	song@kernel.org,
+	sdf@google.com,
+	haoluo@google.com,
+	yhs@fb.com,
+	edumazet@google.com,
+	john.fastabend@gmail.com,
+	kpsingh@kernel.org,
+	jolsa@kernel.org,
+	guwen@linux.alibaba.com
+Cc: kuba@kernel.org,
+	davem@davemloft.net,
+	netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	bpf@vger.kernel.org
+Subject: [PATCH bpf-next v4 3/5] net/smc: bpf: register smc_ops info struct_ops
+Date: Mon,  6 Jan 2025 10:22:20 +0800
+Message-ID: <20250106022222.80203-4-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 2.45.0
+In-Reply-To: <20250106022222.80203-1-alibuda@linux.alibaba.com>
+References: <20250106022222.80203-1-alibuda@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250104-elf-v2-1-77dc2e06db4e@daynix.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+Content-Transfer-Encoding: 8bit
 
-On 01/04/25 at 11:38pm, Akihiko Odaki wrote:
-> elf.h had a comment saying:
-> > Notes used in ET_CORE. Architectures export some of the arch register
-> > sets using the corresponding note types via the PTRACE_GETREGSET and
-> > PTRACE_SETREGSET requests.
-> > The note name for these types is "LINUX", except NT_PRFPREG that is
-> > named "CORE".
-> 
-> However, NT_PRSTATUS is also named "CORE". It is also unclear what
-> "these types" refers to.
-> 
-> To fix these problems, define a name for each note type. The added
-> definitions are macros so the kernel and userspace can directly refer to
-> them.
-> 
-> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-> ---
->  include/uapi/linux/elf.h | 86 ++++++++++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 83 insertions(+), 3 deletions(-)
-> 
-> diff --git a/include/uapi/linux/elf.h b/include/uapi/linux/elf.h
-> index b44069d29cec..014b705b97d7 100644
-> --- a/include/uapi/linux/elf.h
-> +++ b/include/uapi/linux/elf.h
-> @@ -372,8 +372,6 @@ typedef struct elf64_shdr {
->   * Notes used in ET_CORE. Architectures export some of the arch register sets
->   * using the corresponding note types via the PTRACE_GETREGSET and
->   * PTRACE_SETREGSET requests.
-> - * The note name for these types is "LINUX", except NT_PRFPREG that is named
-> - * "CORE".
->   */
->  #define NT_PRSTATUS	1
->  #define NT_PRFPREG	2
-> @@ -460,9 +458,91 @@ typedef struct elf64_shdr {
->  #define NT_LOONGARCH_HW_BREAK	0xa05   /* LoongArch hardware breakpoint registers */
->  #define NT_LOONGARCH_HW_WATCH	0xa06   /* LoongArch hardware watchpoint registers */
->  
-> -/* Note types with note name "GNU" */
-> +/* Note used in ET_EXEC and ET_DYN. */
->  #define NT_GNU_PROPERTY_TYPE_0	5
->  
-> +/* Note names */
-> +#define NN_PRSTATUS	"CORE"
-> +#define NN_PRFPREG	"CORE"
-> +#define NN_PRPSINFO	"CORE"
-> +#define NN_TASKSTRUCT	"CORE"
-> +#define NN_AUXV	"CORE"
-> +#define NN_SIGINFO	"CORE"
-> +#define NN_FILE	"CORE"
-> +#define NN_PRXFPREG	"LINUX"
+To implement injection capability for smc via struct_ops, so that
+user can make their own smc_ops to modify the behavior of smc stack.
 
-No objection to make them clearer. Thanks for the effort.
+Currently, user can write their own implememtion to choose whether to
+use SMC or not before TCP 3rd handshake to be comleted. In the future,
+users can implement more complex functions on smc by expanding it.
 
-Wondering where below arch specific macros are used. So you just
-added all NN_xxx for the corresponding NT_xxx? Not sure if this is
-needed if we don't use them at all in the current kernel.
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+---
+ net/smc/af_smc.c  | 10 ++++++
+ net/smc/smc_ops.c | 79 +++++++++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_ops.h |  5 +++
+ 3 files changed, 94 insertions(+)
 
-> +#define NN_PPC_VMX	"LINUX"
-> +#define NN_PPC_SPE	"LINUX"
-> +#define NN_PPC_VSX	"LINUX"
-> +#define NN_PPC_TAR	"LINUX"
-> +#define NN_PPC_PPR	"LINUX"
-> +#define NN_PPC_DSCR	"LINUX"
-> +#define NN_PPC_EBB	"LINUX"
-> +#define NN_PPC_PMU	"LINUX"
-> +#define NN_PPC_TM_CGPR	"LINUX"
-> +#define NN_PPC_TM_CFPR	"LINUX"
-> +#define NN_PPC_TM_CVMX	"LINUX"
-> +#define NN_PPC_TM_CVSX	"LINUX"
-> +#define NN_PPC_TM_SPR	"LINUX"
-> +#define NN_PPC_TM_CTAR	"LINUX"
-> +#define NN_PPC_TM_CPPR	"LINUX"
-> +#define NN_PPC_TM_CDSCR	"LINUX"
-> +#define NN_PPC_PKEY	"LINUX"
-> +#define NN_PPC_DEXCR	"LINUX"
-> +#define NN_PPC_HASHKEYR	"LINUX"
-> +#define NN_386_TLS	"LINUX"
-> +#define NN_386_IOPERM	"LINUX"
-> +#define NN_X86_XSTATE	"LINUX"
-> +#define NN_X86_SHSTK	"LINUX"
-> +#define NN_X86_XSAVE_LAYOUT	"LINUX"
-> +#define NN_S390_HIGH_GPRS	"LINUX"
-> +#define NN_S390_TIMER	"LINUX"
-> +#define NN_S390_TODCMP	"LINUX"
-> +#define NN_S390_TODPREG	"LINUX"
-> +#define NN_S390_CTRS	"LINUX"
-> +#define NN_S390_PREFIX	"LINUX"
-> +#define NN_S390_LAST_BREAK	"LINUX"
-> +#define NN_S390_SYSTEM_CALL	"LINUX"
-> +#define NN_S390_TDB	"LINUX"
-> +#define NN_S390_VXRS_LOW	"LINUX"
-> +#define NN_S390_VXRS_HIGH	"LINUX"
-> +#define NN_S390_GS_CB	"LINUX"
-> +#define NN_S390_GS_BC	"LINUX"
-> +#define NN_S390_RI_CB	"LINUX"
-> +#define NN_S390_PV_CPU_DATA	"LINUX"
-> +#define NN_ARM_VFP	"LINUX"
-> +#define NN_ARM_TLS	"LINUX"
-> +#define NN_ARM_HW_BREAK	"LINUX"
-> +#define NN_ARM_HW_WATCH	"LINUX"
-> +#define NN_ARM_SYSTEM_CALL	"LINUX"
-> +#define NN_ARM_SVE	"LINUX"
-> +#define NN_ARM_PAC_MASK	"LINUX"
-> +#define NN_ARM_PACA_KEYS	"LINUX"
-> +#define NN_ARM_PACG_KEYS	"LINUX"
-> +#define NN_ARM_TAGGED_ADDR_CTRL	"LINUX"
-> +#define NN_ARM_PAC_ENABLED_KEYS	"LINUX"
-> +#define NN_ARM_SSVE	"LINUX"
-> +#define NN_ARM_ZA	"LINUX"
-> +#define NN_ARM_ZT	"LINUX"
-> +#define NN_ARM_FPMR	"LINUX"
-> +#define NN_ARM_POE	"LINUX"
-> +#define NN_ARM_GCS	"LINUX"
-> +#define NN_ARC_V2	"LINUX"
-> +#define NN_VMCOREDD	"LINUX"
-> +#define NN_MIPS_DSP	"LINUX"
-> +#define NN_MIPS_FP_MODE	"LINUX"
-> +#define NN_MIPS_MSA	"LINUX"
-> +#define NN_RISCV_CSR	"LINUX"
-> +#define NN_RISCV_VECTOR	"LINUX"
-> +#define NN_RISCV_TAGGED_ADDR_CTRL	"LINUX"
-> +#define NN_LOONGARCH_CPUCFG	"LINUX"
-> +#define NN_LOONGARCH_CSR	"LINUX"
-> +#define NN_LOONGARCH_LSX	"LINUX"
-> +#define NN_LOONGARCH_LASX	"LINUX"
-> +#define NN_LOONGARCH_LBT	"LINUX"
-> +#define NN_LOONGARCH_HW_BREAK	"LINUX"
-> +#define NN_LOONGARCH_HW_WATCH	"LINUX"
-> +#define NN_GNU_PROPERTY_TYPE_0	"GNU"
-> +
->  /* Note header in a PT_NOTE section */
->  typedef struct elf32_note {
->    Elf32_Word	n_namesz;	/* Name size */
-> 
-> -- 
-> 2.47.1
-> 
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 9d76e902fd77..6adedae2986d 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -55,6 +55,7 @@
+ #include "smc_sysctl.h"
+ #include "smc_loopback.h"
+ #include "smc_inet.h"
++#include "smc_ops.h"
+ 
+ static DEFINE_MUTEX(smc_server_lgr_pending);	/* serialize link group
+ 						 * creation on server
+@@ -3576,8 +3577,17 @@ static int __init smc_init(void)
+ 		pr_err("%s: smc_inet_init fails with %d\n", __func__, rc);
+ 		goto out_ulp;
+ 	}
++
++	rc = smc_bpf_struct_ops_init();
++	if (rc) {
++		pr_err("%s: smc_bpf_struct_ops_init fails with %d\n", __func__, rc);
++		goto out_inet;
++	}
++
+ 	static_branch_enable(&tcp_have_smc);
+ 	return 0;
++out_inet:
++	smc_inet_exit();
+ out_ulp:
+ 	tcp_unregister_ulp(&smc_ulp_ops);
+ out_lo:
+diff --git a/net/smc/smc_ops.c b/net/smc/smc_ops.c
+index 0fc19cadd760..67b6b2b92771 100644
+--- a/net/smc/smc_ops.c
++++ b/net/smc/smc_ops.c
+@@ -10,6 +10,10 @@
+  *  Author: D. Wythe <alibuda@linux.alibaba.com>
+  */
+ 
++#include <linux/bpf_verifier.h>
++#include <linux/bpf.h>
++#include <linux/btf.h>
++
+ #include "smc_ops.h"
+ 
+ static DEFINE_SPINLOCK(smc_ops_list_lock);
+@@ -49,3 +53,78 @@ struct smc_ops *smc_ops_find_by_name(const char *name)
+ 	}
+ 	return NULL;
+ }
++
++static int __bpf_smc_stub_set_tcp_option(struct tcp_sock *tp) { return 1; }
++static int __bpf_smc_stub_set_tcp_option_cond(const struct tcp_sock *tp,
++					      struct inet_request_sock *ireq)
++{
++	return 1;
++}
++
++static struct smc_ops __bpf_smc_bpf_ops = {
++	.set_option		= __bpf_smc_stub_set_tcp_option,
++	.set_option_cond	= __bpf_smc_stub_set_tcp_option_cond,
++};
++
++static int smc_bpf_ops_init(struct btf *btf) { return 0; }
++
++static int smc_bpf_ops_reg(void *kdata, struct bpf_link *link)
++{
++	return smc_ops_reg(kdata);
++}
++
++static void smc_bpf_ops_unreg(void *kdata, struct bpf_link *link)
++{
++	smc_ops_unreg(kdata);
++}
++
++static int smc_bpf_ops_init_member(const struct btf_type *t,
++				   const struct btf_member *member,
++				   void *kdata, const void *udata)
++{
++	const struct smc_ops *u_ops;
++	struct smc_ops *k_ops;
++	u32 moff;
++
++	u_ops = (const struct smc_ops *)udata;
++	k_ops = (struct smc_ops *)kdata;
++
++	moff = __btf_member_bit_offset(t, member) / 8;
++	switch (moff) {
++	case offsetof(struct smc_ops, name):
++		if (bpf_obj_name_cpy(k_ops->name, u_ops->name,
++				     sizeof(u_ops->name)) <= 0)
++			return -EINVAL;
++		return 1;
++	case offsetof(struct smc_ops, flags):
++		if (u_ops->flags & ~SMC_OPS_ALL_FLAGS)
++			return -EINVAL;
++		k_ops->flags = u_ops->flags;
++		return 1;
++	default:
++		break;
++	}
++
++	return 0;
++}
++
++static const struct bpf_verifier_ops smc_bpf_verifier_ops = {
++	.get_func_proto		= bpf_base_func_proto,
++	.is_valid_access	= bpf_tracing_btf_ctx_access,
++};
++
++static struct bpf_struct_ops bpf_smc_bpf_ops = {
++	.name		= "smc_ops",
++	.init		= smc_bpf_ops_init,
++	.reg		= smc_bpf_ops_reg,
++	.unreg		= smc_bpf_ops_unreg,
++	.cfi_stubs	= &__bpf_smc_bpf_ops,
++	.verifier_ops	= &smc_bpf_verifier_ops,
++	.init_member	= smc_bpf_ops_init_member,
++	.owner		= THIS_MODULE,
++};
++
++int smc_bpf_struct_ops_init(void)
++{
++	return register_bpf_struct_ops(&bpf_smc_bpf_ops, smc_ops);
++}
+diff --git a/net/smc/smc_ops.h b/net/smc/smc_ops.h
+index 4b33dc2d65b9..06dc30363a83 100644
+--- a/net/smc/smc_ops.h
++++ b/net/smc/smc_ops.h
+@@ -21,5 +21,10 @@
+  * Note: Caller MUST ensure it's was invoked under rcu_read_lock.
+  */
+ struct smc_ops *smc_ops_find_by_name(const char *name);
++#if IS_ENABLED(CONFIG_SMC_OPS)
++int smc_bpf_struct_ops_init(void);
++#else
++static inline int smc_bpf_struct_ops_init(void) { return 0; }
++#endif
+ 
+ #endif /* __SMC_OPS */
+-- 
+2.45.0
 
